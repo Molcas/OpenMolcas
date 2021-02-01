@@ -18,7 +18,6 @@
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*)
       INTEGER LORBTB
-      INTEGER NASORB
       REAL*8 DET1(*),DET2(*),DYSAMP,DYSCOF(*)
       LOGICAL IF10,IF01
 
@@ -36,8 +35,6 @@ C More functionality should be added here later.
 
       LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
-      NASORB=IWORK(LORBTB+3)
-
       CALL MKDYSORB(IWORK(LORBTB),ISSTAB,
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,
      &               IF10,IF01,DYSAMP,DYSCOF)

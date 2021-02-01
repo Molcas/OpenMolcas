@@ -175,7 +175,7 @@ Put all orbitals in active space:
             D = {index: i for i, index in enumerate(ORB_INDEX)}
             return np.array([D[i] for i in v], dtype='i8')
 
-        idx = [argsort(to_key(self.idx[0]), kind='stable')]
+        idx = [argsort(to_key(idx), kind='stable') for idx in self.idx]
         new = self.reindex(idx)
         return new
 

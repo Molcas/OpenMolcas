@@ -29,13 +29,16 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only:S
+      use Logical_Info, only: FNMC
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
 #include "angtp.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "rmat_option.fh"
-#include "WrkSpc.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
@@ -46,7 +49,10 @@
       Character ChOper(0:7)*3, Label*8, dbas*(LENIN)
       Integer nOp(2), lOper(nComp), iChO(nComp),
      &        iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
-      Logical Do_PGamma,NATEST
+      Logical Do_PGamma
+#ifdef _GEN1INT_
+      Logical NATEST
+#endif
       Real*8  SOInt(l_SOInt)
       Integer iTwoj(0:7), i
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -54,6 +60,17 @@
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
+#include "int_interface.fh"
+      End Subroutine Kernel
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,7 +119,7 @@
           Write (6,'(A,A,A,A,A)')
      &   ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
        endif
-      lFinal = nIC*MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+      lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
       If (lFinal.gt.nFinal) Then
          Call WarningMessage(2,'lFinal.gt.nFinal')
          Call Abend()
@@ -144,13 +161,11 @@
         Call Get_nAtoms_All(nAtoms)
         l_Coord=3*nAtoms
         Call Get_dArray('Bfn Coordinates',Coord,l_Coord)
-        ! write(6,*) "nPSOI", nPSOI
-         NATEST=.false.
         if (nAtoms.eq.2) then
          nAtoms=nAtoms+1
-         NATEST=.true.
-         endif
+        endif
 #ifdef _GEN1INT_
+        NATEST=(nAtoms.eq.2)
         call test_f90mod_sgto_pso(iShell,jShell,iCmp,jCmp,
      &                                     iBas,jBas,iAng,jAng,
      &                                     iPrim,jPrim,mdci,mdcj,
@@ -356,7 +371,7 @@
 *
       Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.19) Then
          Write (6,*)
          Write (6,*) ' g      =',nIrrep

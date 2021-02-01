@@ -46,7 +46,6 @@
          Write (6,*) 'Get_Coord_All: nAtoms_All.ne.nAtoms_Allx'
          Write (6,*) 'nAtoms_All=',nAtoms_All
          Write (6,*) 'nAtoms_Allx=',nAtoms_Allx
-         Call QTrace
          Call Abend
       End If
       Call Get_iScalar('Unique atoms',nAtoms)

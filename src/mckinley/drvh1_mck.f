@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: driver for computation of gradients of one-electron matrices.*
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              Cnt1El                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -30,22 +23,18 @@
 *             May 95                                                   *
 ************************************************************************
       Use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd_mck,KneGrd_mck,nagrd_mck,prjgrd_mck,m1grd_mck ,
      &         srogrd_mck, nona2
       External OvrMem_mck,KneMem_mck,namem_mck,prjmm1,m1mm1, na2mem,
      &         sromm1
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Character*8 Label
-      Logical Nona
-*
-c     iRout = 131
-c     iPrint = nPrint(iRout)
-      Call qEnter('Drvh1_mck')
+      Logical Nona, lECP
+      Real*8, Allocatable:: Fock(:), D0(:)
 *
       If (show) Then
          nFock = 0
@@ -57,25 +46,19 @@ c     iPrint = nPrint(iRout)
 *
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis
-         Call Get_D1ao_Var(ipD0,Length)
-         If ( length.ne.nDens ) Then
-            Write (6,*) 'Drvh1_mck: length.ne.nDens'
-            Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace()
-            Call Abend()
-         End If
+         Call mma_allocate(D0,nDens,Label='D0')
+         Call Get_D1ao_Var(D0,nDens)
 *...  Read the generalized Fock matrix
 *...  Fock matrix in AO/SO basis
-         Call Get_Fock_Occ(ipFock,Length)
-         If ( length.ne.nDens ) Then
-            Write (6,*) 'Drvh1_mck: length.ne.nDens'
-            Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace()
-            Call Abend()
-         End If
+         Call mma_allocate(Fock,nFock,Label='Fock')
+         Call Get_Fock_Occ(Fock,nFock)
       Else
-         ipD0=ip_Dummy
-         ipFock=ip_Dummy
+         nFock = 1
+         nDens = 1
+         Call mma_allocate(Fock,nFock,Label='Fock')
+         Call mma_allocate(D0,nDens,Label='D0')
+         Fock(1)=Zero
+         D0(1)=Zero
       End If
       If (Nona) Then
 ************************************************************************
@@ -91,8 +74,7 @@ c     iPrint = nPrint(iRout)
                 idcnt=idcnt+1
                 Do idCar=1,3
             Call Cnt1El(OvrGrd_mck,OvrMem_mck,Label,idcnt,idcar,loper,
-     &              -One,.false.,Work(ipFock),
-     &               'OVRGRDA ',0)
+     &              -One,.false.,Fock,'OVRGRDA ',0)
                 End Do
              End Do
           End Do
@@ -109,8 +91,7 @@ c     iPrint = nPrint(iRout)
                 idcnt=idcnt+1
                 Do idCar=1,3
             Call Cnt1El(NONA2,NA2Mem,Label,idcnt,idcar,loper,
-     &                  One,.false.,Work(ipFock),
-     &                  'NONA2   ',0)
+     &                  One,.false.,Fock,'NONA2   ',0)
                 End Do
              End Do
           End Do
@@ -130,8 +111,7 @@ c     iPrint = nPrint(iRout)
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(OvrGrd_mck,OvrMem_mck,Label,idcnt,idcar,loper,
-     &               One,.false.,Work(ipFock),
-     &               'OVRGRD  ',0)
+     &               One,.false.,Fock,'OVRGRD  ',0)
           End Do
         End Do
       End Do
@@ -150,8 +130,7 @@ c     iPrint = nPrint(iRout)
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(KneGrd_mck,KneMem_mck,Label,idcnt,idcar,loper,
-     &                  One,.false.,Work(ipD0),
-     &                  'ONEGRD  ',0)
+     &                  One,.false.,D0,'ONEGRD  ',0)
           End Do
         End Do
       End Do
@@ -170,8 +149,7 @@ c     iPrint = nPrint(iRout)
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(NaGrd_mck,NaMem_mck,Label,idcnt,idcar,loper,
-     &                  One,.true.,Work(ipD0),
-     &                  'ONEGRD  ',1)
+     &                  One,.true.,D0,'ONEGRD  ',1)
           End Do
         End Do
       End Do
@@ -184,6 +162,10 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      lECP = .False.
+      DO i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+      End Do
       If (lecp) Then
       idcnt=0
       Do iCnttp=1,nCnttp
@@ -192,16 +174,13 @@ c     iPrint = nPrint(iRout)
           Do idCar=1,3
             Label='PRJGRD  '
             Call Cnt1El(Prjgrd_mck,PrjMm1,Label,idcnt,idcar,loper,
-     &               One,.true.,Work(ipD0),
-     &               'ONEGRD  ',1)
+     &               One,.true.,D0,'ONEGRD  ',1)
             Label='M1GRD  '
             Call Cnt1El(m1grd_mck,m1Mm1,Label,idcnt,idcar,loper,
-     &               One,.true.,Work(ipD0),
-     &               'ONEGRD  ',1)
+     &               One,.true.,D0,'ONEGRD  ',1)
             Label='SROGRD  '
             Call Cnt1El(Srogrd_mck,sroMm1,Label,idcnt,idcar,loper,
-     &               One,.true.,Work(ipD0),
-     &               'ONEGRD  ',1)
+     &               One,.true.,D0,'ONEGRD  ',1)
           End Do
         End Do
       End Do
@@ -209,14 +188,11 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Show) Then
-          Call Free_Work(ipD0)
-          Call Free_Work(ipFock)
-      End If
+      Call mma_deallocate(D0)
+      Call mma_deallocate(Fock)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Drvh1_mck')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nGrad)

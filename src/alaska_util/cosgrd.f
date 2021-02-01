@@ -11,24 +11,14 @@
 * Copyright (C) 1995,2001, Roland Lindh                                *
 *               2003, Michael Diedenhofen                              *
 ************************************************************************
-      SubRoutine COSGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine COSGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of electronic COSMO cont. *
 *         integrals.                                                   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              QExit                                                   *
 *                                                                      *
 *             M. Diedenhofen Nov. 2003                                 *
 *             changes pcmgrd routines which do not take into account   *
@@ -44,25 +34,16 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "rctfld.fh"
 
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2)
-*
-*-----Local arrys
-*
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
       Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
       Logical NoLoop, JfGrad(3,4)
       Integer iAnga(4), iStb(0:7), JndGrd(3,4), lOp(4), iuvwx(4)
@@ -75,7 +56,8 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('COSgrd')
+*
+      nRys=nHer
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -132,8 +114,6 @@
          call dcopy_(nBeta,Beta,1,Array(ipBOff),nAlpha)
          ipBOff = ipBOff + 1
       End Do
-*
-      llOper = lOper(1)
 *
 *     Loop over the tiles
 *
@@ -236,7 +216,6 @@ c             skip 2 center
 *           Compute integrals with the Rys quadrature.
 *
             nT = nZeta
-            nDiff=1
             mRys=nRys
 
             Call Rysg1(iAnga,mRys,nT,
@@ -255,11 +234,11 @@ c             skip 2 center
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-      Call qExit('COSgrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Final)
          Call Unused_real_array(Ccoor)
+         Call Unused_integer_array(lOper)
       End If
       End

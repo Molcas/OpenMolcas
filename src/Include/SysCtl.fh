@@ -69,21 +69,6 @@ c #endif
       Integer ErrCtl(lErrCtl)
       Common / MOLCAS_ErrHnd / ErrCtl
 *----------------------------------------------------------------------*
-*     Definitions specific to the subroutines qEnter, qExit, qStat,    *
-*     IniQue and SetQue                                                *
-*----------------------------------------------------------------------*
-      Parameter ( mxQTbl   = 256        )
-      Parameter ( mxQStk   = 128        )
-*
-      Parameter ( iplTbl   = ipSysOut+1 )
-      Parameter ( ipTbl    = iplTbl  +1 )
-      Parameter ( iplStk   = ipTbl   + 4*mxQTbl )
-      Parameter ( ipStk    = iplStk  +1 )
-      Parameter ( lQueCtl  = ipStk   + 3*mxQStk )
-*
-      Integer QueCtl(lQueCtl)
-      Common / MOLCAS_Query  / QueCtl
-*----------------------------------------------------------------------*
 *     Definitions system buffer which is referenced by the subroutines *
 *     Remark, StkI, StkR, StkA and DmpMsg                              *
 *----------------------------------------------------------------------*

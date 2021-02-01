@@ -340,15 +340,13 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 ************************************************************************
       use iSD_data
       use Center_Info
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-!#include "info.fh"
 !Error could be TabAO...
       Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7),
      &        list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),
@@ -417,8 +415,6 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
         write(6,*) 'ishell',ishell
         index_i=list_bas(2,ilist_s)
         write(6,*) 'index_i',index_i
-        nFunc_i=iBas*iCmp
-        IndMap = Index(index_i)
         iR = list_s(2,ilist_s)
         write(6,*) 'iR',iR
 !        isym = NrOpr(iR)
@@ -480,7 +476,6 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
 !      write(*,*) index(i)
 !      end do
 !      call xflush(6)
-      ioff = 0
 
 !      write(*,*) 'CMOs in p2glm'
 !      do i=1,nCMO
@@ -493,7 +488,6 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
             iCmp  = iSD( 2,iSh)
             iBas  = iSD( 3,iSh)
             iBas_Eff = List_Bas(1,ilist_s)
-            iPrim = iSD( 5,iSh)
             iAO   = iSD( 7,iSh)
             mdci  = iSD(10,iSh)
             iShell= iSD(11,iSh)
@@ -1031,6 +1025,8 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
       !end do
       deAllocate(dTabMO)
       RETURN
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(Index)
       END subroutine
 
          Subroutine Get_AO_info(TabAO,mAO,mGrid,iBas_eff,iCmp,AO_vals)

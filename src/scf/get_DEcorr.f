@@ -62,7 +62,6 @@
      &                     0.0d0,Work(ipDbb),nBas(iSym))
 *
           If (Do_SpinAV) Then
-             ipDScc=ip_DSc+lOff
              Do j=1,nBas(iSym)
                 Do i=1,j
                    iDSc=ip_DSc-1+nBas(iSym)*(j-1)+i
@@ -105,6 +104,7 @@
 *                                                                      *
       Subroutine Get_Ecorr_dft(nh1,Grad,nGrad,DFTFOCK,ipF_DFT,ip_D_DS,
      &                             KSDFT,Ec_AB)
+      use OFembed, only: dFMD
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
@@ -115,7 +115,6 @@
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
       Character*16  KSDFT
-      COMMON  / OFembed_R2/ dFMD
       External VWN_III_emb,
      &         VWN_V_emb,
      &         cBLYP_emb,
@@ -149,7 +148,7 @@
        If (KSDFT.eq.'LSDA ' .or.
      &     KSDFT.eq.'LDA '  .or.
      &     KSDFT.eq.'SVWN ') Then
-         ExFac=Get_ExFac(KSDFT)
+c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(VWN_III_emb,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
@@ -164,7 +163,7 @@
        Else If (KSDFT.eq.'LSDA5' .or.
      &          KSDFT.eq.'LDA5'  .or.
      &          KSDFT.eq.'SVWN5') Then
-         ExFac=Get_ExFac(KSDFT)
+c        ExFac=Get_ExFac(KSDFT)
          Functional_type=LDA_type
          Call DrvNQ(VWN_V_emb,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
@@ -177,7 +176,7 @@
 *     BLYP
 *
       Else If (KSDFT.eq.'BLYP') Then
-         ExFac=Get_ExFac(KSDFT)
+c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(cBLYP_emb,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
@@ -190,7 +189,7 @@
 *     PBE
 *
       Else If (KSDFT.eq.'PBE') Then
-         ExFac=Get_ExFac(KSDFT)
+c        ExFac=Get_ExFac(KSDFT)
          Functional_type=GGA_type
          Call DrvNQ(cPBE_emb,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
@@ -203,7 +202,7 @@
 *     Checker
 *
       Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
+c        ExFac=Zero
          Functional_type=meta_GGA_type2
          Call DrvNQ(Checker,Work(ipF_DFT),nFckDim,Func,
      &              Work(ip_D_DS),nh1,nD,
@@ -224,7 +223,7 @@
 *                                                                      *
       Ec_AB=Func
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) ' Correlation energy: ',Ec_AB
       write(6,*)
       write(6,*) ' Correlation potentials: (itri,F_alpha,F_beta)'

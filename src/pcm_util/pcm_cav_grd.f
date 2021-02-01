@@ -12,16 +12,10 @@
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
       Real*8 Grad(nGrad)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
-*
-      iRout = 1
-      iPrint = nPrint(iRout)
-      Call QEnter('PCM_Cav_grd')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -42,6 +36,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('PCM_Cav_grd')
       Return
       End

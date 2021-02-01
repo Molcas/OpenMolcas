@@ -23,12 +23,12 @@ C     NOTE: the scratch array SCR(LSCR) is used to read vectors from
 C           disk and should not be smaller than NNBSTR(ISYM,1)+1,
 C           preferably more.
 C
+      use ChoArr, only: iScr
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETVEC2')
@@ -37,11 +37,6 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 
       INTEGER IOFF(0:1)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      ISCR(I)=IWORK(ip_ISCR-1+I)
 
 C     Some initializations.
 C     ---------------------
@@ -123,15 +118,8 @@ C              Read index arrays for this reduced set (if needed).
 C              ---------------------------------------------------
 
                IF (JRED .NE. IREDC) THEN
-                  KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
-                  KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-                  CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                            IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                            IWORK(ip_iSP2F),
-     &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                            .FALSE.)
-                  CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                               IWORK(ip_NNBSTRSH),NSYM,NNSHL,3)
+                  CALL CHO_GETRED(JRED,ILOC,.FALSE.)
+                  CALL CHO_SETREDIND(ILOC)
                   IREDC = JRED
                END IF
 
@@ -139,7 +127,7 @@ C              Set up rs-to-rs map (if needed).
 C              --------------------------------
 
                IF (JRED .NE. IMAPC) THEN
-                  CALL CHO_RS2RS(IWORK(ip_ISCR),l_ISCR,2,3,JRED,ISYM)
+                  CALL CHO_RS2RS(ISCR,SIZE(ISCR),2,3,JRED,ISYM)
                   IMAPC = JRED
                END IF
 

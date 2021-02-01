@@ -10,14 +10,15 @@
 ************************************************************************
       Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc)
       use pso_stuff
+      use Basis_Info, only: nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
+      use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "etwas.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -72,13 +73,6 @@
       End Do
       nQvMax=nQMax*NChVMx
       Call Allocate_Work(ipScr,nQMax)
-      If(iMp2prpt.eq.2) Then
-         NChUMx=0
-         Do i=0,nIrrep-1
-            NChUMx= Max(NChVMx,nU_t(i))
-         End Do
-         nQuMax=nQMax*NChUMx
-      End If
 *
       DoCAS=lPSO
 *
@@ -123,14 +117,18 @@
                  EndDo
                EndDo
             Else
-               Call Get_D1AO_Var(ipDMLT(1),nDens)
+               Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+               Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
             EndIf
          Else
-            Call Get_D1AO(ipDMLT(1),nDens)
+            Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+            Call Get_D1AO(Work(ipDMLT(1)),nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call Get_D1SAO_Var(ipDMLT(2),nDens) ! spin-density matrix
+            Call GetMem('DMLT(2)','Allo','Real',ipDMLT(2),nDens)
+!           spin-density matrix
+            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,
      &                              Work(ipDMLT(2)),1)
             call dscal_(nDens,-Half,Work(ipDMLT(2)),1) ! beta DMAT
@@ -143,7 +141,8 @@
          EndIf
          ipDLT2 = 1
          If(iMp2prpt.eq.2) Then
-            Call Get_D1AO_Var(ipDLT2,nDens)
+            Call GetMem('DLT2','Allo','Real',ipDLT2,nDens)
+            Call Get_D1AO_Var(Work(ipDLT2),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,Work(ipDLT2),1)
          Else
             ipDLT2 = ip_Dummy
@@ -485,11 +484,10 @@
 ************************************************************************
       Subroutine OFembed_dmat(Dens,nDens)
 
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (a-h,o-z)
       Real*8 Dens(nDens)
 #include "WrkSpc.fh"
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
 
       If (.not.Do_OFemb) Return

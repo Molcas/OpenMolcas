@@ -161,7 +161,7 @@ c
 c
       character*(3) scrchar, dkh_int2char
       integer maxpuop,j,k,idum
-      intrinsic DBLE,DABS,INT
+      intrinsic DBLE,INT
       do 10 j=1,maxuops
         uopsleng(j)=0
         uoporder(j)=0
@@ -749,6 +749,9 @@ c
 #endif
 c
       return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(idum1)
+#endif
       end
 c
 c
@@ -1244,7 +1247,7 @@ c
 #ifdef _MOLCAS_
       Integer IsFreeUnit
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       character*(3) dkh_int2char
 #endif
       real*8 coeff
@@ -1306,7 +1309,7 @@ c
           call mat_zero (scr1(1,1,poss(idum1)),nbas)
         end if
         if (order(3).gt.Max(dkhorder,xorder+1)) then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           write (stdout,1040) i,dkh_int2char(idum1)
 1040      format (15X,I3,2X,'S',A3,' is not required here; thus skip ',
      *            'it.')
@@ -1356,7 +1359,7 @@ CMR        write(*,*) "S : scr1(1,1,poss(idum1))=",work(iscr)
 CMR        write(*,*) "S : scr1(1,1,poss(idum1))=",scr1(1,1,poss(idum1))
         end if
 c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write (stdout,1060) i,dkh_int2char(idum1)
 1060    format (15X,I3,2X,'S',A3,' has now been completed.')
 #endif
@@ -1374,6 +1377,9 @@ CMR      write (stdout,1090)
 CMR1090  format (/15X,'All Sxxx matrices have been stored in scr1().')
 c
       return
+#if _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(idum2)
+#endif
       end
 c
 c
@@ -1544,6 +1550,9 @@ CMR      if (tnumber.gt.0) write (stdout,1090)
 CMR1090  format (/15X,'All Txxx matrices have been stored in scr2().')
 c
       return
+#if _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(idum2)
+#endif
       end
 c
 c
@@ -1808,6 +1817,10 @@ c Avoid unused argument warnings
       if (.false.) then
         call Unused_integer(dkhorder)
         call Unused_logical(dkhscfflg)
+#ifdef _WARNING_WORKAROUND_
+        call Unused_integer(idum1)
+        call Unused_integer(order)
+#endif
       end if
       end
 c

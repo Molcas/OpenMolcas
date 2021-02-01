@@ -17,14 +17,6 @@
 * Object: to compile the value of the angular part of a basis function *
 *         evaluated at a root of the quadrature.                       *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy (ESSL)                                            *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -34,8 +26,8 @@
       Integer iHer, iCar, ia
       Real*8, Intent(In)::  Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer)
       Real*8, Intent(InOut):: Axyz(nZeta,3,nHer,0:na)
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
       Logical ABeq(3)
@@ -45,7 +37,7 @@
          Call WarningMessage(2,'CrtCmp: na.lt.0')
          Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Label,'(A)') ' In CrtCmp: Axyz(in)'
       Call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
       Call RecPrt(' In CrtCmp: HerR',' ',HerR,1,nHer)
@@ -78,7 +70,7 @@
 *
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Label,'(A)') ' In CrtCmp: Axyz(out) '
       Call RecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1))
 #endif

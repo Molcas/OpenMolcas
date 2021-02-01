@@ -20,9 +20,9 @@
       ! local variables
       REAL (wp)         :: xstart, xend, dlt, xmin, xmax, emin, emax,
      &                     fact, F, ystart, yend, X, Y, Z, RAVE,
-     &                     RAVEMIN, RAVEMAX, color_step
+     &                     RAVEMIN, RAVEMAX
       REAL (wp)         :: gnuplot_version
-      INTEGER           :: file_number, istat, i, l, j, i1, j1, k
+      INTEGER           :: file_number, i, l, j, i1, j1, k
       INTEGER           :: LuPlt, LuData, file_size, StdOut, iErr
       LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd
       CHARACTER(LEN=100):: line1, line2, fmtx, cdummy
@@ -33,7 +33,6 @@
       dbg=.false.
       StdOut = 6
       iErr=0
-      Call qEnter('plot_barrier')
 
       xmin=        MINVAL(DBLE( M(3,1:nMult,:,1:nMult,:) )) -
      &     0.10_wp*MAXVAL(DBLE( M(3,1:nMult,:,1:nMult,:) ))
@@ -83,13 +82,10 @@
         END DO
       END DO
 
-      color_step=(RAVEMAX-RAVEMIN)/256.0_wp
-
       ! generate the GNUPLOT script in the $WorkDir
       line1=' '
       line2=' '
       gnuplot_CMD=' '
-      istat=0
       file_exist=.false.
       is_file_open=.false.
       file_size=0
@@ -424,6 +420,8 @@
 
       dbg=.false.
 
-      Call qExit('plot_barrier')
       RETURN
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
       END SUBROUTINE plot_barrier

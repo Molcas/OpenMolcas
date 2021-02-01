@@ -129,14 +129,14 @@
 *
       Do i=1,kOptim
          Call ErrV(nOV*nD,Ind(i),QNRstp,Err1,HDiag)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Call NrmClc(Err1,nOV*nD,'Diis  ','Err1  ')
 #endif
          Do j=1,i-1
 
             Call ErrV(nOV*nD,Ind(j),QNRstp,Err2,HDiag)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call NrmClc(Err2,nOV*nD,'Diis  ','Err2  ')
 #endif
             Bij(i,j) = DBLE(nD)*DDot_(nOV*nD,Err1,1,Err2,1)
@@ -162,7 +162,7 @@
 *        Write (6,*) 'Bsmall=',BSmall
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)'   Calculation of the norms in Diis :'
       Fmt  = '(6f16.8)'
       Text = 'B-matrix squared in Diis :'
@@ -185,7 +185,7 @@
 *                                                                      *
 *         References:                                                  *
 *         H. Sellers, Int. J. Quantum Chem. 45, 31-41(1993).           *
-*         DOI: 10.1002/qua.560450106                                   *
+*         doi:10.1002/qua.560450106                                    *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -210,7 +210,7 @@
             ij = ij + i
          End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Fmt  = '(5g25.15)'
          Text = 'B-matrix before Jacobi :'
          Call TriPrt(Text,Fmt,BijTri,kOptim)
@@ -248,7 +248,7 @@
             BijTri(iDiag) = EValue(i)
          End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Fmt  = '(5g25.15)'
          Text = 'B-matrix after Jacobi :'
          Call TriPrt(Text,Fmt,BijTri,kOptim)
@@ -263,7 +263,7 @@
 *------  Renormalize the eigenvectors and eigenvalues to the
 *        C1-DIIS format
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*)' Normalization constants :'
 #endif
 *
@@ -273,7 +273,7 @@
                Alpha = Alpha + EVector(i,iVec)
             End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Fmt = '(A7,i2,A4,f16.8)'
             Write(6,Fmt)' Alpha(',iVec,') = ',Alpha
 #endif
@@ -285,7 +285,7 @@
             EValue(iVec) = EValue(iVec)   * Alpha**2
          End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Fmt  = '(6e16.8)'
          Text = 'B-matrix after scaling :'
          Call TriPrt(Text,Fmt,BijTri,kOptim)
@@ -302,7 +302,9 @@
 *
 *------  Select a vector.
          ee1   = 1.0D+72
+#ifdef _DEBUGPRINT_
          cDotV = 1.0D+72
+#endif
          t1    = 0.0D0
          ipBst =-99999999
          Do iVec = 1, kOptim
@@ -318,7 +320,7 @@
 *           analys further.
 *
             If (ee2.lt.Thrld) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Fmt  = '(A,i2,5x,g12.6)'
                Text = '<e|e> is low,         iVec, <e|e> = '
                Write(6,Fmt)Text(1:36),iVec,ee2
@@ -327,7 +329,7 @@
 *------------  Reject if coefficients are too large (linear dep.).
 *
                If (Sqrt(c2).gt.ThrCff) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Fmt  = '(A,i2,5x,g12.6)'
                   Text = 'c**2 is too large,     iVec, c**2 = '
                   Write(6,Fmt)Text(1:36),iVec,c2
@@ -339,7 +341,7 @@
 *---------  Reject if coefficients are too large (linear dep.).
 *
             If (Sqrt(c2).gt.ThrCff*Two) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Fmt  = '(A,i2,5x,g12.6)'
                Text = 'c**2 is too large,     iVec, c**2 = '
                Write(6,Fmt)Text(1:36),iVec,c2
@@ -353,7 +355,9 @@
 *-----------   New vector much lower eigenvalue.
                ee1   = ee2
                ipBst = iVec
+#ifdef _DEBUGPRINT_
                cDotV = c2
+#endif
                t2 = t1
             Else If (ee2.le.ee1*Three) Then
 *-----------   New vector is close to the old vector.
@@ -363,7 +367,9 @@
 *--------------   New vector much better relative weight.
                   ee1   = ee2
                   ipBst = iVec
+#ifdef _DEBUGPRINT_
                   cDotV = c2
+#endif
                   t2 = t1
                Else If (t2*1.2d0.lt.t1) Then
 *--------------   Vectors are close in relative weight too!
@@ -371,7 +377,9 @@
                   If (ee2.lt.ee1) Then
                      ee1   = ee2
                      ipBst = iVec
+#ifdef _DEBUGPRINT_
                      cDotV = c2
+#endif
                      t2 = t1
                   End If
                End If
@@ -393,7 +401,7 @@
          End If
          call dcopy_(kOptim,EVector(1,ipBst),1,CInter(1,1),1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*)
          Write(6,*)' Selected root :',ipBst
          Write(6,'(A,f16.8)')'  c**2 =         ',cDotV
@@ -431,7 +439,7 @@
          Bij(kOptim + 1,kOptim + 1) =   Zero
          GDiis(kOptim + 1)          = - One  ! note sign change
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*)' B matrix in DIIS_e:'
          Do i = 1, kOptim + 1
             Write(6,'(7f16.8)')(Bij(i,j),j = 1, kOptim + 1),
@@ -496,7 +504,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Fmt  = '(6e16.8)'
       Text = 'The solution vector :'
       Call RecPrt(Text,Fmt,CInter(1,1),1,kOptim)

@@ -1,0 +1,46 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Oskar Weser                                      *
+!***********************************************************************
+
+#ifndef MACROS_INCLUDEGUARD_
+#  define MACROS_INCLUDEGUARD_
+
+#  ifdef _ADDITIONAL_RUNTIME_CHECK_
+
+#    define debug_function_name(name) character(*), parameter :: this_routine = name
+#    define ASSERT(x) if(.not.(x))call abort_("Assert fail")
+#    define pure_ASSERT(x) if(.not.(x))call pure_abort()
+
+#  else
+
+#    define debug_function_name(name)
+#    define ASSERT(x)
+#    define pure_ASSERT(x)
+
+#  endif
+
+!  Dummy procedure to avoid empty files
+#  define empty_prefix() empty_
+#  define dummy_empty_procedure(name) subroutine empty_prefix()name() ; end subroutine
+
+#ifdef _WARNING_WORKAROUND_
+
+#define unused_var(x) associate(tmp => x); end associate
+
+#else
+
+#define unused_var(x)
+
+#endif
+
+! This should be the last end if
+#endif

@@ -11,14 +11,13 @@
       Subroutine Hess_Vec(nAtoms,Hess,EVec,mAtoms,nDim)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
       Real*8 Hess(3*nAtoms*(3*nAtoms+1)/2),EVec((3*mAtoms)**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Compute the eigenvalues and the eigenvectors of the Hessian
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
 *---- Set up a unit matrix
 *
@@ -46,7 +45,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Eigenvectors','(12f6.2)',EVec,nDim,nDim)
       Call TriPrt(' Eigenvalues','(12E8.2)',Hess,nDim)
 #endif

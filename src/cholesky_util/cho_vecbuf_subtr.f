@@ -16,12 +16,12 @@ C
 C     DoTime: time as vector subtraction.
 C     DpStat: update statistics info (#calls to dGeMM).
 C
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 #include "implicit.fh"
       Real*8  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "cholq.fh"
 #include "WrkSpc.fh"
@@ -30,7 +30,7 @@ C
       Parameter (SecNam = 'Cho_VecBuf_Subtr')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)
@@ -38,9 +38,6 @@ C
 
       Parameter (xMOne = -1.0d0, One = 1.0d0)
 
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       DSubScr(i)=Work(ip_DSubScr-1+i)
       DSPNm(i)=Work(ip_DSPNm-1+i)
 
@@ -113,7 +110,7 @@ C        ------------------------
          End If
          iVec0 = nVec*(iBatch-1)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Need = nQual(iSym)*NumV
          If (lWrk .lt. Need) Then
             Call Cho_Quit('Batch setup error in '//SecNam,104)

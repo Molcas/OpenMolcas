@@ -15,11 +15,14 @@
      &                 nOrdOp,rNuc,rHrmt,iChO,
      &                 opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                 PtChrg,nGrid,iAddPot)
+      use Basis_Info, only: nBas
       use PrpPnt
+      use Temporary_Parameters, only: PrPrt, Short, IfAllOrb
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: Thrs
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8, Dimension(:), Allocatable :: Out, Nuc, TMat, Temp, El,
@@ -35,8 +38,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'
       Write (6,'(1X,8I5)') nComp
@@ -63,7 +66,7 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nIC =',nIC
 #endif
 *
@@ -101,7 +104,7 @@
 *                                                                      *
 *---- Compute all SO integrals for all components of the operator.
 *
-      Call OneEl_Internal
+      Call OneEl_Inner
      &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &            nOrdOp,rHrmt,iChO,
      &            opmol,opnuc,ipad,iopadr,idirect,isyop,
@@ -114,7 +117,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call PrMtrx(Label,lOper,nComp,ip,Array)
 #endif
 *                                                                      *
@@ -141,7 +144,7 @@
                If (short) Then
                   mDim = 1
                Else
-                  mDim = nDim
+                  mDim = S%nDim
                End If
                call mma_allocate(Out,mDim*nComp,label='Out')
                ipOut=1

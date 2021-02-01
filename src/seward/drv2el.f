@@ -16,15 +16,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,11 +26,9 @@
 ************************************************************************
       use iSD_data
       use Basis_Info, only: dbsc
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_GTList
-#include "itmax.fh"
-#include "info.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -52,19 +41,15 @@
       Character*72 SLine
       Real*8, Dimension(:,:), Allocatable :: TMax
       Integer, Dimension(:,:), Allocatable :: Pair_Index
-      Dimension ExFac(1),Ind(1,1,2),FckNoClmb(1),FckNoExch(1)
+      Dimension ExFac(1),FckNoClmb(1),FckNoExch(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-      Call QEnter('Drv2El')
       SLine='Computing 2-electron integrals'
       Call StatusLine(' Seward:',SLine)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nInd=1
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.True.
@@ -90,7 +75,6 @@
 *                                                                      *
       Thize=Zero               ! Not used for conventional integrals
       PreSch=.True.            ! Not used for conventional integrals
-      Disc_Mx=Zero             ! Not used for conventional integrals
 *
       Disc=Zero
       Dix_Mx=Zero
@@ -130,7 +114,6 @@
 ************************************************************************
 *                                                                      *
       Triangular=.True.
-      Call Alloc_TList(Triangular,P_Eff)
       Call Init_TList(Triangular,P_Eff)
       Call Init_PPList
       Call Init_GTList
@@ -188,12 +171,12 @@
 *
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (AInt.lt.CutInt) Go To 14
-         Call Eval_Ints_New_Internal
+         Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,Integral_WrOut,
 * the following are dummy arguments
      &                   Dens,Fock,mDens,ExFac,Nr_Dens,
-     &                   Ind,nInd,FckNoClmb,FckNoExch,
+     &                   FckNoClmb,FckNoExch,
      &                   Thize,W2Disc,PreSch,Dix_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
  14      Continue
@@ -244,6 +227,5 @@
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
       Call Free_iSD()
-      Call QExit('Drv2El')
       Return
       End

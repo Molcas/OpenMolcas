@@ -14,14 +14,15 @@
 *   Driver for calculation of optimized fock matrix.       *
 *                                                          *
 ************************************************************
+      use Arrays, only: FAMO, FIMO, F0SQMO, INT2
       implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "machine.fh"
+      Real*8, Allocatable:: Q(:), Tmp2(:,:), T3(:)
 *
-      Call qEnter('FckMat')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -40,38 +41,32 @@
       nmmm=((nmmm-1)/nRec+1)*nRec
       nmm=nmm*nMMM
       nmm=nmm**2
-      Call GetMem('f0sqMO','Allo','Real',ipf0sqMO,ndens2)
-      Call GetMem('fIsqMO','Allo','Real',ipfIMO,ndens2)
+      Call mma_allocate(F0SQMO,ndens2,Label='F0SQMO')
+      Call mma_allocate(FIMO,ndens2,Label='FIMO')
       If (iMethod.eq.2) Then
-         Call GetMem('K2Int','Allo','Real',k2int,nAtri)
-         Call FZero(Work(k2int),nAtri)
+         Call mma_allocate(Int2,nAtri,Label='Int2')
       Else
-         k2int=1
+         Call mma_allocate(Int2,1,Label='Int2')
       End If
-      Call GetMem('FASQMO','ALLO','Real',ipFAMO,nDens2)
-      Call GetMem('Temp4','ALLO','Real',ipQ,nDens2)
-      Call GetMem('Temp2','Allo','Real',ipTmp2,2*ndens2)
-      ipScr=ipTmp2+ndens2
-      Call GetMem('Temp5','Allo','Real',ipT3,ndens2)
+      Int2(:)=0.0d0
+      Call mma_allocate(FAMO,nDens2,Label='FAMO')
+      Call mma_allocate(Q,nDens2,Label='Q')
+      Call mma_allocate(Tmp2,ndens2,2,Label='Tmp2')
+      Call mma_allocate(T3,ndens2,Label='T3')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Calculate two-electron contribution
 *
-      Call Read22_2(work(k2int),
-     &              Work(ipF0SqMo),Work(ipQ),
-     &              Work(ipFIMO),Work(ipFAMO),
-     &              Work(ipTmp2),Work(ipScr),
-     &              Work(ipT3))
+      Call Read22_2(Int2,F0SQMO,Q,FIMO,FAMO,Tmp2(:,1),Tmp2(:,2),T3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Temp5','FREE','Real',ipT3,ndens2)
-      Call GetMem('Temp2','Free','Real',iptmp2,ndens2)
-      Call GetMem('Temp4','Free','Real',ipQ,ndens2)
+      Call mma_deallocate(T3)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Q)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('FckMat')
       Return
       End

@@ -30,7 +30,8 @@ C
 C      Lkb,J = sum_a  Lab,J * X(a,k)
 C
 ********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
 
@@ -45,26 +46,23 @@ C
       Character*8 SECNAM
       Parameter (SECNAM = 'Cho_Fmat')
 
-      Logical   Debug,timings,DoRead
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead
       COMMON    /CHOTIME /timings
 
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
       Logical add
       Character*6 mode
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ******
       ipOrb(i,j) = iWork(ip_Orb-1+8*(j-1)+i)
 ******
@@ -75,14 +73,10 @@ C
       ipFr(i) = iWork(ipFab+i-1)
 ************************************************************************
 
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       FactC = one
 
@@ -91,7 +85,6 @@ c      Debug=.true.
 
       If (nDen.lt.1) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen
-         call qtrace()
          call abend()
       EndIf
 
@@ -172,7 +165,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -180,7 +172,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                       '    rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -209,7 +200,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'min. mem. need= ',nRS+mTvec
                WRITE(6,*) 'jsym= ',jsym
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -344,7 +334,7 @@ C *********************** HALF-TRANSFORMATION  ****************
                   tread(1) = tread(1) + (TCR4 - TCR3)
                   tread(2) = tread(2) + (TWR4 - TWR3)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'Half-transformation in the MO space: ',jDen
       write(6,*) 'Total allocated :     ',mTvec*nVec,' at ',ipChoT
       write(6,*) 'Mem pointers ipLab: ',((ipLab(i,j),i=1,nSym),j=1,jDen)
@@ -478,8 +468,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
-
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -503,7 +492,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

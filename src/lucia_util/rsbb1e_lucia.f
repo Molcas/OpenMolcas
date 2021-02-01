@@ -75,8 +75,8 @@
 * Jeppe Olsen, Winter of 1991
 *              IUSE_PH added winter of 97
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 COLD      REAL*8 INPROD
 *. MAX dimensions
 #include "mxpdim.fh"
@@ -100,8 +100,7 @@ COLD      REAL*8 INPROD
       DIMENSION HSCR(MXPTSOB*MXPTSOB)
 *
       DIMENSION IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
-      DIMENSION ISCR(2)
-      CALL QENTER('RS1   ')
+c      DIMENSION ISCR(2)
 * Type of single excitations that connects the two column strings
 C     MOC = 1
       NTESTL = 000
@@ -135,7 +134,6 @@ C     GET_SPGP_INF(ISPGP,ITP,IGRP)
       CALL GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 *
       IFRST = 1
-      JFRST = 1
 *. Types of single excitations that connect ISEL and ICEL
       CALL SXTYP2_GAS(    NSXTP,      ITP,      JTP,     NGAS,     ISEL,
      &                     ICEL,   IPHGAS)
@@ -148,10 +146,10 @@ C     GET_SPGP_INF(ISPGP,ITP,IGRP)
         IF(NTEST.GE.2000)
      &  write(6,*) ' ITYP JTYP ', ITYP,JTYP
 *. Is this combination of types allowed
-        IJ_ACT = 1
+c        IJ_ACT = 1
 c        IF(IJ_ACT.EQ.0) GOTO 900
 *. Hvilken vej skal vi valge,
-        NOP = 2
+c        NOP = 2
         IJ_AC(1) = 2
         IJ_AC(2) = 1
         IJ_TP(1) = ITYP
@@ -174,8 +172,8 @@ c        END IF
         IJ_AC(1) = IJ_AC(2)
         IJ_AC(2) = IXXX
 *
-        ISCR(1) = ITYP
-        ISCR(2) = JTYP
+c        ISCR(1) = ITYP
+c        ISCR(2) = JTYP
         IJ_TP(1) = JTYP
         IJ_TP(2) = ITYP
         endif
@@ -342,7 +340,6 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
   900 CONTINUE
  1001 CONTINUE
 *
-      CALL QEXIT('RS1  ')
 C!    WRITE(6,*) ' Enforced stop in RSBB1E '
 C!    STOP' Enforced stop in RSBB1E '
       RETURN

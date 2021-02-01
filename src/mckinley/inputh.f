@@ -16,18 +16,6 @@
 *                                                                      *
 * Object: input module for the gradient code                           *
 *                                                                      *
-* Called from: McKinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              DaXpY   (ESSL)                                          *
-*              DDot_   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September 1991                                           *
@@ -36,15 +24,17 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
+      use Temporary_Parameters
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "iavec.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "SysDef.fh"
       Logical TstFnc, Type, Slct
@@ -52,14 +42,13 @@ c      Logical DoCholesky
       Character*1 xyz(0:2)
       Character*8 Label,labelop
       Character*32 Label2
-      character*4 lab
       Logical Run_MCLR
       Character*80  KWord, Key
       Integer iSym(3), iTemp(3*MxAtom)
+      Integer, Allocatable:: ATDisp(:), DEGDisp(:), TDisp(:), Car(:)
+      Real*8, Allocatable:: AM(:,:), Tmp(:,:), C(:,:), Scr(:,:)
       Data xyz/'x','y','z'/
 *
-      Call QEnter('InputH')
-
 c      Call DecideOnCholesky(DoCholesky)
 c      If (DoCholesky) Then
 c       write(6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
@@ -102,7 +91,6 @@ c      EndIf
       If (KWord(1:1).eq.'*')    Go To 998
       If (KWord.eq.'')       Go To 998
 *     If (KWord(1:4).eq.'EQUI') Go To 935
-*     If (KWord(1:4).eq.'MEMO') Go To 951
 *     If (KWord(1:4).eq.'NOTR') Go To 952
 *     If (KWord(1:4).eq.'NOIN') Go To 953
       If (KWord(1:4).eq.'SHOW') Go To 992
@@ -122,15 +110,12 @@ c      EndIf
       If (KWord(1:4).eq.'END ') Go To 997
       Write (6,*) 'InputH: Illegal keyword'
       Write (6,'(A,A)') 'KWord=',KWord
-      Call QTrace
       Call Abend()
  977  Write (6,*) 'InputH: end of input file.'
       Write (6,'(A,A)') 'Last command=',KWord
-      Call QTrace
       Call Abend()
  988  Write (6,*) 'InputH: error reading input file.'
       Write (6,'(A,A)') 'Last command=',KWord
-      Call QTrace
       Call Abend()
 *                                                                      *
 ****** MEM  ************************************************************
@@ -147,7 +132,6 @@ c      EndIf
       If (KWord(1:1).eq.'*') Go To 975
       If (KWord.eq.'')    Go To 975
       Call UpCase(KWord)
-      Lab=KWORD(1:4)
       If (KWORD(1:4).eq.'HESS') Then
          ipert=2
       Else If (KWORD(1:4).eq.'GEOM') Then
@@ -155,7 +139,6 @@ c      EndIf
       Else
          Write (6,*) 'InputH: Illegal perturbation keyword'
          Write (6,'(A,A)') 'KWord=',KWord
-         Call QTrace
          Call Abend()
       End If
 
@@ -193,17 +176,6 @@ c      EndIf
 *     Read(KWord,*,Err=988) CutInt
       CutInt = Abs(CutInt)
       Go To 998
-*                                                                      *
-****** MEMO ************************************************************
-*                                                                      *
-*     Screen off memory
-*
-*951  Read(5,'(A)',Err=988) KWord
-*     If (KWord(1:1).eq.'*') Go To 951
-*     If (KWord.eq.'')    Go To 951
-*     Read(KWord,*,Err=988) MemHid
-*     If (MemHid.le.0) MemHid = 1
-*     Go To 998
 *                                                                      *
 ****** NOIN ************************************************************
 *                                                                      *
@@ -319,7 +291,6 @@ c      EndIf
       Call OpnMck(irc,iOpt,'MCKINT',Lu_Mck)
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error opening MCKINT'
-         Call QTrace
          Call Abend()
       End If
       If (ipert.eq.1) Then
@@ -341,7 +312,6 @@ c      EndIf
         Call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
         Write (6,*) 'InputH: Illegal perturbation option'
         Write (6,*) 'iPert=',iPert
-        Call QTrace
         Call Abend()
       Else If (ipert.eq.4) Then
         LabelOp='PERT    '
@@ -349,12 +319,10 @@ c      EndIf
         Call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
         Write (6,*) 'InputH: Illegal perturbation option'
         Write (6,*) 'iPert=',iPert
-        Call QTrace
         Call Abend()
       Else
         Write (6,*) 'InputH: Illegal perturbation option'
         Write (6,*) 'iPert=',iPert
-        Call QTrace
         Call Abend()
       End If
 
@@ -401,8 +369,8 @@ c      EndIf
       End If
       Call ICopy(MxAtom*8,[0],0,IndDsp,1)
       Call ICopy(MxAtom*3,[0],0,InxDsp,1)
-      Call GetMem('ATDISP','ALLO','INTE',ipad,mdisp)
-      Call GetMem('DEGDISP','ALLO','INTE',ipdd,mdisp)
+      Call mma_allocate(ATDisp,mDisp,Label='ATDisp')
+      Call mma_allocate(DEGDisp,mDisp,Label='DEGDisp')
       nDisp = 0
       Do 100 iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
@@ -451,8 +419,8 @@ c      EndIf
      &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
                       Write (ChDisp(nDisp),'(A,1X,A1)')
      &                       dc(mdc)%LblCnt,xyz(iCar)
-                      iwork(ipad+ndisp-1)=icnttp
-                      iwork(ipdd+ndisp-1)=nIrrep/dc(mdc)%nStab
+                      ATDisp(ndisp)=icnttp
+                      DEGDisp(ndisp)=nIrrep/dc(mdc)%nStab
                   End If
 *
  130           Continue
@@ -465,7 +433,6 @@ c      EndIf
       If (nDisp.ne.mDisp) Then
          Write (6,*) 'InputH: nDisp.ne.mDisp'
          Write (6,*) 'nDisp,mDisp=',nDisp,mDisp
-         Call QTrace
          Call Abend()
       End If
       If (sIrrep) Then
@@ -474,8 +441,8 @@ c      EndIf
             lDisp(i)=0
          End Do
       End If
-      Call GetMem('TDISP','Allo','INTE',ipTD,ndisp)
-      Call ICopy(nDisp,[30],0,iWork(ipTD),1)
+      Call mma_allocate(TDisp,nDisp,Label='TDisp')
+      TDisp(:)=30
       iOpt = 0
       iRC = -1
       labelOp='ndisp   '
@@ -483,42 +450,38 @@ c      EndIf
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'labelOp=',labelOp
-         Call QTrace
          Call Abend()
       End If
       LABEL='DEGDISP'
       iRc=-1
       iOpt=0
-      Call iWrMck(iRC,iOpt,Label,idum,iwork(ipdd),idum)
+      Call iWrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'LABEL=',LABEL
-         Call QTrace
          Call Abend()
       End If
-      Call GetMem('DEGDISP','Free','INTE',ipdd,mDisp)
+      Call mma_deallocate(DEGDisp)
       LABEL='NRCTDISP'
       iRc=-1
       iOpt=0
-      Call iWrMck(iRC,iOpt,Label,idum,iwork(ipad),idum)
+      Call iWrMck(iRC,iOpt,Label,idum,ATDisp,idum)
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'LABEL=',LABEL
-         Call QTrace
          Call Abend()
       End If
-      Call GetMem('ATDISP','Free','INTE',ipad,mDisp)
+      Call mma_deallocate(ATDisp)
       LABEL='TDISP'
       iRc=-1
       iOpt=0
-      Call iWrMck(iRC,iOpt,Label,idum,iWork(ipTD),idum)
+      Call iWrMck(iRC,iOpt,Label,idum,TDisp,idum)
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'LABEL=',LABEL
-         Call QTrace
          Call Abend()
       End If
-      Call GetMem('TDISP','FREE','INTE',ipTD,ndisp)
+      Call mma_deallocate(TDisp)
 *
       Else If (iCntrl.eq.2) Then
           Write(6,*) 'Svaret aer 48 '
@@ -545,6 +508,7 @@ c      EndIf
 *     and rotational invariance of the energy.
 *
       If (TRSymm) Then
+         Call Abend()
          iSym(1) = 0
          iSym(2) = 0
          iSym(3) = 0
@@ -575,13 +539,13 @@ c      EndIf
             Go To 9876
          End If
          If (iPrint.ge.99) Write (6,*) ' nTR=',nTR
-         Call GetMem('Amtrx','Allo','Real',ipAm,lDisp(0)**2)
-         Call GetMem('Temp ','Allo','Real',ipTmp,nTR**2)
-         Call GetMem('Coor ','Allo','Real',ipC,lDisp(0)*4)
-         Call GetMem('Car  ','Allo','Inte',ipCar,lDisp(0))
+         Call mma_allocate(AM,nTR,lDisp(0),Label='AM')
+         Call mma_allocate(Tmp,nTR,nTR,Label='Tmp')
+         Call mma_allocate(C,4,lDisp(0),Label='C')
+         Call mma_allocate(Car,lDisp(0),Label='Car')
 *
-         call dcopy_(nTR*lDisp(0),[Zero],0,Work(ipAm),1)
-         call dcopy_(4*lDisp(0),[Zero],0,Work(ipC),1)
+         AM(:,:)=Zero
+         C(:,:)=Zero
 *
 *        Generate temporary information of the symmetrical
 *        displacements.
@@ -614,19 +578,18 @@ c      EndIf
      &                        iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
 *--------------------Transfer the coordinates
-                     ip = 4*(ldsp-1) + ipC
                      call dcopy_(3,dbsc(iCnttp)%Coor(:,iCnt),1,
-     &                          Work(ip),1)
+     &                          C(1:3,ldsp),1)
 *--------------------Transfer the multiplicity factor
-                     Work(ip+3) = Fact
-                     iWork(ipCar-1+ldsp) = iCar + 1
+                     C(4,ldsp) = Fact
+                     Car(ldsp) = iCar + 1
                   End If
  2300          Continue
  2200       Continue
  2100    Continue
          If (iPrint.ge.99) Then
-            Call RecPrt(' Information',' ',Work(ipC),4,lDisp(0))
-            Write (6,*) (iWork(i),i=ipCar,ipCar+lDisp(0)-1)
+            Call RecPrt(' Information',' ',C,4,lDisp(0))
+            Write (6,*) (Car(i),i=1,lDisp(0))
          End If
 *
 *--------Set up coefficient for the translational equations
@@ -636,10 +599,8 @@ c      EndIf
             If (iSym(i).ne.0) Go To 1110
             iTR = iTR + 1
             Do 1120 ldsp = 1, lDisp(0)
-               If (iWork(ipCar+ldsp-1).eq.i) Then
-                  ipOut= ipC + 4*(ldsp-1) + 3
-                  ipIn = nTR*(ldsp-1) + iTR + ipAm - 1
-                  Work(ipIn) = Work(ipOut)
+               If (Car(ldsp).eq.i) Then
+                  AM(iTR,ldsp) = C(4,ldsp)
                End If
  1120       Continue
  1110    Continue
@@ -655,19 +616,20 @@ c      EndIf
             If (ijSym.ne.0) Go To 1210
             iTR = iTR + 1
             Do 1220 ldsp = 1, lDisp(0)
-               ipIn = nTR*(ldsp-1) + iTR + ipAm - 1
-               ipOut = ipC + 4*(ldsp-1)
-               If (iWork(ipCar+ldsp-1).eq.j) Then
-                  Fact = Work(ipOut+3) * Work(ipOut+k-1)
-                  Work(ipIn) = Fact
-               Else If (iWork(ipCar+ldsp-1).eq.k) Then
-                  Fact = Work(ipOut+3) * Work(ipOut+j-1)
-                  Work(ipIn) = -Fact
+               If (Car(ldsp).eq.j) Then
+                  Fact = C(4,ldsp) * C(k,ldsp)
+               Else If (Car(ldsp).eq.k) Then
+                  Fact =-C(4,ldsp) * C(j,ldsp)
+               Else
+                  Fact=Zero
+                  Write (6,*) 'Inputh: Error'
+                  Call Abend()
                End If
+               AM(iTR,ldsp) = Fact
  1220       Continue
  1210    Continue
          If (iPrint.ge.99)
-     &      Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
+     &      Call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
 *
 *--------Now, transfer the coefficient of those gradients which will
 *        not be computed directly.
@@ -685,19 +647,16 @@ c      EndIf
                   If (iTemp(jTR).eq.ldsp) Go To 1231
  1235          Continue
 *              Write (*,*) ' Checking vector #', ldsp
-               ipNew = ipAm + nTR*(ldsp-1)
-               ipIn = ipTmp + nTR*(iTR-1)
-               call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-*              Call RecPrt(' Vector',' ',Work(ipIn),nTR,1)
+               call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
+*              Call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
 *--------------Gram-Schmidt orthonormalize against accepted vectors
                Do 1232 lTR = 1, iTR-1
-                  ipOld = ipTmp + nTR*(lTR-1)
-                  alpha = DDot_(nTR,Work(ipIn),1,Work(ipOld),1)
+                  alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
 *                 Write (*,*) ' <x|y> =', alpha
-                  Call DaXpY_(nTR,-alpha,Work(ipOld),1,Work(ipIn),1)
+                  Call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
  1232          Continue
-*              Call RecPrt(' Remainings',' ',Work(ipIn),nTR,1)
-               alpha = DDot_(nTR,Work(ipIn),1,Work(ipIn),1)
+*              Call RecPrt(' Remainings',' ',Tmp(:,iTR),nTR,1)
+               alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
 *              Write (*,*) ' Remaining overlap =', alpha
 *--------------Check the remaining magnitude of vector after Gram-Schmidt
                If (alpha.gt.ovlp) Then
@@ -711,64 +670,60 @@ c      EndIf
             End If
 *           Write (*,*) ' Selecting vector #', kTR
 *-----------Pick up the "best" vector
-            ipNew = ipAm + nTR*(kTR-1)
-            ipIn = ipTmp + nTR*(iTR-1)
-            call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
+            call dcopy_(nTR,AM(:,kTR),1,Tmp(:,iTR),1)
             Do 1233 lTR = 1, iTR-1
-               ipOld = ipTmp + nTR*(lTR-1)
-               alpha = DDot_(nTR,Work(ipIn),1,Work(ipOld),1)
-               Call DaXpY_(nTR,-alpha,Work(ipOld),1,Work(ipIn),1)
+               alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,lTR),1)
+               Call DaXpY_(nTR,-alpha,Tmp(:,lTR),1,Tmp(:,iTR),1)
  1233       Continue
-            alpha = DDot_(nTR,Work(ipIn),1,Work(ipIn),1)
-            Call DScal_(nTR,One/Sqrt(alpha),Work(ipIn),1)
+            alpha = DDot_(nTR,Tmp(:,iTR),1,Tmp(:,iTR),1)
+            Call DScal_(nTR,One/Sqrt(alpha),Tmp(:,iTR),1)
             iTemp(iTR) = kTR
  1230    Continue
          Do 1234 iTR = 1, nTR
-            ipNew = ipAm + nTR*(iTemp(iTR)-1)
-            ipIn  = ipTmp + nTR*(iTR-1)
-            call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-            call dcopy_(nTR,[Zero],0,Work(ipNew),1)
+            call dcopy_(nTR,AM(:,iTemp(iTR)),1,Tmp(:,iTR),1)
+            AM(:,iTemp(iTR))=Zero
  1234    Continue
          If (iPrint.ge.99) Then
-            Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
-            Call RecPrt(' The T matrix',' ',Work(ipTmp),nTR,nTR)
+            Call RecPrt(' The A matrix',' ',AM,nTR,lDisp(0))
+            Call RecPrt(' The T matrix',' ',Tmp,nTR,nTR)
             Write (6,*) (iTemp(iTR),iTR=1,nTR)
          End If
 *
 *        Compute the inverse of the T matrix
 *
-         Call MatInvert(Work(ipTmp),nTR)
+         Call MatInvert(Tmp,nTR)
          If (IPrint.ge.99)
-     &      Call RecPrt(' The T-1 matrix',' ',Work(ipTmp),nTR,nTR)
-         Call DScal_(nTR**2,-One,Work(ipTmp),1)
+     &      Call RecPrt(' The T-1 matrix',' ',Tmp,nTR,nTR)
+         Call DScal_(nTR**2,-One,Tmp,1)
 *
 *        Generate the complete matrix
 *
-         Call GetMem(' Temp2','Allo','Real',ipScr,nTR*lDisp(0))
+         Call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
          Call DGEMM_('N','N',
      &               nTR,lDisp(0),nTR,
-     &               1.0d0,Work(ipTmp),nTR,
-     &               Work(ipAm),nTR,
-     &               0.0d0,Work(ipScr),nTR)
+     &               1.0d0,Tmp,nTR,
+     &               AM,nTR,
+     &               0.0d0,Scr,nTR)
          If (IPrint.ge.99)
-     &      Call RecPrt(' A-1*A',' ',Work(ipScr),nTR,lDisp(0))
-         call dcopy_(lDisp(0)**2,[Zero],0,Work(ipAm),1)
-         call dcopy_(lDisp(0),[One],0,Work(ipAm),lDisp(0)+1)
+     &      Call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
+         Call mma_deallocate(AM)
+         Call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
+         AM(:,:)=Zero
+         Do i = 1, lDisp(0)
+            AM(i,i)=One
+         End Do
          Do 1250 iTR = 1, nTR
             ldsp = iTemp(iTR)
-            ipOut = ipScr + iTR - 1
-            ipIn  = ipAM  + ldsp - 1
-            call dcopy_(lDisp(0),Work(ipOut),nTR,Work(ipIn),lDisp(0))
+            call dcopy_(lDisp(0),Scr(iTR,1),nTR,AM(ldsp,1),lDisp(0))
  1250    Continue
          If (iPrint.ge.99)
-     &      Call RecPrt('Final A matrix',' ',
-     &                  Work(ipAm),lDisp(0),lDisp(0))
+     &      Call RecPrt('Final A matrix',' ',AM,lDisp(0),lDisp(0))
 *
 *
-         Call GetMem(' Temp2','Free','Real',ipScr,nTR*lDisp(0))
-         Call GetMem('Car  ','Free','Inte',ipCar,lDisp(0))
-         Call GetMem('Coor ','Free','Real',ipC,lDisp(0)*4)
-         Call GetMem('Temp ','Free','Real',ipTmp,nTR**2)
+         Call mma_deallocate(Scr)
+         Call mma_deallocate(Car)
+         Call mma_deallocate(C)
+         Call mma_deallocate(Tmp)
          Do 1501 iTR = 1, nTR
             ldsp = iTemp(iTR)
             LPert(ldsp)=.False.
@@ -830,6 +785,5 @@ c      EndIf
         End If
       End Do
 *
-      Call QExit('InputH')
       Return
       End

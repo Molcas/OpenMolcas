@@ -22,11 +22,10 @@
       use EFP_Module
       use k2_arrays
       use Basis_Info
+      use RICD_Info, only: iRI_Type, Do_RI
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
-#include "itmax.fh"
-#include "info.fh"
 #include "pstat.fh"
 #include "print.fh"
 #include "notab.fh"
@@ -34,13 +33,11 @@
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "gam.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "relae.fh"
 #include "FMM.fh"
 #include "nac.fh"
 #include "srint.fh"
-      Logical lGENINT
       Character(LEN=180) Env
 *                                                                      *
 ************************************************************************
@@ -63,102 +60,9 @@ C
 *
       Seward_Status=InActive
 *
-*     Info
-*
-      MemHid=1
-      nMltpl=2
-      m2Max=0
-      iAngMx=-1
-      nWel=0
-      iRI_type=0
-      jMax = 5
-      nTtl=0
-      Max_Center=15
-
-      iChCar(:)=0
-      KVector(:)=Zero
-      MaxBas(0:MxAng)=0
-      MaxPrm(0:MxAng)=0
-      NrInt(-20:9)=0
-      iSkip(0:7)=0
-
-      nOrdEF=-1
-      nDMS=0
-      nRP=0
-      iPack=0
-      iSquar=0
-      iWRopt=0
-      iPAMcount=1
-
-      inttot=0
-      nOrd_XF = 1
-      iOrdFm=0
-      iXPolType=0
-      IsChi=0
-      MolWgh=2
-*
 *-----LInfo
 *
-      NEMO=.False.
-      Do_RI=.False.
-      Primitive_Pass=.True.
-      DKroll=.False.
-      LDKroll=.False.
       IRFLAG1=0
-      BSS   =.False.
-      Onenly=.False.
-      DirInt=.False.
-      Expert=.False.
-      EMFR  =.False.
-      Petite=.False.
-      lSOInt=.True.
-      UnNorm=.False.
-      lSchw=.True.
-      Test=.False.
-      Vlct=.True.
-      lOAM=.False.
-      lOAMc=.False.
-      lUPONLY=.False.
-      lDOWNONLY=.False.
-      lOMQ=.False.
-      lDMS=.False.
-      lRel=.False.
-      Prprt=.False.
-      Short=.True.
-*--sdong, Apr. 2018--*
-      ifallorb=.False.
-*--sdong end---------*
-      lECP=.False.
-      lAux=.False.
-      lPAM2=.False.
-      Dist=.False.
-      lXF=.False.
-      lPP=.False.
-      lAMP=.False.
-      lAMFI=.False.
-      lGENINT=.False.
-      force_part_c=.False.
-      force_part_p=.False.
-      GIAO=.False.
-      Cholesky=.False.
-      lFAIEMP=.False.
-      Do_FckInt=.True.
-      Do_GuessOrb=.True.
-*
-      Do_acCD_Basis=.True.
-      Do_nacCD_Basis=.False.
-      Skip_High_AC = .False.
-      LDF=.False.
-      LocalDF=.False.
-*
-      lRP=.False.
-      Align_Only=.False.
-      Do_Align=.True.
-      Align_Weights='MASS'
-      Do_Numerical_Gradients=.False.
-      VarT=.False.
-      VarR=.False.
-      FNMC=.False.
 *
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
       Call UpCase(Env)
@@ -166,49 +70,6 @@ C
          Do_RI=.True.
          iRI_Type=4
       End If
-*
-      Shake=-One
-*
-*     Flags to control build of FMM short-range integral components
-*
-      DoFMM = .False.
-*
-*-----RInfo
-*
-      Sum=0.00d+00
-      Sumsq=0.00d+00
-      SumAbs=0.00d+00
-      RadMax=0.00d+00
-      AccMch=1.d-15
-*
-*     Integral thresholds
-*
-      ThrInt=1.d-14
-      CutInt=1.d-16
-*
-*     Two-electron integral packing threshold
-*
-      PkAcc=ThrInt
-*
-      Rtrnc = Three
-      Thrshld_CD=1.0D-4
-      Delta_RICD=0.0D0
-      E1=0.0D0
-      E2=0.0D0
-      SadStep=0.1d0
-      ChiI2=0.0D0
-*
-*     Flags to control build of FMM short-range integral components
-*
-      RPQMIN = 0.4d0
-*
-      Thrs=1.d-6
-*
-*-----CInfo
-*
-      Do i = 1, 10
-         Title(i)=' '
-      End Do
 *
 *-----PStat
 *
@@ -252,9 +113,6 @@ C
 *
       NDDO=.False.
 *
-      GT_Status=InActive
-      T_Status =InActive
-      PP_Status=InActive
       k2_Status=InActive
       RctFld_Status=InActive
       ERI_Status=InActive
@@ -301,8 +159,6 @@ C
       Call Mk_TriInd()
 *
       Call CovRadT_Init()
-*
-      Call iPrmt_Init()
 *
 *     nac.fh
 *

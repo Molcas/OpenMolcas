@@ -16,24 +16,24 @@
 ************************************************************************
 *                                                                      *
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Logical JfHss(4,3,4,3),IfHss(4,3,4,3),JfGrd(3,4),IfGrd(3,4),
-     &        TF,TstFnc,IfG(4),JfG(4),ldot
+     &        IfG(4),JfG(4),ldot
       Integer IndHss(4,3,4,3,0:7),JndHss(4,3,4,3,0:7),
-     &        IndGrd(3,4,0:7),JndGrd(3,4,0:7),iCo(4)
+     &        IndGrd(3,4,0:7),JndGrd(3,4,0:7)
+      Logical, External :: TF
 *define _OLD_CODE_
 #ifdef _OLD_CODE_
-      Integer iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
+      Integer iCo(4), iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
       Logical chck
+      Logical, External :: TstFnc
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
        nnIrrep=nIrrep
        Call lCopy(12,[.false.],0,ifgrd,1)
@@ -101,10 +101,12 @@
  4444        Continue
  3333     Continue
       End Do
+#ifdef _OLD_CODE_
       iCo(1)=mdci
       iCo(2)=mdcj
       iCo(3)=mdck
       iCo(4)=mdcl
+#endif
       Call iCopy(144*nirrep,[0],0,IndHss,1)
       Call iCopy(144*nirrep,[0],0,jndHss,1)
       Call lCopy(144,[.false.],0,IfHss,1)

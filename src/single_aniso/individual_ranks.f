@@ -46,7 +46,6 @@
       External                  :: dznrm2
       Character(len=16)         :: field(8)
       Character(len=6)          :: iprog
-      Call qEnter('SA_indRank')
 !-----------------------------------------------------------------------
       Call mma_allocate(Rnrm,nDIMCF,'Rnrm')
       Call mma_allocate(Snrm,nDIMCF,'Snrm')
@@ -368,11 +367,11 @@
          wt=100_wp*ListKQ(ik)/TnrmKQ
 
          If(projKQ(ik)>=0) Then
-            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A)'//
+            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//
      &                'F19.14,1x,A)')
      &               ir,'|',ip,'|',BC(ir,iq),'|',wt,'|'
          Else
-            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A)'//
+            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//
      &                'F19.14,1x,A)')
      &               ir,'|',ip,'|',BS(ir,iq),'|',wt,'|'
          End If
@@ -403,7 +402,6 @@
       Call mma_deallocate(rankKQ)
       Call mma_deallocate(projKQ)
 
-      Call qExit('SA_indRank')
       Return
       End Subroutine individual_ranks
 

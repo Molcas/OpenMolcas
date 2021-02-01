@@ -45,12 +45,13 @@
       Parameter (SecNam = 'CD_Tester')
 
       Logical Restart
+      Real*8, Allocatable:: Diag(:)
 
       Common / CDTHLP / ip_Mat, l_Mat, ip_Vec, l_Vec
 
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Call qEnter(SecNam)
       irc = 0
       If (n .lt. 1) Then
          If (Verbose) Then
@@ -85,24 +86,23 @@ C     ============
       Call GetMem('Vec','Allo','Real',ip_Vec,l_Vec)
 
       l_Buf   = n*(n+MxQual)
-      l_Diag  = n
       l_Qual  = n*(MxQual+1)
       l_ES    = 6
       l_Pivot = n
       l_iQual = MxQual
       Call GetMem('Buf','Allo','Real',ip_Buf,l_Buf)
-      Call GetMem('Diag','Allo','Real',ip_Diag,l_Diag)
+      Call mma_allocate(Diag,n,Label='Diag')
       Call GetMem('Qual','Allo','Real',ip_Qual,l_Qual)
       Call GetMem('Err','Allo','Real',ip_ES,l_ES)
       Call GetMem('Pivot','Allo','Inte',ip_Pivot,l_Pivot)
       Call GetMem('iQual','Allo','Inte',ip_iQual,l_iQual)
 
       Call CD_Tester_CPPF(Work(ip_PDM),Work(ip_Mat),n)
-      Call CD_Tester_Diag(Work(ip_PDM),Work(ip_Diag),n)
+      Call CD_Tester_Diag(Work(ip_PDM),Diag,n)
       jrc = 0
       Call ChoDec(CD_Tester_Col,CD_Tester_Vec,
      &            Restart,Thr,Span,MxQual,
-     &            Work(ip_Diag),Work(ip_Qual),Work(ip_Buf),
+     &            Diag,Work(ip_Qual),Work(ip_Buf),
      &            iWork(ip_Pivot),iWork(ip_iQual),
      &            n,l_Buf,
      &            Work(ip_ES),NumCho,
@@ -184,13 +184,12 @@ C     ===========================
       Call GetMem('Pivot','Free','Inte',ip_Pivot,l_Pivot)
       Call GetMem('Err','Free','Real',ip_ES,l_ES)
       Call GetMem('Qual','Free','Real',ip_Qual,l_Qual)
-      Call GetMem('Diag','Free','Real',ip_Diag,l_Diag)
+      Call mma_deallocate(Diag)
       Call GetMem('Buf','Free','Real',ip_Buf,l_Buf)
       Call GetMem('Vec','Free','Real',ip_Vec,l_Vec)
       Call GetMem('Matrix','Free','Real',ip_Mat,l_Mat)
 
     1   Continue
-       Call qExit(SecNam)
       End
 C
       SubRoutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
@@ -207,8 +206,11 @@ C
          Call dCopy_(nDim,Work(kOff),1,Col(1,i),1)
       End Do
 
-      If (lBuf .gt. 0) x = Buf(1) ! to make some compilers happy
-
+      Return
+C Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(Buf)
+      End if
       End
 C
       SubRoutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
@@ -280,7 +282,6 @@ C
 
       Integer i
       Real*8  xn2
-      Real*8  dble
 
       If (n .lt. 1) Then
          Err(1) =  9.876543210d15

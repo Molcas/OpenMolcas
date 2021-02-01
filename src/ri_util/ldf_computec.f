@@ -48,7 +48,7 @@ C
 #include "ldf_atom_pair_info.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*12 SecNam
       Parameter (SecNam='LDF_ComputeC')
 #endif
@@ -68,7 +68,7 @@ C
 
       ! Init return code
       irc=0
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iAtomPair.lt.1 .or. iAtomPair.gt.NumberOfAtomPairs) Then
          Write(6,'(A,A,I8)')
      &   SecNam,': iAtomPair out of bounds:',iAtomPair
@@ -84,7 +84,7 @@ C
       ! Get number of auxiliary functions
       M=LDF_nBasAux_Pair(iAtomPair)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_C.ne.nuv*M .or. l_Z.ne.M*(M+1)/2) Then
          Write(6,'(A,A)') SecNam,': array dimension error'
          Write(6,'(A,2I10)') 'l_C,nuv*M:',l_C,nuv*M
@@ -105,7 +105,7 @@ C
       ! accordingly.
       Call LDF_RemoveColumnsOfC(iAtomPair,Work(ip_C),nuv,M,Small)
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(l_C)
@@ -129,7 +129,7 @@ C
       Integer irc
 
       Real*8 ZJJ_inv
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Real*8 TooSmall
       Parameter (TooSmall=1.0d-20)
 #endif
@@ -139,7 +139,7 @@ C
       iTri(i,j)=i*(i-1)/2+j
 
       irc=0
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Do J=1,M
          If (Z(iTri(J,J)).lt.TooSmall) Then
             irc=irc+1
@@ -402,7 +402,7 @@ C
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*10 SecNam
       Parameter (SecNam='LDF_CleanC')
 #endif
@@ -443,7 +443,7 @@ C
          M1=M1+LDF_nBasAux_Atom(B)
       End If
       M1=M1-AP_1CLinDep(1,AB)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If ((M1+AP_2CFunctions(1,AB)).gt.M) Then
          Call WarningMessage(2,SecNam//': M1+M2 != M')
          Call LDF_Quit(1)

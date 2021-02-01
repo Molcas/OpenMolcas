@@ -11,29 +11,13 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine PrjInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine PrjInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltPrm                                                  *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -66,20 +50,17 @@
       use Basis_Info
       use Center_Info
       use Real_Spherical
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
-     &          iChO(nComp), iTwoj(0:7)
-!#define _DEBUG_
-#ifdef _DEBUG_
+
+#include "int_interface.fh"
+
+*     Local varables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iTwoj(0:7)
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -88,7 +69,7 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PrjInt: Zeta',' ',Zeta,1,nZeta)
       Call RecPrt(' In PrjInt: A',' ',A,1,3)
       Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
@@ -123,7 +104,7 @@
                nBasisi=Shells(iShll)%nBasis
                If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExpi,
      &                     nBasisi)
 #endif
@@ -327,7 +308,7 @@
          mdc = mdc + dbsc(iCnttp)%nCntr
       End Do ! iCnttp
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) ' Result in PrjInt'
          Do 100 ia = 1, (la+1)*(la+2)/2
             Do 200 ib = 1, (lb+1)*(lb+2)/2
@@ -338,7 +319,6 @@
  100     Continue
 #endif
 *
-*     Call QExit('PrjInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -348,8 +328,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(rKappa)
          Call Unused_integer(nRys)
          Call Unused_integer_array(iChO)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

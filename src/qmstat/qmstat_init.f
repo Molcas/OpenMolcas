@@ -19,7 +19,6 @@
 #include "qminp.fh"
 #include "files_qmstat.fh"
 
-      Call QEnter('QMSTAT_INIT')
 *IO_stuff
       StFilIn='STFIL0'
       SAFilIn='SAFIL0'
@@ -167,7 +166,6 @@
       Exdt1 = 0.060d0
       Surf = 30.0d0
       iOrb(2)=5
-      iOcc2=5
       Diel = 80.0d0
       iExtra = 0
       Smeq=.false.
@@ -193,7 +191,6 @@
       lSlater=.true.
       lQuad=.false.
 
-      Call QExit('QMSTAT_INIT')
 
       Return
       End

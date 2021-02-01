@@ -15,17 +15,10 @@
      &                 B10,laa,B00,lac,B01,lcc)
 ************************************************************************
 *                                                                      *
-*     Object: to compute the 2-dimensional integrals of the Rys        *
-*             quadrature. The z components are assumed to be pre-      *
-*             conditioned with the weights of the roots of the         *
-*             Rys polynomial.                                          *
-*                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
+* Object: to compute the 2-dimensional integrals of the Rys            *
+*         quadrature. The z components are assumed to be pre-          *
+*         conditioned with the weights of the roots of the             *
+*         Rys polynomial.                                              *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -35,8 +28,6 @@
 * Further modifications in Jan-Feb. 1994.                              *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax),
@@ -44,8 +35,8 @@
      &       B10(nArg*lRys), B00(nArg*lRys),
      &       B01(nArg*lRys)
       Logical lPAWP, lQCWQ
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 *
       If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,lRys,nArg*3)
@@ -57,7 +48,6 @@
 *
       iOffy =   nArg*lRys
       iOffz = 2*nArg*lRys
-      tTwo = Two
       If (nabMax.eq.0 .and. ncdMax.eq.0) Then
       Else
 *
@@ -319,7 +309,7 @@
       End If
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iab = 0, nabMax
          Do icd = 0, ncdMax
             Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'

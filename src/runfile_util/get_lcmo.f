@@ -8,20 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_LCMO(ipLCMO,nDens)
+      Subroutine Get_LCMO(LCMO,nLCMO)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-
       Character*24 Label
       Logical      Found
+      Real*8 LCMO(nLCMO)
 
       Label='LCMO'
-      Call qpg_dArray(Label,Found,nDens)
-      If(.not.Found .or. nDens.eq.0) Then
+      Call qpg_dArray(Label,Found,mLCMO)
+      If(.not.Found .or. mLCMO.eq.0) Then
          Call SysAbendMsg('get_lcmo','Did not find:',Label)
       End If
-      Call GetMem('LCMO','Allo','Real',ipLCMO,nDens)
-      Call get_dArray(Label,Work(ipLCMO),nDens)
+      If (nLCMO/=mLCMO) Then
+         Write (6,*) 'Get_LCMO: nLCMO/=mLCMO'
+         Write (6,*) 'nLCMO=',nLCMO
+         Write (6,*) 'mLCMO=',mLCMO
+         Call Abend()
+      End If
+      Call get_dArray(Label,LCMO,nLCMO)
 
       Return
       End

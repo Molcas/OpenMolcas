@@ -55,7 +55,6 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       Dimension X1(*),X2(*)
       Dimension PQRS(*),TURS(*)
 
-      CALL QEnter('Tr2NsB')
       icc=NOCP*NOCQ*NOR*NOS
 
       If(ISP.gt.ISR)then
@@ -74,7 +73,6 @@ c      WRITE(*,*)'OUT OF CORE SORT FOR INTEGRALS (TU/RS)',IPQMX3,nbrs
        CALL dDAFILE(LUHLF3,0,TURS,IPQMX3,IAD3S)
       ENDIF
       IAD3=0
-      IOUT3=0
 
 c MaxRS should be given
       IRS=0
@@ -250,6 +248,5 @@ c End of Loop over t,u pair
        Endif
       Endif
 
-      CALL QEXIT('Tr2NsB')
       Return
       End

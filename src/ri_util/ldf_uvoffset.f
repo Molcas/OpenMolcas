@@ -32,7 +32,7 @@ C
 
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
       External LDF_nShell_Atom, LDF_lShell_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  LDF_nBas_Atom
       External LDF_nBas_Atom
 #endif
@@ -65,7 +65,7 @@ C
             iCount=iCount+nBasSh(iWork(ipA+iSA))*nBasSh(iShellB)
          End Do
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iCount.ne.LDF_nBas_Atom(A)*LDF_nBas_Atom(B)) Then
          Call WarningMessage(2,SecNam//': iCount error')
          Call LDF_Quit(1)

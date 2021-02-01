@@ -10,22 +10,13 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine NAGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine NAGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              Rysg1                                                   *
-*              QExit                                                   *
 *                                                                      *
 *             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
@@ -38,46 +29,36 @@
       External TNAI1, Fake, Cff2D
 *     Finite nuclei
       External TERI1, ModU2, vCff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Integer IndGrd(3,2), kOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &          iDCRT(0:7)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfGrad(3,2), TstFnc, TF
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7)
+      Logical, External :: TF
 #ifdef _PATHSCALE_
       Save Fact
 #endif
-*
-*     Local arrrays
-*
       Real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
       Integer iAnga(4), JndGrd(3,4), lOp(4), iuvwx(4)
       Logical JfGrad(3,4)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,
-     &                       dc(mdc)%nStab)
 *
+#ifdef _DEBUGPRINT_
       iRout = 150
       iPrint = nPrint(iRout)
-*     Call qEnter('NAGrd')
-*
-#ifdef _DEBUG_
       If (iPrint.ge.99) Then
          Write (6,*) ' In NAGrd: nArr=',nArr
          nDAO = nElem(la) * nElem(lb)
          Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
       End If
 #endif
+*
+      nRys=nHer
 *
       nip = 1
       ipA = nip
@@ -264,7 +245,6 @@ C              Call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)
  111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
 *
-*     Call qExit('NAGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -87,8 +87,8 @@
 *
 * Last change : Aug 2000
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 *. General input
 #include "mxpdim.fh"
 #include "timers.fh"
@@ -112,8 +112,10 @@ C-jwk-cleanup      DIMENSION H(MXPTSOB*MXPTSOB)
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
 C-jwk-cleanup      DIMENSION IOP_TYP(2),IOP_AC(2),IOP_REO(2)
 *
-      DIMENSION IJ_TYP(2),IJ_DIM(2),IJ_REO(2),IJ_AC(2),IJ_SYM(2)
-      DIMENSION KL_TYP(2),KL_DIM(2),KL_REO(2),KL_AC(2),KL_SYM(2)
+      DIMENSION IJ_TYP(2),IJ_DIM(2),IJ_REO(2),IJ_SYM(2)
+c      DIMENSION IJ_AC(2)
+      DIMENSION KL_TYP(2),KL_DIM(2),KL_REO(2),KL_SYM(2)
+c      DIMENSION KL_AC(2)
 *
       DIMENSION IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
 *. Arrays for reorganization
@@ -122,7 +124,6 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *
 
 #include "oper.fh"
-      CALL QENTER('RS2B ')
 *
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
@@ -135,7 +136,6 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *
       END IF
 *. A few constants
-      IONE = 1
       ZERO = 0.0D0
       ONE = 1.0D0
 *. Groups defining each supergroup
@@ -166,16 +166,15 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
         DO 1940 ISM = 1, NSMOB
           JSM = ADSXA(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 1940
-          KAFRST = 1
           NI = NOBPTS(ITYP,ISM)
           NJ = NOBPTS(JTYP,JSM)
           IF(NI.EQ.0.OR.NJ.EQ.0) GOTO 1940
 *. Should N-1 or N+1 projection be used for alpha strings
           IJ_TYP(1) = ITYP
           IJ_TYP(2) = JTYP
-          IJ_AC(1)  = 2
-          IJ_AC(2) =  1
-          NOP = 2
+c          IJ_AC(1)  = 2
+c          IJ_AC(2) =  1
+c          NOP = 2
 c          IF(IUSE_PH.EQ.1) THEN
 c            CALL ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TYP,IJ_AC,IJ_REO,
 c     &           SIGNIJ)
@@ -183,7 +182,6 @@ c          ELSE
 *. Enforced a+ a
             IJ_REO(1) = 1
             IJ_REO(2) = 2
-            SIGNIJ = 1.0D0
 c          END IF
 *. Two choices here :
 *  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> ( good old creation mapping)
@@ -200,13 +198,6 @@ C?        WRITE(6,*) ' RSBB2BN : IOP_REO : ', (IOP_REO(II),II=1,2)
             IJ_SYM(2) = JSM
             IJ_TYP(1) = ITYP
             IJ_TYP(2) = JTYP
-*
-            NOP1   = NI
-            IOP1SM = ISM
-            IOP1TP = ITYP
-            NOP2   = NJ
-            IOP2SM = JSM
-            IOP2TP = JTYP
           ELSE
 *. Terra Nova, annihilation map
             IJAC = 1
@@ -218,13 +209,6 @@ C?        WRITE(6,*) ' RSBB2BN : IOP_REO : ', (IOP_REO(II),II=1,2)
             IJ_SYM(2) = ISM
             IJ_TYP(1) = JTYP
             IJ_TYP(2) = ITYP
-*
-            NOP1   = NJ
-            IOP1SM = JSM
-            IOP1TP = JTYP
-            NOP2   = NI
-            IOP2SM = ISM
-            IOP2TP = ITYP
           END IF
 *
 *. Generate creation- or annihilation- mappings for all Ka strings
@@ -306,9 +290,9 @@ c              IF(IJKL_ACT.EQ.0) GOTO 2000
 *
               KL_TYP(1) = KTYP
               KL_TYP(2) = LTYP
-              KL_AC(1)  = 2
-              KL_AC(2) =  1
-              NOP = 2
+c              KL_AC(1)  = 2
+c              KL_AC(2) =  1
+c              NOP = 2
 c              IF(IUSE_PH.EQ.1) THEN
 c                CALL ALG_ROUTERX(IBOC,JBOC,NOP,KL_TYP,KL_AC,KL_REO,
 c     &               SIGNKL)
@@ -320,7 +304,6 @@ c              ELSE
 c              END IF
 *
               DO 1930 KSM = 1, NSMOB
-                IFIRST = 1
                 LSM = ADSXA(KSM,KLSM)
                 IF(NTEST.GE.100) THEN
                   WRITE(6,*) ' KSM, LSM', KSM, LSM
@@ -438,7 +421,6 @@ C    &               I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE   )
 *
  9999 CONTINUE
 *
-      CALL QEXIT('RS2B ')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

@@ -45,8 +45,8 @@ c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Real(kind=8), allocatable    :: eso(:,:)
       Complex(kind=8), allocatable :: dipso(:,:,:,:)
       Complex(kind=8), allocatable ::  s_so(:,:,:,:)
-      Character(1)                  :: itype(nneq)
-      Character(180)                :: namefile_aniso(nneq)
+      Character(Len=1)              :: itype(nneq)
+      Character(Len=180)            :: namefile_aniso(nneq)
       Logical                       :: ifHDF
       Logical                       :: DoPlot
 c  definition of the exchange:
@@ -166,9 +166,6 @@ c  definitions for blocking barrier
 c  options for automatic fitting of parameters:
       Logical                       :: fitCHI !-- not used so far
       Logical                       :: fitM !-- not used so far
-c  fundamental constants:
-      Real(kind=8)                 :: boltz_k
-      Real(kind=8)                 :: mu_bohr
 
       Integer                       :: iPrint
       Integer                       :: idim
@@ -182,18 +179,14 @@ c  fundamental constants:
 c      Integer                      :: nsta
 c      Integer                      :: icase, nmagmult
       Logical                       :: check_title
-      Character(180)                :: Title
+      Character(Len=180)            :: Title
       Logical                       :: GRAD
-      Logical                       :: lvM
       Logical                       :: dbg
-      Character(len=180)            :: fname
+      Character(Len=180)            :: fname
 
-      Call qEnter('PA_1')
       dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
-      boltz_k=0.6950356_wp                    !   in cm^-1*K-1
-      mu_bohr=0.466864374_wp                  !   in cm-1*T-1
       GRAD=.false.
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:
@@ -790,9 +783,6 @@ c---------------------------------------------------------------------
 !             MAGNETIC SUSCEPTIBILITY
 !---------------------------------------------------------------------
        If (compute_susceptibility .AND. (nT>0) ) Then
-          lvM =.false.
-          lvM = compute_magnetization .OR. (Xfield.ne.0.0_wp) .OR.
-     &          compute_torque
 
          ! set nT, T(i) and XTexp(i) arrays:
           Call set_T( nT, nTempMagn, TINPUT, TempMagn, Tmin, Tmax,
@@ -978,7 +968,6 @@ c---------------------------------------------------------------------
       Write(6,*)
       Write(6,'(10A)') (('-*-&-%-$-#-@-'),idim=1,10)
       Call xFlush(6)
-      Call qExit('PA_1')
 
       Return
       End

@@ -39,11 +39,8 @@
 *. Scratch blocks ( two of them)
       DIMENSION VEC1(*),VEC2(*)
 *
-      IDUM=0
-*
       NTEST = 000
       LBLK = -1
-      IDUM = 1
 *. Transfer vector on LUCIN to LUSC1
 C           COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
       CALL  COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)

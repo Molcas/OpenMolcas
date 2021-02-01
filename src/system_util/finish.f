@@ -11,6 +11,8 @@
 * Copyright (C) 2001-2016, Valera Veryazov                             *
 ************************************************************************
       subroutine finish(rc)
+      use Symmetry_Info, only: Symmetry_Info_Free
+      use Isotopes, only: Free_Isotopes
 #ifndef _HAVE_EXTRA_
       Use Prgm
 #endif
@@ -18,11 +20,14 @@ C     Gracefully shuts down a program module.
 C     After everything is closed properly, xquit is
 C     called to do the actual termination.
       implicit none
-      integer :: rc
+      integer, intent(in) :: rc
 #include "WrkSpc.fh"
 #include "timtra.fh"
       integer :: idum = 0
       integer :: iwarn
+
+      Call Symmetry_Info_Free()
+      Call Free_Isotopes()
 
       if(nfld_tim.gt.0) Call GetMem('iGATim','Free','Real',
      &                  iGATim,iDum)

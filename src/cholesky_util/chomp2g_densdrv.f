@@ -28,7 +28,6 @@
 
       Integer ipWrk, lWrk
 
-      Call qEnter(ThisNm)
       irc = 0
 
       Call GetMem('GetMax', 'Max','Real',ipWrk,lWrk)
@@ -48,5 +47,4 @@
       Call ChoMP2g_density2(irc,EOcc,EVir,EFro,Work(ipWrk),lWrk)
       Call GetMem('GetMax','Free','Real',ipWrk,lWrk)
       Call ChoMP2g_density3(irc,CMO)
-      Call qExit(ThisNm)
       End

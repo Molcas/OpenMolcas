@@ -12,28 +12,19 @@
 ************************************************************************
       SubRoutine Init_PCM(NonEq,iCharg)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
 *             Modified for Langevin polarizabilities, March 2000 (RL)  *
 ************************************************************************
       use PCM_arrays
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "angstr.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "unixinfo.fh"
       Character*2 Elements(MxAtom*8)
@@ -48,7 +39,6 @@
 *
       iRout=1
       iPrint=nPrint(iRout)
-      Call qEnter('Init_PCM')
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -67,7 +57,6 @@ c added mckinley for pcm in second derivatives
 cpcm_solvent end
       If (DoDeriv) Then
          LcNAtm = ISlPar(42)
-         nDeg=3*LcNAtm
          Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
          Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
          Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
@@ -177,7 +166,6 @@ cpcm_solvent end
 ************************************************************************
 *                                                                      *
  999    Continue
-       Call qExit('Init_PCM')
       Return
 *
 *     This is to allow type punning without an explicit interface

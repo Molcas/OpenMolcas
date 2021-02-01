@@ -164,7 +164,6 @@ c      Real(kind=8)             :: dir_weight(nDirZee,3)
       Real(kind=8)              :: dHX(3)
       Real(kind=8)              :: dHY(3)
       Real(kind=8)              :: dHZ(3)
-      Real(kind=8)              :: dHW(3)
       Integer                    :: RtoB, mem_local
 
       Integer                    :: info, ibuf, ibuf1, ibuf3
@@ -174,7 +173,6 @@ c      Real(kind=8)             :: dir_weight(nDirZee,3)
       External                   :: dev, dnrm2_
       Real(kind=8)              :: cm3tomB
       logical                    :: DBG, m_accurate
-      Call qEnter('PA_XTdMdH')
       DBG=.false.
       !m_paranoid=.true.!.false.
       cm3tomB=0.55849389040_wp   !   in cm3 * mol-1 * T
@@ -439,7 +437,6 @@ cccc-------------------------------------------------------cccc
       dHX=0.0_wp
       dHY=0.0_wp
       dHZ=0.0_wp
-      dHW=0.0_wp
 
       nDirX=3
 
@@ -1051,7 +1048,6 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         Call mma_deallocate(SLT2)
       End If
 
-      Call qExit('PA_XTdMdH')
       Return
       End
 

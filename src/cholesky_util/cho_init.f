@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl,
+     &                  iShlSO, IntMap
 C
 C     Purpose: initializations.
 C
@@ -19,18 +21,22 @@ C
 C              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 C              record bookmarks during Cholesky decomposition.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
+     &                                       iiBstRSh_Hidden, iiBstRSh,
+     &                                         InfRed_Hidden,   InfRed,
+     &                                         InfVec_Hidden,   InfVec
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "chosp.fh"
 #include "chosubscr.fh"
 #include "chobkm.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       DIMENSION XXB(8)
 
@@ -43,13 +49,7 @@ C
       PARAMETER (GBLIM = 2.147483648D9)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      ISOSHL(I)=IWORK(ip_iSOShl-1+i)
-      ISHLSO(I)=IWORK(ip_iShlSO-1+i)
-      IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
-      CALL QENTER('_INIT')
 
 C     Check settings for parallel runs.
 C     Return code: 3 will cause verification to accept this as a passed
@@ -99,13 +99,14 @@ C     ------------
 C     Allocate memory for reduced set index arrays.
 C     ---------------------------------------------
 
-      l_IIBSTRSH = NSYM*NNSHL*3
-      l_NNBSTRSH = l_IIBSTRSH
-      l_INTMAP   = NNSHL
       l_MYSP     = NNSHL
-      CALL CHO_MEM('iibstrsh','ALLO','INTE',ip_IIBSTRSH,l_IIBSTRSH)
-      CALL CHO_MEM('nnbstrsh','ALLO','INTE',ip_NNBSTRSH,l_NNBSTRSH)
-      CALL CHO_MEM('intmap','ALLO','INTE',ip_INTMAP,l_INTMAP)
+      Call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='iiBstRSh_Hidden')
+      iiBstRSh => iiBstRSh_Hidden
+      Call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='nnBstRSh_Hidden')
+      nnBstRSh => nnBstRSh_Hidden
+      Call mma_allocate(IntMap,nnShl,Label='IntMap')
       CALL CHO_MEM('mySP','ALLO','INTE',ip_MYSP,l_MYSP)
 
 C     Initialize timings etc.
@@ -187,12 +188,12 @@ C     -----------------------------------------------------------
          WRITE(LUPRI,*) SECNAM,': MAXVEC = ',MAXVEC
          CALL CHO_QUIT('MAXRED/MAXVEC error in '//SECNAM,103)
       ELSE
-         l_INFRED = MAXRED
-         l_INFVEC = MAXVEC*INFVEC_N2*NSYM
-         l_NDIMRS = NSYM*MAXRED
-         CALL CHO_MEM('INFRED','ALLO','INTE',ip_INFRED,l_INFRED)
-         CALL CHO_MEM('INFVEC','ALLO','INTE',ip_INFVEC,l_INFVEC)
-         CALL CHO_MEM('NDIMRS','ALLO','INTE',ip_NDIMRS,l_NDIMRS)
+         Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
+         InfRed => InfRed_Hidden
+         Call mma_allocate(InfVec_Hidden,MaxVec,INFVEC_N2,nSym,
+     &                     Label='InfVec_Hidden')
+         InfVec => InfVec_Hidden
+         Call mma_allocate(nDimRS,NSYM,MAXRED,Label='nDimRS')
       END IF
 
 C     Allocate bookmarks (accuracy and number of Cholesky vectors).
@@ -273,11 +274,10 @@ C     decomposition.
 C     -----------------------------------------------------
 
       IF (CHO_1CENTER) THEN
-         l_IATOMSHL = NSHELL
-         CALL CHO_MEM('IATOMSHL','ALLO','INTE',ip_IATOMSHL,l_IATOMSHL)
+         Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
 
          IRC = -1
-         CALL CHO_SETATOMSHL(IRC,IWORK(ip_IATOMSHL),l_IATOMSHL)
+         CALL CHO_SETATOMSHL(IRC,IATOMSHL,SIZE(IATOMSHL))
          IF (IRC .NE. 0) THEN
             WRITE(LUPRI,*) SECNAM,': CHO_SETATOMSHL returned ',IRC
             CALL CHO_QUIT(SECNAM//': shell-to-atom init failed!',102)
@@ -288,8 +288,8 @@ C     Allocate IQUAB array for qualification.
 C     Allocate IQUAB_L array for parallel runs.
 C     -----------------------------------------
 
-      l_IQUAB = MAXQUAL*NSYM
-      CALL CHO_MEM('IQUAB','ALLO','INTE',ip_IQUAB,l_IQUAB)
+      Call mma_allocate(iQuAB_Hidden,MaxQual,nSym,Label='iQuAB_Hidden')
+      iQuAB => iQuAB_Hidden
       CALL CHO_P_INILQ(MAXQUAL,NSYM)
 
 C     Set screening mode.
@@ -387,6 +387,5 @@ C           -----------
 
       END IF
 
-      CALL QEXIT('_INIT')
 
       END

@@ -34,16 +34,16 @@ C
       Logical DoPrint, DoCheck
 #include "cholesky.fh"
 
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       Character*8 SecNam
       Parameter (SecNam='Cho_ZMem')
 #endif
       Character*2 Unt
-      Integer iSym, ip_Mx, l_Mx
+      Integer iSym, l_Mx
       Real*8 Byte, xl_Z
       Real*8 Word(8)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_NVT .lt. nSym) Then
          irc=-1
          l_Z=-999999
@@ -76,7 +76,7 @@ C
      &   'Total:        ',l_Z,' words (',Byte,Unt,')'
       End If
 
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_Z .lt. 0) Then
          Write(Lupri,'(A,A)')
      &   SecNam,': dimension of Z vector array is negative!'
@@ -94,7 +94,7 @@ C
 #endif
 
       If (DoCheck) Then
-         Call GetMem('ChkZ','Max ','Real',ip_Mx,l_Mx)
+         Call mma_maxDBLE(l_Mx)
          If (l_Z.gt.l_Mx) Then
             irc=999
             Return

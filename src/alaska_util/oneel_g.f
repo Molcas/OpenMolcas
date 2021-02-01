@@ -23,24 +23,6 @@
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drvh1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -57,14 +39,15 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-      External Kernel, KrnlMm
+*     External Kernel, KrnlMm
+      External KrnlMm
+#include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -82,6 +65,20 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       Real*8, Allocatable:: Krnl(:), Final(:), Scr1(:), Scr2(:)
       Real*8, Allocatable:: DAO(:), DSOpr(:), DSO(:)
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Kernel(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
+#include "grd_interface.fh"
+      End Subroutine Kernel
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
@@ -90,14 +87,12 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       iPrint = nPrint(iRout)
       call dcopy_(nGrad,[Zero],0,Grad,1)
 *
-      iIrrep = 0
-*
 *     Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max,Label='Zeta')
-      Call mma_allocate(ZI,m2Max,Label='ZI')
-      Call mma_allocate(Kappa,m2Max,Label='Kappa')
-      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -175,24 +170,24 @@ C        Do jS = 1, iS
 *           Call kernel routine to get memory requirement.
 *
             Call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
-            MemKrn=MemKer*m2Max
+            MemKrn=MemKer*S%m2Max
             Call mma_allocate(Krnl,MemKrn,Label='Krnl')
 *
 *           Allocate memory for the final integrals, all in the
 *           primitive basis.
 *
-            lFinal = 6 * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = 6 * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng) * nComp
             Call mma_allocate(Final,lFinal,Label='Final')
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) * nElem(iAng)*nElem(jAng)
+            nScr1 =S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
             Call mma_allocate(DAO,iPrim*jPrim*nElem(iAng)*nElem(jAng),
@@ -370,7 +365,7 @@ c VV: gcc bug: one has to use this if!
      &                     mdci,mdcj,nOp,lOper,nComp,
      &                     iStabM,nStabM)
                If (iPrint.ge.49) Call PrGrad(' In Oneel',
-     &             Grad,nGrad,lIrrep,ChDisp,5)
+     &             Grad,nGrad,ChDisp,5)
 *
  140        Continue
           endif
@@ -391,7 +386,7 @@ C     End Do
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      If (iPrint.ge.15) Call PrGrad(Label,Grad,nGrad,lIrrep,ChDisp,5)
+      If (iPrint.ge.15) Call PrGrad(Label,Grad,nGrad,ChDisp,5)
 *
       Return
       End

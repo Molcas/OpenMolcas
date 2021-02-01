@@ -24,8 +24,8 @@
       Real*8, Intent(InOut):: Zeta(N,M), ZInv(N,M)
       Integer j
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In ZXia: Alpha',' ',Alpha,N,1)
       Call RecPrt(' In ZXia: Beta ',' ',Beta ,M,1)
 #endif
@@ -34,7 +34,7 @@
          Zeta(:,j) = (Alpha(:)+Beta(j))
          ZInv(:,j) = One/Zeta(:,j)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt( ' In ZXia: Zeta',' ',Zeta,N,M)
 #endif
 *

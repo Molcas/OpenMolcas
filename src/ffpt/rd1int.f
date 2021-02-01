@@ -22,9 +22,6 @@
       Implicit Real*8 ( A-H,O-Z )
 *
 #include "input.fh"
-#include "WrkSpc.fh"
-*
-      Call QEnter('Rd1Int_FFPT')
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -33,16 +30,11 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      iOpt=0
-      iComp=1
-      iSyLbl=0
-*
       Call Get_cArray('Seward Title',Header,144)
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
       Call Get_iScalar('Unique atoms',nAtoms)
       Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 *
-      Call QExit('Rd1Int_FFPT')
       Return
       End

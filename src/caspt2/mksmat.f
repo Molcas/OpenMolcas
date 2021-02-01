@@ -27,7 +27,6 @@ C     Set up S matrices for cases 1..13.
 #include "pt2_guga.fh"
 #include "SysDef.fh"
 
-      CALL QENTER('MKSMAT')
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -78,7 +77,6 @@ C looping, etc in the rest  of the routines.
         END DO
       END DO
 
-      CALL QEXIT('MKSMAT')
 
       RETURN
       END
@@ -88,6 +86,9 @@ C looping, etc in the rest  of the routines.
 ********************************************************************************
       SUBROUTINE MKSA(DREF,PREF,NG3,G3,idxG3)
       USE SUPERINDEX
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -95,7 +96,6 @@ C looping, etc in the rest  of the routines.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -894,6 +894,9 @@ C Add -dyu Gvzxt
 ********************************************************************************
       SUBROUTINE MKSC(DREF,PREF,NG3,G3,idxG3)
       USE SUPERINDEX
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -901,7 +904,6 @@ C Add -dyu Gvzxt
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1705,7 +1707,6 @@ C      -4dxu dyt + 2dxu Dyt
 C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
 C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
 
-      CALL QENTER('MKSB')
 
 C Loop over superindex symmetry.
       DO 1000 ISYM=1,NSYM
@@ -1827,7 +1828,6 @@ C Write to disk, and save size and address.
         END IF
  1000 CONTINUE
 
-      CALL QEXIT('MKSB')
 
       RETURN
       END
@@ -1852,7 +1852,6 @@ C    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
 C    SD(tu2,xy1)= -(Gutxy + dxt Duy)
 C    SD(tu2,xy2)= -Gxtuy +2*dxt Duy
 
-      CALL QENTER('MKSD')
 
 C Loop over superindex symmetry.
       DO 1000 ISYM=1,NSYM
@@ -1919,7 +1918,6 @@ C Write to disk
         END IF
  1000 CONTINUE
 
-      CALL QEXIT('MKSD')
 
       RETURN
       END
@@ -1942,7 +1940,6 @@ C Formula used:
 C    SE(t,x)=2*dtx - Dtx
 
 
-      CALL QENTER('MKSE')
 
       DO 1000 ISYM=1,NSYM
         NINP=NINDEP(ISYM,6)
@@ -1977,7 +1974,6 @@ C Write to disk
         END IF
  1000 CONTINUE
 
-      CALL QEXIT('MKSE')
 
       RETURN
       END
@@ -2003,7 +1999,6 @@ C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
 C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
 
 
-      CALL QENTER('MKSF')
 
 C Loop over superindex symmetry.
       DO 1000 ISYM=1,NSYM
@@ -2094,7 +2089,6 @@ C Write to disk
         END IF
  1000 CONTINUE
 
-      CALL QEXIT('MKSF')
 
       RETURN
       END
@@ -2116,7 +2110,6 @@ C Set up the matrix SG(t,x)
 C Formula used:
 C    SG(t,x)= Dtx
 
-      CALL QENTER('MKSG')
 
       DO 1000 ISYM=1,NSYM
         NINP=NINDEP(ISYM,10)
@@ -2147,7 +2140,6 @@ C Write to disk
         END IF
  1000 CONTINUE
 
-      CALL QEXIT('MKSG')
 
       RETURN
       END

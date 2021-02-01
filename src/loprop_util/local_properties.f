@@ -35,7 +35,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -129,7 +129,6 @@ cvv
          Do l = 0, lMax
          Do ix = l, 0, -1
          Do iy = l-ix, 0, -1
-            iz = l-ix-iy
             iMu = iMu + 1
 *
 *....... Compute local properties
@@ -177,7 +176,7 @@ cvv
 *     1) Modify first all to a common origin (0.0,0.0,0.0)
 *     2) Modify to local moments
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call xSpot ('Middle  Local_Properties')
       Call RecPrt('rMP',' ',rMP,nij,nElem*nPert)
 #endif
@@ -292,7 +291,7 @@ C           Write (6,*) 'End step 2'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('EC',' ',EC,3,nij)
       Call RecPrt('rMP',' ',rMP,nij,nElem*nPert)
       Call RecPrt('rMPq',' ',rMPq,1,nElem)

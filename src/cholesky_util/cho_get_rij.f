@@ -42,6 +42,8 @@
 *> @param[in]     timings Switch on/off timings printout
 ************************************************************************
       SUBROUTINE CHO_get_Rij(irc,ipMO,nOcc,Rij,timings)
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Logical timings,DoRead
       Integer nOcc(*),iOcc(8),iOcs(8),ipLib(8),iSkip(8),ipMO(*)
@@ -53,17 +55,8 @@
       parameter (zero = 0.0d0, one = 1.0d0, DoRead = .false.)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-************************************************************************
 
       IREDC = -1
 
@@ -131,14 +124,12 @@ C ---
 
       if (nVrs.lt.0) then
          Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call qtrace()
          call abend()
       endif
 
       Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
       if(irc.ne.0)then
        Write(6,*)SECNAM//': cho_X_setred non-zero return code. rc= ',irc
-       call qtrace()
        call abend()
       endif
 
@@ -157,7 +148,6 @@ C ---
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',Maj+Mneed
          irc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If

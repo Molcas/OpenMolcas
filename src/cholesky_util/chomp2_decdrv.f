@@ -45,13 +45,13 @@ C
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_DecDrv', ThisNm = 'DecDrv')
+      Character(LEN=6), Parameter:: ThisNm = 'DecDrv'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_DecDrv'
 
-      Logical Restart, Failed, ConventionalCD
-      Parameter (Restart = .false.)
+      Logical, Parameter:: Restart = .false.
+      Logical Failed, ConventionalCD
 
       Integer nOption
       Parameter (nOption = 2)
@@ -61,13 +61,14 @@ C
       Integer iClos(2)
       Integer MxCDVec(8)
 
+      Real*8, Allocatable:: ErrStat(:), Bin(:)
+
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ChkDecoMP2 = .True.
 #endif
 
@@ -89,7 +90,6 @@ C     ----------------
       If (iOption.lt.1 .or. iOption.gt.nOption) Then
          irc = -98
          Write(6,*) SecNam,': illegal input option (argument CD_Type)'
-         Call qExit(ThisNm)
          Return
       End If
       iOption_MP2CD = iOption  ! copy to include file chomp2_dec.fh
@@ -106,13 +106,13 @@ C For now, I simply define the array here:
       End Do
 
       lErrStat = 3
-      Call GetMem('ErrStat','Allo','Real',ipErrStat,lErrStat)
+      Call mma_allocate(ErrStat,lErrStat,Label='ErrStat')
       If (Verbose) Then
          nBin = 18
-         Call GetMem('Bin','Allo','Real',ipBin,nBin)
+         Call mma_allocate(Bin,nBin,Label='Bin')
       Else
-         ipBin = -999999
          nBin  = 0
+         Call mma_allocate(Bin,1,Label='Bin')
       End If
 
       Do iSym = 1,nSym
@@ -156,9 +156,9 @@ C     --------------------
             ConventionalCD = MxCDVec(iSym).lt.1 .or.
      &                       MxCDVec(iSym).ge.nDim
             If (Verbose .and. nBin.gt.0) Then
-               Work(ipBin) = 1.0D2
-               Do iBin = ipBin+1,ipBin+nBin-1
-                  Work(iBin) = Work(iBin-1)*1.0D-1
+               Bin(1) = 1.0D2
+               Do iBin = 2,nBin
+                  Bin(iBin) = Bin(iBin-1)*1.0D-1
                End Do
                If (ConventionalCD) Then
                   Write(6,'(//,1X,A,I2,A,I9)')
@@ -172,7 +172,7 @@ C     --------------------
      &            ', dimension: ',nDim
                End If
                Write(6,'(/,1X,A)') 'Analysis of initial diagonal:'
-               Call Cho_AnaSize(Diag(kOffD),nDim,Work(ipBin),nBin,6)
+               Call Cho_AnaSize(Diag(kOffD),nDim,Bin,nBin,6)
             End If
 
 C           Open files.
@@ -250,7 +250,7 @@ C           ------------------------------
      &                     Diag(kOffD),Work(ipQual),Work(ipBuf),
      &                     iWork(ipiPivot),iWork(ipiQual),
      &                     nDim,lBuf,
-     &                     Work(ipErrStat),nMP2Vec(iSym),irc)
+     &                     ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
                   Write(6,*) SecNam,': ChoDec returned ',irc,
      &                              '   Symmetry block: ',iSym
@@ -262,16 +262,16 @@ C           ------------------------------
      &                           Diag(kOffD),Work(ipQual),Work(ipBuf),
      &                           iWork(ipiPivot),iWork(ipiQual),
      &                           nDim,lBuf,
-     &                           Work(ipErrStat),nMP2Vec(iSym),irc)
+     &                           ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
                   Write(6,*) SecNam,': ChoDec_MxVec returned ',irc,
      &                              '   Symmetry block: ',iSym
                   Go To 1 ! exit...
                End If
             End If
-            XMn = Work(ipErrStat)
-            XMx = Work(ipErrStat+1)
-            RMS = Work(ipErrStat+2)
+            XMn = ErrStat(1)
+            XMx = ErrStat(2)
+            RMS = ErrStat(3)
             If (Verbose) Then
                Write(6,'(/,1X,A)')
      &         '- decomposition completed!'
@@ -314,9 +314,9 @@ C           ----------------------------------
                Write(6,*) 'Symmetry block: ',iSym
                Write(6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
                Write(6,*) 'Error statistics for diagonal [min,max,rms]:'
-               Write(6,*) (Work(ipErrStat+i),i=0,2)
+               Write(6,*)  ErrStat(:)
                Call ChoMP2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,
-     &                            Work(ipBuf),lBuf,Work(ipErrStat))
+     &                            Work(ipBuf),lBuf,ErrStat)
                If (irc .ne. 0) Then
                   If (irc .eq. -123456) Then
                      Write(6,*)
@@ -330,9 +330,9 @@ C           ----------------------------------
      &                                ' ')
                   End If
                Else
-                  XMn = Work(ipErrStat)
-                  XMx = Work(ipErrStat+1)
-                  RMS = Work(ipErrStat+2)
+                  XMn = ErrStat(1)
+                  XMx = ErrStat(2)
+                  RMS = ErrStat(3)
                   Write(6,'(A,A,A)')
      &            'Error statistics for ',Option,' [min,max,rms]:'
                   Write(6,*) XMn,XMx,RMS
@@ -402,7 +402,7 @@ C           ---------------------------------
             End Do
          End Do
       End If
-      Call GetMem('Flush','Flush','Real',ipErrStat,lErrStat)
-      Call GetMem('ErrStat','Free','Real',ipErrStat,lErrStat)
-      Call qExit(ThisNm)
+
+      Call mma_deallocate(Bin)
+      Call mma_deallocate(ErrStat)
       End

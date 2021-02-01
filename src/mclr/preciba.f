@@ -33,9 +33,9 @@
 *     rOut        :       Submatrix                                    *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8  Fock(nba,nba),Focki(nba,nba),FockA(nba,nba)
       Real*8 rOut(*), A_J(nScr), A_K(nScr), Scr(nScr)
@@ -60,12 +60,11 @@
       Call Exch(jS,iS,jS,iS,iB,iB,A_K,Scr)
 *
       Do jA=1,nAsh(jS)
-         jAA=jA+nIsh(jS)
          ip=itri1(ja,nd-jVert+1)
          Do jB=1,nAsh(jS)
             jBB=jB+nIsh(jS)
 *           Get D_(ja,jb)
-            rDens=-sign*Work(ipg1-1+(iTri(jA+nA(jS),jB+nA(jS))))
+            rDens=-sign*G1t((iTri(jA+nA(jS),jB+nA(jS))))
             If (jA.eq.jB) rDens=rdens+sign*2.0d0
 *
             ivB=(jBB-1)*nBas(jS) + nO + 1

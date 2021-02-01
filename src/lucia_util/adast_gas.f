@@ -89,7 +89,6 @@
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
 *
-      CALL QENTER('ADAST ')
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -234,7 +233,6 @@
         NELB = NELB + NELFGP(IGRP(JGRP))
       END DO
       IF(NTEST.GE.1000) WRITE(6,*) ' NELB = ', NELB
-      ZERO =0.0D0
       IZERO = 0
       CALL ISETVC(I1,IZERO,NORBTS*NKSTR)
 * Loop over symmetry distribtions of K strings
@@ -291,7 +289,6 @@ C       DO IGAS =  IOBTP +1, NIGRP
         NKAC = NNSTSGP(ISMFGS(IACGRP),IACGRP)
         IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
 *. I and K strings of given symmetry distribution
-        NISD = NSTB*NIAC*NSTA
         NKSD = NSTB*NKAC*NSTA
         IF(NTEST.GE.1000) THEN
         write(6,*) ' nstb nsta niac nkac ',
@@ -335,7 +332,6 @@ C       DO IGAS =  IOBTP +1, NIGRP
         END IF
       END IF
 *
-      CALL QEXIT('ADAST ')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

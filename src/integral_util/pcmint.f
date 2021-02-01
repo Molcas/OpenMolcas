@@ -19,19 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 *                                                                      *
@@ -44,10 +31,6 @@
 *     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
@@ -57,18 +40,16 @@
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4), iDCRT(0:7), iChO(nComp)
+#ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#endif
       Dimension jStab_(0:0)
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
-      iRout = 151
-      iPrint = nPrint(iRout)
-*     Call qEnter('PCMInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -106,24 +87,26 @@
       Do iTile = 1, nTiles
          QTessera = Q_Tessera(iTile)
          C(:)=C_Tessera(:,iTile)
-         If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('C',' ',C,1,3)
+#endif
 *
 *--------Find the DCR for M and S
 *
          Call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
          Fact = One / DBLE(LmbdT)
 *
-         If (iPrint.ge.99) Then
-            Write (6,*) ' m      =',nStabM
-            Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
-     &            ii = 0, nStabM-1)
-            Write (6,*) ' s      =',nStab_
-            Write (6,'(9A)') '(S)=',ChOper(jStab_)
-            Write (6,*) ' LambdaT=',LmbdT
-            Write (6,*) ' t      =',nDCRT
-            Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
-     &            ii = 0, nDCRT-1)
-         End If
+#ifdef _DEBUGPRINT_
+         Write (6,*) ' m      =',nStabM
+         Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
+     &         ii = 0, nStabM-1)
+         Write (6,*) ' s      =',nStab_
+         Write (6,'(9A)') '(S)=',ChOper(jStab_)
+         Write (6,*) ' LambdaT=',LmbdT
+         Write (6,*) ' t      =',nDCRT
+         Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
+     &         ii = 0, nDCRT-1)
+#endif
 
 *
          Do lDCRT = 0, nDCRT-1
@@ -153,21 +136,18 @@
             nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
-            If (iPrint.ge.99) Then
-               Write (6,*) Fact*QTessera
-               Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
-     &                 nZeta,nElem(la)*nElem(lb)*nComp)
-               Call RecPrt('PCMInt: Final',' ',Final,
-     &                 nZeta,nElem(la)*nElem(lb)*nIC)
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,*) Fact*QTessera
+            Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
+     &              nZeta,nElem(la)*nElem(lb)*nComp)
+            Call RecPrt('PCMInt: Final',' ',Final,
+     &              nZeta,nElem(la)*nElem(lb)*nIC)
+#endif
 *
          End Do
       End Do
-*
-*     Call GetMem(' Exit PCMInt','LIST','REAL',iDum,iDum)
-*     Call qExit('PCMInt')
-      Return
-c Avoid unused argument warnings
+
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
@@ -175,4 +155,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(CCoor)
          Call Unused_integer(nOrdOp)
       End If
+#endif
       End

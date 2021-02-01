@@ -13,24 +13,19 @@
      &                          Shijij,IJeqKL,iAO,iAOst,ijkl,
      &                          AOInt,SOInt,nSOint,
      &                          iSOSym,nSkal,nSOs,
-     &                          TInt,nTInt,FacInt,itOffs,nSym,
-     &                          Dens,Fock,LDens,ExFac,NDens,
-     &                          ind,nind,FckNoClmb,FckNoExch)
+     &                          TInt,nTInt,itOffs,nSym)
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
       Implicit Real*8 (A-H,O-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
-*
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
-      Logical Shijij,IJeqKL,FckNoClmb,FckNoExch
+      Logical Shijij,IJeqKL
 *
-      If (Petite) Then
+      If (nSym.eq.1) Then
         Call PLF(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
      &           iShell,iAO,iAOst,Shijij.and.IJeqKL,
      &           iBas,jBas,kBas,lBas,kOp)
@@ -46,16 +41,6 @@ c Avoid unused argument warnings
          Call Unused_integer_array(iSOSym)
          Call Unused_integer(nSkal)
          Call Unused_real_array(TInt)
-         Call Unused_real(FacInt)
          Call Unused_integer_array(itOffs)
-         Call Unused_real(Dens)
-         Call Unused_real(Fock)
-         Call Unused_integer(LDens)
-         Call Unused_real(ExFac)
-         Call Unused_integer(NDens)
-         Call Unused_integer(ind)
-         Call Unused_integer(nind)
-         Call Unused_logical(FckNoClmb)
-         Call Unused_logical(FckNoExch)
       End If
       End

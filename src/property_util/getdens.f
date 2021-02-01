@@ -15,35 +15,29 @@
 *                                                                      *
 * Object: to get the 1 particle density from file INPORB               *
 *                                                                      *
-* Called from: Drv1el                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chem. Phys.                       *
 *             University of Lund, SWEDEN                               *
 *             January 2000                                             *
 ************************************************************************
       use PrpPnt
+      use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_close_file
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
       Character Line*80
       Character*(*) FName
       Logical Density
       Dimension Dummy(1),iDummy(1)
 *
       nDen=n2Tri(1)
-      nVec=n2Tot
-      nOcc=nDim
+      nVec=S%n2Tot
+      nOcc=S%nDim
       If (Density) Call mma_allocate(Den,nDen,label='Den')
       iadDen=1
       Call mma_allocate(Vec,nVec,label='Vec')
@@ -51,7 +45,6 @@
       iadDen=1
       iadVec=1
       iadOcc=1
-      iOpt = 1
 #ifdef _HDF5_
       If (mh5_is_hdf5(FName)) Then
          id_file=mh5_open_file_r(FName)

@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine espf (ireturn,StandAlone)
       use Real_Spherical
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 *
 * ESPF Module
@@ -20,7 +21,6 @@
 #include "disp.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nac.fh"
       Character Label*8
@@ -28,7 +28,6 @@
       Logical lMorok,DoDirect,isNAC_tmp
       Dimension idum(1)
 *
-      Call QEnter('espf')
       iReturn=99
 *
 *-----Print
@@ -38,7 +37,6 @@
 * Some warnings
 *
       Call Get_iScalar('nSym',nSym)
-      nIrrep=nSym
       If (nSym.gt.1) Then
          Write(6,'(A)')' Symmetry cannot be used together with ESPF.'
          Call Quit_OnUserError()
@@ -145,12 +143,10 @@
          If (iRc.ne.0) Then
             Write (6,'(A)')' ESPF: Error reading ONEINT'
             Write (6,'(A,A8)')' Label = ',Label
-            Call QTrace()
             Call Abend()
          End If
          If (nInts+4.ne.nSize) Then
             Write (6,'(A,2I5)')' ESPF: nInts+4.ne.nSize',nInts+4,nSize
-            Call QTrace
             Call Abend()
          End If
          iRc = -1
@@ -164,7 +160,6 @@
          If (iRC.ne.0) then
             Write (6,*)'ESPF: Error writing to ONEINT'
             Write (6,'(A,A8)')'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          Call Free_Work(ipH)
@@ -173,7 +168,7 @@
      &                 ' Nuclear energy, including Ext Pot = ',RepNuc
       Else
          Call StatusLine(' espf:',' Computing gradient components')
-         Call espf_grad(natom,nAtQM,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,
+         Call espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,
      &                  ipGradCl,DoTinker,DoGromacs)
          If (ipMltp.eq.ip_Dummy)
      &      Call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)
@@ -221,7 +216,6 @@
          Call Put_iScalar('System BitSwitch',iOption)
       End If
 *
-      Call QExit('espf')
       iReturn=0
       Return
       End

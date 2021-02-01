@@ -28,15 +28,12 @@
 *                                                                      *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use ChoArr, only: iSOSHl, iShlSO, nBstSh
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
-#include "WrkSpc.fh"
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(nInt)
       Integer iShell(4), iAO(4), kOp(4),
@@ -46,13 +43,7 @@
       external ddot_
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
-      iSOShl(i)=iWork(ip_iSOShl-1+i)
-      iShlSO(i)=iWork(ip_iShlSO-1+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
-#if defined (_DEBUG_)
-      Call qEnter('Plf_CD')
-#endif
       irout = 109
       jprint = nprint(irout)
       If (jPrint.ge.49) Then
@@ -63,10 +54,6 @@
       End If
       If (jPrint.ge.99) Call RecPrt(' In Plf_CD: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
-
-      If (Shijij) Then ! avoid compiler warnings about unused variables
-         iDummy_1 = iShell(1)
-      End If
 *
 *     Allocate space to store integrals to gether with their
 *     Symmetry batch and sequence number.
@@ -87,8 +74,6 @@
       iAOj=iAO(2)
       iAOk=iAO(3)
       iAOl=iAO(4)
-*
-      ijklCmp=iCmp*jCmp*kCmp*lCmp
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
@@ -147,8 +132,10 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-      Call qExit('Plf_CD')
-#endif
       Return
+* Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer_array(iShell)
+         Call Unused_logical(Shijij)
+       End If
       End

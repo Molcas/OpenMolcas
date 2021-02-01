@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to compute the nuclear contibutions to the nuclear potential *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -29,19 +24,16 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Temporary_Parameters, only: Expert
+      use Real_Info, only: PotNuc
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
+#include "print.fh"
       Real*8 A(3), B(3), RB(3)
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7), jStb(0:7)
       Logical EQ, NoLoop
 *
-
-      iRout = 33
-      iPrint = nPrint(iRout)
-      Call qEnter('DrvN0')
       NoLoop=.True.
       iDum=0
       r12_Min=0.0D0
@@ -170,7 +162,7 @@
          Write (6,*)
       End If
 *
-      If (lXF.and.(nOrd_XF.ge.0)) Then
+      If (Allocated(XF).and.(nOrd_XF.ge.0)) Then
 *
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
@@ -229,7 +221,7 @@
             End If
             If (NoLoop) Go To 102
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iChBas(2))
+            iChxyz=iChAtm(A)
             Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
@@ -388,7 +380,7 @@
 
             If (NoLoop) Go To 103
             A(1:3) = XF(1:3,iFd)
-            iChxyz=iChAtm(A,iChBas(2))
+            iChxyz=iChAtm(A)
             Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             Do jFd = 1, iFd
@@ -429,7 +421,7 @@
                If (NoLoop) Go To 203
                ZAZB = ZA * ZB
                B(1:3) = XF(1:3,jFd)
-               iChxyz=iChAtm(B,iChBas(2))
+               iChxyz=iChAtm(B)
                Call Stblz(iChxyz,mStb,jStb,iDum,jCoSet)
 *              Introduce factor to ensure that contributions from
 *              A>B are the only to be accumulated.
@@ -618,6 +610,5 @@ c     &             * DBLE(nIrrep) ) / DBLE(LmbdR)
          Call Add_Info('PotNuc',[PotNuc],1,12)
       End If
 *
-      Call qExit('DrvN0')
       Return
       End

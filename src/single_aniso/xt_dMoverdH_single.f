@@ -83,7 +83,6 @@ c standard deviation data:
       Real(kind=8) :: dHX(3)
       Real(kind=8) :: dHY(3)
       Real(kind=8) :: dHZ(3)
-      Real(kind=8) :: dHW(3)
 
       Integer       :: Info
       Real(kind=8) :: WT(3), ZT(3,3)
@@ -92,7 +91,6 @@ c standard deviation data:
       Real(kind=8) :: cm3tomB
       logical       :: DBG
 
-      Call qEnter('XT_dMdH')
       DBG=.false.
       m_paranoid=.true.!.false.
       cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
@@ -220,7 +218,6 @@ cccc-------------------------------------------------------cccc
       dHX=0.0_wp
       dHY=0.0_wp
       dHZ=0.0_wp
-      dHW=0.0_wp
 
       nDirX=3
 
@@ -574,7 +571,6 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
          Call mma_deallocate(XTtens_MH)
          Call mma_deallocate(XTtens_dMdH)
       End If
-      Call qExit('XT_dMdH')
 
       Return
       End

@@ -12,22 +12,20 @@
      &                  nDeg,MOValue,
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
       use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &       MOValue(mAO*nCoor,nMOs),
      &       CMOs(nCMO)
       Integer DoIt(nMOs)
-      Integer   iOff_MO(0:7), iOff_CMO(0:7), iTwoj(0:7)
+      Integer   iOff_MO(0:7), iOff_CMO(0:7)
       Character*80 Label
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
       iRout=135
       iPrint=nPrint(iRout)
-      Call QEnter('SODist')
       If (iPrint.ge.49) Then
          Write (6,*) 'SODist: MO-Coefficients'
          iOff=1
@@ -79,7 +77,6 @@
       End If
 *
       Call GetMem('SODist ','CHEC','REAL',iDum,iDum)
-      Call QExit('SODist')
       Return
       End
 
@@ -126,9 +123,9 @@
 *
       Subroutine SODist2(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
      &                  nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 *
       Real*8  SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &        SO(mAO*nCoor,nSOs),

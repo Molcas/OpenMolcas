@@ -10,14 +10,14 @@
 ************************************************************************
       Subroutine Free_DeDe(Dens,TwoHam,nDens)
       use k2_arrays
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
 *
-      Real*8, Target:: Dens(nDens), TwoHam(nDens)
+      Real*8 :: Dens(nDens), TwoHam(nDens)
 *
       Nullify(pDq)
       Nullify(pFq)
@@ -27,7 +27,6 @@
 *.... Fix the diagonal elements of D and F
          Call DScal_(nDens,Two,Dens,1)
          nc=nbas(0)
-         mDens=nBas(0)**2
          ijq=0
          jiq=1-nc
          ij=0

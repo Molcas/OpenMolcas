@@ -47,7 +47,6 @@ C since it requires transformation to standard (Non-ON) basis.
       IF(NIN.EQ.0) RETURN
       NIS=NISUP(ISYM,ICASE)
       IF(NIS.EQ.0) RETURN
-      CALL QENTER('DIADNS')
       NAS=NASUP(ISYM,ICASE)
       NVEC=NIN*NIS
       SQR2=SQRT(2.0D00)
@@ -98,7 +97,6 @@ C Core contribution:
       NLST1 = 0 ! dummy initialize
 *
       GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13) ICASE
-      CALL QEXIT('DIADNS')
       RETURN
 
 C -----------------------------------------------
@@ -505,6 +503,5 @@ C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
 C -----------------------------------------------
  100  CONTINUE
 
-      CALL QEXIT('DIADNS')
       RETURN
       END

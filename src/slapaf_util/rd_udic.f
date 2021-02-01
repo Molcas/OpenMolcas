@@ -11,30 +11,17 @@
 * Copyright (C) Roland Lindh                                           *
 *               Giovanni Ghigo                                         *
 ************************************************************************
-      SubRoutine Rd_UDIC(nLines,iInt,nFix,nRowH)
+      SubRoutine Rd_UDIC(iInt,nFix,nRowH)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use Slapaf_Parameters, only: iRow
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
       Character*120 Temp
       character*16 filnam
-*
-      iRout = 27
-      iPrint = nPrint(iRout)
-      Call qEnter('Rd_UDIC')
-*
-      Lu=6
 *
       Lu_UDIC=91
       filnam='UDIC'
@@ -44,7 +31,7 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
 *
 *     Find begining of definitions of internal coordinates
 *
-      Do iLines = 1, nLines
+      Do iLines = 1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
          If (Temp(1:4).eq.'VARY') Go To 100
@@ -56,7 +43,7 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       iInt = 0
       nFix = 0
       nRowH = 0 ! Number of Rows of Hessian Numerically estimated
-      Do jLines = iLines+1, nLines
+      Do jLines = iLines+1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
          If (Temp(1:3).eq.'FIX') Go To 200
@@ -70,14 +57,14 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       Go To 400
 *
  200  Continue
-      Do kLines = jLines+1, nLines
+      Do kLines = jLines+1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
          If (Temp(1:4).eq.'ROWH') Go To 300
 *------- Do not count line if continuation character
          If (Index(Temp,'&').eq.0) nFix=nFix+1
       End Do
- 300  Do lLines = kLines+1, nLines
+ 300  Do lLines = kLines+1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
 *------- Do not count line if continuation character
@@ -86,7 +73,6 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
  400  Continue
 *
       Close(Lu_UDIC)
-      Call qExit('Rd_UDIC')
       Return
       End
 
@@ -107,33 +93,15 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       Character*8 cLbl
       Character*120 Temp
       Character*16 filnam
-      Integer mRowH(10)
+      Integer mRowH(nRowH)
 *
-      Call qEnter('Rd_UDIC_RowH')
-*
-* nMaxRowH is the maximum number of internal coordinates that can be
-* specified for the numerical estimation of rows (and column) of the
-* hessian matrix. The mRowH(10) is defined everywhere is used. There
-* are no limitation, in principle, to nMaxRowH.
-*
-      nMaxRowH = 10
 *
       Lu=6
       Lu_UDIC=91
       filnam='UDIC'
       call molcas_open(Lu_UDIC,filnam)
       Rewind(Lu_UDIC)
-      Do iRowH = 1, nMaxRowH
-         mRowH(iRowH) = 0
-      EndDo
-      If (nRowH.GT.nMaxRowH) then
-         Call WarningMessage(2,'Error in rd_udic')
-         Write (Lu,*) '***************************************'
-         Write (Lu,*) ' ERROR: Too many coordinates in ROWH ! '
-         Write (Lu,*) '        Max ',nMaxRowH
-         Write (Lu,*) '***************************************'
-         Call Quit_OnUserError()
-      EndIf
+      mRowH(:)=0
 *
 *     Find begining of definitions of internal coordinates
 *
@@ -176,6 +144,5 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
  40      Continue
       End Do
       Close(Lu_UDIC)
-      Call qExit('Rd_UDIC_RowH')
       Return
       End

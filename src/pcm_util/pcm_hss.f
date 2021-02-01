@@ -11,8 +11,7 @@
       Subroutine PCM_Hss(Hess,nHss)
       use PCM_arrays
       Implicit real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "angstr.fh"
 #include "print.fh"
 #include "real.fh"
@@ -22,10 +21,6 @@
       Dimension Hess(nHss)
       Character*2 Elements(MxAtom*8)
 *
-      iRout = 1
-      iPrint = nPrint(iRout)
-      Call QEnter('PCM_Hss')
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Compute the PCM cavity contributions to Hessian in solution
@@ -81,7 +76,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('PCM_Hss')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Hess)

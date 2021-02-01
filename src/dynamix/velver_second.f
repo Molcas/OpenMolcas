@@ -31,6 +31,9 @@ C SWOPE ET AL., J. CHEM. PHYS. 76, 637, 1982.
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE VelVer_Second(irc)
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "warnings.fh"
@@ -63,7 +66,6 @@ c     PARAMETER   (conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
 
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
-      CALL QENTER(ROUTINE)
 
       WRITE(6,*)'*** Second step of the Velocity Verlet algorithm ***'
 
@@ -292,6 +294,5 @@ C
 C     The return code is set in order to continue the loop
 C
       irc=_RC_ALL_IS_WELL_
-      CALL qExit(ROUTINE)
       RETURN
       END

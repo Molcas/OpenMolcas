@@ -18,6 +18,8 @@
 *
 *     M.P. Fuelscher, Lund, July 1990
 *
+      use OFembed, only: Do_OFemb,OFE_first,FMaux
+      use OFembed, only: Rep_EN
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -26,6 +28,7 @@
       Parameter (ROUTINE='SGFCIN  ')
 #include "rasscf.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
@@ -37,18 +40,12 @@
       Logical First, Dff, Do_DFT, Found
       Logical Do_ESPF
 *
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       Dimension Dumm(1)
 
 !      iprlev=debug
-      Call qEnter('SGFCIN')
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
 !      IPRLEV=DEBUG
@@ -69,7 +66,6 @@ C Local print level (if any)
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -93,7 +89,6 @@ C Local print level (if any)
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then
@@ -156,7 +151,6 @@ C Local print level (if any)
 *     modify the one electron Hamiltonian for reaction
 *     field calculations
       ERFX = Zero
-      ERFhi = Zero
       iCharge=Int(Tot_Charge)
       Call DecideOnESPF(Do_ESPF)
       If ( Do_ESPF .or. lRF .or. KSDFT.ne.'SCF'
@@ -280,15 +274,14 @@ C Local print level (if any)
 *
       If (Do_OFemb) Then
          If (OFE_first) Then
+          Call mma_allocate(FMaux,nTot1,Label='FMaux')
           Call GetMem('FMaux','Allo','Real',ipFMaux,nTot1)
-          Call Coul_DMB(.true.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                         nTot1)
+          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
           OFE_first=.false.
          Else
-          Call Coul_DMB(.false.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                          nTot1)
+          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
          EndIf
-         Call DaXpY_(nTot1,One,Work(ipFMaux),1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call Get_NameRun(NamRfil) ! save the old RUNFILE name
          Call NameRun('AUXRFIL')   ! switch the RUNFILE name
@@ -456,7 +449,6 @@ Cbjp
         Call TriPrt(' ',' ',F,NAC)
       End If
 
-      Call qExit('SGFCIN')
 
       Return
       End

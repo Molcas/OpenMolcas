@@ -21,15 +21,17 @@
 *             January '07                                              *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas, nBas_Aux
       use pso_stuff
+      use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
+      use Para_Info, only: myRank, nProcs
+      use ChoSwp, only: InfVec
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
-#include "para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
@@ -294,7 +296,7 @@
          Call IZero(iWork(ipSO_ab),2*nAux_Tot)
          iOff = 0
          Do iSym = 1, nSym
-            ip_List_rs=ip_InfVec+MaxVec*InfVec_N2*(iSym-1)
+            ip_List_rs=ip_of_iWork(InfVec(1,1,iSym))
             Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
 
             If((iSym .eq. 1) .and. (iMp2prpt .eq. 2)) Then
@@ -382,7 +384,7 @@
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 2-center term',
-     &    Work(ipTemp),nGrad,lIrrep,ChDisp,iPrint)
+     &    Work(ipTemp),nGrad,ChDisp,iPrint)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1) ! Move any 1-el contr.
       call dcopy_(nGrad,Work(ipTemp),1,Temp,1)
       Call DScal_(nGrad,-One,Temp,1)
@@ -397,7 +399,7 @@
       Call GADGOP(Work(ipTemp),nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 3-center term',
-     &    Work(ipTemp),nGrad,lIrrep,ChDisp,iPrint)
+     &    Work(ipTemp),nGrad,ChDisp,iPrint)
       Call DaXpY_(nGrad,Two,Work(ipTemp),1,Temp,1)
       Case_3C=.False.
       If(Allocated(Txy))  Call mma_deallocate(Txy)
@@ -441,7 +443,7 @@
       Call Free_Work(ipTemp)
       If (iPrint.ge.15)  Call PrGrad(
      &    ' RI-Two-electron contribution - Temp',
-     &    Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &    Temp,nGrad,ChDisp,iPrint)
 *                                                                      *
 ************************************************************************
 *                                                                      *

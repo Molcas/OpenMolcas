@@ -78,7 +78,6 @@ C     ----------
 
             nF    = nFro(iSym)
             nO2L  = nOrb2Loc(iSym)
-            nDel  = nB - nOrb(iSym)
             nRest = nOrb(iSym) - nF - nO2L
             nOrth = nF + nRest ! dim. of orthogonal complement
 

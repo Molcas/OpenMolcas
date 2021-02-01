@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,
-     &           IAMCMP,ecore)
+      SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
+      Use Str_Info
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -37,24 +37,23 @@
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "strbas_mclr.fh"
 #include "cstate_mclr.fh"
-#include "strinp_mclr.fh"
-#include "stinf_mclr.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "cprnt_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"
 #include "dmrginfo_mclr.fh"
       Real*8 DIAG(*)
+      Integer idum(1)
+      Real*8, Allocatable:: JA(:), KA(:), XA(:), XB(:), SCR(:), H1D(:)
+      Integer, Allocatable:: BLTP(:), IOIO(:)
 *
 * ======
 *.Output
 * ======
 *
 *       OBS THIS WILL JUST WORK FOR CASSCF/RASSCF RESPONSE
-      ISYM=ism(1)
       LUDIA=0
 
       if(doDMRG)then  ! yma
@@ -66,23 +65,20 @@
 *
 **. Local memory
 *
-      Call GetMem('KLJ   ','ALLO','REAL',KLJ   ,NTOOB**2)
-      Call GetMem('KLK   ','ALLO','REAL',KLK   ,NTOOB**2)
-      Call GetMem('KLSC2 ','ALLO','REAL',KLSCR2,2*NTOOB**2)
-      Call GetMem('KLXA  ','ALLO','REAL',KLXA  ,NACOB)
-      Call GetMem('KLXB  ','ALLO','REAL',KLXB  ,NACOB)
-      Call GetMem('KLSCR ','ALLO','REAL',KLSCR ,2*NACOB)
+      Call mma_allocate(JA  ,NTOOB**2, Label='JA')
+      Call mma_allocate(KA  ,NTOOB**2, Label='KA')
+      Call mma_allocate(XA  ,NACOB,Label='XA')
+      Call mma_allocate(XB  ,NACOB,Label='XB')
+      Call mma_allocate(SCR ,2*NACOB,Label='SCR')
       if(doDMRG)then !yma
-* wired Call GetMem('KLH1D ','ALLO','REAL',KLH1D ,NACOB_KLH1D)
-        Call GetMem('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
+* wired Call mma_allocate(H1D ,NACOB_KLH1D,Label='H1D')
+        Call mma_allocate(H1D ,NACOB,Label='H1D')
       else
-        Call GetMem('KLH1D ','ALLO','REAL',KLH1D ,NACOB)
+        Call mma_allocate(H1D ,NACOB,Label='H1D')
       end if
-*     Call GetMem('KLSMOS','ALLO','REAL',KLSMOS,NSMST)
-      Call GetMem('KLSMO2','ALLO','INTE',KLBLTP,NSMST)
+      Call mma_allocate(BLTP,NSMST,Label='BLTP')
 
 *
-        KLSVST = 1
 *. Largest NOCTPA*NOCTPB block
       MXOCOC = 0
       DO IISPC = 1, NSPC
@@ -90,17 +86,16 @@
         NOCTPB = NOCTYP(IBSTFI(ISPC(IISPC)))
         MXOCOC = MAX(MXOCOC,NOCTPA*NOCTPB)
       END DO
-      Call GetMem('KLIOIO','ALLO','INTE',KLIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(IOIO,NOCTPA*NOCTPB,Label='IOIO')
 **. Diagonal of one-body integrals and coulomb and exchange integrals
 *
-      CALL GT1DIA_MCLR(WORK(KLH1D))
-      CALL GTJK_MCLR(WORK(KLJ),WORK(KLK))
+      CALL GT1DIA_MCLR(H1D)
+      CALL GTJK_MCLR(JA,KA)
 *
 *. K goes to J - K
       ONE = +1.0D0
       ONEG = -1.0D0
-      CALL VECSUM(WORK(KLK),WORK(KLK),WORK(KLJ),
-     &            ONEG,ONE,NTOOB **2)
+      CALL VECSUM(KA,KA,JA,ONEG,ONE,NTOOB **2)
 *
 *
 *. Loop over internal CI spaces
@@ -121,27 +116,24 @@
         MNRS1C = MNR1IC(ISPC(IISPC))
         MXRS3C = MXR3IC(ISPC(IISPC))
 *
-        CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,
-     &       iWORK(KLBLTP),iWORK(KLSVST))
+        CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,BLTP,idum)
         CALL IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,
-     &       iWORK(KEL1(IATP)),iWORK(KEL3(IATP)),
-     &       iWORK(KEL1(IBTP)),iWORK(KEL3(IBTP)),
-     &       iWORK(KLIOIO),IPRDIA)
+     &                   Str(IATP)%EL1,Str(IATP)%EL3,
+     &                   Str(IBTP)%EL1,Str(IBTP)%EL3,
+     &                   IOIO,IPRDIA)
 *
         IF(ICISTR.LE.1) THEN
           LLUDIA = 0
         ELSE
           LLUDIA = LUDIA
         END IF
-        CALL CIDIA4(NAEL,iWORK(KOCSTR(IATP)),
-     &              NBEL,iWORK(KOCSTR(IBTP)),
-     &       NACOB,DIAG,NSMST,WORK(KLH1D),
-     &       ISMOST(1,ISM(IISPC)),iWORK(KLBLTP),
-     &       WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),
-     &       WORK(KLK),iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
-     &       iWORK(KLIOIO),NOCTPA,NOCTPB,iWORK(KISTSO(IATP)),
-     &       iWORK(KISTSO(IBTP)),LLUDIA,ECORE,
-     &       PLSIGN,PSSIGN,IPRDIA,NTOOB,ICISTR)
+        CALL CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,
+     &              NACOB,DIAG,NSMST,H1D,
+     &              ISMOST(1,ISM(IISPC)),BLTP,
+     &              XA,XB,SCR,JA,KA,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
+     &              IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,
+     &              Str(IBTP)%ISTSO,LLUDIA,ECORE,
+     &              PLSIGN,PSSIGN,IPRDIA,NTOOB,ICISTR)
 *
       IF(ICISTR.LE.1.AND.LUDIA.GT.0) THEN
 *. Each CI space is written in one record
@@ -154,15 +146,14 @@
   200 CONTINUE
 
 *
-      Call GetMem('KLIOIO','FREE','INTE',KLIOIO,NOCTPA*NOCTPB)
-      Call GetMem('KLJ   ','FREE','REAL',KLJ   ,NTOOB**2)
-      Call GetMem('KLK   ','FREE','REAL',KLK   ,NTOOB**2)
-      Call GetMem('KLSC2 ','FREE','REAL',KLSCR2,2*NTOOB**2)
-      Call GetMem('KLXA  ','FREE','REAL',KLXA  ,NACOB)
-      Call GetMem('KLXB  ','FREE','REAL',KLXB  ,NACOB)
-      Call GetMem('KLSCR ','FREE','REAL',KLSCR ,2*NACOB)
-      Call GetMem('KLH1D ','FREE','REAL',KLH1D ,NACOB)
-      Call GetMem('KLSMO2','FREE','INTE',KLBLTP,NSMST)
+      Call mma_deallocate(IOIO)
+      Call mma_deallocate(BLTP)
+      Call mma_deallocate(H1D)
+      Call mma_deallocate(SCR)
+      Call mma_deallocate(XB)
+      Call mma_deallocate(XA)
+      Call mma_deallocate(KA)
+      Call mma_deallocate(JA)
 
       if(doDMRG)then  ! yma
          call dmrg_dim_change_mclr(LRras2(1:8),ntoob,0)

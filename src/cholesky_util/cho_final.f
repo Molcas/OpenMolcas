@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_FINAL(WriteBookmarks)
+      use ChoArr, only: iSOShl
 C
 C     Purpose: Cholesky finalizations.
 C
       Implicit None
       Logical WriteBookmarks
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "choini.fh"
 #include "chobkm.fh"
@@ -24,12 +24,8 @@ C
       INTEGER CHOISINI, IREO
       INTEGER NUMV(8)
       Integer ip, l
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer is1CCD
-#endif
-
-#if defined (_DEBUG_)
-      CALL QENTER('_FINAL')
 #endif
 
 C     Write NUMCHO array, shell indices, and threshold to runfile.
@@ -37,9 +33,9 @@ C     ------------------------------------------------------------
 
       CALL CHO_P_GETGV(NUMV,NSYM)
       CALL PUT_IARRAY('NUMCHO',NUMV,NSYM)
-      CALL PUT_IARRAY('iSOShl',IWORK(ip_ISOSHL),NBAST)
+      CALL PUT_IARRAY('iSOShl',ISOSHL,NBAST)
       CALL PUT_DSCALAR('Cholesky Threshold',THRCOM)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! This is needed in order for bookmark tests in cho_x_init to work
       If (WriteBookmarks) Then
          If (Cho_1Center) Then
@@ -123,9 +119,4 @@ C     ---------------------------------------------
 
       CHOISINI = CHOINICHECK + 1
       CALL PUT_ISCALAR('ChoIni',CHOISINI)
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_FINAL')
-#endif
-
       END

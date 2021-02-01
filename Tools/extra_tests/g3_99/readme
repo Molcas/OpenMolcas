@@ -1,12 +1,12 @@
 Usage:
 
-If the file run_all is executed a file called result is produced with 
+If the file run_all is executed a file called result is produced with
 printed energies for all molecules in the g3/99 test set.
 
 Syntax:
 
 run_all <basis set> (default is 6-31G*) <{scf,dft or mp2}> (default is
-scf) <functional> (default is B3LYP) 
+scf) <functional> (default is B3LYP)
 
 For more advanced usages edit the scriptfile run_all, the generic
 input-file generic.input or just write your own script using all or

@@ -27,7 +27,7 @@ c     *****************************************************************
       dimension eval(maxroot),vcm(ndim*mroot),eeval(maxroot)
       dimension residvb(maxroot),valpha(maxroot),deff(maxroot)
       dimension ecrita(maxroot)
-      data depc/1.0e-7/
+      data depc/1.0d-7/
 c**************************************************************
 c
 c      write(6,*) 'generate vector vb2 from matrix a and vector vb1'
@@ -163,7 +163,6 @@ c===== start  reset_basis ======================================
           do l=1,ndim
             depcc= eval(m)-vad(l)
             if(abs(depcc).lt.depc) depcc=depc
-            tt=vb1(ijmb1+l)
             vb1(ijmb1+l)=(vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
             residvb(m)=residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
           enddo
@@ -317,11 +316,9 @@ c
          write(6,*) 'dgnalization procedure is non-convergent.'
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !        call abend
 !         stop
@@ -343,9 +340,7 @@ c
 
       subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
       real*8 av(n),s,ddot_,dcrita
-      dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
+      dcrita=1.0d-10
 c     normalization of av_eigenvector.
       s=0.0d0
       s=ddot_(n,av,1,av,1)
@@ -359,10 +354,7 @@ c     normalization of av_eigenvector.
       end
 
       subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
-      real*8 av(n),bv(n),s,ddot_,dcrita
-      dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
+      real*8 av(n),bv(n),s,ddot_
 c     orthogonalization av,bv
       s=ddot_(n,av,1,bv,1)
 

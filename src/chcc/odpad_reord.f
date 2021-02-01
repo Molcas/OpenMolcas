@@ -812,7 +812,7 @@ c
         real*8 V3(1:nc,1:dimc,1:no)
         real*8 M2(1:nc,1:dimcpp,1:no)
 c
-c        help varibles
+c        help variables
         integer m,i,c,cpp
 c
         do i=1,no
@@ -836,7 +836,7 @@ c
 c       This routine do:
 c        Join L0-L2 files (Global, dimensioned as nc)
 c        from local L0-L2 files (dimensioned as ncLoc)
-c        N.B. This file have sense only for paralell run
+c        N.B. This file have sense only for parallel run
 c
 c
 c       Structure of Cholesky vector files
@@ -856,6 +856,9 @@ c       V2   - max {v'v'm, ov'm; oom}
 c        actual:
 c       reord routine requirements are used (DistMemReord)
 c
+#ifdef _MOLCAS_MPP_
+        use Para_Info, only: MyRank
+#endif
         implicit none
         integer PossV1,PossV2,NaGrpR,LunAux
 #include "chcc1.fh"
@@ -864,7 +867,6 @@ c
 #include "chcc_files.fh"
 #include "wrk.fh"
 #ifdef _MOLCAS_MPP_
-#include "para_info.fh"
 #include "chcc_parcc.fh"
 c
 c       help variables

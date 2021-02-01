@@ -31,6 +31,9 @@
 * ********** IBM-3090 Release 88 09 07 **********
 *
 
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -49,7 +52,6 @@
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
      &          WO(*),SQ(*),CMOX(*)
 
-      CALL QENTER(ROUTINE)
 * Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -80,7 +82,7 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(lSym)
+      lSymMolpro=iChMolpro(stSym)
 
       LuFCK=isFreeUnit(27)
 *      open ( unit = LuFCK, file = "FOCK_CHEMPS2",
@@ -588,6 +590,5 @@
       CALL DDAFILE(JOBIPH,1,FP,NTOT3,IAD15)
       CALL DDAFILE(JOBIPH,1,SQ,NORBT,IAD15)
 *
-      CALL QEXIT(ROUTINE)
       RETURN
       END

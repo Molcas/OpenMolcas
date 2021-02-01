@@ -17,6 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -27,7 +30,6 @@
 #include "sigma.fh"
       DIMENSION DPT2(*)
       DIMENSION IFCOUP(13,13)
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -40,7 +42,6 @@ C     WRITE(*,*)' of CASPT2 density matrix contribution to '//
 C    & '2nd order in perturbation'
 C     WRITE(*,*)' theory are presently not properly debugged.'
 C     RETURN
-      CALL QENTER('TRDNS2O')
 
 C Enter coupling cases for non-diagonal blocks:
       DO I=1,NCASES
@@ -256,6 +257,5 @@ C Fill in lower-triangular block elements by symmetry.
         END DO
       END IF
 
-      CALL QEXIT('TRDNS2O')
       RETURN
       END

@@ -26,10 +26,10 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -43,7 +43,7 @@
       Logical Shijij, qijij
 *     local array
       Integer jSym(0:7), lSym(0:7)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Data tr1,tr2/0.0d0,0.0d0/
       Save tr1,tr2
 #endif
@@ -54,15 +54,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('IndSftRI2')
-      irout = 39
-      iprint = nprint(irout)
-*                                                                      *
-************************************************************************
-*                                                                      *
       k12=0
       k34=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
+      irout = 39
+      iprint = nprint(irout)
       If (iPrint.ge.49) Then
          r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
          r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
@@ -171,7 +167,6 @@ C           Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 400      Continue
       End Do
 *
-*     Call qExit('IndSftRI2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

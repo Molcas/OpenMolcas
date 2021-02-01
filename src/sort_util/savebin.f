@@ -64,13 +64,11 @@
 
       Integer iScr(lStRec)
       Real*8   Scr(lStRec)
-      Integer rc
 *
 *----------------------------------------------------------------------*
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-C     Call QEnter('Savebin')
 *
 *----------------------------------------------------------------------*
 *         as the packed integral labels add an extra 1-2 Byte          *
@@ -111,26 +109,22 @@ C     Call QEnter('Savebin')
       mInds=(lIBin+ItoB-1)/ItoB
       mInt(3,iBin)=mInt(3,iBin)+mInds
       If ( lIBin.gt.mxIRec ) then
-         rc=001
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lIRec > mxIRec '
          Write(6,*)
-         Call qTrace
          Call xFlush(6)
          Call Abend
       End If
       If ( lIBin.ne.lIRec ) then
-         rc=002
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lIBin # lIRec'
          Write(6,*)
-         Call qTrace
          call xFlush(6)
          Call Abend
       End If
@@ -138,26 +132,22 @@ C     Call QEnter('Savebin')
       mInts=(lVBin+RtoB-1)/RtoB
       mInt(2,iBin)=mInt(2,iBin)+mInts
       If ( lVBin.gt.mxVRec ) then
-         rc=003
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lVRec > mxVRec '
          Write(6,*)
-         Call qTrace
          Call xFlush(6)
          Call Abend
       End If
       If ( lVBin.ne.lVRec ) then
-         rc=004
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lVBin # lVRec'
          Write(6,*)
-         Call qTrace
          call xFlush(6)
          Call Abend()
       End If
@@ -217,6 +207,5 @@ C     Call QEnter('Savebin')
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-C     Call QExit('SaveBin')
       Return
       End

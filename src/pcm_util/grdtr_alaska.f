@@ -25,17 +25,15 @@
 ********************************************************************
       Use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 GradIn(3,MxAto), GradOut(nGrad)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
 *
       iIrrep=0
 *

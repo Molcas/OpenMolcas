@@ -15,6 +15,9 @@
       USE SUPERINDEX
       USE INPUTDATA
       USE PT2WFN
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
+#endif
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -74,10 +77,7 @@ C
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "stdalloc.fh"
-      CHARACTER(60) STLNE2
-#ifdef _MOLCAS_MPP_
-      LOGICAL KING, Is_Real_Par
-#endif
+      CHARACTER(LEN=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
@@ -100,7 +100,6 @@ C
       Call StatusLine('CASPT2:','Just starting')
 
       IRETURN = 0
-      CALL QENTER('CASPT2')
 
       CALL SETTIM
       ! CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -461,10 +460,8 @@ C Free resources, close files
 C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       IF ( IPRGLB.GE.USUAL ) THEN
         CALL FASTIO('STATUS')
-        CALL QSTAT(' ')
       END IF
 
       Call StatusLine('CASPT2:','Finished.')
-      CALL QEXIT('CASPT2')
       RETURN
       END

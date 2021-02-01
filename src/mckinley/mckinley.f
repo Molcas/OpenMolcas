@@ -18,21 +18,6 @@
 *  Object: Driver for the one and two electron integral second order   *
 *          derivative program McKinley.                                *
 *                                                                      *
-*                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              XuFlow (IBM)                                            *
-*              SetUp0                                                  *
-*              GetMem                                                  *
-*              GetInf                                                  *
-*              Inputh                                                  *
-*              DrvN1                                                   *
-*              Drvh1                                                   *
-*              PrepP                                                   *
-*              Drvg1                                                   *
-*              CloseP                                                  *
-*                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
 *                                                                      *
@@ -47,12 +32,12 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Temporary_Parameters
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-*
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "cputime.fh"
@@ -64,13 +49,13 @@ cpcm_solvent end
 c      Parameter (nLines=12)
       Character*120 Lines
       Logical DoRys, Run_MCLR
+      Real*8, Allocatable:: Hess(:), Temp(:), GradN(:)
 #include "warnings.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Call McKinley_banner()
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('McKinley')
       iRout=1
       call dcopy_(9,[0.0d0],0,CpuStat,1)
 *                                                                      *
@@ -130,10 +115,6 @@ c check if there is a reaction field
 c     write(6,*)'In mckinley PCM',pcm
       Call Init_RctFld(.False.,iCharge_ref)
 cpcm_solvent end
-C     If (lECP) Then
-C        Write (6,*) ' ECP not implemented in this version'
-C        Call Abend()
-C     End If
       nsAtom=0
       Do  iCnttp = 1, nCnttp
             nsAtom=nsAtom+dbsc(iCnttp)%nCntr
@@ -152,10 +133,10 @@ C     End If
 *
       nHess=nGrad*(nGrad+1)/2
 *
-      Call GetMem('Hess','Allo','Real',ipHess,nHess)
-      Call GetMem('Temp','Allo','Real',ipTemp,nHess)
-      call dcopy_(nHess,[Zero],0,Work(ipHess),1)
-      call dcopy_(nHess,[Zero],0,Work(ipTemp),1)
+      Call mma_allocate(Hess,nHess,Label='Hess')
+      Hess(:)=Zero
+      Call mma_allocate(Temp,nHess,Label='Temp')
+      Temp(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -174,7 +155,7 @@ C     End If
          Write(6,*)
          End If
          Call Timing(dum1,Time,dum2,dum3)
-         Call Drvh2(Work(ipHess),Work(ipTemp),nHess,show)
+         Call Drvh2(Hess,Temp,nHess,show)
          Call DrvEtc(nGrad)
       End If
 *                                                                      *
@@ -185,20 +166,20 @@ C     End If
 ************************************************************************
 *                                                                      *
       If (lHss) Then
-         Call DrvN2(Work(ipTemp),nGrad)
-         If (SHOW) Call HssPrt(Work(ipTemp),nHess)
-         Call DaXpY_(nHess,One,Work(ipTemp),1,Work(ipHess),1)
-         If (Show) Call HssPrt(Work(ipHess),nHess)
+         Call DrvN2(Temp,nGrad)
+         If (SHOW) Call HssPrt(Temp,nHess)
+         Call DaXpY_(nHess,One,Temp,1,Hess,1)
+         If (Show) Call HssPrt(Hess,nHess)
       End If
       If (lGrd) Then
-          Call GetMem('Gradn','Allo','Real',ipGradn,nGrad)
-          Call DrvN1_mck(Work(ipGradn),nGrad)
+          Call mma_allocate(GradN,nGrad,Label='GradN')
+          Call DrvN1_mck(GradN,nGrad)
           iopt=0
           irc=-1
-          Call dWrMCK(iRC,iOpt,'NUCGRAD',1,Work(ipGradn),1)
+          Call dWrMCK(iRC,iOpt,'NUCGRAD',1,GradN,1)
           If (irc.ne.0) Call SysAbendMsg('mckinley','Error in writing',
      &                                   'Option=NUCGRAD')
-          Call GetMem('Gradn','Free','Real',ipGradn,nGrad)
+          Call mma_deallocate(GradN)
       End If
 *                                                                      *
 ************************************************************************
@@ -217,8 +198,6 @@ C     End If
       End If
       Call Drvh1_mck(nGrad,Nona)
 *
-      Call GetMem('MemHid','ALLO','REAL',idum,MemHid)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *      Calculate two electron integrals. First order is contracted     *
@@ -232,59 +211,50 @@ C     End If
       Call Timing(dum1,Time,dum2,dum3)
       CPUStat(nOneel)=CPUStat(nOneel)+Time
       If (.Not.Onenly) Then
-          Call GetMem('Grad','ALLO','Real',ipGrad,nGrad)
-          call dcopy_(nGrad,[Zero],0,Work(ipGrad),1)
 *
-          Call ICopy(8,[0],0,nISh,1)
-          Call ICopy(8,[0],0,nASh,1)
+          nIsh(:)=0
+          nAsh(:)=0
 *
-          Call PrepP
+          Call PrepP()
 *
           iOpt = 0
           iRC = -1
-          Call iWrMck(iRC,iOpt,'NISH',1,nish,iDummer)
+          Call iWrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
           If (iRC.ne.0) Then
              Write (6,*) 'Mckinley: Error writing to MckInt!'
              Call Abend()
           End If
           iOpt = 0
           iRC = -1
-          Call iWrMck(iRC,iOpt,'NASH',1,nash,iDummer)
+          Call iWrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
           If (iRC.ne.0) Then
              Write (6,*) 'Mckinley: Error writing to MckInt!'
              Call Abend()
           End If
 *
 *
-*         Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
 
-          Call Drvg2(Work(ipTemp),nhess, lGrd,lHss)
+          Call Drvg2(Temp,nhess, lGrd,lHss)
 *
-          Call GetMem('Grad','Free','Real',ipGrad,nGrad)
           Call CloseP
 *
           If (lHss) Then
-             Call GADSum(Work(ipTemp),nHess)
-             Call DScal_(nHess,Half,Work(ipTemp),1)
-             If (Show) Call HssPrt(Work(ipTemp),nHess)
+             Call GADSum(Temp,nHess)
+             Call DScal_(nHess,Half,Temp,1)
+             If (Show) Call HssPrt(Temp,nHess)
 *
 *----------- Accumulate contribution to the hessian!
 *
-             Call DaXpY_(nhess,One,Work(ipTemp),1,
-     &                  Work(ipHess),1)
+             Call DaXpY_(nhess,One,Temp,1,Hess,1)
 *
              If (Show) Then
                 Call Banner('Complete static Hessian',1,23)
-                Call HssPrt(Work(ipHess),nHess)
+                Call HssPrt(Hess,nHess)
              End If
-             Call WrHDsk(Work(ipHess),ngrad)
+             Call WrHDsk(Hess,ngrad)
           End If
 *
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call GetMem('MemHid','Free','REAL',idum,MemHid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -296,8 +266,8 @@ C     End If
          Write (6,*) 'McKinley: Error closing MCKINT!'
          Call Abend()
       End If
-      Call GetMem('Temp','Free','Real',ipTemp,nHess)
-      Call GetMem('Hess','Free','Real',ipHess,nHess)
+      Call mma_deallocate(Temp)
+      Call mma_deallocate(Hess)
 *
       Call ClsSew
 *                                                                      *
@@ -314,7 +284,6 @@ C     End If
       Call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 *
 C     Call DaTimm
-      Call qExit('McKinley')
       Call Timing(Time,dum,dum,dum)
       CPUStat(nTotal)=Time
       If (iPrint.ge.6) Call Sttstc

@@ -14,11 +14,10 @@ C     Purpose: update (i.e. subtract contributions from vectors on disk)
 C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
+      use ChoSwp, only: InfVec, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_DIACHO')
@@ -27,9 +26,6 @@ C
 
       PARAMETER (N2 = INFVEC_N2)
       PARAMETER (ZERO = 0.0D0)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Return if nothing to do.
 C     ------------------------
@@ -51,8 +47,7 @@ C     Set up rs1 indices at location ILOC.
 C     Set IREDC to identify this.
 C     ------------------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                IWORK(ip_INDRED),1,ILOC,NSYM,NNSHL,NNBSTRT(1),3)
+      CALL CHO_RSCOPY(1,ILOC)
       IREDC = 1
 
 C     Start read buffer batch loop.
@@ -90,20 +85,10 @@ C           --------------------------------------------------------
             JRED = INFVEC(IVEC1+JVEC-1,2,ISYM)
             IF (JRED .NE. IREDC) THEN
                IF (JRED .EQ. 1) THEN
-                  CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                            IWORK(ip_INDRED),1,ILOC,
-     &                            NSYM,NNSHL,NNBSTRT(1),3)
+                  CALL CHO_RSCOPY(1,ILOC)
                ELSE
-                  KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
-                  KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-                  CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                            IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                            IWORK(ip_iSP2F),
-     &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                            .FALSE.)
-                  CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                               IWORK(ip_NNBSTRSH),NSYM,NNSHL,
-     &                               ILOC)
+                  CALL CHO_GETRED(JRED,ILOC,.FALSE.)
+                  CALL CHO_SETREDIND(ILOC)
                END IF
                IREDC = JRED
             END IF

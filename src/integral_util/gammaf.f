@@ -20,8 +20,8 @@
 #include "nrmf.fh"
 #include "gam.fh"
 *
-      lcosf=n
-      lsinf=m
+      lcosf=n_gam
+      lsinf=m_gam
       k1=(-1)**lsinf
       k2=(-1)**lcosf
       if(k1.eq.(-1).or.k2.eq.(-1)) then

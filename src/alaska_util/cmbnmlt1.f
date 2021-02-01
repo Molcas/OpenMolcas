@@ -12,21 +12,16 @@
 ************************************************************************
       SubRoutine CmbnMlt1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Alpha,
      &                    Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
-     &                    jStab,nIrrep,kOp,iChBas,MxFnc,nOrdOp,Force)
+     &                    jStab,kOp,nOrdOp,Force)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the multipole operator matrix.       *
-*                                                                      *
-* Called from: MltGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91.                                             *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -35,7 +30,7 @@
      &       Rnxyz(nZeta,3,0:la+1,0:lb+1,0:nOrdOp), Alpha(nZeta),
      &       Grad(nGrad),DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
       Logical IfGrad(3,2)
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
       Real*8 Force(*)
 *
 *     Statement function for Cartesian index

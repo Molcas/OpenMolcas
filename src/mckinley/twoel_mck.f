@@ -45,41 +45,11 @@
 *     Temp   : Working place for F gen and n8                          *
 *     TwoHam : Final results fock matrix and MO's                      *
 *                                                                      *
-*                                                                      *
-*                                                                      *
 *     Object:      To construct the first order derivatives of the AO- *
 *     integrals and add them up to the MO derivatives and              *
 *     the Fock matrix derivatives and contract the second              *
 *     order derivatives of the AO's with the second order              *
 *     density matrix.                                                  *
-*                                                                      *
-*     Called from: Drvg2                                               *
-*                                                                      *
-*     Calling    : QEnter                                              *
-*     DCR                                                              *
-*     DCopy   (ESSL)                                                   *
-*     ICopy                                                            *
-*     LCopy                                                            *
-*     Inter                                                            *
-*     Stblzr                                                           *
-*     DesymP                                                           *
-*     Trnsps                                                           *
-*     Trns1                                                            *
-*     Phase                                                            *
-*     SphCr1                                                           *
-*     SphCr2                                                           *
-*     PrePre                                                           *
-*     Tcrtnc                                                           *
-*     Screen                                                           *
-*     Rysg2                                                            *
-*     Cntrct                                                           *
-*     CrSph                                                            *
-*     Clrbuf                                                           *
-*     RecPrt                                                           *
-*     DaXpY  (ESSL)                                                    *
-*     DScal  (ESSL)                                                    *
-*     DGetMO (ESSL)                                                    *
-*     QExit                                                            *
 *                                                                      *
 *     Authors: Roland Lindh, IBM Almaden Research Center, San Jose, CA *
 *     March '90                                                        *
@@ -120,13 +90,13 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
@@ -160,18 +130,63 @@
      &     IndHss(4,3,4,3,0:7), JndHss(4,3,4,3,0:7),
      &     Index(3,4), moip(0:7)
 *
-      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &     ABeq, CDeq, EQ, lEmpty, IfGrd(3,4),
-     &     JfGrd(3,4), first,
-     &     IfHss(4,3,4,3),JfHss(4,3,4,3),IfG(4),ltri,
-     &     Tr(4),ldot,ldot2,
-     &     lgrad,n8,log,no_integrals,new_fock
+      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD, ABeq, CDeq, IfGrd(3,4),
+     &        JfGrd(3,4), first,IfHss(4,3,4,3),JfHss(4,3,4,3),IfG(4),
+     &        ltri,Tr(4),ldot,ldot2,lgrad,n8,log,no_integrals,new_fock
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function to compute canonical index
 *
       nElem(i) = (i+1)*(i+2)/2
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call TwoEl_mck_Internal(Data1,Data2)
+
+      Contains
+      Subroutine TwoEl_mck_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target :: Data1(nZeta*nDArray+nDScalar,nData1),
+     &                  Data2( nEta*nDArray+nDScalar,nData2)
+      Integer, Pointer :: iData1(:), iData2(:)
+      Integer :: lZeta=0, lEta=0
+      Logical EQ, lEmpty
+      External EQ, lEmpty
+*                                                                      *
+************************************************************************
+*                                                                      *
+*Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
+#ifdef _WARNING_WORKAROUND_
+      Interface
+         SubRoutine Rysg2(iAnga,nRys,nT,
+     &                    Alpha,Beta,Gamma,Delta,
+     &                    Zeta,ZInv,nZeta,Eta,EInv,nEta,
+     &                    P,lP,Q,lQ,Coori,Coora,CoorAC,
+     &                    Array,nArray,
+     &                    Tvalue,ModU2,Cff2D,
+     &                    PAO,nPAO,Hess,nHess,IfGrd,IndGrd,
+     &                    IfHss,IndHss,nOp,iuvwx,IfG,
+     &                    mvec,Index_Out,lGrad,lHess,Tr)
+         Integer iAnga(4), nRys, nT, nZeta, nEta
+         Real*8 Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta),
+     &          Zeta(nZeta), ZInv(nZeta), Eta(nEta),   EInv(nEta)
+         Integer lP, lQ
+         Real*8 P(lP,3), Q(lQ,3), CoorAC(3,2), Coora(3,4), Coori(3,4)
+         Integer nArray
+         Real*8  Array(nArray)
+         External Tvalue, ModU2, Cff2D
+         Integer nPAO, nHess
+         Real*8 PAO(nT,nPAO), Hess(nHess)
+         Logical IfGrd(3,4), IfHss(4,3,4,3)
+         Integer IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nOp(4), iuvwx(4)
+         Logical IfG(4), lGrad, lHess, Tr(4)
+         Integer mVec, Index_Out(3,4)
+
+         End SubRoutine Rysg2
+
+      End Interface
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -187,7 +202,6 @@
       lc = iAngV(3)
       ld = iAngV(4)
       ldot2=ldot
-      iSmAng=la+lb+lc+ld
       iCmpa = iCmp(1)
       jCmpb = iCmp(2)
       kCmpc = iCmp(3)
@@ -222,7 +236,6 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'TwoEl_McK: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *
@@ -230,9 +243,6 @@
       iuvwx(2) = dc(jStb)%nStab
       iuvwx(3) = dc(kStb)%nStab
       iuvwx(4) = dc(lStb)%nStab
-*
-      iffab = 9
-      iffcd = 9
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -406,10 +416,12 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
-               nZeta_Tot=iWork(ipIndZ+nZeta+1)
-               nEta_Tot =iWork(ipIndE+nEta+1)
+               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
+     &                         iData1,[nZeta+1])
+               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
+     &                         iData2,[nEta +1])
+               nZeta_Tot=iData1(nZeta+1)
+               nEta_Tot =iData2(nEta +1)
 *
                no_integrals=.true.
                first=.true.
@@ -469,8 +481,8 @@
      &                    Coeff3,nGamma,kBask,
      &                    Coeff4,nDelta,lBasl,
      &                    Work4,mab*mcd,Work3,nWork3/2,Work2,
-     &                    iWork(ipIndZ+iZeta),mZeta,
-     &                    iWork(ipIndE+iEta),mEta)
+     &                    iData1(iZeta:iZeta+mZeta-1),mZeta,
+     &                    iData2(iEta :iEta +mEta -1),mEta)
                      Call Timing(dum1,Time,dum2,dum3)
                      CPUStat(nTwoDens)=CPUStat(nTwoDens)+Time
 *
@@ -483,14 +495,14 @@
      &                    mZeta,mEta,lZeta,lEta,
      &                    Zeta,ZInv,P,xA,xB,rKab,
      &                    Data1(ip_Z(iZeta,nZeta),lDCR1),
-     &                    iWork(ipIndZ+iZeta),
+     &                    iData1(iZeta:iZeta+mZeta-1),
      &                    Data1(ip_ZtMax(nZeta),ldcr1),
      &                    Data1(ip_abMax(nZeta),ldcr1),
      &                    Data1(ip_ZetaM(nZeta),ldcr1),
      &                    nAlpha,nBeta,
      &                    Eta, EInv,Q,xG,xD,rKcd,
      &                    Data2(ip_Z(iEta,nEta),lDCR2),
-     &                    iWork(ipIndE+iEta),
+     &                    iData2(iEta :iEta +mEta -1),
      &                    Data2(ip_ZtMax(nEta),ldcr2),
      &                    Data2(ip_abMax(nEta),ldcr2),
      &                    Data2(ip_ZetaM(nEta),ldcr2),
@@ -699,6 +711,7 @@
  200     Continue
 *
  100  Continue
+      Return
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -715,4 +728,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(Delta)
          Call Unused_integer(ipdens)
       End If
-      End
+      End Subroutine Twoel_Mck_Internal
+      End Subroutine Twoel_Mck

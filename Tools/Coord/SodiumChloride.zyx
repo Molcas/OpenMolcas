@@ -2,14 +2,14 @@
 ***
 *
 *  Sodium Chloride
-*   
-*    References:  
-*    C. Kittel, Introduction to Solid State Physics, 
+*
+*    References:
+*    C. Kittel, Introduction to Solid State Physics,
 *    Seventh Edition (John Wiley & Sons, New York, Chichester, 1996)
 *    Cell parameters:
 *    a    =5.63  b   =5.63  c    =5.63
 *    alpha=90    beta=90    gamma=90
-*    
+*
 ***
 
 
@@ -25,4 +25,4 @@ Cl 0.5000  0.5000  0.5000
 #scale
 5.63  5.63  5.63
 
- 
+

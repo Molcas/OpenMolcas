@@ -33,7 +33,6 @@ C in the vectors numbered IVEC and JVEC on file (unit LUSOLV),
 C compute the vector in CAS space
 C   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
-      CALL QENTER('W1TW2')
 
 C (1): Compute a representation of the operator PCAS*W1T*W2
       NOP1=NASHT**2
@@ -59,15 +58,14 @@ CTEST      WRITE(*,'(1x,5f16.8)')(WORK(LOP3-1+I),I=1,NOP3)
 
 C (2) Apply the operators:
 CTEST      WRITE(*,*)' In W1TW2, before HAM3, the CI array:'
-CTEST      CALL PRWF_CP2(LSYM,NCONF,CI,0.05D0)
+CTEST      CALL PRWF_CP2(STSYM,NCONF,CI,0.05D0)
       CALL HAM3(OP0,WORK(LOP1),NOP2,WORK(LOP2),NOP3,WORK(LOP3),
-     &                           LSYM,CI,SGM)
+     &                           STSYM,CI,SGM)
 CTEST      WRITE(*,*)' In W1TW2,  after HAM3, the SGM array:'
-CTEST      CALL PRWF_CP2(LSYM,NCONF,SGM,0.05D0)
+CTEST      CALL PRWF_CP2(STSYM,NCONF,SGM,0.05D0)
 
       CALL GETMEM('TRDOP1','FREE','REAL',LOP1,NOP1)
       CALL GETMEM('TRDOP2','FREE','REAL',LOP2,NOP2)
       CALL GETMEM('TRDOP3','FREE','REAL',LOP3,NOP3)
-      CALL QEXIT('W1TW2')
       RETURN
       END

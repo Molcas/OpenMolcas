@@ -41,7 +41,7 @@ def tee(infile, *files):
   t.start()
   return t
 
-def teed_call(cmd_args, **kwargs):    
+def teed_call(cmd_args, **kwargs):
   stdout, stderr = [kwargs.pop(s, None) for s in ['stdout', 'stderr']]
   no_tee = kwargs.pop('no_tee', False)
   if (no_tee):

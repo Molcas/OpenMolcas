@@ -32,12 +32,11 @@
 #include "warnings.fh"
 #include "stdalloc.fh"
       LOGICAL IF_TRNSF
-      CHARACTER(27)  STLNE2
+      CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
 
-      CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
@@ -214,7 +213,7 @@ c Modify the Fock matrix if needed
           if (IPRGLB.ge.VERBOSE) then
             write(6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-            call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+            call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
           end if
         end do
 
@@ -256,6 +255,5 @@ c Modify the Fock matrix if needed
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      CALL QEXIT('GRPINI')
       return
       end

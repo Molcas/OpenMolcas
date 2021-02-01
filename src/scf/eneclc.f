@@ -36,6 +36,8 @@
 #ifdef _FDE_
       Use SCF_Arrays, Only: Emb
 #endif
+      use OFembed, only: Do_OFemb
+      use OFembed, only: Rep_EN
       Implicit Real*8 (a-h,o-z)
 *
 * Declaration of procedure parameters
@@ -50,15 +52,11 @@
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
 * Allocate memory for full Dens and TwoHam
 *
@@ -126,7 +124,7 @@ c set to Zero for RHF
 #ifdef __SUNPRO_F90
       If (iUHF.gt.3) Write (6,*) 'eneclc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'eneclc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

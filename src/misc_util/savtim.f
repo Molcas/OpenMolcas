@@ -9,12 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine SavTim(iFld,TCPU,TWall)
+      Use Para_Info, Only: MyRank
       Implicit Real*8 (a-h,o-z)
-#include "para_info.fh"
 #include "timtra.fh"
 #include "WrkSpc.fh"
 *
-*     Call QEnter('SavTim')
       if(nfld_tim.eq.0) return
       If (iFld.gt.nfld_tim) Then
          Call WarningMessage(2,'SavTim: iFld.gt.nfld_tim')
@@ -25,17 +24,15 @@
       iad=iGATim+myrank*nFld_Tim*2+iFld-1
       Work(iad)=Work(iad)+TCPU
       Work(iad+nFld_Tim)=Work(iad+nFld_Tim)+TWall
-*     Call QExit('SavTim')
       Return
       End
       SubRoutine SavStat(iFld,Value,op)
+      Use Para_Info, Only: MyRank
       Implicit Real*8 (a-h,o-z)
       character*(*) op
-#include "para_info.fh"
 #include "timtra.fh"
 #include "WrkSpc.fh"
 *
-*     Call QEnter('SavStat')
       if(nfld_stat.eq.0) return
       If (iFld.gt.nfld_Stat) Then
          Call WarningMessage(2,'SavStat: iFld.gt.nfld_stat')
@@ -51,6 +48,5 @@
       else if(op.eq.'=') then
         Work(iad)=Value
       end if
-*     Call QExit('SavStat')
       Return
       End

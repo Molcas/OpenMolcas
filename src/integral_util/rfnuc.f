@@ -16,23 +16,19 @@
 *                                                                      *
 * Object: to compute the multipole moments for the nuclei.             *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
       use Basis_Info
       use Center_Info
+#ifdef _OBSOLETE_
+      use External_Centers, only: nOrd_XF, XF
+#endif
       use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3), A(3), RA(3)
 #ifdef _OBSOLETE_
      &        ,rRMy(3)
@@ -43,7 +39,6 @@
 *                                                                      *
       iRout = 124
       iPrint = nPrint(iRout)
-      Call qEnter('RFNuc')
       If (iPrint.ge.99) Then
          Call RecPrt(' In RFNuc:CoOp',' ',CoOp,1,3)
       End If
@@ -120,7 +115,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 
 
 
-      If ((.Not.lXF).or.(nOrd_XF.lt.0)) Go To 99
+      If ((.Not.Allocated(XF)).or.(nOrd_XF.lt.0)) Go To 99
 *
 *     Contributions due to the charges and dipoles of the
 *     static external electric field.
@@ -178,7 +173,7 @@ C                    Write (*,*) CCoMx, CCoMy, CCoMz, temp
 *
 *------------- Generate Stabilazor of C
 *
-               iChxyz=iChAtm(A,iChBas(2))
+               iChxyz=iChAtm(A)
                iDum=0
                Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
@@ -247,10 +242,8 @@ c            Write (*,*) ' Temp=',temp
 #endif
       If (iPrint.ge.99) Call RecPrt(' Nuclear Multipole Moments',
      &                              ' ',rNucMm,ip,1)
-*     Call GetMem(' Exit RFNuc','CHECK','REAL',iDum,iDum)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('RFNuc')
       Return
       End

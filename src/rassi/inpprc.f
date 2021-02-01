@@ -37,7 +37,6 @@
       DIMENSION IDUM(1)
 * Analysing and post-processing the input that was read in readin_rassi.
 
-      CALL QENTER(ROUTINE)
 
       Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,
      &                  Label='jDisk_TDM')
@@ -146,7 +145,6 @@ C (IPUSED will be set later, set it to zero now.)
       IOPT=15
       LABEL='UNDEF'
       CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-      IF(IRC.EQ.0) NSIZ=IDUM(1)
       IF(IRC.NE.0) GOTO 110
       IPRP=1
       CALL UPCASE(LABEL)
@@ -159,7 +157,6 @@ C (IPUSED will be set later, set it to zero now.)
         IRC=-1
         IOPT=23
         CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-        IF(IRC.EQ.0) NSIZ=IDUM(1)
         IF(IRC.NE.0) GOTO 110
         IPRP=IPRP+1
         CALL UPCASE(LABEL)
@@ -1027,6 +1024,5 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
       End If
 *
       CALL XFLUSH(6)
-      CALL QEXIT(ROUTINE)
       RETURN
       END

@@ -17,10 +17,12 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Logical_Info, only: UnNorm, Do_FckInt
+      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "rctfld.fh"
 #include "real.fh"
@@ -48,37 +50,28 @@ c
       Integer, Parameter:: nBuff=10000
       Real*8, Allocatable:: Buffer(:)
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxAtom)
 *
       Character Key*180, KWord*180,            BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, dbas*4
-      Integer StayAlone, nDel(MxAng), BasisTypes(4)
+      Integer BasisTypes(4)
 *
       Character*180 Line, STDINP(mxAtom*2) ! CGGn
       Character*256 Basis_lib ! CGGd , INT2CHAR, CHAR4
-      Character*5  Symbol                 ! CGGn
 *
 CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
-      Data StayAlone/0/
 *
 #include "angstr.fh"
       Data DefNm/'basis_library'/ ! CGGd,
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "getbs_interface.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call mma_allocate(Buffer,nBuff,Label='Buffer')
       iErr=0
-      iRout=3
 *                                                                      *
 ************************************************************************
 *                                                                      *
       LuWr=6
 *
-      imix=0
       itype=0
 *
       BasisTypes(:)=0
@@ -105,7 +98,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       If (Indx.eq.0) Then
        call WhichMolcas(Basis_lib)
        if(Basis_lib(1:1).ne.' ') then
-         StayAlone=1
          ib=index(Basis_lib,' ')-1
          if(ib.lt.1)
      *    Call SysAbendMsg('rdCtl','Too long PATH to MOLCAS',' ')
@@ -146,8 +138,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       jShll = iShll
       dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
       dbsc(nCnttp)%mdci=mdc
-      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,
-     &           nDel,LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,
+     &           LuRd,BasisTypes,STDINP,iSTDINP,.True.,.true.,' ')
 *
       Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
       If (itype.eq.0) Then
@@ -156,7 +148,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Else
          If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2) Then
             If (BasisTypes(3).ne.iType) Then
-               imix=1
                BasisTypes(3)=-1
             End If
             iType=BasisTypes(3)
@@ -165,11 +156,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       If (itype.eq.1) ifnr=1
       If (itype.eq.2) ifnr=0
 *
-      If (dbsc(nCnttp)%nSOC.gt.-1) Then
-         Do l = 1, MxAng
-            kDel(l,nCnttp)=nDel(l)
-         End Do
-      End If
       If (Show.and.nPrint(2).ge.6 .and.
      &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
@@ -178,16 +164,12 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
       dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                + dbsc(nCnttp)%nSRO
      &                + dbsc(nCnttp)%nSOC
      &                + dbsc(nCnttp)%nPP
      &                + dbsc(nCnttp)%nM1
      &                + dbsc(nCnttp)%nM2) .NE.0
-      lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-      lECP = lECP .or. dbsc(nCnttp)%ECP
-      lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
       dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
      &                     + dbsc(nCnttp)%nPrj
      &                     + dbsc(nCnttp)%nSRO
@@ -197,14 +179,13 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1
-      iAngMx=Max(iAngMx,lAng)
+      S%iAngMx=Max(S%iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.
       Shells(jShll+1)%Prjct =.False.
       Shells(jShll+2)%Transf=.False.
       Shells(jShll+2)%Prjct =.False.
       nCnt = 0
-      lAux = lAux .or. dbsc(nCnttp)%Aux
       If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
             Shells(iSh)%Aux=.True.
@@ -216,7 +197,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *     Here we will have to fix that the 6-31G family of basis sets
 *     should by default be used with 6 d-functions rather than 5.
 *
-      KWord=BSLbl(1:Indx-1)
+      KWord=''
+      KWord(1:Indx-1)=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'6-31G').ne.0) Then
          Do iSh = jShll+3, iShll
@@ -271,7 +253,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &   Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       iOff=1+(nCnt-1)*3
 C      print *,line
-      Read (Line,'(A5)') Symbol
+      Read (Line,*)
       Read (Line(6:),*) (Buffer(iOff+i),i=0,2) ! CGGn
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
@@ -284,9 +266,9 @@ C      print *,line
 900   iSTDINP = iSTDINP + 2
       If (iSTDINP.LT.lSTDINP) Go to 10
 
-      If (iAngMx.lt.0) Then
+      If (S%iAngMx.lt.0) Then
          Write (6,*) ' There is an error somewhere in the input!'
-         Write (6,*) 'iAngMx.lt.'
+         Write (6,*) 'S%iAngMx.lt.'
          iErr=1
          Return
       End If

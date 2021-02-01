@@ -13,12 +13,13 @@ C
 C     Purpose: driver for the decomposition of the two-electron integral
 C              matrix based on the reduced diagonal.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       INTEGER ISYLST(8)
@@ -36,10 +37,6 @@ C
 
       INTEGER  CHO_P_GETMPASS
       EXTERNAL CHO_P_GETMPASS
-
-      INFRED(I)=IWORK(ip_INFRED-1+I)
-
-      CALL QENTER('_DECDRV')
 
 C     Start timing.
 C     -------------
@@ -67,8 +64,8 @@ C     released by flushing back to and including this allocation.
 C     ----------------------------------------------------------------
 
       CALL CHO_P_GETGSP(NGSP)
-      CALL CHO_MEM('DIASH','ALLO','REAL',KDIASH,NGSP)
-      CALL CHO_MEM('ISYSH','ALLO','INTE',KISYSH,NGSP)
+      CALL GETMEM('DIASH','ALLO','REAL',KDIASH,NGSP)
+      CALL GETMEM('ISYSH','ALLO','INTE',KISYSH,NGSP)
 
 C     Set first integral pass.
 C     ------------------------
@@ -91,7 +88,7 @@ C     Allocate shell pair list.
 C     -------------------------
 
       l_LSTQSP = MAX(NPOTSH,1)
-      CALL CHO_MEM('LSTQSP','ALLO','INTE',ip_LSTQSP,l_LSTQSP)
+      CALL GETMEM('LSTQSP','ALLO','INTE',ip_LSTQSP,l_LSTQSP)
 
 C     Loop over integral passes. Continue until convergence or
 C     until the max. number of integral passes has been reached.
@@ -251,7 +248,7 @@ C        ---------------------
          SYNC = .FALSE.
          CALL CHO_P_SETRED(DIAG,SYNC)
          KRED = IPASS + 1
-         CALL CHO_SETRSDIM(IWORK(ip_NDIMRS),NSYM,MAXRED,KRED,IRED)
+         CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,IRED)
          IF (IPRINT .GE. INF_PASS) THEN
             CALL CHO_P_PRTRED(2)
             CALL CHO_FLUSH(LUPRI)
@@ -315,7 +312,9 @@ C        ---------------------------
 C     Free memory for shell pair based diagonal.
 C     ------------------------------------------
 
-      CALL CHO_MEM('DIASH','FLUSH','REAL',KDIASH,NNSHL)
+      CALL GETMEM('LSTQSP','FREE','INTE',ip_LSTQSP,l_LSTQSP)
+      CALL GETMEM('ISYSH','FREE','INTE',KISYSH,NGSP)
+      CALL GETMEM('DIASH','FREE','REAL',KDIASH,NNSHL)
 
 C     Shut down the Cholesky vector buffer.
 C     -------------------------------------
@@ -335,6 +334,5 @@ C     -------
       TDECDRV(1) = TCPU2  - TCPU1
       TDECDRV(2) = TWALL2 - TWALL1
 
-      CALL QEXIT('_DECDRV')
 
       END

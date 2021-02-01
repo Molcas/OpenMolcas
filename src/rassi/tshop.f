@@ -28,7 +28,6 @@
       DIMENSION    IADR3(3)
       LOGICAL      lMaxHop,lAllowHop,fexist,lHopped
 *
-      CALL QENTER(ROUTINE)
 *
 C Skip the test if a hop has occurred
 C  (this should happen when testing for state n+1
@@ -272,7 +271,6 @@ C Write the CI-vectors normally if no hop occurred
          CALL DACLOS(file)
       ENDIF
 *
-      CALL QEXIT(ROUTINE)
       RETURN
 3000  FORMAT(6X,A,F7.2)
 *

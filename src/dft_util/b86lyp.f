@@ -18,19 +18,11 @@
 *                                                                      *
 * Object:  Becke86 + YP combination                                    *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
@@ -38,7 +30,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call QEnter('B86LYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +53,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call QExit('B86LYP')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -18,12 +18,12 @@ C              memory for storing the qualified columns.
 C              If no more columns can be qualified on exit,
 C              FULL=.true. is returned.
 C
+      use ChoArr, only: iSP2F
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
       LOGICAL   FULL
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       INTEGER  CHO_IDOT
       EXTERNAL CHO_IDOT
@@ -32,17 +32,11 @@ C
       PARAMETER (SECNAM = 'CHO_QUALIFY')
 
       LOGICAL LOCDBG
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       PARAMETER (LOCDBG = .TRUE.)
 #else
       PARAMETER (LOCDBG = .FALSE.)
 #endif
-
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Copy counter to offset array.
 C     -----------------------------

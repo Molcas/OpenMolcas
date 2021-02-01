@@ -14,29 +14,21 @@
      &                  iCmp,jCmp,iShell,jShell,
      &                  iAO,jAO,nComp,Label,kOper,rHrmt)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 SOInt(iBas*jBas,nSOInt), PrpInt(nPrp)
       Integer kOper(nComp)
       Character Label*8
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       Call RecPrt(' In SOSctt:PrpInt',' ',PrpInt,1,nPrp)
 #endif

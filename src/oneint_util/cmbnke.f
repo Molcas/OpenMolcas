@@ -13,14 +13,6 @@
       SubRoutine CmbnKE(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  Txyz)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -36,9 +28,8 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 134
-      iPrint = nPrint(iRout)
-*     Call qEnter('CmbnKE')
+*     iRout = 134
+*     iPrint = nPrint(iRout)
 *     Call GetMem(' Enter CmbnKE','LIST','REAL',iDum,iDum)
 *
       iComp = 1
@@ -79,6 +70,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnKE','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnKE')
       Return
       End

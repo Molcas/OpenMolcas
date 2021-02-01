@@ -14,24 +14,36 @@
 *  A collection of subroutines that makes it possible
 *  to page out ci vectors that are not in use at the
 *  moment
+*
+*  These functions and functions are:
+*
+*      Logical Function ipopen(nconf,page)
+*      Integer Function ipclose(ia)
+*      Integer Function ipget(nn)
+*      Integer Function ipin(ii)
+*      Integer Function ipin1(ii,nn)
+*      Integer Function ipnout(iii)
+*      Integer Function opout(ii)
+*      Integer Function ipout(ii)
+*      Subroutine ipterm()
+*      Subroutine ipinit()
+*
 *                                                                      *
 ************************************************************************
 *                                                                      *
        Logical Function ipopen(nconf,page)
+       use ipPage
 *
 *      Initiate the whole lot.
 *
        Implicit Real*8(a-h,o-z)
        Logical page
-#include "ippage.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
 *      Ask how much memory is available
 *
-       Call GetMem('ipopen','MAX','REAL',ipDum,nmax)
+       Call mma_maxDBLE(nMax)
        nmax=nmax/2
-       npp=nconf*10
-*      If (npp.lt.nmax.or.(.not.page)) Then
 *
        If (Page) Then
 *
@@ -44,14 +56,12 @@
              DiskBased=.True.
           End If
 *
-*         ip_Mem : memory pointer
 *         n  : Length of CI-vector
 *         ida: disk address
 *
-          Call ICopy(Max_CI_Vectors+1,[0],0,n,1)
-          Call ICopy(Max_CI_Vectors+1,[-1],0,ida,1)
-          Call ICopy(Max_CI_Vectors+1,[ip_Dummy],0,ip_Mem,1)
-          Call ICopy(Max_CI_Vectors+1,[Null_Vector],0,Status,1)
+               n(0:Max_CI_Vectors)=0
+             ida(0:Max_CI_Vectors)=-1
+          Status(0:Max_CI_Vectors)=Null_Vector
 *
 *         iDisk_Addr_End: next free disk address
 *         n_CI_Vectors : number of CI-vectors
@@ -60,30 +70,40 @@
           n_CI_Vectors=0
 *
        Else
+
           If (DiskBased) Then
              Call ipTerm()
              DiskBased=.False.
           End If
+
        End If
 *
        ipopen=DiskBased
 *
        Return
+* Avoid unused argument warnings
+       If (.False.) Call Unused_integer(nconf)
        End
 *                                                                      *
 ************************************************************************
 *                                                                      *
        Integer Function ipclose(ia)
-#include "ippage.fh"
-#include "WrkSpc.fh"
+       use ipPage
+*
+*      Object: release all vectors above and including the vector
+*              indexed ia.
+*
+#include "stdalloc.fh"
        Real*8 rdum(1)
 *
        If (ia.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipclose: ia.gt.Max_CI_Vectors'
           Write (6,*) 'ia,Max_CI_Vectors=',ia,Max_CI_Vectors
-          Call QTrace()
           Call Abend()
        End If
+*
+*
+*      Update iDisk_Addr_End
 *
        iDisk_Addr_End=0
        If (ia.lt.0) then
@@ -103,10 +123,11 @@
 *
        End If
 *
+*      Release memory and flag as a null vector
+*
        Do ii=Max(ia,0),Max_CI_Vectors
           If (Status(ii).eq.In_Memory) Then
-             Call Getmem('ipclose','FREE','REAL',ip_Mem(ii),idum)
-             ip_Mem(ii)=ip_Dummy
+             Call mma_deallocate(W(ii)%Vec)
              ida(ii)=-1
              n(ii)=0
              Status(ii)=Null_Vector
@@ -126,13 +147,16 @@
 *                                                                      *
        Integer Function ipget(nn)
 *
-*      Get the index of a vector with the length nn
-*      memory or disk space is allocated.
+*      Get the index of a vector with the length nn.
+*      Memory or disk space is allocated.
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
        Character*4 Label
+*
+*      Take the next memory slot.
 *
        n_CI_Vectors=n_CI_Vectors+1
        ipget=n_CI_Vectors
@@ -146,27 +170,25 @@
        ida(ipget)=iDisk_Addr_End
        n(ipget)=nn
 *
-*----- Allocate memory for vector
+*----- Allocate memory for vector if of non-zero  length
 *
        If (nn.gt.0) Then
           Write (Label,'(I3.3)') n_CI_Vectors
-          Call GetMem('ipget'//Label,'ALLO','REAL',ipT,nn)
+          Call mma_allocate(W(ipget)%Vec,nn,Label='ipget'//Label)
           Status(ipget)=In_Memory
-          Call FZero(Work(ipT),nn)
+          W(ipget)%Vec(:)=Zero
        Else
-          ipT=-1
           Status(ipget)=Null_Vector
        End If
 *
+*      If diskbased mode put vector on disc and release memory
+*
        If (DiskBased) then
           If (Status(ipget).ne.Null_Vector) Then
-             Call dDafile(Lu_ip,Write,Work(ipT),nn,iDisk_Addr_End)
+             Call dDafile(Lu_ip,Write,W(ipget)%Vec,nn,iDisk_Addr_End)
              Status(ipget)=On_Disk
-             Call GetMem('ipget','FREE','REAL',ipT,nn)
-             ip_Mem(ipget)=ip_Dummy
+             Call mma_deallocate(W(ipget)%Vec)
           End If
-       Else
-         ip_Mem(ipget)=ipT
        End If
 *
        Return
@@ -176,11 +198,12 @@
 *                                                                      *
        Integer Function ipin(ii)
 *
-*      Object: return pointer to vector ii
+*      Object: return pointer to vector ii with a length of n(ii) and
+*              make the vector available in memory as W(ii)%Vec
 *
+*
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
-#include "WrkSpc.fh"
 *
        nn=n(ii)
        ipin = ipin1(ii,nn)
@@ -191,9 +214,15 @@
 ************************************************************************
 *                                                                      *
        Integer Function ipin1(ii,nn)
+*
+*      Object: return pointer to vector ii with a length of nn and
+*              make the vector available in memory as W(ii)%Vec
+*
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
+       Real*8, Allocatable:: Tmp(:)
 *
        If (ii.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipin1: ii.gt.Max_CI_Vectors'
@@ -201,45 +230,52 @@
           Call Abend()
        End If
 *
+*
        If (Status(ii).eq.In_Memory) Then
 *
 *-------- ii is in memory
 *
-          ip1=ip_Mem(ii)
-*
+
+*         If the size of the vector is larger than was originally set
+*         resize the reservation and copy the content
+
           If (nn.gt.n(ii)) Then
-             Call GetMem('ipin1','ALLO','REAL',ip1,nn)
-             Call FZero(Work(ip1),nn)
-             call dcopy_(n(ii),Work(ip_Mem(ii)),1,Work(ip1),1)
-             Call GetMem('ipin1','FREE','REAL',ip_Mem(ii),n(ii))
+             Call mma_allocate(Tmp,nn,Label='Tmp')
+             Tmp(:) = Zero
+             Tmp(1:n(ii)) = W(ii)%Vec(:)
+             Call mma_deallocate(W(ii)%Vec)
+             Call mma_allocate(W(ii)%Vec,nn,Label='ipin1')
+             W(ii)%Vec(:) = Tmp(:)
+             Call mma_deallocate(Tmp)
              n(ii)=nn
-             ip_Mem(ii)=ip1
           End If
+*
+          ip1=ii
 *
        Else If (Status(ii).eq.On_Disk) Then
 *
 *         ii is on disk
 *
-          Call Getmem('ipin1','ALLO','REAL',ip1,Max(n(ii),nn))
-          Call FZero(Work(ip1),Max(n(ii),nn))
+          Call mma_allocate(W(ii)%Vec,Max(n(ii),nn),Label='ipin1')
+          W(ii)%Vec(:)=Zero
 *
-          ip_Mem(ii)=ip1
           nnn=Min(n(ii),nn)
-
 *
 *         pick up from disk
 *
           idisk=ida(ii)
-          Call dDafile(Lu_ip,Read,Work(ip1),nnn,idisk)
+          Call dDafile(Lu_ip,Read,W(ii)%Vec,nnn,idisk)
           Status(ii)=In_Memory
+*
+          ip1=ii
 *
        Else If (Status(ii).eq.Null_Vector) Then
 *
-           ip1=ip_Dummy ! dummy pointer
+           ip1=-1
 *
        Else
 *
-          ip1=ip_Dummy
+          ip1=-1
           Write (6,*)
           Write (6,*) 'ipIn1: illegal Status(ii)'
           Write (6,*) 'ii=',ii
@@ -256,14 +292,16 @@
 ************************************************************************
 *                                                                      *
        Integer Function ipnout(iii)
+       use ipPage
+*
+*      Object: write all vectors in memory on disk but vector iii
+*
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
        If (iii.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipout: iii.gt.Max_CI_Vectors'
           Write (6,*) 'iii,Max_CI_Vectors=',iii,Max_CI_Vectors
-          Call QTrace()
           Call Abend()
        End If
 *
@@ -274,12 +312,10 @@
 *
           If (Status(ii).eq.In_Memory .and. ii.ne.iii) Then
              idisk=ida(ii)
-             ip1=ip_Mem(ii)
              nn=n(ii)
-             Call dDafile(Lu_ip,Write,Work(ip1),nn,idisk)
+             Call dDafile(Lu_ip,Write,W(ii)%Vec,nn,idisk)
              Status(ii)=On_Disk
-             Call Getmem('ipnout','FREE','REAL',ip1,nn)
-             ip_Mem(ii)=ip_Dummy
+             Call mma_deallocate(W(ii)%Vec)
           End If
 *
        End Do
@@ -291,16 +327,16 @@
 *                                                                      *
        Integer Function opout(ii)
 *
-*      opout will release the memory area without update the disk
+*      opout will release the memory area of vector ii without updating
+*      the disk
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
        If (ii.gt.Max_CI_Vectors) Then
           Write (6,*) 'opout: ii.gt.Max_CI_Vectors'
           Write (6,*) 'ii,Max_CI_Vectors=',ii,Max_CI_Vectors
-          Call QTrace()
           Call Abend()
        End If
 *
@@ -308,11 +344,8 @@
        If (.not.diskbased) Return
 *
        If (Status(ii).eq.In_Memory .and. ii.gt.0) Then
-          ip1=ip_Mem(ii)
-          nn=n(ii)
           Status(ii)=On_Disk
-          Call Getmem('opout','FREE','REAL',ip1,nn)
-          ip_Mem(ii)=ip_Dummy
+          Call mma_deallocate(W(ii)%Vec)
        Else
           opout=-1
        End If
@@ -324,23 +357,21 @@
 *                                                                      *
        Integer Function ipout(ii)
 *
-*      ipout will page them out to disk and free the memory area
+*      ipout will page out vector ii to disk and free the memory area
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
        ipout=0
        If (.not.diskbased) Return
 *
        If (Status(ii).eq.In_Memory .and. ii.gt.0) Then
-          ip1=ip_Mem(ii)
           idisk=ida(ii)
           nn=n(ii)
-          Call dDafile(Lu_ip,Write,Work(ip1),nn,idisk)
+          Call dDafile(Lu_ip,Write,W(ii)%Vec,nn,idisk)
           Status(ii)=On_Disk
-          Call Getmem('ipout','FREE','REAL',ip1,nn)
-          ip_Mem(ii)=ip_Dummy
+          Call mma_deallocate(W(ii)%Vec)
        Else
           ipout=-1
        End if
@@ -351,11 +382,11 @@
 ************************************************************************
 *                                                                      *
        Subroutine ipterm()
+       use ipPage
 *
 *      Termination
 *
-       Implicit Real*8(a-h,o-z)
-#include "ippage.fh"
+       use ipPage
 *
        If (DiskBased) Call DaClos(Lu_ip)
 *
@@ -365,11 +396,11 @@
 ************************************************************************
 *                                                                      *
        Subroutine ipinit()
+       use ipPage
 *
 *      Initialization
 *
-       Implicit Real*8(a-h,o-z)
-#include "ippage.fh"
+       use ipPage
 *
        DiskBased=.False.
 *

@@ -13,16 +13,13 @@
      &                       dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
      &                       T_X)
 ************************************************************************
+      use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "hflda.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-*
-      COMMON  / OFembed_R2/ dFMD
 *
 *---- Vosko-Wilk-Nusair correlation functional III
 *

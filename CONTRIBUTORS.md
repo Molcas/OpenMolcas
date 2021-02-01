@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2020, The OpenMolcas Authors
+Copyright (C) 1989-2021, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -25,20 +25,20 @@ General citations
 =================
 
 * **OpenMolcas**:
-  *J. Chem. Theory Comput.* **15** (2019) 5925-5964. DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+  *J. Chem. Theory Comput.* **15** (2019) 5925-5964. [doi:10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
 
 * **Molcas 8**:
-  *J. Comput. Chem.* **37** (2016) 506-541. DOI: [10.1002/jcc.24221](https://doi.org/10.1002/jcc.24221)
+  *J. Comput. Chem.* **37** (2016) 506-541. [doi:10.1002/jcc.24221](https://doi.org/10.1002/jcc.24221)
 
 * **Molcas 7**:
-  *J. Comput. Chem.* **31** (2010) 224-247. DOI: [10.1002/jcc.21318](https://doi.org/10.1002/jcc.21318)
+  *J. Comput. Chem.* **31** (2010) 224-247. [doi:10.1002/jcc.21318](https://doi.org/10.1002/jcc.21318)
 
 * **Molcas 6**:
-  *Comput. Mat. Sci.* **28** (2003) 222-239. DOI: [10.1016/S0927-0256(03)00109-5](https://doi.org/10.1016/S0927-0256(03)00109-5)
+  *Comput. Mat. Sci.* **28** (2003) 222-239. [doi:10.1016/S0927-0256(03)00109-5](https://doi.org/10.1016/S0927-0256(03)00109-5)
 
 * **Code development**:
-  *Wiley Interdiscip. Rev. Comput. Mol. Sci.* **3** (2013) 143-149. DOI: [10.1002/wcms.1117](https://doi.org/10.1002/wcms.1117);
-  *Int. J. Quantum Chem.* **100** (2004) 626-635. DOI: [10.1002/qua.20166](https://doi.org/10.1002/qua.20166)
+  *Wiley Interdiscip. Rev. Comput. Mol. Sci.* **3** (2013) 143-149. [doi:10.1002/wcms.1117](https://doi.org/10.1002/wcms.1117);
+  *Int. J. Quantum Chem.* **100** (2004) 626-635. [doi:10.1002/qua.20166](https://doi.org/10.1002/qua.20166)
 
 
 Contributors
@@ -77,6 +77,7 @@ Mickaël G. Delcey
 Ajitha Devarajan  
 Luca De Vico  
 Michael Diedenhofen  
+Werner Dobrautz  
 Sijia S. Dong  
 Thomas Dresselhaus  
 Daniel Fairhead  

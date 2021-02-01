@@ -30,8 +30,28 @@
       Data fift/1.5d1/
       Character*180 Get_Ln
       External Get_Ln
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+     &                     iQMChg,nAtMM,StandAlone,DoDirect)
+      Integer, Intent(In):: nAtom
+      Real*8, Intent(In):: Cord(3,nAtom)
+      Integer, Intent(In):: ipMltp
+      Integer, Intent(In):: IsMM(nAtom)
+      Integer, Intent(In):: MltOrd
+      Logical, Intent(InOut):: DynExtPot
+      Integer, Intent(In):: iQMChg
+      Integer, Intent(InOut):: nAtMM
+      Logical, Intent(In):: StandAlone
+      Logical, Intent(In):: DoDirect
+      End Subroutine RunTinker
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
-      Call qEnter('ReadIn')
 *
 * If some keywords are not given, what are the defauts ?
 * 3 cases:
@@ -226,7 +246,6 @@
                   XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
                End If
             End Do
-            ESelf = SelfEn(nChg)
             Convert = .False.
          Else
             Do iAt = 1, natom
@@ -383,7 +402,8 @@ ctmp
          DoTinker = DoTinker_old
          DoGromacs = DoGromacs_old
          iQMChg = 0
-         If (DoTinker) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,
+         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                                iWork(ipIsMM),
      &               MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
 #ifdef _GROMACS_
          If (DoGromacs) Call RunGromacs(natom,Work(ipCord),ipMltp,
@@ -411,7 +431,8 @@ ctmp
 * External potential read from a file
 *
       Else If (nChg .eq. -1) Then
-         If (DoTinker) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,
+         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                                iWork(ipIsMM),
      &                  MltOrd,DynExtPot,iQMChg,natMM,StandAlone,
      &                  DoDirect)
 #ifdef _GROMACS_
@@ -445,7 +466,6 @@ ctmp
                   End If
                End If
             End Do
-            If (.not.(DoTinker.Or.DoGromacs)) ESelf = SelfEn(nChg)
             Convert = .False.
          Else
             Do iAt = 1, natom
@@ -469,7 +489,6 @@ ctmp
 * b) external potential calculated from point charges and dipoles
 *
       If (nChg .gt. 0 .and. DoDirect) Then
-         lXF = .True.
          nXF = nChg
          nOrd_XF = nOrd_ext
          iXPolType = 0
@@ -517,21 +536,21 @@ ctmp
 *      Gradient G / xx
                Work(iStart+4) = Work(iStart+4)
      &                 + qChg*(three*dx*dx-rAC2)/rAC5
-     &                 - (dpxChg*(fift*dx*dx*dx-rnine*dx*rAC2)
+     &                 - (dpxChg*(fift*dx*dx*dx-nine*dx*rAC2)
      &                  + dpyChg*(fift*dx*dx*dy-three*dy*rAC2)
      &                  + dpzChg*(fift*dx*dx*dz-three*dz*rAC2))/rAC7
 *      Gradient G / yy
                Work(iStart+5) = Work(iStart+5)
      &                 + qChg*(three*dy*dy-rAC2)/rAC5
      &                 - (dpxChg*(fift*dy*dy*dx-three*dx*rAC2)
-     &                  + dpyChg*(fift*dy*dy*dy-rnine*dy*rAC2)
+     &                  + dpyChg*(fift*dy*dy*dy-nine*dy*rAC2)
      &                  + dpzChg*(fift*dy*dy*dz-three*dz*rAC2))/rAC7
 *      Gradient G / zz
                Work(iStart+6) = Work(iStart+6)
      &                 + qChg*(three*dz*dz-rAC2)/rAC5
      &                 - (dpxChg*(fift*dz*dz*dx-three*dx*rAC2)
      &                  + dpyChg*(fift*dz*dz*dy-three*dy*rAC2)
-     &                  + dpzChg*(fift*dz*dz*dz-rnine*dz*rAC2))/rAC7
+     &                  + dpzChg*(fift*dz*dz*dz-nine*dz*rAC2))/rAC7
 *      Gradient G / xy
                Work(iStart+7) = Work(iStart+7)
      &                 + qChg*(three*dx*dy)/rAC5
@@ -616,7 +635,6 @@ ctmp
       End Do
       Close(IPotFl)
       Write (6,*)
-      Call qExit('ReadIn')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

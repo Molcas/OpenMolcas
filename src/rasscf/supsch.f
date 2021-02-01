@@ -32,7 +32,6 @@ C
 #include "WrkSpc.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
 *
-      Call qEnter(ROUTINE)
 *
       nOrbMX=0
       nOrb_tot=0
@@ -52,7 +51,6 @@ C
       Call GetMem('Temp2','Free','Real',ipTemp2,nOrbMX*nOrbMX)
       Call GetMem('Temp1','Free','Real',ipTemp1,nOrbMX*nOrbMX)
 *
-      CALL QExit('SUPSCH')
 *
       Return
       End

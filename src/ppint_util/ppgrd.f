@@ -17,18 +17,13 @@
 *                                                                      *
 * Object: to compute pseudo potential gradient integrals               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       Use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "oneswi.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -50,15 +45,14 @@
       Integer nkcrl(lproju+1,kcrs),nkcru(lproju+1,kcrs),lcr(kcrs),
      &        ncr(imax)
 *
-      Logical EQ, TstFnc, TF
+      Logical EQ
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function for Cartesian index
 *
       nElem(i) = (i+1)*(i+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,16 +107,14 @@
 *
       If (nArray.gt.nZeta*nArr) Then
          Write (6,*) 'nArray.gt.nZeta*nArr'
-         Call QTrace()
          Call Abend()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iComp = 1
-      kdc =-dbsc(1)%nCntr
+      kdc = 0
       Do iCnttp = 1, nCnttp
-         kdc = kdc + dbsc(iCnttp)%nCntr
+        If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
          If (dbsc(iCnttp)%Charge.eq.0d0) Cycle
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
@@ -145,7 +137,6 @@ cAOM         kShEnd = kShStr + dbsc(iCnttp)%nPP-1
 CAOM            Write (6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
             Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
-            Call QTrace()
             Call Abend()
          End If
 CAOM         lcr(kcrs)=dbc(iCnttp)%nPP-1
@@ -161,7 +152,6 @@ CAOM         lcr(kcrs)=dbc(iCnttp)%nPP-1
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
                Write (6,*)'         imax=',imax
-               Call QTrace()
                Call Abend()
             End If
             iStrt=1
@@ -320,7 +310,7 @@ CAOM>
 *              Distribute contributions to the gradient
 *
                Call Distg1X(Final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,
-     &                     JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                     JfGrad,JndGrd,iuvwx,lOp)
 *
             End Do        ! lDCRT
 *                                                                      *

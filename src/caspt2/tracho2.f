@@ -12,6 +12,8 @@
 ************************************************************************
       SUBROUTINE TRACHO2(CMO,DREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -19,7 +21,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "output.fh"
@@ -31,7 +32,6 @@
       LOGICAL IF_TRNSF
 
       INTEGER NCES(8),ip_HTVec(8)
-      Integer, External :: Cho_IRange
       INTEGER ISTART(8),NUSE(8)
 
       REAL*8 E,ECORE1,ECORE2
@@ -39,7 +39,7 @@
       REAL*8 FACTC,FACTXA,FACTXI
 
       INTEGER I,J,IC,IA,ICASE,IRC,ILOC
-      INTEGER JSTART,JEND
+      INTEGER JSTART
       INTEGER JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
       INTEGER IASTA,IAEND,IISTA,IIEND
       INTEGER NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
@@ -52,15 +52,14 @@
       INTEGER ISFA,ISFF,ISFI
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v,ipnt
-      INTEGER NUMV,NV,NVECS_RED,NVTOT,NHTOFF,MUSED
+      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v
+      INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
 
       REAL*8, EXTERNAL :: DDOT_
 
 **********************************************************************
-      Call QEnter('TRACHO2')
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:
@@ -162,14 +161,13 @@ c Initialize Fock matrices in AO basis to zero:
       DO JSYM=1,NSYM
       IBATCH_TOT=NBTCHES(JSYM)
 
-*      write(6,*)' Tracho2 JSYM=',JSYM
-*      write(6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
+*     write(6,*)' Tracho2 JSYM=',JSYM
+*     write(6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
       IF(NUMCHO_PT2(JSYM).EQ.0) GOTO 1000
 
-      ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(jSym-1))
-      JRED1=iWork(ipnt)
-      JRED2=iWork(ipnt-1+NumCho_PT2(jSym))
-*      write(6,*)'  JRED1,JRED2:',JRED1,JRED2
+      JRED1=InfVec(1,2,jSym)
+      JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
+*     write(6,*)'tracho2:  JRED1,JRED2:',JRED1,JRED2
 
       IF(JSYM.EQ.1) THEN
 * Allocate space for temporary vector 'V' used for Coulomb contrib to
@@ -198,11 +196,11 @@ c Initialize Fock matrices in AO basis to zero:
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-      JEND=JSTART+NVECS_RED-1
+*      JEND=JSTART+NVECS_RED-1
 *      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
       IF(JSYM.EQ.1) THEN
-      NRS=IWORK(IP_NDIMRS-1+NSYM*(JRED-1)+JSYM)
+      NRS=NDIMRS(JSYM,JRED)
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
       CALL full2red(Work(ipDF),Work(ipDF_Red))
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)
@@ -520,11 +518,9 @@ C ---------------------------------------------------------------------
       IF (IF_TRNSF.AND.RHSDIRECT) THEN
         IP_LFT=IP_FTSPC
         DO JSYM=1,NSYM
-          NVTOT=NVTOT_CHOSYM(JSYM)
           IBSTA=NBTCHES(JSYM)+1
           IBEND=NBTCHES(JSYM)+NBTCH(JSYM)
           DO IB=IBSTA,IBEND
-            NV=NVLOC_CHOBATCH(IB)
             DO ISYQ=1,NSYM
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -556,7 +552,7 @@ c (It is in fact an effective one-electron Hamiltonian).
 * Nuclear repulsion energy:
       ECORE=POTNUC+ECORE1+ECORE2
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        WRITE(6,'(6X,A,E20.10)') 'NUCLEAR REPULSION ENERGY:',POTNUC
        WRITE(6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',ECORE1
        WRITE(6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ECORE2
@@ -575,7 +571,7 @@ c (It is in fact an effective one-electron Hamiltonian).
        CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
       END IF
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,'(6X,A)')'TEST PRINT FROM TRACHO2.'
         WRITE(6,'(6X,A)')
         write(6,*)' NSYM:',NSYM
@@ -618,6 +614,5 @@ c (It is in fact an effective one-electron Hamiltonian).
         END DO
 #endif
 
-      Call QExit('TRACHO2')
       RETURN
       END

@@ -18,13 +18,6 @@
 *         integral from the cartesian components of the overlap        *
 *         integral.                                                    *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -37,7 +30,6 @@
 *
       iRout = 115
       iPrint = nPrint(iRout)
-*     Call qEnter('Kntc')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
@@ -99,6 +91,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit Kntc  ','CHECK','REAL',iDum,iDum)
-*     Call qExit('Kntc')
       Return
       End

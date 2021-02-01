@@ -37,28 +37,33 @@
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only: Weights, MF, RefGeo
+      use Slapaf_Parameters, only: IRC, nLambda, rMEP, MEP, nMEP,
+     &                             MEPNum, dMEPStep, MEP_Type,
+     &                             MEP_Algo, iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
-#include "info_slapaf.fh"
       Real*8 Cx(3*nAtom,iter+1),Gx(3*nAtom,iter+1)
       Logical IRCRestart,BadConstraint
       Parameter ( RadToDeg=180.0D0/Pi )
-      Dimension iDum(1)
+      Integer iDum(1)
+      Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:), Disp(:,:),
+     &                      Grad(:,:), Dir(:,:), Cen(:,:),
+     &                      Len(:), Cur(:), drdx(:,:)
 *
-      Call QEnter('MEP_dir')
 *                                                                      *
 ************************************************************************
 *                                                                      *
       nCoor=3*nAtom
       iPrev_iter=Max(iOff_iter,1)
-      Call Allocate_Work(ipPrevDir,nCoor)
-      Call Allocate_Work(ipPostDir,nCoor)
-      Call Allocate_Work(ipDisp,nCoor)
-      Call Allocate_Work(ipGrad,nCoor)
-      Call Allocate_Work(ipDir,nCoor)
-      Call Allocate_Work(ipCen,nCoor)
+      Call mma_allocate(PrevDir,3,nAtom,Label='PrevDir')
+      Call mma_allocate(PostDir,3,nAtom,Label='PostDir')
+      Call mma_allocate(Disp,3,nAtom,Label='Disp')
+      Call mma_allocate(Grad,3,nAtom,Label='Grad')
+      Call mma_allocate(Dir,3,nAtom,Label='Dir')
+      Call mma_allocate(Cen,3,nAtom,Label='Cen')
 *
 *     Obtain some useful vectors:
 *     PrevDir: difference between ref. structure and previous MEP point
@@ -67,18 +72,18 @@
 *     Grad:    gradient at current MEP point
 *
       If (iter.gt.1) Then
-        Call dCopy_(nCoor,Work(ipRef),1,Work(ipPrevDir),1)
-        Call DaXpY_(nCoor,-One,Cx(1,iPrev_iter),1,Work(ipPrevDir),1)
-        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipPostDir),1)
-        Call DaXpY_(nCoor,-One,Work(ipRef),1,Work(ipPostDir),1)
-        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipDisp),1)
-        Call DaXpY_(nCoor,-One,Cx(1,iPrev_iter),1,Work(ipDisp),1)
+        PrevDir(:,:) = RefGeo(:,:)
+        Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
+        Call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
+        PostDir(:,:) = PostDir(:,:) - RefGeo(:,:)
+        Call dCopy_(nCoor,Cx(:,iter),1,Disp(:,:),1)
+        Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,Disp(:,:),1)
       Else
-        Call DZero(Work(ipPrevDir),nCoor)
-        Call DZero(Work(ipPostDir),nCoor)
-        Call DZero(Work(ipDisp),nCoor)
+        PrevDir(:,:)=Zero
+        PostDir(:,:)=Zero
+        Disp(:,:)   =Zero
       End If
-      Call dCopy_(nCoor,Gx(1,iter),1,Work(ipGrad),1)
+      Call dCopy_(nCoor,Gx(:,iter),1,Grad(:,:),1)
 *
 *     Normalize the vectors in weighted coordinates
 *     and compute some angles that provide information on the path
@@ -97,21 +102,21 @@
       iOff=0
       Do iAtom=1,nAtom
         Fact=Dble(iDeg(Cx(1+iOff,iter)))
-        xWeight=Work(ipWeights+iAtom-1)
+        xWeight=Weights(iAtom)
         TWeight=TWeight+Fact*xWeight
         Do ixyz=1,3
-          dPrevDir=dPrevDir+Fact*xWeight*Work(ipPrevDir+iOff)**2
-          dPostDir=dPostDir+Fact*xWeight*Work(ipPostDir+iOff)**2
-          dDisp=dDisp+Fact*xWeight*Work(ipDisp+iOff)**2
-          dGrad=dGrad+Fact*Work(ipGrad+iOff)**2/xWeight
+          dPrevDir=dPrevDir+Fact*xWeight*PrevDir(ixyz,iAtom)**2
+          dPostDir=dPostDir+Fact*xWeight*PostDir(ixyz,iAtom)**2
+          dDisp=dDisp+Fact*xWeight*Disp(ixyz,iAtom)**2
+          dGrad=dGrad+Fact*Grad(ixyz,iAtom)**2/xWeight
           dPostDirGrad=dPostDirGrad+
-     &        Fact*Work(ipPostDir+iOff)*Work(ipGrad+iOff)
+     &        Fact*PostDir(ixyz,iAtom)*Grad(ixyz,iAtom)
           dPrevDirGrad=dPrevDirGrad+
-     &        Fact*Work(ipPrevDir+iOff)*Work(ipGrad+iOff)
+     &        Fact*PrevDir(ixyz,iAtom)*Grad(ixyz,iAtom)
           dPrevDirDisp=dPrevDirDisp+
-     &        Fact*xWeight*Work(ipPrevDir+iOff)*Work(ipDisp+iOff)
+     &        Fact*xWeight*PrevDir(ixyz,iAtom)*Disp(ixyz,iAtom)
           dPrevDirPostDir=dPrevDirPostDir+
-     &        Fact*xWeight*Work(ipPrevDir+iOff)*Work(ipPostDir+iOff)
+     &        Fact*xWeight*PrevDir(ixyz,iAtom)*PostDir(ixyz,iAtom)
           iOff=iOff+1
         End Do
       End Do
@@ -120,13 +125,13 @@
       dDisp=Sqrt(dDisp)
       dGrad=Sqrt(dGrad)
       If (dPrevDir.gt.Zero)
-     &  Call DScal_(nCoor,One/dPrevDir,Work(ipPrevDir),1)
+     &  Call DScal_(nCoor,One/dPrevDir,PrevDir(:,:),1)
       If (dPostDir.gt.Zero)
-     &  Call DScal_(nCoor,One/dPostDir,Work(ipPostDir),1)
+     &  Call DScal_(nCoor,One/dPostDir,PostDir(:,:),1)
       If (dDisp.gt.Zero)
-     &  Call DScal_(nCoor,One/dDisp,Work(ipDisp),1)
+     &  Call DScal_(nCoor,One/dDisp,Disp(:,:),1)
       If (dGrad.gt.Zero)
-     &  Call DScal_(nCoor,One/dGrad,Work(ipGrad),1)
+     &  Call DScal_(nCoor,One/dGrad,Grad(:,:),1)
 *     Any zero vector is assumed to be parallel to any other
       If (dPostDir*dGrad.gt.Zero) Then
         dPostDirGrad=dPostDirGrad/(dPostDir*dGrad)
@@ -164,19 +169,19 @@
 *
 *     Store the length and curvature values, and print results
 *
-      Call Allocate_Work(ipLen,nMEP+1)
-      Call Allocate_Work(ipCur,nMEP+1)
+      Call mma_allocate(Len,nMEP+1,Label='Len')
+      Call mma_allocate(Cur,nMEP+1,Label='Cur')
       If (iMEP.ge.1) Then
-        Call Get_dArray('MEP-Lengths   ',Work(ipLen),nMEP+1)
-        Call Get_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+        Call Get_dArray('MEP-Lengths   ',Len,nMEP+1)
+        Call Get_dArray('MEP-Curvatures',Cur,nMEP+1)
         If (IRC.eq.-1) Then
-          Work(ipLen+iMEP)=-PathLength
+          Len(1+iMEP)=-PathLength
         Else
-          Work(ipLen+iMEP)=PathLength
+          Len(1+iMEP)=PathLength
         End If
-        Work(ipCur+iMEP)=Curvature
-        Call Put_dArray('MEP-Lengths   ',Work(ipLen),nMEP+1)
-        Call Put_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+        Cur(1+iMEP)=Curvature
+        Call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+        Call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
         If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
           If (MEP_Type.eq.'TRANSVERSE') Then
             ConstraintAngle=aCos(dPrevDirGrad)*RadToDeg
@@ -205,13 +210,13 @@
 100       Format(1X,A30,1X,F12.6,1X,A)
         End If
       Else
-        Call DZero(Work(ipLen),nMEP+1)
-        Call DZero(Work(ipCur),nMEP+1)
-        Call Put_dArray('MEP-Lengths   ',Work(ipLen),nMEP+1)
-        Call Put_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+        Len(:)=Zero
+        Cur(:)=Zero
+        Call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+        Call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
       End If
-      Call Free_Work(ipLen)
-      Call Free_Work(ipCur)
+      Call mma_deallocate(Len)
+      Call mma_deallocate(Cur)
 *
 *     Do not mess with the geometry or reference if the next iteration
 *     will be the start of a reverse IRC search.
@@ -238,13 +243,12 @@
 *         the plane normal (PrevDir) than the Disp vector, therefore
 *         a negative value is probably better.
           Fact=-0.5D0
-          Call dCopy_(nCoor,Work(ipPrevDir),1,Work(ipDir),1)
-          Call DScal_(nCoor,Fact,Work(ipDir),1)
-          Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Work(ipDisp),1,
-     &                                             Work(ipDir),1)
+          Dir(:,:) = Fact * PrevDir(:,:)
+          Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,
+     &                                             Dir(:,:),1)
         Else
 *         In the SPHERE case, PostDir is the vector to use
-          Call dCopy_(nCoor,Work(ipPostDir),1,Work(ipDir),1)
+          Dir(:,:) = PostDir(:,:)
         End If
 *
 *       Special cases
@@ -252,10 +256,10 @@
         If (iMEP.eq.0) Then
           If (IRC.eq.0) Then
 *           In the initial iteration of a MEP, use the initial direction
-            Call Get_dArray('Transverse',Work(ipDir),nCoor)
+            Call Get_dArray('Transverse',Dir(:,:),nCoor)
           Else
 *           In the initial iteration of an IRC branch, use the reaction vector
-            Call dCopy_(nCoor,Work(ipMF),1,Work(ipDir),1)
+            Call dCopy_(nCoor,MF,1,Dir(:,:),1)
           End If
         End If
 *
@@ -269,19 +273,17 @@
         nLambda_=iDum(1)
         Call iDaFile(LudRdX,2,iDum,1,iAd)
         nCoor_=iDum(1)
-        Call Allocate_Work(ipdrdx,nLambda_*nCoor_)
-        Call dDaFile(LudRdX,2,Work(ipdrdx),nLambda_*nCoor_,iAd)
+        Call mma_allocate(drdx,nCoor_,nLambda_,Label='drdx')
+        Call dDaFile(LudRdX,2,drdx,nLambda_*nCoor_,iAd)
         Call DaClos(LudRdX)
-        iOff=ipdrdx
         Do iLambda=1,nLambda
           If (iLambda.ne.MEPnum) Then
-            dd=dDot_(nCoor,Work(iOff),1,Work(iOff),1)
-            drd=dDot_(nCoor,Work(iOff),1,Work(ipDir),1)
-            Call DaXpY_(nCoor,-drd/dd,Work(iOff),1,Work(ipDir),1)
+            dd=dDot_(nCoor,drdx(:,iLambda),1,drdx(:,iLambda),1)
+            drd=dDot_(nCoor,drdx(:,iLambda),1,Dir(:,:),1)
+            Call DaXpY_(nCoor,-drd/dd,drdx(:,iLambda),1,Dir(:,:),1)
           End If
-          iOff=iOff+nCoor
         End Do
-        Call Free_Work(ipdrdx)
+        Call mma_deallocate(drdx)
 *
 *       Compute the length of the direction vector in weighted coordinates
 *
@@ -289,9 +291,9 @@
         iOff=0
         Do iAtom=1,nAtom
           Fact=Dble(iDeg(Cx(1+iOff,iter)))
-          xWeight=Work(ipWeights+iAtom-1)
+          xWeight=Weights(iAtom)
           Do ixyz=1,3
-            dDir=dDir+Fact*xWeight*Work(ipDir+iOff)**2
+            dDir=dDir+Fact*xWeight*Dir(ixyz,iAtom)**2
             iOff=iOff+1
           End Do
         End Do
@@ -304,17 +306,17 @@
 *       For an IRC first step, keep the initial structure as reference
 *
         Fact=dMEPStep*Sqrt(TWeight)/dDir
-        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipCen),1)
+        Call dCopy_(nCoor,Cx(:,iter),1,Cen(:,:),1)
         If (MEP_Algo.eq.'GS') Then
           If ((IRC.eq.0).or.(iMEP.ne.0))
-     &      Call Find_Distance(Cx(1,iter),Work(ipCen),Work(ipDir),
+     &      Call Find_Distance(Cx(:,iter),Cen(:,:),Dir(:,:),
      &                Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
-          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Work(ipCen),nCoor)
-          Call Find_Distance(Work(ipCen),Cx(1,iter+1),Work(ipDir),
+          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cen(:,:),nCoor)
+          Call Find_Distance(Cen(:,:),Cx(:,iter+1),Dir(:,:),
      &              Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
         Else If (MEP_Algo.eq.'MB') Then
           If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cx(1,iter),nCoor)
-          Call Find_Distance(Cx(1,iter),Cx(1,iter+1),Work(ipDir),
+          Call Find_Distance(Cx(:,iter),Cx(:,iter+1),Dir(:,:),
      &              Fact,dMEPStep,nAtom,BadConstraint)
         End If
 *
@@ -322,31 +324,30 @@
 *       to try to break symmetry
 *
         If (nIrrep.eq.1) Then
-          Call Random_Vector(nCoor,Work(ipDisp),.True.)
+          Call Random_Vector(nCoor,Disp(:,:),.True.)
           dDir=Zero
           iOff=0
           Do iAtom=1,nAtom
-            xWeight=Work(ipWeights+iAtom-1)
+            xWeight=Weights(iAtom)
             Do ixyz=1,3
-              dDir=dDir+xWeight*Work(ipDisp+iOff)**2
+              dDir=dDir+xWeight*Disp(ixyz,iAtom)**2
               iOff=iOff+1
             End Do
           End Do
           Fact=dMEPStep*Sqrt(TWeight/dDir)
-          Call DaXpY_(nCoor,0.05D0*Fact,Work(ipDisp),1,Cx(1,iter+1),1)
+          Call DaXpY_(nCoor,0.05D0*Fact,Disp(:,:),1,Cx(:,iter+1),1)
         End If
-        Call Put_dArray('Transverse',Work(ipDir),nCoor)
+        Call Put_dArray('Transverse',Dir(:,:),nCoor)
         If (iter.eq.1) BadConstraint=.False.
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Free_Work(ipPrevDir)
-      Call Free_Work(ipPostDir)
-      Call Free_Work(ipDisp)
-      Call Free_Work(ipGrad)
-      Call Free_Work(ipDir)
-      Call Free_Work(ipCen)
-      Call QExit('MEP_dir')
+      Call mma_deallocate(PrevDir)
+      Call mma_deallocate(PostDir)
+      Call mma_deallocate(Disp)
+      Call mma_deallocate(Grad)
+      Call mma_deallocate(Dir)
+      Call mma_deallocate(Cen)
       Return
       End

@@ -36,11 +36,8 @@
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
       Logical ABeq(3),jfgrad(3),jfhess(4,3,4,3),debug
       Real*8 TC(3),RB(3),Array(*),fb1(*),fb2(*),beta(*)
@@ -77,8 +74,6 @@
 *
 *--------------Calculate Overlap <core|B> and <core|B'>
 *
-CBS   nHer = (iAng+(lb+1)+2)/2
-CBS   now it looks comparable to acore.f
       nHer = (lb+1+iAng+1+ld)/2
       ipCxyz = ip
       ip = ip + nBeta*nExpi*3*nHer*(iAng+1)

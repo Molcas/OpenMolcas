@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SupSym(FrcCrt,nsAtom,cMass,Coor,nSupSy,Idntcl,iAtom)
+      Subroutine SupSym(FrcCrt,nsAtom,Coor,nSupSy,Idntcl,iAtom)
+      use Slapaf_Info, only: dMass, Smmtrc
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -19,14 +20,16 @@
 *
 *           --- global arrays ---
 *
-      Real*8 FrcCrt(3,nsAtom), cMass(3), Coor(3,nsAtom)
+      Real*8 FrcCrt(3,nsAtom), Coor(3,nsAtom)
       Integer   Idntcl(nSupSy), iAtom(nsAtom)
 *
 *         --- local arrays ---
 *
+      Real*8 cMass(3)
       Real*8 E(3)
+
+      Call CofMss(Coor,nsAtom,cMass)
 *
-      Call qEnter('SupSym')
 *
 *     Loop over groups of centers which are identical.
 *
@@ -87,6 +90,67 @@
 35       Continue
 10    Continue
 *
-      Call qExit('SupSym')
+      Contains
+      Subroutine CofMss(Coor,nsAtom,cMass)
+************************************************************************
+*     Object: To calculate the molecular mass, the center of mass and  *
+*             move the coordinates so origo is the center of mass.     *
+************************************************************************
+      Real*8 COOR(3,nsAtom), cMass(3)
+      Integer i, j
+*
+*     Calculate the molecular mass.
+*
+      TMass = Zero
+      Do I = 1, nsAtom
+         TMass = TMass + dMass(I) * DBLE(iDeg(Coor(1,i)))
+      End Do
+      iCOM=-1
+      If (TMass.ge.1.D99) Then
+         Do i = 1, nsAtom
+            If (dMass(i).eq.1.D99) Then
+               iCOM=i
+               Go To 99
+            End If
+         End Do
+      End If
+ 99   Continue
+*
+*     calculate the center of mass
+*
+      cMass(:)=Zero
+*-----Loop over the unique centers
+      Do i = 1, nsAtom
+         Do j = 1, 3
+*-----------Add contribution
+            If (Smmtrc(j,i)) cMass(j) = cMass(j) +
+     &         dMass(i) *  Coor(j,i) *
+     &         DBLE(iDeg(Coor(1,i)))
+         End Do
+      End Do
+*
+      Do i = 1, 3
+         cMass(i) = cMass(i) / TMass
+      End Do
+      If (iCOM.ge.1.and.iCOM.le.nsAtom) cMass(:)=Coor(:,iCom)
+*
+#ifdef _DEBUGPRINT_
+      If (LWrite) Write(6,100) (cMass(i),i=1,3), TMass
+ 100  FORMAT(//,' Center of Mass (Bohr) ',3F10.5,/,
+     &          ' Molecular Mass   (au) ',1F15.5)
+#endif
+#ifdef _DO_NOT_
+*
+*     translate the center of mass to origo
+*
+      Do i = 1, nsAtom
+         Do j = 1, 3
+            Coor(j,i) = Coor(j,i) - cMass(j)
+         End Do
+      End Doa
+#endif
+*
       Return
-      End
+      End Subroutine CofMss
+
+      End Subroutine SupSym

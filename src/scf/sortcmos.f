@@ -12,8 +12,8 @@
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
       Integer nBas(nSym), nOrb(nSym)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1
          jOff=1
@@ -119,7 +119,7 @@
             iOff2 = iOff2 + nBas(iSym)*nOrb(iSym)
          End Do        ! iSym
       End Do           ! iD
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1
          jOff=1

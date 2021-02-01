@@ -17,9 +17,8 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
+#include "sxci.fh"
       PARAMETER(ROUTINE='SETSXCI ')
-
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
       DIMENSION IOFF_GSSH(mxgas)
 C

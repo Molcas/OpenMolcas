@@ -25,8 +25,6 @@
 ************************************************************************
 *
       Use Basis_Info, only: dbsc, nCnttp, Shells
-#include "itmax.fh"
-#include "info.fh"
 *
       nElem(i) = (i+1)*(i+2)/2
 *

@@ -32,13 +32,14 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
+      use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
+      use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (a-h,o-z)
       External EFInt,EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1), EF_Grid(3),
      &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
@@ -50,8 +51,6 @@
       Integer, Allocatable:: ips(:), lOper(:), kOper(:)
       Real*8, Allocatable::  C_Coor(:,:)
       Real*8, Allocatable:: Integrals(:)
-*
-#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,7 +63,9 @@
 *     2) nuclear-electronic, constant: added to h1 once
 *     3) electronic-electronic, linearly dependent of the density: TwoHam
 *
+#ifdef _DEBUGPRINT_
       tmp_RepNuc=RepNuc
+#endif
       NonEq=.False.
       If(lRFCav) Call RctFld(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 *                                                                      *
@@ -80,23 +81,16 @@
 *     and the dipole moments on the grid (EnucDip). This scalar terms
 *     depends also on D_tot and modifies RepNuc at each iteration.
 *
-      qq0=Zero
-*
       Edip2=Zero
       Eint=Zero
       Eself=Zero
       Enucdip=Zero
       Esimple=Zero
-      iMax=1
       agsum=Zero
 
 *
       Do iGrid=1,nGrid_
-*------- Grid coordinates
-         ghx=Grid(1,iGrid)
-         ghy=Grid(2,iGrid)
-         ghz=Grid(3,iGrid)
-*------- Langevin dipol moment
+*------- Langevin dipole moment
          dx=DipMom(1,iGrid)
          dy=DipMom(2,iGrid)
          dz=DipMom(3,iGrid)
@@ -130,11 +124,11 @@
          x=ftot*DipEff(iGrid)*tk
          If (x.le.0.0000001d0) Then
             ag=Zero
-            alang=Zero
+c           alang=Zero
          Else
             ex=exp(x)
             emx=One/ex
-            alang=(ex+emx)/(ex-emx)-One/x
+c           alang=(ex+emx)/(ex-emx)-One/x
             ag=-log((ex-emx)/(Two*x))/tk
          End If
 *
@@ -160,7 +154,7 @@ c            Eself=Eself+ftot*uind+ag-Half*ftot**2*PolEff(1,iGrid)
 *
       End Do          ! iGrid
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)'Esimple             =',Esimple
       Write(6,*)'EnucRctfld          =',RepNuc-tmp_RepNuc
       Write(6,*)'Eself               =',Eself
@@ -249,7 +243,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               lOper(iComp) = MltLbl(iSymC,iSym,nIrrep)
+               lOper(iComp) = MltLbl(iSymC,iSym)
                kOper(iComp) = iChBas(iComp+1)
                call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do
@@ -301,7 +295,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *
       End Do    ! iGrid
       RepNuc=RepNuc+RepHlp
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)'RepHlp              =',RepHlp
 #endif
 

@@ -10,31 +10,13 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine SroGrd_mck(Alpha,nAlpha,Beta, nBeta,
-     &                  Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,
-     &                  IfGrad,IndGrd,nop,
-     &                  loper,iu,iv,nrop,idcar,idcnt,
-     &                  iStabM,nStabM,ldum)
+      SubRoutine SroGrd_mck(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                     )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -67,22 +49,18 @@
       use Basis_Info
       use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nrop),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper,
-     &          iuvwx(4), nOp(2), mOp(4),index(3,4),
-     &          indgrd(0:7), JndGrd(3,4,0:7)
-      Logical IfGrad(3,2), JfGrad(3,4), EQ,
-     &        DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
+
+#include "grd_mck_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iuvwx(4), mOp(4),index(3,4), JndGrd(3,4,0:7)
+      Logical JfGrad(3,4), EQ, DiffCnt,tr(4),ifg(4),ifhess_dum(3,4,3,4)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -97,22 +75,19 @@
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
 *
-      iprint = 0
       DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
 
-
-
-      If (iPrint.ge.49) Then
-            Call RecPrt(' In SROGrd: A',' ',A,1,3)
-            Call RecPrt(' In SROGrd: RB',' ',RB,1,3)
-            Call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
-            Call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
-            Call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
-            Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
-            Write (6,*) ' In SROGrd: Diffs=',' ',
-     &                    IfGrad(iDCar,1),IfGrad(iDCar,2)
-            Write (6,*) ' In SROGrd: Center=',' ',iDCNT
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SROGrd: A',' ',A,1,3)
+      Call RecPrt(' In SROGrd: RB',' ',RB,1,3)
+      Call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
+      Call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
+      Call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
+      Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
+      Write (6,*) ' In SROGrd: Diffs=',' ',
+     &              IfGrad(iDCar,1),IfGrad(iDCar,2)
+      Write (6,*) ' In SROGrd: Center=',' ',iDCNT
+#endif
 
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
@@ -174,13 +149,13 @@
             Do 1966 iAng = 0, dbsc(kCnttp)%nSRO-1
                iShll = dbsc(kCnttp)%iSRO + iAng
                nExpi=Shells(iShll)%nExp
+#ifdef _DEBUGPRINT_
                nBasisi=Shells(iShll)%nBasis
-               If (iPrint.ge.49) Then
-                  Write (6,*) 'nExpi=',nExpi
-                  Write (6,*) 'nBasis(iShll)=',nBasisi
-                  Write (6,*) ' iAng=',iAng
-                  Call RecPrt('TC',' ',TC,1,3)
-               End If
+               Write (6,*) 'nExpi=',nExpi
+               Write (6,*) 'nBasis(iShll)=',nBasisi
+               Write (6,*) ' iAng=',iAng
+               Call RecPrt('TC',' ',TC,1,3)
+#endif
 
                If (nExpi.eq.0) Go To 1966
 *
@@ -206,7 +181,11 @@
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),
      &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),
      &                     array(ipFA2),jfgrad(1,1),ifhess_dum,
-     &                     1,iprint.ge.49)
+#ifdef _DEBUGPRINT_
+     &                     1,.TRUE.)
+#else
+     &                     1,.FALSE.)
+#endif
                call LToSph(Array(ipFA1),nalpha,ishll,la,iAng,2)
 
 
@@ -216,7 +195,11 @@
                Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),
      &                    narr-ip+1,Beta,nbeta,Array(ipFB1),
      &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,
-     &                    iprint.ge.49)
+#ifdef _DEBUGPRINT_
+     &                     .TRUE.)
+#else
+     &                     .FALSE.)
+#endif
                call RToSph(Array(ipFB1),nBeta,ishll,lb,iAng,2)
 
 
@@ -245,8 +228,9 @@ c Avoid unused argument warnings
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
+         Call Unused_real_array(P)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
-         Call Unused_integer(ldum)
+         Call Unused_logical_array(Trans)
       End If
       End

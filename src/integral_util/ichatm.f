@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function iChAtm(Coor,iChCar)
-      Use Symmetry_Info, only: nIrrep, iOper
+      Function iChAtm(Coor)
+      Use Symmetry_Info, only: nIrrep, iOper, iChCar
       Implicit None
-      Integer iChAtm, iChCar(3)
+      Integer iChAtm
       Real*8 Coor(3)
       Integer iCar, i, j, nOper
       If (nIrrep.eq.8) Then

@@ -25,17 +25,15 @@
 *
 * NUMV    : Number of non negative eigenvalues
       implicit none
-      integer dimens,NumV,NumVnull,rc,i,j
+      integer dimens,NumV,rc,i,j
       real*8 MAT(dimens,dimens),eigenvec(dimens,dimens)
       real*8 eigenval(dimens)
 
       Character*12 routine
       Parameter (routine = 'DecoNegatMat')
 
-      Call qEnter(routine)
       rc = 0
       NumV = 0
-      NumVnull = 0
 
       If (dimens .lt. 1) then
        rc= -1
@@ -72,7 +70,6 @@
       end do
 ****************** Exit ****************
 10    Continue
-      Call qExit(routine)
       return
       end subroutine
 
@@ -80,7 +77,6 @@
       Implicit none
       integer dimens, i, k, j, l
       Real*8 EVal(dimens),EVec(dimens,dimens),swap
-      Call qEnter('IncrSort')
       Do i = 1,dimens - 1
          k = i
          do j = i + 1, dimens
@@ -97,6 +93,5 @@
             end do
          End If
       End Do
-      Call qExit('IncrSort')
       Return
       End Subroutine

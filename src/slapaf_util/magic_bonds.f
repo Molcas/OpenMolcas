@@ -18,7 +18,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -63,7 +63,7 @@
                rkj=Sqrt(xkj**2+ykj**2+zkj**2)
 *
                CosFi=(xij*xkj+yij*ykj+zij*zkj)/(rij*rkj)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*) 'iAtom,jAtom,kAtom=',iAtom,jAtom,kAtom
                Write(6,*) 'CosFi,CosFi_limit=',CosFi,CosFi_limit
 #endif
@@ -74,7 +74,7 @@
 *
                If (CosFi.le.CosFi_Limit) Then
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'Forming a "magic" bond'
                   Write (6,*) 'iAtom,kAtom=',iAtom,kAtom
 #endif

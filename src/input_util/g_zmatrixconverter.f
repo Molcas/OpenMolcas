@@ -46,7 +46,6 @@
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Character*180 STDINP(mxAtom*2)
-      Character*80 Blank
       Character*180 aDebug
       Character*12 Angstring
 #include "constants.fh"
@@ -55,10 +54,10 @@
         character *(*) xb_label(*)
         character *(*) xb_bas(*)
 
-      IfTest=.False.
-#ifdef _DEBUG_
-      Call QEnter('ZMatrixConverter')
+#ifdef _DEBUGPRINT_
       IfTest=.True.
+#else
+      IfTest=.False.
 #endif
 
 C  ***  H-Fm (Atomic numbers 1-100)
@@ -92,7 +91,6 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       EndDo
       nBasis = 0
       iErr   = 0
-      Blank = ' '
       Angstring = '  / Angstrom'
 
 * Reading input
@@ -259,9 +257,4 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
 
 9999  Continue
 
-#ifdef _DEBUG_
-      Call QExit('ZMatrixConverter')
-#endif
-
-      Return
       End

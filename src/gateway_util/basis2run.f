@@ -11,9 +11,9 @@
       Subroutine basis2run()
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
       integer :: nPrim
       integer :: kExp
@@ -56,7 +56,7 @@
 
       call put_iScalar('nPrim',nPrim)
 
-      Call mma_allocate(IndC,2*mCentr,label='IndC')
+      Call mma_allocate(IndC,2*S%mCentr,label='IndC')
       call mma_allocate(primitive_ids, 3, nPrim,label='primitive_ids')
       call mma_allocate(primitives, 2, nPrim,label='primitives')
 
@@ -79,7 +79,7 @@
             if (Shells(jSh)%Aux.or.
      &          ShellS(jSh)%Frag) cycle
 *     Get the flat, desymmetrized id of the center
-            iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
+            iyy=Index_Center(mdc,iCo,IndC,iAtoms,S%mCentr)
             Do iAng = 0, dbsc(iCnttp)%nVal-1
 *     Pointer to the untouched contraction matrix as after input.
               Do iBasis = 1, Shells(jSh)%nBasis

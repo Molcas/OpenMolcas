@@ -11,28 +11,14 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine KnEGrd_mck(Alpha,nAlpha,Beta, nBeta,
-     &                 Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,B,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,
-     &                 IfGrad,IndGrd,nOp,
-     &                 lOper,iu,iv,nrOp,iDCar,iDCnt,iStabM,nStabM,trans)
+      SubRoutine KnEGrd_mck(
+#define _CALLING_
+#include "grd_mck_interface.fh"
+     &                     )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradient of the kinetic energy integrals      *
 *         with the Gauss-Hermite quadrature                            *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              CmbnT1                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
@@ -41,27 +27,19 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-c#include "print.fh"
-      Integer IndGrd(0:nIrrep), nOp(2)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
-     &       Array(nArr), Ccoor(3)
-      Logical ABeq(3), IfGrad(3,2),trans(2)
+
+#include "grd_mck_interface.fh"
+
+*     Local variables
+      Logical ABeq(3)
 *
 *     Statement function for Cartesian index
 *
       nElem(li)=(li+1)*(li+2)/2
 *
-c     iRout = 150
-c     iPrint = nPrint(iRout)
-c     Call qEnter('KnEGrd')
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(1) = A(1).eq.RB(1)
+      ABeq(2) = A(2).eq.RB(2)
+      ABeq(3) = A(3).eq.RB(3)
 *
       nip = 1
       ipAxyz = nip
@@ -83,24 +61,22 @@ c     Call qEnter('KnEGrd')
       If (nip-1.gt.nArr) Then
          Write (6,*) 'KneGrd_Mck: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
 *
-c     Call GetMem(' Beg KnEGrd','CHEC','REAL',iDum,iDum)
-c     If (iPrint.ge.49) Then
-c        Call RecPrt(' In KnEGrd: A',' ',A,1,3)
-c        Call RecPrt(' In KnEGrd: B',' ',B,1,3)
-c        Call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
-c        Call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
-c        Write (*,*) ' In KnEGrd: la,lb=',la,lb
-c     End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In KnEGrd: A',' ',A,1,3)
+      Call RecPrt(' In KnEGrd: B',' ',B,1,3)
+      Call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
+      Write (6,*) ' In KnEGrd: la,lb=',la,lb
+#endif
 *
 *     Compute the cartesian values of the basis functions angular part
 *
       Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
      &               la+2,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,B,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
      &               lb+2,HerR(iHerR(nHer)),nHer,ABeq)
 *
 *     Compute the contribution from the multipole moment operator
@@ -145,12 +121,9 @@ c     End If
 
       Call CmbnT1_mck(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,
      &            Array(ipSc),Array(ipTxyz),
-     &            Array(ipA),Array(ipB),IfGrad,
-     &            iChBas,MxFnc)
+     &            Array(ipA),Array(ipB),IfGrad)
 *
-*?
-      call dcopy_(nElem(la)*nElem(lb)*nZeta*NrOp,[Zero],0,Final,1)
-*
+      Final(:,:,:,:)=Zero
 *
 *     Symmetry adopt the gradient operator
 *
@@ -159,13 +132,12 @@ c     End If
      &                nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
 
 *
-c     Call qExit('KnEGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(ZInv)
          Call Unused_integer(iDCnt)
-         Call Unused_integer(iStabM)
+         Call Unused_integer_array(iStabM)
          Call Unused_integer(nStabM)
       End If
       End

@@ -57,7 +57,7 @@
       Integer XMolnr(nXMolnr,nXF)
       Logical NonEq,lExcl
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
       Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_)
       Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_)
@@ -77,12 +77,15 @@
       NonEq=.False.
 
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Iter fmax             testa'
 #endif
       Iter=0
-555   testa=fmax*afac
+555   continue
+#ifdef _DEBUGPRINT_
+      testa=fmax*afac
+#endif
       Iter=Iter+1
 *
 *---- Loop over Langevin grid and make EF and dipol moments at the
@@ -160,8 +163,6 @@ c         Dip_Eff=DipEff(iGrid)*DBLE(Min(Iter,100))/100.0D0
             alang=(ex+emx)/(ex-emx)-One/x
 c            alang=x/Three  !Linear approximation
             i=iGrid
-            radabs=sqrt(Grid(1,i)*Grid(1,i)+Grid(2,i)*Grid(2,i)
-     &           +Grid(3,i)*Grid(3,i))
             uind=Dip_Eff*alang+ftot*PolEff(1,iGrid)*ftots
             DipMom(1,iGrid)=uind*fx*ftots
             DipMom(2,iGrid)=uind*fy*ftots
@@ -317,7 +318,7 @@ c666     Continue
 *
 c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) Iter,fmax,testa
 #endif
       If (fmax.gt.clim) Go To 555
@@ -327,10 +328,10 @@ c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 *     distribution of dipole moments is also internally consistent!
 *
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
 
-      Write out dipoles and a pointcharge representation of the dipoles
+*     Write out dipoles and a pointcharge representation of the dipoles
       Write(6,*)'QREP'
       do i=1,nGrid_
          dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)

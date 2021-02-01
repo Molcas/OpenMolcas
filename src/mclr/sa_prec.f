@@ -9,30 +9,31 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SA_PREC(S,rdia)
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 S(nroots**2,nroots),rdia(*)
 
+      irc=ipin(ipci)
       Do i=1,nroots
-!        write(*,*)"rdia,S,CI,ENE"
-        Call SA_PREC2(rdia,
-     &           S(1,i),Work(ipin(ipci)),ERASSCF(i))
+         Call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
       End Do
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End
 
       Subroutine SA_PREC2(rdia,S,CI,ENE)
+      use negpre
       Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
 #include "Input.fh"
-#include "negpre.fh"
-#include "WrkSpc.fh"
+#include "Pointers.fh"
 #include "incdia.fh"
       Real*8 rdia(*),CI(*),S(nroots,nroots)
+
       Do i=0,nroots-1
        Do j=0,nroots-1
          S(i+1,j+1)=0.0d0
@@ -44,8 +45,6 @@
          End Do
        End Do
       End Do
-!      Call RecPrt('S',' ',S,nroots,nroots)
       Call MatInvert(S,nroots)
-!      Call RecPrt('Inverted S',' ',S,nroots,nroots)
       Return
       end

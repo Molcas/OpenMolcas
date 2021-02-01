@@ -9,18 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine PckMO2(COUT,nAcO,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "etwas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
       Real*8 COUT(*)
       Integer iCmp(4),nBs(4)
-      Integer iTwoj(0:7),iaoii(4)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer iaoii(4)
 *
       nBs(1)=iBasi
       nBs(2)=jBasj
@@ -29,10 +27,7 @@
       icmp(1)=icmpi
       icmp(2)=jcmpj
       ip2=1
-      nA=0
-      Do iIrrep=0,nIrrep-1
-         nA=nA+nAsh(iIrrep)
-      End Do
+
       Do iCnt=1,2
          ipC=0
          Do iIrrep=0,nIrrep-1

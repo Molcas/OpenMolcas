@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OneEl                                                   *
-*              GetDens                                                 *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January 1991                                             *
@@ -34,6 +27,14 @@
       Use PrpPnt
       Use External_Centers
       Use SW_file
+      use Symmetry_Info, only: iChBas
+      use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
+      use PAM2
+      use DKH_Info, only: BSS, DKroll
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: PotNuc, kVector
+      use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt,
+     &                        DoFMM, EMFR, GIAO, lPSOI
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -70,9 +71,10 @@
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc, KnE_Int, NA_Int,
      &                                     FragP, OneHam, PtEl,
      &                                     PtNuc, SumEl, SumNuc
-      logical lECPnp,lPAM2np
-#include "itmax.fh"
-#include "info.fh"
+      logical lECPnp,lECP
+      logical lPAM2np,lPAM2
+      logical lPP, lFAIEMP
+#include "Molcas.fh"
 #include "print.fh"
 #include "nq_info.fh"
 #include "real.fh"
@@ -89,13 +91,13 @@
       Character*8 Label
       Character*512 FName
       Real*8 Ccoor(3)
-      Integer iAtmNr2(mxdbsc), nComp
-      Real*8 Charge2(mxdbsc)
+      Integer nComp
+      Integer, Allocatable:: iAtmNr2(:)
+      Real*8, Allocatable:: Charge2(:)
       Dimension dum(1),idum(1)
 *
       iRout = 131
       iPrint = nPrint(iRout)
-*     Call qEnter('Drv1El')
 *
       Call StatusLine(' Seward:',' Computing 1-electron integrals')
 *
@@ -104,7 +106,17 @@
 #ifdef _FDE_
       if (embPot) call EmbPotRdRun
 #endif
-
+*
+      lPAM2 = .False.
+      lECP  = .False.
+      lPP   = .False.
+      lFAIEMP = .False.
+      Do i = 1, nCnttp
+         lPam2 = lPam2 .or. dbsc(i)%lPam2
+         lECP  = lECP  .or. dbsc(i)%ECP
+         lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+         lFAIEMP  = lFAIEMP  .or. dbsc(i)%Frag
+      End Do
 *
 *     set center selector in OneSwi to all centers (default)
 *
@@ -149,7 +161,7 @@
       PLabel=' '
       rHrmt=One
       iLow = 0
-      mMltpl=nMltpl
+      mMltpl=S%nMltpl
       If (Prprt) iLow = 1
 *
 *     If not Douglas-Kroll and primitive pass do no property integrals
@@ -159,7 +171,7 @@
          If (.Not. DKroll) mMltpl=-1
       End If
 *
-      Do 10 iMltpl = iLow, nMltpl
+      Do 10 iMltpl = iLow, S%nMltpl
          Write (Label,'(A,I2)') 'Mltpl ', iMltpl
          nComp = (iMltpl+1)*(iMltpl+2)/2
          Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,Ccoor,1)
@@ -193,8 +205,7 @@
      &              + Mod(iy,2)*iChBas(3)
      &              + Mod(iz,2)*iChBas(4)
 *
-               OperI(1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
+               OperI(1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
                OperC(1+iComp) = iChO
                Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,
      &                    CoorO(1+iComp*3),1)
@@ -202,8 +213,7 @@
  12         Continue
  11      Continue
 *
-         Call MltNuc(CoorO,Chrg,Centr,kCentr,
-     &               Nuc,iMltpl,nComp)
+         Call MltNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,iMltpl,nComp)
 *--- pow hack
          If(iMltpl.eq.0) Then
             Call Put_dScalar('Total Nuclear Charge',Nuc(1))
@@ -296,8 +306,9 @@
          PLabel=' '
          rHrmt = One
          iPAMcount=1
-        Do 348 kCnttpPAM = 1, nCnttp
+        Do 348 kCnttpPAM_ = 1, nCnttp
 
+           kCnttpPAM=kCnttpPAM_
            nPAMltpl=dbsc(kCnttpPAM)%nPAM2
 
            If(nPAMltpl.lt.0) Go To 348
@@ -470,7 +481,7 @@ c           iPAMcount=iPAMcount+1
      &                 dum,1,dum,idum,0,0,
      &                 dum,1,0)
          End If
-         If (lXF.and..Not.Primitive_Pass) Then
+         If (Allocated(XF).and..Not.Primitive_Pass) Then
             mOrdOp=nOrd_XF
             Label='XFdInt  '
             Call OneEl(XFdInt,XFdMem,Label,ipList,OperI,nComp,
@@ -693,14 +704,14 @@ c           iPAMcount=iPAMcount+1
 *
                iSymX=1
                If (Mod(ix,2).ne.0) iSymX=iSymR(1)
-               iSymCX=MltLbl(iSymR(0),iSymX,nIrrep)
+               iSymCX=MltLbl(iSymR(0),iSymX)
                iSymY=1
                If (Mod(iy,2).ne.0) iSymY=iSymR(2)
-               iSymCXY=MltLbl(iSymCX,iSymY,nIrrep)
+               iSymCXY=MltLbl(iSymCX,iSymY)
                iSymZ=1
                If (Mod(iz,2).ne.0) iSymZ=iSymR(3)
 *
-               OperI(1+(iComp-1)) = MltLbl(iSymCXY,iSymZ,nIrrep)
+               OperI(1+(iComp-1)) = MltLbl(iSymCXY,iSymZ)
                OperC(1+(iComp-1)) = Mod(ix,2)*iChBas(2)
      &                              + Mod(iy,2)*iChBas(3)
      &                              + Mod(iz,2)*iChBas(4)
@@ -709,8 +720,7 @@ c           iPAMcount=iPAMcount+1
             End Do
          End Do
 *
-         Call EFNuc(CoorO,Chrg,Centr,kCentr,
-     &               Nuc,nOrdOp)
+         Call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
          Call OneEl(EFInt,EFMem,Label,ipList,OperI,nComp,
      &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &              dum,1,dum,idum,0,0,
@@ -781,7 +791,7 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
       PLabel=' '
       rHrmt=-One
-      If (lOAM.and..Not.Primitive_Pass) Then
+      If (Allocated(OAM_Center).and..Not.Primitive_Pass) Then
          Label='AngMom  '
          nComp = 3
          nOrdOp = 2
@@ -803,18 +813,15 @@ c           iPAMcount=iPAMcount+1
          iSymCz = iSymZ
          If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
 *
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ,nIrrep),
-     &                MltLbl(iSymCz,iSymY,nIrrep))
+         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
          iChOx = iChBas(3) + iChBas(4)
          OperI(1  ) = iSymLx
          OperC(1  ) = iChOx
-         iSymLy = iOr(MltLbl(iSymCz,iSymX,nIrrep),
-     &                MltLbl(iSymCx,iSymZ,nIrrep))
+         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
          iChOy = iChBas(4) + iChBas(2)
          OperI(1+1) = iSymLy
          OperC(1+1) = iChOy
-         iSymLz = iOr(MltLbl(iSymCx,iSymY,nIrrep),
-     &                MltLbl(iSymCy,iSymX,nIrrep))
+         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
          iChOz = iChBas(2) + iChBas(3)
          OperI(1+2) = iSymLz
          OperC(1+2) = iChOz
@@ -838,7 +845,7 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
       PLabel=' '
       rHrmt=-One
-      If (Vlct.and.(nMltpl.ge.2).and..Not.Primitive_Pass) Then
+      If (Vlct.and.(S%nMltpl.ge.2).and..Not.Primitive_Pass) Then
          Label='MLTPV  2'
          nComp = 6
          nOrdOp = 2
@@ -866,22 +873,22 @@ c           iPAMcount=iPAMcount+1
 * Calculates QpV_ij = r_i*p_j+p_i*r_j (or rater p -> nabla)
 *
 * QpVxx
-         OperI(1  ) = MltLbl(iSymCx,iSymX,nIrrep)
+         OperI(1  ) = MltLbl(iSymCx,iSymX)
          OperC(1  ) = iChBas(2)
 * QpVxy
-         OperI(1+1) = MltLbl(iSymCx,iSymY,nIrrep)
+         OperI(1+1) = MltLbl(iSymCx,iSymY)
          OperC(1+1) = iChBas(2) + iChBas(3)
 * QpVxz
-         OperI(1+2) = MltLbl(iSymCx,iSymZ,nIrrep)
+         OperI(1+2) = MltLbl(iSymCx,iSymZ)
          OperC(1+2) = iChBas(2) + iChBas(4)
 * QpVyy
-         OperI(1+3) = MltLbl(iSymCy,iSymY,nIrrep)
+         OperI(1+3) = MltLbl(iSymCy,iSymY)
          OperC(1+3) = iChBas(3)
 * QpVyz
-         OperI(1+4) = MltLbl(iSymCy,iSymZ,nIrrep)
+         OperI(1+4) = MltLbl(iSymCy,iSymZ)
          OperC(1+4) = iChBas(3) + iChBas(4)
 * QpVzz
-         OperI(1+5) = MltLbl(iSymCz,iSymZ,nIrrep)
+         OperI(1+5) = MltLbl(iSymCz,iSymZ)
          OperC(1+5) = iChBas(4)
 *
          Call DCopy_(nComp,[Zero],0,Nuc,1)
@@ -891,7 +898,7 @@ c           iPAMcount=iPAMcount+1
      &              dum,1,0)
 *
          Call Deallocate_Auxiliary()
-      End If   ! Vlct.and.(nMltpl.ge.2)
+      End If   ! Vlct.and.(S%nMltpl.ge.2)
 ************************************************************************
 ************************************************************************
 *12c)                                                                  *
@@ -902,7 +909,7 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
       PLabel=' '
       rHrmt=-One
-      If (lOMQ.and..Not.Primitive_Pass) Then
+      If (Allocated(OMQ_Center).and..Not.Primitive_Pass) Then
          Label='OMQ     '
          nComp = 9
          nOrdOp = 3
@@ -926,12 +933,9 @@ c           iPAMcount=iPAMcount+1
          iSymCz = iSymZ
          If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
 *
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ,nIrrep),
-     &                MltLbl(iSymCz,iSymY,nIrrep))
-         iSymLy = iOr(MltLbl(iSymCz,iSymX,nIrrep),
-     &                MltLbl(iSymCx,iSymZ,nIrrep))
-         iSymLz = iOr(MltLbl(iSymCx,iSymY,nIrrep),
-     &                MltLbl(iSymCy,iSymX,nIrrep))
+         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
+         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
+         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
 *
 * Calculates M_ij = r_j*L_i + L_i*r_j = 2*r_j*L_i + i hbar E_ijk r_k
 * Since the i hbar is included outside we could do
@@ -939,7 +943,7 @@ c           iPAMcount=iPAMcount+1
 * We use all nine components even if we only need 6 of these later.
 *
 * Mxx
-         iSymxLx = MltLbl(iSymCx,iSymLx,nIrrep)
+         iSymxLx = MltLbl(iSymCx,iSymLx)
          iChOxx = iChBas(15)
          OperI(1  ) = iSymxLx
          OperC(1  ) = iChOxx
@@ -959,7 +963,7 @@ c           iPAMcount=iPAMcount+1
          OperI(1+3) = iSymyLx
          OperC(1+3) = iChOyx
 * Myy
-         iSymyLy = MltLbl(iSymCy,iSymLy,nIrrep)
+         iSymyLy = MltLbl(iSymCy,iSymLy)
          iChOyy = iChBas(15)
          OperI(1+4) = iSymyLy
          OperC(1+4) = iChOyy
@@ -979,7 +983,7 @@ c           iPAMcount=iPAMcount+1
          OperI(1+7) = iSymzLy
          OperC(1+7) = iChOzy
 * Mzz
-         iSymzLz = MltLbl(iSymCz,iSymLz,nIrrep)
+         iSymzLz = MltLbl(iSymCz,iSymLz)
          iChOzz = iChBas(15)
          OperI(1+8) = iSymzLz
          OperC(1+8) = iChOzz
@@ -1121,8 +1125,7 @@ c           iPAMcount=iPAMcount+1
                Else
                   iChO = iOr(iChO1,iChO2)
                End If
-               OperI(1+iComp) = MltLbl(iSymD,MltLbl(iSym,iSymC,
-     &                            nIrrep),nIrrep)
+               OperI(1+iComp) = MltLbl(iSymD,MltLbl(iSym,iSymC))
                OperC(1+iComp) = iChO
                Call dcopy_(3,Ccoor,1,CoorO(1+iComp*3),1)
                iComp = iComp + 1
@@ -1315,7 +1318,7 @@ c           iPAMcount=iPAMcount+1
 *
 *--------Add contributions from the external field
 *
-         If (lXF) Then
+         If (Allocated(XF)) Then
             Label='XFdInt  '
             lOper = 0
             iRC = -1
@@ -1405,7 +1408,7 @@ c           iPAMcount=iPAMcount+1
 * Coded P-A Malmqvist, Garching, Nov 1996
       PLabel=' '
       rHrmt=-One
-      If (lAMP.and..Not.Primitive_Pass) Then
+      If (Allocated(AMP_Center).and..Not.Primitive_Pass) Then
          Label='AMProd  '
          nComp = 6
          nOrdOp = 2
@@ -1429,14 +1432,11 @@ C Characters iChOx for operator Lx, etc.
          If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
          iSymCz = iSymZ
          If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ,nIrrep),
-     &                MltLbl(iSymCz,iSymY,nIrrep))
+         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
          iChOx = iChBas(3) + iChBas(4)
-         iSymLy = iOr(MltLbl(iSymCz,iSymX,nIrrep),
-     &                MltLbl(iSymCx,iSymZ,nIrrep))
+         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
          iChOy = iChBas(4) + iChBas(2)
-         iSymLz = iOr(MltLbl(iSymCx,iSymY,nIrrep),
-     &                MltLbl(iSymCy,iSymX,nIrrep))
+         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
          iChOz = iChBas(2) + iChBas(3)
 
 C Symmetry labels and characters of products. Let G be the full
@@ -1446,12 +1446,12 @@ C decomposed into irreps of G.
 C Then symmetry label=packed array of bits, one for each irrep
 C of G. The bit is set, if that irrep is included in the
 C decomposition of the totally symmetric irrep of Gsub.
-         OperI(1  )=MltLbl(iSymLx,iSymLx,nIrrep)
-         OperI(1+1)=MltLbl(iSymLx,iSymLy,nIrrep)
-         OperI(1+2)=MltLbl(iSymLx,iSymLz,nIrrep)
-         OperI(1+3)=MltLbl(iSymLy,iSymLy,nIrrep)
-         OperI(1+4)=MltLbl(iSymLy,iSymLz,nIrrep)
-         OperI(1+5)=MltLbl(iSymLz,iSymLz,nIrrep)
+         OperI(1  )=MltLbl(iSymLx,iSymLx)
+         OperI(1+1)=MltLbl(iSymLx,iSymLy)
+         OperI(1+2)=MltLbl(iSymLx,iSymLz)
+         OperI(1+3)=MltLbl(iSymLy,iSymLy)
+         OperI(1+4)=MltLbl(iSymLy,iSymLz)
+         OperI(1+5)=MltLbl(iSymLz,iSymLz)
          OperC(1  )=0
          OperC(1+1)=iEOr(iChOx,iChOy)
          OperC(1+2)=iEOr(iChOx,iChOz)
@@ -1634,7 +1634,7 @@ C     mMltpl=-1 ! Do only overlap.
 *              belong to. The lowest significant bit if set indicate that
 *              a particular irrep is included.
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,nIrrep),nIrrep)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
 *
                iChO = Mod(ix,2)*iChBas(2)
      &              + Mod(iy,2)*iChBas(3)
@@ -1652,9 +1652,8 @@ C     mMltpl=-1 ! Do only overlap.
      &               + Mod(iy+1,2)*iChBas(3)
      &               + Mod(iz+1,2)*iChBas(4)
                OperC(1+(iB-1)*mComp+iComp) = iChOx
-               iSymBx = MltLbl(iSymRy,iSymRz,nIrrep)
-               OperI(1+(iB-1)*mComp+iComp) =
-     &            MltLbl(iTemp,iSymBx,nIrrep)
+               iSymBx = MltLbl(iSymRy,iSymRz)
+               OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBx)
                Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,
      &                      CoorO(1+((iB-1)*mComp+iComp)*3),1)
 *
@@ -1663,9 +1662,8 @@ C     mMltpl=-1 ! Do only overlap.
      &               + Mod(iy  ,2)*iChBas(3)
      &               + Mod(iz+1,2)*iChBas(4)
                OperC(1+(iB-1)*mComp+iComp) = iChOy
-               iSymBy = MltLbl(iSymRz,iSymRx,nIrrep)
-               OperI(1+(iB-1)*mComp+iComp) =
-     &            MltLbl(iTemp,iSymBy,nIrrep)
+               iSymBy = MltLbl(iSymRz,iSymRx)
+               OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBy)
                Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,
      &                      CoorO(1+((iB-1)*mComp+iComp)*3),1)
 *
@@ -1674,9 +1672,8 @@ C     mMltpl=-1 ! Do only overlap.
      &               + Mod(iy+1,2)*iChBas(3)
      &               + Mod(iz  ,2)*iChBas(4)
                OperC(1+(iB-1)*mComp+iComp) = iChOz
-               iSymBz = MltLbl(iSymRx,iSymRy,nIrrep)
-               OperI(1+(iB-1)*mComp+iComp) =
-     &            MltLbl(iTemp,iSymBz,nIrrep)
+               iSymBz = MltLbl(iSymRx,iSymRy)
+               OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBz)
                Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,
      &                      CoorO(1+((iB-1)*mComp+iComp)*3),1)
 *
@@ -1717,17 +1714,24 @@ C     mMltpl=-1 ! Do only overlap.
          OperI(1+2)=2**IrrFnc(3)
          OperC(1+2)=iChBas(4)
 
-* BP - Turn off AMFI integrals for certain atom types
-*      as requested by the PAMF keyword
+* BP -   Turn off AMFI integrals for certain atom types
+*        as requested by the PAMF keyword
 
+*        Note that Drv_AMFI will only process dbsc of valence typ.
+*        Hence the restriction on the loop.
+
+         Call mma_allocate(iAtmNr2,nCnttp,Label='iAtmNr2')
+         Call mma_allocate(Charge2,nCnttp,Label='Charge2')
          Do i=1,nCnttp
             iAtmNr2(i) = dbsc(i)%AtmNr
             Charge2(i) = dbsc(i)%Charge
 
-c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
-c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
-
             iAtom_Number= dbsc(i)%AtmNr
+            If (iAtom_Number<0 .or. iAtom_Number>SIZE(No_AMFI)) Then
+               Write (6,*) 'Illegal atom number.'
+               Write (6,*) 'Atom number=',iAtom_Number
+               Call Abend()
+            End If
             If (No_AMFI(iAtom_Number)) then
                write(6,*) "Disabling AMFI for atom type ",
      &                 dbsc(i)%AtmNr
@@ -1739,6 +1743,8 @@ c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
          Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,
      &                 Charge2)
 
+         Call mma_deallocate(iAtmNr2)
+         Call mma_deallocate(Charge2)
          Call Deallocate_Auxiliary()
       End If
 ************************************************************************
@@ -1784,18 +1790,15 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
          iSymCz = iSymZ
          If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
 *
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ,nIrrep),
-     &                MltLbl(iSymCz,iSymY,nIrrep))
+         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
          iChOx = iChBas(3) + iChBas(4)
          OperI(1  ) = iSymLx
          OperC(1  ) = iChOx
-         iSymLy = iOr(MltLbl(iSymCz,iSymX,nIrrep),
-     &                MltLbl(iSymCx,iSymZ,nIrrep))
+         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
          iChOy = iChBas(4) + iChBas(2)
          OperI(1+1) = iSymLy
          OperC(1+1) = iChOy
-         iSymLz = iOr(MltLbl(iSymCx,iSymY,nIrrep),
-     &                MltLbl(iSymCy,iSymX,nIrrep))
+         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
          iChOz = iChBas(2) + iChBas(3)
          OperI(1+2) = iSymLz
          OperC(1+2) = iChOz
@@ -1912,14 +1915,13 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
                      If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                      iSym = 2**IrrFnc(ixyz)
                      If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-                     OperI(1+(iComp-1)) = MltLbl(iSymC,iSym,nIrrep)
+                     OperI(1+(iComp-1)) = MltLbl(iSymC,iSym)
                      OperC(1+(iComp-1)) = iChBas(iComp+1)
                      Call dcopy_(3,Ccoor,1,CoorO(1+(iComp-1)*3),1)
                   End Do
                End Do
 *
-*              Call EFNuc(CoorO,Chrg,Centr,kCentr,
-*    &                    Nuc,nOrdOp)
+*              Call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
 *
 
                Call OneEl(dTdmu_Int,dTdmu_Mem,Label,ipList,
@@ -2101,7 +2103,6 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Drv1El')
       Return
 *
       Contains

@@ -8,12 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,
      >  mxirrep,mxorb,mxsyme,ityp)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Matrices (orthogonal/determinant) ...
+      logical, external :: mxorth_cvb
 #include "malloc_cvb.fh"
       parameter (nsymelm=5,nsign=2,ncmp=4)
       character*8 symelm(nsymelm),sign(nsign)

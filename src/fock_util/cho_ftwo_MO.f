@@ -71,7 +71,10 @@
       Real*8    tread(2),tcoul(2),texch(2)
       Common /CHOUNIT / Lunit(8)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
-      Logical Debug,DensityCheck,Square,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical DensityCheck,Square,timings
       Logical REORD,DECO,ALGO
       COMMON   /CHOTIME /timings
       COMMON    /CHODENSITY/ DensityCheck
@@ -95,12 +98,8 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
-#else
-      Debug=.false.
 #endif
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -214,7 +213,6 @@ C ------------------
 C         ***QUIT*** bad initialization
          WRITE(6,*) 'Cho_FTwo_MO: bad initialization'
          rc=99
-         CALL QTrace()
          CALL Abend()
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
@@ -232,7 +230,6 @@ C         ***QUIT*** insufficient memory
          WRITE(6,*) 'NumCho= ',NumCho(jsym)
          WRITE(6,*) 'jsym= ',jsym
          rc = 205
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -273,10 +270,8 @@ C Max dimension of a symmetry block
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. iSkip(iSym).ne.0)then
            Nmax = NBAS(iSym)
-           iSymMax= iSym
            endif
         End Do
-        NNmax = Nmax * (Nmax+1)/2
 
        CALL CWTIME(TCR1,TWR1)
 
@@ -319,7 +314,7 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
 
        kLab = kWab + kcount  ! pointer to the scratch space
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of ',nBatch,': NumV = ',NumV
        write(6,*) 'Total allocated:     ',kRdMem,' at ',kWab
        write(6,*) 'Memory pointers KSQ1:',(KSQ1(i),i=1,nSym)
@@ -679,7 +674,6 @@ c     &              -FactX(jDen),WORK(KQS1),NBAS(ISYMG),
 c     & WORK(KQS1),NBAS(ISYMD),ONE,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipG=0
                ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)
@@ -768,8 +762,7 @@ C -- Close Files
       endif
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
-
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_FTWO_MO.'

@@ -17,7 +17,7 @@
      &       SymInv(nBas1**2)
       Integer nBas(0:nSym-1)
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       Call FZero(AOInt,nBas1**2)
 *
@@ -30,7 +30,7 @@
             If (iAnd(iSyLbl,2**ijSym).eq.0) Go To 20
             If (nBas(iSym)*nBas(jSym).eq.0) Go To 30
             If (iSym.eq.jSym) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Diagonal Block'
                Call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),
      &                                               nBas(iSym))
@@ -48,7 +48,7 @@
      &                    One,AOInt,nBas1)
 *
             Else
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Off-Diagonal Block',iSym,jSym
                Call RecPrt('SOInt',' ',SOInt(iOffSO),nBas(iSym),
      &                                               nBas(jSym))
@@ -81,7 +81,7 @@
          End Do
          iOffPi = iOffPi + nBas(iSym)*nBas1
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('AOInt',' ',AOInt,nBas1,nBas1)
 #endif
 *

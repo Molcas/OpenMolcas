@@ -11,9 +11,11 @@
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
       Integer Function LDF_CloseC(LuC)
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer LuC
-#include "para_info.fh"
       If (LuC.lt.1) Then
          LDF_CloseC=-1
          Return

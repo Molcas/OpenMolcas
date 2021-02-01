@@ -22,12 +22,12 @@
 ************************************************************************
       Use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
@@ -123,7 +123,6 @@
                   PreFct = Fact*ZAZB*DBLE(nIrrep)/DBLE(LmbdR)
                   Do iR = 0, nDCRR-1
                      Call OA(iDCRR(iR),B,RB)
-                     nOp = NrOpr(iDCRR(iR))
                      If (EQ(A,RB)) Go To 301
                      r12 = Sqrt((A(1)-RB(1))**2 +
      &                          (A(2)-RB(2))**2 +
@@ -214,7 +213,7 @@
       End Do
       If (iPrint.ge.15) Then
          Lab=' OFE Nuclear Repulsion Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call GetMem('B-Charges','Free','Real',ip_ChargeB,nCnttp)

@@ -26,7 +26,6 @@
       logical IF_TRNSF
 
 
-      call QENTER('xdwinit')
 
 * Allocate memory for CI array state averaged 1-RDM
       call getmem('LCI','ALLO','REAL',LCI,NCONF)
@@ -157,7 +156,7 @@
         if (IPRGLB.ge.VERBOSE) then
           write(6,'(1x,a,i3)')
      &    ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-          call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+          call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
         end if
       end do
 
@@ -166,7 +165,6 @@
       call getmem('CIXMS','FREE','REAL',LCIXMS,NCONF)
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      call QEXIT('xdwinit')
 
       return
       end

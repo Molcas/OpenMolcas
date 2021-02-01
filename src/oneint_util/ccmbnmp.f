@@ -13,14 +13,6 @@
       SubRoutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                   kVector)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MltInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -34,9 +26,6 @@
 *     Statement function for Cartesian index
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-*
-      iRout = 134
-      iPrint = nPrint(iRout)
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa

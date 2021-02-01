@@ -71,7 +71,6 @@
 ************************************************************************
 *                                                                      *
       cpubas=seconds()
-      Call qEnter('MP2_Driver')
       Call Set_Data
 *
 ************************************************
@@ -132,8 +131,6 @@
 *                                                                      *
       E2BJAI=Zero
       REFC=Zero
-      PE2=Zero
-      PVECL2=Zero
 *
       Wref=Zero
 *                                                                      *
@@ -333,12 +330,12 @@
         norb(i)=norb(i)-nfro(i)
       end do
             Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,
-     &                            nFro,nDel,mAdCMO,lthCMO,
+     &                            nFro,nDel,Work(mAdCMO),lthCMO,
      &                            LuIntM,LuHlf1,LuHlf2,LuHlf3)
 * End of patch
          Else
             Call SetUp_CASPT2_Tra(nSym,nBas,nIsh,nIsh,nAsh,
-     &                            nFro_tra,nDel_tra,mAdCMO,lthCMO,
+     &                            nFro_tra,nDel_tra,Work(mAdCMO),lthCMO,
      &                            LuIntM,LuHlf1,LuHlf2,LuHlf3)
          End If
          If(.NOT.DoCholesky) then
@@ -546,8 +543,6 @@ CGG      DoExch2=.True. ! Do generate Exch-2 integrals (not really used).
       Call GetMem('EOrb  ','Free','Real',mAdEOr,lthEOr)
       Call GetMem('CMO   ','Free','Real',mAdCMO,lthCMO)
 *
-      Call qExit('MP2_Driver')
-      Call qStat(' ')
       ireturn=0
 *                                                                      *
 ************************************************************************

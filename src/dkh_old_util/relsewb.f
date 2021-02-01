@@ -23,7 +23,6 @@ C
      *EIG(N,N),SINV(N,N),REVT(N,N),AUX(N,N),OVE(N,N),
      *EW(N),E(N),AA(N),RR(N),TT(N)
 C
-*     Call qEnter('scfcli2')
 *
 *
       TOL=1.D-14
@@ -96,7 +95,7 @@ C
 C
 C     CALCULATE RELATIVISTIC ENERGY AND MOMENTUM
 C
-      SR=sqrt(2.D0*EW(I))
+*     SR=sqrt(2.D0*EW(I))
       TT(I)=EW(I)
       IF (RATIO.GT.0.02D0) GOTO 11
       TV1=EW(I)
@@ -228,7 +227,6 @@ culf
 C
 *     if(idbg.gt.0)WRITE (idbg,*) '--- EIGENVALUES OF H MATRIX ---'
 *     if(idbg.gt.0)WRITE (idbg,'(4D20.12)') EW
-*     Call qExit('scfcli2')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(epsilon)

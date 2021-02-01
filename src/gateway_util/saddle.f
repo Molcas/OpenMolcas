@@ -17,11 +17,6 @@
 *                                                                      *
 * Object: to set up for a TS optimization with the SADDLE approach.    *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              OpnCom                                                  *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             January 2009                                             *
@@ -29,9 +24,11 @@
       use Basis_Info
       use Center_Info
       use external_centers
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: E1, E2, SadStep, Shake
+      use Logical_Info, only: Align_Only, Do_Align, lRP, lRP_Post
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
@@ -45,7 +42,7 @@
       Real*8, Dimension(:,:), Allocatable :: Vec, MEP
       Integer, Dimension(:), Allocatable :: iStab
       Integer ipX2, ipX3
-      Integer ipRef,ipOpt
+      Integer iRef,iOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
       Real*8 RandVect(3)
 #include "periodic_table.fh"
@@ -56,8 +53,6 @@
 ************************************************************************
 *
       nSaddle_Max=100
-      Delta_Max=0.10D0
-      ratio=Zero
       quadratic=.false.
 *
 **    Avoid warnings
@@ -144,14 +139,14 @@
 *
             If (Shake.gt.Zero) Then
                Do iAt=1,nAt
-                  nDim=0
+                  S%nDim=0
                   Do j=0,2
-                     If (iAnd(iStab(iAt),2**j).eq.0) nDim=nDim+1
+                     If (iAnd(iStab(iAt),2**j).eq.0) S%nDim=S%nDim+1
                   End Do
-                  If (nDim.gt.0) Then
+                  If (S%nDim.gt.0) Then
                      Do iRP=1,2
-                        Call Random_Vector(nDim,
-     &                                     RandVect(1:nDim),.False.)
+                        Call Random_Vector(S%nDim,
+     &                                     RandVect(1:S%nDim),.False.)
                         jDim=0
                         Do j=0,2
                            If (iAnd(iStab(iAt),2**j).eq.0) Then
@@ -506,7 +501,6 @@
                Else
                   HSR=Delta*HSR
                End If
-               ratio=1.0d0
 *
 **        Calculate tangent vector
 *
@@ -556,15 +550,15 @@
             Call Merge_Lists(Mode,nAt)
          End If
          If (Mode.eq.'R') Then
-             ipRef=2
-             ipOpt=1
+             iRef=2
+             iOpt=1
             Write (6,'(A)') '     Reference structure: product side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E2
             Write (6,'(A)') '     Optimized structure: reactant side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E1
          Else
-             ipRef=1
-             ipOpt=2
+             iRef=1
+             iOpt=2
             Write (6,'(A)') '     Reference structure: reactant side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E1
             Write (6,'(A)') '     Optimized structure: product side'
@@ -577,9 +571,9 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRefAlign=1
          iOptExp  =2
-         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,
+         Call Expand_Coor(RP_Centers(1,1,iRef),nAt,
      &                    XYZ(1,iRefAlign),mAt)
-         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),mAt)
+         Call Expand_Coor(RP_Centers(1,1,iOpt),nAt,XYZ(1,iOptExp),mAt)
          If (Invar) Then
            Call Superpose_w(XYZ(1,iRefAlign),XYZ(1,iOptExp),W,
      &                      mAt,RMSD,RMax)
@@ -765,10 +759,9 @@
       Integer nAt,mAt
       Real*8 A(3,nAt),B(3,nAt)
       Logical Found
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
+      Real*8 TMass
       Real*8, Dimension(:), Allocatable :: W
 ************************************************************************
 *                                                                      *
@@ -814,8 +807,6 @@
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Integer, Dimension(:), Allocatable :: iStab

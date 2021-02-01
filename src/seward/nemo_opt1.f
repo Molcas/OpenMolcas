@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine NEMO_Opt1()
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "warnings.fh"
 #include "rinfo.fh"
 #include "print.fh"
@@ -29,7 +29,6 @@
 *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('NEMO_Opt1')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -316,7 +315,6 @@ c                    write(6,'(a11,f20.8)') ' Exponents',rExpi
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('NEMO_Opt1')
       Return
 *
  9999 Continue

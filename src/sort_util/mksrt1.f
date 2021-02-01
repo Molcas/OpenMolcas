@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Markus P. Fuelscher                              *
 *               1991, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine MkSrt1(nInts)
+      Subroutine MkSrt1()
 ************************************************************************
 *                                                                      *
 *     Purpose: Determine the splitting of the integrals into           *
@@ -54,7 +54,6 @@
       iRout = 80
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write (6,*) ' >>> Enter MKSRT1 <<<'
-      Call qEnter('MkSrt1')
 *----------------------------------------------------------------------*
 *                                                                      *
 *     grab memory                                                      *
@@ -134,7 +133,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
 #endif
                If( kSymk.eq.lSyml ) kbl=kb*(kb+1)/2
                iSyBlk=kSybll+mxSyP*(iSyblj-1)
-                nInts=nInts+ibj*kbl
                 nij = 0
                 Do ij = 1,ibj
 #ifdef _I8_
@@ -146,7 +144,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
 #endif
                 End Do
                 If ( nij.eq.0 ) then
-                    rc=001
                     Write(6,*)
                     Write(6,'(2X,A,I3.3,A)')
      &              '*** Error in MKSRT1 ***'
@@ -154,7 +151,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
                     Write(6,'(2X,A)') 'Increase the value of the'//
      &                                'MOLCAS_MEM environement variable'
                     Write(6,*)
-                    Call qTrace
                     Call Quit(_RC_MEMORY_ERROR_)
                 End If
                 nSlice = 1+(ibj-1)/nij
@@ -200,7 +196,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
       End If
 *
       If ( nBin.gt.mxBin ) Then
-        rc=003
         Write(6,*)
         Write(6,'(2X,A,I3.3,A)')
      &  '*** Error in MKSRT1 ***'
@@ -212,12 +207,10 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Write (6,*) 'Increase MOLCAS_MEM and try again!'
         Write(6,*)
-        Call qTrace
         Call Quit(_RC_MEMORY_ERROR_)
       End If
 *
       If ( MxSrtA1.gt.lSrtA ) Then
-        rc=004
         Write(6,*)
         Write(6,'(2X,A,I3.3,A)')
      &  '*** Error in MKSRT1 ***'
@@ -229,7 +222,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Write (6,*) 'Increase MOLCAS_MEM and try again!'
         Write(6,*)
-        Call qTrace
         Call Quit(_RC_MEMORY_ERROR_)
       End If
 *
@@ -250,6 +242,5 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
 *
       Call ICopy(3*nBin,[0],0,mInt,1)
 *
-      Call qExit('MkSrt1')
       Return
       End

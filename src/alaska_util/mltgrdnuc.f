@@ -12,9 +12,7 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "disp.fh"
@@ -23,11 +21,9 @@
       real*8 Force(lforce)
       common /finfld/Force
 *
-      logical TstFnc,TF
+      logical, external :: TF
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       iIrrep=0
       do 800 ixop=0,nOrdOp

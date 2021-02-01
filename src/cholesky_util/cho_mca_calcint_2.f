@@ -16,10 +16,11 @@ C
 C     Version 2: avoid storage of full shell quadruple in interface to
 C                seward; get qualified directly!
 C
+      use ChoArr, only: iSP2F
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "WrkSpc.fh"
 
@@ -32,12 +33,9 @@ C
 
       INTEGER NAB(8)
 
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       MYSP(I)=IWORK(ip_MYSP-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
       MEM_START = LLEAK
 #endif
@@ -99,11 +97,6 @@ C        --------------------------
 
          ISCD = MYSP(ISHLCD)
          CALL CHO_INVPCK(ISP2F(ISCD),ISHLC,ISHLD,.TRUE.)
-         IF (ISHLC .EQ. ISHLD) THEN
-            NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC) + 1)/2
-         ELSE
-            NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
-         END IF
 
 C        Find out if this shell pair (CD) contributes to
 C        current reduced set.
@@ -203,7 +196,7 @@ C     ----------------------
      &   'Skipped',PCT,'% of rows (shell pairs) in this distribution'
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
       MEM_END = LLEAK
       LEAK = MEM_END - MEM_START

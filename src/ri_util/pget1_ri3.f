@@ -22,24 +22,16 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for 3-center RI gradients, March 2007           *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "chomp2g_alaska.fh"
@@ -61,11 +53,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
-*#define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PGet1_RI3   ')
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -90,7 +78,6 @@
 *
       Call CWTime(Cpu1,Wall1)
 *
-      nBas0 = nBas(0)
       iOff1 = nBas(0)
       Fac = One / Four
       PMax=Zero
@@ -252,10 +239,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
@@ -419,10 +404,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
@@ -608,10 +591,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
@@ -902,10 +883,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
@@ -1143,7 +1122,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet1_RI3:PAO ',' ',PAO,ijkl,nPAO)
          Do i = 1, ijkl
@@ -1152,7 +1131,6 @@
          End Do
       End If
       Call GetMem(' Exit PGet1_RI3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI3')
 #endif
 *                                                                      *
 ************************************************************************

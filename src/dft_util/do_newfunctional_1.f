@@ -20,12 +20,6 @@
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
 *                                                                      *
-* Called from:Do_batch                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: Per-AAke Malmquist,Department of Theoretical Chemistry  *
 *              University of LUnd, SWEDEN                              *
 *      Modified by G. Ghigo, Department of Theoretical Chemistry,      *
@@ -63,7 +57,6 @@ CGG   Cf=2.8712340001881918D0
          P2x=P2_ontop(2,iGrid)
          P2y=P2_ontop(3,iGrid)
          P2z=P2_ontop(4,iGrid)
-         gradP22=P2x*P2x+P2y*P2y+P2z*P2z
          grad2P2=P2_ontop(5,iGrid)
          P2sp=P2_ontop(6,iGrid)
          gradP2gradRho=Rhox*P2x+Rhoy*P2y+Rhoz*P2z
@@ -79,7 +72,6 @@ CGG   Cf=2.8712340001881918D0
          P2x=P2_ontop(2,iGrid)
          P2y=P2_ontop(3,iGrid)
          P2z=P2_ontop(4,iGrid)
-         gradP22=P2x*P2x+P2y*P2y+P2z*P2z
          grad2P2=P2_ontop(5,iGrid)
          P2sp=P2_ontop(6,iGrid)
          gradP2gradRho=Rhox*P2x+Rhoy*P2y+Rhoz*P2z
@@ -90,7 +82,6 @@ CGG   Cf=2.8712340001881918D0
       t1 = Rho_tot**(1.D0/3.D0)
       t4 = 1+dConst/t1
       t5 = 1/t4
-      denom = 1.D0*t5
       t6 = aConst*P2
       t7 = 1/Rho_tot
       T1_term = -4*t6*t5*t7
@@ -105,7 +96,6 @@ c      t1 = Rho_tot**(1.D0/3.D0)
 c      t2 = 1/t1
 c      t4 = 1+dConst*t2
 c      t5 = 1/t4
-c      denom = 1.D0*t5
 c      T2_term = -aConst*Rho_tot*t5
 c      t10 = t4**2
 c      dT2_dRho = -aConst*t5-aConst*t2/t10*dConst/3
@@ -122,7 +112,6 @@ c      dT2_dRho = -aConst*t5-aConst*t2/t10*dConst/3
       t10 = t2**2
       t12 = 1/t10/Rho_tot
       t14 = t1*t9*t12
-      Z_term = -t14
       t15 = t1*cConst
       t16 = Rho_tot**2
       t17 = t16*Rho_tot

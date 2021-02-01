@@ -13,16 +13,16 @@
 *  Get_Cmo
 *
 *> @brief
-*>   Return a pointer in \c Work of the location of the symmetry blocked MO coefficients as read from the runfile
+*>   Return the symmetry blocked MO coefficients as read from the runfile
 *> @author R. Lindh
 *>
 *> @details
 *> The utility will read the symmetry blocked MO coefficients from the runfile.
 *>
-*> @param[out] ipCMO Pointer to array of symmetry blocked MO coefficients
+*> @param[out] CMO array of symmetry blocked MO coefficients
 *> @param[out] nCMO  Number of elements in the array of symmetry blocked MO coefficients
 ************************************************************************
-      Subroutine Get_Cmo(ipCMO,nCMO)
+      Subroutine Get_Cmo(CMO,nCMO)
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -35,18 +35,24 @@
       save nSym, nBas
       Logical   IfTest, Found
       Data      IfTest/.False./
+      Real*8 CMO(nCMO)
       Call Get_iScalar('System BitSwitch',iOption)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 
       Label='Last orbitals'
-      Call qpg_dArray(Label,Found,nCmo)
+      Call qpg_dArray(Label,Found,mCmo)
       If(.not.Found) Then
          Call SysAbendMsg('get_CMO','Could not find',Label)
       End If
-      Call GetMem('CMO','Allo','Real',ipCMO,nCMO)
-      Call Get_dArray(Label,Work(ipCMO),nCMO)
+      If (mCMO/=nCMO) Then
+         Write (6,*) 'Get_CMO: mCMO/=nCMO'
+         Write (6,*) 'nCMO=',nCMO
+         Write (6,*) 'mCMO=',mCMO
+         Call Abend()
+      End If
+      Call Get_dArray(Label,CMO,nCMO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,11 +67,11 @@
          endif
          Write (6,*) ' Input Orbitals from RUNFILE'
          Write (6,*)
-         ii=ipCMO
+         ii=1
          Do iIrrep = 0, nSym-1
             If (nBas(iIrrep).gt.0) Then
                Write (6,*) ' Symmetry Block',iIrrep
-               Call RecPrt(' ',' ',Work(ii),nBas(iIrrep),nBas(iIrrep))
+               Call RecPrt(' ',' ',CMO(ii),nBas(iIrrep),nBas(iIrrep))
                Write (6,*)
             End If
             ii = ii + nBas(iIrrep)**2

@@ -11,9 +11,6 @@
 * Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine GetBS(DDname,BSLbl,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
-     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
-     &                 ExtBasDir)
 ************************************************************************
 *                                                                      *
 *    Object: to read basis set Exponents and Contraction Coefficients  *
@@ -31,31 +28,42 @@
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 ************************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+      SubRoutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,
+     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
+     &                 ExtBasDir)
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Character(LEN=80) BSLbl, Ref(2), MPLbl*20,
-     &             Filenm, Atom, Type
+      Character*(*) DDname
+      Character(LEN=80)  BSLbl
+      Integer       iShll
+      Character(LEN=80)  Ref(2)
+      Logical       UnNorm
+      Integer       LuRd, BasisTypes(4)
+      Character(LEN=180) STDINP(MxAtom*2)
+      Logical L_STDINP, Expert
+      Character *(*) ExtBasDir
+*     Local variables
+      Character(LEN=80)  MPLbl*20, Filenm, Atom, Type
       Character(LEN=256) DirName
 *
       Character Basis_Lib*256, Filename*263, DefNm*13
       Integer StrnLn
       External StrnLn
-      Logical UnContracted, L_STDINP
+      Logical UnContracted
 *
-      Character*180 Line, Get_Ln, STDINP(MxAtom*2) ! CGGn
+      Character*180 Line, Get_Ln
       External Get_Ln
-      Character*(*) DDname
       Character*24 Words(2)                     ! CGGn
       Logical inLn1, inLn2, inLn3, Hit, IfTest,
-     &        UnNorm, isEorb,isFock
-      Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx), nDel(0:MxAng)
-      Integer BasisTypes(4)
-      Logical Expert, Found
-      Character *(*) ExtBasDir
+     &        isEorb,isFock
+      Integer nCGTO(0:iTabMx),mCGTO(0:iTabMx)
+      Logical Found
       Real*8, Allocatable:: ExpMerged(:),Temp(:,:)
       Data DefNm/'basis_library'/
 *
@@ -73,12 +81,6 @@
 ************************************************************************
 *                                                                      *
       Interface
-         SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
-         Integer lUnit
-         Integer iShll
-         Integer nProj
-         Logical UnNorm
-         End SubRoutine GetECP
          Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
          Character*(*) Title
          Character*(*) FmtIn
@@ -89,8 +91,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
       iPrint=99
 #else
@@ -98,10 +100,7 @@
       iPrint=5
 #endif
       If (IfTest) iPrint=99
-      ip_Dummy=-1
       dbsc(nCnttp)%FOp = .True.
-      nM1=0
-      nM2=0
       lAng=0
 *
       If (IfTest) Write (6,'(A,A)') 'DDName=',DDName
@@ -242,9 +241,9 @@
          Write (6,*) 'lAng, Charge=',lAng, dbsc(nCnttp)%Charge
          Write (6,*) ' Start reading valence basis'
       End If
-      If (lAng.gt.MxAng) Then
-         Write (6,*) 'GetBS: lAng.gt.MxAng'
-         Write (6,*) 'lAng,MxAng=',lAng,MxAng
+      If (lAng.gt.iTabMx) Then
+         Write (6,*) 'GetBS: lAng.gt.iTabMx'
+         Write (6,*) 'lAng,iTabMx=',lAng,iTabMx
          Call Abend()
       End If
 *     Loop over each shell type (s,p,d,etc....)
@@ -508,7 +507,7 @@
      &                = Temp(1:Min(nEorb,nCntrc),
      &                       1:Min(nEorb,nCntrc))
             Call mma_deallocate(Temp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Fock',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else If(isEorb) Then
@@ -524,12 +523,12 @@
                Shells(iShll)%FockOp(i,i)=Temp(i,1)
             End Do
             Call mma_deallocate(Temp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Eorb',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else
             dbsc(nCnttp)%FOp=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Empty',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          End If
@@ -845,7 +844,7 @@
          Call Get_I1(1,nPrim)
          Call Get_I1(2,nCntrc)
          Call Get_I1(3,mDel)
-         nDel(iAng)=mDel
+         dbsc(nCnttp)%kDel(iAng)=mDel
          If (IfTest) Write(6,*) 'nPrim = ',nPrim,' nCntrc = ',nCntrc
          If (IfTest) Write(6,*) 'nDeleted = ', mDel
          Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
@@ -1014,10 +1013,12 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
       lAng = Max(lAng,nProj,nAIMP)
       If (.not.inLn3) Close(lUnit)
       Return
-      End
-      Subroutine Check_Info()
-#include "itmax.fh"
-#include "info.fh"
-      Call Free_Work(LctInf)
-      Call Abend()
-      End Subroutine Check_Info
+      End Subroutine GetBS
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(GetBS)
+
+#endif

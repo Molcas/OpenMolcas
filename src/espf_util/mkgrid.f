@@ -11,6 +11,7 @@
       Subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,
      &                  Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
       use PCM_arrays
+      use external_centers, only: iXPolType
       Implicit Real*8 (A-H,O-Z)
 *
 #include "espf.fh"
@@ -19,13 +20,11 @@
 #include "stdalloc.fh"
       Logical Forces,Process,Dirty
 *
-      Call QEnter('mkgrid')
       iPL = iPL_espf()
 *
       iPrint = 5
       If (iPL.ge.3) iPrint = 50
       If (iPL.ge.4) iPrint = 99
-      nDiff = 0
       Call GetMem('Atomic Numbers','Allo','Inte',ipAN,natom)
       Call GetMem('Get_Atoms','Allo','Real',ipChrg,natom)
       Call Get_dArray('Nuclear charge',Work(ipChrg),natom)
@@ -204,6 +203,5 @@ c
       End If
       Call GetMem('Atomic Numbers','Free','Inte',ipAN,natom)
 *
-      Call QExit('mkgrid')
       Return
       End

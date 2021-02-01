@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to close the handling of the 2nd order density matrix.       *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -32,10 +27,6 @@
 #include "setup.fh"
 #include "mp2alaska.fh"
       Logical DoCholesky
-*
-      iRout = 249
-      iPrint = nPrint(iRout)
-*     Call qEnter('CloseP')
 *
       If(case_mp2) then
          Call DecideOnCholesky(DoCholesky)
@@ -61,6 +52,5 @@
       call mma_deallocate(DVar)
       call mma_deallocate(D0)
 *
-*     Call qExit('CloseP')
       Return
       End

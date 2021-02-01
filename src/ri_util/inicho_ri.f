@@ -30,17 +30,18 @@
 *> @param[in] nShij    Number of shell pairs
 ************************************************************************
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
-
+      Use Para_Info, Only: Is_Real_Par
+      use ChoArr, only: iSP2F
+      use ChoSwp, only: InfRed, InfVec
       Implicit None
       Integer nSkal, nIrrep, nShij
       Integer nVec_Aux(0:nIrrep-1)
       Integer iTOffs(3,nIrrep)
       Integer iShij(2,nShij)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
+#include "stdalloc.fh"
 #if defined (_MOLCAS_MPP_)
 #include "choglob.fh"
 #endif
@@ -117,17 +118,16 @@ C     ------------------------------------------------------------------
       End Do
 
 C     Other initializations. Most importantly, allocate InfRed and
-C     InfVec arrays (pointers and dimensions stored in choptr.fh).
+C     InfVec arrays (defined in choswp.f90).
 C     We skip diagonal prescreening, as it has already been done.
 C     Instead, allocate and set the mapping from reduced to full shell
 C     pairs here.
 C     ----------------------------------------------------------------
 
       nnShl = nShij
-      l_iSP2F = nnShl
-      Call GetMem('SP2F','Allo','Inte',ip_iSP2F,l_iSP2F)
+      Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
       Do ijS = 1,nnShl
-         iWork(ip_iSP2F-1+ijS) = iTri(iShij(1,ijS),iShij(2,ijS))
+         iSP2F(ijS) = iTri(iShij(1,ijS),iShij(2,ijS))
       End Do
       Skip_PreScreen = .True.
       Alloc_Bkm = .False.
@@ -158,8 +158,7 @@ C     Set start disk addresses.
 C     -------------------------
 
       XnPass = 0 ! it should be zeroed in Cho_Inp, but just in case.
-      Call Cho_SetAddr(iWork(ip_InfRed),iWork(ip_infVec),MaxRed,MaxVec,
-     &                 InfVec_N2,nSym)
+      Call Cho_SetAddr(InfRed,InfVec,MaxRed,MaxVec,SIZE(InfVec,2),nSym)
 
 C     Set vector info.
 C     Parent diagonal is set equal to the vector number, parent pass
@@ -168,20 +167,23 @@ C     --------------------------------------------------------------
 
       Do iSym = 1,nSym
          Do iVec = 1,NumCho(iSym)
-            Call Cho_SetVecInf(iWork(ip_InfVec),MaxVec,InfVec_N2,nSym,
-     &                         iVec,iSym,iVec,1,1)
+            Call Cho_SetVecInf(iVec,iSym,iVec,1,1)
          End Do
       End Do
 *
       Return
       End
       SubRoutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
+      use ChoArr, only: iRS2F, nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only:   IndRSh,   IndRSh_Hidden
+      use ChoSwp, only:   IndRed,   IndRed_Hidden
       Implicit None
       Integer nIrrep, nShij
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Logical DoDummy
 
@@ -218,10 +220,11 @@ C     -------------------------------------------------------
 C     Allocate index arrays for reduced sets: IndRed and IndRsh.
 C     ----------------------------------------------------------
 
-      l_IndRed=nnBstRT(1)*3
-      l_IndRSh=nnBstRT(1)
-      Call GetMem('indred','Allo','Inte',ip_IndRed,l_IndRed)
-      Call GetMem('indrsh','Allo','Inte',ip_IndRSh,l_IndRSh)
+      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,
+     &                  Label='IndRed_Hidden')
+      IndRed => IndRed_Hidden
+      Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
+      IndRSh => IndRSh_Hidden
 
 C     Allocate iScr array used by reading routines.
 C     ---------------------------------------------
@@ -235,7 +238,7 @@ C     ---------------------------------------------------------------
 
       Do i = 1,MaxRed
          Do iSym = 1,nSym
-            iWork(ip_nDimRS-1+nSym*(i-1)+iSym) = nnBstR(iSym,1)
+            nDimRS(iSym,i) = nnBstR(iSym,1)
          End Do
       End Do
 
@@ -243,16 +246,14 @@ C     Allocate and set mapping array from 1st reduced set to full
 C     storage.
 C     -----------------------------------------------------------
 
-      l_iRS2F = 2*nnBstRT(1)
-      Call GetMem('iRS2F','Allo','Inte',ip_iRS2F,l_iRS2F)
+      Call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
 
 C     Set index arrays corresponding to full storage:
 C     iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
 C     -----------------------------------------------
 
-      Call SetChoIndx_RI(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                   iWork(ip_IndRed),iWork(ip_IndRsh),
-     &                   iWork(ip_iRS2F),
+      Call SetChoIndx_RI(iiBstRSh,nnBstRSh,
+     &                   IndRed,IndRsh,iRS2F,
      &                   nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
 
       Return
@@ -260,13 +261,13 @@ C     -----------------------------------------------
       SubRoutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,
      &                         I_nSym,I_nnShl,I_mmBstRT,I_3,I_2,
      &                         iShij,nShij)
+      use ChoArr, only: iSP2F, iBasSh, nBasSh, nBstSh
       Implicit Real*8 (a-h,o-z)
       Integer iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3)
       Integer IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT)
       Integer iRS2F(I_2,I_mmBstRT), iShij(2,nShij)
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer  Cho_iSAOSh
@@ -276,10 +277,6 @@ C     -----------------------------------------------
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iBasSh(i,j)=iWork(ip_iBasSh-1+nSym*(j-1)+i)
-      nBasSh(i,j)=iWork(ip_nBasSh-1+nSym*(j-1)+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
 
 C     nnBstRSh(iSym,iSh_ij,1) = #elements in compound sym. iSym of
 C                               shell-pair ab in 1st reduced set.
@@ -420,10 +417,8 @@ C     -------------------------------------------------------
 *
 ************************************************************
       Subroutine Get_thrc_RI(Thr_CD)
-
+      use RICD_Info, only: Thrshld_CD
       Real*8 Thr_CD
-#include "itmax.fh"
-#include "info.fh"
 
       Thr_CD = Thrshld_CD
 

@@ -23,18 +23,6 @@
 *         with the Rys quadrature, i.e. the integrals [e0|f0] will be  *
 *         computed (e=Max(la,lb),la+lb,f=Max(lc,ld),lc+ld).            *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Tvalue                                                  *
-*              RtsWgh                                                  *
-*              vRysRW                                                  *
-*              ModU2                                                   *
-*              Cff2D                                                   *
-*              Rys2D                                                   *
-*              RysEF                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -43,10 +31,10 @@
 *             Modified for special routines Jan-Mar '94                *
 ************************************************************************
       use vRys_RW
+      use Real_Info, only: ChiI2
+      use Temporary_parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D, Rys2D
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "print.fh"
 #include "real.fh"
@@ -58,15 +46,15 @@ cgh - stuff for short range integrals
      &       Eta(nEta),   EInv(nEta),  Q(lQ,3), rKapcd(nEta),
      &       CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray)
       Integer iAnga(4)
-      Logical AeqB, CeqD, AeqC, EQ, NoSpecial
+      Logical AeqB, CeqD, EQ, NoSpecial
 *
 *     Statement function for canonical index, etc.
 *
       iTri(i,j) = (Max(i,j)*(Max(i,j)-1))/2 + Min(i,j)
 *
 
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'NoSpecial=',NoSpecial
          Call RecPrt(' In Rys:P','(10G15.5)',P,lP,3)
          Call RecPrt(' In Rys:Q','(10G15.5)',Q,lQ,3)
@@ -85,7 +73,6 @@ cgh - stuff for short range integrals
       ld = iAnga(4)
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))
-      AeqC = EQ(Coori(1,1),Coori(1,3))
       nRys = (la+lb+lc+ld+2)/2
       nabMax = la+lb
       nabMin = Max(la,lb)
@@ -597,7 +584,7 @@ cgh - (additional memory has been declared in MemRys)
       If (shortrange.or.FMM_shortrange)
      &   ip = ip - nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
       End Select
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
       Call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
 #endif

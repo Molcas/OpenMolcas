@@ -49,7 +49,6 @@
 *
       NTEST =  000
 *
-C     CALL QENTER('SKICK')
       IF(IROUTE.EQ.3) THEN
 * S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
         DO KB = 1, NKB
@@ -142,10 +141,8 @@ C                    CALL COPVEC(XIJILS,XIJKL(JKINTOF),NJ)
                    ICOFF = (JB-1)*NJ*NKA + 1
                    INTOF = ((L-1)*NK + K - 1 )*NI*NJ + 1
 *
-                   JMAX = NJ
                    IF(IKORD.NE.0) THEN
 *. Restrict so (ji) .le. (kl)
-                     JMAX  = K
                      IKINTOF = INTOF + (K-1)*NI
                      CALL COPVEC(XIJKL(IKINTOF),XIJILS,NI)
                      XIJKL(IKINTOF-1+L) = 0.5D0*XIJKL(IKINTOF-1+L)
@@ -236,7 +233,6 @@ C1000 CONTINUE
       END IF
 *. End of IROUTE branchning
 *
-C     CALL QEXIT('SKICK')
       RETURN
       END
 

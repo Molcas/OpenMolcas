@@ -12,10 +12,10 @@
 ************************************************************************
       Subroutine OutOfPlane_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
-     &                 nB,iANr,qLbl,iRef,
-     &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
+     &                 nsAtom,iIter,nIter,Cx,
+     &                 Process,Value,
+     &                 nB,qLbl,iRef,
+     &                 fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                 nqB)
@@ -24,27 +24,24 @@
 *     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: nStab, jStab, AtomLbl, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
       Parameter (mB = 4*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,4), Grad(mB), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,4), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB),
      &       Grad_ref(9), RX4Y(3,3), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms),
-     &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
+      Integer   iDCRR(0:7), iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
-     &        MinBas, Help, Proc_dB, R_Stab_A
+      Logical  Process, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
 #include "Molcas.fh"
-      Character*(LENIN) Name(nAtoms)
       Character*(LENIN4) Lbls(4)
 #include "bondtypes.fh"
 #define _FMIN_
@@ -56,32 +53,21 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
       If (nBonds.lt.3) Return
+      nqO=0
+      Call FZero(Hess,144)
+#ifdef _DEBUGPRINT_
       iRout=152
       iPrint=nPrint(iRout)
-      Call QEnter('OutOfPs')
-      nqO=0
-      PSPrint=.False.
-      Call FZero(Hess,144)
-#ifdef _DEBUG_
-      iPrint=99
-      If (iPrint.ge.99) PSPrint=.True.
 #endif
 *
 *---- Loop over out-of-plane angles.
 *
-      bohr=CONST_BOHR_RADIUS_IN_SI_ * 1.0D+10
-      MinBas=.False.
-      If (MinBas) Then
-         Fact=1.3d0
-      Else
-         Fact=One
-      End If
       nCent=4
 *
 ************************************************************************
@@ -116,22 +102,22 @@
             End If
             iAtom=iTabAI(1,iAtom_)
             jAtom=iTabAI(1,jAtom_)
-            ir = iTabRow(iANr(iAtom))
-            jr = iTabRow(iANr(jAtom))
+            ir = iTabRow(ANr(iAtom))
+            jr = iTabRow(ANr(jAtom))
             Ind(1) = jAtom
             Ind(4) = iAtom
 *
             Help = ir.gt.3.or.jr.gt.3
             iDCR(4)=iTabAI(2,iAtom_)
             iDCR(1)=iTabAI(2,jAtom_)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
-            Write (6,*) 'E,R=',Name(iAtom),ChOp(iDCR(4)),
-     &                         Name(jAtom),ChOp(iDCR(1))
+            Write (6,*) 'E,R=',AtomLbl(iAtom),ChOp(iDCR(4)),
+     &                         AtomLbl(jAtom),ChOp(iDCR(1))
 #endif
-            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If (nCoBond_j.gt.1.and.nFgBond_j.eq.0) Go To 201
             If (iDCR(4).ne.iOper(0)) Go To 201
@@ -152,8 +138,8 @@
      &               jStab(0,jAtom),nStab(jAtom),
      &               iDCRR,nDCRR)
             kDCRR=iDCR(1)
-#ifdef _DEBUG_
-            If (PSPrint) Then
+#ifdef _DEBUGPRINT_
+            If (iPrint.ge.99) Then
                Write (6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),
      &                            i=0,nStab(iAtom)-1),'}  '
                Write (6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),
@@ -173,8 +159,8 @@
             Call Inter(jStab(0,iAtom),nStab(iAtom),
      &                 jStab(0,jAtom),nStab(jAtom),
      &                     iStabM,nStabM)
-#ifdef _DEBUG_
-            If (PSPrint) Then
+#ifdef _DEBUGPRINT_
+            If (iPrint.ge.99) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
             End If
@@ -203,7 +189,7 @@
                If (kAtom_.eq.jAtom_) Go To 301
                kBond =iTabAtoms(2,kNeighbor,iAtom_)
                kBondType=iTabBonds(3,kBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'kBond,kBondType=',
      &                      kBond,kBondType
 #endif
@@ -212,8 +198,7 @@
                If (kBond.eq.jBond) Go To 301
 *
                kAtom=iTabAI(1,kAtom_)
-               ik_=nAtoms*(kAtom-1)+iAtom
-               kr = iTabRow(iANr(kAtom))
+               kr = iTabRow(ANr(kAtom))
                Ind(2) = kAtom
                iDCR(2)=iTabAI(2,kAtom_)
 *
@@ -225,9 +210,9 @@
                   If (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)).and.
      &                iDCR(2).ne.iOper(0)) Go To 301
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*)
-               Write (6,*) 'T=',Name(kAtom),ChOp(iDCR(2))
+               Write (6,*) 'T=',AtomLbl(kAtom),ChOp(iDCR(2))
                Write (6,*) 'kAtom=', kAtom
 #endif
 *
@@ -242,14 +227,13 @@
                   If (lBond.eq.jBond)   Go To 401
                   If (lBond.eq.kBond)   Go To 401
                   lAtom=iTabAI(1,lAtom_)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'lBond,lBondType=',
      &                         lBond,lBondType
                   Write (6,*) 'lAtom=', lAtom
 #endif
 *
-                  il_=nAtoms*(lAtom-1)+iAtom
-                  lr = iTabRow(iANr(lAtom))
+                  lr = iTabRow(ANr(lAtom))
                   Ind(3) = lAtom
                   iDCR(3)=iTabAI(2,lAtom_)
 C                 If (kAtom.gt.lAtom) Go To 401
@@ -275,9 +259,9 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                iDCR(3).ne.iOper(0).and.iDCR(2).ne.iOper(0))
      &                Go To 401
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*)
-                  Write (6,*) 'TS=',Name(lAtom),ChOp(iDCR(3))
+                  Write (6,*) 'TS=',AtomLbl(lAtom),ChOp(iDCR(3))
 #endif
 *
                   Help = ir.gt.3.or.jr.gt.3.or.kr.gt.3.or.lr.gt.3
@@ -293,8 +277,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                     iDCRS,nDCRS)
                   kDCRS=iEor(iDCR(2),iDCR(3))
 *
-#ifdef _DEBUG_
-                  If (PSPrint) Then
+#ifdef _DEBUGPRINT_
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),
      &                                  i=0,nStab(kAtom)-1),'}  '
                      Write (6,'(10A)') 'X={',(ChOp(jStab(i,lAtom)),
@@ -316,8 +300,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                       jStab(0,lAtom),nStab(lAtom),
      &                       iStabN,nStabN)
 *
-#ifdef _DEBUG_
-                  If (PSPrint) Then
+#ifdef _DEBUGPRINT_
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'N={',
      &                     (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
                   End If
@@ -352,8 +336,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   kDCRT =iDCR(2)
                   kDCRTS=iDCR(3)
 *
-#ifdef _DEBUG_
-                  If (PSPrint) Then
+#ifdef _DEBUGPRINT_
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'T={',
      &                     (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
                      Write (6,'(2A)') 'T=',ChOp(kDCRT)
@@ -380,8 +364,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                          iStabO,nStabO)
                   End If
 *
-#ifdef _DEBUG_
-                  If (PSPrint) Then
+#ifdef _DEBUGPRINT_
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'M={',
      &                     (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
                      Write (6,'(10A)') 'N={',
@@ -458,7 +442,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call Bend(RX4Y,mCent,Fi2,Grad_ref,
      &                     .False.,
      &                     .False.,'        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) '1-4-2: Fi2=',Fi2
 #endif
                   delta = delta0
@@ -473,7 +457,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call Bend(RX4Y,mCent,Fi3,Grad_ref,
      &                      .False.,
      &                      .False.,'        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) '1-4-3: Fi3=',Fi3
 #endif
                   delta = delta0
@@ -488,7 +472,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call Bend(RX4Y,mCent,Fi4,Grad_ref,
      &                      .False.,
      &                      .False.,'        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) '2-4-3: Fi4=',Fi4
 #endif
                   delta = delta0
@@ -500,7 +484,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   Call OutofP(Ref,nCent,Val,Grad,.False.,
      &                       .False.,
      &                       '        ',Hess,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'Val=',Val*180.D0/Pi
 #endif
 *
@@ -512,18 +496,18 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   nq = nq + 1
                   If (.Not.Process) mB_Tot = mB_Tot + mB
                   If (.Not.Proc_dB) mdB_Tot = mdB_Tot + mB**2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'nq=',nq
 #endif
 *
                   nqO = nqO + 1
                   iF1=1
-                  Call NxtWrd(Name(iAtom),iF1,iE1)
-                  Lbls(1)=Name(iAtom)(iF1:iE1)
+                  Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+                  Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
 *
                   iF2=1
-                  Call NxtWrd(Name(jAtom),iF2,iE2)
-                  Lbls(2)=Name(jAtom)(iF2:iE2)
+                  Call NxtWrd(AtomLbl(jAtom),iF2,iE2)
+                  Lbls(2)=AtomLbl(jAtom)(iF2:iE2)
                   If (kDCRR.ne.0) Then
                      Lbls(2)(iE2+1:iE2+1)='('
                      Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -534,8 +518,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 *
                   iF3=1
-                  Call NxtWrd(Name(kAtom),iF3,iE3)
-                  Lbls(3)=Name(kAtom)(iF3:iE3)
+                  Call NxtWrd(AtomLbl(kAtom),iF3,iE3)
+                  Lbls(3)=AtomLbl(kAtom)(iF3:iE3)
                   If (kDCRT.ne.0) Then
                      Lbls(3)(iE3+1:iE3+1)='('
                      Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
@@ -546,8 +530,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 *
                   iF4=1
-                  Call NxtWrd(Name(lAtom),iF4,iE4)
-                  Lbls(4)=Name(lAtom)(iF4:iE4)
+                  Call NxtWrd(AtomLbl(lAtom),iF4,iE4)
+                  Lbls(4)=AtomLbl(lAtom)(iF4:iE4)
                   If (kDCRTS.ne.0) Then
                      Lbls(4)(iE4+1:iE4+1)='('
                      Lbls(4)(iE4+2:iE4+1+iChOp(kDCRTS))=
@@ -562,7 +546,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                   ' ',Lbls(3)(iF3:iE3),
      &                   ' ',Lbls(4)(iF4:iE4),
      &                   ' ',Lbls(1)(iF1:iE1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (iPrint.ge.49)
      &            Write (6,'(A,I3.3,8A)')
      &                   'o',nqO,' = Outofp   ',
@@ -579,14 +563,14 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   If (Process) Then
 *
                      Indq(1,nq)=6
-                     ij = (jAtom-1)*nAtoms + iAtom
-                     kl = (lAtom-1)*nAtoms + kAtom
-                     Indq(2,nq) = (kl-1)*nAtoms**2 + ij
+                     ij = (jAtom-1)*nsAtom + iAtom
+                     kl = (lAtom-1)*nsAtom + kAtom
+                     Indq(2,nq) = (kl-1)*nsAtom**2 + ij
                      ijDCR = kDCRT*8 + kDCRR+1
                      Indq(3,nq) = kDCRS*8**2 + ijDCR
 *
 *                    f_Const=Max(f_Const,f_Const_Min)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Write (6,*) 'f_const=',f_const
 #endif
                      fconst(nq)=Sqrt(f_Const)
@@ -597,9 +581,8 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *------------------- Project the gradient vector
 *
-                     Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                            jStab,A,iDCR,Grad,
-     &                            Smmtrc,nDim,PSPrint,Hess,
+                     Call ProjSym(nCent,Ind,A,iDCR,Grad,
+     &                            Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))
@@ -615,6 +598,5 @@ C                 If (kAtom.gt.lAtom) Go To 401
   101    Continue
       End Do                     ! jBond
 *
-      Call QExit ('OutOfPs')
       Return
       End

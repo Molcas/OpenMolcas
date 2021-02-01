@@ -15,20 +15,14 @@
 *                                                                      *
 *     Object: to print the basis set                                   *
 *                                                                      *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September 2006                                           *
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "relmp.fh"
 #include "real.fh"
 #include "print.fh"
@@ -176,11 +170,6 @@
             If (output.and.nExpk*Shells(kSh)%nBasis.ne.0.AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,5X,I3,5X,I3,8X,A,8X,A,8X,A)')
      &            AngTp(lSh),nExpk,Shells(kSh)%nBasis,ChCa,ChSph,ChCo
-            If (Shells(kSh)%Prjct) Then
-               kComp = 2*lSh + 1
-            Else
-               kComp = (lSh+1)*(lSh+2)/2
-            End If
             lSh = lSh + 1
          End Do
 *                                                                      *
@@ -263,7 +252,6 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             If (output.and.nExpk*nBasisk.ne.0 .AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,6X,I2,6X,I2)')
      &            AngTp(lSh),nExpk,nBasisk
-            kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do
 *--------Spectral resolution basis set
@@ -327,7 +315,6 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             If (output.and.nExpk.ne.0 .AND..NOT.lOPTO)
      &         Write (LuWr,'(9X,A,6X,I2)')
      &            AngTp(lSh),nExpk
-            kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do
 *
@@ -357,7 +344,6 @@ C           Write (*,*) 'kSh,lSh=',kSh,lSh
             If (output.and.nExpk.ne.0)
      &         Write (LuWr,'(9X,A,6X,I2)')
      &            AngTp(lSh),nExpk
-            kComp = 2*lSh + 1
             lSh = lSh + 1
          End Do
 *

@@ -7,10 +7,6 @@
 :program:`GRID_IT`
 ==================
 
-.. warning::
-
-   This program requires a submodule
-
 .. only:: html
 
   .. contents::

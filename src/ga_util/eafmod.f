@@ -34,6 +34,9 @@
 ************************************************************************
 *                                                                      *
       Subroutine EAFOpen(Lu,FName)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Character*(*) FName
       Integer Lu
@@ -42,14 +45,11 @@
 #ifdef _MOLCAS_MPP_
       Character*200 FN
       Integer  iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #ifdef _HAVE_EXTRA_
       Integer  n
 #endif
 #include "molcas_eaf.fh"
 #endif
-      Call QEnter('EAFOpen')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
       FN=FName
@@ -76,22 +76,21 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFOpen')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFClose(Lu)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer Lu
 #ifdef _MOLCAS_MPP_
       Integer  iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #include "molcas_eaf.fh"
 #endif
-      Call QEnter('EAFClose')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -110,24 +109,23 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFClose')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
       Real*8 Disk
 #ifdef _MOLCAS_MPP_
       Integer  iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFAWrite')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -148,24 +146,23 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFAWrite')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
       Real*8 Disk
 #ifdef _MOLCAS_MPP_
       Integer  iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFARead')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -186,25 +183,24 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFARead')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFWrite(Lu,Buf,nBuf,Disk)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
       Real*8 Disk
       Integer iDisk
 #ifdef _MOLCAS_MPP_
       Integer  iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFWrite')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -226,25 +222,24 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFWrite')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFRead(Lu,Buf,nBuf,Disk)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
       Real*8 Disk
       Integer iDisk
 #ifdef _MOLCAS_MPP_
       Integer  iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #include "molcas_eaf.fh"
 #include "SysDef.fh"
 #endif
-      Call QEnter('EAFRead')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -266,22 +261,21 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Call QExit('EAFRead')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFWait(Lu,id)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer Lu, id
 #ifdef _MOLCAS_MPP_
       Integer iRC
-      Logical  Is_Real_Par
-      External Is_Real_Par
 #include "molcas_eaf.fh"
 #endif
-      Call QEnter('EAFWait')
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
 #ifdef _HAVE_EXTRA_
@@ -296,7 +290,6 @@
       End If
       End If
 #endif
-      Call QExit('EAFWait')
       Return
 #ifndef _MOLCAS_MPP_
 c Avoid unused argument warnings

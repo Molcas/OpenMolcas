@@ -30,7 +30,6 @@
       Save Label
       Data Label/'EF1'/
 *
-      Call QEnter(Routine)
 *
       nST = nState*(nState+1)/2
       Call FZero(DerCpl,3*natom*nST)
@@ -65,6 +64,5 @@
 1100  Format(i7,3f15.8)
 1200  Format('   Sum:',3f15.8)
 *
-      Call QExit(Routine)
       Return
       End

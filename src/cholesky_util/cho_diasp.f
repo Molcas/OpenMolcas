@@ -16,17 +16,14 @@ C     Thomas Bondo Pedersen, March 2006.
 C
 C     Purpose: prescreening of diagonal.
 C
+      use ChoArr, only: iSP2F
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       Tmax(i,j)=Work(ip_Tmax-1+nShell*(j-1)+i)
-
-#if defined (_DEBUG_)
-      Call qEnter('_DiaSP')
-#endif
 
       If (Cho_PreScreen) Then ! prescreening with approx. diagonal
 
@@ -50,15 +47,14 @@ C
                End If
             End Do
          End Do
-         l_iSP2F = nnShl
-         Call GetMem('SP2F','Allo','Inte',ip_iSP2F,l_iSP2F)
+         Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
 
          ij = 0
          Do i = 1,nShell
             Do j = 1,i
                If (Tmax_All*Tmax(i,j) .gt. Tau) Then
                   ij = ij + 1
-                  iWork(ip_iSP2F-1+ij) = iTri(i,j)
+                  iSP2F(ij) = iTri(i,j)
                End If
             End Do
          End Do
@@ -68,16 +64,15 @@ C
       Else ! no prescreening, include all shell pairs.
 
          nnShl = nnShl_Tot
-         l_iSP2F = nnShl
-         Call GetMem('SP2F','Allo','Inte',ip_iSP2F,l_iSP2F)
+         Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
 
          Do ij = 1,nnShl
-            iWork(ip_iSP2F-1+ij) = ij
+            iSP2F(ij) = ij
          End Do
 
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.Cho_PreScreen) Tau = 0.0d0
       Write(LuPri,*) '>>> Exit from Cho_DiaSP:'
       Write(LuPri,*) '    Screening threshold               : ',Tau
@@ -89,7 +84,6 @@ C
          Write(LuPri,*) '    Screening-%: ',
      &                   1.0d2*DBLE(nnShl_Tot-nnShl)/DBLE(nnShl_Tot)
       End If
-      Call qExit('_DiaSP')
 #endif
 
       End

@@ -17,19 +17,10 @@
 *                                                                      *
 * Object: compute the 2nd derivative  of the overlap matrix.           *
 *                                                                      *
-* Called from: OvrHss                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
      &       Zeta(nZeta), rKappa(nZeta), Beta(nZeta),
      &       Rnxyz(nZeta,3,0:la+2,0:lb+2), Alpha(nZeta),
@@ -53,8 +44,6 @@ c     iRout = 134
       iStab(0)=iu
       iStab(1)=iv
 c     iPrint = nPrint(iRout)
-      iQ = 1
-c     Call qEnter('CmbnT2')
 *     Call GetMem(' Enter CmbnT2','LIST','REAL',iDum,iDum)
 *
       exp32 = -Three/Two
@@ -568,11 +557,6 @@ c     End If
       Do 100 iCnt=0,1
         Do 105  iCar=1,3
           Do 110 jCnt=0,1
-            if (iCnt.eq.jCnt) Then
-              iStop=iCar
-            Else
-              iStop=3
-            End If
             Do 115 jCar=1,3
             If (IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep).ne.0) Then
 *
@@ -618,6 +602,5 @@ c     End If
  100  Continue
  90   Continue
 *
-c     Call qExit('CmbnT2')
       Return
       End

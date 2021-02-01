@@ -30,10 +30,11 @@ C     NOTE: it is assumed that the vectors are stored in their
 C           respective reduced sets (thus, should only be used with
 C           RUN_MODE = RUN_EXTERNAL).
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chovecbuf.fh"
 #include "WrkSpc.fh"
 
@@ -44,15 +45,11 @@ C
 
       Logical Full
       Logical LocDbg
-#if defined (_DEBUG_)
+#ifdef _DEBUGPRINT_
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)
 #endif
-
-      Parameter (N2 = InfVec_N2)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      nDimRS(i,j)=iWork(ip_nDimRS-1+nSym*(j-1)+i)
 
 C     Initialize.
 C     -----------
@@ -90,7 +87,7 @@ C     -------------------------------------
       Full = lTot .ge. lVec
       jVec = jVec1 - 1
       iV2  = min(nVec_in_Buf(iSym),iVec2)
-      If (l_nDimRS .lt. 1) Then
+      If (.NOT.Allocated(nDimRS)) Then
          iLoc = 3
          Do While (jVec.lt.iV2 .and. .not.Full)
             jVec = jVec + 1
@@ -134,7 +131,7 @@ C     ----------------------
       If (lTot .gt. 0) Then
          kB = ip_ChVBuf_Sym(iSym)
          If (jVec1 .gt. 1) Then
-            If (l_nDimRS .lt. 1) Then
+            If (.NOT.Allocated(nDimRS)) Then
                iLoc = 3
                Do jVec = 1,jVec1-1
                   jRed = InfVec(jVec,2,iSym)
@@ -161,9 +158,10 @@ C     ----------------------
          ! Check copy operation (may fail if molcas is compiled for
          ! 64 bit but linked to a 32 bit blas library)
          ! Note: check is not done unless it is enabled when the buffer
-         ! is initialized. This only happens if _DEBUG_ is defined, so
+         ! is initialized.
+         ! This only happens if _DEBUGPRINT_ is defined, so
          ! the following section is normally not executed.
-         ! For debugging without turning on _DEBUG_ compilation:
+         ! For debugging without turning on _DEBUGPRINT_ compilation:
          !   Call Cho_VecBuf_EnableIntegrityCheck(irc)
          ! somewhere in the code and for every subsequent call to this
          ! routine, the integrity is checked.
@@ -219,7 +217,7 @@ C     -------------
          Else
             Write(Lupri,*) 'Vectors ',jVec1,' to ',jVec1+jNum-1,
      &                     ' of symmetry ',iSym,' copied from buffer.'
-            If (l_nDimRS .gt. 0) Then
+            If (Allocated(nDimRS)) Then
                kOffV = 1
                Do iVec = 1,jNum
                   jVec = jVec1 + iVec - 1

@@ -12,10 +12,12 @@
      &                    Charge2)
       use iSD_data
       use Basis_Info
+      use DKH_Info, only: DKroll
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
+#include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
@@ -29,11 +31,10 @@
       Integer ip(nComp), lOper(nComp), iChO(nComp)
       Integer iAtmNr2(mxdbsc)
       Real*8 Charge2(mxdbsc)
-      Common /delete/ kDel(0:MxAng,MxAtom)
       Data IfTest/.False./
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'
@@ -202,10 +203,10 @@
 *
                    iCnttp = iSD(13,iSkal)
                    If (dbsc(iCnttp)%nSOC.ne.0) Then
-                      iShl  = dbsc(iCnttp)%iSOC+l
-                      jShll  = dbsc(iCnttp)%iPrj+l
+                      iShll  = dbsc(iCnttp)%iSOC+l
+*                     jShll  = dbsc(iCnttp)%iPrj+l
 *                     nCore=nCore+Shells(jShll)%nBasis
-                      nCore=nCore+kDel(l+1,iCnttp)
+                      nCore=nCore+dbsc(iCnttp)%kDel(l)
                    End If
                End If
             End Do
@@ -225,9 +226,9 @@
                       iCnttp = iSD(13,iSkal)
                       If (dbsc(iCnttp)%nSOC.ne.0) Then
                          iShll  = dbsc(iCnttp)%iSOC+l
-                         jShll  = dbsc(iCnttp)%iPrj+l
+*                        jShll  = dbsc(iCnttp)%iPrj+l
 *                        iDel(ip_iDel+l)=Shells(jShll)%nBasis
-                         iDel(1+l)=kDel(l+1,iCnttp)
+                         iDel(1+l)=dbsc(iCnttp)%kDel(l)
                       End If
                   End If
                End Do
@@ -262,7 +263,6 @@
 *                     normal valence might not be adequate.
 *
                       iShll  = dbsc(iCnttp)%iSOC+l
-                      nBas_y = iSD( 3,iSkal)
                       iCase = 1
 *
                    End If

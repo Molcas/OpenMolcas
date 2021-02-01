@@ -14,14 +14,6 @@
       SubRoutine IniSew_scf(DSCF,EThr,DThr,FThr,
      &                  DltNTh,SIntTh,KSDFT)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             modified by M.Schuetz @teokem.lu.se, 1995                *
@@ -33,16 +25,14 @@
 *                                                                      *
 *                                                                      *
 * Note :  the corresponding finalization subroutine is ClsSew          *
-*                                                                      *
 ************************************************************************
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: ThrInt, CutInt
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "iprlv.fh"
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
       Logical Do_Addc
@@ -59,14 +49,14 @@
      &                                    .or.Do_OFemb
      &                                    .or.EFP_On()) Then
          nDiff=0
-         If (Langevin_On().and.iAngMx.eq.0) nDiff=1
+         If (Langevin_On().and.S%iAngMx.eq.0) nDiff=1
          Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
       End If
 *
       If (DSCF) Then
 C        CutInt=Min(EThr,DThr,FThr,DltNTh)*1.0d-5
-         CutInt=EThr*Min(1.0D-7,1.0D0/DBLE(nDim)**2)
-         Thrint=Cutint
+         CutInt=EThr*Min(1.0D-7,1.0D0/DBLE(S%nDim)**2)
+         ThrInt=Cutint
          SIntTh=CutInt
       End If
       i=1
@@ -85,17 +75,15 @@ c Avoid unused argument warnings
       End If
       End
       Function Get_ThrInt()
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Real*8 Get_ThrInt
-#include "itmax.fh"
-#include "info.fh"
       Get_ThrInt=ThrInt
       Return
       End
       Subroutine xSet_ThrInt(tmp)
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
       ThrInt=tmp
       Return
       End

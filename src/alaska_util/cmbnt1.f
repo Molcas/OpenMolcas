@@ -12,21 +12,13 @@
 ************************************************************************
       SubRoutine CmbnT1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Txyz,
      &                  Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
-     &                  jStab,nIrrep,kOp,iChBas,MxFnc)
+     &                  jStab,kOp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -36,7 +28,7 @@
      &       Txyz(nZeta,3,0:la+1,0:lb+1),
      &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
       Logical IfGrad(3,2)
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
 *
 *     Statement function for Cartesian index
 *
@@ -44,7 +36,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call QEnter('CmbnT1')
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
@@ -323,6 +314,5 @@
  100  Continue
 *
 *
-*     Call QExit('CmbnT1')
       Return
       End

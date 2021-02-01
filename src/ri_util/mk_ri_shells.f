@@ -23,9 +23,12 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: iRI_Type
+      use Logical_Info, only: UnNorm
+      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -45,18 +48,15 @@
       common /getlnQOE/ Quit_On_Error
       Character*180 Get_Ln_Quit
 
-      Integer BasisTypes(4), nDel(MxAng)
+      Integer BasisTypes(4)
       Data DefNm/'basis_library'/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "getbs_interface.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call qEnter('Mk_RI_Shells')
       iRout = 2
       iPrint = nPrint(iRout)
+*
+*     Temporary setup of symmetry information
 *
       Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       IfTest=.False.
@@ -68,7 +68,7 @@
       BasisTypes(2)=0
       BasisTypes(3)=0
       BasisTypes(4)=0
-      iShll = Mx_Shll - 1
+      iShll = S%Mx_Shll - 1
       lSTDINP=0
       mCnttp=nCnttp
 *
@@ -162,7 +162,7 @@
 *
          jShll = iShll
          dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
-         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,MxAng,Ref,UnNorm,nDel,
+         Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,
      &              LuRd,BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          dbsc(nCnttp)%Aux=.True.
@@ -176,21 +176,17 @@
             Write (6,*)
             Write (6,*)
          End If
-         lPAM2 = lPAM2 .or. dbsc(nCnttp)%lPAM2
          dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPrj
      &                   + dbsc(nCnttp)%nSRO
      &                   + dbsc(nCnttp)%nSOC
      &                   + dbsc(nCnttp)%nPP
      &                   + dbsc(nCnttp)%nM1
      &                   + dbsc(nCnttp)%nM2) .NE. 0
-         lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-         lECP = lECP .or. dbsc(nCnttp)%ECP
-         lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
 *
          lAng=Max(dbsc(nCnttp)%nVal,
      &            dbsc(nCnttp)%nSRO,
      &            dbsc(nCnttp)%nPrj)-1
-         iAngMx=Max(iAngMx,lAng)
+         S%iAngMx=Max(S%iAngMx,lAng)
 *        No transformation needed for s and p shells
          Shells(jShll+1)%Transf=.False.
          Shells(jShll+1)%Prjct =.False.
@@ -205,7 +201,6 @@
      &                        + dbsc(nCnttp)%nSOC
      &                        + dbsc(nCnttp)%nPP
 
-         lAux = lAux .or. dbsc(nCnttp)%Aux
          Do iSh = jShll+1, iShll
             Shells(iSh)%nBasis=Shells(iSh)%nBasis_c
             Call mma_deallocate(Shells(iShll)%pCff)
@@ -222,9 +217,9 @@
 *        Create a pointer to the actual coordinates of the parent dbsc
          dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-         Mx_Shll=iShll+1
-         Max_Shells=Mx_Shll
-         Mx_mdc=mdc
+         S%Mx_Shll=iShll+1
+         Max_Shells=S%Mx_Shll
+         S%Mx_mdc=mdc
 *
       End Do
       Go To 1100
@@ -371,9 +366,7 @@
                Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
      &                           Label='Cff_p')
                iEnds= iEnd
-               iEnds= iEnds
-               iEndc = iStrt - 1
-               iEnd  = iStrt - 1
+               iEnd = iStrt - 1
 *              Read contraction coefficients
 *              Observe that the matrix will have nPrim rows and
 *              nCntrc columns
@@ -440,16 +433,11 @@
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            lPAM2 = lPAM2 .or.dbsc(nCnttp)%lPAM2
-            lECP = lECP .or. dbsc(nCnttp)%ECP
-            lPP=lPP .or. dbsc(nCnttp)%nPP.ne.0
-            lNoPair = lNoPair .or. dbsc(nCnttp)%NoPair
-            iAngMx=Max(iAngMx,lAng)
+            S%iAngMx=Max(S%iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1
             dbsc(nCnttp)%nVal = lAng+1
             dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
-            lAux = lAux .or. dbsc(nCnttp)%Aux
 *
             nCnt = dbsc(iCnttp)%nCntr
             dbsc(nCnttp)%nCntr=nCnt
@@ -458,9 +446,9 @@
 *           Create a pointer to the actual coordinates.
             dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-            Mx_Shll=iShll+1
-            Max_Shells=Mx_Shll
-            Mx_mdc=mdc
+            S%Mx_Shll=iShll+1
+            Max_Shells=S%Mx_Shll
+            S%Mx_mdc=mdc
 *
             nSet=nSet-1
             If (nSet.ne.0) Line=Get_Ln(Lu_lib)
@@ -480,6 +468,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_RI_Shells')
       Return
       End

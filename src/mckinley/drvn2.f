@@ -17,11 +17,6 @@
 * Object: to compute the molecular gradient contribution due to the    *
 *         nuclear repulsion energy.                                    *
 *                                                                      *
-* Called from: McKinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October 1991                                             *
@@ -32,30 +27,28 @@
       use Basis_Info
       use Center_Info
       use PCM_arrays
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
       Real*8 A(3), B(3), RB(3), Hess(nGrad*(nGrad+1)/2),prmt(0:7),
      &       C(3), D(3), SD(3)
-      Integer iDCRR(0:7),IndGrd(3,2,0:7),ii(2), iStb(0:7),jStb(0:7),
+      Integer iDCRR(0:7),IndGrd(3,2,0:7),ii(2), iStb(0:7),
      &        iDCRS(0:7),IndHss(2,3,2,3,0:7),nop(2),kop(2)
-      Logical EQ, TstFnc,TF, NoLoop
+      Logical EQ, NoLoop
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
+      Real*8, Allocatable:: Pcmhss(:), Der1(:), DerDM(:), Temp(:)
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
       iTri(i1,i2)=Max(i1,i2)*(Max(i1,i2)-1)/2+Min(i1,i2)
 *                                                                      *
 ************************************************************************
@@ -63,7 +56,6 @@ c#include "print.fh"
 *
 c     iRout = 33
 c     iPrint = nPrint(iRout)
-c     Call qEnter('DrvN2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -524,9 +516,6 @@ c     Call qEnter('DrvN2')
          If (NoLoop) Go To 122
          C(1:3) = PCMTess(1:3,jTs)
 *
-         mStb=1
-         jStb(0)=0
-*
 *        Loop over the basis functions
 *
          mdc = 0
@@ -773,23 +762,22 @@ c     Call qEnter('DrvN2')
 *
         nPCMHss = nGrad * nGrad
         Call Get_nAtoms_All(nAtoms)
-        Call GetMem('PCM_Hss','Allo','Real',ip_pcmhss,nPCMHss)
-        Call GetMem('Der1','Allo','Real',ip_Der1,nTs)
-        Call GetMem('DerDM','Allo','Real',ip_DerDM,nTs*nTs)
-        Call GetMem('Temp','Allo','Real',ip_Temp,nTs*nTs)
+        Call mma_allocate(pcmhss,nPCMHss,Label='pcmhss')
+        Call mma_allocate(Der1,nTs,Label='Der1')
+        Call mma_allocate(DerDM,nTs*nTs,Label='DerDM')
+        Call mma_allocate(Temp,nTs*nTs,Label='Temp')
         Call Cav_Hss(nAtoms,nGrad,nTs,nS,Eps,PCMSph,
      &               PCMiSph,PCM_N,PCMTess,PCM_SQ,
-     &               PCMDM,Work(ip_Der1),Work(ip_DerDM),Work(ip_Temp),
-     &               dTes,DPnt,dRad,dCntr,Work(ip_pcmhss),nPCMHss)
-        Call GetMem('PCM_Hss','Free','Real',ip_pcmhss,nPCMHss)
-        Call GetMem('Der1','Free','Real',ip_Der1,nTs)
-        Call GetMem('DerDM','Free','Real',ip_DerDM,nTs*nTs)
-        Call GetMem('Temp','Free','Real',ip_Temp,nTs*nTs)
+     &               PCMDM,Der1,DerDM,Temp,
+     &               dTes,DPnt,dRad,dCntr,pcmhss,nPCMHss)
+        Call mma_deallocate(pcmhss)
+        Call mma_deallocate(Der1)
+        Call mma_deallocate(DerDM)
+        Call mma_deallocate(Temp)
 *
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     Call qExit('DrvN2')
       Return
       End

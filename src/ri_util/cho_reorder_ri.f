@@ -9,16 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_Reorder_RI(Vec,lVec,nVec,iSym)
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec,nVec)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      iRS2F(i,j)=iWork(ip_iRS2F-1+2*(j-1)+i)
 
       If (nVec .lt. 1) Return
       If (lVec .lt. 1) Return
@@ -64,7 +63,7 @@ C     --------
                      na = iBas(iSyma) + ia
                      nab = iTri(na,nb)
                      iRS = iWork(ipiF2RS-1+nab)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
                         Call SysAbendMsg('Cho_Reorder_RI',
      &                                   'Index out of bounds',' ')
@@ -81,7 +80,7 @@ C     --------
                      nb = iBas(iSymb) + ib
                      nab = iTri(na,nb)
                      iRS = iWork(ipiF2RS-1+nab)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (iRS.lt.1 .or. iRS.gt.nnBstR(iSym,1)) Then
                         Call SysAbendMsg('Cho_Reorder_RI',
      &                                   'Index out of bounds',' ')

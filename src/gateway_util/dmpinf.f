@@ -31,85 +31,52 @@
 * modified by M.P. Fuelscher                                           *
 * - changed to used communication file                                 *
 ************************************************************************
-      use Real_Spherical
       use External_Centers
       use Basis_Info, only: Basis_Info_Dmp
       use Center_Info, only: Center_Info_Dmp
       use Symmetry_Info, only: Symmetry_Info_Dmp
       use SOAO_Info, only: SOAO_Info_Dmp
+      use Sizes_of_Seward, only: Size_Dmp
+      use DKH_Info, only: DKH_Info_Dmp
+      use Real_Info, only: Real_Info_Dmp
+      use RICD_Info, only: RICD_Info_Dmp
+      use Logical_Info, only: Logical_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "nq_info.fh"
-#include "relae.fh"
-#include "RelLight.fh"
       Integer  iix(2)
       Real*8   rix(2)
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call DmpInf_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+      Call DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine DmpInf_Internal(cxStrt,ixStrt,lxStrt,rxStrt,
+      SubRoutine DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
       Use Iso_C_Binding
-      Integer, Target :: cxStrt,ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
+      Integer, Target :: cRFStrt,iRFStrt,lRFStrt,
      &                   cQStrt,iQStrt
-      Real*8, Target :: rxStrt,rRFStrt,rQStrt
-      Integer, Pointer :: p_cx(:),p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
+      Real*8, Target :: rRFStrt,rQStrt
+      Integer, Pointer :: p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
-      Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
-*
-*     Prologue
-*
-      iRELAE_info=iRELAE
-      CLight_Info=CLightAU
-*
-*     Save the common INFO
-*
-      Len = iiLoc(ixEnd)-iiLoc(ixStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
-      Call Put_iArray('SewIInfo',p_ix,Len)
-*
-      Call SOAO_Info_Dmp()
-*
-*     Save the common LINFO
-*
-      Len = iiLoc(lxEnd)-iiLoc(lxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
-      Call Put_iArray('SewLInfo',p_lx,Len)
-*
-*     Save the common RINFO
-*
-      Len = idLoc(rxEnd)-idLoc(rxStrt)
-      Len = (Len+nByte_r)/nByte_r
-      Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
-      Call Put_dArray('SewRInfo',p_rx,Len)
-*
-*     Save the common CINFO
-*
-      Len = icLoc(cxEnd)-icLoc(cxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(cxStrt),p_cx,[Len])
-      Call Put_iArray('SewCInfo',p_cx,Len)
-*
-      Nullify(p_ix,p_lx,p_rx,p_cx)
+      Real*8, Pointer :: p_rRF(:),p_rQ(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call SOAO_Info_Dmp()
       Call Basis_Info_Dmp()
       Call Center_Info_Dmp()
       Call Symmetry_Info_Dmp()
-      Call Sphere_Dmp()
+      Call Size_Dmp()
+      Call DKH_Info_Dmp()
+      Call Real_Info_Dmp()
+      Call RICD_Info_Dmp()
+      Call Logical_Info_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *

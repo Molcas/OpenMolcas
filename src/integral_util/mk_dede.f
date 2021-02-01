@@ -26,20 +26,6 @@
 *                                                                      *
 *         The indices are here ordered canonically!!!                  *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              Desym1                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -57,12 +43,11 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -76,9 +61,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Statement functions
+*     Statement function
 *
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -86,7 +70,6 @@
       iRout = 112
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-C     Call QEnter('DeDe')
 *
       If (iPrint.ge.99) Then
          Write (6,*)
@@ -105,10 +88,6 @@ C     Call QEnter('DeDe')
          End Do
       End If
 *
-*     ipD00:
-*     MaxDCR: max number of possible pairs
-*     MaxDe:
-*
       mIndij = 0
       iIrrep = 0
       jOffD = 0
@@ -116,7 +95,7 @@ C     Call QEnter('DeDe')
       If (mFD.eq.2) Inc=4
       Call ICopy(nOffD,[ipD00],0,ipOffD(1,1),Inc)
       If (mFD.eq.2) Call ICopy(nOffD,[ipD00],0,ipOffD(4,1),Inc)
-      Call ICopy(nOffD,[MaxDCR],0,ipOffD(2,1),Inc)
+      Call ICopy(nOffD,[nIrrep],0,ipOffD(2,1),Inc)
       Call ICopy(nOffD,[MaxDe],0,ipOffD(3,1),Inc)
 *                                                                      *
 ************************************************************************
@@ -161,15 +140,6 @@ C     Call QEnter('DeDe')
      &            ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
             End If
 *
-*---------- Scratch area for contraction step
-*
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
-     &               nElem(iAng)*nElem(jAng)
-*
-*---------- Scratch area for the transformation to spherical gaussians
-*
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
-*
             Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,
      &                        label='DAO')
 *
@@ -177,7 +147,7 @@ C     Call QEnter('DeDe')
 *
 *-----------Find the DCR for A and B
 *
-            Call ICopy(nIrrep,iOper,1,iDCRR,1)
+            iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
             LmbdR=1
             If (iPrint.ge.49) Write (6,'(10A)')
@@ -389,8 +359,6 @@ C     Call QEnter('DeDe')
 *
 *--------------Change order so it follows what is used in TwoEl
 *
-               iFLOP1 = iBas*iPrim*jPrim + iBas*jPrim*jBas
-               iFLOP2 = iPrim*jPrim*jBas + iBas*iPrim*jBas
                ipStart=ipDeDe+jOffD
                Do j = 1, jPrimj
                   Do i = 1, iPrimi

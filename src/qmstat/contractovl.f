@@ -53,7 +53,6 @@
       Dimension Inside(MxAt,3)
       Logical Inside
 
-      Const=0
       nSph1=0
       nSph2=0
       iQcontBSAV=0
@@ -87,8 +86,6 @@
                 iqqqQ=iQang(iQcontB)  !Various integers, see qfread
                 nExp1=nPrimus(iQcontB) !to understand their meaning.
                 nSph1=2*iqqqQ-1
-                iChQ=iCharOnBasQ(iQcontB)
-                ijk=0
                 Do 5411, i=1,nPrimus(iQcontB) !Suck-out the proper
                   Alf(i)=alfa(iQcontB,i)  !exponents for QM-region
                   Conkort(i)=cont(iQcontB,i)
@@ -101,8 +98,6 @@
                   iqqqC=iQn(iCcontB)
                   nExp2=mPrimus(iCcontB)
                   nSph2=2*iqqqC-1
-                  iChC=iCharOnBasC(iCcontB)
-                  ijk=0
                   Do 5412, j=1,mPrimus(iCcontB) !Exponents and stuff.
                     Bet(j)=beta(iCcontB,j)
                     Donkort(j)=dont(iCcontB,j)

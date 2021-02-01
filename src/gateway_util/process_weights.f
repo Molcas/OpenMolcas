@@ -28,15 +28,17 @@
       SUBROUTINE Process_Weights(iPrint)
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       IMPLICIT REAL*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "constants2.fh"
 #include "real.fh"
 #include "stdalloc.fh"
+      Character(LEN=512) Align_Weights
       LOGICAL Small
       PARAMETER ( thr=1.0d-6 )
       REAL*8, DIMENSION(:), ALLOCATABLE :: W
+
+      Call Get_cArray('Align_Weights',Align_Weights,512)
 *
 *---- Count the total and symmetry-unique number of atoms
       nAt=0

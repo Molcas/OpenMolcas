@@ -41,13 +41,13 @@ c----------------------------------------------------------------------
       Dimension Tessera(4,*)
       Dimension AtmC(3,*)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Temp(3)
       Real*8, Allocatable :: Chrg(:)
+      Logical Found
+      Real*8, Allocatable :: D1ao(:)
 *                                                                      *
       Call mma_allocate(Chrg,nat)
       Call Get_dArray('Nuclear charge',Chrg,nAt)
@@ -76,14 +76,21 @@ c----------------------------------------------------------------------
 *
 *     Get the total 1st order AO density matrix
 *
-      Call Get_D1ao(ipD1ao,nDens)
+      Call Qpg_dArray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(D1ao,nDens,Label='D1ao')
+      Else
+         Write (6,*) 'Mlt_pcm: D1ao not found.'
+         Call Abend()
+      End If
+      Call Get_D1ao(D1ao,nDens)
 *
       Call Allocate_Work(ipFactOp,nTs)
       Call Allocate_iWork(iplOper,nTs)
       call dcopy_(nTs,[One],0,Work(ipFactOp),1)
       Call ICopy(nTs,[255],0,iWork(iplOper),1)
 *
-      Call drv_ef_PCM(Work(ipFactOp),nTs,Work(ipD1ao),nDens,
+      Call drv_ef_PCM(Work(ipFactOp),nTs,D1ao,nDens,
      &              Tessera,iWork(iplOper),
      &              EF_e,nOrdOp)
       If(nOrdOp.eq.0) then
@@ -94,7 +101,7 @@ c----------------------------------------------------------------------
 *
       Call Free_iWork(iplOper)
       Call Free_Work(ipFactOp)
-      Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
+      Call mma_deallocate(D1ao)
 *
       Return
       End
@@ -106,26 +113,6 @@ c----------------------------------------------------------------------
 * Object: to compute the local multipole moment, desymmetrize the 1st  *
 *         order density matrix and accumulate contributions to the     *
 *         global multipole expansion.                                  *
-*                                                                      *
-* Called from: RctFld                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltInt                                                  *
-*              DGeMV    (ESSL)                                         *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
@@ -145,12 +132,12 @@ c----------------------------------------------------------------------
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -167,16 +154,13 @@ c----------------------------------------------------------------------
 *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('drv_ef_PCM')
-*
-      iIrrep = 0
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)
+      Call GetMem('Zeta','ALLO','REAL',ipZI ,S%m2Max)
+      Call GetMem('Kappa','ALLO','REAL',iKappa,S%m2Max)
+      Call GetMem('PCoor','ALLO','REAL',iPCoor,S%m2Max*3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -221,27 +205,27 @@ c----------------------------------------------------------------------
 *
             Call EFMmP(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           Write (*,*)nOrder,MemKer,iAng,jAng,nOrdOp
-            MemKrn=MemKer*m2Max
+            MemKrn=MemKer*S%m2Max
             Call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
 *
 *           Allocate memory for the final integrals, all in the
 *           primitive basis.
 *
             nComp = (nOrdOp+1)*(nOrdOp+2)/2
-            lFinal = MaxPrm(iAng) * MaxPrm(jAng)
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng)
      &             * nElem(iAng)*nElem(jAng)
      &             * nComp
             Call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 *
             nDAO =iPrim*jPrim*nElem(iAng)*nElem(jAng)
@@ -465,13 +449,12 @@ cpcm_solvent end
          End Do
       End Do
 *
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
+      Call GetMem('PCoor','FREE','REAL',iPCoor,S%m2Max*3)
+      Call GetMem('Kappa','FREE','REAL',iKappa,S%m2Max)
+      Call GetMem('Zeta','FREE','REAL',ipZI ,S%m2Max)
+      Call GetMem('Zeta','FREE','REAL',iZeta,S%m2Max)
 *
 c     Call GetMem('drv_ef_PCM','CHEC','REAL',iDum,iDum)
 *
-      Call qExit('drv_ef_PCM')
       Return
       End

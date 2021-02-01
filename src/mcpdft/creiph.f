@@ -77,9 +77,8 @@ C
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
-      Call qEnter('CREIPH')
 
       DO I=1,15
        IADR15(I)=0
@@ -92,7 +91,7 @@ C New layout scheme; length is 30 integers.
 C
 C     DUMMY WRITE THE REMAINING RECORDS TO OBTAIN ADDRESSES
 C
-      CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,LSYM,
+      CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,STSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
      &            NAME,LENIN8*mxOrb,NCONF,HEADER,144,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,
@@ -172,6 +171,5 @@ C
       IAD15=0
       CALL IDAFILE(JOBIPH,1,IADR15,30,IAD15)
 C
-      Call qExit('CREIPH')
       RETURN
       END

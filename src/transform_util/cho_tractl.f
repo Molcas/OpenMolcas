@@ -120,7 +120,6 @@ c      IfTest=.True.
 c      DoExch2=.True.
 CGG   ------------------------------------------------------------------
 
-      Call QENTER('Cho_TraCtl')
       Call Timing(CPU0,CPE,TIO0,TIOE)
 
 ***   INIZIALIZATION   *************************************************
@@ -141,7 +140,6 @@ CGG   ------------------------------------------------------------------
       Call Cho_X_final(irc)
       CALL CWTIME(TCR2,TWR2)
       tcpu_reo=(TCR2-TCR1)
-      twal_reo=(TWR2-TWR1)
       write(6,*) ' Reordering of the Cholesky vectors to full storage. '
       write(6,*) ' Elapsed time for the reordering section: ',tcpu_reo
       write(6,*) ' CPU time for the reordering section: ',tcpu_reo
@@ -310,7 +308,6 @@ CGG   ------------------------------------------------------------------
           Write(6,*) ' ************************************'
           Write(6,*)
           Call XFlush(6)
-          Call QTrace()
           Call Abend()
         EndIf
 
@@ -388,7 +385,6 @@ CGG   ------------------------------------------------------------------
 CGG   ------------------------------------------------------------------
 
 *         Start Loop on I, J, A, B Symmetries
-          nSymP=(nSym**2+nSym)/2
           Do iSymI = 1, nSym
             Do iSymJ = 1, iSymI
               Do iSymA = 1, nSym
@@ -457,7 +453,6 @@ CGG   ------------------------------------------------------------------
 
       Call put_tra_comm(IAD2M,NSYMZ,NORBZ,NOSHZ,LUINTMZ)
 
-      Call QEXIT('Cho_TraCtl')
       Return
       End
 

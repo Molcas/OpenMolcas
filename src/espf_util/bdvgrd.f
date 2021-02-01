@@ -45,7 +45,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
       iPrint = 5
-      Call qEnter('BdVGrd')
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -112,8 +111,6 @@
          ipBOff = ipBOff + 1
       End Do
 *
-      llOper = lOper(1)
-*
 *     Loop over centers of the grid
 *     But how to retrieve the grid ???
 *     I just read it in the ESPF file !
@@ -146,7 +143,7 @@
 *
 *------- Generate stabilizor of C
 *
-         iChxyz=iChAtm(C,iChBas(2))
+         iChxyz=iChAtm(C)
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S
@@ -243,12 +240,12 @@
 111      Continue
       End Do     ! End loop over centers in the grid
 *
-      Call qExit('BdVGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_real_array(Final)
         Call Unused_integer(nRys)
         Call Unused_integer(nOrdOp)
+        Call Unused_integer_array(lOper)
       End If
       End

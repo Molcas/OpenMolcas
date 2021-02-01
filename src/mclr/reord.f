@@ -18,7 +18,6 @@
      &            IMODE,IPRINT,
      &            ICONF,ISPIN,NCNFTP,NCSFTP,
      &            CIOLD,CINEW,minop)
-CEAW970812     &            CIOLD,CINEW)
 C
 C     AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 C              UNIV. OF LUND, SWEDEN 1990
@@ -58,7 +57,6 @@ C
       DO 1000 ITYP = 1, NTYP
         IOPEN = ITYP + MINOP - 1 ! MINOP IS NOT INITIALIZED TEOEAW
         ICL = (NEL - IOPEN) / 2
-        IOCC = IOPEN + ICL
 C       BASE ADRESS FOR CONFIGURATION OF THIS TYPE
         IF( ITYP .EQ. 1 ) THEN
           ICNBS0 = 1

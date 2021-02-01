@@ -11,25 +11,15 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M1Grd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine M1Grd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of the M1 integrals used  *
 *         ECP calculations. The operator is the nuclear attraction     *
 *         operator times a s-type gaussian function.                   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              Rysg1                                                   *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -65,32 +55,27 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), CoorAC(3,2),
-     &       Coori(3,4), Coora(3,4), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &        iAnga(4), iuvwx(4), kOp(2), lOp(4),
-     &        IndGrd(3,2), JndGrd(3,4)
-      Logical EQ, IfGrad(3,2), JfGrad(3,4), TstFnc, TF
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
+      Integer iDCRT(0:7), iAnga(4), iuvwx(4), lOp(4), JndGrd(3,4)
+      Logical EQ, JfGrad(3,4)
+      Logical, External :: TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
-*     Call qEnter('M1Grd')
       iRout = 193
       iPrint = nPrint(iRout)
+*
+      nRys = nHer
 *
       If (iPrint.ge.49) Then
          Call RecPrt(' In M1Grd: A',' ',A,1,3)
@@ -333,7 +318,6 @@
  100  Continue
 *
 *
-*     Call QExit('M1Grd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

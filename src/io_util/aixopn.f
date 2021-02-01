@@ -57,8 +57,6 @@ c      Integer Length,Prog_Length
       External StrnLn
       Character*256 tmp1
       Character*80 ErrTxt
-      External Get_Progname
-      Character*100 Get_Progname
       save NVV
       data NVV /666/
 *----------------------------------------------------------------------*

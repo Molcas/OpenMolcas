@@ -41,6 +41,10 @@ C
 C     Vectors are distributed across nodes and stored according to
 C     reduced set 1 (all of them!).
 C
+#if defined (_DEBUGPRINT_)
+      use ChoArr, only: iSP2F
+#endif
+      use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
       Implicit None
       Integer irc
       Integer l_NVT
@@ -55,25 +59,19 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Logical Free_Z
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*2  Unt
       Character*13 SecNam
       Parameter (SecNam='Cho_X_CompVec')
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
-
-      Logical  Cho_Rsv_Tsk
-      External Cho_Rsv_Tsk
-
       Integer  Cho_F2SP
       External Cho_F2SP
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer nBlock_Max, nnB
       Integer nTot, nTot2
       Integer myDebugInfo
@@ -86,15 +84,14 @@ C
       Integer iSym, n
       Integer iSP_, iSP_1, iSP_2, iSp, nSP, nSP_Max, nSP_this_batch
       Integer ip_Int, l_Int
-      Integer kOff, kOffI, kOffZ
+      Integer kOffI, kOffZ
       Integer jBlock, kBlock
       Integer J_inBlock, K_inBlock
       Integer kI, kL, kZ
       Integer ldL, ldZ
       Integer ip_Wrk, l_Wrk
-      Integer ip_iQuAB_SAVE, l_iQuAB_SAVE
       Integer MaxQual_SAVE
-      Integer ip_InfVec_T
+      Integer, Pointer:: InfVcT(:,:,:)
       Integer ip_Zd, l_Zd, incZd
       Integer kZd
       Integer ip_Tmp, l_Tmp
@@ -109,20 +106,25 @@ C
       Real*8 TotMem, TotCPU, TotWall
 
       Integer i, j, k
-      Integer IndRSh, iTri, nnBstRSh, InfVcT
-#if defined (_DEBUG_)
-      Integer iSP2F
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-#endif
-      IndRSh(i)=iWork(ip_IndRSh-1+i)
+      Integer iTri
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      nnBStRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       ! Init return code
       irc=0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check input
       If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
      &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
@@ -152,7 +154,7 @@ C
       End If
 
       ! Get pointer to InfVec array for all vectors
-      Call Cho_X_GetIP_InfVec(ip_InfVec_T)
+      Call Cho_X_GetIP_InfVec(InfVcT)
 
       ! Copy reduced set 1 to location 2.
       ! I.e. make rs1 the "current" reduced set.
@@ -195,7 +197,7 @@ C
             nSP=nSP+1
          End If
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (nSP.ne.l_ListSP) Then
          Call Cho_Quit('SP counting error [1] in '//SecNam,103)
       End If
@@ -230,20 +232,18 @@ C
 #endif
 
       ! Re-allocate and set qualification arrays
-      ip_iQuAB_SAVE=ip_iQuAB
-      l_iQuAB_SAVE=l_iQuAB
+      pTemp => iQuAB
       MaxQual_SAVE=MaxQual
       MaxQual=NVT(1)
       Do iSym=2,nSym
          MaxQual=max(MaxQual,NVT(iSym))
       End Do
-      l_iQuAB=MaxQual*nSym
-      Call GetMem('XCViQ2','Allo','Inte',ip_iQuAB,l_iQuAB)
+      Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
+      iQuAB => iQuAB_here
       Do iSym=1,nSym
          nQual(iSym)=NVT(iSym)
-         kOff=ip_iQuAB-1+MaxQual*(iSym-1)
          Do J=1,nQual(iSym)
-            iWork(kOff+J)=InfVcT(J,1,iSym) ! parent product for vector J
+            iQuAB(J,iSym)=InfVcT(J,1,iSym) ! parent product for vector J
          End Do
       End Do
 
@@ -267,7 +267,7 @@ C
          Do jBlock=1,nBlock(iSym)
             kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
             Do J_inBlock=1,nV(jBlock,iSym)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                ! Check for division by zero or negative diagonal
                ! This would be a bug....
                If (abs(Work(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
@@ -522,12 +522,12 @@ C
       Call GetMem('XCVOFB','Free','Inte',ip_iOff_Batch,l_iOff_Batch)
       l_iOff_Batch=0
       Call GetMem('XCVZd','Free','Real',ip_Zd,l_Zd)
-      Call GetMem('XCViQ2','Free','Inte',ip_iQuAB,l_iQuAB)
+      iQuAB => Null()
+      Call mma_deallocate(iQuAB_here)
       Call GetMem('XCVLSP','Free','Inte',ip_ListSP,l_ListSP)
 
       ! Reset qualification array pointers and MaxQual
-      ip_iQuAB=ip_iQuAB_SAVE
-      l_iQuAB=l_iQuAB_SAVE
+      iQuAB => pTemp
       MaxQual=MaxQual_SAVE
 
       ! Parallel runs: distribute vectors across nodes (store on files)

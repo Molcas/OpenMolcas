@@ -1,0 +1,43 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2020, Roland Lindh                                     *
+************************************************************************
+#ifdef _CALLING_
+     &                 Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
+     &                 Final,nZeta,la,lb,A,RB,nHer,
+     &                 Array,nArr,Ccoor,nOrdOp,Hess,nHess,
+     &                 IfHss,IndHss,IfGrd,IndGrd,DAO,mdc,ndc,nOp,
+     &                 lOper,nComp,iStabM,nStabM, nSym
+#else
+      Real*8 Alpha(nAlpha), Beta(nBeta)
+      Integer nAlpha, nBeta
+      Real*8 Zeta(nZeta), ZInv(nZeta)
+      Real*8 rKappa(nZeta), P(nZeta,3)
+      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
+      Integer la, lb, nHer
+      Real*8 A(3), RB(3)
+      Real*8 Array(nArr)
+      Integer nArr
+      Real*8 Ccoor(3)
+      Real*8 Hess(nHess)
+      Integer nHess
+      Logical IfHss(0:1,0:2,0:1,0:2)
+      Integer IndHss(0:1,0:2,0:1,0:2,0:nSym-1)
+      Integer nSym
+      Logical Ifgrd(0:2,0:1)
+      Integer indgrd(0:2,0:1,0:nSym-1)
+      Real*8 DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
+      Integer mdc, ndc, nOp(2), lOper(nComp)
+      Integer nComp
+      Integer iStabM(0:nStabM-1)
+#endif
+#undef _CALLING_
+

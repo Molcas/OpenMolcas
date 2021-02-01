@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *
-*-- Process input to QMSTAT. All input varibles are stored in
+*-- Process input to QMSTAT. All input variables are stored in
 *   qminp.fh which in turn are initialized in qmstat_init.
 *
       Subroutine Get_Qmstat_Input(iQ_Atoms)
@@ -29,7 +29,6 @@
       External Get_Ln,iClast
       Logical YesNo(20),Changed
 
-      Call QEnter('Get_Input')
 *
 *-- Say what is done and set all YesNo to false; their purpose is to
 *   keep track on compulsory keywords and certain keyword combinations.
@@ -932,7 +931,6 @@
 *
 *-- Good bye.
 *
-      Call Qexit('Get_Input')
 
       Return
       End

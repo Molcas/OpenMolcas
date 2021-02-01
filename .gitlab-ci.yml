@@ -1,3 +1,11 @@
+# Prevent duplicate branch & MR pipelines
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS =~ /(^|,)Molcas\/OpenMolcas!\d+($|,)/'
+      when: never
+    - when: always
+
 # Some useful templates:
 # sources: list of files that require a rebuild
 # compile-jobs: rules for when to run compile jobs
@@ -26,7 +34,7 @@
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
       when: never
     # merge requests
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+    - if: '$CI_MERGE_REQUEST_IID'
       when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
@@ -42,7 +50,7 @@
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
       when: never
     # merge requests
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+    - if: '$CI_MERGE_REQUEST_IID'
       when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
@@ -109,35 +117,35 @@ include:
     - cd build
     - >
       cp /license.dat . || true
-    # save the CMake configuration from a variable and add extra path
     - |
       if [ -z "${make}" ] ; then export make="make"; fi
+    # save the CMake configuration from a variable and add extra path
     - |
       echo "${cache_file}" > flags.cmake
       if [ -n "${extra}" ] ; then
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
+      if [ -n "${install_path}" ] ; then
+        echo 'set (CMAKE_INSTALL_PREFIX "$ENV{install_path}" CACHE PATH "Location where OpenMolcas will be installed")' >> flags.cmake
+      else
+        export install_path="/opt/OpenMolcas"
+      fi
+      echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
     - cmake -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then
         eval "${pre_make_script}"
       fi
-    - ${make}
-    - pymolcas verify 000 -k
-    # some clean up to reduce artifact size
-    - >
-      shopt -s globstar ; rm -rf **/CMakeFiles
-    # special post-script that may be needed in some installations
-    # (not using after_script because it would be overwritten)
-    - cd ..
+    - ${make} install
+    - cd ${install_path}
+    - ./pymolcas verify --keep 000
+  after_script:
     - |
-      if [ -n "${post_compile_script}" ] ; then
-        eval "${post_compile_script}"
-      fi
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv ${install_path} install_dir
   artifacts:
     paths:
-      - build/
-      - molcas-extra/
+      - install_dir
     expire_in: 1 day
     when: always
   <<: *compile-jobs
@@ -152,42 +160,34 @@ include:
       if [ -n "${pre_run_script}" ] ; then
         eval "${pre_run_script}"
       fi
-    # install/restore extra files that were included in the artifacts
     - |
-      if [ -n "${extra}" ] ; then
-        sbin/install_driver.sh molcas-extra/molcas.driver
-        mkdir -p ${extra}
-        cp -a molcas-extra/test ${extra}
-      fi
-    - sbin/install_pymolcas.sh build/Tools/pymolcas/pymolcas_
-    - cd build
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv install_dir ${install_path}
+    - cd ${install_path}
+    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
     # run only a subset of the tests if specified
     - |
       if [ -n "${CI_NODE_INDEX}" ] ; then
-        pymolcas verify --flatlist ${tests} > filelist
+        ./pymolcas verify --flatlist ${tests} > filelist
         if ( ! which python && which python3 ) ; then
-          sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
-          sed -i -e 's/env python/env python3/' ../Tools/verify/get_keywords.py
+          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/split_tests.py
+          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/get_keywords.py
         fi
-        ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
+        ${CI_PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
+        ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
       else
-        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
-      fi
-    # special post-script that may be needed in some installations
-    # (not using after_script because it would be overwritten)
-    - |
-      if [ -n "${post_run_script}" ] ; then
-        eval "${post_run_script}"
+        ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
       fi
   after_script:
     - |
-      cp -L build/test/result result
-      cp -Lr build/test/failed failed
-      cp -L build/test/tmp/keylist keylist
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - |
+      cp -L ${install_path}/test/result result
+      cp -Lr ${install_path}/test/failed failed
+      cp -L ${install_path}/test/tmp/keylist keylist
   artifacts:
     paths:
       - result
@@ -196,6 +196,25 @@ include:
     expire_in: 1 month
     when: always
   <<: *test-jobs
+
+# A release job to be scheduled
+
+create_release:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    # Note: the doc job defines and exports TAG
+    - job: doc
+      artifacts: true
+  script: |
+    echo "Creating release $TAG"
+  release:
+    tag_name: ${TAG}
+    description: "Automatic release from latest master"
+    ref: $CI_COMMIT_SHA
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
+      when: on_success
 
 # A special job for running checks on the code
 
@@ -229,6 +248,12 @@ checks:
       echo "---------------------"
       export MOLCAS=${TMPDIR}
       sbin/check_style || FAILED=1
+    - |
+      echo
+      echo "POSSIBLE TEST ISSUES"
+      echo "--------------------"
+      export MOLCAS=${TMPDIR}
+      sbin/check_tests || FAILED=1
     - |
       if [ "$FAILED" == "1" ] ; then
         false
@@ -331,16 +356,16 @@ test:pgi:
     - tinker
   parallel: 2
 
-build:sun:
-  extends: .sun
-  <<: *compile
-test:sun:
-  extends: .sun
-  <<: *run-tests
-  needs:
-    - build:sun
-    - tinker
-  parallel: 2
+#build:sun:
+#  extends: .sun
+#  <<: *compile
+#test:sun:
+#  extends: .sun
+#  <<: *run-tests
+#  needs:
+#    - build:sun
+#    - tinker
+#  parallel: 2
 
 build:intel:
   extends: .intel
@@ -362,17 +387,21 @@ test:intel13:
   <<: *run-tests
   needs:
     - build:intel13
+  parallel: 2
+  tags:
+    - docker
 
-# Disable NAG, since the runner is unavailable
-#build:nag:
-#  extends: .nag
-#  <<: *compile
-#test:nag:
-#  extends: .nag
-#  <<: *run-tests
-#  needs:
-#    - build:nag
-#    - tinker
+build:nag:
+  extends: .nag
+  <<: *compile
+test:nag:
+  extends: .nag
+  <<: *run-tests
+  needs:
+    - build:nag
+  parallel: 4
+  tags:
+    - docker
 
 build:garble:
   extends: .garble

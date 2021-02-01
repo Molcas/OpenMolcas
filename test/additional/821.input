@@ -1,4 +1,8 @@
 >>export MOLCAS_NOCHECK=MLTPL,DFT_ENERGY,SCF_ITER
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 
 >> FILE h2co.xyz
 4
@@ -43,7 +47,7 @@ KSDFT
  pbe
 LumOrb
 End Of Input
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 
 
 >>> EXPORT MOLCAS_MAXITER=20
@@ -78,7 +82,7 @@ OFEMbedding
 LuMOrb
 End Of Input
 >>> RM AUXRFIL
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 >>> RM INPORB
 
 
@@ -113,7 +117,7 @@ Fthaw thr
 LuMOrb
 End Of Input
 >>> RM AUXRFIL
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 >>> RM INPORB
 
 >>> ENDDO <<<<<<<<<<<<

@@ -135,8 +135,6 @@ c Avoid unused argument warnings
 *    &      nAR*(nAP*nBQ*nBS+nAQ*nBP*nBS),
 *    &      NAR*nAS*nBQ*nBP)
 *
-*     We wont manage it with less than this
-      nLimit=Max(nAP*nBQ+nAQ*nBP,NAR*nAS)
       If (nBuf*iMax+NOUT.le.MemXX) Then
          Incore=0 ! We can do the calculation totally in core
       Else
@@ -152,7 +150,6 @@ c Avoid unused argument warnings
         If (iMax.lt.1) Then
            Write (6,*) 'TraMO_MCLR: iMax.lt.1'
            Write (6,*) 'iMax=',iMax
-           Call QTrace
            Call Abend()
         End If
         Call DAName(LUHLF2,FNHLF2)
@@ -214,7 +211,6 @@ c Avoid unused argument warnings
             Call GADSum(Buffer(ipB),LBuf)
             If (irc.ne.0) Then
                Write (6,*) 'TraMO_MCLR: error reading ORDINT!'
-               Call QTrace
                Call Abend()
             End If
             IOPT=2
@@ -263,7 +259,6 @@ c Avoid unused argument warnings
                   IF ( iBuf2.GT.LIOTAB ) THEN
                      Write (6,*) 'TraMO_MCLR: iBuf2.GT.LIOTAB'
                      Write (6,*) 'iBuf2,LIOTAB=',iBuf2,LIOTAB
-                     Call QTrace
                      Call Abend()
                   ENDIF
                   CALL PKR8(0,iMax,NBYTES,Buffer(ip2+ist2-1),
@@ -303,7 +298,6 @@ c Avoid unused argument warnings
                 IF ( IBUF3.GT.LIOTAB ) THEN
                    Write (6,*) 'TraMO_MCLR: iBuf3.GT.LIOTAB'
                    Write (6,*) 'iBuf3,LIOTAB=',iBuf3,LIOTAB
-                   Call QTrace
                    Call Abend()
                 ENDIF
                 CALL PKR8(0,IMAX,NBYTES,Buffer(ip3+IST3-1),
@@ -370,7 +364,6 @@ c Avoid unused argument warnings
           IF ( IBUF2.GT.LIOTAB ) THEN
              Write (6,*) 'TraMO_MCLR: iBuf2.GT.LIOTAB'
              Write (6,*) 'iBuf2,LIOTAB=',iBuf2,LIOTAB
-             Call QTrace
              Call Abend()
           ENDIF
           CALL PKR8(0,iMax,NBYTES,Buffer(ip2+IST-1),Buffer(ip2+IST-1))
@@ -389,7 +382,6 @@ c Avoid unused argument warnings
           IF ( IBUF3.GT.LIOTAB ) THEN
              Write (6,*) 'TraMO_MCLR: iBuf3.GT.LIOTAB'
              Write (6,*) 'iBuf3,LIOTAB=',iBuf3,LIOTAB
-             Call QTrace
              Call Abend()
           ENDIF
           CALL PKR8(0,iMax,NBYTES,Buffer(ip3+IST-1),Buffer(ip3+IST-1))
@@ -410,19 +402,16 @@ c Avoid unused argument warnings
       If (Buffer(ip3-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: Buffer(ip3-1).ne.-99999.0d0'
          Write (6,*) 'Buffer(ip3-1)=',Buffer(ip3-1)
-         Call QTrace
          Call Abend()
       End If
       If (Buffer(ip4-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: Buffer(ip4-1).ne.-99999.0d0'
          Write (6,*) 'Buffer(ip4-1)=',Buffer(ip4-1)
-         Call QTrace
          Call Abend()
       End If
       If (Buffer(ipB-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: Buffer(ipB-1).ne.-99999.0d0'
          Write (6,*) 'Buffer(ipB-1)=',Buffer(ipB-1)
-         Call QTrace
          Call Abend()
       End If
       If (nAP+nAQ.eq.0) Goto 987
@@ -446,7 +435,6 @@ c Avoid unused argument warnings
       If (ipz.gt.memx) Then
          Write (6,*) 'TraMO_MCLR: ipz.gt.memx'
          Write (6,*) 'ipz,memx=',ipz,memx
-         Call QTrace
          Call Abend()
       End If
       Buffer(ipX-1)=-99999.0d0
@@ -456,8 +444,6 @@ c Avoid unused argument warnings
       IAD2=0
       IAD3=0
       IVX=0
-      ii3=0
-      ii2=0
       DO 125 NS=1,nAS
         nr2=(NS-1)*NBR*NBP*NAQ
         nr3=(NS-1)*nBR*NBQ*NAP
@@ -475,8 +461,6 @@ c Avoid unused argument warnings
 *
          IF(INCORE.EQ.1) THEN
            ipq=0
-           MemInt=((nBPQ-1)/iMax+1)*iMax
-           MemY=MemXX-MemInt
            ip2=1
            ip5=ip2+((nBPQ-1)/iMax+1)*iMax
            ipX=ip5+iMax+1
@@ -583,19 +567,16 @@ c Avoid unused argument warnings
       If (buffer(ipX-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: buffer(ipX-1).ne.-99999.0d0'
          Write (6,*) 'buffer(ipX-1)=',buffer(ipX-1)
-         Call QTrace
          Call Abend()
       End If
       If (buffer(ipY-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: buffer(ipY-1).ne.-99999.0d0'
          Write (6,*) 'buffer(ipY-1)=',buffer(ipY-1)
-         Call QTrace
          Call Abend()
       End If
       If (buffer(ipZ-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: buffer(ipZ-1).ne.-99999.0d0'
          Write (6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
-         Call QTrace
          Call Abend()
       End If
       If (iSS.ne.iSR) Then
@@ -623,8 +604,6 @@ c Avoid unused argument warnings
 *****************************************************************
 *
          IF(INCORE.EQ.1) THEN
-           MemInt=((nBPQ-1)/iMax+1)*iMax
-           MemY=MemXX-MemInt
            ip2=1
            ip3=ip2
            ip5=ip3+((nBPQ-1)/iMax+1)*iMax
@@ -706,19 +685,16 @@ c Avoid unused argument warnings
       If (buffer(ipX-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: buffer(ipX-1).ne.-99999.0d0'
          Write (6,*) 'buffer(ipX-1)=',buffer(ipX-1)
-         Call QTrace
          Call Abend()
       End If
       If (buffer(ipY-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: buffer(ipY-1).ne.-99999.0d0'
          Write (6,*) 'buffer(ipY-1)=',buffer(ipY-1)
-         Call QTrace
          Call Abend()
       End If
       If (buffer(ipZ-1).ne.-99999.0d0) Then
          Write (6,*) 'TraMO_MCLR: buffer(ipZ-1).ne.-99999.0d0'
          Write (6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
-         Call QTrace
          Call Abend()
       End If
 

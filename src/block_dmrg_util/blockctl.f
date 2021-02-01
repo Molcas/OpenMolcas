@@ -51,7 +51,6 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='BLOCKCTL')
-      Call qEnter(ROUTINE)
 
 * Load symmetry info from RunFile
       Call Get_iScalar('NSYM',nIrrep)
@@ -61,7 +60,7 @@
 * Get character table to convert MOLPRO symmetry format
       Call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
-* Convert orbital symmetry into MOLPOR format
+* Convert orbital symmetry into MOLPRO format
       Call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
       iOrb=1
       Do iSym=1,nSym
@@ -70,7 +69,7 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(lSym)
+      lSymMolpro=iChMolpro(stSym)
 
       NRDM_ORDER=2
       If (NACTEL.EQ.1) NRDM_ORDER=1
@@ -154,7 +153,6 @@
 
       Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
 
-      Call qExit(ROUTINE)
 
       Return
       End

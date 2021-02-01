@@ -29,8 +29,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "real.fh"
@@ -50,9 +48,6 @@
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       nBstSh(i)=iWork(ip_nBasSh-1+i)
 *
-#if defined (_DEBUG_)
-      Call qEnter('Plf_LDF')
-#endif
       irout = 109
       jprint = nprint(irout)
       If (jPrint.ge.49) Then
@@ -63,10 +58,6 @@
       End If
       If (jPrint.ge.99) Call RecPrt(' In Plf_LDF: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
-
-      If (Shijij) Then ! avoid compiler warnings about unused variables
-         iDummy_1 = iShell(1)
-      End If
 *
 *     Allocate space to store integrals to gether with their
 *     Symmetry batch and sequence number.
@@ -87,8 +78,6 @@
       iAOj=iAO(2)
       iAOk=iAO(3)
       iAOl=iAO(4)
-*
-      ijklCmp=iCmp*jCmp*kCmp*lCmp
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
@@ -149,8 +138,10 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-      Call qExit('Plf_LDF')
-#endif
       Return
+* Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer_array(iShell)
+         Call Unused_logical(Shijij)
+      End If
       End

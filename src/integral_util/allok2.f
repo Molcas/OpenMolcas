@@ -16,13 +16,6 @@
 *                                                                      *
 *  Object: Allocate space for K2 entities.                             *
 *                                                                      *
-* Called from: ReadIn (client) / DPSCF main (server)                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCR                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. November '92                 *
 *             Martin Schuetz, Dept. of Theoretical Chemistry,          *
@@ -33,11 +26,11 @@
       use iSD_data
       use IOBUF
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -52,7 +45,6 @@
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-*     Call QEnter('AlloK2')
 *
       If (Debug) Then
          If (Allocated(Data_k2)) Then
@@ -86,7 +78,6 @@
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
          iAO    = iSD( 7,iS)
-         mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
 *
          Do jS = 1, iS
@@ -97,7 +88,6 @@
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
-            mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
 *
             If (nIrrep.eq.1) Then
@@ -126,7 +116,7 @@
 *     now ... allocate memory
       Call mma_allocate(Data_k2,nk2,Label='Data_k2')
       Data_k2(:)=Zero
-      nIndk2=nShlls*(nShlls+1)/2
+      nIndk2=S%nShlls*(S%nShlls+1)/2
       call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 *
       Return

@@ -9,11 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DrvRF(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,iCharge)
+      use External_Centers, only: iXPolType
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -24,16 +23,12 @@
       Save RepNuc_Temp
       Dimension RepNucXX(1)
       Real*8, Allocatable:: RFld(:,:), h1_RF(:), h1_XX(:)
-*
-      iRout = 1
-      iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (.Not.lRF) Return
 
 *
-      Call QEnter('DrvRF')
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
@@ -134,6 +129,5 @@
 ************************************************************************
 *                                                                      *
       Call Free_iSD()
-      Call QExit('DrvRF')
       Return
       End

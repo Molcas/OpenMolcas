@@ -42,7 +42,6 @@ C
          Return
       End If
 
-      Call qEnter(ThisNm)
       irc = 0
 
       kP(1)=1
@@ -484,5 +483,4 @@ C                       -------------------------------------
 
       End If ! ChoAlg
 
-      Call qExit(ThisNm)
       End

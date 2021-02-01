@@ -12,18 +12,10 @@
 ************************************************************************
       SubRoutine CmbnMPr(Rnr,nZeta,la,lb,lr,Zeta,Final,nComp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MltInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: K.Pfingst                                                *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External gammat,gammaf
+*     External gammat,gammaf
 #include "print.fh"
 #include "real.fh"
 #include "rmat.fh"
@@ -41,7 +33,6 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-*     Call QEnter('CmbnMP')
 *     Call GetMem(' Enter CmbnMP','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
@@ -89,7 +80,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 10    Continue
 *
 *     Call GetMem(' Exit CmbnMP','LIST','REAL',iDum,iDum)
-*     Call QExit('CmbnMP')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Zeta)

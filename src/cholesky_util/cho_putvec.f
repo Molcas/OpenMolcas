@@ -13,11 +13,10 @@ C
 C     Purpose: write Cholesky vectors IVEC=IVEC1,...,IVEC1+NUMVEC-1
 C              of symmetry ISYM to file.
 C
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "cho_para_info.fh"
 
       external ddot_
@@ -27,14 +26,6 @@ C
 
       LOGICAL LOCDBG, CHK_OVERFLOW
       PARAMETER (LOCDBG = .FALSE.)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-
-#if defined (_DEBUG_)
-      CALL QENTER('_PUTVEC')
-#endif
 
       CHK_OVERFLOW = .NOT.Cho_Real_Par
 
@@ -46,7 +37,7 @@ C     ---------------------
             WRITE(LUPRI,*) SECNAM,': WARNING: no vectors in this call!'
             WRITE(LUPRI,*) SECNAM,': NUMVEC = ',NUMVEC
          END IF
-         GO TO 1 ! exit
+         return
       END IF
 
 C     Check vector dimension: should be the same as current reduced
@@ -61,7 +52,7 @@ C     -------------------------------------------------------------
             WRITE(LUPRI,*) SECNAM,': WARNING: negative vector dimension'
             WRITE(LUPRI,*) SECNAM,': LENVEC = ',LENVEC
          END IF
-         GO TO 1 ! exit
+         return
       END IF
 
 C     Check symmetry.
@@ -126,15 +117,13 @@ C     --------------------------------
          CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC,LTOT,IADR)
          DO IVEC = 1,NUMVEC-1
             JVEC = IVEC1 + IVEC - 1
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) =
-     &      INFVEC(JVEC,3,ISYM) + LENVEC
+            INFVEC(JVEC+1,3,ISYM) = INFVEC(JVEC,3,ISYM) + LENVEC
          END DO
          IVEC = NUMVEC
          JVEC = IVEC1 + IVEC - 1
          IADR = INFVEC(JVEC,3,ISYM)
          IF (JVEC .LT. MAXVEC) THEN
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) =
-     &      INFVEC(JVEC,3,ISYM) + LENVEC
+            INFVEC(JVEC+1,3,ISYM) = INFVEC(JVEC,3,ISYM) + LENVEC
          END IF
       ELSE IF (CHO_ADRVEC .EQ. 2) THEN
          IOPT = 1  ! synchronous write option
@@ -143,14 +132,14 @@ C     --------------------------------
             JVEC = IVEC1 + IVEC - 1
             IADR = INFVEC(JVEC,3,ISYM)
             CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,IVEC),LTOT,IADR)
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) = IADR
+            INFVEC(JVEC+1,3,ISYM) = IADR
          END DO
          IVEC = NUMVEC
          JVEC = IVEC1 + IVEC - 1
          IADR = INFVEC(JVEC,3,ISYM)
          CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,IVEC),LTOT,IADR)
          IF (JVEC .LT. MAXVEC) THEN
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) = IADR
+            INFVEC(JVEC+1,3,ISYM) = IADR
          END IF
       ELSE
          CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM,102)
@@ -174,10 +163,4 @@ C     ------------
      &                     XNRM
          END DO
       END IF
-
-    1 CONTINUE
-#if defined (_DEBUG_)
-      CALL QEXIT('_PUTVEC')
-#endif
-
       END

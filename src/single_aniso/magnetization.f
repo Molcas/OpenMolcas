@@ -85,7 +85,7 @@
 !----------------------------------------------------------------
 !     local variables
       Integer       :: nP,iTEnd,iT,IM,I,L,J,IC,IDIR,IH,iTemp
-      Real(kind=8) :: DLTH, mv, sv, dev, Boltz_k,mu_Bohr
+      Real(kind=8) :: DLTH, mv, sv, dev
       Character(len=99):: STLNE1, STLNE2
 
       Real(kind=8), allocatable :: WM(:)         ! WM(nm)
@@ -112,9 +112,6 @@
 
       External      :: dev
 
-      Call qEnter('SA_magn')
-      Boltz_k=0.6950356_wp                    !   in cm-1*K-1
-      mu_Bohr=0.466864374_wp                  !   in cm-1*T-1
 !-----------------------------------------------------------------------
 ! Allocate necessary memory
       mem_local=0
@@ -708,7 +705,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             Call mma_deallocate(dHW)
       End If
 
-      Call qExit('SA_magn')
       Return
       End
 

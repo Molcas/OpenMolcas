@@ -61,15 +61,13 @@
       Character*(*) InLab
       Dimension Data(*)
 *
-      Logical Debug
-      Character*8 TmpLab,Label
+      Logical :: Debug=.False.
+      Character(LEN=8) TmpLab,Label
 *     Dimension LabTmp(2)
 *     Equivalence (TmpLab,LabTmp)
       Dimension TmpBuf(nBuf),HldBuf(1)
-      Character*16 TheName
-      Data TheName/'RdMck'/
-      Data CurrOp/1/
-      Data Debug/.false./
+      Character(LEN=16) :: TheName= 'RdMck'
+      Integer :: CurrOp=1
 *----------------------------------------------------------------------*
 *     Start procedure:                                                 *
 *     Define inline function (symmetry multiplication)                 *
@@ -78,7 +76,6 @@
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-*     Call qEnter('RdMck')
       icpi=itob
       Length=rc
       rc    = rc0000
@@ -383,7 +380,6 @@
          If (Label.eq.'MOPERT') Then
             iTmp=SymLab
             Do iIrr=1,TocOne(pSym)
-             If (iTmp.eq.1) iIrrep=iIrr
              iTmp=iTmp/2
             End Do
             na=0
@@ -529,6 +525,5 @@
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qExit('RdMck')
       Return
       End

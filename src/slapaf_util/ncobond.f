@@ -8,10 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer Function nCoBond(iAtom,nAtoms,nMax,iTabBonds,nBonds,
+      Integer Function nCoBond(iAtom,nAtoms,nMax,iTabBonds,
      &                         nBondMax,iTabAtoms)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 #include "bondtypes.fh"
 *                                                                      *
@@ -24,13 +23,10 @@
      &      nCoBond=nCoBond+1
       End Do
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nBonds)
       End
-      Integer Function nFgBond(iAtom,nAtoms,nMax,iTabBonds,nBonds,
+      Integer Function nFgBond(iAtom,nAtoms,nMax,iTabBonds,
      &                         nBondMax,iTabAtoms)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 #include "bondtypes.fh"
 *                                                                      *
@@ -43,6 +39,4 @@ c Avoid unused argument warnings
      &      nFgBond=nFgBond+1
       End Do
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nBonds)
       End

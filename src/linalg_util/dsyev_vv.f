@@ -91,7 +91,7 @@ cvv identical to DSYEV. workaround for casvb code, which can't stand MKL
 *     .. Local Scalars ..
       LOGICAL            LOWER, LQUERY, WANTZ
       INTEGER            IINFO, IMAX, INDE, INDTAU, INDWRK, ISCALE,
-     $                   LLWORK, LOPT, LWKOPT, NB
+     $                   LLWORK, LWKOPT, NB
       REAL*8   ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,
      $                   SMLNUM
 *     ..
@@ -191,7 +191,6 @@ cvv
       LLWORK = LWORK - INDWRK + 1
       call dsytrd_( UPLO, N, A, LDA, W, WORK( INDE ), WORK( INDTAU ),
      $             WORK( INDWRK ), LLWORK, IINFO )
-      LOPT = 2*N + Int(WORK( INDWRK ))
 *
 *     For eigenvalues only, call DSTERF.  For eigenvectors, first call
 *     DORGTR to generate the orthogonal matrix, then call DSTEQR.

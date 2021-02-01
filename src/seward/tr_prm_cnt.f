@@ -10,13 +10,14 @@
 ************************************************************************
       subroutine Tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       implicit real*8(a-h,o-z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-      Integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,MxAng),numb(MxAO),
+      Integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,iTabMx),numb(MxAO),
      &        mcaddr(MxAO), nBas_Cont(8), nBas_Prim(0:7)
       Logical New_Center,New_l,New_m, Old_Center, Old_l
       Real*8, Dimension(:), Allocatable :: Tr

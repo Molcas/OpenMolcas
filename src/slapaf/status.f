@@ -10,41 +10,51 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Status(kIter,Energy,rGrad,GrdMax,GrdLbl,StpMax,
-     &                  StpLbl,Ex,Lines,nLines,delE,iNeg,UpMeth,HUpMet,
+      SubRoutine Status(kIter,Energy,rGrad,
+     &                  Ex,nLines,delE,HUpMet,
      &                  Step_Trunc,Print_Status)
 ************************************************************************
 *                                                                      *
 * Object:                                                              *
 *                                                                      *
-* Called from: Convrg                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
 ************************************************************************
+      use Slapaf_Parameters, only: UpMeth, iNeg, StpLbl, GrdLbl,
+     &                             StpMax, GrdMax
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Character*128 Lines(-1:nLines), GrdLbl*8, StpLbl*8, UpMeth*6,
-     &              HUpMet*8, Step_Trunc*1
-      Character*8   lNeg
-      Integer iNeg(2)
+#include "stdalloc.fh"
+      Character HUpMet*8, Step_Trunc*1
+      Character*8 lNeg
       Logical Print_Status
+      Character(LEN=128), Allocatable:: Lines(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+      Subroutine Put_cArray(Label,Data,nData)
+      Character*(*) Label
+      Integer       nData
+      Character*(*) Data
+      End Subroutine Put_cArray
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+
       Lu=6
       iRout = 52
       iPrint = nPrint(iRout)
-*     Call qEnter('Status')
+*
+      Call mma_allocate(Lines,[-1,nLines],Label='Lines')
 *
 *     Pick up previous energy
 *
       If (kIter.eq.1) Then
+         Lines(:)=' '
          iter=1
          Write (Lines(-1),'(A)')
      &    '                       Energy '//
@@ -57,6 +67,7 @@
      &    '   Max     Element     Final Energy Update'//
      &    ' Update   Index'
       Else
+         Call Get_cArray('Slapaf Info 3',Lines,(nLines+2)*128)
 *--------Find first blank line
          iter = kIter
       End If
@@ -124,6 +135,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Status')
+      Call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+2)*128)
+      Call mma_deallocate(Lines)
       Return
       End

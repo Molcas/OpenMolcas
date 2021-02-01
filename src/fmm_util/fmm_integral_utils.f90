@@ -35,7 +35,7 @@ CONTAINS
       INTEGER(INTK) :: I,J
       INTEGER(INTK) :: IPrim1, JPrim1
       INTEGER(INTK) :: IPrim2, JPrim2, JPTemp2
-      REAL(REALK)   :: Acentr(3), Bcentr(3), ABcentr(3), P(3), RAB(3)
+      REAL(REALK)   :: Acentr(3), Bcentr(3), P(3), RAB(3)
       REAL(REALK)   :: ExpA, ExpB, ExpP, ExpPI, ExpAR2, R2AB, ExpKAB
 
 
@@ -47,7 +47,6 @@ CONTAINS
       JPrim1 = basis%KStart(Jsh)
       JPrim2 = JPrim1 + basis%KontG(Jsh) - 1
 
-      ABcentr(:) = Half * (Acentr(:) + Bcentr(:))
       RAB(:) = Acentr(:) - Bcentr(:)
       R2AB = DOT_PRODUCT(RAB,RAB)
 

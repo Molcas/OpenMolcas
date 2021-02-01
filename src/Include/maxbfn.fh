@@ -8,14 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer MaxBfn, MaxBfn_Aux
 #ifndef _DEMO_
-      Parameter(MaxBfn=10000)
+      Integer, Parameter:: MaxBfn=10000
 #else
-      Parameter(MaxBfn=100)
+      Integer, Parameter:: MaxBfn=100
 #endif
 !
 !     We normally expect the number of auxiliary functions to be
 !     in the range of 3-5 times the normal basis set.
 !
-      Parameter(MaxBfn_Aux=7*MaxBfn)
+      Integer, Parameter:: MaxBfn_Aux=7*MaxBfn
+      Integer, Parameter:: MxAO=MaxBfn+MaxBfn_Aux

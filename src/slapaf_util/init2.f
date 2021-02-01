@@ -8,25 +8,27 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Init2
+      Subroutine Init2()
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd,
+     &                       Energy, Energy0, DipM, qInt, dqInt,
+     &                       RefGeo, Get_Slapaf
+      use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,
+     &                             TwoRunFiles, iter
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
 #include "nadc.fh"
-#include "WrkSpc.fh"
-#include "info_slapaf.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Logical Is_Roots_Set
+      Real*8, Allocatable:: MMGrd(:,:), Tmp(:), DMs(:,:)
 #include "SysDef.fh"
-      Character*100 Get_SuperName, SuperName
-      External Get_SuperName
 * Beijing Test
       Logical Exist_2,lMMGrd, Found
       Real*8 Columbus_Energy(2)
 ************ columbus interface ****************************************
       Integer Columbus
 *
-      Call QEnter('Init2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,87 +43,30 @@
 ************************************************************************
 *                                                                      *
 *
-*     Get the gradient information from the runfile.
+*     Get some basic information from the runfile.
 *
-      Call GetMem('Scr1','Allo','Inte',ipScr1,7)
-      Call qpg_iArray('Slapaf Info 1',Exist,itmp)
-      If (Exist) Call Get_iArray('Slapaf Info 1',iWork(ipScr1),7)
-*
-      If (.Not.Exist.or.(Exist.and.iWork(ipScr1).eq.-99)) Then
-C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
-         Call IZero(iWork(ipScr1),7)
-         iWork(ipScr1+2)=-99
-         Call Put_iArray('Slapaf Info 1',iWork(ipScr1),7)
-      End If
-*     iNew  =iWork(ipScr1)
-      iter  =iWork(ipScr1+1)+1
-      If (iter.ge.MaxItr+1) Then
-         Write (6,*) 'Increase MaxItr in info_slapaf.fh'
-         Call WarningMessage(2,'iter.ge.MaxItr+1')
-         Call Abend()
-      End If
-      mTROld=iWork(ipScr1+2)
-      lOld_Implicit= iWork(ipScr1+3).eq.1
-      Call GetMem('Scr1','Free','Inte',ipScr1,7)
-*
+      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit,SIZE(Coor,2),
+     &                mLambda)
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *---  Pick up information from previous iterations
 *
-      l1=3*nsAtom
-      Lngth=
-     &     +(MaxItr+1)            ! Ener
-     &     +(MaxItr+1)            ! Ener0
-     &     +(MaxItr+1)*3          ! DipM
-     &     +(MaxItr+1)            ! GNrm
-     &     +l1*(MaxItr+1)         ! Cx
-     &     +l1*(MaxItr+1)         ! Gx
-     &     +l1*(MaxItr+1)         ! Gx0
-     &     +l1                    ! MF
-     &     +mLambda*(MaxItr+1)    ! L
-      Call GetMem('Relax','Allo','Real',ipRlx,Lngth)
-      Call FZero(Work(ipRlx),Lngth)
-      ipEner = ipRlx
-      ipEner0= ipEner  +          MaxItr+1
-      ipDipM = ipEner0 +          MaxItr+1
-      ipGNrm = ipDipM  +         (MaxItr+1)*3
-      ipCx   = ipGNrm  +          MaxItr+1
-      ipGx   = ipCx    +      l1*(MaxItr+1)
-      ipGx0  = ipGx    +      l1*(MaxItr+1)
-      ipMF   = ipGx0   +      l1*(MaxItr+1)
-      ipL    = ipMF    +      l1
-      ipqInt = ip_Dummy
-      ipdqInt= ip_Dummy
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iter.eq.1) Then
+      If (iter/=1) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*...     Start iteration
-         Do i = 0, MaxItr
-            Stat(i)=' '
-         End Do
-         nqInt=0
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
-*                                                                      *
-************************************************************************
-*                                                                      *
-         SuperName=Get_Supername()
-         If (SuperName.ne.'numerical_gradient') Then
-            Call Get_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
-            Call Get_cArray('Slapaf Info 3',Stat,(MaxItr+1)*128)
-         Else
-            iter=1
-         End If
          Call qpg_dArray('qInt',Found,nqInt)
          If (Found) Then
-            Call GetMem(' qInt','Allo','Real',ipqInt, nqInt)
-            Call GetMem('dqInt','Allo','Real',ipdqInt,nqInt)
-            Call Get_dArray('qInt',Work(ipqInt),nqInt)
-            Call Get_dArray('dqInt',Work(ipdqInt),nqInt)
+            nQQ=nqInt/MaxItr
+            Call mma_allocate( qInt,nQQ,MaxItr,Label= 'qInt')
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+            Call Get_dArray( 'qInt', qInt,nQQ*MaxItr)
+            Call Get_dArray('dqInt',dqInt,nQQ*MaxItr)
          End If
 *                                                                      *
 ************************************************************************
@@ -132,15 +77,18 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *                                                                      *
 *-----Save coordinates and gradients from this iteration onto the list.
 *
-      ipOff = (iter-1)*3*nsAtom + ipCx
-      call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipOff),1)
+      Cx(:,:,iter)=Coor(:,:)
+      Gx(:,:,iter)=Grd(:,:)
+
       If (iter.gt.1) Then
-        Tmp=Zero
-        Do i=0,3*nsAtom-1
-          Tmp=Max(Tmp,Abs(Work(ipOff+i)-Work(ipOff-3*nsAtom+i)))
-          If (Tmp.gt.Zero) Exit
+        Temp=Zero
+        Do i = 1, SIZE(Coor,2)
+           Do j = 1, 3
+              Temp=Max(Temp,Abs(Cx(j,i,iter)-Cx(j,i,iter-1)))
+           End Do
+           If (Temp.gt.Zero) Exit
         End Do
-        If (Tmp.eq.Zero) Then
+        If (Temp.eq.Zero) Then
           Call WarningMessage(2,'Error in Init2')
           Write (6,*)
           Write (6,*) '****************** ERROR *********************'
@@ -150,27 +98,23 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
           Call Quit_OnUserError()
         End If
       End If
-      ipOff = (iter-1)*3*nsAtom + ipGx
-      call dcopy_(3*nsAtom,Work(ipGrd) ,1,Work(ipOff),1)
+
 * In case of a QM/MM geometry optimization, all the old MM gradients are
 * replaced by the new one (both gradients are stored on the Runfile).
 *
-      Call Qpg_dArray('MM Grad',lMMGrd,6*nsAtom)
+      Call Qpg_dArray('MM Grad',lMMGrd,6*SIZE(Coor,2))
       lMMGrd = .False.
       If (lMMGrd) Then
-         Call Allocate_Work(ipMMGrd,6*nsAtom)
-         Call Get_dArray('MM Grad',Work(ipMMGrd),3*nsAtom*2)
-         Do iN = 0, iter-2
-            ipOff = ipGx + iN*3*nsAtom
-            Write(6,*) 'Grad at iteration :',iN+1
-            Call RecPrt('Old:',' ',Work(ipOff),3,nsAtom)
-            Call DaXpY_(3*nsAtom,-One,Work(ipMMGrd),1,
-     &                               Work(ipOff),  1)
-            Call DaXpY_(3*nsAtom, One,Work(ipMMGrd+3*nsAtom),1,
-     &                               Work(ipOff),           1)
-            Call RecPrt('New:',' ',Work(ipOff),3,nsAtom)
+         Call mma_allocate(MMGrd,3*SIZE(Coor,2),2,Label='MMGrd')
+         Call Get_dArray('MM Grad',MMGrd,3*SIZE(Coor,2)*2)
+         Do iN = 1, iter-1
+            Write(6,*) 'Grad at iteration :',iN
+            Call RecPrt('Old:',' ',Gx(:,:,iN),3,SIZE(Coor,2))
+            Call DaXpY_(3*SIZE(Coor,2),-One,MMGrd(:,1),1,Gx(:,:,iN),  1)
+            Call DaXpY_(3*SIZE(Coor,2), One,MMGrd(:,2),1,Gx(:,:,iN),  1)
+            Call RecPrt('New:',' ',Gx(1,1,iN),3,SIZE(Coor,2))
          End Do
-         Call Free_Work(ipMMGrd)
+         Call mma_deallocate(MMGrd)
       End If
 *                                                                      *
 ************************************************************************
@@ -184,28 +128,29 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 
          Call qpg_dArray('Ref_Geom',Found,nData)
          If (Found) Then
-            If (.Not.Ref_Geom) Then
-               Call GetMem('ipRef','Allo','Real',ipRef,3*nsAtom)
-               Ref_Geom=.True.
+            If (.Not.Allocated(RefGeo)) Then
+               Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
             End If
-            Call Get_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
+            Call Get_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
          Else
 *
 *           Not defined: default reference structure to the starting
 *           structure.
 *
-            If (.Not.Ref_Geom) ipRef=ipCx
-            Call Put_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
+            If (.Not.Allocated(RefGeo)) Then
+               Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
+            End If
+            RefGeo(:,:)=Cx(:,:,1)
+            Call Put_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
          End If
       Else
 *
 *        Pick up the reference structure.
 *
-         If (.Not.Ref_Geom) Then
-            Call GetMem('ipRef','Allo','Real',ipRef,3*nsAtom)
-            Ref_Geom=.True.
+         If (.Not.Allocated(RefGeo)) Then
+            Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
          End If
-         Call Get_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
+         Call Get_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
       End If
 *
 *     Align the reference structure to the current one, otherwise
@@ -213,8 +158,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *
 *     (disabled for the moment, moving the reference affects the
 *      computation of some vectors for MEP)
-C     If (iter.gt.1) Call Align(Work(ipRef),Work(ipCoor),nsAtom)
-C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
+C     If (iter.gt.1) Call Align(RefGeo,Coor,SIZE(Coor,2))
+C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -226,7 +171,7 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
 *
       If (Columbus.eq.1) Then
          Call Get_dArray('MR-CISD energy',Columbus_Energy,2)
-         Work(ipEner+iter-1)=Columbus_Energy(1)
+         Energy(iter)=Columbus_Energy(1)
       Else
          Is_Roots_Set = .False.
          Call Qpg_iScalar('Number of roots',Is_Roots_Set)
@@ -239,19 +184,18 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
          If (nRoots.ne.1) Then
             Call Get_iScalar('NumGradRoot',iRoot)
 *           Write (6,*) 'iRoot=',iRoot
-            Call Allocate_Work(ipTmp,nRoots)
-            Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-*           Call RecPrt('Last Energies',' ',Work(ipTmp),1,nRoots)
-            Work(ipEner+iter-1)=Work(ipTmp+(iRoot-1))
-            Call Free_Work(ipTmp)
+            Call mma_allocate(Tmp,nRoots,Label='Tmp')
+            Call Get_dArray('Last energies',Tmp,nRoots)
+*           Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
+            Energy(iter)=Tmp(iRoot)
+            Call mma_deallocate(Tmp)
          Else
-            Call Get_dScalar('Last energy',Energy)
+            Call Get_dScalar('Last energy',Energy(iter))
          End If
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     Work(ipEner+iter-1)=Energy
 *                                                                      *
 ************ columbus interface ****************************************
 *                                                                      *
@@ -269,27 +213,23 @@ c     Work(ipEner+iter-1)=Energy
          If (nRoots.ne.1) Then
             Call Get_iScalar('NumGradRoot',iRoot)
 *           Write (6,*) 'iRoot=',iRoot
-            Call Allocate_Work(ipDMs,3*nRoots)
-            Call FZero(Work(ipDMs),3*nRoots)
+            Call mma_allocate(DMs,3,nRoots,Label='DMs')
+            DMs(:,:)=Zero
             Call Qpg_dArray('Last Dipole Moments',Found,nDip)
             If (Found.and.(nDip.eq.3*nRoots)) Then
-               Call Get_dArray('Last Dipole Moments',
-     &                         Work(ipDMs),3*nRoots)
+               Call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
             End If
-            Call dCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
-     &                    Work(ipDipM+(iter-1)*3),1)
-            Call Free_Work(ipDMs)
+            Call dCopy_(3,DMs(:,iRoot),1,DipM(:,iter),1)
+            Call mma_deallocate(DMs)
          Else
             Call Qpg_dArray('Dipole moment',Found,nDip)
             If (Found.and.(nDip.eq.3)) Then
-               Call Get_dArray('Dipole moment',
-     &                         Work(ipDipM+(iter-1)*3),3)
+               Call Get_dArray('Dipole moment',DipM(:,iter),3)
             Else
-               Call dCopy_(3,[Zero],0,Work(ipDipM+(iter-1)*3),1)
+               DipM(:,iter)=Zero
             End If
          End If
-*        Call RecPrt('Dipole Moment',' ',
-*    &               Work(ipDipM+(iter-1)*3),1,3)
+*        Call RecPrt('Dipole Moment',' ',DipM(:,iter),1,3)
       End If
 *                                                                      *
 ************************************************************************
@@ -306,24 +246,20 @@ c     Work(ipEner+iter-1)=Energy
          If (iMode.eq.2.or.iMode.eq.3) Then
 *
             E0=Columbus_Energy(2)
-            Work(ipEner0+iter-1)=E0
+            Energy0(iter)=E0
 *
             Call qpg_dArray('Grad State2',Found,Length)
             If (.not.Found .or. Length.eq.0) Then
                Call SysAbendmsg('Get_Molecule','Did not find:',
      &                          'Grad State2')
             End If
-            Call GetMem('Grad2','Allo','Real',ipGrad0,Length)
-            Call Get_dArray('Grad State2',Work(ipGrad0),Length)
-            ipOff = (iter-1)*3*nsAtom + ipGx0
-            call dcopy_(3*nsAtom,Work(ipGrad0) ,1,Work(ipOff),1)
-            Call DScal_(3*nsAtom,-One,Work(ipOff),1)
-            Call Free_Work(ipGrad0)
+            Call Get_dArray('Grad State2',Gx0(1,1,iter),Length)
+            Gx0(:,:,iter) = -Gx0(:,:,iter)
 *
          End If
          If (iMode.eq.3) Then
-            Call GetMem('NADC','Allo','Real',ipNADC,Length)
-            Call Get_dArray('NADC',Work(ipNADC),Length)
+            Call mma_allocate(NAC,3,Length/3,Label='NAC')
+            Call Get_dArray('NADC',NAC,Length)
          End If
 *
       Else
@@ -346,21 +282,19 @@ c     Work(ipEner+iter-1)=Energy
             If (nRoots.ne.1) Then
                Call Get_iScalar('NumGradRoot',iRoot)
 C              Write (6,*) 'iRoot=',iRoot
-               Call Allocate_Work(ipTmp,nRoots)
-               Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-*              Call RecPrt('Last Energies',' ',Work(ipTmp),1,nRoots)
-               E0=Work(ipTmp+(iRoot-1))
-               Call Free_Work(ipTmp)
+               Call mma_allocate(Tmp,nRoots,Label='Tmp')
+               Call Get_dArray('Last energies',Tmp,nRoots)
+*              Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
+               E0=Tmp(iRoot)
+               Call mma_deallocate(Tmp)
             Else
                Call Get_dScalar('Last energy',E0)
             End If
-            Work(ipEner0+iter-1)=E0
+            Energy0(iter)=E0
 *
-            Call Get_Grad(ipGrad0,nGrad)
-            ipOff = (iter-1)*3*nsAtom + ipGx0
-            call dcopy_(3*nsAtom,Work(ipGrad0) ,1,Work(ipOff),1)
-            Call DScal_(3*nsAtom,-One,Work(ipOff),1)
-            Call Free_Work(ipGrad0)
+            nGrad=3*SIZE(Coor,2)
+            Call Get_Grad(Gx0(1,1,iter),nGrad)
+            Gx0(:,:,iter) = -Gx0(:,:,iter)
 *
             Call NameRun('RUNFILE')
             TwoRunFiles = .True.
@@ -376,6 +310,5 @@ C              Write (6,*) 'iRoot=',iRoot
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Init2')
       Return
       End

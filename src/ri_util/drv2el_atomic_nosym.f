@@ -19,15 +19,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_IJKL                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -37,17 +28,17 @@
 *             Modified to minimize overhead for calculations with      *
 *             small basis sets and large molecules. Sept. '93          *
 *             Modified driver. Jan. '98                                *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use iSD_data
       use Wrj12
       use k2_arrays, only: Sew_Scr
       use Basis_Info, only: dbsc
+      use Temporary_Parameters, only: force_out_of_core
+      use Integral_Parameters, only: iWROpt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
-#include "itmax.fh"
-#include "info.fh"
-#include "lundio.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "print.fh"
@@ -63,17 +54,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-      Call QEnter('Drv2El_Atomic_NoSym')
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Temporary modifications to facilitate atomic calculations
 *
       nIrrep_Save=nIrrep
       nIrrep=1
-      Petite=.True.
       iWROpt_Save=iWROpt
       iWROpt=1
 *
@@ -378,11 +362,9 @@ C    &               TInt,nTInt,nTInt)
 *                                                                      *
       Call Free_iSD()
       nIrrep=nIrrep_Save
-      Petite = nIrrep.eq.1
       iWROpt=iWROpt_Save
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El_Atomic_NoSym')
       Return
       End

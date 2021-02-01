@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine fx_cvb(fx,fast)
 c
@@ -20,7 +21,6 @@ c                    (CIVECP/CIVBH & CIVBS)
 c
       implicit real*8 (a-h,o-z)
       logical fast
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -78,7 +78,6 @@ c  Figure out what we just calculated, and make it up2date :
       subroutine fxdx_cvb(fx,fast,dx)
       implicit real*8 (a-h,o-z)
       logical fast
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

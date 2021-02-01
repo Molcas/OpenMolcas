@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Get_H(ip_H)
+      Subroutine Get_H(F,nX)
 ************************************************************************
 *                                                                      *
 *     Object: to get the force constant matrix in cartesians           *
@@ -21,55 +21,53 @@
 *             Uppsala University, Sweden                               *
 *             October 2010                                             *
 ************************************************************************
+      use Slapaf_Info, only: Coor
+      use Slapaf_Parameters, only: nDimBC, mTROld
       Implicit Real*8 (a-h,o-z)
-#include "info_slapaf.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical Found
+      Real*8  F(nX**2)
+      Real*8, Allocatable:: H(:), BOld(:), Tmp2(:)
 *
-*define _DEBUG_
-      nX=3*nsAtom
-      mInter=mInt + mTROld
-      nInter=mInt
+*define _DEBUGPRINT_
+      nDoF=nDimBC
+      nInter=nDimBC-mTROld
 *
-      Call Allocate_Work(ip_H,nX**2)
-      Call Allocate_Work(ipTmp2,nX**2)
-      Call Allocate_Work(ipH,nInter**2)
+      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
+      Call mma_allocate(H,nInter**2,Label='H')
 *---- If there is an updated Hessian in the runfile, use it;
 *     otherwise use the last computed one.
 *     (Hss_upd must be removed every time Hss_Q is added)
       Call Qpg_dArray('Hss_upd',Found,nHss)
       If (Found.and.(nHss.eq.nInter**2)) Then
-         Call Get_dArray('Hss_upd',Work(ipH),nInter**2)
+         Call Get_dArray('Hss_upd',H,nInter**2)
       Else
-         Call Get_dArray('Hss_Q',Work(ipH),nInter**2)
+         Call Get_dArray('Hss_Q',H,nInter**2)
       End If
-      Call Allocate_Work(ipBOld,nX*nInter)
+      Call mma_allocate(BOld,nX*nInter,Label='BOld')
 *---- If there is an old BMx stored, use it;
 *     otherwise use the current BMx
       Call Qpg_dArray('BMxOld',Found,nBMx)
       If (Found.and.(nBMx.eq.nX*nInter)) Then
-         Call Get_dArray('BMxOld',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMxOld',BOld,nX*nInter)
       Else
-         Call Get_dArray('BMtrx',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
 *
-      Call Get_H_(nX,Work(ipBOld),mInter,nInter,Work(ipH),Degen,
-     &            Work(ipTmp2),Work(ip_H),Smmtrc,nsAtom)
+      Call Get_H_(nX,BOld,nDoF,nInter,H,Tmp2,F,SIZE(Coor,2))
 *
-      Call Free_Work(ipBOld)
-      Call Free_Work(ipH)
-      Call Free_Work(ipTmp2)
+      Call mma_deallocate(BOld)
+      Call mma_deallocate(H)
+      Call mma_deallocate(Tmp2)
 *
       Return
       End
-      Subroutine Get_H_(nX,BMtrx,mInter,nInter,H,Degen,
-     &                 Tmp2,Tmp3,Smmtrc,nAtom)
+      Subroutine Get_H_(nX,BMtrx,nDoF,nInter,H,Tmp2,Tmp3,nAtom)
+      use Slapaf_Info, only: Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
-      Logical Smmtrc(3,nAtom)
-      Real*8 BMtrx(nX,nInter), H(nInter,nInter),Degen(3,nAtom),
+      Real*8 BMtrx(nX,nInter), H(nInter,nInter),
      &       Tmp2(nX**2), Tmp3(nX**2)
 *                                                                      *
 ************************************************************************
@@ -77,7 +75,7 @@
 *     The Hessian matrix (zero elements over translations and
 *     rotations are explicitly excluded).
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMtrx',' ',BMtrx,nX,nInter)
 #endif
       ii = 0
@@ -88,7 +86,7 @@
                iix = (i-1)*3 + ix
                ii = ii + 1
                Do j = 1, nInter
-                  ij = (j-1)*mInter + ii
+                  ij = (j-1)*nDoF + ii
 
                   tmp_ij=Zero
                   Do k = 1, nInter
@@ -102,7 +100,7 @@
          End Do
       End Do
 *
-      Do i = 1, mInter
+      Do i = 1, nDoF
 *
          jj = 0
          Do j = 1, nAtom
@@ -111,10 +109,10 @@
                If (Smmtrc(jx,j)) Then
                   jjx=(j-1)*3+jx
                   jj = jj + 1
-                  ij = (jj-1)*mInter + i
+                  ij = (jj-1)*nDoF + i
                   tmp_ij=Zero
                   Do k = 1, nInter
-                     ik = (k-1)*mInter + i
+                     ik = (k-1)*nDoF + i
                      tmp_ij=tmp_ij+Tmp2(ik)*BMtrx(jjx,k)
                   End Do
                   Tmp3(ij)=tmp_ij
@@ -125,14 +123,12 @@
 *
       End Do
 *
-#ifdef _DEBUG_
-      Call RecPrt('Hessian (cartesian)',' ',Tmp3,mInter,mInter)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Hessian (cartesian)',' ',Tmp3,nDoF,nDoF)
 #endif
-      Call Put_dArray('FC-Matrix',Tmp3,mInter**2)
+      Call Put_dArray('FC-Matrix',Tmp3,nDoF**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Degen)
       End

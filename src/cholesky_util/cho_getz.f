@@ -33,6 +33,7 @@ C
 C     On exit, the Z vector blocks are stored in memory according
 C     to ip_Z.
 C
+      use ChoSwp, only: InfVec
       Implicit None
       Integer irc
       Integer l_NVT
@@ -46,16 +47,14 @@ C
       Integer iV1(l_IV11,l_iV12)
       Integer ip_Z(l_Z1,l_Z2)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
-#if defined(_DEBUG_)
+#include "stdalloc.fh"
+#if defined(_DEBUGPRINT_)
 #include "choprint.fh"
 #endif
 
       Integer iSym
       Integer iLoc, iRedC, iRed
-      Integer ip_Flush, l_Flush
-      Integer ip_InfVec_T
       Integer ip_iRS2RS, l_iRS2RS
       Integer ip_Wrk, l_Wrk
       Integer idRS2RS, KK1, nVRead, mUsed, kOffV
@@ -67,36 +66,39 @@ C
       Integer  Cho_iRange
       External Cho_iRange
 
-      Character*8 SecNam
-      Parameter (SecNam='Cho_GetZ')
+      Character(LEN=8), Parameter:: SecNam='Cho_GetZ'
 
       Real*8 C0, C1, W0, W1
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer nBlock_Max, nnB, n
-      Integer ip_Chk, l_Chk
-      Integer myDebugInfo
-      Parameter (myDebugInfo=100)
-      Real*8 Tol
-      Parameter (Tol=1.0d-14)
+      Integer, Parameter:: myDebugInfo=100
+      Real*8, Parameter:: Tol=1.0d-14
 #endif
 
-      Integer N2, i, j, k, InfVcT, InfVec, iRS2RS, iTri
-      Parameter (N2 = InfVec_N2)
-      InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
+      Integer, Pointer:: InfVct(:,:,:)
+
+      Integer i, j, k, iRS2RS, iTri
+
       iRS2RS(i)=iWork(ip_iRS2RS-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 C     Set return code.
 C     ----------------
 
       irc = 0
 
-#if defined (_DEBUG_)
-      ! Check memory boundaries
-      l_Chk=-1
-      Call GetMem('Check0','Check','Real',ip_Chk,l_Chk)
+#if defined (_DEBUGPRINT_)
       ! Check input variables
       If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
      &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
@@ -186,18 +188,11 @@ C     ---------------------------------
 
       iLoc=3 ! do NOT change (used implicitly by reading routine)
 
-C     Create memory pointer for flushing memory.
-C     (In case of error exit.)
-C     ------------------------------------------
-
-      l_Flush=1
-      Call GetMem('FLUSH','Allo','Inte',ip_Flush,l_Flush)
-
 C     Get pointer to InfVec array for all vectors.
 C     Needed for parallel runs.
 C     --------------------------------------------
 
-      Call Cho_X_GetIP_InfVec(ip_InfVec_T)
+      Call Cho_X_GetIP_InfVec(InfVcT)
 
 C     Copy rs1 to location 2.
 C     -----------------------
@@ -221,7 +216,7 @@ C     --------------
 
          l_iRS2RS = nnBstR(iSym,1)
          Call GetMem('RS-TO-RS','Allo','Inte',ip_iRS2RS,l_iRS2RS)
-         Call GetMem('MX','Max ','Real',ip_Wrk,l_Wrk)
+         Call mma_maxDBLE(l_Wrk)
          Call GetMem('Wrk','Allo','Real',ip_Wrk,l_Wrk)
          Call iZero(iWork(ip_iRS2RS),l_iRS2RS)
          idRS2RS = -2
@@ -259,7 +254,7 @@ C     --------------
                End If
                K = InfVec(KK,5,iSym)
                kBlock=Cho_iRange(K+1,iV1(1,iSym),nBlock(iSym),.True.)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (kBlock.lt.1 .or. kBlock.gt.nBlock(iSym)) Then
                   Call Cho_Quit('[BLOCK] Error detected in '//SecNam,
      &                          104)
@@ -285,11 +280,6 @@ C     --------------
             End Do
             KK1=KK1+nVRead
          End Do
-#if defined (_DEBUG_)
-         ! Check memory boundaries
-         l_Chk=-1
-         Call GetMem('Check1','Check','Real',ip_Chk,l_Chk)
-#endif
          Call GetMem('Wrk','Free','Real',ip_Wrk,l_Wrk)
          Call GetMem('RS-TO-RS','Free','Inte',ip_iRS2RS,l_iRS2RS)
 
@@ -309,7 +299,7 @@ C     --------------------------------------
          End Do
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Check that diagonal elements of Z are strictly positive.
 C     --------------------------------------------------------
 
@@ -359,16 +349,12 @@ C     --------------------------------------------------------
       End If
 #endif
 
-C     Exit. If error termination, flush memory first.
+C     Exit. If error termination.
 C     -----------------------------------------------
 
     1 Continue
-      If (irc .ne. 0) Then
-         Call GetMem('FLUSH','Flush','Inte',ip_Flush,l_Flush)
-      End If
-      Call GetMem('FLUSH','Free','Inte',ip_Flush,l_Flush)
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(NVT)
 #endif
@@ -410,13 +396,10 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Logical Report
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Character*18 SecNam
-      Parameter (SecNam='Cho_CheckDiagFromZ')
+      Character(LEN=18), Parameter:: SecNam='Cho_CheckDiagFromZ'
 
-      Integer ip_InfVcT
       Integer ip_D, l_D
       Integer iSym
       Integer jBlock, kblock
@@ -427,17 +410,26 @@ C
       Integer nTot
 
       Real*8 Dmax, Damax, Dmin, Damin
+      Integer, Pointer:: InfVct(:,:,:)
 
-      Integer N
-      Parameter (N=InfVec_N2)
+      Integer i, j
+      Integer iTri
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
-      Integer i, j, k
-      Integer InfVcT, iTri
-      InfVcT(i,j,k)=iWork(ip_InfVcT-1+MaxVec*N*(k-1)+MaxVec*(j-1)+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
       ! Get pointer to global InfVec array
-      Call Cho_X_getIP_InfVec(ip_InfVcT)
+      Call Cho_X_getIP_InfVec(InfVcT)
 
       ! Allocate memory for exact integral diagonal
       l_D=nnBstRT(1)

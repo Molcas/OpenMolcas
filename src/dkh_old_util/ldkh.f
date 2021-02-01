@@ -33,8 +33,6 @@
 ************************************************************************
 *      Implicit None
 #include "dkhparameters.fh"
-#include "itmax.fh"
-#include "info.fh"
 *
       Logical dkhscfflg,no_hamil,no_prop
       Integer  dkhorder,xorder,isize,snumber,tnumber,nbasp,nbaso,
@@ -62,7 +60,7 @@
 *
       Integer poss(maxsnumber),post(maxsnumber),posu(maxunumber)
 *
-      Integer i,j,k,l,m,counter,firstc,lastc,icen,jcen,itrian
+      Integer i,j,k,l,counter,firstc,lastc,icen,jcen,itrian
 *
       Real*8 det
       Integer adrmem,isfreeunit,dkh_48,adrnext
@@ -294,7 +292,6 @@ c
 **     Reconstruct the full variables
 *
         itrian=1
-        m=1
         l=1
         Do icen=firstc,lastc
            Do k=indx2(icen,1),indx2(icen,2)
@@ -348,10 +345,9 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use DKH_Info
       Integer indx2(nAtom,4),indx(N),N,Nsm,nblock,itmp1,itmp2
       Real*8 Coord(3*nAtom),distce
-#include "itmax.fh"
-#include "info.fh"
 *
       call get_iarray('Ctr Index Prim',indx,N)
       indx2(1,1)=1
@@ -513,9 +509,8 @@ c Avoid unused argument warnings
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      use DKH_Info
       Implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
       Integer N,isize,i,j,k,l,m,icen,nAtom,
      *        nblock,indx2(nAtom,4)
       Real*8 h(isize),s(isize),sinv(N,N),eig(N,N),ew(N)

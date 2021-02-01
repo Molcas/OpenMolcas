@@ -20,11 +20,11 @@ C              DSPNorm = 'Fro' : Frobenius norm
 C
 C              Any other norm is taken to be 'Max'.
 C
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
 
@@ -33,12 +33,9 @@ C
 
       Character*3 myDSPNorm
 
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       DSubScr(i)=Work(ip_DSubScr-1+i)
 
-#if defined (_DEBUG_)
-      Call qEnter('_SubScr_Dia')
+#if defined (_DEBUGPRINT_)
       If (iLoc.lt.1 .or. iLoc.gt.3) Then
          Call Cho_Quit('iLoc error in '//SecNam,104)
       End If
@@ -55,7 +52,7 @@ C     --------------------------------------
 
       Call Cho_dZero(Work(ip_DSubScr),nnBstR(iSym,iLoc))
       Call Cho_dZero(Work(ip_DSPNm),nnShl)
-      If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) Go To 1 ! return
+      If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
 C     Compute diagonal.
 C     -----------------
@@ -79,7 +76,7 @@ C     --------------------------------------
          Call UpCase(myDSPNorm)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (lstr .lt. 1) Then
          Write(Lupri,*) SecNam,': input norm: (null string)'
       Else If (lstr .lt. 3) Then
@@ -121,13 +118,5 @@ C     --------------------------------------
             End Do
          End Do
       End If
-
-C     Return.
-C     -------
-    1 Continue
-#if defined (_DEBUG_)
-      Call qExit('_SubScr_Dia')
-#endif
-      Return
 
       End

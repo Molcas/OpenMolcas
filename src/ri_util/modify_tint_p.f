@@ -11,16 +11,16 @@
       Subroutine Modify_TInt_p(TInt,nTheta_All,List2,mData)
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
       Real*8 TInt(nTheta_All,nTheta_All)
       Integer List2(mData,nTheta_All)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
       Do iTheta_All= 1, nTheta_All
+#ifdef _DEBUGPRINT_
          iPrim=List2(5,iTheta_All)
+#endif
          iShll=List2(7,iTheta_All)
          nConti=Shells(iShll)%nBasis_C
          nPrimi=Shells(iShll)%nExp
@@ -28,7 +28,9 @@
      &                          Shells(iShll)%Cff_c(1,1,1),nPrimi)
          Coeff_i = Sqrt(Coeff_i)
 *
+#ifdef _DEBUGPRINT_
          jPrim=List2(6,iTheta_All)
+#endif
          jShll=List2(8,iTheta_All)
          nContj=Shells(jShll)%nBasis_C
          nPrimj=Shells(jShll)%nExp
@@ -37,7 +39,9 @@
          Coeff_j = Sqrt(Coeff_j)
 *
          Do jTheta_All = 1, nTheta_All
+#ifdef _DEBUGPRINT_
             kPrim=List2(5,jTheta_All)
+#endif
             kShll=List2(7,jTheta_All)
             nContk=Shells(kShll)%nBasis_C
             nPrimk=Shells(kShll)%nExp
@@ -45,7 +49,9 @@
      &                             Shells(kShll)%Cff_c(1,1,1),nPrimk)
             Coeff_k = Sqrt(Coeff_k)
 *
+#ifdef _DEBUGPRINT_
             lPrim=List2(6,jTheta_All)
+#endif
             lShll=List2(8,jTheta_All)
             nContl=Shells(lShll)%nBasis_C
             nPriml=Shells(lShll)%nExp
@@ -56,7 +62,7 @@
             TInt(iTheta_All,jTheta_All) = TInt(iTheta_All,jTheta_All)
      &                                  * Coeff_i * Coeff_j
      &                                  * Coeff_k * Coeff_l
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) Coeff_i,Coeff_j,Coeff_k,Coeff_l
             Write (6,*) iPrim,  jPrim,  kPrim,  lPrim
@@ -66,7 +72,7 @@
          End Do
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
 *

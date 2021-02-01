@@ -20,7 +20,6 @@
       Character Head*200
       Logical Changed
 
-      Call Qenter('PlaceIt')
 
       Do 11, i=1,nPart !For each solvent particle, compute the
         Sbig=1D+20   !smallest distance to any QM-atom from the
@@ -88,7 +87,6 @@
         Call Cooout(Head,Cordst,nPart,nCent)
       Endif
 
-      Call Qexit('PlaceIt')
       Return
       End
 
@@ -105,7 +103,6 @@
       Dimension Coord(MxAt*3),Cordst(MxCen*MxPut,3)
       Dimension info_atom(MxAt)
 
-      Call QEnter('Placeit9')
       CMSewx=0
       CMSewy=0
       CMSewz=0
@@ -137,6 +134,5 @@
         Cordst(i,3)=Coord((i-1)*3+3)-Tz
 2     Continue
 
-      Call Qexit('Placeit9')
       Return
       End

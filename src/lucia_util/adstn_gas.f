@@ -66,12 +66,10 @@ C??      DIMENSION IOFFI(LOFFI)
 *
       INTEGER I1(*)
       DIMENSION XI1S(*)
-      INTEGER ONE_ARR(1)
 *. Will be stored as an matrix of dimension
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
 *
-      CALL QENTER('ADSTN ')
 * PAM Mars-2006: Allocation moved to outside this subroutine.
 *      CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'ADSTN ')
 *      CALL MEMMAN(KLOFFI,LOFFI,'ADDL  ',2,'KLOFFI')
@@ -104,7 +102,6 @@ C?    END IF
 *. Supergroup and symmetry of K strings
 *
       ISPGRPABS = IBSPGPFTP(ISPGPTP)-1+ISPGP
-      ONE_ARR(1)=1
       CALL NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
       CALL SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
       NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
@@ -169,7 +166,6 @@ C?     CALL IWRTMA(NACIST,1,NSMST,1,NSMST)
         END DO
       END DO
       IFIRST = 1
-      ISTRBS = 1
       NSTRINT = 0
  2000 CONTINUE
         IF(IFIRST .EQ. 1 ) THEN
@@ -337,7 +333,6 @@ C?      write(6,*) ' IACSM = ', IACSM
         NKAC = NNSTSGP(ISMFGS(IOBTP),IOBTP)
         IKAC = IISTSGP(ISMFGS(IOBTP),IOBTP)
 *. I and K strings of given symmetry distribution
-        NISD = NSTB*NIAC*NSTA
         NKSD = NSTB*NKAC*NSTA
 C?      write(6,*) ' nstb nsta niac nkac ',
 C?   &               nstb,nsta,niac,nkac
@@ -379,7 +374,6 @@ C?      write(6,*) ' KACGRP ', KACGRP
 * PAM Mars-2006: This flush moved outside of this subroutine
 *      CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')
 
-      CALL QEXIT('ADSTN ')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

@@ -17,6 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -24,9 +27,7 @@
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 
-      CALL QENTER('SBDIAG')
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -96,7 +97,6 @@ C usually print info on the total number of parameters
         WRITE(6,'(a,i12)')'   After  reduction:',IPAR1
       ENDIF
 
-      CALL QEXIT('SBDIAG')
 
       RETURN
       END
@@ -400,7 +400,6 @@ C - Alt 0: Use diagonal approxim., if allowed:
           WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SD
         END DO
       ELSE
-        NBB=(NIN*(NIN+1))/2
         IJ=0
         DO J=1,NIN
           DO I=1,J
@@ -502,6 +501,9 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: King
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -517,8 +519,7 @@ C-SVC20100902: global arrays header files
       DIMENSION WGRONK(2)
 #endif
       LOGICAL bSTAT
-      CHARACTER(2) cSYM,cCASE
-      LOGICAL KING
+      CHARACTER(LEN=2) cSYM,cCASE
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk

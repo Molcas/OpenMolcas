@@ -24,7 +24,6 @@
 ************************************************************************
       use IOBUF
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       External AllocDisk
       Integer AllocDisk
@@ -33,9 +32,6 @@
 *     nDisc in units of MByte
 *     nCore in units of kByte
 *
-#ifdef _DEBUG_
-      Call qEnter('IniBuf')
-#endif
 *
 *     The maximum number of bytes on disk. The file size limit times
 *     the number of multi files.
@@ -93,8 +89,4 @@ C        Write (6,*) 'lBuf=',lBuf
          Call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')
       End If
 *
-#ifdef _DEBUG_
-      Call QExit('IniBuf')
-#endif
-      Return
       End

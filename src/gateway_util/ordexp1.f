@@ -35,7 +35,6 @@
 *
 *     Move any exponent which are already decontracted to the bottom
 *
-      iMoved=0
       iBottom=nExp
       Do iCntrc = nCntrc, 1, -1
          mExp=0

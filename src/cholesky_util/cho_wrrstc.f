@@ -14,19 +14,16 @@ C     Purpose: write decomposition restart info for integral pass IPASS.
 C
 C     NB!!!  The restart files are assumed open on entry.
 C
+      use ChoArr, only: IntMap
+      use ChoSwp, only: InfRed, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       PARAMETER (LSCR = 10)
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
-
-#if defined (_DEBUG_)
-      CALL QENTER('_WRRSTC')
-#endif
 
 C     Start address on file.
 C     ----------------------
@@ -82,7 +79,7 @@ C     ------------------
       CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
 
       IOPT = 1
-      CALL IDAFILE(LURST,IOPT,IWORK(ip_INFRED),IPASS,IADR)
+      CALL IDAFILE(LURST,IOPT,INFRED,IPASS,IADR)
 
       DO ISYM = 1,NSYM
          IOPT = 1
@@ -90,12 +87,10 @@ C     ------------------
          JSCR(1) = NUMCHO(ISYM)
          CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
          IF (NUMCHO(ISYM) .GT. 0) THEN
-            DO J = 1,INFVEC_N2
+            DO J = 1,SIZE(INFVEC,2)
                IOPT = 1
                NTOT = NUMCHO(ISYM)
-               KOFF = ip_INFVEC + MAXVEC*INFVEC_N2*(ISYM-1)
-     &              + MAXVEC*(J-1)
-               CALL IDAFILE(LURST,IOPT,IWORK(KOFF),NTOT,IADR)
+               CALL IDAFILE(LURST,IOPT,InfVec(:,J,ISYM),NTOT,IADR)
             END DO
          END IF
       END DO
@@ -104,14 +99,11 @@ C     Write integral shell pair map to disk.
 C     --------------------------------------
 
       IOPT = 1
-      NDIM = l_INTMAP
-      IF (NDIM .GT. 0) THEN
+      NDIM=0
+      IF (Allocated(IntMap)) THEN
+         NDIM = SIZE(IntMap)
          JADR = 0
-         CALL IDAFILE(LUMAP,IOPT,IWORK(ip_INTMAP),NDIM,JADR)
+         CALL IDAFILE(LUMAP,IOPT,INTMAP,NDIM,JADR)
       END IF
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_WRRSTC')
-#endif
 
       END

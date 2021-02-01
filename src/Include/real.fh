@@ -1,22 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Real*8 Zero, One, Two, Three, Four, Five, Six, Seven,
-     &       Eight, RNine, Ten, Half, Quart, Pi, SqrtP2, TwoP34,
-     &       TwoP54, One2C2, OneHalf
-      Parameter(Zero =0.0D0, One  =1.0D0, Two=2.0D0, Three=3.0D0,
-     &          Four =4.0D0, Five =5.0D0, Six=6.0D0, Seven=7.0D0,
-     &          Eight=8.0D0, rNine=9.0D0, Ten=1.0D1, Half=0.5D0,
-     &          Quart=0.25D0, OneHalf=1.5D0,
-     &          Pi    =3.141592653589793D0,
-     &          SqrtP2=0.8862269254527579D0,
-     &          TwoP34=0.2519794355383808D0,
-     &          TwoP54=5.914967172795612D0,
-     &          One2C2=0.2662567690426443D-04)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Real*8, Parameter:: Zero  =0.0D0,  One    =1.0D0
+      Real*8, Parameter:: Two   =2.0D0,  Three  =3.0D0
+      Real*8, Parameter:: Four  =4.0D0,  Five   =5.0D0
+      Real*8, Parameter:: Six   =6.0D0,  Seven  =7.0D0
+      Real*8, Parameter:: Eight =8.0D0,  Nine   =9.0D0
+      Real*8, Parameter:: Ten   =1.0D1,  Eleven =1.1D0
+      Real*8, Parameter:: Twelve=1.2D1,  Half   =0.5D0
+      Real*8, Parameter:: Quart =0.25D0, OneHalf=1.5D0
+      Real*8, Parameter:: Pi    =3.141592653589793D0
+      Real*8, Parameter:: SqrtP2=0.8862269254527579D0
+      Real*8, Parameter:: TwoP34=0.2519794355383808D0
+      Real*8, Parameter:: TwoP54=5.914967172795612D0
+      Real*8, Parameter:: One2C2=0.2662567690426443D-04

@@ -11,7 +11,6 @@
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE Backtransform(Heff,Ueff,U0)
-      USE REFWFN
       IMPLICIT REAL*8 (A-H,O-Z)
 C Back-transform Heff and Ueff to the basis of the original
 C CASSCF states.
@@ -21,7 +20,6 @@ C CASSCF states.
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
       real(8),allocatable :: U0transpose(:,:),Utmp(:,:)
 
-      CALL QENTER('BACKTRANSFORM')
 
       if (IFXMS) then
 
@@ -46,7 +44,6 @@ C CASSCF states.
 
       end if
 
-      CALL QEXIT('BACKTRANSFORM')
 
       RETURN
       END

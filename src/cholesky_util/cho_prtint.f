@@ -16,12 +16,12 @@ C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 C
+      use ChoArr, only: iSP2F, nBstSh
       Implicit None
       Integer iSCD, iSAB
       Integer lInt
       Real*8  xInt(lInt)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
 
@@ -39,10 +39,7 @@ C
       Real*8 xNorm
 
       Integer i, j
-      Integer iSP2F, nBstSh
       Integer iShP2RS, iShP2Q
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
       iShP2RS(i,j)=iWork(ip_iShP2RS-1+2*(j-1)+i)
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 

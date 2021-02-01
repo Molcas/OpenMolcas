@@ -66,7 +66,6 @@
                else
                        nPrintLevel=2
                endif
-               iFirst=1
          endif
         iPrintLevel=nPrintLevel
       return

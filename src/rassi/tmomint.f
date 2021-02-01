@@ -15,6 +15,12 @@
 *                                                                      *
 ************************************************************************
       Use MpmC
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      use Sizes_of_Seward, only: S
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
+#endif
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem
 *     ipList: list of pointers to the integrals of each component
@@ -26,15 +32,12 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
-!#define _DEBUG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "stdalloc.fh"
       Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
 #endif
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "nq_info.fh"
 #include "real.fh"
@@ -45,7 +48,9 @@
       Character*8 Label
       Dimension dum(1),idum(1)
 *
+#ifdef _DEBUGPRINT_
       MulTab(i,j)=iEor(i-1,j-1)+1
+#endif
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
@@ -88,7 +93,7 @@
      &              dum,1,0)
 *
          Call Deallocate_Aux()
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
       Call mma_allocate(CoorO,6,Label='CoorO')
       CoorO(:)=0.0D0
@@ -144,10 +149,10 @@
       Int_I(:)=0.0D0
       Int_I(nInts_TMOM+1:nInts_TMOM+3)=CoorO
 *
-      nMltpl=9
+      S%nMltpl=9
       iCase=1
       Phase=1.0D0
-      Do iMltpl= 0, nMltpl
+      Do iMltpl= 0, S%nMltpl
          Write (Label,'(A,I2)') 'Mltpl ',iMltpl
          nComp=(iMltpl+1)*(iMltpl+2)/2
          iComp=0

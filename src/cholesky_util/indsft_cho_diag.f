@@ -26,16 +26,14 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
+      use SOAO_Info, only: iAOtSO, iOffSO
+      use ChoArr, only: iSOShl, iShlSO, nBstSh
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
-#include "WrkSpc.fh"
 *
       Real*8 SOint(ijkl,nSOint), TInt(nInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4), iSOSym(2,nSOs)
@@ -50,13 +48,7 @@
 *     statement function
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-      ISOSHL(I)=IWORK(ip_iSOShl-1+I)
-      ISHLSO(I)=IWORK(ip_iShlSO-1+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 *
-#if defined (_DEBUG_)
-      Call qEnter('IndSftC')
-#endif
       irout = 39
       jprint = nprint(irout)
       k12=0
@@ -72,11 +64,6 @@
       If (jprint.ge.99)
      &   Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
       memSO2 = 0
-
-      If (nSOs .gt. 0) Then ! to make some compilers happy
-         iDummy_2 = iSOSym(1,1)
-      End If
-
 *
 *     allocate space to store integrals to gether with their
 *     Symmetry batch and sequence number
@@ -157,9 +144,6 @@
                 End If
              End If
 *
-             iSymi=max(j1,j2)+1
-             jSymj=min(j1,j2)+1
-*
              Do 310 j3 = 0, nIrrep-1
                 If (kSym(j3).eq.0) go to 310
                 j4 = ieor(j12,j3)
@@ -187,9 +171,6 @@
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
                 lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-*
-                kSymk=max(j3,j4)+1
-                lSyml=min(j3,j4)+1
 *
                 nijkl = 0
                 Do lSOl = lSO, lSO+lBas-1
@@ -238,8 +219,7 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-      Call qExit('IndSftC')
-#endif
       Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(iSOSym)
       End

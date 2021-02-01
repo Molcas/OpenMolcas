@@ -183,7 +183,7 @@ C
                End Do
             End Do
          End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (i2CFun.ne.AP_2CFunctions(1,iAtomPair)) Then
             Call WarningMessage(2,'LDF_Set2CL: count error!')
             Write(6,'(A,3I10)') 'iAtomPair,iAtom,jAtom:',iAtomPair,

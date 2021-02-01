@@ -20,7 +20,7 @@
 *
 *        ip_List_rs : pointer to the portion of InfVec corresponding
 *                     to loc=1 and JSym, thus
-*                     ip_InfVec+MaxVec*InfVec_N2*(jSym-1)
+*                     ip_of_iWork(InfVec(1,1,jSym)
 *
 *        ia=iSO_ab(1,numcho(jSym))  contains the index of the basis "a"
 *                                   within its symm. block.
@@ -34,23 +34,21 @@
 *  Author: F. Aquilante
 *
 ************************************************************************
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, nProcs
+#endif
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer ip_List_rs, iSO_ab(2,*)
 
 #include "WrkSpc.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-************************************************************************
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-************************************************************************
 
       iOff=0
 
 #ifdef _MOLCAS_MPP_
-      Call Get_nProcs(nProcs)
       Call GetMem('List','Allo','Inte',ip_List,nProcs)
       Call IZero(iWork(ip_List),nProcs)
-      Call Get_MyRank(MyRank)
       iWork(ip_List+MyRank)=NumCho(jSym)
       Call Cho_GAIGOP(iWork(ip_List),nProcs,'+')
       nTot=0

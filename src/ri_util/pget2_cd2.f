@@ -21,42 +21,31 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for Cholesky 1-center gradients May 2007 by     *
 *             R. Lindh                                                 *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_CD2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 *                                                                      *
@@ -199,12 +188,11 @@ C                           End If
         Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2_CD2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_CD2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_CD2')
 #endif
       Return
 c Avoid unused argument warnings

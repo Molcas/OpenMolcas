@@ -45,27 +45,15 @@
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "disp2.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens),
@@ -97,7 +85,7 @@ c     Logical Qij, Qkl
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
-      iprint=0
+*     iprint=0
 *
 *     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 *    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
@@ -128,7 +116,6 @@ c     Logical Qij, Qkl
          Write (6,*) 'FckAcc_McK: iBas*jBas*kBas*lBas.gt.nScrt'
          Write (6,*) 'iBas,jBas,kBas,lBas,nScrt=',
      &         iBas,jBas,kBas,lBas,nScrt
-         Call QTrace
          Call Abend()
       End If
       ii = iOff(iAng(1))
@@ -369,7 +356,6 @@ C                 Call RecPrt('Fkl',' ',FT(ipFkl1),kBas,lBas)
                   If (np.gt.nScrt) Then
                      Write (6,*) 'FckAcc_McK: np.gt.nScrt'
                      Write (6,*) 'np,nScrt=',np,nScrt
-                     Call QTrace
                      Call Abend()
                   End If
                   If (mFik+mFjl.eq.0) Go To 1210
@@ -683,29 +669,17 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 *                                                                      *
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "disp2.fh"
 #include "print.fh"
@@ -737,8 +711,8 @@ c     Character*72 Label
       xPrmt(i,j) = Prmt(iAnd(i,j))
 c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-      iRout = 38
-      iPrint = nPrint(iRout)
+*     iRout = 38
+*     iPrint = nPrint(iRout)
 *
 *     If (iPrint.ge.49) Then
 *        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,

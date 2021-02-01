@@ -15,29 +15,25 @@ C              Based on reduced set stored at location iLoc = 2 or 3.
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
+      use ChoArr, only: nBstSh, iSP2F
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: IndRSh
+#endif
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*15 SecNam
       Parameter (SecNam = 'Cho_SetShP2RS_2')
 #endif
 
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
       iOff_Batch(i,j)=iWork(ip_iOff_Batch-1+nSym*(j-1)+i)
-#if defined (_DEBUG_)
-      IndRsh(i)=iWork(ip_IndRSh-1+i)
-#endif
 
 C     Check allocations.
 C     ------------------
@@ -78,7 +74,7 @@ C     ---------------------------------------------------------------
             Do iAB = iAB1,iAB2
                jAB = IndRed(iiBstR(iSym,iLoc)+iAB,iLoc) ! addr in 1st rs
                kAB = IndRed(jAB,1) ! addr in full shell pair
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                nErr = 0
                If (IndRSh(jAB).ne.iSP2F(mySP(iShlAB))) Then
                   Write(Lupri,*) SecNam,': inconsistent shell pairs!'

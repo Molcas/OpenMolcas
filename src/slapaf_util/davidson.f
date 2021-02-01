@@ -39,19 +39,22 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipVec,ipTmp,ipVal,ipDum,ipIndex
-      INTEGER ipDiag,ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
       PARAMETER (Thr=1.0D-7, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
+      Real*8 rDum(1)
+      Real*8, Allocatable:: Vec2(:), Val(:), Tmp(:), Diag(:), TVec(:),
+     &                      TAV(:), TRes(:)
+      Integer, Allocatable:: Index(:)
 *
 #include "stdalloc.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#if _DEBUGPRINT_
       INTEGER iPrint,iRout
 #include "print.fh"
+#endif
 
-*define _DEBUG_
+*define _DEBUGPRINT_
 * Diagonal preconditioned residue (Davidson)
 #define DAV_DPR 1
 * Inverse-iteration generalized Davidson (Olsen et al.)
@@ -59,10 +62,9 @@
 * Generalized Jacobi-Davidson (Sleijpen et al.) (DO NOT USE IT)
 #define DAV_GJD 3
 
+#ifdef _DEBUGPRINT_
       iRout=216
       iPrint=nPrint(iRout)
-
-#ifdef _DEBUG_
       CALL TriPrt('Initial matrix','',A,n)
 #endif
 
@@ -83,30 +85,29 @@
 *      and return
 *
       IF (mk.GE.n) THEN
-        CALL GetMem('Values ','Allo','Real',ipVal,n)
-        CALL GetMem('Vectors','Allo','Real',ipVec,n*n)
-        CALL DZero(Work(ipVec),n*n)
+        CALL mma_allocate(Val,n,Label='Val')
+        CALL mma_allocate(Vec2,n*n,Label='Vec2')
+        CALL DZero(Vec,n*n)
         DO j=1,n
           jj=(j-1)*n
           DO i=1,j
-            Work(ipVec+jj+i-1)=A(j*(j-1)/2+i)
+            Vec2(jj+i)=A(j*(j-1)/2+i)
           END DO
         END DO
-        CALL Allocate_Work(ipDum,1)
-        call dsyev_('V','U',n,Work(ipVec),n,Work(ipVal),Work(ipDum),
-     &                       -1,info)
-        nTmp=INT(Work(ipDum))
-        CALL Allocate_Work(ipTmp,nTmp)
-        call dsyev_('V','U',n,Work(ipVec),n,Work(ipVal),Work(ipTmp),
-     &                       nTmp,info)
-        CALL JacOrd2(Work(ipVal),Work(ipVec),n,n)
-        CALL Free_Work(ipTmp)
-        CALL Free_Work(ipDum)
-        call dcopy_(k,Work(ipVal),1,Eig,1)
-        call dcopy_(n*k,Work(ipVec),1,Vec,1)
-        CALL GetMem('Values ','Free','Real',ipVal,n)
-        CALL GetMem('Vectors','Free','Real',ipVec,n*n)
-#ifdef _DEBUG_
+        call dsyev_('V','U',n,Vec2,n,Val,rDum,-1,info)
+        nTmp=INT(rDum(1))
+
+        CALL mma_allocate(Tmp,nTmp,Label='Tmp')
+        call dsyev_('V','U',n,Vec2,n,Val,Tmp,nTmp,info)
+        CALL JacOrd2(Val,Vec2,n,n)
+        CALL mma_deallocate(Tmp)
+
+        call dcopy_(k,Val,1,Eig,1)
+        call dcopy_(n*k,Vec2,1,Vec,1)
+
+        CALL mma_deallocate(Val)
+        CALL mma_deallocate(Vec2)
+#ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
           CALL RecPrt('Eigenvalues',' ',Eig,1,n)
           WRITE(6,*)
@@ -128,31 +129,31 @@
       Call mma_allocate(Proj,maxk*maxk,Label='Proj')
       Call mma_allocate(EVal,maxk     ,Label='EVal')
       Call mma_allocate(EVec,maxk*maxk,Label='EVec')
-      CALL DZero(Ab,n*maxk)
-      CALL DZero(EVal,maxk)
-      CALL DZero(EVec,maxk*maxk)
+      AB(:)   = Zero
+      EVal(:) = Zero
+      EVec(:) = Zero
 
 *---- Build an index of sorted diagonal elements in A
 *
-      CALL Allocate_iWork(ipIndex,n)
+      CALL mma_allocate(Index,n,Label='Index')
       DO i=1,n
-        iWork(ipIndex+i-1)=i
+        Index(i)=i
       END DO
       DO i=1,n
-        ii=iWork(ipIndex+i-1)
+        ii=Index(i)
         Aux=A(ii*(ii+1)/2)
         ii=i
         DO j=i,n
-          jj=iWork(ipIndex+j-1)
+          jj=Index(j)
           IF (A(jj*(jj+1)/2) .LT. Aux) THEN
             Aux=A(jj*(jj+1)/2)
             ii=j
           END IF
         END DO
         IF (ii .NE. i) THEN
-          jj=iWork(ipIndex+ii-1)
-          iWork(ipIndex+ii-1)=iWork(ipIndex+i-1)
-          iWork(ipIndex+i-1)=jj
+          jj=Index(ii)
+          Index(ii)=Index(i)
+          Index(i)=jj
         END IF
       END DO
 
@@ -163,24 +164,24 @@
 *      The rest is set to zero, just in case
 *
       nTmp=0
-      CALL Allocate_Work(ipTmp,n)
+      CALL mma_allocate(Tmp,n,Label='Tmp')
       DO i=1,k
-        call dcopy_(n,Vec(1,i),1,Work(ipTmp),1)
-        CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
+        call dcopy_(n,Vec(1,i),1,Tmp,1)
+        CALL Add_Vector(n,nTmp,Sub,Tmp,Thr3)
       END DO
 *
       ii=0
-      CALL DZero(Work(ipTmp),n)
+      Tmp(:)=Zero
       DO WHILE ((nTmp .LT. mk) .AND. (ii .LT. n))
         ii=ii+1
-        jj=iWork(ipIndex+ii-1)
-        Work(ipTmp+jj-1)=One
-        CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
-        Work(ipTmp+jj-1)=Zero
+        jj=Index(ii)
+        Tmp(jj)=One
+        CALL Add_Vector(n,nTmp,Sub,Tmp,Thr3)
+        Tmp(jj)=Zero
       END DO
 *     ig will be a global counter to loop across all n base vectors
       ig=ii
-      CALL Free_Work(ipTmp)
+      CALL mma_deallocate(Tmp)
       CALL DZero(Sub(1+mk*n),(maxk-mk)*n)
 
 *---- Iterative procedure starts here
@@ -192,15 +193,14 @@
       Last=.FALSE.
       old_mk=0
       iter=0
-      CALL Allocate_Work(ipDum,1)
-      CALL Allocate_Work(ipDiag,n)
-      CALL Allocate_Work(ipTVec,n)
-      CALL Allocate_Work(ipTAV,n)
-      CALL Allocate_Work(ipTRes,n)
+      CALL mma_allocate(Diag,n,Label='Diag')
+      CALL mma_allocate(TVec,n,Label='TVec')
+      CALL mma_allocate(TAV,n,Label='TAV')
+      CALL mma_allocate(TRes,n,Label='TRes')
       DO WHILE (.NOT. Last)
         iter=iter+1
         IF (iter .GT. 1) call dcopy_(k,Eig,1,Eig_old,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (.NOT. Reduced) THEN
           WRITE(6,'(A)') '---------------'
           WRITE(6,'(A,1X,I5)') 'Iteration',iter
@@ -213,21 +213,21 @@
 *        Ab = A * Sub
 *        Only the new vectors since the last iterations need to be calculated
 *
-        CALL Allocate_Work(ipTmp,n)
+        CALL mma_allocate(Tmp,n,Label='Tmp')
         DO i=1,n
 *         Reconstruct a row (or column) of the matrix A
           DO j=1,i
-            Work(ipTmp+j-1)=A(i*(i-1)/2+j)
+            Tmp(j)=A(i*(i-1)/2+j)
           END DO
           DO j=i+1,n
-            Work(ipTmp+j-1)=A(j*(j-1)/2+i)
+            Tmp(j)=A(j*(j-1)/2+i)
           END DO
 *         Compute the i-th element of each new column
           DO j=old_mk,mk-1
-            Ab(j*n+i)=DDot_(n,Work(ipTmp),1,Sub(1+j*n),1)
+            Ab(j*n+i)=DDot_(n,Tmp,1,Sub(1+j*n),1)
           END DO
         END DO
-        CALL Free_Work(ipTmp)
+        CALL mma_deallocate(Tmp)
 
 *----   Compute the matrix to diagonalize (symmetric)
 *        Proj = Sub^t * Ab
@@ -253,24 +253,22 @@
 *        If the subspace has been reduced, no need to compute new eigenpairs
 *
         IF (.NOT. Reduced) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
-          call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Work(ipDum),-1,info)
-          nTmp=INT(Work(ipDum))
-          CALL Allocate_Work(ipTmp,nTmp)
-          call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Work(ipTmp),nTmp,info)
-          CALL Free_Work(ipTmp)
+          call dsyev_('V','L',mk,EVec,maxk,EVal,rDum,-1,info)
+          nTmp=INT(rDum(1))
+          CALL mma_allocate(Tmp,nTmp,Label='Tmp')
+          call dsyev_('V','L',mk,EVec,maxk,EVal,Tmp,nTmp,info)
+          CALL mma_deallocate(Tmp)
           CALL JacOrd2(EVal,EVec,mk,maxk)
           call dcopy_(k,EVal,1,Eig,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           CALL RecPrt('Current guess',' ',Eig,1,k)
 #endif
         END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
           CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
           CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
@@ -295,7 +293,7 @@
               Conv=MAX(Conv,ABS(Eig(i)-Eig_old(i)))
             END IF
           END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           IF (Augmented)
      &      WRITE(6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue '//
      &                                 'change:',Conv
@@ -305,17 +303,17 @@
         END IF
         old_mk=mk
         IF (Augmented .AND. (Conv .LE. Thr) .AND. (mk .GE. mink)) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Converged due to small change'
 #endif
           Last=.TRUE.
         ELSE IF (mk .EQ. n) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Complete system solved'
 #endif
           Last=.TRUE.
         ELSE IF (iter .GE. maxiter) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Not converged'
 #endif
           Last=.TRUE.
@@ -329,15 +327,15 @@
 *
         ELSE IF ((MIN(mk+k,n) .GT. maxk) .OR. (iRC .EQ. 2)) THEN
           IF (iRC .EQ. 2) iRC=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #endif
-          CALL Allocate_Work(ipTmp,mink*n)
+          CALL mma_allocate(Tmp,mink*n,Label='Tmp')
           CALL DGeMM_('N','N',n,mink,mk,One,Sub,n,
      &                                      EVec,maxk,
-     &                                  Zero,Work(ipTmp),n)
-          call dcopy_(mink*n,Work(ipTmp),1,Sub,1)
-          CALL Free_Work(ipTmp)
+     &                                  Zero,Tmp,n)
+          call dcopy_(mink*n,Tmp,1,Sub,1)
+          CALL mma_deallocate(Tmp)
 
 *----     To make sure Sub' is orthonormal, add the vectors one by one
 *
@@ -350,7 +348,7 @@
 
 *----     j should be mink, but who knows...
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           IF (j .LT. mink) THEN
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
           END IF
@@ -376,96 +374,101 @@
 *        (different possible variants)
 *
         ELSE
-          CALL Allocate_Work(ipTmp,n)
+          CALL mma_allocate(Tmp,n,Label='Tmp')
           Conv=Zero
           jj=0
           DO i=0,k-1
 *           Vector in full space: Sub*Vec(i)
             Call dGeMV_('N',n,mk,One,Sub,n,
      &                              EVec(1+i*maxk),1,
-     &                          Zero,Work(ipTVec),1)
+     &                          Zero,TVec,1)
 *           Product of matrix and vector: Ab*Vec(i)
             Call dGeMV_('N',n,mk,One,Ab,n,
      &                              EVec(1+i*maxk),1,
-     &                          Zero,Work(ipTAV),1)
+     &                          Zero,TAV,1)
 *           Residual: (A-Val(i))*Vec(i) = Ab*Vec(i) - Val(i)*Sub*Vec(i)
-            call dcopy_(n,Work(ipTAV),1,Work(ipTRes),1)
-            call daxpy_(n,-EVal(1+i),Work(ipTVec),1,Work(ipTRes),1)
-            Conv=MAX(Conv,DDot_(n,Work(ipTRes),1,Work(ipTRes),1))
+            call dcopy_(n,TAV,1,TRes,1)
+            call daxpy_(n,-EVal(1+i),TVec,1,TRes,1)
+            Conv=MAX(Conv,DDot_(n,TRes,1,TRes,1))
 
 *----       Scale vector, orthonormalize, and add to subspace
 *
 #define DAV_METH DAV_IIGD
 #if DAV_METH == DAV_DPR
 *           Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
-            DO j=0,n-1
-              Aux=A((j+1)*(j+2)/2)-Eval(1+i)
-              Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+            DO j=1,n
+              Aux=A(j*(j+1)/2)-Eval(1+i)
+              Diag(j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
             END DO
 *           scale
-            DO j=0,n-1
-              Work(ipTmp+j)=Work(ipTRes+j)*Work(ipDiag+j)
+            DO j=1,n
+              Tmp(j)=TRes(j)*Diag(j)
             END DO
 #elif DAV_METH == DAV_IIGD
 *           Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
-            DO j=0,n-1
-              Aux=A((j+1)*(j+2)/2)-EVal(1+i)
-              Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+            DO j=1,n
+              Aux=A(j*(j+1)/2)-EVal(1+i)
+              Diag(j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
             END DO
 *           scale
-            DO j=0,n-1
-              Work(ipTmp+j)=Work(ipTRes+j)*Work(ipDiag+j)
+            DO j=1,n
+              Tmp(j)=TRes(j)*Diag(j)
             END DO
             Alpha=Zero
-            DO j=0,n-1
-              Alpha=Alpha+Work(ipDiag+j)*Work(ipTVec+j)**2
+            DO j=1,n
+              Alpha=Alpha+Diag(j)*TVec(j)**2
             END DO
-            Alpha=DDot_(n,Work(ipTVec),1,Work(ipTmp),1)/Alpha
+            Alpha=DDot_(n,TVec,1,Tmp,1)/Alpha
 *           subtract
-            DO j=0,n-1
-              Work(ipTVec+j)=Work(ipTVec+j)*Work(ipDiag+j)
+            DO j=1,n
+              TVec(j)=TVec(j)*Diag(j)
             END DO
-            call daxpy_(n,-Alpha,Work(ipTVec),1,Work(ipTmp),1)
+            call daxpy_(n,-Alpha,TVec,1,Tmp,1)
 #elif DAV_METH == DAV_GJD
 *   DO NOT USE THIS VARIANT!
 * This is not practical as it stands, the equation should be
 * solved only approximately, and it is not efficient to do this
 * for each of the possibly many eigenpairs
-            CALL Allocate_Work(ipP1,n*n)
+            Block
+            Real*8, Allocatable:: P1(:)
+            CALL mma_allocate(P1,n*n,Label='P1')
 *           project: (I-|v><v|) (A-e*I) (I-|v><v|) =
 *                    A - e*I + (<v|P>+e)*|v><v| - |v><P| - |P><v|
 *           e = Val(i); |P> = A|v>
-            Aux=DDot_(n,Work(ipTVec),1,Work(ipTAV),1)
+            Aux=DDot_(n,TVec,1,TAV,1)
             DO kk=0,n-1
               ll=kk*(kk+1)/2
               DO ii=0,kk
-                Work(ipP1+ii*n+kk)=A(ll+ii+1)+
-     &            (Aux+EVal(1+i))*Work(ipTVec+ii)*Work(ipTVec+kk)-
-     &            Work(ipTAV+ii)*Work(ipTVec+kk)-
-     &            Work(ipTAV+kk)*Work(ipTVec+ii)
+                P1(1+ii*n+kk)=A(ll+ii+1)+
+     &            (Aux+EVal(1+i))*TVec(1+ii)*TVec(1+kk)-
+     &            TAV(1+ii)*TVec(1+kk)-
+     &            TAV(1+kk)*TVec(1+ii)
               END DO
-              Work(ipP1+kk*n+kk)=Work(ipP1+kk*n+kk)-EVal(1+i)
+              P1(1+kk*n+kk)=P1(1+kk*n+kk)-EVal(1+i)
             END DO
-            iWork(ipDum)=0
-*           solve the equation
-            CALL CG_Solver(n,n*n,Work(ipP1),iWork(ipDum),Work(ipTRes),
-     &                     Work(ipTmp),info,5)
-#ifdef _DEBUG_
+            Block
+              Integer iDum(1)
+               iDum(1)=0
+*              solve the equation
+               CALL CG_Solver(n,n*n,P1,iDum,TRes,Tmp,info,5)
+            End Block
+#ifdef _DEBUGPRINT_
             WRITE(6,*) 'CG iterations',info
 #endif
-            CALL Free_Work(ipP1)
+            CALL mma_deallocate(P1)
+          End Block
 #endif
             IF (mk+jj .LE. n-1) THEN
               jj=mk+jj
-              CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
+              CALL Add_Vector(n,jj,Sub,Tmp,Thr3)
               jj=jj-mk
             END IF
           END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
 #endif
           IF ((Conv .LT. Thr3) .AND. (mk .GE. mink)) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             WRITE(6,'(A)') 'Converged due to small residual'
 #endif
             Last=.TRUE.
@@ -476,20 +479,20 @@
 *            -Try to find a non-linear-dependent base vector in the original matrix
 *
             IF (jj .EQ. 0) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               WRITE(6,'(A)') 'Process stagnated'
 #endif
               IF (mk .LT. maxk) THEN
-                CALL DZero(Work(ipTmp),n)
+                CALL DZero(Tmp,n)
                 i=0
                 DO WHILE ((jj .LT. 1) .AND. (i .LT. n))
                   i=i+1
                   ig=MOD(ig,n)+1
-                  ii=iWork(ipIndex+ig-1)
-                  Work(ipTmp+ii-1)=One
+                  ii=Index(ig)
+                  Tmp(ii)=One
                   jj=mk+jj
-                  CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
-                  Work(ipTmp+ii-1)=Zero
+                  CALL Add_Vector(n,jj,Sub,Tmp,Thr3)
+                  Tmp(ii)=Zero
                   jj=jj-mk
                 END DO
                 mk=MIN(mk+jj,n)
@@ -503,16 +506,15 @@
               Augmented=.TRUE.
             END IF
           END IF
-          CALL Free_Work(ipTmp)
+          CALL mma_deallocate(Tmp)
           Reduced=.FALSE.
         END IF
       END DO
-      CALL Free_Work(ipDum)
-      CALL Free_Work(ipDiag)
-      CALL Free_Work(ipTVec)
-      CALL Free_Work(ipTAV)
-      CALL Free_Work(ipTRes)
-      CALL Free_iWork(ipIndex)
+      CALL mma_deallocate(Diag)
+      CALL mma_deallocate(TVec)
+      CALL mma_deallocate(TAV)
+      CALL mma_deallocate(TRes)
+      CALL mma_deallocate(Index)
 
 *---- Store the current lowest k eigenvectors (in the full space)
 *      Vec' = Sub * Vec(1:k)

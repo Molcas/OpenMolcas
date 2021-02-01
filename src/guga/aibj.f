@@ -24,7 +24,6 @@
 *
       JO(L)=ICUNP(ICASE,L)
 *
-      CALL QENTER('AIBJ')
       IC1=0    ! dummy initialize
       IC2=0    ! dummy initialize
       COPLA=D0 ! dummy initialize
@@ -263,6 +262,5 @@ C     DOUBLET-DOUBLET INTERACTIONS
 600   FORMAT(/,6X,'COEFFICIENTS FOR AIBJ',I9)
       WRITE(IW,610)(NUMM(I),I=1,7)
 610   FORMAT(6X,'DIFFERENT TYPES',7I9)
-      CALL QEXIT('AIBJ')
       RETURN
       END

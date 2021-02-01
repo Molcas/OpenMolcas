@@ -85,10 +85,8 @@
 *.Local arrays
       DIMENSION ITP(3 ),JTP(3 ),KTP(3 ),LTP(3 )
 *
-*     CALL QENTER('GSD2B')
       NGAS = 3
       ZERO = 0.0D0
-      IROUTE = 3
 *
 *. Symmetry of allowed excitations
       IJSM = STSTSX(IASM,JASM)
@@ -199,7 +197,6 @@
  9999 CONTINUE
 *
 *
-*     CALL QEXIT('GSD2B')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

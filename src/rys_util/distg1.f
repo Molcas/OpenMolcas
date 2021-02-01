@@ -11,39 +11,32 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Distg1(Temp,mVec,Grad,nGrad,IfGrad,IndGrd,
-     &                  iStab,kOp,iChBas,MxFnc,nIrrep)
+     &                  iStab,kOp)
 ************************************************************************
 *                                                                      *
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
       Real*8 Grad(nGrad), Temp(9), PAOg1(12), Prmt(0:7)
       Logical IfGrad(3,4)
-      Integer IndGrd(3,4), kOp(4), iStab(4), iChBas(MxFnc)
+      Integer IndGrd(3,4), kOp(4), iStab(4)
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
+#ifdef _DEBUGPRINT_
       iRout = 239
       iPrint = nPrint(iRout)
-*     Call qEnter('Distg1')
-#ifdef _DEBUG_
       If (iPrint.ge.99) Then
          Call RecPrt('Accumulated gradient on entrance',
      &               ' ',Grad,nGrad,1)
@@ -119,7 +112,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt('PAOg1',' ',PAOg1,12,1)
          Call RecPrt('Accumulated gradient on exit',
@@ -127,8 +120,8 @@
       End If
 #endif
 *
-*     Call qExit('Distg1')
       Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(mVec)
+#endif
       End

@@ -11,10 +11,11 @@
       SubRoutine OneEl_Property(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,
      &                          D_tot,nDens,Property,Sig)
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
+      use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -22,14 +23,11 @@
       Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
       Integer ip(nComp), lOper(nComp), iChO(nComp)
       Real*8, Allocatable:: Integrals(:)
-*
-#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-*     Call qEnter('OneEl')
       If (rHrmt.ne.One) Then
          Call WarningMessage(2,'OneEl_Property: rHrmt.ne.One')
          Call Abend()
@@ -90,6 +88,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('OneEl')
       Return
       End

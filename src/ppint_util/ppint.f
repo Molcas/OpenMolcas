@@ -16,18 +16,11 @@
 *                                                                      *
 * Object: to compute pseudo potential integrals.                       *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "oneswi.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
@@ -64,15 +57,14 @@
       nArray=nArray+nZeta*nElem(la)*nElem(lb)
       If (nArray.gt.nZeta*nArr) Then
          Write (6,*) 'nArray.gt.nZeta*nArr'
-         Call QTrace()
          Call Abend()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      kdc=-dbsc(1)%nCntr
+      kdc=0
       Do iCnttp = 1, nCnttp
-         kdc = kdc + dbsc(iCnttp)%nCntr
+         If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
 
          If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
@@ -94,7 +86,6 @@ cAOM>
             Write (6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
             Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
-            Call QTrace()
             Call Abend()
          End If
          lcr(kcrs)=nPP_S-1
@@ -109,7 +100,6 @@ cAOM>
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
                Write (6,*)'         imax=',imax
-               Call QTrace()
                Call Abend()
             End If
             iStrt=1
@@ -121,11 +111,13 @@ cAOM>
                iStrt=iStrt+3
             End Do
          End Do
-C        Write (*,*) 'ncr',(ncr(i),i=1,npot)
-C        Write (*,*) 'zcr',(zcr(i),i=1,npot)
-C        Write (*,*) 'ccr',(ccr(i),i=1,npot)
-C        Write (*,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
-C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'ncr',(ncr(i),i=1,npot)
+         Write (6,*) 'zcr',(zcr(i),i=1,npot)
+         Write (6,*) 'ccr',(ccr(i),i=1,npot)
+         Write (6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
+         Write (6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+#endif
 *
          Do iCntr = 1, dbsc(iCnttp)%nCntr
             C(1:3) = dbsc(iCnttp)%Coor(1:3,iCntr)

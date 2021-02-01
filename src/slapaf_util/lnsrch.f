@@ -17,7 +17,6 @@
      &       dq(nInter,nIter), B(4,0:3), FVal(4)
       Logical RC
 *
-      LOut=6
       iRout=200
       iPrint=nPrint(iRout)
       If (iPrint.ge.99) Then

@@ -15,14 +15,12 @@
 #include "welcom.fh"
       Real*8 F(kmax+1)
 *
-      Call qEnter('qRINT')
       qRINT=Zero
       NN=N/2+1
 *     Write (*,*) ' N,NN=',n,nn
       BP=Half*C
       START=Sqrt(Pi)
       PRSUM=EXP(BP*BP*A+EXPA)
-      SUM=Zero
       ALF=sqrt(A)
       ARG=(BP*ALF)**2
       nT = 1
@@ -53,6 +51,5 @@
          qRINT=GINT*PRSUM
  10   Continue
 *
-      Call qExit('qRINT')
       Return
       End

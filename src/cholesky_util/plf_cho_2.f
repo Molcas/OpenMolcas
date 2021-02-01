@@ -28,11 +28,9 @@
 *                                                                      *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use ChoArr, only: iSOShl, iShlSO, nBstSh
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "real.fh"
 #include "print.fh"
@@ -49,15 +47,9 @@
       INTEGER ABCD, CDAB, CD, AB, A, B, C, D
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-      iSOShl(i)=iWork(ip_iSOShl-1+i)
-      iShlSO(i)=iWork(ip_iShlSO-1+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
       iShP2RS(i,j)=iWork(ip_iShP2RS-1+2*(j-1)+i)
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 *
-#if defined (_DEBUG_)
-      Call qEnter('Plf_Cho_2')
-#endif
       irout = 109
       jprint = nprint(irout)
       If (jPrint.ge.49) Then
@@ -68,10 +60,6 @@
       End If
       If (jPrint.ge.99) Call RecPrt(' In Plf_Cho_2: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
-
-      If (Shijij) Then ! avoid compiler warnings about unused variables
-         iDummy_1 = iShell(1)
-      End If
 
       NUMC = NBSTSH(SHC)
       NUMD = NBSTSH(SHD)
@@ -109,8 +97,6 @@ C to avoid stupid compiler warnings:
       iAOj=iAO(2)
       iAOk=iAO(3)
       iAOl=iAO(4)
-*
-      ijklCmp=iCmp*jCmp*kCmp*lCmp
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
@@ -249,9 +235,10 @@ C to avoid stupid compiler warnings:
 300         Continue
 200      Continue
 100   Continue
-
-#if defined (_DEBUG_)
-      Call qExit('Plf_Cho_2')
-#endif
       Return
+* Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer_array(iShell)
+         Call Unused_logical(Shijij)
+       End If
       End

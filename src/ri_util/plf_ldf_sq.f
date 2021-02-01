@@ -42,13 +42,13 @@
 #include "localdf_int.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*10 SecNam
       Parameter (SecNam='PLF_LDF_SQ')
 #endif
 
       Integer i1, i2, i3, i4
-      Integer iShlI, iShlJ, iShlK, iShlL
+      Integer iShlI, iShlJ, iShlK
       Integer iSO, jSO, kSO, lSO
       Integer iSOi, jSOj, kSOk, lSOl
       Integer ii, jj, kk, ll
@@ -57,14 +57,14 @@
 
       Integer i
       Integer iShlSO, nBasSh
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iSOShl
       iSOShl(i)=iWork(ip_iSOShl-1+i)
 #endif
       nBasSh(i)=iWork(ip_nBasSh-1+i)
       iShlSO(i)=iWork(ip_iShlSO-1+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iSOShl(iAOtSO(iAO(1)+1,kOp(1))+iAOst(1)).ne.SHA) Then
          Call WarningMessage(2,SecNam//': Shell problem [1]')
          Call LDF_Quit(1)
@@ -86,7 +86,6 @@
       iShlI=SHA
       iShlJ=SHB
       iShlK=SHC
-      iShlL=SHD
       nij=nBasSh(iShlI)*nBasSh(iShlJ)
       Do i4=1,lCmp
          lSO=iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)

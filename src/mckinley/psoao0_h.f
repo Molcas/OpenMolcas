@@ -35,21 +35,13 @@
 *          3. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
+      use Integral_Parameters, only: iWROpt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
@@ -62,10 +54,7 @@
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      iRout = 10
-      iPrint = nPrint(iRout)
 *     iQ = 1
-*     Call qEnter('PSOAO0')
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -80,7 +69,6 @@
       mcdMin=nabSz(Max(lc,ld)-1)+1
       mcdMax=nabSz(lc+ld)
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-      nabcd=iCmp*jCmp*kCmp*lCmp
 *
       iBsInc = iBas
       jBsInc = jBas
@@ -109,7 +97,7 @@
       kSOInt = nSO*iBsInc*jBsInc*kBsInc*lBsInc
       Mem1 = iFact*kSOInt
       If (Mem1.eq.0) Mem1 = 1
-      If (Petite) Mem1 = 1 + (iFact-1) *
+      If (nIrrep==1) Mem1 = 1 + (iFact-1) *
      &                   iCmp*  jCmp*  kCmp*  lCmp*
      &                   iBsInc*jBsInc*kBsInc*lBsInc
       If (Mem1+1.gt.Mem0) Then
@@ -246,49 +234,12 @@
          Go To 999
       End If
       Mem0 = Mem0 - Mem3 - 1
-*     Write (*,*) ' After Mem3', jPrInc,jBsInc,lPrInc,lBsInc
       MinXtr = Min(MinXtr,Mem0)
 *
-*     Call GetMem(' Mem1','ALLO','REAL',ipMem1,Mem1)
       ipMem2 = ipMem1 + Mem1
-*     Call GetMem(' Mem2','ALLO','REAL',ipMem2,Mem2)
       ipMem3 = ipMem2 + Mem2
       ipMem4 = ipMem2 + Mem2 - Mem4
-*     Call GetMem(' Mem3','ALLO','REAL',ipMem3,Mem3)
-*     Call GetMem(' ','MAX ','REAL',iDum,Mend)
-*     If (Mend.ge.1) Call GetMem(' Mend','ALLO','REAL',ipMend,Mend)
       Mend=0
-*
-      MemSum=Mem1+Mem2+Mem3
-*     Call GetMem('MemSum','ALLO','REAL',ipMem1,MemSum)
-*     ipMem2=ipMem1+Mem1
-*     ipMem4 = ipMem2 + Mem2 - Mem4
-*     ipMem3=ipMem2+Mem2
-*     ipMend=ipMem3+Mem3
-      If (iWropt.eq.0) Then
-         If (Petite) Then
-            lPack = iCmp*  jCmp*  kCmp*  lCmp*
-     &              iBsInc*jBsInc*kBsInc*lBsInc
-            lwInt = ipMem1
-         Else
-            lPack = kSOInt
-            lwInt = ipMem1 + lPack
-         End If
-         lwSyB = lwInt + 2*lPack
-         lwSyB = RtoI*lwSyB
-         lwSqN = lwSyB + 2*lPack
-*T       iipMem1 = RtoI*(lwInt+2*lPack)
-*T       lwSyB   = iipMem1 + 3*RtoI*lPack
-*T       lwSqN   = lwSyB + 2*lPack
-CFUE     lwSyB   = iipMem1 + lPack*6
-CFUE     lwSqN   = lwSyB + 2*lPack
-CFUE     lwIntL  = lwSqN + 2*lPack
-      Else
-         lwInt  = 0
-         lwSyB  = 0
-         lwSqN  = 0
-CFUE     lwIntL = 0
-      End If
 *
       r1 = r1 + DBLE(iBsInc)/DBLE(iBas)
       r2 = r2 + DBLE(jBsInc)/DBLE(jBas)
@@ -298,8 +249,6 @@ CFUE     lwIntL = 0
       q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
       q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
       q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
-*     Call GetMem('PSOAO0','CHECK','REAL',iDum,iDum)
-*     Call qExit('PSOAO0')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(ipMend)

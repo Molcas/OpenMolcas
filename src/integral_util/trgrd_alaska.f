@@ -20,18 +20,17 @@
 ********************************************************************
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
-      dimension GradIn(nGrad),A(3)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      dimension GradIn(nGrad)
+      Logical, External :: TF
+*
       mdc=0
       iIrrep=0
 *
@@ -47,13 +46,9 @@
       Do iCnttp=1,nCnttp_Valence
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
-            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/dc(mdc)%nStab-1
                kop=dc(mdc)%iCoSet(iCo,0)
                nDispS = IndDsp(mdc,iIrrep)
-               A1=DBLE(iPrmt(NrOpr(kop),1))*A(1)
-               A2=DBLE(iPrmt(NrOpr(kop),2))*A(2)
-               A3=DBLE(iPrmt(NrOpr(kop),4))*A(3)
                iCen=iCen+1
                Do iCar=0,2
                   iComp = 2**iCar

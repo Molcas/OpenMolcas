@@ -11,18 +11,18 @@
 * Copyright (C) 1996, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine CIDIA_sa(iSym,ralp,S)
+      use Str_Info, only: CNSM
+      use ipPage, only: W
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "csfbas_mclr.fh"
 #include "incdia.fh"
-#include "WrkSpc.fh"
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "negpre.fh"
 #include "sa.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Real*8 ralp(*),S(*)
@@ -45,59 +45,58 @@
       i=2
       If (isym.eq.state_sym) i=1
       If (NOCSF.eq.0) Then
-        ncsf1=NCSASM(ISYM)
-        nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-        ipdcsfi=ipget(nsd)
-        ipdcsf=ipin(ipdcsfi)
-        Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
+         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
+         ipdcsfi=ipget(nsd)
+         irc=ipin(ipdcsfi)
+         ipDSDi=ipGet(nSD)
       Else
-        nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-*       Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
-        ipDSDi=ipGet(nsd)
-        ipdsd=ipin(ipdsdi)
+         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
+         ipDSDi=ipGet(nsd)
+         irc=ipin(ipdsdi)
       End If
+
       If (nocsf.eq.0) Then
-         nD=NCSASM(ISYM)
-         ipDia=ipDCSF
          ipdiai=ipdcsfi
       Else
-        nD=idint(XISPSM(ISYM,ISPC(1)))
-        ipDIA=ipDSD
-        ipdiai=ipdsdi
+         ipdiai=ipdsdi
       End If
       LSPC(1)=nSD
 
-      Call IntDia(Work(ipDSD),NSPC,ISPC,ISM,LSPC,
-     &           IAMCMP,rin_ene+potnuc)
+      irc=ipin(ipDSDi)
+      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,
+     &            rin_ene+potnuc)
 
-      If (Nocsf.ne.1)
-     &Call CSDIAG(Work(ipDCSF),Work(ipDSD),
-     &              NCNATS(1,ISYM),NTYP,
-     &              iWORK(KICTS(i)),NDPCNT,NCPCNT,0,
-     &              0,IDUM,IPRNT)
+      If (Nocsf.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,
+     &                            NCNATS(1,ISYM),NTYP,
+     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
+     &                            0,IDUM,IPRNT)
 
-      If (nocsf.eq.0)
-     & Call GetMem('DIAGSD','FREE','REAL',ipDSD,nSD)
+      If (nocsf.eq.0) irc=ipClose(ipDSDi)
 *     Calculate explicit part of hamiltonian
 *
       ipdia=ipdiai
-      If (FANCY_PRECONDITIONER) Then
-        Call SA_PREC(S,work(ipin(ipdia)))
-      Else
-        ip=ipin(ipdiai)
-        ip2=ipin(ipCI)
-        Do j=0,nroots-1
-         ECAS=ERASSCF(j+1)
-         call xflush(6)
-         W=Weight(j+1)
-         ralp(j+1)=0.0d0
-         Do i=0,ncsf(State_SYM)-1
-          ralp(j+1)=ralp(j+1)+1.0d0/(Work(ip+i)-ECAS)*W*
-     &        Work(ip2)**2
-              ip2=ip2+1
-         End Do
-        End Do
-      End If
-      RETURN
-      END
 
+      If (FANCY_PRECONDITIONER) Then
+         irc=ipin(ipdia)
+         Call SA_PREC(S,W(ipdia)%Vec)
+      Else
+         irc=ipin(ipdiai)
+         irc=ipin(ipCI)
+         ip2=1
+         Do j=1,nroots
+            ECAS=ERASSCF(j)
+            We=Weight(j)
+            ralp(j)=0.0d0
+            Do i=1,ncsf(State_SYM)
+               ralp(j)=ralp(j)+1.0d0/(W(ipdiai)%Vec(i)-ECAS)*We*
+     &                   W(ipCI)%Vec(ip2)**2
+               ip2=ip2+1
+            End Do
+         End Do
+      End If
+
+      RETURN
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
+      END

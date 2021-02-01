@@ -33,14 +33,12 @@
       Real*8  temp2(MxRoot)
       Dimension Dummy(1),iDummy(1)
 *
-      Call qEnter('RdCmo_motra')
 *----------------------------------------------------------------------*
 *     Read MO coefficients from input                                  *
 *----------------------------------------------------------------------*
       If ( iVecTyp.eq.1 ) Then
         Write (6,*) 'RdCmo_motra: iVecTyp.eq.1'
         Write (6,*) 'This error means someone has put a bug into MOTRA!'
-        Call QTrace()
         Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -49,13 +47,11 @@
       If ( iVecTyp.eq.2 ) Then
         call f_Inquire (FnInpOrb,okay)
         If ( okay ) Then
-          lOcc = 0
           Call RdVec(FnInpOrb,LuInpOrb,'C',nSym,nBas,nBas,
      &          Cmo, Dummy, Dummy, iDummy,
      &          VecTit, 0, iErr)
         Else
           Write (6,*) 'RdCMO_motra: Error finding MO file'
-          Call QTrace()
           Call Abend()
         End If
       End If
@@ -85,7 +81,6 @@
           VecTit='JOBIPH'
         Else
           Write (6,*) 'RdCMO_motra: Error finding JOBIPH file'
-          Call QTrace()
           Call Abend()
         End If
       End If
@@ -93,6 +88,5 @@
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
       Call Ortho_Motra(nSym,nBas,nDel,Ovlp,Cmo)
-      Call qExit('RdCmo_motra')
       Return
       End

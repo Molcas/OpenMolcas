@@ -11,19 +11,20 @@
 * Copyright (C) 2015,2016, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine Process_Gradients()
+      use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0, RootMap
+      use Slapaf_Parameters, only: Request_Alaska, TwoRunFiles, iter
       Implicit None
-#include "WrkSpc.fh"
 #include "real.fh"
-#include "info_slapaf.fh"
 #include "nadc.fh"
 #include "stdalloc.fh"
-      Logical Found
-      Integer i,ipOff,nRoots,RC,Read_Grad,Columbus
+      Logical Found, Exist
+      Integer i,nRoots,RC,Read_Grad,Columbus, nsAtom
       Real*8, Allocatable :: Grads(:,:), Ener(:)
       Real*8 E0, E1
       External Read_Grad
 *
       Request_Alaska=.False.
+      nsAtom=SIZE(Gx,2)
       Call mma_Allocate(Grads,3*nsAtom,3)
 *
 *     First check that all the needed gradients are available
@@ -92,11 +93,10 @@
         Call WarningMessage(2,'Too few energies in RUNFILE')
         Call Abend()
       End If
-      Work(ipEner+iter-1)=Ener(iState(1))
+      Energy(iter)=Ener(iState(1))
       E1=Ener(iState(1))
-      ipOff=ipGx+(iter-1)*3*nsAtom
-      Call dCopy_(3*nsAtom,Grads(1,1),1,Work(ipOff),1)
-      Call dScal_(3*nsAtom,-One,Work(ipOff),1)
+      Call dCopy_(3*nsAtom,Grads(1,1),1,Gx(1,1,iter),1)
+      Gx(:,:,iter) = -Gx(:,:,iter)
 *
 *     For a two-RunFile job, read the second (lower) energy
 *     and gradient from RUNFILE2
@@ -127,33 +127,29 @@
 *       change the energies and gradients here on-the-fly.
 *
         If (NADC) Then
-          Work(ipEner+iter-1)=(E1+E0)*Half
-          Work(ipEner0+iter-1)=E1-E0
-          ipOff=ipGx+(iter-1)*3*nsAtom
-          Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Work(ipOff),1)
-          Call dScal_(3*nsAtom,Half,Work(ipOff),1)
-          ipOff=ipGx0+(iter-1)*3*nsAtom
-          Call dCopy_(3*nsAtom,Grads(1,2),1,Work(ipOff),1)
-          Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Work(ipOff),1)
+          Energy (iter)=(E1+E0)*Half
+          Energy0(iter)=E1-E0
+          Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
+          Gx(:,:,iter) = Half * Gx(:,:,iter)
+          Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
+          Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
           Call Get_iScalar('Columbus',Columbus)
           If (Columbus.ne.1) Then
-            Call GetMem('NADC','Allo','Real',ipNADC,3*nsAtom)
-            Call dCopy_(3*nsAtom,Grads(1,3),1,Work(ipNADC),1)
+            Call mma_allocate(NAC,3,nsAtom,Label='NAC')
+            Call dCopy_(3*nsAtom,Grads(1,3),1,NAC,1)
 *
 *           If the coupling derivative vector could not be calculated,
 *           use an approximate one.
 *
             If (RC.lt.0) Then
               ApproxNADC=.True.
-              Call Branching_Plane_Update(Work(ipGx),Work(ipGx0),
-     &                                    Work(ipNADC),3*nsAtom,iter)
+              Call Branching_Plane_Update(Gx,Gx0,NAC,3*nsAtom,iter)
             End If
           End If
         Else
-          Work(ipEner0+iter-1)=E0
-          ipOff=ipGx0+(iter-1)*3*nsAtom
-          Call dCopy_(3*nsAtom,Grads(1,2),1,Work(ipOff),1)
-          Call dScal_(3*nsAtom,-One,Work(ipOff),1)
+          Energy0(iter)=E0
+          Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
+          Gx0(1,1,iter) = -Gx0(1,1,iter)
         End If
       End If
 *

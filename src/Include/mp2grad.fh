@@ -25,7 +25,8 @@
       Common /mpgrad/  mAdOcc, mAdVir,          iLagr,iDensOcc,iDensVir,
      & iPoDensOcc,iPoDensVir,iPoLagr, iDia, ipEOrb, lthEOr, mp2grad,
      & iPoDiag, iPoVec, iPoMat, iMODens, iAODens, iPoCMO,
-     & iPoTri, iAp, iP, iWDensOcc, iWDensVir,
+*    & iAP, iP,
+     & iPoTri, iWDensOcc, iWDensVir,
      & iWDensVO,iAOTriDens,nTri,iMOTriDens,nonvar,
      & ipInt1,ipInt2, ipInt1_2, ipInt2_2,ipScr1, mAdFro, mAdDel
       Common /mpgrad2/ ipEOcc, ipEVir, ipCMO,

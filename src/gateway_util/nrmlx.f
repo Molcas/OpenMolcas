@@ -32,8 +32,8 @@
      &       Scrt2(nScrt2)
 #include "real.fh"
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In Nrmlz: iAng=',iAng
       Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
       Call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
@@ -62,7 +62,7 @@
      &            1.0d0,Scrt1,nPrim,
      &            Coeff,nPrim,
      &            0.0d0,Scrt2,nPrim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
       Call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
 #endif
@@ -75,7 +75,7 @@
          Tmp = 1/Sqrt(Scrt1(i))
          Call DScal_(nPrim,Tmp,Coeff(1,i),1)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call Recprt(' In Nrmlz: Normalized coefficients',' ',
      &            Coeff,nPrim,nCntrc)
 #endif

@@ -11,11 +11,14 @@
       Subroutine Print_Basis2()
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only:S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "print.fh"
       Logical output
+      Logical lAux, lPam2, lECP, lPP, lFAIEMP
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -23,6 +26,18 @@
       iPrint=nPrint(iRout)
 *
       LuWr=6
+      lAux =.False.
+      lPam2=.False.
+      lECP =.False.
+      lPP  =.False.
+      lFAIEMP  =.False.
+      Do i = 1, nCnttp
+         lAux  = lAux  .or. dbsc(i)%Aux
+         lPAM2 = lPAM2 .or. dbsc(i)%lPAM2
+         lECP  = lECP  .or. dbsc(i)%ECP
+         lPP   = lPP   .or. dbsc(i)%nPP.ne.0
+         lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -85,7 +100,7 @@
                iShell = iShell + 1
                nExpj=Shells(jSh)%nExp
                nBasisj=Shells(jSh)%nBasis
-               If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
+               If (S%MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
      &             nBasisj.gt.0 .and. output .and.
      &             iCnt.eq.1) Then
                   Write (LuWr,*)

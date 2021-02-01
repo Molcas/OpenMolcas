@@ -46,7 +46,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
       External Kernel
 #include "itmax.fh"
 #include "nq_info.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "real.fh"
@@ -68,8 +68,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid),
      &       xyz0(3,2)
       Real*8 TmpPUVX(nTmpPUVX)
-      Logical InBox(MxAtom), Do_Grad, lCar(3),
-     &        More_to_come
+      Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
       Integer LOE_DB,LTEG_DB
@@ -86,8 +85,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-      Call QEnter('Get_Subblock')
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Write(6,*) 'Enter Get_Subblock'
          Write(6,*) 'ip_nR_Eff GET_SBK',ip_nR_Eff
@@ -116,7 +114,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
       If (iz.eq.1 ) z_min_=-1.0D99
       If (iz.eq.nz) z_max_= 1.0D99
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Write(6,*)
          Write(6,*) 'Block_Size=',Block_Size
@@ -176,8 +174,8 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
          EndIf
  10   Continue
       nlist_p=ilist_p
-      If (nlist_p.eq.0) Go To 999
-#ifdef _DEBUG_
+      If (nlist_p.eq.0) return
+#ifdef _DEBUGPRINT_
       If (debug) Write (6,*) 'Get_Subblock: List_p:',List_p
 #endif
 *                                                                      *
@@ -190,7 +188,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 *                                                                      *
       ilist_s=0
       Do iShell=1,nShell
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (debug) Write (6,*) 'iShell,nShell=',iShell,nShell
 #endif
          NrExp =iSD( 5,iShell)
@@ -202,13 +200,13 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 *
          Do jSym = 0, nDegi-1
             iSym=dc(mdci)%iCoSet(jSym,0)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (debug) Write (6,*) 'iSym,nDegi-1=',iSym,nDegi-1
 #endif
 *
             iNQ=Maps2p(iShell,NrOpr(iSym))
             RMax_NQ = Work(ip_R_Max(iNQ))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (debug) Then
                Write (6,*) 'iNQ=',iNQ
                Write (6,*) 'RMax_NQ=',RMax_NQ
@@ -226,7 +224,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
                list_bas(1,ilist_s)=NrBas
                GoTo 20
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (debug) Write (6,*) 'Passed here!'
 #endif
 *
@@ -242,7 +240,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 *              number of actives exponents for this shell, else
 *              there is no other active exponent (they ar ordered)
                RMax=Min(Eval_RMax(ValExp,iAng,Threshold),RMax_NQ)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (Debug) Then
                   Write (6,*) 'iShell,iNQ=',iShell,iNQ
                   Write (6,*) 'ValExp=',ValExp
@@ -289,10 +287,10 @@ C              End If
          End Do ! iSym
       End Do    ! iShell
       nlist_s=ilist_s
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Write (6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
-      If (nList_s*nList_p.eq.0) Go To 999
+      If (nList_s*nList_p.eq.0) return
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -330,7 +328,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          write(6,*) 'Contribution to the subblock :'
          write(6,*) 'NQ :',(list_p(ilist_p)  ,ilist_p=1,nlist_p)
@@ -371,9 +369,6 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
       nGrad_Eff=0
       If (Do_Grad) Then
          Call ICopy(3*nShell*nSym,[0],0,List_G,1)
-         lCar(1)=.False.
-         lCar(2)=.False.
-         lCar(3)=.False.
          Do ilist_s = 1, nlist_s
             iShell=list_s(1,ilist_s)
             iSym  =list_s(2,ilist_s)
@@ -384,7 +379,6 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
      &              iSD(12,iShell).eq.1) .and.
      &             List_G(1+iCar,ilist_s).eq.0) Then
                   nGrad_Eff=nGrad_Eff+1
-                  lCar(iCar+1)=.True.
 *
 *                 For pseudo centers note that there will not be a
 *                 gradient computed for this center.
@@ -486,7 +480,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
       nBatch = 0
       Do ilist_p=1,nlist_p
          iNQ=list_p(ilist_p)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (Debug) Write (6,*) 'ilist_p=',ilist_p
          If (Debug) Write (6,*) 'Get_SubBlock: iNQ=',iNQ
 #endif
@@ -503,7 +497,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
                   If (iNQ.eq.jNQ) iTab(2,iGrad)=Off
                End Do
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
              Write (6,*)
              Write (6,'(A,24I3)') '       i =',(       i ,i=1,nGrad_Eff)
@@ -598,7 +592,7 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (Debug) write(6,*) 'Get_Subblock ----> Subblock'
 #endif
 c
@@ -618,7 +612,7 @@ c
      &                 iList_p,xyz0,iWork(ip_A),nR_Eff)
          nTotGP = nTotGP_Save
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (Debug) write(6,*) 'Subblock ----> Get_Subblock'
 #endif
       End Do
@@ -646,7 +640,7 @@ c
          number_of_grid_points=iBatchInfo(2,iBatch)
 *
          iNQ=                  iBatchInfo(3,iBatch)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (Debug) Then
             Write (6,*)
             Write (6,*)  'iNQ=',iNQ
@@ -751,9 +745,4 @@ cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 999  Continue
-#ifdef _DEBUG_
-      Call QExit('Get_Subblock')
-#endif
-      Return
       End

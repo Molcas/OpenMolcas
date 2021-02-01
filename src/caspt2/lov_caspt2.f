@@ -38,8 +38,8 @@
       Integer irc,nUniqAt,IFQCAN
       Real*8  Thrs, EMP2
       Logical DoMP2, DoEnv, all_Vir
-      Character(LENIN8) NAME(*)
-      Character(LENIN) blank, NamAct(mxAtom)
+      Character(Len=LENIN8) NAME(*)
+      Character(Len=LENIN) blank, NamAct(mxAtom)
       Logical ortho
       Real*8  TrA(8), TrF(8), TrX(8)
       Integer ns_O(8), ns_V(8)

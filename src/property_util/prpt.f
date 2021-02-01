@@ -228,9 +228,6 @@ c Avoid unused argument warnings
       Use Iso_C_Binding
       Real*8, Target :: Scr(*)
       Character, Pointer :: cScr(:)
-#ifdef _DEBUG_
-      Call qEnter('PrPt_')
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -291,10 +288,11 @@ c        multipled by 2
 c
 *        If (iUHF.eq.0) then
             call dcopy_(nblock,[Zero],0,Scr(iadDen),1)
+            Call GetMem('D1ao','Allo','Real',ipD1ao,nBlock)
             If (var) Then
-               Call Get_D1ao_Var(ipD1ao,nBlock)
+               Call Get_D1ao_Var(Work(ipD1ao),nBlock)
             Else
-               Call Get_D1ao(ipD1ao,nBlock)
+               Call Get_D1ao(Work(ipD1ao),nBlock)
             End If
             Do i = 1,nBlock
                SCR(i) = Work(ipD1ao+i-1)
@@ -688,9 +686,6 @@ c
 ************************************************************************
 *                                                                      *
 499   continue
-#ifdef _DEBUG_
-      Call qExit('PrPt_')
-#endif
       If (iPL.ge.2) Then
          Call CollapseOutput(0,'   Molecular properties:')
          Write(6,*)
@@ -711,7 +706,6 @@ c
          Call CollapseOutput(0,'   Molecular properties:')
          Write(6,*)
       End IF
-      Return
       End Subroutine Prpt_Internal
 *
       End

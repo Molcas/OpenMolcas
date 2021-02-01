@@ -59,7 +59,7 @@
       Character*(LENIN8) Clean_BName !14
       External Clean_BName
       Debug=.false.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #endif
 *
@@ -164,7 +164,6 @@ c     Write(6,*) 'test print out'
            FMT_s='(I5,1X,A,A,F6.3,A)'
            FMT_l='(I5,1X,A,A,F6.2,A)'
            FMT_f='(I5,1X,A,A,F6.1,A)'
-           ThrCff=0.10d00
 *
            Do iSO = 0, nO-1
             If (PrEne.and.PrOcc) Then

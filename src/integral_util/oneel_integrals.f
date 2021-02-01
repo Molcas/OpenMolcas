@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Character Label*8
@@ -27,8 +27,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'
       Write (6,'(1X,8I5)') nComp
@@ -55,7 +55,7 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nIC =',nIC
 #endif
       If (nIC.eq.0) Then
@@ -84,7 +84,7 @@
 *                                                                      *
 *---- Compute all SO integrals for all components of the operator.
 *
-      Call OneEl_Internal
+      Call OneEl_Inner
      &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &            nOrdOp,rHrmt,iChO,
      &            dum,dum,1,idum,0,0,
@@ -94,4 +94,12 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
+      End Subroutine OneEl_Integrals
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(OneEl_Integrals)
+
+#endif

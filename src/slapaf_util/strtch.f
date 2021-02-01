@@ -80,7 +80,5 @@
          End Do
 *
       End If
-*     Call qExit('Strtch')
-*     Call GetMem('Exit Strtch','Chec','Real',ipMass,2*msAtom)
       Return
       End

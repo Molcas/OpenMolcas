@@ -33,18 +33,21 @@ C
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*3  ThisNm
       Character*10 SecNam
       Parameter (SecNam = 'ChoMP2_Drv', ThisNm = 'Drx')
 
-      Parameter (Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15)
-      Parameter (iFmt = 0)
+      Real*8, Parameter:: Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15
+      Integer, Parameter:: iFmt = 0
 
-      Logical DoSort, Delete, Delete_def
-      Parameter (Delete_def = .true.)
+      Logical DoSort, Delete
+      Logical, Parameter:: Delete_def = .true.
 
-#if defined (_DEBUG_)
+      Real*8, Allocatable:: Check(:)
+
+#if defined (_DEBUGPRINT_)
       Verbose = .true.
 #endif
       If (Verbose) Then
@@ -54,7 +57,6 @@ C
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
 
       EMP2 = 0.0d0
@@ -66,9 +68,8 @@ C     ----------------
          Call CWTime(CPUIni1,WallIni1)
       End If
 
-      l_Dum = 1
-      Call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
-      Work(ip_Dum) = Chk_Mem_ChoMP2
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1) = Chk_Mem_ChoMP2
 
       FracMem = 0.0d0 ! no buffer allocated
       Call Cho_X_Init(irc,FracMem)
@@ -327,7 +328,7 @@ C     ------------------------------
 C     Exit.
 C     -----
 
-    1 Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
+    1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
       If (Diff .gt. Tol) Then
          Write(6,*) SecNam,': Memory Boundary Error!'
          If (irc .eq. 0) irc = -9999
@@ -337,8 +338,7 @@ C     -----
          Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,
      &                   WallTot2,WallTot1,iFmt)
       End If
-      Call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
-      Call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
-      Call qExit(ThisNm)
+      Call ChoMP2_deallocate(irc)
+      Call mma_deallocate(Check)
       Return
       End

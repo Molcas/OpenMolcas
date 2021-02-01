@@ -96,7 +96,7 @@ C        Write (*,*) 'Mode: Dense'
 C        Write (*,*) 'Mode: Sparse'
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Processing slice                   :',iBin
       Write (6,*) 'Actual number of non-zero integrals:', mInt(1,iBin)
@@ -116,7 +116,6 @@ C        Write (*,*) 'Mode: Sparse'
       Do while ( iDaTmp.ge.0 )
         nStk=nStk+1
         If ( nStk.gt.lStk ) then
-          iRC=001
           Write(6,*)
           Write(6,'(2X,A,I3.3,A)')
      &    '*** Error in SORT2A ***'
@@ -126,7 +125,6 @@ C        Write (*,*) 'Mode: Sparse'
           Write(6,'(2X,A,I8)') 'iBin =',iBin
           Write(6,*)
           Write(6,*) 'Action: rerun with a larger MOLCAS_MEM'
-          Call qTrace
           Call Quit(_RC_MEMORY_ERROR_)
         End If
         IOStk(nStk)=iDaTwo
@@ -142,27 +140,23 @@ C        Write (*,*) 'Mode: Sparse'
           nInts1=PkIBin(ist1-1)
           nInts2=Int(PkVBin(ist2-1))
           If ( nInts1.ne.nInts2 ) then
-            iRC=002
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
             Write(6,'(2X,A)') 'nInts1#nInts2'
             Write(6,*)
-            Call qTrace
             Call xFlush(6)
             Call Abend
           End If
           nInts=nInts1
           If ( nInts.gt.lBin ) then
-            iRC=003
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
             Write(6,'(2X,A)') 'nInts>lBin'
             Write(6,*)
-            Call qTrace
             Call xFlush(6)
             Call Abend
           End If

@@ -67,7 +67,6 @@ c
 c
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "paralell.fh"
 #include "wrk.fh"
 c
        integer lunabij1,lunabij2,lunabij3
@@ -120,9 +119,10 @@ c     FI2   f1(a,e) <- -0.5 sum(m) [t1o(a,m) . fok(e,m)]
 c
 c     N.B. use and destroy: M1,M2
 c
+        use Para_Info, only: MyRank
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
 c     help variables
@@ -185,9 +185,10 @@ c     N.B. use and destroy : V1,V2,V3,V4,M1
 c     N.B. # of get v2o2 : 6
 c     N.B. possible fusion with f24 graph
 c
+       use Para_Info, only: MyRank
        implicit none
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunabij1,lunabij2,lunabij3,lunt2o1,lunt2o2,lunt2o3
 c
@@ -364,8 +365,9 @@ c     f2(m,i) <- 0.5 sum(m) [fok(m,e) . T1o(e,i)]
 c
 c     N.B. use and destroy : M1,M2
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
 c     help variables
@@ -425,8 +427,9 @@ c
 c     this routine do:
 c     f2(m,i) <- sum(e,n) [ <ie||mn> . T1o(e,n)]
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
 c     help variables
@@ -536,8 +539,9 @@ c     N.B. use and destroy : V1,V2,V3,V4,M1
 c     N.B. # of get v2o2 : 6
 c     N.B. possible fusion with f14 graph
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunabij1,lunabij2,lunabij3,lunt2o1,lunt2o2,lunt2o3
 c
@@ -725,8 +729,9 @@ c
 c     N.B use and destroy : V1,V2,M1
 c     N.B # of read : 3
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunabij1,lunabij2,lunabij3
 c
@@ -890,8 +895,9 @@ c
 c     N.B. use and destroy : V1,V2,V3,V4
 c     N.B. number of read  : 6
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunabij1,lunabij2,lunabij3,lunt2o1,lunt2o2,lunt2o3
 c
@@ -1153,15 +1159,16 @@ c     this routine do T12 contribution:
 c     t1n(a,i) <- sum(e) [FI(a,e) . T1o(e,i)
 c
 c     N.B. use and destroy : M1
-c     N.B. Paralell : in the case where idaaaa.ne.idbaab and
+c     N.B. Parallel : in the case where idaaaa.ne.idbaab and
 c          idaaaa.ne.idbaab this routine runs contributions to
 c          T1n also on idaaaa and idbbbb nodes, since on these
 c          nodes there is a specific
 c          part of contributions F13 (see notes in sumoverb routine)
 c           which are not presented on pilot nodes
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
 c     help variables
@@ -1209,8 +1216,9 @@ c     t1n(a,i) <- sum(m) [T1o(a,m) . FII(m,i)]
 c
 c     N.B. use and destroy : M1
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
 c     help variables
@@ -1271,8 +1279,9 @@ c
 c     N.B. use and destroy : V1,V2,V3,M1
 c     N.B. # of read : 3
 
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunt2o1,lunt2o2,lunt2o3
 c
@@ -1528,8 +1537,9 @@ c4    T2n(a,b,i,j)abab <- + sum(m-b)  [ T1o(b,m)bb . <ij||ma>abba ]
 c
 c     N.B. use and destroy : V1,V2
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
 c     help variables
@@ -1633,15 +1643,16 @@ c8    T2n(a,b,i,j)abab <- sum (e-b)  [ FIV(b,e)bb . T2o(a,e,i,j)abab ]
 c
 c     N.B. use and destroy : V1,V2,V3,M1,M2,M3
 c     N.B. # of read       : 3
-c     N.B. Paralell : in the case where idaaaa.ne.idbaab and
+c     N.B. Parallel : in the case where idaaaa.ne.idbaab and
 c          idaaaa.ne.idbaab this routine runs contributions to
 c          T2n also on idaaaa and idbbbb nodes, but only with
 c          FIV = FI, since on these nodes there is a specific
 c          part of contributions F13 (see notes in sumoverb routine)
 c           which are not presented on pilot nodes
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunt2o1,lunt2o2,lunt2o3
 c
@@ -1854,8 +1865,9 @@ c6    T2n(ab,ij)bbbb   <- Q(ab,j,i)bbbb - Q(ab,i,j)bbbb
 c7    T2n(a,b,i,j)abab <- - sum(m-b) [ T2o(a,b,i,m)abab . FV(m,j)bb ]
 c8    T2n(a,b,i,j)abab <- - sum(m-a) [ T2o(a,b,m,j)abab . FV(m,i)aa ]
 c
+       use Para_Info, only: MyRank
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
        integer lunt2o1,lunt2o2,lunt2o3
 c

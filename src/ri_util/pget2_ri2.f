@@ -22,26 +22,18 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified to RI-DFT, March 2007                           *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas, nBas_Aux
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnp, lPSO, lsa, DMdiag
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
@@ -51,17 +43,15 @@
       Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7),CumnnP(0:7),CumnnP2(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer CumnnP(0:7),CumnnP2(0:7)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_RI2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 
@@ -69,7 +59,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      lOper=1
       PMax=Zero
       iSO=1
       ip_CikJ = ip_CijK
@@ -648,12 +637,11 @@
         Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2_RI2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_RI2')
 #endif
 *
       Call CWTime(Cpu2,Wall2)

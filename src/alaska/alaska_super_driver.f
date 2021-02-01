@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Alaska_Super_Driver(iRC)
+      use Para_Info, only: nProcs
       Implicit Real*8 (a-h,o-z)
       Character*8 Method
       Logical Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exist,
@@ -18,12 +19,12 @@
       Character*16 StdIn
       Integer Columbus
       Character(Len=16) mstate1,mstate2
+      Real*8, Allocatable:: Grad(:)
 #include "warnings.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-#include "para_info.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,10 +82,8 @@
       Call Get_iScalar('agrad',iForceAnalytical)
       If(iForceAnalytical .eq. 1) Do_Numerical_Cholesky=.False.
 *
-      ExFac=0.0D0
       If (Method.eq.'KS-DFT  '.and.Do_Numerical_Cholesky) Then
          Call Get_cArray('DFT functional',KSDFT,16)
-         ExFac=Get_ExFac(KSDFT)
 *
          If (Do_DF                 .or.                  ! RI/DF
      &       (Do_Cholesky.and.Do_1CCD.and.nSym.eq.1)      ! 1C-CD
@@ -524,13 +523,16 @@
 * It is done here because the gradient could have been modified by ESPF
 * and we do not want to pass the root to ESPF (yet)
 *
-      Call Get_Grad(ipGrad,nGrad)
+      Call Get_iScalar('Unique atoms',nsAtom)
+      Call mma_Allocate(Grad,3*nsAtom,Label='Grad')
+      nGrad=3*nsAtom
+      Call Get_Grad(Grad,nGrad)
       If (isNAC) Then
-        Call Store_Grad(Work(ipGrad),nGrad,0,NACstates(1),NACstates(2))
+        Call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
       Else
-        Call Store_Grad(Work(ipGrad),nGrad,iRlxRoot,0,0)
+        Call Store_Grad(Grad,nGrad,iRlxRoot,0,0)
       End If
-      Call GetMem('Grad','Free','Real',ipGrad,nGrad)
+      Call mma_deallocate(Grad)
 *                                                                      *
 ************************************************************************
 *                                                                      *

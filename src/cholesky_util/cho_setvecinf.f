@@ -8,21 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETVECINF(INFVEC,MVEC,M2,MSYM,IVEC,ISYM,IAB,IPASS,
-     &                         ILOC)
+      SUBROUTINE CHO_SETVECINF(IVEC,ISYM,IAB,IPASS,ILOC)
 C
 C     Purpose: set info for vector IVEC of sym. ISYM.
 C
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
-      INTEGER INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_SETVECINF')
-
-#if defined (_DEBUG_)
-      CALL QENTER('_SETVECINF')
-#endif
 
       IF (IVEC .GT. MAXVEC) THEN
          WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors!'
@@ -41,9 +36,5 @@ C
          INFVEC(IVEC+1,4,ISYM) = INFVEC(IVEC,4,ISYM)
      &                         + NNBSTR(ISYM,ILOC) ! next addr.
       END IF
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_SETVECINF')
-#endif
 
       END

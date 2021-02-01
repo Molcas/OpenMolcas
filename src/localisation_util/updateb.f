@@ -41,13 +41,13 @@ C
          kOff_s = ip0 + nOrb2Loc*(iMO_s-1)
          kOff_t = ip0 + nOrb2Loc*(iMO_t-1)
          kOff_ss = kOff_s + iMO_s
-         kOff_ts = kOff_s + iMO_t
          kOff_st = kOff_t + iMO_s
          kOff_tt = kOff_t + iMO_t
          Dss = Work(kOff_ss)
          Dst = Work(kOff_st)
          Dtt = Work(kOff_tt)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
+         kOff_ts = kOff_s + iMO_t
          Dts = Work(kOff_ts)
          Tst = Dst - Dts
          If (abs(Tst) .gt. 1.0d-14) Then
@@ -79,7 +79,7 @@ C
          Call dCopy_(nOrb2Loc,Work(kOff_s+1),1,Work(ip0+iMO_s),nOrb2Loc)
          Call dCopy_(nOrb2Loc,Work(kOff_t+1),1,Work(ip0+iMO_t),nOrb2Loc)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Dst = Work(kOff_st)
          Dts = Work(kOff_ts)
          Tst = Dst - Dts

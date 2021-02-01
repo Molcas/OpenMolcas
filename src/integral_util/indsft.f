@@ -20,23 +20,16 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             April '90                                                *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
+      use SOAO_Info, only: iAOtSO, iOffSO
+      use LundIO
+      use Real_Info, only: ThrInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
@@ -154,7 +147,6 @@
 *
                 MemSO2 = MemSO2 + 1
                 nkl = 0
-                fac = one
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
                    Do 220 kAOk = 0, kBas-1
@@ -174,13 +166,6 @@
                          Do 420 iAOi = 0, iBas-1
                             nij = nij + 1
                             nijkl = (nkl-1)*iBas*jBas + nij
-                            If (Dist) Then
-                            iLog10=INT(
-     &                       Log10(Two*Max( Abs( SOInt(nijkl,MeMSO2) ),
-     &                              1.D-72 ) ) )
-                            iNrInt=Max(-20,Min(9,iLog10))
-                            NrInt(iNrInt) = NrInt(iNrInt) + 1
-                            End If
                             If (Abs(SOInt(nijkl,MemSO2)).gt.ThrInt) Then
                                iSOi = iSO + iAOi
                                If (iSOi.lt.jSOj .and. iQij) Go To 420
@@ -206,20 +191,17 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
-                               nUt=nUt + 1
-                               Buf(nUt) = SOInt(nijkl,MemSO2)
-                               iBuf(nUt) = llSOll + kkSOkk*2**8 +
-     &                                     jjSOjj*2**16
-                               iBuf(nUt)=iOr(iShft(iiSOii,24),iBuf(nUt))
-                               If (nUt.eq.nBuf-1) Then
-                                  Call iDafile(Lu_28,1,iWork(ip_Buf),
-     &                                         lBuf,iDisk)
-                                  nUt=0
+                               Buf%nUt=Buf%nUt + 1
+                               Buf%Buf(Buf%nUt) = SOInt(nijkl,MemSO2)
+                               Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8
+     &                                           +  jjSOjj*2**16
+                               Buf%iBuf(Buf%nUt)=iOr( iShft(iiSOii,24),
+     &                                            Buf%iBuf(Buf%nUt) )
+                               If (Buf%nUt.eq.nBuf-1) Then
+                                  Call dDafile(Lu_28,1,Buf%Buf,lBuf,
+     &                                         iDisk)
+                                  Buf%nUt=0
                                End If
-*                              Sum = Sum + SOInt(nijkl,MemSO2)
-*                              SumAbs = SumAbs+Abs(SOInt(nijkl,MemSO2))
-*                              SumSq= SumSq + SOInt(nijkl,MemSO2)**2
                             End If
  420                     Continue
  320                  Continue

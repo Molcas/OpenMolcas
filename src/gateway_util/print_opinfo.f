@@ -14,9 +14,8 @@
       Use EFP
 #endif
       use External_Centers
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "rmat.fh"
       Character*72 tempStr
@@ -30,7 +29,6 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_OpInfo')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -39,7 +37,7 @@
       PrintOperators=PrintOperators.or.(nEF.ne.0)
       PrintOperators=PrintOperators.or.(nDMS.ne.0)
       PrintOperators=PrintOperators.or.(nWel.ne.0)
-      PrintOperators=PrintOperators.or.lXF
+      PrintOperators=PrintOperators.or.Allocated(XF)
       PrintOperators=PrintOperators.or.RMat_On
       If (PrintOperators) Then
         Write (LuWr,*)
@@ -93,7 +91,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lXF) Then
+      If (Allocated(XF)) Then
 *
          If (nPrint(2).lt.6) Go To 666
          If (iXPolType.gt.0) Then
@@ -133,7 +131,7 @@
          Do iXF = 1, nXF
             A(1:3)=XF(1:3,iXF)
             Charge_iXF=XF(4,iXF)
-            iChxyz=iChAtm(A,iChBas(2))
+            iChxyz=iChAtm(A)
             iDum=0
             Call Stblz(iChxyz,nStab_iXF,iStb,iDum,jCoSet)
             If (nPrint(2).ge.6)
@@ -203,6 +201,5 @@
         Call CollapseOutput(0,'   Operator info:')
         Write(LuWr,*)
       End If
-      Call qExit('Print_OpInfo')
       Return
       End

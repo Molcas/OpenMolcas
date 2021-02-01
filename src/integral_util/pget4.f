@@ -15,6 +15,7 @@
      &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the index list of the batch of the 2nd order    *
 *          density matrix.                                             *
 *                                                                      *
@@ -22,25 +23,17 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *             Modified from PGet2, October '92.                        *
 ************************************************************************
-      use SOAO_Info, only: iAOtSO
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer nPam(4,0:7), iiBas(4),
@@ -49,13 +42,6 @@
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
-*
-      iRout = 39
-      iPrint = nPrint(iRout)
-*     Call qEnter('PGet4')
-      lOper = 1
 *
 *     Prepare some data for Pam
 *
@@ -94,15 +80,6 @@
 *     Get the scrambled 2nd order density matrix
 *
       If (LSA) Then
-!      write(*,*)"This or ??? in pget4"  !yma
-
-!      do i=1,nG1
-!        write(*,*)i,"V-ipG1",Work(ipG1+i-1)
-!      end do
-!      write(*,*)
-!      do i=1,nG2
-!        write(*,*)i,"V-ipG2",Work(ipG2+i-1)
-!      end do
 
       Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
      &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
@@ -221,7 +198,6 @@
       End If
 *
 *     Call GetMem(' Exit PGet4','CHECK','REAL',iDum,iDum)
-*     Call qExit('PGet4')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)

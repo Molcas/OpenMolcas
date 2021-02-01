@@ -22,19 +22,17 @@
 ********************************************************************
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 EF(3,2,nTs),DPnt(nTs,MxAto,3,3), Grad(nGrad),
      &       DCntr(nS,MxAto,3,3), Q(2,nTs)
       Integer iSph(nTs)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
 *
       iIrrep=0
 *

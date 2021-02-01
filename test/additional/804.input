@@ -1,5 +1,6 @@
 * $ this file belongs to the Molcas repository $
 >export MOLCAS_NOCHECK=MLTPL,POTNUC
+> COPY init.ScfOrb .
  &Gateway &END
 title=fullerene c24, D6 symmetry, [5,6]-isomer
 

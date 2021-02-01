@@ -27,7 +27,6 @@ c      Data Debug/.True./   ! CGG
 
       MUL(I,J)=1+IEOR(I-1,J-1)
 
-      Call qEnter('BJAI')
 
       SKAL2=-9999999.9
       IAD13=0
@@ -49,11 +48,9 @@ c      Data Debug/.True./   ! CGG
       NRI=0
       DO 10 iSymI=1,nSym
        nOccI=nOcc(iSymI)
-       nOrbI=nOrb(iSymI)
        NRJ=0
        DO 20 iSymJ=1,iSymI
         nOccJ=nOcc(iSymJ)
-        nOrbJ=nOrb(iSymJ)
         NRA=0
         DO 30 iSymA=1,nSym
          nExtA=nExt(iSymA)
@@ -77,7 +74,6 @@ c      Data Debug/.True./   ! CGG
             LAB = nOrbA * nOrbB
             If (DoCholesky) LAB=nExtA * nExtB
             LAB1= nExtA * nExtB
-            LB  = nExtB
             Call GetMem('INT1','ALLO','REAL',LINT1,LAB)
             Call GetMem('INT2','ALLO','REAL',LINT2,LAB)
             Call GetMem('AIBJ','ALLO','REAL',LAIBJ,LAB1) ! AB|IJ
@@ -245,6 +241,5 @@ c      Data Debug/.True./   ! CGG
        NRI=NRI+nOccI
 10    CONTINUE
       VECL2=sqrt(1.0D+00/VECL2)
-      Call qExit('BJAI')
       RETURN
       END

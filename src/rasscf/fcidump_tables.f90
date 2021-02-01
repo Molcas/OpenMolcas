@@ -18,7 +18,7 @@ module fcidump_tables
   private
   public :: FockTable, TwoElIntTable, OrbitalTable, mma_allocate, &
     mma_deallocate, length, print, fill_orbitals, fill_fock, fill_2ElInt, &
-    cutoff_default, unused
+    cutoff_default
   save
 
   type :: FockTable
@@ -62,10 +62,6 @@ module fcidump_tables
 
   interface print
     module procedure FockTable_print, TwoElIntTable_print, OrbitalTable_print
-  end interface
-
-  interface unused
-    module procedure FockTable_unused, TwoElIntTable_unused, OrbitalTable_unused
   end interface
 
 contains
@@ -132,12 +128,6 @@ contains
     end do
   end subroutine OrbitalTable_print
 
-  subroutine OrbitalTable_unused(table)
-    type(OrbitalTable), intent(in) :: table
-    integer :: n
-    if (.false.) n = length(table)
-  end subroutine OrbitalTable_unused
-
   subroutine FockTable_allocate(fock_table, n)
     implicit none
     integer, intent(in) :: n
@@ -173,8 +163,6 @@ contains
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
   subroutine fill_fock(fock_table, Fock, cutoff)
-    use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
-    use rasscf_data, only : nAcPar
     implicit none
     real*8, intent(in) :: Fock(:)
     type(FockTable), intent(inout) :: fock_table
@@ -210,12 +198,6 @@ contains
       write(6, '(E15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
     end do
   end subroutine FockTable_print
-
-  subroutine FockTable_unused(table)
-    type(FockTable), intent(in) :: table
-    integer :: n
-    if (.false.) n = length(table)
-  end subroutine FockTable_unused
 
   subroutine TwoElIntTable_allocate(table, n)
     implicit none
@@ -292,10 +274,4 @@ contains
         table%values(j), (table%index(i, j), i=1, 4)
     end do
   end subroutine TwoElIntTable_print
-
-  subroutine TwoElIntTable_unused(table)
-    type(TwoElIntTable), intent(in) :: table
-    integer :: n
-    if (.false.) n = length(table)
-  end subroutine TwoElIntTable_unused
 end module fcidump_tables

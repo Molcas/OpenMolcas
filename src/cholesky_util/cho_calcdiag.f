@@ -8,20 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,
-     &                        IIBSTRSH,NNBSTRSH,MSYM,MMSHL,NDUMP)
+      SUBROUTINE CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 C
 C     Purpose: shell-driven calculation of the integral diagonal and
 C              setup of the first reduced set.
 C
+      use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION BUF(LENBUF), SCR(LENSCR)
       INTEGER   IBUF(4,LENBUF)
-      INTEGER   IIBSTRSH(MSYM,MMSHL,3), NNBSTRSH(MSYM,MMSHL,3)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "WrkSpc.fh"
 
@@ -34,16 +33,9 @@ C
 
       INTEGER  CHO_ISAOSH
       EXTERNAL CHO_ISAOSH
-      LOGICAL  CHO_RSV_TSK
-      EXTERNAL CHO_RSV_TSK
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
-      IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Check dimensions.
 C     -----------------
@@ -96,7 +88,7 @@ C     Calculate diagonal in loop over shell-pairs.
 C     CHO_NO2CENTER on: skip all 2-center diagonals.
 C     ----------------------------------------------
 
-      IF (CHO_NO2CENTER .AND. l_IATOMSHL.LT.NSHELL) THEN
+      IF (CHO_NO2CENTER .AND. SIZE(IATOMSHL).LT.NSHELL) THEN
          CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
      &                 103)
       END IF
@@ -289,7 +281,7 @@ C     ----------------------------------------------
 C     Read through the file to get first reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_IZERO(NNBSTRSH(1,1,1),NSYM*NNSHL)
+      nnBstRSh(:,:,1) = 0
 
       REWIND(IUNIT)
       REWIND(JUNIT)
@@ -361,8 +353,8 @@ C     -----------------------------------------------
          END DO
       END IF
 
-      CALL CHO_GAIGOP(NNBSTRSH(1,1,1),NSYM*NNSHL,'+') ! sync
-      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,1)
+      CALL CHO_GAIGOP(NNBSTRSH(:,:,1),NSYM*NNSHL,'+') ! sync
+      CALL CHO_SETREDIND(1)
 
       END
       Subroutine UpdateMostNegative(n,X,Val)

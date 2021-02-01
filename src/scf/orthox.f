@@ -44,15 +44,8 @@
 #include "real.fh"
 *
       Real*8 C(nBas,nOrb),S(nOrb,nOrb)
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qEnter('Orthox')
-#endif
-*
+
+
       Do 100 iOrb = 1, nOrb
          F = Zero
          If (S(iOrb,iOrb).gt.Zero) F=One/SqRt(S(iOrb,iOrb))
@@ -77,14 +70,5 @@
   133       Continue
   130    Continue
   100 Continue
-*
-#ifdef _DEBUG_
-      Call qExit('Orthox')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
+
       End

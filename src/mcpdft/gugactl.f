@@ -30,7 +30,6 @@ C
 #include "gugx.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('GugaCtl')
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -106,11 +105,10 @@ C
 C     INITIALIZE GUGA TABLES:
 C
       CALL MKGUGA_m(NSM,IPRLEV)
-      NCONF=NCSF(LSYM)
+      NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 
 100   Continue
-       Call qExit('GugaCtl')
 
       RETURN
       END

@@ -11,17 +11,23 @@
       Subroutine SOCtl_Seward(Mamn,nMamn)
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl
-      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO
+      use Symmetry_Info, only: iChTbl, iOper, iChBas, lIrrep, lBsFnc,
+     &                         iSkip, nIrrep
+      use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO,
+     &                     iOffSO
+      use real_spherical, only: iSphCr, LblCBs, LblSBs
+      use Temporary_Parameters, only: Primitive_Pass
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "real.fh"
 #include "print.fh"
 #include "stdalloc.fh"
 *
+      Logical lFAIEMP
       Character ChOper(0:7)*3,ChTemp*8,Mamn(nMamn)*(LENIN8)
       Character LP_Names(MxAtom)*(LENIN4)
       Character*60 Fmt
@@ -53,13 +59,13 @@ CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     LVAL end MVAL dimensioned for L = MxAng
-      dimension LVAL((MxAng+1)*(MxAng+1))
-      dimension MVAL((MxAng+1)*(MxAng+1))
+*     LVAL end MVAL dimensioned for L = iTabMx
+      dimension LVAL((iTabMx+1)*(iTabMx+1))
+      dimension MVAL((iTabMx+1)*(iTabMx+1))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -68,19 +74,21 @@ CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
       IsBasisUNK=.false.
       iRout=2
       iPrint = nPrint(iRout)
-      Call qEnter('SOCtl')
 cvv LP_NAMES was used later without initialization.
       do i=1,MxAtom
        LP_NAMES(i)(1:LENIN)='crap'
        LP_NAMES(i)(LENIN1:LENIN4)='crap'
       enddo
-
+      lFAIEMP = .False.
+      Do i = 1, nCnttp
+         lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute iBas, iBas_Aux, and iBas_Frag used for double checking
 *     in SOCtl.
-*     Compute cdMax, EtMax, and nShlls.
+*     Compute cdMax, EtMax, and S%nShlls.
 *
       Call Misc_Seward(iBas,iBas_Aux,iBas_Frag)
       Call SOAO_Info_Init(iBas+iBas_Frag+iBas_Aux,nIrrep)
@@ -91,14 +99,14 @@ cvv LP_NAMES was used later without initialization.
 *     (note: this is wrong for Cartesian shells)
 *
       k=0
-      do i=0,MxAng
+      do i=0,iTabMx
          do j=-i,i
             k=k+1
             lval(k)=i
             mval(k)=j
          enddo
       enddo
-C     write(6,*) ' lval',k,(MxAng+1)**2
+C     write(6,*) ' lval',k,(iTabMx+1)**2
 *     correct mval order for p-functions
       mval(2)=1
       mval(3)=-1
@@ -118,9 +126,6 @@ C     write(6,'(20i4)') (mval(i),i=1,k)
       write(isymunit,'(A)') 'Symmetry information from seward'
       write(isymunit,'(A)')
      &'#of funct, unique centre, L, M , # of sym.ad.functions , Phases'
-C     write(6,*) 'Symmetry info to file SYMINFO '
-C     Show=.Not.Prprt
-C     Show=Show.and..Not.Primitive_Pass
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -132,10 +137,8 @@ C     Show=Show.and..Not.Primitive_Pass
       iSO_Aux=iBas+iBas_Frag
       iSO_Frag=iBas
       iSO_Tot=0
-      n2Tot = 0
-      n2Max = 0
-      nDim = 0
-      m2Tot = 0
+      S%n2Tot = 0
+      S%nDim = 0
       iAO=0
       lSkip=.False.
 *
@@ -145,13 +148,13 @@ C     Show=Show.and..Not.Primitive_Pass
       Call mma_Allocate(jCI,iBas,label='jCI')
 !     Stuff for LocalDKH/X2C/BSS
       Call mma_Allocate(iOT,iBas,label='iOT')       ! Stuff for LoProp
-      Call mma_Allocate(LPC,3,mCentr,label='LPC')
+      Call mma_Allocate(LPC,3,S%mCentr,label='LPC')
 !     Stuff (not just) for LoProp
-      Call mma_Allocate(LPQ,mCentr,label='LPQ')
+      Call mma_Allocate(LPQ,S%mCentr,label='LPQ')
 !     Stuff (not just) for LoProp
-      Call mma_Allocate(LPMM,mCentr,label='LPMM')
+      Call mma_Allocate(LPMM,S%mCentr,label='LPMM')
 !     Stuff (not just) for LoProp
-      Call mma_Allocate(LPA,mCentr,label='LPA')
+      Call mma_Allocate(LPA,S%mCentr,label='LPA')
       call mma_allocate(basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(desym_basis_ids,4,maxbfn+maxbfn_aux)
       call mma_allocate(fermion_type,maxbfn+maxbfn_aux)
@@ -164,7 +167,7 @@ C     Show=Show.and..Not.Primitive_Pass
          Call CollapseOutput(1,'   SO/AO info:')
          Write (6,'(3X,A)')    '   -----------'
       End If
-      If (Petite) Go To 199
+      If (nIrrep.eq.1) Go To 199
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -189,7 +192,7 @@ C     Show=Show.and..Not.Primitive_Pass
       jCounter=0
       Call mma_Allocate(SM,iBas,iBas,label='SM')
       Call FZero(SM,iBas**2)
-      Call mma_Allocate(IndC,2*mCentr)
+      Call mma_Allocate(IndC,2*S%mCentr)
       iAtoms=0
 *
 *     Loop over irreducible representations and symmetry operations,
@@ -207,7 +210,6 @@ C     Show=Show.and..Not.Primitive_Pass
          nBas(iIrrep) = 0
          nBas_Aux(iIrrep) = 0
          nBas_Frag(iIrrep) = 0
-         nPrm(iIrrep) = 0
          Type(iIrrep)=.True.
 *
 *        Loop over distinct shell types
@@ -287,7 +289,7 @@ C     Show=Show.and..Not.Primitive_Pass
                iSh = dbsc(iCnttp)%iVal - 1
                If (dbsc(iCnttp)%nVal.lt.1) Then
                   Do iCo = 0, nIrrep/dc(mdc)%nStab-1
-                     iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
+                     iyy=Index_Center(mdc,iCo,IndC,iAtoms,S%mCentr)
                      iR=NrOpr(dc(mdc)%iCoSet(iCo,0))
 
                      LPC(1:3,iyy)=dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -349,9 +351,8 @@ C     Show=Show.and..Not.Primitive_Pass
                         Type(iIrrep)=.False.
                      End If
 *
-                     If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
-                     m2Max = Max(m2Max,nExpi**2)
+                     If (S%MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO+1
+                     S%m2Max = Max(S%m2Max,nExpi**2)
                      Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
                         If (Shells(iSh)%Aux) Then
@@ -368,7 +369,6 @@ C     Show=Show.and..Not.Primitive_Pass
                            nBas(iIrrep) = nBas(iIrrep) + 1
                         End If
                         If (iSO_.gt.nMamn) Then
-                           Call qTrace
                            Write (6,*) ' iSO_.gt.nMamn'
                            Write (6,*) 'nMamn=',nMamn
                            Call Abend
@@ -469,7 +469,8 @@ C     Show=Show.and..Not.Primitive_Pass
                                FacN= Sqrt(FacN)
                             End If
                             SM(ixxx,iSO)=Fact*FacN
-                            iyy=Index_Center(mdc,iCo,IndC,iAtoms,mCentr)
+                            iyy=Index_Center(mdc,iCo,IndC,iAtoms,
+     &                                       S%mCentr)
 *
                             iCI(ixxx)=iyy
                             jCI(jxxx)=icnt
@@ -533,12 +534,10 @@ culf
          nrSym=nIrrep
          nrBas(iIrrep+1)=nBas(iIrrep)
 *        write(6,*) ' nBas(iIrrep)', iIrrep, nBas(iIrrep)
-         nDim = nDim + nBas(iIrrep)
-         n2Tot = n2Tot + nBas(iIrrep)**2
-         n2Max = Max(n2Max,nBas(iIrrep)**2)
-         m2Tot = m2Tot + nPrm(iIrrep)**2
+         S%nDim = S%nDim + nBas(iIrrep)
+         S%n2Tot = S%n2Tot + nBas(iIrrep)**2
  200  Continue ! iIrrep
-*     If (lSkip) nDim = iBas
+*     If (lSkip) S%nDim = iBas
       If (iBas.ne.iSO .and.
      &    iBas_Aux.ne.iSO_Aux-iSO .and.
      &    .Not.lSkip) Then
@@ -556,7 +555,7 @@ C redefine iOffSO array in case of Fragment AIEMP
           iOffSO(iIrrep) = jOffSO(iIrrep)
         End Do
       End IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Symmetrization Matrix','(20F5.2)',SM,iBas,iBas)
 #endif
       Call Put_dArray('SM',SM,iBas**2)
@@ -598,7 +597,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
          nBas(iIrrep) = 0
          nBas_Aux(iIrrep) = 0
          nBas_Frag(iIrrep) = 0
-         nPrm(iIrrep) = 0
          Type(iIrrep)=.True.
 *
 *        Loop over distinct shell types
@@ -698,9 +696,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Type(iIrrep)=.False.
                      End If
 *
-                     If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
-                     nPrm(iIrrep) = nPrm(iIrrep) + nExpi
-                     m2Max = Max(m2Max,nExpi**2)
+                     If (S%MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO+1
+                     S%m2Max = Max(S%m2Max,nExpi**2)
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
      &                 nFCore(0)=nFCore(0)+nCore
@@ -723,7 +720,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            nBas(iIrrep) = nBas(iIrrep) + 1
                         End If
                         If (iSO_.gt.nMamn) Then
-                           Call qTrace
                            Write (6,*) ' iSO_.gt.nMamn'
                            Write (6,*) 'nMamn=',nMamn
                            Call Abend
@@ -837,10 +833,8 @@ CSVC: basis IDs of both symmetric and non-symmetric case
  301     Continue
          nrSym=nIrrep
          nrBas(iIrrep+1)=nBas(iIrrep)
-         nDim = nDim + nBas(iIrrep)
-         n2Tot = n2Tot + nBas(iIrrep)**2
-         n2Max = Max(n2Max,nBas(iIrrep)**2)
-         m2Tot = m2Tot + nPrm(iIrrep)**2
+         S%nDim = S%nDim + nBas(iIrrep)
+         S%n2Tot = S%n2Tot + nBas(iIrrep)**2
  300  Continue
 *
 CSVC: basis IDs of non-symmetric case
@@ -892,7 +886,7 @@ CSVC: basis IDs of non-symmetric case
                      Call Abend
                   End If
                   lComp = kComp + iComp
-                  If (MaxBas(iAng).gt.0) Then
+                  If (S%MaxBas(iAng).gt.0) Then
 *
                      Do 408 imc = 0, (nIrrep/dc(mdc)%nStab)-1
                         itest1 = iAnd(dc(mdc)%iCoSet(imc,0),iChxyz)
@@ -936,12 +930,12 @@ CSVC: basis IDs of non-symmetric case
 *---- Write info (not just) for LoProp
 *
       If (.Not.Primitive_Pass) Then
-         Call Put_cArray('LP_L',LP_Names(1),(LENIN4)*mCentr)
-         Call Put_iArray('LP_A',LPA,mCentr)
-         Call Put_dArray('LP_Q',LPQ,mCentr)
-         Call Put_dArray('LP_Coor',LPC,3*mCentr)
-         Call Put_iScalar('LP_nCenter',mCentr)
-         Call Put_iArray('IsMM Atoms',LPMM,mCentr)
+         Call Put_cArray('LP_L',LP_Names(1),(LENIN4)*S%mCentr)
+         Call Put_iArray('LP_A',LPA,S%mCentr)
+         Call Put_dArray('LP_Q',LPQ,S%mCentr)
+         Call Put_dArray('LP_Coor',LPC,3*S%mCentr)
+         Call Put_iScalar('LP_nCenter',S%mCentr)
+         Call Put_iArray('IsMM Atoms',LPMM,S%mCentr)
          Call Put_iArray('Center Index',iCI,iBas)
          Call Put_iArray('Orbital Type',iOT,iBas)
          Call Put_iArray('Non valence orbitals',nFCore,nIrrep)
@@ -967,9 +961,7 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_AO=iAO
-*
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' *** iAOtSO ***'
       Do 555 jAO = 1, iAO
          Write (6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)
@@ -981,6 +973,5 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit ('SOCtl')
       Return
       End

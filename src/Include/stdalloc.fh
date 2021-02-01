@@ -15,249 +15,266 @@
 
 ! 1D allocate
          subroutine dmma_allo_1D(buffer,n1,label)
-           real*8, allocatable :: buffer(:)
-           integer :: n1
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine dmma_allo_1D_lim(buffer,l1,label)
-           real*8, allocatable :: buffer(:)
-           integer, dimension(2) :: l1
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_1D(buffer,n1,label)
-           complex*16, allocatable :: buffer(:)
-           integer :: n1
-           character (len=*), optional :: label
+         subroutine zmma_allo_1D(buffer,n1,label)
+           complex*16, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_1D_lim(buffer,l1,label)
-           complex*16, allocatable :: buffer(:)
-           integer, dimension(2) :: l1
-           character (len=*), optional :: label
+         subroutine zmma_allo_1D_lim(buffer,l1,label)
+           complex*16, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine imma_allo_1D(buffer,n1,label)
-           integer, allocatable :: buffer(:)
-           integer :: n1
-           character (len=*), optional :: label
+           integer, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine imma_allo_1D_lim(buffer,l1,label)
-           integer, allocatable :: buffer(:)
-           integer, dimension(2) :: l1
-           character (len=*), optional :: label
+           integer, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine cmma_allo_1D(buffer,n1,label)
-           character(*), allocatable :: buffer(:)
-           integer :: n1
-           character (len=*), optional :: label
+           character(*), allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine cmma_allo_1D_lim(buffer,l1,label)
-           character(*), allocatable :: buffer(:)
-           integer, dimension(2) :: l1
-           character (len=*), optional :: label
+           character(*), allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine lmma_allo_1D(buffer,n1,label)
+           logical, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine lmma_allo_1D_lim(buffer,l1,label)
+           logical, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
 
 ! 2D allocate
          subroutine dmma_allo_2D(buffer,n1,n2,label)
            real*8, allocatable :: buffer(:,:)
-           integer :: n1, n2
-           character (len=*), optional :: label
+           integer, intent(in) :: n1, n2
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine dmma_allo_2D_lim(buffer,l1,l2,label)
            real*8, allocatable :: buffer(:,:)
-           integer, dimension(2) :: l1, l2
-           character (len=*), optional :: label
+           integer, intent(in) :: l1(2), l2(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_2D(buffer,n1,n2,label)
+         subroutine zmma_allo_2D(buffer,n1,n2,label)
            complex*16, allocatable :: buffer(:,:)
-           integer :: n1, n2
-           character (len=*), optional :: label
+           integer, intent(in) :: n1, n2
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_2D_lim(buffer,l1,l2,label)
+         subroutine zmma_allo_2D_lim(buffer,l1,l2,label)
            complex*16, allocatable :: buffer(:,:)
-           integer, dimension(2) :: l1, l2
-           character (len=*), optional :: label
+           integer, intent(in) :: l1(2), l2(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine imma_allo_2D(buffer,n1,n2,label)
            integer, allocatable :: buffer(:,:)
-           integer :: n1, n2
-           character (len=*), optional :: label
+           integer, intent(in) :: n1, n2
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine imma_allo_2D_lim(buffer,l1,l2,label)
            integer, allocatable :: buffer(:,:)
-           integer, dimension(2) :: l1, l2
-           character (len=*), optional :: label
+           integer, intent(in) :: l1(2), l2(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine lmma_allo_2D(buffer,n1,n2,label)
+           logical, allocatable :: buffer(:,:)
+           integer, intent(in) :: n1, n2
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine lmma_allo_2D_lim(buffer,l1,l2,label)
+           logical, allocatable :: buffer(:,:)
+           integer, intent(in) :: l1(2), l2(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
 
 ! 3D allocate
          subroutine dmma_allo_3D(buffer,n1,n2,n3,label)
-           real*8, allocatable :: buffer(:,:,:)
-           integer :: n1, n2, n3
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:)
+           integer, intent(in) :: n1, n2, n3
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine dmma_allo_3D_lim(buffer,l1,l2,l3,label)
-           real*8, allocatable :: buffer(:,:,:)
-           integer, dimension(2) :: l1, l2, l3
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_3D(buffer,n1,n2,n3,label)
-           complex*16, allocatable :: buffer(:,:,:)
-           integer :: n1, n2, n3
-           character (len=*), optional :: label
+         subroutine zmma_allo_3D(buffer,n1,n2,n3,label)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:)
+           integer, intent(in) :: n1, n2, n3
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_3D_lim(buffer,l1,l2,l3,label)
-           complex*16, allocatable :: buffer(:,:,:)
-           integer, dimension(2) :: l1, l2, l3
-           character (len=*), optional :: label
+         subroutine zmma_allo_3D_lim(buffer,l1,l2,l3,label)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine imma_allo_3D(buffer,n1,n2,n3,label)
-           integer, allocatable :: buffer(:,:,:)
-           integer :: n1, n2, n3
-           character (len=*), optional :: label
+           integer, allocatable, intent(inout) :: buffer(:,:,:)
+           integer, intent(in) :: n1, n2, n3
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine imma_allo_3D_lim(buffer,l1,l2,l3,label)
-           integer, allocatable :: buffer(:,:,:)
-           integer, dimension(2) :: l1, l2, l3
-           character (len=*), optional :: label
+           integer, allocatable, intent(inout) :: buffer(:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
 
 ! 4D allocate
-         subroutine imma_allo_4D(buffer,n1,n2,n3,n4,label)
-           integer, allocatable :: buffer(:,:,:,:)
-           integer :: n1, n2, n3, n4
-           character (len=*), optional :: label
-         end subroutine
-         subroutine imma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
-           integer, allocatable :: buffer(:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4
-           character (len=*), optional :: label
-         end subroutine
          subroutine dmma_allo_4D(buffer,n1,n2,n3,n4,label)
-           real*8, allocatable :: buffer(:,:,:,:)
-           integer :: n1, n2, n3, n4
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine dmma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
-           real*8, allocatable :: buffer(:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_4D(buffer,n1,n2,n3,n4,label)
-           complex*16, allocatable :: buffer(:,:,:,:)
-           integer :: n1, n2, n3, n4
-           character (len=*), optional :: label
+         subroutine zmma_allo_4D(buffer,n1,n2,n3,n4,label)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
-           complex*16, allocatable :: buffer(:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4
-           character (len=*), optional :: label
+         subroutine zmma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine imma_allo_4D(buffer,n1,n2,n3,n4,label)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine imma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
 
 ! 5D allocate
-         subroutine imma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
-           integer, allocatable :: buffer(:,:,:,:,:)
-           integer :: n1, n2, n3, n4, n5
-           character (len=*), optional :: label
-         end subroutine
-         subroutine imma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
-           integer, allocatable :: buffer(:,:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4, l5
-           character (len=*), optional :: label
-         end subroutine
          subroutine dmma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
-           real*8, allocatable :: buffer(:,:,:,:,:)
-           integer :: n1, n2, n3, n4, n5
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4, n5
+           character(len=*), optional, intent(in) :: label
          end subroutine
          subroutine dmma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
-           real*8, allocatable :: buffer(:,:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4, l5
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
-           complex*16, allocatable :: buffer(:,:,:,:,:)
-           integer :: n1, n2, n3, n4, n5
-           character (len=*), optional :: label
+         subroutine zmma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4, n5
+           character(len=*), optional, intent(in) :: label
          end subroutine
-         subroutine DCmma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
-           complex*16, allocatable :: buffer(:,:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4, l5
-           character (len=*), optional :: label
+         subroutine zmma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
 
 ! 7D allocate
+         subroutine dmma_allo_7D(buffer,n1,n2,n3,n4,n5,n6,n7,label)
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4, n5, n6, n7
+           character(len=*), optional, intent(in) :: label
+         end subroutine
          subroutine dmma_allo_7D_lim(buffer,l1,l2,l3,l4,l5,l6,l7,label)
-           real*8, allocatable :: buffer(:,:,:,:,:,:,:)
-           integer, dimension(2) :: l1, l2, l3, l4, l5, l6, l7
-           character (len=*), optional :: label
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2),    &
+     &                            l6(2), l7(2)
+           character(len=*), optional, intent(in) :: label
          end subroutine
 
        end interface
-
-
 
 
        interface mma_deallocate
 
 ! 1D deallocate
          subroutine dmma_free_1D(buffer)
-           real*8, allocatable :: buffer(:)
+           real*8, allocatable, intent(inout) :: buffer(:)
          end subroutine
-         subroutine DCmma_free_1D(buffer)
-           complex*16, allocatable :: buffer(:)
+         subroutine zmma_free_1D(buffer)
+           complex*16, allocatable, intent(inout) :: buffer(:)
          end subroutine
          subroutine imma_free_1D(buffer)
-           integer, allocatable :: buffer(:)
+           integer, allocatable, intent(inout) :: buffer(:)
          end subroutine
          subroutine cmma_free_1D(buffer)
-           character(*), allocatable :: buffer(:)
+           character(*), allocatable, intent(inout) :: buffer(:)
+         end subroutine
+         subroutine lmma_free_1D(buffer)
+           logical, allocatable, intent(inout) :: buffer(:)
          end subroutine
 
 ! 2D deallocate
          subroutine dmma_free_2D(buffer)
-           real*8, allocatable :: buffer(:,:)
+           real*8, allocatable, intent(inout) :: buffer(:,:)
          end subroutine
-         subroutine DCmma_free_2D(buffer)
-           complex*16, allocatable :: buffer(:,:)
+         subroutine zmma_free_2D(buffer)
+           complex*16, allocatable, intent(inout) :: buffer(:,:)
          end subroutine
          subroutine imma_free_2D(buffer)
-           integer, allocatable :: buffer(:,:)
+           integer, allocatable, intent(inout) :: buffer(:,:)
+         end subroutine
+         subroutine lmma_free_2D(buffer)
+           logical, allocatable, intent(inout) :: buffer(:,:)
          end subroutine
 
 ! 3D deallocate
          subroutine dmma_free_3D(buffer)
-           real*8, allocatable :: buffer(:,:,:)
+           real*8, allocatable, intent(inout) :: buffer(:,:,:)
          end subroutine
-         subroutine DCmma_free_3D(buffer)
-           complex*16, allocatable :: buffer(:,:,:)
+         subroutine zmma_free_3D(buffer)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:)
          end subroutine
          subroutine imma_free_3D(buffer)
-           integer, allocatable :: buffer(:,:,:)
+           integer, allocatable, intent(inout) :: buffer(:,:,:)
          end subroutine
 
 ! 4D deallocate
          subroutine dmma_free_4D(buffer)
-           real*8, allocatable :: buffer(:,:,:,:)
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:)
+         end subroutine
+         subroutine zmma_free_4D(buffer)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:,:)
          end subroutine
          subroutine imma_free_4D(buffer)
-           integer, allocatable :: buffer(:,:,:,:)
-         end subroutine
-         subroutine DCmma_free_4D(buffer)
-           complex*16, allocatable :: buffer(:,:,:,:)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:)
          end subroutine
 
 ! 5D deallocate
          subroutine dmma_free_5D(buffer)
-           real*8, allocatable :: buffer(:,:,:,:,:)
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:,:)
          end subroutine
-         subroutine imma_free_5D(buffer)
-           integer, allocatable :: buffer(:,:,:,:,:)
-         end subroutine
-         subroutine DCmma_free_5D(buffer)
-           complex*16, allocatable :: buffer(:,:,:,:,:)
+         subroutine zmma_free_5D(buffer)
+           complex*16, allocatable, intent(inout) :: buffer(:,:,:,:,:)
          end subroutine
 
 ! 7D deallocate
          subroutine dmma_free_7D(buffer)
-           real*8, allocatable :: buffer(:,:,:,:,:,:,:)
+           real*8, allocatable, intent(inout) :: buffer(:,:,:,:,:,:,:)
          end subroutine
 
        end interface

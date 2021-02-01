@@ -16,15 +16,15 @@
 *
       use pso_stuff
       use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep, iOper
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
 *
       Real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,
      &       nAco*(1+naco)/2,*)
@@ -87,7 +87,6 @@
 *
 *           Symmetry of Q matrix
 *
-            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)))
             jis=nropr(ieor(iOper(iIrr),ioper(mIrr)))
 *
             lMax=nAsh(lIrr)

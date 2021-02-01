@@ -31,7 +31,6 @@
       Integer                 :: im,mp1,i
       Real(kind=8)           :: kB
 !----------------------------------------------------------------------
-      Call qEnter('calcmagn1')
       kB=0.6950356000_wp !   in cm^-1*K-1
       Z =0.0_wp
       MT=0.0_wp
@@ -79,7 +78,6 @@
 
       MT=MT/Z
 
-      Call qExit('calcmagn1')
       Return
       End
 

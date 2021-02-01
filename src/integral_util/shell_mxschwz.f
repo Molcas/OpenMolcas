@@ -20,17 +20,15 @@ c----------------------------------------------------------------------
       use k2_arrays
       use iSD_data
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
 *
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 *
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
@@ -38,7 +36,6 @@ c----------------------------------------------------------------------
 c     Call GetMem('_scf','List','Real',iDum,iDum)
 *     loop over shell pair...
       call dcopy_(nSkal*nSkal,[Zero],0,Schwz_Shl,1)
-      nSDp1=nSD+1
       Do iS = 1, nSkal
         iShll= iSD( 0,iS)
         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100

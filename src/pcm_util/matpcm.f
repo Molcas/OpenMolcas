@@ -75,7 +75,6 @@
 * T and R matrices
       Fac = (Eps + One) / (Eps - One)
       Do 2000 ITs = 1, NTs
-        Rad = Coor_Sph(4,ISphe(ITs))
         TMat(ITs,ITs) = Fac * SMat(ITs,ITs) - SDMat(ITs,ITs) / TPI
         RMat(ITs,ITs) = - One + DMat(ITs,ITs) * Tessera(4,ITs) / TPI
         Do 2001 JTs = 1, NTs

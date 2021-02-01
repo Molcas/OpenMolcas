@@ -11,10 +11,10 @@
       Subroutine Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                 jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                 iCmpi,jCmpj,iShell,jShell,
-     &                 mDCRij,ipDij,ipDDij,mDij,nIrrep,DeDe,nDeDe)
+     &                 mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Real*8 DeDe(nDeDe)
-#include "WrkSpc.fh"
 *
       If (nIrrep.eq.1) Then
          ii1=0

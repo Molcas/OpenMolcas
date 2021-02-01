@@ -20,21 +20,6 @@
 * Object: kernel routine for the computation of FAIEMP Projection      *
 *         operator integrals.                                          *
 *                                                                      *
-* Called from: OneEl_g                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -62,18 +47,16 @@
 *     Author: Ben Swerts                                               *
 *                                                                      *
 *     based on PrjGrd                                                  *
-*                                                                      *
 ************************************************************************
       use Her_RW
       use Real_Spherical
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit None
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -91,16 +74,16 @@
       Character*80 Label
       Logical  IfGrad(3,2), JfGrad(3,4), ABeq(3), EQ
       Logical  EnergyWeight
-      Integer  i,j,iIrrep,iComp,nElem,ia,ib,iAng,iAO,iBas
+      Integer  i,j,nElem,ia,ib,iAng,iBas
       Integer  iRout,iPrint,nSkal,iCar
-      Integer  iCent,iCmp,iCnttp,iCurCenter,iCurCnttp,iCurMdc
+      Integer  iCent,iCnttp,iCurCenter,iCurCnttp,iCurMdc
       Integer  iGamma,iLoc,ip,ipA,ipAxyz,ipB,ipBxyz,ipCxyz,ipF1,ipF2
       Integer  ipF1a,ipF2a,ipIJ,ipK1,ipK2,ipP1,ipP2,ipQ1,iPrim,ipRxyz
-      Integer  ipTmp,ipZ1,ipZ2,ipZI1,ipZI2,iS,iSbasis,iSEnd,iShell,iShll
+      Integer  ipTmp,ipZ1,ipZ2,ipZI1,ipZI2,iS,iSbasis,iSEnd,iShll
       Integer  iSize,iSlocal,iSstart,iStemp,iStrt,iVec,jAng,jBas
-      Integer  jCmp,jCnttp,jPrim,jS,jSbasis,jShell,jShll,jSize
-      Integer  jSlocal,ld,lDCRT,LmbdT,mdci,mdcj,mGrad,mVec,mVecAC
-      Integer  mVecCB,nac,ncb,nDAO,nDCRT,nDisp,nHer,jAO,maxDensSize
+      Integer  jCnttp,jPrim,jS,jSbasis,jShll,jSize
+      Integer  jSlocal,ld,lDCRT,LmbdT,mdci,mGrad,mVec,mVecAC
+      Integer  mVecCB,nac,ncb,nDAO,nDCRT,nHer,maxDensSize
       Integer  nVecAC,nVecCB,iTri,iCnt, jCnt
       Real*8   Fact,DNrm2_
       External DNrm2_
@@ -110,7 +93,6 @@
       nElem(i) = (i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-*     Call qEnter('FragPGrd')
       iRout = 202
       iPrint = nPrint(iRout)
 *
@@ -153,13 +135,11 @@
 * Loop over all shells belonging to the fragments
 *
       nDAO = nElem(la)*nElem(lb)
-      iIrrep = 0
       iuvwx(1) = dc(mdc)%nStab
       iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
-      iComp = 1
       iCurMdc = 0
 c      ! The mdc value of the current fragment placeholder
       iCurCnttp = 0
@@ -175,12 +155,9 @@ c      ! Dummy initialize
       Do 1965 iS = 1, nSkal
         iShll  = iSD( 0,iS)
         iAng   = iSD( 1,iS)
-        iCmp   = iSD( 2,iS)
         iBas   = iSD( 3,iS)
         iPrim  = iSD( 5,iS)
-        iAO    = iSD( 7,iS)
         mdci   = iSD(10,iS)
-        iShell = iSD(11,iS)
         iCnttp = iSD(13,iS)
         iCnt   = iSD(14,iS)
         C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -228,8 +205,8 @@ c      ! Dummy initialize
      &        (dbsc(iCurCnttp)%nFragDens+1)/2) Stop 'maxIJSize'
           End If
         End If
-c        write(*,*) '  iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp',
-c     &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
+c        write(*,*) '  iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp',
+c     &              iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp
 c        write(*,*) '  iPrim,iBas =',iPrim,iBas
 *
 * extra derivative stuff
@@ -242,10 +219,8 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
                End Do
             End Do
 *
-            nDisp = IndDsp(mdci,iIrrep)
             Do iCar = 0, 2
               JfGrad(iCar+1,3) = .False.
-              iCmp = 2**iCar
 * always equivalent of pChrg's
               JndGrd(iCar+1,3) = 0
             End Do
@@ -269,20 +244,16 @@ c        write(*,*) '  iPrim,iBas =',iPrim,iBas
         Do jS = iSstart, iSend
           jShll  = iSD( 0,jS)
           jAng   = iSD( 1,jS)
-          jCmp   = iSD( 2,jS)
           jBas   = iSD( 3,jS)
           jPrim  = iSD( 5,jS)
-          jAO    = iSD( 7,iS)
-          mdcj   = iSD(10,jS)
-          jShell = iSD(11,jS)
           jCnttp = iSD(13,jS)
           jCnt   = iSD(14,jS)
           jSize = nElem(jAng)
           If(Shells(jShll)%Transf.and.
      &       Shells(jShll)%Prjct ) jSize = 2*jAng+1
           B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
-c         write(*,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
-c    &                    jShll,jAng,mdcj,jShell,jCnttp
+c         write(*,*) '    jShll,jAng,jCnttp =',
+c    &                    jShll,jAng,jCnttp
 c         write(*,*) '    jPrim,jBas =',jPrim,jBas
 *                                                                      *
 ************************************************************************
@@ -704,7 +675,7 @@ c     &                        Array(ipIJ), Final(1,1,1,mVec), Fact*Half)
 *-----------Distribute contributions to the gradient
 *
             Call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                   JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                   JfGrad,JndGrd,iuvwx,lOp)
 *
  1967     Continue !lDCRT
           jSbasis = jSbasis + jBas * jSize

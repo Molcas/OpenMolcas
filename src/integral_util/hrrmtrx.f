@@ -95,7 +95,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -143,7 +142,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -189,7 +187,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -232,7 +229,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)

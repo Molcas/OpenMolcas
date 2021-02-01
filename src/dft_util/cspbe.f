@@ -25,10 +25,10 @@
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 * Local arrays:
@@ -111,7 +111,7 @@
          zeta_in=(rhoa-rhob)/rho_in
          call cspbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
-         Work(ip_tmpB+iGrid-1)=F_xc(iGrid)-Work(ip_tmpB+iGrid-1)
+         tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 * dF_drhoa:
          dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+
      &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))
@@ -174,8 +174,7 @@ C     Local variables
 C
       REAL*8        AC,          AI,          CFF1
       REAL*8        CFF2,        CFF3,        CFF4,        CFF5
-      REAL*8        CFF6,        D2ACDR2,     D2AIDR2
-      REAL*8        D2AIDRDZ,    D2AIDZ2
+      REAL*8        CFF6,        D2ACDR2
       REAL*8        D2ECDR2
       REAL*8        D2ECDRDZ,    D2ECDZ2,     D2ECFDR2
       REAL*8        D2ECPDR2,    D2FZDZ2,     D2GDX2
@@ -183,14 +182,10 @@ C
       REAL*8        D2PDGDZ
       REAL*8        D2PDR2
       REAL*8        D2PDRDG
-      REAL*8        D2PDRDZ,     D2PDX2,      D2PDZ2,      D2QDG2
-      REAL*8        D2QDGDZ
-      REAL*8        D2QDR2,      D2QDRDG,     D2QDRDZ,     D2QDX2
-      REAL*8        D2QDZ2,      D2TDG2,      D2TDGDZ
-      REAL*8        D2TDR2,      D2TDRDG,     D2TDRDZ,     D2TDZ2
-      REAL*8        D2XDG2
-      REAL*8        D2XDGDZ
-      REAL*8        D2XDR2,      D2XDRDG,     D2XDRDZ,     D2XDZ2
+      REAL*8        D2PDRDZ,     D2PDX2,      D2PDZ2
+      REAL*8        D2QDR2,      D2QDX2
+      REAL*8        D2QDZ2,      D2TDG2
+      REAL*8        D2XDR2
       REAL*8        D2YDG2
       REAL*8        D2YDGDZ
       REAL*8        D2YDR2
@@ -200,9 +195,9 @@ C
       REAL*8        DECDR,       DECDZ,       DECFDR,      DECPDR
       REAL*8        DFZDZ,       DGDX
       REAL*8        DPDG,        DPDR,        DPDX,        DPDZ
-      REAL*8        DQDG,        DQDR,        DQDX,        DQDZ
+      REAL*8        DQDR,        DQDX,        DQDZ
       REAL*8        DTDG,        DTDR,        DTDZ
-      REAL*8        DXDG,        DXDR,        DXDZ
+      REAL*8        DXDR
       REAL*8        DYDG,        DYDR,        DYDZ,        EC
       REAL*8        ECF,         ECP
       REAL*8        FZ,          G,           GRDRHO,      PHI
@@ -242,9 +237,9 @@ C
 * a lot of variables may get used uninitialized (due to if-statements).
 * So they must get initialized here:
       d2acdr2=9.9D99
-      d2aidr2=9.9D99
-      d2aidrdz=9.9D99
-      d2aidz2=9.9D99
+      !d2aidr2=9.9D99
+      !d2aidrdz=9.9D99
+      !d2aidz2=9.9D99
       d2ecdr2=9.9D99
       d2ecdrdz=9.9D99
       d2ecdz2=9.9D99
@@ -257,23 +252,23 @@ C
       d2pdrdg=9.9D99
       d2pdrdz=9.9D99
       d2pdz2=9.9D99
-      d2qdg2=9.9D99
-      d2qdgdz=9.9D99
+      !d2qdg2=9.9D99
+      !d2qdgdz=9.9D99
       d2qdr2=9.9D99
-      d2qdrdg=9.9D99
-      d2qdrdz=9.9D99
+      !d2qdrdg=9.9D99
+      !d2qdrdz=9.9D99
       d2qdz2=9.9D99
-      d2tdgdz=9.9D99
-      d2tdr2=9.9D99
-      d2tdrdg=9.9D99
-      d2tdrdz=9.9D99
-      d2tdz2=9.9D99
-      d2xdg2=9.9D99
-      d2xdgdz=9.9D99
+      !d2tdgdz=9.9D99
+      !d2tdr2=9.9D99
+      !d2tdrdg=9.9D99
+      !d2tdrdz=9.9D99
+      !d2tdz2=9.9D99
+      !d2xdg2=9.9D99
+      !d2xdgdz=9.9D99
       d2xdr2=9.9D99
-      d2xdrdg=9.9D99
-      d2xdrdz=9.9D99
-      d2xdz2=9.9D99
+      !d2xdrdg=9.9D99
+      !d2xdrdz=9.9D99
+      !d2xdz2=9.9D99
       d2ydg2=9.9D99
       d2ydgdz=9.9D99
       d2ydr2=9.9D99
@@ -293,16 +288,16 @@ C
       dpdr=9.9D99
       dpdx=9.9D99
       dpdz=9.9D99
-      dqdg=9.9D99
+      !dqdg=9.9D99
       dqdr=9.9D99
       dqdx=9.9D99
       dqdz=9.9D99
       dtdg=9.9D99
       dtdr=9.9D99
       dtdz=9.9D99
-      dxdg=9.9D99
+      !dxdg=9.9D99
       dxdr=9.9D99
-      dxdz=9.9D99
+      !dxdz=9.9D99
       dydg=9.9D99
       dydr=9.9D99
       dydz=9.9D99
@@ -476,9 +471,9 @@ C
        d2Pdrdz=(d2Ecdrdz-3.D0*dEcdr*y)/phi3g
        d2Pdz2=(d2Ecdz2-6.D0*dEcdz*y+(12.D0*y**2-3.D0*(d2phidz2/phi))*Ec)
      &       /phi3g
-       d2Aidr2=Q*(dPdr**2-d2Pdr2)
-       d2Aidrdz=Q*(dPdr*dPdz-d2Pdrdz)
-       d2Aidz2=Q*(dPdz**2-d2Pdz2)
+       !d2Aidr2=Q*(dPdr**2-d2Pdr2)
+       !d2Aidrdz=Q*(dPdr*dPdz-d2Pdrdz)
+       !d2Aidz2=Q*(dPdz**2-d2Pdz2)
       end if
 * Ai and its derivatives have been checked OK.
 
@@ -491,13 +486,13 @@ C
        dTdr=(-7.0d0*third)*T*rhoi
        dTdz=-2.D0*T*y
       end if
-      if(idord.ge.2) then
-       d2Tdrdg=(-7.0d0*third)*dTdg*rhoi
-       d2Tdr2=(-10.0D0*third)*dTdr*rhoi
-       d2Tdgdz=-2.D0*dTdg*y
-       d2Tdz2=-3.D0*y*dTdz-2.D0*d2phidz2*T/phi
-       d2Tdrdz=-2.D0*dTdr*y
-      end if
+!      if(idord.ge.2) then
+!       d2Tdrdg=(-7.0d0*third)*dTdg*rhoi
+!       d2Tdr2=(-10.0D0*third)*dTdr*rhoi
+!       d2Tdgdz=-2.D0*dTdg*y
+!       d2Tdz2=-3.D0*y*dTdz-2.D0*d2phidz2*T/phi
+!       d2Tdrdz=-2.D0*dTdr*y
+!      end if
 * T and its derivatives have been checked OK.
 !      x=Ai*(Ai+T)
 !      if(idord.ge.1) then

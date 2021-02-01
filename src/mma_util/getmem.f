@@ -64,9 +64,6 @@
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "mama.fh"
-#ifdef _OPENMP
-      Include 'omp_lib.h'
-#endif
 *
 *
       Character*(*) NameIn,KeyIn,TypeIn
@@ -85,7 +82,6 @@
       If ( MemCtl(ipStat).ne.ON ) then
          Call IniMem()
       End if
-      If ( MemCtl(ipQuery).eq.ON ) Call qEnter('GetMem')
 *----------------------------------------------------------------------*
 *     read default parameters from Common / MemCtl /                   *
 *----------------------------------------------------------------------*
@@ -170,11 +166,9 @@
       End If
 #endif
 
-      If ( MemCtl(ipQuery).eq.ON ) Call qExit('GetMem')
       Return
 *
  777  Continue
-      Call QTrace()
       Call Quit(_RC_MEMORY_ERROR_)
 
       End
@@ -199,10 +193,10 @@
 *include "SysDef.fh"
 #include "WrkSpc.fh"
       integer :: ipos, length
-      character(*) :: vartyp
-      real*8, parameter ::    dgarbage(1) = [0.730432726d308]
-      integer, parameter ::   igarbage(1) = [730432726]
-      real*4, parameter ::    sgarbage(1) = [0.730432726e38]
+      character(len=*) :: vartyp
+      real*8, parameter ::    dgarbage(1) = [huge(1.0d0)]
+      integer, parameter ::   igarbage(1) = [huge(1)]
+      real*4, parameter ::    sgarbage(1) = [huge(1.0)]
       character, parameter :: cgarbage = 'x'
 
       integer i

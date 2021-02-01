@@ -17,25 +17,17 @@
 *  Object: driver for the central-fragment interaction 2-electron      *
 *          integrals (based on drv2el_3center_RI and drv2el_scf)       *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
       use k2_arrays, only: pDq, pFq
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep, iOper
+      use Real_Info, only: ThrInt, CutInt
+      use Integral_Interfaces, only: DeDe_SCF
       Implicit None
       External No_Routine
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"
@@ -52,24 +44,22 @@
       Character*8  Label
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,
-     &             Ind, iOpt, ip_ij, ipDMax,
-     &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
+     &             iOpt, ip_ij, ipDMax,
+     &             ipFragDensAO, ipOneHam, ipTMax, iRC,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
-     &             nInd, nOneHam, Nr_Dens, nSkal, nSkal_Fragments,
+     &             nOneHam, Nr_Dens, nSkal,
      &             nSkal_Valence
-      Dimension    Ind(1,1,2)
 
-      Real*8       Aint, Count, Disc, Disc_Mx, Dix_Mx, Dtst, ExFac,
+      Real*8       Aint, Count, Disc, Disc_Mx, Dtst, ExFac,
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
       Real*8, Allocatable, Target:: Dens(:), Fock(:)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Integer      iFD
       Character*80 Line
 #endif
-#include "../integral_util/dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,11 +70,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 203
-      iPrint = nPrint(iRout)
-      Call QEnter('Drv2ElFrag')
       call xFlush(6)
-      nInd=1
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.False.
@@ -147,7 +133,7 @@ c     W2Disc=.False.
      &                EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Call TriPrt('Fragment density',' ',
      &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
 #endif
@@ -175,8 +161,8 @@ c              ! position in fragment density matrix
           End Do
  1000   Continue
       End Do
-#ifdef _DEBUG_
-      FD = 1
+#ifdef _DEBUGPRINT_
+      iFD = 1
       Do iIrrep = 0, nIrrep - 1
          Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
          iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -193,7 +179,7 @@ c              ! position in fragment density matrix
 *
       Call AlloK2()
       Call DeDe_SCF(Dens,Fock,nBT,mDens)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (nIrrep.eq.1) Then
          Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
       Else
@@ -216,7 +202,6 @@ c              ! position in fragment density matrix
       DoFock=.True.
       DoGrad=.False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-      nSkal_Fragments=nSkal-nSkal_Valence
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -225,7 +210,6 @@ c              ! position in fragment density matrix
       Disc_Mx=Zero
 *
       Disc=Zero
-      Dix_Mx=Zero
       TskHi=Zero
       TskLw=Zero
       ThrInt = CutInt   ! Integral neglect threshold from SCF
@@ -299,14 +283,14 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          lNoSkip = lNoSkip.and.lS.le.nSkal_Valence
 
          If (lNoSkip) Then
-           Call Eval_Ints_New_Internal
+           Call Eval_Ints_New_Inner
      &                    (iS,jS,kS,lS,TInt,nTInt,
      &                     iTOffs,No_Routine,
      &                     pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                     Ind,nInd,[NoCoul],[NoExch],
+     &                     [NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                     Count,DoIntegrals,DoFock)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
             If (nIrrep.eq.1) Then
                Call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
@@ -363,7 +347,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       Call Free_DeDe(Dens,Fock,nBT)
 
       Call mma_deallocate(Dens)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*)
       write(6,*)
       write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
@@ -403,7 +387,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       End Do
 
 * write out the results
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iFD = ipOneHam
       Do iIrrep = 0, nIrrep - 1
          Call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))
@@ -443,6 +427,5 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2ElFrag')
       Return
       End

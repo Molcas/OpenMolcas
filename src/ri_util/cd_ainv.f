@@ -103,7 +103,6 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
       Call GetMem('AScr','Allo','Real',ipScr,lScr)
 *
       nDim=n
-      nIrrep=1
 *
       Thr=Thr_CD*1.0D-1
       Lu_Z=7

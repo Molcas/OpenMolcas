@@ -13,32 +13,19 @@
 ************************************************************************
       SubRoutine PrMx2(Label,iComp,lOper,Result,Mem)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
 *                                                                      *
 *     Modified by AB 950620                                            *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 *     Local arrays
       Real*8 Result(Mem)
       Character Label*(*), Line*80
       Integer  lOper
       Logical Type
-*
-*     Call qEnter('PrMtrx')
 *
          ip1=1
          Type = .True.
@@ -73,6 +60,5 @@
  40         Continue
  30      Continue
 *
-*     Call qExit('PrMtrx')
       Return
       End

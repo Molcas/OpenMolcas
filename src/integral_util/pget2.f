@@ -14,6 +14,7 @@
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
 *                                                                      *
@@ -21,40 +22,28 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use pso_stuff
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-      iPrint=99
-#ifdef _DEBUG_
-      Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
@@ -220,12 +209,11 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2')
 #endif
       Return
 c Avoid unused argument warnings

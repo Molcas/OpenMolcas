@@ -11,27 +11,14 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine PAM2Int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM)
+      SubRoutine PAM2Int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                  )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of PAM integrals used in  *
 *         PAM calculations. The operator is a gaussian type function   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              CmbnMP                                                  *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -64,20 +51,19 @@
       use Basis_Info
       use Center_Info
       use Her_RW
+      use PAM2
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 TC(3), C(3)
       Character*80 Label
       Logical ABeq(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iChO(nComp)
+      Integer iDCRT(0:7)
 *
 *-----Statement function for Cartesian index
 *
@@ -85,7 +71,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('PAM2Int')
 *     Call GetMem(' Enter PAM2Int','LIST','REAL',iDum,iDum)
 *
       nip = 1
@@ -285,10 +270,11 @@ c      If (nOrdOp.eq.1) Then
       End If
 *
 *     Call GetMem(' Exit PAM2Int','LIST','REAL',iDum,iDum)
-*     Call QExit('PAM2Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_real_array(PtChrg)
+         Call Unused_integer(iAddPot)
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)

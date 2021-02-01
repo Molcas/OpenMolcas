@@ -16,7 +16,6 @@
       Integer iv(kmax)
 *
 *     iQ = 1
-      Call qEnter('PriWel')
       Call binte(k,alfa,beta,r0,a,grin,nz)
 *     Call RecPrt(' In PriWel: Grin',' ',Grin,nz,(k+1)*(k/2+1)*(k/4+1))
 *
@@ -68,6 +67,5 @@ c .....now analyze it
  99   Continue
 *     Call RecPrt(' In PriWel:gri',' ',gri,nz,isum)
 *
-      Call qExit('PriWel')
       Return
       End

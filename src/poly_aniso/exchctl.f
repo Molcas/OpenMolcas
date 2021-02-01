@@ -42,7 +42,7 @@
       Integer, intent(in)           :: mem ! memory allocated so far
       Integer, intent(in)           :: MxRank1, MxRank2
       Integer, intent(in)           :: imaxrank(npair,2)
-      Character(1), intent(in)      :: itype(nneq)
+      Character(Len=1), intent(in)  :: itype(nneq)
 
       Real(kind=8), intent(in)     :: eso(nneq,nmax)
       Real(kind=8), intent(in)     :: Jex(npair)
@@ -156,7 +156,6 @@ c      Real(kind=8) ::  J1Ex(npair,3,3)
       Real(kind=8)    :: dnrm2_
       External         :: norder, dnrm2_  !,ilaenv
 
-      Call qEnter('PA_exchctl')
       DBG=.false.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       If(DBG) Then
@@ -1393,7 +1392,6 @@ c        End If
 c        End Do
 c      End Do
 c 199  Continue
-      Call qExit('PA_exchctl')
       Return
       End
 
@@ -1415,7 +1413,6 @@ c 199  Continue
 !      Real(kind=8)                   :: g(3)
 !      Complex(kind=8), allocatable   :: Z(:,:)
 
-      Call qEnter('PA_prep_mom_exch')
 !-----------------------------------------------------------------------
       Call mma_allocate(Mt,3,n,n,'Mt')
       Call mma_allocate(St,3,n,n,'St')
@@ -1486,7 +1483,6 @@ c 199  Continue
       Call mma_deallocate(St)
 !      Call mma_deallocate(Z)
 
-      Call qExit('PA_prep_mom_exch')
 
 !-----------------------------------------------------------------------
 ! old preparation of the data for Lines exchange

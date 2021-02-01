@@ -19,25 +19,12 @@
      &                      Coeff1,iBasn,Coeff2,jBasn,
      &                      nMemab,Con,
      &                      Wk002,m002,Wk003,m003,Wk004,m004,
-     &                      iStb,jStb,
-     &                      ipTmp1,ipTmp2,ipTmp3,
-     &                      ipKnew,ipLnew,ipPnew,ipQnew)
+     &                      iStb,jStb)
 ************************************************************************
 *                                                                      *
 * Object: to compute zeta, kappa, and P.                               *
 *         This is done for all unique pairs of centers                 *
 *         generated from the symmetry unique centers A and B.          *
-*                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              SchInt                                                  *
-*              PckInt                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -52,10 +39,9 @@
 *             By Anders Bernhardsson                                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Real*8 Coor(3,2), CoorM(3,4), Alpha(nAlpha), Beta(nBeta),
@@ -69,13 +55,6 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Con)
          Call Unused_real_array(Wk004)
-         Call Unused_integer(ipTmp1)
-         Call Unused_integer(ipTmp2)
-         Call Unused_integer(ipTmp3)
-         Call Unused_integer(ipKnew)
-         Call Unused_integer(ipLnew)
-         Call Unused_integer(ipPnew)
-         Call Unused_integer(ipQnew)
       End If
 *
 *     This is to allow type punning without an explicit interface

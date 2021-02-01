@@ -17,24 +17,21 @@ C
       DIMENSION SCR(LSCR)
 #include "itmax.fh"
 #include "cholesky.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CHARACTER*15 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_DIAGINT')
 #endif
 
-      NAB = MAX(ISHLA,ISHLB)*(MAX(ISHLA,ISHLB)+1)/2+MIN(ISHLA,ISHLB)
-      XAB = DBLE(NAB)
-
       CALL CHO_DZERO(SCR,LSCR)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRESCR(CUTINT1,THRINT1)
 #endif
 
       CALL EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR,
      &               Integral_WrOut_Cho_diag)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRESCR(CUTINT2,THRINT2)
       IF (CUTINT2.NE.CUTINT1 .OR. THRINT2.NE.THRINT1) THEN
          WRITE(LUPRI,*) SECNAM,': CutInt before Eval_Ints_: ',CUTINT1

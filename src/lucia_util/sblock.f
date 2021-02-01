@@ -67,7 +67,7 @@
 #include "cintfo.fh"
       DIMENSION CB(*),HCB(*)
 *
-      IDUM = 0
+*     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
 C?    WRITE(6,*) ' IPERTOP in SBLOCK = ', IPERTOP
@@ -157,7 +157,6 @@ C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
       END DO
       END DO
 C?    WRITE(6,*) ' MXTSOB = ', MXTSOB
-      MAXIJ = MXTSOB ** 2
 *.Local scratch arrays for blocks of C and sigma
 c      IF(ISIMSYM.EQ.0) THEN
         LSCR1 = MXSOOB
@@ -243,7 +242,6 @@ C  I assume memory was allocated for blocks, so
       CALL GETMEM('XI4S  ','ALLO','REAL',KXI4S,LSCR3)
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
 *.Some TTS arrays
-      NOOS = NOCTPA*NOCTPB*NSMCI
       NTTS = MXNTTS
 *
 *. for partitioning of vector
@@ -344,7 +342,7 @@ c      KSIPA = 1 ! jwk-cleanup
         CALL ITODS([-1],1,-1,LUCBLK)
       END IF
 *. Eliminate local memory
-      IDUM = 0
+*     IDUM = 0
 *     CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBLOCK')
       CALL GETMEM('CONSPA','FREE','INTE',KCONSPA,NOCTPA**2)
       CALL GETMEM('CONSPB','FREE','INTE',KCONSPB,NOCTPB**2)

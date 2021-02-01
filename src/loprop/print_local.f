@@ -16,8 +16,7 @@
      &                       XHoleLoc,D2, ChPol, ChPolBB,LIonize)
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -390,8 +389,7 @@ C           Call Free_Work(ip_EVec)
 
       Call Free_Work(iScratch_New)
       Call Free_Work(iScratch_Org)
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
 *
 *------ Print warning if non-ANO basis sets have been used
 *

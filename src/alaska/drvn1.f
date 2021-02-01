@@ -16,11 +16,6 @@
 * Object: to compute the molecular gradient contribution due to the    *
 *         nuclear repulsion energy.                                    *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -31,15 +26,14 @@
       use Center_Info
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
       use External_Centers
+      use Symmetry_Info, only: iChBas, nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
       Real*8 A(3), B(3), RB(3), Grad(nGrad), Temp(nGrad), DA(3),
      &       Tempd(3)
@@ -215,7 +209,7 @@
       End Do
       If (iPrint.ge.15) Then
          Lab=' The Nuclear Repulsion Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -227,7 +221,7 @@
 ************************************************************************
 *
 
-      If (.Not.lXF) Go To 666
+      If (.Not.Allocated(XF)) Go To 666
 *
       If((nOrd_XF.gt.1).or.(iXPolType.gt.0)) Then
          Call WarningMessage(2,'Error in DrvN1')
@@ -250,7 +244,7 @@
      &            .and. DA(3).eq.Zero
          If (NoLoop) Go To 102
          A(1:3)=XF(1:3,iFd)
-         iChxyz=iChAtm(A,iChBas(2))
+         iChxyz=iChAtm(A)
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
          ndc = 0
@@ -347,7 +341,7 @@
       End Do               ! End of centers of the external field, iFD
       If (iPrint.ge.15) Then
          Lab=' The Nuclear External Electric Field Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -388,7 +382,6 @@
                   ZA = dbsc(iCnttp)%Charge
                   If (iPrint.ge.99) Then
                      Write (6,*) ' Charge=',ZA
-                     Write (6,*) ' ixyz=',ixyz
                      Call RecPrt(' Centers',' ',
      &                           dbsc(iCnttp)%Coor,3,
      &                           dbsc(iCnttp)%nCntr)
@@ -433,7 +426,6 @@
                      tempd(3)= MM(ip,2) *ZA * CCoMx * CCoMy * CCoMzd
                      If (iPrint.ge.99) Then
                         Write (6,*) CCoMx, CCoMy, CCoMz
-                        Write (6,*) 'Work(ip)=',Work(ip)
                         Write (6,*) 'tempd=',tempd
                      End If
 *
@@ -462,7 +454,7 @@
       End Do
       If (iPrint.ge.15) Then
          Lab=' The Nuclear Reaction Field (KirkWood) Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -580,7 +572,7 @@
 *
       If (iPrint.ge.15) Then
          Lab=' The Nuclear Reaction Field (PCM) Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
 *
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -591,7 +583,7 @@
       Call PCM_Cav_grd(Temp,nGrad)
       If (iPrint.ge.15) Then
          Lab=' The Cavity PCM Contribution'
-         Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+         Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
       End If
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
@@ -602,7 +594,7 @@
          Call PCM_EF_grd(Temp,nGrad)
          If (iPrint.ge.15) Then
             Lab=' The EF PCM Contribution'
-            Call PrGrad(Lab,Temp,nGrad,lIrrep,ChDisp,5)
+            Call PrGrad(Lab,Temp,nGrad,ChDisp,5)
          End If
          Call DaXpY_(nGrad,-One,Temp,1,Grad,1)
       End If

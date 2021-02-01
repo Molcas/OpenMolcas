@@ -11,27 +11,13 @@
 * Copyright (C) 1994,1995, Roland Lindh                                *
 *               1994, Luis Seijo                                       *
 ************************************************************************
-      SubRoutine SROGrd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                  IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                  iStabM,nStabM)
+      SubRoutine SROGrd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of MP integrals.          *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltPrm                                                  *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -51,7 +37,6 @@
 *      lb    : total angular momentum of ket gaussian                  *
 *      A     : center of bra gaussian                                  *
 *      B     : center of ket gaussian                                  *
-*      nRys  : order of Rys- or Hermite-Gauss polynomial               *
 *      Array : Auxiliary memory as requested by ECPMem                 *
 *      nArr  : length of Array                                         *
 *      Ccoor : coordinates of the operator, zero for symmetric oper.   *
@@ -68,31 +53,26 @@
       use Center_Info
       use Her_RW
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), Grad(nGrad),
-     &       Array(nZeta*nArr), Ccoor(3), C(3), TC(3),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iDCRT(0:7),
-     &          iuvwx(4), kOp(2), lOp(4),
-     &          IndGrd(3,2), JndGrd(3,4)
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3)
+      Integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
       Character*80 Label
-      Logical IfGrad(3,2), JfGrad(3,4), TstFnc, TF, ABeq(3), EQ
+      Logical JfGrad(3,4), ABeq(3), EQ
+      Logical, External :: TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
-*     Call qEnter('SROGrd')
       iRout = 191
       iPrint = nPrint(iRout)
 *
@@ -111,7 +91,6 @@
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
-      iComp = 1
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961
@@ -182,8 +161,7 @@
      &            ' ', Shells(iShll)%Akl(1,1,1),nExpi,nExpi)
                call dcopy_(nExpi**2,Shells(iShll)%Akl(1,1,1),1,
      &                     Array(ipC),1)
-               If (EQ(A,RB).and.EQ(A,TC).and.
-     &            lNoPair.and.dbsc(kCnttp)%NoPair) Then
+               If (EQ(A,RB).and.EQ(A,TC).and.dbsc(kCnttp)%NoPair) Then
                   Call DaXpY_(nExpi**2,One,
      &                        Shells(iShll)%Akl(1,1,2),1,Array(ipC),1)
                   If (iPrint.ge.49) Call RecPrt(' The Adl matrix',' ',
@@ -558,7 +536,7 @@
 *--------------Distribute contributions to the gradient
 *
                Call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,
-     &                     JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                     JfGrad,JndGrd,iuvwx,lOp)
 *
  1966       Continue
  1967    Continue
@@ -567,14 +545,12 @@
          kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
-*     Call QExit('SROGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
-         Call Unused_integer(nRys)
          Call Unused_integer_array(lOper)
       End If
       End

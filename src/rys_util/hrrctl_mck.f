@@ -17,13 +17,6 @@
 *                                                                      *
 * Object: to act as a shell towards the HRR subroutines.               *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Hrr2Da                                                  *
-*              Hrr2Db                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

@@ -11,20 +11,24 @@
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
 ************************************************************************
+
+#include "macros.fh"
       module CI_solver_util
+      use definitions, only: wp
 #ifdef _MOLCAS_MPP_
       use mpi
+      use definitions, only: MPIInt
+      use Para_Info, only: Is_Real_Par
 #endif
-      use definitions, only: wp, MPIInt
+      use Para_Info, only: MyRank
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_data, only: lRoots, nRoots, iAdr15,
-     &                       iRoot, Weight, nAc, nAcPar, nAcpr2
+      use linalg_mod, only: verify_
+      use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_, assert_, RDM_to_runfile,
-     &      cleanMat
-#include "para_info.fh"
+      public :: wait_and_read, RDM_to_runfile,
+     &      cleanMat, triangular_number, inv_triang_number, write_RDM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
       integer(MPIInt) :: error
@@ -44,8 +48,8 @@
 #ifdef NAGFOR
       use f90_unix_proc, only: sleep
 #endif
-        character(*), intent(in) :: filename
-        real*8, intent(out) :: energy
+        character(len=*), intent(in) :: filename
+        real(wp), intent(out) :: energy
         logical :: newcycle_found
         integer :: LuNewC
         newcycle_found = .false.
@@ -75,22 +79,8 @@
 #endif
       end subroutine wait_and_read
 
-      subroutine abort_(message)
-        character(*), intent(in) :: message
-        call WarningMessage(2, message)
-        call QTrace()
-        call Abend()
-      end subroutine
-
-      subroutine assert_(condition, message)
-        logical, intent(in) :: condition
-        character(*), intent(in) :: message
-        if (.not. condition) call abort_(message)
-      end subroutine
-
-
 !>  @brief
-!>    State Average RDMs and put into runfile.
+!>  Put RDMs into runfile.
 !>
 !>  @author Giovanni Li Manni, Oskar Weser
 !>
@@ -99,15 +89,14 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
-        real*8, intent(in) :: DMAT(nAcpar), D1S_MO(nAcPar),
+        real(wp), intent(in) :: DMAT(nAcpar), D1S_MO(nAcPar),
      &                        PSMAT(nAcpr2), PAMAT(nAcpr2)
-        integer :: iDisk, jDisk
+        integer :: jDisk
 
 ! Put it on the RUNFILE
         call Put_D1MO(DMAT,NACPAR)
         call Put_P2MO(PSMAT,NACPR2)
 ! Save density matrices on disk
-        iDisk = IADR15(4)
         jDisk = IADR15(3)
         call DDafile(JOBIPH, 1, DMAT, NACPAR, jDisk)
         call DDafile(JOBIPH, 1, D1S_MO, NACPAR, jDisk)
@@ -140,18 +129,15 @@
 *           DMAT will be destroyed and replaced with a positive semi-definite one.
 *           N-representability will be preserved.
 
-      real*8, intent(inout) :: MAT(NacPar)
-      real*8, allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
-      integer :: rc, i, j
-      real*8 :: trace
-      character(12), parameter :: routine = 'CleanMat'
+      real(wp), intent(inout) :: MAT(NacPar)
+      real(wp), allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
+      integer :: i, j
+      real(wp) :: trace
+      character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
-      Call qEnter(routine)
 
-      rc = 0
       If (nacpar .lt. 1) then
-        rc= -1
         write(6,*) 'matrix size < 1.'
         Go To 10
       end if
@@ -173,7 +159,7 @@
       end do
       CALL JACOB(MAT_copy, EVC, NAC, NAC)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'eigenvalues: '
       do i=1,nac
          write(6,*) MAT_copy(I*(I+1)/2)
@@ -223,7 +209,7 @@
             MAT(j + (i - 1) * i / 2) = Tmp2(j + (i - 1) * nac)
           end do
         end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write(6,*) 'trace after recombination:'
         trace = 0.0d0
         do i = 1, nac
@@ -237,9 +223,45 @@
       call mma_deallocate(EVC)
 ****************** Exit ****************
 10    Continue
-      Call qExit(routine)
       return
       end subroutine cleanMat
+
+
+      elemental integer function triangular_number(n)
+          integer, intent(in) :: n
+          triangular_number = n * (n + 1) / 2
+      end function
+
+        !> This is the inverse function of triangular_number
+      elemental function inv_triang_number(n) result(res)
+          integer, intent(in) :: n
+          integer :: res
+          res = nint(-0.5_wp + sqrt(0.25_wp + real(2 * n, kind=wp)))
+      end function
+
+
+      subroutine write_RDM(RDM, i_unit)
+        real(wp), intent(in) :: RDM(:)
+        integer, intent(in) :: i_unit
+
+        integer :: io_err, curr_line, i, n_lines, j
+
+        if (myrank == 0) then
+        n_lines = inv_triang_number(size(RDM))
+
+        i = 1
+        do curr_line = 1, n_lines
+          do j = i, i + curr_line - 1
+            write(i_unit, '(E25.15)', advance='no', iostat=io_err)
+     &                  RDM(j)
+            call verify_(io_err == 0, 'Error on writing RDM.')
+          end do
+          write(i_unit, *)
+          i = i + curr_line
+        end do
+        end if
+      end subroutine
+
 
 
 

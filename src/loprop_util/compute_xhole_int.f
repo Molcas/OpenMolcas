@@ -8,24 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Compute_Xhole_Int(nBasLop,nSym,ipSqMom,Func)
+      Subroutine Compute_Xhole_Int(nBasLop,nSym,ipSqMom,Func,nSize)
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
 
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "nq_info.fh"
 #include "status.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-
+      Real*8, Allocatable:: D1ao(:)
       Dimension nBasLop(nSym)
-      Logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
+!     Logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
       Logical DSCF
       Character*4 DFTFOCK, KSDFT
-      Dimension nSize(1)
+      Integer nSize
+      Real*8, Allocatable:: CMO(:)
 
 *
 *-- Check symmetry
@@ -35,33 +34,34 @@
         Write(6,*)' You should not run LoProp with symmetry!'
         Call Abend()
       Endif
-
 *
 *-- Set a lot of numbers and labels. See below for more help.
 *
       nB=nBasLop(1)     !-- number of basis functions
       nTri=nB*(nB+1)/2  !-- obvious!
       Func=Zero         !-- initialize
-      Dens=Zero         !-- initialize
-      nFckDim=1         !-- for open-shell the fock-matrix has
-                        !   two versions, but this implementation
-                        !   is not for UHF (but for CASSCF)
-      nD=1              !-- much like nFckDim
-      Do_Gamma=.false.  !-- optional stuff in DFT-theory; for our
-                        !   purpose, just scheiss.
-      Do_Grad=.false.   !-- see above.
-      On_Top=.false.    !-- see above.
-      Do_Tau=.false.    !-- see above.
-      Do_MO=.true.      !-- in our integration kernel, we need MOs.
-      Do_TwoEl=.false.  !-- scheiss in our functional.
+!IFG: uncomment when DrvNQ call fixed (see below)
+!     Dens=Zero         !-- initialize
+!     nFckDim=1         !-- for open-shell the fock-matrix has
+!                       !   two versions, but this implementation
+!                       !   is not for UHF (but for CASSCF)
+!     nD=1              !-- much like nFckDim
+!     Do_Gamma=.false.  !-- optional stuff in DFT-theory; for our
+!                       !   purpose, just scheiss.
+!     Do_Grad=.false.   !-- see above.
+!     On_Top=.false.    !-- see above.
+!     Do_Tau=.false.    !-- see above.
+!     Do_MO=.true.      !-- in our integration kernel, we need MOs.
+!     Do_TwoEl=.false.  !-- scheiss in our functional.
 
       Write(DFTFOCK,'(A)')'XHOL'  !-- Tell the routines that we wish
                                   !   to run a xhole calculation.
       Write(KSDFT,'(A)')'LDA'     !-- Just to get the routines to
                                   !   take the fastest path, no other
                                   !   meaning.
-      Call Get_D1ao(ip_Dens,nDens)!-- The density matrix.
-      ExFac=Get_ExFac(KSDFT)      !-- Zero, in fact.
+      Call mma_allocate(D1ao,nTri)
+      nDens=nTri
+      Call Get_D1ao(D1ao,nDens)!-- The density matrix.
       Functional_type=LDA_type    !-- Number from nq_info.fh.
       EThr=1.0d-9
       Call Put_dScalar('EThr',EThr)!-- A threshold for energy accuracy
@@ -81,8 +81,10 @@
 *
 *-- Then we need orbital density dipoles.
 *
-      Call Get_CMO(ipCmo,nCmo)
-      nOrb=INT(sqrt(dble(nCmo)))
+      nCMO=nB**2
+      Call mma_allocate(CMO,nCMO,Label='CMO')
+      nOrb=INT(sqrt(dble(nCMO)))
+      Call Get_CMO(CMO,nCMO)
       nB=mBas(0)
       Call GetMem('MultSq','Allo','Real',iMultSq,nB**2)
       Call GetMem('TEMP','Allo','Real',iTEMP,nB*nOrb)
@@ -109,10 +111,14 @@
         iSmLbl=0
         Call RdOne(irc,iOpt,'Mltpl  1',i,Work(iMult1),iSmLbl)
         Call Square(Work(iMult1),Work(iMultSq),1,nB,nB)
-      Call DGEMM_('T','N',nOrb,nB,nB,One,Work(ipCmo),nB,Work(iMultSq)
-     &            ,nB,Zero,Work(iTEMP),nOrb)
-      Call DGEMM_('N','N',nOrb,nOrb,nB,One,Work(iTEMP),nOrb,Work(ipCmo)
-     &            ,nB,Zero,Work(iMult1),nOrb)
+      Call DGEMM_('T','N',nOrb,nB,nB,
+     &            One,CMO,nB,
+     &                Work(iMultSq),nB,
+     &            Zero,Work(iTEMP),nOrb)
+      Call DGEMM_('N','N',nOrb,nOrb,nB,
+     &            One,Work(iTEMP),nOrb,
+     &                CMO,nB,
+     &                Zero,Work(iMult1),nOrb)
         kaunt1=0
         kaunt2=0
         Do iO1=1,nOrb
@@ -129,7 +135,7 @@
       Call GetMem('MultSq','Free','Real',iMultSq,nB**2)
       Call GetMem('TEMP','Free','Real',iTEMP,nB*nOrb)
       Call GetMem('MultiKulti','Free','Real',iMult1,nOrb**2+4)
-      Call GetMem('CMO','Free','Real',ipCMO,nCMO)
+      Call mma_deallocate(CMO)
 
 *
 *-- Anders' little helper on DrvNQ:
@@ -156,11 +162,10 @@
 !IFG: The call to DrvNQ below is completely messed up, please fix
       Call WarningMessage(2,'There is surely a bug here!')
 !     Call DrvNQ(Do_XHoleDip,Work(ip_MatEl),nFckDim,Func,Dens
-!    &          ,Work(ip_Dens),nTri,nD,Do_Gamma,Do_Grad,Dummy
+!    &          ,D1ao,nTri,nD,Do_Gamma,Do_Grad,Dummy
 !    &          ,iDummy,Dummy,Dummy,iDummy,On_Top,Do_Tau,Do_MO
 !    &          ,Do_TwoEl,DFTFOCK)
-*      call get_d1ao(ipD,nDens)
-*      FFF=ddot_(nDens,Work(ipD),1,Work(ip_MatEl),1)
+*      FFF=ddot_(nDens,D1ao,1,Work(ip_MatEl),1)
 *      write(6,*)'YYY:',nDens,FFF,Func,ip_MatEl
 *
 *-- Put the second-moments in square form.
@@ -171,6 +176,7 @@
 *
 *-- Deallocate
 *
+      Call mma_deallocate(D1ao)
       Call Free_iSD()
       Call GetMem('X-Dipole elements','Free','Real',ip_MatEl,nTri)
       Call GetMem('OrbDipsX','Free','Real',ip_OrbDip(1),nOrb*(nOrb+1)/2)

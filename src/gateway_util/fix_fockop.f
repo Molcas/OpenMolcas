@@ -30,9 +30,12 @@
       use Her_RW
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Logical_Info, only: UnNorm, Do_FckInt, FNMC
+      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
@@ -52,15 +55,11 @@
       Character*80 Ref(2), Bsl_, BSLbl
       Character *256 Basis_lib, Fname
       Character*180, Allocatable :: STDINP(:) ! CGGn
-      Integer BasisTypes(4), nDel(MxAng)
+      Integer BasisTypes(4)
       Integer List_AE(0:iTabMx), List(0:iTabMx), List_Add(0:iTabMx)
-      Logical Try_Again
+      Logical Try_Again, lPP
       Real*8 A(4)
       Data DefNm/'basis_library'/
-*                                                                      *
-************************************************************************
-*                                                                      *
-#include "getbs_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -70,11 +69,18 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       nPrint(114)=99
       nPrint(116)=99
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      lPP = .False.
+      Do i = 1, nCnttp
+         lPP = lPP .or. dbsc(i)%nPP.ne.0
+      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -87,8 +93,7 @@
       nOrdOp=2
       iComp = 1
 *
-      nPrp=Max(4,nMltpl)
-      nDiff = 0
+      nPrp=Max(4,S%nMltpl)
 *
       List   (:)=0
       List_AE(:)=0
@@ -128,7 +133,7 @@
 *
          If (iFerm.eq.2) Then
 *
-            iShll = Mx_Shll-1
+            iShll = S%Mx_Shll-1
             jShll = iShll
 *
 *           The Fock operator will simply be the one-particle
@@ -177,8 +182,8 @@
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
                Call mma_deallocate(Scr3)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
                Call DScal_(nCntrc_a**2*iCmp_a**2,
      &                     xFactor,KnE,1)
                Call RecPrt('Kinetric Energy Integrals',' ',
@@ -207,7 +212,7 @@
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
                Call mma_deallocate(Scr3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Nuclear-attraction Integrals',' ',
      &                     NAE,nCntrc_a**2,iCmp_a**2)
 #endif
@@ -246,7 +251,7 @@
      &                      iShll_a,nPrim_a,Shells(iShll_a)%Exp,
      &                     nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a)
                Call mma_deallocate(Scr3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Overlap Integrals',' ',
      &                     Ovrlp,nCntrc_a**2,iCmp_a**2)
 #endif
@@ -327,7 +332,6 @@
                Do iBF = 1, nBF
                   EVec(iBF,iBF)=One
                   Do jBF = 1, iBF
-                     ij    = (jBF-1)*nBF   + iBF
                      ijTri = (iBF-1)*iBF/2 + jBF
                      EVal(ijTri) = FPrim(iBF,jBF)
                   End Do
@@ -345,7 +349,7 @@
      &                     1.0d0,S12i,nBF,
      &                           EVec,nBF,
      &                     0.0d0,C,nBF)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Cs for F',' ',C,nBF,nBF)
 #endif
 *
@@ -360,7 +364,6 @@
                      C_ik = C(iBF,kEVal)
                      Do jBF = 1, nBF
                         C_jk = C(jBF,kEVal)
-                        ij = (jBF-1)*nBF + iBF
                         Hm1(iBF,jBF) = Hm1(iBF,jBF)
      &                                      + C_ik * e * C_jk
                      End Do
@@ -387,7 +390,7 @@
                   End Do
                End Do
                Call mma_deallocate(NAE)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Actual Fock operator',' ',
      &                     Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
@@ -457,7 +460,7 @@
             Bsl_=BSLbl(1:Indx-1)
          End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*)
          Write(6,'(1X,A,I5,A,A)')
@@ -467,9 +470,9 @@
 *
 *        Let's get the reference basis set (ANO-RCC).
 *
-         iShll = Mx_Shll-1
+         iShll = S%Mx_Shll-1
          jShll = iShll
-         Call GetBS(Fname,Bsl_,iShll,MxAng,Ref,UnNorm,nDel,LuRd,
+         Call GetBS(Fname,Bsl_,iShll,Ref,UnNorm,LuRd,
      &              BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')
 *
          If (.Not.dbsc(nCnttp)%FOp) Then
@@ -525,7 +528,7 @@
 ************************************************************************
 *                                                                      *
             If (dbsc(iCnttp)%ECP) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (lPP) Then
                   Write (6,*) 'Reference is ECP (Pseudo Potential)'
                Else
@@ -567,12 +570,12 @@
                   End If
 *
                End If ! lPP
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*) 'nRemove=',nRemove
                Write(6,*) 'List_Add(iAng)=',List_Add(iAng)
 #endif
                nRemove = nRemove - List_Add(iAng)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*) 'nRemove=',nRemove
 #endif
                Test_Charge=Test_Charge + DBLE(2*(2*iAng+1)*nRemove)
@@ -599,7 +602,7 @@
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Actual Exponents',' ',
      &                 Shells(iShll_a)%Exp,1,nPrim_a)
             Call RecPrt('Actual Coefficients',' ',
@@ -687,13 +690,13 @@
             Call mma_allocate(S_AA,nSAA,Label='S_AA')
             Call Reorder_GW(SAA,S_AA,
      &                   nCntrc_a,nCntrc_a,iCmp_a,iCmp_a)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Reordered SAA',' ',S_AA,
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
             Call MInv(S_AA,SAA,iSing,D,nCntrc_a*iCmp_a)
             Call mma_deallocate(S_AA)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iSing=',iSing
             Write (6,*) 'Det=',D
             Call RecPrt('Inverse of SAA',' ',SAA,
@@ -705,7 +708,7 @@
             Call Reorder_GW(SAR,S_AR,
      &                   nCntrc_a,nCntrc_r,iCmp_a,iCmp_r)
             Call mma_deallocate(SAR)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Reordered SAR',' ',S_AR,
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
@@ -741,13 +744,13 @@
                   End Do
                End Do
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Expanded ER',' ',Tmp1,
      &                  nCntrc_r*nCntrc_r,iCmp_r*iCmp_r)
 #endif
             Call Reorder_GW(Tmp1,E_R,
      &                   nCntrc_r,nCntrc_r,iCmp_r,iCmp_r)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Reordered ER',' ',E_R,
      &                  nCntrc_r*iCmp_r,nCntrc_r*iCmp_r)
 #endif
@@ -761,7 +764,7 @@
      &                  1.0d0,SAA,nCntrc_a*iCmp_a,
      &                        S_AR,nCntrc_a*iCmp_a,
      &                  0.0d0,Tmp1,nCntrc_a*iCmp_a)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('(SAA)^-1 SAR',' ',Tmp1,
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
@@ -775,7 +778,7 @@
      &                  1.0d0,Tmp1,nCntrc_a*iCmp_a,
      &                        E_R,nCntrc_r*iCmp_r,
      &                  0.0d0,Tmp2,nCntrc_a*iCmp_a)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('(SAA)^-1 SAR ER',' ',Tmp2,
      &                  nCntrc_a*iCmp_a,nCntrc_r*iCmp_r)
 #endif
@@ -788,7 +791,7 @@
      &                  1.0d0,Tmp2,nCntrc_a*iCmp_a,
      &                        Tmp1,nCntrc_a*iCmp_a,
      &                  0.0d0,SAA,nCntrc_a*iCmp_a)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('EA',' ',SAA,
      &                  nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #endif
@@ -803,7 +806,7 @@
             Call Reorder_GW(SAA,Tmp3,
      &                   nCntrc_a,iCmp_a,nCntrc_a,iCmp_a)
             Call mma_deallocate(SAA)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Reordered EA',' ',Tmp3,
      &                  nCntrc_a*nCntrc_a,iCmp_a*iCmp_a)
 #endif
@@ -821,7 +824,7 @@
                End Do
             End Do
             If (Allocated(FockOp_t)) Call mma_deallocate(FockOp_t)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Actual Fock operator',' ',
      &                  Shells(iShll_a)%FockOp,nCntrc_a,nCntrc_a)
 #endif
@@ -918,7 +921,7 @@ c     &               Charge_Actual,Charge_Effective
 *
       nCnttp=mCnttp
 *
-#ifdef _INSANE_DEBUG_
+#ifdef _INSANE_DEBUGPRINT_
       nPrint(113)=5
       nPrint(114)=5
       nPrint(116)=5

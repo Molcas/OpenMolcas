@@ -64,9 +64,6 @@
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "mama.fh"
-#ifdef _OPENMP
-      Include 'omp_lib.h'
-#endif
 *
 *
       Character*(*)    NameIn,KeyIn,TypeIn
@@ -84,7 +81,6 @@
       If ( MemCtl(ipStat).ne.ON ) then
          Call IniMem()
       End if
-      If ( MemCtl(ipQuery).eq.ON ) Call qEnter('GetShMem')
 *----------------------------------------------------------------------*
 *     read default parameters from Common / MemCtl /                   *
 *----------------------------------------------------------------------*
@@ -135,11 +131,9 @@ C      n=LEN(TRIM(path)); cpath(n+1:n+1)=char(0)
 
       If ( Key.eq.'ALLO') iPos=iPos+kind2goff(VarTyp)
 
-      If ( MemCtl(ipQuery).eq.ON ) Call qExit('GetShMem')
       Return
 *
  777  Continue
-      Call QTrace()
       Call Quit(_RC_MEMORY_ERROR_)
 
       End

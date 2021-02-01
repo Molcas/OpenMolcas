@@ -1,7 +1,22 @@
 #!/usr/bin/env python3
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2019,2020, Oskar Weser                                 *
+#***********************************************************************
+
 """Script to automatically generate grid files from Orbfiles.
 """
 
+import sys
 import os
 from os import remove
 from os.path import join, basename, splitext, relpath
@@ -9,6 +24,11 @@ from os.path import join, basename, splitext, relpath
 import subprocess
 from subprocess import run
 import click
+
+MIN_PYTHON = (3, 6)
+if sys.version_info < MIN_PYTHON:
+    raise RuntimeError('F strings and ordered kwargs required. '
+                       'This requires at least python 3.6.')
 
 
 def create_module_input(module_name, **kwargs):

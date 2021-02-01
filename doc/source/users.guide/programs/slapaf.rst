@@ -421,10 +421,11 @@ Optional optimization procedure keywords
 
 .. class:: keywordlist
 
+  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="OP" APPEAR="Optimization options" LEVEL="BASIC">
+
 :kword:`NOLIne`
   Disable line search. Default is to use line search for minima.
 
-  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="OP" APPEAR="Optimization options" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOLINE" APPEAR="Deactivate line-search" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Noline <basic>
@@ -641,12 +642,12 @@ Optional optimization procedure keywords
 
   .. xmldoc:: </GROUP>
 
+  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
+
 :kword:`MEP-search` or :kword:`MEP`
   Enable a minimum energy path (MEP) search.
 
-  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
-
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" EXCLUSIVE="NEWTON,C1-DIIS,C2-DIIS,RS-P-RF" LEVEL="BASIC" ALSO="MEP">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" LEVEL="BASIC" ALSO="MEP">
               %%Keyword: MEP-search <basic>
               <HELP>
               Enable a minimum energy path (MEP) search.
@@ -657,6 +658,16 @@ Optional optimization procedure keywords
   .. xmldoc:: %%Keyword: MEP <basic>
               Enable a minimum energy path (MEP) search.
               Synonym of MEP-search.
+
+:kword:`rMEP-search` 
+  Enable a reverse minimum energy path (MEP) search.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RMEP-SEARCH" APPEAR="Reverse MEP-search" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: RMEP-search <basic>
+              <HELP>
+              Enable a reverse minimum energy path (MEP) search.
+              </HELP>
+              </KEYWORD>
 
 :kword:`IRC`
   The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
@@ -1070,7 +1081,7 @@ Optional miscellaneous keywords
               </HELP>
               </KEYWORD>
 
-Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
+Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021` keywords
 
 .. class:: keywordlist
 
@@ -1090,7 +1101,7 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   The surrogate model will tend to the maximum energy among the sample points plus this value (in au).
   The default value is 10.0 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TFOFFSET" APPEAR="Trend function offset" KIND="REAL" DEFAULT_VALUE="10.0" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TFOFFSET" APPEAR="Trend function offset" KIND="REAL" DEFAULT_VALUE="10.0" REQUIRE="KRIGING" LEVEL="ADVANCED">
               %%Keyword: TFOFfset <advanced>
               <HELP>
               Trend function or baseline offset for the GEK surrogate model.
@@ -1103,8 +1114,9 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
   A real value is read from the input, the maximum dispersion is this value times the maximum Cartesian gradient.
   The default value is 0.3 au.
+  During the constrained phase of an optimization with :kword:`FindTS`, the default is 0.1 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Maximum dispersion factor" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.3" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Maximum dispersion factor" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.3" REQUIRE="KRIGING" LEVEL="ADVANCED">
               %%Keyword: MAXDISP <advanced>
               <HELP>
               Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
@@ -1117,12 +1129,26 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   Maximum number of micro iterations in each macro iteration of the RVO procedure.
   The default value is 50.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" REQUIRE="KRIGING" LEVEL="ADVANCED">
               %%Keyword: MXMI <advanced>
               <HELP>
               Maximum number of micro iterations in each macro iteration of the RVO procedure.
               </HELP>
               Default: 50.
+              </KEYWORD>
+
+:kword:`NDELta`
+  Activate partial gradient enhanced Kriging, PGEK. This integer number determines for how many fewer iterations the gradients will
+  be included in the PGEK procedure.
+  The default value is 0, that is standard GEK.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NDELTA" APPEAR="Samples without gradient" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="0" REQUIRE="KRIGING" LEVEL="ADVANCED">
+              %%Keyword: NDELta <advanced>
+              <HELP>
+              Activate partial gradient enhanced Kriging, PGEK. This integer number determines for how many fewer iterations the gradients will
+              be included in the PGEK procedure.
+              </HELP>
+              Default: 0.
               </KEYWORD>
 
 Example: A complete set of input decks for a CASSCF geometry
@@ -1491,8 +1517,6 @@ using automatic calculation of analytical gradients and nonadiabatic coupling.
   >>> EndDo
 
 .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REDUNDANT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
-
-.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RMEP-SEARCH" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOEMEP" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 

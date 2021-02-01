@@ -10,28 +10,14 @@
 *                                                                      *
 * Copyright (C) 1991,1995, Roland Lindh                                *
 ************************************************************************
-      SubRoutine EFInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine EFInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of electric field         *
 *         integrals.                                                   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              SOS                                                     *
-*              DCR                                                     *
-*              XRys                                                    *
-*              Util1                                                   *
-*              DaXpY  (ESSL)                                           *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
@@ -41,18 +27,13 @@
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3),
-     &       Array(nZeta*nArr), Ccoor(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7),
-     &        iStabO(0:7), lOper(nComp), iChO(nComp)
-*---- Local arrays
-      Real*8 Coori(3,4), CoorAC(3,2)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7), iStabO(0:7)
+      Real*8 TC(3), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4)
       Character*80 Label
@@ -64,7 +45,6 @@
 *
       iRout = 200
       iPrint = nPrint(iRout)
-      Call qEnter('EFInt')
 *
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
@@ -164,8 +144,6 @@
      &            Array(iOffyy+i) - Array(iOffzz+i)
                YY = Two * Array(iOffyy+i) -
      &            Array(iOffxx+i) - Array(iOffzz+i)
-               ZZ = Two * Array(iOffzz+i) -
-     &            Array(iOffxx+i) - Array(iOffyy+i)
                Array(iOffxx+i) = XX * ThreeI
                Array(iOffyy+i) = YY * ThreeI
                Array(iOffzz+i) = RR
@@ -199,15 +177,13 @@
 *
  102  Continue
 *     Call GetMem(' Exit EFInt','LIST','REAL',iDum,iDum)
-      Call qExit('EFInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_integer(nHer)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

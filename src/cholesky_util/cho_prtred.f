@@ -12,10 +12,10 @@
 C
 C     Purpose: print information about reduced set.
 C
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       DIMENSION XBAS(8), XXBAS(8)
@@ -24,7 +24,6 @@ C
       LOGICAL CONTRIB(2)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 
       DO ISYM = 1,NSYM
          XBAS(ISYM) = DBLE(NBAS(ISYM))

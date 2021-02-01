@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine CmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MltInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -34,9 +26,8 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 134
-      iPrint = nPrint(iRout)
-*     Call qEnter('CmbnMP')
+*     iRout = 134
+*     iPrint = nPrint(iRout)
 *     Call GetMem(' Enter CmbnMP','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
@@ -79,6 +70,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnMP','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnMP')
       Return
       End

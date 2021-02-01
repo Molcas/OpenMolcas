@@ -19,18 +19,20 @@ C
 C     Atom and Atom Pair data must have been set up before calling this
 C     routine.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer irc
 #include "localdf.fh"
 #include "localdf_print.fh"
 #include "ldf_atom_pair_info.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
       Character*30 SecNam
       Parameter (SecNam='LDF_ComputeFittingCoefficients')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet, LDF_AtomPairInfoIsSet
       External LDF_AtomInfoIsSet, LDF_AtomPairInfoIsSet
 #endif
@@ -73,7 +75,7 @@ C
       ! Init return code
       irc=0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomInfoIsSet() .or.
      &    .not.LDF_AtomPairInfoIsSet()) Then
          irc=-1

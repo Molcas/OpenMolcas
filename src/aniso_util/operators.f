@@ -222,7 +222,6 @@ C
      &                             ITO_PLUS(-dim:dim,-dim:dim),
      &                            ITO_MINUS(-dim:dim,-dim:dim)
 !***********************************************************************
-      Call qEnter('Stewens_m')
 
       NPAR=MOD(dim,2)
       COEFF_REDUS=0.0_wp
@@ -387,7 +386,6 @@ C
         End Do   ! i
       End If ! iPrint
 
-      Call qExit('Stewens_m')
 
       Return
       End
@@ -439,7 +437,7 @@ cCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !     The convention is to follow the paper:
 !     C. Rudowicz and C.Y. Chung
 !     J. Phys.: Condens. Matter, 2004, 16, pp. 5825
-!     DOI: https://doi.org/10.1088/0953-8984/16/32/018
+!     doi:10.1088/0953-8984/16/32/018
 !
 !     with a minor addition of the Norm(N) factor which depends on the operator rank
 !     This norm makes the matrix elements of ESO identical to those of the
@@ -450,15 +448,13 @@ cCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Integer, intent(in)        :: N, dim
       Real(kind=8), intent(out) :: COEFF_REDUS
       Integer                    :: i
-      Real(kind=8)              :: SZ, FCT, Norm(100), s1, s2
+      Real(kind=8)              :: FCT, Norm(100), s1, s2
       external                   :: fct
 
       COEFF_REDUS=0.0_wp
-      SZ=0.0_wp
       Do i=1,100
         Norm(i)=0.0_wp
       End Do
-      !SZ=DBLE(dim-1)/2.0_wp
       Norm(1) = 1.0_wp
       Norm(2) = 2.0_wp
       Norm(3) = 2.0_wp
@@ -560,8 +556,7 @@ C  new method
       Real(kind=8),intent(out) :: coeffCG
       Real(kind=8)             :: u, fct, s1, s2
       Integer                   :: lb1, lb2, i
-      Logical                   :: check_triangle
-      External                  :: check_triangle, fct
+      External                  :: fct
 c exclude the cases for which CG coefficients are exactly zero
       coeffCG=0.0_wp
       If((al+bt).ne.gm) Return
@@ -641,9 +636,9 @@ c
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: a,b,c,d,e,f,g,h,j
       Integer             :: n,nlow,nhig
-      Real(kind=8)       :: dlt,fct,W6J
+      Real(kind=8)       :: W6J
       Logical             :: check_triangle
-      External            :: fct,dlt,W6J,check_triangle
+      External            :: W6J,check_triangle
 
       W9j =0.0_wp
       If(MOD(a+b,2) .ne. MOD(c,2)) Return
@@ -746,9 +741,7 @@ c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Implicit None
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: j1, j2, j3, m1, m2, m3
-      Real(kind=8)       :: fct, dlt, coeffCG
-      Logical             :: check_triangle
-      External            :: check_triangle, fct, dlt
+      Real(kind=8)       :: coeffCG
 
       W3J=0.0_wp
       coeffCG=0.0_wp
@@ -982,16 +975,15 @@ c the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
       Implicit None
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: La, Sa, LaP, SaP, L, S
-      Integer             :: Ja, JaP, jm, js, s_orb, l_orb
-      Real(kind=8)       :: WCG, W9J, temp, factor
-      external            :: WCG, W9J
+      Integer             :: JaP, jm, js, s_orb, l_orb
+      Real(kind=8)       :: WCG, temp, factor
+      external            :: WCG
 
       RedME=0.0_wp
       temp=0.0_wp
       l_orb=6  ! Double of true value l_orb = 3
       s_orb=1  ! Double of true value s_orb = 1/2
       JaP  = LaP + SaP
-      Ja   = La  + Sa
       If(WCG(La, La, L, 0, La, La)==0.0_wp) Return
       If(WCG(Sa, Sa, S, 0, Sa, Sa)==0.0_wp) Return
       If(WCG(La, La, l_orb, LaP-La, LaP, LaP)==0.0_wp) Return
@@ -1034,7 +1026,7 @@ c    Substitutions:
       Implicit None
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)       :: L,ML, S,MS, La,Sa, LaP,SaP
-      Integer                   :: Ja, JaP, l_orb
+      Integer                   :: Ja, l_orb
       Real(kind=8), intent(in) :: t
       Real(kind=8)             :: W9J, WCG, RedME, txt
       External                  :: W9J, WCG, RedME
@@ -1053,7 +1045,6 @@ c      s_orb=1  ! Double of true value s_orb = 1/2
         End If
       End If
       Ja  = La  + Sa
-      JaP = LaP + SaP
 
       jot1= t * txt * SQRT( DBLE( (Ja+1)*(L+s+1) ))
      &              * W9J(Ja,La,Sa, Ja,La,Sa,L+s,L,2)

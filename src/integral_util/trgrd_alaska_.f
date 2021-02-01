@@ -22,19 +22,18 @@
 ************************************************************************
       Use Basis_Info
       Use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       Dimension GradIn(nGrad)
       Character CNames(MxAtom)*(LENIN5)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
+*
       mdc=0
       iIrrep=0
 *

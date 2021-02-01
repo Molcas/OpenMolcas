@@ -28,6 +28,9 @@ C
 C
 C     Purpose: setup for parallel DF.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer irc
 
@@ -35,14 +38,13 @@ C
       Parameter (SecNam = 'Cho_X_Init_Par_DF')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)
 #endif
 
 #if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
 #include "cholesky.fh"
       Integer nV(8)
       Integer iSym
@@ -102,6 +104,10 @@ C     ------------
 C
 C     Purpose: setup for parallel Cholesky.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+      use ChoSwp, only: InfVec
+#endif
       Implicit None
       Integer irc
 
@@ -109,20 +115,15 @@ C
       Parameter (SecNam = 'Cho_X_Init_Par_Cho')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)
 #endif
 
 #if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
-
-      Integer N2
-      Parameter (N2 = InfVec_N2)
 
       Integer nV(8)
       Integer ip_IDV, l_IDV
@@ -130,10 +131,9 @@ C
       Integer iSym
       Logical isSerial
 
-      Integer InfVec, IDV, myInfV
+      Integer IDV, myInfV
       Integer i, j, k
 
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       IDV(i)=iWork(ip_IDV-1+i)
       myInfV(i)=iWork(ip_myInfV-1+i)
 
@@ -168,16 +168,14 @@ C     -----------------------------------------------------
             If (nV(iSym) .gt. 0) Then
                l_myInfV = nV(iSym)
                Call GetMem('myInfV','Allo','Inte',ip_myInfV,l_myInfV)
-               Do j = 1,N2
+               Do j = 1,SIZE(InfVec,2)
                   If (j .ne. 3) Then
                      k = ip_myInfV - 1
                      Do i = 1,nV(iSym)
                         iWork(k+i) = InfVec(IDV(i),j,iSym)
                      End Do
-                     k = ip_InfVec - 1
-     &                 + MaxVec*N2*(iSym-1) + MaxVec*(j-1)
                      Do i = 1,nV(iSym)
-                        iWork(k+i) = myInfV(i)
+                        InfVec(i,j,iSym) = myInfV(i)
                      End Do
                   End If
                End Do
@@ -217,24 +215,19 @@ C     ------------
 
       End
       SubRoutine Cho_X_Init_Par_GenBak()
+      Use Para_Info, Only: Is_Real_Par
+      use ChoSwp, only: InfVec, InfVec_Bak
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chopar.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-#include "para_info.fh"
-
+      NumCho_Bak(:)=0
       If (Is_Real_Par()) Then
-         l_InfVec_Bak = l_InfVec
-         Call GetMem('InfVec_Bak','Allo','Inte',ip_InfVec_Bak,
-     &                                           l_InfVec_Bak)
-         Call iCopy(l_InfVec,iWork(ip_InfVec),1,iWork(ip_InfVec_Bak),1)
-         Call iCopy(nSym,NumCho,1,NumCho_Bak,1)
-      Else
-         ip_InfVec_Bak = 0
-         l_InfVec_Bak = 0
-         Call iZero(NumCho_Bak,nSym)
+         Call mma_allocate(InfVec_Bak,SIZE(InfVec,1),SIZE(InfVec,2),
+     &                     SIZE(InfVec,3),Label='InfVec_Bak')
+         InfVec_Bak(:,:,:)=InfVec(:,:,:)
+         NumCho_Bak(1:nSym)=NumCho(1:nSym)
       End If
 
       End

@@ -26,29 +26,28 @@
 ************************************************************************
       Use Basis_Info
       Use Center_Info
+      use Sizes_of_Seward, only: S
+      use Gateway_Interfaces, only: GetBS
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
       integer     storageSize, LineWords
       parameter(  storageSize = 200, LineWords=storageSize/8)
       Real*8      eqBasis(LineWords)
-      Integer     BasisTypes(4), nDel(MxAng),
+      Integer     BasisTypes(4),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            ii, Indx, iSh, iShll, jShll,
-     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc,
-     &            StayAlone
+     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc
       Real*8      x1, y1, z1
       Character*4  label
       Character*13 DefNm
       Character*80 Ref(2)
       Character*(storageSize) sBasis
-      Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
-!#define _DEBUG_
-#ifdef _DEBUG_
+      Logical UnNorm
+#ifdef _DEBUGPRINT_
       Integer i
 #endif
       Character*180, Allocatable :: STDINP(:)
@@ -60,23 +59,19 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#include "getbs_interface.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       UnNorm = .False.
       LenLbl=0
       mdc = dbsc(nCnttp)%mdci+dbsc(nCnttp)%nCntr
       BasisTypes(:)=0
-      iShll = Mx_Shll-1
+      iShll = S%Mx_Shll-1
       lSTDINP=0
       mCnttp = nCnttp
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,'(A,i6)')'FragExpand: just before the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
@@ -128,6 +123,7 @@
             iBas = int(dbsc(iCnttp)%FragCoor(1,iAtom))
             call dcopy_(LineWords,dbsc(iCnttp)%FragType(1,iBas),1,
      &                            eqBasis, 1)
+            sBasis = Transfer(eqBasis,sBasis) ! ???
 *
 *           Get the basis set directory
 *
@@ -137,7 +133,6 @@
             If(Indx.eq.0) Then
               Call WhichMolcas(Basis_lib)
               If(Basis_lib(1:1).ne.' ') then
-                StayAlone = 1
                 ib = index(Basis_lib,' ')-1
                 If(ib.lt.1) Call SysAbendMsg('fragexpand',
      &                      'Too long PATH to MOLCAS',' ')
@@ -161,7 +156,7 @@
               End If
               dbsc(nCnttp)%Bsl=sBasis(1:Indx-1)
             Endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
             write(6,*) 'Fname = ',Fname
 #endif
@@ -170,13 +165,13 @@
 *
             jShll = iShll
             dbsc(nCnttp)%mdci=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),iShll,MxAng,Ref,
-     &                 UnNorm,nDel,LuRd,BasisTypes,STDINP,lSTDINP,
+            Call GetBS(Fname,sBasis(1:Indx-1),iShll,Ref,
+     &                 UnNorm,LuRd,BasisTypes,STDINP,lSTDINP,
      &                 .False.,.true.,' ')
            lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1
-            iAngMx=Max(iAngMx,lAng)
+            S%iAngMx=Max(S%iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
             Shells(jShll+1)%Prjct =.False.
             Shells(jShll+2)%Transf=.False.
@@ -218,7 +213,7 @@
             x1 = x1 + dbsc(iCnttp)%Coor(1,iCntr)
             y1 = y1 + dbsc(iCnttp)%Coor(2,iCntr)
             z1 = z1 + dbsc(iCnttp)%Coor(3,iCntr)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
      &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
 #endif
@@ -237,7 +232,7 @@
             Do ii = LenLbl+1,4
               label(ii:ii) = '_'
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(2A)') 'Label=',label
 #endif
 c LENIN possible BUG
@@ -252,7 +247,7 @@ c LENIN possible BUG
               write(label,'(i4)') mdc
             End If
             dc(mdc)%LblCnt(5:LENIN2) = label
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(2A)') 'Label=',label
             Write (6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt
 #endif
@@ -273,7 +268,7 @@ c LENIN possible BUG
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,'(A,i6)')'FragExpand: After the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp
@@ -292,8 +287,8 @@ c LENIN possible BUG
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Shll=iShll+1
-      Max_Shells=Mx_Shll
+      S%Mx_Shll=iShll+1
+      Max_Shells=S%Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -21,21 +21,32 @@
 *             University of Lund, SWEDEN                               *
 *             September 1991                                           *
 ************************************************************************
-      use Symmetry_Info
+      use Symmetry_Info, only: nIrrep, iOper, iChTbl
       Implicit Real*8 (A-H,O-Z)
       Integer iCoSet(0:7,0:7), iAcc(0:7)
+      Integer iBsFnc
 *
       TstFnc = .True.
       nCoSet=nIrrep/nStab
       iAcc(0:nCoSet-1)=0
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
-      Do i = 0, nCoSet-1
-         Write (6,*) (iCoSet(i,j),j=0,nStab-1)
-      End Do
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'TstFnc'
       Write (6,*)
-      Write (6,*) (iOper(i),i=0,nIrrep-1)
+      Write (6,*) 'Coset:'
+      Do i = 0, nCoSet-1
+         Write (6,'(8I4)') (iCoSet(i,j),j=0,nStab-1)
+      End Do
+
+      Write (6,*)
+      Write (6,*) 'iOper:'
+      Write (6,'(8I4)') (iOper(i),i=0,nIrrep-1)
+      Write (6,*)
+      Write (6,*) 'iBsFnc=',iBsFnc
+      Write (6,*)
+      Write (6,*) 'iChTbl:'
+      Write (6,'(8I4)') (iChTbl(iIrrep,i),i=0,nIrrep-1)
 #endif
 *
 *     Loop over operators
@@ -68,6 +79,14 @@
 *
       Return
       End Function TstFnc
+*
+      Logical Function TF(mdc,iIrrep,iComp)
+      Use Center_Info, Only : dc
+      Implicit Real*8 (a-h,o-z)
+      Logical, External :: TstFnc
+      TF = TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)
+      End Function TF
+*
       Integer Function iPrmt_(iCom)
 ************************************************************************
 *     Returns the phase factor of a basis function under a symmetry    *

@@ -9,25 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine SlapAf(ireturn)
+      use Slapaf_Parameters, only: CallLast, isFalcon
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 !     Is this usage permitted? - Yingjin
 !#include "dmrginfo_mclr.fh"
       Character*8 ELOOP
 ************ columbus interface ****************************************
       Integer Columbus
-#include "info_slapaf.fh"
 #include "warnings.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call qEnter('SlapAf')
-      Lu=6
-*                                                                      *
-************************************************************************
-*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,9 +34,7 @@
 *
 *     Epilogue
 *
-      Call qExit('SlapAf')
       If (nPrint(1).ge.6) Then
-         Call qStat(' ')
       End If
 *                                                                      *
 ************************************************************************

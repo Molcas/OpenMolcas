@@ -20,7 +20,6 @@
 
       real(8) H(Nstate,Nstate)
 
-      CALL QENTER('wgtinit')
 
       if (IPRGLB.GE.DEBUG) then
         write(6,*)' Entered wgtinit.'
@@ -107,7 +106,6 @@
         call prettyprint(WORK(LDWGT),Nstate,Nstate)
       end if
 
-      CALL QEXIT('wgtinit')
 
       return
       end

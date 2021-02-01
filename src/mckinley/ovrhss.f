@@ -11,25 +11,13 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine Ovrhss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,B,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                  IfHss,IndHss,ifgrd,indgrd,DAO,mdc,ndc,nOp,
-     &                  lOper,nComp,iStabM,nStabM)
+      SubRoutine Ovrhss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnS2                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
@@ -39,28 +27,15 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-c#include "print.fh"
-      Integer IndHss(0:1,0:2,0:1,0:2,nIrrep),
-     &       nOp(2), iStabM(0:nStabM-1), lOper(nComp),
-     &       indgrd(0:2,0:1,0:nIrrep-1)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
-     &       Array(nArr), Ccoor(3), Hess(nHess),
-     &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
-      Logical ABeq(3), IfHss(0:1,0:2,0:1,0:2),ifgrd(3,2)
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Logical ABeq(3)
 *
-c     iRout = 122
-c     iPrint = nPrint(iRout)
-c     Call qEnter('OvrHss')
-*     Write (*,*) ' IfHss=',IfHss
-*     Write (*,*) ' IndHss=',IndHss
-      ABeq(1) = A(1).eq.B(1)
-      ABeq(2) = A(2).eq.B(2)
-      ABeq(3) = A(3).eq.B(3)
+      ABeq(1) = A(1).eq.RB(1)
+      ABeq(2) = A(2).eq.RB(2)
+      ABeq(3) = A(3).eq.RB(3)
 *
       nip = 1
       ipAxyz = nip
@@ -78,23 +53,24 @@ c     Call qEnter('OvrHss')
       If (nip-1.gt.nArr) Then
          Write (6,*) 'OvrHss: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
 *
-c     If (iPrint.ge.49) Then
-c        Call RecPrt(' In OvrHss: A',' ',A,1,3)
-c        Call RecPrt(' In OvrHss: B',' ',B,1,3)
-c        Call RecPrt(' In OvrHss: Ccoor',' ',Ccoor,1,3)
-c        Call RecPrt(' In OvrHss: P',' ',P,nZeta,3)
-c        Write (*,*) ' In OvrHss: la,lb=',la,lb
-c     End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' IfHss=',IfHss
+      Write (6,*) ' IndHss=',IndHss
+      Call RecPrt(' In OvrHss: A',' ',A,1,3)
+      Call RecPrt(' In OvrHss: RB',' ',RB,1,3)
+      Call RecPrt(' In OvrHss: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In OvrHss: P',' ',P,nZeta,3)
+      Write (6,*) ' In OvrHss: la,lb=',la,lb
+#endif
 *
 *     Compute the cartesian values of the basis functions angular part
 *
       Call CrtCmp(Zeta,P,nZeta,A,Array(ipAxyz),
      &               la+2,HerR(iHerR(nHer)),nHer,ABeq)
-      Call CrtCmp(Zeta,P,nZeta,B,Array(ipBxyz),
+      Call CrtCmp(Zeta,P,nZeta,RB,Array(ipBxyz),
      &               lb+2,HerR(iHerR(nHer)),nHer,ABeq)
 *
 *     Compute the contribution from the multipole moment operator
@@ -132,8 +108,6 @@ c     End If
      &            Array(ipAlph),Array(ipBeta),Hess,nHess,DAO,
      &            IfHss,IndHss,indgrd,dc(mdc)%nStab,dc(ndc)%nStab,nOp)
 *
-c     Call GetMem(' Exit OvrHss','CHECK','REAL',iDum,iDum)
-c     Call qExit('OvrHss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -141,5 +115,6 @@ c Avoid unused argument warnings
          Call Unused_logical_array(ifgrd)
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iStabM)
+         Call Unused_integer(nStabM)
       End If
       End

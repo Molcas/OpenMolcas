@@ -16,12 +16,6 @@
 * Object: to add the absolute values of a vector to another vector.    *
 *         The square root due to the Cauchy-Schwatz equation.          *
 *                                                                      *
-*                                                                      *
-* Called from: k2Loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '92.                                                 *

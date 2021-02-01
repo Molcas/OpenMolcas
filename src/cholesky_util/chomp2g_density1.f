@@ -246,7 +246,6 @@
          lRia2 = nMoMo(iSym,iVecOV)*nVec
          kRia2 = kEndRia
          kEndRia2 = kRia2 + lRia2
-         kLia2 = kRia2
 
 *        Allocate memory for L-vectors
 *        -----------------------------
@@ -928,7 +927,6 @@
 *        -------------------------
          lV = nMoMo(jSym,iVecOV)*nVec
          kV = kEndU
-         kEndV = kV+lV
 
          nBatR = (nMP2Vec(jSym)-1)/nVec + 1
          nBatL = (NumCho(jSym)-1)/nVec + 1
@@ -994,7 +992,6 @@
                Do iSymI = 1, nSym
                   iSymC = MulD2h(jSym,iSymI)
                   iSymJC = MulD2h(iSymJ,iSymC)
-                  iSymIB = MulD2h(iSymI,iSymB)
                   NumIC = nOcc(iSymI)*nVir(iSymC)
                   If(nOcc(iSymI)*nVir(iSymC)*(NumRVecJ+NumLVecJ) .eq. 0)
      &              Go To 201
@@ -1533,7 +1530,7 @@
 *
 
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Pab'
       Do i = 1,lPab
          Write(6,*) Wrk(kPab(1)+i-1)

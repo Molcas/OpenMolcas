@@ -23,11 +23,9 @@
 ************************************************************************
       use External_Centers
       use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 
       Real*8 Cavxyz(nCavxyz_),Tmom(nCavxyz_),Org(3)
 
@@ -47,7 +45,7 @@
 *
 ! IFG: "A" was undefined, is this the right point?
          A(1:3)=XF(1:3,i)
-         iChxyz=iChAtm(A,iChBas(2))
+         iChxyz=iChAtm(A)
          iDum=0
          Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
          Do j = 0, nIrrep/nStb - 1

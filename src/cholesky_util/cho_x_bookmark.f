@@ -137,7 +137,7 @@ C     --------------------------------
          Call GetMem('BkmScr','Free','Inte',ip,l)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Self test
       Do iSym=1,mSym
          If (nVec(iSym).gt.NumCho(iSym)) Then
