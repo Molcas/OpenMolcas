@@ -21,7 +21,6 @@ C              cholesky.fh
 C              chosew.fh
 C              chovecbuf.f90
 C              chosubscr.fh
-C              chosimri.fh
 C              chopar.fh
 C              cho_para_info.fh
 C              and some in the Module choarr.f90
@@ -38,7 +37,6 @@ C
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosimri.fh"
 #include "chopar.fh"
 #include "cho_para_info.fh"
 
@@ -197,6 +195,9 @@ C     -------------
 
       n_MySP=0
 
+      Cho_SimRI = .false.
+      Thr_SimRI = -Large
+
 C     chovecbuf.f90.
 C     --------------
 
@@ -214,14 +215,6 @@ C     --------------
       SubScrStat(1) = 0.0d0
       SubScrStat(2) = 0.0d0
       SSNorm      = 'tbp'
-
-C     chosimri.fh.
-C     -------------
-
-      Cho_SimRI = .false.
-      ip_iSimRI = 0
-      l_iSimRI  = 0
-      Thr_SimRI = -Large
 
 C     chopar.fh.
 C     -----------

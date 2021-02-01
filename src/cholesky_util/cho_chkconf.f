@@ -18,7 +18,6 @@ C
       LOGICAL VERBOSE
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "chosimri.fh"
 #include "cho_para_info.fh"
 
       CHARACTER*11 SECNAM

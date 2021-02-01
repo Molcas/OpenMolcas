@@ -24,7 +24,6 @@ C
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosimri.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 

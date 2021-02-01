@@ -17,7 +17,6 @@ C
       LOGICAL SKIPH
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 
       PARAMETER (NADRMODE = 2, NALG = 6)
 

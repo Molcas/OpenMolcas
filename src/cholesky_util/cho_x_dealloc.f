@@ -14,7 +14,7 @@
 
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
-     &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot
+     &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot, iSimRI
 
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
@@ -110,6 +110,8 @@ C     -----------
       If (Allocated(LQ_Tot)) Call mma_deallocate(LQ_Tot)
 
       If (Allocated(InfVec_Bak)) Call mma_deallocate(InfVec_Bak)
+
+      If (Allocated(iSimRI)) Call mma_deallocate(iSimRI)
 
       If (Allocated(InfVec_G_Hidden))
      &    Call mma_deallocate(InfVec_G_Hidden)

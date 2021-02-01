@@ -21,7 +21,6 @@ C
       LOGICAL DFONLY
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 
       CHARACTER*7 SECNAM
       PARAMETER (SECNAM = 'CHO_INP')

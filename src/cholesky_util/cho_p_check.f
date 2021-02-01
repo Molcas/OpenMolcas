@@ -21,7 +21,6 @@ C
       Implicit None
       Integer irc
 #include "cholesky.fh"
-#include "chosimri.fh"
 #include "cho_para_info.fh"
 
       Logical WriteBlank

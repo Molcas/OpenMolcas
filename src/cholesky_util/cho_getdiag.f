@@ -14,7 +14,7 @@ C     Purpose: get diagonal in first reduced set. On exit, DIAG
 C              points to the diagonal and flag LCONV tells
 C              if the diagonal is converged.
 C
-      use ChoArr, only: iSP2F, MySP, n_MySP
+      use ChoArr, only: iSP2F, MySP, n_MySP, iSimRI
       use ChoSwp, only: IndRSh, IndRSh_Hidden
       use ChoSwp, only: IndRed, IndRed_Hidden
       use ChoSwp, only: Diag, Diag_Hidden
@@ -23,7 +23,6 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "chosimri.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
@@ -35,6 +34,8 @@ C
 
       INTEGER ISYLST(8)
 
+      Integer, Allocatable:: KIBUF(:)
+      Real*8, Allocatable:: KBUF(:), KSCR(:), KWRK(:)
 
       IF (RSTDIA) THEN
 
@@ -95,48 +96,43 @@ C        ---------------------
          NEEDI = 4*NEEDR
 
          CALL mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
-
-         CALL GETMEM('buf.2','ALLO','REAL',KBUF,NEEDR)
-         CALL GETMEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
-
-         KREL = KBUF
+         Call mma_allocate(KBUF,NEEDR,Label='KBUF')
+         Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
 C        Read diagonal.
 C        --------------
 
-         CALL CHO_GETDIAG1(Diag_Hidden,WORK(KBUF),IWORK(KIBUF),NEEDR,
-     &                     NDUMP)
+         CALL CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,NEEDR,NDUMP)
 
-         CALL GETMEM('ibuf.2','FREE','INTE',KIBUF,NEEDI)
-         CALL GETMEM('buf.2','FREE','REAL',KREL,NEEDR)
+         Call mma_deallocate(KIBUF)
+         Call mma_deallocate(KBUF)
 
       ELSE
 
 C        Calculate diagonal and get 1st reduced set.
 C        -------------------------------------------
 
-         CALL CHO_MEM('MAX','GETM','REAL',KDUM,LMAX)
+         Call mma_maxDBLE(LMAX)
          LMAX = LMAX/2 - MX2SH
          IF (LMAX .LT. 5*LBUF) THEN
             LBUF = MAX(LMAX/5,1)
          END IF
 
          LSCR  = MX2SH
-         NEEDR = LBUF + LSCR
+         NEEDR = LBUF
          NEEDI = 4*LBUF
-         CALL GETMEM('buf','ALLO','REAL',KREL,NEEDR)
-         CALL GETMEM('ibuf','ALLO','INTE',KIBUF,NEEDI)
 
-         KBUF  = KREL
-         KSCR  = KBUF + LBUF
+         Call mma_allocate(KBUF,NEEDR,Label='KBUF')
+         Call mma_allocate(KSCR,LSCR ,Label='KSCR')
+         Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
          NDUMP = 0
 
-         CALL CHO_CALCDIAG(WORK(KBUF),IWORK(KIBUF),LBUF,WORK(KSCR),LSCR,
-     &                     NDUMP)
+         CALL CHO_CALCDIAG(KBUF,KIBUF,LBUF,KSCR,LSCR,NDUMP)
 
-         CALL GETMEM('ibuf','FREE','INTE',KIBUF,NEEDI)
-         CALL GETMEM('buf','FREE','REAL',KREL,NEEDR)
+         Call mma_deallocate(KIBUF)
+         Call mma_deallocate(KBUF)
+         Call mma_deallocate(KSCR)
 
 C        Allocate diagonal and mapping array between reduced sets.
 C        Reallocate buffer.
@@ -153,21 +149,19 @@ C        ---------------------------------------------------------
 
          NEEDR = LBUF
          NEEDI = 4*LBUF
-         CALL GETMEM('buf.2','ALLO','REAL',KBUF,NEEDR)
-         CALL GETMEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
-         KREL = KBUF
+         Call mma_allocate(KBUF,NEEDR,Label='KBUF')
+         Call mma_allocate(KIBUF,NEEDI,Label='KIBUF')
 
 C        Get diagonal in first reduced set.
 C        ----------------------------------
 
-         CALL CHO_GETDIAG1(Diag_Hidden,WORK(KBUF),IWORK(KIBUF),LBUF,
-     &                     NDUMP)
+         CALL CHO_GETDIAG1(Diag_Hidden,KBUF,KIBUF,LBUF,NDUMP)
 
 C        Deallocate back to and including buffer.
 C        ----------------------------------------
 
-         CALL GETMEM('ibuf.2','FREE','INTE',KIBUF,NEEDI)
-         CALL GETMEM('buf','FREE','REAL',KREL,NEEDR)
+         Call mma_deallocate(KIBUF)
+         Call mma_deallocate(KBUF)
 
       END IF
 
@@ -201,9 +195,8 @@ C     THR_SIMRI. Indices of zeroed diagonals are stored in ip_ISIMRI.
 C     ---------------------------------------------------------------
 
       IF (CHO_SIMRI) THEN
-         l_ISIMRI = NNBSTRT(1)
-         CALL CHO_MEM('ISIMRI','ALLO','INTE',ip_ISIMRI,l_ISIMRI)
-         CALL CHO_SIMRI_Z1CDIA(Diag,THR_SIMRI,IWORK(ip_ISIMRI))
+         Call mma_allocate(iSimRI,NNBSTRT(1),Label='iSimRI')
+         CALL CHO_SIMRI_Z1CDIA(Diag,THR_SIMRI,ISIMRI)
       END IF
 
 C     Update diagonal if restart, else just do analysis.
@@ -211,7 +204,8 @@ C     --------------------------------------------------
 
       LCONV = .FALSE.
       IF (RSTCHO) THEN
-         CALL CHO_MEM('Cho.Rs1','MAX ','REAL',KWRK,LWRK)
+         Call mma_maxDBLE(LWRK)
+         Call mma_allocate(KWRK,LWRK,Label='KWRK')
          IF (LOCDBG) THEN
             WRITE(LUPRI,*) SECNAM,': restart diagonal:'
             DO ISYM = 1,NSYM
@@ -219,8 +213,8 @@ C     --------------------------------------------------
             END DO
             CALL CHO_PRTDIA(Diag,ISYLST,NSYM,1)
          END IF
-         CALL CHO_RESTART(Diag,WORK(KWRK),LWRK,.FALSE.,LCONV)
-         CALL CHO_MEM('Cho.Rs1','FREE','REAL',KWRK,LWRK)
+         CALL CHO_RESTART(Diag,KWRK,LWRK,.FALSE.,LCONV)
+         Call mma_deallocate(KWRK)
          IPRTRED = 2  ! print flag for cho_prtred
       ELSE
          IF (IPRINT .GE. INF_PASS) THEN

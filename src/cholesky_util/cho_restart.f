@@ -16,14 +16,13 @@ C              for first reduced set must be set up before
 C              this routine is called. Reduced set 2, on the
 C              other hand, is set up here.
 C
-      use ChoArr, only: nDimRS,iSP2F, iAtomShl, MySP
+      use ChoArr, only: nDimRS,iSP2F, iAtomShl, MySP, iSimRI
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 #include "WrkSpc.fh"
 
       external ddot_
@@ -37,8 +36,6 @@ C
       LOGICAL SYNC, SCDIAG_SAVE
 
       PARAMETER (XMONE = -1.0D0, ZERO = 0.0D0)
-
-      ISIMRI(I)=IWORK(ip_ISIMRI-1+I)
 
 
 C     Read diagonal (in reduced set 1).
