@@ -38,7 +38,7 @@ Integer:: nDim_Batch(8)
 Integer, Allocatable:: iQL2G(:,:)
 
 Type rPointers
-     Real*8, Pointer:: Array(:,:)
+     Real*8, Pointer:: Array(:,:)=>Null()
 End Type rPointers
 
 Type (rPointers):: LQ(8)
