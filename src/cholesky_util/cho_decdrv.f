@@ -19,7 +19,6 @@ C
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       INTEGER ISYLST(8)
@@ -36,7 +35,8 @@ C
 
       INTEGER, EXTERNAL:: CHO_P_GETMPASS
 
-      Integer, Allocatable:: LSTQSP(:)
+      Integer, Allocatable:: LSTQSP(:), KISYSH(:)
+      Real*8, Allocatable:: KDIASH(:), KWRK(:)
 
 C     Start timing.
 C     -------------
@@ -64,16 +64,15 @@ C     released by flushing back to and including this allocation.
 C     ----------------------------------------------------------------
 
       CALL CHO_P_GETGSP(NGSP)
-      CALL GETMEM('DIASH','ALLO','REAL',KDIASH,NGSP)
-      CALL GETMEM('ISYSH','ALLO','INTE',KISYSH,NGSP)
+      CALL mma_allocate(KDIASH,NGSP,Label='KDIASH')
+      CALL mma_allocate(KISYSH,NGSP,Label='KISYSH')
 
 C     Set first integral pass.
 C     ------------------------
 
       SYNC = .FALSE.
       NPOTSH = 0
-      CALL CHO_P_SETPASS(DIAG,SYNC,WORK(KDIASH),IWORK(KISYSH),IRED,CONV,
-     &                   NPOTSH)
+      CALL CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
       IF (NPOTSH .GT. 0) THEN
          IF (CONV) THEN
             CALL CHO_QUIT('Logical error [0.1] in '//SECNAM,103)
@@ -180,8 +179,7 @@ C        -----------------------------------------------------------
 
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT1,WLINT1)
          NUM = 0
-         CALL CHO_GETINT(DIAG,WORK(KDIASH),IWORK(KISYSH),
-     &                   LSTQSP,NPOTSH,NUM)
+         CALL CHO_GETINT(DIAG,KDIASH,KISYSH,LSTQSP,NPOTSH,NUM)
          CALL CHO_FLUSH(LUPRI)
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT2,WLINT2)
 
@@ -199,9 +197,10 @@ C        -----------------------------------------
                   DIAMIN(ISYM) = MAX(THRCOM,DIAMAX_SIMP(ISYM)*SPAN)
                END DO
             END IF
-            CALL CHO_MEM('MaxMem','MAX ','REAL',KWRK,LWRK)
-            CALL CHO_DECOM(DIAG,WORK(KWRK),LWRK,IPASS,NUM)
-            CALL CHO_MEM('MaxMem','FREE','REAL',KWRK,LWRK)
+            Call mma_maxDBLE(LWRK)
+            Call mma_allocate(KWRK,LWRK,Label='KWRK')
+            CALL CHO_DECOM(DIAG,KWRK,LWRK,IPASS,NUM)
+            Call mma_deallocate(KWRK)
          END IF
          CALL CHO_FLUSH(LUPRI)
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC2,WLDEC2)
@@ -259,8 +258,7 @@ C        ----------------------------------------------------------
 
          SYNC = .FALSE.
          NPOTSH = 0
-         CALL CHO_P_SETPASS(DIAG,SYNC,WORK(KDIASH),IWORK(KISYSH),IRED,
-     &                      CONV,NPOTSH)
+         CALL CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
          IF (NPOTSH .GT. 0) THEN
             IF (CONV) THEN
                CALL CHO_QUIT('Logical error [1.1] in '//SECNAM,103)
@@ -312,8 +310,8 @@ C     Free memory for shell pair based diagonal.
 C     ------------------------------------------
 
       Call mma_deallocate(LSTQSP)
-      CALL GETMEM('ISYSH','FREE','INTE',KISYSH,NGSP)
-      CALL GETMEM('DIASH','FREE','REAL',KDIASH,NNSHL)
+      Call mma_deallocate(KISYSH)
+      Call mma_deallocate(KDIASH)
 
 C     Shut down the Cholesky vector buffer.
 C     -------------------------------------

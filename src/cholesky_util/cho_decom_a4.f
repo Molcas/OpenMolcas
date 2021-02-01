@@ -28,7 +28,7 @@ C
       Integer NumCho_Old(8), nQual_Old(8)
       Integer NumV(8), nkVec(8)
 
-      Real*8, Allocatable:: KVScr(:)
+      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:)
       Integer, Allocatable:: IDKVec(:)
 *                                                                      *
 ************************************************************************
@@ -101,7 +101,7 @@ C     ------------
       End Do
       l_QDiag = l_IDKVec
       l_LQ = max(l_LQ,1) ! because there might not be any prev. vecs.
-      Call GetMem('KVec','Allo','Real',ip_KVec,l_KVec)
+      Call mma_allocate(KVec,l_KVec,Label='KVec')
       Call mma_allocate(IDKVec,l_IDKVec,Label='IDKVec')
       Call GetMem('QDiag','Allo','Real',ip_QDiag,l_QDiag)
 
@@ -135,21 +135,20 @@ C     ------------------------------------------
 
       Call Cho_Timer(C1,W1)
 
-      l_MQ = l_KVec
-      Call GetMem('MQ','Allo','Real',ip_MQ,l_MQ)
-      Call Cho_P_GetMQ(Work(ip_MQ),l_MQ,LstQSP,NumSP)
+      Call mma_allocate(MQ,l_KVec,Label='MQ')
+      Call Cho_P_GetMQ(MQ,SIZE(MQ),LstQSP,NumSP)
 
 C     Decompose qualified diagonal block.
 C     The qualified diagonals are returned in QDiag.
 C     ----------------------------------------------
 
-      Call Cho_Dec_Qual(Diag,LQ_Tot,Work(ip_MQ),Work(ip_Kvec),
+      Call Cho_Dec_Qual(Diag,LQ_Tot,MQ,KVec,
      &                  IDKVec,nKVec,Work(ip_QDiag))
 
 C     Deallocate MQ.
 C     --------------
 
-      Call GetMem('MQ','Free','Real',ip_MQ,l_MQ)
+      Call mma_deallocate(MQ)
 
 C     Reorder the elements of the K-vectors according to IDK ordering.
 C     ----------------------------------------------------------------
@@ -161,17 +160,17 @@ C     ----------------------------------------------------------------
 
       Call mma_allocate(KVScr,MxQ,Label='KVScr')
 
-      kK1 = ip_KVec - 1
+      kK1 = 0
       kK2 = kK1
       kID = 0
       Do iSym = 1,nSym
          Do iK = 1,nKVec(iSym)
             kK_1 = kK1 + nQual(iSym)*(iK-1) + 1
-            Call dCopy_(nQual(iSym),Work(kK_1),1,KVScr,1)
+            Call dCopy_(nQual(iSym),KVec(kK_1),1,KVScr,1)
             kK_2 = kK2 + nKVec(iSym)*(iK-1)
             Do jK = 1,nKVec(iSym)
                lK = IDKVec(kID+jK)
-               Work(kK_2+jK) = KVScr(lK)
+               KVec(kK_2+jK) = KVScr(lK)
             End Do
          End Do
          kK1 = kK1 + nQual(iSym)**2
@@ -231,7 +230,7 @@ C     -------------------------------------------------
 C     Compute vectors in each symmetry block.
 C     ---------------------------------------
 
-      kV = ip_KVec
+      kV = 1
       kI = 1
       kQD = ip_QDiag
       Do iSym = 1,nSym
@@ -270,7 +269,7 @@ C           ----------------
 
             Call GetMem('CmpV_Max','Max ','Real',ip_Wrk1,l_Wrk1)
             Call GetMem('CmpV_Wrk','Allo','Real',ip_Wrk1,l_Wrk1)
-            Call Cho_CompVec(Diag,Work(ip_xInt),Work(kV),Work(kQD),
+            Call Cho_CompVec(Diag,Work(ip_xInt),KVec(kV),Work(kQD),
      &                       Work(ip_Wrk1),l_Wrk1,iSym,iPass)
             Call GetMem('CmpV_Wrk','Free','Real',ip_Wrk1,l_Wrk1)
 
@@ -323,7 +322,7 @@ C     --------------
       Call mma_deallocate(LQ_Tot)
       Call GetMem('QDiag','Free','Real',ip_QDiag,l_QDiag)
       Call mma_deallocate(IDKVec)
-      Call GetMem('KVec','Free','Real',ip_KVec,l_KVec)
+      Call mma_deallocate(KVec)
 
 C     Print.
 C     ------
