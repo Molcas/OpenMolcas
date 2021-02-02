@@ -12,21 +12,25 @@
 !***********************************************************************
 
 #ifndef MACROS_INCLUDEGUARD_
-#define MACROS_INCLUDEGUARD_
+#  define MACROS_INCLUDEGUARD_
 
-#ifdef _ADDITIONAL_RUNTIME_CHECK_
+#  ifdef _ADDITIONAL_RUNTIME_CHECK_
 
-#define debug_function_name(name) character(*), parameter :: this_routine = name
-#define ASSERT(x) if(.not.(x))call abort_("Assert fail")
-#define pure_ASSERT(x) if(.not.(x))call pure_abort()
+#    define debug_function_name(name) character(*), parameter :: this_routine = name
+#    define ASSERT(x) if(.not.(x))call abort_("Assert fail")
+#    define pure_ASSERT(x) if(.not.(x))call pure_abort()
 
-#else
+#  else
 
-#define debug_function_name(name)
-#define ASSERT(x)
-#define pure_ASSERT(x)
+#    define debug_function_name(name)
+#    define ASSERT(x)
+#    define pure_ASSERT(x)
 
-#endif
+#  endif
+
+!  Dummy procedure to avoid empty files
+#  define empty_prefix() empty_
+#  define dummy_empty_procedure(name) subroutine empty_prefix()name() ; end subroutine
 
 #ifdef _WARNING_WORKAROUND_
 
@@ -40,4 +44,3 @@
 
 ! This should be the last end if
 #endif
-

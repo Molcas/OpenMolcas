@@ -19,10 +19,10 @@ C     Thomas Bondo Pedersen, June 2006.
 C
 C     Purpose: read vectors from disk into buffer.
 C
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       Implicit None
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "WrkSpc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Ini2')
@@ -43,7 +43,7 @@ C     Check if buffer is allocated.
 C     Check if there are any vectors.
 C     -------------------------------
 
-      If (l_ChVBuf .lt. 1) Then
+      If (.NOT.Allocated(CHVBUF)) Then
          If (LocDbg) Then
             Write(Lupri,*) SecNam,': returning immediately: ',
      &                     'No buffer allocated!'
@@ -66,7 +66,8 @@ C     -------------
          iV2 = NumCho(iSym)
          nRead = 0
          mUsed(iSym) = 0
-         Call Cho_VecRd1(Work(ip_ChVBuf_Sym(iSym)),l_ChVBuf_Sym(iSym),
+         Call Cho_VecRd1(CHVBUF(ip_ChVBuf_Sym(iSym)),
+     &                   l_ChVBuf_Sym(iSym),
      &                   iV1,iV2,iSym,nRead,iRedC,mUsed(iSym),DoRead)
          nVec_in_Buf(iSym) = nRead
       End Do

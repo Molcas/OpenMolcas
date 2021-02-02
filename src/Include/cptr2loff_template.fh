@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2014-2016, Steven Vancoillie                           *
-*               2015,2020, Ignacio Fdez. Galvan                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2014-2016, Steven Vancoillie                           *
+!               2015,2020, Ignacio Fdez. Galvan                        *
+!***********************************************************************
 
 #include "molcastypes.fh"
 
@@ -34,9 +34,9 @@
         integer :: res
         _TYPE_, target, intent(in) :: buffer
         interface
-          integer(kind=MOLCAS_C_INT) function cptr2woff(string, ptr)
-     &                               bind(C,name=cptr2woff_name)
+          function cptr2woff(string, ptr) bind(C,name=cptr2woff_name)
             import
+            integer(kind=MOLCAS_C_INT) :: cptr2woff
             character(kind=c_char) :: string(*)
             type(c_ptr), value :: ptr
           end function

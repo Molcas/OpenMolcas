@@ -18,10 +18,10 @@
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
-      use qcmaquis_info
+      use qcmaquis_info, only: qcm_group_names
 #endif
       use mspt2_eigenvectors
       use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
@@ -222,7 +222,11 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
         Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
         Call mma_allocate(WERD,nTRAD+1,Label='WERD')
       END IF
-      IF (IF22) Call mma_allocate(TDM2,nTDM2,Label='TDM2')
+      IF (IF22) THEN
+        Call mma_allocate(TDM2,nTDM2,Label='TDM2')
+      ELSE
+        Call mma_allocate(TDM2,0,Label='TDM2')
+      END IF
 
       IF(JOB1.NE.JOB2) THEN
 C Transform to biorthonormal orbital system
@@ -1246,7 +1250,7 @@ C             Write density 1-matrices in AO basis to disk.
           Call mma_deallocate(WDMZZ)
         END IF
       END IF
-      IF (IF22) Call mma_deallocate(TDM2)
+      Call mma_deallocate(TDM2)
 
       IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
         Call mma_deallocate(FMO)

@@ -25,6 +25,7 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
       use Real_Info, only: ThrInt, CutInt
+      use Integral_Interfaces, only: DeDe_SCF
       Implicit None
       External No_Routine
 #include "print.fh"
@@ -59,7 +60,6 @@
       Integer      iFD
       Character*80 Line
 #endif
-#include "../integral_util/dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -283,7 +283,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          lNoSkip = lNoSkip.and.lS.le.nSkal_Valence
 
          If (lNoSkip) Then
-           Call Eval_Ints_New_Internal
+           Call Eval_Ints_New_Inner
      &                    (iS,jS,kS,lS,TInt,nTInt,
      &                     iTOffs,No_Routine,
      &                     pDq,pFq,mDens,[ExFac],Nr_Dens,

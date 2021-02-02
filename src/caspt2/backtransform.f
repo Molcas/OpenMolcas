@@ -11,7 +11,6 @@
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE Backtransform(Heff,Ueff,U0)
-      USE REFWFN
       IMPLICIT REAL*8 (A-H,O-Z)
 C Back-transform Heff and Ueff to the basis of the original
 C CASSCF states.

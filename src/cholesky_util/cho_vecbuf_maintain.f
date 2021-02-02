@@ -27,45 +27,32 @@ C
 C     Return code:  irc  = 0 : success
 C                   irc != 0 : failure
 C
-C     Index arrays from chovecbuf.fh modified by this routine:
+C     Index arrays from chovecbuf.f90 modified by this routine:
 C
 C     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 C
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
 #include "implicit.fh"
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*19 SecNam
-      Parameter (SecNam = 'Cho_VecBuf_Maintain')
+      Character(LEN=19), Parameter:: SecNam = 'Cho_VecBuf_Maintain'
 
-      Logical LocDbg
+      Real*8, Pointer:: V2(:,:)=>Null(), V3(:,:)=>Null()
+
+      Integer iS, iE, lRow, lCol
+      Real*8, Allocatable:: VRd(:)
+
 *#define _DEBUGPRINT_
 #if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .true.)
+      Logical, Parameter:: LocDbg = .true.
 #else
-      Parameter (LocDbg = .false.)
+      Logical, Parameter:: LocDbg = .false.
 #endif
-
-C     Debug print.
-C     ------------
-
-      If (LocDbg) Then
-         Write(Lupri,*)
-         Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
-         Write(Lupri,*) 'iRed = ',iRed
-         Write(Lupri,*) 'l_ChVBuf  = ',l_ChVBuf,
-     &                  '   ip_ChVBuf = ',ip_ChVBuf
-         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
-     &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
-     &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',
-     &                          (nVec_in_Buf(iSym),iSym=1,nSym)
-      End If
 
 C     Set return code.
 C     ----------------
@@ -75,12 +62,28 @@ C     ----------------
 C     Return if there is no buffer to maintain.
 C     -----------------------------------------
 
-      If (l_ChVBuf .lt. 1) Then
+      If (.NOT.Allocated(CHVBUF)) Then
          If (LocDbg) Then
             Write(Lupri,*) SecNam,': returning: no buffer to maintain!'
-            Write(Lupri,*) SecNam,': l_ChVBuf = ',l_ChVBuf
          End If
          Return
+      End If
+
+C     Debug print.
+C     ------------
+
+      If (LocDbg) Then
+         Write(Lupri,*)
+         Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
+         Write(Lupri,*) 'iRed = ',iRed
+         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF),
+     &                  '   ip_ChVBuf = ',1
+         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
+     &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
+         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
+     &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
+         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',
+     &                          (nVec_in_Buf(iSym),iSym=1,nSym)
       End If
 
 C     If there are no vectors yet, return.
@@ -169,12 +172,20 @@ C           --------------------------------------------------------
 C           Reorder vectors.
 C           ----------------
 
+            lRow = nnBstR(iSym,2)
+            lCol = nVec_in_Buf(iSym)
+            iS = ip_ChVBuf_Sym(iSym)
+            iE = iS - 1 + lRow*lCol
+            V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
+            lRow = nnBstR(iSym,3)
+            iE = iS - 1 + lRow*lCol
+            V3(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
             Do iVec = 1,nVec_in_Buf(iSym)
-               iOff2 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*(iVec-1) - 1
-               iOff3 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,3)*(iVec-1) - 1
                Do iRS2 = 1,nnBstR(iSym,2)
-#if defined (_DEBUGPRINT_)
                   jRS3 = iScr(iRS2)
+#if defined (_DEBUGPRINT_)
                   If (iRS2.lt.1 .or. iRS2.gt.SIZE(iScr)) Then
                      Write(LuPri,*) 'iRS2=',iRS2
                      Write(LuPri,*) 'SIZE(iScr)=',SIZE(iScr)
@@ -186,19 +197,22 @@ C           ----------------
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif
-                  Work(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
+                  V2(iRS2,iVec) = V3(jRS3,iVec)
                End Do
             End Do
 
          End If
       End Do
+      V2=>Null()
+      V3=>Null()
 
 C     Read in more vectors.
 C     =====================
 
       nSys = 0 ! #calls to reading routine (counter)
 
-      Call Cho_Mem('CHVB.Read','MAX ','Real',ip_VRd,l_VRd)
+      Call mma_maxDBLE(l_VRd)
+      Call mma_allocate(VRd,l_VRd,Label='VRd')
       Do iSym = 1,nSym
          nDisk = NumCho(iSym) - nVec_in_Buf(iSym)
 #if defined (_DEBUGPRINT_)
@@ -234,7 +248,7 @@ C              -------------
 
                nVRd  = 0
                mUsed = 0
-               Call Cho_VecRd(Work(ip_VRd),l_VRd,iVec,iVec2,iSym,nVRd,
+               Call Cho_VecRd(VRd,l_VRd,iVec,iVec2,iSym,nVRd,
      &                        iRedC,mUsed)
                If (nVRd .lt. 1) Then
                   Call Cho_Quit('Insufficient memory for read in '
@@ -246,9 +260,14 @@ C              Reorder the vectors and store in buffer in current
 C              reduced set.
 C              --------------------------------------------------
 
-               iOff2 = ip_ChVBuf_Sym(iSym)
-     &               + nnBstR(iSym,2)*nVec_in_Buf(iSym) - 1
-               iOff3 = ip_VRd - 1
+               lRow = nnBstR(iSym,2)
+               lCol = nVec_in_Buf(iSym)+nVRd
+               iS = ip_ChVBuf_Sym(iSym)
+               iE = iS - 1 + lRow*lCol
+
+               V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
+               iOff3 = 0
                Do kVec = 1,nVRd
 
                   jVec = iVec + kVec - 1
@@ -270,17 +289,16 @@ C              --------------------------------------------------
                   End If
 
                   Do iRS2 = 1,nnBstR(iSym,2)
-#if defined (_DEBUGPRINT_)
                      jRS3 = iScr(iRS2)
+#if defined (_DEBUGPRINT_)
                      If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
                         Call Cho_Quit('RS-2-RS map error [2] in '
      &                                //SecNam,104)
                      End If
 #endif
-                     Work(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
+                     V2(iRS2,jVec) = VRd(iOff3+jRS3)
                   End Do
 
-                  iOff2 = iOff2 + nnBstR(iSym,2)
                   iOff3 = iOff3 + nnBstR(iSym,3)
 
                End Do
@@ -295,7 +313,7 @@ C              ----------------
 
          End If
       End Do
-      Call Cho_Mem('CHVB.Read','Free','Real',ip_VRd,l_VRd)
+      Call mma_deallocate(VRd)
 
 C     Update global timing.
 C     ---------------------

@@ -35,6 +35,7 @@
 ************************************************************************
       Use SCF_Arrays
       Use Interfaces_SCF, Only: OccDef
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
@@ -45,8 +46,6 @@
 #include "file.fh"
 #include "hflda.fh"
 #include "warnings.fh"
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 *
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct

@@ -43,7 +43,13 @@ parnell_exec (int argc, char ** argv)
                 fprintf(stderr, "%d parnell: failed to execute command, rc = %d!\n", MyRank, rc);
                 status = PARNELL_ERROR;
         } else {
-                waitpid(pid, NULL, 0);
+                int child_status;
+                waitpid(pid, &child_status, 0);
+                if ( WIFEXITED(child_status) ) {
+                        status = WEXITSTATUS(child_status);
+                } else {
+                        status = PARNELL_ERROR;
+                }
         }
         return status;
 }

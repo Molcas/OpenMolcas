@@ -446,6 +446,11 @@ C tjd-  BMII: Print out spin-orbit properties to a file
 * printout of special properties
 ******************************************************
 
+       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+       ! numerically: 2/c^3 (in a.u. of time ^ -1)
+       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
+     &           /CONST_AU_TIME_IN_SI_
+
       IF (IPGLOB.GE.USUAL) THEN
         WRITE(6,*)
         WRITE(6,*)
@@ -544,7 +549,6 @@ C printing threshold
            Do iVec = 1, nVec
 *
          i_Print=0
-         AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -714,11 +718,6 @@ C printing threshold
         Do iVec = 1, nVec
 *
          i_Print=0
-         ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-         ! 1/c^3 (in a.u. of time ^ -1)
-         AFACTOR = 2.0D0/CONST_C_IN_AU_**3
-     &             /CONST_AU_TIME_IN_SI_
-
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)

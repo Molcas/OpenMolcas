@@ -13,7 +13,8 @@
       Subroutine Cho_X_Dealloc(irc)
 
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
-     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G
+     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
+     &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot, iSimRI
 
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
@@ -37,8 +38,6 @@ C              On exit, irc=0 signals sucessful completion.
 C
       Implicit None
       Integer irc
-#include "chosew.fh"
-#include "cholq.fh"
 #include "chopar.fh"
 #include "stdalloc.fh"
 
@@ -99,46 +98,20 @@ C     -----------
 
       If (Allocated(iSP2F)) Call mma_deallocate(iSP2F)
 
-C     Deallocate any used pointer in chosew.fh
-C     -----------------------------------------
+      If (Allocated(iShP2RS)) Call mma_deallocate(iShP2RS)
 
-      If (l_iShP2RS .ne. 0) Then
-         Call GetMem('SHP2RS','Free','Inte',ip_iShP2RS,l_iShP2RS)
-         ip_iShP2RS=0
-         l_iShP2RS=0
-      End If
-
-      If (l_iShP2Q .ne. 0) Then
-         Call GetMem('SHP2Q','Free','Inte',ip_iShP2Q,l_iShP2Q)
-         ip_iSHP2Q=0
-         l_iSHP2Q=0
-      End If
-
-C     Deallocate any used pointer in cholq.fh
-C     ----------------------------------------
+      If (Allocated(iShP2Q )) Call mma_deallocate(iShP2Q )
 
       If (Allocated(iQuAB_L_Hidden)) Call mma_deallocate(iQuAB_L_Hidden)
       If (Associated(iQuAB_L)) iQuAB_L => Null()
 
-      If (l_iQL2G .ne. 0) Then
-         Call GetMem('IQL2G','Free','Inte',ip_iQL2G,l_iQL2G)
-         ip_iQL2G=0
-         l_iQL2G=0
-      End If
+      If (Allocated(iQL2G )) Call mma_deallocate(iQL2G )
 
-      If (l_LQ .ne. 0) Then
-         Call GetMem('LQ','Free','Real',ip_LQ,l_LQ)
-         ip_LQ=0
-         l_LQ=0
-      End If
-
-C     Deallocate any used pointer in chopar.fh
-C     -----------------------------------------
+      If (Allocated(LQ_Tot)) Call mma_deallocate(LQ_Tot)
 
       If (Allocated(InfVec_Bak)) Call mma_deallocate(InfVec_Bak)
 
-C     Deallocate any used pointer in cholq.fh
-C     -----------------------------------------
+      If (Allocated(iSimRI)) Call mma_deallocate(iSimRI)
 
       If (Allocated(InfVec_G_Hidden))
      &    Call mma_deallocate(InfVec_G_Hidden)
@@ -164,9 +137,7 @@ C     -----------------------------------------
      &    Call mma_deallocate(nnBstRSh_L_Hidden)
       If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
 
-C
-C     -----------------------------------------
-
       If (Allocated(iL2G)) Call mma_deallocate(iL2G)
+
       Return
       End

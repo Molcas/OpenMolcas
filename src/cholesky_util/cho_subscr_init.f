@@ -12,18 +12,18 @@
 C
 C     Purpose: initialize screening in vector subtraction.
 C
+      use ChoSubScr, only: DSubScr, DSPNm
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "chosubscr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Integer l_DSubScr
 
       l_DSubScr = nnBstR(1,1)
       Do iSym = 2,nSym
          l_DSubScr = max(l_DSubScr,nnBstR(iSym,1))
       End Do
-      Call Cho_Mem('DSubScr','Allo','Real',ip_DSubScr,l_DSubScr)
+      Call mma_allocate(DSubScr,l_DSubScr,Label='DSubScr')
 
-      l_DSPNm = nnShl
-      Call Cho_Mem('DSPMx','Allo','Real',ip_DSPNm,l_DSPNm)
+      Call mma_allocate(DSPNm,nnShl,Label='DSPNm')
 
       End

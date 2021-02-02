@@ -16,12 +16,11 @@ C
 C     Version 2: avoid storage of full shell quadruple in interface to
 C                seward; get qualified directly!
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, MySP
       use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr2.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*17 SECNAM
@@ -32,8 +31,6 @@ C
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
 
       INTEGER NAB(8)
-
-      MYSP(I)=IWORK(ip_MYSP-1+I)
 
 #if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)

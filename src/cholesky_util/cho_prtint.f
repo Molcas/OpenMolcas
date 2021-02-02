@@ -16,14 +16,12 @@ C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 C
-      use ChoArr, only: iSP2F, nBstSh
+      use ChoArr, only: iSP2F, nBstSh, iShP2RS, iShP2Q, nDim_Batch
       Implicit None
       Integer iSCD, iSAB
       Integer lInt
       Real*8  xInt(lInt)
 #include "cholesky.fh"
-#include "chosew.fh"
-#include "WrkSpc.fh"
 
       Character*10 SecNam
       Parameter (SecNam='Cho_PrtInt')
@@ -37,11 +35,6 @@ C
       Integer kOffI
 
       Real*8 xNorm
-
-      Integer i, j
-      Integer iShP2RS, iShP2Q
-      iShP2RS(i,j)=iWork(ip_iShP2RS-1+2*(j-1)+i)
-      iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 
       ! Set row dimension
       If (IfcSew.eq.2) Then

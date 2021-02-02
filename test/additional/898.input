@@ -1,6 +1,7 @@
 >>export MOLCAS_NOCHECK=MLTPL,DFT_ENERGY,SCF_ITER
 >>export MOLCAS_MEM=1400
 
+
 >> FILE br2.xyz
 2
 
@@ -42,7 +43,7 @@ Title = HF for H2O subsystem
 Charge = 0
 End Of Input
 
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 
 *********************************
 * Generation of Rho_A_ref       *
@@ -77,7 +78,7 @@ ciroot = 3 3
 orblisting = nothing
 End Of Input
 
->>> COPY $Project.RunFile PRERFIL
+>>> CLONE $Project.RunFile PRERFIL
 
 *********************************
 * Embedded CAS-CI               *

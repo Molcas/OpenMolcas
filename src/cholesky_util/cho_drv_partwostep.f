@@ -17,15 +17,13 @@ C
 C     Purpose: Parallel two-step decomposition of two-electron
 C              integrals.
 C
-      use ChoArr, only: iAtomShl
+      use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+      use ChoSubScr, only: Cho_SScreen, SSTau
       Implicit None
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosew.fh"
-#include "chosubscr.fh"
-#include "chosimri.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
@@ -319,10 +317,8 @@ C     ====================================
       ! reduced set from Seward. Set Seward interface to 3 (to treat
       ! columns shell pair-wise).
       IFCSEW=3
-      l_iShP2RS=2*Mx2Sh
-      l_iShP2Q=l_iShP2RS
-      Call GetMem('ShP2RS','Allo','Inte',ip_iShP2RS,l_iShP2RS)
-      Call GetMem('ShP2Q','Allo','Inte',ip_iShP2Q,l_iShP2Q)
+      Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
+      Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
          Call Cho_PrtTim('Cholesky reinitialization',tC1,tC0,tW1,tW0,2)

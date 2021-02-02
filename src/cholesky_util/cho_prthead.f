@@ -12,12 +12,11 @@
 C
 C     Purpose: print Cholesky header.
 C
+      use ChoSubScr, only: Cho_SScreen, SSTau
 #include "implicit.fh"
       LOGICAL SKIPH
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 
       PARAMETER (NADRMODE = 2, NALG = 6)
 

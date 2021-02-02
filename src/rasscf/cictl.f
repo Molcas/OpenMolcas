@@ -53,7 +53,7 @@
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_main, only: file_name_generator
       use mh5, only: mh5_put_dset
 #endif
@@ -866,10 +866,12 @@ C.. printout of the wave function
         Call GetMem('PrSel','Free','Inte',LW12,nConf)
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
+      if(doDMRG)then
 #ifdef _DMRG_
           call mh5_put_dset
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
 #endif
+      end if
 
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
       CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)

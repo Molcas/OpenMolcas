@@ -15,7 +15,7 @@ C              reduced set (stored at location iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
-      use ChoArr, only: nBstSh, iSP2F
+      use ChoArr, only: nBstSh, iSP2F, iShP2RS, MySP
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
@@ -23,16 +23,11 @@ C
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "choptr2.fh"
-#include "chosew.fh"
-#include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)
       Character*13 SecNam
       Parameter (SecNam = 'Cho_SetShP2RS')
 #endif
-
-      mySP(i)=iWork(ip_mySP-1+i)
 
 C     Check allocations.
 C     ------------------
@@ -44,6 +39,8 @@ C     ------------------
          NumAB = nBstSh(iShlA)*nBstSh(iShlB)
       End If
       lTst = 2*NumAB
+      l_iShP2RS = 0
+      If (Allocated(iShP2RS)) l_iShP2RS = SIZE(iShP2RS)
       If (l_iShP2RS.lt.1 .or. l_iShP2RS.lt.lTst) Then
          irc = 102
          Return
@@ -64,7 +61,7 @@ C     Zeros are returned if the element AB is not a member of the
 C     current reduced set.
 C     ---------------------------------------------------------------
 
-      Call Cho_iZero(iWork(ip_iShP2RS),lTst)
+      iShP2RS(:,1:NumAB)=0
 
       Do iSym = 1,nSym
          If (nAB(iSym) .gt. 0) Then
@@ -100,8 +97,8 @@ C     ---------------------------------------------------------------
                   Call Cho_Quit('Error detected in '//SecNam,104)
                End If
 #endif
-               iWork(ip_iShP2RS+2*(kAB-1))   = iAB
-               iWork(ip_iShP2RS+2*(kAB-1)+1) = iSym
+               iShP2RS(1,kAB)   = iAB
+               iShP2RS(2,kAB) = iSym
             End Do
          End If
       End Do

@@ -49,6 +49,9 @@
       Logical Verify
 *----------------------------------------------------------------------*
       Integer IndType(7,8)
+#ifdef _HDF5_
+      Integer IndTypeT(8,7)
+#endif
       Integer nTmp(8)
       Integer nBasTot
       Integer nBasMax
@@ -489,11 +492,12 @@
       Call WrVec('GSSORB',Lu,'COEI',nSym,nBas,nBas,CMO,
      &           T1,Eps,IndType,Title)
 #ifdef _HDF5_
+      IndTypeT(:,:) = transpose(IndType(:,:))
       call mma_allocate(typestring, nBasTot)
       call orb2tpstr(nSym,nBas,
-     &        IndType(1,:),IndType(2,:),
-     &        IndType(3,:),IndType(4,:),IndType(5,:),
-     &        IndType(6,:),IndType(7,:),
+     &        IndTypeT(:,1),IndTypeT(:,2),
+     &        IndTypeT(:,3),IndTypeT(:,4),IndTypeT(:,5),
+     &        IndTypeT(:,6),IndTypeT(:,7),
      &        typestring)
       call mh5_put_dset(wfn_tpidx,typestring)
       call mma_deallocate(typestring)

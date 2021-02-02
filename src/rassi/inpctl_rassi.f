@@ -14,7 +14,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment,
      & only: initialize_dmrg_rassi
-      use qcmaquis_info
+      use qcmaquis_info, only: qcmaquis_info_init
 #endif
       use mspt2_eigenvectors
       IMPLICIT NONE

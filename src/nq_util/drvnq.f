@@ -556,7 +556,7 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
 
       end if
 
-      Call DrvNQ_Internal(
+      Call DrvNQ_Inner(
      &            Kernel,Func,
      &            iWork(ips2p),nIrrep,
      &            iWork(iplist_s),iWork(iplist_exp),iWork(iplist_bas),
