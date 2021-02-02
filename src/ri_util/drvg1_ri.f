@@ -48,6 +48,7 @@
       Logical Found
       Integer nAct(0:7)
       Real*8, Allocatable:: V_k_new(:,:), U_k_new(:)
+      Integer, Allocatable:: iZk(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -195,17 +196,21 @@
       Do i=0,nIrrep-1
          iOff_ij2K(i+1) = n_ij2K
          n_ij2K = n_ij2K + nBas(i)*(nBas(i)+1)/2
-         nZ_p_k = nZ_p_k + nnP(i)*nBas_Aux(i)
-         nZ_p_l = nZ_p_l + nnP(i)*NumCho(i+1)
+         nZ_p_k = nZ_p_k + nnP(i)*nBas_Aux(i)         ! Global size
+         nZ_p_l = nZ_p_l + nnP(i)*NumCho(i+1)         ! Local size
          nZ_p_k_New = nZ_p_k_New + nnP(i)*nBas(i)*(nBas(i)+1)/2
       End Do
       If (Do_RI) nZ_p_k=nZ_p_k-nnP(0)
+
+*     Allocate the "global" Z_p_k array
+
       If (lPSO) Then
-         Call mma_allocate(Z_p_k,nZ_p_k,nAvec,Label='Z_p_k')
-         Z_p_k(:,:)=Zero
+         Call mma_allocate(Z_p_k,nZ_p_k,nAVec,Label='Z_p_k')
       Else
-         Call mma_allocate(Z_p_k,1,1,Label='Z_p_k')
+         nZ_p_k=1
+         Call mma_allocate(Z_p_k,1,nAVec,Label='Z_p_k')
       EndIf
+      Z_p_k(:,:)=Zero
 *
 *     Preprocess the RI and Q vectors as follows
 *
@@ -236,21 +241,27 @@
 *     Note: the above two points apply to Z_p_k as well (active space)
 *
       Call GetMem('iVk','Allo','Inte',iVk,nProcs)
-      Call GetMem('iZk','Allo','Inte',iZk,nProcs)
+      Call mma_allocate(iZk,nProcs,Label='iZk')
       Call IZero(iWork(iVk),nProcs)
-      Call IZero(iWork(iZk),nProcs)
-      iWork(iVk+myRank) = NumCho(1)*nJdens
-      iWork(iZk+myRank) = nZ_p_l*nAvec
+      iZk(:)=0
+*     iWork(iVk+myRank) = NumCho(1)*nJdens
+      iWork(iVk+myRank) = NumCho(1)
+*     iZk(1+myRank)= nZ_p_l*nAvec           ! store the local size of Zk
+      iZk(1+myRank)= nZ_p_l                 ! store the local size of Zk
       Call GAIGOP(iWork(iVk),nProcs,'+')
-      Call GAIGOP(iWork(iZk),nProcs,'+')
+      Call GAIGOP(iZk,nProcs,'+')           ! distribute to all nodes
+
+!     Compute the starting position in the global sense for each node.
+
       iStart=1
       jStart=1
-      Do j=0,nProcs-1
+      Do j=0,nProcs-1    !  Loop over all nodes
          itmp=iWork(iVk+j)
          iWork(iVk+j)=iStart
          iStart = iStart + itmp
-         jtmp=iWork(iZk+j)
-         iWork(iZk+j)=jStart
+
+         jtmp=iZk(1+j)
+         iZk(1+j)=jStart
          jStart = jStart + jtmp
       End Do
 *
@@ -269,8 +280,7 @@
          iUk = ip_iDummy
       End If
 *
-      Call Compute_AuxVec(iWork(iVk),iWork(iUk),iwork(iZk),
-     &                    myRank+1,nProcs)
+      Call Compute_AuxVec(iWork(iVk),iWork(iUk),iZk,myRank+1,nProcs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -429,7 +439,7 @@
          Call mma_deallocate(ij2K)
       End If
       Call CloseP
-      Call Free_iWork(iZk)
+      Call mma_deallocate(iZk)
       Call Free_iWork(iVk)
       If(iMp2prpt .eq. 2) Call Free_iWork(iUk)
       If (Allocated(Z_p_k)) Call mma_deallocate(Z_p_k)
