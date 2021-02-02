@@ -212,8 +212,8 @@
       Rewind(LuIn)
       Call RdNLst(LuIn,'CASPT2')
 
-      ! TODO: replace this by a while cycle
-10    Continue
+      ! beginning of reading loop
+      do
 
       if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Command = Line(1:4)
@@ -226,46 +226,30 @@
       Select Case (Command)
 
       Case('TITL')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read (Line,'(A128)') Input%Title
 
       ! File with the reference CAS/RAS wavefunction
       Case('FILE')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
 ! Not using list-directed input (*), because then the slash means
 ! end of input
       read(Line,'(A)',IOStat=iError) Input%file
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       ! Root selection
       Case('MULT')
       Input%MULT = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*) Word
       Call UpCase(Word)
-      ! Either compute all states
       If (Word == 'ALL') Then
         nStates = 0
         Input%AllMult = .True.
-      ! or read how many states
       else
         read(Line,*,IOStat=iError) nStates
-        if (iError /= 0 ) then
-          call IOError(Line)
-        end if
-        If (nStates <= 0) Then
-          call WarningMessage(2,'Number of MULT states must be > 0.')
-          write(u6,*)'Last line read from input: ', Line
-          call Quit_OnUserError
-        End If
+        if (iError /= 0 ) call IOError(Line)
+        If (nStates <= 0) call StatesError(Line)
       End If
       ! TODO: use mma_allocate if possible
       Allocate(Input%MultGroup%State(nStates))
@@ -277,13 +261,9 @@
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    (Input%MultGroup%State(i), i=1,nStates)
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -291,9 +271,7 @@
 
       Case('XMUL')
       Input%XMUL = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*) Word
       Call UpCase(Word)
       If (Word == 'ALL') Then
@@ -301,14 +279,8 @@
         Input%AllXMult = .True.
       Else
         Read(Line,*,IOStat=iError) nStates
-        if (iError /= 0 ) then
-          call IOError(Line)
-        end if
-        If (nStates <= 0) Then
-          call WarningMessage(2,'Number of XMUL states must be > 0.')
-          write(u6,*)'Last line read from input: ', Line
-          call Quit_OnUserError
-        End If
+        if (iError /= 0 ) call IOError(Line)
+        if (nStates <= 0) call StatesError(Line)
       End If
       Allocate(Input%XMulGroup%State(nStates))
       Input%nXMulState = nStates
@@ -319,13 +291,9 @@
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &      (Input%XMulGroup%State(i), i=1,nStates)
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -333,9 +301,7 @@
 
       Case('RMUL')
       Input%RMUL = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*) Word
       Call UpCase(Word)
       If (Word=='ALL') Then
@@ -343,14 +309,8 @@
         Input%AllRMult = .True.
       Else
         Read(Line,*,IOStat=iError) nStates
-        if (iError /= 0 ) then
-          call IOError(Line)
-        end if
-        If (nStates <= 0) Then
-          call WarningMessage(2,'Number of RMUL states must be > 0.')
-          write(u6,*)'Last line read from input: ', Line
-          call Quit_OnUserError
-        End If
+        if (iError /= 0 ) call IOError(Line)
+        if (nStates <= 0) call StatesError(Line)
       End If
       Allocate(Input%RMulGroup%State(nStates))
       Input%nRMulState = nStates
@@ -361,13 +321,9 @@
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &      (Input%RMulGroup%State(i), i=1,nStates)
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -376,56 +332,38 @@
 
       Case('DWMS')
       Input % DWMS = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % ZETA
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('EFOC')
       Input % EFOC = .True.
 
       Case('LROO')
       Input % LROO = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % SingleRoot
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('RLXR')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % RlxRoot
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       ! freeze-deleted control
 
       Case('FROZ')
       Input % FROZ = .True.
       Allocate(Input % nFro(nSYM))
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError) (Input % nFro(iSym), iSym=1,nSym)
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -434,21 +372,15 @@
       Case('DELE')
       Input % DELE = .True.
       Allocate(Input % nDel(nSYM))
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError) (Input % nDel(iSym), iSym=1,nSym)
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -457,62 +389,40 @@
       ! equation solver control
 
       Case('MAXI')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % maxIter
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('CONV')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % ThrConv
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('THRE')
       Input % THRE = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError) Input % ThrsHN, Input % ThrsHS
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
       Deallocate(dLine)
 
       Case('SHIF')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % Shift
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('IMAG')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % ShiftI
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       ! environment
 
@@ -521,23 +431,17 @@
 
       Case('OFEM')
       Input % OFEmbedding = .True.
-c      call Quit_OnInstError
+!      call Quit_OnInstError
 
       ! print controls
 
       Case('PRWF')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % PrWF
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('OUTP')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Call StdFmt(Line,Input % OutFormat)
 
       Case('NOOR')
@@ -547,22 +451,16 @@ c      call Quit_OnInstError
       Input % PRSD = .True.
 
       Case('WTHR')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    Input % DNMTHR, Input % CMPTHR, Input % CNTTHR
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -586,15 +484,11 @@ c      call Quit_OnInstError
       Input % ORBIN = 'TRANSFOR'
 
       Case('FOCK')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Call StdFmt(Line,Input % FockType)
 
       Case('HZER')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Call StdFmt(Line,Input % HZero)
 
       Case('G1SE')
@@ -602,13 +496,9 @@ c      call Quit_OnInstError
 
       Case('IPEA')
       Input % IPEA = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % BSHIFT
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       ! cholesky
 
@@ -625,30 +515,22 @@ c      call Quit_OnInstError
       Case('AFRE')
       Input % aFreeze = .True.
       Input % modify_correlating_MOs = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    Input % lnFro, Input % ThrFr, Input % ThrDe
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call ExtendLine(dLine,Line)
         End If
       End Do
       Deallocate(dLine)
       Allocate(Input % NamFro(Input % lnFro))
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Call UpCase(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
@@ -656,13 +538,9 @@ c      call Quit_OnInstError
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    (Input%NamFro(i), i=1,Input%lnFro)
-        If (iError > 0) then
-          call IOError(Line)
-        end if
+        If (iError > 0) call IOError(Line)
         If (iError < 0) Then
-          if (.not.next_non_comment(LuIn,Line)) then
-            call EOFError(Line)
-          end if
+          if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
           Call UpCase(Line)
           Call ExtendLine(dLine,Line)
         End If
@@ -672,24 +550,16 @@ c      call Quit_OnInstError
       Case('LOVC')
       Input % LovCASPT2 = .True.
       Input % modify_correlating_MOs = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % thr_atm
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('FNOC')
       Input % FnoCASPT2 = .True.
       Input % modify_correlating_MOs = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % vFrac
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('DOMP')
       Input % DoMP2 = .True.
@@ -703,25 +573,17 @@ c      call Quit_OnInstError
       Case('GHOS')
       Input % GhostDelete = .True.
       Input % modify_correlating_MOs = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % ThrGD
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('NOMU')
       Input % NoMult = .True.
 
       Case('ONLY')
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) Input % OnlyRoot
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
 
       Case('NOMI')
       Input % NoMix = .True.
@@ -746,32 +608,22 @@ c      call Quit_OnInstError
 
       Case('EFFE')
       Input % JMS = .True.
-      if (.not.next_non_comment(LuIn,Line)) then
-        call EOFError(Line)
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Read(Line,*,IOStat=iError) nStates
-      if (iError /= 0 ) then
-        call IOError(Line)
-      end if
+      if (iError /= 0 ) call IOError(Line)
       Allocate(Input % HEff(nStates,nStates))
       Input % HEff = 0.0d0
       Do i=1,nStates
-        if (.not.next_non_comment(LuIn,Line)) then
-          call EOFError(Line)
-        end if
+        if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
         Allocate(Character(Len=Len(Line)) :: dLine)
         dLine = Line
         iError = -1
         Do While (iError < 0)
           Read(dLine,*,IOStat=iError)
      &      (Input % HEff(i,j),j=1,nStates)
-          If (iError > 0) then
-            call IOError(Line)
-          end if
+          If (iError > 0) call IOError(Line)
           If (iError < 0) Then
-            if (.not.next_non_comment(LuIn,Line)) then
-              call EOFError(Line)
-            end if
+            if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
             Call ExtendLine(dLine,Line)
           End If
         End Do
@@ -812,7 +664,7 @@ c      call Quit_OnInstError
       ! DONE WITH READING INPUT
 
       Case('END ')
-      GoTo 9000
+      exit
 
       ! NO MATCH FOUND, UNKOWN KEYWORD
 
@@ -821,9 +673,8 @@ c      call Quit_OnInstError
       Call Quit_OnUserError
 
       End Select
-      GoTo 10
 
-9000  CONTINUE
+      end do ! end of reading loop
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
 ! Check if nState>1
@@ -857,7 +708,7 @@ c      call Quit_OnInstError
         implicit none
         character(len=*), intent(in) :: line
 
-        call IOError(Line)
+        call WarningMessage(2,'I/O error when reading line.')
         write(u6,*)'Last line read from input: ', line
         call Quit_OnUserError
 
@@ -869,11 +720,21 @@ c      call Quit_OnInstError
         implicit none
         character(len=*), intent(in) :: line
 
-        call EOFError(Line)
+        call WarningMessage(2,'Premature end of input file.')
         write(u6,*)'Last line read from input: ', line
         call Quit_OnUserError
 
       end subroutine EOFError
 
+      subroutine StatesError(line)
+        use definitions, only:u6
+        implicit none
+        character(len=*), intent(in) :: line
+
+        call WarningMessage(2,'Number of states must be > 0.')
+        write(u6,*)'Last line read from input: ', line
+        call Quit_OnUserError
+
+      end subroutine StatesError
 
       End Module
