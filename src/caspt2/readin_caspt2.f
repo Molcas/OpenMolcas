@@ -190,6 +190,8 @@
 ! the proc_inp call (processing of input). The only variable needed here
 ! is nSym, as some input lines assume knowledge of the number of irreps.
 
+      use definitions, only:u6
+
       Implicit None
 
       Integer, intent(in) :: LuIn, nSym
@@ -213,10 +215,7 @@
       ! TODO: replace this by a while cycle
 10    Continue
 
-      if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
-      end if
+      if (.not.next_non_comment(LuIn,Line)) call EOFError(Line)
       Command = Line(1:4)
       call UpCase(Command)
 
@@ -228,31 +227,27 @@
 
       Case('TITL')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read (Line,'(A128)') Input%Title
 
       ! File with the reference CAS/RAS wavefunction
       Case('FILE')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
 ! Not using list-directed input (*), because then the slash means
 ! end of input
       read(Line,'(A)',IOStat=iError) Input%file
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       ! Root selection
       Case('MULT')
       Input%MULT = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*) Word
       Call UpCase(Word)
@@ -264,12 +259,11 @@
       else
         read(Line,*,IOStat=iError) nStates
         if (iError /= 0 ) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (nStates <= 0) Then
-          ! Write(6,*)' number of MULT states must be > 0, quitting!'
           call WarningMessage(2,'Number of MULT states must be > 0.')
+          write(u6,*)'Last line read from input: ', Line
           call Quit_OnUserError
         End If
       End If
@@ -284,12 +278,11 @@
         Read(dLine,*,IOStat=iError)
      &    (Input%MultGroup%State(i), i=1,nStates)
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -299,8 +292,7 @@
       Case('XMUL')
       Input%XMUL = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*) Word
       Call UpCase(Word)
@@ -310,11 +302,11 @@
       Else
         Read(Line,*,IOStat=iError) nStates
         if (iError /= 0 ) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (nStates <= 0) Then
           call WarningMessage(2,'Number of XMUL states must be > 0.')
+          write(u6,*)'Last line read from input: ', Line
           call Quit_OnUserError
         End If
       End If
@@ -328,12 +320,11 @@
         Read(dLine,*,IOStat=iError)
      &      (Input%XMulGroup%State(i), i=1,nStates)
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -343,8 +334,7 @@
       Case('RMUL')
       Input%RMUL = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*) Word
       Call UpCase(Word)
@@ -354,11 +344,11 @@
       Else
         Read(Line,*,IOStat=iError) nStates
         if (iError /= 0 ) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (nStates <= 0) Then
           call WarningMessage(2,'Number of RMUL states must be > 0.')
+          write(u6,*)'Last line read from input: ', Line
           call Quit_OnUserError
         End If
       End If
@@ -372,12 +362,11 @@
         Read(dLine,*,IOStat=iError)
      &      (Input%RMulGroup%State(i), i=1,nStates)
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -388,13 +377,11 @@
       Case('DWMS')
       Input % DWMS = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % ZETA
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('EFOC')
@@ -403,24 +390,20 @@
       Case('LROO')
       Input % LROO = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % SingleRoot
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('RLXR')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % RlxRoot
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       ! freeze-deleted control
@@ -429,8 +412,7 @@
       Input % FROZ = .True.
       Allocate(Input % nFro(nSYM))
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
@@ -438,13 +420,11 @@
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError) (Input % nFro(iSym), iSym=1,nSym)
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -455,8 +435,7 @@
       Input % DELE = .True.
       Allocate(Input % nDel(nSYM))
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
@@ -464,13 +443,11 @@
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError) (Input % nDel(iSym), iSym=1,nSym)
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -481,31 +458,26 @@
 
       Case('MAXI')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % maxIter
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('CONV')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % ThrConv
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('THRE')
       Input % THRE = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
@@ -513,13 +485,11 @@
       Do While (iError < 0)
         Read(dLine,*,IOStat=iError) Input % ThrsHN, Input % ThrsHS
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -528,24 +498,20 @@
 
       Case('SHIF')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % Shift
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('IMAG')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % ShiftI
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       ! environment
@@ -561,19 +527,16 @@ c      call Quit_OnInstError
 
       Case('PRWF')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % PrWF
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('OUTP')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Call StdFmt(Line,Input % OutFormat)
 
@@ -585,8 +548,7 @@ c      call Quit_OnInstError
 
       Case('WTHR')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
@@ -595,13 +557,11 @@ c      call Quit_OnInstError
         Read(dLine,*,IOStat=iError)
      &    Input % DNMTHR, Input % CMPTHR, Input % CNTTHR
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -627,15 +587,13 @@ c      call Quit_OnInstError
 
       Case('FOCK')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Call StdFmt(Line,Input % FockType)
 
       Case('HZER')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Call StdFmt(Line,Input % HZero)
 
@@ -645,13 +603,11 @@ c      call Quit_OnInstError
       Case('IPEA')
       Input % IPEA = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % BSHIFT
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       ! cholesky
@@ -670,8 +626,7 @@ c      call Quit_OnInstError
       Input % aFreeze = .True.
       Input % modify_correlating_MOs = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
@@ -680,13 +635,11 @@ c      call Quit_OnInstError
         Read(dLine,*,IOStat=iError)
      &    Input % lnFro, Input % ThrFr, Input % ThrDe
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call ExtendLine(dLine,Line)
         End If
@@ -694,8 +647,7 @@ c      call Quit_OnInstError
       Deallocate(dLine)
       Allocate(Input % NamFro(Input % lnFro))
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Call UpCase(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
@@ -705,13 +657,11 @@ c      call Quit_OnInstError
         Read(dLine,*,IOStat=iError)
      &    (Input%NamFro(i), i=1,Input%lnFro)
         If (iError > 0) then
-          call WarningMessage(2,'I/O error when reading line.')
-          call Quit_OnUserError
+          call IOError(Line)
         end if
         If (iError < 0) Then
           if (.not.next_non_comment(LuIn,Line)) then
-            call WarningMessage(2,'Premature end of input file.')
-            call Quit_OnUserError
+            call EOFError(Line)
           end if
           Call UpCase(Line)
           Call ExtendLine(dLine,Line)
@@ -723,26 +673,22 @@ c      call Quit_OnInstError
       Input % LovCASPT2 = .True.
       Input % modify_correlating_MOs = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % thr_atm
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('FNOC')
       Input % FnoCASPT2 = .True.
       Input % modify_correlating_MOs = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % vFrac
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('DOMP')
@@ -758,13 +704,11 @@ c      call Quit_OnInstError
       Input % GhostDelete = .True.
       Input % modify_correlating_MOs = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % ThrGD
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('NOMU')
@@ -772,13 +716,11 @@ c      call Quit_OnInstError
 
       Case('ONLY')
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) Input % OnlyRoot
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
 
       Case('NOMI')
@@ -805,20 +747,17 @@ c      call Quit_OnInstError
       Case('EFFE')
       Input % JMS = .True.
       if (.not.next_non_comment(LuIn,Line)) then
-        call WarningMessage(2,'Premature end of input file.')
-        call Quit_OnUserError
+        call EOFError(Line)
       end if
       Read(Line,*,IOStat=iError) nStates
       if (iError /= 0 ) then
-        call WarningMessage(2,'I/O error when reading line.')
-        call Quit_OnUserError
+        call IOError(Line)
       end if
       Allocate(Input % HEff(nStates,nStates))
       Input % HEff = 0.0d0
       Do i=1,nStates
         if (.not.next_non_comment(LuIn,Line)) then
-          call WarningMessage(2,'Premature end of input file.')
-          call Quit_OnUserError
+          call EOFError(Line)
         end if
         Allocate(Character(Len=Len(Line)) :: dLine)
         dLine = Line
@@ -827,13 +766,11 @@ c      call Quit_OnInstError
           Read(dLine,*,IOStat=iError)
      &      (Input % HEff(i,j),j=1,nStates)
           If (iError > 0) then
-            call WarningMessage(2,'I/O error when reading line.')
-            call Quit_OnUserError
+            call IOError(Line)
           end if
           If (iError < 0) Then
             if (.not.next_non_comment(LuIn,Line)) then
-              call WarningMessage(2,'Premature end of input file.')
-              call Quit_OnUserError
+              call EOFError(Line)
             end if
             Call ExtendLine(dLine,Line)
           End If
@@ -845,25 +782,32 @@ c      call Quit_OnInstError
       ! OBSOLETE KEYWORDS
 
       Case('GRAD')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       Case('NOTR')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       Case('JACO')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       Case('EXTR')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       Case('QLQR')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       Case('NATU')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       Case('MOLO')
-      GoTo 9930
+      Call WarningMessage(2,'Obsolete keyword: '//Command)
+      Call Quit_OnUserError
 
       ! DONE WITH READING INPUT
 
@@ -873,7 +817,8 @@ c      call Quit_OnInstError
       ! NO MATCH FOUND, UNKOWN KEYWORD
 
       Case Default
-      GoTo 9940
+      Call WarningMessage(2,'Unrecognized keyword: '//Command)
+      Call Quit_OnUserError
 
       End Select
       GoTo 10
@@ -888,28 +833,12 @@ c      call Quit_OnInstError
       endif
 #endif
 
-*---  Normal exit
+!---  Normal exit
       Return
 
-*---  Error exits
-9910  CONTINUE
-      Call WarningMessage(2,'Premature end of input file.')
-      GoTo 9999
-9920  CONTINUE
-      Call WarningMessage(2,'I/O error when reading line.')
-      GoTo 9999
-9930  CONTINUE
-      Call WarningMessage(2,'Obsolete keyword: '//Command)
-      GoTo 9999
-9940  CONTINUE
-      Call WarningMessage(2,'Unrecognized keyword: '//Command)
-      GoTo 9999
 
-9999  CONTINUE
-      WRITE(6,*)' -> last line from input that was read: ', Line
-      Call Quit_OnUserError
+      End Subroutine readin_CASPT2
 
-      End Subroutine
 
       subroutine ExtendLine(DynLine,Line)
         Implicit None
@@ -921,5 +850,30 @@ c      call Quit_OnInstError
         Allocate(Character(Len=Len(Aux)+Len(Line)+1) :: DynLine)
         DynLine = Trim(Aux) // ' ' // Line
       end subroutine ExtendLine
+
+
+      subroutine IOError(line)
+        use definitions, only:u6
+        implicit none
+        character(len=*), intent(in) :: line
+
+        call IOError(Line)
+        write(u6,*)'Last line read from input: ', line
+        call Quit_OnUserError
+
+      end subroutine IOError
+
+
+      subroutine EOFError(line)
+        use definitions, only:u6
+        implicit none
+        character(len=*), intent(in) :: line
+
+        call EOFError(Line)
+        write(u6,*)'Last line read from input: ', line
+        call Quit_OnUserError
+
+      end subroutine EOFError
+
 
       End Module
