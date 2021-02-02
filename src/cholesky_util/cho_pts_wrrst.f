@@ -24,8 +24,6 @@ C
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 
-      Integer N2
-
 #if defined (_DEBUGPRINT_)
       Character*13 SecNam
       Parameter (SecNam='Cho_PTS_WrRst')
@@ -50,7 +48,6 @@ C
 *                                                                      *
       ! Init return code
       irc=0
-      N2 = SIZE(InfVec,2)
 
 #if defined (_DEBUGPRINT_)
       ! check that NumCho agrees with distribution

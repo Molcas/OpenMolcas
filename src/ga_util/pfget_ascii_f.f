@@ -29,6 +29,12 @@
       Integer :: LU, Err, FLen, Pos, Num
       Logical :: Found, Failed
       Integer, External :: IsFreeUnit
+      Interface
+        Subroutine GA_Brdcst(type,buf,lenbuf,root)
+          Integer type,lenbuf,root
+          Type(*) buf
+        End Subroutine GA_Brdcst
+      End Interface
 
       ! Note that each process opens only one file, so there is a single
       ! unit number LU

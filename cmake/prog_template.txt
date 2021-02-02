@@ -26,7 +26,11 @@
 
 get_filename_component (prog ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-file (GLOB sources *.f *.f90 *.F *.F90 *.c)
+if (DEFINED sources)
+  set_absolute_paths (sources ${CMAKE_CURRENT_SOURCE_DIR} ${sources})
+else ()
+  file (GLOB sources *.f *.f90 *.F *.F90 *.c)
+endif ()
 
 # This identifies any main.* file (there should be one), which is needed
 # in order to be able to make a library out of the program sources. This

@@ -26,8 +26,9 @@
       subroutine pt2wfn_init
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
-      use refwfn
+      use refwfn, only: refwfn_active
 #ifdef _HDF5_
+      use refwfn, only: refwfn_is_h5
       use mh5, only: mh5_create_file, mh5_init_attr,
      &               mh5_create_dset_str, mh5_create_dset_real,
      &               mh5_put_dset, mh5_close_dset
@@ -185,7 +186,6 @@
       end subroutine
 
       subroutine pt2wfn_data
-      use refwfn
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset, mh5_put_dset_array_real
 #endif
@@ -217,7 +217,6 @@
       end subroutine
 
       subroutine pt2wfn_estore(Heff)
-      use refwfn
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset, mh5_put_dset_array_real
 #endif
@@ -241,7 +240,6 @@ c Avoid unused argument warnings
       end subroutine
 
       subroutine pt2wfn_densstore(Dmat,nDmat)
-      use refwfn
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset_array_real
 #endif

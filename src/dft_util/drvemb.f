@@ -40,6 +40,9 @@
 ***                                                                  ***
 ************************************************************************
 ************************************************************************
+      use OFembed, only: OFE_first, Xsigma, dFMD
+      use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
+     &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb, Checker
 #include "real.fh"
@@ -52,13 +55,6 @@
       Character*4 DFTFOCK
       Character*16 NamRfil
       Real*8 Vxc_ref(2)
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
 *     Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
       Real*8 Func_A_TF, Func_B_TF
@@ -67,6 +63,9 @@
       External Xlambda
 *
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
+#ifdef _NOT_USED_
+      Real*8, Allocatable:: Vemb(:), D1ao_x(:)
+#endif
 *
       Debug=.False.
       is_rhoA_on_file = .False.
@@ -85,32 +84,32 @@
           Call mma_allocate(D1ao_y,nh1)
           Call Get_NameRun(NamRfil) ! save the old RUNFILE name
           Call NameRun('AUXRFIL')   ! switch RUNFILE name
-          Call GetMem('Vemb_M','Allo','Real', ipVemb, nh1)
-          Call Get_dArray('dExcdRa', Work(ipVemb), nh1)
+          Call mma_allocate(Vemb,nh1,label='Vemb')
+          Call Get_dArray('dExcdRa', Vemb, nh1)
           Call mma_allocate(TmpA,nh1,Label='TmpA')
           Call Get_dArray('Nuc Potential',TmpA,nh1)
 *    Substract V_nuc_B
-          Call daxpy_(nh1,-One,TmpA,1,Work(ipVemb),1)
+          Call daxpy_(nh1,-One,TmpA,1,Vemb,1)
 *    Calculate nonelectr. V_emb with current Density
           Ynorm=dDot_(nh1,WD1ao_y,1,D1ao_y,1)
-          V_emb_x=dDot_(nh1,Work(ipVemb),1,D1ao_y,1)
+          V_emb_x=dDot_(nh1,Vemb,1,D1ao_y,1)
           Write (6,'(A,F19.10,4X,A,F10.5)')
      &          'Nonelectr. Vemb w. current density: ', V_emb_x,
      &          'Y_Norm = ', Ynorm
           Call mma_deallocate(D1ao_y)
 *    Get rho_A_ref
           Call NameRun('PRERFIL')
-          Call GetMem('Dens','Allo','Real',ipD1ao_x,nDens)
-          Call get_dArray('D1ao',Work(ipD1ao_x),nDens)
-          Xnorm=dDot_(nh1,Work(ipD1ao_x),1,Work(ipD1ao_x),1)
-          V_emb_x_ref=dDot_(nh1,Work(ipVemb),1,Work(ipD1ao_x),1)
+          Call mma_allocate(D1ao_x,nDens,Label='D1ao_x')
+          Call get_dArray('D1ao',ipD1ao_x,nDens)
+          Xnorm=dDot_(nh1,D1ao_x,1,D1ao_x,1)
+          V_emb_x_ref=dDot_(nh1,Vemb,1,pD1ao_x,1)
           Write (6,'(A,F19.10,4X,A,F10.5)')
      &          'Nonelectr. Vemb w.    ref. density: ', V_emb_x_ref,
      &          'X_Norm = ', Xnorm
-          Call VEMB_Exc_states(Work(ipVemb),nh1,KSDFT,Func_B)
+          Call VEMB_Exc_states(Vemb,nh1,KSDFT,Func_B)
           Call mma_deallocate(TmpA)
-          Call GetMem('Dens','Free','Real',ipD1ao_x,nDens)
-          Call GetMem('Vemb_M','Free','Real', ipVemb, nh1)
+          Call mma_deallocate(D1ao_x)
+          Call mma_dealloacte(Vemb)
           Call NameRun(NamRfil)     ! switch back to RUNFILE
       End If
 *     --- Section End

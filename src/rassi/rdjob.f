@@ -12,7 +12,7 @@
       use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_info
+      use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
       use mh5, only: mh5_fetch_dset_array_str
 #endif
       use mspt2_eigenvectors

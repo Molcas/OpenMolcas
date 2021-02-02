@@ -16,12 +16,10 @@ C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
       use ChoSwp, only:   IndRed,   IndRed_G
-      use ChoArr, only: iL2G
+      use ChoArr, only: iL2G, MySP
       Implicit None
 #include "cholesky.fh"
-#include "choptr2.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Character*14 SecNam
       Parameter (SecNam = 'Cho_P_SetRed_L')
@@ -29,11 +27,6 @@ C
       Integer irc, iC, nDim
       Integer i, j, k, i0, k0, l, ll
       Integer iSym, iSP, iShlAB
-
-      Integer mySP
-
-      mySP(i)=iWork(ip_mySP-1+i)
-
 
 C     Copy current local reduced set (at location 2) to location 3.
 C     -------------------------------------------------------------

@@ -15,6 +15,10 @@ C initialize global common-block variables appropriately.
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
 #endif
+* NOT TESTED
+#if 0
+      use OFembed, only: Do_OFemb
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "warnings.fh"
@@ -24,7 +28,6 @@ C initialize global common-block variables appropriately.
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "ofembed.fh"
 
       Integer iDummy
 
@@ -384,11 +387,8 @@ C     really parallel or not.
 * Orbital-free embedding.
 *
 ************************************************************************
-      Done_OFemb=.false.
-      First_OFE =.true.
-      ipFMaux = -666666
       If (Input % OFEmbedding) Then
-        Done_OFemb=.true.
+        Do_OFemb=.true.
         write(6,*)
         write(6,*)  '  --------------------------------------'
         write(6,*)  '   Orbital-Free Embedding Calculation   '

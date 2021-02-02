@@ -42,7 +42,7 @@ c     Logical is_error
       Character*256 STRING
       Character*256 STMP
       Character*256  STRING2
-      Character*256 Collect
+      Character(LEN=256) Collect
       Logical Found
 *--- Some variables for Geo environment //Jonas 2011
       Integer iGeoInfo(2)
@@ -232,7 +232,8 @@ C If this label should not be checked, then just return immediately:
 *     Export only head of Array                                        *
 *----------------------------------------------------------------------*
 c        write(Lu_Info,*)
-        collect=Line(1:nlabel)
+        collect=''
+        collect(1:nlabel)=Line(1:nlabel)
         call add_molcas_info(collect,nlabel)
 c        write (Lu_Info,'(a)') Line(1:nlabel)
         if (iArray.eq.nArray) then

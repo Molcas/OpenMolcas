@@ -707,6 +707,13 @@ void flushMM(mstat *MM, mentry mentries[], mentry *tmp) {
 #ifdef _DEBUGPRINT_MEM_
     printf("Going to delete all memory entries older than atime=%ld\n",LIFMT(latime));
 #endif
+#ifdef _DEBUGPRINT_FLUSH_
+    printf("---------------------------------------------------------------------------------------------\n");
+    printf("  Nr.\t Label\t\tType\t\tOffset\t\tLength\t   Atime\t  Address\n");
+    printf("---------------------------------------------------------------------------------------------\n");
+    for(i=MM->nmentry-1;i>0;i--) if(mentries[i].atime>latime) printf("%3ld\t%-12s\t%4s\t%14ld\t%12ld   %9ld\t[%p]\n", LIFMT(i+1),mentries[i].elbl,mentries[i].etyp,LIFMT(mentries[i].offset),LIFMT(mentries[i].len),LIFMT(mentries[i].atime),mentries[i].addr);
+    printf("---------------------------------------------------------------------------------------------\n");
+#endif
     for(i=MM->nmentry-1;i>0;i--) if(mentries[i].atime>latime) del_mentry( MM, mentries, &mentries[i], i);
 
     return;

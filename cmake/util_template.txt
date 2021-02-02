@@ -26,7 +26,11 @@
 
 get_filename_component (util ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-file (GLOB sources *.f *.f90 *.F *.F90 *.c)
+if (DEFINED sources)
+  set_absolute_paths (sources ${CMAKE_CURRENT_SOURCE_DIR} ${sources})
+else ()
+  file (GLOB sources *.f *.f90 *.F *.F90 *.c)
+endif ()
 
 # Ignore an empty directory
 if (NOT sources)
@@ -36,13 +40,22 @@ endif ()
 # Find source files that define Fortran modules.
 # These must be moved to another target to ensure
 # that they are compiled first.
-#------------------------------------------------
-foreach (fname ${sources})
-  file (READ ${fname} contents)
-  if ("${contents}" MATCHES "\n *[mM][oO][dD][uU][lL][eE] ")
-    list (REMOVE_ITEM sources      ${fname})
-    list (APPEND      modfile_list ${fname})
-  endif ()
+# If modfile_list is predefined, it may contain
+# only the module sources that need to be available
+# to other directories.
+#--------------------------------------------------
+if (DEFINED modfile_list)
+  set_absolute_paths (modfile_list ${CMAKE_CURRENT_SOURCE_DIR} ${modfile_list})
+else ()
+  foreach (fname ${sources})
+    file (READ ${fname} contents)
+    if ("${contents}" MATCHES "\n *[mM][oO][dD][uU][lL][eE] ")
+      list (APPEND modfile_list ${fname})
+    endif ()
+  endforeach ()
+endif ()
+foreach (fname ${modfile_list})
+  list (REMOVE_ITEM sources ${fname})
 endforeach ()
 
 # Create an object library
@@ -58,8 +71,11 @@ target_include_directories (${util}_obj PRIVATE "${${util}_incs}")
 # add a dummy source if there are none left,
 # (CMake does not like empty targets)
 if (NOT sources)
-  file (APPEND ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f "")
-  target_sources (${util}_obj PRIVATE ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f)
+  set (dummy_file ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f90)
+  if (NOT EXISTS ${dummy_file})
+    file (WRITE ${dummy_file} "subroutine empty_dummy() ; end subroutine")
+  endif ()
+  target_sources (${util}_obj PRIVATE ${dummy_file})
 endif ()
 
 # Info for the main project

@@ -14,10 +14,11 @@
       Logical GetFM
       Integer nDM, lFDM
       Real*8  FM(lFDM), DMA(lFDM), DMB(lFDM)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-      Character*16 NamRfil
+      Character(LEN=16) NamRfil
+      Real*8, Allocatable:: DM(:)
 *
       If (nDM.gt.2 .or. nDM.lt.1) Then
          write(6,*) ' In Coul_DMB: wrong value of nDM= ',nDM
@@ -29,16 +30,17 @@
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 *
-      Call GetMem('DM','Allo','Real',ip_DM,lFDM)
-      Call get_dArray('D1ao',Work(ip_DM),lFDM)
+      Call mma_allocate(DM,lFDM,Label='DM')
+      Call get_dArray('D1ao',DM,lFDM)
 *
       Call FZero(FM,lFDM)
-      Call CHO_FOCK_DFT_RED(irc,Work(ip_DM),FM)
+      Call CHO_FOCK_DFT_RED(irc,DM,FM)
+      Call GADSum(FM,lFDM)
       If (irc.ne.0) Then
          Call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
       EndIf
 *
-      Call GetMem('DM','Free','Real',ip_DM,lFDM)
+      Call mma_deallocate(DM)
 *
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 *

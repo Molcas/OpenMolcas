@@ -13,12 +13,12 @@ C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
       use index_arrays, only: iSO2Sh
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
+     &                  iShP2RS, iShP2Q
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "chosew.fh"
 #include "stdalloc.fh"
 
       CHARACTER*12 SECNAM
@@ -156,10 +156,8 @@ C     directly in reduced set from Seward.
 C     -----------------------------------------------------------
 
       IF (IFCSEW .EQ. 2) THEN
-         l_iShP2RS  = 2*MX2SH
-         l_iShP2Q   = l_iShP2RS
-         CALL CHO_MEM('SHP2RS','ALLO','INTE',ip_iShP2RS,l_iShP2RS)
-         CALL CHO_MEM('SHP2Q','ALLO','INTE',ip_iShP2Q,l_iShP2Q)
+         Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
+         Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
       END IF
 
 C     ISHLSO(I): index of SO I within its shell

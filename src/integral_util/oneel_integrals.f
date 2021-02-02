@@ -8,6 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
       use Symmetry_Info, only: nIrrep
@@ -82,7 +84,7 @@
 *                                                                      *
 *---- Compute all SO integrals for all components of the operator.
 *
-      Call OneEl_Internal
+      Call OneEl_Inner
      &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &            nOrdOp,rHrmt,iChO,
      &            dum,dum,1,idum,0,0,
@@ -92,4 +94,12 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
+      End Subroutine OneEl_Integrals
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(OneEl_Integrals)
+
+#endif

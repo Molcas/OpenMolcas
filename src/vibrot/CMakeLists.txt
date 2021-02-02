@@ -9,4 +9,22 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     dminv.F90
+     pot.F90
+     prwf.F90
+     simpsn.F90
+     sort_pot.F90
+     spectc.F90
+     spline.F90
+     vibinp.F90
+     vibmat.F90
+     vibrot.F90
+     vibrotmain.F90
+     vibrot_globals.F90
+     vibtrm.F90
+     wr_vibrot_info1.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

@@ -32,11 +32,11 @@ C           RUN_MODE = RUN_EXTERNAL).
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     l_CHVBFI_SYM, nVec_in_Buf
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -154,7 +154,7 @@ C     ----------------------
                End Do
             End If
          End If
-         Call dCopy_(lTot,Work(kB),1,Vec,1)
+         Call dCopy_(lTot,CHVBUF(kB),1,Vec,1)
          ! Check copy operation (may fail if molcas is compiled for
          ! 64 bit but linked to a 32 bit blas library)
          ! Note: check is not done unless it is enabled when the buffer

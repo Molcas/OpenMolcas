@@ -21,19 +21,16 @@ C
 C              Any other norm is taken to be 'Max'.
 C
       use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSubScr, only: DSubScr, DSPNm
 #include "implicit.fh"
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
-#include "chosubscr.fh"
-#include "WrkSpc.fh"
 
       Character*14 SecNam
       Parameter (SecNam = 'Cho_SubScr_Dia')
 
       Character*3 myDSPNorm
-
-      DSubScr(i)=Work(ip_DSubScr-1+i)
 
 #if defined (_DEBUGPRINT_)
       If (iLoc.lt.1 .or. iLoc.gt.3) Then
@@ -50,8 +47,8 @@ C
 C     Initialize and check for early return.
 C     --------------------------------------
 
-      Call Cho_dZero(Work(ip_DSubScr),nnBstR(iSym,iLoc))
-      Call Cho_dZero(Work(ip_DSPNm),nnShl)
+      Call Cho_dZero(DSubScr,nnBstR(iSym,iLoc))
+      Call Cho_dZero(DSPNm,nnShl)
       If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
 C     Compute diagonal.
@@ -60,7 +57,7 @@ C     -----------------
       Do iVec = 1,nVec
          kOff = nnBstR(iSym,iLoc)*(iVec-1)
          Do iAB = 1,nnBstR(iSym,iLoc)
-            Work(ip_DSubScr-1+iAB) = Work(ip_DSubScr-1+iAB)
+            DSubScr(iAB) = DSubScr(iAB)
      &                             + ChoVec(kOff+iAB)*ChoVec(kOff+iAB)
          End Do
       End Do
@@ -92,8 +89,7 @@ C     --------------------------------------
             iAB1 = iiBstRSh(iSym,iSP,iLoc) + 1
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
-               Work(ip_DSPNm-1+iSP) = max(Work(ip_DSPNm-1+iSP),
-     &                                    Work(ip_DSubScr-1+iAB))
+               DSPNm(iSP) = max(DSPNm(iSP),DSubScr(iAB))
             End Do
          End Do
       Else If (myDSPNorm .eq. 'FRO') Then
@@ -101,10 +97,9 @@ C     --------------------------------------
             iAB1 = iiBstRSh(iSym,iSP,iLoc) + 1
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
-               Work(ip_DSPNm-1+iSP) = Work(ip_DSPNm-1+iSP)
-     &                              + DSubScr(iAB)*DSubScr(iAB)
+               DSPNm(iSP) = DSPNm(iSP) + DSubScr(iAB)*DSubScr(iAB)
             End Do
-            Work(ip_DSPNm-1+iSP) = sqrt(Work(ip_DSPNm-1+iSP))
+            DSPNm(iSP) = sqrt(DSPNm(iSP))
          End Do
       Else
          Write(Lupri,*) SecNam,': WARNING: unkown norm: ',DSPNorm
@@ -113,8 +108,7 @@ C     --------------------------------------
             iAB1 = iiBstRSh(iSym,iSP,iLoc) + 1
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
-               Work(ip_DSPNm-1+iSP) = max(Work(ip_DSPNm-1+iSP),
-     &                                    Work(ip_DSubScr-1+iAB))
+               DSPNm(iSP) = max(DSPNm(iSP),DSubScr(iAB))
             End Do
          End Do
       End If
