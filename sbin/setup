@@ -163,6 +163,7 @@ MOLCAS_NEW_WORKDIR
 Specifies whether the scratch directory will be cleaned *before* a
 calculation. This can also be specified with the -new and -old flags
 for {}.
+Note that this does not work in a parallel environment.
 
 Enter y or n, or press enter to keep the default (n):
 y) YES: The scratch directory is cleaned before a calculation.
@@ -177,6 +178,7 @@ MOLCAS_KEEP_WORKDIR
 -------------------
 Specifies whether the scratch directory will be cleaned *after* a calculation.
 This can also be overridden with the -clean flag for {}.
+Note that this does not work in a parallel environment.
 
 Enter y or n, or press enter to keep the default (y):
 y) YES: The scratch directory is kept after a calculation.

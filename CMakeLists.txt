@@ -1565,7 +1565,7 @@ if (GROMACS)
   if (DEFINED ENV{GMXLDLIB})
     set (GMX_LIBDIR $ENV{GMXLDLIB})
   else ()
-    set (GMX_LIBDIR "${GROMACS_DIR}/lib/*")
+    set (GMX_LIBDIR "${GROMACS_DIR}/lib")
   endif ()
 
   find_library (LIBGMX

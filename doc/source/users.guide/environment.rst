@@ -399,6 +399,7 @@ The complete list of |molcas|-related environment variables:
 :variable:`MOLCAS_KEEP_WORKDIR`
   If set to NO |molcas| will remove scratch area after a calculation.
   This setting can be overwritten by running :command:`molcas` with flag :command:`-clean`.
+  Note that this does not work in a parallel environment.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_KEEP_WORKDIR" APPEAR="Keep WorkDir" KIND="CHOICE" LIST="NO" LEVEL="BASIC">
               %%Keyword: MOLCAS_KEEP_WORKDIR <basic>
@@ -494,7 +495,8 @@ The complete list of |molcas|-related environment variables:
 :variable:`MOLCAS_NEW_WORKDIR`
   If set to YES |molcas| will never reuse files in scratch area.
   This setting can be overwritten by running :command:`molcas` with flag :command:`-old`:
-  :command:`molcas -old input`
+  :command:`molcas -old input`.
+  Note that this does not work in a parallel environment.
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_NEW_WORKDIR" APPEAR="Use new WorkDir" KIND="CHOICE" LIST="YES" LEVEL="BASIC">
               %%Keyword: MOLCAS_NEW_WORKDIR <basic>
