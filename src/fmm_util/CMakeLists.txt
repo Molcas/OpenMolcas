@@ -23,7 +23,6 @@ set (sources
      fmm_interface.F90
      fmm_J_builder.F90
      fmm_local_search.F90
-     fmm_molcas_interface.F90
      fmm_multiple_T_worker.F90
      fmm_multipole_ints.F90
      fmm_multi_T_buffer.F90

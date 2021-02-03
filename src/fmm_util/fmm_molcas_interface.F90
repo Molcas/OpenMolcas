@@ -8,47 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!SUBROUTINE fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
+
+!subroutine fmm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
 !
-!   USE fmm_global_paras
-!   USE fmm_car_to_sph, ONLY: fmm_init_car_to_sph,      &
-!                             fmm_free_car_to_sph,      &
-!                             fmm_transform_car_to_sph
+!  use fmm_global_paras, only: INTK, REALK
+!  use fmm_car_to_sph, only: fmm_init_car_to_sph, &
+!                            fmm_free_car_to_sph, &
+!                            fmm_transform_car_to_sph
 !
-!   IMPLICIT NONE
-!   INTEGER(INTK), INTENT(IN)  :: ndim, LMAX
-!   REAL(REALK),   INTENT(IN)  :: CarMoms(ndim, (LMAX+1)*(LMAX+2)/2 , 0:LMAX)
-!   REAL(REALK),   INTENT(OUT) :: SphMoms(ndim, 2*LMAX+1 , 0:LMAX)
+!  implicit none
+!  integer(INTK), intent(in) :: ndim, LMAX
+!  real(REALK), intent(in)   :: CarMoms(ndim,(LMAX+1)*(LMAX+2)/2,0:LMAX)
+!  real(REALK), intent(out)  :: SphMoms(ndim,2*LMAX+1,0:LMAX)
 !
-!   CALL fmm_init_car_to_sph(LMAX)
-!   CALL fmm_transform_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
-!   CALL fmm_free_car_to_sph
+!  call fmm_init_car_to_sph(LMAX)
+!  call fmm_transform_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
+!  call fmm_free_car_to_sph()
 !
-!END SUBROUTINE fmm_call_car_to_sph
-!
+!end subroutine fmm_call_car_to_sph
+
 !------------------------------------------------------------------------------
 
-SUBROUTINE fmm_call_get_J_matrix(ndim,nBas,dens,Fock)
+subroutine fmm_call_get_J_matrix(ndim,nBas,dens,Fock)
 
-   USE fmm_global_paras, ONLY: INTK, REALK
-!   USE fmm_interface, ONLY: fmm_get_J_matrix
+# include "macros.fh"
 
-   IMPLICIT NONE
-   INTEGER(INTK), INTENT(IN)    :: ndim, nBas
-   REAL(REALK),   INTENT(IN)    :: dens(ndim)
-   REAL(REALK),   INTENT(INOUT) :: Fock(ndim)
+  use fmm_global_paras, only: INTK, REALK
+  !use fmm_interface, only: fmm_get_J_matrix
 
-!   print *, "Calling FMM code..."
-!   CALL fmm_get_J_matrix(1,dens(1),Fock(1))
-!   CALL fmm_get_J_matrix(nbas,dens,Fock)
-!   print *, "Returning from FMM code..."
+  implicit none
+  integer(INTK), intent(in)  :: ndim, nBas
+  real(REALK), intent(in)    :: dens(ndim)
+  real(REALK), intent(inout) :: Fock(ndim)
 
-! Avoid unused argument warnings
-   IF (.FALSE.) THEN
-      CALL Unused_integer(nBas)
-      CALL Unused_real_array(dens)
-      CALL Unused_real_array(Fock)
-   END IF
-END SUBROUTINE fmm_call_get_J_matrix
+  unused_var(nBas)
+  unused_var(dens)
+  unused_var(Fock)
 
-!------------------------------------------------------------------------------
+  !print *, 'Calling FMM code...'
+  !call fmm_get_J_matrix(1,dens(1),Fock(1))
+  !call fmm_get_J_matrix(nbas,dens,Fock)
+  !print *, 'Returning from FMM code...'
+
+end subroutine fmm_call_get_J_matrix

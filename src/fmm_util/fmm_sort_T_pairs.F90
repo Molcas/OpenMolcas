@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-MODULE fmm_sort_T_pairs
+
+module fmm_sort_T_pairs
 
 ! Sorting module with a very simple O(N^2) insertion sort
 ! algorithm or using the average O(NlogN) Quicksort algorithm
@@ -18,391 +19,381 @@ MODULE fmm_sort_T_pairs
 !     (b) T-vector component
 !     (c) T-vector modulus (ratio)
 
-   USE fmm_global_paras, ONLY: INTK, REALK, T_pair_single
-   IMPLICIT NONE
-   PRIVATE
-   ! Public procedures
-   PUBLIC :: fmm_quicksort_wrt_RHS,           &
-             fmm_quicksort_wrt_vector,        &
-             fmm_quicksort_wrt_ratio
+use fmm_global_paras, only: INTK, REALK, T_pair_single
+implicit none
+private
+! Public procedures
+public :: fmm_quicksort_wrt_RHS, &
+          fmm_quicksort_wrt_vector, &
+          fmm_quicksort_wrt_ratio
 
-   ! criteria for switching from Quicksort to Insertion-Sort algorithms
-   INTEGER(INTK), PARAMETER :: quicksort_CUTOFF = 10
+! criteria for switching from Quicksort to Insertion-Sort algorithms
+integer(INTK), parameter :: quicksort_CUTOFF = 10
 
-CONTAINS
-
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE insertion_sort_wrt_RHS(arr)
-
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      TYPE(T_pair_single) :: tmp
-      INTEGER(INTK) :: i, j
-
-      iloop: DO i = 1, SIZE(arr)
-         tmp = arr(i)
-         DO j = (i-1), 1, -1
-            IF (arr(j)%paras%RHS_id > tmp%paras%RHS_id) THEN
-               arr(j+1) = arr(j)
-            ELSE
-               arr(j+1) = tmp
-               CYCLE iloop
-            END IF
-         END DO
-         arr(1) = tmp
-      END DO iloop
-
-   END SUBROUTINE insertion_sort_wrt_RHS
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE RHS_swap_elements(arr,i,j)
+subroutine insertion_sort_wrt_RHS(arr)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: i, j
-      TYPE(T_pair_single) :: tmp
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  type(T_pair_single) :: tmp
+  integer(INTK) :: i, j
 
-      tmp = arr(i)
-      arr(i) = arr(j)
-      arr(j) = tmp
+  iloop: do i=1,size(arr)
+    tmp = arr(i)
+    do j=(i-1),1,-1
+      if (arr(j)%paras%RHS_id > tmp%paras%RHS_id) then
+        arr(j+1) = arr(j)
+      else
+        arr(j+1) = tmp
+        cycle iloop
+      end if
+    end do
+    arr(1) = tmp
+  end do iloop
 
-   END SUBROUTINE RHS_swap_elements
+end subroutine insertion_sort_wrt_RHS
+
+!-------------------------------------------------------------------------------
+
+subroutine RHS_swap_elements(arr,i,j)
+
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: i, j
+  type(T_pair_single) :: tmp
+
+  tmp = arr(i)
+  arr(i) = arr(j)
+  arr(j) = tmp
+
+end subroutine RHS_swap_elements
 
 !-------------------------------------------------------------------------------
 ! Subroutine to return the median of first, last, and centre array elements.
 ! order these and hide the pivot (median) as the second to last array element
 ! (acts as a sentinel whilst the last is the largest and put in correct place.)
 
-   FUNCTION RHS_median_of_three(arr,left,right)
+function RHS_median_of_three(arr,left,right)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: left, right
-      INTEGER(INTK) :: RHS_median_of_three
-      INTEGER(INTK) :: cntr
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: left, right
+  integer(INTK) :: RHS_median_of_three
+  integer(INTK) :: cntr
 
-      cntr = (left + right)/2
+  cntr = (left+right)/2
 
-      IF (arr(left)%paras%RHS_id > arr(cntr)%paras%RHS_id)  &
-         CALL RHS_swap_elements(arr,left,cntr)
-      IF (arr(left)%paras%RHS_id > arr(right)%paras%RHS_id)  &
-         CALL RHS_swap_elements(arr,left,right)
-      IF (arr(cntr)%paras%RHS_id > arr(right)%paras%RHS_id)  &
-         CALL RHS_swap_elements(arr,cntr,right)
+  if (arr(left)%paras%RHS_id > arr(cntr)%paras%RHS_id) call RHS_swap_elements(arr,left,cntr)
+  if (arr(left)%paras%RHS_id > arr(right)%paras%RHS_id) call RHS_swap_elements(arr,left,right)
+  if (arr(cntr)%paras%RHS_id > arr(right)%paras%RHS_id) call RHS_swap_elements(arr,cntr,right)
 
-      CALL RHS_swap_elements(arr,cntr,right-1_INTK)
-      RHS_median_of_three = arr(right-1)%paras%RHS_id
+  call RHS_swap_elements(arr,cntr,right-1)
+  RHS_median_of_three = arr(right-1)%paras%RHS_id
 
-   END FUNCTION RHS_median_of_three
+end function RHS_median_of_three
 
 !-------------------------------------------------------------------------------
 
-   RECURSIVE SUBROUTINE fmm_quicksort_wrt_RHS(arr)
+recursive subroutine fmm_quicksort_wrt_RHS(arr)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
 
-      INTEGER(INTK) :: left, right
-      INTEGER(INTK) :: i,j, pivot
+  integer(INTK) :: left, right
+  integer(INTK) :: i, j, pivot
 
-      left = 1
-      right = SIZE(arr)
+  left = 1
+  right = size(arr)
 
-      IF (left + quicksort_CUTOFF > right) THEN
-         ! array too small for Quicksort to be efficient, so don't use it
-         CALL insertion_sort_wrt_RHS(arr)
-         RETURN
-      END IF
+  if (left+quicksort_CUTOFF > right) then
+    ! array too small for Quicksort to be efficient, so don't use it
+    call insertion_sort_wrt_RHS(arr)
+    return
+  end if
 
-      pivot = RHS_median_of_three(arr,left,right)
-      ! partition array elements about chosen pivot
-      i = left
-      j = right-2
-      DO ! until left, right pointers cross
-         ! increment left until large element found
-         DO WHILE ( arr(i)%paras%RHS_id < pivot )
-            i = i+1
-         END DO
-         ! increment right until small element found
-         DO WHILE ( arr(j)%paras%RHS_id > pivot )
-            j = j-1
-         END DO
-         IF (i < j) THEN
-            ! swap items (i,j)
-            CALL RHS_swap_elements(arr,i,j)
-            ! now increment (i,j) to avoid infinite loop if both = pivot
-            i = i+1
-            j = j-1
-         ELSE
-            EXIT
-         END IF
-      END DO
-      ! i is now the position where the pivot should be
-      ! swap pivot back to middle of array
-      CALL RHS_swap_elements(arr,i,right-1_INTK)
+  pivot = RHS_median_of_three(arr,left,right)
+  ! partition array elements about chosen pivot
+  i = left
+  j = right-2
+  do ! until left, right pointers cross
+    ! increment left until large element found
+    do while(arr(i)%paras%RHS_id < pivot)
+      i = i+1
+    end do
+    ! increment right until small element found
+    do while(arr(j)%paras%RHS_id > pivot)
+      j = j-1
+    end do
+    if (i < j) then
+      ! swap items (i,j)
+      call RHS_swap_elements(arr,i,j)
+      ! now increment (i,j) to avoid infinite loop if both = pivot
+      i = i+1
+      j = j-1
+    else
+      exit
+    end if
+  end do
+  ! i is now the position where the pivot should be
+  ! swap pivot back to middle of array
+  call RHS_swap_elements(arr,i,right-1)
 
-      ! now sort sub-arrays either side of pivot
-      CALL fmm_quicksort_wrt_RHS( arr( left:(i-1) ) )
-      CALL fmm_quicksort_wrt_RHS( arr( (i+1):right ) )
+  ! now sort sub-arrays either side of pivot
+  call fmm_quicksort_wrt_RHS(arr(left:(i-1)))
+  call fmm_quicksort_wrt_RHS(arr((i+1):right))
 
-   END SUBROUTINE fmm_quicksort_wrt_RHS
+end subroutine fmm_quicksort_wrt_RHS
 
 !-------------------------------------------------------------------------------
 ! Insertion sort for sorting of T-pair batch wrt 1 component of T-vector
 !-----------------------------------------------------------------------
 
-   SUBROUTINE insertion_sort_wrt_vector(arr,xyz)
+subroutine insertion_sort_wrt_vector(arr,xyz)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: xyz
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: xyz
 
-      TYPE(T_pair_single) :: tmp
-      INTEGER(INTK) :: i, j
+  type(T_pair_single) :: tmp
+  integer(INTK) :: i, j
 
-      iloop: DO i = 1, SIZE(arr)
-         tmp = arr(i)
-         DO j = (i-1), 1, -1
-            IF (arr(j)%r_ab(xyz) > tmp%r_ab(xyz)) THEN
-               arr(j+1) = arr(j)
-            ELSE
-               arr(j+1) = tmp
-               CYCLE iloop
-            END IF
-         END DO
-         arr(1) = tmp
-      END DO iloop
+  iloop: do i=1,size(arr)
+    tmp = arr(i)
+    do j=(i-1),1,-1
+      if (arr(j)%r_ab(xyz) > tmp%r_ab(xyz)) then
+        arr(j+1) = arr(j)
+      else
+        arr(j+1) = tmp
+        cycle iloop
+      end if
+    end do
+    arr(1) = tmp
+  end do iloop
 
-   END SUBROUTINE insertion_sort_wrt_vector
+end subroutine insertion_sort_wrt_vector
 
 !-------------------------------------------------------------------------------
 ! Quicksort for sorting of T-pair batch wrt 1 component of T-vector
 !------------------------------------------------------------------
 
-   SUBROUTINE vector_swap_elements(arr,i,j)
+subroutine vector_swap_elements(arr,i,j)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: i, j
-      TYPE(T_pair_single) :: tmp
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: i, j
+  type(T_pair_single) :: tmp
 
-      tmp = arr(i)
-      arr(i) = arr(j)
-      arr(j) = tmp
+  tmp = arr(i)
+  arr(i) = arr(j)
+  arr(j) = tmp
 
-   END SUBROUTINE vector_swap_elements
+end subroutine vector_swap_elements
 
 !-------------------------------------------------------------------------------
 ! subroutine to return the median of first, last, and centre array elements.
 ! order these and hide the pivot (median) as the second to last array element
 ! (acts as a sentinel whilst the last is the largest and put in correct place.)
 
-   FUNCTION vector_median_of_three(arr,left,right,xyz)
+function vector_median_of_three(arr,left,right,xyz)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: left, right
-      INTEGER(INTK),       INTENT(IN)    :: xyz
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: left, right
+  integer(INTK), intent(in)          :: xyz
 
-      REAL(REALK)   :: vector_median_of_three
-      INTEGER(INTK) :: cntr
+  real(REALK) :: vector_median_of_three
+  integer(INTK) :: cntr
 
-      cntr = (left + right)/2
+  cntr = (left+right)/2
 
-      IF (arr(left)%r_ab(xyz) > arr(cntr)%r_ab(xyz))  &
-         CALL vector_swap_elements(arr,left,cntr)
-      IF (arr(left)%r_ab(xyz) > arr(right)%r_ab(xyz))  &
-         CALL vector_swap_elements(arr,left,right)
-      IF (arr(cntr)%r_ab(xyz) > arr(right)%r_ab(xyz))  &
-         CALL vector_swap_elements(arr,cntr,right)
+  if (arr(left)%r_ab(xyz) > arr(cntr)%r_ab(xyz)) call vector_swap_elements(arr,left,cntr)
+  if (arr(left)%r_ab(xyz) > arr(right)%r_ab(xyz)) call vector_swap_elements(arr,left,right)
+  if (arr(cntr)%r_ab(xyz) > arr(right)%r_ab(xyz)) call vector_swap_elements(arr,cntr,right)
 
-      CALL vector_swap_elements(arr,cntr,right-1_INTK)
-      vector_median_of_three = arr(right-1)%r_ab(xyz)
+  call vector_swap_elements(arr,cntr,right-1)
+  vector_median_of_three = arr(right-1)%r_ab(xyz)
 
-   END FUNCTION vector_median_of_three
+end function vector_median_of_three
 
 !-------------------------------------------------------------------------------
 
-   RECURSIVE SUBROUTINE fmm_quicksort_wrt_vector(arr,xyz)
+recursive subroutine fmm_quicksort_wrt_vector(arr,xyz)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: xyz
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: xyz
 
-      INTEGER(INTK) :: left, right
-      INTEGER(INTK) :: i,j
-      REAL(REALK)   :: pivot
+  integer(INTK) :: left, right
+  integer(INTK) :: i, j
+  real(REALK) :: pivot
 
-      left = 1
-      right = SIZE(arr)
+  left = 1
+  right = size(arr)
 
-      IF (left + quicksort_CUTOFF > right) THEN
-         ! array too small for Quicksort to be efficient, so don't use it
-         CALL insertion_sort_wrt_vector(arr,xyz)
-         RETURN
-      END IF
+  if (left+quicksort_CUTOFF > right) then
+    ! array too small for Quicksort to be efficient, so don't use it
+    call insertion_sort_wrt_vector(arr,xyz)
+    return
+  end if
 
-      pivot = vector_median_of_three(arr,left,right,xyz)
-      ! partition array elements about chosen pivot
-      i = left
-      j = right-2
-      DO ! until left, right pointers cross
-         ! increment left until large element found
-         DO WHILE ( arr(i)%r_ab(xyz) < pivot )
-            i = i+1
-         END DO
-         ! increment right until small element found
-         DO WHILE ( arr(j)%r_ab(xyz) > pivot )
-            j = j-1
-         END DO
-         IF (i < j) THEN
-            ! swap items (i,j)
-            CALL vector_swap_elements(arr,i,j)
-            ! now increment (i,j) to avoid infinite loop if both = pivot
-            i = i+1
-            j = j-1
-         ELSE
-            EXIT
-         END IF
-      END DO
-      ! i is now the position where the pivot should be
-      ! swap pivot back to middle of array
-      CALL vector_swap_elements(arr,i,right-1_INTK)
+  pivot = vector_median_of_three(arr,left,right,xyz)
+  ! partition array elements about chosen pivot
+  i = left
+  j = right-2
+  do ! until left, right pointers cross
+    ! increment left until large element found
+    do while(arr(i)%r_ab(xyz) < pivot)
+      i = i+1
+    end do
+    ! increment right until small element found
+    do while(arr(j)%r_ab(xyz) > pivot)
+      j = j-1
+    end do
+    if (i < j) then
+      ! swap items (i,j)
+      call vector_swap_elements(arr,i,j)
+      ! now increment (i,j) to avoid infinite loop if both = pivot
+      i = i+1
+      j = j-1
+    else
+      exit
+    end if
+  end do
+  ! i is now the position where the pivot should be
+  ! swap pivot back to middle of array
+  call vector_swap_elements(arr,i,right-1)
 
-      ! now sort sub-arrays either side of pivot
-      CALL fmm_quicksort_wrt_vector( arr( left:(i-1) ),xyz )
-      CALL fmm_quicksort_wrt_vector( arr( (i+1):right ),xyz )
+  ! now sort sub-arrays either side of pivot
+  call fmm_quicksort_wrt_vector(arr(left:(i-1)),xyz)
+  call fmm_quicksort_wrt_vector(arr((i+1):right),xyz)
 
-   END SUBROUTINE fmm_quicksort_wrt_vector
+end subroutine fmm_quicksort_wrt_vector
 
 !-------------------------------------------------------------------------------
 ! Insertion sort for sorting of T-pair batch wrt T-vector modulus (ratio)
 !------------------------------------------------------------------------
 
-   SUBROUTINE insertion_sort_wrt_ratio(arr)
+subroutine insertion_sort_wrt_ratio(arr)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
 
-      TYPE(T_pair_single) :: tmp
-      INTEGER(INTK) :: i, j
+  type(T_pair_single) :: tmp
+  integer(INTK) :: i, j
 
-      iloop: DO i = 1, SIZE(arr)
-         tmp = arr(i)
-         DO j = (i-1), 1, -1
-            IF (arr(j)%paras%ratio > tmp%paras%ratio) THEN
-               arr(j+1) = arr(j)
-            ELSE
-               arr(j+1) = tmp
-               CYCLE iloop
-            END IF
-         END DO
-         arr(1) = tmp
-      END DO iloop
+  iloop: do i=1,size(arr)
+    tmp = arr(i)
+    do j=(i-1),1,-1
+      if (arr(j)%paras%ratio > tmp%paras%ratio) then
+        arr(j+1) = arr(j)
+      else
+        arr(j+1) = tmp
+        cycle iloop
+      end if
+    end do
+    arr(1) = tmp
+  end do iloop
 
-   END SUBROUTINE insertion_sort_wrt_ratio
+end subroutine insertion_sort_wrt_ratio
 
 !-------------------------------------------------------------------------------
 ! Quicksort for sorting of T-pair batch wrt T-vector modulus (ratio)
 !-------------------------------------------------------------------
 
-   SUBROUTINE ratio_swap_elements(arr,i,j)
+subroutine ratio_swap_elements(arr,i,j)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: i, j
-      TYPE(T_pair_single) :: tmp
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: i, j
+  type(T_pair_single) :: tmp
 
-      tmp = arr(i)
-      arr(i) = arr(j)
-      arr(j) = tmp
+  tmp = arr(i)
+  arr(i) = arr(j)
+  arr(j) = tmp
 
-   END SUBROUTINE ratio_swap_elements
+end subroutine ratio_swap_elements
 
 !-------------------------------------------------------------------------------
 ! subroutine to return the median of first, last, and centre array elements.
 ! order these and hide the pivot (median) as the second to last array element
 ! (acts as a sentinel whilst the last is the largest and put in correct place.)
 
-   FUNCTION ratio_median_of_three(arr,left,right)
+function ratio_median_of_three(arr,left,right)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
-      INTEGER(INTK),       INTENT(IN)    :: left, right
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
+  integer(INTK), intent(in)          :: left, right
 
-      REAL(REALK)   :: ratio_median_of_three
-      INTEGER(INTK) :: cntr
+  real(REALK) :: ratio_median_of_three
+  integer(INTK) :: cntr
 
-      cntr = (left + right)/2
+  cntr = (left+right)/2
 
-      IF (arr(left)%paras%ratio > arr(cntr)%paras%ratio)  &
-         CALL ratio_swap_elements(arr,left,cntr)
-      IF (arr(left)%paras%ratio > arr(right)%paras%ratio)  &
-         CALL ratio_swap_elements(arr,left,right)
-      IF (arr(cntr)%paras%ratio > arr(right)%paras%ratio)  &
-         CALL ratio_swap_elements(arr,cntr,right)
+  if (arr(left)%paras%ratio > arr(cntr)%paras%ratio) call ratio_swap_elements(arr,left,cntr)
+  if (arr(left)%paras%ratio > arr(right)%paras%ratio) call ratio_swap_elements(arr,left,right)
+  if (arr(cntr)%paras%ratio > arr(right)%paras%ratio) call ratio_swap_elements(arr,cntr,right)
 
-      CALL ratio_swap_elements(arr,cntr,right-1_INTK)
-      ratio_median_of_three = arr(right-1)%paras%ratio
+  call ratio_swap_elements(arr,cntr,right-1)
+  ratio_median_of_three = arr(right-1)%paras%ratio
 
-   END FUNCTION ratio_median_of_three
+end function ratio_median_of_three
 
 !-------------------------------------------------------------------------------
 
-   RECURSIVE SUBROUTINE fmm_quicksort_wrt_ratio(arr)
+recursive subroutine fmm_quicksort_wrt_ratio(arr)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(INOUT) :: arr(:)
+  implicit none
+  type(T_pair_single), intent(inout) :: arr(:)
 
-      INTEGER(INTK) :: left, right
-      INTEGER(INTK) :: i,j
-      REAL(REALK)   :: pivot
+  integer(INTK) :: left, right
+  integer(INTK) :: i, j
+  real(REALK) :: pivot
 
-      left = 1
-      right = SIZE(arr)
+  left = 1
+  right = size(arr)
 
-      IF (left + quicksort_CUTOFF > right) THEN
-         ! array too small for Quicksort to be efficient, so don't use it
-         CALL insertion_sort_wrt_ratio(arr)
-         RETURN
-      END IF
+  if (left+quicksort_CUTOFF > right) then
+    ! array too small for Quicksort to be efficient, so don't use it
+    call insertion_sort_wrt_ratio(arr)
+    return
+  end if
 
-      pivot = ratio_median_of_three(arr,left,right)
-      ! partition array elements about chosen pivot
-      i = left
-      j = right-2
-      DO ! until left, right pointers cross
-         ! increment left until large element found
-         DO WHILE ( arr(i)%paras%ratio < pivot )
-            i = i+1
-         END DO
-         ! increment right until small element found
-         DO WHILE ( arr(j)%paras%ratio > pivot )
-            j = j-1
-         END DO
-         IF (i < j) THEN
-            ! swap items (i,j)
-            CALL ratio_swap_elements(arr,i,j)
-            ! now increment (i,j) to avoid infinite loop if both = pivot
-            i = i+1
-            j = j-1
-         ELSE
-            EXIT
-         END IF
-      END DO
-      ! i is now the position where the pivot should be
-      ! swap pivot back to middle of array
-      CALL ratio_swap_elements(arr,i,right-1_INTK)
+  pivot = ratio_median_of_three(arr,left,right)
+  ! partition array elements about chosen pivot
+  i = left
+  j = right-2
+  do ! until left, right pointers cross
+    ! increment left until large element found
+    do while(arr(i)%paras%ratio < pivot)
+      i = i+1
+    end do
+    ! increment right until small element found
+    do while(arr(j)%paras%ratio > pivot)
+      j = j-1
+    end do
+    if (i < j) then
+      ! swap items (i,j)
+      call ratio_swap_elements(arr,i,j)
+      ! now increment (i,j) to avoid infinite loop if both = pivot
+      i = i+1
+      j = j-1
+    else
+      exit
+    end if
+  end do
+  ! i is now the position where the pivot should be
+  ! swap pivot back to middle of array
+  call ratio_swap_elements(arr,i,right-1)
 
-      ! now sort sub-arrays either side of pivot
-      CALL fmm_quicksort_wrt_ratio( arr( left:(i-1) ) )
-      CALL fmm_quicksort_wrt_ratio( arr( (i+1):right ) )
+  ! now sort sub-arrays either side of pivot
+  call fmm_quicksort_wrt_ratio(arr(left:(i-1)))
+  call fmm_quicksort_wrt_ratio(arr((i+1):right))
 
-   END SUBROUTINE fmm_quicksort_wrt_ratio
+end subroutine fmm_quicksort_wrt_ratio
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_sort_T_pairs
-
+end module fmm_sort_T_pairs

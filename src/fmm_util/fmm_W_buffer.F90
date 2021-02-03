@@ -8,124 +8,127 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-MODULE fmm_W_buffer
 
-   USE fmm_global_paras, ONLY: T_pair_single, scheme_paras, SKIP_W_BUFFER, NULL_W_BUFFER, TREE_W_BUFFER, TREE_LENGTH
+module fmm_W_buffer
 
-   IMPLICIT NONE
-   PRIVATE
-   ! Public procedures
-   PUBLIC :: fmm_add_to_W_buffer,   &
-             fmm_open_W_buffer,     &
-             fmm_close_W_buffer
+use fmm_global_paras, only: T_pair_single, scheme_paras, SKIP_W_BUFFER, NULL_W_BUFFER, TREE_W_BUFFER, TREE_LENGTH
+use fmm_utils, only: fmm_quit
 
-   ! diagnostic flag
-   CHARACTER(LEN=4), SAVE :: W_buffer_stat
+implicit none
+private
+! Public procedures
+public :: fmm_add_to_W_buffer, &
+          fmm_open_W_buffer, &
+          fmm_close_W_buffer
 
-CONTAINS
+! diagnostic flag
+character(len=4), save :: W_buffer_stat
 
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_add_to_W_buffer(W_pair)
-
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(IN) :: W_pair
-      EXTERNAL fmm_selected_w_buffer
-      EXTERNAL fmm_selected_w_contractor
-
-      CALL fmm_selected_w_buffer(fmm_selected_w_contractor,W_pair)
-
-   END SUBROUTINE fmm_add_to_W_buffer
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_close_W_buffer(scheme)
+subroutine fmm_add_to_W_buffer(W_pair)
 
-      USE fmm_W_contractors, ONLY: fmm_lock_W_con
-      USE fmm_tree_buffer,   ONLY: fmm_tree_buffer_finish
+  implicit none
+  type(T_pair_single), intent(in) :: W_pair
+  external fmm_selected_w_buffer
+  external fmm_selected_w_contractor
 
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      EXTERNAL fmm_selected_w_contractor
+  call fmm_selected_w_buffer(fmm_selected_w_contractor,W_pair)
 
-      IF (W_buffer_stat /= 'OPEN') CALL fmm_quit ('W_buffer already closed!')
-      SELECT CASE (scheme%W_con%W_buffer)
-         CASE (SKIP_W_BUFFER)
-            ! do nothing
-         CASE (NULL_W_BUFFER)
-            ! do nothing
-         CASE (TREE_W_BUFFER)
-            CALL fmm_tree_buffer_finish(fmm_selected_w_contractor)
-         CASE DEFAULT
-            CALL fmm_quit ('cannot reconcile list type in fmm_close_W_buffer')
-      END SELECT
-      W_buffer_stat = 'FREE'
-      fmm_lock_W_con = .FALSE.
-
-   END SUBROUTINE fmm_close_W_buffer
+end subroutine fmm_add_to_W_buffer
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_null_W_buffer(W_contractor,W_pair)
+subroutine fmm_close_W_buffer(scheme)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(IN) :: W_pair
-      EXTERNAL W_contractor
+  use fmm_W_contractors, only: fmm_lock_W_con
+  use fmm_tree_buffer, only: fmm_tree_buffer_finish
 
-      CALL W_contractor(W_pair)
+  implicit none
+  type(scheme_paras), intent(in) :: scheme
+  external fmm_selected_w_contractor
 
-   END SUBROUTINE fmm_null_W_buffer
+  if (W_buffer_stat /= 'OPEN') call fmm_quit('W_buffer already closed!')
+  select case(scheme%W_con%W_buffer)
+    case(SKIP_W_BUFFER)
+      ! do nothing
+    case(NULL_W_BUFFER)
+      ! do nothing
+    case(TREE_W_BUFFER)
+      call fmm_tree_buffer_finish(fmm_selected_w_contractor)
+    case default
+      call fmm_quit('cannot reconcile list type in fmm_close_W_buffer')
+  end select
+  W_buffer_stat = 'FREE'
+  fmm_lock_W_con = .false.
+
+end subroutine fmm_close_W_buffer
+
+!-------------------------------------------------------------------------------
+
+subroutine fmm_null_W_buffer(W_contractor,W_pair)
+
+  implicit none
+  type(T_pair_single), intent(in) :: W_pair
+  external W_contractor
+
+  call W_contractor(W_pair)
+
+end subroutine fmm_null_W_buffer
 
 !-------------------------------------------------------------------------------
 ! for diagnostic use only
 
-   SUBROUTINE fmm_skip_W_buffer(W_contractor,W_pair)
+subroutine fmm_skip_W_buffer(W_contractor,W_pair)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(IN) :: W_pair
-      EXTERNAL W_contractor
+# include "macros.fh"
 
-      RETURN
+  implicit none
+  type(T_pair_single), intent(in) :: W_pair
+  external W_contractor
 
-! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-         CALL W_contractor(W_pair)
-      END IF
-   END SUBROUTINE fmm_skip_W_buffer
+  unused_var(W_contractor)
+  unused_var(W_pair)
 
-!-------------------------------------------------------------------------------
+  return
 
-   SUBROUTINE fmm_open_W_buffer(scheme)
-
-      USE fmm_W_contractors, ONLY: fmm_lock_W_con
-      USE fmm_tree_buffer,   ONLY: fmm_tree_buffer_init,      &
-                                   fmm_tree_buffer_add
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      EXTERNAL fmm_store_w_buffer
-
-      IF (W_buffer_stat == 'OPEN') CALL fmm_quit('cannot reopen W_buffer')
-
-      SELECT CASE (scheme%W_con%W_buffer)
-         CASE (SKIP_W_BUFFER)
-            ! all W-contractions will be skipped by this choice of buffer
-            CALL fmm_store_w_buffer(fmm_skip_W_buffer)
-         CASE (NULL_W_BUFFER)
-            CALL fmm_store_w_buffer(fmm_null_W_buffer)
-         CASE (TREE_W_BUFFER)
-             ! use tree-based sorting/evaluating module
-            CALL fmm_store_w_buffer(fmm_tree_buffer_add)
-            CALL fmm_tree_buffer_init(TREE_LENGTH,scheme%W_con%sort_para)
-         CASE DEFAULT
-         CALL fmm_quit ('cannot reconcile list type in fmm_open_W_buffer')
-      END SELECT
-
-      W_buffer_stat = 'OPEN'
-      fmm_lock_W_con = .TRUE.
-
-   END SUBROUTINE fmm_open_W_buffer
+end subroutine fmm_skip_W_buffer
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_W_buffer
+subroutine fmm_open_W_buffer(scheme)
+
+  use fmm_W_contractors, only: fmm_lock_W_con
+  use fmm_tree_buffer, only: fmm_tree_buffer_init, &
+                             fmm_tree_buffer_add
+
+  implicit none
+  type(scheme_paras), intent(in) :: scheme
+  external fmm_store_w_buffer
+
+  if (W_buffer_stat == 'OPEN') call fmm_quit('cannot reopen W_buffer')
+
+  select case(scheme%W_con%W_buffer)
+    case(SKIP_W_BUFFER)
+      ! all W-contractions will be skipped by this choice of buffer
+      call fmm_store_w_buffer(fmm_skip_W_buffer)
+    case(NULL_W_BUFFER)
+      call fmm_store_w_buffer(fmm_null_W_buffer)
+    case(TREE_W_BUFFER)
+      ! use tree-based sorting/evaluating module
+      call fmm_store_w_buffer(fmm_tree_buffer_add)
+      call fmm_tree_buffer_init(TREE_LENGTH,scheme%W_con%sort_para)
+    case default
+      call fmm_quit('cannot reconcile list type in fmm_open_W_buffer')
+  end select
+
+  W_buffer_stat = 'OPEN'
+  fmm_lock_W_con = .true.
+
+end subroutine fmm_open_W_buffer
+
+!-------------------------------------------------------------------------------
+
+end module fmm_W_buffer

@@ -8,154 +8,154 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-MODULE fmm_multi_T_buffer
 
-   USE fmm_global_paras, ONLY: INTK, T_pair_batch, T_pair_single, One
-   USE fmm_stats, ONLY: stat_tpack_chunks, stat_tpack_total
+module fmm_multi_T_buffer
 
-   IMPLICIT NONE
-   PRIVATE
-   ! public procedures
-   PUBLIC :: fmm_init_multi_T_buffer,    &
-             fmm_free_multi_T_buffer,    &
-             fmm_multi_T_buffer_add
+use fmm_global_paras, only: INTK, T_pair_batch, T_pair_single, One
+use fmm_stats, only: stat_tpack_chunks, stat_tpack_total
+use fmm_utils, only: fmm_quit
 
-   INTEGER(INTK), PARAMETER :: BUFFER_SIZE = 1000
-   ! module wide variables
-   INTEGER(INTK),      SAVE :: ndim_max
-   TYPE(T_pair_batch), SAVE :: T_pair_buffer
+implicit none
+private
+! public procedures
+public :: fmm_init_multi_T_buffer, &
+          fmm_free_multi_T_buffer, &
+          fmm_multi_T_buffer_add
 
-CONTAINS
+integer(INTK), parameter :: BUFFER_SIZE = 1000
+! module wide variables
+integer(INTK), save :: ndim_max
+type(T_pair_batch), save :: T_pair_buffer
 
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_init_multi_T_buffer(ndim_max_in)
-
-      IMPLICIT NONE
-      INTEGER(INTK), INTENT(IN) :: ndim_max_in
-
-!      ndim_max = ndim_max_in*2  ! we multiply by two for 'paired" algorithm
-      ndim_max = ndim_max_in
-      IF (ndim_max < 1) CALL fmm_quit('invalid multiple T-matrix dimension!')
-      NULLIFY (T_pair_buffer%items)
-      ALLOCATE (T_pair_buffer%items(BUFFER_SIZE))
-      T_pair_buffer%ndim = 0
-
-   END SUBROUTINE fmm_init_multi_T_buffer
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_free_multi_T_buffer(T_contractor)
+subroutine fmm_init_multi_T_buffer(ndim_max_in)
 
-      IMPLICIT NONE
-      EXTERNAL T_contractor
+  implicit none
+  integer(INTK), intent(in) :: ndim_max_in
 
-      IF (.NOT.ASSOCIATED(T_pair_buffer%items))  &
-         CALL fmm_quit('T_pair_buffer not alloc.')
-      IF ( T_pair_buffer%ndim /= 0 ) THEN
-         CALL expunge_multi_buffer(T_contractor)
-         T_pair_buffer%ndim = 0
-      END IF
-      DEALLOCATE (T_pair_buffer%items)
-      NULLIFY (T_pair_buffer%items)
+  !ndim_max = ndim_max_in*2  ! we multiply by two for "paired" algorithm
+  ndim_max = ndim_max_in
+  if (ndim_max < 1) call fmm_quit('invalid multiple T-matrix dimension!')
+  nullify(T_pair_buffer%items)
+  allocate(T_pair_buffer%items(BUFFER_SIZE))
+  T_pair_buffer%ndim = 0
 
-   END SUBROUTINE fmm_free_multi_T_buffer
-
-!-------------------------------------------------------------------------------
-!
-!   SUBROUTINE fmm_multi_T_buffer_add(T_contractor,T_pair)
-!
-!      IMPLICIT NONE
-!      TYPE(T_pair_single), INTENT(IN) :: T_pair
-!      EXTERNAL T_contractor
-!
-!      INTEGER(INTK), SAVE :: iRHS_last = 0
-!      INTEGER(INTK) :: iRHS
-!
-!      iRHS = T_pair%paras%RHS_id
-!
-!!!!!      IF ( BTEST(T_pair_buffer%ndim+1,0) ) THEN
-!         ! number of buffer entries is even; try to expunge
-!         IF ( (T_pair_buffer%ndim == ndim_max)   &
-!              .OR. ((iRHS /= iRHS_last) .AND. (iRHS_last /= 0)) ) THEN
-!            ! expunge buffer and build all the T-matrices at once
-!            CALL T_contractor(T_pair_buffer)
-!            T_pair_buffer%ndim = 0
-!         END IF
-!         iRHS_last = T_pair%paras%RHS_id
-!!!!!      END IF
-!
-!      T_pair_buffer%ndim = T_pair_buffer%ndim +1
-!      T_pair_buffer%items(T_pair_buffer%ndim) = T_pair
-!
-!   END SUBROUTINE fmm_multi_T_buffer_add
-!
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_multi_T_buffer_add(T_contractor,T_pair)
-
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(IN) :: T_pair
-      EXTERNAL T_contractor
-
-      IF ( T_pair_buffer%ndim == BUFFER_SIZE ) THEN
-         ! expunge buffer and build all the T-matrices at once
-         CALL expunge_multi_buffer(T_contractor)
-      END IF
-
-      stat_tpack_total = stat_tpack_total + one
-      T_pair_buffer%ndim = T_pair_buffer%ndim +1
-      T_pair_buffer%items(T_pair_buffer%ndim) = T_pair
-
-   END SUBROUTINE fmm_multi_T_buffer_add
+end subroutine fmm_init_multi_T_buffer
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE expunge_multi_buffer(T_contractor)
+subroutine fmm_free_multi_T_buffer(T_contractor)
 
-      USE fmm_sort_T_pairs, ONLY: fmm_quicksort_wrt_RHS
+  implicit none
+  external T_contractor
 
-      IMPLICIT NONE
-      EXTERNAL T_contractor
+  if (.not. associated(T_pair_buffer%items)) call fmm_quit('T_pair_buffer not alloc.')
+  if (T_pair_buffer%ndim /= 0) then
+    call expunge_multi_buffer(T_contractor)
+    T_pair_buffer%ndim = 0
+  end if
+  deallocate(T_pair_buffer%items)
+  nullify(T_pair_buffer%items)
 
-      INTEGER(INTK) :: i, lo
-      INTEGER(INTK) :: iRHS, iRHS_next, item_max
-      TYPE(T_pair_batch) :: ptr
+end subroutine fmm_free_multi_T_buffer
 
-      lo = 1
-      item_max = MIN((BUFFER_SIZE-1),(T_pair_buffer%ndim-1))
+!-------------------------------------------------------------------------------
+!
+!subroutine fmm_multi_T_buffer_add(T_contractor,T_pair)
+!
+!  implicit none
+!  type(T_pair_single), intent(in) :: T_pair
+!  external :: T_contractor
+!
+!  integer(INTK), save :: iRHS_last = 0
+!  integer(INTK) :: iRHS
+!
+!  iRHS = T_pair%paras%RHS_id
+!
+!  !!!!if (BTEST(T_pair_buffer%ndim+1,0)) then
+!    ! number of buffer entries is even; try to expunge
+!    if ((T_pair_buffer%ndim == ndim_max) .or. ((iRHS /= iRHS_last) .and. (iRHS_last /= 0)) ) then
+!      ! expunge buffer and build all the T-matrices at once
+!      call T_contractor(T_pair_buffer)
+!      T_pair_buffer%ndim = 0
+!    end if
+!    iRHS_last = T_pair%paras%RHS_id
+!  !!!!end if
+!
+!  T_pair_buffer%ndim = T_pair_buffer%ndim +1
+!  T_pair_buffer%items(T_pair_buffer%ndim) = T_pair
+!
+!end subroutine fmm_multi_T_buffer_add
+!
+!-------------------------------------------------------------------------------
 
-      ! sort only if needed
-      iRHS = T_pair_buffer%items(1)%paras%RHS_id
-      DO i = 2, item_max
-         iRHS_next = T_pair_buffer%items(i)%paras%RHS_id
-         IF ( iRHS_next < iRHS ) THEN
-            CALL fmm_quicksort_wrt_RHS(T_pair_buffer%items(1:item_max))
-            EXIT
-         END IF
-         iRHS = iRHS_next
-      END DO
+subroutine fmm_multi_T_buffer_add(T_contractor,T_pair)
 
-      DO i = 1, item_max
-         iRHS = T_pair_buffer%items(i)%paras%RHS_id
-         iRHS_next = T_pair_buffer%items(i+1)%paras%RHS_id
-         ptr%ndim = i-lo+1
-         IF ((iRHS /= iRHS_next) .OR. (ptr%ndim == ndim_max)) THEN
-            ptr%items => T_pair_buffer%items(lo:i)
-            CALL T_contractor(ptr)
-            lo = i+1
-         END IF
-      END DO
+  implicit none
+  type(T_pair_single), intent(in) :: T_pair
+  external :: T_contractor
 
-      ptr%ndim = (item_max+1)-lo+1
-      ptr%items => T_pair_buffer%items(lo:(item_max+1))
-      CALL T_contractor(ptr)
+  if (T_pair_buffer%ndim == BUFFER_SIZE) then
+    ! expunge buffer and build all the T-matrices at once
+    call expunge_multi_buffer(T_contractor)
+  end if
 
-      T_pair_buffer%ndim = 0
-      stat_tpack_chunks = stat_tpack_chunks + one
+  stat_tpack_total = stat_tpack_total+one
+  T_pair_buffer%ndim = T_pair_buffer%ndim+1
+  T_pair_buffer%items(T_pair_buffer%ndim) = T_pair
 
-   END SUBROUTINE expunge_multi_buffer
+end subroutine fmm_multi_T_buffer_add
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_multi_T_buffer
+subroutine expunge_multi_buffer(T_contractor)
+
+  use fmm_sort_T_pairs, only: fmm_quicksort_wrt_RHS
+
+  implicit none
+  external T_contractor
+
+  integer(INTK) :: i, lo
+  integer(INTK) :: iRHS, iRHS_next, item_max
+  type(T_pair_batch) :: ptr
+
+  lo = 1
+  item_max = min((BUFFER_SIZE-1),(T_pair_buffer%ndim-1))
+
+  ! sort only if needed
+  iRHS = T_pair_buffer%items(1)%paras%RHS_id
+  do i=2,item_max
+    iRHS_next = T_pair_buffer%items(i)%paras%RHS_id
+    if (iRHS_next < iRHS) then
+      call fmm_quicksort_wrt_RHS(T_pair_buffer%items(1:item_max))
+      exit
+    end if
+    iRHS = iRHS_next
+  end do
+
+  do i=1,item_max
+    iRHS = T_pair_buffer%items(i)%paras%RHS_id
+    iRHS_next = T_pair_buffer%items(i+1)%paras%RHS_id
+    ptr%ndim=i-lo+1
+    if ((iRHS /= iRHS_next) .or. (ptr%ndim == ndim_max)) then
+      ptr%items => T_pair_buffer%items(lo:i)
+      call T_contractor(ptr)
+      lo = i+1
+    end if
+  end do
+
+  ptr%ndim = (item_max+1)-lo+1
+  ptr%items => T_pair_buffer%items(lo:(item_max+1))
+  call T_contractor(ptr)
+
+  T_pair_buffer%ndim = 0
+  stat_tpack_chunks = stat_tpack_chunks+one
+
+end subroutine expunge_multi_buffer
+
+!-------------------------------------------------------------------------------
+
+end module fmm_multi_T_buffer

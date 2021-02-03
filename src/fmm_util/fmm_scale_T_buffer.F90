@@ -8,191 +8,192 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-MODULE fmm_scale_T_buffer
 
-   USE fmm_global_paras, ONLY: INTK, REALK, T_pair_batch, T_pair_single, Zero, One
-   USE fmm_stats, ONLY: stat_tpack_chunks, stat_tpack_unique, stat_tpack_total
+module fmm_scale_T_buffer
 
-   IMPLICIT NONE
-   PRIVATE
-   ! public procedures
-   PUBLIC :: fmm_init_scale_T_buffer,    &
-             fmm_free_scale_T_buffer,    &
-             fmm_scale_T_buffer_add
+use fmm_global_paras, only: INTK, REALK, T_pair_batch, T_pair_single, Zero, One
+use fmm_stats, only: stat_tpack_chunks, stat_tpack_unique, stat_tpack_total
+use fmm_utils, only: fmm_quit
 
-   INTEGER(INTK), PARAMETER :: BUFFER_SIZE = 500000
-   ! module wide variables
-   TYPE(T_pair_batch), SAVE :: T_pair_buffer
+implicit none
+private
+! public procedures
+public :: fmm_init_scale_T_buffer, &
+          fmm_free_scale_T_buffer, &
+          fmm_scale_T_buffer_add
 
-CONTAINS
+integer(INTK), parameter :: BUFFER_SIZE = 500000
+! module wide variables
+type(T_pair_batch), save :: T_pair_buffer
 
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_init_scale_T_buffer
-
-      IMPLICIT NONE
-
-      NULLIFY (T_pair_buffer%items)
-      ALLOCATE (T_pair_buffer%items(BUFFER_SIZE))
-      T_pair_buffer%ndim = 0
-
-   END SUBROUTINE fmm_init_scale_T_buffer
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_free_scale_T_buffer(T_contractor)
+subroutine fmm_init_scale_T_buffer()
 
-      IMPLICIT NONE
-      EXTERNAL T_contractor
+  implicit none
 
-      IF (.NOT.ASSOCIATED(T_pair_buffer%items))  &
-         CALL fmm_quit('T_pair_buffer not alloc.')
-      IF ( T_pair_buffer%ndim /= 0 ) THEN
-         CALL expunge_scale_buffer(T_contractor)
-         T_pair_buffer%ndim = 0
-      END IF
-      DEALLOCATE (T_pair_buffer%items)
-      NULLIFY (T_pair_buffer%items)
+  nullify(T_pair_buffer%items)
+  allocate(T_pair_buffer%items(BUFFER_SIZE))
+  T_pair_buffer%ndim = 0
 
-   END SUBROUTINE fmm_free_scale_T_buffer
+end subroutine fmm_init_scale_T_buffer
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_scale_T_buffer_add(T_contractor,T_pair)
+subroutine fmm_free_scale_T_buffer(T_contractor)
 
-      IMPLICIT NONE
-      TYPE(T_pair_single), INTENT(IN) :: T_pair
-      EXTERNAL T_contractor
-      REAL(REALK) :: ratio
+  implicit none
+  external T_contractor
 
-      stat_tpack_total = stat_tpack_total + one
-      T_pair_buffer%ndim = T_pair_buffer%ndim +1
-      T_pair_buffer%items(T_pair_buffer%ndim) = T_pair
+  if (.not. associated(T_pair_buffer%items)) call fmm_quit('T_pair_buffer not alloc.')
+  if (T_pair_buffer%ndim /= 0) then
+    call expunge_scale_buffer(T_contractor)
+    T_pair_buffer%ndim = 0
+  end if
+  deallocate(T_pair_buffer%items)
+  nullify(T_pair_buffer%items)
 
-      ! normalise T-vectors held in buffer for sorting purposes
-      ratio = SQRT(SUM(T_pair%r_ab*T_pair%r_ab))
-      ! we sort wrt x-axis first, and we want opposite vectors to be together
-      IF (T_pair%r_ab(1) < zero) ratio = -ratio
-      T_pair_buffer%items(T_pair_buffer%ndim)%paras%ratio = ratio
-      T_pair_buffer%items(T_pair_buffer%ndim)%r_ab = T_pair%r_ab/ratio
-
-      IF ( T_pair_buffer%ndim == BUFFER_SIZE ) THEN
-         ! sort the buffer and pass all T-pairs to contractor
-         CALL expunge_scale_buffer(T_contractor)
-      END IF
-
-   END SUBROUTINE fmm_scale_T_buffer_add
+end subroutine fmm_free_scale_T_buffer
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE expunge_scale_buffer(T_contractor)
+subroutine fmm_scale_T_buffer_add(T_contractor,T_pair)
 
-      USE fmm_sort_T_pairs, ONLY: fmm_quicksort_wrt_vector,     &
-                                  fmm_quicksort_wrt_ratio
+  implicit none
+  type(T_pair_single), intent(in) :: T_pair
+  external T_contractor
+  real(REALK) :: ratio
 
-      IMPLICIT NONE
-      EXTERNAL T_contractor
+  stat_tpack_total = stat_tpack_total+one
+  T_pair_buffer%ndim = T_pair_buffer%ndim+1
+  T_pair_buffer%items(T_pair_buffer%ndim) = T_pair
 
-      TYPE(T_pair_batch) :: ptr, ptr2
-      INTEGER(INTK) :: i, lo, hi
-      REAL(REALK)   :: q1,q2
+  ! normalise T-vectors held in buffer for sorting purposes
+  ratio = sqrt(sum(T_pair%r_ab*T_pair%r_ab))
+  ! we sort wrt x-axis first, and we want opposite vectors to be together
+  if (T_pair%r_ab(1) < zero) ratio = -ratio
+  T_pair_buffer%items(T_pair_buffer%ndim)%paras%ratio = ratio
+  T_pair_buffer%items(T_pair_buffer%ndim)%r_ab = T_pair%r_ab/ratio
 
-      ptr%ndim = MIN(BUFFER_SIZE,T_pair_buffer%ndim)
-      ptr%items => T_pair_buffer%items(1:ptr%ndim)
+  if (T_pair_buffer%ndim == BUFFER_SIZE) then
+    ! sort the buffer and pass all T-pairs to contractor
+    call expunge_scale_buffer(T_contractor)
+  end if
 
-      ! recursively sort wrt T-vectors, starting with x-component
-      CALL sort_wrt_axis(1_INTK,ptr%items)
-
-      ! expunge in batches of the same T-vector direction
-      lo = 1
-      DO i = 2, ptr%ndim
-         q1 = ptr%items(i)%r_ab(1)
-         q2 = ptr%items(i-1)%r_ab(1)
-         IF (q1 == q2) THEN
-            q1 = ptr%items(i)%r_ab(2)
-            q2 = ptr%items(i-1)%r_ab(2)
-            IF (q1 == q2) THEN
-               q1 = ptr%items(i)%r_ab(3)
-               q2 = ptr%items(i-1)%r_ab(3)
-               IF (q1 == q2) CYCLE
-            END IF
-         END IF
-         hi = i-1
-         ptr2%ndim = hi-lo+1
-         ptr2%items => ptr%items(lo:hi)
-         stat_tpack_unique = stat_tpack_unique + one
-         CALL T_contractor(ptr2)
-         lo = i
-      END DO
-
-      ! finally do last batch
-      hi = ptr%ndim
-      ptr2%ndim = hi-lo+1
-      ptr2%items => ptr%items(lo:hi)
-      stat_tpack_unique = stat_tpack_unique + one
-      CALL T_contractor(ptr2)
-
-      T_pair_buffer%ndim = 0
-      stat_tpack_chunks = stat_tpack_chunks + one
-
-   CONTAINS
+end subroutine fmm_scale_T_buffer_add
 
 !-------------------------------------------------------------------------------
 
-      RECURSIVE SUBROUTINE sort_wrt_axis(xyz,items)
+subroutine expunge_scale_buffer(T_contractor)
 
-         IMPLICIT NONE
-         INTEGER(INTK),       INTENT(IN)    :: xyz
-         TYPE(T_pair_single), INTENT(INOUT) :: items(:)
+  use fmm_sort_T_pairs, only: fmm_quicksort_wrt_vector, &
+                              fmm_quicksort_wrt_ratio
 
-         INTEGER(INTK) :: i, lo, hi
-         REAL(REALK)   :: q1,q2
+  implicit none
+  external T_contractor
 
-         IF (SIZE(items) == 1) RETURN
+  type(T_pair_batch) :: ptr, ptr2
+  integer(INTK) :: i, lo, hi
+  real(REALK)   :: q1, q2
 
-         ! sort only if needed
-         q1 = items(1)%r_ab(xyz)
-         DO i = 2, SIZE(items)
-            q2 = items(i)%r_ab(xyz)
-            IF ( q2 < q1 ) THEN
-               CALL fmm_quicksort_wrt_vector(items,xyz)
-               EXIT
-            END IF
-            q1 = q2
-         END DO
+  ptr%ndim = min(BUFFER_SIZE,T_pair_buffer%ndim)
+  ptr%items => T_pair_buffer%items(1:ptr%ndim)
 
-         ! sub-sort next T-vector component
-         lo = 1
-         DO i = 2, SIZE(items)
-            q1 = items(i-1)%r_ab(xyz)
-            q2 = items(i)%r_ab(xyz)
-            IF ( q2 /= q1 ) THEN
-               hi = i-1
-               IF (xyz == 3) THEN
-                  CALL fmm_quicksort_wrt_ratio(items(lo:hi))
-                  RETURN
-               ELSE
-                  CALL sort_wrt_axis(xyz+1_INTK,items(lo:hi))
-               END IF
-               lo = i
-            END IF
-         END DO
+  ! recursively sort wrt T-vectors, starting with x-component
+  call sort_wrt_axis(1,ptr%items)
 
-         ! do last batch
-         hi = SIZE(items)
-         IF (xyz == 3) THEN
-            CALL fmm_quicksort_wrt_ratio(items(lo:hi))
-            RETURN
-         ELSE
-            CALL sort_wrt_axis(xyz+1_INTK,items(lo:hi))
-         END IF
+  ! expunge in batches of the same T-vector direction
+  lo = 1
+  do i=2,ptr%ndim
+    q1 = ptr%items(i)%r_ab(1)
+    q2 = ptr%items(i-1)%r_ab(1)
+    if (q1 == q2) then
+      q1 = ptr%items(i)%r_ab(2)
+      q2 = ptr%items(i-1)%r_ab(2)
+      if (q1 == q2) then
+        q1 = ptr%items(i)%r_ab(3)
+        q2 = ptr%items(i-1)%r_ab(3)
+        if (q1 == q2) cycle
+      end if
+    end if
+    hi = i-1
+    ptr2%ndim = hi-lo+1
+    ptr2%items => ptr%items(lo:hi)
+    stat_tpack_unique = stat_tpack_unique+one
+    call T_contractor(ptr2)
+    lo = i
+  end do
 
-      END SUBROUTINE sort_wrt_axis
+  ! finally do last batch
+  hi = ptr%ndim
+  ptr2%ndim = hi-lo+1
+  ptr2%items => ptr%items(lo:hi)
+  stat_tpack_unique = stat_tpack_unique+one
+  call T_contractor(ptr2)
+
+  T_pair_buffer%ndim = 0
+  stat_tpack_chunks = stat_tpack_chunks+one
+
+  contains
+
+  !-------------------------------------------------------------------------------
+
+  recursive subroutine sort_wrt_axis(xyz,items)
+
+    implicit none
+    integer(INTK), intent(in)          :: xyz
+    type(T_pair_single), intent(inout) :: items(:)
+
+    integer(INTK) :: i, lo, hi
+    real(REALK) :: q1, q2
+
+    if (size(items) == 1) return
+
+    ! sort only if needed
+    q1 = items(1)%r_ab(xyz)
+    do i=2,size(items)
+      q2 = items(i)%r_ab(xyz)
+      if (q2 < q1) then
+        call fmm_quicksort_wrt_vector(items,xyz)
+        exit
+      end if
+      q1 = q2
+    end do
+
+    ! sub-sort next T-vector component
+    lo = 1
+    do i=2,size(items)
+      q1 = items(i-1)%r_ab(xyz)
+      q2 = items(i)%r_ab(xyz)
+      if (q2 /= q1) then
+        hi = i-1
+        if (xyz == 3) then
+          call fmm_quicksort_wrt_ratio(items(lo:hi))
+          return
+        else
+          call sort_wrt_axis(xyz+1,items(lo:hi))
+        end if
+        lo = i
+      end if
+    end do
+
+    ! do last batch
+    hi = size(items)
+    if (xyz == 3) then
+      call fmm_quicksort_wrt_ratio(items(lo:hi))
+      return
+    else
+      call sort_wrt_axis(xyz+1,items(lo:hi))
+    end if
+
+  end subroutine sort_wrt_axis
+
+  !-------------------------------------------------------------------------------
+
+end subroutine expunge_scale_buffer
 
 !-------------------------------------------------------------------------------
 
-   END SUBROUTINE expunge_scale_buffer
-
-!-------------------------------------------------------------------------------
-
-END MODULE fmm_scale_T_buffer
+end module fmm_scale_T_buffer

@@ -8,294 +8,289 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-MODULE fmm_scheme_builder
 
-   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, LURD, scheme_paras, GFC_FMM, MD4_FMM, FE_FMM, DO_NULL, DO_FQ, DO_NlogN, DO_BQ, &
-                               DO_FMM, TREE_T_BUFFER, NULL_T_BUFFER, SKIP_T_BUFFER, MULTI_T_BUFFER, SCALE_T_BUFFER, TREE_W_BUFFER, &
-                               NULL_W_BUFFER, SKIP_W_BUFFER, WS_MIN, BRFREE_DF, EXTENT_MIN_DF, PACK_LHS_DF, PACK_RHS_DF, &
-                               SORT_BY_SCALE, T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_FULL, T_CONTRACTOR_SCALE, &
-                               USE_RAW_QLM, USE_T_SYM_QLM, W_CONTRACTOR_BOUNDARY, W_CONTRACTOR_FAST, Half
-   USE fmm_stats, ONLY: stat_iteration
+module fmm_scheme_builder
 
-   IMPLICIT NONE
-   PRIVATE
-   ! Public procedures
-   PUBLIC :: fmm_init_scheme,  &
-             fmm_get_scheme
+use fmm_global_paras, only: INTK, REALK, LUPRI, LURD, scheme_paras, GFC_FMM, MD4_FMM, FE_FMM, DO_NULL, DO_FQ, DO_NlogN, DO_BQ, &
+                            DO_FMM, TREE_T_BUFFER, NULL_T_BUFFER, SKIP_T_BUFFER, MULTI_T_BUFFER, SCALE_T_BUFFER, TREE_W_BUFFER, &
+                            NULL_W_BUFFER, SKIP_W_BUFFER, WS_MIN, BRFREE_DF, EXTENT_MIN_DF, PACK_LHS_DF, PACK_RHS_DF, &
+                            SORT_BY_SCALE, T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_FULL, T_CONTRACTOR_SCALE, &
+                            USE_RAW_QLM, USE_T_SYM_QLM, W_CONTRACTOR_BOUNDARY, W_CONTRACTOR_FAST, One, Half
+use fmm_stats, only: stat_iteration
+use fmm_utils, only: fmm_quit
 
-   ! "scheme" contains all the input (and default) parameter data to
-   ! completely define a unique MM run-type
-   TYPE(scheme_paras), TARGET, SAVE :: scheme
+implicit none
+private
+! Public procedures
+public :: fmm_init_scheme, &
+          fmm_get_scheme
 
-   ! Safety check for initialisation
-   LOGICAL, SAVE :: scheme_initialised = .FALSE.
+! "scheme" contains all the input (and default) parameter data to
+! completely define a unique MM run-type
+type(scheme_paras), target, save :: scheme
 
-CONTAINS
+! Safety check for initialisation
+logical, save :: scheme_initialised = .false.
 
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_get_scheme(scheme_ptr)
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), POINTER :: scheme_ptr
-      INTEGER(INTK) :: iteration = 0
-
-      IF (.NOT. scheme_initialised) CALL fmm_quit('fmm scheme uninitialised!')
-
-      NULLIFY(scheme_ptr)
-      scheme_ptr => scheme
-
-      iteration = iteration + 1
-      stat_iteration = iteration
-
-   END SUBROUTINE fmm_get_scheme
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_init_scheme(job_type)
+subroutine fmm_get_scheme(scheme_ptr)
 
-!      USE fmm_md4_globals, ONLY: fmm_grain_inv, fmm_extent_min
+  implicit none
+  type(scheme_paras), pointer :: scheme_ptr
+  integer(INTK) :: iteration = 0
 
-      IMPLICIT NONE
-      INTEGER(INTK), INTENT(IN) :: job_type
+  if (.not. scheme_initialised) call fmm_quit('fmm scheme uninitialised!')
 
-      INTEGER(INTK) :: flag
-      INTEGER(INTK) :: LMAX, TLMAX, ALGORITHM, FEdim, LIPN
-      REAL(REALK)   :: GRAIN, DENS_SCREEN, EXTENT_MIN
+  nullify(scheme_ptr)
+  scheme_ptr => scheme
 
-      INTEGER(INTK) :: ERROR
-      NAMELIST /FMM/ LMAX, TLMAX, ALGORITHM, GRAIN, DENS_SCREEN,   &
-                     EXTENT_MIN, FEdim, LIPN
+  iteration = iteration+1
+  stat_iteration = iteration
 
-      !
-      ! Set default scheme
-      !
-      scheme%job_type = job_type
-      scheme%branch_free = BRFREE_DF
-      scheme%pack_LHS = PACK_LHS_DF
-      scheme%pack_RHS = PACK_RHS_DF
-      ! We assume a symmetric T-matrix in all cases so
-      ! use auxiliary (prefactor-adapted) moment types for RHS.
-      scheme%T_con%LHS_mm_type = USE_RAW_QLM
-      scheme%T_con%RHS_mm_type = USE_T_SYM_QLM
-
-      !
-      ! Change defaults with user input
-      !
-!fixme Put defaults in parameter module
-      ALGORITHM = DO_FMM
-      LMAX  = 4
-      TLMAX = 12
-      GRAIN = 1.0_REALK
-      DENS_SCREEN = 1e-15_REALK
-      EXTENT_MIN = EXTENT_MIN_DF
-      FEdim = 10
-      LIPN = 2
-      REWIND(LURD)
-      READ(LURD, FMM, IOSTAT=ERROR)
-      IF (ERROR > 0) THEN
-         WRITE(LUPRI,*) 'o Check NAMELIST FMM'
-         CALL Abend()
-      END IF
-      scheme%algorithm = ALGORITHM
-      scheme%raw_LMAX = LMAX
-      scheme%trans_LMAX = TLMAX
-      scheme%grain = GRAIN
-!      fmm_grain_inv = one/scheme%grain
-      scheme%dens_screen_thr = DENS_SCREEN
-      scheme%extent_min = EXTENT_MIN
-      scheme%FEdim = FEdim
-      scheme%lipn = LIPN
-
-      !
-      ! Set up (W) translator and (T) contractor options
-      !
-      SELECT CASE( scheme%job_type )
-         CASE( GFC_FMM )
-            scheme%include_near_field = .TRUE.
-            scheme%W_con%W_buffer = TREE_W_BUFFER
-            scheme%W_con%ID = W_CONTRACTOR_FAST
-            scheme%W_con%BR_ID = W_CONTRACTOR_BOUNDARY
-            scheme%W_con%sort_para = SORT_BY_SCALE
-            scheme%T_con%NF_ID = T_CONTRACTOR_BOUNDARY
-            scheme%T_con%NF_T_buffer = NULL_T_BUFFER
-            IF (scheme%algorithm == DO_FQ) THEN
-               scheme%T_con%FF_ID = T_CONTRACTOR_BOUNDARY
-               scheme%T_con%FF_T_buffer = NULL_T_BUFFER
-            ELSE
-               scheme%T_con%FF_T_buffer = SCALE_T_BUFFER
-               scheme%T_con%FF_ID = T_CONTRACTOR_SCALE
-            END IF
-         CASE( MD4_FMM, FE_FMM )
-            scheme%include_near_field = .FALSE.
-            scheme%W_con%W_buffer = TREE_W_BUFFER
-            scheme%W_con%ID = W_CONTRACTOR_FAST
-            scheme%W_con%BR_ID = W_CONTRACTOR_FAST
-            scheme%W_con%sort_para = SORT_BY_SCALE
-            scheme%T_con%NF_T_buffer = NULL_T_BUFFER
-            scheme%T_con%NF_ID = T_CONTRACTOR_FULL
-            flag = 2
-            IF (scheme%algorithm == DO_FQ) flag = 1
-            SELECT CASE( flag )
-               CASE( 0 )
-                  ! we do no contractions (for diagnostics)
-                  scheme%T_con%FF_T_buffer = SKIP_T_BUFFER
-                  scheme%T_con%FF_ID = T_CONTRACTOR_DIRECT
-               CASE( 1 )
-                  scheme%T_con%FF_T_buffer = NULL_T_BUFFER
-                  scheme%T_con%FF_ID = T_CONTRACTOR_FULL
-               CASE( 2 )
-                  scheme%T_con%FF_T_buffer = SCALE_T_BUFFER
-                  scheme%T_con%FF_ID = T_CONTRACTOR_SCALE
-      !            scheme%T_con%sort_para = SORT_BY_SCALE
-      !         CASE( 3 )
-      !            scheme%T_con%T_buffer = TREE_T_BUFFER
-      !            scheme%T_con%sort_para = SORT_BY_SCALE
-      !            scheme%T_con%ID = T_CONTRACTOR_TREE
-      !         CASE( 4 )
-      !            scheme%T_con%T_buffer = TREE_T_BUFFER
-      !            scheme%T_con%ID = T_CONTRACTOR_SCALE_TREE
-               CASE DEFAULT
-                  CALL fmm_quit('invalid T-contractor specified!')
-            END SELECT
-         CASE DEFAULT
-            CALL fmm_quit('invalid FMM run-type requested!')
-      END SELECT
-
-      CALL fmm_verify_scheme
-      CALL fmm_print_scheme
-      scheme_initialised = .TRUE.
-
-   END SUBROUTINE fmm_init_scheme
+end subroutine fmm_get_scheme
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_verify_scheme
+subroutine fmm_init_scheme(job_type)
 
-      IMPLICIT NONE
+  !use fmm_md4_globals, only: fmm_grain_inv, fmm_extent_min
 
-      SELECT CASE( scheme%algorithm )
-      CASE (MD4_FMM)
-         IF (WS_MIN < 2 * CEILING(scheme%extent_min/scheme%grain*half)) THEN
-            WRITE(LUPRI,*) 'WS_MIN = ', WS_MIN
-            WRITE(LUPRI,*) 'Extent_min = ', scheme%extent_min
-            WRITE(LUPRI,*) 'Grain  = ', scheme%grain
-            CALL fmm_quit('RPQ cut off too large or boxes too small!')
-         END IF
-      CASE DEFAULT
-         CONTINUE
-      END SELECT
+  implicit none
+  integer(INTK), intent(in) :: job_type
 
-      IF (scheme%trans_LMAX < scheme%raw_LMAX) CALL fmm_quit('increase TLMAX!')
+  integer(INTK) :: flag
+  integer(INTK) :: LMAX, TLMAX, ALGORITHM, FEdim, LIPN
+  real(REALK) :: GRAIN, DENS_SCREEN, EXTENT_MIN
 
-   END SUBROUTINE fmm_verify_scheme
+  integer(INTK) :: ERROR
+  namelist /FMM/ LMAX,TLMAX,ALGORITHM,GRAIN,DENS_SCREEN,EXTENT_MIN,FEdim,LIPN
 
-!-------------------------------------------------------------------------------
+  ! Set default scheme
 
-   SUBROUTINE fmm_print_scheme
+  scheme%job_type = job_type
+  scheme%branch_free = BRFREE_DF
+  scheme%pack_LHS = PACK_LHS_DF
+  scheme%pack_RHS = PACK_RHS_DF
+  ! We assume a symmetric T-matrix in all cases so
+  ! use auxiliary (prefactor-adapted) moment types for RHS.
+  scheme%T_con%LHS_mm_type = USE_RAW_QLM
+  scheme%T_con%RHS_mm_type = USE_T_SYM_QLM
 
-!      USE fmm_md4_globals
+  ! Change defaults with user input
 
-      IMPLICIT NONE
+  !fixme Put defaults in parameter module
+  ALGORITHM = DO_FMM
+  LMAX = 4
+  TLMAX = 12
+  GRAIN = One
+  DENS_SCREEN = 1.0e-15_REALK
+  EXTENT_MIN = EXTENT_MIN_DF
+  FEdim = 10
+  LIPN = 2
+  rewind(LURD)
+  read(LURD,FMM,iostat=ERROR)
+  if (ERROR > 0) then
+    write(LUPRI,*) 'o Check NAMELIST FMM'
+    call Abend()
+  end if
+  scheme%algorithm = ALGORITHM
+  scheme%raw_LMAX = LMAX
+  scheme%trans_LMAX = TLMAX
+  scheme%grain = GRAIN
+  !fmm_grain_inv = one/scheme%grain
+  scheme%dens_screen_thr = DENS_SCREEN
+  scheme%extent_min = EXTENT_MIN
+  scheme%FEdim = FEdim
+  scheme%lipn = LIPN
 
-      WRITE(LUPRI,'(/,A)') " -----------------------------------------"
-      WRITE(LUPRI,'(A)')   " |  Multipole module runtime parameters  |"
-      WRITE(LUPRI,'(A,/)') " -----------------------------------------"
+  ! Set up (W) translator and (T) contractor options
 
-      SELECT CASE( scheme%job_type )
-         CASE( GFC_FMM )
-            WRITE(LUPRI,*) "Computing classical boundary potential."
-         CASE( MD4_FMM )
-            WRITE(LUPRI,*) "Computing multipole contribution to J-matrix."
-         CASE( FE_FMM )
-            WRITE(LUPRI,*) "Computing full J-matrix via FE-FMM."
-         CASE DEFAULT
-            CALL fmm_quit ('MM job type not recognised!')
-      END SELECT
+  select case(scheme%job_type)
+    case(GFC_FMM)
+      scheme%include_near_field = .true.
+      scheme%W_con%W_buffer = TREE_W_BUFFER
+      scheme%W_con%ID = W_CONTRACTOR_FAST
+      scheme%W_con%BR_ID = W_CONTRACTOR_BOUNDARY
+      scheme%W_con%sort_para = SORT_BY_SCALE
+      scheme%T_con%NF_ID = T_CONTRACTOR_BOUNDARY
+      scheme%T_con%NF_T_buffer = NULL_T_BUFFER
+      if (scheme%algorithm == DO_FQ) then
+        scheme%T_con%FF_ID = T_CONTRACTOR_BOUNDARY
+        scheme%T_con%FF_T_buffer = NULL_T_BUFFER
+      else
+        scheme%T_con%FF_T_buffer = SCALE_T_BUFFER
+        scheme%T_con%FF_ID = T_CONTRACTOR_SCALE
+      end if
+    case(MD4_FMM,FE_FMM)
+      scheme%include_near_field = .false.
+      scheme%W_con%W_buffer = TREE_W_BUFFER
+      scheme%W_con%ID = W_CONTRACTOR_FAST
+      scheme%W_con%BR_ID = W_CONTRACTOR_FAST
+      scheme%W_con%sort_para = SORT_BY_SCALE
+      scheme%T_con%NF_T_buffer = NULL_T_BUFFER
+      scheme%T_con%NF_ID = T_CONTRACTOR_FULL
+      flag = 2
+      if (scheme%algorithm == DO_FQ) flag = 1
+      select case(flag)
+        case(0)
+          ! we do no contractions (for diagnostics)
+          scheme%T_con%FF_T_buffer = SKIP_T_BUFFER
+          scheme%T_con%FF_ID = T_CONTRACTOR_DIRECT
+        case(1)
+          scheme%T_con%FF_T_buffer = NULL_T_BUFFER
+          scheme%T_con%FF_ID = T_CONTRACTOR_FULL
+        case(2)
+          scheme%T_con%FF_T_buffer = SCALE_T_BUFFER
+          scheme%T_con%FF_ID = T_CONTRACTOR_SCALE
+          !scheme%T_con%sort_para = SORT_BY_SCALE
+        !case(3)
+        !  scheme%T_con%T_buffer = TREE_T_BUFFER
+        !  scheme%T_con%sort_para = SORT_BY_SCALE
+        !  scheme%T_con%ID = T_CONTRACTOR_TREE
+        !case(4)
+        !  scheme%T_con%T_buffer = TREE_T_BUFFER
+        !  scheme%T_con%ID = T_CONTRACTOR_SCALE_TREE
+        case default
+          call fmm_quit('invalid T-contractor specified!')
+      end select
+    case default
+      call fmm_quit('invalid FMM run-type requested!')
+  end select
 
-      SELECT CASE( scheme%algorithm )
-         CASE( DO_NULL )
-            WRITE(LUPRI,*) "Skipping all FF interactions."
-         CASE( DO_FQ )
-            WRITE(LUPRI,*) "Running simple O(N^2) algorithm."
-         CASE( DO_BQ )
-            WRITE(LUPRI,*) "Running fast O(N^2) algorithm with boxes."
-         CASE( DO_NLOGN )
-            WRITE(LUPRI,*) "Running hierarchical O(NlogN) algorithm."
-         CASE( DO_FMM )
-            WRITE(LUPRI,*) "Running hierarchical O(N) FMM algorithm."
-         CASE DEFAULT
-            CALL fmm_quit ('far-field algorithm type not recognised!')
-      END SELECT
+  call fmm_verify_scheme()
+  call fmm_print_scheme()
+  scheme_initialised = .true.
 
-      IF ( scheme%include_near_field ) &
-            WRITE(LUPRI,*) "Including all classical NF interactions."
-
-      WRITE(LUPRI,'(A,I4)') " LMAX   =", scheme%raw_LMAX
-      IF (scheme%algorithm /= DO_FQ) &
-         WRITE(LUPRI,'(A,I4)') " TLMAX  =", scheme%trans_LMAX
-      IF (scheme%branch_free) THEN
-         WRITE(LUPRI,*) "Running in branch-free mode."
-         WRITE(LUPRI,'(A,F8.4)')" Minimum extent =", scheme%extent_min
-      END IF
-      WRITE(LUPRI,'(A,F8.4)')" Smallest box dimension =", scheme%grain
-
-!      IF (scheme%job_type == MD4_FMM ) THEN
-!         WRITE(LUPRI,'(A,E12.4)')" Short-range threshold =", EXP(-fmm_ThrInt)
-!         WRITE(LUPRI,'(A,F9.4)')" Extent X0 parameter   =", fmm_X0
-!      END IF
-!      IF (scheme%job_type == FE_FMM ) THEN
-!         WRITE(LUPRI,'(A,F8.4)')" Width of finite element =",    &
-!                                  scheme%grain/(scheme%FEdim-1)
-!      END IF
-
-      IF (scheme%include_near_field) THEN
-         SELECT CASE( scheme%T_con%NF_T_buffer )
-            CASE( TREE_T_BUFFER )
-               WRITE(LUPRI,*) "Using Tree Buffer for NF T matrices."
-            CASE( NULL_T_BUFFER )
-               WRITE(LUPRI,*) "Building all NF T matrices on the fly."
-            CASE( SKIP_T_BUFFER )
-               WRITE(LUPRI,*) "Skipping all NF T matrix contractions."
-            CASE( MULTI_T_BUFFER )
-               WRITE(LUPRI,*) "Using buffer for multiple NF T matrix build."
-            CASE( SCALE_T_BUFFER )
-               WRITE(LUPRI,*) "Using buffer for scaled NF T matrix build."
-            CASE DEFAULT
-               CALL fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
-         END SELECT
-      END IF
-
-      SELECT CASE( scheme%T_con%FF_T_buffer )
-         CASE( TREE_T_BUFFER )
-            WRITE(LUPRI,*) "Using Tree Buffer for FF T matrices."
-         CASE( NULL_T_BUFFER )
-            WRITE(LUPRI,*) "Building all FF T matrices on the fly."
-         CASE( SKIP_T_BUFFER )
-            WRITE(LUPRI,*) "Skipping all FF T matrix contractions."
-         CASE( MULTI_T_BUFFER )
-            WRITE(LUPRI,*) "Using buffer for multiple FF T matrix build."
-         CASE( SCALE_T_BUFFER )
-            WRITE(LUPRI,*) "Using buffer for scaled FF T matrix build."
-         CASE DEFAULT
-            CALL fmm_quit ('invalid T-vector buffer in fmm_print_scheme!')
-      END SELECT
-
-      SELECT CASE( scheme%W_con%W_buffer )
-         CASE( TREE_W_BUFFER )
-            WRITE(LUPRI,*) "Using Tree Buffer for W matrices."
-         CASE( NULL_W_BUFFER )
-            WRITE(LUPRI,*) "Building all W matrices on the fly."
-         CASE( SKIP_W_BUFFER )
-            WRITE(LUPRI,*) "Skipping all W matrix contractions."
-         CASE DEFAULT
-            CALL fmm_quit ('invalid W-vector buffer in fmm_print_scheme!')
-      END SELECT
-
-      WRITE(LUPRI,'(/,A,/)') " -----------------------------------------"
-
-   END SUBROUTINE fmm_print_scheme
+end subroutine fmm_init_scheme
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_scheme_builder
+subroutine fmm_verify_scheme()
+
+  implicit none
+
+  select case(scheme%algorithm)
+    case(MD4_FMM)
+      if (WS_MIN < 2*ceiling(scheme%extent_min/scheme%grain*half)) then
+        write(LUPRI,*) 'WS_MIN = ',WS_MIN
+        write(LUPRI,*) 'Extent_min = ',scheme%extent_min
+        write(LUPRI,*) 'Grain  = ',scheme%grain
+        call fmm_quit('RPQ cut off too large or boxes too small!')
+      end if
+    case default
+      continue
+  end select
+
+  if (scheme%trans_LMAX < scheme%raw_LMAX) call fmm_quit('increase TLMAX!')
+
+end subroutine fmm_verify_scheme
+
+!-------------------------------------------------------------------------------
+
+subroutine fmm_print_scheme()
+
+  !use fmm_md4_globals
+
+  implicit none
+
+  write(LUPRI,'(/,A)') ' -----------------------------------------'
+  write(LUPRI,'(A)') ' |  Multipole module runtime parameters  |'
+  write(LUPRI,'(A,/)') ' -----------------------------------------'
+
+  select case(scheme%job_type)
+    case(GFC_FMM)
+      write(LUPRI,*) 'Computing classical boundary potential.'
+    case(MD4_FMM)
+      write(LUPRI,*) 'Computing multipole contribution to J-matrix.'
+    case(FE_FMM)
+      write(LUPRI,*) 'Computing full J-matrix via FE-FMM.'
+    case default
+      call fmm_quit('MM job type not recognised!')
+  end select
+
+  select case(scheme%algorithm)
+    case(DO_NULL)
+      write(LUPRI,*) 'Skipping all FF interactions.'
+    case(DO_FQ)
+      write(LUPRI,*) 'Running simple O(N^2) algorithm.'
+    case(DO_BQ)
+      write(LUPRI,*) 'Running fast O(N^2) algorithm with boxes.'
+    case(DO_NLOGN)
+      write(LUPRI,*) 'Running hierarchical O(NlogN) algorithm.'
+    case(DO_FMM)
+      write(LUPRI,*) 'Running hierarchical O(N) FMM algorithm.'
+    case default
+      call fmm_quit('far-field algorithm type not recognised!')
+  end select
+
+  if (scheme%include_near_field) write(LUPRI,*) 'Including all classical NF interactions.'
+
+  write(LUPRI,'(A,I4)') ' LMAX   =',scheme%raw_LMAX
+  if (scheme%algorithm /= DO_FQ) write(LUPRI,'(A,I4)') ' TLMAX  =',scheme%trans_LMAX
+  if (scheme%branch_free) then
+    write(LUPRI,*) 'Running in branch-free mode.'
+    write(LUPRI,'(A,F8.4)') ' Minimum extent =',scheme%extent_min
+  end if
+  write(LUPRI,'(A,F8.4)') ' Smallest box dimension =',scheme%grain
+
+  !if (scheme%job_type == MD4_FMM) then
+  !   write(LUPRI,'(A,E12.4)') 'Short-range threshold =',exp(-fmm_ThrInt)
+  !   write(LUPRI,'(A,F9.4)') 'Extent X0 parameter   =',fmm_X0
+  !end if
+  !if (scheme%job_type == FE_FMM) then
+  !   write(LUPRI,'(A,F8.4)') 'Width of finite element =',scheme%grain/(scheme%FEdim-1)
+  !end if
+
+  if (scheme%include_near_field) then
+    select case(scheme%T_con%NF_T_buffer)
+    case(TREE_T_BUFFER)
+      write(LUPRI,*) 'Using Tree Buffer for NF T matrices.'
+    case(NULL_T_BUFFER)
+      write(LUPRI,*) 'Building all NF T matrices on the fly.'
+    case(SKIP_T_BUFFER)
+      write(LUPRI,*) 'Skipping all NF T matrix contractions.'
+    case(MULTI_T_BUFFER)
+      write(LUPRI,*) 'Using buffer for multiple NF T matrix build.'
+    case(SCALE_T_BUFFER)
+      write(LUPRI,*) 'Using buffer for scaled NF T matrix build.'
+    case default
+      call fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
+    end select
+  end if
+
+  select case(scheme%T_con%FF_T_buffer)
+    case(TREE_T_BUFFER)
+      write(LUPRI,*) 'Using Tree Buffer for FF T matrices.'
+    case(NULL_T_BUFFER)
+      write(LUPRI,*) 'Building all FF T matrices on the fly.'
+    case(SKIP_T_BUFFER)
+      write(LUPRI,*) 'Skipping all FF T matrix contractions.'
+    case(MULTI_T_BUFFER)
+      write(LUPRI,*) 'Using buffer for multiple FF T matrix build.'
+    case(SCALE_T_BUFFER)
+      write(LUPRI,*) 'Using buffer for scaled FF T matrix build.'
+    case default
+      call fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
+  end select
+
+  select case(scheme%W_con%W_buffer)
+    case(TREE_W_BUFFER)
+      write(LUPRI,*) 'Using Tree Buffer for W matrices.'
+    case(NULL_W_BUFFER)
+      write(LUPRI,*) 'Building all W matrices on the fly.'
+    case(SKIP_W_BUFFER)
+      write(LUPRI,*) 'Skipping all W matrix contractions.'
+    case default
+      call fmm_quit('invalid W-vector buffer in fmm_print_scheme!')
+  end select
+
+  write(LUPRI,'(/,A,/)') ' -----------------------------------------'
+
+end subroutine fmm_print_scheme
+
+!-------------------------------------------------------------------------------
+
+end module fmm_scheme_builder

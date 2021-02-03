@@ -8,159 +8,161 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-FUNCTION fmm_second()
 
-   USE fmm_global_paras, ONLY: INTK, REALK
-   IMPLICIT NONE
-   REAL(REALK) :: fmm_second
-   INTEGER :: count, count_rate, count_max, tmp
-   INTEGER(INTK), SAVE :: parity=0
-   INTEGER(INTK), SAVE :: last_count=0
+module fmm_utils
 
-! VV: order changed due to a bug in NAG compiler.
-   CALL SYSTEM_CLOCK(count,count_rate,count_max)
+use fmm_global_paras, only: INTK, REALK, LUPRI, Zero
 
-   IF (parity == 0) parity = 1  ! first call to fmm_second()
-   parity = -parity
-   ! must check if count has "cycled"
-   tmp = count
-   IF ( parity == 1 ) THEN  ! second of a paired call to fmm_second()
-      IF ( count < last_count ) tmp = count + (count_max - last_count)
-   END IF
-   fmm_second = REAL(tmp,REALK)/REAL(count_rate,REALK)
-   last_count = count
+implicit none
+private
+! Public procedures
+public :: fmm_second, &
+          TIMTXT, &
+          fmm_quit, &
+          fmm_matrix_norm, &
+          fmm_distance_between_lines
 
-END FUNCTION fmm_second
+contains
 
 !-------------------------------------------------------------------------------
 
-SUBROUTINE TIMTXT(TEXTIN,TIMUSD,IUNIT)
+function fmm_second()
 
-! TIMTXT based on TIMER by TUH //900709-hjaaj
+  implicit none
+  real(REALK) :: fmm_second
+  integer :: cnt, count_rate, count_max, tmp
+  integer(INTK), save :: prt = 0
+  integer(INTK), save :: last_count = 0
 
-   USE fmm_global_paras, ONLY: REALK
-   IMPLICIT NONE
-   CHARACTER(LEN=*) :: TEXTIN
-   CHARACTER :: AHOUR*6, ASEC*8, AMIN*8
-   REAL(REALK) :: TIMUSD
-   INTEGER :: ISECND, IUNIT, IHOURS, MINUTE
-   CHARACTER(LEN=45) :: TEXT
+  ! VV: order changed due to a bug in NAG compiler.
+  call system_clock(cnt,count_rate,count_max)
 
-   TEXT = TEXTIN
+  if (prt == 0) prt = 1  ! first call to fmm_second()
+  prt = -prt
+  ! must check if cnt has "cycled"
+  tmp = cnt
+  if (prt == 1) then  ! second of a paired call to fmm_second()
+    if (cnt < last_count) tmp = cnt+(count_max-last_count)
+  end if
+  fmm_second = real(tmp,REALK)/real(count_rate,REALK)
+  last_count = cnt
 
-   ISECND = INT(TIMUSD)
-   IF (ISECND .GE. 60) THEN
-      MINUTE = ISECND/60
-      IHOURS = MINUTE/60
-      MINUTE = MINUTE - 60*IHOURS
-      ISECND = ISECND - 3600*IHOURS - 60*MINUTE
-      IF (IHOURS .EQ. 1) THEN
-         AHOUR = ' hour '
-      ELSE
-         AHOUR = ' hours'
-      END IF
-      IF (MINUTE .EQ. 1) THEN
-         AMIN = ' minute '
-      ELSE
-         AMIN = ' minutes'
-      END IF
-      IF (ISECND .EQ. 1) THEN
-         ASEC = ' second '
-      ELSE
-         ASEC = ' seconds'
-      END IF
-      IF (IHOURS .GT. 0) THEN
-         WRITE(IUNIT,100) TEXT, IHOURS, AHOUR, MINUTE, AMIN, ISECND, ASEC
-      ELSE
-         WRITE(IUNIT,200) TEXT, MINUTE, AMIN, ISECND, ASEC
-      END IF
-   ELSE
-      WRITE(IUNIT,300) TEXT,TIMUSD
-   END IF
-100 FORMAT(1X,A,I4,A,I3,A,I3,A)
-200 FORMAT(1X,A,     I3,A,I3,A)
-300 FORMAT(1X,A,F7.2,' seconds')
-   RETURN
-END SUBROUTINE TIMTXT
+end function fmm_second
 
 !-------------------------------------------------------------------------------
 
-SUBROUTINE fmm_quit(msg)
-   USE fmm_global_paras, ONLY: LUPRI
-   CHARACTER(LEN=*) msg
-   write(LUPRI,*) msg
-   WRITE(LUPRI,*) ">>> FATAL ERROR"
-   CALL Abend()
-END SUBROUTINE fmm_quit
+subroutine TIMTXT(TEXTIN,TIMUSD,IUNIT)
+
+  ! TIMTXT based on TIMER by TUH //900709-hjaaj
+
+  implicit none
+  character(len=*) :: TEXTIN
+  character(len=6) :: AHOUR
+  character(len=8) :: ASEC, AMIN
+  real(REALK) :: TIMUSD
+  integer(INTK) :: ISECND, IUNIT, IHOURS, MINUTE
+  character(len=45) :: TEXT
+
+  TEXT = TEXTIN
+
+  ISECND = int(TIMUSD)
+  if (ISECND >= 60) then
+    MINUTE = ISECND/60
+    IHOURS = MINUTE/60
+    MINUTE = MINUTE-60*IHOURS
+    ISECND = ISECND-3600*IHOURS-60*MINUTE
+    if (IHOURS == 1) then
+      AHOUR = ' hour '
+    else
+      AHOUR = ' hours'
+    end if
+    if (MINUTE == 1) then
+      AMIN = ' minute '
+    else
+      AMIN = ' minutes'
+    end if
+    if (ISECND == 1) then
+      ASEC = ' second '
+    else
+      ASEC = ' seconds'
+    end if
+    if (IHOURS > 0) then
+      write(IUNIT,100) TEXT,IHOURS,AHOUR,MINUTE,AMIN,ISECND,ASEC
+    else
+      write(IUNIT,200) TEXT,MINUTE,AMIN,ISECND,ASEC
+    end if
+  else
+    write(IUNIT,300) TEXT,TIMUSD
+  end if
+  return
+  100 format(1x,a,i4,a,i3,a,i3,a)
+  200 format(1x,a,i3,a,i3,a)
+  300 format(1x,a,f7.2,' seconds')
+end subroutine TIMTXT
+
+!-------------------------------------------------------------------------------
+
+subroutine fmm_quit(msg)
+  implicit none
+  character(len=*) msg
+  write(LUPRI,*) msg
+  write(LUPRI,*) '>>> FATAL ERROR'
+  call Abend()
+end subroutine fmm_quit
 
 !------------------------------------------------------------------------------
 
-SUBROUTINE fmm_matrix_norm(label,matrix,ndim)
+subroutine fmm_matrix_norm(label,matrix,ndim)
 
-   USE fmm_global_paras, ONLY: REALK, LUPRI
+  implicit none
+  character(len=*), intent(in) :: label
+  integer(INTK), intent(in)    :: ndim
+  real(REALK), intent(in)      :: matrix(ndim)
 
-   IMPLICIT NONE
-   CHARACTER(LEN=*), INTENT(IN) :: label
-   INTEGER,      INTENT(IN) :: ndim
-   REAL(REALK),  INTENT(IN) :: matrix(ndim)
+  integer(INTK) :: i
+  real(REALK) :: norm
 
-   INTEGER :: i
-   REAL(REALK) :: norm
+  norm = zero
+  do i=1,ndim
+    norm = norm+matrix(i)*matrix(i)
+  end do
+  write(LUPRI,*) 'o fmm_matrix_norm: ',label,' = ',sqrt(norm)
 
-   norm = 0d0
-   DO i = 1, ndim
-      norm = norm + matrix(i)*matrix(i)
-   END DO
-   WRITE(LUPRI,*) 'o fmm_matrix_norm: ', label,' = ', SQRT(norm)
-
-END SUBROUTINE fmm_matrix_norm
+end subroutine fmm_matrix_norm
 
 !------------------------------------------------------------------------------
 
-MODULE fmm_utils
+function fmm_cross_product(a,b)
 
-   USE fmm_global_paras, ONLY: REALK
-   IMPLICIT NONE
-   PRIVATE
-   ! Public procedures
-   PUBLIC :: fmm_distance_between_lines
+  implicit none
+  real(REALK), intent(in) :: a(3), b(3)
+  real(REALK) :: fmm_cross_product(3)
 
-CONTAINS
+  fmm_cross_product(1) = a(2)*b(3)-a(3)*b(2)
+  fmm_cross_product(2) = -(a(1)*b(3)-a(3)*b(1))
+  fmm_cross_product(3) = a(1)*b(2)-a(2)*b(1)
 
-!-------------------------------------------------------------------------------
-
-   FUNCTION fmm_cross_product(a,b)
-
-      IMPLICIT NONE
-      REAL(REALK), INTENT(IN)  :: a(3), b(3)
-      REAL(REALK) :: fmm_cross_product(3)
-
-      fmm_cross_product(1) =    a(2)*b(3) - a(3)*b(2)
-      fmm_cross_product(2) = -( a(1)*b(3) - a(3)*b(1) )
-      fmm_cross_product(3) =    a(1)*b(2) - a(2)*b(1)
-
-   END FUNCTION fmm_cross_product
+end function fmm_cross_product
 
 !-------------------------------------------------------------------------------
 
-   FUNCTION fmm_distance_between_lines(p,q,ep,eq)
+function fmm_distance_between_lines(p,q,ep,eq)
 
-      IMPLICIT NONE
-      REAL(REALK), INTENT(IN)  :: p(3), q(3), ep(3), eq(3)
-      REAL(REALK) :: fmm_distance_between_lines
+  implicit none
+  real(REALK), intent(in) :: p(3), q(3), ep(3), eq(3)
+  real(REALK) :: fmm_distance_between_lines
 
-      REAL(REALK) :: d1, d2, n(3)
+  real(REALK) :: d1, d2, n(3)
 
-      n = fmm_cross_product(ep,eq)
+  n = fmm_cross_product(ep,eq)
 
-      d1 = DOT_PRODUCT(p,n)
-      d2 = DOT_PRODUCT(q,n)
+  d1 = dot_product(p,n)
+  d2 = dot_product(q,n)
 
-      fmm_distance_between_lines = ABS(d1 - d2)
+  fmm_distance_between_lines = abs(d1-d2)
 
-   END FUNCTION fmm_distance_between_lines
+end function fmm_distance_between_lines
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_utils
-
+end module fmm_utils

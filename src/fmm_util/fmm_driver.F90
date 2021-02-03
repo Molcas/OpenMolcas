@@ -13,231 +13,231 @@
 ! fmm_driver:
 ! General module for driving multipole method calculations.
 
-MODULE fmm_driver
+module fmm_driver
 
-   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, raw_mm_data, scheme_paras, Zero, ELECTRONIC_ONLY, NUCLEAR_ONLY, ALL_MOMENTS, &
-                               GFC_FMM
-   IMPLICIT NONE
-   PRIVATE
-   ! Public procedures
-   PUBLIC :: fmm_build_J_matrix,                 &
-             fmm_get_multipole_potential
+use fmm_global_paras, only: INTK, REALK, LUPRI, raw_mm_data, scheme_paras, Zero, ELECTRONIC_ONLY, NUCLEAR_ONLY, ALL_MOMENTS, GFC_FMM
+use fmm_utils, only: fmm_quit
+implicit none
+private
+! Public procedures
+public :: fmm_build_J_matrix, &
+          fmm_get_multipole_potential
 
-   ! The multipole potential
-   REAL(REALK), POINTER, SAVE :: Vff(:,:)
-   ! The (modified) multipole expansions
-   TYPE(raw_mm_data),    SAVE :: LHS_mms, RHS_mms
+! The multipole potential
+real(REALK), pointer, save :: Vff(:,:)
+! The (modified) multipole expansions
+type(raw_mm_data), save :: LHS_mms, RHS_mms
 
-CONTAINS
-
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_init_driver(scheme,dens)
-
-      USE fmm_qlm_builder,     ONLY: fmm_get_raw_qlm
-      USE fmm_aux_qlm_builder, ONLY: fmm_get_aux_qlm
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(INOUT) :: scheme
-      REAL(REALK),        INTENT(IN)    :: dens(:,:)
-
-      NULLIFY (Vff)
-
-      ! Get basic multipole data
-      CALL fmm_get_raw_qlm(scheme,dens,LHS_mms,RHS_mms)
-      ! Now ensure appropriate prefactors, normalisation and packing
-      CALL fmm_get_aux_qlm(scheme,LHS_mms,RHS_mms)
-      ! Allocate the far field potential
-      CALL fmm_allocate_Vff(scheme)
-
-   END SUBROUTINE fmm_init_driver
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_free_driver
+subroutine fmm_init_driver(scheme,dens)
 
-      USE fmm_qlm_builder, ONLY: fmm_deallocate_qlm
+  use fmm_qlm_builder, only: fmm_get_raw_qlm
+  use fmm_aux_qlm_builder, only: fmm_get_aux_qlm
 
-      IMPLICIT NONE
-      DEALLOCATE(Vff)
-      NULLIFY (Vff)
-      CALL fmm_deallocate_qlm(LHS_mms,RHS_mms)
+  implicit none
+  type(scheme_paras), intent(inout) :: scheme
+  real(REALK), intent(in)           :: dens(:,:)
 
-   END SUBROUTINE fmm_free_driver
+  nullify(Vff)
 
-!-------------------------------------------------------------------------------
+  ! Get basic multipole data
+  call fmm_get_raw_qlm(scheme,dens,LHS_mms,RHS_mms)
+  ! Now ensure appropriate prefactors, normalisation and packing
+  call fmm_get_aux_qlm(scheme,LHS_mms,RHS_mms)
+  ! Allocate the far field potential
+  call fmm_allocate_Vff(scheme)
 
-   SUBROUTINE fmm_allocate_Vff(scheme)
-
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN) :: scheme
-      INTEGER(INTK) :: lm_dim, mms_dim, alloc_error
-
-      IF (.NOT.ASSOCIATED(LHS_mms%paras)) STOP 'mms ptrs not set in fmm_driver!'
-      IF (ASSOCIATED(Vff)) CALL fmm_quit('Vff should NOT be allocated already!')
-
-      mms_dim = SIZE(LHS_mms%paras)
-      ! Note we shouldn't use this array for translated, BOXED potentials
-      lm_dim = (1+ scheme%raw_LMAX)**2
-      IF (scheme%job_type == GFC_FMM) lm_dim = 1
-
-      WRITE(LUPRI,*) 'Vff: Attempting to allocate',  &
-                     MAX(1,lm_dim*mms_dim*8/1000000), 'MB of memory...'
-      ALLOCATE (Vff(lm_dim,mms_dim), STAT=alloc_error)
-      IF (alloc_error /= 0) WRITE(LUPRI,*) '... Failed!'
-
-      ! Must zero out since Vff is built additively in general
-      Vff(:,:) = zero
-
-   END SUBROUTINE fmm_allocate_Vff
+end subroutine fmm_init_driver
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_get_J_via_raw_potentials(scheme,dens,J_matrix,energy,txt)
+subroutine fmm_free_driver()
 
-      USE fmm_Vff_driver, ONLY: fmm_get_Vff
-      USE fmm_J_builder,  ONLY: fmm_get_J_from_Vff,       &
-                                fmm_get_J_from_pkd_Vff,   &
-                                fmm_get_E_from_pkd_Vff,   &
-                                fmm_get_E_from_Vff
-      USE fmm_qlm_utils,  ONLY: fmm_factor_in_dens
+  use fmm_qlm_builder, only: fmm_deallocate_qlm
 
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(INOUT) :: scheme
-      REAL(REALK),        INTENT(IN)    :: dens(:,:)
-      REAL(REALK),        INTENT(OUT)   :: J_matrix(:,:)
-      REAL(REALK),        INTENT(OUT)   :: energy
-      CHARACTER(LEN=*),   INTENT(OUT)   :: txt
+  implicit none
+  deallocate(Vff)
+  nullify(Vff)
+  call fmm_deallocate_qlm(LHS_mms,RHS_mms)
 
-      ! We only have the density on RHS when getting J-matrix
-      ! via far-field potential
-      scheme%LHS_dens = .FALSE.
-      scheme%RHS_dens = .TRUE.
-
-      ! Prepare moments and allocate potential
-      CALL fmm_init_driver(scheme,dens)
-      ! Get potential
-      CALL fmm_get_Vff(scheme,LHS_mms%paras,RHS_mms,Vff)
-
-      ! Get J-matrix
-      J_matrix = zero
-      energy = zero
-      IF (scheme%pack_LHS) THEN
-         CALL fmm_get_J_from_pkd_Vff(scheme,LHS_mms,Vff,J_matrix)
-         ! Get energy after factoring in density to LHS
-         CALL fmm_factor_in_dens(LHS_mms%dens,LHS_mms%qlm_T)
-         CALL fmm_get_E_from_pkd_Vff(scheme,LHS_mms,Vff,energy,txt)
-      ELSE
-         CALL fmm_get_J_from_Vff(scheme,LHS_mms,Vff,J_matrix)
-         ! Get energy after factoring in density to LHS
-         CALL fmm_factor_in_dens(LHS_mms%dens,LHS_mms%qlm_T)
-         CALL fmm_get_E_from_Vff(scheme,LHS_mms,Vff,energy,txt)
-      END IF
-
-      CALL fmm_free_driver
-
-   END SUBROUTINE fmm_get_J_via_raw_potentials
+end subroutine fmm_free_driver
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_build_J_matrix(n_el,dens,J_matrix)
+subroutine fmm_allocate_Vff(scheme)
 
-      USE fmm_stats, ONLY: fmm_print_stats
-      USE fmm_scheme_builder, ONLY: fmm_get_scheme
+  implicit none
+  type(scheme_paras), intent(in) :: scheme
+  integer(INTK) :: lm_dim, mms_dim, alloc_error
 
-      IMPLICIT NONE
-      CHARACTER(LEN=6), INTENT(IN)  :: n_el
-      REAL(REALK),  INTENT(IN)  :: dens(:,:)
-      REAL(REALK),  INTENT(OUT) :: J_matrix(:,:)
+  if (.not. associated(LHS_mms%paras)) call fmm_quit('mms ptrs not set in fmm_driver!')
+  if (associated(Vff)) call fmm_quit('Vff should NOT be allocated already!')
 
-      TYPE(scheme_paras), POINTER :: scheme
-      CHARACTER(LEN=36) :: E_text
-      REAL(REALK)   :: energy, T0, fmm_second, TTOT
+  mms_dim = size(LHS_mms%paras)
+  ! Note we shouldn't use this array for translated, BOXED potentials
+  lm_dim = (1+scheme%raw_LMAX)**2
+  if (scheme%job_type == GFC_FMM) lm_dim = 1
 
-      T0 = fmm_second()
+  write(LUPRI,*) 'Vff: Attempting to allocate',max(1,lm_dim*mms_dim*8/1000000),'MB of memory...'
+  allocate(Vff(lm_dim,mms_dim),stat=alloc_error)
+  if (alloc_error /= 0) write(LUPRI,*) '... Failed!'
 
-      CALL fmm_get_scheme(scheme)
+  ! Must zero out since Vff is built additively in general
+  Vff(:,:) = zero
 
-      SELECT CASE (n_el)
-      CASE('ONE_EL')
-         CALL fmm_quit('nuclear moments not available!')
-         scheme%LHS_mm_range = ELECTRONIC_ONLY
-         scheme%RHS_mm_range = NUCLEAR_ONLY
-      CASE('TWO_EL')
-         scheme%LHS_mm_range = ELECTRONIC_ONLY
-         scheme%RHS_mm_range = ELECTRONIC_ONLY
-      CASE('FULL_J')
-         CALL fmm_quit('nuclear moments not available!')
-         scheme%LHS_mm_range = ELECTRONIC_ONLY
-         scheme%RHS_mm_range = ALL_MOMENTS
-      CASE DEFAULT
-         CALL fmm_quit ('require 1, 2, or full J_matrix build!')
-      END SELECT
+end subroutine fmm_allocate_Vff
 
-      CALL fmm_get_J_via_raw_potentials(scheme,dens,J_matrix,energy,E_text)
-      WRITE(LUPRI,'(1X,A," = ",E20.12)') E_text, energy
+!-------------------------------------------------------------------------------
 
-      TTOT = fmm_second()-T0
-      CALL TIMTXT('>>> TIME USED in fmm_get_J_matrix', TTOT, LUPRI)
-      CALL fmm_print_stats
+subroutine fmm_get_J_via_raw_potentials(scheme,dens,J_matrix,energy,txt)
 
-   END SUBROUTINE fmm_build_J_matrix
+  use fmm_Vff_driver, only: fmm_get_Vff
+  use fmm_J_builder, only: fmm_get_J_from_Vff, &
+                           fmm_get_J_from_pkd_Vff, &
+                           fmm_get_E_from_pkd_Vff, &
+                           fmm_get_E_from_Vff
+  use fmm_qlm_utils, only: fmm_factor_in_dens
+
+  implicit none
+  type(scheme_paras), intent(inout) :: scheme
+  real(REALK), intent(in)           :: dens(:,:)
+  real(REALK), intent(out)          :: J_matrix(:,:)
+  real(REALK), intent(out)          :: energy
+  character(len=*), intent(out)     :: txt
+
+  ! We only have the density on RHS when getting J-matrix
+  ! via far-field potential
+  scheme%LHS_dens = .false.
+  scheme%RHS_dens = .true.
+
+  ! Prepare moments and allocate potential
+  call fmm_init_driver(scheme,dens)
+  ! Get potential
+  call fmm_get_Vff(scheme,LHS_mms%paras,RHS_mms,Vff)
+
+  ! Get J-matrix
+  J_matrix = zero
+  energy = zero
+  if (scheme%pack_LHS) then
+    call fmm_get_J_from_pkd_Vff(scheme,LHS_mms,Vff,J_matrix)
+    ! Get energy after factoring in density to LHS
+    call fmm_factor_in_dens(LHS_mms%dens,LHS_mms%qlm_T)
+    call fmm_get_E_from_pkd_Vff(scheme,LHS_mms,Vff,energy,txt)
+  else
+    call fmm_get_J_from_Vff(scheme,LHS_mms,Vff,J_matrix)
+    ! Get energy after factoring in density to LHS
+    call fmm_factor_in_dens(LHS_mms%dens,LHS_mms%qlm_T)
+    call fmm_get_E_from_Vff(scheme,LHS_mms,Vff,energy,txt)
+  end if
+
+  call fmm_free_driver()
+
+end subroutine fmm_get_J_via_raw_potentials
+
+!-------------------------------------------------------------------------------
+
+subroutine fmm_build_J_matrix(n_el,dens,J_matrix)
+
+   use fmm_stats, only: fmm_print_stats
+   use fmm_scheme_builder, only: fmm_get_scheme
+   use fmm_utils, only: fmm_second, TIMTXT
+
+   implicit none
+   character(len=6), intent(in)  :: n_el
+   real(REALK), intent(in)       :: dens(:,:)
+   real(REALK), intent(out)      :: J_matrix(:,:)
+
+   type(scheme_paras), pointer :: scheme
+   character(len=36) :: E_text
+   real(REALK) :: energy, T0, TTOT
+
+   T0 = fmm_second()
+
+   call fmm_get_scheme(scheme)
+
+  select case(n_el)
+    case('ONE_EL')
+      call fmm_quit('nuclear moments not available!')
+      scheme%LHS_mm_range = ELECTRONIC_ONLY
+      scheme%RHS_mm_range = NUCLEAR_ONLY
+    case('TWO_EL')
+      scheme%LHS_mm_range = ELECTRONIC_ONLY
+      scheme%RHS_mm_range = ELECTRONIC_ONLY
+    case('FULL_J')
+      call fmm_quit('nuclear moments not available!')
+      scheme%LHS_mm_range = ELECTRONIC_ONLY
+      scheme%RHS_mm_range = ALL_MOMENTS
+    case default
+      call fmm_quit('require 1, 2, or full J_matrix build!')
+  end select
+
+  call fmm_get_J_via_raw_potentials(scheme,dens,J_matrix,energy,E_text)
+  write(LUPRI,'(1X,A," = ",E20.12)') E_text,energy
+
+  TTOT = fmm_second()-T0
+  call TIMTXT('>>> TIME USED in fmm_get_J_matrix',TTOT,LUPRI)
+  call fmm_print_stats()
+
+end subroutine fmm_build_J_matrix
 
 !-------------------------------------------------------------------------------
 ! Note that the potential returned by this routine can only be
 ! contracted with appropriately scaled multipole moments
 
-   SUBROUTINE fmm_get_multipole_potential(mode,dens,potential)
+subroutine fmm_get_multipole_potential(mode,dens,potential)
 
-      USE fmm_stats, ONLY: fmm_print_stats
-      USE fmm_scheme_builder, ONLY: fmm_get_scheme
-      USE fmm_boundary,       ONLY: fmm_opt_near_field
-      USE fmm_Vff_driver,     ONLY: fmm_get_Vff
+  use fmm_stats, only: fmm_print_stats
+  use fmm_scheme_builder, only: fmm_get_scheme
+  use fmm_boundary, only: fmm_opt_near_field
+  use fmm_Vff_driver, only: fmm_get_Vff
+  use fmm_utils, only: fmm_second, TIMTXT
 
-      IMPLICIT NONE
-      INTEGER(INTK), INTENT(IN)  :: mode
-      REAL(REALK),   INTENT(IN)  :: dens(:,:)
-      REAL(REALK),   INTENT(OUT) :: potential(:,:)
+  implicit none
+  integer(INTK), intent(in) :: mode
+  real(REALK), intent(in)   :: dens(:,:)
+  real(REALK), intent(out)  :: potential(:,:)
 
-      TYPE(scheme_paras), POINTER :: scheme
-      REAL(REALK) :: T0, fmm_second, TTOT
-      INTEGER(INTK) :: lmdim
+  type(scheme_paras), pointer :: scheme
+  real(REALK) :: T0, TTOT
+  integer(INTK) :: lmdim
 
-      T0 = fmm_second()
+  T0 = fmm_second()
 
-      CALL fmm_get_scheme(scheme)
+  call fmm_get_scheme(scheme)
 
-      scheme%LHS_mm_range = NUCLEAR_ONLY
-      scheme%RHS_mm_range = ELECTRONIC_ONLY
-      scheme%LHS_dens = .FALSE.
-      scheme%RHS_dens = .TRUE.
-      scheme%pack_LHS = .FALSE.
+  scheme%LHS_mm_range = NUCLEAR_ONLY
+  scheme%RHS_mm_range = ELECTRONIC_ONLY
+  scheme%LHS_dens = .false.
+  scheme%RHS_dens = .true.
+  scheme%pack_LHS = .false.
 
-      ! Prepare moments and allocate potential
-      CALL fmm_init_driver(scheme,dens)
+  ! Prepare moments and allocate potential
+  call fmm_init_driver(scheme,dens)
 
-      ! Test if we can skip the near-field interactions
-      IF (mode == GFC_FMM) THEN
-         CALL fmm_opt_near_field(scheme,LHS_mms%paras,RHS_mms%paras)
-      END IF
+  ! Test if we can skip the near-field interactions
+  if (mode == GFC_FMM) then
+    call fmm_opt_near_field(scheme,LHS_mms%paras,RHS_mms%paras)
+  end if
 
-      ! Get potential
-      CALL fmm_get_Vff(scheme,LHS_mms%paras,RHS_mms,Vff)
+  ! Get potential
+  call fmm_get_Vff(scheme,LHS_mms%paras,RHS_mms,Vff)
 
-      ! Note we assume here that the LHS hasn't been rearranged
-      lmdim = SIZE(potential,1)
-      IF (SIZE(potential,2) /= SIZE(Vff,2)) CALL fmm_quit('bounds: potential')
-      potential(:,:) = Vff(1:lmdim,:)
+  ! Note we assume here that the LHS hasn't been rearranged
+  lmdim = size(potential,1)
+  if (size(potential,2) /= size(Vff,2)) call fmm_quit('bounds: potential')
+  potential(:,:) = Vff(1:lmdim,:)
 
-      CALL fmm_free_driver
+  call fmm_free_driver()
 
-      TTOT = fmm_second()-T0
-      CALL TIMTXT('>>> TIME USED in fmm_get_multipole_potential', TTOT, LUPRI)
-      CALL fmm_print_stats
+  TTOT = fmm_second()-T0
+  call TIMTXT('>>> TIME USED in fmm_get_multipole_potential',TTOT,LUPRI)
+  call fmm_print_stats()
 
-   END SUBROUTINE fmm_get_multipole_potential
+end subroutine fmm_get_multipole_potential
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_driver
-
+end module fmm_driver

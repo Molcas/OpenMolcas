@@ -8,358 +8,354 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-MODULE fmm_qlm_builder
 
-   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, LUINTM, fmm_counters, scheme_paras, raw_mm_data, id_node, raw_mm_paras, &
-                               ELECTRONIC_ONLY, NUCLEAR_ONLY, Zero, One
-   USE fmm_stats, ONLY: stat_n_basis, stat_raw_moms_LHS, stat_raw_moms_RHS
-   IMPLICIT NONE
-   PRIVATE
-   ! Public procedures
-   PUBLIC :: fmm_get_raw_qlm,             &
-             fmm_deallocate_qlm
+module fmm_qlm_builder
 
-   ! Public variables
-   PUBLIC :: fmm_system_size, fmm_coord_shift
+use fmm_global_paras, only: INTK, REALK, LUPRI, LUINTM, fmm_counters, scheme_paras, raw_mm_data, id_node, raw_mm_paras, &
+                            ELECTRONIC_ONLY,NUCLEAR_ONLY,Zero,One
+use fmm_stats, only: stat_n_basis, stat_raw_moms_LHS, stat_raw_moms_RHS
+use fmm_utils, only: fmm_quit
+implicit none
+private
+! Public procedures
+public :: fmm_get_raw_qlm, &
+          fmm_deallocate_qlm
 
-   ! Coordinate translation required to ensure all primitive (x,y,z) positive
-   REAL(REALK), SAVE :: fmm_coord_shift(3)
+! Public variables
+public :: fmm_system_size, fmm_coord_shift
 
-   ! Number of multipole moments written to interface file
-   TYPE(fmm_counters), SAVE :: n_mms
-   ! Number of AO (contracted) basis functions
-   INTEGER(INTK), SAVE :: nbas
-   ! (minimum) dimension of a cube which encloses all moments
-   REAL(REALK), SAVE :: fmm_system_size
+! Coordinate translation required to ensure all primitive (x,y,z) positive
+real(REALK), save :: fmm_coord_shift(3)
 
-CONTAINS
+! Number of multipole moments written to interface file
+type(fmm_counters), save :: n_mms
+! Number of AO (contracted) basis functions
+integer(INTK), save :: nbas
+! (minimum) dimension of a cube which encloses all moments
+real(REALK), save :: fmm_system_size
+
+contains
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_get_raw_qlm(scheme,dens,LHS,RHS)
+subroutine fmm_get_raw_qlm(scheme,dens,LHS,RHS)
 
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN)  :: scheme
-      REAL(REALK),        INTENT(IN)  :: dens(:,:)
-      TYPE(raw_mm_data),  INTENT(OUT) :: LHS, RHS
-      TYPE(raw_mm_data) :: mm_data
-      INTEGER(INTK) :: LMAX
+  implicit none
+  type(scheme_paras), intent(in) :: scheme
+  real(REALK), intent(in)        :: dens(:,:)
+  type(raw_mm_data), intent(out) :: LHS, RHS
+  type(raw_mm_data) :: mm_data
+  integer(INTK) :: LMAX
 
-      LMAX = scheme%raw_LMAX
+  LMAX = scheme%raw_LMAX
 
-      ! Get all multipole data from program interface
-      CALL fmm_get_n_mms_from_file(LMAX)
-      CALL fmm_allocate_mms_arrays(LMAX,n_mms%tot,mm_data)
-      CALL fmm_read_in_raw_data(dens,mm_data)
-      CALL fmm_get_system_size_and_shift(mm_data%paras)
-      IF (scheme%branch_free) CALL fmm_make_branch_free_extents(scheme,mm_data)
+  ! Get all multipole data from program interface
+  call fmm_get_n_mms_from_file(LMAX)
+  call fmm_allocate_mms_arrays(LMAX,n_mms%tot,mm_data)
+  call fmm_read_in_raw_data(dens,mm_data)
+  call fmm_get_system_size_and_shift(mm_data%paras)
+  if (scheme%branch_free) call fmm_make_branch_free_extents(scheme,mm_data)
 
-      ! Assign LHS range multipole data
-      CALL fmm_distribute_LHS_RHS_data(LMAX,scheme%LHS_mm_range,mm_data,LHS)
-      stat_raw_moms_LHS = SIZE(LHS%paras)
-      ! Assign RHS range multipole data
-      CALL fmm_distribute_LHS_RHS_data(LMAX,scheme%RHS_mm_range,mm_data,RHS)
-      stat_raw_moms_RHS = SIZE(RHS%paras)
+  ! Assign LHS range multipole data
+  call fmm_distribute_LHS_RHS_data(LMAX,scheme%LHS_mm_range,mm_data,LHS)
+  stat_raw_moms_LHS = size(LHS%paras)
+  ! Assign RHS range multipole data
+  call fmm_distribute_LHS_RHS_data(LMAX,scheme%RHS_mm_range,mm_data,RHS)
+  stat_raw_moms_RHS = size(RHS%paras)
 
-      CALL fmm_deallocate_mms_arrays(mm_data)
+  call fmm_deallocate_mms_arrays(mm_data)
 
-   END SUBROUTINE fmm_get_raw_qlm
+end subroutine fmm_get_raw_qlm
 
 !-------------------------------------------------------------------------------
 ! Branch-free scheme basically uses CFMM code but we simplify all the
 ! extents such that they are all the same and only _very_ close interactions
 ! are avoided (for numerical stability)
 
-   SUBROUTINE fmm_make_branch_free_extents(scheme,mm_data)
+subroutine fmm_make_branch_free_extents(scheme,mm_data)
 
-      IMPLICIT NONE
-      TYPE(scheme_paras), INTENT(IN)  :: scheme
-      TYPE(raw_mm_data),  INTENT(INOUT) :: mm_data
+  implicit none
+  type(scheme_paras), intent(in)   :: scheme
+  type(raw_mm_data), intent(inout) :: mm_data
 
-      INTEGER(INTK) :: i
+  integer(INTK) :: i
 
-      DO i = 1, n_mms%elec
-         mm_data%paras(i)%ext = scheme%extent_min
-      END DO
+  do i=1,n_mms%elec
+    mm_data%paras(i)%ext = scheme%extent_min
+  end do
 
-   END SUBROUTINE fmm_make_branch_free_extents
-
-!-------------------------------------------------------------------------------
-
-   SUBROUTINE fmm_distribute_LHS_RHS_data(LMAX,mm_range,all_data,sub_data)
-
-      IMPLICIT NONE
-      INTEGER(INTK),     INTENT(IN)  :: LMAX, mm_range
-      TYPE(raw_mm_data), INTENT(IN)  :: all_data
-      TYPE(raw_mm_data), INTENT(OUT) :: sub_data
-      INTEGER(INTK) :: foo, i, hi, lo
-
-      lo = 1
-      hi = n_mms%tot
-      IF (mm_range == NUCLEAR_ONLY)    lo = 1+n_mms%elec
-      IF (mm_range == ELECTRONIC_ONLY) hi = n_mms%elec
-      foo = hi - lo + 1
-
-      CALL fmm_allocate_mms_arrays(LMAX,foo,sub_data)
-
-      sub_data%qlm(:,:)     = all_data%qlm(:,lo:hi)
-      sub_data%dens(:)      = all_data%dens(lo:hi)
-      sub_data%paras(:)     = all_data%paras(lo:hi)
-      sub_data%J_indices(:) = all_data%J_indices(lo:hi)
-      NULLIFY(sub_data%qlm_T)
-      NULLIFY(sub_data%qlm_W)
-
-      ! Initialise parameter:moments mapping,
-      ! and batch numbers for unique centres
-      DO i = 1, foo
-         sub_data%paras(i)%id = i
-         sub_data%paras(i)%batch = i
-      END DO
-
-   END SUBROUTINE fmm_distribute_LHS_RHS_data
+end subroutine fmm_make_branch_free_extents
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_deallocate_qlm(LHS,RHS)
+subroutine fmm_distribute_LHS_RHS_data(LMAX,mm_range,all_data,sub_data)
 
-      IMPLICIT NONE
-      TYPE(raw_mm_data), INTENT(OUT) :: LHS, RHS
+  implicit none
+  integer(INTK), intent(in)      :: LMAX, mm_range
+  type(raw_mm_data), intent(in)  :: all_data
+  type(raw_mm_data), intent(out) :: sub_data
+  integer(INTK) :: foo, i, hi, lo
 
-      CALL fmm_deallocate_mms_arrays(LHS)
-      CALL fmm_deallocate_mms_arrays(RHS)
+  lo = 1
+  hi = n_mms%tot
+  if (mm_range == NUCLEAR_ONLY) lo = 1+n_mms%elec
+  if (mm_range == ELECTRONIC_ONLY) hi = n_mms%elec
+  foo = hi-lo+1
 
-   END SUBROUTINE fmm_deallocate_qlm
+  call fmm_allocate_mms_arrays(LMAX,foo,sub_data)
 
-!-------------------------------------------------------------------------------
+  sub_data%qlm(:,:) = all_data%qlm(:,lo:hi)
+  sub_data%dens(:) = all_data%dens(lo:hi)
+  sub_data%paras(:) = all_data%paras(lo:hi)
+  sub_data%J_indices(:) = all_data%J_indices(lo:hi)
+  nullify(sub_data%qlm_T)
+  nullify(sub_data%qlm_W)
 
-   SUBROUTINE fmm_get_n_mms_from_file(LMAX_in)
+  ! Initialise parameter:moments mapping,
+  ! and batch numbers for unique centres
+  do i=1,foo
+    sub_data%paras(i)%id = i
+    sub_data%paras(i)%batch = i
+  end do
 
-      IMPLICIT NONE
-      INTEGER(INTK), INTENT(IN) :: LMAX_in
-      INTEGER(INTK) :: LMAX !, ndim
-      INTEGER(INTK), EXTERNAL :: IsFreeUnit
-
-      ! Read number of electronic moments
-      LUINTM = IsFreeUnit(LUINTM)
-      OPEN (UNIT=LUINTM,FILE='multipoles.fmm1header',  &
-            STATUS='OLD',ACTION='READ',FORM='UNFORMATTED')
-      REWIND (LUINTM)
-      READ (LUINTM) LMAX, nbas, n_mms%elec
-      CLOSE(UNIT=LUINTM,STATUS='KEEP')
-
-      IF (LMAX /= LMAX_in) THEN
-         WRITE(LUPRI,*) LMAX, LMAX_in
-         CALL fmm_quit('LMAX inconsistency in MM interface!')
-      END IF
-      IF (n_mms%elec < 1) CALL fmm_quit('No moments generated!')
-!      This test only works for moments build over contracted AO pairs
-!      ndim = nbas*(nbas+1)/2
-!      IF ( n_mms%elec > ndim ) THEN
-!         WRITE(LUPRI,*) LMAX, nbas, ndim, n_mms%elec
-!         CALL fmm_quit('Too many moments generated, based on AO number!')
-!      END IF
-
-      ! Read number of nuclear moments or potential grid points
-      LUINTM = IsFreeUnit(LUINTM)
-      OPEN (UNIT=LUINTM,FILE='multipoles.fmm2header',  &
-            STATUS='OLD',ACTION='READ',FORM='UNFORMATTED')
-      REWIND (LUINTM)
-      READ (LUINTM) n_mms%nuc
-      CLOSE(UNIT=LUINTM,STATUS='KEEP')
-
-      n_mms%tot = n_mms%elec + n_mms%nuc
-      stat_n_basis = nbas
-
-   END SUBROUTINE fmm_get_n_mms_from_file
+end subroutine fmm_distribute_LHS_RHS_data
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_allocate_mms_arrays(LMAX,ndim,mm_data)
+subroutine fmm_deallocate_qlm(LHS,RHS)
 
-      IMPLICIT NONE
-      INTEGER(INTK),     INTENT(IN)  :: LMAX, ndim
-      TYPE(raw_mm_data), INTENT(OUT) :: mm_data
-      INTEGER(INTK) :: i, foo, alloc_error
+  implicit none
+  type(raw_mm_data), intent(out) :: LHS, RHS
 
-      NULLIFY (mm_data%paras, mm_data%dens, mm_data%batch_map)
-      NULLIFY (mm_data%qlm, mm_data%qlm_W, mm_data%qlm_T)
+  call fmm_deallocate_mms_arrays(LHS)
+  call fmm_deallocate_mms_arrays(RHS)
 
-      ALLOCATE (mm_data%paras(ndim))
-      ALLOCATE (mm_data%J_indices(ndim))
+end subroutine fmm_deallocate_qlm
 
-      ! Initialise parameters
-      DO i = 1, ndim
-         mm_data%paras(i)%cntr = zero
-         mm_data%paras(i)%ext = zero
-         mm_data%paras(i)%id = 0
-         mm_data%paras(i)%batch = 0
-         mm_data%paras(i)%map_up = 0
-         mm_data%paras(i)%box = 0
-         mm_data%paras(i)%bra = 0
-         mm_data%paras(i)%box_cntr = zero
-         mm_data%J_indices(i)%i_indx = 0
-         mm_data%J_indices(i)%j_indx = 0
-      END DO
+!-------------------------------------------------------------------------------
 
-      ALLOCATE (mm_data%dens(ndim))
-      foo = (LMAX+1)**2
-      WRITE(LUPRI,*) 'mms_arrays: Attempting to allocate',  &
-                     MAX(1,foo*ndim*8/1000000), 'MB of memory...'
-      ALLOCATE (mm_data%qlm(foo,ndim), STAT=alloc_error)
-      IF (alloc_error /= 0) WRITE(LUPRI,*) '... Failed!'
+subroutine fmm_get_n_mms_from_file(LMAX_in)
 
-      mm_data%qlm(:,:) = zero  ! only non-zero written explicitly
+  implicit none
+  integer(INTK), intent(in) :: LMAX_in
+  integer(INTK) :: LMAX !, ndim
+  integer(INTK), external :: IsFreeUnit
 
-   END SUBROUTINE fmm_allocate_mms_arrays
+  ! Read number of electronic moments
+  LUINTM = IsFreeUnit(LUINTM)
+  open(unit=LUINTM,file='multipoles.fmm1header',status='OLD',action='READ',form='UNFORMATTED')
+  rewind(LUINTM)
+  read(LUINTM) LMAX,nbas,n_mms%elec
+  close(unit=LUINTM,status='KEEP')
+
+  if (LMAX /= LMAX_in) then
+    write(LUPRI,*) LMAX,LMAX_in
+    call fmm_quit('LMAX inconsistency in MM interface!')
+  end if
+  if (n_mms%elec < 1) call fmm_quit('No moments generated!')
+  ! This test only works for moments build over contracted AO pairs
+  !ndim = nbas*(nbas+1)/2
+  !if (n_mms%elec > ndim) then
+  !  write(LUPRI,*) LMAX,nbas,ndim,n_mms%elec
+  !  call fmm_quit('Too many moments generated, based on AO number!')
+  !end if
+
+  ! Read number of nuclear moments or potential grid points
+  LUINTM = IsFreeUnit(LUINTM)
+  open(unit=LUINTM,file='multipoles.fmm2header',status='OLD',action='READ',form='UNFORMATTED')
+  rewind(LUINTM)
+  read(LUINTM) n_mms%nuc
+  close(unit=LUINTM,status='KEEP')
+
+  n_mms%tot = n_mms%elec+n_mms%nuc
+  stat_n_basis = nbas
+
+end subroutine fmm_get_n_mms_from_file
+
+!-------------------------------------------------------------------------------
+
+subroutine fmm_allocate_mms_arrays(LMAX,ndim,mm_data)
+
+  implicit none
+  integer(INTK), intent(in)      :: LMAX, ndim
+  type(raw_mm_data), inteNt(out) :: mm_data
+  integer(INTK) :: i, foo, alloc_error
+
+  nullify(mm_data%paras,mm_data%dens,mm_data%batch_map)
+  nullify(mm_data%qlm,mm_data%qlm_W,mm_data%qlm_T)
+
+  allocate(mm_data%paras(ndim))
+  allocate(mm_data%J_indices(ndim))
+
+  ! Initialise parameters
+  do i=1,ndim
+    mm_data%paras(i)%cntr = zero
+    mm_data%paras(i)%ext = zero
+    mm_data%paras(i)%id = 0
+    mm_data%paras(i)%batch = 0
+    mm_data%paras(i)%map_up = 0
+    mm_data%paras(i)%box = 0
+    mm_data%paras(i)%bra = 0
+    mm_data%paras(i)%box_cntr = zero
+    mm_data%J_indices(i)%i_indx = 0
+    mm_data%J_indices(i)%j_indx = 0
+  end do
+
+  allocate(mm_data%dens(ndim))
+  foo = (LMAX+1)**2
+  write(LUPRI,*) 'mms_arrays: Attempting to allocate',max(1,foo*ndim*8/1000000),'MB of memory...'
+  allocate(mm_data%qlm(foo,ndim),stat=alloc_error)
+  if (alloc_error /= 0) write(LUPRI,*) '... Failed!'
+
+  mm_data%qlm(:,:) = zero  ! only non-zero written explicitly
+
+end subroutine fmm_allocate_mms_arrays
 
 !------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_deallocate_mms_arrays(mm_data)
+subroutine fmm_deallocate_mms_arrays(mm_data)
 
-      IMPLICIT NONE
-      TYPE(raw_mm_data), INTENT(OUT) :: mm_data
-      INTEGER(INTK) :: i
+  implicit none
+  type(raw_mm_data), intent(out) :: mm_data
+  integer(INTK) :: i
 
-      IF (ASSOCIATED(mm_data%paras)) DEALLOCATE (mm_data%paras)
-      IF (ASSOCIATED(mm_data%J_indices)) DEALLOCATE (mm_data%J_indices)
-      IF (ASSOCIATED(mm_data%dens)) DEALLOCATE (mm_data%dens)
-      IF (ASSOCIATED(mm_data%qlm)) DEALLOCATE (mm_data%qlm)
-      IF (ASSOCIATED(mm_data%qlm_T)) DEALLOCATE (mm_data%qlm_T)
-      IF (ASSOCIATED(mm_data%qlm_W)) DEALLOCATE (mm_data%qlm_W)
+  if (associated(mm_data%paras)) deallocate(mm_data%paras)
+  if (associated(mm_data%J_indices)) deallocate(mm_data%J_indices)
+  if (associated(mm_data%dens)) deallocate(mm_data%dens)
+  if (associated(mm_data%qlm)) deallocate(mm_data%qlm)
+  if (associated(mm_data%qlm_T)) deallocate(mm_data%qlm_T)
+  if (associated(mm_data%qlm_W)) deallocate(mm_data%qlm_W)
 
-      IF (ASSOCIATED(mm_data%batch_map)) THEN
-         DO i = 1, SIZE(mm_data%batch_map)
-            CALL free_batch_map(mm_data%batch_map(i)%head)
-         END DO
-      END IF
-      IF (ASSOCIATED(mm_data%batch_map)) DEALLOCATE(mm_data%batch_map)
+  if (associated(mm_data%batch_map)) then
+    do i=1,size(mm_data%batch_map)
+      call free_batch_map(mm_data%batch_map(i)%head)
+    end do
+  end if
+  if (associated(mm_data%batch_map)) deallocate(mm_data%batch_map)
 
-      NULLIFY (mm_data%paras, mm_data%dens, mm_data%batch_map)
-      NULLIFY (mm_data%qlm, mm_data%qlm_W, mm_data%qlm_T)
-      NULLIFY (mm_data%J_indices)
+  nullify(mm_data%paras,mm_data%dens,mm_data%batch_map)
+  nullify(mm_data%qlm,mm_data%qlm_W,mm_data%qlm_T)
+  nullify(mm_data%J_indices)
 
-   CONTAINS
+  contains
 
-      RECURSIVE SUBROUTINE free_batch_map(node)
+  recursive subroutine free_batch_map(node)
 
-         IMPLICIT NONE
-         TYPE(id_node), POINTER :: node
-         IF (ASSOCIATED(node%next)) THEN
-            CALL free_batch_map(node%next)
-         END IF
-         DEALLOCATE(node)
-         NULLIFY(node)
+    implicit none
+    type(id_node), pointer :: node
+    if (associated(node%next)) then
+      call free_batch_map(node%next)
+    end if
+    deallocate(node)
+    nullify(node)
 
-      END SUBROUTINE free_batch_map
+  end subroutine free_batch_map
 
-   END SUBROUTINE fmm_deallocate_mms_arrays
+end subroutine fmm_deallocate_mms_arrays
 
 !-------------------------------------------------------------------------------
 ! Read in multipole moment data from interface file.
 ! In all this MM code we assume the order of moments is:
 !   (0),(-1,0,1),(-2,-1,0,1,2)... wrt (L,M)
 
-   SUBROUTINE fmm_read_in_raw_data(dens,mm_data)
+subroutine fmm_read_in_raw_data(dens,mm_data)
 
-      IMPLICIT NONE
-      REAL(REALK),       INTENT(IN)  :: dens(:,:)
-      TYPE(raw_mm_data), INTENT(OUT) :: mm_data
-      REAL(REALK)   :: PX,PY,PZ, SPH
-      INTEGER(INTK) :: I,J,L,M, A,B, LM, X
-      INTEGER(INTK), EXTERNAL :: IsFreeUnit
+# include "macros.fh"
 
-      ! Read electronic multipole moments into core
-      LUINTM = IsFreeUnit(LUINTM)
-      OPEN (UNIT=LUINTM,FILE='multipoles.fmm1',STATUS='OLD',  &
-            ACTION='READ',FORM='UNFORMATTED')
-      REWIND (LUINTM)
+  implicit none
+  real(REALK), intent(in)        :: dens(:,:)
+  type(raw_mm_data), intent(out) :: mm_data
+  real(REALK)   :: PX, PY, PZ, SPH
+  integer(INTK) :: I, J, L, M, A, B, LM, X
+  integer(INTK), external :: IsFreeUnit
 
-      readloop: DO
+  ! Read electronic multipole moments into core
+  LUINTM = IsFreeUnit(LUINTM)
+  open(unit=LUINTM,file='multipoles.fmm1',status='OLD',action='READ',form='UNFORMATTED')
+  rewind(LUINTM)
 
-         READ (LUINTM) I,L,M, A,B, PX,PY,PZ, SPH
-         ! EOF marked by record with negative angular momentum
-         IF (L < 0) EXIT readloop
+  readloop: do
 
-!         IF ((L == 0) .AND. (ABS(SPH) > 1.0d-12) )   &
-!         WRITE (LUPRI,'(5I4,1X,3F8.4,2E13.4)') I,L,M,A,B,PX,PY,PZ,SPH,dens(A,B)
+    read(LUINTM) I,L,M,A,B,PX,PY,PZ,SPH
+    ! EOF marked by record with negative angular momentum
+    if (L < 0) exit readloop
 
-         IF (A > nbas) CALL fmm_quit('interface file error 0')
-         IF (B > nbas) CALL fmm_quit('interface file error 00')
-         IF (I < 1) CALL fmm_quit('interface file error 1')
-         IF (I > SIZE(mm_data%qlm,2)) CALL fmm_quit('interface error 11')
-         IF (((L+1)**2) > SIZE(mm_data%qlm,1)) CALL fmm_quit('interface 156')
+    !if ((L == 0) .and. (ABS(SPH) > 1.0e-12_REALK)) write(LUPRI,'(5I4,1X,3F8.4,2E13.4)') I,L,M,A,B,PX,PY,PZ,SPH,dens(A,B)
 
-          ! Indices to map moments to orbitals in J-matrix
-         mm_data%J_indices(I)%i_indx = A
-         mm_data%J_indices(I)%j_indx = B
-          ! Multipole expansion centre
-         mm_data%paras(I)%cntr = (/ PX, PY, PZ /)
-          ! See defn of 'extent' in p.424 MEST Helgaker et al
-         mm_data%paras(I)%ext  = 0
-         LM = L*(L+1) +M +1
-         mm_data%dens(I) = dens(A,B)
-          ! Components (l,m) of MM without density factorised in
-         mm_data%qlm(LM,I) = SPH
+    if (A > nbas) call fmm_quit('interface file error 0')
+    if (B > nbas) call fmm_quit('interface file error 00')
+    if (I < 1) call fmm_quit('interface file error 1')
+    if (I > size(mm_data%qlm,2)) call fmm_quit('interface error 11')
+    if (((L+1)**2) > size(mm_data%qlm,1)) call fmm_quit('interface 156')
 
-      END DO readloop
+    ! Indices to map moments to orbitals in J-matrix
+    mm_data%J_indices(I)%i_indx = A
+    mm_data%J_indices(I)%j_indx = B
+    ! Multipole expansion centre
+    mm_data%paras(I)%cntr = [PX,PY,PZ]
+    ! See defn of 'extent' in p.424 MEST Helgaker et al
+    mm_data%paras(I)%ext = 0
+    LM = L*(L+1)+M+1
+    mm_data%dens(I) = dens(A,B)
+    ! Components (l,m) of MM without density factorised in
+    mm_data%qlm(LM,I) = SPH
 
-      CLOSE(UNIT=LUINTM,STATUS='KEEP')
+  end do readloop
 
-      ! Next read nuclei data: charge and location
-      ! This is also used for passing the grid points when
-      ! computing an arbitrary potential
-      IF (n_mms%nuc == 0) RETURN
-      LUINTM = IsFreeUnit(LUINTM)
-      OPEN (UNIT=LUINTM,FILE='multipoles.fmm2',STATUS='OLD',  &
-            ACTION='READ',FORM='UNFORMATTED')
-      REWIND (LUINTM)
+  close(unit=LUINTM,status='KEEP')
 
-      DO J = 1, n_mms%nuc
-         I = n_mms%elec + J
-         READ (LUINTM) X,L,M, A,B, PX,PY,PZ, SPH
-!         WRITE (LUPRI,'(I4,1X,3F8.4,2E13.4)') I, PX,PY,PZ, SPH
-         mm_data%qlm(1,I) = SPH
-         mm_data%paras(I)%cntr = (/ PX, PY, PZ /)
-      END DO
+  ! Next read nuclei data: charge and location
+  ! This is also used for passing the grid points when
+  ! computing an arbitrary potential
+  if (n_mms%nuc == 0) return
+  LUINTM = IsFreeUnit(LUINTM)
+  open(unit=LUINTM,file='multipoles.fmm2',status='OLD',action='READ',form='UNFORMATTED')
+  rewind(LUINTM)
 
-      mm_data%dens((n_mms%elec+1):) = one
-      mm_data%paras((n_mms%elec+1):)%ext = zero         ! point charges
-      mm_data%J_indices((n_mms%elec+1):)%i_indx = 0     ! not relevant
-      mm_data%J_indices((n_mms%elec+1):)%j_indx = 0     ! not relevant
+  do J=1,n_mms%nuc
+    I = n_mms%elec+J
+    read(LUINTM) X,L,M,A,B,PX,PY,PZ,SPH
+    !write(LUPRI,'(I4,1X,3F8.4,2E13.4)') I,PX,PY,PZ,SPH
+    mm_data%qlm(1,I) = SPH
+    mm_data%paras(I)%cntr = [PX,PY,PZ]
+  end do
 
-      CLOSE(UNIT=LUINTM,STATUS='KEEP')
+  unused_var(X)
 
-#ifdef _WARNING_WORKAROUND_
-      IF (.FALSE.) CALL Unused_integer(X)
-#endif
-   END SUBROUTINE fmm_read_in_raw_data
+  mm_data%dens((n_mms%elec+1):) = one
+  mm_data%paras((n_mms%elec+1):)%ext = zero         ! point charges
+  mm_data%J_indices((n_mms%elec+1):)%i_indx = 0     ! not relevant
+  mm_data%J_indices((n_mms%elec+1):)%j_indx = 0     ! not relevant
+
+  close(unit=LUINTM,status='KEEP')
+
+end subroutine fmm_read_in_raw_data
 
 !-------------------------------------------------------------------------------
 
-   SUBROUTINE fmm_get_system_size_and_shift(paras)
+subroutine fmm_get_system_size_and_shift(paras)
 
-      IMPLICIT NONE
-      TYPE(raw_mm_paras), INTENT(INOUT) :: paras(:)
-      REAL(REALK)   :: sys_min(3), sys_max(3)
-      INTEGER(INTK) :: i
+  implicit none
+  type(raw_mm_paras), intent(inout) :: paras(:)
+  real(REALK)   :: sys_min(3), sys_max(3)
+  integer(INTK) :: i
 
-      sys_min = paras(1)%cntr
-      sys_max = paras(1)%cntr
-      DO i = 1, SIZE(paras)
-         sys_min(:) = MIN(sys_min(:),paras(i)%cntr(:))
-         sys_max(:) = MAX(sys_max(:),paras(i)%cntr(:))
-      END DO
-      fmm_system_size = MAXVAL(sys_max - sys_min)
-      IF (fmm_system_size == zero) CALL fmm_quit('zero system size!')
+  sys_min = paras(1)%cntr
+  sys_max = paras(1)%cntr
+  do i=1,size(paras)
+    sys_min(:) = min(sys_min(:),paras(i)%cntr(:))
+    sys_max(:) = max(sys_max(:),paras(i)%cntr(:))
+  end do
+  fmm_system_size = maxval(sys_max-sys_min)
+  if (fmm_system_size == zero) call fmm_quit('zero system size!')
 
-      fmm_coord_shift = sys_min
-!      DO i = 1, SIZE(paras)
-!         paras(i)%cntr(:) = paras(i)%cntr(:) - sys_min(:)
-!      END DO
+  fmm_coord_shift = sys_min
+  !do i=1,size(paras)
+  !  paras(i)%cntr(:) = paras(i)%cntr(:)-sys_min(:)
+  !end do
 
-   END SUBROUTINE fmm_get_system_size_and_shift
+end subroutine fmm_get_system_size_and_shift
 
 !-------------------------------------------------------------------------------
 
-END MODULE fmm_qlm_builder
-
+end module fmm_qlm_builder
