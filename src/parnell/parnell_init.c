@@ -19,10 +19,10 @@
  *       Date:         Spring 2010
  *
  *       parnell_init - initialize the work directory name as the current
- *                       working directory, and get the subdirectory name for
- *                       each slave called tmp_$n, where $n is the rank number
- *                       of the process, and then change directory to the
- *                       subdirectory.
+ *                      working directory, and get the subdirectory name for
+ *                      each slave called tmp_$n, where $n is the rank number
+ *                      of the process, and then change directory to the
+ *                      subdirectory.
  *
  *       History:
  *       V.P. Vysotskiy, University of Lund, Sweden, 2013
