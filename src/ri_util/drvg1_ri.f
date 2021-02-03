@@ -48,11 +48,37 @@
       Logical Found
       Integer nAct(0:7)
       Real*8, Allocatable:: V_k_new(:,:), U_k_new(:)
-      Integer, Allocatable:: iZk(:)
+      Integer, Allocatable:: iZk(:), iVk(:), iUk(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
+      Integer nProc, myProc
+      Integer ipVk(nProc), ipZpk(nProc)
+      Integer, Optional:: ipUk(nProc)
+      End Subroutine Compute_AuxVec
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
       DoCholExch = .false.
+*                                                                      *
+************************************************************************
+*                                                                      *
+*
+      ipChM(:)   =ip_Dummy
+      ip_CMOi(:) =ip_Dummy
+      ipDMLT(:)  =ip_Dummy
+      ip_VJ      =ip_Dummy
+      ip_CijK    =ip_Dummy
+      ip_CilK    =ip_Dummy
+      ip_BklK    =ip_Dummy
+      ip_A       =ip_Dummy
+      ipAOrb(:,:)=ip_Dummy
+
+      ipijList   =ip_iDummy
+      ipijListTri=ip_iDummy
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -130,7 +156,7 @@
 *                                                                      *
 *-----Prepare handling of two-particle density.
 *
-      Call PrepP
+      Call PrepP()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -240,15 +266,15 @@
 *
 *     Note: the above two points apply to Z_p_k as well (active space)
 *
-      Call GetMem('iVk','Allo','Inte',iVk,nProcs)
-      Call mma_allocate(iZk,nProcs,Label='iZk')
-      Call IZero(iWork(iVk),nProcs)
+      Call mma_allocate(iVk,[0,nProcs-1],Label='iVk')
+      Call mma_allocate(iZk,[0,nProcs-1],Label='iZk')
+      iVk(:)=0
       iZk(:)=0
-*     iWork(iVk+myRank) = NumCho(1)*nJdens
-      iWork(iVk+myRank) = NumCho(1)
-*     iZk(1+myRank)= nZ_p_l*nAvec           ! store the local size of Zk
-      iZk(1+myRank)= nZ_p_l                 ! store the local size of Zk
-      Call GAIGOP(iWork(iVk),nProcs,'+')
+*     iVk(myRank) = NumCho(1)*nJdens
+      iVk(myRank) = NumCho(1)
+*     iZk(myRank)= nZ_p_l*nAvec           ! store the local size of Zk
+      iZk(myRank)= nZ_p_l                 ! store the local size of Zk
+      Call GAIGOP(iVk,nProcs,'+')
       Call GAIGOP(iZk,nProcs,'+')           ! distribute to all nodes
 
 !     Compute the starting position in the global sense for each node.
@@ -256,39 +282,42 @@
       iStart=1
       jStart=1
       Do j=0,nProcs-1    !  Loop over all nodes
-         itmp=iWork(iVk+j)
-         iWork(iVk+j)=iStart
+         itmp=iVk(j)
+         iVk(j)=iStart
          iStart = iStart + itmp
 
-         jtmp=iZk(1+j)
-         iZk(1+j)=jStart
+         jtmp=iZk(j)
+         iZk(j)=jStart
          jStart = jStart + jtmp
       End Do
 *
       If(iMp2prpt .eq. 2) Then
-         Call GetMem('iUk','Allo','Inte',iUk,nProcs)
-         Call IZero(iWork(iUk),nProcs)
-         iWork(iUk+myRank) = NumCho(1)
-         Call GAIGOP(iWork(iUk),nProcs,'+')
+         Call mma_allocate(iUk,[0,nProcs-1],Label='iUk')
+         iUk(:)=0
+         iUk(myRank) = NumCho(1)
+         Call GAIGOP(iUk,nProcs,'+')
          kStart=1
          Do j = 0,nProcs-1
-            kTmp=iWork(iUk+j)
-            iWork(iUk+j)=kStart
+            kTmp=iUk(j)
+            iUk(j)=kStart
             kStart = kStart + kTmp
          End Do
-      Else
-         iUk = ip_iDummy
-      End If
 *
-      Call Compute_AuxVec(iWork(iVk),iWork(iUk),iZk,myRank+1,nProcs)
+         Call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,ipUk=iUk)
+
+      Else
+
+         Call Compute_AuxVec(iVk,iZk,myRank+1,nProcs)
+
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 
       If (Cholesky.and..Not.Do_RI) Then
 *
-*              Map from Cholesky auxiliary basis to the full
-*              1-center valence product basis.
+*        Map from Cholesky auxiliary basis to the full
+*        1-center valence product basis.
 *
          Call mma_allocate(ij2K,n_ij2K,Label='ij2K')
          ij2K(:)=0
@@ -414,7 +443,8 @@
       Case_3C=.False.
       If(Allocated(Txy))  Call mma_deallocate(Txy)
       If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
-      Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
+      If (ipAOrb(0,1).ne.ip_Dummy)
+     &   Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -440,11 +470,13 @@
       End If
       Call CloseP
       Call mma_deallocate(iZk)
-      Call Free_iWork(iVk)
-      If(iMp2prpt .eq. 2) Call Free_iWork(iUk)
+      Call mma_deallocate(iVk)
+
+      If (Allocated(iUk))   Call mma_deallocate(iUk)
       If (Allocated(Z_p_k)) Call mma_deallocate(Z_p_k)
-      If (Allocated(V_k)) Call mma_deallocate(V_k)
-      If (Allocated(U_k)) Call mma_deallocate(U_k)
+      If (Allocated(V_k))   Call mma_deallocate(V_k)
+      If (Allocated(U_k))   Call mma_deallocate(U_k)
+
       Call Cho_X_Final(irc)
       If (irc.ne.0) Then
          Call WarningMessage(2,' Drvg1_RI: Cho_X_Final failed')
