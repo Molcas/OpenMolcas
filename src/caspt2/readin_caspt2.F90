@@ -248,8 +248,8 @@ contains
         ! TODO: use mma_allocate if possible
         allocate (Input%MultGroup%State(nStates))
         Input%nMultState = nStates
-        iSplit = SCAN(Line,' ')
-        allocate (Character(len=Len(Line)) :: dLine)
+        iSplit = scan(Line,' ')
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line(iSplit:)
         iError = -1
         do while (iError < 0)
@@ -277,8 +277,8 @@ contains
         end if
         allocate (Input%XMulGroup%State(nStates))
         Input%nXMulState = nStates
-        iSplit = SCAN(Line,' ')
-        allocate (Character(len=Len(Line)) :: dLine)
+        iSplit = scan(Line,' ')
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line(iSplit:)
         iError = -1
         do while (iError < 0)
@@ -306,8 +306,8 @@ contains
         end if
         allocate (Input%RMulGroup%State(nStates))
         Input%nRMulState = nStates
-        iSplit = SCAN(Line,' ')
-        allocate (Character(len=Len(Line)) :: dLine)
+        iSplit = scan(Line,' ')
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line(iSplit:)
         iError = -1
         do while (iError < 0)
@@ -351,7 +351,7 @@ contains
         Input%FROZ = .true.
         allocate (Input%nFro(nSYM))
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=Len(Line)) :: dLine)
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -368,7 +368,7 @@ contains
         Input%DELE = .true.
         allocate (Input%nDel(nSYM))
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=Len(Line)) :: dLine)
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -396,7 +396,7 @@ contains
       case ('THRE')
         Input%THRE = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=Len(Line)) :: dLine)
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -446,7 +446,7 @@ contains
 
       case ('WTHR')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=Len(Line)) :: dLine)
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -508,7 +508,7 @@ contains
         Input%aFreeze = .true.
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=Len(Line)) :: dLine)
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -523,7 +523,7 @@ contains
         allocate (Input%NamFro(Input%lnFro))
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call Upcase(Line)
-        allocate (Character(len=Len(Line)) :: dLine)
+        allocate (Character(len=len(Line)) :: dLine)
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -600,7 +600,7 @@ contains
         Input%Heff = 0.0_wp  ! 8 bytes
         do i = 1,nStates
           if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-          allocate (Character(len=Len(Line)) :: dLine)
+          allocate (Character(len=len(Line)) :: dLine)
           dLine = Line
           iError = -1
           do while (iError < 0)
@@ -676,11 +676,11 @@ contains
     implicit none
     Character(len=:),allocatable,intent(InOut) :: DynLine
     Character(len=*),intent(In)                :: Line
-    Character(len=Len_Trim(DynLine))           :: Aux
+    Character(len=len_trim(DynLine))           :: Aux
     Aux = DynLine
     deallocate (DynLine)
-    allocate (Character(len=Len(Aux) + Len(Line) + 1) :: DynLine)
-    DynLine = Trim(Aux)//' '//Line
+    allocate (Character(len=len(Aux) + len(Line) + 1) :: DynLine)
+    DynLine = trim(Aux)//' '//Line
   end subroutine ExtendLine
 
   subroutine IOError(line)
