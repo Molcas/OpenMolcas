@@ -1,7 +1,3 @@
-> IF ( $MOLCAS_NPROCS != 1)
->   EXIT 36
-> ENDIF
-
 &GATEWAY
 coord
 4
