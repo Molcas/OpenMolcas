@@ -590,6 +590,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       E2act = 0.5d0*(ddot_(nBDT,Dma,1,FCNO(1,1),1)
      &      +        ddot_(nBDT,Dmb,1,FCNO(1,2),1))
+      Call GADSum(e2act,1)
 *
       If (DFTX) Then
          Erest_xc=Erest_xc-E2act
