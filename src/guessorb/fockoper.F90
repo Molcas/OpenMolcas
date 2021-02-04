@@ -28,175 +28,168 @@
 ! Written: Oct 2004                                                    *
 !                                                                      *
 !***********************************************************************
-      Subroutine FockOper(RC,Fock)
-      use GuessOrb_Global, only: Label, LenIn, LenIn1, LenIn8, MxAtom, Name, nBas, nNuc, nSym, xCharge
-      Implicit None
+
+subroutine FockOper(RC,Fock)
+
+use GuessOrb_Global, only: Label, LenIn, LenIn1, LenIn8, MxAtom, Name, nBas, nNuc, nSym, xCharge
+
+implicit none
 !----------------------------------------------------------------------*
 ! Parameters                                                           *
 !----------------------------------------------------------------------*
-      Integer MxComp
-      Parameter ( MxComp = 4 )
+integer MxComp
+parameter(MxComp=4)
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Real*8  Fock(*)
-      Integer RC
+real*8 Fock(*)
+integer RC
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Logical Debug
-      Logical Trace
-      Logical Found
-      Integer iSym
-      Integer iBas
-      Integer iOff
-      Integer iNuc
-      Integer nBasTot
-      Integer iUse(MxAtom,MxComp)
-      Integer nData
-      Integer i,k
-      Real*8  energy
+logical Debug
+logical Trace
+logical Found
+integer iSym
+integer iBas
+integer iOff
+integer iNuc
+integer nBasTot
+integer iUse(MxAtom,MxComp)
+integer nData
+integer i, k
+real*8 energy
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
-      Debug=.false.
-      Trace=.false.
-      If(Trace) Write(6,*) '>>> Entering fockoper'
-      RC=0
+Debug = .false.
+Trace = .false.
+if (Trace) write(6,*) '>>> Entering fockoper'
+RC = 0
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
 !----------------------------------------------------------------------*
-      nBasTot=0
-      Do iSym=1,nSym
-         nBasTot=nBasTot+nBas(iSym)
-      End Do
+nBasTot = 0
+do iSym=1,nSym
+  nBasTot = nBasTot+nBas(iSym)
+end do
 !----------------------------------------------------------------------*
 ! Is Fock operator on disk?                                            *
 !----------------------------------------------------------------------*
-      Call Qpg_dArray('Eorb',Found,nData)
-      If(Found) Then
-         Call Get_dArray('Eorb',Fock,nData)
-         If(Debug) Then
-            Write(6,*)
-            Write(6,*) 'Found Eorb'
-            Write(6,'(10F12.6)') (Fock(i),i=1,nData)
-            Write(6,*)
-         End If
-         If(.true.) Return
-      End If
-      If(.true.) Then
-         RC=1
-         return
-      End If
-      Write(6,*) '***'
-      Write(6,*) '*** Warning: using built in fock operator'
-      Write(6,*) '***'
+call Qpg_dArray('Eorb',Found,nData)
+if (Found) then
+  call Get_dArray('Eorb',Fock,nData)
+  if (Debug) then
+    write(6,*)
+    write(6,*) 'Found Eorb'
+    write(6,'(10F12.6)')(Fock(i),i=1,nData)
+    write(6,*)
+  end if
+  if (.true.) return
+end if
+if (.true.) then
+  RC = 1
+  return
+end if
+write(6,*) '***'
+write(6,*) '*** Warning: using built in fock operator'
+write(6,*) '***'
 !----------------------------------------------------------------------*
 ! Create model Fock operator.                                          *
 !----------------------------------------------------------------------*
-      iOff=0
-      Do iSym=1,nSym
-         If(Debug) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Symmetry',iSym
-            Write(6,*) '***'
-         End If
-         Do i=1,MxAtom
-            Do k=1,MxComp
-               iUse(i,k)=0
-            End Do
-         End Do
-         Do iBas=1,nBas(iSym)
-            iNuc=0
-            Do i=1,nNuc
-               If(Name(i).eq.Label(iBas+iOff)(1:LENIN)) iNuc=i
-            End Do
-            If(Debug) Then
-               Write(6,'(2(a,i3),3a,i3,f6.2)')                          &
-     &            'iSym:',iSym,' iBas:',iBas,                           &
-     &            ' = ',Label(iBas+iOff)(1:LENIN),                      &
-     &            Label(iBas+iOff)(LENIN1:LENIN8),                      &
-     &            iNuc,xCharge(iNuc)
-            End If
-            If(iNuc.eq.0) Then
-               Call SysAbendMsg('fockoper','Fatal','001')
-            End If
-            energy=0.0d0
-            If(Abs(xCharge(iNuc)-1.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s     ') Then
-                  iUse(iNuc,1)=iUse(iNuc,1)+1
-                  If(iUse(iNuc,1).eq.1) energy=-0.50000d0
-               End If
-            Else If(Abs(xCharge(iNuc)-3.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s     ') Then
-                  iUse(iNuc,1)=iUse(iNuc,1)+1
-                  If(iUse(iNuc,1).eq.1) energy=-2.47773d0
-                  If(iUse(iNuc,1).eq.2) energy=-0.19632d0
-               End If
-            Else If(Abs(xCharge(iNuc)-6.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s     ') Then
-                  iUse(iNuc,1)=iUse(iNuc,1)+1
-                  If(iUse(iNuc,1).eq.1) energy=-11.32554d0
-                  If(iUse(iNuc,1).eq.2) energy=-0.70563d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02px    ')   &
-     &         Then
-                  iUse(iNuc,2)=iUse(iNuc,2)+1
-                  If(iUse(iNuc,2).eq.1) energy=-0.43335d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02py    ')   &
-     &         Then
-                  iUse(iNuc,3)=iUse(iNuc,3)+1
-                  If(iUse(iNuc,3).eq.1) energy=-0.43335d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02pz    ')   &
-     &         Then
-                  iUse(iNuc,4)=iUse(iNuc,4)+1
-                  If(iUse(iNuc,4).eq.1) energy=-0.43335d0
-               End If
-            Else If(Abs(xCharge(iNuc)-7.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s ') Then
-                  iUse(iNuc,1)=iUse(iNuc,1)+1
-                  If(iUse(iNuc,1).eq.1) energy=-15.62909d0
-                  If(iUse(iNuc,1).eq.2) energy=-0.94531d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02px    ')   &
-     &         Then
-                  iUse(iNuc,2)=iUse(iNuc,2)+1
-                  If(iUse(iNuc,2).eq.1) energy=-0.56758d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02py    ')   &
-     &         Then
-                  iUse(iNuc,3)=iUse(iNuc,3)+1
-                  If(iUse(iNuc,3).eq.1) energy=-0.56758d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02pz    ')   &
-     &         Then
-                  iUse(iNuc,4)=iUse(iNuc,4)+1
-                  If(iUse(iNuc,4).eq.1) energy=-0.56758d0
-               End If
-            Else If(Abs(xCharge(iNuc)-8.0d0).lt.1.0d-3) Then
-               If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'01s ') Then
-                  iUse(iNuc,1)=iUse(iNuc,1)+1
-                  If(iUse(iNuc,1).eq.1) energy=-20.66866d0
-                  If(iUse(iNuc,1).eq.2) energy=-1.24433d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02px    ')   &
-     &         Then
-                  iUse(iNuc,2)=iUse(iNuc,2)+1
-                  If(iUse(iNuc,2).eq.1) energy=-0.63192d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02py    ')   &
-     &         Then
-                  iUse(iNuc,3)=iUse(iNuc,3)+1
-                  If(iUse(iNuc,3).eq.1) energy=-0.63192d0
-               Else If(Label(iBas+iOff)(LENIN1:LENIN8).eq.'02pz    ')   &
-     &         Then
-                  iUse(iNuc,4)=iUse(iNuc,4)+1
-                  If(iUse(iNuc,4).eq.1) energy=-0.63192d0
-               End If
-            Else
-               Call SysAbendMsg('fockoper','Fatal','002')
-            End If
-            Fock(iOff+iBas)=energy
-         End Do
-         iOff=iOff+nBas(iSym)
-      End Do
+iOff = 0
+do iSym=1,nSym
+  if (Debug) then
+    write(6,*) '***'
+    write(6,*) '*** Symmetry',iSym
+    write(6,*) '***'
+  end if
+  do i=1,MxAtom
+    do k=1,MxComp
+      iUse(i,k) = 0
+    end do
+  end do
+  do iBas=1,nBas(iSym)
+    iNuc = 0
+    do i=1,nNuc
+      if (Name(i) == Label(iBas+iOff)(1:LENIN)) iNuc = i
+    end do
+    if (Debug) then
+      write(6,'(2(a,i3),3a,i3,f6.2)') 'iSym:',iSym,' iBas:',iBas,' = ',Label(iBas+iOff)(1:LENIN),Label(iBas+iOff)(LENIN1:LENIN8), &
+                                      iNuc,xCharge(iNuc)
+    end if
+    if (iNuc == 0) then
+      call SysAbendMsg('fockoper','Fatal','001')
+    end if
+    energy = 0.0d0
+    if (abs(xCharge(iNuc)-1.0d0) < 1.0d-3) then
+      if (Label(iBas+iOff)(LENIN1:LENIN8) == '01s     ') then
+        iUse(iNuc,1) = iUse(iNuc,1)+1
+        if (iUse(iNuc,1) == 1) energy = -0.50000d0
+      end if
+    else if (abs(xCharge(iNuc)-3.0d0) < 1.0d-3) then
+      if (Label(iBas+iOff)(LENIN1:LENIN8) == '01s     ') then
+        iUse(iNuc,1) = iUse(iNuc,1)+1
+        if (iUse(iNuc,1) == 1) energy = -2.47773d0
+        if (iUse(iNuc,1) == 2) energy = -0.19632d0
+      end if
+    else if (abs(xCharge(iNuc)-6.0d0) < 1.0d-3) then
+      if (Label(iBas+iOff)(LENIN1:LENIN8) == '01s     ') then
+        iUse(iNuc,1) = iUse(iNuc,1)+1
+        if (iUse(iNuc,1) == 1) energy = -11.32554d0
+        if (iUse(iNuc,1) == 2) energy = -0.70563d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02px    ') then
+        iUse(iNuc,2) = iUse(iNuc,2)+1
+        if (iUse(iNuc,2) == 1) energy = -0.43335d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02py    ') then
+        iUse(iNuc,3) = iUse(iNuc,3)+1
+        if (iUse(iNuc,3) == 1) energy = -0.43335d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02pz    ') then
+        iUse(iNuc,4) = iUse(iNuc,4)+1
+        if (iUse(iNuc,4) == 1) energy = -0.43335d0
+      end if
+    else if (abs(xCharge(iNuc)-7.0d0) < 1.0d-3) then
+      if (Label(iBas+iOff)(LENIN1:LENIN8) == '01s ') then
+        iUse(iNuc,1) = iUse(iNuc,1)+1
+        if (iUse(iNuc,1) == 1) energy = -15.62909d0
+        if (iUse(iNuc,1) == 2) energy = -0.94531d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02px    ') then
+        iUse(iNuc,2) = iUse(iNuc,2)+1
+        if (iUse(iNuc,2) == 1) energy = -0.56758d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02py    ') then
+        iUse(iNuc,3) = iUse(iNuc,3)+1
+        if (iUse(iNuc,3) == 1) energy = -0.56758d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02pz    ') then
+        iUse(iNuc,4) = iUse(iNuc,4)+1
+        if (iUse(iNuc,4) == 1) energy = -0.56758d0
+      end if
+    else if (abs(xCharge(iNuc)-8.0d0) < 1.0d-3) then
+      if (Label(iBas+iOff)(LENIN1:LENIN8) == '01s ') then
+        iUse(iNuc,1) = iUse(iNuc,1)+1
+        if (iUse(iNuc,1) == 1) energy = -20.66866d0
+        if (iUse(iNuc,1) == 2) energy = -1.24433d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02px    ') then
+        iUse(iNuc,2) = iUse(iNuc,2)+1
+        if (iUse(iNuc,2) == 1) energy = -0.63192d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02py    ') then
+        iUse(iNuc,3) = iUse(iNuc,3)+1
+        if (iUse(iNuc,3) == 1) energy = -0.63192d0
+      else if (Label(iBas+iOff)(LENIN1:LENIN8) == '02pz    ') then
+        iUse(iNuc,4) = iUse(iNuc,4)+1
+        if (iUse(iNuc,4) == 1) energy = -0.63192d0
+      end if
+    else
+      call SysAbendMsg('fockoper','Fatal','002')
+    end if
+    Fock(iOff+iBas) = energy
+  end do
+  iOff = iOff+nBas(iSym)
+end do
 !----------------------------------------------------------------------*
 ! Done, deallocate the rest.                                           *
 !----------------------------------------------------------------------*
-      If(trace) Write(6,*) '<<< Exiting fockoper'
-      Return
-      End
+if (trace) write(6,*) '<<< Exiting fockoper'
+
+return
+
+end subroutine FockOper

@@ -25,7 +25,7 @@ call IEEE_Set_Halting_Mode(IEEE_Usual,.true._int32)
 #endif
 
 call Start('guessorb')
-call GuessOrb(rc)
+call GuessOrb(rc,.true.)
 call Finish(rc)
 
 end program Main

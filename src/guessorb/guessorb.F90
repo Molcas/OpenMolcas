@@ -10,7 +10,6 @@
 !                                                                      *
 ! Copyright (C) 2004, Per-Olof Widmark                                 *
 !***********************************************************************
-      subroutine guessorb(iReturn,StandAlone)
 !***********************************************************************
 !                                                                      *
 ! This program computes start orbitals for use in SCF/RASSCF etc.      *
@@ -27,54 +26,59 @@
 ! Implementation notes:                                                *
 !                                                                      *
 !***********************************************************************
-      use GuessOrb_Global, only: nSym
-      Implicit None
+
+subroutine guessorb(iReturn,StandAlone)
+
+use GuessOrb_Global, only: nSym
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-      Integer iReturn
-      Logical StandAlone
+integer iReturn
+logical StandAlone
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Integer iRC, iUHF
+integer iRC, iUHF
 !----------------------------------------------------------------------*
 ! Prologue                                                             *
 !----------------------------------------------------------------------*
-      iReturn=0
-      Call InitGO(StandAlone)
-      If(StandAlone) Call InpCtl_GuessOrb
+iReturn = 0
+call InitGO(StandAlone)
+if (StandAlone) call InpCtl_GuessOrb
 !----------------------------------------------------------------------*
 ! Select method to be used.                                            *
 !----------------------------------------------------------------------*
-      Call cre_gsswfn
-      Call FckByInt(iRC,StandAlone)
-!     If(iRC.eq.0) GoTo 999
-      If(.true.) GoTo 999
-      If(nSym.eq.1) Then
-         Call Fmod1n(StandAlone)
-      Else
-         Call Fmod1s(StandAlone)
-      End If
-999   Continue
-      Call cls_gsswfn
+call cre_gsswfn
+call FckByInt(iRC,StandAlone)
+!if (iRC == 0) GoTo 999
+if (.true.) goto 999
+if (nSym == 1) then
+  call Fmod1n(StandAlone)
+else
+  call Fmod1s(StandAlone)
+end if
+999 continue
+call cls_gsswfn
 !----------------------------------------------------------------------*
 ! Produce MOLDEN input                                                 *
 !----------------------------------------------------------------------*
-      iUHF=0
-      If (iRC.eq.0) then
-        Call Molden_Interface(iUHF,'GSSORB','MD_GSS')
-!        call grid_driver(-1,'SEWARD','GSSORB',iRc)
-      End If
+iUHF = 0
+if (iRC == 0) then
+  call Molden_Interface(iUHF,'GSSORB','MD_GSS')
+  !call grid_driver(-1,'SEWARD','GSSORB',iRc)
+end if
 !----------------------------------------------------------------------*
 ! Epilogue                                                             *
 !----------------------------------------------------------------------*
-      If(StandAlone) Then
-         Call FastIO('STATUS')
-      End If
-      iReturn=0
+if (StandAlone) then
+  call FastIO('STATUS')
+end if
+iReturn = 0
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine guessorb

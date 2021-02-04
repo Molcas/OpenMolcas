@@ -22,129 +22,134 @@
 ! Written: Oct 2004                                                    *
 !                                                                      *
 !***********************************************************************
-      Subroutine InpCtl_GuessOrb()
+
+subroutine InpCtl_GuessOrb()
+
 use GuessOrb_Global, only: GapThr, iPrFmt, LenIn, LenIn1, LenIn8, MxAtom, MxSym, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
-      Implicit None
+
+implicit none
 !----------------------------------------------------------------------*
 ! Parameters                                                           *
 !----------------------------------------------------------------------*
-      Character*15 myName
-      Parameter (myName='InpCtl_GuessOrb')
+character*15 myName
+parameter(myName='InpCtl_GuessOrb')
 !----------------------------------------------------------------------*
 ! Local data                                                           *
 !----------------------------------------------------------------------*
-      Logical       Trace
-      Character*180 Key, Line
-      Character*180 Get_Ln
-      External      Get_Ln
-      Integer       LuSpool
-      Integer       isFreeUnit
-      Integer       itmp
+logical Trace
+character*180 Key, Line
+character*180 Get_Ln
+external Get_Ln
+integer LuSpool
+integer isFreeUnit
+integer itmp
 !----------------------------------------------------------------------*
 ! External routines                                                    *
 !----------------------------------------------------------------------*
-      External      isFreeUnit
+external isFreeUnit
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
-      Trace=.false.
-      If(Trace) Write(6,*) '>>> Entering inpctl'
+Trace = .false.
+if (Trace) write(6,*) '>>> Entering inpctl'
 !----------------------------------------------------------------------*
 ! Process input                                                        *
 !----------------------------------------------------------------------*
-      LuSpool=17
-      LuSpool=isFreeUnit(LuSpool)
-      Call SpoolInp(LuSpool)
-      Call RdNLst(LuSpool,'GuessOrb')
+LuSpool = 17
+LuSpool = isFreeUnit(LuSpool)
+call SpoolInp(LuSpool)
+call RdNLst(LuSpool,'GuessOrb')
 
-  999 Continue
-      Key=Get_Ln(LuSpool)
-      Line=Key
-      Call UpCase(Line)
-      If (Line(1:4).eq.'NOMO') Go To  1000
-      If (Line(1:4).eq.'PRMO') Go To  1100
-      If (Line(1:4).eq.'PRPO') Go To  1200
-      If (Line(1:4).eq.'STHR') Go To  1300
-      If (Line(1:4).eq.'TTHR') Go To  1400
-      If (Line(1:4).eq.'GAPT') Go To  1500
-      If (Line(1:4).eq.'END ') Go To 99999
-      Write(6,*) myName,': unidentified key word  : ',Key
-      Write(6,*) myName,': internal representation: ',Line(1:4)
-      Call FindErrorLine
-      Call Quit_OnUserError()
+999 continue
+Key = Get_Ln(LuSpool)
+Line = Key
+call UpCase(Line)
+if (Line(1:4) == 'NOMO') Go To 1000
+if (Line(1:4) == 'PRMO') Go To 1100
+if (Line(1:4) == 'PRPO') Go To 1200
+if (Line(1:4) == 'STHR') Go To 1300
+if (Line(1:4) == 'TTHR') Go To 1400
+if (Line(1:4) == 'GAPT') Go To 1500
+if (Line(1:4) == 'END ') Go To 99999
+write(6,*) myName,': unidentified key word  : ',Key
+write(6,*) myName,': internal representation: ',Line(1:4)
+call FindErrorLine
+call Quit_OnUserError()
 !----------------------------------------------------------------------*
 ! NOMOs: skip printing of MOs, obsolete                                *
 !----------------------------------------------------------------------*
- 1000 Continue
-      Write(6,*) '******************************************'
-      Write(6,*) '******************************************'
-      Write(6,*) '***  OBSOLETE: do not use keyword NOMO ***'
-      Write(6,*) '******************************************'
-      Write(6,*) '******************************************'
-      Write(6,*)
-      PrintMOs=.False.
-      Go To 999
+1000 continue
+write(6,*) '******************************************'
+write(6,*) '******************************************'
+write(6,*) '***  OBSOLETE: do not use keyword NOMO ***'
+write(6,*) '******************************************'
+write(6,*) '******************************************'
+write(6,*)
+PrintMOs = .false.
+Go To 999
 !----------------------------------------------------------------------*
 ! PRMOs: MO print level.                                               *
 !----------------------------------------------------------------------*
- 1100 Continue
-      Line=Get_Ln(LuSpool)
-      Line(178:180)='5.0'
-      Call Put_Ln(Line)
-      Call Get_I1(1,itmp)
-      Call Get_F1(2,PrThr)
-      If(itmp.ge.4) Then
-         PrintMOs=.true.
-         PrintEor=.true.
-         iPrFmt=3
-      Else If(itmp.eq.3) Then
-         PrintMOs=.true.
-         PrintEor=.true.
-         iPrFmt=2
-      Else If(itmp.eq.2) Then
-         PrintMOs=.true.
-         PrintEor=.true.
-         iPrFmt=1
-      Else If(itmp.eq.1) Then
-         PrintMOs=.true.
-         PrintEor=.false.
-         iPrFmt=1
-      Else
-         PrintMOs=.False.
-         PrintEor=.false.
-      End If
-      Go To 999
+1100 continue
+Line = Get_Ln(LuSpool)
+Line(178:180) = '5.0'
+call Put_Ln(Line)
+call Get_I1(1,itmp)
+call Get_F1(2,PrThr)
+if (itmp >= 4) then
+  PrintMOs = .true.
+  PrintEor = .true.
+  iPrFmt = 3
+else if (itmp == 3) then
+  PrintMOs = .true.
+  PrintEor = .true.
+  iPrFmt = 2
+else if (itmp == 2) then
+  PrintMOs = .true.
+  PrintEor = .true.
+  iPrFmt = 1
+else if (itmp == 1) then
+  PrintMOs = .true.
+  PrintEor = .false.
+  iPrFmt = 1
+else
+  PrintMOs = .false.
+  PrintEor = .false.
+end if
+Go To 999
 !----------------------------------------------------------------------*
 ! PRPOpulation: Mulliken print level                                   *
 !----------------------------------------------------------------------*
- 1200 Continue
-      PrintPop=.true.
-      Go To 999
+1200 continue
+PrintPop = .true.
+Go To 999
 !----------------------------------------------------------------------*
 ! STHReshold: threshold for removing linear dependence, from S         *
 !----------------------------------------------------------------------*
- 1300 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F1(1,SThr)
-      Go To 999
+1300 continue
+Line = Get_Ln(LuSpool)
+call Get_F1(1,SThr)
+Go To 999
 !----------------------------------------------------------------------*
 ! TTHReshold: threshold for removing linear dependence, from T         *
 !----------------------------------------------------------------------*
- 1400 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F1(1,TThr)
-      Go To 999
+1400 continue
+Line = Get_Ln(LuSpool)
+call Get_F1(1,TThr)
+Go To 999
 !----------------------------------------------------------------------*
 ! GapThr: threshold for homo-lumo gap.                                 *
 !----------------------------------------------------------------------*
- 1500 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_F1(1,GapThr)
-      Go To 999
+1500 continue
+Line = Get_Ln(LuSpool)
+call Get_F1(1,GapThr)
+Go To 999
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-99999 Continue
-      If(Trace) Write(6,*) '<<< Exiting inpctl'
-      Return
-      End
+99999 continue
+if (Trace) write(6,*) '<<< Exiting inpctl'
+
+return
+
+end subroutine InpCtl_GuessOrb

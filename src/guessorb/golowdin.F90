@@ -23,177 +23,171 @@
 ! Written: Oct 2004                                                    *
 !                                                                      *
 !***********************************************************************
-      Subroutine goLowdin(CMO)
-      use GuessOrb_Global, only: nBas, nDel, nSym, SThr
-      Implicit None
+
+subroutine goLowdin(CMO)
+
+use GuessOrb_Global, only: nBas, nDel, nSym, SThr
+
+implicit none
 #include "stdalloc.fh"
 !----------------------------------------------------------------------*
 ! Dummy variables.                                                     *
 !----------------------------------------------------------------------*
-      Real*8 CMO(*)
+real*8 CMO(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Logical Debug
-      Logical Trace
-      Integer nBig
-      Integer nTot
-      Integer nTri
-      Integer nTriTot
-      Integer iSym
-      Integer iBas
-      Integer jBas
-      Integer kBas
-      Integer iOrb
-      Integer ipOvl(8)
-      Integer ipCMO
-      Integer npSmat
-      Integer irc
-      Integer iSymlb
-      Real*8 Temp, OrbPhase
-      Real*8, Dimension(:), Allocatable :: Ovl, SMat, Vec, Eig
-      Real*8, Dimension(:,:), Allocatable :: Tmp
+logical Debug
+logical Trace
+integer nBig
+integer nTot
+integer nTri
+integer nTriTot
+integer iSym
+integer iBas
+integer jBas
+integer kBas
+integer iOrb
+integer ipOvl(8)
+integer ipCMO
+integer npSmat
+integer irc
+integer iSymlb
+real*8 Temp, OrbPhase
+real*8, dimension(:), allocatable :: Ovl, SMat, Vec, Eig
+real*8, dimension(:,:), allocatable :: Tmp
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Debug=.false.
-      Trace=.false.
-      If(Trace) Write(6,*) '>>> Entering golowdin'
+Debug = .false.
+Trace = .false.
+if (Trace) write(6,*) '>>> Entering golowdin'
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      nBig=0
-      nTot=0
-      nTriTot=0
-      Do iSym=1,nSym
-         nTot=nTot+nBas(iSym)
-         nTriTot=nTriTot+nBas(iSym)*(nBas(iSym)+1)/2
-         If(nBig.lt.nBas(iSym)) nBig=nBas(iSym)
-      End Do
+nBig = 0
+nTot = 0
+nTriTot = 0
+do iSym=1,nSym
+  nTot = nTot+nBas(iSym)
+  nTriTot = nTriTot+nBas(iSym)*(nBas(iSym)+1)/2
+  if (nBig < nBas(iSym)) nBig = nBas(iSym)
+end do
 !----------------------------------------------------------------------*
 ! Get overlap matrix                                                   *
 !----------------------------------------------------------------------*
-      npSmat=nBig*nBig
-      Call mma_allocate(Ovl,nTriTot+4)
-      ipOvl(1)=1
-      Call mma_allocate(Smat,npSmat)
-      iSymlb=1
-      Call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
-      Do iSym=1,nSym-1
-         ipOvl(iSym+1)=ipOvl(iSym)+nBas(iSym)*(nBas(iSym)+1)/2
-      End Do
+npSmat = nBig*nBig
+call mma_allocate(Ovl,nTriTot+4)
+ipOvl(1) = 1
+call mma_allocate(Smat,npSmat)
+iSymlb = 1
+call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
+do iSym=1,nSym-1
+  ipOvl(iSym+1) = ipOvl(iSym)+nBas(iSym)*(nBas(iSym)+1)/2
+end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Call mma_allocate(Vec,nBig**2)
-      Call mma_allocate(Eig,nBig)
+call mma_allocate(Vec,nBig**2)
+call mma_allocate(Eig,nBig)
 
-      ipCMO=1
-      Do iSym=1,nSym
-         nTri=nBas(iSym)*(nBas(iSym)+1)/2
-         Call dCopy_(nTri,Ovl(ipOvl(iSym)),1,Smat,1)
-         If(Debug) Then
-            Write(6,*)
-            Write(6,*) '***'
-            Write(6,*) '*** lowdin: symmetry',iSym
-            Write(6,*) '***'
-            Write(6,*)
-            Call TriPrt('Overlap matrix','(12f18.12)',                  &
-     &                  Ovl(ipOvl(iSym)),nBas(iSym))
-         End If
-         Call FZero(Vec,nBas(iSym)**2)
-         Call DCopy_(nBas(iSym),[1.0D0],0,Vec,nBas(iSym)+1)
-         Call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
-!
-         Do iBas = 1, nBas(iSym)
-            temp=OrbPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
-         End Do
-!
-         If(Debug) Then
-            Call RecPrt('Transformation','(12f18.12)',                  &
-     &                  Vec,nBas(iSym),nBas(iSym))
-         End If
-         Call goPickUp(Ovl(ipOvl(iSym)),Eig,nBas(iSym))
-         If(Debug) Then
-            Call RecPrt('Overlap eigenvalues before sort','(12f18.12)', &
-     &         Eig,1,nBas(iSym))
-         End If
-         Do iBas=1,nBas(iSym)
-            Eig(iBas)=-Eig(iBas)
-         End Do
-         Call goSort(Eig,Vec,nBas(iSym),nBas(iSym))
-         Do iBas=1,nBas(iSym)
-            Eig(iBas)=-Eig(iBas)
-         End Do
-         If(Debug) Then
-            Call RecPrt('Overlap eigenvalues after sort','(12f18.12)',  &
-     &         Eig,1,nBas(iSym))
-         End If
-         nDel(iSym)=0
-         Do iBas=1,nBas(iSym)
-            If(Eig(iBas).lt.SThr) nDel(iSym)=nDel(iSym)+1
-         End Do
-         Do iBas=1,nBas(iSym)
-            Eig(iBas)=1.0d0/sqrt(Eig(iBas))
-         End Do
-         If(.false.) Then
-            Do iBas=1,nBas(iSym)
-               Do jBas=1,nBas(iSym)
-                  Temp=0.0d0
-                  Do kBas=1,nBas(iSym)
-                     Temp=Temp + Eig(kBas)                              &
-     &                        *Vec(nBas(iSym)*(kBas-1)+iBas)            &
-     &                        *Vec(nBas(iSym)*(kBas-1)+jBas)
-                  End Do
-                  CMO(ipCMO+nBas(iSym)*(jBas-1)+(iBas-1))=Temp
-               End Do
-            End Do
-         Else
-            Call dCopy_(nBas(iSym)*nBas(iSym),Vec,1,CMO(ipCMO),1)
-            Do iOrb=1,nBas(iSym)
-               Temp=Eig(iOrb)
-               Do iBas=1,nBas(iSym)
-                  CMO(ipCMO-1+iBas+nBas(iSym)*(iOrb-1))=                &
-     &               Temp*CMO(ipCMO-1+iBas+nBas(iSym)*(iOrb-1))
-               End Do
-            End Do
-         End If
-         If(Debug) Then
-            Call RecPrt('Symmetric orbitals','(12f18.12)',              &
-     &                  CMO(ipCMO),nBas(iSym),nBas(iSym))
-         End If
-         If(Debug) Then
-            Call mma_allocate(Tmp,nBas(iSym),nBas(iSym))
-            iSymlb=1
-            Call RdOne(irc,2,'Mltpl  0',1,Ovl(ipOvl(1)),iSymlb)
-            Do iBas=1,nBas(iSym)
-               Do jBas=1,nBas(iSym)
-                  Temp=0.0
-                  Do kBas=1,nBas(iSym)
-                     Temp=Temp+ CMO(ipCMO+nBas(iSym)*(kBas-1)+(iBas-1)) &
-     &                       *CMO(ipCMO+nBas(iSym)*(jBas-1)+(kBas-1))
-                  End Do
-                  Tmp(iBas,jBas)=Temp
-               End Do
-            End Do
-            Call RecPrt('Inverted overlap matrix','(12f18.12)',         &
-     &                  Tmp,nBas(iSym),nBas(iSym))
-            Call mma_deallocate(Tmp)
-         End If
-         ipCMO=ipCMO+nBas(iSym)*nBas(iSym)
-      End Do
+ipCMO = 1
+do iSym=1,nSym
+  nTri = nBas(iSym)*(nBas(iSym)+1)/2
+  call dCopy_(nTri,Ovl(ipOvl(iSym)),1,Smat,1)
+  if (Debug) then
+    write(6,*)
+    write(6,*) '***'
+    write(6,*) '*** lowdin: symmetry',iSym
+    write(6,*) '***'
+    write(6,*)
+    call TriPrt('Overlap matrix','(12f18.12)',Ovl(ipOvl(iSym)),nBas(iSym))
+  end if
+  call FZero(Vec,nBas(iSym)**2)
+  call DCopy_(nBas(iSym),[1.0d0],0,Vec,nBas(iSym)+1)
+  call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
 
+  do iBas=1,nBas(iSym)
+    temp = OrbPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
+  end do
 
-      Call mma_deallocate(Eig)
-      Call mma_deallocate(Vec)
+  if (Debug) then
+    call RecPrt('Transformation','(12f18.12)',Vec,nBas(iSym),nBas(iSym))
+  end if
+  call goPickUp(Ovl(ipOvl(iSym)),Eig,nBas(iSym))
+  if (Debug) then
+    call RecPrt('Overlap eigenvalues before sort','(12f18.12)',Eig,1,nBas(iSym))
+  end if
+  do iBas=1,nBas(iSym)
+    Eig(iBas) = -Eig(iBas)
+  end do
+  call goSort(Eig,Vec,nBas(iSym),nBas(iSym))
+  do iBas=1,nBas(iSym)
+    Eig(iBas) = -Eig(iBas)
+  end do
+  if (Debug) then
+    call RecPrt('Overlap eigenvalues after sort','(12f18.12)',Eig,1,nBas(iSym))
+  end if
+  nDel(iSym) = 0
+  do iBas=1,nBas(iSym)
+    if (Eig(iBas) < SThr) nDel(iSym) = nDel(iSym)+1
+  end do
+  do iBas=1,nBas(iSym)
+    Eig(iBas) = 1.0d0/sqrt(Eig(iBas))
+  end do
+  if (.false.) then
+    do iBas=1,nBas(iSym)
+      do jBas=1,nBas(iSym)
+        Temp = 0.0d0
+        do kBas=1,nBas(iSym)
+          Temp = Temp+Eig(kBas)*Vec(nBas(iSym)*(kBas-1)+iBas)*Vec(nBas(iSym)*(kBas-1)+jBas)
+        end do
+        CMO(ipCMO+nBas(iSym)*(jBas-1)+(iBas-1)) = Temp
+      end do
+    end do
+  else
+    call dCopy_(nBas(iSym)*nBas(iSym),Vec,1,CMO(ipCMO),1)
+    do iOrb=1,nBas(iSym)
+      Temp = Eig(iOrb)
+      do iBas=1,nBas(iSym)
+        CMO(ipCMO-1+iBas+nBas(iSym)*(iOrb-1)) = Temp*CMO(ipCMO-1+iBas+nBas(iSym)*(iOrb-1))
+      end do
+    end do
+  end if
+  if (Debug) then
+    call RecPrt('Symmetric orbitals','(12f18.12)',CMO(ipCMO),nBas(iSym),nBas(iSym))
+  end if
+  if (Debug) then
+    call mma_allocate(Tmp,nBas(iSym),nBas(iSym))
+    iSymlb = 1
+    call RdOne(irc,2,'Mltpl  0',1,Ovl(ipOvl(1)),iSymlb)
+    do iBas=1,nBas(iSym)
+      do jBas=1,nBas(iSym)
+        Temp = 0.0
+        do kBas=1,nBas(iSym)
+          Temp = Temp+CMO(ipCMO+nBas(iSym)*(kBas-1)+(iBas-1))*CMO(ipCMO+nBas(iSym)*(jBas-1)+(kBas-1))
+        end do
+        Tmp(iBas,jBas) = Temp
+      end do
+    end do
+    call RecPrt('Inverted overlap matrix','(12f18.12)',Tmp,nBas(iSym),nBas(iSym))
+    call mma_deallocate(Tmp)
+  end if
+  ipCMO = ipCMO+nBas(iSym)*nBas(iSym)
+end do
+
+call mma_deallocate(Eig)
+call mma_deallocate(Vec)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Call mma_deallocate(Smat)
-      Call mma_deallocate(Ovl)
+call mma_deallocate(Smat)
+call mma_deallocate(Ovl)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      If(Trace) Write(6,*) '<<< Exiting golowdin'
-      Return
-      End
+if (Trace) write(6,*) '<<< Exiting golowdin'
+
+return
+
+end subroutine goLowdin

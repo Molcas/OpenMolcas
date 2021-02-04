@@ -12,7 +12,6 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine goSort(EVal,EVec,n,nB)
 !***********************************************************************
 !                                                                      *
 !     purpose: Sort the set of eigenvalues and eigenvectors            *
@@ -40,32 +39,32 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      implicit none
-!
-      integer :: n, nB, i, j, k, l
-      real*8 :: Eval(n), EVec(nB,n), Swap
-!
+
+subroutine goSort(EVal,EVec,n,nB)
+
+implicit none
+integer :: n, nB, i, j, k, l
+real*8 :: Eval(n), EVec(nB,n), Swap
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-      Do 100 i = 1,n - 1
-         k = i
-         Do 110 j = i + 1, n
-            If (EVal(j).lt.EVal(k)) k = j
-110      Continue
-         If (k.ne.i) Then
-            Swap    = EVal(k)
-            EVal(k) = EVal(i)
-            EVal(i) = Swap
-            Do 120 l = 1, nB
-               Swap      =   EVec(l,k)
-               EVec(L,K) = - EVec(l,i)
-               EVec(L,I) =   Swap
-120         Continue
-         End If
-100   Continue
 
-      End
+do i=1,n-1
+  k = i
+  do j=i+1,n
+    if (EVal(j) < EVal(k)) k = j
+  end do
+  if (k /= i) then
+    Swap = EVal(k)
+    EVal(k) = EVal(i)
+    EVal(i) = Swap
+    do l=1,nB
+      Swap = EVec(l,k)
+      EVec(L,K) = -EVec(l,i)
+      EVec(L,I) = Swap
+    end do
+  end if
+end do
+
+end subroutine goSort

@@ -12,7 +12,6 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine goPickUp(Tri,Vec,n)
 !***********************************************************************
 !                                                                      *
 !     purpose: Pick up diagonal elements from triangular matrix and    *
@@ -38,27 +37,26 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      implicit none
-!
-      integer :: n, i, ij
-      Real*8 Tri(n*(n+1)/2),Vec(n)
-!
+
+subroutine goPickUp(Tri,Vec,n)
+
+implicit none
+
+integer :: n,i,ij
+real*8 Tri(n*(n+1)/2),Vec(n)
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-!
-!
-      ij = 0
-      Do i = 1, n
-         ij = ij + i
-         Vec(i) = Tri(ij)
-      End Do
-!
-!
+ij = 0
+do i=1,n
+  ij = ij+i
+  Vec(i) = Tri(ij)
+end do
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine goPickUp
