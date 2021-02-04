@@ -236,20 +236,6 @@ foreach (BASE_DIR ${basedirs})
 endforeach ()
 list (REVERSE basedirs)
 
-# set function to insert list
-#============================
-
-function (insert_before _list _item _new)
-  list (GET ${_item} 0 _first)
-  list (FIND ${_list} ${_first} _index)
-  if (_index GREATER -1)
-    list (INSERT ${_list} ${_index} ${_new})
-  else ()
-    list (APPEND ${_list} ${_new})
-  endif ()
-  set (${_list} ${${_list}} PARENT_SCOPE)
-endfunction ()
-
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
 
@@ -1638,7 +1624,7 @@ if (GA AND MPI)
   message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
   message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
 
-  list (APPEND EXTERNAL_LIBRARIES ${GA_LIBRARIES})
+  insert_before (EXTERNAL_LIBRARIES MPI_Fortran_LIBRARIES "${GA_LIBRARIES}")
 endif ()
 
 # Gromacs
