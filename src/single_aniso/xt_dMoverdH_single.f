@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine XT_dMoverdH_single( nss, nTempMagn, nT, nM,
-     &                                Tmin, Tmax, chit_exp, eso, T,
+     &                                Tmin, Tmax, XTexp, eso, T,
      &                                zJ, Xfield, EM, dM, sM,
      &                                XT_no_field, tinput, smagn, mem,
      &                                DoPlot )
@@ -25,7 +25,7 @@ c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Real(kind=8), intent(in) :: EM
       Real(kind=8), intent(in) :: eso(nss)
       Real(kind=8), intent(in) :: T(nT+nTempMagn)
-      Real(kind=8), intent(in) :: chit_exp(nT)
+      Real(kind=8), intent(in) :: XTexp(nT+nTempMagn)
       Real(kind=8), intent(in) :: XT_no_field( nT+nTempMagn )
       Complex(kind=8), intent(in) :: dM(3,nss,nss)
       Complex(kind=8), intent(in) :: sM(3,nss,nss)
@@ -122,7 +122,7 @@ cccc-------------------------------------------------------cccc
             Do iT=1,nT
                jT=iT+nTempMagn
                Write(6,'(2(A,i3,A,F12.6,2x))') 'T(',jT,')=',T(jT),
-     &                          ' chiT_exp(',iT,')=',chit_exp(iT)
+     &                          ' chiT_exp(',iT,')=',XTexp(jT)
            End Do
 
          Else
@@ -410,6 +410,7 @@ C -------------------------------------------------------------------
 C   WRITING SOME OF THE OUTPUT....
 C -------------------------------------------------------------------
       Write(6,*)
+      FLUSH(6)
       Write(6,'(A)') '----------------------------------------------'//
      &               '----------------------------|'
       Write(6,'(A)') '     |     T      | Statistical |   CHI*T     '//
@@ -426,6 +427,7 @@ C -------------------------------------------------------------------
       Write(6,'(A)') '-----|----------------------------------------'//
      &               '----------------------------|'
 
+      FLUSH(6)
       Do iT=1,nT
          jT=iT+nTempMagn
          Write(6,'(A,F11.6,A,E12.5,A,F12.8,A,F12.8,A,F12.7,A)')
@@ -434,17 +436,18 @@ C -------------------------------------------------------------------
       End Do
       Write(6,'(A)') '-----|----------------------------------------'//
      &               '----------------------------|'
+      FLUSH(6)
 
 c  calcualtion of the standard deviation:
       If (tinput) Then
          Write(6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',
      &          dev(  (nT-nTempMagn),
      &                     XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),
-     &                     chit_exp((1+nTempMagn):(nT+nTempMagn))  )
+     &                        XTexp((1+nTempMagn):(nT+nTempMagn))  )
          Write(6,'(a,5x, f20.14)') 'ST.DEV: X= M/H:',
      &          dev(  (nT-nTempMagn),
      &                     XTM_MH((1+nTempMagn):(nT+nTempMagn)),
-     &                   chit_exp((1+nTempMagn):(nT+nTempMagn))  )
+     &                      XTexp((1+nTempMagn):(nT+nTempMagn))  )
       Write(6,'(A)') '-----|----------------------------------------'//
      &               '----------------------------|'
       End If !tinput
@@ -453,31 +456,33 @@ c  calcualtion of the standard deviation:
 
 !-------------------------  PLOTs -------------------------------------!
       WRITE(label,'(A)') "with_field_M_over_H"
+      FLUSH(6)
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
-            Call plot_XT_with_Exp(label, nT-nTempMagn,
-     &                                     T((1+nTempMagn):(nT) ),
-     &                                XTM_MH((1+nTempMagn):(nT) ),
-     &                              chit_exp((1+nTempMagn):(nT) ), zJ )
+            Call plot_XT_with_Exp(label, nT,
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+     &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ),
+     &                       XTexp((1+nTempMagn):(nT+nTempMagn) ), zJ )
          ELSE
-            Call plot_XT_no_Exp(  label, nT-nTempMagn,
-     &                                     T((1+nTempMagn):(nT) ),
-     &                                XTM_MH((1+nTempMagn):(nT) ), zJ )
+            Call plot_XT_no_Exp(  label, nT,
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+     &                      XTM_MH((1+nTempMagn):(nT+nTempMagn) ), zJ )
          END IF
       END IF
 
 
       WRITE(label,'(A)') "with_field_dM_over_dH"
+      FLUSH(6)
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
-            Call plot_XT_with_Exp(label, nT-nTempMagn,
-     &                                     T((1+nTempMagn):(nT) ),
-     &                              XTM_dMdH((1+nTempMagn):(nT) ),
-     &                              chit_exp((1+nTempMagn):(nT) ), zJ )
+            Call plot_XT_with_Exp(label, nT,
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+     &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ),
+     &                       XTexp((1+nTempMagn):(nT+nTempMagn) ), zJ )
          ELSE
-            Call plot_XT_no_Exp(  label, nT-nTempMagn,
-     &                                     T((1+nTempMagn):(nT) ),
-     &                              XTM_dMdH((1+nTempMagn):(nT) ), zJ )
+            Call plot_XT_no_Exp(  label, nT,
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+     &                    XTM_dMdH((1+nTempMagn):(nT+nTempMagn) ), zJ )
          END IF
       END IF
 !------------------------- END PLOTs -------------------------------------!

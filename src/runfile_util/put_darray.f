@@ -348,6 +348,8 @@ c mess started here :)
          RecLab(189)='rDmp:S          '
          Reclab(190)='ESFS_SINGLEAU   '
          Reclab(191)='ESO_LOW         '
+         Reclab(192)='SFS_HAM         '
+         Reclab(193)='SFS_OVLP        '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

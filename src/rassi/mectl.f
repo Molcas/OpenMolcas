@@ -237,6 +237,8 @@ cnf
          Call Free_Work(iNucChg)
       End If
 cnf
+      CALL Put_dArray('SFS_HAM' ,HAM,NSTATE**2)
+      CALL Put_dArray('SFS_OVLP',OVLP,NSTATE**2)
 
       WRITE(6,*)
       RETURN

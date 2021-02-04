@@ -617,6 +617,9 @@ c compatibility with the present version: of aniso_i.input file
 
 
 
+
+
+
       Subroutine write_new_formatted_aniso(
      &                                  nss, nstate, multiplicity, eso,
      &                                  esfs, U, MM, MS, DM, angmom,
@@ -667,8 +670,6 @@ c compatibility with the present version: of aniso_i.input file
       !-------------------------------------------------------------
 
 
-
-
       !-------------------------------------------------------------
       ! prepare the szproj index table
       Call mma_allocate(szproj,nss,'szproj')
@@ -699,7 +700,6 @@ c compatibility with the present version: of aniso_i.input file
 
       FileName='ANISOFILE'
       Lu=IsFreeUnit(81)
-      !Call OpnFl(FileName,Lu,Exist)
 
       Call molcas_open(Lu,FileName)
 
@@ -709,7 +709,7 @@ c compatibility with the present version: of aniso_i.input file
       fmt_real='(5ES22.14,1x)'
       fmt_int='(40(I0,1x))'
 
-      WRITE(Lu,fmt_key) '#SINGLE_ANISO DATA FILE'
+      WRITE(Lu,fmt_key) '# OPENMOLCAS interface to ANISO'
       !-------------------------------------------------------------
       ! DATA FILE FORMAT VERSION:
       WRITE(Lu,fmt_key) '$format'
@@ -866,7 +866,7 @@ c compatibility with the present version: of aniso_i.input file
       ! Spin moment in the basis of SO states
       WRITE(Lu,fmt_key)  '$spin_xr'
       WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(MS(1,1:nss,1:nss))
+      WRITE(Lu,fmt_real) DBLE(MS(1,1:nss,1:nss))
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$spin_xi'
@@ -876,7 +876,7 @@ c compatibility with the present version: of aniso_i.input file
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$spin_yr'
       WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(MS(2,1:nss,1:nss))
+      WRITE(Lu,fmt_real) DBLE(MS(2,1:nss,1:nss))
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$spin_yi'
@@ -886,7 +886,7 @@ c compatibility with the present version: of aniso_i.input file
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$spin_zr'
       WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(MS(3,1:nss,1:nss))
+      WRITE(Lu,fmt_real) DBLE(MS(3,1:nss,1:nss))
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$spin_zi'
@@ -898,7 +898,7 @@ c compatibility with the present version: of aniso_i.input file
       ! Electric transition-dipole moments in the basis of SO states
       WRITE(Lu,fmt_key)  '$edipm_xr'
       WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(DM(1,1:nss,1:nss))
+      WRITE(Lu,fmt_real) DBLE(DM(1,1:nss,1:nss))
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$edipm_xi'
@@ -908,7 +908,7 @@ c compatibility with the present version: of aniso_i.input file
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$edipm_yr'
       WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(DM(2,1:nss,1:nss))
+      WRITE(Lu,fmt_real) DBLE(DM(2,1:nss,1:nss))
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$edipm_yi'
@@ -918,7 +918,7 @@ c compatibility with the present version: of aniso_i.input file
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$edipm_zr'
       WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(DM(3,1:nss,1:nss))
+      WRITE(Lu,fmt_real) DBLE(DM(3,1:nss,1:nss))
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       WRITE(Lu,fmt_key)  '$edipm_zi'
@@ -927,7 +927,7 @@ c compatibility with the present version: of aniso_i.input file
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       !-------------------------------------------------------------
-      ! Eigenvector of the HBO+SOC matrix
+      ! Eigenvectors of the HBO+SOC matrix
       WRITE(Lu,fmt_key)  '$eigenr'
       WRITE(Lu,fmt_int)  nss, nss
       WRITE(Lu,fmt_real) DBLE(U(1:nss,1:nss))
@@ -959,3 +959,4 @@ c compatibility with the present version: of aniso_i.input file
 
       Return
       End
+

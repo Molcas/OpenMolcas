@@ -652,7 +652,8 @@ C  read the input
          ! nM = nss
          Call XT_dMoverdH_single( nss, nTempMagn, nT, nss, Tmin, Tmax,
      &                            XTexp, ESO, T, zJ, Xfield, EM, MM, MS,
-     &                            XT_no_field, tinput, smagn, mem )
+     &                            XT_no_field, tinput, smagn, mem,
+     &                            DoPlot )
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit XT_dMoverdH_single'
       End If
 !----------------------------------------------------------------------|

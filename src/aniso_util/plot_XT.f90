@@ -283,7 +283,7 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-<<<<<<< HEAD
+!<<<<<<< HEAD
   INTEGER               :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
   LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)    :: line1, line2, lineOut, cdummy
@@ -291,13 +291,13 @@
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1024)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-=======
-  INTEGER           :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
-  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100):: line1, line2, cdummy
-  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
-  INTEGER, EXTERNAL :: AixRm
->>>>>>> upstream/master
+!=======
+!  INTEGER           :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+!  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+!  CHARACTER(LEN=100):: line1, line2, cdummy
+!  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
+!  INTEGER, EXTERNAL :: AixRm
+!>>>>>>> upstream/master
 
   StdOut=6
   iErr=0
