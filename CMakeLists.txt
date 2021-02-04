@@ -2561,6 +2561,7 @@ if (HDF5 AND HDF5_FOUND)
   foreach (prog
     caspt2
     dynamix
+    guessorb
     mcpdft
     nevpt2
     poly_aniso

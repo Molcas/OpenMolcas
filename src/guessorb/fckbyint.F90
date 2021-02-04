@@ -24,14 +24,13 @@
 !                                                                      *
 !***********************************************************************
       Subroutine FckByInt(iReturncode,StandAlone)
+      use GuessOrb_Global, only: GapThr, iPrFmt, Label, nBas, nDel, nSym, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
 #ifdef _HDF5_
+      use GuessOrb_Global, only: wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
       Use mh5, Only: mh5_put_dset
 #endif
-      Implicit Real*8 (a-h,o-z)
+      implicit none
 #include "stdalloc.fh"
-#include "Molcas.fh"
-#include "commgo.fh"
-#include "gsswfn.fh"
       Real*8, Dimension(:), Allocatable :: Fck, CMO, Ovl,               &
      &                                     T1, T2, T3, Eps
 !----------------------------------------------------------------------*
@@ -82,6 +81,11 @@
       Real*8  dActEl
       Integer nIsh(8)
       Integer nAsh(8)
+
+      integer :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
+      real*8 :: ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
+      real*8, external :: OrbPhase
+
 #ifdef _HDF5_
       Character(Len=1), Allocatable :: typestring(:)
 #endif

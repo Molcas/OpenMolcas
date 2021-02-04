@@ -29,10 +29,8 @@
 !                                                                      *
 !***********************************************************************
       Subroutine FockOper(RC,Fock)
+      use GuessOrb_Global, only: Label, LenIn, LenIn1, LenIn8, MxAtom, Name, nBas, nNuc, nSym, xCharge
       Implicit None
-#include "Molcas.fh"
-#include "WrkSpc.fh"
-#include "commgo.fh"
 !----------------------------------------------------------------------*
 ! Parameters                                                           *
 !----------------------------------------------------------------------*

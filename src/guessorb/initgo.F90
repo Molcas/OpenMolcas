@@ -23,10 +23,10 @@
 !                                                                      *
 !***********************************************************************
       Subroutine InitGO(StandAlone)
+      use GuessOrb_Global, only: GapThr, iPrFmt, Label, LenIn, LenIn1, LenIn8, MxAtom, MxSym, Name, nBas, nDel, nNuc, nOcc, nSym, &
+                                 nVir, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr, xCharge
       Implicit None
       Logical StandAlone
-#include "Molcas.fh"
-#include "commgo.fh"
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*

@@ -27,10 +27,9 @@
 !                                                                      *
 !***********************************************************************
       Subroutine Fmod1n(StandAlone)
+      use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
       Implicit None
-#include "Molcas.fh"
 #include "stdalloc.fh"
-#include "commgo.fh"
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*

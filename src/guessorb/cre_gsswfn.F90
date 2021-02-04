@@ -12,12 +12,10 @@
 !     SVC: Create a wavefunction file. If another .guessorb.h5 file already
 !     exists, it will be overwritten.
 #ifdef _HDF5_
+      use GuessOrb_global, only: nBas, nSym, wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
       use mh5, only: mh5_create_file, mh5_init_attr,                    &
      &               mh5_create_dset_real, mh5_create_dset_str
       implicit none
-#  include "Molcas.fh"
-#  include "commgo.fh"
-#  include "gsswfn.fh"
       integer :: nBasTot, nSqrTot, iSym
 
 !     create a new wavefunction file!
@@ -61,7 +59,7 @@
 !     molecular orbital occupation numbers
       wfn_occnum = mh5_create_dset_real(wfn_fileid,                     &
      &        'MO_OCCUPATIONS', 1, [nBasTot])
-      call mh5_init_attr(wfn_occnum, 'DESCRIPTION',
+      call mh5_init_attr(wfn_occnum, 'DESCRIPTION',                     &
      &        'Occupation numbers of the molecular orbitals '//         &
      &        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 !     molecular orbital energies
@@ -75,9 +73,9 @@
 
       subroutine cls_gsswfn
 #ifdef _HDF5_
+      use GuessOrb_global, only: wfn_fileid
       use mh5, only: mh5_close_file
       implicit none
-#  include "gsswfn.fh"
       call mh5_close_file(wfn_fileid)
 #endif
       end

@@ -24,10 +24,9 @@
 !                                                                      *
 !***********************************************************************
       Subroutine goLowdin(CMO)
+      use GuessOrb_Global, only: nBas, nDel, nSym, SThr
       Implicit None
-#include "Molcas.fh"
 #include "stdalloc.fh"
-#include "commgo.fh"
 !----------------------------------------------------------------------*
 ! Dummy variables.                                                     *
 !----------------------------------------------------------------------*

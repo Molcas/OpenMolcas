@@ -41,9 +41,10 @@
 !                                                                      *
 !***********************************************************************
 !
-      Implicit Real*8 (a-h,o-z)
+      implicit none
 !
-      Dimension EVal(n),EVec(nB,n)
+      integer :: n, nB, i, j, k, l
+      real*8 :: Eval(n), EVec(nB,n), Swap
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *

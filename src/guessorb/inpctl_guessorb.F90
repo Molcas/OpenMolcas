@@ -23,9 +23,8 @@
 !                                                                      *
 !***********************************************************************
       Subroutine InpCtl_GuessOrb()
+use GuessOrb_Global, only: GapThr, iPrFmt, LenIn, LenIn1, LenIn8, MxAtom, MxSym, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
       Implicit None
-#include "Molcas.fh"
-#include "commgo.fh"
 !----------------------------------------------------------------------*
 ! Parameters                                                           *
 !----------------------------------------------------------------------*
