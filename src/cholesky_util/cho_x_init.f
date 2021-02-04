@@ -67,32 +67,29 @@
 #include "chosp.fh"
 #include "choini.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Character*10 SecNam
-      Parameter (SecNam = 'Cho_X_Init')
+      Character(LEN=10), Parameter:: SecNam = 'Cho_X_Init'
 
 #if defined (_DEBUGPRINT_)
       Character*2 Unt
 #endif
 
-      Logical DidCholesky, FirstCall
+      Logical DidCholesky
+      Logical, Save:: FirstCall=.true.
       Logical isDF, isLocalDF, DoDummy
 
-      Integer ChoIsIni, ip, l
+      Integer ChoIsIni, l
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
-      Save FirstCall
-      Data FirstCall /.true./
+      Integer, Allocatable:: BkmDim(:)
 
 C     Register entry.
 C     ---------------
 
 #if defined (_DEBUGPRINT_)
-      Call GetMem('CXI_MX1','Max ','Real',ip_Max,l_Max)
+      Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt
@@ -293,13 +290,13 @@ C     ------------------------------------------------------
          nCol_BkmThr=0
       Else
          l=4
-         Call GetMem('BkmDim','Allo','Inte',ip,l)
-         Call Get_iArray('Cholesky BkmDim',iWork(ip),l)
-         nRow_BkmVec=iWork(ip)
-         nCol_BkmVec=iWork(ip+1)
-         nRow_BkmThr=iWork(ip+2)
-         nCol_BkmThr=iWork(ip+3)
-         Call GetMem('BkmDim','Free','Inte',ip,l)
+         Call mma_allocate(BkmDim,l,Label='BkmDim')
+         Call Get_iArray('Cholesky BkmDim',BkmDim,l)
+         nRow_BkmVec=BkmDim(1)
+         nCol_BkmVec=BkmDim(2)
+         nRow_BkmThr=BkmDim(3)
+         nCol_BkmThr=BkmDim(4)
+         Call mma_deallocate(BkmDim)
          If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
             Call mma_allocate(BkmVec,nRow_BkmVec,nCol_BkmVec,
@@ -476,7 +473,7 @@ C     =======
 
     1 Continue
 #if defined (_DEBUGPRINT_)
-      Call GetMem('CXI_MX2','Max ','Real',ip_Max,l_Max)
+      Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt

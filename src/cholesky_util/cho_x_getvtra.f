@@ -73,11 +73,12 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Integer, Allocatable:: ipVec(:,:)
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      ipVec(i,j) = iWork(ip_Vec-1+8*(j-1)+i)
 **************************************************
 
       MXUSD = 0
@@ -102,11 +103,11 @@ C--------------------------
 
 C --- define local pointers to the target arrays
 C ----------------------------------------------
-      Call GetMem('ip_Vec','Allo','Inte',ip_Vec,8*nDen)
+      Call mma_allocate(ipVec,8,nDen,Label='ipVec')
 
       Do jDen=kDen,nDen
          Do i=1,nSym
-            iWork(ip_Vec-1+8*(jDen-1)+i) = ipChoT(i,jDen)
+            ipVec(i,jDen) = ipChoT(i,jDen)
          End Do
       End do
 
@@ -119,8 +120,7 @@ C ===============================================
 
        Do While (jVec1.le.iVec2)
 
-        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,
-     &                 JNUM,IREDC,MUSED)
+        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED)
 
         MXUSD = MAX(MXUSD,MUSED)
 
@@ -132,7 +132,7 @@ C ===============================================
         jVref = JVEC1 - IVEC1 + 1
 
         Call cho_vTra(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,
-     &            IREDC,iSwap,nDen,kDen,ipMOs,nPorb,iWork(ip_Vec),iSkip)
+     &            IREDC,iSwap,nDen,kDen,ipMOs,nPorb,ipVec,iSkip)
 
         if (irc.ne.0) then
            return
@@ -148,7 +148,7 @@ C --------------------------------------------------------------------
           do iSymp=1,nSym
              iSymb=mulD2h(iSymp,ISYM)
              if(iSkip(iSymp).ne.0)then
-               iWork(ip_Vec-1+8*(jDen-1)+iSymp) = ipVec(iSymp,jDen)
+               ipVec(iSymp,jDen) = ipVec(iSymp,jDen)
      &                            + nPorb(iSymp,jDen)*nBas(iSymb)*JNUM
              endif
           end do
@@ -160,7 +160,7 @@ C --------------------------------------------------------------------
           do iSyma=1,nSym
              iSymq=mulD2h(iSyma,ISYM)
              if(iSkip(iSyma).ne.0)then
-               iWork(ip_Vec-1+8*(jDen-1)+iSyma) = ipVec(iSyma,jDen)
+               ipVec(iSyma,jDen) = ipVec(iSyma,jDen)
      &                           + nBas(iSyma)*nPorb(iSymq,jDen)*JNUM
              endif
           end do
@@ -183,7 +183,7 @@ C --------------------------------------------------------------------
        JNUM = NUMV
 
        Call cho_vTra(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,
-     &              iSwap,nDen,kDen,ipMOs,nPorb,iWork(ip_Vec),iSkip)
+     &              iSwap,nDen,kDen,ipMOs,nPorb,ipVec,iSkip)
 
         if (irc.ne.0) then
            return
@@ -192,7 +192,7 @@ C --------------------------------------------------------------------
 
       END IF
 
-      Call GetMem('ip_Vec','Free','Inte',ip_Vec,8*nDen)
+      Call mma_deallocate(ipVec)
 
       irc=0
 
