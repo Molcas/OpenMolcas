@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004, Per-Olof Widmark                                 *
-************************************************************************
-************************************************************************
-*                                                                      *
-* This routine initialize guessorb.                                    *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University                                             *
-*          Sweden                                                      *
-* Written: Oct 2004                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004, Per-Olof Widmark                                 *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine initialize guessorb.                                    *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University                                             *
+!          Sweden                                                      *
+! Written: Oct 2004                                                    *
+!                                                                      *
+!***********************************************************************
       Subroutine InitGO(StandAlone)
       Implicit None
       Logical StandAlone
 #include "Molcas.fh"
 #include "commgo.fh"
-*----------------------------------------------------------------------*
-* Local variables                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Local variables                                                      *
+!----------------------------------------------------------------------*
       Logical Debug
       Logical Trace
       Logical Found
@@ -38,20 +38,20 @@
       Integer iBas
       Integer iPrt
       Integer i
-*----------------------------------------------------------------------*
-* External entry points                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! External entry points                                                *
+!----------------------------------------------------------------------*
       Integer  iPrintLevel
       External iPrintLevel
-*----------------------------------------------------------------------*
-* Setup                                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Setup                                                                *
+!----------------------------------------------------------------------*
       Debug=.false.
       Trace=.false.
       If(Trace) Write(6,*) '>>> Entering initgo'
-*----------------------------------------------------------------------*
-* Set default for MO printing.                                         *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Set default for MO printing.                                         *
+!----------------------------------------------------------------------*
       iPrt=iPrintLevel(-1)
       If(iPrt.ge.4) Then
          PrintMOs=.true.
@@ -71,9 +71,9 @@
          PrintPop=.false.
          PrThr=5.0d0
       End If
-*----------------------------------------------------------------------*
-* Set other defaults.                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Set other defaults.                                                  *
+!----------------------------------------------------------------------*
       Call Qpg_dScalar('S delete thr',Found)
       If(Found) Then
          Call Get_dScalar('S delete thr',SThr)
@@ -89,9 +89,9 @@
          Call Put_dScalar('T delete thr',TThr)
       End If
       GapThr=0.01d0
-*----------------------------------------------------------------------*
-* Get basic data from runfile.                                         *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Get basic data from runfile.                                         *
+!----------------------------------------------------------------------*
       Call get_iscalar('nSym',nSym)
       Call get_iarray('nBas',nBas,nSym)
       Do iSym=1,MxSym
@@ -112,7 +112,7 @@
       End If
       Call get_iscalar('Unique Atoms',nNuc)
       If(nNuc.gt.MxAtom) Then
-         Call SysAbendMsg('initgo','Fatal:',
+         Call SysAbendMsg('initgo','Fatal:',                            &
      &                    'Too many atoms, increase MxAtom')
       End If
       Call get_carray('Unique Atom Names',Name,LENIN*nNuc)
@@ -125,15 +125,15 @@
          Write(6,'(a,8a4)')    'initgo: Name ',(Name(i),i=1,nNuc)
          Write(6,'(a)') 'initgo: Basis functions'
          Do iBas=1,nBasTot
-            Write(6,'(2a)') Label(iBas)(1:LENIN),
+            Write(6,'(2a)') Label(iBas)(1:LENIN),                       &
      &                      Label(iBas)(LENIN1:LENIN8)
          End Do
       End If
-*----------------------------------------------------------------------*
-* Done                                                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Done                                                                 *
+!----------------------------------------------------------------------*
       If(Trace) Write(6,*) '<<< Exiting initgo'
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_logical(StandAlone)
       End
