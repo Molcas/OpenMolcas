@@ -41,7 +41,7 @@
      &    iRlxRoot,NGROUP,NGROUPSTATE,                                  &
      &    IAD1M,IEOF1M,NELE3,NHOLE1,IFQCAN,                             &
      &    NLYROOT,NLYGROUP,                                             &
-     &    ZETA
+     &    ZETA,DWTYPE
       COMMON/INPI/MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
      &    NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,          &
      &    NRAS2(8),NRAS2T,NRAS3(8),NRAS3T,NASH(8),NAES(8),NASHT,        &
@@ -56,7 +56,7 @@
      &    iRlxRoot,NGROUP,NGROUPSTATE(MXSTATE),                         &
      &    IAD1M(64),IEOF1M,NELE3,NHOLE1,IFQCAN,                         &
      &    NLYROOT,NLYGROUP,                                             &
-     &    ZETA
+     &    ZETA,DWTYPE
       REAL*8        EPS,EPSI,EPSA,EPSE,                                 &
      &    EASUM,DENORM,SHIFT,                                           &
      &    SHIFTI,BSHIFT,ECOMM,E2CORR,E2TOT,RNORM,REFWGT

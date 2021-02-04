@@ -50,7 +50,7 @@ module InputData
     Logical(kind=iwp) :: AllRMult = .false.
     ! DWMS      use dynamical weighting to construct Fock
     Logical(kind=iwp) :: DWMS = .false.
-    Integer(kind=iwp) :: DWType = 3
+    Integer(kind=iwp) :: DWType = -1
     Integer(kind=iwp) :: ZETA = 50
     ! EFOC      uses rotated E_0 energies with DWMS
     Logical(kind=iwp) :: EFOC = .false.
