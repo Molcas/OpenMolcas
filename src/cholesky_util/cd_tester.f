@@ -79,8 +79,6 @@ C     ============
          Call xFlush(6)
       End If
 
-      l_Mat   = n*n
-      l_Vec   = n*n
       Call mma_allocate(Mat,n*n,Label='Mat')
       Call mma_allocate(Vec,n*n,Label='Vec')
 
@@ -194,7 +192,7 @@ C     ===========================
       SubRoutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
       use CDTHLP, only: Mat
 *     Implicit Real*8 (a-h,o-z)
-      Dimension Col(nDim,nCol), Buf(lBuf)
+      Real*8 Col(nDim,nCol), Buf(lBuf)
       Integer   iCol(nCol)
 
       Do i = 1,nCol
@@ -212,7 +210,7 @@ C Avoid unused argument warnings
       SubRoutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
       use CDTHLP, only: Vec
       Implicit Real*8 (a-h,o-z)
-      Dimension Buf(lBuf)
+      Real*8 Buf(lBuf)
 
       Character*13 SecNam
       Parameter (SecNam = 'CD_Tester_Vec')
