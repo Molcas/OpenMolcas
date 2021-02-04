@@ -52,8 +52,7 @@
 ! and remove Focktype.
       Hzero = input%Hzero
       if (Hzero.ne.'STANDARD'.and.Hzero.ne.'CUSTOM') then
-        call WarningMessage(2,
-     &   'invalid 0th-order Hamiltonian: '//TRIM(Hzero))
+        call WarningMessage(2,'invalid 0th-order Hamiltonian: '//TRIM(Hzero))
         call Quit_OnUserError
       end if
 
@@ -68,8 +67,7 @@
         end if
 ! If both Hzero and Focktype are not standard, quit
         if (Hzero.ne.'STANDARD') then
-          Call WarningMessage(2,'Requested combination of FOCKtype'//
-     &                          ' and HZERo not possible.')
+          Call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
           Call Quit_OnUserError
         end if
 ! IPEA different from zero only for standard Focktype
@@ -187,8 +185,7 @@
 ! This is the case for MS-CASPT2 and DW-CASPT2
       If (Input%MULT) Then
         If (Input%XMUL) Then
-          Call WarningMessage(2,'Keyword MULTistate cannot be used '//
-     &                          'together with keyword XMULtistate.')
+          Call WarningMessage(2,'Keyword MULTistate cannot be used '//'together with keyword XMULtistate.')
           Call Quit_OnUserError
         End If
 ! Either the states were specified manually or the keyword "all"
@@ -212,8 +209,7 @@
 ! This is the case for XMS-CASPT2 and XDW-CASPT2
       if (Input%XMUL) then
         if (Input%MULT) then
-          call WarningMessage(2,'Keyword XMULtistate cannot be used '//
-     &                          'together with keyword MULTistate.')
+          call WarningMessage(2,'Keyword XMULtistate cannot be used '//'together with keyword MULTistate.')
           call Quit_OnUserError
         end if
 ! This is a XDW-CASPT2 calculation. It is actually more similar to
@@ -257,8 +253,7 @@
         Do I=1,NSTATE
           Do J=I+1,NSTATE
             If (MSTATE(I).EQ.MSTATE(J)) Then
-             Call WarningMessage(2,'The same root cannot be used '//
-     &                             'twice in MULT/XMULT blocks.')
+             Call WarningMessage(2,'The same root cannot be used '//'twice in MULT/XMULT blocks.')
               Call Quit_OnUserError
             End If
           End Do
@@ -268,8 +263,7 @@
 ! used together with either MULT or XMUL keywords.
       If (Input%LROO) Then
         If (Input%MULT.OR.Input%XMUL) Then
-          Call WarningMessage(2,'Keyword LROO cannot be used together'//
-     &                          'with the MULT or XMUL keywords.')
+          Call WarningMessage(2,'Keyword LROO cannot be used together'//'with the MULT or XMUL keywords.')
           Call Quit_OnUserError
         End If
         NSTATE=1
@@ -399,8 +393,7 @@
       IFPROP = Input % Properties
       IFDENS = Input % DENS
       IFMIX  = .NOT.Input % NoMix
-      IFMSCOUP = (Input % MULT .OR. Input % XMUL)
-     &           .AND.(.NOT.Input % NoMult)
+      IFMSCOUP = (Input % MULT .OR. Input % XMUL).AND.(.NOT.Input % NoMult)
       IFXMS = Input % XMUL
       IFDW = Input % DWMS
 ! Set exponent for DWMS
@@ -411,8 +404,7 @@
       IFEFOCK = Input % EFOC
       if (Input % EFOC) then
         if (.not.(IFXMS.and.IFDW)) then
-          Call WarningMessage(2,'Keyword EFOCk can only be used'//
-     &                          'in (X)DW-CASPT2 calculations.')
+          Call WarningMessage(2,'Keyword EFOCk can only be used'//'in (X)DW-CASPT2 calculations.')
           Call Quit_OnUserError
         else
         end if
@@ -442,8 +434,7 @@
 !***********************************************************************
       If (Input%THRE) Then
         If (IPRGLB.GE.TERSE) THEN
-          Call WarningMessage(1,
-     &          'User modified linear dependency thresholds!')
+          Call WarningMessage(1,'User modified linear dependency thresholds!')
         End If
       End If
       THRSHN=Input%THRSHN
