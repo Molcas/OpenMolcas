@@ -138,12 +138,15 @@ General overview of the procedure with cmake (alternative 2)
 ------------------------------------------------------------
 
 CMake accepts two main flags for parallel installation, one to specify the
-use of parallelization :command:`-DMPI=ON`, and one to speficy an external GA
+use of parallelization :command:`-DMPI=ON`, and one to specify a "true" GA
 library :command:`-DGA=ON` instead of DGA (the default is :command:`-DGA=OFF`, meaning no
 external GA is used, so do not confuse the option ``-DGA`` which means "define GA"
-with DGA). When using the latter :command:`-DGA=ON` flag, make sure the :command:`GAROOT` environment
+with DGA). When using the latter :command:`-DGA=ON` flag, there are two further
+options: using a precompiled GA library or compile GA together with the rest of
+|molcas|. To use a precompiled GA, make sure the :command:`GAROOT` environment
 variable is exported and contains the path of the GA installation, before running
-cmake.
+cmake. To compile GA as part of molcas, use the flag :command:`-DGA_BUILD=ON` (in addition
+to :command:`-DGA=ON`)
 
 CMake will determine an appropriate MPI libary based on the compiler it finds, so in order
 to use a specific MPI library, just make sure the :variable:`CC` and :variable:`FC`
@@ -152,7 +155,7 @@ variables point to the correct MPI wrappers!
 The whole procedure is summarized below (square brackets showing optional commands): ::
 
   [export GAROOT=/path/to/external/GA]
-  [CC=/path/to/mpicc] [FC=/path/to/mpifort] cmake -DMPI=ON [-DGA=ON] /path/to/molcas
+  [CC=/path/to/mpicc] [FC=/path/to/mpifort] cmake -DMPI=ON [-DGA=ON [-DGA_BUILD=ON]] /path/to/molcas
   make [-j4]
 
 Running |molcas| in parallel

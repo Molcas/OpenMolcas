@@ -278,12 +278,12 @@ important options.
   and may give wrong results in some cases.
 * ``CMAKE_INSTALL_PREFIX`` --- Specify the directory where |molcas| will be installed when running
   :command:`make install`.
+* ``MPI`` --- (``ON``/``OFF``): Enable multi-process parallelization.
 * ``GA`` --- (``ON``/``OFF``): Enable interface with Global Arrays (see :numref:`sec:parallel_installation`).
 * ``HDF5`` --- (``ON``/``OFF``): Enable HDF5 files (portable binary format) in some programs.
 * ``LINALG`` --- (``Internal``/``Runtime``/``MKL``/``ACML``/``OpenBLAS``): Select the linear algebra library (BLAS + LAPACK)
   against which to link |molcas|. ``Internal`` uses the default (and slow) Netlib version included with |molcas|. ``Runtime``
   (experimental) offers the possibility of choosing the library at run time.
-* ``MPI`` --- (``ON``/``OFF``): Enable multi-process parallelization.
 * ``OPENMP`` --- (``ON``/``OFF``): Enable multi-thread parallelization (usually restricted to using
   a multi-threaded version of linear algebra libraries.
 * ``TOOLS`` --- (``ON``/``OFF``): Compile the tools that have CMake support.

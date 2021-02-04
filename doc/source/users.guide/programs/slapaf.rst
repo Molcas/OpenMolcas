@@ -421,11 +421,10 @@ Optional optimization procedure keywords
 
 .. class:: keywordlist
 
-  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="OP" APPEAR="Optimization options" LEVEL="BASIC">
-
 :kword:`NOLIne`
   Disable line search. Default is to use line search for minima.
 
+  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="OP" APPEAR="Optimization options" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOLINE" APPEAR="Deactivate line-search" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Noline <basic>
@@ -642,10 +641,10 @@ Optional optimization procedure keywords
 
   .. xmldoc:: </GROUP>
 
-  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
-
 :kword:`MEP-search` or :kword:`MEP`
   Enable a minimum energy path (MEP) search.
+
+  .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" LEVEL="BASIC" ALSO="MEP">
               %%Keyword: MEP-search <basic>

@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2020, Ignacio Fdez. Galván                        *
+#               2014-2021, Ignacio Fdez. Galván                        *
 #               2015, Stefan Knecht                                    *
 #               2020, Gerardo Raggi                                    *
 #***********************************************************************
@@ -19,10 +19,14 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Gerardo Raggi - AppleClang
 
-project (OpenMolcas Fortran C)
-
 cmake_minimum_required (VERSION 3.12)
-cmake_policy (VERSION 3.12)
+cmake_policy (VERSION 3.12...3.13)
+
+project (OpenMolcas
+         LANGUAGES Fortran C
+         VERSION ""
+)
+
 #set (CMAKE_VERBOSE_MAKEFILE ON)
 
 include (${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
@@ -85,12 +89,17 @@ endif ()
 
 option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
+if (GA)
+  mark_as_advanced (CLEAR GA_BUILD)
+else ()
+  mark_as_advanced (FORCE GA_BUILD)
+endif ()
 
 option (OPENMP "Enable multi-threading." OFF)
 
 option (BOUNDS "Enable bounds checking (only GNU Fortran)." OFF)
 
-option (EXPERT "Show advanced CMake cache entries in GUI)." OFF)
+option (EXPERT "Show advanced compiler flags in CMake GUI)." OFF)
 
 option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
 
@@ -132,15 +141,16 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
 endif ()
 
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
 option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
 option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
-option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
-option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
-option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
+option (GA_BUILD   "Build Global Arrays (requires External/ga submodule)."                                      OFF)
+option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
+option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
+option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
+option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
+option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
 
 ################################################################################
 #                                                                              #
@@ -225,20 +235,6 @@ foreach (BASE_DIR ${basedirs})
   list (APPEND source_roots ${source_roots_tmp})
 endforeach ()
 list (REVERSE basedirs)
-
-# set function to insert list
-#============================
-
-function (insert_before _list _item _new)
-  list (GET ${_item} 0 _first)
-  list (FIND ${_list} ${_first} _index)
-  if (_index GREATER -1)
-    list (INSERT ${_list} ${_index} ${_new})
-  else ()
-    list (APPEND ${_list} ${_new})
-  endif ()
-  set (${_list} ${${_list}} PARENT_SCOPE)
-endfunction ()
 
 # get version from git if available, otherwise look in .molcasversion
 #====================================================================
@@ -398,6 +394,11 @@ endif ()
 set (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+# location for external projects (git submodules)
+#================================================
+
+set (extprojsdir "${OPENMOLCAS_DIR}/External")
+
 # global include directory
 #=========================
 
@@ -460,7 +461,7 @@ endif ()
 
 if (NOT PLATFORM)
   if (DEFINED EXTRA_DIR)
-    message (WARNING "unsupported platform")
+    message (WARNING "Unsupported platform.")
   endif ()
 else ()
   message ("-- PLATFORM: ${PLATFORM}")
@@ -536,7 +537,7 @@ set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "4.8")
-  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler")
+  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler.")
 endif ()
 
 # Add runtime checks
@@ -654,7 +655,7 @@ set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
     CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
-  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler")
+  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler.")
 endif ()
 
 # Intel versions prior to 15 used -openmp
@@ -1034,68 +1035,6 @@ if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
 endif ()
 get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
-# Global Arrays settings
-#=======================
-
-# Global Arrays settings, non-portable!
-if (GA AND MPI)
-  message ("Configuring with external GA library:")
-
-  find_path (GA_INCLUDE_PATH ga.h
-    PATHS ENV GAROOT
-    PATH_SUFFIXES include
-    NO_DEFAULT_PATH
-  )
-  if (NOT GA_INCLUDE_PATH)
-    message (FATAL_ERROR "GA_INCLUDE_PATH not found, make sure GAROOT environment variable is set.")
-  endif ()
-  find_library (LIBGA ga
-    PATHS ENV GAROOT
-    PATH_SUFFIXES lib
-    NO_DEFAULT_PATH
-  )
-  if (NOT LIBGA)
-    message (FATAL_ERROR "LIBGA not found, make sure GAROOT environment variable is set.")
-  else ()
-    list (APPEND GA_LIBRARIES ${LIBGA})
-  endif ()
-  find_library (LIBARMCI armci
-    PATHS ENV GAROOT
-    PATH_SUFFIXES lib
-    NO_DEFAULT_PATH
-  )
-  if (NOT LIBARMCI)
-    message (FATAL_ERROR "LIBARMCI not found, make sure GAROOT environment variable is set.")
-  else ()
-    list (APPEND GA_LIBRARIES ${LIBARMCI})
-  endif ()
-  # Hackish: try to find out if ARMCI needs IBVERBS by looking for ibv_open_device
-  execute_process (
-    COMMAND "nm" "${LIBARMCI}"
-    COMMAND "grep" "-iq" "ibv_open_device"
-    RESULT_VARIABLE FAILURE
-  )
-  if (FAILURE)
-    message ("-> no libibverbs dependency found for GA.")
-  else ()
-    message ("-> detected ibverbs dependency for GA.")
-    find_library (LIBIBVERBS ibverbs)
-    if (NOT LIBARMCI)
-      message (WARNING "LIBIBVERBS not found, but probably needed by GA.")
-    else ()
-      list (APPEND GA_LIBRARIES ${LIBIBVERBS})
-    endif ()
-  endif ()
-
-  add_compile_definitions (_GA_)
-  include_directories (${GA_INCLUDE_PATH})
-
-  message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
-  message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
-
-  list (APPEND EXTERNAL_LIBRARIES ${GA_LIBRARIES})
-endif ()
-
 # Parallel settings
 #==================
 
@@ -1176,7 +1115,7 @@ if (LINALG STREQUAL "MKL")
 
   # quick bypass for 32bit, don't bother with it (for now?)
   if (NOT ADDRMODE EQUAL 64)
-    message (FATAL_ERROR "Use of MKL for 32bit installation not implemented")
+    message (FATAL_ERROR "Use of MKL for 32bit installation not implemented.")
   endif ()
 
   mark_as_advanced (CLEAR MKLROOT)
@@ -1291,7 +1230,7 @@ if (LINALG STREQUAL "MKL")
 
   # generate actual library list with paths
   if (MPI)
-    add_compile_definitions (SCALAPACK)
+    add_compile_definitions (_SCALAPACK_)
     list (APPEND MKL_LIBRARIES ${LIBMKL_SCALAPACK})
   endif ()
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
@@ -1517,7 +1456,7 @@ if (CUBLAS OR NVBLAS)
     list (APPEND CUDA_LIBRARIES ${LIBCUBLAS})
   else ()
     if (NOT LINALG)
-      message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or ACML")
+      message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or ACML.")
     endif ()
     find_library (LIBNVBLAS nvblas
       PATHS ${CUDAROOT}
@@ -1538,6 +1477,154 @@ if (CUBLAS OR NVBLAS)
   list (APPEND EXTERNAL_LIBRARIES ${CUDA_LIBRARIES})
 else ()
   mark_as_advanced (FORCE CUDAROOT)
+endif ()
+
+# Global Arrays settings
+#=======================
+
+if (GA AND MPI)
+  # Build from source
+  if (GA_BUILD)
+    message ("Configuring built-in Global Arrays library:")
+
+    set (proj ${extprojsdir}/ga)
+    set (proj_bin ${PROJECT_BINARY_DIR}/External/ga)
+    if (EXISTS ${proj}/CMakeLists.txt)
+      # set default GA options when built from OpenMolcas
+      # and hide them from the OpenMolcas CMake GUI
+      make_internal (ENABLE_FORTRAN               ON)
+      make_internal (ENABLE_CXX                   OFF)
+      make_internal (ENABLE_TESTS                 OFF)
+      if (ADDRMODE EQUAL 64)
+        make_internal (ENABLE_I8                  ON)
+        make_internal (LINALG_REQUIRED_COMPONENTS ilp64)
+      else ()
+        make_internal (ENABLE_I8                  OFF)
+        make_internal (LINALG_REQUIRED_COMPONENTS lp64)
+      endif ()
+      if (LINALG STREQUAL "MKL")
+        make_internal (ENABLE_BLAS                ON)
+        make_internal (LINALG_VENDOR              IntelMKL)
+        make_internal (LINALG_PREFIX              ${MKLROOT})
+      elseif (LINALG STREQUAL "OpenBLAS")
+        make_internal (ENABLE_BLAS                ON)
+        make_internal (LINALG_VENDOR              OpenBLAS)
+        make_internal (LINALG_PREFIX              ${OPENBLASROOT})
+      elseif (";Internal;Runtime;" MATCHES ";${LINALG};")
+        message (FATAL_ERROR "GA_BUILD requires an external LINALG library.")
+      else ()
+        message (FATAL_ERROR "GA_BUILD: unsupported LINALG: ${LINALG}")
+      endif ()
+
+      add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
+
+      # hide other variables set by GA
+      if (LINALG STREQUAL "MKL")
+        make_internal (IntelMKL_CORE_LIBRARY)
+        make_internal (IntelMKL_ILP64_BLACS_LIBRARY)
+        make_internal (IntelMKL_ILP64_LIBRARY)
+        make_internal (IntelMKL_ILP64_ScaLAPACK_LIBRARY)
+        make_internal (IntelMKL_INCLUDE_DIR)
+        make_internal (IntelMKL_LP64_BLACS_LIBRARY)
+        make_internal (IntelMKL_LP64_LIBRARY)
+        make_internal (IntelMKL_LP64_ScaLAPACK_LIBRARY)
+        make_internal (IntelMKL_THREAD_LIBRARY)
+      elseif (LINALG STREQUAL "OpenBLAS")
+        make_internal (OpenBLAS_INCLUDE_DIR)
+        make_internal (OpenBLAS_LIBRARIES)
+      endif ()
+      make_internal (CHECK_COMPILATION_ONLY)
+      make_internal (COMEX_NETWORK_MPI3)
+      make_internal (COMEX_NETWORK_MPI_MT)
+      make_internal (COMEX_NETWORK_MPI_PR)
+      make_internal (COMEX_NETWORK_MPI_PT)
+      make_internal (COMEX_NETWORK_MPI_TS)
+      make_internal (ENABLE_ARMCI_MEM_OPTION)
+      make_internal (F2C_HIDDEN_STRING_LENGTH_AFTER_ARGS)
+      make_internal (GLOBALARRAYS_TEST_TIMEOUT)
+      make_internal (MPI_TS)
+      make_internal (MSG_COMMS_MPI)
+
+      set (GA_INCLUDE_PATH ${proj_bin}/inc)
+      set (GA_LIBRARIES ga armci)
+      list (APPEND EXTRA_INSTALL_TARGETS ${GA_LIBRARIES})
+
+      # Since we are not "installing" the target, we have to find the include files
+      file (COPY ${proj}/global/src/ga.h          DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj}/global/src/gacommon.h    DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj}/ma/macommon.h            DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj}/pario/eaf/eaf.h          DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj}/pario/eaf/eaf.fh         DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj_bin}/global/src/global.fh DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj_bin}/ma/mafdecls.fh       DESTINATION ${GA_INCLUDE_PATH})
+      file (COPY ${proj_bin}/gaf2c/typesf2c.h     DESTINATION ${GA_INCLUDE_PATH})
+
+    else ()
+      # Note: initial space causes line not to break in output
+      message (FATAL_ERROR " Global Arrays sources not available, run \"${GIT} submodule update --init ${proj}\"")
+    endif ()
+
+  # External precompiled GA library
+  else ()
+    message ("Configuring external Global Arrays library:")
+
+    find_path (GA_INCLUDE_PATH ga.h
+      PATHS ENV GAROOT
+      PATH_SUFFIXES include include/ga
+      NO_DEFAULT_PATH
+    )
+    if (NOT GA_INCLUDE_PATH)
+      message (FATAL_ERROR "GA_INCLUDE_PATH not found, make sure GAROOT environment variable is set.")
+    endif ()
+    find_library (LIBGA ga
+      PATHS ENV GAROOT
+      PATH_SUFFIXES lib
+      NO_DEFAULT_PATH
+    )
+    if (NOT LIBGA)
+      message (FATAL_ERROR "LIBGA not found, make sure GAROOT environment variable is set.")
+    else ()
+      list (APPEND GA_LIBRARIES ${LIBGA})
+    endif ()
+    find_library (LIBARMCI armci
+      PATHS ENV GAROOT
+      PATH_SUFFIXES lib
+      NO_DEFAULT_PATH
+    )
+    if (NOT LIBARMCI)
+      message (FATAL_ERROR "LIBARMCI not found, make sure GAROOT environment variable is set.")
+    else ()
+      list (APPEND GA_LIBRARIES ${LIBARMCI})
+    endif ()
+    # Hackish: try to find out if ARMCI needs IBVERBS by looking for ibv_open_device
+    execute_process (
+      COMMAND "nm" "${LIBARMCI}"
+      COMMAND "grep" "-iq" "ibv_open_device"
+      RESULT_VARIABLE FAILURE
+    )
+    if (FAILURE)
+      message ("-> no libibverbs dependency found for GA.")
+    else ()
+      message ("-> detected ibverbs dependency for GA.")
+      find_library (LIBIBVERBS ibverbs)
+      if (NOT LIBARMCI)
+        message (WARNING "LIBIBVERBS not found, but probably needed by GA.")
+      else ()
+        list (APPEND GA_LIBRARIES ${LIBIBVERBS})
+      endif ()
+    endif ()
+    set (GA_FOUND TRUE)
+  endif ()
+
+  # Final common settings
+
+  add_compile_definitions (_GA_)
+  include_directories (${GA_INCLUDE_PATH})
+
+  message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
+  message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
+
+  insert_before (EXTERNAL_LIBRARIES MPI_Fortran_LIBRARIES "${GA_LIBRARIES}")
 endif ()
 
 # Gromacs
@@ -1562,7 +1649,7 @@ if (GROMACS)
   endif ()
 
   # The lib directory is set by Gromacs
-  if (DEFINED ENV{GMXLDLIB})
+  if (DEFINED ENV{GMXLDLIB} AND NOT GROMACS_DIR)
     set (GMX_LIBDIR $ENV{GMXLDLIB})
   else ()
     set (GMX_LIBDIR "${GROMACS_DIR}/lib")
@@ -1659,12 +1746,12 @@ if (CHEMPS2)
   message ("Configuring CheMPS2-DMRG support:")
 
   if (NOT HDF5)
-    message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5")
+    message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5.")
   endif ()
 
   find_program (CHEMPS2_EXE chemps2)
   if (NOT CHEMPS2_EXE)
-    message (WARNING "No CheMPS2 installation found, you will have to make sure it is available at run time")
+    message (WARNING "No CheMPS2 installation found, you will have to make sure it is available at run time.")
   endif ()
 
   foreach (prog
@@ -1797,8 +1884,6 @@ if (BIGOT AND CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
 endif ()
 include_directories (${MAIN_MOD_DIR})
 
-set (extprojsdir "${OPENMOLCAS_DIR}/External")
-
 if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
   set (proj ${extprojsdir}/lapack)
   if (EXISTS ${proj}/BLAS/SRC/ddot.f)
@@ -1816,13 +1901,14 @@ if (MSYM)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/libmsym)
   if (EXISTS ${proj}/CMakeLists.txt)
     set (MSYM_FOUND ON)
+
+    # set and hide from the OpenMolcas CMake GUI
+    make_internal (MSYM_BUILD_EXAMPLES OFF)
+    make_internal (MSYM_BUILD_PYTHON   OFF)
     add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
-    # hide from the OpenMolcas CMake GUI
-    set (MSYM_BUILD_EXAMPLES OFF CACHE INTERNAL "Build example executables" FORCE)
-    set (MSYM_BUILD_PYTHON   OFF CACHE INTERNAL "Build python binding"      FORCE)
-    set (INSTALL_LIB_DIR     ${INSTALL_LIB_DIR}     CACHE INTERNAL "Installation directory for msym library." FORCE)
-    set (INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR} CACHE INTERNAL "Installation directory for header files." FORCE)
-    set (INSTALL_CMAKE_DIR   ${INSTALL_CMAKE_DIR}   CACHE INTERNAL "Installation directory for CMake files."  FORCE)
+    make_internal (INSTALL_LIB_DIR)
+    make_internal (INSTALL_INCLUDE_DIR)
+    make_internal (INSTALL_CMAKE_DIR)
 
     set (MSYM_INCLUDE ${proj}/src ${proj_bin})
     set (MSYM_LIBRARIES msym)
@@ -1914,12 +2000,12 @@ if (NECI)
   if (EXISTS ${proj}/CMakeLists.txt)
     # set default NECI options when built from OpenMolcas
     # and hide them from the OpenMolcas CMake GUI
-    set (ENABLE_MOLCAS ON CACHE INTERNAL "Enable Molcas interface.")
-    set (ENABLE_HDF5 ON CACHE INTERNAL "Enable HDF5 popsfiles.")
-    set (WARNINGS OFF CACHE INTERNAL "Enable lots of compile warnings.")
-    set (ENABLE_SHARED_MEMORY ON CACHE INTERNAL "Enable shared memory.")
-    set (ENABLE_SHARED ON CACHE INTERNAL "Enable shared libraries.")
-    # set (ENABLE_BUILD_HDF5 OFF CACHE INTERNAL "Provide precompiled HDF5.")
+    make_internal (ENABLE_MOLCAS        ON)
+    make_internal (ENABLE_HDF5          ON)
+    make_internal (WARNINGS             OFF)
+    make_internal (ENABLE_SHARED_MEMORY ON)
+    make_internal (ENABLE_SHARED        ON)
+    # make_internal (ENABLE_BUILD_HDF5    OFF)
 
     list (APPEND rasscf_defs "_NECI_")
     add_subdirectory (${proj} ${proj_bin} EXCLUDE_FROM_ALL)
@@ -1954,20 +2040,20 @@ if (EFPLIB)
     # Enabling source changes to keep ExternalProject happy
     set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ExternalProject_Add (${projname}
-      PREFIX ${PROJECT_BINARY_DIR}/External
-      SOURCE_DIR ${proj}
-      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}
-                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                 -DCMAKE_INSTALL_LIBDIR=lib
-                 -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-                 -DENABLE_OPENMP=OFF  # OMP already in CMAKE_C_FLAGS
-                 -DFRAGLIB_UNDERSCORE_L=ON
-                 -DFRAGLIB_DEEP=ON
-                 -DLAPACK_LIBRARIES=${LINALG_LIBRARIES}
-      CMAKE_CACHE_ARGS -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
-                       -DLIBEFP_FORTRAN_INT64:BOOL=${LIBEFP_FORTRAN_INT64}
-      INSTALL_COMMAND ""
+                         PREFIX ${PROJECT_BINARY_DIR}/External
+                         SOURCE_DIR ${proj}
+                         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}
+                                    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                                    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                                    -DCMAKE_INSTALL_LIBDIR=lib
+                                    -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+                                    -DENABLE_OPENMP=OFF  # OMP already in CMAKE_C_FLAGS
+                                    -DFRAGLIB_UNDERSCORE_L=ON
+                                    -DFRAGLIB_DEEP=ON
+                                    -DLAPACK_LIBRARIES=${LINALG_LIBRARIES}
+                         CMAKE_CACHE_ARGS -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+                                          -DLIBEFP_FORTRAN_INT64:BOOL=${LIBEFP_FORTRAN_INT64}
+                         INSTALL_COMMAND ""
     )
     set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
@@ -2025,7 +2111,7 @@ if (WFA)
     set (WFA_FOUND ON)
     mark_as_advanced (CLEAR ARMADILLO_INC)
     set (ARMADILLO_INC ${ARMADILLO_INC} CACHE PATH "Directory with armadillo header files")
-    set (MOLCAS_LIB ON CACHE INTERNAL "Compile Molcas support")
+    make_internal (MOLCAS_LIB ON)
 
     add_subdirectory (${proj}/libwfa)
     target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
@@ -2087,14 +2173,14 @@ if (MolGUI)
 
   include (ExternalProject)
   ExternalProject_Add (${projname}
-    GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
-    GIT_TAG f839f89edc9554efb54aa9f7905f0573410baa40
-    PREFIX ${projdir}
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
-               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-               -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-               -DMOLCAS=${PROJECT_BINARY_DIR}
+                       GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
+                       GIT_TAG f839f89edc9554efb54aa9f7905f0573410baa40
+                       PREFIX ${projdir}
+                       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
+                                  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                                  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                                  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                                  -DMOLCAS=${PROJECT_BINARY_DIR}
   )
   message ("-- MolGUI will be downloaded and compiled in ${projdir}")
   message ("-- MolGUI will be installed in ${projinstall}")
@@ -2274,7 +2360,7 @@ foreach (util ${utils})
   find_source (${util} ${source_roots})
   if (NOT DEFINED ${util}_src)
     list (REMOVE_ITEM utils ${util})
-    message (WARNING "\"${util}\" not found in source directories, skipping")
+    message (WARNING "\"${util}\" not found in source directories, skipping.")
   endif ()
 endforeach ()
 
@@ -2284,7 +2370,7 @@ if (FDE)
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   foreach (prog
     gateway_util
@@ -2298,7 +2384,7 @@ endif ()
 
 # If an external GA library is not present, we use the internal
 # DGA code which resides in dga_util:
-if (MPI AND NOT GA)
+if (MPI AND NOT GA AND NOT GA_BUILD)
   set (util dga_util)
   find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
@@ -2324,7 +2410,7 @@ if (LINALG STREQUAL "Runtime")
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   list (APPEND ${util}_incs ${internal_linalg})
 endif ()
@@ -2341,7 +2427,7 @@ if (HDF5 AND HDF5_FOUND)
     list (APPEND utils ${util})
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   # additional utilities doing internal HDF5 calls
   foreach (prog
@@ -2404,7 +2490,7 @@ if (MSYM AND MSYM_FOUND)
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   list (APPEND ${util}_incs ${MSYM_INCLUDE})
   list (APPEND progs symmetrize)
@@ -2417,7 +2503,7 @@ if (BLOCK)
     list (APPEND utils ${util})
     list (APPEND ${util}_defs "_ENABLE_BLOCK_DMRG_")
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
 endif ()
 
@@ -2429,7 +2515,7 @@ if (CHEMPS2)
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
     list (APPEND ${util}_defs "_ENABLE_CHEMPS2_DMRG_")
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
 endif ()
 
@@ -2454,7 +2540,7 @@ foreach (prog ${progs})
   find_source (${prog} ${source_roots})
   if (NOT DEFINED ${prog}_src)
     list (REMOVE_ITEM progs ${prog})
-    message (WARNING "\"${prog}\" not found in source directories, skipping")
+    message (WARNING "\"${prog}\" not found in source directories, skipping.")
   endif ()
 endforeach ()
 
@@ -2667,7 +2753,7 @@ endif ()
 if (LINALG STREQUAL "Internal")
   set (util "LinAlg_internal")
   if (NOT DEFINED ${util}_src)
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   foreach (lib "lapack" "blas")
     set (source ${${util}_src}/${lib}.f)
@@ -2777,7 +2863,7 @@ if (TOOLS)
           else ()
             message ("-- ${tool}: ${dir_error}")
             if ("${tool}" STREQUAL "pymolcas" AND (NOT DEFINED EXTRA_DIR))
-              message (FATAL_ERROR "Failed to configure the pymolcas driver")
+              message (FATAL_ERROR "Failed to configure the pymolcas driver.")
             endif ()
           endif ()
         else ()
@@ -2874,7 +2960,7 @@ if (DEFINED EXTRA_DIR)
     RESULT_VARIABLE INSTALL_DRIVER_RC
   )
   if (INSTALL_DRIVER_RC)
-    message (FATAL_ERROR "Failed to install the Molcas driver")
+    message (FATAL_ERROR "Failed to install the Molcas driver.")
   endif ()
 else ()
   set (MOLCAS_DRIVER "${OPENMOLCAS_DIR}/sbin/dummy.driver")
@@ -2888,7 +2974,7 @@ else ()
       message ("-- ${tool}: added to targets")
     else ()
       message ("-- ${tool}: ${dir_error}")
-      message (FATAL_ERROR "Failed to configure the pymolcas driver")
+      message (FATAL_ERROR "Failed to configure the pymolcas driver.")
     endif ()
   endif ()
   if (MolGUI)

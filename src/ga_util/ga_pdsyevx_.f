@@ -23,7 +23,7 @@ c*           Giuseppe Vitillaro peppe@unipg.it                             *
 c* 11/12/14  Slightly modified for the DGA interface                       *
 c*           Victor Vysotskiy                                              *
 c***************************************************************************
-#if defined(SCALAPACK) && defined (_MOLCAS_MPP_)
+#if defined(_SCALAPACK_) && defined (_MOLCAS_MPP_)
       subroutine ga_pdsyevx_(g_a, g_b, eval, nb8)
       implicit none
 #include "mafdecls.fh"
