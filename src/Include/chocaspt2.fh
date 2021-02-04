@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Integer ipUnit_F(8),ipSp(8),Lsplit(8),nIsplit(8),nAsplit(8),      &
      &        ipnP(8),ipiP(8),nksh(8),nkes(8),npsh(8),npes(8),          &
      &        numcho_pt2(8),iALGO,InfVec_N2_PT2,MaxVec_PT2,             &
      &        IF_CHO,I60DUMMY,NCHSPC,NHTSPC,NFTSPC,NFTSPC_TOT,          &
      &        MXNVC,MXCHARR,I61DUMMY,IL_CHO
-* Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
-* of corresponding values in commons in file cholesky.fh
-* Values are transferred at the beginning of caspt2.
+! Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
+! of corresponding values in commons in file cholesky.fh
+! Values are transferred at the beginning of caspt2.
       COMMON / CHOCASPT2 /IF_CHO,I60DUMMY,                              &
      &   ipUnit_F,ipSp,Lsplit,nIsplit,nAsplit,                          &
      &   ipnP,ipiP,nksh,nkes,npsh,npes,numcho_pt2,                      &
