@@ -2587,6 +2587,7 @@ endif ()
 list (SORT progs)
 
 # set program dependencies of super modules
+# (note dependencies are not recursive with object libraries, so child dependencies must be explicit)
 set (casvb_deplibs
   rasscf
 )
@@ -2599,6 +2600,7 @@ set (last_energy_deplibs
   chcc
   cht3
   false
+  guessorb
   mbpt2
   mcpdft
   motra
@@ -2621,6 +2623,7 @@ set (numerical_gradient_deplibs
   chcc
   cht3
   false
+  guessorb
   mbpt2
   mcpdft
   motra
@@ -2628,6 +2631,10 @@ set (numerical_gradient_deplibs
   scf
   seward
 )
+set (seward_deplibs
+  guessorb
+)
+
 if (BLOCK OR DMRG)
   list (APPEND last_energy_deplibs dmrgscf)
 endif ()
