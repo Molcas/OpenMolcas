@@ -120,7 +120,7 @@ C  **************************************************
 
 c       koff=0
 c       do i=1,nSym
-c          CALL CD_TESTER(rc,ipDLT(1)+koff,nBas(i),.true.)
+c          CALL CD_TESTER(rc,Work(ipDLT(1)+koff),nBas(i),.true.)
 c          CALL TRIPRT('DLT',' ',Work(ipDLT(1)+koff),nBas(i))
 c          koff = koff + nnBSF(i,i)
 c       end do

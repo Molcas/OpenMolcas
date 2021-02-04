@@ -30,14 +30,16 @@
 *> - \p irc =  ``3``: error in both
 *>
 *> @param[out] irc     Return code
-*> @param[in]  ip_PDM  Pointer to matrix in \p Work
+*> @param[in]  PDM     matrix in \p Work
 *> @param[in]  n       Dimension of matrix (\p n &times; \p n)
 *> @param[in]  Verbose Print flag
 ************************************************************************
-      SubRoutine CD_Tester(irc,ip_PDM,n,Verbose)
+      SubRoutine CD_Tester(irc,PDM,n,Verbose)
       use CDTHLP
       Implicit Real*8 (a-h,o-z)
 
+      Integer irc, n
+      Real*8 PDM(n*(n+1)/2)
       External CD_Tester_Col
       External CD_Tester_Vec
       Logical  Verbose
@@ -48,7 +50,6 @@
       Real*8, Allocatable:: Diag(:), Buf(:), Qual(:), ES(:)
       Integer, Allocatable:: Pivot(:), iQual(:)
 
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       irc = 0
@@ -95,8 +96,8 @@ C     ============
       Call mma_allocate(Pivot,l_Pivot,Label='Pivot')
       Call mma_allocate(iQual,l_iQual,Label='iQual')
 
-      Call CD_Tester_CPPF(Work(ip_PDM),Mat,n)
-      Call CD_Tester_Diag(Work(ip_PDM),Diag,n)
+      Call CD_Tester_CPPF(PDM,Mat,n)
+      Call CD_Tester_Diag(PDM,Diag,n)
       jrc = 0
       Call ChoDec(CD_Tester_Col,CD_Tester_Vec,
      &            Restart,Thr,Span,MxQual,
@@ -143,12 +144,12 @@ C     ===========================
          Call xFlush(6)
       End If
 
-      Call CD_Tester_CPPF(Work(ip_PDM),Mat,n)
+      Call CD_Tester_CPPF(PDM,Mat,n)
       jrc    = 0
       NumCho = 0
       Call CD_InCore(Mat,n,Vec,n,NumCho,Thr,jrc)
       If (jrc .eq. 0) Then
-         Call CD_Tester_CPPF(Work(ip_PDM),Mat,n)
+         Call CD_Tester_CPPF(PDM,Mat,n)
          Call DGEMM_('N','T',n,n,NumCho,
      &              -1.0d0,Vec,n,
      &                     Vec,n,
@@ -191,9 +192,12 @@ C     ===========================
 
       SubRoutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
       use CDTHLP, only: Mat
-*     Implicit Real*8 (a-h,o-z)
+*     Implicit None
+      Integer nDim, nCol, lBuf
       Real*8 Col(nDim,nCol), Buf(lBuf)
-      Integer   iCol(nCol)
+      Integer iCol(nCol)
+
+      Integer i, kOff
 
       Do i = 1,nCol
          kOff = 1 + nDim*(iCol(i) - 1)
@@ -201,16 +205,21 @@ C     ===========================
       End Do
 
       Return
+#ifdef _WARNING_WORKAROUND_
 C Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Buf)
       End if
+#endif
       End SubRoutine CD_Tester_Col
 
       SubRoutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
       use CDTHLP, only: Vec
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer iVec1, nVec, lBuf, nDim, iOpt
       Real*8 Buf(lBuf)
+
+      Integer kOff, lTot
 
       Character*13 SecNam
       Parameter (SecNam = 'CD_Tester_Vec')
