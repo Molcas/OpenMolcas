@@ -19,46 +19,47 @@
 !***********************************************************************
 subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "stdalloc.fh"
+integer(kind=iwp), intent(in) :: nBas, nOcc, nVirt
+real(kind=wp), intent(in) :: C_Occ(nBas,nOcc), Ovrlp(nBas*(nBas+1)/2)
+real(kind=wp), intent(inout) :: C_Virt(nBas,nVirt)
+integer(kind=iwp) :: iBas, jBas, iOcc, kBas, iVirt, lBas, mVirt
+logical(kind=iwp) :: Polished
+real(kind=wp) :: tmp
+real(kind=wp), allocatable :: P(:,:), Ovrlp_Sq(:,:), EVe(:,:), C_tmp(:,:), PNew(:), EVa(:)
+real(kind=wp), parameter :: thr = 1.0e-14_wp
+
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer i, j
-integer ij, iTri
-#endif
-integer nOcc, nVirt, nBas
-integer iBas, jBas, iOcc, kBas, iVirt, lBas
-integer mVirt
-logical Polished
-real*8 C_Occ(nBas,nOcc), C_Virt(nBas,nVirt), Ovrlp(nBas*(nBas+1)/2)
-real*8 tmp
-real*8, dimension(:,:), allocatable :: P, Ovrlp_Sq, EVe, C_tmp
-real*8, dimension(:), allocatable :: PNew, EVa
-#ifdef _DEBUGPRINT_
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-write(6,*) 'nBas,nOcc,nVirt=',nBas,nOcc,nVirt
+integer(kind=iwp) :: i, j, ij
+
+write(u6,*) 'nBas,nOcc,nVirt=',nBas,nOcc,nVirt
 call RecPrt('C_Occ',' ',C_Occ,nBas,nOcc)
 call RecPrt('C_Virt',' ',C_Virt,nBas,nVirt)
 call TriPrt('Ovrlp',' ',Ovrlp,nBas)
 do iOcc=1,nOcc
-  tmp = 0.0d0
+  tmp = Zero
   do iBas=1,nBas
     do jBas=1,nBas
       ij = iTri(iBas,jBas)
       tmp = tmp+C_Occ(iBas,iOcc)*Ovrlp(ij)*C_Occ(jBas,iOcc)
     end do
   end do
-  write(6,*) 'iOcc,tmp=',iOcc,tmp
+  write(u6,*) 'iOcc,tmp=',iOcc,tmp
 end do
 do iVirt=1,nVirt
-  tmp = 0.0d0
+  tmp = Zero
   do iBas=1,nBas
     do jBas=1,nBas
       ij = iTri(iBas,jBas)
       tmp = tmp+C_Virt(iBas,iVirt)*Ovrlp(ij)*C_Virt(jBas,iVirt)
     end do
   end do
-  write(6,*) 'iVirt,tmp=',iOcc,tmp
+  write(u6,*) 'iVirt,tmp=',iOcc,tmp
 end do
 #endif
 
@@ -70,7 +71,7 @@ call mma_allocate(Ovrlp_Sq,nBas,nBas,Label='Ovrlp_Sq')
 call mma_allocate(EVa,nBas*(nBas+1)/2,Label='EVa')
 call mma_allocate(EVe,nBas,nBas,Label='EVe')
 call FZero(EVe,nBas**2)
-call DCopy_(nBas,[1.0d0],0,EVe,nBas+1)
+call DCopy_(nBas,[One],0,EVe,nBas+1)
 call DCopy_(nBas*(nBas+1)/2,Ovrlp,1,EVa,1)
 call NIdiag(EVa,EVe,nBas,nBas,0)
 
@@ -80,7 +81,7 @@ end do
 
 do iBas=1,nBas
   do jBas=1,nBas
-    tmp = 0.0d0
+    tmp = Zero
     do kBas=1,nBas
       tmp = tmp+EVe(iBas,kBas)*sqrt(EVa(kBas))*EVe(jBas,kBas)
     end do
@@ -93,7 +94,7 @@ end do
 
 call mma_allocate(C_tmp,nBas,nOcc,Label='C_tmp')
 call FZero(C_tmp,nBas*nOcc)
-call DGEMM_('N','N',nBas,nOcc,nBas,1.0d0,Ovrlp_Sq,nBas,C_Occ,nBas,0.0d0,C_tmp,nBas)
+call DGEMM_('N','N',nBas,nOcc,nBas,One,Ovrlp_Sq,nBas,C_Occ,nBas,Zero,C_tmp,nBas)
 
 call mma_allocate(P,nBas,nBas,Label='P')
 call mma_allocate(PNew,nBas,Label='PNew')
@@ -102,8 +103,8 @@ call mma_allocate(PNew,nBas,Label='PNew')
 
 do iBas=1,nBas
   do jBas=1,nBas
-    tmp = 0.0d0
-    if (iBas == jBas) tmp = 1.0d0
+    tmp = Zero
+    if (iBas == jBas) tmp = One
     do iOcc=1,nOcc
       tmp = tmp-C_tmp(iBas,iOcc)*C_tmp(jBas,iOcc)
     end do
@@ -113,7 +114,7 @@ end do
 #ifdef _DEBUGPRINT_
 call RecPrt('P-mat',' ',P,nBas,nBas)
 do iBas=1,nBas
-  write(6,*) 'iBas,P(iBas,iBas)=',iBas,P(iBas,iBas)
+  write(u6,*) 'iBas,P(iBas,iBas)=',iBas,P(iBas,iBas)
 end do
 #endif
 
@@ -124,7 +125,7 @@ end do
 mVirt = 0
 do kBas=1,nBas
 
-  tmp = 0.0d0
+  tmp = Zero
   lBas = 0
   do iBas=1,nBas
     if (P(iBas,iBas) > tmp) then
@@ -139,22 +140,22 @@ do kBas=1,nBas
 
   ! Normalize PNew
 
-  tmp = 0.0d0
+  tmp = Zero
   do iBas=1,nBas
     tmp = tmp+PNew(iBas)**2
   end do
 
   ! Skip if this is a null vector.
 
-  if (tmp < 1.0d-14) cycle
+  if (tmp < thr) cycle
 
-  tmp = 1.0d0/sqrt(tmp)
+  tmp = One/sqrt(tmp)
   call DScal_(nBas,tmp,PNew,1)
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'New Trial vector'
-  write(6,*) '================'
-  write(6,*) 'kBas,lBas,tmp=',kBas,lBas,tmp
+  write(u6,*)
+  write(u6,*) 'New Trial vector'
+  write(u6,*) '================'
+  write(u6,*) 'kBas,lBas,tmp=',kBas,lBas,tmp
   call RecPrt('Normalized PNew',' ',PNew,nBas,1)
 # endif
 
@@ -166,12 +167,12 @@ do kBas=1,nBas
 
     ! From the trial vector eliminate the occupied space
 
-    tmp = 0.0d0
+    tmp = Zero
     do iBas=1,nBas
       tmp = tmp+PNew(iBas)*C_tmp(iBas,iOcc)
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iOcc,tmp=',iOcc,tmp
+    write(u6,*) 'iOcc,tmp=',iOcc,tmp
 #   endif
     ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
 
@@ -181,12 +182,12 @@ do kBas=1,nBas
 
     ! From the trial vector eliminate parts which already expressed.
 
-    tmp = 0.0d0
+    tmp = Zero
     do iBas=1,nBas
       tmp = tmp+PNew(iBas)*C_Virt(iBas,iVirt)
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'iVirt,tmp=',iVirt,tmp
+    write(u6,*) 'iVirt,tmp=',iVirt,tmp
 #   endif
 
     ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
@@ -196,27 +197,27 @@ do kBas=1,nBas
 
   ! Test that it is not a null vector!
 
-  tmp = 0.0d0
+  tmp = Zero
   do iBas=1,nBas
     tmp = tmp+PNew(iBas)**2
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Norm after projection:',tmp
-  write(6,*)
+  write(u6,*) 'Norm after projection:',tmp
+  write(u6,*)
 # endif
-  if (tmp > 1.0d-14) then
-    tmp = 1.0d0/sqrt(tmp)
-    call DScal_(nBas,1.0d0/sqrt(tmp),PNew,1)
+  if (tmp > thr) then
+    tmp = One/sqrt(tmp)
+    call DScal_(nBas,One/sqrt(tmp),PNew,1)
     if (.not. Polished) then
       Polished = .true.
       Go To 666
     end if
 
-    if (tmp > 1.0d-14) then
+    if (tmp > thr) then
       if (mVirt+1 > nVirt) then
-        write(6,*) 'mVirt.gt.nVirt'
-        write(6,*) 'mVirt=',mVirt
-        write(6,*) 'nVirt=',nVirt
+        write(u6,*) 'mVirt.gt.nVirt'
+        write(u6,*) 'mVirt=',mVirt
+        write(u6,*) 'nVirt=',nVirt
         call Abend()
     end if
       mVirt = mVirt+1
@@ -240,8 +241,8 @@ end do
 call mma_deallocate(C_tmp)
 
 if (mVirt /= nVirt) then
-  write(6,*) 'mVirt.ne.nVirt'
-  write(6,*) 'mVirt,nVirt=',mVirt,nVirt
+  write(u6,*) 'mVirt.ne.nVirt'
+  write(u6,*) 'mVirt,nVirt=',mVirt,nVirt
   call Abend()
 end if
 
@@ -252,7 +253,7 @@ call mma_deallocate(PNew)
 
 do iBas=1,nBas
   do jBas=1,nBas
-    tmp = 0.0d0
+    tmp = Zero
     do kBas=1,nBas
       tmp = tmp+(EVe(iBas,kBas)*EVe(jBas,kBas))/sqrt(EVa(kBas))
     end do
@@ -264,7 +265,7 @@ call mma_deallocate(EVa)
 
 call mma_allocate(C_tmp,nBas,nVirt,Label='C_tmp')
 call DCopy_(nBas*nVirt,C_Virt,1,C_tmp,1)
-call DGEMM_('N','N',nBas,nVirt,nBas,1.0d0,Ovrlp_Sq,nBas,C_tmp,nBas,0.0d0,C_Virt,nBas)
+call DGEMM_('N','N',nBas,nVirt,nBas,One,Ovrlp_Sq,nBas,C_tmp,nBas,Zero,C_Virt,nBas)
 call mma_deallocate(C_tmp)
 call mma_deallocate(Ovrlp_Sq)
 
@@ -273,5 +274,15 @@ call RecPrt('C_Virt(New)',' ',C_Virt,nBas,nVirt)
 #endif
 
 return
+
+#ifdef _DEBUGPRINT_
+contains
+
+function iTri(i,j)
+  integer(kind=iwp) :: iTri
+  integer(kind=iwp), intent(in) :: i, j
+  iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+end function iTri
+#endif
 
 end subroutine Virt_Space

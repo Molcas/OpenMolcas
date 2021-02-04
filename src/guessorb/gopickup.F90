@@ -40,10 +40,14 @@
 
 subroutine goPickUp(Tri,Vec,n)
 
+use Definitions, only: wp, iwp
+
 implicit none
 
-integer :: n,i,ij
-real*8 Tri(n*(n+1)/2),Vec(n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: Tri(n*(n+1)/2)
+real(kind=wp), intent(out) :: Vec(n)
+integer(kind=iwp) :: i, ij
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

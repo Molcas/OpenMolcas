@@ -31,66 +31,35 @@ use GuessOrb_Global, only: GapThr, iPrFmt, Label, nBas, nDel, nSym, PrintEor, Pr
 use GuessOrb_Global, only: wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_put_dset
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-real*8, dimension(:), allocatable :: Fck, CMO, Ovl, T1, T2, T3, Eps
+
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-integer iReturncode, nOrb(8)
-logical StandAlone
+integer(kind=iwp), intent(out) :: iReturncode
+logical(kind=iwp), intent(in) :: StandAlone
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-character*180 Line
-logical Debug
-logical Trace
-character*80 Title
-logical Verify
-!----------------------------------------------------------------------*
-integer IndType(7,8)
+real(kind=wp), allocatable :: Fck(:), CMO(:), Ovl(:), T1(:), T2(:), T3(:), Eps(:)
+character(len=180) :: Line
+character(len=80) :: Title
+logical(kind=iwp) :: Debug, Trace, Verify
+integer(kind=iwp) :: IndType(7,8), nOrb(8), nTmp(8), nBasTot, nBasMax, nTriTot, nSqrTot, iSym, iBas, jBas, kBas
+integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
+integer(kind=iwp) :: Lu, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
+integer(kind=iwp) :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
+real(kind=wp) :: dActEl ,ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
+real(kind=wp), external :: OrbPhase
 #ifdef _HDF5_
-integer IndTypeT(8,7)
+integer(kind=iwp) :: IndTypeT(8,7)
+character(len=1), allocatable :: typestring(:)
 #endif
-integer nTmp(8)
-integer nBasTot
-integer nBasMax
-integer nTriTot
-integer nSqrTot
-integer iSym
-integer iBas
-integer jBas
-integer kBas
-!----------------------------------------------------------------------*
-integer inFck
-integer inCMO
-integer inOvl
-integer inEps
-integer inT1
-integer inT2
-integer inT3
-!----------------------------------------------------------------------*
-integer Lu
-integer irc
-integer iSymlb
-integer ij, ijS, ijT, ijL
-integer nB
-integer nC
-integer nS
-integer nD
-integer nActEl
-real*8 dActEl
-integer nIsh(8)
-integer nAsh(8)
 
-integer :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
-real*8 :: ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
-real*8, external :: OrbPhase
-
-#ifdef _HDF5_
-character(Len=1), allocatable :: typestring(:)
-#endif
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
@@ -102,8 +71,8 @@ else
   Trace = .false.
 end if
 if (Trace) then
-  write(6,*) '>>> Entering fckbyint'
-  call xflush(6)
+  write(u6,*) '>>> Entering fckbyint'
+  call xflush(u6)
 end if
 iReturncode = 0
 call getenvf('MOLCAS_TEST',Line)
@@ -133,10 +102,10 @@ call RdOne(irc,6,'FckInt  ',1,Fck,iSymlb)
 if (iRc /= 0) then
   iReturncode = 1
   call mma_deallocate(Fck)
-  write(6,*) '***'
-  write(6,*) '*** WARNING:'
-  write(6,*) '*** Guessorb did not produce start orbitals!!!'
-  write(6,*) '***'
+  write(u6,*) '***'
+  write(u6,*) '*** WARNING:'
+  write(u6,*) '*** Guessorb did not produce start orbitals!!!'
+  write(u6,*) '***'
   return
 end if
 if (Debug) then
@@ -194,7 +163,7 @@ do iSym=1,nSym
   if (nB > 0) then
     call Square(Fck(ijT),T1,1,nB,nB)
     call Square(Ovl(ijT),T2,1,nB,nB)
-    call DGEMM_('N','N',nB,nB,nB,1.0d0,T1,nB,T2,nB,0.0d0,T3,nB)
+    call DGEMM_('N','N',nB,nB,nB,One,T1,nB,T2,nB,Zero,T3,nB)
     call MxMt(T2,nB,1,T3,1,nB,Fck(ijT),nB,nB)
     if (Debug) then
       !call TriPrt('Fock matrix with metric','(12f12.6)',Fck(ijT),nB)
@@ -227,7 +196,7 @@ do iSym=1,nSym
   nS = nBas(iSym)-nDel(iSym)
   if (nB > 0) then
     call Square(Fck(ijT),T1,1,nB,nB)
-    call DGEMM_('N','N',nB,nS,nB,1.0d0,T1,nB,CMO(ijS),nB,0.0d0,T2,nB)
+    call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS),nB,Zero,T2,nB)
     call MxMt(CMO(ijS),nB,1,T2,1,nB,T3,nS,nB)
     if (Debug) then
       !call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
@@ -279,7 +248,7 @@ do iSym=1,nSym
   nD = nDel(iSym)
   nC = 0
   do iBas=1,nB-nD
-    if (Eps(ijL+iBas-1) < -1.0d-3) nC = nC+1
+    if (Eps(ijL+iBas-1) < -1.0e-3_wp) nC = nC+1
   end do
   nS = nB-nC-nD
   if (nS > 0) then
@@ -295,7 +264,7 @@ do iSym=1,nSym
     if (Verify) call Virt_Space(CMO(ijS),CMO(ijS+nB*nC),Ovl(ijT),nB,nC,nS)
 
     call Square(Fck(ijT),T1,1,nB,nB)
-    call DGEMM_('N','N',nB,nS,nB,1.0d0,T1,nB,CMO(ijS+nB*nC),nB,0.0d0,T2,nB)
+    call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS+nB*nC),nB,Zero,T2,nB)
 
     call MxMt(CMO(ijS+nB*nC),nB,1,T2,1,nB,T3,nS,nB)
     if (Debug) then
@@ -314,15 +283,15 @@ do iSym=1,nSym
 
     do iBas=nC+1,nB-nD-1
       ei = Eps(ijL+iBas-1)
-      tmp1 = 0.0d0
+      tmp1 = Zero
       do kBas=1,nB
         ik = ijS+(iBas-1)*nB+kBas-1
         tmp1 = tmp1+abs(CMO(ik)*dble(kBas))
       end do
       do jBas=iBas+1,nB-nD
         ej = Eps(ijL+jBas-1)
-        if (abs(ei-ej) < 1.0d-12) then
-          tmp2 = 0.0d0
+        if (abs(ei-ej) < 1.0e-12_wp) then
+          tmp2 = Zero
           do kBas=1,nB
             jk = ijS+(jBas-1)*nB+kBas-1
             tmp2 = tmp2+abs(CMO(jk)*dble(kBas))
@@ -354,10 +323,10 @@ do iSym=1,nSym
       call RecPrt('Virtual Orbitals',' ',CMO(ijS+nB*nC),nB,nS)
     end if
     do iBas=nC+1,nB-nD
-      Eps(ijL+iBas-1) = Eps(ijL+iBas-1)+3.0d0
+      Eps(ijL+iBas-1) = Eps(ijL+iBas-1)+Three
     end do
     do iBas=nB-nD+1,nB
-      Eps(ijL+iBas-1) = 999.0d0
+      Eps(ijL+iBas-1) = 999.0_wp
     end do
     do iBas=1,nB-nD
       if (Eps(ijL+iBas-1) > TThr) nDel(iSym) = nDel(iSym)+1
@@ -374,12 +343,12 @@ call mma_deallocate(T1)
 ! Print orbital space data.                                            *
 !----------------------------------------------------------------------*
 if (StandAlone) then
-  write(6,'(a,e10.3)') 'Threshold for linear dependence due to S:',SThr
-  write(6,'(a,e10.3)') 'Threshold for linear dependence due to T:',TThr
-  write(6,*)
-  write(6,'(a,8i5)') 'Total number of basis functions',(nBas(iSym),iSym=1,nSym)
-  write(6,'(a,8i5)') 'Deleted orbitals               ',(nDel(iSym),iSym=1,nSym)
-  write(6,*)
+  write(u6,'(a,es10.3)') 'Threshold for linear dependence due to S:',SThr
+  write(u6,'(a,es10.3)') 'Threshold for linear dependence due to T:',TThr
+  write(u6,*)
+  write(u6,'(a,8i5)') 'Total number of basis functions',(nBas(iSym),iSym=1,nSym)
+  write(u6,'(a,8i5)') 'Deleted orbitals               ',(nDel(iSym),iSym=1,nSym)
+  write(u6,*)
 end if
 !----------------------------------------------------------------------*
 ! Present data.                                                        *
@@ -390,11 +359,11 @@ inT2 = nBasTot
 call mma_allocate(T1,inT1)
 call mma_allocate(T2,inT2)
 do iBas=1,nBasTot
-  T1(iBas) = 0.0d0
+  T1(iBas) = Zero
 end do
 call GoPop(Eps,T1,T2,nBasTot,PrintEor,PrThr,GapThr)
 iBas = 0
-dActEl = 0.0d0
+dActEl = Zero
 do iSym=1,nSym
   IndType(1,iSym) = 0
   IndType(2,iSym) = 0
@@ -405,20 +374,20 @@ do iSym=1,nSym
   IndType(7,iSym) = nDel(iSym)
   do kBas=1,nBas(iSym)-nDel(iSym)
     iBas = iBas+1
-    if (T1(iBas) > 1.99d0) then
+    if (T1(iBas) > 1.99_wp) then
       IndType(2,iSym) = IndType(2,iSym)+1
       IndType(6,iSym) = IndType(6,iSym)-1
-    else if (T1(iBas) > 0.01d0) then
+    else if (T1(iBas) > 0.01_wp) then
       IndType(4,iSym) = IndType(4,iSym)+1
       IndType(6,iSym) = IndType(6,iSym)-1
       dActEl = dActEl+T1(iBas)
     end if
   end do
 end do
-nActEl = int(dActEl+0.5d0)
+nActEl = int(dActEl+Half)
 if (PrintMOs) then
-  call PriMO('Start orbitals (virtuals shifted)',.true.,.true.,0.0d0,PrThr,nSym,nBas,nBas,Label,Eps,T1,CMO,iPrFmt)
-  call xflush(6)
+  call PriMO('Start orbitals (virtuals shifted)',.true.,.true.,Zero,PrThr,nSym,nBas,nBas,Label,Eps,T1,CMO,iPrFmt)
+  call xflush(u6)
 end if
 if (PrintPop) then
   call Charge(nSym,nBas,Label,CMO,T1,Ovl,2,.true.,.true.)
@@ -444,7 +413,7 @@ call Put_iArray('nAsh',nTmp,nSym)
 call Put_iScalar('nActel',nActEl)
 kSpin = 1 ! always same alpha and beta orbs
 call Put_iScalar('Multiplicity',kSpin)
-Enr_go = 0.0d0
+Enr_go = Zero
 ipEE0 = 1
 ipOk0 = 1
 do iSym=1,nSym
@@ -488,8 +457,8 @@ do iSym=1,nSym
     call dscal_(nBas(iSym),xocc,CMO(ipCOk),1)
     ipCOk = ipCOk+nBas(iSym)
   end do
-  call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,1.0d0,CMO(jOff),max(1,nBas(iSym)),CMO(jOff),max(1,nBas(iSym)),0.0d0, &
-                 Ovl(kOff),max(1,nBas(iSym)))
+  call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,One,CMO(jOff),max(1,nBas(iSym)),CMO(jOff),max(1,nBas(iSym)),Zero,Ovl(kOff), &
+                 max(1,nBas(iSym)))
   iOff = iOff+nBas(iSym)
   jOff = jOff+nBas(iSym)**2
   kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
@@ -507,8 +476,8 @@ call mma_deallocate(Ovl)
 call mma_deallocate(CMO)
 call mma_deallocate(Fck)
 if (Trace) then
-  write(6,*) '<<< Exiting fckbyint'
-  call xflush(6)
+  write(u6,*) '<<< Exiting fckbyint'
+  call xflush(u6)
 end if
 
 return

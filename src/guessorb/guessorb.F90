@@ -30,22 +30,23 @@
 subroutine guessorb(iReturn,StandAlone)
 
 use GuessOrb_Global, only: nSym
+use Definitions, only: iwp
 
 implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-integer iReturn
-logical StandAlone
+integer(kind=iwp), intent(out) :: iReturn
+logical(kind=iwp), intent(in) :: StandAlone
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-integer iRC, iUHF
+integer(kind=iwp) :: iRC, iUHF
 !----------------------------------------------------------------------*
 ! Prologue                                                             *
 !----------------------------------------------------------------------*
 iReturn = 0
-call InitGO(StandAlone)
+call InitGO()
 if (StandAlone) call InpCtl_GuessOrb
 !----------------------------------------------------------------------*
 ! Select method to be used.                                            *

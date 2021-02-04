@@ -16,9 +16,10 @@ subroutine cre_gsswfn()
 #ifdef _HDF5_
 use GuessOrb_global, only: nBas, nSym, wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_str
+use Definitions, only: iwp
 
 implicit none
-integer :: nBasTot, nSqrTot, iSym
+integer(kind=iwp) :: nBasTot, nSqrTot, iSym
 
 ! create a new wavefunction file!
 wfn_fileid = mh5_create_file('GSSWFN')

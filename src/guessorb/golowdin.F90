@@ -27,41 +27,28 @@
 subroutine goLowdin(CMO)
 
 use GuessOrb_Global, only: nBas, nDel, nSym, SThr
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
 !----------------------------------------------------------------------*
 ! Dummy variables.                                                     *
 !----------------------------------------------------------------------*
-real*8 CMO(*)
+real(kind=wp), intent(out) :: CMO(*)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-logical Debug
-logical Trace
-integer nBig
-integer nTot
-integer nTri
-integer nTriTot
-integer iSym
-integer iBas
-integer jBas
-integer kBas
-integer iOrb
-integer ipOvl(8)
-integer ipCMO
-integer npSmat
-integer irc
-integer iSymlb
-real*8 Temp, OrbPhase
-real*8, dimension(:), allocatable :: Ovl, SMat, Vec, Eig
-real*8, dimension(:,:), allocatable :: Tmp
+logical(kind=iwp) :: Debug, Trace
+integer(kind=iwp) :: nBig, nTot, nTri, nTriTot, iSym, iBas, jBas, kBas, iOrb, ipOvl(8), ipCMO, npSmat, irc, iSymlb
+real(kind=wp) :: Temp, OrbPhase
+real(kind=wp), allocatable :: Ovl(:), SMat(:), Vec(:), Eig(:), Tmp(:,:)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
 Debug = .false.
 Trace = .false.
-if (Trace) write(6,*) '>>> Entering golowdin'
+if (Trace) write(u6,*) '>>> Entering golowdin'
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -96,15 +83,15 @@ do iSym=1,nSym
   nTri = nBas(iSym)*(nBas(iSym)+1)/2
   call dCopy_(nTri,Ovl(ipOvl(iSym)),1,Smat,1)
   if (Debug) then
-    write(6,*)
-    write(6,*) '***'
-    write(6,*) '*** lowdin: symmetry',iSym
-    write(6,*) '***'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) '***'
+    write(u6,*) '*** lowdin: symmetry',iSym
+    write(u6,*) '***'
+    write(u6,*)
     call TriPrt('Overlap matrix','(12f18.12)',Ovl(ipOvl(iSym)),nBas(iSym))
   end if
   call FZero(Vec,nBas(iSym)**2)
-  call DCopy_(nBas(iSym),[1.0d0],0,Vec,nBas(iSym)+1)
+  call DCopy_(nBas(iSym),[One],0,Vec,nBas(iSym)+1)
   call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym),0)
 
   do iBas=1,nBas(iSym)
@@ -133,12 +120,12 @@ do iSym=1,nSym
     if (Eig(iBas) < SThr) nDel(iSym) = nDel(iSym)+1
   end do
   do iBas=1,nBas(iSym)
-    Eig(iBas) = 1.0d0/sqrt(Eig(iBas))
+    Eig(iBas) = One/sqrt(Eig(iBas))
   end do
   if (.false.) then
     do iBas=1,nBas(iSym)
       do jBas=1,nBas(iSym)
-        Temp = 0.0d0
+        Temp = Zero
         do kBas=1,nBas(iSym)
           Temp = Temp+Eig(kBas)*Vec(nBas(iSym)*(kBas-1)+iBas)*Vec(nBas(iSym)*(kBas-1)+jBas)
         end do
@@ -163,7 +150,7 @@ do iSym=1,nSym
     call RdOne(irc,2,'Mltpl  0',1,Ovl(ipOvl(1)),iSymlb)
     do iBas=1,nBas(iSym)
       do jBas=1,nBas(iSym)
-        Temp = 0.0
+        Temp = Zero
         do kBas=1,nBas(iSym)
           Temp = Temp+CMO(ipCMO+nBas(iSym)*(kBas-1)+(iBas-1))*CMO(ipCMO+nBas(iSym)*(jBas-1)+(kBas-1))
         end do
@@ -186,7 +173,7 @@ call mma_deallocate(Ovl)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-if (Trace) write(6,*) '<<< Exiting golowdin'
+if (Trace) write(u6,*) '<<< Exiting golowdin'
 
 return
 

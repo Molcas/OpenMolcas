@@ -25,33 +25,26 @@
 
 subroutine InpCtl_GuessOrb()
 
-use GuessOrb_Global, only: GapThr, iPrFmt, LenIn, LenIn1, LenIn8, MxAtom, MxSym, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
+use GuessOrb_Global, only: GapThr, iPrFmt, MxAtom, MxSym, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
+use Definitions, only: iwp, u6
 
 implicit none
 !----------------------------------------------------------------------*
-! Parameters                                                           *
-!----------------------------------------------------------------------*
-character*15 myName
-parameter(myName='InpCtl_GuessOrb')
-!----------------------------------------------------------------------*
 ! Local data                                                           *
 !----------------------------------------------------------------------*
-logical Trace
-character*180 Key, Line
-character*180 Get_Ln
-external Get_Ln
-integer LuSpool
-integer isFreeUnit
-integer itmp
+logical(kind=iwp) :: Trace
+character(len=180) :: Key, Line
+integer(kind=iwp) :: LuSpool, itmp
 !----------------------------------------------------------------------*
 ! External routines                                                    *
 !----------------------------------------------------------------------*
-external isFreeUnit
+integer(kind=iwp), external :: isFreeUnit
+character(len=180), external :: Get_Ln
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
 Trace = .false.
-if (Trace) write(6,*) '>>> Entering inpctl'
+if (Trace) write(u6,*) '>>> Entering inpctl'
 !----------------------------------------------------------------------*
 ! Process input                                                        *
 !----------------------------------------------------------------------*
@@ -71,20 +64,20 @@ if (Line(1:4) == 'STHR') Go To 1300
 if (Line(1:4) == 'TTHR') Go To 1400
 if (Line(1:4) == 'GAPT') Go To 1500
 if (Line(1:4) == 'END ') Go To 99999
-write(6,*) myName,': unidentified key word  : ',Key
-write(6,*) myName,': internal representation: ',Line(1:4)
+write(u6,*) 'InpCtl_GuessOrb: unidentified key word  : ',Key
+write(u6,*) 'InpCtl_GuessOrb: internal representation: ',Line(1:4)
 call FindErrorLine
 call Quit_OnUserError()
 !----------------------------------------------------------------------*
 ! NOMOs: skip printing of MOs, obsolete                                *
 !----------------------------------------------------------------------*
 1000 continue
-write(6,*) '******************************************'
-write(6,*) '******************************************'
-write(6,*) '***  OBSOLETE: do not use keyword NOMO ***'
-write(6,*) '******************************************'
-write(6,*) '******************************************'
-write(6,*)
+write(u6,*) '******************************************'
+write(u6,*) '******************************************'
+write(u6,*) '***  OBSOLETE: do not use keyword NOMO ***'
+write(u6,*) '******************************************'
+write(u6,*) '******************************************'
+write(u6,*)
 PrintMOs = .false.
 Go To 999
 !----------------------------------------------------------------------*
@@ -148,7 +141,7 @@ Go To 999
 !                                                                      *
 !----------------------------------------------------------------------*
 99999 continue
-if (Trace) write(6,*) '<<< Exiting inpctl'
+if (Trace) write(u6,*) '<<< Exiting inpctl'
 
 return
 

@@ -20,15 +20,15 @@ private
 integer(kind=iwp), parameter :: MxBasis = 5000
 real(kind=wp) :: xCharge(MxAtom), PrThr, SThr, TThr, GapThr
 integer(kind=iwp) :: nSym, nBas(MxSym), nOcc(MxSym), nVir(MxSym), nDel(MxSym), nNuc, iPrFmt
-character(len=LenIn) :: Name(MxAtom)
+character(len=LenIn) :: AtName(MxAtom)
 character(len=LenIn8) :: Label(MxBasis)
 logical(kind=iwp) :: PrintMOs, PrintEor, PrintPop
 #ifdef _HDF5_
 integer(kind=iwp) :: wfn_fileid, wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
 
-public :: GapThr, iPrFmt, Label, LenIn, LenIn1, LenIn8, MxAtom, MxBasis, MxSym, Name, nBas, nDel, nNuc, nOcc, nSym, &
-          nVir, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr, xCharge
+public :: GapThr, iPrFmt, Label, MxAtom, MxBasis, MxSym, AtName, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, PrintPop, &
+          PrThr, SThr, TThr, xCharge
 #ifdef _HDF5_
 public :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif

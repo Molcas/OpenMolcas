@@ -26,53 +26,34 @@
 subroutine Fmod1s(StandAlone)
 
 use GuessOrb_Global, only: Label, nBas, nSym, PrintMOs
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-logical StandAlone
+logical(kind=iwp), intent(in) :: StandAlone
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-logical Debug
-logical Trace
+logical(kind=iwp) :: Debug, Trace
 ! Basis set indices
-integer iSym
-integer iBas
-integer jBas
-integer kBas
+integer(kind=iwp) :: iSym, iBas, jBas, kBas
 ! Dimensions
-integer nBasMax
-integer nBasTot
-integer nTriTot
-integer nSqrTot
-integer n2Full
+integer(kind=iwp) :: nBasMax, nBasTot, nTriTot, nSqrTot, n2Full
 ! Pointers
-integer ipTmp1
-integer ipTmp2
-integer ipTmp3
-integer ipTmp4
+integer(kind=iwp) :: ipTmp1, ipTmp2, ipTmp3, ipTmp4
 ! Matrix elements
-real*8 Sii
-real*8 Sjj
-real*8 Sik
-real*8 Sjk
-real*8 Skk
+real(kind=wp) :: Sii, Sjj, Sik, Sjk, Skk
 ! Various variables
-character*32 Line
-integer indx
-integer iSymlb
-integer irc
-real*8 Det
-real*8 sum
-real*8 eps
-integer Lu
-integer iDummy(7,8)
-integer RC
-character*80 Title
-real*8, dimension(:), allocatable :: SmTr, DeTr, Esym, Edes, Smat, Ovl, Aux1, Sdes, Fdes, FSym, Fock, CMOs, Evec, Fmo, Aux2
+integer(kind=iwp) :: indx, iSymlb, irc, Lu, iDummy(7,8), RC
+real(kind=wp) :: Det, dsum, eps
+character(len=32) :: Line
+character(len=80) :: Title
+real(kind=wp), allocatable :: SmTr(:), DeTr(:), Esym(:), Edes(:), Smat(:), Ovl(:), Aux1(:), Sdes(:), Fdes(:), FSym(:), Fock(:), &
+                              CMOs(:), Evec(:), Fmo(:), Aux2(:)
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
@@ -83,7 +64,7 @@ else
   Debug = .false.
   Trace = .false.
 end if
-if (Trace) write(6,*) '>>> Entering fmod1s'
+if (Trace) write(u6,*) '>>> Entering fmod1s'
 !----------------------------------------------------------------------*
 ! Should only be called if symmetry is used.                           *
 !----------------------------------------------------------------------*
@@ -136,7 +117,7 @@ call mma_allocate(Edes,nBasTot)
 do iBas=1,nBasTot
   do kBas=1,nBasTot
     indx = kBas+nBasTot*(iBas-1)
-    if (abs(SmTr(indx)) > 1.0d-3) then
+    if (abs(SmTr(indx)) > 1.0e-3_wp) then
       Edes(kBas) = Esym(iBas)
     end if
   end do
@@ -151,7 +132,7 @@ call mma_allocate(Smat,n2Full)
 call mma_allocate(Ovl,nTriTot)
 iSymlb = 1
 call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
-call dCopy_(n2Full,[0.0d0],0,Smat,1)
+call dCopy_(n2Full,[Zero],0,Smat,1)
 ipTmp1 = 1
 ipTmp2 = 1
 do iSym=1,nSym
@@ -168,8 +149,8 @@ call mma_deallocate(Ovl)
 !----------------------------------------------------------------------*
 call mma_allocate(Sdes,n2Full)
 call mma_allocate(Aux1,n2Full)
-call DGEMM_('N','N',nBasTot,nBasTot,nBasTot,1.0d0,Smat,nBasTot,DeTr,nBasTot,0.0d0,Aux1,nBasTot)
-call DGEMM_('T','N',nBasTot,nBasTot,nBasTot,1.0d0,DeTr,nBasTot,Aux1,nBasTot,0.0d0,Sdes,nBasTot)
+call DGEMM_('N','N',nBasTot,nBasTot,nBasTot,One,Smat,nBasTot,DeTr,nBasTot,Zero,Aux1,nBasTot)
+call DGEMM_('T','N',nBasTot,nBasTot,nBasTot,One,DeTr,nBasTot,Aux1,nBasTot,Zero,Sdes,nBasTot)
 if (Debug) then
   call RecPrt('Desymmetrized overlap matrix','(10f12.6)',Sdes,nBasTot,nBasTot)
 end if
@@ -182,15 +163,15 @@ do iBas=1,nBasTot
   Sii = Sdes(iBas+nBasTot*(iBas-1))
   do jBas=1,nBasTot
     Sjj = Sdes(jBas+nBasTot*(jBas-1))
-    sum = 0.0d0
+    dsum = Zero
     do kBas=1,nBasTot
       eps = Edes(kBas)
       Skk = Sdes(kBas+nBasTot*(kBas-1))
       Sik = Sdes(iBas+nBasTot*(kBas-1))
       Sjk = Sdes(jBas+nBasTot*(kBas-1))
-      sum = sum+eps*Sik*Sjk/sqrt(Sii*Sjj*Skk*Skk)
+      dsum = dsum+eps*Sik*Sjk/sqrt(Sii*Sjj*Skk*Skk)
     end do
-    Fdes(iBas+nBasTot*(jBas-1)) = sum
+    Fdes(iBas+nBasTot*(jBas-1)) = dsum
   end do
 end do
 if (Debug) then
@@ -201,8 +182,8 @@ end if
 !----------------------------------------------------------------------*
 call mma_allocate(Fsym,n2Full)
 call mma_allocate(Aux1,n2Full)
-call DGEMM_('N','N',nBasTot,nBasTot,nBasTot,1.0d0,Fdes,nBasTot,SmTr,nBasTot,0.0d0,Aux1,nBasTot)
-call DGEMM_('T','N',nBasTot,nBasTot,nBasTot,1.0d0,SmTr,nBasTot,Aux1,nBasTot,0.0d0,Fsym,nBasTot)
+call DGEMM_('N','N',nBasTot,nBasTot,nBasTot,One,Fdes,nBasTot,SmTr,nBasTot,Zero,Aux1,nBasTot)
+call DGEMM_('T','N',nBasTot,nBasTot,nBasTot,One,SmTr,nBasTot,Aux1,nBasTot,Zero,Fsym,nBasTot)
 if (Debug) then
   call RecPrt('Symmetrized overlap matrix','(10f12.6)',Fsym,nBasTot,nBasTot)
 end if
@@ -248,7 +229,7 @@ ipTmp4 = 1
 do iSym=1,nSym
   if (nBas(iSym) > 0) then
     call Square(Fock(ipTmp1),Aux1,1,nBas(iSym),nBas(iSym))
-    call DGEMM_('N','N',nBas(iSym),nBas(iSym),nbas(iSym),1.0d0,Aux1,nBas(iSym),CMOs(ipTmp2),nBas(iSym),0.0d0,Aux2,nBas(iSym))
+    call DGEMM_('N','N',nBas(iSym),nBas(iSym),nbas(iSym),One,Aux1,nBas(iSym),CMOs(ipTmp2),nBas(iSym),Zero,Aux2,nBas(iSym))
     call MxMt(CMOs(ipTmp2),nBas(iSym),1,Aux2,1,nBas(iSym),Fmo(ipTmp3),nBas(iSym),nBas(iSym))
     if (Debug) then
       write(Line,'(a,i2)') 'MO Fock matrix, symmetry ',iSym
@@ -275,15 +256,13 @@ call mma_deallocate(Aux1)
 ! Present data.                                                        *
 !----------------------------------------------------------------------*
 if (PrintMOs) then
-  call PriMO('Start orbitals',.false.,.true.,0.0d0,1.0d6,nSym,nBas,nBas,Label,Evec,Evec,CMOs,3)
+  call PriMO('Start orbitals',.false.,.true.,Zero,1.0e6_wp,nSym,nBas,nBas,Label,Evec,Evec,CMOs,3)
 end if
 call put_darray('Guessorb',CMOs,nSqrTot)
 call put_darray('Guessorb energies',Evec,nBasTot)
 call Put_iArray('nOrb',nBas,nSym)
 call mma_allocate(Aux1,nBasTot)
-do iBas=1,nBasTot
-  Aux1(iBas) = 0.0d0
-end do
+Aux1(:) = 0.0d0
 Lu = 20
 Title = 'Guess orbitals'
 call WrVec('GSSORB',Lu,'COE',nSym,nBas,nBas,CMOs,Aux1,Evec,iDummy,Title)
@@ -302,7 +281,7 @@ call mma_deallocate(Edes)
 call mma_deallocate(Esym)
 call mma_deallocate(DeTr)
 call mma_deallocate(SmTr)
-if (trace) write(6,*) '<<< Exiting fmod1s'
+if (trace) write(u6,*) '<<< Exiting fmod1s'
 
 return
 

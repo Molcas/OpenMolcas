@@ -42,9 +42,13 @@
 
 subroutine goSort(EVal,EVec,n,nB)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer :: n, nB, i, j, k, l
-real*8 :: Eval(n), EVec(nB,n), Swap
+integer(kind=iwp), intent(in) :: n, nB
+real(kind=wp), intent(inout) :: Eval(n), EVec(nB,n)
+integer(kind=iwp) :: i, j, k, l
+real(kind=wp) :: Swap
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -61,8 +65,8 @@ do i=1,n-1
     EVal(i) = Swap
     do l=1,nB
       Swap = EVec(l,k)
-      EVec(L,K) = -EVec(l,i)
-      EVec(L,I) = Swap
+      EVec(l,k) = -EVec(l,i)
+      EVec(l,i) = Swap
     end do
   end if
 end do

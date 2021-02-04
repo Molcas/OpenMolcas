@@ -30,49 +30,27 @@
 subroutine Fmod1n(StandAlone)
 
 use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-logical StandAlone
+logical(kind=iwp), intent(in) :: StandAlone
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-logical Debug
-logical Trace
-integer iSym
-integer iBas
-integer jBas
-integer kBas
-integer iOff
-integer ipCMO(MxSym)
-integer ipFock(MxSym)
-integer ipX
-integer ipY
-integer iSymlb
-integer iRc
-integer nBasMax
-integer nBasTot
-integer nTriTot
-integer nSqrTot
+logical(kind=iwp) :: Debug, Trace
+integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, nTriTot, &
+                     nSqrTot, i, k, Lu, iDummy(7,8), RC
 !---
-real*8 orbene(MxBasis)
-real*8,dimension(:),allocatable :: CMO,Fock,EVec,Ovl,Nrm
-real*8,dimension(:),allocatable :: SFk,Hlf,TFk,Aux1
-!character(len=4) Name(MxAtom)
+real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
+real(kind=wp), dimension(:), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
+character(len=80) :: Title
+!character(len=4) AtName(MxAtom)
 !character(len=4) Label(2,MxBasis)
-!---
-integer i,k
-real*8 Sik
-real*8 Sjk
-real*8 eps
-real*8 sum
-integer Lu
-integer iDummy(7,8)
-integer RC
-character*80 Title
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
@@ -83,7 +61,7 @@ else
   Debug = .false.
   Trace = .false.
 end if
-if (Trace) write(6,*) '>>> Entering fmod1n'
+if (Trace) write(u6,*) '>>> Entering fmod1n'
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
 !----------------------------------------------------------------------*
@@ -115,7 +93,7 @@ call mma_allocate(EVec,nBasTot)
 do iSym=1,nSym-1
   ipFock(iSym+1) = ipFock(iSym)+nBas(iSym)*(nBas(iSym)+1)/2
 end do
-call dCopy_(nTriTot,[0.0d0],0,Fock,1)
+call dCopy_(nTriTot,[Zero],0,Fock,1)
 !----------------------------------------------------------------------*
 ! Create model Fock operator.                                          *
 !----------------------------------------------------------------------*
@@ -139,7 +117,7 @@ ipY = 1
 do iSym=1,nSym
   call goPickup(Ovl(ipX),Nrm(ipY),nBas(iSym))
   do iBas=1,nBas(iSym)
-    Nrm(ipY-1+iBas) = 1.0d0/sqrt(Nrm(ipY-1+iBas))
+    Nrm(ipY-1+iBas) = One/sqrt(Nrm(ipY-1+iBas))
   end do
   ipX = ipX+nBas(iSym)*(nBas(iSym)+1)/2
   ipY = ipY+nBas(iSym)
@@ -153,7 +131,7 @@ iOff = 0
 do iSym=1,nSym
   do iBas=1,nBas(iSym)
     do jBas=1,iBas
-      sum = 0.0d0
+      dsum = Zero
       do kBas=1,nBas(iSym)
         eps = EVec(iOff+kBas)
         i = max(iBas,kBas)
@@ -162,9 +140,9 @@ do iSym=1,nSym
         i = max(jBas,kBas)
         k = min(jBas,kBas)
         Sjk = Ovl(ipX-1+i*(i-1)/2+k)*Nrm(ipY-1+jBas)*Nrm(ipY-1+kBas)
-        sum = sum+eps*Sik*Sjk
+        dsum = dsum+eps*Sik*Sjk
       end do
-      Fock(ipFock(iSym)-1+iBas*(iBas-1)/2+jBas) = sum
+      Fock(ipFock(iSym)-1+iBas*(iBas-1)/2+jBas) = dsum
     end do
   end do
   if (Debug) then
@@ -180,9 +158,9 @@ end do
 ipX = 1
 do iSym=1,nSym
   if (Debug) then
-    write(6,*) '***'
-    write(6,*) '*** Symmetry',iSym
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Symmetry',iSym
+    write(u6,*) '***'
   end if
   do iBas=1,nBas(iSym)
     do jBas=1,iBas
@@ -209,13 +187,13 @@ call mma_allocate(TFk,nBasMax*(nBasMax+1)/2)
 iOff = 0
 do iSym=1,nSym
   if (Debug) then
-    write(6,*) '***'
-    write(6,*) '*** Symmetry',iSym
-    write(6,*) '***'
+    write(u6,*) '***'
+    write(u6,*) '*** Symmetry',iSym
+    write(u6,*) '***'
   end if
   if (nBas(iSym) > 0) then
     call Square(Fock(ipFock(iSym)),SFk,1,nBas(iSym),nBas(iSym))
-    call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),1.0d0,SFk,nBas(iSym),CMO(ipCMO(iSym)),nBas(iSym),0.0d0,Hlf,nBas(iSym))
+    call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,SFk,nBas(iSym),CMO(ipCMO(iSym)),nBas(iSym),Zero,Hlf,nBas(iSym))
     call MxMt(CMO(ipCMO(iSym)),nBas(iSym),1,Hlf,1,nBas(iSym),TFk,nBas(iSym),nBas(iSym))
     if (Debug) then
       call TriPrt('Transformed Fock matrix','(12f12.6)',TFk,nBas(iSym))
@@ -238,15 +216,13 @@ call mma_deallocate(SFk)
 ! Present data.                                                        *
 !----------------------------------------------------------------------*
 if (PrintMOs) then
-  call PriMO('Start orbitals',.false.,.true.,0.0d0,1.0d6,nSym,nBas,nBas,Label,orbene,orbene,CMO(ipCMO(1)),3)
+  call PriMO('Start orbitals',.false.,.true.,Zero,1.0e6_wp,nSym,nBas,nBas,Label,orbene,orbene,CMO(ipCMO(1)),3)
 end if
 call put_darray('Guessorb',CMO(ipCMO(1)),nSqrTot)
 call put_darray('Guessorb energies',orbene,nBasTot)
 call Put_iArray('nOrb',nBas,nSym)
 call mma_allocate(Aux1,nBasTot)
-do iBas=1,nBasTot
-  Aux1(iBas) = 0.0d0
-end do
+Aux1(:) = Zero
 Lu = 20
 Title = 'Guess orbitals'
 call WrVec('GSSORB',Lu,'COE',NSYM,NBAS,NBAS,CMO(ipCMO(1)),Aux1,orbene,iDummy,Title)
@@ -257,7 +233,7 @@ call mma_deallocate(Aux1)
 call mma_deallocate(Evec)
 call mma_deallocate(Fock)
 call mma_deallocate(CMO)
-if (trace) write(6,*) '<<< Exiting fmod1n'
+if (trace) write(u6,*) '<<< Exiting fmod1n'
 
 return
 
