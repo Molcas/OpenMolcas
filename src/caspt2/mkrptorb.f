@@ -20,7 +20,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 C Transform to orbitals that diagonalize the diagonal

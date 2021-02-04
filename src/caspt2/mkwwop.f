@@ -12,7 +12,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -49,7 +48,6 @@ C as operating on the CASSCF space.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -262,7 +260,6 @@ C Deallocate temporary space:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 
@@ -489,7 +486,6 @@ C Deallocate matrix product
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -659,10 +655,8 @@ C Deallocate temporary space:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -779,10 +773,8 @@ C Deallocate matrix product:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
@@ -859,10 +851,8 @@ C End of loop over cases.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -1046,10 +1036,8 @@ C Deallocate matrix product:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
@@ -1124,10 +1112,8 @@ C End of loop over cases.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Given the coefficients for two excitation operators, available in

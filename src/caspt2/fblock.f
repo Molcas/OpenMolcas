@@ -20,7 +20,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
       INTEGER NO,NI,NA,NS
       REAL*8 FIFA((NO*(NO+1))/2)
       REAL*8 FIT(NI,NA),FIA(NI,NS),FTA(NA,NS)

@@ -12,6 +12,8 @@
 CSVC: process CASPT2 input based on the data in the input table, and
 C initialize global common-block variables appropriately.
       Use InputData
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:cmpThr,cntThr,dnmThr
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
 #endif
@@ -21,9 +23,8 @@ C initialize global common-block variables appropriately.
 #endif
       Implicit None
 #include "rasdim.fh"
-#include "warnings.fh"
+! #include "warnings.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -36,16 +37,11 @@ C initialize global common-block variables appropriately.
       Integer nDiff, NFI, NSD
 * Geometry-determining root
       Logical Is_iRlxRoot_Set
-* Cholesky stuff
-      Logical REORD,DECO,timings
-      Integer Algo
-      COMMON /CHORAS  / REORD,DECO,ALGO
-      COMMON /CHOTIME / timings
 * Environment
       Character(Len=180) Env
 
       Integer I, J, M, N
-      Integer ISYM
+      Integer iSym
 * State selection
       Integer iGroup, IOFF
 

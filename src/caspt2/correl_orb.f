@@ -15,11 +15,11 @@
 *
 ************************************************************************
       use inputdata
+      use output, only: EMP2
       implicit none
 #include "stdalloc.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 
       Real*8, Allocatable :: CMO(:), DPQ(:)
       Integer IDISK

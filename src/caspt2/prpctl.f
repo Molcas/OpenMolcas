@@ -18,13 +18,13 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL
       USE PT2WFN
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"

@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
@@ -24,7 +25,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"

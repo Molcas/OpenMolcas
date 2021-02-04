@@ -12,6 +12,7 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -23,7 +24,6 @@
 * for which a group offset JSTATE_OFF is passed in.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"

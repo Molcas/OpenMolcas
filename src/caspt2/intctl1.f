@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INTCTL1(CMO)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"
 

@@ -12,7 +12,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       INTEGER I, ID, IEPS, IEPSA, IEPSE, IEPSI, ISTLT, ISYM

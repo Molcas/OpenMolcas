@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY3(IFF)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
@@ -38,7 +39,6 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"

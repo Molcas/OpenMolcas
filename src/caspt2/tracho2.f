@@ -23,7 +23,6 @@
 #include "chocaspt2.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 **********************************************************************
 *  Author : P. A. Malmqvist
 **********************************************************************

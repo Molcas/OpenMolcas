@@ -20,11 +20,11 @@
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -71,7 +71,6 @@ C INTEGRAL BUFFERS:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -143,7 +142,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -273,7 +271,6 @@ C  Put WM on disk
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -368,7 +365,6 @@ C   Put W on disk
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -453,7 +449,6 @@ C   Put W on disk.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -556,7 +551,6 @@ C   Put WP and WM on disk.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -655,7 +649,6 @@ C   Put WM on disk
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
@@ -758,7 +751,6 @@ C   Put WP and WM on disk.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"

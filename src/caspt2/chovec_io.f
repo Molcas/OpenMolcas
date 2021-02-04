@@ -79,7 +79,6 @@ C as this is how they are used to compute the integrals for RHS.
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
@@ -117,7 +116,6 @@ C as this is how they are used to compute the integrals for RHS.
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
@@ -150,7 +148,6 @@ C as this is how they are used to compute the integrals for RHS.
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #ifdef _MOLCAS_MPP_

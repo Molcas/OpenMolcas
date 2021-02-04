@@ -15,6 +15,7 @@
       USE SUPERINDEX
       USE INPUTDATA
       USE PT2WFN
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
@@ -70,7 +71,6 @@ C
 #include "warnings.fh"
 #include "constants.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"

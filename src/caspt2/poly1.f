@@ -23,7 +23,6 @@
 * MATRIX FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"

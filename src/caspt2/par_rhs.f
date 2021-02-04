@@ -28,7 +28,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
       DIMENSION DUMMY(1)
 
@@ -59,7 +58,6 @@ C update the disk address in IOFFRHS
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 
       REAL*8 :: FP(8)
@@ -102,7 +100,6 @@ C-SVC: print out DNRM2 of the all RHS components
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 
 C-SVC: zero out the entire RHS vector on IVEC
@@ -130,7 +127,6 @@ C-SVC: zero out the entire RHS vector on IVEC
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -158,7 +154,6 @@ CSVC: this routine writes the RHS array to disk
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -187,7 +182,6 @@ CSVC: Destroy the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -229,7 +223,6 @@ C     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -282,7 +275,6 @@ CSVC: this routine releases a local block back to the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -315,7 +307,6 @@ C the global array
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -347,7 +338,6 @@ CSVC: this routine copies a global array to a local buffer
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
       DIMENSION W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
@@ -392,7 +382,6 @@ CSVC: this routine copies a local buffer to a global array
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
       DIMENSION W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
@@ -442,7 +431,6 @@ Cmatching part of a replicate array.
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "output.fh"
 #include "WrkSpc.fh"
       DIMENSION W(NAS,*)
 #ifdef _MOLCAS_MPP_
@@ -498,7 +486,6 @@ CSVC: this routine reads an RHS array in SR format from disk
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
@@ -565,7 +552,6 @@ CSVC: this routine reads an RHS array in SR format from disk
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
@@ -667,7 +653,6 @@ C     place and transition is no longer needed.
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -737,7 +722,6 @@ C     place and transition is no longer needed.
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -850,7 +834,6 @@ C     (ITYP=1).
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1044,7 +1027,6 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-#include "output.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1271,7 +1253,6 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)
@@ -1320,7 +1301,6 @@ C-SVC: get the local vertical stripes of the lg_W vector
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION DIN(*),DIS(*)

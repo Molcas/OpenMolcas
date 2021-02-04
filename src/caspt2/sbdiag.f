@@ -17,13 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -102,11 +102,11 @@ C usually print info on the total number of parameters
       END
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 
@@ -501,13 +501,13 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: King
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -1016,7 +1016,6 @@ C replicate array.  FIXME: Should be removed later.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -1032,7 +1031,6 @@ C replicate array.  FIXME: Should be removed later.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"

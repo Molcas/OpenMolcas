@@ -22,7 +22,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
 #include "SysDef.fh"

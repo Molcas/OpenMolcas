@@ -13,7 +13,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
       DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
 
 C Purpose: Modify the coefficients in OP1 and OP2, using the

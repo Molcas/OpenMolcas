@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GETDPREF(DREF,PREF)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "intgrl.fh"
       REAL*8 DREF(NDREF)

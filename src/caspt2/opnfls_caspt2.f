@@ -28,7 +28,6 @@ C  Start
 *---------------------------------------------------------------------*
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 
 *---  define logical unit numbers ------------------------------------*
 C  AO two-electron integrals

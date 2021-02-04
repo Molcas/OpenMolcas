@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:dnmThr,cntThr,cmpThr
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
       USE Para_Info, ONLY: Is_Real_Par
@@ -17,7 +19,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 

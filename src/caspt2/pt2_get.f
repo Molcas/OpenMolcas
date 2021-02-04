@@ -20,7 +20,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
 

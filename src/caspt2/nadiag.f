@@ -22,10 +22,8 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-
 #include "SysDef.fh"
 
 C Set up non-active diagonal elements of H0.

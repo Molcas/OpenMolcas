@@ -14,7 +14,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 
       GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13) ICASE

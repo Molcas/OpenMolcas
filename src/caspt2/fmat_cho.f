@@ -13,7 +13,6 @@
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
       DIMENSION  CMO(NCMO)
       DIMENSION FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)

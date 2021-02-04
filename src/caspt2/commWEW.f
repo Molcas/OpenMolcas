@@ -22,7 +22,6 @@
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "stdalloc.fh"
       DIMENSION DCOM(NASHT,NASHT)

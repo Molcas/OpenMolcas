@@ -17,10 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NEWFOCK(FIFA)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
       REAL*8 FIFA(NFIFA)

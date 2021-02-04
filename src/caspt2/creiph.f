@@ -11,6 +11,7 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
@@ -22,7 +23,6 @@ C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"

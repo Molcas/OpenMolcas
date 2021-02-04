@@ -39,7 +39,6 @@ C so each chunk has all the row indices (full columns).
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
       DIMENSION X1(*)

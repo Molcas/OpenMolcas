@@ -17,13 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES 1-EL AND 2-EL
 * DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"

@@ -30,11 +30,11 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
       Character(Len=8)   Fmt1,Fmt2
       Character(Len=120)  Line

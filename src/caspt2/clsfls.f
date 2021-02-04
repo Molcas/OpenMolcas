@@ -20,6 +20,7 @@
 *     University of Lund, Sweden, 1993                                 *
 *                                                                      *
 ************************************************************************
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -27,7 +28,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
       Call DaClos(LUCIEX)
 * PAM08
 *      Call DaClos(LUMORB)

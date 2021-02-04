@@ -22,13 +22,13 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_NOSYM(IVEC)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
@@ -88,7 +88,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
@@ -198,7 +197,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
@@ -321,7 +319,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
@@ -508,7 +505,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
@@ -694,7 +690,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
@@ -834,7 +829,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
@@ -999,7 +993,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
@@ -1217,7 +1210,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)

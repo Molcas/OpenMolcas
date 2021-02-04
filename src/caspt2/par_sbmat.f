@@ -21,7 +21,6 @@ C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -62,7 +61,6 @@ C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -99,7 +97,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -172,7 +169,6 @@ C LUSBT into WORK(lg_M)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"

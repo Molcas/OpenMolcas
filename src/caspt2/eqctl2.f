@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -28,7 +29,6 @@ C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"

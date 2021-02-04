@@ -17,13 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIZES()
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"

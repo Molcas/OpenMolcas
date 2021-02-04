@@ -25,7 +25,6 @@ C  Deallocates everything concerned with SGUGA, incl CI array.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 

@@ -19,11 +19,12 @@
 *--------------------------------------------*
       SUBROUTINE PCG(ICONV)
       USE INPUTDATA
+      use output, only: EMP2
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 

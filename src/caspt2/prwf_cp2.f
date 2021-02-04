@@ -22,7 +22,6 @@
       REAL*8, INTENT(IN) :: CI(NCO), THR
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 

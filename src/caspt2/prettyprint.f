@@ -16,7 +16,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 
 * Input arguments
       integer N,M

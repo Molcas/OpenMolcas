@@ -20,7 +20,6 @@ C the same for all the root states.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"

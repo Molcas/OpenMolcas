@@ -12,10 +12,10 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       subroutine xdwinit(Heff,H0,U0)
+      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
       implicit real(8) (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
