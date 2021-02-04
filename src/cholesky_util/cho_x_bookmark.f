@@ -47,7 +47,7 @@
       Integer irc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*14 SecNam
       Parameter (SecNam='Cho_X_Bookmark')
@@ -58,13 +58,14 @@
 
       Integer iSym
       Integer iRS
-      Integer ip
       Integer l
       Integer n
 
       Integer i, j
       Integer nV
       Real*8  del
+
+      Integer, Allocatable:: BkmScr(:)
 
       nV(i,j) =BkmVec(i,j)
       del(i,j)=BkmThr(i,j)
@@ -130,12 +131,12 @@ C     --------------------------------
          Do iSym=2,mSym
             l=max(l,nVec(iSym))
          End Do
-         Call GetMem('BkmScr','Allo','Inte',ip,l)
+         Call mma_Allocate(BkmScr,l,Label='BkmScr')
          Do iSym=1,mSym
-            Call Cho_P_Distrib_Vec(1,nVec(iSym),iWork(ip),n)
+            Call Cho_P_Distrib_Vec(1,nVec(iSym),BkmScr,n)
             nVec(iSym)=n
          End Do
-         Call GetMem('BkmScr','Free','Inte',ip,l)
+         Call mma_deallocate(BkmScr)
       End If
 
 #if defined (_DEBUGPRINT_)
