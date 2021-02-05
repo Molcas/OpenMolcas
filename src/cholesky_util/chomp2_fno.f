@@ -21,22 +21,22 @@ C
       Real*8  EOcc(*), EVir(*)
       Logical Sorted, DelOrig
 #include "chomp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*3  ThisNm
-      Character*10 SecNam
-      Parameter (SecNam = 'ChoMP2_FNO', ThisNm = 'FNO')
+      Character(LEN=3),  Parameter:: ThisNm = 'FNO'
+      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_FNO'
 
-      Integer ipWrk, lWrk
+      Integer lWrk
+
+      Real*8, Allocatable:: Wrk(:)
 
       irc = 0
 
-      Call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
-      Call GetMem('GetMax','Allo','Real',ipWrk,lWrk)
+      Call mma_maxDBLE(lWrk)
+      Call mma_allocate(Wrk,lWrk,Label='Wrk')
 
       If (Sorted) Then
-         Call ChoMP2_fno_Srt(irc,DelOrig,D_ab,D_ii,EOcc,EVir,
-     &                           Work(ipWrk),lWrk)
+         Call ChoMP2_fno_Srt(irc,DelOrig,D_ab,D_ii,EOcc,EVir,Wrk,lWrk)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_fno_Srt returned ',irc
             Go To 1 ! exit
@@ -44,14 +44,14 @@ C
       Else
          If (nBatch .eq. 1) Then
             Call ChoMP2_fno_Fll(irc,DelOrig,D_ab,D_ii,EOcc,EVir,
-     &                              Work(ipWrk),lWrk)
+     &                              Wrk,lWrk)
             If (irc .ne. 0) Then
                Write(6,*) SecNam,': ChoMP2_fno_Fll returned ',irc
                Go To 1 ! exit
             End If
          Else
             Call ChoMP2_fno_Org(irc,DelOrig,D_ab,D_ii,EOcc,EVir,
-     &                              Work(ipWrk),lWrk)
+     &                              Wrk,lWrk)
             If (irc .ne. 0) Then
                Write(6,*) SecNam,': ChoMP2_fno_Org returned ',irc
                Go To 1 ! exit
@@ -59,5 +59,5 @@ C
          End If
       End If
 
-    1 Call GetMem('GetMax','Free','Real',ipWrk,lWrk)
+    1 Call mma_deallocate(Wrk)
       End

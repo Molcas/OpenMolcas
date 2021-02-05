@@ -26,37 +26,34 @@ C
       Logical Sorted, DelOrig
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_Energy', ThisNm = 'Energy')
+      Character(LEN=6), Parameter:: ThisNm = 'Energy'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_Energy'
 
-      Integer ipWrk, lWrk
+      Integer lWrk
+      Real*8, Allocatable:: Wrk(:)
 
       irc = 0
 
-      Call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
-      Call GetMem('GetMax','Allo','Real',ipWrk,lWrk)
+      Call mma_maxDBLE(lWrk)
+      Call mma_allocate(Wrk,lWrk,Label='Wrk')
 
       If (Sorted) Then
-         Call ChoMP2_Energy_Srt(irc,DelOrig,EMP2,EOcc,EVir,
-     &                          Work(ipWrk),lWrk)
+         Call ChoMP2_Energy_Srt(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_Energy_Srt returned ',irc
             Go To 1 ! exit
          End If
       Else
          If (nBatch .eq. 1) Then
-            Call ChoMP2_Energy_Fll(irc,DelOrig,EMP2,EOcc,EVir,
-     &                             Work(ipWrk),lWrk)
+            Call ChoMP2_Energy_Fll(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
             If (irc .ne. 0) Then
                Write(6,*) SecNam,': ChoMP2_Energy_Fll returned ',irc
                Go To 1 ! exit
             End If
          Else
-            Call ChoMP2_Energy_Org(irc,DelOrig,EMP2,EOcc,EVir,
-     &                             Work(ipWrk),lWrk)
+            Call ChoMP2_Energy_Org(irc,DelOrig,EMP2,EOcc,EVir,Wrk,lWrk)
             If (irc .ne. 0) Then
                Write(6,*) SecNam,': ChoMP2_Energy_Org returned ',irc
                Go To 1 ! exit
@@ -64,5 +61,5 @@ C
          End If
       End If
 
-    1 Call GetMem('GetMax','Free','Real',ipWrk,lWrk)
+    1 Call mma_deallocate(Wrk)
       End
