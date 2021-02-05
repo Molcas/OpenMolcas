@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Gerardo Raggi                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Gerardo Raggi                                    *
+!***********************************************************************
       module kriging_mod
 
       implicit none
@@ -32,7 +32,7 @@
       Real*8  :: blvAI
       Integer :: nD_In=0
       Logical :: PGEK_On=.False.
-*
+!
 !     Memory for coordinates, value and gradients of the
 !     sample points.
 !
@@ -49,12 +49,12 @@
       integer, protected :: nInter = 0 , nPoints = 0, nD=0
       integer :: nInter_Eff=0
 
-      real*8, allocatable ::
-     &        rl(:,:), dl(:), full_Rinv(:,:),
-     &        full_R(:,:), x0(:), Kv(:),
-     &        cv(:,:,:), cvg(:,:,:),cvh(:,:,:,:),
-     &        Rones(:), l(:),
-     &        gpred(:), hpred(:,:), ll(:),
+      real*8, allocatable ::                                            &
+     &        rl(:,:), dl(:), full_Rinv(:,:),                           &
+     &        full_R(:,:), x0(:), Kv(:),                                &
+     &        cv(:,:,:), cvg(:,:,:),cvh(:,:,:,:),                       &
+     &        Rones(:), l(:),                                           &
+     &        gpred(:), hpred(:,:), ll(:),                              &
      &        cvMatFder(:), cvMatSder(:), cvMatTder(:)
       Integer, Allocatable:: Index_PGEK(:)
       real*8 :: pred, sigma, var

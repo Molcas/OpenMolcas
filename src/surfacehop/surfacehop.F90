@@ -30,7 +30,7 @@ call initial_surfacehop()
 call rdinp_surfacehop()
 
 LUIPH=20
-CALL DANAME(LUIPH,"JOBIPH")
+CALL DANAME(LUIPH,'JOBIPH')
 IAD=0
 call IDAFILE(LUIPH,2,ITOC15,15,IAD)
 call getIphInfo(LUIPH,NCI,NSTATE,ITOC15)
