@@ -50,15 +50,9 @@
       Real*8  Err(4)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*15 SecNam
-      Parameter (SecNam = 'Cho_X_CheckDiag')
-
-      Integer ip_XD, l_XD
-      Integer ip_CD, l_CD
-      Integer ip_Bin, l_Bin
-      Integer ip_Stat, l_Stat
+      Character(LEN=15), Parameter:: SecNam = 'Cho_X_CheckDiag'
 
       Integer iPrThr
       Parameter (iPrThr=-5)
@@ -67,8 +61,7 @@
       external ddot_
 
       Integer i
-      Real*8  Stat
-      Stat(i)=Work(ip_Stat-1+i)
+      Real*8, Allocatable::  XD(:), CD(:), Bin(:), Stat(:)
 
 C     Set return code.
 C     ----------------
@@ -82,42 +75,38 @@ C     ----------------
 C     Allocations.
 C     ------------
 
-      l_XD = nnBstRT(1)
-      l_CD = nnBstRT(1)
-      l_Bin = 16
-      l_Stat = 7
-      Call GetMem('ExactDiag','Allo','Real',ip_XD,l_XD)
-      Call GetMem('ChoDiag','Allo','Real',ip_CD,l_CD)
-      Call GetMem('ChoBin','Allo','Real',ip_Bin,l_Bin)
-      Call GetMem('Stat','Allo','Real',ip_Stat,l_Stat)
+      Call mma_allocate(XD,nnBstRT(1),Label='XD')
+      Call mma_allocate(CD,nnBstRT(1),Label='CD')
+      Call mma_allocate(Bin,16,Label='Bin')
+      Call mma_allocate(Stat,7,Label='Stat')
 
 C     Set bins for histograms.
 C     ------------------------
 
-      Work(ip_Bin) = 1.0d0
-      Do i = 1,l_Bin-1
-         Work(ip_Bin+i) = Work(ip_Bin-1+i)*1.0d-1
+      Bin(1) = 1.0d0
+      Do i = 1,SIZE(Bin)-1
+         Bin(1+i) = Bin(i)*1.0d-1
       End Do
 
 C     Read exact diagonal.
 C     --------------------
 
-      Call Cho_IODiag(Work(ip_XD),2)
+      Call Cho_IODiag(XD,2)
 
 C     Print histogram of exact diagonal and get statistics.
 C     -----------------------------------------------------
 
       If (iPrint.ge.iPrThr) Then
          Call Cho_Head('Analysis of Exact Integral Diagonal','=',80,6)
-         Call Cho_AnaSize(Work(ip_XD),l_XD,Work(ip_Bin),l_Bin,6)
-         Call Statistics(Work(ip_XD),l_XD,Work(ip_Stat),1,2,3,4,5,6,7)
-         Call Cho_PrtSt(Work(ip_XD),l_XD,Work(ip_Stat))
+         Call Cho_AnaSize(XD,SIZE(XD),Bin,SIZE(Bin),6)
+         Call Statistics(XD,SIZE(XD),Stat,1,2,3,4,5,6,7)
+         Call Cho_PrtSt(XD,SIZE(XD),Stat)
       End If
 
 C     Calculate Cholesky diagonal.
 C     ----------------------------
 
-      Call Cho_X_CalcChoDiag(irc,Work(ip_CD))
+      Call Cho_X_CalcChoDiag(irc,CD)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': Cho_X_CalcChoDiag returned ',irc
          Go To 1 ! return after dealloc
@@ -129,15 +118,15 @@ C     --------------------------------------------------------
       If (iPrint.ge.iPrThr) Then
          Call Cho_Head('Analysis of Cholesky Integral Diagonal','=',80,
      &                 6)
-         Call Cho_AnaSize(Work(ip_CD),l_CD,Work(ip_Bin),l_Bin,6)
-         Call Statistics(Work(ip_CD),l_CD,Work(ip_Stat),1,2,3,4,5,6,7)
-         Call Cho_PrtSt(Work(ip_CD),l_CD,Work(ip_Stat))
+         Call Cho_AnaSize(CD,SIZE(CD),Bin,SIZE(Bin),6)
+         Call Statistics(CD,SIZE(CD),Stat,1,2,3,4,5,6,7)
+         Call Cho_PrtSt(CD,SIZE(CD),Stat)
       End If
 
 C     Subtract Cholesky diagonal from exact diagonal.
 C     -----------------------------------------------
 
-      Call dAXPY_(nnBstRT(1),-1.0d0,Work(ip_CD),1,Work(ip_XD),1)
+      Call dAXPY_(nnBstRT(1),-1.0d0,CD,1,XD,1)
 
 C     Print histogram of difference array and get statistics.
 C     -------------------------------------------------------
@@ -145,11 +134,11 @@ C     -------------------------------------------------------
       If (iPrint.ge.iPrThr) Then
          Call Cho_Head('Analysis of Difference (Exact-Cholesky)','=',80,
      &                 6)
-         Call Cho_AnaSize(Work(ip_XD),l_XD,Work(ip_Bin),l_Bin,6)
+         Call Cho_AnaSize(XD,SIZE(XD),Bin,SIZE(Bin),6)
       End If
-      Call Statistics(Work(ip_XD),l_XD,Work(ip_Stat),1,2,3,4,5,6,7)
+      Call Statistics(XD,SIZE(XD),Stat,1,2,3,4,5,6,7)
       If (iPrint.ge.iPrThr) Then
-         Call Cho_PrtSt(Work(ip_XD),l_XD,Work(ip_Stat))
+         Call Cho_PrtSt(XD,SIZE(XD),Stat)
       End If
 
 C     Set Err array.
@@ -158,8 +147,7 @@ C     --------------
       Err(1) = Stat(3)
       Err(2) = Stat(4)
       Err(3) = Stat(1)
-      Err(4) = sqrt(dDot_(nnBstRT(1),Work(ip_XD),1,
-     &                              Work(ip_XD),1)/dble(nnBstRT(1)))
+      Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
 
       If (iPrint.ge.iPrThr) Then
          Write(6,'(/,1X,A,1P,D15.6)')
@@ -178,14 +166,12 @@ C     diagonals only as elements of Err array.
 C     -----------------------------------------------------------------
 
       If (nSym.eq.1) Then
-         Call OneCenter_ChkDiag(Work(ip_XD),l_XD,Work(ip_Stat),
-     &                          iPrint.ge.iPrThr)
+         Call OneCenter_ChkDiag(XD,SIZE(XD),Stat,iPrint.ge.iPrThr)
          If (Cho_1Center) Then
             Err(1) = Stat(3)
             Err(2) = Stat(4)
             Err(3) = Stat(1)
-            Err(4) = sqrt(dDot_(nnBstRT(1),Work(ip_XD),1,
-     &                    Work(ip_XD),1)/dble(nnBstRT(1)))
+            Err(4) = sqrt(dDot_(nnBstRT(1),XD,1,XD,1)/dble(nnBstRT(1)))
          End If
       End If
 
@@ -193,10 +179,10 @@ C     Deallocations.
 C     --------------
 
     1 Continue
-      Call GetMem('Stat','Free','Real',ip_Stat,l_Stat)
-      Call GetMem('ChoBin','Free','Real',ip_Bin,l_Bin)
-      Call GetMem('ChoDiag','Free','Real',ip_CD,l_CD)
-      Call GetMem('ExactDiag','Free','Real',ip_XD,l_XD)
+      Call mma_deallocate(Stat)
+      Call mma_deallocate(Bin)
+      Call mma_deallocate(CD)
+      Call mma_deallocate(XD)
 
       End
       SubRoutine Cho_PrtSt(Vec,lVec,Stat)
