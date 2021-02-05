@@ -19,16 +19,18 @@ C              performed directly in reduced sets. This assumes
 C              that the MP2 program has been appropriately initialized.
 C
 #include "implicit.fh"
+      Integer irc
       Real*8  CMO(*), Diag(*)
       Logical DoDiag, DoDiagbak
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*14 SecNam
-      Parameter (SecNam = 'ChoMP2g_TraDrv', ThisNm = 'TraDrv')
+      Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
+      Character(LEN=14), Parameter:: SecNam = 'ChoMP2g_TraDrv'
+
+      Real*8, Allocatable:: COrb1(:), COrb2(:)
 
       irc = 0
 
@@ -48,25 +50,21 @@ C     ------------------------
             l_COrb = max(l_COrb,nMoAo(iSym,i))
          End Do
       End Do
-      Call GetMem('COrb1','Allo','Real',ip_COrb1,l_COrb)
-      Call GetMem('COrb2','Allo','Real',ip_COrb2,l_COrb)
+      Call mma_allocate(COrb1,l_COrb,Label='COrb1')
+      Call mma_allocate(COrb2,l_COrb,Label='COrb2')
 *
       DoDiag = .True.
-      Call ChoMP2g_MOReOrd(CMO,Work(ip_COrb1),Work(ip_COrb2),
-     &                           2,3)
-      Call ChoMP2g_Tra(Work(ip_COrb1),Work(ip_COrb2),Diag,DoDiag,
-     &                       2,3)
+      Call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,2,3)
+      Call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,2,3)
       DoDiag = .False.
       Do iMoType = 1,3
          Do jMOType =  1, 3
             If((iMoType .eq. 2) .and. (jMoType .eq. 3)) Go To 50
 
-            Call ChoMP2g_MOReOrd(CMO,Work(ip_COrb1),Work(ip_COrb2),
-     &                           iMOType,jMOType)
+            Call ChoMP2g_MOReOrd(CMO,COrb1,COrb2,iMOType,jMOType)
 C           Transform vectors.
 C           ------------------
-            Call ChoMP2g_Tra(Work(ip_COrb1),Work(ip_COrb2),Diag,DoDiag,
-     &                       iMoType,jMoType)
+            Call ChoMP2g_Tra(COrb1,COrb2,Diag,DoDiag,iMoType,jMoType)
 
  50         Continue
          End Do
@@ -77,7 +75,7 @@ C     -------------------------------------
 
       DoDiag = DoDiagBak
 
-      Call GetMem('COrb2','Free','Real',ip_COrb2,l_COrb)
-      Call GetMem('COrb1','Free','Real',ip_COrb1,l_COrb)
+      Call mma_deallocate(COrb2)
+      Call mma_deallocate(COrb1)
 
       End

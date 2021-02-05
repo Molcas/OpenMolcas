@@ -17,22 +17,23 @@ C
       use ChoArr, only: MySP, n_MySP
       use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
-      DIMENSION BUF(LENBUF), SCR(LENSCR)
+      INTEGER LENBUF, LENSCR
+      REAL*8 BUF(LENBUF), SCR(LENSCR)
       INTEGER   IBUF(4,LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*12 SECNAM
-      PARAMETER (SECNAM = 'CHO_CALCDIAG')
+      CHARACTER(LEN=12), PARAMETER:: SECNAM = 'CHO_CALCDIAG'
 
-      PARAMETER (INFO_DEBUG = 4, INFO_INSANE = 10)
+      Integer, PARAMETER:: INFO_DEBUG = 4, INFO_INSANE = 10
 
-      DIMENSION SCRMAX(8), XNCD(1)
+      Real*8 SCRMAX(8), XNCD(1)
 
-      INTEGER  CHO_ISAOSH
-      EXTERNAL CHO_ISAOSH
+      INTEGER, EXTERNAL:: CHO_ISAOSH
+
+      Real*8, Allocatable:: NegCalcDiag(:)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
@@ -79,9 +80,8 @@ C     Allocate array for storing 10 most negative diagonals
 C     (there should be none, of course, but they do show up)
 C     ------------------------------------------------------
 
-      l_NegCalcDiag=10
-      Call GetMem('NCD','Allo','Real',ip_NegCalcDiag,l_NegCalcDiag)
-      Call Cho_dZero(Work(ip_NegCalcDiag),l_NegCalcDiag)
+      Call mma_allocate(NegCalcDiag,10,Label='NegCalcDiag')
+      NegCalcDiag(:)=0.0D0
       n_NegCalcDiag=0
 
 C     Calculate diagonal in loop over shell-pairs.
@@ -99,7 +99,7 @@ C     ----------------------------------------------
       N_MYSP = 0
       IOPT = 2
       CALL CHO_P_DISTRIB_SP(IOPT,MYSP,N_MYSP)
-      CALL GETMEM('MAXIDA','MAX','REAL',KINTD,LINTD)
+      Call mma_maxDBLE(LINTD)
       CALL XSETMEM_INTS(LINTD) ! set memory for seward
       DO I_MYSP = 1,N_MYSP
 
@@ -157,8 +157,8 @@ C     ----------------------------------------------
                   DIAAB  = SCR(IAB)
                   IF (DIAAB .LT. 0.0D0) THEN
                      n_NegCalcDiag=n_NegCalcDiag+1
-                     Call UpdateMostNegative(l_NegCalcDiag,
-     *                                       Work(ip_NegCalcDiag),DIAAB)
+                     Call UpdateMostNegative(SIZE(NegCalcDiag),
+     *                                       NegCalcDiag,DIAAB)
                   END IF
                   IF (DIAAB .GT. THRDIAG) THEN
                      DIAMAX(ISYMAB) = MAX(DIAMAX(ISYMAB),DIAAB)
@@ -189,8 +189,8 @@ C     ----------------------------------------------
                         DIAAB  = SCR(IAB)
                         IF (DIAAB .LT. 0.0D0) THEN
                            n_NegCalcDiag=n_NegCalcDiag+1
-                           Call UpdateMostNegative(l_NegCalcDiag,
-     *                                       Work(ip_NegCalcDiag),DIAAB)
+                           Call UpdateMostNegative(SIZE(NegCalcDiag),
+     *                                       NegCalcDiag,DIAAB)
                         END IF
                         IF (DIAAB .GT. THRDIAG) THEN
                            DIAMAX(ISYMAB) = MAX(DIAMAX(ISYMAB),DIAAB)
@@ -247,14 +247,13 @@ C     ----------------------------------------------
             Write(LuPri,'(I5,A)')
      *      ll,' most negative elements (this node):'
             Write(LuPri,'(1P,10D12.4)')
-     *      (Work(ip_NegCalcDiag+i),i=0,ll-1)
+     *      (NegCalcDiag(i),i=1,ll)
          End If
-         Call CHO_GADGOP(Work(ip_NegCalcDiag),1,'min')
+         Call CHO_GADGOP(NegCalcDiag,1,'min')
          Write(LuPri,'(3X,A,1P,D12.4)')
-     *   'Most negative element overall: ',Work(ip_NegCalcDiag)
+     *   'Most negative element overall: ',NegCalcDiag(1)
       End If
-      Call GetMem('NCD','Free','Real',ip_NegCalcDiag,l_NegCalcDiag)
-      ip_NegCalcDiag=-99999999
+      Call mma_deallocate(NegCalcDiag)
       l_NegCalcDiag=0
 
       IF (IPRINT .GE. INFO_DEBUG) THEN

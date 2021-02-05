@@ -22,15 +22,19 @@ C              output: flag to tell that at least 1 symmetry block has
 C                      in fact been deleted.
 C
 #include "implicit.fh"
+      Integer irc
       Logical DelOrig
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_SrtDrv', ThisNm = 'SrtDrv')
+      Character(LEN=6), Parameter:: ThisNm = 'SrtDrv'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_SrtDrv'
+
+      Integer lWrk
+      Real*8, Allocatable:: Wrk(:)
 
       LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
       lUnit(i,j)=iWork(ip_lUnit-1+nSym*(j-1)+i)
@@ -42,8 +46,8 @@ C
 C     Allocate available memory.
 C     --------------------------
 
-      Call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
-      Call GetMem('SrtMax','Allo','Real',ipWrk,lWrk)
+      Call mma_maxDBLE(lWrk)
+      Call mma_allocate(Wrk,lWrk,Label='Wrk')
 
 C     Set vector type (i.e., transformed vectors or vectors from (ai|bj)
 C     decomposition. Decide whether original files should be deleted.
@@ -120,30 +124,30 @@ C              ----------------------
 
                lChoMO = nT1am(iSym)*NumV
 
-               kChoMO = ipWrk
+               kChoMO = 1
 
                iOpt = 2
                lTot = lChoMO
                iAdr = nT1am(iSym)*(iVec1-1) + 1
-               Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Work(kChoMO),lChoMO,
+               Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Wrk(kChoMO),lChoMO,
      &                      iAdr)
 
 C              Sort and write to disk.
 C              -----------------------
 
-               kSort  = ipWrk + lChoMO
+               kSort  = 1 + lChoMO
                lSort  = lWrk  - lChoMO
                Do iBatch = 1,nBatch
                   lTot = LnT1am(iSym,iBatch)*NumV
                   If (lSort .lt. lTot) Then
                      Call ChoMP2_Quit(SecNam,'sort batch error','[0]')
                   End If
-                  Call ChoMP2_Srt(Work(kChoMO),Work(kSort),NumV,
-     &                            iSym,iBatch)
+                  Call ChoMP2_Srt(Wrk(kChoMO),Wrk(kSort),NumV,iSym,
+     &                            iBatch)
                   Call ChoMP2_OpenB(1,iSym,iBatch)
                   iOpt = 1
                   iAdr = LnT1am(iSym,iBatch)*(iVec1-1) + 1
-                  Call ddaFile(lUnit(iSym,iBatch),iOpt,Work(kSort),lTot,
+                  Call ddaFile(lUnit(iSym,iBatch),iOpt,Wrk(kSort),lTot,
      &                         iAdr)
                   Call ChoMP2_OpenB(2,iSym,iBatch)
                End Do
@@ -160,5 +164,5 @@ C           ---------------------------------------------
 
       End Do
 
-    1 Call GetMem('SrtMax','Free','Real',ipWrk,lWrk)
+    1 Call mma_deallocate(Wrk)
       End
