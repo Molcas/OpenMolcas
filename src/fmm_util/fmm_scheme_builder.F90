@@ -108,8 +108,8 @@ subroutine fmm_init_scheme(job_type)
 
   ! Set up (W) translator and (T) contractor options
 
-  select case(scheme%job_type)
-    case(GFC_FMM)
+  select case (scheme%job_type)
+    case (GFC_FMM)
       scheme%include_near_field = .true.
       scheme%W_con%W_buffer = TREE_W_BUFFER
       scheme%W_con%ID = W_CONTRACTOR_FAST
@@ -124,7 +124,7 @@ subroutine fmm_init_scheme(job_type)
         scheme%T_con%FF_T_buffer = SCALE_T_BUFFER
         scheme%T_con%FF_ID = T_CONTRACTOR_SCALE
       end if
-    case(MD4_FMM,FE_FMM)
+    case (MD4_FMM,FE_FMM)
       scheme%include_near_field = .false.
       scheme%W_con%W_buffer = TREE_W_BUFFER
       scheme%W_con%ID = W_CONTRACTOR_FAST
@@ -134,23 +134,23 @@ subroutine fmm_init_scheme(job_type)
       scheme%T_con%NF_ID = T_CONTRACTOR_FULL
       flag = 2
       if (scheme%algorithm == DO_FQ) flag = 1
-      select case(flag)
-        case(0)
+      select case (flag)
+        case (0)
           ! we do no contractions (for diagnostics)
           scheme%T_con%FF_T_buffer = SKIP_T_BUFFER
           scheme%T_con%FF_ID = T_CONTRACTOR_DIRECT
-        case(1)
+        case (1)
           scheme%T_con%FF_T_buffer = NULL_T_BUFFER
           scheme%T_con%FF_ID = T_CONTRACTOR_FULL
-        case(2)
+        case (2)
           scheme%T_con%FF_T_buffer = SCALE_T_BUFFER
           scheme%T_con%FF_ID = T_CONTRACTOR_SCALE
           !scheme%T_con%sort_para = SORT_BY_SCALE
-        !case(3)
+        !case (3)
         !  scheme%T_con%T_buffer = TREE_T_BUFFER
         !  scheme%T_con%sort_para = SORT_BY_SCALE
         !  scheme%T_con%ID = T_CONTRACTOR_TREE
-        !case(4)
+        !case (4)
         !  scheme%T_con%T_buffer = TREE_T_BUFFER
         !  scheme%T_con%ID = T_CONTRACTOR_SCALE_TREE
         case default
@@ -172,8 +172,8 @@ subroutine fmm_verify_scheme()
 
   implicit none
 
-  select case(scheme%algorithm)
-    case(MD4_FMM)
+  select case (scheme%algorithm)
+    case (MD4_FMM)
       if (WS_MIN < 2*ceiling(scheme%extent_min/scheme%grain*half)) then
         write(LUPRI,*) 'WS_MIN = ',WS_MIN
         write(LUPRI,*) 'Extent_min = ',scheme%extent_min
@@ -200,27 +200,27 @@ subroutine fmm_print_scheme()
   write(LUPRI,'(A)') ' |  Multipole module runtime parameters  |'
   write(LUPRI,'(A,/)') ' -----------------------------------------'
 
-  select case(scheme%job_type)
-    case(GFC_FMM)
+  select case (scheme%job_type)
+    case (GFC_FMM)
       write(LUPRI,*) 'Computing classical boundary potential.'
-    case(MD4_FMM)
+    case (MD4_FMM)
       write(LUPRI,*) 'Computing multipole contribution to J-matrix.'
-    case(FE_FMM)
+    case (FE_FMM)
       write(LUPRI,*) 'Computing full J-matrix via FE-FMM.'
     case default
       call fmm_quit('MM job type not recognised!')
   end select
 
-  select case(scheme%algorithm)
-    case(DO_NULL)
+  select case (scheme%algorithm)
+    case (DO_NULL)
       write(LUPRI,*) 'Skipping all FF interactions.'
-    case(DO_FQ)
+    case (DO_FQ)
       write(LUPRI,*) 'Running simple O(N^2) algorithm.'
-    case(DO_BQ)
+    case (DO_BQ)
       write(LUPRI,*) 'Running fast O(N^2) algorithm with boxes.'
-    case(DO_NLOGN)
+    case (DO_NLOGN)
       write(LUPRI,*) 'Running hierarchical O(NlogN) algorithm.'
-    case(DO_FMM)
+    case (DO_FMM)
       write(LUPRI,*) 'Running hierarchical O(N) FMM algorithm.'
     case default
       call fmm_quit('far-field algorithm type not recognised!')
@@ -245,43 +245,43 @@ subroutine fmm_print_scheme()
   !end if
 
   if (scheme%include_near_field) then
-    select case(scheme%T_con%NF_T_buffer)
-    case(TREE_T_BUFFER)
+    select case (scheme%T_con%NF_T_buffer)
+    case (TREE_T_BUFFER)
       write(LUPRI,*) 'Using Tree Buffer for NF T matrices.'
-    case(NULL_T_BUFFER)
+    case (NULL_T_BUFFER)
       write(LUPRI,*) 'Building all NF T matrices on the fly.'
-    case(SKIP_T_BUFFER)
+    case (SKIP_T_BUFFER)
       write(LUPRI,*) 'Skipping all NF T matrix contractions.'
-    case(MULTI_T_BUFFER)
+    case (MULTI_T_BUFFER)
       write(LUPRI,*) 'Using buffer for multiple NF T matrix build.'
-    case(SCALE_T_BUFFER)
+    case (SCALE_T_BUFFER)
       write(LUPRI,*) 'Using buffer for scaled NF T matrix build.'
     case default
       call fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
     end select
   end if
 
-  select case(scheme%T_con%FF_T_buffer)
-    case(TREE_T_BUFFER)
+  select case (scheme%T_con%FF_T_buffer)
+    case (TREE_T_BUFFER)
       write(LUPRI,*) 'Using Tree Buffer for FF T matrices.'
-    case(NULL_T_BUFFER)
+    case (NULL_T_BUFFER)
       write(LUPRI,*) 'Building all FF T matrices on the fly.'
-    case(SKIP_T_BUFFER)
+    case (SKIP_T_BUFFER)
       write(LUPRI,*) 'Skipping all FF T matrix contractions.'
-    case(MULTI_T_BUFFER)
+    case (MULTI_T_BUFFER)
       write(LUPRI,*) 'Using buffer for multiple FF T matrix build.'
-    case(SCALE_T_BUFFER)
+    case (SCALE_T_BUFFER)
       write(LUPRI,*) 'Using buffer for scaled FF T matrix build.'
     case default
       call fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
   end select
 
-  select case(scheme%W_con%W_buffer)
-    case(TREE_W_BUFFER)
+  select case (scheme%W_con%W_buffer)
+    case (TREE_W_BUFFER)
       write(LUPRI,*) 'Using Tree Buffer for W matrices.'
-    case(NULL_W_BUFFER)
+    case (NULL_W_BUFFER)
       write(LUPRI,*) 'Building all W matrices on the fly.'
-    case(SKIP_W_BUFFER)
+    case (SKIP_W_BUFFER)
       write(LUPRI,*) 'Skipping all W matrix contractions.'
     case default
       call fmm_quit('invalid W-vector buffer in fmm_print_scheme!')

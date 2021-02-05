@@ -405,10 +405,10 @@ return
 !1001 format(1h1,1x,'Matrix elements of observables'/1x,e80//1x,'Asymtotic energy difference (au):',e14.6)
 1002 format('Rotational quantum number for potential 1: ',i3,', for potential 2: ',i3)
 1003 format(1x,80('-'))
-1200 Format(/1x,'*****Warning: non-orthogonality between vibrational',1x,'wave functions for potential',i2 &
+1200 format(/1x,'*****Warning: non-orthogonality between vibrational',1x,'wave functions for potential',i2 &
             /13x,'largest overlap matrix element is',f14.6)
-1310 Format(/1x,'Overlap matrix for pot-1 and pot-2 functions')
-1600 Format(/1x,'Lifetimes (in nano seconds)'/3x,'v',7x,'tau')
-1700 Format(1x,i3,f10.2)
+1310 format(/1x,'Overlap matrix for pot-1 and pot-2 functions')
+1600 format(/1x,'Lifetimes (in nano seconds)'/3x,'v',7x,'tau')
+1700 format(1x,i3,f10.2)
 
 end subroutine Vibtrm

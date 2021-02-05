@@ -82,8 +82,8 @@ subroutine fmm_init_buffer_stats(mode,W_mode)
   character, intent(in)                  :: mode
   character(len=7), optional, intent(in) :: W_mode
 
-  select case(mode)
-    case('T')
+  select case (mode)
+    case ('T')
       if (stat_NF_not_FF) then
         stat_tpack_chunks => stat_T_chunks_NF
         stat_tpack_unique => stat_T_direction_NF
@@ -93,17 +93,17 @@ subroutine fmm_init_buffer_stats(mode,W_mode)
         stat_tpack_unique => stat_T_direction_FF
         stat_tpack_total => stat_T_total_FF
       end if
-    case('W')
-      select case(W_mode)
-        case('RAW_BOX')
+    case ('W')
+      select case (W_mode)
+        case ('RAW_BOX')
           stat_tpack_chunks => stat_W_chunks_RB
           stat_tpack_unique => stat_W_direction_RB
           stat_tpack_total => stat_W_total_RB
-        case('BOX_BOX')
+        case ('BOX_BOX')
           stat_tpack_chunks => stat_W_chunks_BB
           stat_tpack_unique => stat_W_direction_BB
           stat_tpack_total => stat_W_total_BB
-        case('BOX_RAW')
+        case ('BOX_RAW')
           stat_tpack_chunks => stat_W_chunks_BR
           stat_tpack_unique => stat_W_direction_BR
           stat_tpack_total => stat_W_total_BR
@@ -124,20 +124,20 @@ subroutine fmm_init_matrix_stats(mode,W_mode)
   character, intent(in)                  :: mode
   character(len=7), optional, intent(in) :: W_mode
 
-  select case(mode)
-    case('T')
+  select case (mode)
+    case ('T')
       if (stat_NF_not_FF) then
         stat_T_mat_builds => stat_T_matrix_NF
       else
         stat_T_mat_builds => stat_T_matrix_FF
       end if
-    case('W')
-      select case(W_mode)
-        case('RAW_BOX')
+    case ('W')
+      select case (W_mode)
+        case ('RAW_BOX')
           stat_W_mat_builds => stat_W_matrix_RB
-        case('BOX_BOX')
+        case ('BOX_BOX')
           stat_W_mat_builds => stat_W_matrix_BB
-        case('BOX_RAW')
+        case ('BOX_RAW')
           stat_W_mat_builds => stat_W_matrix_BR
         case default
           call fmm_quit('cannot reconcile W runtype!')

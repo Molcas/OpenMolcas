@@ -175,7 +175,7 @@ subroutine fmm_transform_car_to_sph(CarMpole,SphMpole,ndim,LMAX)
     do IS=1,(MType+MType+1)
       do IC=1,(MType+1)*(MType+2)/2
 
-        if(MType /= 1) then
+        if (MType /= 1) then
           TempSphCoef = SphCoef(IS,IC,MType)
         else
           TempSphCoef = SphCoef_yzx(IS,IC)

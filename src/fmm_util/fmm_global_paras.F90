@@ -31,10 +31,10 @@ public :: fmm_counters, fmm_planes, LHS_RHS_type, scheme_paras, raw_mm_paras, ra
 !------------------------------------------------------------------------------
 
 ! We select here the REAL and INTEGER precisions
-!integer, parameter :: INTK = selected_int_kind(9), &
-!                      REALK = selected_real_kind(XXX)
-integer, parameter :: INTK = iwp, &
-                      REALK = wp
+!integer(kind=iwp), parameter :: INTK = selected_int_kind(9), &
+!                                REALK = selected_real_kind(XXX)
+integer(kind=iwp), parameter :: INTK = iwp, &
+                                REALK = wp
 
 !==============================================================================
 ! Program-wide global variables |
@@ -204,7 +204,7 @@ type scheme_paras
   integer(INTK)         :: job_type
   logical               :: include_near_field
   integer(INTK)         :: algorithm, phase
-  integer               :: NF_T_searcher, FF_T_searcher
+  integer(INTK)         :: NF_T_searcher, FF_T_searcher
   type(T_contract_schm) :: T_con
   type(W_contract_schm) :: W_con
   logical               :: branch_free

@@ -155,14 +155,14 @@ subroutine dmrg_task_process_update(                                  &
 # include "mafdecls.fh"
 
   ! select task
-  select case(trim(task))
-    case('fci dump')
+  select case (trim(task))
+    case ('fci dump')
        call GA_sync()
-    case('overlap ', 'overlapR')
+    case ('overlap ', 'overlapR')
        Call GA_Brdcst(MT_DBL, energy, 1, 0)
-    case('imp spdX', 'imp rdmY')
+    case ('imp spdX', 'imp rdmY')
        Call GA_Brdcst(MT_DBL, x1, nDim, 0)
-    case('imp rdmX')
+    case ('imp rdmX')
        if (present(rdm1)) then
          !if (rdm1) print *, 'rdm1 before ',x1(1:10)
          if (rdm1) Call GA_Brdcst(MT_DBL, x1, nDim, 0)
@@ -174,7 +174,7 @@ subroutine dmrg_task_process_update(                                  &
        !if (present(rdm1)) then
        !  if (rdm1) print *, 'rdm1 after ',x1(1:10)
        !end if
-    case('run DMRG')
+    case ('run DMRG')
        call GA_sync()
        Call GA_Brdcst(MT_DBL, dmrg_energy%dmrg, 1, 0)
        Call GA_Brdcst(MT_DBL, dmrg_energy%dmrg_state_specific, size(dmrg_energy%dmrg_state_specific), 0)

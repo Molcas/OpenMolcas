@@ -53,8 +53,8 @@ do I=1,NOS
   VecH(I) = XFIT(I+1)-XFIT(I)
   VecD(I) = (YFIT(I+1)-YFIT(I))/VecH(I)
 end do
-select case(IBOUND)
-  case(1)
+select case (IBOUND)
+  case (1)
     !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     !                                                                  C
     !  IBOUND=1:                                                       C
@@ -172,7 +172,7 @@ select case(IBOUND)
     end do
 
 #ifdef _IBOUND2_
-  case(2)
+  case (2)
     !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     !                                                                  C
     !  IBOUND=2:                                                       C

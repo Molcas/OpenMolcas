@@ -42,8 +42,8 @@ call Molcas_Open(Vibplt,FILENAME)
 
 iPrint = 1
 
-select case(ifit)
-  case(1)
+select case (ifit)
+  case (1)
     Ue = 0.4_wp
     if ((Ue < 0.1_wp).or.(Ue > 0.9_wp)) then
       write(u6,*) 'POT Error: Ue should be in 0.1..0.9'
@@ -184,7 +184,7 @@ select case(ifit)
     close(Vibplt)
 
   ! Here for fitting of observable input
-  case(2)
+  case (2)
     call Sort_Pot(Rin,Ein,npin)
     next = lext
     call Spline(Rin,Ein,npin,Rout,Eout,nout,Rext,Eext,iext,next,1)

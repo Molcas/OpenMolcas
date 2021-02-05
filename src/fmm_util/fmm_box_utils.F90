@@ -262,7 +262,7 @@ function fmm_RFF_boxes(LHS,RHS)
   type(box_mm_paras) :: LHS_up, RHS_up
 
   ! test only valid if box grids are at the same level depth
-  if(LHS%level /= RHS%level) call fmm_quit('levels in fmm_RFF_boxes')
+  if (LHS%level /= RHS%level) call fmm_quit('levels in fmm_RFF_boxes')
 
   LHS_up = LHS
   RHS_up = RHS

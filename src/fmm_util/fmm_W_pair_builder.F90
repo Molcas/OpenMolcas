@@ -70,11 +70,11 @@ subroutine fmm_get_W_pair(addr,r_ab,new_LMAX,old_LMAX,object,W_pair)
   W_pair%paras%RHS_LMAX = old_LMAX
 
   ! (see fmm_W_worker)
-  select case(object)
-    case('qlm')
+  select case (object)
+    case ('qlm')
       W_pair%r_ab(:) = r_ab(:)
       W_pair%N_or_T = 'N'
-    case('Vff')
+    case ('Vff')
       ! For Vff translations, we require W'(-r_ab)
       W_pair%r_ab(:) = -r_ab(:)
       ! Use 'T' (transpose) for W_matrix contraction with DTRMV

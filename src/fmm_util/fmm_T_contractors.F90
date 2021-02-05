@@ -64,13 +64,13 @@ subroutine fmm_init_T_contractors(scheme)
     T_con = scheme%T_con%FF_id
   end if
 
-  select case(T_con)
-    case(T_CONTRACTOR_MULTI)
+  select case (T_con)
+    case (T_CONTRACTOR_MULTI)
       if (allocated(T_mats)) call fmm_quit('T_mats not deallocated!')
       !FIXME: will need to change TMATM_DF if changed elsewhere
       allocate(T_mats(TMATM_DF,lm_max,lm_max))
       T_mats = zero
-    case(T_CONTRACTOR_BOUNDARY)
+    case (T_CONTRACTOR_BOUNDARY)
       if (allocated(T_matrix)) call fmm_quit('T_matrix not deallocated!')
       allocate(T_matrix(lm_max,1))
       T_matrix = zero
@@ -495,20 +495,20 @@ subroutine fmm_select_T_con(scheme)
     T_con_ID = scheme%T_con%FF_id
   end if
 
-  select case(T_con_ID)
-    case(T_CONTRACTOR_DIRECT)
+  select case (T_con_ID)
+    case (T_CONTRACTOR_DIRECT)
       call fmm_store_t_contractor(fmm_T_con_DIRECT)
-    case(T_CONTRACTOR_BOUNDARY)
+    case (T_CONTRACTOR_BOUNDARY)
       call fmm_store_t_contractor(fmm_T_con_BOUNDARY)
-    case(T_CONTRACTOR_TREE)
+    case (T_CONTRACTOR_TREE)
       call fmm_store_t_contractor(fmm_T_con_TREE)
-    case(T_CONTRACTOR_SCALE_TREE)
+    case (T_CONTRACTOR_SCALE_TREE)
       call fmm_store_t_contractor(fmm_T_con_SCALE_TREE)
-    case(T_CONTRACTOR_SCALE)
+    case (T_CONTRACTOR_SCALE)
       call fmm_store_t_contractor(fmm_T_con_SCALE)
-    case(T_CONTRACTOR_MULTI)
+    case (T_CONTRACTOR_MULTI)
       call fmm_store_t_contractor(fmm_T_con_MULTI)
-    case(T_CONTRACTOR_FULL)
+    case (T_CONTRACTOR_FULL)
       call fmm_store_t_contractor(fmm_T_con_FULL)
     case default
       call fmm_quit('invalid T_contractor requested!')

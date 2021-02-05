@@ -91,8 +91,8 @@ subroutine get_LHS_data(scheme,LHS)
   end do
 
   ! LHS preconditioning for T-matrix
-  select case(scheme%T_con%LHS_mm_type)
-    case(USE_RAW_QLM)
+  select case (scheme%T_con%LHS_mm_type)
+    case (USE_RAW_QLM)
       ! Note that dimensions of paras and qlm,2 may be different
       qlm_dim = size(LHS%qlm,2)
       ndim = size(LHS%qlm,1)
@@ -164,10 +164,10 @@ subroutine get_RHS_data(scheme,RHS)
   end do
 
   ! RHS preconditioning for T-matrix
-  select case(scheme%T_con%RHS_mm_type)
-    case(USE_RAW_QLM)
+  select case (scheme%T_con%RHS_mm_type)
+    case (USE_RAW_QLM)
       RHS%qlm_T => RHS%qlm_W(:,:)
-    case(USE_T_SYM_QLM)
+    case (USE_T_SYM_QLM)
       allocate(RHS%qlm_T(ndim,qlm_dim))
       ! build %qlm_T by rescaling significant %qlm_W
       call fmm_get_T_sym_qlm(LMAX,RHS%qlm_W,RHS%qlm_T)

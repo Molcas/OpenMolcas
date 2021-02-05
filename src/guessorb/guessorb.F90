@@ -53,14 +53,14 @@ if (StandAlone) call InpCtl_GuessOrb
 !----------------------------------------------------------------------*
 call cre_gsswfn
 call FckByInt(iRC,StandAlone)
-!if (iRC == 0) GoTo 999
-if (.true.) goto 999
-if (nSym == 1) then
-  call Fmod1n(StandAlone)
-else
-  call Fmod1s(StandAlone)
+!if (iRC /= 0) then
+if (.false.) then
+  if (nSym == 1) then
+    call Fmod1n(StandAlone)
+  else
+    call Fmod1s(StandAlone)
+  end if
 end if
-999 continue
 call cls_gsswfn
 !----------------------------------------------------------------------*
 ! Produce MOLDEN input                                                 *

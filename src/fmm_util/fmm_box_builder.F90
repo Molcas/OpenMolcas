@@ -139,8 +139,8 @@ recursive subroutine iterate_paras_to_level(l,scheme,side)
   integer(INTK) :: l_down
 
   l_down = l+1
-  select case(side)
-    case('RHS')
+  select case (side)
+    case ('RHS')
       if (.not. associated(mms_at_lev(l_down)%RHS_paras)) then
         ! must build paras at deeper levels before higher levels
         call iterate_paras_to_level(l_down,scheme,'RHS')
@@ -148,7 +148,7 @@ recursive subroutine iterate_paras_to_level(l,scheme,side)
       ptr => mms_at_lev(l_down)%RHS_paras(:)
       ! build new paras from paras at previous level (including packing)
       call fmm_shift_and_pack_paras(l,scheme,ptr,mms_at_lev(l)%RHS_paras)
-    case('LHS')
+    case ('LHS')
       if (.not. associated(mms_at_lev(l_down)%LHS_paras)) then
         ! must build paras at deeper levels before higher levels
         call iterate_paras_to_level(l_down,scheme,'LHS')
@@ -244,15 +244,15 @@ subroutine fmm_get_box_paras_at_level(l,scheme,box_paras,side)
 
   if (.not.associated(mms_at_lev)) call fmm_quit('mms_at_lev should be allocated!')
 
-  select case(side)
-    case('RHS')
+  select case (side)
+    case ('RHS')
       if (.not.associated(mms_at_lev(l)%RHS_paras)) then
         ! RHS paras not available at this level yet. So make them!
         call build_paras_at_level(l,scheme)
       end if
       box_paras => mms_at_lev(l)%RHS_paras(:)
       stat_RHS_boxes(l) = size(box_paras)
-    case('LHS')
+    case ('LHS')
       if (.not. associated(mms_at_lev(l)%LHS_paras)) then
         ! LHS paras not available at this level yet. So make them!
         call build_paras_at_level(l,scheme)

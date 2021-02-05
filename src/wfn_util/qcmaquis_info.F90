@@ -49,7 +49,7 @@ subroutine qcmaquis_info_init(igroup,nstates,tag)
 
   if (tag == 0) then
     call mma_allocate(qcm_group_names,igroup,label='qcm_group_names')
-  else if(tag == 1) then
+  else if (tag == 1) then
     call mma_allocate(qcm_group_names(igroup)%states,nstates,label='qcm_igroup')
     qcm_group_names(igroup)%states = ''
   else if (tag == -1) then

@@ -30,7 +30,8 @@ function fmm_second()
 
   implicit none
   real(REALK) :: fmm_second
-  integer :: cnt, count_rate, count_max, tmp
+  integer :: cnt, count_rate, count_max ! note default integer kind for system_clock call
+  integer(INTK) :: tmp
   integer(INTK), save :: prt = 0
   integer(INTK), save :: last_count = 0
 

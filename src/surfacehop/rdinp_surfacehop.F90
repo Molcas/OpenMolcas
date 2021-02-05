@@ -37,25 +37,25 @@ read_input: do
   Line = Key
   call UpCase(Line)
 
-  select case(Line(1:4))
-    case('TULL')
+  select case (Line(1:4))
+    case ('TULL')
       tullyL=.true.
-    case('DECO')
+    case ('DECO')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,DECO)
       decoherence = .true.
-    case('SUBS')
+    case ('SUBS')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,NSUBSTEPS)
-    case('ETHR')
+    case ('ETHR')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,Ethreshold)
-    case('RTHR')
+    case ('RTHR')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,RandThreshold)
-    case('PSUB')
+    case ('PSUB')
       tullySubVerb = .true.
-    case('DMTX')
+    case ('DMTX')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,NSTATE)
       call mma_allocate(AmatrixVR,NSTATE*NSTATE,label='AmatrixVR')
@@ -86,20 +86,20 @@ read_input: do
       end if
       call mma_deallocate(AmatrixVR)
       call mma_deallocate(AmatrixVI)
-    case('FRAN')
+    case ('FRAN')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,FixedRand)
       fixedrandL = .true.
-    case('ISEE') ! initial seed number
+    case ('ISEE') ! initial seed number
       Line = Get_Ln(LuSpool)
       call Get_I1(1,InitSeed)
       iseedL = .true.
-    case('MAXH')
+    case ('MAXH')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,maxHop)
       call Put_iScalar('MaxHopsTully',maxHop)
 !     write(u6,*) 'MaxHops set to ', maxHop
-    case('H5RE')
+    case ('H5RE')
 #ifdef _HDF5_
       lH5Restart = .true.
       Line = Get_Ln(LuSpool)
@@ -109,7 +109,7 @@ read_input: do
       write(u6,*) 'but this is not supported in this installation.'
       call Quit_OnUserError()
 #endif
-    case('END ')
+    case ('END ')
       exit
     case default
       write (u6,*) 'Unknown keyword: ', trim(Key)

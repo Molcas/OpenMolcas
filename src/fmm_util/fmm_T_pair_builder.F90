@@ -74,8 +74,8 @@ subroutine fmm_gen_local_T_pairs(LHS,RHS,pair_type)
   weight = 1
   nullify(RHS_local%box_paras,RHS_local%raw_paras)
 
-  select case(pair_type)
-    case(LHS_raw_RHS_raw)
+  select case (pair_type)
+    case (LHS_raw_RHS_raw)
       do j=1,size(LHS%raw_paras)
         id%LHS = j
         do i=1,size(RHS%raw_paras)
@@ -83,7 +83,7 @@ subroutine fmm_gen_local_T_pairs(LHS,RHS,pair_type)
           call fmm_test_and_buffer_T_pair(LHS,RHS,id,weight)
         end do
       end do
-    case(LHS_box_RHS_box)
+    case (LHS_box_RHS_box)
       do j=1,size(LHS%box_paras)
         call fmm_get_local_paras(j,RHS,pair_type,RHS_local,ndim)
         if (ndim == 0) cycle
@@ -117,8 +117,8 @@ subroutine fmm_gen_nonlocal_T_pairs(LHS,RHS,pair_type)
 
   weight = 1
 
-  select case(pair_type)
-    case(LHS_raw_RHS_raw)
+  select case (pair_type)
+    case (LHS_raw_RHS_raw)
       do j=1,size(LHS%raw_paras)
         id%LHS = j
         do i=1,size(RHS%raw_paras)
@@ -126,7 +126,7 @@ subroutine fmm_gen_nonlocal_T_pairs(LHS,RHS,pair_type)
           call fmm_test_and_buffer_T_pair(LHS,RHS,id,weight)
         end do
       end do
-    case(LHS_box_RHS_box)
+    case (LHS_box_RHS_box)
       do j=1,size(LHS%box_paras)
         id%LHS = j
         do i=1,size(RHS%box_paras)

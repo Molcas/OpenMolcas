@@ -229,131 +229,132 @@ call mma_deallocate(T1)
 !----------------------------------------------------------------------*
 ! Diagonalize T in virtual space.                                      *
 !----------------------------------------------------------------------*
-if (.false.) goto 900
-iRc = -1
-iSymlb = 1
-call RdOne(irc,6,'Kinetic ',1,Fck,iSymlb)
-if (iRc /= 0) goto 900
-inT1 = nBasMax*nBasMax
-inT2 = nBasMax*nBasMax
-inT3 = nBasMax*nBasMax
-call mma_allocate(T1,inT1)
-call mma_allocate(T2,inT2)
-call mma_allocate(T3,inT3)
-ijT = 1
-ijS = 1
-ijL = 1
-do iSym=1,nSym
-  nB = nBas(iSym)
-  nD = nDel(iSym)
-  nC = 0
-  do iBas=1,nB-nD
-    if (Eps(ijL+iBas-1) < -1.0e-3_wp) nC = nC+1
-  end do
-  nS = nB-nC-nD
-  if (nS > 0) then
-
-    ! Generate standardized virtual orbitals before we proceed.
-    ! The virtual orbitals generated previously are not well
-    ! defined and might differ substantially with different
-    ! hardware/software and compiler options. To be able to
-    ! compare we will need these standardized virtual orbitals.
-    ! In real production calculations this step could for all
-    ! practical purposes be skipped.
-
-    if (Verify) call Virt_Space(CMO(ijS),CMO(ijS+nB*nC),Ovl(ijT),nB,nC,nS)
-
-    call Square(Fck(ijT),T1,1,nB,nB)
-    call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS+nB*nC),nB,Zero,T2,nB)
-
-    call MxMt(CMO(ijS+nB*nC),nB,1,T2,1,nB,T3,nS,nB)
-    if (Debug) then
-      call TriPrt('Virtual space','(12f12.6)',T3,nS)
-    end if
-    call NIdiag(T3,CMO(ijS+nB*nC),nS,nB,0)
-    call goPickup(T3,Eps(ijL+nC),nS)
-    call goSort(Eps(ijL+nC),CMO(ijS+nB*nC),nS,nB)
-    if (Debug) then
-      call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
-      call RecPrt('Virtual Orbitals',' ',CMO(ijS+nB*nC),nB,nS)
-    end if
-
-    ! Now order degenerate orbitals. This is only important for
-    ! verification runs.
-
-    do iBas=nC+1,nB-nD-1
-      ei = Eps(ijL+iBas-1)
-      tmp1 = Zero
-      do kBas=1,nB
-        ik = ijS+(iBas-1)*nB+kBas-1
-        tmp1 = tmp1+abs(CMO(ik)*dble(kBas))
+dummy: if (.true.) then
+  iRc = -1
+  iSymlb = 1
+  call RdOne(irc,6,'Kinetic ',1,Fck,iSymlb)
+  ifrc: if (iRc == 0) then
+    inT1 = nBasMax*nBasMax
+    inT2 = nBasMax*nBasMax
+    inT3 = nBasMax*nBasMax
+    call mma_allocate(T1,inT1)
+    call mma_allocate(T2,inT2)
+    call mma_allocate(T3,inT3)
+    ijT = 1
+    ijS = 1
+    ijL = 1
+    do iSym=1,nSym
+      nB = nBas(iSym)
+      nD = nDel(iSym)
+      nC = 0
+      do iBas=1,nB-nD
+        if (Eps(ijL+iBas-1) < -1.0e-3_wp) nC = nC+1
       end do
-      do jBas=iBas+1,nB-nD
-        ej = Eps(ijL+jBas-1)
-        if (abs(ei-ej) < 1.0e-12_wp) then
-          tmp2 = Zero
-          do kBas=1,nB
-            jk = ijS+(jBas-1)*nB+kBas-1
-            tmp2 = tmp2+abs(CMO(jk)*dble(kBas))
-          end do
-          if (tmp2 > tmp1) then
-            tmp = tmp2
-            tmp2 = tmp1
-            tmp1 = tmp
-            Eps(ijL+iBas-1) = ej
-            Eps(ijL+jBas-1) = ei
-            ei = ej
-            i1 = ijS+(iBas-1)*nB
-            j1 = ijS+(jBas-1)*nB
-            call DSwap_(nB,CMO(i1),1,CMO(j1),1)
-          end if
+      nS = nB-nC-nD
+      if (nS > 0) then
+
+        ! Generate standardized virtual orbitals before we proceed.
+        ! The virtual orbitals generated previously are not well
+        ! defined and might differ substantially with different
+        ! hardware/software and compiler options. To be able to
+        ! compare we will need these standardized virtual orbitals.
+        ! In real production calculations this step could for all
+        ! practical purposes be skipped.
+
+        if (Verify) call Virt_Space(CMO(ijS),CMO(ijS+nB*nC),Ovl(ijT),nB,nC,nS)
+
+        call Square(Fck(ijT),T1,1,nB,nB)
+        call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS+nB*nC),nB,Zero,T2,nB)
+
+        call MxMt(CMO(ijS+nB*nC),nB,1,T2,1,nB,T3,nS,nB)
+        if (Debug) then
+          call TriPrt('Virtual space','(12f12.6)',T3,nS)
+        end if
+        call NIdiag(T3,CMO(ijS+nB*nC),nS,nB,0)
+        call goPickup(T3,Eps(ijL+nC),nS)
+        call goSort(Eps(ijL+nC),CMO(ijS+nB*nC),nS,nB)
+        if (Debug) then
+          call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
+          call RecPrt('Virtual Orbitals',' ',CMO(ijS+nB*nC),nB,nS)
         end if
 
-      end do
+        ! Now order degenerate orbitals. This is only important for
+        ! verification runs.
+
+        do iBas=nC+1,nB-nD-1
+          ei = Eps(ijL+iBas-1)
+          tmp1 = Zero
+          do kBas=1,nB
+            ik = ijS+(iBas-1)*nB+kBas-1
+            tmp1 = tmp1+abs(CMO(ik)*dble(kBas))
+          end do
+          do jBas=iBas+1,nB-nD
+            ej = Eps(ijL+jBas-1)
+            if (abs(ei-ej) < 1.0e-12_wp) then
+              tmp2 = Zero
+              do kBas=1,nB
+                jk = ijS+(jBas-1)*nB+kBas-1
+                tmp2 = tmp2+abs(CMO(jk)*dble(kBas))
+              end do
+              if (tmp2 > tmp1) then
+                tmp = tmp2
+                tmp2 = tmp1
+                tmp1 = tmp
+                Eps(ijL+iBas-1) = ej
+                Eps(ijL+jBas-1) = ei
+                ei = ej
+                i1 = ijS+(iBas-1)*nB
+                j1 = ijS+(jBas-1)*nB
+                call DSwap_(nB,CMO(i1),1,CMO(j1),1)
+              end if
+            end if
+
+          end do
+        end do
+
+        ! Introduce "standard" phase.
+
+        do iBas=1,nB
+          tmp = OrbPhase(CMO(ijS+(iBas-1)*nB),nB)
+        end do
+
+        if (Debug) then
+          call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
+          call RecPrt('Virtual Orbitals',' ',CMO(ijS+nB*nC),nB,nS)
+        end if
+        do iBas=nC+1,nB-nD
+          Eps(ijL+iBas-1) = Eps(ijL+iBas-1)+Three
+        end do
+        do iBas=nB-nD+1,nB
+          Eps(ijL+iBas-1) = 999.0_wp
+        end do
+        do iBas=1,nB-nD
+          if (Eps(ijL+iBas-1) > TThr) nDel(iSym) = nDel(iSym)+1
+        end do
+      end if
+      ijT = ijT+nB*(nB+1)/2
+      ijS = ijS+nB*nB
+      ijL = ijL+nB
     end do
-
-    ! Introduce "standard" phase.
-
-    do iBas=1,nB
-      tmp = OrbPhase(CMO(ijS+(iBas-1)*nB),nB)
-    end do
-
-    if (Debug) then
-      call RecPrt('Eps',' ',Eps(ijL+nC),nS,1)
-      call RecPrt('Virtual Orbitals',' ',CMO(ijS+nB*nC),nB,nS)
+    call mma_deallocate(T3)
+    call mma_deallocate(T2)
+    call mma_deallocate(T1)
+    !----------------------------------------------------------------------*
+    ! Print orbital space data.                                            *
+    !----------------------------------------------------------------------*
+    if (StandAlone) then
+      write(u6,'(a,es10.3)') 'Threshold for linear dependence due to S:',SThr
+      write(u6,'(a,es10.3)') 'Threshold for linear dependence due to T:',TThr
+      write(u6,*)
+      write(u6,'(a,8i5)') 'Total number of basis functions',(nBas(iSym),iSym=1,nSym)
+      write(u6,'(a,8i5)') 'Deleted orbitals               ',(nDel(iSym),iSym=1,nSym)
+      write(u6,*)
     end if
-    do iBas=nC+1,nB-nD
-      Eps(ijL+iBas-1) = Eps(ijL+iBas-1)+Three
-    end do
-    do iBas=nB-nD+1,nB
-      Eps(ijL+iBas-1) = 999.0_wp
-    end do
-    do iBas=1,nB-nD
-      if (Eps(ijL+iBas-1) > TThr) nDel(iSym) = nDel(iSym)+1
-    end do
-  end if
-  ijT = ijT+nB*(nB+1)/2
-  ijS = ijS+nB*nB
-  ijL = ijL+nB
-end do
-call mma_deallocate(T3)
-call mma_deallocate(T2)
-call mma_deallocate(T1)
-!----------------------------------------------------------------------*
-! Print orbital space data.                                            *
-!----------------------------------------------------------------------*
-if (StandAlone) then
-  write(u6,'(a,es10.3)') 'Threshold for linear dependence due to S:',SThr
-  write(u6,'(a,es10.3)') 'Threshold for linear dependence due to T:',TThr
-  write(u6,*)
-  write(u6,'(a,8i5)') 'Total number of basis functions',(nBas(iSym),iSym=1,nSym)
-  write(u6,'(a,8i5)') 'Deleted orbitals               ',(nDel(iSym),iSym=1,nSym)
-  write(u6,*)
-end if
+  end if ifrc
+end if dummy
 !----------------------------------------------------------------------*
 ! Present data.                                                        *
 !----------------------------------------------------------------------*
-900 continue
 inT1 = nBasTot
 inT2 = nBasTot
 call mma_allocate(T1,inT1)

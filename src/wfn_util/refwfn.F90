@@ -346,7 +346,7 @@ subroutine refwfn_data
     ! Let us make a guess: The correct set of energy values in the
     ! table of energies/iteration is the last one with not all zeroes.
     NMAYBE = 0
-    do IT = 1,MXITER
+    do IT=1,MXITER
       AEMAX = 0.0_wp
       do I=1,MXROOT
         E = ejob(I,IT)

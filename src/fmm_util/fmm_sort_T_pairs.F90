@@ -120,11 +120,11 @@ recursive subroutine fmm_quicksort_wrt_RHS(arr)
   j = right-2
   do ! until left, right pointers cross
     ! increment left until large element found
-    do while(arr(i)%paras%RHS_id < pivot)
+    do while (arr(i)%paras%RHS_id < pivot)
       i = i+1
     end do
     ! increment right until small element found
-    do while(arr(j)%paras%RHS_id > pivot)
+    do while (arr(j)%paras%RHS_id > pivot)
       j = j-1
     end do
     if (i < j) then
@@ -245,11 +245,11 @@ recursive subroutine fmm_quicksort_wrt_vector(arr,xyz)
   j = right-2
   do ! until left, right pointers cross
     ! increment left until large element found
-    do while(arr(i)%r_ab(xyz) < pivot)
+    do while (arr(i)%r_ab(xyz) < pivot)
       i = i+1
     end do
     ! increment right until small element found
-    do while(arr(j)%r_ab(xyz) > pivot)
+    do while (arr(j)%r_ab(xyz) > pivot)
       j = j-1
     end do
     if (i < j) then
@@ -367,11 +367,11 @@ recursive subroutine fmm_quicksort_wrt_ratio(arr)
   j = right-2
   do ! until left, right pointers cross
     ! increment left until large element found
-    do while(arr(i)%paras%ratio < pivot)
+    do while (arr(i)%paras%ratio < pivot)
       i = i+1
     end do
     ! increment right until small element found
-    do while(arr(j)%paras%ratio > pivot)
+    do while (arr(j)%paras%ratio > pivot)
       j = j-1
     end do
     if (i < j) then

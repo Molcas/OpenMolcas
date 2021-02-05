@@ -123,7 +123,7 @@ end do
 ! down to something that is nBas x nVirt
 
 mVirt = 0
-do kBas=1,nBas
+kBas_1_nBas: do kBas=1,nBas
 
   tmp = Zero
   lBas = 0
@@ -161,83 +161,84 @@ do kBas=1,nBas
 
   !Polished = .false.
   Polished = .true.
-666 continue
+  do_Polished: do
 
-  do iOcc=1,nOcc
+    do iOcc=1,nOcc
 
-    ! From the trial vector eliminate the occupied space
+      ! From the trial vector eliminate the occupied space
 
-    tmp = Zero
-    do iBas=1,nBas
-      tmp = tmp+PNew(iBas)*C_tmp(iBas,iOcc)
-    end do
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'iOcc,tmp=',iOcc,tmp
-#   endif
-    ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
-
-    call DaXpY_(nBas,-tmp,C_Occ(1,iOcc),1,PNew,1)
-  end do
-  do iVirt=1,mVirt
-
-    ! From the trial vector eliminate parts which already expressed.
-
-    tmp = Zero
-    do iBas=1,nBas
-      tmp = tmp+PNew(iBas)*C_Virt(iBas,iVirt)
-    end do
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'iVirt,tmp=',iVirt,tmp
-#   endif
-
-    ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
-
-    call DaXpY_(nBas,-tmp,C_Virt(1,iVirt),1,PNew,1)
-  end do
-
-  ! Test that it is not a null vector!
-
-  tmp = Zero
-  do iBas=1,nBas
-    tmp = tmp+PNew(iBas)**2
-  end do
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Norm after projection:',tmp
-  write(u6,*)
-# endif
-  if (tmp > thr) then
-    tmp = One/sqrt(tmp)
-    call DScal_(nBas,One/sqrt(tmp),PNew,1)
-    if (.not. Polished) then
-      Polished = .true.
-      Go To 666
-    end if
-
-    if (tmp > thr) then
-      if (mVirt+1 > nVirt) then
-        write(u6,*) 'mVirt.gt.nVirt'
-        write(u6,*) 'mVirt=',mVirt
-        write(u6,*) 'nVirt=',nVirt
-        call Abend()
-    end if
-      mVirt = mVirt+1
-      call DCopy_(nBas,PNew,1,C_Virt(1,mVirt),1)
-
-      ! Update the P-matrix.
-
+      tmp = Zero
       do iBas=1,nBas
-        do jBas=1,nBas
-          P(iBas,jBas) = P(iBas,jBas)-PNew(iBas)*PNew(jBas)
-        end do
+        tmp = tmp+PNew(iBas)*C_tmp(iBas,iOcc)
       end do
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'iOcc,tmp=',iOcc,tmp
+#     endif
+      ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
+
+      call DaXpY_(nBas,-tmp,C_Occ(1,iOcc),1,PNew,1)
+    end do
+    do iVirt=1,mVirt
+
+      ! From the trial vector eliminate parts which already expressed.
+
+      tmp = Zero
+      do iBas=1,nBas
+        tmp = tmp+PNew(iBas)*C_Virt(iBas,iVirt)
+      end do
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'iVirt,tmp=',iVirt,tmp
+#     endif
+
+      ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
+
+      call DaXpY_(nBas,-tmp,C_Virt(1,iVirt),1,PNew,1)
+    end do
+
+    ! Test that it is not a null vector!
+
+    tmp = Zero
+    do iBas=1,nBas
+      tmp = tmp+PNew(iBas)**2
+    end do
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Norm after projection:',tmp
+    write(u6,*)
+#   endif
+    if (tmp > thr) then
+      tmp = One/sqrt(tmp)
+      call DScal_(nBas,One/sqrt(tmp),PNew,1)
+      if (.not. Polished) then
+        Polished = .true.
+        cycle do_Polished
+      end if
+
+      if (tmp > thr) then
+        if (mVirt+1 > nVirt) then
+          write(u6,*) 'mVirt.gt.nVirt'
+          write(u6,*) 'mVirt=',mVirt
+          write(u6,*) 'nVirt=',nVirt
+          call Abend()
+        end if
+        mVirt = mVirt+1
+        call DCopy_(nBas,PNew,1,C_Virt(1,mVirt),1)
+
+        ! Update the P-matrix.
+
+        do iBas=1,nBas
+          do jBas=1,nBas
+            P(iBas,jBas) = P(iBas,jBas)-PNew(iBas)*PNew(jBas)
+          end do
+        end do
+      end if
     end if
-  end if
+    if (Polished) exit do_Polished
+  end do do_Polished
 
-  if (mVirt == nVirt) Go To 667
+  if (mVirt == nVirt) exit kBas_1_nBas
 
-end do
+end do kBas_1_nBas
 
-667 continue
 call mma_deallocate(C_tmp)
 
 if (mVirt /= nVirt) then

@@ -97,9 +97,9 @@ input: do
     if (Word == '') Word = 'END'
   end if
 
-  select case(word)
+  select case (word)
 
-    case(tabinp(1))
+    case (tabinp(1))
       ! Read title lines. Maximum 10 is allowed.
       do
         read(LuIn,'(a)') line
@@ -117,7 +117,7 @@ input: do
         end if
       end do
 
-    case(tabinp(2))
+    case (tabinp(2))
       ! Read isotope numbers
       ! isn1 and isn2 are the isotope numbers for atoms 1 and 2,
       ! Atom1 and Atom2 the corresponding chemical symbols
@@ -199,14 +199,14 @@ input: do
 
       Redm = xMass1*xMass2/(xMass1+xMass2)
 
-    case(tabinp(3))
+    case (tabinp(3))
       ! Read number of grid points for numerical integration (max: npoint)
       Line = Get_Ln(LuIn)
       call Get_I1(1,ngrid)
       if (mod(ngrid,2) == 0) ngrid = ngrid-1 ! ngrid should be odd
       if (ngrid >= npoint) ngrid = npoint-1
 
-    case(tabinp(4))
+    case (tabinp(4))
       ! Read upper and lower integration range in atomic units
       Line = Get_Ln(LuIn)
       call Get_F1(1,Rmin)
@@ -214,14 +214,14 @@ input: do
       Umin = log(Rmin)
       Umax = log(Rmax)
 
-    case(tabinp(5))
+    case (tabinp(5))
       ! Read number of vibrational quantum numbers
       Line = Get_Ln(LuIn)
       call Get_I1(1,nvib)
       n0 = 0
       nvib1 = nvib-1
 
-    case(tabinp(6))
+    case (tabinp(6))
       ! Read range for rotational quantum numbers
       Line = Get_Ln(LuIn)
       call Get_I1(1,J1A)
@@ -235,16 +235,16 @@ input: do
         call Quit_OnUserError()
       end if
 
-    case(tabinp(7))
+    case (tabinp(7))
       ! Read orbital angular momentum quantum number
       Line = Get_Ln(LuIn)
       call Get_I1(1,lambda)
 
-    case(tabinp(8))
+    case (tabinp(8))
       ! Read flag for spectroscopic constants
       ispc = 0
 
-    case(tabinp(9))
+    case (tabinp(9))
       ! Read input for calculation of matrix elements of observables
       ! like the dipole operator, etc.
       iobs = iobs+1
@@ -311,12 +311,12 @@ input: do
       call Get_F1(3,dRo(iobs))
       iplot(iobs) = 1
 
-    case(tabinp(10))
+    case (tabinp(10))
       ! Read starting value for step size in eigenvalue search
       Line = Get_Ln(LuIn)
       call Get_F1(1,dE0)
 
-    case(tabinp(11))
+    case (tabinp(11))
       ! Read potential
       ipot = 1
       nop = 0
@@ -371,37 +371,37 @@ input: do
       iplotp = 1
       if (LuIn1 /= LuIn) close(LuIn1)
 
-    case(tabinp(12))
+    case (tabinp(12))
       ! Calculation of ro-vibrational wave functions (ncase=1)
       ncase = 1
 
-    case(tabinp(13))
+    case (tabinp(13))
       ! Calculation of transition moments (ncase=2)
       ncase = 2
 
-    case(tabinp(14))
+    case (tabinp(14))
       ! Asymptotic energy difference between two potentials
       Line = Get_Ln(LuIn)
       call Get_F1(1,Teas)
 
-    case(tabinp(15))
+    case (tabinp(15))
       ! Flag for printing the wave function.
       IfPrWf = 1
 
-    case(tabinp(16))
+    case (tabinp(16))
       ! Scaling of input potential such that the binding energy is 0.1 au.
       iscale = 1
 
-    case(tabinp(17))
+    case (tabinp(17))
       ! Temperature for vibrational averaging
       Line = Get_Ln(LuIn)
       call Get_F1(1,Temp)
 
-    case(tabinp(18))
+    case (tabinp(18))
       ! ALLRotational
       iallrot = 1
 
-    case(tabinp(19))
+    case (tabinp(19))
       exit input
 
     case default

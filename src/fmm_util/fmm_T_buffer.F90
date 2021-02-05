@@ -58,16 +58,16 @@ subroutine fmm_close_T_buffer()
 
   if (T_buffer_stat /= 'OPEN') call fmm_quit('T_buffer already closed!')
 
-  select case(buffer)
-    case(SKIP_T_BUFFER)
+  select case (buffer)
+    case (SKIP_T_BUFFER)
       ! do nothing
-    case(NULL_T_BUFFER)
+    case (NULL_T_BUFFER)
       ! do nothing
-    case(TREE_T_BUFFER)
+    case (TREE_T_BUFFER)
       call fmm_tree_buffer_finish(fmm_selected_t_contractor)
-    case(MULTI_T_BUFFER)
+    case (MULTI_T_BUFFER)
       call fmm_free_multi_T_buffer(fmm_selected_t_contractor)
-    case(SCALE_T_BUFFER)
+    case (SCALE_T_BUFFER)
       call fmm_free_scale_T_buffer(fmm_selected_t_contractor)
     case default
       call fmm_quit('cannot reconcile list type in fmm_close_T_buffer')
@@ -96,17 +96,18 @@ end subroutine fmm_null_T_buffer
 
 subroutine fmm_skip_T_buffer(T_contractor,T_pair)
 
+# include "macros.fh"
+
   implicit none
   type(T_pair_single), intent(in) :: T_pair
   external T_contractor
 
+  unused_var(T_contractor)
+  unused_var(T_pair)
+
   stat_T_mat_builds = stat_T_mat_builds+1
   return
 
-! Avoid unused argument warnings
-  if (.false.) then
-    call T_contractor(T_pair)
-  end if
 end subroutine fmm_skip_T_buffer
 
 !-------------------------------------------------------------------------------
@@ -137,21 +138,21 @@ subroutine fmm_open_T_buffer(scheme)
     sort_para = scheme%T_con%FF_sort_para
   end if
 
-  select case(buffer)
-    case(SKIP_T_BUFFER)
+  select case (buffer)
+    case (SKIP_T_BUFFER)
       ! all T-contractions will be skipped by this choice of buffer
       call fmm_store_t_buffer(fmm_skip_T_buffer)
-    case(NULL_T_BUFFER)
+    case (NULL_T_BUFFER)
       call fmm_store_t_buffer(fmm_null_T_buffer)
-    case(TREE_T_BUFFER)
+    case (TREE_T_BUFFER)
       ! use tree-based sorting/evaluating module
       call fmm_store_t_buffer(fmm_tree_buffer_add)
       call fmm_tree_buffer_init(TREE_LENGTH,sort_para)
-    case(SCALE_T_BUFFER)
+    case (SCALE_T_BUFFER)
       ! use tree-based sorting/evaluating module
       call fmm_store_t_buffer(fmm_scale_T_buffer_add)
       call fmm_init_scale_T_buffer()
-    case(MULTI_T_BUFFER)
+    case (MULTI_T_BUFFER)
       ! use buffer to drive multiple T matrix simultaneous build
       call fmm_store_t_buffer(fmm_multi_T_buffer_add)
       call fmm_init_multi_T_buffer(TMATM_DF)

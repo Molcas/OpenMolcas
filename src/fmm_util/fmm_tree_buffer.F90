@@ -238,7 +238,7 @@ subroutine downheap(abl1l2,lo,hi)
   idxs = abl1l2(lo)
 
   idx = lo
-  makeheap: do while(idx <= hi/2) ! while k has child(s)
+  makeheap: do while (idx <= hi/2) ! while k has child(s)
     child = 2*idx
     ! pick larger child...
     if (child < hi) then ! exists right branch
@@ -317,7 +317,7 @@ subroutine fmm_tree_buffer_add(pack_ev,T_pair_in)
 
   ! level = 1 - searching for plane, 2 - searching for line, 3 - for point
   do level=1,3
-    nodesearch: do while(abs(direction(level)-node%coord) > DISTINCT_T_TOL)
+    nodesearch: do while (abs(direction(level)-node%coord) > DISTINCT_T_TOL)
       if (direction(level) < node%coord) then
         if (.not. associated(node%left)) then
           call point_node_new(node%left,level,direction,ll,lr,lm,NT,new_T_pair)

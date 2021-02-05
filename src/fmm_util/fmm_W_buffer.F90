@@ -51,12 +51,12 @@ subroutine fmm_close_W_buffer(scheme)
   external fmm_selected_w_contractor
 
   if (W_buffer_stat /= 'OPEN') call fmm_quit('W_buffer already closed!')
-  select case(scheme%W_con%W_buffer)
-    case(SKIP_W_BUFFER)
+  select case (scheme%W_con%W_buffer)
+    case (SKIP_W_BUFFER)
       ! do nothing
-    case(NULL_W_BUFFER)
+    case (NULL_W_BUFFER)
       ! do nothing
-    case(TREE_W_BUFFER)
+    case (TREE_W_BUFFER)
       call fmm_tree_buffer_finish(fmm_selected_w_contractor)
     case default
       call fmm_quit('cannot reconcile list type in fmm_close_W_buffer')
@@ -110,13 +110,13 @@ subroutine fmm_open_W_buffer(scheme)
 
   if (W_buffer_stat == 'OPEN') call fmm_quit('cannot reopen W_buffer')
 
-  select case(scheme%W_con%W_buffer)
-    case(SKIP_W_BUFFER)
+  select case (scheme%W_con%W_buffer)
+    case (SKIP_W_BUFFER)
       ! all W-contractions will be skipped by this choice of buffer
       call fmm_store_w_buffer(fmm_skip_W_buffer)
-    case(NULL_W_BUFFER)
+    case (NULL_W_BUFFER)
       call fmm_store_w_buffer(fmm_null_W_buffer)
-    case(TREE_W_BUFFER)
+    case (TREE_W_BUFFER)
       ! use tree-based sorting/evaluating module
       call fmm_store_w_buffer(fmm_tree_buffer_add)
       call fmm_tree_buffer_init(TREE_LENGTH,scheme%W_con%sort_para)

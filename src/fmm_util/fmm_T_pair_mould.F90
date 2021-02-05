@@ -165,12 +165,12 @@ subroutine fmm_init_T_pair_mould(scheme,pair_type)
   call fmm_store_t_pair_mould2(fmm_set_LHS_LMAX)
   call fmm_store_t_pair_mould3(fmm_set_RHS_LMAX)
   call fmm_store_t_pair_mould4(fmm_set_T_pair_basics)
-  select case(pair_type)
-    case(LHS_raw_RHS_raw)
+  select case (pair_type)
+    case (LHS_raw_RHS_raw)
       LHS_LMAX = scheme%raw_LMAX
       RHS_LMAX = scheme%raw_LMAX
       call fmm_store_t_pair_mould1(fmm_set_RR_paras)
-    case(LHS_box_RHS_box)
+    case (LHS_box_RHS_box)
       LHS_LMAX = scheme%trans_LMAX
       RHS_LMAX = scheme%trans_LMAX
       call fmm_store_t_pair_mould1(fmm_set_BB_paras)

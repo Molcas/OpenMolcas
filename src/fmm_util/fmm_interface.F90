@@ -28,23 +28,23 @@ contains
 
 !-------------------------------------------------------------------------------
 
-! integer :: NAtom    =  number of atoms
-! integer :: NShel    =  number of shells
-! integer :: NPrim    =  number of primitive exponents
-! integer :: NBF_Car  =  dimension of AO Fock matrix
+! integer(INTK) :: NAtom    =  number of atoms
+! integer(INTK) :: NShel    =  number of shells
+! integer(INTK) :: NPrim    =  number of primitive exponents
+! integer(INTK) :: NBF_Car  =  dimension of AO Fock matrix
 
-! integer :: MaxAngl  =  maximum angular momentum primitive
-! integer :: MaxSgm2  =  maximum number of primitive pairs in any AO-pair
+! integer(INTK) :: MaxAngl  =  maximum angular momentum primitive
+! integer(INTK) :: MaxSgm2  =  maximum number of primitive pairs in any AO-pair
 
-! integer :: KAtom(NShel)     =  map from shells to atoms
-! integer :: KType(NShel)     =  angular momentum of shell
-! integer :: KStart(NShel)    =  first primitive in this shell
-! integer :: KontG(NShel)     =  number of primitives in this shell
-! integer :: KLoc_Car(NShel)  =  first (contracted) AO in this shell -1
+! integer(INTK) :: KAtom(NShel)     =  map from shells to atoms
+! integer(INTK) :: KType(NShel)     =  angular momentum of shell
+! integer(INTK) :: KStart(NShel)    =  first primitive in this shell
+! integer(INTK) :: KontG(NShel)     =  number of primitives in this shell
+! integer(INTK) :: KLoc_Car(NShel)  =  first (contracted) AO in this shell -1
 
-! real    :: Centr(3,NAtom)   =  array of atomic positions
-! real    :: Expnt(NPrim)     =  primitive exponents
-! real    :: CCoef(NPrim)     =  contraction coefficients (normalized)
+! real(REALK)   :: Centr(3,NAtom)   =  array of atomic positions
+! real(REALK)   :: Expnt(NPrim)     =  primitive exponents
+! real(REALK)   :: CCoef(NPrim)     =  contraction coefficients (normalized)
 
 !-------------------------------------------------------------------------------
 
@@ -81,8 +81,8 @@ subroutine fmm_initial(NAtom,NShel,NPrim,NBF_Car,MaxAngl,MaxSgm2,KAtom,KType,KSt
   call fmm_get_shell_pairs(basis,sh_pairs)
 
   ! Build and store on disk density-independent integral components
-  select case(mode)
-    !case(FE_FMM)
+  select case (mode)
+    !case (FE_FMM)
     !  call fmm_init_fefmm(scheme,basis,lmax,sh_pairs)
     case default
       call fmm_init_md4fmm(basis,lmax,sh_pairs)

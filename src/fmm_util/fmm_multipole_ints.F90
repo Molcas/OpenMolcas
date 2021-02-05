@@ -175,7 +175,7 @@ subroutine fmm_build_Mints(batch,NPrim,MaxMul)
   type(fmm_prim_batch), intent(in) :: batch(:)
   integer(INTK), intent(in)        :: NPrim, MaxMul
 
-  integer :: Ie, It, IJ
+  integer(INTK) :: Ie, It, IJ
 
   real(REALK) :: PXCX(NPrim), PYCY(NPrim), PZCZ(NPrim)
   real(REALK) :: ExpPHalf(NPrim), ExpntP(NPrim)
@@ -398,7 +398,7 @@ subroutine fmm_store_SphMpole(basis,batch,Ish,Jsh,NPrim,MaxMul,mcntr,nmoms)
   IBatch = 0
   !IIBatch = 0
   Labelp = basis%KLoc_Car(ISh)
-  do IL1 = basis%LtuvMin_Car(IAnglA),basis%LtuvMax_Car(IAnglA)
+  do IL1=basis%LtuvMin_Car(IAnglA),basis%LtuvMax_Car(IAnglA)
     Labelp = Labelp+1
     Labelq = basis%KLoc_Car(JSh)
     IL2Temp = basis%LtuvMax_Car(IAnglB)

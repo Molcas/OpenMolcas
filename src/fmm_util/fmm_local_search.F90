@@ -316,11 +316,11 @@ subroutine fmm_get_local_paras(id,RHS_all,pair_type,RHS_local,ndim)
   type(id_node), pointer :: ptr
   integer(INTK) :: level, i
 
-  select case(pair_type)
-    case(LHS_raw_RHS_raw)
+  select case (pair_type)
+    case (LHS_raw_RHS_raw)
       call fmm_quit('local_paras: raw_raw NYI')
 
-    case(LHS_box_RHS_box)
+    case (LHS_box_RHS_box)
 
       if (associated(RHS_local%box_paras)) call fmm_quit('RHS_local')
       level = RHS_all%box_paras(1)%level

@@ -158,15 +158,15 @@ subroutine fmm_build_J_matrix(n_el,dens,J_matrix)
 
    call fmm_get_scheme(scheme)
 
-  select case(n_el)
-    case('ONE_EL')
+  select case (n_el)
+    case ('ONE_EL')
       call fmm_quit('nuclear moments not available!')
       scheme%LHS_mm_range = ELECTRONIC_ONLY
       scheme%RHS_mm_range = NUCLEAR_ONLY
-    case('TWO_EL')
+    case ('TWO_EL')
       scheme%LHS_mm_range = ELECTRONIC_ONLY
       scheme%RHS_mm_range = ELECTRONIC_ONLY
-    case('FULL_J')
+    case ('FULL_J')
       call fmm_quit('nuclear moments not available!')
       scheme%LHS_mm_range = ELECTRONIC_ONLY
       scheme%RHS_mm_range = ALL_MOMENTS

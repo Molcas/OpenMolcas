@@ -37,7 +37,7 @@ do  K=1,N
     end do
   end do
   do J=1,N
-    if(J /= K) then
+    if (J /= K) then
       A(K,J) = A(K,J)/BIGA
     end if
   end do

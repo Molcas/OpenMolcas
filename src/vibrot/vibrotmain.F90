@@ -43,11 +43,11 @@ call Daname(Vibwvs1,'VIBWVS1')
 call Daname(Vibwvs2,'VIBWVS2')
 ncase = 0
 call Vibinp(ncase,ngrid,nvib,Umin,Umax,R,PotR,E0,dE0,Redm,Teas,Req,sc,temp)
-select case(ncase)
-  case(1)
+select case (ncase)
+  case (1)
     call Vibrot(ngrid,nvib,Umin,Umax,R,PotR,E0,dE0,Redm,Req,sc,temp)
     if (IfPrWf > 0) call PrWf_VibRot(ngrid,R)
-  case(2)
+  case (2)
     do i=1,iobs
       call Vibtrm(ngrid,Umin,Umax,Teas,R,EoutO(1,i),Titobs(i))
     end do

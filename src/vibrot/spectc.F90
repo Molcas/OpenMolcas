@@ -94,7 +94,7 @@ do nv=1,nE
   end do
 end do
 write(u6,992)
-do nv = 1,nE
+do nv=1,nE
   write(u6,991) nv,B(nv),D(nv)
 end do
 call mma_deallocate(F)
