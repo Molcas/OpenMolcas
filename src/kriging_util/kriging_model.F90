@@ -13,34 +13,39 @@
 
 subroutine kriging_model()
 
-use kriging_mod
+use kriging_mod, only: blAI, blaAI, blavAI, blvAI, detR, dy, full_R, Index_PGEK, Kv, lh, m_t, mblAI, nPoints, nD, nInter_Eff, &
+                       ordinary, Rones, sb, sbmev, sbO, variance, y
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+#define _DPOSV_
+#ifdef _DPOSV_
+use Constants, only: Two
+#endif
+
 implicit none
-#include "stdalloc.fh"
-external DDOt_
-real*8 DDOt_
-real*8, allocatable :: B(:), A(:,:)
-!#define _DEBUGPRINT_
+integer(kind=iwp) :: i_eff, is, ie, ise, iee, i, INFO ! ipiv the pivot indices that define the permutation matrix
+integer(kind=iwp), allocatable :: IPIV(:)
+real(kind=wp), allocatable :: B(:), A(:,:)
+real(kind=wp), external :: dDot_
 
 ! Prediagonalize the part of the matrix corresponing to the value-value block
 
 #define _PREDIAG_
 #ifdef _PREDIAG_
-real*8, allocatable :: U(:,:), HTri(:), UBIG(:,:), C(:,:), D(:)
-real*8 temp
-integer j, ij
+integer(kind=iwp) :: j, ij
+real(kind=wp), allocatable :: U(:,:), HTri(:), UBIG(:,:), C(:,:), D(:)
+real(kind=wp) :: temp
 #endif
 
-integer, allocatable :: IPIV(:)
-integer i, INFO ! ipiv the pivot indices that define the permutation matrix
-integer i_eff, is, ie, ise, iee
-
-call mma_Allocate(B,m_t,Label='B')
-call mma_Allocate(A,m_t,m_t,Label='A')
-call mma_Allocate(IPIV,m_t,Label='IPIV')
+call mma_Allocate(B,m_t,label='B')
+call mma_Allocate(A,m_t,m_t,label='A')
+call mma_Allocate(IPIV,m_t,label='IPIV')
 
 ! Initiate B according to Eq. (6) of ref.
-B(1:nPoints) = 1.0d0
-B(nPoints+1:) = 0.0d0
+B(1:nPoints) = One
+B(nPoints+1:) = Zero
 
 ! Initiate A according to Eq. (2) of ref.
 
@@ -61,12 +66,12 @@ call RecPrt('f',' ',B,1,m_t)
 !
 ! U will contain the eigenvectors
 
-call mma_allocate(U,nPoints,nPoints,Label='U')
-U(:,:) = 0.0d0
+call mma_allocate(U,nPoints,nPoints,label='U')
+U(:,:) = Zero
 do i=1,nPoints
-  U(i,i) = 1.0d0
+  U(i,i) = One
 end do
-call mma_allocate(HTri,nPoints*(nPoints+1)/2,Label='HTri')
+call mma_allocate(HTri,nPoints*(nPoints+1)/2,label='HTri')
 do i=1,nPoints
   do j=1,i
     ij = i*(i-1)/2+j
@@ -82,8 +87,8 @@ call Jacord(HTri,U,nPoints,nPoints)
 ! Introduce canonical phase factor
 
 do i=1,nPoints
-  Temp = DDot_(nPoints,[1.0d0],0,U(1,i),1)
-  U(1:nPoints,i) = U(1:nPoints,i)*sign(1.0d0,Temp)
+  Temp = DDot_(nPoints,[One],0,U(1,i),1)
+  U(1:nPoints,i) = U(1:nPoints,i)*sign(One,Temp)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('U',' ',U,nPoints,nPoints)
@@ -92,25 +97,25 @@ call TriPrt('HTri',' ',HTri,nPoints)
 
 ! Now set up an eigenvector matrix for the whole space.
 
-call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
-UBIG(:,:) = 0.0d0
+call mma_Allocate(UBIG,m_t,m_t,label='UBig')
+UBIG(:,:) = Zero
 UBIG(1:nPoints,1:nPoints) = U(:,:)
 do i=nPoints+1,m_t
-  UBIG(i,i) = 1.0d0
+  UBIG(i,i) = One
 end do
 !call RecPrt('UBIG',' ',UBig,m_t,m_t)
 
 ! Transform the covariance matrix to this basis
 
-call mma_Allocate(C,m_t,m_t,Label='C')
-C = 0.0d0
-call dgemm_('N','N',m_t,m_t,m_t,1.0d0,Full_R,m_t,UBIG,m_t,0.0d0,C,m_t)
-call dgemm_('T','N',m_t,m_t,m_t,1.0d0,UBIG,m_t,C,m_t,0.0d0,A,m_t)
+call mma_Allocate(C,m_t,m_t,label='C')
+C = Zero
+call dgemm_('N','N',m_t,m_t,m_t,One,Full_R,m_t,UBIG,m_t,Zero,C,m_t)
+call dgemm_('T','N',m_t,m_t,m_t,One,UBIG,m_t,C,m_t,Zero,A,m_t)
 
 ! For safety measures set the value-value to zero and then reintroduce the
 ! eigenvalues from the previous diagonalization.
 
-A(1:nPoints,1:nPoints) = 0.0d0
+A(1:nPoints,1:nPoints) = Zero
 do i=1,nPoints
   A(i,i) = HTri(i*(i+1)/2)
 end do
@@ -120,14 +125,14 @@ call RecPrt('U^TAU',' ',A,m_t,m_t)
 
 ! Set up the F-vector with ones and zeros
 
-call mma_allocate(D,m_t,Label='D')
-D(1:nPoints) = 1.0d0
-D(nPoints+1:) = 0.0d0
+call mma_allocate(D,m_t,label='D')
+D(1:nPoints) = One
+D(nPoints+1:) = Zero
 
 ! Transform the vector to the new basis
 
-B(:) = 0.0d0
-call dgemm_('T','N',m_t,1,m_t,1.0d0,UBIG,m_t,D,m_t,0.0d0,B,m_t)
+B(:) = Zero
+call dgemm_('T','N',m_t,1,m_t,One,UBIG,m_t,D,m_t,Zero,B,m_t)
 #ifdef _DEBUGPRINT_
 call RecPrt('U^TB',' ',B,1,m_t)
 #endif
@@ -143,8 +148,8 @@ call mma_deallocate(U)
 !
 ! here we do the same stuff but without prediagonalization
 
-B(1:nPoints) = 1.0d0
-B(nPoints+1:) = 0.0d0
+B(1:nPoints) = One
+B(nPoints+1:) = Zero
 A(:,:) = full_r(:,:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -155,23 +160,22 @@ A(:,:) = full_r(:,:)
 !
 !  Now form A_1 B (to be used for the computation of the dispersion)
 
-#define _DPOSV_
 #ifdef _DPOSV_
 call DPOSV_('U',m_t,1,A,m_t,B,m_t,INFO)
 #else
 call DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
 #endif
 if (INFO /= 0) then
-  write(6,*) 'kriging_model: INFO.ne.0'
-  write(6,*) 'kriging_model: INFO=',INFO
+  write(u6,*) 'kriging_model: INFO.ne.0'
+  write(u6,*) 'kriging_model: INFO=',INFO
   call Abend()
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) 'Info=',Info
+write(u6,*) 'Info=',Info
 call RecPrt('PSI^{-1}',' ',A,m_t,m_t)
 call RecPrt('X=PSI^{-1}f',' ',B,1,m_t)
 call RecPrt('rones',' ',rones,1,m_t)
-write(6,*) 'nPoints=',nPoints
+write(u6,*) 'nPoints=',nPoints
 #endif
 
 ! In case of prediagonalization backtransform to the original basis
@@ -179,8 +183,8 @@ write(6,*) 'nPoints=',nPoints
 #ifdef _PREDIAG_
 ! Call RecPrt('(U^TAU)^{-1}U^TB',' ',B,1,m_t)
 D(:) = B(:)
-B(:) = 0.0d0
-call DGEMM_('N','N',m_t,1,m_t,1.0d0,UBIG,m_t,D,m_t,0.0d0,B,m_t)
+B(:) = Zero
+call DGEMM_('N','N',m_t,1,m_t,One,UBIG,m_t,D,m_t,Zero,B,m_t)
 !call RecPrt('B',' ',B,1,m_t)
 call mma_deallocate(D)
 call mma_deAllocate(UBIG)
@@ -194,10 +198,10 @@ rones(:) = B(:)     ! Move result over to storage for later use, R^-1F
 ! Where L in the lower triangular matrix with 1 in the diagonal and U is the upper
 ! triangular matrix of A thus the determinant of A is giving by multipling its diagonal
 
-detR = 0.0d0
+detR = Zero
 do i=1,m_t
 #ifdef _DPOSV_
-  detR = detR+2.0d0*log(A(i,i))
+  detR = detR+Two*log(A(i,i))
 #else
   detR = detR+log(abs(A(i,i)))
 #endif
@@ -207,13 +211,13 @@ end do
 !
 !  Now work on the vector with the values and gradients, the generalized y vector
 !
-!Trend Function (baseline)
+! Trend Function (baseline)
 
 if (blaAI) then
 
-!   Make sure the base line is above any data point
+  ! Make sure the base line is above any data point
 
-  sb = -1.0d99
+  sb = -huge(sb)
   do i=1,nPoints
     sb = max(sb,y(i)+blavAI)
   end do
@@ -236,10 +240,10 @@ else
     B(ise:iee) = dy(is:ie)
   end do
 #ifdef _DEBUGPRINT_
-  write(6,*) DDot_(m_t,rones,1,B,1),DDot_(nPoints,rones,1,[1.0d0],0)
+  write(u6,*) DDot_(m_t,rones,1,B,1),DDot_(nPoints,rones,1,[One],0)
 #endif
   ! sbO:  FR^-1y/(FR^-1F)
-  sbO = DDot_(m_t,rones,1,B,1)/DDot_(nPoints,rones,1,[1.0d0],0)
+  sbO = DDot_(m_t,rones,1,B,1)/DDot_(nPoints,rones,1,[One],0)
   sb = sbO
 end if
 
@@ -259,7 +263,7 @@ do i_eff=1,nInter_eff
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'sb,ln(det|PSI|)=',sb,detR
+write(u6,*) 'sb,ln(det|PSI|)=',sb,detR
 call RecPrt('[y-sb,dy]','(12(2x,E9.3))',B,1,m_t)
 #endif
 
@@ -268,12 +272,12 @@ call RecPrt('[y-sb,dy]','(12(2x,E9.3))',B,1,m_t)
 
 ! Diagonalize the energy block of Psi
 
-call mma_allocate(U,nPoints,nPoints,Label='U')
-U(:,:) = 0.0d0
+call mma_allocate(U,nPoints,nPoints,label='U')
+U(:,:) = Zero
 do i=1,nPoints
-  U(i,i) = 1.0d0
+  U(i,i) = One
 end do
-call mma_allocate(HTri,nPoints*(nPoints+2)/2,Label='HTri')
+call mma_allocate(HTri,nPoints*(nPoints+2)/2,label='HTri')
 do i=1,nPoints
   do j=1,i
     ij = i*(i-1)/2+j
@@ -284,8 +288,8 @@ call nidiag_new(HTri,U,nPoints,nPoints,0)
 call Jacord(HTri,U,nPoints,nPoints)
 ! Standardized phase factor
 do i=1,nPoints
-  Temp = DDot_(nPoints,[1.0d0],0,U(1,i),1)
-  U(1:nPoints,i) = U(1:nPoints,i)*sign(1.0d0,Temp)
+  Temp = DDot_(nPoints,[One],0,U(1,i),1)
+  U(1:nPoints,i) = U(1:nPoints,i)*sign(One,Temp)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('U',' ',U,nPoints,nPoints)
@@ -295,24 +299,24 @@ call TriPrt('HTri',' ',HTri,nPoints)
 ! Construct a transformation which will transform the
 ! covariance  matrix to this new basis.
 
-call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
-UBIG(:,:) = 0.0d0
+call mma_Allocate(UBIG,m_t,m_t,label='UBig')
+UBIG(:,:) = Zero
 UBIG(1:nPoints,1:nPoints) = U(:,:)
 do i=nPoints+1,m_t
-  UBIG(i,i) = 1.0d0
+  UBIG(i,i) = One
 end do
 ! Call RecPrt('UBIG',' ',UBig,m_t,m_t)
 !
 ! Transform the covariance matrix to the new basis.
 
-call mma_Allocate(C,m_t,m_t,Label='C')
-C(:,:) = 0.0d0
-call dgemm_('N','N',m_t,m_t,m_t,1.0d0,Full_R,m_t,UBIG,m_t,0.0d0,C,m_t)
-call dgemm_('T','N',m_t,m_t,m_t,1.0d0,UBIG,m_t,C,m_t,0.0d0,A,m_t)
+call mma_Allocate(C,m_t,m_t,label='C')
+C(:,:) = Zero
+call dgemm_('N','N',m_t,m_t,m_t,One,Full_R,m_t,UBIG,m_t,Zero,C,m_t)
+call dgemm_('T','N',m_t,m_t,m_t,One,UBIG,m_t,C,m_t,Zero,A,m_t)
 
 ! Cleanup the first block - should be prefectly diagonal.
 
-A(1:nPoints,1:nPoints) = 0.0d0
+A(1:nPoints,1:nPoints) = Zero
 do i=1,nPoints
   A(i,i) = HTri(i*(i+1)/2)
 end do
@@ -322,10 +326,10 @@ call RecPrt('U^TAU',' ',A,m_t,m_t)
 
 ! transform Kv to the new basis (y-F)
 
-call mma_allocate(D,m_t,Label='D')
+call mma_allocate(D,m_t,label='D')
 D(:) = B(:)
-Kv = 0.0d0
-call dgemm_('T','N',m_t,1,m_t,1.0d0,UBIG,m_t,D,m_t,0.0d0,Kv,m_t)
+Kv = Zero
+call dgemm_('T','N',m_t,1,m_t,One,UBIG,m_t,D,m_t,Zero,Kv,m_t)
 #ifdef _DEBUGPRINT_
 call RecPrt('U^TKv',' ',Kv,1,m_t)
 #endif
@@ -352,19 +356,19 @@ call DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 call RecPrt('(U^TAU)^{-1}U^TKv',' ',Kv,1,m_t)
 #endif
 D(:) = Kv(:)
-Kv(:) = 0.0d0
-call DGEMM_('N','N',m_t,1,m_t,1.0d0,UBIG,m_t,D,m_t,0.0d0,Kv,m_t)
+Kv(:) = Zero
+call DGEMM_('N','N',m_t,1,m_t,One,UBIG,m_t,D,m_t,Zero,Kv,m_t)
 !call RecPrt('Kv',' ',Kv,1,m_t)
 call mma_deallocate(D)
 call mma_deAllocate(UBIG)
 #endif
 
 !Likelihood function
-variance = dot_product(B,Kv)/dble(m_t)
-lh = variance*exp(detR/dble(m_t))
+variance = dot_product(B,Kv)/real(m_t,kind=wp)
+lh = variance*exp(detR/real(m_t,kind=wp))
 #ifdef _DEBUGPRINT_
-write(6,*) 'Variance=',Variance
-write(6,*) 'Info=',Info
+write(u6,*) 'Variance=',Variance
+write(u6,*) 'Info=',Info
 call RecPrt('X=A^{-1}Kv','(5(E15.7,2X))',Kv,1,m_t)
 #endif
 

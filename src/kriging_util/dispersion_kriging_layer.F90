@@ -13,16 +13,18 @@
 
 subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
 
-implicit none
-#include "stdalloc.fh"
-integer nInter
-real*8 qInt(nInter), E_Disp
-real*8, allocatable :: qInt_s(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-call mma_allocate(qInt_s,nInter,Label='qInt_s')
+implicit none
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(in) :: qInt(nInter)
+real(kind=wp), intent(out) :: E_Disp
+real(kind=wp), allocatable :: qInt_s(:)
+
+call mma_allocate(qInt_s,nInter,label='qInt_s')
 
 call Trans_K(qInt,qInt_s,nInter,1)
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)
 call RecPrt('Dispersion_Kriging_Layer: qInt_s',' ',qInt_s,nInter,1)

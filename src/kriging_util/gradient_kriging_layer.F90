@@ -13,14 +13,17 @@
 
 subroutine Gradient_Kriging_Layer(qInt,Grad,nInter)
 
-implicit none
-#include "stdalloc.fh"
-integer nInter
-real*8 qInt(nInter), Grad(nInter)
-real*8, allocatable :: qInt_s(:), Grad_s(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-call mma_allocate(qInt_s,nInter,Label='qInt_s')
-call mma_allocate(Grad_s,nInter,Label='Grad_s')
+implicit none
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(in) :: qInt(nInter)
+real(kind=wp), intent(out) :: Grad(nInter)
+real(kind=wp), allocatable :: qInt_s(:), Grad_s(:)
+
+call mma_allocate(qInt_s,nInter,label='qInt_s')
+call mma_allocate(Grad_s,nInter,label='Grad_s')
 
 call Trans_K(qInt,qInt_s,nInter,1)
 call Gradient_Kriging(qInt_s,Grad_s,nInter)

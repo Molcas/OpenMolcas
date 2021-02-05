@@ -13,23 +13,24 @@
 
 subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
-use kriging_mod
+use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, full_R, full_RInv, gpred, hpred, Kv, l, lb, ll, m_t, mblAI, nD, &
+                       nInter, nInter_Eff, nPoints, PGEK_On, rl, Rones, sbmev, x0, y, Prep_Kriging
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+! nPoints: the number of sample points, n
+! nInter: the dimensionality of the function, d
+! y_: the values of the function at the sample points
+! dy_: the gradient of the function at the sample points
+! x_: the coordinates of the sample points
 
 implicit none
-#include "stdalloc.fh"
+integer(kind=iwp), intent(in) :: nInter_In, nPoints_In
+real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In), dy_(nInter_In,nPoints_In)
 
-!    nPoints: the number of sample points, n
-!    nInter: the dimensionality of the function, d
-!    y_: the values of the function at the sample points
-!    dy_: the gradient of the function at the sample points
-!    x_: the coordinates of the sample points
-
-integer nInter_In, nPoints_In
-real*8 x_(nInter_In,nPoints_In)
-real*8 y_(nPoints_In)
-real*8 dy_(nInter_In,nPoints_In)
-
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
 call RecPrt('Start_Kriging: y',' ',y_,1,nPoints_In)
@@ -53,21 +54,21 @@ if (PGEK_On .and. nPoints >= 2) call PGEK()
 ! m_t would be computed as
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'nD=',nD
-write(6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
+write(u6,*) 'nD=',nD
+write(u6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
 #endif
 m_t = nPoints+nInter_Eff*(nPoints-nD)
 
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
 
-call mma_Allocate(full_R,m_t,m_t,Label='full_R')
-call mma_Allocate(full_RInv,m_t,m_t,Label='full_RInv')
+call mma_Allocate(full_R,m_t,m_t,label='full_R')
+call mma_Allocate(full_RInv,m_t,m_t,label='full_RInv')
 
 if (mblAI) sbmev = y(maxloc(y,dim=1))
 
 ! Allocate x0, which is a n-dimensional vector of the coordinats of the last iteration computed
 
-call mma_Allocate(x0,nInter,Label='nx')
+call mma_Allocate(x0,nInter,label='nx')
 
 ! rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
@@ -78,9 +79,9 @@ call mma_Allocate(x0,nInter,Label='nx')
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
 
-call mma_Allocate(rl,nPoints,nInter,Label='rl')
-call mma_Allocate(dl,nPoints,Label='dl')
-call mma_Allocate(Rones,m_t,Label='Rones')
+call mma_Allocate(rl,nPoints,nInter,label='rl')
+call mma_Allocate(dl,nPoints,label='dl')
+call mma_Allocate(Rones,m_t,label='Rones')
 
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
 !Grad-y minus the dot product of the inverse of Grad-Psi and f-ones multiplied
@@ -99,16 +100,16 @@ call mma_Allocate(Rones,m_t,Label='Rones')
 
 ! Allocate additional variables needed for the kriging.
 
-call mma_allocate(kv,m_t,Label='kv')
-call mma_allocate(gpred,nInter,Label='gpred')
-call mma_allocate(hpred,nInter,nInter,Label='hpred')
-call mma_allocate(l,nInter,Label='l')
-call mma_allocate(ll,int(lb(3)),Label='ll')
+call mma_allocate(kv,m_t,label='kv')
+call mma_allocate(gpred,nInter,label='gpred')
+call mma_allocate(hpred,nInter,nInter,label='hpred')
+call mma_allocate(l,nInter,label='l')
+call mma_allocate(ll,int(lb(3)),label='ll')
 
-call mma_allocate(cv,m_t,nInter,nInter,Label='cv')
-call mma_allocate(cvMatFder,nPoints,Label='cvMatFder')
-call mma_allocate(cvMatSder,nPoints,Label='cvMatSder')
-call mma_allocate(cvMatTder,nPoints,Label='cvMatTder')
+call mma_allocate(cv,m_t,nInter,nInter,label='cv')
+call mma_allocate(cvMatFder,nPoints,label='cvMatFder')
+call mma_allocate(cvMatSder,nPoints,label='cvMatSder')
+call mma_allocate(cvMatTder,nPoints,label='cvMatTder')
 
 return
 

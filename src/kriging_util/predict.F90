@@ -13,14 +13,17 @@
 
 subroutine predict(gh)
 
-use kriging_mod
+use kriging_mod, only: cv, full_R, gpred, hpred, Kv, m_t, nInter, ordinary, pred, Rones, sb, sigma, var, variance
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-#include "stdalloc.fh"
-real*8 tsum
-integer INFO
-integer i, gh ! ipiv the pivot indices that define the permutation matrix
-real*8, allocatable :: B(:), A(:,:)
-integer, allocatable :: IPIV(:)
+implicit none
+integer(kind=iwp), intent(in) :: gh
+integer(kind=iwp) :: INFO, i, k
+integer(kind=iwp), allocatable :: IPIV(:) ! ipiv the pivot indices that define the permutation matrix
+real(kind=wp) :: tsum
+real(kind=wp), allocatable :: B(:), A(:,:)
 
 call mma_allocate(B,m_t,label='B')
 
@@ -34,12 +37,12 @@ if (gh == 0) then
   B(:) = cv(:,1,1)
   pred = sb+dot_product(B,Kv)
   call DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
-  var = 1d0-dot_product(B,CV(:,1,1))
+  var = One-dot_product(B,CV(:,1,1))
 
   if (ordinary) then
     tsum = sum(rones(1:m_t))
     B(:) = cv(:,1,1)
-    var = max(var+(1d0-dot_product(B,rones))**2/tsum,0d0)
+    var = max(var+(One-dot_product(B,rones))**2/tsum,Zero)
   end if
 
   sigma = sqrt(var*variance)

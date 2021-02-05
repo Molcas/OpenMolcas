@@ -13,14 +13,16 @@
 
 subroutine covarVector(gh)
 
-use kriging_mod
+use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, Index_PGEK, l, nD, nInter, nInter_Eff, nPoints, rl, x, x0
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two, Three
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "stdalloc.fh"
-integer i, i0, i1, j, j0, j1, k, k0, k1, gh, i_eff, j_eff, k_eff
-real*8 sdiffxi, sdiffxj, sdiffxk
-real*8, allocatable :: diffxi(:), diffxj(:), diffxk(:)
-!#define _DEBUGPRINT_
+integer(kind=iwp), intent(in) :: gh
+integer(kind=iwp) :: i, i0, i1, j, j0, j1, k, k0, k1, i_eff, j_eff, k_eff
+real(kind=wp) :: sdiffxi, sdiffxj, sdiffxk
+real(kind=wp), allocatable :: diffxi(:), diffxj(:), diffxk(:)
 
 call mma_Allocate(diffxi,nPoints,label='diffxi')
 call mma_Allocate(diffxj,nPoints,label='diffxj')
@@ -38,7 +40,7 @@ if (gh == 0) then
   do i_eff=1,nInter_eff
     i = Index_PGEK(i_eff)
     ! 1st derivatives second part of eq. (4)
-    diffxi(:) = 2.0d0*rl(:,i)/l(i)
+    diffxi(:) = Two*rl(:,i)/l(i)
     i0 = nPoints+1+(i_eff-1)*(nPoints-nD)
     i1 = i0+(nPoints-nD)-1
     cv(i0:i1,1,1) = cvMatFder(1+nD:nPoints)*diffxi(1+nD:nPoints)
@@ -53,13 +55,13 @@ else if (gh == 1) then
   call matderiv(1,dl,cvMatFder,nPoints,1)
   call matderiv(2,dl,cvMatSder,nPoints,1)
   do i=1,nInter
-    diffxi(:) = 2.0d0*rl(:,i)/l(i)
+    diffxi(:) = Two*rl(:,i)/l(i)
     cv(1:nPoints,i,1) = -cvMatFder(1:nPoints)*diffxi(1:nPoints)
     do j_eff=1,nInter_eff
       j = Index_PGEK(j_eff)
       j0 = nPoints+1+(j_eff-1)*(nPoints-nD)
       j1 = j0+(nPoints-nD)-1
-      diffxj(:) = -2.0d0*rl(:,j)/l(j)
+      diffxj(:) = -Two*rl(:,j)/l(j)
       if (i == j) then
         cv(j0:j1,i,1) = cvMatSder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)-cvMatFder(1+nD:nPoints)*(2/(l(i)*l(j)))
       else
@@ -71,37 +73,41 @@ else if (gh == 1) then
   call RecPrt(' The covector for gradients','(12(2x,E9.3))',cv(:,:,1),m_t,nInter)
 # endif
 
-  else if (gh == 2) then
+else if (gh == 2) then
 
   ! print *,'covar vector calling deriv(3) for Kriging Hessian'
   call matderiv(1,dl,cvMatFder,nPoints,1)
   call matderiv(2,dl,cvMatSder,nPoints,1)
   call matderiv(3,dl,cvMatTder,nPoints,1)
   do i=1,nInter
-    diffxi(:) = 2.0d0*rl(:,i)/l(i)
-    sdiffxi = 2.0d0/l(i)**2
+    diffxi(:) = Two*rl(:,i)/l(i)
+    sdiffxi = Two/l(i)**2
     do j=1,nInter
-      diffxj(:) = 2.0d0*rl(:,j)/l(j)
-      sdiffxj = 2.0d0/l(j)**2
+      diffxj(:) = Two*rl(:,j)/l(j)
+      sdiffxj = Two/l(j)**2
       if (i == j) then
-        cv(1:nPoints,i,j) = cvMatSder(:)*diffxi(:)*diffxj(:)+cvMatFder(:)*2.0d0/(l(i)*l(j))
+        cv(1:nPoints,i,j) = cvMatSder(:)*diffxi(:)*diffxj(:)+cvMatFder(:)*Two/(l(i)*l(j))
       else
         cv(1:nPoints,i,j) = cvMatSder(:)*diffxi(:)*diffxj(:)
       end if
       do k_eff=1,nInter_eff
         k = Index_PGEK(k_eff)
-        diffxk(:) = 2.0d0*rl(:,k)/l(k)
-        sdiffxk = 2.0d0/l(k)**2
+        diffxk(:) = Two*rl(:,k)/l(k)
+        sdiffxk = Two/l(k)**2
         k0 = nPoints+1+(k_eff-1)*(nPoints-nD)
         k1 = k0+(nPoints-nD)-1
         if (i == j .and. j == k) then
-          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+3.0d0*cvMatSder(1+nD:nPoints)*diffxi(1+nD:nPoints)*sdiffxj
+          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+ &
+                          Three*cvMatSder(1+nD:nPoints)*diffxi(1+nD:nPoints)*sdiffxj
         else if (i == j) then
-          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+cvMatSder(1+nD:nPoints)*diffxk(1+nD:nPoints)*sdiffxi
+          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+ &
+                          cvMatSder(1+nD:nPoints)*diffxk(1+nD:nPoints)*sdiffxi
         else if (i == k) then
-          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+cvMatSder(1+nD:nPoints)*diffxj(1+nD:nPoints)*sdiffxi
+          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+ &
+                          cvMatSder(1+nD:nPoints)*diffxj(1+nD:nPoints)*sdiffxi
         else if (j == k) then
-          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+cvMatSder(1+nD:nPoints)*diffxi(1+nD:nPoints)*sdiffxk
+          cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)+ &
+                          cvMatSder(1+nD:nPoints)*diffxi(1+nD:nPoints)*sdiffxk
         else
           cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints)
         end if
@@ -109,7 +115,7 @@ else if (gh == 1) then
     end do
   end do
 else
-  write(6,*) ' Illegal value of gh:',gh
+  write(u6,*) ' Illegal value of gh:',gh
   call Abend()
 end if
 
@@ -121,11 +127,13 @@ contains
 
 subroutine defdlrl()
 
-  use kriging_mod
+  use Constants, only: Zero
+  use Definitions, only: iwp
 
-  integer i, j
+  implicit none
+  integer(kind=iwp) :: i, j
 
-  dl(:) = 0.0d0
+  dl(:) = Zero
   do i=1,nInter
     do j=1,nPoints
       rl(j,i) = (x(i,j)-x0(i))/l(i)

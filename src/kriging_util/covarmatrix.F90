@@ -13,33 +13,34 @@
 
 subroutine covarMatrix()
 
-use kriging_mod
+use kriging_mod, only: eps, eps2, full_R, Index_PGEK, l, m_t, nD, nInter, nInter_Eff, nPoints, x
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-integer i, j, i0, i1, j0, j1, k, i_eff, j_eff
-real*8, allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:), matSder(:,:), r(:,:,:), d(:,:)
-!#define _DEBUGPRINT_
+integer(kind=iwp) :: i, j, i0, i1, j0, j1, k, i_eff, j_eff
+real(kind=wp), allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:), matSder(:,:), r(:,:,:), d(:,:)
 
 !**********************************************************************
 !
 ! Allocate temporary memory
 
-call mma_Allocate(diffx_j,nPoints,nPoints,Label='diffx_j')
-call mma_Allocate(diffx_i,nPoints,nPoints,Label='diffx_i')
-call mma_Allocate(matFder,nPoints,nPoints,Label='matFder')
-call mma_Allocate(matSder,nPoints,nPoints,Label='matSder')
-call mma_Allocate(r,nPoints,nPoints,nInter,Label='r')
-call mma_Allocate(d,nPoints,nPoints,Label='d')
+call mma_Allocate(diffx_j,nPoints,nPoints,label='diffx_j')
+call mma_Allocate(diffx_i,nPoints,nPoints,label='diffx_i')
+call mma_Allocate(matFder,nPoints,nPoints,label='matFder')
+call mma_Allocate(matSder,nPoints,nPoints,label='matSder')
+call mma_Allocate(r,nPoints,nPoints,nInter,label='r')
+call mma_Allocate(d,nPoints,nPoints,label='d')
 
 !**********************************************************************
 !
 ! Compute the distances between the sample points using
 ! the characteristic length.
 
-full_R(:,:) = 0.0d0
-d(:,:) = 0.0d0
-diffx_j(:,:) = 0.0d0
+full_R(:,:) = Zero
+d(:,:) = Zero
+diffx_j(:,:) = Zero
 diffx_i(:,:) = 0
 
 do i=1,nInter
@@ -55,7 +56,7 @@ do i=1,nInter
   d(:,:) = d(:,:)+r(:,:,i)**2
 
 # ifdef _DEBUGPRINT_
-  call RecPrt('r',' ',r(1,1,i),nPoints,nPoints)
+  call RecPrt('r',' ',r(:,:,i),nPoints,nPoints)
 # endif
 
 end do
@@ -109,7 +110,7 @@ do i_eff=1,nInter_Eff      ! Loop over component of the coordinate to differenti
   i1 = i0+(nPoints-nD)-1
 
   ! Do an on-the-fly evaluation of the dervative w.r.t x_i
-  diffx_i(1:nPoints,1+nD:nPoints) = -2.0d0*r(1:nPoints,1+nD:nPoints,i)/l(i)
+  diffx_i(1:nPoints,1+nD:nPoints) = -Two*r(1:nPoints,1+nD:nPoints,i)/l(i)
 
   ! Writing the 1st row of 1st derivatives with respect the coordinates
 
@@ -134,19 +135,19 @@ do i_Eff=1,nInter_Eff
   i0 = nPoints+1+(i_Eff-1)*(nPoints-nD)
   i1 = i0+(nPoints-nD)-1
 
-  diffx_i(1+nD:nPoints,1+nD:nPoints) = -2.0d0*r(1+nD:nPoints,1+nD:nPoints,i)/l(i)
+  diffx_i(1+nD:nPoints,1+nD:nPoints) = -Two*r(1+nD:nPoints,1+nD:nPoints,i)/l(i)
 
   do j_Eff=i_Eff,nInter_Eff
     j = Index_PGEK(j_Eff)
     j0 = nPoints+1+(j_Eff-1)*(nPoints-nD)
     j1 = j0+(nPoints-nD)-1
 
-    diffx_j(1+nD:nPoints,1+nD:nPoints) = 2.0d0*r(1+nD:nPoints,1+nD:nPoints,j)/l(j)
+    diffx_j(1+nD:nPoints,1+nD:nPoints) = Two*r(1+nD:nPoints,1+nD:nPoints,j)/l(j)
 
     ! if differentiating twice on the same dimension
     full_R(i0:i1,j0:j1) = matSder(1+nD:nPoints,1+nD:nPoints)*diffx_j(1+nD:nPoints,1+nD:nPoints)*diffx_i(1+nD:nPoints,1+nD:nPoints)
 
-    if (i == j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1)-matFder(1+nD:nPoints,1+nD:nPoints)*(2.0d0/(l(i)*l(j)))
+    if (i == j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1)-matFder(1+nD:nPoints,1+nD:nPoints)*(Two/(l(i)*l(j)))
 
     ! Writing the second derivatives in eq(2)
     if (i /= j) full_R(j0:j1,i0:i1) = transpose(Full_r(i0:i1,j0:j1))

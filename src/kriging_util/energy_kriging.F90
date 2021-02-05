@@ -13,11 +13,13 @@
 
 subroutine Energy_Kriging(x0_,y_,ndimx)
 
-use kriging_mod
+use kriging_mod, only: pred, x0
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDimx
-real*8 x0_(ndimx), y_
+integer(kind=iwp), intent(in) :: ndimx
+real(kind=wp), intent(in) :: x0_(ndimx)
+real(kind=wp), intent(out) :: y_
 
 !x0 is the n-dimensional vector of the coordinates at which the energy is evaluated
 ! subroutine

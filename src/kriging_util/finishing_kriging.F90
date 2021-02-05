@@ -13,12 +13,13 @@
 
 subroutine Finish_Kriging()
 
-use kriging_mod
+use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, full_R, full_RInv, gpred, hpred, Index_PGEK, kv, l, layer_U, ll, &
+                       rl, Rones, x0, Deallocate_Protected
+use stdalloc, only: mma_deallocate
 
 implicit none
-#include "stdalloc.fh"
 
-!write(6,*) 'Deallocating all kriging variables'
+!write(u6,*) 'Deallocating all kriging variables'
 call mma_deallocate(Index_PGEK)
 call Deallocate_protected()
 call mma_deallocate(x0)

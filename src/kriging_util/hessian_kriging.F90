@@ -13,17 +13,24 @@
 
 subroutine Hessian_Kriging(x0_,ddy_,ndimx)
 
-use kriging_mod
+use kriging_mod, only: hpred, x0
+use Definitions, only: wp, iwp
 
-implicit none
-integer ndimx
-real*8 x0_(ndimx), ddy_(ndimx,ndimx)
 !#define _Hess_Test
 #ifdef _Hess_Test
-real*8 Scale, Delta, Fact, tgrad(ndimx), thgrad(ndimx)
-real*8 HessT, tmp
-integer i, j
-HessT = 1.0d-3
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, u6
+#endif
+
+implicit none
+integer(kind=iwp), intent(in) :: ndimx
+real(kind=wp), intent(in) :: x0_(ndimx)
+real(kind=wp), intent(out) :: ddy_(ndimx,ndimx)
+#ifdef _Hess_Test
+integer(kind=iwp) :: i, j
+real(kind=wp) :: Delta, Fact, tmp
+real(kind=wp), allocatable :: tgrad(:), thgrad(:)
+real(kind=wp), parameter :: HessT = 1.0e-3_wp
 #endif
 
 !nx is the n-dimensional vector of the last iteration computed in update_sl
@@ -36,16 +43,18 @@ ddy_(:,:) = hpred(:,:)
 
 #ifdef _Hess_Test
 ! Numerical Hessian of GEK
-write(6,*) 'Begining Numerical Hessian'
+write(u6,*) 'Begining Numerical Hessian'
 
-hpred(:,:) = 0.0d0
-Scale = 0.01d0
-write(6,*) 'Hess Threshold',HessT
+call mma_allocate(tgrad,ndimx,label='tgrad')
+call mma_allocate(thgrad,ndimx,label='thgrad')
+
+hpred(:,:) = Zero
+write(u6,*) 'Hess Threshold',HessT
 
 do i=1,nInter
   tmp = x0(i)
 
-  Delta = 1.0d-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
+  Delta = 1.0e-5_wp !max(abs(x_(i,1)),1.0e-5_wp)*Scale
 
   x0(i) = tmp+Delta
   call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
@@ -58,26 +67,29 @@ do i=1,nInter
   thgrad = gpred(:)
 
   do j=1,nInter
-    hpred(i,j) = (tgrad(j)-thgrad(j))/(2.0d0*Delta)
+    hpred(i,j) = (tgrad(j)-thgrad(j))/(Two*Delta)
   end do
   x0(i) = tmp
 end do
 ! Comparing Analytical solution with Numerical
 do i=1,nInter
   do j=1,nInter
-    write(6,*) 'i,j',i,j
-    write(6,*) 'hpred, ddy_',hpred(i,j),ddy_(i,j)
+    write(u6,*) 'i,j',i,j
+    write(u6,*) 'hpred, ddy_',hpred(i,j),ddy_(i,j)
     if (abs(ddy_(i,j)-hpred(i,j)) > HessT) then
-      write(6,*) 'Error in entry',i,',',j,'of the hessian matrix'
+      write(u6,*) 'Error in entry',i,',',j,'of the hessian matrix'
       call RecPrt('Anal Hess',' ',ddy_,nInter,nInter)
       call RecPrt('Num Hess',' ',hpred,nInter,nInter)
-      write(6,*) 'abs(ddy_(i,j)+ HessT)',abs(ddy_(i,j)+HessT)
-      write(6,*) 'abs(ddy_(i,j)- HessT)',abs(ddy_(i,j)-HessT)
-      write(6,*) 'abs(hpred(i,j))',abs(hpred(i,j))
+      write(u6,*) 'abs(ddy_(i,j)+ HessT)',abs(ddy_(i,j)+HessT)
+      write(u6,*) 'abs(ddy_(i,j)- HessT)',abs(ddy_(i,j)-HessT)
+      write(u6,*) 'abs(hpred(i,j))',abs(hpred(i,j))
       call Abend()
     end if
   end do
 end do
+
+call mma_deallocate(tgrad)
+call mma_deallocate(thgrad)
 #endif
 
 return

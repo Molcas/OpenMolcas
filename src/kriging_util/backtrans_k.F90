@@ -14,14 +14,17 @@
 subroutine BackTrans_K(X,Y,nInter,nIter)
 
 use kriging_mod, only: layer_U
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nInter, nIter
-real*8 X(nInter,nIter), Y(nInter,nIter)
+integer(kind=iwp), intent(in) :: nInter, nIter
+real(kind=wp), intent(in) :: X(nInter,nIter)
+real(kind=wp), intent(out) :: Y(nInter,nIter)
 
 !call RecPrt('layer_U',' ',layer_U,nInter,nInter)
 !call RecPrt('X',' ',X,nInter,nIter)
-call DGEMM_('N','N',nInter,nIter,nInter,1.0d0,layer_U,nInter,X,nInter,0.0d0,Y,nInter)
+call DGEMM_('N','N',nInter,nIter,nInter,One,layer_U,nInter,X,nInter,Zero,Y,nInter)
 !call RecPrt('Y',' ',Y,nInter,nIter)
 
 end subroutine BackTrans_K
@@ -31,14 +34,17 @@ end subroutine BackTrans_K
 subroutine BackTrans_Kt(X,Y,nInter,nIter)
 
 use kriging_mod, only: layer_U
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nInter, nIter
-real*8 X(nInter,nIter), Y(nInter,nIter)
+integer(kind=iwp), intent(in) :: nInter, nIter
+real(kind=wp), intent(in) :: X(nInter,nIter)
+real(kind=wp), intent(out) :: Y(nInter,nIter)
 
 !call RecPrt('layer_U',' ',layer_U,nInter,nInter)
 !call RecPrt('X',' ',X,nInter,nIter)
-call DGEMM_('N','T',nInter,nIter,nInter,1.0d0,X,nInter,layer_U,nInter,0.0d0,Y,nInter)
+call DGEMM_('N','T',nInter,nIter,nInter,One,X,nInter,layer_U,nInter,Zero,Y,nInter)
 !call RecPrt('Y',' ',Y,nInter,nIter)
 
 end subroutine BackTrans_Kt

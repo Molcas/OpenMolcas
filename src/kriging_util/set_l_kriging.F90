@@ -13,10 +13,12 @@
 
 subroutine set_l_kriging(lv,nInter_In)
 
-use kriging_mod
+use kriging_mod, only: l, nInter
+use Definitions, only: wp, iwp, u6
 
-integer nInter_In
-real*8 lv(nInter_In)
+implicit none
+integer(kind=iwp), intent(in) :: nInter_In
+real(kind=wp) :: lv(nInter_In)
 
 ! Set the characteristic length of all the components of the coordintes.
 
@@ -25,7 +27,7 @@ if (nInter_In == nInter) then
 else if (nInter == 1) then
   l(:) = lv(1)
 else
-  write(6,*) 'setlkriging: illegal nInter value.'
+  write(u6,*) 'setlkriging: illegal nInter value.'
   call Abend()
 end if
 
