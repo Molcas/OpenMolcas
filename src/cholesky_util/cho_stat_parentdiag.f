@@ -24,32 +24,29 @@ C
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*19 SecNam
-      Parameter (SecNam = 'Cho_Stat_ParentDiag')
+      Character(LEN=19), Parameter:: SecNam = 'Cho_Stat_ParentDiag'
 
-      Character*(LENIN8) AtomLabel(MxBas)
+      Character(LEN=LENIN8) AtomLabel(MxBas)
 
       Logical Debug
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
-      Parameter (numAt = 6)
+      Integer, Parameter:: numAt = 6
       Real*8  Ratio(numAt)
       Real*8  RClass(3)
       Integer iClass(4)
-      integer nPseudo
+      Integer nPseudo
 
-
-      nBas_Start(i)=iWork(ip_nBas_Start-1+i)
-      nBas_per_Atom(i)=iWork(ip_nBas_per_Atom-1+i)
-      iBF2Atom(i)=iWork(ip_iBF2Atom-1+i)
-      Coord(i,j)=Work(ip_Coord-1+3*(j-1)+i)
-      mapRS2F(i,j)=iWork(ip_mapRS2F-1+2*(j-1)+i)
-      nPC1(i)=iWork(ip_PC1-1+i)
-      RC2(i)=Work(ip_RC2-1+i)
+      Integer, Allocatable:: nBas_per_Atom(:)
+      Integer, Allocatable:: nBas_Start(:)
+      Integer, Allocatable:: iBF2Atom(:)
+      Real*8,  Allocatable:: Coord(:,:)
+      Integer, Allocatable:: mapRS2F(:,:)
+      Integer, Allocatable:: nPC1(:)
+      Real*8,  Allocatable:: RC2(:)
 
 C     Set debug flag.
 C     ---------------
@@ -89,34 +86,27 @@ C     Allocate and get index arrays for indexation of basis functions on
 C     each atom.
 C     ------------------------------------------------------------------
 
-      l_nBas_per_Atom = nAtom
-      l_nBas_Start    = nAtom
-      Call GetMem('nB_per_Atom','Allo','Inte',
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',
-     &            ip_nBas_Start,l_nBas_Start)
-      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
+      Call mma_allocate(nBas_per_Atom,nAtom,Label='nBas_per_Atom')
+      Call mma_allocate(nBas_Start,nAtom,Label='nBas_Start')
+      Call BasFun_Atom(nBas_per_Atom,nBas_Start,
      &                 AtomLabel,nBasT,nAtom,Debug)
 
 C     Allocate and get nuclear coordinates.
 C     -------------------------------------
 
-      l_Coord = 3*nAtom
-      Call GetMem('Coord','Allo','Real',ip_Coord,l_Coord)
-C     Call Get_dArray('Unique Coordinates',Work(ip_Coord),l_Coord)
-      Call Get_dArray('Bfn Coordinates',Work(ip_Coord),l_Coord)
+      Call mma_allocate(Coord,3,nAtom,Label='Coord')
+C     Call Get_dArray('Unique Coordinates',Coord,3*nAtom)
+      Call Get_dArray('Bfn Coordinates',Coord,3*nAtom)
 
 C     Allocate and set mapping from basis function to atom.
 C     -----------------------------------------------------
 
-      l_iBF2Atom = nBasT
-      Call GetMem('iBF2Atom','Allo','Inte',ip_iBF2Atom,l_iBF2Atom)
-      ip0 = ip_iBF2Atom - 1
+      Call mma_Allocate(iBF2Atom,nBasT,Label='iBF2Atom')
       Do iAtom = 1,nAtom
          i1 = nBas_Start(iAtom)
          i2 = i1 + nBas_per_Atom(iAtom) - 1
          Do i = i1,i2
-            iWork(ip0+i) = iAtom
+            iBF2Atom(i) = iAtom
          End Do
       End Do
 
@@ -132,17 +122,14 @@ C     -----------------------------------------------------
 C     Allocate and set mapping from 1st reduced set to full storage.
 C     --------------------------------------------------------------
 
-      l_mapRS2F = 2*nnBstRT(1)
-      Call GetMem('mapRS2F','Allo','Inte',ip_mapRS2F,l_mapRS2F)
-      Call Cho_RStoF(iWork(ip_mapRS2F),2,nnBstRT(1),1)
+      Call mma_allocate(mapRS2F,2,nnBstRT(1),Label='mapRS2F')
+      Call Cho_RStoF(mapRS2F,2,nnBstRT(1),1)
 
 C     Allocate counters.
 C     ------------------
 
-      l_PC1 = nAtom
-      l_RC2 = NumChT
-      Call GetMem('PC1','Allo','Inte',ip_PC1,l_PC1)
-      Call GetMem('RC2','Allo','Real',ip_RC2,l_RC2)
+      Call mma_allocate(nPC1,nAtom,Label='nPC1')
+      Call mma_allocate(RC2,NumChT,Label='RC2')
 
 C     Compute statistics.
 C     -------------------
@@ -150,8 +137,8 @@ C     -------------------
       Rmin = 1.0d15
       Rmax = -1.0d15
       Rave = 0.0d0
-      Call iCopy(l_PC1,[0],0,iWork(ip_PC1),1)
-      Call dCopy_(l_RC2,[0.0d0],0,Work(ip_RC2),1)
+      nPC1(:)=0
+      RC2(:)=0.0D0
       Do iVec = 1,NumChT
          iRS1 = InfVec(iVec,1,1)
          iA = mapRS2F(1,iRS1)
@@ -159,18 +146,18 @@ C     -------------------
          iAtA = iBF2Atom(iA)
          iAtB = iBF2Atom(iB)
          If (iAtA .eq. iAtB) Then
-            iWork(ip_PC1-1+iAtA) = iWork(ip_PC1-1+iAtA) + 1
+            nPC1(iAtA) = nPC1(iAtA) + 1
          Else
             R = sqrt((Coord(1,iAtA)-Coord(1,iAtB))**2
      &              +(Coord(2,iAtA)-Coord(2,iAtB))**2
      &              +(Coord(3,iAtA)-Coord(3,iAtB))**2)
-            Work(ip_RC2-1+iVec) = R
+            RC2(iVec) = R
             Rmin = min(Rmin,R)
             Rmax = max(Rmax,R)
             Rave = Rave + R
          End If
       End Do
-      nTot1 = Cho_iSumElm(iWork(ip_PC1),nAtom)
+      nTot1 = Cho_iSumElm(nPC1,nAtom)
       nTot2 = NumChT - nTot1
       If (nTot2 .gt. 0) Then
          Rave = Rave/dble(nTot2)
@@ -288,14 +275,12 @@ C
 C     Deallocations.
 C     --------------
 
-      Call GetMem('RC2','Free','Real',ip_RC2,l_RC2)
-      Call GetMem('PC1','Free','Inte',ip_PC1,l_PC1)
-      Call GetMem('mapRS2F','Free','Inte',ip_mapRS2F,l_mapRS2F)
-      Call GetMem('iBF2Atom','Free','Inte',ip_iBF2Atom,l_iBF2Atom)
-      Call GetMem('Coord','Free','Real',ip_Coord,l_Coord)
-      Call GetMem('nB_Start','Free','Inte',
-     &            ip_nBas_Start,l_nBas_Start)
-      Call GetMem('nB_per_Atom','Free','Inte',
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
+      Call mma_deallocate(RC2)
+      Call mma_deallocate(nPC1)
+      Call mma_deallocate(mapRS2F)
+      Call mma_deallocate(iBF2Atom)
+      Call mma_deallocate(Coord)
+      Call mma_deallocate(nBas_Start)
+      Call mma_deallocate(nBas_per_Atom)
 
       End
