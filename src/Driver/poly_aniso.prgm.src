@@ -9,27 +9,27 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS"/bin/poly_aniso.exe             executable
- (file)  POLYINP  "$WorkDir/$Project."Poly.Input  rwi
- (file)  SITE01   "$WorkDir/$Project."Aniso       ro*
- (file)  SITE02   "$WorkDir/$Project."NoFile      ro
- (file)  SITE03   "$WorkDir/$Project."NoFile      ro
- (file)  SITE04   "$WorkDir/$Project."NoFile      ro
- (file)  SITE05   "$WorkDir/$Project."NoFile      ro
- (file)  SITE06   "$WorkDir/$Project."NoFile      ro
- (file)  SITE07   "$WorkDir/$Project."NoFile      ro
- (file)  SITE08   "$WorkDir/$Project."NoFile      ro
- (file)  SITE09   "$WorkDir/$Project."NoFile      ro
- (file)  SITE10   "$WorkDir/$Project."NoFile      ro
- (file)  SITE11   "$WorkDir/$Project."NoFile      ro
- (file)  SITE12   "$WorkDir/$Project."NoFile      ro
- (file)  SITE13   "$WorkDir/$Project."NoFile      ro
- (file)  SITE14   "$WorkDir/$Project."NoFile      ro
- (file)  SITE15   "$WorkDir/$Project."NoFile      ro
- (file)  SITE16   "$WorkDir/$Project."NoFile      ro
- (file)  SITE17   "$WorkDir/$Project."NoFile      ro
- (file)  SITE18   "$WorkDir/$Project."NoFile      ro
- (file)  SITE19   "$WorkDir/$Project."NoFile      ro
- (file)  SITE20   "$WorkDir/$Project."NoFile      ro
+ (file)  POLYINP                      "$WorkDir/$Project."Poly.Input                    rwi
+ (file)  SITE01                       "$WorkDir/$Project."Aniso                         ro*
+ (file)  SITE02                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE03                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE04                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE05                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE06                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE07                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE08                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE09                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE10                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE11                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE12                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE13                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE14                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE15                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE16                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE17                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE18                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE19                       "$WorkDir/$Project."NoFile                        ro
+ (file)  SITE20                       "$WorkDir/$Project."NoFile                        ro
 #include "wfnfiles.inc"
  (file) BARRIER_TME.dat               "$WorkDir/$Project."BARRIER_TME.dat               rws
  (file) BARRIER_ENE.dat               "$WorkDir/$Project."BARRIER_ENE.dat               rws

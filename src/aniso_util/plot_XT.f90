@@ -472,6 +472,9 @@
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
   END IF
+
+
+
 !--------------------------------------------------------------------------------------------
 ! get the true real names of the files on disk:
   WRITE(datafile ,'(3A)')  'XT_'//trim(label)//'.dat'
@@ -514,7 +517,7 @@
 !--------------------------------------------------------------------------------------------
   ! generate the GNUPLOT script in the $WorkDir
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
-  IF(file_exist)  iErr=AixRm(trim(plotfile))
+  IF(file_exist)  iErr=AixRm( trim(plotfile) )
   LuPlt=455
   Call molcas_open(LuPlt,plotfile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'

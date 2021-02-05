@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/single_aniso.exe"  executable
- (file) SINGLEINP                     "$WorkDir/$Project."Single_aniso.Input rwi
+ (file) SINGLEINP                     "$WorkDir/$Project."Single_aniso.Input            rwi
  (file) POLYFILE                      "$WorkDir/$Project."bin.aniso                     rws
- (file) ANISOFILE                     "$WorkDir/$Project."new.aniso                     rws
- (file) ANISOINPUT                    "$WorkDir/$Project."fmt.aniso                     rws
+ (file) ANISOFILE                     "$WorkDir/$Project."aniso                         rws
+ (file) ANISOINPUT                    "$WorkDir/$Project."old.aniso                     rws
  (file) BARRIER_TME.dat               "$WorkDir/$Project."BARRIER_TME.dat               rws
  (file) BARRIER_ENE.dat               "$WorkDir/$Project."BARRIER_ENE.dat               rws
  (file) BARRIER.plt                   "$WorkDir/$Project."BARRIER.plt                   rws
