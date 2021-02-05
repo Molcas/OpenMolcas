@@ -10,18 +10,20 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Energy_Kriging_Layer(qInt,Energy,nInter)
-      Implicit None
+
+subroutine Energy_Kriging_Layer(qInt,Energy,nInter)
+
+implicit none
 #include "stdalloc.fh"
-      Integer nInter
-      Real*8 qInt(nInter), Energy
-      Real*8, Allocatable:: qInt_s(:)
-!
-      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
-!
-      Call Trans_K(qInt,qInt_s,nInter,1)
-      Call Energy_Kriging(qInt_s,Energy,nInter)
-!
-      Call mma_deallocate(qInt_s)
-!
-      End Subroutine Energy_Kriging_Layer
+integer nInter
+real*8 qInt(nInter), Energy
+real*8, allocatable :: qInt_s(:)
+
+call mma_allocate(qInt_s,nInter,Label='qInt_s')
+
+call Trans_K(qInt,qInt_s,nInter,1)
+call Energy_Kriging(qInt_s,Energy,nInter)
+
+call mma_deallocate(qInt_s)
+
+end subroutine Energy_Kriging_Layer

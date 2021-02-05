@@ -10,19 +10,23 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Dispersion_Kriging(x0_,y_,ndimx)
-  use kriging_mod
-  Implicit None
-  Integer ndimx
-  Real*8 x0_(ndimx),y_
-!
+
+subroutine Dispersion_Kriging(x0_,y_,ndimx)
+
+use kriging_mod
+
+implicit none
+integer ndimx
+real*8 x0_(ndimx), y_
+
 !x0 is the n-dimensional vector of the coordinates for which the dispersion is computed
-!
-        x0(:) = x0_(:)
-        call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(0)
+
+x0(:) = x0_(:)
+call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+call predict(0)
 ! 95% confidence -> 1.96*sigma
-        y_ = 1.96d0*sigma
-!
-  return
-End Subroutine Dispersion_Kriging
+y_ = 1.96d0*sigma
+
+return
+
+end subroutine Dispersion_Kriging

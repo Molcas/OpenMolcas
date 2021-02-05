@@ -10,19 +10,20 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Trans_K(X,Y,nInter,nIter)
-      Use kriging_mod, Only: layer_U
-      Implicit None
-      Integer nInter, nIter
-      Real*8 X(nInter,nIter), Y(nInter,nIter)
-!
-!     Call RecPrt('layer_U',' ',layer_U,nInter,nInter)
-!     Call RecPrt('X',' ',X,nInter,nIter)
-      Call DGEMM_('T','N',nInter,nIter,nInter,                          &
-     &            1.0D0,layer_U,nInter,                                 &
-     &                  X,nInter,                                       &
-     &            0.0D0,Y,nInter)
-!     Call RecPrt('Y',' ',Y,nInter,nIter)
-!
-      Return
-      End Subroutine Trans_K
+
+subroutine Trans_K(X,Y,nInter,nIter)
+
+use kriging_mod, only: layer_U
+
+implicit none
+integer nInter, nIter
+real*8 X(nInter,nIter), Y(nInter,nIter)
+
+!call RecPrt('layer_U',' ',layer_U,nInter,nInter)
+!call RecPrt('X',' ',X,nInter,nIter)
+call DGEMM_('T','N',nInter,nIter,nInter,1.0d0,layer_U,nInter,X,nInter,0.0d0,Y,nInter)
+!call RecPrt('Y',' ',Y,nInter,nIter)
+
+return
+
+end subroutine Trans_K

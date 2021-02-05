@@ -10,62 +10,64 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE covarMatrix()
-  use kriging_mod
-  Implicit None
+
+subroutine covarMatrix()
+
+use kriging_mod
+
+implicit none
 #include "stdalloc.fh"
-  integer i,j,i0,i1,j0,j1,k, i_eff, j_eff
-  Real*8, Allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:),&
-                         matSder(:,:), r(:,:,:), d(:,:)
+integer i, j, i0, i1, j0, j1, k, i_eff, j_eff
+real*8, allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:), matSder(:,:), r(:,:,:), d(:,:)
 !#define _DEBUGPRINT_
 
 !**********************************************************************
 !
 ! Allocate temporary memory
-!
-  Call mma_Allocate(diffx_j,nPoints,nPoints,Label="diffx_j")
-  Call mma_Allocate(diffx_i,nPoints,nPoints,Label="diffx_i")
-  Call mma_Allocate(matFder,nPoints,nPoints,Label="matFder")
-  Call mma_Allocate(matSder,nPoints,nPoints,Label="matSder")
-  Call mma_Allocate(r,nPoints,nPoints,nInter,Label="r")
-  Call mma_Allocate(d,nPoints,nPoints,Label="d")
-!
+
+call mma_Allocate(diffx_j,nPoints,nPoints,Label='diffx_j')
+call mma_Allocate(diffx_i,nPoints,nPoints,Label='diffx_i')
+call mma_Allocate(matFder,nPoints,nPoints,Label='matFder')
+call mma_Allocate(matSder,nPoints,nPoints,Label='matSder')
+call mma_Allocate(r,nPoints,nPoints,nInter,Label='r')
+call mma_Allocate(d,nPoints,nPoints,Label='d')
+
 !**********************************************************************
 !
 ! Compute the distances between the sample points using
 ! the characteristic length.
-!
-  full_R(:,:) = 0.0D0
-  d(:,:) = 0.0D0
-  diffx_j(:,:) = 0.0D0
-  diffx_i(:,:) = 0
-!
-  do i=1,nInter
 
-    do k=1,nPoints
-      do j=1,nPoints
-        r(k,j,i)=(x(i,k)-x(i,j))/l(i)
-      end do
+full_R(:,:) = 0.0d0
+d(:,:) = 0.0d0
+diffx_j(:,:) = 0.0d0
+diffx_i(:,:) = 0
+
+do i=1,nInter
+
+  do k=1,nPoints
+    do j=1,nPoints
+      r(k,j,i) = (x(i,k)-x(i,j))/l(i)
     end do
-
-!   Accumulate contributions to the square of the individual distances.
-
-    d(:,:) = d(:,:) + r(:,:,i)**2
-
-#ifdef _DEBUGPRINT_
-    Call RecPrt('r',' ',r(1,1,i),nPoints,nPoints)
-#endif
-
   end do
-!
+
+  ! Accumulate contributions to the square of the individual distances.
+
+  d(:,:) = d(:,:)+r(:,:,i)**2
+
+# ifdef _DEBUGPRINT_
+  call RecPrt('r',' ',r(1,1,i),nPoints,nPoints)
+# endif
+
+end do
+
 !**********************************************************************
-!
+
 #ifdef _DEBUGPRINT_
-  Call RecPrt('l',' ',l,1,nInter)
-  Call RecPrt('x',' ',x,nInter,nPoints)
-  Call RecPrt('d',' ',d,nPoints,nPoints)
+call RecPrt('l',' ',l,1,nInter)
+call RecPrt('x',' ',x,nInter,nPoints)
+call RecPrt('d',' ',d,nPoints,nPoints)
 #endif
-!
+
 !**********************************************************************
 !**********************************************************************
 !
@@ -83,98 +85,95 @@ SUBROUTINE covarMatrix()
 !
 !**********************************************************************
 ! 1) Evaluate the covariance function for all the distances.
-!
-  Call matern(d, full_R(1:nPoints,1:nPoints), nPoints, nPoints)
-!
+
+call matern(d,full_R(1:nPoints,1:nPoints),nPoints,nPoints)
+
 ! Writing the covariant matrix in GEK (eq 2 of doi:10.1007/s00366-015-0397)
 !
 !**********************************************************************
 !
 ! 2) Evaluate first derivatives of the covariance function with respect to d at all distances.
-!
-  Call matderiv(1, d, MatFder, nPoints, nPoints)
-!
+
+call matderiv(1,d,MatFder,nPoints,nPoints)
+
 ! Covariant matrix in Gradient Enhanced Kriging (eq 2 of doi:10.1007/s00366-015-0397):
 !
 ! First line and first column derivative in Psi matrix
-!
-  do i_eff=1,nInter_Eff      ! Loop over component of the coordinate to differentiate
-     i = Index_PGEK(i_eff)
-!
-!   Compute the range of the block in the covariance matrix.
-!
-    i0 = nPoints + 1 + (i_eff-1)*(nPoints-nD)
-    i1 = i0 + (nPoints-nD) - 1
-!
-!   Do an on-the-fly evaluation of the dervative w.r.t x_i
-    diffx_i(1:nPoints,1+nD:nPoints) = -2.0D0*r(1:nPoints,1+nD:nPoints,i)/l(i)
-!
-!   Writing the 1st row of 1st derivatives with respect the coordinates
-!
-    full_R(1:nPoints,i0:i1) = matFDer(1:nPoints,1+nD:nPoints)  &
-                            * diffx_i(1:nPoints,1+nD:nPoints)
 
-  enddo
+do i_eff=1,nInter_Eff      ! Loop over component of the coordinate to differentiate
+  i = Index_PGEK(i_eff)
+
+  ! Compute the range of the block in the covariance matrix.
+
+  i0 = nPoints+1+(i_eff-1)*(nPoints-nD)
+  i1 = i0+(nPoints-nD)-1
+
+  ! Do an on-the-fly evaluation of the dervative w.r.t x_i
+  diffx_i(1:nPoints,1+nD:nPoints) = -2.0d0*r(1:nPoints,1+nD:nPoints,i)/l(i)
+
+  ! Writing the 1st row of 1st derivatives with respect the coordinates
+
+  full_R(1:nPoints,i0:i1) = matFDer(1:nPoints,1+nD:nPoints)*diffx_i(1:nPoints,1+nD:nPoints)
+
+end do
 ! Complete by filling in the transpose blocks
 
-  full_R(nPoints+1:m_t,1:nPoints) = Transpose(Full_R(1:nPoints,nPoints+1:m_t))
-!
+full_R(nPoints+1:m_t,1:nPoints) = transpose(Full_R(1:nPoints,nPoints+1:m_t))
+
 !**********************************************************************
 !
 ! 3) Evaluate the second derivatives.
 !
 ! Matern second derivative with respect to d
-!
-  call matderiv(2, d, matSder, nPoints, nPoints)
-!
-    ! Second derivatives
-  do i_Eff = 1,nInter_Eff
-    i = Index_PGEK(i_Eff)
-    i0 = nPoints + 1 + (i_Eff-1)*(nPoints-nD)
-    i1 = i0 + (nPoints-nD) - 1
-!
-    diffx_i(1+nD:nPoints,1+nD:nPoints) = -2.0D0*r(1+nD:nPoints,1+nD:nPoints,i)/l(i)
-!
-    do j_Eff = i_Eff, nInter_Eff
-      j = Index_PGEK(j_Eff)
-      j0 = nPoints + 1 + (j_Eff-1)*(nPoints-nD)
-      j1 = j0 + (nPoints-nD) - 1
-!
-      diffx_j(1+nD:nPoints,1+nD:nPoints)  =  2.0D0*r(1+nD:nPoints,1+nD:nPoints,j)/l(j)
-!
-    !   if differentiating twice on the same dimension
-      full_R(i0:i1,j0:j1) = matSder(1+nD:nPoints,1+nD:nPoints) &
-                          * diffx_j(1+nD:nPoints,1+nD:nPoints) &
-                          * diffx_i(1+nD:nPoints,1+nD:nPoints)
 
-      if (i.eq.j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) &
-                                      - matFder(1+nD:nPoints,1+nD:nPoints)*(2.0D0/(l(i)*l(j)))
+call matderiv(2,d,matSder,nPoints,nPoints)
 
-    !   Writing the second derivatives in eq(2)
-      if (i.ne.j) full_R(j0:j1,i0:i1) = transpose(Full_r(i0:i1,j0:j1))
-    enddo
+! Second derivatives
+do i_Eff=1,nInter_Eff
+  i = Index_PGEK(i_Eff)
+  i0 = nPoints+1+(i_Eff-1)*(nPoints-nD)
+  i1 = i0+(nPoints-nD)-1
 
-  enddo
-!
+  diffx_i(1+nD:nPoints,1+nD:nPoints) = -2.0d0*r(1+nD:nPoints,1+nD:nPoints,i)/l(i)
+
+  do j_Eff=i_Eff,nInter_Eff
+    j = Index_PGEK(j_Eff)
+    j0 = nPoints+1+(j_Eff-1)*(nPoints-nD)
+    j1 = j0+(nPoints-nD)-1
+
+    diffx_j(1+nD:nPoints,1+nD:nPoints) = 2.0d0*r(1+nD:nPoints,1+nD:nPoints,j)/l(j)
+
+    ! if differentiating twice on the same dimension
+    full_R(i0:i1,j0:j1) = matSder(1+nD:nPoints,1+nD:nPoints)*diffx_j(1+nD:nPoints,1+nD:nPoints)*diffx_i(1+nD:nPoints,1+nD:nPoints)
+
+    if (i == j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1)-matFder(1+nD:nPoints,1+nD:nPoints)*(2.0d0/(l(i)*l(j)))
+
+    ! Writing the second derivatives in eq(2)
+    if (i /= j) full_R(j0:j1,i0:i1) = transpose(Full_r(i0:i1,j0:j1))
+  end do
+
+end do
+
 ! Add constants to reflect the error in the energy and the
 ! gradient, respectively.
-!
-  do j=1,m_t
-    if (j.le.nPoints) then
-      Full_R(j,j) = Full_R(j,j) + eps
-    else
-      Full_R(j,j) = Full_R(j,j) + eps2
-    end if
-  end do
-!
+
+do j=1,m_t
+  if (j <= nPoints) then
+    Full_R(j,j) = Full_R(j,j)+eps
+  else
+    Full_R(j,j) = Full_R(j,j)+eps2
+  end if
+end do
+
 #ifdef _DEBUGPRINT_
-  Call RecPrt('The covariance matrix:','(12(2x,E9.3))',full_R,m_t,m_t)
+call RecPrt('The covariance matrix:','(12(2x,E9.3))',full_R,m_t,m_t)
 #endif
-!
-  Call mma_deallocate(diffx_j)
-  Call mma_deallocate(diffx_i)
-  Call mma_deallocate(matFder)
-  Call mma_deallocate(matSder)
-  Call mma_deallocate(r)
-  Call mma_deallocate(d)
-END SUBROUTINE covarMatrix
+
+call mma_deallocate(diffx_j)
+call mma_deallocate(diffx_i)
+call mma_deallocate(matFder)
+call mma_deallocate(matSder)
+call mma_deallocate(r)
+call mma_deallocate(d)
+
+end subroutine covarMatrix

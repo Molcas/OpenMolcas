@@ -10,24 +10,25 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
-      Implicit None
+
+subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
+
+implicit none
 #include "stdalloc.fh"
-      Integer nInter
-      Real*8 qInt(nInter), E_Disp
-      Real*8, Allocatable:: qInt_s(:)
-!
-      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
-!
-      Call Trans_K(qInt,qInt_s,nInter,1)
+integer nInter
+real*8 qInt(nInter), E_Disp
+real*8, allocatable :: qInt_s(:)
+
+call mma_allocate(qInt_s,nInter,Label='qInt_s')
+
+call Trans_K(qInt,qInt_s,nInter,1)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)
-      Call RecPrt('Dispersion_Kriging_Layer: qInt_s',' ',qInt_s,        &
-     &                                                   nInter,1)
+call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)
+call RecPrt('Dispersion_Kriging_Layer: qInt_s',' ',qInt_s,nInter,1)
 #endif
-      Call Dispersion_Kriging(qInt_s,E_Disp,nInter)
-!
-      Call mma_deallocate(qInt_s)
-!
-      End Subroutine Dispersion_Kriging_Layer
+call Dispersion_Kriging(qInt_s,E_Disp,nInter)
+
+call mma_deallocate(qInt_s)
+
+end subroutine Dispersion_Kriging_Layer

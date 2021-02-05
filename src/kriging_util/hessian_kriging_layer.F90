@@ -10,29 +10,32 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Hessian_Kriging_Layer(qInt,Hessian,nInter)
-      Implicit None
+
+subroutine Hessian_Kriging_Layer(qInt,Hessian,nInter)
+
+implicit none
 #include "stdalloc.fh"
-      Integer nInter
-      Real*8 qInt(nInter), Hessian(nInter,nInter)
-      Real*8, Allocatable:: qInt_s(:), Hessian_s(:,:)
+integer nInter
+real*8 qInt(nInter), Hessian(nInter,nInter)
+real*8, allocatable :: qInt_s(:), Hessian_s(:,:)
+
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('KHL: qInt',' ',qInt,1,nInter)
+call RecPrt('KHL: qInt',' ',qInt,1,nInter)
 #endif
-!
-      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
-      Call mma_allocate(Hessian_s,nInter,nInter,Label='Hessian_s')
-!
-      Call Trans_K(qInt,qInt_s,nInter,1)
-      Call Hessian_kriging(qInt_s,Hessian,nInter)
-      Call BackTrans_K (Hessian,Hessian_s,nInter,nInter)
-      Call BackTrans_Kt(Hessian_s,Hessian,nInter,nInter)
-!
-      Call mma_deallocate(Hessian_s)
-      Call mma_deallocate(qInt_s)
+
+call mma_allocate(qInt_s,nInter,Label='qInt_s')
+call mma_allocate(Hessian_s,nInter,nInter,Label='Hessian_s')
+
+call Trans_K(qInt,qInt_s,nInter,1)
+call Hessian_kriging(qInt_s,Hessian,nInter)
+call BackTrans_K(Hessian,Hessian_s,nInter,nInter)
+call BackTrans_Kt(Hessian_s,Hessian,nInter,nInter)
+
+call mma_deallocate(Hessian_s)
+call mma_deallocate(qInt_s)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('KHL: Hessian',' ',Hessian,nInter,nInter)
+call RecPrt('KHL: Hessian',' ',Hessian,nInter,nInter)
 #endif
-!
-      End Subroutine Hessian_Kriging_Layer
+
+end subroutine Hessian_Kriging_Layer

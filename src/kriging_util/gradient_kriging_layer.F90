@@ -10,21 +10,23 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine Gradient_Kriging_Layer(qInt,Grad,nInter)
-      Implicit None
+
+subroutine Gradient_Kriging_Layer(qInt,Grad,nInter)
+
+implicit none
 #include "stdalloc.fh"
-      Integer nInter
-      Real*8 qInt(nInter), Grad(nInter)
-      Real*8, Allocatable:: qInt_s(:), Grad_s(:)
-!
-      Call mma_allocate(qInt_s,nInter,Label='qInt_s')
-      Call mma_allocate(Grad_s,nInter,Label='Grad_s')
-!
-      Call Trans_K(qInt,qInt_s,nInter,1)
-      Call Gradient_Kriging(qInt_s,Grad_s,nInter)
-      Call BackTrans_K(Grad_s,Grad,nInter,1)
-!
-      Call mma_deallocate(Grad_s)
-      Call mma_deallocate(qInt_s)
-!
-      End Subroutine Gradient_Kriging_Layer
+integer nInter
+real*8 qInt(nInter), Grad(nInter)
+real*8, allocatable :: qInt_s(:), Grad_s(:)
+
+call mma_allocate(qInt_s,nInter,Label='qInt_s')
+call mma_allocate(Grad_s,nInter,Label='Grad_s')
+
+call Trans_K(qInt,qInt_s,nInter,1)
+call Gradient_Kriging(qInt_s,Grad_s,nInter)
+call BackTrans_K(Grad_s,Grad,nInter,1)
+
+call mma_deallocate(Grad_s)
+call mma_deallocate(qInt_s)
+
+end subroutine Gradient_Kriging_Layer

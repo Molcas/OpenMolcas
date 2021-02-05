@@ -10,66 +10,65 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
-  use kriging_mod
-  Implicit None
+
+subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
+
+use kriging_mod
+
+implicit none
 #include "stdalloc.fh"
-!
+
 !    nPoints: the number of sample points, n
 !    nInter: the dimensionality of the function, d
 !    y_: the values of the function at the sample points
 !    dy_: the gradient of the function at the sample points
 !    x_: the coordinates of the sample points
-!
-  Integer nInter_In,nPoints_In
-  Real*8 x_(nInter_In,nPoints_In)
-  Real*8 y_(nPoints_In)
-  Real*8 dy_(nInter_In,nPoints_In)
-!
-!
+
+integer nInter_In, nPoints_In
+real*8 x_(nInter_In,nPoints_In)
+real*8 y_(nPoints_In)
+real*8 dy_(nInter_In,nPoints_In)
+
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-  Call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
-  Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
-  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter_In,nPoints_In)
+call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
+call RecPrt('Start_Kriging: y',' ',y_,1,nPoints_In)
+call RecPrt('Start_Kriging: dy',' ',dy_,nInter_In,nPoints_In)
 #endif
-!
+
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
-!
-  Call Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
-!
+
+call Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
+
 ! Development code for partial gradient enhanced Kriging (PGEK) based on Mutual Information between
 ! the coordinates and the energy.
 
-  If (PGEK_On .and. nPoints>=2) Call PGEK()
+if (PGEK_On .and. nPoints >= 2) call PGEK()
 
-!
-!
 ! m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = doi:10.1007/s00366-015-0397-y)-------
 !
-!
 ! In the case the nPoint_v last energies and nPoint_g last gradients were use
 ! m_t would be computed as
-!
+
 #ifdef _DEBUGPRINT_
-  Write (6,*) 'nD=',nD
-  Write (6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
+write(6,*) 'nD=',nD
+write(6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
 #endif
-  m_t=nPoints + nInter_Eff*(nPoints-nD)
-!
+m_t = nPoints+nInter_Eff*(nPoints-nD)
+
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
-!
-  Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
-  Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
-!
-  If (mblAI) sbmev = y(maxloc(y,dim=1))
+
+call mma_Allocate(full_R,m_t,m_t,Label='full_R')
+call mma_Allocate(full_RInv,m_t,m_t,Label='full_RInv')
+
+if (mblAI) sbmev = y(maxloc(y,dim=1))
 
 ! Allocate x0, which is a n-dimensional vector of the coordinats of the last iteration computed
-!
-  Call mma_Allocate(x0,nInter,Label="nx")
-!
+
+call mma_Allocate(x0,nInter,Label='nx')
+
 ! rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
@@ -78,11 +77,11 @@ Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
-!
-  Call mma_Allocate(rl,nPoints,nInter,Label="rl")
-  Call mma_Allocate(dl,nPoints,Label="dl")
-  Call mma_Allocate(Rones,m_t,Label="Rones")
-!
+
+call mma_Allocate(rl,nPoints,nInter,Label='rl')
+call mma_Allocate(dl,nPoints,Label='dl')
+call mma_Allocate(Rones,m_t,Label='Rones')
+
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
 !Grad-y minus the dot product of the inverse of Grad-Psi and f-ones multiplied
 ! by the constant Grad-Trend function (eq. (3), (5), (6) and (7)
@@ -97,19 +96,20 @@ Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 ! (eq. 4 ref.).
 !l is a n-dimensional vector of the width of the Matern function.
 !ll is the likelihood function.
-!
+
 ! Allocate additional variables needed for the kriging.
-!
-  Call mma_allocate(kv,m_t,Label="kv")
-  Call mma_allocate(gpred,nInter,Label="gpred")
-  Call mma_allocate(hpred,nInter,nInter,Label="hpred")
-  Call mma_allocate(l,nInter,Label="l")
-  Call mma_allocate(ll,int(lb(3)),Label="ll")
-!
-  Call mma_allocate(cv,m_t,nInter,nInter,Label="cv")
-  Call mma_allocate(cvMatFder,nPoints,Label="cvMatFder")
-  Call mma_allocate(cvMatSder,nPoints,Label="cvMatSder")
-  Call mma_allocate(cvMatTder,nPoints,Label="cvMatTder")
-!
-  return
-End Subroutine Start_Kriging
+
+call mma_allocate(kv,m_t,Label='kv')
+call mma_allocate(gpred,nInter,Label='gpred')
+call mma_allocate(hpred,nInter,nInter,Label='hpred')
+call mma_allocate(l,nInter,Label='l')
+call mma_allocate(ll,int(lb(3)),Label='ll')
+
+call mma_allocate(cv,m_t,nInter,nInter,Label='cv')
+call mma_allocate(cvMatFder,nPoints,Label='cvMatFder')
+call mma_allocate(cvMatSder,nPoints,Label='cvMatSder')
+call mma_allocate(cvMatTder,nPoints,Label='cvMatTder')
+
+return
+
+end subroutine Start_Kriging

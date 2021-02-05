@@ -10,30 +10,34 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Finish_Kriging()
-  use kriging_mod
-  Implicit None
+
+subroutine Finish_Kriging()
+
+use kriging_mod
+
+implicit none
 #include "stdalloc.fh"
-!
-!       write(6,*) 'Deallocating all kriging variables'
-  Call mma_deallocate(Index_PGEK)
-  Call Deallocate_protected()
-  Call mma_deallocate(x0)
-  Call mma_deallocate(full_R)
-  Call mma_deallocate(full_RInv)
-  Call mma_deallocate(dl)
-  Call mma_deallocate(rl)
-  Call mma_deallocate(Rones)
-  Call mma_deallocate(kv)
-  Call mma_deallocate(gpred)
-  Call mma_deallocate(hpred)
-  Call mma_deallocate(l)
-  Call mma_deallocate(ll)
-  Call mma_deallocate(cv)
-  Call mma_deallocate(cvMatFder)
-  Call mma_deallocate(cvMatSder)
-  Call mma_deallocate(cvMatTder)
-  If (Allocated(layer_U)) Call mma_deallocate(layer_U)
-!
-  return
-End Subroutine Finish_Kriging
+
+!write(6,*) 'Deallocating all kriging variables'
+call mma_deallocate(Index_PGEK)
+call Deallocate_protected()
+call mma_deallocate(x0)
+call mma_deallocate(full_R)
+call mma_deallocate(full_RInv)
+call mma_deallocate(dl)
+call mma_deallocate(rl)
+call mma_deallocate(Rones)
+call mma_deallocate(kv)
+call mma_deallocate(gpred)
+call mma_deallocate(hpred)
+call mma_deallocate(l)
+call mma_deallocate(ll)
+call mma_deallocate(cv)
+call mma_deallocate(cvMatFder)
+call mma_deallocate(cvMatSder)
+call mma_deallocate(cvMatTder)
+if (allocated(layer_U)) call mma_deallocate(layer_U)
+
+return
+
+end subroutine Finish_Kriging

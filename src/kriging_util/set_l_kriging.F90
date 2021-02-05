@@ -10,28 +10,31 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE set_l_kriging(lv,nInter_In)
-  use kriging_mod
-  integer nInter_In
-  real*8 lv(nInter_In)
-!
-! Set the characteristic length of all the components of the coordintes.
-!
-  If (nInter_In.eq.nInter) Then
-    l(:)=lv(:)
-  Else If (nInter.eq.1) Then
-    l(:)=lv(1)
-  Else
-    Write (6,*) "setlkriging: illegal nInter value."
-    Call Abend()
-  End If
-!
-! Generate the covariance matrix
-!
-  call covarMatrix()
-!
-! Form the inverse of the covariance matrix times the generalized value vector.
-!
-  call kriging_model()
 
-END SUBROUTINE set_l_kriging
+subroutine set_l_kriging(lv,nInter_In)
+
+use kriging_mod
+
+integer nInter_In
+real*8 lv(nInter_In)
+
+! Set the characteristic length of all the components of the coordintes.
+
+if (nInter_In == nInter) then
+  l(:) = lv(:)
+else if (nInter == 1) then
+  l(:) = lv(1)
+else
+  write(6,*) 'setlkriging: illegal nInter value.'
+  call Abend()
+end if
+
+! Generate the covariance matrix
+
+call covarMatrix()
+
+! Form the inverse of the covariance matrix times the generalized value vector.
+
+call kriging_model()
+
+end subroutine set_l_kriging
