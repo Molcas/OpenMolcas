@@ -67,25 +67,22 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*18 SecNam
-      Character*11 ThisNm
-      Parameter (SecNam = 'ChoMP2_VectorMO2AO')
-      Parameter (ThisNm = 'VectorMO2AO')
+      Character(LEN=18), Parameter:: SecNam = 'ChoMP2_VectorMO2AO'
+      Character(LEN=11), Parameter:: ThisNm = 'VectorMO2AO'
 
-      Character*4 FullName_AO
+      Character(LEN=4) FullName_AO
 
       Integer iSym, iSyma, iSymb, iCount, iOpen, iClose
-      Integer ip_COcc, ip_CVir
-      Integer l_COcc,  l_CVir
 
-      Logical Debug
 #if defined (_DEBUGPRINT_)
-      Parameter (Debug = .True.)
+      Logical, Parameter:: Debug = .True.
 #else
-      Parameter (Debug = .False.)
+      Logical, Parameter:: Debug = .False.
 #endif
+
+      Real*8, Allocatable:: COcc(:), CVir(:)
 
       Integer MulD2h, k, l
       MulD2h(k,l)=iEOr(k-1,l-1)+1
@@ -121,17 +118,14 @@ C     ----------------
 C     Reorder CMO. This also removes frozen orbitals.
 C     -----------------------------------------------
 
-      l_COcc = nT1AOT(1)
-      l_CVir = nAOVir(1)
-      Call GetMem('COcc','Allo','Real',ip_COcc,l_COcc)
-      Call GetMem('CVir','Allo','Real',ip_CVir,l_CVir)
-      Call ChoMP2_MOReOrd(CMO,Work(ip_COcc),Work(ip_CVir))
+      Call mma_allocate(COcc,nT1AOT(1),Label='COcc')
+      Call mma_allocate(CVir,nAOVir(1),Label='CVir')
+      Call ChoMP2_MOReOrd(CMO,COcc,CVir)
 
 C     Backtransform.
 C     --------------
 
-      Call ChoMP2_BackTra(iTyp,Work(ip_COcc),Work(ip_CVir),
-     &                    BaseName_AO,DoDiag,Diag)
+      Call ChoMP2_BackTra(iTyp,COcc,CVir,BaseName_AO,DoDiag,Diag)
 
 C     Open AO vector files (i.e. get units to return).
 C     ------------------------------------------------
@@ -146,8 +140,7 @@ C     Debug: check backtransformation.
 C     --------------------------------
 
       If (Debug) Then
-         Call ChoMP2_CheckBackTra(iTyp,Work(ip_COcc),Work(ip_CVir),
-     &                            lU_AO)
+         Call ChoMP2_CheckBackTra(iTyp,COcc,CVir,lU_AO)
       End If
 
 C     Delete MO files if requested.
@@ -165,6 +158,6 @@ C     -----------------------------
 C     Deallocate and exit.
 C     --------------------
 
-      Call GetMem('CVir','Free','Real',ip_CVir,l_CVir)
-      Call GetMem('COcc','Free','Real',ip_COcc,l_COcc)
+      Call mma_deallocate(CVir)
+      Call mma_deallocate(COcc)
       End

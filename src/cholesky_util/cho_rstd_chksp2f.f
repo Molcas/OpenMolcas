@@ -12,19 +12,21 @@
       Implicit None
       Integer l_iSP2F, nErr
       Integer iSP2F(l_iSP2F)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Integer l_iChk, ip_iChk, i
+      Integer i
 
-      l_iChk = l_iSP2F
-      Call GetMem('iChk_SP','Allo','Inte',ip_iChk,l_iChk)
-      Call Cho_RstD_GetInd3(iWork(ip_iChk),l_iChk)
+      Integer, Allocatable:: iChk(:)
+
+      Call mma_allocate(iChk,l_iSP2F,Label='iChk')
+
+      Call Cho_RstD_GetInd3(iChk,l_iSP2F)
 
       nErr = 0
-      Do i = 1,l_iChk
-         If (iWork(ip_iChk-1+i) .ne. iSP2F(i)) nErr = nErr + 1
+      Do i = 1, l_iSP2F
+         If (iChk(i) .ne. iSP2F(i)) nErr = nErr + 1
       End Do
 
-      Call GetMem('iChk_SP','Free','Inte',ip_iChk,l_iChk)
+      Call mma_deallocate(iChk)
 
       End
