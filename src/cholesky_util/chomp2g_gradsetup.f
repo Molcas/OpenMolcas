@@ -21,6 +21,7 @@
 ************************************************************************
 #include "implicit.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
@@ -34,10 +35,12 @@
       Character*5 fname
       Character*6 fname2
 *
-      Character*9  ThisNm
-      Character*17 SecNam
+      Character(LEN=9), Parameter:: ThisNm = 'GradSetup'
+      Character(LEN=17), Parameter:: SecNam = 'ChoMP2g_GradSetup'
+
       Integer LuB(2), LuA(2)
-      Parameter (SecNam = 'ChoMP2g_GradSetup', ThisNm = 'GradSetup')
+
+      Real*8, Allocatable:: CMO_Inv(:), CMO_o(:), CMO_v(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,10 +99,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('CMO_inv','Allo','Real',ip_CMO_inv,nOrbBas)
-      Call FZero(Work(ip_CMO_inv),nOrbBas)
-      Call GetMem('CMO_o  ','Allo','Real',ip_CMO_o  ,nOccBas)
-      Call GetMem('CMO_v  ','Allo','Real',ip_CMO_v  ,nVirBas)
+      Call mma_allocate(CMO_inv,nOrbBas,Label='CMO_Inv')
+      CMO_inv(:)=0.0D0
+      Call mma_allocate(CMO_o,nOccBas,Label='CMO_o')
+      Call mma_allocate(CMO_v,nVirBas,Label='CMO_v')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -189,12 +192,12 @@
 *     --------------------------------------------
 *
       iOff1 = 0
-      iOff2 = 0
+      iOff2 = 1
       Do iSym = 1, nSym
          Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),
      &              1.0d0,CMO(1+iOff2), nBas(iSym),
      &                    Work(ip_Smat+iOff1), nBas(iSym),
-     &              0.0d0,Work(ip_CMO_inv+iOff2), nOrb(iSym))
+     &              0.0d0,CMO_inv(iOff2), nOrb(iSym))
 *
          iOff1 =  iOff1 + nBas(iSym)**2
          iOff2 =  iOff2 + nOrb(iSym)*nBas(iSym)
@@ -214,10 +217,10 @@
          Do i = 1, nOrb(iSym)
             Do j = 1, nBas(iSym)
                If(i.gt. nFro(iSym) .and. (i .le. nOccAll(iSym))) Then
-                  Work(ip_CMO_o+k_o-1) = CMO((i-1)*nBas(iSym)+j+iOff2)
+                  CMO_o(k_o) = CMO((i-1)*nBas(iSym)+j+iOff2)
                   k_o = k_o+1
                Else If(i.gt. nOccAll(iSym)) Then
-                  Work(ip_CMO_v+k_v-1) = CMO((i-1)*nBas(iSym)+j+iOff2)
+                  CMO_v(k_v) = CMO((i-1)*nBas(iSym)+j+iOff2)
                   k_v = k_v+1
                End If
             End Do
@@ -524,7 +527,7 @@
 *
             iOff1 = nLRo(iSym)*(iJ-1) + iOffLRo(iSym,jSym)
             Call dGemm_('T', 'N',nBas(jSym),nOrb(kSym), nOrb(jSym),
-     &                 1.0d0,Work(ip_CMO_inv+iOffCInv(jSym)),nOrb(jSym),
+     &                 1.0d0,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),
      &                       Work(ip_Cpq+iOff1), nOrb(jSym),
      &                 0.0d0,Work(ip_Cpn), nBas(jSym))
 *
@@ -533,7 +536,7 @@
             iOff2 = nLRb(iSym)*(iJ-1) + iOffLRb(iSym,jSym)
             Call dGemm_('N','N',nBas(jSym),nBas(kSym), nOrb(kSym),
      &                 1.0d0,Work(ip_Cpn),nBas(jSym),
-     &                       Work(ip_CMO_inv+iOffCInv(kSym)),nOrb(kSym),
+     &                       CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),
      &                 0.0d0,Work(ip_Cmn+iOff2), nBas(jSym))
 *
             End Do
@@ -608,7 +611,7 @@
                iOff2 = iOff_Rin
                iOff_Rin = iOff_Rin + nBas(jSym)*nOcc(kSym)
                Call dGemm_('N','N',nBas(jSym),nOcc(kSym), nVir(jSym),
-     &              1.0d0,Work(ip_CMO_v),nBas(jSym),
+     &              1.0d0,CMO_v,nBas(jSym),
      &                    Work(ip_Ria+iOff1), nVir(jSym),
      &              0.0d0,Work(ip_Rin+iOff2), nBas(jSym))
 *
@@ -618,7 +621,7 @@
                iOff_Rmn = iOff_Rmn + nBas(jSym)*nBas(kSym)
                Call dGemm_('N','T',nBas(jSym),nBas(kSym), nOcc(kSym),
      &                 1.0d0,Work(ip_Rin+iOff2),nBas(jSym),
-     &                       Work(ip_CMO_o), nBas(kSym),
+     &                       CMO_o, nBas(kSym),
      &                 0.0d0,Work(ip_Rmn+iOff3), nBas(jSym))
 *
                End Do ! jSym
@@ -697,7 +700,7 @@
 *
             Call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),
      &                -8.0d0,Work(ip_B3jl+iOffB1) , nBas(jSym),
-     &                       Work(ip_CMO_o+iOff),nBas(kSym),
+     &                       CMO_o(1+iOff),nBas(kSym),
      &                 0.0d0,Work(ip_B3kl+iOffB2),nBas(jSym))
 *
             End Do ! jSym
@@ -1013,9 +1016,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('CMO_v  ','Free','Real',ip_CMO_v  ,nVirBas)
-      Call GetMem('CMO_o  ','Free','Real',ip_CMO_o  ,nOccBas)
-      Call GetMem('CMO_inv','Free','Real',ip_CMO_inv,nOrbBas)
+      Call mma_deallocate(CMO_v)
+      Call mma_deallocate(CMO_o)
+      Call mma_deallocate(CMO_Inv)
 *                                                                      *
 ************************************************************************
 *                                                                      *
