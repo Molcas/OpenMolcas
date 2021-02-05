@@ -152,7 +152,7 @@ C
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription in xdwinit
-      if (IFXMS.and.IFDW) then
+      if ((IFXMS .and. IFDW) .or. (IFRMS)) then
         call xdwinit(Heff,H0,U0)
         if (IFEFOCK) then
           call wgtinit(H0)
