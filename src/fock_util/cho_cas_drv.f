@@ -318,7 +318,7 @@ C ---  Decompose the active density  -----------------------------
 #ifdef _DEBUGPRINT_
        koff=0
        do i=1,nSym
-          CALL CD_TESTER(rc,ipDALT+koff,nBas(i),.true.)
+          CALL CD_TESTER(rc,Work(ipDALT+koff),nBas(i),.true.)
           write(6,*) 'DALT for sym=', i
           CALL TRIPRT('DALT',' ',Work(ipDALT+koff),nBas(i))
           koff = koff + nBas(i)*(nBas(i)+1)/2

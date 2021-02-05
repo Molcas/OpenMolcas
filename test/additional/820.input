@@ -6,9 +6,9 @@
 * Responsible person: F. Aquilante 090511
 * Comments: Test of Constrained BLYP
 *-------------------------------------------------------------------------------
-> IF ( $MOLCAS_NPROCS != 1)
->   EXIT 36
-> ENDIF
+*> IF ( $MOLCAS_NPROCS != 1)
+*>   EXIT 36
+*> ENDIF
 
 
  &SEWARD &END
