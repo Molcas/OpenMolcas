@@ -567,7 +567,7 @@ C     ------------------------------------------------------------
                   CALL CHO_X_NVECRS(IRED,ISYM,IVEC1,NVEC)
                   IF (NVEC.GT.0 .AND. NDIMRS(ISYM,IRED).GT.0) THEN
 
-                     CALL CHO_MEM('TstS Max','GETM','REAL',KRDVT,LRDVT)
+                     Call mma_maxDBLE(LRDVT)
                      NUMVEC = MIN(LRDVT/NDIMRS(ISYM,IRED),NVEC)
                      IF (NUMVEC .LT. 1) THEN
                         CALL CHO_QUIT(
