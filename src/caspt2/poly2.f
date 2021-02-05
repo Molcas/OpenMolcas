@@ -17,7 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
+#ifdef _ENABLE_CHEMPS2_DMRG_
       use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+#endif
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES 1-EL AND 2-EL
