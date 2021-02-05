@@ -217,10 +217,10 @@ C Write a diagonal Hamiltonian in the JOBMIX:
           CALL CollapseOutput(0,'Mixed CI coefficients:')
           WRITE(6,*)
         END IF
-C In case of XMS/XDW and NOMUL, the CI vectors are replaced by the
+C In case of XMS/XDW/RMS and NOMUL, the CI vectors are replaced by the
 C rotated zeroth-order states (they should have been printed earlier,
 C in grpini)
-      ELSE IF (IFXMS) THEN
+      ELSE IF (IFXMS.or.IFRMS) THEN
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)

@@ -51,7 +51,7 @@ module InputData
     ! DWMS      use dynamical weighting to construct Fock
     Logical(kind=iwp) :: DWMS = .false.
     Integer(kind=iwp) :: DWType = -1
-    Integer(kind=iwp) :: ZETA = 50
+    Real(kind=wp)     :: ZETA = 1.0_wp
     ! EFOC      uses rotated E_0 energies with DWMS
     Logical(kind=iwp) :: EFOC = .false.
     ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL

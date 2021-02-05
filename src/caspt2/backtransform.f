@@ -21,7 +21,7 @@ C CASSCF states.
       real(8),allocatable :: U0transpose(:,:),Utmp(:,:)
 
 
-      if (IFXMS) then
+      if (IFXMS.or.IFRMS) then
 
 * First we need to back-transform the effective Hamiltonian in the
 * basis of original CASSCF states by U0 * Heff * U0^T

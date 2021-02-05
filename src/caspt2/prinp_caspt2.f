@@ -206,6 +206,9 @@
             else
               calctype='DW-CASPT2'
             end if
+          else if (IFRMS) then
+              FockOpType='state-specific'
+              calctype='RMS-CASPT2'
           else
             if (IFXMS) then
               FockOpType='state-average'
@@ -224,8 +227,9 @@
 
         write(6,Fmt2//'A,T50,A)')'Fock operator',trim(FockOpType)
         if (IFDW) then
+          write(6,Fmt2//'A,T45,I6)')'DW Type',DWType
           if (zeta.ge.0) then
-            write(6,Fmt2//'A,T41,I10)')'DW exponent',zeta
+            write(6,Fmt2//'A,T50,E10.4)')'DW exponent',zeta
           else
             write(6,Fmt2//'A,T50,A)')'DW exponent','infinity'
           end if
@@ -247,7 +251,7 @@
      &                 ' to quasi-canonical'
         end if
 
-        if (IFXMS) then
+        if (IFXMS .or. IFRMS) then
           write(6,Fmt1)'The input states will be rotated to '//
      &     'diagonalize the Fock operator'
         end if
