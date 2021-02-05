@@ -418,9 +418,10 @@ subroutine ProcInp_Caspt2
   IFMIX = .NOT. Input%NoMix
   IFMSCOUP = (Input%MULT .OR. Input%XMUL) .AND. (.NOT. Input%NoMult)
   IFXMS = Input%XMUL
+  IFRMS = Input%RMUL
   IFDW = Input%DWMS
-  DWType = Input%DWType
   ! Set type and exponent for DWMS
+  DWType = Input%DWType
   if (IFDW) then
     if (DWType <= 0 .or. DWType > 3) then
       call WarningMessage(2,'DWTYpe should be either 1, 2 or 3.')
