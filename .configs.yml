@@ -20,7 +20,8 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    tests: ".all exhaustive"
+    tests: "standard"
+    # tests: ".all exhaustive"
   tags:
     - docker
 

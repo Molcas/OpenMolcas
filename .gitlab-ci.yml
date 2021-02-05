@@ -56,7 +56,8 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
       when: on_success
     # dev/external branch, if changes in the source
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "dev/external"'
+    # - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "dev/external"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
       <<: *sources
       when: on_success
 
@@ -263,51 +264,51 @@ checks:
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
 
-tinker:
-  stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
-  interruptible: true
-  variables:
-    # A patch to the tinker patch to make it work in low memory conditions
-    patch_to_patch: |
-                    diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/sizes.i 6.3.3/source/sizes.i
-                    --- 6.3.3/source_orig/sizes.i   2015-04-14 13:58:10.122343730 +0200
-                    +++ 6.3.3/source/sizes.i        2015-04-15 13:48:53.796041225 +0200
-                    @@ -64,7 +64,7 @@
-                           integer maxele,maxamino,maxnuc
-                           integer maxbnd,maxang,maxtors
-                           integer maxbitor
-                    -      parameter (maxatm=100000)
-                    +      parameter (maxatm=1000)
-                           parameter (maxval=8)
-                           parameter (maxgrp=1000)
-                           parameter (maxref=10)
-  before_script:
-    - >
-      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
-  script:
-    # Use backup if the tinker website is down
-    - >
-      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
-    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
-    - >
-      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
-    # Apply the low-memory patch
-    - |
-      eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
-      eval `grep PATCH= Tools/patch2tinker/get_tinker`
-      echo "${patch_to_patch}" >> Tools/patch2tinker/${PATCH}
-    - >
-      echo "y" | Tools/patch2tinker/get_tinker
-  after_script:
-    - |
-      mkdir build
-      cp -Lr tinker build
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
-  <<: *compile-jobs
+# tinker:
+#   stage: build
+#   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
+#   interruptible: true
+#   variables:
+#     # A patch to the tinker patch to make it work in low memory conditions
+#     patch_to_patch: |
+#                     diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/sizes.i 6.3.3/source/sizes.i
+#                     --- 6.3.3/source_orig/sizes.i   2015-04-14 13:58:10.122343730 +0200
+#                     +++ 6.3.3/source/sizes.i        2015-04-15 13:48:53.796041225 +0200
+#                     @@ -64,7 +64,7 @@
+#                            integer maxele,maxamino,maxnuc
+#                            integer maxbnd,maxang,maxtors
+#                            integer maxbitor
+#                     -      parameter (maxatm=100000)
+#                     +      parameter (maxatm=1000)
+#                            parameter (maxval=8)
+#                            parameter (maxgrp=1000)
+#                            parameter (maxref=10)
+#   before_script:
+#     - >
+#       if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
+#   script:
+#     # Use backup if the tinker website is down
+#     - >
+#       sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
+#     # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
+#     - >
+#       sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
+#     # Apply the low-memory patch
+#     - |
+#       eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
+#       eval `grep PATCH= Tools/patch2tinker/get_tinker`
+#       echo "${patch_to_patch}" >> Tools/patch2tinker/${PATCH}
+#     - >
+#       echo "y" | Tools/patch2tinker/get_tinker
+#   after_script:
+#     - |
+#       mkdir build
+#       cp -Lr tinker build
+#   artifacts:
+#     paths:
+#       - build/
+#     expire_in: 1 day
+#   <<: *compile-jobs
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
@@ -320,41 +321,41 @@ test:plain:
   <<: *run-tests
   needs:
     - build:plain
-    - tinker
-  parallel: 2
+    # - tinker
+  # parallel: 2
 
 build:options:
   extends: .options
   <<: *compile
-test:options:
-  extends: .options
-  <<: *run-tests
-  needs:
-    - build:options
-    - tinker
-  parallel: 2
+# test:options:
+#   extends: .options
+#   <<: *run-tests
+#   needs:
+#     - build:options
+#     - tinker
+#   parallel: 2
 
 build:linalg:
   extends: .linalg
   <<: *compile
-test:linalg:
-  extends: .linalg
-  <<: *run-tests
-  needs:
-    - build:linalg
-    - tinker
-  parallel: 2
+# test:linalg:
+#   extends: .linalg
+#   <<: *run-tests
+#   needs:
+#     - build:linalg
+#     - tinker
+#   parallel: 2
 
 build:pgi:
   extends: .pgi
   <<: *compile
-test:pgi:
-  extends: .pgi
-  <<: *run-tests
-  needs:
-    - build:pgi
-    - tinker
-  parallel: 2
+# test:pgi:
+#   extends: .pgi
+#   <<: *run-tests
+#   needs:
+#     - build:pgi
+#     - tinker
+#   parallel: 2
 
 #build:sun:
 #  extends: .sun
@@ -367,62 +368,62 @@ test:pgi:
 #    - tinker
 #  parallel: 2
 
-build:intel:
-  extends: .intel
-  <<: *compile
-test:intel:
-  extends: .intel
-  <<: *run-tests
-  needs:
-    - build:intel
-  parallel: 2
-  tags:
-    - docker
+# build:intel:
+#   extends: .intel
+#   <<: *compile
+# test:intel:
+#   extends: .intel
+#   <<: *run-tests
+#   needs:
+#     - build:intel
+#   parallel: 2
+#   tags:
+#     - docker
 
-build:intel13:
-  extends: .intel13
-  <<: *compile
-test:intel13:
-  extends: .intel13
-  <<: *run-tests
-  needs:
-    - build:intel13
-  parallel: 2
-  tags:
-    - docker
+# build:intel13:
+#   extends: .intel13
+#   <<: *compile
+# test:intel13:
+#   extends: .intel13
+#   <<: *run-tests
+#   needs:
+#     - build:intel13
+#   parallel: 2
+#   tags:
+#     - docker
 
-build:nag:
-  extends: .nag
-  <<: *compile
-test:nag:
-  extends: .nag
-  <<: *run-tests
-  needs:
-    - build:nag
-  parallel: 4
-  tags:
-    - docker
+# build:nag:
+#   extends: .nag
+#   <<: *compile
+# test:nag:
+#   extends: .nag
+#   <<: *run-tests
+#   needs:
+#     - build:nag
+#   parallel: 4
+#   tags:
+#     - docker
 
 build:garble:
   extends: .garble
   <<: *compile
-test:garble:
-  extends: .garble
-  <<: *run-tests
-  needs:
-    - build:garble
-    - tinker
-  parallel: 4
+# test:garble:
+#   extends: .garble
+#   <<: *run-tests
+#   needs:
+#     - build:garble
+#     - tinker
+#   parallel: 4
 
 build:bounds:
   extends: .bounds
   <<: *compile
-test:bounds:
-  extends: .bounds
-  <<: *run-tests
-  needs:
-    - build:bounds
-  parallel: 4
+# test:bounds:
+#   extends: .bounds
+#   <<: *run-tests
+#   needs:
+#     - build:bounds
+#   parallel: 4
 
 build:debug:
   extends: .debug
