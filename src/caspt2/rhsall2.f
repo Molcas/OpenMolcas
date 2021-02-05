@@ -648,6 +648,7 @@ C-SVC: sanity check
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
      &                           NCHOBUF,NPIQK,NADDBUF)
       USE CHOVEC_IO
+      use output, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
