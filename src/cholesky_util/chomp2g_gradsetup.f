@@ -42,6 +42,10 @@
 
       Real*8, Allocatable:: CMO_Inv(:), CMO_o(:), CMO_v(:)
       Real*8, Allocatable:: MP2Density(:), SCFDensity(:), SMat(:)
+      Real*8, Allocatable:: MP2TTotDensity(:)
+      Real*8, Allocatable:: MP2TDensity(:)
+      Real*8, Allocatable:: SCFTDensity(:)
+      Real*8, Allocatable:: STMat(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,33 +117,29 @@
       Call mma_allocate(SCFDensity,lRecDens,Label='SCFDensity')
       Call mma_allocate(SMat,lRecDens,Label='SMat')
 *
-      Call GetMem('MP2TTotDensity','Allo','Real',ip_MP2TTotDensity,
-     &            lTriDens)
-      Call GetMem('MP2TDensity','Allo','Real',ip_MP2TDensity,lTriDens)
-      Call GetMem('SCFTDensity','Allo','Real',ip_SCFTDensity,lTriDens)
-      Call Getmem('OverlapT','Allo','Real', ip_STmat,lTriDens)
+      Call mma_allocate(MP2TTotDensity,lTriDens,Label='MP2TTotDensity')
+      Call mma_allocate(MP2TDensity,lTriDens,Label='MP2TDensity')
+      Call mma_allocate(SCFTDensity,lTriDens,Label='SCFTDensity')
+      Call mma_allocate(STMat,lTriDens,Label='STMat')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Get the Variational MP2 Density and the HF density
 *
-      Call Get_D1ao_Var(Work(ip_MP2TTotDensity),lTriDens)
-      Call Get_D1ao(Work(ip_SCFTDensity), lTriDens)
+      Call Get_D1ao_Var(MP2TTotDensity,lTriDens)
+      Call Get_D1ao(SCFTDensity,lTriDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Get the overlap matrix
 *
       iSymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,Work(ip_STmat),iSymlbl)
+      Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the differential MP2 density
-      Do i = 1, lTriDens
-         Work(ip_MP2TDensity + i-1)=2.0d0*(Work(ip_MP2TTotDensity+i-1)-
-     &                                Work(ip_SCFTDensity + i-1))
-      End Do
+      MP2TDensity(:)=2.0d0*(MP2TTotDensity(:)- SCFTDensity(:))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -152,40 +152,34 @@
       Do iSym = 1, nSym
          Do i = 1, nBas(iSym)
             Do j = 1, i-1
-               MP2Density(j + nBas(iSym)*(i-1)+iOff) =
-     &                            Work(ip_MP2TDensity+index)/2.0d0
-               MP2Density(i + nBas(iSym)*(j-1)+iOff) =
-     &                            Work(ip_MP2TDensity+index)/2.0d0
-               SCFDensity(j + nBas(iSym)*(i-1)+iOff) =
-     &                            Work(ip_SCFTDensity+index)/2.0d0
-               SCFDensity(i + nBas(iSym)*(j-1)+iOff) =
-     &                            Work(ip_SCFTDensity+index)/2.0d0
-               Smat(j + nBas(iSym)*(i-1)+iOff) =
-     &                         Work(ip_STmat+index)
-               Smat(i + nBas(iSym)*(j-1)+iOff) =
-     &                         Work(ip_STmat+index)
-*
                index = index + 1
-            End Do
-            MP2Density(i + nBas(iSym)*(i-1)+iOff) =
-     &                      Work(ip_MP2TDensity+index)
-            SCFDensity(i + nBas(iSym)*(i-1)+iOff) =
-     &                      Work(ip_SCFTDensity+index)
-            Smat(i + nBas(iSym)*(i-1)+iOff) =
-     &                      Work(ip_STmat+index)
+               MP2Density(j + nBas(iSym)*(i-1)+iOff) =
+     &                            MP2TDensity(index)/2.0d0
+               MP2Density(i + nBas(iSym)*(j-1)+iOff) =
+     &                            MP2TDensity(index)/2.0d0
+               SCFDensity(j + nBas(iSym)*(i-1)+iOff) =
+     &                            SCFTDensity(index)/2.0d0
+               SCFDensity(i + nBas(iSym)*(j-1)+iOff) =
+     &                            SCFTDensity(index)/2.0d0
+               Smat(j + nBas(iSym)*(i-1)+iOff) = STmat(index)
+               Smat(i + nBas(iSym)*(j-1)+iOff) = STmat(index)
 *
+            End Do
             index = index + 1
+            MP2Density(i + nBas(iSym)*(i-1)+iOff) = MP2TDensity(index)
+            SCFDensity(i + nBas(iSym)*(i-1)+iOff) = SCFTDensity(index)
+            Smat(i + nBas(iSym)*(i-1)+iOff) = STmat(index)
+*
          End Do
          iOff = iOff + nBas(iSym)**2
       End Do
 *
 *     Deallocate temporary memory
 *
-      Call GetMem('MP2TTotDensity','Free','Real',ip_MP2TTotDensity,
-     &            lTriDens)
-      Call GetMem('MP2TDensity','Free','Real',ip_MP2TDensity,lTriDens)
-      Call GetMem('SCFTDensity','Free','Real',ip_SCFTDensity,lTriDens)
-      Call Getmem('OverlapT','Free','Real', ip_STmat,lTriDens)
+      Call mma_deallocate(MP2TTotDensity)
+      Call mma_deallocate(MP2TDensity)
+      Call mma_deallocate(SCFTDensity)
+      Call mma_deallocate(STMat)
 *                                                                      *
 ************************************************************************
 *                                                                      *
