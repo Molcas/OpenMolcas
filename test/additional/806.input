@@ -7,6 +7,9 @@
 * Comments: Test for RICD MP2 optimization, it will fail in parallel until
 *           FS#67 is fixed...
 *-------------------------------------------------------------------------------
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
 
 &GATEWAY
   Coord = 2

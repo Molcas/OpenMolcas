@@ -8,6 +8,10 @@
 *           level of theory.
 *-------------------------------------------------------------------------------
 >> export MOLCAS_PRINT=VERBOSE
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
  &Gateway
 Title= Ethylene, ANO-L-VDZP basis set
 Coord

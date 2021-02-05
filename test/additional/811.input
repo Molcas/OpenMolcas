@@ -7,6 +7,10 @@
 * Comments: SP calculation of analytical gradients at the MBPT2(FC)/ANO-L-VDZP
 *           level of theory.
 *-------------------------------------------------------------------------------
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 >> export MOLCAS_PRINT=VERBOSE
  &Gateway
 Title= Ethylene, ANO-L-VDZP basis set
