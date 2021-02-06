@@ -418,9 +418,10 @@ C  read the input
 
       Else
          ! ifrestart = .false., i.e. usual S-A calculation
-         Call fetch_data_RunFile_all( nss, nstate, multiplicity, eso_au,
-     &                                esfs_au, U, MM, MS, ML, DM,
-     &                                ANGMOM, EDMOM, AMFI, HSO )
+         Call fetch_data_RunFile_all(nss, nstate, multiplicity, eso,
+     &                               esfs, U, MM, MS, ML, DM,
+     &                               ANGMOM, EDMOM, AMFI, HSO,
+     &                               eso_au, esfs_au )
          WRITE(6,'(A)') 'ENTER fetch_data_RunFile_all'
          Call xFlush(6)
          If (DBG) Then
@@ -500,9 +501,9 @@ C  read the input
       IF (.not.ifrestart) THEN
       ! ASCII -- new_aniso file format:
       Call write_new_formatted_aniso(
-     &                         nss, nstate, multiplicity, eso,
-     &                         esfs, U, MM, MS, DM, ANGMOM, EDMOM, AMFI,
-     &                         HSO, eso_au, esfs_au )
+     &                         nss, nstate, multiplicity, eso_au,
+     &                         esfs_au, U, MM, MS, DM, ANGMOM, EDMOM,
+     &                         AMFI, HSO )
       END IF
 !
 !----- compute various properties ----------|
