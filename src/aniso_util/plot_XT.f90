@@ -296,7 +296,7 @@
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 
-    CALL execute_command_line ( trim(gnuplot_CMD) )
+    CALL systemf ( gnuplot_CMD, iErr )
 
     IF ( gnuplot_version < 5.0_wp ) Then
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
@@ -603,7 +603,7 @@
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 
-    CALL execute_command_line ( trim(gnuplot_CMD) )
+    CALL systemf ( gnuplot_CMD, iErr )
 
     IF ( gnuplot_version < 5.0_wp ) Then
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
