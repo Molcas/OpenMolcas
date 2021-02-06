@@ -418,10 +418,9 @@ C  read the input
 
       Else
          ! ifrestart = .false., i.e. usual S-A calculation
-         Call fetch_data_RunFile_all( nss, nstate, multiplicity, eso,
-     &                                esfs, U, MM, MS, ML, DM,
-     &                                ANGMOM, EDMOM, AMFI, HSO,
-     &                                eso_au, esfs_au )
+         Call fetch_data_RunFile_all( nss, nstate, multiplicity, eso_au,
+     &                                esfs_au, U, MM, MS, ML, DM,
+     &                                ANGMOM, EDMOM, AMFI, HSO )
          WRITE(6,'(A)') 'ENTER fetch_data_RunFile_all'
          Call xFlush(6)
          If (DBG) Then

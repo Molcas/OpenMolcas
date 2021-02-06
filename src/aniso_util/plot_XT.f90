@@ -342,9 +342,9 @@
   REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
 !<<<<<<< HEAD
-  INTEGER               :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
+  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
   LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100)    :: line1, line2, lineOut, cdummy
+  CHARACTER(LEN=100)    :: line1, line2, cdummy
   CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length

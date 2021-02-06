@@ -191,7 +191,7 @@
       Complex(kind=8)  :: Spin
       External         :: Spin
       Logical          :: found_edmom, found_amfi, found_hsor,
-     &                    found_hsoi, found_esfs_au, found_eso_au
+     &                    found_hsoi
 
       g_e=2.00231930437180_wp
       au2cm=219474.6313702_wp

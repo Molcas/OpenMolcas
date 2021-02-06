@@ -621,15 +621,13 @@ c compatibility with the present version: of aniso_i.input file
 
 
       Subroutine write_new_formatted_aniso(
-     &                                  nss, nstate, multiplicity, eso,
-     &                                  esfs, U, MM, MS, DM, angmom,
-     &                                  edmom, amfi, HSO,
-     &                                  eso_au, esfs_au )
+     &                               nss, nstate, multiplicity, eso_au,
+     &                               esfs_au, U, MM, MS, DM, angmom,
+     &                               edmom, amfi, HSO )
 
       Implicit None
       Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)         :: nss, nstate, multiplicity(nstate)
-      Real(kind=8), intent(in)    :: eso(nss), esfs(nstate)
       Real(kind=8), intent(in)    :: eso_au(nss), esfs_au(nstate)
       Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)
       Real(kind=8), intent(in)    ::  edmom(3,nstate,nstate)
@@ -644,12 +642,11 @@ c compatibility with the present version: of aniso_i.input file
       Integer                     :: njob, mxjob, mult, iss, ipar, ist
       Integer                     :: ibas(nstate,-30:30)
       Integer                     :: data_file_format
-      Integer                     :: l,i,j,IsFreeUnit,Lu
+      Integer                     :: i,IsFreeUnit,Lu
       Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
       External                    :: IsFreeUnit
       Integer, allocatable        :: szproj(:), jbnum(:), mltplt(:)
       Integer, allocatable        :: nroot(:)
-      Logical                     :: exist
       Character(len=128)          :: Filename
 
 

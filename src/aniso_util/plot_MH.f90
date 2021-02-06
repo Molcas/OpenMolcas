@@ -24,7 +24,6 @@
   INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, file_size, StdOut, iErr
   LOGICAL   :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)  :: line1, line2, cdummy
-  CHARACTER(LEN=100)  :: filedat, fileplt
   CHARACTER(LEN=100)  :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL   :: AixRm
   INTEGER             :: Length
