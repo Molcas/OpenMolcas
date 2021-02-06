@@ -32,12 +32,12 @@ subroutine fmm_get_prim_batch(basis,Ish,Jsh,batch,NPrim)
   integer(INTK), intent(out)        :: NPrim
 
 !fixme
-  real(REALK), parameter :: ThrFac=-2.30258_REALK*13
-  integer(INTK)          :: I, J
-  integer(INTK)          :: IPrim1, JPrim1
-  integer(INTK)          :: IPrim2, JPrim2, JPTemp2
-  real(REALK)            :: Acentr(3), Bcentr(3), P(3), RAB(3)
-  real(REALK)            :: ExpA, ExpB, ExpP, ExpPI, ExpAR2, R2AB, ExpKAB
+  real(REALK), parameter :: ThrFac = -2.30258_REALK*13
+  integer(INTK) :: I, J
+  integer(INTK) :: IPrim1, JPrim1
+  integer(INTK) :: IPrim2, JPrim2, JPTemp2
+  real(REALK) :: Acentr(3), Bcentr(3), P(3), RAB(3)
+  real(REALK) :: ExpA, ExpB, ExpP, ExpPI, ExpAR2, R2AB, ExpKAB
 
   Acentr(:) = basis%Centr(:,basis%KAtom(Ish))
   IPrim1 = basis%KStart(Ish)
@@ -96,11 +96,11 @@ subroutine fmm_build_Ecoef1(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
   real(REALK), intent(out)         :: ECoefZ(0:,0:,0:,:)
 
   integer(INTK) :: I, J, It, IJ, JTemp
-  real(REALK)   :: PXAX(NPrim), PXBX(NPrim)
-  real(REALK)   :: PYAY(NPrim), PYBY(NPrim)
-  real(REALK)   :: PZAZ(NPrim), PZBZ(NPrim)
-  real(REALK)   :: ExpHalf(NPrim)
-  real(REALK)   :: PreFact(NPrim)
+  real(REALK) :: PXAX(NPrim), PXBX(NPrim)
+  real(REALK) :: PYAY(NPrim), PYBY(NPrim)
+  real(REALK) :: PZAZ(NPrim), PZBZ(NPrim)
+  real(REALK) :: ExpHalf(NPrim)
+  real(REALK) :: PreFact(NPrim)
 
   ! o Generate E-coefficients (Hermite expansion coefficients) with the three-term recurrence relation
 
@@ -124,7 +124,7 @@ subroutine fmm_build_Ecoef1(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
 
   if (IAngl == 0) return
   do I=1,IAngl
-    JTemp  =I
+    JTemp = I
     if (I == IAngl) JTemp = JAngl
     do J=0,JTemp
 
@@ -217,7 +217,7 @@ subroutine fmm_build_Ecoef1(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
     end do
   end do
 
-endsubroutine fmm_build_Ecoef1
+end subroutine fmm_build_Ecoef1
 
 !-------------------------------------------------------------------------------
 
@@ -231,11 +231,11 @@ subroutine fmm_build_Ecoef2(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
   real(REALK), intent(out)         :: ECoefZ(0:,0:,0:,:)
 
   integer(INTK) :: I, J, It, IJ, JTemp
-  real(REALK)   :: PXAX(NPrim), PXBX(NPrim)
-  real(REALK)   :: PYAY(NPrim), PYBY(NPrim)
-  real(REALK)   :: PZAZ(NPrim), PZBZ(NPrim)
-  real(REALK)   :: ExpHalf(NPrim)
-  real(REALK)   :: PreFact(NPrim)
+  real(REALK) :: PXAX(NPrim), PXBX(NPrim)
+  real(REALK) :: PYAY(NPrim), PYBY(NPrim)
+  real(REALK) :: PZAZ(NPrim), PZBZ(NPrim)
+  real(REALK) :: ExpHalf(NPrim)
+  real(REALK) :: PreFact(NPrim)
 
   ! o Generate E-coefficients (Hermite expansion coefficients) with the three-term recurrence relation
 
@@ -259,7 +259,7 @@ subroutine fmm_build_Ecoef2(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
 
   if (JAngl == 0) return
   do J=1,JAngl
-    JTemp=J
+    JTemp = J
     if (J == JAngl) JTemp = IAngl
     do I=0,JTemp
 
@@ -280,7 +280,7 @@ subroutine fmm_build_Ecoef2(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
         end do
       end if
 
-       ! * Case of It >= 1
+      ! * Case of It >= 1
 
       do It=1,I+J
         if (It == I+J) then
@@ -302,7 +302,7 @@ subroutine fmm_build_Ecoef2(batch,NPrim,IAngl,JAngl,ECoefX,ECoefY,ECoefZ)
             ECoefZ(I,J,It,IJ) = ExpHalf(IJ)*ECoefZ(I,j-1,It-1,IJ)+PZBZ(IJ)*ECoefZ(I,j-1,It,IJ)+(It+1)*ECoefZ(I,j-1,It+1,IJ)
           end do
         end if
-      enddo
+      end do
 
       if (I /= j) then
 

@@ -33,7 +33,7 @@ use mh5, only: mh5_put_dset
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, r8, u6
 
 implicit none
 
@@ -53,8 +53,8 @@ integer(kind=iwp) :: IndType(7,8), nOrb(8), nTmp(8), nBasTot, nBasMax, nTriTot, 
 integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
 integer(kind=iwp) :: Lu, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
 integer(kind=iwp) :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
-real(kind=wp) :: dActEl ,ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
-real(kind=wp), external :: OrbPhase
+real(kind=wp) :: dActEl, ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
+real(kind=r8), external :: OrbPhase
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
 character(len=1), allocatable :: typestring(:)

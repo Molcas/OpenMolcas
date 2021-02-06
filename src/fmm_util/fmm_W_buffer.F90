@@ -32,8 +32,8 @@ subroutine fmm_add_to_W_buffer(W_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: W_pair
-  external fmm_selected_w_buffer
-  external fmm_selected_w_contractor
+  external :: fmm_selected_w_buffer
+  external :: fmm_selected_w_contractor
 
   call fmm_selected_w_buffer(fmm_selected_w_contractor,W_pair)
 
@@ -48,7 +48,7 @@ subroutine fmm_close_W_buffer(scheme)
 
   implicit none
   type(scheme_paras), intent(in) :: scheme
-  external fmm_selected_w_contractor
+  external :: fmm_selected_w_contractor
 
   if (W_buffer_stat /= 'OPEN') call fmm_quit('W_buffer already closed!')
   select case (scheme%W_con%W_buffer)
@@ -72,7 +72,7 @@ subroutine fmm_null_W_buffer(W_contractor,W_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: W_pair
-  external W_contractor
+  external                        :: W_contractor
 
   call W_contractor(W_pair)
 
@@ -87,7 +87,7 @@ subroutine fmm_skip_W_buffer(W_contractor,W_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: W_pair
-  external W_contractor
+  external                        :: W_contractor
 
   unused_var(W_contractor)
   unused_var(W_pair)
@@ -106,7 +106,7 @@ subroutine fmm_open_W_buffer(scheme)
 
   implicit none
   type(scheme_paras), intent(in) :: scheme
-  external fmm_store_w_buffer
+  external :: fmm_store_w_buffer
 
   if (W_buffer_stat == 'OPEN') call fmm_quit('cannot reopen W_buffer')
 

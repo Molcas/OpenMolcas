@@ -43,17 +43,17 @@ subroutine fmm_get_ltsqr_W_matrix(LMAX,JMAX,r_ab,W_matrix)
   m = min(LMAX,JMAX)
   call fmm_build_ltsqr_W_matrix()
 
-  contains
+contains
 
-  subroutine fmm_build_ltsqr_W_matrix()
-    implicit none
-    real(REALK) :: R_sh(-n:n,0:n)
+subroutine fmm_build_ltsqr_W_matrix()
+  implicit none
+  real(REALK) :: R_sh(-n:n,0:n)
 
-    call fmm_generate_R(n,-r_ab,R_sh)
-    ! note minus sign above - see TUH eqn.(9.13.58)
-    call fmm_generate_W(n,m,R_sh,W_matrix)
+  call fmm_generate_R(n,-r_ab,R_sh)
+  ! note minus sign above - see TUH eqn.(9.13.58)
+  call fmm_generate_W(n,m,R_sh,W_matrix)
 
-  end subroutine fmm_build_ltsqr_W_matrix
+end subroutine fmm_build_ltsqr_W_matrix
 
 end subroutine fmm_get_ltsqr_W_matrix
 
@@ -93,8 +93,8 @@ subroutine fmm_generate_R(LMAX,point,R_sh)
   real(REALK), intent(in)   :: point(3)
   real(REALK), intent(out)  :: R_sh(-LMAX:LMAX,0:LMAX)
 
-  real(REALK)   :: x, y, z, r_2, r_minus2
-  real(REALK)   :: A(6)
+  real(REALK) :: x, y, z, r_2, r_minus2
+  real(REALK) :: A(6)
   integer(INTK) :: signl, l, m
 
   A(:) = zero

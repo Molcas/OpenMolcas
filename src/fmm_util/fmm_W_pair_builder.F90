@@ -11,8 +11,8 @@
 
 module fmm_W_pair_builder
 
-use fmm_global_paras, only: INTK,REALK, scheme_paras, old_new, T_pair_single, raw_mm_data, raw_mm_paras, box_mm_data, &
-                            box_mm_paras,One
+use fmm_global_paras, only: INTK, REALK, scheme_paras, old_new, T_pair_single, raw_mm_data, raw_mm_paras, box_mm_data, &
+                            box_mm_paras, One
 use fmm_stats, only: fmm_init_matrix_stats, fmm_init_buffer_stats
 use fmm_W_contractors, only: fmm_select_W_con
 use fmm_utils, only: fmm_quit
@@ -54,10 +54,10 @@ end subroutine fmm_free_W_pair_builder
 subroutine fmm_get_W_pair(addr,r_ab,new_LMAX,old_LMAX,object,W_pair)
 
   implicit none
-  type(old_new), intent(in) :: addr
-  real(REALK), intent(in) :: r_ab(3)
-  integer(INTK), intent(in) :: new_LMAX, old_LMAX
-  character(len=3), intent(in) :: object
+  type(old_new), intent(in)        :: addr
+  real(REALK), intent(in)          :: r_ab(3)
+  integer(INTK), intent(in)        :: new_LMAX, old_LMAX
+  character(len=3), intent(in)     :: object
   type(T_pair_single), intent(out) :: W_pair
 
   W_pair%paras%ratio = one ! i.e. W_pair%r_ab is the actual vector

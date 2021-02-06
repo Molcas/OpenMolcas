@@ -11,7 +11,7 @@
 
 module fmm_box_builder
 
-use fmm_global_paras, only: INTK,REALK, raw_mm_data, raw_mm_paras, scheme_paras, box_mm_data, box_mm_paras, TOP_LEVEL, Zero, One
+use fmm_global_paras, only: INTK, REALK, raw_mm_data, raw_mm_paras, scheme_paras, box_mm_data, box_mm_paras, TOP_LEVEL, Zero, One
 use fmm_stats, only: stat_deepest_level, stat_RHS_boxes, stat_LHS_boxes
 use fmm_utils, only: fmm_quit
 implicit none
@@ -69,7 +69,7 @@ subroutine init_box_paras(LHS,RHS,scheme)
   type(scheme_paras), intent(in)    :: scheme
 
   integer(INTK) :: i
-  real(REALK)   :: grain, grain_inv
+  real(REALK) :: grain, grain_inv
 
   grain = fmm_grain(scheme,deepest_level)
   grain_inv = one/grain
@@ -153,9 +153,9 @@ recursive subroutine iterate_paras_to_level(l,scheme,side)
         ! must build paras at deeper levels before higher levels
         call iterate_paras_to_level(l_down,scheme,'LHS')
       end if
-       ptr => mms_at_lev(l_down)%LHS_paras(:)
-       ! build new paras from paras at previous level (including packing)
-       call fmm_shift_and_pack_paras(l,scheme,ptr,mms_at_lev(l)%LHS_paras)
+      ptr => mms_at_lev(l_down)%LHS_paras(:)
+      ! build new paras from paras at previous level (including packing)
+      call fmm_shift_and_pack_paras(l,scheme,ptr,mms_at_lev(l)%LHS_paras)
     case default
       call fmm_quit('must build LHS or RHS paras!')
   end select
@@ -170,8 +170,8 @@ subroutine build_qlm_at_level(level,scheme,memory)
 
   implicit none
   type(scheme_paras), intent(in) :: scheme
-  integer(INTK), intent(in) :: level
-  character(len=4), intent(in) :: memory
+  integer(INTK), intent(in)      :: level
+  character(len=4), intent(in)   :: memory
 
   type(raw_mm_data), pointer :: ptr1
   type(box_mm_data), pointer :: ptr2
@@ -242,11 +242,11 @@ subroutine fmm_get_box_paras_at_level(l,scheme,box_paras,side)
   type(box_mm_paras), pointer    :: box_paras(:)
   character(len=3), intent(in)   :: side
 
-  if (.not.associated(mms_at_lev)) call fmm_quit('mms_at_lev should be allocated!')
+  if (.not. associated(mms_at_lev)) call fmm_quit('mms_at_lev should be allocated!')
 
   select case (side)
     case ('RHS')
-      if (.not.associated(mms_at_lev(l)%RHS_paras)) then
+      if (.not. associated(mms_at_lev(l)%RHS_paras)) then
         ! RHS paras not available at this level yet. So make them!
         call build_paras_at_level(l,scheme)
       end if
@@ -263,7 +263,7 @@ subroutine fmm_get_box_paras_at_level(l,scheme,box_paras,side)
       call fmm_quit('must select just LHS or RHS paras to use')
   end select
 
-endsubroutine fmm_get_box_paras_at_level
+end subroutine fmm_get_box_paras_at_level
 
 !-------------------------------------------------------------------------------
 
@@ -356,11 +356,11 @@ subroutine fmm_free_box_builder()
   if (associated(mms_at_lev)) then
     do l=lbound(mms_at_lev,1),ubound(mms_at_lev,1)
       if (associated(mms_at_lev(l)%LHS_paras,mms_at_lev(l)%RHS_paras)) then
-         ! LHS and RHS paras the same and only point the same space
-         deallocate(mms_at_lev(l)%RHS_paras)
+        ! LHS and RHS paras the same and only point the same space
+        deallocate(mms_at_lev(l)%RHS_paras)
       else
-         if (associated(mms_at_lev(l)%RHS_paras)) deallocate(mms_at_lev(l)%RHS_paras)
-         if (associated(mms_at_lev(l)%LHS_paras)) deallocate(mms_at_lev(l)%LHS_paras)
+        if (associated(mms_at_lev(l)%RHS_paras)) deallocate(mms_at_lev(l)%RHS_paras)
+        if (associated(mms_at_lev(l)%LHS_paras)) deallocate(mms_at_lev(l)%LHS_paras)
       end if
       if (associated(mms_at_lev(l)%qlm_W)) deallocate(mms_at_lev(l)%qlm_W)
       if (associated(mms_at_lev(l)%qlm_T)) deallocate(mms_at_lev(l)%qlm_T)

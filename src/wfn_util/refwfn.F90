@@ -23,9 +23,9 @@ character(len=100) :: ProgName
 character(len=100), external :: Get_ProgName
 
 public :: refwfn_active, refwfn_is_h5, refwfn_filename, refwfn_id, IADR15
-public ::refwfn_init, refwfn_close, refwfn_info, refwfn_data
+public :: refwfn_init, refwfn_close, refwfn_info, refwfn_data
 
-Contains
+contains
 
 !***********************************************************************
 subroutine refwfn_init(Filename)
@@ -41,7 +41,7 @@ subroutine refwfn_init(Filename)
   refwfn_is_h5 = .false.
 
   ProgName = Get_ProgName()
-  if (refwfn_active) Then
+  if (refwfn_active) then
     write(u6,*) ' trying to activate refwfn twice, aborting!'
     call abend()
   else
@@ -97,7 +97,7 @@ subroutine refwfn_close
     call mh5_close_file(refwfn_id)
   else
 # endif
-  call DaClos(refwfn_id)
+    call DaClos(refwfn_id)
 # ifdef _HDF5_
   end if
 # endif
@@ -125,9 +125,9 @@ subroutine refwfn_info
   character(len=1), allocatable :: typestring(:)
 # endif
   integer(kind=iwp) :: iSym, ref_nSym, ref_nBas(mxSym), IAD15
-  Real(kind=wp) :: Weight(mxRoot)
+  real(kind=wp) :: Weight(mxRoot)
 
-  if (.not.refwfn_active) then
+  if (.not. refwfn_active) then
     write(u6,*) ' refwfn not yet activated, aborting!'
     call abend()
   end if
@@ -153,18 +153,18 @@ subroutine refwfn_info
     call mma_allocate(typestring,sum(ref_nbas(1:nsym)))
     call mh5_fetch_dset(refwfn_id,'MO_TYPEINDICES',typestring)
     call tpstr2orb(ref_nsym,ref_nbas,typestring,nfro,nish,nras1,nras2,nras3,nssh,ndel)
-    nash = nras1 + nras2 + nras3
+    nash = nras1+nras2+nras3
     call mma_deallocate(typestring)
     ! Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
     ! because for now we only support DMRG-NEVPT2
     if (ProgName(1:6) == 'caspt2') then
-      if (.not.mh5_exists_dset(refwfn_id,'CI_VECTORS')) then
+      if (.not. mh5_exists_dset(refwfn_id,'CI_VECTORS')) then
         write(u6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
         write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
         call AbEnd()
-      end IF
+      end if
     end if
-    if (.not.mh5_exists_dset(refwfn_id,'MO_VECTORS')) then
+    if (.not. mh5_exists_dset(refwfn_id,'MO_VECTORS')) then
       write(u6,'(1X,A)') 'The HDF5 file does not contain MO vectors,'
       write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2/nevpt2.'
       call AbEnd()
@@ -186,7 +186,7 @@ subroutine refwfn_info
     IAD15 = IADR15(1)
     call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,NAME,LENIN8*MXORB,NCONF, &
                         HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,Weight)
-    nssh = ref_nbas - nfro - nish - nash - ndel
+    nssh = ref_nbas-nfro-nish-nash-ndel
 # ifdef _HDF5_
   end if
 # endif
@@ -214,7 +214,7 @@ subroutine refwfn_data
 
   use stdalloc, only: mma_allocate, mma_deallocate
 # ifdef _HDF5_
-  Use mh5, Only: mh5_fetch_attr, mh5_fetch_dset, mh5_fetch_dset_array_real
+  use mh5, only: mh5_fetch_attr, mh5_fetch_dset, mh5_fetch_dset_array_real
 # endif
 
 # include "rasdim.fh"
@@ -225,7 +225,7 @@ subroutine refwfn_data
   real(kind=wp) :: Root_Energies(mxRoot), AEMAX, E
   real(kind=wp), allocatable :: tmp(:), ejob(:,:)
 
-  if (.not.refwfn_active) then
+  if (.not. refwfn_active) then
     write(u6,*) ' refwfn not yet activated, aborting!'
     call abend()
   end if
@@ -257,7 +257,7 @@ subroutine refwfn_data
   !     Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
   !     because for now we only support DMRG-NEVPT2
   if (ProgName(1:6) == 'caspt2') then
-    if ((.not.DoCumulant).and.(ISCF == 0)) then
+    if ((.not. DoCumulant) .and. (ISCF == 0)) then
       call mma_allocate(tmp,NCONF,label='LCI')
       do I=1,NSTATE
         ISNUM = MSTATE(I)
@@ -294,13 +294,13 @@ subroutine refwfn_data
     else
       ! If this is Closed-shell or Hi-spin SCF case
       ! Just in case...
-      if (.not.DoCumulant .and. (NSTATE /= 1 .or. NCONF /= 1)) then
+      if (.not. DoCumulant .and. (NSTATE /= 1 .or. NCONF /= 1)) then
         write(u6,*) ' readin_caspt2: A Closed-shell or Hi-spin SCF'
         write(u6,*) ' but nr of states is: NSTATE=',NSTATE
         write(u6,*) ' and nr of CSFs is    NCONF= ',NCONF
         write(u6,*) ' Program error?? Must stop.'
         call ABEND()
-      end iF
+      end if
       ! This should be solved elsewhere in the code...just for the now,
       ! make a write of a CI vector to LUCIEX, so other routines do not get
       ! their knickers into a twist:
@@ -317,8 +317,8 @@ subroutine refwfn_data
   !SVC: read the L2ACT and LEVEL arrays
 # ifdef _HDF5_
   if (refwfn_is_h5) then
-    call mh5_fetch_attr(refwfn_id,'L2ACT', L2ACT)
-    call mh5_fetch_attr(refwfn_id,'A2LEV', LEVEL)
+    call mh5_fetch_attr(refwfn_id,'L2ACT',L2ACT)
+    call mh5_fetch_attr(refwfn_id,'A2LEV',LEVEL)
   else
 # endif
     IAD15 = IADR15(18)
@@ -354,7 +354,7 @@ subroutine refwfn_data
       end do
       if (abs(AEMAX) < 1.0e-12_wp) exit
       NMAYBE = IT
-    end dO
+    end do
     if (NMAYBE == 0) then
       write(u6,*) ' PT2INI tried to read energies from the'
       write(u6,*) ' JOBIPH file, but could not find any.'

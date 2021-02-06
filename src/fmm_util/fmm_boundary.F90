@@ -29,7 +29,7 @@ subroutine verify_planes(grid,planes)
   type(raw_mm_paras), intent(in)  :: grid(:)
   type(fmm_planes), intent(inout) :: planes
 
-  real(REALK), parameter :: THR=1.0e-15_REALK
+  real(REALK), parameter :: THR = 1.0e-15_REALK
   integer(INTK) :: i
 
   do i=1,size(grid)
@@ -77,9 +77,9 @@ end subroutine get_boundary_planes
 subroutine get_closest_approach(RHS,planes,gap)
 
   implicit none
-  type(raw_mm_paras), intent(in)  :: RHS(:)
-  type(fmm_planes), intent(in)  :: planes
-  real(REALK), intent(out) :: gap
+  type(raw_mm_paras), intent(in) :: RHS(:)
+  type(fmm_planes), intent(in)   :: planes
+  real(REALK), intent(out)       :: gap
 
   integer(INTK) :: i
 
@@ -99,7 +99,7 @@ end subroutine get_closest_approach
 
 subroutine fmm_opt_near_field(scheme,LHS,RHS)
 
-   use fmm_box_utils, only: fmm_deepest_level, fmm_branch, fmm_grain
+  use fmm_box_utils, only: fmm_deepest_level, fmm_branch, fmm_grain
 
   implicit none
   type(raw_mm_paras), intent(in)    :: LHS(:)
@@ -107,12 +107,12 @@ subroutine fmm_opt_near_field(scheme,LHS,RHS)
   type(scheme_paras), intent(inout) :: scheme
 
   type(fmm_planes) :: planes
-  real(REALK)      :: gap, dummy
-  real(REALK)      :: grain
-  integer(INTK)    :: branch
+  real(REALK) :: gap, dummy
+  real(REALK) :: grain
+  integer(INTK) :: branch
 
   ! We have only considered branch-free algorithm
-  if (.not.scheme%branch_free) return
+  if (.not. scheme%branch_free) return
 
   call get_boundary_planes(LHS,planes)
   call verify_planes(LHS,planes)
@@ -136,4 +136,4 @@ end subroutine fmm_opt_near_field
 
 !-------------------------------------------------------------------------------
 
-endmodule fmm_boundary
+end module fmm_boundary

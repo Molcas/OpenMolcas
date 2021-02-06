@@ -46,7 +46,7 @@ real(kind=wp), intent(inout) :: U1(3), U2(3), V1(3), V2(3)
 real(kind=wp), intent(out) :: Q(0:3)
 real(kind=wp) :: U3(3), V3(3), Uref(3), Vref(3), K(3), Vtmp(3), c
 logical(kind=iwp) :: skip
-real(kind=wp), parameter :: thrs=1.0e-3_wp
+real(kind=wp), parameter :: thrs = 1.0e-3_wp
 real(kind=r8), external :: ddot_
 
 if (debug) then
@@ -80,13 +80,13 @@ if (C < thrs) then
 end if
 
 if (skip) then
-  Q(:) = [One, Zero, Zero, Zero]
+  Q(:) = [One,Zero,Zero,Zero]
 else
-  Q(1:3) = Half * K(:)/sqrt(C)
+  Q(1:3) = Half*K(:)/sqrt(C)
 
   call Cross(Uref,Q(1:3),Vtmp) ! Vtmp = Uref x Q
 
-  Q(0) = Half * ddot_(3,Vref,1,Vtmp,1) / ddot_(3,Vtmp,1,Vtmp,1) ! Q(0)=0.5 * Vref.(UrefxQ)/(UrefxQ)^2
+  Q(0) = Half*ddot_(3,Vref,1,Vtmp,1)/ddot_(3,Vtmp,1,Vtmp,1) ! Q(0)=0.5 * Vref.(UrefxQ)/(UrefxQ)^2
 end if
 
 call CheckQuater(Q)

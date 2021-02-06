@@ -50,7 +50,7 @@ end subroutine fmm_init_multi_T_buffer
 subroutine fmm_free_multi_T_buffer(T_contractor)
 
   implicit none
-  external T_contractor
+  external :: T_contractor
 
   if (.not. associated(T_pair_buffer%items)) call fmm_quit('T_pair_buffer not alloc.')
   if (T_pair_buffer%ndim /= 0) then
@@ -68,7 +68,7 @@ end subroutine fmm_free_multi_T_buffer
 !
 !  implicit none
 !  type(T_pair_single), intent(in) :: T_pair
-!  external :: T_contractor
+!  external                        :: T_contractor
 !
 !  integer(INTK), save :: iRHS_last = 0
 !  integer(INTK) :: iRHS
@@ -96,7 +96,7 @@ subroutine fmm_multi_T_buffer_add(T_contractor,T_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: T_pair
-  external :: T_contractor
+  external                        :: T_contractor
 
   if (T_pair_buffer%ndim == BUFFER_SIZE) then
     ! expunge buffer and build all the T-matrices at once
@@ -116,7 +116,7 @@ subroutine expunge_multi_buffer(T_contractor)
   use fmm_sort_T_pairs, only: fmm_quicksort_wrt_RHS
 
   implicit none
-  external T_contractor
+  external :: T_contractor
 
   integer(INTK) :: i, lo
   integer(INTK) :: iRHS, iRHS_next, item_max
@@ -139,7 +139,7 @@ subroutine expunge_multi_buffer(T_contractor)
   do i=1,item_max
     iRHS = T_pair_buffer%items(i)%paras%RHS_id
     iRHS_next = T_pair_buffer%items(i+1)%paras%RHS_id
-    ptr%ndim=i-lo+1
+    ptr%ndim = i-lo+1
     if ((iRHS /= iRHS_next) .or. (ptr%ndim == ndim_max)) then
       ptr%items => T_pair_buffer%items(lo:i)
       call T_contractor(ptr)

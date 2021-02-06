@@ -65,13 +65,13 @@ do
       call mma_Allocate(Energies,nRoots,label='Energies')
       read(LU,*) Energies(:)
       if (Will_Print) call RecPrt('Root energies','',Energies,nRoots,1)
-      call Put_cArray('Relax Method', 'EXTERNAL', 8)
+      call Put_cArray('Relax Method','EXTERNAL',8)
       call Store_Energies(nRoots,Energies,nRelax)
       call mma_Deallocate(Energies)
     case ('[GRADIENT]')
       call Check_nRoots()
       read(LU,*) i
-      Call Check_Root_Number(i)
+      call Check_Root_Number(i)
       call mma_Allocate(Gradient,nCart,label='Gradient')
       read(LU,*) Gradient(:)
       if (Will_Print) write(u6,202) i
@@ -81,7 +81,7 @@ do
     case ('[NAC]')
       call Check_nRoots()
       read(LU,*) i,j
-      Call Check_Root_Pair(i,j)
+      call Check_Root_Pair(i,j)
       call mma_Allocate(NAC,nCart,label='NAC')
       read(LU,*) NAC(:)
       if (Will_Print) write(u6,203) i,j
@@ -93,7 +93,7 @@ do
       call Check_nRoots()
       Too_Late = .true.
       read(LU,*) i
-      Call Check_Root_Number(i)
+      call Check_Root_Number(i)
       if (i == nRelax) then
         call mma_Allocate(Hessian,nHess,label='Hessian')
         read(LU,*) Hessian(:)
@@ -129,16 +129,16 @@ end if
 
 return
 
-100 format(A)
-200 format('Found data for ',I3,' roots')
-201 format('Relaxing on root ',I3)
-202 format('Found gradient for root ',I3)
-203 format('Found coupling vector for roots ',I3,' and ',I3)
-204 format('Found Hessian for root ',I3)
+100 format(a)
+200 format('Found data for ',i3,' roots')
+201 format('Relaxing on root ',i3)
+202 format('Found gradient for root ',i3)
+203 format('Found coupling vector for roots ',i3,' and ',i3)
+204 format('Found Hessian for root ',i3)
 
 contains
 
-  subroutine Check_nRoots(n)
+subroutine Check_nRoots(n)
   integer(kind=iwp), intent(in), optional :: n
   if (nRoots < 1) then
     if (present(n)) then
@@ -148,16 +148,16 @@ contains
     end if
     call AbEnd()
   end if
-  end subroutine Check_nRoots
+end subroutine Check_nRoots
 
-  subroutine Check_Too_Late()
+subroutine Check_Too_Late()
   if (Too_Late) then
     call WarningMessage(2,'[RELAX] should have been given earlier.')
     call AbEnd()
   end if
-  end subroutine Check_Too_Late
+end subroutine Check_Too_Late
 
-  subroutine Check_Root_Number(n)
+subroutine Check_Root_Number(n)
   integer(kind=iwp), intent(in) :: n
   character(len=6) :: a, b
   call Check_nRoots()
@@ -169,9 +169,9 @@ contains
     call WarningMessage(2,'Root number '//trim(a)//' must be between 1 and '//trim(b)//'.')
     call AbEnd()
   end if
-  end subroutine Check_Root_Number
+end subroutine Check_Root_Number
 
-  subroutine Check_Root_Pair(n,m)
+subroutine Check_Root_Pair(n,m)
   integer(kind=iwp), intent(in) :: n, m
   character(len=6) :: a
   call Check_Root_Number(n)
@@ -182,6 +182,6 @@ contains
     call WarningMessage(2,'Roots in pair '//trim(a)//' '//trim(a)//' cannot be equal.')
     call AbEnd()
   end if
-  end subroutine Check_Root_Pair
+end subroutine Check_Root_Pair
 
 end subroutine Write_Data

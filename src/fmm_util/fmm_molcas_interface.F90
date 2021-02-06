@@ -31,23 +31,23 @@
 
 subroutine fmm_call_get_J_matrix(ndim,nBas,dens,Fock)
 
-# include "macros.fh"
+#include "macros.fh"
 
-  use fmm_global_paras, only: INTK, REALK
-  !use fmm_interface, only: fmm_get_J_matrix
+use fmm_global_paras, only: INTK, REALK
+!use fmm_interface, only: fmm_get_J_matrix
 
-  implicit none
-  integer(INTK), intent(in)  :: ndim, nBas
-  real(REALK), intent(in)    :: dens(ndim)
-  real(REALK), intent(inout) :: Fock(ndim)
+implicit none
+integer(INTK), intent(in)  :: ndim, nBas
+real(REALK), intent(in)    :: dens(ndim)
+real(REALK), intent(inout) :: Fock(ndim)
 
-  unused_var(nBas)
-  unused_var(dens)
-  unused_var(Fock)
+unused_var(nBas)
+unused_var(dens)
+unused_var(Fock)
 
-  !print *, 'Calling FMM code...'
-  !call fmm_get_J_matrix(1,dens(1),Fock(1))
-  !call fmm_get_J_matrix(nbas,dens,Fock)
-  !print *, 'Returning from FMM code...'
+!print *, 'Calling FMM code...'
+!call fmm_get_J_matrix(1,dens(1),Fock(1))
+!call fmm_get_J_matrix(nbas,dens,Fock)
+!print *, 'Returning from FMM code...'
 
 end subroutine fmm_call_get_J_matrix

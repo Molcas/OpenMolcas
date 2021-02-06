@@ -39,13 +39,13 @@ integer(kind=iwp) :: i
 call MkType()
 call InpCtl_GenANO()
 do i=1,nSets
-   call RdCmo()
-   call UpDens()
-   if (isUHF == 1) then
-     call RdCmo()
-     call UpDens()
-     isUHF = 0
-   end if
+  call RdCmo()
+  call UpDens()
+  if (isUHF == 1) then
+    call RdCmo()
+    call UpDens()
+    isUHF = 0
+  end if
 end do
 call SphAve()
 if (iProj == 1) call Proj1()

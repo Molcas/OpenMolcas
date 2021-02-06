@@ -17,7 +17,7 @@ use kriging_mod, only: blAI, blaAI, blavAI, blvAI, detR, dy, full_R, Index_PGEK,
                        ordinary, Rones, sb, sbmev, sbO, variance, y
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, r8, u6
 
 #define _DPOSV_
 #ifdef _DPOSV_
@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: i_eff, is, ie, ise, iee, i, INFO ! ipiv the pivot indices that define the permutation matrix
 integer(kind=iwp), allocatable :: IPIV(:)
 real(kind=wp), allocatable :: B(:), A(:,:)
-real(kind=wp), external :: dDot_
+real(kind=r8), external :: dDot_
 
 ! Prediagonalize the part of the matrix corresponing to the value-value block
 

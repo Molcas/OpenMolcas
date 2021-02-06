@@ -64,9 +64,9 @@ do
   !write(u6,*) 'echo> ',KeyIn
   call zlcase(Key)
   if (Key(1:1) == '*') then
-    Continue
+    continue
   else if (Key == ' ') then
-    Continue
+    continue
   else if (Key == 'title') then
     RdHead = .true.
   else if (Key == 'sets') then
@@ -87,16 +87,16 @@ do
       call Quit_OnUserError()
     end if
     call Upcase(Center)
-  else if ((Key == 'no threshold').or.(Key == 'nothreshold')) then
+  else if ((Key == 'no threshold') .or. (Key == 'nothreshold')) then
     read(LuIn,*,iostat=err) thr
     if (err /= 0) then
       write(u6,*) 'Error while reading input, keyword: ',trim(Key)
       call Quit_OnUserError()
     end if
-  else if ((Key == 'row wise').or.(Key == 'rowwise')) then
+  else if ((Key == 'row wise') .or. (Key == 'rowwise')) then
     RdHead = .false.
     rowise = .true.
-  else if ((Key == 'lift degeneracy').or.(Key == 'liftdegeneracy')) then
+  else if ((Key == 'lift degeneracy') .or. (Key == 'liftdegeneracy')) then
     RdHead = .false.
     lftdeg = .true.
   else if (Key == 'rydberg') then
@@ -105,7 +105,7 @@ do
   else if (Key == 'weights') then
     RdHead = .false.
     read(LuIn,*) (wSet(i),i=1,nSets)
-  else if ((Key == 'orbitalweights').or.(Key == 'orbital weights')) then
+  else if ((Key == 'orbitalweights') .or. (Key == 'orbital weights')) then
     read(LuIn,*) wc0,wc1
     !write(u6,'(a,f12.6)') 'inpctl: wc0',wc0
     !write(u6,'(a,f12.6)') 'inpctl: wc1',wc1

@@ -28,20 +28,20 @@ real(kind=wp) :: dt
 real(kind=wp), allocatable :: ener(:), ciarray(:), real_amatrix(:), imag_amatrix(:)
 complex(kind=wp), allocatable :: amatrix(:)
 
-write(u6,'(A)') 'Restarting surfacehop from h5 file', file_h5res
+write(u6,'(A)') 'Restarting surfacehop from h5 file',file_h5res
 
 ! Check the file exists
 call f_inquire(sFile,Exists)
-if (.not.Exists) then
+if (.not. Exists) then
   call getenvf('MOLCAS_SUBMIT_DIR',tmp)
   if (tmp /= ' ') then
-    i=index(tmp,' ')
+    i = index(tmp,' ')
     if (i > 0) then
-      sFile=tmp(1:i-1)//'/'//File_H5Res
+      sFile = tmp(1:i-1)//'/'//File_H5Res
       call f_inquire(sFile,Exists)
     end if
   end if
-  if (.not.Exists) then
+  if (.not. Exists) then
     call WarningMessage(2,'File '//trim(sFile)//' is not found')
     call Quit_OnUserError()
   end if
@@ -51,8 +51,8 @@ end if
 call restart_dynamix(File_H5Res)
 
 call Get_dScalar('Timestep',DT)
-NSUBSTEPS=Int(200*DT*auTofs)
-restart_fileid=mh5_open_file_r(sFile)
+NSUBSTEPS = int(200*DT*auTofs)
+restart_fileid = mh5_open_file_r(sFile)
 call mh5_fetch_attr(restart_fileid,'NSTATES',nstates)
 call mh5_fetch_attr(restart_fileid,'NCONFS',nconfs)
 
@@ -102,7 +102,7 @@ call mma_allocate(imag_amatrix,nstates*nstates)
 call mma_allocate(amatrix,nstates*nstates)
 call mh5_fetch_dset(restart_fileid,'AmatrixV-R',real_amatrix)
 call mh5_fetch_dset(restart_fileid,'AmatrixV-I',imag_amatrix)
-amatrix(:)=cmplx(real_amatrix,imag_amatrix,kind=wp)
+amatrix(:) = cmplx(real_amatrix,imag_amatrix,kind=wp)
 call Put_zarray('AmatrixV',amatrix,nstates*nstates)
 call mma_deallocate(amatrix)
 call mma_deallocate(real_amatrix)

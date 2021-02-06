@@ -26,7 +26,7 @@
 
 subroutine quaterRotation(Q,U,V)
 
-use Constants, only: One,Two
+use Constants, only: One, Two
 use Definitions, only: wp, r8
 
 implicit none
@@ -41,7 +41,7 @@ call Cross(Q(1:3),U,T)         ! T = Q x U
 C1 = Two*Q(0)**2-One           ! C1 = 2 * Q(0)^2 - 1
 C2 = Two*Q(0)                  ! C2 = 2 * Q(0)
 C3 = Two*ddot_(3,Q(1:3),1,U,1) ! C3 = 2 * Q.U
-V(:) = C1*U(:) - C2*T(:) + C3*Q(1:3)
+V(:) = C1*U(:)-C2*T(:)+C3*Q(1:3)
 
 return
 

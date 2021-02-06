@@ -28,7 +28,7 @@ subroutine fmm_get_aux_qlm(scheme,LHS_mms,RHS_mms)
 
   implicit none
   type(scheme_paras), intent(in)   :: scheme
-  type(raw_mm_data), intent(inout) :: LHS_mms,RHS_mms
+  type(raw_mm_data), intent(inout) :: LHS_mms, RHS_mms
 
   ! We use the SCALED solid harmonic formulation throughout
   call fmm_renormalise_qlm(scheme%raw_LMAX,LHS_mms%qlm)
@@ -56,7 +56,7 @@ subroutine sort_centres_and_assign_batches(scheme,LHS,RHS)
 
   implicit none
   type(scheme_paras), intent(in)   :: scheme
-  type(raw_mm_data), intent(inout) :: LHS,RHS
+  type(raw_mm_data), intent(inout) :: LHS, RHS
 
   if (scheme%pack_LHS) then
     call fmm_sort_paras_wrt_centre(1_INTK,LHS%paras)
@@ -101,7 +101,7 @@ subroutine get_LHS_data(scheme,LHS)
       if (alloc_error /= 0) write(LUPRI,*) '... Failed!'
       LHS%qlm_T(:,:) = LHS%qlm(:,:)
     case default
-     call fmm_quit('cannot reconcile LHS_mm_type')
+      call fmm_quit('cannot reconcile LHS_mm_type')
   end select
 
   ! Factorise in density if required
@@ -122,8 +122,8 @@ subroutine get_RHS_data(scheme,RHS)
                            fmm_factor_in_dens
 
   implicit none
-  type(scheme_paras),intent(in)   :: scheme
-  type(raw_mm_data),intent(inout) :: RHS
+  type(scheme_paras), intent(in)   :: scheme
+  type(raw_mm_data), intent(inout) :: RHS
   integer(INTK) :: LMAX, i, qlm_dim, ndim, alloc_error
   logical :: dens
   real(REALK) :: thr
@@ -147,7 +147,7 @@ subroutine get_RHS_data(scheme,RHS)
   if (alloc_error /= 0) write(LUPRI,*) '... Failed!'
   RHS%qlm_W(:,:) = RHS%qlm(:,:)
 
-  if (.not.scheme%pack_RHS) then
+  if (.not. scheme%pack_RHS) then
     if (scheme%RHS_dens) call fmm_factor_in_dens(RHS%dens,RHS%qlm_W)
   end if
 

@@ -42,7 +42,7 @@ end do
 
 ! Compute rotaional constants B and D for each vibrational band
 
-If (J2A-J1A < 3) then
+if (J2A-J1A < 3) then
   write(u6,*) 'SPECTC Error: J2A-J1A < 3'
   write(u6,*) ' SPECTC requires a range of rotational quanta'
   write(u6,*) ' in order to fit spectroscopic constants.'

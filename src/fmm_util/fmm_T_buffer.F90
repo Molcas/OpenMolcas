@@ -37,8 +37,8 @@ subroutine fmm_add_to_T_buffer(T_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: T_pair
-  external fmm_selected_t_buffer
-  external fmm_selected_t_contractor
+  external :: fmm_selected_t_buffer
+  external :: fmm_selected_t_contractor
 
   call fmm_selected_t_buffer(fmm_selected_t_contractor,T_pair)
 
@@ -54,7 +54,7 @@ subroutine fmm_close_T_buffer()
   use fmm_scale_T_buffer, only: fmm_free_scale_T_buffer
 
   implicit none
-  external fmm_selected_t_contractor
+  external :: fmm_selected_t_contractor
 
   if (T_buffer_stat /= 'OPEN') call fmm_quit('T_buffer already closed!')
 
@@ -84,7 +84,7 @@ subroutine fmm_null_T_buffer(T_contractor,T_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: T_pair
-  external T_contractor
+  external                        :: T_contractor
 
   stat_tpack_total = stat_tpack_total+one
   call T_contractor(T_pair)
@@ -100,7 +100,7 @@ subroutine fmm_skip_T_buffer(T_contractor,T_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: T_pair
-  external T_contractor
+  external                        ::  T_contractor
 
   unused_var(T_contractor)
   unused_var(T_pair)
@@ -125,7 +125,7 @@ subroutine fmm_open_T_buffer(scheme)
   implicit none
   type(scheme_paras), intent(in) :: scheme
   integer(INTK) :: sort_para
-  external fmm_store_t_buffer
+  external :: fmm_store_t_buffer
 
   call fmm_init_buffer_stats('T')
   if (T_buffer_stat == 'OPEN') call fmm_quit('cannot reopen T_buffer')

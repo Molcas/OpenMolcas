@@ -157,10 +157,10 @@ subroutine fmm_init_T_pair_mould(scheme,pair_type)
   implicit none
   type(scheme_paras), intent(in) :: scheme
   integer(INTK), intent(in)      :: pair_type
-  external fmm_store_t_pair_mould1   ! raw/box dependent variables
-  external fmm_store_t_pair_mould2   ! set LMAX (LHS)
-  external fmm_store_t_pair_mould3   ! set LMAX (RHS)
-  external fmm_store_t_pair_mould4   ! common to all T-pair builds
+  external :: fmm_store_t_pair_mould1   ! raw/box dependent variables
+  external :: fmm_store_t_pair_mould2   ! set LMAX (LHS)
+  external :: fmm_store_t_pair_mould3   ! set LMAX (RHS)
+  external :: fmm_store_t_pair_mould4   ! common to all T-pair builds
 
   call fmm_store_t_pair_mould2(fmm_set_LHS_LMAX)
   call fmm_store_t_pair_mould3(fmm_set_RHS_LMAX)

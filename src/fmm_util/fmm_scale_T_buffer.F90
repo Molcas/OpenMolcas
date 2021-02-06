@@ -45,7 +45,7 @@ end subroutine fmm_init_scale_T_buffer
 subroutine fmm_free_scale_T_buffer(T_contractor)
 
   implicit none
-  external T_contractor
+  external :: T_contractor
 
   if (.not. associated(T_pair_buffer%items)) call fmm_quit('T_pair_buffer not alloc.')
   if (T_pair_buffer%ndim /= 0) then
@@ -63,7 +63,7 @@ subroutine fmm_scale_T_buffer_add(T_contractor,T_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: T_pair
-  external T_contractor
+  external                        :: T_contractor
   real(REALK) :: ratio
 
   stat_tpack_total = stat_tpack_total+one
@@ -92,11 +92,11 @@ subroutine expunge_scale_buffer(T_contractor)
                               fmm_quicksort_wrt_ratio
 
   implicit none
-  external T_contractor
+  external :: T_contractor
 
   type(T_pair_batch) :: ptr, ptr2
   integer(INTK) :: i, lo, hi
-  real(REALK)   :: q1, q2
+  real(REALK) :: q1, q2
 
   ptr%ndim = min(BUFFER_SIZE,T_pair_buffer%ndim)
   ptr%items => T_pair_buffer%items(1:ptr%ndim)
@@ -136,61 +136,61 @@ subroutine expunge_scale_buffer(T_contractor)
   T_pair_buffer%ndim = 0
   stat_tpack_chunks = stat_tpack_chunks+one
 
-  contains
+contains
 
   !-------------------------------------------------------------------------------
 
-  recursive subroutine sort_wrt_axis(xyz,items)
+recursive subroutine sort_wrt_axis(xyz,items)
 
-    implicit none
-    integer(INTK), intent(in)          :: xyz
-    type(T_pair_single), intent(inout) :: items(:)
+  implicit none
+  integer(INTK), intent(in)          :: xyz
+  type(T_pair_single), intent(inout) :: items(:)
 
-    integer(INTK) :: i, lo, hi
-    real(REALK) :: q1, q2
+  integer(INTK) :: i, lo, hi
+  real(REALK) :: q1, q2
 
-    if (size(items) == 1) return
+  if (size(items) == 1) return
 
-    ! sort only if needed
-    q1 = items(1)%r_ab(xyz)
-    do i=2,size(items)
-      q2 = items(i)%r_ab(xyz)
-      if (q2 < q1) then
-        call fmm_quicksort_wrt_vector(items,xyz)
-        exit
-      end if
-      q1 = q2
-    end do
-
-    ! sub-sort next T-vector component
-    lo = 1
-    do i=2,size(items)
-      q1 = items(i-1)%r_ab(xyz)
-      q2 = items(i)%r_ab(xyz)
-      if (q2 /= q1) then
-        hi = i-1
-        if (xyz == 3) then
-          call fmm_quicksort_wrt_ratio(items(lo:hi))
-          return
-        else
-          call sort_wrt_axis(xyz+1,items(lo:hi))
-        end if
-        lo = i
-      end if
-    end do
-
-    ! do last batch
-    hi = size(items)
-    if (xyz == 3) then
-      call fmm_quicksort_wrt_ratio(items(lo:hi))
-      return
-    else
-      call sort_wrt_axis(xyz+1,items(lo:hi))
+  ! sort only if needed
+  q1 = items(1)%r_ab(xyz)
+  do i=2,size(items)
+    q2 = items(i)%r_ab(xyz)
+    if (q2 < q1) then
+      call fmm_quicksort_wrt_vector(items,xyz)
+      exit
     end if
+    q1 = q2
+  end do
 
-  end subroutine sort_wrt_axis
+  ! sub-sort next T-vector component
+  lo = 1
+  do i=2,size(items)
+    q1 = items(i-1)%r_ab(xyz)
+    q2 = items(i)%r_ab(xyz)
+    if (q2 /= q1) then
+      hi = i-1
+      if (xyz == 3) then
+        call fmm_quicksort_wrt_ratio(items(lo:hi))
+        return
+      else
+        call sort_wrt_axis(xyz+1,items(lo:hi))
+      end if
+      lo = i
+    end if
+  end do
 
-  !-------------------------------------------------------------------------------
+  ! do last batch
+  hi = size(items)
+  if (xyz == 3) then
+    call fmm_quicksort_wrt_ratio(items(lo:hi))
+    return
+  else
+    call sort_wrt_axis(xyz+1,items(lo:hi))
+  end if
+
+end subroutine sort_wrt_axis
+
+!-------------------------------------------------------------------------------
 
 end subroutine expunge_scale_buffer
 

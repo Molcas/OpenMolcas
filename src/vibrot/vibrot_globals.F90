@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: nRot_Max=200, nobs=10, npin=500, npoint=5000
+integer(kind=iwp), parameter :: nRot_Max = 200, nobs = 10, npin = 500, npoint = 5000
 integer(kind=iwp) :: J1A, J2A, lambda, ispc, iobs, nop, Vibwvs, iadvib, Vibwvs1, Vibwvs2, n0, nvib1, n02, nvib21, J1B, J2B, &
                      IfPrWf, iscale, iallrot
 integer(kind=iwp) :: iadrsp(nRot_Max), iad12(nRot_Max), iad13(nRot_Max), iplot(nobs), npobs(nobs)

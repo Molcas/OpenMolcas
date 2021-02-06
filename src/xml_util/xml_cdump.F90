@@ -38,7 +38,7 @@ integer(kind=iwp) :: ix, iy, ind, opt
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-if ((ny == 1).and.(nx < 5)) then
+if ((ny == 1) .and. (nx < 5)) then
   call xml_cDumpa(TagName,len(TagName),Appear,len(Appear),Units,len(Units),Level,nx,ny,0)
   do ix=1,nx
     call xml_cDumpb(Content(ix),len(Content(ix)),0)
@@ -48,7 +48,7 @@ else
   do iy=1,ny
     do ix=1,nx
       ind = (ix-1)*ny+iy
-      if ((mod(ix,10) == 0).or.(ix == nx)) then
+      if ((mod(ix,10) == 0) .or. (ix == nx)) then
         opt = 1
       else
         opt = 0

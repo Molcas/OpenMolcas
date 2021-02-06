@@ -114,15 +114,15 @@ select case (IBOUND)
       B1 = Two*A2
       B0 = A1
       if (abs(A2) > (abs(A1)+abs(A0))*1.0e-3_wp) then
-      !***** A2 LARGE *****
+        !***** A2 LARGE *****
         P = -A1/A2/Two
         Q = A0/A2
         S = P*P-Q
         if (abs(S) < 1.0e-10_wp) then
-        !***** DOUBLE ROOT *****
+          !***** DOUBLE ROOT *****
           IT = 2
           T = P
-          if ((T >= Zero).and.(T <= One)) then
+          if ((T >= Zero) .and. (T <= One)) then
             X = XFIT(NS)+T*VecH(NS)
             Y = YFIT(NS)+VecH(NS)*T*(A0+T*(A1/Two+T*A2/Three))
             !write(u6,2001) TEXT(IT),X,Y
@@ -132,12 +132,12 @@ select case (IBOUND)
             IEXT(NEXT) = IT
           end if
         else if (S > Zero) then
-        !***** TWO ROOTS *****
+          !***** TWO ROOTS *****
           T0(1) = P+sqrt(S)
           T0(2) = P-sqrt(S)
           do I=1,2
             T = T0(I)
-            if ((T >= Zero).and.(T <= One)) then
+            if ((T >= Zero) .and. (T <= One)) then
               SE = B0+T*B1
               X = XFIT(NS)+T*VecH(NS)
               Y = YFIT(NS)+VecH(NS)*T*(A0+T*(A1/Two+T*A2/Three))
@@ -152,12 +152,12 @@ select case (IBOUND)
           end do
         end if
       else if (abs(A1) >= 0.9_wp*abs(A0)) then
-      !***** A2 SMALL *****
+        !***** A2 SMALL *****
         T = -A0/A1
         T = -(A0+A2*T*T)/A1
         T = -(A0+A2*T*T)/A1
         T = -(A0+A2*T*T)/A1
-        if ((T >= Zero).and.(T <= One)) then
+        if ((T >= Zero) .and. (T <= One)) then
           IT = 1
           if (B0 > Zero) IT = 3
           X = XFIT(NS)+T*VecH(NS)
@@ -171,7 +171,7 @@ select case (IBOUND)
       end if
     end do
 
-#ifdef _IBOUND2_
+# ifdef _IBOUND2_
   case (2)
     !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     !                                                                  C
@@ -202,8 +202,8 @@ select case (IBOUND)
     S1 = VecC(1)
     S2 = (VecC(1)+Two*VecC(2)-Three*VecD(1))/VecH(1)
     C2 = -S2/S1
-    C1 = S2/C2/C2/EXP(-C2*XFIT(1))
-    C0 = YFIT(1)-C1*EXP(-C2*XFIT(1))
+    C1 = S2/C2/C2/exp(-C2*XFIT(1))
+    C0 = YFIT(1)-C1*exp(-C2*XFIT(1))
     !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     !                                                                  C
     !  PERFORM INTERPOLATION (EXTRAPOLATION).                          C
@@ -211,7 +211,7 @@ select case (IBOUND)
     !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
     do IP=1,NIN
       if (XINT(IP) < XFIT(1)) then
-        YINT(IP) = C0+C1*EXP(-C2*XINT(IP))
+        YINT(IP) = C0+C1*exp(-C2*XINT(IP))
       else if (XINT(IP) > XFIT(NFIT)) then
         YINT(IP) = YFIT(NFIT)+VecC(NFIT)*(XINT(IP)-XFIT(NFIT))
       else
@@ -237,15 +237,15 @@ select case (IBOUND)
       B1 = Two*A2
       B0 = A1
       if (abs(A2) > (abs(A1)+abs(A0))*1.0e-3_wp) then
-      !***** A2 LARGE *****
+        !***** A2 LARGE *****
         P = -A1/A2/Two
         Q = A0/A2
         S = P*P-Q
         if (abs(S) < 1.0e-10_wp) then
-        !***** DOUBLE ROOT *****
+          !***** DOUBLE ROOT *****
           IT = 2
           T = P
-          if ((T >= Zero).and.(T <= One)) then
+          if ((T >= Zero) .and. (T <= One)) then
             X = XFIT(NS)+T*VecH(NS)
             Y = YFIT(NS)+VecH(NS)*T*(A0+T*(A1/Two+T*A2/Three))
             !write(u6,2001) TEXT(IT),X,Y
@@ -255,12 +255,12 @@ select case (IBOUND)
             IEXT(NEXT) = IT
           end if
         else if (S > Zero) then
-        !***** TWO ROOTS *****
+          !***** TWO ROOTS *****
           T0(1) = P+sqrt(S)
           T0(2) = P-sqrt(S)
           do I=1,2
             T = T0(I)
-            if ((T >= Zero).and.(T <= One)) then
+            if ((T >= Zero) .and. (T <= One)) then
               SE = B0+T*B1
               X = XFIT(NS)+T*VecH(NS)
               Y = YFIT(NS)+VecH(NS)*T*(A0+T*(A1/Two+T*A2/Three))
@@ -275,12 +275,12 @@ select case (IBOUND)
           end do
         end if
       else if (abs(A1) >= 0.9_wp*abs(A0)) then
-      !***** A2 SMALL *****
+        !***** A2 SMALL *****
         T = -A0/A1
         T = -(A0+A2*T*T)/A1
         T = -(A0+A2*T*T)/A1
         T = -(A0+A2*T*T)/A1
-        if ((T >= Zero).and.(T <= One)) then
+        if ((T >= Zero) .and. (T <= One)) then
           IT = 1
           if (B0 > Zero) IT = 3
           X = XFIT(NS)+T*VecH(NS)
@@ -293,7 +293,7 @@ select case (IBOUND)
         end if
       end if
     end do
-#endif
+# endif
 
   case default
     write(u6,*) 'SPLINE Error: IBOUND should be 1 or 2.'

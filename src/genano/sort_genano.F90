@@ -32,16 +32,16 @@ real(kind=wp) :: swap
 do i=1,n-1
   k = i
   do j=i+1,n
-   if (eval(j) > eval(k)) k = j
+    if (eval(j) > eval(k)) k = j
   end do
   if (k /= i) then
-    swap    = eval(k)
+    swap = eval(k)
     eval(k) = eval(i)
     eval(i) = swap
     do l=1,nb
-      swap      =  evec(l,k)
+      swap = evec(l,k)
       evec(l,k) = -evec(l,i)
-      evec(l,i) =  swap
+      evec(l,i) = swap
     end do
   end if
 end do

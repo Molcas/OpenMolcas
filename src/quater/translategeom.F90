@@ -36,7 +36,7 @@ real(kind=wp), intent(inout) :: Geom(3,nat)
 integer(kind=iwp) :: iat
 
 do iat=1,nat
-  Geom(:,iat) = Geom(:,iat) + Vtrans(:)
+  Geom(:,iat) = Geom(:,iat)+Vtrans(:)
 end do
 
 return

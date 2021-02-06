@@ -43,7 +43,7 @@ real(kind=wp) :: Adif, AGi, Akk, AVi, const, D, D1, D1t, D2, dE, del, del12, del
                  Est, Evib, fac, fact, GAM0, GAMn, Gmax, H11, H11a, H11c, Hnna, Hnnc, PotR0, PotRn1, R0, Redm2, Rn1, S11, S11a, &
                  S11c, Snna, Snnc, Svec0, SvecN1, term2, term4, V0, V1, Vmax, Vn, VN1, Wii, X2, Xrot
 real(kind=wp), allocatable :: V(:), G(:), Svec(:), alpha(:), beta(:), B(:), W(:), Vec(:), Ener(:), S(:,:), H(:,:)
-real(kind=wp), parameter :: Thre=1.0e-8_wp, THR=1.0e-3_wp
+real(kind=wp), parameter :: Thre = 1.0e-8_wp, THR = 1.0e-3_wp
 #include "warnings.fh"
 
 D = Zero    ! dummy initialize
@@ -131,121 +131,121 @@ do J=J1A,J2A
   delRN = Rn1-R(ngrid)
 
   do ivib=1,nvib
-   iter = 0
-   E = E0-dE0
-   ist = 0
-   Emem = Zero
-   dE = dE0
-   do
-     ! IFG Stop if above the dissociation limit
-     !     (assuming energy at infinity is set to zero)
-     if (E > zero) then
-       call SysQuitMsg(_RC_NOT_CONVERGED_,'VibRot','Failed to find a state.','Try decreasing STEP.')
-     end if
-     E = E+dE
-     ! Compute h(1,1) and s(1,1)
-     GAM0 = (fac+(PotR0-E)*term2)/(One+(PotR0-E)*term4)
-     H11 = H11a+GAM0*H11c
-     S11 = S11a+GAM0*S11c
-     H(2,1) = H11
-     S(2,1) = S11
-     ! Compute H(N,N) and S(N,N)
-     GAMn = exp(-sqrt(-Redm2*E)*delRN-del/Two)
-     H(2,ngrid) = HnnA+GAMn*HnnC
-     S(2,ngrid) = SnnA+GAMn*SnnC
-     ! Calculate secular determinant
-     D1t = H11-E*S11
-     D1 = D1t/abs(D1t)
-     D2 = One
-     do i=2,ngrid
-       Akk = H(2,i)-E*S(2,i)
-       D = D1*Akk/abs(Akk)-D2*(H(3,i-1)-E*S(3,i-1))*(H(1,i)-E*S(1,i))/abs((H(2,i-1)-E*S(2,i-1))*Akk)
-       D2 = D1
-       D1 = D
-     end do
+    iter = 0
+    E = E0-dE0
+    ist = 0
+    Emem = Zero
+    dE = dE0
+    do
+      ! IFG Stop if above the dissociation limit
+      !     (assuming energy at infinity is set to zero)
+      if (E > zero) then
+        call SysQuitMsg(_RC_NOT_CONVERGED_,'VibRot','Failed to find a state.','Try decreasing STEP.')
+      end if
+      E = E+dE
+      ! Compute h(1,1) and s(1,1)
+      GAM0 = (fac+(PotR0-E)*term2)/(One+(PotR0-E)*term4)
+      H11 = H11a+GAM0*H11c
+      S11 = S11a+GAM0*S11c
+      H(2,1) = H11
+      S(2,1) = S11
+      ! Compute H(N,N) and S(N,N)
+      GAMn = exp(-sqrt(-Redm2*E)*delRN-del/Two)
+      H(2,ngrid) = HnnA+GAMn*HnnC
+      S(2,ngrid) = SnnA+GAMn*SnnC
+      ! Calculate secular determinant
+      D1t = H11-E*S11
+      D1 = D1t/abs(D1t)
+      D2 = One
+      do i=2,ngrid
+        Akk = H(2,i)-E*S(2,i)
+        D = D1*Akk/abs(Akk)-D2*(H(3,i-1)-E*S(3,i-1))*(H(1,i)-E*S(1,i))/abs((H(2,i-1)-E*S(2,i-1))*Akk)
+        D2 = D1
+        D1 = D
+      end do
 
-     if (ist /= 0) then
-       if (D/Dmem < Zero) then
-         ! an eigenvalue has been bracketed
-         E1 = E
-         E = E1-DE*D/(D-Dmem)
-         if (abs(E-Emem) < Thre) exit
-         Emem = E
-         E = E-DE
-         DE = DE/Three
-         E = E-DE
-         ist = 0
-       else
-         Dmem = D
-       end if
-     else
-       ist = 1
-       Dmem = D
-     end if
-   end do
-   ! One eigenvalue found. Remove scaling
-   Ener(ivib) = (E-Est)/sc
-   E0 = E+dE0
-   alpha(ngrid) = H(2,ngrid)-E*S(2,ngrid)
-   beta(ngrid) = H(1,ngrid)-E*S(1,ngrid)
-   do i=1,ngrid1
-     ii = ngrid-i
-     if (ii /= 1) beta(ii) = H(1,ii)-E*S(1,ii)
-     Wii = (H(3,ii)-E*S(3,ii))/alpha(ii+1)
-     alpha(ii) = H(2,ii)-E*S(2,ii)-Wii*beta(ii+1)
-     W(ii) = Wii
-   end do
-   ! step 2: unit right hand side
-   if (abs(alpha(1)) == Zero) alpha(1) = 1.0e-10_wp
-   G(1) = One/alpha(1)
-   do i=2,ngrid
-     G(i) = (One-beta(i)*G(i-1))/alpha(i)
-   end do
-   ! step 3: g on the right hand side
-   do
-     B(ngrid) = G(ngrid)
-     do i=1,ngrid1
-       ii = ngrid-i
-       B(ii) = G(ii)-W(ii)*B(ii+1)
-     end do
-     Vec(1) = B(1)/alpha(1)
-     do i=2,ngrid
-       Vec(i) = (B(i)-beta(i)*Vec(i-1))/alpha(i)
-     end do
-     ! normalize g and vec
-     Gmax = Zero
-     Vmax = Zero
-     do i=1,ngrid
-       AGi = abs(G(i))
-       if (AGi > Gmax) Gmax = AGi
-       AVi = abs(Vec(i))
-       if (AVi > Vmax) Vmax = AVi
-     end do
-     diffm = Zero
-     do i=1,ngrid
-       G(i) = G(i)/Gmax
-       Vec(i) = Vec(i)/Vmax
-       Adif = abs(Vec(i))-abs(G(i))
-       if (Adif > diffm) diffm = Adif
-     end do
-     if ((diffm < 1.E-06).and.(iter /= 0)) exit
-     iter = iter+1
-     do i=1,ngrid
-       G(i) = Vec(i)
-     end do
-   end do
-   Evib = (E-Est)/sc
-   !GG: Remove scaling
-   Vec(ngrid+1) = E/sc
-   call DDafile(Vibwvs,1,Vec(1),ngrid+1,iadvib)
+      if (ist /= 0) then
+        if (D/Dmem < Zero) then
+          ! an eigenvalue has been bracketed
+          E1 = E
+          E = E1-DE*D/(D-Dmem)
+          if (abs(E-Emem) < Thre) exit
+          Emem = E
+          E = E-DE
+          DE = DE/Three
+          E = E-DE
+          ist = 0
+        else
+          Dmem = D
+        end if
+      else
+        ist = 1
+        Dmem = D
+      end if
+    end do
+    ! One eigenvalue found. Remove scaling
+    Ener(ivib) = (E-Est)/sc
+    E0 = E+dE0
+    alpha(ngrid) = H(2,ngrid)-E*S(2,ngrid)
+    beta(ngrid) = H(1,ngrid)-E*S(1,ngrid)
+    do i=1,ngrid1
+      ii = ngrid-i
+      if (ii /= 1) beta(ii) = H(1,ii)-E*S(1,ii)
+      Wii = (H(3,ii)-E*S(3,ii))/alpha(ii+1)
+      alpha(ii) = H(2,ii)-E*S(2,ii)-Wii*beta(ii+1)
+      W(ii) = Wii
+    end do
+    ! step 2: unit right hand side
+    if (abs(alpha(1)) == Zero) alpha(1) = 1.0e-10_wp
+    G(1) = One/alpha(1)
+    do i=2,ngrid
+      G(i) = (One-beta(i)*G(i-1))/alpha(i)
+    end do
+    ! step 3: g on the right hand side
+    do
+      B(ngrid) = G(ngrid)
+      do i=1,ngrid1
+        ii = ngrid-i
+        B(ii) = G(ii)-W(ii)*B(ii+1)
+      end do
+      Vec(1) = B(1)/alpha(1)
+      do i=2,ngrid
+        Vec(i) = (B(i)-beta(i)*Vec(i-1))/alpha(i)
+      end do
+      ! normalize g and vec
+      Gmax = Zero
+      Vmax = Zero
+      do i=1,ngrid
+        AGi = abs(G(i))
+        if (AGi > Gmax) Gmax = AGi
+        AVi = abs(Vec(i))
+        if (AVi > Vmax) Vmax = AVi
+      end do
+      diffm = Zero
+      do i=1,ngrid
+        G(i) = G(i)/Gmax
+        Vec(i) = Vec(i)/Vmax
+        Adif = abs(Vec(i))-abs(G(i))
+        if (Adif > diffm) diffm = Adif
+      end do
+      if ((diffm < 1.e-06) .and. (iter /= 0)) exit
+      iter = iter+1
+      do i=1,ngrid
+        G(i) = Vec(i)
+      end do
+    end do
+    Evib = (E-Est)/sc
+    !GG: Remove scaling
+    Vec(ngrid+1) = E/sc
+    call DDafile(Vibwvs,1,Vec(1),ngrid+1,iadvib)
 
-   ! Print energies and notify on end point values
-   V1 = abs(Vec(1))
-   Vn = abs(Vec(ngrid))
-   if ((V1 < THR).and.(Vn < THR)) write(u6,3000) ivib-1,J,Evib
-   if ((V1 < THR).and.(Vn >= THR)) write(u6,3001) ivib-1,J,Evib,Vn
-   if ((V1 >= THR).and.(Vn < THR)) write(u6,3002) ivib-1,J,Evib,V1
-   if ((V1 >= THR).and.(Vn >= THR)) write(u6,3003) ivib-1,J,Evib,V1,Vn
+    ! Print energies and notify on end point values
+    V1 = abs(Vec(1))
+    Vn = abs(Vec(ngrid))
+    if ((V1 < THR) .and. (Vn < THR)) write(u6,3000) ivib-1,J,Evib
+    if ((V1 < THR) .and. (Vn >= THR)) write(u6,3001) ivib-1,J,Evib,Vn
+    if ((V1 >= THR) .and. (Vn < THR)) write(u6,3002) ivib-1,J,Evib,V1
+    if ((V1 >= THR) .and. (Vn >= THR)) write(u6,3003) ivib-1,J,Evib,V1,Vn
 
   end do
 

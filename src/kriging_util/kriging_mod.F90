@@ -63,7 +63,7 @@ real(kind=wp), parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
 real(kind=wp), allocatable :: layer_U(:,:)
 
 public :: anMd, blaAI, blAI, blavAI, blvAI, cv, cvMatFder, cvMatSder, cvMatTder, detR, dl, dy, eps, eps2, full_R, full_RInv, &
-          gpred, h, hpred, Index_PGEK, Kriging, kv, l, layer_U, lb, lh, ll, Max_MicroIterations, m_t, mblAI, nD, nD_In,  nInter, &
+          gpred, h, hpred, Index_PGEK, Kriging, kv, l, layer_U, lb, lh, ll, Max_MicroIterations, m_t, mblAI, nD, nD_In, nInter, &
           nInter_Eff, nPoints, nspAI, ordinary, pAI, PGEK_On, pred, rl, Rones, sb, sbmev, sbO, set_l, sigma, Thr_MicroIterations, &
           var, variance, x, x0, y
 public :: Deallocate_Protected, Prep_Kriging

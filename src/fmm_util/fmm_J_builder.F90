@@ -229,7 +229,7 @@ subroutine fmm_get_J_from_pkd_Vff(scheme,LHS_mms,Vff,J_matrix)
       g = dot_product(LHS_mms%qlm_T(:lm_max,w),Vff(:lm_max,v))
       i = LHS_mms%J_indices(w)%i_indx
       j = LHS_mms%J_indices(w)%j_indx
-      J_matrix(i,j)=J_matrix(i,j)+g
+      J_matrix(i,j) = J_matrix(i,j)+g
       !if (i /= j) J_matrix(j,i) = J_matrix(j,i)+g
       ! only do next raw item in batch list if it exists
       if (.not. associated(batch_map%next)) exit batch_members

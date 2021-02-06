@@ -25,9 +25,9 @@ integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, atomNumberx3, nsAtom, efatom1, efatom2, ext, LuSpool
 real(kind=wp) :: efmodul, efmodulAU, norm, posvect12(3)
 real(kind=wp), allocatable :: gradient(:,:), ExtGrad(:,:), modgrad(:,:), coord(:,:)
-real(kind=wp), parameter :: nnewt=auToN*1.0e9_wp
+real(kind=wp), parameter :: nnewt = auToN*1.0e9_wp
 logical(kind=iwp) :: linear
-character(len=180) ::  Key, Line
+character(len=180) :: Key, Line
 character(len=180), external :: Get_Ln
 integer(kind=iwp) :: isfreeunit
 
@@ -62,13 +62,13 @@ do
     linear = .true.
     write(u6,*) 'Linear forces between two atoms selected'
     Line = Get_Ln(LuSpool)
-    call Get_I1(1, efatom1)
+    call Get_I1(1,efatom1)
     Line = Get_Ln(LuSpool)
-    call Get_I1(1, efatom2)
+    call Get_I1(1,efatom2)
     Line = Get_Ln(LuSpool)
-    call Get_F1(1, efmodul)
+    call Get_F1(1,efmodul)
     Line = Get_Ln(LuSpool)
-    call Get_I1(1, ext)
+    call Get_I1(1,ext)
     write(u6,*) 'atom1:',efatom1
     write(u6,*) 'atom2:',efatom2
     write(u6,*) 'Force:',efmodul,' nN'

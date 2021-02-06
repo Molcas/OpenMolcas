@@ -72,7 +72,7 @@ if (Found) then
   if (Debug) then
     write(u6,*)
     write(u6,*) 'Found Eorb'
-    write(u6,'(10f12.6)')(Fock(i),i=1,nData)
+    write(u6,'(10f12.6)') (Fock(i),i=1,nData)
     write(u6,*)
   end if
   if (.true.) return
@@ -106,7 +106,7 @@ do iSym=1,nSym
     end do
     if (Debug) then
       write(u6,'(2(a,i3),3a,i3,f6.2)') 'iSym:',iSym,' iBas:',iBas,' = ',Label(iBas+iOff)(1:lenName),Label(iBas+iOff)(lenName+1:), &
-                                      iNuc,xCharge(iNuc)
+                                       iNuc,xCharge(iNuc)
     end if
     if (iNuc == 0) then
       call SysAbendMsg('fockoper','Fatal','001')

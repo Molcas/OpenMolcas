@@ -16,8 +16,8 @@ module fmm_T_contractors
 ! Note that another module allows contraction of T-pairs to generate
 ! an energy or J-matrix directly (e.g.to exploit symmetry).
 
-use fmm_global_paras, only: INTK, REALK, scheme_paras, T_pair_single, T_pair_list, T_pair_batch, T_CONTRACTOR_MULTI,  &
-                            T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_TREE, T_CONTRACTOR_SCALE_TREE,  &
+use fmm_global_paras, only: INTK, REALK, scheme_paras, T_pair_single, T_pair_list, T_pair_batch, T_CONTRACTOR_MULTI, &
+                            T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_TREE, T_CONTRACTOR_SCALE_TREE, &
                             T_CONTRACTOR_SCALE, T_CONTRACTOR_FULL, NEAR_FIELD, DISTINCT_T_TOL, TMATM_DF, Zero, One, Half
 use fmm_stats, only: stat_T_mat_builds, fmm_init_matrix_stats
 use fmm_utils, only: fmm_quit
@@ -487,7 +487,7 @@ subroutine fmm_select_T_con(scheme)
   implicit none
   type(scheme_paras), intent(in) :: scheme
   integer(INTK) :: T_con_ID
-  external fmm_store_t_contractor
+  external :: fmm_store_t_contractor
 
   if (scheme%phase == NEAR_FIELD) then
     T_con_ID = scheme%T_con%NF_id

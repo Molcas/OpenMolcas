@@ -41,7 +41,7 @@ do iSym=1,nSym
       if (BasName(ind)(1:len(Center)) == Center) then
         if (BasName(ind)(len(Center)+1:) == symlab(l*(l+1)+1)) then
           icnt(l) = icnt(l)+1
-         end if
+        end if
       end if
     end do
   end do

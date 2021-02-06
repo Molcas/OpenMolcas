@@ -157,7 +157,7 @@ subroutine fmm_generate_T(LMAX,TOLMAX,I_sh,T_matrix)
   real(REALK), intent(out)  :: T_matrix(:,:,:)
 
   integer(INTK) :: sign_m
-  integer(INTK) :: L, J, k,  m, q, pp, qq, u, Jlast
+  integer(INTK) :: L, J, k, m, q, pp, qq, u, Jlast
 
   if (LMAX == 0) then
     T_matrix(:,1,1) = two*I_sh(:,1)  ! NB scaling to make T symmetric

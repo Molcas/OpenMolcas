@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-Subroutine POT(Rin,Ein,Rout,Eout,nout,ifit,Emin,Req,R0,R1,dR,npin,Title,iplot,Redm,sc,Nr)
+subroutine POT(Rin,Ein,Rout,Eout,nout,ifit,Emin,Req,R0,R1,dR,npin,Title,iplot,Redm,sc,Nr)
 
 use Vibrot_globals, only: iscale, nop
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,19 +24,19 @@ character(len=8) :: FILENAME
 real(kind=wp) :: Eeq, Ree, Ue, Re, Eminx, Escale, alpha, Einf, Einfp
 integer(kind=iwp) :: Vibplt, iPrint, next, nplot, i, imin
 character(len=80) :: Title
-character(len=12), parameter :: tp(3)=[character(len=12) :: 'Max point','Saddle point','Min point']
-integer(kind=iwp), parameter :: lext=100, ipldim=1000
+character(len=12), parameter :: tp(3) = [character(len=12) :: 'Max point','Saddle point','Min point']
+integer(kind=iwp), parameter :: lext = 100, ipldim = 1000
 real(kind=wp) :: Rext(lext), Eext(lext), Eextp(lext), Rplot(ipldim), Eplot(ipldim), Eplotp(ipldim)
 integer(kind=iwp) :: iext(lext)
 integer(kind=iwp), external :: IsFreeUnit
 
 FILENAME = 'VIBPLT0 '
-if ((Nr >= 1).and.(Nr <= 9)) then
+if ((Nr >= 1) .and. (Nr <= 9)) then
   write(FILENAME(7:7),'(I1)') Nr
-else if ((Nr >= 10).and.(Nr <= 99)) then
+else if ((Nr >= 10) .and. (Nr <= 99)) then
   write(FILENAME(7:8),'(I2)') Nr
 end if
-write (u6,*) 'Generating plot file:',FILENAME
+write(u6,*) 'Generating plot file:',FILENAME
 Vibplt = IsFreeUnit(10)
 call Molcas_Open(Vibplt,FILENAME)
 
@@ -45,7 +45,7 @@ iPrint = 1
 select case (ifit)
   case (1)
     Ue = 0.4_wp
-    if ((Ue < 0.1_wp).or.(Ue > 0.9_wp)) then
+    if ((Ue < 0.1_wp) .or. (Ue > 0.9_wp)) then
       write(u6,*) 'POT Error: Ue should be in 0.1..0.9'
       write(u6,*) '           Ue  =',Ue
       call Quit_OnUserError()
@@ -74,7 +74,7 @@ select case (ifit)
     Redm = Redm/sc
     write(u6,1001) sc
 
-    if ((Re < 1.0_wp).or.(Re > 20.0_wp)) then
+    if ((Re < 1.0_wp) .or. (Re > 20.0_wp)) then
       write(u6,*) 'POT Error: Re should be in 1.0..20.0'
       write(u6,*) '           Re  =',Re
       call Quit_OnUserError()
@@ -112,7 +112,7 @@ select case (ifit)
     end if
     if (iplot >= 1) then
       nplot = 1+int((R1-R0)/dR)
-      if ((nplot > ipldim).or.(nplot <= 0)) then
+      if ((nplot > ipldim) .or. (nplot <= 0)) then
         write(u6,*) 'POT Error: Variable NPLOT should be in 1..IPLDIM'
         write(u6,*) '          IPLDIM=',IPLDIM
         write(u6,*) '          NPLOT =',NPLOT
@@ -128,7 +128,7 @@ select case (ifit)
         end do
       else
         do i=1,nplot
-          Rplot(i) = 10.0_wp**((i-1)*dR+R0)
+          Rplot(i) = Ten**((i-1)*dR+R0)
         end do
       end if
       do i=1,nplot
@@ -190,7 +190,7 @@ select case (ifit)
     call Spline(Rin,Ein,npin,Rout,Eout,nout,Rext,Eext,iext,next,1)
     if (iplot >= 1) then
       nplot = 1+int((R1-R0)/dR)
-      if ((nplot > ipldim).or.(nplot <= 0)) then
+      if ((nplot > ipldim) .or. (nplot <= 0)) then
         write(u6,*) 'POT Error: Variable NPLOT should be in 1..IPLDIM'
         write(u6,*) '          IPLDIM=',IPLDIM
         write(u6,*) '          NPLOT =',NPLOT
@@ -202,7 +202,7 @@ select case (ifit)
         end do
       else
         do i=1,nplot
-          Rplot(i) = 10.0_wp**((i-1)*dR+R0)
+          Rplot(i) = Ten**((i-1)*dR+R0)
         end do
       end if
       call Spline(Rin,Ein,npin,Rplot,Eplot,nplot,Rext,Eext,iext,next,1)

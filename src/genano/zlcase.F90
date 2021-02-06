@@ -28,9 +28,9 @@ character(len=*), intent(inout) :: line
 integer(kind=iwp) :: k, idx
 
 do k=1,len(line)
-   idx = ichar(line(k:k))
-   !if ((97 <= idx).and.(idx <= 122)) line(k:k) = char(idx-32)
-   if ((65 <= idx).and.(idx <= 90)) line(k:k) = char(idx+32)
+  idx = ichar(line(k:k))
+  !if ((97 <= idx).and.(idx <= 122)) line(k:k) = char(idx-32)
+  if ((65 <= idx) .and. (idx <= 90)) line(k:k) = char(idx+32)
 end do
 
 return

@@ -37,7 +37,7 @@ call molcas_open(Lu,'ANO')
 iPtr = 1
 write(u6,*)
 call CollapseOutput(1,'   Contraction coefficients')
-write(u6,'(3x,a)')    '   ------------------------'
+write(u6,'(3x,a)') '   ------------------------'
 
 call mma_allocate(OccNo,sum(nPrim),label='OccNo')
 

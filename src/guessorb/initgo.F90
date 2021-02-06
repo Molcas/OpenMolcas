@@ -25,7 +25,7 @@
 
 subroutine InitGO()
 
-use GuessOrb_Global, only: GapThr, iPrFmt, Label, MxAtom,  MxSym, AtName, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
+use GuessOrb_Global, only: GapThr, iPrFmt, Label, MxAtom, MxSym, AtName, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
                            PrintPop, PrThr, SThr, TThr, xCharge
 use Constants, only: Five
 use Definitions, only: wp, iwp, u6

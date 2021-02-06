@@ -84,8 +84,8 @@ end if
 nMO = 0
 nCMO = 0
 do iSym=1,nSym
-  nMO = nMO + nBas(iSym)
-  nCMO = nCMO + nBas(iSym)**2
+  nMO = nMO+nBas(iSym)
+  nCMO = nCMO+nBas(iSym)**2
 end do
 call mma_deallocate(nBas)
 
@@ -129,7 +129,7 @@ end subroutine fmsym_find_symmetry
 
 !***********************************************************************
 
-Subroutine fmsym_symmetrize_molecule(ctx)
+subroutine fmsym_symmetrize_molecule(ctx)
 use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(inout) :: ctx
@@ -177,8 +177,8 @@ call Get_iArray('nBas',nBas,nSym)
 nMO = 0
 nCMO = 0
 do iSym=1,nSym
-  nMO = nMO + nBas(iSym)
-  nCMO = nCMO + nBas(iSym)**2
+  nMO = nMO+nBas(iSym)
+  nCMO = nCMO+nBas(iSym)**2
 end do
 
 call mma_allocate(CAO,nCMO,label='CAO')
@@ -213,36 +213,36 @@ call one2h5_ovlmat(fileid,nSym,nBas)
 call one2h5_fckint(fileid,nSym,nBas)
 ! mocoef
 dsetid = mh5_create_dset_real(fileid,'MO_VECTORS',1,[nCMO])
-call mh5_init_attr(dsetid, 'DESCRIPTION', &
+call mh5_init_attr(dsetid,'DESCRIPTION', &
                    'Coefficients of the SALCs as produced by MSYM, arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 call mh5_put_dset(dsetid,CAO)
 call mh5_close_dset(dsetid)
 ! mooc
 dsetid = mh5_create_dset_real(fileid,'MO_OCCUPATIONS',1,[nMO])
-call mh5_init_attr(dsetid, 'DESCRIPTION', &
+call mh5_init_attr(dsetid,'DESCRIPTION', &
                    'Dummy occupation numbers arranged as blocks of size [NBAS(i)], i=1,#irreps')
 call mh5_put_dset(dsetid,Occ)
 call mh5_close_dset(dsetid)
 ! moene
 dsetid = mh5_create_dset_real(fileid,'MO_ENERGIES',1,[nMO])
-call mh5_init_attr(dsetid, 'DESCRIPTION', &
+call mh5_init_attr(dsetid,'DESCRIPTION', &
                    'Dummy orbital energies arranged as blocks of size [NBAS(i)], i=1,#irreps')
 call mh5_put_dset(dsetid,Occ)
 call mh5_close_dset(dsetid)
 ! supsym
 dsetid = mh5_create_dset_int(fileid,'SUPSYM_IRREP_IDS',1,[nMO])
-call mh5_init_attr(dsetid, 'DESCRIPTION', &
+call mh5_init_attr(dsetid,'DESCRIPTION', &
                    'Super-symmetry ids as produced by MSYM, arranged as blocks of size [NBAS(i)], i=1,#irreps')
 call mh5_put_dset(dsetid,IrrIds)
 call mh5_close_dset(dsetid)
 dsetid = mh5_create_dset_int(fileid,'SUPSYM_IRREP_INDICES',1,[nMO])
-call mh5_init_attr(dsetid, 'DESCRIPTION', &
+call mh5_init_attr(dsetid,'DESCRIPTION', &
                    'Super-symmetry indices as produced by MSYM, arranged as blocks of size [NBAS(i)], i=1,#irreps')
 call mh5_put_dset(dsetid,IrrInd)
 call mh5_close_dset(dsetid)
 ! irrep_labels
 dsetid = mh5_create_dset_str(fileid,'SUPSYM_IRREP_LABELS',1,[nIrr],8)
-call mh5_init_attr(dsetid, 'DESCRIPTION', &
+call mh5_init_attr(dsetid,'DESCRIPTION', &
                    'Super-symmetry labels as produced by MSYM, arranged as array of size i=1,#supsym_irreps')
 call mh5_put_dset(dsetid,irrep_strings)
 call mh5_close_dset(dsetid)
@@ -261,7 +261,7 @@ end subroutine fmsym_generate_orbital_subspaces
 
 !***********************************************************************
 
-Subroutine fmsym_symmetrize_orbitals(ctx,CIO)
+subroutine fmsym_symmetrize_orbitals(ctx,CIO)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 implicit none
@@ -283,8 +283,8 @@ end if
 nMO = 0
 nCMO = 0
 do iSym=1,nSym
-  nMO = nMO + nBas(iSym)
-  nCMO = nCMO + nBas(iSym)**2
+  nMO = nMO+nBas(iSym)
+  nCMO = nCMO+nBas(iSym)**2
 end do
 call mma_deallocate(nBas)
 
@@ -302,7 +302,7 @@ end subroutine fmsym_symmetrize_orbitals
 
 !***********************************************************************
 
-Subroutine fmsym_symmetrize_orb_file(ctx,INPORB)
+subroutine fmsym_symmetrize_orb_file(ctx,INPORB)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 implicit none
@@ -329,8 +329,8 @@ end if
 nMO = 0
 nCMO = 0
 do iSym=1,nSym
-   nMO = nMO + nBas(iSym)
-   nCMO = nCMO + nBas(iSym)**2
+  nMO = nMO+nBas(iSym)
+  nCMO = nCMO+nBas(iSym)**2
 end do
 
 call mma_allocate(CIO,nCMO,label='nCMO')
@@ -360,7 +360,7 @@ do iSym=1,nSym
 end do
 Title = 'Symmetrized Orbitals'
 LuOrb = isfreeunit(50)
-Call WrVec('MSYMMORB',LuOrb,'COEI',nSym,nBas,nBas,CIO,Occ,E,indType,Title)
+call WrVec('MSYMMORB',LuOrb,'COEI',nSym,nBas,nBas,CIO,Occ,E,indType,Title)
 
 call mma_deallocate(CIO)
 call mma_deallocate(Occ)
@@ -370,4 +370,5 @@ call mma_deallocate(nBas)
 call mma_deallocate(indType)
 
 return
+
 end subroutine fmsym_symmetrize_orb_file

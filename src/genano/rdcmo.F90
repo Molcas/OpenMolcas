@@ -27,7 +27,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), parameter :: log1e3=log(1.0e3_wp)
+real(kind=wp), parameter :: log1e3 = log(1.0e3_wp)
 integer(kind=iwp) :: i, iDummy(1), iErr, indx, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nCmo, nDim
 real(kind=wp) :: Dummy(1), eps0, eta
 character(len=6) :: OneInt, NatOrb, RunFile

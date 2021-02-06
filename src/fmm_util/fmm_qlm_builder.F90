@@ -12,7 +12,7 @@
 module fmm_qlm_builder
 
 use fmm_global_paras, only: INTK, REALK, LUPRI, LUINTM, fmm_counters, scheme_paras, raw_mm_data, id_node, raw_mm_paras, &
-                            ELECTRONIC_ONLY,NUCLEAR_ONLY,Zero,One
+                            ELECTRONIC_ONLY, NUCLEAR_ONLY, Zero, One
 use fmm_stats, only: stat_n_basis, stat_raw_moms_LHS, stat_raw_moms_RHS
 use fmm_utils, only: fmm_quit
 implicit none
@@ -178,7 +178,7 @@ subroutine fmm_allocate_mms_arrays(LMAX,ndim,mm_data)
 
   implicit none
   integer(INTK), intent(in)      :: LMAX, ndim
-  type(raw_mm_data), inteNt(out) :: mm_data
+  type(raw_mm_data), intent(out) :: mm_data
   integer(INTK) :: i, foo, alloc_error
 
   nullify(mm_data%paras,mm_data%dens,mm_data%batch_map)
@@ -237,19 +237,19 @@ subroutine fmm_deallocate_mms_arrays(mm_data)
   nullify(mm_data%qlm,mm_data%qlm_W,mm_data%qlm_T)
   nullify(mm_data%J_indices)
 
-  contains
+contains
 
-  recursive subroutine free_batch_map(node)
+recursive subroutine free_batch_map(node)
 
-    implicit none
-    type(id_node), pointer :: node
-    if (associated(node%next)) then
-      call free_batch_map(node%next)
-    end if
-    deallocate(node)
-    nullify(node)
+  implicit none
+  type(id_node), pointer :: node
+  if (associated(node%next)) then
+    call free_batch_map(node%next)
+  end if
+  deallocate(node)
+  nullify(node)
 
-  end subroutine free_batch_map
+end subroutine free_batch_map
 
 end subroutine fmm_deallocate_mms_arrays
 
@@ -265,7 +265,7 @@ subroutine fmm_read_in_raw_data(dens,mm_data)
   implicit none
   real(REALK), intent(in)        :: dens(:,:)
   type(raw_mm_data), intent(out) :: mm_data
-  real(REALK)   :: PX, PY, PZ, SPH
+  real(REALK) :: PX, PY, PZ, SPH
   integer(INTK) :: I, J, L, M, A, B, LM, X
   integer(INTK), external :: IsFreeUnit
 
@@ -337,7 +337,7 @@ subroutine fmm_get_system_size_and_shift(paras)
 
   implicit none
   type(raw_mm_paras), intent(inout) :: paras(:)
-  real(REALK)   :: sys_min(3), sys_max(3)
+  real(REALK) :: sys_min(3), sys_max(3)
   integer(INTK) :: i
 
   sys_min = paras(1)%cntr

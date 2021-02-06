@@ -169,7 +169,7 @@ do J1=J1A,JEndA
         end do
         call Simpsn(X,del,ndim,S(nv12))
         S(nv12) = S(nv12)/sqrt(S(nv11)*S(nv22))
-        ChkSum = ChkSum + S(nv12)
+        ChkSum = ChkSum+S(nv12)
       end do
     end do
 

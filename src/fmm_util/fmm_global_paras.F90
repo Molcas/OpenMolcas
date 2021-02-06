@@ -369,7 +369,7 @@ end type fmm_basis
 
 !------------------------------------------------------------------------------
 
- ! Batch of primitive data for one shell-pair
+! Batch of primitive data for one shell-pair
 type fmm_prim_batch
   real(REALK) :: P(3), PA(3), PB(3), PC(3)
   real(REALK) :: lo(3), hi(3)

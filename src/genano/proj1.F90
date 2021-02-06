@@ -142,7 +142,7 @@ do iLqn=0,MxLqn
       end do
     end do
     !--- Transform back to AO ---*
-    ind=0
+    ind = 0
     do iB=1,nB
       do jB=1,iB
         ind = ind+1

@@ -30,10 +30,10 @@ real(kind=wp), intent(inout) :: a(n,n)
 integer(kind=iwp) :: i
 real(kind=wp) :: sgn
 
-sgn=One
+sgn = One
 do i=1,n
   if (sgn*a(1,i) < Zero) a(:,i) = -a(:,i)
-  sgn=-sgn
+  sgn = -sgn
 end do
 
 return

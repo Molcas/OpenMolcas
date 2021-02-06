@@ -141,22 +141,22 @@ end subroutine fmm_get_J_via_raw_potentials
 
 subroutine fmm_build_J_matrix(n_el,dens,J_matrix)
 
-   use fmm_stats, only: fmm_print_stats
-   use fmm_scheme_builder, only: fmm_get_scheme
-   use fmm_utils, only: fmm_second, TIMTXT
+  use fmm_stats, only: fmm_print_stats
+  use fmm_scheme_builder, only: fmm_get_scheme
+  use fmm_utils, only: fmm_second, TIMTXT
 
-   implicit none
-   character(len=6), intent(in)  :: n_el
-   real(REALK), intent(in)       :: dens(:,:)
-   real(REALK), intent(out)      :: J_matrix(:,:)
+  implicit none
+  character(len=6), intent(in) :: n_el
+  real(REALK), intent(in)      :: dens(:,:)
+  real(REALK), intent(out)     :: J_matrix(:,:)
 
-   type(scheme_paras), pointer :: scheme
-   character(len=36) :: E_text
-   real(REALK) :: energy, T0, TTOT
+  type(scheme_paras), pointer :: scheme
+  character(len=36) :: E_text
+  real(REALK) :: energy, T0, TTOT
 
-   T0 = fmm_second()
+  T0 = fmm_second()
 
-   call fmm_get_scheme(scheme)
+  call fmm_get_scheme(scheme)
 
   select case (n_el)
     case ('ONE_EL')

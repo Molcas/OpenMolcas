@@ -90,7 +90,7 @@ function fmm_box_centre(box,grain)
 
   implicit none
   integer(INTK), intent(in) :: box(3)
-  real(REALK), intent(in) :: grain
+  real(REALK), intent(in)   :: grain
   real(REALK) :: fmm_box_centre(3)
 
   !fmm_box_centre(:) = grain*(box(:)-half)
@@ -143,7 +143,7 @@ function fmm_deepest_level(scheme)
   ! Note we round UP the integer
   fmm_deepest_level = max(TOP_LEVEL,(1+int(log(x)/log(two))))
 
-  if (fmm_deepest_level>MAX_LEVEL) then
+  if (fmm_deepest_level > MAX_LEVEL) then
     stat_level_saturation = fmm_deepest_level
     fmm_deepest_level = MAX_LEVEL
   end if
@@ -157,7 +157,7 @@ function fmm_grain(scheme,level)
 
   implicit none
   type(scheme_paras), intent(in) :: scheme
-  integer(INTK), intent(in) :: level
+  integer(INTK), intent(in)      :: level
   real(REALK) :: fmm_grain
   integer(INTK) :: deepest_level
 
@@ -271,7 +271,7 @@ function fmm_RFF_boxes(LHS,RHS)
   RHS_up%box = fmm_parent_box(RHS%box)
   RHS_up%bra = fmm_parent_bra(RHS%bra)
 
-  fmm_RFF_boxes = .not. (fmm_NF_boxes(LHS_up,RHS_up))
+  fmm_RFF_boxes = .not.(fmm_NF_boxes(LHS_up,RHS_up))
 
 end function fmm_RFF_boxes
 
@@ -279,16 +279,16 @@ end function fmm_RFF_boxes
 
 function fmm_same_box(LHS,RHS)
 
-   implicit none
-   type(box_mm_paras), intent(in) :: LHS, RHS
-   logical :: fmm_same_box
+  implicit none
+  type(box_mm_paras), intent(in) :: LHS, RHS
+  logical :: fmm_same_box
 
   if (LHS%level /= RHS%level) call fmm_quit('levels not equal in same_box')
   fmm_same_box = .false.
   if (LHS%box(1) == RHS%box(1) .and. &
       LHS%box(2) == RHS%box(2) .and. &
       LHS%box(3) == RHS%box(3)) then
-    fmm_same_box=.true.
+    fmm_same_box = .true.
   end if
 
 end function fmm_same_box
@@ -305,7 +305,7 @@ subroutine fmm_translate_to_common_grid(LHS,RHS)
 
   if (LHS%level == RHS%level) return
   if (LHS%level > RHS%level) then
-    do while (LHS%level>RHS%level)
+    do while (LHS%level > RHS%level)
       LHS%box = fmm_parent_box(LHS%box)
       LHS%bra = fmm_parent_bra(LHS%bra)
       LHS%level = LHS%level-1

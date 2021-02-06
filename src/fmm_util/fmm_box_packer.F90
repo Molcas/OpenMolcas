@@ -25,18 +25,18 @@ contains
 
 subroutine fmm_init_pkd_paras(deepest_level,scheme,raw_paras,pkd_paras)
 
-   use fmm_box_utils, only: fmm_box_centre, fmm_parent_box, fmm_grain
+  use fmm_box_utils, only: fmm_box_centre, fmm_parent_box, fmm_grain
 
-   implicit none
-   integer(INTK), intent(in)         :: deepest_level
-   type(scheme_paras), intent(in)    :: scheme
-   type(raw_mm_paras), intent(inout) :: raw_paras(:)
-   type(box_mm_paras), pointer       :: pkd_paras(:)
+  implicit none
+  integer(INTK), intent(in)         :: deepest_level
+  type(scheme_paras), intent(in)    :: scheme
+  type(raw_mm_paras), intent(inout) :: raw_paras(:)
+  type(box_mm_paras), pointer       :: pkd_paras(:)
 
-   type(box_mm_paras) :: tmp_paras(size(raw_paras))
-   integer(INTK)      :: i, l_up, box(3), foo
-   integer(INTK)      :: tmp_map(size(raw_paras))
-   real(REALK)        :: grain
+  type(box_mm_paras) :: tmp_paras(size(raw_paras))
+  integer(INTK) :: i, l_up, box(3), foo
+  integer(INTK) :: tmp_map(size(raw_paras))
+  real(REALK) :: grain
 
   l_up = deepest_level-1
   grain = fmm_grain(scheme,l_up)
@@ -71,8 +71,8 @@ end subroutine fmm_init_pkd_paras
 
 subroutine fmm_shift_and_pack_paras(level,scheme,paras_in,paras_out)
 
-  use fmm_box_utils, only: fmm_box_centre,fmm_grain, &
-                           fmm_parent_box,fmm_parent_bra
+  use fmm_box_utils, only: fmm_box_centre, fmm_grain, &
+                           fmm_parent_box, fmm_parent_bra
 
   implicit none
   integer(INTK), intent(in)         :: level
@@ -81,9 +81,9 @@ subroutine fmm_shift_and_pack_paras(level,scheme,paras_in,paras_out)
   type(box_mm_paras), pointer       :: paras_out(:)
 
   type(box_mm_paras) :: tmp_paras(size(paras_in))
-  integer(INTK)      :: i, l_up, box(3), foo
-  integer(INTK)      :: tmp_map(size(paras_in))
-  real(REALK)        :: grain, grain_up
+  integer(INTK) :: i, l_up, box(3), foo
+  integer(INTK) :: tmp_map(size(paras_in))
+  real(REALK) :: grain, grain_up
 
   ! build tmp array for unpacked paras at next level up
   l_up = level-1
@@ -138,13 +138,13 @@ subroutine pack_boxed_paras(paras_in,paras_out,map)
   do i=2,size(paras_in)
 
     if (paras_in(i)%box(3) /= paras_in(i-1)%box(3)) then
-      k=k+1
+      k = k+1
     else if (paras_in(i)%box(2) /= paras_in(i-1)%box(2)) then
-      k=k+1
+      k = k+1
     else if (paras_in(i)%box(1) /= paras_in(i-1)%box(1)) then
-      k=k+1
+      k = k+1
     else if (paras_in(i)%bra /= paras_in(i-1)%bra) then
-      k=k+1
+      k = k+1
     end if
 
     tmp_paras(k) = paras_in(i)
@@ -171,9 +171,9 @@ recursive subroutine fmm_sort_wrt_boxes_and_branches(xyz,paras)
   type(box_mm_paras), intent(inout) :: paras(:)
 
   integer(INTK) :: i, lo, hi
-  real(REALK)   :: q1, q2
+  real(REALK) :: q1, q2
 
-  if (size(paras)==1) return
+  if (size(paras) == 1) return
 
   ! sort only if needed
   q1 = paras(1)%box(xyz)
@@ -197,7 +197,7 @@ recursive subroutine fmm_sort_wrt_boxes_and_branches(xyz,paras)
         call fmm_quicksort_wrt_branches(paras(lo:hi))
       else
         call fmm_sort_wrt_boxes_and_branches(xyz+1,paras(lo:hi))
-      endif
+      end if
       lo = i
     end if
   end do
@@ -214,4 +214,4 @@ end subroutine fmm_sort_wrt_boxes_and_branches
 
 !-------------------------------------------------------------------------------
 
-endmodule fmm_box_packer
+end module fmm_box_packer

@@ -96,9 +96,9 @@ subroutine TIMTXT(TEXTIN,TIMUSD,IUNIT)
     write(IUNIT,300) TEXT,TIMUSD
   end if
   return
-  100 format(1x,a,i4,a,i3,a,i3,a)
-  200 format(1x,a,i3,a,i3,a)
-  300 format(1x,a,f7.2,' seconds')
+100 format(1x,a,i4,a,i3,a,i3,a)
+200 format(1x,a,i3,a,i3,a)
+300 format(1x,a,f7.2,' seconds')
 end subroutine TIMTXT
 
 !-------------------------------------------------------------------------------

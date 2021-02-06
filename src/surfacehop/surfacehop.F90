@@ -17,6 +17,7 @@ subroutine surfacehop(rc)
 
 use Tully_variables
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,15 +30,15 @@ real(kind=wp), allocatable :: CIBigArray(:)
 call initial_surfacehop()
 call rdinp_surfacehop()
 
-LUIPH=20
-CALL DANAME(LUIPH,'JOBIPH')
-IAD=0
+LUIPH = 20
+call DANAME(LUIPH,'JOBIPH')
+IAD = 0
 call IDAFILE(LUIPH,2,ITOC15,15,IAD)
 call getIphInfo(LUIPH,NCI,NSTATE,ITOC15)
 call mma_allocate(CIBigArray,NCI*NSTATE)
-CIBigArray(:)=0.0_wp
+CIBigArray(:) = Zero
 
-IDISK=ITOC15(4)
+IDISK = ITOC15(4)
 do I=1,NSTATE
   call DDAFILE(LUIPH,2,CIBigArray(NCI*(I-1)+1),NCI,IDISK)
 end do
@@ -48,7 +49,7 @@ call DACLOS(LUIPH)
 call tully(CIBigArray,NSTATE,NCI)
 
 call mma_deallocate(CIBigArray)
-rc=_RC_ALL_IS_WELL_
+rc = _RC_ALL_IS_WELL_
 
 return
 

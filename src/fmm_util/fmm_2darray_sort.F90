@@ -36,7 +36,7 @@ subroutine fmm_insertion_sort(arr,xyz)
   iloop: do i=1,size(arr,2)
     tmp(:) = arr(:,i)
     do j=(i-1),1,-1
-      if (arr(xyz,j)>tmp(xyz)) then
+      if (arr(xyz,j) > tmp(xyz)) then
         arr(:,j+1) = arr(:,j)
       else
         arr(:,j+1) = tmp(:)

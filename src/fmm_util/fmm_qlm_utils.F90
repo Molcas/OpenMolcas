@@ -58,17 +58,17 @@ subroutine fmm_renormalise_qlm(LMAX,qlm)
     end do
   end do
 
-  contains
+contains
 
-  real(REALK) function FACTORIAL(n)
-    implicit none
-    integer(INTK), intent(in) :: n
-    integer(INTK) :: i
-    FACTORIAL = 1
-    do i=n,2,-1
-      FACTORIAL = FACTORIAL*i
-    end do
-  end function FACTORIAL
+real(REALK) function FACTORIAL(n)
+  implicit none
+  integer(INTK), intent(in) :: n
+  integer(INTK) :: i
+  FACTORIAL = 1
+  do i=n,2,-1
+    FACTORIAL = FACTORIAL*i
+  end do
+end function FACTORIAL
 
 end subroutine fmm_renormalise_qlm
 
@@ -83,7 +83,7 @@ recursive subroutine fmm_sort_paras_wrt_centre(xyz,paras)
   type(raw_mm_paras), intent(inout) :: paras(:)
 
   integer(INTK) :: i, lo, hi
-  real(REALK)   :: q1, q2
+  real(REALK) :: q1, q2
 
   if (size(paras) == 1) return
 
@@ -174,12 +174,12 @@ end subroutine fmm_factor_in_dens
 subroutine fmm_get_T_sym_qlm(LMAX,qlm_in,qlm_out)
 
   implicit none
-  integer(INTK), intent(in)  :: LMAX
-  real(REALK), intent(in)    :: qlm_in(:,:)
-  real(REALK), intent(out)   :: qlm_out(:,:)
+  integer(INTK), intent(in) :: LMAX
+  real(REALK), intent(in)   :: qlm_in(:,:)
+  real(REALK), intent(out)  :: qlm_out(:,:)
 
   integer(INTK) :: i, L, u, hi, lo
-  real(REALK)   :: pref
+  real(REALK) :: pref
 
   do i=1,size(qlm_in,2)
     do L=0,LMAX
@@ -202,8 +202,8 @@ end subroutine fmm_get_T_sym_qlm
 subroutine get_nbatch(paras,nbatch)
 
   implicit none
-  type(raw_mm_paras), intent(in)  :: paras(:)
-  integer(INTK), intent(out)      :: nbatch
+  type(raw_mm_paras), intent(in) :: paras(:)
+  integer(INTK), intent(out)     :: nbatch
   integer(INTK) :: i, ndim
 
   ndim = size(paras)
@@ -420,32 +420,32 @@ subroutine fmm_pack_raw_parameters(mm_data)
 
   deallocate(pkd_paras)
 
-  contains
+contains
 
-  subroutine add_batch_item(batch_list,raw_id)
+subroutine add_batch_item(batch_list,raw_id)
 
-    implicit none
-    type(id_list), intent(inout) :: batch_list
-    integer(INTK), intent(in)    :: raw_id
-    type(id_node), pointer :: new_node
+  implicit none
+  type(id_list), intent(inout) :: batch_list
+  integer(INTK), intent(in)   :: raw_id
+  type(id_node), pointer :: new_node
 
-    batch_list%occ = batch_list%occ+1
-    allocate(new_node)
-    new_node%id = raw_id
-    if (associated(batch_list%head%next)) then
-      ! More than one entry in list (including head)
-      ! so point new_node to old second entry
-      new_node%next => batch_list%head%next
-      ! Point head to new_node
-      nullify(batch_list%head%next)
-      batch_list%head%next => new_node
-    else
-      ! Only head so far; make new_node our second entry
-      batch_list%head%next => new_node
-      nullify(new_node%next)   ! end of list
-    end if
+  batch_list%occ = batch_list%occ+1
+  allocate(new_node)
+  new_node%id = raw_id
+  if (associated(batch_list%head%next)) then
+    ! More than one entry in list (including head)
+    ! so point new_node to old second entry
+    new_node%next => batch_list%head%next
+    ! Point head to new_node
+    nullify(batch_list%head%next)
+    batch_list%head%next => new_node
+  else
+    ! Only head so far; make new_node our second entry
+    batch_list%head%next => new_node
+    nullify(new_node%next)   ! end of list
+  end if
 
-  end subroutine add_batch_item
+end subroutine add_batch_item
 
 end subroutine fmm_pack_raw_parameters
 

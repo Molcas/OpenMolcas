@@ -61,7 +61,7 @@ subroutine fmm_initial(NAtom,NShel,NPrim,NBF_Car,MaxAngl,MaxSgm2,KAtom,KType,KSt
   integer(INTK), intent(in) :: KStart(NShel)
   integer(INTK), intent(in) :: KontG(NShel)
   integer(INTK), intent(in) :: KLoc_Car(NShel)
-  real(REALK), intent(in)   :: Centr(3, NAtom)
+  real(REALK), intent(in)   :: Centr(3,NAtom)
   real(REALK), intent(in)   :: Expnt(NPrim)
   real(REALK), intent(in)   :: CCoef(NPrim)
 
@@ -122,7 +122,7 @@ subroutine fmm_get_J_matrix(nBas,dens,fockAO)
   real(REALK), intent(in)    :: dens(nBas*(nBas+1)/2)
   real(REALK), intent(inoUt) :: fockAO(nBas*(nBas+1)/2)
 
-  character(len=10), parameter :: FName='multipoles'
+  character(len=10), parameter :: FName = 'multipoles'
   character(len=255) :: FBuf
   real(REALK) :: J_matrix(nBas,nBas)
   real(REALK) :: sq_dens(nBas,nBas)
@@ -141,15 +141,15 @@ subroutine fmm_get_J_matrix(nBas,dens,fockAO)
   do j=1,nBas
     do i=1,j
       ij = ij+1
-       sq_dens(i,j) = two*dens(ij)
-     sq_dens(j,i) = sq_dens(i,j)
+      sq_dens(i,j) = two*dens(ij)
+      sq_dens(j,i) = sq_dens(i,j)
     end do
     sq_dens(j,j) = half*sq_dens(j,j)
   end do
 
   call fmm_build_J_matrix('TWO_EL',sq_dens,J_matrix)
 
-  ij=0
+  ij = 0
   do j=1,nBas
     do i=1,j
       ij = ij+1
@@ -223,12 +223,12 @@ subroutine fmm_initialise_gfc_grid(npoints,coor)
 
   ! Write grid points to disk
   FBuf = trim(FName)//'.fmm2'
-  LUINTM  =IsFreeUnit(LUINTM)
+  LUINTM = IsFreeUnit(LUINTM)
   open(unit=LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',FORM='UNFORMATTED')
   rewind(LUINTM)
   do i=1,npoints
     write(LUINTM) 0,0,0,0,0,coor(1,i),coor(2,i),coor(3,i),one
-  enddo
+  end do
   close(unit=LUINTM,status='KEEP')
 
   ! Write header file

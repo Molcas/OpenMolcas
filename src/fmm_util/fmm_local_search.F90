@@ -11,7 +11,7 @@
 
 module fmm_local_search
 
-use fmm_global_paras, only: INTK, id_list, id_node, scheme_paras, box_mm_data, box_mm_paras, gen_mm_paras ,LHS_raw_RHS_raw, &
+use fmm_global_paras, only: INTK, id_list, id_node, scheme_paras, box_mm_data, box_mm_paras, gen_mm_paras, LHS_raw_RHS_raw, &
                             LHS_box_RHS_box, TOP_LEVEL, DO_FMM
 use fmm_box_utils, only: fmm_parent_box, fmm_same_box, fmm_RFF_boxes
 use fmm_utils, only: fmm_quit
@@ -25,7 +25,7 @@ public :: fmm_init_local_search, &
 
 type fmm_local_map
   type(id_list), pointer :: box_list(:)
-endtype fmm_local_map
+end type fmm_local_map
 
 type(fmm_local_map), allocatable, save :: map_at_level(:)
 integer(INTK), save :: deepest_level
@@ -111,7 +111,7 @@ subroutine fmm_init_local_map(mm_paras)
     end do
   end do
 
-endsubroutine fmm_init_local_map
+end subroutine fmm_init_local_map
 
 !-------------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ subroutine fmm_add_item(box_map,raw_id)
   implicit none
   type(id_list), intent(inout) :: box_map
   integer(INTK), intent(in)    :: raw_id
-  type(id_node), pointer :: new_node
+  type(id_node), pointer       :: new_node
 
   if (box_map%occ == 0) then
     ! Start new linked list for these boxes

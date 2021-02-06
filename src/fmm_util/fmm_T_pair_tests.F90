@@ -79,7 +79,7 @@ subroutine fmm_test_and_buffer_T_pair(LHS,RHS,id,weight)
   integer(INTK), intent(in)      :: weight
   type(T_pair_single) :: T_pair
   logical, external :: fmm_included_pair
-  external fmm_stored_t_pair_mould
+  external :: fmm_stored_t_pair_mould
 
   if (fmm_included_pair(LHS,RHS,id)) then
     ! pour all relevant info into the T-pair mould

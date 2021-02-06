@@ -74,7 +74,7 @@ end subroutine fmm_free_W_contractors
 subroutine fmm_set_W_con_ptrs(old,new)
 
   implicit none
-  real(REALK), target, intent(in) :: old(:,:),new(:,:)
+  real(REALK), target, intent(in) :: old(:,:), new(:,:)
 
   if (W_con_stat /= 'initialised') call fmm_quit('no W_contractor preselected!')
   if (fmm_lock_W_con) call fmm_quit('W_buffer not empty! Cannot reset W_con!')
@@ -303,7 +303,7 @@ subroutine fmm_select_W_con(W_con_ID)
 
   implicit none
   integer(INTK), intent(in) :: W_con_ID
-  external fmm_store_w_contractor
+  external :: fmm_store_w_contractor
 
   if (.not. allocated(W_matrix)) call fmm_quit('W_matrix not allocated!')
 

@@ -70,7 +70,7 @@ do n=1,mxNqn
     write(lu,'(a,i2,a,a,i2,a,a)') ' (',n,tp(lqn0),'\261',n,tp(lqn1),') Label'
   end if
   do i=1,min(n-1,nLqn)
-    if ((n-i <= nOrb(i)).and.(n-i+1 <= nOrb(i-1))) then
+    if ((n-i <= nOrb(i)) .and. (n-i+1 <= nOrb(i-1))) then
       Oa = log10(Occ(iOff(i-1)+n-i+1))
       Ob = log10(Occ(iOff(i)+n-i))
       write(lu,'(i2,a,f7.4,a,i2,a,f7.4,a)') i-1,' X ',Oa,' Y ',i,' X ',Ob,' Y Connect'

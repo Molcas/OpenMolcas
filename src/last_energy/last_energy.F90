@@ -31,23 +31,23 @@ if (FoundLastEn) then
   call Get_cArray('LastEnergyMethod',Method,8)
 else
   call Get_cArray('Relax Method',Method,8)
-endIf
+end if
 
 call DecideOnESPF(Do_ESPF)
 
-if (Method(5:7) == 'SCF'    .or. &
-    Method(1:6) == 'KS-DFT' .or. &
-    Method(1:6) == 'CASSCF' .or. &
-    Method(1:6) == 'RASSCF' .or. &
-    Method(1:6) == 'CASPT2' .or. &
-    Method(1:5) == 'MBPT2'  .or. &
-    Method(1:5) == 'CCSDT'  .or. &
-    Method(1:4) == 'CHCC'   .or. &
-    Method(1:6) == 'MCPDFT' .or. &
-#ifdef _DMRG_
-    Method(1:7) == 'DMRGSCF'.or. &
-#endif
-    Method(1:4) == 'CHT3'   .or. &
+if (Method(5:7) == 'SCF'     .or. &
+    Method(1:6) == 'KS-DFT'  .or. &
+    Method(1:6) == 'CASSCF'  .or. &
+    Method(1:6) == 'RASSCF'  .or. &
+    Method(1:6) == 'CASPT2'  .or. &
+    Method(1:5) == 'MBPT2'   .or. &
+    Method(1:5) == 'CCSDT'   .or. &
+    Method(1:4) == 'CHCC'    .or. &
+    Method(1:6) == 'MCPDFT'  .or. &
+#   ifdef _DMRG_
+    Method(1:7) == 'DMRGSCF' .or. &
+#   endif
+    Method(1:4) == 'CHT3'    .or. &
     Method(1:8) == 'EXTERNAL') then
   continue
 else
@@ -66,7 +66,7 @@ call Disable_Spool()
 call Seward(iReturn)
 if (iReturn /= 0) then
   write(u6,*) 'Last_Energy failed ...'
-  write(u6,*)'SEWARD returned with return code, rc = ',iReturn
+  write(u6,*) 'SEWARD returned with return code, rc = ',iReturn
   call Abend()
 end if
 
@@ -88,8 +88,8 @@ end if
 
 if ((Method(5:7) == 'SCF' .and. Method(1:4) /= 'DMRG') .or. &
     Method(1:6) == 'KS-DFT' .or. &
-    Method(1:5) == 'MBPT2' .or. &
-    Method(1:4) == 'CHCC' .or. &
+    Method(1:5) == 'MBPT2'  .or. &
+    Method(1:4) == 'CHCC'   .or. &
     Method(1:4) == 'CHT3') then
   call StartLight('scf')
   call Disable_Spool()
@@ -117,7 +117,7 @@ else if (Method(1:6) == 'RASSCF' .or. &
 #ifdef _DMRG_
 else if (Method(1:7) == 'DMRGSCF') then
   call StartLight('dmrgscf')
-  Call Disable_Spool()
+  call Disable_Spool()
   call DMRGSCF(iReturn)
   if (iReturn /= 0) then
     write(u6,*) 'Last_Energy failed ...'
@@ -134,7 +134,7 @@ else if (Method(1:8) == 'EXTERNAL') then
     write(u6,*) 'FALSE returned with return code, rc = ',iReturn
     call Abend()
   end if
-end If
+end if
 
 if (Method(1:5) == 'MBPT2') then
   call StartLight('mbpt2')
@@ -167,7 +167,7 @@ if (Method(1:5) == 'CCSDT') then
   end if
 end if
 
-If (Method(1:4) == 'CHCC' .or. &
+if (Method(1:4) == 'CHCC' .or. &
     Method(1:4) == 'CHT3') then
   call StartLight('chcc')
   call Disable_Spool()

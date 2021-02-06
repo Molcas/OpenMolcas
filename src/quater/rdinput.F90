@@ -105,11 +105,11 @@ do
     exit
   else
     call SysAbendMsg('RdInput_Quater','Keyword not relevant : ',key)
-  endif
+  end if
 end do
 
-if (.not.AxisSet) then
-  if (.not.XYZ1Set) then
+if (.not. AxisSet) then
+  if (.not. XYZ1Set) then
     call SysAbendMsg('RdInput_Quater','Reference Axis not set','AXIS or XYZ1 Keyword mandatory')
   end if
 else
@@ -118,8 +118,8 @@ else
   end if
 end if
 
-if (.not.NewAxisSet) then
-  if (.not.XYZ2Set) then
+if (.not. NewAxisSet) then
+  if (.not. XYZ2Set) then
     call SysAbendMsg('RdInput_Quater','New Axis not set :','NEWAXIS or XYZ2 Keyword mandatory')
   end if
 else
@@ -128,15 +128,15 @@ else
   end if
 end if
 
-if (XYZ1Set.and..not.GEO1Set) then
+if (XYZ1Set .and. .not. GEO1Set) then
   call SysAbendMsg('RdInput_Quater','XYZ1 keyword requires GEO1 definition','')
 end if
 
-if (XYZ2Set.and..not.GEO2Set) then
+if (XYZ2Set .and. .not. GEO2Set) then
   call SysAbendMsg('RdInput_Quater','XYZ2 keyword requires GEO2 definition','')
 end if
 
-if (translate.and..not.(XYZ1Set.and.XYZ2Set)) then
+if (translate .and. .not.(XYZ1Set .and. XYZ2Set)) then
   call SysAbendMsg('RdInput_Quater','Translation cannot be done if both','XYZ1 and XYZ2 are not set')
 end if
 

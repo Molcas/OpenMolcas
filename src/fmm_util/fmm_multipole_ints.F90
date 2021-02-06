@@ -258,9 +258,9 @@ subroutine fmm_build_SphMpole(basis,batch,Ish,Jsh,NPrim,MaxMul)
   use fmm_car_to_sph, only: fmm_transform_car_to_sph
 
   implicit none
-  type(fmm_basis), intent(in) :: basis
+  type(fmm_basis), intent(in)      :: basis
   type(fmm_prim_batch), intent(in) :: batch(:)
-  integer(INTK), intent(in) :: Ish, Jsh, NPrim, MaxMul
+  integer(INTK), intent(in)        :: Ish, Jsh, NPrim, MaxMul
 
   !fixme
   real(REALK), parameter :: ThrInt = 1.0e-12_REALK

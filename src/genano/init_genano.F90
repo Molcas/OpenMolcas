@@ -44,7 +44,7 @@ do i=1,nAtoms
   if (LblCnt(i)(1:len(Center)) == Center) Found = .true.
 end do
 call mma_deallocate(LblCnt)
-if (.not.Found) then
+if (.not. Found) then
   call WarningMessage(2,'Center '//Center//' not found')
   call Quit_OnUserError()
 end if

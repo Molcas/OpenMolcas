@@ -76,8 +76,8 @@ end type PointNode
 ! efficient, memory-adapted, R-vector packed evaluation of the
 ! interaction pairs.
 type(PointNode), allocatable, target, save :: pack_inter_tree(:)
-integer(INTK), save                        :: pack_inter_tree_used
-integer(INTK), save                        :: pack_total_in_current_chunk
+integer(INTK), save :: pack_inter_tree_used
+integer(INTK), save :: pack_total_in_current_chunk
 
 contains
 !---------------------------------------------------------------------------
@@ -102,8 +102,8 @@ end subroutine fmm_tree_buffer_init
 
 subroutine fmm_tree_buffer_finish(pack_ev)
   implicit none
+  external :: pack_ev
   type(PointNode), pointer :: root
-  external pack_ev
 
   if (pack_inter_tree_used > 0) then
     root => pack_inter_tree(1)
@@ -119,7 +119,7 @@ end subroutine fmm_tree_buffer_finish
 subroutine fmm_tpack_process(root,pack_ev)
   implicit none
   type(PointNode), pointer :: root
-  external pack_ev
+  external                 :: pack_ev
 
   integer(INTK) :: i
 
@@ -179,7 +179,7 @@ recursive subroutine node_evaluator(node,level,pack_ev)
   implicit none
   type(PointNode), pointer  :: node
   integer(INTK), intent(in) :: level
-  external pack_ev   ! pair evaluator
+  external                  ::  pack_ev   ! pair evaluator
 
   real(REALK), save :: r(3)
 
@@ -274,7 +274,7 @@ end subroutine downheap
 subroutine fmm_tree_buffer_add(pack_ev,T_pair_in)
   implicit none
   type(T_pair_single), intent(in) :: T_pair_in
-  external pack_ev ! packed pair evaluator
+  external                        ::  pack_ev ! packed pair evaluator
 
   ! Local variables.
   type(PointNode), pointer :: node
@@ -311,7 +311,7 @@ subroutine fmm_tree_buffer_add(pack_ev,T_pair_in)
   new_T_pair%ratio = r_pq_scale
 
   if (pack_inter_tree_used == 0) then
-    call point_node_new(node,1_intk,direction,ll,lr,lm,NT,new_T_pair)
+    call point_node_new(node,1_INTK,direction,ll,lr,lm,NT,new_T_pair)
     return
   end if
 
@@ -363,8 +363,8 @@ subroutine fmm_interface_T_pair_out(pack_ev,r,node)
 
   implicit none
   type(PointNode), intent(in) :: node
-  real(REALK), intent(in) :: r(3)
-  external pack_ev
+  real(REALK), intent(in)     :: r(3)
+  external                    :: pack_ev
 
   type(T_pair_list) :: T_pairs_out
 

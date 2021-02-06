@@ -19,7 +19,7 @@ implicit none
 private
 
 type qcm_names
-character(len=256), allocatable :: states(:)
+  character(len=256), allocatable :: states(:)
 end type
 
 type(qcm_names), allocatable :: qcm_group_names(:)
@@ -69,9 +69,9 @@ subroutine qcmaquis_info_deinit
 
   integer(kind=iwp) :: i
 
-  if (.not.allocated(qcm_group_names)) return
+  if (.not. allocated(qcm_group_names)) return
   do i=1,size(qcm_group_names)
-    if (.not.allocated(qcm_group_names)) return
+    if (.not. allocated(qcm_group_names)) return
     if (allocated(qcm_group_names(i)%states)) call mma_deallocate(qcm_group_names(i)%states)
   end do
   call mma_deallocate(qcm_group_names)
@@ -80,14 +80,14 @@ subroutine qcmaquis_info_deinit
     ! Since this should never be executed, don't deallocate
     call mma_allocate(qcm_group_names,[0,0])
   end if
-#endif
+# endif
 
 end subroutine qcmaquis_info_deinit
 
 ! Private extension to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define qcm_cptr2loff, qcmn_mma_allo_1D, qcmn_mma_allo_1D_lim, qcmn_mma_free_1D
+! Define qcmn_cptr2loff, qcmn_mma_allo_1D, qcmn_mma_allo_1D_lim, qcmn_mma_free_1D
 #define _TYPE_ type(qcm_names)
 #  define _FUNC_NAME_ qcmn_cptr2loff
 #  include "cptr2loff_template.fh"

@@ -246,18 +246,18 @@ subroutine fmm_print_scheme()
 
   if (scheme%include_near_field) then
     select case (scheme%T_con%NF_T_buffer)
-    case (TREE_T_BUFFER)
-      write(LUPRI,*) 'Using Tree Buffer for NF T matrices.'
-    case (NULL_T_BUFFER)
-      write(LUPRI,*) 'Building all NF T matrices on the fly.'
-    case (SKIP_T_BUFFER)
-      write(LUPRI,*) 'Skipping all NF T matrix contractions.'
-    case (MULTI_T_BUFFER)
-      write(LUPRI,*) 'Using buffer for multiple NF T matrix build.'
-    case (SCALE_T_BUFFER)
-      write(LUPRI,*) 'Using buffer for scaled NF T matrix build.'
-    case default
-      call fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
+      case (TREE_T_BUFFER)
+        write(LUPRI,*) 'Using Tree Buffer for NF T matrices.'
+      case (NULL_T_BUFFER)
+        write(LUPRI,*) 'Building all NF T matrices on the fly.'
+      case (SKIP_T_BUFFER)
+        write(LUPRI,*) 'Skipping all NF T matrix contractions.'
+      case (MULTI_T_BUFFER)
+        write(LUPRI,*) 'Using buffer for multiple NF T matrix build.'
+      case (SCALE_T_BUFFER)
+        write(LUPRI,*) 'Using buffer for scaled NF T matrix build.'
+      case default
+        call fmm_quit('invalid T-vector buffer in fmm_print_scheme!')
     end select
   end if
 
