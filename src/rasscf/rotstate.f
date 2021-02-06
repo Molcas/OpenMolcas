@@ -115,7 +115,7 @@
       write(LURot,*) MatInfo
       Close(LUROT)
       if(IPRLEV.GE.DEBUG) Then
-       write(LF,'(6X,A)') 'Rotated Hamialtonian matrix '
+       write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
        write(LF,*) (Work(LHRot+jroot),jroot=0,NHRot-1)
       End if
 
