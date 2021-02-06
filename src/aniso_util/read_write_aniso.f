@@ -775,7 +775,8 @@ c compatibility with the present version: of aniso_i.input file
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       !-------------------------------------------------------------
-      ! Angular momentum operator in the basis of spin free states, component X,Y,Z
+      ! Angular momentum operator in the basis of spin free states,
+      ! component X,Y,Z
       WRITE(Lu,fmt_key)  '$angmom_xi'
       WRITE(Lu,fmt_int)  nstate, nstate
       WRITE(Lu,fmt_real) angmom(1,1:nstate,1:nstate)
@@ -792,8 +793,10 @@ c compatibility with the present version: of aniso_i.input file
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       !-------------------------------------------------------------
-      ! AMFI/SOMF operator in the basis of spin free states (see eq. 35 in [1]).
-      ! Note that the meaning of these matrices is different in MOLCAS and ORCA
+      ! AMFI/SOMF operator in the basis of spin free states
+      ! (see eq. 35 in [1]).
+      ! Note that the meaning of these matrices is different in
+      ! MOLCAS and ORCA
       WRITE(Lu,fmt_key)  '$amfi_x'
       WRITE(Lu,fmt_int)  nstate, nstate
       WRITE(Lu,fmt_real) amfi(1,1:nstate,1:nstate)
@@ -810,8 +813,10 @@ c compatibility with the present version: of aniso_i.input file
       WRITE(Lu,'(A)')
       FLUSH(Lu)
       !-------------------------------------------------------------
-      ! Electric transition-dipole moments in the basis of spin free states
-      ! The dipole moments, where bra and ket have the same state, are not computed. ??
+      ! Electric transition-dipole moments in the basis of spin
+      ! free states
+      ! The dipole moments, where bra and ket have the same state,
+      ! are not computed. ??
       WRITE(Lu,fmt_key)  '$edmom_x'
       WRITE(Lu,fmt_int)  nstate, nstate
       WRITE(Lu,fmt_real) edmom(1,1:nstate,1:nstate)
