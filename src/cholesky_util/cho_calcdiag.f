@@ -243,7 +243,7 @@ C     ----------------------------------------------
          Write(LuPri,'(3X,A,I10)')
      *   'Number of negative elements (this node):',n_NegCalcDiag_local
          If (n_NegCalcDiag_local.gt.0) Then
-            ll=min(n_NegCalcDiag_local,l_NegCalcDiag)
+            ll=min(n_NegCalcDiag_local,SIZE(NegCalcDiag))
             Write(LuPri,'(I5,A)')
      *      ll,' most negative elements (this node):'
             Write(LuPri,'(1P,10D12.4)')
@@ -254,7 +254,6 @@ C     ----------------------------------------------
      *   'Most negative element overall: ',NegCalcDiag(1)
       End If
       Call mma_deallocate(NegCalcDiag)
-      l_NegCalcDiag=0
 
       IF (IPRINT .GE. INFO_DEBUG) THEN
          CALL CHO_HEAD(SECNAM//': Diagonal Info','=',80,LUPRI)

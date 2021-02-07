@@ -295,7 +295,7 @@ C           -----------------------------------------------------------
                Call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
                Do iV = 1,nVecRS(iSym,iPass)
                   kOff0 = iOff2(iSym) + nnBstR(iSym,3)*(iV-1) - 1
-                  lOff0 = ip_VecTmp + nnBstR(iSym,2)*(iV-1) - 1
+                  lOff0 = nnBstR(iSym,2)*(iV-1)
                   Do kAB = 1,nnBstR(iSym,3)
                      jAB = IndRed(iiBstR(iSym,3)+kAB,3)
                      lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))

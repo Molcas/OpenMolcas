@@ -1,4 +1,4 @@
-************************************************************************
+
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -44,11 +44,10 @@
       Integer nOV, MaxNVec, ID_bj(*), NVec
       Real*8  thr, W(*), Dmax
 
-      Parameter (zero = 0.0d0, half = 0.5d0)
-#include "WrkSpc.fh"
-*******************************************************************
-      D(i) = Work(ipD+i)
-*******************************************************************
+#include "real.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: Diag(:)
 
 * Initialize
 * ----------
@@ -60,16 +59,15 @@
 
 * Allocate diagonal
 * -----------------
-      Call GetMem('Diag','Allo','Real',ipDiag,NOV)
-      ipD=ipDiag-1
+      Call mma_allocate(Diag,NOV,Label='Diag')
 
 * Compute diagonals
 * -----------------
       Do ip=1,nOV
          If (W(ip).gt.zero) Then
-            Work(ipD+ip)=half/W(ip)
+            Diag(ip)=half/W(ip)
          Else ! tbp: perhaps we should stop it here (matrix not PSD)
-            Work(ipD+ip)=zero
+            Diag(ip)=zero
          End If
       End Do
 
@@ -77,27 +75,28 @@
 * ----------------------------
       Jm=1
       Do ip=2,NOV
-         If (D(ip).gt.D(Jm)) Then
+         If (Diag(ip).gt.Diag(Jm)) Then
             Jm=ip
          End If
       End Do
 
 * Find CD pattern using the diagonal update:
-*   D(p)[k] = D(p)[k-1] * ((W(p) - W(J[k-1]))/(W(p) + W(J[k-1])))^2
+*   Diag(p)[k] = Diag(p)[k-1]
+*              * ((W(p) - W(J[k-1]))/(W(p) + W(J[k-1])))^2
 * -----------------------------------------------------------------
-      Do While (nVec.lt.MaxNVec .and. D(Jm).gt.thr)
+      Do While (nVec.lt.MaxNVec .and. Diag(Jm).gt.thr)
         ! update vector counter
         nVec=nVec+1
         ! save ID of vector = ID of current max diagonal
         ID_bj(nVec)=Jm
         ! update diagonals
         Do ip=1,nOV
-           Work(ipD+ip)=D(ip)*((W(ip)-W(Jm))/(W(ip)+W(Jm)))**2
+           Diag(ip)=Diag(ip)*((W(ip)-W(Jm))/(W(ip)+W(Jm)))**2
         End Do
         ! find ID (Jm) of max updated diagonal
         Jm=1
         Do ip=2,nOV
-           If (D(ip).gt.D(Jm)) Then
+           If (Diag(ip).gt.Diag(Jm)) Then
               Jm=ip
            End If
         End Do
@@ -105,11 +104,11 @@
 
 * Set max diagonal (Dmax) to return to caller
 * -------------------------------------------
-      Dmax=D(Jm)
+      Dmax=Diag(Jm)
 
 * Deallocate diagonal
 * -------------------
-      Call GetMem('Diag','Free','Real',ipDiag,NOV)
+      Call mma_deallocate(Diag)
 
       Return
       End

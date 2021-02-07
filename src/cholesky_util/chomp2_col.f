@@ -24,9 +24,8 @@ C
 #include "chomp2.fh"
 #include "WrkSpc.fh"
 
-      Character*3  ThisNm
-      Character*10 SecNam
-      Parameter (SecNam = 'ChoMP2_Col', ThisNm = 'Col')
+      Character(LEN=3), Parameter:: ThisNm = 'Col'
+      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Col'
 
       Integer iSym
 
@@ -71,7 +70,6 @@ C
 #include "chomp2_dec.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Integer iSym, bj_, bj, b, iSymb, j, iSymj, iSymi, iSyma, i, ai0
       Integer a, ai
@@ -113,12 +111,14 @@ C
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_IntCol', ThisNm = 'IntCol')
+      Character(LEN=6), Parameter:: ThisNm = 'IntCol'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_IntCol'
 
       Logical DoClose
+
+      Real*8, Allocatable:: Wrk(:)
 
       iSym = NowSym
       If (NumCho(iSym) .lt. 1) Then
@@ -147,7 +147,7 @@ C
             DoClose = .true.
          End If
 
-         Call GetMem('MaxCol','Max ','Real',ipWrk,lWrk)
+         Call mma_maxDBLE(lWrk)
 
          If (l_Buf .gt. lWrk) Then ! use Buf as work space
 
@@ -183,11 +183,11 @@ C
                lScr = l_Buf - lTot
                If (lWrk .gt. lScr) Then
                   lWsav = lWrk
-                  Call GetMem('ColScr','Allo','Real',ipWrk,lWrk)
+                  Call mma_allocate(Wrk,lWrk,Label='Wrk')
                   Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
      &                                 Buf(1),NumV,
-     &                                 Work(ipWrk),lWrk,Fac,irc)
-                  Call GetMem('ColScr','Free','Real',ipWrk,lWrk)
+     &                                 Wrk,lWrk,Fac,irc)
+                  Call mma_deallocate(Wrk)
                   lWrk = lWsav
                Else
                   Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
@@ -203,7 +203,7 @@ C
 
          Else ! use Work as work space
 
-            Call GetMem('ColWrk','Allo','Real',ipWrk,lWrk)
+            Call mma_allocate(Wrk,lWrk,Label='Wrk')
 
             nVec = min(lWrk/nDim,NumCho(iSym))
             If (nVec .lt. 1) Then
@@ -226,7 +226,7 @@ C
                iOpt = 2
                lTot = nDim*NumV
                iAdr = nDim*(iVec1 - 1) + 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,Work(ipWrk),lTot,iAdr)
+               Call ddaFile(lUnit_F(iSym,1),iOpt,Wrk,lTot,iAdr)
 
                If (iBat .eq. 1) Then
                   Fac = 0.0D0
@@ -237,12 +237,12 @@ C
                lScr = lWrk - lTot
                If (l_Buf .gt. lScr) Then
                   Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Work(ipWrk),NumV,
+     &                                 Wrk,NumV,
      &                                 Buf(1),l_Buf,Fac,irc)
                Else
                   Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                                 Work(ipWrk),NumV,
-     &                                 Work(ipWrk+lTot),lScr,Fac,irc)
+     &                                 Wrk,NumV,
+     &                                 Wrk(1+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then
                   Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
@@ -251,7 +251,7 @@ C
 
             End Do
 
-            Call GetMem('ColWrk','Free','Real',ipWrk,lWrk)
+            Call mma_deallocate(Wrk)
 
          End If
 
