@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE Dynamix(iReturn)
 #ifdef _HDF5_
@@ -35,19 +35,19 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       LOGICAL     Found,lHop
       INTEGER     VelVer, VV_First, VV_Second, Gromacs, VV_Dump
       PARAMETER   (au_time = CONST_AU_TIME_IN_SI_*1.0D15)
-      PARAMETER   (kb = CONST_BOLTZMANN_/
+      PARAMETER   (kb = CONST_BOLTZMANN_/                               &
      &             (CONV_AU_TO_KJ_*1.0D3))
       PARAMETER  (VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
       PARAMETER  (iQ1=1,iQ2=2,iX1=3,iX2=4,iVx1=5,iVx2=6)
       CHARACTER, ALLOCATABLE :: atom(:)*2
       REAL*8, ALLOCATABLE ::    Mass(:),vel(:),pcoo(:,:)
 
-*
+!
       iReturn=99
-*
-C
-C     Initialize Dynamix and set default values
-C
+!
+!
+!     Initialize Dynamix and set default values
+!
 #ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls Init_Dynamix.'
 #endif
@@ -55,10 +55,10 @@ C
 #ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from Init_Dynamix.'
 #endif
-C
+!
 
-C     Read the input
-C
+!     Read the input
+!
 #ifdef _HDF5_
       call cre_dyn
 #endif
@@ -69,11 +69,11 @@ C
 #ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from Readin_Dynamix.'
 #endif
-C
-C     Check if this is an initial run of Dynamix
-C
+!
+!     Check if this is an initial run of Dynamix
+!
       CALL Qpg_dScalar('MD_Time',Found)
-C
+!
 #ifdef _HDF5_
       if (.not.found .and. lH5Restart) then
          call restart_dynamix(file_h5res)
@@ -81,15 +81,15 @@ C
       endif
 #endif
 
-C     Generate or read velocities if this is an initial run
-C
+!     Generate or read velocities if this is an initial run
+!
       IF (.NOT.Found) THEN
-C     Check if the RESTART keyword was used.
+!     Check if the RESTART keyword was used.
          IF (RESTART.EQ.0.0D0) THEN
             time=0.000D0
          ELSE
             time=RESTART
-            WRITE(6,'(5X,A,T55,F9.2,A)') 'MD restart time = ',
+            WRITE(6,'(5X,A,T55,F9.2,A)') 'MD restart time = ',          &
      &                                    RESTART, ' a.u.'
          END IF
 
@@ -103,7 +103,7 @@ C     Check if the RESTART keyword was used.
          CALL Get_Name_Full(atom)
          CALL GetMassDx(Mass,natom)
 
-C Initialize Thermostat Variables
+! Initialize Thermostat Variables
 
          IF (THERMO.eq.2) THEN
             Freq = 1.D0/(2.2D1/au_time)
@@ -125,7 +125,7 @@ C Initialize Thermostat Variables
 
          END IF
 
-C Check if nuclear coordinates to project out from the dynamics
+! Check if nuclear coordinates to project out from the dynamics
          IF ((POUT.eq.0) .AND. (PIN.eq.natom*3)) THEN
             WRITE(6,'(5X,A,T55)') 'Dynamics in full dimensionality.'
          ELSE
@@ -133,12 +133,12 @@ C Check if nuclear coordinates to project out from the dynamics
             IF (POUT .NE. 0) THEN
               CALL mma_allocate(pcoo,POUT,natom*3)
               CALL DxRdOut(pcoo,POUT,natom)
-C Save on RUNFILE
+! Save on RUNFILE
               CALL Put_dArray('Proj_Coord',pcoo,POUT*natom*3)
             ELSEIF (PIN .NE. natom*3) THEN
               CALL mma_allocate(pcoo,PIN,natom*3)
               CALL DxRdIn(pcoo,PIN,natom)
-C Save on RUNFILE
+! Save on RUNFILE
               CALL Put_dArray('Keep_Coord',pcoo,PIN*natom*3)
             ENDIF
          ENDIF
@@ -146,7 +146,7 @@ C Save on RUNFILE
 
          IF (VELO.eq.1) THEN
             CALL DxRdVel(vel,natom)
-            WRITE(6,'(5X,A,T55)')
+            WRITE(6,'(5X,A,T55)')                                       &
      &      'The initial velocities (bohr/au) are read in.'
          ELSEIF (VELO.eq.2) THEN
             CALL DxRdVel(vel,natom)
@@ -155,20 +155,20 @@ C Save on RUNFILE
                   vel(3*(i-1)+j)=vel(3*(i-1)+j)/SQRT(Mass(i))
                END DO
             END DO
-            WRITE(6,'(5X,A,T55)')
+            WRITE(6,'(5X,A,T55)')                                       &
      &     'The initial mass weighted velocities (bohr/au) are read in.'
 
-C Maxwell-Boltzmann distribution
+! Maxwell-Boltzmann distribution
          ELSEIF (VELO.eq.3) THEN
             nFlag=0
             val=0.d0
             buffer=0.D0
 
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
-            WRITE(6,'(5X,A,T55)')
+            WRITE(6,'(5X,A,T55)')                                       &
      & 'The initial velocities (bohr/au) are taken '
-            WRITE(6,'(5X,A,f9.2,A)')
+            WRITE(6,'(5X,A,f9.2,A)')                                    &
      & 'from a Boltzmann distribution at', TEMP, ' kelvin'
 
             CALL getSeed(iseed)
@@ -181,7 +181,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
                   CALL RandomGauss(mean,Sigma,iseed,nflag,buffer,Val)
                   vel(3*(i-1)+j)= Val
 
-C                  WRITE(6,'(5X,A,T55,D16.8)') 'Vel = ', Val
+!                  WRITE(6,'(5X,A,T55,D16.8)') 'Vel = ', Val
 
                END DO
             END DO
@@ -189,24 +189,24 @@ C                  WRITE(6,'(5X,A,T55,D16.8)') 'Vel = ', Val
             DO i=1, 3*natom
                vel(i)=0.000000000000D0
             END DO
-            WRITE(6,'(5X,A,T55)')
+            WRITE(6,'(5X,A,T55)')                                       &
      &      'The initial velocities are set to zero.'
          END IF
          caption='Velocities'
-         CALL DxPtTableWithoutMassForce(caption,time,natom,
+         CALL DxPtTableWithoutMassForce(caption,time,natom,             &
      &        atom,vel)
 
-C Check if reduced dimensionality
+! Check if reduced dimensionality
          IF (POUT .NE. 0) THEN
            CALL project_out_vel(vel,natom)
          ELSEIF (PIN .NE. natom*3) THEN
            CALL project_in_vel(vel,natom)
            caption='Vel (red dim)'
-           CALL DxPtTableWithoutMassForce(caption,time,natom,
+           CALL DxPtTableWithoutMassForce(caption,time,natom,           &
      &        atom,vel)
          ENDIF
 
-C     Calculate the kinetic energy
+!     Calculate the kinetic energy
          IF (VELO.gt.0) THEN
             Ekin=0.000000000000D0
             DO i=1, natom
@@ -218,9 +218,9 @@ C     Calculate the kinetic energy
             Ekin=0.000000000000D0
          END IF
          WRITE(6,'(5X,A,6X,D19.12,1X,A)') 'Kinetic energy',Ekin,'a.u.'
-C     Save the velocities on RUNFILE
+!     Save the velocities on RUNFILE
          CALL Put_Velocity(vel,3*natom)
-C     Save the total energy on RUNFILE if the total energy should be conserved.
+!     Save the total energy on RUNFILE if the total energy should be conserved.
          CALL Get_dScalar('Last Energy',Epot)
          Etot0 = Epot + Ekin
          CALL Put_dScalar('MD_Etot0',Etot0)
@@ -240,9 +240,9 @@ C     Save the total energy on RUNFILE if the total energy should be conserved.
          ENDIF
       END IF
 
-C
-C     Execute the tasks
-C
+!
+!     Execute the tasks
+!
       DO iTask = 1, mTasks
 
          IF (Task(iTask).eq.VelVer) THEN
@@ -256,32 +256,32 @@ C
 #ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from VelVer_Second.'
 #endif
-C
-C     Check for Hopping?
-C
+!
+!     Check for Hopping?
+!
                lHop=.FALSE.
                CALL qpg_iScalar('MaxHops',lHop)
                IF (lHop) THEN
-C
-C     Read the roots
-C
+!
+!     Read the roots
+!
                   CALL Get_iScalar('Number of roots',nRoots)
                   CALL Get_iScalar('Relax CASSCF root',iRlxRoot)
-C
-C     Run RASSI
-C
+!
+!     Run RASSI
+!
                   LuInput=11
                   LuInput=IsFreeUnit(LuInput)
                   Call StdIn_Name(StdIn)
                   Call Molcas_Open(LuInput,StdIn)
-                  Write (LuInput,'(A)')
+                  Write (LuInput,'(A)')                                 &
      &                  '>export DYN_OLD_TRAP=$MOLCAS_TRAP'
                   Write (LuInput,'(A)') '>export MOLCAS_TRAP=ON'
                   Write (LuInput,'(A)') ' &RASSI &End'
                   Write (LuInput,'(A)') ' NR OF JOBIPHS'
                   Write (LuInput,*) ' 1 ',nRoots
                   Write (LuInput,*) (i,i=1,nRoots)
-*                  Write (LuInput,'(X,I1,1X,I1)') inxtState,iRlxRoot
+!                  Write (LuInput,'(X,I1,1X,I1)') inxtState,iRlxRoot
                   Write (LuInput,'(A)') ' HOP'
                   Write (LuInput,'(A)') 'End of Input'
                   Write (LuInput,'(A)') ' &Dynamix &End'
@@ -297,7 +297,7 @@ C
                   Write (LuInput,'(A)') 'IN'
                   Write (LuInput,*) PIN
                   Write (LuInput,'(A)') 'End of Input'
-                  Write (LuInput,'(A)')
+                  Write (LuInput,'(A)')                                 &
      &                  '>export MOLCAS_TRAP=$DYN_OLD_TRAP'
                   Close(LuInput)
                   Call Finish(_RC_INVOKED_OTHER_MODULE_)
@@ -339,9 +339,9 @@ C
          END IF
       END DO
 
-C
-C-----Remove the GRADS file
-C
+!
+!-----Remove the GRADS file
+!
       Call f_Inquire('GRADS',Found)
       If (Found) Then
          If (AixRm('GRADS').ne.0) Call Abend()
@@ -351,11 +351,11 @@ C
       call mh5_close_file(dyn_fileid)
 #endif
 
-C
-C-----If running in a DoWhile loop, we turn a successful
-C     return code into "continue loop", except on the
-C     last iteration
-C
+!
+!-----If running in a DoWhile loop, we turn a successful
+!     return code into "continue loop", except on the
+!     last iteration
+!
       If ((IsStructure().eq.1).and.(irc.eq.0)) Then
          MxItr=0
          Call GetEnvf('MOLCAS_MAXITER', ENV)
@@ -376,5 +376,5 @@ C
          iReturn=irc
       End If
       RETURN
-*
+!
       END

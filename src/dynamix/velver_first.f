@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Igor Schapiro                                    *
-************************************************************************
-C
-C *********************************************************************
-C *                                                                   *
-C * First part of the velocity Verlet algorithm, which calculates the *
-C * new positions for the next time step and the new velocities for   *
-C * a half time step. The algorithm is based on the example F4 from   *
-C * molecular dynamics bible of Allen and Tildesley.                  *
-C *                                                                   *
-C * 15/10/2006                                                        *
-C * Igor Schapiro                                                     *
-C *                                                                   *
-C *********************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Igor Schapiro                                    *
+!***********************************************************************
+!
+! *********************************************************************
+! *                                                                   *
+! * First part of the velocity Verlet algorithm, which calculates the *
+! * new positions for the next time step and the new velocities for   *
+! * a half time step. The algorithm is based on the example F4 from   *
+! * molecular dynamics bible of Allen and Tildesley.                  *
+! *                                                                   *
+! * 15/10/2006                                                        *
+! * Igor Schapiro                                                     *
+! *                                                                   *
+! *********************************************************************
 
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE VelVer_First(irc)
 #ifdef _HDF5_
@@ -45,26 +45,26 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       CHARACTER  caption*15, lastline*80, filname*80
       LOGICAL    hybrid,qmmm
-*
+!
       INTEGER    natom2
-*
+!
       REAL*8, ALLOCATABLE ::      vel(:),xyz(:),force(:)
       REAL*8, ALLOCATABLE ::      Mass(:),tstxyz(:)
       CHARACTER, ALLOCATABLE ::  atom(:)*2, atom2(:)*2
       REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
-*
+!
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
 
       WRITE(6,*)'*** First step of the Velocity Verlet algorithm ***'
-C
-C     Check for QM/MM calculation
-C
+!
+!     Check for QM/MM calculation
+!
       filname = 'comqum.dat'
       CALL F_INQUIRE(filname,hybrid)
       hybrid=.False.
-C
-C     Read atom, their coordinates and forces
-C
+!
+!     Read atom, their coordinates and forces
+!
       IF (hybrid) THEN
          WRITE(6,'(/,5X,A)') 'Perform QM/MM Molecular Dynamics'
          CALL DxRdNAtomHbrd(natom)
@@ -85,69 +85,69 @@ C
          CALL DxRdStnd(natom,atom,xyz,force)
       END IF
       CALL Get_dScalar('MD_time',time)
-C
-C     Read the velocities
-C
+!
+!     Read the velocities
+!
       CALL Get_Velocity(vel,3*natom)
-C
-C     Initialize the Mass variable
+!
+!     Initialize the Mass variable
       CALL GetMassDx(Mass,natom)
-C
-C Check if reduced dimensionality
+!
+! Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
         CALL project_out_for(force,natom)
       ELSEIF (PIN .NE. natom*3) THEN
         CALL project_in_for(force,natom)
       ENDIF
-C--------------------------------------------------------------------C
-C CANONICAL ENSEMBLE
-C--------------------------------------------------------------------C
+!--------------------------------------------------------------------C
+! CANONICAL ENSEMBLE
+!--------------------------------------------------------------------C
       IF (THERMO.eq.2) THEN
          call NhcThermo(vel)
       ENDIF
-C--------------------------------------------------------------------C
+!--------------------------------------------------------------------C
 
-C     Write out the old coordinates
-C
+!     Write out the old coordinates
+!
       CALL DxRdNAtomStnd(natom2)
       CALL mma_allocate(xyz2,natom*3)
       CALL mma_allocate(force2,natom*3)
       CALL mma_allocate(atom2,natom)
       CALL DxRdStnd(natom2,atom2,xyz2,force2)
-**      IF (iPrint.ge.VERBOSE) THEN
+!*      IF (iPrint.ge.VERBOSE) THEN
          caption = 'Old Coordinates'
          lastline = ''
-         CALL DxPtTableCo(caption,time,natom2,atom2,xyz2,lastline,
+         CALL DxPtTableCo(caption,time,natom2,atom2,xyz2,lastline,      &
      &        Mass,force)
-**      END IF
-C
-C     Definition of the time step
-C
+!*      END IF
+!
+!     Definition of the time step
+!
       DT_2  = DT / 2.0D0
       DTSQ2 = DT * DT_2
-*
+!
       Ekin = 0.0D0
       RMS = 0.0D0
       totimpl = 0.0D0
-*
+!
       DO i=1, natom
         DO j=1, 3
-*** Root mean square deviation ****************************
+!** Root mean square deviation ****************************
           tstxyz(3*(i-1)+j) = xyz(3*(i-1)+j)
-***********************************************************
-          xyz(3*(i-1)+j) = xyz(3*(i-1)+j) + DT *
+!**********************************************************
+          xyz(3*(i-1)+j) = xyz(3*(i-1)+j) + DT *                        &
      &    vel(3*(i-1)+j) + DTSQ2 * force(3*(i-1)+j) / Mass(i)
-***********************************************************
+!**********************************************************
           RMS=RMS+(tstxyz(3*(i-1)+j)-xyz(3*(i-1)+j))**2
-***********************************************************
+!**********************************************************
           Ekin = Ekin + 5.0D-01 * Mass(i) * (vel(3*(i-1)+j) ** 2)
-          vel(3*(i-1)+j) = vel(3*(i-1)+j) + DT_2 * force(3*(i-1)+j) /
+          vel(3*(i-1)+j) = vel(3*(i-1)+j) + DT_2 * force(3*(i-1)+j) /   &
      &       Mass(i)
           totimpl = totimpl + vel(3*(i-1)+j) * Mass(i)
         END DO
       END DO
 
-C Check if reduced dimensionality (should not be needed)
+! Check if reduced dimensionality (should not be needed)
       IF (POUT .NE. 0) THEN
         CALL project_out_vel(vel,natom)
       ELSEIF (PIN .NE. natom*3) THEN
@@ -157,10 +157,10 @@ C Check if reduced dimensionality (should not be needed)
       Call Add_Info('EKin',[EKin],1,6)
 
       RMS=SQRT(RMS/natom)
-C
-C     Update the Link-Atom position
-C     (Temporary solution uses ipCoord instead of xyz)
-C
+!
+!     Update the Link-Atom position
+!     (Temporary solution uses ipCoord instead of xyz)
+!
       qmmm = .False.
          Call DecideOnESPF(qmmm)
          If (qmmm) Then
@@ -170,11 +170,11 @@ C
             call dcopy_(3*natom,Work(ipCoord),1,xyz,1)
             Call Free_Work(ipCoord)
          End If
-C
-C     Output
-C
+!
+!     Output
+!
       IF (iPrint.ge.USUAL) THEN
-        WRITE(6,400) 'Molecular Dynamics specifications (time = ',
+        WRITE(6,400) 'Molecular Dynamics specifications (time = ',      &
      &                   time,' a.u.)'
         WRITE(6,'(5X,A,/)') '=========================================='
         WRITE(6,402) 'Kinetic energy',Ekin,'a.u.'
@@ -183,32 +183,32 @@ C
       END IF
 
       time = time + DT
-C
-C     Set the initialization flag and save the current time-value
-C
+!
+!     Set the initialization flag and save the current time-value
+!
       CALL Put_dScalar('MD_Time',time)
 #ifdef _HDF5_
       call mh5_put_dset(dyn_time,time)
 #endif
-C
-C     Write out the new coordinates
-C
+!
+!     Write out the new coordinates
+!
       caption = 'New Coordinates'
       lastline = ''
       CALL DxPtTableCo(caption,time,natom,atom,xyz,lastline,Mass,force)
-C
-C     Write coordinates to output file
-C
-*#ifdef _DEBUGPRINT_
-*      WRITE(6,*)' Dynamix calls 2 DxCoord.'
-*#endif
+!
+!     Write coordinates to output file
+!
+!#ifdef _DEBUGPRINT_
+!      WRITE(6,*)' Dynamix calls 2 DxCoord.'
+!#endif
       CALL DxCoord(natom,atom,xyz,hybrid)
-*#ifdef _DEBUGPRINT_
-*      WRITE(6,*)' Dynamix back from 2 DxCoord.'
-*#endif
-C
-C     Save the new coordinates
-C
+!#ifdef _DEBUGPRINT_
+!      WRITE(6,*)' Dynamix back from 2 DxCoord.'
+!#endif
+!
+!     Save the new coordinates
+!
       IF (hybrid) THEN
           call dscal_(natom*3,Angstrom,xyz,1)
           file=IsFreeUnit(81)
@@ -238,16 +238,16 @@ C
       CALL mma_deallocate(xyz2)
       CALL mma_deallocate(force2)
       CALL mma_deallocate(atom2)
-C
-C     The return code is set in order to continue the loop
-C
+!
+!     The return code is set in order to continue the loop
+!
       irc=_RC_ALL_IS_WELL_
-C
+!
  400  FORMAT(5X,A,F8.1,A)
  402  FORMAT(5X,A14,8X,D11.4,1X,A)
  403  FORMAT(/,I5)
  404  FORMAT(6F12.7)
  405  FORMAT(5X,A22,D11.4,1X,A)
-*
+!
       RETURN
       END

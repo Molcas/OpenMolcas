@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       SUBROUTINE RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
@@ -27,19 +27,19 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       LOGICAL lHop
       CHARACTER Title*72
 
-C
-C     Define local variables
-C
+!
+!     Define local variables
+!
       CHARACTER*180  Key, Line
       CHARACTER*180  Get_Ln
       EXTERNAL       Get_Ln
-C
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-C
+!
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!
       mTasks=0
-C
-C     Start of input
-C
+!
+!     Start of input
+!
       REWIND(LuSpool)
       CALL RdNLst(LuSpool,'Dynamix')
 
@@ -47,7 +47,7 @@ C
       Key = Get_Ln(LuSpool)
       Line = Key
       CALL UpCase(Line)
-*
+!
       IF (Line(1:4).eq.'TITL') GOTO 1100
       IF (Line(1:4).eq.'PRIN') GOTO 1101
       IF (Line(1:4).EQ.'VV_F') GOTO 1102
@@ -68,33 +68,33 @@ C
       IF (Line(1:2).EQ.'IN')   GOTO 1117
       IF (Line(1:3).EQ.'END')  GOTO 9000
 
-*>>>>>>>>>>>>>>>>>>>> TITL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> TITL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1100 CONTINUE
       Line = Get_Ln(LuSpool)
       CALL Get_S(1,Title,72)
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> PRIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> PRIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1101 CONTINUE
       Line = Get_Ln(LuSpool)
       CALL Get_I1(1,iPrint)
-*>>>>>>>>>>>>>>>>>>>> VV_First <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> VV_First <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1102 CONTINUE
       WRITE(6,*) ' VV_First 1'
       mTasks = mTasks + 1
       Task(mTasks) = VV_First
       WRITE(6,*) ' VV_First 2'
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> VV_Second <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> VV_Second <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1103 CONTINUE
       mTasks = mTasks + 1
       Task(mTasks) = VV_Second
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> VV_Dump <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> VV_Dump <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1104 CONTINUE
       mTasks = mTasks + 1
       Task(mTasks) = VV_Dump
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> THERmostat <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> THERmostat <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1105 CONTINUE
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading THERMO.'
@@ -105,7 +105,7 @@ C
       WRITE(6,*) ' Dynamix ends reading THERMO.'
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> VELOcities <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> VELOcities <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1106 CONTINUE
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading VELO.'
@@ -116,7 +116,7 @@ C
       WRITE(6,*) ' Dynamix ends reading VELO.'
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> DT   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> DT   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1107 CONTINUE
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading DT.'
@@ -131,23 +131,23 @@ C
       WRITE(6,*) ' Dynamix ends reading DT.'
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> GROM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> GROM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1108 CONTINUE
       mTasks = mTasks + 1
       Task(mTasks) = Gromacs
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> TIME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> TIME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1109 CONTINUE
       Line = Get_Ln(LuSpool)
       CALL Get_F1(1,TIME)
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> VelVer <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> VelVer <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1110 CONTINUE
-C     This is the keyword for Velocity Verlet algorithm
+!     This is the keyword for Velocity Verlet algorithm
       mTasks = mTasks + 1
       Task(mTasks) = VelVer
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> Hop    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> Hop    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1111 CONTINUE
       Line = Get_Ln(LuSpool)
       CALL Get_I1(1,maxHop)
@@ -160,7 +160,7 @@ C     This is the keyword for Velocity Verlet algorithm
       WRITE(6,*) ' lHop = ',lHop,'maxHop = ',maxHop
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> Restart <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> Restart <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1112 CONTINUE
       Line = Get_Ln(LuSpool)
 #ifdef _DEBUGPRINT_
@@ -172,7 +172,7 @@ C     This is the keyword for Velocity Verlet algorithm
       WRITE(6,*) ' Dynamix ends reading RESTART.'
 #endif
 
-*>>>>>>>>>>>>>>>>>>>> TEMPERATURE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> TEMPERATURE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1113 CONTINUE
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading Temperature.'
@@ -183,15 +183,15 @@ C     This is the keyword for Velocity Verlet algorithm
       WRITE(6,*) ' Dynamix ends reading Temperature.'
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> Isotope <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> Isotope <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1114 CONTINUE
       Write (6,*) 'ISOTope keyword is obsolete in DYNAMIX,'
       Write (6,*) 'use it in GATEWAY to specify isotopes/masses'
       CALL Abend()
       GOTO 999
-c      Write (6,*) 'Unknown keyword:', Key
-c      CALL Abend()
-*>>>>>>>>>>>>>>>>>>>> Restart from HDF5 file <<<<<<<<<<<<<<<<<<<<<<<<<
+!      Write (6,*) 'Unknown keyword:', Key
+!      CALL Abend()
+!>>>>>>>>>>>>>>>>>>>> Restart from HDF5 file <<<<<<<<<<<<<<<<<<<<<<<<<
  1115 CONTINUE
 #ifdef _HDF5_
       lH5Restart = .True.
@@ -204,7 +204,7 @@ c      CALL Abend()
       call Quit_OnUserError()
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> project OUT some coordinates <<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> project OUT some coordinates <<<<<<<<<<<<<<<<<<<<<<<
  1116 CONTINUE
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading OUT.'
@@ -215,7 +215,7 @@ c      CALL Abend()
       WRITE(6,*) ' Dynamix ends reading OUT.'
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> keep IN only some coordinates <<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> keep IN only some coordinates <<<<<<<<<<<<<<<<<<<<<<<
  1117 CONTINUE
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading IN.'
@@ -226,10 +226,10 @@ c      CALL Abend()
       WRITE(6,*) ' Dynamix ends reading IN.'
 #endif
       GOTO 999
-*>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  9000 CONTINUE
       WRITE (6,*)
-*
+!
 #ifdef _HDF5_
       CALL Get_nAtoms_All(natom)
       CALL mma_allocate(Mass,natom)
@@ -237,7 +237,7 @@ c      CALL Abend()
       CALL mh5_put_dset(dyn_mass,Mass)
       CALL mma_deallocate(Mass)
 #endif
-*
+!
       RETURN
-*
+!
       END

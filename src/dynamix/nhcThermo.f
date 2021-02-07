@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Felipe Zapata                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Felipe Zapata                                    *
+!***********************************************************************
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C The Nose-Hoover chain of thermostat is based on the following paper
-C Journal of Physical Chemistry B, 2001, 105, 7598
-C The implemetation required first initialized the thermostat, then
-C before calling the first part of velocity verlet the NHC is call,
-C then the positions and velocities are updated using the verlet_first
-C and after that the verlet_second is called and after this step
-C the NHC subroutine is call. The order must not be changed
-C
-C Felipe Zapata, November 1, 2012
-C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! The Nose-Hoover chain of thermostat is based on the following paper
+! Journal of Physical Chemistry B, 2001, 105, 7598
+! The implemetation required first initialized the thermostat, then
+! before calling the first part of velocity verlet the NHC is call,
+! then the positions and velocities are updated using the verlet_first
+! and after that the verlet_second is called and after this step
+! the NHC subroutine is call. The order must not be changed
+!
+! Felipe Zapata, November 1, 2012
+!
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       SUBROUTINE NhcThermo (vel)
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
@@ -42,26 +42,26 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       PARAMETER  (nh=6)
       INTEGER     natom,i,j
       REAL*8      Ekin,kb
-      PARAMETER   (kb = CONST_BOLTZMANN_/
+      PARAMETER   (kb = CONST_BOLTZMANN_/                               &
      &             (CONV_AU_TO_KJ_*1.0D3))
       REAL*8      NHC(nh), vel(*)
       REAL*8, ALLOCATABLE ::      Mass(:)
 
-*nh stands for the number of variables in the thermostat
-* NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
-*
-C
-C    The parameter kb is the Boltzmann constant in E_h/K
+!nh stands for the number of variables in the thermostat
+! NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
+!
+!
+!    The parameter kb is the Boltzmann constant in E_h/K
 
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
-CC READ PARAMETERS FROM RUNFILE
+!C READ PARAMETERS FROM RUNFILE
 
       CALL Get_nAtoms_Full(natom)
 
       CALL mma_allocate(Mass,natom)
 
-C     Read Thermostat Variables
+!     Read Thermostat Variables
       CALL Get_NHC(NHC,nh)
 
       Q1 = NHC(1)
@@ -71,7 +71,7 @@ C     Read Thermostat Variables
       Vx1 = NHC(5)
       Vx2 = NHC(6)
 
-C     Initialize the Mass variable
+!     Initialize the Mass variable
       CALL GetMassDx(Mass,natom)
 
       Ekin = 0.0D0
@@ -85,7 +85,7 @@ C     Initialize the Mass variable
 
 
 
-C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       DT2   = DT * 0.5D0
       DT4   = DT * 2.5D-1
