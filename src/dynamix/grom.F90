@@ -20,52 +20,51 @@
 ! *                                                                   *
 ! *********************************************************************
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+subroutine GROM(irc)
 
-      SUBROUTINE GROM(irc)
 #include "warnings.fh"
 #include "Molcas.fh"
 #include "prgm.fh"
 #include "stdalloc.fh"
-      PARAMETER   (ROUTINE='GROM')
+parameter(ROUTINE='GROM')
 #include "MD.fh"
 #include "WrkSpc.fh"
-      External    IsFreeUnit
-      INTEGER     natom,i,j,irc,file,IsFreeUnit
-      CHARACTER   filname*80
-      REAL*8, ALLOCATABLE ::     xyz(:),force(:)
-      CHARACTER, ALLOCATABLE ::  atom(:)*2
-!
-      IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
+external IsFreeUnit
+integer natom, i, j, irc, file, IsFreeUnit
+character filname*80
+real*8, allocatable :: xyz(:), force(:)
+character, allocatable :: atom(:)*2
 
-      WRITE(6,*)'**** Writes out Forces and Energies for Gromacs ****'
-!
-      CALL DxRdNAtomStnd(natom)
-      CALL mma_allocate(atom,natom)
-      CALL mma_allocate(xyz,natom*3)
-      CALL mma_allocate(force,natom*3)
-!
-!
-!     Read atom, their coordinates and forces
-!
-      CALL DxRdStnd(natom,atom,xyz,force)
-!
-!     Write the energies and forces to file
-!
-      file=IsFreeUnit(81)
-      filname='MOL2GROM'
-      Call Molcas_Open(file,filname)
-      WRITE(file,*) natom
-      DO i=1, natom
-         WRITE(file,'(3D20.10)') (force((i-1)*3+j),j=1,3)
-      ENDDO
-      CLOSE(file)
-!
-      CALL mma_deallocate(atom)
-      CALL mma_deallocate(xyz)
-      CALL mma_deallocate(force)
-!
-      irc=_RC_ALL_IS_WELL_
-      RETURN
-!
-      END
+if (IPRINT == INSANE) write(6,*) ' Entering ',ROUTINE
+
+write(6,*) '**** Writes out Forces and Energies for Gromacs ****'
+
+call DxRdNAtomStnd(natom)
+call mma_allocate(atom,natom)
+call mma_allocate(xyz,natom*3)
+call mma_allocate(force,natom*3)
+
+! Read atom, their coordinates and forces
+
+call DxRdStnd(natom,atom,xyz,force)
+
+! Write the energies and forces to file
+
+file = IsFreeUnit(81)
+filname = 'MOL2GROM'
+call Molcas_Open(file,filname)
+write(file,*) natom
+do i=1,natom
+  write(file,'(3D20.10)') (force((i-1)*3+j),j=1,3)
+end do
+close(file)
+
+call mma_deallocate(atom)
+call mma_deallocate(xyz)
+call mma_deallocate(force)
+
+irc = _RC_ALL_IS_WELL_
+
+return
+
+end subroutine GROM

@@ -21,67 +21,66 @@
 ! *                                                                   *
 ! *********************************************************************
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+subroutine project_in_vel(vel,natom)
 
-      SUBROUTINE project_in_vel(vel,natom)
-      IMPLICIT REAL*8 (a-h,o-z)
+implicit real*8(a-h,o-z)
 #include "prgm.fh"
 #include "warnings.fh"
 #include "Molcas.fh"
-      PARAMETER    (ROUTINE='VV_Second')
+parameter(ROUTINE='VV_Second')
 #include "MD.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "dyn.fh"
 #include "constants2.fh"
-      INTEGER                                   :: i,j,p
-      INTEGER                                   :: natom
-      REAL*8, ALLOCATABLE                       :: Mass(:)
-      REAL*8, DIMENSION(natom*3), INTENT(INOUT) :: vel
-      REAL*8, DIMENSION(natom*3)                :: vel_m, newvel_m
-      REAL*8, ALLOCATABLE                       :: pcoo(:,:),pcoo_m(:,:)
-      REAL*8                                    :: pvel
-!
-      CALL mma_allocate(pcoo,PIN,natom*3)
-      CALL mma_allocate(pcoo_m,PIN,natom*3)
-      CALL mma_allocate(Mass,natom)
+integer :: i, j, p
+integer :: natom
+real*8, allocatable :: Mass(:)
+real*8, dimension(natom*3), intent(inout) :: vel
+real*8, dimension(natom*3) :: vel_m, newvel_m
+real*8, allocatable :: pcoo(:,:), pcoo_m(:,:)
+real*8 :: pvel
 
-      CALL Get_dArray('Keep_Coord',pcoo,PIN*natom*3)
-      CALL GetMassDx(Mass,natom)
+call mma_allocate(pcoo,PIN,natom*3)
+call mma_allocate(pcoo_m,PIN,natom*3)
+call mma_allocate(Mass,natom)
 
-      newvel_m = 0.0d0
+call Get_dArray('Keep_Coord',pcoo,PIN*natom*3)
+call GetMassDx(Mass,natom)
+
+newvel_m = 0.0d0
 ! Mass-weight the velocity vector
-      DO i=1, natom
-        DO j=1, 3
-          vel_m(3*(i-1)+j) = vel(3*(i-1)+j)*sqrt(Mass(i))
-        ENDDO
-      ENDDO
+do i=1,natom
+  do j=1,3
+    vel_m(3*(i-1)+j) = vel(3*(i-1)+j)*sqrt(Mass(i))
+  end do
+end do
 
-      DO p = 1,PIN
-! Mass-weight the projection vector
-        DO i=1, natom
-          DO j=1, 3
-            pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)*sqrt(Mass(i))
-          ENDDO
-        ENDDO
-! normalise it (needed or not?)
-        pcoo_m(p,:) = pcoo_m(p,:)/                                      &
-     &    sqrt(dot_product(pcoo_m(p,:),pcoo_m(p,:)))
-! Calculate the projection to keep in
-        pvel = dot_product(pcoo_m(p,:),vel_m)
-        newvel_m = newvel_m + pvel*pcoo_m(p,:)
-      ENDDO
+do p=1,PIN
+  ! Mass-weight the projection vector
+  do i=1,natom
+    do j=1,3
+      pcoo_m(p,3*(i-1)+j) = pcoo(p,3*(i-1)+j)*sqrt(Mass(i))
+    end do
+  end do
+  ! normalise it (needed or not?)
+  pcoo_m(p,:) = pcoo_m(p,:)/sqrt(dot_product(pcoo_m(p,:),pcoo_m(p,:)))
+  ! Calculate the projection to keep in
+  pvel = dot_product(pcoo_m(p,:),vel_m)
+  newvel_m = newvel_m+pvel*pcoo_m(p,:)
+end do
 
 ! Un-Mass-weight the velocity vector
-      DO i=1, natom
-        DO j=1, 3
-          vel(3*(i-1)+j) = newvel_m(3*(i-1)+j)/sqrt(Mass(i))
-        ENDDO
-      ENDDO
+do i=1,natom
+  do j=1,3
+    vel(3*(i-1)+j) = newvel_m(3*(i-1)+j)/sqrt(Mass(i))
+  end do
+end do
 
-      CALL mma_deallocate(pcoo)
-      CALL mma_deallocate(pcoo_m)
-      CALL mma_deallocate(Mass)
+call mma_deallocate(pcoo)
+call mma_deallocate(pcoo_m)
+call mma_deallocate(Mass)
 
-      RETURN
-      END
+return
+
+end subroutine project_in_vel

@@ -8,14 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 ! Irgendein quatsch
+subroutine VelVer_Dump(irc)
 
-      SUBROUTINE VelVer_Dump(irc)
-      irc=0
+irc = 0
 
-!
 ! Keine Ahnung wofuer das ist
-!
-      WRITE(6,*)'Dump'
+write(6,*) 'Dump'
 
-      END
+end subroutine VelVer_Dump

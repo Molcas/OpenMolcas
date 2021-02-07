@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GetMassDx(Mass,natom)
-      USE Isotopes
-      IMPLICIT NONE
+
+subroutine GetMassDx(Mass,natom)
+
+use Isotopes
+
+implicit none
 #include "stdalloc.fh"
-      REAL*8, INTENT(INOUT) :: Mass(*)
-      INTEGER, INTENT(IN) :: natom
-      INTEGER :: matom,i,Iso
-      CHARACTER, ALLOCATABLE :: atom(:)*2
+real*8, intent(inout) :: Mass(*)
+integer, intent(in) :: natom
+integer :: matom, i, Iso
+character, allocatable :: atom(:)*2
 
-      CALL mma_allocate(atom,natom)
-      CALL Get_Name_Full(atom)
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
-      DO i=1,natom
-        IF (i.GT.matom) THEN
-          CALL LeftAd(atom(i))
-          Iso=0
-          CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
-      END DO
-      CALL mma_deallocate(atom)
+call mma_allocate(atom,natom)
+call Get_Name_Full(atom)
+call Get_nAtoms_All(matom)
+call Get_Mass_All(Mass,matom)
+do i=1,natom
+  if (i > matom) then
+    call LeftAd(atom(i))
+    Iso = 0
+    call Isotope(Iso,atom(i),Mass(i))
+  end if
+end do
+call mma_deallocate(atom)
 
-      END
+end subroutine GetMassDx

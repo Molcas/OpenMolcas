@@ -24,110 +24,102 @@
 !
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-      SUBROUTINE NhcThermo (vel)
+subroutine NhcThermo(vel)
+
 #ifdef _HDF5_
-      USE mh5, ONLY: mh5_put_dset
+use mh5, only: mh5_put_dset
 #endif
-      IMPLICIT REAL*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "prgm.fh"
 #include "Molcas.fh"
-      PARAMETER    (ROUTINE='NhcThermo')
+parameter(ROUTINE='NhcThermo')
 #include "warnings.fh"
 #include "MD.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "dyn.fh"
 #include "constants2.fh"
-      PARAMETER  (nh=6)
-      INTEGER     natom,i,j
-      REAL*8      Ekin,kb
-      PARAMETER   (kb = CONST_BOLTZMANN_/                               &
-     &             (CONV_AU_TO_KJ_*1.0D3))
-      REAL*8      NHC(nh), vel(*)
-      REAL*8, ALLOCATABLE ::      Mass(:)
+parameter(nh=6)
+integer natom, i, j
+real*8 Ekin, kb
+parameter(kb=CONST_BOLTZMANN_/(CONV_AU_TO_KJ_*1.0d3))
+real*8 NHC(nh), vel(*)
+real*8, allocatable :: Mass(:)
 
 !nh stands for the number of variables in the thermostat
 ! NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
 !
-!
-!    The parameter kb is the Boltzmann constant in E_h/K
+! The parameter kb is the Boltzmann constant in E_h/K
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! READ PARAMETERS FROM RUNFILE
 
-!C READ PARAMETERS FROM RUNFILE
+call Get_nAtoms_Full(natom)
 
-      CALL Get_nAtoms_Full(natom)
+call mma_allocate(Mass,natom)
 
-      CALL mma_allocate(Mass,natom)
+! Read Thermostat Variables
+call Get_NHC(NHC,nh)
 
-!     Read Thermostat Variables
-      CALL Get_NHC(NHC,nh)
+Q1 = NHC(1)
+Q2 = NHC(2)
+X1 = NHC(3)
+X2 = NHC(4)
+Vx1 = NHC(5)
+Vx2 = NHC(6)
 
-      Q1 = NHC(1)
-      Q2 = NHC(2)
-      X1 = NHC(3)
-      X2 = NHC(4)
-      Vx1 = NHC(5)
-      Vx2 = NHC(6)
+! Initialize the Mass variable
+call GetMassDx(Mass,natom)
 
-!     Initialize the Mass variable
-      CALL GetMassDx(Mass,natom)
+Ekin = 0.0d0
 
-      Ekin = 0.0D0
+do i=1,natom
+  do j=1,3
+    Ekin = Ekin+5.0D-01*Mass(i)*(vel(3*(i-1)+j)**2.d0)
+  end do
+end do
 
+DT2 = DT*0.5d0
+DT4 = DT*2.5D-1
+DT8 = DT*1.25D-1
 
-      DO i=1, natom
-        DO j=1, 3
-          Ekin = Ekin + 5.0D-01 * Mass(i) * (vel(3*(i-1)+j) ** 2.D0)
-        END DO
-      END DO
+G2 = (Q1*Vx1*Vx1-TEMP*kb)/Q2
+Vx2 = Vx2+G2*DT4
+Vx1 = Vx1*exp(-Vx2*DT8)
+G1 = (2.d0*Ekin-3.d0*dble(natom)*TEMP*kb)/Q1
+Vx1 = Vx1+G1*DT4
+Vx1 = Vx1*exp(-Vx2*DT8)
+sc = exp(-Vx1*DT2)
 
+do i=1,natom
+  do j=1,3
+    vel(3*(i-1)+j) = vel(3*(i-1)+j)*sc
+  end do
+end do
 
+Ekin = Ekin*sc*sc
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+X1 = X1+Vx1*DT2
+X2 = X2+Vx2*DT2
+Vx1 = Vx1*exp(-Vx2*DT8)
+G1 = (2.d0*Ekin-3.d0*dble(natom)*TEMP*kb)/Q1
+Vx1 = Vx1+G1*DT4
+Vx1 = Vx1*exp(-Vx2*DT8)
+G2 = (Q1*(Vx1**2.d0)-TEMP*kb)/Q2
+Vx2 = Vx2+G2*DT4
 
-      DT2   = DT * 0.5D0
-      DT4   = DT * 2.5D-1
-      DT8   = DT * 1.25D-1
+NHC(3) = X1
+NHC(4) = X2
+NHC(5) = Vx1
+NHC(6) = Vx2
 
-      G2 = (Q1*Vx1*Vx1 - TEMP*kb )/Q2
-      Vx2 = Vx2 + G2*DT4
-      Vx1 = Vx1 * exp(-Vx2*DT8)
-      G1 = (2.D0*Ekin - 3.D0*dble(natom)*TEMP*kb)/Q1
-      Vx1 = Vx1 + G1*DT4
-      Vx1 = Vx1 *exp(-Vx2*DT8)
-      sc  = exp(-Vx1*DT2)
-
-      DO i=1, natom
-          DO j=1, 3
-             vel(3*(i-1)+j) = vel(3*(i-1)+j)*sc
-          END DO
-      END DO
-
-      Ekin = Ekin*sc*sc
-
-      X1 = X1 + Vx1*DT2
-      X2 = X2 + Vx2*DT2
-      Vx1 = Vx1 * exp(-Vx2*DT8)
-      G1 = (2.D0*Ekin - 3.D0*dble(natom)*TEMP*kb)/Q1
-      Vx1  = Vx1 + G1*DT4
-      Vx1 = Vx1*exp(-Vx2*DT8)
-      G2 = (Q1*(Vx1**2.D0)- TEMP*kb )/Q2
-      Vx2 = Vx2 + G2*DT4
-
-      NHC(3) = X1
-      NHC(4) = X2
-      NHC(5) = Vx1
-      NHC(6) = Vx2
-
-      CALL Put_NHC(NHC,nh)
+call Put_NHC(NHC,nh)
 #ifdef _HDF5_
-      call mh5_put_dset(dyn_nh,NHC)
+call mh5_put_dset(dyn_nh,NHC)
 #endif
 
-      CALL mma_deallocate(Mass)
+call mma_deallocate(Mass)
 
-      RETURN
+return
 
-      END
+end subroutine NhcThermo

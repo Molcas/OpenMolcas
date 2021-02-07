@@ -29,560 +29,559 @@
 !      SUBROUTINE Put_NHC(NHC,nh)
 !***********************************************************************
 !
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! Read the number of atoms. This needs to be done separately, because
+! dynamic-size matrices depend on the result.
+
+subroutine DxRdNAtomStnd(natom)
+
+implicit none
+integer natom
+
+call Get_nAtoms_Full(natom)
+
+end subroutine DxRdNAtomStnd
+
+!***********************************************************************
 !
+! Read the number of atoms. This needs to be done separately, because
+! dynamic-size matrices depend on the result.
+
+subroutine DxRdNAtomHbrd(natom)
+
+implicit none
+external IsFreeUnit
+integer natom, file, IsFreeUnit
+character filname*80
+
+file = 81
+file = IsFreeUnit(file)
+filname = 'fixforce.dmx'
+call Molcas_Open(file,filname)
+read(file,100) natom
+close(file)
+
+return
+
+100 format(i6)
+
+end subroutine DxRdNAtomHbrd
+
+!***********************************************************************
 !
-!     Read the number of atoms. This needs to be done separately, because
-!     dynamic-size matrices depend on the result.
+! Read in the atom names, coordinates and forces from RUNFILE for
+! the standard QM molecular dynamics.
 !
-      SUBROUTINE DxRdNAtomStnd(natom)
-      IMPLICIT NONE
-      INTEGER natom
-      CALL Get_nAtoms_Full(natom)
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-!
-!     Read the number of atoms. This needs to be done separately, because
-!     dynamic-size matrices depend on the result.
-!
-      SUBROUTINE DxRdNAtomHbrd(natom)
-      IMPLICIT NONE
-      EXTERNAL IsFreeUnit
-      INTEGER natom,file,IsFreeUnit
-      CHARACTER filname*80
-      file=81
-      file=IsFreeUnit(file)
-      filname='fixforce.dmx'
-      Call Molcas_Open(file,filname)
-      READ(file,100) natom
-      CLOSE(file)
- 100  FORMAT(I6)
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE DxRdStnd(natom,atom,xyz,force)
-!
-!     Read in the atom names, coordinates and forces from RUNFILE for
-!     the standard QM molecular dynamics.
-!
-!     IS 14/06-2007
-!
-      IMPLICIT NONE
+! IS 14/06-2007
+
+subroutine DxRdStnd(natom,atom,xyz,force)
+
+implicit none
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-      INTEGER       natom
-      REAL*8        xyz(natom*3),force(natom*3),conv
-      CHARACTER     atom(natom)*2
-      PARAMETER     (conv=-1.0d0)
+integer natom
+real*8 xyz(natom*3), force(natom*3), conv
+character atom(natom)*2
+parameter(conv=-1.0d0)
+
+! The parameter conv converts the gradients (Hartree/Bohr)
+!                              to forces (Hartree/Bohr)
+
+call Get_Name_Full(atom)
+call Get_Coord_Full(xyz,natom)
+
+! Read the gradients from RUNFILE and convert them to forces.
+
+call Get_Grad_Full(force,natom)
+call dscal_(3*natom,conv,force,1)
+
+end subroutine DxRdStnd
+
+!***********************************************************************
 !
-!     The parameter conv converts the gradients (Hartree/Bohr)
-!                                  to forces (Hartree/Bohr)
-!
-      CALL Get_Name_Full(atom)
-      CALL Get_Coord_Full(xyz,natom)
-!
-!     Read the gradients from RUNFILE and convert them to forces.
-!
-      CALL Get_Grad_Full(force,natom)
-      call dscal_(3*natom,conv,force,1)
-!
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE DxRdHbrd(natom,atom,xyz,force)
-!
-!     Read in the atom names, coordinates and forces from files
-!     fixforce.dmx and prmcrd2.
-!
-      IMPLICIT NONE
+! Read in the atom names, coordinates and forces from files
+! fixforce.dmx and prmcrd2.
+
+subroutine DxRdHbrd(natom,atom,xyz,force)
+
+implicit none
 #include "Molcas.fh"
 #include "constants2.fh"
-      External IsFreeUnit
-      INTEGER       i,j,natom,natom2,file,IsFreeUnit
-      REAL*8        xyz(natom*3),force(natom*3),conv,a2bohr
-      CHARACTER     filname*80,atom(natom)*2
-      PARAMETER     (a2bohr=1.0d0/Angstrom)
-      PARAMETER     (conv=Angstrom/CONV_AU_TO_KJ_PER_MOLE_)
-!
-!     The parameter conv converts the forces from Hartree/Bohr
-!                        to kJ/mole/Agstrom   => 1/4961.475514610d0
-!                 a2bohr converts the coordinates from Angstrom
-!                        to Bohr              => 1/0.52917720859
-!
-      file=81
-      file=IsFreeUnit(file)
-      filname='fixforce.dmx'
-      Call Molcas_Open(file,filname)
-      READ(file,*)
-      DO i=1, natom
-         READ(file,101)(force((i-1)*3+j),j=1,3),atom(i)
-      END DO
-      CLOSE(file)
-!
-!     Convert forces from kJ/mole/Angstrom to Hartree/Bohr
-!
-      call dscal_(3*natom,conv,force,1)
-!
-!     Read coordinates from fiel 'prmcrd2' and check for consistency
-!     with forces.
-!
-      file=IsFreeUnit(file)
-      filname='prmcrd2'
-      Call Molcas_Open(file,filname)
-      READ(file,'(/,I6)') natom2
-      IF (natom2.ne.natom) STOP "Inconsistency between coordinates"
-      READ(file,102)(xyz(i),i=1,natom*3)
-      CLOSE(file)
-!
-!     Convert coordinates from Angstrom to Bohr
-!
-      call dscal_(3*natom,a2bohr,xyz,1)
+external IsFreeUnit
+integer i, j, natom, natom2, file, IsFreeUnit
+real*8 xyz(natom*3), force(natom*3), conv, a2bohr
+character filname*80, atom(natom)*2
+parameter(a2bohr=1.0d0/Angstrom)
+parameter(conv=Angstrom/CONV_AU_TO_KJ_PER_MOLE_)
 
- 101  FORMAT(3E21.14,A)
- 102  FORMAT(6F12.7)
+! The parameter conv converts the forces from Hartree/Bohr
+!                    to kJ/mole/Agstrom   => 1/4961.475514610d0
+!             a2bohr converts the coordinates from Angstrom
+!                    to Bohr              => 1/0.52917720859
 
-      RETURN
+file = 81
+file = IsFreeUnit(file)
+filname = 'fixforce.dmx'
+call Molcas_Open(file,filname)
+read(file,*)
+do i=1,natom
+  read(file,101) (force((i-1)*3+j),j=1,3),atom(i)
+end do
+close(file)
 
-      CALL Abend()
+! Convert forces from kJ/mole/Angstrom to Hartree/Bohr
 
-      END
+call dscal_(3*natom,conv,force,1)
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! Read coordinates from fiel 'prmcrd2' and check for consistency
+! with forces.
+
+file = IsFreeUnit(file)
+filname = 'prmcrd2'
+call Molcas_Open(file,filname)
+read(file,'(/,I6)') natom2
+if (natom2 /= natom) stop 'Inconsistency between coordinates'
+read(file,102) (xyz(i),i=1,natom*3)
+close(file)
+
+! Convert coordinates from Angstrom to Bohr
+
+call dscal_(3*natom,a2bohr,xyz,1)
+
+return
+
+101 format(3e21.14,a)
+102 format(6f12.7)
+
+end subroutine DxRdHbrd
+
+!***********************************************************************
 !
-      SUBROUTINE DxPtTableCo(caption,time,natom,atom,xyz,lastline,M,fo)
-!
-!     Prints a nice table in the output file
-!
-      IMPLICIT NONE
+! Prints a nice table in the output file
+
+subroutine DxPtTableCo(caption,time,natom,atom,xyz,lastline,M,fo)
+
+implicit none
 #include "Molcas.fh"
-      INTEGER     i,j,natom,k
-      CHARACTER   caption*15, lastline*80, atom(natom)*2
-      REAL*8      time,xyz(natom*3),M(natom),fo(natom*3)
+integer i, j, natom, k
+character caption*15, lastline*80, atom(natom)*2
+real*8 time, xyz(natom*3), M(natom), fo(natom*3)
 
-      DO i=1, 3
-        WRITE(6,*)
-      END DO
+do i=1,3
+  write(6,*)
+end do
 
-      WRITE(6,100) caption,' (time = ',time,' a.u.):'
-      WRITE(6,102)'-------------------------------------------------'// &
-     &            '---------------------------------------------'
-      WRITE(6,102)'      No. Atom    X          Y          Z        '// &
-     &            'Mass       F(x)         F(y)         F(z)'
-      WRITE(6,102)'-------------------------------------------------'// &
-     &            '---------------------------------------------'
+write(6,100) caption,' (time = ',time,' a.u.):'
+write(6,102) '----------------------------------------------------------------------------------------------'
+write(6,102) '      No. Atom    X          Y          Z        Mass       F(x)         F(y)         F(z)'
+write(6,102) '----------------------------------------------------------------------------------------------'
 
-      DO i=1, natom
-        WRITE(6,101) i,atom(i),(xyz(3*(i-1)+j),j=1,3)                   &
-     &              ,M(i),(fo(3*(i-1)+k),k=1,3)
-      END DO
+do i=1,natom
+  write(6,101) i,atom(i),(xyz(3*(i-1)+j),j=1,3),M(i),(fo(3*(i-1)+k),k=1,3)
+end do
 
-      WRITE(6,102)'-------------------------------------------------'// &
-     &            '---------------------------------------------'
-      WRITE(6,102) trim(lastline)
+write(6,102) '----------------------------------------------------------------------------------------------'
+write(6,102) trim(lastline)
 
-      DO i=1, 3
-       WRITE(6,*)
-      END DO
+do i=1,3
+  write(6,*)
+end do
 
- 100  FORMAT(A22,A7,F8.1,A)
- 101  FORMAT(6X,I4,A3,3(1X,F10.6),1X,ES9.2,3(1X,ES12.5))
- 102  FORMAT(1X,A)
+return
 
-      RETURN
+100 format(a22,a7,f8.1,a)
+101 format(6x,i4,a3,3(1x,f10.6),1x,es9.2,3(1x,es12.5))
+102 format(1x,a)
 
-      END
+end subroutine DxPtTableCo
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+!***********************************************************************
 !
-      SUBROUTINE DxPtTableWithoutMassForce(caption,time,natom,atom,xyz)
+! Prints a nice table in the output file for the initial velcoities
 !
-!     Prints a nice table in the output file for the initial velcoities
-!
-      IMPLICIT NONE
+subroutine DxPtTableWithoutMassForce(caption,time,natom,atom,xyz)
+
+implicit none
 #include "Molcas.fh"
-      INTEGER     i,j,natom
-      CHARACTER   caption*15, atom(natom)*2
-      REAL*8      time,xyz(natom*3)
+integer i, j, natom
+character caption*15, atom(natom)*2
+real*8 time, xyz(natom*3)
 
-      DO i=1, 3
-        WRITE(6,*)' '
-      END DO
+do i=1,3
+  write(6,*) ' '
+end do
 
-      WRITE(6,102) caption,' (time = ',time,' a.u.):'
-      WRITE(6,*)'----------------------------------------------'
-      WRITE(6,*)'     No.  Atom    X          Y          Z     '
-      WRITE(6,*)'----------------------------------------------'
+write(6,102) caption,' (time = ',time,' a.u.):'
+write(6,*) '----------------------------------------------'
+write(6,*) '     No.  Atom    X          Y          Z     '
+write(6,*) '----------------------------------------------'
 
-      DO i=1, natom
-        WRITE(6,103) '      ',i,atom(i),(xyz(3*(i-1)+j),j=1,3)
-      END DO
+do i=1,natom
+  write(6,103) '      ',i,atom(i),(xyz(3*(i-1)+j),j=1,3)
+end do
 
-      WRITE(6,*)'----------------------------------------------'
+write(6,*) '----------------------------------------------'
 
-      DO i=1, 3
-       WRITE(6,*)' '
-      END DO
+do i=1,3
+  write(6,*) ' '
+end do
 
- 102  FORMAT(A22,A7,F8.1,A)
- 103  FORMAT(A6,I4,A3,3F11.6)
+return
 
-      RETURN
+102 format(a22,a7,f8.1,a)
+103 format(a6,i4,a3,3f11.6)
 
-      END
+end subroutine DxPtTableWithoutMassForce
+
+!***********************************************************************
 !
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! This Subroutine reads in the coordinates to project out from the file 'out.00N.xyz'
 !
-      SUBROUTINE DxRdOut(pcoo,POUT,natom)
-!
-!     This Subroutine reads in the coordinates to project out from the file 'out.00N.xyz'
-!
-      IMPLICIT NONE
+subroutine DxRdOut(pcoo,POUT,natom)
+
+implicit none
 #include "stdalloc.fh"
 #include "real.fh"
-      EXTERNAL      IsFreeUnit
-      INTEGER       i,j,p,file,natom,POUT,IsFreeUnit,mn
-      REAL*8        pcoo(POUT,natom*3)
-      CHARACTER*80  filname
-      CHARACTER*180 OutLine, Get_Ln
-      REAL*8, ALLOCATABLE :: UMat(:,:),VMat(:,:),S(:),SqrtM(:)
-!
-      file=81
-      file=IsFreeUnit(file)
-      DO P=1,POUT
-        WRITE(filname,'(A,I3.3,A)') 'out.',p,'.xyz'
-        CALL Molcas_Open(file,filname)
-        DO i=1,natom
-          OutLine = Get_Ln(file)
-          CALL UpCase(OutLine)
-          DO j=1,3
-            pcoo(p,3*(i-1)+j)=0.0D0
-            CALL Get_F(j,pcoo(p,3*(i-1)+j),1)
-          END DO
-        END DO
-      END DO
-      CLOSE(file)
-!
-! Orthonormalize the vectors in mass-weighted coordinates
-!
-      CALL mma_Allocate(SqrtM,natom)
-      CALL GetMassDx(SqrtM,natom)
-      DO i=1, natom
-        SqrtM(i)=Sqrt(SqrtM(i))
-        j=3*(i-1)+1
-        pcoo(:,j:j+2)=pcoo(:,j:j+2)*SqrtM(i)
-      END DO
-      mn=MIN(POUT,3*natom)
-      CALL mma_Allocate(UMat,POUT,mn)
-      CALL mma_Allocate(VMat,mn,3*natom)
-      CALL mma_Allocate(S,mn)
-      CALL large_svd(POUT,3*natom,pcoo,UMat,VMat,S)
-      CALL dgemm_('N','N',POUT,3*natom,mn,One,UMat,POUT,VMat,mn,        &
-     &                                    Zero,pcoo,POUT)
-      DO i=1, natom
-        j=3*(i-1)+1
-        pcoo(:,j:j+2)=pcoo(:,j:j+2)/SqrtM(i)
-      END DO
-      CALL mma_deAllocate(UMat)
-      CALL mma_deAllocate(VMat)
-      CALL mma_deAllocate(S)
-      CALL mma_deAllocate(SqrtM)
-!
-      RETURN
+external IsFreeUnit
+integer i, j, p, file, natom, POUT, IsFreeUnit, mn
+real*8 pcoo(POUT,natom*3)
+character*80 filname
+character*180 OutLine, Get_Ln
+real*8, allocatable :: UMat(:,:), VMat(:,:), S(:), SqrtM(:)
 
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE DxRdIn(pcoo,PIN,natom)
+file = 81
+file = IsFreeUnit(file)
+do P=1,POUT
+  write(filname,'(A,I3.3,A)') 'out.',p,'.xyz'
+  call Molcas_Open(file,filname)
+  do i=1,natom
+    OutLine = Get_Ln(file)
+    call UpCase(OutLine)
+    do j=1,3
+      pcoo(p,3*(i-1)+j) = 0.0d0
+      call Get_F(j,pcoo(p,3*(i-1)+j),1)
+    end do
+  end do
+end do
+close(file)
+
+! Orthonormalize the vectors in mass-weighted coordinates
+
+call mma_Allocate(SqrtM,natom)
+call GetMassDx(SqrtM,natom)
+do i=1,natom
+  SqrtM(i) = sqrt(SqrtM(i))
+  j = 3*(i-1)+1
+  pcoo(:,j:j+2) = pcoo(:,j:j+2)*SqrtM(i)
+end do
+mn = min(POUT,3*natom)
+call mma_Allocate(UMat,POUT,mn)
+call mma_Allocate(VMat,mn,3*natom)
+call mma_Allocate(S,mn)
+call large_svd(POUT,3*natom,pcoo,UMat,VMat,S)
+call dgemm_('N','N',POUT,3*natom,mn,One,UMat,POUT,VMat,mn,Zero,pcoo,POUT)
+do i=1,natom
+  j = 3*(i-1)+1
+  pcoo(:,j:j+2) = pcoo(:,j:j+2)/SqrtM(i)
+end do
+call mma_deAllocate(UMat)
+call mma_deAllocate(VMat)
+call mma_deAllocate(S)
+call mma_deAllocate(SqrtM)
+
+return
+
+end subroutine DxRdOut
+
+!***********************************************************************
 !
 !     This Subroutine reads in the coordinates to keep in from the file 'in.00N.xyz'
 !
-      IMPLICIT NONE
+subroutine DxRdIn(pcoo,PIN,natom)
+
+implicit none
 #include "stdalloc.fh"
 #include "real.fh"
-      EXTERNAL      IsFreeUnit
-      INTEGER       i,j,p,file,natom,PIN,IsFreeUnit,mn
-      REAL*8        pcoo(PIN,natom*3)
-      CHARACTER*80  filname
-      CHARACTER*180 OutLine, Get_Ln
-      REAL*8, ALLOCATABLE :: UMat(:,:),VMat(:,:),S(:),SqrtM(:)
-!
-      file=81
-      file=IsFreeUnit(file)
-      DO P=1,PIN
-        WRITE(filname,'(A,I3.3,A)') 'in.',p,'.xyz'
-        CALL Molcas_Open(file,filname)
-        DO i=1,natom
-          OutLine = Get_Ln(file)
-          CALL UpCase(OutLine)
-          DO j=1,3
-            pcoo(p,3*(i-1)+j)=0.0D0
-            CALL Get_F(j,pcoo(p,3*(i-1)+j),1)
-          END DO
-        END DO
-      END DO
-      CLOSE(file)
-!
-! Orthonormalize the vectors in mass-weighted coordinates
-!
-      CALL mma_Allocate(SqrtM,natom)
-      CALL GetMassDx(SqrtM,natom)
-      DO i=1, natom
-        SqrtM(i)=Sqrt(SqrtM(i))
-        j=3*(i-1)+1
-        pcoo(:,j:j+2)=pcoo(:,j:j+2)*SqrtM(i)
-      END DO
-      mn=MIN(PIN,3*natom)
-      CALL mma_Allocate(UMat,PIN,mn)
-      CALL mma_Allocate(VMat,mn,3*natom)
-      CALL mma_Allocate(S,mn)
-      CALL large_svd(PIN,3*natom,pcoo,UMat,VMat,S)
-      CALL dgemm_('N','N',PIN,3*natom,mn,One,UMat,PIN,VMat,mn,          &
-     &                                    Zero,pcoo,PIN)
-      DO i=1, natom
-        j=3*(i-1)+1
-        pcoo(:,j:j+2)=pcoo(:,j:j+2)/SqrtM(i)
-      END DO
-      CALL mma_deAllocate(UMat)
-      CALL mma_deAllocate(VMat)
-      CALL mma_deAllocate(S)
-      CALL mma_deAllocate(SqrtM)
-!
-      RETURN
+external IsFreeUnit
+integer i, j, p, file, natom, PIN, IsFreeUnit, mn
+real*8 pcoo(PIN,natom*3)
+character*80 filname
+character*180 OutLine, Get_Ln
+real*8, allocatable :: UMat(:,:), VMat(:,:), S(:), SqrtM(:)
 
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE DxRdVel(vel,natom)
+file = 81
+file = IsFreeUnit(file)
+do P=1,PIN
+  write(filname,'(A,I3.3,A)') 'in.',p,'.xyz'
+  call Molcas_Open(file,filname)
+  do i=1,natom
+    OutLine = Get_Ln(file)
+    call UpCase(OutLine)
+    do j=1,3
+      pcoo(p,3*(i-1)+j) = 0.0d0
+      call Get_F(j,pcoo(p,3*(i-1)+j),1)
+    end do
+  end do
+end do
+close(file)
+
+! Orthonormalize the vectors in mass-weighted coordinates
+
+call mma_Allocate(SqrtM,natom)
+call GetMassDx(SqrtM,natom)
+do i=1,natom
+  SqrtM(i) = sqrt(SqrtM(i))
+  j = 3*(i-1)+1
+  pcoo(:,j:j+2) = pcoo(:,j:j+2)*SqrtM(i)
+end do
+mn = min(PIN,3*natom)
+call mma_Allocate(UMat,PIN,mn)
+call mma_Allocate(VMat,mn,3*natom)
+call mma_Allocate(S,mn)
+call large_svd(PIN,3*natom,pcoo,UMat,VMat,S)
+call dgemm_('N','N',PIN,3*natom,mn,One,UMat,PIN,VMat,mn,Zero,pcoo,PIN)
+do i=1,natom
+  j = 3*(i-1)+1
+  pcoo(:,j:j+2) = pcoo(:,j:j+2)/SqrtM(i)
+end do
+call mma_deAllocate(UMat)
+call mma_deAllocate(VMat)
+call mma_deAllocate(S)
+call mma_deAllocate(SqrtM)
+
+return
+
+end subroutine DxRdIn
+
+!***********************************************************************
 !
 !     This Subroutine reads in the velocities from the file 'velocity.xyz'
 !
-      IMPLICIT NONE
+subroutine DxRdVel(vel,natom)
+
+implicit none
 #include "Molcas.fh"
-      EXTERNAL      IsFreeUnit
-      INTEGER       i,j,file,natom,IsFreeUnit
-      REAL*8        vel(natom*3)
-      CHARACTER*80  filname
-      CHARACTER*180 VelLine, Get_Ln
-!
-      file=81
-      file=IsFreeUnit(file)
-      filname='velocity.xyz'
-      CALL Molcas_Open(file,filname)
-      DO i=1,natom
-        VelLine = Get_Ln(file)
-        CALL UpCase(VelLine)
-        DO j=1,3
-          vel(3*(i-1)+j)=0.0D0
-          CALL Get_F(j,vel(3*(i-1)+j),1)
-        END DO
-      END DO
-!      READ(file,100)(vel(i),i=1,3*natom3)
-      CLOSE(file)
-!
-!100  FORMAT(3D18.10)
+external IsFreeUnit
+integer i, j, file, natom, IsFreeUnit
+real*8 vel(natom*3)
+character*80 filname
+character*180 VelLine, Get_Ln
 
-      RETURN
+file = 81
+file = IsFreeUnit(file)
+filname = 'velocity.xyz'
+call Molcas_Open(file,filname)
+do i=1,natom
+  VelLine = Get_Ln(file)
+  call UpCase(VelLine)
+  do j=1,3
+    vel(3*(i-1)+j) = 0.0d0
+    call Get_F(j,vel(3*(i-1)+j),1)
+  end do
+end do
+!read(file,100) (vel(i),i=1,3*natom3)
+close(file)
 
-      END
+return
+
+!100 format(3e18.10)
+
+end subroutine DxRdVel
+
+!***********************************************************************
 !
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! This Subroutine writes the velocities to the file 'velocity.xyz'
 !
-      SUBROUTINE DxWtVel(vel,natom3)
-!
-!     This Subroutine writes the velocities to the file 'velocity.xyz'
-!
-      IMPLICIT NONE
+subroutine DxWtVel(vel,natom3)
+
+implicit none
 #include "Molcas.fh"
-      EXTERNAL    IsFreeUnit
-      INTEGER     i,file,natom3,IsFreeUnit
-      REAL*8      vel(natom3)
-      CHARACTER*80  filname
+external IsFreeUnit
+integer i, file, natom3, IsFreeUnit
+real*8 vel(natom3)
+character*80 filname
 
-      file=81
-      file=IsFreeUnit(file)
-      filname='velocity.xyz'
-      CALL Molcas_Open(file,filname)
-      WRITE(file,100)(vel(i),i=1,natom3)
-      CLOSE(file)
+file = 81
+file = IsFreeUnit(file)
+filname = 'velocity.xyz'
+call Molcas_Open(file,filname)
+write(file,100) (vel(i),i=1,natom3)
+close(file)
 
- 100  FORMAT(3D18.10)
+return
 
-      RETURN
+100 format(3e18.10)
 
-      END
+end subroutine DxWtVel
+
+!***********************************************************************
 !
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! Write the coordinates to a file in xyz format
 !
-      SUBROUTINE DxCoord(natom,atom,xyz,hybrid)
-!
-!     Write the coordinates to a file in xyz format
-!
-      IMPLICIT NONE
+subroutine DxCoord(natom,atom,xyz,hybrid)
+
+implicit none
 #include "Molcas.fh"
 #include "MD.fh"
 #include "constants2.fh"
-      External IsFreeUnit
-      INTEGER     i,j,file,natom,IsFreeUnit
-      REAL*8      xyz(natom*3)
-      CHARACTER   atom(natom)*2,filename*9
-      LOGICAL     hybrid,Exist
-!
-      IF (.NOT.hybrid) THEN
-         file=82
-         file=IsFreeUnit(file)
-         filename='md.xyz'
-         CALL OpnFl(filename,file,Exist)
-         CALL Append_file(file)
-         WRITE(file,'(I5,/)') natom
-         DO i=1, natom
-            WRITE(file,100) atom(i),(Angstrom*xyz(3*(i-1)+j),j=1,3)
-         END DO
-         CLOSE(file)
-      ELSE
-         file=IsFreeUnit(file)
-         filename='md.prmcrd'
-         CALL OpnFl(filename,file,Exist)
-         CALL Append_file(file)
-         WRITE(file,'(/,I6)') natom
-         WRITE(file,'(6F12.7)') (Angstrom*xyz(i),i=1,3*natom)
-         CLOSE(file)
-         file=IsFreeUnit(file)
-         filename='vmd.mdcrd'
-         CALL OpnFl(filename,file,Exist)
-         CALL Append_file(file)
-         WRITE(file,'(10F8.3)') (Angstrom*xyz(i),i=1,3*natom)
-         CLOSE(file)
-      ENDIF
- 100  FORMAT(1X,A2,3F15.8)
-      RETURN
+external IsFreeUnit
+integer i, j, file, natom, IsFreeUnit
+real*8 xyz(natom*3)
+character atom(natom)*2, filename*9
+logical hybrid, Exist
 
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE DxEnergies(time,Epot,Ekin,Etot)
-!
-!     Write out a summary of energies in CSV format
-!
-      IMPLICIT NONE
-      External IsFreeUnit
-#include "WrkSpc.fh"
-      INTEGER      file,nEnergies,i,n,ipEnergies
-      INTEGER      IsFreeUnit
-      REAL*8       time,Epot,Ekin,Etot
-      CHARACTER    filename*12,frmt*24
-      LOGICAL      Exist,RootCheck
-!
-      filename='md.energies'
-!
-      RootCheck=.False.
-!
-      CALL Qpg_iScalar('Relax CASSCF root',RootCheck)
-!
-      file=82
-      file=IsFreeUnit(file)
-      CALL OpnFl(filename,file,Exist)
-      CALL Append_file(file)
-      IF (.NOT.Exist) THEN
-         WRITE(file,'(3X,A4,10X,A4,2(17X,A4))') 'time','Epot',          &
-     &                                          'Ekin','Etot'
-      END IF
-      frmt='(F8.2, (2X,D19.12))'
-!
-      IF (RootCheck) THEN
-         CALL Get_iScalar('Number of roots',nEnergies)
-         CALL GetMem('MS energies','ALLO','REAL',ipEnergies,nEnergies)
-         CALL Get_dArray('Last energies',Work(ipEnergies),nEnergies)
-         n = nEnergies + 3
-         WRITE(frmt(7:7),'(I1)') n
-         WRITE(file,frmt) time,Epot,Ekin,Etot,                          &
-     &                   (Work(ipEnergies-1+i),i=1,nEnergies)
-         CALL GetMem('MS energies','FREE','REAL',ipEnergies,nEnergies)
-      ELSE
-         n = 3
-         WRITE(frmt(7:7),'(I1)') n
-         WRITE(file,frmt) time,Epot,Ekin,Etot
-      END IF
-      CLOSE(file)
-      RETURN
+if (.not. hybrid) then
+  file = 82
+  file = IsFreeUnit(file)
+  filename = 'md.xyz'
+  call OpnFl(filename,file,Exist)
+  call Append_file(file)
+  write(file,'(I5,/)') natom
+  do i=1,natom
+    write(file,100) atom(i),(Angstrom*xyz(3*(i-1)+j),j=1,3)
+  end do
+  close(file)
+else
+  file = IsFreeUnit(file)
+  filename = 'md.prmcrd'
+  call OpnFl(filename,file,Exist)
+  call Append_file(file)
+  write(file,'(/,I6)') natom
+  write(file,'(6F12.7)') (Angstrom*xyz(i),i=1,3*natom)
+  close(file)
+  file = IsFreeUnit(file)
+  filename = 'vmd.mdcrd'
+  call OpnFl(filename,file,Exist)
+  call Append_file(file)
+  write(file,'(10F8.3)') (Angstrom*xyz(i),i=1,3*natom)
+  close(file)
+end if
 
-      END
+return
+
+100 format(1x,a2,3f15.8)
+
+end subroutine DxCoord
+
+!***********************************************************************
 !
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
+! Write out a summary of energies in CSV format
 !
-      SUBROUTINE Put_Velocity(vel,natom3)
-      IMPLICIT NONE
+subroutine DxEnergies(time,Epot,Ekin,Etot)
+implicit none
+external IsFreeUnit
 #include "WrkSpc.fh"
-#include "Molcas.fh"
-      INTEGER      natom3
-      REAL*8       vel(natom3)
+integer file, nEnergies, i, n, ipEnergies
+integer IsFreeUnit
+real*8 time, Epot, Ekin, Etot
+character filename*12, frmt*24
+logical Exist, RootCheck
+
+filename = 'md.energies'
+
+RootCheck = .false.
+
+call Qpg_iScalar('Relax CASSCF root',RootCheck)
+
+file = 82
+file = IsFreeUnit(file)
+call OpnFl(filename,file,Exist)
+call Append_file(file)
+if (.not. Exist) then
+  write(file,'(3X,A4,10X,A4,2(17X,A4))') 'time','Epot','Ekin','Etot'
+end if
+frmt = '(F8.2, (2X,D19.12))'
+
+if (RootCheck) then
+  call Get_iScalar('Number of roots',nEnergies)
+  call GetMem('MS energies','ALLO','REAL',ipEnergies,nEnergies)
+  call Get_dArray('Last energies',Work(ipEnergies),nEnergies)
+  n = nEnergies+3
+  write(frmt(7:7),'(I1)') n
+  write(file,frmt) time,Epot,Ekin,Etot,(Work(ipEnergies-1+i),i=1,nEnergies)
+  call GetMem('MS energies','FREE','REAL',ipEnergies,nEnergies)
+else
+  n = 3
+  write(frmt(7:7),'(I1)') n
+  write(file,frmt) time,Epot,Ekin,Etot
+end if
+close(file)
+
+return
+
+end subroutine DxEnergies
+
+!***********************************************************************
 !
 !     Writes the velocities on RUNFILE
 !
-      CALL Put_dArray('Velocities',vel,natom3)
-!      CALL GetMem('Velocities','FREE','REAL',vel,natom3)
-      RETURN
-!
-      END
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE Get_Velocity(vel,natom3)
-      IMPLICIT NONE
-#include "WrkSpc.fh"
-#include "Molcas.fh"
-      INTEGER      natom3
-      REAL*8       vel(natom3)
-!
-!     Reads the velocities from RUNFILE
-!
-!      CALL GetMem('Velocities','ALLO','REAL',vel,natom3)
-      CALL Get_dArray('Velocities',vel,natom3)
-!
-      RETURN
-!
-      END
-!
+subroutine Put_Velocity(vel,natom3)
 
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE Get_NHC(NHC,nh)
-      IMPLICIT NONE
+implicit none
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      INTEGER      nh
-      REAL*8       NHC(nh)
+integer natom3
+real*8 vel(natom3)
+
+call Put_dArray('Velocities',vel,natom3)
+!call GetMem('Velocities','FREE','REAL',vel,natom3)
+
+return
+
+end subroutine Put_Velocity
+
+!***********************************************************************
+!
+! Reads the velocities from RUNFILE
+!
+subroutine Get_Velocity(vel,natom3)
+
+implicit none
+#include "WrkSpc.fh"
+#include "Molcas.fh"
+integer natom3
+real*8 vel(natom3)
+
+!call GetMem('Velocities','ALLO','REAL',vel,natom3)
+call Get_dArray('Velocities',vel,natom3)
+
+return
+
+end subroutine Get_Velocity
+
+!***********************************************************************
 !
 !     Reads the extra degrees of freedom from RUNFILE
 !
-!      CALL GetMem('NOSEHOOVER','ALLO','REAL',NHC,nh)
-      CALL Get_dArray('NOSEHOOVER',NHC,nh)
-!
-      RETURN
-!
-      END
-!
-!
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
-!
-      SUBROUTINE Put_NHC(NHC,nh)
-      IMPLICIT NONE
+subroutine Get_NHC(NHC,nh)
+
+implicit none
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      INTEGER      nh
-      REAL*8       NHC(nh)
+integer nh
+real*8 NHC(nh)
+
+!call GetMem('NOSEHOOVER','ALLO','REAL',NHC,nh)
+call Get_dArray('NOSEHOOVER',NHC,nh)
+
+return
+
+end subroutine Get_NHC
+
+!***********************************************************************
 !
-!     Writes the extra degrees of Freedom on RUNFILE
+! Writes the extra degrees of Freedom on RUNFILE
 !
-      CALL Put_dArray('NOSEHOOVER',NHC,nh)
-!      CALL GetMem('NOSEHOOVER','FREE','REAL',NHC,nh)
-      RETURN
-!
-      END
-!
+subroutine Put_NHC(NHC,nh)
+
+implicit none
+#include "WrkSpc.fh"
+#include "Molcas.fh"
+integer nh
+real*8 NHC(nh)
+
+call Put_dArray('NOSEHOOVER',NHC,nh)
+!call GetMem('NOSEHOOVER','FREE','REAL',NHC,nh)
+
+return
+
+end subroutine Put_NHC
