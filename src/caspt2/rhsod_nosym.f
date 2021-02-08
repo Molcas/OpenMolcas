@@ -85,6 +85,7 @@
       SUBROUTINE RHSOD_A_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -194,6 +195,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_C_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -316,6 +318,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_B_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -502,6 +505,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_F_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -687,6 +691,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_H_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -826,6 +831,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -990,6 +996,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_E_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1207,6 +1214,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_G_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"

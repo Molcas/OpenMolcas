@@ -81,6 +81,7 @@
       SUBROUTINE RHSOD_A(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -190,6 +191,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_C(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -312,6 +314,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_B(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -498,6 +501,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_F(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -683,6 +687,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_H(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -868,6 +873,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1032,6 +1038,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_E(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1249,6 +1256,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_G(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output, only: iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
