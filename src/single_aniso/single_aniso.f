@@ -32,7 +32,7 @@ C*  initializations
       nMult    =0
       nss      =0
       nstate   =0
-      dbg = .true.
+      dbg      =.false.
 
       ! check for the "restart" option:
       If(dbg) Write(6,*) 'Enter restart_check'
@@ -167,7 +167,7 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Integer :: l
       Integer                   :: nss2,nstate2
 
-      DBG=.true.
+      DBG=.false.
 
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:
