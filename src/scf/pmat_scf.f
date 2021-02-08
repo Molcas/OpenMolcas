@@ -43,6 +43,7 @@
 *     history: UHF - V.Veryazov, 2003                                  *
 *                                                                      *
 ************************************************************************
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (a-h,o-z)
       External EFP_On
 #include "real.fh"
@@ -64,8 +65,7 @@
       Real*8  dmpk,dFKmat
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
 *
-      Logical Do_OFemb, KEonly, OFE_first, Found, EFP_On
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
+      Logical Found, EFP_On
 *
 *---- Define local variables
       Logical First, NonEq, ltmp1, ltmp2, Do_DFT
@@ -87,21 +87,15 @@
         Integer nDens, nDisc
         Real*8, Target:: Dens(nDens), TwoHam(nDens)
         Real*8 Thize, ExFac
-        Logical NoCoul,NoExch
+        Logical NoCoul
         Logical FstItr, PreSch
         End Subroutine Drv2El_dscf
       End Interface
 
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
+
       If (PmTime) Call CWTime(xCPM1,xWPM1)
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PMat')
+#ifdef _DEBUGPRINT_
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
@@ -191,7 +185,7 @@
             Call Free_Work(ipVemb)
             Call NameRun(NamRfil)   ! switch back RUNFILE name
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(Vxc   (1,1,iPsLst),nDT*nD,'PMat','Optimal V ')
 #endif
 *
@@ -320,7 +314,7 @@
 ************************************************************************
 *                                                                      *
       Call DaXpY_(nBT*nD,One,Temp,1,TwoHam(1,1,iPsLst),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Temp,nBT*nD,'PMat_SCF','Temp')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
@@ -397,8 +391,7 @@
      &      / DBLE(nD)
 *
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Dens  (1,1,iPsLst),nBT*nD,'PMat  ','D iPsLst  ')
       Call NrmClc(Dens  (1,1,nDens), nBT*nD,'PMat  ','D nDens   ')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat  ','T iPsLst  ')
@@ -406,7 +399,6 @@
       Call NrmClc(Vxc   (1,1,iPsLst),nBT*nD,'PMat  ','V iPsLst  ')
       Call NrmClc(Vxc   (1,1,nDens), nBT*nD,'PMat  ','V nDens   ')
 *
-      Call qExit('PMat')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld( 5) = TimFld( 5) + (Cpu2 - Cpu1)
@@ -421,10 +413,5 @@
      &   ' (2-el contributions: ',tWF2,' seconds) <<<'
          Call xFlush(6)
       End If
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      End subroutine PMat_SCF

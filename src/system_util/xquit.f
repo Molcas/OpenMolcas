@@ -10,14 +10,14 @@
 ************************************************************************
       subroutine xquit(rc)
 CSVC: routine that terminates Molcas properly
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: King
+#endif
       implicit none
       integer rc, lb, ub
 #include "warnings.fh"
-      character(128) :: msg
+      character(len=128) :: msg
       logical, external :: bomb_on_error
-#ifdef _MOLCAS_MPP_
-      logical, external :: King
-#endif
 
       call xflush(6)
 
@@ -64,7 +64,7 @@ C     code similar to an abort.
       function bomb_on_error() result(rc)
       implicit none
       logical :: rc
-      character(16) :: bomb, env
+      character(len=16) :: bomb, env
       bomb=' '
       env='MOLCAS_BOMB'
       call getenvf(env,bomb)

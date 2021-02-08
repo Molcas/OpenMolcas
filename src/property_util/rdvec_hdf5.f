@@ -30,17 +30,19 @@
 *> @param[out] Ind      Orbital type indices
 ************************************************************************
       Subroutine RdVec_HDF5(fileid,Label,nSym,nBas,CMO,Occ,Ene,Ind)
+#ifdef _HDF5_
+      Use mh5, Only: mh5_exists_dset, mh5_fetch_dset
+#endif
       Implicit None
       Integer, Intent(In) :: fileid,nSym,nBas(nSym)
       Character(Len=*), Intent(In) :: Label
       Real*8, Dimension(*) :: CMO,Occ,Ene
       Integer, Dimension(*) :: Ind
 #ifdef _HDF5_
-#include "mh5.fh"
 #include "stdalloc.fh"
       Integer :: Beta,nB
       Character(Len=128) :: DataSet,su,sl
-      Character(1), Allocatable :: typestring(:)
+      Character(Len=1), Allocatable :: typestring(:)
 
       Beta=0
       su=''
@@ -63,7 +65,7 @@
       If (Index(Label,'E').gt.0) Then
         DataSet='MO_'//Trim(su)//'ENERGIES'
         If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset_array_real(fileid,DataSet,Ene)
+          Call mh5_fetch_dset(fileid,DataSet,Ene)
         Else
           Write(6,*) 'The HDF5 file does not contain '//
      &               Trim(sl)//'MO energies.'
@@ -74,7 +76,7 @@
       If (Index(Label,'O').gt.0) Then
         DataSet='MO_'//Trim(su)//'OCCUPATIONS'
         If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset_array_real(fileid,DataSet,Occ)
+          Call mh5_fetch_dset(fileid,DataSet,Occ)
         Else
           Write(6,*) 'The HDF5 file does not contain '//
      &               Trim(sl)//'MO occupations.'
@@ -85,7 +87,7 @@
       If (Index(Label,'C').gt.0) Then
         DataSet='MO_'//Trim(su)//'VECTORS'
         If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset_array_real(fileid,DataSet,CMO)
+          Call mh5_fetch_dset(fileid,DataSet,CMO)
         Else
           Write(6,*) 'The HDF5 file does not contain '//
      &               Trim(sl)//'MO coefficients.'
@@ -98,7 +100,7 @@
         Call mma_allocate(typestring,nB)
         DataSet='MO_'//Trim(su)//'TYPEINDICES'
         If (mh5_exists_dset(fileid,DataSet)) Then
-          Call mh5_fetch_dset_array_str(fileid,DataSet,typestring)
+          Call mh5_fetch_dset(fileid,DataSet,typestring)
           Call tpstr2tpidx(typestring,Ind,nB)
         End If
         Call mma_deallocate(typestring)

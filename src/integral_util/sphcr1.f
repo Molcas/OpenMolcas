@@ -22,16 +22,6 @@
 *                                                                      *
 *          Observe that most of the time Win and Wout will overlap.    *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGEMM_   (ESSL)                                         *
-*              RecPrt                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DCopy    (ESSL)                                         *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,10 +37,7 @@
      &       Wout(mcd*ijkla)
       Logical Tr3, Pr3, Tr4, Pr4
 *
-      iRout = 59
-      iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('SphCr1')
 *     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
       If (Tr3.and.Tr4) Then
 *        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
@@ -103,7 +90,6 @@
 *
 *     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
 *     Call GetMem(' Exit SphCr1','CHECK','REAL',iDum,iDum)
-*     Call qExit('SphCr1')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -273,7 +259,8 @@ c
       If (nr1.eq.1) Then
          s1=0.0D0
          do 45 k=1,nnot
-45       s1=s1+a(i,ind(k))*b(j,ind(k))
+         s1=s1+a(i,ind(k))*b(j,ind(k))
+45       continue
          r(i,j)=s1
       Else If (nr1.eq.2) Then
          s1=0.0D0

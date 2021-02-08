@@ -23,26 +23,25 @@
 *       020115                                                     *
 *                                                                  *
 ********************************************************************
+      Use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 GradIn(3,MxAto), GradOut(nGrad)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      Logical, External :: TF
 *
       iIrrep=0
 *
       mdc=0
       iCen=1
       Do iCnttp=1,nCnttp
-         If (AuxCnttp(iCnttp)) Return
-         Do iCnt=1,nCntr(iCnttp)
+         If (dbsc(iCnttp)%Aux) Return
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             nDispS = IndDsp(mdc,iIrrep)
 
@@ -53,7 +52,7 @@
                   GradOut(nDispS)=GradIn(iCar+1,iCen)
                End If
             End Do
-            iCen = iCen + nIrrep/nStab(mdc)
+            iCen = iCen + nIrrep/dc(mdc)%nStab
          End Do
       End Do
 *

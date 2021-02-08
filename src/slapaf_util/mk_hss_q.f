@@ -9,36 +9,36 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
+      use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx, mRowH
+      use Slapaf_Parameters, only: BSet, HSet, Delta, lNmHss, nDimBC,
+     &                             mTROld, NmIter, iter
       Implicit Real*8 (a-h,o-z)
-#include "info_slapaf.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-
+*
 *     Compute the Hessian in internal coordinates.
 *
-      If ((lNmHss.or.lRowH).and.iter.eq.NmIter) Then
-         Call Put_dArray('Unique Coordinates',Work(ipCx),3*nsAtom)
-         Call Put_Coord_New(Work(ipCx),nsAtom)
-         If (lRowH) Then
-            If (BSet.and.HSet) Call Hss_q()
-            Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0,
-     &                      Work(ipShf),Work(ipqInt),Work(ipdqInt))
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Mk_Hss_Q: DipM',' ',DipM,SIZE(DipM,1),SIZE(DipM,2))
+#endif
+      If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
+         mInt = nDimBC - mTROld
+         nsAtom=SIZE(Coor,2)
+         Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
+         Call Put_Coord_New(Cx,nsAtom)
+         If (Allocated(mRowH)) Then
+            If (BSet.and.HSet) Call Hss_Q()
+            Call RowHessian(NmIter,mInt,Delta/2.5d0)
          Else
-            Call FormNumHess(iter,Work(ipdqInt),Work(ipShf),mInt,Delta,
-     &                       Stop,Work(ipqInt),nsAtom,Cubic,iNeg,
-     &                       Work(ipDipM),mTROld,Smmtrc,Degen,UserT,
-     &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
-     &                       Curvilinear)
+            Call FormNumHess(iter,mInt,Delta,nsAtom,iNeg,DipM)
          End If
 *
-         call dcopy_(3*nsAtom,Work(ipCx),1,Work(ipCoor),1)
-         Call Get_dArray('BMxOld',Work(ipB),3*nsAtom*mInt)
-         ipIn = ipqInt + (Iter-1)*mInt
-         call dcopy_(mInt,Work(ipqInt),1,Work(ipIn),1)
-         ipIn = ipdqInt + (Iter-1)*mInt
-         call dcopy_(mInt,Work(ipdqInt),1,Work(ipIn),1)
+         Coor(:,:) = Cx(:,:,1)
+         Call Get_dArray('BMxOld',BMx,SIZE(Coor)*SIZE(qInt,1))
+         qInt(:,Iter) = qInt(:,1)
+         dqInt(:,Iter) = dqInt(:,1)
       Else
-         If (BSet.and.HSet) Call Hss_q()
+         If (BSet.and.HSet) Call Hss_Q()
       End If
 *                                                                      *
 ************************************************************************

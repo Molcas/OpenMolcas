@@ -16,7 +16,6 @@
       Dimension iCIStruct(nCISize)
 #include "WrkSpc.fh"
 
-      NSYM  =ISGSTRUCT(1)
       NLEV  =ISGSTRUCT(2)
       LISM  =ISGSTRUCT(3)
       NMIDV =ICISTRUCT(1)

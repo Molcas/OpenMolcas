@@ -10,30 +10,12 @@
 *                                                                      *
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
-      SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
-     &                   nLines,Value,rInt,rInt0,Lbl,Name,Coor,
-     &                   lWrite,nSym,iOper,jStab,nStab,mxdc,
-     &                   rMult,Smmtrc,nDim,dBMtrx,Value0,lIter,
-     &                   iFlip,dMass)
+      SubRoutine DefInt2(BVct,dBVct,nBvct,BMtrx,mInt,nAtom,
+     &                   nLines,Value,rInt,rInt0,Lbl,
+     &                   lWrite,rMult,dBMtrx,Value0,lIter,iFlip)
 ************************************************************************
 *                                                                      *
-* Object: to generate the B matrix which is the transformation matrix  *
-*         between an infinitesimal displacement in the symmetry adapted*
-*         internal coordinates and the symmetry unique cartesian       *
-*         coordinates.                                                 *
-*                                                                      *
-*                                                                      *
-* Called from: BMtrx                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Banner                                                  *
-*              UpCase                                                  *
-*              NxtWrd                                                  *
-*              Cllct                                                   *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
+* Object: to generate the B matrix for the constraints                 *
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
@@ -44,24 +26,25 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct),
-     &       Value(nBVct), BMtrx(3*nAtom,mInt),
-     &       rInt(mInt), Coor(3,nAtom), rInt0(mInt),
-     &       rMult(nBVct,nBVct), dMass(nAtom),
+     &       Value(nBVct), BMtrx(3*nAtom,mInt), rInt(mInt), rInt0(mInt),
+     &       rMult(nBVct,nBVct),
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
-      Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
-     &          Temp*120, Lbl(mInt)*8, Name(nAtom)*(LENIN),filnam*16
-      Logical lWrite, Smmtrc(3,nAtom), Start, rInt0_on_file,
-     &        rInt0_in_memory, InSlapaf
-      Integer Flip, NoFlip, StrnLn
-      External StrnLn
-      Parameter (Flip=1,NoFlip=0)
-      Integer iOper(0:7), nStab(mxdc), jStab(0:7,mxdc), iFlip(nBVct)
-      Character*100 Get_SuperName
-      External Get_SuperName
+      Character Line*120, Type*6, Format*8,
+     &          Temp*120, Lbl(mInt)*8, filnam*16
+      Logical lWrite, Start, rInt0_on_file,rInt0_in_memory, InSlapaf
+      Integer, Parameter:: Flip=1, NoFlip=0
+      Integer, External:: StrnLn
+      Integer iFlip(nBVct)
+      Character(LEN=100), External:: Get_SuperName
+      Integer, Allocatable:: Ind(:), tpc(:)
+      Real*8, Allocatable:: Hess(:), Mass(:), Grad(:), xyz(:), r0(:)
+      Character(LEN=8), Allocatable:: Labels(:)
 #include "angstr.fh"
+
+      Call mma_allocate(Labels,nBVct,Label='Labels')
       Lu=6
 *
 *     Initiate some stuff for automatic setting of
@@ -76,7 +59,6 @@
 *
       iRout = 30
       iPrint = nPrint(iRout)
-      Call qEnter('DefInt2')
       Start=lIter.eq.1
       Call ICopy(nBVct,[Flip],0,iFlip,1)
 *
@@ -123,7 +105,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
 ************************************************************************
 *                                                                      *
       iBVct = 0
-      Call GetMem('tpc ', 'Allo','Inte',iptpc ,nBVct)
+      Call mma_allocate(tpc ,nBVct,Label='tpc')
       Do 10 iLines = 1, nLines
          Read(Lu_UDC,'(A)') Line
          Temp = Line
@@ -279,31 +261,28 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
             Write (Lu,'(A)') Line
             Call Quit_OnUserError()
          End If
-         iWork(iptpc+iBVct-1)=iType
+         tpc(iBVct)=iType
 *
          msAtom=nCntr+mCntr
-         Call GetMem('xyz ', 'Allo','Real',ipxyz ,3*msAtom)
-         Call GetMem('Grad', 'Allo','Real',ipGrad,3*msAtom)
-         Call GetMem('Ind ', 'Allo','Inte',ipInd ,2*msAtom)
-         Call GetMem('Mass', 'Allo','Real',ipMass,msAtom)
-         Call GetMem('Hess', 'Allo','Real',ipHess,(3*msAtom)**2)
+         Call mma_allocate(xyz ,3*msAtom,Label='xyz')
+         Call mma_allocate(Grad,3*msAtom,Label='Grad')
+         Call mma_allocate(Ind ,2*msAtom,Label='Ind')
+         Call mma_allocate(Mass,msAtom,Label='Mass')
+         Call mma_allocate(Hess,(3*msAtom)**2,Label='Hess')
 *
-         Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),
-     &               dBVct(1,1,iBVct),Value(iBVct),Name,nAtom,Coor,
-     &               nCntr,mCntr,Work(ipxyz),Work(ipGrad),iWork(ipInd),
-     &               Type,dMass,Work(ipMass),
-     &               Labels(iBVct),nSym,lWrite,iOper,jStab,
-     &               nStab,mxdc,rMult(iBVct,iBVct),Smmtrc,
-     &               Work(ipHess),lIter)
+         Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),
+     &               Value(iBVct),nAtom,nCntr,mCntr,xyz,Grad,
+     &               Ind,Type,Mass,Labels(iBVct),lWrite,
+     &               rMult(iBVct,iBVct),Hess,lIter)
 *
          If (Type.eq.'TRSN  ' .and.
      &       Abs(Value(iBVct)).lt.Pi*Half) iFlip(iBVct)=NoFlip
 *
-         Call GetMem('Hess', 'Free','Real',ipHess,(3*msAtom)**2)
-         Call GetMem('Mass', 'Free','Real',ipMass,msAtom)
-         Call GetMem('Ind ', 'Free','Inte',ipInd ,2*msAtom)
-         Call GetMem('Grad', 'Free','Real',ipGrad,3*msAtom)
-         Call GetMem('xyz ', 'Free','Real',ipxyz ,3*msAtom)
+         Call mma_deallocate(Hess)
+         Call mma_deallocate(Mass)
+         Call mma_deallocate(Ind)
+         Call mma_deallocate(Grad)
+         Call mma_deallocate(xyz)
 *
  10   Continue
       Call WarningMessage(2,'Error in DefInt2')
@@ -360,7 +339,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
          iBMtrx = iBMtrx + 1
          rInt(iBMtrx) = Zero
          Write(Lbl(iBMtrx),'(A,I3.3)') 'Cns',iBMtrx
-         RR=Zero
 *
 *------- Find the label of the first primitive
 *
@@ -422,19 +400,19 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *
                If (.Not.rInt0_in_memory) Then
                   rInt0_in_memory=.TRUE.
-                  Call GetMem('rInt0','Allo','Real',ip_r0,nrInt0)
+                  Call mma_allocate(r0,nrInt0,Label='r0')
                   If (rInt0_on_file) Then
-                     Call Get_dArray('rInt0',Work(ip_r0),nrInt0)
+                     Call Get_dArray('rInt0',r0,nrInt0)
                   Else
-                     Call FZero(Work(ip_r0),nrInt0)
+                    r0(:)=Zero
                   End If
                End If
 *
                If (rInt0_on_file) Then
-                  rInt0(iBMtrx)=Work(ip_r0+iBMtrx-1)
+                  rInt0(iBMtrx)=r0(iBMtrx)
                Else
-                  Work(ip_r0+iBmtrx-1)=rInt(iBMtrx)
-                  rInt0(iBMtrx)       =rInt(iBMtrx)
+                  r0(iBmtrx)   =rInt(iBMtrx)
+                  rInt0(iBMtrx)=rInt(iBMtrx)
                End If
 *
             Else
@@ -451,7 +429,7 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
             End If
 *
 * AOM: trying to correct torsion...
-            If (iWork(iptpc+iBVct-1).eq.8) Then
+            If (tpc(iBVct).eq.8) Then
               n0 = Int((rInt(iBMtrx)-rInt0(iBMtrx))/(Two*Pi))
               If (Abs(rInt(IBMtrx)-rInt0(iBMtrx)-Dble(n0)*Two*Pi) .gt.
      &           Abs(rInt(IBMtrx)-rInt0(iBMtrx)-Dble(n0+1)*Two*Pi)) Then
@@ -542,18 +520,18 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *
                   If (.Not.rInt0_in_memory) Then
                      rInt0_in_memory=.TRUE.
-                     Call GetMem('rInt0','Allo','Real',ip_r0,nrInt0)
+                     Call mma_allocate(r0,nrInt0,Label='r0')
                      If (rInt0_on_file) Then
-                        Call Get_dArray('rInt0',Work(ip_r0),nrInt0)
+                        Call Get_dArray('rInt0',r0,nrInt0)
                      Else
-                        Call FZero(Work(ip_r0),nrInt0)
+                        r0(:)=Zero
                      End If
                   End If
 *
                   If (rInt0_on_file) Then
-                     rInt0(iBMtrx)=Work(ip_r0+iBMtrx-1)
+                     rInt0(iBMtrx)=r0(iBMtrx)
                   Else
-                     Work(ip_r0+iBmtrx-1)=rInt(iBMtrx)
+                     r0(iBmtrx)=rInt(iBMtrx)
                   End If
 *
                Else
@@ -637,10 +615,10 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
          End Do
       End If
       Close(Lu_UDC)
-      Call GetMem('tpc ', 'Free','Inte',iptpc ,nBVct)
+      Call mma_deallocate(tpc)
       If (rint0_in_memory) Then
-         If (InSlapaf) Call Put_dArray('rInt0',Work(ip_r0),mInt)
-         Call Free_Work(ip_r0)
+         If (InSlapaf) Call Put_dArray('rInt0',r0,mInt)
+         Call mma_deallocate(r0)
       End If
 *
 *     Compute the maximum error in the constraints
@@ -667,8 +645,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DefInt2')
+      Call mma_deallocate(Labels)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nDim)
       End

@@ -145,7 +145,6 @@
 *
 * =========================================================
 *
-                  IONE = 1
                   nkStref=maxk  ! ????????
                   JLBOFF = 1
                   IF(JSM.EQ.LSM.AND.JTYP.EQ.LTYP) THEN
@@ -156,7 +155,6 @@
                     JLSM = 0
                   END IF
 *. Obtain all double excitations from this group of K strings
-*                 CALL QENTER('ADADS')
               lOFF = IOBPTS(lTYP,lSM)
               jOFF = IOBPTS(jTYP,jSM)
                   CALL ADADST(JTYP,JSM,JOFF,NJ,
@@ -166,13 +164,11 @@
      &                        NKBTC,nkstref,KEND)
 
 *
-*                 CALL QEXIT('ADADS')
                   IF(NKBTC.EQ.0) GOTO 1930
 *. Loop over jl in TS classes
                   J = 0
                   L = 1
 *
-*                 CALL QENTER('MATCG')
                   DO  IJL = 1, NJL
                     CALL NXTIJ(J,L,NJ,NL,JLSM,NONEW)
 *                   I1JL = (J-1)*NJ+L
@@ -198,7 +194,6 @@
 *EAW END
                     END IF
                   END DO
-*                 CALL QEXIT ('MATCG')
 *
 *
 * =========================================================
@@ -207,7 +202,6 @@
 *
 * =========================================================
 *
-                  IONE = 1
                   IKBOFF = 1
                   IF(ISM.EQ.KSM.AND.ITYP.EQ.KTYP) THEN
                     NIK = NI*(NI+1)/2

@@ -20,7 +20,6 @@
       Integer iBuff(*)
       Integer is(288),ie(288)
       Character*288 Line
-      Call QENTER(ROUTINE)
 *----------------------------------------------------------------------*
 *     Start procedure, initialize data counter                         *
 *----------------------------------------------------------------------*

@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to check that the structure is realistic.                    *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -32,8 +27,6 @@
       Character*(LENIN) Lbls(mCentr)
 *
       lu=6
-      iRout = 125
-      iPrint = nPrint(iRout)
 *
       If (mCentr.lt.5) Go To 99
 *
@@ -45,7 +38,6 @@
 *
       RMax=0.0D0
       RMin=1.0D10
-      iiBST=0
       Do icc = 1, mCentr
          x1 = xyz(1,icc)
          y1 = xyz(2,icc)

@@ -86,8 +86,8 @@
 *     Local arrays
       Integer lZeta, lEta, i_Int, n1, n2, n3, n4, iW3, nWork3, nW2
       Logical Nospecial
-*define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'Enter DrvRys'
       Write (6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',
      &             iZeta, nZeta, mZeta, nZeta_Tot
@@ -204,7 +204,7 @@
      &            IndZet,lZeta,IndEta,lEta)
 *
  99   Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
       Call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),kabcd,
      &            iBasi*jBasj*kBask*lBasl)

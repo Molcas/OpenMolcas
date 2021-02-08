@@ -8,7 +8,12 @@
 *           level of theory.
 *-------------------------------------------------------------------------------
 >> export MOLCAS_PRINT=VERBOSE
- &Gateway; Title= Ethylene, ANO-L-VDZP basis set
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
+ &Gateway
+Title= Ethylene, ANO-L-VDZP basis set
 Coord
 6
 
@@ -24,13 +29,17 @@ RICD
 *-------------------------------------------------------------------------------
 >>> Do While
  &SEWARD
- &SCF; Title= Ethylene, ANO-L-VDZP basis set
+ &SCF
+     Title= Ethylene, ANO-L-VDZP basis set
      ITERATIONS= 20, 20
      THREsholds= 1.0d-10 1.0d-6 0.5d-7 0.2d-5
 *-------------------------------------------------------------------------------
- &MBPT2; Grdt; Frozen= 0
+ &MBPT2
+     Grdt
+     Frozen= 0
 *-------------------------------------------------------------------------------
- &ALASKA; Show
+ &ALASKA
+     Show
 *-------------------------------------------------------------------------------
  &SLAPAF
 >>> END Do

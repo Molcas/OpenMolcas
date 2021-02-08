@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#if defined (_CHO_DEBUG_)
-#define _DEBUG_
+#if defined (_CHO_DEBUGPRINT_)
+#define _DEBUGPRINT_
 #endif
       SubRoutine Cho_VecBuf_Init(Frac,lVec)
 C
@@ -20,28 +20,29 @@ C                                     i.e. vectors are available on
 C                                     disk.
 C              (RUN_MODE stored in cholesky.fh)
 C
+      use ChoVecBuf, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
       Implicit None
       Real*8  Frac
       Integer lVec(*)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
+#include "stdalloc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)
 #endif
 
       Character*2 Unt
-      Integer ip_Max, l_Max, MF
+      Integer l_Max, MF
       Real*8  xMF
 
       If (LocDbg) Then
-         Call Cho_Mem('GetMax','GetM','Real',ip_Max,l_Max)
+         Call mma_maxDBLE(l_max)
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
          Call Cho_Word2Byte(l_Max,8,xMF,Unt)
@@ -52,8 +53,6 @@ C
          Call Cho_Flush(Lupri)
       End If
 
-      l_ChVBfI=0
-      ip_ChVBfI=0
       Call iZero(l_ChVBfI_Sym,nSym)
       Call iZero(ip_ChVBfI_Sym,nSym)
 
@@ -76,12 +75,14 @@ C
 C     Purpose: allocate and initialize vector buffer.
 C              (Internal run mode.)
 C
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Real*8  Frac
       Integer lVec(*)
       Logical LocDbg
 #include "cholesky.fh"
-#include "chovecbuf.fh"
+#include "stdalloc.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init_I')
@@ -90,13 +91,13 @@ C
       Real*8 xMemMax(8), x
 
       Integer lVecTot
-      Integer ip_Max, l_Max
+      Integer l_Max
       Integer iSym, MemEach, MemLeft
+      Integer:: l_ChVBuf=0
 
       Logical Enough
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
       If (LocDbg) Then
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
@@ -119,16 +120,13 @@ C
       End Do
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0 .or. lVecTot.lt.1) Then
-         l_ChVBuf  = 0
-         ip_ChVBuf = 0
          Call Cho_iZero(ip_ChVBuf_Sym,nSym)
          Call Cho_iZero(l_ChVBuf_Sym,nSym)
       Else
-         Call Cho_Mem('GetMax','GetM','Real',ip_Max,l_Max)
+         call mma_MaxDBLE(l_Max)
          l_ChVBuf = INT(Frac*DBLE(l_Max))
          If (l_ChVBuf.lt.nSym .or. l_ChVBuf.lt.lVecTot) Then
             l_ChVBuf  = 0
-            ip_ChVBuf = 0
             Call Cho_iZero(ip_ChVBuf_Sym,nSym)
             Call Cho_iZero(l_ChVBuf_Sym,nSym)
          Else
@@ -156,8 +154,10 @@ C
                End Do
             End If
             l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
-            Call Cho_Mem('CHVBUF','Allo','Real',ip_ChVBuf,l_ChVBuf)
-            ip_ChVBuf_Sym(1) = ip_ChVBuf
+
+            Call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
+
+            ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
      &                             + l_ChVBuf_Sym(iSym-1)
@@ -170,7 +170,7 @@ C
       If (LocDbg) Then
          Call Cho_Word2Byte(l_ChVBuf,8,x,Unt)
          Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
-     &                  '(',x,Unt,') at ',ip_ChVBuf
+     &                  '(',x,Unt,') at ',1
          Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
@@ -185,31 +185,31 @@ C
 C     Purpose: allocate and initialize vector buffer.
 C              (External run mode.)
 C
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
       Implicit None
       Real*8  Frac
       Logical LocDbg
 #include "cholesky.fh"
-#include "chovecbuf.fh"
+#include "stdalloc.fh"
 
-      Character*17 SecNam
-      Parameter (SecNam = 'Cho_VecBuf_Init_X')
+      Character(LEN=17), Parameter:: SecNam = 'Cho_VecBuf_Init_X'
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
       Logical DoRead
-      Integer i, iSym, ip_Max, l_Max, Left, jNum, iRedC, mUsed
+      Integer i, iSym, l_Max, Left, jNum, iRedC, mUsed
 
-      Integer lScr
-      Parameter (lScr = 1)
+      Integer, Parameter:: lScr = 1
       Real*8 Scr(lScr)
 
       Integer nErr
-      Real*8 Scr_Check, Tol, Diff
-      Parameter (Scr_Check = 1.23456789d0, Tol = 1.0d-15)
+      Real*8  Diff
+      Real*8, Parameter:: Scr_Check = 1.23456789d0, Tol = 1.0d-15
 
       Character*2 Unt
       Real*8 Byte
+
+      Integer:: l_ChVBuf=0
 
       If (LocDbg) Then
          Do i = 1,lScr
@@ -226,12 +226,10 @@ C
       End If
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0) Then
-         l_ChVBuf  = 0
-         ip_ChVBuf = 0
          Call Cho_iZero(l_ChvBuf_Sym,nSym)
          Call Cho_iZero(ip_ChvBuf_Sym,nSym)
       Else
-         Call Cho_Mem('GetMax','GetM','Real',ip_Max,l_Max)
+         call mma_maxDBLE(l_max)
          Left = INT(Frac*DBLE(l_Max))
          iRedC = -1
          DoRead = .false.
@@ -246,12 +244,12 @@ C
          l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
          If (l_ChVBuf .lt. 1) Then
             l_ChVBuf  = 0
-            ip_ChVBuf = 0
             Call Cho_iZero(l_ChvBuf_Sym,nSym)
             Call Cho_iZero(ip_ChvBuf_Sym,nSym)
          Else
-            Call Cho_Mem('CHVBUF','Allo','Real',ip_ChVBuf,l_ChVBuf)
-            ip_ChVBuf_Sym(1) = ip_ChVBuf
+            Call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
+
+            ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
      &                             + l_ChVBuf_Sym(iSym-1)
@@ -272,7 +270,7 @@ C
          End If
          Call Cho_Word2Byte(l_ChVBuf,8,Byte,Unt)
          Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
-     &                  '(',Byte,Unt,')  at ',ip_ChVBuf
+     &                  '(',Byte,Unt,')  at ',1
          Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',

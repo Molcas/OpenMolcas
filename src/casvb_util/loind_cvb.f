@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine loind_cvb(nel,n,nk,nkmin,nkmax,
      >  locc,lunocc,index,ix,*)
@@ -31,7 +32,8 @@ c SITUATION IS :  IEL       \     <= NOT MINIMAL
 c                 IEL+1     |
 1200  nk(iel)=ik-1
       do 1300 jel=1,iel-1
-1300  nk(jel)=min(nkmax(jel),ik-1)
+      nk(jel)=min(nkmax(jel),ik-1)
+1300  continue
       call occupy_cvb(nk,nel,locc,lunocc)
       index=minind_cvb(locc,n,nel,ix)
       return 1

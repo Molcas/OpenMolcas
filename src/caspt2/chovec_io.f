@@ -144,6 +144,9 @@ C as this is how they are used to compute the integrals for RHS.
 * Read (transposed) cholesky vectors from disk, they
 * are indexed as CHOBUF(IVEC,IQ,IK)
 ************************************************************************
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -153,7 +156,6 @@ C as this is how they are used to compute the integrals for RHS.
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL :: IS_REAL_PAR
 #endif
 
       INTEGER :: ICASE,LCHOBUF
@@ -234,7 +236,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       IDISK=IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IB)
       CALL DDAFILE(LUDRA,1,CHOBUF,NPQ*JNUM,IDISK)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
       WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
@@ -265,7 +267,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       IDISK=IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IB)
       CALL DDAFILE(LUDRA,2,CHOBUF,NPQ*JNUM,IDISK)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
       WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
@@ -284,7 +286,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 * all of them on each process in case of parallel run.
 ************************************************************************
 #ifdef _MOLCAS_MPP_
-      use mpi
+      USE MPI
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
 #endif
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -292,7 +295,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "chocaspt2.fh"
-#include "para_info.fh"
       REAL*8 :: CHOBUF(*)
       INTEGER :: ICASE,ISYQ,JSYM,IB
 
@@ -303,7 +305,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       INTEGER*4, PARAMETER :: ONE4 = 1
       INTEGER :: LDISP,LSIZE,LRECVBUF,LTRANSP
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       INTEGER :: MY_N,NOFF
       REAL*8 :: SQFP
       REAL*8, EXTERNAL :: DDOT_
@@ -358,7 +360,7 @@ CSVC: for RHS on demand, write transposed chovecs, else just write
           CALL DDAFILE(LUDRATOT,1,WORK(LRECVBUF),NPQ*JNUMT,IDISKT)
         END IF
 
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
         WRITE(6,*) ' process block, size, offset, fingerprint'
         DO I=1,NPROCS
           MY_N = IWORK(LSIZE+I-1)
@@ -390,7 +392,7 @@ C Avoid unused argument warnings
 ************************************************************************
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
-      use mpi
+      USE MPI
       IMPLICIT NONE
       REAL*8 SENDBUF(*), RCVBUF(*)
       INTEGER NSEND, NRCV(*),NOFF(*)

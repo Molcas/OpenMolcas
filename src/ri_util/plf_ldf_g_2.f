@@ -14,8 +14,7 @@
 ************************************************************************
       Subroutine PLF_LDF_G_2(TInt,nTInt,
      &                       AOint,ijkl,iCmp,jCmp,kCmp,lCmp,
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,nAOtSO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
 *                                                                      *
 *  object: to sift and index the petite list format integrals.         *
@@ -30,6 +29,7 @@
 *          Modified for Local DF, Thomas Bondo Pedersen, June 2010     *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit None
       Integer nTInt
       Real*8  TInt(nTInt)
@@ -38,19 +38,17 @@
       Integer iAO(4), iAOst(4)
       Integer iBas, jBas, kBas, lBas
       Integer kOp(4)
-      Integer nAOtSO
-      Integer iAOtSO(nAOtSO,0:7)
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*11 SecNam
       Parameter (SecNam='PLF_LDF_G_2')
 #endif
 
       Integer i1, i2, i3, i4
-      Integer iShlJ, iShlK, iShlL
+      Integer iShlJ, iShlK
       Integer jSO, lSO, kSO
       Integer jSOj, lSOl, kSOk
       Integer ll, jj, kk
@@ -60,7 +58,7 @@
 
       Integer i, j
       Integer nBasSh, iShlSO, IndxG, IndxG2
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iSOShl
       iSOShl(i)=iWork(ip_iSOShl-1+i)
 #endif
@@ -69,7 +67,7 @@
       IndxG(i,j)=iWork(ip_IndxG-1+l_IndxG_1*(j-1)+i)
       IndxG2(i,j)=iWork(ip_IndxG2-1+l_IndxG2_1*(j-1)+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iSOShl(iAOtSO(iAO(1)+1,kOp(1))+iAOst(1)).ne.SHA) Then
          Call WarningMessage(2,SecNam//': Shell problem [1]')
          Call LDF_Quit(1)
@@ -94,7 +92,6 @@
 
       iShlJ=SHB
       iShlK=SHC
-      iShlL=SHD
       iShlKL=SPCD
       i1=1
       Do i4=1,lCmp
@@ -132,7 +129,7 @@
          End Do
       End Do
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iBas)
 #endif

@@ -11,7 +11,8 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine SymAdd2(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                   iShll,jShll,AOInt,iBas,iBas_Eff,
+     &                   iShll,jShll,iAO,jAO,
+     &                               AOInt,iBas,iBas_Eff,
      &                                     jBas,jBas_Eff,nIC,iIC,
      &                   SOInt,nSOInt,nOp,iSkal,jSkal)
 ************************************************************************
@@ -19,32 +20,23 @@
 * Object: to transform the one-electon matrix elements from AO basis   *
 *         to SO basis.                                                 *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DaXpY   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp,nIC),
      &       SOInt(iBas*jBas,nSOInt)
       Integer nOp(2)
-      Real*8 Prmt(0:7)
       Integer iTwoj(0:7), jIC(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
       iRout = 133
       iPrint = nPrint(iRout)
-*     Call qEnter('SymAd1')
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Write (6,*) ' nSOInt=',nSOInt
@@ -64,22 +56,21 @@
       iAdd = iBas-iBas_Eff
       jAdd = jBas-jBas_Eff
       Do 100 j1 = 0, nIrrep-1
-         xa = rChTbl(j1,nOp(1))
+         xa = DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),iTwoj(j1)).eq.0) Go To 200
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
             Do 300 j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
 *
                If (iAnd(lOper,iTwoj(j12)).eq.0) Go To 300
                kIC = jIC(j12)
-               xb = rChTbl(j2,nOp(2))
+               xb = DBLE(iChTbl(j2,nOp(2)))
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
 *
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),iTwoj(j2)).eq.0)
-     &               Go To 400
+                  If (iAOtSO(jAO+i2,j2)<0) Cycle
                   lSO = lSO + 1
 *
                   Do iB_Eff = 1, iBas_Eff
@@ -116,7 +107,6 @@
       End If
       If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
      &                              iDum,iDum)
-*     Call qExit('SymAd1')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -16,20 +16,13 @@
 *                                                                      *
 * Object: to compute pseudo potential integrals.                       *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-*
 #include "WrkSpc.fh"
 #include "oneswi.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
@@ -51,10 +44,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 122
-      iPrint = nPrint(iRout)
-*     Call qEnter('PPInt')
-*
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *                                                                      *
 ************************************************************************
@@ -68,7 +57,6 @@
       nArray=nArray+nZeta*nElem(la)*nElem(lb)
       If (nArray.gt.nZeta*nArr) Then
          Write (6,*) 'nArray.gt.nZeta*nArr'
-         Call QTrace()
          Call Abend()
       End If
 *                                                                      *
@@ -76,80 +64,74 @@
 *                                                                      *
       kdc=0
       Do iCnttp = 1, nCnttp
-c...  Don't Skip DUMMY ( cf. YC )
+         If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
 
-ccjd
-cc       If (Charge(iCnttp).eq.0d0) Go To 999
-ccjd
-         If (nPP_Shells(iCnttp).eq.0) Go To 999
+         If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
-         do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
-           ncrr=Int(Work(ipExp(kSh)))
-           if(ncrr.le.500) nPP_S=nPP_S+1
+         do kSh = dbsc(iCnttp)%iPP,
+     &            dbsc(iCnttp)%iPP + dbsc(iCnttp)%nPP-1
+*           Skip if a cardholder shell
+            If (Shells(kSh)%nExp.le.0) Cycle
+            ncrr=Int(Shells(kSh)%Exp(1))
+            if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
-         If (nPP_S.eq.0) Go To 999
+         If (nPP_S.eq.0) Cycle
 cAOM>
 *
          npot = 0
-         kShStr=ipPP(iCnttp)
-CAOM         kShEnd = kShStr + nPP_Shells(iCnttp)-1
+         kShStr=dbsc(iCnttp)%iPP
          kShEnd = kShStr + nPP_S-1
-CAOM         If (nPP_Shells(iCnttp)-1.gt.lproju) Then
          If (nPP_S-1.gt.lproju) Then
-            Write (6,*) 'nPP_Shells(iCnttp)-1.gt.lproju'
-CAOM            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_Shells(iCnttp)
-            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_S
+            Write (6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
+            Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
-            Call QTrace()
             Call Abend()
          End If
-CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
          lcr(kcrs)=nPP_S-1
          iSh=0
          iOff = 1
          Do kSh = kShStr, kShEnd
             iSh = iSh + 1
             nkcrl(iSh,kcrs)=iOff
-            nkcru(iSh,kcrs)=iOff+nExp(ksh)-1
-            iOff = iOff + nExp(kSh)
+            nkcru(iSh,kcrs)=iOff+Shells(kSh)%nExp/3-1
+            iOff = iOff + Shells(kSh)%nExp/3
             If (nPot.gt.imax) Then
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
                Write (6,*)'         imax=',imax
-               Call QTrace()
                Call Abend()
             End If
-            iStrt=ipExp(kSh)
-            Do iExp = 1, nExp(kSh)
+            iStrt=1
+            Do iExp = 1, Shells(kSh)%nExp/3
                npot = npot + 1
-               ncr(npot)=Int(Work(iStrt  ))
-               zcr(npot)=    Work(iStrt+1)
-               ccr(npot)=    Work(iStrt+2)
+               ncr(npot)=Int(Shells(kSh)%Exp(iStrt  ))
+               zcr(npot)=    Shells(kSh)%Exp(iStrt+1)
+               ccr(npot)=    Shells(kSh)%Exp(iStrt+2)
                iStrt=iStrt+3
             End Do
          End Do
-C        Write (*,*) 'ncr',(ncr(i),i=1,npot)
-C        Write (*,*) 'zcr',(zcr(i),i=1,npot)
-C        Write (*,*) 'ccr',(ccr(i),i=1,npot)
-C        Write (*,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
-C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'ncr',(ncr(i),i=1,npot)
+         Write (6,*) 'zcr',(zcr(i),i=1,npot)
+         Write (6,*) 'ccr',(ccr(i),i=1,npot)
+         Write (6,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
+         Write (6,*) 'nkcru',(nkcru(i,1),i=1,iSh)
+#endif
 *
-         Do iCntr = 1, nCntr(iCnttp)
-            ixyz = ipCntr(iCnttp) + (iCntr-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+         Do iCntr = 1, dbsc(iCnttp)%nCntr
+            C(1:3) = dbsc(iCnttp)%Coor(1:3,iCntr)
 *
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+iCntr) ,nStab(kdc+iCntr),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+iCntr)%iStab ,dc(kdc+iCntr)%nStab,
+     &               iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -180,7 +162,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *                                                                      *
 *              Symmetry Adapt
 *
-               nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               nOp = NrOpr(iDCRT(lDCRT))
                Call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,
      &                     nOp,lOper,iChO,Fact)
             End Do        ! lDCRT
@@ -188,14 +170,10 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 ************************************************************************
 *                                                                      *
          End Do           ! iCntr
- 999     Continue
-         kdc = kdc + nCntr(iCnttp)
       End Do              ! iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call GetMem(' Exit PPInt','LIST','REAL',iDum,iDum)
-*     Call qExit('PPInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

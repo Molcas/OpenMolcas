@@ -37,25 +37,26 @@ C
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_O4_Drv', ThisNm = 'O4_Drv')
+      Character(LEN=6), Parameter:: ThisNm = 'O4_Drv'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_O4_Drv'
 
-      Parameter (Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15)
-      Parameter (iFmt = 0)
+      Real*8, Parameter:: Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15
+      Integer, Parameter:: iFmt = 0
 
-      Logical Delete, Delete_def, DoAmpDiag
-      Parameter (Delete_def = .true.)
+      Logical Delete, DoAmpDiag
+      Logical, Parameter:: Delete_def = .true.
 
       Integer a, ai
       Integer lU_AO(8)
 
-      Character*3 BaseName_AO
+      Character(LEN=3) BaseName_AO
+      Real*8, Allocatable:: Check(:)
 
       MulD2h(k,l)=iEor(k-1,l-1)+1
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Verbose = .true.
 #endif
       If (Verbose) Then
@@ -65,7 +66,6 @@ C
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
 
       EMP2 = 0.0d0
@@ -74,9 +74,8 @@ C     ----------------
          Call CWTime(CPUIni1,WallIni1)
       End If
 
-      l_Dum = 1
-      Call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
-      Work(ip_Dum) = Chk_Mem_ChoMP2
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1) = Chk_Mem_ChoMP2
 
       FracMem = 0.0d0 ! no buffer allocated
       Call Cho_X_Init(irc,FracMem)
@@ -121,7 +120,9 @@ C     ----------------------------------------------------------
       Do iSym = 2,nSym
          lDiag = lDiag + nT1am(iSym)
       End Do
+
       Call GetMem('Diag','Allo','Real',ipDiag,lDiag)
+
       Call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),.True.)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
@@ -203,6 +204,7 @@ C     --------------------------------------------------
             lDiag = lDiag + nBas(iSyma)*nBas(iSymb)
          End Do
       End Do
+
       Call GetMem('AODiag','Allo','Real',ipDiag,lDiag)
       Call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,
      &                        Work(ipDiag),lDiag,lU_AO,irc)
@@ -253,7 +255,7 @@ C     Exit.
 C     -----
 
     1 Continue
-      Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
+      Diff = abs(Check(1)-Chk_Mem_ChoMP2)
       If (Diff .gt. Tol) Then
          Write(6,*) SecNam,': Memory Boundary Error!'
          If (irc .eq. 0) irc = -9999
@@ -263,7 +265,6 @@ C     -----
          Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,
      &                   WallTot2,WallTot1,iFmt)
       End If
-      Call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
-      Call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
-      Call qExit(ThisNm)
+
+      Call mma_deallocate(Check)
       End

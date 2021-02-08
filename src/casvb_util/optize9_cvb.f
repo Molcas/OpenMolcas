@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine optize9_cvb(fx1,nparm,ioptc,
      >  hessdx,grad,dx)
@@ -23,7 +24,8 @@
 
       dum(1)=rand_cvb(.777d0)
       do 100 iparm=1,nparm
-100   dx(iparm)=rand_cvb(zero)-half
+      dx(iparm)=rand_cvb(zero)-half
+100   continue
       call nize_cvb(dx,1,dum,nparm,0,0)
       call fmove_cvb(dx,hessdx,nparm)
       call hess_cvb(hessdx)
@@ -45,7 +47,8 @@
       write(6,formChk3)cn,fx-fx1,cn*e1+cn*cn*half*e2,
      >  (fx-fx1)/(cn*e1+cn*cn*half*e2),(fx-fx1-cn*e1)/(cn*cn*half)
       call dscal_(nparm,tenth,dx,1)
-200   cn=tenth*cn
+      cn=tenth*cn
+200   continue
 
       ioptc=0
       return

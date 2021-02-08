@@ -18,25 +18,6 @@
 *         order density matrix and accumulate contributions to the     *
 *         global multipole expansion.                                  *
 *                                                                      *
-* Called from: RctFld                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltInt                                                  *
-*              DGeMV    (ESSL)                                         *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -53,13 +34,14 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
+      use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -80,16 +62,13 @@
 *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('Drv1_PCM')
-*
-      iIrrep = 0
 *
 *     Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max,Label='Zeta')
-      Call mma_allocate(ZI,m2Max,Label='ZI')
-      Call mma_allocate(Kappa,m2Max,Label='Kappa')
-      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -103,34 +82,32 @@
 
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll)) Go To 100
+         If (Shells(iShll)%Aux) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
-         call dcopy_(3,Work(ixyz),1,A,1)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
-            call dcopy_(3,Work(jxyz),1,B,1)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.eq.0) Go To 131
             If (iPrint.ge.19) Write (6,'(A,A,A,A,A)')
      &        ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
@@ -139,27 +116,27 @@
 *
             Call EFMmP(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           Write (*,*)nOrder,MemKer,iAng,jAng,nOrdOp
-            MemKrn=MemKer*m2Max
+            MemKrn=MemKer*S%m2Max
             Call mma_allocate(Kern,MemKrn,Label='Kern')
 *
 *           Allocate memory for the final integrals, all in the
 *           primitive basis.
 *
             nComp = (nOrdOp+1)*(nOrdOp+2)/2
-            lFinal = MaxPrm(iAng) * MaxPrm(jAng)
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng)
      &             * nElem(iAng)*nElem(jAng)
      &             * nComp
             Call mma_allocate(Fnl,lFinal,Label='Fnl')
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
             nDAO =iPrim*jPrim*nElem(iAng)*nElem(jAng)
@@ -167,22 +144,22 @@
 *
 *           At this point we can compute Zeta.
 *
-            Call ZXia(Zeta,ZI,iPrim,jPrim,Work(iExp),Work(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *
             AeqB = iS.eq.jS
 *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
-     &               nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
             If (iPrint.ge.49) Write (6,'(10A)')
      &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
 *           Allocate memory for the elements of the Fock or 1st order
@@ -196,29 +173,30 @@
 *
             Call SOGthr(DSO,iBas,jBas,nSO,FD,
      &                  n2Tri(iSmLbl),iSmLbl,
-     &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+     &                  iCmp,jCmp,iShell,jShell,
+     &                  AeqB,iAO,jAO)
 *
 *           Project the Fock/1st order density matrix in AO
 *           basis on to the primitive basis.
 *
             If (iPrint.ge.99) Then
                Call RecPrt(' Left side contraction',' ',
-     &                     Work(iCff),iPrim,iBas)
+     &                     Shells(iShll)%pCff,iPrim,iBas)
                Call RecPrt(' Right side contraction',' ',
-     &                     Work(jCff),jPrim,jBas)
+     &                     Shells(jShll)%pCff,jPrim,jBas)
             End If
 *
 *           Transform IJ,AB to J,ABi
             Call DGEMM_('T','T',
      &                  jBas*nSO,iPrim,iBas,
      &                  1.0d0,DSO,iBas,
-     &                  Work(iCff),iPrim,
+     &                        Shells(iShll)%pCff,iPrim,
      &                  0.0d0,DSOpr,jBas*nSO)
 *           Transform J,ABi to AB,ij
             Call DGEMM_('T','T',
      &                  nSO*iPrim,jPrim,jBas,
      &                  1.0d0,DSOpr,jBas,
-     &                  Work(jCff),jPrim,
+     &                        Shells(jShll)%pCff,jPrim,
      &                  0.0d0,DSO,nSO*iPrim)
 *           Transpose to ij,AB
             Call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOpr,
@@ -232,9 +210,7 @@
 *           Loops over symmetry operations.
 *
             Do lDCRR = 0, nDCRR-1
-               RB(1)  = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-               RB(2)  = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-               RB(3)  = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
+               Call OA(iDCRR(lDCRR),B,RB)
 *
 *--------------Loop over operators
 *
@@ -248,8 +224,8 @@
 *
 *-----------------Find the DCR for M and S
 *
-                  Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &                     iStabO,nStabO,iDCRT,nDCRT)
+                  Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,
+     &                     iDCRT,nDCRT)
                   If (iPrint.ge.49) Then
                      Write (6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),
      &                     i=0,nStabM-1),')'
@@ -262,7 +238,7 @@
 *-----------------Compute normalization factor due the DCR symmetrization
 *                 of the two basis functions and the operator.
 *
-                  iuv = nStab(mdci)*nStab(mdcj)
+                  iuv = dc(mdci)%nStab*dc(mdcj)%nStab
                   FactNd = DBLE(iuv*nStabO) / DBLE(nIrrep**2*LmbdT)
                   If (MolWgh.eq.1) Then
                      FactNd = FactNd * DBLE(nIrrep)**2 / DBLE(iuv)
@@ -273,17 +249,12 @@
                   FactNd = FactNd * FactOp(iTile)
 *
                   Do lDCRT = 0, nDCRT-1
-                     nOp(1) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-                     nOp(2) = NrOpr(iEor(iDCRT(lDCRT),
-     &                             iDCRR(lDCRR)),iOper,nIrrep)
-                     nOp(3) = NrOpr(0,iOper,nIrrep)
+                     nOp(1) = NrOpr(iDCRT(lDCRT))
+                     nOp(2) = NrOpr(iEor(iDCRT(lDCRT),iDCRR(lDCRR)))
+                     nOp(3) = NrOpr(0)
 
-                     TA(1) =  DBLE(iPhase(1,iDCRT(lDCRT)))*A(1)
-                     TA(2) =  DBLE(iPhase(2,iDCRT(lDCRT)))*A(2)
-                     TA(3) =  DBLE(iPhase(3,iDCRT(lDCRT)))*A(3)
-                     TRB(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*RB(1)
-                     TRB(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*RB(2)
-                     TRB(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*RB(3)
+                     Call OA(iDCRT(lDCRT),A,TA)
+                     Call OA(iDCRT(lDCRT),RB,TRB)
                      If (iPrint.ge.49) Then
                         Write (6,'(A,/,3(3F6.2,2X))')
      &                  ' *** Centers A, B, C ***',
@@ -298,14 +269,15 @@
 *
                      Call DesymD(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                           iShell,jShell,iShll,jShll,
-     &                           DAO,iPrim,jPrim,
+     &                           iAO,jAO,DAO,iPrim,jPrim,
      &                           DSOpr,nSO,nOp,FactNd)
 *
 *--------------------Project the spherical harmonic space onto the
 *                    cartesian space.
 *
                      kk = nElem(iAng)*nElem(jAng)
-                     If (Transf(iShll).or.Transf(jShll)) Then
+                     If (Shells(iShll)%Transf.or.
+     &                   Shells(jShll)%Transf) Then
 *
 *-----------------------ij,AB --> AB,ij
                         Call DGeTmO(DAO,iPrim*jPrim,iPrim*jPrim,
@@ -314,9 +286,11 @@
                         Call SphCar(Scr1,iCmp*jCmp,iPrim*jPrim,
      &                              Scr2,nScr2,
      &                              RSph(ipSph(iAng)),
-     &                              iAng,Transf(iShll),Prjct(iShll),
+     &                              iAng,Shells(iShll)%Transf,
+     &                                   Shells(iShll)%Prjct,
      &                              RSph(ipSph(jAng)),
-     &                              jAng,Transf(jShll),Prjct(jShll),
+     &                              jAng,Shells(jShll)%Transf,
+     &                                   Shells(jShll)%Prjct,
      &                              DAO,kk)
                      End If
                      If (iPrint.ge.99) Call RecPrt(
@@ -325,13 +299,15 @@
 *
 *--------------------Compute kappa and P.
 *
-                     Call Setup1(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call Setup1(Shells(iShll)%Exp,iPrim,
+     &                           Shells(jShll)%Exp,jPrim,
      &                           TA,TRB,Kappa,PCoor,ZI)
 *
 *
 *--------------------Compute the potential at a tessera.
 *
-                     Call EFPrm(Work(iExp),iPrim,Work(jExp),jPrim,
+                     Call EFPrm(Shells(iShll)%Exp,iPrim,
+     &                          Shells(jShll)%Exp,jPrim,
      &                          Zeta,ZI,Kappa,Pcoor,
      &                          Fnl,iPrim*jPrim,nComp,
      &                          iAng,jAng,TA,TRB,nOrder,Kern,
@@ -380,6 +356,5 @@
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv1_PCM')
       Return
       End

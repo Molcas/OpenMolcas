@@ -17,7 +17,6 @@
       INTEGER IBLTP(*)
       INTEGER IOCOC(NOCTPA,NOCTPB)
 *
-C     CALL QENTER('NXTBLK')
 *.Initialize
       ISM = IASM
       IA = IATP
@@ -57,6 +56,5 @@ C     CALL QENTER('NXTBLK')
      &  ' NXTBLK : ISM IA IB NONEW ', IASM,IA,IB,NONEW
       END IF
 *
-C     CALL QEXIT('NXTBLK')
       RETURN
       END

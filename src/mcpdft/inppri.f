@@ -53,7 +53,6 @@
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('InpPri')
       lPaper=132
       Zero = 0.0D0
 *----------------------------------------------------------------------*
@@ -163,7 +162,7 @@ C.. for GAS
       Write(LF,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           (DBLE(ISPIN-1))/2.0d0
       Write(LF,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
       Call CollapseOutput(0,'Wave function specifications:')
 *
       Call Get_cArray('Irreps',lIrrep,24)
@@ -237,14 +236,14 @@ C.. for GAS
       Write(LF,Fmt1)'----------------------------'
       Write(LF,*)
       Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
-     &                           NCSASM(LSYM)
+     &                           NCSASM(STSYM)
       Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(LSYM)
+     &                           NDTASM(STSYM)
         n_Det=2
         n_unpaired_elec=(iSpin-1)
         n_paired_elec=nActEl-n_unpaired_elec
         If(n_unpaired_elec+n_paired_elec/2.eq.nac.or.
-     &     NDTASM(LSYM).eq.1) n_Det = 1
+     &     NDTASM(STSYM).eq.1) n_Det = 1
         If(KSDFT.eq.'DIFF')   n_Det = 1
         If(KSDFT.eq.'ROKS')   n_Det = 1
 
@@ -345,9 +344,9 @@ C.. for GAS
 * Check that the user doesn't try to calculate more roots than it's possible
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
-*     If (NROOTS .GT. NCSASM(LSYM)) Then
+*     If (NROOTS .GT. NCSASM(STSYM)) Then
       If (.false.) Then
-!      If (.NOT.DoDMRG .AND. NROOTS .GT. NCSASM(LSYM)) Then
+!      If (.NOT.DoDMRG .AND. NROOTS .GT. NCSASM(STSYM)) Then
          Write(LF,*) '************ ERROR ***********'
          Write(LF,*) ' You can''t ask for more roots'
          Write(LF,*) ' than there are configurations '
@@ -357,14 +356,14 @@ C.. for GAS
       End If
 * If the calculation will be too big:
       call GetMem('ChkMx','Max','Real',iDum,MaxRem)
-      WillNeedMB=(8.0D0*1.50D0*6.0D0*NDTASM(LSYM)/1.048D6)
+      WillNeedMB=(8.0D0*1.50D0*6.0D0*NDTASM(STSYM)/1.048D6)
       AvailMB=(8.0D0*MaxRem/1.048D6)
       if (WillNeedMB .gt. AvailMB) then
         write(6,*)
         write(6,*)' *************************************************'
         write(6,*)' Sorry, but your calculation will probably be too'
         write(6,*)' large for the available memory.'
-        write(6,*)' The number of determinants is ',NDTASM(LSYM)
+        write(6,*)' The number of determinants is ',NDTASM(STSYM)
         write(6,*)' During CI equation solution, there will be'
         write(6,*)' up to six vectors of this size in memory.'
         write(6,*)' We estimate an additional 50% for other stuff.'
@@ -466,7 +465,6 @@ C.. for GAS
             Write(LF,*) 'InpPri: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
-            Call QTrace
             Call Abend
          Endif
          Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -514,6 +512,5 @@ C.. for GAS
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('InpPri')
       Return
       End

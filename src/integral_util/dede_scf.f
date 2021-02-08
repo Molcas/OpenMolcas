@@ -8,25 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
+      use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
       Integer nDens, mDens
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage
 *
-#ifdef _DEBUG_
-      Call qEnter('DeDe_SCF')
-#endif
       nr_of_Densities=1  ! Hardwired option
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nField=2+nr_of_Densities
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
 *
@@ -36,18 +35,18 @@
 *     ipDijS is an auxilliary memory if not the whole set of a
 *      desymmetrized density could be used.
 *
-      nDeDe_tot = nDeDe + MaxDe*MaxDCR + MxDij
+      nDeDe_tot = nDeDe + MaxDe*nIrrep + MxDij
       Call mma_allocate(DeDe,nDeDe_tot,Label='DeDe')
       ipDeDe = 1
       ipD00 = ipDeDe + nDeDe
-      ipDijS= ipD00  + MaxDe*MaxDCR
+      ipDijS= ipD00  + MaxDe*nIrrep
       DeDe(:)=Zero
 *
       Special_NoSym=.True.
       DFT_Storage=.False.
       Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
      &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &             Work,1,DeDe,nDeDe)
+     &             DeDe,nDeDe)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -77,9 +76,13 @@
          pDq => Dens(:)
          pFq => Twoham(:)
       End If
-#ifdef _DEBUG_
-      Call qExit('DeDe_SCF')
+
+      End Subroutine DeDe_SCF
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(DeDe_SCF)
+
 #endif
-*
-      Return
-      End

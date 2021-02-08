@@ -43,6 +43,7 @@
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "input_ras.fh"
 
@@ -54,11 +55,10 @@
       Character*3 SNAC
 #endif
       Logical FullMlk, get_BasisType
-cnf
       Logical Do_ESPF,lSave, lOPTO, Do_DM
-cnf
       DIMENSION CMO(*),OCCN(*),SMAT(*)
       Dimension Temp(2,mxRoot)
+      Real*8, Allocatable:: DSave(:)
 
 ** (SVC) added for new supsym vector input
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
@@ -74,7 +74,6 @@ cnf
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('OutCtl')
 C Local print level (if any)
       IPRLEV=IPRLOC(6)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -122,7 +121,7 @@ C Local print level (if any)
       Write(LF,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           (DBLE(ISPIN-1))/2.0d0
       Write(LF,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
       Call CollapseOutput(0,'Wave function specifications:')
 *
       Call Get_cArray('Irreps',lIrrep,24)
@@ -248,9 +247,9 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'----------------------------'
         Write(LF,*)
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
-     &                           NCSASM(LSYM)
+     &                           NCSASM(STSYM)
         Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(LSYM)
+     &                           NDTASM(STSYM)
       end if
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                           NROOTS
@@ -306,7 +305,6 @@ C Local print level (if any)
             Write(LF,*) 'OutCtl: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
-            Call QTrace
             Call Abend
          Endif
          Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -620,7 +618,8 @@ C Local print level (if any)
 *
 *     But first save the 1st order density for gradients
 *
-      Call Get_D1AO(ipDSave,NTOT1)
+      Call mma_allocate(DSave,nTot1,Label='DSave')
+      Call Get_D1AO(DSave,NTOT1)
 *
 *     The dipole moments will also be stored over all kroot states.
 *
@@ -824,8 +823,8 @@ cnf
 *
 *     Restore the correct 1st order density for gradient calculations.
 *
-      Call Put_D1AO(Work(ipDSave),NTOT1)
-      Call GetMem('DSave','Free','REAL',ipDSave,nTot1)
+      Call Put_D1AO(DSave,NTOT1)
+      Call mma_deallocate(DSave)
 *
 *     Save the list of dipole moments on the run file.
 *
@@ -840,6 +839,5 @@ cnf
       CALL GETMEM('CMON','FREE','REAL',icmon,NTOT2)
 *----------------------------------------------------------------------*
 
-      Call qExit('OutCtl')
       Return
       End

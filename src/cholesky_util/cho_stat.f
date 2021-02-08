@@ -12,38 +12,33 @@
 C
 C     Purpose: print statistics from decomposition.
 C
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
+      use ChoArr, only: nDimRS, IntMap
+      use ChoSwp, only: nnBstRSh, InfVec
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "cho_para_info.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr.fh"
-#include "chosubscr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*8 SECNAM
-      PARAMETER (SECNAM = 'CHO_STAT')
+      CHARACTER(LEN=8), PARAMETER:: SECNAM = 'CHO_STAT'
 
       CHARACTER*25 STRING
       CHARACTER*2  UNT
 
-      PARAMETER (NTAU = 5, DTAU = 1.0D-1)
+      Integer, PARAMETER:: NTAU = 5
+      Real*8, PARAMETER:: DTAU = 1.0D-1
       REAL*8 TAU(NTAU), XC(NTAU)
 
       REAL*8 XXBST(8), VCSTOR(8)
 
       LOGICAL DOCPCT, DOWPCT, CHO_SSCREEN_SAVE, PARALG
 
-      PARAMETER (N2 = INFVEC_N2)
+      Real*8, Allocatable:: KRDVEC(:)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      INTMAP(I)=IWORK(ip_INTMAP-1+I)
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
-      DSPNM(I)=WORK(ip_DSPNM-1+I)
-
-      CALL QENTER('_STAT')
 
       PARALG=CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6
 
@@ -589,14 +584,13 @@ C     ------------------------------------------------------------
                            NUMV = NUMVEC
                         END IF
                         LRDVEC = NDIMRS(ISYM,IRED)*NUMV
-                        CALL CHO_MEM('TstScreen','ALLO','REAL',
-     &                               KRDVEC,LRDVEC)
+                        Call mma_allocate(KRDVEC,LRDVEC,Label='KRDVEC')
 
                         JVEC1 = IVEC1 + NUMVEC*(IBATCH-1)
                         JVEC2 = JVEC1 + NUMV - 1
                         JNUM  = 0
                         MUSD  = 0
-                        CALL CHO_VECRD(WORK(KRDVEC),LRDVEC,JVEC1,JVEC2,
+                        CALL CHO_VECRD(KRDVEC,LRDVEC,JVEC1,JVEC2,
      &                                 ISYM,JNUM,IREDC,MUSD)
                         IF (JNUM .NE. NUMV) THEN
                            CALL CHO_QUIT('Logical error in '//SECNAM,
@@ -613,7 +607,7 @@ C     ------------------------------------------------------------
                            IREDC = IRED
                         END IF
 
-                        CALL CHO_SUBSCR_DIA(WORK(KRDVEC),NUMV,ISYM,ILOC,
+                        CALL CHO_SUBSCR_DIA(KRDVEC,NUMV,ISYM,ILOC,
      &                                      SSNORM)
                         XT = 0.0D0
                         CALL CHO_DZERO(XC,NTAU)
@@ -659,8 +653,7 @@ C     ------------------------------------------------------------
                         END DO
                         CALL CHO_FLUSH(LUPRI)
 
-                        CALL CHO_MEM('TstScreen','FREE','REAL',
-     &                               KRDVEC,LRDVEC)
+                        Call mma_deallocate(KRDVEC)
 
                      END DO
 
@@ -679,6 +672,5 @@ C     ------------------------------------------------------------
 
       END IF
 
-      CALL QEXIT('_STAT')
 
       END

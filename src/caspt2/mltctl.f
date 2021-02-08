@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
-      USE REFWFN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -27,12 +26,11 @@
       INTEGER LAXITY
       INTEGER  Cho_X_GetTol
       EXTERNAL Cho_X_GetTol
-      CHARACTER(8) INLAB
+      CHARACTER(LEN=8) INLAB
       DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
       real(8) U0(Nstate,Nstate)
       real(8),allocatable :: Utmp(:,:)
 
-      CALL QENTER('MLTCTL')
 
       IF(IPRGLB.GE.TERSE) THEN
         CALL CollapseOutput(1,'Multi-State CASPT2 section:')
@@ -45,8 +43,6 @@
       END IF
 
 C Write out the effective Hamiltonian, for use in e.g. RASSI:
-      IRC=-1
-      IOPT=1
       INLAB='HEFF'
       CALL put_darray(INLAB,HEFF,NSTATE**2)
 
@@ -176,6 +172,5 @@ C Use a symmetrized matrix, in triangular storage:
       IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
 
-      CALL QEXIT('MLTCTL')
       RETURN
       END

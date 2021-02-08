@@ -10,12 +10,13 @@
 *                                                                      *
 * Copyright (C) 1992,2000, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_Aces(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_Aces(iCmp,iBas,jBas,kBas,lBas,
      &                      Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
      &                      iSO2Sh,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
 *                                                                      *
@@ -26,38 +27,29 @@
 *          DSO: HF 1st order density                                   *
 *          DSO_Var: 1st order density of correlated wf.                *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)
       Real*8 PSO(nijkl,nPSO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma),  DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+      Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -67,10 +59,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
-      Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          Write (6,*) 'nSOs=',nSOs
          Write (6,*) 'iSO2Sh=',iSO2Sh
@@ -92,8 +83,7 @@
       Do 100 i1 = 1, iCmp(1)
          niSym = 0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(1))+i1),
-     &          iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(1)+i1,j)>0) Then
                iSym(niSym) = j
                niSym = niSym + 1
             End if
@@ -101,8 +91,7 @@
          Do 200 i2 = 1, iCmp(2)
             njSym = 0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(2)+i2,j)>0) Then
                   jSym(njSym) = j
                   njSym = njSym + 1
                End If
@@ -110,8 +99,7 @@
             Do 300 i3 = 1, iCmp(3)
                nkSym = 0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(3))+i3),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(3)+i3,j)>0) Then
                      kSym(nkSym) = j
                      nkSym = nkSym + 1
                   End If
@@ -119,8 +107,7 @@
                Do 400 i4 = 1, iCmp(4)
                   nlSym = 0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &                   iTwoj(j)).ne.0) Then
+                     If (iAOtSO(iAO(4)+i4,j)>0) Then
                         lSym(nlSym) = j
                         nlSym = nlSym + 1
                      End If
@@ -309,12 +296,11 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2')
 #endif
       Return
 c Avoid unused argument warnings

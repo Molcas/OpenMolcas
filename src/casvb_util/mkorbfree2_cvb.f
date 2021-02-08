@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mkorbfree2_cvb(orbs,north,corth,
      >  irels,relorb,ifxorb,iorts,irots,
      >  trprm,owrk,owrk2,orbinv,idel)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -52,26 +52,30 @@ c  Transform simple constraints to basis of VB orbitals :
         do 300 icon=1,ncon
         nc=nc+1
         i2=0
-        do 300 i=1,norb
+        do 301 i=1,norb
         if(i.ne.iorb)then
           i2=i2+1
           trprm(i2+ishift,nc)=owrk(i,icon)
         endif
+301     continue
 300     continue
       elseif(ifxorb(iorb).eq.1)then
         ishift=(iorb-1)*(norb-1)
         do 350 icon=1,norb-1
         nc=nc+1
-350     trprm(icon+ishift,nc)=one
+        trprm(icon+ishift,nc)=one
+350     continue
       endif
-100   ioffs=ioffs+north(iorb)
+      ioffs=ioffs+north(iorb)
+100   continue
 
       call mxattb_cvb(orbs,orbs,norb,norb,norb,owrk)
       call ortelim_cvb(trprm,iorts,irots,owrk,
      >  nc,nprorb,norb*(norb-1),nrem)
       call izero(idel,nprorb)
       do 500 i=1,nrem
-500   idel(i)=1
+      idel(i)=1
+500   continue
 
       do 600 irel=1,nijrel
       iorb=irels(1,irel)
@@ -94,8 +98,9 @@ c  Transform simple constraints to basis of VB orbitals :
       if(j.eq.jorb)goto 720
       j2=j2+1
       do 740 iprm=1,nprorb
-740   trprm(i2+ishift2,iprm)=trprm(i2+ishift2,iprm)
+      trprm(i2+ishift2,iprm)=trprm(i2+ishift2,iprm)
      >  +owrk2(i,j)*trprm(j2+ishift,iprm)
+740   continue
 720   continue
 700   continue
       ioff=1+(iorb-1)*(norb-1)
@@ -107,7 +112,8 @@ c  Transform simple constraints to basis of VB orbitals :
       sum2=ddot_(nl1,trprm(1,i),1,trprm(1,i),1)
       if(nl2.gt.0) sum2=sum2
      >    +ddot_(nl2,trprm(ioff2,i),1,trprm(ioff2,i),1)
-800   if(sum1.gt.thresh.and.sum2.lt.thresh)idel(i)=1
+      if(sum1.gt.thresh.and.sum2.lt.thresh)idel(i)=1
+800   continue
 600   continue
       nfrorb=0
       do 900 i=1,norb*(norb-1)

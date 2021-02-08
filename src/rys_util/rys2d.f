@@ -15,17 +15,10 @@
      &                 B10,laa,B00,lac,B01,lcc)
 ************************************************************************
 *                                                                      *
-*     Object: to compute the 2-dimensional integrals of the Rys        *
-*             quadrature. The z components are assumed to be pre-      *
-*             conditioned with the weights of the roots of the         *
-*             Rys polynomial.                                          *
-*                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
+* Object: to compute the 2-dimensional integrals of the Rys            *
+*         quadrature. The z components are assumed to be pre-          *
+*         conditioned with the weights of the roots of the             *
+*         Rys polynomial.                                              *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -35,29 +28,19 @@
 * VV: improve loop structure                                           *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax),
      &       PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3),
      &       B10(nArg*lRys*3), B00(nArg*lRys*3),
      &       B01(nArg*lRys*3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*30 Label
-#endif
-*
-      iRout = 15
-      iPrint = nPrint(iRout)
-#ifdef _DEBUG_
-      iPrint=99
-      If (iPrint.ge.59) Then
-         If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
-         If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-         If (laa.ne.0) Call RecPrt(' B10',' ',B10,nArg*lRys,3)
-         If (lac.ne.0) Call RecPrt(' B00',' ',B00,nArg*lRys,3)
-         If (lcc.ne.0) Call RecPrt(' B01',' ',B01,nArg*lRys,3)
-      End If
+      If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
+      If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
+      If (laa.ne.0) Call RecPrt(' B10',' ',B10,nArg*lRys,3)
+      If (lac.ne.0) Call RecPrt(' B00',' ',B00,nArg*lRys,3)
+      If (lcc.ne.0) Call RecPrt(' B01',' ',B01,nArg*lRys,3)
 #endif
 *
 *     Compute 2D integrals with index (0,0). Observe that the z
@@ -161,22 +144,20 @@
 
       End If
 *
-#ifdef _DEBUG_
-      If (iPrint.ge.99) Then
-         Do 600 iab = 0, nabMax
-            Do 610 icd = 0, ncdMax
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-               Call RecPrt(Label,' ',
-     &                     xyz2D(1,iab,icd),lRys,nArg)
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-               Call RecPrt(Label,' ',
-     &                     xyz2D(1+nArg*lRys,iab,icd),lRys,nArg)
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-               Call RecPrt(Label,' ',
-     &                     xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
- 610        Continue
- 600     Continue
-      End If
+#ifdef _DEBUGPRINT_
+      Do 600 iab = 0, nabMax
+         Do 610 icd = 0, ncdMax
+            Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
+            Call RecPrt(Label,' ',
+     &                  xyz2D(1,iab,icd),lRys,nArg)
+            Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
+            Call RecPrt(Label,' ',
+     &                  xyz2D(1+nArg*lRys,iab,icd),lRys,nArg)
+            Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
+            Call RecPrt(Label,' ',
+     &                  xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
+ 610     Continue
+ 600  Continue
 #else
 c Avoid unused argument warnings
       If (.False.) Then

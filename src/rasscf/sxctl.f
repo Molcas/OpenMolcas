@@ -59,6 +59,9 @@
       use qcmaquis_interface_cfg
 #endif
       use fciqmc, only : DoNECI
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -86,8 +89,6 @@
 #ifndef _DMRG_
       logical :: doDMRG = .false.
 #endif
-      ipDMAT=ip_Dummy
-      nDMAT = 1
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
@@ -111,7 +112,6 @@ C Extra term in overlaps (COVLP, SXHAM): 1.0D-14
 C Extra term in SIGVEC:                  1.0D-12
 
 
-      Call qEnter(ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
 c      write(6,*) 'Entering SXCTL!'
@@ -203,14 +203,12 @@ C --------------------------------------
 
          if (irc.ne.0) then
          Write(LF,*)'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
-         call qtrace()
          call abend()
          endif
 
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf
@@ -269,11 +267,8 @@ C --------------------------------------
        IF(ISTORP(NSYM+1).GT.0) THEN
 c         Write(LF,*)
 c         Write(LF,*) ' ---------------------'
-C         Call Get_D1MO(ipDMAT,nDmat)
-c         CALL TRIPRT('Averaged 1-body Dmat D in MO in SXCTL',' ',D,NAC)
          CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
          CALL DmatDmat(D,WORK(LP))
-C         If(ipDMAT.ne.ip_Dummy) Call Free_Work(ipDMAT)
        END IF
       end if
 ************************************************************************
@@ -343,27 +338,6 @@ cGLM      end if
         Call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
         call dcopy_(NTOT,[0.0D0],0,WORK(LEDUM),1)
 
-        IF (DoNECI) THEN
-          write(6,*)'For NECI orbital energies are approximated'
-          write(6,*)'to the diagonal value of the Fock matrix (SXCTL)'
-          write(6,*)'These values are going to the temporary RasOrb'
-          write(6,*)'together with CMOs before orb rot is performed'
-c This is of course not true other than for special cases ... but some might find it beneficial!
-          iOff  = 0
-          iOff2 = 0
-          Do iSym = 1,nSym
-           iBas = nBas(iSym)
-           if(iBas.gt.0) then
-            do iDiag = 1,iBas
-             WORK(LEDUM+iDiag-1+iOff) = FA(iOff2+(iDiag*(iDiag+1)/2))
-            end do
-            write(6,*) 'OrbEn in line for sym = ',iSym
-            write(6,*) (Work(LEDUM+i+iOff), i = 0,iBas-1)
-             iOff  = iOff + iBas
-             iOff2 = iOff2 + (iBas*iBas+iBas)/2
-           end if
-          End Do
-        END IF
         Write(VecTyp,'(A)')
         VecTyp='* RASSCF average (pseudo-natural) orbitals (Not final)'
         LuvvVec=50
@@ -708,6 +682,5 @@ C LY,LA, AND LB WORK AREAS
 
 9990  CONTINUE
       CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
-      Call qExit(ROUTINE)
       RETURN
       END

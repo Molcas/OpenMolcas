@@ -353,7 +353,6 @@ C       ww1lp=-valuelptmp1*2.d0
       iasta=ibsm_ext(iml)
       iaend=iesm_ext(iml)
       intpos0=intind_abkk(lri)
-      intspace=intspace_abkk(lri)
       ivalue=0
       jvalue=0
       if(.not.logic_g49b) goto 100
@@ -711,8 +710,8 @@ C            WL=WL+NEOC(K)*VLOP0*(VINT(LIST+2)+COE(K)*VINT(LIST+1))
       if ( logic_g2g4a ) then
         w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
-        ww0lp=w0_plp*w0g4a
-        ww1lp=w1_plp*w1g4a
+c       ww0lp=w0_plp*w0g4a
+c       ww1lp=w1_plp*w1g4a
 
 C       valuelptmp1=w0lp
 C       w0lp=w0lp-w1lp
@@ -776,8 +775,6 @@ C       ww1lp=-valuelptmp1*2.d0
         if ( logic_g2g4a ) then
           w0lp=w0_plp*w0g2a
           w1lp=w1_plp*w1g2a
-          ww0lp=w0_plp*w0g4a
-          ww1lp=w1_plp*w1g4a
           do i=1,intspace
            ivalue=ivalue+2
 !        Drl -- B^lA^r =4_3

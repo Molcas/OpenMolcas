@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine getmo2_cvb(cmo,cmo2,cmoblk,
      >  ic,ic2)
@@ -21,9 +22,11 @@ c  Construct full matrix of MOs in symmetry-adapted AO basis :
       call getmoblk_cvb(cmoblk,ic2)
       call fzero(cmo,nbas_mo*nbas_mo)
       do 100 isk=1,nsym_mo
-      do 100 jbas=1,nbasi_mo(isk)
-100   call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),
+      do 101 jbas=1,nbasi_mo(isk)
+      call fmove_cvb(cmoblk(1+nbassqf_mo(isk)+(jbas-1)*nbasi_mo(isk)),
      >  cmo(nbasf_mo(isk)+1,jbas+nbasf_mo(isk)),nbasi_mo(isk))
+101   continue
+100   continue
 
       if(mod(ic,2).eq.1)then
         call mxinv_cvb(cmo,nbas_mo)
@@ -32,7 +35,8 @@ c  Construct full matrix of MOs in symmetry-adapted AO basis :
 
       if(ic.ge.2)then
         do 200 iorb=1,nact_mo
-200     call fmove_cvb(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
+        call fmove_cvb(cmo(1,iact_mo(iorb)),cmo2(1,iorb),nbas_mo)
+200     continue
       endif
       return
       end

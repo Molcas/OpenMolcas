@@ -33,13 +33,11 @@ C
       DIMENSION TWRK4(N*200)
 *
 C
-*     Call qEnter('scfcli')
 c      write(6,*) ' in SCFCLI', N, iSize
-      TOL=1.D-14
       PREA=1d0/(VELIT*VELIT)
       CON2=PREA+PREA
       CON=1.D0/PREA
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C
 C     CALCULATE DETERMINANT
 C
@@ -48,7 +46,7 @@ c      do i=1,n
 c         write(6,'(5f10.5)') (TMPB(i,j),j=1,n)
 c      enddo
       icontr=-1
-      dtol=tol
+      dtol=1.D-14
       CALL dcopiv(TMPB,TMPB,n,1,n,dtol,det,iex,icontr,TMP2)
       if(idbg.gt.0)WRITE (idbg,2016) icontr,det,iex
 2016  FORMAT('  relsew| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
@@ -140,7 +138,8 @@ C
 *
          DO 362 I=1,N
             AA(I)=sqrt((CON+E(I)) / (2.D0*E(I)))
-362         RR(I)=sqrt(CON)/(CON+E(I))
+            RR(I)=sqrt(CON)/(CON+E(I))
+362      CONTINUE
 *
       ELSE IF(IRELAE.EQ.11) THEN
 *
@@ -355,7 +354,6 @@ culf
       if(idbg.gt.0)CALL PRMAT(IDBG,h,n,0,'h   oper(final)')
       if(idbg.gt.0)WRITE (idbg,*) '--- EIGENVALUES OF H MATRIX ---'
       if(idbg.gt.0)WRITE (idbg,'(4D20.12)') EW
-*     Call qExit('scfcli')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
@@ -447,7 +445,8 @@ C
             DO 343 L=1,K
                LG=LG+1
                JL=JL+1
-  343          ETOT=ETOT+SS(LG)*G(JL)
+               ETOT=ETOT+SS(LG)*G(JL)
+  343       CONTINUE
             S1KK=S1KK-ETOT*ETOT
             A1(K)=ETOT
   342    CONTINUE
@@ -460,8 +459,10 @@ C
             IH=JF
             DO 345 L=K,J1
                IH=IH+L-1
-  345          SUM=SUM+A1(L)*G(IH)
-  344       G(JL)=-SUM
+               SUM=SUM+A1(L)*G(IH)
+  345       CONTINUE
+            G(JL)=-SUM
+  344    CONTINUE
   341    CONTINUE
          IF (s1kk .LE. 1.D-16) THEN
             WRITE (6,*) '    Sogr| j=',j,' s1kk=',s1kk
@@ -473,14 +474,16 @@ C
             JL=JL+1
             IQ=IQ+1
             G(JL)=G(JL)*S1KK
-  340       P(IQ)=G(JL)
+            P(IQ)=G(JL)
+  340    CONTINUE
   349 CONTINUE
       IJ=0
       DO 1 I=1,N
          DO 2 J=1,I
             IJ=IJ+1
             SINV(I,J)=0.D0
-2           SINV(J,I)=P(IJ)
+            SINV(J,I)=P(IJ)
+2        CONTINUE
 1     CONTINUE
       IF (ierr.GT.0)  CALL errex_rel('function has negative norm')
       If (iDbg.gt.0) Call PrMat(idbg,P,n,0,'P')
@@ -541,7 +544,7 @@ C
      &          AUXF(N,N),AUXG(N,N),AUXH(N,N)
       DIMENSION W1W1(N,N)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL PRMAT(IDBG,V,N,0,'V       ')
       if(idbg.gt.0)CALL PRMAT(IDBG,G,N,0,'G       ')
       if(idbg.gt.0)CALL PRMAT(IDBG,E,N,1,'E       ')
@@ -579,7 +582,7 @@ C
 C     ARQA ARQA
 C
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IF (IE.NE.0) Call SysHalt('relsew')
 culf
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   1',auxh,n)
@@ -603,7 +606,7 @@ C     ARQA AQRA
 C
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   2',auxh,n)
 #endif
       IJ=0
@@ -639,7 +642,7 @@ C     AQRA ARQA
 C
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   3',auxh,n)
 #endif
       IJ=0
@@ -666,7 +669,7 @@ C
       Call dCopy_(N*N,AuxH,1,W1W1,1)
 *
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(IDBG,'W*W     ',AUXH,N)
 #endif
 C
@@ -674,10 +677,11 @@ C     1/2 EW*W + 1/2 W*WE
 C
       DO 610 I=1,N
          DO 611 J=1,N
-611         AUXH(I,J)=0.5D0*( AUXH(I,J)*E(I) + AUXH(I,J)*E(J) )
+            AUXH(I,J)=0.5D0*( AUXH(I,J)*E(I) + AUXH(I,J)*E(J) )
+611      CONTINUE
 610   CONTINUE
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH SYM',auxh,n)
 #endif
 C
@@ -699,7 +703,7 @@ C
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   5',auxh,n)
 #endif
       IJ=0
@@ -718,7 +722,7 @@ culf
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   6',auxh,n)
 #endif
       IJ=0
@@ -751,7 +755,7 @@ culf
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   7',auxh,n)
 #endif
       IJ=0
@@ -770,7 +774,7 @@ culf
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   8',auxh,n)
 #endif
 C
@@ -780,12 +784,13 @@ C
       DO 430 I=1,N
          DO 431 J=1,I
             IJ=IJ+1
- 431        G(IJ)=-0.5D0*(AUXH(I,J)+AUXH(J,I))
+            G(IJ)=-0.5D0*(AUXH(I,J)+AUXH(J,I))
+ 431     CONTINUE
  430  CONTINUE
 *
 CCC   CALL PRM('OUTPUT  ',G,N)
       RETURN
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(idbg)
 #endif
@@ -793,7 +798,7 @@ c Avoid unused argument warnings
       SUBROUTINE CpLabr (A,B,L,M,N,IA,IB,C,IC,IER)
       implicit real*8(a-h,o-z)
       REAL*8   A(IA,M),B(IB,N),C(IC,N)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IF (IA .GE. L .AND. IB .GE. M .AND. IC .GE. L) GO TO 5
       IER=129
       GO TO 9000
@@ -801,7 +806,7 @@ c Avoid unused argument warnings
 #endif
       IER = 0
       Call DGEMM_('N','N',L,M,N,1.0D0,A,IA,B,IB,1.0D0,C,IC)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
  9000 CONTINUE
 #endif
       RETURN
@@ -1071,17 +1076,20 @@ C-----LU DECOMPOSITION--------------------------------------------------
             M=MX(I)
             S=A(M,J)
             A(M,J)=A(I,J)
-            IF(I.EQ.1) GO TO 20
+            IF(I.EQ.1) GO TO 21
             IM1=I-1
             DO 10 K=1,IM1
-   10          S=A(I,K)*A(K,J)+S
-   20       A(I,J)=S
+               S=A(I,K)*A(K,J)+S
+   10       CONTINUE
+   21       A(I,J)=S
+   20    CONTINUE
    30    AM=0.
          DO 60 I=J,N
             S=A(I,J)
             IF(J.EQ.1) GO TO 50
             DO 40 K=1,JM1
-   40          S=A(I,K)*A(K,J)+S
+               S=A(I,K)*A(K,J)+S
+   40       CONTINUE
             A(I,J)=S
    50       AA=abs(S)
             IF(AA.LE.AM) GO TO 60
@@ -1094,23 +1102,29 @@ C-----LU DECOMPOSITION--------------------------------------------------
          DO 70 K=1,J
             W=A(M,K)
             A(M,K)=A(J,K)
-   70       A(J,K)=W
+            A(J,K)=W
+   70    CONTINUE
    80    IF(J.EQ.N) GO TO 100
          JP1=J+1
          W=-A(J,J)
-         DO 90 I=JP1,N
-   90       A(I,J)=A(I,J)/W
+         DO 91 I=JP1,N
+            A(I,J)=A(I,J)/W
+   91    CONTINUE
+   90 CONTINUE
   100 IF(N.LE.2) GO TO 130
 C-----INPLACE INVERSION OF L-COMPONENT----------------------------------
       DO 120 I=3,N
          IM1=I-1
          IM2=I-2
-         DO 120 J=1,IM2
+         DO 121 J=1,IM2
             S=A(I,J)
             JP1=J+1
             DO 110 K=JP1,IM1
-  110           S=A(I,K)*A(K,J)+S
-  120       A(I,J)=S
+                S=A(I,K)*A(K,J)+S
+  110       CONTINUE
+            A(I,J)=S
+  121    CONTINUE
+  120 CONTINUE
 C-----INPLACE INVERSION OF U-COMPONENT----------------------------------
   130 A(1,1)=1./A(1,1)
       IF(N.EQ.1) GO TO 230
@@ -1118,24 +1132,32 @@ C-----INPLACE INVERSION OF U-COMPONENT----------------------------------
          A(J,J)=1./A(J,J)
          P=-A(J,J)
          JM1=J-1
-         DO 150 I=1,JM1
+         DO 151 I=1,JM1
             S=0.
             DO 140 K=I,JM1
-  140          S=A(I,K)*A(K,J)+S
-  150       A(I,J)=S*P
+               S=A(I,K)*A(K,J)+S
+  140       CONTINUE
+            A(I,J)=S*P
+  151    CONTINUE
+  150 CONTINUE
 C-----INPLACE MULTIPLICATION OF L AND U COMPONENT-----------------------
       DO 190 J=1,NM1
          JP1=J+1
          DO 170 I=1,J
             S=A(I,J)
             DO 160 K=JP1,N
-  160          S=A(I,K)*A(K,J)+S
-  170       A(I,J)=S
-         DO 190 I=JP1,N
+               S=A(I,K)*A(K,J)+S
+  160       CONTINUE
+            A(I,J)=S
+  170    CONTINUE
+         DO 191 I=JP1,N
             S=0.
             DO 180 K=I,N
-  180           S=A(I,K)*A(K,J)+S
-  190       A(I,J)=S
+                S=A(I,K)*A(K,J)+S
+  180       CONTINUE
+            A(I,J)=S
+  191    CONTINUE
+  190 CONTINUE
 C------INTERCHANGE OF COLUMNS-------------------------------------------
       J=NM1
   200 M=MX(J)
@@ -1143,7 +1165,8 @@ C------INTERCHANGE OF COLUMNS-------------------------------------------
       DO 210 I=1,N
          W=A(I,M)
          A(I,M)=A(I,J)
-  210    A(I,J)=W
+         A(I,J)=W
+  210 CONTINUE
   220 J=J-1
       IF(J.GE.1) GO TO 200
   230 ILL=0
@@ -1165,13 +1188,16 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       DO 1 I=1,N
          AM=0.
          DO 2 J=1,N
-    2       AM=MAX(abs(A(I,J)),AM)
+            AM=MAX(abs(A(I,J)),AM)
+    2    CONTINUE
          IF(AM.EQ.0.) GO TO 10
          NPS=INT(LOG(AM)*F)
          S(I)=2.0D0**NPS
          D=1.D0/S(I)
-         DO 1 J=1,M
-    1       A(I,J)=D*A(I,J)
+         DO 3 J=1,M
+            A(I,J)=D*A(I,J)
+    3    CONTINUE
+    1 CONTINUE
       ILL=0
       RETURN
    10 ILL=I

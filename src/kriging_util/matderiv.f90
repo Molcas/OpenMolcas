@@ -10,12 +10,16 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE matderiv(nd, d, m, d1, d2)
+SUBROUTINE matderiv(diff_Order, d, m, d1, d2)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer nd,d1,d2,p0,k
-  real*8 nr,kr,a,d(d1,d2),m(d1,d2),t
+  integer diff_Order,d1,d2
+  real*8 d(d1,d2),m(d1,d2)
+!
+! Local variables
+  integer k
+  real*8 nr,kr,a,t
   real*8, Allocatable :: b(:,:), dh(:,:), c(:,:)
 !
   Call mma_Allocate(b,d1,d2,label="b")
@@ -23,18 +27,20 @@ SUBROUTINE matderiv(nd, d, m, d1, d2)
   Call mma_Allocate(c,d1,d2,label="c")
 !
   m = 0
+!
+! Analytic or Numerical Derivatives
+!
   if (anMd) then
-    p0=int(pAI)
     t=sqrt(2.0D0*pAI+1.0D0)
     dh(:,:) = sqrt(d)
-    c(:,:)=(2.0D0*pAI+1)/(2.0D0*pAI-1)*exp(-t*dh)
+    c(:,:)=(2.0D0*pAI+1.0D0)/(2.0D0*pAI-1.0D0)*exp(-t*dh)
     if (pAI.gt.3.or.pAI.lt.1) then
       Write(6,*) 'Analytical Matern derivatives (anamat=.True.)'
-      Write(6,*) 'is only valid for pAI = 1, 2 and 3(v = 3/2, 5/2 and 7/2)'
+      Write(6,*) 'is only valid for pAI = 1, 2 and 3 (v = 3/2, 5/2 and 7/2)'
     else
-      select case (p0)
+      select case (pAI)
         case (1)
-          select case (nd)
+          select case (diff_Order)
             case (1)
               m = -c/2.0D0
             case (2)
@@ -43,7 +49,7 @@ SUBROUTINE matderiv(nd, d, m, d1, d2)
               m = -(2.0D0*t-3.0D0*dh)*c
           end select
         case (2)
-          select case (nd)
+          select case (diff_Order)
             case (1)
               m =-c*(1.0D0+t*dh)/2.0d0
             case (2)
@@ -52,7 +58,7 @@ SUBROUTINE matderiv(nd, d, m, d1, d2)
               m = merge(-5.0D0/8.0D0*t/dh,dh,dh.ne.0)*c
           end select
         case (3)
-          select case (nd)
+          select case (diff_Order)
             case (1)
               m =-c*(1.0D0+t*dh+dh**2)/2.0D0
             case (2)
@@ -63,11 +69,11 @@ SUBROUTINE matderiv(nd, d, m, d1, d2)
       end select
     endif
   else
-    ! write (6,*) 'Numerical Matern derivatives num',nd
-    nr = dble(nd)
-    a = Gamma(nr+1.0D0)/h**nd
+    ! write (6,*) 'Numerical Matern derivatives num',diff_Order
+    nr = dble(diff_Order)
+    a = Gamma(nr+1.0D0)/h**diff_Order
     b = 0.0D0
-    do k = 0, nd
+    do k = 0, diff_Order
       kr = dble(k)
       dh(:,:) = d(:,:) + kr*h
       call matern(dh, m, size(dh,1), size(dh,2))

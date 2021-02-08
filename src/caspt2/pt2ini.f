@@ -10,7 +10,8 @@
 ************************************************************************
       SUBROUTINE PT2INI
       USE INPUTDATA
-      USE REFWFN
+      USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
+     &                  REFWFN_CLOSE
       USE PT2WFN
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -27,7 +28,6 @@
 C     Cholesky
       Integer iSym, iRC
 
-      CALL QENTER('PT2INI')
 *
 * Probe the RunFile for some basic information
 *
@@ -45,9 +45,7 @@ C     Cholesky
 *
 *     Allocate Input struct, read and process the Input
 *
-#ifdef ALLOC_SCAL
       ALLOCATE(Input)
-#endif
       LuSpool=21
       Call SpoolInp(LuSpool)
       CALL READIN_CASPT2(LuSpool,nSym)
@@ -56,7 +54,7 @@ C     Cholesky
       CALL OPNFLS_CASPT2
 * Initialize the reference wavefunction file and read basic info
       Call refwfn_init(Input%FILE)
-      Call refwfn_info
+      Call refwfn_info()
 * the input processing needs some data from the reference wavefunction
 * to be set, hence this phase occurs after reading that data.
       Call ProcInp_Caspt2
@@ -69,8 +67,8 @@ C     Cholesky
 * the pt2wfn file. We do this after input processing because we need to
 * know which roots to pick up. The MOs are stored on LUONEM, at address
 * IAD1M(1), and the CI arrays on LUCIEX at IDCIEX.
-      Call refwfn_data
-      Call refwfn_close
+      Call refwfn_data()
+      Call refwfn_close()
 
 * If necessary, make modifications to the inactive/virtual orbitals. The
 * new MOs, if any, will overwrite the originals on LUONEM at IAD1M(1).
@@ -148,24 +146,23 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
 
-      CALL QEXIT('PT2INI')
       END
 
       SUBROUTINE PT2CLS
       USE SUPERINDEX
       USE INPUTDATA
       USE PT2WFN
+* NOT TESTED
+#if 0
+      use OFembed, only: FMaux
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "ofembed.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
 
       Integer iSym
-#ifndef ALLOC_SCAL
-      Integer iGrp
-#endif
 C     Cholesky return code
       INTEGER irc
 C     size of idsct array
@@ -187,16 +184,14 @@ C     size of idsct array
          Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Free')
 * NOT TESTED
 #if 0
-         If (Done_OFemb) Then
-            Call Free_Work(ipFMaux)
-         EndIf
+         If (Allocated(FMaux)) Call mma_deallocate(FMaux)
 #endif
          ! deallocate chovec_io arrays
-         call trachosz_free
+         call trachosz_free()
       End If
 
 * Deallocate SGUGA tables:
-      CALL PCLOSE
+      CALL PCLOSE()
 
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE
@@ -223,22 +218,5 @@ C     Close all files:
       CALL CLSFLS_CASPT2
 
 C free input struct
-#ifdef ALLOC_SCAL
       DEALLOCATE(Input)
-#else
-      IF (ALLOCATED(Input%MultGroup%State))
-     &   DEALLOCATE(Input%MultGroup%State)
-      IF (ALLOCATED(Input%nXMulState)) DEALLOCATE(Input%nXMulState)
-      IF (ALLOCATED(Input%XMulGroup)) THEN
-        DO iGrp = 1, SIZE(Input%XMulGroup)
-          IF (ALLOCATED(Input%XMulGroup(iGrp)%State))
-     &       DEALLOCATE(Input%XMulGroup(iGrp)%State)
-          DEALLOCATE(Input%XMulGroup)
-        END DO
-      END IF
-      IF (ALLOCATED(Input%nFro)) DEALLOCATE(Input%nFro)
-      IF (ALLOCATED(Input%nDel)) DEALLOCATE(Input%nDel)
-      IF (ALLOCATED(Input%NamFro)) DEALLOCATE(Input%NamFro)
-      IF (ALLOCATED(Input%HEff)) DEALLOCATE(Input%HEff)
-#endif
       End

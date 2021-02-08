@@ -67,15 +67,16 @@ c     end syma
 c
 c     N.B. nab musi byt dakde deklarovane (daky common)
 c
-c     N.B. II. in paralell.fh there are:
+c     N.B. II. in parallel.fh there are:
 c     nprocab - number of nodeschoosed for 'sumoverab' part
 c     idab    - array of id's of these nodes
 c
+       use Para_Info, only: MyRank
         implicit none
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "wrk.fh"
-#include "paralell.fh"
+#include "parallel.fh"
       INTEGER lunt2o1,lunt2o2,lunt2o3
       integer nabstack,possabstack
       integer niter
@@ -84,7 +85,7 @@ c     help variables
 c
       INTEGER key,aeqb,yes
       INTEGER a,b,syma,symb,ssh3,ssn,ssh1
-      INTEGER nlenght,posst,rc
+      INTEGER nlength,posst,rc
       INTEGER lunab,nsa,nsb,limb
       integer nab,nadd
       integer idtot(1:maxproc)
@@ -96,7 +97,7 @@ c
       possab=possabstack
 c
 c
-c     I.paralell
+c     I.parallel
 c
 c     I.par.1  - escape, if this node is not reserved for sumoverab
       yes=0
@@ -175,19 +176,19 @@ c
 c
 c      II   sum over ab
       DO 20 syma=1,nsym
-        DO 20 symb=1,syma
+        DO 21 symb=1,syma
         if (fullprint.ge.2) then
         write (6,*) ' SymA, SymB ',syma,symb
         end if
 c
 c      II.1   read mapdn,mapin
-        CALL getmap (lunab, possn0, nlenght, mapdn, mapin, rc)
+        CALL getmap (lunab, possn0, nlength, mapdn, mapin, rc)
 c
 c      II.3     skip sum over a,b if N is empty
-        IF (nlenght.eq.0) GO TO 20
+        IF (nlength.eq.0) GO TO 21
 c
 c      II.4   skip sum over a,b if # of ab is zero
-        IF ((nvb(syma)*nvb(symb)).eq.0) GO TO 20
+        IF ((nvb(syma)*nvb(symb)).eq.0) GO TO 21
 c
 c      II.5   def symmetry of N
         ssn=mmul(syma,symb)
@@ -251,7 +252,7 @@ c
 c       all cycle over b need to be skipped
           do b=1,limb
 c           blank read and nothing more
-            call reajalovy (lunab, nlenght, wrk(possn0))
+            call reajalovy (lunab, nlength, wrk(possn0))
             nadd=nadd-1
           end do
 c       no setup needed
@@ -266,7 +267,7 @@ c       setup first
 c       part of the cycle over b need to be skipped
           do b=1,nadd
 c           blank read and nothing more
-            call reajalovy (lunab, nlenght, wrk(possn0))
+            call reajalovy (lunab, nlength, wrk(possn0))
           end do
           nadd=0
 c
@@ -319,11 +320,11 @@ c*.3    set stacking conditions for real stacking
 c
 c*.     reading to N or to stack
 6       if (nabnow.eq.1) then
-          CALL rea (lunab, nlenght, wrk(possn0))
+          CALL rea (lunab, nlength, wrk(possn0))
         else
           do iab=1,nabnow
-          CALL rea (lunab, nlenght, wrk(possabstack+(iab-1)*nlenght))
-          if ((possabstack+iab*nlenght).ge.possm10) then
+          CALL rea (lunab, nlength, wrk(possabstack+(iab-1)*nlength))
+          if ((possabstack+iab*nlength).ge.possm10) then
           end if
           end do
 c         qq=wrk(possabstack)
@@ -333,7 +334,7 @@ c
           do 8 b=bstart,bstop
 c
 c      III.3       read N
-cStare    CALL rea (lunab, nlenght, wrk(possn0))
+cStare    CALL rea (lunab, nlength, wrk(possn0))
 c
 c      III.4       def aeqb
           IF ((syma.eq.symb).and.(a.eq.b)) THEN
@@ -455,7 +456,7 @@ c       def mapd and mapi for V4 _a,(ef,Bp)
        call grc0stack (nabnow,1,3,3,3,0,ssn,possv40,posst,mapdv4,mapiv4)
 c           -> V4 _a,_b(ef)aaaa  = <ab||ef>
        call unpackab3 (wrk,wrksize,
-     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlenght,1)
+     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlength,1)
 c
 c      T25.1.1      H2 (ij,Bp) = V1(ij,ef) . V4 (ef,Bp)
         call multstack (wrk,wrksize,
@@ -480,7 +481,7 @@ c       def mapd and mapi for V4 _a,(ef,Bp)
        call grc0stack (nabnow,1,4,4,4,0,ssn,possv40,posst,mapdv4,mapiv4)
 c           -> V4 _a,_b(ef)bbbb  = <ab||ef>
        call unpackab3 (wrk,wrksize,
-     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlenght,2)
+     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlength,2)
 c
 c      T25.2.1      H2 (ij,Bp) = V2(ij,ef) . V4 (ef,Bp)
         call multstack (wrk,wrksize,
@@ -505,7 +506,7 @@ c       def mapd and mapi for V4 _a,(ef,Bp)
        call grc0stack (nabnow,0,3,4,4,0,ssn,possv40,posst,mapdv4,mapiv4)
 c           -> V4 _a,_b(e,f)abab = <ab||ef>
        call unpackab3 (wrk,wrksize,
-     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlenght,3)
+     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlength,3)
 c
 c      T25.3.1      H2 (i,j,Bp) = V3(i,j,e,f) . V4 (e,f,Bp)
         call multstack (wrk,wrksize,
@@ -530,7 +531,7 @@ c       def mapd and mapi for V4 _a,(ef,Bp)
        call grc0stack (nabnow,0,3,4,3,0,ssn,possv40,posst,mapdv4,mapiv4)
 c           -> V4 _b,_a(e,f)abab = <ba||fe>
        call unpackab3 (wrk,wrksize,
-     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlenght,4)
+     &      mapdn,mapin,mapdv4,mapiv4,ssn,nabnow,possabstack,nlength,4)
 c
 c      T25.3.4      H2 (i,j,Bp) = V3(i,j,e,f) . V4 (e,f,Bp)
         call multstack (wrk,wrksize,
@@ -564,11 +565,11 @@ c
 c       put appropriate data from AB_stack to N mediate, if needed
         if (nabnow.gt.1) then
 c       transfer data
-          do nhelp=0,nlenght-1
+          do nhelp=0,nlength-1
           wrk(possn0+nhelp)=wrk(possab+nhelp)
           end do
 c       upgrade address
-          possab=possab+nlenght
+          possab=possab+nlength
         end if
 c
 c
@@ -710,6 +711,7 @@ c
         end if
  10     CONTINUE
 c
+ 21   CONTINUE
  20   CONTINUE
 c
 c      IV   close lunab
@@ -938,7 +940,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=bsize*nhelp1*(nhelp1-1)/2
        else

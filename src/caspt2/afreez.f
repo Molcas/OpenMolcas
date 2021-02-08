@@ -37,15 +37,14 @@
 *     THRDE : Threshold for deleting orbitals                               *
 *                                                                           *
 *****************************************************************************
-      USE REFWFN
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 *
-      CHARACTER(LENIN8) NAME(*)
-      CHARACTER(4) NAMFRO(*)
+      CHARACTER(LEN=LENIN8) NAME(*)
+      CHARACTER(LEN=4) NAMFRO(*)
       DIMENSION NBAS(NSYM),NFRO(NSYM),NISH(NSYM),NASH(NSYM),NSSH(NSYM),
      &          NDEL(NSYM)
       DIMENSION LABFRO(mxbas),DPQ(*)

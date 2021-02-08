@@ -12,9 +12,9 @@
 !               2019, Oskar Weser                                      *
 !***********************************************************************
 module fcidump_reorder
-  use stdalloc, only : mma_allocate, mma_deallocate
   use fcidump_tables, only :  FockTable, TwoElIntTable, OrbitalTable,&
-    mma_allocate, mma_deallocate, length
+    mma_deallocate, length
+  use sorting_funcs, only : leq_i
 
   implicit none
   private
@@ -71,25 +71,23 @@ contains
 
   function get_P_GAS(ngssh) result(P)
     use sorting, only : argsort
-    use sorting_funcs, only : le_i
     use general_data, only : nSym
     use gas_data, only : nGAS
     integer, intent(in) :: ngssh(:, :)
     integer :: P(sum(ngssh)), X(sum(ngssh))
     integer :: iGAS, iSym, i
     X(:) = [(((iGAS, i = 1, ngssh(iGAS, iSym)), iGAS = 1, nGAS), iSym = 1, nSym)]
-    P(:) = argsort(X, le_i)
+    P(:) = argsort(X, leq_i)
   end function
 
   function get_P_inp(ReOrInp) result(P)
     use sorting, only : sort
-    use sorting_funcs, only : le_i
     use general_data, only : nAsh
     integer, intent(in) :: ReOrInp(:)
     integer :: P(sum(nAsh)), change_idx(size(ReOrInp)), i
     P(:) = [(i, i = 1, size(P))]
     change_idx(:) = ReOrInp
-    call sort(change_idx, le_i)
+    call sort(change_idx, leq_i)
     P(change_idx) = ReOrInp
   end function
 

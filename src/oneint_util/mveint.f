@@ -10,25 +10,14 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine MVeInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine MVeInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the mass-velocity integrals with the Gauss-       *
 *         Hermite quadrature.                                          *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              MVe                                                     *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. February '91                 *
@@ -36,17 +25,13 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables
       Logical ABeq(3)
       Character*80 Label
-      Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp)
 *
 *     Statement function for Cartesian index
 *
@@ -54,7 +39,6 @@
 *
       iRout = 190
       iPrint = nPrint(iRout)
-      Call qEnter('MVeInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -155,7 +139,6 @@
       End If
 *
 *     Call GetMem(' Exit MVeInt','LIST','REAL',iDum,iDum)
-      Call qExit('MVeInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -163,8 +146,7 @@ c Avoid unused argument warnings
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
          Call Unused_integer_array(iStabM)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

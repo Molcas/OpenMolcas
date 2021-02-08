@@ -34,14 +34,16 @@
           NOrd(I) = I
           Rad(I) = Pauling(IAt(I))
           Alpha = 1.2
- 100      NSinit = NAt
+          NSinit = NAt
+ 100    Continue
       ElseIf(ITypRad.eq.3) then
 * Sphere radii given in the input
         Do 200 I = 1, NSphInp
           NOrd(I) = NOrdInp(I)
           Rad(I) = RadInp(I)
           Alpha = 1.2
- 200      NSinit = NSphInp
+          NSinit = NSphInp
+ 200    Continue
       Else
         write(6,'(''Unrecognized radii type !'')')
         Call Abend()
@@ -53,7 +55,8 @@
         XSph(I) = C(1,NOrd(I))
         YSph(I) = C(2,NOrd(I))
         ZSph(I) = C(3,NOrd(I))
- 300    Rad(I) = Rad(I) * Alpha
+        Rad(I) = Rad(I) * Alpha
+ 300  Continue
 
       Return
       End

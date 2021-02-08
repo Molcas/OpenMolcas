@@ -21,7 +21,7 @@
       Integer   ipSymTri(8)
       Integer   ipSymLin(8)
       Integer   nOrbAll(8), nOccAll(8), ip_Density(8)
-      Logical   Diagonalize,AddFragments
+      Logical   Diagonalize
       Character*30 Note
 *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
@@ -143,7 +143,7 @@
      &                      Work(ip_EigenVecBlock),
      &                      nOrbAll(iSym),nOrbAll(iSym))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*) 'The sorted eigenvalues are'
                Do i = 1, nOrbAll(iSym)
                   Write(6,*) Work(ip_EigenValBlock+i-1)
@@ -190,9 +190,8 @@
      &              Work(ip_EigenVecTot),Work(ip_EigenValTot),
      &              Work(ip_Energies),iWork(ip_IndT),Note)
 *        Create a molden-file
-         AddFragments = .True.
          iUHF = 0
-         Call Molden_Interface(iUHF,'MP2ORB','MD_MP2',AddFragments)
+         Call Molden_Interface(iUHF,'MP2ORB','MD_MP2')
 *
       End If
 

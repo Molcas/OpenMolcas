@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2020, Ignacio Fdez. Galván                             *
+#***********************************************************************
+
+'''
+This script checks that the commits in the test checkfiles are valid
+'''
+
+import sys
+from os import environ, walk
+from os.path import isdir, join
+import re
+from subprocess import check_call, PIPE
+
+# Make sure the MOLCAS environment variable is defined
+if 'MOLCAS' not in environ:
+  sys.exit('MOLCAS not defined')
+MOLCAS = environ['MOLCAS']
+if not isdir(MOLCAS):
+  sys.exit('{0} is not a directory'.format(MOLCAS))
+
+# Get a list of files
+files = []
+for dname, dirs, fnames in walk(join(MOLCAS, 'test')):
+  for fname in fnames:
+    if fname.endswith('.input'):
+      files.append(join(dname, fname))
+
+version_re = re.compile(r'\* Molcas version (.*)')
+def check_version(line):
+  try:
+    version = version_re.match(line).group(1)
+    if ' ' in version:
+      # The version has several words, the first one must be valid verbatim
+      version = version.split()[0]
+    elif '-g' not in version:
+      # The version does not include a commit SHA, it must be a tag
+      version = 'v' + version
+    try:
+      check_call(['git', 'merge-base', '--is-ancestor', version, 'HEAD'], stdout=PIPE, stderr=PIPE)
+    except:
+      check_call(['git', 'merge-base', '--is-ancestor', version, 'origin/master'], stdout=PIPE, stderr=PIPE)
+    return True
+  except:
+    return False
+
+rc = 0
+for fname in sorted(files):
+  with open(fname, 'r') as f:
+    for line in f:
+      if line.startswith('* Molcas version '):
+        if not check_version(line.rstrip()):
+          print()
+          print(fname)
+          print(line.rstrip())
+          print('Not a valid previous OpenMolcas version!')
+          print('Please re-generate test with a good commit')
+          rc = 1
+        break
+    else:
+      print()
+      print(fname)
+      print('No valid OpenMolcas version!')
+      print('Please re-generate test with a good commit')
+      rc = 1
+
+sys.exit(rc)

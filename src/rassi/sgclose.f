@@ -12,16 +12,12 @@
 #include "Struct.fh"
       Dimension iSGStruct(nSGSize)
 C Unpack structure iSGStruct:
-      nSym   =iSGStruct(1)
       nLev   =iSGStruct(2)
       lISm   =iSGStruct(3)
       nVert  =iSGStruct(4)
       lDRT   =iSGStruct(5)
       lDown  =iSGStruct(6)
       lUp    =iSGStruct(7)
-      MidLev =iSGStruct(8)
-      MVSta  =iSGStruct(9)
-      MVEnd  =iSGStruct(10)
       lMAW   =iSGStruct(11)
       lLTV   =iSGStruct(12)
       Call GetMem('ISm','Free','Integer',lISm,nLev)

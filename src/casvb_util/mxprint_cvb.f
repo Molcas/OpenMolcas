@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mxprint_cvb(a,nrow,ncol,itype)
 c Prints matrix A, stored according to ITYPE
@@ -29,7 +30,8 @@ c Prints matrix A, stored according to ITYPE
       k=0
       do 200 j=jin,jend
       k=k+1
-200   ibuf(k)=j
+      ibuf(k)=j
+200   continue
       if(iform.eq.0)then
         write(6,formMXP1)(ibuf(i),i=1,jend-jin+1)
       else
@@ -50,7 +52,8 @@ c Prints matrix A, stored according to ITYPE
       else
         ind=(i-1)*ncol+j
       endif
-400   buffer(k)=a(ind)
+      buffer(k)=a(ind)
+400   continue
       if(iform.eq.0)then
         write(6,formMXP3)i,(buffer(ii),ii=1,jend-jin+1)
       else
@@ -78,7 +81,8 @@ c Prints matrix A, stored according to ITYPE
       k=0
       do 200 j=jin,jend
       k=k+1
-200   ibuf(k)=j
+      ibuf(k)=j
+200   continue
       if(iform.eq.0)then
         write(6,formMXP1)(ibuf(i),i=1,jend-jin+1)
       else
@@ -99,7 +103,8 @@ c Prints matrix A, stored according to ITYPE
       else
         ind=(i-1)*ncol+j
       endif
-400   buffer(k)=a(ind)
+      buffer(k)=a(ind)
+400   continue
       if(iform.eq.0)then
         write(6,formMXP3)i,(buffer(ii),ii=1,jend-jin+1)
       else

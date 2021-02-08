@@ -26,6 +26,8 @@
 *
       Return
       End
+
+
       SubRoutine SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,mBB,nD,OneHam,Fock,
      &                 Ovrlp,mBT,EOrb,OccNo,mmB)
 ************************************************************************
@@ -56,6 +58,9 @@
 *                                                                      *
 ************************************************************************
 *
+#ifdef _HDF5_
+      Use mh5, Only: mh5_close_file
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -63,22 +68,12 @@
 #include "infscf.fh"
 #include "infso.fh"
 #include "file.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*512, KSDFT_save*16
       Logical FstItr
       Logical found
 *
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qEnter('SOrb')
-#endif
 *
       CALL DecideonCholesky(DoCholesky)
 *-------- Cholesky and NDDO are incompatible
@@ -223,11 +218,5 @@
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif
-#ifdef _DEBUG_
-      Call qExit('SOrb')
-#endif
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-      Return
-      End
+
+      End subroutine SOrb_

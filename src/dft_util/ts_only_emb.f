@@ -15,22 +15,13 @@
      &                    nP2_ontop,nDmat,F_xc,
      &                    dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
      &                    T_X)
-************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "hflda.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       F_xc(mGrid),
      &       P2_ontop(nP2_ontop, mGrid),
      &       dF_dP2ontop(ndF_dP2ontop, mGrid)
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 *
 ************************************************************************
 *

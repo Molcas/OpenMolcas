@@ -126,7 +126,7 @@
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
-      Integer lvec,LUnit,iterat,iLList,NoAllo,iroot,lislen,incore
+      Integer lvec,LUnit,iterat,iLList,NoAllo,iroot,lislen
       Real*8 vec(lvec)
       Character opcode*4
 *
@@ -144,25 +144,17 @@ C     Integer iDskPt,len
       If (Debug_LnkLst) Then
          Write (6,*) 'PutVec'
          Call StlLst(iLList)
-         Call qTrace
       End If
-#ifdef _DEBUG_
-      Call qEnter('PutVec')
-#endif
 *
 *     clear ErrCode
       nLList(iLList,0)=0
 *     read listhead
       iroot=nLList(iLList,1)
       lislen=nLList(iLList,2)
-      incore=nLList(iLList,3)
 
       If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Then
         If (opcode.eq.'NOOP') Then
 *         that's all, folks
-#ifdef _DEBUG_
-          Call qExit('PutVec')
-#endif
           Return
         Else If (opcode.eq.'OVWR') Then
           If (nLList(iroot,3).ne.lvec) Then
@@ -171,15 +163,11 @@ C     Integer iDskPt,len
           Else
             call dcopy_(lvec,vec,1,Work(nLList(iroot,1)),1)
           End If
-#ifdef _DEBUG_
-          Call qExit('PutVec')
-#endif
           Return
         Else If (opcode.ne.'APND') Then
 *         opcode unknown
           Write (6,*) 'PutVec: opcode unknown'
           Write (6,'(A,A)') 'opcode=',opcode
-          Call QTrace
           Call Abend()
         End If
       End If
@@ -207,15 +195,14 @@ cvv Enough memory
       nLList(iLList,2)=lislen
 
 *
-#ifdef _DEBUG_
-      Call qExit('PutVec')
-#endif
       Return
-c Avoid unused argument warnings
+
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(LUnit)
          Call Unused_integer(NoAllo)
       End If
+#endif
       End
 *----------------------------------------------------------------------*
 
@@ -247,9 +234,6 @@ c      Integer iDskPt
 
 #include "SysDef.fh"
 *
-#ifdef _DEBUG_
-      Call qEnter('GetVec')
-#endif
 *
         inode=nLList(iLList,1)
 
@@ -273,12 +257,9 @@ c      Integer iDskPt
         inode=0
       End If
 *
-#ifdef _DEBUG_
-      Call qExit('GetVec')
-#endif
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(LUnit)
+#endif
       End
 *----------------------------------------------------------------------*
 
@@ -298,9 +279,6 @@ c Avoid unused argument warnings
 #include "lnklst.fh"
 
 *
-#ifdef _DEBUG_
-      Call qEnter('GetNod')
-#endif
 *
       If (Debug_LnkLst) Then
          Write (6,*) 'GetNod'
@@ -324,10 +302,6 @@ c Avoid unused argument warnings
         nLList(iLList,0)=1
       End If
 *
-#ifdef _DEBUG_
-      Call qExit('GetNod')
-#endif
-      Return
       End
 *----------------------------------------------------------------------*
 
@@ -457,16 +431,12 @@ c Avoid unused argument warnings
 *     and functions
       Logical InCore
 *
-#ifdef _DEBUG_
-      Call qEnter('LstPtr')
-#endif
       LstPtr=-999999
       Call GetNod(iterat,iLList,inode)
       If (inode.eq.0) Then
 * Hmmm, no entry found in LList, that's strange
         Write (6,*) 'LstPtr: inode.le.0'
         Write (6,*) 'inode=',inode
-        Call QTrace
         Call Abend()
       Else If (InCore(inode)) Then
         Call InfNod(inode,idum,idum,ivptr,idum)
@@ -475,15 +445,12 @@ c Avoid unused argument warnings
 * Hmmm, no incore hit for this entry, that's strange
         Write (6,*) 'LstPtr: no incore hit for this entry'
         Write (6,*) 'inode=',inode
-        Call QTrace
         Call Abend()
       End If
-#ifdef _DEBUG_
-      Call qExit('LstPtr')
-#endif
-      Return
-c Avoid unused argument warnings
+
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(LUnit)
+#endif
       End
 *----------------------------------------------------------------------*
 
@@ -497,9 +464,6 @@ c Avoid unused argument warnings
 #include "lnklst.fh"
 *     local vars
       Integer iLList,iroot,iPtr1
-#ifdef _DEBUG_
-      Call qEnter('KilLst')
-#endif
 *
 *
       If (Debug_LnkLst) Then
@@ -521,10 +485,6 @@ c Avoid unused argument warnings
         GoTo 100
       End If
 *
-#ifdef _DEBUG_
-      Call qExit('KilLst')
-#endif
-      Return
       End
 *----------------------------------------------------------------------*
 
@@ -539,15 +499,10 @@ c Avoid unused argument warnings
 
 #include "SysDef.fh"
 *
-#ifdef _DEBUG_
-      Call QEnter('DmpLst')
-#endif
 *     clear ErrCode
       nLList(iLList,0)=0
 *     read listhead
       iroot=nLList(iLList,1)
-      lislen=nLList(iLList,2)
-      incore=nLList(iLList,3)
 
       If (iroot.le.0) Then
 * linked list has zero length, that's strange
@@ -556,9 +511,6 @@ c Avoid unused argument warnings
         iDskPt=lDskPt
         Call iDaFile(LUnit,1,nLList(iLList,0),NodSiz,iDskPt)
 *       Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
-#ifdef _DEBUG_
-        Call QExit('DmpLst')
-#endif
         Return
       End If
  10   Continue
@@ -603,10 +555,6 @@ c Avoid unused argument warnings
       End If
 *     Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
 *
-#ifdef _DEBUG_
-      Call QExit('DmpLst')
-#endif
-      Return
       End
 *----------------------------------------------------------------------*
 
@@ -621,9 +569,6 @@ c Avoid unused argument warnings
 
 #include "SysDef.fh"
 *
-#ifdef _DEBUG_
-      Call QEnter('RclLst')
-#endif
 * load listhead...
       lLList=lLList+1
       iLList=lLList
@@ -636,9 +581,6 @@ c Avoid unused argument warnings
      &            //' that''s strange!'
 * linked list has zero length, that's strange
 *       Call Quit(20)
-#ifdef _DEBUG_
-        Call QExit('RclLst')
-#endif
         Return
       End If
 *
@@ -689,8 +631,4 @@ c Avoid unused argument warnings
       End If
       If (iPtr2.gt.0) nLList(iLList,3)=nLList(iLList,3)-incore
 *
-#ifdef _DEBUG_
-      Call QExit('RclLst')
-#endif
-      Return
       End

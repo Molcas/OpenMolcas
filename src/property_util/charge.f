@@ -441,11 +441,11 @@ c      End Do
          Call Allocate_Work(ipP,NBAST**2)
          Call Allocate_Work(ipPInv,NBAST**2)
          Call Get_dArray('SM',Work(ipP),NBAST**2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('SM',' ',Work(ipP),NBAST,NBAST)
 #endif
          Call MINV(Work(ipP),Work(ipPInv),ISING,DET,NBAST)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('SMInv',' ',Work(ipPInv),NBAST,NBAST)
 #endif
          Call DGeTMi(Work(ipPInv),NBAST,NBAST)
@@ -591,7 +591,7 @@ c      NDIM=NNUC*MXTYP
 *
       If (DoBond) Then
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Density Matrix = ', ' ',Work(ipD_tmp), NBAST, NBAST)
       Call RecPrt('Overlap Matrix = ', ' ',Work(ipS_tmp), NBAST, NBAST)
       E=Zero
@@ -626,7 +626,7 @@ c      NDIM=NNUC*MXTYP
             End IF
         End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,*) 'D_blo = '
         Do i=1,nBas2
             Write(6,*) (Work(ipD_blo +I -1))
@@ -664,7 +664,7 @@ C           Work(ipS+I-1)=Work(ipS_tmp+I-1)
 C        End Do
       End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)'After Desymmetrization'
 C     Call RecPrt('Density Matrix = ', ' ', Work(ipD), NBAST, NBAST)
 C     Call RecPrt('Overlap Matrix = ', ' ', Work(ipS), NBAST, NBAST)
@@ -693,7 +693,7 @@ C     Call RecPrt('Overlap Matrix = ', ' ', Work(ipS), NBAST, NBAST)
      &            Work(ipS),NBAST,
      &            0.0d0,Work(ipDS),NBAST)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('DS Matrix = ',' ', Work(ipDS),    NBAST, NBAST)
       E=Zero
       Do I=1,NBAST
@@ -721,7 +721,7 @@ C     Call RecPrt('Overlap Matrix = ', ' ', Work(ipS), NBAST, NBAST)
         End Do
         Call Free_Work(ipDSswap)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('DS Matrix = ',' ', Work(ipDS),    NBAST, NBAST)
          E=Zero
          Do I=1,NBAST
@@ -777,7 +777,7 @@ c if iCase=0, or 1 we need to put/get QSUM
 *
       If ((DoBond) .AND. (tNUC.gt.1) .AND. (iCase.ge.1)) Then
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write (6,*) 'nPBonds,tNuc=',nPBonds,tNuc
         Do MY=1,NBAST
             AtomA=iWork(ip_center+MY-1)
@@ -801,7 +801,7 @@ c if iCase=0, or 1 we need to put/get QSUM
      &                    Work(ipDS+ (NY-1)*NBAST + MY-1) *
      &                    Work(ipDS+ (MY-1)*NBAST + NY-1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               Write(6,*)'Bond Number=',iPair
               Write(6,*)'Atom numbers = ',AtomA,AtomB
               Write(6,*)'Bond number = ', iPair,
@@ -822,7 +822,7 @@ c if iCase=0, or 1 we need to put/get QSUM
             If (Work(ipBonds+I-1).lt.Zero) Work(ipBonds+I-1)=Zero
         End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,*)'Bond order vector'
         Call TriPrt('Bonds','(10F10.5)',Work(ipBonds),tNUC-1)
 #endif
@@ -866,7 +866,6 @@ c second call, make a real print out
          ik=0
          ikk=0
          Do IST=1,nNuc,6
-            Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+6,nNuc)
             Write(6,*)
             Write(6,'(14X,6(14X,A,4X))')
@@ -936,7 +935,6 @@ c icase=2 for usual mulliken, =2 for spin population.
 *
          IEND=0
          Do IST=1,nNuc,12
-            Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+12,nNuc)
             Write(6,*)
             Write(6,'(14X,12(2X,A))') (CNAME(I),I=IST,IEND)

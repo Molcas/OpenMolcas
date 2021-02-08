@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine symgen_cvb(nalf1,nbet1,nda1,ndb1,
      >  isymalf,isymbet,iasyind,ibsyind,
      >  ialfsym,ibetsym,irpdet,irpalf,irpbet,
      >  mingrph,maxgrph,nk,locc,lunocc,xalf,xbet,icount)
       implicit real*8 (a-h,o-w,y-z),integer(x)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -34,7 +34,8 @@ c Alpha loop:
       call izero(irpalf,mxirrep)
       do 100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf1,0)
-100   maxgrph(iorb)=min(iorb,nalf1)
+      maxgrph(iorb)=min(iorb,nalf1)
+100   continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf1,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -42,25 +43,29 @@ c Alpha loop:
 200   continue
       irp=1
       do 250 ia=1,nalf1
-250   irp=md2h(irp,ityp(locc(ia)))
+      irp=md2h(irp,ityp(locc(ia)))
+250   continue
       irpalf(irp)=irpalf(irp)+1
       ialfsym(index)=irp
       call loind_cvb(norb,nalf1,nk,mingrph,maxgrph,
      >                       locc,lunocc,index,xalf,*200)
       iasyind(0)=0
       do 260 irp=1,mxirrep
-260   iasyind(irp)=iasyind(irp-1)+irpalf(irp)
+      iasyind(irp)=iasyind(irp-1)+irpalf(irp)
+260   continue
       call izero(icount,mxirrep)
       do 275 ida=1,nda1
       irrep=ialfsym(ida)
       icount(irrep)=icount(irrep)+1
-275   isymalf(icount(irrep)+iasyind(irrep-1))=ida
+      isymalf(icount(irrep)+iasyind(irrep-1))=ida
+275   continue
 
 c Beta loop:
       call izero(irpbet,mxirrep)
       do 300 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet1,0)
-300   maxgrph(iorb)=min(iorb,nbet1)
+      maxgrph(iorb)=min(iorb,nbet1)
+300   continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet1,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -68,23 +73,28 @@ c Beta loop:
 400   continue
       irp=1
       do 450 ib=1,nbet1
-450   irp=md2h(irp,ityp(locc(ib)))
+      irp=md2h(irp,ityp(locc(ib)))
+450   continue
       irpbet(irp)=irpbet(irp)+1
       ibetsym(index)=irp
       call loind_cvb(norb,nbet1,nk,mingrph,maxgrph,
      >                       locc,lunocc,index,xbet,*400)
       ibsyind(0)=0
       do 460 irp=1,mxirrep
-460   ibsyind(irp)=ibsyind(irp-1)+irpbet(irp)
+      ibsyind(irp)=ibsyind(irp-1)+irpbet(irp)
+460   continue
       call izero(icount,mxirrep)
       do 475 idb=1,ndb1
       irrep=ibetsym(idb)
       icount(irrep)=icount(irrep)+1
-475   isymbet(icount(irrep)+ibsyind(irrep-1))=idb
+      isymbet(icount(irrep)+ibsyind(irrep-1))=idb
+475   continue
 
       do 500 irp=1,mxirrep
       irpdet(irp)=0
-      do 500 jrp=1,mxirrep
-500   irpdet(irp)=irpdet(irp)+irpalf(jrp)*irpbet(md2h(irp,jrp))
+      do 501 jrp=1,mxirrep
+      irpdet(irp)=irpdet(irp)+irpalf(jrp)*irpbet(md2h(irp,jrp))
+501   continue
+500   continue
       return
       end

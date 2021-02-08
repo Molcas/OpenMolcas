@@ -22,23 +22,24 @@
             the spin-orbit interaction. As a starting point it uses the results
             of a RASSI calculation for the ground and several excited spin-orbital
             multiplets.
+
             The following quantities can be computed:
-            ||
-            ||1. Parameters of pseudospin magnetic Hamiltonians:
-            ||   a) First order (linear after pseudospin) Zeeman splitting tensor (g tensor),
-            ||      including the determination of the sign of the product gX*gY*gZ
-            ||   b) Second order (bilinear after pseudospin) zero-field splitting tensor (D tensor)
-            ||   c) Higher order zero-field splitting tensors (D^2, D^4, D^6, ..., etc.)
-            ||   d) Higher order Zeeman splitting tensors (G^1, G^3, G^5, ..., etc.)
-            ||   e) Angular Moments along the main magnetic axes
-            ||
-            ||2. Crystal-Field parameters for the ground atomic multiplet for lanthanides
-            ||
-            ||3. Static magnetic properties:
-            ||   a) Van Vleck susceptibility tensor
-            ||   b) Powder magnetic susceptibility function
-            ||   c) Magnetization vector for specified directions of the applied magnetic field
-            ||   d) Powder magnetization
+
+            1. Parameters of pseudospin magnetic Hamiltonians:
+              a) First order (linear after pseudospin) Zeeman splitting tensor (g tensor),
+                 including the determination of the sign of the product gX*gY*gZ
+              b) Second order (bilinear after pseudospin) zero-field splitting tensor (D tensor)
+              c) Higher order zero-field splitting tensors (D^2, D^4, D^6, ..., etc.)
+              d) Higher order Zeeman splitting tensors (G^1, G^3, G^5, ..., etc.)
+              e) Angular Moments along the main magnetic axes
+
+            2. Crystal-Field parameters for the ground atomic multiplet for lanthanides
+
+            3. Static magnetic properties:
+              a) Van Vleck susceptibility tensor
+              b) Powder magnetic susceptibility function
+              c) Magnetization vector for specified directions of the applied magnetic field
+              d) Powder magnetization
             </HELP>
 
 The :program:`POLY_ANISO` program is a routine which allows a semi-ab initio
@@ -260,8 +261,10 @@ Mandatory keywords defining the calculation
               <HELP>
               This keyword defines several important parameters of the calculation. On the
               first line after the keyword the program reads 2 values:
+
               1) the number of types of different magnetic centers (NON-EQ) of the cluster and
               2) a letter "T" or "F" in the second position of the same line.
+
               The number of NON-EQ is the total number of magnetic centers of the cluster
               which cannot be related by point group symmetry.
               In the second position the answer to the question: "Have all NON-EQ centers been computed ab initio?"
@@ -498,9 +501,10 @@ Optional general keywords to control the input
               <HELP>
               Specifies the temperature points for the evaluation of the magnetic susceptibility.
               The program will read three numbers: Tmin, Tmax, nT. Units of temperature = kelvin (K).
-              ||Tmin  -- the minimal temperature (Default 0.0 K)
-              ||Tmax  -- the maximal temperature (Default 300.0 K)
-              ||nT    -- number of temperature points (Default 101)
+
+              Tmin -- the minimal temperature (Default 0.0 K)
+              Tmax -- the maximal temperature (Default 300.0 K)
+              nT   -- number of temperature points (Default 101)
               </HELP>
               </KEYWORD>
 
@@ -529,10 +533,10 @@ Optional general keywords to control the input
               <HELP>
               Specifies the field points for the evaluation of the molar magnetization.
               The program will read four numbers: Hmin, Hmax, nH, and dltH0. Units of magnetic field = tesla (T).
-              ||
-              ||Hmin -- the minimal field (Default 0.0 T)
-              ||Hmax -- the maximal field (Default 300.0 T)
-              ||nH   -- number of field points (Default 101)
+
+              Hmin -- the minimal field (Default 0.0 T)
+              Hmax -- the maximal field (Default 300.0 T)
+              nH   -- number of field points (Default 101)
               </HELP>
               </KEYWORD>
 
@@ -714,8 +718,10 @@ Optional general keywords to control the input
               <HELP>
               Specifies the number of directions of the applied magnetic field for the computation
               of the powder molar magnetization. The program will read two numbers: N_theta and N_phi.
-              ||N_theta -- number of "theta" points in the interval (0, pi/2) (i.e. on the Z axis ) (Default 12)
-              ||N_phi   -- number of  "phi"  points in the interval (0, 2*pi).(i.e. on the equator) (Default 24)
+
+              N_theta -- number of "theta" points in the interval (0, pi/2) (i.e. on the Z axis ) (Default 12)
+              N_phi   -- number of  "phi"  points in the interval (0, 2*pi).(i.e. on the equator) (Default 24)
+
               The number of directions over which the actual averaging will take place is roughly the product of N_theta and N_phi.
               </HELP>
               </KEYWORD>
@@ -835,8 +841,9 @@ Optional general keywords to control the input
               %%Keyword: PRLV <basic>
               <HELP>
               This keyword controls the print level.
-              ||2 -- normal. (Default)
-              ||3 or larger (debug)
+
+              2  -- normal. (Default)
+              3+ -- (debug)
               </HELP>
               </KEYWORD>
 

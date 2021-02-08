@@ -54,7 +54,6 @@
 *     PIVOTING IS ACHIEVED BY INDIRECT INDEXING.
 *     FIRST PIVOTING INDICES ARE ASSIGNED START VALUES.
 *
-*     Call qEnter('MInv')
 *
 *     set N and M to NDIM since this subroutine is modified to only
 *     deal with square matrices.
@@ -80,7 +79,8 @@
       jp = -1
       Do 1 I=1,N
       IPIV(I)=I
- 1    JPIV(I)=I
+      JPIV(I)=I
+ 1    Continue
       DET=One
       Do 5 I=1,N
 *
@@ -88,12 +88,13 @@
 *
       AMAX=-One
       Do 2 K=I,N
-      Do 2 L=I,N
+      Do 20 L=I,N
       AM=ABS(A(IPIV(K),JPIV(L)))
-      IF(AMAX.GT.AM) Go To 2
+      IF(AMAX.GT.AM) Go To 20
       AMAX=AM
       IP=K
       JP=L
+ 20   Continue
  2    Continue
       IF(IP.eq.I) Go To 3
       DET=-DET
@@ -110,43 +111,54 @@
       DIAG=A(IP,JP)
       BUF(I)=DIAG
       DET=DET*DIAG
-      Do 5 K=I+1,N
+      Do 50 K=I+1,N
       KP=IPIV(K)
       C=A(KP,JP)
       IF(DIAG.NE.Zero) C=C/DIAG
       A(KP,JP)=C
-      Do 5 L=I+1,N
+      Do 51 L=I+1,N
       LP=JPIV(L)
- 5    A(KP,LP)=A(KP,LP)-C*A(IP,LP)
+      A(KP,LP)=A(KP,LP)-C*A(IP,LP)
+ 51   Continue
+ 50   Continue
+ 5    Continue
 *
 *     FIRST RESUBSTITUTION STEP:
 *
       Do 7 J=1,M
-      Do 7 I=2,N
+      Do 70 I=2,N
       IP=IPIV(I)
       SUM=B(IP,J)
       Do 6 K=1,I-1
- 6    SUM=SUM-A(IP,JPIV(K))*B(IPIV(K),J)
- 7    B(IP,J)=SUM
+      SUM=SUM-A(IP,JPIV(K))*B(IPIV(K),J)
+ 6    Continue
+      B(IP,J)=SUM
+ 70   Continue
+ 7    Continue
 *
 *     SECOND RESUBSTITUTION STEP:
 *
       Do 9 J=1,M
-      Do 9 I=N,1,-1
+      Do 90 I=N,1,-1
       IP=IPIV(I)
       SUM=B(IP,J)
       Do 8 K=I+1,N
- 8    SUM=SUM-A(IP,JPIV(K))*B(IPIV(K),J)
+      SUM=SUM-A(IP,JPIV(K))*B(IPIV(K),J)
+ 8    Continue
       IF(BUF(I).NE.Zero) SUM=SUM/BUF(I)
- 9    B(IP,J)=SUM
+      B(IP,J)=SUM
+ 90   Continue
+ 9    Continue
 *
 *     REORGANIZATION PART:
 *
       Do 12 J=1,M
       Do 10 I=1,N
-10    BUF(I)=B(IPIV(I),J)
+      BUF(I)=B(IPIV(I),J)
+10    Continue
       Do 11 I=1,N
-11    B(JPIV(I),J)=BUF(I)
+      B(JPIV(I),J)=BUF(I)
+11    Continue
 12    Continue
 *
 *     Move the result to location ARRINV
@@ -157,7 +169,6 @@
 889      Continue
 888   Continue
 *
-*     Call qExit('MInv')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(ISING)

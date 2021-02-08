@@ -42,7 +42,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,symm,possv3,lenght
+       integer symp,symq,symm,possv3,length
        integer ii,iiv2d,iiv2i,possv2d,possv2i
        integer posst
 c
@@ -57,13 +57,13 @@ c
 c
 c*    def parameters of #3
        possv3=mapd3(ii,1)
-       lenght=mapd3(ii,2)
+       length=mapd3(ii,2)
        symm=mapd3(ii,3)
        symp=mapd3(ii,4)
        symq=mapd3(ii,5)
 c
 c*    vanish #3
-       call ccsort_mv0zero (lenght,lenght,wrk(possv3))
+       call ccsort_mv0zero (length,length,wrk(possv3))
 c
        if (directyes.eq.1) then
 c
@@ -236,15 +236,17 @@ c
        qr=0
        do 100 q=2,qup
        ind(possqv1)=qaddv1+q
-       do 100 r=1,q-1
+       do 101 r=1,q-1
        ind(possrv1)=raddv1+r
        qr=qr+1
 c
-       do 100 p=1,pup
+       do 102 p=1,pup
        ind(posspv1)=paddv1+p
 c
        v2(p,qr)=v2(p,qr)+fact*v1(ind(1),ind(2),ind(3))
 c
+ 102    continue
+ 101    continue
  100    continue
 c
        else
@@ -254,15 +256,17 @@ c
        qr=0
        do 200 r=1,rup
        ind(possrv1)=raddv1+r
-       do 200 q=1,qup
+       do 201 q=1,qup
        ind(possqv1)=qaddv1+q
        qr=qr+1
 c
-       do 200 p=1,pup
+       do 202 p=1,pup
        ind(posspv1)=paddv1+p
 c
        v2(p,qr)=v2(p,qr)+fact*v1(ind(1),ind(2),ind(3))
 c
+ 202    continue
+ 201    continue
  200    continue
 c
        end if

@@ -44,7 +44,6 @@ C
          Return
       End If
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Determine if vector files are to be deleted after use.
@@ -305,7 +304,6 @@ C              --------------------------
 C              Start batch loop.
 C              -----------------
 
-               kOffX = kXaibj + LiT2am(iSym)
                Do iBat = 1,nBat
 
                   If (iBat .eq. nBat) Then
@@ -359,5 +357,4 @@ C     ----------------------
 
       EMP2 = -EMP2
 
-      Call qExit(ThisNm)
       End

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine ddres7_cvb(axc,sxc,dum,res,
      >  solp_res,maxdav,n,itdav,eig_res,
@@ -21,8 +22,10 @@
 
       call fzero(res,n)
       do 300 i=1,itdav
-      do 300 ivb=1,n
-300   res(ivb)=res(ivb)+(axc(ivb,i)-eig_res*sxc(ivb,i))*solp_res(i)
+      do 301 ivb=1,n
+      res(ivb)=res(ivb)+(axc(ivb,i)-eig_res*sxc(ivb,i))*solp_res(i)
+301   continue
+300   continue
 
       is_converged=(jroot.eq.iroot)
       return

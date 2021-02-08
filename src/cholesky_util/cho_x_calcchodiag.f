@@ -33,6 +33,8 @@
 *> @param[out] Diag Array containing diagonal on exit
 ************************************************************************
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -41,23 +43,8 @@
       Parameter (SECNAM = 'Cho_X_CalcChoDiag')
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-************************************************************************
-
-#if defined (_DEBUG_)
-      Call QEnter(SECNAM)
-#endif
 
       Call fZero(Diag,nnBstRT(1))
 
@@ -181,11 +168,6 @@ C --- free memory
 
       rc  = 0
 
-#if defined (_DEBUG_)
-      CAll QExit(SECNAM)
-#endif
-
-      Return
       END
 
 **************************************************************

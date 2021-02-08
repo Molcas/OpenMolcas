@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine sminus2_cvb(bikfrom,bikto,
      >  nel,nalffrom,ndetfrom,nalfto,ndetto,nvec,
@@ -35,7 +36,8 @@ c Determinant (to) weight array:
       indto=minind_cvb(ioccto,nalfto,nel,xdetto)
       call daxpy_(nvec,1d0,bikfrom(indfrom,1),ndetfrom,
      >  bikto(indto,1),ndetto)
-200   if(iexc.lt.nalffrom)ioccto(iexc)=ioccfrom(iexc)
+      if(iexc.lt.nalffrom)ioccto(iexc)=ioccfrom(iexc)
+200   continue
       call loopstr_cvb(ioccfrom,indfrom,nalffrom,nel)
       if(indfrom.ne.1)goto 100
       return

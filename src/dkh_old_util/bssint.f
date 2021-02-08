@@ -9,9 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BSSint
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"
@@ -26,8 +27,7 @@
 *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('BSSInt')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 *
@@ -42,7 +42,7 @@
 *     Normalize coefficients
 *
       do iCnttp=1,nCnttp
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
 c           Do iAngr=0,nAngr(icnt)
            Do iAngr=0,nAngr(kC)
@@ -817,11 +817,9 @@ C
       CALL GetMem('Revtf   ','FREE','REAL',iRevtf,LenIntf)
       CALL GetMem('Aaf     ','FREE','REAL',iAaf,LenIntf1)
       CALL GetMem('Rrf     ','FREE','REAL',iRrf,LenIntf1)
-      Call QExit('BSSInt')
       Return
 *
  9999 Continue
-      Call qTrace
       Write (6,*) ' *** Error in subroutine BSSint ***'
       Write (6,*) '     Abend in subroutine OpnOne'
       Call Abend

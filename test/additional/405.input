@@ -1,7 +1,8 @@
+>> COPY MCPDFT.InpOrb .
 &GATEWAY
 coord
 2
-Angstrom 
+Angstrom
 H 0 0  10
 H 0 0 -10
 basis

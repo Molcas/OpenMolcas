@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine NAMem(nRys,MemNA,la,lb,lr)
-#include "itmax.fh"
-#include "info.fh"
+      use Basis_Info
       Integer iAngV(4)
 *
 *                                                                      *

@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Select_Hidden(mTtAtm,nHidden,Coord,HiddenCoord,
-     &                         iHiddenAN,nKept,rHidden,iPL)
+     &                         iHiddenAN,nKept,iPL)
+      use Slapaf_Parameters, only: rHidden
       Implicit Real*8 (a-h,o-z)
 *
 *  Select among the hidden atoms the ones to be kept
@@ -18,7 +19,6 @@
       Dimension Coord(3,mTtAtm),HiddenCoord(3,nHidden)
       Dimension iHiddenAN(nHidden)
 *
-      Call QEnter('select_hidden')
 *
 *  Criteria: dMin < distance < rHidden
 *
@@ -44,6 +44,5 @@
       If(iPL .gt. 3 .and. nKept .gt. 0) Write(6,'(A,i3,A)')
      &                ' Select_Hidden: ',nKept,' hidden atoms are kept'
 *
-      Call QExit('select_hidden')
       Return
       End

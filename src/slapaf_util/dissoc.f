@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Dissoc(xyz,nCntr,mCntr,rMss,nsAtom,Dist,B,lWrite,
+      SubRoutine Dissoc(xyz,nCntr,mCntr,rMss,Dist,B,lWrite,
      &                  Label,dB,ldB)
       Implicit Real*8 (A-H,O-Z)
 ************************************************************************
@@ -26,12 +26,11 @@
       Character*8 Label
 #include "angstr.fh"
 *
-      Call qEnter('Dissoc')
 *
       call dcopy_(2,[Zero],0,RM,1)
       call dcopy_(6,[Zero],0,R,1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nCntr,mCntr=',nCntr,mCntr
       Call RecPrt(' Masses',' ',rMss,nCntr+mCntr,1)
       Call RecPrt(' xyz',' ',xyz,3,nCntr+mCntr)
@@ -46,7 +45,7 @@
             R(ix,i) = R(ix,i) + rMss(iCntr) * xyz(ix,iCntr)
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('RM',' ',RM,1,2)
 #endif
 *
@@ -58,7 +57,7 @@
          R(ix,2) = R(ix,2)/RM(2)
          Dist = Dist + (R(ix,1)-R(ix,2))**2
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Center of mass of fragments',' ',R,3,2)
 #endif
 *
@@ -87,7 +86,7 @@
             B(ix,iCntr)= Fact* (R(ix,1)-R(ix,2)) / Dist
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('B',' ',B,3,nCntr+mCntr)
 #endif
 *
@@ -140,12 +139,9 @@
 *
             End Do
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('dB',' ',dB,3*(nCntr+mCntr),3*(nCntr+mCntr))
 #endif
       End If
-      Call qExit('Dissoc')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nsAtom)
       End

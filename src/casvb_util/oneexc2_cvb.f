@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine oneexc2_cvb(cfrom,cto,vij,
      > i1alf,i1bet,iato,ibto,phato,phbto,
@@ -59,11 +60,13 @@ c  a) Alpha excitation
           elseif(iPvb.eq.1)then
             do 2200 ixa=ixapr(jax),ixapr(jax+1)-1
             ibx=iapr(ixa)
-2200        cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(jax,ibx)
+            cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(jax,ibx)
+2200        continue
           elseif(iPvb.eq.2)then
             do 2300 ixa=ixapr(iax),ixapr(iax+1)-1
             ibx=iapr(ixa)
-2300        cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(jax,ibx)
+            cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(jax,ibx)
+2300        continue
           endif
         else
           tcof=phato(iorb,iaxtmp)*phato(jorb,iaxtmp)
@@ -73,11 +76,13 @@ c  a) Alpha excitation
           elseif(iPvb.eq.1)then
             do 2400 ixa=ixapr(jax),ixapr(jax+1)-1
             ibx=iapr(ixa)
-2400        vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(jax,ibx)
+            vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(jax,ibx)
+2400        continue
           elseif(iPvb.eq.2)then
             do 2500 ixa=ixapr(iax),ixapr(iax+1)-1
             ibx=iapr(ixa)
-2500        vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(jax,ibx)
+            vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(jax,ibx)
+2500        continue
           endif
         endif
       endif
@@ -97,11 +102,13 @@ c  c) Beta excitation
             elseif(iPvb.eq.1)then
               do 3200 ixb=ixbpr(jbx),ixbpr(jbx+1)-1
               iax=ibpr(ixb)
-3200          cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(iax,jbx)
+              cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(iax,jbx)
+3200          continue
             elseif(iPvb.eq.2)then
               do 3300 ixb=ixbpr(ibx),ixbpr(ibx+1)-1
               iax=ibpr(ixb)
-3300          cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(iax,jbx)
+              cto(iax,ibx)=cto(iax,ibx)+tcof*cfrom(iax,jbx)
+3300          continue
             endif
           else
             tcof=phbto(iorb,ibxtmp)*phbto(jorb,ibxtmp)
@@ -111,11 +118,13 @@ c  c) Beta excitation
             elseif(iPvb.eq.1)then
               do 3400 ixb=ixbpr(jbx),ixbpr(jbx+1)-1
               iax=ibpr(ixb)
-3400          vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(iax,jbx)
+              vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(iax,jbx)
+3400          continue
             elseif(iPvb.eq.2)then
               do 3500 ixb=ixbpr(ibx),ixbpr(ibx+1)-1
               iax=ibpr(ixb)
-3500          vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(iax,jbx)
+              vij(iprm)=vij(iprm)+tcof*cto(iax,ibx)*cfrom(iax,jbx)
+3500          continue
             endif
           endif
         endif
@@ -195,9 +204,11 @@ c  c) Beta excitation
       if(absym)then
         if(idens.eq.0)then
           do 6000 ia=1,nda
-          do 6000 ib=ia,nda
+          do 6001 ib=ia,nda
           cto(ia,ib)=cto(ia,ib)+cto(ib,ia)
-6000      cto(ib,ia)=cto(ia,ib)
+          cto(ib,ia)=cto(ia,ib)
+6001      continue
+6000      continue
         else
           call dscal_(nvij,two,vij,1)
         endif

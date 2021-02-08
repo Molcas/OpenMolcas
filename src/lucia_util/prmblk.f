@@ -151,7 +151,6 @@
 *. Should the block be trnasposed or scaled to return to initial form
       ITRP(NPERM+1) = LTRP
       ISGN(NPERM+1) = LSIGN
-      IFNSGN = LSIGN
       NTEST = 0
       IF(NTEST.NE.0) THEN
         WRITE(6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',

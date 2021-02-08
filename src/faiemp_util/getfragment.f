@@ -11,10 +11,7 @@
 * Copyright (C) Ben Swerts                                             *
 *               2016, Liviu Ungur                                      *
 ************************************************************************
-      SubRoutine GetFragment(lUnit,ipExp,MxShll,iShll,nFragType,
-     &                       nFragCoor,nFragEner,nFragDens,ipFragType,
-     &                       ipFragCoor,ipFragEner,ipFragCoef,
-     &                       DInf,nDInf)
+      SubRoutine GetFragment(lUnit,iCnttp)
 ************************************************************************
 *                                                                      *
 *    Objective: To read frozen fragment information.                   *
@@ -28,34 +25,49 @@
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
+      Use Basis_Info
       Implicit None
-#include "print.fh"
+#include "stdalloc.fh"
 #include "angstr.fh"
-      Integer nDInf,lUnit,MxShll,iShll
-      Integer nFragType,nFragCoor,nFragEner,nFragDens
-      Integer ipFragType,ipFragCoor,ipFragEner,ipFragCoef
-      Real*8 DInf(nDInf)
+      Integer lUnit,iCnttp
       Character*180 Line, Get_Ln
-      Integer ipExp(MxShll)
       integer storageSize,LineWords
       parameter(storageSize = 200, LineWords=storageSize/8)
+      Integer nFragType,nFragCoor,nFragEner,nFragDens
 !     LineWords = 25
       Character*(storageSize) sBasis
       Real*8 eqBasis(LineWords)
-      Equivalence(sBasis,eqBasis)
-      Integer iRout,iPrint,iStart,i,j,iBasis,ierr
+      Integer iPrint,i,j,iBasis,ierr
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=30
-      iPrint = nPrint(iRout)
-      Call QEnter('GetFragment')
-*
-      iStart = ipExp(iShll+1)
+      Interface
+      subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
+      Integer lUnit, iStrt, iEnd, Inc, iErr
+      Real*8 Work(iend)
+      End subroutine Read_v
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
-* Local basis sets for unique centers
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      iPrint=99
+#else
+      iPrint=5
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nFrag_LineWords=LineWords ! Needed in Module Basis_Info
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Keyword: LBASIS
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Local basis sets for unique centers
 *
       if(iPrint.ge.99) write(6,*) 'Reading LBASIS'
       Line = Get_Ln(lUnit)
@@ -64,25 +76,36 @@
         write (6,*) Line
         Call Quit_OnUserError()
       Endif
-
+*
+*     Fragment types
+*
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragType)
-      ipFragType = iStart
+      dbsc(iCnttp)%nFragType=nFragType
+      Call mma_allocate(dbsc(iCnttp)%FragType,LineWords,nFragType,
+     &                  Label='FragType')
       if(iPrint.ge.99) write(6,*) 'number of LBASIS = ',nFragType
-
-* read the basis sets
+*
+*     read the basis sets labels
+*
       do i = 1,nFragType
           sBasis=Get_Ln(lUnit)
+          eqBasis=Transfer(sBasis,eqBasis) ! ???
           do j = 1,LineWords
-             DInf(iStart+j-1) = eqBasis(j)
+             dbsc(iCnttp)%FragType(j,i) = eqBasis(j)
           enddo
           if(iPrint.ge.49) write(6,*) 'GetFragment: basis set ', sBasis
-             iStart = iStart + LineWords
       enddo
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Keyword: RELCOORDS
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     All atoms: index of the associated basis set and coordinates
 *
-* All atoms: index of the associated basis set and coordinates
-*
-      if(iPrint.ge.99) write(6,*) 'Reading RELCOORDS'
+      If(iPrint.ge.99) write(6,*) 'Reading RELCOORDS'
 
       Line = Get_Ln(lUnit)
       If (Index(Line,'RELCOORDS').eq.0) Then
@@ -93,26 +116,39 @@
 
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragCoor)
-      ipFragCoor = iStart
+      dbsc(iCnttp)%nFragCoor=nFragCoor
       if(iPrint.ge.99) write(6,*) 'number of RELCOORDS = ',nFragCoor
 *
-* read all centers, but reserve space for the Mulliken charges
+*     read all centers, but reserve space for the Mulliken charges
 *
+*     FragCoor(1,i): Index of the FragType
+*     FragCoor(2,i): x coordinate
+*     FragCoor(3,i): y coordinate
+*     FragCoor(4,i): z coordinate
+*     FragCoor(5,i): Mulliken charge
+*
+      Call mma_allocate(dbsc(iCnttp)%FragCoor,5,nFragCoor,
+     &                  Label='FragCoor')
       do i = 1,nFragCoor
         Line = Get_Ln(lUnit)
         Call Get_i1(1,iBasis)
-        DInf(iStart) = dble(iBasis)
-        Call Get_f(2,DInf(iStart+1),3)
+        dbsc(iCnttp)%FragCoor(1,i) = dble(iBasis)
+        Call Get_f(2,dbsc(iCnttp)%FragCoor(2,i),3)
         If (Index(Line,'ANGSTROM').ne.0) Then
-         If(iPrint.ge.49) write(6,*) 'Reading the relcoords in Angstrom'
-          Do j = 1, 3
-            DInf(iStart+j) = DInf(iStart+j)/Angstr
-          End Do
+           If (iPrint.ge.49)
+     &        write(6,*) 'Reading the relcoords in Angstrom'
+              dbsc(iCnttp)%FragCoor(2:4,i)=
+     &            dbsc(iCnttp)%FragCoor(2:4,i)/Angstr
         End If
-        iStart = iStart + 5
       enddo
-*
-* Orbital energies (taken from the ONE ELECTRON ENERGIES in ScfOrb)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     keyword: ENERGIES
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Orbital energies (taken from the ONE ELECTRON ENERGIES in ScfOrb)
 *
       if(iPrint.ge.99) write(6,*) 'Reading ENERGIES'
       Line = Get_Ln(lUnit)
@@ -124,19 +160,26 @@
 
       Line = Get_Ln(lUnit)
       Call Get_i1(1,nFragEner)
-      ipFragEner = iStart
-
-      Call Read_v(lUnit,DInf,iStart,iStart+nFragEner-1,1,ierr)
+      dbsc(iCnttp)%nFragEner=nFragEner
+      Call mma_Allocate(dbsc(iCnttp)%FragEner,nFragEner,
+     &                   Label='FragEner')
+*
+      Call Read_v(lUnit,dbsc(iCnttp)%FragEner,1,nFragEner,1,ierr)
       if(iPrint.ge.99) Call RecPrt('Fragment MO energies',' ',
-     &  DInf(ipFragEner),1,nFragEner)
+     &                              dbsc(iCnttp)%FragEner,1,nFragEner)
       If (ierr.ne.0) Then
         write(6,*) 'ERROR: number of energy values is not correct'
         write(6,*) ierr
         Call Quit_OnUserError()
       Endif
-      iStart = iStart + nFragEner
-*
-* MO coefficients (taken from the ORBITALs in ScfOrb)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     keyword: MOCOEFF
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     MO coefficients (taken from the ORBITALs in ScfOrb)
 *
       if(iPrint.ge.99) write(6,*) 'Reading MOCOEFF'
       Line = Get_Ln(lUnit)
@@ -148,18 +191,26 @@
 
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nFragDens)
-      ipFragCoef = iStart
-      Call Read_v(lUnit,DInf,ipFragCoef,
-     &            ipFragCoef+nFragDens*nFragEner-1,1,ierr)
+      dbsc(iCnttp)%nFragDens=nFragDens
+      Call mma_allocate(dbsc(iCnttp)%FragCoef,nFragDens,nFragEner,
+     &                  Label='FragCoef')
+*
+      Call Read_v(lUnit,dbsc(iCnttp)%FragCoef,1,nFragDens*nFragEner,1,
+     &                       iErr)
       If(iPrint.ge.99) Call RecPrt('Fragment MO coefficients',' ',
-     &  DInf(ipFragCoef),nFragDens,nFragEner)
+     &                      dbsc(iCnttp)%FragCoef,nFragDens,nFragEner)
       If(ierr.ne.0) Then
         write(6,*) 'ERROR: number of coefficients is not correct'
         Call Quit_OnUserError()
       Endif
-      iStart = iStart + nFragDens*nFragEner
-*
-* Mulliken charges
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     keyword: MULLIKEN
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Mulliken charges
 *
       if(iPrint.ge.99) write(6,*) 'Reading MULLIKEN'
       Line = Get_Ln(lUnit)
@@ -168,22 +219,15 @@
         write(6,*) Line
         Call Quit_OnUserError()
       Endif
-* Temporarily use the DInf array to store the charges, but they are moved
-* together with the coordinates afterwards
-      Call Read_v(lUnit,DInf,iStart,
-     &            iStart+nFragCoor-1,1,ierr)
+      Call Read_v(lUnit,dbsc(iCnttp)%FragCoor,5,5*nFragCoor,5,ierr)
       If(iPrint.ge.99) Call RecPrt('Fragment Mulliken charges',' ',
-     &  DInf(iStart),nFragCoor,1)
+     &                      dbsc(iCnttp)%FragCoor,5,nFragCoor)
       If(ierr.ne.0) Then
         write(6,*) 'ERROR: number of Mulliken charges is not correct'
         Call Quit_OnUserError()
       Endif
-      Do i = 1, nFragCoor
-        DInf(ipFragCoor + 4 + (i-1)*5) = DInf(iStart + i - 1)
-      End Do
-
-      ipExp(iShll+1) = iStart
-      Call QExit('GetFragment')
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       Return
       End

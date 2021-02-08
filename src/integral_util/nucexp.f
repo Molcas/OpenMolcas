@@ -10,13 +10,13 @@
 *                                                                      *
 * Copyright (C) 1999, Per-Olof Widmark                                 *
 ************************************************************************
-      Real*8 Function NucExp(Z,A)
+      Real*8 Function NucExp(A)
 ************************************************************************
 *                                                                      *
 * Routine: NucExp.                                                     *
 * Purpose: This routine computes a nuclear radius in the form of a     *
-*          gaussian exponent. The exponent is a function of the        *
-*          nuclear charge (Z) and the nuclear mass number (A).         *
+*          Gaussian exponent. The exponent is a function of the        *
+*          nuclear mass number (A).                                    *
 * Author:  Per-Olof Widmark                                            *
 *          Lund University, Sweden.                                    *
 * Written: September 1999                                              *
@@ -25,21 +25,28 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 * Parameters:                                                          *
-* Z  - The nuclear charge for the nucleus.                             *
 * A  - The nuclear mass number for the nucleus.                        *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-* Algorithm:                                                           *
+* Algorithm: Empirical relation                                        *
+*               rms(r)/[fm] = 0.836*A^(1/3) + 0.570                    *
+*            Equate empirical rms with Gaussian rms                    *
+*               rms(r) = 3/(2*xi)                                      *
+*                                                                      *
+* References: W. R. Johnson, G. Soff. At. Data Nucl. Data Tables, 33,  *
+*             (1985) 405-446. doi:10.1016/0092-640X(85)90010-5         *
+*                                                                      *
+*             L. Visscher, K. G. Dyall. At. Data Nucl. Data Tables,    *
+*             67 (1997) 207-224. doi:10.1006/adnd.1997.0751            *
 *                                                                      *
 ************************************************************************
       Implicit None
-c      Real*8 CONST_BOHR_RADIUS_IN_SI_
 #include "constants.fh"
 *----------------------------------------------------------------------*
 * Parameter list.                                                      *
 *----------------------------------------------------------------------*
-      Integer Z,A
+      Integer A
 *----------------------------------------------------------------------*
 * Local variables.                                                     *
 *----------------------------------------------------------------------*
@@ -47,17 +54,17 @@ c      Real*8 CONST_BOHR_RADIUS_IN_SI_
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-      A3    = 1.0d0*DBLE(A)**(1.0d0/3.0d0)
+      A3 = DBLE(A)**(1.0d0/3.0d0)
 *
-      R=0.836d0*A3+0.570d0             ! fm
+      R = 0.836d0 * A3 + 0.570d0       ! fm
       R = R * 1.0D-15                  ! m
       R = R / CONST_BOHR_RADIUS_IN_SI_ ! bohr
-      Xi=1.5D0/R**2
-      NucExp=Xi
+*
+      Xi = 1.5D0 / R**2
+*
+      NucExp = Xi
 *----------------------------------------------------------------------*
 * Done.                                                                *
 *----------------------------------------------------------------------*
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(Z)
       End

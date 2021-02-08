@@ -16,11 +16,8 @@
 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Character*180 KWord, Key, Get_Ln
       External Get_Ln
       Logical  DFonly
@@ -99,13 +96,6 @@
          dmpk_dfl = 1.0d0
 ************************************************************************
 *                                                                      *
-*                                                                      *
-************************************************************************
-*     Define Blank lines
-*
-      Do i = 1, 80
-         BLine(i:i) = ' '
-      End Do
       iPrint=5
 *                                                                      *
 ************************************************************************
@@ -127,7 +117,7 @@
 *-------------------------------------------------------------------*
 
       If (KWord(1:1).eq.'*')    Go To 1000
-      If (KWord.eq.BLine)       Go To 1000
+      If (KWord.eq.'')       Go To 1000
       If (KWord(1:4).eq.'ALGO') Go To 900
       If (KWord(1:4).eq.'REOR') Go To 800
       If (KWord(1:4).eq.'NODE') Go To 810

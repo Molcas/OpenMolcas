@@ -10,12 +10,13 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DAO,nDAO,
      &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the index list of the batch of the 2nd order    *
 *          density matrix.                                             *
 *                                                                      *
@@ -23,35 +24,25 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *             Modified from PGet1, June '92                            *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer iShell(4), iAO(4), kOp(4),
-     &          iAOst(4), nPam(4), iiBas(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), nPam(4), iiBas(4), iCmp(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *
       iRout = 39
       iPrint = nPrint(iRout)
-*     Call qEnter('PGet3   ')
       If (iPrint.ge.99) Then
-         iComp = 1
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
       End If
 *
@@ -149,11 +140,9 @@
       End If
 *
 *     Call GetMem(' Exit PGet3','CHECK','REAL',iDum,iDum)
-*     Call qExit('PGet3')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

@@ -130,13 +130,13 @@
 !     Compute offsets for addressing into the reordering and coefficient arrays.
       allocate (csf_offset(ndo_min:ndo_max))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,'(5(1x,a4))') 'ido', 'ndoc', 'nsoc', 'ndet', 'ncsf'
 #endif
 
       ncsf = 0
       do ido = ndo_min, ndo_max
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write(6,'(5(1x,i4))') ido, ndoc_group(ido), nsoc_group(ido),
      &    ndet_group(ido), ncsf_group(ido)
 #endif
@@ -582,20 +582,7 @@
         if (iand(ishft(detb,-pos),1).eq.1) switch = .not.switch
         pos = pos + 1
       end do
-#ifdef BINARY_PARITY
       phase = 1 - 2 * poppar(iand(deta,mask))
-#else
-!     poppar is an intrinsic to determine the bit parity, but it's only
-!     supported with some compiler versions, so we still use our own,
-!     possibly slower implementation here as a fallback:
-      mask = iand(deta,mask)
-      mask = ieor(mask,ishft(mask,-16))
-      mask = ieor(mask,ishft(mask,-8))
-      mask = ieor(mask,ishft(mask,-4))
-      mask = iand(mask,b'1111')
-      mask = iand(ishft(z'6996',-mask),1)
-      phase = 1 - 2 * mask
-#endif
 
       end function
 

@@ -1,133 +1,111 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-************************************************************************
-*                                                                      *
-*-----Data for reaction field calculations.                            *
-*                                                                      *
-*     lMax: highest angular momentum for multipole expansion           *
-*     Eps  : dielectric constant                                       *
-*     EpsInf: refraction index                                         *
-*     rds: radius of cavity                                            *
-*     latato: Gitter type                                              *
-*     polsi: site polarizability                                       *
-*     dipsi: site dipole moment                                        *
-*     radlat: maximum extension of the lattice                         *
-*     scala,scalb,scalc: lengths of the cell dimensions                *
-*     scaaa: overall scaling                                           *
-*     gatom: atoms in the lattice.                                     *
-*     diedel: controlls deletion of gitter polarizabilities            *
-*     tK: Boltzman factor                                              *
-*     clim: convergence threshold for solver                           *
-*     afac: controlls equation solver (valid values 0.1-0.97)          *
-*     nexpo: exponent of the potential with which the QM system kills  *
-*            the gitter polatizabilities                               *
-*     prefac: scaling of the polarization energies                     *
-*     fmax: the square of the largest field in any grid point          *
-*                                                                      *
-*     PCM: whether to use the PCM solvent model                        *
-*     Conductor: whether to use the Conductor-PCM model                *
-*     Solvent: the name of the solvent we are using                    *
-*             (allowed solvents in datasol.f)                          *
-*     ISlPar: 100 integers to pass quickly PCM information             *
-*            (defaulted and explained in pcmdef.f)                     *
-*     RSlPar: 100 reals to pass quickly PCM information                *
-*            (defaulted and explained in pcmdef.f)                     *
-*     MxSph: maximum number of spheres allowed                         *
-*     MxTs: maximum number of tesserae allowed                         *
-*     MxVert: maximum number of vertices per tessera                   *
-*     MxA: maximum number of atoms for the building of PCM cavity      *
-*     NSinit: initial number of atomic spheres                         *
-*     NS: actual number of spheres (initial+smoothing)                 *
-*     nTs: number of surface tesserae                                  *
-*     NOrdInp: number of atom where explicit spheres are centered      *
-*     RadInp: radius of spheres explicitly given in the input          *
-*     ip_Sph: coordinates and radii of spheres                         *
-*     ip_N: atoms where the spheres are centered                       *
-*     ip_Tess: coordinates and area of tesserae                        *
-*     ip_Vert: coordinates of tesserae vertices (3,*)                  *
-*     ip_Centr: coordinates of tesserae centers (3,*)                  *
-*     ip_SSph: exposed surface of each sphere                          *
-*     ip_ISph: sphere to which each tessera belongs                    *
-*     ip_NVert: number of vertices of each tessera                     *
-*     ip_IntS: sphere intersecated by each tessera edge (MxVert,*)     *
-*     ip_NewS: parent spheres for each added sphere (2,*)              *
-*     ip_DM: PCM matrix                                                *
-*     ip_Q: PCM solvation charges
-*                                                                      *
-************************************************************************
-*     !!!!!!!!!!!!!!!!!!!!!!!
-*     Note that MxVert for practical reasons also is defined with
-*     explicit parameter statments in the code. Change those too if
-*     the value is changed!
-*     !!!!!!!!!!!!!!!!!!!!!!!
-      integer, parameter :: MxSph=1000,MxTs=6000,MxVert=20,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!-----Data for reaction field calculations.                            *
+!                                                                      *
+!     lMax: highest angular momentum for multipole expansion           *
+!     Eps  : dielectric constant                                       *
+!     EpsInf: refraction index                                         *
+!     rds: radius of cavity                                            *
+!     latato: Gitter type                                              *
+!     polsi: site polarizability                                       *
+!     dipsi: site dipole moment                                        *
+!     radlat: maximum extension of the lattice                         *
+!     scala,scalb,scalc: lengths of the cell dimensions                *
+!     scaaa: overall scaling                                           *
+!     gatom: atoms in the lattice.                                     *
+!     diedel: controlls deletion of gitter polarizabilities            *
+!     tK: Boltzman factor                                              *
+!     clim: convergence threshold for solver                           *
+!     afac: controlls equation solver (valid values 0.1-0.97)          *
+!     nexpo: exponent of the potential with which the QM system kills  *
+!            the gitter polatizabilities                               *
+!     prefac: scaling of the polarization energies                     *
+!     fmax: the square of the largest field in any grid point          *
+!                                                                      *
+!     PCM: whether to use the PCM solvent model                        *
+!     Conductor: whether to use the Conductor-PCM model                *
+!     Solvent: the name of the solvent we are using                    *
+!             (allowed solvents in datasol.f)                          *
+!     ISlPar: 100 integers to pass quickly PCM information             *
+!            (defaulted and explained in pcmdef.f)                     *
+!     RSlPar: 100 reals to pass quickly PCM information                *
+!            (defaulted and explained in pcmdef.f)                     *
+!     MxSph: maximum number of spheres allowed                         *
+!     MxTs: maximum number of tesserae allowed                         *
+!     MxVert: maximum number of vertices per tessera                   *
+!     MxA: maximum number of atoms for the building of PCM cavity      *
+!     NSinit: initial number of atomic spheres                         *
+!     NS: actual number of spheres (initial+smoothing)                 *
+!     nTs: number of surface tesserae                                  *
+!     NOrdInp: number of atom where explicit spheres are centered      *
+!     RadInp: radius of spheres explicitly given in the input          *
+!                                                                      *
+!***********************************************************************
+!     !!!!!!!!!!!!!!!!!!!!!!!
+!     Note that MxVert for practical reasons also is defined with
+!     explicit parameter statments in the code. Change those too if
+!     the value is changed!
+!     !!!!!!!!!!!!!!!!!!!!!!!
+      integer, parameter :: MxSph=1000,MxTs=6000,MxVert=20,             &
      & MxPar=100,MxA=100
       integer lRFStrt, lRFEnd
-      logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,
-     &        DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol,
+      logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,      &
+     &        DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol,   &
      &        Done_Lattice,lFirstIter,lDiprestart
-      common /lRct/ lRFStrt,
-     &              lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,
-     &              DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,
-     &              lAmberPol,
-     &              Done_Lattice,lFirstIter,lDiprestart,
+      common /lRct/ lRFStrt,                                            &
+     &              lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,&
+     &              DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,       &
+     &              lAmberPol,                                          &
+     &              Done_Lattice,lFirstIter,lDiprestart,                &
      &              lRFEnd
-      integer :: lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
-     &              iRFStrt, nabc, ipField, ipDip, ipdField, ipPolEf,
-     &              ipDipEf,
-     &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
-     &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
-     &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),
-     &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
-     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
-     &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
-     &              ip_DTes,ip_DPnt,ip_DRad,ip_DCntr,
+      integer :: lMax, nMM, latato, nexpo, maxa, maxb, maxc,            &
+     &              iRFStrt, nabc, nCavxyz,                             &
+     &              nGrid, nGrid_Eff,nSparse,                           &
+     &              ISlPar(MxPar),NSinit,NS,nTs,NTT(MxA),NOrdInp(MxA),  &
+     &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,       &
      &              iRFEnd
-      common /iRct/ iRFStrt,
-     &              lMax, nMM, ipMM, latato, nexpo, maxa, maxb, maxc,
-     &              nabc, ipField, ipDip, ipdField, ipPolEf, ipDipEf,
-     &              nCavxyz, ipfavxyz, ipdavxyz, ippavxyz, ipCavxyz,
-     &              ipravxyz, ipGrid, nGrid, nGrid_Eff,nSparse,
-     &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,
-     &              ip_Sph,ip_N,ip_Tess,ip_Vert,ip_Centr,ip_SSph,
-     &              ip_ISph,ip_NVert,ip_IntS,ip_NewS,ip_DM,ip_Q,
-     &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,
-     &              ip_DTes,ip_DPnt,ip_DRad,ip_DCntr,
+      common /iRct/ iRFStrt,                                            &
+     &              lMax, nMM, latato, nexpo, maxa, maxb, maxc,         &
+     &              nabc, nCavxyz, nGrid, nGrid_Eff,nSparse,            &
+     &              ISlPar,NSinit,NS,nTs,NTT,NOrdInp,                   &
+     &              nPCM_Info,iCharge_ref,nGridAverage,nGridSeed,       &
      &              iRFEnd
-      real(kind=8) :: Cordsi(3,4), rRfStrt,
-     &              EpsInf_User,
-     &              Eps_User,rds, polsi, dipsi, radlat,
-     &              scala, scalb, scalc, scaaa, gatom, diedel, tK,
-     &              rotAlpha, rotBeta, rotGamma,distSparse,
-     &              clim, afac, prefac, tk5, fmax,rsca,
-     &              Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,
-     &              RDiff(MxA),KT(MxA),RWT(MxA),RadInp(MxA),
-     &              RSlPar(MxPar),dampIter,dipCutoff,
+      real(kind=8) :: Cordsi(3,4), rRfStrt,                             &
+     &              EpsInf_User,                                        &
+     &              Eps_User,rds, polsi, dipsi, radlat,                 &
+     &              scala, scalb, scalc, scaaa, gatom, diedel, tK,      &
+     &              rotAlpha, rotBeta, rotGamma,distSparse,             &
+     &              clim, afac, prefac, tk5, fmax,rsca,                 &
+     &              Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,    &
+     &              RDiff(MxA),KT(MxA),RWT(MxA),RadInp(MxA),            &
+     &              RSlPar(MxPar),dampIter,dipCutoff,                   &
      &              scal14, rRFEnd
 
-      common /rRct/ rRFStrt,
-     &              EpsInf_User,
-     &              Eps_User,rds, Cordsi, polsi, dipsi, radlat,
-     &              scala, scalb, scalc, scaaa, gatom, diedel, tK,
-     &              rotAlpha, rotBeta, rotGamma,distSparse,
-     &              clim, afac, prefac, tk5, fmax,rsca,
-     &              Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,
-     &              RDiff,KT,RWT,RadInp,
-     &              RSlPar,dampIter,dipCutoff,
-     &              scal14,
+      common /rRct/ rRFStrt,                                            &
+     &              EpsInf_User,                                        &
+     &              Eps_User,rds, Cordsi, polsi, dipsi, radlat,         &
+     &              scala, scalb, scalc, scaaa, gatom, diedel, tK,      &
+     &              rotAlpha, rotBeta, rotGamma,distSparse,             &
+     &              clim, afac, prefac, tk5, fmax,rsca,                 &
+     &              Eps,EpsInf,DerEps,RSolv,VMol,TCE,GCav,GDis,GRep,    &
+     &              RDiff,KT,RWT,RadInp,                                &
+     &              RSlPar,dampIter,dipCutoff,                          &
+     &              scal14,                                             &
      &              rRFEnd
 
 
       character(32) :: Solvent
       integer :: cRFStrt, cRFEnd
-      common /cRct/ cRFStrt,
-     &              Solvent,
+      common /cRct/ cRFStrt,                                            &
+     &              Solvent,                                            &
      &              cRFEnd

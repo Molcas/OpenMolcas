@@ -12,14 +12,14 @@
 C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
+      use index_arrays, only: iSO2Sh
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
+     &                  iShP2RS, iShP2Q
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
-#include "chosew.fh"
-#include "WrkSpc.fh"
-#include "shinf.fh"
+#include "stdalloc.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INIT')
@@ -28,9 +28,6 @@ c     INTEGER  CHO_ISAO
 c     EXTERNAL CHO_ISAO
 c     INTEGER  CHO_ISAOSH
 c     EXTERNAL CHO_ISAOSH
-
-      iSO2SH(i)=IWORK(IPSOSH-1+i)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
 C     Check that the number of shells is within limits.
 C     -------------------------------------------------
@@ -65,12 +62,12 @@ C     -----------------------------------------------------------------
             WRITE(LUPRI,*) 'Condition: 0 < NNSHL < ',NNSHL_TOT
             CALL CHO_QUIT('Initialization error in '//SECNAM,102)
          END IF
-         IF (l_iSP2F .NE. NNSHL) THEN
+         IF (SIZE(iSP2F) .NE. NNSHL) THEN
             WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',
      &                     SKIP_PRESCREEN
             WRITE(LUPRI,*) 'NNSHL is: ',NNSHL
-            WRITE(LUPRI,*) 'l_iSP2F must be equal to NNSHL, ',
-     &                     'l_iSP2F = ',l_iSP2F
+            WRITE(LUPRI,*) 'SIZE(iSP2F) must be equal to NNSHL, ',
+     &                     'SIZE(iSP2F)= ',SIZE(iSP2F)
             CALL CHO_QUIT('Initialization error in '//SECNAM,102)
          END IF
       ELSE
@@ -106,22 +103,18 @@ C     ------------------------------------------------------
 C     Allocate shell based index arrays.
 C     ----------------------------------
 
-      l_IBASSH = NSYM*NSHELL
-      CALL CHO_MEM('IBASSH','ALLO','INTE',ip_IBASSH,l_IBASSH)
-      l_NBASSH = NSYM*NSHELL
-      CALL CHO_MEM('NBASSH','ALLO','INTE',ip_NBASSH,l_NBASSH)
-      l_NBSTSH = NSHELL
-      CALL CHO_MEM('NBSTSH','ALLO','INTE',ip_NBSTSH,l_NBSTSH)
+      Call mma_allocate(iBasSh,nSym,nShell,Label='iBasSh')
+      Call mma_allocate(nBasSh,nSym,nShell,Label='nBasSh')
+      Call mma_allocate(nBstSh,nShell,Label='nBstSh')
 
 C     ISOSHL(I): shell to which SO I belongs
 C     --------------------------------------
 
-      l_iSOShl = NBAST
-      CALL CHO_MEM('ISOSHL','ALLO','INTE',ip_iSOShl,l_iSOShl)
+      Call mma_allocate(iSOShl,NBAST,Label='iSOShl')
       DO ISYM = 1,NSYM
          DO IA = 1,NBAS(ISYM)
             I = IBAS(ISYM) + IA
-            IWORK(ip_iSOShl-1+I) = ISO2SH(I)
+            iSOShl(I) = ISO2SH(I)
          END DO
       END DO
 
@@ -130,8 +123,8 @@ C     NBSTSH(ISHL): total dimension of shell ISHL
 C     MXORSH      : max. shell dimension
 C     -----------------------------------------------------------
 
-      CALL CHO_SETSH(IWORK(ip_IBASSH),IWORK(ip_NBASSH),IWORK(ip_NBSTSH),
-     &               IBAS,NBAS,IWORK(ip_ISOSHL),NSYM,NSHELL,NBAST)
+      CALL CHO_SETSH(IBASSH,NBASSH,NBSTSH,
+     &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
       MXORSH = NBSTSH(1)
       DO ISHL = 2,NSHELL
@@ -143,7 +136,7 @@ C     -------------------------------------------------
 
       MX2SH = -1
       DO IJSHL = 1,NNSHL
-         IJ = IWORK(ip_iSP2F-1+IJSHL)
+         IJ = iSP2F(IJSHL)
          CALL CHO_INVPCK(IJ,I,J,.TRUE.)
          IF (I .EQ. J) THEN
             NUMIJ = NBSTSH(I)*(NBSTSH(I) + 1)/2
@@ -163,18 +156,14 @@ C     directly in reduced set from Seward.
 C     -----------------------------------------------------------
 
       IF (IFCSEW .EQ. 2) THEN
-         l_iShP2RS  = 2*MX2SH
-         l_iShP2Q   = l_iShP2RS
-         CALL CHO_MEM('SHP2RS','ALLO','INTE',ip_iShP2RS,l_iShP2RS)
-         CALL CHO_MEM('SHP2Q','ALLO','INTE',ip_iShP2Q,l_iShP2Q)
+         Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
+         Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
       END IF
 
 C     ISHLSO(I): index of SO I within its shell
 C     -----------------------------------------
 
-      l_iShlSO = NBAST
-      CALL CHO_MEM('ISHLSO','ALLO','INTE',ip_iShlSO,l_iShlSO)
-      CALL CHO_SETSH2(IWORK(ip_iShlSO),IWORK(ip_iSOShl),
-     &                IWORK(ip_NBSTSH),NBAST,NSHELL)
+      Call mma_allocate(iShlSO,nBasT,Label='iShlSO')
+      CALL CHO_SETSH2(iShlSO,iSOShl,NBSTSH,NBAST,NSHELL)
 
       END

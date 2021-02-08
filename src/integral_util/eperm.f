@@ -27,14 +27,15 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
+      use external_centers
+      use Symmetry_Info, only: nIrrep, iChBas
+      use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
      &       dEF(4,nGrid_), Grid(3,nGrid_), Origin(3), CCoor(3),
@@ -111,8 +112,7 @@
                   If (Origin(3).ne.Zero) iSymZ = iOr(iSymZ,1)
                End If
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
                l_Oper=iOr(l_Oper,iTemp)
             End Do
          End Do
@@ -143,7 +143,7 @@
      &                              ' ',Cavxyz,1,nCavxyz_)
 
 
-      If(lXF) Then
+      If(Allocated(XF)) Then
          Call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
       EndIf
 
@@ -215,7 +215,7 @@
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               lOper(iComp) = MltLbl(iSymC,iSym,nIrrep)
+               lOper(iComp) = MltLbl(iSymC,iSym)
                kOper(iComp) = iChBas(iComp+1)
                call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do
@@ -229,8 +229,8 @@
      &                       D_Tot,nDens,dEF(1,iGrid),Sig)
 
 *        Field contribution from XF
-         Call EFXF(C_Coor,Work(ipXF),nXF,nOrd_XF,iXPolType,
-     &        xfEF(1,iGrid),  Work(ipXMolnr),nXMolnr,iGrid,scal14)
+         Call EFXF(C_Coor,XF,nXF,nOrd_XF,iXPolType,
+     &        xfEF(1,iGrid),XMolnr,nXMolnr,iGrid,scal14)
 *
       End Do
 

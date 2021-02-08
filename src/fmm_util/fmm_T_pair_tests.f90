@@ -21,7 +21,7 @@ MODULE fmm_T_pair_tests
              fmm_test_and_buffer_T_pair
 
     ! Flag to test initialisation
-   CHARACTER(11), SAVE :: init_tests
+   CHARACTER(LEN=11), SAVE :: init_tests
 
 CONTAINS
 

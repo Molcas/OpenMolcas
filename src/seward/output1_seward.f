@@ -10,27 +10,33 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Output1_Seward(lOPTO,Info,DInf,nDInf)
+      SubRoutine Output1_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
-*     Object: to write the output of seward            .               *
-*                                                                      *
-*                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
+*     Object: to write the output of seward                            *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Period
       use GeoList
       use MpmC
       use EFP_Module
+      use External_centers
+      use Temporary_Parameters
+      use DKH_Info
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
+      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
+     &                     Do_acCD_Basis, Skip_High_AC, Cho_OneCenter,
+     &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
+      use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO,
+     &                        FNMC, lPSOI
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "real.fh"
 #include "rmat.fh"
@@ -40,16 +46,32 @@
 #include "print.fh"
 #include "gateway.fh"
 #include "localdf.fh"
-      Logical l_aCD_Thr, lOPTO
-      Real*8 DInf(nDInf)
+      Logical l_aCD_Thr, lOPTO, Found
+      Logical lNoPair, lPam2, lECP, lPP
+      Character(LEN=80) Title(10)
 #include "angstr.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout=2
       iPrint=nPrint(iRout)
-      Call QEnter('Output1_Seward')
       LuWr=6
+*                                                                      *
+************************************************************************
+*                                                                      *
+      lNoPair = .False.
+      lPam2   = .False.
+      lECP    = .False.
+      lPP     = .False.
+      Do i = 1, nCnttp
+         lNoPair = lNoPair .or. dbsc(i)%NoPair
+         lPam2   = lPam2   .or. dbsc(i)%lPam2
+         lECP    = lECP    .or. dbsc(i)%ECP
+         lPP     = lPP     .or. dbsc(i)%nPP.ne.0
+         lECP    = lECP    .or. dbsc(i)%ECP
+         lPP     = lECP    .or. dbsc(i)%ECP
+      End Do
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -71,7 +93,7 @@
 *
       Write (LuWr,'(15X,A)') 'SEWARD will generate:'
       Write (LuWr,'(15X,A,I2)')
-     &        '   Multipole Moment integrals up to order ',nMltpl
+     &        '   Multipole Moment integrals up to order ',S%nMltpl
       If (.Not.Prprt) Then
          Write (LuWr,'(15X,A)')    '   Kinetic Energy integrals'
          If (Nuclear_Model.eq.Gaussian_Type) Then
@@ -197,7 +219,7 @@
                      Write(LuWr,'(17X,A)')
      &               '   - Partial local approximation:'
                      Write(LuWr,'(17X,A,10(A4))')
-     &          '     - Centers: ', (LblCnt(iCtrLD(i)),i=1,nCtrLD)
+     &          '     - Centers: ', (dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
                      Write(LuWr,'(17X,A,F6.2,A)')
      &          '     - Cutoff radius: ', radiLD, ' Bohr'
                  End If
@@ -248,7 +270,7 @@
          If (lPP)Write (LuWr,'(15X,A)')
      &                '   Pseudo Potential integrals'
       End If
-      If (lXF) Write (LuWr,'(15X,A,I6,A)')
+      If (Allocated(XF)) Write (LuWr,'(15X,A,I6,A)')
      &                       '   External field from',
      &                           nXF, ' point(s) added to the'
      &                           //' one-electron Hamiltonian'
@@ -264,21 +286,21 @@
       If (nEF.gt.0 .and. nOrdEF.ge.2) Write (LuWr,'(15X,A,I6,A)')
      &            '   Contact term integrals for',
      &                           nEF, ' points'
-      If (lDMS) Write (LuWr,'(15X,A,I6,A)')
+      If (Allocated(DMS_Centers)) Write (LuWr,'(15X,A,I6,A)')
      &            '   Diamagnetic shielding integrals for',
      &                           nDMS, ' points'
-      If (lOAM) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+      If (Allocated(OAM_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital angular momentum around (',
-     &   (DInf(ipOAM+i),i=0,2),')'
-      If (lOMQ) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+     &   (OAM_Center(i),i=1,3),')'
+      If (Allocated(OMQ_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital magnetic quadrupole around (',
-     &   (DInf(ipOMQ+i),i=0,2),')'
-      If (Vlct.and.(nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+     &   (OMQ_Center(i),i=1,3),')'
+      If (Vlct.and.(S%nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Velocity quadrupole around (',
      &   (Coor_MPM(i,3),i=1,3),')'
-      If (lAMP) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+      If (Allocated(AMP_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      & '   Products of Orbital angular momentum operators around (',
-     &   (DInf(ipAMP+i),i=0,2),')'
+     &   (AMP_Center(i),i=1,3),')'
       If (nWel.ne.0) Write (LuWr,'(15X,A,I4,A)')
      &             '   Spherical well for', nWel,
      &             ' exponent(s) added to the'
@@ -382,7 +404,7 @@
      &                 '  - CD Threshold: ',Thrshld_CD
                l_aCD_Thr=.False.
                Do iCnttp = 1, nCnttp
-                  l_aCD_Thr=l_aCD_Thr .or. aCD_Thr(iCnttp).ne.One
+                  l_aCD_Thr=l_aCD_Thr .or. dbsc(iCnttp)%aCD_Thr.ne.One
                End Do
                If (l_aCD_Thr) Then
                   Write (LuWr,'(17X,A)')
@@ -442,7 +464,10 @@
 *                                                                      *
  99   Continue
 *
-      If (nTtl.ne.0) Then
+      Call Qpg_cArray('SewardXTitle',Found,nTtl)
+      If (Found) Then
+         nTtl=nTtl/80
+         Call Get_cArray('SewardXTitle',Title(1),nTtl*80)
          If (iPrint.ge.6) Then
             Write (LuWr,*)
             Write (LuWr,'(15X,88A)') ('*',i=1,88)
@@ -514,16 +539,16 @@
 *     Write out basis set information
 *
       If (Run_Mode.eq.GS_Mode) Then
-         Call Print_Basis(lOPTO,DInf,nDInf)
+         Call Print_Basis(lOPTO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Write out coordinates, bond, angles and torsional angles
 *
          If (lOPTO) then
-            Call Print_Geometry(1,DInf,nDInf)
+            Call Print_Geometry(1)
          else
-            Call Print_Geometry(0,DInf,nDInf)
+            Call Print_Geometry(0)
          EndIf
          Call Print_Isotopes()
 *                                                                      *
@@ -531,20 +556,18 @@
 *                                                                      *
 *     Rigid Rotor analysis etc.
 *
-         Call RigRot(Centr,Mass,kCentr)
+         Call RigRot(Centr,Mass,S%kCentr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_Basis2(DInf,nDInf)
+         Call Print_Basis2()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Print_OpInfo(DInf,nDInf)
+         Call Print_OpInfo()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Output1_Seward')
       Return
-      If (.False.) Call Unused_Integer(Info)
       End

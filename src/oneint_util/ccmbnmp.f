@@ -13,14 +13,6 @@
       SubRoutine CCmbnMP(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                   kVector)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MltInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -35,17 +27,14 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 134
-      iPrint = nPrint(iRout)
-*
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *
@@ -71,7 +60,9 @@
  42            Continue
  41         Continue
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
       Return

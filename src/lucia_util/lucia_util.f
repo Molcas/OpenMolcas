@@ -60,8 +60,6 @@
 
 #include "lucinp.fh"
 
-#include "multd2h.fh"
-
 #include "oper.fh"
 #include "orbinp.fh"
 #include "spinfo_lucia.fh"
@@ -71,16 +69,12 @@
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
 *
-#ifdef _DEBUG_TRACE_
+#ifdef _DEBUGPRINT_
       INTEGER, SAVE :: COUNTER = 0
       COUNTER=COUNTER+1
       WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)')
      & '[',COUNTER,']','ENTRY LUCIA_UTIL','(',Module,')'
 #endif
-*
-* To avoid compiler warnings (I know it's ugly)
-*
-      iCrap = Multd2h(1,1)
 *
 * Make sure the Module variable is in upper case.
 *
@@ -121,7 +115,7 @@
          Call Abend
       End If
 
-#ifdef _DEBUG_TRACE_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)')
      & '[',COUNTER,']','EXIT LUCIA_UTIL','(',Module,')'
 #endif

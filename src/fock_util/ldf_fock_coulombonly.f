@@ -229,6 +229,9 @@ C     ||sum_K (AB|K)*V(K)|| <= sqrt[sum_[u_A v_B] (u_A v_B | u_A v_B)]
 C                             *sqrt[sum_K (K|K)]
 C                             *sqrt[sum_K V(K)**2]
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer IntegralOption
       Logical Timing
@@ -241,7 +244,6 @@ C
       Real*8  FactC(nD)
       Integer ip_D(nD)
       Integer ip_F(nD)
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
@@ -255,7 +257,7 @@ C
       Integer  LDF_nAtom
       External LDF_nAtom
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_X_IsSet, LDF_TestBlockMatrix
       External LDF_X_IsSet, LDF_TestBlockMatrix
       Logical  DoTest
@@ -312,7 +314,7 @@ C
          Go To 1  ! return
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_X_IsSet()) Then
          Call WarningMessage(2,SecNam//': LDF data not initialized!')
          Call LDF_Quit(1)
@@ -367,7 +369,7 @@ C
       l_DBlocks=nD
       Call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
       ip0=ip_DBlocks-1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       x=dble(NumberOfAtomPairs)
       y=dble(LDF_nAtom())*(dble(LDF_nAtom())+1.0d0)/2.0d0
       DoTest=int(x-y).eq.0
@@ -375,7 +377,7 @@ C
       Do iD=1,nD
          Call LDF_AllocateBlockMatrix('Den',iWork(ip0+iD))
          Call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (DoTest) Then
             If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,
      &                                   Work(ip_D(iD)))) Then
@@ -504,6 +506,9 @@ C              Coulomb intermediates V. Integral-driven algorithm.
 C
 C     See LDF_Fock_CoulombOnly for more details.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Logical UseExactIntegralDiagonal
       Logical Timing
@@ -522,7 +527,6 @@ C
 #include "ldf_atom_pair_info.fh"
 #include "ldf_integral_prescreening_info.fh"
 #include "ldf_a2ap.fh"
-#include "para_info.fh"
 
       Character*21 SecNam
       Parameter (SecNam='LDF_Fock_CoulombOnly_')
@@ -1253,6 +1257,9 @@ C     Note that both arrays V and F are stored locally as O(N) arrays,
 C     which should keep the communication bottleneck at a minimum as the
 C     system size grows.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer IntegralOption
       Real*8  tau
@@ -1267,12 +1274,11 @@ C
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
-#include "para_info.fh"
 
       Character*21 SecNam
       Parameter (SecNam='LDF_Fock_CoulombOnly0')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_X_IsSet, LDF_TestBlockMatrix
       External LDF_X_IsSet, LDF_TestBlockMatrix
       Integer  LDF_nAtom
@@ -1303,7 +1309,7 @@ C
          Return
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_X_IsSet()) Then
          Call WarningMessage(2,SecNam//': LDF data not initialized!')
          Call LDF_Quit(1)
@@ -1348,7 +1354,7 @@ C
       l_DBlocks=nD
       Call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
       ip0=ip_DBlocks-1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       x=dble(NumberOfAtomPairs)
       y=dble(LDF_nAtom())*(dble(LDF_nAtom())+1.0d0)/2.0d0
       DoTest=int(x-y).eq.0
@@ -1356,7 +1362,7 @@ C
       Do iD=1,nD
          Call LDF_AllocateBlockMatrix('Den',iWork(ip0+iD))
          Call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (DoTest) Then
             If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,
      &                                   Work(ip_D(iD)))) Then

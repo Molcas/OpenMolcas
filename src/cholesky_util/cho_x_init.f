@@ -24,7 +24,7 @@
 *> density fitting (DF or RI) runs.
 *> Index arrays are allocated and initialized.
 *> All information is stored in the include files
-*> cholesky.fh, choorb.fh, and choptr.fh.
+*> cholesky.fh, choorb.fh, choarr.f90, and choswp.f90.
 *>
 *> \p BufFrac is the fraction of total available memory that will be
 *> allocated as Cholesky vector buffer. For example, \p BufFrac = ``0.35``
@@ -53,44 +53,43 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
+     &                  iRS2F, nDimRS, MySP, n_MySP
+      use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
+      use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
+      use ChoSwp, only:   IndRSh,   IndRSh_Hidden
+      use ChoSwp, only:   IndRed,   IndRed_Hidden
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "choptr2.fh"
 #include "chosp.fh"
 #include "choini.fh"
 #include "choprint.fh"
-#include "chobkm.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*10 SecNam
-      Parameter (SecNam = 'Cho_X_Init')
+      Character(LEN=10), Parameter:: SecNam = 'Cho_X_Init'
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*2 Unt
 #endif
 
-      Logical DidCholesky, FirstCall
+      Logical DidCholesky
+      Logical, Save:: FirstCall=.true.
       Logical isDF, isLocalDF, DoDummy
 
-      Integer ChoIsIni, ip, l
+      Integer ChoIsIni, l
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
-      Save FirstCall
-      Data FirstCall /.true./
-
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
+      Integer, Allocatable:: BkmDim(:)
 
 C     Register entry.
 C     ---------------
 
-#if defined (_DEBUG_)
-      Call qEnter(SecNam)
-      Call GetMem('CXI_MX1','Max ','Real',ip_Max,l_Max)
+#if defined (_DEBUGPRINT_)
+      Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt
@@ -125,7 +124,7 @@ C     --------------------------------------
       End If
 
 C     Define all entries in include files choorb.fh, cholesky.fh,
-C     choprint.fh, and choptr.fh.
+C     and choprint.fh.
 C     -------------------------------------------------------------
 
       Call Cho_X_SetInc(irc)
@@ -133,16 +132,16 @@ C     -------------------------------------------------------------
          Go To 103  ! include file inconsistency detected
       End If
 
-C     Set parallel info (picked up from para_info.fh).
+C     Set parallel info (picked up from para_info).
 C     -------------------------------------------------
 
       CHO_FAKE_PAR = .False.
       Call Cho_ParConf(CHO_FAKE_PAR)
 
-C     Define entries in choptr2.fh.
+C     Define n_MySP
 C     ------------------------------
 
-      Call Cho_SetPtr2()
+      n_MySP = 0
 
 C     Set run mode to "external".
 C     ---------------------------
@@ -208,9 +207,8 @@ C     --------------------------------------------------------
          Write(6,*) SecNam,': nBasT out of bounds: ',nBasT
          Go To 101
       End If
-      l_iSOShl = nBasT
-      Call GetMem('iSOShl','Allo','Inte',ip_iSOShl,l_iSOShl)
-      Call Get_iArray('ISOSHL',iWork(ip_iSOShl),nBasT)
+      Call mma_allocate(iSOShl,nBasT,Label='iSOShl')
+      Call Get_iArray('ISOSHL',iSOShl,nBasT)
 
       Call Get_iArray('NumCho',NumCho,nSym)
       NumChT = Cho_iSumElm(NumCho,nSym)
@@ -263,59 +261,53 @@ C     ----------------------------------------------------
 C     Allocate and initialize index arrays.
 C     -------------------------------------
 
-      l_iiBstRSh = nSym*nnShl*3
-      l_nnBstRSh = nSym*nnShl*3
-      Call GetMem('iiBstRSh','Allo','Inte',ip_iiBstRSh,l_iiBstRSh)
-      Call GetMem('nnBstRSh','Allo','Inte',ip_nnBstRSh,l_nnBstRSh)
+      call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='iiBstRSh_Hidden')
+      iiBstRSh => iiBstRSh_Hidden
+      call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='nnBstRSh_Hidden')
+      nnBstRSh => nnBstRSh_Hidden
       Call Cho_RstD_GetInd1()
       mmBstRT = nnBstRT(1)
 
-      l_IndRed = nnBstRT(1)*3
-      l_IndRSh = nnBstRT(1)
-      Call GetMem('IndRed','Allo','Inte',ip_IndRed,l_IndRed)
-      Call GetMem('IndRSh','Allo','Inte',ip_IndRSh,l_IndRSh)
+      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,
+     &                  Label='IndRed_Hidden')
+      IndRed => IndRed_Hidden
+      Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
+      IndRSh => IndRSh_Hidden
       Call Cho_RstD_GetInd2()
 
-      l_iSP2F = nnShl
-      Call GetMem('SP2F','Allo','Inte',ip_iSP2F,l_iSP2F)
-      Call Cho_RstD_GetInd3(iWork(ip_iSP2F),l_iSP2F)
+      Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
+      Call Cho_RstD_GetInd3(iSP2F,SIZE(iSP2F))
 
 C     Allocate and read bookmarks (if available on runfile).
 C     ------------------------------------------------------
 
       If (isDF) Then
-         ip_BkmVec=0
-         l_BkmVec=0
          nRow_BkmVec=0
          nCol_BkmVec=0
-         ip_BkmThr=0
-         l_BkmThr=0
          nRow_BkmThr=0
          nCol_BkmThr=0
       Else
          l=4
-         Call GetMem('BkmDim','Allo','Inte',ip,l)
-         Call Get_iArray('Cholesky BkmDim',iWork(ip),l)
-         nRow_BkmVec=iWork(ip)
-         nCol_BkmVec=iWork(ip+1)
-         nRow_BkmThr=iWork(ip+2)
-         nCol_BkmThr=iWork(ip+3)
-         Call GetMem('BkmDim','Free','Inte',ip,l)
+         Call mma_allocate(BkmDim,l,Label='BkmDim')
+         Call Get_iArray('Cholesky BkmDim',BkmDim,l)
+         nRow_BkmVec=BkmDim(1)
+         nCol_BkmVec=BkmDim(2)
+         nRow_BkmThr=BkmDim(3)
+         nCol_BkmThr=BkmDim(4)
+         Call mma_deallocate(BkmDim)
          If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
-            l_BkmVec=nRow_BkmVec*nCol_BkmVec
-            Call GetMem('BkmVec','Allo','Inte',ip_BkmVec,l_BkmVec)
-            Call Get_iArray('Cholesky BkmVec',iWork(ip_BkmVec),l_BkmVec)
-            l_BkmThr=nRow_BkmThr*nCol_BkmThr
-            Call GetMem('BkmVec','Allo','Real',ip_BkmThr,l_BkmThr)
-            Call Get_dArray('Cholesky BkmThr',Work(ip_BkmThr),l_BkmThr)
+            Call mma_allocate(BkmVec,nRow_BkmVec,nCol_BkmVec,
+     &                        Label='BkmVec')
+            Call Get_iArray('Cholesky BkmVec',BkmVec,SIZE(BkmVec))
+            Call mma_allocate(BkmThr,nRow_BkmThr,nCol_BkmThr,
+     &                        Label='BkmThr')
+            Call Get_dArray('Cholesky BkmThr',BkmThr,SIZE(BkmThr))
          Else
-            ip_BkmVec=0
-            l_BkmVec=0
             nRow_BkmVec=0
             nCol_BkmVec=0
-            ip_BkmThr=0
-            l_BkmThr=0
             nRow_BkmThr=0
             nCol_BkmThr=0
          End If
@@ -326,42 +318,32 @@ C     After the decomposition is done, it must be a trivial mapping and
 C     the user (programmer) should not worry about it at all.
 C     -----------------------------------------------------------------
 
-      l_mySP = nnShl
-      Call GetMem('mySP','Allo','Inte',ip_mySP,l_mySP)
+      Call mma_allocate(MySP,nnShl,Label='MySP')
       Do ijShl = 1,nnShl
-         iWork(ip_mySP-1+ijShl) = ijShl
+         MySP(ijShl) = ijShl
       End Do
 
 C     Copy reduced set 1 to location 2.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                iWork(ip_IndRed),1,2,nSym,nnShl,mmBstRT,3)
+      Call Cho_RSCopy(1,2)
 
 C     Get dimensions of reduced sets.
 C     -------------------------------
 
-      l_nDimRS = nSym*MaxRed
-      Call GetMem('nDimRS','Allo','Inte',ip_nDimRS,l_nDimRS)
-      Call iCopy(nSym,nnBstR(1,1),1,iWork(ip_nDimRS),1)
+      Call mma_allocate(nDimRS,nSym,MaxRed,Label='nDimRS')
+      Call iCopy(nSym,nnBstR(1,1),1,nDimRS,1)
       iLoc = 3
       Do iRed = 2,MaxRed
-         kOff1 = ip_nnBstRSh + nSym*nnShl*(iLoc - 1)
-         kOff2 = ip_IndRed   + mmBstRT*(iLoc - 1)
-         Call Cho_GetRed(iWork(ip_InfRed),iWork(kOff1),
-     &                   iWork(kOff2),iWork(ip_IndRsh),iWork(ip_iSP2F),
-     &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
-         Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                      nSym,nnShl,iLoc)
-         kOff3 = ip_nDimRS + nSym*(iRed - 1)
-         Call iCopy(nSym,nnBstR(1,iLoc),1,iWork(kOff3),1)
+         Call Cho_GetRed(iRed,iLoc,.false.)
+         Call Cho_SetRedInd(iLoc)
+         Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
       End Do
 
 C     Copy reduced set 1 to location 3.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                iWork(ip_IndRed),1,3,nSym,nnShl,mmBstRT,3)
+      Call Cho_RSCopy(1,3)
 
 C     Derive:
 C     nBasSh: #basis functions in sym. block of shell.
@@ -370,14 +352,11 @@ C     Mx2Sh : max. shell pair dimension.
 C     iShlSO: index of SO within its shell.
 C     ------------------------------------------------
 
-      l_iBasSh = nSym*nShell
-      l_nBasSh = nSym*nShell
-      l_nBstSh = nShell
-      Call GetMem('iBasSh','Allo','Inte',ip_iBasSh,l_iBasSh)
-      Call GetMem('nBasSh','Allo','Inte',ip_nBasSh,l_nBasSh)
-      Call GetMem('nBstSh','Allo','Inte',ip_nBstSh,l_nBstSh)
-      Call Cho_SetSh(iWork(ip_iBasSh),iWork(ip_nBasSh),iWork(ip_nBstSh),
-     &               iBas,nBas,iWork(ip_iSOShl),nSym,nShell,nBasT)
+      Call mma_allocate(iBasSh,nSym, nShell,Label='iBasSh')
+      Call mma_allocate(nBasSh,nSym, nShell,Label='nBasSh')
+      Call mma_allocate(nBstSh,nShell,Label='nBstSh')
+      Call Cho_SetSh(iBasSh,nBasSh,nBstSh,
+     &               iBas,nBas,iSOShl,nSym,nShell,nBasT)
 
       MxOrSh = nBstSh(1)
       Do iShl = 2,nShell
@@ -395,17 +374,14 @@ C     ------------------------------------------------
          Mx2Sh = max(Mx2Sh,Numij)
       End Do
 
-      l_iShlSO = nBasT
-      Call GetMem('iShlSO','Allo','Inte',ip_iShlSO,l_iShlSO)
-      Call Cho_SetSh2(iWork(ip_iShlSO),iWork(ip_iSOShl),
-     &                iWork(ip_nBstSh),nBasT,nShell)
+      Call mma_allocate(iShlSO,nBasT,Label='iShlSO')
+      Call Cho_SetSh2(iShlSO,iSOShl,nBstSh,nBasT,nShell)
 
 C     Allocate and compute mapping RS1->Full.
 C     ---------------------------------------
 
-      l_iRS2F = 2*nnBstRT(1)
-      Call GetMem('iRS2F','Allo','Inte',ip_iRS2F,l_iRS2F)
-      Call Cho_RSTOF(iWork(ip_iRS2F),2,nnBstRT(1),1)
+      Call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
+      Call Cho_RSTOF(iRS2F,2,nnBstRT(1),1)
 
 C     Allocate integer scratch array used for Cholesky vector I/O.
 C     ------------------------------------------------------------
@@ -422,12 +398,13 @@ C     ------------------------
          Go To 104
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Debug: test bookmarks.
 C     Note that 1C-CD flag must be available on runfile
-C     (make sure _DEBUG_ is defined also in Cho_Final().
+C     (make sure _DEBUGPRINT_ is defined also in Cho_Final().
 C     --------------------------------------------------
-      If (l_BkmVec.gt.0 .and. l_BkmThr.gt.0) Then
+
+      If (Allocated(BkmVec) .and. Allocated(BkmThr)) Then
          Call Get_iScalar('1C-CD',is1CCD)
          Call Cho_TestBookmark(irc,.True.,is1CCD.eq.1)
          If (irc.ne.0) Call Cho_Quit('Bookmark test failed!',104)
@@ -495,30 +472,30 @@ C     Return.
 C     =======
 
     1 Continue
-#if defined (_DEBUG_)
-      Call GetMem('CXI_MX2','Max ','Real',ip_Max,l_Max)
+#if defined (_DEBUGPRINT_)
+      Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt
       Call xFlush(6)
-      Call qExit(SecNam)
 #endif
       End
+
+
       SubRoutine Cho_X_DefineInfVec_5(isDF)
 C
 C     Purpose: Trivial definition of location 5 of InfVec:
 C              InfVec(i,5,iSym) = i
 C              The routine does nothing in case of parallel DF.
 C
+      Use Para_Info, Only: Is_Real_Par
+      use ChoSwp, only: InfVec
       Implicit None
       Logical isDF
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
-      Integer kOff, iSym, i
+      Integer iSym, i
       Logical doDefine
-#include "para_info.fh"
 
 C Define in case of
 C 1) serial Cholesky
@@ -529,9 +506,8 @@ C Do NOT define for parallel DF.
      &           (Is_Real_Par() .and. .not.isDF)
       If (doDefine) Then
          Do iSym = 1,nSym
-            kOff = ip_InfVec - 1 + MaxVec*InfVec_N2*(iSym-1) + MaxVec*4
             Do i = 1,NumCho(iSym)
-               iWork(kOff+i) = i
+               InfVec(i,5,iSym) = i
             End Do
          End Do
       End If

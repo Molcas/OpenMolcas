@@ -3,7 +3,7 @@ Baker TS test suite, from:
 Jon Baker, Fora Chan
 "The Location of Transition States: A Comparison of Cartesian, Z-Matrix, and Natural Internal Coordinates"
 J. Comput. Chem. 17:7 (1996) 888-904
-DOI: 10.1002/(SICI)1096-987X(199605)17:7<888::AID-JCC12>3.0.CO;2-7
+doi:10.1002/(SICI)1096-987X(199605)17:7<888::AID-JCC12>3.0.CO;2-7
 
 
 01: HCN <-> HNC
@@ -27,7 +27,7 @@ DOI: 10.1002/(SICI)1096-987X(199605)17:7<888::AID-JCC12>3.0.CO;2-7
 19: HNCCS <-> HNC + CS
 20: HCONH3+ <-> NH4+ + CO
 21: rotational TS in acrolein
-22: HCONHOH <-> HCOHNHO
+22: HCONHOH <-> HCOHNOH
 23: HNC + H2 <-> H2CNH
 24: H2CNH <-> HCNH2
 25: HCNH2 <-> HCN + H2

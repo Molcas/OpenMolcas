@@ -30,24 +30,9 @@
      &           Shijij,W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
      &           DoIntegrals,DoFock,FckNoClmb,FckNoExch,Aux,nAux,ExFac)
 ************************************************************************
+*                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
 *         fixed basis set types.                                       *
-*                                                                      *
-* Called from: Eval_Ints                                               *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCR                                                     *
-*              DCopy   (ESSL)                                          *
-*              Inter                                                   *
-*              Stblzr                                                  *
-*              Rys                                                     *
-*              Cntrct                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              TnsCtl                                                  *
-*              FckAcc                                                  *
-*              DScal  (ESSL)                                           *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -58,11 +43,14 @@
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
+      use Real_Info, only: ThrInt, CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
@@ -88,8 +76,8 @@
      &        Batch_On_Disk, W2Disc,
      &        IntOnly, DoIntegrals,DoFock,FckNoClmb, FckNoExch, NoInts,
      &        DoAOBatch, All_Spherical
-*define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
@@ -128,20 +116,22 @@ c Avoid unused argument warnings
       Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
       Integer, Pointer :: iData1(:),iData2(:)
 *
+#ifdef _DEBUGPRINT_
       iRout = 12
-*
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
       iPrint = nPrint(iRout)
+#endif
+*
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
       QInd(1)=Quad_ijkl
       RST_triplet=One
 *
       Do_tnsctl=.False.
-      ipDij=1
-      ipDkl=1
       kabcd=0
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iData = 1, nData1
          Call RecPrt('Twoel: Data1',' ',
      &                Data1(1,iData),nAlpha*nBeta,nDArray)
@@ -154,6 +144,7 @@ c Avoid unused argument warnings
       Call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
       Call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
       Call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
+      Call RecPrt('Coor',' ',Coor,3,4)
 #endif
 *
       la = iAnga(1)
@@ -176,20 +167,19 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center A and B
 *
-      Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                             jStab(0,jStb),nStab(jStb),
-     &                             iDCRR,nDCRR)
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
-#ifdef _DEBUG_
+      Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &               dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.9) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
 *
 *-----Find stabilizer for center A and B
 *
-      Call Inter(jStab(0,iStb),nStab(iStb),
-     &           jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+      Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &           dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
 *     Write (*,'(20A)') ' M=(',
 *    &      (ChOper(iStabM(i)),',',i=0,lStabM-1),')'
 *
@@ -198,20 +188,19 @@ c Avoid unused argument warnings
 *                                                                      *
 *-----Find the Double Coset Representatives for center C and D.
 *
-      Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                            jStab(0,lStb),nStab(lStb),
-     &                            iDCRS,nDCRS)
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
-#ifdef _DEBUG_
+      Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &               dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.9) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
 *
 *-----Find stabilizer for center C and D
 *
-      Call Inter(jStab(0,kStb),nStab(kStb),
-     &           jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+      Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &           dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
 *     Write (*,'(20A)') ' N=(',
 *    &      (ChOper(iStabN(i)),',',i=0,lStabN-1),')'
 *                                                                      *
@@ -221,24 +210,21 @@ c Avoid unused argument warnings
 *-----Find the Double Coset Representatives for the two charge
 *     distributions.
 *
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,iStabN,lStabN,
-     &                                               iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
 *     Write (*,*) ' LmbdT=',LmbdT
 *     Write (*,'(20A)') ' T=(',
 *    &      (ChOper(iDCRT(i)),',',i=0,nDCRT-1),')'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      kOp(1)=NrOpr(0,iOper,nIrrep)
+      kOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
       Do 100 lDCRR = 0, nDCRR-1
-         kOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         kOp(2)=NrOpr(iDCRR(lDCRR))
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *
-         lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
+         lDCR1=NrOpr(iDCRR(lDCRR))+1
 *
          vijij=Data1(ip_abMax(nZeta),lDCR1)
 *
@@ -249,15 +235,13 @@ c Avoid unused argument warnings
          Do 200 lDCRS = 0, MxDCRS
             RS_doublet=DBLE(lDCRS*nDCRR+lDCRR+1)
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *
 *switch (to generate better start orbitals...)
             If (NDDO .AND. .NOT.CeqD) Go To 200
 *
-            lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+            lDCR2=NrOpr(iDCRS(lDCRS))+1
 *
 *-----------Pickup estimated largest integral value (AO)
 *
@@ -269,15 +253,9 @@ c Avoid unused argument warnings
                RST_triplet=DBLE(lDCRT*nDCRR*nDCRS)+RS_doublet
                QInd(2)=RST_triplet
 *              Write (*,*) QInd(1), QInd(2)
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &                      iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &                      iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &                      iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *              If (iPrint.ge.9)
 *
 *    &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
@@ -291,16 +269,15 @@ clwj           (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                2*Max(la,lb,lc,ld).gt.iSmAng) Go To 300
 clwj
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.9) Write (6,'(6A)')
      &         ' R=',ChOper(iDCRR(lDCRR)),
      &         ', S=',ChOper(iDCRS(lDCRS)),
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
 *
-               kOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &                  iOper,nIrrep)
+               kOp(3) = NrOpr(iDCRT(lDCRT))
+               kOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
 *
                ix1 = 1
                iy1 = 1
@@ -320,22 +297,22 @@ clwj
                If (DoFock) Then
 *--------------Dij
                iR = iDCRR(lDCRR)
-               jOp(1) = NrOpr(iR,iOper,nIrrep) + 1
+               jOp(1) = NrOpr(iR) + 1
 *--------------Dkl
                iS = iDCRS(lDCRS)
-               jOp(2)= NrOpr(iS,iOper,nIrrep) + 1
+               jOp(2)= NrOpr(iS) + 1
 *--------------Dik
                iT  = iDCRT(lDCRT)
-               jOp(3)= NrOpr(iT,iOper,nIrrep) + 1
+               jOp(3)= NrOpr(iT) + 1
 *--------------Dil
                iTS = iEor(iT,iS)
-               jOp(4)= NrOpr(iTS,iOper,nIrrep) + 1
+               jOp(4)= NrOpr(iTS) + 1
 *--------------Djk
                iRT = iEor(iR,iT)
-               jOp(5)= NrOpr(iRT,iOper,nIrrep) + 1
+               jOp(5)= NrOpr(iRT) + 1
 *--------------Djl
                iRTS= iEor(iRT,iS)
-               jOp(6)= NrOpr(iRTS,iOper,nIrrep) + 1
+               jOp(6)= NrOpr(iRTS) + 1
 *
                End If ! DoFock
 *                                                                      *
@@ -587,10 +564,8 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
                nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta),lDCR1),nZeta+1)
                nEta_Tot =iGet(Data2(ip_IndZ(1,nEta ),lDCR2),nEta +1)
 *
-               iZ13_=ip_HrrMtrx(nZeta)+
-     &              (NrOpr(lDCRE_,iOper,nIrrep)*nHRRAB)/nIrrep
-               iE13_=ip_HrrMtrx( nEta)+
-     &              (NrOpr(lDCRT_,iOper,nIrrep)*nHRRCD)/nIrrep
+               iZ13_=ip_HrrMtrx(nZeta)+(NrOpr(lDCRE_)*nHRRAB)/nIrrep
+               iE13_=ip_HrrMtrx( nEta)+(NrOpr(lDCRT_)*nHRRCD)/nIrrep
 *
                kabcd=0
                Do_TnsCtl=.False.
@@ -784,7 +759,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *
                If (DoIntegrals)
      &         Call SymAdp(iAnga, iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,iAO,kOp,nijkl,
      &                     Aux,nAux,Wrk(iW2),SOInt,nSOInt,NoInts)
 *
  300        Continue
@@ -812,24 +787,9 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           Shijij, W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
      &           DoIntegrals,DoFock,FckNoClmb,FckNoExch,Aux,nAux,ExFac)
 ************************************************************************
+*                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
 *         fixed basis set types.                                       *
-*                                                                      *
-* Called from: Eval_Ints                                               *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCR                                                     *
-*              DCopy   (ESSL)                                          *
-*              Inter                                                   *
-*              Stblzr                                                  *
-*              Rys                                                     *
-*              Cntrct                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              TnsCtl                                                  *
-*              FckAcc                                                  *
-*              DScal  (ESSL)                                           *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -840,11 +800,13 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Real_Info, only: ThrInt, CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
@@ -878,7 +840,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -914,12 +876,12 @@ c Avoid unused argument warnings
       Real*8, Target :: Data1(*),Data2(*)
       Integer, Pointer :: iData1(:),iData2(:)
 *
-      iRout = 12
-      iPrint = nPrint(iRout)
-      All_Spherical=Prjct(iShll(1)).and.Prjct(iShll(2)).and.
-     &              Prjct(iShll(3)).and.Prjct(iShll(4))
+      All_Spherical=Shells(iShll(1))%Prjct.and.
+     &              Shells(iShll(2))%Prjct.and.
+     &              Shells(iShll(3))%Prjct.and.
+     &              Shells(iShll(4))%Prjct
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Twoel: Data1',' ',
      &             Data1,nAlpha*nBeta,nDArray-1)
       Call RecPrt('Twoel: Data2',' ',
@@ -1100,7 +1062,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
       nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta)),nZeta+1)
       nEta_Tot =iGet(Data2(ip_IndZ(1,nEta )),nEta +1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nZeta_Tot, IncZet=',nZeta_Tot, IncZet
       Write (6,*) 'nEta_Tot,  IncEta=',nEta_Tot,  IncEta
 #endif
@@ -1198,7 +1160,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(iW2),nijkl)
 *
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('(AB|CD)',' ',Wrk(iW2),nijkl,
      &            iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4))
 #endif
@@ -1209,7 +1171,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
 *--------Write integrals to current position on disc.
 *
-         iOpt=iOrdFm
+         iOpt=0
          Call PkR8(iOpt,nInts,nByte,Wrk(iW2),Wrk(iW3))
          mInts=(nByte+RtoB-1)/RtoB
 *
@@ -1257,7 +1219,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
             Call Abend()
          End If
 *
-         iOpt=iOrdFm
+         iOpt=0
          Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(iW2))
       End If
 *
@@ -1284,7 +1246,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          If (Pkl)   iPer = iPer*2
          If (Pijkl) iPer = iPer*2
          q4 = DBLE(8)/DBLE(iPer)
-         If (lSOInt) q4 = One
+         If (nIrrep.eq.1) q4 = One
          If (q4.ne.One) Call DScal_(nijkl*iCmp(1)*iCmp(2)
      &                            *iCmp(3)*iCmp(4),q4,Wrk(iW2),1)
       End If

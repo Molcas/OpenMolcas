@@ -33,7 +33,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use SCF_Arrays
+      Use SCF_Arrays
+      Use Interfaces_SCF, Only: OccDef
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
@@ -44,20 +46,16 @@
 #include "file.fh"
 #include "hflda.fh"
 #include "warnings.fh"
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 *
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh
-#include "interfaces_scf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCPU1,TWall1)
-      Call qEnter('SCF')
       HFLDA=0.0
       Call SCF_Init()
       iTerm=0
@@ -98,7 +96,7 @@
 *                                                                      *
       Call WrInp_SCF(SIntTh)
 
-      Call Cre_SCFWfn
+      Call Cre_SCFWfn()
 
       FstItr=.True.
 
@@ -109,27 +107,23 @@
 *     so that iPsLst is right in case of nIter==0
       If (nIter(nIterP).eq.0) iter0=-1
       Call Final()
-      If (DSCF) Call Free_TLists
+      If (DSCF) Call Free_TLists()
 *
       Call CWTime(TCPU2,TWall2)
       Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)
 *
       Call GMFree()
-      Call ClsFls_SCF
-      If (Semi_Direct) Call xRlsMem_Ints
+      Call ClsFls_SCF()
+      If (Semi_Direct) Call xRlsMem_Ints()
 *
 *     Call MolDen Interface
 *
       If(iUHF.eq.0) Then
-         Call Molden_Interface(iUHF,'SCFORB','MD_SCF',AddFragments)
-c         Call grid_driver(-1,'SCF','SCFORB',iRc)
+         Call Molden_Interface(iUHF,'SCFORB','MD_SCF')
       Else
-         Call Molden_Interface(iUHF,'UHFORB','MD_SCF',AddFragments)
-c         Call grid_driver(-1,'SCF','UNAORB',iRc)
+         Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
       End If
-      Call qExit('SCF')
       if(iStatPRN.gt.0) then
-       Call qStat(' ')
        Call FastIO('STATUS')
       endif
 *
@@ -166,9 +160,6 @@ c         Call grid_driver(-1,'SCF','UNAORB',iRc)
 #include "llists.fh"
 #include "lnklst.fh"
 *
-#ifdef _DEBUG_
-      Call QEnter('IniLLs')
-#endif
 *
 *     MemRsv set tentatively to the size of six density matrices
 c     MemRsv=6*nBT
@@ -181,11 +172,7 @@ c     MemRsv=6*nBT
       Call IniLst(LLx,MxOptm)
       Init_LLs=1
 *
-#ifdef _DEBUG_
-      Call QExit('IniLLs')
-#endif
-      Return
-      End
+      End subroutine IniLLs
 *----------------------------------------------------------------------*
 #ifdef _NOTUSED_
       Subroutine StatLLS()
@@ -294,25 +281,6 @@ c     MemRsv=6*nBT
        Write (6,*)
       Return
       End
-#ifdef _NOTUSED_
-*----------------------------------------------------------------------*
-      Subroutine Init_TLists
-      Implicit Real*8 (a-h,o-z)
-*     Include 'mxdm.fh'
-#include <mxdm.fh>
-
-      Logical Triangular
-*
-      If (DSCF) Then
-         Triangular=.True.
-         Call Init_TList(Triangular)
-         Call Init_PPList
-         Call Init_GTList
-      End If
-*
-      Return
-      End
-#endif
 *----------------------------------------------------------------------*
       Subroutine Free_TLists
       Implicit Real*8 (a-h,o-z)
@@ -320,54 +288,16 @@ c     MemRsv=6*nBT
 #include "mxdm.fh"
 #include "infscf.fh"
 *
+      Write (6,*) 'Free_TLists:',DSCF
       If (DSCF) Then
-         Call Free_TList
-         Call Free_PPList
-         Call Free_GTList
+         Call Free_TList()
+         Call Free_PPList()
+         Call Free_GTList()
       End If
 *
       Return
       End
 *----------------------------------------------------------------------*
-#ifdef _NOTUSED_
-*debug routine
-      SubRoutine DumDum
-*     dummy routine with endless loop for parallel debugging
-      use Real_Spherical
-      Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-      Integer iflag
-      Integer   idbx1(MxShll),idbx2(Mxshll)
-      Real*8 rdbx1,rdbx2(mxdbsc)
-*
-      iflag=0
-      Write (6,*) 'nexp:'
-      Write (6,*) (nExp(i),i=1,10)
-c 100 If (iflag.eq.1) Go To 110
-c     Go To 100
-c 110 Continue
-      Do i=1,Mxshll
-        idbx1(i)=nExp(i)
-        idbx2(i)=ipBk(i)
-      End Do
-      rdbx1=TMass
-      Do i=1,mxdbsc
-        rdbx2(i)=Charge(i)
-      End Do
-      Do i=1,4
-        rdbx1=Work(ipCff(i))
-        rdbx1=Work(ipExp(i))
-      End Do
-      Do iAng = 0, iAngMx-1
-        idbx0=ipSph(iAng+1)
-        rdbx1=RSph(ipSph(iAng+1))
-      End Do
-      Return
-      End
-#endif
-*debug routine
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -418,7 +348,6 @@ c 110 Continue
       Write (6,*)
       Write (6,*) 'Restore thresholds...'
       Write (6,*)
-      SIntTh=SIntTh_old
       EThr=EThr_old
       DThr=DThr_old
       DltNTh=DltNTh_old

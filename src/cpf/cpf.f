@@ -53,7 +53,6 @@ C
 *
 *     Prologue
 *
-      CALL QENTER('CPFMCPF')
 *     CALL SETTIM
 C     CALL HELLO
 *
@@ -117,8 +116,6 @@ C Temporaries:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QEXIT('CpfMcpf')
-      CALL QSTAT(' ')
       CALL FASTIO('STATUS')
       IRETURN=0
       RETURN

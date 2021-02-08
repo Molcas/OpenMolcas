@@ -13,10 +13,10 @@
 #include "itmax.fh"
       Character AngTp(0:iTabMx)
 #ifndef _DEMO_
-      Data Angtp/'s','p','d','f','g',
-     &           'h','i','k','l','m',
-     &           'n','o','q','r','t',
-     &           'u'/
+      Parameter (AngTp = ['s','p','d','f','g',
+     &                    'h','i','k','l','m',
+     &                    'n','o','q','r','t',
+     &                    'u'])
 #else
-      Data Angtp/'s','p','d'/
+      Parameter (AngTp = ['s','p','d'])
 #endif

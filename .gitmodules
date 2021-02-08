@@ -3,7 +3,7 @@
 	url = https://github.com/mcodev31/libmsym.git
 [submodule "External/NECI"]
 	path = External/NECI
-	url = https://github.com/ghb24/NECI_STABLE.git
+	url = https://bitbucket.org/neci_developers/neci.git
 [submodule "External/libwfa"]
 	path = External/libwfa
 	url = https://github.com/libwfa/libwfa.git
@@ -12,8 +12,7 @@
 	url = https://github.com/ilyak/libefp.git
 [submodule "External/lapack"]
 	path = External/lapack
-	url = https://github.com/Reference-LAPACK/lapack-release.git
-	branch = lapack-3.7.1
-[submodule "External/grid_it"]
-	path = External/grid_it
-	url = https://git.code.sf.net/p/gridit/code
+	url = https://github.com/Reference-LAPACK/lapack.git
+[submodule "External/ga"]
+	path = External/ga
+	url = https://github.com/GlobalArrays/ga.git

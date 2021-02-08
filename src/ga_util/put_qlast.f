@@ -9,26 +9,21 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Put_QLast
+      use TList_Mod
       Implicit Real*8 (a-h,o-z)
-#include "tlist.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 *
-      if(ipTskQ.eq.0) return
-      iTCnSt_c=iTCnSt-1
-c     Call XFlush(6)
-c     Write (*,*)
-c     Write (*,*) 'Put_QLast: '
-c     Call RecPrt('TskQ',' ',Work(ipTskQ),2,nTasks)
+      if(.NOT.Allocated(TskQ)) return
+c     Call RecPrt('TskQ',' ',TskQ,2,nTasks)
 c     Write (*,'(A,2F10.1)') 'Last indices of the task (QLast)=',QLast
-c     Write (*,'(A,4I9)') 'ipTskQ,iTCnSt_c,nTasks,iTskCan=',
-c    &                     ipTskQ,iTCnSt_c,nTasks,iTskCan
-      Work(ipTskQ+(iTskCan-1)*2  )=QLast(1)
-      Work(ipTskQ+(iTskCan-1)*2+1)=QLast(2)
+c     Write (*,'(A,4I9)') 'iTCnSt_c,nTasks,iTskCan=',
+c    &                     iTCnSt_c,nTasks,iTskCan
+      TskQ(1,iTskCan) = QLast(1)
+      TskQ(2,iTskCan) = QLast(2)
 *
       QLast(1)=Not_Used
       QLast(2)=Not_Used
-c     Call RecPrt('TskQ',' ',Work(ipTskQ),2,nTasks)
+c     Call RecPrt('TskQ',' ',TskQ,2,nTasks)
 c     Write (*,*)
 c     Call XFlush(6)
 *

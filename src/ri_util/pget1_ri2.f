@@ -11,7 +11,7 @@
 * Copyright (C) 1992,2007, Roland Lindh                                *
 *               2009, Francesco Aquilante                              *
 ************************************************************************
-      SubRoutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iShell,iAO,iAOst,
+      SubRoutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,
      &                     Shijij,iBas,jBas,kBas,lBas,kOp,ExFac,
      &                     CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
 ************************************************************************
@@ -24,12 +24,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
@@ -37,12 +31,11 @@
 *             Modified for RI-DFT, March 2007                          *
 *                                                                      *
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
@@ -50,17 +43,16 @@
 #include "chomp2g_alaska.fh"
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer ip_CikJ_(2)
       Logical Shijij,Found
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-      Call qEnter('PGet1_RI2')
       Do i=1,nSA
          Call RecPrt('PGet1_RI2: V_k',' ',V_k(1,i),1,mV_k)
       End Do
@@ -458,7 +450,9 @@
                      temp=CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+
      &                             V_K(lSOl,2)*V_K(jSOj,1)+
      &                             V_K(lSOl,3)*V_K(jSOj,4)+
-     &                             V_K(lSOl,4)*V_K(jSOj,3))
+     &                             V_K(lSOl,4)*V_K(jSOj,3)+
+     &                             V_K(lSOl,1)*V_K(jSOj,5)+
+     &                             V_K(lSOl,5)*V_K(jSOj,1))
                      temp = temp - ExFac*Work(ip_A+nijkl-1)
 *
 *----- Active space contribution
@@ -579,10 +573,9 @@
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_RI2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI2')
 #endif
       Call CWTime(Cpu2,Wall2)
       Cpu = Cpu2 - Cpu1
@@ -593,7 +586,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)

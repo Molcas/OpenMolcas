@@ -16,11 +16,11 @@ C
 #include "implicit.fh"
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_SETADDR')
+      CHARACTER(LEN=11), PARAMETER:: SECNAM = 'CHO_SETADDR'
+
+      Real*8, Allocatable:: KSA(:)
 
 C     Set addresses.
 C     --------------
@@ -34,13 +34,8 @@ C     --------------
       ELSE IF (XNPASS .GT. 0) THEN
          IRED  = 3
          IPASS = XNPASS
-         KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
-         KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-         CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                   IWORK(KOFF2),IWORK(ip_INDRSH),IWORK(ip_iSP2F),
-     &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
-         CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                      NSYM,NNSHL,IRED)
+         CALL CHO_GETRED(IPASS,IRED,.FALSE.)
+         CALL CHO_SETREDIND(IRED)
          IF (IPASS .EQ. 1) THEN
             INFRED(IPASS+1) = INFRED(IPASS)
      &                      + NSYM*NNSHL + 2*NNBSTRT(IRED) + NNSHL
@@ -62,16 +57,8 @@ C     --------------
      &               INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
-                     KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                               IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                               IWORK(ip_iSP2F),
-     &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
-     &                               .FALSE.)
-                     CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  IWORK(ip_NNBSTRSH),
-     &                                  NSYM,NNSHL,IRED)
+                     CALL CHO_GETRED(IPASS,IRED,.FALSE.)
+                     CALL CHO_SETREDIND(IRED)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) =
      &               INFVEC(NUMCHO(ISYM),3,ISYM) + NNBSTR(ISYM,IRED)
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
@@ -83,35 +70,27 @@ C     --------------
                   JPASS = INFVEC(NUMCHO(ISYM),2,ISYM)
                   IF (JPASS .EQ. IPASS) THEN
                      LSA = NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)
+                     Call mma_allocate(KSA,LSA,Label='KSA')
                      IOPT = 2
                      IADR = INFVEC(NUMCHO(ISYM),3,ISYM)
-                     CALL DDAFILE(LUCHO(ISYM),IOPT,WORK(KSA),LSA,IADR)
+                     CALL DDAFILE(LUCHO(ISYM),IOPT,KSA,LSA,IADR)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) = IADR
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
      &                 INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
+                     Call mma_deallocate(KSA)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
-                     KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                               IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                               IWORK(ip_iSP2F),
-     &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
-     &                               .FALSE.)
-                     CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  IWORK(ip_NNBSTRSH),
-     &                                  NSYM,NNSHL,IRED)
+                     CALL CHO_GETRED(IPASS,IRED,.FALSE.)
+                     CALL CHO_SETREDIND(IRED)
                      LSA = NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)
+                     Call mma_allocate(KSA,LSA,Label='KSA')
                      IOPT = 2
                      IADR = INFVEC(NUMCHO(ISYM),3,ISYM)
-                     CALL DDAFILE(LUCHO(ISYM),IOPT,WORK(KSA),LSA,IADR)
+                     CALL DDAFILE(LUCHO(ISYM),IOPT,KSA,LSA,IADR)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) = IADR
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
      &                 INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
+                     Call mma_deallocate(KSA)
                   ELSE
                      CALL CHO_QUIT('[2] JPASS error in '//SECNAM,104)
                   END IF

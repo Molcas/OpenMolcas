@@ -50,7 +50,7 @@
 
 #ifdef _DMRG_
 !     module dependencies
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_cfg
       use qcmaquis_interface_version
       use qcmaquis_interface_environment, only:
@@ -58,14 +58,15 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use write_orbital_files, only : OrbFiles, putOrbFile
-
       use generic_CI, only: CI_solver_t
-      use fciqmc, only: DoNECI, fciqmc_solver_t
+      use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
-
       use orthonormalization, only : ON_scheme
-      use print_RDMs_NECI_format, only: printRDMs_NECI
+#ifdef _HDF5_
+      use mh5, only: mh5_put_attr, mh5_put_dset_array_real
+#endif
+      use OFembed, only: Do_OFemb, FMaux
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -101,7 +102,9 @@
 
       Logical DSCF
       Logical lTemp, lOPTO
+#ifdef _FDE_
       Character*8 label
+#endif
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical DoQmat,DoActive, l_casdft
@@ -121,27 +124,21 @@
       COMMON /CHOTIME / timings
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 * --------- End Cholesky stuff
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
-* --------- End Orbital-Free Embedding stuff
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
-* --------- Procedure pointers for CI-solvers
+* --------- CI-solver class
         class(CI_solver_t), allocatable :: CI_solver
-* --------- End Procedure pointers.
 
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
       integer :: actual_iter
 
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
       External Get_ProgName
       Character*100 ProgName, Get_ProgName
       Character*15 STLNE2
-      External QEnter, QExit
       External RasScf_Init
       External Scan_Inp
       External Proc_Inp
@@ -153,10 +150,6 @@
 #include "nevptp.fh"
 #endif
       Dimension Dummy(1)
-
-* Start the traceback utilities
-*
-      Call QENTER(ROUTINE)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -175,7 +168,7 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
-      EAV1=0.0d0
+      THMAX=0.0d0
       Call RasScf_Init()
       Call Seward_Init()
 * Open the one-olectron integral file:
@@ -237,7 +230,7 @@
 
 * Process the input:
       Call StatusLine('RASSCF:',' Processing input')
-      Call Proc_Inp(DSCF,Info,lOPTO,iRc)
+      Call Proc_Inp(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -265,17 +258,14 @@
 
       Call InpPri(lOpto)
 
-* Note that CI_solver subclasses can provide a final procedure
-* (some people might call it destructor). Hence the deallocation and
+* Note that CI_solver subclasses provide a cleanup procedure
+* (C++ people might call it destructor). Hence the deallocation and
 * cleanup is automatically performed, when it goes out of scope.
       if (DoNECI) then
-        allocate(fciqmc_solver_t :: CI_solver)
+        allocate(CI_solver, source=fciqmc_solver_t(tGUGA_in))
       else if (Do_CC_CI) then
-        allocate(CC_CI_solver_t :: CI_solver)
+        allocate(CI_solver, source=CC_CI_solver_t())
       end if
-
-      if (allocated(CI_solver)) call CI_solver%init()
-
 
 *
 * If this is not CASDFT make sure the DFT flag is unset
@@ -341,7 +331,6 @@
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
         write(6,*) 'Choose only one.'
-        Call QTrace
         Call Abend
       end if
 
@@ -432,16 +421,6 @@
       end if
 * Only now are such variables finally known.
 
-      If ( IPRLEV.ge.DEBUG ) then
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-     &              ' ',Work(LDSPN),NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
-      END IF
 *
 * Allocate core space for dynamic storage of data
 *
@@ -858,7 +837,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
 
           if(dofcidump)then
@@ -1121,7 +1100,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
         else
           CALL CICTL(WORK(LCMO),
      &               WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &               WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &               WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &               WORK(LTUVX),IFINAL)
         end if
 
@@ -1179,9 +1158,10 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+#ifdef _FDE_
            Write(LF,*) 'Label = ',Label
+#endif
            Write(LF,*) 'iRc = ',iRc
-           Call QTrace
            Call Abend
           End if
 
@@ -1235,8 +1215,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &                    WORK(LD1A),Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpD1S_DFT','Free','REAL',ipTmpD1S_DFT,NTOT2)
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
-* to fix complains from garble option on borr machines... initialize THMAX to zero.
-        THMAX = 0.0d0
       end if
 
 c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
@@ -1411,13 +1389,13 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
-#endif
          Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
      &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
      &        ITER,ITERCI,IROT,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+#endif
             else
             Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
      &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
@@ -1487,7 +1465,7 @@ cGLM some additional printout for MC-PDFT
         else
           IF(doDMRG)then
 
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
             write(lf,*) "DMRG-SCF energy    ",ECAS
             write(lf,*) "DMRG sweeped energy",EAV
 #endif
@@ -1556,6 +1534,7 @@ cGLM some additional printout for MC-PDFT
           Write(LF,'(6X,120A1)') ('*',i=1,120)
         END IF
       end if
+
 
 *
 * Convergence check:
@@ -1743,7 +1722,7 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
-     &           WORK(LFI),WORK(LD1I),WORK(LD1A),
+     &           WORK(LFI),WORK(LFA),WORK(LD1I),WORK(LD1A),
      &           WORK(LTUVX),IFINAL)
       end if
 
@@ -1813,7 +1792,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Do jRoot=2,lRoots
 *           Read and reorder the left CI vector
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
-            Call Reord2(NAC,NACTEL,LSYM,1,
+            Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
@@ -1821,7 +1800,7 @@ c Clean-close as much as you can the CASDFT stuff...
             Do kRoot=1,jRoot-1
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
-               Call Reord2(NAC,NACTEL,LSYM,1,
+               Call Reord2(NAC,NACTEL,STSYM,1,
      &                     iWork(KICONF(1)),iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
 *              Compute TDM and store in h5 file
@@ -1924,13 +1903,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
-*
-************************************************************************
-************ Priniting final RDMs in NECI format       *****************
-************************************************************************
-      If ( IPRLEV.ge.DEBUG ) then
-       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-      End If
+
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************
@@ -1964,7 +1937,7 @@ c deallocating TUVX memory...
             Write(LF,*)' Try to recover. Calculation continues.'
          endif
          If (Do_OFemb) Then
-            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call mma_deallocate(FMaux)
             Call OFE_print(EAV)
          EndIf
       endif
@@ -1990,9 +1963,6 @@ c deallocating TUVX memory...
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (allocated(CI_solver)) then
-        call CI_solver%cleanup()
-        deallocate(CI_solver)
       end if
 
 
@@ -2039,6 +2009,11 @@ c      End If
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
+      end if
+
+      if (allocated(CI_solver)) then
+          call CI_solver%cleanup()
+          deallocate(CI_solver)
       end if
 
 !Leon: The velociraptor comes! xkcd.com/292/
@@ -2102,7 +2077,6 @@ C Close the one-electron integral file:
         END DO
         Close(LUInput)
       End If
-      Call qExit(ROUTINE)
 
       return
 

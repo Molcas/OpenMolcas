@@ -38,6 +38,7 @@
 *> @param[out] irc   Return code
 ************************************************************************
       Subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
       Implicit None
       Real*8  Thr
       Integer mSym
@@ -45,9 +46,8 @@
       Real*8  delta(mSym)
       Integer irc
 #include "cho_para_info.fh"
-#include "chobkm.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*14 SecNam
       Parameter (SecNam='Cho_X_Bookmark')
@@ -58,15 +58,17 @@
 
       Integer iSym
       Integer iRS
-      Integer ip
       Integer l
       Integer n
 
       Integer i, j
       Integer nV
       Real*8  del
-      nV(i,j)=iWork(ip_BkmVec-1+nRow_BkmVec*(j-1)+i)
-      del(i,j)=Work(ip_BkmThr-1+nRow_BkmThr*(j-1)+i)
+
+      Integer, Allocatable:: BkmScr(:)
+
+      nV(i,j) =BkmVec(i,j)
+      del(i,j)=BkmThr(i,j)
 
 C     Set return code.
 C     ----------------
@@ -76,7 +78,7 @@ C     ----------------
 C     Check that bookmarks are available.
 C     -----------------------------------
 
-      If (l_BkmVec.lt.1 .or. l_BkmThr.lt.1) Then
+      If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Then
          irc=-1
          Return
       End If
@@ -129,15 +131,15 @@ C     --------------------------------
          Do iSym=2,mSym
             l=max(l,nVec(iSym))
          End Do
-         Call GetMem('BkmScr','Allo','Inte',ip,l)
+         Call mma_Allocate(BkmScr,l,Label='BkmScr')
          Do iSym=1,mSym
-            Call Cho_P_Distrib_Vec(1,nVec(iSym),iWork(ip),n)
+            Call Cho_P_Distrib_Vec(1,nVec(iSym),BkmScr,n)
             nVec(iSym)=n
          End Do
-         Call GetMem('BkmScr','Free','Inte',ip,l)
+         Call mma_deallocate(BkmScr)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Self test
       Do iSym=1,mSym
          If (nVec(iSym).gt.NumCho(iSym)) Then

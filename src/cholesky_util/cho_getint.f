@@ -15,14 +15,14 @@ C
 C     DIASH(ij): max. diagonal in shell pair i,j
 C     NPOTSH   : the number of shell pairs that can be qualified.
 C
+      use ChoArr, only: iSP2F, IntMap
 #include "implicit.fh"
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
       INTEGER   LSTQSP(NPOTSH)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_GETINT')
@@ -36,13 +36,6 @@ C
 
       INTEGER  CHO_ISUMELM
       EXTERNAL CHO_ISUMELM
-
-      INTMAP(I)=IWORK(ip_INTMAP-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
-
-#if defined (_DEBUG_)
-      CALL QENTER('_GETINT')
-#endif
 
 C-tbp: some debugging...
 c     IF (LOCDBG) THEN
@@ -68,7 +61,7 @@ C     ----------------
       DO ISYM = 2,NSYM
          MXDIM = MAX(MXDIM,NNBSTR(ISYM,2))
       END DO
-      CALL CHO_MEM('GetMax','GETM','REAL',KDUM,LMAX)
+      Call mma_maxDBLE(LMAX)
       XMMQ = DBLE(N1_QUAL)*DBLE(LMAX)/DBLE(N2_QUAL)
       MEMQ(1) = INT(XMMQ)
       CALL CHO_GAIGOP(MEMQ,1,'min')
@@ -139,7 +132,7 @@ C           --------------------------------------------------------
 
             IF (NCOLAB .GT. 0) THEN
 
-               IWORK(ip_INTMAP-1+ISHLAB) = INTMAP(ISHLAB) + 1
+               INTMAP(ISHLAB) = INTMAP(ISHLAB) + 1
                IF (IPRINT .GE. INF_IN2) THEN
                   WRITE(LUPRI,'(/,A,I5,1X,I5,A,I9,A)')
      &            'Calculating shell pair (**|',ISHLA,ISHLB,
@@ -210,9 +203,5 @@ C     Set indices for local qualified (parallel runs).
 C     ------------------------------------------------
 
       CALL CHO_P_SETLQ()
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_GETINT')
-#endif
 
       END

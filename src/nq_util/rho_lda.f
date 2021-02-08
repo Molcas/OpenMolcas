@@ -14,22 +14,12 @@
      &                   list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
      &                   Fact,mdc,TabAOMax,list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "debug.fh"
@@ -50,15 +40,13 @@
 *                                                                      *
 *define _TIME_
 #ifdef _TIME_
-      Call QEnter('Rho_LDA')
 #endif
-*define _DEBUG_DEBUG_
-#ifdef _DEBUG_DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Rho_LDA:Dens',' ',Dens,nDens,nD)
       Write (6,*) 'mAO=',mAO
       Write (6,*) 'mGrid=',mGrid
       Write (6,*) 'nTabAO=',nTabAO
-      Write (6,*) 'nIrrep=',nIrrep
       Write (6,*) 'nlist_s=',nlist_s
       Do iList_s = 1, nList_s
          Write (6,*) 'iList_s=',iList_s
@@ -103,7 +91,7 @@
          ij = (mdci-1)*mdc + mdci
 *
          iER=iEOr(kDCRE,kDCRE)
-         lDCRER=NrOpr(iER,iOper,nIrrep)
+         lDCRER=NrOpr(iER)
 *
          ip_D_a=ipDij+lDCRER*mDij
          ip_D_b=ip_D_a
@@ -154,7 +142,7 @@
             ijS=iTri(iShell,jShell)
             ip_Tmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-#ifdef _DEBUG_DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'iS,jS=',iSkal,jSkal
             Write (6,*) 'mDCRij,mDij=',mDCRij,mDij
@@ -164,10 +152,7 @@
             ij = (mdcj-1)*mdc + mdci
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
-*
-            Deg=Two
-            If (ilist_s.eq.jlist_s) Deg=One
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
@@ -183,7 +168,7 @@
                DMax_ij=Abs(DeDe(ip_D_a-1+ix))
             End If
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 998
-#ifdef _DEBUG_DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Rho_LDA'
             nBB = iBas*jBas
             nCC = iCmp*jCmp
@@ -248,14 +233,13 @@
  999     Continue
       End Do                         ! ilist_s
 *
-#ifdef _DEBUG_DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Rho_LDA: Rho','(10F15.6)',Rho,nRho,mGrid)
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)
 #endif
 #ifdef _TIME_
-      Call QExit('Rho_LDA')
 #endif
       Return
 c Avoid unused argument warnings
@@ -281,7 +265,6 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho2a')
 #endif
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
@@ -303,7 +286,6 @@ c Avoid unused argument warnings
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho2a')
 #endif
       Return
       End
@@ -367,7 +349,6 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho2a_d')
 #endif
       Do jCB_Eff = 1, iBas_Eff*iCmp
          jCB = Index_i(jCB_Eff)
@@ -397,7 +378,6 @@ c Avoid unused argument warnings
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho2a_d')
 #endif
       Return
       End

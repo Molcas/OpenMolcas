@@ -68,6 +68,13 @@ def test_write(line, filename):
     return False
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 
+# _DEBUG_ compile flag used
+compile_flag = re.compile(r'(\bifdef\b|\bifndef).*?_DEBUG_.*?')
+def test_debug_flag(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90', '.c', '.h', '.fh'))):
+    return False
+  return compile_flag.search(line.decode('ascii', 'ignore').strip('\n'))
+
 # Bare (without wrapper) LAPACK/BLAS calls
 unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgeev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
 unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|dlamch|ilaenv|dlansy)\s*\(', re.IGNORECASE)
@@ -119,6 +126,23 @@ def test_matmulfn(line, filename):
     return False
   return (matmulfn.search(line.decode('ascii', 'ignore').strip('\n')))
 
+# FORALL function
+forallfn = re.compile(r'\bforall\s*\(', re.IGNORECASE)
+def test_forallfn(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  return (forallfn.search(line.decode('ascii', 'ignore').strip('\n')))
+
+# CHARACTER(n) declaration
+characternfn1 = re.compile(r'^[^\'"]*\bcharacter\s*\(', re.IGNORECASE)
+characternfn2 = re.compile(r'\bcharacter\s*\((\s*(kind|len)\s*=\s*[^,]*,?)*\)', re.IGNORECASE)
+def test_characternfn(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  if (not characternfn1.search(line.decode('ascii', 'ignore').strip('\n'))):
+    return False
+  return (not characternfn2.search(line.decode('ascii', 'ignore').strip('\n')))
+
 #====================================================
 
 #====================================================
@@ -139,7 +163,10 @@ tests.append({'func': test_dp, 'print': '[{0}] "double precision" in {1}, line {
 tests.append({'func': test_stop, 'print': '[{0}] "STOP" statement in {1}, line {2}', 'error': True})
 tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, line {2}', 'error': True})
 tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
-tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, line {2} (use LAPACK routines)', 'error': False})
+tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, line {2} (use LAPACK routines)', 'error': True})
+tests.append({'func': test_forallfn, 'print': '[{0}] "FORALL" statement in {1}, line {2} (obsolescent in Fortran 2018)', 'error': True})
+tests.append({'func': test_debug_flag, 'print': '[{0}] "_DEBUG_ compile flag in {1}, line {2} (use _DEBUGPRINT_ or _ADDITIONAL_RUNTIME_CHECK_)', 'error': True})
+tests.append({'func': test_characternfn, 'print': '[{0}] "CHARACTER(n)" declaration in {1}, line {2} (use CHARACTER(LEN=n))', 'error': True})
 
 def run_tests(line, fname, ln):
   j = 0

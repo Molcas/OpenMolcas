@@ -12,40 +12,33 @@
 ************************************************************************
       SubRoutine Init_PCM(NonEq,iCharg)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Allok2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
-*             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
+*             Modified for Langevin polarizabilities, March 2000 (RL)  *
 ************************************************************************
+      use PCM_arrays
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "angstr.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "unixinfo.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
       Integer  iix(2)
       Real*8   rix(2)
 #include "periodic_table.fh"
+      Real*8, Allocatable:: Coor(:,:), LcCoor(:,:)
+      Integer, Allocatable:: ANr(:), LcANr(:)
 *
       If (.Not.PCM) Return
 *
       iRout=1
       iPrint=nPrint(iRout)
-      Call qEnter('Init_PCM')
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -64,13 +57,12 @@ c added mckinley for pcm in second derivatives
 cpcm_solvent end
       If (DoDeriv) Then
          LcNAtm = ISlPar(42)
-         nDeg=3*LcNAtm
-         Call GetMem('DerTes'  ,'Allo','Real',ip_DTes ,nTs*NDeg)
-         Call GetMem('DerPunt' ,'Allo','Real',ip_DPnt ,3*nTs*NDeg)
-         Call GetMem('DerRad'  ,'Allo','Real',ip_DRad ,nS*NDeg)
-         Call GetMem('DerCentr','Allo','Real',ip_DCntr,3*nS*NDeg)
-         Call GetMem('PCM-Q','Allo','Real',ip_Q,2*nTs)
-         Call Get_dArray('PCM Charges',Work(ip_Q),2*nTs)
+         Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
+         Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
+         Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')
+         Call mma_allocate(dCntr,nS ,lcNAtm,3,3,Label='dCntr')
+         Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
+         Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
          Go To 888
       End If
 *                                                                      *
@@ -87,32 +79,32 @@ cpcm_solvent end
          If (iCharge_ref.ne.  iCharg) Go To 888
          If (NonEq_ref  .neqv.NonEq ) Go To 888
 *
-         Call Allocate_Work(ip_Sph,nPCM_info)
-         Call Get_dArray('PCM Info',Work(ip_Sph),nPCM_info)
+*        Evolving the new code
 *
-*------- Update the pointers
+         Call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+         Call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+         Call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
+         Call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
+         Call mma_allocate(SSph,NS,Label='SSph')
+         Call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
+         Call mma_allocate(PCM_N,NS,Label='PCM_N')
+         Call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
+         Call mma_allocate(NVert,nTs,Label='NVert')
+         Call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
+         Call mma_allocate(NewSph,2,NS,Label='NewSph')
 *
-         mChunk=0
-         Call Init_a_Chunk(ip_Sph,mChunk)
-         Call Get_a_Chunk('PCMSph','Real',ip_Sph,4*NS)
-         Call Get_a_Chunk('NOrd','Inte',ip_N ,NS)
-         Call IZero(iWork(ip_N),NS)
-         Call Get_a_Chunk('PCMTess','Real',ip_Tess,4*nTs)
-         Call Get_a_Chunk('Vert','Real',ip_Vert,3*MxVert*nTs)
-         Call Get_a_Chunk('Centr','Real',ip_Centr,3*MxVert*nTs)
-         Call Get_a_Chunk('SSph','Real',ip_SSph,NS)
-         Call Get_a_Chunk('ISph','Inte',ip_ISph,nTs)
-         Call Get_a_Chunk('NVert','Inte',ip_NVert,nTs)
-         Call Get_a_Chunk('IntSph','Inte',ip_IntS,MxVert*nTs)
-         Call Get_a_Chunk('NewSph','Inte',ip_NewS,2*NS)
-         Call Get_a_Chunk('DM','Real',ip_DM,nTs**2)
-         Call nChunk(mChunk)
-         If (mChunk.ne.nPCM_info) Then
-            Call WarningMessage(2,'Init_PCM: mChunk.ne.nPCM_Info!')
-            Write (6,*) 'mChunk=',mChunk
-            Write (6,*) 'nPCM_Info=',nPCM_Info
-            Call Abend()
-         End If
+         Call Get_dArray('PCMSph',PCMSph,4*NS)
+         Call Get_dArray('PCMTess',PCMTess,4*nTs)
+         Call Get_dArray('Vert',Vert,3*MxVert*nTs)
+         Call Get_dArray('Centr',Centr,3*MxVert*nTs)
+         Call Get_dArray('SSph',SSph,NS)
+         Call Get_dArray('PCMDM',PCMDM,nTs**2)
+         Call Get_iArray('PCM_N',PCM_N,NS)
+         Call Get_iArray('PCMiSph',PCMiSph,nTs)
+         Call Get_iArray('NVert',NVert,nTs)
+         Call Get_iArray('IntSph',IntSph,MxVert*nTs)
+         Call Get_iArray('NewSph',NewSph,2*NS)
+
          Go To 999
       End If
 *                                                                      *
@@ -121,17 +113,17 @@ cpcm_solvent end
 *---- Initial processing for PCM
 *
  888  Call Get_nAtoms_All(nAtoms)
-      Call Allocate_Work(ipCoor,3*nAtoms)
-      Call Get_Coord_All(Work(ipCoor),nAtoms)
+      Call mma_allocate(Coor,3,nAtoms,Label='Coor')
+      Call Get_Coord_All(Coor,nAtoms)
       Call Get_Name_All(Elements)
-      Call GetMem('ANr','Allo','Inte',ipANr,nAtoms)
+      Call mma_Allocate(ANr,nAtoms,Label='ANr')
       Do i = 1, nAtoms
          Do j = 0, Num_Elem
-            If (PTab(j).eq.Elements(i)) iWork(ipANr+i-1)=j
+            If (PTab(j).eq.Elements(i)) ANr(i)=j
          End Do
       End Do
-      Call GetMem('LcCoor','Allo','Real',ip_LcCoor,3*nAtoms)
-      Call GetMem('LcANr','Allo','Inte',ip_LcANr,nAtoms)
+      Call mma_allocate(LcCoor,3,nAtoms,Label='LcCoor')
+      Call mma_allocate(LcANr,nAtoms,Label='LcANr')
 *
 *---- Initialize PCM model
 *
@@ -139,10 +131,10 @@ cpcm_solvent end
 *     ICharg: Molecular charge
 *     nAtoms: total number of atoms
 *     angstr: conversion factor from bohr to Angstrom
-*     Work(ipCoor): Coordinates of atoms
-*     iWork(ipANr): atomic numbers
-*     Work(ip_LcCoor): local array for atomic coordinates
-*     Work(ip_LcANr): local array for atomic numbers
+*     Coor: Coordinates of atoms
+*    MxVert*nTs ANr: atomic numbers
+*     LcCoor: local array for atomic coordinates
+*     LcANr: local array for atomic numbers
 *     Solvent: string with explicit solvent name
 *     Conductor: logical flag to activate conductor approximation
 *     aArea: average area of a tessera
@@ -150,18 +142,17 @@ cpcm_solvent end
 *     ip_Ts: pointer to tesserae
 *     nTs  : number of tesserae
 *
-      Call PCM_Init(iPrint,ICharg,nAtoms,angstr,
-     &              Work(ipCoor),iWork(ipANr),Work(ip_LcCoor),
-     &              iWork(ip_LcANr),nIrrep,NonEq)
+      Call PCM_Init(iPrint,ICharg,nAtoms,angstr,Coor,ANr,LcCoor,
+     &              LcANr,nIrrep,NonEq)
       If (iPrint.gt.5) Then
          Write (6,*)
          Write (6,*)
       End If
 *
-      Call GetMem('LcANr','Free','Inte',ip_LcANr,nAtoms)
-      Call GetMem('LcCoor','Free','Real',ip_LcCoor,3*nAtoms)
-      Call GetMem('ANr','Free','Inte',ipANr,nAtoms)
-      Call Free_Work(ipCoor)
+      Call mma_deallocate(LcANr)
+      Call mma_deallocate(LcCoor)
+      Call mma_deallocate(ANr)
+      Call mma_deallocate(Coor)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -175,7 +166,6 @@ cpcm_solvent end
 ************************************************************************
 *                                                                      *
  999    Continue
-       Call qExit('Init_PCM')
       Return
 *
 *     This is to allow type punning without an explicit interface
@@ -188,7 +178,19 @@ cpcm_solvent end
       Real*8, Pointer :: p_rRF(:)
 *
       Call Put_iScalar('PCM info length',nPCM_info)
-      Call Put_dArray('PCM Info',Work(ip_Sph),nPCM_Info)
+
+      Call Put_dArray('PCMSph',PCMSph,4*NS)
+      Call Put_dArray('PCMTess',PCMTess,4*nTs)
+      Call Put_dArray('Vert',Vert,3*MxVert*nTs)
+      Call Put_dArray('Centr',Centr,3*MxVert*nTs)
+      Call Put_dArray('SSph',SSph,NS)
+      Call Put_dArray('PCMDM',PCMDM,nTs**2)
+      Call Put_iArray('PCM_N',PCM_N,NS)
+      Call Put_iArray('PCMiSph',PCMiSph,nTs)
+      Call Put_iArray('NVert',NVert,nTs)
+      Call Put_iArray('IntSph',IntSph,MxVert*nTs)
+      Call Put_iArray('NewSph',NewSph,2*NS)
+*
       iCharge_ref=iCharg
       NonEq_ref=NonEq
 *

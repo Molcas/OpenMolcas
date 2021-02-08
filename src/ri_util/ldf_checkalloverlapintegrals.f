@@ -244,7 +244,7 @@ C
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*28 SecNam
       Parameter (SecNam='LDF_ComputeOverlapFromAuxInt')
 #endif
@@ -268,7 +268,7 @@ C
       B=AP_Atoms(2,AB)
       nAB=LDF_nBas_Atom(A)*LDF_nBas_Atom(B)
       If (nAB.lt.1) Return
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (nAB.gt.l_S) Then
          Call WarningMessage(2,SecNam//': dimension mismatch [1]')
          Call LDF_Quit(1)

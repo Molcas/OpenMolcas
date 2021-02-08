@@ -1,0 +1,318 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2018,2020, Ignacio Fdez. Galván                        *
+#***********************************************************************
+
+import sys
+import os
+import errno
+import signal
+
+# trap interrupt
+signal.signal(signal.SIGINT, lambda *args: sys.exit(1))
+
+molcasrc = os.path.join(os.path.expanduser('~'), '.Molcas', 'molcasrc')
+program = os.environ.get('MOLCAS_DRIVER', 'pymolcas')
+
+def read_answer(answers, retry):
+  while True:
+    try:
+      ans = raw_input()
+    except NameError:
+      ans = input()
+    ans = ans.lower()
+    if ans == '':
+      return ans
+    elif ans in answers:
+      return answers[ans]
+    else:
+      print(retry)
+
+def read_number():
+  while True:
+    try:
+      ans = raw_input()
+    except NameError:
+      ans = input()
+    if ans == '':
+      return ans
+    try:
+      ans = int(ans)
+    except:
+      ans = -1
+    if ans > 0:
+      return ans
+    else:
+      print('Please enter a positive number')
+
+def read_string():
+  while True:
+    try:
+      ans = raw_input()
+    except NameError:
+      ans = input()
+    if ' ' not in ans:
+      return ans
+    else:
+      print('It is a bad idea to use spaces in the path')
+
+config = []
+
+print('''
+=============================================================================
+This utility will help you create a custom configuration file (molcasrc) for
+OpenMolcas. The file contains settings for some useful environment variables,
+you can always modify the file, or override any environment variable for
+specific calculations.
+=============================================================================''')
+
+print('''
+MOLCAS_PROJECT
+--------------
+Specifies how the project name is set if the "Project" variable is not defined.
+
+Enter a number, or press enter to keep the default (1):
+1) NAME:    Use the input filename (minus extension) as project name.
+2) NAMEPID: Same as 1, but also use a unique name for the scratch directory.
+3) TIME:    Use the current time as a project name.''')
+ans = read_answer({'1': 'NAME', '2': 'NAMEPID', '3': 'TIME'}, 'Please enter 1, 2 or 3')
+if (ans != ''):
+  config.append('MOLCAS_PROJECT={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_MEM
+----------
+Defines the approximate maximum memory used by OpenMolcas during a calculation.
+
+Enter a number (in MiB), or press enter to keep the installation default:''')
+ans = read_number()
+if (ans != ''):
+  config.append('MOLCAS_MEM={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_MAXITER
+--------------
+Defines the maximum number of iterations for a "Do While" loop in the input.
+
+Enter a number, or press enter to keep the default (50):''')
+ans = read_number()
+if (ans != ''):
+  config.append('MOLCAS_MAXITER={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_NEW_DEFAULTS
+-------------------
+Specify whether or not to use the new OpenMolcas defaults, in particular,
+with new defaults enabled:
+
+* RICD will be enabled (disable with NOCD)
+* IPEA shift will be disabled (set previous default with IPEA=0.25)
+
+Enter y or n, or press enter to keep the default (n):
+y) YES: The new defaults will be used.
+n) NO:  The previous defaults will be kept.''')
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_NEW_DEFAULTS={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_TRAP
+-----------
+Specifies whether a calculation should stop when a module reports a failure.
+
+Enter y or n, or press enter to keep the default (y):
+y) YES: The calculation stops after a failure.
+n) NO:  The calculation continues after a failure.''')
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_TRAP={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_WORKDIR
+--------------
+Defines the parent directory inside which a scratch directory for each
+calculation will be created. It can be an absolute path, a relative (with
+respect to the submit directory) path, or the special value "PWD", which is
+equivalent to using "." as relative path.
+
+Enter a string, or press enter to keep the system's default ($TMPDIR):''')
+ans = read_string()
+if (ans != ''):
+  config.append('MOLCAS_WORKDIR={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_NEW_WORKDIR
+------------------
+Specifies whether the scratch directory will be cleaned *before* a
+calculation. This can also be specified with the -new and -old flags
+for {}.
+Note that this does not work in a parallel environment.
+
+Enter y or n, or press enter to keep the default (n):
+y) YES: The scratch directory is cleaned before a calculation.
+n) NO:  The scratch directory is not cleaned before a calculation.'''.format(program))
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_NEW_WORKDIR={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_KEEP_WORKDIR
+-------------------
+Specifies whether the scratch directory will be cleaned *after* a calculation.
+This can also be overridden with the -clean flag for {}.
+Note that this does not work in a parallel environment.
+
+Enter y or n, or press enter to keep the default (y):
+y) YES: The scratch directory is kept after a calculation.
+n) NO:  The scratch directory is cleaned after a calculation.'''.format(program))
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_KEEP_WORKDIR={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_OUTPUT
+-------------
+Specifies where to save generated files, like orbitals and molden files.
+It can be an absolute or relative (with respect to the submit directory) path,
+or the special values "NAME" (a subdirectory will be created with the name of
+the project) or "PWD" (files will be saved in the submit directory).
+
+Enter a string, or press enter to keep the default (PWD):''')
+ans = read_string()
+if (ans != ''):
+  config.append('MOLCAS_OUTPUT={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_SAVE
+-----------
+Defines how to alter filenames to avoid overwriting existing files.
+
+Enter a number or, press enter to keep the dafault (1):
+1) REPL: Overwrite existing files.
+2) ORIG: Rename existing files to add the extension ".orig".
+3) INCR: New files will have a extension with incremental numbers.''')
+ans = read_answer({'1': 'REPL', '2': 'ORIG', '3': 'INCR'}, 'Please enter 1, 2 or 3')
+if (ans != ''):
+  config.append('MOLCAS_SAVE={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_MOLDEN
+-------------
+Specifies whether Molden format files with molecular orbitals will be created.
+
+Enter y or n, or press enter to keep the default (y):
+y) ON:  Molden orbital files are created.
+n) OFF: Molden orbital files are not created.''')
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_MOLDEN={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_PRINT
+------------
+Defines the default print level for OpenMolcas.
+
+Enter a number, or press enter to keep the default (2):
+0) SILENT
+1) TERSE
+2) NORMAL
+3) VERBOSE
+4) DEBUG
+5) INSANE''')
+ans = read_answer({'0': 'SILENT', '1': 'TERSE', '2': 'NORMAL', '3': 'VERBOSE', '4': 'DEBUG', '5': 'INSANE'}, 'Please enter 0, 1, 2, 3, 4 or 5')
+if (ans != ''):
+  config.append('MOLCAS_PRINT={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_ECHO_INPUT
+-----------------
+Determines if the pre-processed input will be included in the output.
+
+Enter y or n, or press enter to keep the default (y):
+y) YES: Include the input at the beginning of the output.
+n) NO:  Do not include the input in the output.''')
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_ECHO_INPUT={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_COLOR
+------------
+Specifies whether to use a simple markup for important information in the
+output. This markup can be displayed by e.g. vim (see the Tools/syntax
+directory).
+
+Enter y or n, or press enter to keep the default (y):
+y) YES: Simple markup will be added.
+n) NO:  No markup will be added.''')
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_COLOR={}'.format(ans))
+  print('')
+
+print('''
+MOLCAS_REDUCE_PRT
+-----------------
+Specifies whether the print level will be reduced inside a "Do While" loop.
+
+Enter y or n, or press enter to keep the default (y):
+y) YES: Print level is reduced inside a "Do While" loop.
+n) NO:  Print level is the same as outside.''')
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans != ''):
+  config.append('MOLCAS_REDUCE_PRT={}'.format(ans))
+  print('')
+
+if not config:
+  print('''
+All defaults were selected, no molcasrc file will be written.''')
+  sys.exit(0)
+
+print('''
+Based on your answers, we recommend the following molcasrc file:
+-------------------------
+{}
+-------------------------
+
+The file {} will be created or overwritten.
+Is this OK? (y/N)'''.format('\n'.join(config), molcasrc))
+ans = read_answer({'y': 'YES', 'n': 'NO'}, 'Please answer y or n')
+if (ans == 'YES'):
+  try:
+    dirrc = os.path.dirname(molcasrc)
+    if (not os.path.exists(dirrc)):
+      try:
+        os.makedirs(dirrc)
+      except OSError as e:
+        if (e.errno != errno.EEXIST):
+          raise
+    with open(molcasrc, 'w') as f:
+      f.write('# molcasrc configuration file written by {} -setup\n\n'.format(program))
+      f.write('\n'.join(config))
+      f.write('\n')
+  except:
+    raise

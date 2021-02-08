@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine putguess_cvb(orbs,cvb,recn)
       implicit real*8 (a-h,o-z)
       logical use_ao,ifmos_cvb
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -28,7 +28,8 @@
       call rdheader_cvb(recn,norb1,nbas_mo1,nvb1,kbasiscvb1,
      >  ioffs_orbs,ioffs_cvb,ioffs_orbsao,ioffs_orbslao)
       do 100 iorb=1,norb
-100   call wrgspr_cvb(recn,orbs(1,iorb),iorb,norb,1,ierr)
+      call wrgspr_cvb(recn,orbs(1,iorb),iorb,norb,1,ierr)
+100   continue
       call wrgspr_cvb(recn,cvb,1,nvb,2,ierr)
       use_ao=(ifmos_cvb().and.((.not.variat).or.(variat.and.
      >  endvar)))
@@ -36,8 +37,9 @@
         iorbsao = mstackr_cvb(nbas_mo*norb)
         call mo2ao_cvb(orbs,w(iorbsao),norb)
         do 200 iorb=1,norb
-200     call wrgspr_cvb(recn,w((iorb-1)*nbas_mo+iorbsao),
+        call wrgspr_cvb(recn,w((iorb-1)*nbas_mo+iorbsao),
      >    iorb,nbas_mo,3,ierr)
+200     continue
         if(ip(5).ge.2)then
           write(6,'(/,a)')' VB orbitals in AO basis :'
           write(6,'(a)')  ' -------------------------'
@@ -53,8 +55,9 @@
           call mxatb_cvb(w(i1),orbs,norb,norb,norb,w(i2))
           call lmo2ao_cvb(w(i2),w(iorbsao),norb)
           do 300 iorb=1,norb
-300       call wrgspr_cvb(recn,w((iorb-1)*nbas_mo+iorbsao),
+          call wrgspr_cvb(recn,w((iorb-1)*nbas_mo+iorbsao),
      >      iorb,nbas_mo,4,ierr)
+300       continue
           if(ip(5).ge.2)then
             write(6,'(/,a)')
      >        ' Original localized VB orbitals in AO basis :'
@@ -64,7 +67,8 @@
           endif
           do 400 i=1,norb
           w(i+i3-1)=dnrm2_(norb,w((i-1)*norb+i2),1)
-400       call dscal_(norb,1d0/w(i+i3-1),w((i-1)*norb+i2),1)
+          call dscal_(norb,1d0/w(i+i3-1),w((i-1)*norb+i2),1)
+400       continue
           if(ip(5).ge.2)then
             write(6,'(/,a)')' Norms of original localized VB orbitals :'
             write(6,'(a)')  ' -----------------------------------------'

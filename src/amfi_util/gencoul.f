@@ -25,9 +25,6 @@ cbs   integrals for the four angular momenta l1-l4
      *          powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)),
      *          coulovlp(*)
 *
-      max1=1  !starting values for limits of precalculated
-c             ! powers of function Cfunct(X)
-      max2=1
 cbs   first of all, this routine determines, for which L
 cbs   values the radial integrals have to be solved
 cbs   initialize the number of blocks for the different

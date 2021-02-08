@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine bspset_cvb(kbasis1,ic,need)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -27,7 +27,8 @@
         call mfreei_cvb(i1)
       elseif(ic.eq.2)then
         do 100 i=0,(nel+1)*(nel+1)*(nel+1)-1
-100     iw(i+lb(3))=-1
+        iw(i+lb(3))=-1
+100     continue
         call bspset2_cvb(iw(lb(3)),nel,kbasis1,need)
         call setifnss_cvb(iw(lb(4)),iw(lb(5)),iw(lb(6)))
       endif

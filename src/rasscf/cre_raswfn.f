@@ -11,11 +11,15 @@
       subroutine cre_raswfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _HDF5_
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_attr_int, mh5_create_dset_real,
+     &               mh5_create_dset_int, mh5_create_dset_str,
+     &               mh5_put_dset, mh5_close_dset
       implicit none
-#ifdef _HDF5_
 #  include "rasdim.fh"
 #  include "rasscf.fh"
 #  include "WrkSpc.fh"
@@ -25,12 +29,11 @@
 #  include "gugx.fh"
 #  include "gas.fh"
 #  include "input_ras.fh"
-      Integer         IDXCI(mxAct), IDXSX(mxAct)
-      Common /IDSXCI/ IDXCI,        IDXSX
+#  include "sxci.fh"
 
       integer :: dsetid
       integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 
 *     create a new wavefunction file!
       wfn_fileid = mh5_create_file('RASWFN')
@@ -55,7 +58,7 @@
 
 *     general wavefunction attributes
       call mh5_init_attr (wfn_fileid,'SPINMULT', iSpin)
-      call mh5_init_attr (wfn_fileid,'LSYM', lSym)
+      call mh5_init_attr (wfn_fileid,'LSYM', stSym)
       call mh5_init_attr (wfn_fileid,'NACTEL', nActEl)
       call mh5_init_attr (wfn_fileid,'NHOLE1', nHole1)
       call mh5_init_attr (wfn_fileid,'NELEC3', nElec3)
@@ -85,7 +88,7 @@
      $        typestring)
       dsetid = mh5_create_dset_str(wfn_fileid,
      $        'MO_TYPEINDICES', 1, [NTOT],1)
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Type index of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, typestring)
@@ -101,45 +104,43 @@
 *     energy (for each CI root)
       wfn_energy = mh5_create_dset_real (wfn_fileid,
      $        'ROOT_ENERGIES', 1, [lRoots])
-      call mh5_init_attr(wfn_energy, 'description',
+      call mh5_init_attr(wfn_energy, 'DESCRIPTION',
      $        'Energy for each root in the CI, '//
      $        'arranged as array of [NROOTS]')
 
 *     molecular orbital coefficients
       wfn_mocoef = mh5_create_dset_real(wfn_fileid,
      $        'MO_VECTORS', 1, [NTOT2])
-      call mh5_init_attr(wfn_mocoef, 'description',
+      call mh5_init_attr(wfn_mocoef, 'DESCRIPTION',
      $        'Coefficients of the average orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
 *     molecular orbital occupation numbers
       wfn_occnum = mh5_create_dset_real(wfn_fileid,
      $        'MO_OCCUPATIONS', 1, [NTOT])
-      call mh5_init_attr(wfn_occnum, 'description',
+      call mh5_init_attr(wfn_occnum, 'DESCRIPTION',
      $        'Occupation numbers of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     molecular orbital energies
       wfn_orbene = mh5_create_dset_real(wfn_fileid,
      $        'MO_ENERGIES', 1, [NTOT])
-      call mh5_init_attr(wfn_orbene, 'description',
+      call mh5_init_attr(wfn_orbene, 'DESCRIPTION',
      $        'Orbital energies of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     molecular orbital symmetry irreps
       wfn_supsym = mh5_create_dset_int(wfn_fileid,
      $        'SUPSYM_IRREP_INDICES', 1, [NTOT])
-      call mh5_init_attr(wfn_supsym, 'description',
+      call mh5_init_attr(wfn_supsym, 'DESCRIPTION',
      $        'Supersymmetry ID of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
-      call mh5_init_attr(wfn_supsym, 'pointgroup', 'D5h')
-      call mh5_init_attr(wfn_supsym, '#irreps', 7)
       call mh5_put_dset(wfn_supsym, IXSYM)
 
 *     CI data for each root
       wfn_cicoef = mh5_create_dset_real(wfn_fileid,
      $        'CI_VECTORS', 2, [nConf, lRoots])
-      call mh5_init_attr(wfn_cicoef, 'description',
+      call mh5_init_attr(wfn_cicoef, 'DESCRIPTION',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering, size [NCONF] '//
      $        'for each root in NROOTS: [NROOTS,NCONF].')
@@ -147,13 +148,13 @@
 *     density matrices for each root
       wfn_dens = mh5_create_dset_real (wfn_fileid,
      $        'DENSITY_MATRIX', 3, [NAC, NAC, lRoots])
-      call mh5_init_attr(wfn_dens, 'description',
+      call mh5_init_attr(wfn_dens, 'DESCRIPTION',
      $        'active 1-body density matrix, size [NAC,NAC] '//
      $        'for each root in NROOTS: [NROOTS,NAC,NAC].')
 
       wfn_spindens = mh5_create_dset_real (wfn_fileid,
      $        'SPINDENSITY_MATRIX', 3, [NAC, NAC, lRoots])
-      call mh5_init_attr(wfn_spindens, 'description',
+      call mh5_init_attr(wfn_spindens, 'DESCRIPTION',
      $        'active 1-body spin density matrix, size [NAC,NAC] '//
      $        'for each root in NROOTS: [NROOTS,NAC,NAC].')
 
@@ -161,7 +162,7 @@
       wfn_transdens = mh5_create_dset_real (wfn_fileid,
      $        'TRANSITION_DENSITY_MATRIX', 3,
      $        [NAC, NAC, lRoots*(lRoots-1)/2])
-      call mh5_init_attr(wfn_transdens, 'description',
+      call mh5_init_attr(wfn_transdens, 'DESCRIPTION',
      $        'active 1-body transition density matrix, '//
      $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
      $        '[NROOTS*(NROOTS-1)/2,NAC,NAC].')
@@ -170,7 +171,7 @@
       wfn_transsdens = mh5_create_dset_real (wfn_fileid,
      $        'TRANSITION_SPIN_DENSITY_MATRIX', 3,
      $        [NAC, NAC, lRoots*(lRoots-1)/2])
-      call mh5_init_attr(wfn_transsdens, 'description',
+      call mh5_init_attr(wfn_transsdens, 'DESCRIPTION',
      $        'active 1-body transition spin density matrix, '//
      $        'size [NAC,NAC] for each pair of roots in NROOTS: '//
      $        '[NAC,NAC,NROOTS*(NROOTS-1)/2].')
@@ -183,7 +184,7 @@
 ! maximum allowed filename length is equal to MH5_MAX_LBL_LEN=256
         wfn_dmrg_checkpoint = mh5_create_dset_str(wfn_fileid,
      $        'QCMAQUIS_CHECKPOINT', 1, [lRoots], 256)
-        call mh5_init_attr(wfn_dmrg_checkpoint,'description',
+        call mh5_init_attr(wfn_dmrg_checkpoint,'DESCRIPTION',
      $        'QCMaquis checkpoint directory names for each root'//
      $        ' in [NROOTS].')
       end if

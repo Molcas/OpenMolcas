@@ -10,11 +10,9 @@
 ************************************************************************
       Subroutine DeDe_Mck(FD,nFD,ipOffD,nOffD,DDen,lDDen,mDeDe,mIndij)
       use k2_arrays, only: MaxDe
-#include "WrkSpc.fh"
       Real*8 FD(nFD), DDen(lDDen)
       Integer ipOffD(nOffD)
       Logical Special_NoSym, DFT_Storage
-      Call QEnter('DeDe_Mck')
 *
       Special_NoSym=.False.
       DFT_Storage=.False.
@@ -25,8 +23,7 @@
 !     ipDijS is controlled in the calling routine
       Call mk_DeDe(FD,nFD,nr_of_Densities,ipOffD,nOffD,ipDeDe,ipD00,
      &             MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &             Work,1,DDen,lDDen)
+     &             DDen,lDDen)
 *
-      Call QExit('DeDe_Mck ')
       Return
       End

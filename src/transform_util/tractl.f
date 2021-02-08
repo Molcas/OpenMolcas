@@ -50,9 +50,8 @@ c 98-09-02 J.Hasegawa Modified for non-squared integrals.
       Logical iSquar
       Logical DoCholesky
 
-      CALL QENTER('TRACTL')
       IFTEST=.FALSE.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 
@@ -425,7 +424,6 @@ C
 CPAM01 Also transform 1-electron integrals, and put CMOs on LUONEM.
 CPAM01      CALL TRAONE(WORK(LCMO),KEEP)
 
-      CALL QEXIT('TRACTL')
       RETURN
 C
 C     HERE IF INTERPHASE FROM SORT IN ERROR

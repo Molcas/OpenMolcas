@@ -22,10 +22,18 @@ C
 
       LOGICAL LOCDBG, FXDMEM
       PARAMETER (LOCDBG = .FALSE.)
-
-#if defined (_DEBUG_)
-      CALL QENTER('_SUBTR')
-#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
+      Real*8, Target::  xInt(*), Wrk(lWrk)
+      Logical DoTime, DoStat
+      End SubRoutine Cho_VecBuf_Subtr
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C     Return if nothing to do.
 C     ------------------------
@@ -35,19 +43,19 @@ C     ------------------------
             WRITE(LUPRI,*) SECNAM,': nothing done because NUMCHO = ',
      &                     NUMCHO(ISYM),' (sym. ',ISYM,')'
          END IF
-         GO TO 1 ! exit
+         return
       ELSE IF (NNBSTR(ISYM,2) .LT. 1) THEN ! nothing to do (this sym.)
          IF (LOCDBG) THEN
             WRITE(LUPRI,*) SECNAM,': nothing done because NNBSTR = ',
      &                     NNBSTR(ISYM,2),' (sym. ',ISYM,')'
          END IF
-         GO TO 1 ! exit
+         return
       ELSE IF (NQUAL(ISYM) .LT. 1) THEN ! no qualifieds in this sym.
          IF (LOCDBG) THEN
             WRITE(LUPRI,*) SECNAM,': nothing done because NQUAL  = ',
      &                     NQUAL(ISYM),' (sym. ',ISYM,')'
          END IF
-         GO TO 1 ! exit
+         return
       END IF
 
 C     Debug: read original diagonal and check that these elements are
@@ -94,10 +102,4 @@ C     -------------------------------------------
       ELSE
          CALL CHO_SUBTR0(XINT,WRK,LWRK,ISYM)
       END IF
-
-    1 CONTINUE
-#if defined (_DEBUG_)
-      CALL QEXIT('_SUBTR')
-#endif
-
       END

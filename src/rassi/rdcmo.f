@@ -9,6 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RDCMO_RASSI(JOB,CMO)
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r,
+     &               mh5_fetch_dset_array_real, mh5_close_file
+#endif
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -21,7 +25,6 @@
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
 #endif
 
@@ -30,7 +33,6 @@
 
       INTEGER I, IAD, IDISK, ISY, L1, L2, LBUF, LEN, NB, NBUF
 
-      CALL QENTER(ROUTINE)
       CMO(:)=0.0D0
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
         WRITE(6,*)' RDCMO_RASSI: Invalid JOB parameter.'
@@ -105,6 +107,5 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
      *               1,NBASF,NOSH,NCMO,CMO)
       END IF
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

@@ -11,29 +11,15 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M1Int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine M1Int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of the M1 integrals used  *
 *         ECP calculations. The operator is the nuclear attraction     *
 *         operator times a s-type gaussian function.                   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              DaXpY   (ESSL)                                          *
-*              Hrr                                                     *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -63,21 +49,19 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, Cff2D, XRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), CoorAC(3,2),
-     &       Coori(3,4), Coora(3,4)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
       Character*80 Label
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iChO(nComp),  iAnga(4)
+      Integer iDCRT(0:7), iAnga(4)
       Logical EQ, NoSpecial
 *
 *     Statement function for Cartesian index
@@ -85,7 +69,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      Call qEnter('M1Int')
       iRout = 193
       iPrint = nPrint(iRout)
 *
@@ -151,20 +134,17 @@
 *
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 111
-         If (nM1(kCnttp).eq.0) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         If (.Not.dbsc(kCnttp)%ECP) Go To 111
+         If (dbsc(kCnttp)%nM1.eq.0) Go To 111
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3)= dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
                call dcopy_(3,A,1,Coora(1,1),1)
                call dcopy_(3,RB,1,Coora(1,2),1)
                call dcopy_(6,Coora(1,1),1,Coori(1,1),1)
@@ -178,8 +158,8 @@
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)
 *
-               Do 1011 iM1xp=0, nM1(kCnttp)-1
-                  Gamma = Work(ipM1xp(kCnttp)+iM1xp)
+               Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
+                  Gamma = dbsc(kCnttp)%M1xp(iM1xp)
 *
 *-----------------Modify the original basis. Observe that
 *                 simplification due to A=B are not valid for the
@@ -215,7 +195,7 @@
 *-----------------Accumulate result for all nuclei. Take the charge on
 *                 the center into account.
 *
-                  Factor = -Charge(kCnttp)*Work(ipM1cf(kCnttp)+iM1xp)
+                  Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)
      &                   * Fact
                   Call DaXpY_(nZeta*mAInt,Factor,Array(ipTmp),1,
      &                       Array(ipAInt),1)
@@ -229,7 +209,7 @@
  1011          Continue
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
 *-----Use the HRR to compute the required primitive integrals.
@@ -251,19 +231,17 @@
       End If
 *
 *     Call GetMem(' Exit M1Int','LIST','REAL',iDum,iDum)
-      Call QExit('M1Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_integer_array(lOper)
          Call Unused_integer_array(iChO)
          Call Unused_integer(nOrdOp)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

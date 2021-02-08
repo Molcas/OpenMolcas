@@ -8,42 +8,50 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine negp(ipdia,ipsigma,rout)
+      Subroutine negp(ipdia,ipSigma,rout)
+      use ipPage, only: W
+      use negpre
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
-#include "negpre.fh"
+#include "stdalloc.fh"
+#include "real.fh"
       integer opout
-      real*8 rout(*)
+      Real*8 rout(*)
+      Real*8, Allocatable:: Tmp(:), Tmp2(:,:), Tmp3(:,:)
 *
       idisk=0
       irc=opout(ipdia)
-      Call Getmem('Tmp','ALLO','REAL',ipTmp,nconf)
-      Call Getmem('Tmp2','ALLO','REAL',ipTmp2,2*lroots)
-      Call Getmem('Tmp3','ALLO','REAL',ipTmp3,2*lroots)
+
+      Call mma_allocate(Tmp,nConf,Label='Tmp')
+      Call mma_allocate(Tmp2,2,lRoots,Label='Tmp2')
+      Call mma_allocate(Tmp3,2,lRoots,Label='Tmp3')
+
+      irc=ipin(ipSigma)
       Do i=1,lroots
-       Call dDAFILE(luciv,2,Work(ipTmp),nconf,idisk)
-       Work(ipTmp2+2*i-2)=DDOT_(nconf,rout,1,Work(ipTmp),1)
-       Work(ipTmp2+2*i-1)=DDOT_(nconf,Work(ipin(ipSIgma)),1,
-     &                         Work(ipTmp),1)
+         Call dDAFILE(luciv,2,Tmp,nconf,idisk)
+         Tmp2(1,i)=DDOT_(nconf,rout,1,Tmp,1)
+         Tmp2(2,i)=DDOT_(nconf,W(ipSigma)%Vec,1,Tmp,1)
       End Do
       irc=ipout(ipsigma)
-      Call dGeMV_('N',2*lroots,2*lroots,1.0d0,
-     &                     Work(ipSS),2*lroots,Work(ipTmp2),1,
-     &                     0.0d0,Work(ipTmp3),1)
+      Call dGeMV_('N',2*lroots,2*lroots,One,
+     &            SS,2*lroots,Tmp2,1,Zero,Tmp3,1)
 
       idisk=0
+      irc=ipin(ipdia)
       Do i=1,lroots
-       Call dDAFILE(luciv,2,Work(ipTmp),nconf,idisk)
-       Call Exphinvv(Work(ipin(ipdia)),Work(ipTmp),rout,
-     &               1.0d0,Work(iptmp3+2*i-2))
-       call daxpy_(nConf,Work(iptmp3+2*i-1),Work(ipTmp),1,rout,1)
+         Call dDAFILE(luciv,2,Tmp,nconf,idisk)
+         Call Exphinvv(W(ipdia)%Vec,Tmp,rout,One,Tmp3(1,i))
+         call daxpy_(nConf,Tmp3(2,i),Tmp,1,rout,1)
       End Do
-      Call Getmem('Tmp', 'FREE','REAL',ipTmp,nconf)
-      Call Getmem('Tmp2','FREE','REAL',ipTmp2,2*lroots)
-      Call Getmem('Tmp3','FREE','REAL',ipTmp3,2*lroots)
+
+      Call mma_deallocate(Tmp)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmp3)
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

@@ -25,23 +25,21 @@
 *     Author: Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
 *             University of Lund, Sweden. Januar '96                   *
 ************************************************************************
-*
-*
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 c#include "print.fh"
       Real*8 AOInt(nkl,nij),MOint(nMO),
      &       Temp1(nTemp),Temp2(naco,naco),
      &       Ck(nCk),Cl(nCl),D(*),
      &       Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,
      &       nAco*(naco+1)/2,*)
-      Integer moip(0:nIrrep-1),nOp(4),
+      Integer moip(0:7),nOp(4),
      &          ishell(4),iao(4),iAOST(4),
-     &          ibasa(4),icmpa(4),indgrd(3,4,0:nirrep-1)
-      Logical pert(0:nIrrep-1)
+     &          ibasa(4),icmpa(4),indgrd(3,4,0:7)
+      Logical pert(0:7)
       Real*8 Prmt(0:7)
 
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
@@ -63,7 +61,7 @@ c#include "print.fh"
       lCmp=iCmpa(4)
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(3))
+       sfact=DBLE(ichtbl(kirrep,nop(3)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,kcmp*kbas
          kk=kk+1
@@ -73,7 +71,7 @@ c#include "print.fh"
       End Do
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(4))
+       sfact=DBLE(ichtbl(kirrep,nop(4)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,lcmp*lbas
          kk=kk+1
@@ -124,8 +122,7 @@ c#include "print.fh"
 
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
-           rFact2=rFact*rChtbl(ispert,nop(icnt))
-           llash=0
+           rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
            k=abs(indgrd(icar,icnt,ispert))
            j=0
            Do lIrr=0,nIrrep-1
@@ -139,9 +136,9 @@ c#include "print.fh"
                ll=lash+moip(lirr)
                j=j+1
                Do jIrr=0,nIrrep-1
-                rPj=rChTbl(jIrr,nop(2))
-                 iirr=nropr(ieor(iOPER(jirr),irest),ioper,nirrep)
-                 rPij=rPj*rChTbl(iIrr,nop(1))*rfact2
+                rPj=DBLE(iChTbl(jIrr,nop(2)))
+                 iirr=nropr(ieor(iOPER(jirr),irest))
+                 rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
                  buffer(ib,ic,jb,jc,iirr,j,k)=
      &               buffer(ib,ic,jb,jc,iirr,j,k)+
      &               rpij*Temp2(kk,ll)+
@@ -157,8 +154,7 @@ c#include "print.fh"
 *
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
-           rFact2=rFact*rChtbl(ispert,nop(icnt))
-           llash=0
+           rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
            k=abs(indgrd(icar,icnt,ispert))
            j=0
            Do lIrr=0,nIrrep-1
@@ -172,9 +168,9 @@ c#include "print.fh"
                ll=lash+moip(lirr)
                j=j+1
                Do jIrr=0,nIrrep-1
-                rPj=rChTbl(jIrr,nop(2))
-                iirr=nropr(ieor(iOPER(jirr),irest),ioper,nirrep)
-                rPij=rPj*rChTbl(iIrr,nop(1))*rfact2
+                rPj=DBLE(iChTbl(jIrr,nop(2)))
+                iirr=nropr(ieor(iOPER(jirr),irest))
+                rPij=rPj*DBLE(iChTbl(iIrr,nop(1)))*rfact2
                 buffer(ib,ic,jb,jc,iirr,j,k)=
      &              buffer(ib,ic,jb,jc,iirr,j,k)+
      &              rpij*Temp2(kk,ll)
@@ -194,7 +190,7 @@ c#include "print.fh"
 *
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(3))
+       sfact=DBLE(ichtbl(kirrep,nop(3)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,kcmp*kbas
          kk=kk+1
@@ -204,7 +200,7 @@ c#include "print.fh"
       End Do
       kk=0
       Do kIrrep=0,nIrrep-1
-       sfact=rchtbl(kirrep,nop(4))
+       sfact=DBLE(ichtbl(kirrep,nop(4)))
        Do kAsh=1,nAsh(kIrrep)
         Do k=1,lcmp*lbas
          kk=kk+1

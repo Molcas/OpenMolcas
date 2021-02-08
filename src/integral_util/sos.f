@@ -15,33 +15,22 @@
 *                                                                      *
 * Object: to generate the stabilizer S for the operator O.             *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "print.fh"
 #include "real.fh"
       Integer iStabO(8)
 *
-      iRout = 225
-      iPrint = nPrint(iRout)
-*     Call qEnter('SOS')
-*
-      If (iPrint.ge.99) Then
-         Write (6,*) ' In SOS'
-         Write (6,*) ' lOper=',lOper
-         Do 1 iS = 0, nIrrep-1
-            Write(6,'(8I5)') (iChTbl(iIrrep,iS),iIrrep=0,nIrrep-1)
- 1       Continue
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In SOS'
+      Write (6,*) ' lOper=',lOper
+      Do 1 iS = 0, nIrrep-1
+         Write(6,'(8I5)') (iChTbl(iIrrep,iS),iIrrep=0,nIrrep-1)
+ 1    Continue
+#endif
       If (lOper.lt.0.or.lOper.gt.255) Then
          Call WarningMessage(2,'SOS: Symmetry label is corrupted.')
          Write (6,*) 'lOper=',lOper
@@ -57,6 +46,5 @@
          iStabO(nStabO) = iOper(iS)
  10   Continue
 *
-*     Call qExit('SOS')
       Return
       End

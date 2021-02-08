@@ -85,7 +85,7 @@
 !----------------------------------------------------------------
 !     local variables
       Integer       :: nP,iTEnd,iT,IM,I,L,J,IC,IDIR,IH,iTemp
-      Real(kind=8) :: DLTH, mv, sv, dev, Boltz_k,mu_Bohr
+      Real(kind=8) :: DLTH, mv, sv, dev
       Character(len=99):: STLNE1, STLNE2
 
       Real(kind=8), allocatable :: WM(:)         ! WM(nm)
@@ -112,74 +112,59 @@
 
       External      :: dev
 
-      Call qEnter('SA_magn')
-      Boltz_k=0.6950356_wp                    !   in cm-1*K-1
-      mu_Bohr=0.466864374_wp                  !   in cm-1*T-1
 !-----------------------------------------------------------------------
 ! Allocate necessary memory
       mem_local=0
       RtoB=8
 
-      If(nM>=0) Then
-         ! Zeeman exchange energy spectrum
-         Call mma_allocate(WM,nM,'W')
-         Call dcopy_(nM,[0.0_wp],0,WM,1)
-         mem_local=mem_local+nM*RtoB
-      End If
+      ! Zeeman exchange energy spectrum
+      Call mma_allocate(WM,nM,'W')
+      Call dcopy_(nM,[0.0_wp],0,WM,1)
+      mem_local=mem_local+nM*RtoB
 
-      If((nH>=0).and.(nTempMagn>=0)) Then
-         Call mma_allocate(MT,3,nH,nTempMagn,'MT')
-         Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
-         mem_local=mem_local+3*nH*nTempMagn*RtoB
+      Call mma_allocate(MT,3,nH,nTempMagn,'MT')
+      Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,MT,1)
+      mem_local=mem_local+3*nH*nTempMagn*RtoB
 
-         Call mma_allocate(ST,3,nH,nTempMagn,'ST')
-         Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,ST,1)
-         mem_local=mem_local+3*nH*nTempMagn*RtoB
+      Call mma_allocate(ST,3,nH,nTempMagn,'ST')
+      Call dcopy_(3*nH*nTempMagn,[0.0_wp],0,ST,1)
+      mem_local=mem_local+3*nH*nTempMagn*RtoB
 
-         Call mma_allocate(MAV,nH,nTempMagn,'MAV')
-         Call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
-         mem_local=mem_local+nH*nTempMagn*RtoB
+      Call mma_allocate(MAV,nH,nTempMagn,'MAV')
+      Call dcopy_(nH*nTempMagn,[0.0_wp],0,MAV,1)
+      mem_local=mem_local+nH*nTempMagn*RtoB
 
-         Call mma_allocate(SAV,nH,nTempMagn,'SAV')
-         Call dcopy_(nH*nTempMagn,[0.0_wp],0,SAV,1)
-         mem_local=mem_local+nH*nTempMagn*RtoB
+      Call mma_allocate(SAV,nH,nTempMagn,'SAV')
+      Call dcopy_(nH*nTempMagn,[0.0_wp],0,SAV,1)
+      mem_local=mem_local+nH*nTempMagn*RtoB
 
-         Call mma_allocate(ZT,nH,nTempMagn,'ZT')
-         Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
-         mem_local=mem_local+nH*nTempMagn*RtoB
+      Call mma_allocate(ZT,nH,nTempMagn,'ZT')
+      Call dcopy_(nH*nTempMagn,[0.0_wp],0,ZT,1)
+      mem_local=mem_local+nH*nTempMagn*RtoB
 
-         If(nDirTot>=0) Then
-            Call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
-            Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
-            Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
-            Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,SVEC,1)
-            mem_local=mem_local+6*nDirTot*nH*nTempMagn*RtoB
-         End If
-      End If
+      Call mma_allocate(MVEC,nDirTot,nH,nTempMagn,3,'MVEC')
+      Call mma_allocate(SVEC,nDirTot,nH,nTempMagn,3,'SVEC')
+      Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,MVEC,1)
+      Call dcopy_(3*nDirTot*nH*nTempMagn,[0.0_wp],0,SVEC,1)
+      mem_local=mem_local+6*nDirTot*nH*nTempMagn*RtoB
 
-      If(nH>=0) Then
-         Call mma_allocate(H,nH,'H')
-         Call dcopy_(nH,[0.0_wp],0,H,1)
-         mem_local=mem_local+nH*RtoB
-      End If
+      Call mma_allocate(H,nH,'H')
+      Call dcopy_(nH,[0.0_wp],0,H,1)
+      mem_local=mem_local+nH*RtoB
 
-      If((nTempMagn>=0).and.hinput) Then
-         Call mma_allocate(STDEV,nTempMagn,'H')
-         Call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
-         mem_local=mem_local+nTempMagn*RtoB
-      End If
+      Call mma_allocate(STDEV,nTempMagn,'H')
+      Call dcopy_(nTempMagn,[0.0_wp],0,STDEV,1)
+      mem_local=mem_local+nTempMagn*RtoB
 
-      If(nDirTot>=0) Then
-            Call mma_allocate(dHX,nDirTot,'dHX')
-            Call mma_allocate(dHY,nDirTot,'dHY')
-            Call mma_allocate(dHZ,nDirTot,'dHZ')
-            Call mma_allocate(dHW,nDirTot,'dHW')
-            Call dcopy_(nDirTot,[0.0_wp],0,dHX,1)
-            Call dcopy_(nDirTot,[0.0_wp],0,dHY,1)
-            Call dcopy_(nDirTot,[0.0_wp],0,dHZ,1)
-            Call dcopy_(nDirTot,[0.0_wp],0,dHW,1)
-            mem_local=mem_local+4*nDirTot*RtoB
-      End If
+      Call mma_allocate(dHX,nDirTot,'dHX')
+      Call mma_allocate(dHY,nDirTot,'dHY')
+      Call mma_allocate(dHZ,nDirTot,'dHZ')
+      Call mma_allocate(dHW,nDirTot,'dHW')
+      Call dcopy_(nDirTot,[0.0_wp],0,dHX,1)
+      Call dcopy_(nDirTot,[0.0_wp],0,dHY,1)
+      Call dcopy_(nDirTot,[0.0_wp],0,dHZ,1)
+      Call dcopy_(nDirTot,[0.0_wp],0,dHW,1)
+      mem_local=mem_local+4*nDirTot*RtoB
       If(dbg) Write(6,*) 'MAGNETIZATION:  memory allocated (local):'
       If(dbg) Write(6,*) 'mem_local=', mem_local
       If(dbg) Write(6,*) 'MAGNETIZATION:  memory allocated (total):'
@@ -677,38 +662,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !-----------------------------------------------------------------------
 ! Deallocate necessary memory
-      If(nM>=0) Then
-         Call mma_deallocate(WM)
-      End If
+      Call mma_deallocate(WM)
+      Call mma_deallocate(MT)
+      Call mma_deallocate(ST)
+      Call mma_deallocate(MAV)
+      Call mma_deallocate(SAV)
+      Call mma_deallocate(ZT)
+      Call mma_deallocate(MVEC)
+      Call mma_deallocate(SVEC)
+      Call mma_deallocate(H)
+      Call mma_deallocate(STDEV)
+      Call mma_deallocate(dHX)
+      Call mma_deallocate(dHY)
+      Call mma_deallocate(dHZ)
+      Call mma_deallocate(dHW)
 
-      If((nH>=0).and.(nTempMagn>=0)) Then
-         Call mma_deallocate(MT)
-         Call mma_deallocate(ST)
-         Call mma_deallocate(MAV)
-         Call mma_deallocate(SAV)
-         Call mma_deallocate(ZT)
-         If(nDirTot>=0) Then
-            Call mma_deallocate(MVEC)
-            Call mma_deallocate(SVEC)
-         End If
-      End If
-
-      If(nH>=0) Then
-         Call mma_deallocate(H)
-      End If
-
-      If((nTempMagn>=0).and.hinput) Then
-         Call mma_deallocate(STDEV)
-      End If
-
-      If(nDirTot>=0) Then
-            Call mma_deallocate(dHX)
-            Call mma_deallocate(dHY)
-            Call mma_deallocate(dHZ)
-            Call mma_deallocate(dHW)
-      End If
-
-      Call qExit('SA_magn')
       Return
       End
 

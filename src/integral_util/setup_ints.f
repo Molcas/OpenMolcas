@@ -27,18 +27,18 @@
       use vRys_RW
       use iSD_data
       use k2_arrays
+      use LundIO
+      use Basis_Info, only: nBas, nBas_Aux
+      use Real_Info, only: CutInt
+      use Logical_info, only: lSchw
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
-#include "itmax.fh"
-#include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "setup.fh"
 #include "real.fh"
-#include "shinf.fh"
 #include "status.fh"
 #include "ndarray.fh"
 *
@@ -49,7 +49,6 @@
         Return
       End If
       ERI_Status=Active
-*     Call QEnter('S_I')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -105,14 +104,7 @@
 *
       If (Indexation) Then
          Indexation_Status=Active
-         Call GetMem('nShBF','ALLO','Inte',ipShBF,nSkal*nIrrep)
-         Call GetMem('ShLwC','ALLO','Inte',ipShLC,nSkal*nIrrep)
-         Call GetMem('ShPSh','ALLO','Inte',ipShSh,nSkal*nIrrep)
-         Call GetMem('SOShl','ALLO','Inte',ipSOSh,nSOs)
-         Call GetMem('ICNTR','ALLO','Inte',ipicntr,nSkal)
-         Call SOFSh1(iWork(ipShBF),iWork(ipShLC),iWork(ipShSh),
-     &               iWork(ipSOSh),iWork(ipicntr),nSkal,nIrrep,nSOs,
-     &               nShIrp,nShBFmx)
+         Call SOFSh1(nSkal,nIrrep,nSOs)
       End If
 *                                                                      *
 ************************************************************************
@@ -120,7 +112,7 @@
 *     Allocate auxiliary array for symmetry transformation
 *
       nAux = nIrrep**3
-      If (Petite) nAux = 1
+      If (nIrrep.eq.1) nAux = 1
       Call mma_allocate(Aux,nAux,Label='Aux')
 *                                                                      *
 ************************************************************************
@@ -158,20 +150,18 @@
 ************************************************************************
 *                                                                      *
       Call StatP(0)
-      nUt=0
+      Buf%nUt=0
       iDisk=0
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call QExit('S_I')
       Return
       End
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Function iPD(iSO_,jSO_,iSOSym,nSOs)
-#include "itmax.fh"
-#include "info.fh"
+      use Basis_Info, only: nBas
       Integer iPD
       Integer iSOSym(2,nSOs)
 *

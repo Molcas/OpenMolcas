@@ -22,13 +22,13 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
+#ifdef _HDF5_
+      Use mh5, Only: mh5_exists_dset
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
 *----------------------------------------------------------------------*
@@ -138,7 +138,6 @@
             qb=qb+OccVec(i,2)
          End Do
       End If
-      dq=qa-qb
 *     If(iUHF.eq.0) Then
 *        Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
 *        Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge

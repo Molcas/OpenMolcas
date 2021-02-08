@@ -38,7 +38,6 @@ C
       MulD2h(i,j)=iEor(i-1,j-1)+1
 *****************************************************************
 
-      Call qEnter(ThisNm)
       irc = 0
 
       iTyp = 2
@@ -207,7 +206,6 @@ c-tbp EMP2 = -two*EMP2
       EMP2 = -EMP2
 
 
-      Call qExit(ThisNm)
 
       Return
       End

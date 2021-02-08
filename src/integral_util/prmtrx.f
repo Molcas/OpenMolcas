@@ -12,29 +12,19 @@
 ************************************************************************
       SubRoutine PrMtrx(Label,lOper,nComp,ip,Matrix)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
 ************************************************************************
+      Use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 *     Local arrays
       Real*8 Matrix(*)
       Character Label*(*), Line*80
       Integer ip(nComp), lOper(nComp)
       Logical Type
 *
-      Call qEnter('PrMtrx')
 *
       Do 10 iComp = 1, nComp
          ip1 = ip(iComp)
@@ -55,7 +45,7 @@
      &                  ' SO Integrals of type ', Label,' Component ',
      &                     iComp
                End If
-               Line=Bline
+               Line=''
                If (iIrrep.eq.jIrrep) Then
                   Write (Line,'(1X,A,I1)')
      &            ' Diagonal Symmetry Block ', iIrrep+1
@@ -74,6 +64,5 @@
  30      Continue
  10   Continue
 *
-      Call qExit('PrMtrx')
       Return
       End

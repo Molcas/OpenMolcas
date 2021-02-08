@@ -50,6 +50,7 @@ H      2.37812   0.39563   3.81200
   Thrsholds = 0.05 0.021
 
 >>> ENDDO
+*&MCLR
 
 ****
 
@@ -719,7 +720,7 @@ H      2.37812   0.39563   3.81200
 1 iii2222sss
 2 ssssssssss
 3 ssssssssss
-4 ssssssss  
+4 ssssssss
 #EXTRAS
 * ACTIVE TWO-EL ENERGY
 0.172347168176E+01

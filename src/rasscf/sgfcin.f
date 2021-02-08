@@ -57,6 +57,8 @@
      &    doBlockDMRG
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
+      use OFEmbed, only: Do_OFemb, OFE_first, FMaux
+      use OFEmbed, only: Rep_EN
 
 
       implicit none
@@ -64,6 +66,7 @@
 #include "output_ras.fh"
       Parameter (ROUTINE='SGFCIN  ')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
@@ -80,26 +83,19 @@
       logical :: doDMRG = .false.
 #endif
 *
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
-      real*8 :: CASDFT_Funct, dumm(1), Emyn, energy_nad, Eone,
-     &  Erf1, Erf2, Erfhi, Erfx, Etwo, func_a, func_ab, func_b,
-     &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
+      real*8 :: CASDFT_Funct, dumm(1), Emyn, Eone,
+     &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
-     &  ioff, iopt, ip_ndsd,
-     &  ipam, ipfmaux, iprlev, iptmpfcki, ntmpfck,
+     &  ioff, iopt,
+     &  ipam, iprlev, iptmpfcki, ntmpfck,
      &  irc, iSyLbl,
      &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
-     &  iTmp8, iTmpx, iTmpz, iTu, j, l_ndsd, lx0, lx1, lx2, lx3,
+     &  iTmp8, iTmpx, iTmpz, iTu, j, lx0, lx1, lx2, lx3,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
 
-      Call qEnter(ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IPRLEV=0000
@@ -121,7 +117,6 @@ C Local print level (if any)
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -145,7 +140,6 @@ C Local print level (if any)
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then
@@ -208,47 +202,44 @@ C Local print level (if any)
 *     modify the one electron Hamiltonian for reaction
 *     field calculations
       ERFX = Zero
-      ERFhi = Zero
       iCharge=Int(Tot_Charge)
+
+      Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)
+      Call GetMem('DtmpA','Allo','Real',iTmp4,nTot1)
+      Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
+
       Call DecideOnESPF(Do_ESPF)
+*
+*---- Generate total density
+*
+      Call Fold(nSym,nBas,D1I,Work(iTmp3))
+      Call Fold(nSym,nBas,D1A,Work(iTmp4))
+      Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
+      Call Put_D1ao(Work(iTmp3),nTot1)
+*     Write(LF,*)
+*     Write(LF,*) ' D1ao in AO basis in SGFCIN'
+*     Write(LF,*) ' ---------------------'
+*     Write(LF,*)
+*     iOff=0
+*     Do iSym = 1,nSym
+*       iBas = nBas(iSym)
+*       Call TriPrt(' ','(5G17.11)',Work(iTmp3+iOff),iBas)
+*       iOff = iOff + (iBas*iBas+iBas)/2
+*     End Do
+*
+*---- Generate spin-density
+*
+      Call Fold(nSym,nBas,D1S,Work(iTmp7))
+      Call Put_D1Sao(Work(iTmp7),nTot1)
+
+      If(KSDFT(1:3).ne.'SCF' .or. Do_OFemb) Then
+        Call Put_iArray('nFro',nFro,nSym)
+        Call Put_iArray('nAsh',nAsh,nSym)
+        Call Put_iArray('nIsh',nIsh,nSym)
+      End If
+
       If ( Do_ESPF .or. lRF .or. KSDFT.ne.'SCF'
-     &                      .or. Do_OFemb) Then
-        Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)
-        Call GetMem('DtmpA','Allo','Real',iTmp4,nTot1)
-        Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
-*
-*------ Generate total density
-*
-        Call Fold(nSym,nBas,D1I,Work(iTmp3))
-        Call Fold(nSym,nBas,D1A,Work(iTmp4))
-        Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-        Call Put_D1ao(Work(iTmp3),nTot1)
-*        Write(LF,*)
-*        Write(LF,*) ' D1ao in AO basis in SGFCIN'
-*        Write(LF,*) ' ---------------------'
-*        Write(LF,*)
-*        iOff=0
-*        Do iSym = 1,nSym
-*          iBas = nBas(iSym)
-*          Call TriPrt(' ','(5G17.11)',Work(iTmp3+iOff),iBas)
-*          iOff = iOff + (iBas*iBas+iBas)/2
-*        End Do
-*
-*------ Generate spin-density
-*
-
-*        do i=1,nBas(1)
-*          write(*,*)i,"0000 D1S,Work(iTmp7)",D1S(i),Work(iTmp7+i-1)
-*        end do
-
-        Call Fold(nSym,nBas,D1S,Work(iTmp7))
-        Call Put_D1Sao(Work(iTmp7),nTot1)
-
-!        do i=1,nTot1
-!          Work(iTmp7+i-1)=Zero
-!          write(*,*)i,"1111 D1S,Work(iTmp7)",D1S(i),Work(iTmp7+i-1)
-!        end do
-
+     &                      .or. Do_OFemb ) Then
 *
 *------ Scratch for one- and two-electron type contributions
 *
@@ -262,28 +253,23 @@ C Local print level (if any)
         Do_DFT=.True.
 
         Call Timing(Rado_1,Swatch,Swatch,Swatch)
-        If(KSDFT(1:3).ne.'SCF' .or. Do_OFemb) Then
-           Call Put_iArray('nFro',nFro,nSym)
-           Call Put_iArray('nAsh',nAsh,nSym)
-           Call Put_iArray('nIsh',nIsh,nSym)
-        End If
 
         Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
      &             KSDFT,ExFac,iCharge,iSpin,D1I,D1A,
      &             nTot1,DFTFOCK,Do_DFT)
-      If ( IPRLEV.ge.DEBUG ) then
-        Write(LF,*)
-        Write(LF,*) ' Work(iTmp5), h1 (DFT), in AO basis in SGFCIN'
-        Write(LF,*) ' ---------------------'
-        Write(LF,*)
-        iOff=0
-        Do iSym = 1,nSym
-          iBas = nBas(iSym)
-          Call TriPrt(' ','(5G17.11)',Work(iTmp5+iOff),iBas)
-          iOff = iOff + (iBas*iBas+iBas)/2
-        End Do
-      End If
+        If ( IPRLEV.ge.DEBUG ) then
+          Write(LF,*)
+          Write(LF,*) ' Work(iTmp5), h1 (DFT), in AO basis in SGFCIN'
+          Write(LF,*) ' ---------------------'
+          Write(LF,*)
+          iOff=0
+          Do iSym = 1,nSym
+            iBas = nBas(iSym)
+            Call TriPrt(' ','(5G17.11)',Work(iTmp5+iOff),iBas)
+            iOff = iOff + (iBas*iBas+iBas)/2
+          End Do
+        End If
         Call Timing(Rado_2,Swatch,Swatch,Swatch)
         Rado_2 = Rado_2 - Rado_1
         Rado_3 = Rado_3 + Rado_2
@@ -294,13 +280,7 @@ C Local print level (if any)
         ERFX= ERF1-0.5d0*ERF2
         Call Daxpy_(nTot1,1.0d0,Work(iTmp5),1,Work(iTmp1),1)
 
-!        do i=1,nTot1
-!          write(*,*)"   0000  FI",FI(i)
-!        end do
         Call Daxpy_(nTot1,1.0d0,Work(iTmp6),1,FI,1)
-!        do i=1,nTot
-!          write(*,*)"   1111  FI",FI(i)
-!        end do
 *
 *       Insert PAM integrals to one electron Hamiltonian
 *
@@ -309,7 +289,7 @@ C Local print level (if any)
           Do iPAM=1,nPAM
              Write(PAMlbl,'(A,I3.3)') 'PAM  ',ipPam(iPAM)
              Call dCopy_(nTot1,[Zero],0,Work(iTmp8),1)
-          iComp=1
+             iComp=1
              Call RdOne(iRc,iOpt,PAMlbl,iComp,Work(iTmp8),iSyLbl)
              Call Daxpy_(nTot1,CPAM(iPAM),Work(iTmp8),1,Work(iTmp1),1)
           End Do
@@ -317,10 +297,12 @@ C Local print level (if any)
         End If
         Call GetMem('gtmp','Free','Real',iTmp6,nTot1)
         Call GetMem('htmp','Free','Real',iTmp5,nTot1)
-        Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
-        Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)
-        If(.not.Do_OFemb) Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
       End If
+
+      Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
+      Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)
+      If(.not.Do_OFemb) Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
+*
       If ( RFpert ) then
 *
 *       Read the reaction field from RunFile or RunOld
@@ -352,15 +334,13 @@ C Local print level (if any)
 *
       If (Do_OFemb) Then
          If (OFE_first) Then
-          Call GetMem('FMaux','Allo','Real',ipFMaux,nTot1)
-          Call Coul_DMB(.true.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                         nTot1)
+          Call mma_allocate(FMaux,nTot1,Label='FMAux')
+          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
           OFE_first=.false.
          Else
-          Call Coul_DMB(.false.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                          nTot1)
+          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
          EndIf
-         Call DaXpY_(nTot1,One,Work(ipFMaux),1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call Get_NameRun(NamRfil) ! save the old RUNFILE name
          Call NameRun('AUXRFIL')   ! switch the RUNFILE name
@@ -532,7 +512,6 @@ Cbjp
         Call TriPrt(' ',' ',F,NAC)
       End If
 
-      Call qExit('SGFCIN')
 
 
       Return

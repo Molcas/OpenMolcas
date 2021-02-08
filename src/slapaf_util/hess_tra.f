@@ -13,11 +13,12 @@
       Real*8 Hss_X(nDim*nDim), Degen(nDim), BMx(nDim,nInter),
      &       Hss_Q(nInter*nInter)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: X(:), XT(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,31 +34,31 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMx',' ',BMx,nDim,nInter)
       Call RecPrt('Hss_X',' ',Hss_X,nDim,nDim)
 #endif
-      Call Allocate_Work(ipX,nDim*nInter)
+      Call mma_allocate(X,nDim*nInter,Label='X')
       M=nDim
       N=nInter
       NRHS=nDim
-      Call Eq_Solver('N',M,N,NRHS,BMx,.FALSE.,Degen,Hss_X,Work(ipX))
+      Call Eq_Solver('N',M,N,NRHS,BMx,.FALSE.,Degen,Hss_X,X)
 *
-      Call Allocate_Work(ipXT,nDim*nInter)
-      Call TRNSPS(nInter,nDim,Work(ipX),Work(ipXT))
-#ifdef _DEBUG_
-      Call RecPrt('Work(ipX)',' ',Work(ipX),nInter,nDim)
-      Call RecPrt('Work(ipXT)',' ',Work(ipXT),nDim,nInter)
+      Call mma_allocate(XT,nDim*nInter,Label='XT')
+      Call TRNSPS(nInter,nDim,X,XT)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('X',' ',X,nInter,nDim)
+      Call RecPrt('XT',' ',XT,nDim,nInter)
 #endif
 *
       M=nDim
       N=nInter
       NRHS=nInter
-      Call Eq_Solver('N',M,N,NRHS,BMx,.False.,Degen,Work(ipXT),Hss_Q)
+      Call Eq_Solver('N',M,N,NRHS,BMx,.False.,Degen,XT,Hss_Q)
 *
-      Call Free_Work(ipXT)
-      Call Free_Work(ipX)
-#ifdef _DEBUG_
+      Call mma_deallocate(XT)
+      Call mma_deallocate(X)
+#ifdef _DEBUGPRINT_
       Call RecPrt('Hss_Q',' ',Hss_Q,nInter,nInter)
 #endif
 *                                                                      *

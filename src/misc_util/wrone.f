@@ -67,7 +67,6 @@
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-*     Call qEnter('WrOne')
       rc    = rc0000
       LuOne = AuxOne(pLu  )
       Open  = AuxOne(pOpen)
@@ -102,7 +101,7 @@
 *----------------------------------------------------------------------*
 *     Print debugging information                                      *
 *----------------------------------------------------------------------*
-      debug=.false.
+      debug=.False.
       If(iAnd(option,1024).ne.0) debug=.true.
       If(debug) Then
          Call DmpOne
@@ -144,12 +143,11 @@
             Write (6,*) 'WrOne: The total number of operators',
      &                  ' exceeds the limit'
             Write (6,*) 'k.eq.0'
-            Call QTrace()
             Call Abend()
          End If
          Len=0
          Do 510 i=1,nSym
-         Do 510 j=1,i
+         Do 511 j=1,i
             ij=MulTab(i,j)-1
             If(iAnd(2**ij,SymLab).ne.0) Then
                If(i.eq.j) Then
@@ -158,6 +156,7 @@
                   Len=Len+nBas(i)*nBas(j)
                End If
             End If
+511      Continue
 510      Continue
          Len=RtoI*(Len+nAuxDt)
          TocOne(pOp+LenOp*(k-1)+oLabel  )=LabTmp(1)
@@ -187,7 +186,6 @@
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qExit('WrOne')
       Return
       End
 

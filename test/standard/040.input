@@ -13,11 +13,11 @@ Symmetry
 X Y
 Basis Set
 H.cc-pVDZ.Dunning.4s1p.2s1p..
-     H1            0.000000       1.430201       1.545520 
+     H1            0.000000       1.430201       1.545520
 End of Basis Set
 Basis Set
 O.cc-pVDZ.Dunning.9s4p1d.3s2p1d.
-     O1           0.000000       0.000000       0.402242  
+     O1           0.000000       0.000000       0.402242
 End of Basis Set
 NoCD
 End of Input
@@ -48,7 +48,7 @@ Iterations
 MaxStep
 0.5
 End of input
->>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+>>>>>>>>>>>>> ENDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ****************************************
 
 >>FILE checkfile

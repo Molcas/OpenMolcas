@@ -24,7 +24,6 @@ C  ORIGINAL VERSION, MALMQUIST 84-04-04
 C  RASSCF VERSION,   MALMQUIST 89-11-15
 C---------------------------------------------------------------
 C INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
-      CALL QENTER('PART1')
       DO 20 I=1,NDIMEN
         DO 10 J=1,NDIMEN
           A(I,J)=0.0D00
@@ -63,20 +62,22 @@ C AND PUT IT INTO B-MATRIX. THEN CLEAR ALL TO THE LEFT OF THE A-BLOCK.
 C---------------------------------------------------------------
 C THEN UPDATE THE COLUMNS OF A TO THE LEFT OF THE CURRENT BLOCK:
         DO 70 J=1,LIM1
-          DO 70 I=1,LIM1
+          DO 71 I=1,LIM1
             T=A(I,J)
             DO 60 KK=LIM2,LIM3
               T=T-B(KK,J)*A(I,KK)
 60          CONTINUE
             A(I,J)=T
+71        CONTINUE
 70      CONTINUE
 100   CONTINUE
 C TRANSPOSE MATRIX B:
       DO 110 I=1,NDIMEN-1
-        DO 110 J=I,NDIMEN
+        DO 111 J=I,NDIMEN
           T=B(I,J)
           B(I,J)=B(J,I)
           B(J,I)=T
+111     CONTINUE
 110   CONTINUE
 C---------------------------------------------------------------
 C COMBINED LU-PARTITIONING AND UNITARY TRANSFORMATION OF A AND B:
@@ -87,24 +88,26 @@ C     NOW CHANGE SIGN OF LOWER-TRIANGULAR PARTS AND
 C     INVERT UPPER-TRIANGULAR PARTS, AS INDICATED IN (VI.6):
 C
       DO 200 I=2,NDIMEN
-        DO 200 J=1,I-1
+        DO 201 J=1,I-1
           A(I,J)=-A(I,J)
           B(I,J)=-B(I,J)
+201     CONTINUE
 200   CONTINUE
       DO 240 L=NDIMEN,1,-1
         A(L,L)=1.0D0/A(L,L)
         B(L,L)=1.0D0/B(L,L)
         DO 210 M=L+1,NDIMEN
           A(L,M)=A(L,L)*A(L,M)
-210       B(L,M)=B(L,L)*B(L,M)
+          B(L,M)=B(L,L)*B(L,M)
+210     CONTINUE
         DO 230 K=1,L-1
           DO 220 M=L+1,NDIMEN
             A(K,M)=A(K,M)-A(K,L)*A(L,M)
-220         B(K,M)=B(K,M)-B(K,L)*B(L,M)
+            B(K,M)=B(K,M)-B(K,L)*B(L,M)
+220       CONTINUE
           A(K,L)=-(A(L,L)*A(K,L))
           B(K,L)=-(B(L,L)*B(K,L))
 230       CONTINUE
 240     CONTINUE
-      CALL QEXIT('PART1')
       RETURN
       END

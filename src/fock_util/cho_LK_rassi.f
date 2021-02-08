@@ -35,10 +35,14 @@ C      k:        MO-index   belonging to (Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
-
+      use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   rc,ipLxy(8),ipScr(8,8)
+      Integer   ipLxy(8),ipScr(8,8)
       Integer   ipLpq(8,2)
       Integer   iSkip(8),kOff(8)
       Integer   ISTLT(8),ISTK(8),ISSQ(8,8)
@@ -47,7 +51,10 @@ C
       Integer   ipAsh(2),ipAorb(8,2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
-      Logical   Debug,timings,DoRead,DoReord,DoScreen
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead,DoReord,DoScreen
       Logical   Estimate,Update,Deco,PseudoChoMOs
       Real*8    FactCI,FactXI,dmpk
       Character*50 CFmt
@@ -64,12 +71,9 @@ C
 
 #include "rassi.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
-      parameter ( N2 = InfVec_N2 )
       Character*6 mode
       Real*8   LKThr
       Integer  Cho_F2SP
@@ -84,16 +88,6 @@ C
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-******
       nnBfShp(j,i) = iWork(ip_nnBfShp-1+nnShl_tot*(i-1)+j)
 ******
       ipLab(i,j) = iWork(ip_Lab+nShell*(j-1)+i-1)
@@ -105,18 +99,12 @@ C
       SvShp(i) = Work(ip_SvShp+i-1)
 ****** next is a trick to save memory. Memory in "location 2" is used
 ******      to store this offset array defined later on
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
-
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
-      Call QEnter(SECNAM)
 
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -402,8 +390,7 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
               If (iSyma.ge.iSymb) Then
 
-               iWork(ip_iiBstRSh + nSym*nnShl - 1
-     &         + nSym*(iShp_rs(iShp)-1) + iSyma) = LFULL
+               iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL
 
                  LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
      &        + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
@@ -476,14 +463,16 @@ C ------------------------------------------------------------------
 
          JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
          JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
+         ntv0=0
+#endif
          myJRED2=JRED2 ! last  red set present on this node
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
          Call GAIGOP_SCAL(JRED2,'max')
 
-         ntv0=0
          kscreen=1
          DoScreen=.true.
 
@@ -569,7 +558,6 @@ C --- BATCH over the vectors ----------------------------
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  rc=77
                   RETURN
                End If
 
@@ -1467,7 +1455,6 @@ C -------------------------------------------------------------
 
 
                if (irc.ne.0) then
-                  rc = irc
                   RETURN
                endif
 
@@ -1519,7 +1506,6 @@ c                 ! switch to column-wise storage
                tintg(2) = tintg(2) + (TWINT2 - TWINT1)
 
                if (irc.ne.0) then
-                  rc = irc
                   RETURN
                endif
 
@@ -1716,8 +1702,7 @@ c ---------------
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
-
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in RASSI-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -1736,10 +1721,6 @@ c Print the Fock-matrix
 
 #endif
 
-      rc  = 0
-
-      CAll QExit(SECNAM)
-
       Return
       END
 
@@ -1747,7 +1728,8 @@ c Print the Fock-matrix
 
       SUBROUTINE play_rassi_sto(irc,iLoc,JSYM,ISLT,ISSQ,
      &                        ipXLT,ipXab,mode)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer ISLT(8),ISSQ(8,8),cho_isao
       External cho_isao
@@ -1755,7 +1737,6 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -1763,10 +1744,6 @@ c Print the Fock-matrix
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 
@@ -1873,7 +1850,6 @@ c      ! NON TOTAL-SYMMETRIC
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to compute angles from a list of coordinates.                *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -32,8 +27,6 @@
       Logical Type
 *
       Lu=6
-      iRout = 126
-      iPrint = nPrint(iRout)
       If (mCentr.gt.Max_Center) Go To 99
 *
       Type = .False.

@@ -29,17 +29,6 @@
 *          SEWARD. SEWARD computes integrals for cartesian and         *
 *          spherical harmonic gaussian basis functions.                *
 *                                                                      *
-*                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp0                                                  *
-*              DmpInf                                                  *
-*              Input_Seward                                            *
-*              SetUp                                                   *
-*              Drv1El                                                  *
-*              Drv2El                                                  *
-*                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
 *                                                                      *
@@ -51,43 +40,48 @@
       use Period
       use GeoList
       use MpmC
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep, lIrrep
+      use LundIO
+      use Temporary_Parameters
+      use Integral_parameters, only: iPack, iWROpt
+      use DKH_Info, only: DKroll
+      use Real_Info, only: PkAcc
+      use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
+      use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
-      Real*8, Dimension(:), Allocatable :: MemHide
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "gateway.fh"
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
-      Integer iix(2), nChoV(8), GB
+      Integer nChoV(8)
+      Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
 C-SVC: identify runfile with a fingerprint
       Character cDNA*256
       Logical IsBorn, Do_OneEl
-      Integer IsGvMode
 *                                                                      *
 ************************************************************************
 *                                                                      *
+C     Call Seward_Banner()
       lOPTO = .False.
-      nByte = iiLoc(iix(2)) - iiLoc(iix(1))
+      nByte_r = idloc(rrx(2))-idloc(rrx(1))
       Call CWTime(TCpu1,TWall1)
 *
 *     Prologue
 *
       iRout=1
-      Call qEnter('Seward')
-      LuWr=6
       PrPrt_Save = .False. ! dummy initialize
 *                                                                      *
 ************************************************************************
@@ -148,43 +142,29 @@ C-SVC: identify runfile with a fingerprint
 *     runfile. If Seward is run in GS_Mode it will handle the input and
 *     runfile in the conventional way.
 *
+      Call Seward_Init()
       If (Run_Mode.eq.S_Mode) Then
 *
 *        S_Mode
 *
-         Call Seward_Init()
          DoRys=.True.
          nDiff=0
-         Call GetInf(Info,nInfo,DoRys,nDiff,1)
+         Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Else
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *        GS_Mode
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Initialize common blocks
-*
-         Call Seward_Init()
          Call Funi_Init()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Call GetMem to get pointer to first available core allocation.
-*
-         kB=2**10
-         MB=kb*kB
-         GB=kb*MB/8 ! adjust to real*8
-         Call GetMem('Info','Max','Real',iDum,MaxM)
-         nDInf=Max(MaxM/4,Min((9*MaxM)/10,GB))
-         Call GetMem('Info','ALLO','REAL',Info,nDInf)
-         Call FZero(Work(Info),nDInf)
-         Info_Status=Active
-         LctInf = Info
-         nInfo = 0
+         Call Basis_Info_Init()
+         Call Center_Info_Init()
 *
       End If ! Run_Mode.eq.S_Mode
 
@@ -208,12 +188,15 @@ C-SVC: identify runfile with a fingerprint
       Call SpoolInp(LuSpool)
 *     Read the input from input file
 *
-      Call RdCtl_Seward(Info,nInfo,LuSpool,lOPTO,Do_OneEl,
-     &                  Work(Info),nDInf)
-      Call Gen_RelPointers(Info-1) ! Work Mode
-#include "release_core.fh"
-      Call GvMode(IsGvMode)
-      if(IsGvMode.gt.0) Onenly=.true.
+      Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
+      If (Run_Mode.ne.S_Mode) Then
+         Call Basis_Info_Dmp()
+         Call Basis_Info_Free()
+         Call Basis_Info_Get()
+         Call Center_Info_Dmp()
+         Call Center_Info_Free()
+         Call Center_Info_Get()
+      End If
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -225,7 +208,7 @@ C-SVC: identify runfile with a fingerprint
 *
 *     Process the input.
 *
-      Call Input_Seward(lOPTO,Info,Work(Info),nDInf)
+      Call Input_Seward(lOPTO)
 *
       If (Primitive_Pass) Then
          PrPrt_Save = PrPrt
@@ -239,11 +222,7 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 *     Compute the Nuclear potential energy
 *
-      If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1)) ! DInf Mode
-         Call DrvN0(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)    ! Work Mode
-      End If
+      If (.Not.Primitive_Pass) Call DrvN0()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -273,10 +252,8 @@ C-SVC: identify runfile with a fingerprint
 *     Write/update information on the run file.
 *
       If (.Not.Primitive_Pass) Then
-         Call Gen_RelPointers(-(Info-1))  ! DInf Mode
-         Call DmpInf(Work(Info),nInfo)
-         Call basis2run(Work(Info),nInfo)
-         Call Gen_RelPointers(Info-1)     ! Work Mode
+         Call DmpInf()
+         Call basis2run()
       End If
 *                                                                      *
 ************************************************************************
@@ -316,7 +293,7 @@ C-SVC: identify runfile with a fingerprint
       If (Do_OneEl.and.
      &    (.Not.Primitive_Pass .or.
      &    (Primitive_Pass.and.(DKroll.or.NEMO)) ) )
-     &   Call Drv1El(Work(Info),nInfo,Info)
+     &   Call Drv1El()
 *
       iOpt = 0
       iRC = -1
@@ -368,8 +345,6 @@ C-SVC: identify runfile with a fingerprint
 ************************************************************************
 *                                                                      *
 *
-      Call mma_allocate(MemHide,Memhid)
-*
       If ( iWRopt.eq.0 ) then
 *
 *------- Molcas format
@@ -415,12 +390,6 @@ C-SVC: identify runfile with a fingerprint
                Write (6,*)
                Write (6,'(A)')
      &           ' Integrals are written in MOLCAS2 format'
-               Write (6,'(A,I10)')
-     &           ' Total Number of integrals             '//
-     &           '                = ',IntTot
-               Write (6,'(A,I10)')
-     &           ' Number of nonzero integrals passed to '//
-     &           'packing routine = ',NotZer
                If ( iPack.ne.0 ) Then
                   Write (6,'(A)')
      &              ' No packing of integrals has been applied'
@@ -430,14 +399,9 @@ C-SVC: identify runfile with a fingerprint
                   Write (6,'(A,I10)')
      &             ' Highest disk address written',MaxDax
                End If
-               If ( iSquar.eq.0 ) Then
-                  Write (6,'(A,A)') ' Diagonal and subdiagonal, '
-     &              //'symmetry allowed 2-el',
-     &              ' integral blocks are stored on Disk'
-               Else
-                  Write (6,'(A,A)') ' All symmetry allowed 2-el '
-     &              //'integral blocks are', ' stored on Disk'
-               End If
+               Write (6,'(A,A)') ' Diagonal and subdiagonal, '
+     &           //'symmetry allowed 2-el',
+     &           ' integral blocks are stored on Disk'
             End If
             iWrOpt=iWrOpt_Save
          End If
@@ -452,18 +416,17 @@ C-SVC: identify runfile with a fingerprint
          Lu_28=isfreeunit(Lu_28)
          Call DaName_MF(Lu_28,'BASINT')
          iDisk=0
-         lBuf=iiLoc(nUt)-idLoc(Buf)
-         lBuf=(lBuf+nByte)/nByte
+         lBuf=idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
+         lBuf=(lBuf+nByte_r)/nByte_r - 1
 *
          Call Drv2El(Integral_WrOut,Zero)
 *
-         ip_Buf=ip_of_iWork_d(Buf(1))
-         Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
-         nUt=-1
-         Call iDafile(Lu_28,1,iWork(ip_Buf),lBuf,iDisk)
+         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+         Buf%nUt=-1
+         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
          Write (6,*)
          Write (6,'(A)')' Integrals are written in MOLCAS1 format'
-         Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
+         !Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -476,32 +439,11 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Dist) Then
-         Write (6,*)
-         Write (6,*)
-     & ' Distribution of the Absolute Values of the Integrals'
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=-20,-11)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=-20,-11)
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=-10,-1)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=-10,-1)
-         Write (6,*)
-         Write (6,'(1x,10I8)')  (i,i=0,9)
-         Write (6,'(1x,10I8)')  (NrInt(i),i=0,9)
-         Write (6,*)
-      End If
-*
-      Call mma_deallocate(MemHide)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     At the end of the calculation free all memory to check for
 *     corruption of the memory.
 *
 
- 9999 Call DumpSagit
-      Call ClsSew
+ 9999 Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)
       Call mma_deallocate(Chrg)
@@ -548,9 +490,6 @@ C-SVC: identify runfile with a fingerprint
 *     Automatic run of GuessOrb
 *
       If (Do_GuessOrb.and.Do_FckInt) Call GuessOrb(iReturn,.FALSE.)
-      If(IsGvMode.gt.0) then
-        Call DoGvMode(IsGvMode)
-      EndIf
       If (.not.Prprt.and.Do_OneEl) Call Put_NucAttr()
 *                                                                      *
 ************************************************************************
@@ -558,19 +497,15 @@ C-SVC: identify runfile with a fingerprint
 *
 *     Epilogue
 *
-      Call qExit('Seward')
-      If (nPrint(iRout).ge.6) Then
-         Call qStat(' ')
-         Call FastIO('STATUS')
-      End If
+      If (nPrint(iRout).ge.6) Call FastIO('STATUS')
 *
-*
-      ireturn=_RC_ALL_IS_WELL_
       If (Test)  Then
          ireturn=_RC_EXIT_EXPECTED_
+      Else If (lRP_Post) Then
+         ireturn=_RC_INVOKED_OTHER_MODULE_
       Else
-         If (isGvMode.gt.0.or.lRP_Post)
-     &       ireturn=_RC_INVOKED_OTHER_MODULE_
+         ireturn=_RC_ALL_IS_WELL_
       End If
+
       Return
       End

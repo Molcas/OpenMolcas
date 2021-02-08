@@ -12,19 +12,18 @@
 C
 C     Purpose: read mapping arrays for diagonal restart.
 C
+      use ChoSwp, only: IndRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       LEN0 = NSYM*NNSHL
       LEN1 = NNBSTRT(1)
       LEN2 = LEN1
       IOPT = 2
       IADR = LEN0
-      CALL IDAFILE(LURED,IOPT,IWORK(ip_INDRED),LEN1,IADR)
+      CALL IDAFILE(LURED,IOPT,INDRED,LEN1,IADR)
       IOPT = 2
       IADR = LEN0 + LEN1
-      CALL IDAFILE(LURED,IOPT,IWORK(ip_INDRSH),LEN2,IADR)
+      CALL IDAFILE(LURED,IOPT,INDRSH,LEN2,IADR)
 
       END

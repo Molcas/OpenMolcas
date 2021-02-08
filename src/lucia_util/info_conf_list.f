@@ -29,7 +29,6 @@
 *    open orbitals in list of configuration occupations
       INTEGER IB_OCC(MAXOP+1)
 *
-      LENGTH = 0
       JB_REO = 1
       JB_OCC = 1
 C?    WRITE(6,*) ' MAXOP, NEL = ', MAXOP, NEL

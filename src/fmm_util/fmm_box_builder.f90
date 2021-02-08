@@ -133,7 +133,7 @@ CONTAINS
       IMPLICIT NONE
       INTEGER(INTK),      INTENT(IN) :: l         ! level in box hierarchy
       TYPE(scheme_paras), INTENT(IN) :: scheme
-      CHARACTER(3),       INTENT(IN) :: side
+      CHARACTER(LEN=3),   INTENT(IN) :: side
 
       TYPE(box_mm_paras), POINTER :: ptr(:)
       INTEGER(INTK) :: l_down
@@ -171,7 +171,7 @@ CONTAINS
       IMPLICIT NONE
       TYPE(scheme_paras), INTENT(IN) :: scheme
       INTEGER(INTK),      INTENT(IN) :: level
-      CHARACTER(4),       INTENT(IN) :: memory
+      CHARACTER(LEN=4),   INTENT(IN) :: memory
 
       TYPE(raw_mm_data), POINTER :: ptr1
       TYPE(box_mm_data), POINTER :: ptr2
@@ -208,7 +208,7 @@ CONTAINS
       IMPLICIT NONE
       INTEGER(INTK),      INTENT(IN) :: level
       TYPE(scheme_paras), INTENT(IN) :: scheme
-      CHARACTER(4),       INTENT(IN) :: memory
+      CHARACTER(LEN=4),   INTENT(IN) :: memory
 
       INTEGER(INTK) :: mms_dim, l_down
       TYPE(box_mm_data), POINTER :: ptr1, ptr2
@@ -241,7 +241,7 @@ CONTAINS
       INTEGER(INTK),      INTENT(IN) :: l
       TYPE(scheme_paras), INTENT(IN) :: scheme
       TYPE(box_mm_paras), POINTER    :: box_paras(:)
-      CHARACTER(3),       INTENT(IN) :: side
+      CHARACTER(LEN=3),   INTENT(IN) :: side
 
       IF (.NOT.ASSOCIATED(mms_at_lev)) STOP 'mms_at_lev should be allocated!'
 
@@ -274,8 +274,8 @@ CONTAINS
       INTEGER(INTK),      INTENT(IN)  :: l
       TYPE(scheme_paras), INTENT(IN)  :: scheme
       REAL(REALK),        POINTER     :: qlm_T(:,:)
-      CHARACTER(3),       INTENT(IN)  :: side
-      CHARACTER(4),       INTENT(IN)  :: memory
+      CHARACTER(LEN=3),   INTENT(IN)  :: side
+      CHARACTER(LEN=4),   INTENT(IN)  :: memory
 
       IF (.NOT.ASSOCIATED(mms_at_lev)) STOP 'mms_at_lev should be allocated!'
       IF (.NOT.ASSOCIATED(mms_at_lev(l)%qlm_T)) THEN

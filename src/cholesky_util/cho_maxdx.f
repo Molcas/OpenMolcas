@@ -13,20 +13,18 @@ C
 C     Purpose: get max. diagonal elements in each sym. block,
 C              qualified diagonals excluded.
 C
+      use ChoSwp, only: iQuAB, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), Dmax(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
-
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
+#include "stdalloc.fh"
+      Real*8, Allocatable:: ExQ(:)
 
       MxQ = nQual(1)
       Do jSym = 2,nSym
          MxQ = max(MxQ,nQual(jSym))
       End Do
-      Call GetMem('DXQ','Allo','Real',ipExQ,MxQ)
+      Call mma_allocate(ExQ,MxQ,Label='ExQ')
 
       Do jSym=1,nSym
 
@@ -35,7 +33,7 @@ C
 
          Do iQ=1,nQual(jSym)
             iab=IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
-            Work(ipExQ+iQ-1) = Diag(iab)
+            ExQ(iQ) = Diag(iab)
             Diag(iab) = 0.0d0
          End Do
 
@@ -49,13 +47,13 @@ C
 C --- Restore the qualified
          Do iQ=1,nQual(jSym)
             iab=IndRed(iQuAB(iQ,jSym),2) ! addr in 1st red set
-            Diag(iab) = Work(ipExQ+iQ-1)
+            Diag(iab) = ExQ(iQ)
          End Do
 
 10       Continue
 
       End Do
 
-      Call GetMem('DXQ','Free','Real',ipExQ,MxQ)
+      Call mma_deallocate(ExQ)
 
       End

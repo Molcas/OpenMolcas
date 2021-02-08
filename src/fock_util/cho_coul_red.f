@@ -34,8 +34,13 @@ C               Moreover, beware that any meaningful
 C               content in those chunks of memory will
 C               be overwritten!
 C*********************************************************
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      Logical Debug,add,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical add,timings
       Real*8  tread(2),tcoul(2)
       Integer ISLT(8),ipDLT(nDen),ipFLT(nDen)
       Character*12  SECNAM
@@ -47,32 +52,20 @@ C*********************************************************
       parameter (zero = 0.0d0, one = 1.0d0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
 ************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
       ipDr(i) = iWork(ipDab+i-1)
 ******
       ipFr(i) = iWork(ipFab+i-1)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
-#else
-      Debug=.false.
 #endif
 
-
       FactC = one
-
-      IREDC = -1
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
@@ -114,18 +107,14 @@ C ---
 
       if (nVrs.lt.0) then
          Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call qtrace()
          call abend()
       endif
 
       Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
       if(irc.ne.0)then
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call qtrace()
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 
@@ -145,7 +134,6 @@ C ---
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',nRS+1
          irc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -283,7 +271,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -321,7 +309,8 @@ c Print the Fock-matrix
 
       SUBROUTINE swap_rs2full(irc,iLoc,nDen,JSYM,ISLT,
      &                             ipXLT,ipXab,mode,add)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao,nDen
       External cho_isao
@@ -330,16 +319,11 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 
@@ -408,7 +392,6 @@ c Print the Fock-matrix
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

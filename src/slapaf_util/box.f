@@ -8,32 +8,31 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,ip_TabB,ip_TabA,
-     &               nBonds,nMax,ThrB_)
+      Subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-      Real*8 Coor(3,nAtoms)
-      Integer iANr(nAtoms)
-      Logical Schlegel
+#include "stdalloc.fh"
+      Real*8 Coor(3,mTtAtm)
+      Integer iANr(mTtAtm)
+      Integer, Allocatable:: TabB(:,:), TabA(:,:,:), iBox(:,:),
+     &                       Tab(:,:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (nAtoms.lt.2) Then
-         Write (6,*) 'Too few atoms to relax: nAtoms=',nAtoms
-         Call WarningMessage(2,'nAtoms.lt.2')
+      If (mTtAtm.lt.2) Then
+         Write (6,*) 'Too few atoms to relax: mTtAtm=',mTtAtm
+         Call WarningMessage(2,'mTtAtm.lt.2')
          Call Abend()
       End If
 *
       ThrB=0.40D0
-#ifdef _DEBUG_
-      Call RecPrt('Box: Coor',' ',Coor,3,nAtoms)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Box: Coor',' ',Coor,3,mTtAtm)
       Write (6,*) 'Box: ThrB=',ThrB
-      Write (6,*) 'Box: ThrB_=',ThrB_
 #endif
 *
       xmin= 1.0D+10
@@ -45,7 +44,7 @@
 *
 *---- Establish boundaries
 *
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
          xmin=Min(xmin,Coor(1,iAtom))
          xmax=Max(xmax,Coor(1,iAtom))
          ymin=Min(ymin,Coor(2,iAtom))
@@ -73,35 +72,28 @@
       adjust = (DBLE(nz)*Box_size - (zmax-zmin))/Two
       zmin=zmin-adjust
       zmax=zmax+adjust
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nx,ny,nz=',nx,ny,nz
 #endif
 *
       nMax=100
 cnf      nMax=40
 c AOM Fixed this size to account for double VdW counting
-      nBondMax=nAtoms*(nAtoms+1)
+      nBondMax=mTtAtm*(mTtAtm+1)
 c AOM
-      Call GetMem('TabB','Allo','Inte',ip_TabB,3*nBondMax)
-      Call GetMem('TabA','Allo','Inte',ip_TabA,2*(nMax+1)*nAtoms)
-      Call GetMem('Tab ','Allo','Inte',ip_Tab,(nMax+1)*nx*ny*nz)
-      Call GetMem('Box ','Allo','Inte',ip_iBox,3*nAtoms)
+      Call mma_allocate(TabB,3,nBondMax,Label='TabB')
+      Call mma_allocate(TabA,[1,2],[0,nMax],[1,mTtAtm],Label='TabA')
+      Call mma_allocate(Tab,[0,nMax],[1,nx],[1,ny],[1,nz],Label='Tab')
+      Call mma_allocate(iBox,3,mTtAtm,Label='iBox')
 *
-      Call Sort_to_Box(Coor,nAtoms,iWork(ip_Tab),nMax,nx,ny,nz,
-     &                 iWork(ip_iBox),iANr,
-     &                 xmin,ymin,zmin,Box_Size)
+      Call Sort_to_Box(Coor,mTtAtm,Tab,nMax,nx,ny,nz,
+     &                 iBox,iANr,xmin,ymin,zmin,Box_Size)
 *
-      Call Find_Bonds(Coor,nAtoms,iWork(ip_Tab),nMax,nx,ny,nz,
-     &                iWork(ip_iBox),iANr,Schlegel,iOptC,
-     &                iWork(ip_TabB),nBonds,nBondMax,
-     &                iWork(ip_TabA),ThrB)
+      Call Find_Bonds(Coor,mTtAtm,Tab,nMax,nx,ny,nz,iBox,iANr,
+     &                TabB,nBonds,nBondMax,TabA,ThrB)
 *
-      Call Free_iWork(ip_iBox)
-      Call Free_iWork(ip_Tab)
+      Call mma_deallocate(iBox)
+      Call mma_deallocate(Tab)
 *
       Return
-#ifndef _DEBUG_
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real(Thrb_)
-#endif
       End

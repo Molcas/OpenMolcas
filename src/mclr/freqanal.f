@@ -12,19 +12,21 @@
      &                    ELEC,iel,elout,ldisp,Lu_10)
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical converged(8)
       Real*8 H(*),elec(*),elout(*)
       logical Do_Molden
       Integer nrvec(*),nDeg(*),iel(3),ldisp(nsym)
+      Real*8, Allocatable:: NMod(:), EVec(:), EVal(:), Intens(:),
+     &                      RedMas(:), Tmp2(:), Tmp3(:), Temp(:)
 #include "temperatures.fh"
 *
-      Call GetMem('NMod','Allo','Real',ipNMod,nDisp**2)
-      Call GetMem('EIGVEC','ALLO','REAL',ipevec,2*nDisp**2)
-      Call GetMem('EIGVAL','ALLO','REAL',ipeval,nDisp*2)
-      Call GetMem('INTENS','ALLO','REAL',ipintens,nDisp*2)
-      Call GetMem('REDMAS','ALLO','REAL',ipredmas,nDisp)
-      ipNx=ipNMod
+      Call mma_allocate(NMod,nDisp**2,Label='NMod')
+      Call mma_allocate(EVec,2*nDisp**2,Label='EVec')
+      Call mma_allocate(EVal,nDisp*2,Label='EVal')
+      Call mma_allocate(Intens,nDisp*2,Label='Intens')
+      Call mma_allocate(RedMas,nDisp,Label='RedMas')
+      ipNx=1
       nModes=0
       lModes=0
 *
@@ -68,14 +70,12 @@
 *
             If (converged(isym))  Then
                naux=Max(nx*2,nX**2)
-               Call GetMem('Tmp2','ALLO','REAL',ip2,naux)
-               Call GetMem('Tmp3','ALLO','REAL',ip3,nX**2)
+               Call mma_allocate(Tmp2,naux,Label='Tmp2')
+               Call mma_allocate(Tmp3,nX**2,Label='Tmp3')
                Call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),
-     &                   Work(ip2),Work(ip3),
-     &                   Work(ipEVec),Work(ipEVal+i1-1),Work(ipRedMas),
-     &                   iNeg)
-               Call GetMem('Tmp3','FREE','REAL',ip3,nX**2)
-               Call GetMem('Tmp2','FREE','REAL',ip2,naux)
+     &                   Tmp2,Tmp3,EVec,EVal(i1),RedMas,iNeg)
+               Call mma_deallocate(Tmp3)
+               Call mma_deallocate(Tmp2)
 *
                iCtl=0
                ll=0
@@ -89,7 +89,7 @@
                         tmp=0.0d0
                         Do it=0,nx-1
                            Fact=Sqrt( DBLE(nDeg(i1+it)) )
-                           tmp=tmp+Work(ipEVec+2*(k-1)*nx+2*it)*
+                           tmp=tmp+EVec(1+2*(k-1)*nx+2*it)*
      &                             elec(ii+it)*Fact
                         End Do
                         elout(j)=tmp
@@ -101,14 +101,14 @@
 *
 *------------- Save normal modes for later generation of Molden input.
 *
-               call dcopy_(nX**2,Work(ipEVec),2,Work(ipNx),1)
+               call dcopy_(nX**2,EVec,2,NMod(ipNx),1)
                jpNx=ipNx
 
 * =========================================================================
 *                mass-weighted normal mode print out
 * =========================================================================
-               Call NM_MOPAC_print(Work(ipEVal+i1-1),Work(ipEVec),
-     &              elout(kk),ll,nX,nX,iCtl,Work(ipIntens+i1-1),Lu_10,
+               Call NM_MOPAC_print(EVal(i1),EVec,
+     &              elout(kk),ll,nX,nX,iCtl,Intens(i1),Lu_10,
      &              i1-1,lnm_molpac)
 * =========================================================================
 
@@ -120,19 +120,19 @@
                   rNorm=0.0D0
                   Do jX = 0, nX-1
                      Fact=Sqrt(DBLE(nDeg(jX+1)))
-                     Work(ipNx+jX) = Work(ipNx+jX)/Fact
-                     rNorm=rNorm+DBLE(nDeg(jX+1))*Work(ipNx+jX)**2
+                     NMod(ipNx+jX) = NMod(ipNx+jX)/Fact
+                     rNorm=rNorm+DBLE(nDeg(jX+1))*NMod(ipNx+jX)**2
                   End Do
-                  Call DScal_(nX,1.0D0/Sqrt(rNorm),Work(ipNx),1)
+                  Call DScal_(nX,1.0D0/Sqrt(rNorm),NMod(ipNx),1)
 *
                   ipNx=ipNx+nX
                   lModes=lModes+nX
                End Do
                nModes=nModes+nX
-               call dcopy_(nX**2,Work(jpNx),1,Work(ipEVec),2)
-               Call GF_Print(Work(ipEVal+i1-1),Work(ipEVec),elout(kk),
-     &                       ll,nX,nX,iCtl,Work(ipIntens+i1-1),
-     &                       Work(ipRedMas),Lu_10,i1-1)
+               call dcopy_(nX**2,NMod(jpNx),1,EVec,2)
+               Call GF_Print(EVal(i1),EVec,elout(kk),
+     &                       ll,nX,nX,iCtl,Intens(i1),
+     &                       RedMas,Lu_10,i1-1)
             Else
                Write(6,*)
                Write (6,*)'     NOT CONVERGED'
@@ -157,27 +157,27 @@
 !      call NM_MOPAC_SNF(nsym,ldisp,natoms) ! f90 not support ....
 
       If (nsym.eq.1) Then
-         Call Print_Mode_Components(Work(ipNMod),Work(ipEVal),
+         Call Print_Mode_Components(NMod,EVal,
      &                              nModes,lModes,lDisp)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Allocate_Work(ip_Temp,nEig)
-      call dcopy_(nEig,Work(ipEval),1,Work(ip_Temp),1)
+      Call mma_allocate(Temp,nEig,Label='Temp')
+      call dcopy_(nEig,Eval,1,Temp,1)
 *
 *     For verification purpose we skip frequencies close to zero.
 *
-      Do i = ip_Temp, ip_Temp+nEig-1
-         If (Abs(Work(i)).lt.5.0D0) Work(i)=0.0D0
+      Do i = 1, nEig
+         If (Abs(Temp(i)).lt.5.0D0) Temp(i)=0.0D0
       End Do
-      Call Add_Info('Harm_Freq',Work(ip_Temp),nEig,1)
-      Call Free_Work(ip_Temp)
+      Call Add_Info('Harm_Freq',Temp,nEig,1)
+      Call mma_deallocate(Temp)
 *
-      Do i = ipIntens, ipIntens+nEig-1
-         If (Abs(Work(i)).lt.1.0D0) Work(i)=0.0D0
+      Do i = 1, nEig
+         If (Abs(Intens(i)).lt.1.0D0) Intens(i)=0.0D0
       End Do
-      Call Add_Info('IR_Intensities',Work(ipIntens),nEig,1)
+      Call Add_Info('IR_Intensities',Intens,nEig,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -191,23 +191,22 @@
         Do i=1,NDefTemp
           UserT(i)=DefTemp(i)
         End Do
-*       Call ThermoData(Work(ipEVal),nEig)
+*       Call ThermoData(EVal,nEig)
       EndIf
-      Call Thermo_Driver(UserT,UserP,nUserPT,nsRot,
-     &                           ipEVal,nEig,.False.)
+      Call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.False.)
 *
 *
 *---- Write stuff on Molden input file
 *
       If (Do_Molden)
-     &   Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,nSym,
-     &                    Work(ipIntens),lDisp,Work(ipRedMas))
+     &   Call Freq_Molden(EVal,nModes,NMod,lModes,nSym,
+     &                    Intens,lDisp,RedMas)
 *
-      Call GetMem('NMod','Free','Real',ipNMod,nDisp**2)
-      Call GetMem('EIGVEC','FREE','REAL',ipevec,2*nDisp**2)
-      Call GetMem('EIGVAL','FREE','REAL',ipeval,nDisp*2)
-      Call GetMem('INTENS','FREE','REAL',ipintens,nDisp*2)
-      Call GetMem('REDMAS','FREE','REAL',ipredmas,nDisp)
+      Call mma_deallocate(NMod)
+      Call mma_deallocate(evec)
+      Call mma_deallocate(eval)
+      Call mma_deallocate(intens)
+      Call mma_deallocate(redmas)
 *
       Return
       End
@@ -225,17 +224,16 @@
 
 *     Print normal modes in MOPAC format with symm -- yingjin
 *     Only for ground state (no imaginary freqs)
-      Subroutine NM_MOPAC_print(
-     &           EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,Lu_10,iOff,lut)
+      Subroutine NM_MOPAC_print(EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,
+     &                          Lu_10,iOff,lut)
 
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "constants2.fh"
-#include "WrkSpc.fh"
       Real*8 EVal(nDim), EVec(2,nX,nDim),dDipM(ndim,iel),IRInt(nDim)
       Parameter(Inc=6)
-      Character*80 Format, Line*120
+      Character*80 Format
       Character*(LENIN6) ChDisp(3*MxAtom),Label
       character*(10) char_num
       character charx
@@ -297,7 +295,6 @@
            Write (LUt,*)
 *
            Write(Format,'(A,I3,A)') '(8x,',Jnc,'F12.5)'
-           Line=' '
            Write (LUt,Format) (EVal(i),i=iHarm,iHarm+Jnc-1)
            Write (LUt,*)
 

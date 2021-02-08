@@ -73,13 +73,15 @@ c       V4   - oom
 c       M1   - V"V"m
 c       M2   - max {V"V"M; OV"M)
 c
+#ifdef _MOLCAS_MPP_
+        use Para_Info, only: MyRank
+#endif
         implicit none
 #include "chcc1.fh"
 #include "chcc_reord.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
 #include "wrk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "chcc_parcc.fh"
 #endif

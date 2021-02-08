@@ -12,6 +12,13 @@
 CSVC: process CASPT2 input based on the data in the input table, and
 C initialize global common-block variables appropriately.
       Use InputData
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
+* NOT TESTED
+#if 0
+      use OFembed, only: Do_OFemb
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "warnings.fh"
@@ -21,8 +28,6 @@ C initialize global common-block variables appropriately.
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "ofembed.fh"
-#include "para_info.fh"
 
       Integer iDummy
 
@@ -36,17 +41,16 @@ C initialize global common-block variables appropriately.
       Integer Algo
       COMMON /CHORAS  / REORD,DECO,ALGO
       COMMON /CHOTIME / timings
+* Environment
+      Character(Len=180) Env
 
       Integer I, J, M, N
       Integer ISYM
 * State selection
       Integer iGroup, IOFF
-* Error condition
-      Integer IERR
 
 #include "chocaspt2.fh"
 
-      CALL QENTER('READIN')
 
 * Hzero and Focktype are merged together into Hzero. We keep the
 * variable Focktype not to break the input keyword which is documented
@@ -86,8 +90,14 @@ C initialize global common-block variables appropriately.
         if (input%IPEA) then
           BSHIFT = input%BSHIFT
         else
-* Set default IPEA to 0.25 Eh
-          BSHIFT = 0.25d0
+* Set default IPEA to 0.25 Eh or 0.0
+          call getenvf('MOLCAS_NEW_DEFAULTS', Env)
+          call upcase(Env)
+          if (Env.eq.'YES') then
+            BSHIFT = 0.0d0
+          else
+            BSHIFT = 0.25d0
+          end if
         end if
       end if
 
@@ -212,8 +222,6 @@ C     really parallel or not.
      &                          'together with keyword MULTistate.')
           call Quit_OnUserError
         end if
-        IFSilPrRot = Input%SilentPrRot
-        IFNOPT2=Input%IFNOPT2
 * This is a XDW-CASPT2 calculation. It is actually more similar to
 * a MS-CASPT2 one since we need to put one state per group and thus
 * have as many groups as states. Nevertheless, it makes more sense
@@ -347,7 +355,6 @@ C     really parallel or not.
         IF(IPRGLB.GE.TERSE) THEN
           Call WarningMessage(1,'User changed nr of frozen orbitals.')
         END IF
-        IERR=0
         DO I=1,NSYM
           NFI=NFRO(I)+NISH(I)
           IF(NFI.LT.Input%nFro(I)) THEN
@@ -361,7 +368,6 @@ C     really parallel or not.
       ENDIF
 * Set user-specified number of deleted orbitals.
       IF(Input % DELE) THEN
-        IERR=0
         DO I=1,NSYM
           NSD=NSSH(I)+NDEL(I)
           IF(NSD.LT.Input%nDel(I)) THEN
@@ -381,11 +387,8 @@ C     really parallel or not.
 * Orbital-free embedding.
 *
 ************************************************************************
-      Done_OFemb=.false.
-      First_OFE =.true.
-      ipFMaux = -666666
       If (Input % OFEmbedding) Then
-        Done_OFemb=.true.
+        Do_OFemb=.true.
         write(6,*)
         write(6,*)  '  --------------------------------------'
         write(6,*)  '   Orbital-Free Embedding Calculation   '
@@ -475,6 +478,5 @@ C Consistency of these demands:
       END DO
 *
 *---  Exit
-      CALL QEXIT('PROC_INP')
       Return
       End

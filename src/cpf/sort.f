@@ -21,7 +21,6 @@
       DIMENSION IVEC(20),IPOF(65)
       DIMENSION NORB0(9)
 *
-      CALL QENTER('SORT_CPF')
       IAD50=0
       CALL iDAFILE(Lu_TraInt,2,iTraToc,nTraToc,IAD50)
       NVT=IROW(NVIRT+1)
@@ -78,12 +77,12 @@ C
       KORBI=0
       DO 200 ISYM=1,NSYM
         DO 198 JORBI=KORBI+1,KORBI+NORB(ISYM)
-          DO 198 IORBI=KORBI+1,JORBI
+          DO 199 IORBI=KORBI+1,JORBI
             IBUF=IBUF+1
             ONEHAM=FIJ(IBUF)
             NI=ICH(IORBI)
             NJ=ICH(JORBI)
-            IF(NI.EQ.0.OR.NJ.EQ.0)GO TO 198
+            IF(NI.EQ.0.OR.NJ.EQ.0)GO TO 199
             IF(NI.LT.NJ) THEN
               NTMP=NI
               NI=NJ
@@ -95,6 +94,7 @@ C
             ELSE IF(NI.EQ.NJ) THEN
               EMY=EMY+2.0D0*ONEHAM
             END IF
+199       CONTINUE
 198     CONTINUE
         KORBI=KORBI+NORB(ISYM)
 200   CONTINUE
@@ -330,6 +330,5 @@ C     EMPTY LAST BUFFERS
       WRITE(6,155)(IVEC(I),I=1,20)
       CALL XFLUSH(6)
 155   FORMAT(6X,5I10)
-      CALL QEXIT('SORT_CPF')
       RETURN
       END

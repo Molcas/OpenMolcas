@@ -10,45 +10,32 @@
 *                                                                      *
 * Copyright (C) 1991,2008, Roland Lindh                                *
 ************************************************************************
-      SubRoutine CntInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine CntInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
-* Object: to compute contact integrals.                .               *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Darwin                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
+* Object: to compute contact integrals.                                *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
-*             Modified from D1Int January 2008.
+*             Modified from D1Int January 2008.                        *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables
+
       Character*80 Label
-      Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
       iRout = 150
       iPrint = nPrint(iRout)
-      Call qEnter('CntInt')
 *
       Call FZero(Final,nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)*nIC)
 *
@@ -99,7 +86,6 @@
       End If
 *
 *     Call GetMem(' Exit CntInt','LIST','REAL',iDum,iDum)
-      Call qExit('CntInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -107,8 +93,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
          Call Unused_integer(nOrdOp)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

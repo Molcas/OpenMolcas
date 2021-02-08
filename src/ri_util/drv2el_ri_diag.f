@@ -16,15 +16,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -34,25 +25,18 @@
 *             Modified to minimize overhead for calculations with      *
 *             small basis sets and large molecules. Sept. '93          *
 *             Modified driver. Jan. '98                                *
-*                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iOffSO
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
-#include "itmax.fh"
-#include "info.fh"
 #include "j12.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8  TInt(nTInt)
       Logical Verbose, Indexation, FreeK2, DoFock, DoGrad
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-      Call QEnter('Drv2El_RI_Diag')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -86,7 +70,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El_RI_Diag')
       Return
       End
       SubRoutine Cho_x_setab(iS,jS)

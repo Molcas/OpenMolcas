@@ -111,13 +111,10 @@ C      rho = min(rho_s , 1.0D-16 )
 C      gamma = min(gamma_s, 1.0D-16 )
         gamma=gamma_s
       r43 = rho**four3
-      rhoinv=1.0d0/rho
 * lda part:
 C     xlda=-xldacff*r43
 * Note: Use x=sqrt(gamma)/rho**four3
       x = sqrt(gamma)/r43
-
-      hgi = 0.50d0 / gamma
 
 C Gill-1996 Exchange: Peter Gill, Mol Phys 1996 vol 89, 433
 C      B88 = - b * x ** (3.0d0 / 2.0d0)  * r43

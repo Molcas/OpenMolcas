@@ -58,9 +58,8 @@ c     Logical Exist
 #include "rasscf_lucia.fh"
 #include "gas.fh"
 #include "pamint.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-      Call qEnter('DMRGCTL')
 *
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
@@ -478,7 +477,6 @@ c       Call Put_dArray("RF CASSCF Vector",Work(ipRF),nConf)
 c       Call Free_Work(ipRF)
 c     End If
 *
-      Call qExit('DMRGCTL')
       Return
       End
 

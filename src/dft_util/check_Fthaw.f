@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine check_Fthaw(iRC)
 
+      use OFembed, only: ThrFThaw
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      COMMON  / OFembed_T / ThrFThaw
       Character*16 NamRfil
       Logical ok
       Real*8 Ene(1000,4)
@@ -32,11 +32,13 @@
       Lu=IsFreeUnit(iSeed)
       Call f_inquire('FRETHAW',ok)
       If ( .not.ok ) Then
-         open(Lu,file='FRETHAW')
+         call molcas_open(Lu,'FRETHAW')
+*        open(Lu,file='FRETHAW')
          write(Lu,'(I4,2F18.10)') 1, EneA, EneB
          Go To 99
       Else
-         open(Lu,file='FRETHAW',status='old')
+         call molcas_open(Lu,'FRETHAW')
+*        open(Lu,file='FRETHAW',status='old')
       EndIf
 *
       read(Lu,'(I4,2F18.10)') iter0, Ene(1,1), Ene(1,3)
@@ -45,8 +47,8 @@
          Call Abend
       EndIf
       Do i=2,iter0
-         read(Lu,'(I4,4F18.10)') kiter, Ene(i,1), Ene(i,2), Ene(i,3),
-     &                                  Ene(i,4)
+         read(Lu,'(I4,4F18.10)') iter, Ene(i,1), Ene(i,2), Ene(i,3),
+     &                                 Ene(i,4)
       End Do
 *
       iter=iter0+1

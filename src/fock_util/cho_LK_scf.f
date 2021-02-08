@@ -30,7 +30,11 @@ C      a,b,g,d:  AO-index
 C      k:        MO-index   belonging to (Frozen+Inactive)
 C
 **********************************************************************
-
+      use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen
@@ -38,11 +42,14 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kOff(8,2)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    tscrn(2),tmotr(2)
-      Real*8    FactCI,FactXI,dmpk,dFmat,tau(2),xtau(2),thrv(2)
+      Real*8    FactCI,FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   ipPLT(nDen),ipFLT(nDen),ipKLT(nDen)
       Integer   ipPorb(nDen), ipDIAH(1)
       Integer   nForb(8,nDen),nIorb(8,nDen)
-      Logical   Debug,timings,DoRead,DoScreen
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoScreen
       Logical   Estimate,Update
       Character*50 CFmt
       Character*10 SECNAM
@@ -54,14 +61,9 @@ C
       parameter (FactCI = one)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
-#endif
 #include "warnings.fh"
-      parameter ( N2 = InfVec_N2 )
       Logical add
       Character*6 mode
       Integer  Cho_F2SP
@@ -78,16 +80,6 @@ C
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-******
       nnBfShp(j,i) = iWork(ip_nnBfShp-1+nnShl_tot*(i-1)+j)
 ******
       ipLab(i) = iWork(ip_Lab+i-1)
@@ -99,20 +91,12 @@ C
       SvShp(i) = Work(ip_SvShp+i-1)
 ****** next is a trick to save memory. Memory in "location 2" is used
 ******      to store this offset array defined later on
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
-#else
-      Debug=.false.
 #endif
-
-      Call QEnter(SECNAM)
-
-
-      DoRead  = .false.
 
       IREDC= -1  ! unknwn reduced set
 
@@ -120,7 +104,6 @@ c      Debug=.true.
 
       If (nDen.ne.1 .and. nDen.ne.2) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen
-         call qtrace()
          call abend()
       EndIf
 
@@ -211,8 +194,8 @@ Ctbp  EndIf
          End Do
       EndIf
 
-      xtau(1) = sqrt(tau(1))
-      xtau(2) = sqrt(tau(2))
+c     xtau(1) = sqrt(tau(1))
+c     xtau(2) = sqrt(tau(2))
 
 C --- Vector MO transformation screening thresholds
       NumVT=NumChT
@@ -385,8 +368,7 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
               If (iSyma.ge.iSymb) Then
 
-               iWork(ip_iiBstRSh + nSym*nnShl - 1
-     &         + nSym*(iShp_rs(iShp)-1) + iSyma) = LFULL
+               iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL
 
                  LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
      &        + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
@@ -426,13 +408,15 @@ C ------------------------------------------------------------------
 
          JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
          JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
+         ntv0=0
+#endif
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
          Call GAIGOP_SCAL(JRED2,'max')
 
-         ntv0=0
          kscreen=1
          DoScreen=.true.
 
@@ -1480,8 +1464,7 @@ c ---------------
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
-
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -1508,7 +1491,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END
@@ -1520,7 +1502,8 @@ c Print the Fock-matrix
 
       SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,ISLT,ISSQ,
      &                        ipXLT,ipXab,mode,add)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),ISSQ(8,8),cho_isao,nDen
       External cho_isao
@@ -1529,20 +1512,13 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 
@@ -1671,7 +1647,6 @@ c      ! NON TOTAL-SYMMETRIC
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

@@ -55,7 +55,6 @@
 *----------------------------------------------------------------------*
 *     push the entry name on the calling stack                         *
 *----------------------------------------------------------------------*
-*     Call qEnter('RdNlst')
 *----------------------------------------------------------------------*
 *     convert the Name to internal standard format.                    *
 *----------------------------------------------------------------------*
@@ -65,7 +64,6 @@
 *     read until an input Line is located which starts with            *
 *     the string, Name, not before the second column                   *
 *----------------------------------------------------------------------*
-      lLine=LEN(Line)
 100   Read(iUnit,'(A)',End=900) Line
       Call LeftAd(Line)
       Call UpCase(Line)
@@ -83,6 +81,5 @@
       EndIf
       Write (6,*) 'RdNLst: Input section not found in input file'
       Write (6,*) '        Looking for:',StdNam(1:lStdNam)
-      Call QTrace()
       Call Quit_OnUserError()
       End

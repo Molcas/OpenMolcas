@@ -167,6 +167,8 @@ C
 #ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
@@ -174,7 +176,7 @@ C
       Character*6 BName
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead,Do_int
+      Logical   timings,DoRead,Do_int
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8),iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
@@ -196,30 +198,14 @@ C
 #endif
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
 
       integer isfreeunit
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
-
-
-#ifdef _DEBUG_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
-      Call QEnter(SECNAM)
 
 #ifdef _HDF5_QCM_
       ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used
@@ -358,7 +344,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -366,7 +351,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                         ' rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -385,7 +369,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'Reading ',nRS,' and then MO-transform.'
                WRITE(6,*) 'In jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -733,7 +716,6 @@ C --- free memory
       EndIf
       write(6,*)
 
-      CAll QExit(SECNAM)
 
       Return
 #ifndef _HDF5_QCM_

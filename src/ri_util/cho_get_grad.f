@@ -16,7 +16,10 @@
      &                        Txy,nTxy,ipTxy,DoExchange,lSA,
      &                        nChOrb_,ipAorb,nAorb,DoCAS,
      &                        Estimate,Update,
-     &                        V_k,U_k,Z_p_k,nnP,npos,nZpk)
+     &                        V_k,nV_k,
+     &                        U_k,
+     &                        Z_p_k,nZ_p_k,
+     &                        nnP,npos)
 
 ************************************************************************
 *  Author : F. Aquilante (visiting F. Illas group in Barcelona, Spain, *
@@ -104,10 +107,14 @@
 *       Allow zero vectors on a node.                                  *
 *                                                                      *
 ************************************************************************
-
+      use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
-      Logical   Debug,timings,DoRead,DoExchange,DoCAS,lSA
+      Logical   timings,DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
@@ -117,7 +124,9 @@
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
-      Real*8    Txy(nTxy),V_k(*),Z_p_k(nZpk,*), U_k(*)
+
+      Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
+
       Character*6  Fname
       Character*50 CFmt
       Character*12 SECNAM
@@ -129,7 +138,6 @@
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
@@ -138,13 +146,10 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 #include "print.fh"
-      Parameter (MxShll=iTabMx*MxAtom)
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
 
-      parameter ( N2 = InfVec_N2 )
       Logical add
       Character*6 mode
       Integer  Cho_F2SP
@@ -155,16 +160,6 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 
       ipLab(i) = iWork(ip_Lab+i-1)
 
@@ -177,7 +172,7 @@
 ** next is a trick to save memory. Memory in "location 2" is used
 ** to store this offset array defined later on
 *
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 
 *
 ** Jonas 2010
@@ -193,23 +188,13 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-c      Debug=.true.
-      Debug=.false.! to avoid double printing
-#else
-      Debug=.false.
-#endif
-
-************************************************************************
-*                                                                      *
-*     General Initializiation                                          *
+*     General Initialization                                           *
 *                                                                      *
 ************************************************************************
 
       iRout = 9
       iPrint = nPrint(iRout)
 
-      Call QEnter(SECNAM)
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -288,7 +273,9 @@ c      Debug=.true.
 **   Initialize pointers to avoid compiler warnings
 *
       ipDIAG=ip_Dummy
+#if defined (_MOLCAS_MPP_)
       ipjDIAG=ip_Dummy
+#endif
       ipDIAH=ip_Dummy
       ipAbs=ip_Dummy
       ipY=ip_Dummy
@@ -599,8 +586,7 @@ c      Debug=.true.
               iSyma=MulD2h(iSymb,Jsym)
               If (iSyma.ge.iSymb) Then
 
-               iWork(ip_iiBstRSh + nSym*nnShl - 1
-     &         + nSym*(iShp_rs(iShp)-1) + iSyma) = LFULL
+               iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL
 
                LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
      &        + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
@@ -651,8 +637,10 @@ c      Debug=.true.
             JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last
 *                                               !vec
          End If
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
-         myJRED2=JRED2 ! last  red set present on this node
+         ntv0=0
+#endif
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
@@ -662,7 +650,6 @@ c --- entire red sets range for parallel run
 ** MGD does it need to be so?
 *
          DoScreen=.True.
-         ntv0=0
          kscreen=1
 
          Do JRED=JRED1,JRED2
@@ -719,7 +706,6 @@ c            !set index arrays at iLoc
                WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
                irc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -808,7 +794,7 @@ C --- Transform the densities to reduced set storage
                     CALL DGEMV_('T',nRS,JNUM,
      &                         One,Work(ipLrs),nRS,
      &                         Work(ipDrs(jden)),1,
-     &                         zero,V_k(jVec+(jDen-1)*NumCho(1)),1)
+     &                         zero,V_k(jVec,jDen),1)
                  End Do
 *
 **  MP2 Coulomb term
@@ -887,7 +873,6 @@ C --- Transform the densities to reduced set storage
 *
 
                   CALL FZero(Work(ipLF),LFULL*JNUM)
-                  ip_B = ipLF + LFULL*JNUM
                   CALL FZero(Work(ip_SvShp),2*nnShl)
 
                   CALL CHO_getShFull(Work(ipLrs),lread,JNUM,JSYM,
@@ -1834,7 +1819,6 @@ C--- have performed screening in the meanwhile
 
       irc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

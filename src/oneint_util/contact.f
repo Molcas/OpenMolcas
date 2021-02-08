@@ -17,20 +17,10 @@
 *                                                                      *
 * Object: to compoute the 1-electron contact term.                     *
 *                                                                      *
-* Called from: D1Int                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. Of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
@@ -52,7 +42,6 @@
 *                                                                      *
       iRout = 170
       iPrint = nPrint(iRout)
-      Call qEnter('Contact ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In Contact: rKappa',' ',rKappa,nZeta,1)
          Call RecPrt(' In Contact: Zeta',' ',Zeta,nZeta,1)
@@ -66,13 +55,10 @@
          llOper = iOr(llOper,lOper(iComp))
       End Do
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       Do lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
+         Call OA(iDCRT(lDCRT),Ccoor,TC)
 *
          call dcopy_(nZeta*nElem(la)*nElem(lb),[Zero],0,Array,1)
 *
@@ -168,14 +154,13 @@
 *
 *------- Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array,nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *
       End Do
 *
 *     Call GetMem(' Exit Contact ','LIST','REAL',iDum,iDum)
-      Call qExit('Contact ')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nArr)

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mxinv_cvb(a,n)
       implicit real*8 (a-h,o-z)
@@ -32,7 +33,8 @@
 c  Check solution
       call mxatb_cvb(a,w(i1),n,n,n,w(i2))
       do 100 i=1,n
-100   w(i+(i-1)*n+i2-1)=w(i+(i-1)*n+i2-1)-one
+      w(i+(i-1)*n+i2-1)=w(i+(i-1)*n+i2-1)-one
+100   continue
       rms=sqrt(ddot_(n*n,w(i2),1,w(i2),1)/DBLE(n*n))
       if(rms.gt.thresh)then
         write(6,*)' Fatal error in matrix inversion - error:',rms

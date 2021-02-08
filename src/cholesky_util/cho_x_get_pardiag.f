@@ -20,7 +20,7 @@
 *
 *        ip_List_rs : pointer to the portion of InfVec corresponding
 *                     to loc=1 and JSym, thus
-*                     ip_InfVec+MaxVec*InfVec_N2*(jSym-1)
+*                     ip_of_iWork(InfVec(1,1,jSym)
 *
 *        ia=iSO_ab(1,numcho(jSym))  contains the index of the basis "a"
 *                                   within its symm. block.
@@ -34,31 +34,33 @@
 *  Author: F. Aquilante
 *
 ************************************************************************
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, nProcs
+#endif
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer ip_List_rs, iSO_ab(2,*)
 
 #include "WrkSpc.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-************************************************************************
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-************************************************************************
+#ifdef _MOLCAS_MPP_
+#include "stdalloc.fh"
+      Integer, Allocatable:: ip_List(:), ip_Aux(:,:)
+#endif
 
       iOff=0
 
 #ifdef _MOLCAS_MPP_
-      Call Get_nProcs(nProcs)
-      Call GetMem('List','Allo','Inte',ip_List,nProcs)
-      Call IZero(iWork(ip_List),nProcs)
-      Call Get_MyRank(MyRank)
-      iWork(ip_List+MyRank)=NumCho(jSym)
-      Call Cho_GAIGOP(iWork(ip_List),nProcs,'+')
+      Call mma_allocate(ip_List,[0,nProcs-1],Label='ip_List')
+      ip_List(:)=0
+      ip_List(MyRank)=NumCho(jSym)
+      Call Cho_GAIGOP(ip_List,nProcs,'+')
       nTot=0
       Do iRank=1,nProcs
-         nTot = nTot + iWork(ip_List+iRank-1)
+         nTot = nTot + ip_List(iRank-1)
          If (iRank.eq.MyRank) iOff = nTot
       End Do
-      Call GetMem('List','Free','Inte',ip_List,nProcs)
+      Call mma_deallocate(ip_List)
 #endif
 
       Do jv=1,NumCho(jSym)
@@ -72,17 +74,15 @@
       End Do
 
 #ifdef _MOLCAS_MPP_
-      Call GetMem('Aux_iOS_ab','Allo','Inte',ip_Aux,2*nTot)
-      Call Izero(iWork(ip_Aux),2*nTot)
+      Call mma_allocate(ip_Aux,2,nTot,Label='ip_Aux')
+      ip_Aux(:,:)=0
       Do jv=1,NumCho(jSym)
          kv=iWork(ip_List_rs+4*MaxVec+jv-1) ! InfVec(jv,5,jSym)
-         kAux=ip_Aux+2*(kv-1)
-         iWork(kAux) = iSO_ab(1,jv+iOff)
-         kAux=kAux+1
-         iWork(kAux) = iSO_ab(2,jv+iOff)
+         ip_Aux(1,kv) = iSO_ab(1,jv+iOff)
+         ip_Aux(2,kv) = iSO_ab(2,jv+iOff)
       End Do
-      Call Icopy(2*nTot,iWork(ip_Aux),1,iSO_ab(1,1),1)
-      Call GetMem('Aux_iOS_ab','Free','Inte',ip_Aux,2*nTot)
+      iSO_ab(:,1:nTot)=ip_Aux(:,1:nTot)
+      Call mma_deallocate(ip_Aux)
       Call Cho_GAIGOP(iSO_ab,2*nTot,'+')
 #endif
       Return

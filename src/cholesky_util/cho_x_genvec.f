@@ -9,21 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_X_GenVec(irc,Diag)
-
+      use ChoSwp, only: iQuAB, pTemp, iQuAB_here
       Implicit None
       Integer irc
       Real*8  Diag(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'Cho_X_GenVec')
 
-      Integer MaxQual_SAVE, ip_iQuAB_SAVE, l_iQuAB_SAVE
+      Integer MaxQual_SAVE
       Integer iSym
 
-      Call qEnter('_X_GenVec')
 
 C     Set return code.
 C     ----------------
@@ -35,8 +33,7 @@ C     This is used to trick the integral extraction from Seward so as to
 C     reduce the number of re-calculations of shell pairs.
 C     ------------------------------------------------------------------
 
-      ip_iQuAB_SAVE = ip_iQuAB
-      l_iQuAB_SAVE  = l_iQuAB
+      pTemp => iQuAB
       MaxQual_SAVE  = MaxQual
 
       MaxQual = NumCho(1)
@@ -44,8 +41,8 @@ C     ------------------------------------------------------------------
          MaxQual = Max(MaxQual,NumCho(iSym))
       End Do
 
-      l_iQuAB = MaxQual*nSym
-      Call Cho_Mem('iQuAB_2','Allo','Inte',ip_iQuAB,l_iQuAB)
+      Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
+      iQuAB => iQuAB_here
 
 C     Read initial diagonal.
 C     ----------------------
@@ -73,11 +70,9 @@ C     Restore original iQuAB array.
 C     -----------------------------
 
   100 Continue
-      Call Cho_Mem('iQuAB_2','Free','Inte',ip_iQuAB,l_iQuAB)
-      ip_iQuAB = ip_iQuAB_SAVE
-      l_iQuAB  = l_iQuAB_SAVE
+      Call mma_deallocate(iQuAB_here)
+      iQuAB => pTemp
       MaxQual  = MaxQual_SAVE
 
-      Call qExit('_X_GenVec')
 
       End

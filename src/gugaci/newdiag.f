@@ -21,7 +21,6 @@ c inverse matrix at value_tmp(1:lent1-1)
 
 c h00 (h00-rouk)-1 * vector1(1:ndim)
 
-      lent0=1
       lent1=maxdimlu*maxdimlu
       lent2=lent1+ndimt
       value_lpext(lent1+1:lent2)=vector1(mtidx+1:mtidx+ndimt)
@@ -63,7 +62,7 @@ c...end of matmulv
 #include "drt_h.fh"
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
-      character*256 filename
+!      character*256 filename
 
       parameter (maxdimlu=1000,maxdimgit=10000)
 
@@ -77,7 +76,7 @@ c        ndimt=iw_sta(1,2)
 c      endif
 
 c      if(ndimt.le.maxdimlu) then
-        filename=tmpdir(1:len_str)//"/fort.23"
+!        filename=tmpdir(1:len_str)//"/fort.23"
         lent=len_str+8
 !        write(6,*) "new diag"
 !        stop 1999
@@ -91,11 +90,9 @@ c      if(ndimt.le.maxdimlu) then
      *               ,num,max_tmpvalue,neh0,lent,ndimt
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !         call abend
 !          stop 1000

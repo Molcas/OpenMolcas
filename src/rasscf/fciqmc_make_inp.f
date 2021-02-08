@@ -10,10 +10,11 @@
 *                                                                      *
 * Copyright (C) 2015, Giovanni Li Manni                                *
 *               2019, Oskar Weser                                      *
+*               2021, Werner Dobrautz                                  *
 ************************************************************************
 
       module fciqmc_make_inp
-        use stdalloc, only : mma_deallocate
+        use linalg_mod, only: verify_
         implicit none
         private
         public :: make_inp, cleanup
@@ -64,33 +65,28 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(path, readpops, doGAS)
+      subroutine make_inp(path, readpops, tGUGA, FCIDUMP_name,
+     &      GAS_spaces, GAS_particles)
       use general_data, only : nActEl, iSpin
-      use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
-      character(*), intent(in) :: path
-      logical, intent(in), optional :: readpops, doGAS
-      logical :: readpops_, doGAS_
-      integer :: i, isFreeUnit, file_id, indentlevel
+      character(len=*), intent(in) :: path
+      logical, intent(in) :: readpops, tGUGA
+      character(len=*), intent(in), optional :: FCIDUMP_name
+      integer, intent(in), optional ::
+     &      GAS_spaces(:, :), GAS_particles(:, :)
+
+      integer :: i, isFreeUnit, file_id, indentlevel, iGAS, iSym
+      integer :: nGAS, nSym
       integer, parameter :: indentstep = 4
 
-      if (present(readpops)) then
-        readpops_ = readpops
-      else
-        readpops_ = .false.
-      end if
-      if (present(doGAS)) then
-        doGAS_ = doGAS
-      else
-        doGAS_ = .false.
-      end if
+      call verify_(present(GAS_spaces) .eqv. present(GAS_particles),
+     &             'present(GAS_spaces) .eqv. present(GAS_particles)')
 
       call add_info('Default number of total walkers',
      &  [dble(totalwalkers)], 1, 6)
       call add_info('Default number of cycles ',[dble(nmcyc)],1,6)
       call add_info('Default value for Time  ',[dble(Time)],1,6)
 
-      call qEnter('make_inp')
 
       file_id = isFreeUnit(39)
       call Molcas_Open(file_id, path)
@@ -101,13 +97,46 @@
       write(file_id, A_fmt()) 'System read'
       call indent()
         write(file_id, I_fmt()) 'electrons ', nActEl
-        write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
+        if (tGUGA) then
+            write(file_id,A_fmt())
+     &          'nonuniformrandexcits mol_guga_weighted'
+        else
+            write(file_id,A_fmt())
+     &          'nonuniformrandexcits 4ind-weighted-2'
+        end if
         write(file_id,A_fmt()) 'nobrillouintheorem'
-        if(iSpin /= 1) then
+        if (tGUGA) then
+          write(file_id, I_fmt()) 'guga', iSpin - 1
+        else if(iSpin /= 1) then
           write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
         end if
+        if (present(FCIDUMP_name)) then
+          write(file_id,A_fmt()) 'FCIDUMP-name', FCIDUMP_name
+        end if
+
         write(file_id, A_fmt()) 'freeformat'
-        if (doGas_) write(file_id, A_fmt()) 'part-conserving-gas'
+        if (present(GAS_spaces) .and. present(GAS_particles)) then
+          nGAS = size(GAS_spaces, 1)
+          nSym = size(GAS_spaces, 2)
+          write(file_id, A_fmt())
+     &      'GAS-SPEC '//str(nGAS)//' +++'
+          call indent()
+          do iGAS = 1, nGAS
+        write(file_id, '('//indent_fmt()//'I0, 1x, I0, 1x, I0, 1x, A)')
+     &        sum([(GAS_spaces(iGAS, iSym), iSym = 1, nSym)]),
+     &        GAS_particles(iGAS, 1), GAS_particles(iGAS, 2), '+++'
+          end do
+          write(file_id, '('//indent_fmt()//')', advance='no')
+          do iSym = 1, nSym
+            do iGAS = 1, nGAS
+              do i = 1, GAS_spaces(iGAS, iSym)
+                write(file_id, '(I0, 1x)', advance='no') iGAS
+              end do
+            end do
+          end do
+          write(file_id, *)
+          call dedent()
+        end if
       call dedent()
       write(file_id, A_fmt()) 'endsys'
       write(file_id, *)
@@ -120,8 +149,8 @@
         end if
         write(file_id, *)
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers
-        write(file_id, A_fmt()) merge(' ', '(', readpops_)//'readpops'
-        write(file_id, A_fmt())merge(' ', '(',readpops_)//'walkcontgrow'
+        write(file_id, A_fmt()) merge(' ', '(', readpops)//'readpops'
+        write(file_id, A_fmt())merge(' ', '(',readpops)//'walkcontgrow'
         write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
         write(file_id, *)
         write(file_id, A_fmt()) 'methods'
@@ -140,7 +169,11 @@
         write(file_id, A_fmt()) 'allrealcoeff'
         write(file_id, R_fmt()) 'realspawncutoff', realspawncutoff
         write(file_id, A_fmt()) 'jump-shift'
-        write(file_id, A_fmt()) 'tau 0.01 search'
+        if (tGUGA) then
+            write(file_id, A_fmt()) 'hist-tau-search 0.9999'
+        else
+            write(file_id, A_fmt()) 'tau 0.01 search'
+        end if
         write(file_id, R_fmt()) 'max-tau', max_tau
         write(file_id, I_fmt()) 'maxwalkerbloom', maxwalkerbloom
         write(file_id, R_fmt()) 'memoryfacspawn', memoryfacspawn
@@ -155,8 +188,12 @@
       write(file_id, A_fmt()) 'logging'
       call indent()
         write(file_id, I_fmt()) 'highlypopwrite', Highlypopwrite
-        write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
+        if (tGUGA) then
+            write(file_id, A_fmt()) 'print-molcas-rdms'
+        else
+            write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
+        end if
         write(file_id, A_fmt()) 'printonerdm'
        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
      &     'RDMlinspace',
@@ -167,12 +204,11 @@
 
 
       close(file_id)
-      call qExit('make_inp')
 
       contains
 
         function indent_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           if (indentlevel /= 0) then
             res = str(indentlevel)//'x, '
           else
@@ -181,23 +217,23 @@
         end function
 
         function kw_fmt(value_fmt) result(res)
-          character(*), intent(in) :: value_fmt
-          character(:), allocatable :: res
+          character(len=*), intent(in) :: value_fmt
+          character(len=:), allocatable :: res
           res = '('//indent_fmt()//'A, 1x, '//value_fmt//')'
         end function
 
         function I_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           res = kw_fmt('I0')
         end function
 
         function R_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           res = kw_fmt('F0.2')
         end function
 
         function A_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           res = kw_fmt('A')
         end function
 
@@ -211,6 +247,7 @@
       end subroutine make_inp
 
       subroutine cleanup()
+        use stdalloc, only : mma_deallocate
         if (allocated(definedet)) call mma_deallocate(definedet)
       end subroutine cleanup
 

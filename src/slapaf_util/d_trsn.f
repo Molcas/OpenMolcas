@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function D_Trsn(Ind,iOp_,nStab,jStab,mxdc,nSym)
+      Function D_Trsn(Ind,iOp_,nSym)
+      use Slapaf_Info, only: jStab, nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Integer jStab(0:7,mxdc), nStab(mxdc), Ind(4), iOp_(4)
+      Integer Ind(4), iOp_(4)
       Real*8 D_Trsn
 *                                                                      *
 ************************************************************************

@@ -13,9 +13,9 @@ C
 C     Purpose: print allocation information of Cholesky vector buffer to
 C              unit Lupri (if Lupri<1 nothing is printed).
 C
+      use ChoVecBuf, only: CHVBUF, l_CHVBUF_SYM
       Implicit None
       Integer Lupri, nSym
-#include "chovecbuf.fh"
 
       Character*16 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Print')
@@ -37,8 +37,9 @@ C
      &   'Dimension, sym.',iSym,': ',l_ChVBuf_Sym(iSym),
      &   ' 8-byte words (',xGb,' ',Unt,')'
       End Do
-      Call Cho_Word2Byte(l_ChVBuf,8,xGb,Unt)
+      Call Cho_Word2Byte(SIZE(ChVBuf),8,xGb,Unt)
       Write(Lupri,'(/,A,I10,A,F8.2,A,A,A)')
-     & 'Total dimension  : ',l_ChVBuf,' 8-byte words (',xGb,' ',Unt,')'
+     & 'Total dimension  : ',SIZE(ChVBuf),' 8-byte words (',xGb,' ',
+     & Unt,')'
 
       End

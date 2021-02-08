@@ -16,18 +16,11 @@ C              iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
+      use ChoArr, only: iSP2F, nBstSh, iShP2Q
+      use ChoSwp, only: iQuAB, IndRSh, IndRed
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "chosew.fh"
-#include "WrkSpc.fh"
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-      IndRsh(i)=iWork(ip_IndRSh-1+i)
 
 C     Check allocations.
 C     ------------------
@@ -39,6 +32,8 @@ C     ------------------
          NumAB = nBstSh(iShlA)*nBstSh(iShlB)
       End If
       lTst = 2*NumAB
+      l_iShP2Q = 0
+      If (Allocated(iShP2Q)) l_iShP2Q=SIZE(iShP2Q)
       If (l_iShP2Q.lt.1 .or. l_iShP2Q.lt.lTst) Then
          irc = 102
          Return
@@ -58,7 +53,7 @@ C     iShP2Q(2,AB) = symmetry block.
 C     Zeros are returned if the element AB is not qualified.
 C     -------------------------------------------------------
 
-      Call Cho_iZero(iWork(ip_iShP2Q),lTst)
+      iShP2Q(:,1:NumAB)=0
       Call Cho_iZero(nAB,nSym)
 
       Do iSym = 1,nSym
@@ -68,8 +63,8 @@ C     -------------------------------------------------------
             kShlAB = IndRSh(jAB)  ! shell pair (full)
             If (kShlAB .eq. iSP2F(iShlAB)) Then
                kAB = IndRed(jAB,1) ! addr in full shell pair
-               iWork(ip_iShP2Q+2*(kAB-1))   = iQ
-               iWork(ip_iShP2Q+2*(kAB-1)+1) = iSym
+               iShP2Q(1,kAB)   = iQ
+               iShP2Q(2,kAB) = iSym
                nAB(iSym) = nAB(iSym) + 1
             End If
          End Do

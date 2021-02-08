@@ -12,29 +12,32 @@
 * to add a new version, increase version number and
 * add appropriate new Magic string and format descriptors
       Integer, Parameter :: mxVer = 5
-      Character(11) :: Magic(mxVer)
-      Character(40) :: FMTORB(mxVer), FMTOCC(mxVer), FMTOCCHR(mxVer),
-     &                 FMTENE(mxVer), FMTIND(mxVer)
+      Character(Len=11) :: Magic(mxVer)
+      Character(Len=40) :: FMTORB(mxVer), FMTOCC(mxVer),
+     &                 FMTOCCHR(mxVer), FMTENE(mxVer), FMTIND(mxVer)
       Integer :: nDivOrb(mxVer), nDivOcc(mxVer), nDivOccHR(mxVer),
      &           nDivEne(mxVer), nDivInd(mxVer), nSkpInd(mxVer)
       Integer, Parameter :: iVer10=1, iVer11=2, iVer20=3, iVer21=4,
      &                      iVer22=5
-      DATA Magic     /'#INPORB 1.0','#INPORB 1.1',
-     &                '#INPORB 2.0','#INPORB 2.1','#INPORB 2.2'/
-      DATA FMTORB    /'(4E18.12)', '(4E18.12)',
-     &                '(5(1X,ES21.14))', '(5(1X,ES21.14))',
-     &                '(5(1X,ES21.14))'/
-      DATA nDivOrb   / 4, 4, 5, 5, 5 /
-      DATA FMTOCC    /'(4E18.12)', '(4E18.12)',
-     &                '(10(1X,F7.4))', '(4E18.12)', '(5(1X,ES21.14))'/
-      DATA nDivOcc   / 4, 4, 10, 4, 5 /
-      DATA FMTOCCHR  /'', '', '', '(10(1X,F7.4))', '(10(1X,F7.4))'/
-      DATA nDivOccHR / 0, 0, 0, 10, 10 /
-      DATA FMTENE    /'(4E18.12)', '(4E18.12)',
-     &                '(10(1X,ES11.4))', '(10(1X,ES11.4))',
-     &                '(10(1X,ES11.4))'/
-      DATA nDivEne   / 4, 4, 10, 10, 10 /
-      DATA FMTIND    /'(A4)', '(2X,A10)', '(2X,A10)', '(2X,A10)',
-     &                '(2X,A10)'/
-      DATA nDivInd   / 4, 10, 10, 10, 10 /
-      DATA nSkpInd   / 0, 1, 1, 1, 1 /
+      Parameter (Magic =     ['#INPORB 1.0', '#INPORB 1.1',
+     &                        '#INPORB 2.0', '#INPORB 2.1',
+     &                        '#INPORB 2.2'])
+      Parameter (FMTORB = [Character(Len=40) ::
+     & '(4E18.12)', '(4E18.12)', '(5(1X,ES21.14))', '(5(1X,ES21.14))',
+     & '(5(1X,ES21.14))'])
+      Parameter (nDivOrb =   [4, 4, 5, 5, 5])
+      Parameter (FMTOCC = [Character(Len=40) ::
+     & '(4E18.12)', '(4E18.12)', '(10(1X,F7.4))', '(4E18.12)',
+     & '(5(1X,ES21.14))'])
+      Parameter (nDivOcc =   [4, 4, 10, 4, 5])
+      Parameter (FMTOCCHR = [Character(Len=40) ::
+     & '', '', '', '(10(1X,F7.4))', '(10(1X,F7.4))'])
+      Parameter (nDivOccHR = [0, 0, 0, 10, 10])
+      Parameter (FMTENE = [Character(Len=40) ::
+     & '(4E18.12)', '(4E18.12)', '(10(1X,ES11.4))', '(10(1X,ES11.4))',
+     & '(10(1X,ES11.4))'])
+      Parameter (nDivEne =   [4, 4, 10, 10, 10])
+      Parameter (FMTIND = [Character(Len=40) ::
+     & '(A4)', '(2X,A10)', '(2X,A10)', '(2X,A10)', '(2X,A10)'])
+      Parameter (nDivInd =   [4, 10, 10, 10, 10])
+      Parameter (nSkpInd =   [0, 1, 1, 1, 1])

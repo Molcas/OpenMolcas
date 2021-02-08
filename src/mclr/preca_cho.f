@@ -27,9 +27,9 @@
 *     Written by M.G. Delcey, november 2014                            *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 Fock(nbaj,nbaj),FockA(nBaj,nBaj),Focki(nbaj,nbaj)
       Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
@@ -45,7 +45,6 @@
       nO=nAsh(js)+nIsh(js)
       nTri=itri(nd,nd)
       iBB=ib+nA(is)
-      iiB=ib+nish(is)
       jVert=nOrb(js)-nIsh(js)-nAsh(js)
       itAA=itri(iBB,iBB)
       i2=nD-jVert+1
@@ -75,10 +74,10 @@
                 If (lsym.eq.js) Then
                   If (iJK.eq.1) Then
                     rDens2=2.0d0*sign*
-     &                Work(ipg2-1+itri(itri(jCC,jDD),itri(iBB,iBB)))
+     &                G2t(itri(itri(jCC,jDD),itri(iBB,iBB)))
                   Else
                     rDens2=2.0d0*sign*
-     &                work(ipg2-1+itri(itri(iBB,jDD),itri(jCC,iBB)))
+     &                G2t(itri(itri(iBB,jDD),itri(jCC,iBB)))
                   EndIf
 *
                   rDensaii=factor*rDens2
@@ -90,26 +89,26 @@
                   rDensabiu=0
 *
                   If (iBB.eq.jDD) Then
-                    rDens1=-2.0d0*work(ipg1-1+itri(jCC,iBB))
+                    rDens1=-2.0d0*G1t(itri(jCC,iBB))
                     If (jCC.eq.iBB) rdensaii=rdensaii-2.0d0*factor
                     rDensaiil=rDensaiil-factor*rDens1
                     rDensabil=rDensabil+sign*rDens1
                   ElseIf ((iBB.eq.jCC).and.(iJK.eq.2)) Then
-                    rDens1=-2.0d0*work(ipg1-1+itri(jDD,iBB))
+                    rDens1=-2.0d0*G1t(itri(jDD,iBB))
                     rDensaiiu=rDensaiiu-factor*rDens1
                     rDensabiu=rDensabiu+sign*rDens1
                   EndIf
                   If ((iBB.eq.jCC).and.(iJK.eq.2)) Then
                     rDensaiil=rDensaiil-factor*
-     &                       14.0d0*sign*work(ipg1-1+itri(jDD,iBB))
+     &                       14.0d0*sign*G1t(itri(jDD,iBB))
                     rDensabil=rDensabil+
-     &                       8.0d0*sign*work(ipg1-1+itri(jDD,iBB))
+     &                       8.0d0*sign*G1t(itri(jDD,iBB))
                     If (jDD.eq.iBB) rdensaii=rdensaii+factor*14.0d0*sign
                   ElseIf ((iBB.eq.jDD).and.(iJK.eq.2)) Then
                     rDensaiiu=rDensaiiu-factor*
-     &                       14.0d0*sign*work(ipg1-1+itri(jCC,iBB))
+     &                       14.0d0*sign*G1t(itri(jCC,iBB))
                     rDensabiu=rDensabiu+
-     &                       8.0d0*sign*work(ipg1-1+itri(jCC,iBB))
+     &                       8.0d0*sign*G1t(itri(jCC,iBB))
                   EndIf
                   rDensaiiu=rDensaiiu+rDensaii
                   rDensaii=rDensaiil+rDensaii
@@ -176,7 +175,7 @@
 *    Fock matrix contribution                                          *
 *
       rFock = sign*2.0d0*Fockii + sign*2.0d0*Fockai - sign*Fockti
-      rdens=sign*2.0d0*Work(ipG1-1+itri(ibb ,ibb))
+      rdens=sign*2.0d0*G1t(itri(ibb ,ibb))
 *
 **    aii
 *
@@ -192,7 +191,7 @@
 **       abi
 *
          ip=itri1(jA,nd-jVert+1)
-         Fact=(2.0d0-2.0d0*Work(ipG1-1+itAA))
+         Fact=(2.0d0-2.0d0*G1t(itAA))
          Call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jA),1,rOut(ip),1)
          Fact=2.0d0
          Call DaxPy_(jVert,Sign*Fact,FockA(nO+1,jA),1,rOut(ip),1)

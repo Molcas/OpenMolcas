@@ -64,7 +64,7 @@ MODULE DLFCN
       FUNCTION DLOpen(file,mode) RESULT(handle) BIND(C,NAME="dlopen")
          ! void *dlopen(const char *file, int mode);
          USE ISO_C_BINDING
-         CHARACTER(C_CHAR), DIMENSION(*), INTENT(IN) :: file
+         CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: file
             ! C strings should be declared as character arrays
          INTEGER(C_INT), VALUE :: mode
          TYPE(C_PTR) :: handle
@@ -73,7 +73,7 @@ MODULE DLFCN
          ! void *dlsym(void *handle, const char *name);
          USE ISO_C_BINDING
          TYPE(C_PTR), VALUE :: handle
-         CHARACTER(C_CHAR), DIMENSION(*), INTENT(IN) :: name
+         CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: name
          TYPE(C_FUNPTR) :: funptr ! A function pointer
       END FUNCTION
       FUNCTION DLClose(handle) RESULT(status) BIND(C,NAME="dlclose")

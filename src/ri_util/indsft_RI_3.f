@@ -27,9 +27,10 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -47,7 +48,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,33 +77,28 @@
          Call Abend()
       End If
 *
-      i1=1
       j1=0
       Do i2 = 1, iCmp(2)
          Do 201 j = 0, nIrrep-1
-            jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+            ix = 0
+            If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+            jSym(j) = ix
 201      Continue
-         If (iShell(2).gt.iShell(1)) then
-            i12 = iCmp(2)*(i1-1) + i2
-         else
-            i12 = iCmp(1)*(i2-1) + i1
-         End If
          Do i3 = 1, iCmp(3)
             Do 301 j = 0, nIrrep-1
-               kSym(j) = iand(IrrCmp(inds(iShell(3))+i3),2**j)
+               ix = 0
+               If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+               kSym(j) = ix
 301         Continue
             lCmpMx = iCmp(4)
             If (Shkl) lCmpMx = i3
             Do 400 i4 = 1, lCmpMx
                Do 401 j = 0, nIrrep-1
-                  lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                  lSym(j) = ix
 401            Continue
                qkl = i3.eq.i4
-               If (iShell(4).gt.iShell(3)) then
-                  i34 = iCmp(4)*(i3-1) + i4
-               else
-                  i34 = iCmp(3)*(i4-1) + i3
-               End If
 *
 *      loop over Irreps which are spanned by the basis function.
 *      again, the loop structure is restricted to ensure unique
@@ -127,8 +123,6 @@
 *            Number of auxiliary basis functions in this symmetry block.
              mm       = iOff(1,j12)
              If (mm.eq.0) Go  To 310
-*            Offset to J12 symmetry block.
-             iOff_J12 = iOff(2,j12)
 *            Effective number of valence basis products in this symmetry
 *            block.
              n3C      = iOff(3,j12)

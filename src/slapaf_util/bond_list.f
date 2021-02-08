@@ -9,31 +9,30 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Bond_List(
-     &                 nq,nAtoms,iIter,nIter,Cx,iOper,nSym,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
-     &                 nB,iANr,qLbl,fconst,
-     &                 rMult,iOptC,LuIC,Name,Indq,
+     &                 nq,nsAtom,iIter,nIter,Cx,
+     &                 Process,Value,
+     &                 nB,qLbl,fconst,
+     &                 rMult,LuIC,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
+      use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
+      use Slapaf_Parameters, only: iOptC
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "print.fh"
 #include "Molcas.fh"
+#include "real.fh"
       Parameter (mB=2*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,2), Grad(mB), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,2), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter), rMult(nB),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iOper(0:nSym-1),
-     &          iDCRR(0:7), jStab(0:7,nAtoms), iPhase(3,0:7),
-     &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
+      Integer   iDCRR(0:7),
+     &          iStabM(0:7), Ind(2), iDCR(2), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint, Proc_dB,
-     &        Help, R_Stab_A
+      Logical Process, Proc_dB,Help, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
-      Character*(LENIN) Name(nAtoms)
       Character*(LENIN4) Lbls(2)
 #include "bondtypes.fh"
 #define _FMIN_
@@ -41,37 +40,25 @@
 #include "ddvdt.fh"
 #define _SCHLEGEL_
 #include "ddvdt_bond.fh"
-      Data iPhase/ 1, 1, 1,   -1, 1, 1,   1,-1, 1,  -1,-1, 1,
-     &             1, 1,-1,   -1, 1,-1,   1,-1,-1,  -1,-1,-1/
       Data ChOp/'E  ','X ','Y ','XY ','Z  ','XZ ','YZ ','XYZ'/
       Data iChOp/1,1,1,2,1,2,2,3/
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.1) Return
-      iRout=151
-      iPrint=nPrint(iRout)
-#ifdef _DEBUG_
-      iPrint=99
-#endif
-      Call QEnter('Bonds')
 *
       nqB=0
-      PSPrint=.False.
-#ifdef _DEBUG_
-      If (iPrint.ge.99) PSPrint=.True.
-      If (PSPrint) Then
-         Write (6,*)
-         Write (6,*) ' ---> Enter Bonds.'
-         Write (6,*)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) ' ---> Enter Bonds.'
+      Write (6,*)
       Write (6,*) 'Process=',Process
-      Call RecPrt('CX',' ',CX,3*nAtoms,nIter)
-      Write (6,'(20(1X,A))') (Name(i),i=1,nAtoms)
+      Call RecPrt('CX',' ',CX,3*nsAtom,nIter)
+      Write (6,'(20(1X,A))') (AtomLbl(i),i=1,nsAtom)
       Write (6,*)
       Write (6,*) ' iTabAI'
       Write (6,*)
@@ -85,6 +72,9 @@
       nCent=2
       Do iBond = 1, nBonds
          iBondType=iTabBonds(3,iBond)
+*
+*        We will only incorpotate covalent and fragment bonds
+*
          If (iBondType.eq.vdW_Bond  ) Go To 1   ! vdW bonds
          If (iBondType.gt.Magic_Bond) Go To 1   ! magic bonds
 *
@@ -106,9 +96,9 @@
             If (iDCR(1).ne.iOper(0)) Go To 2
             If (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and.
      &          iDCR(2).ne.iOper(0)) Go To 2
-            iRow = iANr(iAtom)
-            jRow = iANr(jAtom)
-#ifdef _DEBUG_
+            iRow = ANr(iAtom)
+            jRow = ANr(jAtom)
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,jAtom=',iAtom,jAtom
 #endif
             Help = iRow.gt.3 .or. jRow.gt.3
@@ -117,34 +107,30 @@
             call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
             Write (Label,'(A,I2,A,I2,A)') 'B(',iAtom,',',jAtom,')'
 *
-            If (PSPrint) Then
-               Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
-               Call RecPrt('B',' ',Cx(1,jAtom,iIter),1,3)
-            End If
+#ifdef _DEBUGPRINT_
+            Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
+            Call RecPrt('B',' ',Cx(1,jAtom,iIter),1,3)
+#endif
 
 *
 *------------- Form double coset representatives
 *
-            Call DCR(Lambda,iOper,nSym,
+            Call DCR(Lambda,
      &               jStab(0,iAtom),nStab(iAtom),
      &               jStab(0,jAtom),nStab(jAtom),iDCRR,nDCRR)
              kDCRR = iDCR(2)
 *
-#ifdef _DEBUG_
-            If (PSPrint) Then
-               Write (6,'(10A)') 'U={',
-     &               (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
-               Write (6,'(10A)') 'V={',
-     &               (ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
-               Write (6,'(10A)') 'R={',
-     &               (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
-               Write (6,'(2A)') 'R=',ChOp(iDCR(2))
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,'(10A)') 'U={',
+     &            (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
+            Write (6,'(10A)') 'V={',
+     &            (ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
+            Write (6,'(10A)') 'R={',
+     &            (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
+            Write (6,'(2A)') 'R=',ChOp(iDCR(2))
 #endif
 *
-            A(1,2) = DBLE(iPhase(1,iDCR(2)))*Cx(1,jAtom,iIter)
-            A(2,2) = DBLE(iPhase(2,iDCR(2)))*Cx(2,jAtom,iIter)
-            A(3,2) = DBLE(iPhase(3,iDCR(2)))*Cx(3,jAtom,iIter)
+            Call OA(iDCR(2),Cx(1:3,jAtom,iIter),A(1:3,2))
 *
 *---------- Compute the stabilizer of A & R(B), this is done in two ways.
 *
@@ -161,19 +147,17 @@
      &                    jStab(0,jAtom),nStab(jAtom),
      &                    kDCRR,iStabM,nStabM)
             End If
-#ifdef _DEBUG_
-            If (PSPrint) Then
-               Write (6,'(10A)') 'M={',
-     &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-            End If
+#ifdef _DEBUGPRINT_
+            Write (6,'(10A)') 'M={',
+     &            (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #endif
 *
 *---------- Now evaluate the degeneracy of the bond.
 *
-            iDeg=nSym/nStabM
+            iDeg=nIrrep/nStabM
             Deg=Sqrt(DBLE(iDeg))
-#ifdef _DEBUG_
-            If (PSPrint) Write (6,*)' nSym,nStabM=',nSym,nStabM
+#ifdef _DEBUGPRINT_
+            Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
             nq = nq + 1
@@ -182,11 +166,11 @@
 *
             nqB = nqB + 1
             iF1=1
-            Call NxtWrd(Name(iAtom),iF1,iE1)
-            Lbls(1)=Name(iAtom)(iF1:iE1)
+            Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+            Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
             iF2=1
-            Call NxtWrd(Name(jAtom),iF2,iE2)
-            Lbls(2)=Name(jAtom)(iF2:iE2)
+            Call NxtWrd(AtomLbl(jAtom),iF2,iE2)
+            Lbls(2)=AtomLbl(jAtom)(iF2:iE2)
             If (kDCRR.ne.0) Then
                Lbls(2)(iE2+1:iE2+1)='('
                Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -198,9 +182,8 @@
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
-#ifdef _DEBUG_
-            If (iPrint.ge.49)
-     &      Write (6,'(A,I3.3,4A)')
+#ifdef _DEBUGPRINT_
+            Write (6,'(A,I3.3,4A)')
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
@@ -214,7 +197,7 @@
             If (Process) Then
 *
                Indq(1,nq) = 1
-               Indq(2,nq) = (jAtom-1)*nAtoms + iAtom
+               Indq(2,nq) = (jAtom-1)*nsAtom + iAtom
                Indq(3,nq) = kDCRR+1
 *
                Rij2=(A(1,1)-A(1,2))**2
@@ -222,7 +205,7 @@
      &             +(A(3,1)-A(3,2))**2
                Rab=Sqrt(Rij2)
                If (Help) Then
-                  RabCov=CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
+                  RabCov=CovRad(ANr(iAtom))+CovRad(ANr(jAtom))
                   If ((iRow.eq.1.and.jRow.eq.1).or.Help) Then
 *                    Bond a la Fischer & Almlof
                      f_Const=A_StrH(1)*EXP(-A_StrH(2)*(Rab-RabCov))
@@ -252,8 +235,8 @@
 *
 *-----------   Project the gradient vector
 *
-               Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                      iDCR,Grad,Smmtrc,nDim,PSPrint,
+               Call ProjSym(nCent,Ind,A,
+     &                      iDCR,Grad,
      &                      Hess,mB_Tot,mdB_Tot,
      &                      BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                      Proc_dB,mqB,nB,nq,rMult(nq))
@@ -266,6 +249,5 @@
  1       Continue
       End Do        ! iBond
 *
-      Call QExit ('Bonds')
       Return
       End

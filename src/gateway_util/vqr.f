@@ -31,8 +31,7 @@ C...  auxiliar constant pool:    only DFAC is used here.
 C...  Flags: MV bit 2, DW bit 3
 *     Data iMVPot/2/,iDWPot/4/
 C
-      Call qEnter('Vqr')
-      LU6=6
+*     LU6=6
       N=ISIM
 C
 C...  Reads the Mass Velocity and Darwin potentials for the
@@ -65,7 +64,6 @@ C...                             there is no potential for this symmetry
         Do  IJ=1,NZ*(NZ+1)/2
           OPMAT(IJ)=0D0
         End Do
-        Call qExit('Vqr')
         RETURN
       ELSE
         Read (Line,'(a4)') OrbLab
@@ -97,7 +95,7 @@ C
           FI(K)=RNORI*ERRE**(N-1)*EXP(-ZI*ERRE*ERRE)
 210     CONTINUE
 C
-        DO 20 J=1,I
+        DO 21 J=1,I
           ZJ=ZETA(J)
           RNORJ=PREN*sqrt(sqrt(ZJ**N2P1))
           DO 220 K=1,NPOINT
@@ -111,9 +109,9 @@ C
 C...      add up the contribution from 0 to R(1)
           IJ=IJ+1
           OPMAT(IJ)=RES+FIVFJ(1)*R(1)/3D0
+21      CONTINUE
 20    CONTINUE
 C
-      Call qExit('Vqr')
       RETURN
 999   CONTINUE
       Write (6,*)

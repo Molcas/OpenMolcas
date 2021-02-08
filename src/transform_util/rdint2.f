@@ -58,7 +58,6 @@ C     THE LAST ADRESS IS ZERO IF SYM T = SYM U
       Logical DoTCVA
       Logical Found
 
-      Call qEnter('RdInt2')
 C GG-Dec04  The following informations must be passed to the Cholesky
 C transformation section through RunFile. COMMON blocks could not be
 C used due to several conflicts.
@@ -195,7 +194,7 @@ C           WRITE(6,*)
           DO 10 NI=1,nOccI
            NUM=nOccJ
            IF(iSymI.EQ.iSymJ) NUM=NI
-            DO 10 NJ=1,NUM
+            DO 11 NJ=1,NUM
 
 C     THE LOOP ABOVE OVER T AND U RECOVERS ONE BLOCK OF INTEGRALS <AB|TU>
 C     FOR EACH PAIR T,U. TO PROCESS ONE BLOCK FOR ALL A AND B THE
@@ -242,6 +241,7 @@ C      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
      &      '  DiskAdd=',I8  /(8F10.6))
              EndIf
             ENDIF
+11          CONTINUE
 10        CONTINUE
 
           Write(6,*)
@@ -263,6 +263,5 @@ C
       Write(6,*) '   LTotTot=',LTotInt+LTotEx1+LTotEx2
       Write(6,*)
 C
-      Call qExit('RdInt2')
       RETURN
       END

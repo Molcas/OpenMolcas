@@ -26,23 +26,26 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep, lIrrep
+      use Sizes_of_Seward, only: S
       implicit real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
 *
-c      Parameter (MaxOrb_Molden=400, MaxOrb_Do=100)
       Parameter (EorbThr = 50.D0 )
-      Real*8 Coor(3,mxdc),Znuc(mxdc)
+      Real*8 Coor(3,MxAtom),Znuc(MxAtom)
       Character shelllabel(7)
-      Character*(LENIN) AtomLabel(mxdc)
-      Character*(LENIN8) label(MaxBfn+MaxBfn_Aux)
+      Character*(LENIN) AtomLabel(MxAtom)
+      Character*(LENIN8), Allocatable :: label(:)
       Character*8 MO_Label(maxbfn)
       Parameter (nNumber=61)
       Character Number(nNumber)
-      Integer ibas_lab(mxdc), nOrb(8)
+      Integer ibas_lab(MxAtom), nOrb(8)
       Character*(LENIN8+1) gtolabel(maxbfn)
       Real*8 r_Norm(maxbfn)
       Character*(*) Filename
@@ -134,12 +137,6 @@ c      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Check_CMO=Zero
-      Check_Energy=Zero
-      Check_Occupation=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call f_Inquire('RUNFILE',Exist)
       If (.Not.Exist) then
       iRC=1
@@ -156,7 +153,7 @@ c      End If
 *     This call will also fill info.fh and the dynamic storage in
 *     Work(ipInf)
 *
-      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom,ipInf)
+      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
       Call Qpg_iArray('nOrb',Found,nData)
       If (Found) Then
          Call Get_iArray('nOrb',nOrb,nData)
@@ -168,9 +165,9 @@ c      End If
 *                                                                      *
       iAngMx_Valence=0
       Do iCnttp = 1, nCnttp
-         If (.Not.AuxCnttp(iCnttp) .and.
-     &       .Not.FragCnttp(iCnttp) ) Then
-            nTest=nVal_Shells(iCnttp)-1
+         If (.Not.dbsc(iCnttp)%Aux .and.
+     &       .Not.dbsc(iCnttp)%Frag ) Then
+            nTest=dbsc(iCnttp)%nVal-1
             iAngMx_Valence=Max(iAngMx_Valence,nTest)
          End If
       End Do
@@ -187,11 +184,11 @@ c      End If
 *     Unnormalize contraction coefficients for the valence shells
 *
       Do iCnttp=1,nCnttp
-        If (.Not.(AuxCnttp(iCnttp).or.FragCnttp(iCnttp))) Then
-         Do l=0,nVal_Shells(iCnttp)-1
-          ishell=ipVal(iCnttp)+l
-          Call Unnrmlz(Work(ipExp(ishell)),nexp(ishell),
-     &                 Work(ipCff(ishell)),nbasis(ishell),l)
+        If (.Not.(dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)) Then
+         Do l=0,dbsc(iCnttp)%nVal-1
+          ishell=dbsc(iCnttp)%iVal+l
+          Call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,
+     &                 Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
          End Do
         End If
       End Do
@@ -235,16 +232,16 @@ c      End If
       y_cart=.false.
       y_sphere=.false.
       Do iCnttp=1,nCnttp
-        If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 995
-        Do iCntr=1,nCntr(iCnttp)
-          Do l=0,nVal_Shells(iCnttp)-1
+        If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 995
+        Do iCntr=1,dbsc(iCnttp)%nCntr
+          Do l=0,dbsc(iCnttp)%nVal-1
 *           Test for the appearance of cartesian functions with l=2,3,4
-            ishell=ipVal(iCnttp)+l
+            ishell=dbsc(iCnttp)%iVal+l
             if ((l.ge.2).and.(.not.y_cart)) Then
-              if (.not.transf(ishell)) y_cart=.true.
+              if (.not.Shells(ishell)%Transf) y_cart=.true.
             End If
             if ((l.ge.2).and.(.not.y_sphere)) Then
-              if (transf(ishell)) y_sphere=.true.
+              if (Shells(ishell)%Transf) y_sphere=.true.
             end if
             if (y_sphere.and.y_cart) Then
               If (jPL.ge.2) Then
@@ -259,7 +256,7 @@ c      End If
         End Do
  995    Continue
       End Do
-      Write (MF,'(A)') '[MOLDEN FORMAT]'
+      Write (MF,'(A)') '[Molden Format]'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -274,9 +271,9 @@ c      End If
  99     Format(A,2(3x,I4),5x,3F16.8,3I4)
       End Do
       If (.not.y_cart) Then
-        If (iAngMx.gt.1) Write (MF,'(A)') '[5D]'
-        If (iAngMx.gt.2) Write (MF,'(A)') '[7F]'
-        If (iAngMx.gt.3) Write (MF,'(A)') '[9G]'
+        If (S%iAngMx.gt.1) Write (MF,'(A)') '[5D]'
+        If (S%iAngMx.gt.2) Write (MF,'(A)') '[7F]'
+        If (S%iAngMx.gt.3) Write (MF,'(A)') '[9G]'
       End If
 *                                                                      *
 ************************************************************************
@@ -298,33 +295,32 @@ c      End If
       kk=0
 *
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
-        If (AuxCnttp(iCnttp).or.FragCnttp(iCnttp)) Go To 996
+        If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 996
 *
-        Do iCntr=1,nCntr(iCnttp)     ! loop over sym. unique centers
+        Do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
           mdc=mdc+1
-          nDeg=nIrrep/nStab(mdc)
+          nDeg=nIrrep/dc(mdc)%nStab
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
             Write (MF,'(I4)') iAtom
 *
-            Do l=0,nVal_Shells(iCnttp)-1
-              ishell=ipVal(iCnttp)+l
-              If (nBasis(iShell).gt.nNumber) Then
+            Do l=0,dbsc(iCnttp)%nVal-1
+              ishell=dbsc(iCnttp)%iVal+l
+              If (Shells(iShell)%nBasis.gt.nNumber) Then
                  Write (6,*) 'Interf: too many contracted functions!'
-                 Write (6,*) 'nBasis(iShell)=',nBasis(iShell)
+                 Write (6,*) 'nBasis(iShell)=',Shells(iShell)%nBasis
                  Call Abend()
               End If
 *
 *             Iterate over each contracted GTO
 *
-              Do icontr=1,nBasis(ishell)
+              Do icontr=1,Shells(ishell)%nBasis
 *
 *               Find the number of exponents with non-zero exponents
 *
                 isegm=0
-                Do iprim=1,nExp(ishell)
-                  coeff=
-     &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
+                Do iprim=1,Shells(ishell)%nExp
+                  coeff=Shells(ishell)%pCff(iprim,icontr)
                   If (coeff.ne.Zero) Then
                     isegm=isegm+1
                   End If
@@ -334,10 +330,9 @@ c      End If
 *
 *               Write exponents and contraction coefficients.
 *
-                Do iprim=1,nExp(ishell)
-                  coeff=
-     &             Work(ipCff(ishell)+(icontr-1)*nExp(ishell)+iprim-1)
-                  prim=work(ipExp(ishell)+iprim-1)
+                Do iprim=1,Shells(ishell)%nExp
+                  coeff=Shells(ishell)%pCff(iprim,icontr)
+                  prim=Shells(ishell)%Exp(iprim)
                   If (coeff.ne.Zero) Then
                     Write (MF,'(E17.9,E17.9)') prim,coeff
                   End If
@@ -687,6 +682,7 @@ c      End If
 *                   delocalized
 *      ipPhase  --- phase of the AO in the linear combination
 *
+      Call mma_allocate(label,MaxBfn+MaxBfn_Aux,label='label')
       Call icopy(8*nB,[0],0,iWork(ipPhase),1)
       Call icopy(8*nB,[0],0,iWork(ipCent),1)
       Call SOout(label,iWork(ipCent),iWork(ipPhase))
@@ -746,6 +742,7 @@ c      End If
           End Do ! iGTO=1,nB
         End Do ! iB=1,nBas(iIrrep)
       End Do ! iIrrep=0,nIrrep-1
+      Call mma_deallocate(label)
 
 ************************************************************************
 *                                                                      *

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine getvb2mo_cvb(orbs)
       implicit real*8 (a-h,o-z)
@@ -26,7 +27,8 @@
         write(6,*)' Error in VB orbital read :',ierr
         call abend()
       endif
-100   ioff=ioff+norb1
+      ioff=ioff+norb1
+100   continue
 
       return
       end

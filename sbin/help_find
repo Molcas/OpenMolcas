@@ -137,7 +137,7 @@ except:
     procs = []
     for f in all_files:
       l = 0
-      for line in open(f, 'r'):
+      for line in open(f, 'r', errors='replace'):
         l += 1
         match = find_regex.match(line)
         if match:

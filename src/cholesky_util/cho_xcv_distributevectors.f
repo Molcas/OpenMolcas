@@ -68,6 +68,12 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       End
       SubRoutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,
      &                        id_mySP,n_mySP,NVT,l_NVT)
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      Use Para_Info, Only: nProcs
+#endif
+#if defined (_MOLCAS_MPP_)
+      use ChoSwp, only: nnBstRSh, iiBstRSh
+#endif
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -78,11 +84,9 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       Integer NVT(l_NVT)
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
-#include "cho_para_info.fh"
       Character*12 SecNam
       Parameter (SecNam='Cho_XCV_DV_P')
 
@@ -97,29 +101,28 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 
       Integer g_a
       Integer iSym
-      Integer ip_myNumCho, l_myNumCho
-      Integer ip_Mem, l_Mem
+      Integer l_Mem
       Integer max_vector_dim
       Integer nVec_per_batch, nVec_this_batch
       Integer iBatch, nBatch
-      Integer ip_V, l_V
-      Integer ip_numV, l_numV
-      Integer ip_IDV, l_IDV
+      Integer l_V
+      Integer l_numV
+      Integer l_IDV
       Integer kV, myStart, myEnd
       Integer my_nV
       Integer lTot, iAdr, iAdr0, nDim
       Integer J0, J1, J2
 #if !defined(_GA_)
       Integer Jst,Jen
+#else
+      Integer i, j
 #endif
       Integer iSP, iSP_, iSP1, iSP2
       Integer iSP_Batch
       Integer nSP_this_batch
 
-      Integer i, j, k
-      Integer iiBstRsh, nnBstRSh
-      iiBStRsh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBStRsh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Integer, Allocatable:: GAMNCH(:), GANUMV(:), GADIST(:)
+      Real*8, Allocatable:: GAVEC(:)
 
       ! Init return code
       irc=0
@@ -135,16 +138,15 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       End If
 
       ! Allocate my vector counter array
-      l_myNumCho=nSym
-      Call GetMem('GAMNCH','Allo','Inte',ip_myNumCho,l_myNumCho)
-      Call iZero(iWork(ip_myNumCho),l_myNumCho)
+      Call mma_allocate(GAMNCH,nSym,Label='GAMNCH')
+      GAMNCH(:)=0
 
       ! Allocate index arrays for GA use
       l_numV=1
-      Call GetMem('GANUMV','Allo','Inte',ip_numV,l_numV)
+      Call mma_allocate(GANUMV,l_numV,Label='GANUMV')
 
       ! Figure out how much 1/3 of total memory is
-      Call GetMem('GAMX','Max ','Real',ip_Mem,l_Mem)
+      Call mma_maxDBLE(l_Mem)
       l_Mem=l_Mem/3
       If (l_Mem.lt.max_vector_dim) Then
          ! OK, let us try 2/3 then...
@@ -174,9 +176,9 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
          If (NVT(iSym).gt.0 .and. nnBstR(iSym,2).gt.0) Then
             ! Set up batching, ensuring that the number of vectors is
             ! the same on all nodes
-            iWork(ip_numV)=min(l_Mem/nnBstR(iSym,2),NVT(iSym))
-            Call Cho_GAIGOp(iWork(ip_numV),1,'min')
-            nVec_per_batch=iWork(ip_numV)
+            GANUMV(1)=min(l_Mem/nnBstR(iSym,2),NVT(iSym))
+            Call Cho_GAIGOp(GANUMV,1,'min')
+            nVec_per_batch=GANUMV(1)
             If (nVec_per_batch .lt. 1) Then
                Call Cho_Quit(
      &               'Insufficient memory for batching in '//SecNam,101)
@@ -185,10 +187,10 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
             ! Allocate memory for vectors (will hold local as well as
             ! full vectors)
             l_V=nnBstR(iSym,2)*nVec_per_batch
-            Call GetMem('GAVEC','Allo','Real',ip_V,l_V)
+            Call mma_allocate(GAVEC,l_V,Label='GAVEC')
             ! Allocate vector ID array for distribution
             l_IDV=nVec_per_batch
-            Call GetMem('GADIST','Allo','Inte',ip_IDV,l_IDV)
+            Call mma_allocate(GADIST,l_IDV,Label='GADIST')
             ! Create global array with evenly distributed chunks
             ok=ga_create(mt_dbl,nnBstR(iSym,2),nVec_per_batch,'GA_XCV',
      &                   0,0,g_a)
@@ -239,37 +241,20 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
                      ! Read vector block
                      lTot=nDim*nVec_this_batch
                      iAdr=iAdr0+nDim*(J1-1)
-                     Call DDAFile(LuTmp(iSym),2,Work(ip_V),lTot,iAdr)
+                     Call DDAFile(LuTmp(iSym),2,GAVEC,lTot,iAdr)
                      iAdr0=iAdr0+nDim*NVT(iSym)
                      ! Put vector block into global array
-                     kV=ip_V
+                     kV=1
                      Do iSP_=iSP1,iSP2
                         iSP=id_mySP(iSP_)
                         If (nnBstRSh(iSym,iSP,2).gt.0) Then
                            myStart=iiBstRSh(iSym,iSP,2)+1
                            myEnd=myStart+nnBstRSh(iSym,iSP,2)-1
-C VPV:
                            Call ga_put(g_a,myStart,myEnd,1,
-     &                          nVec_this_batch,Work(kV),nDim)
+     &                          nVec_this_batch,GAVEC(kV),nDim)
                            kV=kV+nnBstRSh(iSym,iSP,2)
                         End If
                      End Do
-CCC ORIGINAL_CODE
-C                     Do J=1,nVec_this_batch
-C                        Do iSP_=iSP1,iSP2
-C                           iSP=id_mySP(iSP_)
-C                           If (nnBstRSh(iSym,iSP,2).gt.0) Then
-C                              myStart=iiBstRSh(iSym,iSP,2)+1
-C                              myEnd=myStart+nnBstRSh(iSym,iSP,2)-1
-C                              write(6,*) "ga_put:", myStart,myEnd,J,kv,
-C     &                        nnBstRSh(iSym,iSP,2),nDim
-C                              Call ga_put(g_a,myStart,myEnd,J,J,
-C     &                                    Work(kV),nnBstRSh(iSym,iSP,2))
-C                              kV=kV+nnBstRSh(iSym,iSP,2)
-C                           End If
-C                        End Do
-C                     End Do
-CCC END OF ORIGINAL
                   End If
                   iSP1=iSP1+nSP_this_batch
                End Do
@@ -283,26 +268,26 @@ CCC END OF ORIGINAL
                Call Cho_GASync()
                ! Compute vector distribution for this batch
                my_nV=0
-               Call Cho_P_Distrib_Vec(J1,J2,iWork(ip_IDV),my_nV)
+               Call Cho_P_Distrib_Vec(J1,J2,GADIST,my_nV)
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X0,Y0)
                End If
                ! Get vectors from global array
                J0=J1-1
-               kV=ip_V
+               kV=1
 #if defined(_GA_)
                Do i=1,my_nV
-                  J=iWork(ip_IDV-1+i)-J0
+                  J=GADIST(i)-J0
                   Call ga_get(g_a,1,nnBstR(iSym,2),J,J,
-     &                        Work(kV),nnBstR(iSym,2))
+     &                        GAVEC(kV),nnBstR(iSym,2))
                   kV=kV+nnBstR(iSym,2)
                End Do
 #else
                if(my_nV.gt.0) Then
-                  Jst=iWork(ip_IDV)-J0
-                  Jen=iWork(ip_IDV-1+my_nV)-J0
+                  Jst=GADIST(1)-J0
+                  Jen=GADIST(my_nV)-J0
                   Call ga_get_striped(g_a,1,nnBstR(iSym,2),Jst,
-     &                 Jen,Work(kV),nnBstR(iSym,2),nProcs)
+     &                 Jen,GAVEC(kV),nnBstR(iSym,2),nProcs)
                   kV=kV+nnBstR(iSym,2)*my_nV
                End If
                ! VVP: First performs RMA and only then I/O
@@ -311,8 +296,8 @@ CCC END OF ORIGINAL
                ! Write vectors to disk
                lTot=nnBstR(iSym,2)*my_nV
                If (lTot .gt. 0) Then
-                  iAdr=nnBstR(iSym,2)*iWork(ip_myNumCho-1+iSym)
-                  Call DDAFile(LuCho(iSym),iOpt,Work(ip_V),lTot,iAdr)
+                  iAdr=nnBstR(iSym,2)*GAMNCH(iSym)
+                  Call DDAFile(LuCho(iSym),iOpt,GAVEC,lTot,iAdr)
                End If
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X1,Y1)
@@ -321,19 +306,19 @@ CCC END OF ORIGINAL
                   Call Cho_Flush(LuPri)
                End If
                ! Update my vector counter
-               iWork(ip_myNumCho-1+iSym)=iWork(ip_myNumCho-1+iSym)+my_nV
+               GAMNCH(iSym)=GAMNCH(iSym)+my_nV
             End Do
             ! Destroy global array
             ok = ga_destroy(g_a)
             ! Deallocations
-            Call GetMem('GADIST','Free','Inte',ip_IDV,l_IDV)
-            Call GetMem('GAVEC','Free','Real',ip_V,l_V)
+            Call mma_deallocate(GADIST)
+            Call mma_deallocate(GAVEC)
          End If
       End Do
 
       ! Deallocations
-      Call GetMem('GANUMV','Free','Inte',ip_numV,l_numV)
-      Call GetMem('GAMNCH','Free','Inte',ip_myNumCho,l_myNumCho)
+      Call mma_deallocate(GANUMV)
+      Call mma_deallocate(GAMNCH)
 #else
       irc=999 ! should never be called in serial installation
       Return
@@ -347,6 +332,7 @@ c Avoid unused argument warnings
 
       End
       SubRoutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
+      use ChoSwp, only: nnBstRSh, iiBstRSh
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -354,8 +340,7 @@ c Avoid unused argument warnings
       Integer n_mySP
       Integer id_mySP(n_mySP)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*12 SecNam
@@ -372,11 +357,9 @@ c Avoid unused argument warnings
       Integer kV, kT, kOffV, kOffT
       Integer lTot, iAdr, iAdr0
       Integer iSP_Batch, nSP_this_batch
+      Integer i, j
 
-      Integer i, j, k
-      Integer iiBstRsh, nnBstRSh
-      iiBStRsh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBStRsh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Real*8, Allocatable:: DVSVEC(:)
 
       ! Init return code
       irc=0
@@ -406,20 +389,21 @@ c Avoid unused argument warnings
          End Do
          iSP1=iSP1+nSP_this_batch
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If ((iSP1-1).ne.n_mySP) Then
          Call Cho_Quit(SecNam//': SP batch dimension error',103)
       End If
 #endif
 
       ! Get largest memory block
-      Call GetMem('DVSMX','Max ','Real',ip_Mem,l_Mem)
+      Call mma_maxDBLE(l_Mem)
       lTot=max_vector_dim+max_block_dim
       If (l_Mem .lt. lTot) Then
          irc=-1
          Return
       End If
-      Call GetMem('DVSVEC','Allo','Real',ip_Mem,l_Mem)
+      Call mma_allocate(DVSVEC,l_Mem,Label='DVSVEC')
+      ip_Mem=1
 
       ! read, reorder, and write vectors, one symmetry at a time
       Do iSym=1,nSym
@@ -487,7 +471,7 @@ c Avoid unused argument warnings
                   If (nDim.gt.0) Then
                      lToT=nDim*nVec_this_batch
                      iAdr=iAdr0+nDim*(J1-1)
-                     Call DDAFile(LuTmp(iSym),2,Work(ip_T),lTot,iAdr)
+                     Call DDAFile(LuTmp(iSym),2,DVSVEC(ip_T),lTot,iAdr)
                      kT=ip_T-1
                      kV=ip_V-1
                      Do J=1,nVec_this_batch
@@ -495,7 +479,7 @@ c Avoid unused argument warnings
                         kOffV=kV+nnBstR(iSym,2)*(J-1)
      &                          +iiBstRSh(iSym,id_mySP(iSP1),2)
                         Do i=1,nDim
-                           Work(kOffV+i)=Work(kOffT+i)
+                           DVSVEC(kOffV+i)=DVSVEC(kOffT+i)
                         End Do
                      End Do
                      iAdr0=iAdr0+nDim*NumCho(iSym)
@@ -511,7 +495,7 @@ c Avoid unused argument warnings
                ! Write full vectors to disk
                lTot=nnBstR(iSym,2)*nVec_this_batch
                iAdr=nnBstR(iSym,2)*(J1-1)
-               Call DDAFile(LuCho(iSym),1,Work(ip_V),lTot,iAdr)
+               Call DDAFile(LuCho(iSym),1,DVSVEC(ip_V),lTot,iAdr)
                If (iPrint.ge.Inf_Progress) Then
                   Call Cho_Timer(X0,Y0)
                   Write(LuPri,'(6X,A,F12.2,1X,F12.2)')
@@ -523,6 +507,6 @@ c Avoid unused argument warnings
       End Do
 
       ! Deallocation
-      Call GetMem('DVSVEC','Free','Real',ip_Mem,l_Mem)
+      Call mma_deallocate(DVSVEC)
 
       End

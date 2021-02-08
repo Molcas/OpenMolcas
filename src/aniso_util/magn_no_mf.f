@@ -56,7 +56,7 @@ c    iT -- labes the temperature points;
       Logical, intent(in)          :: sopt
 c local variables:
       Integer          :: i, l, iT
-      Real(kind=8)    :: kB, mB, zJ
+      Real(kind=8)    :: zJ
       Real(kind=8), allocatable :: WM(:), ST(:), RWORK(:)
 !                                   WM(EXCH), ST(3)
       Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
@@ -64,9 +64,6 @@ c local variables:
       Complex(kind=8), allocatable :: SZ(:,:,:), MZ(:,:,:)
 !                                      SZ(3,EXCH,EXCH), MZ(3,EXCH,EXCH)
       Logical          :: DBG
-      Call qEnter('MAGN_NO_MF')
-      kB=0.6950356000_wp   ! Boltzmann constant,  in cm^-1*K-1
-      mB=0.4668643740_wp   ! Bohr magneton,       in cm-1*T-1
 
 c a few checks, before proceeding:
       Do iT=1,nT
@@ -177,6 +174,5 @@ c start calculations:
       Call mma_deallocate(SZ)
       Call mma_deallocate(MZ)
 
-      Call qExit('MAGN_NO_MF')
       Return
       End

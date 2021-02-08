@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_CD3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_k,
      &                 U_k,mV_k)
@@ -22,24 +22,16 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for Cholesky 1-center gradients May 2007 by     *
 *             R. Lindh                                                 *
-*                                                                      *
 ************************************************************************
-*     use pso_stuff
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "chomp2g_alaska.fh"
@@ -47,21 +39,14 @@
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
      &       U_k(mV_k), DSO_Var(nDSO)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
-      Logical Shijij, skip
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Logical Shijij
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PGet1_CD3')
-      iPrint=99
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-      End If
+#ifdef _DEBUGPRINT_
+      iComp = 1
+      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
 #endif
 *                                                                      *
 ************************************************************************
@@ -77,7 +62,6 @@ C     Fac = One / Four
 
       Fac = One / Two
       PMax=Zero
-      skip = .false.
       iPAO = 0
       jSym = 1
       kSym = 1
@@ -330,10 +314,9 @@ C     Fac = One / Four
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_CD3:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_CD3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_CD3')
 #endif
 
       Call CWTime(Cpu2,Wall2)
@@ -345,7 +328,6 @@ C     Fac = One / Four
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_real_array(DSSO)
       End If

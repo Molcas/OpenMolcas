@@ -50,17 +50,13 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       Dimension X1(nX1),X2(nX2)
       Dimension PQTU(nPQTU),PQRU(nPQRU)
 
-      Call Qenter('Tr2NsA2')
       NSYMP=NSYM*(NSYM+1)/2
       NOTU=NOCR*NOCS
       IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
-      NOUS=NOCR*NBS
       NORU=NBR*NOCS
       icc  =NOP*NOQ*NOCR*NOCS
       icxc1=NOP*NOCQ*NOR*NOCS
-      icxc3=NOP*NOCQ*NOCR*NOS
       icxc5=NOCP*NOQ*NOR*NOCS
-      icxc7=NOCP*NOQ*NOCR*NOS
 c
 c Check for in core or out of core transformation
 c
@@ -72,8 +68,6 @@ c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
        IAD2S=0
        CALL dDAFILE(LUHLF2,0,PQRU,IPQMX2,IAD2S)
       ENDIF
-      IAD2=0
-      IOUT2=0
 C     3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
       IPQMX3=NBPQ
       IF(NBPQ*NOTU.GT.LTUPQ) THEN
@@ -83,7 +77,6 @@ c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|TU)',IPQMX3
        CALL dDAFILE(LUHLF3,0,PQTU,IPQMX3,IAD3S)
       ENDIF
       IAD3=0
-      IOUT3=0
 c
 c====================================================
 c Second half transformation
@@ -392,6 +385,5 @@ c End of loop over t,u pair
       Endif
   100 Continue
 
-      CALL QEXIT('Tr2NsA2')
       Return
       End

@@ -21,13 +21,6 @@
 * Object: to compute the coefficients in the three terms recurrence    *
 *         relation of the 2D-integrals.                                *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DYax   (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,8 +28,6 @@
 * Chemistry, University of Lund, Sweden.                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 Zeta(nT), ZInv(nT),
@@ -47,22 +38,16 @@
      &       B00(nRys,nT,3),
      &       B01(nRys,nT,3)
 *     Local arrays
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 #endif
-      Logical AeqB, CeqD, EQ, lB10, lB00, lB01
+      Logical AeqB, CeqD, EQ
 *
-      iRout = 14
-      iPrint = nPrint(iRout)
-*
-#ifdef _DEBUG_
-      iPrint=99
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
-         Call RecPrt(' In XCff2D: P',' ',P,nT,3)
-         Call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
+      Call RecPrt(' In XCff2D: P',' ',P,nT,3)
+      Call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
 #endif
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))
@@ -73,11 +58,7 @@
 *
 *---- Compute B10, B00, and B01
 *
-      lB10=.False.
-      lB00=.False.
-      lB01=.False.
       If (nabMax.gt.1) Then
-         lB10=.True.
          Do 10 iT = 1, nT
             Do 31 iRys = 1, nRys
                   B10(iRys,iT,1) = ( h12 -
@@ -88,13 +69,11 @@
          call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,3),1)
       End If
       If (lac.ne.0) Then
-         lB00=.True.
          call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,1),1)
          call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,2),1)
          call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,3),1)
       End If
       If (ncdMax.gt.1) Then
-         lB01=.True.
          Do iT = 1, nT
             Do iRys = 1, nRys
                B01(iRys,iT,1) = Two * Zeta(iT) * U2(iRys,iT)
@@ -160,7 +139,7 @@
  212        Continue
  202     Continue
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (la+lb.gt.0) Then
          Write (Label,'(A)') ' PAQP(x)'
          Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)

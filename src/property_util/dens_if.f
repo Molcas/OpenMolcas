@@ -114,7 +114,7 @@ c           Also count no of active electrons ...
             Do iS=1,nSym
                call dcopy_(nTOT*nash(is),Work(IAC+ipAM2),1,
      &                    CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
-               call dcopy_(nash(is),OCCNO/DBLE(nAct),0,
+               call dcopy_(nash(is),[OCCNO/DBLE(nAct)],0,
      &                    OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
                IAC=IAC+NASH(iS)*NTOT
                IMO=IMO+nBas(is)*ntot

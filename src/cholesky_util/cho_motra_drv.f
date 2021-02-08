@@ -18,13 +18,14 @@ C      a,b,g,d:  AO-index
 C      p,q,r,s:  MO-indeces (probably frozen/deleted are excluded)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*), nFr(*), nFrVir(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead
+      Logical   timings,DoRead
       Integer   nPorb(8),ipOrb(8),nPvir(8),nPocc(8)
       Integer   ipLpb(8),iSkip(8),LuLTra(4)
       Integer   kOff1(8),kOff1ij(8),kOff1ia(8),kOff1ai(8),kOff1ab(8)
@@ -39,29 +40,13 @@ C
       parameter (zero = 0.0D0, one = 1.0D0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-
 ************************************************************************
-
-#ifdef _DEBUG_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
-      Call QEnter(SECNAM)
 
       DoRead  = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -163,7 +148,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -171,7 +155,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.'
               Write(6,*)        'rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -190,7 +173,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'reading ',nRS,' and transforming to ',mvec
                WRITE(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                NumBat = -9999  ! dummy assignment
             End If
@@ -460,7 +442,6 @@ C --- free memory
       rc  = 0
 
       Call Cho_X_final(rc)
-      CAll QExit(SECNAM)
 
       Return
       END

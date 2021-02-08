@@ -32,12 +32,11 @@
 #include "warnings.fh"
 #include "stdalloc.fh"
       LOGICAL IF_TRNSF
-      CHARACTER(27)  STLNE2
+      CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
 
-      CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
@@ -57,13 +56,11 @@
       Write(STLNE2,'(A,I3)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2:',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-       If(.not.IFNOPT2) Then
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
         WRITE(6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
-       End If
       END IF
 * ---------------------------------------------------------------------
 
@@ -186,10 +183,6 @@ c Modify the Fock matrix if needed
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
-       if(IFXMS) then
-        call prrotmat(NGRP,U0,HEFF,NSTATE,IFSILPrRot)
-       end if
-
 * Mix the CI arrays according to the H0 eigenvectors. Assume we can
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
@@ -220,7 +213,7 @@ c Modify the Fock matrix if needed
           if (IPRGLB.ge.VERBOSE) then
             write(6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-            call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+            call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
           end if
         end do
 
@@ -262,6 +255,5 @@ c Modify the Fock matrix if needed
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      CALL QEXIT('GRPINI')
       return
       end

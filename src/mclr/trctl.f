@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRCTL_MCLR
+      use Arrays, only: CMO
 *
 *     Two-electron integral transformation program: control section
 *
@@ -23,9 +24,11 @@
 #include "Input.fh"
       PARAMETER (LIOTAB=512*512)
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "toc.fh"
 #include "Files_mclr.fh"
+      Integer, Allocatable:: Hlf1(:,:)
+      Real*8, Allocatable:: Buffer(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,7 +36,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('TrCtl')
 *
       CALL DANAME_wa(LUTRI1,FNTRI1)
       CALL DANAME_wa(LUTRI2,FNTRI2)
@@ -48,11 +50,7 @@
       IAD23=0
       IAD24=0
       IAD34=0
-      Call GetMem('LIOTAB','Allo','Inte',ip_Hlf1,4*LIOTAB)
-      ip_Hlf2 = ip_Hlf1+LIOTAB
-      ip_Hlf3 = ip_Hlf2+LIOTAB
-      ip_Hlf4 = ip_Hlf3+LIOTAB
-
+      Call mma_allocate(Hlf1,LIOTAB,4,Label='Hlf1')
 *
 *     Precompute start points
 *
@@ -61,9 +59,10 @@
 *     Note that the integrals on LUTWOAO have to be sorted in the
 *     same order as the loop structure below.
 *
-      CALL GETMEM('Buffer','MAX','REAL',LW5,MEMX)
+      Call mma_maxDBLE(MEMX)
       MEMX = MAX(MEMX-MEMX/10,0)
-      CALL GETMEM('Buffer','ALLO','REAL',ipb,MEMX)
+      Call mma_allocate(Buffer,MEMX,Label='Buffer')
+      ipB=1
       IBATCH=0
       DO 104 iSP=1,NSYM
         NBP=NBAS(iSP)
@@ -130,19 +129,22 @@
 *             transform the symmetry block (ISP,ISQ|ISR,ISS)
 *
               CALL TRAMO_MCLR
-     &                   (INTBUF,Work(LW1),NW1,Work(LW2),NW2,
-     &                   Work(LW3),NW3,
-     &                   Work(LW4),NW4,Work(LW5),NW5,
+     &                   (INTBUF,
+     &                   Buffer(LW1:LW1+NW1-1),NW1,
+     &                   Buffer(LW2:LW2+NW2-1),NW2,
+     &                   Buffer(LW3:LW3+NW3-1),NW3,
+     &                   Buffer(LW4:LW4+NW4-1),NW4,
+     &                   Buffer(LW5:LW5+NW5-1),NW5,
      &                   nBP,nBQ,nBR,nBS,iSP,iSQ,iSR,iSS,
      &                   nAP,nAQ,nAR,nAS,
-     &                   Work(ipCMO+ipCM(iSP)-1+nBP*nDP),
-     &                   Work(ipCMO+ipCM(iSQ)-1+nBQ*nDQ),
-     &                   Work(ipCMO+ipCM(iSR)-1+nBR*nDR),
-     &                   Work(ipCMO+ipCM(iSS)-1+nBS*nDS),
+     &                   CMO(ipCM(iSP)+nBP*nDP),
+     &                   CMO(ipCM(iSQ)+nBQ*nDQ),
+     &                   CMO(ipCM(iSR)+nBR*nDR),
+     &                   CMO(ipCM(iSS)+nBS*nDS),
      &                   iAD13,iAD14,iAD23,iAD24,iAD34,
      &                   TocC(1,iSPQ,iSRS),
-     &                   iWork(ip_Hlf1),iWork(ip_Hlf2),
-     &                   iWork(ip_Hlf3),iWork(ip_Hlf4), LIOTAB)
+     &                   Hlf1(:,1),Hlf1(:,2),
+     &                   Hlf1(:,3),Hlf1(:,4), LIOTAB)
 
 *
 *             End of loop over quadruples of symmetries
@@ -152,8 +154,8 @@
 103     CONTINUE
 104   CONTINUE
 *
-      CALL GETMEM('Buffer','FREE','REAL',ipb,MEMX)
-      Call GetMem('LIOTAB','Free','Inte',ip_Hlf1,4*LIOTAB)
+      CALL mma_deallocate(Buffer)
+      Call mma_deallocate(Hlf1)
       Call DAName_wa(LUHLF2,FNHLF2)
       Call DAName_wa(LUHLF3,FNHLF3)
       Call DaEras(LUHLF2)

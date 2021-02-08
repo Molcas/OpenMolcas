@@ -29,7 +29,6 @@ C Set up B matrices for cases 1..13.
 
 #include "SysDef.fh"
 
-      CALL QENTER('MKBMAT')
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -94,7 +93,6 @@ C looping, etc in the rest  of the routines.
         END DO
       END DO
 
-      CALL QEXIT('MKBMAT')
 
       RETURN
       END
@@ -104,6 +102,9 @@ C looping, etc in the rest  of the routines.
 ********************************************************************************
       SUBROUTINE MKBA(DREF,PREF,FD,FP,NG3,F3,idxG3)
       USE SUPERINDEX
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -111,7 +112,6 @@ C looping, etc in the rest  of the routines.
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -928,6 +928,9 @@ c Avoid unused argument warnings
 ********************************************************************************
       SUBROUTINE MKBC(DREF,PREF,FD,FP,NG3,F3,idxG3)
       USE SUPERINDEX
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -935,7 +938,6 @@ c Avoid unused argument warnings
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1761,7 +1763,6 @@ C where A= EASUM= sum over active w of (Ew*Dww).
 C    BBP(tu,xy)=BB(tu,xy)+BB(tu,yx)
 C    BBM(tu,xy)=BB(tu,xy)-BB(tu,yx)
 
-      CALL QENTER('MKBB')
 
 C Loop over superindex symmetry.
       DO ISYM=1,NSYM
@@ -1949,7 +1950,6 @@ CGG End
  1000 CONTINUE
       END DO
 
-      CALL QEXIT('MKBB')
 
       RETURN
       END
@@ -1978,7 +1978,6 @@ C    BD(tu2,xy2)=
 C       -Fxtuy - (Ex+Et-A)*Gxtuy + 2*dxt (Fuy + (Ex-A)*Duy)
 C where A=EASUM=Sum(w) of (Ew*Dww)
 
-      CALL QENTER('MKBD')
 
 C Loop over superindex symmetry.
       DO ISYM=1,NSYM
@@ -2071,7 +2070,6 @@ CGG End
  1000 CONTINUE
       END DO
 
-      CALL QEXIT('MKBD')
 
       RETURN
       END
@@ -2094,7 +2092,6 @@ C Formula used:
 C    BE(t,x)=-Ftx + (EASUM-Ex-Et)*Dtx
 C            + 2dtx Ex
 
-      CALL QENTER('MKBE')
 
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,6)
@@ -2158,7 +2155,6 @@ CGG End
  1000 CONTINUE
       END DO
 
-      CALL QEXIT('MKBE')
 
       RETURN
       END
@@ -2183,7 +2179,6 @@ C    BF(tu,xy)= 2*(Ftxuy - EASUM*Gtxuy)
 C    BFP(tu,xy)=BF(tu,xy)+BF(tu,yx)
 C    BFM(tu,xy)=BF(tu,xy)-BF(tu,yx)
 
-      CALL QENTER('MKBF')
 
 C Loop over superindex symmetry.
       DO ISYM=1,NSYM
@@ -2326,7 +2321,6 @@ CGG End
  1000 CONTINUE
       END DO
 
-      CALL QEXIT('MKBF')
 
       RETURN
       END
@@ -2348,7 +2342,6 @@ C     Set up the matrix BG(t,x)
 C     Formula used:
 C     BG(t,x)= Ftx -EASUM*Dtx
 
-      CALL QENTER('MKBG')
 
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,10)
@@ -2408,7 +2401,6 @@ CGG End
  1000 CONTINUE
       END DO
 
-      CALL QEXIT('MKBG')
 
       RETURN
       END

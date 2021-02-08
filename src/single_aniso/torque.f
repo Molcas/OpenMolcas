@@ -55,14 +55,14 @@ c magnetic torque
 !     Real(kind=8), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
 c magnetic and spin moments (i.e. the BIG matrices):
       Character(len=99):: STLNE1, STLNE2
-      Real(kind=8)    :: cm3tomB, g(3),mg(3,3)!,ma_inv(3,3)!,det
+      Real(kind=8)    :: g(3),mg(3,3)!,ma_inv(3,3)!,det
       Real(kind=8)    :: AngStep,AngRad,pi
       Logical          :: DBG
-      Integer          :: IM,I,J,l,mem_local,RtoB,CtoB,nH_torq,nT_torq
+      Integer          :: IM,I,J,mem_local,RtoB,CtoB,nT_torq
 
 c      Boltz_k=0.6950356000_wp   !   in cm^-1*K-1
 c      mu_Bohr=0.4668643740_wp   !   in cm-1*T-1
-      cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
+c      cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
       pi=3.1415926535897932384626433832795028841971_wp
 
       Write(6,*)
@@ -105,7 +105,6 @@ c      End Do
         Write(6,'(2X,A,i5,a)') 'The exact diagonalization of the '//
      &       'Zeeman Hamiltonian included ',NM,' exchange states.'
       End If
-      nH_torq=1
       nT_torq=1
 
 c      If (dbg) Then
@@ -118,12 +117,10 @@ c      End If
       mem_local=0
       RtoB=8
       CtoB=16
-      If(nM>=0) Then
-         ! Zeeman exchange energy spectrum
-         Call mma_allocate(W,nM,'W')
-         Call dcopy_(nM,[0.0_wp],0,W,1)
-         mem_local=mem_local+nM*RtoB
-      End If
+      ! Zeeman exchange energy spectrum
+      Call mma_allocate(W,nM,'W')
+      Call dcopy_(nM,[0.0_wp],0,W,1)
+      mem_local=mem_local+nM*RtoB
 
       Call mma_allocate(ST,3,'ST')
       Call dcopy_(3,[0.0_wp],0,ST,1)
@@ -133,33 +130,27 @@ c      End If
       Call dcopy_(3,[0.0_wp],0,MT,1)
       mem_local=mem_local+3*RtoB
 
-      If(AngPoints>=0) Then
-         Call mma_allocate(dX,AngPoints,'dX')
-         Call mma_allocate(dY,AngPoints,'dY')
-         Call mma_allocate(dZ,AngPoints,'dZ')
-         Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
-         Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
-         Call dcopy_(AngPoints,[0.0_wp],0,dZ,1)
-         mem_local=mem_local+3*AngPoints*RtoB
+      Call mma_allocate(dX,AngPoints,'dX')
+      Call mma_allocate(dY,AngPoints,'dY')
+      Call mma_allocate(dZ,AngPoints,'dZ')
+      Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dZ,1)
+      mem_local=mem_local+3*AngPoints*RtoB
 
-         Call mma_allocate(Ang,AngPoints,'Ang')
-         Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
-         mem_local=mem_local+AngPoints*RtoB
-      End If
+      Call mma_allocate(Ang,AngPoints,'Ang')
+      Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
+      mem_local=mem_local+AngPoints*RtoB
 
-      If( (nPlanes>=0).and.(AngPoints>=0) ) Then
-         Call mma_allocate(ty,AngPoints,'ty')
-         Call dcopy_(AngPoints,[0.0_wp],0,ty,1)
-         mem_local=mem_local+AngPoints*RtoB
-      End If
+      Call mma_allocate(ty,AngPoints,'ty')
+      Call dcopy_(AngPoints,[0.0_wp],0,ty,1)
+      mem_local=mem_local+AngPoints*RtoB
 
-      If (nss>=0) Then
-         Call mma_allocate(M,3,nss,nss,'Mrot')
-         Call mma_allocate(S,3,nss,nss,'Srot')
-         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,M,1)
-         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,S,1)
-         mem_local=mem_local+2*3*nss*nss*CtoB
-      End If
+      Call mma_allocate(M,3,nss,nss,'Mrot')
+      Call mma_allocate(S,3,nss,nss,'Srot')
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,M,1)
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,S,1)
+      mem_local=mem_local+2*3*nss*nss*CtoB
 
 
       If(dbg) Write(6,*) 'TORQ:  memory allocated (local):'
@@ -167,16 +158,16 @@ c      End If
       If(dbg) Write(6,*) 'TORQ:  memory allocated (total):'
       If(dbg) Write(6,*) 'mem_total=', mem+mem_local
 !-----------------------------------------------------------------------
-          ! rotate the moments to the coordiante system of
-          ! the ground state
-         ! ma_inv=0.0_wp
-         ! Call REVERSE(ma,ma_inv,DET)
-          Call rotmom2( DIPM, nss, ma, M )
-          Call rotmom2(   SM, nss, ma, S )
+      ! rotate the moments to the coordiante system of
+      ! the ground state
+      ! ma_inv=0.0_wp
+      ! Call REVERSE(ma,ma_inv,DET)
+      Call rotmom2( DIPM, nss, ma, M )
+      Call rotmom2(   SM, nss, ma, S )
 
-          g=0.0_wp
-          mg=0.0_wp
-          Call atens( M(1:3,1:2,1:2), 2, g, mg, 2)
+      g=0.0_wp
+      mg=0.0_wp
+      Call atens( M(1:3,1:2,1:2), 2, g, mg, 2)
 !-----------------------------------------------------------------------
       Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
       Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
@@ -195,8 +186,8 @@ c      End If
          dZ(i)=sin(AngRad)
       End Do
       If(dbg) Then
-        Write(6,'(A,I5)') 'Angular grid for Magnetization Torque, '//
-     &                    'Cartesian Component =',L
+!       Write(6,'(A,I5)') 'Angular grid for Magnetization Torque, '//
+!    &                    'Cartesian Component =',L
         Write(6,'(2x,A,4x,A,5x,3(10X,A,10x))') 'Nr.','Angle','X','Y','Z'
         Do i=1,AngPoints
           Write(6,'(I4,F10.3,3x,3F21.14)') i,Ang(i),dX(i),dY(i),dZ(i)
@@ -271,27 +262,16 @@ C -------------------------------------------------------------------
 
 !-----------------------------------------------------------------------
 ! deallocate memory for this computation:
-      If(nM>0) Then
-         Call mma_deallocate(W)
-      End If
-
+      Call mma_deallocate(W)
       Call mma_deallocate(ST)
       Call mma_deallocate(MT)
-
-      If(AngPoints>0) Then
-         Call mma_deallocate(dX)
-         Call mma_deallocate(dY)
-         Call mma_deallocate(dZ)
-         Call mma_deallocate(Ang)
-      End If
-
-      If( (nPlanes>0).and.(AngPoints>0) ) Then
-         Call mma_deallocate(ty)
-      End If
-      If(nss>0) Then
-         Call mma_deallocate(m)
-         Call mma_deallocate(s)
-      End If
+      Call mma_deallocate(dX)
+      Call mma_deallocate(dY)
+      Call mma_deallocate(dZ)
+      Call mma_deallocate(Ang)
+      Call mma_deallocate(ty)
+      Call mma_deallocate(m)
+      Call mma_deallocate(s)
 
       If(dbg) Write(6,*) 'TORQ: allocated memory was sucessfully '//
      &                   'deallocated'

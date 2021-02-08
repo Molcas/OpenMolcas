@@ -9,54 +9,60 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Modify_TInt_p(TInt,nTheta_All,List2,mData)
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
       Real*8 TInt(nTheta_All,nTheta_All)
       Integer List2(mData,nTheta_All)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
       Do iTheta_All= 1, nTheta_All
+#ifdef _DEBUGPRINT_
          iPrim=List2(5,iTheta_All)
+#endif
          iShll=List2(7,iTheta_All)
-         nConti=nBasis_Cntrct(iShll)
-         nPrimi=nExp(iShll)
-         iOff = ipCff_Cntrct(iShll) + iPrim -1
-         Coeff_i = DDot_(nConti,Work(iOff),nPrimi,Work(iOff),nPrimi)
+         nConti=Shells(iShll)%nBasis_C
+         nPrimi=Shells(iShll)%nExp
+         Coeff_i = DDot_(nConti,Shells(iShll)%Cff_c(1,1,1),nPrimi,
+     &                          Shells(iShll)%Cff_c(1,1,1),nPrimi)
          Coeff_i = Sqrt(Coeff_i)
 *
+#ifdef _DEBUGPRINT_
          jPrim=List2(6,iTheta_All)
+#endif
          jShll=List2(8,iTheta_All)
-         nContj=nBasis_Cntrct(jShll)
-         nPrimj=nExp(jShll)
-         jOff = ipCff_Cntrct(jShll) + jPrim -1
-         Coeff_j = DDot_(nContj,Work(jOff),nPrimj,Work(jOff),nPrimj)
+         nContj=Shells(jShll)%nBasis_C
+         nPrimj=Shells(jShll)%nExp
+         Coeff_j = DDot_(nContj,Shells(jShll)%Cff_c(1,1,1),nPrimj,
+     &                          Shells(jShll)%Cff_c(1,1,1),nPrimj)
          Coeff_j = Sqrt(Coeff_j)
 *
          Do jTheta_All = 1, nTheta_All
+#ifdef _DEBUGPRINT_
             kPrim=List2(5,jTheta_All)
+#endif
             kShll=List2(7,jTheta_All)
-            nContk=nBasis_Cntrct(kShll)
-            nPrimk=nExp(kShll)
-            kOff = ipCff_Cntrct(kShll) + kPrim -1
-            Coeff_k = DDot_(nContk,Work(kOff),nPrimk,Work(kOff),nPrimk)
+            nContk=Shells(kShll)%nBasis_C
+            nPrimk=Shells(kShll)%nExp
+            Coeff_k = DDot_(nContk,Shells(kShll)%Cff_c(1,1,1),nPrimk,
+     &                             Shells(kShll)%Cff_c(1,1,1),nPrimk)
             Coeff_k = Sqrt(Coeff_k)
 *
+#ifdef _DEBUGPRINT_
             lPrim=List2(6,jTheta_All)
+#endif
             lShll=List2(8,jTheta_All)
-            nContl=nBasis_Cntrct(lShll)
-            nPriml=nExp(lShll)
-            lOff = ipCff_Cntrct(lShll) + lPrim -1
-            Coeff_l = DDot_(nContl,Work(lOff),nPriml,Work(lOff),nPriml)
+            nContl=Shells(lShll)%nBasis_C
+            nPriml=Shells(lShll)%nExp
+            Coeff_l = DDot_(nContl,Shells(lShll)%Cff_c(1,1,1),nPriml,
+     &                             Shells(lShll)%Cff_c(1,1,1),nPriml)
             Coeff_l = Sqrt(Coeff_l)
 *
             TInt(iTheta_All,jTheta_All) = TInt(iTheta_All,jTheta_All)
      &                                  * Coeff_i * Coeff_j
      &                                  * Coeff_k * Coeff_l
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) Coeff_i,Coeff_j,Coeff_k,Coeff_l
             Write (6,*) iPrim,  jPrim,  kPrim,  lPrim
@@ -66,7 +72,7 @@
          End Do
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
 *

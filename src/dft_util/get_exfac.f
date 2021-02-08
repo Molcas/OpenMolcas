@@ -10,7 +10,7 @@
 ************************************************************************
       Function Get_ExFac(KSDFT)
 ************************************************************************
-*     Return the factor which determine how much "exact exchange" that *
+*     Return the factor which determines how much "exact exchange" that*
 *     should be included.                                              *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
@@ -36,29 +36,29 @@ c      Get_ExFac=HFLDA
 ************************************************************************
 * Global variable for MCPDFT                                           *
 
-       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &            KSDFT(1:6).eq.'TLSDA5'  .or.
-     &            KSDFT(1:5).eq.'TBLYP'   .or.
-     &            KSDFT(1:6).eq.'TSSBSW'  .or.
-     &            KSDFT(1:5).eq.'TSSBD'   .or.
-     &            KSDFT(1:5).eq.'TS12G'   .or.
-     &            KSDFT(1:4).eq.'TPBE'    .or.
-     &            KSDFT(1:5).eq.'FTPBE'   .or.
-     &            KSDFT(1:5).eq.'TOPBE'   .or.
-     &            KSDFT(1:6).eq.'FTOPBE'  .or.
-     &            KSDFT(1:7).eq.'TREVPBE' .or.
-     &            KSDFT(1:8).eq.'FTREVPBE'.or.
-     &            KSDFT(1:6).eq.'FTLSDA'  .or.
-     &            KSDFT(1:6).eq.'FTBLYP'
+       l_casdft = KSDFT.eq.'TLSDA'   .or.
+     &            KSDFT.eq.'TLSDA5'  .or.
+     &            KSDFT.eq.'TBLYP'   .or.
+     &            KSDFT.eq.'TSSBSW'  .or.
+     &            KSDFT.eq.'TSSBD'   .or.
+     &            KSDFT.eq.'TS12G'   .or.
+     &            KSDFT.eq.'TPBE'    .or.
+     &            KSDFT.eq.'FTPBE'   .or.
+     &            KSDFT.eq.'TOPBE'   .or.
+     &            KSDFT.eq.'FTOPBE'  .or.
+     &            KSDFT.eq.'TREVPBE' .or.
+     &            KSDFT.eq.'FTREVPBE'.or.
+     &            KSDFT.eq.'FTLSDA'  .or.
+     &            KSDFT.eq.'FTBLYP'
 
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *      LSDA LDA SVWN                                                   *
 *                                                                      *
-       If (KSDFT.eq.'LSDA ' .or.
-     &     KSDFT.eq.'LDA '  .or.
-     &     KSDFT.eq.'SVWN ') Then
+       If (KSDFT.eq.'LSDA' .or.
+     &     KSDFT.eq.'LDA'  .or.
+     &     KSDFT.eq.'SVWN' ) Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
@@ -254,14 +254,14 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 *     B2PLYP                                                           *
 *                                                                      *
-      Else If (KSDFT(1:6).eq.'B2PLYP') Then
+      Else If (KSDFT.eq.'B2PLYP') Then
          Get_ExFac=0.530D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     O2PLYP                                                           *
 *                                                                      *
-      Else If (KSDFT(1:6).eq.'O2PLYP') Then
+      Else If (KSDFT.eq.'O2PLYP') Then
          Get_ExFac=0.50D0
 *                                                                      *
 ************************************************************************
@@ -289,77 +289,77 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 *     PAM                                                              *
 *                                                                      *
-      Else If (KSDFT(1:3).eq.'PAM') Then
+      Else If (KSDFT.eq.'PAM') Then
          Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     CS                                                               *
 *                                                                      *
-      Else If (KSDFT(1:2).eq.'CS') Then
+      Else If (KSDFT.eq.'CS') Then
          Get_ExFac=One
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     PBE                                                              *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'PBE') Then
+      Else If (KSDFT.eq.'PBE') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     REVPBE                                                           *
 *                                                                      *
-      Else If (KSDFT(1:6).eq.'REVPBE') Then
+      Else If (KSDFT.eq.'REVPBE') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     SSBSW                                                            *
 *                                                                      *
-      Else If (KSDFT(1:5).eq.'SSBSW') Then
+      Else If (KSDFT.eq.'SSBSW') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     SSBD                                                             *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'SSBD') Then
+      Else If (KSDFT.eq.'SSBD') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     S12G                                                             *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'S12G') Then
+      Else If (KSDFT.eq.'S12G') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     S12H                                                             *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'S12H') Then
+      Else If (KSDFT.eq.'S12H') Then
          Get_ExFac=0.25d0
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     PBEsol                                                           *
 *                                                                      *
-      Else If (KSDFT(1:6).eq.'PBESOL') Then
+      Else If (KSDFT.eq.'PBESOL') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     RGE2                                                             *
 *                                                                      *
-      Else If (KSDFT(1:6).eq.'RGE2') Then
+      Else If (KSDFT.eq.'RGE2') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     TCA                                                              *
 *                                                                      *
-      Else If (KSDFT(1:6).eq.'PTCA') Then
+      Else If (KSDFT.eq.'PTCA') Then
          Get_ExFac=Zero
 
 *                                                                      *
@@ -367,35 +367,35 @@ c      Get_ExFac=HFLDA
 *                                                                      *
 *     M06-L                                                            *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'M06L') Then
+      Else If (KSDFT.eq.'M06L') Then
          Get_ExFac=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     M06                                                              *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'M06 ') Then
+      Else If (KSDFT.eq.'M06 ') Then
          Get_ExFac=0.27D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     M06-2X                                                           *
 *                                                                      *
-      Else If (KSDFT(1:5).eq.'M062X') Then
+      Else If (KSDFT.eq.'M062X') Then
          Get_ExFac=0.54D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     M06-HF                                                           *
 *                                                                      *
-      Else If (KSDFT(1:5).eq.'M06HF ') Then
+      Else If (KSDFT.eq.'M06HF') Then
          Get_ExFac=1.0D0
 *
 ************************************************************************
 *                                                                      *
 *     PBE0                                                             *
 *                                                                      *
-      Else If (KSDFT(1:4).eq.'PBE0') Then
+      Else If (KSDFT.eq.'PBE0') Then
          Get_ExFac=0.25D0
 *                                                                      *
 ************************************************************************

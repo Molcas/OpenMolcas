@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine o7b2_cvb(nparm,dx,
      >  dxnrm,grdnrm,close2conv)
@@ -61,7 +62,8 @@
       endif
       call dscal_(nparm,fac1,dx(1),1)
       do 200 i=1,nparm
-200   dx(i)=dx(i+1)
+      dx(i)=dx(i+1)
+200   continue
 100   dxnrm=dnrm2_(nparm,dx,1)
       if(.not.close2conv)then
         ipu=1

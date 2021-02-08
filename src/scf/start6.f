@@ -43,7 +43,7 @@
       Real*8, Dimension(:,:), Allocatable:: Da
       Integer, Dimension(:,:), Allocatable:: Match
       Real*8, Dimension(:), Allocatable:: Corb, SAV, SLT, SQ
-      Dimension Dummy(1)
+      Real*8 Dummy(1)
 ************************************************************************
 *
 *----------------------------------------------------------------------*
@@ -492,6 +492,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Integer ipPLT(2)
       Real*8, Dimension(:), Allocatable:: PLT
       Real*8, Dimension(:,:), Allocatable:: Porb, Dm, FCNO, KLT
+      Real*8 E2act(1)
 *
       Real*8   Get_ExFac
       External Get_ExFac
@@ -588,13 +589,14 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
 *
-      E2act = 0.5d0*(ddot_(nBDT,Dma,1,FCNO(1,1),1)
-     &      +        ddot_(nBDT,Dmb,1,FCNO(1,2),1))
+      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FCNO(1,1),1)
+     &         +        ddot_(nBDT,Dmb,1,FCNO(1,2),1))
+      Call GADSum(E2act(1),1)
 *
       If (DFTX) Then
-         Erest_xc=Erest_xc-E2act
+         Erest_xc=Erest_xc-E2act(1)
       Else
-         E_nondyn=E_nondyn-E2act
+         E_nondyn=E_nondyn-E2act(1)
       EndIf
 *
       Call mma_deallocate(KLT)

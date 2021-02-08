@@ -16,18 +16,11 @@
 *                                                                      *
 * Object: to compute the multipole moments for the nuclei.             *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
       Real*8 Chrg(nAtm), Coor(3,nAtm), rNucMm((ir+1)*(ir+2)/2), CoOp(3)
 *

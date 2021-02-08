@@ -26,11 +26,11 @@
 *   rewrite it, in the mean time, dont worry.
 *
 
-
+      Use Basis_Info, only: Shells
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "buffer.fh"
 *
 *
@@ -38,13 +38,12 @@
       Integer iCmpa(4),
      &         index(3,4),ipPert(0:7),icmp(4),ibas(4),
      &         indgrd2(3,4,0:7),indgrd(3,4,0:nirrep-1),
-     &         moip(0:nIrrep-1),nop(4),ishell(4),iuvwx(4),
+     &         moip(0:7),nop(4),ishell(4),iuvwx(4),
      &         iao(4),iAOST(4),ianga(4),ishll(4)
       Real*8 Temp(nTemp),AOInt(nInt),rmoin(nmoin),MOInt(nMOInt),
      &       C(12),buffer(*)
 *
       iMax=0
-      nMax=0
       mSum=0
       nabcd=iBasi*jBasj*kBask*lBasl
       nijkl=icmp(1)*icmp(2)*icmp(3)*icmp(4)
@@ -76,7 +75,6 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'MakeMO: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *     ip=2
@@ -118,7 +116,6 @@
       If (ipc-1.ne.nMoIn) Then
          Write (6,*) 'MakeMO: ipc-1.ne.nMoIn'
          Write (6,*) 'ipc,nMoIn=',ipc,nMoIn
-         Call QTrace
          Call Abend()
       End If
 
@@ -150,15 +147,16 @@
 *
          iGr=index(icar,icent)
          Call MOAcc(Temp(ip0+(iGr-1)*nijkl*nabcd),nINT2,
-     &           Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
-     &           MOInt,nMOINt,ishell,
-     &           rmoin(ipCi),nCi,rmoin(ipCj),nCj,
-     &           rmoin(ipCk),nCk,rmoin(ipCl),nCl,
-     &           Moip,nACO,pert,nOp,ibas,icmpa,
-     &           iCar,icent,indgrd,rmoin(ipD),
-     &           DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
-     &           buffer,Temp(ip2),nij,nkl,
-     &           nBasis(ishll(1)),nBasis(ishll(2)),icmpa(1),icmpa(2))
+     &              Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
+     &              MOInt,nMOINt,ishell,
+     &              rmoin(ipCi),nCi,rmoin(ipCj),nCj,
+     &              rmoin(ipCk),nCk,rmoin(ipCl),nCl,
+     &              Moip,nACO,pert,nOp,ibas,icmpa,
+     &              iCar,icent,indgrd,rmoin(ipD),
+     &              DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
+     &              buffer,Temp(ip2),nij,nkl,
+     &              Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,
+     &            icmpa(1),icmpa(2))
 *
         Else If (Index(iCar,iCent).lt.0) Then
          call dcopy_(nabcd*nijkl,[Zero],0,Temp(ip5),1)
@@ -172,15 +170,16 @@
            End If
          End Do
          Call MOAcc(Temp(ip5),nInt2,
-     &           Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
-     &           MOInt,nMOINt,ishell,
-     &           rmoin(ipCi),nCi,rmoin(ipCj),nCj,
-     &           rmoin(ipCk),nCk,rmoin(ipCl),nCl,
-     &           moip,nACO,pert,nOp,ibas,icmpa,
-     &           iCar,icent,indgrd,rMoin(ipD),
-     &           DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
-     &           buffer,Temp(ip2),nij,nkl,
-     &           nBasis(ishll(1)),nBasis(ishll(2)),icmpa(1),icmpa(2))
+     &              Temp(ip1),Temp(ip2),Temp(ip3),nScrtch,
+     &              MOInt,nMOINt,ishell,
+     &              rmoin(ipCi),nCi,rmoin(ipCj),nCj,
+     &              rmoin(ipCk),nCk,rmoin(ipCl),nCl,
+     &              moip,nACO,pert,nOp,ibas,icmpa,
+     &              iCar,icent,indgrd,rMoin(ipD),
+     &              DBLE(iuvwx(iCent))/DBLE(nIrrep),iao,iaost,
+     &              buffer,Temp(ip2),nij,nkl,
+     &              Shells(ishll(1))%nBasis,Shells(ishll(2))%nBasis,
+     &              icmpa(1),icmpa(2))
 *
         End If
         End If

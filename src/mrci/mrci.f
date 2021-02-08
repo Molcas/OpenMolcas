@@ -40,7 +40,6 @@ C UNIT 28=LUREST, (DA,MRCIVECT) CI VECTOR
 *
 *      CALL SETTIM
       CALL XUFLOW
-      Call qEnter('MRCI')
 *
 *     ( Workspace allocated in Start() )
 *
@@ -111,8 +110,6 @@ C Temporaries:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('MRCI')
-      Call qStat(' ')
       Call FastIO('STATUS')
       IRETURN=0
       RETURN

@@ -12,9 +12,8 @@
 ************************************************************************
       SubRoutine Print_Isotopes()
       use Period
+      use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "constants2.fh"
       Logical Changed
@@ -24,7 +23,6 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_Isotopes')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -33,9 +31,9 @@
 *
       Changed = .False.
       Do i=1,nCnttp
-        If (AuxCnttp(i).or.FragCnttp(i)) Cycle
-        iAtom=iAtmNr(i)
-        If (CntMass(i).ne.rMass(iAtom)) Then
+        If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
+        iAtom=dbsc(i)%AtmNr
+        If (dbsc(i)%CntMass.ne.rMass(iAtom)) Then
           Changed = .True.
           Exit
         End If
@@ -58,9 +56,9 @@
         Write(LuWr,10) '--------------------------'
       End If
       Do i=1,nCnttp
-        If (AuxCnttp(i).or.FragCnttp(i)) Cycle
-        iAtom=iAtmNr(i)
-        act_Mass=CntMass(i)/UToAU
+        If (dbsc(i)%Aux.or.dbsc(i)%Frag) Cycle
+        iAtom=dbsc(i)%AtmNr
+        act_Mass=dbsc(i)%CntMass/UToAU
         def_Mass=rmass(iAtom)/UToAU
         If (act_Mass.ne.def_Mass) Then
           Write(LuWr,101) i,iAtom,nInt(act_Mass),act_Mass,
@@ -77,6 +75,5 @@
  10   Format(1X,A)
 100   Format(I5,1X,I3,1X,I4,1X,F12.6)
 101   Format(I5,1X,I3,1X,I4,1X,F12.6,1X,'[',I4,1X,F12.6,']')
-      Call qExit('Print_Isotopes')
       Return
       End

@@ -19,7 +19,7 @@
       PARAMETER (EPS2=1.0D-30)
       LOGICAL IFTEST
       IfTest=.false.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 

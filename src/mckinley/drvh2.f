@@ -20,13 +20,6 @@
 *         matrix and the latter will be contracted with the generalized*
 *         Fock matrix.                                                 *
 *                                                                      *
-* Called from: mckinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              Dot1El                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -34,26 +27,23 @@
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Basis_Info, only: nCnttp, dbsc, nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External NaHss,OvrHss, KneHss,PrjHss,SROHss,M1Hss,PCMHss
       External NaMmH,OvrMmH, KneMmH,PrjMMH,sroMMH,M1MMH,PCMMMH
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
       Character Label*80
       Real*8    Hess(nHess), Temp(nHess)
-      Logical DiffOp,show
+      Logical DiffOp,show, lECP
+      Real*8, Allocatable:: Fock(:), D0(:), Coor(:,:)
+      Integer, Allocatable:: lOper(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     iRout = 131
-*     iPrint = nPrint(iRout)
-      iprint=0
-      if (show) iPrint = 12
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh2')
       Call StatusLine(' McKinley:',
      &                ' Computing 1-electron 2rd order derivatives')
 *                                                                      *
@@ -63,26 +53,28 @@
 *
       nFock = 0
       nDens = 0
-      Do 1 iIrrep = 0, nIrrep - 1
+      Do iIrrep = 0, nIrrep - 1
          nFock = nFock + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
- 1    Continue
+      End Do
 *
 *     Read the variational 1st order density matrix
 *     density matrix in AO/SO basis
-      Call Get_D1ao_Var(ipD0,Length)
+      Call mma_allocate(D0,nDens,Label='D0')
+      Call Get_D1ao_Var(D0,nDens)
 *     Read the generalized Fock matrix
 *     Fock matrix in AO/SO basis
-      Call Get_Fock_Occ(ipFock,Length)
+      Call mma_allocate(Fock,nFock,Label='Fock')
+      Call Get_Fock_Occ(Fock,nFock)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *...  Prologue
       nComp = 1
-      Call GetMem('Coor','Allo','Real',ipC,3*nComp)
-      Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      call dcopy_(nComp*3,[Zero],0,Work(ipC),1)
-      iWork(ip1) = 1
+      Call mma_allocate(Coor,3,nComp,Label='Coor')
+      Coor(:,:)=Zero
+      Call mma_allocate(lOper,nComp,Label='lOper')
+      lOper(:) = 1
 ************************************************************************
 *1)                                                                    *
 *     Trace the generalized Fock matrix with the gradient of the       *
@@ -91,13 +83,13 @@
 ************************************************************************
 *
       DiffOp = .False.
-      call dcopy_(nHess,[Zero],0,Temp,1)
+      Temp(:)=Zero
       Label  = ' The Renormalization Contribution'
-      Call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Work(ipC),
-     &           Work(ipFock),nFock,iWork(ip1),nComp,Label)
+      Call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Coor,
+     &           Fock,nFock,lOper,nComp,Label)
       If (show) write(6,*) label
       If (show) Call HssPrt(Hess,nHess)
-      Call DaXpY_(nHess,-One,Temp,1,Hess,1)
+      Hess(:) = Hess(:) - Temp(:)
 *
 ************************************************************************
 *2)                                                                    *
@@ -107,13 +99,13 @@
 ************************************************************************
 *
       DiffOp = .False.
-      call dcopy_(nHess,[Zero],0,Temp,1)
+      Temp(:)=Zero
       Label  = ' The Kinetic Energy Contribution'
-      Call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Work(ipC),
-     &           Work(ipD0),nFock,iWork(ip1),nComp,Label)
+      Call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Coor,
+     &            D0,nFock,lOper,nComp,Label)
       If (show) write(6,*) label
       If (show) Call HssPrt(Temp,nHess)
-      Call DaXpY_(nHess,-One,Temp,1,Hess,1)
+      Hess(:) = Hess(:) - Temp(:)
 *
 ************************************************************************
 *3)                                                                    *
@@ -124,12 +116,12 @@
 *
       DiffOp = .True.
       Label = ' The Nuclear Attraction Contribution'
-      call dcopy_(nHess,[Zero],0,Temp,1)
-      Call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Work(ipC),
-     &           Work(ipD0),nFock,iWork(ip1),nComp,Label)
+      Temp(:)=Zero
+      Call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Coor,
+     &            D0,nFock,lOper,nComp,Label)
       If (show) write(6,*) label
       if (show) Call HssPrt(Temp,nHess)
-      Call DaXpY_(nHess,One,Temp,1,Hess,1)
+      Hess(:) = Hess(:) + Temp(:)
 *
 ************************************************************************
 *3)                                                                    *
@@ -138,33 +130,37 @@
 *                                                                      *
 ************************************************************************
 *
+      lECP = .False.
+      DO i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+      End Do
       If (lECP) Then
         DiffOp = .True.
         Label = ' The Projection (ECP) Contribution'
-        call dcopy_(nHess,[Zero],0,Temp,1)
-        Call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+        Temp(:)=Zero
+        Call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Coor,
+     &               D0,nFock,lOper,nComp,Label)
         If (show) write(6,*) label
         if (show) Call HssPrt(Temp,nHess)
-        Call DaXpY_(nHess,One,Temp,1,Hess,1)
+        Hess(:) = Hess(:) + Temp(:)
 *
         DiffOp = .True.
         Label = ' The Spec. Res. (ECP) Contribution'
-        call dcopy_(nHess,[Zero],0,Temp,1)
-        Call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+        Temp(:)=Zero
+        Call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Coor,
+     &               D0,nFock,lOper,nComp,Label)
         if (show) Write(6,*) Label,'first part '
         if (show) Call HssPrt(Temp,nHess)
-        Call DaXpY_(nHess,One,Temp,1,Hess,1)
+        Hess(:) = Hess(:) + Temp(:)
 *
         DiffOp = .True.
         Label = ' The M1 (ECP) Contribution'
-        call dcopy_(nHess,[Zero],0,Temp,1)
-        Call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+        Temp(:)=Zero
+        Call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Coor,
+     &               D0,nFock,lOper,nComp,Label)
         if (show) Write(6,*) Label,'second part '
         if (show) Call HssPrt(Temp,nHess)
-        Call DaXpY_(nHess,One,Temp,1,Hess,1)
+        Hess(:) = Hess(:) + Temp(:)
       End If
 *
 ************************************************************************
@@ -177,12 +173,12 @@
       If (PCM) Then
         DiffOp = .True.
         Label = ' The PCM Contribution'
-        call dcopy_(nHess,[Zero],0,Temp,1)
-        Call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+        Temp(:)=Zero
+        Call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Coor,
+     &               D0,nFock,lOper,nComp,Label)
         If (show) write(6,*) label
         if (show) Call HssPrt(Temp,nHess)
-        Call DaXpY_(nHess,One,Temp,1,Hess,1)
+        Hess(:) = Hess(:) + Temp(:)
       End If
 *                                                                      *
 ************************************************************************
@@ -191,16 +187,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('lOper','Free','Inte',ip1,nComp)
-      Call GetMem('Coor','Free','Real',ipC,3*nComp)
-      Call GetMem('Fock','Free','Real',ipFock,nFock)
-      Call GetMem('D0  ','Free','Real',ipD0,nDens)
-      If (iprint.ge.12) Call HssPrt(Hess,nHess)
+      Call mma_deallocate(lOper)
+      Call mma_deallocate(Coor)
+      Call mma_deallocate(Fock)
+      Call mma_deallocate(D0)
+      If (Show) Call HssPrt(Hess,nHess)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh2')
       Return
       End

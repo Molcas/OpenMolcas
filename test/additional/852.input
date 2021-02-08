@@ -3,6 +3,7 @@
 * Responsible person: J. Norell
 *-------------------------------------------------------------------------------
 
+> COPY SCF.ScfOrb .
 &GATEWAY
 Coord
 3

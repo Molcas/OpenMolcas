@@ -14,30 +14,25 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_environment,
      & only: initialize_dmrg_rassi
-      use qcmaquis_info
+      use qcmaquis_info, only: qcmaquis_info_init
 #endif
       use mspt2_eigenvectors
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPCTL')
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "centra.fh"
 #include "rasdef.fh"
 #include "cntrl.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
       LOGICAL READ_STATES
       INTEGER JOB, i
 
-      CALL QENTER(ROUTINE)
 
 * get basic info from runfile
       Call Get_iScalar('nSym',nSym)
@@ -120,7 +115,8 @@ C Addition of NJOB,MSJOB and MLTPLT on RunFile.
       CALL Put_iscalar('NJOB_SINGLE',NJOB)
       CALL Put_iscalar('MXJOB_SINGLE',MXJOB)
       CALL Put_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
-
+      CALL Put_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
+!     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
 C
 C .. and print it out
 CTEST      CALL PRINF()
@@ -138,6 +134,5 @@ C Additional input processing. Start writing report.
       Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
       Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
 C
-      CALL QEXIT(ROUTINE)
       RETURN
       END

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine asonc12s2_cvb(c,sxc,nvec,nprm,
      >   civb,civbs,
@@ -16,7 +17,6 @@
      >   cvb,
      >   vec_all)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -61,7 +61,8 @@ c  (CIVB set in O12SA :)
       call fzero(vec_all,nprorb)
       call onedens_cvb(civb,civbs,vec_all,.false.,0)
       call all2free_cvb(vec_all,sxc(ic1,ivec),1)
-100   if(.not.strucopt)sxc(1,ivec)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+      if(.not.strucopt)sxc(1,ivec)=ddot_(nvb,cvb,1,vec_all(nprorb+1),1)
+100   continue
 
       return
       entry asonc12sinit_cvb(ippinp)

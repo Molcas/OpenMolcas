@@ -37,8 +37,10 @@ c local variables
 cc
       Integer j1,j2,j12
       Real*8 xt2, WW1(mK*mC*mL*mD),F12(mK*mC*mL*mD)
-      Real*8 ddot_, dnrm2_
-      External ddot_, dnrm2_
+      Real*8 ddot_
+      External ddot_
+c      Real*8 dnrm2_
+c      External dnrm2_
 
 cc
       DBG=.false.

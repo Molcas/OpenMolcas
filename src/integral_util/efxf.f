@@ -11,7 +11,7 @@
 * Copyright (C) 2004, Par Soderhjelm                                   *
 ************************************************************************
       SubRoutine EFXF(coord,XF,nXF,nOrd_XF,iXPolType,dEF,
-     &     XMolnr,nXMolnr,iGrid,scal14)
+     &                XMolnr,nXMolnr,iGrid,scal14)
 
 ************************************************************************
 *                                                                      *
@@ -28,8 +28,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 coord(3),XF(*),dEF(3)
-*     Integer XMolnr(nXMolnr,nXF)
-      Real*8 XMolnr(nXMolnr,nXF)
+      Integer XMolnr(nXMolnr,nXF)
 
       Logical LExcl
 
@@ -55,9 +54,9 @@
             LExcl=.False.
             If(iFd.eq.iGrid) LExcl=.True.
             Do i=1,nXMolnr
-               If (INT(XMolnr(1,iGrid)).eq.INT(XMolnr(i,iFd)))
+               If (XMolnr(1,iGrid).eq.XMolnr(i,iFd))
      &            LExcl=.True.
-               If (INT(XMolnr(1,iGrid)).eq.-INT(XMolnr(i,iFd)))
+               If (XMolnr(1,iGrid).eq.-XMolnr(i,iFd))
      &            scal=scal14
             EndDo
             If(LExcl) Then

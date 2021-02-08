@@ -92,10 +92,12 @@ C?        write(6,*) ' iplace = ', iplace
           IF(IPLACE.NE.0) THEN
 *. Generate next string
             DO 30 I = 1, IPLACE-1
-   30       STRIN2(I) = STRING(I,ISTRIN)
+            STRIN2(I) = STRING(I,ISTRIN)
+   30       CONTINUE
             STRIN2(IPLACE) = IORB
             DO 40 I = IPLACE,NEL
-   40       STRIN2(I+1) = STRING(I,ISTRIN)
+            STRIN2(I+1) = STRING(I,ISTRIN)
+   40       CONTINUE
 C?          write(6,*) ' updated string (STRIN2) '
 C?          call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
             JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)

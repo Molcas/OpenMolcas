@@ -12,7 +12,11 @@
      &                   Z_Nuc,Cord,MaxAto,Tessera,DMat,VTessera,
      &                   VSave,QTessera,QTessera_Slow,VSlow,nTs,Eps,
      &                   EpsInf)
+      use Basis_Info, only: nBas
       use PCM_arrays
+      use Symmetry_Info, only: nIrrep, iChBas
+      use Temporary_Parameters, only: PrPrt
+      use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (A-H,O-Z)
       External PCMInt, NaMem
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Z_Nuc(MaxAto),
@@ -20,8 +24,6 @@
      &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),
      &       QTessera_Slow(nTs),VSlow(nTs), Origin(3)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -33,7 +35,6 @@
       Real*8 RepNuc_Save
       Common /RF/RepNuc_Save
       Dimension ip(1)
-#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

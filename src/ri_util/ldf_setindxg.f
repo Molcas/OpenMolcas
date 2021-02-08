@@ -36,7 +36,7 @@ C
       Integer ipLD, iLD
       Integer iLD_Atom, iLD_Shell, iLD_Indx
       Integer l_IndxG, l_IndxG2, l_2CList
-      Integer M, niS, njS
+      Integer M, niS
 
       Integer  LDF_nShell_Atom, LDF_nBasSh_Atom
       Integer  LDF_lShell_Atom
@@ -220,7 +220,7 @@ C
             iWork(ip_IndxG2-1+maxAuxSP*(ijS-1)+ij)=k
          End Do
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (k.ne.M) Then
          Write(6,'(A,I8,1X,I8)') SecNam//': k,M=',k,M
          Call WarningMessage(2,SecNam//': G matrix dimension problem!')
@@ -247,7 +247,6 @@ C
          ! Set list
          niS=LDF_nShell_Atom(iAtom)
          ipi=LDF_lShell_Atom(iAtom)-1
-         njS=LDF_nShell_Atom(jAtom)
          ipj=LDF_lShell_Atom(jAtom)-1
          n=0
          Do ijS=1,nnShl

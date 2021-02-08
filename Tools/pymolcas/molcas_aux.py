@@ -75,7 +75,7 @@ def utf8_open(*args, **kwargs):
     return io.open(*args, encoding='utf-8', **kwargs)
 
 def dotmolcas(filename):
-  return join(expanduser('~/.Molcas'), filename)
+  return join(expanduser('~'), '.Molcas', filename)
 
 def find_molcas(xbin_list=None, here=True):
   '''Find a molcas installation and define MOLCAS
@@ -104,6 +104,13 @@ def find_molcas(xbin_list=None, here=True):
         with utf8_open(fn, 'r') as f:
           set_utf8('MOLCAS', f.read().strip())
         break
+
+  # if MOLCAS is still not defined, try with the driver's location
+  if (get_utf8('MOLCAS', default='') == ''):
+    from __main__ import __file__ as main_file
+    path = dirname(realpath(main_file))
+    if (isfile(join(path, '.molcashome'))):
+      set_utf8('MOLCAS', path)
 
   path = get_utf8('MOLCAS', default='')
 
@@ -150,7 +157,7 @@ def find_sources():
   try:
     with utf8_open(join(MOLCAS, 'CMakeCache.txt'), 'r') as f:
       for line in f:
-        m = match(r'Molcas_SOURCE_DIR:.*?=(.*)', line)
+        m = match(r'OpenMolcas_SOURCE_DIR:.*?=(.*)', line)
         if (m):
           cmake_src = m.group(1)
         m = match(r'OPENMOLCAS_DIR:.*?=(.*)', line)

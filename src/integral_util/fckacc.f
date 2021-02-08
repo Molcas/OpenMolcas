@@ -22,6 +22,7 @@
      &                  Djl,jl1,jl2,jl3,jl4,
      &                  FT,nFT,DoCoul,DoExch,ExFac)
 ************************************************************************
+*                                                                      *
 *  Object: to accumulate contibutions from the AO integrals directly   *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
@@ -41,26 +42,17 @@
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 *                                                                      *
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
+      use Basis_Info
+      use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: nIrrep, iOper, iChBas
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 *
@@ -84,8 +76,7 @@
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4),
-     &        iCmpa(4)
+     &        iAO(4), iAOst(4), iCmpa(4)
 *     Local Arrays
       Integer iSym(4)
       Real*8 Prmt(0:7)
@@ -103,8 +94,8 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 ************************************************************************
 *                                                                      *
       If (.Not.DoCoul.and..Not.DoExch) Return
-      iRout = 38
-      iPrint = nPrint(iRout)
+*     iRout = 38
+*     iPrint = nPrint(iRout)
 *
 *     If (iPrint.ge.49) Then
 *        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
@@ -192,16 +183,24 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
       Do 100 i1 = 1, iCmp
-         iSym(1)=IrrCmp(IndS(iShell(1))+i1)
+         ix = 0
+         Do j = 0, nIrrep-1
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = iEor(ix,2**j)
+         End Do
+         iSym(1)=ix
          jCmpMx = jCmp
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
-            iSym(2) =IrrCmp(IndS(iShell(2))+i2)
+            ix = 0
+            Do j = 0, nIrrep-1
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = iEor(ix,2**j)
+            End Do
+            iSym(2)=ix
             jChBs = iChBas(jj+i2)
-            If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+            If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
             If (iShell(2).gt.iShell(1)) Then
                i12 = jCmp*(i1-1) + i2
@@ -209,16 +208,26 @@ C     Call RecPrt('AOInt',' ',AOInt,nijkl,iCmp*jCmp*kCmp*lCmp)
                i12 = iCmp*(i2-1) + i1
             End If
             Do 300 i3 = 1, kCmp
-               iSym(3) =IrrCmp(IndS(iShell(3))+i3)
+               ix = 0
+               Do j = 0, nIrrep-1
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = iEor(ix,2**j)
+               End Do
+               iSym(3)=ix
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+               If (Shells(iShll(3))%Transf)
+     &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
-                  iSym(4) =IrrCmp(IndS(iShell(4))+i4)
+                  ix = 0
+                  Do j = 0, nIrrep-1
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = iEor(ix,2**j)
+                  End Do
+                  iSym(4)=ix
                   lChBs = iChBas(ll+i4)
-                  If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+                  If (Shells(iShll(4))%Transf)
+     &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= xPrmt(iOper(kOp(4)),lChBs)
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
@@ -536,40 +545,40 @@ C                 Write (*,*) 'iOpt=',iOpt
       If (lFij)
      &Call FckDst(TwoHam,nDens,FT(ipFij),iBas,jBas,iCmpa(1),iCmpa(2),
      &            kOp2(1),kOp2(2),iIrrep,
-     &            iShell(1),iShell(2),iShij,
+     &            iShij,
      &            iAO(1),iAO(2),iAOst(1),iAOst(2),
      &            Fact)
 *
       If (lFkl)
      &Call FckDst(TwoHam,nDens,FT(ipFkl),kBas,lBas,iCmpa(3),iCmpa(4),
      &            kOp2(3),kOp2(4),iIrrep,
-     &            iShell(3),iShell(4),iShkl,
+     &            iShkl,
      &            iAO(3),iAO(4),iAOst(3),iAOst(4),
      &            Fact)
 *
       If (lFik)
      &Call FckDst(TwoHam,nDens,FT(ipFik),iBas,kBas,iCmpa(1),iCmpa(3),
      &            kOp2(1),kOp2(3),iIrrep,
-     &            iShell(1),iShell(3),iShik,
+     &            iShik,
      &            iAO(1),iAO(3),iAOst(1),iAOst(3),
      &            Fact)
 *
       If (lFjl)
      &Call FckDst(TwoHam,nDens,FT(ipFjl),jBas,lBas,iCmpa(2),iCmpa(4),
      &            kOp2(2),kOp2(4),iIrrep,
-     &            iShell(2),iShell(4),iShjl,
+     &            iShjl,
      &            iAO(2),iAO(4),iAOst(2),iAOst(4),
      &            Fact)
       If (lFil)
      &Call FckDst(TwoHam,nDens,FT(ipFil),iBas,lBas,iCmpa(1),iCmpa(4),
      &            kOp2(1),kOp2(4),iIrrep,
-     &            iShell(1),iShell(4),iShil,
+     &            iShil,
      &            iAO(1),iAO(4),iAOst(1),iAOst(4),
      &            Fact)
       If (lFjk)
      &Call FckDst(TwoHam,nDens,FT(ipFjk),jBas,kBas,iCmpa(2),iCmpa(3),
      &            kOp2(2),kOp2(3),iIrrep,
-     &            iShell(2),iShell(3),iShjk,
+     &            iShjk,
      &            iAO(2),iAO(3),iAOst(2),iAOst(3),
      &            Fact)
 *

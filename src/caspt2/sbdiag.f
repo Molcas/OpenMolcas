@@ -17,6 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -24,9 +27,7 @@
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "para_info.fh"
 
-      CALL QENTER('SBDIAG')
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -96,7 +97,6 @@ C usually print info on the total number of parameters
         WRITE(6,'(a,i12)')'   After  reduction:',IPAR1
       ENDIF
 
-      CALL QEXIT('SBDIAG')
 
       RETURN
       END
@@ -400,7 +400,6 @@ C - Alt 0: Use diagonal approxim., if allowed:
           WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SD
         END DO
       ELSE
-        NBB=(NIN*(NIN+1))/2
         IJ=0
         DO J=1,NIN
           DO I=1,J
@@ -502,6 +501,9 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: King
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -513,12 +515,11 @@ C divided over processors.
 C-SVC20100902: global arrays header files
 #include "global.fh"
 #include "mafdecls.fh"
-#ifndef SCALAPACK
+#ifndef _SCALAPACK_
       DIMENSION WGRONK(2)
 #endif
       LOGICAL bSTAT
-      CHARACTER(2) cSYM,cCASE
-      LOGICAL KING
+      CHARACTER(LEN=2) cSYM,cCASE
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -632,7 +633,7 @@ C performance recommend PDSYEVX or PDSYEVR as fastest methods if
 C eigenvectors are needed (FIXME: should time this).  For the linear
 C dependence removal, split eigenvectors in horizontal stripes so that
 C each processor has a row window of all column vectors
-#ifdef SCALAPACK
+#ifdef _SCALAPACK_
       CALL PSBMAT_GETMEM('VMAT',lg_V,NAS)
       CALL GA_PDSYEVX_ (lg_S, lg_V, WORK(LEIG), 0)
       bSTAT = GA_Destroy (lg_S)
@@ -890,7 +891,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
         WRITE(6,*) 'GLOB_SBDIAG: option not implemented'
         call AbEnd()
       ELSE
-#ifdef SCALAPACK
+#ifdef _SCALAPACK_
         CALL GA_CREATE_STRIPED ('H',NIN,NIN,'VMAT',lg_V)
         CALL GA_PDSYEVX_ (lg_B, lg_V, WORK(LEIG), 0)
         bStat = GA_Destroy (lg_B)

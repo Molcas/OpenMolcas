@@ -41,7 +41,6 @@ c      Real(kind=8) ::  WCG ! Clebsh_Gordan Coefficeints
 c      logical DBG
 c      external WCG
       Complex(kind=8) ::  Jpar(N1-1,-N1+1:N1-1,N2-1,-N2+1:N2-1)
-      Call qEnter('PA_projexch')
 c      DBG=.false.
 
 c      Write(6,'(A)') 'J parameters in the initial ab intio basis:'
@@ -51,6 +50,8 @@ c      Jc=0.0_wp
 c      Call tensor2cart(1,1,Jpar(1,-1:1,1,-1:1),Jc)
 
 
+      maxes(:,:,:)=0.0_wp
+      gtens(:,:)=0.0_wp
 c determine the pseuDospin on each site (Z1 and Z2):
 !     threshold for determination of the local pseuDospin main anisotropy axis
       Ethr=0.2_wp
@@ -120,6 +121,5 @@ c reWrite the exchange matrix in the basis of local pseuDospins:
       Jc=0.0_wp
       Call tensor2cart(Jpar(1,-1:1,1,-1:1),Jc)
 
-      Call qExit('PA_projexch')
       Return
       End

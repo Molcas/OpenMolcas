@@ -25,9 +25,6 @@
       Character*80 Note
       Dimension Ene(*)
       Dimension iDum(7,8)
-*
-* Local print level:
-      IPRLEV=IPRLOC(7)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,7 +114,7 @@ C -For the moment: Orbital energies just zero
 *                                                                      *
 *     Call the generic MOLDEN interface
 *
-      Call Molden_Interface(iUHF,'TMPORB',filename,.False.)
+      Call Molden_Interface(iUHF,'TMPORB',filename)
 *                                                                      *
 ************************************************************************
 *                                                                      *

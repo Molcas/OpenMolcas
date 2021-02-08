@@ -8,12 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine WrInp_sl(iRow)
+      Subroutine WrInp_sl()
       use kriging_mod
+      use Slapaf_Info, only: Coor, AtomLbl
+      use Slapaf_Parameters, only: iRow, ddV_Schlegel, HWRS, iOptH, IRC,
+     &                             Curvilinear, Redundant, FindTS,
+     &                             Analytic_Hessian, iOptC, rHidden,
+     &                             lOld, Beta, Beta_Disp, Line_Search,
+     &                             GNrm_Threshold, Mode, ThrEne, ThrGrd,
+     &                             Baker, eMEPTest, rMEP, MEP, nMEP,
+     &                             MEP_Type, MEP_Algo, Header, Delta,
+     &                             lNmHss, Cubic, MxItr, nWndw
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "info_slapaf.fh"
 #include "print.fh"
 #include "constants.fh"
 *
@@ -22,7 +29,6 @@
 *
       Lu=6
 *
-      Call QEnter('WrInp')
 *
       If (lNmHss) Then
          lOld = .False.
@@ -42,27 +48,27 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Write (Lu,'(A,I5)')  ' Max iterations:                           '
+      Write (Lu,'(A,I5)')  ' Maximum number of iterations:             '
      &      ,MxItr
       If (Baker) Then
          Write (Lu,'(A)')  ' Convergence test a la Baker.'
       Else
          Write (Lu,'(A)')  ' Convergence test a la Schlegel.'
       End If
-      Write (Lu,'(A,E8.1)')' Convergence criterion on gradient/para.<=:'
-     &      ,ThrGrd
-      Write (Lu,'(A,E8.1)')' Convergence criterion on step/parameter<=:'
-     &      ,ThrGrd
-      Write (Lu,'(A,E8.1)')' Convergence criterion on energy change <=:'
-     &      ,ThrEne
+      Write (Lu,'(A,ES8.1)')
+     &    ' Convergence criterion on gradient/para.<=:',ThrGrd
+      Write (Lu,'(A,ES8.1)')
+     &    ' Convergence criterion on step/parameter<=:',ThrGrd
+      Write (Lu,'(A,ES8.1)')
+     &    ' Convergence criterion on energy change <=:',ThrEne
       Write (Lu,'(A)')
      &    ' Parameters for step-restricted optimization'
       If (.NOT.Kriging) Then
-      Write (Lu,'(A,E9.2)')
-     &    ' Max step length (initial seed):          ',Beta
+      Write (Lu,'(A,ES9.2)')
+     &    ' Maximum step length (initial seed):      ',Beta
       Else
-      Write (Lu,'(A,E9.2)')
-     &    ' Max step length (micro iterations):      ',Beta
+      Write (Lu,'(A,ES9.2)')
+     &    ' Maximum step length (micro iterations):  ',Beta
       End If
       Write (Lu,*)
 *                                                                      *
@@ -71,16 +77,22 @@
       If (Kriging) Then
        Write (Lu,*) '-RVO activated with parameters:'
 !      Write (Lu,'(A,I6)')
-!    &    '   GEK starts at iteration:                   ',nspAI
+!    &   '   GEK starts at iteration:                   ',nspAI
        Write (Lu,'(A,I6)')
-     &    '   Maximum number of data points used in GEK: ',nWndw/2
+     &   '   Maximum number of sample points (energies) used in GEK: ',
+     &        nWndw/2
+       Write (Lu,'(A,I6)')
+     &   '   Maximum number of sample points (gradients) used in GEK: ',
+     &        nWndw/2-nD_In
 !      Write (Lu,'(A,I6)')
-!   &     '   Parameter of diff. for Matern (p):         ',pAI
+!   &    '   Parameter of diff. for Matern (p):         ',pAI
        Write (Lu,'(A,I6)')
-     &    '   Maximum number of micro iterations:        ',miAI
+     &   '   Maximum number of micro iterations:        ',
+     &                                               Max_Microiterations
        If (set_l) Then
           Call Get_dScalar('Value_l',Value_l)
-          Write (Lu,*) '  Global characteristic length scale, l:     ',
+          Write (Lu,*)
+     &    '  Global characteristic length scale, l:     ',
      &              Value_l
        Else
           Write (Lu,*) '  Individual characteristic length scales set '
@@ -105,7 +117,6 @@
        write (6,'(A,F10.5,A)')
      &       '   Maximum dispersion accepted:     ',Beta_disp,
      &       ' * abs(g.max.comp)'
-       Write (Lu,*)
       Else
        Write (Lu,*) '-RFO activated with parameters:'
        Write (Lu,'(A,I6)')
@@ -128,14 +139,12 @@
          If (MEP) Then
             If (IRC.eq.0) Then
                Write (Lu,'(1X,A)') ' Minimum Energy Path (MEP) search'
-               Write (Lu,'(1X,A,I5)') ' Max number of points:',nMEP
             Else If (IRC.eq.1) Then
                Write (Lu,'(1X,A)') ' IRC forward search'
-               Write (Lu,'(1X,A,I5)') ' Max number of points:',nMEP
             Else
                Write (Lu,'(1X,A)') ' IRC backward search'
-               Write (Lu,'(1X,A,I5)') ' Max number of points:',nMEP
             End If
+            Write (Lu,'(1X,A,I5)') ' Maximum number of points:',nMEP
             If (eMEPtest)
      &         Write (Lu,'(1X,A)') ' Stop when energy increases'
             If (MEP_Algo.eq.'GS') Then
@@ -155,7 +164,7 @@
          If (rMEP) Then
             Write (Lu,'(1X,A)') ' Reverse Minimum Energy Path '
      &                        //'(rMEP) search'
-            Write (Lu,'(1X,A,I3)') ' Max number of points:',nMEP
+            Write (Lu,'(1X,A,I3)') ' Maximum number of points:',nMEP
             If (eMEPtest)
      &         Write (Lu,'(1X,A)') ' Stop when energy decreases'
             If (MEP_Type.eq.'SPHERE    ') Then
@@ -331,7 +340,7 @@
       End If
       If (.Not.(iAnd(iOptH,8).eq.8)) Then
          Write (Lu,'(A,I3)')
-     &         '  Max number of points in Hessian update:',
+     &         '  Maximum number of points in Hessian update:',
      &                        nWndw
       End If
       If (iAnd(iOptH,32).eq.32) Then
@@ -404,24 +413,18 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Ref_Geom) Then
-         Write (Lu,'(1X,A)')
-     &         '-The origin of the hyper sphere is defined implicitly.'
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (iPrint.ge.6) Then
+         nsAtom=SIZE(Coor,2)
          Write (Lu,*)
          Write (Lu,'(A)') ' Header from ONEINT:'
          Call Banner(Header,2,Len(Header(1))+12)
          Write (Lu,*)
          Call PrList('Symmetry Distinct Nuclear Coordinates / bohr',
-     &                AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
+     &                AtomLbl,nsAtom,Coor,3,nsAtom)
       End If
 *                                                                      *
 ************************************************************************
@@ -429,6 +432,5 @@
       If (iPrint.ge.5)
      &   Call CollapseOutput(0,'      Slapaf input parameters:')
 *
-      Call QExit('WrInp')
       Return
       End

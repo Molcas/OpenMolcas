@@ -9,14 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Set_Fake_ERIs
-
+      use Basis_Info, only: nBas
+      use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "cholesky.fh"
-      Character*16 NamRfil
+      Character(LEN=16) NamRfil
       Integer, Dimension(:), Allocatable :: iSOShl
+      Integer nVec_RI(8)
 *
       write(6,*)
       write(6,*)'   *** Skipping anything related to ERIs ***'
@@ -35,12 +36,14 @@
       Call mma_allocate(iSOShl,nBasT)
       Call Get_dScalar('Cholesky Threshold',THRCOM)
       Call Get_iArray('NumCho',NumCho,nIrrep)
+      Call Get_iArray('nVec_RI',nVec_RI,nIrrep)
       Call Get_iArray('iSOShl',ISOSHL,NBAST)
 *
       Call NameRun(NamRfil)
       CALL Put_iArray('iSOShl',ISOSHL,NBAST)
       Call mma_deallocate(iSOShl)
       CALL Put_iArray('NumCho',NumCho,nIrrep)
+      Call Put_iArray('nVec_RI',nVec_RI,nIrrep)
       Call Put_iScalar('ChoVec Address',CHO_ADRVEC)
       CALL Put_dScalar('Cholesky Threshold',THRCOM)
 *

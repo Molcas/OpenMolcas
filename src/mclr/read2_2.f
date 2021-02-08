@@ -53,7 +53,6 @@
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "intgrl.fh"
       Real*8 rkappa(nDens2),FockA(nDens2),FockI(nDens2),
      &       Temp1(ntemp),Temp2(nDens2),
@@ -65,7 +64,7 @@
       Parameter ( half  = 0.5d0 )
       Parameter ( One   = 1.0d0 )
       Parameter ( Two   = 2.0d0 )
-      Logical lFAt,lFIT,lmot,singlet,triplet
+      Logical lFAt,lFIT,lmot,singlet
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,16 +80,12 @@
 *     ib           ij jp bp
 *
 *
-      Call QEnter('Read2_2')
       If (jspin.eq.1) Then
-        Triplet=.true.
         Singlet=.false.
       Else If (jspin.eq.0) Then
         Singlet=.true.
-        Triplet=.false.
       Else
         Singlet=.false.
-        Triplet=.false.
         Write(6,*) 'Error jspin=/=1,0'
         Call Abend()
       End If
@@ -633,7 +628,6 @@
 *
 *
 
-      Call QExit('Read2_2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

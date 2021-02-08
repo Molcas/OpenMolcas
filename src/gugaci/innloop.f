@@ -19,12 +19,12 @@ c loops in dbl space, dbl-act space, act space
 !****************************************************************
       subroutine inner_space_loop()
       implicit REAL*8 (a-h,o-z)
-      wsc0=c_time()
+c      wsc0=c_time()
       call dbl_space_loop()
-      wsc1=c_time()
+c      wsc1=c_time()
       call act_space_cloop()
       call act_space_ploop()
-      wsc2=c_time()
+c      wsc2=c_time()
 c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
       return
       end
@@ -34,11 +34,12 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       if(norb_act.eq.0) return
-      ni=mod(norb_act,2)
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         jpae=nu_ae(ipae)
         if(jpae.eq.0) cycle
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
           if(ndim .eq. 0) cycle
@@ -54,17 +55,19 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       if(norb_act.eq.0) return
-      ni=mod(norb_act,2)
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         jpae=nu_ae(ipae)
         if(jpae.eq.0) cycle
-        do jpadl=1,mxnode                                ! jpadl
+        do jpadl_=1,mxnode                               ! jpadl
+          jpadl=jpadl_ ! jpadl is in common block, is this necessary?
           if(nu_ad(jpadl).eq.0) cycle
             jpad=jpadl
             call seg_drt()
             if(ndim .eq. 0) cycle
             call copy_to_drtl()
-          do jpad=1,mxnode                                !jpadr
+          do jpad_=1,mxnode                               !jpadr
+            jpad=jpad_ ! jpad is in common block, is this necessary?
             if(nu_ad(jpad).eq.0) cycle
             call seg_drt()
             if(ndim .eq. 0) cycle
@@ -128,7 +131,6 @@ c          write(6,'(6i6)')2,mh,lrai,lraj,lrak,0
 c-----------------------------------------------------------
 !line=3 a&r-b&r-d^r^r
           do lrak=lraj+1,norb_inn
-            list=list3(lrai,lraj,lrak)
            call head_ar_at_given_orb(mh,lrai)
             call link_c1_to_given_orb(mh,lrai+1,lraj-1)
             call link_b4_at_given_orb(mh,lraj)
@@ -150,7 +152,6 @@ c          write(6,'(6i6)')5,mh,lrai,lraj,lrak,0
           enddo
 c-----------------------------------------------------------
           do lrak=norb_dz+1,lrai-1
-            list=list3(lrai,lraj,lrak)
 !line=10 d&rr--b^r--a^r
             call head_drr_at_given_orb(mh,lrak)
             logic_br(1:mh)=.true.
@@ -359,7 +360,8 @@ c-----------------------------------------------------------
       lrg=lrg0
       lrs=lrs0
       jph=0
-      do mhlp=1,mh
+      do mhlp_=1,mh
+        mhlp=mhlp_ ! mhlp is in common block, is this necessary?
         jpel=lpnew_ltail(mhlp)
         jper=lpnew_rtail(mhlp)
         jwl =lpnew_lwei(mhlp)
@@ -410,7 +412,6 @@ c-----------------------------------------------------------
             if (jm(lpnextltail).ne.jm(lpnextrtail)) cycle
 
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,4
               if(ind0.ne.isla2(ni)) cycle
@@ -453,7 +454,8 @@ c      call change_vplp_pointer_arrays()
       line=lin
       lrg=lrg0
       lrs=lrs0
-      do mhlp=1,mh
+      do mhlp_=1,mh
+        mhlp=mhlp_ ! mhlp is in common block, is this necessary?
         jph =lpnew_head(mhlp)
         jpel=lpnew_ltail(mhlp)
         jper=lpnew_rtail(mhlp)
@@ -767,7 +769,6 @@ c-----------------------------------------------------------
 !td(13-5) (22)d&&l(33)b^l(23)
 213   do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
-        isma=lmi
         if(lmi.ne.jmlr) cycle
         w0td1=w0_td(1)
         w0td4=w0_td(4)
@@ -1842,7 +1843,6 @@ c-----------------------------------------------------------
 #include "intsort_h.fh"
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      ipae=9+ism
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -1852,7 +1852,6 @@ c-----------------------------------------------------------
             idsta=id_sta
             idend=iesm_ext(ismd)
             ic_sta=ibsm_ext(ismc)
-            icsta=ic_sta
             icend=iesm_ext(ismc)
             if ( ismd.eq.ismc ) idsta=idsta+1
             do id=idsta,idend
@@ -1884,10 +1883,8 @@ c-----------------------------------------------------------
                         isma=mul_tab(ism,ismd)
                         call g11a11b_t_symaacc(isma,ismd,ic,id)
                   endif
-                  ib=id
                   call g36_t_ext(ismc,ic,id)
                       !      write(6,*)'  g36',value_lpext(1)
-                  ia=ic
                   call g5_t_ext(ismd,ic,id)
                        !     write(6,*)'  g5' ,value_lpext(1)
                   if ( ism.eq.1 ) call g9_t_ext(ismd,ic,id)
@@ -2149,7 +2146,6 @@ c-----------------------------------------------------------
 !td(13-5) (22)d&&l(33)b^l(23)
 213   do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
-        isma=lmi
         if(lmi.ne.jmlr) cycle
         w0td1=w0_td(1)
         w0td4=w0_td(4)

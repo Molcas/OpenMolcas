@@ -11,6 +11,10 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
+      use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
+      use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ,
+     &                             Numerical, nLambda, iRef, nDimBC,
+     &                             mTROld, mTtAtm, nWndw, iter
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -20,22 +24,15 @@
 *     Author: R. Lindh, Uppsala University                             *
 *             2013, November                                           *
 ************************************************************************
-#include "info_slapaf.fh"
-      Parameter(nLbl=10*MxAtom)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nadc.fh"
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
-      Logical Numerical, PrQ, Cartesian, Found, TSC
-      Character*8 Lbl(nLbl)
-*
-      Lu=6
-*
-      Call QEnter('GenCxCTL')
-      iRout = 32
-      iPrint=nPrint(iRout)
+      Logical Cartesian, Found, TSC, Error
+      Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:),
+     &                      RefCoor(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -44,27 +41,13 @@
       LuSpool=21
       Call SpoolInp(LuSpool)
 *
-      Call RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,.True.)
+      Call RdCtl_Slapaf(LuSpool,.True.)
+      mInt = nDimBC - mTROld
       Curvilinear=.FALSE.
       Cartesian  =.NOT.Curvilinear
       Numerical = .False. ! Just to define it, value is irrelevant here!
 *
       Call Close_LuSpool(LuSpool)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      jPrint=nPrint(iRout)
-*
-      If (nLbl.lt.nBVec) Then
-         Call WarningMessage(2,'Error in GenCxCTL')
-         Write (Lu,*)
-         Write (Lu,*) '**********************'
-         Write (Lu,*) ' ERROR: nLbl.lt.nBVec '
-         Write (Lu,*) ' nLbl=',nLbl
-         Write (Lu,*) ' nBVec=',nBVec
-         Write (Lu,*) '**********************'
-         Call Quit_OnUserError()
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,38 +59,16 @@
       HSet=.False.
       PrQ=.False.
 *
-      nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,nSym,iOper,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
-     &           User_Def,nStab,jStab,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
-     &           MaxItr,nWndw)
+      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*mInt)
+      Call Put_dArray('BMtrx',BMx,SIZE(Coor)*mInt)
       Call Put_iScalar('No of Internal coordinates',mInt)
-*
-*     Too many constraints?
-*
-      If (nLambda.gt.mInt) Then
-         Call WarningMessage(2,'Error in GenCxCTL')
-         Write (Lu,*)
-         Write (Lu,*) '********************************************'
-         Write (Lu,*) ' ERROR: nLambda.gt.mInt'
-         Write (Lu,*) ' nLambda=',nLambda
-         Write (Lu,*) ' mInt=',mInt
-         Write (Lu,*) ' There are more constraints than coordinates'
-         Write (Lu,*) '********************************************'
-         Call Quit_OnUserError()
-      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -119,11 +80,11 @@
 *     Make lists for all Cartesian coordinates and the
 *     corresponding displacement in internal coordinates
 *
-      Call Allocate_Work(ipCList,2*mInt*3*nsAtom)
-      Call FZero(Work(ipCList),2*mInt*3*nsAtom)
-      Call Allocate_Work(ipDList,mInt)
-      Call FZero(Work(ipDList),mInt)
-      Call Allocate_Work(ip_RefCoor,3*nsAtom)
+      Call mma_allocate(CList,SIZE(Coor), 2*mInt,Label='CList')
+      CList(:,:)=Zero
+      Call mma_allocate(DList,mInt,Label='DList')
+      DList(:)=Zero
+      call mma_allocate(RefCoor,3,SIZE(Coor,2),Label='RefCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -140,11 +101,11 @@
 *                                                                      *
 *     Get the T-matrix
 *
-      Call Allocate_Work(ip_T,mInt**2)
-      Call TMatrix(Work(ip_T))
+      Call mma_allocate(TMx,mInt**2,Label='TMx')
+      Call TMatrix(TMx,mInt)
       Call Put_iScalar('nLambda',nLambda)
-      Call Put_dArray('T-matrix',Work(ip_T),mInt**2)
-*     Call RecPrt('T-matrix',' ',Work(ip_T),mInt,mInt)
+      Call Put_dArray('T-matrix',TMx,mInt**2)
+*     Call RecPrt('T-matrix',' ',TMx,mInt,mInt)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -154,27 +115,23 @@
 *     Take a copy of the current structure - the reference
 *     coordinates.
 *
-      call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ip_RefCoor),1)
+      RefCoor(:,:)=Coor(:,:)
 *
 *     Loop over all displacements which are in the subspace in
 *     which we like to minimize the energy. Hence, this will
 *     eliminate naturally translational and rotational degrees
 *     (3N-6) but also eliminate constrained degrees (3N-6-m)
 *
-      nDisp = mInt-nLambda
-      Call GetMem('du','Allo','Real',ipdu,mInt)
+      Call mma_allocate(du,mInt,Label='du')
 *
 *     Loop only over displacement which do not change the constraint.
 *     Note that the constraints are placed first.
 *
-      Call GetMem(' DCF  ', 'Allo','Real',ipDCF, 3*nsAtom)
-      Call GetMem(' dss  ', 'Allo','Real',ipdss, mInt)
-      Call GetMem(' qTemp', 'Allo','Real',ipTmp, mInt)
       Do iDisp = 1+2*nLambda, 2*mInt
 *
 *        Get a virgin copy of the reference structure
 *
-         call dcopy_(3*nsAtom,Work(ip_RefCoor),1,Work(ipCoor),1)
+        Coor(:,:)=RefCoor(:,:)
 *
 *        Compute the effective index where to find the data
 *
@@ -183,126 +140,83 @@
 *        Update the shift vector, in the space in which we split
 *        the constraints and the reduced subspace.
 *
-         jpShf = ipShf + (Iter-1)*mInt
-         Call FZero(Work(ipdu),mInt)
-         Call FZero(Work(jpShf),mInt)
+         du(:)=Zero
+         Shift(:,iter)=Zero
          jInter = (iDisp+1)/2
          If (Mod(iDisp,2).eq.0) Then
-            Work(ipdu-1+jInter) = -rDelta
+            du(jInter) = -rDelta
          Else
-            Work(ipdu-1+jInter) =  rDelta
+            du(jInter) =  rDelta
          End If
-*        Call RecPrt('du',' ',Work(ipdu),mInt,1)
+*        Call RecPrt('du',' ',du,mInt,1)
 *
 *        Transform displacement to the internal coordinate
 *        space. This is a simple unitary transformation.
 *
          Call DGEMM_('N','N',mInt,1,mInt,
-     &               One,Work(ip_T),mInt,
-     &                   Work(ipdu),mInt,
-     &               Zero,Work(jpShf),mInt)
-*        Call RecPrt('shf',' ',Work(jpShf),mInt,1)
+     &               One,TMx,mInt,
+     &                   du,mInt,
+     &               Zero,Shift(:,iter),mInt)
+*        Call RecPrt('shf',' ',Shift(:,iter),mInt,1)
 *
 *        Save the value of the displacement in the list.
 *
-         Work(ipDList-1+jInter) = rDelta
+         DList(jInter) = rDelta
 *
 *        Take a copy of the current values of the internal
 *        coordinates.
 *
-         ip_From=ipqInt + (Iter-1)*mInt
-         ip_To  =ipqInt + (Jter-1)*mInt
-         call dcopy_(mInt,Work(ip_From),1,Work(ip_To),1)
-*        Call RecPrt('Int_Ref',' ',Work(ip_To),1,mInt)
+         call dcopy_(mInt,qInt(:,Iter),1,qInt(:,Jter),1)
+*        Call RecPrt('Int_Ref',' ',qInt(:,Jter),1,mInt)
 *
 *        To the second set of coordinates add the shift.
 *        This set of internal coordinates corresponds to
 *        the set for which we like to get the Cartesian
 *        coordinates.
 *
-         Call DaXpY_(mInt,One,Work(jpShf),1,Work(ip_To),1)
-*        Call RecPrt('Int    ',' ',Work(ip_To),1,mInt)
+         Call DaXpY_(mInt,One,Shift(:,iter),1,qInt(:,Jter),1)
+*        Call RecPrt('Int    ',' ',qInt(:,Jter),1,mInt)
 *
 *--------Transform the new internal coordinates to Cartesians
 *
          PrQ=.False.
          BSet=.False.
+         Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
-     &               Work(ipCoor),ipB,Work(ipCM),
-     &               Lbl,Work(ipShf),ipqInt,ipdqInt,
-     &               Work(ipDCF),Work(ipdss),Work(ipTmp),
-     &               AtomLbl,iOper,nSym,iSym,Smmtrc,
-     &               Degen,Work(ipGx),Work(ipCx),mTtAtm,
-     &               iWork(ipANr),iOptH,User_Def,
-     &               nStab,jStab,Curvilinear,Numerical,
-     &               DDV_Schlegel,HWRS, Analytic_Hessian,
-     &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
-     &               Redundant,nqInt,MaxItr,iRef)
-*
-         ip_To   = ipCList + (iDisp-1)*3*nsAtom
+         Call NewCar(Iter,SIZE(Coor,2),Coor,mTtAtm,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *
-         call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ip_To),1)
+         call dcopy_(SIZE(Coor),Coor,1,CList(:,iDisp),1)
       End Do
-      Call GetMem(' qTemp', 'Free','Real',ipTmp, mInt)
-      Call GetMem(' dss  ', 'Free','Real',ipdss, mInt)
-      Call GetMem(' DCF  ', 'Free','Real',ipDCF, 3*nsAtom)
 *
-      Call Free_Work(ipShf)
-      Call Free_Work(ipdu)
-      Call Free_Work(ip_T)
+      Call mma_deallocate(du)
+      Call mma_deallocate(TMx)
 *
-*     Call RecPrt('DList',' ',Work(ipDList),1,mInt)
-*     Call RecPrt('CList',' ',Work(ipCList),3*nsAtom,2*mInt)
+*     Call RecPrt('DList',' ',DList,1,mInt)
+*     Call RecPrt('CList',' ',CList,SIZE(Coor),2*mInt)
 *
 *     Save the lists on the runfile. To be used in the
 *     numerical gradient module.
 *
-      Call Put_dArray('DList',Work(ipDList),mInt)
-      Call Put_dArray('CList',Work(ipCList),2*mInt*3*nsAtom)
+      Call Put_dArray('DList',DList,SIZE(DList))
+      Call Put_dArray('CList',CList,SIZE(CList))
 *
 *     Deallocate temporary memory.
 *
-      Call Free_Work(ip_RefCoor)
-      Call Free_Work(ipDList)
-      Call Free_Work(ipCList)
+      Call mma_deallocate(RefCoor)
+      Call mma_deallocate(DList)
+      Call mma_deallocate(CList)
 
 *     Alaska only
       iStop=3
 *
 *     Done!
 *
-      If (ip_B.ne.ip_Dummy) Call Free_Work(ip_B)
-      If (ip_dB.ne.ip_Dummy) Call Free_Work(ip_dB)
-      If (ip_iB.ne.ip_iDummy) Call Free_iWork(ip_iB)
-      If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
-      If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
-*
-      If (ipNADC.ne.ip_Dummy) Call Free_Work(ipNADC)
-      If (Ref_Geom) Call Free_Work(ipRef)
-      If (Ref_Grad) Call Free_Work(ipGradRef)
-      If (lRP)      Call Free_Work(ipR12)
-      Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-*
-      If (ipqInt.ne.ip_Dummy) Then
-         Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-         Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
-      End If
-      Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
-      Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
-      Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)
-      Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
-      Call GetMem('Charge','Free','Real',ipCM,  nsAtom)
-*     The weights array length is actually the total number of atoms,
-*     not just symmetry-unique, but that doesn't matter for deallocation
-      Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
+      Call Free_Slapaf()
 *
 *-----Terminate the calculations.
-*
-      Call QExit('GenCxCTL')
 *
       Return
       End

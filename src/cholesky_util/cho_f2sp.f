@@ -20,15 +20,12 @@ C              Note: nnShl_SP is used to avoid problems in parallel runs
 C              when swapping nnShl and nnShl_G. If properly set,
 C              nnShl_SP = nnShl_G.
 C
+      use ChoArr, only: iSP2F
       Implicit None
       Integer iSP
 #include "chosp.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
-      Integer iSP2F, i, jSP
-
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
+      Integer jSP
 
       Cho_F2SP = 0
       Do jSP = 1,nnShl_SP

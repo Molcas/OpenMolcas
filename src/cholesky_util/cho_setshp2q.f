@@ -16,24 +16,18 @@ C              iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
+      use ChoArr, only: iSP2F, nBstSh, iShP2Q
+      use ChoSwp, only: iQuAB, IndRed
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: IndRSh
+#endif
 #include "implicit.fh"
       Integer nAB(8)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "chosew.fh"
-#include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*12 SecNam
       Parameter (SecNam = 'Cho_SetShP2Q')
-#endif
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-#if defined (_DEBUG_)
-      IndRsh(i)=iWork(ip_IndRSh-1+i)
 #endif
 
 C     Check allocations.
@@ -46,6 +40,8 @@ C     ------------------
          NumAB = nBstSh(iShlA)*nBstSh(iShlB)
       End If
       lTst = 2*NumAB
+      l_iShP2Q=0
+      If (Allocated(iShP2Q)) l_iShP2Q=SIZE(iShP2Q)
       If (l_iShP2Q.lt.1 .or. l_iShP2Q.lt.lTst) Then
          irc = 102
          Return
@@ -65,14 +61,14 @@ C     iShP2Q(2,AB) = symmetry block.
 C     Zeros are returned if the element AB is not qualified.
 C     -------------------------------------------------------
 
-      Call Cho_iZero(iWork(ip_iShP2Q),lTst)
+      iShP2Q(:,1:NumAB)=0
 
       Do iSym = 1,nSym
          Do lAB = 1,nAB(iSym)
             iAB = iQuAB(iOffQ(iSym)+lAB,iSym) ! addr in current rs
             jAB = IndRed(iAB,iLoc)            ! addr in 1st rs
             kAB = IndRed(jAB,1)               ! addr in full shell pair
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             nErr = 0
             If (IndRSh(jAB).ne.iSP2F(iShlAB)) Then
                Write(Lupri,*) SecNam,': inconsistent shell pairs!'
@@ -98,8 +94,8 @@ C     -------------------------------------------------------
                Call Cho_Quit('Error detected in '//SecNam,104)
             End If
 #endif
-            iWork(ip_iShP2Q+2*(kAB-1))   = lAB
-            iWork(ip_iShP2Q+2*(kAB-1)+1) = iSym
+            iShP2Q(1,kAB)   = lAB
+            iShP2Q(2,kAB) = iSym
          End Do
       End Do
 

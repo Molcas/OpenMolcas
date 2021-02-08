@@ -57,15 +57,18 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-      INTEGER iPrint,iRout
 #include "print.fh"
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      INTEGER iPrint,iRout
 
       iRout=216
       iPrint=nPrint(iRout)
+#endif
       n=m+1
 
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
       Call NrmClc(    g,m,'Davidson_SCF','g')
 *     CALL RecPrt('HDiag',' ',HDiag,m,1)
@@ -137,7 +140,7 @@
             Index_D(i)=jj
          END IF
       END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *     Write (6,*) 'Index_D=',Index_D
 #endif
 
@@ -199,7 +202,7 @@
       DO WHILE (.NOT. Last)
         iter=iter+1
         IF (iter .GT. 1) call dcopy_(k,Eig,1,Eig_old,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (.NOT. Reduced) THEN
           WRITE(6,'(A)') '---------------'
           WRITE(6,'(A,1X,I5)') 'Iteration',iter
@@ -219,7 +222,7 @@
 *       Hessian and a trial vector can be computed on-the-fly.
 *
         Do j=old_mk,mk-1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*) 'Davidson_SCF: j,Fact=',j,Fact
            Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
            Call RecPrt('Sub',' ',Sub(1,j+1),1,n)
@@ -237,7 +240,7 @@
            Call DaXpY_(m,One/Sqrt(Fact),g,1,Ab(1,j+1),1)
 *
            Ab(n,j+1) = DDot_(m,g,1,Sub(1,j+1),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
            Call RecPrt('Ab',' ',Ab(1,j+1),1,n)
 #endif
@@ -267,7 +270,7 @@
 *        If the subspace has been reduced, no need to compute new eigenpairs
 *
         IF (.NOT. Reduced) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
@@ -280,11 +283,11 @@
           CALL Free_Work(ipTmp)
           CALL JacOrd2(EVal,EVec,mk,maxk)
           call dcopy_(k,EVal,1,Eig,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           CALL RecPrt('Current guess',' ',Eig,1,k)
 #endif
         END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
           CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
           CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
@@ -320,7 +323,7 @@
                  Conv=MAX(Conv,ABS(Eig(i)-Eig_old(i)))
               END IF
            END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            IF (Augmented)
      &       WRITE(6,'(2X,A,1X,G12.6)') 'Maximum relative eigenvalue '//
      &                                 'change:',Conv
@@ -351,7 +354,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               WRITE(6,'(A)') 'Converged due to small change'
 #endif
           Last=.TRUE.
@@ -362,7 +365,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Complete system solved'
 #endif
           Last=.TRUE.
@@ -373,7 +376,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(A)') 'Not converged'
 #endif
           Last=.TRUE.
@@ -394,7 +397,7 @@
 ************************************************************************
 *                                                                      *
           IF (iRC .EQ. 2) iRC=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #endif
           CALL Allocate_Work(ipTmp,mink*n)
@@ -417,7 +420,7 @@
 
 *----     j should be mink, but who knows...
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           IF (j .LT. mink) THEN
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
           END IF
@@ -520,7 +523,7 @@
              END IF
           END DO
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,G12.6)') 'Maximum residual:',Conv
 #endif
 *                                                                      *
@@ -530,7 +533,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
              WRITE(6,'(A)') 'Converged due to small residual'
 #endif
              Last=.TRUE.
@@ -548,7 +551,7 @@
 *            the original matrix
 *
              IF (jj .EQ. 0) THEN
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                WRITE(6,'(A)') 'Process stagnated'
 #endif
                IF (mk .LT. maxk) THEN
@@ -623,7 +626,7 @@
      &                EVec,maxk,
      &            Zero,Vec,n)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Vec(1,1),m,'Davidson_SCF','Vec(1-m)')
       Call NrmClc(Vec(n,1),1,'Davidson_SCF','Vec(n)')
 #endif

@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine writegs2_cvb(orbs,cvb,
      >  cvbdet,iapr,ixapr,iabind)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -31,10 +31,11 @@
       call wrrs_cvb(orbs,norb*norb,recn_tmp04,ioffs)
       idetvb=0
       do 100 ia=1,nda
-      do 100 ixa=ixapr(ia),ixapr(ia+1)-1
+      do 101 ixa=ixapr(ia),ixapr(ia+1)-1
       idetvb=idetvb+1
       ib=iapr(ixa)
       iabind(idetvb)=ia+(ib-1)*nda
+101   continue
 100   continue
       call wris_cvb(iabind,ndetvb,recn_tmp04,ioffs)
       call wrrs_cvb(cvbdet,ndetvb,recn_tmp04,ioffs)

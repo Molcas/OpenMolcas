@@ -7,20 +7,25 @@
 * is provided "as is" and without any express or implied warranties.   *
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine Sort_mck(A,B,iBas,jBas,kBas,lBas,iCmp,jCmp,kCmp,lCmp,
      &               iBasO,jBasO,kBasO,lBasO,
      &               iCmpO,jCmpO,kCmpO,lCmpO,
      &               nVec,nop,iAng,
      &               indgrd,indgrd2,ishll,C)
-*
-*     This subroutine is a stupid solution on a easy problem, but it should
-*     work and it doesnt take to much CPU time.
-*     eaw
-*
+************************************************************************
+*                                                                      *
+*     This subroutine is a stupid solution on a easy problem, but it   *
+*     should work and it doesnt take to much CPU time.                 *
+*     eaw                                                              *
+*                                                                      *
+************************************************************************
+      Use Basis_Info
+      use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: nIrrep, iOper, iChBas
       Implicit Real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 c#include "print.fh"
 *
@@ -50,19 +55,19 @@ c#include "print.fh"
       Do iVec=1,nVec
         Do iC=1,iCmp
          ichbs=ichbas(ii+ic)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+ic))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+ic))
          PrA= xPrmt(iOper(nOp(1)),iChBs)
          Do jC=1,jCmp
           jChBs = iChBas(jj+jc)
-          If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+jc))
+          If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+jc))
           pRb = xPrmt(iOper(nOp(2)),jChBs)
           Do kC=1,kCmp
            kChBs = iChBas(kk+kc)
-           If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+kc))
+           If (Shells(iShll(3))%Transf) kChBs = iChBas(iSphCr(kk+kc))
            pTc = xPrmt(iOper(nOp(3)),kChBs)
            Do lC=1,lCmp
             lChBs = iChBas(ll+lC)
-            If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+lc))
+            If (Shells(iShll(4))%Transf) lChBs = iChBas(iSphCr(ll+lc))
             pTSd= xPrmt(iOper(nOp(4)),lChBs)
             qFctr=pTSd*pTc*pRb*pRa*rp
 **EAW 970930

@@ -29,7 +29,6 @@
       Integer                       :: i,j
       Real(kind=8), allocatable    :: gtens(:), zmagn(:,:)
 
-      Call qEnter('SA_CF')
 
       Write(6,'(/)')
       Write(6,'(100A)') ('%',i=1,95)
@@ -164,7 +163,6 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
       Call mma_deallocate(SJ)
       Call mma_deallocate(gtens)
       Call mma_deallocate(zmagn)
-      Call qExit('SA_CF')
       Return
       End
 
@@ -199,19 +197,16 @@ C================== Variable declarations =============================
       ! local variables:
       Integer                       :: info, i, j, k, q
       Integer                       :: LuCF, IsFreeUnit
-      Real(kind=8)                 :: dznrm2
       Real(kind=8), allocatable    :: Winit(:), Eloc(:), a(:)
       Real(kind=8)                 :: BNC(nDIMcf,0:nDIMcf)
       Real(kind=8)                 :: BNS(nDIMcf,0:nDIMcf)
       Real(kind=8)                 :: Bstev(nDIMcf,-nDIMcf:nDIMcf)
-      Complex(kind=8)              :: trace
       Complex(kind=8)              ::
      &                   Akq((nDIMcf-1),-(nDIMcf-1):(nDIMcf-1))
       Complex(kind=8), allocatable :: Zinit(:,:), Z(:,:),
      &                                  HCF(:,:)
-      External           :: trace, dznrm2, IsFreeUnit
+      External           :: IsFreeUnit
 
-      Call qEnter('SA_CF1')
 C============== End of variable declarations ==========================
       Call mma_allocate(Winit,nDIMcf,'Winit')
       Call mma_allocate(Eloc,nDIMcf,'Eloc')
@@ -333,7 +328,6 @@ c-----------------------------------------------------------------------
       Call mma_deallocate(Zinit)
       Call mma_deallocate(Z)
       Call mma_deallocate(HCF)
-      Call qExit('SA_CF1')
 
       Return
       End
@@ -365,7 +359,6 @@ c-----------------------------------------------------------------------
       External                      :: trace
       Logical                       :: dbg
 
-      Call qEnter('SA_newCF')
 !-------------------------------------------
       If(n<1) Return
 !-------------------------------------------
@@ -442,7 +435,6 @@ c-----------------------------------------------------------------------
 
       Call mma_deallocate(Cp)
       Call mma_deallocate(Cm)
-      Call qExit('SA_newCF')
 
       Return
       End subroutine newCF

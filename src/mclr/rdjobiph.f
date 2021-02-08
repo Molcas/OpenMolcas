@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdJobIph
+      Subroutine RdJobIph(CIVec)
 ************************************************************************
 *                                                                      *
 *     Read the contents of the JOBIPH file.                            *
@@ -21,14 +21,14 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: CMO, G2t, G1t
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "glbbas_mclr.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
@@ -36,7 +36,11 @@
       Character*8 Method
       real*8 dv_ci2  ! yma added
       Logical Found
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Character(Len=1), Allocatable:: TempTxt(:)
+      Real*8, Allocatable::  Tmp2(:)
+      Real*8, Allocatable:: CIVec(:,:)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -44,9 +48,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
       debug=.FALSE.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       debug=.TRUE.
 #endif
 
@@ -65,15 +69,14 @@
 *----------------------------------------------------------------------*
 *     Read the the system description                                  *
 *----------------------------------------------------------------------*
-      ndum=lenin8*mxorb
-      Call Getmem('TMP','ALLO','CHAR',ipdum,ndum)
+      Call mma_allocate(TempTxt,LENIN8*MxOrb,Label='TempTxt')
       iDisk=iToc(1)
 
 !      write(*,*)"if dmrg, it should be something else "
       Call WR_RASSCF_Info(LuJob,2,iDisk,
      &                    nActEl,iSpin,nSym,State_sym,nFro,
      &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,cwork(ipdum),LENIN8*mxorb,
+     &                    nBas,MxSym,TempTxt,LENIN8*mxorb,
      &                    nConf,HeaderJP,144,
      &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
      &                    nRoots,iRoot,mxRoot,
@@ -89,7 +92,7 @@
 !        call xflush(6)
 !      end do
 
-      Call Getmem('TMP','FREE','CHAR',ipdum,ndum)
+      Call mma_deallocate(TempTxt)
 *----------------------------------------------------------------------*
 *     Overwrite the variable lroots if approriate, i.e if lroot        *
 *     was set by input.                                                *
@@ -118,6 +121,7 @@
       ntBtri=0
       ntBsqr=0
       nna=0
+      Length=0
       Do 10 iSym=1,nSym
          norb(isym)=nbas(isym)-ndel(isym)
          ntIsh=ntIsh+nIsh(iSym)
@@ -131,6 +135,7 @@
          ntBsqr=ntBsqr+nBas(iSym)*nBas(iSym)
          nA(iSym)=nna
          nnA=nnA+nAsh(isym)
+         Length=Length+nbas(isym)*norb(isym)
 10    Continue
 
 
@@ -147,7 +152,8 @@
 *     Load the orbitals used in the last macro iteration               *
 *----------------------------------------------------------------------*
 *
-      Call Get_CMO(ipCMO,Length)
+      Call mma_allocate(CMO,Length,Label='CMO')
+      Call Get_CMO(CMO,Length)
 C
 C     Read state for geo opt
 C
@@ -211,14 +217,14 @@ C
 C
 *     iDisk=iToc(9)
 *     IF(IPT2.EQ.0) iDisk=iToc(2)
-*     Call dDaFile(LuJob,2,Work(ipCMO),ntBsqr,iDisk)
+*     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
       If( .false. ) then
-         jpCMO=ipCMO
+         jpCMO=1
          Do 15 iSym=1,nSym
             call dcopy_(nbas(isym)*ndel(isym),[0d0],0,
-     *                 Work(jpCMO+norb(isym)*nbas(isym)),1)
+     *                 CMO(jpCMO+norb(isym)*nbas(isym)),1)
             Write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
-            Call RecPrt(Line,' ',Work(jpCMO),nBas(iSym),nBas(iSym))
+            Call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
             jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
 15       Continue
       End If
@@ -231,34 +237,31 @@ C
 !    2) and together with DET numbers from GUGA generation part
 
       if(doDMRG)then  ! yma
-        !ipCI=1
-        ! need to be deleted the 1000 yma
-        Call GetMem('OCIvec','Allo','Real',ipCI,nConf*nroots+1000)
-      ! So, nothing need to be done here ...
+        Call mma_allocate(CIVec,nConf,nroots,Label='CIVec')
       else
-        Call GetMem('OCIvec','Allo','Real',ipCI,nConf*nroots)
+        Call mma_allocate(CIVec,nConf,nroots,Label='CIVec')
         Do i=1,nroots
           j=iroot(i)
           iDisk=iToc(4)
           Do k=1,j-1
             Call dDaFile(LuJob,0,rdum,nConf,iDisk)
           End Do
-          Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf),nConf,iDisk)
+          Call dDaFile(LuJob,2,CIVec(:,i),nConf,iDisk)
         End Do
-!#ifdef _DEBUG_           ! yma umcomment
-        Do i=0,nroots-1            !yma
+!#ifdef _DEBUGPRINT_           ! yma umcomment
+        Do i=1,nroots            !yma
           inum=0
           dv_ci2=0.0d0
           do j=1,nconf
 !yma        CI-threshold
-            if(abs(Work(ipCI+nconf*i+j-1)).lt.0.0d0)then
+            if(abs(CIVec(j,i)).lt.0.0d0)then
               inum=inum+1
-              Work(ipCI+nconf*i+j-1)=0.0d0
+              CIVec(j,i)=0.0D0
             else
-              dv_ci2=dv_ci2+Work(ipCI+nconf*i+j-1)**2
+              dv_ci2=dv_ci2+CIVec(j,i)**2
             end if
           end do
-!          Call DVcPrt('CI coefficients',' ',Work(ipCI+nconf*i),nConf)!yma
+!          Call DVcPrt('CI coefficients',' ',CIVec(:,i),nConf)!yma
 !          write(*,*)"dismissed dets num", inum
 !          write(*,*)"absolutely CI^2",dv_ci2
         End DO
@@ -268,34 +271,34 @@ C
 *----------------------------------------------------------------------*
 *     Load state energy                                                *
 *----------------------------------------------------------------------*
-      Call GetMem('Temp2','Allo','Real',ipTmp2,mxRoot*mxIter)
+      Call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
       iDisk=iToc(6)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
          Write(6,*) 'NROOTS: ',nroots
          Write(6,*) 'iROOTS: ',(iroot(i),i=1,nroots)
          Write(6,*) 'lROOTS: ',lroots
       End If
 #endif
-      Call dDaFile(LuJob,2,Work(ipTmp2),mxRoot*mxIter,iDisk)
+      Call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
 
       Do  iter=0,mxIter-1
         Do i=1,nroots
           j=iroot(i)
           ! It should be 0.0d0 in DMRG case
-          Temp=Work(ipTmp2+iter*mxRoot+j-1)
+          Temp=Tmp2(iter*mxRoot+j)
           If ( Temp.ne.0.0D0 ) ERASSCF(i)=Temp
 *          If (debug) Write(*,*) ERASSCF(i),i
          End Do
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
-          Write(6,*) (Work(ipTmp2+i),i=0,lroots)
+          Write(6,*) (Tmp2(i),i=1,lroots)
           Write(6,*)'RASSCF energies=',(ERASSCF(i),i=1,nroots)
       End If
 #endif
-      Call GetMem('Temp2','Free','Real',ipTmp2,mxRoot*100)
+      Call mma_deallocate(Tmp2)
 *
       nAct  = 0    ! 1/2
 
@@ -319,35 +322,23 @@ C
             End Do
          End Do
       End Do
-*     Call GetMem(' G1sq','Allo','Real',ipG1,nAct2)
 
       nG1 = nAct*(nAct+1)/2
-      Call GetMem(' G1 ','Allo','Real',ipG1t,nG1)
+      Call mma_allocate(G1t,nG1,Label='G1t')
       nG2=nG1*(nG1+1)/2
-      Call GetMem(' G2 ','Allo','Real',ipG2t,nG2)
-      Call RDDENS(Work(ipG1t),ng1,Work(ipG2t),ng2)
-      ipg1=ipg1t
-      ipG2=ipG2t
-      ipg2tmm=ipg2
-      ipg2tpp=ipg2
+      Call mma_allocate(G2t,nG2,Label='G2t')
+      Call RDDENS(G1t,ng1,G2t,ng2)
 
-#ifdef _DEBUG_
-      Call Triprt('G1',' ',Work(ipG1t),ntash)
-      Call Triprt('G2',' ',Work(ipG2),ng1)
+#ifdef _DEBUGPRINT_
+      Call Triprt('G1',' ',G1t,ntash)
+      Call Triprt('G2',' ',G2t,ng1)
 #endif
-
-      nG1 = nAct*(nAct+1)/2
-      nG2=nG1*(nG1+1)/2
-
-!      Call Triprt('G1',' ',Work(ipG1t),ntash)
-!      Call Triprt('G2',' ',Work(ipG2),ng1)
 
       if(doDMRG)then ! yma
         call dmrg_dim_change_mclr(LRras2(1:8),nact,0)
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
         call dmrg_spc_change_mclr(LRras2(1:8),nrs2)
       end if
-
 *                                                                      *
 ************************************************************************
 *                                                                      *

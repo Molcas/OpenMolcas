@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2019, Ignacio Fdez. Galván                             *
+# Copyright (C) 2019,2020, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -33,7 +33,8 @@ class gv:
 #  GROUP elements
 #  SELECT/KEYWORD elements
 #  all of the above inside GROUP[KIND=BOX] (just visual grouping)
-kw_exp = '(.|GROUP[@KIND="BOX"])/GROUP | (.|GROUP[@KIND="BOX"])/KEYWORD | (.|GROUP[@KIND="BOX"])/SELECT/KEYWORD'
+box = '(.|{0}|{0}/{0})'.format('GROUP[@KIND="BOX"]')
+kw_exp = '{0}/GROUP[@KIND!="BOX"] | {0}/KEYWORD | {0}/SELECT/KEYWORD'.format(box)
 
 # Compare two strings, case-insensitive, trimmed/padded to specified length
 # (by default, 4 characters, typical of Molcas keywords)
@@ -87,6 +88,13 @@ def first_int(string):
 # Is line blank?
 def blank(string):
   return string.strip() == ''
+
+# Find next non-blank line
+def to_next_non_blank(lines):
+  n = 1
+  while ((n < len(lines)) and blank(lines[n])):
+    n += 1
+  return n
 
 # Check if the current line starts a group
 #  1: group matches, consume one line
@@ -641,7 +649,7 @@ def test_custom(lines, keyword):
             elif (parts[0].upper() == 'PROJOP'):
               ll = 1
               n = first_int(lines[l+ll])
-              ll += 1
+              ll += to_next_non_blank(lines[l+ll:])
               for i in range(n+1):
                 n1, n2 = to_int(fortran_split(lines[l+ll])[0:2])
                 ll += test_standard(lines[l+ll:], 'REALS', n2+n1*(1+n2))
@@ -668,6 +676,20 @@ def test_custom(lines, keyword):
             assert (len(parts) > 1)
           elif any([cmp_str(parts[0], i) for i in ['MUON', 'PSEUDO', 'FRAGMENT']]):
             pass
+          elif (cmp_str(parts[0], 'PP')):
+            n1, n2 = to_int(parts[2:4])
+            ll = 0
+            ll += to_next_non_blank(lines[l+ll:])
+            for i in range(n2+1):
+              n1 = first_int(lines[l+ll])
+              ll += to_next_non_blank(lines[l+ll:])
+              for j in range(n1):
+                parts = fortran_split(lines[l+ll])
+                n = fortran_int(parts[0])
+                nums = to_float(parts[1:3])
+                ll += to_next_non_blank(lines[l+ll:])
+            if (ll):
+              l += ll-1
           elif (cmp_str(parts[0], 'SPEC')):
             l += 1
             while (l < len(lines)):
@@ -1327,12 +1349,24 @@ def test_custom(lines, keyword):
 def read_db(filename):
   root = ET.parse(filename).getroot()
 
+  garbage = ET.Element('garbage')
+
   # Copy all content from INCLUDE references
   for include in root.xpath('//INCLUDE'):
     xmod = root.find('MODULE[@NAME="{0}"]'.format(include.get('MODULE')))
-    parent = include.getparent()
+
+    this = include
+    ignore = include.get('EXCEPT', '').split(',')
     for node in xmod:
-      parent.append(ET.fromstring(ET.tostring(node)))
+      if (node.get('NAME') in ignore):
+        continue
+      new = ET.fromstring(ET.tostring(node))
+      for i in new.xpath('//*'):
+        if (i.get('NAME') in ignore):
+          garbage.append(i)
+      this.addnext(new)
+      this = new
+    garbage.append(include)
 
   # Add END keywords in modules and block groups if not already there
   for group in root.xpath('MODULE | //GROUP[@KIND="BLOCK"]'):
@@ -1344,14 +1378,16 @@ def read_db(filename):
       if (group.find('KEYWORD[@NAME="{}"]'.format(end)) is None):
         group.append(ET.Element('KEYWORD', NAME=end, KIND='SINGLE'))
 
+  del garbage
+
   return root
 
 # This is a hack for the XYZ input of GATEWAY/SEWARD
 # to hide "native input" keywords and enable "XYZ input" ones
 def enable_xyz(module):
-  for kw in module.xpath('KEYWORD[@EXCLUSIVE="COORD"]'):
+  for kw in module.xpath('//KEYWORD[@EXCLUSIVE="COORD"]'):
     kw.set('NAME', '#{}'.format(kw.get('NAME')))
-  for kw in module.xpath('KEYWORD[starts-with(@NAME, "*")]'):
+  for kw in module.xpath('//KEYWORD[starts-with(@NAME, "*")]'):
     kw.set('NAME', kw.get('NAME')[1:])
 
 # Validate a list of strings against a keyword database
@@ -1395,7 +1431,7 @@ def validate(inp, db):
   # This is a hack for the XYZ input of GATEWAY/SEWARD
   # to hide "XYZ input" keywords (they will be enabled if COORD, GROMACS or TINKER is found)
   if (module.get('NAME') in ['GATEWAY', 'SEWARD']):
-    for kw in module.xpath('KEYWORD[@NAME="BASIS (XYZ)"] | KEYWORD[@NAME="GROUP"]'):
+    for kw in module.xpath('//KEYWORD[@NAME="BASIS (XYZ)"] | //KEYWORD[@NAME="GROUP"]'):
       kw.set('NAME', '*{}'.format(kw.get('NAME')))
 
   result.append('Input for: {0}'.format(program))

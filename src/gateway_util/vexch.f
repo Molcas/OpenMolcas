@@ -8,22 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,
-     &                       ipExp,ipCff,nExp,nBasis,MxShll,
-     &                       nProj,iCoShll,ip_Occ,DInf,nDInf)
-C
-C     VExch calculates the atomic integral
-C                 <zp,np,la | Sum(core) Kc |zq,nq,la>
-C
+      Real*8 Function VExch (ZP,NP,ZQ,NQ,LA,nProj,iCoShll)
+************************************************************************
+*                                                                      *
+*     VExch calculates the atomic integral                             *
+*     <zp,np,la | Sum(core) Kc |zq,nq,la>                              *
+*                                                                      *
+************************************************************************
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
-      Real*8 DInf(nDInf)
-      Integer ipExp(MxShll), ipCff(MxShll), ip_Occ(MxShll),
-     &           nExp(MxShll), nBasis(MxShll)
 C...  auxiliar constant pool:       ready only up to g-valence/g-core
       PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
       COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)
+*
+*     Define statement function
       VF(N,X)=DFAC(N)/sqrt(X)**(N+1)
-      Call qEnter('VExch')
 *
       If (nProj.gt.4) Then
         Write (6,*) 'VExch: nProj',nProj
@@ -38,18 +37,18 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
         Call Abend
       Endif
 *
-      PI=2.D0*ACOS(0.D0)
-      PIPPI=(0.5D0/PI)**0.75D0
+*     PI=2.D0*ACOS(0.D0)
+*     PIPPI=(0.5D0/PI)**0.75D0
       L1=LA
       VPQ=VF(2*NP,ZP)*VF(2*NQ,ZQ)
-      PSMT=0.D0
+*     PSMT=0.D0
 *ls start adding
       Vexch=0.D0
 *ls end adding
 *     loop over angular momentum
       DO 55 ISIM=1,nProj+1
         iCoSh=iCoShll+ISIM-1
-        EDUM=0.5D0*DBLE(ISIM)+0.25D0
+*       EDUM=0.5D0*DBLE(ISIM)+0.25D0
         NR=ISIM
         NS=ISIM
         L2=ISIM
@@ -58,11 +57,8 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
         IF(L1.LT.L2) LMT=((L2-1)*L2)/2+L1
         KOMAX=KOSUU(LMT)
 *       loop over core orbitals of a given angular momentum
-        iOff = nBasis(iCoSh)*nExp(iCoSh)
-        DO 54 ICORB=1,nBasis(iCoSh)
-*ls start adding
+        DO 54 ICORB=1,Shells(iCoSh)%nBasis
           OrbPS=0d0
-*ls end adding
           DO 50 INU=1,KOMAX
             NUT=NYU(INU,LMT)
             NU=NUT
@@ -76,17 +72,17 @@ C
             IT3=NQ+NS-NU-1
             IT4=NP+NR+NU
             SUMA=0.D0
-            nExpon=nExp(iCoSh)
-            DO 10 K=1,nExpon
-              ZR=DInf(ipExp(iCoSh)+K-1)
-              CR=DInf(ipCff(iCoSh)+iOff+(ICORB-1)*nExpon+K-1)
+            nExpon=Shells(iCoSh)%nExp
+            DO K=1,nExpon
+              ZR=Shells(iCoSh)%Exp(K)
+              CR=Shells(iCoSh)%Cff_c(K,ICORB,2)
 CLS           coeff of unnormalized non-diagonal cartesian GTF
 * to be used in ecpaimp       CR=CR/(PIPPI*(4.D0*ZR)**EDUM)
               VR=VF(2*NR,ZR)
               RTT1=0.5D0*(ZP+ZR)
-              DO 10 L=1,nExpon
-                ZS=DInf(ipExp(iCoSh)+L-1)
-                CS=DInf(ipCff(iCoSh)+iOff+(ICORB-1)*nExpon+L-1)
+              DO L=1,nExpon
+                ZS=Shells(iCoSh)%Exp(L)
+                CS=Shells(iCoSh)%Cff_c(L,ICORB,2)
 * to be used in ecpaimp          CS=CS/(PIPPI*(4.D0*ZS)**EDUM)
                 VS=VF(2*NS,ZS)
                 RTT2=0.5D0*(ZQ+ZS)
@@ -97,7 +93,8 @@ CLS           coeff of unnormalized non-diagonal cartesian GTF
                 RTT7=VF(IT1,RTT1)*VF(IT2,RTT2)*RTT5
      .              +VF(IT3,RTT2)*VF(IT4,RTT1)*RTT6
                 SUMA=SUMA+RTT7*CR*CS/sqrt(VPQ*VR*VS)
-   10       CONTINUE
+              END DO
+            END DO
 C                END KSM.
 *ls c       PSMT=PSMT+RCAT*0.797884561D0*SUMA
 *ls start adding
@@ -105,8 +102,7 @@ C                END KSM.
 *ls end adding
   50      CONTINUE
 *ls start adding
-          ip=ip_Occ(iCoSh)+(iCOrb-1)
-          FOcc=DInf(ip)
+          FOcc=Shells(iCoSh)%Occ(iCOrb)
           Vexch=Vexch+2d0*OrbPS * FOcc
 *ls start adding
  54     CONTINUE
@@ -115,6 +111,5 @@ C                END KSM.
 *     end of loop over angular momentum
 *ls c VEXCH= 2.D0*PSMT
 C
-      Call qExit('VExch')
       RETURN
       END

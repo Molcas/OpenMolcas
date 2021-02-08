@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine tunedefs_cvb()
       implicit real*8 (a-h,o-z)
@@ -50,9 +51,11 @@ c  First set values that disable tests :
       sign(j)=huge
       zzmax(j)=huge
       zzmin(j)=-huge
-      do 100 i=1,3
+      do 101 i=1,3
       dx(i,j)=huge
-100   grd(i,j)=huge
+      grd(i,j)=huge
+101   continue
+100   continue
 c  << TRST_CVB common block : >>
       scalesmall(1)=.false.
       nopth1(1)=1

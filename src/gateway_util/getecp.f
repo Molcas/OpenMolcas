@@ -8,14 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1990, Roland Lindh                                     *
+* Copyright (C) 1990,2020,  Roland Lindh                               *
 *               1990, IBM                                              *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine GetECP(lUnit,ipExp,ipCff,nExp,nBasis,MxShll,iShll,
-     &                  BLine,ipM1xp,ipM1cf,nM1,
-     &                  ipM2xp,ipM2cf,nM2,ipBk,CrRep,nProj,ipAkl,ip_Occ,
-     &                  ipPP,nPP,UnNorm,DInf,nDInf)
 ************************************************************************
 *                                                                      *
 *    Objective: To read ECP information, excluding the valence basis-  *
@@ -32,30 +28,33 @@
 *                                                                      *
 *     Modified: Per Boussard -93.                                      *
 ************************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+      SubRoutine GetECP(lUnit,iShll,nProj,UnNorm)
+      Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "print.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-*for ip_Dummy:
-      Character*180 Line, Get_Ln
-      Character*(*) BLine
-*     External Get_Ln
-      Real*8 DInf(nDInf)
-      Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
-      Integer ipExp(MxShll), ipCff(MxShll), ipBk(MxShll),
-     &           nExp(MxShll), nBasis(MxShll),
-     &           ipAkl(MxShll), ip_Occ(MxShll), mPP(2)
+      Integer lUnit
+      Integer iShll
+      Integer nProj
       Logical UnNorm
+*     Local variables
+      Character(LEN=180) Line, Get_Ln
+*     External Get_Ln
+      Integer mPP(2)
+      Real*8, Dimension(:), Allocatable :: Scrt1, Scrt2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=6
-      iPrint = nPrint(iRout)
-      Call QEnter('GetECP')
-*
-      ip_Dummy=-1
-      iStrt = ipExp(iShll+1)
+      Interface
+         Subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
+         Integer lUnit, iStrt, Inc, iErr
+         Real*8 Work(iend)
+         End Subroutine Read_v
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,7 +64,7 @@
 *
       If (Index(Line,'PP').ne.0) Then
 *
-         ipPP=iShll+1
+         dbsc(nCnttp)%iPP=iShll+1
 *
 C        Write (6,*) 'Line=',Line
          If (Index(Line,'PPSO').ne.0) Then
@@ -75,11 +74,11 @@ C        Write (6,*) 'Line=',Line
            mPP(2)=0
          Endif
 C        Write (6,*) 'mPP=',mPP
-         nPP = 1 + mPP(1) + mPP(2)
+         dbsc(nCnttp)%nPP = 1 + mPP(1) + mPP(2)
 *
          Do iPP = 0, mPP(1)
             iShll = iShll + 1
-C           Write (6,*) 'iPP,nPP=',iPP,nPP
+C           Write (6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
             If (iShll.gt.MxShll) Then
                Call WarningMessage(2,
      &                     'Abend in GetECP: Increase MxShll')
@@ -91,30 +90,31 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
-            nExp(iShll) = kcr
-            ipExp(iShll) = iStrt
+            Shells(iShll)%nExp = 3*kcr
+            Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 *
+            iStrt=1
             Do jcr = 1, kcr
                Line=Get_Ln(lUnit)
 *
                Call Get_I1(1,ncr)
 C              Write (6,*) 'ncr=',ncr
-               DInf(iStrt)=DBLE(ncr)
+               Shells(iShll)%Exp(iStrt)=DBLE(ncr)
                iStrt=iStrt+1
                Call Get_F1(2,zcr)
 C              Write (6,*) 'zcr=',zcr
-               DInf(iStrt)=zcr
+               Shells(iShll)%Exp(iStrt)=zcr
                iStrt=iStrt+1
                Call Get_F1(3,ccr)
 C              Write (6,*) 'ccr=',ccr
-               DInf(iStrt)=ccr
+               Shells(iShll)%Exp(iStrt)=ccr
                iStrt=iStrt+1
             End Do
 *
          End Do
          Do iPP = 1, mPP(2)
             iShll = iShll + 1
-C           Write (6,*) 'iPP,nPP=',iPP,nPP
+C           Write (6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
             If (iShll.gt.MxShll) Then
                Call ErrTra
                Write (6,*) 'Abend in GetECP: Increase MxShll'
@@ -126,36 +126,37 @@ C           Write (6,*) 'iPP,nPP=',iPP,nPP
 C           Write (6,*) 'Line=',Line
             Call Get_i1(1,kcr)
 C           Write (6,*) 'kcr,iShll=',kcr,iShll
-            nExp(iShll) = kcr
-            ipExp(iShll) = iStrt
+            Shells(iShll)%nExp=3*kcr
+            Call mma_allocate(Shells(iShll)%Exp,3*kcr,Label='Exp')
 *
+            iStrt=1
             Do jcr = 1, kcr
                Line=Get_Ln(lUnit)
 *
                Call Get_I1(1,ncr)
 C              Write (6,*) 'ncr=',ncr
                ncr=ncr+1000
-               DInf(iStrt)=DBLE(ncr)
+               Shells(iShll)%Exp(iStrt)=DBLE(ncr)
                iStrt=iStrt+1
                Call Get_F1(2,zcr)
 C              Write (6,*) 'zcr=',zcr
-               DInf(iStrt)=zcr
+               Shells(iShll)%Exp(iStrt)=zcr
                iStrt=iStrt+1
                Call Get_F1(3,ccr)
 C              Write (6,*) 'ccr=',ccr
-               DInf(iStrt)=ccr
+               Shells(iShll)%Exp(iStrt)=ccr
                iStrt=iStrt+1
             End Do
 *
          End Do
-         iEnd = iStrt - 1
-         ipExp(iShll+1) = iEnd + 1
 C        Write (6,*) 'Done'
 *
-         Go To 999
+         Return
       End If
 *                                                                      *
 ************************************************************************
+*                                                                      *
+*     M1 section                                                       *
 *                                                                      *
 *     Write (6,*) ' Reading M1'
       If (Index(Line,'M1').eq.0) Then
@@ -164,25 +165,21 @@ C        Write (6,*) 'Done'
      &            //Line)
          Call Quit_OnUserError()
       Endif
-*     Read(Line,*)nM1
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM1)
-*     Write (*,*) ' nM1=',nM1
-      ipM1xp=iStrt
-      iEnd = iStrt+nM1-1
-* Note: all broadcasting of DInf will be done at end of getbs!!
-*     If (nM1.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM1.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-      iStrt = iEnd + 1
-      iPM1cf=iStrt
-      iEnd = iStrt+nM1-1
-*     If (nM1.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM1.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
+      dbsc(nCnttp)%nM1=nM1
+      If (nM1.gt.0) Then
+         Call mma_allocate(dbsc(nCnttp)%M1xp,nM1,Label='dbsc:M1xp')
+         Call mma_allocate(dbsc(nCnttp)%M1cf,nM1,Label='dbsc:M1cf')
+         Call Read_v(lUnit,dbsc(nCnttp)%M1xp(1),1,nM1,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M1cf(1),1,nM1,1,ierr)
+       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*     M2 section                                                       *
+*                                                                      *
 *     Write (*,*) ' Reading M2'
-      iStrt = iEnd + 1
       Line=Get_Ln(lUnit)
       If (Index(Line,'M2').eq.0) Then
          Call WarningMessage(2,
@@ -190,21 +187,15 @@ C        Write (6,*) 'Done'
      &            //Line)
          Call Quit_OnUserError()
       Endif
-*     Read(Line,*)nM2
       Line=Get_Ln(lUnit)
       Call Get_i1(1,nM2)
-*     Write (*,*) ' nM2=',nM2
-      ipM2xp=iStrt
-      iEnd = iStrt+nM2-1
-*     If (nM2.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM2.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-      iStrt = iEnd + 1
-      iPM2cf=iStrt
-      iEnd = iStrt+nM2-1
-*     If (nM2.gt.0) Read(lUnit,*) (DInf(i),i=iStrt,iEnd)
-      If (nM2.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
-      iStrt = iEnd + 1
-      ipExp(iShll+1) = iEnd + 1
+      dbsc(nCnttp)%nM2=nM2
+      If (nM2.gt.0) Then
+         Call mma_allocate(dbsc(nCnttp)%M2xp,nM2,Label='dbsc:M2xp')
+         Call mma_allocate(dbsc(nCnttp)%M2cf,nM2,Label='dbsc:M2cf')
+         Call Read_v(lUnit,dbsc(nCnttp)%M2xp,1,nM2,1,ierr)
+         Call Read_v(lUnit,dbsc(nCnttp)%M2cf,1,nM2,1,ierr)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -218,9 +209,8 @@ C        Write (6,*) 'Done'
      &            //Line)
          Call Quit_OnUserError()
       Endif
-*     Read(Line,*)CrRep
       Line=Get_Ln(lUnit)
-      Call Get_F1(1,CrRep)
+      Call Get_F1(1,dbsc(nCnttp)%CrRep)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -242,7 +232,7 @@ C        Write (6,*) 'Done'
       Line = Get_Ln(lUnit)
       Call Get_I1(1,nProj)
 *
-      If (nProj.lt.0) Go To 999
+      If (nProj.lt.0) Return
       Do 10 iAng = 0, nProj
 *        Write (6,*) ' iAng=',iAng
          n_Elec=2*(2*iAng+1)
@@ -257,128 +247,97 @@ C        Write (6,*) 'Done'
          Call Get_I1(1,nPrim)
          Call Get_i1(2,nCntrc)
 *
-         nExp(iShll) = nPrim
-         nBasis(iShll) = nCntrc
+         Shells(iShll)%nExp=nPrim
+         Shells(iShll)%nBasis = nCntrc
 *
 *------- Check if occupation number is included on the line
 *
-         ip_Occ(iShll)=iStrt
          iSS=1
          Call NxtWrd(Line,iSS,iEE)
          iSS=iEE+1
          Call NxtWrd(Line,iSS,iEE)
          iSS=iEE+1
          Call NxtWrd(Line,iSS,iEE)
+         Call mma_allocate(Shells(iShll)%Occ,nCntrc,Label='Occ')
          If (iEE.gt.0) Then
             Do i = 1, nCntrc
                Call Get_i1(2+i,n_Occ)
-               DInf(iStrt)=DBLE(n_Occ)/DBLE(n_Elec)
-               iStrt=iStrt+1
+               Shells(iShll)%Occ(i)=DBLE(n_Occ)/DBLE(n_Elec)
 *              Write (*,*) 'n_Occ=',n_Occ
             End Do
          Else
-            Do i = 1, nCntrc
-*              Write (*,*) 'n_Occ=',n_Elec
-               DInf(iStrt)=One
-               iStrt=iStrt+1
-            End Do
+            Shells(iShll)%Occ(:)=One
          End If
 *
 *        Read "orbital energies"
 *
 *        Write (6,*) ' Reading Bk'
-         ipBk(iShll) = iStrt
-         ipAkl(iShll) = ip_Dummy
-         iEnd = iStrt + nCntrc - 1
-*        If (nCntrc.gt.0) Read (lUnit,*,Err=992) (DInf(i),i=iStrt,iEnd)
-         If (nCntrc.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
+         Call mma_allocate(Shells(iShll)%Bk,nCntrc,Label='Bk')
+         Shells(iShll)%nBk=nCntrc
+         If (nCntrc.gt.0) Call Read_v(lUnit,Shells(iShll)%Bk,
+     &                                1,nCntrc,1,ierr)
          If (ierr.ne.0) goto 992
-         iStrt = iEnd + 1
 *
 *        Read gaussian EXPonents
 *
 *        Write (6,*) ' Reading Exponents'
-         ipExp(iShll) = iStrt
-         nExp(iShll) = nPrim
-         iEnd = iStrt + nPrim - 1
-*        If (nPrim.gt.0) Read (lUnit,*,Err=992) (DInf(i),i=iStrt,iEnd)
-         If (nPrim.gt.0) Call Read_v(lUnit,DInf,iStrt,iEnd,1,ierr)
+         Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
+         Shells(iShll)%nExp=nPrim
+         If (nPrim.gt.0) Call Read_v(lUnit,Shells(iShll)%Exp,1,nPrim,1,
+     &                               ierr)
          If (ierr.ne.0) goto 992
-         iStrt = iEnd + 1
-*        Call RecPrt(' Exponents',DInf(iStrt),nPrim,1)
-         ipCff(iShll) = iStrt
-         nBasis(iShll) = nCntrc
-         iEnd = iStrt + nPrim*nCntrc - 1
+*        Call RecPrt(' Exponents',Shells(iShll)%nExp,nPrim,1)
+         Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                     Label='Cff_c')
+         Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                     Label='pCff')
+         Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
+     &                     Label='Cff_p')
+         Shells(iShll)%Cff_p(:,:,:)=Zero  ! dummy assign
+         Shells(iShll)%nBasis=nCntrc
 *
 *        Read contraction coefficients
 *        Observe that the matrix will have nPrim rows and
 *        nCntrc columns
 *
 *        Write (6,*) ' Reading coefficients'
-         Do 20 iPrim = 0, nPrim-1
-*           Read (lUnit,*,Err=991) (DInf(i),i=iStrt+iPrim,iEnd,nPrim)
-            Call Read_v(lUnit,DInf,iStrt+iPrim,iEnd,nPrim,ierr)
+         Do iPrim = 1, nPrim
+            Call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),
+     &                  iPrim,nPrim*nCntrc,nPrim,ierr)
             If(ierr.ne.0) goto 991
- 20      Continue
+         End Do
 *
 *--------Renormalize
 *
          call mma_allocate(Scrt1,nPrim**2)
          call mma_allocate(Scrt2,nPrim*nCntrc)
-         Call Nrmlx(DInf(ipExp(iShll)),nPrim,DInf(ipCff(iShll)),
-     &                   nCntrc, Scrt1,nPrim**2,
-     &                           Scrt2, nPrim*nCntrc,iAng)
+         Call Nrmlx(Shells(iShll)%Exp,nPrim,
+     &              Shells(iShll)%Cff_c(1,1,1),nCntrc,
+     &                      Scrt1,nPrim**2,
+     &                      Scrt2, nPrim*nCntrc,iAng)
          call mma_deallocate(Scrt1)
          call mma_deallocate(Scrt2)
 *
 *        Duplicate!
 *
-         iStrt = iEnd + 1
-         iEnd = iStrt + nPrim*nCntrc - 1
-         Call DCopy_(nPrim*nCntrc,DInf(ipCff(iShll)),1,DInf(iStrt),1)
+         Shells(iShll)%Cff_c(:,:,2)=Shells(iShll)%Cff_c(:,:,1)
 *
          If (.Not.UnNorm) Then
-            If (nExp(iShll)*nBasis(iShll).ge.1) Then
-               Call Nrmlz(DInf(ipExp(iShll)),nExp(iShll),
-     &                    DInf(ipCff(iShll)),nBasis(iShll),iAng)
+            nExpi=Shells(iShll)%nExp
+            If (nExpi*Shells(iShll)%nBasis.ge.1) Then
+               Call Nrmlz(Shells(iShll)%Exp,nExpi,
+     &                    Shells(iShll)%Cff_c(1,1,1),
+     &                    Shells(iShll)%nBasis,iAng)
             End If
          End If
-*
-         iStrt = iEnd + 1
-         If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+         Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
  10   Continue
- 999  Continue
 *
-      Call QExit('GetECP')
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_character(BLine)
-*
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*998  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Basis set label not found in library')
-*        Call Quit_OnUserError()
-*997  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Error on opening the basis set library')
-*        Call Quit_OnUserError()
-*996  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: No library file available with this name')
-*        Call Quit_OnUserError()
-*995  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Error while reading from basis library')
-*        Call Quit_OnUserError()
-*993  Continue
-*        Call WarningMessage(2,
-*    &      'Abend in GetBS: Error while reading the primitive line'
-*    &                //' Line reads:'//Line)
-*        Call Quit_OnUserError()
  992  Continue
          Call WarningMessage(2,
      &      'Abend in GetBS: Error while reading the exponents')
@@ -387,4 +346,12 @@ c Avoid unused argument warnings
          Call WarningMessage(2,
      &      'Abend in GetBS: Error while reading the coefficients')
          Call Quit_OnUserError()
-      End
+      End Subroutine GetECP
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(GetECP)
+
+#endif

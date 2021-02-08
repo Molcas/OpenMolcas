@@ -17,19 +17,18 @@ C
 C     Purpose: Parallel two-step decomposition of two-electron
 C              integrals.
 C
+      use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
+      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+      use ChoSubScr, only: Cho_SScreen, SSTau
       Implicit None
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosew.fh"
-#include "chosubscr.fh"
-#include "chosimri.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer ip_Err, l_Err
-      Integer iSec, kDiag
-      Integer ip_Start, l_Start
+      Integer iSec
       Integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
       Integer N2_VecRd_Bak
       Integer Cho_DecAlg_Bak
@@ -51,7 +50,6 @@ C
       Real*8 tCPU0,  tCPU1,  tC0, tC1
       Real*8 tWall0, tWall1, tW0, tW1
       Real*8 C0, C1, W0, W1
-      Real*8 DumTst, DumTol
       Real*8 Thr_PreScreen_Bak, ThrDiag_Bak, Frac_ChVBuf_Bak, SSTau_Bak
       Real*8 Thr_SimRI_Bak, Tol_DiaChk_Bak
       Real*8 TimSec_Bak(4,nSection)
@@ -70,16 +68,16 @@ C
       Logical Cho_TstScreen_Bak, RstDia_Bak, RstCho_Bak
       Logical Trace_Idle_Bak
 
-      Character*18 SecNam
-      Character*4 myName
-      Character*2 Unt
+      Character(LEN=18), Parameter:: SecNam='Cho_Drv_ParTwoStep'
+      Character(LEN=4), Parameter:: myName='DPTS'
+      Character(LEN=2) Unt
 
-      Parameter (SecNam='Cho_Drv_ParTwoStep')
-      Parameter (myName='DPTS')
-      Parameter (DumTst=0.123456789d0, DumTol=1.0d-15)
+      Real*8, Parameter:: DumTst=0.123456789d0, DumTol=1.0d-15
+      Real*8, Allocatable:: Check(:)
 
       Integer NVT, nBlock, iTri
       Integer i, j
+
       NVT(i)=iWork(ip_NVT-1+i)
       nBlock(i)=iWork(ip_nBlock-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
@@ -87,8 +85,7 @@ C
 C     Preliminaries.
 C     ==============
 
-      Call qEnter(myName)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem('Start of '//SecNam)
 #endif
 
@@ -98,13 +95,10 @@ C     ==============
       ! Init return code
       irc=0
 
-      ! make a dummy allocation (used to flush memory later)
-      l_Start=1
-      Call GetMem('DrvDum','Allo','Real',ip_Start,l_Start)
-      Work(ip_Start)=DumTst
+      ! make a dummy allocation
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1)=DumTst
 
-      ! init local variables
-      kDiag = 0
       lConv = .False.
 
 C     Initialization.
@@ -123,7 +117,7 @@ C     ===============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After init')
 #endif
 
@@ -137,7 +131,7 @@ C     =============
      &   '***** Starting Cholesky diagonal setup *****'
          Call Cho_Flush(LuPri)
       End If
-      Call Cho_GetDiag(kDiag,lConv)
+      Call Cho_GetDiag(lConv)
       Call Cho_GASync()
       If (lConv) Then
          ! restart is not possible, so it can not be converged!!
@@ -152,7 +146,7 @@ C     =============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After diagonal')
 #endif
 
@@ -175,7 +169,7 @@ C     ====================================
       ! (more elements than vectors). The final Z vectors are obtained
       ! below (Cho_GetZ).
       Call Cho_P_SetAddr()
-      Call Cho_DecDrv(Work(kDiag))
+      Call Cho_DecDrv(Diag)
       Call Cho_GASync()
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
@@ -184,7 +178,7 @@ C     ====================================
      &                   tW1,TimSec(3,iSec),
      &                   2)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After 1st step')
 #endif
 
@@ -249,28 +243,21 @@ C     ====================================
       Call Cho_P_WrDiag()
       Call Cho_Final(.True.)
       Call Cho_P_OpenVR(2)
-      If (Abs(DumTst-Work(ip_Start)) .gt. DumTol) Then
-         Write(LuPri,*) SecNam,': memory has been out of bounds [1]'
-         irc=2
-         Go To 1 ! flush memory and return
-      End If
-      Call GetMem('DrvDum','Flus','Real',ip_Start,l_Start)
       Call Cho_X_Init(irc,0.0d0)
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       If (Cho_1Center) Then
-         If (l_iAtomShl.lt.1) Then
-            l_iAtomShl=nShell
-            Call GetMem('iAtomShl','Allo','Inte',ip_iAtomShl,l_iAtomShl)
-            Call Cho_SetAtomShl(irc,iWork(ip_iAtomShl),l_iAtomShl)
+         If (.NOT.Allocated(iAtomShl)) Then
+            Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
+            Call Cho_SetAtomShl(irc,iAtomShl,SIZE(iAtomShl))
             If (irc.ne.0) Then
                Write(LuPri,'(A,A,I8)')
      &         SecNam,': Cho_SetAtomShl returned code',irc
                irc=1
-               Go To 1 ! flush memory and return
+               Go To 1 ! clear memory and return
             End If
          End If
       End If
@@ -330,15 +317,13 @@ C     ====================================
       ! reduced set from Seward. Set Seward interface to 3 (to treat
       ! columns shell pair-wise).
       IFCSEW=3
-      l_iShP2RS=2*Mx2Sh
-      l_iShP2Q=l_iShP2RS
-      Call GetMem('ShP2RS','Allo','Inte',ip_iShP2RS,l_iShP2RS)
-      Call GetMem('ShP2Q','Allo','Inte',ip_iShP2Q,l_iShP2Q)
+      Call mma_allocate(iShP2RS,2,Mx2Sh,Label='iShP2RS')
+      Call mma_allocate(iShP2Q ,2,Mx2Sh,Label='iShP2Q ')
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
          Call Cho_PrtTim('Cholesky reinitialization',tC1,tC0,tW1,tW0,2)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After re-init')
 #endif
 
@@ -391,7 +376,7 @@ C     ====================================
      &                    101)
          End If
          irc=1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       Call GetMem('Z','Allo','Real',ip_Z,l_Z)
       l_nBlock=nSym
@@ -447,14 +432,14 @@ C     ====================================
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_GetZ returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
          Call Cho_PrtTim('Cholesky Z vector fetching',tC1,tC0,tW1,tW0,
      &                   2)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After GetZ')
 #endif
 
@@ -474,14 +459,14 @@ C     ====================================
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_CompVec returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       ! Write restart files
       Call Cho_PTS_WrRst(irc,iWork(ip_NVT),l_NVT)
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_PTS_WrRst returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
@@ -502,7 +487,7 @@ C     ====================================
       Call Cho_Timer(C1,W1)
       tDecDrv(1)=C1-C0
       tDecDrv(2)=W1-W0
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After 2nd step.')
 #endif
 
@@ -527,7 +512,7 @@ C     ===============
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_CheckDiag returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! release memory and return
       End If
       If (Work(ip_Err+1) .gt. ThrCom) Then
          Write(LuPri,'(/,A)')
@@ -537,7 +522,7 @@ C     ===============
          Write(LuPri,'(3X,A,1P,D15.6)')
      &   'Decomposition threshold....',ThrCom
          irc=1
-         Go To 1 ! flush memory and return
+         Go To 1 ! release memory and return
       End If
       Call GetMem('DiaErr','Free','Real',ip_Err,l_Err)
       If (iPrint .ge. Inf_Timing) Then
@@ -547,7 +532,7 @@ C     ===============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After diagonal check.')
 #endif
 
@@ -570,7 +555,7 @@ C     =============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After finalization')
 #endif
 
@@ -595,7 +580,7 @@ C     ===========
      &                      1)
          End If
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After statistics')
 #endif
 
@@ -607,13 +592,17 @@ C     ======================
 
       ! error termination point
     1 Continue
-      ! flush memory
-      If (Abs(DumTst-Work(ip_Start)) .gt. DumTol) Then
+      ! check memory
+      If (Abs(DumTst-Check(1)) .gt. DumTol) Then
          Write(LuPri,*) SecNam,': memory has been out of bounds [2]'
          irc=2
       End If
-      Call GetMem('DrvDum','Flus','Real',ip_Start,l_Start)
-      Call GetMem('DrvDum','Free','Real',ip_Start,l_Start)
+
+      If (Allocated(Diag_Hidden)) Call mma_deallocate(Diag_Hidden)
+      If (Allocated(Diag_G_Hidden)) Call mma_deallocate(Diag_G_Hidden)
+      Diag   => Null()
+      Diag_G => Null()
+      Call mma_deallocate(Check)
 
       ! Print total timing
       If (iPrint.ge.Inf_Timing .and. irc.eq.0) Then
@@ -623,9 +612,8 @@ C     ======================
       End If
 
       Call Cho_Flush(LuPri)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem('End of '//SecNam)
 #endif
-      Call qExit(myName)
 
       End

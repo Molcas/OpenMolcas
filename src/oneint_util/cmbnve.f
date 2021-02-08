@@ -13,14 +13,6 @@
       SubRoutine CmbnVe(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  Vxyz)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: VeInt                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -37,19 +29,18 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 161
-      iPrint = nPrint(iRout)
-      Call qEnter('CmbnVe')
+*     iRout = 161
+*     iPrint = nPrint(iRout)
 *     Call GetMem(' Enter CmbnVe','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *           If (iPrint.ge.99) Then
@@ -75,10 +66,11 @@
      &               Vxyz(iZeta,3,iza,izb)
  30         Continue
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
 *     Call GetMem(' Exit CmbnVe','LIST','REAL',iDum,iDum)
-      Call qExit('CmbnVe')
       Return
       End

@@ -27,14 +27,14 @@ C
       If (Cho_DecAlg .eq. 5) Then ! parallel two-step algorithm
          Call Cho_Drv_ParTwoStep(iReturn)
       Else
-         Call Cho_Drv_(iReturn)
+         Call Cho_Drv_Internal(iReturn)
       End If
 
       End
 C
 C=======================================================================
 C
-      SUBROUTINE CHO_DRV_(IRETURN)
+      SUBROUTINE CHO_DRV_Internal(IRETURN)
 C
 C     Thomas Bondo Pedersen, 2003-2010.
 C
@@ -52,28 +52,26 @@ C        0 -- successful execution
 C        1 -- decomposition failed
 C        2 -- memory has been out of bounds
 C
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
+      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+      use ChoSubScr, only: Cho_SScreen
 #include "implicit.fh"
-#include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      LOGICAL LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
-      LOGICAL SKIP_PRESCREEN, ALLOC_BKM
-      PARAMETER (SKIP_PRESCREEN=.FALSE., ALLOC_BKM=.TRUE.)
+      LOGICAL, PARAMETER:: LOCDBG = .FALSE.
+      LOGICAL, PARAMETER:: SKIP_PRESCREEN=.FALSE., ALLOC_BKM=.TRUE.
 
       LOGICAL LCONV
 
-      CHARACTER*8 SECNAM
-      PARAMETER (SECNAM = 'CHO_DRV_')
+      CHARACTER(LEN=8), PARAMETER:: SECNAM = 'CHO_DRV_'
 
-      PARAMETER (DUMTST = 0.123456789D0, DUMTOL = 1.0D-15)
+      Real*8, PARAMETER:: DUMTST = 0.123456789D0, DUMTOL = 1.0D-15
+      Real*8, Allocatable:: Check(:)
 
-      CALL QENTER('_DRV_')
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
 #endif
 
@@ -90,9 +88,8 @@ C     ----------------
 C     Make a dummy allocation.
 C     ------------------------
 
-      l_START = 1
-      CALL CHO_MEM('DRVDUM','ALLO','REAL',ip_START,l_START)
-      WORK(ip_START) = DUMTST
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1) = DUMTST
 
 C     INITIALIZATION.
 C     ===============
@@ -110,7 +107,7 @@ C     ===============
      &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                   1)
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_INIT]')
       IRC = 0
       CALL CHO_DUMP(IRC,LUPRI)
@@ -130,7 +127,7 @@ C     =============
      &   '***** Starting Cholesky diagonal setup *****'
          CALL CHO_FLUSH(LUPRI)
       END IF
-      CALL CHO_GETDIAG(KDIAG,LCONV)
+      CALL CHO_GETDIAG(LCONV)
       CALL CHO_GASYNC()
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
@@ -139,7 +136,7 @@ C     =============
      &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                   1)
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_GETDIAG]')
       IRC = 0
       CALL CHO_DUMP(IRC,LUPRI)
@@ -172,10 +169,10 @@ C     ==============
             CALL CHO_FLUSH(LUPRI)
          END IF
          CALL CHO_P_SETADDR()
-         IF (CHO_SSCREEN) THEN
-            CALL CHO_SUBSCR_INIT()
-         END IF
-         CALL CHO_DECDRV(WORK(KDIAG))
+
+         IF (CHO_SSCREEN) CALL CHO_SUBSCR_INIT()
+
+         CALL CHO_DECDRV(Diag)
          CALL CHO_GASYNC()
          IF (CHO_DECALG.EQ.2) THEN
             ! generate vectors from map
@@ -189,7 +186,7 @@ C     ==============
      &                         2)
             END IF
             IRC = 0
-            CALL CHO_X_GENVEC(IRC,WORK(KDIAG))
+            CALL CHO_X_GENVEC(IRC,Diag)
             CALL CHO_GASYNC()
             IF (IRC .NE. 0) THEN
                WRITE(LUPRI,'(A,A)')
@@ -218,7 +215,7 @@ C     ==============
      &                      1)
          END IF
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER DECOMPOSITION]')
 #endif
 
@@ -236,7 +233,7 @@ C     ===============
             CALL CHO_FLUSH(LUPRI)
          END IF
          CALL CHO_MEM('Cho.Rst','MAX ','REAL',KWRK,LWRK)
-         CALL CHO_RESTART(WORK(KDIAG),WORK(KWRK),LWRK,.TRUE.,LCONV)
+         CALL CHO_RESTART(Diag,WORK(KWRK),LWRK,.TRUE.,LCONV)
          CALL CHO_GASYNC()
          CALL CHO_MEM('Cho.Rst','FREE','REAL',KWRK,LWRK)
          IF (.NOT. LCONV) THEN
@@ -252,7 +249,7 @@ C     ===============
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER DIAGONAL CHECK]')
 #endif
       END IF
@@ -282,7 +279,7 @@ C     ================
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER INTEGRAL CHECK]')
 #endif
       ELSE
@@ -314,7 +311,7 @@ C     ================
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER VECTOR REORDERING]')
 #endif
       ELSE
@@ -343,7 +340,7 @@ C     ==================================================
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_PFAKE_VDIST]')
 #endif
       ELSE
@@ -370,7 +367,7 @@ C     ==============
      &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                   1)
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_FINAL]')
 #endif
 
@@ -395,24 +392,29 @@ C     ===========
      &                      1)
          END IF
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_STAT]')
 #endif
 
 C     Close vector and reduced storage files as well as restart files.
-C     Deallocate all memory (using flush) and test bound.
+C     Deallocate all memory and test bound.
 C     Print total timing.
 C     ----------------------------------------------------------------
 
       CALL CHO_P_OPENVR(2)
 
-      TST = DUMTST - WORK(ip_START)
+      TST = DUMTST - Check(1)
       IF (ABS(TST) .GT. DUMTOL) THEN
          WRITE(LUPRI,*) SECNAM,': memory has been out of bounds!!!'
          CALL CHO_FLUSH(LUPRI)
          IRETURN = 2
       END IF
-      CALL CHO_MEM('DRVDUM','FLUS','REAL',ip_START,l_START)
+
+      If (Allocated(Diag_Hidden)) Call mma_deallocate(Diag_Hidden)
+      If (Allocated(Diag_G_Hidden)) Call mma_deallocate(Diag_G_Hidden)
+      DIag   => Null()
+      Diag_G => Null()
+      Call mma_deallocate(Check)
 
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TCPU1,TWALL1)
@@ -420,9 +422,8 @@ C     ----------------------------------------------------------------
      &                   TWALL1,TWALL0,1)
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [EXIT]')
 #endif
-      CALL QEXIT('_DRV_')
 
       END

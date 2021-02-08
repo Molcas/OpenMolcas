@@ -33,15 +33,15 @@ C                  =sum_uAvBJAB sqrt[C(uAvB,JAB)**2]   {J on AB (2CF)}
 C
 C     FOR BLOCKED VERSION: Call LDF_ComputeCoulombIntermediates0
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Logical Timing
       Integer nD
       Integer ip_DBlocks(nD)
       Integer ip_V(nD)
       Integer ip_CNorm
-#if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
-#endif
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 

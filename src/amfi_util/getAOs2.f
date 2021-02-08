@@ -14,10 +14,8 @@ cbs   get expansions of atomic orbitals in contracted functions
 #include "para.fh"
 #include "param.fh"
       common /nucleus/ charge,Exp_finite
-      character*12    occtext
       integer closedshells(0:LMAX),openshells(0:LMAX)
       call getocc_ao(int(charge),closedshells,openshells)
-      occtext='OCCUPATION: '
       do lrun=0,lhigh
       do irun=1,MxcontL
       do jrun=1,MxcontL
@@ -42,7 +40,7 @@ CBS   write(6,'(A3,I3)') 'L= ',lrun
       if (noccorb(lrun).gt.0) then
 CBS   write(6,'(A,I3)') 'number of orbitals ',noccorb(lrun)
 CBS   do iorbital=1,noccorb(lrun)
-CBS   write(6,'(A,8F8.4)') occtext,(occup(iorbital,lrun),
+CBS   write(6,'(A,8F8.4)') 'OCCUPATION: ',(occup(iorbital,lrun),
 CBS  *iorbital=1,noccorb(lrun))
 CBS   enddo
       endif

@@ -18,13 +18,13 @@
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
-      use qcmaquis_info
+      use qcmaquis_info, only: qcm_group_names
 #endif
       use mspt2_eigenvectors
-      use rassi_aux, only : jDisk_TDM, iDisk_TDM, AO_Mode
+      use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -37,7 +37,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 #include "stdalloc.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
@@ -89,7 +88,6 @@ CC    NTO section
 #endif
 #include "SysDef.fh"
 
-      CALL QENTER(ROUTINE)
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
       Call CWTime(TCpu1,TWall1)
@@ -186,7 +184,6 @@ C Pick up orbitals of ket and bra states.
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
-      NTSDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
 
 
@@ -221,13 +218,15 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
 
       IF (IF11) THEN
         NTRAD=NASHT**2
-        NTRASD=NASHT**2
-        NWERD=NASHT**2
         Call mma_allocate(TRAD,nTRAD+1,Label='TRAD')
         Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
         Call mma_allocate(WERD,nTRAD+1,Label='WERD')
       END IF
-      IF (IF22) Call mma_allocate(TDM2,nTDM2,Label='TDM2')
+      IF (IF22) THEN
+        Call mma_allocate(TDM2,nTDM2,Label='TDM2')
+      ELSE
+        Call mma_allocate(TDM2,0,Label='TDM2')
+      END IF
 
       IF(JOB1.NE.JOB2) THEN
 C Transform to biorthonormal orbital system
@@ -753,7 +752,6 @@ C Read ISTATE wave function from disk
 
        if(doGSOR) then
          if(JOB1.ne.JOB2) then
-           ST_TOT = NSTAT(JOB2)
            Dot_prod = 0
            Dot_prod = DDOT_(NCONF2,Work(LCI1),1,Work(LCI2),1)
            Call DAXPY_(NCONF2,Dot_prod,Work(LCI2_o),1,Work(LTHETA1),1)
@@ -1001,29 +999,33 @@ C             Write density 1-matrices in AO basis to disk.
           !> PAM 2011 Nov 3, writing transition matrices if requested
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
             call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
-     &                    TDMAB,TDM2,CMO1,CMO2)
+     &                    TDMAB,TDM2,CMO1,CMO2,SIJ)
           END IF
 
+          !Store SIJ temporarily
+          IF (IFEJOB.and.(ISTATE.ne.JSTATE)) THEN
+            HAM(ISTATE,JSTATE) = SIJ
+            HAM(JSTATE,ISTATE) = SIJ
+          END IF
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ
             HIJ                = HZERO+HONE+HTWO
             HAM(ISTATE,JSTATE) = HIJ
             HAM(JSTATE,ISTATE) = HIJ
 
-         !SI-PDFT related code for "second_time" case
-          if(second_time) then
-            Energies(:) =0.0d0
-            CALL DANAME(LUIPH,'JOBGS')
-            IAD = 0
-            Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
-            IAD=ITOC15(6)
-            Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
-            do i=1,NSTAT(JOB1)
-              HAM(i,i) = Energies(i)
-            end do
-            Call DACLOS(LUIPH)
-          end if
-
+            !SI-PDFT related code for "second_time" case
+            if(second_time) then
+              Energies(:) =0.0d0
+              CALL DANAME(LUIPH,'JOBGS')
+              IAD = 0
+              Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
+              IAD=ITOC15(6)
+              Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
+              do i=1,NSTAT(JOB1)
+                HAM(i,i) = Energies(i)
+              end do
+              Call DACLOS(LUIPH)
+            end if
 
             IF(IPGLOB.GE.DEBUG) THEN
               WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
@@ -1037,6 +1039,23 @@ C             Write density 1-matrices in AO basis to disk.
         END DO job1_loop
 
       END DO job2_loop
+*
+** For ejob, create an approximate off-diagonal based on the overlap (temporarily stored in HIJ)
+*
+      IF (IFEJOB) THEN
+        DO JST=1,NSTAT(JOB2)
+          JSTATE=ISTAT(JOB2)-1+JST
+          DO IST=1,NSTAT(JOB1)
+            ISTATE=ISTAT(JOB1)-1+IST
+            IF(ISTATE.LE.JSTATE) CYCLE
+            SIJ=HAM(ISTATE,JSTATE)
+            HII=HAM(ISTATE,ISTATE)
+            HJJ=HAM(JSTATE,JSTATE)
+            HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*0.5D0
+            HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*0.5D0
+          END DO
+        END DO
+      END IF
 
       IF(DoGSOR) then
         if(job1.ne.job2) then
@@ -1078,7 +1097,7 @@ C             Write density 1-matrices in AO basis to disk.
           !Open(unit=87,file='CI_THETA', action='read',iostat=ios)
           if(JST-1.ge.2) then
             do i=1,NCONF2
-              Read(LUCITH,*) dummy
+              Read(LUCITH,*) dot_prod ! dummy
             end do
           end if
           CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)
@@ -1231,7 +1250,7 @@ C             Write density 1-matrices in AO basis to disk.
           Call mma_deallocate(WDMZZ)
         END IF
       END IF
-      IF (IF22) Call mma_deallocate(TDM2)
+      Call mma_deallocate(TDM2)
 
       IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
         Call mma_deallocate(FMO)
@@ -1272,6 +1291,5 @@ C             Write density 1-matrices in AO basis to disk.
       write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

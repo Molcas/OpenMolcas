@@ -17,10 +17,10 @@
 #ifdef _DMRG_
       use rassi_global_arrays, only: LROOT
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
-      use qcmaquis_info
+      use qcmaquis_info, only: qcm_group_names
 #endif
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*),NTDM2
@@ -31,7 +31,7 @@
       REAL*8 SGNJL,SGNIK
       REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
       INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
-      INTEGER MPLET1,MPLET2, MPLETD
+      INTEGER MPLET1,MPLET2
       INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
@@ -60,7 +60,6 @@ C Pick out nr of active orbitals from orbital table:
       SPD2(:)=0.0D0
       ISYOP   = MUL(LSYM1,LSYM2)
       MS2OP   = MSPROJ1-MSPROJ2
-      MPLETD =  MPLET1 - MPLET2
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
@@ -231,7 +230,7 @@ C Position determined by active orbital index in external order:
  124  CONTINUE
 #endif
 
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
       write(6,*)' final 2-TDM'
       DO IJ=1,ntdm2
         write(6,*)' IJ, value = ',IJ,TDM2(IJ)
@@ -246,15 +245,17 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
         TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
       END DO
       RETURN
-#ifndef _DMRG_
-! Leon: Avoid warnings for unused variables if DMRG support is disabled
+! Avoid unused argument warnings
       if (.false.) then
+        call Unused_integer(MPLET1)
+        call Unused_integer(MPLET2)
         call Unused_integer(ISTATE)
         call Unused_integer(JSTATE)
+#ifndef _DMRG_
         call Unused_integer(job1)
         call Unused_integer(job2)
         call Unused_integer(ist)
         call Unused_integer(jst)
-      endif
 #endif
+      endif
       END

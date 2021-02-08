@@ -12,11 +12,11 @@
 C     this routine aborts the process(es) with rc
 #ifdef _MOLCAS_MPP_
       use mpi
+      use Para_Info, only: Is_Real_Par
 #endif
       implicit none
       integer :: rc
 #ifdef _MOLCAS_MPP_
-#include "para_info.fh"
       integer*4 :: rc4, ierr4
 #endif
 

@@ -12,27 +12,37 @@
 C
 C     Purpose: decompose qualified columns ("parallel" algorithm).
 C
+      use ChoArr, only: LQ_Tot, LQ
+      use ChoVecBuf, only: nVec_in_Buf
+
       Implicit Real*8 (a-h,o-z)
       Real*8  Diag(*)
       Integer LstQSP(NumSP)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "choptr.fh"
-#include "cholq.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*12 SecNam
-      Parameter (SecNam = 'Cho_Decom_A4')
+      Character(LEN=12), Parameter:: SecNam = 'Cho_Decom_A4'
 
       Integer NumCho_Old(8), nQual_Old(8)
-      Integer NumV(8)
+      Integer NumV(8), nkVec(8)
 
-      nKVec(i)=iWork(ip_nKVec-1+i)
-
-#if defined (_DEBUG_)
-      Call qEnter('_Decom_A4')
-#endif
+      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:)
+      Integer, Allocatable:: IDKVec(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+      Integer l_QVec, nQSP
+      Real*8, Target::  QVec(l_Qvec)
+      Integer LstQSP(nQSP)
+      End SubRoutine Cho_P_GetLQ
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C     Print header.
 C     -------------
@@ -83,31 +93,38 @@ C     ------------
 
       l_KVec = nQual(1)**2
       l_IDKVec = nQual(1)
-      l_LQ_Sym(1) = nQual(1)*NumV(1)
-      l_LQ = l_LQ_Sym(1)
+      l_LQ = nQual(1)*NumV(1)
       Do iSym = 2,nSym
          l_KVec = l_KVec + nQual(iSym)**2
          l_IDKVec = l_IDKVec + nQual(iSym)
-         l_LQ_Sym(iSym) = nQual(iSym)*NumV(iSym)
-         l_LQ = l_LQ + l_LQ_Sym(iSym)
+         l_LQ = l_LQ + nQual(iSym)*NumV(iSym)
       End Do
-      l_QDiag = l_IDKVec
-      l_lQ = max(l_LQ,1) ! because there might not be any prev. vecs.
-      Call GetMem('KVec','Allo','Real',ip_KVec,l_KVec)
-      Call GetMem('IDKVec','Allo','Inte',ip_IDKVec,l_IDKVec)
-      Call GetMem('QDiag','Allo','Real',ip_QDiag,l_QDiag)
+      l_LQ = max(l_LQ,1) ! because there might not be any prev. vecs.
+      Call mma_allocate(KVec,l_KVec,Label='KVec')
+      Call mma_allocate(IDKVec,l_IDKVec,Label='IDKVec')
+      Call mma_allocate(QDiag,l_IDKVec,Label='QDiag')
 
 C     Extract elements corresponding to qualified diagonals from
 C     previous Cholesky vectors (if any).
 C     ----------------------------------------------------------
 
       Call Cho_Timer(C1,W1)
-      Call GetMem('LQ','Allo','Real',ip_LQ,l_LQ)
-      ip_LQ_Sym(1) = ip_LQ
-      Do iSym = 2,nSym
-         ip_LQ_Sym(iSym) = ip_LQ_Sym(iSym-1) + l_LQ_Sym(iSym-1)
+      Call mma_allocate(LQ_Tot,l_LQ,Label='LQ_Tot')
+
+      iEn = 0
+      iSt = 1
+      Do iSym = 1,nSym
+         If (nQual(iSym)*NumV(iSym)>0) Then
+            iEn = iEn + nQual(iSym)*NumV(iSym)
+            LQ(iSym)%Array(1:nQual(iSym),1:NumV(iSym)) =>
+     &                LQ_Tot(iSt:iEn)
+            iSt = iEn + 1
+         Else
+            LQ(iSym)%Array => Null()
+         End If
       End Do
-      Call Cho_P_GetLQ(Work(ip_LQ),l_LQ,LstQSP,NumSP)
+
+      Call Cho_P_GetLQ(LQ_Tot,l_LQ,LstQSP,NumSP)
       Call Cho_Timer(C2,W2)
       tDecom(1,2) = tDecom(1,2) + C2 - C1
       tDecom(2,2) = tDecom(2,2) + W2 - W1
@@ -117,24 +134,19 @@ C     ------------------------------------------
 
       Call Cho_Timer(C1,W1)
 
-      l_nKVec = nSym
-      l_MQ = l_KVec
-      Call GetMem('nKVec','Allo','Inte',ip_nKVec,l_nKVec)
-      Call GetMem('MQ','Allo','Real',ip_MQ,l_MQ)
-      Call Cho_P_GetMQ(Work(ip_MQ),l_MQ,LstQSP,NumSP)
+      Call mma_allocate(MQ,l_KVec,Label='MQ')
+      Call Cho_P_GetMQ(MQ,SIZE(MQ),LstQSP,NumSP)
 
 C     Decompose qualified diagonal block.
 C     The qualified diagonals are returned in QDiag.
 C     ----------------------------------------------
 
-      Call Cho_Dec_Qual(Diag,Work(ip_LQ),Work(ip_MQ),Work(ip_Kvec),
-     &                  iWork(ip_IDKVec),iWork(ip_nKVec),
-     &                  Work(ip_QDiag))
+      Call Cho_Dec_Qual(Diag,LQ_Tot,MQ,KVec,IDKVec,nKVec,QDiag)
 
 C     Deallocate MQ.
 C     --------------
 
-      Call GetMem('MQ','Free','Real',ip_MQ,l_MQ)
+      Call mma_deallocate(MQ)
 
 C     Reorder the elements of the K-vectors according to IDK ordering.
 C     ----------------------------------------------------------------
@@ -144,21 +156,19 @@ C     ----------------------------------------------------------------
          MxQ = max(MxQ,nQual(iSym))
       End Do
 
-      l_KVScr = MxQ
-      Call GetMem('KVScr','Allo','Real',ip_KVScr,l_KVScr)
+      Call mma_allocate(KVScr,MxQ,Label='KVScr')
 
-      kK1 = ip_KVec - 1
+      kK1 = 0
       kK2 = kK1
-      kID = ip_IDKVec - 1
-      kS  = ip_KVScr - 1
+      kID = 0
       Do iSym = 1,nSym
          Do iK = 1,nKVec(iSym)
             kK_1 = kK1 + nQual(iSym)*(iK-1) + 1
-            Call dCopy_(nQual(iSym),Work(kK_1),1,Work(ip_KVScr),1)
+            Call dCopy_(nQual(iSym),KVec(kK_1),1,KVScr,1)
             kK_2 = kK2 + nKVec(iSym)*(iK-1)
             Do jK = 1,nKVec(iSym)
-               lK = iWork(kID+jK)
-               Work(kK_2+jK) = Work(kS+lK)
+               lK = IDKVec(kID+jK)
+               KVec(kK_2+jK) = KVScr(lK)
             End Do
          End Do
          kK1 = kK1 + nQual(iSym)**2
@@ -169,13 +179,13 @@ C     ----------------------------------------------------------------
 C     Reorder QDiag to IDK ordering.
 C     ------------------------------
 
-      kID = ip_IDKVec - 1
-      kQD = ip_QDiag - 1
+      kID = 0
+      kQD = 0
       Do iSym = 1,nSym
-         Call dCopy_(nQual(iSym),Work(kQD+1),1,Work(ip_KVScr),1)
+         Call dCopy_(nQual(iSym),QDiag(kQD+1),1,KVScr,1)
          Do iK = 1,nKVec(iSym)
-            lK = iWork(kID+iK)
-            Work(kQD+iK) = Work(ip_KVScr-1+lK)
+            lK = IDKVec(kID+iK)
+            QDiag(kQD+iK) = KVScr(lK)
          End Do
          kQD = kQD + nQual(iSym)
          kID = kID + nQual(iSym)
@@ -184,21 +194,21 @@ C     ------------------------------
 C     Reorder elements of LQ vectors to IDK ordering.
 C     -----------------------------------------------
 
-      kID = ip_IDKVec - 1
+      kID = 0
       Do iSym = 1,nSym
+         If (nQual(iSym)<1) Cycle
          Do jVec = 1,NumV(iSym)
-            kLQ = ip_LQ_Sym(iSym) + nQual(iSym)*(jVec-1) - 1
-            Call dCopy_(nQual(iSym),Work(kLQ+1),1,Work(ip_KVScr),1)
+            Call dCopy_(nQual(iSym),LQ(iSym)%Array(:,jVec),1,
+     &                              KVScr,1)
             Do iK = 1,nKVec(iSym)
-               lK = iWork(kID+iK)
-               Work(kLQ+iK) = Work(ip_KVScr-1+lK)
+               lK = IDKVec(kID+iK)
+               LQ(iSym)%Array(iK,jVec) = KVScr(lK)
             End Do
          End Do
          kID = kID + nQual(iSym)
-         ldLQ(iSym) = max(nQual(iSym),1) ! leading dim of LQ
       End Do
 
-      Call GetMem('KVScr','Free','Real',ip_KVScr,l_KVScr)
+      Call mma_deallocate(KVScr)
 
 C     Reset qualification index arrays to IDK ordering.
 C     Local as well as global are reordered.
@@ -207,15 +217,9 @@ C     -------------------------------------------------
       Call iCopy(nSym,nQual,1,nQual_Old,1)
       l_iQScr = MxQ
       Call GetMem('iQScr','Allo','Inte',ip_iQScr,l_iQScr)
-      Call Cho_P_ReoQual(iWork(ip_iQScr),iWork(ip_IDKVec),
-     &                   iWork(ip_nKVec))
+      Call Cho_P_ReoQual(iWork(ip_iQScr),IDKVec,nKVec)
       Call GetMem('iQScr','Free','Inte',ip_iQScr,l_iQScr)
-      Call iCopy(nSym,iWork(ip_nKVec),1,nQual,1)
-
-C     Deallocate K-vector counter (now stored as nQual counter).
-C     ----------------------------------------------------------
-
-      Call GetMem('nKVec','Free','Inte',ip_nKVec,l_nKVec)
+      Call iCopy(nSym,nKVec,1,nQual,1)
 
       Call Cho_Timer(C2,W2)
       tDecom(1,4) = tDecom(1,4) + C2 - C1
@@ -224,9 +228,9 @@ C     ----------------------------------------------------------
 C     Compute vectors in each symmetry block.
 C     ---------------------------------------
 
-      kV = ip_KVec
-      kI = ip_IDKVec
-      kQD = ip_QDiag
+      kV = 1
+      kI = 1
+      kQD = 1
       Do iSym = 1,nSym
 
 C        Cycle loop if nothing to do in this symmetry.
@@ -251,7 +255,7 @@ C           Read integral columns from disk, ordered according to IDK.
 C           ----------------------------------------------------------
 
             Call Cho_Timer(C1,W1)
-            Call Cho_RdQCol_Indx(Work(ip_xInt),iWork(kI),
+            Call Cho_RdQCol_Indx(Work(ip_xInt),IDKVec(kI),
      &                           nnBstR(iSym,2),nQual(iSym),
      &                           LuSel(iSym))
             Call Cho_Timer(C2,W2)
@@ -263,7 +267,7 @@ C           ----------------
 
             Call GetMem('CmpV_Max','Max ','Real',ip_Wrk1,l_Wrk1)
             Call GetMem('CmpV_Wrk','Allo','Real',ip_Wrk1,l_Wrk1)
-            Call Cho_CompVec(Diag,Work(ip_xInt),Work(kV),Work(kQD),
+            Call Cho_CompVec(Diag,Work(ip_xInt),KVec(kV),QDiag(kQD),
      &                       Work(ip_Wrk1),l_Wrk1,iSym,iPass)
             Call GetMem('CmpV_Wrk','Free','Real',ip_Wrk1,l_Wrk1)
 
@@ -313,17 +317,10 @@ C        --------------------------------
 C     Deallocations.
 C     --------------
 
-      Call GetMem('LQ','Free','Real',ip_LQ,l_LQ)
-      ip_LQ = -999999
-      l_LQ = 0
-      Do iSym = 1,nSym
-         ip_LQ_Sym(iSym) = -999999
-         l_LQ_Sym(iSym) = 0
-         ldLQ(iSym) = 0
-      End Do
-      Call GetMem('QDiag','Free','Real',ip_QDiag,l_QDiag)
-      Call GetMem('IDKVec','Free','Inte',ip_IDKVec,l_IDKVec)
-      Call GetMem('KVec','Free','Real',ip_KVec,l_KVec)
+      Call mma_deallocate(LQ_Tot)
+      Call mma_deallocate(QDiag)
+      Call mma_deallocate(IDKVec)
+      Call mma_deallocate(KVec)
 
 C     Print.
 C     ------
@@ -342,9 +339,5 @@ C     ------
          Write(Lupri,'(A,8I8)')
      &   '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
       End If
-
-#if defined (_DEBUG_)
-      Call qExit('_Decom_A4')
-#endif
 
       End

@@ -37,7 +37,8 @@ c     X//)
 C     GHALB(1)=SQPI
       DO 1 I=2,26
 C     GHALB(I)=GHALB(I-1)*(DBLE(I)-1.5D0)
-1     FAK(I)=FAK(I-1)*DBLE(I-1)
+      FAK(I)=FAK(I-1)*DBLE(I-1)
+1     CONTINUE
 C
 C     BINOMIALKOEFFIZIENTEN
 C
@@ -59,7 +60,8 @@ C
 53    CONTINUE
 C
       DO 10 N=1,20
-10    GA(N)=GAM(N-1)
+      GA(N)=GAM(N-1)
+10    CONTINUE
       RETURN
       END
       SUBROUTINE ADDMA(N,S,OVE)

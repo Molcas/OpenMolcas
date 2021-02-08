@@ -28,7 +28,9 @@ Title = [CuCl4]^2-
 >> COPY cucl4.startorb INPORB
 
  &RASSCF
-Symmetry = 1; Spin = 2; nActEl = 11 0 0;
+Symmetry = 1
+Spin = 2
+nActEl = 11 0 0
 InAc = 12    9    9    4    6    2    2    0
 Ras2 =  5    0    0    2    0    2    2    0
 CiRoot
@@ -36,7 +38,8 @@ CiRoot
 LumOrb
 Iter = 25 100
 THRS = 1.0d-10 1.0d-7 1.0d-7
-OrbListing = All; OrbAppear = Full
+OrbListing = All
+OrbAppear = Full
 
 ********************************************************************************
 
@@ -1873,33 +1876,33 @@ CL          0.0000000000       -2.1285244493        0.0000000000
 1 ii22222sss
 2 ssssssssss
 3 ssssssssss
-4 sssss     
+4 sssss
 * 1234567890
 0 iiiiiiiiis
 1 ssssssssss
 2 ssssssssss
-3 ss        
+3 ss
 * 1234567890
 0 iiiiiiiiis
 1 ssssssssss
 2 ssssssssss
-3 ss        
+3 ss
 * 1234567890
 0 iiii22ssss
 1 ssssssssss
-2 s         
+2 s
 * 1234567890
 0 iiiiiissss
 1 ssssssssss
-2 sssss     
+2 sssss
 * 1234567890
 0 ii22ssssss
-1 ssssss    
+1 ssssss
 * 1234567890
 0 ii22ssssss
-1 ssssss    
+1 ssssss
 * 1234567890
-0 ssssssss  
+0 ssssssss
 >> EOF
 
 >>FILE checkfile

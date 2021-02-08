@@ -15,28 +15,18 @@ C              Based on reduced set stored at location iLoc = 2 or 3.
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
+      use ChoArr, only: nBstSh, iSP2F, iShP2RS, iOff_Batch, MySP
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: IndRSh
+#endif
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "choptr2.fh"
-#include "chosew.fh"
-#include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*15 SecNam
       Parameter (SecNam = 'Cho_SetShP2RS_2')
-#endif
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-      mySP(i)=iWork(ip_mySP-1+i)
-      iOff_Batch(i,j)=iWork(ip_iOff_Batch-1+nSym*(j-1)+i)
-#if defined (_DEBUG_)
-      IndRsh(i)=iWork(ip_IndRSh-1+i)
 #endif
 
 C     Check allocations.
@@ -49,6 +39,8 @@ C     ------------------
          NumAB = nBstSh(iShlA)*nBstSh(iShlB)
       End If
       lTst = 2*NumAB
+      l_iShP2RS=0
+      If (Allocated(iShP2RS)) l_iShP2RS=SIZE(iShP2RS)
       If (l_iShP2RS.lt.1 .or. l_iShP2RS.lt.lTst) Then
          irc = 102
          Return
@@ -69,7 +61,7 @@ C     Zeros are returned if the element AB is not a member of the
 C     current reduced set.
 C     ---------------------------------------------------------------
 
-      Call Cho_iZero(iWork(ip_iShP2RS),lTst)
+      iShP2RS(:,1:NumAB)=0
 
       Do iSym = 1,nSym
          If (nAB(iSym) .gt. 0) Then
@@ -78,7 +70,7 @@ C     ---------------------------------------------------------------
             Do iAB = iAB1,iAB2
                jAB = IndRed(iiBstR(iSym,iLoc)+iAB,iLoc) ! addr in 1st rs
                kAB = IndRed(jAB,1) ! addr in full shell pair
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                nErr = 0
                If (IndRSh(jAB).ne.iSP2F(mySP(iShlAB))) Then
                   Write(Lupri,*) SecNam,': inconsistent shell pairs!'
@@ -105,9 +97,9 @@ C     ---------------------------------------------------------------
                   Call Cho_Quit('Error detected in '//SecNam,104)
                End If
 #endif
-               iWork(ip_iShP2RS+2*(kAB-1))   = iOff_Batch(iSym,iShlAB)
+               iShP2RS(1,kAB)   = iOff_Batch(iSym,iShlAB)
      &                                       + iAB - iAB1 + 1
-               iWork(ip_iShP2RS+2*(kAB-1)+1) = iSym
+               iShP2RS(2,kAB) = iSym
             End Do
          End If
       End Do

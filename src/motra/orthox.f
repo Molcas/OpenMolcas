@@ -13,7 +13,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(NBAS,NORB),S(NORB,NORB)
 *
-      Call qEnter('ORTHOX')
 *
       DO IORB=1,NORB
          F=1.0/SQRT(S(IORB,IORB))
@@ -38,7 +37,6 @@
          END DO
       END DO
 *
-      Call qExit('ORTHOX')
 *
       RETURN
       END

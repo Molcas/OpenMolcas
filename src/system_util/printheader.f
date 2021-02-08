@@ -10,30 +10,32 @@
 ************************************************************************
 CSVC: print a banner with module name and runtime information
       subroutine print_module_header(modulename)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: nProcs
+#endif
 #ifdef _OPENMP
-*$    use omp_lib
+      use omp_lib
 #endif
       implicit none
-      character(*) :: modulename
+      character(len=*) :: modulename
 
-      character(100) :: line
+      character(len=100) :: line
       integer :: i
 
-#include "para_info.fh"
 #include "unixinfo.fh"
 #ifdef _MOLCAS_MPP_
       integer :: nprocs_global
       integer, external :: GAnNodes
-      character(16) :: proc
+      character(len=16) :: proc
 #endif
 #include "WrkSpc.fh"
       real*8 :: bytes
       integer :: order, group
-      character(3) :: unit(0:8) =
+      character(len=3) :: unit(0:8) =
      & ['  B',' kB',' MB',' GB',' TB', ' PB', ' EB', ' ZB', ' YB']
-      character(16) :: memory
+      character(len=16) :: memory
       integer :: nthreads
-      character(16) :: threads
+      character(len=16) :: threads
 
       write (6,*)
       write (6,'(50a)')('()',i=1,50)
@@ -117,8 +119,8 @@ CSVC: print a banner with module name and runtime information
       subroutine center_text(line)
 CSVC: centers the text of a line
       implicit none
-      character(*) :: line
-      character(100) :: text
+      character(len=*) :: line
+      character(len=100) :: text
       integer :: linewidth, textwidth, textoffset
 
       text = adjustl(line)

@@ -10,11 +10,12 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PGet4(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet4(iCmp,iBas,jBas,kBas,lBas,
      &                 Shijij, iAO, iAOst, ijkl,PSO,nPSO,DSO,nDSO,
      &                 PSOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the index list of the batch of the 2nd order    *
 *          density matrix.                                             *
 *                                                                      *
@@ -22,39 +23,25 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *             Modified from PGet2, October '92.                        *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer nPam(4,0:7), iiBas(4),
-     &          iCmp(4), iShell(4), iAO(4), iAOst(4)
+     &          iCmp(4), iAO(4), iAOst(4)
       Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
-*
-      iRout = 39
-      iPrint = nPrint(iRout)
-*     Call qEnter('PGet4')
-      lOper = 1
 *
 *     Prepare some data for Pam
 *
@@ -74,8 +61,7 @@
          in2 = 0
          Do 10 j = 0, nIrrep-1
             Do 11 i1 = 1, iCmp(jPam)
-               If (iAnd(IrrCmp(IndS(iShell(jPam))+i1),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(jPam)+i1,j)>0) Then
                    iSO = iAOtSO(iAO(jPam)+i1,j)
      &                 + iAOst(jPam)
                    nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
@@ -94,15 +80,6 @@
 *     Get the scrambled 2nd order density matrix
 *
       If (LSA) Then
-!      write(*,*)"This or ??? in pget4"  !yma
-
-!      do i=1,nG1
-!        write(*,*)i,"V-ipG1",Work(ipG1+i-1)
-!      end do
-!      write(*,*)
-!      do i=1,nG2
-!        write(*,*)i,"V-ipG2",Work(ipG2+i-1)
-!      end do
 
       Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
      &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,
@@ -124,8 +101,7 @@
       Do 100 i1 = 1, iCmp(1)
          niSym = 0
          Do 101 j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(1))+i1),
-     &          iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(1)+i1,j)>0) Then
                iSym(niSym) = j
                niSym = niSym + 1
             End if
@@ -133,8 +109,7 @@
          Do 200 i2 = 1, iCmp(2)
             njSym = 0
             Do 201 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(2)+i2,j)>0) Then
                   jSym(njSym) = j
                   njSym = njSym + 1
                End If
@@ -142,8 +117,7 @@
             Do 300 i3 = 1, iCmp(3)
                nkSym = 0
                Do 301 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(3))+i3),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(3)+i3,j)>0) Then
                      kSym(nkSym) = j
                      nkSym = nkSym + 1
                   End If
@@ -151,8 +125,7 @@
                Do 400 i4 = 1, iCmp(4)
                   nlSym = 0
                   Do 401 j = 0, nIrrep-1
-                     If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &                   iTwoj(j)).ne.0) Then
+                     If (iAOtSO(iAO(4)+i4,j)>0) Then
                         lSym(nlSym) = j
                         nlSym = nlSym + 1
                      End If
@@ -225,7 +198,6 @@
       End If
 *
 *     Call GetMem(' Exit PGet4','CHECK','REAL',iDum,iDum)
-*     Call qExit('PGet4')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)

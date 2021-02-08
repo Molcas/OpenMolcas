@@ -29,7 +29,7 @@
 #include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' RDSCTC (Normal repres.)'
         WRITE(6,'(a,i2,a,a,a,i2,a,i2)')' Vector nr.',IVEC,
      &          '  Case ',CASES(ICASE),' Symm ',ISYM,
@@ -46,7 +46,7 @@ C Read coefficient vector from LUSOLV (C repres).
       NCOL=MIN(NIS-MDVEC*(ISCT-1),MDVEC)
       NSCT=NAS*NCOL
       CALL DDAFILE(LUSOLV,2,VSCT,NSCT,IDS)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VSCT(I),I=1,MIN(NSCT,10))
 #endif
@@ -66,7 +66,7 @@ C Read coefficient vector from LUSOLV (C repres).
 #include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' RDBLKC (Normal repres.)'
         WRITE(6,'(a,i2,a,a,a,i2)')' Vector nr.',IVEC,
      &          '  Case ',CASES(ICASE),' Symm ',ISYM
@@ -86,7 +86,7 @@ C Read coefficient vector from LUSOLV (C repres).
         CALL DDAFILE(LUSOLV,2,VEC(LVEC),NBLK,IDV)
         LVEC=LVEC+NBLK
   10  CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VEC(I),I=1,MIN(NCOEF,10))
 #endif
@@ -217,10 +217,10 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
       DO 100 ICASE=1,NCASES
-        DO 100 ISYM=1,NSYM
+        DO 101 ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          IF(NIN*NIS.EQ.0) GOTO 100
+          IF(NIN*NIS.EQ.0) GOTO 101
 
           CALL RHS_ALLO (NIN,NIS,lg_V2)
           IF(BETA.NE.0.0D0.AND.ALPHA.NE.0.0D0) THEN
@@ -249,6 +249,7 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
           IF(ALPHA.NE.0.0D0) THEN
             CALL RHS_FREE (NIN,NIS,lg_V1)
           END IF
+ 101    CONTINUE
  100  CONTINUE
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)

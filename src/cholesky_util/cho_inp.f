@@ -16,12 +16,11 @@ C              from unit LUNIT. LUOUT is the unit of the output file
 C              which is stored internally in the Cholesky program as
 C              LUPRI (in cholesky.fh).
 C
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
 #include "implicit.fh"
       LOGICAL DFONLY
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 
       CHARACTER*7 SECNAM
       PARAMETER (SECNAM = 'CHO_INP')
@@ -192,7 +191,7 @@ C     -------------
       THR_PRESCREEN = -1.0d9 ! diag. prescreen threshold (neg=>generic)
       CHO_SIMRI = .FALSE.    ! simulate RI
       THR_SIMRI = -1.0D9     ! threshold for qualifying diags. in RI sim
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CHO_INTCHK = .TRUE.  ! check integrals after decomposition
       CHO_MINCHK = .TRUE.  ! minimal integral check
       CHO_TRCNEG = .TRUE.  ! tracing of negative diagonals
@@ -860,14 +859,17 @@ C     ------------
       GO TO 9999
 
  9999 CALL CHO_QUIT('Error in '//SECNAM,IRC)
+      RETURN
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) Call Unused_character(Line)
+#endif
       END
 ************************************************************************
 *                                                                      *
 ************************************************************************
       Subroutine Put_thr_Cho(ThrCom)
+      use RICD_Info, only: Do_RI, Thrshld_CD
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 *
       If (.not. Do_RI) Thrshld_CD = ThrCom
 *

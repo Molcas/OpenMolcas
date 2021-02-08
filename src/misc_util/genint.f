@@ -49,7 +49,7 @@
       Implicit Real*8 (a-h,o-z)
       INTEGER   rc
       INTEGER   iSymp,iSymq,iSymr,iSyms
-      INTEGER   pq,pq2,numpq,pq1_save
+      INTEGER   pq,numpq,pq1_save
       Real*8    Xint(*)
 
 #include "RdOrd.fh"
@@ -69,7 +69,6 @@ C --- save the value of pq1 because it belongs to a Common block
       pq1_save = pq1
       pq1      = ipq1
 
-      pq2 = pq1 + numpq - 1
       If (iSymp .eq. iSymq) Then
          Npq = nBas(iSymp)*(nBas(iSymp) + 1)/2
       Else
@@ -99,7 +98,6 @@ C------------------------------------------------------
 C         ***QUIT*** bad initialization
          WRITE(6,*) 'Gen_Int: bad initialization'
          rc=99
-         CALL QTrace()
          CALL Abend()
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
@@ -113,7 +111,6 @@ C         ***QUIT*** insufficient memory
          WRITE(6,*) 'NumCho= ',NumCho(jsym)
          WRITE(6,*) 'jsym= ',jsym
          rc = rcRD05
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If

@@ -38,7 +38,7 @@ c      common/MVL/ compute_Mdir_vector
 c      common/MZEL/ zeeman_energy
 c----------------------------------------------------------------
       Integer :: nss, nstate
-      Integer :: iprint,nt,nh,nk,mg,igsm,l,jEnd
+      Integer :: iprint,nt,nh,nk,mg,l,jEnd
       Integer :: nlanth,ndimcf,ldimcf,axisoption, i_OxStat
       Integer :: input_to_read,encut_definition,ncut,ntempmagn
       Integer :: ndirtot
@@ -73,9 +73,9 @@ c----------------------------------------------------------------
       Logical, intent(out) :: m_paranoid
       Logical              :: doplot
 
-      Character(2)  :: cME,clanth(37)
-      Character(21) :: namefile_energy
-      Character(180):: input_file_name,tmpline,err_msg
+      Character(Len=2)  :: cME,clanth(37)
+      Character(Len=21) :: namefile_energy
+      Character(Len=180):: input_file_name,tmpline,err_msg
 
       External      :: FindDetR
 
@@ -89,12 +89,11 @@ c      COMMON/MAGNSUBR/ HMIN,HMAX
 c      COMMON/MAGNSUBL/ HINPUT
 
       Integer        :: I,LINENR,j
-      Character(280) :: LINE
+      Character(Len=280) :: LINE
 
 
       Logical :: DBG
 
-      Call qEnter('SA_readin')
       DBG=.false.
 C============ Some default settings=====================================
 c  variables in "mgrid.fh"
@@ -239,7 +238,6 @@ c      nTempMagn             = 1
       T1                    = 5.0_wp
       T2                    = 6.0_wp
       ZJ                    = 0.0_wp
-      IGSM                  = 1
       m_paranoid            =  .true.
       checkTMAG             =  .FALSE.
       compute_g_tensors     =  .FALSE.
@@ -374,7 +372,6 @@ C ------------------------------------------
         compute_g_tensors     =  .true.
         READ(5,*,Err=997) (NDIM(i),i=1,NMULT)
         IF(DBG) Write(6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
-        IGSM=NDIM(1)
         LINENR=LINENR+2
         Go To 100
       End If
@@ -1592,6 +1589,5 @@ C------ errors ------------------------------
 
 
  190  continue
-      Call qExit('SA_readin')
       Return
       End

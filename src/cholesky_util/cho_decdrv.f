@@ -13,33 +13,30 @@ C
 C     Purpose: driver for the decomposition of the two-electron integral
 C              matrix based on the reduced diagonal.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       INTEGER ISYLST(8)
       REAL*8  DIAMAX_SIMP(8)
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_DECDRV')
+      CHARACTER(LEN=10), PARAMETER:: SECNAM = 'CHO_DECDRV'
 
       CHARACTER*7 FILSEL
 
       CHARACTER*20 STRING
 
-      LOGICAL CONV, SYNC, LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
+      LOGICAL CONV, SYNC
+      LOGICAL, PARAMETER:: LOCDBG = .FALSE.
 
-      INTEGER  CHO_P_GETMPASS
-      EXTERNAL CHO_P_GETMPASS
+      INTEGER, EXTERNAL:: CHO_P_GETMPASS
 
-      INFRED(I)=IWORK(ip_INFRED-1+I)
-
-      CALL QENTER('_DECDRV')
+      Integer, Allocatable:: LSTQSP(:), KISYSH(:)
+      Real*8, Allocatable:: KDIASH(:), KWRK(:)
 
 C     Start timing.
 C     -------------
@@ -67,16 +64,15 @@ C     released by flushing back to and including this allocation.
 C     ----------------------------------------------------------------
 
       CALL CHO_P_GETGSP(NGSP)
-      CALL CHO_MEM('DIASH','ALLO','REAL',KDIASH,NGSP)
-      CALL CHO_MEM('ISYSH','ALLO','INTE',KISYSH,NGSP)
+      CALL mma_allocate(KDIASH,NGSP,Label='KDIASH')
+      CALL mma_allocate(KISYSH,NGSP,Label='KISYSH')
 
 C     Set first integral pass.
 C     ------------------------
 
       SYNC = .FALSE.
       NPOTSH = 0
-      CALL CHO_P_SETPASS(DIAG,SYNC,WORK(KDIASH),IWORK(KISYSH),IRED,CONV,
-     &                   NPOTSH)
+      CALL CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
       IF (NPOTSH .GT. 0) THEN
          IF (CONV) THEN
             CALL CHO_QUIT('Logical error [0.1] in '//SECNAM,103)
@@ -90,8 +86,7 @@ C     ------------------------
 C     Allocate shell pair list.
 C     -------------------------
 
-      l_LSTQSP = MAX(NPOTSH,1)
-      CALL CHO_MEM('LSTQSP','ALLO','INTE',ip_LSTQSP,l_LSTQSP)
+      Call mma_allocate(LSTQSP,MAX(NPOTSH,1),Label='LSTQSP')
 
 C     Loop over integral passes. Continue until convergence or
 C     until the max. number of integral passes has been reached.
@@ -184,8 +179,7 @@ C        -----------------------------------------------------------
 
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT1,WLINT1)
          NUM = 0
-         CALL CHO_GETINT(DIAG,WORK(KDIASH),IWORK(KISYSH),
-     &                   IWORK(ip_LSTQSP),NPOTSH,NUM)
+         CALL CHO_GETINT(DIAG,KDIASH,KISYSH,LSTQSP,NPOTSH,NUM)
          CALL CHO_FLUSH(LUPRI)
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT2,WLINT2)
 
@@ -195,7 +189,7 @@ C        -----------------------------------------
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC1,WLDEC1)
          IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6)
      &   THEN
-            CALL CHO_DECOM_A4(DIAG,IWORK(ip_LSTQSP),NUM,IPASS)
+            CALL CHO_DECOM_A4(DIAG,LSTQSP,NUM,IPASS)
          ELSE
             IF (CHO_SIMP) THEN
                CALL CHO_MAXDX(DIAG,DIAMAX_SIMP)
@@ -203,9 +197,10 @@ C        -----------------------------------------
                   DIAMIN(ISYM) = MAX(THRCOM,DIAMAX_SIMP(ISYM)*SPAN)
                END DO
             END IF
-            CALL CHO_MEM('MaxMem','MAX ','REAL',KWRK,LWRK)
-            CALL CHO_DECOM(DIAG,WORK(KWRK),LWRK,IPASS,NUM)
-            CALL CHO_MEM('MaxMem','FREE','REAL',KWRK,LWRK)
+            Call mma_maxDBLE(LWRK)
+            Call mma_allocate(KWRK,LWRK,Label='KWRK')
+            CALL CHO_DECOM(DIAG,KWRK,LWRK,IPASS,NUM)
+            Call mma_deallocate(KWRK)
          END IF
          CALL CHO_FLUSH(LUPRI)
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC2,WLDEC2)
@@ -251,7 +246,7 @@ C        ---------------------
          SYNC = .FALSE.
          CALL CHO_P_SETRED(DIAG,SYNC)
          KRED = IPASS + 1
-         CALL CHO_SETRSDIM(IWORK(ip_NDIMRS),NSYM,MAXRED,KRED,IRED)
+         CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,IRED)
          IF (IPRINT .GE. INF_PASS) THEN
             CALL CHO_P_PRTRED(2)
             CALL CHO_FLUSH(LUPRI)
@@ -263,8 +258,7 @@ C        ----------------------------------------------------------
 
          SYNC = .FALSE.
          NPOTSH = 0
-         CALL CHO_P_SETPASS(DIAG,SYNC,WORK(KDIASH),IWORK(KISYSH),IRED,
-     &                      CONV,NPOTSH)
+         CALL CHO_P_SETPASS(DIAG,SYNC,KDIASH,KISYSH,IRED,CONV,NPOTSH)
          IF (NPOTSH .GT. 0) THEN
             IF (CONV) THEN
                CALL CHO_QUIT('Logical error [1.1] in '//SECNAM,103)
@@ -315,7 +309,9 @@ C        ---------------------------
 C     Free memory for shell pair based diagonal.
 C     ------------------------------------------
 
-      CALL CHO_MEM('DIASH','FLUSH','REAL',KDIASH,NNSHL)
+      Call mma_deallocate(LSTQSP)
+      Call mma_deallocate(KISYSH)
+      Call mma_deallocate(KDIASH)
 
 C     Shut down the Cholesky vector buffer.
 C     -------------------------------------
@@ -335,6 +331,5 @@ C     -------
       TDECDRV(1) = TCPU2  - TCPU1
       TDECDRV(2) = TWALL2 - TWALL1
 
-      CALL QEXIT('_DECDRV')
 
       END

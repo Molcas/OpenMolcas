@@ -18,16 +18,15 @@
 *
 *
 ************************************************************
-
+      use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
+      use ChoSwp, only: iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr),SvShp(*)
       Integer iShp_rs(*)
-      Logical Debug
       Integer cho_isao
       External cho_isao
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -36,32 +35,11 @@
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
-******
-      ISHLSO(I)=IWORK(ip_iShlSO-1+I)
-******
-      ISOSHL(I)=IWORK(ip_iSOShl-1+I)
-******
-      INDRSH(I)=IWORK(ip_INDRSH-1+I)
 ****** this is a trick to save memory. Memory in "location 2" is used
 ******      to store some offset arrays
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
-#ifdef _DEBUG_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
 **********************************************************
 C
 C    From Reduced sets to full storage

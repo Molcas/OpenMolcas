@@ -38,10 +38,8 @@
 *
       Cut_ExSq1=Cut_Ex1**2
       Cut_ExSq2=Cut_Ex2**2
-      nOrbSize=iOrb(1)*iOrb(2)
       nV2size=iOrb(2)*nBaseC
       nAObaseSize=nBaseQ*nBaseC
-      nStorlek=iOrb(1)*nBaseC
       Call GetMem('RotOrb','Allo','Real',iV2,nV2size)
       Call GetMem('Sint','Allo','Real',ipAOint,nAObaseSize)
       Call GetMem('Sintpar','Allo','Real',ipAOintpar,nAObaseSize)
@@ -223,7 +221,6 @@
 *   operator in RASSI basis.
 *
       kaunter=0
-      facx=0
       Do 5703, iS=1,nState
         Do 5704, jS=1,iS
           HighS=0

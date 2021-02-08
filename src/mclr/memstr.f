@@ -10,7 +10,8 @@
 *                                                                      *
 * Copyright (C) 1990,1994, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE MEMSTR
+      SUBROUTINE MEMSTR()
+      Use Str_Info
 *
 *
 * Construct pointers for saving information about strings and
@@ -35,126 +36,134 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
-#include "strbas_mclr.fh"
 #include "csm.fh"
-#include "stinf_mclr.fh"
       LENGTH=100
 *. Start of string information
-      NTEST = 0000
-      IF(NTEST.NE.0)
-     &WRITE(6,*) ' First word with string information',KSTINF
 *
-      Call ICopy(MXPSTT,[ip_iDummy],0,KNSTSO,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KISTSO,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KEL1  ,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KEL3  ,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KACTP ,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KZ    ,1)
 * =====================================================================
 *
 * 1 : String information
 *
 * =====================================================================
 *
-      IIITEST = 1
-      DO 10 ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
+*     Some calls are done with points which are out of bounds. To make
+*     this to be strictly secure we add a dummy layer and point to that
+*     in the case that we are out of bounds. The code seems, however,
+*     not to touch these arrays.
+*
+      ITYP_Dummy=NSTTYP+1
+      Allocate(Str(1:NSTTYP+1))
+
+      DO ITYP = 1, NSTTYP
+        IF (IUNIQTP(ITYP).EQ.ITYP) THEN
         NSTRIN = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
      &                  NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP) )
         LSTRIN = NSTRIN * NELEC(ITYP)
 *.  Offsets for occupation of strings and reordering array
-          Call GetMem('OCSTR ','ALLO','INTEGER',KOCSTR(ITYP),LSTRIN)
-          Call GetMem('STREO ','ALLO','INTEGER',KSTREO(ITYP),NSTRIN)
+          Call mma_allocate(Str(ITYP)%OCSTR_Hidden,LSTRIN,Label='OCSTR')
+          Str(ITYP)%OCSTR => Str(ITYP)%OCSTR_Hidden
+          Call mma_allocate(Str(ITYP)%STREO_Hidden,NSTRIN,Label='STREO')
+          Str(ITYP)%STREO => Str(ITYP)%STREO_Hidden
+
 *. Symmetry and class of each string
-          Call GetMem('STSM  ','ALLO','INTEGER',KSTSM(ITYP),NSTRIN)
-          Call GetMem('STCL  ','ALLO','INTEGER',KSTCL(ITYP),NSTRIN)
+          Call mma_allocate(Str(ITYP)%STSM_Hidden,NSTRIN,Label='STSM')
+          Str(ITYP)%STSM  => Str(ITYP)%STSM_Hidden
+          Call mma_allocate(Str(ITYP)%STCL_Hidden,NSTRIN,Label='STCL')
+          Str(ITYP)%STCL  => Str(ITYP)%STCL_Hidden
         ELSE
           IITYP = - IUNIQTP(ITYP)
-          KOCSTR(ITYP) = KOCSTR(IITYP)
-          KSTREO(ITYP) = KSTREO(IITYP)
-          KSTSM(ITYP)  = KSTSM(IITYP)
-          KSTCL(ITYP)  = KSTCL(IITYP)
+          Str(ITYP)%OCSTR => Str(IITYP)%OCSTR_Hidden
+          Str(ITYP)%STREO => Str(IITYP)%STREO_Hidden
+          Str(ITYP)%STSM  => Str(IITYP)%STSM_Hidden
+          Str(ITYP)%STCL  => Str(IITYP)%STCL_Hidden
         END IF
-   10 CONTINUE
+      END DO
+
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        Call GetMem('NSTSO ','ALLO','INTEGER',
-     &              KNSTSO(ITYP),NOCTYP(ITYP)*NSMST)
+        IF (IUNIQTP(ITYP).EQ.ITYP) THEN
+           Call mma_allocate(Str(ITYP)%NSTSO_Hidden,NOCTYP(ITYP)*NSMST,
+     &                       Label='NSTSO')
+           Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
 *. Offset of strings per symmetry and occupation
-        Call GetMem('ISTSO ','ALLO','INTEGER',
-     &             KISTSO(ITYP),NOCTYP(ITYP)*NSMST)
+           Call mma_allocate(Str(ITYP)%ISTSO_Hidden,NOCTYP(ITYP)*NSMST,
+     &                       Label='ISTSO')
+           Str(ITYP)%ISTSO => Str(ITYP)%ISTSO_Hidden
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
-        Call GetMem('IEL1  ','ALLO','INTEGER',
-     &              KEL1(ITYP),NOCTYP(ITYP))
-        Call GetMem('IEL3  ','ALLO','INTEGER',
-     &               KEL3(ITYP),NOCTYP(ITYP))
-        Call GetMem('ACTP ','ALLO','INTEGER',
-     &             KACTP(ITYP),NOCTYP(ITYP))
+           Call mma_allocate(Str(ITYP)%EL1_Hidden,NOCTYP(ITYP),
+     &                       Label='EL1')
+           Str(ITYP)%EL1  => Str(ITYP)%EL1_Hidden
+           Call mma_allocate(Str(ITYP)%EL3_Hidden,NOCTYP(ITYP),
+     &                       Label='EL3')
+           Str(ITYP)%EL3  => Str(ITYP)%EL3_Hidden
+           Call mma_allocate(Str(ITYP)%ACTP_Hidden,NOCTYP(ITYP),
+     &                       Label='ACTP')
+           Str(ITYP)%ACTP => Str(ITYP)%ACTP_Hidden
 CMS: New array introduced according to Jeppes new strinfo representation
-        Call GetMem('KEL123','ALLO','INTEGER',
-     &                KEL123(ITYP),3*NOCTYP(ITYP))
+           Call mma_allocate(Str(ITYP)%EL123_Hidden,3*NOCTYP(ITYP),
+     &                       Label='EL123')
+           Str(ITYP)%EL123=> Str(ITYP)%EL123_Hidden
 **. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
-*       CALL MEMMAN(KZ(ITYP),NACOB*NELEC(ITYP),'ADDS  ',1,'Zmat  ')
-        Call GetMem('Zmat  ','ALLO','INTEGER',
-     &                    KZ(ITYP),NACOB*NELEC(ITYP))
+           Call mma_allocate(Str(ITYP)%Z_Hidden,NACOB*NELEC(ITYP),
+     &                       Label='Z')
+           Str(ITYP)%Z=> Str(ITYP)%Z_Hidden
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
-          KNSTSO(ITYP) = KNSTSO(IITYP)
-          KISTSO(ITYP) = KISTSO(IITYP)
-          KEL1(ITYP)   = KEL1(IITYP)
-          KEL3(ITYP)   = KEL3(IITYP)
-          KACTP(ITYP)  = KACTP(IITYP)
-          KZ(ITYP)     = KZ(IITYP)
-          KEL123(ITYP) = KEL123(IITYP)
+          Str(ITYP)%NSTSO => Str(IITYP)%NSTSO_Hidden
+          Str(ITYP)%ISTSO => Str(IITYP)%ISTSO_Hidden
+          Str(ITYP)%EL1   => Str(IITYP)%EL1_Hidden
+          Str(ITYP)%EL3   => Str(IITYP)%EL3_Hidden
+          Str(ITYP)%ACTP  => Str(IITYP)%ACTP_Hidden
+          Str(ITYP)%EL123 => Str(IITYP)%EL123_Hidden
+          Str(ITYP)%Z     => Str(IITYP)%Z_Hidden
         END IF
       END DO
+
 CMS: Introduced according to Jeppes new concept.
-CMS: NB! WORK(KEL123(ITYP) added to IEL13 parameter list!
+CMS: NB! Str(ITYP)%EL123 added to IEL13 parameter list!
 CMS: Be aware that IEL13 is also called in STRINF
       DO  ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
-     &             NELEC(ITYP),NOCTYP(ITYP),iWORK(KEL1(ITYP)),
-     &             iWORK(KEL3(ITYP)),iWORK(KEL123(ITYP)),
-     &             iWORK(KACTP(ITYP)) )
+     &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
+     &             Str(ITYP)%EL3,Str(ITYP)%EL123,
+     &             Str(ITYP)%ACTP)
         END IF
       END DO
+
 *. Mappings between different string types
       DO ITYP = 1, NSTTYP
-c          write(6,*) nelec(ityp),nstrin
-          NSTRIN = NSTFTP(ITYP)
-          IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
+c        write(6,*) nelec(ityp),nstrin
+         NSTRIN = NSTFTP(ITYP)
+
+         IF (ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
             LENGTH = NACOB*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = ip_iDummy
-            KSTSTMN(ITYP) = ip_iDummy
-          ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
+            Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
+            Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
+         ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
             LENGTH = NELEC(ITYP)*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = ip_iDummy
-            KSTSTMN(ITYP) = ip_iDummy
+            Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
+            Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
-          CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
-     &                NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
-     &                iWORK(KNSTSO(ITYP))   )
-            LENGTH = NCASTR_MCLR(2,iWORK(KNSTSO(ITYP)),NOCTYP(ITYP),
-     &                      ITYP,NOBPT,3,iWORK(KEL123(ITYP)))
+             CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
+     &                     NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
+     &                     Str(ITYP)%NSTSO)
+            LENGTH = NCASTR_MCLR(2,Str(ITYP)%NSTSO,NOCTYP(ITYP),
+     &                      ITYP,NOBPT,3,Str(ITYP)%EL123)
 *. Explicit offsets and lengths
-            Call GetMem('STSTMI','ALLO','INTEGER',KSTSTMI(ITYP),NSTRIN)
-            Call GetMem('STSTMN','ALLO','INTEGER',KSTSTMN(ITYP),NSTRIN)
+            Call mma_allocate(Str(ITYP)%STSTMI,NSTRIN,Label='STSTMI')
+            Call mma_allocate(Str(ITYP)%STSTMN,NSTRIN,Label='STSTMN')
           END IF
+
 *. has this map been constructed before ?
           IIIITEST = 0
           IF(IUNIQTP(ITYP).EQ.ITYP.OR.IIIITEST.EQ.1) THEN
@@ -195,35 +204,46 @@ CMS: New else block
             IUNIQMP(ITYP) = ITYP
  1211       CONTINUE
           END IF
+
           IF(IMNEW.EQ.1) THEN
-            Call GetMem('CREMAP','ALLO','INTE',KSTSTM(ITYP,1),LENGTH)
-            Call GetMem('ANNMAP','ALLO','INTE',KSTSTM(ITYP,2),LENGTH)
-C             WRITE(6,*) ' Map for ITYP = ', ITYP, ' is created '
+            Call mma_allocate(Str(ITYP)%STSTM_Hidden,LENGTH,2,
+     &                        Label='STSTM')
+            Str(ITYP)%STSTM => Str(ITYP)%STSTM_Hidden
           ELSE
-            KSTSTM(ITYP,1) = KSTSTM(-IUNIQMP(ITYP),1)
-            KSTSTM(ITYP,2) = KSTSTM(-IUNIQMP(ITYP),2)
-C             WRITE(6,*)
-C     &      ' Map for ITYP=',ITYP,' corresponds to map for JTYP=',
-C     &        -IUNIQMP(ITYP)
+            IITYP = -IUNIQMP(ITYP)
+            Str(ITYP)%STSTM => Str(IITYP)%STSTM_Hidden
           END IF
+
       END DO
+
 *. Symmetry of conjugated orbitals and orbital excitations
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      Call GetMem('Cobsm ','ALLO','INTEGER',KCOBSM,NACOB)
-      Call GetMem('Nifsj ','ALLO','INTEGER',KNIFSJ,NACOB*NSMSX)
-      Call GetMem('Ifsj  ','ALLO','INTEGER',KIFSJ,NACOB**2 )
-      Call GetMem('Ifsjo ','ALLO','INTEGER',KIFSJO,NACOB*NSMSX)
+*     COBSM,NIFSJ,IFSJ,IFSJO
+!     Call mma_allocate(COBSM,NACOB,Label='COBSM')
+!     Call mma_allocate(NIFSJ,NACOB*NSMSX,Label='NIFSJ')
+!     Call mma_allocate(IFSJ,NACOB**2,Label='IFSJ')
+!     Call mma_allocate(IFSJO,NACOB*NSMSX,Label='IFSJO')
 *. Symmetry of excitation connecting  strings of given symmetry
-      Call GetMem('Ststx ','ALLO','INTEGER',KSTSTX,NSMST*NSMST)
+!     Call mma_allocate(STSTX,NSMST*NSMST,Label='STSTX')
 *
 **. Up and down mappings of strings containing the same number of electrons
 *
-      DO 70 ITYP = 1, NSTTYP
-       IF(INUMAP(ITYP).NE.0)
-     &Call GetMem('Numup ','ALLO','INTEGER',KNUMAP(ITYP),NSTFTP(ITYP))
-       IF(INDMAP(ITYP).NE.0)
-     &Call GetMem('Ndmup ','ALLO','INTEGER',KNDMAP(ITYP),NSTFTP(ITYP))
-   70 CONTINUE
+      DO ITYP = 1, NSTTYP
+         IF(INUMAP(ITYP).NE.0)
+     &     Call mma_allocate(Str(ITYP)%NUMAP,NSTFTP(ITYP),Label='NUMAP')
+         IF(INDMAP(ITYP).NE.0)
+     &     Call mma_allocate(Str(ITYP)%NDMAP,NSTFTP(ITYP),Label='NDMAP')
+      END DO
+*
+*     Some dummy allocations
+*
+      ITYP=ITYP_Dummy
+      Call mma_allocate(Str(ITYP)%NSTSO_Hidden,1,Label='NSTSO')
+      Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
+      Call mma_allocate(Str(ITYP)%EL1_Hidden,1,Label='EL1')
+      Str(ITYP)%EL1  => Str(ITYP)%EL1_Hidden
+      Call mma_allocate(Str(ITYP)%EL3_Hidden,1,Label='EL3')
+      Str(ITYP)%EL3  => Str(ITYP)%EL3_Hidden
+
 *. Last word of string information
       RETURN
       END

@@ -25,12 +25,11 @@ C           Thus, to be certain that enough memory is available,
 C           use LSCR = 2 x dimension of first reduced set.
 C
 C
+      use ChoSwp, only: InfVec, IndRed
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -39,11 +38,6 @@ C
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Initialize output array.
 C     ------------------------
@@ -55,14 +49,8 @@ C     -----------------------------------------------
 
       IRED  = INFVEC(IVEC1,2,ISYM)
       ILOC  = 3
-      KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
-      KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-      CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                IWORK(KOFF2),IWORK(ip_INDRSH),IWORK(ip_iSP2F),
-     &                MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
-     &                .FALSE.)
-      CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                   IWORK(ip_NNBSTRSH),NSYM,NNSHL,3)
+      CALL CHO_GETRED(IRED,ILOC,.FALSE.)
+      CALL CHO_SETREDIND(3)
       KRED1 = 1
       KREAD = KRED1 + NNBSTR(ISYM,1)
       KEND1 = KREAD + NNBSTR(ISYM,3)
@@ -85,15 +73,8 @@ C     ------------------------------------------------------------------
          IVEC = IVEC1 + JVEC - 1
          JRED = INFVEC(IVEC,2,ISYM)
          IF (JRED .NE. IRED) THEN   ! read new reduced set
-            KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
-            KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-            CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                      IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                      IWORK(ip_iSP2F),
-     &                      MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                      .FALSE.)
-            CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                         IWORK(ip_NNBSTRSH),NSYM,NNSHL,3)
+            CALL CHO_GETRED(JRED,ILOC,.FALSE.)
+            CALL CHO_SETREDIND(3)
             KEND1 = KREAD + NNBSTR(ISYM,3)
             LSCR1 = LSCR  - KEND1 + 1
             IF (LSCR1 .LT. 0) THEN
@@ -121,7 +102,6 @@ C-tbp: replaced above code to make use of buffer through cho_vecrd.
          END IF
          NSYS_CALL = NSYS_CALL + 1
          IF (LOCDBG) THEN
-            IADR = INFVEC(IVEC,3,ISYM)
             XNRM = SQRT(DDOT_(NNBSTR(ISYM,3),SCR(KREAD),1,SCR(KREAD),1))
             WRITE(LUPRI,*) SECNAM,': ',
      &                     'Vector:',IVEC,' address: ',

@@ -10,34 +10,33 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine NwShft(dq,nInter,g,nIter,Delta,q)
+      SubRoutine NwShft()
 ************************************************************************
 *                                                                      *
 * Object: to numerically evaluate the molecular Hessian.               *
-*                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '92                                                  *
 ************************************************************************
+      use Slapaf_Info, only: Shift, qInt
+      use Slapaf_parameters, only: iter, Delta
+*
+      Integer nInter
+
+      nInter=SIZE(Shift,1)
+      Call NwShft_Internal(Shift,nInter,Iter,Delta,qInt)
+
+      Contains
+      SubRoutine NwShft_Internal(dq,nInter,nIter,Delta,q)
       Implicit Real*8 (A-H,O-Z)
-      Real*8 dq(nInter,nIter), g(nInter,nIter),q(nInter,nIter+1)
-#include "print.fh"
+      Real*8 dq(nInter,nIter), q(nInter,nIter+1)
 #include "real.fh"
 *
-      iRout = 182
-      iPrint = nPrint(iRout)
-      Call qEnter('NwShft')
-*
-      If (iPrint.ge.99) Then
-         Call RecPrt('NwShft  g',' ', g,nInter,nIter)
-         Call RecPrt('NwShft  q',' ', q,nInter,nIter)
-         Call RecPrt('NwShft dq',' ',dq,nInter,nIter-1)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt('NwShft  q',' ', q,nInter,nIter)
+      Call RecPrt('NwShft dq',' ',dq,nInter,nIter-1)
+#endif
 *
 *
 *-----Compute the new shift
@@ -116,10 +115,10 @@
       call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
       Call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt('  q',' ', q,nInter,nIter+1)
-         Call RecPrt(' dq',' ',dq,nInter,nIter)
-      End If
-      Call qExit('NwShft')
-      Return
-      End
+#ifdef _DEBUGPRINT_
+      Call RecPrt('  q',' ', q,nInter,nIter+1)
+      Call RecPrt(' dq',' ',dq,nInter,nIter)
+#endif
+      End SubRoutine NwShft_Internal
+
+      End SubRoutine NwShft

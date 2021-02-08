@@ -30,27 +30,28 @@
 *> - \p irc =  ``3``: error in both
 *>
 *> @param[out] irc     Return code
-*> @param[in]  ip_PDM  Pointer to matrix in \p Work
+*> @param[in]  PDM     matrix in \p Work
 *> @param[in]  n       Dimension of matrix (\p n &times; \p n)
 *> @param[in]  Verbose Print flag
 ************************************************************************
-      SubRoutine CD_Tester(irc,ip_PDM,n,Verbose)
+      SubRoutine CD_Tester(irc,PDM,n,Verbose)
+      use CDTHLP
       Implicit Real*8 (a-h,o-z)
 
+      Integer irc, n
+      Real*8 PDM(n*(n+1)/2)
       External CD_Tester_Col
       External CD_Tester_Vec
       Logical  Verbose
 
-      Character*9 SecNam
-      Parameter (SecNam = 'CD_Tester')
+      Character(LEN=9), Parameter:: SecNam = 'CD_Tester'
 
       Logical Restart
+      Real*8, Allocatable:: Diag(:), Buf(:), Qual(:), ES(:)
+      Integer, Allocatable:: Pivot(:), iQual(:)
 
-      Common / CDTHLP / ip_Mat, l_Mat, ip_Vec, l_Vec
+#include "stdalloc.fh"
 
-#include "WrkSpc.fh"
-
-      Call qEnter(SecNam)
       irc = 0
       If (n .lt. 1) Then
          If (Verbose) Then
@@ -79,41 +80,37 @@ C     ============
          Call xFlush(6)
       End If
 
-      l_Mat   = n*n
-      l_Vec   = n*n
-      Call GetMem('Matrix','Allo','Real',ip_Mat,l_Mat)
-      Call GetMem('Vec','Allo','Real',ip_Vec,l_Vec)
+      Call mma_allocate(Mat,n*n,Label='Mat')
+      Call mma_allocate(Vec,n*n,Label='Vec')
 
       l_Buf   = n*(n+MxQual)
-      l_Diag  = n
       l_Qual  = n*(MxQual+1)
       l_ES    = 6
       l_Pivot = n
       l_iQual = MxQual
-      Call GetMem('Buf','Allo','Real',ip_Buf,l_Buf)
-      Call GetMem('Diag','Allo','Real',ip_Diag,l_Diag)
-      Call GetMem('Qual','Allo','Real',ip_Qual,l_Qual)
-      Call GetMem('Err','Allo','Real',ip_ES,l_ES)
-      Call GetMem('Pivot','Allo','Inte',ip_Pivot,l_Pivot)
-      Call GetMem('iQual','Allo','Inte',ip_iQual,l_iQual)
 
-      Call CD_Tester_CPPF(Work(ip_PDM),Work(ip_Mat),n)
-      Call CD_Tester_Diag(Work(ip_PDM),Work(ip_Diag),n)
+      Call mma_allocate(Buf,l_Buf,Label='Buf')
+      Call mma_allocate(Diag,n,Label='Diag')
+      Call mma_allocate(Qual,l_Qual,Label='Qual')
+      Call mma_allocate(ES,l_ES,Label='ES')
+      Call mma_allocate(Pivot,l_Pivot,Label='Pivot')
+      Call mma_allocate(iQual,l_iQual,Label='iQual')
+
+      Call CD_Tester_CPPF(PDM,Mat,n)
+      Call CD_Tester_Diag(PDM,Diag,n)
       jrc = 0
       Call ChoDec(CD_Tester_Col,CD_Tester_Vec,
      &            Restart,Thr,Span,MxQual,
-     &            Work(ip_Diag),Work(ip_Qual),Work(ip_Buf),
-     &            iWork(ip_Pivot),iWork(ip_iQual),
-     &            n,l_Buf,
-     &            Work(ip_ES),NumCho,
-     &            jrc)
+     &            Diag,Qual,Buf,Pivot,iQual,
+     &            n,l_Buf,ES,NumCho,jrc)
       If (jrc .eq. 0) Then
          Call DGEMM_('N','T',n,n,NumCho,
-     &              -1.0d0,Work(ip_Vec),n,Work(ip_Vec),n,
-     &              1.0d0,Work(ip_Mat),n)
-         Call CD_Tester_ES(Work(ip_Mat),n,Work(ip_ES))
-         Call CD_Tester_Diff(Work(ip_Mat),n,Work(ip_ES+3))
-         Call CD_Tester_Final(jrc,NumCho,n,Thr,Work(ip_ES),Verbose)
+     &              -1.0d0,Vec,n,
+     &                     Vec,n,
+     &               1.0d0,Mat,n)
+         Call CD_Tester_ES(Mat,n,ES)
+         Call CD_Tester_Diff(Mat,n,ES(4))
+         Call CD_Tester_Final(jrc,NumCho,n,Thr,ES,Verbose)
          If (jrc .ne. 0) Then
             irc = irc + 1
          End If
@@ -147,18 +144,19 @@ C     ===========================
          Call xFlush(6)
       End If
 
-      Call CD_Tester_CPPF(Work(ip_PDM),Work(ip_Mat),n)
+      Call CD_Tester_CPPF(PDM,Mat,n)
       jrc    = 0
       NumCho = 0
-      Call CD_InCore(Work(ip_Mat),n,Work(ip_Vec),n,NumCho,Thr,jrc)
+      Call CD_InCore(Mat,n,Vec,n,NumCho,Thr,jrc)
       If (jrc .eq. 0) Then
-         Call CD_Tester_CPPF(Work(ip_PDM),Work(ip_Mat),n)
+         Call CD_Tester_CPPF(PDM,Mat,n)
          Call DGEMM_('N','T',n,n,NumCho,
-     &              -1.0d0,Work(ip_Vec),n,Work(ip_Vec),n,
-     &              1.0d0,Work(ip_Mat),n)
-         Call CD_Tester_ES(Work(ip_Mat),n,Work(ip_ES))
-         Call CD_Tester_Diff(Work(ip_Mat),n,Work(ip_ES+3))
-         Call CD_Tester_Final(jrc,NumCho,n,Thr,Work(ip_ES),Verbose)
+     &              -1.0d0,Vec,n,
+     &                     Vec,n,
+     &               1.0d0,Mat,n)
+         Call CD_Tester_ES(Mat,n,ES)
+         Call CD_Tester_Diff(Mat,n,ES(4))
+         Call CD_Tester_Final(jrc,NumCho,n,Thr,ES,Verbose)
          If (jrc .ne. 0) Then
             irc = irc + 2
          End If
@@ -180,56 +178,60 @@ C     ===========================
          Call xFlush(6)
       End If
 
-      Call GetMem('iQual','Free','Inte',ip_iQual,l_iQual)
-      Call GetMem('Pivot','Free','Inte',ip_Pivot,l_Pivot)
-      Call GetMem('Err','Free','Real',ip_ES,l_ES)
-      Call GetMem('Qual','Free','Real',ip_Qual,l_Qual)
-      Call GetMem('Diag','Free','Real',ip_Diag,l_Diag)
-      Call GetMem('Buf','Free','Real',ip_Buf,l_Buf)
-      Call GetMem('Vec','Free','Real',ip_Vec,l_Vec)
-      Call GetMem('Matrix','Free','Real',ip_Mat,l_Mat)
+      Call mma_deallocate(iQual)
+      Call mma_deallocate(Pivot)
+      Call mma_deallocate(ES)
+      Call mma_deallocate(Qual)
+      Call mma_deallocate(Diag)
+      Call mma_deallocate(Buf)
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(Mat)
 
     1   Continue
-       Call qExit(SecNam)
-      End
-C
+      End SubRoutine CD_Tester
+
       SubRoutine CD_Tester_Col(Col,nDim,iCol,nCol,Buf,lBuf)
-      Implicit Real*8 (a-h,o-z)
-      Dimension Col(nDim,nCol), Buf(lBuf)
-      Integer   iCol(nCol)
+      use CDTHLP, only: Mat
+*     Implicit None
+      Integer nDim, nCol, lBuf
+      Real*8 Col(nDim,nCol), Buf(lBuf)
+      Integer iCol(nCol)
 
-#include "WrkSpc.fh"
-
-      Common / CDTHLP / ip_Mat, l_Mat, ip_Vec, l_Vec
+      Integer i, kOff
 
       Do i = 1,nCol
-         kOff = ip_Mat + nDim*(iCol(i) - 1)
-         Call dCopy_(nDim,Work(kOff),1,Col(1,i),1)
+         kOff = 1 + nDim*(iCol(i) - 1)
+         Call dCopy_(nDim,Mat(kOff),1,Col(1,i),1)
       End Do
 
-      If (lBuf .gt. 0) x = Buf(1) ! to make some compilers happy
+      Return
+#ifdef _WARNING_WORKAROUND_
+C Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(Buf)
+      End if
+#endif
+      End SubRoutine CD_Tester_Col
 
-      End
-C
       SubRoutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
-      Implicit Real*8 (a-h,o-z)
-      Dimension Buf(lBuf)
+      use CDTHLP, only: Vec
+      Implicit None
+      Integer iVec1, nVec, lBuf, nDim, iOpt
+      Real*8 Buf(lBuf)
+
+      Integer kOff, lTot
 
       Character*13 SecNam
       Parameter (SecNam = 'CD_Tester_Vec')
 
-#include "WrkSpc.fh"
-
-      Common / CDTHLP / ip_Mat, l_Mat, ip_Vec, l_Vec
-
       If (iOpt .eq. 1) Then
-         kOff = ip_Vec + nDim*(iVec1 - 1)
+         kOff = 1 + nDim*(iVec1 - 1)
          lTot = nDim*nVec
-         Call dCopy_(lTot,Buf,1,Work(kOff),1)
+         Call dCopy_(lTot,Buf,1,Vec(kOff),1)
       Else If (iOpt .eq. 2) Then
-         kOff = ip_Vec + nDim*(iVec1 - 1)
+         kOff = 1 + nDim*(iVec1 - 1)
          lTot = nDim*nVec
-         Call dCopy_(lTot,Work(kOff),1,Buf,1)
+         Call dCopy_(lTot,Vec(kOff),1,Buf,1)
       Else
          Write(6,*)
          Write(6,*) 'WARNING! WARNING! WARNING! WARNING!'
@@ -239,7 +241,7 @@ C
          Call xFlush(6)
       End If
 
-      End
+      End SubRoutine CD_Tester_Vec
 C
       SubRoutine CD_Tester_CPPF(PDM,X,n)
       Implicit None
@@ -257,7 +259,7 @@ C
          End Do
       End Do
 
-      End
+      End SubRoutine CD_Tester_CPPF
 C
       SubRoutine CD_Tester_Diag(PDM,Diag,n)
       Implicit None
@@ -271,7 +273,7 @@ C
          Diag(i) = PDM(ii)
       End Do
 
-      End
+      End SubRoutine CD_Tester_Diag
 C
       SubRoutine CD_Tester_Diff(X,n,Err)
       Implicit None
@@ -280,7 +282,6 @@ C
 
       Integer i
       Real*8  xn2
-      Real*8  dble
 
       If (n .lt. 1) Then
          Err(1) =  9.876543210d15
@@ -299,7 +300,7 @@ C
          Err(3) = Err(3)/xn2
       End If
 
-      End
+      End SubRoutine CD_Tester_Diff
 C
       SubRoutine CD_Tester_Final(irc,NumCho,n,Thr,Err,Verbose)
       Implicit None
@@ -373,7 +374,7 @@ C
 
       If (Verbose) Call xFlush(6)
 
-      End
+      End SubRoutine CD_Tester_Final
 C
       SubRoutine CD_Tester_ES(X,n,Err)
       Implicit None
@@ -397,4 +398,4 @@ C
          Err(3) = sqrt(Err(3)/dble(n))
       End If
 
-      End
+      End SubRoutine CD_Tester_ES

@@ -16,13 +16,6 @@
 *                                                                      *
 *  Object: Allocate space for K2 entities.                             *
 *                                                                      *
-* Called from: ReadIn (client) / DPSCF main (server)                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCR                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. November '92                 *
 *             Martin Schuetz, Dept. of Theoretical Chemistry,          *
@@ -32,11 +25,12 @@
       use k2_arrays
       use iSD_data
       use IOBUF
+      use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -51,7 +45,6 @@
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-*     Call QEnter('AlloK2')
 *
       If (Debug) Then
          If (Allocated(Data_k2)) Then
@@ -79,22 +72,22 @@
 *
       Do iS = 1, nSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll) .and. iS.ne.nSkal) Go To 100
+         If (Shells(iShll)%Aux .and. iS.ne.nSkal) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
          iPrim  = iSD( 5,iS)
-         mdci   = iSD(10,iS)
+         iAO    = iSD( 7,iS)
          iShell = iSD(11,iS)
 *
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (AuxShell(jShll) .and. jS.eq.nSkal) Go To 200
+            If (Shells(jShll)%Aux .and. jS.eq.nSkal) Go To 200
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
             jPrim  = iSD( 5,jS)
-            mdcj   = iSD(10,jS)
+            jAO    = iSD( 7,jS)
             jShell = iSD(11,jS)
 *
             If (nIrrep.eq.1) Then
@@ -104,7 +97,7 @@
             End If
             MaxDe = Max(MaxDe,iDeSiz)
             iSmLbl = 1
-            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             If (nSO.gt.0) Then
                nDeDe = nDeDe + nr_of_Densities*iDeSiz*nIrrep
             End If
@@ -123,7 +116,7 @@
 *     now ... allocate memory
       Call mma_allocate(Data_k2,nk2,Label='Data_k2')
       Data_k2(:)=Zero
-      nIndk2=nShlls*(nShlls+1)/2
+      nIndk2=S%nShlls*(S%nShlls+1)/2
       call mma_allocate(Indk2,2,nIndk2,Label='Indk2')
 *
       Return

@@ -9,36 +9,29 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine BitMap_Localisation(PreFix)
+      use Index_arrays, only: iSO2Sh
       Implicit Real*8 (a-h,o-z)
       Character*2 PreFix
 #include "Molcas.fh"
 #include "inflocal.fh"
-#include "shinf.fh"
 #include "WrkSpc.fh"
 
       Character*19 SecNam
       Parameter (SecNam = 'BitMap_Localisation')
 
-      Integer iBas(8)
       Logical Indexation, DoF, DoG
 
-C     Define iBas.
-C     ------------
-
       nBasT   = nBas(1)
-      iBas(1) = 0
       Do iSym = 2,nSym
-         iBas(iSym) = nBasT
          nBasT = nBasT + nBas(iSym)
       End Do
 
 C     Allocate and define some index arrays from Seward.
 C     --------------------------------------------------
 
-      Info = -1
       DoF  = .false.
       nDiff = 0
-      Call IniSew(Info,DoF,nDiff)
+      Call IniSew(DoF,nDiff)
       nShell = -1
       Indexation = .true.
       ThrAO = 0.0d0
@@ -78,16 +71,16 @@ C     -----------------------------------------------------------------
          kC1 = kC + nBas(iSym)*nFro(iSym)
          Call GetDens_Localisation(Work(ipDen),Work(kC1),nBas(iSym),
      &                             nOrb2Loc(iSym))
-         iOff = ipSOSh + iBas(iSym)
+         iOff = 1
          Call GetSh_Localisation(Work(ipDen),nBas(iSym),nBas(iSym),
-     &                           Work(ipDSh),nShell,iWork(iOff),2,
+     &                           Work(ipDSh),nShell,iSO2Sh(iOff),2,
      &                           AnaNrm)
          Call GetSh_Localisation(Work(kC1),nBas(iSym),nOrb2Loc(iSym),
-     &                           Work(ipCSh),nShell,iWork(iOff),1,
+     &                           Work(ipCSh),nShell,iSO2Sh(iOff),1,
      &                           AnaNrm)
          kX1 = kX + nBas(iSym)*nFro(iSym)
          Call GetSh_Localisation(Work(kX1),nBas(iSym),nOrb2Loc(iSym),
-     &                           Work(ipXSh),nShell,iWork(iOff),1,
+     &                           Work(ipXSh),nShell,iSO2Sh(iOff),1,
      &                           AnaNrm)
          Call GenBMp_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh),
      &                            nShell,iSym,'r','r','r',PreFix)

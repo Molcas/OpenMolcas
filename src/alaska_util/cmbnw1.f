@@ -12,22 +12,16 @@
 ************************************************************************
       SubRoutine CmbnW1(Welp0,Welm0,Wel0p,Wel0m,
      &                  nZeta,la,lb,Zeta,rKappa,Final,Alpha,Beta,
-     &                  Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,nIrrep,
-     &                  kOp,iChBas,MxFnc)
+     &                  Grad,nGrad,DAO,IfGrad,IndGrd,iStab,jStab,kOp)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the Spherical Well integrals         *
-*                                                                      *
-* Called from: WelGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '95.                                                 *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep,iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -40,7 +34,7 @@
      &       Alpha(nZeta), Grad(nGrad),
      &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
       Logical IfGrad(3,2)
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
 *
 *     Statement function for Cartesian index
 *
@@ -49,8 +43,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-      iQ = 1
-*     Call qEnter('CmbnW1')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta  ,1,nZeta)
@@ -73,12 +65,12 @@
       nDAO = nZeta * (la+1)*(la+2)/2 * (lb+1)*(lb+2)/2
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(ixa,iya,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(ixb,iyb,izb)
 *
@@ -187,7 +179,9 @@
                End If
             End If
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
 *     Trace the gradient integrals
@@ -225,6 +219,5 @@
  110     Continue
  100  Continue
 *
-*     Call qExit('CmbnW1')
       Return
       End

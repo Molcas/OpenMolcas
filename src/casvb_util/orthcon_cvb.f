@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine orthcon_cvb(ipairs,ipair,igroups,ngroup,iorthlst,
      >  mxortl,mxpair)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -79,7 +79,7 @@ c 'ORTH'
         endif
       endif
       do 500 isp=1,nsp
-      do 500 jsp=isp+1,nsp
+      do 501 jsp=isp+1,nsp
       ior=iorthlst(isp)
       jor=iorthlst(jsp)
       if(ior.gt.0.and.jor.gt.0)then
@@ -87,18 +87,23 @@ c 'ORTH'
       elseif(ior.gt.0.and.jor.lt.0)then
         jor2=-jor
         do 600 jo=1,ngroup(jor2)
-600     ipair(ior,igroups(jo,jor2))=1
+        ipair(ior,igroups(jo,jor2))=1
+600     continue
       elseif(ior.lt.0.and.jor.gt.0)then
         ior2=-ior
         do 700 io=1,ngroup(ior2)
-700     ipair(jor,igroups(io,ior2))=1
+        ipair(jor,igroups(io,ior2))=1
+700     continue
       elseif(ior.lt.0.and.jor.lt.0)then
         ior2=-ior
         jor2=-jor
         do 800 io=1,ngroup(ior2)
-        do 800 jo=1,ngroup(jor2)
-800     ipair(igroups(io,ior2),igroups(jo,jor2))=1
+        do 801 jo=1,ngroup(jor2)
+        ipair(igroups(io,ior2),igroups(jo,jor2))=1
+801     continue
+800     continue
       endif
+501   continue
 500   continue
       elseif(istr.eq.3)then
 c 'PAIRS'
@@ -127,41 +132,50 @@ c 'PAIRS'
       elseif(ior.gt.0.and.jor.lt.0)then
         jor2=-jor
         do 1400 jo=1,ngroup(jor2)
-1400    ipair(ior,igroups(jo,jor2))=1
+        ipair(ior,igroups(jo,jor2))=1
+1400    continue
       elseif(ior.lt.0.and.jor.gt.0)then
         ior2=-ior
         do 1500 io=1,ngroup(ior2)
-1500    ipair(jor,igroups(io,ior2))=1
+        ipair(jor,igroups(io,ior2))=1
+1500    continue
       elseif(ior.lt.0.and.jor.lt.0)then
         ior2=-ior
         jor2=-jor
         do 1600 io=1,ngroup(ior2)
-        do 1600 jo=1,ngroup(jor2)
-1600    ipair(igroups(io,ior2),igroups(jo,jor2))=1
+        do 1601 jo=1,ngroup(jor2)
+        ipair(igroups(io,ior2),igroups(jo,jor2))=1
+1601    continue
+1600    continue
       endif
 1300  continue
       elseif(istr.eq.4)then
 c 'STRONG'
       do 1700 i=1,mxorb
-      do 1700 j=i+1,mxorb
-1700  if(.not.(mod(i,2).eq.1.and.j.eq.i+1))ipair(i,j)=1
+      do 1701 j=i+1,mxorb
+      if(.not.(mod(i,2).eq.1.and.j.eq.i+1))ipair(i,j)=1
+1701  continue
+1700  continue
       elseif(istr.eq.5)then
 c 'FULL'
       do 1800 i=1,mxorb
-      do 1800 j=i+1,mxorb
-1800  ipair(i,j)=1
+      do 1801 j=i+1,mxorb
+      ipair(i,j)=1
+1801  continue
+1800  continue
       endif
 c 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input :
       if(.not.(istr.eq.6.or.istr.eq.7.or.istr.eq.0))goto 2000
       call izero(ipairs,2*mxpair)
       nort=0
       do 1900 i=1,mxorb
-      do 1900 j=i+1,mxorb
+      do 1901 j=i+1,mxorb
       if(ipair(i,j).eq.1.or.ipair(j,i).eq.1)then
         nort=nort+1
         ipairs(1,nort)=i
         ipairs(2,nort)=j
       endif
+1901  continue
 1900  continue
       return
       end

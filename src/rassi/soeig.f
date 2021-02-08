@@ -12,9 +12,10 @@
       !> module dependencies
       use rassi_global_arrays, only: JBNUM
       use sorting, only : argsort
-      use sorting_funcs, only : le_r
+      use sorting_funcs, only : leq_r
 #ifdef _HDF5_
       use Dens2HDF5
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -48,7 +49,6 @@
       INTEGER LHTOTI,LHTOTR
       INTEGER LJ2I,LJ2R,LJXI,LJXR,LJYI,LJYR,LJZI,LJZR,LLXI,LLYI,LLZI
       INTEGER LMAPMS,LMAPSP,LMAPST,LOMGI,LOMGR
-      INTEGER LOWEST
       INTEGER MAGN
       INTEGER MPLET,MPLET1,MPLET2,MSPROJ,MSPROJ1,MSPROJ2
 
@@ -79,7 +79,6 @@
 
 
 
-      Call qEnter(ROUTINE)
 
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
@@ -489,12 +488,10 @@ C910  CONTINUE
 
 * Find E0=lowest energy, to use for printing table:
       IF(IPGLOB.GE.TERSE) THEN
-       LOWEST=1
        E0=ENSOR(1)
        DO ISS=2,NSS
          E=ENSOR(ISS)
         IF(E.LT.E0) THEN
-         LOWEST=ISS
          E0=E
         END IF
        END DO
@@ -558,6 +555,7 @@ C Added by Ungur Liviu on 04.11.2009
 C Saving the ESO array in the RunFile.
        CALL Put_iscalar('NSS_SINGLE',NSS)
        CALL Put_dArray( 'ESO_SINGLE',ESO,NSS)
+       CALL Put_dArray( 'ESO_LOW'   ,ENSOR+EMIN,NSS)
        CALL MMA_DEALLOCATE(ESO)
       END IF
 
@@ -593,7 +591,7 @@ C Update LoopDivide (SUBSets keyword)
 C Assume the SO "ground states" are mostly formed by the SF "ground states"
       If (ReduceLoop) Then
         Call mma_Allocate(IndexE,nState,Label='IndexE')
-        IndexE(:)=ArgSort(Energy, le_r)
+        IndexE(:)=ArgSort(Energy, leq_r)
         n=0
         Do iState=1,LoopDivide
           Job=JbNum(IndexE(iState))
@@ -613,7 +611,6 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
 
       call mma_deallocate(HAMSOR)
       call mma_deallocate(HAMSOI)
-      Call qExit(ROUTINE)
       RETURN
 
       END

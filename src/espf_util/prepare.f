@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
 *
 *     Some stuff for preparing the gradient integral computation
@@ -20,12 +23,11 @@
       Character*1 xyz(0:2)
       Data xyz/'x','y','z'/
 *
-      Call qEnter('prepare')
 *
       LuWr=6
       DoRys = .True.
       nDiff = 3
-      Call IniSew(Info,DoRys,nDiff)
+      Call IniSew(DoRys,nDiff)
 *
 *     Copy the grid coordinates and weights in ONE array
 *     This is the only solution I found to pass info trough oneel_g !
@@ -39,10 +41,9 @@
 *
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
-         If (AuxCnttp(iCnttp)) Go To 999
+         If (dbsc(iCnttp)%Aux) Exit
          nCnttp_Valence = nCnttp_Valence+1
       End Do
- 999  Continue
 *
 *---- Compute number of centers and displacements. Ignore pseudo centers.
 *     If any pseudo centers disable use of translational and rotational
@@ -51,29 +52,29 @@
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp_Valence
-         If (pChrg(iCnttp)) Then
-             mdc = mdc + nCntr(iCnttp)
+         If (dbsc(iCnttp)%pChrg) Then
+             mdc = mdc + dbsc(iCnttp)%nCntr
              Go To 10
          End If
-         Do 20 iCnt = 1, nCntr(iCnttp)
+         Do 20 iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-            mDisp = mDisp + 3*(nIrrep/nStab(mdc))
+            mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
 *
 *
 *     Initialize the Direct array. Why? I don't know.
 *
-      Do i = 1, 3*mxdc
+      Do i = 1, 3*MxAtom
          Direct(i) = .True.
       EndDo
 *
 *     Generate symmetry adapted cartesian displacements
 *
-      Call ICopy(mxdc*8,[0],0,IndDsp,1)
-      Call ICopy(mxdc*3,[0],0,InxDsp,1)
-      call dcopy_(3*MxSym*mxdc,[One],0,Disp_Fac,1)
-      Call ICopy(3*mxdc,[1],0,mult_Disp,1)
+      Call ICopy(MxAtom*8,[0],0,IndDsp,1)
+      Call ICopy(MxAtom*3,[0],0,InxDsp,1)
+      call dcopy_(3*MxSym*MxAtom,[One],0,Disp_Fac,1)
+      Call ICopy(3*MxAtom,[1],0,mult_Disp,1)
       nDisp = 0
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
@@ -82,20 +83,19 @@
          mc = 1
          Do iCnttp = 1, nCnttp_Valence
 *           Loop over unique centers associated with this basis set.
-            Do iCnt = 1, nCntr(iCnttp)
+            Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
 *              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                nIrrep/nStab(mdc),iChTbl,iIrrep,
-     &                iComp,nStab(mdc)) .and.
-     &                .Not.pChrg(iCnttp) ) Then
+                  If ( TstFnc(dc(mdc)%iCoSet,
+     &                       iIrrep,iComp,dc(mdc)%nStab) .and.
+     &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
                       lDisp(iIrrep) = lDisp(iIrrep) + 1
-                      mult_Disp(nDisp)=nIrrep/nStab(mdc)
+                      mult_Disp(nDisp)=nIrrep/dc(mdc)%nStab
                       If (iIrrep.eq.0) Then
                          Do jOper = 0, nIrrep-1
                             Disp_Fac(iCar+1,jOper,mdc)=
@@ -103,11 +103,11 @@
                          End Do
                       End If
                       Write (ChDisp(nDisp),'(A,1X,A1)')
-     &                       LblCnt(mdc),xyz(iCar)
+     &                       dc(mdc)%LblCnt,xyz(iCar)
 
                   End If
                End Do
-               mc = mc + nIrrep/nStab(mdc)
+               mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
 *
@@ -121,6 +121,5 @@
          Call Abend()
       End If
 *
-      Call qExit('prepare')
       Return
       End

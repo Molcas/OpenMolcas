@@ -16,14 +16,13 @@ C              for first reduced set must be set up before
 C              this routine is called. Reduced set 2, on the
 C              other hand, is set up here.
 C
+      use ChoArr, only: nDimRS,iSP2F, iAtomShl, MySP, iSimRI
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "choptr2.fh"
 #include "choprint.fh"
-#include "chosimri.fh"
 #include "WrkSpc.fh"
 
       external ddot_
@@ -38,16 +37,6 @@ C
 
       PARAMETER (XMONE = -1.0D0, ZERO = 0.0D0)
 
-      INDRSH(I)=IWORK(ip_INDRSH-1+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
-      MYSP(I)=IWORK(ip_MYSP-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
-      ISIMRI(I)=IWORK(ip_ISIMRI-1+I)
-
-      CALL QENTER('_RESTART')
 
 C     Read diagonal (in reduced set 1).
 C     ---------------------------------
@@ -77,8 +66,7 @@ C     -------------------------------
 C     Copy reduced set 1 to 2.
 C     ------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                IWORK(ip_INDRED),1,2,NSYM,NNSHL,NNBSTRT(1),3)
+      CALL CHO_RSCOPY(1,2)
 
       IMXAB  = 0
       IMNAB  = 0
@@ -220,7 +208,7 @@ C     ----------------------------------
       SYNC = .TRUE.
       CALL CHO_P_SETRED(DIAG,SYNC)
       KRED = XNPASS + 1
-      CALL CHO_SETRSDIM(IWORK(ip_NDIMRS),NSYM,MAXRED,KRED,2)
+      CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,2)
 
 C     Sync and analyze (histogram) updated diagonal.
 C     ----------------------------------------------
@@ -372,11 +360,11 @@ C     than the threshold for deletion, THR_SIMRI.
 C     ----------------------------------------------------------------
 
       IF (CHO_1CENTER .AND. .NOT.LCONV) THEN
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          IF (NSYM .NE. 1) THEN
             CALL CHO_QUIT(SECNAM//': CHO_1CENTER on, but NSYM != 1',103)
          END IF
-         IF (l_IATOMSHL .LT. NSHELL) THEN
+         IF (SIZE(IATOMSHL) .LT. NSHELL) THEN
             CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
      &                    103)
          END IF
@@ -405,6 +393,5 @@ C     ----------------------------------------------------------------
          END DO
       END IF
 
-      CALL QEXIT('_RESTART')
 
       END

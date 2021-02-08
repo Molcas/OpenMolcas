@@ -77,11 +77,11 @@ def frange(start, end, step):
   b = Decimal(str(end))
   c = Decimal(str(step))
   if (step < 0.0):
-    f = -1 
-  else: 
+    f = -1
+  else:
     f = 1
   x,d = (start,a)
-  i = 0 
+  i = 0
   while (f*d <= f*b):
     yield x
     i += 1
@@ -94,10 +94,10 @@ def frange(start, end, step):
 # quadrature. The roots and weights are obtained from the eigenvalues and
 # eigenvectors of a tridiagonal matrix containing the alpha and beta
 # coefficients (Jacobi matrix).
-# 
+#
 # Code translated directly from:
 #   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-#   DOI: 10.1145/174603.174605
+#   doi:10.1145/174603.174605
 # (routine supplied by G. H. Golub according to a footnote)
 def gauss(alpha, beta, eps, nloop=30):
   n = len(alpha)
@@ -170,7 +170,7 @@ def gauss(alpha, beta, eps, nloop=30):
 #
 # Code translated directly from:
 #   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-#   DOI: 10.1145/174603.174605
+#   doi:10.1145/174603.174605
 def stieltjes(n, roots, weights):
   naux = len(roots)
   if (len(weights) != naux):
@@ -206,7 +206,7 @@ def stieltjes(n, roots, weights):
     alpha.append(sum2/sum1)
     beta.append(sum1/sum0)
     sum0 = sum1
- 
+
   return alpha, beta
 #===============================================================================
 
@@ -217,7 +217,7 @@ def stieltjes(n, roots, weights):
 #
 # Code translated directly from:
 #   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-#   DOI: 10.1145/174603.174605
+#   doi:10.1145/174603.174605
 def lanczos(n, roots, weights):
   naux = len(roots)
   if (len(weights) != naux):

@@ -66,7 +66,8 @@ c
       if (n .eq. 1) go to 1001
 c
       do 100 i = 2, n
-  100 e(i-1) = e(i)
+      e(i-1) = e(i)
+  100 continue
 c
       f = 0.0d0
       tst1 = 0.0d0
@@ -100,7 +101,8 @@ c     .......... form shift ..........
          if (l2 .gt. n) go to 145
 c
          do 140 i = l2, n
-  140    d(i) = d(i) - h
+         d(i) = d(i) - h
+  140    continue
 c
   145    f = f + h
 c     .......... ql transformation ..........

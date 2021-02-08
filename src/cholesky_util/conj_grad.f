@@ -78,8 +78,6 @@
 *
 
       Implicit Real*8 (a-h,o-z)
-
-#include "WrkSpc.fh"
 *
       Logical Done
       Real*8  Z(1:lVector), ZTemp(1:lVector),AP(1:lVector)

@@ -18,31 +18,16 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
+      use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
 *     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
@@ -61,7 +46,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-C     Call qEnter('NAPrm')
 *
       Call FZero(Final,nZeta*nElem(la)*nElem(lb)*nComp)
 *
@@ -100,7 +84,7 @@ C     Call qEnter('NAPrm')
       End If
 *
       iCnttp = INT(CCoor(1,2))
-      Q_Nuc=Charge(iCnttp)
+      Q_Nuc=dbsc(iCnttp)%Charge
 
       If (Q_Nuc.eq.Zero) Go To 111
       call dcopy_(3,CCoor,1,C,1)
@@ -127,7 +111,7 @@ C     Call qEnter('NAPrm')
 *        Gaussian nuclear charge distribution
 *
          NoSpecial=.False.
-         Eta=ExpNuc(iCnttp)
+         Eta=dbsc(iCnttp)%ExpNuc
          EInv=One/Eta
          rKappcd=TwoP54/Eta
 *        Tag on the normalization
@@ -149,12 +133,12 @@ C     Call qEnter('NAPrm')
 *        Modified Gaussian nuclear charge distribution
 *
          NoSpecial=.False.
-         Eta=ExpNuc(iCnttp)
+         Eta=dbsc(iCnttp)%ExpNuc
          EInv=One/Eta
          rKappcd=TwoP54/Eta
 *        Tag on the normalization
          rKappcd=rKappcd*(Eta/Pi)**(Three/Two)
-     &          /(One+Three*w_mGauss(iCnttp)/(Two*Eta))
+     &          /(One+Three*dbsc(iCnttp)%w_mGauss/(Two*Eta))
 *        s type function
          mcdMin=0
          mcdMax=0
@@ -166,8 +150,8 @@ C     Call qEnter('NAPrm')
      &            TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 *
 *        d type function w*(x**2+y**2+z**2)
-         If (w_mGauss(iCnttp).gt.0.0D0) Then
-            rKappcd = rKappcd*w_mGauss(iCnttp)
+         If (dbsc(iCnttp)%w_mGauss.gt.0.0D0) Then
+            rKappcd = rKappcd*dbsc(iCnttp)%w_mGauss
             iAnga(3)=2
             mcdMin=nabSz(2+ld-1)+1
             mcdMax = nabSz(2+ld)
@@ -228,7 +212,6 @@ C     Call qEnter('NAPrm')
          End Do
       End If
 *
-C     Call qExit('NAPrm')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

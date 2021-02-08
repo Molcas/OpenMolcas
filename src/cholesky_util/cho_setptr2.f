@@ -10,13 +10,11 @@
 ************************************************************************
       SubRoutine Cho_SetPtr2()
 C
-C     Purpose: set entries in choptr2.fh
+C     Purpose: set n_MySP
 C
+      use ChoArr, only: n_MySP
       Implicit None
-#include "choptr2.fh"
 
-      ip_mySP = -999999
-      l_mySP  = 0
       n_mySP  = 0
 
       End

@@ -14,35 +14,25 @@
       SubRoutine PLF(AOInt,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
      &               iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
+*                                                                      *
 *  Object: to sift and index the Petite List Format integrals.         *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             May '90                                                  *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use LundIO
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4)
-      Logical Shijij, Shij, Shkl, Qijij, iShij, iShkl, Qij, Qkl,
-     &        iQij, iQkl
+      Logical Shijij, Shij, Shkl, Qijij, iShij, iShkl, iQij, iQkl
 *
-      iRout = 109
-      iPrint = nPrint(iRout)
       iShij = iShell(1).eq.iShell(2)
       iShkl = iShell(3).eq.iShell(4)
 *
@@ -57,7 +47,6 @@
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
-            Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
                i12 = jCmp*(i1-1) + i2
             Else
@@ -67,7 +56,6 @@
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
-                  Qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
                   Else
@@ -85,7 +73,6 @@
                 lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
 *
                 nkl = 0
-                fac = one
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
                    Do 220 kAOk = 0, kBas-1
@@ -104,13 +91,6 @@
                          jSOj = jSO + jAOj
                          Do 420 iAOi = 0, iBas-1
                             nijkl = nijkl + 1
-                            If (Dist) Then
-                            iLog10=Int(Log10(Two*
-     &                             Max(Abs(AOInt(nijkl,i1,i2,i3,i4)),
-     &                             1.D-72 ) ) )
-                            iNrInt=Max(-20,Min(9,iLog10))
-                            NrInt(iNrInt) = NrInt(iNrInt) + 1
-                            End If
                             iSOi = iSO + iAOi
                             If (iSOi.lt.jSOj .and. iQij) Go To 420
                             If (iSOi.lt.jSOj) Then
@@ -137,22 +117,19 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
 *
-                               nUt=nUt + 1
-                               Buf(nUt) = AOInt(nijkl,i1,i2,i3,i4)
-                               iBuf(nUt) = llSOll + kkSOkk*2**8 +
-     &                                     jjSOjj*2**16
-                               iBuf(nUt)=iOr(iShft(iiSOii,24),iBuf(nUt))
-                               If (nUt.eq.nBuf-1) Then
-                                  Call iDafile(Lu_28,1,iWork(ip_Buf),
-     &                                         lBuf,iDisk)
-                                  nUt=0
+                               Buf%nUt=Buf%nUt + 1
+                               Buf%Buf(Buf%nUt) =
+     &                             AOInt(nijkl,i1,i2,i3,i4)
+                               Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8
+     &                                           + jjSOjj*2**16
+                               Buf%iBuf(Buf%nUt)=iOr( iShft(iiSOii,24),
+     &                                            Buf%iBuf(Buf%nUt) )
+                               If (Buf%nUt.eq.nBuf-1) Then
+                                  Call dDafile(Lu_28,1,Buf%Buf,lBuf,
+     &                                         iDisk)
+                                  Buf%nUt=0
                                End If
-*                              XInt=AOInt(nijkl,i1,i2,i3,i4)
-*                              Sum = Sum + XInt
-*                              SumAbs = SumAbs+Abs(XInt)
-*                              SumSq= SumSq + XInt**2
                             End If
  420                     Continue
  320                  Continue
@@ -164,6 +141,5 @@
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit PLF','CHECK','REAL',iDum,iDum)
       Return
       End

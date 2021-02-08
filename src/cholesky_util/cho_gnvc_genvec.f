@@ -13,12 +13,13 @@
 C
 C     Purpose: generate Cholesky vectors from raw integral columns.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec, IndRed
 #include "implicit.fh"
       Real*8  Diag(*), xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*15 SecNam
@@ -29,20 +30,12 @@ C
       Integer ip_mapRS2RS, l_mapRS2RS
       Common / GnVcMp / ip_mapRS2RS(8), l_mapRS2RS(8)
 
-      Parameter (N2 = InfVec_N2)
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
-
-#if defined (_DEBUG_)
-      Call qEnter('_GnVc_GetVec')
-#endif
 
 C     Check input.
 C     ------------
 
-      If (NumPass .lt. 1) Go To 1 ! exit
+      If (NumPass .lt. 1) return
 
       If (mSym .ne. nSym) Then
          Call Cho_Quit('Input error [1] in '//SecNam,103)
@@ -68,7 +61,7 @@ C     ------------
             NumVec = NumVec + nVecRS(iSym,iPass)
          End Do
       End Do
-      If (NumVec .lt. 1) Go To 1 ! exit
+      If (NumVec .lt. 1) return ! exit
 
 C     Subtract previous vectors.
 C     --------------------------
@@ -243,9 +236,7 @@ C           --------------------------------------------
      &                                          xInt(kOff2),1)
                End Do
 
-               Call Cho_SetVecInf(iWork(ip_InfVec),
-     &                            MaxVec,InfVec_N2,nSym,
-     &                            iVec,iSym,iAB,iPass,3)
+               Call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
 
                If (iPrint .ge. INF_PROGRESS) Then
                   iVecT = NumChT + iV
@@ -369,10 +360,9 @@ C        Set next (iPass+1) reduced set at location 2.
 C        Reduced set iPass1 is now stored at location 3.
 C        -----------------------------------------------
 
-         Call Cho_SetRed(Diag,iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                   iWork(ip_IndRed),nSym,nnBstRT(1),nnShl)
+         Call Cho_SetRed(Diag)
          jPass = iPass + 1
-         Call Cho_SetRSDim(iWork(ip_nDimRS),nSym,MaxRed,jPass,2)
+         Call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
          If (iPrint .ge. INF_PASS) Then
             Call Cho_PrtRed(2)
             Call Cho_Flush(Lupri)
@@ -439,10 +429,5 @@ C     ------------------------------------------------
          Write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
          Call Cho_Quit('Error termination in '//SecNam,104)
       End If
-
-    1 Continue
-#if defined (_DEBUG_)
-      Call qExit('_GnVc_GetVec')
-#endif
 
       End

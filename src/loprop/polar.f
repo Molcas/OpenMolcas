@@ -11,21 +11,9 @@
 * Copyright (C) 2002, Laura Gagliardi                                  *
 *               2002, Roland Lindh                                     *
 ************************************************************************
-*
       Subroutine Polar(ireturn)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
-*      Author:                                                         *
-*                                                                      *
-*             Laura Gagliardi, Dipartimento di Chimica Fisica,         *
+*      Author:Laura Gagliardi, Dipartimento di Chimica Fisica,         *
 *             University of Palermo, ITALY. December 2002              *
 *             Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.                                         *
@@ -49,14 +37,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Utility = .False.
-#ifdef _DEBUG_
-         Call QEnter('Polar')
-#endif
       ireturn=99
 *                                                                      *
 ************************************************************************
@@ -127,7 +112,8 @@
 *
 *   If computing local xhole-dipole moments. Should come after
 *   get_density_matrix so modified densities are used.
-      If(XHole) Call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec)
+      If(XHole) Call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec,
+     &                                 nSize)
 
       If (.Not.NoField) Then
 *        Read the one-electron hamiltonian.
@@ -325,8 +311,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-         Call QExit('Polar')
-#endif
-      Return
       End

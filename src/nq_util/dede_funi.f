@@ -10,22 +10,21 @@
 ************************************************************************
       Subroutine DeDe_Funi(Dens,nDens,nr_of_Densities)
       use k2_arrays
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
       Real*8 Dens(nDens,nr_of_Densities)
       Logical Special_NoSym, DFT_Storage
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nField=2+nr_of_Densities
 *
 *
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
-      Call mma_allocate(DeDe,nDeDe_DFT+MaxDe*MaxDCR,Label='DeDe')
+      Call mma_allocate(DeDe,nDeDe_DFT+MaxDe*nIrrep,Label='DeDe')
       ipDeDe= 1
       ipD00 = ipDeDe + nDeDe_DFT
       ipDijs = -1  ! Dummy value
@@ -35,7 +34,7 @@
       DFT_Storage=.True.
       Call mk_DeDe(Dens,nDens,nr_of_Densities,ipOffD,nIndij,ipDeDe,
      &             ipD00,MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
-     &             Work,1,DeDe,nDeDe_DFT)
+     &             DeDe,nDeDe_DFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *

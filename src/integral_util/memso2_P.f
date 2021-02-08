@@ -11,9 +11,7 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      Integer Function MemSO2_P(iAng,jAng,kAng,lAng,
-     &                        iCmp,jCmp,kCmp,lCmp,
-     &                        iShell,jShell,kShell,lShell)
+      Integer Function MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAO,jAO,kAO,lAO)
 ************************************************************************
 *  Object: to compile the number of SO block which will be generated   *
 *          by the current shell quadruplet.                            *
@@ -28,9 +26,9 @@
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             February '90                                             *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 *
       MemSO2_P = 0
 *
@@ -55,16 +53,14 @@
 *         integrals.
 *
           Do 110 j1 = 0, nIrrep-1
-             If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 110
+             If (iAOtSO(iAO+i1,j1)<0) Cycle
              Do 210 j2 = 0, nIrrep-1
-                If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0) Go To 210
+                If (iAOtSO(jAO+i2,j2)<0) Cycle
                 j12 = iEor(j1,j2)
                 Do 310 j3 = 0, nIrrep-1
-                   If (iAnd(IrrCmp(IndS(kShell)+i3),2**j3).eq.0)
-     &                Go To 310
+                   If (iAOtSO(kAO+i3,j3)<0) Cycle
                    j4 = iEor(j12,j3)
-                   If (iAnd(IrrCmp(IndS(lShell)+i4),2**j4).eq.0)
-     &                Go To 310
+                   If (iAOtSO(lAO+i4,j4)<0) Cycle
                    MemSO2_P = MemSO2_P + 1
 *
  310            Continue
@@ -79,11 +75,4 @@
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iAng)
-         Call Unused_integer(jAng)
-         Call Unused_integer(kAng)
-         Call Unused_integer(lAng)
-      End If
       End

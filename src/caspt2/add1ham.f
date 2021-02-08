@@ -9,6 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ADD1HAM(H1EFF)
+* NOT TESTED (used for OFEmbed below)
+#if 0
+      use OFembed, only: Do_OFemb, FMAux, OFE_First
+#endif
       Implicit real*8 (a-h,o-z)
       Dimension H1EFF(*)
 * ----------------------------------------------------------------
@@ -18,12 +22,11 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "debug.fh"
-#include "ofembed.fh"
+#include "stdalloc.fh"
 *
 * NOT TESTED (used for OFEmbed below)
 #if 0
-      Character(16) NamRfil
+      Character(Len=16) NamRfil
 #endif
       Logical Found
 
@@ -63,7 +66,7 @@ c the nuclear attraction by the cavity self-energy
          Call GetMem('RFFLD','Free','Real',lTemp,nTemp)
       End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          WRITE(6,*)' 1-EL HAMILTONIAN (MAY INCLUDE REACTION FIELD)'
          ISTLT=0
          DO ISYM=1,NSYM
@@ -80,21 +83,21 @@ c the nuclear attraction by the cavity self-energy
 c If this is a perturbative Orbital-Free Embedding (OFE) calculation
 c then modify the one-electron Hamiltonian by the OFE potential and
 c the nuclear attraction by the Rep_EN
-      If ( Done_OFEmb ) then
+      If ( Do_OFEmb ) then
          nTemp=0
          Do iSym=1,nSym
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
          Call GetMem('DCoul','Allo','Real',ipCoul,nTemp)
          Call FZero(Work(ipCoul),nTemp)
-         If (First_OFE) Then
-            Call GetMem('FMaux','Allo','Real',ipFMaux,nTemp)
-            Call Coul_DMB(.true.,1,Rep_EN,Work(ipFMaux),Work(ipCoul),
+         If (OFE_First) Then
+            Call mma_allocate(FMaux,nTemp,Label='FMaux')
+            Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(ipCoul),
      &                             Work(ipCoul),nTemp)
          EndIf
-         Call DaXpY_(nTemp,1.0d0,Work(ipFMaux),1,H1EFF,1)
+         Call DaXpY_(nTemp,1.0d0,FMaux,1,H1EFF,1)
          Call GetMem('DCoul','Free','Real',ipCoul,nTemp) ! used as Dum
-         First_OFE=.false.
+         OFE_First=.false.
 *
          Call Get_NameRun(NamRfil) ! save the old RUNFILE name
          Call NameRun('AUXRFIL')   ! switch the RUNFILE name
@@ -107,7 +110,7 @@ c the nuclear attraction by the Rep_EN
          EndIf
          Call Free_Work(ipVxc)
          Call NameRun(NamRfil)   ! switch back to old RUNFILE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
              WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
              ISTLT=0
              DO ISYM=1,NSYM

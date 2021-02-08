@@ -9,14 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Aces_Gamma()
+      use Basis_Info, only: nBas
       use Aces_Stuff
+      use Index_arrays, only: iSO2Sh
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
        Integer, Allocatable:: iTable(:,:)
        Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
 *                                                                      *
@@ -101,10 +101,8 @@
 *---- Read the blocks off the Aces 2 file and put into half sorted bin
 *     file. The second half sort is done on the fly as needed.
 *
-      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,
-     &                 iOffSO,Buf,nReq,
-     &                 iWork(ipSOSh),nSOs,Bin3,lBin,nQuad,
-     &                 G_Toc,SO2cI,CutInt)
+      Call Read_Blocks(iTable,nBlocks,nBas,nIrrep,Buf,nReq,
+     &                 iSO2Sh,nSOs,Bin3,lBin,nQuad,G_Toc,SO2cI,CutInt)
 *                                                                      *
 ************************************************************************
 *                                                                      *

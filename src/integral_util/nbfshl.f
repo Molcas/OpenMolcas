@@ -16,21 +16,19 @@
 c----------------------------------------------------------------------
       Integer Function nbfshl(iSkal,irp)
       use iSD_data
+      use SOAO_Info, only: iAOtSO
 c----------------------------------------------------------------------
       Implicit Real*8 (A-H,O-Z)
 *
 *  returns number of basis functions for given shell and symmetry
 *
-#include "itmax.fh"
-#include "info.fh"
-*
       nbfshl=0
-      iShell = iSD(11,iSkal)
+      iAO    = iSD( 7,iSkal)
       iCmp   = iSD( 2,iSkal)
 *     loop over components of shell...
       Do i=1, iCmp
-        If (IAND(IrrCmp(IndS(iShell)+i),2**irp).ne.0) nbfshl =
-     &           nbfshl + iSD(3,iSkal)
+         If (iAOtSO(iAO+i,irp)>0) nbfshl = nbfshl + iSD(3,iSkal)
       End Do
+
       return
       End

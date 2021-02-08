@@ -9,9 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine LDF_SetDefaultThrs()
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
       Target_Accuracy=Thrshld_CD
       Call LDF_SetThrs(Target_Accuracy)
       End

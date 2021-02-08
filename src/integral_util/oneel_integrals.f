@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "real.fh"
       Character Label*8
       Real*8 CCoor(3,nComp)
@@ -28,22 +27,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 112
-      iPrint = nPrint(iRout)
-*     Call qEnter('OneEl_I')
-      If (iPrint.ge.19) Then
-         Write (6,*) ' In OneEl: Label', Label
-         Write (6,*) ' In OneEl: nComp'
-         Write (6,'(1X,8I5)') nComp
-         Write (6,*) ' In OneEl: lOper'
-         Write (6,'(1X,8I5)') lOper
-         Write (6,*) ' In OneEl: n2Tri'
-         Do iComp = 1, nComp
-            ip(iComp) = n2Tri(lOper(iComp))
-         End Do
-         Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-         Call RecPrt(' CCoor',' ',CCoor,3,nComp)
-      End If
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In OneEl: Label', Label
+      Write (6,*) ' In OneEl: nComp'
+      Write (6,'(1X,8I5)') nComp
+      Write (6,*) ' In OneEl: lOper'
+      Write (6,'(1X,8I5)') lOper
+      Write (6,*) ' In OneEl: n2Tri'
+      Do iComp = 1, nComp
+         ip(iComp) = n2Tri(lOper(iComp))
+      End Do
+      Write (6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
+      Call RecPrt(' CCoor',' ',CCoor,3,nComp)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -58,7 +55,9 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
          End Do
       End Do
-      If (iPrint.ge.20) Write (6,*) ' nIC =',nIC
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' nIC =',nIC
+#endif
       If (nIC.eq.0) Then
          Call WarningMessage(2,'OneEl_Integrals: nIC.eq.0')
          Call Abend()
@@ -74,7 +73,7 @@
       ip(:)=-1
       LenTot=0
       Do iComp = 1, nComp
-         ip(1)=1+LenTot
+         ip(iComp)=1+LenTot
          LenInt=n2Tri(lOper(iComp))
          LenTot=LenTot+LenInt+4
       End Do
@@ -85,7 +84,8 @@
 *                                                                      *
 *---- Compute all SO integrals for all components of the operator.
 *
-      Call OneEl_(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
+      Call OneEl_Inner
+     &           (Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,
      &            nOrdOp,rHrmt,iChO,
      &            dum,dum,1,idum,0,0,
      &            iStabO,nStabO,nIC,
@@ -93,6 +93,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('OneEl_I')
       Return
-      End
+      End Subroutine OneEl_Integrals
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(OneEl_Integrals)
+
+#endif

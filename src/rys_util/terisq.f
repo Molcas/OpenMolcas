@@ -19,12 +19,6 @@
 *                                                                      *
 *         OBSERVE that the prefactor is only partial!!!                *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -38,10 +32,9 @@
      &       rKapab(nT), rKapcd(nT),
      &       T(nT), Fact(nT), ZEInv(nT)
 *
+#ifdef _DEBUGPRINT_
       iRout = 56
       iPrint = nPrint(iRout)
-*
-#ifdef _DEBUG_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TERISq',' ',Zeta,nT,1)
          Call RecPrt(' P in TERISq',' ',P,nT,3)
@@ -63,7 +56,7 @@
          Fact(iT) =  rKapab(iT) * rKapcd(iT)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Tvalue',' ',T,nT,1)
          Call RecPrt('Fact  ',' ',Fact,nT,1)

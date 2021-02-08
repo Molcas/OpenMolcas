@@ -12,6 +12,7 @@
 ************************************************************************
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
+      use ChoMP2
 *
 *     Jonas Bostrom, Feb 2010
 *
@@ -125,6 +126,7 @@
          lDens = lDens + nOrb(iSym)*nOrb(iSym)
       End Do
 *
+      ChoMP2g_Allocated=.True.
       Call GetMem('MP2Density','Allo','Real',ipMP2D, lDens)
       Call GetMem('MP2WDensity','Allo','Real',ipMP2W, lDens)
       Call FZero(Work(ipMP2D),lDens)

@@ -11,41 +11,76 @@
       SUBROUTINE Unused_real(r)
       IMPLICIT NONE
       REAL*8 r,r2
-      IF (.FALSE.) r2=r
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        r2=r
+        r=r2
+      END IF
+#endif
       END SUBROUTINE Unused_real
 
       SUBROUTINE Unused_real_array(r)
       IMPLICIT NONE
       REAL*8 r(*),r2
-      IF (.FALSE.) r2=r(1)
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        r2=r(1)
+        r(1)=r2
+      END IF
+#endif
       END SUBROUTINE Unused_real_array
 
       SUBROUTINE Unused_integer(i)
       IMPLICIT NONE
       INTEGER i,i2
-      IF (.FALSE.) i2=i
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        i2=i
+        i=i2
+      END IF
+#endif
       END SUBROUTINE Unused_integer
 
       SUBROUTINE Unused_integer_array(i)
       IMPLICIT NONE
       INTEGER i(*),i2
-      IF (.FALSE.) i2=i(1)
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        i2=i(1)
+        i(1)=i2
+      END IF
+#endif
       END SUBROUTINE Unused_integer_array
 
       SUBROUTINE Unused_logical(l)
       IMPLICIT NONE
       LOGICAL l,l2
-      IF (.FALSE.) l2=l
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        l2=l
+        l=l2
+      END IF
+#endif
       END SUBROUTINE Unused_logical
 
       SUBROUTINE Unused_logical_array(l)
       IMPLICIT NONE
       LOGICAL l(*),l2
-      IF (.FALSE.) l2=l(1)
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        l2=l(1)
+        l(1)=l2
+      END IF
+#endif
       END SUBROUTINE Unused_logical_array
 
       SUBROUTINE Unused_character(c)
       IMPLICIT NONE
       CHARACTER c(*),c2
-      IF (.FALSE.) c2=c(1)
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) THEN
+        c2=c(1)
+        c(1)=c2
+      END IF
+#endif
       END SUBROUTINE Unused_character

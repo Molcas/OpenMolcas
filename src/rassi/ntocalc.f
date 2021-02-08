@@ -50,7 +50,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
@@ -69,7 +68,7 @@
       INTEGER LSUPCMO1,LSUPCMO2,NSUPCMO
       INTEGER NDge,LNTOUmat,LNTOVmat,LNTOVeig
       INTEGER LTDM,LTDMT,LScrq,NScrq,LCMO1,LCMO2
-      DIMENSION WGRONK(2)
+      REAL*8 WGRONK(2)
       INTEGER LONTO, LUNTO,N_NTO,INFO, LNTOUeig,I_NTO
       INTEGER LSymfr,LIndfr,LSymto,LIndto
       REAL*8 Zero,Two,PrintThres,SumEigVal
@@ -86,7 +85,7 @@
       Logical DOTEST
       INTEGER LU,ISFREEUNIT
       COMMON SumEigVal
-      EXTERNAL ISFREEUNIT
+      EXTERNAL ISFREEUNIT, Molden_interface
 
       LU=233
 
@@ -468,7 +467,6 @@ C     Putting particle-hole pairs in the output
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal
@@ -476,7 +474,7 @@ C     input variables
       CHARACTER (len=8) NTOType
       CHARACTER (len=1) Spin
       CHARACTER (len=5)  STATENAME
-      CHARACTER (len=128) FILENAME
+      CHARACTER (len=128) FILENAME, molden_name
 C     Loop control
       INTEGER I, J, ICount
 C     Variables needed for judging the symmetry of a NTO
@@ -502,10 +500,8 @@ C
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
-      Logical DoTest
       External ISFREEUNIT
 
-      DoTest=.false.
       Threshold=0.0D-10
       Zero=0.0D0
 
@@ -628,8 +624,11 @@ C Recording Printed NTO (PCMO)
       Note='*  Natural Transition Orbitals'
       WRITE(FILENAME,'(6(a))')
      & 'NTORB.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
+      WRITE(molden_name,'(6(a))')
+     & 'MD_NTO.',trim(adjustl(STATENAME)),'.',Spin,'.',NTOType
       CALL WRVEC_(FILENAME,LU,'CO',0,NSYM,NBASF,NBASF,PCMO,vDum,
      & EigValArray,vDum,vDum,vDum,v2Dum,Note,0)
+      CALL Molden_interface(0,trim(FILENAME),trim(molden_name))
 
       deallocate(PCMO)
       RETURN

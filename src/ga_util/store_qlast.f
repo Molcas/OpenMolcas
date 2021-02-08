@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Store_QLast(Q)
+      use TList_Mod
       Implicit Real*8 (a-h,o-z)
       Real*8 Q(2)
-#include "tlist.fh"
 *
 c     Call XFlush(6)
 c     Write (*,*)
-c     Call Diskat
 c     Write (*,*) 'Store_QLast:',Q
       QLast(1)=Q(1)
       QLast(2)=Q(2)

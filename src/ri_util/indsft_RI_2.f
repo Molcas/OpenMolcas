@@ -26,9 +26,10 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -42,7 +43,7 @@
       Logical Shijij, qijij
 *     local array
       Integer jSym(0:7), lSym(0:7)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Data tr1,tr2/0.0d0,0.0d0/
       Save tr1,tr2
 #endif
@@ -53,15 +54,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('IndSftRI2')
-      irout = 39
-      iprint = nprint(irout)
-*                                                                      *
-************************************************************************
-*                                                                      *
       k12=0
       k34=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
+      irout = 39
+      iprint = nprint(irout)
       If (iPrint.ge.49) Then
          r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
          r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
@@ -86,7 +83,9 @@
       j3 = 0
       Do i2 = 1, iCmp(2)
          Do 201 j = 0, nIrrep-1
-            jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+            ix = 0
+            If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+            jSym(j) = ix
 201      Continue
          If (iShell(2).gt.iShell(1)) then
             i12 = iCmp(2)*(i1-1) + i2
@@ -95,7 +94,9 @@
          End If
          Do 400 i4 = 1, iCmp(4)
             Do 401 j = 0, nIrrep-1
-               lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+               ix = 0
+               If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+               lSym(j) = ix
 401         Continue
             If (iShell(4).gt.iShell(3)) then
                i34 = iCmp(4)*(i3-1) + i4
@@ -166,7 +167,6 @@ C           Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 400      Continue
       End Do
 *
-*     Call qExit('IndSftRI2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

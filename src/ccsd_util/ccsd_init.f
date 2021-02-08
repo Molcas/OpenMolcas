@@ -30,10 +30,10 @@ c     lunabij3 - lun of file, where <ab||ij>abab is stored (I)
 c
 c     N.B. this routine use and destry help files : none
 c
+       use Para_Info, only: MyRank
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "wrk.fh"
-#include "paralell.fh"
        integer lunabij1,lunabij2,lunabij3
 c
 c     help variables

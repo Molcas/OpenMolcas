@@ -74,7 +74,6 @@ C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 C  **************************************************
 
-      Call QEnter('CHOSCF_DRV_')
       rc=0
 
 
@@ -121,7 +120,7 @@ C  **************************************************
 
 c       koff=0
 c       do i=1,nSym
-c          CALL CD_TESTER(rc,ipDLT(1)+koff,nBas(i),.true.)
+c          CALL CD_TESTER(rc,Work(ipDLT(1)+koff),nBas(i),.true.)
 c          CALL TRIPRT('DLT',' ',Work(ipDLT(1)+koff),nBas(i))
 c          koff = koff + nnBSF(i,i)
 c       end do
@@ -653,7 +652,6 @@ C --- and pack the off-diagonal elements
 
       call getmem('nVec_a+b','Free','Inte',ipnVec,2*nSym)
 
-      Call QExit('CHOSCF_DRV_')
 
       Return
       End

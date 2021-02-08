@@ -9,19 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Module RASSI_AUX
+      Logical :: AO_Mode=.False.
       Integer, Allocatable:: TocM(:), jDisk_TDM(:,:), JOB_INDEX(:)
       Real*8, Allocatable:: CMO1(:), CMO2(:), DMAB(:)
-      Logical AO_Mode
-      Integer NASHT_Save, mTRA, JOB1_old, JOB2_old
-      Data JOB1_old/-1/, JOB2_old/-1/
+      Integer NASHT_Save, mTRA
+      Integer :: JOB1_old=-1, JOB2_old=-1
 
       Contains
 
       Integer Function iDisk_TDM(I,J,K)
-      Integer I, J, I_Max, J_Min, K
-      I_Max=Max(I,J)
-      J_Min=Min(I,J)
-      iDisk_TDM=jDisk_TDM(K,I_Max*(I_Max-1)/2+J_Min)
+         Integer I, J, I_Max, J_Min, K
+         I_Max=Max(I,J)
+         J_Min=Min(I,J)
+         iDisk_TDM=jDisk_TDM(K,I_Max*(I_Max-1)/2+J_Min)
       End Function iDisk_TDM
 
       End Module RASSI_AUX

@@ -21,11 +21,12 @@
       Type(c_ptr) :: cptr1
       integer(c_int) :: irc
       Character(kind=c_char):: Name*180, PATH*180
+      Character(kind=c_char):: Name*180, PATH*180
       Integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       Integer(c_size_t) :: frag_idx
       Integer(c_size_t), Target :: n_atoms
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       type(efp_energy), Target :: Energy
       Integer(c_int) :: do_gradient
 #endif
@@ -40,7 +41,7 @@
 *
 *        Now add the potentials
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'Initiation of EFP'
          Write (6,*) 'nEFP_fragments=',nEFP_fragments
 #endif
@@ -133,7 +134,7 @@
             Call Abend()
          End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          do_gradient=0
          irc=EFP_COMPUTE(EFP_Instance,do_gradient)
          If (irc.ne.0) Then

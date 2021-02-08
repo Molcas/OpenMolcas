@@ -29,7 +29,6 @@ c this Subroutine is a wrapper for various MAGN subroutines
       Logical, intent(in)          :: DBG
 c local variables:
 
-      Call qEnter('MAGN')
 
       If( abs(zJ) .lt. tiny(0.0_wp) ) Then
 
@@ -57,7 +56,6 @@ c local variables:
       End If
 
 
-      Call qExit('MAGN')
 
       Return
       End subroutine magn

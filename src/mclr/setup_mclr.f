@@ -9,15 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine SetUp_MCLR(DSYM)
+      use Arrays, only: pInt1, pInt2
 *
 *   Setup pointers and size of metrixes (includes in Pointers.fh)
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 * for the integrals needed in sigma gen
-#include "glbbas_mclr.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
       integer dsym
 *                                                                      *
 ************************************************************************
@@ -127,9 +126,6 @@
       End Do
       ndens=ndens2
 *
-*    Pointers stored in glbbas, just for making LUCIA happy
-*
-*
 *  To begin with we assume that we have permutation symmetry
 *
       if(iMethod.eq.2) then
@@ -140,7 +136,7 @@
             jOrb=nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
 *
             If (iEOr(iiSym-1,jjSym-1)+1.eq.Dsym) Then
-               iWork(KpINT1+iiSym-1)=iOff
+               pINT1(iiSym)=iOff
                If (iiSym.eq.jjSym) Then
                   iOff=iOff+iOrb*(iOrb+1)/2
                Else
@@ -183,14 +179,14 @@
                Else
                   klOrb=kOrb*lOrb
                End If
-               ip=iiSym-1+nSym*((jjSym-1)+nSym*(kkSym-1))
+               ip=iiSym+nSym*((jjSym-1)+nSym*(kkSym-1))
                If (ijNum.eq.klNum) Then
                   iPlus=ijOrb*(ijOrb+1)/2
                Else
                   iPlus=ijOrb*klOrb
                End If
 *
-               If (iPlus.gt.0) iWork(KpINT2+ip)=iOff
+               If (iPlus.gt.0) pINT2(ip)=iOff
 *
                iOff=iOff+iPlus
 *
@@ -220,7 +216,7 @@
       End Do
       Call Put_iArray('nDelPT',nDel,nSym)
 
-*     Call iWrtMa( iWork(KpINT2),64,8,64,8)
+*     Call iWrtMa(pINT2,64,8,64,8)
 *
       Return
       End

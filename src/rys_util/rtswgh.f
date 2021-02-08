@@ -24,8 +24,10 @@ CMAW
       parameter (coef1=-1.0d0/120d0, coef2=-5d0*coef1, coef3=-2d0*coef2)
       parameter (coef4=-coef3, coef5=-coef2, coef6=-coef1)
 c
+#ifdef _DEBUGPRINT_
       iRout = 78
       iPrint = nPrint(iRout)
+#endif
       RYSD(0)=ZERO
 c
       IF (NRYS.gt.maxdeg) THEN
@@ -166,7 +168,7 @@ C COMPUTE RYS VALUES AND ADD SQUARES TO GET WGH:
 C
  5000 CONTINUE
 C
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Roots',' ',U2,nRys,nT)
          Call RecPrt(' Weights',' ',Wgh,nRys,nT)

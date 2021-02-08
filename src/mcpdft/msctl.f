@@ -47,7 +47,6 @@
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "raswfn.fh"
 #include "ksdft.fh"
       Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly
@@ -67,12 +66,12 @@
       integer ifocki,ifocka
       integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
-      integer  LOEOTP,NACP,NACP2
-      integer vdisk,jroot
+      integer  LOEOTP
+      integer jroot
       real*8,dimension(1:nroots) :: Energies
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
-      integer isym,iorb,iash,iish,jsym
+      integer isym,iash,jsym
       integer LUGS
       LOGICAL Do_Rotate
       COMMON /MSPDFT/ Do_Rotate
@@ -80,7 +79,6 @@
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
-      Call qEnter('MSCTL')
       Call unused_real_array(F)
 ***********************************************************
 C Local print level (if any)
@@ -113,7 +111,6 @@ C Local print level (if any)
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -141,7 +138,6 @@ C Local print level (if any)
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then
@@ -170,7 +166,6 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('NucElcore','Allo','Real',iTmpn,nTot1)
@@ -184,7 +179,6 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
 c      end if
@@ -218,7 +212,6 @@ c      end if
        IADR19(:)=0
        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
        IADR15 = IADR19
-       vDisk =  IADR19(4)
        dmDisk = IADR19(3)
 !       Call GetMem('jVector','Allo','Real',ijVec,nConf)
        Call GetMem('D1Active','Allo','Real',iD1Act,NACPAR)
@@ -441,9 +434,6 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     IADD=IADD+iAsh
                     End If
                     End Do
-          NACP=(NAC+NAC**2)/2
-          NACP2=(NACP+NACP**2)/2
-          NCEH2=1
 
       do_pdftPot=.false.
       if(DoGradPDFT.and.jroot.eq.irlxroot) then
@@ -530,9 +520,7 @@ c**************Kinetic energy of active electrons*********
       EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
 
       EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
-      EFI = dDot_(nTot1,Work(iFockI),1,Work(iTmpa),1)
 c         call xflush(6)
-      Eact = EactK + EactN + EFI
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
       CASDFT_Funct = 0.0D0
@@ -694,9 +682,10 @@ c         call xflush(6)
       end if
 *
 *
-         CALL TRACTL2(WORK(lcmo),
-     &          WORK(LPUVX_tmp),WORK(LTUVX_tmp),WORK(id1actao_FA)
-     &         ,WORK(ifocka),WORK(id1i),WORK(ifocki),IPR,lSquare,ExFac)
+         CALL TRACTL2(WORK(lcmo),WORK(LPUVX_tmp),WORK(LTUVX_tmp),
+     &                WORK(iD1I),WORK(ifocki),
+     &                WORK(iD1ActAO),WORK(ifocka),
+     &                IPR,lSquare,ExFac)
 *        Call dcopy_(ntot1,FA,1,Work(ifocka),1)
         if (iprlev.ge.debug) then
              write(6,*) 'FA tractl msctl'
@@ -789,7 +778,6 @@ c         call xflush(6)
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf
@@ -838,7 +826,7 @@ c         call xflush(6)
          CASDFT_Funct = 0
          Call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
-         CASDFT_E = ECAS-EVAC+CASDFT_Funct
+         CASDFT_E = ECAS+CASDFT_Funct
 
 !         Write(6,*)
 !         '**************************************************'
@@ -865,7 +853,6 @@ c         call xflush(6)
          CALL GETMEM('SXLQ','FREE','REAL',LQ,NQ)
 !At this point, the energy calculation is done.  Now I need to build the
 !fock matrix if this root corresponds to the relaxation root.
-
 
 !***********************************************************************
 *
@@ -1012,10 +999,8 @@ cPS         call xflush(6)
 
       Do iSym = 1,nSym
         iBas = nBas(iSym)
-        iOrb = nOrb(iSym)
-        iFro = nFro(iSym)
-        iAct = nAsh(iSym)
-        iIsh = nIsh(iSym)
+!        iAct = nAsh(iSym)
+!        iIsh = nIsh(iSym)
 
       !FI + FA + V_oe
 
@@ -1199,7 +1184,8 @@ cPS         call xflush(6)
 !      Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
 !      Call FZero(Work(ip2dt1),Nacpr2)
 !      !I need the non-symmetry blocked d1act, hence the read.
-!      Call Get_D1MO(iD1Act1,NACPAR)
+!      Call GetMem('D1Act1','Allo','Real',iD1Act1,NACPAR)
+!      Call Get_D1MO(Work(iD1Act1),NACPAR)
 !        write(6,*) 'd1act'
 !        do i=1,NACPAR
 !          write(6,*) work(iD1Act1-1+i)
@@ -1338,7 +1324,6 @@ cPS         call xflush(6)
       Call GetMem('Kincore','free','Real',iTmpk,nTot1)
       Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
 c      call xflush(6)
-      Call qExit('MSCTL')
       Return
       END
 

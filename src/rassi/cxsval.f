@@ -23,7 +23,6 @@
 C Purpose: Dereference the CI structure and the excitation
 C structure arrays and return values and pointers.
 
-      CALL QENTER(ROUTINE)
 
 C CI structure, sizes, addresses...
       nMidV =ICIS(1)
@@ -51,6 +50,5 @@ C Excitation operators, coupling coefficients,...
       NT4MX =IXS(13)
       NT5MX =IXS(14)
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

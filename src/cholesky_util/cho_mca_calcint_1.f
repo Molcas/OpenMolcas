@@ -15,10 +15,11 @@ C              shell pair distribution (**|ISHLA ISHLB).
 C
 C     Version 1: store full shell quadruple.
 C
+      use ChoArr, only: nBstSh, iSP2F
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*17 SECNAM
@@ -30,14 +31,7 @@ C
 
       INTEGER NAB(8)
 
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
-
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
       MEM_START = LLEAK
 #endif
@@ -240,7 +234,7 @@ C     ----------------------
      &   'Skipped',PCT,'% of rows (shell pairs) in this distribution'
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
       MEM_END = LLEAK
       LEAK = MEM_END - MEM_START

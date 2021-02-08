@@ -20,28 +20,27 @@
 *      020117                                                      *
 *                                                                  *
 ********************************************************************
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 EF(3,2,nTs),DPnt(nTs,MxAto,3,3), Grad(nGrad),
      &       DCntr(nS,MxAto,3,3), Q(2,nTs)
       Integer iSph(nTs)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
+      Logical, External :: TF
 *
       iIrrep=0
 *
       mdc=0
       iCen=1
       Do iCnttp=1,nCnttp
-         If (AuxCnttp(iCnttp)) Cycle
-         Do iCnt=1,nCntr(iCnttp)
+         If (dbsc(iCnttp)%Aux) Cycle
+         Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
             nDispS = IndDsp(mdc,iIrrep)
 
@@ -67,7 +66,7 @@
                   End Do
                End If
             End Do
-            iCen = iCen + nIrrep/nStab(mdc)
+            iCen = iCen + nIrrep/dc(mdc)%nStab
          End Do
       End Do
 *

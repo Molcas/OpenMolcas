@@ -8,24 +8,38 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RunTinker(natom,ipCord,ipMltp,ipIsMM,MltOrd,
-     &                     DynExtPot,iQMChg,nAtMM,StandAlone,
-     &                     DoDirect)
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+     &                     iQMChg,nAtMM,StandAlone,DoDirect)
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
-#include "para_info.fh"
 *
 #include "espf.fh"
+#include "stdalloc.fh"
 *
+      Integer, Intent(In):: nAtom
+      Real*8, Intent(In):: Cord(3,nAtom)
+      Integer, Intent(In):: ipMltp
+      Integer, Intent(In):: IsMM(nAtom)
+      Integer, Intent(In):: MltOrd
+      Logical, Intent(InOut):: DynExtPot
+      Integer, Intent(In):: iQMChg
+      Integer, Intent(InOut):: nAtMM
+      Logical, Intent(In):: StandAlone
+      Logical, Intent(In):: DoDirect
+
       Character*180 Line
       Character*180 Get_Ln
       Character*12 ExtPotFormat
       Character*256 TkLine
-      Logical DynExtPot,lFirst,StandAlone,DoDirect
+      Logical lFirst
       Integer RC
+      Real*8, Allocatable:: Mull(:), LPC(:), ESPF(:,:), MMqx(:,:)
 1000  Format('Molcas  ',i2,2x,i2)
 1010  Format(3F15.8)
 *
-      Call qEnter('runtinker')
       iPL = iPL_espf()
       Write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 *
@@ -53,16 +67,16 @@
         Else
           Write(ITkQMMM,1000) iRelax,MltOrd/4
         End If
-        Do iAtom = 1, natom
-          Write(ITkQMMM,1010)(Work(ipCord+(iAtom-1)*3+K)*Angstrom,K=0,2)
+        Do iAtom = 1, nAtom
+          Write(ITkQMMM,1010) Cord(:,iAtom)*Angstrom
         End Do
         If (.not.lFirst) Then
           Write(ITkQMMM,'(A)') 'Multipoles'
           If (iQMChg .eq. 0) Then
             If(iPL.ge.3) Write(6,'(A)') ' Multipoles passed to Tinker'
             iMlt = 0
-            Do iAtom = 1, natom
-               If (iWork(ipIsMM+iAtom-1).eq.0) Then
+            Do iAtom = 1, nAtom
+               If (IsMM(iAtom).eq.0) Then
                   If (MltOrd.eq.1) Then
                      Write(ITkQMMM,'(I6,4F15.8)') iAtom,
      &                                  Work(ipMltp+iMlt),Zero,Zero,Zero
@@ -80,8 +94,8 @@
      &           .or.(.not.StandAlone.and.iPL.ge.3))
      &               Write(6,'(A)') ' ESPF multipoles passed to Tinker'
             iMlt = 0
-            Do iAtom = 1, natom
-               If (iWork(ipIsMM+iAtom-1).eq.0) Then
+            Do iAtom = 1, nAtom
+               If (IsMM(iAtom).eq.0) Then
                   If (MltOrd.eq.1) Then
                      Write(ITkQMMM,'(I6,4F15.8)') iAtom,
      &                                  Work(ipMltp+iMlt),Zero,Zero,Zero
@@ -98,26 +112,26 @@
             If (          (StandAlone.and.iPL.ge.2)
      &           .or.(.not.StandAlone.and.iPL.ge.3))
      &              Write(6,'(A)') ' Mulliken charges passed to Tinker'
-            Call GetMem('Mulliken','Allo','Real',ipMull,natom)
-            Call Get_dArray('Mulliken Charge',Work(ipMull),natom)
-            Do iAtom = 0, natom-1
-               If (iWork(ipIsMM+iAtom).eq.0)
-     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom+1,
-     &                                 Work(ipMull+iAtom),Zero,Zero,Zero
+            Call mma_allocate(Mull,nAtom,Label='Mull')
+            Call Get_dArray('Mulliken Charge',Mull,nAtom)
+            Do iAtom = 1, nAtom
+               If (IsMM(iAtom).eq.0)
+     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+     &                               Mull(iAtom),Zero,Zero,Zero
             End Do
-            Call GetMem('Mulliken','Free','Real',ipMull,natom)
+            Call mma_deallocate(Mull)
           Else If (iQMChg.eq.3) Then
             If (          (StandAlone.and.iPL.ge.2)
      &           .or.(.not.StandAlone.and.iPL.ge.3))
      &                Write(6,'(A)') ' LoProp charges passed to Tinker'
-            Call GetMem('LoProp','Allo','Real',ipLPC,natom)
-            Call Get_dArray('LoProp Charge',Work(ipLPC),natom)
-            Do iAtom = 0, natom-1
-               If (iWork(ipIsMM+iAtom).eq.0)
-     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom+1,
-     &                                  Work(ipLPC+iAtom),Zero,Zero,Zero
+            Call mma_allocate(LPC,nAtom,Label='LPC')
+            Call Get_dArray('LoProp Charge',LPC,nAtom)
+            Do iAtom = 1, nAtom
+               If (IsMM(iAtom).eq.0)
+     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+     &                                LPC(iAtom),Zero,Zero,Zero
             End Do
-            Call GetMem('LoProp','Free','Real',ipLPC,natom)
+            Call mma_deallocate(LPC)
           End If
         End If
         Close (ITkQMMM)
@@ -185,8 +199,8 @@
          Write(6,*) 'Back from Tinker'
          Write(6,*)
       End If
-      Call GetMem('PotInESPF','Allo','Real',iESPF,natom*MxExtPotComp)
-      Call DCopy_(MxExtPotComp*natom,[Zero],0,Work(iESPF),1)
+      Call mma_allocate(ESPF,MxExtPotComp,nAtom,Label='ESPF')
+      ESPF(:,:)=Zero
       ITkQMMM = IsFreeUnit(ITkQMMM)
       Call Molcas_Open (ITkQMMM,'QMMM')
       Line = Get_Ln(ITkQMMM)
@@ -200,21 +214,21 @@
             Call Get_I1(2,nAtMM)
          Else If (Index(Line,'ESPF1 ').ne.0) Then
             Call Get_I1(2,iAtom)
-            Call Get_F(3,Work(iESPF+(iAtom-1)*MxExtPotComp),4)
+            Call Get_F(3,ESPF(1:4,iAtom),4)
          Else If (Index(Line,'ESPF21 ').ne.0) Then
             Call Get_I1(2,iAtom)
-            Call Get_F(3,Work(iESPF+(iAtom-1)*MxExtPotComp+4),3)
+            Call Get_F(3,ESPF(5:7,iAtom),3)
          Else If (Index(Line,'ESPF22 ').ne.0) Then
             Call Get_I1(2,iAtom)
-            Call Get_F(3,Work(iESPF+(iAtom-1)*MxExtPotComp+7),3)
+            Call Get_F(3,ESPF(8:10,iAtom),3)
          Else If (Index(Line,'FullCoupling ').ne.0) Then
             DynExtPot = .True.
          Else If (Index(Line,'MMq ').ne.0) Then
             Call Get_I1(2,nMMq)
-            Call GetMem('MMq_coord','Allo','Real',iMMqx,4*nMMq)
+            Call mma_allocate(MMqx,4,nMMq,Label='MMqx')
             Do iq = 1, nMMq
                Line=Get_Ln(ITkQMMM)
-               Call Get_F(1,Work(iMMqx+(iq-1)*4),4)
+               Call Get_F(1,MMqx(1:4,iq),4)
             End Do
          End If
       End Do
@@ -224,34 +238,21 @@
       If (DoDirect) Then
          Write(ITkPot,'(I10,1X,I2)') nMMq,0
          Do iq = 1, nMMq
-            ibla = iMMqx+(iq-1)*4
-            Work(ibla  ) = Work(ibla  ) * Angstrom
-            Work(ibla+1) = Work(ibla+1) * Angstrom
-            Work(ibla+2) = Work(ibla+2) * Angstrom
-            Write(ITkPot,'(4F15.8)') (Work(ibla+J),J=0,3)
+            MMqx(1:3,iq)= MMqx(1:3,iq) * Angstrom
+            Write(ITkPot,'(4F15.8)') MMqx(1:4,iq)
          End Do
-         Call GetMem('MMq_coord','Free','Real',iMMqx,4*nMMq)
+         Call mma_deallocate(MMqx)
       Else
          Write(ITkPot,'(I1)') 0
-         Do iAtom = 1, natom
-            ibla = iESPF+(iAtom-1)*MxExtPotComp
-            Work(ibla  ) = Work(ibla  ) * Angstrom
-            Work(ibla+1) = Work(ibla+1) * Angstrom2
-            Work(ibla+2) = Work(ibla+2) * Angstrom2
-            Work(ibla+3) = Work(ibla+3) * Angstrom2
-            Work(ibla+4) = Work(ibla+4) * Angstrom3
-            Work(ibla+5) = Work(ibla+5) * Angstrom3
-            Work(ibla+6) = Work(ibla+6) * Angstrom3
-            Work(ibla+7) = Work(ibla+7) * Angstrom3
-            Work(ibla+8) = Work(ibla+8) * Angstrom3
-            Work(ibla+9) = Work(ibla+9) * Angstrom3
-            Write(ITkPot,ExtPotFormat) iAtom,(Work(ibla+J),
-     &                                      J=0,MxExtPotComp-1)
+         Do iAtom = 1, nAtom
+            ESPF(1,iAtom)=ESPF(1,iAtom) * Angstrom
+            ESPF(2:4,iAtom)=ESPF(2:4,iAtom) * Angstrom2
+            ESPF(5:10,iAtom)=ESPF(5:10,iAtom) * Angstrom3
+            Write(ITkPot,ExtPotFormat) iAtom,ESPF(:,iAtom)
          End Do
       End If
       Close (ITkPot)
-      Call GetMem('PotInESPF','Free','Real',iESPF,natom*MxExtPotComp)
+      Call mma_deallocate(ESPF)
 *
-      Call QExit('runtinker')
       Return
       End

@@ -30,7 +30,6 @@ C
       DIMENSION CMM1(NB,NA),CMM2(NA,NB)
       DIMENSION EW4(NA),EIG4(NA,NA),BU6(NA,NA)
 C
-*     Call qEnter('scfcli4')
 C
 C
       DO I=1,NB
@@ -79,7 +78,6 @@ C
 C
 *     write(*,*) 'END OF SCFCLI4 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 C
-*     Call qExit('scfcli4')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

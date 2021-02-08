@@ -268,7 +268,7 @@ c
 c
        do 100 i=1,dimi
        dpi=dp(i)
-       do 100 a=1,dima
+       do 101 a=1,dima
 c     t1(a,i)=t1(a,i)/(dpi-dp(dimi+a))
 c
        den=dpi-dp(dimi+a)
@@ -280,6 +280,7 @@ c
        t1(a,i)=t1(a,i)/den
        end if
 c
+ 101    continue
  100    continue
 c
        return
@@ -322,11 +323,11 @@ c
 c
        do 100 j=1,dimj
        denj=dpj(j)
-       do 100 i=1,dimi
+       do 101 i=1,dimi
        denij=denj+dpi(i)
-       do 100 b=1,dimb
+       do 102 b=1,dimb
        denijb=denij-dpb(shiftb+b)
-       do 100 a=1,dima
+       do 103 a=1,dima
 c     t2(a,b,i,j)=t2(a,b,i,j)/(denijb-dpa(shifta+a))
 c
        den=denijb-dpa(shifta+a)
@@ -338,6 +339,9 @@ c
        t2(a,b,i,j)=t2(a,b,i,j)/den
        end if
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -377,14 +381,14 @@ c
        ij=0
        do 100 i=2,dimi
        deni=dpi(i)
-       do 100 j=1,i-1
+       do 101 j=1,i-1
        denij=deni+dpi(j)
        ij=ij+1
 c
        ab=0
-       do 100 a=2,dima
+       do 102 a=2,dima
        denija=denij-dpa(shift+a)
-       do 100 b=1,a-1
+       do 103 b=1,a-1
        ab=ab+1
 c     t2(ab,ij)=t2(ab,ij)/(denija-dpa(shift+b))
 c
@@ -398,6 +402,9 @@ c
        end if
 c
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -595,10 +602,13 @@ c
        integer i,j,a,b
 c
        do 100 j=1,dimj
-       do 100 i=1,dimi
-       do 100 b=1,dimb
-       do 100 a=1,dima
+       do 101 i=1,dimi
+       do 102 b=1,dimb
+       do 103 a=1,dima
        t2(a,b,i,j)=t2(a,b,i,j)+fact*(t11(a,i)*t12(b,j))
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -640,15 +650,18 @@ c
 c
        ij=0
        do 100 i=2,dimi
-       do 100 j=1,i-1
+       do 101 j=1,i-1
        ij=ij+1
 c
        ab=0
-       do 100 a=2,dima
-       do 100 b=1,a-1
+       do 102 a=2,dima
+       do 103 b=1,a-1
        ab=ab+1
        t2(ab,ij)=t2(ab,ij)+fact*(t1(a,i)*t1(b,j)-t1(b,i)*t1(a,j))
 c
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -773,10 +786,13 @@ c
        integer i,j,a,b
 c
        do 100 j=1,dimj
-       do 100 i=1,dimi
-       do 100 b=1,dimb
-       do 100 a=1,dima
+       do 101 i=1,dimi
+       do 102 b=1,dimb
+       do 103 a=1,dima
        t2(a,b,i,j)=fact*t2(a,b,i,j)+(t11(a,i)*t12(b,j))
+ 103    continue
+ 102    continue
+ 101    continue
  100    continue
 c
        return
@@ -789,17 +805,17 @@ c Avoid unused argument warnings
 c
 c     ----------
 c
-       subroutine mkqhelp2 (vector,dimv,lenght,factor)
+       subroutine mkqhelp2 (vector,dimv,length,factor)
 c
 c     this routine do vector = vector*factot
 c     vector - multilyied vector (I/O)
 c     dimv   - dimension of vecrot
-c     lenght - lenght of vector to be multiplyied
+c     length - length of vector to be multiplyied
 c     factor - scaling factor
 c
 c     $N.B. this routine should be substitued by mv0s3v
 c
-       integer dimv,lenght
+       integer dimv,length
        real*8 vector(1:dimv)
        real*8 factor
 c
@@ -807,8 +823,8 @@ c     help variable
 c
        integer n
 c
-       if (lenght.gt.0) then
-       do 10 n=1,lenght
+       if (length.gt.0) then
+       do 10 n=1,length
        vector(n)=vector(n)*factor
  10     continue
        end if
@@ -850,8 +866,9 @@ c0    set rmax,imax=0
 c
        do 10 nhelp1=1,5
        rmax(nhelp1)=0.0d0
-       do 10 nhelp2=1,8
+       do 11 nhelp2=1,8
        imax(nhelp2,nhelp1)=0
+ 11     continue
  10     continue
 c
 c
@@ -864,7 +881,7 @@ c
        nhelp1=mapd(1,1)
        do 100 it=1,mapd(0,5)
        do 50 i=1,dimm(mapd(0,2),mapd(it,4))
-       do 50 a=1,dimm(mapd(0,1),mapd(it,3))
+       do 51 a=1,dimm(mapd(0,1),mapd(it,3))
        value=wrk(nhelp1)
        if (abs(value).ge.abs(rmax(5))) then
 c     write this amplitude
@@ -872,6 +889,7 @@ c     write this amplitude
      & value)
        end if
        nhelp1=nhelp1+1
+ 51     continue
  50     continue
  100    continue
 c
@@ -888,9 +906,9 @@ c
        nhelp1=mapd(1,1)
        do 200 it=1,mapd(0,5)
        do 150 j=1,dimm(mapd(0,4),mapd(it,6))
-       do 150 i=1,dimm(mapd(0,3),mapd(it,5))
-       do 150 b=1,dimm(mapd(0,2),mapd(it,4))
-       do 150 a=1,dimm(mapd(0,1),mapd(it,3))
+       do 151 i=1,dimm(mapd(0,3),mapd(it,5))
+       do 152 b=1,dimm(mapd(0,2),mapd(it,4))
+       do 153 a=1,dimm(mapd(0,1),mapd(it,3))
        value=wrk(nhelp1)
        if (abs(value).ge.abs(rmax(5))) then
 c     write this amplitude
@@ -898,6 +916,9 @@ c     write this amplitude
      & mapd(it,5),mapd(it,6),a,b,i,j,value)
        end if
        nhelp1=nhelp1+1
+ 153    continue
+ 152    continue
+ 151    continue
  150    continue
  200    continue
 c
@@ -918,9 +939,9 @@ c
 c     case syma=symb, symi=symj
 c
        do 230 i=2,dimm(mapd(0,3),mapd(it,5))
-       do 230 j=1,i-1
-       do 230 a=2,dimm(mapd(0,1),mapd(it,3))
-       do 230 b=1,a-1
+       do 231 j=1,i-1
+       do 232 a=2,dimm(mapd(0,1),mapd(it,3))
+       do 233 b=1,a-1
        value=wrk(nhelp1)
        if (abs(value).ge.abs(rmax(5))) then
 c     write this amplitude
@@ -928,14 +949,17 @@ c     write this amplitude
      & mapd(it,5),mapd(it,6),a,b,i,j,value)
        end if
        nhelp1=nhelp1+1
+ 233    continue
+ 232    continue
+ 231    continue
  230    continue
 c
        else
 c     case syma>symb, symi> symj
        do 250 j=1,dimm(mapd(0,4),mapd(it,6))
-       do 250 i=1,dimm(mapd(0,3),mapd(it,5))
-       do 250 b=1,dimm(mapd(0,2),mapd(it,4))
-       do 250 a=1,dimm(mapd(0,1),mapd(it,3))
+       do 251 i=1,dimm(mapd(0,3),mapd(it,5))
+       do 252 b=1,dimm(mapd(0,2),mapd(it,4))
+       do 253 a=1,dimm(mapd(0,1),mapd(it,3))
        value=wrk(nhelp1)
        if (abs(value).ge.abs(rmax(5))) then
 c     write this amplitude
@@ -943,6 +967,9 @@ c     write this amplitude
      & mapd(it,5),mapd(it,6),a,b,i,j,value)
        end if
        nhelp1=nhelp1+1
+ 253    continue
+ 252    continue
+ 251    continue
  250    continue
        end if
 c
@@ -999,8 +1026,9 @@ c
  20     if (nhelp1.lt.5) then
        do 30 nhelp2=4,nhelp1,-1
        rmax(nhelp2+1)=rmax(nhelp2)
-       do 30 nhelp3=1,8
+       do 31 nhelp3=1,8
        imax(nhelp3,nhelp2+1)=imax(nhelp3,nhelp2)
+ 31     continue
  30     continue
        end if
 c

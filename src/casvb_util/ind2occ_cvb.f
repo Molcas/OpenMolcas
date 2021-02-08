@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       integer function indget_cvb(iminor, idim, nel, ixmin)
       dimension ixmin(0:nel,0:idim),iminor(nel)
@@ -26,6 +27,7 @@
       dimension ixmin(0:nel,0:idim),iminor(idim)
       minind_cvb=1
       do 1100 i=1,idim
-1100  minind_cvb=minind_cvb+ixmin(iminor(i)-1,i)
+      minind_cvb=minind_cvb+ixmin(iminor(i)-1,i)
+1100  continue
       return
       end

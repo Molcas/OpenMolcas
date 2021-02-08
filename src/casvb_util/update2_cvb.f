@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine update2_cvb(orbs,cvb,orbsp,cvbp,
      >  sorbs,dxorg,
@@ -42,12 +43,14 @@
 
         ij=0
         do 200 iorb=1,norb
-        do 200 jorb=1,norb
+        do 201 jorb=1,norb
         if(jorb.ne.iorb)then
           ij=ij+1
           do 400 i=1,norb
-400       orbs(i,iorb)=orbs(i,iorb)+dx(ij)*orbsp(i,jorb)
+          orbs(i,iorb)=orbs(i,iorb)+dx(ij)*orbsp(i,jorb)
+400       continue
         endif
+201     continue
 200     continue
 
 c  2nd-order correction for orthogonality constraints:
@@ -60,16 +63,20 @@ c  2nd-order correction for orthogonality constraints:
         do 600 k=1,norb-1
         korb=k
         if(korb.ge.iorb)korb=korb+1
-        do 600 l=1,norb-1
+        do 601 l=1,norb-1
         lorb=l
         if(lorb.ge.jorb)lorb=lorb+1
-600     sdidj=sdidj+sorbs(korb,lorb)*dx(k+(iorb-1)*(norb-1))
+        sdidj=sdidj+sorbs(korb,lorb)*dx(k+(iorb-1)*(norb-1))
      >    *dx(l+(jorb-1)*(norb-1))
+601     continue
+600     continue
         fac=-.5d0*sdidj
         do 700 i=1,norb
-        do 700 j=1,norb
+        do 701 j=1,norb
         orbs(i,iorb)=orbs(i,iorb)+fac*orbsp(i,j)*sorbsinv(j,jorb)
-700     orbs(i,jorb)=orbs(i,jorb)+fac*orbsp(i,j)*sorbsinv(j,iorb)
+        orbs(i,jorb)=orbs(i,jorb)+fac*orbsp(i,j)*sorbsinv(j,iorb)
+701     continue
+700     continue
 500     continue
       endif
 

@@ -54,7 +54,6 @@ C-May 7
 *
 *.Initialize
       CALL ISETVC(IACOOS,0,NOCTPA*NOCTPB*NSMST)
-      IFRST = 1
       ISM = ISTSM
       IA = ISTTA
       IB = ISTTB

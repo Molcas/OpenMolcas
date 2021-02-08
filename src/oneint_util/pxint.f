@@ -10,11 +10,10 @@
 *                                                                      *
 * Copyright (C) 2006, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PXInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine PXInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of  pX integrals          *
@@ -24,21 +23,33 @@
 * Author: Roland Lindh, Dept. Chem. Phys., Lund University,            *
 *         June 2006                                                    *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
       External NAInt, MltInt, EFInt, CntInt
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "property_label.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
       Parameter (mComp=200)
       Integer kOper(mComp), kChO(mComp)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*      Interface
+*      Subroutine PVINT(
+*#define _CALLING_
+*#include "int_interface.fh"
+*     &                , Kernel)
+*#include "int_interface.fh"
+*      External Kernel
+*      End Subroutine PVINT
+*      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
-      Call QEnter('PXInt')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,6 +71,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nRys = nHer
       kIC=nIC/3
       kComp=nComp/3
       kOrdOp = nOrdOp-1
@@ -103,9 +115,6 @@ C     Write (6,*) 'ipar_p=',ipar_p1,ipar_p2,ipar_p3
          jComp1 = (iComp-1)*3 + 1
          jComp2 = (iComp-1)*3 + 2
          jComp3 = (iComp-1)*3 + 3
-         iTemp1= lOper(jComp1)
-         iTemp2= lOper(jComp2)
-         iTemp3= lOper(jComp3)
          jpar_p1 = iChO(jComp1)
          jpar_p2 = iChO(jComp2)
          jpar_p3 = iChO(jComp3)
@@ -212,6 +221,5 @@ C     End Do
          Call Abend()
       End If
 *
-      Call QExit('PXInt')
       Return
       End

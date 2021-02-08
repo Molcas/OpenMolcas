@@ -1423,18 +1423,21 @@ c
 c
        if (nfact.eq.1) then
        do 10 r=1,dimr
-       do 10 p=1,dimp
+       do 11 p=1,dimp
        b(p,r)=a(p,q,r)
+ 11     continue
  10     continue
        else if (nfact.eq.-1) then
        do 20 r=1,dimr
-       do 20 p=1,dimp
+       do 21 p=1,dimp
        b(p,r)=-a(p,q,r)
+ 21     continue
  20     continue
        else if (nfact.eq.0) then
        do 30 r=1,dimr
-       do 30 p=1,dimp
+       do 31 p=1,dimp
        b(p,r)=0.0d0
+ 31     continue
  30     continue
        end if
 
@@ -1473,8 +1476,9 @@ c     q>p part
        if (p.gt.1) then
        pq0=nshf(p)
        do 20 r=1,dimr
-       do 20 q=1,p-1
+       do 21 q=1,p-1
        b(q,r)=a(pq0+q,r)
+ 21     continue
  20     continue
        end if
 c
@@ -1486,9 +1490,10 @@ c
 c     r<p part
        if (p.lt.dimp) then
        do 60 r=1,dimr
-       do 60 q=p+1,dimp
+       do 61 q=p+1,dimp
        qp=nshf(q)+p
        b(q,r)=-a(qp,r)
+ 61     continue
  60     continue
        end if
 c
@@ -1526,8 +1531,9 @@ c     r>q part
        qr0=nshf(q)
        do 20 r=1,q-1
        qr=qr0+r
-       do 20 p=1,dimp
+       do 21 p=1,dimp
        b(p,r)=a(p,qr)
+ 21     continue
  20     continue
        end if
 c
@@ -1540,8 +1546,9 @@ c     r<p part
        if (q.lt.dimq) then
        do 60 r=q+1,dimq
        rq=nshf(r)+q
-       do 60 p=1,dimp
+       do 61 p=1,dimp
        b(p,r)=-a(p,rq)
+ 61     continue
  60     continue
        end if
 c

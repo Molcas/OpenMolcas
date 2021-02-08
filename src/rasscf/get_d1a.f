@@ -48,7 +48,6 @@
       integer :: iOff1, iOff2, iOff3, iSym, iBas, iAsh, iIsh, iFro,
      &    iTmp1, iTmp2
 
-      Call qEnter('Get_D1A')
 
       iOff1 = 1
       iOff2 = 1
@@ -81,7 +80,6 @@
         iOff3 = iOff3 + iBas*iBas
       End Do
 
-      Call qExit('Get_D1A')
 
       Return
       End

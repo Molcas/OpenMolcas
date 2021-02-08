@@ -41,6 +41,11 @@ C
 C     Vectors are distributed across nodes and stored according to
 C     reduced set 1 (all of them!).
 C
+#if defined (_DEBUGPRINT_)
+      use ChoArr, only: iSP2F
+#endif
+      use ChoArr, only: iOff_Batch, nDim_Batch
+      use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
       Implicit None
       Integer irc
       Integer l_NVT
@@ -55,25 +60,18 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Logical Free_Z
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "chosew.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*2  Unt
       Character*13 SecNam
       Parameter (SecNam='Cho_X_CompVec')
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
-
-      Logical  Cho_Rsv_Tsk
-      External Cho_Rsv_Tsk
-
       Integer  Cho_F2SP
       External Cho_F2SP
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer nBlock_Max, nnB
       Integer nTot, nTot2
       Integer myDebugInfo
@@ -85,23 +83,20 @@ C
       Integer iAdr(8)
       Integer iSym, n
       Integer iSP_, iSP_1, iSP_2, iSp, nSP, nSP_Max, nSP_this_batch
-      Integer ip_Int, l_Int
-      Integer kOff, kOffI, kOffZ
+      Integer l_Int
+      Integer kOffI, kOffZ
       Integer jBlock, kBlock
       Integer J_inBlock, K_inBlock
       Integer kI, kL, kZ
       Integer ldL, ldZ
-      Integer ip_Wrk, l_Wrk
-      Integer ip_iQuAB_SAVE, l_iQuAB_SAVE
+      Integer l_Wrk
       Integer MaxQual_SAVE
-      Integer ip_InfVec_T
-      Integer ip_Zd, l_Zd, incZd
+      Integer, Pointer:: InfVcT(:,:,:)
+      Integer l_Zd, incZd
       Integer kZd
-      Integer ip_Tmp, l_Tmp
-      Integer ip_ListSP, l_ListSP
       Integer iCountSP
       Integer lTot, Left
-      Integer ip_BatchDim, l_BatchDim, nBatch
+      Integer nBatch
 
       Real*8 C0, C1, W0, W1
       Real*8 X0, X1, Y0, Y1
@@ -109,20 +104,28 @@ C
       Real*8 TotMem, TotCPU, TotWall
 
       Integer i, j, k
-      Integer IndRSh, iTri, nnBstRSh, InfVcT
-#if defined (_DEBUG_)
-      Integer iSP2F
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-#endif
-      IndRSh(i)=iWork(ip_IndRSh-1+i)
+      Integer iTri
+
+      Integer, Allocatable:: XCVTMP(:), XCVLSP(:), XCVnBt(:)
+      Real*8, Allocatable:: XCVZd(:), XCVInt(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      nnBStRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       ! Init return code
       irc=0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check input
       If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
      &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
@@ -152,7 +155,7 @@ C
       End If
 
       ! Get pointer to InfVec array for all vectors
-      Call Cho_X_GetIP_InfVec(ip_InfVec_T)
+      Call Cho_X_GetIP_InfVec(InfVcT)
 
       ! Copy reduced set 1 to location 2.
       ! I.e. make rs1 the "current" reduced set.
@@ -166,37 +169,35 @@ C
 
       ! Allocate tmp array to keep track of which shell pairs are
       ! computed on this node.
-      l_Tmp=nnShl
-      Call GetMem('XCVTMP','Allo','Inte',ip_Tmp,l_Tmp)
+      Call mma_allocate(XCVTMP,nnShl,Label='XCVTMP')
 
       ! Allocate and set list of parent shell pairs to compute
       ! NOTE: the tmp array allocated above is used here!!!
-      Call iZero(iWork(ip_Tmp),nnShl)
+      XCVTMP(:)=0
       nSP=0
       Do iSym=1,nSym
          Do J=1,NVT(iSym)
             iSP=Cho_F2SP(IndRSh(InfVcT(J,1,iSym))) ! Parent SP
             If (iSP.gt.0 .and. iSP.le.nnShl) Then
-               If (iWork(ip_Tmp-1+iSP) .eq. 0) Then
+               If (XCVTMP(iSP) .eq. 0) Then
                   nSP=nSP+1
                End If
-               iWork(ip_Tmp-1+iSP)=iWork(ip_Tmp-1+iSP)+1
+               XCVTMP(iSP)=XCVTMP(iSP)+1
             Else
                Call Cho_Quit(SecNam//': Parent SP error!!',103)
             End If
          End Do
       End Do
-      l_ListSP=nSP
-      Call GetMem('XCVLSP','Allo','Inte',ip_ListSP,l_ListSP)
+      Call mma_allocate(XCVLSP,nSP,Label='XCVLSP')
       nSP=0
-      Do iSP=0,nnShl-1
-         If (iWork(ip_Tmp+iSP).gt.0) Then
-            iWork(ip_ListSP+nSP)=iSP+1
+      Do iSP=1,nnShl
+         If (XCVTMP(iSP).gt.0) Then
+            XCVLSP(nSP)=iSP
             nSP=nSP+1
          End If
       End Do
-#if defined (_DEBUG_)
-      If (nSP.ne.l_ListSP) Then
+#if defined (_DEBUGPRINT_)
+      If (nSP.ne.SIZE(XCVLSP)) Then
          Call Cho_Quit('SP counting error [1] in '//SecNam,103)
       End If
       nTot=NVT(1)
@@ -204,19 +205,19 @@ C
          nTot=nTot+NVT(iSym)
       End Do
       nTot2=0
-      Do i=0,nSP-1
-         nTot2=nTot2+iWork(ip_Tmp-1+iWork(ip_ListSP+i))
+      Do i=1,nSP
+         nTot2=nTot2+XCVTMP(XCVLSP(i))
       End Do
       If (iPrint.ge.myDebugInfo) Then
          Call Cho_Head('Shell pair info from '//SecNam,'*',80,LuPri)
          Write(LuPri,'(/,A,I8,/)')
      &   'Number of shell pairs giving rise to vectors:',nSP
-         Do i=0,nSP-1
-            iSP=iWork(ip_ListSP+i)
+         Do i=1,nSP
+            iSP=XCVLSP(i)
             Call Cho_InvPck(iSP2F(iSP),j,k,.True.)
             Write(Lupri,'(A,I8,A,I4,A,I4,A,I8,A)')
      &      'Shell pair',iSP,' (shells',j,',',k,
-     &      ') gives rise to',iWork(ip_Tmp-1+iSP),
+     &      ') gives rise to',XCVTMP(iSP),
      &      ' vectors'
          End Do
          Write(LuPri,'(A,I8,/,A,I8,/,A,I8)')
@@ -230,20 +231,18 @@ C
 #endif
 
       ! Re-allocate and set qualification arrays
-      ip_iQuAB_SAVE=ip_iQuAB
-      l_iQuAB_SAVE=l_iQuAB
+      pTemp => iQuAB
       MaxQual_SAVE=MaxQual
       MaxQual=NVT(1)
       Do iSym=2,nSym
          MaxQual=max(MaxQual,NVT(iSym))
       End Do
-      l_iQuAB=MaxQual*nSym
-      Call GetMem('XCViQ2','Allo','Inte',ip_iQuAB,l_iQuAB)
+      Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
+      iQuAB => iQuAB_here
       Do iSym=1,nSym
          nQual(iSym)=NVT(iSym)
-         kOff=ip_iQuAB-1+MaxQual*(iSym-1)
          Do J=1,nQual(iSym)
-            iWork(kOff+J)=InfVcT(J,1,iSym) ! parent product for vector J
+            iQuAB(J,iSym)=InfVcT(J,1,iSym) ! parent product for vector J
          End Do
       End Do
 
@@ -261,17 +260,17 @@ C
          End Do
          incZd=1
       End If
-      Call GetMem('XCVZd','Allo','Real',ip_Zd,l_Zd)
-      kZd=ip_Zd
+      Call mma_allocate(XCVZd,l_Zd,Label='XCVZd')
+      kZd=1
       Do iSym=1,nSym
          Do jBlock=1,nBlock(iSym)
             kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
             Do J_inBlock=1,nV(jBlock,iSym)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                ! Check for division by zero or negative diagonal
                ! This would be a bug....
                If (abs(Work(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
-     &             .or. Work(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
+     &            .or. Work(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
      &         Then
                   Write(LuPri,'(//,A,A)') SecNam,': Ooooops!'
                   Write(LuPri,'(A)')
@@ -289,8 +288,8 @@ C
      &            103)
                End If
 #endif
-               Work(kZd)=Work(kOffZ+iTri(J_inBlock,J_inBlock))
-               Work(kOffZ+iTri(J_inBlock,J_inBlock))=1.0d0/Work(kZd)
+               XCVZd(kZd)=Work(kOffZ+iTri(J_inBlock,J_inBlock))
+               Work(kOffZ+iTri(J_inBlock,J_inBlock))=1.0d0/XCVZd(kZd)
                kZd=kZd+incZd
             End Do
          End Do
@@ -298,25 +297,23 @@ C
 
       ! Distribute shell pairs across nodes according to dimension
       ! (helps load balance the linear algebra part below)
-      Call Cho_XCV_Distrib_SP(iWork(ip_Tmp),l_Tmp,iCountSP)
+      Call Cho_XCV_Distrib_SP(XCVTMP,SIZE(XCVTMP),iCountSP)
 
       ! Allocate batch dimension array
-      l_BatchDim=max(iCountSP,1)
-      Call GetMem('XCVnBt','Allo','Inte',ip_BatchDim,l_BatchDim)
+      Call mma_allocate(XCVnBt,max(iCountSP,1),Label='XCVnBt')
 
       ! Allocate offset array for batched SP loop
-      l_iOff_Batch=nSym*nnShl
-      Call GetMem('XCVOFB','Allo','Inte',ip_iOff_Batch,l_iOff_Batch)
+      Call mma_allocate(iOff_Batch,nSym,nnShl,Label='iOff_Batch')
 
       ! Split remaining memory in two parts.
       ! One for integrals/vectors, one for Seward.
-      Call GetMem('XCVMx1','Max ','Real',ip_Wrk,l_Wrk)
+      Call mma_maxDBLE(l_Wrk)
       If (l_Wrk.lt.3) Then
          Call Cho_Quit('Insufficient memory in '//SecNam,101)
       End If
       l_Int=INT(DBLE(l_Wrk)*2.0d0/3.0d0)
-      Call GetMem('XCVInt','Allo','Real',ip_Int,l_Int)
-      Call GetMem('XCVMx2','Max ','Real',ip_Wrk,l_Wrk)
+      Call mma_allocate(XCVInt,l_Int,Label='XCVInt')
+      Call mma_MaxDBLE(l_Wrk)
       Call xSetMem_Ints(l_Wrk)
 
       ! Print
@@ -360,9 +357,9 @@ C
          nSP_this_batch=0
          Do While (Left.gt.0 .and. nSP_this_batch.lt.nSP_Max)
             iSP=iSP_1+nSP_this_batch
-            n=nnBstRSh(1,iWork(ip_Tmp-1+iSP),2)*NVT(1)
+            n=nnBstRSh(1,XCVTMP(iSP),2)*NVT(1)
             Do iSym=2,nSym
-               n=n+nnBstRSh(iSym,iWork(ip_Tmp-1+iSP),2)*NVT(iSym)
+               n=n+nnBstRSh(iSym,XCVTMP(iSP),2)*NVT(iSym)
             End Do
             If (n.le.Left) Then
                Left=Left-n
@@ -379,17 +376,17 @@ C
          Do iSym=1,nSym
             nDim_Batch(iSym)=0
             Do iSP_=iSP_1,iSP_2
-               iSP=iWork(ip_Tmp-1+iSP_)
-               iWork(ip_iOff_Batch-1+nSym*(iSP-1)+iSym)=nDim_Batch(iSym)
+               iSP=XCVTMP(iSP_)
+               iOff_Batch(iSym,iSP)=nDim_Batch(iSym)
                nDim_Batch(iSym)=nDim_Batch(iSym)+nnBstRSh(iSym,iSP,2)
             End Do
          End Do
          ! Calculate integrals (uv|J) for uv in shell pair batch and
          ! for all J (shell pairs that give rise to vectors are
          ! listed in ListSP).
-         Call Cho_XCV_GetInt(irc,iWork(ip_Tmp-1+iSP_1),nSP_this_batch,
-     &                       iWork(ip_ListSP),l_ListSP,
-     &                       NVT,l_NVT,Work(ip_Int),l_Int)
+         Call Cho_XCV_GetInt(irc,XCVTMP(iSP_1),nSP_this_batch,
+     &                       XCVLSP,SIZE(XCVLSP),
+     &                       NVT,l_NVT,XCVInt,SIZE(XCVInt))
          If (irc .ne. 0) Then
             Write(LuPri,'(A,A,I8)')
      &      SecNam,': Cho_XCV_GetInt returned code',irc
@@ -397,7 +394,7 @@ C
          End If
          ! Convert integrals into Cholesky vectors in each symmetry
          Call Cho_Timer(C0,W0)
-         kOffI=ip_Int
+         kOffI=1
          Do iSym=1,nSym
             ldL=max(nDim_Batch(iSym),1)
             Do jBlock=1,nBlock(iSym)
@@ -411,7 +408,7 @@ C
                   kL=kOffI+nDim_Batch(iSym)*(J-1)
                   Call dScal_(nDim_Batch(iSym),
      &                       Work(kOffZ+iTri(J_inBlock,J_inBlock)),
-     &                       Work(kL),1)
+     &                       XCVInt(kL),1)
                   ! Subtract from subsequent columns in current block
                   ! using BLAS1
                   ! (uv|K) <- (uv|K) - L(uv,J)*Z(K,J), K>J (in jBlock)
@@ -419,8 +416,8 @@ C
                      K=iV1(jBlock,iSym)+K_inBlock-1
                      Call dAXPY_(nDim_Batch(iSym),
      &                    -Work(kOffZ+iTri(K_inBlock,J_inBlock)),
-     &                    Work(kL),1,
-     &                    Work(kOffI+nDim_Batch(iSym)*(K-1)),1)
+     &                    XCVInt(kL),1,
+     &                    XCVInt(kOffI+nDim_Batch(iSym)*(K-1)),1)
                   End Do
                End Do
                ! Subtract from subsequent blocks using BLAS3
@@ -434,8 +431,9 @@ C
                   Call dGeMM_('N','T',
      &                        nDim_Batch(iSym),nV(kBlock,iSym),
      &                        nV(jBlock,iSym),
-     &                        -1.0d0,Work(kL),ldL,Work(kZ),ldZ,
-     &                        1.0d0,Work(kI),ldL)
+     &                        -1.0d0,XCVInt(kL),ldL,
+     &                               Work(kZ),ldZ,
+     &                         1.0d0,XCVInt(kI),ldL)
                End Do
             End Do
             nDGM_Call=nDGM_Call+nBlock(iSym)*(nBlock(iSym)-1)/2
@@ -446,11 +444,11 @@ C
          tDecom(2,3)=tDecom(2,3)+(W1-W0)
          ! Write vectors to temp files
          Call Cho_Timer(C0,W0)
-         kL=ip_Int
+         kL=1
          Do iSym=1,nSym
             lTot=nDim_Batch(iSym)*NVT(iSym)
             If (lTot.gt.0) Then
-               Call DDAFile(LuTmp(iSym),1,Work(kL),lTot,iAdr(iSym))
+               Call DDAFile(LuTmp(iSym),1,XCVInt(kL),lTot,iAdr(iSym))
                kL=kL+lTot
             End If
          End Do
@@ -478,8 +476,8 @@ C
          End If
          ! Update counters and save batch dimension
          iSP_1=iSP_1+nSP_this_batch
-         iWork(ip_BatchDim+nBatch)=nSP_this_batch
          nBatch=nBatch+1
+         XCVnBt(nBatch)=nSP_this_batch
       End Do
       If (iPrint.ge.Inf_Pass) Then
          Write(LuPri,'(A,A)')
@@ -503,13 +501,13 @@ C
          End Do
          Call GetMem('XCVFZ','Free','Real',ip_Z(1,1),lTot)
       Else
-         kZd=ip_Zd-1
+         kZd=0
          Do iSym=1,nSym
             Do jBlock=1,nBlock(iSym)
                kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
                Do J_inBlock=1,nV(jBlock,iSym)
                   J=iV1(jBlock,iSym)+J_inBlock-1
-                  Work(kOffZ+iTri(J_inBlock,J_inBlock))=Work(kZd+J)
+                  Work(kOffZ+iTri(J_inBlock,J_inBlock))=XCVZd(kZd+J)
                End Do
             End Do
             kZd=kZd+NVT(iSym)
@@ -518,23 +516,22 @@ C
 
       ! Deallocations
       Call xRlsMem_Ints()
-      Call GetMem('XCVInt','Free','Real',ip_Int,l_Int)
-      Call GetMem('XCVOFB','Free','Inte',ip_iOff_Batch,l_iOff_Batch)
-      l_iOff_Batch=0
-      Call GetMem('XCVZd','Free','Real',ip_Zd,l_Zd)
-      Call GetMem('XCViQ2','Free','Inte',ip_iQuAB,l_iQuAB)
-      Call GetMem('XCVLSP','Free','Inte',ip_ListSP,l_ListSP)
+      Call mma_deallocate(XCVInt)
+      Call mma_deallocate(iOff_Batch)
+      Call mma_deallocate(XCVZd)
+      iQuAB => Null()
+      Call mma_deallocate(iQuAB_here)
+      Call mma_deallocate(XCVLSP)
 
       ! Reset qualification array pointers and MaxQual
-      ip_iQuAB=ip_iQuAB_SAVE
-      l_iQuAB=l_iQuAB_SAVE
+      iQuAB => pTemp
       MaxQual=MaxQual_SAVE
 
       ! Parallel runs: distribute vectors across nodes (store on files)
       ! Serial runs: write vectors to permanent files
       Call Cho_Timer(C0,W0)
-      Call Cho_XCV_DistributeVectors(irc,iWork(ip_BatchDim),nBatch,
-     &                               iWork(ip_Tmp),iCountSP,NVT,l_NVT)
+      Call Cho_XCV_DistributeVectors(irc,XCVnBt,nBatch,
+     &                               XCVTMP,iCountSP,NVT,l_NVT)
       If (irc .ne. 0) Then
          Write(LuPri,'(A,A,I8)')
      &   SecNam,': Cho_XCV_DistributeVectors returned code',irc
@@ -546,8 +543,8 @@ C
       tDecom(2,2)=tDecom(2,2)+(W1-W0)
 
       ! Deallocations
-      Call GetMem('XCVnBt','Free','Inte',ip_BatchDim,l_BatchDim)
-      Call GetMem('XCVTMP','Free','Inte',ip_Tmp,l_Tmp)
+      Call mma_deallocate(XCVnBt)
+      Call mma_deallocate(XCVTMP)
 
       ! Parallel runs: close and erase tmp vector files
       Call Cho_XCV_TmpFiles(irc,3)

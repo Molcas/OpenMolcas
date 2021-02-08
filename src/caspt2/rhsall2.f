@@ -27,7 +27,7 @@
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
       Integer nSh(8,3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       INTEGER NUMERR
       SAVE NUMERR
       DATA NUMERR / 0 /
@@ -41,7 +41,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('RHSALL2')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
@@ -393,7 +392,7 @@ C      the case, symmetry, and rhs vector respectively.
 * The RHS elements of Cases A, C, D1  need a correction:
       CALL MODRHS(IVEC,WORK(LFIMO))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 * compute and print RHS fingerprints
       WRITE(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
       WRITE(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
@@ -421,7 +420,6 @@ C      the case, symmetry, and rhs vector respectively.
 ************************************************************************
 *                                                                      *
 
-      Call QExit('RHSALL2')
       RETURN
       END
       Subroutine Get_Cholesky_Vectors(ITK,ITQ,JSYM,
@@ -623,7 +621,7 @@ C-SVC: sanity check
                DO iT=0,NP-1
                   iTUVX=iT+iOffP+iUVX1
                   iPIQK=iT      +iUVX2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 * Temporary test statements -- remove after debug!
                   IF(ITUVX.LT.0 .or. ITUVX.gt.NTUVX) THEN
                      ITUVX=NTUVX

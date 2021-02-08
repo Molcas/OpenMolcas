@@ -22,12 +22,14 @@ C
       IP=IPS(1)
       X(1)=B(IP)
       DO 2 I=2,N
-      IP=IPS(I)
+       IP=IPS(I)
        IM1=I-1
        SUM=0.0D00
        DO 1 J=1,IM1
-1       SUM=SUM+UL(IP,J)*X(J)
-2      X(I)=B(IP)-SUM
+        SUM=SUM+UL(IP,J)*X(J)
+1      CONTINUE
+       X(I)=B(IP)-SUM
+2     CONTINUE
       IP=IPS(N)
       X(N)=X(N)/UL(IP,N)
       DO 4 IBACK=2,N
@@ -37,7 +39,9 @@ C****  I GOES (N-1),...,1
        IP1=I+1
        SUM=0.0D00
        DO 3 J=IP1,N
-3       SUM=SUM+UL(IP,J)*X(J)
-4      X(I)=(X(I)-SUM)/UL(IP,I)
+        SUM=SUM+UL(IP,J)*X(J)
+3      CONTINUE
+       X(I)=(X(I)-SUM)/UL(IP,I)
+4     CONTINUE
       RETURN
       END

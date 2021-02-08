@@ -54,7 +54,7 @@ c  definition of the local metal sites
       Real(kind=8) :: D_fact(nneq)
       Real(kind=8) :: EoverD_fact(nneq)
       Real(kind=8), intent(out) :: riso(nneq,3,3)
-      Character(1)  :: itype(nneq)
+      Character(Len=1)  :: itype(nneq)
 c  definition of the exchange:
 !     total number of exchange states
       Integer       :: exch
@@ -149,7 +149,7 @@ c  options for automatic fitting of parameters:
 c  definition of print level
       Integer       :: iPrint
       Logical       :: check_title
-      Character(180):: Title
+      Character(Len=180):: Title
       Logical       :: DoPlot
 
 
@@ -171,17 +171,17 @@ c      Real(lind=wp) :: magncoords(2*maxanisofiles,3)
       External      :: finddetr
 
 c variables connected to computation of g and d tensors
-      Logical       :: check_nneq_presence, readgfact, ab_initio_all
+      Logical       :: ab_initio_all
       Logical       :: tcheck, hcheck, encut_check
       Logical       :: check_symm_presence
       Logical       :: checktmag
 
       Real(kind=8) :: t2, t1
 
-      Character(2)  :: lanth
-c      Character(14) :: namefile_energy(nDirZee)
-      Character(21) :: namefile_energy
-      Character(288):: Line, ctmp, string
+      Character(Len=2)  :: lanth
+c      Character(Len=14) :: namefile_energy(nDirZee)
+      Character(Len=21) :: namefile_energy
+      Character(Len=288):: Line, ctmp, string
 
       Integer :: IsFreeUnit
       External :: IsFreeUnit
@@ -190,11 +190,9 @@ c      Character(14) :: namefile_energy(nDirZee)
 
 
 
-      Call qEnter('PA_readinp')
 
       DBG=.false.
 
-      check_nneq_presence   = .true.
       check_title           = .false.
       icount_B_sites        = 0
       i_pair                = 0
@@ -807,7 +805,6 @@ c this is the most important keyword for Poly_Aniso
                Call quit(_RC_INPUT_ERROR_)
             End If
          End Do
-         check_nneq_presence=.true.
          Do i=1,nneq
             If (neq(i).gt.1) Then
                nosym = .false.
@@ -842,7 +839,6 @@ c         End Do
          End If
 
          If(ab_initio_all .eqv. .false.) Then
-            readgfact=.true.
 
 !           type of the center:   A -- the information is read from aniso_ion.input
 !                                 B -- the center is isotropic with g factor read from the input
@@ -1533,8 +1529,7 @@ c ===============   NORMAL EndING  ===============================
       If(IPRINT.gt.2) Then
       Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
       End If
-      Call qExit('PA_readinp')
 
       Return
-      End !Subroutine
+      End
 

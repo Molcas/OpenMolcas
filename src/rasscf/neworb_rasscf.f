@@ -50,6 +50,9 @@ C     Calling arguments:
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -65,7 +68,6 @@ C     Calling arguments:
       DIMENSION CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
      *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 
-      Call qEnter(routine)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -430,6 +432,5 @@ C
       call mh5_put_dset(wfn_orbene,FDIAG)
 #endif
 
-      CALL QEXIT('NEWORB')
       RETURN
       END

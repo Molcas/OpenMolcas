@@ -24,7 +24,6 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 *
-      CALL QENTER(ROUTINE)
 
 C Print results:
       NCOL=4
@@ -238,8 +237,9 @@ cnf
          Call Free_Work(iNucChg)
       End If
 cnf
+      CALL Put_dArray('SFS_HAM' ,HAM,NSTATE**2)
+      CALL Put_dArray('SFS_OVLP',OVLP,NSTATE**2)
 
       WRITE(6,*)
-      CALL QEXIT(ROUTINE)
       RETURN
       END

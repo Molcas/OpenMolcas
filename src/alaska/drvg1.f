@@ -20,19 +20,6 @@
 *          list of symmetry distinct centers that do have basis        *
 *          functions of the requested type.                            *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg1                                                  *
-*              PSOAO1                                                  *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -46,12 +33,16 @@
       use iSD_data
       use PSO_Stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "Molcas.fh"
+#include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -61,12 +52,10 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 *     Local arrays
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-      Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD, lDummy,
      &        DoGrad, DoFock, Indexation,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList,
@@ -92,15 +81,12 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
 #ifdef _CD_TIMING_
       Twoel_CPU = 0.0d0
       Twoel_Wall = 0.0d0
       Pget_CPU = 0.0d0
       Pget_Wall = 0.0d0
 #endif
-      Call QEnter('Drvg1')
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       Call StatusLine(' Alaska:',' Computing 2-electron gradients')
@@ -143,8 +129,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -183,7 +169,7 @@
 *                                                                      *
 *-------Compute FLOPs for the transfer equation.
 *
-        Do iAng = 0, iAngMx
+        Do iAng = 0, S%iAngMx
            Do jAng = 0, iAng
               nHrrab = 0
               Do i = 0, iAng+1
@@ -194,8 +180,6 @@
                     End If
                  End Do
               End Do
-              nHrrTb(iAng,jAng,1)=nHrrab
-              nHrrTb(jAng,iAng,1)=nHrrab
            End Do
         End Do
 
@@ -203,7 +187,6 @@
 ************************************************************************
 *                                                                      *
       Triangular=.True.
-      Call Alloc_TList(Triangular,P_Eff)
       Call Init_TList(Triangular,P_Eff)
       Call Init_PPList
       Call Init_GTList
@@ -217,7 +200,7 @@
             Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),lIrrep,ChDisp,5)
+*    &               Grad,lDisp(0),ChDisp,5)
          call dcopy_(nGrad,[Zero],0,Temp,1)
       End If
 *                                                                      *
@@ -254,7 +237,7 @@
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -292,7 +275,6 @@
 
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -307,8 +289,6 @@
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -357,7 +337,7 @@
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
      &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
@@ -383,10 +363,10 @@
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
+     &          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,
      &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
      &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
      &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
@@ -399,8 +379,7 @@
            Twoel_Wall = Twoel_Wall + TwoelWall2-TwoelWall1
 #endif
             If (iPrint.ge.15)
-     &         Call PrGrad(' In Drvg1: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,5)
+     &         Call PrGrad(' In Drvg1: Grad',Temp,nGrad,ChDisp,5)
 *
  430     Continue
  420     Continue
@@ -509,6 +488,5 @@
 ************************************************************************
 *                                                                      *
       Call Free_iSD()
-      Call QExit('Drvg1')
       Return
       End

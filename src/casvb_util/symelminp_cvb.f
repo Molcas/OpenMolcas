@@ -8,12 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine symelminp_cvb(ip_symelm,nsyme,tags,izeta,
      >  mxirrep,mxorb,mxsyme,ityp)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Matrices (orthogonal/determinant) ...
+      logical, external :: mxorth_cvb
 #include "malloc_cvb.fh"
       parameter (nsymelm=5,nsign=2,ncmp=4)
       character*8 symelm(nsymelm),sign(nsign)
@@ -56,8 +58,9 @@ c    'IRREPS'
         irrep=iaux(1)
         if(irrep.ne.0)then
           do 1200 iorb=1,mxorb
-1200      if(irrep.eq.ityp(iorb))
+          if(irrep.eq.ityp(iorb))
      >      w(iorb+(iorb-1)*mxorb+ishft+ip_symelm-1)=-one
+1200      continue
         endif
 1100    continue
       elseif(istr2.eq.2)then
@@ -90,14 +93,17 @@ c    'TRANS'
           write(6,*)' Illegal orbital number in TRANS:',iorb
           call abend_cvb()
         endif
-1400    iw(i+itmp-1)=iorb
+        iw(i+itmp-1)=iorb
+1400    continue
         do 1500 ior=1,idim
         iorb=iw(ior+itmp-1)
-        do 1500 jor=1,idim
+        do 1501 jor=1,idim
         jorb=iw(jor+itmp-1)
         daux=zero
         call real_cvb(daux(1),1,nread,0)
-1500    w(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1)=daux(1)
+        w(iorb+(jorb-1)*mxorb+ishft+ip_symelm-1)=daux(1)
+1501    continue
+1500    continue
         call mfreei_cvb(itmp)
       endif
 c    'END' , 'ENDSYMEL' or unrecognized keyword -- end SYMELM input :

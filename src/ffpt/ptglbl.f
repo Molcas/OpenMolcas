@@ -36,12 +36,10 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PTGLBL')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(3,0,0,0)
       If ( .not.Exec ) then
-         Call qExit ('PTGLBL')
          Return
       End If
 *
@@ -84,7 +82,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit ('PTGLBL')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -98,6 +95,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtGlbl: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

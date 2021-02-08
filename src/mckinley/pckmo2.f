@@ -8,33 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine PckMO2(COUT,
-     &                  nAcO,
-     &                  ishell,icmpi,iBasi,jcmpj,jBasj,
-     &                  iaoi,jaoj)
+      SubRoutine PckMO2(COUT,nAcO,icmpi,iBasi,jcmpj,jBasj,iAOi,jAOj)
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "etwas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
       Real*8 COUT(*)
       Integer iCmp(4),nBs(4)
-      Integer iTwoj(0:7),ishell(4),iaoii(4)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer iaoii(4)
 *
       nBs(1)=iBasi
       nBs(2)=jBasj
-      iaoii(1)=iaoi
-      iaoii(2)=jaoj
+      iAOii(1)=iAOi
+      iAOii(2)=jAOj
       icmp(1)=icmpi
       icmp(2)=jcmpj
       ip2=1
-      nA=0
-      Do iIrrep=0,nIrrep-1
-         nA=nA+nAsh(iIrrep)
-      End Do
+
       Do iCnt=1,2
          ipC=0
          Do iIrrep=0,nIrrep-1
@@ -43,9 +36,8 @@
                jj=iCmp(iCnt)
                Do i1=1,jj
                   iSO=iAOtSO(iAOii(iCnt)+i1,iIrrep)
-                  ip1=ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
-                  If (iAnd(IrrCmp(IndS(iShell(iCnt))+i1),
-     &                iTwoj(iIrrep)).ne.0) Then
+                  If (iSO>0) Then
+                     ip1=ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
                      call dcopy_(nBs(iCnt),CMO(ip1,1),1,COUT(ip2),1)
                   Else
                      call dcopy_(nBs(iCnt),[0.0d0],0,COUT(ip2),1)

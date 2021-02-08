@@ -27,7 +27,6 @@ C
      &                              E_factor, diff12, diff23, ZD2(3,3)
       Complex(kind=8)           :: DMAT(3,3)
 
-      Call qEnter('dmatrix')
 
       CF=sqrt(3.0_wp/2.0_wp)
 
@@ -59,6 +58,7 @@ c  calculate the rotation matrix:
 
 C Set the dtens and daxes with respect to the gtens and maxes.
 cccccccccccccccccccccccccccccccc
+      dtens(:)=0.0_wp
       If ( (abs(SMAT(1,1)).gt.abs(SMAT(1,2))) .AND.
      &     (abs(SMAT(1,1)).gt.abs(SMAT(1,3))) ) Then
 c  the WD(1) and ZD(i,1) correspond to gtens(1) and maxes(i,1)
@@ -323,6 +323,5 @@ c the WD(3) and ZD(i,3) correspond to gtens(3) and maxes(i,3)
         Write(6,'(a,F9.4)') 'E = ', E_factor
       End If
 
-      Call qExit('dmatrix')
       Return
       End

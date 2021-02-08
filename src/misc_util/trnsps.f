@@ -16,8 +16,9 @@
 C Return B = Transpose of A.
       DIMENSION A(N,M),B(M,N)
       DO 10 I=1,N
-        DO 10 J=1,M
+        DO 11 J=1,M
           B(J,I)=A(I,J)
+  11    CONTINUE
   10  CONTINUE
       RETURN
       END

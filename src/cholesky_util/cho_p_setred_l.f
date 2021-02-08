@@ -13,12 +13,13 @@ C
 C     Purpose: set next local reduced set. The next global reduced set
 C              must be available at (global) index array location 2.
 C
+      use ChoSwp, only: nnBstRSh, nnBstRSh_G
+      use ChoSwp, only: iiBstRSh, iiBstRSh_G
+      use ChoSwp, only:   IndRed,   IndRed_G
+      use ChoArr, only: iL2G, MySP
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "choptr2.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Character*14 SecNam
       Parameter (SecNam = 'Cho_P_SetRed_L')
@@ -26,23 +27,6 @@ C
       Integer irc, iC, nDim
       Integer i, j, k, i0, k0, l, ll
       Integer iSym, iSP, iShlAB
-      Integer kOff
-
-      Integer iL2G, mySP
-      Integer IndRed, iiBstRSh, nnBstRSh
-      Integer IndRed_G, iiBstRSh_G, nnBstRSh_G
-
-      iL2G(i)=iWork(ip_iL2G-1+i)
-      mySP(i)=iWork(ip_mySP-1+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
-      iiBstRSh_G(i,j,k)=
-     &            iWork(ip_iiBstRSh_G-1+nSym*nnShl_G*(k-1)+nSym*(j-1)+i)
-      nnBstRSh_G(i,j,k)=
-     &            iWork(ip_nnBstRSh_G-1+nSym*nnShl_G*(k-1)+nSym*(j-1)+i)
-
 
 C     Copy current local reduced set (at location 2) to location 3.
 C     -------------------------------------------------------------
@@ -57,35 +41,31 @@ C     Re-initialize local reduced set indices at location 2.
 C     ------------------------------------------------------
 
       nDim = nSym*nnShl
-      Call Cho_iZero(iWork(ip_IndRed+mmBstRT),mmBstRT)
-      Call Cho_iZero(iWork(ip_iiBstRSh+nDim),nDim)
-      Call Cho_iZero(iWork(ip_nnBstRSh+nDim),nDim)
-      Call Cho_iZero(iiBstR(1,2),nSym)
-      Call Cho_iZero(nnBstR(1,2),nSym)
+      IndRed(:,2)=0
+      Call Cho_iZero(iiBstRSh(:,:,2),nDim)
+      Call Cho_iZero(nnBstRSh(:,:,2),nDim)
+      Call Cho_iZero(iiBstR(:,2),nSym)
+      Call Cho_iZero(nnBstR(:,2),nSym)
       nnBstRT(2) = 0
 
 C     Set local nnBstRSh counter at location 2.
 C     -----------------------------------------
 
-      k0 = ip_nnBstRSh + nDim - 1
       Do iSP = 1,nnShl
          iShlAB = mySP(iSP)
-         k = k0 + nSym*(iSP-1)
          Do iSym = 1,nSym
-            iWork(k+iSym) = nnBstRSh_G(iSym,iShlAB,2)
+            nnBstRSh(iSym,iSP,2) = nnBstRSh_G(iSym,iShlAB,2)
          End Do
       End Do
 
 C     Set remaining reduced set indices (excl. IndRed), location 2.
 C     -------------------------------------------------------------
 
-      Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),nSym,
-     &                   nnShl,2)
+      Call Cho_SetRedInd(2)
 
 C     Set local IndRed to point to local 1st reduced set.
 C     ---------------------------------------------------
 
-      kOff = ip_IndRed + mmBstRT - 1
       iC = 0
       Do iSym = 1,nSym
          Do iSP = 1,nnShl
@@ -101,7 +81,7 @@ C     ---------------------------------------------------
                   ll = IndRed(k0+k,3)
                   l = iL2G(ll)
                   If (l .eq. j) Then
-                     iWork(kOff+iC) = ll
+                     IndRed(iC,2) = ll
                      k = nnBstRSh(iSym,iSP,3) ! break while loop
                   End If
                End Do

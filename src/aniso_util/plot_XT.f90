@@ -22,11 +22,17 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_exp, XTmax_exp, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-  INTEGER           :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
-  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100):: line1, line2, lineOut, cdummy
-  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
-  INTEGER, EXTERNAL :: AixRm
+  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+  LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+  CHARACTER(LEN=100)    :: line1, line2, cdummy
+  CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
+  INTEGER, EXTERNAL     :: AixRm
+  INTEGER               :: Length
+  CHARACTER(LEN=1023)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
+
+  !INTEGER               :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
+  !LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+  !CHARACTER(LEN=100)    :: line1, line2, lineOut, cdummy
 
   StdOut=6
   iErr=0
@@ -67,11 +73,9 @@
   END IF
 
   ! generate the GNUPLOT script in the $WorkDir
-  lineOut=' '
   line1=' '
   line2=' '
   gnuplot_CMD=' '
-  istat=0
   file_exist=.false.
   is_file_open=.false.
   file_size=0
@@ -135,9 +139,10 @@
   END IF
   ! remove file "lineOUT"
   iErr=AixRm("lineOUT")
+
+
+
 !--------------------------------------------------------------------------------------------
-
-
 ! check the version of the gnuplot:
   IF ( execute_gnuplot_cmd ) Then
     IF (dbg) WRITE (StdOut,'(A)') 'inquire which version of GNUPLOT is installed'
@@ -154,38 +159,63 @@
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
   END IF
+
+
+
 !--------------------------------------------------------------------------------------------
+! get the true real names of the files on disk:
+  WRITE(datafile ,'(3A)')  'XT_'//trim(label)//'.dat'
+  WRITE(imagefile,'(3A)')  'XT_'//trim(label)//'.png'
+  WRITE(epsfile  ,'(3A)')  'XT_'//trim(label)//'.eps'
+  WRITE(plotfile ,'(3A)')  'XT_'//trim(label)//'.plt'
+  Call prgmtranslate(datafile ,realname_dat,Length)
+  Call prgmtranslate(imagefile,realname_png,Length)
+  Call prgmtranslate(epsfile  ,realname_eps,Length)
+  Call prgmtranslate(plotfile ,realname_plt,Length)
+  IF (dbg) THEN
+    WRITE(StdOut,'(3A)') 'realname_dat=',trim(realname_dat)
+    WRITE(StdOut,'(3A)') 'realname_png=',trim(realname_png)
+    WRITE(StdOut,'(3A)') 'realname_eps=',trim(realname_eps)
+    WRITE(StdOut,'(3A)') 'realname_plt=',trim(realname_plt)
+  END IF
 
 
 
+
+!  GENERATE FILES:
+!--------------------------------------------------------------------------------------------
 ! generate the file "XT.dat":
-  WRITE(datafile,'(A)') 'XT_'//trim(label)//'.dat'
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) iErr=AixRm( trim(datafile) )
   LuData=454
   Call molcas_open(LuData,datafile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_dat)//'" file'
   DO iT=1,nT
      WRITE (LuData,'(3ES24.14)') T(iT), XTexp(iT), XTcalc(iT)
   END DO
   IF (dbg) WRITE (StdOut,*) 'Writing into the "'//trim(datafile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Writing into the "'//trim(realname_dat)//'" file'
   CLOSE (LuData)
   IF (dbg) WRITE (StdOut,*) 'Closing the "'//trim(datafile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Closing the "'//trim(realname_dat)//'" file'
   FLUSH (StdOut)
-!--------------------------------------------------------------------------------------------
 
+
+
+!--------------------------------------------------------------------------------------------
   ! generate the GNUPLOT script in the $WorkDir
-  WRITE(plotfile,'(A)') 'XT_'//trim(label)//'.plt'
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist)  iErr=AixRm( trim(plotfile) )
   LuPlt=455
   Call molcas_open(LuPlt,plotfile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_plt)//'" file'
 
   IF ( gnuplot_version < 5.0_wp ) Then
   !===  GNUPLOT VERSION 4 and below ==>>  generate EPS
     WRITE (LuPlt,'(A)') 'set terminal postscript eps enhanced color  size 3.0, 2.0 font "arial, 10"'
-    WRITE (LuPlt,'(A)') 'set output "XT_'//trim(label)//'.eps"'
+    WRITE (LuPlt,'(A)') 'set output "'//trim(realname_eps)//'" '
     WRITE (LuPlt,'(A)') 'set grid'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# Axes'
@@ -209,14 +239,14 @@
     WRITE (LuPlt,'(A)') '  set key right bottom'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# actual plotting'
-    WRITE (LuPlt,'(A)') 'plot "XT_'//trim(label)//'.dat" using 1:2 with points  lt 1  lw  3 lc rgb "black"  title "Experiment", \'
-    WRITE (LuPlt,'(A)') '     "XT_'//trim(label)//'.dat" using 1:3 with lines   lt 1  lw 10 lc rgb "red"    title "Calculation"'
+    WRITE (LuPlt,'(A)') 'plot "'//trim(realname_dat)//'" using 1:2 with points  lt 1  lw  3 lc rgb "black"  title "Experiment", \'
+    WRITE (LuPlt,'(A)') '     "'//trim(realname_dat)//'" using 1:3 with lines   lt 1  lw 10 lc rgb "red"    title "Calculation"'
     WRITE (LuPlt,'(A)')
 
   ELSE IF ( (gnuplot_version >= 5.0_wp) .AND.(gnuplot_version < 6.0_wp) ) Then
   !===  GNUPLOT VERSION 5 and above ==>>  generate PNG
     WRITE (LuPlt,'(A)') 'set terminal pngcairo transparent enhanced font "arial,10" fontscale 4.0 size 1800, 1200'
-    WRITE (LuPlt,'(A)') 'set output "XT_'//trim(label)//'.png"'
+    WRITE (LuPlt,'(A)') 'set output "'//trim(realname_png)//'" '
     WRITE (LuPlt,'(A)') 'set grid'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# Axes'
@@ -240,8 +270,9 @@
     WRITE (LuPlt,'(A)') '  set key right bottom'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# actual plotting'
-    WRITE (LuPlt,'(A)') 'plot "XT_'//trim(label)//'.dat" using 1:2 with circles lt 1  lw  3 lc rgb "black"  title "Experiment", \'
-    WRITE (LuPlt,'(A)') '     "XT_'//trim(label)//'.dat" using 1:3 with lines   lt 1  lw 10 lc rgb "red"    title "Calculation"'
+    WRITE (LuPlt,'(A)') 'plot "'//trim(realname_dat)//'" using 1:2 with points  lt 1  lw  3 lc rgb "black"  title "Experiment", \'
+    WRITE (LuPlt,'(A)') '     "'//trim(realname_dat)//'" using 1:3 with lines   lt 1  lw 10 lc rgb "red"    title "Calculation"'
+    WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)')
   ELSE
     WRITE (StdOut,*) 'GNUPLOT has version: ', gnuplot_version
@@ -252,19 +283,46 @@
 
   IF (execute_gnuplot_cmd) Then
     ! attempt to execute the script
-    WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
-    IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+    IF (dbg) THEN
+      WRITE (StdOut,*) trim(realname_plt)
+      INQUIRE(FILE=trim(realname_plt),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" exists.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" does not exist.'
+      END IF
+    END IF
+
+    WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
+    IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
+
     CALL systemf ( gnuplot_CMD, iErr )
+
     IF ( gnuplot_version < 5.0_wp ) Then
-      WRITE (StdOut,'(A,i0,A)') 'File "XT'//trim(label)//'.eps" was created in Working directory.'
+      INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was created in Working directory.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was NOT created in Working directory.'
+      END IF
     ELSE
-      WRITE (StdOut,'(A,i0,A)') 'File "XT'//trim(label)//'.png" was created in Working directory.'
+      INQUIRE(FILE=trim(realname_png),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_png)//'" was created in Working directory.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_png)//'" was NOT created in Working directory.'
+      END IF
     END IF
   END IF
 
   dbg=.false.
   RETURN
+#ifdef _WARNING_WORKAROUND_
+  IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
   END SUBROUTINE plot_XT_with_Exp
+
+
 
 
 
@@ -274,7 +332,7 @@
 
   IMPLICIT NONE
 
-  Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+  Integer, parameter    :: wp=SELECTED_REAL_KIND(p=15,r=307)
   INTEGER, INTENT(in)   :: nT
   REAL (wp), INTENT(in) :: T(nT)
   REAL (wp), INTENT(in) :: XTcalc(nT)
@@ -283,11 +341,21 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-  INTEGER           :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
-  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100):: line1, line2, lineOut, cdummy
-  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
-  INTEGER, EXTERNAL :: AixRm
+!<<<<<<< HEAD
+  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+  LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+  CHARACTER(LEN=100)    :: line1, line2, cdummy
+  CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
+  INTEGER, EXTERNAL     :: AixRm
+  INTEGER               :: Length
+  CHARACTER(LEN=1024)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
+!=======
+!  INTEGER           :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+!  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+!  CHARACTER(LEN=100):: line1, line2, cdummy
+!  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
+!  INTEGER, EXTERNAL :: AixRm
+!>>>>>>> upstream/master
 
   StdOut=6
   iErr=0
@@ -322,11 +390,9 @@
   END IF
 
   ! generate the GNUPLOT script in the $WorkDir
-  lineOut=' '
   line1=' '
   line2=' '
   gnuplot_CMD=' '
-  istat=0
   file_exist=.false.
   is_file_open=.false.
   file_size=0
@@ -406,40 +472,61 @@
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
   END IF
+
+
+
 !--------------------------------------------------------------------------------------------
+! get the true real names of the files on disk:
+  WRITE(datafile ,'(3A)')  'XT_'//trim(label)//'.dat'
+  WRITE(imagefile,'(3A)')  'XT_'//trim(label)//'.png'
+  WRITE(epsfile  ,'(3A)')  'XT_'//trim(label)//'.eps'
+  WRITE(plotfile ,'(3A)')  'XT_'//trim(label)//'.plt'
+  Call prgmtranslate(datafile ,realname_dat,Length)
+  Call prgmtranslate(imagefile,realname_png,Length)
+  Call prgmtranslate(epsfile  ,realname_eps,Length)
+  Call prgmtranslate(plotfile ,realname_plt,Length)
+  IF (dbg) THEN
+    WRITE(StdOut,'(3A)') 'realname_dat=',trim(realname_dat)
+    WRITE(StdOut,'(3A)') 'realname_png=',trim(realname_png)
+    WRITE(StdOut,'(3A)') 'realname_eps=',trim(realname_eps)
+    WRITE(StdOut,'(3A)') 'realname_plt=',trim(realname_plt)
+  END IF
 
 
 
-! create the file "XT.dat"a
-  WRITE(datafile,'(3A)')  'XT_'//trim(label)//'.dat'
+!  GENERATE FILES:
+!--------------------------------------------------------------------------------------------
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) iErr=AixRm(trim(datafile))
   LuData=454
   Call molcas_open(LuData,datafile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_dat)//'" file'
   DO iT=1,nT
      WRITE (LuData,'(3ES24.14)') T(iT), XTcalc(iT)
   END DO
   IF (dbg) WRITE (StdOut,*) 'Writing into the "'//trim(datafile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Writing into the "'//trim(realname_dat)//'" file'
   CLOSE (LuData)
   IF (dbg) WRITE (StdOut,*) 'Closing the "'//trim(datafile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Closing the "'//trim(realname_dat)//'" file'
   FLUSH (StdOut)
+
+
+
 !--------------------------------------------------------------------------------------------
-
-
-
   ! generate the GNUPLOT script in the $WorkDir
-  WRITE(plotfile,'(A)') 'XT_'//trim(label)//'.plt'
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
-  IF(file_exist)  iErr=AixRm(trim(plotfile))
+  IF(file_exist)  iErr=AixRm( trim(plotfile) )
   LuPlt=455
   Call molcas_open(LuPlt,plotfile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
+  IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_plt)//'" file'
 
   IF ( gnuplot_version < 5.0_wp ) Then
   !===  GNUPLOT VERSION 4 and below ==>>  generate EPS
     WRITE (LuPlt,'(A)') 'set terminal postscript eps enhanced color  size 3.0, 2.0 font "arial, 10"'
-    WRITE (LuPlt,'(A)') 'set output "XT_'//trim(label)//'.eps"'
+    WRITE (LuPlt,'(A)') 'set output "'//trim(realname_eps)//'" '
     WRITE (LuPlt,'(A)') 'set grid'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# Axes'
@@ -463,13 +550,13 @@
     WRITE (LuPlt,'(A)') '  set key right bottom'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# actual plotting'
-    WRITE (LuPlt,'(A)') 'plot "XT_'//trim(label)//'.dat" using 1:2 with lines lt 1  lw  8 lc rgb "red"  title "Calculation"'
+    WRITE (LuPlt,'(A)') 'plot "'//trim(realname_dat)//'" using 1:2 with lines lt 1  lw  8 lc rgb "red"  title "Calculation"'
     WRITE (LuPlt,'(A)')
 
   ELSE IF ( (gnuplot_version >= 5.0_wp) .AND.(gnuplot_version < 6.0_wp) ) Then
     !===  GNUPLOT VERSION 5 and above ==>>  generate PNG
     WRITE (LuPlt,'(A)') 'set terminal pngcairo transparent enhanced font "arial,10" fontscale 4.0 size 1800, 1200'
-    WRITE (LuPlt,'(A)') 'set output "XT_'//trim(label)//'.png"'
+    WRITE (LuPlt,'(A)') 'set output "'//trim(realname_png)//'" '
     WRITE (LuPlt,'(A)') 'set grid'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# Axes'
@@ -493,27 +580,52 @@
     WRITE (LuPlt,'(A)') '  set key right bottom'
     WRITE (LuPlt,'(A)')
     WRITE (LuPlt,'(A)') '# actual plotting'
-    WRITE (LuPlt,'(A)') 'plot "XT_'//trim(label)//'.dat" using 1:2 with lines lt 1  lw  8 lc rgb "red"  title "Calculation"'
+    WRITE (LuPlt,'(A)') 'plot "'//trim(realname_dat)//'" using 1:2 with lines lt 1  lw  8 lc rgb "red"  title "Calculation"'
     WRITE (LuPlt,'(A)')
   ELSE
     WRITE (StdOut,*) 'GNUPLOT has version: ', gnuplot_version
     WRITE (StdOut,*) 'This version of GNUPLOT is not known and thus, unsupported.'
     execute_gnuplot_cmd=.false.
   END IF
-  CLOSE (LuPlt)
 
   IF (execute_gnuplot_cmd) Then
     ! attempt to execute the script
-    WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
-    IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+    IF (dbg) THEN
+      WRITE (StdOut,*) trim(realname_plt)
+      INQUIRE(FILE=trim(realname_plt),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" exists.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_plt)//'" does not exist.'
+      END IF
+    END IF
+
+    WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
+    IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
+
     CALL systemf ( gnuplot_CMD, iErr )
+
     IF ( gnuplot_version < 5.0_wp ) Then
-      WRITE (StdOut,'(A,i0,A)') 'File "XT'//trim(label)//'.eps" was created in Working directory.'
+      INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was created in Working directory.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_eps)//'" was NOT created in Working directory.'
+      END IF
     ELSE
-      WRITE (StdOut,'(A,i0,A)') 'File "XT'//trim(label)//'.png" was created in Working directory.'
+      INQUIRE(FILE=trim(realname_png),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
+      IF(file_exist) THEN
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_png)//'" was created in Working directory.'
+      ELSE
+        WRITE (StdOut,'(A,i0,A)') 'File "'//trim(realname_png)//'" was NOT created in Working directory.'
+      END IF
     END IF
   END IF
 
+  CLOSE (LuPlt)
   dbg=.false.
   RETURN
+#ifdef _WARNING_WORKAROUND_
+  IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
   END SUBROUTINE plot_XT_no_Exp

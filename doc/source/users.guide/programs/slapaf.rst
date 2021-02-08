@@ -646,7 +646,7 @@ Optional optimization procedure keywords
 
   .. xmldoc:: <GROUP MODULE="SLAPAF" KIND="BOX" NAME="ADVANCED" APPEAR="Advanced PES exploration options" LEVEL="BASIC">
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" EXCLUSIVE="NEWTON,C1-DIIS,C2-DIIS,RS-P-RF" LEVEL="BASIC" ALSO="MEP">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEP-SEARCH" APPEAR="MEP-search" KIND="SINGLE" LEVEL="BASIC" ALSO="MEP">
               %%Keyword: MEP-search <basic>
               <HELP>
               Enable a minimum energy path (MEP) search.
@@ -657,6 +657,16 @@ Optional optimization procedure keywords
   .. xmldoc:: %%Keyword: MEP <basic>
               Enable a minimum energy path (MEP) search.
               Synonym of MEP-search.
+
+:kword:`rMEP-search` 
+  Enable a reverse minimum energy path (MEP) search.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RMEP-SEARCH" APPEAR="Reverse MEP-search" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: RMEP-search <basic>
+              <HELP>
+              Enable a reverse minimum energy path (MEP) search.
+              </HELP>
+              </KEYWORD>
 
 :kword:`IRC`
   The keyword is used to perform an intrinsic reaction coordinate (IRC) analysis of a
@@ -721,7 +731,7 @@ Optional optimization procedure keywords
   The reference structure changes at each step, according to the :kword:`MEPAlgorithm` keyword.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPTYPE" APPEAR="MEP Type" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCTYPE">
-              %%Keyword: MEPType <basic>
+              %%Keyword: MEPType <advanced>
               <HELP>
               Specifies what kind of constraint will be used for optimizing the points during the MEP search or IRC analysis.
               The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
@@ -731,7 +741,7 @@ Optional optimization procedure keywords
               IRCType is a valid synonym.
               </KEYWORD>
 
-              %%Keyword: IRCType <basic>
+              %%Keyword: IRCType <advanced>
               Specifies what kind of constraint will be used for optimizing the points during the IRC analysis or MEP search.
               The possibilities are SPHERE, the default, which uses the Sphere constraint (each structure is at a given distance in coordinate space from the reference),
               or PLANE which uses the Transverse constraint (each structure is at a given distance from the hyperplane defined by the reference and the path direction).
@@ -743,7 +753,7 @@ Optional optimization procedure keywords
   The possibilities are GS for the González--Schlegel algorithm, the default, or MB for the Müller--Brown algorithm.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPALGORITHM" APPEAR="MEP Algorithm" KIND="STRING" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCALGORITHM">
-              %%Keyword: MEPAlgorithm <basic>
+              %%Keyword: MEPAlgorithm <advanced>
               <HELP>
               Selects the algorithm for a MEP search or IRC analysis.
               The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
@@ -751,17 +761,40 @@ Optional optimization procedure keywords
               IRCAlgorithm is a valid synonym.
               </KEYWORD>
 
-              %%Keyword: IRCAlgorithm <basic>
+              %%Keyword: IRCAlgorithm <advanced>
               Selects the algorithm for a MEP search or IRC analysis.
               The possibilities are GS for the Gonzalez-Schlegel algorithm, the default, or MB for the Mueller-Brown algorithm.
               Synonym of MEPAlgorithm.
+
+:kword:`MEPConvergence` or :kword:`IRCConvergence`
+  Sets the gradient convergence for a MEP search or IRC analysis.
+  The path will be terminated when the gradient norm at an optimized point is below this threshold.
+  By default it is the same as the gradient threshold for the normal iterations, specified with :kword:`THRShld`,
+  it may be necessary to reduce it to follow a path on a very flat surface.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MEPCONVERGENCE" APPEAR="MEP gradient convergence" KIND="REAL" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH.OR.IRC" LEVEL="ADVANCED" ALSO="IRCCONVERGENCE">
+              %%Keyword: MEPConvergence <advanced>
+              <HELP>
+              Sets the gradient convergence for a MEP search or IRC analysis.
+              The path will be terminated when the gradient norm at an optimized point is below this threshold.
+              By default it is the same as the gradient threshold for the normal iterations, specified with THRShld,
+              it may be necessary to reduce it to follow a path on a very flat surface.
+              </HELP>
+              IRCConvergence is a valid synonym.
+              </KEYWORD>
+
+              %%Keyword: IRCConvergence <advanced>
+              Sets the gradient convergence for a MEP search or IRC analysis.
+              The path will be terminated when the gradient norm at an optimized point is below this threshold.
+              By default it is the same as the gradient threshold for the normal iterations, specified with THRShld,
+              Synonym of MEPConvergence.
 
 :kword:`REFErence`
   The keyword is followed by a list of the symmetry unique coordinates (in au)
   of the origin of the hyper sphere. The default origin is the structure
   of the first iteration.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" REQUIRE="MEP-SEARCH.OR.RMEP-SEARCH" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REFERENCE" APPEAR="MEP reference structure" KIND="REALS_LOOKUP" SIZE="DEG_FREEDOM" LEVEL="BASIC">
               %%Keyword: REFErence <basic>
               <HELP>
               The keyword is followed by a list of the symmetry unique coordinates (in au)
@@ -840,17 +873,16 @@ Optional force constant keywords
               Input of Hessian in internal coordinates.
               Note this is
               There are two different syntaxes.
-              ||
+
               1) The keyword is followed by an entry with
-              the number of elements which will be set (observe that the
-              update will preserve that the elements Hij and Hji are
-              equal). The next lines will contain the value and the indices of
-              the elements to be replaced.
-              ||
+                 the number of elements which will be set (observe that the
+                 update will preserve that the elements Hij and Hji are
+                 equal). The next lines will contain the value and the indices of
+                 the elements to be replaced.
               2) The keyword if followed by the label "Square" or
-              "Triangular". The subsequent entry specifies the rank of the
-              Hessian. This is then followed by entries specifying the Hessian
-              in square or lower triangular order.
+                 "Triangular". The subsequent entry specifies the rank of the
+                 Hessian. This is then followed by entries specifying the Hessian
+                 in square or lower triangular order.
 
 :kword:`XFCOnstant`
   Input of an external Hessian matrix in cartesian coordinates. The
@@ -1048,7 +1080,7 @@ Optional miscellaneous keywords
               </HELP>
               </KEYWORD>
 
-Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
+Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021` keywords
 
 .. class:: keywordlist
 
@@ -1068,7 +1100,7 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   The surrogate model will tend to the maximum energy among the sample points plus this value (in au).
   The default value is 10.0 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TFOFFSET" APPEAR="Trend function offset" KIND="REAL" DEFAULT_VALUE="10.0" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="TFOFFSET" APPEAR="Trend function offset" KIND="REAL" DEFAULT_VALUE="10.0" REQUIRE="KRIGING" LEVEL="ADVANCED">
               %%Keyword: TFOFfset <advanced>
               <HELP>
               Trend function or baseline offset for the GEK surrogate model.
@@ -1081,8 +1113,9 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
   A real value is read from the input, the maximum dispersion is this value times the maximum Cartesian gradient.
   The default value is 0.3 au.
+  During the constrained phase of an optimization with :kword:`FindTS`, the default is 0.1 au.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Maximum dispersion factor" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.3" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MAXDISP" APPEAR="Maximum dispersion factor" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="0.3" REQUIRE="KRIGING" LEVEL="ADVANCED">
               %%Keyword: MAXDISP <advanced>
               <HELP>
               Maximum energy dispersion allowed during each macro iteration of the RVO procedure.
@@ -1095,12 +1128,26 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   Maximum number of micro iterations in each macro iteration of the RVO procedure.
   The default value is 50.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" REQUIRE="KRIGING" LEVEL="ADVANCED">
               %%Keyword: MXMI <advanced>
               <HELP>
               Maximum number of micro iterations in each macro iteration of the RVO procedure.
               </HELP>
               Default: 50.
+              </KEYWORD>
+
+:kword:`NDELta`
+  Activate partial gradient enhanced Kriging, PGEK. This integer number determines for how many fewer iterations the gradients will
+  be included in the PGEK procedure.
+  The default value is 0, that is standard GEK.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NDELTA" APPEAR="Samples without gradient" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="0" REQUIRE="KRIGING" LEVEL="ADVANCED">
+              %%Keyword: NDELta <advanced>
+              <HELP>
+              Activate partial gradient enhanced Kriging, PGEK. This integer number determines for how many fewer iterations the gradients will
+              be included in the PGEK procedure.
+              </HELP>
+              Default: 0.
               </KEYWORD>
 
 Example: A complete set of input decks for a CASSCF geometry
@@ -1469,8 +1516,6 @@ using automatic calculation of analytical gradients and nonadiabatic coupling.
   >>> EndDo
 
 .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="REDUNDANT" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
-
-.. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RMEP-SEARCH" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOEMEP" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
 

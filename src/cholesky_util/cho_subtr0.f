@@ -18,14 +18,14 @@ C              This version is memory-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+      use ChoArr, only: LQ
+      use ChoVecBuf, only: nVec_in_Buf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "choptr.fh"
-#include "chosubscr.fh"
-#include "cholq.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SUBTR0')
@@ -37,12 +37,6 @@ C
       EXTERNAL CHO_LREAD
 
       PARAMETER (XMONE = -1.0D0, ONE = 1.0D0)
-
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
-      DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 C     Return if nothing to do.
 C     ------------------------
@@ -164,17 +158,16 @@ C           ----------------------------------------------------
 
          ELSE ! unscreened subtraction
 
-            IF (L_LQ_SYM(ISYM) .GT. 0) THEN
+           IF (Associated(LQ(ISYM)%Array)) THEN
 
 C              If the qualified block, L({ab},#J), is already in core,
 C              use this block.
 C              -------------------------------------------------------
 
-               LOFF = IP_LQ_SYM(ISYM) + LDLQ(ISYM)*(IVEC1-1)
-
                CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                    XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                          WORK(LOFF),LDLQ(ISYM),
+     &                          LQ(ISYM)%Array(:,IVEC1),
+     &                          SIZE(LQ(ISYM)%Array,1),
      &                    ONE,XINT,NNBSTR(ISYM,2))
 
 

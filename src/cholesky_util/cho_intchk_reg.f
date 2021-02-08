@@ -13,16 +13,13 @@ C
 C     Purpose: register a shell quadruple (CD|AB) for minimal integral
 C              check using LABEL to keep track of its origin.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       CHARACTER*8 LABEL
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_INTCHK_REG')
-
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Check shell pair index.
 C     -----------------------

@@ -34,7 +34,6 @@
       DIMENSION IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
       INTEGER IOCCLS(1),IBASSPC(1)
 *
-      CALL QENTER('STRTY')
       NTESTL = 00
       NTEST = MAX(IPRNT,NTESTL)
 *. As input NCISPC GAS spaces IGSOCCX are given.
@@ -172,7 +171,6 @@ C     END DO
 *.
 *. Occupation classes corresponding to largest CI space
 *
-C     CALL QENTER('OCCLS')
       IBASSPC(1)=0
       CALL OCCLS(         1,    NOCCLS,    IOCCLS,    NACTEL,      NGAS,
      &           IGSOCC(1,1),IGSOCC(1,2),       0,    IBASSPC,   NOBPT)
@@ -211,7 +209,6 @@ C     CALL QENTER('OCCLS')
 *. Number of electrons to be subtracted or added
 *
       MAXSUB = 2
-      MAXADD = 2
 *. electrons are only added for systems that atleast have halffilled
 *. shells
       IGRP = 0
@@ -219,7 +216,6 @@ C     CALL QENTER('OCCLS')
       MNAL = NAEL
       MXBL = NBEL
       MNBL = NBEL
-      NORBL = NTOOB
       DO IGAS = 1, NGAS
 *. occupation constraints 1
        MXA1 = MIN(MXGSOC(IGAS),NOBPT(IGAS),MXAL)
@@ -428,10 +424,7 @@ C?      WRITE(6,*) '  GASSPC : ITYP IDEL ', ITYP,IDEL
         END IF
 *. Number of electrons in present type
 *. Loop over  SUPER GROUPS with current nomenclature!
-*. Temp max for loop
-        MXLOOP = 10000
         IONE = 1
-        NLOOP = 0
  1000   CONTINUE
 *. Number of electrons in present supergroup
           NEL = 0
@@ -607,7 +600,6 @@ C?      CALL IWRTMA(IREOSPGP,1,NSPGP,1,NSPGP)
         END DO
       END IF
 *
-      CALL QEXIT('STRTY')
 *
       RETURN
       END

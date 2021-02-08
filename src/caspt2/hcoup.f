@@ -11,6 +11,9 @@
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -31,7 +34,6 @@ C The coupling for that block is computed by the subroutine HCOUP_BLK.
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-#include "para_info.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -44,7 +46,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #include "mafdecls.fh"
 #endif
 
-      CALL QENTER('HCOUP')
 
 C Sketch of procedure:
 C  HEL=0.0D0
@@ -147,7 +148,6 @@ C Sum-reduce the per-process contributions
         WRITE(6,*)
       END IF
 
-      CALL QEXIT('HCOUP')
 
       END
 
@@ -179,7 +179,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       HEBLK=0.0D0
 
       IF (IISTA.LE.0) RETURN
-      CALL QENTER('HCOUP_BLK')
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
@@ -585,6 +584,5 @@ C Formula used: SG(t,x)= Gtx
         END IF
 ************************************************************************
       END SELECT
-      CALL QExit('HCOUP_BLK')
       Return
       END

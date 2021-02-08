@@ -87,7 +87,6 @@ C
       ISTBM=0
       IX1=0
       ISTZ=0
-      ioffQmat=0
       E2act=0.0d0
 C
 * A long loop over symmetry
@@ -166,7 +165,6 @@ c ---     Q(m,v) = C(a,m) * Q(a,v)
         Else
 
           Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call qtrace()
           call abend()
 
         EndIf
@@ -459,16 +457,13 @@ C     LOOP OVER ALL SYMMETRY BLOCKS
       ISTBM=0
       IX1=0
       ISTZ=0
-      ioffQmat=0
       E2act=0.0d0
 C
 * A long loop over symmetry
       DO ISYM=1,NSYM
-       IX=IX1+NFRO(ISYM)
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
        NEO=NSSH(ISYM)
-       NIA=NIO+NAO
        NO=NORB(ISYM)
        NO2=(NO**2+NO)/2
        CSX=0.0D0
@@ -533,7 +528,6 @@ c         call wrtmat(P(ISTP),1,nFint,1,nFint)
         Else
 
           Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call qtrace()
           call abend()
 
         EndIf

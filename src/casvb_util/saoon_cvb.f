@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine saoon_cvb(c1,c2,n2,s,n,metr)
 c  Put matrix product S*C1 in C2:
@@ -27,9 +28,11 @@ c  Put matrix product S*C1 in C2:
         do 300 i=1,k-1
         ik=ik+1
         c2(i,j)=c2(i,j)+s(ik)*c1(k,j)
-300     c2(k,j)=c2(k,j)+s(ik)*c1(i,j)
+        c2(k,j)=c2(k,j)+s(ik)*c1(i,j)
+300     continue
         ik=ik+1
-200     c2(k,j)=c2(k,j)+s(ik)*c1(k,j)
+        c2(k,j)=c2(k,j)+s(ik)*c1(k,j)
+200     continue
 100     continue
       endif
       return

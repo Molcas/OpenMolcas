@@ -12,30 +12,19 @@
 ************************************************************************
       SubRoutine PrRF(DSCF,NonEq,iCharge,jPrint)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Allok2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
 *             Modified for Langevin polarizabilities, Marsk 2000 (RL)  *
 ************************************************************************
+      use External_Centers, only: nXF, iXPolType
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
       Logical DSCF, NonEq
       Integer StrnLn
 *
-      Call qEnter('PrRF')
 *
       IF (jPrint.GE.2) THEN
       If (lRF.and..Not.PCM.and.lRFCav) Then
@@ -57,8 +46,8 @@
       End If
       If (iXPolType.gt.0) Then
          Write (6,*)
-         Write (6,'(5X,A)')
-     &       'Explicit polarisabilities activated'
+         Write (6,'(5X,A)') ' Explicit polarisabilities activated'
+         Write (6,'(5X,A)') ' -----------------------------------'
          Write (6,'(5X,A,I2)')     ' Number of points    :',nXF
          If (iXPolType.eq.1) Then
             Write (6,'(5X,A)')
@@ -127,7 +116,6 @@
       If (lRF) Call Init_RctFld(NonEq,iCharge)
       If (DSCF) Call Allok2
 *
-      Call qExit('PrRF')
       Return
 *
       End

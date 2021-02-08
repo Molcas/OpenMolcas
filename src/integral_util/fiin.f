@@ -24,9 +24,11 @@
                if(iexp.ne.0)then
                   Do 13 l=1,iexp
                      al=Two*DBLE(l)
- 13                  tal=tal*(al-One)/al
+                     tal=tal*(al-One)/al
+ 13               Continue
                 Endif
- 12             fiint(i,j)=fiint(i,j)+tal
+                fiint(i,j)=fiint(i,j)+tal
+ 12         Continue
  11      Continue
  10   Continue
 *

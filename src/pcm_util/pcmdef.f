@@ -19,7 +19,8 @@
 *     Initialize the integer array.
 *
       Do 10 I = 1, 100
-  10    ISlPar(I) = 0
+        ISlPar(I) = 0
+  10  Continue
 *
       ISlPar(  1) =  0      ! SCRF flag
       ISlPar(  2) =  0      ! derivative level
@@ -68,7 +69,8 @@
 **     Initialize the real array.
 *
       Do 20 I = 1, 100
-  20    RSlPar(I) = 0.0d0
+        RSlPar(I) = 0.0d0
+  20  Continue
 *
       RSlPar(  1) =   0.0d0     ! XCosmo
       RSlPar(  2) =   4.0d+1    ! Omega

@@ -9,10 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Create_Chunk(ip_iMap,ip_Chunk,LenVec,NumVec,IncVec)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
-#include "para_info.fh"
 #include "mafdecls.fh"
       External  ga_create_irreg
       Logical   ga_create_irreg, ok

@@ -214,7 +214,6 @@
       MemFree0 = Max( MEMX - MEMX/10 , 0 )
 
       MemPerVec2 = LenTCVx + MaxSlice
-      MemTmp2 = 2 * MaxInt
 
       MemMin = LenCHFV + LenTmpTra + LenTCVx + MaxSlice + 2 * MaxInt
       MemFree = MemFree0 - MemMin
@@ -378,12 +377,8 @@
       nOccJ = nOsh(iSymJ)
       nOrbA = nOrb(iSymA)
       nOrbB = nOrb(iSymB)
-      nOrbA2= nOrb(iSymB)
-      nOrbB2= nOrb(iSymA)
       nExtA = nSsh(iSymA)
       nExtB = nSsh(iSymB)
-      nExtA2= nSsh(iSymB)
-      nExtB2= nSsh(iSymA)
       If(iSymI.EQ.iSymJ) then
         nProdIJ=nOccI*(nOccJ+1)/2
       else

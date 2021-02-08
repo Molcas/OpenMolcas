@@ -11,40 +11,33 @@
       Subroutine NucInd(coor,kdc,ifgrd,ifhss,indgrd,indhss,
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
       use Real_Spherical
+      use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 
       Real*8 Coor(3,4)
       Integer IndGrd(0:2,0:1,0:(nIrrep-1)),
      &        IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1))
-      Logical IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1), TstFnc, TF,
+      Logical IfHss(0:1,0:2,0:1,0:2),IfGrd(0:2,0:1),
      &        IfG(0:3),Tr(0:3)
       Integer JndGrd(0:2,0:3,0:(nIrrep-1)),
      &        JndHss(0:3,0:2,0:3,0:2,0:(nIrrep-1))
 *
       Logical JfHss(0:3,0:2,0:3,0:2),JfGrd(0:2,0:3),EQ
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement functions
 *
       IX(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &     nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &     nStab(mdc))
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     iRout = 150
-c     iPrint = nPrint(iRout)
-c     Call qEnter('NAHSS')
-*
       Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
       Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
       Call LCopy(144,[.False.],0,jfHss,1)

@@ -19,7 +19,6 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Real*8 Scr(lScr), Ap(lAp), Dens(lDens)
 
@@ -99,7 +98,7 @@
 *     Set
 *
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'iPQ', iPQ
       Write(6,*) 'iIQ', iIQ
       Write(6,*) 'iIR', iIR
@@ -181,9 +180,7 @@
          kY = kEndX
          kEndY = kY + lY
 *        Z-vector
-         lZ = nVec*nIQ
          kZ = kEndY
-         kEndZ = kZ + lZ
 *
       nBatL = (NumCho(iSym)-1)/nVec + 1
 

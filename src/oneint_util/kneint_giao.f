@@ -21,18 +21,6 @@
 * Object: to compute the kinetic energy integrals with the Gauss-      *
 *         Hermite quadrature.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              CmbnKE                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -40,13 +28,10 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 *
 #include "rmat_option.fh"
 #include "rmat.fh"
 *
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
@@ -65,7 +50,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-*     Call qEnter('KnEInt_GIAO')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -125,13 +109,10 @@
      &               lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       Do lDCRT = 0, nDCRT-1
-         TC(1) = iPhase(1,iDCRT(lDCRT))*CCoor(1)
-         TC(2) = iPhase(2,iDCRT(lDCRT))*CCoor(2)
-         TC(3) = iPhase(3,iDCRT(lDCRT))*CCoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
 *        Compute the contribution from the multipole moment operator
 *
@@ -180,13 +161,12 @@
 *
 *        Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *
       End Do
 *
-*     Call qExit('KnEInt_GIAO')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

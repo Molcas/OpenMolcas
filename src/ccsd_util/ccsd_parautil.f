@@ -29,22 +29,21 @@ c
         implicit none
 c
 #include "wrk.fh"
-#include "paralell.fh"
 c
        integer mapd(0:512,1:6)
        integer mapi(1:8,1:8,1:8)
 c
 c        help variables
 c
-       integer poss0,lenght,ii
+       integer poss0,length,ii
 c
 c1        def poss0, legth
         poss0=mapd(1,1)
         ii=mapd(0,5)
-        lenght=mapd(ii,1)+mapd(ii,2)-poss0
+        length=mapd(ii,1)+mapd(ii,2)-poss0
 c
 c2        set appropriate wrk = 0
-        call mv0zero (lenght,lenght,wrk(poss0))
+        call mv0zero (length,length,wrk(poss0))
 c
         return
 c Avoid unused argument warnings
@@ -64,17 +63,17 @@ c        (free zone is not used in GA)
 c        Since T2 amplitudes are no more then oovv, at most V1-V3 space
 c        will be demaged. (acutally V1 and V2 only)
 c
+        use Para_Info, only: nProcs
         implicit none
 c
 #include "wrk.fh"
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "paralell.fh"
 c
 c        help variables
 c
-        integer ii,lenght
-CLD        integer ii,lenght,rc,i
+        integer ii,length
+CLD        integer ii,length,rc,i
 c
         if (nProcs.eq.1) return
 c
@@ -82,57 +81,57 @@ c1        join t13,t14
 c
 c1.1    calc overall length of t13 and t14 (they must be one after the other)
         ii=mapdt14(0,5)
-        lenght=mapdt14(ii,1)+mapdt14(ii,2)-posst130
+        length=mapdt14(ii,1)+mapdt14(ii,2)-posst130
 c
 c1.2        vanish required part in free zone
-c        call mv0zero (lenght,lenght,wrk(possv10))
+c        call mv0zero (length,length,wrk(possv10))
 c
 c1.3        allreduce t13 and t14 into free zone
-c        call MPI_ALLREDUCE (wrk(posst130),wrk(possv10),lenght,
+c        call MPI_ALLREDUCE (wrk(posst130),wrk(possv10),length,
 c    c  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,rc)
 c
 c1.4        put joined t13,t14 back to t13,t14 place from free zone
-c        do i=0,lenght-1
+c        do i=0,length-1
 c        wrk(posst130+i)=wrk(possv10+i)
 c        end do
 c
 c1.om   allreduge t13,t14 together
-        call gadgop (wrk(posst130),lenght,'+')
+        call gadgop (wrk(posst130),length,'+')
 c
 c
 c2        join t21,t22,t23
 c
 c2.1    calc overall length of t21-t23 (they must be one after the other)
         ii=mapdt23(0,5)
-        lenght=mapdt23(ii,1)+mapdt23(ii,2)-posst210
+        length=mapdt23(ii,1)+mapdt23(ii,2)-posst210
 c
 c2.2        vanish required part in free zone
-c        call mv0zero (lenght,lenght,wrk(possv10))
+c        call mv0zero (length,length,wrk(possv10))
 c
 c2.3        allreduce t13 and t14 into free zone
-c        call MPI_ALLREDUCE (wrk(posst210),wrk(possv10),lenght,
+c        call MPI_ALLREDUCE (wrk(posst210),wrk(possv10),length,
 c    c  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,rc)
 c
 c2.4        put joined t21-t23 back to t21-t23 place from free zone
-c        do i=0,lenght-1
+c        do i=0,length-1
 c        wrk(posst210+i)=wrk(possv10+i)
 c        end do
 c
 c2.om   allreduge t21-t23 together
-        call gadgop (wrk(posst210),lenght,'+')
+        call gadgop (wrk(posst210),length,'+')
 c
         return
         end
 c
 c        ----------------------------------------------
 c
-       subroutine reajalovy (lun,lenght,vector)
+       subroutine reajalovy (lun,length,vector)
 c
 c     this routine read blank card
 c     with number lun form the given possition and update pointers
 c
 c     lun    - Logical unit number of file, where mediate is stored (Input)
-c     lenght - # of R8 numbers to be read  (Input)
+c     length - # of R8 numbers to be read  (Input)
 c     vector - space, where numbers are stored after reading  (Output)
 
 c
@@ -141,7 +140,7 @@ c
 
 #include "SysDef.fh"
 c
-       integer lun,lenght
+       integer lun,length
        real*8 vector(1:1)
 c
        if (iokey.eq.1) then
@@ -150,7 +149,7 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call ddafile (lun,0,vector,lenght,daddr(lun))
+       call ddafile (lun,0,vector,length,daddr(lun))
        end if
 c
        return
@@ -162,8 +161,9 @@ c
 c
 c        this routine distribute nodes to different parts
 c
+        use Para_Info, only: nProcs
         implicit none
-#include "paralell.fh"
+#include "parallel.fh"
 c
         integer i
         REAL*8 efftot
@@ -486,8 +486,9 @@ c
 c        this routine redefine ideffab vector using infromation about
 c        idle time on each nodes selected for sumoverab process
 c
+        use Para_Info, only: nProcs
         implicit none
-#include "paralell.fh"
+#include "parallel.fh"
 c
 c        help variables
 c
@@ -630,7 +631,7 @@ c        idtot - distribution vector (O)
 c               (idtot(i) -  # of records to be realized by i-th node)
 c
         implicit none
-#include "paralell.fh"
+#include "parallel.fh"
 c
         integer n
         integer idtot(1)

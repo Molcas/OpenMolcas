@@ -23,6 +23,7 @@ c
 c     this program calculate noniterative T3 contributions
 c     to CCSD energy
 c
+      use Para_Info, only: MyRank, nProcs
 #include "t31.fh"
 #include "t32.fh"
 c
@@ -43,9 +44,7 @@ cpar
 c
 c       integer nhelp
 c
-#include "para_info.fh"
 c
-       Call qEnter('CCT3')
 cpar
 cstare Call SetTim
 cstare call MPI_COMM_RANK(MPI_COMM_WORLD,myRank,rc)
@@ -113,7 +112,7 @@ cI.*  set energies=0
       eabb=0.0d0
       ebbb=0.0d0
 c
-cI.par initialize paralell counter
+cI.par initialize parallel counter
       counter=0
 c
 c
@@ -284,7 +283,7 @@ c
 c
 c
 cnoseg do 1200 j=1,jup
-       do 1200 j=jstart,jstop
+       do 1201 j=jstart,jstop
 c
 c*    get integrals <ab|jc> for given j into R2(a,bc)
        call cct3_getint (Work(iOff),wrksize,
@@ -312,7 +311,7 @@ c
 999    format (' I,J,K ',3(i3,1x))
        end if
 c
-cpar    update paralell counter, choose proper id for this 'portion'
+cpar    update parallel counter, choose proper id for this 'portion'
 c       and skip if this portion is not for myRank
         counter=counter+1
         id=mod(counter,nProcs)
@@ -1506,11 +1505,11 @@ c
  1100   continue
 c
 cpar   Separate printing of partial energies e... are
-c      useful only in serial run. For paralell run also
+c      useful only in serial run. For parallel run also
 c      cycle over k is segmented (via paralelization),
 c      so e... are not complete contributions (only sum
 c      over all nodes have some sense). Thus, these values
-c      in paralell run are too dangerous to use separately
+c      in parallel run are too dangerous to use separately
 c      so their printout is supressed.
 c
        if (nProcs.eq.1) then
@@ -1524,6 +1523,7 @@ c
        end if
 cendpar
 c
+ 1201   continue
  1200   continue
  1300   continue
  1400   continue
@@ -1565,7 +1565,6 @@ c     Releasing the memory
       Call GetMem('CCT3','Free','Real',iOff,wrksize)
 c
 c
-      Call qExit('CCT3')
       ireturn=0
       return
       end
@@ -1597,7 +1596,7 @@ c     help variables
 c
        integer iadd,lun,isym,num
 c      integer rc1
-       integer poss,lenght,im
+       integer poss,length,im
 c
 c1    some tests
 c
@@ -1636,17 +1635,17 @@ c
        call idafile (lun,2,mapir,8*8*8,daddr(lun))
 c
        poss=possr0
-       lenght=0
+       length=0
        do im=1,mapdr(0,5)
          mapdr(im,1)=poss
          poss=poss+mapdr(im,2)
-         lenght=lenght+mapdr(im,2)
+         length=length+mapdr(im,2)
 c        write (*,99) ' MAP',(mapdr(im,k),k=1,6)
 c99       format (a3,i8,2x,i8,4(2x,i2))
        end do
 c
-       if (lenght.gt.0) then
-         call ddafile (lun,2,wrk(possr0),lenght,daddr(lun))
+       if (length.gt.0) then
+         call ddafile (lun,2,wrk(possr0),length,daddr(lun))
        end if
 c      call cct3_getmediate (wrk,wrksize,
 c    & lun,possr0,mapdr,mapir,rc1)

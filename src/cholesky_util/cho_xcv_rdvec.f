@@ -18,6 +18,9 @@ C
 C     Purpose: Read partial Cholesky vectors J1 to J2 on disk.
 C              (Parallel two-step algorithm)
 C
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: nnBstRSh
+#endif
       Implicit None
       Integer irc
       Integer l_Vec
@@ -27,17 +30,11 @@ C
       Integer myRankSP(n_myRankSP)
       Integer J1, J2, iSym
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
-      Integer n
-
-      Integer i, j, k
-      Integer nnBstRSh
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Integer i, n
 #endif
 
       irc=0
@@ -45,7 +42,7 @@ C
          Return ! nothing to do
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (n_myRankSP.lt.1 .or. n_myRankSP.gt.nnShl .or. iSym.lt.1 .or.
      &    iSym.gt.nSym .or. NVT.lt.1) Then
          irc=-1
@@ -95,6 +92,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C     Read the vector blocks.
 C
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc
       Real*8  Vec(*)
@@ -103,19 +101,13 @@ C
       Integer NVT
       Integer J1, J2, iSym
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iOpt
       Parameter (iOpt=2)
 
-      Integer kV, n
+      Integer kV, n, i
       Integer lTot, iAdr, iAdr0
       Integer iSP
-
-      Integer i, j, k
-      Integer nnBstRSh
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       irc=0
 

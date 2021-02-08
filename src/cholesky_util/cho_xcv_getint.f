@@ -22,6 +22,7 @@ C     NOTE: this will only work if nQual and iQuAB are properly set to
 C     correspond to parent diagonals. Also, mySP should be be set to a
 C     trivial array [i.e. mySP(i)=i].
 C
+      use ChoArr, only: nDim_Batch
       Implicit None
       Integer irc
       Integer l_ListCD, l_ListSP, l_NVT, l_Int
@@ -30,7 +31,6 @@ C
       Integer NVT(l_NVT)
       Real*8  xInt(l_Int)
 #include "cholesky.fh"
-#include "chosew.fh"
 
       Integer iSym, n
       Integer iSP, iCD

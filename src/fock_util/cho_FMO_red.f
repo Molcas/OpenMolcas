@@ -76,7 +76,10 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(*)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
-      Logical Debug,DensityCheck,Square,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical DensityCheck,Square,timings
       Logical REORD,DECO,ALGO
       Character*50 CFmt
       Character*11 SECNAM
@@ -90,7 +93,6 @@
       parameter (DoRead = .true.)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -101,12 +103,9 @@
 **************************************************
 
 
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
       DensityCheck=.true.
-#else
-      Debug=.false.
 #endif
       IREDC = -1  ! unknown reduced set in core
 
@@ -207,7 +206,6 @@ C ------------------
 C         ***QUIT*** bad initialization
          WRITE(6,*) 'Cho_FMO_red: bad initialization'
          rc=99
-         CALL QTrace()
          CALL Abend()
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
@@ -225,7 +223,6 @@ C         ***QUIT*** insufficient memory
          WRITE(6,*) 'NumCho= ',NumCho(jsym)
          WRITE(6,*) 'jsym= ',jsym
          rc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -297,7 +294,7 @@ C --- Reading of the vectors is done in Reduced sets
       tread(1) = tread(1) + (TCR2 - TCR1)
       tread(2) = tread(2) + (TWR2 - TWR1)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
        write(6,*) 'Total allocated :     ',kTOT,' at ',kWab
        write(6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
@@ -616,7 +613,6 @@ c     &                   Work(kLab),NBAS(ISYMD),
 c     &                   One,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipG=0
                ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)
@@ -698,7 +694,7 @@ C --- Free the memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM

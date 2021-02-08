@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine reprt2_cvb(orbs,cvb,
      >  civec,civb,civbs,civbh,citmp,
@@ -18,7 +19,8 @@
      >  dmat,occ)
       implicit real*8 (a-h,o-z)
       logical make_sstruc
-#include "ext_cvb.fh"
+c ... Files/Hamiltonian available ...
+      logical, external :: valid_cvb,ifcasci_cvb,ifhamil_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -167,11 +169,14 @@ c  CIVBS has been evaluated previously (NB. based on unnormalized CVB) :
           call applyt_cvb(civb,gjorb2)
         endif
         call ci2vbg_cvb(civb,dvbdet)
-7200    call vb2strg_cvb(dvbdet,sstruc(1,k))
+        call vb2strg_cvb(dvbdet,sstruc(1,k))
+7200    continue
         do 7220 k=1,nvb
-        do 7220 l=k+1,nvb
+        do 7221 l=k+1,nvb
         sstruc(k,l)=.5d0*(sstruc(k,l)+sstruc(l,k))
-7220    sstruc(l,k)=sstruc(k,l)
+        sstruc(l,k)=sstruc(k,l)
+7221    continue
+7220    continue
       endif
 
       if(ivbweights.gt.1)then
@@ -187,7 +192,8 @@ c  Use DVBDET for weights :
           sum=zero
           do 7300 k=1,nvb
           dvbdet(k)=cvb(k)*cvb(k)/sstruc2(k,k)
-7300      sum=sum+dvbdet(k)
+          sum=sum+dvbdet(k)
+7300      continue
           write(6,formVBWnorm)' VB spin+space (norm ',sum,') :'
           call dscal_(nvb,one/sum,dvbdet,1)
           call vecprint_cvb(dvbdet,nvb)
@@ -208,7 +214,8 @@ c  Use CVBDET for normalized structure coefficients :
           fac=one/fac
           call dscal_(nvb,fac,sstruc2(1,k),1)
           call dscal_(nvb,fac,sstruc2(k,1),nvb)
-7400      sstruc2(k,k)=one
+          sstruc2(k,k)=one
+7400      continue
 
           call mxsqrt_cvb(sstruc2,nvb,1)
 c  Use DVBDET for weights :
@@ -216,7 +223,8 @@ c  Use DVBDET for weights :
           sum=zero
           do 7500 k=1,nvb
           dvbdet(k)=dvbdet(k)*dvbdet(k)
-7500      sum=sum+dvbdet(k)
+          sum=sum+dvbdet(k)
+7500      continue
           write(6,formVBWnorm) ' VB spin+space (norm ',sum,') :'
           call dscal_(nvb,one/sum,dvbdet,1)
           call vecprint_cvb(dvbdet,nvb)
@@ -265,11 +273,14 @@ c  Weights of CASSCF vector in VB basis
           call proj_cvb(civb)
           call applyt_cvb(civb,gjorb2)
           call ci2vbg_cvb(civb,dvbdet)
-7250      call vb2strg_cvb(dvbdet,sstruc2(1,k))
+          call vb2strg_cvb(dvbdet,sstruc2(1,k))
+7250      continue
           do 7270 k=1,nvb
-          do 7270 l=k+1,nvb
+          do 7271 l=k+1,nvb
           sstruc2(k,l)=.5d0*(sstruc2(k,l)+sstruc2(l,k))
-7270      sstruc2(l,k)=sstruc2(k,l)
+          sstruc2(l,k)=sstruc2(k,l)
+7271      continue
+7270      continue
           write(6,'(/,a)')' Hamiltonian matrix between structures :'
           write(6,'(a)')  ' ---------------------------------------'
           call mxprintd_cvb(sstruc2,nvb,nvb,0)
@@ -280,7 +291,8 @@ c  Weights of CASSCF vector in VB basis
           do 7290 iroot=1,nr_print
           write(6,formroot)' Root no.',iroot,' energy=',dvbdet(iroot),
      >      ' :'
-7290      call vecprint_cvb(sstruc2(1,iroot),nvb)
+          call vecprint_cvb(sstruc2(1,iroot),nvb)
+7290      continue
         endif
       endif
 
@@ -321,7 +333,8 @@ c  Sort NOs in order of increasing occ. numbers :
         call dswap_(norb,dmat(1,iorb),1,dmat(1,norb+1-iorb),1)
         swp=occ(iorb)
         occ(iorb)=occ(norb+1-iorb)
-8000    occ(norb+1-iorb)=swp
+        occ(norb+1-iorb)=swp
+8000    continue
         write(6,'(/,a)')' Natural orbitals :'
         write(6,'(a)')' ------------------'
         call mxprint_cvb(dmat,norb,norb,0)

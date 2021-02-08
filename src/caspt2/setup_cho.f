@@ -22,7 +22,7 @@
       Integer NumCho(8)
       Integer iAorb(8),iIorb(8),iKorb(8)
       Character(len=*) mode
-      Character(4)   modecopy
+      Character(len=4) modecopy
 
 #include "chocaspt2.fh"
 #include "WrkSpc.fh"
@@ -37,7 +37,7 @@ C *********************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C *********************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IFTEST=1
 #else
       IFTEST=0
@@ -119,7 +119,7 @@ C *********************************************************************
          nAO = nAO + nAsh(iSym)
       End Do
 
-      xO = dble(nO)
+*      xO = dble(nO)
 
 * Task: set up the necessary administration of transformed Cholesky
 * vectors. Each such vector is characterized by the composite symmetry
@@ -206,10 +206,10 @@ C *********************************************************************
 C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
 
 * PAM:Why would this be 'mem for right-hand side?'
-         xRHS = dble(mRHS**2)           ! mem. for right hand side
-         xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
-         xPIQK= dble((nPmax*nKsp)**2)   ! store integrals
-         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
+*         xRHS = dble(mRHS**2)           ! mem. for right hand side
+*         xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
+*         xPIQK= dble((nPmax*nKsp)**2)   ! store integrals
+*         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
 
 * This also looks strange -- nIAc=all the inact+act orbitals no matter what.?
          nIAc =nOkrb

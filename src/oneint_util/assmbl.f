@@ -17,13 +17,6 @@
 * Object: to assemble the cartesian components of the multipole moment *
 *         matrix within the framework of the Gauss-Hermite quadrature. *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -38,7 +31,6 @@
 *
       iRout = 123
       iPrint = nPrint(iRout)
-*     Call qEnter('Assmbl ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In Assmbl:HerW',' ',HerW,1,nHer)
          Call RecPrt(' In Assmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
@@ -59,18 +51,11 @@
 *
                Do 30 iHer = 1, nHer
                   Do 10 iZCar = 1, 3*nZeta
-c vv. splitted in order to make GNU compiler on Mac more happy.
-#ifdef _DARWIN_
-                  vv1=Axyz(iZCar,iHer,ia)*Rxyz(iZCar,iHer,ir)
-                       vv2=Bxyz(iZCar,iHer,ib)*HerW(iHer)
-                  Rnxyz(iZCar,ia,ib,ir)= Rnxyz(iZCar,ia,ib,ir)+vv1*vv2
-#else
                      Rnxyz(iZCar,ia,ib,ir) = Rnxyz(iZCar,ia,ib,ir) +
      &                             Axyz(iZCar,iHer,ia)*
      &                             Rxyz(iZCar,iHer,ir)*
      &                             Bxyz(iZCar,iHer,ib)*
      &                             HerW(iHer)
-#endif
  10               Continue
  30            Continue
 *
@@ -84,6 +69,5 @@ c vv. splitted in order to make GNU compiler on Mac more happy.
  100  Continue
 *
 *     Call GetMem(' Exit Assmbl ','LIST','REAL',iDum,iDum)
-*     Call qExit('Assmbl ')
       Return
       End
