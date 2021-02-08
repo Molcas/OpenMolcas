@@ -641,12 +641,13 @@ c compatibility with the present version: of aniso_i.input file
 #include "stdalloc.fh"
       Integer                     :: njob, mxjob, mult, iss, ipar, ist
       Integer                     :: data_file_format
-      Integer                     :: i,IsFreeUnit,Lu
+      Integer                     :: i,IsFreeUnit,Lu,Lutmp
       Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
       External                    :: IsFreeUnit
       Integer, allocatable        :: szproj(:), jbnum(:), mltplt(:)
       Integer, allocatable        :: nroot(:)
       Character(len=128)          :: Filename
+      Character(len=1024)         :: molcas,fname,molcasversion
 
 
       !-------------------------------------------------------------
@@ -682,12 +683,20 @@ c compatibility with the present version: of aniso_i.input file
          End Do ! i
       End Do ! ist
 
-
-
       Call get_iScalar('MXJOB_SINGLE',mxjob)
       Call mma_allocate(nroot,mxjob,'nroot')
       nroot=0
       Call get_iArray('NSTAT_SINGLE',nroot,mxjob)
+
+
+      !-------------------------------------------------------------
+      ! Get the MOLCAS version: index table
+      CALL getenvf('MOLCAS ',molcas)
+      WRITE(fname,'(A)') trim(molcas)//'/.molcasversion'
+      CALL molcas_open(Lutmp,fname)
+      READ(Lutmp,'(A180)') molcasversion
+      CLOSE(Lutmp)
+
 
       !-------------------------------------------------------------
       ! write the data to the new aniso file
@@ -697,13 +706,19 @@ c compatibility with the present version: of aniso_i.input file
 
       Call molcas_open(Lu,FileName)
 
-      data_file_format=2020
+      data_file_format=2021
 
       fmt_key='(A)'
       fmt_real='(5ES22.14,1x)'
       fmt_int='(40(I0,1x))'
 
       WRITE(Lu,fmt_key) '# OPENMOLCAS interface to ANISO'
+      !-------------------------------------------------------------
+      ! ORIGIN of DATA file
+      WRITE(Lu,fmt_key) '$source'
+      WRITE(Lu,'(2A)')  'MOLCAS  ',trim(molcas)
+      WRITE(Lu,'(2A)')  'VERSION ',trim(molcasversion)
+      WRITE(Lu,'(A)')
       !-------------------------------------------------------------
       ! DATA FILE FORMAT VERSION:
       WRITE(Lu,fmt_key) '$format'
