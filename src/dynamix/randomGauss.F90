@@ -11,7 +11,7 @@
 
 subroutine RandomGauss(ValMean,Sigma,iseed,nflag,buffer,Val)
 
-use Constants, only: Zero, One, Two, Pi
+use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, r8
 
 implicit none

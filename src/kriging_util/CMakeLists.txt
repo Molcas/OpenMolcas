@@ -33,4 +33,4 @@ set (sources
      trans_k.F90
 )
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

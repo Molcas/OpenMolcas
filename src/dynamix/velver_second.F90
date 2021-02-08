@@ -32,8 +32,9 @@ subroutine VelVer_Second(irc)
 
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
+use Dynamix_Globals, only: dyn_etot, dyn_vel
 #endif
-use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, INSANE, dyn_etot, dyn_vel
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: kBoltzmann, auTokJ, Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp, u6

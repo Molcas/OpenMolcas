@@ -12,7 +12,7 @@
 subroutine Init_Dynamix()
 
 use Dynamix_globals, only: DT, iPrint, lH5Restart, PIN, POUT, RESTART, TEMP, THERMO, VELO
-use Constants, only: Zero, One, Ten
+use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp
 
 implicit none

@@ -25,7 +25,7 @@
 
 subroutine InpCtl_GuessOrb()
 
-use GuessOrb_Global, only: GapThr, iPrFmt, MxAtom, MxSym, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
+use GuessOrb_Global, only: GapThr, iPrFmt, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
 use Definitions, only: iwp, u6
 
 implicit none

@@ -453,7 +453,7 @@ character(len=2), intent(in) :: atom(natom)
 real(kind=wp), intent(in) :: xyz(natom*3)
 logical(kind=iwp), intent(in) :: hybrid
 integer(kind=iwp) :: i, j, filenum
-character(len=9) :: filename*9
+character(len=9) :: filename
 logical(kind=iwp) :: exists
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -502,8 +502,8 @@ implicit none
 real(kind=wp), intent(in) :: time, Epot, Ekin, Etot
 integer(kind=iwp) filenum, i, n, nEnergies
 logical(kind=iwp) :: exists, RootCheck
-character(len=12) :: filename*12
-character(len=24) :: frmt*24
+character(len=12) :: filename
+character(len=24) :: frmt
 real(kind=wp), allocatable :: Energies(:)
 integer(kind=iwp), external :: IsFreeUnit
 

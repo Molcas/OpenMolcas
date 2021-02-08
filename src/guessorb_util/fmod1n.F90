@@ -47,7 +47,7 @@ integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, ipCMO(MxSym), ipFock(MxSym), 
                      nSqrTot, i, k, Lu, iDummy(7,8), RC
 !---
 real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
-real(kind=wp), dimension(:), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
+real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
 character(len=80) :: Title
 !character(len=4) AtName(MxAtom)
 !character(len=4) Label(2,MxBasis)

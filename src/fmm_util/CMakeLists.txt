@@ -52,4 +52,4 @@ set (sources
 
 set (modfile_list "")
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

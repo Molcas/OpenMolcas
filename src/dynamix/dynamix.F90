@@ -13,9 +13,9 @@ subroutine Dynamix(iReturn)
 
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset, mh5_close_file
+use Dynamix_Globals, only: dyn_etot, dyn_etot0, dyn_fileid, dyn_nh, dyn_vel, File_H5Res, lH5Restart
 #endif
-use Dynamix_Globals, only: DT, File_H5Res, lH5Restart, PIN, POUT, THERMO, TEMP, RESTART, VELO, dyn_etot, dyn_etot0, dyn_fileid, &
-                           dyn_nh, dyn_vel
+use Dynamix_Globals, only: DT, PIN, POUT, THERMO, TEMP, RESTART, VELO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: auTokJ, auTofs, kBoltzmann, Zero, One, Three, Half
 use Definitions, only: wp, iwp, u6

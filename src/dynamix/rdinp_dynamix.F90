@@ -13,8 +13,9 @@ subroutine RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
 
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
+use Dynamix_Globals, only: dyn_dt, dyn_mass, File_H5Res, lH5Restart
 #endif
-use Dynamix_Globals, only: DT, File_H5Res, iPrint, lH5Restart, PIN, POUT, RESTART, TEMP, THERMO, VELO, dyn_dt, dyn_mass
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, RESTART, TEMP, THERMO, VELO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -22,16 +23,17 @@ implicit none
 integer(kind=iwp), intent(in) :: LuSpool, nTasks
 integer(kind=iwp), intent(inout) :: Task(nTasks)
 integer(kind=iwp), intent(out) :: mTasks
-integer(kind=iwp) :: natom, maxhop
+integer(kind=iwp) :: maxhop
 real(kind=wp) TIME
 integer(kind=iwp), parameter :: VelVer = 1, VV_First = 2, VV_Second = 3, Gromacs = 4
-#ifdef _HDF5_
-real(kind=wp), allocatable :: Mass(:)
-#endif
 logical(kind=iwp) :: lHop
 character(len=72) :: Title
 character(len=180) :: Key, Line
 character(len=180), external :: Get_Ln
+#ifdef _HDF5_
+integer(kind=iwp) :: natom
+real(kind=wp), allocatable :: Mass(:)
+#endif
 
 mTasks = 0
 
@@ -152,7 +154,7 @@ do
 #   ifdef _HDF5_
     lH5Restart = .true.
     Line = Get_Ln(LuSpool)
-    call Get_S(1,FILE_H5RES,1)
+    call Get_S(1,File_H5Res,1)
 #   else
     write(u6,*) 'The user asks to restart the dynamics calculation '
     write(u6,*) 'from a HDF5 file, but this is not supported in this'

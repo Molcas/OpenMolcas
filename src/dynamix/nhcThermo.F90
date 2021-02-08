@@ -28,8 +28,9 @@ subroutine NhcThermo(vel)
 
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
+use Dynamix_Globals, only: dyn_nh
 #endif
-use Dynamix_Globals, only: DT, TEMP, dyn_nh
+use Dynamix_Globals, only: DT, TEMP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: kBoltzmann, auTokJ, Zero, Two, Three, Half, Quart
 use Definitions, only: wp, iwp

@@ -15,7 +15,7 @@ subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
 use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, full_R, full_RInv, gpred, hpred, Kv, l, lb, ll, m_t, mblAI, nD, &
                        nInter, nInter_Eff, nPoints, PGEK_On, rl, Rones, sbmev, x0, y, Prep_Kriging
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

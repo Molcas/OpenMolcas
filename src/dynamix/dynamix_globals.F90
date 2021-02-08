@@ -36,14 +36,15 @@ private
 integer(kind=iwp) :: THERMO, VELO, POUT, PIN, iPrint
 real(kind=wp) :: DT, RESTART, TEMP
 logical(kind=iwp) :: lH5Restart
-character(len=180) :: File_H5Res
-
-integer(kind=iwp) :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom
-
 integer(kind=iwp), parameter :: SILENT = 0, TERSE = 1, USUAL = 2, VERBOSE = 3, DEBUG = 4, INSANE = 5
 
-public :: DT, File_H5Res, iPrint, lH5Restart, PIN, POUT, THERMO, TEMP, RESTART, VELO
+public :: DT, lH5Restart, iPrint, PIN, POUT, THERMO, TEMP, RESTART, VELO
 public :: SILENT, TERSE, USUAL, VERBOSE, DEBUG, INSANE
-public :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom
+
+#ifdef _HDF5_
+integer(kind=iwp) :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom
+character(len=180) :: File_H5Res
+public :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom, File_H5Res
+#endif
 
 end module Dynamix_Globals

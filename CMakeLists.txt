@@ -2561,7 +2561,6 @@ if (HDF5 AND HDF5_FOUND)
   foreach (prog
     caspt2
     dynamix
-    guessorb
     mcpdft
     nevpt2
     poly_aniso
@@ -2601,7 +2600,6 @@ set (last_energy_deplibs
   chcc
   cht3
   false
-  guessorb
   mbpt2
   mcpdft
   motra
@@ -2624,16 +2622,12 @@ set (numerical_gradient_deplibs
   chcc
   cht3
   false
-  guessorb
   mbpt2
   mcpdft
   motra
   rasscf
   scf
   seward
-)
-set (seward_deplibs
-  guessorb
 )
 
 if (BLOCK OR DMRG)

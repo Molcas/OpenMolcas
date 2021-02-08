@@ -100,9 +100,9 @@ subroutine fmm_skip_T_buffer(T_contractor,T_pair)
 
   implicit none
   type(T_pair_single), intent(in) :: T_pair
-  external                        ::  T_contractor
+  external                        :: T_contractor
 
-  unused_var(T_contractor)
+  unused_proc(T_contractor)
   unused_var(T_pair)
 
   stat_T_mat_builds = stat_T_mat_builds+1
