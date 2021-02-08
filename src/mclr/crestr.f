@@ -76,7 +76,7 @@ C     DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
 *
       IOFF=0     ! dummy initialize
       IPLACE=-1  ! dummy initialize
-      DO 1000 ISTRIN = 1,NSTINI
+      DO ISTRIN = 1,NSTINI
 *. Offset for current creations from this string
        IF(ISTRIN.EQ.1) THEN
          IOFF = 1
@@ -88,64 +88,67 @@ C     DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
          END IF
        END IF
        LCR = 0
-        DO 100 IORB = 1, NORB
+        DO IORB = 1, NORB
+
            IF(NEL.EQ.0) THEN
              IPLACE = 1
-             GOTO 11
+             EXIT
+
            ELSE IF ( NEL .NE. 0 ) THEN
-            DO 10 IEL = 1, NEL
+
+            DO IEL = 1, NEL
               IF(IEL.EQ.1.AND.STRING(1,ISTRIN).GT.IORB) THEN
                 IPLACE = 1
-                GOTO 11
+                EXIT
               ELSE IF( (IEL.EQ.NEL.AND.IORB.GT.STRING(IEL,ISTRIN)) .OR.
      &                 (IEL.LT.NEL.AND.IORB.GT.STRING(IEL,ISTRIN).AND.
-     &                  IORB.LT.STRING(IEL+1,ISTRIN)) ) THEN
+     &                  IORB.LT.STRING(MIN(NEL,IEL+1),ISTRIN)) ) THEN
                 IPLACE = IEL+1
-                GOTO 11
+                EXIT
               ELSE IF(STRING(IEL,ISTRIN).EQ.IORB) THEN
                 IPLACE = 0
-                GOTO 11
+                EXIT
               END IF
-   10       CONTINUE
+            END DO
+
            END IF
-   11     CONTINUE
-*
-          IF(IPLACE.NE.0) THEN
+
+          IF(IPLACE.EQ.0) CYCLE
+
 *. Generate next string
-            DO 30 I = 1, IPLACE-1
+          DO  I = 1, IPLACE-1
             STRIN2(I) = STRING(I,ISTRIN)
-   30       CONTINUE
-            STRIN2(IPLACE) = IORB
-            DO 40 I = IPLACE,NEL
-            STRIN2(I+1) = STRING(I,ISTRIN)
-   40       CONTINUE
+          END DO
+          STRIN2(IPLACE) = IORB
+          DO I = IPLACE,NEL
+             STRIN2(I+1) = STRING(I,ISTRIN)
+          END DO
 *. Is new string allowed ?
-            ITYPE = IOCTP2_MCLR(STRIN2,NEL+1,I1TYP)
-            IF(ITYPE.NE.0) THEN
-              JSTRIN = ISTRNM(STRIN2,NORB,NEL+1,Z,NEWORD,1)
+          ITYPE = IOCTP2_MCLR(STRIN2,NEL+1,I1TYP)
+          IF(ITYPE.NE.0) THEN
+            JSTRIN = ISTRNM(STRIN2,NORB,NEL+1,Z,NEWORD,1)
 *. Save it !
-              IF(LROW.GT.0) THEN
-                LCR = IORB
-              ELSE
-                LCR = LCR + 1
-              END IF
-
-              TTO(IOFF-1+LCR ) = JSTRIN
-              IIISGN = (-1)**(IPLACE-1)
-              IF(LSGSTR.NE.0)
-     &        IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-              IF(IIISGN .EQ. -1 ) TTO(IOFF-1+LCR ) = - TTO(IOFF-1+LCR )
-              TI(IOFF-1+LCR ) = IORB
-
-C             TTO(IORB,ISTRIN) = JSTRIN
-C             IIISGN = (-1)**(IPLACE-1)
-C             IF(LSGSTR.NE.0)
-C    &        IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-C             IF(IIISGN .EQ. -1 ) TTO(IORB,ISTRIN) = - TTO(IORB,ISTRIN)
-C             TI(IORB,ISTRIN) = IORB
+            IF(LROW.GT.0) THEN
+              LCR = IORB
+            ELSE
+              LCR = LCR + 1
             END IF
+
+            TTO(IOFF-1+LCR ) = JSTRIN
+            IIISGN = (-1)**(IPLACE-1)
+            IF(LSGSTR.NE.0)
+     &      IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+            IF(IIISGN .EQ. -1 ) TTO(IOFF-1+LCR ) = - TTO(IOFF-1+LCR )
+            TI(IOFF-1+LCR ) = IORB
+
+C           TTO(IORB,ISTRIN) = JSTRIN
+C           IIISGN = (-1)**(IPLACE-1)
+C           IF(LSGSTR.NE.0)
+C    &      IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+C           IF(IIISGN .EQ. -1 ) TTO(IORB,ISTRIN) = - TTO(IORB,ISTRIN)
+C           TI(IORB,ISTRIN) = IORB
           END IF
-  100   CONTINUE
+        END DO
 *
         IF(LROW.LT.0) THEN
           ISTMPO(ISTRIN) = IOFF
@@ -153,7 +156,7 @@ C             TI(IORB,ISTRIN) = IORB
 C          write(6,*) ' ISTRIN ISTMPO ISTMPL '
 C          write(6,*) ISTRIN, ISTMPO(ISTRIN), ISTMPL(ISTRIN)
         END IF
- 1000 CONTINUE
+      END DO
 *
       IF ( NTEST .GE. 20) THEN
         MAXPR = 60
