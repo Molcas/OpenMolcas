@@ -42,6 +42,7 @@ c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD
       encut_rate=0.0_wp
       nTempMagn=0
       Input=5
+      input_file_name='aniso.input'
 
 c     KeyREST=.false.
 c     KeyTEXP=.false.
