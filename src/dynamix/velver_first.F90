@@ -28,42 +28,37 @@ subroutine VelVer_First(irc)
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 #endif
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, USUAL, INSANE, dyn_geom, dyn_time, dyn_vel
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Angstrom, Zero, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "prgm.fh"
+implicit none
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp) :: natom, natom2, i, j, filenum
+real(kind=wp) :: DT_2, DTSQ2, Ekin, time, totimpl, RMS
+character(len=15) :: caption
+character(len=80) :: lastline, filename
+logical(kind=iwp) :: hybrid, qmmm
+real(kind=wp), allocatable :: Coord(:), vel(:), xyz(:), force(:), Mass(:), tstxyz(:), force2(:), xyz2(:)
+character(len=2), allocatable :: atom(:), atom2(:)
+integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.fh"
-#include "Molcas.fh"
-parameter(ROUTINE='VV_First')
-#include "MD.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "dyn.fh"
-#include "constants2.fh"
-external IsFreeUnit
-integer natom, i, j, irc, file, IsFreeUnit, ipCoord
-real*8 DT_2, DTSQ2, Ekin, time, totimpl, RMS
-character caption*15, lastline*80, filname*80
-logical hybrid, qmmm
-integer natom2
-real*8, allocatable :: vel(:), xyz(:), force(:)
-real*8, allocatable :: Mass(:), tstxyz(:)
-character, allocatable :: atom(:)*2, atom2(:)*2
-real*8, allocatable :: force2(:), xyz2(:)
 
-if (IPRINT == INSANE) write(6,*) ' Entering ',ROUTINE
+if (IPRINT == INSANE) write(u6,*) ' Entering VelVer_First'
 
-write(6,*) '*** First step of the Velocity Verlet algorithm ***'
+write(u6,*) '*** First step of the Velocity Verlet algorithm ***'
 
 ! Check for QM/MM calculation
 
-filname = 'comqum.dat'
-call F_INQUIRE(filname,hybrid)
+filename = 'comqum.dat'
+call F_INQUIRE(filename,hybrid)
 hybrid = .false.
 
 ! Read atom, their coordinates and forces
 
 if (hybrid) then
-  write(6,'(/,5X,A)') 'Perform QM/MM Molecular Dynamics'
+  write(u6,'(/,5X,A)') 'Perform QM/MM Molecular Dynamics'
   call DxRdNAtomHbrd(natom)
 else
   call DxRdNAtomStnd(natom)
@@ -117,12 +112,12 @@ call DxPtTableCo(caption,time,natom2,atom2,xyz2,lastline,Mass,force)
 
 !Definition of the time step
 
-DT_2 = DT/2.0d0
+DT_2 = DT/Two
 DTSQ2 = DT*DT_2
 
-Ekin = 0.0d0
-RMS = 0.0d0
-totimpl = 0.0d0
+Ekin = Zero
+RMS = Zero
+totimpl = Zero
 
 do i=1,natom
   do j=1,3
@@ -133,7 +128,7 @@ do i=1,natom
     !**********************************************************
     RMS = RMS+(tstxyz(3*(i-1)+j)-xyz(3*(i-1)+j))**2
     !**********************************************************
-    Ekin = Ekin+5.0D-01*Mass(i)*(vel(3*(i-1)+j)**2)
+    Ekin = Ekin+Half*Mass(i)*(vel(3*(i-1)+j)**2)
     vel(3*(i-1)+j) = vel(3*(i-1)+j)+DT_2*force(3*(i-1)+j)/Mass(i)
     totimpl = totimpl+vel(3*(i-1)+j)*Mass(i)
   end do
@@ -151,26 +146,26 @@ call Add_Info('EKin',[EKin],1,6)
 RMS = sqrt(RMS/natom)
 
 ! Update the Link-Atom position
-! (Temporary solution uses ipCoord instead of xyz)
+! (Temporary solution uses Coord instead of xyz)
 
 qmmm = .false.
 call DecideOnESPF(qmmm)
 if (qmmm) then
-  call GetMem('Coordinates','ALLO','REAL',ipCoord,3*natom)
-  call dcopy_(3*natom,xyz,1,Work(ipCoord),1)
-  call LA_Morok(natom,Work(ipCoord),2)
-  call dcopy_(3*natom,Work(ipCoord),1,xyz,1)
-  call Free_Work(ipCoord)
+  call mma_allocate(Coord,3*natom,'Coordinates')
+  call dcopy_(3*natom,xyz,1,Coord,1)
+  call LA_Morok(natom,Coord,2)
+  call dcopy_(3*natom,Coord,1,xyz,1)
+  call mma_deallocate(Coord)
 end if
 
 ! Output
 
 if (iPrint >= USUAL) then
-  write(6,400) 'Molecular Dynamics specifications (time = ',time,' a.u.)'
-  write(6,'(5X,A,/)') '=========================================='
-  write(6,402) 'Kinetic energy',Ekin,'a.u.'
-  write(6,405) 'Total linear momentum ',totimpl,'a.u.'
-  write(6,402) 'RMS deviation ',RMS,'Bohr'
+  write(u6,400) 'Molecular Dynamics specifications (time = ',time,' a.u.)'
+  write(u6,'(5X,A,/)') '=========================================='
+  write(u6,402) 'Kinetic energy',Ekin,'a.u.'
+  write(u6,405) 'Total linear momentum ',totimpl,'a.u.'
+  write(u6,402) 'RMS deviation ',RMS,'Bohr'
 end if
 
 time = time+DT
@@ -191,23 +186,23 @@ call DxPtTableCo(caption,time,natom,atom,xyz,lastline,Mass,force)
 ! Write coordinates to output file
 
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' Dynamix calls 2 DxCoord.'
+!write(u6,*) ' Dynamix calls 2 DxCoord.'
 !#endif
 call DxCoord(natom,atom,xyz,hybrid)
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' Dynamix back from 2 DxCoord.'
+!write(u6,*) ' Dynamix back from 2 DxCoord.'
 !#endif
 
 ! Save the new coordinates
 
 if (hybrid) then
   call dscal_(natom*3,Angstrom,xyz,1)
-  file = IsFreeUnit(81)
-  filname = 'prmcrd2'
-  call Molcas_Open(file,filname)
-  write(file,403) natom
-  write(file,404) (xyz(i),i=1,natom*3)
-  close(file)
+  filenum = IsFreeUnit(81)
+  filename = 'prmcrd2'
+  call Molcas_Open(filenum,filename)
+  write(filenum,403) natom
+  write(filenum,404) (xyz(i),i=1,natom*3)
+  close(filenum)
 else
   call Put_Coord_Full(xyz,natom)
 # ifdef _HDF5_

@@ -23,24 +23,20 @@
 
 subroutine project_in_for(force,natom)
 
-implicit real*8(a-h,o-z)
-#include "prgm.fh"
-#include "warnings.fh"
-#include "Molcas.fh"
-parameter(ROUTINE='VV_Second')
-#include "MD.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "dyn.fh"
-#include "constants2.fh"
-integer :: i, j, p
-integer :: natom
-real*8, allocatable :: Mass(:)
-real*8, dimension(natom*3), intent(inout) :: force
-real*8, dimension(natom*3) :: force_m, newforce_m
-real*8, allocatable :: pcoo(:,:), pcoo_m(:,:)
-real*8 :: pforce
+use Dynamix_Globals, only: PIN
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(inout) :: force(natom*3)
+integer(kind=iwp) :: i, j, p
+real(kind=wp) :: pforce
+real(kind=wp), allocatable :: Mass(:), pcoo(:,:), pcoo_m(:,:), force_m(:), newforce_m(:)
+
+call mma_allocate(force_m,natom*3)
+call mma_allocate(newforce_m,natom*3)
 call mma_allocate(pcoo,PIN,natom*3)
 call mma_allocate(pcoo_m,PIN,natom*3)
 call mma_allocate(Mass,natom)
@@ -48,7 +44,7 @@ call mma_allocate(Mass,natom)
 call Get_dArray('Keep_Coord',pcoo,PIN*natom*3)
 call GetMassDx(Mass,natom)
 
-newforce_m = 0.0d0
+newforce_m(:) = Zero
 ! Mass-weight the force vector
 do i=1,natom
   do j=1,3
@@ -67,7 +63,7 @@ do p=1,PIN
   pcoo_m(p,:) = pcoo_m(p,:)/sqrt(dot_product(pcoo_m(p,:),pcoo_m(p,:)))
   ! Calculate the projection to keep in
   pforce = dot_product(pcoo_m(p,:),force_m)
-  newforce_m = newforce_m+pforce*pcoo_m(p,:)
+  newforce_m(:) = newforce_m(:)+pforce*pcoo_m(p,:)
 end do
 
 ! Un-Mass-weight the force vector
@@ -77,6 +73,8 @@ do i=1,natom
   end do
 end do
 
+call mma_deallocate(force_m)
+call mma_deallocate(newforce_m)
 call mma_deallocate(pcoo)
 call mma_deallocate(pcoo_m)
 call mma_deallocate(Mass)

@@ -29,23 +29,18 @@ subroutine NhcThermo(vel)
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 #endif
+use Dynamix_Globals, only: DT, TEMP, dyn_nh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: kBoltzmann, auTokJ, Zero, Two, Three, Half, Quart
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "prgm.fh"
-#include "Molcas.fh"
-parameter(ROUTINE='NhcThermo')
-#include "warnings.fh"
-#include "MD.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "dyn.fh"
-#include "constants2.fh"
-parameter(nh=6)
-integer natom, i, j
-real*8 Ekin, kb
-parameter(kb=CONST_BOLTZMANN_/(CONV_AU_TO_KJ_*1.0d3))
-real*8 NHC(nh), vel(*)
-real*8, allocatable :: Mass(:)
+implicit none
+real(kind=wp), intent(inout) :: vel(*)
+integer(kind=iwp), parameter :: nh = 6
+integer(kind=iwp) :: i, j, natom
+real(kind=iwp) :: Ekin, DT2, DT4, DT8, G1, G2, NHC(nh), Q1, Q2, sc, Vx1, Vx2, X1, X2
+real(kind=wp), allocatable :: Mass(:)
+real(kind=iwp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 
 !nh stands for the number of variables in the thermostat
 ! NHC = Q1,Q2,X1,X2,VX1,VX2,Scale
@@ -71,22 +66,22 @@ Vx2 = NHC(6)
 ! Initialize the Mass variable
 call GetMassDx(Mass,natom)
 
-Ekin = 0.0d0
+Ekin = Zero
 
 do i=1,natom
   do j=1,3
-    Ekin = Ekin+5.0D-01*Mass(i)*(vel(3*(i-1)+j)**2.d0)
+    Ekin = Ekin+Half*Mass(i)*(vel(3*(i-1)+j)**2)
   end do
 end do
 
-DT2 = DT*0.5d0
-DT4 = DT*2.5D-1
-DT8 = DT*1.25D-1
+DT2 = DT*Half
+DT4 = DT*Quart
+DT8 = DT*0.125_wp
 
 G2 = (Q1*Vx1*Vx1-TEMP*kb)/Q2
 Vx2 = Vx2+G2*DT4
 Vx1 = Vx1*exp(-Vx2*DT8)
-G1 = (2.d0*Ekin-3.d0*dble(natom)*TEMP*kb)/Q1
+G1 = (Two*Ekin-Three*natom*TEMP*kb)/Q1
 Vx1 = Vx1+G1*DT4
 Vx1 = Vx1*exp(-Vx2*DT8)
 sc = exp(-Vx1*DT2)
@@ -102,10 +97,10 @@ Ekin = Ekin*sc*sc
 X1 = X1+Vx1*DT2
 X2 = X2+Vx2*DT2
 Vx1 = Vx1*exp(-Vx2*DT8)
-G1 = (2.d0*Ekin-3.d0*dble(natom)*TEMP*kb)/Q1
+G1 = (Two*Ekin-Three*natom*TEMP*kb)/Q1
 Vx1 = Vx1+G1*DT4
 Vx1 = Vx1*exp(-Vx2*DT8)
-G2 = (Q1*(Vx1**2.d0)-TEMP*kb)/Q2
+G2 = (Q1*(Vx1**2)-TEMP*kb)/Q2
 Vx2 = Vx2+G2*DT4
 
 NHC(3) = X1

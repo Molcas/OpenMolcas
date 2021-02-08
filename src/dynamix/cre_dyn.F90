@@ -16,16 +16,17 @@ subroutine cre_dyn()
 #ifdef _HDF5_
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_init_dset, mh5_create_dset_real, mh5_create_dset_str, mh5_create_dset_int, &
                mh5_put_dset, mh5_fetch_attr, mh5_put_dset_array_real, mh5_close_file, mh5_open_file_r, mh5_exists_attr
+use Dynamix_Globals, only: dyn_dt, dyn_etot, dyn_etot0, dyn_fileid, dyn_geom, dyn_mass, dyn_nh, dyn_time, dyn_vel
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp) :: natoms, nh, nsym, nstates, nconfs, dyn_dsetid, surf_dsetid, wfn_fileid, ii
+real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:)
 #include "Molcas.fh"
-#include "dyn.fh"
-#include "stdalloc.fh"
-integer :: natoms, nh, nsym, nstates, nconfs, dyn_dsetid, surf_dsetid, wfn_fileid, ii
-real*8, allocatable :: coord(:,:), ener(:), ciarray(:)
-character(len=LENIN), allocatable :: atomlbl(:)
-logical :: found
-complex*16, allocatable :: amatrix(:)
+character(len=LenIn), allocatable :: atomlbl(:)
+logical(kind=iwp) :: found
+complex(kind=wp), allocatable :: amatrix(:)
 
 ! Create a new dynamix file!
 dyn_fileid = mh5_create_file('DYN')
@@ -67,9 +68,9 @@ dyn_dsetid = mh5_create_dset_str(dyn_fileid,'CENTER_LABELS',1,[natoms],LENIN)
 call mh5_init_attr(dyn_dsetid,'DESCRIPTION','Center labels arranged as a [NATOMS] block')
 call mma_allocate(atomlbl,natoms)
 if (nsym > 1) then
-  call get_cArray('LP_L',atomlbl,LENIN4*natoms)
+  call get_cArray('LP_L',atomlbl,LenIn4*natoms)
 else
-  call Get_cArray('Unique Atom Names',atomlbl,LENIN*natoms)
+  call Get_cArray('Unique Atom Names',atomlbl,LenIn*natoms)
 end if
 call mh5_put_dset(dyn_dsetid,atomlbl)
 call mma_deallocate(atomlbl)

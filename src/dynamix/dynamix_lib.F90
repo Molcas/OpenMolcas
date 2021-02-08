@@ -34,8 +34,10 @@
 
 subroutine DxRdNAtomStnd(natom)
 
+use Definitions, only: iwp
+
 implicit none
-integer natom
+integer(kind=iwp), intent(out) :: natom
 
 call Get_nAtoms_Full(natom)
 
@@ -48,17 +50,19 @@ end subroutine DxRdNAtomStnd
 
 subroutine DxRdNAtomHbrd(natom)
 
-implicit none
-external IsFreeUnit
-integer natom, file, IsFreeUnit
-character filname*80
+use Definitions, only: iwp
 
-file = 81
-file = IsFreeUnit(file)
-filname = 'fixforce.dmx'
-call Molcas_Open(file,filname)
-read(file,100) natom
-close(file)
+implicit none
+integer(kind=iwp), intent(out) :: natom
+integer(kind=iwp) :: filenum
+integer(kind=iwp), external :: IsFreeUnit
+character(len=80) :: filename
+
+filenum = IsFreeUnit(81)
+filename = 'fixforce.dmx'
+call Molcas_Open(filenum,filename)
+read(filenum,100) natom
+close(filenum)
 
 return
 
@@ -75,13 +79,14 @@ end subroutine DxRdNAtomHbrd
 
 subroutine DxRdStnd(natom,atom,xyz,force)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "Molcas.fh"
-#include "WrkSpc.fh"
-integer natom
-real*8 xyz(natom*3), force(natom*3), conv
-character atom(natom)*2
-parameter(conv=-1.0d0)
+integer(kind=iwp), intent(in) :: natom
+character(len=2), intent(out) :: atom(natom)
+real(kind=wp), intent(out) :: xyz(natom*3), force(natom*3)
+real(kind=wp), parameter :: conv = -One
 
 ! The parameter conv converts the gradients (Hartree/Bohr)
 !                              to forces (Hartree/Bohr)
@@ -103,30 +108,31 @@ end subroutine DxRdStnd
 
 subroutine DxRdHbrd(natom,atom,xyz,force)
 
+use Constants, only: Angstrom, auTokJ, rNAVO, One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "Molcas.fh"
-#include "constants2.fh"
-external IsFreeUnit
-integer i, j, natom, natom2, file, IsFreeUnit
-real*8 xyz(natom*3), force(natom*3), conv, a2bohr
-character filname*80, atom(natom)*2
-parameter(a2bohr=1.0d0/Angstrom)
-parameter(conv=Angstrom/CONV_AU_TO_KJ_PER_MOLE_)
+integer(kind=iwp), intent(in) :: natom
+character(len=2), intent(out) :: atom(natom)
+real(kind=wp), intent(out) :: xyz(natom*3), force(natom*3)
+integer(kind=iwp) :: filenum, i, j, natom2
+character(len=80) :: filename
+real(kind=wp), parameter :: a2bohr = One/Angstrom, conv = Angstrom/(rNAVO*auTokJ)
+integer(kind=iwp), external :: IsFreeUnit
 
 ! The parameter conv converts the forces from Hartree/Bohr
-!                    to kJ/mole/Agstrom   => 1/4961.475514610d0
+!                    to kJ/mole/Angstrom  => 1/4961.47525891
 !             a2bohr converts the coordinates from Angstrom
-!                    to Bohr              => 1/0.52917720859
+!                    to Bohr              => 1/0.52917721090
 
-file = 81
-file = IsFreeUnit(file)
-filname = 'fixforce.dmx'
-call Molcas_Open(file,filname)
-read(file,*)
+filenum = IsFreeUnit(81)
+filename = 'fixforce.dmx'
+call Molcas_Open(filenum,filename)
+read(filenum,*)
 do i=1,natom
-  read(file,101) (force((i-1)*3+j),j=1,3),atom(i)
+  read(filenum,101) (force((i-1)*3+j),j=1,3),atom(i)
 end do
-close(file)
+close(filenum)
 
 ! Convert forces from kJ/mole/Angstrom to Hartree/Bohr
 
@@ -135,13 +141,13 @@ call dscal_(3*natom,conv,force,1)
 ! Read coordinates from fiel 'prmcrd2' and check for consistency
 ! with forces.
 
-file = IsFreeUnit(file)
-filname = 'prmcrd2'
-call Molcas_Open(file,filname)
-read(file,'(/,I6)') natom2
-if (natom2 /= natom) stop 'Inconsistency between coordinates'
-read(file,102) (xyz(i),i=1,natom*3)
-close(file)
+filenum = IsFreeUnit(filenum)
+filename = 'prmcrd2'
+call Molcas_Open(filenum,filename)
+read(filenum,'(/,I6)') natom2
+if (natom2 /= natom) call WarningMessage(2,'Inconsistency between coordinates')
+read(filenum,102) (xyz(i),i=1,natom*3)
+close(filenum)
 
 ! Convert coordinates from Angstrom to Bohr
 
@@ -149,7 +155,7 @@ call dscal_(3*natom,a2bohr,xyz,1)
 
 return
 
-101 format(3e21.14,a)
+101 format(3es21.14,a)
 102 format(6f12.7)
 
 end subroutine DxRdHbrd
@@ -160,31 +166,35 @@ end subroutine DxRdHbrd
 
 subroutine DxPtTableCo(caption,time,natom,atom,xyz,lastline,M,fo)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "Molcas.fh"
-integer i, j, natom, k
-character caption*15, lastline*80, atom(natom)*2
-real*8 time, xyz(natom*3), M(natom), fo(natom*3)
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(in) :: time, xyz(natom*3), M(natom), fo(natom*3)
+character(len=15), intent(in) :: caption
+character(len=2), intent(in) :: atom(natom)
+character(len=80), intent(in) :: lastline
+integer(kind=iwp) :: i, j, k
 
-do i=1,3
-  write(6,*)
-end do
+write(u6,*)
+write(u6,*)
+write(u6,*)
 
-write(6,100) caption,' (time = ',time,' a.u.):'
-write(6,102) '----------------------------------------------------------------------------------------------'
-write(6,102) '      No. Atom    X          Y          Z        Mass       F(x)         F(y)         F(z)'
-write(6,102) '----------------------------------------------------------------------------------------------'
+write(u6,100) caption,' (time = ',time,' a.u.):'
+write(u6,102) '----------------------------------------------------------------------------------------------'
+write(u6,102) '      No. Atom    X          Y          Z        Mass       F(x)         F(y)         F(z)'
+write(u6,102) '----------------------------------------------------------------------------------------------'
 
 do i=1,natom
-  write(6,101) i,atom(i),(xyz(3*(i-1)+j),j=1,3),M(i),(fo(3*(i-1)+k),k=1,3)
+  write(u6,101) i,atom(i),(xyz(3*(i-1)+j),j=1,3),M(i),(fo(3*(i-1)+k),k=1,3)
 end do
 
-write(6,102) '----------------------------------------------------------------------------------------------'
-write(6,102) trim(lastline)
+write(u6,102) '----------------------------------------------------------------------------------------------'
+write(u6,102) trim(lastline)
 
-do i=1,3
-  write(6,*)
-end do
+write(u6,*)
+write(u6,*)
+write(u6,*)
 
 return
 
@@ -200,30 +210,33 @@ end subroutine DxPtTableCo
 !
 subroutine DxPtTableWithoutMassForce(caption,time,natom,atom,xyz)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "Molcas.fh"
-integer i, j, natom
-character caption*15, atom(natom)*2
-real*8 time, xyz(natom*3)
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(in) :: time, xyz(natom*3)
+character(len=15), intent(in) :: caption
+character(len=2), intent(in) :: atom(natom)
+integer(kind=iwp) :: i, j
 
-do i=1,3
-  write(6,*) ' '
-end do
+write(u6,*)
+write(u6,*)
+write(u6,*)
 
-write(6,102) caption,' (time = ',time,' a.u.):'
-write(6,*) '----------------------------------------------'
-write(6,*) '     No.  Atom    X          Y          Z     '
-write(6,*) '----------------------------------------------'
+write(u6,102) caption,' (time = ',time,' a.u.):'
+write(u6,*) '----------------------------------------------'
+write(u6,*) '     No.  Atom    X          Y          Z     '
+write(u6,*) '----------------------------------------------'
 
 do i=1,natom
-  write(6,103) '      ',i,atom(i),(xyz(3*(i-1)+j),j=1,3)
+  write(u6,103) '      ',i,atom(i),(xyz(3*(i-1)+j),j=1,3)
 end do
 
-write(6,*) '----------------------------------------------'
+write(u6,*) '----------------------------------------------'
 
-do i=1,3
-  write(6,*) ' '
-end do
+write(u6,*)
+write(u6,*)
+write(u6,*)
 
 return
 
@@ -238,31 +251,35 @@ end subroutine DxPtTableWithoutMassForce
 !
 subroutine DxRdOut(pcoo,POUT,natom)
 
-implicit none
-#include "stdalloc.fh"
-#include "real.fh"
-external IsFreeUnit
-integer i, j, p, file, natom, POUT, IsFreeUnit, mn
-real*8 pcoo(POUT,natom*3)
-character*80 filname
-character*180 OutLine, Get_Ln
-real*8, allocatable :: UMat(:,:), VMat(:,:), S(:), SqrtM(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-file = 81
-file = IsFreeUnit(file)
-do P=1,POUT
-  write(filname,'(A,I3.3,A)') 'out.',p,'.xyz'
-  call Molcas_Open(file,filname)
+implicit none
+integer(kind=iwp), intent(in) :: POUT, natom
+real(kind=wp), intent(out) :: pcoo(POUT,natom*3)
+integer(kind=iwp) :: i, j, p, filenum, mn
+character(len=80) :: filename
+character(len=180) :: OutLine
+real(kind=wp), allocatable :: UMat(:,:), VMat(:,:), S(:), SqrtM(:)
+integer(kind=iwp), external :: IsFreeUnit
+character(len=180), external :: Get_Ln
+
+filenum = 81
+do p=1,POUT
+  pcoo(p,:) = Zero
+  write(filename,'(A,I3.3,A)') 'out.',p,'.xyz'
+  filenum = IsFreeUnit(filenum)
+  call Molcas_Open(filenum,filename)
   do i=1,natom
-    OutLine = Get_Ln(file)
+    OutLine = Get_Ln(filenum)
     call UpCase(OutLine)
     do j=1,3
-      pcoo(p,3*(i-1)+j) = 0.0d0
       call Get_F(j,pcoo(p,3*(i-1)+j),1)
     end do
   end do
+  close(filenum)
 end do
-close(file)
 
 ! Orthonormalize the vectors in mass-weighted coordinates
 
@@ -298,31 +315,35 @@ end subroutine DxRdOut
 !
 subroutine DxRdIn(pcoo,PIN,natom)
 
-implicit none
-#include "stdalloc.fh"
-#include "real.fh"
-external IsFreeUnit
-integer i, j, p, file, natom, PIN, IsFreeUnit, mn
-real*8 pcoo(PIN,natom*3)
-character*80 filname
-character*180 OutLine, Get_Ln
-real*8, allocatable :: UMat(:,:), VMat(:,:), S(:), SqrtM(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-file = 81
-file = IsFreeUnit(file)
-do P=1,PIN
-  write(filname,'(A,I3.3,A)') 'in.',p,'.xyz'
-  call Molcas_Open(file,filname)
+implicit none
+integer(kind=iwp), intent(in) :: PIN, natom
+real(kind=wp), intent(out) :: pcoo(PIN,natom*3)
+integer(kind=iwp) :: i, j, p, filenum, mn
+character(len=80) :: filename
+character(len=180) :: InLine
+real(kind=wp), allocatable :: UMat(:,:), VMat(:,:), S(:), SqrtM(:)
+integer(kind=iwp), external :: IsFreeUnit
+character(len=180), external :: Get_Ln
+
+filenum = 81
+do p=1,PIN
+  pcoo(p,:) = Zero
+  write(filename,'(A,I3.3,A)') 'in.',p,'.xyz'
+  filenum = IsFreeUnit(filenum)
+  call Molcas_Open(filenum,filename)
   do i=1,natom
-    OutLine = Get_Ln(file)
-    call UpCase(OutLine)
+    InLine = Get_Ln(filenum)
+    call UpCase(InLine)
     do j=1,3
-      pcoo(p,3*(i-1)+j) = 0.0d0
       call Get_F(j,pcoo(p,3*(i-1)+j),1)
     end do
   end do
+  close(filenum)
 end do
-close(file)
 
 ! Orthonormalize the vectors in mass-weighted coordinates
 
@@ -358,32 +379,35 @@ end subroutine DxRdIn
 !
 subroutine DxRdVel(vel,natom)
 
-implicit none
-#include "Molcas.fh"
-external IsFreeUnit
-integer i, j, file, natom, IsFreeUnit
-real*8 vel(natom*3)
-character*80 filname
-character*180 VelLine, Get_Ln
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-file = 81
-file = IsFreeUnit(file)
-filname = 'velocity.xyz'
-call Molcas_Open(file,filname)
+implicit none
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(out) :: vel(natom*3)
+integer(kind=iwp) :: i, j, filenum
+character(len=80) :: filename
+character(len=180) :: VelLine
+integer(kind=iwp), external :: IsFreeUnit
+character(len=180), external :: Get_Ln
+
+filenum = IsFreeUnit(81)
+filename = 'velocity.xyz'
+call Molcas_Open(filenum,filename)
+vel(:) = Zero
 do i=1,natom
-  VelLine = Get_Ln(file)
+  VelLine = Get_Ln(filenum)
   call UpCase(VelLine)
   do j=1,3
-    vel(3*(i-1)+j) = 0.0d0
     call Get_F(j,vel(3*(i-1)+j),1)
   end do
 end do
-!read(file,100) (vel(i),i=1,3*natom3)
-close(file)
+!read(filenum,100) (vel(i),i=1,3*natom3)
+close(filenum)
 
 return
 
-!100 format(3e18.10)
+!100 format(3es18.10)
 
 end subroutine DxRdVel
 
@@ -393,23 +417,24 @@ end subroutine DxRdVel
 !
 subroutine DxWtVel(vel,natom3)
 
-implicit none
-#include "Molcas.fh"
-external IsFreeUnit
-integer i, file, natom3, IsFreeUnit
-real*8 vel(natom3)
-character*80 filname
+use Definitions, only: wp, iwp
 
-file = 81
-file = IsFreeUnit(file)
-filname = 'velocity.xyz'
-call Molcas_Open(file,filname)
-write(file,100) (vel(i),i=1,natom3)
-close(file)
+implicit none
+integer(kind=iwp), intent(in) :: natom3
+real(kind=wp), intent(in) :: vel(natom3)
+integer(kind=iwp) :: i, filenum
+character(len=80) :: filename
+integer(kind=iwp), external :: IsFreeUnit
+
+filenum = IsFreeUnit(81)
+filename = 'velocity.xyz'
+call Molcas_Open(filenum,filename)
+write(filenum,100) (vel(i),i=1,natom3)
+close(filenum)
 
 return
 
-100 format(3e18.10)
+100 format(3es18.10)
 
 end subroutine DxWtVel
 
@@ -419,41 +444,43 @@ end subroutine DxWtVel
 !
 subroutine DxCoord(natom,atom,xyz,hybrid)
 
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp
+
 implicit none
-#include "Molcas.fh"
-#include "MD.fh"
-#include "constants2.fh"
-external IsFreeUnit
-integer i, j, file, natom, IsFreeUnit
-real*8 xyz(natom*3)
-character atom(natom)*2, filename*9
-logical hybrid, Exist
+integer(kind=iwp), intent(in) :: natom
+character(len=2), intent(in) :: atom(natom)
+real(kind=wp), intent(in) :: xyz(natom*3)
+logical(kind=iwp), intent(in) :: hybrid
+integer(kind=iwp) :: i, j, filenum
+character(len=9) :: filename*9
+logical(kind=iwp) :: exists
+integer(kind=iwp), external :: IsFreeUnit
 
 if (.not. hybrid) then
-  file = 82
-  file = IsFreeUnit(file)
+  filenum = IsFreeUnit(81)
   filename = 'md.xyz'
-  call OpnFl(filename,file,Exist)
-  call Append_file(file)
-  write(file,'(I5,/)') natom
+  call OpnFl(filename,filenum,exists)
+  call Append_file(filenum)
+  write(filenum,'(I5,/)') natom
   do i=1,natom
-    write(file,100) atom(i),(Angstrom*xyz(3*(i-1)+j),j=1,3)
+    write(filenum,100) atom(i),(Angstrom*xyz(3*(i-1)+j),j=1,3)
   end do
-  close(file)
+  close(filenum)
 else
-  file = IsFreeUnit(file)
+  filenum = IsFreeUnit(81)
   filename = 'md.prmcrd'
-  call OpnFl(filename,file,Exist)
-  call Append_file(file)
-  write(file,'(/,I6)') natom
-  write(file,'(6F12.7)') (Angstrom*xyz(i),i=1,3*natom)
-  close(file)
-  file = IsFreeUnit(file)
+  call OpnFl(filename,filenum,exists)
+  call Append_file(filenum)
+  write(filenum,'(/,I6)') natom
+  write(filenum,'(6F12.7)') (Angstrom*xyz(i),i=1,3*natom)
+  close(filenum)
+  filenum = IsFreeUnit(filenum)
   filename = 'vmd.mdcrd'
-  call OpnFl(filename,file,Exist)
-  call Append_file(file)
-  write(file,'(10F8.3)') (Angstrom*xyz(i),i=1,3*natom)
-  close(file)
+  call OpnFl(filename,filenum,exists)
+  call Append_file(filenum)
+  write(filenum,'(10F8.3)') (Angstrom*xyz(i),i=1,3*natom)
+  close(filenum)
 end if
 
 return
@@ -467,14 +494,18 @@ end subroutine DxCoord
 ! Write out a summary of energies in CSV format
 !
 subroutine DxEnergies(time,Epot,Ekin,Etot)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
 implicit none
-external IsFreeUnit
-#include "WrkSpc.fh"
-integer file, nEnergies, i, n, ipEnergies
-integer IsFreeUnit
-real*8 time, Epot, Ekin, Etot
-character filename*12, frmt*24
-logical Exist, RootCheck
+real(kind=wp), intent(in) :: time, Epot, Ekin, Etot
+integer(kind=iwp) filenum, i, n, nEnergies
+logical(kind=iwp) :: exists, RootCheck
+character(len=12) :: filename*12
+character(len=24) :: frmt*24
+real(kind=wp), allocatable :: Energies(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 filename = 'md.energies'
 
@@ -482,29 +513,30 @@ RootCheck = .false.
 
 call Qpg_iScalar('Relax CASSCF root',RootCheck)
 
-file = 82
-file = IsFreeUnit(file)
-call OpnFl(filename,file,Exist)
-call Append_file(file)
-if (.not. Exist) then
-  write(file,'(3X,A4,10X,A4,2(17X,A4))') 'time','Epot','Ekin','Etot'
+filenum = IsFreeUnit(81)
+call OpnFl(filename,filenum,exists)
+call Append_file(filenum)
+if (.not. exists) then
+  write(filenum,'(3X,A4,10X,A4,2(17X,A4))') 'time','Epot','Ekin','Etot'
 end if
-frmt = '(F8.2, (2X,D19.12))'
+frmt = '(f8.2,   (2x,es19.12))'
 
 if (RootCheck) then
   call Get_iScalar('Number of roots',nEnergies)
-  call GetMem('MS energies','ALLO','REAL',ipEnergies,nEnergies)
-  call Get_dArray('Last energies',Work(ipEnergies),nEnergies)
+  call mma_allocate(Energies,nEnergies,label='MS energies')
+  !call GetMem('MS energies','ALLO','REAL',ipEnergies,nEnergies)
+  call Get_dArray('Last energies',Energies,nEnergies)
   n = nEnergies+3
-  write(frmt(7:7),'(I1)') n
-  write(file,frmt) time,Epot,Ekin,Etot,(Work(ipEnergies-1+i),i=1,nEnergies)
-  call GetMem('MS energies','FREE','REAL',ipEnergies,nEnergies)
+  write(frmt(7:9),'(i3)') n
+  write(filenum,frmt) time,Epot,Ekin,Etot,(Energies(i),i=1,nEnergies)
+  call mma_deallocate(Energies)
+  !call GetMem('MS energies','FREE','REAL',ipEnergies,nEnergies)
 else
   n = 3
-  write(frmt(7:7),'(I1)') n
-  write(file,frmt) time,Epot,Ekin,Etot
+  write(frmt(7:9),'(i3)') n
+  write(filenum,frmt) time,Epot,Ekin,Etot
 end if
-close(file)
+close(filenum)
 
 return
 
@@ -512,18 +544,17 @@ end subroutine DxEnergies
 
 !***********************************************************************
 !
-!     Writes the velocities on RUNFILE
+! Writes the velocities on RUNFILE
 !
 subroutine Put_Velocity(vel,natom3)
 
+use Definitions, only: wp, iwp
+
 implicit none
-#include "WrkSpc.fh"
-#include "Molcas.fh"
-integer natom3
-real*8 vel(natom3)
+integer(kind=iwp), intent(in) :: natom3
+real(kind=wp), intent(in) :: vel(natom3)
 
 call Put_dArray('Velocities',vel,natom3)
-!call GetMem('Velocities','FREE','REAL',vel,natom3)
 
 return
 
@@ -535,13 +566,12 @@ end subroutine Put_Velocity
 !
 subroutine Get_Velocity(vel,natom3)
 
-implicit none
-#include "WrkSpc.fh"
-#include "Molcas.fh"
-integer natom3
-real*8 vel(natom3)
+use Definitions, only: wp, iwp
 
-!call GetMem('Velocities','ALLO','REAL',vel,natom3)
+implicit none
+integer(kind=iwp), intent(in) :: natom3
+real(kind=wp), intent(out) :: vel(natom3)
+
 call Get_dArray('Velocities',vel,natom3)
 
 return
@@ -554,13 +584,12 @@ end subroutine Get_Velocity
 !
 subroutine Get_NHC(NHC,nh)
 
-implicit none
-#include "WrkSpc.fh"
-#include "Molcas.fh"
-integer nh
-real*8 NHC(nh)
+use Definitions, only: wp, iwp
 
-!call GetMem('NOSEHOOVER','ALLO','REAL',NHC,nh)
+implicit none
+integer(kind=iwp), intent(in) :: nh
+real(kind=wp), intent(out) :: NHC(nh)
+
 call Get_dArray('NOSEHOOVER',NHC,nh)
 
 return
@@ -573,14 +602,13 @@ end subroutine Get_NHC
 !
 subroutine Put_NHC(NHC,nh)
 
+use Definitions, only: wp, iwp
+
 implicit none
-#include "WrkSpc.fh"
-#include "Molcas.fh"
-integer nh
-real*8 NHC(nh)
+integer(kind=iwp), intent(in) :: nh
+real(kind=wp), intent(out) :: NHC(nh)
 
 call Put_dArray('NOSEHOOVER',NHC,nh)
-!call GetMem('NOSEHOOVER','FREE','REAL',NHC,nh)
 
 return
 

@@ -11,7 +11,16 @@
 
 subroutine RandomGauss(ValMean,Sigma,iseed,nflag,buffer,Val)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, r8
+
+implicit none
+real(kind=wp), intent(in) :: ValMean, Sigma
+real(kind=wp), intent(inout) :: buffer
+real(kind=wp), intent(out) :: Val
+integer(kind=iwp), intent(inout) :: iseed, nflag
+real(kind=wp) :: alpha, beta, G2rad, X2pi, Z1, Z2
+real(kind=r8), external :: Random_Molcas
 
 ! ValMean is the mean, and sigma is the standard deviation.
 ! nFlag is a binary (0,1) variable for returning the appropiate random value
@@ -31,9 +40,8 @@ if (nFlag == 0) then
   alpha = abs(Random_Molcas(iseed))
   beta = abs(Random_Molcas(iseed))
 
-  PI = 4.d0*atan(1.d0)
-  X2pi = alpha*(2.d0*Pi)
-  G2rad = sqrt(-2.d0*log(1.d0-beta))
+  X2pi = alpha*(Two*Pi)
+  G2rad = sqrt(-Two*log(One-beta))
 
   Z1 = cos(X2pi)*G2rad
   Z2 = sin(X2pi)*G2rad
@@ -48,13 +56,13 @@ else
 
 end if
 
-!write(6,*) 'PI:' ,PI
-!write(6,*) 'X2pi:',X2pi
-!write(6,*) 'G2grad: ',G2rad
-!write(6,*) 'buffer:',buffer
-!write(6,*) 'Z1 and Z2',Z1,Z2
-!write(6,*) 'Alpha & Beta',alpha,beta
-!write(6,*) 'VAL into RANDOM:',val
+!write(u6,*) 'PI:' ,PPi
+!write(u6,*) 'X2pi:',X2pi
+!write(u6,*) 'G2grad: ',G2rad
+!write(u6,*) 'buffer:',buffer
+!write(u6,*) 'Z1 and Z2',Z1,Z2
+!write(u6,*) 'Alpha & Beta',alpha,beta
+!write(u6,*) 'VAL into RANDOM:',val
 
 return
 

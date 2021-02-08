@@ -13,14 +13,12 @@ set (sources
      main.F90
      cre_dyn.F90
      dynamix.F90
+     dynamix_globals.F90
      dynamix_lib.F90
-     dyn.fh
      getmassdx.F90
      grom.F90
      init_dynamix.F90
-     MD.fh
      nhcThermo.F90
-     prgm.fh
      project_in_for.F90
      project_in_vel.F90
      project_out_for.F90
@@ -28,7 +26,6 @@ set (sources
      randomGauss.F90
      rdinp_dynamix.F90
      readin_dynamix.F90
-     velver_dump.F90
      velver_first.F90
      velver_second.F90
 )

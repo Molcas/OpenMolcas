@@ -14,23 +14,24 @@ subroutine RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 #endif
+use Dynamix_Globals, only: DT, File_H5Res, iPrint, lH5Restart, PIN, POUT, RESTART, TEMP, THERMO, VELO, dyn_dt, dyn_mass
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "MD.fh"
-#include "stdalloc.fh"
-#include "dyn.fh"
-#include "constants2.fh"
-integer Task(nTasks), maxHop
-integer VelVer, VV_First, VV_Second, Gromacs, VV_Dump
-parameter(VelVer=1,VV_First=2,VV_Second=3,Gromacs=4,VV_Dump=5)
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool, nTasks
+integer(kind=iwp), intent(inout) :: Task(nTasks)
+integer(kind=iwp), intent(out) :: mTasks
+integer(kind=iwp) :: natom, maxhop
+real(kind=wp) TIME
+integer(kind=iwp), parameter :: VelVer = 1, VV_First = 2, VV_Second = 3, Gromacs = 4
 #ifdef _HDF5_
-real*8, allocatable :: Mass(:)
+real(kind=wp), allocatable :: Mass(:)
 #endif
-logical lHop
-character Title*72
-character*180 Key, Line
-character*180 Get_Ln
-external Get_Ln
+logical(kind=iwp) :: lHop
+character(len=72) :: Title
+character(len=180) :: Key, Line
+character(len=180), external :: Get_Ln
 
 mTasks = 0
 
@@ -48,7 +49,6 @@ if (Line(1:4) == 'TITL') goto 1100
 if (Line(1:4) == 'PRIN') goto 1101
 if (Line(1:4) == 'VV_F') goto 1102
 if (Line(1:4) == 'VV_S') goto 1103
-if (Line(1:4) == 'VV_D') goto 1104
 if (Line(1:4) == 'THER') goto 1105
 if (Line(1:4) == 'VELO') goto 1106
 if (Line(1:2) == 'DT') goto 1107
@@ -75,47 +75,42 @@ Line = Get_Ln(LuSpool)
 call Get_I1(1,iPrint)
 !>>>>>>>>>>>>>>>>>>>> VV_First <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1102 continue
-write(6,*) ' VV_First 1'
+write(u6,*) ' VV_First 1'
 mTasks = mTasks+1
 Task(mTasks) = VV_First
-write(6,*) ' VV_First 2'
+write(u6,*) ' VV_First 2'
 goto 999
 !>>>>>>>>>>>>>>>>>>>> VV_Second <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1103 continue
 mTasks = mTasks+1
 Task(mTasks) = VV_Second
 goto 999
-!>>>>>>>>>>>>>>>>>>>> VV_Dump <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1104 continue
-mTasks = mTasks+1
-Task(mTasks) = VV_Dump
-goto 999
 !>>>>>>>>>>>>>>>>>>>> THERmostat <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1105 continue
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading THERMO.'
+write(u6,*) ' Dynamix starts reading THERMO.'
 #endif
 Line = Get_Ln(LuSpool)
 call Get_I1(1,THERMO)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading THERMO.'
+write(u6,*) ' Dynamix ends reading THERMO.'
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> VELOcities <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1106 continue
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading VELO.'
+write(u6,*) ' Dynamix starts reading VELO.'
 #endif
 Line = Get_Ln(LuSpool)
 call Get_I1(1,VELO)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading VELO.'
+write(u6,*) ' Dynamix ends reading VELO.'
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> DT   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1107 continue
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading DT.'
+write(u6,*) ' Dynamix starts reading DT.'
 #endif
 Line = Get_Ln(LuSpool)
 call Get_F1(1,DT)
@@ -124,7 +119,7 @@ call Put_dScalar('Timestep',DT)
 call mh5_put_dset(dyn_dt,DT)
 #endif
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading DT.'
+write(u6,*) ' Dynamix ends reading DT.'
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> GROM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -139,7 +134,7 @@ call Get_F1(1,TIME)
 goto 999
 !>>>>>>>>>>>>>>>>>>>> VelVer <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1110 continue
-!     This is the keyword for Velocity Verlet algorithm
+! This is the keyword for Velocity Verlet algorithm
 mTasks = mTasks+1
 Task(mTasks) = VelVer
 goto 999
@@ -153,40 +148,40 @@ if (.not. lHop) then
   call Put_iScalar('MaxHops',maxHop)
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) ' lHop = ',lHop,'maxHop = ',maxHop
+write(u6,*) ' lHop = ',lHop,'maxHop = ',maxHop
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> Restart <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1112 continue
 Line = Get_Ln(LuSpool)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading RESTART.'
+write(u6,*) ' Dynamix starts reading RESTART.'
 #endif
 call Get_F1(1,RESTART)
 goto 999
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading RESTART.'
+write(u6,*) ' Dynamix ends reading RESTART.'
 #endif
 
 !>>>>>>>>>>>>>>>>>>>> TEMPERATURE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1113 continue
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading Temperature.'
+write(u6,*) ' Dynamix starts reading Temperature.'
 #endif
 Line = Get_Ln(LuSpool)
 call Get_F1(1,TEMP)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading Temperature.'
+write(u6,*) ' Dynamix ends reading Temperature.'
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> Isotope <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 1114 continue
-write(6,*) 'ISOTope keyword is obsolete in DYNAMIX,'
-write(6,*) 'use it in GATEWAY to specify isotopes/masses'
+write(u6,*) 'ISOTope keyword is obsolete in DYNAMIX,'
+write(u6,*) 'use it in GATEWAY to specify isotopes/masses'
 call Abend()
 goto 999
-!      Write (6,*) 'Unknown keyword:', Key
-!      CALL Abend()
+!write(u6,*) 'Unknown keyword:',Key
+!call Abend()
 !>>>>>>>>>>>>>>>>>>>> Restart from HDF5 file <<<<<<<<<<<<<<<<<<<<<<<<<
 1115 continue
 #ifdef _HDF5_
@@ -194,37 +189,37 @@ lH5Restart = .true.
 Line = Get_Ln(LuSpool)
 call Get_S(1,FILE_H5RES,1)
 #else
-write(6,*) 'The user asks to restart the dynamics calculation '
-write(6,*) 'from a HDF5 file, but this is not supported in this'
-write(6,*) 'installation.'
+write(u6,*) 'The user asks to restart the dynamics calculation '
+write(u6,*) 'from a HDF5 file, but this is not supported in this'
+write(u6,*) 'installation.'
 call Quit_OnUserError()
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> project OUT some coordinates <<<<<<<<<<<<<<<<<<<<<<<
 1116 continue
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading OUT.'
+write(u6,*) ' Dynamix starts reading OUT.'
 #endif
 Line = Get_Ln(LuSpool)
 call Get_I1(1,POUT)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading OUT.'
+write(u6,*) ' Dynamix ends reading OUT.'
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> keep IN only some coordinates <<<<<<<<<<<<<<<<<<<<<<<
 1117 continue
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix starts reading IN.'
+write(u6,*) ' Dynamix starts reading IN.'
 #endif
 Line = Get_Ln(LuSpool)
 call Get_I1(1,PIN)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix ends reading IN.'
+write(u6,*) ' Dynamix ends reading IN.'
 #endif
 goto 999
 !>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 9000 continue
-write(6,*)
+write(u6,*)
 
 #ifdef _HDF5_
 call Get_nAtoms_All(natom)

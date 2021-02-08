@@ -134,7 +134,7 @@ input_loop: do
     case default
       write(u6,*) 'InpCtl_GuessOrb: unidentified key word  : ',Key
       write(u6,*) 'InpCtl_GuessOrb: internal representation: ',Line(1:4)
-      call FindErrorLine
+      call FindErrorLine()
       call Quit_OnUserError()
       exit input_loop
   end select

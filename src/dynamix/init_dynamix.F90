@@ -11,10 +11,14 @@
 
 subroutine Init_Dynamix()
 
-implicit real*8(a-h,o-z)
-#include "MD.fh"
-#include "WrkSpc.fh"
-!character*180 Lines(10)
+use Dynamix_globals, only: DT, iPrint, lH5Restart, PIN, POUT, RESTART, TEMP, THERMO, VELO
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: natom
+!integer(kind=iwp) :: lLine
+!character(len=180) :: Lines(10)
 
 !#ifdef _SKIP_
 !Lines(1) = _MOLCAS_VERSION_
@@ -34,26 +38,26 @@ implicit real*8(a-h,o-z)
 !lLine = Len(Lines(1))
 !call Banner(Lines,10,lLine)
 !
-!write(6,*)
-!write(6,'(a,i8,a)')   ' The Dynamix program has ',mxMem,' double precision words memory available.'
-!write(6,'(a,i8,a)')   '                       ',mxMem*8/(1024**2),' MB'
-!write(6,*)
+!write(u6,*)
+!write(u6,'(a,i8,a)')   ' The Dynamix program has ',mxMem,' double precision words memory available.'
+!write(u6,'(a,i8,a)')   '                         ',mxMem*8/(1024**2),' MB'
+!write(u6,*)
 !#endif
 
 ! Set the default values
 
 call Get_nAtoms_Full(natom)
 THERMO = 0
-TEMP = 298.15
+TEMP = 298.15_wp
 VELO = 0
 POUT = 0
 PIN = natom*3
 iPrint = 2
-DT = 1.0d1
-RESTART = 0.0d0
+DT = Ten
+RESTART = Zero
 lH5Restart = .false.
 
-!Etot0 = 0.0D0
+!Etot0 = Zero
 
 return
 

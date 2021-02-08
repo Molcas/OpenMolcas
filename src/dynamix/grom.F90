@@ -22,22 +22,22 @@
 
 subroutine GROM(irc)
 
+use Dynamix_Globals, only: iPrint, INSANE
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+integer :: natom, i, j, filenum
+character(len=80) :: filename
+real(kind=wp), allocatable :: xyz(:), force(:)
+character(len=2), allocatable :: atom(:)
+integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.fh"
-#include "Molcas.fh"
-#include "prgm.fh"
-#include "stdalloc.fh"
-parameter(ROUTINE='GROM')
-#include "MD.fh"
-#include "WrkSpc.fh"
-external IsFreeUnit
-integer natom, i, j, irc, file, IsFreeUnit
-character filname*80
-real*8, allocatable :: xyz(:), force(:)
-character, allocatable :: atom(:)*2
 
-if (IPRINT == INSANE) write(6,*) ' Entering ',ROUTINE
+if (IPRINT == INSANE) write(u6,*) ' Entering GROM'
 
-write(6,*) '**** Writes out Forces and Energies for Gromacs ****'
+write(u6,*) '**** Writes out Forces and Energies for Gromacs ****'
 
 call DxRdNAtomStnd(natom)
 call mma_allocate(atom,natom)
@@ -50,14 +50,14 @@ call DxRdStnd(natom,atom,xyz,force)
 
 ! Write the energies and forces to file
 
-file = IsFreeUnit(81)
-filname = 'MOL2GROM'
-call Molcas_Open(file,filname)
-write(file,*) natom
+filenum = IsFreeUnit(81)
+filename = 'MOL2GROM'
+call Molcas_Open(filenum,filename)
+write(filenum,*) natom
 do i=1,natom
-  write(file,'(3D20.10)') (force((i-1)*3+j),j=1,3)
+  write(filenum,'(3es20.10)') (force((i-1)*3+j),j=1,3)
 end do
-close(file)
+close(filenum)
 
 call mma_deallocate(atom)
 call mma_deallocate(xyz)

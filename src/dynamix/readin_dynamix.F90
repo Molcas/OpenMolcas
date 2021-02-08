@@ -11,22 +11,31 @@
 
 subroutine ReadIn_Dynamix(Task,nTasks,mTasks)
 
-implicit real*8(a-h,o-z)
-integer Task(nTasks)
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp), intent(in) :: nTasks
+integer(kind=iwp), intent(inout) :: Task(nTasks)
+integer(kind=iwp), intent(out) :: mTasks
+integer(kind=iwp) :: LuSpool
+integer(kind=iwp), external :: IsFreeUnit
 
 ! Copy input from standard input to a local scratch file
 
-LuSpool = isfreeunit(21)
+LuSpool = IsFreeUnit(21)
 call SpoolInp(LuSpool)
 
 ! Read input
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix calls RdInp_Dynamix.'
+write(u6,*) ' Dynamix calls RdInp_Dynamix.'
 #endif
 call RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Dynamix back from RdInp_Dynamix.'
+write(u6,*) ' Dynamix back from RdInp_Dynamix.'
 #endif
 
 ! Remove local copy of standard input

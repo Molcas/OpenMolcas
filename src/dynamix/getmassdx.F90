@@ -11,14 +11,15 @@
 
 subroutine GetMassDx(Mass,natom)
 
-use Isotopes
+use Isotopes, only: Isotope
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-#include "stdalloc.fh"
-real*8, intent(inout) :: Mass(*)
-integer, intent(in) :: natom
-integer :: matom, i, Iso
-character, allocatable :: atom(:)*2
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(out) :: Mass(*)
+integer(kind=iwp) :: matom, i, Iso
+character(len=2), allocatable :: atom(:)
 
 call mma_allocate(atom,natom)
 call Get_Name_Full(atom)

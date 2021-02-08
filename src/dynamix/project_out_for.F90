@@ -23,24 +23,18 @@
 
 subroutine project_out_for(force,natom)
 
-implicit real*8(a-h,o-z)
-#include "prgm.fh"
-#include "warnings.fh"
-#include "Molcas.fh"
-parameter(ROUTINE='VV_Second')
-#include "MD.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "dyn.fh"
-#include "constants2.fh"
-integer :: i, j, p
-integer :: natom
-real*8, allocatable :: Mass(:)
-real*8, dimension(natom*3), intent(inout) :: force
-real*8, dimension(natom*3) :: force_m
-real*8, allocatable :: pcoo(:,:), pcoo_m(:,:)
-real*8 :: pforce
+use Dynamix_Globals, only: POUT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(inout) :: force(natom*3)
+integer(kind=iwp) :: i, j, p
+real(kind=wp) :: pforce
+real(kind=wp), allocatable :: Mass(:), pcoo(:,:), pcoo_m(:,:), force_m(:)
+
+call mma_allocate(force_m,natom*3)
 call mma_allocate(pcoo,POUT,natom*3)
 call mma_allocate(pcoo_m,POUT,natom*3)
 call mma_allocate(Mass,natom)
@@ -66,7 +60,7 @@ do p=1,POUT
   pcoo_m(p,:) = pcoo_m(p,:)/sqrt(dot_product(pcoo_m(p,:),pcoo_m(p,:)))
   ! Project out
   pforce = dot_product(pcoo_m(p,:),force_m)
-  force_m = force_m-pforce*pcoo_m(p,:)
+  force_m(:) = force_m(:)-pforce*pcoo_m(p,:)
 end do
 
 ! Un-Mass-weight the force vector
@@ -76,6 +70,7 @@ do i=1,natom
   end do
 end do
 
+call mma_deallocate(force_m)
 call mma_deallocate(pcoo)
 call mma_deallocate(pcoo_m)
 call mma_deallocate(Mass)

@@ -129,7 +129,7 @@ subroutine fmm_get_FQ_Vff(scheme,LHS_paras,RHS_mms,Vff)
   LHS%raw_paras => LHS_paras(:)
   RHS%raw_paras => RHS_mms%paras(:)
 
-  ! select the T-contractor to be stored/called via C code;
+  ! select the T-contractor to be stored/called via C code
   call fmm_select_T_con(scheme)
   ! set T_contractor pointers
   call fmm_set_T_con_ptrs(Vff,RHS_mms%qlm_T)

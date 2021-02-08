@@ -24,8 +24,6 @@
 !     output:                                                          *
 !       Vec     : vector                                               *
 !                                                                      *
-!     called from: OvlDel, DCore, NewOrb, IvoGen                       *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *

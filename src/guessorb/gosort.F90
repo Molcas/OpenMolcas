@@ -26,8 +26,6 @@
 !       EVal    : sorted set of eigenvalues                            *
 !       EVec    : sorted set of eigenvectors                           *
 !                                                                      *
-!     called from: DCore, NewOrb, IvoGen                               *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *

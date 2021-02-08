@@ -33,45 +33,38 @@ subroutine VelVer_Second(irc)
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 #endif
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, THERMO, INSANE, dyn_etot, dyn_vel
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: kBoltzmann, auTokJ, Zero, One, Two, Three, Half, OneHalf
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "prgm.fh"
+implicit none
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp) :: i, j, natom, filenum, nsAtom
+real(kind=wp) :: scalfac, tempNow, tolerance, DT2, time, Ekin, Epot, Etot, Etot0, Ekin_target, EtotLastPoint
+logical(kind=iwp) :: hybrid, found
+character(len=15) :: caption
+character(len=80) :: lastline, filename, line
+real(kind=wp), allocatable :: Mass(:), vel(:), force(:), xyz(:)
+character(len=2), allocatable :: atom(:)
+integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.fh"
-#include "Molcas.fh"
-parameter(ROUTINE='VV_Second')
-#include "MD.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "dyn.fh"
-#include "constants2.fh"
-external IsFreeUnit
-integer i, j, natom, file, IsFreeUnit, nsAtom
-character filname*80, line*80
-real*8 conv, tolerance, DT2, time, kb
-real*8 Ekin, Epot, Etot, Etot0, Ekin_target
-real*8 EtotLastPoint
-logical hybrid, found
-character caption*15, lastline*80
-character, allocatable :: atom(:)*2
-real*8, allocatable :: Mass(:), vel(:), force(:), xyz(:)
 
 ! The parameter conv converts the gradients (Hartree/Bohr) to
-! (i)  forces (Hartree/Bohr)    => -1.0d0
-! (ii) forces (kJ/mole/Agstrom) => -4961.475514610d0
+! (i)  forces (Hartree/Bohr)    => -1.0
+! (ii) forces (kJ/mole/Agstrom) => -4961.47525891
 
-parameter(conv=-1.0d0)
-!parameter(conv=-CONV_AU_TO_KJ_PER_MOLE_/Angstrom)
-parameter(kb=CONST_BOLTZMANN_/(CONV_AU_TO_KJ_*1.0d3))
+real(kind=wp), parameter :: conv = -One, kb = kBoltzmann/(auTokJ*1.0e3_wp)
 
-if (IPRINT == INSANE) write(6,*) ' Entering ',ROUTINE
+if (IPRINT == INSANE) write(u6,*) ' Entering VelVer_Second'
 
-write(6,*) '*** Second step of the Velocity Verlet algorithm ***'
+write(u6,*) '*** Second step of the Velocity Verlet algorithm ***'
 
-filname = 'comqum.dat'
-call F_INQUIRE(filname,hybrid)
+filename = 'comqum.dat'
+call F_INQUIRE(filename,hybrid)
 
 if (hybrid) then
-  write(6,'(/,5X,A)') 'Perform QM/MM Molecular Dynamics'
+  write(u6,'(/,5X,A)') 'Perform QM/MM Molecular Dynamics'
   call DxRdNAtomHbrd(natom)
 else
   call DxRdNAtomStnd(natom)
@@ -101,8 +94,8 @@ end if
 
 ! Definition of the time step
 
-DT2 = DT/2.0d0
-Ekin = 0.0d0
+DT2 = DT/Two
+Ekin = Zero
 
 call Get_dScalar('MD_Time',time)
 
@@ -124,7 +117,7 @@ end if
 ! Final kinetic energy
 do i=1,natom
   do j=1,3
-    Ekin = Ekin+5.0d-01*Mass(i)*(vel(3*(i-1)+j)**2)
+    Ekin = Ekin+Half*Mass(i)*(vel(3*(i-1)+j)**2)
   end do
 end do
 
@@ -139,21 +132,21 @@ call DxPtTableCo(caption,time,natom,atom,vel,lastline,Mass,force)
 ! Read in the potential energy
 
 if (hybrid) then
-  file = IsFreeUnit(81)
-  filname = 'fixenergy.out'
-  call Molcas_Open(file,filname)
-  read(file,*) line
+  filenum = IsFreeUnit(81)
+  filename = 'fixenergy.out'
+  call Molcas_Open(filenum,filename)
+  read(filenum,*) line
   do while (i <= 80)
     if (line(i:i) == '$') then
-      read(file,'(E20.13)') Epot
+      read(filenum,'(es20.13)') Epot
       i = 80
     elseif (i == 80 .and. line(i:i) /= '$') then
-      write(6,*) 'No energy found'
+      write(u6,*) 'No energy found'
       call Abend()
     end if
     i = i+1
   end do
-  close(file)
+  close(filenum)
 else
   call Get_dScalar('Last Energy',Epot)
 end if
@@ -163,26 +156,26 @@ Etot = Epot+Ekin
 ! Output
 
 if (hybrid) then
-  write(6,'(//,5X,A,F8.1)') 'Final QM/MM Energy at time ',time
+  write(u6,'(//,5X,A,F8.1)') 'Final QM/MM Energy at time ',time
 else
-  write(6,'(//,5X,A,F8.1)') 'Final Energy at time ',time
+  write(u6,'(//,5X,A,F8.1)') 'Final Energy at time ',time
 end if
-write(6,'(5X,A,/)') '============================'
-write(6,'(5X,A,6X,D19.12,1X,A)') 'Kinetic energy',Ekin,'a.u.'
-write(6,'(5X,A,4X,D19.12,1X,A)') 'Potential Energy',Epot,'a.u.'
-write(6,'(5X,A,8X,D19.12,1X,A)') 'Total Energy',Etot,'a.u.'
+write(u6,'(5X,A,/)') '============================'
+write(u6,'(5X,A,6X,es19.12,1X,A)') 'Kinetic energy',Ekin,'a.u.'
+write(u6,'(5X,A,4X,es19.12,1X,A)') 'Potential Energy',Epot,'a.u.'
+write(u6,'(5X,A,8X,es19.12,1X,A)') 'Total Energy',Etot,'a.u.'
 
 !--------------------------------------------------------------------C
 ! CANONICAL ENSEMBLE
 !--------------------------------------------------------------------C
-tempNow = 2.d0*Ekin/(3.d0*dble(natom)*kb)
+tempNow = Two*Ekin/(Three*natom*kb)
 if (THERMO == 2) then
-  tempNow = 2.d0*Ekin/(3.d0*dble(natom)*kb)
-  write(6,'(//,5X,A)') 'Canonical Ensemble'
-  write(6,'(5X,A)') 'The temperature is control with a '
-  write(6,'(5X,A)') 'Nose-Hoover chain of thermostats'
-  write(6,'(5X,A,/)') '========================'
-  write(6,'(5X,A,5X,E11.4,1X,A,//)') 'instantaneous temperature',tempNow,'kelvin'
+  tempNow = Two*Ekin/(Three*natom*kb)
+  write(u6,'(//,5x,a)') 'Canonical Ensemble'
+  write(u6,'(5x,a)') 'The temperature is control with a '
+  write(u6,'(5x,a)') 'Nose-Hoover chain of thermostats'
+  write(u6,'(5x,a,/)') '========================'
+  write(u6,'(5x,a,5x,es11.4,1x,a,//)') 'instantaneous temperature',tempNow,'kelvin'
 
 end if
 !--------------------------------------------------------------------C
@@ -192,17 +185,17 @@ end if
 !---------------------------------------------------------------------C
 if (THERMO == 1) then
   call Get_dScalar('MD_Etot0',Etot0)
-  write(6,'(//,5X,A)') 'Micro-Canonical Ensemble'
-  write(6,'(5X,A,/)') '========================'
-  write(6,'(5X,A,7X,D11.4,1X,A)') 'Target Total Energy',Etot0,'a.u.'
-  write(6,'(5X,A,D11.4,1X,A)') 'Deviation from this Energy',abs(Etot0-Etot),'a.u.'
+  write(u6,'(//,5x,a)') 'Micro-Canonical Ensemble'
+  write(u6,'(5x,a,/)') '========================'
+  write(u6,'(5x,a,7x,es11.4,1x,a)') 'Target Total Energy',Etot0,'a.u.'
+  write(u6,'(5x,a,es11.4,1x,a)') 'Deviation from this Energy',abs(Etot0-Etot),'a.u.'
 
   ! Check if the total energy is conserved and scale the velocities
   ! if necessary.
 
   ! 1.0K * k_B
-  tolerance = 1.0d0*kb
-  tolerance = 1.5d0*natom*tolerance
+  tolerance = kb
+  tolerance = OneHalf*natom*tolerance
   if (abs(Etot0-Etot) > tolerance) then
     Ekin_target = Etot0-Epot
     scalfac = sqrt(Ekin_target/Ekin)
@@ -211,13 +204,13 @@ if (THERMO == 1) then
         vel(3*(i-1)+j) = scalfac*vel(3*(i-1)+j)
       end do
     end do
-    write(6,'(5X,A)') 'is larger then Scaling-Threshold XX.'
-    write(6,'(5X,A)') 'Velocity scaling is necessary.'
-    write(6,401) 'Velocity scaling factor',scalfac
+    write(u6,'(5X,A)') 'is larger then Scaling-Threshold XX.'
+    write(u6,'(5X,A)') 'Velocity scaling is necessary.'
+    write(u6,401) 'Velocity scaling factor',scalfac
     Ekin = Ekin_target
   else
-    write(6,'(5X,A)') 'is smaller then Scaling-Threshold XX.'
-    write(6,'(5X,A)') 'Velocity scaling is not necessary.'
+    write(u6,'(5X,A)') 'is smaller then Scaling-Threshold XX.'
+    write(u6,'(5X,A)') 'Velocity scaling is not necessary.'
   end if
 end if
 !---------------------------------------------------------------------C
@@ -234,20 +227,20 @@ if (found) then
   Ekin_target = EtotLastPoint-Epot
   if (Ekin_target < 0.0) then
     Ekin_target = 0.0
-    write(6,*) 'warning negative kin energy rescaled to 0.0'
+    write(u6,*) 'warning negative kin energy rescaled to 0.0'
   end if
-  !write(6,*) 'DEBUGS'
-  !write(6,*) Epot,EtotLastPoint,Etot
-  !write(6,*) 'EtotLastPoint'
-  !write(6,*) EtotLastPoint
-  !write(6,*) 'scalfac'
-  !write(6,*) scalfac
-  !write(6,*) 'nsAtom'
-  !write(6,*) nsAtom
+  !write(u6,*) 'DEBUGS'
+  !write(u6,*) Epot,EtotLastPoint,Etot
+  !write(u6,*) 'EtotLastPoint'
+  !write(u6,*) EtotLastPoint
+  !write(u6,*) 'scalfac'
+  !write(u6,*) scalfac
+  !write(u6,*) 'nsAtom'
+  !write(u6,*) nsAtom
   scalfac = sqrt(Ekin_target/Ekin)
-  write(6,*) 'Velocities before Hop:'
+  write(u6,*) 'Velocities before Hop:'
   do i=1,nsAtom
-    write(6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
+    write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
   end do
   do i=1,natom
     do j=1,3
@@ -255,9 +248,9 @@ if (found) then
     end do
   end do
 
-  write(6,*) 'Velocities after Hop:'
+  write(u6,*) 'Velocities after Hop:'
   do i=1,nsAtom
-    write(6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
+    write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
   end do
   Etot = Epot+Ekin_target
 end if

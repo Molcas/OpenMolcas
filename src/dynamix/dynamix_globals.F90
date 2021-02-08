@@ -8,7 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 !
 ! THERMOstat = 0  nothing (default)
 !              1  microcanonical ensemble (Andersen Thermostat)
@@ -26,12 +25,25 @@
 ! Etot0   - Reference total energy for microcanonical ensemble
 ! Restart - Restart time of the molecular dynamics simulation
 ! iPrint  - (global) print level
-!
-      INTEGER   THERMO,VELO,POUT,PIN,iPrint
-      REAL*8    DT,RESTART,TEMP
-      LOGICAL   lH5Restart
-      CHARACTER*180  File_H5Res
-      COMMON /MDint/ THERMO,VELO,POUT,PIN,iPrint
-      COMMON /MDreal/ DT,RESTART,TEMP
-      COMMON /MDlogi/ lH5Restart
-      COMMON /MDstri/ FILE_H5RES
+
+module Dynamix_Globals
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: THERMO, VELO, POUT, PIN, iPrint
+real(kind=wp) :: DT, RESTART, TEMP
+logical(kind=iwp) :: lH5Restart
+character(len=180) :: File_H5Res
+
+integer(kind=iwp) :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom
+
+integer(kind=iwp), parameter :: SILENT = 0, TERSE = 1, USUAL = 2, VERBOSE = 3, DEBUG = 4, INSANE = 5
+
+public :: DT, File_H5Res, iPrint, lH5Restart, PIN, POUT, THERMO, TEMP, RESTART, VELO
+public :: SILENT, TERSE, USUAL, VERBOSE, DEBUG, INSANE
+public :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom
+
+end module Dynamix_Globals

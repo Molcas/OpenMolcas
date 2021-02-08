@@ -47,11 +47,11 @@ integer(kind=iwp) :: iRC, iUHF
 !----------------------------------------------------------------------*
 iReturn = 0
 call InitGO()
-if (StandAlone) call InpCtl_GuessOrb
+if (StandAlone) call InpCtl_GuessOrb()
 !----------------------------------------------------------------------*
 ! Select method to be used.                                            *
 !----------------------------------------------------------------------*
-call cre_gsswfn
+call cre_gsswfn()
 call FckByInt(iRC,StandAlone)
 !if (iRC /= 0) then
 if (.false.) then
@@ -61,7 +61,7 @@ if (.false.) then
     call Fmod1s(StandAlone)
   end if
 end if
-call cls_gsswfn
+call cls_gsswfn()
 !----------------------------------------------------------------------*
 ! Produce MOLDEN input                                                 *
 !----------------------------------------------------------------------*
