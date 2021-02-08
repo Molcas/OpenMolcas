@@ -10,11 +10,12 @@
 ************************************************************************
       Subroutine restart_check( Ifrestart, input_to_read,
      &                          input_file_name, nT, nH, nTempMagn,
-     &                          nDir, nDirZee, nMult, GRAD)
+     &                          nDir, nDirZee, nMult, GRAD )
+
 c  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 c
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter        :: wp=kind(0.d0)
       Integer ::  linenr, input_to_read, Input, nT, nH, nTempMagn
       Integer ::  nDir, nDirZee, nMult, i
       Logical ::  Ifrestart
@@ -25,7 +26,8 @@ c
       Integer :: ncut,nk,mg
       Real    :: encut_rate
       Logical :: KeyHEXP,KeyHINT,KeyTMAG,
-     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
+     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT,
+     &           KeyDATA
 c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD
       Logical :: DBG
 
@@ -43,6 +45,7 @@ c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD
       nTempMagn=0
       Input=5
       input_file_name='aniso.input'
+c      origin_of_data_file='xxxxxxxx'
 
 c     KeyREST=.false.
 c     KeyTEXP=.false.
@@ -57,6 +60,7 @@ c     KeyMLTP=.false.
       KeyENCU=.false.
       KeyERAT=.false.
 c     KeyGRAD=.false.
+      KeyDATA=.false.
 
 C=========== End of default settings====================================
       REWIND(Input)
@@ -77,7 +81,7 @@ C=========== End of default settings====================================
      &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.
      &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'NCUT').AND.
      &   (LINE(1:4).ne.'ENCU').AND.(LINE(1:4).ne.'ERAT').AND.
-     &   (LINE(1:4).ne.'GRAD')                          ) Go To 100
+     &   (LINE(1:4).ne.'GRAD').AND.(LINE(1:4).ne.'DATA')) Go To 100
       If((LINE(1:4).eq.'END ').OR. (LINE(1:4).eq.'    ')) Go To 200
 
       If (line(1:4).eq.'REST') Then
@@ -95,6 +99,18 @@ c        KeyREST=.true.
            If(DBG) WRITE(6,*) 'restart_check: REST, input_file_name='
            If(DBG) WRITE(6,*) input_file_name
          End If
+         LINENR=LINENR+1
+         Go To 100
+      End If
+
+      If (line(1:4).eq.'DATA') Then
+         Ifrestart=.true.
+         KeyDATA=.true.
+         READ(Input,*) tmp
+         input_file_name=trim(tmp)
+         input_to_read=6
+         If(DBG) WRITE(6,*) 'restart_check: DATA, input_file_name='
+         If(DBG) WRITE(6,*) input_file_name
          LINENR=LINENR+1
          Go To 100
       End If

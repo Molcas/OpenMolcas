@@ -414,6 +414,18 @@ C  read the input
             nstate2=nstate
             Call read_formatted_aniso_old( input_file_name,nss2,nstate2,
      &                                multiplicity, eso, MM, MS, ML )
+
+         Else If ( input_to_read .eq. 6 ) Then !  using DATA keyword
+
+            IF(DBG) Write(6,*) 'SA:',input_file_name
+            ! get the information from formatted new aniso-data file:
+            nss2=nss
+            nstate2=nstate
+            Call read_formatted_new_aniso(
+     &                                input_file_name, nss2, nstate2,
+     &                                multiplicity, eso, esfs,
+     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM,
+     &                                AMFI, HSO, eso_au, esfs_au )
          End If ! input_to_read
 
       Else

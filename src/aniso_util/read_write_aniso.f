@@ -974,3 +974,100 @@ c compatibility with the present version: of aniso_i.input file
       Return
       End
 
+
+
+
+
+
+      Subroutine read_formatted_new_aniso( input_file_name, nss, nstate,
+     &                                multiplicity, eso, esfs,
+     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM,
+     &                                AMFI, HSO, eso_au, esfs_au )
+      USE io_data
+
+      Implicit None
+#include "stdalloc.fh"
+      Integer, Parameter           :: wp=kind(0.d0)
+      Integer, intent(inout)       :: nss, nstate
+      Integer, intent(out)         :: multiplicity(nstate)
+      Real(kind=8), intent(out)    :: eso(nss), esfs(nstate)
+      Real(kind=8), intent(out)    :: eso_au(nss), esfs_au(nstate)
+      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    :: angmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
+!     electric dipole moment
+      Complex(kind=8), intent(out) :: DM(3,nss,nss)
+      Complex(kind=8), intent(out) ::   U(nss,nss)
+      Complex(kind=8), intent(out) :: HSO(nss,nss)
+      Character(Len=180)           :: input_file_name
+      ! local variables:
+      Integer       :: l,i,j,LuAniso,IsFreeUnit
+      Real(kind=8)  :: g_e,conv_au_to_cm1, gtens(3), maxes(3,3)
+      External      :: IsFreeUnit
+      logical       :: DBG
+
+      dbg=.false.
+      If(dbg) write(6,'(A)') 'Enterring read_formatted_aniso_new'
+      If(dbg) call xFlush(6)
+      g_e=2.00231930437180_wp
+      conv_au_to_cm1=2.194746313702E5_wp
+!     set to zero all arrays:
+      multiplicity=0
+      eso=0.0_wp
+      esfs=0.0_wp
+      edmom=0.0_wp
+      angmom=0.0_wp
+      MM=(0.0_wp,0.0_wp)
+      MS=(0.0_wp,0.0_wp)
+      ML=(0.0_wp,0.0_wp)
+      DM=(0.0_wp,0.0_wp)
+       U=(0.0_wp,0.0_wp)
+!     read the data file:
+      LuAniso=IsFreeUnit(81)
+      Call molcas_open(LuAniso,input_file_name)
+      Call read_magnetic_moment(LuAniso,nss,MM)
+      Call read_electric_moment(LuAniso,nss,DM)
+      Call read_spin_moment(LuAniso,nss,MS)
+      Call read_angmom(LuAniso,nstate,angmom)
+      Call read_amfi(LuAniso,nstate,amfi)
+      Call read_edipmom(LuAniso,nstate,EDMOM)
+      Call read_multiplicity(LuAniso,nstate,multiplicity)
+      Call read_eso(LuAniso,nss,eso_au)
+      Call read_esfs(LuAniso,nstate,esfs_au)
+      Call read_hso(LuAniso,nss,HSO)
+      Call read_eigen(LuAniso,nss,U)
+
+      ! compute the relative spin-orbit energies in cm-1
+      do i=1,nss
+        eso(i)=(eso_au(i)-eso_au(1))*conv_au_to_cm1
+      end do
+
+      ! compute the relative spin-free energies in cm-1
+      do i=1,nstate
+        esfs(i)=(esfs_au(i)-esfs_au(1))*conv_au_to_cm1
+      end do
+      write(6,*) esfs
+
+      ! compute the orbital moment
+      do l=1,3
+        do i=1,nss
+          do j=1,nss
+            ML(l,i,j) = -MM(l,i,j) - MS(l,i,j)*g_e
+          end do
+        end do
+      end do
+
+      !read_nmult,
+      !read_imult,
+      !read_format,
+      !read_nroot,
+      !read_szproj,
+
+      Close(LuAniso)
+      Return
+      End
+
+
