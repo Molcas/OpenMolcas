@@ -92,7 +92,6 @@ C     DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
 
            IF(NEL.EQ.0) THEN
              IPLACE = 1
-             EXIT
 
            ELSE IF ( NEL .NE. 0 ) THEN
 
@@ -113,7 +112,7 @@ C     DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
 
            END IF
 
-          IF(IPLACE.EQ.0) CYCLE
+          IF (IPLACE==0) CYCLE
 
 *. Generate next string
           DO  I = 1, IPLACE-1
