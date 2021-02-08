@@ -640,7 +640,6 @@ c compatibility with the present version: of aniso_i.input file
       ! local stuff
 #include "stdalloc.fh"
       Integer                     :: njob, mxjob, mult, iss, ipar, ist
-      Integer                     :: ibas(nstate,-30:30)
       Integer                     :: data_file_format
       Integer                     :: i,IsFreeUnit,Lu
       Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
@@ -672,14 +671,12 @@ c compatibility with the present version: of aniso_i.input file
       Call mma_allocate(szproj,nss,'szproj')
       szproj(1:nss)=0
       iss=0
-      ibas=0
       ipar=mod(multiplicity(1),2)
       Do Ist=1,nstate
          Mult=Multiplicity(Ist)
          Do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
             If( (Ipar==0) .AND. (I==0)) Go To 310
                Iss=Iss+1
-               Ibas(Ist,I)=Iss
                szproj(iss)=I
   310       Continue
          End Do ! i
