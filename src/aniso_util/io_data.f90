@@ -31,8 +31,6 @@ PUBLIC ::      read_magnetic_moment,       write_magnetic_moment,  &
                check_S_square
 
 
-INTEGER, PRIVATE                       :: DATA_FILE
-INTEGER, PRIVATE                       :: ANISO_FILE
 INTEGER, PARAMETER, PRIVATE            :: FILE_SUS=91
 INTEGER, PARAMETER, PRIVATE            :: FILE_MAG=92
 INTEGER, PARAMETER, PRIVATE            :: FILE_CFP=93
@@ -46,39 +44,41 @@ CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_GTE='FILE_GTE'
 INTEGER, PARAMETER, PRIVATE            :: wp = kind(0.d0)
 REAL(wp), PARAMETER, PRIVATE           :: One = 1.0_wp
 REAL(wp), PARAMETER, PRIVATE           :: Zero = 0.0_wp
-REAL(wp), PARAMETER, PRIVATE           :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+REAL(wp), PARAMETER, PRIVATE           :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
 COMPLEX(wp), PARAMETER, PRIVATE        :: ZeroC = (0.0_wp,0.0_wp)
 COMPLEX(wp), PARAMETER, PRIVATE        :: OneC = (1.0_wp,0.0_wp)
 COMPLEX(wp), PARAMETER, PRIVATE        :: cI = (0.0_wp,1.0_wp)
 LOGICAL, PRIVATE :: DBG=.false.
-INTEGER, PRIVATE :: StdIn=5
 INTEGER, PRIVATE :: StdOut=6
 
 PRIVATE ::     file_advance_to_string,     inquire_key_presence,   &
-               write_string,                                       &
                read_INTEGER_scalar,        write_INTEGER_scalar,   &
-               read_real_scalar,           write_real_scalar,      &
-               read_complex_scalar,        write_complex_scalar,   &
-               read_1d_size,                                       &
-               read_2d_size,                                       &
-               read_3d_size,                                       &
-               read_4d_size,                                       &
                read_1d_INTEGER_array,      write_1d_INTEGER_array, &
-               read_2d_INTEGER_array,      write_2d_INTEGER_array, &
-               read_3d_INTEGER_array,      write_3d_INTEGER_array, &
-               read_4d_INTEGER_array,      write_4d_INTEGER_array, &
                read_1d_real_array,         write_1d_real_array,    &
                read_2d_real_array,         write_2d_real_array,    &
-               read_3d_real_array,         write_3d_real_array,    &
-               read_4d_real_array,         write_4d_real_array,    &
-               read_1d_complex_array,      write_1d_complex_array, &
-               read_2d_complex_array,      write_2d_complex_array, &
-               read_3d_complex_array,      write_3d_complex_array, &
-               read_4d_complex_array,      write_4d_complex_array
+               read_3d_real_array,         write_3d_real_array
+
+!               write_string,                                       &
+!               read_real_scalar,           write_real_scalar,      &
+!               read_complex_scalar,        write_complex_scalar,   &
+!               read_1d_size,                                       &
+!               read_2d_size,                                       &
+!               read_3d_size,                                       &
+!               read_4d_size,                                       &
+!               read_1d_complex_array,      write_1d_complex_array, &
+!               read_2d_complex_array,      write_2d_complex_array
+!               read_2d_INTEGER_array,      write_2d_INTEGER_array, &
+!               read_3d_INTEGER_array,      write_3d_INTEGER_array, &
+!               read_4d_INTEGER_array,      write_4d_INTEGER_array, &
+!               read_4d_real_array,         write_4d_real_array,    &
+!               read_3d_complex_array,      write_3d_complex_array, &
+!               read_4d_complex_array,      write_4d_complex_array
 
 INTEGER, PRIVATE            :: ierr
 CHARACTER (LEN=500), PRIVATE :: LINE
-CHARACTER (LEN=20), PRIVATE  :: FMTR='(5ES22.14)', FMTI='(20(I0,1x))', FMTC='(3(2ES22.14))'
+CHARACTER (LEN=20), PRIVATE  :: FMTR='(5ES22.14)'
+CHARACTER (LEN=20), PRIVATE  :: FMTI='(20(I0,1x))'
+!CHARACTER (LEN=20), PRIVATE  :: FMTC='(3(2ES22.14))'
 CHARACTER (LEN=30), PRIVATE  :: FMTCFP='(2(I0,1x),ES22.14)'
 
 
@@ -225,36 +225,36 @@ SUBROUTINE check_commutation(n,moment)
    ALLOCATE (XZ(n,n))
    XY=ZeroC
    YX=ZeroC
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(1,1:n,1:n), n,         &
               moment(2,1:n,1:n), n, ZeroC,  &
                XY, n )
 
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(2,1:n,1:n), n,         &
               moment(1,1:n,1:n), n, ZeroC,  &
                YX, n )
 
    YZ=ZeroC
    ZY=ZeroC
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(2,1:n,1:n), n,         &
               moment(3,1:n,1:n), n, ZeroC,  &
                YZ, n )
 
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(3,1:n,1:n), n,         &
               moment(2,1:n,1:n), n, ZeroC,  &
                ZY, n )
 
    ZX=ZeroC
    XZ=ZeroC
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(3,1:n,1:n), n,         &
               moment(1,1:n,1:n), n, ZeroC,  &
                ZX, n )
 
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(1,1:n,1:n), n,         &
               moment(3,1:n,1:n), n, ZeroC,  &
                XZ, n )
@@ -305,23 +305,26 @@ SUBROUTINE check_S_square (n, moment)
    Z2=ZeroC
    S2=ZeroC
 
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(1,1:n,1:n), n,         &
               moment(1,1:n,1:n), n, ZeroC,  &
                X2, n )
 
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(2,1:n,1:n), n,         &
               moment(2,1:n,1:n), n, ZeroC,  &
                Y2, n )
 
-   CALL zgemm('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,      &
               moment(3,1:n,1:n), n,         &
               moment(3,1:n,1:n), n, ZeroC,  &
                Z2, n )
 
    ! matrix add:
-   S2 = X2 + Y2 + Z2
+   ! S2 = X2 + Y2 + Z2
+   CALL zaxpy_(n*n, OneC, X2, 1, S2, 1 )
+   CALL zaxpy_(n*n, OneC, Y2, 1, S2, 1 )
+   CALL zaxpy_(n*n, OneC, Z2, 1, S2, 1 )
 
    tr=ZeroC
    DO i=1,n
@@ -1519,7 +1522,6 @@ SUBROUTINE write_eso (ANISO_FILE, n, array)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: n
    REAL (wp), INTENT (IN) :: array(n)
-   INTEGER :: i
    IF (DBG) WRITE (StdOut,*) 'write_eso: '
    CALL write_1d_real_array( ANISO_FILE, '$eso', n, array )
    RETURN
@@ -1991,8 +1993,9 @@ SUBROUTINE close_anisofile(ANISO_FILE)
    RETURN
 END SUBROUTINE close_anisofile
 !--------------------------------------------------------------------------------------------------!
-LOGICAL FUNCTION key_found (key)
+LOGICAL FUNCTION key_found (DATA_FILE, key)
    IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: DATA_FILE
    CHARACTER (LEN=*), INTENT (IN) :: key
 
    key_found=.false.
@@ -2009,10 +2012,10 @@ END FUNCTION key_found
 SUBROUTINE file_advance_to_string ( LU, key, line )
    IMPLICIT NONE
    INTEGER, INTENT (IN)           :: LU
-   INTEGER                       :: ios
-   INTEGER                       :: num_read
+   INTEGER                        :: ios
+   INTEGER                        :: num_read
    CHARACTER (LEN=*), INTENT (IN) :: key
-   CHARACTER (LEN=*)             :: line
+   CHARACTER (LEN=*)              :: line
 
    ierr = 0
    num_read = 0
@@ -2208,95 +2211,95 @@ END SUBROUTINE read_complex_scalar
 !END SUBROUTINE read_string
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_1d_size( LU, key, n )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (OUT)         :: n
-   ierr=0
-   n=0
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-   READ ( LU, FMT=*, IOSTAT=ierr ) n
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_1d_size:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_size:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_1d_size::   n =',n
-   RETURN
-END SUBROUTINE read_1d_size
-
+!SUBROUTINE read_1d_size( LU, key, n )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (OUT)          :: n
+!   ierr=0
+!   n=0
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!   READ ( LU, FMT=*, IOSTAT=ierr ) n
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_1d_size:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_1d_size:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_1d_size::   n =',n
+!   RETURN
+!END SUBROUTINE read_1d_size
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_2d_size( LU, key, n1, n2 )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (OUT)          :: n1, n2
+!   ierr=0
+!   n1=0 ; n2=0 ;
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_2d_size:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_size:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_size::  n1 =',n1
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_size::  n2 =',n2
+!   RETURN
+!END SUBROUTINE read_2d_size
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_2d_size( LU, key, n1, n2 )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (OUT)         :: n1, n2
-   ierr=0
-   n1=0 ; n2=0 ;
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_2d_size:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_2d_size:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_2d_size::  n1 =',n1
-   IF (DBG) WRITE (StdOut,*) 'read_2d_size::  n2 =',n2
-   RETURN
-END SUBROUTINE read_2d_size
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_3d_size( LU, key, n1, n2, n3 )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (OUT)         :: n1, n2, n3
-   ierr=0
-   n1=0 ; n2=0 ; n3=0 ;
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_3d_size:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_3d_size:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n1 =',n1
-   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n2 =',n2
-   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n3 =',n3
-   RETURN
-END SUBROUTINE read_3d_size
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_4d_size( LU, key, n1, n2, n3, n4 )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (OUT)         :: n1, n2, n3, n4
-   ierr=0
-   n1=0 ; n2=0 ; n3=0 ; n4=0 ;
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3, n4
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_4d_size:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_4d_size:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n1 =',n1
-   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n2 =',n2
-   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n3 =',n3
-   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n4 =',n4
-   RETURN
-END SUBROUTINE read_4d_size
-
+!SUBROUTINE read_3d_size( LU, key, n1, n2, n3 )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (OUT)          :: n1, n2, n3
+!   ierr=0
+!   n1=0 ; n2=0 ; n3=0 ;
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_3d_size:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_size:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n1 =',n1
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n2 =',n2
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n3 =',n3
+!   RETURN
+!END SUBROUTINE read_3d_size
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_4d_size( LU, key, n1, n2, n3, n4 )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (OUT)          :: n1, n2, n3, n4
+!   ierr=0
+!   n1=0 ; n2=0 ; n3=0 ; n4=0 ;
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3, n4
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_4d_size:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_size:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n1 =',n1
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n2 =',n2
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n3 =',n3
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n4 =',n4
+!   RETURN
+!END SUBROUTINE read_4d_size
+!
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE read_1d_INTEGER_array( LU, key, n, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n
-   INTEGER, INTENT (OUT)         :: array(n)
-   INTEGER                      :: i
+   INTEGER, INTENT (IN)           :: n
+   INTEGER, INTENT (OUT)          :: array(n)
+   INTEGER                        :: i
    ierr=0
    array=0
    IF (n<=0) THEN
@@ -2326,155 +2329,155 @@ SUBROUTINE read_1d_INTEGER_array( LU, key, n, array )
    RETURN
 END SUBROUTINE read_1d_INTEGER_array
 
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_2d_INTEGER_array( LU, key, n1, n2, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2
+!   INTEGER, INTENT (OUT)          :: array(n1,n2)
+!   INTEGER                        :: i,j
+!   ierr=0
+!   array=0
+!   IF ( (n1<=0).OR.(n2<=0) ) THEN
+!      CALL WarningMessage(1,'read_2d_INTEGER_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n2 =',n2
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n2 =',j
+!   IF ( (i/=n1).OR.(j/=n2) ) THEN
+!      CALL WarningMessage(2,'read_2d_INTEGER_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   DO i=1, n1
+!      READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j),j=1,n2)
+!      IF (ierr /= 0) THEN
+!         CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading the array.')
+!      END IF
+!      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  i =',i
+!      IF (DBG) FLUSH (StdOut)
+!   END DO
+!
+!   RETURN
+!END SUBROUTINE read_2d_INTEGER_array
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_2d_INTEGER_array( LU, key, n1, n2, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2
-   INTEGER, INTENT (OUT)         :: array(n1,n2)
-   INTEGER                      :: i,j
-   ierr=0
-   array=0
-   IF ( (n1<=0).OR.(n2<=0) ) THEN
-      CALL WarningMessage(1,'read_2d_INTEGER_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n2 =',n2
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n2 =',j
-   IF ( (i/=n1).OR.(j/=n2) ) THEN
-      CALL WarningMessage(2,'read_2d_INTEGER_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   DO i=1, n1
-      READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j),j=1,n2)
-      IF (ierr /= 0) THEN
-         CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading the array.')
-      END IF
-      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  i =',i
-      IF (DBG) FLUSH (StdOut)
-   END DO
-
-   RETURN
-END SUBROUTINE read_2d_INTEGER_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_3d_INTEGER_array( LU, key, n1, n2, n3, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3
-   INTEGER, INTENT (OUT)         :: array(n1,n2,n3)
-   INTEGER                      :: i,j,k
-   ierr=0
-   array=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-      CALL WarningMessage(1,'read_3d_INTEGER_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n2 =',n2
-      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n3 =',n3
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n2 =',j
-   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n3 =',k
-   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
-      CALL WarningMessage(2,'read_3d_INTEGER_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   DO i=1, n1
-      DO j=1, n2
-         READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-         IF (ierr /= 0) THEN
-            CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading the array.')
-         END IF
-         IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  i,j =',i,j
-         IF (DBG) FLUSH (StdOut)
-      END DO
-   END DO
-
-   RETURN
-END SUBROUTINE read_3d_INTEGER_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-   INTEGER, INTENT (OUT)         :: array(n1,n2,n3,n4)
-   INTEGER                      :: i,j,k,l
-   ierr=0
-   array=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-      CALL WarningMessage(1,'read_4d_INTEGER_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n2 =',n2
-      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n3 =',n3
-      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n4 =',n4
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n2 =',j
-   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n3 =',k
-   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n4 =',l
-   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
-      CALL WarningMessage(2,'read_4d_INTEGER_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   DO i=1, n1
-      DO j=1, n2
-         DO k=1, n3
-            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  i,j,k =',i,j,k
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   END DO
-
-   RETURN
-END SUBROUTINE read_4d_INTEGER_array
-
+!SUBROUTINE read_3d_INTEGER_array( LU, key, n1, n2, n3, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3
+!   INTEGER, INTENT (OUT)          :: array(n1,n2,n3)
+!   INTEGER                        :: i,j,k
+!   ierr=0
+!   array=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+!      CALL WarningMessage(1,'read_3d_INTEGER_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n2 =',n2
+!      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n3 =',n3
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n2 =',j
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n3 =',k
+!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
+!      CALL WarningMessage(2,'read_3d_INTEGER_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   DO i=1, n1
+!      DO j=1, n2
+!         READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+!         IF (ierr /= 0) THEN
+!            CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading the array.')
+!         END IF
+!         IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  i,j =',i,j
+!         IF (DBG) FLUSH (StdOut)
+!      END DO
+!   END DO
+!
+!   RETURN
+!END SUBROUTINE read_3d_INTEGER_array
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+!   INTEGER, INTENT (OUT)          :: array(n1,n2,n3,n4)
+!   INTEGER                        :: i,j,k,l
+!   ierr=0
+!   array=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+!      CALL WarningMessage(1,'read_4d_INTEGER_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n2 =',n2
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n3 =',n3
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n4 =',n4
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n2 =',j
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n3 =',k
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n4 =',l
+!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
+!      CALL WarningMessage(2,'read_4d_INTEGER_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   DO i=1, n1
+!      DO j=1, n2
+!         DO k=1, n3
+!            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  i,j,k =',i,j,k
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   END DO
+!
+!   RETURN
+!END SUBROUTINE read_4d_INTEGER_array
+!
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE read_1d_real_array( LU, key, n, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n
+   INTEGER, INTENT (IN)           :: n
    REAL (wp), INTENT (OUT)        :: array(n)
-   INTEGER                      :: i
+   INTEGER                        :: i
    ierr=0
    array=Zero
    IF (n<=0) THEN
@@ -2507,11 +2510,11 @@ END SUBROUTINE read_1d_real_array
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE read_2d_real_array( LU, key, n1, n2, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2
+   INTEGER, INTENT (IN)           :: n1, n2
    REAL (wp), INTENT (OUT)        :: array(n1,n2)
-   INTEGER                      :: i,j
+   INTEGER                        :: i,j
    ierr=0
    array=Zero
    IF ( (n1<=0) .OR. (n2<=0) ) THEN
@@ -2550,11 +2553,11 @@ END SUBROUTINE read_2d_real_array
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE read_3d_real_array( LU, key, n1, n2, n3, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3
+   INTEGER, INTENT (IN)           :: n1, n2, n3
    REAL (wp), INTENT (OUT)        :: array(n1,n2,n3)
-   INTEGER                      :: i,j,k
+   INTEGER                        :: i,j,k
    ierr=0
    array=Zero
    IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
@@ -2594,277 +2597,277 @@ SUBROUTINE read_3d_real_array( LU, key, n1, n2, n3, array )
    RETURN
 END SUBROUTINE read_3d_real_array
 
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_4d_real_array( LU, key, n1, n2, n3, n4, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+!   REAL (wp), INTENT (OUT)        :: array(n1,n2,n3,n4)
+!   INTEGER                        :: i,j,k,l
+!   ierr=0
+!   array=Zero
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+!      CALL WarningMessage(1,'read_4d_real_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n2 =',n2
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n3 =',n3
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n4 =',n4
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n2 =',j
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n3 =',k
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n4 =',l
+!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
+!      CALL WarningMessage(2,'read_4d_real_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   DO i=1, n1
+!      DO j=1, n2
+!         DO k=1, n3
+!            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   END DO
+!
+!   RETURN
+!END SUBROUTINE read_4d_real_array
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_4d_real_array( LU, key, n1, n2, n3, n4, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-   REAL (wp), INTENT (OUT)        :: array(n1,n2,n3,n4)
-   INTEGER                      :: i,j,k,l
-   ierr=0
-   array=Zero
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-      CALL WarningMessage(1,'read_4d_real_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n2 =',n2
-      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n3 =',n3
-      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n4 =',n4
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n2 =',j
-   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n3 =',k
-   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n4 =',l
-   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
-      CALL WarningMessage(2,'read_4d_real_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   DO i=1, n1
-      DO j=1, n2
-         DO k=1, n3
-            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   END DO
-
-   RETURN
-END SUBROUTINE read_4d_real_array
-
+!SUBROUTINE read_1d_complex_array( LU, key, n, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n
+!   COMPLEX (wp), INTENT (OUT)     :: array(n)
+!   REAL (wp), ALLOCATABLE         :: rr(:), ri(:)
+!   INTEGER                        :: i
+!   ierr=0
+!   array=ZeroC
+!   IF (n<=0) THEN
+!      CALL WarningMessage(1,'read_1d_complex_array:: nothing to read. Array size = 0.')
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array::   n =',i
+!   IF ( (i/=n) ) THEN
+!      CALL WarningMessage(2,'read_1d_complex_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   ALLOCATE (rr(n))
+!   ALLOCATE (ri(n))
+!   rr=Zero ; ri=Zero
+!   READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i), ri(i), i=1,n )
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading the array.')
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
+!   DO i=1, n
+!     array(i)=CMPLX(rr(i), ri(i), wp)
+!   END DO
+!   DEALLOCATE (rr)
+!   DEALLOCATE (ri)
+!   RETURN
+!END SUBROUTINE read_1d_complex_array
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_1d_complex_array( LU, key, n, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n
-   COMPLEX (wp), INTENT (OUT)     :: array(n)
-   REAL (wp), ALLOCATABLE        :: rr(:), ri(:)
-   INTEGER                      :: i
-   ierr=0
-   array=ZeroC
-   IF (n<=0) THEN
-      CALL WarningMessage(1,'read_1d_complex_array:: nothing to read. Array size = 0.')
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array::   n =',i
-   IF ( (i/=n) ) THEN
-      CALL WarningMessage(2,'read_1d_complex_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   ALLOCATE (rr(n))
-   ALLOCATE (ri(n))
-   rr=Zero ; ri=Zero
-   READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i), ri(i), i=1,n )
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading the array.')
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
-   DO i=1, n
-     array(i)=CMPLX(rr(i), ri(i), wp)
-   END DO
-   DEALLOCATE (rr)
-   DEALLOCATE (ri)
-   RETURN
-END SUBROUTINE read_1d_complex_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_2d_complex_array( LU, key, n1, n2, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2
-   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2)
-   REAL (wp), ALLOCATABLE        :: rr(:,:), ri(:,:)
-   INTEGER                      :: i,j
-   ierr=0
-   array=ZeroC
-   IF ( (n1<=0) .OR. (n2<=0) ) THEN
-      CALL WarningMessage(1,'read_2d_complex_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::   n2 =',n2
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  n2 =',j
-   IF ( (i/=n1) .OR. (j/=n2) ) THEN
-      CALL WarningMessage(2,'read_2d_complex_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   ALLOCATE (rr(n1,n2))
-   ALLOCATE (ri(n1,n2))
-   rr=Zero ; ri=Zero
-   DO i=1, n1
-      READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j), ri(i,j), j=1,n2)
-      IF (ierr /= 0) THEN
-         CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading the array.')
-      END IF
-      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  i =',i
-      IF (DBG) FLUSH (StdOut)
-   END DO
-   DO i=1, n1
-      DO j=1, n2
-         array(i,j)=CMPLX(rr(i,j), ri(i,j), wp)
-      END DO
-   END DO
-   DEALLOCATE (rr)
-   DEALLOCATE (ri)
-   RETURN
-END SUBROUTINE read_2d_complex_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_3d_complex_array( LU, key, n1, n2, n3, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3
-   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3)
-   REAL (wp), ALLOCATABLE        :: rr(:,:,:), ri(:,:,:)
-   INTEGER                      :: i,j,k
-   ierr=0
-   array=ZeroC
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-      CALL WarningMessage(1,'read_3d_complex_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n2 =',n2
-      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n3 =',n3
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n2 =',j
-   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n3 =',k
-   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
-      CALL WarningMessage(2,'read_3d_complex_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   ALLOCATE (rr(n1,n2,n3))
-   ALLOCATE (ri(n1,n2,n3))
-   rr=Zero ; ri=Zero
-   DO i=1, n1
-      DO j=1, n2
-         READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i,j,k), ri(i,j,k), k=1,n3 )
-         IF (ierr /= 0) THEN
-            CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading the array.')
-         END IF
-         IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  i,j =',i,j
-         IF (DBG) FLUSH (StdOut)
-      END DO
-   END DO
-   DO i=1, n1
-      DO j=1, n2
-         DO k=1, n3
-            array(i,j,k)=CMPLX(rr(i,j,k), ri(i,j,k), wp)
-         END DO
-      END DO
-   END DO
-   DEALLOCATE (rr)
-   DEALLOCATE (ri)
-   RETURN
-END SUBROUTINE read_3d_complex_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_4d_complex_array( LU, key, n1, n2, n3, n4, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3,n4)
-   REAL (wp), ALLOCATABLE        :: rr(:,:,:,:), ri(:,:,:,:)
-   INTEGER                      :: i,j,k,l
-   ierr=0
-   array=ZeroC
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-      CALL WarningMessage(1,'read_4d_complex_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n2 =',n2
-      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n3 =',n3
-      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n4 =',n4
-      IF (DBG) FLUSH (StdOut)
-      RETURN
-   END IF
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
-   IF (ierr /= 0) THEN
-      CALL WarningMessage(2,'read_4d_complex_array:: Something went wrong reading key'//trim(key))
-   END IF
-   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n2 =',j
-   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n3 =',k
-   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n4 =',l
-   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
-      CALL WarningMessage(2,'read_4d_complex_array:: sizes of the array are different from the ones used '// &
-                            'to CALL this SUBROUTINE')
-   END IF
-   ALLOCATE (rr(n1,n2,n3,n4))
-   ALLOCATE (ri(n1,n2,n3,n4))
-   rr=Zero; ri=Zero;
-   DO i=1, n1
-      DO j=1, n2
-         DO k=1, n3
-            READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j,k,l), ri(i,j,k,l), l=1,n4)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   END DO
-   DO i=1, n1
-      DO j=1, n2
-         DO k=1, n3
-            DO l=1, n4
-               array(i,j,k,l)=CMPLX(rr(i,j,k,l), ri(i,j,k,l), wp)
-            END DO
-         END DO
-      END DO
-   END DO
-   DEALLOCATE (rr)
-   DEALLOCATE (ri)
-   RETURN
-END SUBROUTINE read_4d_complex_array
+!SUBROUTINE read_2d_complex_array( LU, key, n1, n2, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2
+!   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2)
+!   REAL (wp), ALLOCATABLE         :: rr(:,:), ri(:,:)
+!   INTEGER                        :: i,j
+!   ierr=0
+!   array=ZeroC
+!   IF ( (n1<=0) .OR. (n2<=0) ) THEN
+!      CALL WarningMessage(1,'read_2d_complex_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::   n2 =',n2
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  n2 =',j
+!   IF ( (i/=n1) .OR. (j/=n2) ) THEN
+!      CALL WarningMessage(2,'read_2d_complex_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   ALLOCATE (rr(n1,n2))
+!   ALLOCATE (ri(n1,n2))
+!   rr=Zero ; ri=Zero
+!   DO i=1, n1
+!      READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j), ri(i,j), j=1,n2)
+!      IF (ierr /= 0) THEN
+!         CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading the array.')
+!      END IF
+!      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  i =',i
+!      IF (DBG) FLUSH (StdOut)
+!   END DO
+!   DO i=1, n1
+!      DO j=1, n2
+!         array(i,j)=CMPLX(rr(i,j), ri(i,j), wp)
+!      END DO
+!   END DO
+!   DEALLOCATE (rr)
+!   DEALLOCATE (ri)
+!   RETURN
+!END SUBROUTINE read_2d_complex_array
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_3d_complex_array( LU, key, n1, n2, n3, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3
+!   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3)
+!   REAL (wp), ALLOCATABLE         :: rr(:,:,:), ri(:,:,:)
+!   INTEGER                        :: i,j,k
+!   ierr=0
+!   array=ZeroC
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+!      CALL WarningMessage(1,'read_3d_complex_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n2 =',n2
+!      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n3 =',n3
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n2 =',j
+!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n3 =',k
+!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
+!      CALL WarningMessage(2,'read_3d_complex_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   ALLOCATE (rr(n1,n2,n3))
+!   ALLOCATE (ri(n1,n2,n3))
+!   rr=Zero ; ri=Zero
+!   DO i=1, n1
+!      DO j=1, n2
+!         READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i,j,k), ri(i,j,k), k=1,n3 )
+!         IF (ierr /= 0) THEN
+!            CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading the array.')
+!         END IF
+!         IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  i,j =',i,j
+!         IF (DBG) FLUSH (StdOut)
+!      END DO
+!   END DO
+!   DO i=1, n1
+!      DO j=1, n2
+!         DO k=1, n3
+!            array(i,j,k)=CMPLX(rr(i,j,k), ri(i,j,k), wp)
+!         END DO
+!      END DO
+!   END DO
+!   DEALLOCATE (rr)
+!   DEALLOCATE (ri)
+!   RETURN
+!END SUBROUTINE read_3d_complex_array
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE read_4d_complex_array( LU, key, n1, n2, n3, n4, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+!   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3,n4)
+!   REAL (wp), ALLOCATABLE         :: rr(:,:,:,:), ri(:,:,:,:)
+!   INTEGER                        :: i,j,k,l
+!   ierr=0
+!   array=ZeroC
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+!      CALL WarningMessage(1,'read_4d_complex_array:: nothing to read. Array size = 0.')
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n1 =',n1
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n2 =',n2
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n3 =',n3
+!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n4 =',n4
+!      IF (DBG) FLUSH (StdOut)
+!      RETURN
+!   END IF
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
+!   IF (ierr /= 0) THEN
+!      CALL WarningMessage(2,'read_4d_complex_array:: Something went wrong reading key'//trim(key))
+!   END IF
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array:: key =',trim(key)
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n1 =',i
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n2 =',j
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n3 =',k
+!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n4 =',l
+!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
+!      CALL WarningMessage(2,'read_4d_complex_array:: sizes of the array are different from the ones used '// &
+!                            'to CALL this SUBROUTINE')
+!   END IF
+!   ALLOCATE (rr(n1,n2,n3,n4))
+!   ALLOCATE (ri(n1,n2,n3,n4))
+!   rr=Zero; ri=Zero;
+!   DO i=1, n1
+!      DO j=1, n2
+!         DO k=1, n3
+!            READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j,k,l), ri(i,j,k,l), l=1,n4)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   END DO
+!   DO i=1, n1
+!      DO j=1, n2
+!         DO k=1, n3
+!            DO l=1, n4
+!               array(i,j,k,l)=CMPLX(rr(i,j,k,l), ri(i,j,k,l), wp)
+!            END DO
+!         END DO
+!      END DO
+!   END DO
+!   DEALLOCATE (rr)
+!   DEALLOCATE (ri)
+!   RETURN
+!END SUBROUTINE read_4d_complex_array
 !--------------------------------------------------------------------------------------------------!
 
 
@@ -2897,9 +2900,9 @@ END SUBROUTINE read_4d_complex_array
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_INTEGER_scalar( LU, key, i )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: i
+   INTEGER, INTENT (IN)           :: i
    REWIND ( LU )
    CALL file_advance_to_string( LU, key, line )
    ! if key is found, THEN rewrite the data
@@ -2921,7 +2924,7 @@ END SUBROUTINE write_INTEGER_scalar
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_real_scalar( LU, key, r )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    REAL (wp), INTENT (IN)         :: r
    REWIND ( LU )
@@ -2942,62 +2945,62 @@ SUBROUTINE write_real_scalar( LU, key, r )
    RETURN
 END SUBROUTINE write_real_scalar
 
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE write_complex_scalar( LU, key, c )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   COMPLEX (wp), INTENT (IN)      :: c
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing data')
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_complex_scalar
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_complex_scalar( LU, key, c )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   COMPLEX (wp), INTENT (IN)      :: c
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
-      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing data')
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_complex_scalar
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_string( LU, key, s )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   CHARACTER (LEN=*), INTENT (IN) :: s
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(s)
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT='(100A)', IOSTAT=ierr ) trim(s)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing data')
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_string
-
+!SUBROUTINE write_string( LU, key, s )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   CHARACTER (LEN=*), INTENT (IN) :: s
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(s)
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT='(100A)', IOSTAT=ierr ) trim(s)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing data')
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_string
+!
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_1d_INTEGER_array( LU, key, n, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n
-   INTEGER, INTENT (IN)          :: array(n)
-   INTEGER                      :: i
+   INTEGER, INTENT (IN)           :: n
+   INTEGER, INTENT (IN)           :: array(n)
+   INTEGER                        :: i
    ierr=0
    IF (n<=0) THEN
       CALL WarningMessage(1,'write_1d_INTEGER_array:: nothing to write. Array size = 0.')
@@ -3080,128 +3083,128 @@ SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array )
 END SUBROUTINE write_2d_INTEGER_array
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_3d_INTEGER_array( LU, key, n1, n2, n3, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3
-   INTEGER, INTENT (IN)          :: array(n1,n2,n3)
-   INTEGER                      :: i, j, k
-   ierr=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-      CALL WarningMessage(1,'write_3d_INTEGER_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-   IF (SUM(ABS(array(1:n1,1:n2,1:n3)))==0) THEN
-      CALL WarningMessage(1,'write_3d_INTEGER_array:: all array elements are zero = 0.')
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-      DO i=1,n1
-         DO j=1,n2
-            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_INTEGER_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-      DO i=1,n1
-         DO j=1,n2
-            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_3d_INTEGER_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-   INTEGER, INTENT (IN)          :: array(n1,n2,n3,n4)
-   INTEGER                      :: i, j, k, l
-   ierr=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-      CALL WarningMessage(1,'write_4d_INTEGER_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-   IF (SUM(ABS(array(1:n1,1:n2,1:n3,1:n4)))==0) THEN
-      CALL WarningMessage(1,'write_4d_INTEGER_array:: all array elements are zero = 0.')
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-      DO i=1,n1
-         DO j=1,n2
-            DO k=1,n3
-               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-               IF (ierr /= 0) THEN
-                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong reading the array.')
-               END IF
-               IF (DBG) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
-               IF (DBG) FLUSH (StdOut)
-            END DO
-         END DO
-      END DO
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_INTEGER_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-      DO i=1,n1
-         DO j=1,n2
-            DO k=1,n3
-               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-               IF (ierr /= 0) THEN
-                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong writting the array.')
-               END IF
-               IF (DBG) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
-               IF (DBG) FLUSH (StdOut)
-            END DO
-         END DO
-      END DO
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_4d_INTEGER_array
-
-!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE write_3d_INTEGER_array( LU, key, n1, n2, n3, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3
+!   INTEGER, INTENT (IN)           :: array(n1,n2,n3)
+!   INTEGER                        :: i, j, k
+!   ierr=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+!      CALL WarningMessage(1,'write_3d_INTEGER_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!   IF (SUM(ABS(array(1:n1,1:n2,1:n3)))==0) THEN
+!      CALL WarningMessage(1,'write_3d_INTEGER_array:: all array elements are zero = 0.')
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+!      DO i=1,n1
+!         DO j=1,n2
+!            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_INTEGER_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+!      DO i=1,n1
+!         DO j=1,n2
+!            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_3d_INTEGER_array
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE write_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+!   INTEGER, INTENT (IN)           :: array(n1,n2,n3,n4)
+!   INTEGER                        :: i, j, k, l
+!   ierr=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+!      CALL WarningMessage(1,'write_4d_INTEGER_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!   IF (SUM(ABS(array(1:n1,1:n2,1:n3,1:n4)))==0) THEN
+!      CALL WarningMessage(1,'write_4d_INTEGER_array:: all array elements are zero = 0.')
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+!      DO i=1,n1
+!         DO j=1,n2
+!            DO k=1,n3
+!               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!               IF (ierr /= 0) THEN
+!                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong reading the array.')
+!               END IF
+!               IF (DBG) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
+!               IF (DBG) FLUSH (StdOut)
+!            END DO
+!         END DO
+!      END DO
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_INTEGER_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+!      DO i=1,n1
+!         DO j=1,n2
+!            DO k=1,n3
+!               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!               IF (ierr /= 0) THEN
+!                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong writting the array.')
+!               END IF
+!               IF (DBG) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
+!               IF (DBG) FLUSH (StdOut)
+!            END DO
+!         END DO
+!      END DO
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_4d_INTEGER_array
+!
+!!--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_1d_real_array( LU, key, n, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n
+   INTEGER, INTENT (IN)           :: n
    REAL (wp), INTENT (IN)         :: array(n)
-   INTEGER                      :: i
-   REAL (wp), EXTERNAL           :: dnrm2_
+   INTEGER                        :: i
+   REAL (wp), EXTERNAL            :: dnrm2_
    ierr=0
    IF (n<=0) THEN
       CALL WarningMessage(1,'write_1d_real_array:: nothing to write. Array size = 0.')
@@ -3235,12 +3238,12 @@ END SUBROUTINE write_1d_real_array
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_2d_real_array( LU, key, n1, n2, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2
+   INTEGER, INTENT (IN)           :: n1, n2
    REAL (wp), INTENT (IN)         :: array(n1,n2)
-   INTEGER                      :: i, j
-   REAL (wp), EXTERNAL           :: dnrm2_
+   INTEGER                        :: i, j
+   REAL (wp), EXTERNAL            :: dnrm2_
    ierr=0
    IF ( (n1<=0) .OR. (n2<=0) ) THEN
       CALL WarningMessage(1,'write_2d_real_array:: nothing to write. Array size = 0.')
@@ -3287,12 +3290,12 @@ END SUBROUTINE write_2d_real_array
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3
+   INTEGER, INTENT (IN)           :: n1, n2, n3
    REAL (wp), INTENT (IN)         :: array(n1,n2,n3)
-   INTEGER                      :: i, j, k
-   REAL (wp), EXTERNAL           :: dnrm2_
+   INTEGER                        :: i, j, k
+   REAL (wp), EXTERNAL            :: dnrm2_
    ierr=0
    IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
       CALL WarningMessage(1,'write_3d_real_array:: nothing to write. Array size = 0.')
@@ -3340,255 +3343,255 @@ SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
    RETURN
 END SUBROUTINE write_3d_real_array
 
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE write_4d_real_array( LU, key, n1, n2, n3, n4, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+!   REAL (wp), INTENT (IN)         :: array(n1,n2,n3,n4)
+!   INTEGER                        :: i, j, k, l
+!   REAL (wp), EXTERNAL            :: dnrm2_
+!   ierr=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+!      CALL WarningMessage(1,'write_4d_real_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!   IF (dnrm2_(n1*n2*n3*n4,array,1) <= MINIMAL_REAL) THEN
+!      CALL WarningMessage(1,'write_4d_real_array:: all array elements are zero = 0.')
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+!      DO i=1,n1
+!         DO j=1,n2
+!            DO k=1,n3
+!               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!               IF (ierr /= 0) THEN
+!                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong reading the array.')
+!               END IF
+!               IF (DBG) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
+!               IF (DBG) FLUSH (StdOut)
+!            END DO
+!         END DO
+!      END DO
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_real_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+!      DO i=1,n1
+!         DO j=1,n2
+!            DO k=1,n3
+!               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!               IF (ierr /= 0) THEN
+!                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong writting the array.')
+!               END IF
+!               IF (DBG) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
+!               IF (DBG) FLUSH (StdOut)
+!            END DO
+!         END DO
+!      END DO
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_4d_real_array
+!
+!!--------------------------------------------------------------------------------------------------!
+!SUBROUTINE write_1d_complex_array( LU, key, n, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n
+!   COMPLEX (wp), INTENT (IN)      :: array(n)
+!   INTEGER                        :: i
+!   ierr=0
+!   IF (n<=0) THEN
+!      CALL WarningMessage(1,'write_1d_complex_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
+!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
+!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing data')
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_1d_complex_array
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_4d_real_array( LU, key, n1, n2, n3, n4, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-   REAL (wp), INTENT (IN)         :: array(n1,n2,n3,n4)
-   INTEGER                      :: i, j, k, l
-   REAL (wp), EXTERNAL           :: dnrm2_
-   ierr=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-      CALL WarningMessage(1,'write_4d_real_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-   IF (dnrm2_(n1*n2*n3*n4,array,1) <= MINIMAL_REAL) THEN
-      CALL WarningMessage(1,'write_4d_real_array:: all array elements are zero = 0.')
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-      DO i=1,n1
-         DO j=1,n2
-            DO k=1,n3
-               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-               IF (ierr /= 0) THEN
-                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong reading the array.')
-               END IF
-               IF (DBG) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
-               IF (DBG) FLUSH (StdOut)
-            END DO
-         END DO
-      END DO
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_real_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-      DO i=1,n1
-         DO j=1,n2
-            DO k=1,n3
-               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-               IF (ierr /= 0) THEN
-                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong writting the array.')
-               END IF
-               IF (DBG) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
-               IF (DBG) FLUSH (StdOut)
-            END DO
-         END DO
-      END DO
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_4d_real_array
-
+!SUBROUTINE write_2d_complex_array( LU, key, n1, n2, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2
+!   COMPLEX (wp), INTENT (IN)      :: array(n1,n2)
+!   INTEGER                        :: i, j
+!   ierr=0
+!   IF ( (n1<=0) .OR. (n2<=0) ) THEN
+!      CALL WarningMessage(1,'write_2d_complex_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
+!      DO i=1,n1
+!         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
+!         IF (ierr /= 0) THEN
+!            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing the array.')
+!         END IF
+!         IF (DBG) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
+!         IF (DBG) FLUSH (StdOut)
+!      END DO
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_2d_complex_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
+!      DO i=1,n1
+!         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
+!         IF (ierr /= 0) THEN
+!            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing data.')
+!         END IF
+!         IF (DBG) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
+!         IF (DBG) FLUSH (StdOut)
+!      END DO
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_2d_complex_array
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_1d_complex_array( LU, key, n, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n
-   COMPLEX (wp), INTENT (IN)      :: array(n)
-   INTEGER                      :: i
-   ierr=0
-   IF (n<=0) THEN
-      CALL WarningMessage(1,'write_1d_complex_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
-      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
-      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing data')
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_1d_complex_array
-
+!SUBROUTINE write_3d_complex_array( LU, key, n1, n2, n3, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)           :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)           :: n1, n2, n3
+!   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3)
+!   INTEGER                        :: i, j, k
+!   ierr=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+!      CALL WarningMessage(1,'write_3d_complex_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+!      DO i=1,n1
+!         DO j=1,n2
+!            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_complex_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+!      DO i=1,n1
+!         DO j=1,n2
+!            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+!            IF (ierr /= 0) THEN
+!               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
+!            END IF
+!            IF (DBG) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
+!            IF (DBG) FLUSH (StdOut)
+!         END DO
+!      END DO
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_3d_complex_array
+!
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_2d_complex_array( LU, key, n1, n2, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2
-   COMPLEX (wp), INTENT (IN)      :: array(n1,n2)
-   INTEGER                      :: i, j
-   ierr=0
-   IF ( (n1<=0) .OR. (n2<=0) ) THEN
-      CALL WarningMessage(1,'write_2d_complex_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
-      DO i=1,n1
-         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
-         IF (ierr /= 0) THEN
-            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing the array.')
-         END IF
-         IF (DBG) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
-         IF (DBG) FLUSH (StdOut)
-      END DO
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_2d_complex_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
-      DO i=1,n1
-         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
-         IF (ierr /= 0) THEN
-            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing data.')
-         END IF
-         IF (DBG) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
-         IF (DBG) FLUSH (StdOut)
-      END DO
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_2d_complex_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_3d_complex_array( LU, key, n1, n2, n3, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3
-   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3)
-   INTEGER                      :: i, j, k
-   ierr=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-      CALL WarningMessage(1,'write_3d_complex_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-      DO i=1,n1
-         DO j=1,n2
-            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_complex_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-      DO i=1,n1
-         DO j=1,n2
-            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-            IF (ierr /= 0) THEN
-               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
-            END IF
-            IF (DBG) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
-            IF (DBG) FLUSH (StdOut)
-         END DO
-      END DO
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_3d_complex_array
-
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_4d_complex_array( LU, key, n1, n2, n3, n4, array )
-   IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
-   CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3,n4)
-   INTEGER                      :: i, j, k, l
-   ierr=0
-   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-      CALL WarningMessage(1,'write_4d_complex_array:: nothing to write. Array size = 0.')
-      RETURN
-   END IF
-
-   REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
-
-   ! if key is found, THEN rewrite the data
-   IF ( ierr == 0 ) THEN
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-      DO i=1,n1
-         DO j=1,n2
-            DO k=1,n3
-               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-               IF (ierr /= 0) THEN
-                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong reading the array.')
-               END IF
-               IF (DBG) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
-               IF (DBG) FLUSH (StdOut)
-            END DO
-         END DO
-      END DO
-   ! if the keyword is not found, THEN append the new keyword and data
-   ELSE IF (ierr /= 0 ) THEN
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_complex_array:: Something went wrong writing key'//trim(key))
-      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-      DO i=1,n1
-         DO j=1,n2
-            DO k=1,n3
-               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-               IF (ierr /= 0) THEN
-                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong writting the array.')
-               END IF
-               IF (DBG) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
-               IF (DBG) FLUSH (StdOut)
-            END DO
-         END DO
-      END DO
-   END IF
-   WRITE ( LU, FMT=*, IOSTAT=ierr )
-   FLUSH ( LU )
-   RETURN
-END SUBROUTINE write_4d_complex_array
+!SUBROUTINE write_4d_complex_array( LU, key, n1, n2, n3, n4, array )
+!   IMPLICIT NONE
+!   INTEGER, INTENT (IN)          :: LU
+!   CHARACTER (LEN=*), INTENT (IN) :: key
+!   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
+!   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3,n4)
+!   INTEGER                      :: i, j, k, l
+!   ierr=0
+!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+!      CALL WarningMessage(1,'write_4d_complex_array:: nothing to write. Array size = 0.')
+!      RETURN
+!   END IF
+!
+!   REWIND ( LU )
+!   CALL file_advance_to_string( LU, key, line )
+!
+!   ! if key is found, THEN rewrite the data
+!   IF ( ierr == 0 ) THEN
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+!      DO i=1,n1
+!         DO j=1,n2
+!            DO k=1,n3
+!               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!               IF (ierr /= 0) THEN
+!                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong reading the array.')
+!               END IF
+!               IF (DBG) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
+!               IF (DBG) FLUSH (StdOut)
+!            END DO
+!         END DO
+!      END DO
+!   ! if the keyword is not found, THEN append the new keyword and data
+!   ELSE IF (ierr /= 0 ) THEN
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+!      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_complex_array:: Something went wrong writing key'//trim(key))
+!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+!      DO i=1,n1
+!         DO j=1,n2
+!            DO k=1,n3
+!               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+!               IF (ierr /= 0) THEN
+!                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong writting the array.')
+!               END IF
+!               IF (DBG) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
+!               IF (DBG) FLUSH (StdOut)
+!            END DO
+!         END DO
+!      END DO
+!   END IF
+!   WRITE ( LU, FMT=*, IOSTAT=ierr )
+!   FLUSH ( LU )
+!   RETURN
+!END SUBROUTINE write_4d_complex_array
 
 END MODULE io_data
