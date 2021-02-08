@@ -1313,11 +1313,11 @@ END SUBROUTINE write_magnetic_moment
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE write_electric_moment (ANISO_FILE, n, moment)
    IMPLICIT NONE
-   INTEGER, INTENT (IN)       :: ANISO_FILE
-   INTEGER, INTENT (IN)       :: N
-   COMPLEX (wp), INTENT (OUT) :: moment(3,N,N)
-   REAL (wp), ALLOCATABLE     :: rr(:,:), ri(:,:)
-   INTEGER                    :: i, j
+   INTEGER, INTENT (IN)      :: ANISO_FILE
+   INTEGER, INTENT (IN)      :: N
+   COMPLEX (wp), INTENT (IN) :: moment(3,N,N)
+   REAL (wp), ALLOCATABLE    :: rr(:,:), ri(:,:)
+   INTEGER                   :: i, j
 
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
