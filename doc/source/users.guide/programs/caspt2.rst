@@ -278,7 +278,7 @@ Keywords
   CASSCF calculation (keyword :kword:`CIRoot` in :program:`RASSCF`) are desired.
   This keyword is mutually exclusive with :kword:`XMULtistate` and :kword:`RMULtistate`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="XMULTISTATE,RMULTISTATE">
               <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: Multistate <basic> GUI:list
               <HELP>
@@ -294,7 +294,7 @@ Keywords
   This keyword works in the same exact way as :kword:`MULTistate` and is
   mutually exclusive with :kword:`MULTistate` and :kword:`RMULtistate`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="MULTISTATE,RMULTISTATE">
               <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: XMultistate <basic> GUI:list
               <HELP>
@@ -312,7 +312,7 @@ Keywords
   This keyword works in the same exact way as :kword:`MULTistate` and is
   mutually exclusive with :kword:`MULTistate` and :kword:`XMULtistate`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="RMULTISTATE" APPEAR="Rotated Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="RMULTISTATE" APPEAR="Rotated Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="MULTISTATE,XMULTISTATE">
               <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: RMultistate <basic> GUI:list
               <HELP>
@@ -358,7 +358,7 @@ Keywords
   We suggest to use the third option associated with a value of 1 in
   :kword:`DWMS`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWTYPE" APPEAR="Dynamically Weighted Exponent" KIND="INT" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWTYPE" APPEAR="Dynamically Weighted Exponent" KIND="CHOICE" LIST="1:squared energy difference,2:square of total energy divided by Hamiltonian coupling,3:energy difference divided by square root of Hamiltonian coupling" LEVEL="BASIC">
               %%Keyword: DWType <basic> GUI:number
               <HELP>
               Set to either 1, 2 or 3 to select the exponent used to obtain
