@@ -12,7 +12,6 @@
 !***********************************************************************
 Module Fockof
 Private
-Public:: LFIT,LFIA,LFTA,LFTI,LFAI,LFAT
 Public:: IOFFIT,IOFFIA,IOFFTA
 Public:: FIT, FIT_Full
 Public:: FTI, FTI_Full
@@ -38,6 +37,5 @@ Real*8, Allocatable, Target:: FTA_Full(:)
 Type (rPointers):: FAT(8)
 Real*8, Allocatable, Target:: FAT_Full(:)
 
-Integer:: LFIT,LFIA,LFTA,LFTI,LFAI,LFAT
 Integer:: IOFFIT(8),IOFFIA(8),IOFFTA(8)
 End Module Fockof

@@ -125,18 +125,12 @@ C SVC: add transposed fock matrix blocks
 
       Call mma_allocate(FIT_Full,NFIT,Label='FIT_Full')
       Call mma_allocate(FTI_Full,NFIT,Label='FTI_Full')
-*     CALL GETMEM('FIT','ALLO','REAL',LFIT,NFIT)
-*     CALL GETMEM('FTI','ALLO','REAL',LFTI,NFIT)
 
       Call mma_allocate(FIA_Full,NFIA,Label='FIA_Full')
       Call mma_allocate(FAI_Full,NFIA,Label='FAI_Full')
-*     CALL GETMEM('FIA','ALLO','REAL',LFIA,NFIA)
-*     CALL GETMEM('FAI','ALLO','REAL',LFAI,NFIA)
 
       Call mma_allocate(FTA_Full,NFTA,Label='FTA_Full')
       Call mma_allocate(FAT_Full,NFTA,Label='FAT_Full')
-*     CALL GETMEM('FTA','ALLO','REAL',LFTA,NFTA)
-*     CALL GETMEM('FAT','ALLO','REAL',LFAT,NFTA)
 
       IFIFA=0
       DO ISYM=1,NSYM
@@ -530,14 +524,6 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
          FTA(iSym)%A => Null()
          FAT(iSym)%A => Null()
       End Do
-*     CALL GETMEM('FIT','FREE','REAL',LFIT,NFIT)
-*     CALL GETMEM('FTI','FREE','REAL',LFTI,NFIT)
-
-*     CALL GETMEM('FIA','FREE','REAL',LFIA,NFIA)
-*     CALL GETMEM('FAI','FREE','REAL',LFAI,NFIA)
-
-*     CALL GETMEM('FTA','FREE','REAL',LFTA,NFTA)
-*     CALL GETMEM('FAT','FREE','REAL',LFAT,NFTA)
 
 C Transform contrav C  to eigenbasis of H0(diag):
       CALL PTRTOSR(1,IVEC,IVEC)

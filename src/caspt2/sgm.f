@@ -36,7 +36,7 @@ C so each chunk has all the row indices (full columns).
 
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
      &               X1,lg_X,lg_Y,LIST)
-      use Fockof
+      use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
