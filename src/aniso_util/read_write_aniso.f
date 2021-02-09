@@ -648,7 +648,9 @@ c compatibility with the present version: of aniso_i.input file
       Integer, allocatable        :: nroot(:)
       Character(len=128)          :: Filename
       Character(len=1024)         :: molcas,fname,molcasversion
+      LOGICAL                     :: dbg
 
+      dbg=.false.
 
       !-------------------------------------------------------------
       ! some preparations
@@ -693,6 +695,7 @@ c compatibility with the present version: of aniso_i.input file
       ! Get the MOLCAS version: index table
       CALL getenvf('MOLCAS ',molcas)
       WRITE(fname,'(A)') trim(molcas)//'/.molcasversion'
+      Lutmp=IsFreeUnit(89)
       CALL molcas_open(Lutmp,fname)
       READ(Lutmp,'(A180)') molcasversion
       CLOSE(Lutmp)
@@ -700,12 +703,10 @@ c compatibility with the present version: of aniso_i.input file
 
       !-------------------------------------------------------------
       ! write the data to the new aniso file
-
       FileName='ANISOFILE'
       Lu=IsFreeUnit(81)
 
       Call molcas_open(Lu,FileName)
-
       data_file_format=2021
 
       fmt_key='(A)'
@@ -726,242 +727,65 @@ c compatibility with the present version: of aniso_i.input file
       WRITE(Lu,'(A)')
       !-------------------------------------------------------------
       ! Number of spin orbit states
-      WRITE(Lu,fmt_key) '$nss'
-      WRITE(Lu,fmt_int)  nss
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_nss ( LU, nss, dbg )
       !-------------------------------------------------------------
       ! Number of spin free states
-      WRITE(Lu,fmt_key) '$nstate'
-      WRITE(Lu,fmt_int)  nstate
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_nstate ( LU, nstate, dbg )
       !-------------------------------------------------------------
       ! Number of spin multiplicities
-      WRITE(Lu,fmt_key)  '$nmult'
-      WRITE(Lu,fmt_int)  njob
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_nmult ( LU, njob, dbg )
       !-------------------------------------------------------------
       ! Values of the spin multiplicity
-      WRITE(Lu,fmt_key)  '$imult'
-      WRITE(Lu,fmt_int)  njob
-      WRITE(Lu,fmt_int)  mltplt(1:njob)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_imult ( LU, njob, mltplt, dbg )
       !-------------------------------------------------------------
       ! Number of roots in each spin multiplicity
-      WRITE(Lu,fmt_key)  '$nroot'
-      WRITE(Lu,fmt_int)  njob
-      WRITE(Lu,fmt_int)  nroot(1:njob)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_nroot ( LU, njob, nroot, dbg )
       !-------------------------------------------------------------
       ! SZ projection of the states defining the ording
-      WRITE(Lu,fmt_key)  '$szproj'
-      WRITE(Lu,fmt_int)  nss
-      WRITE(Lu,fmt_int)  szproj(1:nss)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_szproj ( LU, nss, szproj, dbg )
       !-------------------------------------------------------------
       ! spin multiplicity for all states
-      WRITE(Lu,fmt_key)  '$multiplicity'
-      WRITE(Lu,fmt_int)  nstate
-      WRITE(Lu,fmt_int)  multiplicity(1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_multiplicity ( LU, nstate, multiplicity, dbg )
       !-------------------------------------------------------------
       ! Eigenvalues of the HBO matrix (spin-free energies from RASSCF)
       ! atomic units
-      WRITE(Lu,fmt_key)  '$eso'
-      WRITE(Lu,fmt_int)  nss
-      WRITE(Lu,fmt_real) (eso_au(i),i=1,nss)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_eso ( LU, nss, eso_au, dbg )
       !-------------------------------------------------------------
       ! Eigenvalues of the HBO matrix (spin-free energies from RASSCF)
       ! atomic units
-      WRITE(Lu,fmt_key)  '$esfs'
-      WRITE(Lu,fmt_int)  nstate
-      WRITE(Lu,fmt_real) (esfs_au(i),i=1,nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_esfs ( LU, nstate, esfs_au, dbg )
       !-------------------------------------------------------------
       ! Angular momentum operator in the basis of spin free states,
       ! component X,Y,Z
-      WRITE(Lu,fmt_key)  '$angmom_xi'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) angmom(1,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$angmom_yi'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) angmom(2,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$angmom_zi'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) angmom(3,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_angmom ( LU, nstate, angmom, dbg )
       !-------------------------------------------------------------
       ! AMFI/SOMF operator in the basis of spin free states
-      ! (see eq. 35 in [1]).
-      ! Note that the meaning of these matrices is different in
+      ! (see eq. 35 in:
+      ! D. Ganyushin and F. Neese, J. Chem. Phys. 138, 104113, 2013.
+      ! Note that the meaning of AMFI integrals is different in
       ! MOLCAS and ORCA
-      WRITE(Lu,fmt_key)  '$amfi_x'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) amfi(1,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$amfi_y'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) amfi(2,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$amfi_z'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) amfi(3,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_amfi ( LU, nstate, amfi, dbg )
       !-------------------------------------------------------------
       ! Electric transition-dipole moments in the basis of spin
       ! free states
       ! The dipole moments, where bra and ket have the same state,
       ! are not computed. ??
-      WRITE(Lu,fmt_key)  '$edmom_x'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) edmom(1,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edmom_y'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) edmom(2,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edmom_z'
-      WRITE(Lu,fmt_int)  nstate, nstate
-      WRITE(Lu,fmt_real) edmom(3,1:nstate,1:nstate)
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_edipmom ( LU, nstate, edmom, dbg )
       !-------------------------------------------------------------
       ! Magnetic dipole moment in the basis of SO states
-      WRITE(Lu,fmt_key)  '$magn_xr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(MM(1,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$magn_xi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(MM(1,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$magn_yr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(MM(2,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$magn_yi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(MM(2,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$magn_zr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real)  DBLE(MM(3,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$magn_zi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(MM(3,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_magnetic_moment ( LU, nss, MM, dbg )
       !-------------------------------------------------------------
       ! Spin moment in the basis of SO states
-      WRITE(Lu,fmt_key)  '$spin_xr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(MS(1,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$spin_xi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(MS(1,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$spin_yr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(MS(2,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$spin_yi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(MS(2,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$spin_zr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(MS(3,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$spin_zi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(MS(3,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_spin_moment ( Lu, nss, MS, dbg )
       !-------------------------------------------------------------
       ! Electric transition-dipole moments in the basis of SO states
-      WRITE(Lu,fmt_key)  '$edipm_xr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(DM(1,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edipm_xi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(DM(1,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edipm_yr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(DM(2,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edipm_yi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(DM(2,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edipm_zr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(DM(3,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
-      WRITE(Lu,fmt_key)  '$edipm_zi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(DM(3,1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_electric_moment ( LU, nss, DM, dbg )
       !-------------------------------------------------------------
       ! Eigenvectors of the HBO+SOC matrix
-      WRITE(Lu,fmt_key)  '$eigenr'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(U(1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      WRITE(Lu,fmt_key)  '$eigeni'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(U(1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_eigen ( LU, nss, U, dbg )
       !-------------------------------------------------------------
       ! The HBO+SOC matrix, atomic units
-      WRITE(Lu,fmt_key)  '$hsor'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DBLE(HSO(1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      WRITE(Lu,fmt_key)  '$hsoi'
-      WRITE(Lu,fmt_int)  nss, nss
-      WRITE(Lu,fmt_real) DIMAG(HSO(1:nss,1:nss))
-      WRITE(Lu,'(A)')
-      FLUSH(Lu)
+      CALL write_hso ( LU, nss, HSO, dbg )
       !-------------------------------------------------------------
       FLUSH(Lu)
       CLOSE(Lu)
@@ -983,7 +807,6 @@ c compatibility with the present version: of aniso_i.input file
      &                                multiplicity, eso, esfs,
      &                                U, MM, MS, ML, DM, ANGMOM, EDMOM,
      &                                AMFI, HSO, eso_au, esfs_au )
-      USE io_data
 
       Implicit None
 #include "stdalloc.fh"
@@ -1005,7 +828,7 @@ c compatibility with the present version: of aniso_i.input file
       Character(Len=180)           :: input_file_name
       ! local variables:
       Integer       :: l,i,j,LuAniso,IsFreeUnit
-      Real(kind=8)  :: g_e,conv_au_to_cm1, gtens(3), maxes(3,3)
+      Real(kind=8)  :: g_e,conv_au_to_cm1
       External      :: IsFreeUnit
       logical       :: DBG
 
@@ -1028,17 +851,17 @@ c compatibility with the present version: of aniso_i.input file
 !     read the data file:
       LuAniso=IsFreeUnit(81)
       Call molcas_open(LuAniso,input_file_name)
-      Call read_magnetic_moment(LuAniso,nss,MM)
-      Call read_electric_moment(LuAniso,nss,DM)
-      Call read_spin_moment(LuAniso,nss,MS)
-      Call read_angmom(LuAniso,nstate,angmom)
-      Call read_amfi(LuAniso,nstate,amfi)
-      Call read_edipmom(LuAniso,nstate,EDMOM)
-      Call read_multiplicity(LuAniso,nstate,multiplicity)
-      Call read_eso(LuAniso,nss,eso_au)
-      Call read_esfs(LuAniso,nstate,esfs_au)
-      Call read_hso(LuAniso,nss,HSO)
-      Call read_eigen(LuAniso,nss,U)
+      Call read_magnetic_moment(LuAniso,nss,MM,dbg)
+      Call read_electric_moment(LuAniso,nss,DM,dbg)
+      Call read_spin_moment(LuAniso,nss,MS,dbg)
+      Call read_angmom(LuAniso,nstate,angmom,dbg)
+      Call read_amfi(LuAniso,nstate,amfi,dbg)
+      Call read_edipmom(LuAniso,nstate,EDMOM,dbg)
+      Call read_multiplicity(LuAniso,nstate,multiplicity,dbg)
+      Call read_eso(LuAniso,nss,eso_au,dbg)
+      Call read_esfs(LuAniso,nstate,esfs_au,dbg)
+      Call read_hso(LuAniso,nss,HSO,dbg)
+      Call read_eigen(LuAniso,nss,U,dbg)
 
       ! compute the relative spin-orbit energies in cm-1
       do i=1,nss

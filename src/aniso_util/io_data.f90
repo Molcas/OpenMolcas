@@ -1,63 +1,72 @@
-MODULE io_data
+!MODULE io_data
+!
+!IMPLICIT NONE
+!
+!INTEGER, PARAMETER, PRIVATE            :: wp = kind(0.d0)
+!REAL(wp), PARAMETER, PRIVATE           :: One = 1.0_wp
+!REAL(wp), PARAMETER, PRIVATE           :: Zero = 0.0_wp
+!REAL(wp), PARAMETER, PRIVATE           :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
+!COMPLEX(wp), PARAMETER, PRIVATE        :: ZeroC = (0.0_wp,0.0_wp)
+!COMPLEX(wp), PARAMETER, PRIVATE        :: OneC = (1.0_wp,0.0_wp)
+!COMPLEX(wp), PARAMETER, PRIVATE        :: cI = (0.0_wp,1.0_wp)
+!LOGICAL, PRIVATE :: dbg=.false.
+!INTEGER, PRIVATE :: StdOut=6
+!
+!INTEGER, PRIVATE             :: ierr
+!CHARACTER (LEN=500), PRIVATE :: LINE
+!CHARACTER (LEN=20), PRIVATE  :: FMTR='(5ES22.14)'
+!CHARACTER (LEN=20), PRIVATE  :: FMTI='(20(I0,1x))'
+!CHARACTER (LEN=30), PRIVATE  :: FMTCFP='(2(I0,1x),ES22.14)'
+!CHARACTER (LEN=20), PRIVATE :: FMTC='(3(2ES22.14))'
+!
+!End Module io_data
+!
+!PUBLIC ::      read_magnetic_moment,       write_magnetic_moment,  &
+!               read_electric_moment,       write_electric_moment,  &
+!               read_spin_moment,           write_spin_moment,      &
+!               read_angmom,                write_angmom,           &
+!               read_edipmom,               write_edipmom,          &
+!               read_amfi,                  write_amfi,             &
+!               read_nss,                   write_nss,              &
+!               read_nmult,                 write_nmult,            &
+!               read_imult,                 write_imult,            &
+!               read_format,                write_format,           &
+!               read_nroot,                 write_nroot,            &
+!               read_nstate,                write_nstate,           &
+!               read_multiplicity,          write_multiplicity,     &
+!               read_szproj,                write_szproj,           &
+!               read_eso,                   write_eso,              &
+!               read_esfs,                  write_esfs,             &
+!               read_hso,                   write_hso,              &
+!               read_eigen,                 write_eigen,            &
+!               read_gtens,                 write_gtens,            &
+!               read_stev_cfp,              write_stev_cfp,         &
+!               read_susc,                  write_susc,             &
+!               read_magn,                  write_magn,             &
+!               read_complex_matrix,        write_complex_matrix,   &
+!               open_datafile_read,         open_datafile_write,    &
+!               close_datafile,                                     &
+!               check_hermiticity_matrix,   check_commutation,      &
+!               check_S_square
+!
+!
+!INTEGER, PARAMETER, PRIVATE            :: FILE_SUS=91
+!INTEGER, PARAMETER, PRIVATE            :: FILE_MAG=92
+!INTEGER, PARAMETER, PRIVATE            :: FILE_CFP=93
+!INTEGER, PARAMETER, PRIVATE            :: FILE_GTE=94
 
-IMPLICIT NONE
+!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_SUS='FILE_SUS'
+!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_MAG='FILE_MAG'
+!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_CFP='FILE_CFP'
+!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_GTE='FILE_GTE'
 
-PUBLIC ::      read_magnetic_moment,       write_magnetic_moment,  &
-               read_electric_moment,       write_electric_moment,  &
-               read_spin_moment,           write_spin_moment,      &
-               read_angmom,                write_angmom,           &
-               read_edipmom,               write_edipmom,          &
-               read_amfi,                  write_amfi,             &
-               read_nss,                   write_nss,              &
-               read_nmult,                 write_nmult,            &
-               read_imult,                 write_imult,            &
-               read_format,                write_format,           &
-               read_nroot,                 write_nroot,            &
-               read_nstate,                write_nstate,           &
-               read_multiplicity,          write_multiplicity,     &
-               read_szproj,                write_szproj,           &
-               read_eso,                   write_eso,              &
-               read_esfs,                  write_esfs,             &
-               read_hso,                   write_hso,              &
-               read_eigen,                 write_eigen,            &
-               read_gtens,                 write_gtens,            &
-               read_stev_cfp,              write_stev_cfp,         &
-               read_susc,                  write_susc,             &
-               read_magn,                  write_magn,             &
-               read_complex_matrix,        write_complex_matrix,   &
-               open_datafile_read,         open_datafile_write,    &
-               close_datafile,                                     &
-               check_hermiticity_matrix,   check_commutation,      &
-               check_S_square
-
-
-INTEGER, PARAMETER, PRIVATE            :: FILE_SUS=91
-INTEGER, PARAMETER, PRIVATE            :: FILE_MAG=92
-INTEGER, PARAMETER, PRIVATE            :: FILE_CFP=93
-INTEGER, PARAMETER, PRIVATE            :: FILE_GTE=94
-
-CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_SUS='FILE_SUS'
-CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_MAG='FILE_MAG'
-CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_CFP='FILE_CFP'
-CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_GTE='FILE_GTE'
-
-INTEGER, PARAMETER, PRIVATE            :: wp = kind(0.d0)
-REAL(wp), PARAMETER, PRIVATE           :: One = 1.0_wp
-REAL(wp), PARAMETER, PRIVATE           :: Zero = 0.0_wp
-REAL(wp), PARAMETER, PRIVATE           :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
-COMPLEX(wp), PARAMETER, PRIVATE        :: ZeroC = (0.0_wp,0.0_wp)
-COMPLEX(wp), PARAMETER, PRIVATE        :: OneC = (1.0_wp,0.0_wp)
-COMPLEX(wp), PARAMETER, PRIVATE        :: cI = (0.0_wp,1.0_wp)
-LOGICAL, PRIVATE :: DBG=.false.
-INTEGER, PRIVATE :: StdOut=6
-
-PRIVATE ::     file_advance_to_string,     inquire_key_presence,   &
-               read_INTEGER_scalar,        write_INTEGER_scalar,   &
-               read_1d_INTEGER_array,      write_1d_INTEGER_array, &
-               read_1d_real_array,         write_1d_real_array,    &
-               read_2d_real_array,         write_2d_real_array,    &
-               read_3d_real_array,         write_3d_real_array
-
+!PRIVATE ::     file_advance_to_string,     inquire_key_presence,   &
+!               read_INTEGER_scalar,        write_INTEGER_scalar,   &
+!               read_1d_INTEGER_array,      write_1d_INTEGER_array, &
+!               read_1d_real_array,         write_1d_real_array,    &
+!               read_2d_real_array,         write_2d_real_array,    &
+!               read_3d_real_array,         write_3d_real_array
+!
 !               write_string,                                       &
 !               read_real_scalar,           write_real_scalar,      &
 !               read_complex_scalar,        write_complex_scalar,   &
@@ -74,15 +83,6 @@ PRIVATE ::     file_advance_to_string,     inquire_key_presence,   &
 !               read_3d_complex_array,      write_3d_complex_array, &
 !               read_4d_complex_array,      write_4d_complex_array
 
-INTEGER, PRIVATE            :: ierr
-CHARACTER (LEN=500), PRIVATE :: LINE
-CHARACTER (LEN=20), PRIVATE  :: FMTR='(5ES22.14)'
-CHARACTER (LEN=20), PRIVATE  :: FMTI='(20(I0,1x))'
-!CHARACTER (LEN=20), PRIVATE  :: FMTC='(3(2ES22.14))'
-CHARACTER (LEN=30), PRIVATE  :: FMTCFP='(2(I0,1x),ES22.14)'
-
-
-CONTAINS
 
 
 ! Keywords:
@@ -207,14 +207,18 @@ CONTAINS
 !--------------------------------------------------------------------------------------------------!
 !           HIGH LEVEL VERIFICATION SUBROUTINES
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE check_commutation(n,moment)
+SUBROUTINE check_commutation( n, moment, dbg )
    ! valid for S, L, J in spin-orbit basis
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: N
    COMPLEX (wp), INTENT (IN) :: moment(3,N,N)
    COMPLEX (wp), ALLOCATABLE :: XY(:,:), YX(:,:), YZ(:,:), ZY(:,:), ZX(:,:), XZ(:,:)
-   COMPLEX (wp) :: tr
-   INTEGER     :: i, j
+   COMPLEX (wp)              :: tr
+   LOGICAL, INTENT (IN)      :: dbg
+   COMPLEX (wp), PARAMETER   :: ZeroC=(0.0_wp,0.0_wp), OneC=(1.0_wp,0.0_wp), cI=(0.0_wp,1.0_wp)
+   INTEGER                   :: i, j, l
+   INTEGER, PARAMETER        :: StdOut = 6
 
    ! verify the commutation relations for S
    ALLOCATE (XY(n,n))
@@ -225,49 +229,75 @@ SUBROUTINE check_commutation(n,moment)
    ALLOCATE (XZ(n,n))
    XY=ZeroC
    YX=ZeroC
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('n', 'n', n, n, n, OneC,     &
               moment(1,1:n,1:n), n,         &
               moment(2,1:n,1:n), n, ZeroC,  &
-               XY, n )
+              XY, n )
 
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('n', 'n', n, n, n, OneC,     &
               moment(2,1:n,1:n), n,         &
               moment(1,1:n,1:n), n, ZeroC,  &
-               YX, n )
+              YX, n )
 
    YZ=ZeroC
    ZY=ZeroC
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('n', 'n', n, n, n, OneC,     &
               moment(2,1:n,1:n), n,         &
               moment(3,1:n,1:n), n, ZeroC,  &
-               YZ, n )
+              YZ, n )
 
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('n', 'n', n, n, n, OneC,     &
               moment(3,1:n,1:n), n,         &
               moment(2,1:n,1:n), n, ZeroC,  &
-               ZY, n )
+              ZY, n )
 
    ZX=ZeroC
    XZ=ZeroC
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('n', 'n', n, n, n, OneC,     &
               moment(3,1:n,1:n), n,         &
               moment(1,1:n,1:n), n, ZeroC,  &
-               ZX, n )
+              ZX, n )
 
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('n', 'n', n, n, n, OneC,     &
               moment(1,1:n,1:n), n,         &
               moment(3,1:n,1:n), n, ZeroC,  &
-               XZ, n )
+              XZ, n )
+
+   IF (dbg) THEN
+      DO l=1, 3
+        WRITE(StdOut,'(A,I2)') 'check_commutation:: moment, projection, L=', l
+        DO i=1,n
+           WRITE(StdOut,'(10(2F8.4,2x))') (moment(l,i,j),j=1,n)
+        END DO
+      END DO
+
+      WRITE(StdOut,'(A,I2)') 'check_commutation:: XY-YX'
+      DO i=1,n
+         WRITE(StdOut,'(10(2F8.4,2x))') (XY(i,j)-YX(i,j), j=1,n)
+      END DO
+
+      WRITE(StdOut,'(A,I2)') 'check_commutation:: i*Z'
+      DO i=1,n
+         WRITE(StdOut,'(10(2F8.4,2x))') (cI*moment(3,i,j), j=1,n)
+      END DO
+
+      WRITE(StdOut,'(A,I2)') 'check_commutation:: (XY-YX) -i*Z'
+      DO i=1,n
+         WRITE(StdOut,'(10(2F8.4,2x))') (XY(i,j)-YX(i,j)-cI*moment(3,i,j), j=1,n)
+      END DO
+   ENDIF
+
 
    tr=ZeroC
    DO i=1,n
      DO j=1,n
-       tr = tr  + XY(i,j) - YX(i,j) - cI*moment(3,i,j) &
-                + YZ(i,j) - ZY(i,j) - cI*moment(1,i,j) &
-                + ZX(i,j) - XZ(i,j) - cI*moment(2,i,j)
+       tr = tr  + XY(i,j) - YX(i,j) - cI*moment(3,i,j) !&
+!                + YZ(i,j) - ZY(i,j) - cI*moment(1,i,j) !&
+!                + ZX(i,j) - XZ(i,j) - cI*moment(2,i,j)
      END DO
    END DO
-   IF (DBG) WRITE (StdOut,'(A,ES22.14)') 'check_commutation::  trace of [Sx,Sy]-iSz = ', ABS(tr)
+
+   IF (dbg) WRITE (StdOut,'(A,ES22.14)') 'check_commutation::  trace of [Sx,Sy]-iSz = ', ABS(tr)
    IF (ABS(tr)>1.0e-6_wp) THEN
       CALL WarningMessage(1,'check_commutation:: trace of [Sx,Sy]-iSz  is larger than 1.0e-6. '//&
                             'The input moment looks inacurate')
@@ -286,15 +316,20 @@ SUBROUTINE check_commutation(n,moment)
 END SUBROUTINE check_commutation
 
 
-SUBROUTINE check_S_square (n, moment)
+SUBROUTINE check_S_square (n, moment, dbg)
 !  valid also for J, L, S
    IMPLICIT NONE
+   INTEGER, PARAMETER :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: n
    COMPLEX (wp), INTENT (IN) :: moment(3,n,n)
    COMPLEX (wp), ALLOCATABLE :: X2(:,:), Y2(:,:), Z2(:,:), S2(:,:)
-   COMPLEX (wp) :: tr
-   REAL (wp)    :: S2_theoretic
-   INTEGER     :: i
+   COMPLEX (wp), PARAMETER   :: ZeroC=(0.0_wp,0.0_wp), OneC=(1.0_wp,0.0_wp)
+   REAL (wp), PARAMETER      :: Zero=0.0_wp
+   COMPLEX (wp)              :: tr
+   REAL (wp)                 :: S2_theoretic
+   LOGICAL, INTENT (IN)      :: dbg
+   INTEGER                   :: i
+   INTEGER, PARAMETER        :: StdOut = 6
 
    ALLOCATE (X2(n,n))
    ALLOCATE (Y2(n,n))
@@ -334,7 +369,7 @@ SUBROUTINE check_S_square (n, moment)
    S2_theoretic=Zero
    S2_theoretic=DBLE(n**3-n)/4.0_wp
 
-   IF (DBG) WRITE (StdOut,'(A,ES22.14)') 'check_S_square::  trace of S2=(Sx).Sx+(Sy).Sy+(Sz).Sz = ', ABS(tr)
+   IF (dbg) WRITE (StdOut,'(A,ES22.14)') 'check_S_square::  trace of S2=(Sx).Sx+(Sy).Sy+(Sz).Sz = ', ABS(tr)
    IF ( (ABS(tr) - S2_theoretic) > 1.0e-6_wp) THEN
       CALL WarningMessage(1,'check_S_square:: tr(S^2) - S2_theoretic is larger than 1.0e-6. '//&
                             'The input moment looks inacurate')
@@ -349,13 +384,17 @@ SUBROUTINE check_S_square (n, moment)
    RETURN
 END SUBROUTINE check_S_square
 
-SUBROUTINE check_hermiticity_moment (n, moment)
+SUBROUTINE check_hermiticity_moment (n, moment, dbg)
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: n
-   COMPLEX (wp), INTENT (IN)  :: moment(3,n,n)
-   COMPLEX (wp) :: c
-   INTEGER     :: i, j, l
-   ! build difference SUM ( MATRIX(i,j) - DCONJG(MATRIX(j,i)) )
+   COMPLEX (wp), INTENT (IN) :: moment(3,n,n)
+   LOGICAL, INTENT (IN)      :: dbg
+   COMPLEX (wp), PARAMETER   :: ZeroC=(0.0_wp,0.0_wp)
+   COMPLEX (wp)              :: c
+   INTEGER                   :: i, j, l
+   INTEGER, PARAMETER        :: StdOut = 6
+   ! build difference SUM ( M ATRIX(i,j) - DCONJG(MATRIX(j,i)) )
    c=ZeroC
    DO i=1,n
       DO j=1,n
@@ -365,7 +404,7 @@ SUBROUTINE check_hermiticity_moment (n, moment)
          END DO
       END DO
    END DO
-   IF (DBG) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
+   IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
    IF (ABS(c) > 1.0e-6_wp) THEN
       CALL WarningMessage(1,'check_hermiticity_moment:: trace of M(1:3,i,j)-DCONJG(A(1:3,j,i)) is larger than 1.0e-6. '//&
                             'The hermiticity of input moment is not quite fulfilled')
@@ -375,12 +414,16 @@ SUBROUTINE check_hermiticity_moment (n, moment)
    RETURN
 END SUBROUTINE check_hermiticity_moment
 
-SUBROUTINE check_hermiticity_matrix (n, matrix)
+SUBROUTINE check_hermiticity_matrix (n, matrix, dbg)
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: n
    COMPLEX (wp), INTENT (IN) :: matrix(n,n)
-   COMPLEX (wp) :: c
-   INTEGER     :: i, j
+   LOGICAL, INTENT (IN)      :: dbg
+   COMPLEX (wp)              :: c
+   INTEGER                   :: i, j
+   INTEGER, PARAMETER        :: StdOut = 6
+   COMPLEX (wp), PARAMETER   :: ZeroC = (0.0_wp, 0.0_wp)
    ! build difference ( MATRIX(i,j) - DCONJG(MATRIX(j,i)) )
    c=ZeroC
    DO i=1,n
@@ -389,7 +432,7 @@ SUBROUTINE check_hermiticity_matrix (n, matrix)
          c = c + ( matrix(i,j) - DCONJG(matrix(j,i)) )
       END DO
    END DO
-   IF (DBG) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
+   IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
    IF (ABS(c) > 1.0e-6_wp) THEN
       CALL WarningMessage(1,'check_hermiticity_matrix:: trace of A(i,j)-DCONJG(A(j,i)) is larger than 1.0e-6. '//&
                             'The hermiticity of input matrix is not quite fulfilled')
@@ -420,22 +463,29 @@ END SUBROUTINE check_hermiticity_matrix
 ! read_nss
 ! read_nstate
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_magnetic_moment (DATA_FILE, n, moment)
+SUBROUTINE read_magnetic_moment ( DATA_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER         :: wp = kind(0.d0)
    INTEGER, INTENT (IN)       :: DATA_FILE
    INTEGER, INTENT (IN)       :: N
    COMPLEX (wp), INTENT (OUT) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE     :: rr(:,:), ri(:,:)
    INTEGER                    :: i, j
    REAL (wp), EXTERNAL        :: dnrm2_, dznrm2_
+   LOGICAL, INTENT (IN)       :: dbg
+   INTEGER, PARAMETER         :: StdOut = 6
+   COMPLEX (wp), PARAMETER    :: ZeroC = (0.0_wp, 0.0_wp)
+   REAL (wp), PARAMETER       :: Zero = 0.0_wp
+   LOGICAL, EXTERNAL          :: inquire_key_presence
+   REAL (wp), PARAMETER       :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
    moment=ZeroC
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
 ! projection X
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$magn_xr')) CALL read_2d_real_array( DATA_FILE, '$magn_xr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$magn_xi')) CALL read_2d_real_array( DATA_FILE, '$magn_xi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$magn_xr')) CALL read_2d_real_array( DATA_FILE, '$magn_xr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$magn_xi')) CALL read_2d_real_array( DATA_FILE, '$magn_xi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_magnetic_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_magnetic_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -443,11 +493,11 @@ SUBROUTINE read_magnetic_moment (DATA_FILE, n, moment)
          moment(1,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(1,1:n,1:n))
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
 ! projection Y
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$magn_yr')) CALL read_2d_real_array( DATA_FILE, '$magn_yr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$magn_yi')) CALL read_2d_real_array( DATA_FILE, '$magn_yi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$magn_yr')) CALL read_2d_real_array( DATA_FILE, '$magn_yr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$magn_yi')) CALL read_2d_real_array( DATA_FILE, '$magn_yi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_magnetic_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_magnetic_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -455,11 +505,11 @@ SUBROUTINE read_magnetic_moment (DATA_FILE, n, moment)
          moment(2,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(2,1:n,1:n))
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
 ! projection Z
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$magn_zr')) CALL read_2d_real_array( DATA_FILE, '$magn_zr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$magn_zi')) CALL read_2d_real_array( DATA_FILE, '$magn_zi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$magn_zr')) CALL read_2d_real_array( DATA_FILE, '$magn_zr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$magn_zi')) CALL read_2d_real_array( DATA_FILE, '$magn_zi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_magnetic_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_magnetic_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -467,30 +517,38 @@ SUBROUTINE read_magnetic_moment (DATA_FILE, n, moment)
          moment(3,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF ( dznrm2_(3*n*n,moment,1) <=TINY(Zero)) CALL WarningMessage(1,'read_magnetic_moment:: the norm of the read moment is zero!')
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(3,1:n,1:n))
+   IF ( dznrm2_(3*n*n,moment,1) <=MINIMAL_REAL ) &
+        CALL WarningMessage(1,'read_magnetic_moment:: the norm of the read moment is zero!')
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
    DEALLOCATE (rr)
    DEALLOCATE (ri)
    RETURN
 END SUBROUTINE read_magnetic_moment
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_electric_moment (DATA_FILE, n, moment)
+SUBROUTINE read_electric_moment ( DATA_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER         :: wp = kind(0.d0)
    INTEGER, INTENT (IN)       :: DATA_FILE
    INTEGER, INTENT (IN)       :: N
    COMPLEX (wp), INTENT (OUT) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE     :: rr(:,:), ri(:,:)
    INTEGER                    :: i, j
    REAL (wp), EXTERNAL        :: dnrm2_, dznrm2_
+   LOGICAL, INTENT (IN)       :: dbg
+   INTEGER, PARAMETER         :: StdOut = 6
+   COMPLEX (wp), PARAMETER    :: ZeroC = (0.0_wp, 0.0_wp)
+   REAL (wp), PARAMETER       :: Zero = 0.0_wp
+   LOGICAL, EXTERNAL          :: inquire_key_presence
+   REAL (wp), PARAMETER       :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
    moment=ZeroC
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
 ! projection X
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$edipm_xr')) CALL read_2d_real_array( DATA_FILE, '$edipm_xr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$edipm_xi')) CALL read_2d_real_array( DATA_FILE, '$edipm_xi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$edipm_xr')) CALL read_2d_real_array( DATA_FILE, '$edipm_xr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$edipm_xi')) CALL read_2d_real_array( DATA_FILE, '$edipm_xi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_electric_moment::  norm of moment_xr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_electric_moment::  norm of moment_xi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -498,11 +556,11 @@ SUBROUTINE read_electric_moment (DATA_FILE, n, moment)
          moment(1,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(1,:,:))
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(1,:,:),dbg)
 ! projection Y
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$edipm_yr')) CALL read_2d_real_array( DATA_FILE, '$edipm_yr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$edipm_yi')) CALL read_2d_real_array( DATA_FILE, '$edipm_yi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$edipm_yr')) CALL read_2d_real_array( DATA_FILE, '$edipm_yr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$edipm_yi')) CALL read_2d_real_array( DATA_FILE, '$edipm_yi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_electric_moment::  norm of moment_yr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_electric_moment::  norm of moment_yi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -510,11 +568,11 @@ SUBROUTINE read_electric_moment (DATA_FILE, n, moment)
          moment(2,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(2,:,:))
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(2,:,:),dbg)
 ! projection Z
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$edipm_zr')) CALL read_2d_real_array( DATA_FILE, '$edipm_zr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$edipm_zi')) CALL read_2d_real_array( DATA_FILE, '$edipm_zi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$edipm_zr')) CALL read_2d_real_array( DATA_FILE, '$edipm_zr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$edipm_zi')) CALL read_2d_real_array( DATA_FILE, '$edipm_zi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_electric_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_electric_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -522,30 +580,37 @@ SUBROUTINE read_electric_moment (DATA_FILE, n, moment)
          moment(3,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF ( dznrm2_(3*n*n,moment,1) <=TINY(Zero)) CALL WarningMessage(1,'read_electric_moment:: the norm of the read moment is zero!')
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(3,:,:))
+   IF ( dznrm2_(3*n*n,moment,1) <=MINIMAL_REAL) CALL WarningMessage(1,'read_electric_moment:: the norm of the read moment is zero!')
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(3,:,:),dbg)
    DEALLOCATE (rr)
    DEALLOCATE (ri)
    RETURN
 END SUBROUTINE read_electric_moment
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_spin_moment (DATA_FILE, n, moment)
+SUBROUTINE read_spin_moment ( DATA_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER         :: wp = kind(0.d0)
    INTEGER, INTENT (IN)       :: DATA_FILE
    INTEGER, INTENT (IN)       :: N
    COMPLEX (wp), INTENT (OUT) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE     :: rr(:,:), ri(:,:)
    INTEGER                    :: i, j
    REAL (wp), EXTERNAL        :: dnrm2_, dznrm2_
+   LOGICAL, INTENT (IN)       :: dbg
+   INTEGER, PARAMETER         :: StdOut = 6
+   COMPLEX (wp), PARAMETER    :: ZeroC = (0.0_wp, 0.0_wp)
+   REAL (wp), PARAMETER       :: Zero = 0.0_wp
+   LOGICAL, EXTERNAL          :: inquire_key_presence
+   REAL (wp), PARAMETER       :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
    moment=ZeroC
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
 ! projection X
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$spin_xr')) CALL read_2d_real_array( DATA_FILE, '$spin_xr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$spin_xi')) CALL read_2d_real_array( DATA_FILE, '$spin_xi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$spin_xr')) CALL read_2d_real_array( DATA_FILE, '$spin_xr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$spin_xi')) CALL read_2d_real_array( DATA_FILE, '$spin_xi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -553,11 +618,11 @@ SUBROUTINE read_spin_moment (DATA_FILE, n, moment)
          moment(1,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(1,:,:))
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
 ! projection Y
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$spin_yr')) CALL read_2d_real_array( DATA_FILE, '$spin_yr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$spin_yi')) CALL read_2d_real_array( DATA_FILE, '$spin_yi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$spin_yr')) CALL read_2d_real_array( DATA_FILE, '$spin_yr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$spin_yi')) CALL read_2d_real_array( DATA_FILE, '$spin_yi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -565,11 +630,11 @@ SUBROUTINE read_spin_moment (DATA_FILE, n, moment)
          moment(2,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(2,:,:))
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
 ! projection Z
    rr=Zero; ri=Zero;
-   IF (inquire_key_presence( DATA_FILE, '$spin_zr')) CALL read_2d_real_array( DATA_FILE, '$spin_zr',n,n,rr)
-   IF (inquire_key_presence( DATA_FILE, '$spin_zi')) CALL read_2d_real_array( DATA_FILE, '$spin_zi',n,n,ri)
+   IF (inquire_key_presence( DATA_FILE, '$spin_zr')) CALL read_2d_real_array( DATA_FILE, '$spin_zr', n, n, rr, dbg )
+   IF (inquire_key_presence( DATA_FILE, '$spin_zi')) CALL read_2d_real_array( DATA_FILE, '$spin_zi', n, n, ri, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
@@ -577,29 +642,35 @@ SUBROUTINE read_spin_moment (DATA_FILE, n, moment)
          moment(3,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
       END DO
    END DO
-   IF ( dznrm2_(3*n*n,moment,1) <=TINY(Zero)) CALL WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
-   IF (dbg) CALL check_hermiticity_matrix(n,moment(3,:,:))
+   IF ( dznrm2_(3*n*n,moment,1) <=MINIMAL_REAL) CALL WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
+   IF (dbg) CALL check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
    DEALLOCATE (rr)
    DEALLOCATE (ri)
-   IF (dbg) CALL check_commutation(n,moment)
+   IF (dbg) CALL check_commutation( n, moment, dbg )
    RETURN
 END SUBROUTINE read_spin_moment
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_angmom (DATA_FILE, n, moment)
+SUBROUTINE read_angmom ( DATA_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: N
    REAL (wp), INTENT (OUT) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE  :: rr(:,:)
    INTEGER                 :: i, j
    REAL (wp), EXTERNAL     :: dnrm2_
+   LOGICAL, INTENT (IN)    :: dbg
+   INTEGER, PARAMETER      :: StdOut = 6
+   REAL (wp), PARAMETER    :: Zero = 0.0_wp
+   LOGICAL, EXTERNAL       :: inquire_key_presence
+   REAL (wp), PARAMETER    :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
    moment=Zero
    ALLOCATE (rr(n,n))
 ! projection X
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$angmom_x')) CALL read_2d_real_array( DATA_FILE, '$angmom_x',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$angmom_x')) CALL read_2d_real_array( DATA_FILE, '$angmom_x', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_angmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -608,7 +679,7 @@ SUBROUTINE read_angmom (DATA_FILE, n, moment)
    END DO
 ! projection Y
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$angmom_y')) CALL read_2d_real_array( DATA_FILE, '$angmom_y',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$angmom_y')) CALL read_2d_real_array( DATA_FILE, '$angmom_y', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_angmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -617,7 +688,7 @@ SUBROUTINE read_angmom (DATA_FILE, n, moment)
    END DO
 ! projection Z
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$angmom_z')) CALL read_2d_real_array( DATA_FILE, '$angmom_z',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$angmom_z')) CALL read_2d_real_array( DATA_FILE, '$angmom_z', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_angmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -625,25 +696,31 @@ SUBROUTINE read_angmom (DATA_FILE, n, moment)
       END DO
    END DO
    DEALLOCATE (rr)
-   IF (dnrm2_(3*n*n,moment,1) <=TINY(Zero)) CALL WarningMessage(1,'read_angmom:: the norm of the read moment is zero!')
+   IF (dnrm2_(3*n*n,moment,1) <=MINIMAL_REAL) CALL WarningMessage(1,'read_angmom:: the norm of the read moment is zero!')
    RETURN
 END SUBROUTINE read_angmom
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_edipmom (DATA_FILE, n, moment)
+SUBROUTINE read_edipmom ( DATA_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: N
    REAL (wp), INTENT (OUT) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE  :: rr(:,:)
    INTEGER                 :: i, j
    REAL (wp), EXTERNAL     :: dnrm2_
+   LOGICAL, INTENT (IN)    :: dbg
+   INTEGER, PARAMETER      :: StdOut = 6
+   REAL (wp), PARAMETER    :: Zero = 0.0_wp
+   LOGICAL, EXTERNAL       :: inquire_key_presence
+   REAL (wp), PARAMETER    :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
    moment=Zero
    ALLOCATE (rr(n,n))
 ! projection X
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$edmom_x')) CALL read_2d_real_array( DATA_FILE, '$edmom_x',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$edmom_x')) CALL read_2d_real_array( DATA_FILE, '$edmom_x', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_edipmom::  norm of moment_x=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -652,7 +729,7 @@ SUBROUTINE read_edipmom (DATA_FILE, n, moment)
    END DO
 ! projection Y
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$edmom_y')) CALL read_2d_real_array( DATA_FILE, '$edmom_y',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$edmom_y')) CALL read_2d_real_array( DATA_FILE, '$edmom_y', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_edipmom::  norm of moment_y=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -661,7 +738,7 @@ SUBROUTINE read_edipmom (DATA_FILE, n, moment)
    END DO
 ! projection Z
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$edmom_z')) CALL read_2d_real_array( DATA_FILE, '$edmom_z',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$edmom_z')) CALL read_2d_real_array( DATA_FILE, '$edmom_z', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_edipmom::  norm of moment_z=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -669,25 +746,31 @@ SUBROUTINE read_edipmom (DATA_FILE, n, moment)
       END DO
    END DO
    DEALLOCATE (rr)
-   IF (dnrm2_(3*n*n,moment,1) <=TINY(Zero)) CALL WarningMessage(1,'read_edipmom:: the norm of the read moment is zero!')
+   IF (dnrm2_(3*n*n,moment,1) <=MINIMAL_REAL) CALL WarningMessage(1,'read_edipmom:: the norm of the read moment is zero!')
    RETURN
 END SUBROUTINE read_edipmom
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_amfi (DATA_FILE, n, moment)
+SUBROUTINE read_amfi ( DATA_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: N
    REAL (wp), INTENT (OUT) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE  :: rr(:,:)
    INTEGER                 :: i, j
    REAL (wp), EXTERNAL     :: dnrm2_
+   LOGICAL, INTENT (IN)    :: dbg
+   INTEGER, PARAMETER      :: StdOut = 6
+   REAL (wp), PARAMETER    :: Zero = 0.0_wp
+   LOGICAL, EXTERNAL       :: inquire_key_presence
+   REAL (wp), PARAMETER    :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
    moment=Zero
    ALLOCATE (rr(n,n))
 ! projection X
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$amfi_x')) CALL read_2d_real_array( DATA_FILE, '$amfi_x',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$amfi_x')) CALL read_2d_real_array( DATA_FILE, '$amfi_x', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_amfi::  norm of moment_x=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -696,7 +779,7 @@ SUBROUTINE read_amfi (DATA_FILE, n, moment)
    END DO
 ! projection Y
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$amfi_y')) CALL read_2d_real_array( DATA_FILE, '$amfi_y',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$amfi_y')) CALL read_2d_real_array( DATA_FILE, '$amfi_y', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_amfi::  norm of moment_y=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -705,7 +788,7 @@ SUBROUTINE read_amfi (DATA_FILE, n, moment)
    END DO
 ! projection Z
    rr=Zero
-   IF (inquire_key_presence( DATA_FILE, '$amfi_z')) CALL read_2d_real_array( DATA_FILE, '$amfi_z',n,n,rr)
+   IF (inquire_key_presence( DATA_FILE, '$amfi_z')) CALL read_2d_real_array( DATA_FILE, '$amfi_z', n, n, rr, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_amfi::  norm of moment_z=',dnrm2_(n*n,rr,1)
    DO i=1,n
       DO j=1,n
@@ -713,17 +796,20 @@ SUBROUTINE read_amfi (DATA_FILE, n, moment)
       END DO
    END DO
    DEALLOCATE (rr)
-   IF (dnrm2_(3*n*n,moment,1) <=TINY(Zero)) CALL WarningMessage(1,'read_amfi:: the norm of the read moment is zero!')
+   IF (dnrm2_(3*n*n,moment,1) <=MINIMAL_REAL) CALL WarningMessage(1,'read_amfi:: the norm of the read moment is zero!')
    RETURN
 END SUBROUTINE read_amfi
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_nss (DATA_FILE, n)
+SUBROUTINE read_nss ( DATA_FILE, n, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)   :: DATA_FILE
    INTEGER, INTENT (OUT)  :: n
+   LOGICAL, INTENT (IN)   :: dbg
+   LOGICAL, EXTERNAL      :: inquire_key_presence
+
    n=0
-   IF (inquire_key_presence( DATA_FILE, '$nss')) CALL read_INTEGER_scalar ( DATA_FILE, '$nss', n )
+   IF (inquire_key_presence( DATA_FILE, '$nss')) CALL read_INTEGER_scalar ( DATA_FILE, '$nss', n, dbg )
    IF ( n<=0 ) THEN
       CALL WarningMessage(1,'read_nss:: nss value in DATA_FILE = 0. Is it really the case?')
    ENDIF
@@ -731,12 +817,15 @@ SUBROUTINE read_nss (DATA_FILE, n)
 END SUBROUTINE read_nss
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_nstate (DATA_FILE, n)
+SUBROUTINE read_nstate ( DATA_FILE, n, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)  :: DATA_FILE
    INTEGER, INTENT (OUT) :: n
+   LOGICAL, INTENT (IN)  :: dbg
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+
    n=0
-   IF (inquire_key_presence( DATA_FILE, '$nstate')) CALL read_INTEGER_scalar ( DATA_FILE, '$nstate', n )
+   IF (inquire_key_presence( DATA_FILE, '$nstate')) CALL read_INTEGER_scalar ( DATA_FILE, '$nstate', n, dbg )
    IF ( n<=0 ) THEN
       CALL WarningMessage(1,'read_nstate:: nstate value in DATA_FILE = 0. Is it really the case?')
    ENDIF
@@ -744,12 +833,15 @@ SUBROUTINE read_nstate (DATA_FILE, n)
 END SUBROUTINE read_nstate
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_nmult (DATA_FILE, n)
+SUBROUTINE read_nmult ( DATA_FILE, n, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)   :: DATA_FILE
-   INTEGER, INTENT (OUT)  :: n
+   INTEGER, INTENT (IN)  :: DATA_FILE
+   INTEGER, INTENT (OUT) :: n
+   LOGICAL, INTENT (IN)  :: dbg
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+
    n=0
-   IF (inquire_key_presence( DATA_FILE, '$nmult')) CALL read_INTEGER_scalar ( DATA_FILE, '$nmult', n )
+   IF (inquire_key_presence( DATA_FILE, '$nmult')) CALL read_INTEGER_scalar ( DATA_FILE, '$nmult', n, dbg )
    IF ( n<=0 ) THEN
       CALL WarningMessage(1,'read_nmult:: nmult value in DATA_FILE = 0. Is it really the case?')
    ENDIF
@@ -757,13 +849,17 @@ SUBROUTINE read_nmult (DATA_FILE, n)
 END SUBROUTINE read_nmult
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_multiplicity (DATA_FILE, n, array)
+SUBROUTINE read_multiplicity ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)  :: DATA_FILE
    INTEGER, INTENT (IN)  :: n
    INTEGER, INTENT (OUT) :: array(n)
+   INTEGER, PARAMETER    :: StdOut = 6
+   LOGICAL, INTENT (IN)  :: dbg
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+
    array=0
-   IF (inquire_key_presence( DATA_FILE, '$multiplicity')) CALL read_1d_INTEGER_array( DATA_FILE, '$multiplicity', n, array )
+   IF (inquire_key_presence( DATA_FILE, '$multiplicity')) CALL read_1d_INTEGER_array( DATA_FILE, '$multiplicity', n, array, dbg )
    IF ( SUM(ABS(array(1:n)))==0 ) THEN
       CALL WarningMessage(1,'read_multiplicity:: it seems that all the multiplicities in DATA_FILE are 0. '// &
                             'Is it really the case?')
@@ -778,13 +874,17 @@ SUBROUTINE read_multiplicity (DATA_FILE, n, array)
 END SUBROUTINE read_multiplicity
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_imult (DATA_FILE, n, array)
+SUBROUTINE read_imult ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)  :: DATA_FILE
    INTEGER, INTENT (IN)  :: n
    INTEGER, INTENT (OUT) :: array(n)
+   INTEGER, PARAMETER    :: StdOut = 6
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+   LOGICAL, INTENT (IN)  :: dbg
+
    array=0
-   IF (inquire_key_presence( DATA_FILE, '$imult')) CALL read_1d_INTEGER_array( DATA_FILE, '$imult', n, array )
+   IF (inquire_key_presence( DATA_FILE, '$imult')) CALL read_1d_INTEGER_array( DATA_FILE, '$imult', n, array, dbg )
    IF ( SUM(array(1:n))==0 ) THEN
       CALL WarningMessage(1,'read_imult:: it seems that all the multiplicities in DATA_FILE are 0. '// &
                             'Is it really the case?')
@@ -794,12 +894,15 @@ SUBROUTINE read_imult (DATA_FILE, n, array)
 END SUBROUTINE read_imult
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_format (DATA_FILE, n)
+SUBROUTINE read_format ( DATA_FILE, n, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)   :: DATA_FILE
-   INTEGER, INTENT (OUT)  :: n
+   INTEGER, INTENT (IN)  :: DATA_FILE
+   INTEGER, INTENT (OUT) :: n
+   INTEGER, PARAMETER    :: StdOut = 6
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+   LOGICAL, INTENT (IN)  :: dbg
    n=0
-   IF (inquire_key_presence( DATA_FILE, '$format')) CALL read_INTEGER_scalar ( DATA_FILE, '$format', n )
+   IF (inquire_key_presence( DATA_FILE, '$format')) CALL read_INTEGER_scalar ( DATA_FILE, '$format', n, dbg )
    IF ( n<=0 ) THEN
       CALL WarningMessage(2,'read_format:: FORMAT value in DATA_FILE = 0.'// &
                             ' The FORMAT must be equal or larger than 2020. Please check.' )
@@ -808,13 +911,17 @@ SUBROUTINE read_format (DATA_FILE, n)
 END SUBROUTINE read_format
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_nroot (DATA_FILE, n, array)
+SUBROUTINE read_nroot ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)  :: DATA_FILE
    INTEGER, INTENT (IN)  :: n
    INTEGER, INTENT (OUT) :: array(n)
+   INTEGER, PARAMETER    :: StdOut = 6
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+   LOGICAL, INTENT (IN)  :: dbg
+
    array=0
-   IF (inquire_key_presence( DATA_FILE, '$nroot')) CALL read_1d_INTEGER_array( DATA_FILE, '$nroot', n, array )
+   IF (inquire_key_presence( DATA_FILE, '$nroot')) CALL read_1d_INTEGER_array( DATA_FILE, '$nroot', n, array, dbg )
    IF ( SUM(array(1:n))==0 ) THEN
       CALL WarningMessage(1,'read_nroot:: it seems that the number of roots included in spin-orbit '// &
                             'interaction in DATA_FILE are 0.  Is it really the case?')
@@ -824,13 +931,17 @@ SUBROUTINE read_nroot (DATA_FILE, n, array)
 END SUBROUTINE read_nroot
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_szproj (DATA_FILE, n, array)
+SUBROUTINE read_szproj ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)  :: DATA_FILE
    INTEGER, INTENT (IN)  :: n
    INTEGER, INTENT (OUT) :: array(n)
+   INTEGER, PARAMETER    :: StdOut = 6
+   LOGICAL, EXTERNAL     :: inquire_key_presence
+   LOGICAL, INTENT (IN)  :: dbg
+
    array=0
-   IF (inquire_key_presence( DATA_FILE, '$szproj')) CALL read_1d_INTEGER_array( DATA_FILE, '$szproj', n, array )
+   IF (inquire_key_presence( DATA_FILE, '$szproj')) CALL read_1d_INTEGER_array( DATA_FILE, '$szproj', n, array, dbg )
    IF ( SUM(ABS(array(1:n))) == 0 ) THEN
       CALL WarningMessage(1,'read_szproj:: it seems that SUM(ABS(Sz)) in DATA_FILE is 0. '// &
                             'Is it really the case?')
@@ -845,15 +956,22 @@ SUBROUTINE read_szproj (DATA_FILE, n, array)
 END SUBROUTINE read_szproj
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_eso (DATA_FILE, n, array)
+SUBROUTINE read_eso ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: n
    REAL (wp), INTENT (OUT) :: array(n)
    REAL (wp), EXTERNAL     :: dnrm2_
+   LOGICAL, INTENT (IN)    :: dbg
+   REAL (wp), PARAMETER    :: Zero = 0.0_wp
+   INTEGER, PARAMETER      :: StdOut = 6
+   LOGICAL, EXTERNAL       :: inquire_key_presence
+   REAL (wp), PARAMETER    :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
+
    array=Zero
-   IF (inquire_key_presence( DATA_FILE, '$eso')) CALL read_1d_real_array( DATA_FILE, '$eso', n, array )
-   IF (DBG) WRITE (StdOut,*) 'read_eso::  norm of eso=',dnrm2_(n,array,1)
+   IF (inquire_key_presence( DATA_FILE, '$eso')) CALL read_1d_real_array( DATA_FILE, '$eso', n, array, dbg )
+   IF (dbg) WRITE (StdOut,*) 'read_eso::  norm of eso=',dnrm2_(n,array,1)
    IF ( dnrm2_(n,array,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'read_eso:: it seems that the norm of ESO array in DATA_FILE is 0. '// &
                             'Is it really the case?')
@@ -863,15 +981,22 @@ SUBROUTINE read_eso (DATA_FILE, n, array)
 END SUBROUTINE read_eso
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_esfs (DATA_FILE, n, array)
+SUBROUTINE read_esfs ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: n
    REAL (wp), INTENT (OUT) :: array(n)
    REAL (wp), EXTERNAL     :: dnrm2_
+   LOGICAL, INTENT (IN)    :: dbg
+   REAL (wp), PARAMETER    :: Zero = 0.0_wp
+   INTEGER, PARAMETER      :: StdOut = 6
+   LOGICAL, EXTERNAL       :: inquire_key_presence
+   REAL (wp), PARAMETER    :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
+
    array=Zero
-   IF (inquire_key_presence( DATA_FILE, '$esfs')) CALL read_1d_real_array( DATA_FILE, '$esfs', n, array )
-   IF (DBG) WRITE (StdOut,*) 'read_esfs::  norm of esfs=',dnrm2_(n,array,1)
+   IF (inquire_key_presence( DATA_FILE, '$esfs')) CALL read_1d_real_array( DATA_FILE, '$esfs', n, array, dbg )
+   IF (dbg) WRITE (StdOut,*) 'read_esfs::  norm of esfs=',dnrm2_(n,array,1)
    IF ( dnrm2_(n,array,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'read_esfs:: it seems that the norm of ESFS in DATA_FILE is 0. '// &
                             'Is it really the case?')
@@ -881,15 +1006,22 @@ SUBROUTINE read_esfs (DATA_FILE, n, array)
 END SUBROUTINE read_esfs
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_hso (DATA_FILE, n, array)
+SUBROUTINE read_hso ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER         :: wp = kind(0.d0)
    INTEGER, INTENT (IN)       :: DATA_FILE
    INTEGER, INTENT (IN)       :: n
    COMPLEX (wp), INTENT (OUT) :: array(n)
    REAL (wp), EXTERNAL        :: dznrm2_
+   LOGICAL, INTENT (IN)       :: dbg
+   COMPLEX (wp), PARAMETER    :: ZeroC = (0.0_wp,0.0_wp)
+   INTEGER, PARAMETER         :: StdOut = 6
+   LOGICAL, EXTERNAL          :: inquire_key_presence
+   REAL (wp), PARAMETER       :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
+
    array=ZeroC
-   IF (inquire_key_presence( DATA_FILE, '$hso')) CALL read_complex_matrix( DATA_FILE, '$hso', n, array )
-   IF (DBG) WRITE (StdOut,*) 'read_hso::  norm of hso=',dznrm2_(n*n,array,1)
+   IF (inquire_key_presence( DATA_FILE, '$hso')) CALL read_complex_matrix( DATA_FILE, '$hso', n, array, dbg )
+   IF (dbg) WRITE (StdOut,*) 'read_hso::  norm of hso=',dznrm2_(n*n,array,1)
    IF ( dznrm2_(n*n,array,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'read_hso:: it seems that norm of HSO in DATA_FILE is 0. '// &
                             'Is it really the case?')
@@ -899,15 +1031,22 @@ SUBROUTINE read_hso (DATA_FILE, n, array)
 END SUBROUTINE read_hso
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_eigen (DATA_FILE, n, array)
+SUBROUTINE read_eigen ( DATA_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER         :: wp = kind(0.d0)
    INTEGER, INTENT (IN)       :: DATA_FILE
    INTEGER, INTENT (IN)       :: n
    COMPLEX (wp), INTENT (OUT) :: array(n)
    REAL (wp), EXTERNAL        :: dznrm2_
+   LOGICAL, INTENT (IN)       :: dbg
+   COMPLEX (wp), PARAMETER    :: ZeroC = (0.0_wp,0.0_wp)
+   INTEGER, PARAMETER         :: StdOut = 6
+   LOGICAL, EXTERNAL          :: inquire_key_presence
+   REAL (wp), PARAMETER       :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
+
    array=ZeroC
-   IF (inquire_key_presence( DATA_FILE, '$eigen')) CALL read_complex_matrix( DATA_FILE, '$eigen', n, array )
-   IF (DBG) WRITE (StdOut,*) 'read_eigen::  norm of eigenv=',dznrm2_(n*n,array,1)
+   IF (inquire_key_presence( DATA_FILE, '$eigen')) CALL read_complex_matrix( DATA_FILE, '$eigen', n, array, dbg )
+   IF (dbg) WRITE (StdOut,*) 'read_eigen::  norm of eigenv=',dznrm2_(n*n,array,1)
    IF ( dznrm2_(n*n,array,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'read_eigen:: it seems that norm of EIGENV in DATA_FILE is 0. '// &
                             'Is it really the case?')
@@ -917,26 +1056,33 @@ SUBROUTINE read_eigen (DATA_FILE, n, array)
 END SUBROUTINE read_eigen
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_gtens (DATA_FILE, nmult, gtens, axes)
+SUBROUTINE read_gtens ( DATA_FILE, nmult, gtens, axes, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: nmult
    REAL (wp), INTENT (OUT) :: gtens(nmult,3)
    REAL (wp), INTENT (OUT) ::  axes(nmult,3,3)
-   gtens=Zero ; axes=Zero
-   CALL read_2d_real_array( DATA_FILE, '$gtens_main', nmult, 3, gtens )
-   CALL read_3d_real_array( DATA_FILE, '$gtens_axes', nmult, 3, 3, axes )
+   LOGICAL, INTENT (IN)    :: dbg
+   gtens=0.0_wp ; axes=0.0_wp ;
+   CALL read_2d_real_array( DATA_FILE, '$gtens_main', nmult, 3, gtens, dbg )
+   CALL read_3d_real_array( DATA_FILE, '$gtens_axes', nmult, 3, 3, axes, dbg )
    RETURN
 END SUBROUTINE read_gtens
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_stev_cfp (DATA_FILE, s, n, cfp)
+SUBROUTINE read_stev_cfp ( DATA_FILE, s, n, cfp, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
    REAL (wp), INTENT (OUT) :: cfp(n-1, -(n-1):(n-1) )
    CHARACTER (LEN=1)       :: s
-   INTEGER                 :: k, q, i, ik,iq
+   INTEGER                 :: k, q, i, ik, iq, ierr
+   LOGICAL, INTENT (IN)    :: dbg
+   REAL (wp), PARAMETER    :: Zero=0.0_wp
+   INTEGER, PARAMETER      :: StdOut = 6
+   CHARACTER (LEN=500)     :: line
 
    ierr=0
    IF ( (n<=0) ) THEN
@@ -946,7 +1092,7 @@ SUBROUTINE read_stev_cfp (DATA_FILE, s, n, cfp)
    CFP=Zero
 
    REWIND ( DATA_FILE )
-   CALL file_advance_to_string( DATA_FILE, '$stev_cfp_'//trim(s), line )
+   CALL file_advance_to_string( DATA_FILE, '$stev_cfp_'//trim(s), line, ierr, dbg )
 
    READ ( DATA_FILE, FMT=*, IOSTAT=ierr ) i
    IF ( i /= n ) CALL WarningMessage(2,'read_stev_cfp_'//trim(s)//':: size of the multiplet is not the same i/=n')
@@ -961,8 +1107,8 @@ SUBROUTINE read_stev_cfp (DATA_FILE, s, n, cfp)
             IF (ierr /= 0) THEN
                CALL WarningMessage(2,'read_stev_cfp_'//trim(s)//':: Something went wrong reading the array.')
             END IF
-            IF (DBG) WRITE (StdOut,*) 'read_stev_cfp_'//trim(s)//'::  k, q =',k, q
-            IF (DBG) FLUSH (StdOut)
+            IF (dbg) WRITE (StdOut,*) 'read_stev_cfp_'//trim(s)//'::  k, q =',k, q
+            IF (dbg) FLUSH (StdOut)
          END DO
       END DO
    END IF
@@ -970,8 +1116,9 @@ SUBROUTINE read_stev_cfp (DATA_FILE, s, n, cfp)
 END SUBROUTINE read_stev_cfp
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_susc (DATA_FILE, s, n, field, zj, t, x, x_tens)
+SUBROUTINE read_susc ( DATA_FILE, s, n, field, zj, t, x, x_tens, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: DATA_FILE
    INTEGER, INTENT (INOUT)        :: n                  ! number of temperature points
    REAL (wp), INTENT (OUT)        :: zj                 ! intermolecular interaction
@@ -982,8 +1129,13 @@ SUBROUTINE read_susc (DATA_FILE, s, n, field, zj, t, x, x_tens)
    CHARACTER (LEN=*), INTENT (IN) :: s
    INTEGER                        :: i, j, k
    REAL (wp), EXTERNAL            :: dnrm2_
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
+   REAL (wp), PARAMETER           :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
-   t=Zero ; x=Zero ; x_tens=Zero
+   t=0.0_wp ; x=0.0_wp ; x_tens=0.0_wp
    ! s takes the values:
    ! 'x'
    ! 'x_field'
@@ -1030,7 +1182,7 @@ SUBROUTINE read_susc (DATA_FILE, s, n, field, zj, t, x, x_tens)
    END IF
 
    REWIND ( DATA_FILE )
-   CALL file_advance_to_string( DATA_FILE, '$susceptibility_'//trim(s), line )
+   CALL file_advance_to_string( DATA_FILE, '$susceptibility_'//trim(s), line, ierr, dbg )
 
    ! if key is found, THEN read the data
    IF ( ierr == 0 ) THEN
@@ -1040,12 +1192,12 @@ SUBROUTINE read_susc (DATA_FILE, s, n, field, zj, t, x, x_tens)
          CALL WarningMessage(2,'read_x '//trim(s)//' :: Something went wrong reading the zJ and field values.')
       END IF
       READ ( DATA_FILE, FMT=*, IOSTAT=ierr ) (T(i),i=1,n)
-      IF (dnrm2_(n,T,1)<TINY(Zero)) CALL WarningMessage(1,'read_x '//trim(s)//' :: all array T elements are zero = 0.')
+      IF (dnrm2_(n,T,1)<MINIMAL_REAL) CALL WarningMessage(1,'read_x '//trim(s)//' :: all array T elements are zero = 0.')
       IF (ierr /= 0) THEN
          CALL WarningMessage(2,'read_x '//trim(s)//' :: Something went wrong reading the T array.')
       END IF
       READ ( DATA_FILE, FMT=*, IOSTAT=ierr ) (X(i),i=1,n)
-      IF (dnrm2_(n,X,1)<TINY(Zero)) CALL WarningMessage(1,'read_x '//trim(s)//' :: all array X elements are zero = 0.')
+      IF (dnrm2_(n,X,1)<MINIMAL_REAL) CALL WarningMessage(1,'read_x '//trim(s)//' :: all array X elements are zero = 0.')
       IF (ierr /= 0) THEN
          CALL WarningMessage(2,'read_x '//trim(s)//' :: Something went wrong reading the X array.')
       END IF
@@ -1057,8 +1209,8 @@ SUBROUTINE read_susc (DATA_FILE, s, n, field, zj, t, x, x_tens)
             END IF
          END DO
       END DO
-      IF (dnrm2_(n*3*3,X_tens,1)<TINY(Zero)) CALL WarningMessage(1,'read_x '//trim(s)//' :: all array X_tens elements are zero.')
-      IF (DBG) FLUSH (StdOut)
+      IF (dnrm2_(n*3*3,X_tens,1)<MINIMAL_REAL) CALL WarningMessage(1,'read_x '//trim(s)//' :: all array X_tens elements are zero.')
+      IF (dbg) FLUSH (StdOut)
    ELSE
       WRITE (StdOut,*) 'keyword $susceptibility_'//trim(s)//' was not found in DATA_FILE'
    END IF
@@ -1066,8 +1218,9 @@ SUBROUTINE read_susc (DATA_FILE, s, n, field, zj, t, x, x_tens)
 END SUBROUTINE read_susc
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_magn (DATA_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, energy)
+SUBROUTINE read_magn (DATA_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, energy, dbg)
    IMPLICIT NONE
+   INTEGER, PARAMETER      :: wp = kind(0.d0)
    INTEGER, INTENT (IN)    :: DATA_FILE
    INTEGER, INTENT (IN)    :: nt                         ! number of temperature points
    INTEGER, INTENT (IN)    :: nh                         ! number of field points
@@ -1080,8 +1233,12 @@ SUBROUTINE read_magn (DATA_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, 
    REAL (wp), INTENT (OUT) :: m(nd, 3, nt, nh)           ! magnetisation vector
    REAL (wp), INTENT (OUT) :: mav(nt, nh)                ! average magnetisation vector
    REAL (wp), INTENT (OUT) :: energy(nd, nh, nss)        ! Zeeman energy states
-   INTEGER                 :: id, ih, it, i, iss, l
+   INTEGER                 :: id, ih, it, i, iss, l, ierr
    REAL (wp), EXTERNAL     :: dnrm2_
+   LOGICAL, INTENT (IN)    :: dbg
+   CHARACTER (LEN=500)     :: line
+   INTEGER, PARAMETER      :: StdOut = 6
+   REAL (wp), PARAMETER    :: Zero = 0.0_wp
 
    ierr=0
    IF ( (nt<=0) .OR. (nh<=0) .OR. (nd<=0) .OR. (nss<=0) ) THEN
@@ -1090,7 +1247,7 @@ SUBROUTINE read_magn (DATA_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, 
    END IF
 
    REWIND ( DATA_FILE )
-   CALL file_advance_to_string( DATA_FILE, '$magnetisation', line )
+   CALL file_advance_to_string( DATA_FILE, '$magnetisation', line, ierr, dbg )
 
    READ ( DATA_FILE, FMT=*, IOSTAT=ierr ) it, ih, id, iss
    IF (it/=nt) CALL WarningMessage(1,'read_magn :: nt read from DATA_FILE is not the same as the parameter used to CALL '//&
@@ -1157,7 +1314,7 @@ SUBROUTINE read_magn (DATA_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, 
          CALL WarningMessage(2,'read_magn :: Something went wrong reading the average M data.')
       END IF
    END DO
-   IF (DBG) FLUSH (StdOut)
+   IF (dbg) FLUSH (StdOut)
    RETURN
 END SUBROUTINE read_magn
 
@@ -1172,21 +1329,26 @@ END SUBROUTINE read_magn
 
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_complex_matrix ( LU,key, n, matrix)
+SUBROUTINE read_complex_matrix ( LU, key, n, matrix, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    INTEGER, INTENT (IN)           :: N
    CHARACTER (LEN=*), INTENT (IN) :: key
    COMPLEX (wp), INTENT (OUT)     :: matrix(N,N)
-   REAL (wp), ALLOCATABLE        :: rr(:,:), ri(:,:)
-   INTEGER                       :: i, j
+   REAL (wp), ALLOCATABLE         :: rr(:,:), ri(:,:)
+   INTEGER                        :: i, j
+   LOGICAL, INTENT (IN)           :: dbg
+   REAL (wp), PARAMETER           :: Zero=0.0_wp
+   COMPLEX (wp), PARAMETER        :: ZeroC=(0.0_wp,0.0_wp)
 
    matrix=ZeroC
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
    rr=Zero ; ri=Zero ;
-   CALL read_2d_real_array( LU,key//'r',n,n,rr)
-   CALL read_2d_real_array( LU,key//'i',n,n,ri)
+
+   CALL read_2d_real_array( LU, key//'r' , n, n, rr, dbg )
+   CALL read_2d_real_array( LU, key//'i' , n, n, ri, dbg )
    DO i=1,n
       DO j=1,n
          matrix(i,j) = CMPLX( rr(i,j), ri(i,j), wp)
@@ -1198,26 +1360,28 @@ SUBROUTINE read_complex_matrix ( LU,key, n, matrix)
 END SUBROUTINE read_complex_matrix
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_complex_matrix ( LU, key, n, matrix)
+SUBROUTINE write_complex_matrix ( LU, key, n, matrix, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    INTEGER, INTENT (IN)           :: N
    CHARACTER (LEN=*), INTENT (IN) :: key
    COMPLEX (wp), INTENT (IN)      :: matrix(N,N)
-   REAL (wp), ALLOCATABLE        :: rr(:,:), ri(:,:)
-   INTEGER                       :: i, j
+   REAL (wp), ALLOCATABLE         :: rr(:,:), ri(:,:)
+   INTEGER                        :: i, j
+   LOGICAL, INTENT (IN)           :: dbg
 
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
-   rr=Zero ; ri=Zero ;
+   rr=0.0_wp ; ri=0.0_wp ;
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(matrix(i,j))
-         ri(i,j)=DIMAG(matrix(i,j))
+         ri(i,j)=AIMAG(matrix(i,j))
       END DO
    END DO
-   CALL write_2d_real_array( LU,key//'r',n,n,rr)
-   CALL write_2d_real_array( LU,key//'i',n,n,ri)
+   CALL write_2d_real_array( LU, key//'r', n, n, rr, dbg )
+   CALL write_2d_real_array( LU, key//'i', n, n, ri, dbg )
    DEALLOCATE (rr)
    DEALLOCATE (ri)
    RETURN
@@ -1265,13 +1429,16 @@ END SUBROUTINE write_complex_matrix
 ! write_magn
 !
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_magnetic_moment (ANISO_FILE, n, moment)
+SUBROUTINE write_magnetic_moment ( ANISO_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: ANISO_FILE
    INTEGER, INTENT (IN)      :: N
    COMPLEX (wp), INTENT (IN) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE    :: rr(:,:), ri(:,:)
    INTEGER                   :: i, j
+   REAL (wp), PARAMETER      :: Zero=0.0_wp
+   LOGICAL, INTENT (IN)      :: dbg
 
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
@@ -1280,44 +1447,47 @@ SUBROUTINE write_magnetic_moment (ANISO_FILE, n, moment)
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(1,i,j))
-         ri(i,j)=DIMAG(moment(1,i,j))
+         ri(i,j)=AIMAG(moment(1,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$magn_xr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$magn_xi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$magn_xr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$magn_xi', n, n, ri, dbg )
 ! projection Y
    rr=Zero; ri=Zero;
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(2,i,j))
-         ri(i,j)=DIMAG(moment(2,i,j))
+         ri(i,j)=AIMAG(moment(2,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$magn_yr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$magn_yi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$magn_yr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$magn_yi', n, n, ri, dbg )
 ! projection Z
    rr=Zero; ri=Zero;
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(3,i,j))
-         ri(i,j)=DIMAG(moment(3,i,j))
+         ri(i,j)=AIMAG(moment(3,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$magn_zr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$magn_zi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$magn_zr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$magn_zi', n, n, ri, dbg )
    DEALLOCATE (rr)
    DEALLOCATE (ri)
    RETURN
 END SUBROUTINE write_magnetic_moment
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_electric_moment (ANISO_FILE, n, moment)
+SUBROUTINE write_electric_moment ( ANISO_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: ANISO_FILE
    INTEGER, INTENT (IN)      :: N
    COMPLEX (wp), INTENT (IN) :: moment(3,N,N)
    REAL (wp), ALLOCATABLE    :: rr(:,:), ri(:,:)
    INTEGER                   :: i, j
+   REAL (wp), PARAMETER      :: Zero=0.0_wp
+   LOGICAL, INTENT (IN)      :: dbg
 
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
@@ -1326,31 +1496,31 @@ SUBROUTINE write_electric_moment (ANISO_FILE, n, moment)
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(1,i,j))
-         ri(i,j)=DIMAG(moment(1,i,j))
+         ri(i,j)=AIMAG(moment(1,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$edipm_xr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$edipm_xi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$edipm_xr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$edipm_xi', n, n, ri, dbg )
 ! projection Y
    rr=Zero; ri=Zero;
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(2,i,j))
-         ri(i,j)=DIMAG(moment(2,i,j))
+         ri(i,j)=AIMAG(moment(2,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$edipm_yr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$edipm_yi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$edipm_yr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$edipm_yi', n, n, ri, dbg )
 ! projection Z
    rr=Zero; ri=Zero;
    DO i=1,n
       DO j=1,n
          rr(i,j)=DBLE(moment(3,i,j))
-         ri(i,j)=DIMAG(moment(3,i,j))
+         ri(i,j)=AIMAG(moment(3,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$edipm_zr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$edipm_zi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$edipm_zr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$edipm_zi', n, n, ri, dbg )
    DEALLOCATE (rr)
    DEALLOCATE (ri)
 
@@ -1358,13 +1528,16 @@ SUBROUTINE write_electric_moment (ANISO_FILE, n, moment)
 END SUBROUTINE write_electric_moment
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_spin_moment (ANISO_FILE, n, moment)
+SUBROUTINE write_spin_moment ( ANISO_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER         :: wp = kind(0.d0)
    INTEGER, INTENT (IN)       :: ANISO_FILE
    INTEGER, INTENT (IN)       :: N
    COMPLEX (wp), INTENT (IN)  :: moment(3,N,N)
    REAL (wp), ALLOCATABLE     :: rr(:,:), ri(:,:)
    INTEGER                    :: i, j
+   REAL (wp), PARAMETER       :: Zero=0.0_wp
+   LOGICAL, INTENT (IN)       :: dbg
 
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
@@ -1373,210 +1546,256 @@ SUBROUTINE write_spin_moment (ANISO_FILE, n, moment)
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(1,i,j))
-         ri(i,j)=DIMAG(moment(1,i,j))
+         ri(i,j)=AIMAG(moment(1,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$spin_xr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$spin_xi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$spin_xr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$spin_xi', n, n, ri, dbg )
 ! projection Y
    rr=Zero; ri=Zero;
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(2,i,j))
-         ri(i,j)=DIMAG(moment(2,i,j))
+         ri(i,j)=AIMAG(moment(2,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$spin_yr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$spin_yi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$spin_yr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$spin_yi', n, n, ri, dbg )
 ! projection Z
    rr=Zero; ri=Zero;
    DO i=1,n
       DO j=1,n
          rr(i,j)= DBLE(moment(3,i,j))
-         ri(i,j)=DIMAG(moment(3,i,j))
+         ri(i,j)=AIMAG(moment(3,i,j))
       END DO
    END DO
-   CALL write_2d_real_array( ANISO_FILE, '$spin_zr',n,n,rr)
-   CALL write_2d_real_array( ANISO_FILE, '$spin_zi',n,n,ri)
+   CALL write_2d_real_array( ANISO_FILE, '$spin_zr', n, n, rr, dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$spin_zi', n, n, ri, dbg )
    DEALLOCATE (rr)
    DEALLOCATE (ri)
    RETURN
 END SUBROUTINE write_spin_moment
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_angmom (ANISO_FILE, n, moment)
+SUBROUTINE write_angmom ( ANISO_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER       :: wp = kind(0.d0)
    INTEGER, INTENT (IN)     :: ANISO_FILE
    INTEGER, INTENT (IN)     :: N
    REAL (wp), INTENT (IN)   :: moment(3,N,N)
-   CALL write_2d_real_array( ANISO_FILE, '$angmom_x',n,n,moment(1,:,:) )
-   CALL write_2d_real_array( ANISO_FILE, '$angmom_y',n,n,moment(2,:,:) )
-   CALL write_2d_real_array( ANISO_FILE, '$angmom_z',n,n,moment(3,:,:) )
+   LOGICAL, INTENT (IN)     :: dbg
+
+   CALL write_2d_real_array( ANISO_FILE, '$angmom_x', n, n, moment(1,:,:), dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$angmom_y', n, n, moment(2,:,:), dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$angmom_z', n, n, moment(3,:,:), dbg )
    RETURN
 END SUBROUTINE write_angmom
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_edipmom (ANISO_FILE, n, moment)
+SUBROUTINE write_edipmom ( ANISO_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER       :: wp = kind(0.d0)
    INTEGER, INTENT (IN)     :: ANISO_FILE
    INTEGER, INTENT (IN)     :: N
    REAL (wp), INTENT (IN)   :: moment(3,N,N)
+   LOGICAL, INTENT (IN)     :: dbg
 
-   CALL write_2d_real_array( ANISO_FILE, '$edmom_x',n,n,moment(1,:,:) )
-   CALL write_2d_real_array( ANISO_FILE, '$edmom_y',n,n,moment(2,:,:) )
-   CALL write_2d_real_array( ANISO_FILE, '$edmom_z',n,n,moment(3,:,:) )
+   CALL write_2d_real_array( ANISO_FILE, '$edmom_x',n,n,moment(1,:,:), dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$edmom_y',n,n,moment(2,:,:), dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$edmom_z',n,n,moment(3,:,:), dbg )
    RETURN
 END SUBROUTINE write_edipmom
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_amfi (ANISO_FILE, n, moment)
+SUBROUTINE write_amfi ( ANISO_FILE, n, moment, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER     :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: N
    REAL (wp), INTENT (IN) :: moment(3,N,N)
+   LOGICAL, INTENT (IN)   :: dbg
 
-   CALL write_2d_real_array( ANISO_FILE, '$amfi_x',n,n,moment(1,:,:) )
-   CALL write_2d_real_array( ANISO_FILE, '$amfi_y',n,n,moment(2,:,:) )
-   CALL write_2d_real_array( ANISO_FILE, '$amfi_z',n,n,moment(3,:,:) )
+   CALL write_2d_real_array( ANISO_FILE, '$amfi_x', n, n, moment(1,:,:), dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$amfi_y', n, n, moment(2,:,:), dbg )
+   CALL write_2d_real_array( ANISO_FILE, '$amfi_z', n, n, moment(3,:,:), dbg )
    RETURN
 END SUBROUTINE write_amfi
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_format(ANISO_FILE, n)
+SUBROUTINE write_format( ANISO_FILE, n, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   CALL write_INTEGER_scalar ( ANISO_FILE, '$format', n )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_INTEGER_scalar ( ANISO_FILE, '$format', n, dbg )
    RETURN
 END SUBROUTINE write_format
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_nss (ANISO_FILE, n)
+SUBROUTINE write_nss ( ANISO_FILE, n, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   CALL write_INTEGER_scalar ( ANISO_FILE, '$nss', n )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_INTEGER_scalar ( ANISO_FILE, '$nss', n, dbg )
    RETURN
 END SUBROUTINE write_nss
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_nstate (ANISO_FILE, n)
+SUBROUTINE write_nstate ( ANISO_FILE, n, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   CALL write_INTEGER_scalar ( ANISO_FILE, '$nstate', n )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_INTEGER_scalar ( ANISO_FILE, '$nstate', n, dbg )
    RETURN
 END SUBROUTINE write_nstate
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_nmult (ANISO_FILE, n)
+SUBROUTINE write_nmult (ANISO_FILE, n, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   CALL write_INTEGER_scalar ( ANISO_FILE, '$nmult', n )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_INTEGER_scalar ( ANISO_FILE, '$nmult', n, dbg )
    RETURN
 END SUBROUTINE write_nmult
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_multiplicity (ANISO_FILE, n, array)
+SUBROUTINE write_multiplicity ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   INTEGER, INTENT (IN) :: array(n)
-   CALL write_1d_INTEGER_array( ANISO_FILE, '$multiplicity', n, array )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   INTEGER, INTENT (IN)   :: array(n)
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_1d_INTEGER_array( ANISO_FILE, '$multiplicity', n, array, dbg )
    RETURN
 END SUBROUTINE write_multiplicity
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_imult (ANISO_FILE, n, array)
+SUBROUTINE write_imult ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   INTEGER, INTENT (IN) :: array(n)
-   CALL write_1d_INTEGER_array( ANISO_FILE, '$imult', n, array )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   INTEGER, INTENT (IN)   :: array(n)
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_1d_INTEGER_array( ANISO_FILE, '$imult', n, array, dbg )
    RETURN
 END SUBROUTINE write_imult
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_nroot (ANISO_FILE, n, array)
+SUBROUTINE write_nroot ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   INTEGER, INTENT (IN) :: array(n)
-   CALL write_1d_INTEGER_array( ANISO_FILE, '$nroot', n, array )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   INTEGER, INTENT (IN)   :: array(n)
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_1d_INTEGER_array( ANISO_FILE, '$nroot', n, array, dbg )
    RETURN
 END SUBROUTINE write_nroot
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_szproj (ANISO_FILE, n, array)
+SUBROUTINE write_szproj ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN) :: ANISO_FILE
-   INTEGER, INTENT (IN) :: n
-   INTEGER, INTENT (IN) :: array(n)
-   CALL write_1d_INTEGER_array( ANISO_FILE, '$szproj', n, array )
+   INTEGER, INTENT (IN)   :: ANISO_FILE
+   INTEGER, INTENT (IN)   :: n
+   INTEGER, INTENT (IN)   :: array(n)
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_1d_INTEGER_array( ANISO_FILE, '$szproj', n, array, dbg )
    RETURN
 END SUBROUTINE write_szproj
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_eso (ANISO_FILE, n, array)
+SUBROUTINE write_eso ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER     :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: n
    REAL (wp), INTENT (IN) :: array(n)
-   IF (DBG) WRITE (StdOut,*) 'write_eso: '
-   CALL write_1d_real_array( ANISO_FILE, '$eso', n, array )
+   LOGICAL, INTENT (IN)   :: dbg
+   INTEGER, PARAMETER     :: StdOut = 6
+
+   IF (dbg) WRITE (StdOut,*) 'write_eso: '
+   CALL write_1d_real_array( ANISO_FILE, '$eso', n, array, dbg )
    RETURN
 END SUBROUTINE write_eso
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_esfs (ANISO_FILE, n, array)
+SUBROUTINE write_esfs ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER     :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: n
    REAL (wp), INTENT (IN) :: array(n)
-   CALL write_1d_real_array( ANISO_FILE, '$esfs', n, array )
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_1d_real_array( ANISO_FILE, '$esfs', n, array, dbg )
    RETURN
 END SUBROUTINE write_esfs
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_hso (ANISO_FILE, n, array)
+SUBROUTINE write_hso ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: ANISO_FILE
    INTEGER, INTENT (IN)      :: n
    COMPLEX (wp), INTENT (IN) :: array(n)
-   CALL write_complex_matrix( ANISO_FILE, '$hso', n, array )
+   LOGICAL, INTENT (IN)      :: dbg
+
+   CALL write_complex_matrix( ANISO_FILE, '$hso', n, array, dbg )
    RETURN
 END SUBROUTINE write_hso
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_eigen (ANISO_FILE, n, array)
+SUBROUTINE write_eigen ( ANISO_FILE, n, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER        :: wp = kind(0.d0)
    INTEGER, INTENT (IN)      :: ANISO_FILE
    INTEGER, INTENT (IN)      :: n
    COMPLEX (wp), INTENT (IN) :: array(n)
-   CALL write_complex_matrix( ANISO_FILE, '$eigen', n, array )
+   LOGICAL, INTENT (IN)      :: dbg
+
+   CALL write_complex_matrix( ANISO_FILE, '$eigen', n, array, dbg )
    RETURN
 END SUBROUTINE write_eigen
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_gtens (ANISO_FILE, nmult, gtens, axes)
+SUBROUTINE write_gtens ( ANISO_FILE, nmult, gtens, axes, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER     :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: nmult
    REAL (wp), INTENT (IN) :: gtens(nmult,3)
    REAL (wp), INTENT (IN) ::  axes(nmult,3,3)
-   CALL write_2d_real_array( ANISO_FILE, '$gtens_main', nmult, 3, gtens )
-   CALL write_3d_real_array( ANISO_FILE, '$gtens_axes', nmult, 3, 3, axes )
+   LOGICAL, INTENT (IN)   :: dbg
+
+   CALL write_2d_real_array( ANISO_FILE, '$gtens_main', nmult, 3, gtens, dbg )
+   CALL write_3d_real_array( ANISO_FILE, '$gtens_axes', nmult, 3, 3, axes, dbg )
    RETURN
 END SUBROUTINE write_gtens
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_stev_cfp(ANISO_FILE, s, n, cfp)
+SUBROUTINE write_stev_cfp ( ANISO_FILE, s, n, cfp, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER     :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: n   ! 2J+1, or 2L+1, i.e. the dimension of the J or L multiplet
    REAL (wp), INTENT (IN) :: cfp(n-1, -(n-1):(n-1) )
    CHARACTER (LEN=*)      :: s
-   INTEGER                :: k, q
+   INTEGER                :: k, q, ierr
+   INTEGER, PARAMETER     :: StdOut=6
+   LOGICAL, INTENT (IN)   :: dbg
+   CHARACTER (LEN=500)    :: line
+   REAL (wp), PARAMETER   :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   CHARACTER (LEN=30)     :: FMTCFP='(2(I0,1x),ES22.14)'
+
 
    ! s takes the value:
    ! 'L' == CFP for a term
@@ -1594,12 +1813,12 @@ SUBROUTINE write_stev_cfp(ANISO_FILE, s, n, cfp)
        RETURN
    END IF
 
-   IF ( SUM(ABS( cfp(  1:(n-1), -(n-1):(n-1) ) )) <= TINY(Zero) ) THEN
+   IF ( SUM(ABS( cfp(  1:(n-1), -(n-1):(n-1) ) )) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_stev_cfp_'//trim(s)//':: all array elements are zero = 0.')
    END IF
 
    REWIND ( ANISO_FILE )
-   CALL file_advance_to_string( ANISO_FILE, '$stev_cfp_'//trim(s), line )
+   CALL file_advance_to_string( ANISO_FILE, '$stev_cfp_'//trim(s), line, ierr, dbg )
 
    IF (ierr /= 0 ) THEN
       WRITE ( ANISO_FILE, FMT='(A)', IOSTAT=ierr )
@@ -1610,14 +1829,14 @@ SUBROUTINE write_stev_cfp(ANISO_FILE, s, n, cfp)
    WRITE ( ANISO_FILE, FMT=*, IOSTAT=ierr ) n
    DO k=2,n-1,2
       DO q=-k,k,2
-         IF ( ABS(cfp(k,q)) > TINY(Zero) ) THEN
+         IF ( ABS(cfp(k,q)) > MINIMAL_REAL ) THEN
             WRITE ( ANISO_FILE, FMT=FMTCFP, IOSTAT=ierr ) k,q, cfp(k,q)
          END IF
          IF (ierr /= 0) THEN
             CALL WarningMessage(2,'write_stev_cfp_'//trim(s)//':: Something went wrong writing the array.')
          END IF
-         IF (DBG) WRITE (StdOut,*) 'write_stev_cfp_'//trim(s)//'::  k, q =',k, q
-         IF (DBG) FLUSH (StdOut)
+         IF (dbg) WRITE (StdOut,*) 'write_stev_cfp_'//trim(s)//'::  k, q =',k, q
+         IF (dbg) FLUSH (StdOut)
       END DO
    END DO
    WRITE ( ANISO_FILE, FMT='(A)', IOSTAT=ierr )
@@ -1626,8 +1845,9 @@ RETURN
 END SUBROUTINE write_stev_cfp
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_susc (ANISO_FILE, s, n, field, zj, t, z, x, x_tens)
+SUBROUTINE write_susc ( ANISO_FILE, s, n, field, zj, t, z, x, x_tens, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER     :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: n                  ! number of temperature points
    REAL (wp), INTENT (IN) :: field              ! applied field
@@ -1637,8 +1857,14 @@ SUBROUTINE write_susc (ANISO_FILE, s, n, field, zj, t, z, x, x_tens)
    REAL (wp), INTENT (IN) :: x(n)               ! susceptibility X
    REAL (wp), INTENT (IN) :: x_tens(n,3,3)      ! susceptibility tensor  X_tens
    CHARACTER (LEN=*), INTENT (IN) :: s
-   INTEGER :: i, j, k
-   REAL (wp), EXTERNAL :: dnrm2_
+   INTEGER                :: i, j, k, ierr
+   REAL (wp), EXTERNAL    :: dnrm2_
+   LOGICAL, INTENT (IN)   :: dbg
+   INTEGER, PARAMETER     :: StdOut=6
+   REAL (wp), PARAMETER   :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   CHARACTER (LEN=500)    :: line
+   CHARACTER (LEN=20)     :: FMTR='(5ES22.14)'
+   CHARACTER (LEN=20)     :: FMTI='(20(I0,1x))'
 
    ! s takes the values:
    ! 'x'
@@ -1684,21 +1910,21 @@ SUBROUTINE write_susc (ANISO_FILE, s, n, field, zj, t, z, x, x_tens)
       CALL WarningMessage(1,'write_susc '//trim(s)//' :: nothing to write. Array size = 0.')
       RETURN
    END IF
-   IF ( dnrm2_(n,T,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(n,T,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_susc '//trim(s)//' :: all array T elements are zero = 0.')
    END IF
-   IF ( dnrm2_(n,X,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(n,X,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_susc '//trim(s)//' :: all array X elements are zero = 0.')
    END IF
-   IF ( dnrm2_(n,Z,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(n,Z,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_susc '//trim(s)//' :: all array Z elements are zero = 0.')
    END IF
-   IF ( dnrm2_(3*3*n,X_tens,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(3*3*n,X_tens,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_susc '//trim(s)//' :: all array X_tens elements are zero = 0.')
    END IF
 
    REWIND ( ANISO_FILE )
-   CALL file_advance_to_string( ANISO_FILE, '$susceptibility_'//trim(s), line )
+   CALL file_advance_to_string( ANISO_FILE, '$susceptibility_'//trim(s), line, ierr, dbg )
 
    IF (ierr /= 0 ) THEN
       WRITE ( ANISO_FILE, FMT='(A)', IOSTAT=ierr )
@@ -1733,13 +1959,14 @@ SUBROUTINE write_susc (ANISO_FILE, s, n, field, zj, t, z, x, x_tens)
    END DO
    WRITE ( ANISO_FILE, FMT=*, IOSTAT=ierr )
    FLUSH ( ANISO_FILE )
-   IF (DBG) FLUSH (StdOut)
+   IF (dbg) FLUSH (StdOut)
    RETURN
 END SUBROUTINE write_susc
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_magn (ANISO_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, energy)
+SUBROUTINE write_magn (ANISO_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, energy, dbg)
    IMPLICIT NONE
+   INTEGER, PARAMETER :: wp = kind(0.d0)
    INTEGER, INTENT (IN)   :: ANISO_FILE
    INTEGER, INTENT (IN)   :: nt                         ! number of temperature points
    INTEGER, INTENT (IN)   :: nh                         ! number of field points
@@ -1752,36 +1979,42 @@ SUBROUTINE write_magn (ANISO_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav
    REAL (wp), INTENT (IN) :: m(nd, 3, nh, nt)           ! magnetisation vector
    REAL (wp), INTENT (IN) :: mav(nh, nt)                ! average magnetisation vector
    REAL (wp), INTENT (IN) :: energy(nd, nh, nss)        ! Zeeman energy states
-   INTEGER              :: id, ih, it, i, iss, l
-   REAL (wp), EXTERNAL   :: dnrm2_
+   INTEGER                :: id, ih, it, i, iss, l, ierr
+   REAL (wp), EXTERNAL    :: dnrm2_
+   INTEGER, PARAMETER     :: StdOut=6
+   LOGICAL, INTENT (IN)   :: dbg
+   REAL (wp), PARAMETER   :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   CHARACTER (LEN=500)    :: line
+   CHARACTER (LEN=20)     :: FMTR='(5ES22.14)'
+   CHARACTER (LEN=20)     :: FMTI='(20(I0,1x))'
 
    ierr=0
    IF ( (nt<=0) .OR. (nh<=0) .OR. (nd<=0) ) THEN
       CALL WarningMessage(1,'write_magn :: nothing to write. Array size = 0.')
       RETURN
    END IF
-   IF ( dnrm2_(nt,t,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(nt,t,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_magn :: all array T elements are zero = 0.')
    END IF
-   IF ( dnrm2_(nh,h,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(nh,h,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_magn :: all array H elements are zero = 0.')
    END IF
-   IF ( dnrm2_(nd*3*nt*nh,m,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(nd*3*nt*nh,m,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_magn :: all array M elements are zero = 0.')
    END IF
-   IF ( dnrm2_(nt*nh,mav,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(nt*nh,mav,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_magn :: all array MAV elements are zero = 0.')
    END IF
-   IF ( dnrm2_(nd*nh*nss,energy,1) <= TINY(Zero) ) THEN
+   IF ( dnrm2_(nd*nh*nss,energy,1) <= MINIMAL_REAL ) THEN
       CALL WarningMessage(1,'write_magn :: all array energy elements are zero = 0.')
    END IF
-   IF ( (dnrm2_(nd,x,1) <= TINY(Zero)) .OR. (dnrm2_(nd,y,1) <= TINY(Zero)) .OR.  &
-       (dnrm2_(nd,z,1) <= TINY(Zero)) .OR. (dnrm2_(nd,w,1) <= TINY(Zero)) )    THEN
+   IF ( (dnrm2_(nd,x,1) <= MINIMAL_REAL) .OR. (dnrm2_(nd,y,1) <= MINIMAL_REAL) .OR.  &
+        (dnrm2_(nd,z,1) <= MINIMAL_REAL) .OR. (dnrm2_(nd,w,1) <= MINIMAL_REAL) )    THEN
       CALL WarningMessage(1,'write_magn :: all array of X,Y,X,W elements are zero = 0.')
    END IF
 
    REWIND ( ANISO_FILE )
-   CALL file_advance_to_string( ANISO_FILE, '$magnetisation', line )
+   CALL file_advance_to_string( ANISO_FILE, '$magnetisation', line, ierr, dbg )
 
    ! if key is found, THEN rewrite the data
    IF ( ierr /= 0 ) THEN
@@ -1848,7 +2081,7 @@ SUBROUTINE write_magn (ANISO_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav
    END DO
    WRITE ( ANISO_FILE, FMT=*, IOSTAT=ierr )
    FLUSH ( ANISO_FILE )
-   IF (DBG) FLUSH (StdOut)
+   IF (dbg) FLUSH (StdOut)
    RETURN
 END SUBROUTINE write_magn
 
@@ -1968,7 +2201,7 @@ END SUBROUTINE open_datafile_read
 !--------------------------------------------------------------------------------------------------!
 SUBROUTINE close_datafile(DATA_FILE)
    IMPLICIT NONE
-   INTEGER            :: DATA_FILE
+   INTEGER :: DATA_FILE
    INTEGER :: ierr
    ierr=0
    CLOSE (UNIT=DATA_FILE, IOSTAT=ierr )
@@ -1993,14 +2226,18 @@ SUBROUTINE close_anisofile(ANISO_FILE)
    RETURN
 END SUBROUTINE close_anisofile
 !--------------------------------------------------------------------------------------------------!
-LOGICAL FUNCTION key_found (DATA_FILE, key)
+LOGICAL FUNCTION key_found (DATA_FILE, key, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)           :: DATA_FILE
    CHARACTER (LEN=*), INTENT (IN) :: key
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
 
+   ierr=0
    key_found=.false.
    REWIND ( DATA_FILE )
-   CALL file_advance_to_string( DATA_FILE, key, line )
+   CALL file_advance_to_string( DATA_FILE, key, line, ierr, dbg )
    IF ( index (line, trim(key)) /= 0 ) THEN
       key_found=.true.
    END IF
@@ -2009,13 +2246,16 @@ LOGICAL FUNCTION key_found (DATA_FILE, key)
 END FUNCTION key_found
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE file_advance_to_string ( LU, key, line )
+SUBROUTINE file_advance_to_string ( LU, key, line, ierr, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)           :: LU
    INTEGER                        :: ios
    INTEGER                        :: num_read
    CHARACTER (LEN=*), INTENT (IN) :: key
    CHARACTER (LEN=*)              :: line
+   INTEGER, INTENT (OUT)          :: ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER, PARAMETER             :: StdOut=6
 
    ierr = 0
    num_read = 0
@@ -2041,7 +2281,7 @@ SUBROUTINE file_advance_to_string ( LU, key, line )
    line = ' '
    ierr = 1
 
-   IF ( DBG ) THEN
+   IF ( dbg ) THEN
       WRITE (StdOut, '(a)' ) ' '
       WRITE (StdOut, '(a)' ) 'FILE_ADVANCE_TO_STRING - Warning!'
       WRITE (StdOut, '(a)' ) '  Did not find the key:'
@@ -2058,8 +2298,9 @@ END SUBROUTINE file_advance_to_string
 LOGICAL FUNCTION inquire_key_presence ( LU, key )
    IMPLICIT NONE
    INTEGER, INTENT (IN)   :: LU
-   CHARACTER (LEN=*)     :: key
-   INTEGER               :: ios
+   CHARACTER (LEN=*)      :: key
+   INTEGER                :: ios
+   CHARACTER (LEN=500)    :: line
 
    inquire_key_presence=.false.
    REWIND ( LU )
@@ -2117,189 +2358,236 @@ END FUNCTION inquire_key_presence
 !--------------------------------------------------------------------------------------------------!
 !   READING  SUBROUTINES
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_INTEGER_scalar( LU, key, i )
+SUBROUTINE read_INTEGER_scalar( LU, key, i, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (OUT)         :: i
+   INTEGER, INTENT (OUT)          :: i
+   CHARACTER(LEN=500)             :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+   INTEGER, PARAMETER             :: StdOut = 6
+
    ierr=0
    i=0
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
    READ ( LU, FMT=*, IOSTAT=ierr ) i
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_INTEGER_scalar:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_INTEGER_scalar:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_INTEGER_scalar::   i =',i
+   IF (dbg) WRITE (StdOut,*) 'read_INTEGER_scalar:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_INTEGER_scalar::   i =',i
    RETURN
 END SUBROUTINE read_INTEGER_scalar
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_real_scalar( LU, key, r )
+SUBROUTINE read_real_scalar( LU, key, r, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    REAL (wp), INTENT (OUT)        :: r
+   INTEGER, PARAMETER             :: StdOut=6
+   REAL (wp), PARAMETER           :: Zero=0.0_wp
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+   CHARACTER(LEN=500)             :: line
+
+
    ierr=0
    r=Zero
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
    READ ( LU, FMT=*, IOSTAT=ierr ) r
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_real_scalar:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_real_scalar:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_real_scalar::   r =',r
+   IF (dbg) WRITE (StdOut,*) 'read_real_scalar:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_real_scalar::   r =',r
    RETURN
 END SUBROUTINE read_real_scalar
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_complex_scalar( LU, key, c )
+SUBROUTINE read_complex_scalar( LU, key, c, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    COMPLEX (wp), INTENT (OUT)     :: c
-   REAL (wp)                     :: rr, ri
+   REAL (wp)                      :: rr, ri
+   REAL (wp), PARAMETER           :: Zero=0.0_wp
+   COMPLEX (wp), PARAMETER        :: ZeroC=(0.0_wp,0.0_wp)
+   INTEGER, PARAMETER             :: StdOut=6
+   INTEGER                        :: ierr
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
 
    ierr=0
    rr=Zero ; ri=Zero ; c=ZeroC
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
    READ ( LU, FMT=*, IOSTAT=ierr ) rr, ri
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_complex_scalar:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_complex_scalar::   key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_complex_scalar:: (r,i) =', rr, ri
-   IF (DBG) WRITE (StdOut,*) 'read_complex_scalar::     c =', c
+   IF (dbg) WRITE (StdOut,*) 'read_complex_scalar::   key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_complex_scalar:: (r,i) =', rr, ri
+   IF (dbg) WRITE (StdOut,*) 'read_complex_scalar::     c =', c
    c=CMPLX(rr,ri,wp)
    RETURN
 END SUBROUTINE read_complex_scalar
 
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_string (key, length, s)
-!result ( s )
-!   IMPLICIT NONE
-!   CHARACTER (LEN=*), INTENT (IN)      :: key
-!   INTEGER, INTENT (IN)               :: length
-!   CHARACTER (LEN=length),INTENT (OUT) :: s
-!   CHARACTER (LEN=300)                :: c, f
-!   INTEGER                           :: i
-!
-!   IF (DBG) WRITE (StdOut,*) 'read_string::    key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_string:: length =',length
-!   FLUSH (StdOut)
-!   WRITE (f,'(A,i0,2A)') '"(A',length,')"'
-!   WRITE (StdOut,'(2A)') 'format =', trim(f)
-!   FLUSH (StdOut)
-!   REWIND ( DATA_FILE )
-!   CALL file_advance_to_string( key, line )
-!   READ ( DATA_FILE, FMT=f, IOSTAT=ierr ) c
-!   WRITE (StdOut,'(2A)') 'c =', trim(c)
-!   WRITE (s,'(A)') trim(c)
-!
-!   DO i=1,LEN(TRIM(LINE))
-!     READ (LINE,'(A300)') c
-!     WRITE (s,'(A)') trim(c)
-!     FLUSH (StdOut)
-!     IF (DBG) WRITE (StdOut,*) 'read_string::   c =', trim(c)
-!     FLUSH (StdOut)
-!   END DO
-!
-!   RETURN
-!END SUBROUTINE read_string
+SUBROUTINE read_string ( LU, key, length, s, dbg )
+   !result ( s )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)                :: LU
+   CHARACTER (LEN=*), INTENT (IN)      :: key
+   INTEGER, INTENT (IN)                :: length
+   CHARACTER (LEN=length),INTENT (OUT) :: s
+   CHARACTER (LEN=500)                 :: c, f, line
+   INTEGER                             :: i, ierr
+   LOGICAL, INTENT (IN)                :: dbg
+   INTEGER, PARAMETER                  :: StdOut=6
+
+   IF (dbg) WRITE (StdOut,*) 'read_string::    key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_string:: length =',length
+   FLUSH (StdOut)
+   WRITE (f,'(A,i0,2A)') '"(A',length,')"'
+   WRITE (StdOut,'(2A)') 'format =', trim(f)
+   FLUSH (StdOut)
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   READ ( LU, FMT=f, IOSTAT=ierr ) c
+   WRITE (StdOut,'(2A)') 'c =', trim(c)
+   WRITE (s,'(A)') trim(c)
+
+   DO i=1,LEN(TRIM(LINE))
+     READ (LINE,'(A500)') c
+     WRITE (s,'(A)') trim(c)
+     FLUSH (StdOut)
+     IF (dbg) WRITE (StdOut,*) 'read_string::   c =', trim(c)
+     FLUSH (StdOut)
+   END DO
+
+   RETURN
+END SUBROUTINE read_string
 
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_1d_size( LU, key, n )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (OUT)          :: n
-!   ierr=0
-!   n=0
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!   READ ( LU, FMT=*, IOSTAT=ierr ) n
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_1d_size:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_1d_size:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_1d_size::   n =',n
-!   RETURN
-!END SUBROUTINE read_1d_size
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_2d_size( LU, key, n1, n2 )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (OUT)          :: n1, n2
-!   ierr=0
-!   n1=0 ; n2=0 ;
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_2d_size:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_size:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_size::  n1 =',n1
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_size::  n2 =',n2
-!   RETURN
-!END SUBROUTINE read_2d_size
-!
+SUBROUTINE read_1d_size( LU, key, n, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (OUT)          :: n
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+
+   ierr=0
+   n=0
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   READ ( LU, FMT=*, IOSTAT=ierr ) n
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_1d_size:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_1d_size:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_1d_size::   n =',n
+   RETURN
+END SUBROUTINE read_1d_size
+
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_3d_size( LU, key, n1, n2, n3 )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (OUT)          :: n1, n2, n3
-!   ierr=0
-!   n1=0 ; n2=0 ; n3=0 ;
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_3d_size:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_size:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n1 =',n1
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n2 =',n2
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_size::  n3 =',n3
-!   RETURN
-!END SUBROUTINE read_3d_size
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_4d_size( LU, key, n1, n2, n3, n4 )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (OUT)          :: n1, n2, n3, n4
-!   ierr=0
-!   n1=0 ; n2=0 ; n3=0 ; n4=0 ;
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3, n4
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_4d_size:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_size:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n1 =',n1
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n2 =',n2
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n3 =',n3
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_size::  n4 =',n4
-!   RETURN
-!END SUBROUTINE read_4d_size
-!
+SUBROUTINE read_2d_size( LU, key, n1, n2, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (OUT)          :: n1, n2
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+
+   ierr=0
+   n1=0 ; n2=0 ;
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_2d_size:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_2d_size:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_2d_size::  n1 =',n1
+   IF (dbg) WRITE (StdOut,*) 'read_2d_size::  n2 =',n2
+   RETURN
+END SUBROUTINE read_2d_size
+
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_1d_INTEGER_array( LU, key, n, array )
+SUBROUTINE read_3d_size( LU, key, n1, n2, n3, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (OUT)          :: n1, n2, n3
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+
+   ierr=0
+   n1=0 ; n2=0 ; n3=0 ;
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_3d_size:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_3d_size:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_3d_size::  n1 =',n1
+   IF (dbg) WRITE (StdOut,*) 'read_3d_size::  n2 =',n2
+   IF (dbg) WRITE (StdOut,*) 'read_3d_size::  n3 =',n3
+   RETURN
+END SUBROUTINE read_3d_size
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_4d_size( LU, key, n1, n2, n3, n4, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (OUT)          :: n1, n2, n3, n4
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+
+   ierr=0
+   n1=0 ; n2=0 ; n3=0 ; n4=0 ;
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   READ ( LU, FMT=*, IOSTAT=ierr ) n1, n2, n3, n4
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_4d_size:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_4d_size:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_4d_size::  n1 =',n1
+   IF (dbg) WRITE (StdOut,*) 'read_4d_size::  n2 =',n2
+   IF (dbg) WRITE (StdOut,*) 'read_4d_size::  n3 =',n3
+   IF (dbg) WRITE (StdOut,*) 'read_4d_size::  n4 =',n4
+   RETURN
+END SUBROUTINE read_4d_size
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_1d_INTEGER_array( LU, key, n, array, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n
    INTEGER, INTENT (OUT)          :: array(n)
-   INTEGER                        :: i
+   INTEGER                        :: i, ierr
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+
    ierr=0
    array=0
    IF (n<=0) THEN
@@ -2307,14 +2595,14 @@ SUBROUTINE read_1d_INTEGER_array( LU, key, n, array )
       RETURN
    END IF
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    READ ( LU, FMT=*, IOSTAT=ierr ) i
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_1d_INTEGER_array:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_INTEGER_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_1d_INTEGER_array::   n =',i
+   IF (dbg) WRITE (StdOut,*) 'read_1d_INTEGER_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_1d_INTEGER_array::   n =',i
    IF ( i/=n ) THEN
       CALL WarningMessage(2,'read_1d_INTEGER_array:: sizes of the array are different from the ones used '// &
                             'to CALL this SUBROUTINE')
@@ -2324,160 +2612,182 @@ SUBROUTINE read_1d_INTEGER_array( LU, key, n, array )
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_1d_INTEGER_array:: Something went wrong reading the array.')
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_INTEGER_array:: array =',(array(i),i=1,n)
+   IF (dbg) WRITE (StdOut,*) 'read_1d_INTEGER_array:: array =',(array(i),i=1,n)
 
    RETURN
 END SUBROUTINE read_1d_INTEGER_array
 
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_2d_INTEGER_array( LU, key, n1, n2, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2
-!   INTEGER, INTENT (OUT)          :: array(n1,n2)
-!   INTEGER                        :: i,j
-!   ierr=0
-!   array=0
-!   IF ( (n1<=0).OR.(n2<=0) ) THEN
-!      CALL WarningMessage(1,'read_2d_INTEGER_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n2 =',n2
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n2 =',j
-!   IF ( (i/=n1).OR.(j/=n2) ) THEN
-!      CALL WarningMessage(2,'read_2d_INTEGER_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   DO i=1, n1
-!      READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j),j=1,n2)
-!      IF (ierr /= 0) THEN
-!         CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading the array.')
-!      END IF
-!      IF (DBG) WRITE (StdOut,*) 'read_2d_INTEGER_array::  i =',i
-!      IF (DBG) FLUSH (StdOut)
-!   END DO
-!
-!   RETURN
-!END SUBROUTINE read_2d_INTEGER_array
-!
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_3d_INTEGER_array( LU, key, n1, n2, n3, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3
-!   INTEGER, INTENT (OUT)          :: array(n1,n2,n3)
-!   INTEGER                        :: i,j,k
-!   ierr=0
-!   array=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-!      CALL WarningMessage(1,'read_3d_INTEGER_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n2 =',n2
-!      IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n3 =',n3
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n2 =',j
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n3 =',k
-!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
-!      CALL WarningMessage(2,'read_3d_INTEGER_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   DO i=1, n1
-!      DO j=1, n2
-!         READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-!         IF (ierr /= 0) THEN
-!            CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading the array.')
-!         END IF
-!         IF (DBG) WRITE (StdOut,*) 'read_3d_INTEGER_array::  i,j =',i,j
-!         IF (DBG) FLUSH (StdOut)
-!      END DO
-!   END DO
-!
-!   RETURN
-!END SUBROUTINE read_3d_INTEGER_array
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
-!   INTEGER, INTENT (OUT)          :: array(n1,n2,n3,n4)
-!   INTEGER                        :: i,j,k,l
-!   ierr=0
-!   array=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-!      CALL WarningMessage(1,'read_4d_INTEGER_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n2 =',n2
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n3 =',n3
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n4 =',n4
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n2 =',j
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n3 =',k
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n4 =',l
-!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
-!      CALL WarningMessage(2,'read_4d_INTEGER_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   DO i=1, n1
-!      DO j=1, n2
-!         DO k=1, n3
-!            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'read_4d_INTEGER_array::  i,j,k =',i,j,k
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   END DO
-!
-!   RETURN
-!END SUBROUTINE read_4d_INTEGER_array
-!
-!--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_1d_real_array( LU, key, n, array )
+SUBROUTINE read_2d_INTEGER_array( LU, key, n1, n2, array, dbg )
    IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2
+   INTEGER, INTENT (OUT)          :: array(n1,n2)
+   INTEGER                        :: i,j
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
+
+   ierr=0
+   array=0
+   IF ( (n1<=0).OR.(n2<=0) ) THEN
+      CALL WarningMessage(1,'read_2d_INTEGER_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_2d_INTEGER_array::   n2 =',n2
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_2d_INTEGER_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_2d_INTEGER_array::  n2 =',j
+   IF ( (i/=n1).OR.(j/=n2) ) THEN
+      CALL WarningMessage(2,'read_2d_INTEGER_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   DO i=1, n1
+      READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j),j=1,n2)
+      IF (ierr /= 0) THEN
+         CALL WarningMessage(2,'read_2d_INTEGER_array:: Something went wrong reading the array.')
+      END IF
+      IF (dbg) WRITE (StdOut,*) 'read_2d_INTEGER_array::  i =',i
+      IF (dbg) FLUSH (StdOut)
+   END DO
+
+   RETURN
+END SUBROUTINE read_2d_INTEGER_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_3d_INTEGER_array( LU, key, n1, n2, n3, array, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3
+   INTEGER, INTENT (OUT)          :: array(n1,n2,n3)
+   INTEGER                        :: i,j,k
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
+
+   ierr=0
+   array=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+      CALL WarningMessage(1,'read_3d_INTEGER_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n2 =',n2
+      IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::   n3 =',n3
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::  n3 =',k
+   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
+      CALL WarningMessage(2,'read_3d_INTEGER_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   DO i=1, n1
+      DO j=1, n2
+         READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+         IF (ierr /= 0) THEN
+            CALL WarningMessage(2,'read_3d_INTEGER_array:: Something went wrong reading the array.')
+         END IF
+         IF (dbg) WRITE (StdOut,*) 'read_3d_INTEGER_array::  i,j =',i,j
+         IF (dbg) FLUSH (StdOut)
+      END DO
+   END DO
+
+   RETURN
+END SUBROUTINE read_3d_INTEGER_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+   INTEGER, INTENT (OUT)          :: array(n1,n2,n3,n4)
+   INTEGER                        :: i,j,k,l
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
+
+   ierr=0
+   array=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+      CALL WarningMessage(1,'read_4d_INTEGER_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n2 =',n2
+      IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n3 =',n3
+      IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::   n4 =',n4
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n3 =',k
+   IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::  n4 =',l
+   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
+      CALL WarningMessage(2,'read_4d_INTEGER_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   DO i=1, n1
+      DO j=1, n2
+         DO k=1, n3
+            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'read_4d_INTEGER_array:: Something went wrong reading the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'read_4d_INTEGER_array::  i,j,k =',i,j,k
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   END DO
+
+   RETURN
+END SUBROUTINE read_4d_INTEGER_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_1d_real_array( LU, key, n, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n
    REAL (wp), INTENT (OUT)        :: array(n)
    INTEGER                        :: i
+   LOGICAL, INTENT (IN)           :: dbg
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   INTEGER                        :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
+
    ierr=0
    array=Zero
    IF (n<=0) THEN
@@ -2485,14 +2795,14 @@ SUBROUTINE read_1d_real_array( LU, key, n, array )
       RETURN
    END IF
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    READ ( LU, FMT=*, IOSTAT=ierr ) i
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_1d_real_array:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_real_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_1d_real_array::   n =',i
+   IF (dbg) WRITE (StdOut,*) 'read_1d_real_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_1d_real_array::   n =',i
    IF ( (i/=n) ) THEN
       CALL WarningMessage(2,'read_1d_real_array:: sizes of the array are different from the ones used '// &
                             'to CALL this SUBROUTINE')
@@ -2502,38 +2812,44 @@ SUBROUTINE read_1d_real_array( LU, key, n, array )
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_1d_real_array:: Something went wrong reading the array.')
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_1d_real_array:: array =',(array(i),i=1,n)
+   IF (dbg) WRITE (StdOut,*) 'read_1d_real_array:: array =',(array(i),i=1,n)
 
    RETURN
 END SUBROUTINE read_1d_real_array
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_2d_real_array( LU, key, n1, n2, array )
+SUBROUTINE read_2d_real_array( LU, key, n1, n2, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n1, n2
    REAL (wp), INTENT (OUT)        :: array(n1,n2)
-   INTEGER                        :: i,j
+   INTEGER                        :: i,j,ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: StdOut = 6
+
    ierr=0
    array=Zero
    IF ( (n1<=0) .OR. (n2<=0) ) THEN
       CALL WarningMessage(1,'read_2d_real_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_2d_real_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_2d_real_array::   n2 =',n2
-      IF (DBG) FLUSH (StdOut)
+      IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::   n2 =',n2
+      IF (dbg) FLUSH (StdOut)
       RETURN
    END IF
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    READ ( LU, FMT=*, IOSTAT=ierr ) i,j
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_2d_real_array:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_2d_real_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_2d_real_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_2d_real_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_2d_real_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::  n2 =',j
    IF ( (i/=n1) .OR. (j/=n2) ) THEN
       CALL WarningMessage(2,'read_2d_real_array:: sizes of the array are different from the ones used '// &
                             'to CALL this SUBROUTINE')
@@ -2543,42 +2859,48 @@ SUBROUTINE read_2d_real_array( LU, key, n1, n2, array )
       IF (ierr /= 0) THEN
          CALL WarningMessage(2,'read_2d_real_array:: Something went wrong reading the array.')
       END IF
-      IF (DBG) WRITE (StdOut,*) 'read_2d_real_array::  i =',i
-      IF (DBG) FLUSH (StdOut)
+      IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::  i =',i
+      IF (dbg) FLUSH (StdOut)
    END DO
 
    RETURN
 END SUBROUTINE read_2d_real_array
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE read_3d_real_array( LU, key, n1, n2, n3, array )
+SUBROUTINE read_3d_real_array( LU, key, n1, n2, n3, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n1, n2, n3
    REAL (wp), INTENT (OUT)        :: array(n1,n2,n3)
-   INTEGER                        :: i,j,k
+   INTEGER                        :: i,j,k,ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+
    ierr=0
    array=Zero
    IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
       CALL WarningMessage(1,'read_3d_real_array:: nothing to read. Array size = 0.')
-      IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::   n1 =',n1
-      IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::   n2 =',n2
-      IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::   n3 =',n3
-      IF (DBG) FLUSH (StdOut)
+      IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::   n2 =',n2
+      IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::   n3 =',n3
+      IF (dbg) FLUSH (StdOut)
       RETURN
    END IF
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_3d_real_array:: Something went wrong reading key'//trim(key))
    END IF
-   IF (DBG) WRITE (StdOut,*) 'read_3d_real_array:: key =',trim(key)
-   IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::  n1 =',i
-   IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::  n2 =',j
-   IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::  n3 =',k
+   IF (dbg) WRITE (StdOut,*) 'read_3d_real_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::  n3 =',k
    IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
       CALL WarningMessage(2,'read_3d_real_array:: sizes of the array are different from the ones used '// &
                             'to CALL this SUBROUTINE')
@@ -2589,285 +2911,319 @@ SUBROUTINE read_3d_real_array( LU, key, n1, n2, n3, array )
          IF (ierr /= 0) THEN
             CALL WarningMessage(2,'read_3d_real_array:: Something went wrong reading the array.')
          END IF
-         IF (DBG) WRITE (StdOut,*) 'read_3d_real_array::  i,j =',i,j
-         IF (DBG) FLUSH (StdOut)
+         IF (dbg) WRITE (StdOut,*) 'read_3d_real_array::  i,j =',i,j
+         IF (dbg) FLUSH (StdOut)
       END DO
    END DO
 
    RETURN
 END SUBROUTINE read_3d_real_array
 
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_4d_real_array( LU, key, n1, n2, n3, n4, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
-!   REAL (wp), INTENT (OUT)        :: array(n1,n2,n3,n4)
-!   INTEGER                        :: i,j,k,l
-!   ierr=0
-!   array=Zero
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-!      CALL WarningMessage(1,'read_4d_real_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n2 =',n2
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n3 =',n3
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::   n4 =',n4
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n2 =',j
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n3 =',k
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  n4 =',l
-!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
-!      CALL WarningMessage(2,'read_4d_real_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   DO i=1, n1
-!      DO j=1, n2
-!         DO k=1, n3
-!            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   END DO
-!
-!   RETURN
-!END SUBROUTINE read_4d_real_array
-!
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_1d_complex_array( LU, key, n, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n
-!   COMPLEX (wp), INTENT (OUT)     :: array(n)
-!   REAL (wp), ALLOCATABLE         :: rr(:), ri(:)
-!   INTEGER                        :: i
-!   ierr=0
-!   array=ZeroC
-!   IF (n<=0) THEN
-!      CALL WarningMessage(1,'read_1d_complex_array:: nothing to read. Array size = 0.')
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array::   n =',i
-!   IF ( (i/=n) ) THEN
-!      CALL WarningMessage(2,'read_1d_complex_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   ALLOCATE (rr(n))
-!   ALLOCATE (ri(n))
-!   rr=Zero ; ri=Zero
-!   READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i), ri(i), i=1,n )
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading the array.')
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
-!   DO i=1, n
-!     array(i)=CMPLX(rr(i), ri(i), wp)
-!   END DO
-!   DEALLOCATE (rr)
-!   DEALLOCATE (ri)
-!   RETURN
-!END SUBROUTINE read_1d_complex_array
-!
+SUBROUTINE read_4d_real_array( LU, key, n1, n2, n3, n4, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+   REAL (wp), INTENT (OUT)        :: array(n1,n2,n3,n4)
+   INTEGER                        :: i, j, k, l, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER, PARAMETER             :: StdOut = 6
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+
+   ierr=0
+   array=Zero
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+      CALL WarningMessage(1,'read_4d_real_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::   n2 =',n2
+      IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::   n3 =',n3
+      IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::   n4 =',n4
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_4d_real_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::  n3 =',k
+   IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::  n4 =',l
+   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
+      CALL WarningMessage(2,'read_4d_real_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   DO i=1, n1
+      DO j=1, n2
+         DO k=1, n3
+            READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   END DO
+
+   RETURN
+END SUBROUTINE read_4d_real_array
+
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_2d_complex_array( LU, key, n1, n2, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2
-!   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2)
-!   REAL (wp), ALLOCATABLE         :: rr(:,:), ri(:,:)
-!   INTEGER                        :: i,j
-!   ierr=0
-!   array=ZeroC
-!   IF ( (n1<=0) .OR. (n2<=0) ) THEN
-!      CALL WarningMessage(1,'read_2d_complex_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::   n2 =',n2
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  n2 =',j
-!   IF ( (i/=n1) .OR. (j/=n2) ) THEN
-!      CALL WarningMessage(2,'read_2d_complex_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   ALLOCATE (rr(n1,n2))
-!   ALLOCATE (ri(n1,n2))
-!   rr=Zero ; ri=Zero
-!   DO i=1, n1
-!      READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j), ri(i,j), j=1,n2)
-!      IF (ierr /= 0) THEN
-!         CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading the array.')
-!      END IF
-!      IF (DBG) WRITE (StdOut,*) 'read_2d_complex_array::  i =',i
-!      IF (DBG) FLUSH (StdOut)
-!   END DO
-!   DO i=1, n1
-!      DO j=1, n2
-!         array(i,j)=CMPLX(rr(i,j), ri(i,j), wp)
-!      END DO
-!   END DO
-!   DEALLOCATE (rr)
-!   DEALLOCATE (ri)
-!   RETURN
-!END SUBROUTINE read_2d_complex_array
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_3d_complex_array( LU, key, n1, n2, n3, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3
-!   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3)
-!   REAL (wp), ALLOCATABLE         :: rr(:,:,:), ri(:,:,:)
-!   INTEGER                        :: i,j,k
-!   ierr=0
-!   array=ZeroC
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-!      CALL WarningMessage(1,'read_3d_complex_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n2 =',n2
-!      IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::   n3 =',n3
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n2 =',j
-!   IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  n3 =',k
-!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
-!      CALL WarningMessage(2,'read_3d_complex_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   ALLOCATE (rr(n1,n2,n3))
-!   ALLOCATE (ri(n1,n2,n3))
-!   rr=Zero ; ri=Zero
-!   DO i=1, n1
-!      DO j=1, n2
-!         READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i,j,k), ri(i,j,k), k=1,n3 )
-!         IF (ierr /= 0) THEN
-!            CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading the array.')
-!         END IF
-!         IF (DBG) WRITE (StdOut,*) 'read_3d_complex_array::  i,j =',i,j
-!         IF (DBG) FLUSH (StdOut)
-!      END DO
-!   END DO
-!   DO i=1, n1
-!      DO j=1, n2
-!         DO k=1, n3
-!            array(i,j,k)=CMPLX(rr(i,j,k), ri(i,j,k), wp)
-!         END DO
-!      END DO
-!   END DO
-!   DEALLOCATE (rr)
-!   DEALLOCATE (ri)
-!   RETURN
-!END SUBROUTINE read_3d_complex_array
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE read_4d_complex_array( LU, key, n1, n2, n3, n4, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
-!   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3,n4)
-!   REAL (wp), ALLOCATABLE         :: rr(:,:,:,:), ri(:,:,:,:)
-!   INTEGER                        :: i,j,k,l
-!   ierr=0
-!   array=ZeroC
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-!      CALL WarningMessage(1,'read_4d_complex_array:: nothing to read. Array size = 0.')
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n1 =',n1
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n2 =',n2
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n3 =',n3
-!      IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::   n4 =',n4
-!      IF (DBG) FLUSH (StdOut)
-!      RETURN
-!   END IF
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
-!   IF (ierr /= 0) THEN
-!      CALL WarningMessage(2,'read_4d_complex_array:: Something went wrong reading key'//trim(key))
-!   END IF
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array:: key =',trim(key)
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n1 =',i
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n2 =',j
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n3 =',k
-!   IF (DBG) WRITE (StdOut,*) 'read_4d_complex_array::  n4 =',l
-!   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
-!      CALL WarningMessage(2,'read_4d_complex_array:: sizes of the array are different from the ones used '// &
-!                            'to CALL this SUBROUTINE')
-!   END IF
-!   ALLOCATE (rr(n1,n2,n3,n4))
-!   ALLOCATE (ri(n1,n2,n3,n4))
-!   rr=Zero; ri=Zero;
-!   DO i=1, n1
-!      DO j=1, n2
-!         DO k=1, n3
-!            READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j,k,l), ri(i,j,k,l), l=1,n4)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   END DO
-!   DO i=1, n1
-!      DO j=1, n2
-!         DO k=1, n3
-!            DO l=1, n4
-!               array(i,j,k,l)=CMPLX(rr(i,j,k,l), ri(i,j,k,l), wp)
-!            END DO
-!         END DO
-!      END DO
-!   END DO
-!   DEALLOCATE (rr)
-!   DEALLOCATE (ri)
-!   RETURN
-!END SUBROUTINE read_4d_complex_array
+SUBROUTINE read_1d_complex_array( LU, key, n, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n
+   COMPLEX (wp), INTENT (OUT)     :: array(n)
+   REAL (wp), ALLOCATABLE         :: rr(:), ri(:)
+   INTEGER                        :: i, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER, PARAMETER             :: StdOut = 6
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   COMPLEX (wp), PARAMETER        :: ZeroC = (0.0_wp, 0.0_wp)
+
+   ierr=0
+   array=ZeroC
+   IF (n<=0) THEN
+      CALL WarningMessage(1,'read_1d_complex_array:: nothing to read. Array size = 0.')
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_1d_complex_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_1d_complex_array::   n =',i
+   IF ( (i/=n) ) THEN
+      CALL WarningMessage(2,'read_1d_complex_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   ALLOCATE (rr(n))
+   ALLOCATE (ri(n))
+   rr=Zero ; ri=Zero
+   READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i), ri(i), i=1,n )
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_1d_complex_array:: Something went wrong reading the array.')
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_1d_complex_array:: array =',(rr(i),ri(i),i=1,n)
+   DO i=1, n
+     array(i)=CMPLX(rr(i), ri(i), wp)
+   END DO
+   DEALLOCATE (rr)
+   DEALLOCATE (ri)
+   RETURN
+END SUBROUTINE read_1d_complex_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_2d_complex_array( LU, key, n1, n2, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2
+   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2)
+   REAL (wp), ALLOCATABLE         :: rr(:,:), ri(:,:)
+   INTEGER                        :: i, j, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER, PARAMETER             :: StdOut = 6
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   COMPLEX (wp), PARAMETER        :: ZeroC = (0.0_wp, 0.0_wp)
+
+   ierr=0
+   array=ZeroC
+   IF ( (n1<=0) .OR. (n2<=0) ) THEN
+      CALL WarningMessage(1,'read_2d_complex_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_2d_complex_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_2d_complex_array::   n2 =',n2
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_2d_complex_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_2d_complex_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_2d_complex_array::  n2 =',j
+   IF ( (i/=n1) .OR. (j/=n2) ) THEN
+      CALL WarningMessage(2,'read_2d_complex_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   ALLOCATE (rr(n1,n2))
+   ALLOCATE (ri(n1,n2))
+   rr=Zero ; ri=Zero
+   DO i=1, n1
+      READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j), ri(i,j), j=1,n2)
+      IF (ierr /= 0) THEN
+         CALL WarningMessage(2,'read_2d_complex_array:: Something went wrong reading the array.')
+      END IF
+      IF (dbg) WRITE (StdOut,*) 'read_2d_complex_array::  i =',i
+      IF (dbg) FLUSH (StdOut)
+   END DO
+   DO i=1, n1
+      DO j=1, n2
+         array(i,j)=CMPLX(rr(i,j), ri(i,j), wp)
+      END DO
+   END DO
+   DEALLOCATE (rr)
+   DEALLOCATE (ri)
+   RETURN
+END SUBROUTINE read_2d_complex_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_3d_complex_array( LU, key, n1, n2, n3, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3
+   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3)
+   REAL (wp), ALLOCATABLE         :: rr(:,:,:), ri(:,:,:)
+   INTEGER                        :: i, j, k, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER, PARAMETER             :: StdOut = 6
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   COMPLEX (wp), PARAMETER        :: ZeroC = (0.0_wp, 0.0_wp)
+
+   ierr=0
+   array=ZeroC
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+      CALL WarningMessage(1,'read_3d_complex_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::   n2 =',n2
+      IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::   n3 =',n3
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::  n3 =',k
+   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) ) THEN
+      CALL WarningMessage(2,'read_3d_complex_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   ALLOCATE (rr(n1,n2,n3))
+   ALLOCATE (ri(n1,n2,n3))
+   rr=Zero ; ri=Zero
+   DO i=1, n1
+      DO j=1, n2
+         READ ( LU, FMT=*, IOSTAT=ierr ) ( rr(i,j,k), ri(i,j,k), k=1,n3 )
+         IF (ierr /= 0) THEN
+            CALL WarningMessage(2,'read_3d_complex_array:: Something went wrong reading the array.')
+         END IF
+         IF (dbg) WRITE (StdOut,*) 'read_3d_complex_array::  i,j =',i,j
+         IF (dbg) FLUSH (StdOut)
+      END DO
+   END DO
+   DO i=1, n1
+      DO j=1, n2
+         DO k=1, n3
+            array(i,j,k)=CMPLX(rr(i,j,k), ri(i,j,k), wp)
+         END DO
+      END DO
+   END DO
+   DEALLOCATE (rr)
+   DEALLOCATE (ri)
+   RETURN
+END SUBROUTINE read_3d_complex_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE read_4d_complex_array( LU, key, n1, n2, n3, n4, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+   COMPLEX (wp), INTENT (OUT)     :: array(n1,n2,n3,n4)
+   REAL (wp), ALLOCATABLE         :: rr(:,:,:,:), ri(:,:,:,:)
+   INTEGER                        :: i, j, k, l, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER, PARAMETER             :: StdOut = 6
+   REAL (wp), PARAMETER           :: Zero = 0.0_wp
+   COMPLEX (wp), PARAMETER        :: ZeroC = (0.0_wp, 0.0_wp)
+
+   ierr=0
+   array=ZeroC
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+      CALL WarningMessage(1,'read_4d_complex_array:: nothing to read. Array size = 0.')
+      IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::   n1 =',n1
+      IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::   n2 =',n2
+      IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::   n3 =',n3
+      IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::   n4 =',n4
+      IF (dbg) FLUSH (StdOut)
+      RETURN
+   END IF
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i,j,k,l
+   IF (ierr /= 0) THEN
+      CALL WarningMessage(2,'read_4d_complex_array:: Something went wrong reading key'//trim(key))
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array:: key =',trim(key)
+   IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::  n1 =',i
+   IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::  n2 =',j
+   IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::  n3 =',k
+   IF (dbg) WRITE (StdOut,*) 'read_4d_complex_array::  n4 =',l
+   IF ( (i/=n1) .OR. (j/=n2) .OR. (k/=n3) .OR. (l/=n4) ) THEN
+      CALL WarningMessage(2,'read_4d_complex_array:: sizes of the array are different from the ones used '// &
+                            'to CALL this SUBROUTINE')
+   END IF
+   ALLOCATE (rr(n1,n2,n3,n4))
+   ALLOCATE (ri(n1,n2,n3,n4))
+   rr=Zero; ri=Zero;
+   DO i=1, n1
+      DO j=1, n2
+         DO k=1, n3
+            READ ( LU, FMT=*, IOSTAT=ierr ) (rr(i,j,k,l), ri(i,j,k,l), l=1,n4)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'read_4d_real_array:: Something went wrong reading the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'read_4d_real_array::  i,j,k =',i,j,k
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   END DO
+   DO i=1, n1
+      DO j=1, n2
+         DO k=1, n3
+            DO l=1, n4
+               array(i,j,k,l)=CMPLX(rr(i,j,k,l), ri(i,j,k,l), wp)
+            END DO
+         END DO
+      END DO
+   END DO
+   DEALLOCATE (rr)
+   DEALLOCATE (ri)
+   RETURN
+END SUBROUTINE read_4d_complex_array
 !--------------------------------------------------------------------------------------------------!
 
 
@@ -2898,13 +3254,19 @@ END SUBROUTINE read_3d_real_array
 !--------------------------------------------------------------------------------------------------!
 !  WRITING SUBROUTINES
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_INTEGER_scalar( LU, key, i )
+SUBROUTINE write_INTEGER_scalar( LU, key, i, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: i
+   INTEGER                        :: ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+
+   ierr=0
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
       WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) i
@@ -2922,13 +3284,20 @@ SUBROUTINE write_INTEGER_scalar( LU, key, i )
 END SUBROUTINE write_INTEGER_scalar
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_real_scalar( LU, key, r )
+SUBROUTINE write_real_scalar( LU, key, r, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    REAL (wp), INTENT (IN)         :: r
+   INTEGER                        :: ierr
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=20)             :: FMTR='(5ES22.14)'
+
+   ierr=0
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
       WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) r
@@ -2945,62 +3314,78 @@ SUBROUTINE write_real_scalar( LU, key, r )
    RETURN
 END SUBROUTINE write_real_scalar
 
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_complex_scalar( LU, key, c )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   COMPLEX (wp), INTENT (IN)      :: c
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing data')
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_complex_scalar
-!
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_string( LU, key, s )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   CHARACTER (LEN=*), INTENT (IN) :: s
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(s)
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT='(100A)', IOSTAT=ierr ) trim(s)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing data')
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_string
-!
+SUBROUTINE write_complex_scalar( LU, key, c, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   COMPLEX (wp), INTENT (IN)      :: c
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER                        :: ierr
+   CHARACTER (LEN=500)            :: line
+   CHARACTER (LEN=20)             :: FMTC='(3(2ES22.14))'
+
+   ierr=0
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) c
+      IF (ierr /= 0) CALL WarningMessage(1,'write_complex_scalar:: Something went wrong writing data')
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_complex_scalar
+
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_1d_INTEGER_array( LU, key, n, array )
+SUBROUTINE write_string( LU, key, s, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   CHARACTER (LEN=*), INTENT (IN) :: s
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   INTEGER                        :: ierr
+
+   ierr=0
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(s)
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A   )', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT='(100A)', IOSTAT=ierr ) trim(s)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_string:: Something went wrong writing data')
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_string
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_1d_INTEGER_array( LU, key, n, array, dbg )
    IMPLICIT NONE
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n
    INTEGER, INTENT (IN)           :: array(n)
-   INTEGER                        :: i
+   INTEGER                        :: i,ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+
    ierr=0
    IF (n<=0) THEN
       CALL WarningMessage(1,'write_1d_INTEGER_array:: nothing to write. Array size = 0.')
@@ -3011,7 +3396,7 @@ SUBROUTINE write_1d_INTEGER_array( LU, key, n, array )
    END IF
 
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
@@ -3032,13 +3417,18 @@ SUBROUTINE write_1d_INTEGER_array( LU, key, n, array )
 END SUBROUTINE write_1d_INTEGER_array
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array )
+SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array, dbg )
    IMPLICIT NONE
-   INTEGER, INTENT (IN)          :: LU
+   INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
-   INTEGER, INTENT (IN)          :: n1, n2
-   INTEGER, INTENT (IN)          :: array(n1,n2)
-   INTEGER                      :: i, j
+   INTEGER, INTENT (IN)           :: n1, n2
+   INTEGER, INTENT (IN)           :: array(n1,n2)
+   INTEGER                        :: i, j, ierr
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+
    ierr=0
    IF ( (n1<=0) .OR. (n2<=0) ) THEN
       CALL WarningMessage(1,'write_2d_INTEGER_array:: nothing to write. Array size = 0.')
@@ -3049,7 +3439,7 @@ SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array )
    END IF
 
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
@@ -3059,8 +3449,8 @@ SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array )
          IF (ierr /= 0) THEN
             CALL WarningMessage(2,'write_2d_INTEGER_array:: Something went wrong writing the array.')
          END IF
-         IF (DBG) WRITE (StdOut,*) 'write_2d_INTEGER_array::  i =',i
-         IF (DBG) FLUSH (StdOut)
+         IF (dbg) WRITE (StdOut,*) 'write_2d_INTEGER_array::  i =',i
+         IF (dbg) FLUSH (StdOut)
       END DO
    ! if the keyword is not found, THEN append the new keyword and data
    ELSE IF (ierr /= 0 ) THEN
@@ -3073,8 +3463,8 @@ SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array )
          IF (ierr /= 0) THEN
             CALL WarningMessage(2,'write_2d_INTEGER_array:: Something went wrong writing data.')
          END IF
-         IF (DBG) WRITE (StdOut,*) 'write_2d_INTEGER_array::  i =',i
-         IF (DBG) FLUSH (StdOut)
+         IF (dbg) WRITE (StdOut,*) 'write_2d_INTEGER_array::  i =',i
+         IF (dbg) FLUSH (StdOut)
       END DO
    END IF
    WRITE ( LU, FMT=*, IOSTAT=ierr )
@@ -3083,128 +3473,145 @@ SUBROUTINE write_2d_INTEGER_array( LU, key, n1, n2, array )
 END SUBROUTINE write_2d_INTEGER_array
 
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_3d_INTEGER_array( LU, key, n1, n2, n3, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3
-!   INTEGER, INTENT (IN)           :: array(n1,n2,n3)
-!   INTEGER                        :: i, j, k
-!   ierr=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-!      CALL WarningMessage(1,'write_3d_INTEGER_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!   IF (SUM(ABS(array(1:n1,1:n2,1:n3)))==0) THEN
-!      CALL WarningMessage(1,'write_3d_INTEGER_array:: all array elements are zero = 0.')
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-!      DO i=1,n1
-!         DO j=1,n2
-!            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_INTEGER_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-!      DO i=1,n1
-!         DO j=1,n2
-!            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_3d_INTEGER_array
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
-!   INTEGER, INTENT (IN)           :: array(n1,n2,n3,n4)
-!   INTEGER                        :: i, j, k, l
-!   ierr=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-!      CALL WarningMessage(1,'write_4d_INTEGER_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!   IF (SUM(ABS(array(1:n1,1:n2,1:n3,1:n4)))==0) THEN
-!      CALL WarningMessage(1,'write_4d_INTEGER_array:: all array elements are zero = 0.')
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-!      DO i=1,n1
-!         DO j=1,n2
-!            DO k=1,n3
-!               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!               IF (ierr /= 0) THEN
-!                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong reading the array.')
-!               END IF
-!               IF (DBG) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
-!               IF (DBG) FLUSH (StdOut)
-!            END DO
-!         END DO
-!      END DO
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_INTEGER_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-!      DO i=1,n1
-!         DO j=1,n2
-!            DO k=1,n3
-!               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!               IF (ierr /= 0) THEN
-!                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong writting the array.')
-!               END IF
-!               IF (DBG) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
-!               IF (DBG) FLUSH (StdOut)
-!            END DO
-!         END DO
-!      END DO
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_4d_INTEGER_array
-!
-!!--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_1d_real_array( LU, key, n, array )
+SUBROUTINE write_3d_INTEGER_array( LU, key, n1, n2, n3, array, dbg )
    IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3
+   INTEGER, INTENT (IN)           :: array(n1,n2,n3)
+   INTEGER                        :: i, j, k, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+
+   ierr=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+      CALL WarningMessage(1,'write_3d_INTEGER_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+   IF (SUM(ABS(array(1:n1,1:n2,1:n3)))==0) THEN
+      CALL WarningMessage(1,'write_3d_INTEGER_array:: all array elements are zero = 0.')
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+      DO i=1,n1
+         DO j=1,n2
+            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_INTEGER_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+      DO i=1,n1
+         DO j=1,n2
+            WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'write_3d_INTEGER_array:: Something went wrong writing the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'write_3d_INTEGER_array::  i,j =',i,j
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_3d_INTEGER_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_4d_INTEGER_array( LU, key, n1, n2, n3, n4, array, dbg )
+   IMPLICIT NONE
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+   INTEGER, INTENT (IN)           :: array(n1,n2,n3,n4)
+   INTEGER                        :: i, j, k, l, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+
+   ierr=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+      CALL WarningMessage(1,'write_4d_INTEGER_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+   IF (SUM(ABS(array(1:n1,1:n2,1:n3,1:n4)))==0) THEN
+      CALL WarningMessage(1,'write_4d_INTEGER_array:: all array elements are zero = 0.')
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+      DO i=1,n1
+         DO j=1,n2
+            DO k=1,n3
+               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+               IF (ierr /= 0) THEN
+                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong reading the array.')
+               END IF
+               IF (dbg) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
+               IF (dbg) FLUSH (StdOut)
+            END DO
+         END DO
+      END DO
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_INTEGER_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+      DO i=1,n1
+         DO j=1,n2
+            DO k=1,n3
+               WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+               IF (ierr /= 0) THEN
+                  CALL WarningMessage(2,'write_4d_INTEGER_array:: Something went wrong writting the array.')
+               END IF
+               IF (dbg) WRITE (StdOut,*) 'write_4d_INTEGER_array::  i,j,k =',i,j,k
+               IF (dbg) FLUSH (StdOut)
+            END DO
+         END DO
+      END DO
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_4d_INTEGER_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_1d_real_array( LU, key, n, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n
    REAL (wp), INTENT (IN)         :: array(n)
-   INTEGER                        :: i
+   INTEGER                        :: i, ierr
    REAL (wp), EXTERNAL            :: dnrm2_
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   REAL (wp), PARAMETER           :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   CHARACTER (LEN=20)             :: FMTR='(5ES22.14)'
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+
    ierr=0
    IF (n<=0) THEN
       CALL WarningMessage(1,'write_1d_real_array:: nothing to write. Array size = 0.')
@@ -3215,7 +3622,7 @@ SUBROUTINE write_1d_real_array( LU, key, n, array )
    END IF
 
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
@@ -3236,14 +3643,22 @@ SUBROUTINE write_1d_real_array( LU, key, n, array )
 END SUBROUTINE write_1d_real_array
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_2d_real_array( LU, key, n1, n2, array )
+SUBROUTINE write_2d_real_array( LU, key, n1, n2, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n1, n2
    REAL (wp), INTENT (IN)         :: array(n1,n2)
-   INTEGER                        :: i, j
+   INTEGER                        :: i, j, ierr
    REAL (wp), EXTERNAL            :: dnrm2_
+   LOGICAL, INTENT (IN)           :: dbg
+   REAL (wp), PARAMETER           :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   CHARACTER (LEN=20)             :: FMTR='(5ES22.14)'
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+
    ierr=0
    IF ( (n1<=0) .OR. (n2<=0) ) THEN
       CALL WarningMessage(1,'write_2d_real_array:: nothing to write. Array size = 0.')
@@ -3254,7 +3669,7 @@ SUBROUTINE write_2d_real_array( LU, key, n1, n2, array )
    END IF
 
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
@@ -3264,8 +3679,8 @@ SUBROUTINE write_2d_real_array( LU, key, n1, n2, array )
          IF (ierr /= 0) THEN
             CALL WarningMessage(2,'write_2d_real_array:: Something went wrong writing the array.')
          END IF
-         IF (DBG) WRITE (StdOut,*) 'write_2d_real_array::  i =',i
-         IF (DBG) FLUSH (StdOut)
+         IF (dbg) WRITE (StdOut,*) 'write_2d_real_array::  i =',i
+         IF (dbg) FLUSH (StdOut)
       END DO
    ! if the keyword is not found, THEN append the new keyword and data
    ELSE IF (ierr /= 0 ) THEN
@@ -3278,8 +3693,8 @@ SUBROUTINE write_2d_real_array( LU, key, n1, n2, array )
          IF (ierr /= 0) THEN
             CALL WarningMessage(2,'write_2d_real_array:: Something went wrong writing data.')
          END IF
-         IF (DBG) WRITE (StdOut,*) 'write_2d_real_array::  i =',i
-         IF (DBG) FLUSH (StdOut)
+         IF (dbg) WRITE (StdOut,*) 'write_2d_real_array::  i =',i
+         IF (dbg) FLUSH (StdOut)
       END DO
    END IF
    WRITE ( LU, FMT=*, IOSTAT=ierr )
@@ -3288,14 +3703,22 @@ SUBROUTINE write_2d_real_array( LU, key, n1, n2, array )
 END SUBROUTINE write_2d_real_array
 
 !--------------------------------------------------------------------------------------------------!
-SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
+SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array, dbg )
    IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
    INTEGER, INTENT (IN)           :: LU
    CHARACTER (LEN=*), INTENT (IN) :: key
    INTEGER, INTENT (IN)           :: n1, n2, n3
    REAL (wp), INTENT (IN)         :: array(n1,n2,n3)
-   INTEGER                        :: i, j, k
+   INTEGER                        :: i, j, k, ierr
    REAL (wp), EXTERNAL            :: dnrm2_
+   LOGICAL, INTENT (IN)           :: dbg
+   REAL (wp), PARAMETER           :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=500)            :: line
+   CHARACTER (LEN=20)             :: FMTR='(5ES22.14)'
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+
    ierr=0
    IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
       CALL WarningMessage(1,'write_3d_real_array:: nothing to write. Array size = 0.')
@@ -3306,7 +3729,7 @@ SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
    END IF
 
    REWIND ( LU )
-   CALL file_advance_to_string( LU, key, line )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
    ! if key is found, THEN rewrite the data
    IF ( ierr == 0 ) THEN
@@ -3317,8 +3740,8 @@ SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
             IF (ierr /= 0) THEN
                CALL WarningMessage(2,'write_3d_real_array:: Something went wrong writing the array.')
             END IF
-            IF (DBG) WRITE (StdOut,*) 'write_3d_real_array::  i,j =',i,j
-            IF (DBG) FLUSH (StdOut)
+            IF (dbg) WRITE (StdOut,*) 'write_3d_real_array::  i,j =',i,j
+            IF (dbg) FLUSH (StdOut)
          END DO
       END DO
    ! if the keyword is not found, THEN append the new keyword and data
@@ -3333,8 +3756,8 @@ SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
             IF (ierr /= 0) THEN
                CALL WarningMessage(2,'write_3d_real_array:: Something went wrong writing the array.')
             END IF
-            IF (DBG) WRITE (StdOut,*) 'write_3d_real_array::  i,j =',i,j
-            IF (DBG) FLUSH (StdOut)
+            IF (dbg) WRITE (StdOut,*) 'write_3d_real_array::  i,j =',i,j
+            IF (dbg) FLUSH (StdOut)
          END DO
       END DO
    END IF
@@ -3343,255 +3766,290 @@ SUBROUTINE write_3d_real_array( LU, key, n1, n2, n3, array )
    RETURN
 END SUBROUTINE write_3d_real_array
 
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_4d_real_array( LU, key, n1, n2, n3, n4, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
-!   REAL (wp), INTENT (IN)         :: array(n1,n2,n3,n4)
-!   INTEGER                        :: i, j, k, l
-!   REAL (wp), EXTERNAL            :: dnrm2_
-!   ierr=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-!      CALL WarningMessage(1,'write_4d_real_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!   IF (dnrm2_(n1*n2*n3*n4,array,1) <= MINIMAL_REAL) THEN
-!      CALL WarningMessage(1,'write_4d_real_array:: all array elements are zero = 0.')
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-!      DO i=1,n1
-!         DO j=1,n2
-!            DO k=1,n3
-!               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!               IF (ierr /= 0) THEN
-!                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong reading the array.')
-!               END IF
-!               IF (DBG) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
-!               IF (DBG) FLUSH (StdOut)
-!            END DO
-!         END DO
-!      END DO
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_real_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-!      DO i=1,n1
-!         DO j=1,n2
-!            DO k=1,n3
-!               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!               IF (ierr /= 0) THEN
-!                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong writting the array.')
-!               END IF
-!               IF (DBG) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
-!               IF (DBG) FLUSH (StdOut)
-!            END DO
-!         END DO
-!      END DO
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_4d_real_array
-!
-!!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_1d_complex_array( LU, key, n, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n
-!   COMPLEX (wp), INTENT (IN)      :: array(n)
-!   INTEGER                        :: i
-!   ierr=0
-!   IF (n<=0) THEN
-!      CALL WarningMessage(1,'write_1d_complex_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
-!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
-!      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing data')
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_1d_complex_array
-!
 !--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_2d_complex_array( LU, key, n1, n2, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2
-!   COMPLEX (wp), INTENT (IN)      :: array(n1,n2)
-!   INTEGER                        :: i, j
-!   ierr=0
-!   IF ( (n1<=0) .OR. (n2<=0) ) THEN
-!      CALL WarningMessage(1,'write_2d_complex_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
-!      DO i=1,n1
-!         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
-!         IF (ierr /= 0) THEN
-!            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing the array.')
-!         END IF
-!         IF (DBG) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
-!         IF (DBG) FLUSH (StdOut)
-!      END DO
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_2d_complex_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
-!      DO i=1,n1
-!         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
-!         IF (ierr /= 0) THEN
-!            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing data.')
-!         END IF
-!         IF (DBG) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
-!         IF (DBG) FLUSH (StdOut)
-!      END DO
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_2d_complex_array
-!
-!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_3d_complex_array( LU, key, n1, n2, n3, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)           :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)           :: n1, n2, n3
-!   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3)
-!   INTEGER                        :: i, j, k
-!   ierr=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
-!      CALL WarningMessage(1,'write_3d_complex_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-!      DO i=1,n1
-!         DO j=1,n2
-!            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_complex_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
-!      DO i=1,n1
-!         DO j=1,n2
-!            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
-!            IF (ierr /= 0) THEN
-!               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
-!            END IF
-!            IF (DBG) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
-!            IF (DBG) FLUSH (StdOut)
-!         END DO
-!      END DO
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_3d_complex_array
-!
-!--------------------------------------------------------------------------------------------------!
-!SUBROUTINE write_4d_complex_array( LU, key, n1, n2, n3, n4, array )
-!   IMPLICIT NONE
-!   INTEGER, INTENT (IN)          :: LU
-!   CHARACTER (LEN=*), INTENT (IN) :: key
-!   INTEGER, INTENT (IN)          :: n1, n2, n3, n4
-!   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3,n4)
-!   INTEGER                      :: i, j, k, l
-!   ierr=0
-!   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
-!      CALL WarningMessage(1,'write_4d_complex_array:: nothing to write. Array size = 0.')
-!      RETURN
-!   END IF
-!
-!   REWIND ( LU )
-!   CALL file_advance_to_string( LU, key, line )
-!
-!   ! if key is found, THEN rewrite the data
-!   IF ( ierr == 0 ) THEN
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-!      DO i=1,n1
-!         DO j=1,n2
-!            DO k=1,n3
-!               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!               IF (ierr /= 0) THEN
-!                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong reading the array.')
-!               END IF
-!               IF (DBG) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
-!               IF (DBG) FLUSH (StdOut)
-!            END DO
-!         END DO
-!      END DO
-!   ! if the keyword is not found, THEN append the new keyword and data
-!   ELSE IF (ierr /= 0 ) THEN
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
-!      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
-!      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_complex_array:: Something went wrong writing key'//trim(key))
-!      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
-!      DO i=1,n1
-!         DO j=1,n2
-!            DO k=1,n3
-!               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
-!               IF (ierr /= 0) THEN
-!                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong writting the array.')
-!               END IF
-!               IF (DBG) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
-!               IF (DBG) FLUSH (StdOut)
-!            END DO
-!         END DO
-!      END DO
-!   END IF
-!   WRITE ( LU, FMT=*, IOSTAT=ierr )
-!   FLUSH ( LU )
-!   RETURN
-!END SUBROUTINE write_4d_complex_array
+SUBROUTINE write_4d_real_array( LU, key, n1, n2, n3, n4, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+   REAL (wp), INTENT (IN)         :: array(n1,n2,n3,n4)
+   INTEGER                        :: i, j, k, l, ierr
+   REAL (wp), EXTERNAL            :: dnrm2_
+   REAL (wp), PARAMETER           :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
+   INTEGER, PARAMETER             :: StdOut = 6
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=500)            :: line
+   CHARACTER (LEN=20)             :: FMTR='(5ES22.14)'
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
 
-END MODULE io_data
+   ierr=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+      CALL WarningMessage(1,'write_4d_real_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+   IF (dnrm2_(n1*n2*n3*n4,array,1) <= MINIMAL_REAL) THEN
+      CALL WarningMessage(1,'write_4d_real_array:: all array elements are zero = 0.')
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+      DO i=1,n1
+         DO j=1,n2
+            DO k=1,n3
+               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+               IF (ierr /= 0) THEN
+                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong reading the array.')
+               END IF
+               IF (dbg) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
+               IF (dbg) FLUSH (StdOut)
+            END DO
+         END DO
+      END DO
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_real_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+      DO i=1,n1
+         DO j=1,n2
+            DO k=1,n3
+               WRITE ( LU, FMT=FMTR, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+               IF (ierr /= 0) THEN
+                  CALL WarningMessage(2,'write_4d_real_array:: Something went wrong writting the array.')
+               END IF
+               IF (dbg) WRITE (StdOut,*) 'write_4d_real_array::  i,j,k =',i,j,k
+               IF (dbg) FLUSH (StdOut)
+            END DO
+         END DO
+      END DO
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_4d_real_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_1d_complex_array( LU, key, n, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n
+   COMPLEX (wp), INTENT (IN)      :: array(n)
+   INTEGER                        :: i, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+   CHARACTER (LEN=20)             :: FMTC='(3(2ES22.14))'
+   CHARACTER (LEN=500)            :: line
+
+   ierr=0
+   IF (n<=0) THEN
+      CALL WarningMessage(1,'write_1d_complex_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
+      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n
+      WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i),i=1,n)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_1d_complex_array:: Something went wrong writing data')
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_1d_complex_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_2d_complex_array( LU, key, n1, n2, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2
+   COMPLEX (wp), INTENT (IN)      :: array(n1,n2)
+   INTEGER                        :: i, j, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+   CHARACTER (LEN=20)             :: FMTC='(3(2ES22.14))'
+   CHARACTER (LEN=500)            :: line
+
+   ierr=0
+   IF ( (n1<=0) .OR. (n2<=0) ) THEN
+      CALL WarningMessage(1,'write_2d_complex_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
+      DO i=1,n1
+         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
+         IF (ierr /= 0) THEN
+            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing the array.')
+         END IF
+         IF (dbg) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
+         IF (dbg) FLUSH (StdOut)
+      END DO
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_2d_complex_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2
+      DO i=1,n1
+         WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j),j=1,n2)
+         IF (ierr /= 0) THEN
+            CALL WarningMessage(2,'write_2d_complex_array:: Something went wrong writing data.')
+         END IF
+         IF (dbg) WRITE (StdOut,*) 'write_2d_complex_array::  i =',i
+         IF (dbg) FLUSH (StdOut)
+      END DO
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_2d_complex_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_3d_complex_array( LU, key, n1, n2, n3, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3
+   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3)
+   INTEGER                        :: i, j, k, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+   CHARACTER (LEN=20)             :: FMTC='(3(2ES22.14))'
+   CHARACTER (LEN=500)            :: line
+
+   ierr=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) ) THEN
+      CALL WarningMessage(1,'write_3d_complex_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+      DO i=1,n1
+         DO j=1,n2
+            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_3d_complex_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3
+      DO i=1,n1
+         DO j=1,n2
+            WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k),k=1,n3)
+            IF (ierr /= 0) THEN
+               CALL WarningMessage(2,'write_3d_complex_array:: Something went wrong writing the array.')
+            END IF
+            IF (dbg) WRITE (StdOut,*) 'write_3d_complex_array::  i,j =',i,j
+            IF (dbg) FLUSH (StdOut)
+         END DO
+      END DO
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_3d_complex_array
+
+!--------------------------------------------------------------------------------------------------!
+SUBROUTINE write_4d_complex_array( LU, key, n1, n2, n3, n4, array, dbg )
+   IMPLICIT NONE
+   INTEGER, PARAMETER             :: wp = kind(0.d0)
+   INTEGER, INTENT (IN)           :: LU
+   CHARACTER (LEN=*), INTENT (IN) :: key
+   INTEGER, INTENT (IN)           :: n1, n2, n3, n4
+   COMPLEX (wp), INTENT (IN)      :: array(n1,n2,n3,n4)
+   INTEGER                        :: i, j, k, l, ierr
+   LOGICAL, INTENT (IN)           :: dbg
+   INTEGER, PARAMETER             :: StdOut = 6
+   CHARACTER (LEN=20)             :: FMTI='(20(I0,1x))'
+   CHARACTER (LEN=20)             :: FMTC='(3(2ES22.14))'
+   CHARACTER (LEN=500)            :: line
+
+   ierr=0
+   IF ( (n1<=0) .OR. (n2<=0) .OR. (n3<=0) .OR. (n4<=0) ) THEN
+      CALL WarningMessage(1,'write_4d_complex_array:: nothing to write. Array size = 0.')
+      RETURN
+   END IF
+
+   REWIND ( LU )
+   CALL file_advance_to_string( LU, key, line, ierr, dbg )
+
+   ! if key is found, THEN rewrite the data
+   IF ( ierr == 0 ) THEN
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+      DO i=1,n1
+         DO j=1,n2
+            DO k=1,n3
+               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+               IF (ierr /= 0) THEN
+                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong reading the array.')
+               END IF
+               IF (dbg) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
+               IF (dbg) FLUSH (StdOut)
+            END DO
+         END DO
+      END DO
+   ! if the keyword is not found, THEN append the new keyword and data
+   ELSE IF (ierr /= 0 ) THEN
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr )
+      WRITE ( LU, FMT='(A)', IOSTAT=ierr ) trim(key)
+      IF (ierr /= 0) CALL WarningMessage(1,'write_4d_complex_array:: Something went wrong writing key'//trim(key))
+      WRITE ( LU, FMT=FMTI, IOSTAT=ierr ) n1, n2, n3, n4
+      DO i=1,n1
+         DO j=1,n2
+            DO k=1,n3
+               WRITE ( LU, FMT=FMTC, IOSTAT=ierr ) (array(i,j,k,l),l=1,n4)
+               IF (ierr /= 0) THEN
+                  CALL WarningMessage(2,'write_4d_complex_array:: Something went wrong writting the array.')
+               END IF
+               IF (dbg) WRITE (StdOut,*) 'write_4d_complex_array::  i,j,k =',i,j,k
+               IF (dbg) FLUSH (StdOut)
+            END DO
+         END DO
+      END DO
+   END IF
+   WRITE ( LU, FMT=*, IOSTAT=ierr )
+   FLUSH ( LU )
+   RETURN
+END SUBROUTINE write_4d_complex_array
+
+!END MODULE io_data

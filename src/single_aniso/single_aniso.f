@@ -165,7 +165,7 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Logical :: DoPlot
       Logical :: DBG
       Integer :: l
-      Integer                   :: nss2,nstate2
+      Integer :: nss2,nstate2
 
       DBG=.false.
 

@@ -10,7 +10,6 @@
 ************************************************************************
        Subroutine restart_sa( input_to_read, input_file_name,
      &                        nss, nstate )
-       USE io_data
 
        Implicit None
        Integer        :: nss, nstate, input_to_read, iDisk
@@ -80,8 +79,8 @@
           luaniso = IsFreeUnit(18)
           Call molcas_open(luaniso,input_file_name)
 
-          CALL read_nss(luaniso,nss)
-          CALL read_nstate(luaniso,nstate)
+          CALL read_nss(luaniso,nss,dbg)
+          CALL read_nstate(luaniso,nstate,dbg)
 
           ! put them on RunFile:
           Call Put_iScalar('NSTATE_SINGLE   ',nstate)

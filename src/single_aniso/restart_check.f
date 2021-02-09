@@ -215,7 +215,8 @@ c         KeyMLTP=.true.
       End If
 
 200   Continue
-      Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
+      Write(6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE '//
+     &                   'READING INPUT'
 
 c      print *,'KeyREST=',KeyREST
 c      print *,'KeyTEXP=',KeyTEXP
