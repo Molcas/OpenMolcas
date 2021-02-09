@@ -313,9 +313,9 @@ checks:
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
 
-build:plain:
-  extends: .plain
-  <<: *compile
+# build:plain:
+#   extends: .plain
+#   <<: *compile
 # test:plain:
 #   extends: .plain
 #   <<: *run-tests
@@ -434,14 +434,14 @@ build:debug:
 #  needs:
 #    - build:debug
 
-build:qcmaquis:
-  extends: .qcmaquis
-  <<: *compile
-test:qcmaquis:
-  extends: .qcmaquis
-  <<: *run-tests
-  needs:
-    - build:qcmaquis
+# build:qcmaquis:
+#   extends: .qcmaquis
+#   <<: *compile
+# test:qcmaquis:
+#   extends: .qcmaquis
+#   <<: *run-tests
+#   needs:
+#     - build:qcmaquis
 
 build:caspt2:
   extends: .caspt2
