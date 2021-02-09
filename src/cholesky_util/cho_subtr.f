@@ -22,6 +22,18 @@ C
 
       LOGICAL LOCDBG, FXDMEM
       PARAMETER (LOCDBG = .FALSE.)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_VecBuf_Subtr(xInt,Wrk,lWrk,iSym,DoTime,DoStat)
+      Real*8, Target::  xInt(*), Wrk(lWrk)
+      Logical DoTime, DoStat
+      End SubRoutine Cho_VecBuf_Subtr
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C     Return if nothing to do.
 C     ------------------------

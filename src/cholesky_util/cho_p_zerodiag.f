@@ -20,14 +20,13 @@ C     NB! If you wish to test the entire local diagonal (i.e. not just
 C         the qualified), use Cho_P_ZeroDiag_Rst instead.
 C
       use ChoSwp, only: iQuAB_L, IndRed
-      use ChoArr, only: iL2G
+      use ChoArr, only: iL2G, nQual_L
       Implicit None
       Real*8  Diag(*)
       Integer iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "cholq.fh"
 
       Integer iQ, iAB, jAB, kAB
 

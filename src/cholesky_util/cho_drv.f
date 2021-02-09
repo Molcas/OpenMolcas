@@ -54,10 +54,10 @@ C        2 -- memory has been out of bounds
 C
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+      use ChoSubScr, only: Cho_SScreen
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
@@ -169,9 +169,9 @@ C     ==============
             CALL CHO_FLUSH(LUPRI)
          END IF
          CALL CHO_P_SETADDR()
-         IF (CHO_SSCREEN) THEN
-            CALL CHO_SUBSCR_INIT()
-         END IF
+
+         IF (CHO_SSCREEN) CALL CHO_SUBSCR_INIT()
+
          CALL CHO_DECDRV(Diag)
          CALL CHO_GASYNC()
          IF (CHO_DECALG.EQ.2) THEN

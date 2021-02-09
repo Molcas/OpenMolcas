@@ -10,7 +10,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2020, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2021, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -98,7 +98,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.15'
+  version = 'py2.16'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -952,8 +952,10 @@ class Molcas_wrapper(object):
     return rc
 
   def delete_scratch(self, force=False):
+    if (not self.is_serial):
+      line = '*** WorkDir is not cleaned in parallel environment! ***'
     #TODO: use parnell
-    if (self._ready or force):
+    elif (self._ready or force):
       if (realpath(self.scratch) == realpath(self.currdir)):
         line = '*** WorkDir and CurrDir are the same, not cleaned! ***'
       else:
@@ -968,9 +970,9 @@ class Molcas_wrapper(object):
           else:
             remove(i)
         line = '*** WorkDir at {0} cleaned ***'.format(self.scratch)
-      print('*'*len(line))
-      print(line)
-      print('*'*len(line))
+    print('*'*len(line))
+    print(line)
+    print('*'*len(line))
 
   def in_sbin(self, prog):
     '''Return the path of a program in sbin if it exists'''

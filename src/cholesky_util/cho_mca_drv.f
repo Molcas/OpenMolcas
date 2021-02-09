@@ -12,10 +12,10 @@
 C
 C     Purpose: MOLCAS interface to Cholesky decomposition driver.
 C
+      use ChoArr, only: MySP
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_DRV')
@@ -81,13 +81,10 @@ C     ----------------------------
          CALL CHO_QUIT('End of Test (in '//SECNAM//')',100)
       END IF
 
-      CALL GASYNC
+      CALL GASYNC()
       Call Free_iSD()
 
-      If (l_mySP .gt. 0) Then
-         Call GetMem('mySP','Free','Inte',ip_mySP,l_mySP)
-         l_mySP = 0
-      End If
+      If (Allocated(MySP)) Call mma_deallocate(MySP)
       Call Cho_X_dealloc(irc)
 
       END

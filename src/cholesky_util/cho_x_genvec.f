@@ -14,7 +14,6 @@
       Integer irc
       Real*8  Diag(*)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character*12 SecNam

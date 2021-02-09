@@ -16,7 +16,10 @@
      &                        Txy,nTxy,ipTxy,DoExchange,lSA,
      &                        nChOrb_,ipAorb,nAorb,DoCAS,
      &                        Estimate,Update,
-     &                        V_k,U_k,Z_p_k,nnP,npos,nZpk)
+     &                        V_k,nV_k,
+     &                        U_k,
+     &                        Z_p_k,nZ_p_k,
+     &                        nnP,npos)
 
 ************************************************************************
 *  Author : F. Aquilante (visiting F. Illas group in Barcelona, Spain, *
@@ -121,7 +124,9 @@
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
-      Real*8    Txy(nTxy),V_k(*),Z_p_k(nZpk,*), U_k(*)
+
+      Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
+
       Character*6  Fname
       Character*50 CFmt
       Character*12 SECNAM
@@ -789,7 +794,7 @@ C --- Transform the densities to reduced set storage
                     CALL DGEMV_('T',nRS,JNUM,
      &                         One,Work(ipLrs),nRS,
      &                         Work(ipDrs(jden)),1,
-     &                         zero,V_k(jVec+(jDen-1)*NumCho(1)),1)
+     &                         zero,V_k(jVec,jDen),1)
                  End Do
 *
 **  MP2 Coulomb term

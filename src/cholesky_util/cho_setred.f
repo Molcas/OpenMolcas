@@ -18,7 +18,6 @@ C
 #include "implicit.fh"
       Real*8 DIAG(*)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SETRED')

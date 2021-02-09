@@ -13,18 +13,30 @@ C
 C     Purpose: extract elements corresponding to qualified columns from
 C              the Cholesky vectors in buffer and/or on disk.
 C
+      use ChoVecBuf, only: nVec_in_Buf
       Implicit None
       Integer l_QVec, nQSP
-      Real*8  QVec(l_Qvec)
+      Real*8, Target::  QVec(l_Qvec)
       Integer LstQSP(nQSP)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 
       Character*9 SecNam
       Parameter (SecNam = 'Cho_GetLQ')
 
       Integer iV1(8), nV(8)
       Integer nTot, iSym
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_VecBuf_GetLQ(QVec,l_QVec)
+      Integer l_QVec
+      Real*8, Target::  QVec(l_QVec)
+      End SubRoutine Cho_VecBuf_GetLQ
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C     Check input.
 C     ------------

@@ -28,24 +28,18 @@ C
       use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
       use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
-      use ChoArr, only: iL2G
+      use ChoArr, only: iL2G, MySP, n_MySP
       Implicit None
 #include "cholesky.fh"
-#include "choptr2.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_P_SetGL')
 
-      Integer N, iSP, iSym, iShlAB, i1, i2, irc
+      Integer i, N, iSP, iSym, iShlAB, i1, i2, irc
 
-      Integer i
-      Integer mySP
-
-      mySP(i)=iWork(ip_mySP-1+i)
 
 C     If not parallel, return.
 C     ------------------------

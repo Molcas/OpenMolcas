@@ -34,14 +34,12 @@ C
       Implicit None
       Integer irc
 
-      Character*17 SecNam
-      Parameter (SecNam = 'Cho_X_Init_Par_DF')
+      Character(LEN=17), Parameter:: SecNam = 'Cho_X_Init_Par_DF'
 
-      Logical LocDbg
 #if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .True.)
+      Logical, Parameter:: LocDbg = .True.
 #else
-      Parameter (LocDbg = .False.)
+      Logical, Parameter:: LocDbg = .False.
 #endif
 
 #if defined (_MOLCAS_MPP_)
@@ -111,31 +109,24 @@ C
       Implicit None
       Integer irc
 
-      Character*18 SecNam
-      Parameter (SecNam = 'Cho_X_Init_Par_Cho')
+      Character(LEN=18), Parameter:: SecNam = 'Cho_X_Init_Par_Cho'
 
-      Logical LocDbg
 #if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .True.)
+      Logical, Parameter:: LocDbg = .True.
 #else
-      Parameter (LocDbg = .False.)
+      Logical, Parameter:: LocDbg = .False.
 #endif
 
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer nV(8)
-      Integer ip_IDV, l_IDV
-      Integer ip_myInfV, l_myInfV
-      Integer iSym
+      Integer iSym, i, j
       Logical isSerial
 
-      Integer IDV, myInfV
-      Integer i, j, k
 
-      IDV(i)=iWork(ip_IDV-1+i)
-      myInfV(i)=iWork(ip_myInfV-1+i)
+      Integer, Allocatable:: IDV(:), myInfV(:)
 
       irc = 0
 
@@ -162,26 +153,21 @@ C     -----------------------------------------------------
       Do iSym = 1,nSym
          nV(iSym) = 0
          If (NumCho(iSym) .gt. 0) Then
-            l_IDV = NumCho(iSym)
-            Call GetMem('IDV','Allo','Inte',ip_IDV,l_IDV)
-            Call Cho_Distrib_Vec(1,NumCho(iSym),iWork(ip_IDV),nV(iSym))
+            Call mma_allocate(IDV,NumCho(iSym),Label='IDV')
+            Call Cho_Distrib_Vec(1,NumCho(iSym),IDV,nV(iSym))
             If (nV(iSym) .gt. 0) Then
-               l_myInfV = nV(iSym)
-               Call GetMem('myInfV','Allo','Inte',ip_myInfV,l_myInfV)
+               Call mma_allocate(myInfV,nV(iSym),Label='myInfV')
                Do j = 1,SIZE(InfVec,2)
                   If (j .ne. 3) Then
-                     k = ip_myInfV - 1
                      Do i = 1,nV(iSym)
-                        iWork(k+i) = InfVec(IDV(i),j,iSym)
+                        myInfV(i) = InfVec(IDV(i),j,iSym)
                      End Do
-                     Do i = 1,nV(iSym)
-                        InfVec(i,j,iSym) = myInfV(i)
-                     End Do
+                     InfVec(:,j,iSym) = myInfV(:)
                   End If
                End Do
-               Call GetMem('myInfV','Free','Inte',ip_myInfV,l_myInfV)
+               Call mma_deallocate(myInfV)
             End If
-            Call GetMem('IDV','Free','Inte',ip_IDV,l_IDV)
+            Call mma_deallocate(IDV)
          End If
       End Do
 

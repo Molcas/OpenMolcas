@@ -450,4 +450,14 @@ test:caspt2:
   extends: .caspt2
   <<: *run-tests
   needs:
-    - build:caspt2
+    - build:qcmaquis
+
+build:mpi:
+  extends: .mpi
+  <<: *compile
+test:mpi:
+  extends: .mpi
+  <<: *run-tests
+  needs:
+    - build:mpi
+  parallel: 4

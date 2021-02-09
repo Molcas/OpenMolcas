@@ -16,12 +16,12 @@ C              is the number of vectors in array Vec.
 C         NB!  It is important that the vector counter NumCho does NOT
 C              include the nVec vectors in array Vec.
 C
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Real*8  Vec(*)
       Integer nVec, iSym
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "WrkSpc.fh"
 
       Integer mUsed, Left, nCopy, lCopy, kOff
 
@@ -47,7 +47,7 @@ C     ---------------------------------------------------
          If (nCopy .gt. 0) Then
             lCopy = nnBstR(iSym,2)*nCopy
             kOff  = ip_ChVBuf_Sym(iSym) + mUsed
-            Call dCopy_(lCopy,Vec,1,Work(kOff),1)
+            Call dCopy_(lCopy,Vec,1,CHVBUF(kOff),1)
             nVec_in_Buf(iSym) = nVec_in_Buf(iSym) + nCopy
          End If
       End If

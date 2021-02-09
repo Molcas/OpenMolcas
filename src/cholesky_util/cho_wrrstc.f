@@ -19,7 +19,6 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 
       PARAMETER (LSCR = 10)
       REAL*8  DSCR(LSCR)

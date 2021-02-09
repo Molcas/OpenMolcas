@@ -16,12 +16,10 @@ C     Thomas Bondo Pedersen, May 2010.
 C
 C     Deallocate array for tracing idle processors
 C
+      use ChoArr, only: Idle
       Implicit None
-#include "choptr2.fh"
+#include "stdalloc.fh"
 
-      If (l_Idle.gt.0) Then
-         Call GetMem('TrcIdl','Free','Inte',ip_Idle,l_Idle)
-         l_Idle=0
-      End If
+      If (Allocated(Idle)) Call mma_deallocate(Idle)
 
       End

@@ -21,21 +21,21 @@ C
 C              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 C              record bookmarks during Cholesky decomposition.
 C
-      use ChoArr, only: nDimRS
+      use ChoArr, only: nDimRS, MySP
       use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
      &                                       iiBstRSh_Hidden, iiBstRSh,
      &                                         InfRed_Hidden,   InfRed,
      &                                         InfVec_Hidden,   InfVec
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
+      use ChoSubScr, only: Cho_SScreen, SSTau
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr2.fh"
 #include "chosp.fh"
-#include "chosubscr.fh"
-#include "chobkm.fh"
 #include "stdalloc.fh"
 
       DIMENSION XXB(8)
@@ -99,7 +99,6 @@ C     ------------
 C     Allocate memory for reduced set index arrays.
 C     ---------------------------------------------
 
-      l_MYSP     = NNSHL
       Call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
      &                  Label='iiBstRSh_Hidden')
       iiBstRSh => iiBstRSh_Hidden
@@ -107,7 +106,7 @@ C     ---------------------------------------------
      &                  Label='nnBstRSh_Hidden')
       nnBstRSh => nnBstRSh_Hidden
       Call mma_allocate(IntMap,nnShl,Label='IntMap')
-      CALL CHO_MEM('mySP','ALLO','INTE',ip_MYSP,l_MYSP)
+      Call mma_allocate(MySP,nnShl,Label='MySP')
 
 C     Initialize timings etc.
 C     -----------------------
@@ -202,31 +201,21 @@ C     -------------------------------------------------------------
 
       If (Allocate_Bookmarks) Then
          If (RSTCHO) Then
-            ip_BkmVec=0
-            l_BkmVec=0
             nRow_BkmVec=0
             nCol_BkmVec=0
-            ip_BkmThr=0
-            l_BkmThr=0
             nRow_BkmThr=0
             nCol_BkmThr=0
          Else
-            l_BkmVec=nSym*MaxRed
-            Call GetMem('BkmVec','Allo','Inte',ip_BkmVec,l_BkmVec)
+            Call mma_allocate(BkmVec,nSym,MaxRed,Label='BkmVec')
             nRow_BkmVec=nSym
             nCol_BkmVec=0
-            l_BkmThr=nSym*MaxRed
-            Call GetMem('BkmThr','Allo','Real',ip_BkmThr,l_BkmThr)
+            Call mma_allocate(BkmThr,nSym,MaxRed,Label='BkmThr')
             nRow_BkmThr=nSym
             nCol_BkmThr=0
          End If
       Else
-         ip_BkmVec=0
-         l_BkmVec=0
          nRow_BkmVec=0
          nCol_BkmVec=0
-         ip_BkmThr=0
-         l_BkmThr=0
          nRow_BkmThr=0
          nCol_BkmThr=0
       End If

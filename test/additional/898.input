@@ -1,8 +1,5 @@
 >>export MOLCAS_NOCHECK=MLTPL,DFT_ENERGY,SCF_ITER
 >>export MOLCAS_MEM=1400
-> IF ( $MOLCAS_NPROCS != 1)
->   EXIT 36
-> ENDIF
 
 
 >> FILE br2.xyz

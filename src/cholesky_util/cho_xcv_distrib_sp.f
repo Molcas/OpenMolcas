@@ -25,13 +25,13 @@ C
       Integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer  Cho_iFindSmallest
       External Cho_iFindSmallest
 
       Integer iSP, iNode, n, iSym
-      Integer ip_Dim, l_Dim
+      Integer, Allocatable:: ProcDim(:)
 
 #if defined (_DEBUGPRINT_)
       If (l_mySP.lt.nnShl) Then
@@ -40,9 +40,9 @@ C
 #endif
 
       If (Cho_Real_Par) Then
-         l_Dim=nProcs
-         Call GetMem('ProcDim','Allo','Inte',ip_Dim,l_Dim)
-         Call iZero(iWork(ip_Dim),l_Dim)
+         Call mma_allocate(ProcDim,nProcs,Label='ProcDim')
+         ProcDim(:)=0
+
          N_mySP=0
          Do iSP=1,nnShl
             n=nnBstRSh(1,iSP,1)
@@ -50,15 +50,16 @@ C
                n=n+nnBstRSh(iSym,iSP,1)
             End Do
             If (n.gt.0) Then
-               iNode=Cho_iFindSmallest(iWork(ip_Dim),l_Dim)-1
-               iWork(ip_Dim+iNode)=iWork(ip_Dim+iNode)+n
-               If (iNode.eq.myRank) Then
+               iNode=Cho_iFindSmallest(ProcDim,nProcs)
+               ProcDim(iNode)=ProcDim(iNode)+n
+               If (iNode-1.eq.myRank) Then
                   N_mySP=N_mySP+1
                   mySP(N_mySP)=iSP
                End If
             End If
          End Do
-         Call GetMem('ProcDim','Free','Inte',ip_Dim,l_Dim)
+
+         Call mma_deallocate(ProcDim)
       Else
          N_mySP=0
          Do iSP=1,nnShl

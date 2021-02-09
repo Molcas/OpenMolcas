@@ -54,45 +54,42 @@
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
-     &                  iRS2F, nDimRS
+     &                  iRS2F, nDimRS, MySP, n_MySP
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
       use ChoSwp, only:   IndRed,   IndRed_Hidden
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr2.fh"
 #include "chosp.fh"
 #include "choini.fh"
 #include "choprint.fh"
-#include "chobkm.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Character*10 SecNam
-      Parameter (SecNam = 'Cho_X_Init')
+      Character(LEN=10), Parameter:: SecNam = 'Cho_X_Init'
 
 #if defined (_DEBUGPRINT_)
       Character*2 Unt
 #endif
 
-      Logical DidCholesky, FirstCall
+      Logical DidCholesky
+      Logical, Save:: FirstCall=.true.
       Logical isDF, isLocalDF, DoDummy
 
-      Integer ChoIsIni, ip, l
+      Integer ChoIsIni, l
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
-      Save FirstCall
-      Data FirstCall /.true./
+      Integer, Allocatable:: BkmDim(:)
 
 C     Register entry.
 C     ---------------
 
 #if defined (_DEBUGPRINT_)
-      Call GetMem('CXI_MX1','Max ','Real',ip_Max,l_Max)
+      Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt
@@ -141,10 +138,10 @@ C     -------------------------------------------------
       CHO_FAKE_PAR = .False.
       Call Cho_ParConf(CHO_FAKE_PAR)
 
-C     Define entries in choptr2.fh.
+C     Define n_MySP
 C     ------------------------------
 
-      Call Cho_SetPtr2()
+      n_MySP = 0
 
 C     Set run mode to "external".
 C     ---------------------------
@@ -287,38 +284,30 @@ C     Allocate and read bookmarks (if available on runfile).
 C     ------------------------------------------------------
 
       If (isDF) Then
-         ip_BkmVec=0
-         l_BkmVec=0
          nRow_BkmVec=0
          nCol_BkmVec=0
-         ip_BkmThr=0
-         l_BkmThr=0
          nRow_BkmThr=0
          nCol_BkmThr=0
       Else
          l=4
-         Call GetMem('BkmDim','Allo','Inte',ip,l)
-         Call Get_iArray('Cholesky BkmDim',iWork(ip),l)
-         nRow_BkmVec=iWork(ip)
-         nCol_BkmVec=iWork(ip+1)
-         nRow_BkmThr=iWork(ip+2)
-         nCol_BkmThr=iWork(ip+3)
-         Call GetMem('BkmDim','Free','Inte',ip,l)
+         Call mma_allocate(BkmDim,l,Label='BkmDim')
+         Call Get_iArray('Cholesky BkmDim',BkmDim,l)
+         nRow_BkmVec=BkmDim(1)
+         nCol_BkmVec=BkmDim(2)
+         nRow_BkmThr=BkmDim(3)
+         nCol_BkmThr=BkmDim(4)
+         Call mma_deallocate(BkmDim)
          If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
-            l_BkmVec=nRow_BkmVec*nCol_BkmVec
-            Call GetMem('BkmVec','Allo','Inte',ip_BkmVec,l_BkmVec)
-            Call Get_iArray('Cholesky BkmVec',iWork(ip_BkmVec),l_BkmVec)
-            l_BkmThr=nRow_BkmThr*nCol_BkmThr
-            Call GetMem('BkmVec','Allo','Real',ip_BkmThr,l_BkmThr)
-            Call Get_dArray('Cholesky BkmThr',Work(ip_BkmThr),l_BkmThr)
+            Call mma_allocate(BkmVec,nRow_BkmVec,nCol_BkmVec,
+     &                        Label='BkmVec')
+            Call Get_iArray('Cholesky BkmVec',BkmVec,SIZE(BkmVec))
+            Call mma_allocate(BkmThr,nRow_BkmThr,nCol_BkmThr,
+     &                        Label='BkmThr')
+            Call Get_dArray('Cholesky BkmThr',BkmThr,SIZE(BkmThr))
          Else
-            ip_BkmVec=0
-            l_BkmVec=0
             nRow_BkmVec=0
             nCol_BkmVec=0
-            ip_BkmThr=0
-            l_BkmThr=0
             nRow_BkmThr=0
             nCol_BkmThr=0
          End If
@@ -329,10 +318,9 @@ C     After the decomposition is done, it must be a trivial mapping and
 C     the user (programmer) should not worry about it at all.
 C     -----------------------------------------------------------------
 
-      l_mySP = nnShl
-      Call GetMem('mySP','Allo','Inte',ip_mySP,l_mySP)
+      Call mma_allocate(MySP,nnShl,Label='MySP')
       Do ijShl = 1,nnShl
-         iWork(ip_mySP-1+ijShl) = ijShl
+         MySP(ijShl) = ijShl
       End Do
 
 C     Copy reduced set 1 to location 2.
@@ -415,7 +403,8 @@ C     Debug: test bookmarks.
 C     Note that 1C-CD flag must be available on runfile
 C     (make sure _DEBUGPRINT_ is defined also in Cho_Final().
 C     --------------------------------------------------
-      If (l_BkmVec.gt.0 .and. l_BkmThr.gt.0) Then
+
+      If (Allocated(BkmVec) .and. Allocated(BkmThr)) Then
          Call Get_iScalar('1C-CD',is1CCD)
          Call Cho_TestBookmark(irc,.True.,is1CCD.eq.1)
          If (irc.ne.0) Call Cho_Quit('Bookmark test failed!',104)
@@ -484,7 +473,7 @@ C     =======
 
     1 Continue
 #if defined (_DEBUGPRINT_)
-      Call GetMem('CXI_MX2','Max ','Real',ip_Max,l_Max)
+      Call mma_maxDBLE(l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt

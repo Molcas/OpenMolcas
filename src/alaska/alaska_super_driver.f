@@ -79,6 +79,7 @@
       End If
 *
       Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
+
       Call Get_iScalar('agrad',iForceAnalytical)
       If(iForceAnalytical .eq. 1) Do_Numerical_Cholesky=.False.
 *
@@ -179,12 +180,12 @@
 *     These do not work in parallel. Warn and stop early, better than
 *     crash or give wrong results
 *
-      Else If (Do_Cholesky.and.(Method.eq.'CASSCFSA')
-     &        .and.(nProcs.gt.1)) Then
-         Call WarningMessage(2,'Error in Alaska_Super_Driver')
-         Write (6,*) 'RI SA-CASSCF analytical gradients do not work'
-     &             //' correctly in parallel (yet).'
-         Call Abend()
+C     Else If (Do_Cholesky.and.(Method.eq.'CASSCFSA')
+C    &        .and.(nProcs.gt.1)) Then
+C        Call WarningMessage(2,'Error in Alaska_Super_Driver')
+C        Write (6,*) 'RI SA-CASSCF analytical gradients do not work'
+C    &             //' correctly in parallel (yet).'
+C        Call Abend()
       Else If (Do_Cholesky.and.(Method.eq.'MBPT2')
      &        .and.(nProcs.gt.1)) Then
          Call WarningMessage(2,'Error in Alaska_Super_Driver')
