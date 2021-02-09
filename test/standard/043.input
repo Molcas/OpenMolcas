@@ -4,7 +4,7 @@
 * Symmetry: C2v
 * Features tested: SEWARD, GUESSORB, RASSCF, CASPT2 with Cholesky
 * Responsible person: P. Å. Malmqvist 070604
-* Comments: Test of Cholesky MS-CASPT2
+* Comments: Test of Cholesky MS-CASPT2 (all variants)
 *-------------------------------------------------------------------------------
 >export MOLCAS_THR=1
 >export MOLCAS_PRINT=Verbose
@@ -72,6 +72,8 @@ XMultiState
  All
 DWMS
  50
+DWType
+ 1
 IPEA
  0.0
 Maxiterations
@@ -82,10 +84,8 @@ End of input
  &CASPT2 &END
 Frozen
  1 0 0 0
-XMultiState
+RMultiState
  All
-DWMS
- 50
 IPEA
  0.0
 Maxiterations
