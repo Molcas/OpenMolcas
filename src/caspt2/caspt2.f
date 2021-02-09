@@ -447,13 +447,13 @@ C End of long loop over groups
       Call Put_iScalar('NumGradRoot',iRlxRoot)
       Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
 
-      CALL MMA_DEALLOCATE(UEFF)
-      CALL MMA_DEALLOCATE(U0)
 9000  CONTINUE
 
 C Free resources, close files
-      CALL PT2CLS
+      CALL PT2CLS()
 
+      CALL MMA_DEALLOCATE(UEFF)
+      CALL MMA_DEALLOCATE(U0)
       CALL MMA_DEALLOCATE(HEFF)
       CALL MMA_DEALLOCATE(H0)
 
