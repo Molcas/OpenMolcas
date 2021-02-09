@@ -141,38 +141,6 @@ IphNames
 Ejob
 End of input
 *-------------------------------------------------------------------------------
- &CASPT2 &END
-Title
- Ge
-MAXITER
- 25
-IPEA
- 0.0
-XMultistate
- 6 6 5 4 3 2 1
-DWMS
- 50
-CONVergence
- 1.0D-9
-End of input
-*-------------------------------------------------------------------------------
-* Read JobIph, use XDW-CASPT2 energies (HEFF)
- &RASSI &END
-Nrof JobIphs
- 1 all
-Heff
-End of input
-*-------------------------------------------------------------------------------
-* or...
-* Read JobMix, use XDW-CASPT2 energies (EJOB)
- &RASSI &END
-Nrof JobIphs
- 1 all
-IphNames
- JOBMIX
-Ejob
-End of input
-*-------------------------------------------------------------------------------
 * Subset of states and NoMul
 *-------------------------------------------------------------------------------
  &CASPT2 &END
