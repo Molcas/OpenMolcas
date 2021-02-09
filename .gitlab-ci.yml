@@ -316,13 +316,13 @@ checks:
 build:plain:
   extends: .plain
   <<: *compile
-test:plain:
-  extends: .plain
-  <<: *run-tests
-  needs:
-    - build:plain
-    # - tinker
-  # parallel: 2
+# test:plain:
+#   extends: .plain
+#   <<: *run-tests
+#   needs:
+#     - build:plain
+#     - tinker
+#   parallel: 2
 
 build:options:
   extends: .options
@@ -443,3 +443,11 @@ test:qcmaquis:
   needs:
     - build:qcmaquis
 
+build:caspt2:
+  extends: .caspt2
+  <<: *compile
+test:plain:
+  extends: .caspt2
+  <<: *run-tests
+  needs:
+    - build:caspt2

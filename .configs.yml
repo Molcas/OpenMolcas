@@ -11,6 +11,7 @@
 # - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
 # - qcmaquis: default build with QCMaquis and NEVPT2 support (only qcmaquis tests)
+# - caspt2: like plain, but testing only caspt2
 
 .plain:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
@@ -20,8 +21,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    tests: "standard"
-    # tests: ".all exhaustive"
+    tests: ".all exhaustive"
   tags:
     - docker
 
@@ -235,5 +235,17 @@
     CXX: "g++"
     FC: "gfortran"
     tests: "qcmaquis"
+  tags:
+    - docker
+
+.caspt2:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
+  variables:
+    cache_file: |
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: "003 043 047 216 294 366 371 380 381 382 414 415 416"
   tags:
     - docker
