@@ -26,7 +26,7 @@
 
      &                       Title, itype,
 
-     &                       ifHDF,
+     &                       ifHDF, old_aniso_format,
      &                       compute_g_tensors, compute_magnetization,
      &                       TINPUT,HINPUT, Do_structure_abc, DoPlot,
      &                       compute_Mdir_vector, zeeman_energy,
@@ -40,13 +40,13 @@ C
 C  THIS ROUTINE READS THE standard input.
 C
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "mgrid.fh"
 #include "warnings.fh"
 
 c  definition of the cluster:
       Integer       :: nneq, neqv, neq(nneq), nCenter
-      Logical       :: ifHDF
+      Logical       :: ifHDF, old_aniso_format
 c  definition of the local metal sites
       Real(kind=8) :: R_LG( nneq,neqv,3,3)
       Real(kind=8) :: R_ROT(nneq,neqv,3,3)
@@ -202,6 +202,8 @@ c      Character(Len=14) :: namefile_energy(nDirZee)
       HINPUT                = .false.
       TCHECK                = .false.
       HCHECK                = .false.
+      old_aniso_format      = .false.
+
       Do i=1,nneq
          Do j=1,Neq(i)
             R_rot(i,j,1,1)=1.0_wp
@@ -1180,6 +1182,12 @@ c      End If
 *---  process EXCH command --------------------------------------------*
       If (LINE(1:4).eq.'EXCH') Then
         decompose_exchange=.true.
+        Go To 100
+      End If
+
+*---  process OLDA command --------------------------------------------*
+      If (LINE(1:4).eq.'OLDA') Then
+        old_aniso_format=.true.
         Go To 100
       End If
 

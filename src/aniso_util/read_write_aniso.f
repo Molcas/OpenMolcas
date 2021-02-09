@@ -809,7 +809,6 @@ c compatibility with the present version: of aniso_i.input file
      &                                AMFI, HSO, eso_au, esfs_au )
 
       Implicit None
-#include "stdalloc.fh"
       Integer, Parameter           :: wp=kind(0.d0)
       Integer, intent(inout)       :: nss, nstate
       Integer, intent(out)         :: multiplicity(nstate)
@@ -893,4 +892,52 @@ c compatibility with the present version: of aniso_i.input file
       Return
       End
 
+
+      Subroutine read_formatted_aniso_poly_NEW (
+     &                                      input_file_name, nss,
+     &                                      nstate, nLoc, eso, MM, MS,
+     &                                      iReturn )
+      Implicit None
+#include "stdalloc.fh"
+      Integer, Parameter           :: wp=kind(0.d0)
+      Integer, intent(inout)       :: nss, nstate, nLoc, iReturn
+      ! nLoc is the maximal value of the array nss(1:nneq)
+      Real(kind=8), intent(out)    :: eso(nLoc)
+      Complex(kind=8), intent(out) :: MM(3,nLoc,nLoc)
+      Complex(kind=8), intent(out) :: MS(3,nLoc,nLoc)
+      Character(len=180)           :: input_file_name
+      ! local variables:
+      Real(wp), allocatable        :: eso_au(:)
+      Real(wp) :: conv_au_to_cm1
+      Integer  :: l,j,j1,j2,LuAniso,IsFreeUnit
+      External :: IsFreeUnit
+      Logical  :: dbg
+
+      dbg=.false.
+      iReturn=0
+      conv_au_to_cm1=2.194746313702E5_wp
+      eso=0.0_wp
+      MM=(0.0_wp,0.0_wp)
+      MS=(0.0_wp,0.0_wp)
+      Call mma_allocate(eso_au,nss,'eso_au')
+      eso_au=0.0_wp
+
+      LuAniso=IsFreeUnit(81)
+      Call molcas_open(LuAniso,input_file_name)
+
+      Call read_nss(LuAniso,nss,dbg)
+      Call read_nstate(LuAniso,nstate,dbg)
+      Call read_eso(LuAniso,nss,eso_au,dbg)
+      Call read_magnetic_moment(LuAniso,nss,MM,dbg)
+      Call read_spin_moment(LuAniso,nss,MS,dbg)
+
+      ! compute the relative spin-orbit energies in cm-1
+      do i=1,nss
+        eso(i)=(eso_au(i)-eso_au(1))*conv_au_to_cm1
+      end do
+      Call mma_deallocate(eso_au)
+      Close(LuAniso)
+
+      Return
+      End
 

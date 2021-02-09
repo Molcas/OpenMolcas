@@ -47,7 +47,7 @@ c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Complex(kind=8), allocatable ::  s_so(:,:,:,:)
       Character(Len=1)              :: itype(nneq)
       Character(Len=180)            :: namefile_aniso(nneq)
-      Logical                       :: ifHDF
+      Logical                       :: ifHDF, old_aniso_format
       Logical                       :: DoPlot
 c  definition of the exchange:
 !     total number of exchange states
@@ -480,7 +480,7 @@ c      ! read the Standard Input:
      &                 zJ, dirX, dirY, dirZ,
      &                 dir_weight,
      &                 Title, itype,
-     &                 ifHDF,
+     &                 ifHDF, old_aniso_format,
      &                 compute_g_tensors, compute_magnetization,
      &                 TINPUT, HINPUT, Do_structure_abc, doplot,
      &                 compute_Mdir_vector, zeeman_energy,
@@ -574,18 +574,41 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
      &                      CHAR(48+mod( int((i)/10 ),10)),
      &                      CHAR(48+mod( int( i     ),10)),'.input'
                End If
-               ! get the information from formatted aniso.input file:
-               If(dbg) Write(6,*) 'Enter read_formatted_aniso_poly'
-               Call read_formatted_aniso_poly(
-     &                              namefile_aniso(i),
-     &                              nss(i),
-     &                              nsfs(i),
-     &                              nLoc,
-     &                              eso(i,1:nLoc),
-     &                             dipso(i,1:3,1:nLoc,1:nLoc),
-     &                              s_so(i,1:3,1:nLoc,1:nLoc),
-     &                              iReturn )
-               If(dbg) Write(6,*) 'Exit read_formatted_aniso_poly'
+
+               If (old_aniso_format) Then
+                  ! get the information from OLD formatted
+                  ! aniso.input file:
+                  If(dbg) Write(6,*) 'Enter read_formatted_aniso_poly'
+                  Call read_formatted_aniso_poly(
+     &                                 namefile_aniso(i),
+     &                                 nss(i),
+     &                                 nsfs(i),
+     &                                 nLoc,
+     &                                 eso(i,1:nLoc),
+     &                                dipso(i,1:3,1:nLoc,1:nLoc),
+     &                                 s_so(i,1:3,1:nLoc,1:nLoc),
+     &                                 iReturn )
+                  If(dbg) Write(6,*) 'Exit read_formatted_aniso_poly'
+
+               Else ! old_aniso_format
+
+                  ! get the information from NEW formatted
+                  ! aniso.input file:
+                  If(dbg) Write(6,*)
+     &                'Enter read_formatted_aniso_poly_NEW'
+                  Call read_formatted_aniso_poly_NEW(
+     &                                 namefile_aniso(i),
+     &                                 nss(i),
+     &                                 nsfs(i),
+     &                                 nLoc,
+     &                                 eso(i,1:nLoc),
+     &                                dipso(i,1:3,1:nLoc,1:nLoc),
+     &                                 s_so(i,1:3,1:nLoc,1:nLoc),
+     &                                 iReturn )
+                  If(dbg) Write(6,*)
+     &                'Exit read_formatted_aniso_poly_NEW'
+
+               End If
             End if ! ifHDF
          Else
             Call quit(_RC_INTERNAL_ERROR_)
