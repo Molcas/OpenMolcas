@@ -56,8 +56,8 @@ subroutine wgtinit(H)
             ! new XDW-CASPT2, xi = (Haa/Hab)^2
           else if (DWType == 2) then
             xi_ag = (Ealpha/H(J,K))**2
-            ! new XDW-CASPT2, xi = Dab/sqrt(Hab)
-          else if (DWType == 3) then
+            ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
+          else
             ! add a small positive constant to numerator to avoid 0/0
             Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
             Hag = abs(H(J,K))
@@ -66,13 +66,9 @@ subroutine wgtinit(H)
               Hag = 0.0_wp
             end if
             xi_ag = Dag/sqrt(Hag)
-          else
-            ! this should never happen since DWType is checked during input processing
-            call Quit_OnUserError
           end if
 
           Wtot = Wtot + exp(-zeta*xi_ag)
-          ! write(u6,*)'exp(-zeta*xi_ag) = ',exp(-zeta*xi_ag)
         end do
 
         ! original XDW-CASPT2, xi = Dab^2
@@ -81,8 +77,8 @@ subroutine wgtinit(H)
           ! new XDW-CASPT2, xi = (Haa/Hab)^2
         else if (DWType == 2) then
           xi_ab = (Ealpha/H(J,I))**2
-          ! new XDW-CASPT2, xi = Dab/sqrt(Hab)
-        else if (DWType == 3) then
+          ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
+        else
           ! add a small positive constant to numerator to avoid 0/0
           Dab = abs(Ealpha - Ebeta) + 1.0e-9_wp
           Hab = abs(H(J,I))
@@ -91,9 +87,6 @@ subroutine wgtinit(H)
             Hab = 0.0_wp
           end if
           xi_ab = Dab/sqrt(Hab)
-        else
-          ! this should never happen since DWType is checked during input processing
-          call Quit_OnUserError
         end if
 
         IJ = (I - 1) + nState*(J - 1)
