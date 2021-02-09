@@ -446,7 +446,7 @@ test:qcmaquis:
 build:caspt2:
   extends: .caspt2
   <<: *compile
-test:plain:
+test:caspt2:
   extends: .caspt2
   <<: *run-tests
   needs:
