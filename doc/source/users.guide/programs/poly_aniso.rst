@@ -863,4 +863,15 @@ Optional general keywords to control the input
               </HELP>
               </KEYWORD>
 
+:kword:`OLDA`
+  This keyword requests to use the old-formatted ANISOINPUT files produced by :program:`SINGLE_ANISO` run. Please make use of the new DATAFILE :file:`$Project.aniso` produced in any successful run of :program:`SINGLE_ANISO`.
+
+  .. xmldoc:: <KEYWORD MODULE="POLY_ANISO" NAME="OLDA" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: OLDA <basic>
+              <HELP>
+              This keyword requests to use the old-formatted ANISOINPUT files produced by :program:`SINGLE_ANISO` run.
+              Please make use the new DATAFILE :file:`$Project.aniso` produced in any successful run of :program:`SINGLE_ANISO`.
+              </HELP>
+              </KEYWORD>
+
 .. xmldoc:: </MODULE>

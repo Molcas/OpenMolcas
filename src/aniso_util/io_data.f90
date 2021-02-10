@@ -1,25 +1,13 @@
-!MODULE io_data
-!
-!IMPLICIT NONE
-!
-!INTEGER, PARAMETER, PRIVATE            :: wp = kind(0.d0)
-!REAL(wp), PARAMETER, PRIVATE           :: One = 1.0_wp
-!REAL(wp), PARAMETER, PRIVATE           :: Zero = 0.0_wp
-!REAL(wp), PARAMETER, PRIVATE           :: MINIMAL_REAL = TINY(0.0_wp)*10.0_wp
-!COMPLEX(wp), PARAMETER, PRIVATE        :: ZeroC = (0.0_wp,0.0_wp)
-!COMPLEX(wp), PARAMETER, PRIVATE        :: OneC = (1.0_wp,0.0_wp)
-!COMPLEX(wp), PARAMETER, PRIVATE        :: cI = (0.0_wp,1.0_wp)
-!LOGICAL, PRIVATE :: dbg=.false.
-!INTEGER, PRIVATE :: StdOut=6
-!
-!INTEGER, PRIVATE             :: ierr
-!CHARACTER (LEN=500), PRIVATE :: LINE
-!CHARACTER (LEN=20), PRIVATE  :: FMTR='(5ES22.14)'
-!CHARACTER (LEN=20), PRIVATE  :: FMTI='(20(I0,1x))'
-!CHARACTER (LEN=30), PRIVATE  :: FMTCFP='(2(I0,1x),ES22.14)'
-!CHARACTER (LEN=20), PRIVATE :: FMTC='(3(2ES22.14))'
-!
-!End Module io_data
+!************************************************************************
+!* This file is part of OpenMolcas.                                     *
+!*                                                                      *
+!* OpenMolcas is free software; you can redistribute it and/or modify   *
+!* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+!* OpenMolcas is distributed in the hope that it will be useful, but it *
+!* is provided "as is" and without any express or implied warranties.   *
+!* For more details see the full text of the license in the file        *
+!* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!************************************************************************
 !
 !PUBLIC ::      read_magnetic_moment,       write_magnetic_moment,  &
 !               read_electric_moment,       write_electric_moment,  &
@@ -50,16 +38,6 @@
 !               check_S_square
 !
 !
-!INTEGER, PARAMETER, PRIVATE            :: FILE_SUS=91
-!INTEGER, PARAMETER, PRIVATE            :: FILE_MAG=92
-!INTEGER, PARAMETER, PRIVATE            :: FILE_CFP=93
-!INTEGER, PARAMETER, PRIVATE            :: FILE_GTE=94
-
-!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_SUS='FILE_SUS'
-!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_MAG='FILE_MAG'
-!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_CFP='FILE_CFP'
-!CHARACTER (LEN=20), PARAMETER, PRIVATE :: FILE_NAME_GTE='FILE_GTE'
-
 !PRIVATE ::     file_advance_to_string,     inquire_key_presence,   &
 !               read_INTEGER_scalar,        write_INTEGER_scalar,   &
 !               read_1d_INTEGER_array,      write_1d_INTEGER_array, &
@@ -82,9 +60,6 @@
 !               read_4d_real_array,         write_4d_real_array,    &
 !               read_3d_complex_array,      write_3d_complex_array, &
 !               read_4d_complex_array,      write_4d_complex_array
-
-
-
 ! Keywords:
 !    $dipm   --  electric dipole moment, SO basis  (6 components: _xr,_xi,  _yr,_yi,  _zr,_zi)
 !    $magn   --  magnetic dipole moment, SO basis  (6 components: _xr,_xi,  _yr,_yi,  _zr,_zi)
@@ -97,7 +72,6 @@
 !    $esfs
 !    $multiplicity
 !    $szvalue
-
 
 !---- high level functions -------
 !     >>> available <<<
@@ -135,17 +109,11 @@
 ! x_field_minus_one,&
 ! magnetization,    &
 !
-!
-!
 ! read_MOs
 ! read_CI_in_SD
 ! read_CI_in_CSF
 ! read_coeff_of_CSF
 !--------------------------
-
-
-
-
 
 !------ low-level functions ----
 ! read_INTEGER_scalar
@@ -202,7 +170,6 @@
 ! key_found
 ! file_advance_to_string
 !--------------------------------------------------------------------------------------------------!
-
 
 !--------------------------------------------------------------------------------------------------!
 !           HIGH LEVEL VERIFICATION SUBROUTINES
@@ -291,9 +258,9 @@ SUBROUTINE check_commutation( n, moment, dbg )
    tr=ZeroC
    DO i=1,n
      DO j=1,n
-       tr = tr  + XY(i,j) - YX(i,j) - cI*moment(3,i,j) !&
-!                + YZ(i,j) - ZY(i,j) - cI*moment(1,i,j) !&
-!                + ZX(i,j) - XZ(i,j) - cI*moment(2,i,j)
+       tr = tr  + XY(i,j) - YX(i,j) - cI*moment(3,i,j) &
+                + YZ(i,j) - ZY(i,j) - cI*moment(1,i,j) &
+                + ZX(i,j) - XZ(i,j) - cI*moment(2,i,j)
      END DO
    END DO
 
@@ -340,17 +307,17 @@ SUBROUTINE check_S_square (n, moment, dbg)
    Z2=ZeroC
    S2=ZeroC
 
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,     &
               moment(1,1:n,1:n), n,         &
               moment(1,1:n,1:n), n, ZeroC,  &
                X2, n )
 
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,     &
               moment(2,1:n,1:n), n,         &
               moment(2,1:n,1:n), n, ZeroC,  &
                Y2, n )
 
-   CALL zgemm_('c', 'n', n, n, n, OneC,      &
+   CALL zgemm_('c', 'n', n, n, n, OneC,     &
               moment(3,1:n,1:n), n,         &
               moment(3,1:n,1:n), n, ZeroC,  &
                Z2, n )
@@ -400,7 +367,7 @@ SUBROUTINE check_hermiticity_moment (n, moment, dbg)
       DO j=1,n
          IF ( i==j ) CYCLE
          DO l=1,3
-            c = c + moment(l,i,j) - DCONJG( moment(l,j,i) )
+            c = c + moment(l,i,j) - CONJG( moment(l,j,i) )
          END DO
       END DO
    END DO
@@ -429,7 +396,7 @@ SUBROUTINE check_hermiticity_matrix (n, matrix, dbg)
    DO i=1,n
       DO j=i,n
          IF ( i==j ) CYCLE
-         c = c + ( matrix(i,j) - DCONJG(matrix(j,i)) )
+         c = c + ( matrix(i,j) - CONJG(matrix(j,i)) )
       END DO
    END DO
    IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
@@ -522,6 +489,21 @@ SUBROUTINE read_magnetic_moment ( DATA_FILE, n, moment, dbg )
    IF (dbg) CALL check_hermiticity_matrix(n,moment(3,1:n,1:n),dbg)
    DEALLOCATE (rr)
    DEALLOCATE (ri)
+   IF (dbg) THEN
+      WRITE(StdOut,*) 'read_magnetic_moment::  ELECTRIC MOMENT at the end of the suboutine'
+      WRITE(StdOut,*) 'projection X'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
+      END DO
+      WRITE(StdOut,*) 'projection Y'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
+      END DO
+      WRITE(StdOut,*) 'projection Z'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
+      END DO
+   END IF
    RETURN
 END SUBROUTINE read_magnetic_moment
 
@@ -584,6 +566,21 @@ SUBROUTINE read_electric_moment ( DATA_FILE, n, moment, dbg )
    IF (dbg) CALL check_hermiticity_matrix(n,moment(3,:,:),dbg)
    DEALLOCATE (rr)
    DEALLOCATE (ri)
+   IF (dbg) THEN
+      WRITE(StdOut,*) 'read_electric_moment::  ELECTRIC MOMENT at the end of the suboutine'
+      WRITE(StdOut,*) 'projection X'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
+      END DO
+      WRITE(StdOut,*) 'projection Y'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
+      END DO
+      WRITE(StdOut,*) 'projection Z'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
+      END DO
+   END IF
    RETURN
 END SUBROUTINE read_electric_moment
 
@@ -604,20 +601,45 @@ SUBROUTINE read_spin_moment ( DATA_FILE, n, moment, dbg )
    LOGICAL, EXTERNAL          :: inquire_key_presence
    REAL (wp), PARAMETER       :: MINIMAL_REAL=TINY(0.0_wp)*10.0_wp
 
-   moment=ZeroC
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment'
+   moment=(0.0_wp, 0.0_wp)
    ALLOCATE (rr(n,n))
    ALLOCATE (ri(n,n))
 ! projection X
    rr=Zero; ri=Zero;
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p2  :spin_xr: ', inquire_key_presence( DATA_FILE, '$spin_xr')
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p2  :spin_xi: ', inquire_key_presence( DATA_FILE, '$spin_xi')
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p2  :spin_yr: ', inquire_key_presence( DATA_FILE, '$spin_yr')
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p2  :spin_yi: ', inquire_key_presence( DATA_FILE, '$spin_yi')
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p2  :spin_zr: ', inquire_key_presence( DATA_FILE, '$spin_zr')
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p2  :spin_zi: ', inquire_key_presence( DATA_FILE, '$spin_zi')
+   FLUSH(StdOut)
    IF (inquire_key_presence( DATA_FILE, '$spin_xr')) CALL read_2d_real_array( DATA_FILE, '$spin_xr', n, n, rr, dbg )
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p3'
+   FLUSH(StdOut)
    IF (inquire_key_presence( DATA_FILE, '$spin_xi')) CALL read_2d_real_array( DATA_FILE, '$spin_xi', n, n, ri, dbg )
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p4'
+   FLUSH(StdOut)
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zr=',dnrm2_(n*n,rr,1)
+   FLUSH(StdOut)
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
+   FLUSH(StdOut)
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p5'
+   FLUSH(StdOut)
    DO i=1,n
       DO j=1,n
-         moment(1,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
+         moment(1,i,j) = CMPLX( rr(i,j), ri(i,j), wp )
       END DO
    END DO
+   IF (dbg) WRITE (StdOut,*) 'ENTER read_spin_moment p6'
+   FLUSH(StdOut)
    IF (dbg) CALL check_hermiticity_matrix(n,moment(1,1:n,1:n),dbg)
 ! projection Y
    rr=Zero; ri=Zero;
@@ -627,7 +649,7 @@ SUBROUTINE read_spin_moment ( DATA_FILE, n, moment, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
       DO j=1,n
-         moment(2,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
+         moment(2,i,j) = CMPLX( rr(i,j), ri(i,j), wp )
       END DO
    END DO
    IF (dbg) CALL check_hermiticity_matrix(n,moment(2,1:n,1:n),dbg)
@@ -639,7 +661,7 @@ SUBROUTINE read_spin_moment ( DATA_FILE, n, moment, dbg )
    IF (dbg) WRITE (StdOut,*) 'read_spin_moment::  norm of moment_zi=',dnrm2_(n*n,ri,1)
    DO i=1,n
       DO j=1,n
-         moment(3,i,j) = CMPLX(rr(i,j),ri(i,j),wp)
+         moment(3,i,j) = CMPLX( rr(i,j), ri(i,j), wp )
       END DO
    END DO
    IF ( dznrm2_(3*n*n,moment,1) <=MINIMAL_REAL) CALL WarningMessage(1,'read_spin:: the norm of the read moment is zero!')
@@ -647,6 +669,23 @@ SUBROUTINE read_spin_moment ( DATA_FILE, n, moment, dbg )
    DEALLOCATE (rr)
    DEALLOCATE (ri)
    IF (dbg) CALL check_commutation( n, moment, dbg )
+
+   IF (dbg) THEN
+      WRITE(StdOut,*) 'read_spin_moment::  SPIN MOMENT at the end of the suboutine'
+      WRITE(StdOut,*) 'projection X'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(1,i,j),j=1,n)
+      END DO
+      WRITE(StdOut,*) 'projection Y'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(2,i,j),j=1,n)
+      END DO
+      WRITE(StdOut,*) 'projection Z'
+      DO i=1,n
+         WRITE(StdOut,'(100(2F10.6,2x))') (moment(3,i,j),j=1,n)
+      END DO
+   END IF
+   IF (dbg) WRITE (StdOut,*) 'EXIT read_spin_moment'
    RETURN
 END SUBROUTINE read_spin_moment
 
@@ -1234,7 +1273,6 @@ SUBROUTINE read_magn (DATA_FILE, nt, nh, nd, nss, zj, t, h, x, y, z, w, m, mav, 
    REAL (wp), INTENT (OUT) :: mav(nt, nh)                ! average magnetisation vector
    REAL (wp), INTENT (OUT) :: energy(nd, nh, nss)        ! Zeeman energy states
    INTEGER                 :: id, ih, it, i, iss, l, ierr
-   REAL (wp), EXTERNAL     :: dnrm2_
    LOGICAL, INTENT (IN)    :: dbg
    CHARACTER (LEN=500)     :: line
    INTEGER, PARAMETER      :: StdOut = 6
@@ -2840,22 +2878,27 @@ SUBROUTINE read_2d_real_array( LU, key, n1, n2, array, dbg )
       IF (dbg) FLUSH (StdOut)
       RETURN
    END IF
+
    REWIND ( LU )
    CALL file_advance_to_string( LU, key, line, ierr, dbg )
 
-   READ ( LU, FMT=*, IOSTAT=ierr ) i,j
    IF (ierr /= 0) THEN
       CALL WarningMessage(2,'read_2d_real_array:: Something went wrong reading key'//trim(key))
    END IF
    IF (dbg) WRITE (StdOut,*) 'read_2d_real_array:: key =',trim(key)
+
+   READ ( LU, FMT=*, IOSTAT=ierr ) i, j
+
    IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::  n1 =',i
    IF (dbg) WRITE (StdOut,*) 'read_2d_real_array::  n2 =',j
    IF ( (i/=n1) .OR. (j/=n2) ) THEN
       CALL WarningMessage(2,'read_2d_real_array:: sizes of the array are different from the ones used '// &
                             'to CALL this SUBROUTINE')
    END IF
+
    DO i=1, n1
-      READ ( LU, FMT=*, IOSTAT=ierr ) (array(i,j),j=1,n2)
+      READ ( LU, FMT=*, IOSTAT=ierr ) ( array(i,j), j=1,n2 )
+      IF (dbg) WRITE (StdOut,*) ( array(i,j), j=1,n2 )
       IF (ierr /= 0) THEN
          CALL WarningMessage(2,'read_2d_real_array:: Something went wrong reading the array.')
       END IF

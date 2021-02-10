@@ -16,10 +16,10 @@
      &                 nT, nH, nTempMagn, nDir, nDirZee,
      &                 nMult, nPair, MxRank1, MxRank2
       Integer       :: iReturn
-      Logical       :: dbg
+      Logical       :: dbg, old_aniso_format
 
       iReturn=0
-      dbg=.false.
+      dbg=.true.
 
       Write(6,'(A)') 'POLY_ANISO (OPEN):'
       Write(6,'(A)') 'by:   Liviu Unugur       '//
@@ -28,29 +28,36 @@
      &               '(Liviu.Chibotaru@kuleuven.be)'
       Write(6,'(A)') 'Last updated - 2 July 2018'
 
+      ! find if we are using old format or the new one
+      If(dbg) Write(6,*) 'Enter find_aniso_format'
+      Call find_aniso_format(old_aniso_format)
+      If(dbg) Write(6,*) 'Exit find_aniso_format'
+
       ! initialize some important variables
       If(dbg) Write(6,*) 'Enter fetch_init_const'
       Call fetch_init_const( nneq, neqv, nmax, exch, nLoc,
      &                       nCenter, nT, nH, nTempMagn, nDir,
      &                       nDirZee, nMult, nPair, MxRank1, MxRank2,
-     &                       iReturn )
+     &                       old_aniso_format, iReturn )
       If(dbg) Write(6,*) 'Exit fetch_init_const'
-      If(dbg) Write(6,*) '     nneq=',     nneq
-      If(dbg) Write(6,*) '     neqv=',     neqv
-      If(dbg) Write(6,*) '     nmax=',     nmax
-      If(dbg) Write(6,*) '     exch=',     exch
-      If(dbg) Write(6,*) '     nLoc=',     nLoc
-      If(dbg) Write(6,*) '  nCenter=',  nCenter
-      If(dbg) Write(6,*) '       nT=',       nT
-      If(dbg) Write(6,*) '       nH=',       nH
-      If(dbg) Write(6,*) 'nTempMagn=',nTempMagn
-      If(dbg) Write(6,*) '     nDir=',     nDir
-      If(dbg) Write(6,*) '  nDirZee=',  nDirZee
-      If(dbg) Write(6,*) '    nMult=',    nMult
-      If(dbg) Write(6,*) '    nPair=',    nPair
-      If(dbg) Write(6,*) '  MxRank1=',  MxRank1
-      If(dbg) Write(6,*) '  MxRank2=',  MxRank2
-      If(dbg) Write(6,*) '  iReturn=',  iReturn
+
+      If(dbg) Write(6,*) 'pa_open::             nneq=',     nneq
+      If(dbg) Write(6,*) 'pa_open::             neqv=',     neqv
+      If(dbg) Write(6,*) 'pa_open::             nmax=',     nmax
+      If(dbg) Write(6,*) 'pa_open::             exch=',     exch
+      If(dbg) Write(6,*) 'pa_open::             nLoc=',     nLoc
+      If(dbg) Write(6,*) 'pa_open::          nCenter=',  nCenter
+      If(dbg) Write(6,*) 'pa_open::               nT=',       nT
+      If(dbg) Write(6,*) 'pa_open::               nH=',       nH
+      If(dbg) Write(6,*) 'pa_open::        nTempMagn=',nTempMagn
+      If(dbg) Write(6,*) 'pa_open::             nDir=',     nDir
+      If(dbg) Write(6,*) 'pa_open::          nDirZee=',  nDirZee
+      If(dbg) Write(6,*) 'pa_open::            nMult=',    nMult
+      If(dbg) Write(6,*) 'pa_open::            nPair=',    nPair
+      If(dbg) Write(6,*) 'pa_open::          MxRank1=',  MxRank1
+      If(dbg) Write(6,*) 'pa_open::          MxRank2=',  MxRank2
+      If(dbg) Write(6,*) 'pa_open::          iReturn=',  iReturn
+      If(dbg) Write(6,*) 'pa_open:: old_aniso_format=', old_aniso_format
       If(dbg) Call xFlush(6)
 
 
@@ -67,7 +74,7 @@
       Call POLY_ANISO_1( nneq, neqv, nmax, exch, nLoc,
      &                   nCenter, nT, nH, nTempMagn, nDir,
      &                   nDirZee, nMult, nPair, MxRank1, MxRank2,
-     &                   iReturn )
+     &                   old_aniso_format, iReturn )
       If(dbg) Write(6,*) 'Exit poly_aniso_1'
 
       If (iReturn.ne.0) Then

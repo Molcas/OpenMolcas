@@ -436,17 +436,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! to the local pseudospin basis
         If(itype(i1)=='A') Then
          Call prep_mom_exchange( n1, rot(i1,j1,1:3,1:3),
-     &                            SM(i1,1:3,1:n1,1:n1),
-     &                            MM(i1,1:3,1:n1,1:n1), mg1, .true. )
+     &                           SM(i1,1:3,1:n1,1:n1),
+     &                           MM(i1,1:3,1:n1,1:n1), mg1, .true. )
         End If
         If(itype(i2)=='A') Then
          Call prep_mom_exchange( n2, rot(i2,j2,1:3,1:3),
-     &                            SM(i2,1:3,1:n2,1:n2),
-     &                            MM(i2,1:3,1:n2,1:n2), mg2, .true. )
+     &                           SM(i2,1:3,1:n2,1:n2),
+     &                           MM(i2,1:3,1:n2,1:n2), mg2, .true. )
         End If
 
-        If(dbg) Call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
-        If(dbg) Call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
+        !If(dbg)
+        Call prMom('SM(i1) bf Lines1',SM(i1,1:3,1:n1,1:n1),n1)
+        !If(dbg)
+        Call prMom('SM(i2) bf Lines1',SM(i2,1:3,1:n2,1:n2),n2)
 
         ! build the Lines exchange matrix:
         Call Lines_Exchange( Jex(lp), n1, n2,

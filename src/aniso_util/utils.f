@@ -90,7 +90,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Complex(kind=8)             :: M(3,n,n)
+      Complex(kind=8)              :: M(3,n,n)
       !local
       Integer           :: i, j, l
       Character(len=1)  :: proj(3)

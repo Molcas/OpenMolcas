@@ -895,41 +895,49 @@ c compatibility with the present version: of aniso_i.input file
 
       Subroutine read_formatted_aniso_poly_NEW (
      &                                      input_file_name, nss,
-     &                                      nstate, nLoc, eso, MM, MS,
+     &                                      nstate, eso, MM, MS,
      &                                      iReturn )
       Implicit None
 #include "stdalloc.fh"
       Integer, Parameter           :: wp=kind(0.d0)
-      Integer, intent(inout)       :: nss, nstate, nLoc, iReturn
+      Integer, intent(inout)       :: nss, nstate, iReturn
       ! nLoc is the maximal value of the array nss(1:nneq)
-      Real(kind=8), intent(out)    :: eso(nLoc)
-      Complex(kind=8), intent(out) :: MM(3,nLoc,nLoc)
-      Complex(kind=8), intent(out) :: MS(3,nLoc,nLoc)
+      Real(kind=8), intent(out)    :: eso(nss)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
       Character(len=180)           :: input_file_name
       ! local variables:
       Real(wp), allocatable        :: eso_au(:)
       Real(wp) :: conv_au_to_cm1
-      Integer  :: l,j,j1,j2,LuAniso,IsFreeUnit
+      Integer  :: i,j,l,LuAniso,IsFreeUnit
       External :: IsFreeUnit
       Logical  :: dbg
 
       dbg=.false.
       iReturn=0
       conv_au_to_cm1=2.194746313702E5_wp
-      eso=0.0_wp
-      MM=(0.0_wp,0.0_wp)
-      MS=(0.0_wp,0.0_wp)
+      eso(1:nss)=0.0_wp
+      MM(1:3,1:nss,1:nss)=(0.0_wp,0.0_wp)
+      MS(1:3,1:nss,1:nss)=(0.0_wp,0.0_wp)
       Call mma_allocate(eso_au,nss,'eso_au')
       eso_au=0.0_wp
 
       LuAniso=IsFreeUnit(81)
       Call molcas_open(LuAniso,input_file_name)
 
-      Call read_nss(LuAniso,nss,dbg)
-      Call read_nstate(LuAniso,nstate,dbg)
-      Call read_eso(LuAniso,nss,eso_au,dbg)
-      Call read_magnetic_moment(LuAniso,nss,MM,dbg)
-      Call read_spin_moment(LuAniso,nss,MS,dbg)
+      Call read_nss( LuAniso, nss, dbg )
+      If(dbg) Write(6,*) 'read_formatted_aniso_poly_NEW: nss=',nss
+      Call read_nstate( LuAniso, nstate, dbg )
+      If(dbg) Write(6,*) 'read_formatted_aniso_poly_NEW: nstate=',nstate
+      Call read_eso( LuAniso, nss, eso_au, dbg )
+      If(dbg) Write(6,*) 'read_formatted_aniso_poly_NEW: eso_au=',
+     &                   (eso_au(i),i=1,nss)
+      Call read_magnetic_moment ( LuAniso, nss,
+     &                            MM(1:3,1:nss,1:nss), dbg )
+      IF (dbg) WRITE (6,*) 'Call read_spin_moment'
+      FLUSH(6)
+      Call read_spin_moment ( LuAniso, nss,
+     &                        MS, dbg )
 
       ! compute the relative spin-orbit energies in cm-1
       do i=1,nss
@@ -937,6 +945,26 @@ c compatibility with the present version: of aniso_i.input file
       end do
       Call mma_deallocate(eso_au)
       Close(LuAniso)
+
+      IF (dbg) THEN
+        WRITE(6,*) 'read_formatted_aniso_poly_NEW:  nss: ',nss
+        WRITE(6,*) 'read_formatted_aniso_poly_NEW:   MM: '
+        DO l=1,3
+          WRITE(6,'(A,I0)') 'projection: L=',l
+          DO i=1,nss
+             WRITE(6,'(10(2F8.4,2x))')  ( MM(l,i,j), j=1,nss )
+          END DO
+        END DO
+
+        WRITE(6,*) 'read_formatted_aniso_poly_NEW:   MS'
+        DO l=1,3
+          WRITE(6,'(A,I0)') 'projection: L=',l
+          DO i=1,nss
+             WRITE(6,'(10(2F8.4,2x))')  ( MS(l,i,j),j=1,nss )
+          END DO
+        END DO
+      END IF
+
 
       Return
       End
