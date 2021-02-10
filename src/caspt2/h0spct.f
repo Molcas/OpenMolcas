@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,verbose
       use output, only:dnmThr,cntThr,cmpThr
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather

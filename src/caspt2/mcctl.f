@@ -18,7 +18,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MCCTL(HEFF)
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,verbose
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

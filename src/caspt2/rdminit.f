@@ -12,7 +12,7 @@
 ************************************************************************
       subroutine rdminit
 
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,debug
       implicit real(8) (A-H,O-Z)
 
 #include "rasdim.fh"

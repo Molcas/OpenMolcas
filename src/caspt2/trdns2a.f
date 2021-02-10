@@ -19,7 +19,7 @@
 
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2)
 
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 
 

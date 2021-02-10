@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NEWFOCK(FIFA)
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,usual
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"

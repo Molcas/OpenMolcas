@@ -20,7 +20,7 @@
       SUBROUTINE PCG(ICONV)
       USE INPUTDATA
       use output, only: EMP2
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,terse,usual
       IMPLICIT NONE
 
 #include "rasdim.fh"

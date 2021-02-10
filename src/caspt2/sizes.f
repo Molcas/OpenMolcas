@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIZES()
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,usual
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 

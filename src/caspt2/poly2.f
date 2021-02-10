@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,debug
 #endif
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07

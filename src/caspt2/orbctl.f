@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE ORBCTL(CMO)
-      use output, only:silent,terse,usual,verbose,debug,insane,iPrGlb
+      use output, only:iPrGlb,verbose,debug
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
