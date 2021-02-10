@@ -21,18 +21,18 @@ C
       Logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*10 SecNam
-      Parameter (SecNam = 'ChoMP2_Tra')
+      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Tra'
 
-      Integer kOffD, iSym, ipW, lW
+      Integer kOffD, iSym, lW
+      Real*8, Allocatable:: TraMax(:)
 
 C     Allocate remaining memory.
 C     --------------------------
 
-      Call GetMem('TraGetMax','Max ','Real',ipW,lW)
-      Call GetMem('TraMax','Allo','Real',ipW,lW)
+      Call mma_maxDBLE(lw)
+      Call mma_allocate(TraMax,lw,Label='TraMax')
 
       kOffD = 1
       Do iSym = 1,nSym
@@ -45,8 +45,7 @@ C        --------------------------
 C        Transform vectors.
 C        ------------------
 
-         Call ChoMP2_Tra_1(COcc,CVir,Diag(kOffD),DoDiag,Work(ipW),lW,
-     &                     iSym)
+         Call ChoMP2_Tra_1(COcc,CVir,Diag(kOffD),DoDiag,TraMax,lW,iSym)
          If (DoDiag) kOffD = kOffD + nT1am(iSym)
 
 C        Close files for MO vectors.
@@ -59,6 +58,6 @@ C        ---------------------------
 C     Free memory.
 C     ------------
 
-      Call GetMem('TraMax','Free','Real',ipW,lW)
+      Call mma_deallocate(TraMax)
 
       End

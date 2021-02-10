@@ -18,16 +18,16 @@
 * 1999: GEMINAL R12 ENABLED                  *
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
+      use Fockof
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "sigma.fh"
 #include "SysDef.fh"
       COMMON /CPLCAS/ IFCOUP(MXCASE,MXCASE)
-      COMMON /FOCKOF/ LFIT,LFIA,LFTA,LFTI,LFAI,LFAT,
-     &                IOFFIT(8),IOFFIA(8),IOFFTA(8)
 
 C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and
@@ -118,16 +118,18 @@ C SVC: add transposed fock matrix blocks
         NFIA=NFIA+NS*NI
         NFTA=NFTA+NS*NA
       END DO
-      NFIT=NFIT+1
-      NFIA=NFIA+1
-      NFTA=NFTA+1
+      NFIT=NFIT+1 !?
+      NFIA=NFIA+1 !?
+      NFTA=NFTA+1 !?
 
-      CALL GETMEM('FIT','ALLO','REAL',LFIT,NFIT)
-      CALL GETMEM('FIA','ALLO','REAL',LFIA,NFIA)
-      CALL GETMEM('FTA','ALLO','REAL',LFTA,NFTA)
-      CALL GETMEM('FTI','ALLO','REAL',LFTI,NFIT)
-      CALL GETMEM('FAI','ALLO','REAL',LFAI,NFIA)
-      CALL GETMEM('FAT','ALLO','REAL',LFAT,NFTA)
+      Call mma_allocate(FIT_Full,NFIT,Label='FIT_Full')
+      Call mma_allocate(FTI_Full,NFIT,Label='FTI_Full')
+
+      Call mma_allocate(FIA_Full,NFIA,Label='FIA_Full')
+      Call mma_allocate(FAI_Full,NFIA,Label='FAI_Full')
+
+      Call mma_allocate(FTA_Full,NFTA,Label='FTA_Full')
+      Call mma_allocate(FAT_Full,NFTA,Label='FAT_Full')
 
       IFIFA=0
       DO ISYM=1,NSYM
@@ -135,11 +137,29 @@ C SVC: add transposed fock matrix blocks
         NA=NASH(ISYM)
         NS=NSSH(ISYM)
         NO=NORB(ISYM)
+
+        FIT(ISYM)%A(1:NA*NI) =>
+     &     FIT_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
+        FTI(ISYM)%A(1:NA*NI) =>
+     &     FTI_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
+
+        FIA(ISYM)%A(1:NS*NI) =>
+     &     FIA_Full(IOFFIA(ISYM)+1:IOFFIA(ISYM)+NS*NI)
+        FAI(ISYM)%A(1:NS*NI) =>
+     &     FAI_Full(IOFFIA(ISYM)+1:IOFFIA(ISYM)+NS*NI)
+
+        FTA(ISYM)%A(1:NS*NA) =>
+     &     FTA_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
+        FAT(ISYM)%A(1:NS*NA) =>
+     &     FAT_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
+
         CALL FBLOCK(WORK(LFIFA+IFIFA),NO,NI,NA,NS,
-     &       WORK(LFIT+IOFFIT(ISYM)),WORK(LFTI+IOFFIT(ISYM)),
-     &       WORK(LFIA+IOFFIA(ISYM)),WORK(LFAI+IOFFIA(ISYM)),
-     &       WORK(LFTA+IOFFTA(ISYM)),WORK(LFAT+IOFFTA(ISYM)))
+     &              FIT(ISYM)%A(:),FTI(ISYM)%A(:),
+     &              FIA(ISYM)%A(:),FAI(ISYM)%A(:),
+     &              FTA(ISYM)%A(:),FAT(ISYM)%A(:))
+
         IFIFA=IFIFA+(NO*(NO+1))/2
+
       END DO
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
@@ -489,12 +509,20 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
       WRITE(6,*)
 #endif
 
-      CALL GETMEM('FIT','FREE','REAL',LFIT,NFIT)
-      CALL GETMEM('FIA','FREE','REAL',LFIA,NFIA)
-      CALL GETMEM('FTA','FREE','REAL',LFTA,NFTA)
-      CALL GETMEM('FTI','FREE','REAL',LFTI,NFIT)
-      CALL GETMEM('FAI','FREE','REAL',LFAI,NFIA)
-      CALL GETMEM('FAT','FREE','REAL',LFAT,NFTA)
+      Call mma_deallocate(FIT_Full)
+      Call mma_deallocate(FTI_Full)
+      Call mma_deallocate(FIA_Full)
+      Call mma_deallocate(FAI_Full)
+      Call mma_deallocate(FTA_Full)
+      Call mma_deallocate(FAT_Full)
+      Do iSym = 1, nSym
+         FIT(iSym)%A => Null()
+         FTI(iSym)%A => Null()
+         FIA(iSym)%A => Null()
+         FAI(iSym)%A => Null()
+         FTA(iSym)%A => Null()
+         FAT(iSym)%A => Null()
+      End Do
 
 C Transform contrav C  to eigenbasis of H0(diag):
       CALL PTRTOSR(1,IVEC,IVEC)

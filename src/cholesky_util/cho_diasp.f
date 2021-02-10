@@ -19,18 +19,17 @@ C
       use ChoArr, only: iSP2F
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
+      Real*8, Allocatable:: TMax(:,:)
+
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      Tmax(i,j)=Work(ip_Tmax-1+nShell*(j-1)+i)
 
       If (Cho_PreScreen) Then ! prescreening with approx. diagonal
 
-         l_Tmax = nShell**2
-         Call GetMem('Cho_Tmax','Allo','Real',ip_Tmax,l_Tmax)
+         Call mma_allocate(Tmax,nShell,nShell,Label='nShell')
 
-         Call Shell_MxSchwz(nShell,Work(ip_Tmax))
+         Call Shell_MxSchwz(nShell,Tmax)
          Tmax_All = Tmax(1,1)
          Do i = 2,nShell
             Do j = 1,i
@@ -59,7 +58,7 @@ C
             End Do
          End Do
 
-         Call GetMem('Cho_Tmax','Free','Real',ip_Tmax,l_Tmax)
+         Call mma_deallocate(TMax)
 
       Else ! no prescreening, include all shell pairs.
 

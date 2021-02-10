@@ -143,7 +143,7 @@ C Use a symmetrized matrix, in triangular storage:
         END DO
         if (IFXMS.or.IFRMS) then
 * Transform eigenvectors into the original input basis
-          call mma_allocate(Utmp,Nstate,Nstate)
+          call mma_allocate(Utmp,Nstate,Nstate,Label='Utmp')
           call dgemm_('N','N',Nstate,Nstate,Nstate,
      &                1.0d0,U0,Nstate,eigvec,Nstate,
      &                0.0d0,Utmp,Nstate)

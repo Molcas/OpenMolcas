@@ -20,14 +20,22 @@ C
 C
       DIMENSION ICL(*),IOP(*),ISPIN(*)
       DIMENSION IWALK(*)
+      Logical Test
 C
       NXTCL = 1
       NXTOP = 1
-      DO 100 IORB = 1,NORB
+      DO IORB = 1,NORB
+
+        Test=NXTOP.LE.NOP
+        If (Test) Test=IORB.EQ.IOP(NXTOP)
+
         IF(NXTCL.LE.NCL.AND.IORB.EQ.ICL(NXTCL) ) THEN
+
           IWALK(IORB) = 3
           NXTCL =NXTCL + 1
-        ELSE IF(NXTOP.LE.NOP.AND.IORB.EQ.IOP(NXTOP) ) THEN
+
+        ELSE IF( Test ) THEN
+
           IF(ISPIN(NXTOP).EQ.1) THEN
             IDELSP = 1
           ELSE
@@ -39,10 +47,14 @@ C
              IWALK(IORB) = 2
           END IF
           NXTOP = NXTOP + 1
+
         ELSE
+
           IWALK(IORB) = 0
+
         END IF
-100   CONTINUE
+
+      END DO
 C
 C     EXIT
 C

@@ -346,6 +346,7 @@ c mess started here :)
          RecLab(187)='rDmp            '
          RecLab(188)='rDmp:A          '
          RecLab(189)='rDmp:S          '
+         RecLab(190)='D1saoVar        '
 *                     1234567890123456
 *
 *        If you go beyond 256: update pg_da_info.fh and this line!

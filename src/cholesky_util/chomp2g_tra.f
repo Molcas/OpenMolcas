@@ -22,11 +22,11 @@ C
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*10 SecNam
-      Parameter (SecNam = 'ChoMP2_Tra')
+      Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Tra'
 
+      Real*8, Allocatable:: TraMax(:)
 
 C     Allocate remaining memory.
 C     --------------------------
@@ -34,8 +34,8 @@ C     --------------------------
 *     Check what type of Cholesky vector to make (fro-occ, occ-occ.....)
       iVecType = iMoType2 + (iMoType1-1)*nMoType
 
-      Call GetMem('TraGetMax','Max ','Real',ipW,lW)
-      Call GetMem('TraMax','Allo','Real',ipW,lW)
+      Call mma_maxDBLE(lw)
+      Call mma_allocate(TraMax,lW,Label='TraMax')
 
       kOffD = 1
       Do iSym = 1,nSym
@@ -48,7 +48,7 @@ C        --------------------------
 C        Transform vectors.
 C        ------------------
 
-         Call ChoMP2g_Tra_1(COrb1,COrb2,Diag(kOffD),DoDiag,Work(ipW),lW,
+         Call ChoMP2g_Tra_1(COrb1,COrb2,Diag(kOffD),DoDiag,TraMax,lW,
      &                     iSym,iMoType1,iMoType2)
          kOffD = kOffD + nMoMo(iSym,iVecType)
 
@@ -62,6 +62,6 @@ C        ---------------------------
 C     Free memory.
 C     ------------
 
-      Call GetMem('TraMax','Free','Real',ipW,lW)
+      Call mma_deallocate(TraMax)
 
       End
