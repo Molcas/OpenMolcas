@@ -39,12 +39,13 @@
 
       Integer   rc
       Real*8    Diag(*)
-      Character*17 SECNAM
-      Parameter (SECNAM = 'Cho_X_CalcChoDiag')
+      Character(LEN=17), Parameter :: SECNAM = 'Cho_X_CalcChoDiag'
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: Lrs(:,:)
 
       Call fZero(Diag,nnBstRT(1))
 
@@ -84,7 +85,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
             nRS = nDimRS(JSYM,JRED)
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/Max(nRS,1),nVrs)
 
@@ -98,9 +99,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
                nBatch = -9999  ! dummy assignment
             End If
 
-            LREAD = nRS*nVec
-
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
+            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
 C --- BATCH over the vectors ----------------------------
 
@@ -117,11 +116,11 @@ C --- BATCH over the vectors ----------------------------
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,SIZE(Lrs),JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+                  Call mma_deallocate(Lrs)
                   rc=77
                   Return
                End If
@@ -139,9 +138,7 @@ C --- Stored in the 1st reduced set
 
                   Do jvc=1,JNUM
 
-                     ipL = ipLrs + nRS*(jvc-1)
-                     Diag(jrs) = Diag(jrs)
-     &                         + Work(ipL+krs-1)**2
+                     Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
                   End Do
 
                End Do
@@ -152,7 +149,7 @@ C --------------------------------------------------------------------
             END DO  ! end batch loop
 
 C --- free memory
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lrs)
 
 999         Continue
 

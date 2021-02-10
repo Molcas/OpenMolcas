@@ -231,7 +231,7 @@
          End If
          Call Get_iArray('XEle',XEle,nXF)
 *
-         Call qpg_dArray('XMolnr',Found,Len2)
+         Call qpg_iArray('XMolnr',Found,Len2)
          nXMolnr=Len2/nXF
          If (.Not.Allocated(XMolnr)) Then
             Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')

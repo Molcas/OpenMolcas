@@ -112,17 +112,17 @@ C
       Call StatusLine('CASPT2:','Initializing')
       CALL PT2INI
 * Initialize effective Hamiltonian and eigenvectors
-      CALL MMA_ALLOCATE(Heff,Nstate,Nstate)
-      CALL MMA_ALLOCATE(Ueff,Nstate,Nstate)
+      CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
+      CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
       Heff=0.0D0
       Ueff=0.0D0
 * Initialize zeroth-order Hamiltonian and eigenvectors
-      CALL MMA_ALLOCATE(H0,Nstate,Nstate)
-      CALL MMA_ALLOCATE(U0,Nstate,Nstate)
-      H0=0.0D0
+      CALL MMA_ALLOCATE(H0,Nstate,Nstate,Label='H0')
+      CALL MMA_ALLOCATE(U0,Nstate,Nstate,Label='U0')
+      H0(:,:)=0.0D0
 * U0 is initialized as the identity matrix, in the case of a
 * standard MS-CASPT2 calculation it will not be touched anymore
-      U0=0.0D0
+      U0(:,:)=0.0D0
       call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
 *
 *======================================================================*
@@ -447,13 +447,13 @@ C End of long loop over groups
       Call Put_iScalar('NumGradRoot',iRlxRoot)
       Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
 
-      CALL MMA_DEALLOCATE(UEFF)
-      CALL MMA_DEALLOCATE(U0)
 9000  CONTINUE
 
 C Free resources, close files
-      CALL PT2CLS
+      CALL PT2CLS()
 
+      CALL MMA_DEALLOCATE(UEFF)
+      CALL MMA_DEALLOCATE(U0)
       CALL MMA_DEALLOCATE(HEFF)
       CALL MMA_DEALLOCATE(H0)
 
