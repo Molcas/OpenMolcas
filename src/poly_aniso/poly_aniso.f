@@ -188,7 +188,7 @@ c      Integer                      :: icase, nmagmult
       Integer                       :: LuAniso
       Integer, external             :: IsFreeUnit
 
-      dbg=.true.
+      dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
       GRAD=.false.

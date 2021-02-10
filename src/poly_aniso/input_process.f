@@ -159,7 +159,7 @@ c  options for automatic fitting of parameters:
       Integer  :: icount_B_sites
 
 
-      DBG=.true.
+      DBG=.false.
 c-----------------------------------------------------------------------
 c print the data from this Subroutine:
       If(check_title) Then

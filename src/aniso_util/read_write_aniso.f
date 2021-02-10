@@ -642,7 +642,7 @@ c compatibility with the present version: of aniso_i.input file
       Integer                     :: njob, mxjob, mult, iss, ipar, ist
       Integer                     :: data_file_format
       Integer                     :: i,IsFreeUnit,Lu,Lutmp
-      Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
+      !Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
       External                    :: IsFreeUnit
       Integer, allocatable        :: szproj(:), jbnum(:), mltplt(:)
       Integer, allocatable        :: nroot(:)
@@ -709,22 +709,22 @@ c compatibility with the present version: of aniso_i.input file
       Call molcas_open(Lu,FileName)
       data_file_format=2021
 
-      fmt_key='(A)'
-      fmt_real='(5ES22.14,1x)'
-      fmt_int='(40(I0,1x))'
+      !fmt_key='(A)'
+      !fmt_real='(5ES22.14,1x)'
+      !fmt_int='(40(I0,1x))'
 
       WRITE(Lu,fmt_key) '# OPENMOLCAS interface to ANISO'
       !-------------------------------------------------------------
       ! ORIGIN of DATA file
-      WRITE(Lu,fmt_key) '$source'
-      WRITE(Lu,'(2A)')  'MOLCAS  ',trim(molcas)
-      WRITE(Lu,'(2A)')  'VERSION ',trim(molcasversion)
-      WRITE(Lu,'(A)')
+      WRITE(Lu,'(        A)') '$source '
+      WRITE(Lu,'(       2A)') 'MOLCAS  ',trim(molcas)
+      WRITE(Lu,'(       2A)') 'VERSION ',trim(molcasversion)
+      WRITE(Lu,'(        A)')
       !-------------------------------------------------------------
       ! DATA FILE FORMAT VERSION:
-      WRITE(Lu,fmt_key) '$format'
-      WRITE(Lu,fmt_int)  data_file_format
-      WRITE(Lu,'(A)')
+      WRITE(Lu,'(        A)') '$format '
+      WRITE(Lu,'(40(I0,1x))')  data_file_format
+      WRITE(Lu,'(        A)')
       !-------------------------------------------------------------
       ! Number of spin orbit states
       CALL write_nss ( LU, nss, dbg )

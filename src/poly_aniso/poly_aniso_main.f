@@ -19,7 +19,7 @@
       Logical       :: dbg, old_aniso_format
 
       iReturn=0
-      dbg=.true.
+      dbg=.false.
 
       Write(6,'(A)') 'POLY_ANISO (OPEN):'
       Write(6,'(A)') 'by:   Liviu Unugur       '//

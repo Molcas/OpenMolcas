@@ -191,7 +191,7 @@ c      Character(Len=14) :: namefile_energy(nDirZee)
 
 
 
-      DBG=.true.
+      DBG=.false.
 
       check_title           = .false.
       icount_B_sites        = 0
