@@ -30,7 +30,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use output, only:iPrGlb,terse,usual,verbose
+      use output_caspt2, only:iPrGlb,terse,usual,verbose
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"

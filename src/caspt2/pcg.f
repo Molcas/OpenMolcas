@@ -19,8 +19,8 @@
 *--------------------------------------------*
       SUBROUTINE PCG(ICONV)
       USE INPUTDATA
-      use output, only: EMP2
-      use output, only:iPrGlb,terse,usual
+      use output_caspt2, only: EMP2
+      use output_caspt2, only:iPrGlb,terse,usual
       IMPLICIT NONE
 
 #include "rasdim.fh"

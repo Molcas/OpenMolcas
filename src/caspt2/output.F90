@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module output
+module output_caspt2
 
   use definitions, only: wp,iwp
 

@@ -20,7 +20,7 @@
 *     University of Lund, Sweden, 1993                                 *
 *                                                                      *
 ************************************************************************
-      use output, only:iPrGlb,silent
+      use output_caspt2, only:iPrGlb,silent
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *

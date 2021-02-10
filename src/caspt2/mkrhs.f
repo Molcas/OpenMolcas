@@ -20,7 +20,7 @@
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
-      use output, only:iPrGlb,verbose
+      use output_caspt2, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

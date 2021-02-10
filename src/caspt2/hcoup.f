@@ -11,7 +11,7 @@
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
-      use output, only:iPrGlb,debug
+      use output_caspt2, only:iPrGlb,debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif

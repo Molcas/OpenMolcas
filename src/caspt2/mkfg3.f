@@ -56,7 +56,7 @@ C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
-      use output, only:iPrGlb,verbose,debug
+      use output_caspt2, only:iPrGlb,verbose,debug
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif

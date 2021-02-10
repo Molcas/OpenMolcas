@@ -12,7 +12,7 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
-      use output, only:iPrGlb,usual,verbose,debug
+      use output_caspt2, only:iPrGlb,usual,verbose,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase

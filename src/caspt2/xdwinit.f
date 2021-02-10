@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine xdwinit(Heff,H0,U0)
 
-      use output, only:iPrGlb,verbose,debug,insane
+      use output_caspt2, only:iPrGlb,verbose,debug,insane
       use definitions, only:wp,iwp,u6
 
       implicit none

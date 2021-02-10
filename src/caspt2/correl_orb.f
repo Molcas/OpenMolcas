@@ -15,7 +15,7 @@
 *
 ************************************************************************
       use inputdata
-      use output, only: EMP2
+      use output_caspt2, only: EMP2
       implicit none
 #include "stdalloc.fh"
 #include "rasdim.fh"

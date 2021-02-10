@@ -12,7 +12,7 @@
 ************************************************************************
       subroutine rdminit
 
-      use output, only:iPrGlb,debug
+      use output_caspt2, only:iPrGlb,debug
       implicit real(8) (A-H,O-Z)
 
 #include "rasdim.fh"

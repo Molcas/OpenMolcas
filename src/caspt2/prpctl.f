@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL
       USE PT2WFN
-      use output, only:iPrGlb,usual,verbose
+      use output_caspt2, only:iPrGlb,usual,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif

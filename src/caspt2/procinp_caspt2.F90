@@ -13,7 +13,7 @@ subroutine ProcInp_Caspt2
   ! initialize global common-block variables appropriately.
   use InputData
   use definitions, only:iwp
-  use output, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
