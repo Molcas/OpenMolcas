@@ -8,21 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Build_Mp2Dens(ip_TriDens,ip_Density,CMO,
-     &                          mSym,nOrbAll,nOccAll,Diagonalize)
+      Subroutine Build_Mp2Dens(TriDens,nTriDens,ip_Density,CMO,mSym,
+     &                         nOrbAll,nOccAll,Diagonalize)
 
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "corbinf.fh"
 *
-      Integer   ip_AOTriBlock
+      Integer   nTriDens
+      Real*8    TriDens(nTriDens)
+      Integer   ip_Density(8)
       Real*8    CMO(*)
+      Integer   mSym
+      Integer   nOrbAll(8), nOccAll(8)
+      Logical   Diagonalize
+
+      Integer   ip_AOTriBlock
       Integer   ipSymRec(8)
       Integer   ipSymTri(8)
       Integer   ipSymLin(8)
-      Integer   nOrbAll(8), nOccAll(8), ip_Density(8)
-      Logical   Diagonalize
-      Character*30 Note
+      Character(LEN=30) Note
 *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 *
@@ -44,6 +49,7 @@
      &            nOrbAllMax**2)
       Call GetMem('AOTriBlock','Allo','Real',ip_AOTriBlock,
      &            nOrbAllMax*(nOrbAllMax+1) / 2)
+
       If(Diagonalize) Then
          Call GetMem('MOTriBlock','Allo','Real',ip_MOTriBlock,
      &            nOrbAllMax*(nOrbAllMax+1) / 2)
@@ -60,11 +66,9 @@
          Call FZero(Work(ip_Energies),nOrbAllTot)
       End If
 
-
       Call FZero(Work(ip_AORecBlock),nOrbAllMax**2)
       Call FZero(Work(ip_TmpRecBlock),nOrbAllMax**2)
-      Call FZero(Work(ip_AOTriBlock),nOrbAllMax
-     &                            * (nOrbAllMax+1)/2)
+      Call FZero(Work(ip_AOTriBlock),nOrbAllMax * (nOrbAllMax+1)/2)
 
 *
 *     Setup a pointer to a symmetryblock in rect or tri representation.
@@ -73,8 +77,7 @@
       ipSymLin(1) = 0
       Do iSym = 2, 8
          ipSymTri(iSym) = ipSymTri(iSym-1)
-     &                  + (nOrbAll(iSym-1))
-     &                  * (nOrbAll(iSym-1)+1)/2
+     &                  + (nOrbAll(iSym-1)) * (nOrbAll(iSym-1)+1)/2
          ipSymRec(iSym) = ipSymRec(iSym-1)
      &                  + (nOrbAll(iSym-1))**2
          ipSymLin(iSym) = ipSymLin(iSym-1)
@@ -115,7 +118,7 @@
      &                    Work(ip_AOTriBlock))
             call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,
      &                 Work(ip_AOTriBlock),1,
-     &                 Work(ip_TriDens+ipSymTri(iSym)),1)
+     &                 TriDens(1+ipSymTri(iSym)),1)
 
             If(Diagonalize) Then
 *     Make a normal folded matrix

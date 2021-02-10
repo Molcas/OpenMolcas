@@ -17,17 +17,23 @@
 *     Purpose: Finalize MP2 Density.
 
       Implicit Real*8 (a-h,o-z)
+      Integer irc
       Real*8 CMO(*)
+#include "real.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "chomp2g.fh"
 
-      Character*8 ThisNm
-      Character*16 SecNam
+      Character(LEN=8), Parameter:: ThisNm = 'Density3'
+      Character(LEN=16), Parameter:: SecNam = 'ChoMP2g_Density3'
       Integer nOccAll(8), nOrbAll(8)
-      Parameter (SecNam = 'ChoMP2g_Density3', ThisNm = 'Density3')
+
+      Real*8, Allocatable:: AOTriDens(:), WAOTriDens(:)
+
+      irc=0
 
       Do iSym = 1, 8
          nOccAll(iSym) = nOcc(iSym) + nFro(iSym)
@@ -57,22 +63,21 @@
          End Do
       End Do
 *
-      Call GetMem('AOTriDens','Allo','Real',ipAOTriDens, lTriDens)
-      Call GetMem('WAOTriDens','Allo','Real',ipWAOTriDens,lTriDens)
-      Call FZero(Work(ipAOTriDens), lTriDens)
-      Call FZero(Work(ipWAOTriDens), lTriDens)
+      Call mma_allocate( AOTriDens,lTriDens,Label=' AOTriDens')
+      Call mma_allocate(WAOTriDens,lTriDens,Label='WAOTriDens')
+       AOTriDens(:)=Zero
+      WAOTriDens(:)=Zero
 *
 
-      Call Build_Mp2Dens(ipAOTriDens,ipDensity_e,CMO,nSym,nOrbAll,
-     &                   nOccAll,.True.)
-      Call Build_Mp2Dens(ipWAOTriDens,ipWDensity_e,CMO,nSym,nOrbAll,
-     &                   nOccAll,.False.)
-      Call Put_D1ao_Var(Work(ipAOTriDens),lTriDens)
-      Call Put_Fock_Occ(Work(ipWAOTriDens),lTriDens)
-      Call GetMem('AOTriDens','Free','Real',
-     &            ipAOTriDens, lTriDens)
-      Call GetMem('WAOTriDens','Free','Real',
-     &            ipWAOTriDens, lTriDens)
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(irc)
+      Call Build_Mp2Dens( AOTriDens,lTriDens, ipDensity_e,CMO,nSym,
+     &                    nOrbAll, nOccAll,.True.)
+      Call Build_Mp2Dens(WAOTriDens,lTriDens,ipWDensity_e,CMO,nSym,
+     &                    nOrbAll, nOccAll,.False.)
+
+      Call Put_D1ao_Var(AOTriDens,lTriDens)
+      Call Put_Fock_Occ(WAOTriDens,lTriDens)
+
+      Call mma_deallocate( AOTriDens)
+      Call mma_deallocate(WAOTriDens)
+
       End
