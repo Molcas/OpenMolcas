@@ -358,7 +358,7 @@ Keywords
   We suggest to use the third option associated with a value of 1 in
   :kword:`DWMS`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWTYPE" APPEAR="Dynamically Weighted Exponent" KIND="CHOICE" LIST="1:Type 1: squared energy difference,2: Type 2: square of total energy divided by Hamiltonian coupling,3:Type 3: energy difference divided by square root of Hamiltonian coupling" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWTYPE" APPEAR="Dynamically Weighted Exponent" KIND="CHOICE" LIST="1: Squared energy difference,2: Square of total energy divided by Hamiltonian coupling,3: Energy difference divided by square root of Hamiltonian coupling" LEVEL="BASIC">
               %%Keyword: DWType <basic> GUI:number
               <HELP>
               Set to either 1, 2 or 3 to select the exponent used to obtain
