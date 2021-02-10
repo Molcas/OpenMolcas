@@ -13,7 +13,7 @@
 subroutine wgtinit(H)
 
   use definitions,only:wp,iwp,u6
-  use output,only:silent,terse,usual,verbose,debug,insane,iPrGlb
+  use output,only:iPrGlb,verbose,debug
 
   implicit none
 
@@ -46,7 +46,6 @@ subroutine wgtinit(H)
       do J = 1,nState
         Ealpha = H(J,J)
         Wtot = 0.0_wp
-        ! pref = 0.001D0
         do K = 1,nState
           Egamma = H(K,K)
 
@@ -61,11 +60,12 @@ subroutine wgtinit(H)
             ! add a small positive constant to numerator to avoid 0/0
             Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
             Hag = abs(H(J,K))
-            ! below 1.0e-9 it is just noise, so set Hag = 0.0
-            if (Hag <= 1.0e-9_wp) then
-              Hag = 0.0_wp
+            ! below 1.0e-16 we arbitrarily multiply with 1/sqrt(1.0e-16)
+            if (Hag <= 1.0e-16_wp) then
+              xi_ag = Dag * 1.0e8_wp
+            else
+              xi_ag = Dag/sqrt(Hag)
             end if
-            xi_ag = Dag/sqrt(Hag)
           end if
 
           Wtot = Wtot + exp(-zeta*xi_ag)
@@ -82,11 +82,12 @@ subroutine wgtinit(H)
           ! add a small positive constant to numerator to avoid 0/0
           Dab = abs(Ealpha - Ebeta) + 1.0e-9_wp
           Hab = abs(H(J,I))
-          ! below 1.0e-9 it is just noise, so set Hab = 0.0
-          if (Hab <= 1.0e-9_wp) then
-            Hab = 0.0_wp
+          ! below 1.0e-16 we arbitrarily multiply with 1/sqrt(1.0e-16)
+          if (Hab <= 1.0e-16_wp) then
+            xi_ab = Dab * 1.0e8_wp
+          else
+            xi_ab = Dab/sqrt(Hab)
           end if
-          xi_ab = Dab/sqrt(Hab)
         end if
 
         IJ = (I - 1) + nState*(J - 1)
