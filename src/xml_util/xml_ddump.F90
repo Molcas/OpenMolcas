@@ -25,7 +25,7 @@ subroutine xml_dDump(TagName,Appear,Units,Level,Content,nx,ny)
 
 use Definitions, only: wp, iwp
 
-implicit None
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
@@ -35,7 +35,7 @@ integer(kind=iwp), intent(in) :: nx, ny, Level
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-Call xml_ddumpc(TagName,len(TagName),Appear,len(Appear),Units,len(Units),Level,Content,nx,ny)
+call xml_ddumpc(TagName,len(TagName),Appear,len(Appear),Units,len(Units),Level,Content,nx,ny)
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*

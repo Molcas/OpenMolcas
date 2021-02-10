@@ -183,9 +183,9 @@ do J=J1A,J2A
       Wmax(nv) = max(W,Wmax(nv))
       Wmin(nv) = min(W,Wmin(nv))
     end if
-    if (nv == 1)  Wfirst = W
+    if (nv == 1) Wfirst = W
     if (nv == ne) WLast = W
-  !write(u6,'(a,3g15.6)') '... E,W,O ',E,W,O
+    !write(u6,'(a,3g15.6)') '... E,W,O ',E,W,O
   end do
   !write(u6,'(a,f12.6)') 'Wlast/Wfirst',Wlast/Wfirst
   if (Wlast/Wfirst > 1.0e-3_wp) then

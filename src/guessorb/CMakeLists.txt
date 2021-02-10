@@ -9,4 +9,8 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
-include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)
+set (sources
+     main.F90
+)
+
+include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

@@ -83,7 +83,7 @@ function (set_module_directory Target)
     set (mod_dir ${MAIN_MOD_DIR}/${Target})
   endif ()
   set_target_properties (${Target} PROPERTIES Fortran_MODULE_DIRECTORY ${mod_dir})
-  target_include_directories (${Target} INTERFACE ${mod_dir})
+  target_include_directories (${Target} PUBLIC ${mod_dir})
 endfunction ()
 
 # Get the specified Properties from Target, and pass them to Files
