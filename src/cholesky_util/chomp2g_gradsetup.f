@@ -21,6 +21,7 @@
 ************************************************************************
 #include "implicit.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
@@ -34,10 +35,17 @@
       Character*5 fname
       Character*6 fname2
 *
-      Character*9  ThisNm
-      Character*17 SecNam
+      Character(LEN=9), Parameter:: ThisNm = 'GradSetup'
+      Character(LEN=17), Parameter:: SecNam = 'ChoMP2g_GradSetup'
+
       Integer LuB(2), LuA(2)
-      Parameter (SecNam = 'ChoMP2g_GradSetup', ThisNm = 'GradSetup')
+
+      Real*8, Allocatable:: CMO_Inv(:), CMO_o(:), CMO_v(:)
+      Real*8, Allocatable:: MP2Density(:), SCFDensity(:), SMat(:)
+      Real*8, Allocatable:: MP2TTotDensity(:)
+      Real*8, Allocatable:: MP2TDensity(:)
+      Real*8, Allocatable:: SCFTDensity(:)
+      Real*8, Allocatable:: STMat(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,46 +104,42 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('CMO_inv','Allo','Real',ip_CMO_inv,nOrbBas)
-      Call FZero(Work(ip_CMO_inv),nOrbBas)
-      Call GetMem('CMO_o  ','Allo','Real',ip_CMO_o  ,nOccBas)
-      Call GetMem('CMO_v  ','Allo','Real',ip_CMO_v  ,nVirBas)
+      Call mma_allocate(CMO_inv,nOrbBas,Label='CMO_Inv')
+      CMO_inv(:)=0.0D0
+      Call mma_allocate(CMO_o,nOccBas,Label='CMO_o')
+      Call mma_allocate(CMO_v,nVirBas,Label='CMO_v')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Get memory for density matricies and overlap matrix
 *
-      Call GetMem('MP2Density','Allo','Real',ip_MP2Density,lRecDens)
-      Call GetMem('SCFDensity','Allo','Real',ip_SCFDensity,lRecDens)
-      Call GetMem('Overlap', 'Allo','Real', ip_Smat, lRecDens)
+      Call mma_allocate(MP2Density,lRecDens,Label='MP2Density')
+      Call mma_allocate(SCFDensity,lRecDens,Label='SCFDensity')
+      Call mma_allocate(SMat,lRecDens,Label='SMat')
 *
-      Call GetMem('MP2TTotDensity','Allo','Real',ip_MP2TTotDensity,
-     &            lTriDens)
-      Call GetMem('MP2TDensity','Allo','Real',ip_MP2TDensity,lTriDens)
-      Call GetMem('SCFTDensity','Allo','Real',ip_SCFTDensity,lTriDens)
-      Call Getmem('OverlapT','Allo','Real', ip_STmat,lTriDens)
+      Call mma_allocate(MP2TTotDensity,lTriDens,Label='MP2TTotDensity')
+      Call mma_allocate(MP2TDensity,lTriDens,Label='MP2TDensity')
+      Call mma_allocate(SCFTDensity,lTriDens,Label='SCFTDensity')
+      Call mma_allocate(STMat,lTriDens,Label='STMat')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Get the Variational MP2 Density and the HF density
 *
-      Call Get_D1ao_Var(Work(ip_MP2TTotDensity),lTriDens)
-      Call Get_D1ao(Work(ip_SCFTDensity), lTriDens)
+      Call Get_D1ao_Var(MP2TTotDensity,lTriDens)
+      Call Get_D1ao(SCFTDensity,lTriDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Get the overlap matrix
 *
       iSymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,Work(ip_STmat),iSymlbl)
+      Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the differential MP2 density
-      Do i = 1, lTriDens
-         Work(ip_MP2TDensity + i-1)=2.0d0*(Work(ip_MP2TTotDensity+i-1)-
-     &                                Work(ip_SCFTDensity + i-1))
-      End Do
+      MP2TDensity(:)=2.0d0*(MP2TTotDensity(:)- SCFTDensity(:))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,59 +152,53 @@
       Do iSym = 1, nSym
          Do i = 1, nBas(iSym)
             Do j = 1, i-1
-               Work(ip_MP2Density+ j-1 + nBas(iSym)*(i-1)+iOff) =
-     &                            Work(ip_MP2TDensity+index)/2.0d0
-               Work(ip_MP2Density+ i-1 + nBas(iSym)*(j-1)+iOff) =
-     &                            Work(ip_MP2TDensity+index)/2.0d0
-               Work(ip_SCFDensity+ j-1 + nBas(iSym)*(i-1)+iOff) =
-     &                            Work(ip_SCFTDensity+index)/2.0d0
-               Work(ip_SCFDensity+ i-1 + nBas(iSym)*(j-1)+iOff) =
-     &                            Work(ip_SCFTDensity+index)/2.0d0
-               Work(ip_Smat + j-1 + nBas(iSym)*(i-1)+iOff) =
-     &                         Work(ip_STmat+index)
-               Work(ip_Smat + i-1 + nBas(iSym)*(j-1)+iOff) =
-     &                         Work(ip_STmat+index)
-*
                index = index + 1
-            End Do
-            Work(ip_MP2Density+ i-1 + nBas(iSym)*(i-1)+iOff) =
-     &                      Work(ip_MP2TDensity+index)
-            Work(ip_SCFDensity+ i-1 + nBas(iSym)*(i-1)+iOff) =
-     &                      Work(ip_SCFTDensity+index)
-            Work(ip_Smat + i-1 + nBas(iSym)*(i-1)+iOff) =
-     &                      Work(ip_STmat+index)
+               MP2Density(j + nBas(iSym)*(i-1)+iOff) =
+     &                            MP2TDensity(index)/2.0d0
+               MP2Density(i + nBas(iSym)*(j-1)+iOff) =
+     &                            MP2TDensity(index)/2.0d0
+               SCFDensity(j + nBas(iSym)*(i-1)+iOff) =
+     &                            SCFTDensity(index)/2.0d0
+               SCFDensity(i + nBas(iSym)*(j-1)+iOff) =
+     &                            SCFTDensity(index)/2.0d0
+               Smat(j + nBas(iSym)*(i-1)+iOff) = STmat(index)
+               Smat(i + nBas(iSym)*(j-1)+iOff) = STmat(index)
 *
+            End Do
             index = index + 1
+            MP2Density(i + nBas(iSym)*(i-1)+iOff) = MP2TDensity(index)
+            SCFDensity(i + nBas(iSym)*(i-1)+iOff) = SCFTDensity(index)
+            Smat(i + nBas(iSym)*(i-1)+iOff) = STmat(index)
+*
          End Do
          iOff = iOff + nBas(iSym)**2
       End Do
 *
 *     Deallocate temporary memory
 *
-      Call GetMem('MP2TTotDensity','Free','Real',ip_MP2TTotDensity,
-     &            lTriDens)
-      Call GetMem('MP2TDensity','Free','Real',ip_MP2TDensity,lTriDens)
-      Call GetMem('SCFTDensity','Free','Real',ip_SCFTDensity,lTriDens)
-      Call Getmem('OverlapT','Free','Real', ip_STmat,lTriDens)
+      Call mma_deallocate(MP2TTotDensity)
+      Call mma_deallocate(MP2TDensity)
+      Call mma_deallocate(SCFTDensity)
+      Call mma_deallocate(STMat)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Calculate inverse CMO-matrix as C^-1 = C^T*S
 *     --------------------------------------------
 *
-      iOff1 = 0
-      iOff2 = 0
+      iOff1 = 1
+      iOff2 = 1
       Do iSym = 1, nSym
          Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),
-     &              1.0d0,CMO(1+iOff2), nBas(iSym),
-     &                    Work(ip_Smat+iOff1), nBas(iSym),
-     &              0.0d0,Work(ip_CMO_inv+iOff2), nOrb(iSym))
+     &              1.0d0,CMO(iOff2), nBas(iSym),
+     &                    Smat(iOff1), nBas(iSym),
+     &              0.0d0,CMO_inv(iOff2), nOrb(iSym))
 *
          iOff1 =  iOff1 + nBas(iSym)**2
          iOff2 =  iOff2 + nOrb(iSym)*nBas(iSym)
       End Do
 *
-      Call GetMem('Overlap', 'Free','Real', ip_Smat, lRecDens)
+      Call mma_deallocate(SMat)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -214,10 +212,10 @@
          Do i = 1, nOrb(iSym)
             Do j = 1, nBas(iSym)
                If(i.gt. nFro(iSym) .and. (i .le. nOccAll(iSym))) Then
-                  Work(ip_CMO_o+k_o-1) = CMO((i-1)*nBas(iSym)+j+iOff2)
+                  CMO_o(k_o) = CMO((i-1)*nBas(iSym)+j+iOff2)
                   k_o = k_o+1
                Else If(i.gt. nOccAll(iSym)) Then
-                  Work(ip_CMO_v+k_v-1) = CMO((i-1)*nBas(iSym)+j+iOff2)
+                  CMO_v(k_v) = CMO((i-1)*nBas(iSym)+j+iOff2)
                   k_v = k_v+1
                End If
             End Do
@@ -524,7 +522,7 @@
 *
             iOff1 = nLRo(iSym)*(iJ-1) + iOffLRo(iSym,jSym)
             Call dGemm_('T', 'N',nBas(jSym),nOrb(kSym), nOrb(jSym),
-     &                 1.0d0,Work(ip_CMO_inv+iOffCInv(jSym)),nOrb(jSym),
+     &                 1.0d0,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),
      &                       Work(ip_Cpq+iOff1), nOrb(jSym),
      &                 0.0d0,Work(ip_Cpn), nBas(jSym))
 *
@@ -533,7 +531,7 @@
             iOff2 = nLRb(iSym)*(iJ-1) + iOffLRb(iSym,jSym)
             Call dGemm_('N','N',nBas(jSym),nBas(kSym), nOrb(kSym),
      &                 1.0d0,Work(ip_Cpn),nBas(jSym),
-     &                       Work(ip_CMO_inv+iOffCInv(kSym)),nOrb(kSym),
+     &                       CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),
      &                 0.0d0,Work(ip_Cmn+iOff2), nBas(jSym))
 *
             End Do
@@ -550,14 +548,14 @@
             iOff0= iOffD(kSym)
             Call dGemm_('N','N',nBas(jSym),nBas(kSym), nBas(kSym),
      &                 1.0d0,Work(ip_Cmn+iOff),nBas(jSym),
-     &                       Work(ip_MP2Density+iOff0), nBas(kSym),
+     &                       MP2Density(1+iOff0), nBas(kSym),
      &                 0.0d0,Work(ip_Ukn+iOff), nBas(jSym))
 *
 *           D(HF)_kn x C_nm^J = V_km^J, Eq. (42)
 *
             iOff0= iOffD(jSym)
             Call dGemm_('N','N',nBas(jSym),nBas(kSym), nBas(jSym),
-     &                 1.0d0,Work(ip_SCFDensity+iOff0), nBas(jSym),
+     &                 1.0d0,SCFDensity(1+iOff0), nBas(jSym),
      &                       Work(ip_Cmn+iOff), nBas(jSym),
      &                 0.0d0,Work(ip_Vkn+iOff), nBas(jSym))
 *
@@ -608,7 +606,7 @@
                iOff2 = iOff_Rin
                iOff_Rin = iOff_Rin + nBas(jSym)*nOcc(kSym)
                Call dGemm_('N','N',nBas(jSym),nOcc(kSym), nVir(jSym),
-     &              1.0d0,Work(ip_CMO_v),nBas(jSym),
+     &              1.0d0,CMO_v,nBas(jSym),
      &                    Work(ip_Ria+iOff1), nVir(jSym),
      &              0.0d0,Work(ip_Rin+iOff2), nBas(jSym))
 *
@@ -618,7 +616,7 @@
                iOff_Rmn = iOff_Rmn + nBas(jSym)*nBas(kSym)
                Call dGemm_('N','T',nBas(jSym),nBas(kSym), nOcc(kSym),
      &                 1.0d0,Work(ip_Rin+iOff2),nBas(jSym),
-     &                       Work(ip_CMO_o), nBas(kSym),
+     &                       CMO_o, nBas(kSym),
      &                 0.0d0,Work(ip_Rmn+iOff3), nBas(jSym))
 *
                End Do ! jSym
@@ -697,7 +695,7 @@
 *
             Call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),
      &                -8.0d0,Work(ip_B3jl+iOffB1) , nBas(jSym),
-     &                       Work(ip_CMO_o+iOff),nBas(kSym),
+     &                       CMO_o(1+iOff),nBas(kSym),
      &                 0.0d0,Work(ip_B3kl+iOffB2),nBas(jSym))
 *
             End Do ! jSym
@@ -733,7 +731,7 @@
       Call GetMem('CaK','Free','Real',ip_CaK, lCaK)
       Call GetMem('Cai','Free','Real',ip_Cai, lCai)
       Call GetMem('Cab','Free','Real',ip_Cab, lCab)
-      Call GetMem('SCFDensity','Free','Real',ip_SCFDensity,lRecDens)
+      Call mma_deallocate(SCFDensity)
 *
       iSym = 1
 *
@@ -869,7 +867,7 @@
                iOff2 = iOffD(kSym)
             Call dGemm_('N','N',nBas(jSym), nBas(kSym), nBas(kSym),
      &                 1.0d0,Work(ip_Vkn+iOff1), nBas(jSym),
-     &                       Work(ip_MP2Density+iOff2), nBas(kSym),
+     &                       MP2Density(1+iOff2), nBas(kSym),
      &                 0.0d0,Work(ip_B1kl+iOff1), nBas(jSym))
             End Do
          End Do
@@ -891,7 +889,7 @@
          iOff_A = iOff_A + NumCho(iSym)**2
       End Do ! iSym
 *
-      Call GetMem('MP2Density','Free','Real',ip_MP2Density,lRecDens)
+      Call mma_deallocate(MP2Density)
       iSym = 1
 *                                                                      *
 ************************************************************************
@@ -1013,9 +1011,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('CMO_v  ','Free','Real',ip_CMO_v  ,nVirBas)
-      Call GetMem('CMO_o  ','Free','Real',ip_CMO_o  ,nOccBas)
-      Call GetMem('CMO_inv','Free','Real',ip_CMO_inv,nOrbBas)
+      Call mma_deallocate(CMO_v)
+      Call mma_deallocate(CMO_o)
+      Call mma_deallocate(CMO_Inv)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -22,10 +22,11 @@ C
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer i
       Integer nIdle
-      Integer ip, l
+      Integer, Allocatable:: TIloc(:)
 
 #if defined (_DEBUGPRINT_)
       If (.NOT.Allocated(Idle) .or. .not.Trace_Idle) Then
@@ -48,13 +49,12 @@ C
      &               'Cho_TrcIdle_Report: l_Idle not properly set!',103)
          End If
 #endif
-         l=nProcs
-         Call GetMem('TIloc','Allo','Inte',ip,l)
-         Call iCopy(nProcs,Idle,1,iWork(ip),1)
-         Call Cho_GAIGOp(iWork(ip),nProcs,'+')
+         Call mma_allocate(TIloc,[0,nProcs-1],Label='TILoc')
+         Call iCopy(nProcs,Idle,1,TIloc,1)
+         Call Cho_GAIGOp(TIloc,nProcs,'+')
          nIdle=0
          Do i=0,nProcs-1
-            nIdle=nIdle+min(iWork(ip+i),1)
+            nIdle=nIdle+min(TIloc(i),1)
          End Do
          If (nIdle.eq.0) Then
             Write(LuPri,'(A)')
@@ -66,13 +66,13 @@ C
             Write(LuPri,'(A)')
      &      'List of idle procs:'
             Do i=0,nProcs-1
-               If (iWork(ip+i).gt.0) Then
+               If (TIloc(i).gt.0) Then
                   Write(LuPri,'(I4,A,I8,A)')
-     &            i,' (Idle counter:',iWork(ip+i),')'
+     &            i,' (Idle counter:',TIloc(i),')'
                End If
             End Do
          End If
-         Call GetMem('TIloc','Free','Inte',ip,l)
+         Call mma_deallocate(TIloc)
       Else
          If (Idle(1).eq.0) Then
             Write(LuPri,'(A)')

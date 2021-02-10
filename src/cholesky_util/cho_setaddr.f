@@ -16,10 +16,11 @@ C
 #include "implicit.fh"
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*11 SECNAM
-      PARAMETER (SECNAM = 'CHO_SETADDR')
+      CHARACTER(LEN=11), PARAMETER:: SECNAM = 'CHO_SETADDR'
+
+      Real*8, Allocatable:: KSA(:)
 
 C     Set addresses.
 C     --------------
@@ -69,27 +70,27 @@ C     --------------
                   JPASS = INFVEC(NUMCHO(ISYM),2,ISYM)
                   IF (JPASS .EQ. IPASS) THEN
                      LSA = NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)
+                     Call mma_allocate(KSA,LSA,Label='KSA')
                      IOPT = 2
                      IADR = INFVEC(NUMCHO(ISYM),3,ISYM)
-                     CALL DDAFILE(LUCHO(ISYM),IOPT,WORK(KSA),LSA,IADR)
+                     CALL DDAFILE(LUCHO(ISYM),IOPT,KSA,LSA,IADR)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) = IADR
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
      &                 INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
+                     Call mma_deallocate(KSA)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
                      CALL CHO_GETRED(IPASS,IRED,.FALSE.)
                      CALL CHO_SETREDIND(IRED)
                      LSA = NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)
+                     Call mma_allocate(KSA,LSA,Label='KSA')
                      IOPT = 2
                      IADR = INFVEC(NUMCHO(ISYM),3,ISYM)
-                     CALL DDAFILE(LUCHO(ISYM),IOPT,WORK(KSA),LSA,IADR)
+                     CALL DDAFILE(LUCHO(ISYM),IOPT,KSA,LSA,IADR)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) = IADR
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
      &                 INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
-                     CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
+                     Call mma_deallocate(KSA)
                   ELSE
                      CALL CHO_QUIT('[2] JPASS error in '//SECNAM,104)
                   END IF

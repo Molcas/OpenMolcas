@@ -22,12 +22,11 @@ C
       Integer l_NVT
       Integer NVT(l_NVT)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)
-      Character*13 SecNam
-      Parameter (SecNam='Cho_PTS_WrRst')
-      Integer ip_IDV, l_IDV
+#include "stdalloc.fh"
+      Character(LEN=13), Parameter:: SecNam='Cho_PTS_WrRst'
+      Integer, Allocatable:: IDV(:)
       Integer myNumCho(8)
 #endif
 
@@ -56,12 +55,12 @@ C
          Return
       End If
       Do iSym=1,nSym
-         l_IDV=NVT(iSym)
-         Call GetMem('IDV','Allo','Inte',ip_IDV,l_IDV)
+
+         Call mma_allocate(IDV,NVT(iSym),Label='IDV')
          myNumCho(iSym)=0
-         Call Cho_P_Distrib_Vec(1,NVT(iSym),iWork(ip_IDV),
+         Call Cho_P_Distrib_Vec(1,NVT(iSym),IDV,
      &                          myNumCho(iSym))
-         Call GetMem('IDV','Free','Inte',ip_IDV,l_IDV)
+         Call mma_deallocate(IDV)
          If (NumCho(iSym) .ne. myNumCho(iSym)) Then
             Write(LuPri,*)
      &      SecNam,': NumCho discrepancy in sym. ',iSym

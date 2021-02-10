@@ -476,7 +476,7 @@ c Avoid unused argument warnings
       Call Get_iArray('nBas',mBas(0),mIrrep)
       Call Get_iArray('nFro',nFro(0),mIrrep)
       Call Get_iArray('nIsh',nIsh(0),mIrrep)
-      Call qpg_dArray('nAsh',F_nAsh,nOrbA)
+      Call qpg_iArray('nAsh',F_nAsh,nOrbA)
       If(.not.F_nAsh .or. nOrbA.eq.0) Then
          Call Izero(nAsh(0),mIrrep)
       Else

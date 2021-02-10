@@ -261,7 +261,8 @@ c     reorg.fh may not be included
 c
 c     help variables
 c
-       integer p,q,r,s,pq,rs,pup,qup,rup,sup,rc,pqyes,rsyes
+       integer p,q,r,s,pq,rs,rc,pqyes,rsyes
+       integer :: pup=0,qup=0,rup=0,sup=0
        integer :: paddv1=-1,qaddv1=-1,raddv1=-1,saddv1=-1
        integer ind(1:4)
 c

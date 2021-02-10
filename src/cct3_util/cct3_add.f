@@ -93,8 +93,8 @@ c
 c     help variables
 c
        integer sa1,sa2,sa3,ssp,ssq,pq
-       integer nhelp1,nhelp2,nhelp3,nhelp4,nhelp5
-       integer nhelp6,nhelp7,nhelp8,nhelp9,nhelp10
+       integer :: nhelp1=0,nhelp2=0,nhelp3=0,nhelp4=0,nhelp5=0
+       integer :: nhelp6=0,nhelp7=0,nhelp8=0,nhelp9=0,nhelp10=0
        integer ia,ib,ibm
        integer typa,typb,p,q
        real*8 fact
