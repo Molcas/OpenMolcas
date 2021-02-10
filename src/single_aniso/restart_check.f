@@ -26,9 +26,8 @@ c
       Integer :: ncut,nk,mg
       Real    :: encut_rate
       Logical :: KeyHEXP,KeyHINT,KeyTMAG,
-     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT,
-     &           KeyDATA
-c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD
+     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
+c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
       Logical :: DBG
 
       DBG=.false.
@@ -60,7 +59,7 @@ c     KeyMLTP=.false.
       KeyENCU=.false.
       KeyERAT=.false.
 c     KeyGRAD=.false.
-      KeyDATA=.false.
+c     KeyDATA=.false.
 
 C=========== End of default settings====================================
       REWIND(Input)
@@ -105,7 +104,7 @@ c        KeyREST=.true.
 
       If (line(1:4).eq.'DATA') Then
          Ifrestart=.true.
-         KeyDATA=.true.
+         !KeyDATA=.true.
          READ(Input,*) tmp
          input_file_name=trim(tmp)
          input_to_read=6
