@@ -37,9 +37,13 @@ integer(kind=iwp) :: THERMO, VELO, POUT, PIN, iPrint
 real(kind=wp) :: DT, RESTART, TEMP
 logical(kind=iwp) :: lH5Restart
 integer(kind=iwp), parameter :: SILENT = 0, TERSE = 1, USUAL = 2, VERBOSE = 3, DEBUG = 4, INSANE = 5
+integer(kind=iwp), parameter :: nh = 6, iQ1 = 1, iQ2 = 2, iX1 = 3, iX2 = 4, iVx1 = 5, iVx2 = 6
+integer(kind=iwp), parameter :: VelVer = 1, VV_First = 2, VV_Second = 3, Gromacs = 4
 
 public :: DT, lH5Restart, iPrint, PIN, POUT, THERMO, TEMP, RESTART, VELO
 public :: SILENT, TERSE, USUAL, VERBOSE, DEBUG, INSANE
+public :: nh, iQ1, iQ2, iX1, iX2, iVx1, iVx2
+public :: VelVer, VV_First, VV_Second, Gromacs
 
 #ifdef _HDF5_
 integer(kind=iwp) :: dyn_fileid, dyn_time, dyn_dt, dyn_etot, dyn_etot0, dyn_vel, dyn_nh, dyn_mass, dyn_geom

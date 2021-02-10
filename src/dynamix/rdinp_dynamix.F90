@@ -15,7 +15,7 @@ subroutine RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
 use mh5, only: mh5_put_dset
 use Dynamix_Globals, only: dyn_dt, dyn_mass, File_H5Res, lH5Restart
 #endif
-use Dynamix_Globals, only: DT, iPrint, PIN, POUT, RESTART, TEMP, THERMO, VELO
+use Dynamix_Globals, only: DT, iPrint, PIN, POUT, RESTART, TEMP, THERMO, VELO, VelVer, VV_First, VV_Second, Gromacs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -25,7 +25,6 @@ integer(kind=iwp), intent(inout) :: Task(nTasks)
 integer(kind=iwp), intent(out) :: mTasks
 integer(kind=iwp) :: maxhop
 real(kind=wp) TIME
-integer(kind=iwp), parameter :: VelVer = 1, VV_First = 2, VV_Second = 3, Gromacs = 4
 logical(kind=iwp) :: lHop
 character(len=72) :: Title
 character(len=180) :: Key, Line

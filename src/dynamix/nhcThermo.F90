@@ -30,14 +30,13 @@ subroutine NhcThermo(vel)
 use mh5, only: mh5_put_dset
 use Dynamix_Globals, only: dyn_nh
 #endif
-use Dynamix_Globals, only: DT, TEMP
+use Dynamix_Globals, only: DT, TEMP, nh, iQ1, iQ2, iX1, iX2, iVx1, iVx2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: kBoltzmann, auTokJ, Zero, Two, Three, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: vel(*)
-integer(kind=iwp), parameter :: nh = 6
 integer(kind=iwp) :: i, j, natom
 real(kind=iwp) :: Ekin, DT2, DT4, DT8, G1, G2, NHC(nh), Q1, Q2, sc, Vx1, Vx2, X1, X2
 real(kind=wp), allocatable :: Mass(:)
@@ -57,12 +56,12 @@ call mma_allocate(Mass,natom)
 ! Read Thermostat Variables
 call Get_NHC(NHC,nh)
 
-Q1 = NHC(1)
-Q2 = NHC(2)
-X1 = NHC(3)
-X2 = NHC(4)
-Vx1 = NHC(5)
-Vx2 = NHC(6)
+Q1 = NHC(iQ1)
+Q2 = NHC(iQ2)
+X1 = NHC(iX1)
+X2 = NHC(iX2)
+Vx1 = NHC(iVx1)
+Vx2 = NHC(iVx2)
 
 ! Initialize the Mass variable
 call GetMassDx(Mass,natom)
@@ -87,12 +86,7 @@ Vx1 = Vx1+G1*DT4
 Vx1 = Vx1*exp(-Vx2*DT8)
 sc = exp(-Vx1*DT2)
 
-do i=1,natom
-  do j=1,3
-    vel(3*(i-1)+j) = vel(3*(i-1)+j)*sc
-  end do
-end do
-
+vel(1:3*natom) = vel(1:3*natom)*sc
 Ekin = Ekin*sc*sc
 
 X1 = X1+Vx1*DT2
@@ -104,10 +98,10 @@ Vx1 = Vx1*exp(-Vx2*DT8)
 G2 = (Q1*(Vx1**2)-TEMP*kb)/Q2
 Vx2 = Vx2+G2*DT4
 
-NHC(3) = X1
-NHC(4) = X2
-NHC(5) = Vx1
-NHC(6) = Vx2
+NHC(iX1) = X1
+NHC(iX2) = X2
+NHC(iVx1) = Vx1
+NHC(iVx2) = Vx2
 
 call Put_NHC(NHC,nh)
 #ifdef _HDF5_

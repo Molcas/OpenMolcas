@@ -15,22 +15,21 @@ subroutine Dynamix(iReturn)
 use mh5, only: mh5_put_dset, mh5_close_file
 use Dynamix_Globals, only: dyn_etot, dyn_etot0, dyn_fileid, dyn_nh, dyn_vel, File_H5Res, lH5Restart
 #endif
-use Dynamix_Globals, only: DT, PIN, POUT, THERMO, TEMP, RESTART, VELO
+use Dynamix_Globals, only: DT, PIN, POUT, THERMO, TEMP, RESTART, VELO, nh, iQ1, iQ2, iX1, iX2, iVx1, iVx2, VelVer, VV_First, &
+                           VV_Second, Gromacs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: auTokJ, auTofs, kBoltzmann, Zero, One, Three, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp), parameter :: nTasks = 3, nh = 6
+integer(kind=iwp), parameter :: nTasks = 3
 integer(kind=iwp) :: i, irc, iRlxRoot, iseed, iTask, Itr, j, LuInput, mTasks, MxItr, natom, nFlag, nRoots, Task(nTasks)
 real(kind=wp) :: arg, buffer, Ekin, Epot, Etot0, Freq, mean, NHC(nh), Q1, Q2, Sigma, time, val
 logical(kind=iwp) :: Found, lHop
 character(len=16) :: StdIn
 character(len=15) :: caption
 character(len=8) :: ENV
-integer(kind=iwp), parameter :: iQ1 = 1, iQ2 = 2, iX1 = 3, iX2 = 4, iVx1 = 5, iVx2 = 6
-integer(kind=iwp), parameter :: VelVer = 1, VV_First = 2, VV_Second = 3, Gromacs = 4
 real(kind=wp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 character(len=2), allocatable :: atom(:)
 real(kind=wp), allocatable :: Mass(:), vel(:), pcoo(:,:)

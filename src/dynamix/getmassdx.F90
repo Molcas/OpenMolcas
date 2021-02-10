@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: natom
-real(kind=wp), intent(out) :: Mass(*)
+real(kind=wp), intent(out) :: Mass(natom)
 integer(kind=iwp) :: matom, i, Iso
 character(len=2), allocatable :: atom(:)
 
@@ -25,12 +25,10 @@ call mma_allocate(atom,natom)
 call Get_Name_Full(atom)
 call Get_nAtoms_All(matom)
 call Get_Mass_All(Mass,matom)
-do i=1,natom
-  if (i > matom) then
-    call LeftAd(atom(i))
-    Iso = 0
-    call Isotope(Iso,atom(i),Mass(i))
-  end if
+do i=matom+1,natom
+  call LeftAd(atom(i))
+  Iso = 0
+  call Isotope(Iso,atom(i),Mass(i))
 end do
 call mma_deallocate(atom)
 

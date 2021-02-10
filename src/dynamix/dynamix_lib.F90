@@ -606,7 +606,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nh
-real(kind=wp), intent(out) :: NHC(nh)
+real(kind=wp), intent(in) :: NHC(nh)
 
 call Put_dArray('NOSEHOOVER',NHC,nh)
 
