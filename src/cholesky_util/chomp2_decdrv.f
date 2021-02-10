@@ -61,7 +61,8 @@ C
       Integer iClos(2)
       Integer MxCDVec(8)
 
-      Real*8, Allocatable:: ErrStat(:), Bin(:)
+      Real*8, Allocatable:: ErrStat(:), Bin(:), Qual(:), Buf(:)
+      Integer, Allocatable:: iQual(:), iPivot(:)
 
 C     Initializations.
 C     ----------------
@@ -215,14 +216,11 @@ C           --------------------
             End If
 #endif
 
-            lQual   = nDim*(MxQual + 1)
-            liQual  = MxQual
-            liPivot = nDim
-            Call GetMem('Qual','Allo','Real',ipQual,lQual)
-            Call GetMem('iQual','Allo','Inte',ipiQual,liQual)
-            Call GetMem('iPivot','Allo','Inte',ipiPivot,liPivot)
+            Call mma_allocate(Qual,nDim*(MxQual + 1),Label='Qual')
+            Call mma_allocate(iQual,MxQual,Label='iQual')
+            Call mma_allocate(iPivot,nDim,Label='iPivot')
 
-            Call GetMem('GetMax','Max ','Real',ipB,lB)
+            Call mma_maxDBLE(lB)
             lBuf = min((nDim+MxQual)*MxQual,lB)
             Left = lB - lBuf
             nInC = Left/nDim
@@ -236,8 +234,8 @@ C           --------------------
                Call ddaFile(lUnit_F(iSym,1),iOpt,
      &                      Work(ip_OldVec),lTot,iAdr)
             End If
-            Call GetMem('GetMx2','Max ','Real',ipB,lBuf)
-            Call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
+            Call mma_maxDBLE(lBuf)
+            Call mma_allocate(Buf,lBuf,Label='Buf')
 
 C           Decompose this symmetry block.
 C           ------------------------------
@@ -247,8 +245,8 @@ C           ------------------------------
             If (ConventionalCD) Then
                Call ChoDec(ChoMP2_Col,ChoMP2_Vec,
      &                     Restart,Thr,Span,MxQual,
-     &                     Diag(kOffD),Work(ipQual),Work(ipBuf),
-     &                     iWork(ipiPivot),iWork(ipiQual),
+     &                     Diag(kOffD),Qual,Buf,
+     &                     iPivot,iQual,
      &                     nDim,lBuf,
      &                     ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
@@ -259,8 +257,8 @@ C           ------------------------------
             Else
                Call ChoDec_MxVec(ChoMP2_Col,ChoMP2_Vec,MxCDVec(iSym),
      &                           Restart,Thr,Span,MxQual,
-     &                           Diag(kOffD),Work(ipQual),Work(ipBuf),
-     &                           iWork(ipiPivot),iWork(ipiQual),
+     &                           Diag(kOffD),Qual,Buf,
+     &                           iPivot,iQual,
      &                           nDim,lBuf,
      &                           ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
@@ -315,8 +313,8 @@ C           ----------------------------------
                Write(6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
                Write(6,*) 'Error statistics for diagonal [min,max,rms]:'
                Write(6,*)  ErrStat(:)
-               Call ChoMP2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,
-     &                            Work(ipBuf),lBuf,ErrStat)
+               Call ChoMP2_DecChk(irc,iSym,Qual,nDim,MxQual,
+     &                            Buf,lBuf,ErrStat)
                If (irc .ne. 0) Then
                   If (irc .eq. -123456) Then
                      Write(6,*)
@@ -361,15 +359,15 @@ C           ----------------------------------
 C           Free memory.
 C           ------------
 
-            Call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
+            Call mma_deallocate(Buf)
             If (InCore(iSym)) Then
                Call GetMem('OldVec','Free','Real',ip_OldVec,l_OldVec)
                ip_OldVec = -999999
                l_OldVec  = 0
             End If
-            Call GetMem('iPivot','Free','Inte',ipiPivot,liPivot)
-            Call GetMem('iQual','Free','Inte',ipiQual,liQual)
-            Call GetMem('Qual','Free','Real',ipQual,lQual)
+            Call mma_deallocate(iPivot)
+            Call mma_deallocate(iQual)
+            Call mma_deallocate(Qual)
 
 C           Close (possibly deleting original) files.
 C           -----------------------------------------
