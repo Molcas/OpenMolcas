@@ -11,7 +11,7 @@
       Subroutine fetch_init_const( nneq, neqv, nmax, exch, nLoc,
      &                             nCenter, nT, nH, nTempMagn, nDir,
      &                             nDirZee, nMult, nPair, MxRank1,
-     &                             MxRank2, iReturn )
+     &                             MxRank2, old_aniso_format, iReturn )
 c  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 c
       Implicit None
@@ -45,6 +45,7 @@ c    &           KeyTMAG, KeyMLTP, KeyMVEC, KeyNNEQ, KeyZEEM, KeyITOJ
       Logical :: ifHDF
       Logical :: DBG
       External Isfreeunit
+      Logical, intent(in) :: old_aniso_format
 
 
       iReturn=0
@@ -78,7 +79,6 @@ c      namefile_aniso='              '
       Input=5
 
       DBG=.false.
-
 
 c     KeyNNEQ=.false.
       KeyPair=.false.
@@ -118,7 +118,8 @@ C=========== End of default settings====================================
      &   (LINE(1:4).ne.'LIN3').AND.(LINE(1:4).ne.'LIN9').AND.
      &   (LINE(1:4).ne.'PAIR').AND.(LINE(1:4).ne.'ALIN').AND.
      &   (LINE(1:4).ne.'COOR').AND.(LINE(1:4).ne.'ITOJ')) Go To 100
-      If((LINE(1:4).eq.'END ').OR.(LINE(1:4).eq.'    '))  Go To 200
+      If((LINE(1:4).eq.'END ').OR.(LINE(1:4).eq.'    ' )) Go To 200
+
 
       If (line(1:4).eq.'NNEQ') Then
 
@@ -236,12 +237,21 @@ c        KeyNNEQ=.true.
      &                       CHAR(48+mod( int( i     ),10)),'.input'
                 End If
                 LUANISO = Isfreeunit(20)
-                Call molcas_open( LUANISO, NAMEFILE_ANISO)
-                READ( LUANISO,*) sfs_check(I), sos_check(I)
-                If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
-     &                              ' sos(I) ',sos_check(I)
+                Call molcas_open( LUANISO, NAMEFILE_ANISO )
+
+                If(old_aniso_format) Then
+                   READ( LUANISO,*) sfs_check(I), sos_check(I)
+                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
+     &                                 ' sos(I) ',sos_check(I)
+                Else
+                   Call read_nss ( LUANISO, sos_check(i), dbg)
+                   Call read_nstate ( LUANISO, sfs_check(i), dbg)
+                   If (DBG) Write(6,*) ' sfs(I) ',sfs_check(I),
+     &                                 ' sos(I) ',sos_check(I)
+                End If
                 CLOSE(LUANISO)
              End If ! ifHDF
+
            Else If((itype(i).eq.'B').OR.(itype(i).eq.'C')) Then
              sfs_check(I)=1
              sos_check(I)=NexchA(i)

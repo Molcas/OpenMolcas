@@ -26,7 +26,7 @@
 
      &                          Title, itype, namefile_aniso,
 
-     &                          Do_structure_abc,
+     &                          Do_structure_abc, old_aniso_format,
      &                          compute_barrier, fitCHI, fitM, hinput,
      &                          tinput, compute_magnetization,
      &                          compute_Mdir_vector, zeeman_energy,
@@ -68,6 +68,7 @@ c  definition of the exchange:
       Integer, intent(in)       :: MxRank1, MxRank2
       Logical, intent(in)       :: Lines, AnisoLines3, AnisoLines9
       Logical, intent(in)       :: Dipol, DM_exchange, JITO_exchange
+      Logical, intent(in)       :: old_aniso_format
 !     Lines exchange    ( 1 parameter / interacting pair)
       Real(kind=8), intent(in) :: Jex(nPair)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
@@ -242,6 +243,12 @@ c     INFORMATION about individual magnetic sites
          Write(6,'(17x,A,99F10.5)') 'gY = ',(gtens_input(2,i),i=1,nneq)
          Write(6,'(17x,A,99F10.5)') 'gZ = ',(gtens_input(3,i),i=1,nneq)
       End If
+
+      IF(old_aniso_format) THEN
+         Write(6,'(A,A)') 'OLDA :         = ',' Input data files are'//
+     &                     ' given in OLD format'
+      END IF
+
 ! ======================================================================
 c     INFORMATION about exchange
 ! ======================================================================

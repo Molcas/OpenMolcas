@@ -375,6 +375,7 @@ c----- expand the spin free basis to the spin-orbit basis:
          End Do   ! Jst
       End Do   ! Ist
 
+
       ! calculate the matrix elements of the spin and magnetic moment
       ! in the spin-orbit basis:
       Call mma_allocate(tmp,nss,nss,'tmp')
@@ -425,6 +426,9 @@ c----- expand the spin free basis to the spin-orbit basis:
       End Do !L
       Call mma_deallocate(tmp)
 
+
+      ! check the commutation rules of spin:
+      Call check_commutation( nss, MS(1:3,1:nss,1:nss), .true. )
 
       Return
       End Subroutine fetch_data_RunFile_all

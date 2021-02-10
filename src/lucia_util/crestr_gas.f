@@ -62,58 +62,59 @@
 C?    WRITE(6,*) ' Reorder array NEWORD '
 C?    CALL IWRTMA(NEWORD,1,NSTINO,1,NSTINO)
 *
-      DO 1000 ISTRIN = 1,NSTINI
-C?    write(6,*) ' Input string ',istrin,(string(i,istrin),i=1,nel)
-        DO 100 IORB = IORBOF, IORBOF-1+NORB
-C?      write(6,*) ' orbital ',iorb
-           IPLACE = 0
-           IF(NEL.EQ.0) THEN
-             IPLACE = 1
-             GOTO 11
-           ELSE IF ( NEL .NE. 0 ) THEN
-            DO 10 IEL = 1, NEL
+      DO ISTRIN = 1,NSTINI
+        DO IORB = IORBOF, IORBOF-1+NORB
+
+          IPLACE = 0
+
+          IF(NEL.EQ.0) THEN
+
+            IPLACE = 1
+
+          ELSE IF ( NEL .NE. 0 ) THEN
+
+            DO IEL = 1, NEL
               IF(IEL.EQ.1.AND.STRING(1,ISTRIN).GT.IORB) THEN
                 IPLACE = 1
-                GOTO 11
+                EXIT
               ELSE IF( (IEL.EQ.NEL.AND.IORB.GT.STRING(IEL,ISTRIN)) .OR.
      &                 (IEL.LT.NEL.AND.IORB.GT.STRING(IEL,ISTRIN).AND.
-     &                  IORB.LT.STRING(IEL+1,ISTRIN)) ) THEN
+     &                  IORB.LT.STRING(MIN(NEL,IEL+1),ISTRIN)) ) THEN
                 IPLACE = IEL+1
-                GOTO 11
+                EXIT
               ELSE IF(STRING(IEL,ISTRIN).EQ.IORB) THEN
                 IPLACE = 0
-                GOTO 11
+                EXIT
               END IF
-   10       CONTINUE
-           END IF
-   11     CONTINUE
-*
-C?        write(6,*) ' iplace = ', iplace
-          IF(IPLACE.NE.0) THEN
-*. Generate next string
-            DO 30 I = 1, IPLACE-1
-            STRIN2(I) = STRING(I,ISTRIN)
-   30       CONTINUE
-            STRIN2(IPLACE) = IORB
-            DO 40 I = IPLACE,NEL
-            STRIN2(I+1) = STRING(I,ISTRIN)
-   40       CONTINUE
-C?          write(6,*) ' updated string (STRIN2) '
-C?          call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
-            JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)
-C?          write(6,*) ' corresponding number ', JSTRIN
-*
-            TTO(IORB-IORBOF+1,ISTRIN) = JSTRIN
-            IIISGN = (-1)**(IPLACE-1)
-            IF(LSGSTR.NE.0)
-     &      IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-            IF(IIISGN .EQ. -1 )
-     &      TTO(IORB-IORBOF+1,ISTRIN) = - TTO(IORB-IORBOF+1,ISTRIN)
-            TI(IORB-IORBOF+1,ISTRIN ) = IORB
+            END DO
+
           END IF
-  100   CONTINUE
 *
- 1000 CONTINUE
+          IF(IPLACE==0) CYCLE
+
+*. Generate next string
+          DO I = 1, IPLACE-1
+             STRIN2(I) = STRING(I,ISTRIN)
+          END DO
+          STRIN2(IPLACE) = IORB
+          DO  I = IPLACE,NEL
+            STRIN2(I+1) = STRING(I,ISTRIN)
+          END DO
+C?        write(6,*) ' updated string (STRIN2) '
+C?        call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
+          JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)
+C?        write(6,*) ' corresponding number ', JSTRIN
+*
+          TTO(IORB-IORBOF+1,ISTRIN) = JSTRIN
+          IIISGN = (-1)**(IPLACE-1)
+          IF(LSGSTR.NE.0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+          IF(IIISGN .EQ. -1 )
+     &      TTO(IORB-IORBOF+1,ISTRIN) = - TTO(IORB-IORBOF+1,ISTRIN)
+          TI(IORB-IORBOF+1,ISTRIN ) = IORB
+
+        END DO
+*
+      END DO
 *
       IF ( NTEST .GE. 20) THEN
         MAXPR = 60

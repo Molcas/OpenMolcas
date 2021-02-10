@@ -40,7 +40,7 @@ C
 C  THIS ROUTINE READS THE standard input.
 C
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "mgrid.fh"
 #include "warnings.fh"
 
@@ -202,6 +202,7 @@ c      Character(Len=14) :: namefile_energy(nDirZee)
       HINPUT                = .false.
       TCHECK                = .false.
       HCHECK                = .false.
+
       Do i=1,nneq
          Do j=1,Neq(i)
             R_rot(i,j,1,1)=1.0_wp
@@ -253,6 +254,14 @@ C=========== End of default settings====================================
          If(DBG) write(6,'(A)') ctmp
          check_title=.true.
          Title = trim(ctmp)
+         LINENR=LINENR+1
+         Go To 100
+      End If
+
+
+
+* ------------ OLDA ---------------------------------------------------**
+      If (LINE(1:4).eq.'OLDA') Then
          LINENR=LINENR+1
          Go To 100
       End If
@@ -913,7 +922,7 @@ c         End Do
      &                              (JAex9(i,1,j),j=1,3),
      &                              (JAex9(i,2,j),j=1,3),
      &                              (JAex9(i,3,j),j=1,3)
-           If(DBG) Write(6,'(A,2I3,9F10.6)') 'LIN9: ',
+           If(DBG) Write(6,'(A,2I3,9F14.8)') 'LIN9: ',
      &      i_pair(i,1),i_pair(i,2),
      &                                       (JAex9(i,1,j),j=1,3),
      &                                       (JAex9(i,2,j),j=1,3),
@@ -943,7 +952,8 @@ c         End Do
             ! Jxx, Jyy, Jzz
             READ(Input,*,ERR=997) i_pair(i,1),i_pair(i,2),
      &                            (JAex(i,j),j=1,3)
-            If(DBG) Write(6,'(A,i6)') i_pair(i,1),i_pair(i,2),
+            If(DBG) Write(6,'(A,2i3,3F14.8)')  'ALIN/LIN3: ',
+     &                            i_pair(i,1),i_pair(i,2),
      &                            (JAex(i,j),j=1,3)
          End Do
          LINENR=LINENR+npair+1
@@ -1182,6 +1192,12 @@ c      End If
         decompose_exchange=.true.
         Go To 100
       End If
+
+*---  process OLDA command --------------------------------------------*
+!      If (LINE(1:4).eq.'OLDA') Then
+!        old_aniso_format=.true.
+!        Go To 100
+!      End If
 
 *---  process EXCH command --------------------------------------------*
 c      If (LINE(1:4).eq.'END') Then

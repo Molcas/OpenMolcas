@@ -11,7 +11,7 @@
       Subroutine POLY_ANISO_1( nneq, neqv, nmax, exch, nLoc,
      &                         nCenter, nT, nH, nTempMagn, nDir,
      &                         nDirZee, nMult, nPair, MxRank1, MxRank2,
-     &                         iReturn )
+     &                         old_aniso_format, iReturn )
 
       Implicit None
 #include "warnings.fh"
@@ -42,12 +42,13 @@ c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Real(kind=8), allocatable    :: R_ROT(:,:,:,:)
 !                                      R_ROT(nneq,neqv,3,3)
 !     spin orbit energies on individual metal sites
-      Real(kind=8), allocatable    :: eso(:,:)
+      Real(kind=8), allocatable    :: eso(:,:), eso_au(:,:)
       Complex(kind=8), allocatable :: dipso(:,:,:,:)
       Complex(kind=8), allocatable ::  s_so(:,:,:,:)
       Character(Len=1)              :: itype(nneq)
       Character(Len=180)            :: namefile_aniso(nneq)
       Logical                       :: ifHDF
+      Logical, intent(in)           :: old_aniso_format
       Logical                       :: DoPlot
 c  definition of the exchange:
 !     total number of exchange states
@@ -56,7 +57,7 @@ c  definition of the exchange:
       Integer                       :: nPair
 !     exchange basis, nmax = MAXVAL(nexch(:))
       Integer                       :: nmax
-      Integer                       :: MxRank1, MxRank2
+      Integer, intent(in)           :: MxRank1, MxRank2
       Integer, allocatable          :: nexch(:)
 !     index of the metal site in a given interacting pair
       Integer, allocatable          :: i_pair(:,:)
@@ -183,11 +184,15 @@ c      Integer                      :: icase, nmagmult
       Logical                       :: GRAD
       Logical                       :: dbg
       Character(Len=180)            :: fname
+      Real(wp)                      :: conv_au_to_cm1
+      Integer                       :: LuAniso
+      Integer, external             :: IsFreeUnit
 
       dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
       GRAD=.false.
+      conv_au_to_cm1=2.194746313702E5_wp
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:
 c---------------------------------------------------------------------
@@ -202,6 +207,10 @@ c---------------------------------------------------------------------
       If(dbg) Write(6,*) '        nH = ',nH
       If(dbg) Write(6,*) '        nT = ',nT
       If(dbg) Write(6,*) ' nTempMagn = ',nTempMagn
+      If(dbg) Write(6,*) 'old_format = ',old_aniso_format
+      If(dbg) Write(6,*) 'old_format = ',old_aniso_format
+      If(dbg) Write(6,*) '   MxRank1 = ',MxRank1
+      If(dbg) Write(6,*) '   MxRank2 = ',MxRank2
 
       mem=0
       RtoB=8
@@ -336,6 +345,9 @@ c---------------------------------------------------------------------
       ! local spin orbit states
       Call mma_allocate(eso,nneq,nLoc,'eso')
       Call dcopy_( nneq*nLoc,[0.0_wp],0,eso,1)
+      mem=mem+nneq*nLoc*RtoB
+      Call mma_allocate(eso_au,nneq,nLoc,'eso_au')
+      Call dcopy_( nneq*nLoc,[0.0_wp],0,eso_au,1)
       mem=mem+nneq*nLoc*RtoB
       ! local magnetic moment
       Call mma_allocate(dipso,nneq,3,nLoc,nLoc,'dipso')
@@ -512,11 +524,13 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
          If(dbg) Call xFlush(6)
          If(dbg) Write(6,*) 'eso(i,1:nexch(i))=',
      &                       (eso(i,j),j=1,nexch(i))
+         If(dbg) Write(6,*) 'old_aniso_format=',old_aniso_format
          If(dbg) Call xFlush(6)
 
          If ((itype(i).eq.'B').OR.(itype(i).eq.'C')) Then
 
             If(dbg) Write(6,*) 'Enter generate_isotrop_site'
+            If(dbg) Call xFlush(6)
             Call generate_isotrop_site( nss(i), nsfs(i), nexch(i),
      &                                  nLoc, gtens_input(1:3,i),
      &                                  riso(i,1:3,1:3), D_fact(i),
@@ -574,24 +588,71 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
      &                      CHAR(48+mod( int((i)/10 ),10)),
      &                      CHAR(48+mod( int( i     ),10)),'.input'
                End If
-               ! get the information from formatted aniso.input file:
-               If(dbg) Write(6,*) 'Enter read_formatted_aniso_poly'
-               Call read_formatted_aniso_poly(
-     &                              namefile_aniso(i),
-     &                              nss(i),
-     &                              nsfs(i),
-     &                              nLoc,
-     &                              eso(i,1:nLoc),
-     &                             dipso(i,1:3,1:nLoc,1:nLoc),
-     &                              s_so(i,1:3,1:nLoc,1:nLoc),
-     &                              iReturn )
-               If(dbg) Write(6,*) 'Exit read_formatted_aniso_poly'
+
+               If (old_aniso_format) Then
+                  ! get the information from OLD formatted
+                  ! aniso.input file:
+                  If(dbg) Write(6,*) 'Enter read_formatted_aniso_poly'
+                  !print *, 'nss(i) =', nss(i)
+                  !print *, 'nsfs(i)=', nsfs(i)
+                  !print *, 'nLoc   =', nLoc
+                  Call xFlush(6)
+
+                  Call read_formatted_aniso_poly(
+     &                                 namefile_aniso(i),
+     &                                 nss(i),
+     &                                 nsfs(i),
+     &                                 nLoc,
+     &                                 eso(i,1:nLoc),
+     &                                dipso(i,1:3,1:nLoc,1:nLoc),
+     &                                 s_so(i,1:3,1:nLoc,1:nLoc),
+     &                                 iReturn )
+                  If(dbg) Write(6,*) 'Exit read_formatted_aniso_poly'
+
+               Else ! old_aniso_format is false, i.e. the default
+
+                  ! get the information from NEW formatted
+                  ! aniso.input file:
+                  If(dbg) Write(6,*)
+     &                'read formatted_aniso_poly_NEW'
+                   LuAniso=IsFreeUnit(81)
+                   Call molcas_open(LuAniso,namefile_aniso(i))
+                   ! nss(i) is yet undefined up till this place
+                   Call read_nss( LuAniso, nss(i), dbg )
+                   Call read_nstate( LuAniso, nsfs(i), dbg )
+                   eso_au(i,1:nss(i))=0.0_wp
+                   Call read_eso( LuAniso, nss(i),
+     &                            eso_au(i,1:nss(i)),dbg)
+                   If(dbg) Write(6,*) 'poly_aniso: eso_au=',
+     &                                (eso_au(i,j),j=1,nss(i))
+                   Call read_magnetic_moment ( LuAniso, nss(i),
+     &                     dipso(i,1:3,1:nss(i),1:nss(i)), dbg )
+                   IF (dbg) WRITE (6,*) 'Call read_spin_moment'
+                   FLUSH(6)
+                   Call read_spin_moment ( LuAniso, nss(i),
+     &                      s_so(i,1:3,1:nss(i),1:nss(i)), dbg )
+                   ! compute the relative spin-orbit energies in cm-1
+                   do j=1,nss(i)
+                     eso(i,j)=(eso_au(i,j)-eso_au(i,1))*conv_au_to_cm1
+                   end do
+                   Close(LuAniso)
+
+               End If
             End if ! ifHDF
          Else
             Call quit(_RC_INTERNAL_ERROR_)
          End If
       End Do
 
+
+      IF(DBG) THEN
+         Do i=1, nneq
+            Write(6,*) 'MAGNETIC MOMENT  ON  SITE 1'
+            Call prMom('site i',dipso(i,1:3,1:nss(i),1:nss(i)),nss(i))
+            Write(6,*) 'SPIN MOMENT  ON  SITE 1'
+            Call prMom('site i', s_so(i,1:3,1:nss(i),1:nss(i)),nss(i))
+         End Do
+      END IF
 
 
 
@@ -615,7 +676,7 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
 
      &                    Title, itype, namefile_aniso,
 
-     &                    Do_structure_abc,
+     &                    Do_structure_abc, old_aniso_format,
      &                    compute_barrier, fitCHI, fitM, hinput,
      &                    tinput, compute_magnetization,
      &                    compute_Mdir_vector, zeeman_energy,
@@ -646,7 +707,6 @@ c      Lines=.false.
 c      End If
 c      Dipol=dipole_included
 c      KE=exch_long
-
 
       If(dbg) Write(6,*) 'Dipol         = ', Dipol
       If(dbg) Write(6,*) 'AnisoLines1   = ', AnisoLines1
@@ -884,6 +944,7 @@ c---------------------------------------------------------------------
       Call mma_deallocate(r_lg)
       Call mma_deallocate(r_rot)
       Call mma_deallocate(eso)
+      Call mma_deallocate(eso_au)
       Call mma_deallocate(dipso)
       Call mma_deallocate(s_so)
 
