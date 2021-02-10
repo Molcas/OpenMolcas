@@ -713,7 +713,7 @@ c compatibility with the present version: of aniso_i.input file
       !fmt_real='(5ES22.14,1x)'
       !fmt_int='(40(I0,1x))'
 
-      WRITE(Lu,fmt_key) '# OPENMOLCAS interface to ANISO'
+      WRITE(Lu,'(        A)') '# OPENMOLCAS interface to ANISO'
       !-------------------------------------------------------------
       ! ORIGIN of DATA file
       WRITE(Lu,'(        A)') '$source '
