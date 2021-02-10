@@ -34,6 +34,7 @@ C     Other input such as orbital energies are read from mbpt2 include
 C     files.
 C
 C
+      use ChoMP2, only: OldVec
 #include "implicit.fh"
       External ChoMP2_Col, ChoMP2_Vec
       Integer  irc
@@ -121,8 +122,6 @@ C For now, I simply define the array here:
          InCore(iSym)  = .false.
       End Do
       NowSym    = -999999
-      ip_OldVec = -999999
-      l_OldVec  = 0
 
       If (DelOrig) Then
          iClos(1) = 3  ! signals close and delete original vectors
@@ -226,13 +225,11 @@ C           --------------------
             nInC = Left/nDim
             If (nInC .ge. NumCho(iSym)) Then
                InCore(iSym) = .true.
-               l_OldVec = nDim*NumCho(iSym)
-               Call GetMem('OldVec','Allo','Real',ip_OldVec,l_OldVec)
+               lTot = nDim*NumCho(iSym)
+               Call mma_allocate(OldVec,lTot,Label='OldVec')
                iOpt = 2
-               lTot = l_OldVec
                iAdr = 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,
-     &                      Work(ip_OldVec),lTot,iAdr)
+               Call ddaFile(lUnit_F(iSym,1),iOpt,OldVec,lTot,iAdr)
             End If
             Call mma_maxDBLE(lBuf)
             Call mma_allocate(Buf,lBuf,Label='Buf')
@@ -360,11 +357,7 @@ C           Free memory.
 C           ------------
 
             Call mma_deallocate(Buf)
-            If (InCore(iSym)) Then
-               Call GetMem('OldVec','Free','Real',ip_OldVec,l_OldVec)
-               ip_OldVec = -999999
-               l_OldVec  = 0
-            End If
+            If (InCore(iSym)) Call mma_deallocate(OldVec)
             Call mma_deallocate(iPivot)
             Call mma_deallocate(iQual)
             Call mma_deallocate(Qual)

@@ -13,8 +13,9 @@
 Module ChoMP2
 Implicit none
 Private
-Public:: ChoMP2_allocated
-Public:: ChoMP2g_allocated
+Public:: ChoMP2_allocated, ChoMP2g_allocated, OldVec
+
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
+Real*8, Allocatable:: OldVec(:)
 End Module ChoMP2

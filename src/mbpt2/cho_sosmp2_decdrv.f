@@ -20,6 +20,7 @@ C
 C     DelOrig: flag for deleting files with original vectors after
 C              decomposition completes.
 C
+      use ChoMP2, only: OldVec
 #include "implicit.fh"
       External Cho_SOSmp2_Col, ChoMP2_Vec
       Integer  irc
@@ -30,6 +31,7 @@ C
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*6  ThisNm
       Character*17 SecNam
@@ -60,8 +62,6 @@ C     ----------------
          InCore(iSym)  = .false.
       End Do
       NowSym    = -999999
-      ip_OldVec = -999999
-      l_OldVec  = 0
 
       If (DelOrig) Then
          iClos(1) = 3  ! signals close and delete original vectors
@@ -160,13 +160,11 @@ C           --------------------
             nInC = Left/nDim
             If (nInC .ge. NumCho(iSym)) Then
                InCore(iSym) = .true.
-               l_OldVec = nDim*NumCho(iSym)
-               Call GetMem('OldVec','Allo','Real',ip_OldVec,l_OldVec)
+               lTot = nDim*NumCho(iSym)
+               Call mma_allocate(OldVec,lTot,Label='OldVec')
                iOpt = 2
-               lTot = l_OldVec
                iAdr = 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,
-     &                      Work(ip_OldVec),lTot,iAdr)
+               Call ddaFile(lUnit_F(iSym,1),iOpt,OldVec,lTot,iAdr)
             End If
             Call GetMem('GetMx2','Max ','Real',ipB,lBuf)
             Call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
@@ -252,11 +250,7 @@ C           Free memory.
 C           ------------
 
             Call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
-            If (InCore(iSym)) Then
-               Call GetMem('OldVec','Free','Real',ip_OldVec,l_OldVec)
-               ip_OldVec = -999999
-               l_OldVec  = 0
-            End If
+            If (InCore(iSym)) Call mma_deallocate(OldVec)
             Call GetMem('iPivot','Free','Inte',ipiPivot,liPivot)
             Call GetMem('iQual','Free','Inte',ipiQual,liQual)
             Call GetMem('Qual','Free','Real',ipQual,lQual)
