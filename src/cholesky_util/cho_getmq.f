@@ -12,24 +12,21 @@
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
 
+      Integer  l_MQ, nQShp
       Real*8   MQ(l_MQ)
       Integer  List_QShp(nQShp)
 
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*9  SecNam
-      Parameter (SecNam = 'Cho_GetMQ')
-      Parameter (iOpt = 2)
+      Character(LEN=9), Parameter:: SecNam = 'Cho_GetMQ'
+      Integer, Parameter:: iOpt = 2
 
-      Integer  Cho_P_LocalSP, Cho_F2SP
-      External Cho_P_LocalSP, Cho_F2SP
+      Integer, External:: Cho_P_LocalSP, Cho_F2SP
 
-************************************************************************
-      kOff_Shp(i) = iWork(ip_kOff_Shp+i-1)
-************************************************************************
-
+      Real*8, Allocatable:: Scr(:)
+      Integer, Allocatable:: kOff_Shp(:)
 
       nTot = nQual(1)
       Do iSym = 2,nSym
@@ -37,8 +34,7 @@
       End Do
       If (nTot .lt. 1) Return ! this test makes sense for parallel run
 
-
-      Call GetMem('kOff_Shp','Allo','Inte',ip_kOff_Shp,nnShl)
+      Call mma_allocate(kOff_Shp,nnShl,Label='kOff_Shp')
 
       iQoff=0
       Do jSym=1,nSym
@@ -49,11 +45,11 @@
          Do iShp=1,nQShp  ! set only the needed offsets
             iL_ShpG = List_QShp(iShp) ! Shell pair
             iL_Shp = Cho_P_LocalSP(iL_ShpG) ! local shell pair
-            iWork(ip_kOff_Shp+iL_Shp-1) = Lint
+            kOff_Shp(iL_Shp) = Lint
             Lint = Lint + nnBstRSh(jSym,iL_Shp,2)
          End Do
 
-         Call GetMem('Scratch','Allo','Real',ipScr,Lint)
+         Call mma_allocate(Scr,Lint,Label='Scr')
 
 C --- Read the integrals
 C ----------------------
@@ -65,10 +61,10 @@ C ----------------------
 
                iL_ShpG = List_QShp(iShp)
                iL_Shp = Cho_P_LocalSP(iL_ShpG) ! local shell pair
-               ipS = ipScr + kOff_Shp(iL_Shp)
+               ipS = 1 + kOff_Shp(iL_Shp)
                iShpAdr = iAdr + iiBstRSh(jSym,iL_Shp,2)
                Lread = nnBstRSh(Jsym,iL_Shp,2)
-               Call dDaFile(LuSel(JSym),iOpt,Work(ipS),Lread,iShpAdr)
+               Call dDaFile(LuSel(JSym),iOpt,Scr(ipS),Lread,iShpAdr)
 
             End Do
 
@@ -81,9 +77,9 @@ C ---------------------------------------------
                iShABG = IndRsh(IndRed(iAB,2)) ! glob. SP it belongs to
                iShAB = Cho_P_LocalSP(Cho_F2SP(iShABG)) ! local SP
                iabSh = isAB - iiBstRSh(jSym,iShAB,2) ! addr within Shp
-               ipfr = ipScr + kOff_Shp(iShAB) + iabSh - 1
+               ipfr = kOff_Shp(iShAB) + iabSh
                ipto = iQoff + nQual(jSym)*(jQ-1) + iQ
-               MQ(ipto) = Work(ipfr)
+               MQ(ipto) = Scr(ipfr)
 
              End Do
 
@@ -91,14 +87,13 @@ C ---------------------------------------------
 
          iQoff = iQoff + nQual(jSym)**2
 
-         Call GetMem('Scratch','Free','Real',ipScr,Lint)
+         Call mma_deallocate(Scr)
 
 10       Continue
 
       End Do
 
-      Call GetMem('kOff_Shp','Free','Inte',ip_kOff_Shp,nnShl)
-
+      Call mma_deallocate(kOff_Shp)
 
       Return
       End

@@ -45,18 +45,23 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      Logical timings,DoRead
-      Integer nOcc(*),iOcc(8),iOcs(8),ipLib(8),iSkip(8),ipMO(*)
+      Integer irc
+      Integer ipMO(*), nOcc(*)
       Real*8  Rij(*)
+      Logical timings
+
+      Logical, Parameter:: DoRead=.FALSE.
+      Integer iOcc(8),iOcs(8),ipLib(8),iSkip(8)
       Real*8  tread(2),tintg(2),tmotr(2)
-      Character*11  SECNAM
+      Character(LEN=11), Parameter:: SECNAM = 'CHO_get_Rij'
 
-      parameter (SECNAM = 'CHO_get_Rij')
-      parameter (zero = 0.0d0, one = 1.0d0, DoRead = .false.)
-
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: Lab(:), Ltr(:)
 
       IREDC = -1
 
@@ -139,7 +144,7 @@ C ---
 
       Mneed = Max(nRS, Mocc**2 + 1) ! mem. for Lab and (Lij + Ljj)
 
-      Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+      Call mma_maxDBLE(LWORK)
 
       nVec  = Min(LWORK/(Maj+Mneed),nVrs)
 
@@ -154,8 +159,9 @@ C ---
 
       LREAD = nRS*nVec
 
-      Call GetMem('rsL','Allo','Real',ipLab,Mneed*nVec)
-      Call GetMem('Ltr','Allo','Real',ipLtr,Maj*nVec)
+      Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
+      Call mma_allocate(Ltr,Maj*nVec,Label='Ltr')
+      ipLtr = ip_of_Work(Ltr)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -174,7 +180,7 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
          CALL CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Work(ipLab),LREAD,JVEC,IVEC2,JSYM,
+         CALL CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,
      &                  NUMV,JRED,MUSED)
 
          If (NUMV.le.0 .or. NUMV.ne.JNUM) then
@@ -204,7 +210,7 @@ C --------------------------------------------------------------
 
          CALL CWTIME(TCT1,TWT1)
 
-         CALL CHO_X_getVtra(irc,Work(ipLab),LREAD,jVEC,JNUM,
+         CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,ipMO,nOcc,
      &                         ipLib,iSkip,DoRead)
 
@@ -218,7 +224,7 @@ C --------------------------------------------------------------
          tmotr(2) = tmotr(2) + (TWT2 - TWT1)
 
 
-         ipLij = ipLab  ! re-use mem used for reading from red-sets
+         ipLij = 1  ! re-use mem used for reading from red-sets
 
          Do kSym=1,nSym
 
@@ -234,7 +240,7 @@ C ---------------------------------------------------------------------
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
      &                            One,Work(ipLib(kSym)),nOcc(kSym)*JNUM,
      &                                Work(ipMO(kSym)),nOcc(kSym),
-     &                           Zero,Work(ipLij),nOcc(kSym)*JNUM)
+     &                           Zero,Lab(ipLij),nOcc(kSym)*JNUM)
 
 
                CALL CWTIME(TCT2,TWT2)
@@ -251,7 +257,7 @@ C ---------------------------------------------------------------------
                      jfrom = ipLij + nOcc(kSym)*JNUM*(lj-1)
      &                     + nOcc(kSym)*(jv-1) + lj - 1
                      jto = ipLjj + jv - 1
-                     Work(jto) = Work(jfrom)
+                     Lab(jto) = Lab(jfrom)
 
                   End Do
 
@@ -263,8 +269,8 @@ C --------------------------------------------------------------------
                   ipLik = ipLij + nOcc(kSym)*JNUM*(lj-1)
 
                   CALL DGEMV_('N',nOcc(kSym),JNUM,
-     &                       ONE,Work(ipLik),nOcc(kSym),
-     &                           Work(ipLjj),1,ONE,Rij(jpR),1)
+     &                       ONE,Lab(ipLik),nOcc(kSym),
+     &                           Lab(ipLjj),1,ONE,Rij(jpR),1)
 
 
                End Do
@@ -282,9 +288,8 @@ C --------------------------------------------------------------------
       END DO  !end batch loop
 
 C --- free memory
-      Call GetMem('Ltr','Free','Real',ipLtr,Maj*nVec)
-      Call GetMem('rsL','Free','Real',ipLab,Mneed*nVec)
-
+      Call mma_deallocate(Ltr)
+      Call mma_deallocate(Lab)
 
 999   Continue
 
@@ -318,7 +323,6 @@ C --- sync Rij
       Write(6,*)
 
       endif
-
 
       irc=0
 
