@@ -17,7 +17,9 @@ C
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
 #include "implicit.fh"
-      DIMENSION DIAG(*)
+      Integer IRED
+      Real*8 DIAG(*)
+#include "real.fh"
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -25,6 +27,8 @@ C
       CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'
 
       LOGICAL, PARAMETER:: PRTINT = .FALSE.
+
+      Real*8, Allocatable:: xINT(:)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)
@@ -41,7 +45,7 @@ C     ------------------------------------------
       END IF
 
       LINT1 = MX2SH*MX2SH
-      CALL GETMEM('Int1.dbg1.1','ALLO','REAL',KINT,LINT1)
+      Call mma_allocate(xINT,LINT1,Label='INT')
       Call mma_maxDBLE(LSEW)
       CALL XSETMEM_INTS(LSEW)
 
@@ -63,8 +67,8 @@ C        --------------------------------------------
 C        Calculate integrals.
 C        --------------------
 
-         CALL CHO_DZERO(WORK(KINT),LINT)
-         CALL CHO_MCA_INT_1(ISHLAB,ISHLAB,WORK(KINT),LINT,PRTINT)
+         xINT(1:LINT)=Zero
+         CALL CHO_MCA_INT_1(ISHLAB,ISHLAB,xINT,LINT,PRTINT)
 
 C        Look up all diagonal elements in DIAG and compare to
 C        values just calculated.
@@ -110,8 +114,8 @@ C        ----------------------------------------------------
      &                             103)
                   END IF
 
-                  KABAB = KINT + NUMAB*(IAB - 1) + IAB - 1
-                  DIFF  = DIAG(JAB) - WORK(KABAB)
+                  KABAB = NUMAB*(IAB - 1) + IAB
+                  DIFF  = DIAG(JAB) - xINT(KABAB)
                   IF (ABS(DIFF) .GT. 1.0D-14) THEN
                      WRITE(LUPRI,*)
      &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',
@@ -179,8 +183,8 @@ C        ----------------------------------------------------
      &                             103)
                   END IF
 
-                  KABAB = KINT + NUMAB*(IAB - 1) + IAB - 1
-                  DIFF  = DIAG(KAB) - WORK(KABAB)
+                  KABAB = NUMAB*(IAB - 1) + IAB
+                  DIFF  = DIAG(KAB) - xINT(KABAB)
                   IF (ABS(DIFF) .GT. 1.0D-14) THEN
                      WRITE(LUPRI,*)
      &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',
@@ -208,7 +212,7 @@ C        ----------------------------------------------------
       END DO
 
       CALL XRLSMEM_INTS()
-      CALL GETMEM('Int1.free','FREE','REAL',KINT,LINT1)
+      Call mma_deallocate(xINT)
 
       WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,
      &               ' #errors: ',NERR
