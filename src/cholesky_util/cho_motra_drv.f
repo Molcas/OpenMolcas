@@ -29,20 +29,24 @@ C
       Integer   nPorb(8),ipOrb(8),nPvir(8),nPocc(8)
       Integer   ipLpb(8),iSkip(8),LuLTra(4)
       Integer   kOff1(8),kOff1ij(8),kOff1ia(8),kOff1ai(8),kOff1ab(8)
-      Character*6  Fname
+      Character(LEN=6)  Fname
+      Character(LEN=50) CFmt
 
-      Character*50 CFmt
-      Character*13 SECNAM
-      Parameter (SECNAM = 'CHO_motra_drv')
+      Character(LEN=13), Parameter:: SECNAM = 'CHO_motra_drv'
+      Integer, External:: ip_of_work
 
       COMMON    /CHOTIME /timings
 
-      parameter (zero = 0.0D0, one = 1.0D0)
-
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: Lrs(:)
+      Real*8, Allocatable, Target:: ChoT(:)
+      Real*8, Pointer:: Lpq(:)=>Null()
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -162,7 +166,7 @@ C ------------------------------------------------------------------
 
             nRS = nDimRS(JSYM,JRED)
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/(nRS+mvec),nVrs)
 
@@ -179,8 +183,9 @@ C ------------------------------------------------------------------
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
-            Call GetMem('ChoT','Allo','Real',ipChoT,mvec*nVec)
+            Call mma_allocate(Lrs,LREAD,Label='Lrs')
+            Call mma_allocate(ChoT,mvec*nVec,Label='ChoT')
+            ipChoT = ip_of_Work(ChoT(1))
 
 C --- BATCH over the vectors ----------------------------
 
@@ -198,7 +203,7 @@ C --- BATCH over the vectors ----------------------------
 *
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM) then
@@ -223,7 +228,7 @@ C --- BATCH over the vectors ----------------------------
 
                End Do
 
-               ipLpq = ipChoT + lChot
+               Lpq(1:SIZE(ChoT)-lChot) = ChoT(1+lCho:)
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
@@ -231,7 +236,7 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nPorb,
      &                           ipLpb,iSkip,DoRead)
 
@@ -264,33 +269,24 @@ C --------------------------------------------------------------------
                      Do JVC=1,JNUM
                         ipLJpb = ipLpb(iSymp)
      &                         + nPorb(iSymp)*nBas(iSymb)*(JVC-1)
-                        ipLJpq = ipLpq
+                        ipLJpq = 1
      &                         + nPorb(iSymp)*nPorb(iSymb)*(JVC-1)
 *
-
-
-*                        ipLJai = ipLJia + nPocc(iSymP)*nPvir(iSymB)
-*                        ipLJab = ipLJai + nPvir(iSymP)*nPocc(iSymB)
 *
                         CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
      &                             One,Work(ipLJpb),NAp,
      &                             Work(ipOrb(iSymb)),NAq,
-     &                             Zero,Work(ipLJpq),NAp)
+     &                             Zero,Lpq(ipLJpq),NAp)
                         lChoMO = NAp*NAq
                         iAdr = 1 + kOff2 + kOff1(iSymB)
                         Call ddaFile(lUnit_F(jSym,1),1,
-     &                               Work(ipLJpq),lChoMO,iAdr)
+     &                               Lpq(ipLJpq),lChoMO,iAdr)
                         kOff1(iSymB) = kOff1(iSymB) + nPQ_prod(jSym)
-
-*                        Write(6,*) 'Long ChoVec', JVC
-*                        Do i = 0, lChoMO-1
-*                           Write(6,*) Work(ipLJpq+i)
-*                        End Do
 *
                         Do iI = 1, nPocc(iSymP)
                            Do iJ = 1,nPocc(iSymB)
                               Work(ip_TmpL+(iJ-1)+(iI-1)*nPocc(iSymB)) =
-     &                         Work(ipLJpq+(iJ-1)+(iI-1)*nPorb(iSymB))
+     &                         Lpq(ipLJpq+(iJ-1)+(iI-1)*nPorb(iSymB))
                            End Do
                         End Do
                         lChoMOij = nPocc(iSymP)*nPocc(iSymB)
@@ -300,16 +296,11 @@ C --------------------------------------------------------------------
      &                               Work(ip_TmpL),
      &                               lChoMOij, iAdrij)
 
-*                        Write(6,*) 'ChoVec nr', JVC
-*                        Do i = 0, lChoMOij-1
-*                          Write(6,*) Work(ip_TmpL+i)
-*                        End Do
-
 *                       Put L-vectors ia on disk
                         Do iI = 1, nPocc(iSymP)
                            Do iA = 1,nPvir(iSymB)
                               Work(ip_TmpL+(iA-1)+(iI-1)*nPvir(iSymB)) =
-     &                         Work(ipLJpq+(iA+nPocc(iSymB)-1)+
+     &                         Lpq(ipLJpq+(iA+nPocc(iSymB)-1)+
      &                              (iI-1)*nPorb(iSymB))
                            End Do
                         End Do
@@ -319,15 +310,11 @@ C --------------------------------------------------------------------
                         Call dDaFile(LuLtra(iType),1,Work(ip_TmpL),
      &                               lChoMOia, iAdria)
 
-*                        Write(6,*) 'ChoVec nr', JVC
-*                        Do i = 0, lChoMOia-1
-*                           Write(6,*) Work(ip_TmpL+i)
-*                        End Do
 *                       Put L-vectors ai on disk.
                         Do iA = 1, nPvir(iSymP)
                            Do iI = 1,nPocc(iSymB)
                               Work(ip_TmpL+(iI-1)+(iA-1)*nPocc(iSymB)) =
-     &                         Work(ipLJpq+(iI-1)+
+     &                         Lpq(ipLJpq+(iI-1)+
      &                              (iA+nPvir(iSymP)-1)*nPorb(iSymB))
                            End Do
                         End Do
@@ -337,17 +324,12 @@ C --------------------------------------------------------------------
                         Call dDaFile(LuLtra(iType),1,Work(ip_TmpL),
      &                               lChoMOai, iAdrai)
 
-*                        Write(6,*) 'ChoVec nr', JVC
-*                        Do i = 0, lChoMOai-1
-*                           Write(6,*) Work(ip_TmpL+i)
-*                        End Do
-
 *
 *                       Put L-vectors ab on disk.
                         Do iA = 1, nPvir(iSymP)
                            Do iB = 1,nPvir(iSymB)
                               Work(ip_TmpL+(iB-1)+(iA-1)*nPvir(iSymB)) =
-     &                         Work(ipLJpq+(iB+nPocc(iSymB)-1)+
+     &                         Lpq(ipLJpq+(iB+nPocc(iSymB)-1)+
      &                              (iA+nPvir(iSymP)-1)*nPorb(iSymB))
                            End Do
                         End Do
@@ -356,10 +338,6 @@ C --------------------------------------------------------------------
                         iAdrab = 1 + kOff2ab + kOff1ab(iSymB)
                         Call dDaFile(LuLtra(iType),1,Work(ip_TmpL),
      &                                  lChoMOab, iAdrab)
-*                        Write(6,*) 'ChoVec nr', JVC
-*                        Do i = 0, lChoMOab-1
-*                           Write(6,*) Work(ip_TmpL+i)
-*                        End Do
 
                         kOff1ab(iSymB) = kOff1ab(iSymB)+
      &                                      nPQ_prodab(jSym)
@@ -384,6 +362,8 @@ C --------------------------------------------------------------------
                   kOff2ab = lChoMOab + kOff2ab
                End Do
 
+               Lpq => Null()
+
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
 
@@ -391,8 +371,9 @@ C --------------------------------------------------------------------
 
 
 C --- free memory
-            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+
+            Call mma_deallocate(ChoT)
+            Call mma_deallocate(Lrs)
 
 999         CONTINUE
 
@@ -438,13 +419,9 @@ C --- free memory
 
       endif
 
-
       rc  = 0
 
       Call Cho_X_final(rc)
 
       Return
       END
-
-**************************************************************
-**************************************************************
