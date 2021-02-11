@@ -16,6 +16,7 @@
 *
 *     Purpose: Finalize MP2 Density.
 
+      use ChoMP2, only: MP2W_e, MP2D_e
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 CMO(*)
@@ -49,15 +50,14 @@
          Do i = 1, nOrbAll(iSym)
             Do j = 1, nOrbAll(iSym)
                If((i.le. nOrb(iSym)) .and. (j.le. nOrb(iSym))) Then
-                  Work(ipDensity_e(iSym) + i-1 + nOrbAll(iSym)*(j-1)) =
+                  MP2D_e(iSym)%A(i,j) =
      &              Work(ipDensity(iSym) + i-1 + nOrb(iSym)*(j-1))
-                  Work(ipWDensity_e(iSym)+ i-1 + nOrbAll(iSym)*(j-1)) =
+
+                  MP2W_e(iSym)%A(i,j) =
      &             Work(ipWDensity(iSym) + i-1 + nOrb(iSym)*(j-1))
                Else
-                  Work(ipDensity_e(iSym)+ i-1 + nOrbAll(iSym)*(j-1)) =
-     &                     0.0d0
-                  Work(ipWDensity_e(iSym)+ i-1 + nOrbAll(iSym)*(j-1)) =
-     &                     0.0d0
+                  MP2D_e(iSym)%A(i,j) = Zero
+                  MP2W_e(iSym)%A(i,j) = Zero
                End If
             End Do
          End Do
@@ -69,9 +69,9 @@
       WAOTriDens(:)=Zero
 *
 
-      Call Build_Mp2Dens( AOTriDens,lTriDens, ipDensity_e,CMO,nSym,
+      Call Build_Mp2Dens( AOTriDens,lTriDens, MP2D_e,CMO,nSym,
      &                    nOrbAll, nOccAll,.True.)
-      Call Build_Mp2Dens(WAOTriDens,lTriDens,ipWDensity_e,CMO,nSym,
+      Call Build_Mp2Dens(WAOTriDens,lTriDens, MP2W_e,CMO,nSym,
      &                    nOrbAll, nOccAll,.False.)
 
       Call Put_D1ao_Var(AOTriDens,lTriDens)

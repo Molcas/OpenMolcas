@@ -15,6 +15,8 @@ Implicit none
 Private
 Public:: ChoMP2_allocated, ChoMP2g_allocated, OldVec, EFrozT, EOccuT, EVirtT
 Public:: AdrR1, AdrR2
+Public:: MP2W_e_full, MP2W_e
+Public:: MP2D_e_full, MP2D_e
 
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
@@ -23,6 +25,11 @@ Real*8, Allocatable:: OldVec(:)
 Type Pointers
      Real*8, Pointer:: A(:,:)=>Null()
 End Type Pointers
+
+Real*8, Allocatable, Target:: MP2W_e_full(:)
+Type (Pointers):: MP2W_e(8)
+Real*8, Allocatable, Target:: MP2D_e_full(:)
+Type (Pointers):: MP2D_e(8)
 
 Real*8, Allocatable:: EFrozT(:)
 Real*8, Allocatable:: EOccuT(:)

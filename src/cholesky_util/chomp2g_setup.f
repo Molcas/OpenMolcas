@@ -14,12 +14,15 @@
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
       use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT
       use ChoMP2, only: AdrR1, AdrR2
+      use ChoMP2, only: MP2W_e_full, MP2W_e
+      use ChoMP2, only: MP2D_e_full, MP2D_e
 *
 *     Jonas Bostrom, Feb 2010
 *
 *     Purpose: Do some additional setup only needed for
 *              MP2-gradients or properties.
 #include "implicit.fh"
+#include "real.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "choorb.fh"
@@ -147,19 +150,20 @@
          lDens_e = lDens_e + (nOrb(iSym)+nDel(iSym))
      &                     * (nOrb(iSym)+nDel(iSym))
       End Do
-      Call GetMem('MP2Density_e','Allo','Real',ipMP2D_e, lDens_e)
-      Call GetMem('MP2WDensity_e','Allo','Real',ipMP2W_e, lDens_e)
-      Call FZero(Work(ipMP2D_e),lDens_e)
-      Call FZero(Work(ipMP2W_e),lDens_e)
-      ipDensity_e(1) = ipMP2D_e
-      ipWDensity_e(1) = ipMP2W_e
-      Do i = 2, nSym
-         ipDensity_e(i) = ipDensity_e(i-1) + (nOrb(iSym)+nDel(iSym))
-     &                                     * (nOrb(iSym)+nDel(iSym))
-         ipWDensity_e(i) = ipWDensity_e(i-1) + (nOrb(iSym)+nDel(iSym))
-     &                                       * (nOrb(iSym)+nDel(iSym))
-      End Do
 
+      Call mma_allocate(MP2D_e_full,lDens_e,Label='MP2D_e_full')
+      MP2d_e_full(:)=Zero
+      Call mma_allocate(MP2W_e_full,lDens_e,Label='MP2W_e_full')
+      MP2W_e_full(:)=Zero
+
+      iE = 0
+      Do iSym = 1, nSym
+         nb=nOrb(iSym)+nDel(iSym)
+         iS = iE + 1
+         iE = iE + nb**2
+         MP2D_e(iSym)%A(1:nb,1:nb) => MP2D_e_full(iS:iE)
+         MP2W_e(iSym)%A(1:nb,1:nb) => MP2W_e_full(iS:iE)
+      End Do
 
 *     Allocate adress-field for reordered R-vectors
 *     ---------------------------------------------

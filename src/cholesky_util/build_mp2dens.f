@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Build_Mp2Dens(TriDens,nTriDens,ip_Density,CMO,mSym,
+      Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
      &                         nOrbAll,nOccAll,Diagonalize)
 
       Implicit Real*8 (a-h,o-z)
@@ -17,9 +17,13 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
+      Type Pointers
+        Real*8, Pointer:: A(:,:)=>Null()
+      End Type Pointers
+
       Integer   nTriDens
       Real*8    TriDens(nTriDens)
-      Integer   ip_Density(8)
+      Type (Pointers):: MP2X_e(8)
       Real*8    CMO(*)
       Integer   mSym
       Integer   nOrbAll(8), nOccAll(8)
@@ -110,7 +114,7 @@
 *     Transform the symmetryblock to AO-density
             Call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),
      &                 nOrbAll(iSym),1.0d0 , CMO(ipSymRec(iSym)+1),
-     &                 nOrbAll(iSym),Work(ip_Density(iSym)),
+     &                 nOrbAll(iSym),MP2X_e(iSym)%A,
      &                 nOrbAll(iSym), 0.0d0, TmpRecBlock,
      &                 nOrbAll(iSym))
             Call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),
@@ -133,8 +137,7 @@
                index = 0
                Do i = 1, nOrbAll(iSym)
                   Do j = 1,i
-                     MOTriBlock(1+index) =  Work(ip_Density(iSym)+
-     &                    j-1+(i-1)*(nOrbAll(iSym)))
+                     MOTriBlock(1+index) =  MP2X_e(iSym)%A(j,i)
                      index = index + 1
                   End Do
                End Do

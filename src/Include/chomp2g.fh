@@ -20,8 +20,7 @@
      &          lPab, lPij, lPiK, lLagr, lFLagr, lWab,lWij,
      &          lWai, lWiK, lWaK, lPaK, lPai, lWJK
         Integer LuUVec, LuVVec, LuWVec,ipMP2D,ipDensity,
-     &          LuRInv, ipMP2W, ipWDensity, ipMP2D_e, ipMP2W_e,
-     &          ipDensity_e, ipWDensity_e
+     &          LuRInv, ipMP2W, ipWDensity
 
         Common / MP2grad / nMoMo(8,9),nMo(8,9),iMoMo(8,8,9),
      &                     nMoType, nMoAo(8,9), iMoAo(8,8,9),
@@ -35,6 +34,4 @@
      &                     lPab   , lPij, lPiK, lLagr,lWab,lWij,
      &                     lWiK, lWaK, lWai, lPaK, lPai, lWJK,
      &                     lFLagr, LuUVec,LuVVec,LuWVec,
-     &                     ipDensity(8), ipWDensity(8), LuRInv(8),
-     &                     ipWDensity_e(8), ipDensity_e(8),
-     &                     ipMP2W_e, ipMP2D_e
+     &                     ipDensity(8), ipWDensity(8), LuRInv(8)
