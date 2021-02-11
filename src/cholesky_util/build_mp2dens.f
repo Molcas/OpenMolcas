@@ -12,8 +12,10 @@
      &                         nOrbAll,nOccAll,Diagonalize)
 
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "real.fh"
 #include "corbinf.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
       Integer   nTriDens
       Real*8    TriDens(nTriDens)
@@ -23,11 +25,13 @@
       Integer   nOrbAll(8), nOccAll(8)
       Logical   Diagonalize
 
-      Integer   ip_AOTriBlock
       Integer   ipSymRec(8)
       Integer   ipSymTri(8)
       Integer   ipSymLin(8)
       Character(LEN=30) Note
+
+      Real*8, Allocatable:: AORecBlock(:), TmpRecBlock(:)
+      Real*8, Allocatable:: AOTriBlock(:)
 *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 *
@@ -43,12 +47,10 @@
 
 *     A blockmatrix of the size Orb(iSym) X Orb(iSym) is
 *     allocated and set to zero
-      Call GetMem('AORecBlock','Allo','Real',ip_AORecBlock,
-     &            nOrbAllMax**2)
-      Call GetMem('TmpRecBlock','Allo','Real',ip_TmpRecBlock,
-     &            nOrbAllMax**2)
-      Call GetMem('AOTriBlock','Allo','Real',ip_AOTriBlock,
-     &            nOrbAllMax*(nOrbAllMax+1) / 2)
+      Call mma_allocate(AORecBlock,nOrbAllMax**2,Label='AORecBlock')
+      Call mma_allocate(TmpRecBlock,nOrbAllMax**2,Label='TmpRecBlock')
+      Call mma_allocate(AOTriBlock,nOrbAllMax*(nOrbAllMax+1)/2,
+     &                  Label='AOTriBlock')
 
       If(Diagonalize) Then
          Call GetMem('MOTriBlock','Allo','Real',ip_MOTriBlock,
@@ -66,9 +68,9 @@
          Call FZero(Work(ip_Energies),nOrbAllTot)
       End If
 
-      Call FZero(Work(ip_AORecBlock),nOrbAllMax**2)
-      Call FZero(Work(ip_TmpRecBlock),nOrbAllMax**2)
-      Call FZero(Work(ip_AOTriBlock),nOrbAllMax * (nOrbAllMax+1)/2)
+      AORecBlock(:)=Zero
+      TmpRecBlock(:)=Zero
+      AOTriBlock(:)=Zero
 
 *
 *     Setup a pointer to a symmetryblock in rect or tri representation.
@@ -103,21 +105,20 @@
             Call DGEMM_('N','N',nOrbAll(iSym),nOrbAll(iSym),
      &                 nOrbAll(iSym),1.0d0 , CMO(ipSymRec(iSym)+1),
      &                 nOrbAll(iSym),Work(ip_Density(iSym)),
-     &                 nOrbAll(iSym), 0.0d0, Work(ip_TmpRecBlock),
+     &                 nOrbAll(iSym), 0.0d0, TmpRecBlock,
      &                 nOrbAll(iSym))
             Call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),
-     &                 nOrbAll(iSym),1.0d0,Work(ip_TmpRecBlock),
-     &                 nOrbAll(iSym),CMO(ipSymRec(iSym)+1),
-     &                 nOrbAll(iSym),0.0d0, Work(ip_AORecBlock),
-     &                 nOrbAll(iSym))
-*            Call RecPrt('AODens:','(20F8.5)',Work(ip_AORecBlock),
+     &                 nOrbAll(iSym),
+     &                 1.0d0,TmpRecBlock,nOrbAll(iSym),
+     &                       CMO(ipSymRec(iSym)+1),nOrbAll(iSym),
+     &                 0.0d0,AORecBlock,nOrbAll(iSym))
+*            Call RecPrt('AODens:','(20F8.5)',AORecBlock,
 *     &                  nOrb(iSym),nOrb(iSym))
 *            Call RecPrt('MODens:','(20F8.5)',Work(ip_MORecBlock),
 *     &                  nOrb(iSym), nOrb(iSym))
-            Call Fold_Mat(1,nOrbAll(iSym),Work(ip_AORecBlock),
-     &                    Work(ip_AOTriBlock))
+            Call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
             call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,
-     &                 Work(ip_AOTriBlock),1,
+     &                 AOTriBlock,1,
      &                 TriDens(1+ipSymTri(iSym)),1)
 
             If(Diagonalize) Then
@@ -200,12 +201,9 @@
 
 
 
-      Call GetMem('AORecBlock','Free','Real',ip_AORecBlock,
-     &            nOrbAllMax**2)
-      Call GetMem('TmpRecBlock','Free','Real',ip_TmpRecBlock,
-     &            nOrbAllMax**2)
-      Call GetMem('AOTriBlock','Free','Real',ip_AOTriBlock,
-     &            nOrbAllMax*(nOrbAllMax+1) / 2)
+      Call mma_deallocate(AORecBlock)
+      Call mma_deallocate(TmpRecBlock)
+      Call mma_deallocate(AOTriBlock)
 *
       If(Diagonalize) Then
          Call GetMem('MOTriBlock','Free','Real',ip_MOTriBlock,
