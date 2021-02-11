@@ -60,12 +60,8 @@ subroutine wgtinit(H)
             ! add a small positive constant to numerator to avoid 0/0
             Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
             Hag = abs(H(J,K))
-            ! below 1.0e-16 we arbitrarily multiply with 1/sqrt(1.0e-16)
-            if (Hag <= 1.0e-16_wp) then
-              xi_ag = Dag * 1.0e8_wp
-            else
-              xi_ag = Dag/sqrt(Hag)
-            end if
+
+            xi_ag = Dag/sqrt(Hag)
           end if
 
           Wtot = Wtot + exp(-zeta*xi_ag)
@@ -82,12 +78,8 @@ subroutine wgtinit(H)
           ! add a small positive constant to numerator to avoid 0/0
           Dab = abs(Ealpha - Ebeta) + 1.0e-9_wp
           Hab = abs(H(J,I))
-          ! below 1.0e-16 we arbitrarily multiply with 1/sqrt(1.0e-16)
-          if (Hab <= 1.0e-16_wp) then
-            xi_ab = Dab * 1.0e8_wp
-          else
-            xi_ab = Dab/sqrt(Hab)
-          end if
+
+          xi_ab = Dab/sqrt(Hab)
         end if
 
         IJ = (I - 1) + nState*(J - 1)
