@@ -46,6 +46,8 @@
       Real*8, Allocatable:: MP2TDensity(:)
       Real*8, Allocatable:: SCFTDensity(:)
       Real*8, Allocatable:: STMat(:)
+
+      Real*8, Allocatable:: CJK(:), CKi(:), CKa(:), CiK(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -321,16 +323,16 @@
       iVecVV = 9
 *
       lCJK = nMoMo(iSym,iVecFF)*nVec
-      Call GetMem('CJK','Allo','Real',ip_CJK, lCJK)
+      Call mma_allocate(CJK,lCJK,Label='CJK')
 *
       lCKi = nMoMo(iSym,iVecOF)*nVec
-      Call GetMem('CKi','Allo','Real',ip_CKi, lCKi)
+      Call mma_allocate(CKi,lCKi,Label='CKi')
 *
       lCKa = nMoMo(iSym,iVecVF)*nVec
-      Call GetMem('CKa','Allo','Real',ip_CKa, lCKa)
+      Call mma_allocate(CKa,lCKa,Label='CKa')
 *
       lCiK = nMoMo(iSYm,iVecFO)*nVec
-      Call GetMem('CiK','Allo','Real',ip_CiK, lCiK)
+      Call mma_allocate(CiK,lCiK,Label='CiK')
 *
       lCij = nMoMo(iSym,iVecOO)*nVec
       Call GetMem('Cij','Allo','Real',ip_Cij, lCij)
@@ -400,19 +402,19 @@
 
          lTot = nMoMo(iSym,iVecFF)*nJ
          iAdr = 1 + nMoMo(iSym,iVecFF)*(iiJ-1) + iAdrOff(iSym,iVecFF)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_CJK),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,CJK,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecOF)*nJ
          iAdr = 1 + nMoMo(iSym,iVecOF)*(iiJ-1) + iAdrOff(iSym,iVecOF)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_CKi),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,CKi,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecVF)*nJ
          iAdr = 1 + nMoMo(iSym,iVecVF)*(iiJ-1) + iAdrOff(iSym,iVecVF)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_CKa),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,CKa,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecFO)*nJ
          iAdr = 1 + nMoMo(iSym,iVecFO)*(iiJ-1) + iAdrOff(iSym,iVecFO)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_CiK),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,CiK,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecOO)*nJ
          iAdr = 1 + nMoMo(iSym,iVecOO)*(iiJ-1) + iAdrOff(iSym,iVecOO)
@@ -454,22 +456,22 @@
                kSym=iEor(iSym-1,jSym-1)+1
             Do i = 1, nFro(kSym)
                iOff1 = nMoMo(iSym,iVecFF)*(iJ-1) + (i-1)*nFro(jSym)
-               Call dCopy_(nFro(jSym),Work(ip_CJK+iOff1+iOffFF),1,
+               Call dCopy_(nFro(jSym),CJK(1+iOff1+iOffFF),1,
      &                               Work(ip_Cpq+iOff3+iOffBB),1)
                iOff3 = iOff3+nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOF)*(iJ-1) + (i-1)*nOcc(jSym)
-               Call dCopy_(nOcc(jSym),Work(ip_CKi+iOff1+iOffOF),1,
+               Call dCopy_(nOcc(jSym),Cki(1+iOff1+iOffOF),1,
      &                               Work(ip_Cpq+iOff3+iOffBB),1)
                iOff3 = iOff3+nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVF)*(iJ-1) + (i-1)*nVir(jSym)
-               Call dCopy_(nVir(jSym),Work(ip_CKa+iOff1+iOffVF),1,
+               Call dCopy_(nVir(jSym),Cka(1+iOff1+iOffVF),1,
      &                               Work(ip_Cpq+iOff3+iOffBB),1)
                iOff3 = iOff3+nVir(jSym)
             End Do
 *
             Do i = 1, nOcc(kSym)
                iOff1 = nMoMo(iSym,iVecFO)*(iJ-1) + (i-1)*nFro(jSym)
-               Call dCopy_(nFro(jSym),Work(ip_CiK+iOff1+iOffFO),1,
+               Call dCopy_(nFro(jSym),CiK(1+iOff1+iOffFO),1,
      &                               Work(ip_Cpq+iOff3+iOffBB),1)
                iOff3 = iOff3 + nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOO)*(iJ-1) + (i-1)*nOcc(jSym)
@@ -722,15 +724,16 @@
       Call GetMem('Cpq','Free','Real',ip_Cpq, lCpq)
       Call GetMem('Cpn','Free','Real',ip_Cpn, lCpn)
 *
-      Call GetMem('CJK','Free','Real',ip_CJK, lCJK)
-      Call GetMem('CKi','Free','Real',ip_CKi, lCKi)
-      Call GetMem('CKa','Free','Real',ip_CKa, lCKa)
-      Call GetMem('CiK','Free','Real',ip_CiK, lCiK)
       Call GetMem('Cij','Free','Real',ip_Cij, lCij)
       Call GetMem('Cia','Free','Real',ip_Cia, lCia)
       Call GetMem('CaK','Free','Real',ip_CaK, lCaK)
       Call GetMem('Cai','Free','Real',ip_Cai, lCai)
       Call GetMem('Cab','Free','Real',ip_Cab, lCab)
+      Call mma_deallocate(CiK)
+      Call mma_deallocate(CKa)
+      Call mma_deallocate(CKi)
+      Call mma_deallocate(CJK)
+
       Call mma_deallocate(SCFDensity)
 *
       iSym = 1
