@@ -23,4 +23,4 @@ set (modfile_list
      refwfn.F90
 )
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

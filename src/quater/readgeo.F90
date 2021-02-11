@@ -38,7 +38,7 @@ character(len=20) :: lbl
 character(len=6) :: cName
 character(len=180), external :: Get_ln
 
-if ((ig < 1).or.(ig > 2)) call SysAbendMsg('ReadGeo','Wrong ig ','Shoot the programmer')
+if ((ig < 1) .or. (ig > 2)) call SysAbendMsg('ReadGeo','Wrong ig ','Shoot the programmer')
 
 ! read natoms
 Line = Get_ln(iLU)
