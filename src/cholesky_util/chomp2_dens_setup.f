@@ -17,7 +17,7 @@ C
 C     Purpose: Allocate memory and setup pointers and prepare to calculate
 C              mp2-densities
 C
-      use ChoMP2, only: EFrozT, EOccuT
+      use ChoMP2, only: EFrozT, EOccuT, EVirtT
 #include "implicit.fh"
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "chomp2.fh"
@@ -108,7 +108,7 @@ C
 *     frozen molecules.
       Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
       Call mma_allocate(EOccuT,Max(1,nOccT),Label='EOccuT')
-      Call GetMem('EVir','Allo','Real',ip_EVirt,nVirT)
+      Call mma_allocate(EVirtT,Max(1,nVirT),Label='EVirtT')
       Call GetMem('EDel','Allo','Real',ip_EDele,nDelT)
 *     Fill them with the right things
       Do iSym = 1, nSym
@@ -120,9 +120,9 @@ C
             EOccuT(iOcc(iSym)+i) =
      &                    EOcc(iFro(iSym)+iOcc(iSym) + i)
          End Do
-         Do i = 0, nVir(iSym)-1
-            Work(ip_EVirt + iVir(iSym)+i) =
-     &                    EVir(iVir(iSym)+iDel(iSym)+ i+1)
+         Do i = 1, nVir(iSym)
+            EVirtT(iVir(iSym)+i) =
+     &                    EVir(iVir(iSym)+iDel(iSym)+ i)
          End Do
          Do i=0, nDel(iSym)-1
             Work(ip_EDele + iDel(iSym)+i) =

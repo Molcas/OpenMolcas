@@ -12,7 +12,7 @@
 ************************************************************************
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
-      use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT
+      use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT
 *
 *     Jonas Bostrom, Feb 2010
 *
@@ -25,8 +25,8 @@
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-
-      Dimension EOcc(*), EVir(*)
+      Integer irc
+      Real*8 EOcc(*), EVir(*)
 *
 ******************************************************
       MulD2h(i,j)=iEor(i-1,j-1) + 1
@@ -35,7 +35,6 @@
      &                             iPar-1 + (iSym-1)*3 +
      &                             (iOrb-1)*nSym*3
 ******************************************************
-
       nMOType = 3
       Call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
 *
@@ -172,7 +171,7 @@
 *     frozen molecules.
       Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
       Call mma_allocate(EOccuT,Max(1,nOccT),Label='EOccuT')
-      Call GetMem('EVir','Allo','Real',ip_EVirt,nVirT)
+      Call mma_allocate(EVirtT,Max(1,nVirT),Label='EVirtT')
 *     Fill them with the right things
       Do iSym = 1, nSym
          Do i = 1, nFro(iSym)
@@ -182,11 +181,12 @@
             EOccuT(iOcc(iSym)+i) =
      &                    EOcc(iOcc(iSym) + i)
          End Do
-         Do i = 0, nVir(iSym)-1
-            Work(ip_EVirt + iVir(iSym)+i) =
-     &                    EVir(iVir(iSym)+iDel(iSym)+ i+1)
+         Do i = 1, nVir(iSym)
+            EVirtT(iVir(iSym)+i) =
+     &                    EVir(iVir(iSym)+iDel(iSym)+ i)
          End Do
       End Do
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(irc)
+
+      irc=0
+
       End
