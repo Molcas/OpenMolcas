@@ -28,13 +28,13 @@ doDMRG = .true.
 #endif
 
 !> print info about MPS-SI
-write(u6,'(/a/,a//,a/,a/,a/,a/,a/)')                                  &
-      '   ---------------------------------------------------------', &
-      '   Matrix-Product-State State-Interaction (MPS-SI) activated', &
-      '   Please cite for the MPS-SI framework:',                     &
-      '   S. Knecht, S. Keller, J. Autschbach, M. Reiher,',           &
-      '   J. Chem. Theory Comput., 12, 5881-5894 (2016).',            &
-      '   ---------------------------------------------------------'
+write(u6,'(/a/,a//,a/,a/,a/,a/,a/)') &
+  '   ---------------------------------------------------------', &
+  '   Matrix-Product-State State-Interaction (MPS-SI) activated', &
+  '   Please cite for the MPS-SI framework:',                     &
+  '   S. Knecht, S. Keller, J. Autschbach, M. Reiher,',           &
+  '   J. Chem. Theory Comput., 12, 5881-5894 (2016).',            &
+  '   ---------------------------------------------------------'
 
 !> call state-interaction workhorse aka RASSI
 iReturn = 0
