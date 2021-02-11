@@ -17,6 +17,7 @@
 *     Purpose: To Compute MP2 density from Cholesky MO-vectors and
 *              decomposed MP2 amplitudes.
 
+      use ChoMP2, only: AdrR1, AdrR2
 #include "implicit.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
@@ -35,7 +36,6 @@
       Data X /0.0D0,1.0D0/
 *     -----------------------------
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-      iAdrVec(i,j,k) = (i-1) + (j-1)*nSym + (k-1)*nSym*nSym
 *     -----------------------------
       maxvalue = 200
 
@@ -1014,7 +1014,7 @@
 
                            iOpt = 2
                            lTot = NumVecK*nVir(iSymC)
-                           iAdr = iWork(ipAdrR1+iAdrVec(iSymC,iSymJ,iJ))
+                           iAdr = AdrR1(iSymC,iSymJ,iJ)
      &                          + (kVec-1)*nVir(iSymC)
                            Call dDaFile(LuRInv(1),iOpt,Wrk(kRjc),
      &                                  lTot,iAdr)
@@ -1023,8 +1023,7 @@
                               iB = iBrel + (iB1-1)
                               iOpt = 2
                               lTot = NumVecK*nOcc(iSymI)
-                              iAdr = iWork(ipAdrR2+
-     &                                     iAdrVec(iSymB,iSymI,iB))
+                              iAdr = AdrR2(iSymB,iSymI,iB)
      &                             + (kVec-1)*nOcc(iSymI)
 *
                               Call dDaFile(LuRInv(2),iOpt, Wrk(kRib),

@@ -14,6 +14,7 @@ Module ChoMP2
 Implicit none
 Private
 Public:: ChoMP2_allocated, ChoMP2g_allocated, OldVec, EFrozT, EOccuT, EVirtT
+Public:: AdrR1, AdrR2
 
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
@@ -27,4 +28,5 @@ Real*8, Allocatable:: EFrozT(:)
 Real*8, Allocatable:: EOccuT(:)
 Real*8, Allocatable:: EVirtT(:)
 
+Integer, Allocatable:: AdrR1(:,:,:), AdrR2(:,:,:)
 End Module ChoMP2

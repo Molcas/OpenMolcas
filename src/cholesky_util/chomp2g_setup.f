@@ -13,6 +13,7 @@
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
       use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT
+      use ChoMP2, only: AdrR1, AdrR2
 *
 *     Jonas Bostrom, Feb 2010
 *
@@ -162,10 +163,8 @@
 
 *     Allocate adress-field for reordered R-vectors
 *     ---------------------------------------------
-      lAdrR1 = nSym*nSym*nOccT
-      lAdrR2 = nSym*nSym*nVirT
-      Call GetMem('AdrVector1','Allo','Inte',ipAdrR1, lAdrR1)
-      Call GetMem('AdrVector2','Allo','Inte',ipAdrR2, lAdrR2)
+      Call mma_allocate(AdrR1,nSym,nSym,nOccT,Label='AdrR1')
+      Call mma_allocate(AdrR2,nSym,nSym,nVirT,Label='AdrR2')
 
 *    Allocate a vector for the orbital energies of frozen and virtual
 *     frozen molecules.
