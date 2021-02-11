@@ -12,7 +12,7 @@
 ************************************************************************
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
-      use ChoMP2, only: ChoMP2g_Allocated, EFrozT
+      use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT
 *
 *     Jonas Bostrom, Feb 2010
 *
@@ -171,16 +171,16 @@
 *    Allocate a vector for the orbital energies of frozen and virtual
 *     frozen molecules.
       Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
-      Call GetMem('EOcc','Allo','Real',ip_EOccu,nOccT)
+      Call mma_allocate(EOccuT,Max(1,nOccT),Label='EOccuT')
       Call GetMem('EVir','Allo','Real',ip_EVirt,nVirT)
 *     Fill them with the right things
       Do iSym = 1, nSym
          Do i = 1, nFro(iSym)
             EFrozT(iFro(iSym)+i) = EOcc(iFro(iSym)+nOccT +i)
          End Do
-         Do i = 0, nOcc(iSym)-1
-            Work(ip_EOccu + iOcc(iSym)+i) =
-     &                    EOcc(iOcc(iSym) + i+1)
+         Do i = 1, nOcc(iSym)
+            EOccuT(iOcc(iSym)+i) =
+     &                    EOcc(iOcc(iSym) + i)
          End Do
          Do i = 0, nVir(iSym)-1
             Work(ip_EVirt + iVir(iSym)+i) =

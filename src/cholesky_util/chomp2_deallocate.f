@@ -59,7 +59,7 @@ C
       End
 
       SubRoutine ChoMP2g_deallocate(irc)
-      use ChoMP2, only: ChoMP2g_allocated, EFrozT
+      use ChoMP2, only: ChoMP2g_allocated, EFrozT, EOccuT
 *
 *     Purpose: Deallocate memory needed for
 *              MP2-gradients or properties.
@@ -80,8 +80,8 @@ C
       Call GetMem('MP2WDensity_e','Free','Real',ipMP2W_e, lDens_e)
       Call GetMem('AdrVector1','Free','Inte',ipAdrR1, lAdrR1)
       Call GetMem('AdrVector2','Free','Inte',ipAdrR2, lAdrR2)
-      Call GetMem('EOcc','Free','Real',ip_EOccu,nOccT)
       Call GetMem('EVir','Free','Real',ip_EVirt,nVirT)
+      Call mma_deallocate(EOccuT)
       Call mma_deallocate(EFrozT)
 
       ChoMP2g_allocated=.FALSE.

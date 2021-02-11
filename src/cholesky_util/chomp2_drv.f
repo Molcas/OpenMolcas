@@ -25,7 +25,7 @@ C       - all MO Cholesky vector files generated here are deleted before
 C         exit, except for error terminations (i.e. no cleanup actions
 C         are taken!)
 C
-      use ChoMP2, only: EFrozT
+      use ChoMP2, only: EFrozT, EOccuT
 #include "implicit.fh"
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
@@ -271,7 +271,7 @@ C     ------------------------------
             Call CWTime(CPUEnr1,WallEnr1)
          End If
          Delete = .false.
-         Call ChoMP2g_DensDrv(irc,Work(ip_EOccu),Work(ip_EVirt),
+         Call ChoMP2g_DensDrv(irc,EOccuT,Work(ip_EVirt),
      &                       EFrozT,CMO)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2g_DensDrv returned ',irc

@@ -13,7 +13,7 @@
 Module ChoMP2
 Implicit none
 Private
-Public:: ChoMP2_allocated, ChoMP2g_allocated, OldVec, EFrozT
+Public:: ChoMP2_allocated, ChoMP2g_allocated, OldVec, EFrozT, EOccuT
 
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
@@ -24,5 +24,6 @@ Type Pointers
 End Type Pointers
 
 Real*8, Allocatable:: EFrozT(:)
+Real*8, Allocatable:: EOccuT(:)
 
 End Module ChoMP2
