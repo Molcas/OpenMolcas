@@ -25,7 +25,6 @@
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
       Integer nOccAll(8), iOffCInv(8), iOffLRo(8,8), iOffLRb(8,8),
@@ -33,8 +32,8 @@
      &        nB3(8), iOffB3(8,8), iOffCMOo(8), iAdrB(8)
       Real*8 CMO(*)
 *
-      Character*5 fname
-      Character*6 fname2
+      Character(LEN=5) fname
+      Character(LEN=6) fname2
 *
       Character(LEN=9), Parameter:: ThisNm = 'GradSetup'
       Character(LEN=17), Parameter:: SecNam = 'ChoMP2g_GradSetup'
@@ -53,8 +52,9 @@
 
       Real*8, Allocatable:: Ria(:), Cpn(:), Rin(:), Cmn(:), Rmn(:)
       Real*8, Allocatable:: Ukn(:), Vkn(:), WJL(:), WmjKJ(:)
-      Real*8, Allocatable:: B3jl(:), B3kl(:)
+      Real*8, Allocatable:: B3jl(:), B3kl(:), B3kl_s(:)
       Real*8, Allocatable:: B1kl(:), B2kl(:)
+      Real*8, Allocatable:: A1(:), A2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -747,15 +747,15 @@
       Call mma_allocate(B1kl,lB1kl,Label='B1kl')
 *
       lB3kl_s = nBas(iSym)*nBas(iSym)*nVec
-      Call GetMem('B3kl_s','Allo','Real',ip_B3kl_s, lB3kl_s)
+      Call mma_allocate(B3kl_s,lB3kl_s,Label='B3kl_s')
 *
       lA1 = NumCho(iSym)*NumCho(iSym)
-      Call GetMem('A1','Allo','Real',ip_A1, lA1)
-      Call FZero(Work(ip_A1),lA1)
+      Call mma_allocate(A1,lA1,Label='A1')
+      A1(:)=Zero
 *
       lA2 = NumCho(iSym)*NumCho(iSym)
-      Call GetMem('A2','Allo','Real',ip_A2, lA2)
-      Call FZero(Work(ip_A2),lA2)
+      Call mma_allocate(A2,lA2,Label='A2')
+      A2(:)=Zero
 *
       lB2kl = nBas(iSym)*nBas(iSym)*nVec
       Call mma_allocate(B2kl,lB2kl,Label='B2kl')
@@ -793,7 +793,7 @@
             Call dGemm_('T','N', nK, nJ,nLRb(iSym),
      &                 Fact,Ukn,nLRb(iSym),
      &                      Vkn,nLRb(iSym),
-     &                0.0d0,Work(ip_A1+iOffA),NumCho(iSym))
+     &                0.0d0,A1(1+iOffA),NumCho(iSym))
 *
          End Do
 *                                                                      *
@@ -845,7 +845,7 @@
                   kl = k + nBas(jSym)*(l-1) + iOffLRb(iSym,jSym)
                   kl_s = kl
                   lk = l + nBas(kSym)*(k-1) + iOffLRb(iSym,kSym)
-                  Work(ip_B3kl_s+iOffL+kl_s-1) =
+                  B3kl_s(1+iOffL+kl_s-1) =
      &               ( B3kl(1+iOffL+kl-1) +
      &                 B3kl(1+iOffL+lk-1) )/2
                End Do
@@ -858,7 +858,7 @@
 *
          lTot = nLRb(iSym)*nJ
          iAdr = iAdrB(iSym) + nLRb(iSym)*(iiJ-1)
-         Call dDaFile(LuBTmp,iWr,Work(ip_B3kl_s),lTot,iAdr)
+         Call dDaFile(LuBTmp,iWr,B3kl_s,lTot,iAdr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -915,7 +915,7 @@
       Call dGemm_('T','N', NumCho(iSym),NumCho(iSym),nMP2Vec(iSym),
      &            Fact ,WJL(1+iOff1), nMP2Vec(iSym),!-2
      &                  WJL(1+iOff1), nMP2Vec(iSym),
-     &            0.0d0,Work(ip_A2+iOff_A2),NumCho(iSym))
+     &            0.0d0,A2(1+iOff_A2),NumCho(iSym))
 *
          iOff_A2 = iOff_A2 + NumCho(iSym)**2
       End Do
@@ -935,7 +935,7 @@
 *
          lTot = nLRb(iSym)*nJ
          iAdr = iAdrB(iSym) + nlRb(iSym)*(iiJ-1)
-         Call dDaFile(LuBTmp,iRd,Work(ip_B3kl_s),lTot,iAdr)
+         Call dDaFile(LuBTmp,iRd,B3kl_s,lTot,iAdr)
 *
          Do iiK = 1, NumCho(iSym), nVec
             nK = Min(nVec,NumCho(iSym)-(iiK-1))
@@ -951,9 +951,9 @@
             iOffA = iiJ-1 + (iiK-1)*NumCho(iSym) + iOff_A
             Fact = 1.0D0
             Call dGemm_('T', 'N', nJ, nK, nLRb(iSym),
-     &                 Fact ,Work(ip_B3kl_s),nLRb(iSym),
+     &                 Fact ,B3kl_s,nLRb(iSym),
      &                       Cmn, nLRb(iSym),
-     &                 1.0d0,Work(ip_A1+iOffA),NumCho(iSym))
+     &                 1.0d0,A1(1+iOffA),NumCho(iSym))
 *
          End Do
 *
@@ -971,8 +971,8 @@
       iOff  = 0
       Do iSym = 1, nSym
          lTot = NumCho(iSym)*NumCho(iSym)
-         Call dDaFile(LuA(1),iWr,Work(ip_A1+iOff),lTot,iAdr1)
-         Call dDaFile(LuA(2),iWr,Work(ip_A2+iOff),lTot,iAdr2)
+         Call dDaFile(LuA(1),iWr,A1(1+iOff),lTot,iAdr1)
+         Call dDaFile(LuA(2),iWr,A2(1+iOff),lTot,iAdr2)
          iOff = iOff + lTot
       End Do
 *                                                                      *
@@ -1006,11 +1006,11 @@
       Call mma_deallocate(Vkn)
 *
       Call mma_deallocate(B1kl)
-      Call GetMem('A1','Free','Real',ip_A1, lA1)
+      Call mma_deallocate(A1)
       Call mma_deallocate(B2kl)
-      Call GetMem('A2','Free','Real',ip_A2, lA2)
+      Call mma_deallocate(A2)
       Call mma_deallocate(B3kl)
-      Call GetMem('B3kl_s','Free','Real',ip_B3kl_s, lB3kl_s)
+      Call mma_deallocate(B3kl_s)
       Call mma_deallocate(WmjKJ)
       Call mma_deallocate(WJL)
 *                                                                      *
