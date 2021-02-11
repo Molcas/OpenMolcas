@@ -169,7 +169,7 @@
      &                                   eDmom, amfi, HSO,
      &                                   eso_au, esfs_au )
       Implicit None
-      Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer :: nss, nstate
       Integer :: multiplicity(nstate)

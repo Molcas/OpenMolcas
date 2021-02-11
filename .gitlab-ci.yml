@@ -39,6 +39,9 @@ workflow:
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
       when: on_success
+    # manual request on push
+    - if: '$CI_PIPELINE_SOURCE == "push" && $TEST_JOBS == "true"'
+      when: on_success
     # branches, if changes in the source
     - if: '$CI_PIPELINE_SOURCE == "push"'
       <<: *sources
@@ -54,6 +57,9 @@ workflow:
       when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
+      when: on_success
+    # manual request on push
+    - if: '$CI_PIPELINE_SOURCE == "push" && $TEST_JOBS == "true"'
       when: on_success
     # dev/external branch, if changes in the source
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "dev/external"'

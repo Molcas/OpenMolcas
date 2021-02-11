@@ -14,6 +14,7 @@
 subroutine fmsym(rc)
 
 use Definitions, only: wp, iwp
+
 implicit none
 integer(kind=iwp), intent(out) :: rc
 real(kind=wp) :: ctx

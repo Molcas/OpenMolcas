@@ -158,6 +158,8 @@
       sed -E ':a ; $!N ; s/\n\s+/ / ; ta ; P ; D' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove ignored warnings
       sed -E '/WrkSpc\.fh.*EQUIVALENCE/d ; /(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
+      # More reasonable paths
+      sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
       cp nag.log ${install_path}
       # Fail if any warning remains
       if [ "$$(wc -l < nag.log)" == "0" ] ; then

@@ -21,7 +21,7 @@ c     2]  The determinant of a triangular matrix is obtained by finding
 c         the product of the diagonal elements
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 c Calling parameters
       Integer, intent(in)        :: N
       Real(kind=8)              :: matrix(N,N)

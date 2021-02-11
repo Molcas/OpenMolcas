@@ -37,25 +37,25 @@ read_input: do
   Line = Key
   call UpCase(Line)
 
-  select case(Line(1:4))
-    case('TULL')
-      tullyL=.true.
-    case('DECO')
+  select case (Line(1:4))
+    case ('TULL')
+      tullyL = .true.
+    case ('DECO')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,DECO)
       decoherence = .true.
-    case('SUBS')
+    case ('SUBS')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,NSUBSTEPS)
-    case('ETHR')
+    case ('ETHR')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,Ethreshold)
-    case('RTHR')
+    case ('RTHR')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,RandThreshold)
-    case('PSUB')
+    case ('PSUB')
       tullySubVerb = .true.
-    case('DMTX')
+    case ('DMTX')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,NSTATE)
       call mma_allocate(AmatrixVR,NSTATE*NSTATE,label='AmatrixVR')
@@ -69,15 +69,15 @@ read_input: do
         end do
       end do
       do i=1,NSTATE
-         Line = Get_Ln(LuSpool)
-         call Get_F(1,temp,NSTATE)
-         do j=1,NSTATE
-            AmatrixVI((i-1)*NSTATE+j) = temp(j)
-         end do
+        Line = Get_Ln(LuSpool)
+        call Get_F(1,temp,NSTATE)
+        do j=1,NSTATE
+          AmatrixVI((i-1)*NSTATE+j) = temp(j)
+        end do
       end do
       call mma_deallocate(temp)
       call Qpg_zArray('AmatrixV',Found,ndata)
-      if (.not.Found) then
+      if (.not. Found) then
         call Put_dArray('RAmatrixV',AmatrixVR,NSTATE*NSTATE)
         call Put_dArray('IAmatrixV',AmatrixVI,NSTATE*NSTATE)
       else if (ndata /= NSTATE*NSTATE) then
@@ -86,33 +86,33 @@ read_input: do
       end if
       call mma_deallocate(AmatrixVR)
       call mma_deallocate(AmatrixVI)
-    case('FRAN')
+    case ('FRAN')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,FixedRand)
       fixedrandL = .true.
-    case('ISEE') ! initial seed number
+    case ('ISEE') ! initial seed number
       Line = Get_Ln(LuSpool)
       call Get_I1(1,InitSeed)
       iseedL = .true.
-    case('MAXH')
+    case ('MAXH')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,maxHop)
       call Put_iScalar('MaxHopsTully',maxHop)
-!     write(u6,*) 'MaxHops set to ', maxHop
-    case('H5RE')
-#ifdef _HDF5_
+      !write(u6,*) 'MaxHops set to ', maxHop
+    case ('H5RE')
+#     ifdef _HDF5_
       lH5Restart = .true.
       Line = Get_Ln(LuSpool)
       call Get_S(1,File_H5Res,1)
-#else
+#     else
       write(u6,*) 'The user asks to restart the dynamics calculation from a HDF5 file,'
       write(u6,*) 'but this is not supported in this installation.'
       call Quit_OnUserError()
-#endif
-    case('END ')
+#     endif
+    case ('END ')
       exit
     case default
-      write (u6,*) 'Unknown keyword: ', trim(Key)
+      write(u6,*) 'Unknown keyword: ',trim(Key)
       call Abend()
   end select
 end do read_input

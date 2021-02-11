@@ -18,4 +18,4 @@ set (sources
      write_input.F90
 )
 
-include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)
+include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

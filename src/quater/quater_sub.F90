@@ -23,7 +23,7 @@ real(kind=wp), intent(in) :: G1(3*nAtoms)
 real(kind=wp), intent(inout) :: G2(3*nAtoms)
 integer(kind=iwp), intent(out) :: ireturn
 real(kind=wp) :: U1(3), U2(3), V1(3), V2(3), V1best(3), V2best(3), Q(0:3), Vtrans(3)
-integer(kind=iwp), parameter :: XYZ(3) = [1, 2, 3]
+integer(kind=iwp), parameter :: XYZ(3) = [1,2,3]
 
 #ifdef _DEBUGPRINT_
 debug = .true.

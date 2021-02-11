@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 
       Integer, intent(in)           :: N1, N2
       Complex(kind=8), intent(in)  :: HEXCH(N1,N1,N2,N2)

@@ -88,7 +88,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &                         Ifrestart,IReturn,GRAD)
 
       Implicit None
-      Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "cntrl.fh"
 #include "stdalloc.fh"
       Integer                  :: mem,RtoB,CtoB,ItoB

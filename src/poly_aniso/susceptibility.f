@@ -18,7 +18,7 @@
 
 c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 
       Integer, intent(in) :: nLoc, nCenter, nTempMagn, nT, mem
       Integer, intent(in) :: exch, nneq, neqv, iopt

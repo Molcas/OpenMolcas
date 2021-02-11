@@ -35,7 +35,7 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z
 c                                 is the quantization axis )
 c
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)       :: ldimcf, iprint, iopt, nlanth, iDIM
       Real(kind=8), intent(in) :: esfs(ldimcf)

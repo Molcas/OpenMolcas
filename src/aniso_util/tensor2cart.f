@@ -12,7 +12,7 @@
 !     Hexch = S1.Jsph.S2
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Complex(kind=8), intent(in) :: Jt(-1:1,-1:1)
       Real(kind=8), intent(out)   :: Jc(3,3)
       ! local variables
@@ -65,7 +65,7 @@
 !     Hexch = -Jsph.S1.S2
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Complex(kind=8), intent(in) :: Jt(-1:1,-1:1)
       Real(kind=8), intent(out)   :: Jc(3,3)
       ! local variables
@@ -122,7 +122,7 @@
 !     Hexch= S1.Jcart.S2
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8), intent(in)    :: Jc(3,3)
       Complex(kind=8), intent(out):: Jt(-1:1,-1:1)
       ! local variables
@@ -169,7 +169,7 @@
 !     Hexch= -Jcart.S1.S2
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8), intent(in)    :: Jc(3,3)
       Complex(kind=8), intent(out):: Jt(-1:1,-1:1)
       ! local variables

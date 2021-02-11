@@ -26,7 +26,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-character(len=180) :: InFile,OutFile
+character(len=180) :: InFile, OutFile
 integer(kind=iwp) :: n
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
@@ -49,9 +49,9 @@ if (King()) then
     write(u6,100) 'Second argument: '//trim(OutFile)
     write(u6,*)
   end if
-  call CollapseOutput(1, 'External program output')
+  call CollapseOutput(1,'External program output')
   call SystemF(trim(Run_Command)//' '//trim(InFile)//' '//trim(OutFile),rc)
-  call CollapseOutput(0, 'External program output')
+  call CollapseOutput(0,'External program output')
 end if
 
 #ifdef _MOLCAS_MPP_
@@ -68,6 +68,6 @@ call Write_Data()
 
 return
 
-100 format(A)
+100 format(a)
 
 end subroutine False_Program

@@ -13,29 +13,29 @@ subroutine initial_surfacehop()
 
 use Tully_variables, only: tullyL, decoherence, DECO, Ethreshold, RandThreshold, tullySubVerb, fixedrandL, FixedRand, NSUBSTEPS
 use Surfacehop_globals, only: lH5Restart
-use Constants, only: auTofs
+use Constants, only: Zero, One, auTofs
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: Found
 real(kind=wp) :: DT
 
-tullyL=.false.
-decoherence=.false.
-DECO=0.0_wp
-Ethreshold=huge(Ethreshold)
-RandThreshold=0.0_wp
-tullySubVerb=.false.
-fixedrandL=.false.
-FixedRand=-1.0_wp
-lH5Restart=.false.
+tullyL = .false.
+decoherence = .false.
+DECO = Zero
+Ethreshold = huge(Ethreshold)
+RandThreshold = Zero
+tullySubVerb = .false.
+fixedrandL = .false.
+FixedRand = -One
+lH5Restart = .false.
 
 call qpg_dscalar('Timestep',Found)
 if (Found) then
   call Get_dScalar('Timestep',DT)
-  NSUBSTEPS=Int(200*DT*auTofs)
+  NSUBSTEPS = int(200*DT*auTofs)
 else
-  NSUBSTEPS=0
+  NSUBSTEPS = 0
 end if
 
 return

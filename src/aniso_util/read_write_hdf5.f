@@ -107,7 +107,7 @@
      &               mh5_fetch_dset, mh5_fetch_dset_array_real,
      &               mh5_close_file
       Implicit None
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: nstate,nss
       Integer, intent(out)          :: multiplicity(nstate)
@@ -585,7 +585,7 @@ c----- expand the spin free basis to the spin-orbit basis:
      &               mh5_fetch_dset, mh5_fetch_dset_array_real,
      &               mh5_close_file
       Implicit None
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: nstate,nss
       Integer                       :: multiplicity(nstate)
