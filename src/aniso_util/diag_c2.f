@@ -17,7 +17,7 @@ c
 
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter          ::  wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter          ::  wp=kind(0.d0)
       Integer        :: info,i,j,n
       Complex(kind=8),intent(in)  :: matrix(n,n)
       Complex(kind=8),intent(out) :: z(n,n)

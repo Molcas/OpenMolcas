@@ -20,7 +20,7 @@ c The M is averaged over the grid for each temperature point.
 c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
 
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "mgrid.fh"
 #include "stdalloc.fh"
       Integer, intent(in)          :: exch, nLoc, nCenter, nneq, neqv

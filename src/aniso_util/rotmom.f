@@ -11,7 +11,7 @@
       Subroutine rotmom(MOM, N, R, MOMR )
       ! inverse rotation
       Implicit None
-      Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: N
       Real(kind=8), intent(in) :: R(3,3) !rotation matrix
 !     initial momentum matrix
@@ -48,7 +48,7 @@ c rotate the matrix
 c------------------------------------------------------------------------
       Subroutine rotmom2(MOM, N, R, MOMR)
       Implicit None
-      Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: N
       Real(kind=8),intent(in) :: R(3,3) !rotation matrix
       Complex(kind=8),intent(in) :: MOM(3,N,N) !initial momentum matrix

@@ -15,7 +15,7 @@
 c  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 c
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "warnings.fh"
       Integer, intent(out) :: nneq, neqv, nmax, exch, nLoc,
      &                        nCenter, nT, nH, nTempMagn, nDir,

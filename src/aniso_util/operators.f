@@ -30,7 +30,7 @@
 !  C0 = CG0  (output), real number, positive
 
       Implicit none
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n,k,q
       Real(kind=8), intent(out)   :: C0
       Complex(kind=8), intent(out):: Cp(n,n), Cm(n,n)
@@ -66,7 +66,7 @@
 ! generate O, W as in previous Stewens_matrixel function:
 ! redME =  ratio between Naoya's and Liviu operators
       Implicit none
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n,k,q
       Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
       ! local
@@ -92,7 +92,7 @@
 ! redME =  ratio between Naoya's and Liviu operators
 ! scaled as for Stevens Operators by knm
       Implicit none
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n,k,q
       Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
       ! local
@@ -117,7 +117,7 @@
 !  generate Hermitian ESO operators, as in MATLAB EasySpin(stev) function
 !  only for q >= 0
       Implicit none
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)          :: n,k,q
       Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
@@ -165,7 +165,7 @@
 !  Op = Ok+q
 ! the only difference with MATLAB's ESO are scaling factor Knm
       Implicit none
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)          :: n,k,q
       Complex(kind=8), intent(out):: O(n,n), W(n,n), redME
@@ -211,7 +211,7 @@ C    Dip_Stewens(N, L, dim, dim) -- the matrix elements of the ITO tensor
 C                  operators in the basis of effective spin eigenfunctions
 C
       Implicit None
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer,intent(in)            :: N, M, dim, IPRINT
       Complex(kind=8), intent(out) :: ITO_O(dim,dim),
      &                                 ITO_W(dim,dim)
@@ -393,7 +393,7 @@ C
 
       Real*8 Function fct(n)
       Implicit None
-      Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: n
       Integer             :: i
       Real(kind=8)       :: xct
@@ -444,7 +444,7 @@ cCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !     operators from EasySpin (stev).
 
       Implicit None
-      Integer, Parameter         :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)        :: N, dim
       Real(kind=8), intent(out) :: COEFF_REDUS
       Integer                    :: i
@@ -551,7 +551,7 @@ C  new method
 
       Subroutine Clebsh_Gordan(a,al,b,bt,c,gm,coeffCG)
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8),intent(in)  :: a, al, b, bt, c, gm
       Real(kind=8),intent(out) :: coeffCG
       Real(kind=8)             :: u, fct, s1, s2
@@ -633,7 +633,7 @@ c   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 c
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: a,b,c,d,e,f,g,h,j
       Integer             :: n,nlow,nhig
       Real(kind=8)       :: W6J
@@ -684,7 +684,7 @@ c   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: a,b,c,d,e,f
       Integer             :: n,nlow,nhig
       Real(kind=8)       :: dlt,sum,fct,isum
@@ -739,7 +739,7 @@ c   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: j1, j2, j3, m1, m2, m3
       Real(kind=8)       :: coeffCG
 
@@ -765,7 +765,7 @@ c   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: a, al, b, bt, c, gm
       Integer             :: lb1,lb2,i
       Real(kind=8)       :: u,fct,dlt
@@ -834,7 +834,7 @@ c
 c  a,b,c are positive Integer numbers,
 c  their values are DoUBLE than their original value
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: a,b,c
       Real(kind=8)       :: fct
       Logical             :: check_triangle
@@ -906,7 +906,7 @@ c    D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 c    "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: J, M1, M2
       Real(kind=8), intent(in) :: al, bt, gm
       Complex(kind=8)          :: m1_fact, m2_fact, wig_fac
@@ -935,7 +935,7 @@ c    D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
 c    "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
 
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: J, M1, M2
       Real(kind=8), intent(in) :: bt
       Real(kind=8)             :: ksum, fct
@@ -973,7 +973,7 @@ c
 c the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 
       Implicit None
-      Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in) :: La, Sa, LaP, SaP, L, S
       Integer             :: JaP, jm, js, s_orb, l_orb
       Real(kind=8)       :: WCG, temp, factor
@@ -1024,7 +1024,7 @@ c the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 c    Substitutions:
 
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: L,ML, S,MS, La,Sa, LaP,SaP
       Integer                   :: Ja, l_orb
       Real(kind=8), intent(in) :: t
@@ -1066,7 +1066,7 @@ c the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 c    Substitutions:
 
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: L, ML, La, Sa, LaP, SaP
       Integer                   :: Ja, l_orb
       Real(kind=8), intent(in) :: t
@@ -1105,7 +1105,7 @@ c     s_orb=1  ! Double of true value s_orb = 1/2
 
       Subroutine verify_CG(N)
       Implicit none
-      Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       integer :: n,k,q,m1,m2
       real(wp) :: rJ,rK,rQ,mf,rM1,rM2,rfE,rfG

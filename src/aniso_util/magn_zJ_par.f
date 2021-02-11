@@ -50,7 +50,7 @@ c    iT -- labes the temperature points;
 c mxIter--defines the maximal number of iterations for determination of the average spin
 c    ST -- value of the average spin of neighboring sites, Real(kind=8) :: (3) array;
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: EXCH, N, nT
       Real(kind=8), intent(in)    :: X, Y, Z, H, zJ
       Real(kind=8), intent(in)    :: W(EXCH), T(nT)

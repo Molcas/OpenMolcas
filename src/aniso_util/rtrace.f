@@ -11,7 +11,7 @@
       Subroutine rtrace(N,A,B)
       ! removes the trace of a Real array
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)        :: N ! size of the array
       Real(kind=8), intent(in)  :: A(N) ! input
       Real(kind=8), intent(out) :: B(N) ! output

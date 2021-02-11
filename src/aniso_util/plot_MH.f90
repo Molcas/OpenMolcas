@@ -12,7 +12,7 @@
 
   IMPLICIT NONE
 
-  Integer, parameter    :: wp=SELECTED_REAL_KIND(p=15,r=307)
+  Integer, parameter        :: wp=kind(0.d0)
   INTEGER, INTENT(in)   :: nH, nTempMagn
   REAL (wp), INTENT(in) :: H(nH), TempMagn(nTempMagn)
   REAL (wp), INTENT(in) :: MHexp(nH,nTempMagn)
@@ -337,7 +337,7 @@
 
   IMPLICIT NONE
 
-  Integer, parameter    :: wp=SELECTED_REAL_KIND(p=15,r=307)
+  Integer, parameter        :: wp=kind(0.d0)
   INTEGER, INTENT(in)   :: nH, nTempMagn
   REAL (wp), INTENT(in) :: H(nH), TempMagn(nTempMagn)
   REAL (wp), INTENT(in) :: MHcalc(nH,nTempMagn)

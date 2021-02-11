@@ -24,7 +24,7 @@
 !     diagonalization of total hamiltonian and computation of matrix elements
 !     of magnetic and spin moment
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       ! global variables:
       Integer, intent(in)           :: nneq
@@ -1402,7 +1402,7 @@ c 199  Continue
       Subroutine prep_mom_exchange( n, R, S, M, mg, dbg)
 
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)             :: n
       Real(kind=8), intent(in)       :: R(3,3)
