@@ -16,7 +16,7 @@
 *
 *     Purpose: Finalize MP2 Density.
 
-      use ChoMP2, only: MP2W_e, MP2D_e
+      use ChoMP2, only: MP2D, MP2W, MP2W_e, MP2D_e
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 CMO(*)
@@ -50,11 +50,8 @@
          Do i = 1, nOrbAll(iSym)
             Do j = 1, nOrbAll(iSym)
                If((i.le. nOrb(iSym)) .and. (j.le. nOrb(iSym))) Then
-                  MP2D_e(iSym)%A(i,j) =
-     &              Work(ipDensity(iSym) + i-1 + nOrb(iSym)*(j-1))
-
-                  MP2W_e(iSym)%A(i,j) =
-     &             Work(ipWDensity(iSym) + i-1 + nOrb(iSym)*(j-1))
+                  MP2D_e(iSym)%A(i,j) = MP2D(iSym)%A(i,j)
+                  MP2W_e(iSym)%A(i,j) = MP2W(iSym)%A(i,j)
                Else
                   MP2D_e(iSym)%A(i,j) = Zero
                   MP2W_e(iSym)%A(i,j) = Zero

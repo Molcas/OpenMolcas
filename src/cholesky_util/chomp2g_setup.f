@@ -14,8 +14,10 @@
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
       use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT
       use ChoMP2, only: AdrR1, AdrR2
-      use ChoMP2, only: MP2W_e_full, MP2W_e
+      use ChoMP2, only: MP2D_full, MP2D
+      use ChoMP2, only: MP2W_full, MP2W
       use ChoMP2, only: MP2D_e_full, MP2D_e
+      use ChoMP2, only: MP2W_e_full, MP2W_e
 *
 *     Jonas Bostrom, Feb 2010
 *
@@ -131,15 +133,19 @@
       End Do
 *
       ChoMP2g_Allocated=.True.
-      Call GetMem('MP2Density','Allo','Real',ipMP2D, lDens)
-      Call GetMem('MP2WDensity','Allo','Real',ipMP2W, lDens)
-      Call FZero(Work(ipMP2D),lDens)
-      Call FZero(Work(ipMP2W),lDens)
-      ipDensity(1) = ipMP2D
-      ipWDensity(1) = ipMP2W
-      Do i = 2, nSym
-         ipDensity(i) = ipDensity(i-1) + nOrb(i-1)*nOrb(i-1)
-         ipWDensity(i) = ipWDensity(i-1) + nOrb(i-1)*nOrb(i-1)
+
+      Call mma_allocate(MP2D_full,lDens,Label='MP2D_full')
+      Call mma_allocate(MP2W_full,lDens,Label='MP2W_full')
+      MP2D_full(:)=Zero
+      MP2W_full(:)=Zero
+
+      iE = 0
+      Do iSym = 1, nSym
+         nb=nOrb(iSym)
+         iS = iE + 1
+         iE = iE + nb**2
+         MP2D(iSym)%A(1:nb,1:nb) => MP2D_full(iS:iE)
+         MP2W(iSym)%A(1:nb,1:nb) => MP2W_full(iS:iE)
       End Do
 
 *     Allocate extended MP2_density (with deleted orbitals)
@@ -152,8 +158,8 @@
       End Do
 
       Call mma_allocate(MP2D_e_full,lDens_e,Label='MP2D_e_full')
-      MP2d_e_full(:)=Zero
       Call mma_allocate(MP2W_e_full,lDens_e,Label='MP2W_e_full')
+      MP2D_e_full(:)=Zero
       MP2W_e_full(:)=Zero
 
       iE = 0

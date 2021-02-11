@@ -18,6 +18,7 @@
 *     Purpose: Solve the CPHF-equations to obtain occ-vir
 *              contributions to the 1-pdm.
 
+      use ChoMP2, only: MP2D, MP2W
 #include "implicit.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
@@ -318,9 +319,9 @@
             iOrb = nFro(iSym) + i
             Do j = 1, nFro(iSym)
                jOrb = j
-               Work(ipDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+               MP2D(iSym)%A(jOrb,iOrb) =
      &             Wrk(kPiK(iSym) + i-1 + nOcc(iSym)*(j-1))
-               Work(ipDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym)) =
+               MP2D(iSym)%A(iOrb,jOrb) =
      &             Wrk(kPiK(iSym) + i-1 + nOcc(iSym)*(j-1))
             End Do
          End Do
@@ -329,7 +330,7 @@
             iOrb = nFro(iSym) + i
             Do j =  1, nOcc(iSym)
                jOrb = nFro(iSym) + j
-               Work(ipDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+               MP2D(iSym)%A(jOrb,iOrb) =
      &               Wrk(kPij(iSym) + j-1 + nOcc(iSym)*(i-1))
             End Do
          End  Do
@@ -352,11 +353,10 @@
             iOrb = i
             Do j = 1, nVir(iSym)
                jOrb = nFro(iSym) + nOcc(iSym) +  j
-               Work(ipDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+               MP2D(iSym)%A(jOrb,iOrb) =
      &               Wrk(kCGVec(7) + j-1 +
      &               (nVir(iSym))*(i-1) + iSymOffOV)
-               Work(ipDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym)) =
-     &             Work(ipDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym))
+               MP2D(iSym)%A(iOrb,jOrb) = MP2D(iSym)%A(jOrb,iOrb
 
             End Do
          End Do
@@ -365,7 +365,7 @@
             iOrb = nFro(iSym) + nOcc(iSym) + i
             Do j =  1, nVir(iSym)
                jOrb = nFro(iSym) + nOcc(iSym) + j
-               Work(ipDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+               MP2D(iSym)%A(jOrb,iOrb) =
      &               Wrk(kPab(iSym) + j-1 + nVir(iSym)*(i-1))
             End Do
          End  Do
@@ -781,7 +781,7 @@
          Do iVec1 = 1, NumVec
             iOff = nOrb(iSym)*nOccAll(iSym)*(iVec1-1)
             Call dGemm_('N','N',nOrb(iSym),nOccAll(iSym),nOrb(iSym),
-     &                  1.0d0,Work(ipDensity(iSym)),nOrb(iSym),
+     &                  1.0d0,MP2D(iSym)%A,nOrb(iSym),
      &                  Wrk(kLip+iOff),nOrb(iSym),0.0d0,
      &                  Wrk(kVip+iOff),nOrb(iSym))
          End Do
@@ -804,8 +804,7 @@
 *     -------------------------------------------
       Do iSym1 = 1, nSym
          Do i = 1, nOcc(iSym1) + nFro(iSym1)
-            Work(ipDensity(iSym1)+(i-1)*nOrb(iSym1)+(i-1)) =
-     &        Work(ipDensity(iSym1)+(i-1)*nOrb(iSym1)+(i-1)) + 2.0d0
+            MP2D(iSym1)%A(i,i) = MP2D(iSym1)%A(i,i) + 2.0d0
          End Do
       End Do
 
@@ -818,10 +817,10 @@
             jOrb = j
             term = 0.0d0
             If(i .eq. j) term = Efro(iFro(iSym)+i)
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(jOrb,iOrb) =
      &          - Wrk(kWJK(iSym) + j-1 + nFro(iSym)*(i-1)) + 2.0d0*term
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
-     &           Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) -
+            MP2W(iSym)%A(jOrb,iOrb) =
+     &           MP2W(iSym)%A(jOrb,iOrb) -
      &           Wrk(kWij2 + j-1 + nOccAll(iSym)*(i-1))
          End Do
       End Do
@@ -829,15 +828,15 @@
             iOrb = nFro(iSym) + i
             Do j = 1, nFro(iSym)
                jOrb = j
-               Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+               MP2W(iSym)%A(jOrb,iOrb) =
      &           - 0.5d0* Wrk(kWiK(iSym) + i-1 + nOcc(iSym)*(j-1))
-               Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
-     &           Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym))
+               MP2W(iSym)%A(jOrb,iOrb) =
+     &           MP2W(iSym)%A(jOrb,iOrb)
      &         - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
-               Work(ipWDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym)) =
+               MP2W(iSym)%A(iOrb,jOrb) =
      &           - 0.5d0* Wrk(kWiK(iSym) + i-1 + nOcc(iSym)*(j-1))
-               Work(ipWDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym)) =
-     &           Work(ipWDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym))
+               MP2W(iSym)%A(iOrb,jOrb) =
+     &           MP2W(iSym)%A(iOrb,jOrb)
      &         - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
             End Do
          End Do
@@ -847,10 +846,10 @@
             jOrb = nFro(iSym) + j
             term = 0.0d0
             If(i .eq. j) term = EOcc(iOcc(iSym)+i)
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(jOrb,iOrb) =
      &         - Wrk(kWij(iSym) + j-1 + nOcc(iSym)*(i-1)) + 2.0d0*term
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
-     &           Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym))
+            MP2W(iSym)%A(jOrb,iOrb) =
+     &           MP2W(iSym)%A(jOrb,iOrb)
      &         - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
          End Do
       End Do
@@ -859,9 +858,9 @@
          iOrb = i
          Do j = 1, nVir(iSym)
             jOrb = nFro(iSym) + nOcc(iSym) + j
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(jOrb,iOrb) =
      &           -0.5d0*Wrk(kWaK(iSym) + j-1 + nVir(iSym)*(i-1))
-            Work(ipWDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(iOrb,jOrb) =
      &           -0.5d0*Wrk(kWaK(iSym) + j-1 + nVir(iSym)*(i-1))
          End Do
       End Do
@@ -870,9 +869,9 @@
          iOrb = nFro(iSym) + i
          Do j = 1, nVir(iSym)
             jOrb = nFro(iSym) + nOcc(iSym) + j
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(jOrb,iOrb) =
      &           -0.5d0*Wrk(kWai(iSym) + j-1 + nVir(iSym)*(i-1))
-            Work(ipWDensity(iSym) + iOrb-1 + (jOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(iOrb,jOrb) =
      &           -0.5d0*Wrk(kWai(iSym) + j-1 + nVir(iSym)*(i-1))
          End Do
       End Do
@@ -882,27 +881,19 @@
          iOrb = nFro(iSym) + nOcc(iSym) +i
          Do j = 1, nVir(iSym)
             jOrb = nFro(iSym) + nOcc(iSym) + j
-            Work(ipWDensity(iSym) + jOrb-1 + (iOrb-1)*nOrb(iSym)) =
+            MP2W(iSym)%A(jOrb,iOrb) =
      &         - Wrk(kWab(iSym) + j-1 + nVir(iSym)*(i-1))
          End Do
       End Do
 
 #ifdef _DEBUGPRINT_
       Write(6,*) 'Full One-electron Density Matrix'
-      iOff = 0
       Do iSym = 1, nSym
-         Do i = 1, nOrb(iSym)*nOrb(iSym)
-            Write(6,*) Work(ipMP2D + i-1+iOff)
-         End Do
-         iOff = iOff + nOrb(iSym)*nOrb(iSym)
+         Call RecPrt('MP2D',' ',MP2D(iSym)%A,nOrb(iSym),nOrb(iSym))
       End Do
       Write(6,*) 'Full One-electron energy weighted D Matrix'
-      iOff = 0
       Do iSym = 1, nSym
-         Do i = 1, nOrb(iSym)*nOrb(iSym)
-            Write(6,*) Work(ipMP2W + i-1+iOff)
-         End Do
-         iOff = iOff + nOrb(iSym)*nOrb(iSym)
+         Call RecPrt('MP2W',' ',MP2W(iSym)%A,nOrb(iSym),nOrb(iSym))
       End Do
 #endif
 

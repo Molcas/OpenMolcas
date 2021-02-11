@@ -19,13 +19,12 @@
      &          kWai, kWiK, kWaK, kPaK, kPai, kWJK,
      &          lPab, lPij, lPiK, lLagr, lFLagr, lWab,lWij,
      &          lWai, lWiK, lWaK, lPaK, lPai, lWJK
-        Integer LuUVec, LuVVec, LuWVec,ipMP2D,ipDensity,
-     &          LuRInv, ipMP2W, ipWDensity
+        Integer LuUVec, LuVVec, LuWVec, LuRInv
 
         Common / MP2grad / nMoMo(8,9),nMo(8,9),iMoMo(8,8,9),
      &                     nMoType, nMoAo(8,9), iMoAo(8,8,9),
      &                              nAoMo(8,9), iAoMo(8,8,9),
-     &                     iAdrOff(8,9), nAdrOff(8),ipMP2D,ipMP2W,
+     &                     iAdrOff(8,9), nAdrOff(8),
      &                     nOccVirT,ipMoMoTable,
      &                     kPab(8), kPij(8), kPiK(8), kLagr(8),
      &                     kFLagr(8), kWab(8),kWij(8), kWai(8),
@@ -34,4 +33,4 @@
      &                     lPab   , lPij, lPiK, lLagr,lWab,lWij,
      &                     lWiK, lWaK, lWai, lPaK, lPai, lWJK,
      &                     lFLagr, LuUVec,LuVVec,LuWVec,
-     &                     ipDensity(8), ipWDensity(8), LuRInv(8)
+     &                     LuRInv(8)
