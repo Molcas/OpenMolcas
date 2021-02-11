@@ -58,7 +58,7 @@
      &    NLYROOT,NLYGROUP,                                             &
      &    DWTYPE
       REAL*8        EPS,EPSI,EPSA,EPSE,                                 &
-     &    EASUM,DENORM,SHIFT,ZETA,                                          &
+     &    EASUM,DENORM,SHIFT,ZETA,                                      &
      &    SHIFTI,BSHIFT,ECOMM,E2CORR,E2TOT,RNORM,REFWGT
       COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
      &    EASUM,DENORM,SHIFT,ZETA,                                      &
