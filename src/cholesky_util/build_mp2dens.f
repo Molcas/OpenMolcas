@@ -32,9 +32,18 @@
 
       Real*8, Allocatable:: AORecBlock(:), TmpRecBlock(:)
       Real*8, Allocatable:: AOTriBlock(:)
-*
+      Real*8, Allocatable:: MOTriBlock(:)
+      Real*8, Allocatable:: EigenVecBlock(:), EigenValBlock(:)
+      Real*8, Allocatable:: EigenVecTot(:), EigenValTot(:)
+      Real*8, Allocatable:: Energies(:)
+      Integer, Allocatable:: IndT(:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
       nOrbAllTot = nOrbAll(1)
       nOrbAllMax = nOrbAll(1)
       lRecTot = nOrbAll(1)*nOrbAll(1)
@@ -53,19 +62,17 @@
      &                  Label='AOTriBlock')
 
       If(Diagonalize) Then
-         Call GetMem('MOTriBlock','Allo','Real',ip_MOTriBlock,
-     &            nOrbAllMax*(nOrbAllMax+1) / 2)
-         Call GetMem('EigenVecBlock','Allo','Real',ip_EigenVecBlock,
-     &               nOrbAllMax*nOrbAllMax)
-         Call GetMem('EigenValBlock','Allo','Real',ip_EigenValBlock,
-     &               nOrbAllMax)
-         Call GetMem('EigenVectors','Allo','Real',ip_EigenVecTot,
-     &               lRecTot)
-         Call GetMem('EigenValues','Allo','Real',ip_EigenValTot,
-     &               nOrbAllTot)
-         Call GetMem('Energies','Allo','Real',ip_Energies,nOrbAllTot)
-         Call GetMem('IndT','Allo','Inte',ip_IndT,7*mSym)
-         Call FZero(Work(ip_Energies),nOrbAllTot)
+         Call mma_allocate(MOTriBlock,nOrbAllMax*(nOrbAllMax+1) / 2,
+     &                     Label='MOTriBlock')
+         Call mma_allocate(EigenVecBlock,nOrbAllMax*nOrbAllMax,
+     &                     Label='EigenVecBlock')
+         Call mma_allocate(EigenValBlock,nOrbAllMax,
+     &                     Label='EigenValBlock')
+         Call mma_allocate(EigenVecTot,lRecTot,Label='EigenVecTot')
+         Call mma_allocate(EigenValTot,nOrbAllTot,Label='EigenValTot')
+         Call mma_allocate(Energies,nOrbAllTot,Label='Energies')
+         Call mma_allocate(IndT,7,mSym,Label='IndT')
+         Energies(:)=Zero
       End If
 
       AORecBlock(:)=Zero
@@ -97,8 +104,7 @@
 *           have no physical relevance in this basis.
             If(Diagonalize) Then
                Do i = 1, nOrbAll(iSym)**2
-                  Work(ip_EigenVecBlock + i-1)
-     &               = CMO(ipSymRec(iSym)+i)
+                  EigenVecBlock(i) = CMO(ipSymRec(iSym)+i)
                End Do
             End If
 *     Transform the symmetryblock to AO-density
@@ -127,43 +133,39 @@
                index = 0
                Do i = 1, nOrbAll(iSym)
                   Do j = 1,i
-                     Work(ip_MOTriBlock+index) =  Work(ip_Density(iSym)+
+                     MOTriBlock(1+index) =  Work(ip_Density(iSym)+
      &                    j-1+(i-1)*(nOrbAll(iSym)))
                      index = index + 1
                   End Do
                End Do
 *
-               Call NIDiag(Work(ip_MOTriBlock),Work(ip_EigenVecBlock),
+               Call NIDiag(MOTriBlock,EigenVecBlock,
      &                     nOrbAll(iSym),nOrbAll(iSym),0)
 
 
 
                Do i = 1, nOrbAll(iSym)
-                  Work(ip_EigenValBlock+i-1) =
-     &                    Work(ip_MOTriBlock+iTri(i,i)-1)
+                  EigenValBlock(i) =MOTriBlock(iTri(i,i))
                End Do
 *
-               Call JacOrd3(Work(ip_EigenValBlock),
-     &                      Work(ip_EigenVecBlock),
+               Call JacOrd3(EigenValBlock,EigenVecBlock,
      &                      nOrbAll(iSym),nOrbAll(iSym))
 
 #ifdef _DEBUGPRINT_
                Write(6,*) 'The sorted eigenvalues are'
                Do i = 1, nOrbAll(iSym)
-                  Write(6,*) Work(ip_EigenValBlock+i-1)
+                  Write(6,*) EigenValBlock(i)
                End Do
                Write(6,*) 'Eigenvectors sorted'
                Do i=1, nOrbAll(iSym)**2
-                  Write(6,*) Work(ip_EigenVecBlock+i-1)
+                  Write(6,*) EigenVecBlock(i)
                End Do
 #endif
 *
-               call dcopy_(nOrbAll(iSym)**2,
-     &                    Work(ip_EigenVecBlock),1,
-     &                    Work(ip_EigenVecTot+ipSymRec(iSym)),1)
-               call dcopy_(nOrbAll(iSym),
-     &                    Work(ip_EigenValBlock),1,
-     &                    Work(ip_EigenValTot+ipSymLin(iSym)),1)
+               call dcopy_(nOrbAll(iSym)**2,EigenVecBlock,1,
+     &                    EigenVecTot(1+ipSymRec(iSym)),1)
+               call dcopy_(nOrbAll(iSym),EigenValBlock,1,
+     &                    EigenValTot(1+ipSymLin(iSym)),1)
 
             End If
 
@@ -178,21 +180,18 @@
          LuMP2=50
          LuMP2=IsFreeUnit(LuMP2)
 *        Build the TypeIndex array
-         iOff=ip_IndT
          Do iSym=1,mSym
-            iWork(iOff+0)=nFro(iSym)
-            iWork(iOff+1)=nOcc(iSym)
-            iWork(iOff+2)=0
-            iWork(iOff+3)=0
-            iWork(iOff+4)=0
-            iWork(iOff+5)=nOrb(iSym)-nFro(iSym)-nOcc(iSym)-nDel(iSym)
-            iWork(iOff+6)=nDel(iSym)
-            iOff=iOff+7
+            IndT(1,iSym)=nFro(iSym)
+            IndT(2,iSym)=nOcc(iSym)
+            IndT(3,iSym)=0
+            IndT(4,iSym)=0
+            IndT(5,iSym)=0
+            IndT(6,iSym)=nOrb(iSym)-nFro(iSym)-nOcc(iSym)-nDel(iSym)
+            IndT(7,iSym)=nDel(iSym)
          End Do
          Note='*  Natural MP2 orbitals'
          Call WrVec('MP2ORB',LuMP2,'COEI',mSym,nOrbAll,nOrbAll,
-     &              Work(ip_EigenVecTot),Work(ip_EigenValTot),
-     &              Work(ip_Energies),iWork(ip_IndT),Note)
+     &              EigenVecTot,EigenValTot,Energies,IndT,Note)
 *        Create a molden-file
          iUHF = 0
          Call Molden_Interface(iUHF,'MP2ORB','MD_MP2')
@@ -206,18 +205,13 @@
       Call mma_deallocate(AOTriBlock)
 *
       If(Diagonalize) Then
-         Call GetMem('MOTriBlock','Free','Real',ip_MOTriBlock,
-     &            nOrbAllMax*(nOrbAllMax+1) / 2)
-         Call GetMem('EigenVecBlock','Free','Real',ip_EigenVecBlock,
-     &               nOrbAllMax*nOrbAllMax)
-         Call GetMem('EigenValBlock','Free','Real',ip_EigenValBlock,
-     &               nOrbAllMax)
-         Call GetMem('EigenVectors','Free','Real',ip_EigenVecTot,
-     &               lRecTot)
-         Call GetMem('EigenValues','Free','Real',ip_EigenValTot,
-     &               nOrbAllTot)
-         Call GetMem('Energies','Free','Real',ip_Energies,nOrbAllTot)
-         Call GetMem('IndT','Free','Inte',ip_IndT,7*mSym)
+         Call mma_deallocate(MOTriBlock)
+         Call mma_deallocate(EigenVecBlock)
+         Call mma_deallocate(EigenValBlock)
+         Call mma_deallocate(EigenVecTot)
+         Call mma_deallocate(EigenValTot)
+         Call mma_deallocate(Energies)
+         Call mma_deallocate(IndT)
       End If
 
       Return
