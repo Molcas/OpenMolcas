@@ -10,7 +10,7 @@
 !***********************************************************************
 
 ! This subroutine inverts the matrix a of dimension N,N
-Subroutine DMINV(N,NMAX,A)
+subroutine DMINV(N,NMAX,A)
 
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -21,7 +21,7 @@ real(kind=wp), intent(inout) :: A(NMAX,NMAX)
 integer(kind=iwp) :: I, J, K
 real(kind=wp) :: BIGA, HOLD
 
-do  K=1,N
+do K=1,N
   BIGA = A(K,K)
   do I=1,N
     if (I /= K) then
@@ -31,13 +31,13 @@ do  K=1,N
   do I=1,N
     HOLD = A(I,K)
     do J=1,N
-      if ((I /= K).and.(J /= K)) then
+      if ((I /= K) .and. (J /= K)) then
         A(I,J) = HOLD*A(K,J)+A(I,J)
       end if
     end do
   end do
   do J=1,N
-    if(J /= K) then
+    if (J /= K) then
       A(K,J) = A(K,J)/BIGA
     end if
   end do

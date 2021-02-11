@@ -9,4 +9,4 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

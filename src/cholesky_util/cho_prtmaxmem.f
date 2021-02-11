@@ -13,11 +13,11 @@ C
 C     Purpose: print max. available memory block.
 C
       Implicit None
-      Character*(*) Location
+      Character(LEN=*) Location
 #include "cholesky.fh"
 
-      Character*2 Unt
-      Integer l, kMax, lMax
+      Character(LEN=2) Unt
+      Integer l, lMax
       Real*8 dlMax
 
       l = len(Location)
@@ -28,7 +28,7 @@ C
          Write(Lupri,'(/,A,A,A)')
      &   'Largest memory block available @',Location(1:l),':'
       End If
-      Call GetMem('MxRequest','Max ','Real',kMax,lMax)
+      Call mma_maxDBLE(lMax)
       Call Cho_Word2Byte(lMax,8,dlMax,Unt)
       Write(Lupri,'(3X,I10,A,F10.3,A,A)')
      & lMax,' 8-byte words; ',dlMax,' ',Unt

@@ -18,37 +18,37 @@ C     Purpose: AO-to-MO (ai) transformation of Cholesky vectors
 C              performed directly in reduced sets. This assumes
 C              that the MP2 program has been appropriately initialized.
 C
-#include "implicit.fh"
+      Implicit None
+      Integer irc
       Real*8  CMO(*), Diag(*)
       Logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_TraDrv', ThisNm = 'TraDrv')
+      Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_TraDrv'
+
+      Real*8, Allocatable:: COcc(:), CVir(:)
 
       irc = 0
 
 C     Reorder MO coefficients.
 C     ------------------------
 
-      l_COcc = nT1AOT(1)
-      l_CVir = nAOVir(1)
-      Call GetMem('COcc','Allo','Real',ip_COcc,l_COcc)
-      Call GetMem('CVir','Allo','Real',ip_CVir,l_CVir)
-      Call ChoMP2_MOReOrd(CMO,Work(ip_COcc),Work(ip_CVir))
+      Call mma_allocate(COcc,nT1AOT(1),Label='COcc')
+      Call mma_allocate(CVir,nAOVir(1),Label='CVir')
+      Call ChoMP2_MOReOrd(CMO,COcc,CVir)
 
 C     Transform vectors.
 C     ------------------
 
-      Call ChoMP2_Tra(Work(ip_COcc),Work(ip_CVir),Diag,DoDiag)
+      Call ChoMP2_Tra(COcc,CVir,Diag,DoDiag)
 
 C     Deallocate reordered MO coefficients.
 C     -------------------------------------
 
-      Call GetMem('CVir','Free','Real',ip_CVir,l_CVir)
-      Call GetMem('COcc','Free','Real',ip_COcc,l_COcc)
+      Call mma_deallocate(CVir)
+      Call mma_deallocate(COcc)
 
       End

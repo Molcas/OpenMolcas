@@ -21,7 +21,7 @@ use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallro
                           J2A, J2B, lambda, n0, n02, nop, npin, npobs, npoint, nRot_Max, nvib1, nvib21, Obsin, R0o, R1o, RinO, &
                           Titobs, Vibwvs, Vibwvs1, Vibwvs2
 use Constants, only: Zero, One, Five, UTOAU
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, r8, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ncase, ngrid, nvib
@@ -41,11 +41,11 @@ character(len=4) :: word, Diatom, Diatomx
 character(len=8) :: IntCh
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
-integer(kind=iwp), parameter :: ntab=19
-character(len=4), parameter :: tabinp(ntab)=['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
-                                             'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
+integer(kind=iwp), parameter :: ntab = 19
+character(len=4), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
+                                               'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
-real(kind=wp), external :: dNuclearMass
+real(kind=r8), external :: dNuclearMass
 character(len=180), external :: Get_Ln, Get_Ln_EOF
 
 LuIn = IsFreeUnit(11)
@@ -97,9 +97,9 @@ input: do
     if (Word == '') Word = 'END'
   end if
 
-  select case(word)
+  select case (word)
 
-    case(tabinp(1))
+    case (tabinp(1))
       ! Read title lines. Maximum 10 is allowed.
       do
         read(LuIn,'(a)') line
@@ -117,7 +117,7 @@ input: do
         end if
       end do
 
-    case(tabinp(2))
+    case (tabinp(2))
       ! Read isotope numbers
       ! isn1 and isn2 are the isotope numbers for atoms 1 and 2,
       ! Atom1 and Atom2 the corresponding chemical symbols
@@ -199,14 +199,14 @@ input: do
 
       Redm = xMass1*xMass2/(xMass1+xMass2)
 
-    case(tabinp(3))
+    case (tabinp(3))
       ! Read number of grid points for numerical integration (max: npoint)
       Line = Get_Ln(LuIn)
       call Get_I1(1,ngrid)
       if (mod(ngrid,2) == 0) ngrid = ngrid-1 ! ngrid should be odd
       if (ngrid >= npoint) ngrid = npoint-1
 
-    case(tabinp(4))
+    case (tabinp(4))
       ! Read upper and lower integration range in atomic units
       Line = Get_Ln(LuIn)
       call Get_F1(1,Rmin)
@@ -214,14 +214,14 @@ input: do
       Umin = log(Rmin)
       Umax = log(Rmax)
 
-    case(tabinp(5))
+    case (tabinp(5))
       ! Read number of vibrational quantum numbers
       Line = Get_Ln(LuIn)
       call Get_I1(1,nvib)
       n0 = 0
       nvib1 = nvib-1
 
-    case(tabinp(6))
+    case (tabinp(6))
       ! Read range for rotational quantum numbers
       Line = Get_Ln(LuIn)
       call Get_I1(1,J1A)
@@ -235,16 +235,16 @@ input: do
         call Quit_OnUserError()
       end if
 
-    case(tabinp(7))
+    case (tabinp(7))
       ! Read orbital angular momentum quantum number
       Line = Get_Ln(LuIn)
       call Get_I1(1,lambda)
 
-    case(tabinp(8))
+    case (tabinp(8))
       ! Read flag for spectroscopic constants
       ispc = 0
 
-    case(tabinp(9))
+    case (tabinp(9))
       ! Read input for calculation of matrix elements of observables
       ! like the dipole operator, etc.
       iobs = iobs+1
@@ -261,7 +261,7 @@ input: do
       !VV: make it really nasty. if it looks like a file - read from the file
       !    else-  this is a title
       read(LuIn,'(a)') Line
-      call f_inquire(Line(1:index(Line,' ')-1), exists)
+      call f_inquire(Line(1:index(Line,' ')-1),exists)
       if (exists) then
         LuIn1 = IsFreeUnit(15)
         call molcas_open(LuIn1,Line(1:index(Line,' ')-1))
@@ -269,14 +269,14 @@ input: do
       else
         LuIn1 = LuIn
       end if
-      Titobs(iobs) = Trim(Line)
+      Titobs(iobs) = trim(Line)
       !write(u6,*) ' In VIBINP. IOBS=',IOBS
       !write(u6,*) ' TITOBS just read:'
       !write(u6,'(a80)') TITOBS(IOBS)
       nobsi = 0
       do
         Line = Get_Ln_EOF(LuIn1)
-        if ((Line(1:3) == 'EOF').and.(LuIn1 /= LuIn)) then
+        if ((Line(1:3) == 'EOF') .and. (LuIn1 /= LuIn)) then
           close(LuIn1)
           Line = Get_Ln(LuIn)
         end if
@@ -311,22 +311,22 @@ input: do
       call Get_F1(3,dRo(iobs))
       iplot(iobs) = 1
 
-    case(tabinp(10))
+    case (tabinp(10))
       ! Read starting value for step size in eigenvalue search
       Line = Get_Ln(LuIn)
       call Get_F1(1,dE0)
 
-    case(tabinp(11))
+    case (tabinp(11))
       ! Read potential
       ipot = 1
       nop = 0
       Line = Get_Ln(LuIn)
       xxx = 999.97_wp
       read(line,*,iostat=IERR) xxx
-      if ((xxx == 999.97_wp).or.(IERR /= 0)) then
+      if ((xxx == 999.97_wp) .or. (IERR /= 0)) then
         call f_inquire(line,exists)
         write(u6,*) line
-        if (.not.exists) then
+        if (.not. exists) then
           write(u6,*) 'File with potential non-existent'
           write(u6,*) 'File=',trim(line)
           call Abend()
@@ -339,7 +339,7 @@ input: do
       end if
       do
         Line = Get_Ln_EOF(LuIn1)
-        if ((Line(1:3) == 'EOF').and.(LuIn1 /= LuIn)) then
+        if ((Line(1:3) == 'EOF') .and. (LuIn1 /= LuIn)) then
           close(LuIn1)
           Line = Get_Ln(LuIn)
         end if
@@ -371,37 +371,37 @@ input: do
       iplotp = 1
       if (LuIn1 /= LuIn) close(LuIn1)
 
-    case(tabinp(12))
+    case (tabinp(12))
       ! Calculation of ro-vibrational wave functions (ncase=1)
       ncase = 1
 
-    case(tabinp(13))
+    case (tabinp(13))
       ! Calculation of transition moments (ncase=2)
       ncase = 2
 
-    case(tabinp(14))
+    case (tabinp(14))
       ! Asymptotic energy difference between two potentials
       Line = Get_Ln(LuIn)
       call Get_F1(1,Teas)
 
-    case(tabinp(15))
+    case (tabinp(15))
       ! Flag for printing the wave function.
       IfPrWf = 1
 
-    case(tabinp(16))
+    case (tabinp(16))
       ! Scaling of input potential such that the binding energy is 0.1 au.
       iscale = 1
 
-    case(tabinp(17))
+    case (tabinp(17))
       ! Temperature for vibrational averaging
       Line = Get_Ln(LuIn)
       call Get_F1(1,Temp)
 
-    case(tabinp(18))
+    case (tabinp(18))
       ! ALLRotational
       iallrot = 1
 
-    case(tabinp(19))
+    case (tabinp(19))
       exit input
 
     case default
@@ -437,7 +437,7 @@ end if
 ! Check for input error
 
 if (ncase == 1) then
-  if ((Atom1 == '  ').or.(Atom2 == '  ')) then
+  if ((Atom1 == '  ') .or. (Atom2 == '  ')) then
     write(u6,*)
     write(u6,*) '**********************************'
     write(u6,*) ' VIBINP Error: No atoms in input.'
@@ -454,7 +454,7 @@ if (ncase == 2) then
   iOpt = 2
   call WR_VibRot_Info1(Vibwvs1,iOpt,iadvi1,ntit1,J1A,J2A,lambda,n0,nvib1,Redm,Umax,Umin,ngrid,isn1,isn2,Req,xMass1,xMass2)
   call cDaFile(Vibwvs1,iOpt,Title1,10*80,iadvi1)
-  call cDaFile(Vibwvs1,iOpt,IntCh,     8,iadvi1)
+  call cDaFile(Vibwvs1,iOpt,IntCh,8,iadvi1)
 
   Atom1 = IntCh(1:2)
   Atom2 = IntCh(5:6)
@@ -465,14 +465,14 @@ if (ncase == 2) then
   iOpt = 2
   call WR_VibRot_Info1(Vibwvs2,iOpt,iadvi2,ntit2,J1B,J2B,lambdx,n02,nvib21,Redmx,Umaxx,Uminx,ngridx,isn1x,isn2x,Reqx,xMass1,xMass2)
   call cDaFile(Vibwvs2,iOpt,Title2,10*80,iadvi2)
-  call cDaFile(Vibwvs2,iOpt,IntCh,     8,iadvi2)
+  call cDaFile(Vibwvs2,iOpt,IntCh,8,iadvi2)
   At1x = IntCh(1:2)
   At2x = IntCh(5:6)
 
   ! Check for consistency of data on files
 
   IERR = 0
-  if ((Atom1 /= At1x).or.(Atom2 /= At2x)) then
+  if ((Atom1 /= At1x) .or. (Atom2 /= At2x)) then
     write(u6,*)
     write(u6,*) '***************************************'
     write(u6,*) ' VIBINP Error: Inconsistent data.'
@@ -564,11 +564,11 @@ end if
 del = (Umax-Umin)/(ngrid-1)
 write(u6,1300) ngrid,del,Rmin,Rmax,Umin,Umax
 
-if ((ispc == 0).and.(ncase == 1)) write(u6,1400)
-if ((ispc /= 0).and.(ncase == 1)) write(u6,1500)
+if ((ispc == 0) .and. (ncase == 1)) write(u6,1400)
+if ((ispc /= 0) .and. (ncase == 1)) write(u6,1500)
 if (iobs == 0) write(u6,1600)
 if (iobs /= 0) write(u6,1700) iobs
-if ((ipot == 0).and.(ncase == 1)) then
+if ((ipot == 0) .and. (ncase == 1)) then
   write(u6,*)
   write(u6,*) '**********************************'
   write(u6,*) ' VIBINP Error: IPOT=0 and NCASE=1 '
@@ -583,7 +583,7 @@ if (ipot /= 0) then
   do i=1,nop
     write(u6,1810) Rin(i),Ein(i)
   end do
-  if ((Rin(1) > Rmax).or.(Rin(nop) < Rmin)) then
+  if ((Rin(1) > Rmax) .or. (Rin(nop) < Rmin)) then
     write(u6,*)
     write(u6,*) '****************************'
     write(u6,*) ' VIBINP Error: Potential is '
@@ -594,7 +594,7 @@ if (ipot /= 0) then
   if (iplotp /= 0) write(u6,1820)
 end if
 
-!ompute radial coordinates
+! Compute radial coordinates
 
 U = Umin-del
 Rout0 = exp(U)
@@ -618,7 +618,7 @@ if (ncase == 1) then
   IntCh(1:4) = Atom1
   IntCh(5:8) = Atom2
   call cDaFile(Vibwvs,iOpt,Title1,10*80,iadvib)
-  call cDaFile(Vibwvs,iOpt,IntCh,     8,iadvib)
+  call cDaFile(Vibwvs,iOpt,IntCh,8,iadvib)
 end if
 
 ! Fit observable input

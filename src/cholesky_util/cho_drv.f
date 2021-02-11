@@ -58,7 +58,6 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       LOGICAL, PARAMETER:: LOCDBG = .FALSE.
@@ -70,6 +69,8 @@ C
 
       Real*8, PARAMETER:: DUMTST = 0.123456789D0, DUMTOL = 1.0D-15
       Real*8, Allocatable:: Check(:)
+      Real*8, Allocatable:: KWRK(:)
+      Integer, Allocatable:: KIRS1F(:)
 
 #if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
@@ -232,10 +233,11 @@ C     ===============
      &      '***** Starting Cholesky diagonal check *****'
             CALL CHO_FLUSH(LUPRI)
          END IF
-         CALL CHO_MEM('Cho.Rst','MAX ','REAL',KWRK,LWRK)
-         CALL CHO_RESTART(Diag,WORK(KWRK),LWRK,.TRUE.,LCONV)
+         Call mma_maxDBLE(LWRK)
+         Call mma_allocate(KWRK,LWRK,Label='KWRK')
+         CALL CHO_RESTART(Diag,KWRK,LWRK,.TRUE.,LCONV)
          CALL CHO_GASYNC()
-         CALL CHO_MEM('Cho.Rst','FREE','REAL',KWRK,LWRK)
+         Call mma_deallocate(KWRK)
          IF (.NOT. LCONV) THEN
             WRITE(LUPRI,'(A,A)')
      &      SECNAM,': Decomposition failed!'
@@ -298,12 +300,13 @@ C     ================
             CALL CHO_FLUSH(LUPRI)
          END IF
          LIRS1F = NNBSTRT(1)*3
-         CALL CHO_MEM('rs1tof','ALLO','INTE',KIRS1F,LIRS1F)
-         CALL CHO_MEM('mx.reo','MAX ','REAL',KWRK,LWRK)
-         CALL CHO_REOVEC(IWORK(KIRS1F),3,NNBSTRT(1),WORK(KWRK),LWRK)
+         Call mma_allocate(KIRS1F,LIRS1F,Label='KIRS1F')
+         Call mma_maxDBLE(LWRK)
+         Call mma_allocate(KWRK,LWRK,Label='KWRK')
+         CALL CHO_REOVEC(KIRS1F,3,NNBSTRT(1),KWRK,LWRK)
          CALL CHO_GASYNC()
-         CALL CHO_MEM('mx.reo','FREE','REAL',KWRK,LWRK)
-         CALL CHO_MEM('rs1tof','FREE','INTE',KIRS1F,LIRS1F)
+         Call mma_deallocate(KWRK)
+         Call mma_deallocate(KIRS1F)
          IF (IPRINT .GE. INF_TIMING) THEN
             CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
             CALL CHO_PRTTIM('Vector reordering',

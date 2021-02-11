@@ -12,23 +12,23 @@
       Use Para_Info, Only: MyRank, nProcs
       Implicit None
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Integer ip_LB, l_LB, i
+      Integer i
+      Integer, Allocatable:: LB(:)
 
-      l_LB = nProcs
-      Call GetMem('LoadB','Allo','Inte',ip_LB,l_LB)
+      Call mma_allocate(LB,[0,nProcs-1],Label='LB')
+      LB(:)=0
 
-      Call iZero(iWork(ip_LB),l_LB)
-      iWork(ip_LB+myRank) = nnBstRT(1)
-      Call Cho_GAIGop(iWork(ip_LB),l_LB,'+')
+      LB(myRank) = nnBstRT(1)
+      Call Cho_GAIGop(LB,nProcs,'+')
       Call Cho_Head('Cholesky vector dimension on each node','=',80,
      &              LuPri)
       Do i = 0,nProcs-1
          Write(LuPri,'(2X,A,I4,5X,A,I7)')
-     &   'Node:',i,'Dimension:',iWork(ip_LB+i)
+     &   'Node:',i,'Dimension:',LB(i)
       End Do
 
-      Call GetMem('LoadB','Free','Inte',ip_LB,l_LB)
+      Call mma_deallocate(LB)
 
       End
