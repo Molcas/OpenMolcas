@@ -47,7 +47,10 @@
       Real*8, Allocatable:: SCFTDensity(:)
       Real*8, Allocatable:: STMat(:)
 
-      Real*8, Allocatable:: CJK(:), CKi(:), CKa(:), CiK(:)
+      Real*8, Allocatable:: CJK(:), CKi(:), CKa(:), CiK(:), Cij(:)
+      Real*8, Allocatable:: Cia(:), CaK(:), Cai(:), Cab(:), Cpq(:)
+
+      Real*8, Allocatable:: Ria(:), Cpn(:), Rin(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -335,34 +338,34 @@
       Call mma_allocate(CiK,lCiK,Label='CiK')
 *
       lCij = nMoMo(iSym,iVecOO)*nVec
-      Call GetMem('Cij','Allo','Real',ip_Cij, lCij)
+      Call mma_allocate(Cij,lCij,Label='Cij')
 *
       lCia = nMoMo(iSym,iVecVO)*nVec
-      Call GetMem('Cia','Allo','Real',ip_Cia, lCia)
+      Call mma_allocate(Cia,lCia,Label='Cia')
 *
       lCaK = nMoMo(iSym,iVecFV)*nVec
-      Call GetMem('CaK','Allo','Real',ip_CaK, lCaK)
+      Call mma_allocate(CaK,lCaK,Label='CaK')
 *
       lCai = nMoMo(iSym,iVecOV)*nVec
-      Call GetMem('Cai','Allo','Real',ip_Cai, lCai)
+      Call mma_allocate(Cai,lCai,Label='Cai')
 *
       lCab = nMoMo(iSym,iVecVV)*nVec
-      Call GetMem('Cab','Allo','Real',ip_Cab, lCab)
+      Call mma_allocate(Cab,lCab,Label='Cab')
 *
       lCpq = nOrb(iSym)*nOrb(iSym)*nVec
-      Call GetMem('Cpq','Allo','Real',ip_Cpq, lCpq)
+      Call mma_allocate(Cpq,lCpq,Label='Cpq')
 *
 *     The Cholesky vectors of the MP2 amplitudes,
 *     see Eq. 26.
 *
       lRia = nOcc(iSym)*nVir(iSym)*nVec
-      Call GetMem('Ria','Allo','Real',ip_Ria, lRia)
+      Call mma_allocate(Ria,lRia,Label='Ria')
 *
       lCpn = nOrb(iSym)*nBas(iSym)*nVec
-      Call GetMem('Cpn','Allo','Real',ip_Cpn, lCpn)
+      Call mma_allocate(Cpn,lCpn,Label='Cpn')
 *
       lRin = nOcc(iSym)*nBas(iSym)*nVec
-      Call GetMem('Rin','Allo','Real',ip_Rin, lRin)
+      Call mma_allocate(Rin,lRin,Label='Rin')
 *
       lCmn = nBas(iSym)*nBas(iSym)*nVec
       Call GetMem('Cmn','Allo','Real',ip_Cmn, lCmn)
@@ -418,23 +421,23 @@
 
          lTot = nMoMo(iSym,iVecOO)*nJ
          iAdr = 1 + nMoMo(iSym,iVecOO)*(iiJ-1) + iAdrOff(iSym,iVecOO)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_Cij),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Cij,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecVO)*nJ
          iAdr = 1 + nMoMo(iSym,iVecVO)*(iiJ-1) + iAdrOff(iSym,iVecVO)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_Cia),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Cia,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecFV)*nJ
          iAdr = 1 + nMoMo(iSym,iVecFV)*(iiJ-1) + iAdrOff(iSym,iVecFV)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_CaK),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,CaK,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecOV)*nJ
          iAdr = 1 + nMoMo(iSym,iVecOV)*(iiJ-1) + iAdrOff(iSym,iVecOV)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_Cai),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Cai,lTot,iAdr)
 
          lTot = nMoMo(iSym,iVecVV)*nJ
          iAdr = 1 + nMoMo(iSym,iVecVV)*(iiJ-1) + iAdrOff(iSym,iVecVV)
-         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Work(ip_Cab),lTot,iAdr)
+         Call dDaFile(lUnit_F(iSym,iTypL),iRd,Cab,lTot,iAdr)
 
 *        Put the C_pq^J-vectors together to one large vector
 *        ------------------------------------------------
@@ -457,45 +460,45 @@
             Do i = 1, nFro(kSym)
                iOff1 = nMoMo(iSym,iVecFF)*(iJ-1) + (i-1)*nFro(jSym)
                Call dCopy_(nFro(jSym),CJK(1+iOff1+iOffFF),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3+nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOF)*(iJ-1) + (i-1)*nOcc(jSym)
                Call dCopy_(nOcc(jSym),Cki(1+iOff1+iOffOF),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3+nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVF)*(iJ-1) + (i-1)*nVir(jSym)
                Call dCopy_(nVir(jSym),Cka(1+iOff1+iOffVF),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3+nVir(jSym)
             End Do
 *
             Do i = 1, nOcc(kSym)
                iOff1 = nMoMo(iSym,iVecFO)*(iJ-1) + (i-1)*nFro(jSym)
                Call dCopy_(nFro(jSym),CiK(1+iOff1+iOffFO),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOO)*(iJ-1) + (i-1)*nOcc(jSym)
-               Call dCopy_(nOcc(jSym),Work(ip_Cij+iOff1+iOffOO),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+               Call dCopy_(nOcc(jSym),Cij(1+iOff1+iOffOO),1,
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVO)*(iJ-1) + (i-1)*nVir(jSym)
-               Call dCopy_(nVir(jSym),Work(ip_Cia+iOff1+iOffVO),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+               Call dCopy_(nVir(jSym),Cia(1+iOff1+iOffVO),1,
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nVir(jSym)
             End Do
 *
             Do i = 1, nVir(kSym)
                iOff1 = nMoMo(iSym,iVecFV)*(iJ-1) + (i-1)*nFro(jSym)
-               Call dCopy_(nFro(jSym),Work(ip_CaK+iOff1+iOffFV),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+               Call dCopy_(nFro(jSym),CaK(1+iOff1+iOffFV),1,
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nFro(jSym)
                iOff1 = nMoMo(iSym,iVecOV)*(iJ-1) + (i-1)*nOcc(jSym)
-               Call dCopy_(nOcc(jSym),Work(ip_Cai+iOff1+iOffOV),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+               Call dCopy_(nOcc(jSym),Cai(1+iOff1+iOffOV),1,
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nOcc(jSym)
                iOff1 = nMoMo(iSym,iVecVV)*(iJ-1) + (i-1)*nVir(jSym)
-               Call dCopy_(nVir(jSym),Work(ip_Cab+iOff1+iOffVV),1,
-     &                               Work(ip_Cpq+iOff3+iOffBB),1)
+               Call dCopy_(nVir(jSym),Cab(1+iOff1+iOffVV),1,
+     &                               Cpq(1+iOff3+iOffBB),1)
                iOff3 = iOff3 + nVir(jSym)
             End Do
 *
@@ -525,14 +528,14 @@
             iOff1 = nLRo(iSym)*(iJ-1) + iOffLRo(iSym,jSym)
             Call dGemm_('T', 'N',nBas(jSym),nOrb(kSym), nOrb(jSym),
      &                 1.0d0,CMO_inv(1+iOffCInv(jSym)),nOrb(jSym),
-     &                       Work(ip_Cpq+iOff1), nOrb(jSym),
-     &                 0.0d0,Work(ip_Cpn), nBas(jSym))
+     &                       Cpq(1+iOff1), nOrb(jSym),
+     &                 0.0d0,Cpn, nBas(jSym))
 *
 *           C_nq^J x  (C^-1) = C_nm^J
 *
             iOff2 = nLRb(iSym)*(iJ-1) + iOffLRb(iSym,jSym)
             Call dGemm_('N','N',nBas(jSym),nBas(kSym), nOrb(kSym),
-     &                 1.0d0,Work(ip_Cpn),nBas(jSym),
+     &                 1.0d0,Cpn,nBas(jSym),
      &                       CMO_inv(1+iOffCInv(kSym)),nOrb(kSym),
      &                 0.0d0,Work(ip_Cmn+iOff2), nBas(jSym))
 *
@@ -587,7 +590,7 @@
 *
             lTot = nMoMo(lSym,iVecOV)*nK
             iAdr = nMoMo(lSym,iVecOV)*(iiK-1) + 1
-            Call dDaFile(lUnit_F(lSym,iTypR),iRd,Work(ip_Ria),lTot,iAdr)
+            Call dDaFile(lUnit_F(lSym,iTypR),iRd,Ria,lTot,iAdr)
 
 *           Do backtransformations of the Amplitude-vectors to get Rmnx.
 *           ------------------------------------------------------------
@@ -609,15 +612,15 @@
                iOff_Rin = iOff_Rin + nBas(jSym)*nOcc(kSym)
                Call dGemm_('N','N',nBas(jSym),nOcc(kSym), nVir(jSym),
      &              1.0d0,CMO_v,nBas(jSym),
-     &                    Work(ip_Ria+iOff1), nVir(jSym),
-     &              0.0d0,Work(ip_Rin+iOff2), nBas(jSym))
+     &                    Ria(1+iOff1), nVir(jSym),
+     &              0.0d0,Rin(1+iOff2), nBas(jSym))
 *
 *              R_ni^K x C_mi^T = R_nm^K
 *
                iOff3 = iOff_Rmn
                iOff_Rmn = iOff_Rmn + nBas(jSym)*nBas(kSym)
                Call dGemm_('N','T',nBas(jSym),nBas(kSym), nOcc(kSym),
-     &                 1.0d0,Work(ip_Rin+iOff2),nBas(jSym),
+     &                 1.0d0,Rin(1+iOff2),nBas(jSym),
      &                       CMO_o, nBas(kSym),
      &                 0.0d0,Work(ip_Rmn+iOff3), nBas(jSym))
 *
@@ -660,7 +663,7 @@
 *
                   Call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),
      &                        1.0d0,Work(ip_Cmn+iOffL),nBas(jSym),
-     &                              Work(ip_Rin+iOffR),nBas(kSym),
+     &                              Rin(1+iOffR),nBas(kSym),
      &                        0.0d0,Work(ip_WmjKJ),nBas(jSym))
 *
                   Fac = 1.0d0
@@ -718,17 +721,16 @@
 *
       Call GetMem('B3jl','Free','Real',ip_B3jl, lB3jl)
 *
-      Call GetMem('Rin','Free','Real',ip_Rin, lRin)
-      Call GetMem('Ria','Free','Real',ip_Ria, lRia)
-*
-      Call GetMem('Cpq','Free','Real',ip_Cpq, lCpq)
-      Call GetMem('Cpn','Free','Real',ip_Cpn, lCpn)
-*
-      Call GetMem('Cij','Free','Real',ip_Cij, lCij)
-      Call GetMem('Cia','Free','Real',ip_Cia, lCia)
-      Call GetMem('CaK','Free','Real',ip_CaK, lCaK)
-      Call GetMem('Cai','Free','Real',ip_Cai, lCai)
-      Call GetMem('Cab','Free','Real',ip_Cab, lCab)
+      Call mma_deallocate(Rin)
+      Call mma_deallocate(Cpn)
+      Call mma_deallocate(Ria)
+
+      Call mma_deallocate(Cpq)
+      Call mma_deallocate(Cab)
+      Call mma_deallocate(Cai)
+      Call mma_deallocate(CaK)
+      Call mma_deallocate(Cia)
+      Call mma_deallocate(Cij)
       Call mma_deallocate(CiK)
       Call mma_deallocate(CKa)
       Call mma_deallocate(CKi)
