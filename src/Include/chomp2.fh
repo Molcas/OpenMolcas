@@ -34,7 +34,7 @@ C
      &        l_LnMatij, l_LiMatij,
      &        l_lUnit, l_FirstS,
      &        l_Mp2Lagr, l_DiaA, l_Density,
-     &        ip_EFroz,ip_EOccu,ip_EVirt,ip_EDele
+     &        ip_EOccu,ip_EVirt,ip_EDele
 
       Integer nTypF
       Parameter (nTypF = 2)
@@ -64,6 +64,6 @@ C
      &                  ip_LnPQprod,ip_LiPQprod,
      &                  l_NumBatOrb, l_LnBatOrb, l_LnPQprod,l_LiPQprod,
      &                  nBatOrbT,iBatOrb(8),nPQ_Prod(8), iPQ_Prod(8,8),
-     &                  ip_EFroz,ip_EOccu, ip_EVirt,ip_EDele,
+     &                  ip_EOccu, ip_EVirt,ip_EDele,
      &                  nFroT,nDelT, ip_tmpL, lTmpLvec,
      &                  nPQ_prodij(8), nPQ_prodia(8), nPQ_prodab(8)

@@ -12,18 +12,19 @@
 ************************************************************************
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
-      use ChoMP2
+      use ChoMP2, only: ChoMP2g_Allocated, EFrozT
 *
 *     Jonas Bostrom, Feb 2010
 *
 *     Purpose: Do some additional setup only needed for
 *              MP2-gradients or properties.
 #include "implicit.fh"
-#include "WrkSpc.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Dimension EOcc(*), EVir(*)
 *
@@ -169,14 +170,13 @@
 
 *    Allocate a vector for the orbital energies of frozen and virtual
 *     frozen molecules.
-      Call GetMem('EFro','Allo','Real',ip_EFroz,nFroT)
+      Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
       Call GetMem('EOcc','Allo','Real',ip_EOccu,nOccT)
       Call GetMem('EVir','Allo','Real',ip_EVirt,nVirT)
 *     Fill them with the right things
       Do iSym = 1, nSym
-         Do i = 0, nFro(iSym)-1
-            Work(ip_EFroz + iFro(iSym)+i) =
-     &                    EOcc(iFro(iSym)+nOccT +i+1)
+         Do i = 1, nFro(iSym)
+            EFrozT(iFro(iSym)+i) = EOcc(iFro(iSym)+nOccT +i)
          End Do
          Do i = 0, nOcc(iSym)-1
             Work(ip_EOccu + iOcc(iSym)+i) =

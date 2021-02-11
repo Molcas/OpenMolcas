@@ -17,12 +17,14 @@ C
 C     Purpose: Allocate memory and setup pointers and prepare to calculate
 C              mp2-densities
 C
+      use ChoMP2, only: EFrozT
 #include "implicit.fh"
       Dimension CMO(*), EOcc(*), EVir(*)
-#include "WrkSpc.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
       Character*17 SecNam
       Parameter (SECNAM = 'ChoMP2_Dens_Setup')
@@ -104,15 +106,15 @@ C
 *
 *    Allocate a vector for the orbital energies of frozen and virtual
 *     frozen molecules.
-      Call GetMem('EFro','Allo','Real',ip_EFroz,nFroT)
+      Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
       Call GetMem('EOcc','Allo','Real',ip_EOccu,nOccT)
       Call GetMem('EVir','Allo','Real',ip_EVirt,nVirT)
       Call GetMem('EDel','Allo','Real',ip_EDele,nDelT)
 *     Fill them with the right things
       Do iSym = 1, nSym
-         Do i = 0, nFro(iSym)-1
-            Work(ip_EFroz + iFro(iSym)+i) =
-     &                    EOcc(iFro(iSym)+iOcc(iSym)+nOcc(iSym) +i+1)
+         Do i = 1, nFro(iSym)
+            EFrozT(iFro(iSym)+i) =
+     &                    EOcc(iFro(iSym)+iOcc(iSym)+nOcc(iSym) +i)
          End Do
          Do i = 0, nOcc(iSym)-1
             Work(ip_EOccu + iOcc(iSym)+i) =
