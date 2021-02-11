@@ -20,12 +20,13 @@
 *                           meeting, 7-11 April 2013).                 *
 ************************************************************************
 #include "implicit.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
+#include "real.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *
       Integer nOccAll(8), iOffCInv(8), iOffLRo(8,8), iOffLRb(8,8),
      &        nLRo(8), nLRb(8), iOffD(8), iAdrR(8), iOff_WJL(8),
@@ -51,7 +52,8 @@
       Real*8, Allocatable:: Cia(:), CaK(:), Cai(:), Cab(:), Cpq(:)
 
       Real*8, Allocatable:: Ria(:), Cpn(:), Rin(:), Cmn(:), Rmn(:)
-      Real*8, Allocatable:: Ukn(:), Vkn(:)
+      Real*8, Allocatable:: Ukn(:), Vkn(:), WJL(:), WmjKJ(:)
+      Real*8, Allocatable:: B3jl(:), B3kl(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -381,17 +383,17 @@
       Call mma_allocate(Vkn,lVkn,Label='Vkn')
 *
       lWJL = NumCho(iSym)*nMP2Vec(iSym)
-      Call GetMem('WJL','Allo','Real',ip_WJL, lWJL)
-      Call FZero(Work(ip_WJL),lWJL)
+      Call mma_allocate(WJL,lWJL,Label='WJL')
+      WJL(:)=Zero
 *
       lWmjKJ = nVec*nVec*nOcc(iSym)*nBas(iSym)
-      Call GetMem('WmjKJ','Allo','Real',ip_WmjKJ, lWmjKJ)
+      Call mma_allocate(WmjKJ,lWmjKJ,Label='WmjKJ')
 *
       lB3jl = nBas(iSym)*nOcc(iSym)*nVec
-      Call GetMem('B3jl','Allo','Real',ip_B3jl, lB3jl)
+      Call mma_allocate(B3jl,lB3jl,Label='B3jl')
 *
       lB3kl = nBas(iSym)*nBas(iSym)*nVec
-      Call GetMem('B3kl','Allo','Real',ip_B3kl, lB3kl)
+      Call mma_allocate(B3kl,lB3kl,Label='B3kl')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -643,7 +645,7 @@
             Call dGemm_('T','N',nK,nJ,nLRb(iSym),
      &                 1.0d0,Rmn,nLRb(iSym),
      &                       Cmn,nLRb(iSym),
-     &                 0.0d0,Work(ip_WJL+iOffZ), nMP2Vec(iSym))
+     &                 0.0d0,WJL(1+iOffZ), nMP2Vec(iSym))
             End If
 *                                                                      *
 ************************************************************************
@@ -665,7 +667,7 @@
                   Call dGemm_('N','N',nBas(jSym),nOcc(mSym),nBas(kSym),
      &                        1.0d0,Cmn(1+iOffL),nBas(jSym),
      &                              Rin(1+iOffR),nBas(kSym),
-     &                        0.0d0,Work(ip_WmjKJ),nBas(jSym))
+     &                        0.0d0,WmjKJ,nBas(jSym))
 *
                   Fac = 1.0d0
                   If((iK .eq. 1) .and. (iiK .eq. 1)) Fac = 0.0d0
@@ -677,8 +679,8 @@
                   iOffR = nLRb(lSym)*(iK-1) + iOffLRb(lSym,mSym2)
                   Call dGemm_('N','N',nBas(mSym2),nOcc(mSym),nBas(jSym),
      &                       1.0d0,Rmn(1+iOffR),nBas(mSym2),
-     &                             Work(ip_WmjKJ), nBas(jSym),
-     &                       Fac,  Work(ip_B3jl+iOffB),nBas(mSym2))
+     &                             WmjKJ, nBas(jSym),
+     &                       Fac,  B3jl(1+iOffB),nBas(mSym2))
 *
                   End Do ! jSym
 *
@@ -700,9 +702,9 @@
 *           Complete the 3rd RHS term in Eq. 40
 *
             Call dGemm_('N','T',nBas(jSym),nBas(kSym),nOcc(kSym),
-     &                -8.0d0,Work(ip_B3jl+iOffB1) , nBas(jSym),
+     &                -8.0d0,B3jl(1+iOffB1) , nBas(jSym),
      &                       CMO_o(1+iOff),nBas(kSym),
-     &                 0.0d0,Work(ip_B3kl+iOffB2),nBas(jSym))
+     &                 0.0d0,B3kl(1+iOffB2),nBas(jSym))
 *
             End Do ! jSym
          End Do    ! iJ
@@ -712,7 +714,7 @@
 *
          lTot = nLRb(iSym)*nJ
          iAdr = iAdrB(iSym) + nLRb(iSym)*(iiJ-1)
-         Call dDaFile(LuBTmp,iWr,Work(ip_B3kl),lTot,iAdr)
+         Call dDaFile(LuBTmp,iWr,B3kl,lTot,iAdr)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -720,8 +722,7 @@
       End Do ! iiJ
       End Do ! iSym
 *
-      Call GetMem('B3jl','Free','Real',ip_B3jl, lB3jl)
-*
+      Call mma_deallocate(B3jl)
       Call mma_deallocate(Rin)
       Call mma_deallocate(Cpn)
       Call mma_deallocate(Ria)
@@ -813,7 +814,7 @@
             iOffZ = iOff_WJL(iSym) + iiK-1 + (iiJ-1)*nMp2Vec(iSym)
             Call dGemm_('N','N',nLRb(iSym),nJ,nK,
      &                 -8.0d0,Rmn, nLRb(iSym),
-     &                        Work(ip_WJL+iOffZ),nMP2Vec(iSym),
+     &                        WJL(1+iOffZ),nMP2Vec(iSym),
      &                  Fac,  Work(ip_B2kl),nLRb(iSym))
          End Do
 *
@@ -829,7 +830,7 @@
 *
          lTot = nLRb(iSym)*nJ
          iAdr = iAdrB(iSym) + nLRb(iSym)*(iiJ-1)
-         Call dDaFile(LuBTmp,iRd,Work(ip_B3kl),lTot,iAdr)
+         Call dDaFile(LuBTmp,iRd,B3kl,lTot,iAdr)
 *
 *        Symmetrize
 *
@@ -844,8 +845,8 @@
                   kl_s = kl
                   lk = l + nBas(kSym)*(k-1) + iOffLRb(iSym,kSym)
                   Work(ip_B3kl_s+iOffL+kl_s-1) =
-     &               ( Work(ip_B3kl+iOffL+kl-1) +
-     &                 Work(ip_B3kl+iOffL+lk-1) )/2
+     &               ( B3kl(1+iOffL+kl-1) +
+     &                 B3kl(1+iOffL+lk-1) )/2
                End Do
             End Do
 *
@@ -880,8 +881,7 @@
 *
 *        Compound 2nd and 3rd RHS term in Eq. 40.
 
-         Call DaXpY_(nLRb(iSym)*nJ,1.0d0,Work(ip_B3kl),1,
-     &                                     Work(ip_B1kl),1)
+         Call DaXpY_(nLRb(iSym)*nJ,1.0d0,B3kl,1,Work(ip_B1kl),1)
 *
 *        Write compounded terms to disk
 *
@@ -912,8 +912,8 @@
          iOff1 = iOff_WJL(iSym)
          Fact=-8.0D0
       Call dGemm_('T','N', NumCho(iSym),NumCho(iSym),nMP2Vec(iSym),
-     &            Fact ,Work(ip_WJL+iOff1), nMP2Vec(iSym),!-2
-     &                  Work(ip_WJL+iOff1), nMP2Vec(iSym),
+     &            Fact ,WJL(1+iOff1), nMP2Vec(iSym),!-2
+     &                  WJL(1+iOff1), nMP2Vec(iSym),
      &            0.0d0,Work(ip_A2+iOff_A2),NumCho(iSym))
 *
          iOff_A2 = iOff_A2 + NumCho(iSym)**2
@@ -1008,10 +1008,10 @@
       Call GetMem('A1','Free','Real',ip_A1, lA1)
       Call GetMem('B2kl','Free','Real',ip_B2kl, lB2kl)
       Call GetMem('A2','Free','Real',ip_A2, lA2)
-      Call GetMem('B3kl','Free','Real',ip_B3kl, lB3kl)
+      Call mma_deallocate(B3kl)
       Call GetMem('B3kl_s','Free','Real',ip_B3kl_s, lB3kl_s)
-      Call GetMem('WmjKJ','Free','Real',ip_WmjKJ, lWmjKJ)
-      Call GetMem('WJL','Free','Real',ip_WJL, lWJL)
+      Call mma_deallocate(WmjKJ)
+      Call mma_deallocate(WJL)
 *                                                                      *
 ************************************************************************
 *                                                                      *
