@@ -321,8 +321,7 @@
                jOrb = j
                MP2D(iSym)%A(jOrb,iOrb) =
      &             Wrk(kPiK(iSym) + i-1 + nOcc(iSym)*(j-1))
-               MP2D(iSym)%A(iOrb,jOrb) =
-     &             Wrk(kPiK(iSym) + i-1 + nOcc(iSym)*(j-1))
+               MP2D(iSym)%A(iOrb,jOrb) = MP2D(iSym)%A(jOrb,iOrb)
             End Do
          End Do
 
@@ -356,7 +355,7 @@
                MP2D(iSym)%A(jOrb,iOrb) =
      &               Wrk(kCGVec(7) + j-1 +
      &               (nVir(iSym))*(i-1) + iSymOffOV)
-               MP2D(iSym)%A(iOrb,jOrb) = MP2D(iSym)%A(jOrb,iOrb
+               MP2D(iSym)%A(iOrb,jOrb) = MP2D(iSym)%A(jOrb,iOrb)
 
             End Do
          End Do
@@ -819,9 +818,7 @@
             If(i .eq. j) term = Efro(iFro(iSym)+i)
             MP2W(iSym)%A(jOrb,iOrb) =
      &          - Wrk(kWJK(iSym) + j-1 + nFro(iSym)*(i-1)) + 2.0d0*term
-            MP2W(iSym)%A(jOrb,iOrb) =
-     &           MP2W(iSym)%A(jOrb,iOrb) -
-     &           Wrk(kWij2 + j-1 + nOccAll(iSym)*(i-1))
+     &          - Wrk(kWij2 + j-1 + nOccAll(iSym)*(i-1))
          End Do
       End Do
       Do i = 1, nOcc(iSym)
@@ -830,14 +827,8 @@
                jOrb = j
                MP2W(iSym)%A(jOrb,iOrb) =
      &           - 0.5d0* Wrk(kWiK(iSym) + i-1 + nOcc(iSym)*(j-1))
-               MP2W(iSym)%A(jOrb,iOrb) =
-     &           MP2W(iSym)%A(jOrb,iOrb)
-     &         - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
-               MP2W(iSym)%A(iOrb,jOrb) =
-     &           - 0.5d0* Wrk(kWiK(iSym) + i-1 + nOcc(iSym)*(j-1))
-               MP2W(iSym)%A(iOrb,jOrb) =
-     &           MP2W(iSym)%A(iOrb,jOrb)
-     &         - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
+     &           - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
+               MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
             End Do
          End Do
       Do i = 1, nOcc(iSym)
@@ -848,8 +839,6 @@
             If(i .eq. j) term = EOcc(iOcc(iSym)+i)
             MP2W(iSym)%A(jOrb,iOrb) =
      &         - Wrk(kWij(iSym) + j-1 + nOcc(iSym)*(i-1)) + 2.0d0*term
-            MP2W(iSym)%A(jOrb,iOrb) =
-     &           MP2W(iSym)%A(jOrb,iOrb)
      &         - Wrk(kWij2 + jOrb-1 + nOccAll(iSym)*(iOrb-1))
          End Do
       End Do
@@ -860,8 +849,7 @@
             jOrb = nFro(iSym) + nOcc(iSym) + j
             MP2W(iSym)%A(jOrb,iOrb) =
      &           -0.5d0*Wrk(kWaK(iSym) + j-1 + nVir(iSym)*(i-1))
-            MP2W(iSym)%A(iOrb,jOrb) =
-     &           -0.5d0*Wrk(kWaK(iSym) + j-1 + nVir(iSym)*(i-1))
+            MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
          End Do
       End Do
 
@@ -871,8 +859,7 @@
             jOrb = nFro(iSym) + nOcc(iSym) + j
             MP2W(iSym)%A(jOrb,iOrb) =
      &           -0.5d0*Wrk(kWai(iSym) + j-1 + nVir(iSym)*(i-1))
-            MP2W(iSym)%A(iOrb,jOrb) =
-     &           -0.5d0*Wrk(kWai(iSym) + j-1 + nVir(iSym)*(i-1))
+            MP2W(iSym)%A(iOrb,jOrb) = MP2W(iSym)%A(jOrb,iOrb)
          End Do
       End Do
 
