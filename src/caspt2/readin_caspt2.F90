@@ -185,7 +185,10 @@ contains
     ! the proc_inp call (processing of input). The only variable needed here
     ! is nSym, as some input lines assume knowledge of the number of irreps.
 
-    use definitions, only: iwp,u6
+    use definitions, only:iwp
+#ifdef _ENABLE_CHEMPS2_DMRG_
+    use definitions, only:u6
+#endif
 
     implicit none
 
