@@ -54,6 +54,7 @@
       Real*8, Allocatable:: Ria(:), Cpn(:), Rin(:), Cmn(:), Rmn(:)
       Real*8, Allocatable:: Ukn(:), Vkn(:), WJL(:), WmjKJ(:)
       Real*8, Allocatable:: B3jl(:), B3kl(:)
+      Real*8, Allocatable:: B1kl(:), B2kl(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -743,7 +744,7 @@
       iSym = 1
 *
       lB1kl = nBas(iSym)*nBas(iSym)*nVec
-      Call GetMem('B1kl','Allo','Real',ip_B1kl, lB1kl)
+      Call mma_allocate(B1kl,lB1kl,Label='B1kl')
 *
       lB3kl_s = nBas(iSym)*nBas(iSym)*nVec
       Call GetMem('B3kl_s','Allo','Real',ip_B3kl_s, lB3kl_s)
@@ -757,7 +758,7 @@
       Call FZero(Work(ip_A2),lA2)
 *
       lB2kl = nBas(iSym)*nBas(iSym)*nVec
-      Call GetMem('B2kl','Allo','Real',ip_B2kl, lB2kl)
+      Call mma_allocate(B2kl,lB2kl,Label='B2kl')
 *
 *                                                                      *
 ************************************************************************
@@ -815,14 +816,14 @@
             Call dGemm_('N','N',nLRb(iSym),nJ,nK,
      &                 -8.0d0,Rmn, nLRb(iSym),
      &                        WJL(1+iOffZ),nMP2Vec(iSym),
-     &                  Fac,  Work(ip_B2kl),nLRb(iSym))
+     &                  Fac,  B2kl,nLRb(iSym))
          End Do
 *
 *        Write to disk
 *
          lTot = nLRb(iSym)*nJ
          iAdr = iAdrB(iSym) + nLRb(iSym)*(iiJ-1)
-         Call dDaFile(LuB(2),iWr,Work(ip_B2kl),lTot,iAdr)
+         Call dDaFile(LuB(2),iWr,B2kl,lTot,iAdr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -875,19 +876,19 @@
             Call dGemm_('N','N',nBas(jSym), nBas(kSym), nBas(kSym),
      &                 1.0d0,Vkn(1+iOff1), nBas(jSym),
      &                       MP2Density(1+iOff2), nBas(kSym),
-     &                 0.0d0,Work(ip_B1kl+iOff1), nBas(jSym))
+     &                 0.0d0,B1kl(1+iOff1), nBas(jSym))
             End Do
          End Do
 *
 *        Compound 2nd and 3rd RHS term in Eq. 40.
 
-         Call DaXpY_(nLRb(iSym)*nJ,1.0d0,B3kl,1,Work(ip_B1kl),1)
+         Call DaXpY_(nLRb(iSym)*nJ,1.0d0,B3kl,1,B1kl,1)
 *
 *        Write compounded terms to disk
 *
          lTot = nLRb(iSym)*nJ
          iAdr = iAdrB(iSym) + nLRb(iSym)*(iiJ-1)
-         Call dDaFile(LuB(1),iWr,Work(ip_B1kl),lTot,iAdr)
+         Call dDaFile(LuB(1),iWr,B1kl,lTot,iAdr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1004,9 +1005,9 @@
       Call mma_deallocate(Ukn)
       Call mma_deallocate(Vkn)
 *
-      Call GetMem('B1kl','Free','Real',ip_B1kl, lB2kl)
+      Call mma_deallocate(B1kl)
       Call GetMem('A1','Free','Real',ip_A1, lA1)
-      Call GetMem('B2kl','Free','Real',ip_B2kl, lB2kl)
+      Call mma_deallocate(B2kl)
       Call GetMem('A2','Free','Real',ip_A2, lA2)
       Call mma_deallocate(B3kl)
       Call GetMem('B3kl_s','Free','Real',ip_B3kl_s, lB3kl_s)
