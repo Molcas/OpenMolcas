@@ -228,7 +228,7 @@ C --- BATCH over the vectors ----------------------------
 
                End Do
 
-               Lpq(1:SIZE(ChoT)-lChot) = ChoT(1+lCho:)
+               Lpq(1:SIZE(ChoT)-lChot) = ChoT(1+lChoT:)
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
