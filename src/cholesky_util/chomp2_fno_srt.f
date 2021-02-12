@@ -15,6 +15,7 @@ C
 C      F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 C
 C
+      use ChoMP2, only: LnOcc
 #include "implicit.fh"
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk), P_ab(*), P_ii(*)
@@ -39,7 +40,6 @@ C
       LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
       LiT1am(i,j,k)=iWork(ip_LiT1am-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       LiMatij(i,j,k)=iWork(ip_LiMatij-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
-      LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 

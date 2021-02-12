@@ -17,6 +17,7 @@ C
 C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
+      use ChoMP2, only: LnOcc
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -212,7 +213,6 @@ C     -------------------------------------
             End Do
          End If
 *
-         l_LnOcc     = nSym*nBatch
          l_LnT1am    = nSym*nBatch
          l_LiT1am    = nSym*nSym*nBatch
          l_NumBatOrb = nBatch
@@ -238,8 +238,8 @@ C     -------------------------------------
          Call mma_allocate(iFirst,nBatch,Label='iFirst')
          Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
          Call mma_allocate(NumOcc,nBatch,Label='NumOcc')
+         Call mma_allocate(LnOcc,nSym,nBatch,Label='LnOcc')
 
-         Call GetMem('LnOcc','Allo','Inte',ip_LnOcc,l_LnOcc)
          Call GetMem('LnT1am','Allo','Inte',ip_LnT1am,l_LnT1am)
          Call GetMem('LiT1am','Allo','Inte',ip_LiT1am,l_LiT1am)
          Call GetMem('LnMatij','Allo','Inte',ip_LnMatij,l_LnMatij)
@@ -253,7 +253,7 @@ C     -------------------------------------
          Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
-     &                           NumOcc,iWork(ip_LnOcc),
+     &                           NumOcc,LnOcc,
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           iWork(ip_LnT1am),iWork(ip_LiT1am),
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
@@ -596,7 +596,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: print setup for Cholesky MP2.
 C
-      Use ChoMP2, only: iFirst, NumOcc
+      Use ChoMP2, only: iFirst, NumOcc, LnOcc
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
@@ -605,7 +605,6 @@ C
 
       Integer iCount(8)
 
-      LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
       NumBatOrb(i)=iWork(ip_NumBatOrb-1+i)
       LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
 
