@@ -33,7 +33,6 @@ C
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 
       Character(LEN=21), Parameter:: SecNam='ChoLSOSMP2_Energy_Srt'
 

@@ -24,7 +24,6 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Character*16 SecNam
       Parameter (SecNam='ChoMP2g_density1')

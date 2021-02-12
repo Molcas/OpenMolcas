@@ -22,7 +22,6 @@ C
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
       Real*8  DeMP2
       Logical MP2_small
       Common / ChFNOPT/ DeMP2, MP2_small

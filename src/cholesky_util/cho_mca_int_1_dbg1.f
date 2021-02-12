@@ -21,7 +21,6 @@ C
       Real*8 DIAG(*)
 #include "real.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'

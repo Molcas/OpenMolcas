@@ -24,7 +24,6 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Character Fname*5
       Real*8 Wrk(lWrk)

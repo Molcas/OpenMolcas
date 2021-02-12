@@ -25,7 +25,6 @@ C
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Character*10 ThisNm
       Character*17 SecNam

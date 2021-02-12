@@ -15,7 +15,7 @@
      &                    nBlock,l_nBlock,
      &                    nV,l_nV1,l_nV2,
      &                    iV1,l_iV11,l_iV12,
-     &                    ip_Z,l_Z1,l_Z2)
+     &                    ip_Z,l_Z1,l_Z2,Z,l_Z)
 C
 C     Thomas Bondo Pedersen, April 2010.
 C
@@ -40,14 +40,14 @@ C
       Integer l_nBlock
       Integer l_nV1, l_nV2
       Integer l_iV11, l_iV12
-      Integer l_Z1, l_Z2
+      Integer l_Z1, l_Z2, l_Z
       Integer NVT(l_NVT)
       Integer nBlock(l_nBlock)
       Integer nV(l_NV1,l_NV2)
       Integer iV1(l_IV11,l_iV12)
       Integer ip_Z(l_Z1,l_Z2)
+      Real*8  Z(l_Z)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #if defined(_DEBUGPRINT_)
 #include "choprint.fh"
@@ -175,10 +175,10 @@ C     ------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call Cho_dZero(Work(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call Cho_dZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
      &                     nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2)
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call Cho_dZero(Work(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call Cho_dZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
      &                        nV(jBlock,iSym)*nV(kBlock,iSym))
             End Do
          End Do
@@ -264,7 +264,7 @@ C     --------------
                Do J_inBlock=K_inBlock,nV(kBlock,iSym)
                   J=iV1(kBlock,iSym)+J_inBlock-1
                   iJ=iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
-                  Work(kOffZ+iTri(J_inBlock,K_inBlock))=Wrk(kOffV+iJ)
+                  Z(kOffZ+iTri(J_inBlock,K_inBlock))=Wrk(kOffV+iJ)
                End Do
                Do jBlock=kBlock+1,nBlock(iSym)
                   kOffZ=ip_Z(iTri(jBlock,kBlock),iSym)-1
@@ -272,7 +272,7 @@ C     --------------
                   Do J_inBlock=1,nV(jBlock,iSym)
                      J=iV1(jBlock,iSym)+J_inBlock-1
                      iJ=iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
-                     Work(kOffZ+J_inBlock)=Wrk(kOffV+iJ)
+                     Z(kOffZ+J_inBlock)=Wrk(kOffV+iJ)
                   End Do
                End Do
                kOffV=kOffV+nnBstR(iSym,iLoc)
@@ -289,10 +289,10 @@ C     --------------------------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call Cho_GAdGOp(Work(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call Cho_GAdGOp(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
      &                      nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2,'+')
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call Cho_GAdGOp(Work(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call Cho_GAdGOp(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
      &                         nV(jBlock,iSym)*nV(kBlock,iSym),'+')
             End Do
          End Do
@@ -317,12 +317,12 @@ C     --------------------------------------------------------
      &            'Sym=',iSym,
      &            '  J=',iV1(jBlock,iSym)+J_inBlock-1,
      &            '  Z(J,J)=',
-     &            Work(kOffZ+iTri(J_inBlock,J_inBlock)),
+     &            Z(kOffZ+iTri(J_inBlock,J_inBlock)),
      &            '  Squared=',
-     &            Work(kOffZ+iTri(J_inBlock,J_inBlock))**2
+     &            Z(kOffZ+iTri(J_inBlock,J_inBlock))**2
                End If
-               If (abs(Work(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
-     &             .or. Work(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
+               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
+     &             .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
      &         Then
                   n=n+1
                   If (iPrint.ge.myDebugInfo) Then
@@ -341,7 +341,7 @@ C     --------------------------------------------------------
       Call Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,
      &                        nV,l_nV1,l_nV2,
      &                        iV1,l_iV11,l_iV12,
-     &                        ip_Z,l_Z1,l_Z2,
+     &                        ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                        iPrint.ge.myDebugInfo)
       If (irc.ne.0) Then
          Go To 1 ! return
@@ -366,7 +366,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &                              nBlock,l_nBlock,
      &                              nV,l_nV1,l_nV2,
      &                              iV1,l_iV11,l_iV12,
-     &                              ip_Z,l_Z1,l_Z2,
+     &                              ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                              Report)
 C
 C     Thomas Bondo Pedersen, April 2010.
@@ -387,15 +387,15 @@ C
       Integer l_nBlock
       Integer l_nV1, l_nV2
       Integer l_iV11, l_iV12
-      Integer l_Z1, l_Z2
+      Integer l_Z1, l_Z2, l_Z
       Integer NVT(l_NVT)
       Integer nBlock(l_nBlock)
       Integer nV(l_NV1,l_NV2)
       Integer iV1(l_IV11,l_iV12)
       Integer ip_Z(l_Z1,l_Z2)
+      Real*8  Z(l_Z)
       Logical Report
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=18), Parameter:: SecNam='Cho_CheckDiagFromZ'
@@ -446,7 +446,7 @@ C
                   J=iV1(kBlock,iSym)+J_inBlock-1
                   iD=InfVcT(J,1,iSym)
                   IntDia(iD)=IntDia(iD)
-     &            -Work(kOffZ+iTri(J_inBlock,K_inBlock))**2
+     &            -Z(kOffZ+iTri(J_inBlock,K_inBlock))**2
                End Do
             End Do
             Do jBlock=kBlock+1,nBlock(iSym)
@@ -457,7 +457,7 @@ C
                      J=iV1(jBlock,iSym)+J_inBlock-1
                      iD=InfVcT(J,1,iSym)
                      IntDia(iD)=IntDia(iD)
-     &               -Work(kOffZ+J_inBlock)**2
+     &               -Z(kOffZ+J_inBlock)**2
                   End Do
                End Do
             End Do

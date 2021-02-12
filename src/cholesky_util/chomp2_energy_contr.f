@@ -28,7 +28,6 @@ C                              contribution to the MP2 energy
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Integer a, b, aibj, biaj, abij, baij
 

@@ -23,7 +23,6 @@ C
       LOGICAL   DSKDIA, LCONV
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 

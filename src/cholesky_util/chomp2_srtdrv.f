@@ -28,7 +28,6 @@ C
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'SrtDrv'

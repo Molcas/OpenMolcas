@@ -15,7 +15,7 @@
      &                         nBlock,l_nBlock,
      &                         nV,l_nV1,l_nV2,
      &                         iV1,l_iV11,l_iV12,
-     &                         ip_Z,l_Z1,l_Z2,
+     &                         ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                         Free_Z)
 C
 C     Thomas Bondo Pedersen, April 2010.
@@ -52,15 +52,15 @@ C
       Integer l_nBlock
       Integer l_nV1, l_nV2
       Integer l_iV11, l_iV12
-      Integer l_Z1, l_Z2
+      Integer l_Z1, l_Z2, l_Z
       Integer NVT(l_NVT)
       Integer nBlock(l_nBlock)
       Integer nV(l_NV1,l_NV2)
       Integer iV1(l_IV11,l_iV12)
       Integer ip_Z(l_Z1,l_Z2)
+      Real*8  Z(l_Z)
       Logical Free_Z
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "choprint.fh"
 
@@ -269,8 +269,8 @@ C
 #if defined (_DEBUGPRINT_)
                ! Check for division by zero or negative diagonal
                ! This would be a bug....
-               If (abs(Work(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
-     &            .or. Work(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
+               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
+     &            .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
      &         Then
                   Write(LuPri,'(//,A,A)') SecNam,': Ooooops!'
                   Write(LuPri,'(A)')
@@ -280,7 +280,7 @@ C
                   Write(LuPri,'(A,I8)') 'J=',
      &            iV1(jBlock,iSym)+J_inBlock-1
                   Write(LuPri,'(A,1P,D15.6)')
-     &            'Z(J,J)=',Work(kOffZ+iTri(J_inBlock,J_inBlock))
+     &            'Z(J,J)=',Z(kOffZ+iTri(J_inBlock,J_inBlock))
                   Write(LuPri,'(A,1P,D15.6)')
      &            'Tolerance=',Tol
                   Call Cho_Quit(
@@ -288,8 +288,8 @@ C
      &            103)
                End If
 #endif
-               XCVZd(kZd)=Work(kOffZ+iTri(J_inBlock,J_inBlock))
-               Work(kOffZ+iTri(J_inBlock,J_inBlock))=1.0d0/XCVZd(kZd)
+               XCVZd(kZd)=Z(kOffZ+iTri(J_inBlock,J_inBlock))
+               Z(kOffZ+iTri(J_inBlock,J_inBlock))=1.0d0/XCVZd(kZd)
                kZd=kZd+incZd
             End Do
          End Do
@@ -407,7 +407,7 @@ C
                   J=iV1(jBlock,iSym)+J_inBlock-1
                   kL=kOffI+nDim_Batch(iSym)*(J-1)
                   Call dScal_(nDim_Batch(iSym),
-     &                       Work(kOffZ+iTri(J_inBlock,J_inBlock)),
+     &                       Z(kOffZ+iTri(J_inBlock,J_inBlock)),
      &                       XCVInt(kL),1)
                   ! Subtract from subsequent columns in current block
                   ! using BLAS1
@@ -415,7 +415,7 @@ C
                   Do K_inBlock=J_inBlock+1,nV(jBlock,iSym)
                      K=iV1(jBlock,iSym)+K_inBlock-1
                      Call dAXPY_(nDim_Batch(iSym),
-     &                    -Work(kOffZ+iTri(K_inBlock,J_inBlock)),
+     &                    -Z(kOffZ+iTri(K_inBlock,J_inBlock)),
      &                    XCVInt(kL),1,
      &                    XCVInt(kOffI+nDim_Batch(iSym)*(K-1)),1)
                   End Do
@@ -432,7 +432,7 @@ C
      &                        nDim_Batch(iSym),nV(kBlock,iSym),
      &                        nV(jBlock,iSym),
      &                        -1.0d0,XCVInt(kL),ldL,
-     &                               Work(kZ),ldZ,
+     &                               Z(kZ),ldZ,
      &                         1.0d0,XCVInt(kI),ldL)
                End Do
             End Do
@@ -492,22 +492,16 @@ C
          Call Cho_Flush(LuPri)
       End If
 
-      ! De-allocate Z matrix or reconstruct diagonal of Z matrix
+      ! If not De-allocate Z matrix then reconstruct diagonal of Z matrix
       ! Z(J,J) <- 1/Z(J,J)
-      If (Free_Z) Then
-         lTot=NVT(1)*(NVT(1)+1)/2
-         Do iSym=2,nSym
-            lTot=lTot+NVT(iSym)*(NVT(iSym)+1)/2
-         End Do
-         Call GetMem('XCVFZ','Free','Real',ip_Z(1,1),lTot)
-      Else
+      If (.Not.Free_Z) Then
          kZd=0
          Do iSym=1,nSym
             Do jBlock=1,nBlock(iSym)
                kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
                Do J_inBlock=1,nV(jBlock,iSym)
                   J=iV1(jBlock,iSym)+J_inBlock-1
-                  Work(kOffZ+iTri(J_inBlock,J_inBlock))=XCVZd(kZd+J)
+                  Z(kOffZ+iTri(J_inBlock,J_inBlock))=XCVZd(kZd+J)
                End Do
             End Do
             kZd=kZd+NVT(iSym)

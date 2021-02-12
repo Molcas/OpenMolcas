@@ -29,7 +29,6 @@
 #include "chomp2.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer irc
       Real*8 EOcc(*), EVir(*)

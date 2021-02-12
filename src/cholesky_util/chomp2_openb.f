@@ -23,7 +23,6 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'ChoMP2_OpenB')
