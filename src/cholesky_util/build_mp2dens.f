@@ -10,20 +10,16 @@
 ************************************************************************
       Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
      &                         nOrbAll,nOccAll,Diagonalize)
-
+      use ChoMP2, only: Pointer_2D
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "corbinf.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
-      Type Pointers
-        Real*8, Pointer:: A(:,:)=>Null()
-      End Type Pointers
-
       Integer   nTriDens
       Real*8    TriDens(nTriDens)
-      Type (Pointers):: MP2X_e(8)
+      Type (Pointer_2D):: MP2X_e(8)
       Real*8    CMO(*)
       Integer   mSym
       Integer   nOrbAll(8), nOccAll(8)

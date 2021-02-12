@@ -17,7 +17,7 @@
 *                                                                      *
 *     Purpose: Finalize MP2 Density.                                   *
 ************************************************************************
-      use ChoMP2, only: Pointers, MP2D, MP2W, MP2W_e, MP2D_e
+      use ChoMP2, only: Pointer_2D, MP2D, MP2W, MP2W_e, MP2D_e
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 CMO(*)
@@ -41,13 +41,11 @@
       Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
      &                         nOrbAll,nOccAll,Diagonalize)
 
-      Type Pointers
-        Real*8, Pointer:: A(:,:)
-      End Type Pointers
+      use ChoMP2, only: Pointer_2D
 
       Integer        , Intent(In)    ::nTriDens
       Real*8         , Intent(InOut) :: TriDens(nTriDens)
-      Type (Pointers), Intent(In)    :: MP2X_e(8)
+      Type (Pointer_2D), Intent(In)    :: MP2X_e(8)
       Real*8         , Intent(In)    :: CMO(*)
       Integer        , Intent(In)    :: mSym
       Integer        , Intent(In)    :: nOrbAll(8), nOccAll(8)
