@@ -12,11 +12,12 @@
 ************************************************************************
 
       SubRoutine ChoMP2g_Density3(irc,CMO)
-*     Jonas Bostrom, March 2010.
-*
-*     Purpose: Finalize MP2 Density.
-
-      use ChoMP2, only: MP2D, MP2W, MP2W_e, MP2D_e
+************************************************************************
+*     Jonas Bostrom, March 2010.                                       *
+*                                                                      *
+*     Purpose: Finalize MP2 Density.                                   *
+************************************************************************
+      use ChoMP2, only: Pointers, MP2D, MP2W, MP2W_e, MP2D_e
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 CMO(*)
@@ -33,6 +34,29 @@
       Integer nOccAll(8), nOrbAll(8)
 
       Real*8, Allocatable:: AOTriDens(:), WAOTriDens(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,
+     &                         nOrbAll,nOccAll,Diagonalize)
+
+      Type Pointers
+        Real*8, Pointer:: A(:,:)
+      End Type Pointers
+
+      Integer        , Intent(In)    ::nTriDens
+      Real*8         , Intent(InOut) :: TriDens(nTriDens)
+      Type (Pointers), Intent(In)    :: MP2X_e(8)
+      Real*8         , Intent(In)    :: CMO(*)
+      Integer        , Intent(In)    :: mSym
+      Integer        , Intent(In)    :: nOrbAll(8), nOccAll(8)
+      Logical        , Intent(In)    :: Diagonalize
+      End Subroutine Build_Mp2Dens
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
       irc=0
 
@@ -67,9 +91,9 @@
 *
 
       Call Build_Mp2Dens( AOTriDens,lTriDens, MP2D_e,CMO,nSym,
-     &                    nOrbAll, nOccAll,.True.)
+     &                   nOrbAll, nOccAll,.True.)
       Call Build_Mp2Dens(WAOTriDens,lTriDens, MP2W_e,CMO,nSym,
-     &                    nOrbAll, nOccAll,.False.)
+     &                   nOrbAll, nOccAll,.False.)
 
       Call Put_D1ao_Var(AOTriDens,lTriDens)
       Call Put_Fock_Occ(WAOTriDens,lTriDens)

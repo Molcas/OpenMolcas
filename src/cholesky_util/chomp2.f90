@@ -13,6 +13,7 @@
 Module ChoMP2
 Implicit none
 Private
+Public:: Pointers
 Public:: ChoMP2_allocated, ChoMP2g_allocated, OldVec, EFrozT, EOccuT, EVirtT
 Public:: AdrR1, AdrR2
 Public:: MP2W_full, MP2W
