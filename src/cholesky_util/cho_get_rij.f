@@ -161,7 +161,7 @@ C ---
 
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
       Call mma_allocate(Ltr,Maj*nVec,Label='Ltr')
-      ipLtr = ip_of_Work(Ltr)
+      ipLtr = ip_of_Work(Ltr(1))
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 

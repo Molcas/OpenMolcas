@@ -492,7 +492,7 @@ C
          Call Cho_Flush(LuPri)
       End If
 
-      ! If not De-allocate Z matrix then reconstruct diagonal of Z matrix
+      ! If not deallocate Z matrix then reconstruct diagonal of Z matrix
       ! Z(J,J) <- 1/Z(J,J)
       If (.Not.Free_Z) Then
          kZd=0
