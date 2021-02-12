@@ -298,7 +298,7 @@ C         write(6,*) (EigVec(IRow,ICol), ICol=1,NDim)
 C       END DO
        DO ICol=1,NDIM
         Do IRow=1,NDIM
-         EigVec(IRow,ICol)=WORK(LVal+(ICol-1)*NDIM+IRow-1)
+         EigVec(IRow,ICol)=WORK(LVal+(IRow-1)*NDIM+ICol-1)
         End Do
        END DO
        Call GetMem('EVa','FREE','REAL',LVal,NElem)
@@ -322,7 +322,7 @@ C       END DO
      &                Work(LScr),NScr,INFO)
        DO ICol=1,NDIM
         Do IRow=1,NDIM
-         EigVec(IRow,ICol)=WORK(LMat+(ICol-1)*NDIM+IRow-1)
+         EigVec(IRow,ICol)=WORK(LMat+(IRow-1)*NDIM+ICol-1)
         End Do
        END DO
        Call GetMem('Scr','Free','Real',LScr,NScr)
