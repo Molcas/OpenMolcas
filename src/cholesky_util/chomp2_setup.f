@@ -11,7 +11,7 @@
 * Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 ************************************************************************
       SubRoutine ChoMP2_Setup(irc)
-        use ChoMP2, only: ChoMP2_allocated, iFirst
+        use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS
 C
 C     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
 C
@@ -238,8 +238,8 @@ C     -------------------------------------
          ChoMP2_allocated=.TRUE.
 
          Call mma_allocate(iFirst,nBatch,Label='iFirst')
+         Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
 
-         Call GetMem('FirstS','Allo','Inte',ip_FirstS,l_FirstS)
          Call GetMem('NumOcc','Allo','Inte',ip_NumOcc,l_NumOcc)
          Call GetMem('LnOcc','Allo','Inte',ip_LnOcc,l_LnOcc)
          Call GetMem('LnT1am','Allo','Inte',ip_LnT1am,l_LnT1am)
@@ -254,7 +254,7 @@ C     -------------------------------------
          Call GetMem('LnBatOrb','Allo','Inte',ip_LnBatOrb,l_LnBatOrb)
          Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
-         Call ChoMP2_Setup_Index(iFirst,iWork(ip_FirstS),
+         Call ChoMP2_Setup_Index(iFirst,iFirstS,
      &                           iWork(ip_NumOcc),iWork(ip_LnOcc),
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           iWork(ip_LnT1am),iWork(ip_LiT1am),

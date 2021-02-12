@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: copy out subblock of vectors.
 C
+      use ChoMP2, only: iFirstS
 #include "implicit.fh"
       Real*8  Vec(*), Srt(*)
 #include "cholesky.fh"
@@ -30,7 +31,6 @@ C
       LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
       LiT1am(i,j,k)=iWork(ip_LiT1am-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       LiPQprod(i,j,k)=iWork(ip_LiPQprod-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
 
       If(.not.DoDens) Then
          Do iVec = 1,nVec

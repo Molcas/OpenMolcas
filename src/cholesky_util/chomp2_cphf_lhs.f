@@ -17,6 +17,7 @@
 *     This will calculate a trial lefthandside of the cphf equations.
 *
 *
+      use ChoMP2, only: iFirstS
 #include "implicit.fh"
       Real*8 EOcc(*), Evir(*), EFro(*), EDel(*), Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -30,7 +31,6 @@
 *
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
       iAp(i,j,k)= ip_Ap + iVecOff(k) + j-1 + (nOcc(k)+nFro(k))*(i-1)
       iPvec(i,j,k)=ip_P + iVecOff(k) + j-1 + (nOcc(k)+nFro(k))*(i-1)
       LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)

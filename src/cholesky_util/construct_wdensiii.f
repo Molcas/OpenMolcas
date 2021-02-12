@@ -19,6 +19,7 @@
 *     Purpose: Construct the piece of the energy-weighted density
 *              usually labeled III.
 *
+      use ChoMP2, only: iFirstS
 #include "implicit.fh"
       Real*8 Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -42,7 +43,6 @@
      &                    +  j-1
      &                    + (nOrb(k) + nDel(k))
      &                    * (i-1)
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
       LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
       LiPQprod(i,j,k) = iWork(ip_LiPQprod-1+
      &                        nSym*nSym*(k-1)+nSym*(j-1)+i)

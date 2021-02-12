@@ -21,6 +21,7 @@ C              batch of (ai|bj) integrals.
 C
 C     Modified by F. Aquilante to compute separately the Opposite-Spin
 C                              contribution to the MP2 energy
+      use ChoMP2, only: iFirstS
 #include "implicit.fh"
       Real*8  EOcc(*), EVir(*), Xaibj(LnT2am)
       Integer LiT2am(8)
@@ -33,7 +34,6 @@ C                              contribution to the MP2 energy
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
       LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
       LiT1am(i,j,k)=iWork(ip_LiT1am-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
