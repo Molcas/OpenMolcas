@@ -18,7 +18,7 @@ C     Purpose: setup (ai|bj) index arrays for batch i,j.
 C              For iBatch=jBatch and ChoAlg=2, (ai|bj) is stored as
 C              the matrix M(ab,ij) with i<=j.
 C
-      use ChoMP2, only: LnT1am
+      use ChoMP2, only: LnT1am, LnMatij
       Implicit None
       Integer LnT2am, iBatch, jBatch
       Integer LiT2am(8)
@@ -28,13 +28,10 @@ C
 #include "WrkSpc.fh"
 
       Integer iSym
-      Integer LnMatij, i, j
 
       Character*14 String
       Character*20 SecNam
       Parameter (SecNam = 'ChoMP2_Energy_GetInd')
-
-      LnMatij(i,j)=iWork(ip_LnMatij-1+nSym*(j-1)+i)
 
       If (iBatch .eq. jBatch) Then
          LnT2am = 0

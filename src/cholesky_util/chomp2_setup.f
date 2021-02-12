@@ -17,7 +17,7 @@ C
 C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
-      use ChoMP2, only: LnOcc, LnT1am, LiT1am
+      use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -217,10 +217,10 @@ C     -------------------------------------
          l_NumBatOrb = nBatch
          l_LnBatOrb  = nSym*nBatch
          If (ChoAlg .eq. 2) Then
-            l_LnMatij = nSym*nBatch
+            Call mma_allocate(LnMatij,nSym,nBatch,Label='LnMatij')
             l_LiMatij = nSym*nSym*nBatch
          Else
-            l_LnMatij = 1
+            Call mma_allocate(LnMatij,   1,     1,Label='LnMatij')
             l_LiMatij = 1
          End If
          If(.false.) Then
@@ -241,7 +241,6 @@ C     -------------------------------------
          Call mma_allocate(LnT1am,nSym,nBatch,Label='LnT1am')
          Call mma_allocate(LiT1am,nSym,nSym,nBatch,Label='LiT1am')
 
-         Call GetMem('LnMatij','Allo','Inte',ip_LnMatij,l_LnMatij)
          Call GetMem('LiMatij','Allo','Inte',ip_LiMatij,l_LiMatij)
          Call GetMem('lUnit','Allo','Inte',ip_lUnit,l_lUnit)
 *     Generalization of NumOcc for arbitrary quantity to batch over
@@ -256,7 +255,7 @@ C     -------------------------------------
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           LnT1am,LiT1am,
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
-     &                           iWork(ip_LnMatij),iWork(ip_LiMatij),
+     &                           LnMatij,iWork(ip_LiMatij),
      &                           nSym,nBatch)
 
          Call mma_maxDBLE(lWork)
@@ -391,7 +390,7 @@ C
          Call Cho_iZero(LiPQprod,nSym*nBatch)
       End If
       If (ChoAlg .eq. 2) Then
-         Call Cho_iZero(LnMatij,nSym*nBatch)
+         LnMatij(:,:)=0
          Call Cho_iZero(LiMatij,nSym*nSym*nBatch)
       End If
 *
