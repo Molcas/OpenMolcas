@@ -78,7 +78,6 @@ C
 
       If (.NOT.ChoMP2g_allocated) Return
 
-      Call GetMem('MoMoTable','Free','Inte',ipMoMoTable,lMoMoTable)
       Call mma_deallocate(MP2D_full)
       Call mma_deallocate(MP2W_full)
       Call mma_deallocate(MP2D_e_full)

@@ -36,10 +36,6 @@
 *
 ******************************************************
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-*
-      iMoMoTable(iOrb,iSym,iPar) = ipMoMoTable +
-     &                             iPar-1 + (iSym-1)*3 +
-     &                             (iOrb-1)*nSym*3
 ******************************************************
       nMOType = 3
       Call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
@@ -101,25 +97,6 @@
                nAoMo(iSym,iMoType) =
      &               nAoMo(iSym,iMoType) +
      &               nBas(iSymAl)*nMO(iSymQ,iMoType)
-            End Do
-         End Do
-      End Do
-
-
-*     Stupid memoryjumping here that should be solved
-      lMoMoTable = nOccVirT*3*nSym
-      Call GetMem('MoMoTable','Allo','Inte',ipMoMoTable,lMoMoTable)
-      Do iSym = 1, nSym
-         index = 0
-         Do iSymI = 1, nSym
-            iSymA = MulD2h(iSymI,iSym)
-            Do iI = 1, nOcc(iSymI)
-               Do iA = 1, nVir(iSymA)
-                  index = index + 1
-                  iWork(iMoMoTable(index,iSym,1)) = iSymI
-                  iWork(iMoMoTable(index,iSym,2)) = iI
-                  iWork(iMoMoTable(index,iSym,3)) = iA
-               End Do
             End Do
          End Do
       End Do

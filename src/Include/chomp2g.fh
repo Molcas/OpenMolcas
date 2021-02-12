@@ -14,7 +14,7 @@
         Integer nMoMo, iMoMo, nMoType
         Integer iMoAo, nMoAo,iAoMo,nAoMo
         Integer iAdrOff, nAdrOff
-        Integer nOccVirT,ipMoMoTable
+        Integer nOccVirT,
         Integer kPab, kPij, kPiK, kLagr, kFLagr, kWab,kWij,
      &          kWai, kWiK, kWaK, kPaK, kPai, kWJK,
      &          lPab, lPij, lPiK, lLagr, lFLagr, lWab,lWij,
@@ -25,7 +25,7 @@
      &                     nMoType, nMoAo(8,9), iMoAo(8,8,9),
      &                              nAoMo(8,9), iAoMo(8,8,9),
      &                     iAdrOff(8,9), nAdrOff(8),
-     &                     nOccVirT,ipMoMoTable,
+     &                     nOccVirT,
      &                     kPab(8), kPij(8), kPiK(8), kLagr(8),
      &                     kFLagr(8), kWab(8),kWij(8), kWai(8),
      &                     kWiK(8), kWaK(8), kPaK(8), kPai(8),
