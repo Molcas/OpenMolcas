@@ -14,7 +14,7 @@
 ************************************************************************
       SubRoutine ChoMP2_deallocate(irc)
       use ChoMP2, only: ChoMP2_allocated
-      use ChoMP2, only: First
+      use ChoMP2, only: iFirst
 C
 C     Purpose: to deallocate memory of the  Cholesky MP2 program.
 C
@@ -40,7 +40,7 @@ C
       Call GetMem('LnOcc','Free','Inte',ip_LnOcc,l_LnOcc)
       Call GetMem('NumOcc','Free','Inte',ip_NumOcc,l_NumOcc)
       Call GetMem('FirstS','Free','Inte',ip_FirstS,l_FirstS)
-      Call mma_deallocate(First)
+      Call mma_deallocate(iFirst)
 *
       l_LiT1am  = 0
       l_LnT1am  = 0

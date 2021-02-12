@@ -11,7 +11,7 @@
 * Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 ************************************************************************
       SubRoutine ChoMP2_Setup(irc)
-      use ChoMP2
+        use ChoMP2, only: ChoMP2_allocated, iFirst
 C
 C     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
 C
@@ -237,7 +237,7 @@ C     -------------------------------------
          Call ChoMP2_deallocate(irc)
          ChoMP2_allocated=.TRUE.
 
-         Call mma_allocate(First,nBatch,Label='First')
+         Call mma_allocate(iFirst,nBatch,Label='iFirst')
 
          Call GetMem('FirstS','Allo','Inte',ip_FirstS,l_FirstS)
          Call GetMem('NumOcc','Allo','Inte',ip_NumOcc,l_NumOcc)
@@ -254,7 +254,7 @@ C     -------------------------------------
          Call GetMem('LnBatOrb','Allo','Inte',ip_LnBatOrb,l_LnBatOrb)
          Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
-         Call ChoMP2_Setup_Index(First,iWork(ip_FirstS),
+         Call ChoMP2_Setup_Index(iFirst,iWork(ip_FirstS),
      &                           iWork(ip_NumOcc),iWork(ip_LnOcc),
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           iWork(ip_LnT1am),iWork(ip_LiT1am),
@@ -598,7 +598,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: print setup for Cholesky MP2.
 C
-      Use ChoMP2, only: iFirst => First
+      Use ChoMP2, only: iFirst
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
