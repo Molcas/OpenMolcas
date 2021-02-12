@@ -17,7 +17,7 @@ C
 C     Compute Laplace-SOS-MP2 energy correction from sorted Cholesky
 C     vectors (i.e., occupied orbitals processed in batches).
 C
-      use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am
+      use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, lUnit
       Implicit None
       Integer N
       Real*8  w(N)
@@ -70,13 +70,11 @@ C
       Real*8, Allocatable:: X(:), V(:)
       Integer j, k
       Real*8  epsi, epsa
-      Integer MulD2h, lUnit
+      Integer MulD2h
 
       epsi(j,k)=EOcc(iOcc(k)+j)
       epsa(j,k)=EVir(iVir(k)+j)
       MulD2h(j,k)=iEOr(j-1,k-1)+1
-
-      lUnit(j,k)=iWork(ip_lUnit-1+nSym*(k-1)+j)
 
       ! init return code
       irc=0

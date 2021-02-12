@@ -18,6 +18,7 @@ C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
+      use ChoMP2, only: lUnit
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -233,7 +234,6 @@ C     -------------------------------------
             l_LnPQprod = 1
             l_LiPQprod = 1
          End If
-         l_lUnit  = nSym*nBatch
 
          Call mma_allocate(iFirst,nBatch,Label='iFirst')
          Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
@@ -241,8 +241,8 @@ C     -------------------------------------
          Call mma_allocate(LnOcc,nSym,nBatch,Label='LnOcc')
          Call mma_allocate(LnT1am,nSym,nBatch,Label='LnT1am')
          Call mma_allocate(LiT1am,nSym,nSym,nBatch,Label='LiT1am')
+         Call mma_allocate(lUnit,nSym,nBatch,Label='lUnit')
 
-         Call GetMem('lUnit','Allo','Inte',ip_lUnit,l_lUnit)
 *     Generalization of NumOcc for arbitrary quantity to batch over
 *     Would be good to kill NumOcc safely and only use one...
          Call GetMem('NumBatOrb','Allo','Inte',ip_NumBatOrb,l_NumBatOrb)

@@ -19,7 +19,7 @@ C              delete (iOpt=3) Cholesky vector files for MP2 program
 C              (batch vectors).
 C              For iOpt=0, the units are initialized (to -1).
 C
-      use ChoMP2, only: LnT1am
+      use ChoMP2, only: LnT1am, lUnit
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2.fh"
@@ -33,13 +33,12 @@ C
 
       Character*6 BtchNm
 
-      lUnit(i,j)=iWork(ip_lUnit-1+nSym*(j-1)+i)
 
 C     Initialize units and return for iOpt=0.
 C     ---------------------------------------
 
       If (iOpt .eq. 0) Then
-         iWork(ip_lUnit-1+nSym*(iBatch-1)+iSym) = -1
+         lUnit(iSym,iBatch) = -1
          Return
       End If
 
@@ -64,18 +63,18 @@ C     --------------------
          Else
             lU = -1
          End If
-         iWork(ip_lUnit-1+nSym*(iBatch-1)+iSym) = lU
+         lUnit(iSym,iBatch) = lU
       Else If (iOpt .eq. 2) Then
          lU = lUnit(iSym,iBatch)
          If (lU .gt. 0) Then
             Call daClos(lU)
-            iWork(ip_lUnit-1+nSym*(iBatch-1)+iSym) = -1
+            lUnit(iSym,iBatch) = -1
          End If
       Else If (iOpt .eq. 3) Then
          lU = lUnit(iSym,iBatch)
          If (lU .gt. 0) Then
             Call daEras(lU)
-            iWork(ip_lUnit-1+nSym*(iBatch-1)+iSym) = -1
+            lUnit(iSym,iBatch) = -1
          End If
       Else
          Call ChoMP2_Quit(SecNam,'iOpt out of bounds',' ')
