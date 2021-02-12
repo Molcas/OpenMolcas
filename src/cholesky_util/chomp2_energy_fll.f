@@ -17,6 +17,7 @@ C
 C     Purpose: compute MP2 energy contribution using original
 C              Cholesky vectors on disk for the case nBatch=1.
 C
+      use ChoMP2, only: LiMatij
 #include "implicit.fh"
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)
@@ -35,7 +36,6 @@ C
       Real*8 X(0:1)
       Data X /0.0D0,1.0D0/
 
-      LiMatij(i,j,k)=iWork(ip_LiMatij-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 

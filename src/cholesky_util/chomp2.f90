@@ -21,7 +21,7 @@ Public:: MP2D_full, MP2D
 Public:: MP2W_e_full, MP2W_e
 Public:: MP2D_e_full, MP2D_e
 
-Public:: iFirst, iFirstS, NumOcc, LnOcc, LnT1am, LiT1am, LnMatij
+Public:: iFirst, iFirstS, NumOcc, LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
 
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
@@ -48,5 +48,5 @@ Integer, Allocatable:: AdrR1(:,:,:), AdrR2(:,:,:)
 
 Integer, Allocatable:: iFirst(:), iFirstS(:,:), NumOcc(:), LnOcc(:,:)
 Integer, Allocatable:: LnT1am(:,:), LiT1am(:,:,:)
-Integer, Allocatable:: LnMatij(:,:)
+Integer, Allocatable:: LnMatij(:,:), LiMatij(:,:,:)
 End Module ChoMP2

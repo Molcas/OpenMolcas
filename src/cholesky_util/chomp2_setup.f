@@ -17,7 +17,7 @@ C
 C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
-      use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij
+      use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -213,15 +213,18 @@ C     -------------------------------------
             End Do
          End If
 *
+         Call ChoMP2_deallocate(irc)
+         ChoMP2_allocated=.TRUE.
+
          l_LiT1am    = nSym*nSym*nBatch
          l_NumBatOrb = nBatch
          l_LnBatOrb  = nSym*nBatch
          If (ChoAlg .eq. 2) Then
             Call mma_allocate(LnMatij,nSym,nBatch,Label='LnMatij')
-            l_LiMatij = nSym*nSym*nBatch
+            Call mma_allocate(LiMatij,nSym,nSym,nBatch,Label='LiMatij')
          Else
             Call mma_allocate(LnMatij,   1,     1,Label='LnMatij')
-            l_LiMatij = 1
+            Call mma_allocate(LiMatij,   1,   1,     1,Label='LiMatij')
          End If
          If(.false.) Then
             l_LnPQprod = nSym*nBatch
@@ -231,8 +234,6 @@ C     -------------------------------------
             l_LiPQprod = 1
          End If
          l_lUnit  = nSym*nBatch
-         Call ChoMP2_deallocate(irc)
-         ChoMP2_allocated=.TRUE.
 
          Call mma_allocate(iFirst,nBatch,Label='iFirst')
          Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
@@ -241,7 +242,6 @@ C     -------------------------------------
          Call mma_allocate(LnT1am,nSym,nBatch,Label='LnT1am')
          Call mma_allocate(LiT1am,nSym,nSym,nBatch,Label='LiT1am')
 
-         Call GetMem('LiMatij','Allo','Inte',ip_LiMatij,l_LiMatij)
          Call GetMem('lUnit','Allo','Inte',ip_lUnit,l_lUnit)
 *     Generalization of NumOcc for arbitrary quantity to batch over
 *     Would be good to kill NumOcc safely and only use one...
@@ -255,7 +255,7 @@ C     -------------------------------------
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           LnT1am,LiT1am,
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
-     &                           LnMatij,iWork(ip_LiMatij),
+     &                           LnMatij,LiMatij,
      &                           nSym,nBatch)
 
          Call mma_maxDBLE(lWork)
@@ -391,7 +391,7 @@ C
       End If
       If (ChoAlg .eq. 2) Then
          LnMatij(:,:)=0
-         Call Cho_iZero(LiMatij,nSym*nSym*nBatch)
+         LiMatij(:,:,:)=0
       End If
 *
       Num = nBatOrbT/nBatch
