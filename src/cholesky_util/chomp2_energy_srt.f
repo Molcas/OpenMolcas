@@ -17,7 +17,7 @@ C
 C     Purpose: compute MP2 energy contribution using presorted MO
 C              Cholesky vectors on disk.
 C
-      use ChoMP2, only: LnOcc, LnT1am
+      use ChoMP2, only: LnOcc, LnT1am, LiT1am
 #include "implicit.fh"
       Logical Delete
       Real*8  EOcc(*), EVir(*), Wrk(lWrk)
@@ -39,7 +39,6 @@ C
       Data X /0.0D0,1.0D0/
 
       lUnit(i,j)=iWork(ip_lUnit-1+nSym*(j-1)+i)
-      LiT1am(i,j,k)=iWork(ip_LiT1am-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       LiMatij(i,j,k)=iWork(ip_LiMatij-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j

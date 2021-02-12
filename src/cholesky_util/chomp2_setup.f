@@ -17,7 +17,7 @@ C
 C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
-      use ChoMP2, only: LnOcc, LnT1am
+      use ChoMP2, only: LnOcc, LnT1am, LiT1am
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -239,8 +239,8 @@ C     -------------------------------------
          Call mma_allocate(NumOcc,nBatch,Label='NumOcc')
          Call mma_allocate(LnOcc,nSym,nBatch,Label='LnOcc')
          Call mma_allocate(LnT1am,nSym,nBatch,Label='LnT1am')
+         Call mma_allocate(LiT1am,nSym,nSym,nBatch,Label='LiT1am')
 
-         Call GetMem('LiT1am','Allo','Inte',ip_LiT1am,l_LiT1am)
          Call GetMem('LnMatij','Allo','Inte',ip_LnMatij,l_LnMatij)
          Call GetMem('LiMatij','Allo','Inte',ip_LiMatij,l_LiMatij)
          Call GetMem('lUnit','Allo','Inte',ip_lUnit,l_lUnit)
@@ -254,7 +254,7 @@ C     -------------------------------------
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
      &                           NumOcc,LnOcc,
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
-     &                           LnT1am,iWork(ip_LiT1am),
+     &                           LnT1am,LiT1am,
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
      &                           iWork(ip_LnMatij),iWork(ip_LiMatij),
      &                           nSym,nBatch)
@@ -379,13 +379,13 @@ C
       End If
 
       iFirst(:)=0
-      Call Cho_iZero(iFirstS,nSym*nBatch)
-      Call Cho_iZero(NumOcc,nBatch)
-      Call Cho_iZero(NumBatOrb,nBatch)
-      Call Cho_iZero(LnOcc,nSym*nBatch)
-      Call Cho_iZero(LnBatOrb,nSym*nBatch)
-      Call Cho_iZero(LnT1am,nSym*nBatch)
-      Call Cho_iZero(LiT1am,nSym*nSym*nBatch)
+      iFirstS(:,:)=0
+      NumOcc(:)=0
+      NumBatOrb(:)=0
+      LnOcc(:,:)=0
+      LnBatOrb(:,:)=0
+      LnT1am(:,:)=0
+      LiT1am(:,:,:)=0
       If(.false.) Then
          Call Cho_iZero(LnPQprod,nSym*nBatch)
          Call Cho_iZero(LiPQprod,nSym*nBatch)
