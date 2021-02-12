@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Dresselhaus                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Dresselhaus                                     *
+!***********************************************************************
       subroutine embPotOutput(nAtoms, mAdDns)
-************************************************************************
-*                                                                      *
-* Object: Calculates and writes out the electrostatic potential on a   *
-*         grid.                                                        *
-*                                                                      *
-* Called from: OneEl                                                   *
-*              RASSCF (version below)                                  *
-*                                                                      *
-* Calling    : GetMem                                                  *
-*              IniSewM                                                 *
-*              Drv1_Pot                                                *
-*              molcas_open                                             *
-*              embpot routines                                         *
-*                                                                      *
-*     Author: Thomas Dresselhaus                                       *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: Calculates and writes out the electrostatic potential on a   *
+!         grid.                                                        *
+!                                                                      *
+! Called from: OneEl                                                   *
+!              RASSCF (version below)                                  *
+!                                                                      *
+! Calling    : GetMem                                                  *
+!              IniSewM                                                 *
+!              Drv1_Pot                                                *
+!              molcas_open                                             *
+!              embpot routines                                         *
+!                                                                      *
+!     Author: Thomas Dresselhaus                                       *
+!                                                                      *
+!***********************************************************************
 
 #include "WrkSpc.fh"
 
@@ -56,7 +56,7 @@
         call inisewm('mltpl',0)
 !       write(*,*) "inisewm done!"
         nordop=0
-        Call Drv1_Pot(Work(mAdDns),Work(posEmbGridCoord),
+        Call Drv1_Pot(Work(mAdDns),Work(posEmbGridCoord),               &
      &               Work(ipEspGrid),nEmbGridPoints,1,nordop)
 !       write(*,*) "Coords:"
 !       write(*,*) Work(ipCoordsEmb),Work(ipCoordsEmb+1),
@@ -74,14 +74,14 @@
        end if
        do i=0, nEmbGridPoints-1
         do j=0, nAtoms-1
-         distGpAtom=sqrt(
-     &              (Work(ipCoordsEmb+3*j)-Work(posEmbGridCoord+3*i))*
-     &              (Work(ipCoordsEmb+3*j)-Work(posEmbGridCoord+3*i))+
-     &            (Work(ipCoordsEmb+3*j+1)-Work(posEmbGridCoord+3*i+1))*
-     &            (Work(ipCoordsEmb+3*j+1)-Work(posEmbGridCoord+3*i+1))+
-     &            (Work(ipCoordsEmb+3*j+2)-Work(posEmbGridCoord+3*i+2))*
+         distGpAtom=sqrt(                                               &
+     &              (Work(ipCoordsEmb+3*j)-Work(posEmbGridCoord+3*i))*  &
+     &              (Work(ipCoordsEmb+3*j)-Work(posEmbGridCoord+3*i))+  &
+     &            (Work(ipCoordsEmb+3*j+1)-Work(posEmbGridCoord+3*i+1))*&
+     &            (Work(ipCoordsEmb+3*j+1)-Work(posEmbGridCoord+3*i+1))+&
+     &            (Work(ipCoordsEmb+3*j+2)-Work(posEmbGridCoord+3*i+2))*&
      &            (Work(ipCoordsEmb+3*j+2)-Work(posEmbGridCoord+3*i+2)))
-         if (embWriteEsp) Work(ipEspGrid+i) = Work(ipEspGrid+i)+
+         if (embWriteEsp) Work(ipEspGrid+i) = Work(ipEspGrid+i)+        &
      &                       Work(ipChargesEmb+j)/distGpAtom
         end do
         if (embWriteEsp) then
@@ -104,7 +104,7 @@
 
       ! Actually the incoming densities are in an AO basis and treated
       ! as such...
-      subroutine embPotOutputMODensities(nAtoms, nSym,
+      subroutine embPotOutputMODensities(nAtoms, nSym,                  &
      &             ipDensInact, ipDensAct, nBasPerSym, nBasTotSquare)
 
 #include "WrkSpc.fh"
@@ -121,7 +121,7 @@
        call GetMem('TotDp','ALLO','REAL',ipTotDensP,iDensDimPck)
 
        call dcopy_(nBasTotSquare,Work(ipDensInact),1,Work(ipTotDens),1)
-       call daxpy_(nBasTotSquare,1.0d0,Work(ipDensAct),1,Work(ipTotDens)
+       call daxpy_(nBasTotSquare,1.0d0,Work(ipDensAct),1,Work(ipTotDens)&
      &            ,1)
        !Pack density
        iCnt = 0
@@ -131,10 +131,10 @@
          do iCol=1, iRow
           iCnt = iCnt+1
           if (iRow .eq. iCol) then
-           Work(ipTotDensP+iCnt-1)=
+           Work(ipTotDensP+iCnt-1)=                                     &
      &              Work(ipTotDens+(iRow-1)*nBasPerSym(i)+iCol-1+iCnt2)
           else
-           Work(ipTotDensP+iCnt-1)=
+           Work(ipTotDensP+iCnt-1)=                                     &
      &            2*Work(ipTotDens+(iRow-1)*nBasPerSym(i)+iCol-1+iCnt2)
           end if
          end do

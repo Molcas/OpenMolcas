@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-* Data shared for an embedding potential on a grid
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! Data shared for an embedding potential on a grid
 
-*******
+!******
       Integer nEmbGridPoints
 
       ! The energy coming from the embedding potential
@@ -41,7 +41,7 @@
 !
 !      end interface
 
-******* Positions in the Work array
+!****** Positions in the Work array
       ! Coordinates of the grid points, stored as x1, y1, z1, x2, y2...
       Integer posEmbGridCoord
 
@@ -54,7 +54,7 @@
       ! The integrals in form <a|embPot|b>
       Integer ipEmb
 
-******* Flags
+!****** Flags
       ! Flag whether an embedding potential is used
       Logical embPot
 
@@ -70,7 +70,7 @@
 
       Logical embDebug
 
-******* File paths
+!****** File paths
       ! The path to the file containing grid and embedding potential
       Character*256 embPotPath
       ! The output grid (if different from input)
@@ -82,13 +82,13 @@
       Character*256 embOutGradPath
       Character*256 embOutHessPath
 
-*******
-      COMMON /EmbPotData/ Eemb,
-     &         posEmbGridCoord, posEmbPotVal, posEmbWeight,
-     &         embPot, embPotInBasis,
-     &         outGridPathGiven, embWriteDens, embWriteEsp,
-     &         embWriteGrad, embWriteHess, embDebug,
-     &         embPotPath, outGridPath, embOutDensPath,
+!******
+      COMMON /EmbPotData/ Eemb,                                         &
+     &         posEmbGridCoord, posEmbPotVal, posEmbWeight,             &
+     &         embPot, embPotInBasis,                                   &
+     &         outGridPathGiven, embWriteDens, embWriteEsp,             &
+     &         embWriteGrad, embWriteHess, embDebug,                    &
+     &         embPotPath, outGridPath, embOutDensPath,                 &
      &         embOutEspPath, embOutGradPath, embOutHessPath
-CVV: shaky aligment
+!VV: shaky aligment
       COMMON /EmbPotDataI/ nEmbGridPoints, ipEmb
