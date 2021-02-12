@@ -98,6 +98,7 @@
       Character(len=8),DIMENSION(:),Allocatable::VecStat
       CHARACTER(Len=8)::StatVec
       CHARACTER(Len=30)::mspdftfmt
+      Logical RefBas
       Logical Gradient
 
 * --------- Cholesky stuff:
@@ -733,6 +734,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           VecStat(JRoot)=StatVec
          End Do
          write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
+         write(6,'(7X,A)')'Intermediate-state Basis'
          if(lroots.lt.10) then
           write(mspdftfmt,'(A5,I1,A9)')
      &     '(13X,',lRoots,'(A8,16X))'
@@ -742,13 +744,43 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     '(13X,',lRoots,'(A8,16X))'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
          end if
-         CALL mma_deallocate(VecStat)
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
-         Write(6,*)
-         Write(6,'(6X,80a)') ('*',i=1,80)
+*         Write(6,*)
+         refbas=.false.
+         call f_inquire('ROT_VEC',RefBas)
          Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
+*print MS-PDFT final states in basis of reference states
+*re-use RotStat, XScratch and LRState
+         if(RefBas) then
+          NXScratch=NHRot
+          Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
+          Call FZero(Work(LXScratch),NXScratch)
+          Call FZero(Work(LRState)  ,NXScratch)
+          LUMS=IsFreeUnit(LUMS)
+          CALL Molcas_Open(LUMS,'ROT_VEC')
+          Do Jroot=1,lroots
+            read(LUMS,*) (Work(LRState+kroot-1+(jroot-1)*lroots)
+     &                   ,kroot=1,lroots)
+          End Do
+          CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,Work(LRState),
+     &         lRoots,Work(LHRot),lRoots,0.0d0,Work(LXScratch),lRoots)
+          write(6,'(7X,A)')'Reference-state Basis'
+          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+          Call RecPrt(' ',' ',Work(LXScratch),lroots,lroots)
+          close(LUMS)
+          CALL Molcas_Open(LUMS,'FIN_VEC')
+          Do JRoot=1,lRoots
+           write(LUMS,*)(Work(LXScratch+(JRoot-1)*lRoots+kRoot-1),
+     &     kRoot=1,lRoots)
+          End Do
+          write(LUMS,*) MSPDFTMethod
+          Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
+          Close(LUMS)
+         end if
+         Write(6,'(6X,80a)') ('*',i=1,80)
          CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
          CALL GETMEM('RotStat','FREE','REAL',LRState,NRState)
+         CALL mma_deallocate(VecStat)
         End If
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
       END IF
