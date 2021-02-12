@@ -24,126 +24,122 @@
 !                                                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!Real*8 function embPotEne1(density, length)
-! Implicit none
+!real*8 function embPotEne1(density,length)
 !
-! Real*8,  Intent(in) :: density(length)
-! Integer, Intent(in) :: length
+!implicit none
+!real*8, intent(in) :: density(length)
+!integer, intent(in) :: length
 !
-! ! Local variables
-! Integer :: mAdEmbInts, readCheck
-! Real*8  :: embpotenescf
+!! Local variables
+!integer :: mAdEmbInts, readCheck
+!real*8 :: embpotenescf
 !
-! ! Includes
+!! Includes
 !#include "WrkSpc.fh"
 !
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
-! ! Allocate memory for the integrals
-! Call GetMem('EmbPotInts','Allo','Real',mAdEmbInts,length)
+!! Allocate memory for the integrals
+!call GetMem('EmbPotInts','Allo','Real',mAdEmbInts,length)
 !
-! ! Read in the one-electron integrals due to the embedding potential
-! readCheck=-1
-! Call RdOne(readCheck,6,'embpot  ',1,Work(mAdEmbInts),1)
-! If (readCheck.ne.0) Then
-!    Write (6,*) 'R1Inta: Error readin ONEINT'
-!    Write (6,'(A,A)') 'Label=embpot  '
-!    Call Abend()
-! End If
+!! Read in the one-electron integrals due to the embedding potential
+!readCheck = -1
+!call RdOne(readCheck,6,'embpot  ',1,Work(mAdEmbInts),1)
+!if (readCheck /= 0) then
+!  write (6,*) 'R1Inta: Error readin ONEINT'
+!  write (6,'(a,a)') 'Label=embpot  '
+!  call Abend()
+!end if
 !
-! ! Calculate
-! embPotEne1=embPotEneSCF(density, Work(mAdEmbInts), length)
+!! Calculate
+!embPotEne1 = embPotEneSCF(density,Work(mAdEmbInts),length)
 !
-! ! Clean Memory
-! Call GetMem('EmbPotInts','Free','Real',mAdEmbInts,length)
+!! Clean Memory
+!call GetMem('EmbPotInts','Free','Real',mAdEmbInts,length)
 !
 !end function
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Real*8 function embPotEneSCF(density, embeddingInts, length)
- Implicit none
+real*8 function embPotEneSCF(density,embeddingInts,length)
 
- Integer, Intent(in) :: length
- Real*8,  Intent(in) :: density(length)
- Real*8,  Intent(in) :: embeddingInts(length)
- real*8, external    :: ddot_
+implicit none
+integer, intent(in) :: length
+real*8, intent(in) :: density(length)
+real*8, intent(in) :: embeddingInts(length)
+real*8, external :: ddot_
 
- ! In this case the energy is just the dot-product of the vectors which resemble
- ! the packed matrices.
- embPotEneSCF = DDot_(length,density,1,embeddingInts,1)
+! In this case the energy is just the dot-product of the vectors which resemble
+! the packed matrices.
+embPotEneSCF = DDot_(length,density,1,embeddingInts,1)
 
-end function
+end function embPotEneSCF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Real*8 function embPotEneMODensities( &
-        densityInactive, densityActive, embeddingInts, &
-        nBasPerSym, nBasTotSquare, nFrozenOrbs, nSym)
- Implicit none
+real*8 function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nFrozenOrbs,nSym)
 
- Real*8,  Intent(in) :: densityInactive(*), densityActive(*)
- Real*8,  Intent(in) :: embeddingInts(*)
-! Real*8,  Intent(in) :: coefficientMatrix(nBasFunc**2)
- Integer, Intent(in) :: nBasTotSquare, nFrozenOrbs
- Integer, Intent(in) :: nBasPerSym(*)
+implicit none
+real*8, intent(in) :: densityInactive(*), densityActive(*)
+real*8, intent(in) :: embeddingInts(*)
+!real*8, intent(in) :: coefficientMatrix(nBasFunc**2)
+integer, intent(in) :: nBasTotSquare, nFrozenOrbs
+integer, intent(in) :: nBasPerSym(*)
 
- ! Local variables
- Real*8, allocatable :: totalDensity(:)
- Real*8, allocatable :: totalDensityPacked(:)
-! Real*8, allocatable :: transformedEmbInts(:)
- Real*8              :: embpotenescf
+! Local variables
+real*8, allocatable :: totalDensity(:)
+real*8, allocatable :: totalDensityPacked(:)
+!real*8, allocatable :: transformedEmbInts(:)
+real*8 :: embpotenescf
+integer :: i, dens_dim_packed, iRow, iCol, counter, nSym, counter2
 
- Integer :: i, dens_dim_packed, iRow, iCol, counter, nSym, counter2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
- ! TODO
-! if (nFrozenOrbs .gt. 0) then
-!  write(6,*) "ERROR! Usage of an embedding potential is not yet able to treat frozen orbitals!"
+! TODO
+!if (nFrozenOrbs > 0) then
+!  write(6,*) 'ERROR! Usage of an embedding potential is not yet able to treat frozen orbitals!'
 !  call Abend()
-! end if
+!end if
 
- allocate(totalDensity( nBasTotSquare ))
+allocate(totalDensity(nBasTotSquare))
 
- dens_dim_packed = 0
- do i=1, nSym
-   dens_dim_packed = dens_dim_packed + ((nBasPerSym(i) * (nBasPerSym(i)+1)) / 2)
- end do
- allocate(totalDensityPacked( dens_dim_packed ))
+dens_dim_packed = 0
+do i=1,nSym
+  dens_dim_packed = dens_dim_packed+((nBasPerSym(i)*(nBasPerSym(i)+1))/2)
+end do
+allocate(totalDensityPacked(dens_dim_packed))
 
- call dcopy_(nBasTotSquare,densityInactive,1,totalDensity,1)
- call daxpy_(nBasTotSquare,1.0d0,densityActive,1,totalDensity,1)
+call dcopy_(nBasTotSquare,densityInactive,1,totalDensity,1)
+call daxpy_(nBasTotSquare,1.0d0,densityActive,1,totalDensity,1)
 
-! write(*,*) "Unpacked total density"
-! do i=1, dens_dim
-!  write(*,*) totalDensity(i)
-! end do
+!write(6,*) 'Unpacked total density'
+!do i=1, dens_dim
+!  write(6,*) totalDensity(i)
+!end do
 
- !Pack density
- counter = 0
- counter2 = 0
- do i=1, nSym
-  do iRow=1, nBasPerSym(i)
-   do iCol=1, iRow
-    counter = counter+1
-    if (iRow .eq. iCol) then
-     totalDensityPacked(counter) = totalDensity((iRow-1)*nBasPerSym(i)+iCol+counter2)
-    else
-     totalDensityPacked(counter) = 2*totalDensity((iRow-1)*nBasPerSym(i)+iCol+counter2)
-    end if
-   end do
+!Pack density
+counter = 0
+counter2 = 0
+do i=1,nSym
+  do iRow=1,nBasPerSym(i)
+    do iCol=1,iRow
+      counter = counter+1
+      if (iRow == iCol) then
+        totalDensityPacked(counter) = totalDensity((iRow-1)*nBasPerSym(i)+iCol+counter2)
+      else
+        totalDensityPacked(counter) = 2*totalDensity((iRow-1)*nBasPerSym(i)+iCol+counter2)
+      end if
+    end do
   end do
-  counter2 = counter2 + nBasPerSym(i)*nBasPerSym(i)
- end do
-! write(*,*) "nSym=", nSym
-! write(*,*) "nTot2=", nBasTotSquare
-! write(*,*) "dens_dim_packed=", dens_dim_packed
-! write(*,*) "FOOOO Total dens    |  pot"
-! do i=1, dens_dim_packed
-!  write(*,*) totalDensityPacked(i), "  |  ", embeddingInts(i)
-! end do
+  counter2 = counter2+nBasPerSym(i)*nBasPerSym(i)
+end do
+!write(6,*) 'nSym=', nSym
+!write(6,*) 'nTot2=', nBasTotSquare
+!write(6,*) 'dens_dim_packed=', dens_dim_packed
+!write(6,*) 'FOOOO Total dens    |  pot'
+!do i=1, dens_dim_packed
+!  write(6,*) totalDensityPacked(i), '  |  ', embeddingInts(i)
+!end do
 
-
-! ! Transformation
+!! Transformation
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Well, a TraFo does not seem to be necessary.                               !
 ! Justification:                                                             !
@@ -157,63 +153,54 @@ Real*8 function embPotEneMODensities( &
 ! Conclusion: the incoming matrices actually are expressed in the AO basis;  !
 !             they are just not packed.                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! call transAOtoMO(coefficientMatrix, embeddingInts, transformedEmbInts,&
-!                  nBasFunc, nFrozenOrbs)
+!call transAOtoMO(coefficientMatrix,embeddingInts,transformedEmbInts,nBasFunc,nFrozenOrbs)
 !
-! embPotEneMODensities = embPotEneSCF( totalDensity,&
-!                                      transformedEmbInts,&
-!                                      dens_dim)
- embPotEneMODensities = embPotEneSCF( totalDensityPacked,&
-                                      embeddingInts,&
-                                      dens_dim_packed)
+!embPotEneMODensities = embPotEneSCF(totalDensity,transformedEmbInts,dens_dim)
+embPotEneMODensities = embPotEneSCF(totalDensityPacked,embeddingInts,dens_dim_packed)
 
- deallocate(totalDensity)
- deallocate(totalDensityPacked)
-! deallocate(transformedEmbInts)
+deallocate(totalDensity)
+deallocate(totalDensityPacked)
+!deallocate(transformedEmbInts)
 
 ! Avoid unused argument warnings
- return
- if (.false.) call Unused_integer(nFrozenOrbs)
+return
+if (.false.) call Unused_integer(nFrozenOrbs)
 
-end function
+end function embPotEneMODensities
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Just to be clean this is in a seperate subroutine          !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!subroutine transAOtoMO (coefficientMatrix, inMatrix, outMatrix,&
-!                        nBasFunc, nFrozenOrbs)
+!subroutine transAOtoMO (coefficientMatrix,inMatrix,outMatrix,nBasFunc,nFrozenOrbs)
 !
-! implicit none
+!implicit none
 !
-! Real*8,  intent(in)  :: coefficientMatrix(nBasFunc**2)
-! Real*8,  intent(in)  :: inMatrix(&
-!                          nBasFunc*(nBasFunc+1)/2 )
-! Real*8,  intent(out) :: outMatrix(&
-!                          nBasFunc*(nBasFunc+1)/2 )
-! Integer, intent(in)  :: nBasFunc, nFrozenOrbs
+!real*8, intent(in) :: coefficientMatrix(nBasFunc**2), inMatrix(nBasFunc*(nBasFunc+1)/2)
+!real*8, intent(out) :: outMatrix(nBasFunc*(nBasFunc+1)/2)
+!rnteger, intent(in) :: nBasFunc, nFrozenOrbs
 !
-! ! Local variables
-! Real*8 :: unpackedMatrix(nBasFunc**2), halfTrafoMat(nBasFunc**2)
+!! Local variables
+!Real*8 :: unpackedMatrix(nBasFunc**2), halfTrafoMat(nBasFunc**2)
 !
-! ! TODO
-! if (nFrozenOrbs .gt. 0) then
-!  write(6,*) "ERROR! Usage of an embedding potential is not yet able to treat frozen orbitals!"
+!! TODO
+!if (nFrozenOrbs > 0) then
+!  write(6,*) 'ERROR! Usage of an embedding potential is not yet able to treat frozen orbitals!'
 !  call Abend()
-! end if
+!end if
 !
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Call Square(inMatrix,unpackedMatrix,1,nBasFunc,nBasFunc)
-!!Call MXMA(unpackedMatrix,1,nBasFunc,&
-!!          coefficientMatrix(nFrozenOrbs*nBasFunc),1,&
-!!          nBasFunc,halfTrafoMat,1,nBasFunc,&
-!!          nBasFunc,nBasFunc,nBasFunc)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!call Square(inMatrix,unpackedMatrix,1,nBasFunc,nBasFunc)
+!!call MXMA(unpackedMatrix,1,nBasFunc, &
+!           coefficientMatrix(nFrozenOrbs*nBasFunc),1, &
+!           nBasFunc,halfTrafoMat,1, &
+!           nBasFunc,nBasFunc,nBasFunc,nBasFunc)
 !! stefan: check T (transpose) whether it is correct...
-! CALL DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc, &
-!             1.0d0,unpackedMatrix,nBasFunc, &
-!             coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc,&
-!             0.0d0,halfTrafoMat,nBasFunc)
-! Call MXMT(halfTrafoMat,nBasFunc,1, &
-!           coefficientMatrix(nFrozenOrbs*nBasFunc),1,&
-!           nBasFunc,outMatrix,nBasFunc,nBasFunc)
+!call DGEMM_('T','N',nBasFunc,nBasFunc,nBasFunc, &
+!            1.0d0,unpackedMatrix,nBasFunc, &
+!            coefficientMatrix(nFrozenOrbs*nBasFunc),nBasFunc, &
+!            0.0d0,halfTrafoMat,nBasFunc)
+!call MXMT(halfTrafoMat,nBasFunc,1, &
+!          coefficientMatrix(nFrozenOrbs*nBasFunc),1, &
+!          nBasFunc,outMatrix,nBasFunc,nBasFunc)
 !
 !end subroutine

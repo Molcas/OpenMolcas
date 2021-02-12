@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Thomas Dresselhaus                                     *
 !***********************************************************************
-      subroutine embPotInit(preparingOutput)
+
+subroutine embPotInit(preparingOutput)
 !***********************************************************************
 !                                                                      *
 ! Object: routine to read in an embedding potential on a grid from a   *
@@ -26,86 +27,79 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit None
+implicit none
 
 !***** Includes
 #include "WrkSpc.fh"
 
-      ! Holds the data which is read in in this subroutine
+! Holds the data which is read in in this subroutine
 #include "embpotdata.fh"
+
+! Switch to toggle whether only information relevant for the
+! output needs to be read
+logical :: preparingOutput
 
 !***** Variables
 
-      ! Unit of input file (the embedding potential)
-      Integer iunit, isFreeUnit
+! Unit of input file (the embedding potential)
+integer :: iunit, isFreeUnit
 
-      ! Index
-      Integer i
-
-      ! Switch to toggle whether only information relevant for the
-      ! output needs to be read
-      Logical preparingOutput
+! Index
+integer :: i
 
 !*****
-      embDebug=.false.
+embDebug = .false.
 
-      ! Open the file
-      iunit = isFreeUnit(1)
-      if (preparingOutput.and.outGridPathGiven) then
-       call molcas_open(iunit, outGridPath)
-      else
-       call molcas_open(iunit, embPotPath)
-      end if
+! Open the file
+iunit = isFreeUnit(1)
+if (preparingOutput .and. outGridPathGiven) then
+  call molcas_open(iunit,outGridPath)
+else
+  call molcas_open(iunit,embPotPath)
+end if
 
-      ! TODO MAKE THIS READING PROCEDURE SAFE!!!
+! TODO MAKE THIS READING PROCEDURE SAFE!!!
 
-      ! Read in header of the file (just a line with one integer)
-      read(iunit,*) nEmbGridPoints
+! Read in header of the file (just a line with one integer)
+read(iunit,*) nEmbGridPoints
 
-      ! Allocate memory for the grid points, potential and weights
-      Call GetMem('embG','ALLO','REAL',posEmbGridCoord,nEmbGridPoints*3)
-      Call GetMem('embP','ALLO','REAL',posEmbPotVal,nEmbGridPoints)
-      Call GetMem('embW','ALLO','REAL',posEmbWeight,nEmbGridPoints)
+! Allocate memory for the grid points, potential and weights
+call GetMem('embG','ALLO','REAL',posEmbGridCoord,nEmbGridPoints*3)
+call GetMem('embP','ALLO','REAL',posEmbPotVal,nEmbGridPoints)
+call GetMem('embW','ALLO','REAL',posEmbWeight,nEmbGridPoints)
 
-      ! Read in data
-      do i=1, nEmbGridPoints
-       if (preparingOutput.and.outGridPathGiven) then
-        read(iunit, *) Work(posEmbGridCoord+i*3-3),                     &
-     &                 Work(posEmbGridCoord+i*3-2),                     &
-     &                 Work(posEmbGridCoord+i*3-1)
-       else
-        read(iunit, *) Work(posEmbGridCoord+i*3-3),                     &
-     &                 Work(posEmbGridCoord+i*3-2),                     &
-     &                 Work(posEmbGridCoord+i*3-1),                     &
-     &                 Work(posEmbWeight+i-1),                          &
-     &                 Work(posEmbPotVal+i-1)
-       end if
-      end do
+! Read in data
+do i=1,nEmbGridPoints
+  if (preparingOutput .and. outGridPathGiven) then
+    read(iunit,*) Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1)
+  else
+    read(iunit,*) Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1),Work(posEmbWeight+i-1), &
+                  Work(posEmbPotVal+i-1)
+  end if
+end do
 
-      close(iunit)
+close(iunit)
 
-      if (embDebug) then
-        write(6,*) "---------------------------------------------------"
-        write(6,*) "---------------------------------------------------"
-        write(6,*) "Potential has been read in. Coords:"
-        do i=1, nEmbGridPoints
-         if (mod(i,587).eq.0) then
-          write(6,*) i, Work(posEmbGridCoord+i*3-3),                    &
-     &               Work(posEmbGridCoord+i*3-2),                       &
-     &               Work(posEmbGridCoord+i*3-1)
-         end if
-        end do
-        write(6,*) "---------------------------------------------------"
-        write(6,*) "Potential value, weight"
-        do i=1, nEmbGridPoints
-         if (mod(i,587).eq.0) then
-          write(6,*) i, Work(posEmbPotVal+i-1),                         &
-     &               Work(posEmbWeight+i-1)
-         end if
-        end do
-        write(6,*) "---------------------------------------------------"
-        write(6,*) "---------------------------------------------------"
-      end if
+if (embDebug) then
+  write(6,*) '---------------------------------------------------'
+  write(6,*) '---------------------------------------------------'
+  write(6,*) 'Potential has been read in. Coords:'
+  do i=1,nEmbGridPoints
+    if (mod(i,587) == 0) then
+      write(6,*) i,Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1)
+    end if
+  end do
+  write(6,*) '---------------------------------------------------'
+  write(6,*) 'Potential value, weight'
+  do i=1,nEmbGridPoints
+    if (mod(i,587) == 0) then
+      write(6,*) i,Work(posEmbPotVal+i-1),Work(posEmbWeight+i-1)
+    end if
+  end do
+  write(6,*) '---------------------------------------------------'
+  write(6,*) '---------------------------------------------------'
+end if
 
-      return
-      end
+return
+
+end subroutine embPotInit

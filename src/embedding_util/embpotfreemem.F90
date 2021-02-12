@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Thomas Dresselhaus                                     *
 !***********************************************************************
-      subroutine embPotFreeMem
+
+subroutine embPotFreeMem
 !***********************************************************************
 !                                                                      *
 ! Object: cleanup routine for the embedding potential                  *
@@ -25,18 +26,19 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit None
+implicit none
 
 !***** Includes
 #include "WrkSpc.fh"
 
-      ! Holds the data which is read in in this subroutine
+! Holds the data which is read in in this subroutine
 #include "embpotdata.fh"
 
 !*****
-      Call GetMem('embG','FREE','REAL',posEmbGridCoord,nEmbGridPoints*3)
-      Call GetMem('embP','FREE','REAL',posEmbPotVal,nEmbGridPoints)
-      Call GetMem('embW','FREE','REAL',posEmbWeight,nEmbGridPoints)
+call GetMem('embG','FREE','REAL',posEmbGridCoord,nEmbGridPoints*3)
+call GetMem('embP','FREE','REAL',posEmbPotVal,nEmbGridPoints)
+call GetMem('embW','FREE','REAL',posEmbWeight,nEmbGridPoints)
 
-      return
-      end
+return
+
+end subroutine embPotFreeMem
