@@ -9,31 +9,34 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine embPotRdRun
+subroutine embPotRdRun()
+
+use Definitions, only: iwp
 
 implicit none
 
 ! Holds the data which is read in in this subroutine
 #include "embpotdata.fh"
 
-integer :: ioUnit, isFreeUnit
+integer(kind=iwp) :: ioUnit
+integer(kind=iwp), external :: isFreeUnit
 
 ! Open the file
 ioUnit = isFreeUnit(1)
 call molcas_open(ioUnit,'EMBPOT_RUNFILE')
 
-read(ioUnit,'(L1)') embPotInBasis
-read(ioUnit,'(A256)') embPotPath
-read(ioUnit,'(L1)') outGridPathGiven
-read(ioUnit,'(A256)') outGridPath
-read(ioUnit,'(L1)') embWriteDens
-read(ioUnit,'(A256)') embOutDensPath
-read(ioUnit,'(L1)') embWriteEsp
-read(ioUnit,'(A256)') embOutEspPath
-read(ioUnit,'(L1)') embWriteGrad
-read(ioUnit,'(A256)') embOutGradPath
-read(ioUnit,'(L1)') embWriteHess
-read(ioUnit,'(A256)') embOutHessPath
+read(ioUnit,'(l1)') embPotInBasis
+read(ioUnit,'(a256)') embPotPath
+read(ioUnit,'(l1)') outGridPathGiven
+read(ioUnit,'(a256)') outGridPath
+read(ioUnit,'(l1)') embWriteDens
+read(ioUnit,'(a256)') embOutDensPath
+read(ioUnit,'(l1)') embWriteEsp
+read(ioUnit,'(a256)') embOutEspPath
+read(ioUnit,'(l1)') embWriteGrad
+read(ioUnit,'(a256)') embOutGradPath
+read(ioUnit,'(l1)') embWriteHess
+read(ioUnit,'(a256)') embOutHessPath
 
 close(ioUnit)
 

@@ -8,7 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine embPotMem(nOrder,MemKer,iAng,jAng,nOrdOp)
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nOrder, iAng, jAng, nOrdOp
+integer(kind=iwp), intent(out) :: MemKer
 
 MemKer = 0
 

@@ -27,7 +27,12 @@ subroutine embPotInit(preparingOutput)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp, u6
+
 implicit none
+! Switch to toggle whether only information relevant for the
+! output needs to be read
+logical(kind=iwp), intent(in) :: preparingOutput
 
 !***** Includes
 #include "WrkSpc.fh"
@@ -35,23 +40,18 @@ implicit none
 ! Holds the data which is read in in this subroutine
 #include "embpotdata.fh"
 
-! Switch to toggle whether only information relevant for the
-! output needs to be read
-logical :: preparingOutput
-
 !***** Variables
 
-! Unit of input file (the embedding potential)
-integer :: iunit, isFreeUnit
-
-! Index
-integer :: i
+! iunit: Unit of input file (the embedding potential)
+! i: Index
+integer(kind=iwp) :: iunit, i
+integer(kind=iwp), external :: isFreeUnit
 
 !*****
 embDebug = .false.
 
 ! Open the file
-iunit = isFreeUnit(1)
+iunit = isFreeUnit(11)
 if (preparingOutput .and. outGridPathGiven) then
   call molcas_open(iunit,outGridPath)
 else
@@ -81,23 +81,23 @@ end do
 close(iunit)
 
 if (embDebug) then
-  write(6,*) '---------------------------------------------------'
-  write(6,*) '---------------------------------------------------'
-  write(6,*) 'Potential has been read in. Coords:'
+  write(u6,*) '---------------------------------------------------'
+  write(u6,*) '---------------------------------------------------'
+  write(u6,*) 'Potential has been read in. Coords:'
   do i=1,nEmbGridPoints
     if (mod(i,587) == 0) then
-      write(6,*) i,Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1)
+      write(u6,*) i,Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1)
     end if
   end do
-  write(6,*) '---------------------------------------------------'
-  write(6,*) 'Potential value, weight'
+  write(u6,*) '---------------------------------------------------'
+  write(u6,*) 'Potential value, weight'
   do i=1,nEmbGridPoints
     if (mod(i,587) == 0) then
-      write(6,*) i,Work(posEmbPotVal+i-1),Work(posEmbWeight+i-1)
+      write(u6,*) i,Work(posEmbPotVal+i-1),Work(posEmbWeight+i-1)
     end if
   end do
-  write(6,*) '---------------------------------------------------'
-  write(6,*) '---------------------------------------------------'
+  write(u6,*) '---------------------------------------------------'
+  write(u6,*) '---------------------------------------------------'
 end if
 
 return

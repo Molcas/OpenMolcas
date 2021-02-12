@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Dresselhaus                                     *
 !***********************************************************************
 
-subroutine embPotFreeMem
+subroutine embPotFreeMem()
 !***********************************************************************
 !                                                                      *
 ! Object: cleanup routine for the embedding potential                  *

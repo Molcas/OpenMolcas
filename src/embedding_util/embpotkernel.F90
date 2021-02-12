@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Dresselhaus                                     *
 !***********************************************************************
 
-subroutine EmbPotKernel(expA,nPrimA,expB,nPrimB,Zeta,ZInv,rKappa,P,final,nZeta,nIC,nComp,lA,lB,coordA,coordB,nRys,Array,nArr, &
+subroutine EmbPotKernel(expA,nPrimA,expB,nPrimB,Zeta,ZInv,rKappa,P,finalval,nZeta,nIC,nComp,lA,lB,coordA,coordB,nRys,Array,nArr, &
                         CCoor,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 !***********************************************************************
 !                                                                      *
@@ -26,7 +26,24 @@ subroutine EmbPotKernel(expA,nPrimA,expB,nPrimB,Zeta,ZInv,rKappa,P,final,nZeta,n
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
+! Number of primitives
+integer(kind=iwp), intent(in) :: nPrimA, nPrimB
+! Exponents of primitives
+real(kind=wp), intent(in) :: expA(nPrimA), expB(nPrimB)
+! Angular momentum
+integer(kind=iwp), intent(in) :: lA, lB
+! Orbital coordinates
+real(kind=wp), intent(in) :: coordA(3), coordB(3)
+! Output: <A|sum_(gridpoints){potValue*weight}|B>
+real(kind=wp), intent(out) :: finalval(nPrimA,nPrimB,(lA+1)*(lA+2)/2,(lB+1)*(lB+2)/2)
+! Other input variables (unused, unknown)
+integer(kind=iwp), intent(in) :: nZeta, nIC, nComp, nRys, nArr, nOrdOp, nStabM, nGrid, iAddPot, iStabM(0:nStabM-1), lOper(nComp), &
+                                 iChO(nComp)
+real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), CCoor(3,nComp), Array(nZeta*nArr), PtChrg
 
 !***** Includes
 #include "WrkSpc.fh"
@@ -34,47 +51,17 @@ implicit none
 ! Holds the data which is read in in this subroutine
 #include "embpotdata.fh"
 
-!****** Variables ******************************************************
-
-! Number of primitives
-integer nPrimA, nPrimB
-
-! Exponents of primitives
-real*8 expA(nPrimA), expB(nPrimB)
-
-! Angular momentum
-integer lA, lB
-
-! Output: <A|sum_(gridpoints){potValue*weight}|B>
-real*8 final(nPrimA,nPrimB,(lA+1)*(lA+2)/2,(lB+1)*(lB+2)/2)
-
-! Orbital coordinates
-real*8 coordA(3), coordB(3)
-
-! Other input variables (unused, unknown)
-integer nZeta, nIC, nComp, nRys, nArr, nOrdOp, nStabM, nGrid, iAddPot
-real*8 Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), CCoor(3,nComp), Array(nZeta*nArr)
-integer iStabM(0:nStabM-1), lOper(nComp), iChO(nComp)
-real*8 PtChrg
-
 !***** Local Variables
 
 ! Index
-integer i, j, a, b, m
-integer ix, iy, iz
-
-integer nShellA, nShellB
-
+integer(kind=iwp) :: i, j, a, b, m, ix, iy, iz, nShellA, nShellB
 ! Positions in the work array
-integer posRadA, posRadB, posSphA, posSphB
-
+integer(kind=iwp) :: posRadA, posRadB, posSphA, posSphB
 ! distance of the current grid point to A/B
-real*8 dRA(3), dRB(3)
-
-real*8 prefactor
-
+real(kind=wp) :: dRA(3), dRB(3)
+real(kind=wp) :: prefactor
 ! Function return value
-real*8 gaussRad
+real(kind=wp), external :: gaussRad
 
 !***** Initialization ***************************************************
 
@@ -89,16 +76,8 @@ call GetMem('sphB','ALLO','REAL',posSphB,nShellB)
 
 !***** Calculation ******************************************************
 
-! Loop over primitives and angular momenta, init result var
-do a=1,nPrimA
-  do b=1,nPrimB
-    do i=1,nShellA
-      do j=1,nShellB
-        final(a,b,i,j) = 0.0d0
-      end do
-    end do
-  end do
-end do
+! Init result var
+finalval(:,:,:,:) = Zero
 
 ! Now loop over grid points first
 do m=1,nEmbGridPoints
@@ -144,7 +123,7 @@ do m=1,nEmbGridPoints
     do b=1,nPrimB
       do i=1,nShellA
         do j=1,nShellB
-          final(a,b,i,j) = final(a,b,i,j)+(prefactor*Work(posRadA+a-1)*Work(posRadB+b-1)*Work(posSphA+i-1)*Work(posSphB+j-1))
+          finalval(a,b,i,j) = finalval(a,b,i,j)+(prefactor*Work(posRadA+a-1)*Work(posRadB+b-1)*Work(posSphA+i-1)*Work(posSphB+j-1))
         end do
       end do
     end do
@@ -152,35 +131,35 @@ do m=1,nEmbGridPoints
 
   if (embDebug) then
     if (mod(m,587) == 0) then
-      write(6,*) '-------------------------------------------------'
-      write(6,*) 'm=',m
-      write(6,*) 'A=',coordA(1),coordA(2),coordA(3)
-      write(6,*) 'r=',Work(posEmbGridCoord+(m-1)*3),Work(posEmbGridCoord+(m-1)*3+1),Work(posEmbGridCoord+(m-1)*3+2)
-      write(6,*) 'dRA=',dRA(1),dRA(2),dRA(3)
-      write(6,*) 'expA(1)=',expA(1),'; gaussRad(...)=',gaussRad(expA(1),dRA)
-      write(6,*) '-------------------------------------------------'
-      write(6,*) 'm=',m,'prefactor=',prefactor
-      write(6,*) 'radA(1)=',Work(posRadA),'; sphA(1)=',Work(posSphA),', radB(2)=',Work(posRadB+1),'; sphB(2)=',Work(posSphB+1)
-      write(6,*) '-------------------------------------------------'
+      write(u6,*) '-------------------------------------------------'
+      write(u6,*) 'm=',m
+      write(u6,*) 'A=',coordA(1),coordA(2),coordA(3)
+      write(u6,*) 'r=',Work(posEmbGridCoord+(m-1)*3),Work(posEmbGridCoord+(m-1)*3+1),Work(posEmbGridCoord+(m-1)*3+2)
+      write(u6,*) 'dRA=',dRA(1),dRA(2),dRA(3)
+      write(u6,*) 'expA(1)=',expA(1),'; gaussRad(...)=',gaussRad(expA(1),dRA)
+      write(u6,*) '-------------------------------------------------'
+      write(u6,*) 'm=',m,'prefactor=',prefactor
+      write(u6,*) 'radA(1)=',Work(posRadA),'; sphA(1)=',Work(posSphA),', radB(2)=',Work(posRadB+1),'; sphB(2)=',Work(posSphB+1)
+      write(u6,*) '-------------------------------------------------'
     end if
   end if
 
 end do ! m, grid point
 
 if (embDebug) then
-  write(6,*) '-------------------------------------------------'
+  write(u6,*) '-------------------------------------------------'
   do a=1,nPrimA
     do b=1,nPrimB
       do i=1,nShellA
         do j=1,nShellB
-          write(6,*) final(a,b,i,j)
+          write(u6,*) finalval(a,b,i,j)
         end do
       end do
     end do
   end do
-  !write(6,*) 'Final(1,1,1,1)=',Final(1,1,1,1),'; Final(1,2,1,2)=',Final(1,2,1,2)
-  write(6,*) '-------------------------------------------------'
-  write(6,*) '-------------------------------------------------'
+  !write(u6,*) 'Final(1,1,1,1)=',Final(1,1,1,1),'; Final(1,2,1,2)=',Final(1,2,1,2)
+  write(u6,*) '-------------------------------------------------'
+  write(u6,*) '-------------------------------------------------'
 end if
 
 !***** Done. Tidy up. ****************************************************
@@ -212,20 +191,22 @@ end if
 
 end subroutine EmbPotKernel
 
-!*************************************************************************
-!     Returns the radial part of the value of a GTO with given exponent, *
-!     centered at the origin.                                            *
-!*************************************************************************
-real*8 function gaussRad(alpha,r)
+!*********************************************************************
+! Returns the radial part of the value of a GTO with given exponent, *
+! centered at the origin.                                            *
+!*********************************************************************
+real(kind=wp) function gaussRad(alpha,r)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 alpha
-real*8 r(3)
+real(kind=wp), intent(in) :: alpha, r(3)
 
-real*8 rSquare
-integer i
+real(kind=wp) :: rSquare
+integer(kind=iwp) :: i
 
-rSquare = 0.0d0
+rSquare = Zero
 do i=1,3
   rSquare = rSquare+r(i)**2
 end do

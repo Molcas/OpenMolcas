@@ -30,10 +30,16 @@ subroutine embPotOutput(nAtoms,mAdDns)
 !                                                                      *
 !***********************************************************************
 
-#include "WrkSpc.fh"
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, mAdDns
+
+#include "WrkSpc.fh"
 #include "embpotdata.fh"
-real*8 distGpAtom
+integer(kind=iwp) :: i, ipCoordsEmb, ipChargesEmb, ipEspGrid, iUnitEmb, j, nOrdOp
+real(kind=wp) :: distGpAtom
+integer(kind=iwp), external :: isFreeUnit
 
 call EmbPotInit(.true.)
 ! I dunno whether the coordinates/charges are still stored
@@ -42,25 +48,25 @@ call GetMem('Coor','ALLO','REAL',ipCoordsEmb,3*nAtoms)
 call Get_dArray('Unique Coordinates',Work(ipCoordsEmb),3*nAtoms)
 call GetMem('Charge','ALLO','REAL',ipChargesEmb,nAtoms)
 call Get_dArray('Nuclear charge',Work(ipChargesEmb),nAtoms)
-!write(6,*) 'Work(mAdDns:+2)=',Work(mAdDns),Work(mAdDns+1),Work(mAdDns+2)
-!write(6,*) 'Coords of gridpt 1:',Work(posEmbGridCoord),Work(posEmbGridCoord+1),Work(posEmbGridCoord+2)
-!write(6,*) 'Coords of gridpt 3:',Work(posEmbGridCoord+6),Work(posEmbGridCoord+7),Work(posEmbGridCoord+8)
+!write(u6,*) 'Work(mAdDns:+2)=',Work(mAdDns),Work(mAdDns+1),Work(mAdDns+2)
+!write(u6,*) 'Coords of gridpt 1:',Work(posEmbGridCoord),Work(posEmbGridCoord+1),Work(posEmbGridCoord+2)
+!write(u6,*) 'Coords of gridpt 3:',Work(posEmbGridCoord+6),Work(posEmbGridCoord+7),Work(posEmbGridCoord+8)
 ! Get the electrostatic potential on the grid
-!write(6,*) 'nEmbGridPoints=', nEmbGridPoints
+!write(u6,*) 'nEmbGridPoints=', nEmbGridPoints
 if (embWriteEsp) then
   call GetMem('ESP','ALLO','REAL',ipEspGrid,nEmbGridPoints)
-  !write(6,*) 'Work(ipEspGrid:+2)=',Work(ipEspGrid),Work(ipEspGrid+1), Work(ipEspGrid+2)
+  !write(u6,*) 'Work(ipEspGrid:+2)=',Work(ipEspGrid),Work(ipEspGrid+1), Work(ipEspGrid+2)
   call inisewm('mltpl',0)
-  !write(6,*) 'inisewm done!'
+  !write(u6,*) 'inisewm done!'
   nordop = 0
   call Drv1_Pot(Work(mAdDns),Work(posEmbGridCoord),Work(ipEspGrid),nEmbGridPoints,1,nordop)
-  !write(6,*) 'Coords:'
-  !write(6,*) Work(ipCoordsEmb),Work(ipCoordsEmb+1),Work(ipCoordsEmb+2)
-  !write(6,*) Work(ipCoordsEmb+3),Work(ipCoordsEmb+4),Work(ipCoordsEmb+5)
-  !write(6,*) Work(ipCoordsEmb+6),Work(ipCoordsEmb+7),Work(ipCoordsEmb+8)
-  !write(6,*) '----------------------------------------------------'
-  !write(6,*) 'Charges:'
-  !write(6,*) Work(ipChargesEmb),Work(ipChargesEmb+1),Work(ipChargesEmb+2)
+  !write(u6,*) 'Coords:'
+  !write(u6,*) Work(ipCoordsEmb),Work(ipCoordsEmb+1),Work(ipCoordsEmb+2)
+  !write(u6,*) Work(ipCoordsEmb+3),Work(ipCoordsEmb+4),Work(ipCoordsEmb+5)
+  !write(u6,*) Work(ipCoordsEmb+u6),Work(ipCoordsEmb+7),Work(ipCoordsEmb+8)
+  !write(u6,*) '----------------------------------------------------'
+  !write(u6,*) 'Charges:'
+  !write(u6,*) Work(ipChargesEmb),Work(ipChargesEmb+1),Work(ipChargesEmb+2)
   iUnitEmb = isFreeUnit(1)
   call molcas_open(iUnitEmb,embOutEspPath)
 end if
@@ -72,10 +78,10 @@ do i=0,nEmbGridPoints-1
     if (embWriteEsp) Work(ipEspGrid+i) = Work(ipEspGrid+i)+Work(ipChargesEmb+j)/distGpAtom
   end do
   if (embWriteEsp) then
-    !write(6,*) 'ESP on grid point ',i,': ',Work(ipEspGrid+i)
+    !write(u6,*) 'ESP on grid point ',i,': ',Work(ipEspGrid+i)
     ! Write to file
-    write(iUnitEmb,'(e18.10)') (-1.0*Work(ipEspGrid+i))
-    !write(iUnitEmb,'(e18.10)') Work(ipEspGrid+i)
+    write(iUnitEmb,'(es18.10)') (-1.0*Work(ipEspGrid+i))
+    !write(iUnitEmb,'(es18.10)') Work(ipEspGrid+i)
   end if
 end do
 if (embWriteEsp) then
@@ -92,41 +98,45 @@ end subroutine embPotOutput
 ! as such...
 subroutine embPotOutputMODensities(nAtoms,nSym,ipDensInact,ipDensAct,nBasPerSym,nBasTotSquare)
 
+use Constants, only: One
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nSym, ipDensInact, ipDensAct, nBasPerSym(nSym), nBasTotSquare
+integer(kind=iwp) :: i, iCnt, iCnt2, iCol, iDensDim, iDensDimPck, ipTotDens, ipTotDensP, iRow
+
 #include "WrkSpc.fh"
 
-  integer nBasTotSquare, nSym
-  integer nBasPerSym(nSym)
+iDensDimPck = 0
+do i=1,nSym
+  iDensDimPck = iDensDimPck+((nBasPerSym(i)*(nBasPerSym(i)+1))/2)
+end do
 
-  iDensDimPck = 0
-  do i=1,nSym
-    iDensDimPck = iDensDimPck+((nBasPerSym(i)*(nBasPerSym(i)+1))/2)
-  end do
+call GetMem('TotD','ALLO','REAL',ipTotDens,nBasTotSquare)
+call GetMem('TotDp','ALLO','REAL',ipTotDensP,iDensDimPck)
 
-  call GetMem('TotD','ALLO','REAL',ipTotDens,nBasTotSquare)
-  call GetMem('TotDp','ALLO','REAL',ipTotDensP,iDensDimPck)
-
-  call dcopy_(nBasTotSquare,Work(ipDensInact),1,Work(ipTotDens),1)
-  call daxpy_(nBasTotSquare,1.0d0,Work(ipDensAct),1,Work(ipTotDens),1)
-  !Pack density
-  iCnt = 0
-  iCnt2 = 0
-  do i=1,nSym
-    do iRow=1,nBasPerSym(i)
-      do iCol=1,iRow
-        iCnt = iCnt+1
-        if (iRow == iCol) then
-          Work(ipTotDensP+iCnt-1) = Work(ipTotDens+(iRow-1)*nBasPerSym(i)+iCol-1+iCnt2)
-        else
-          Work(ipTotDensP+iCnt-1) = 2*Work(ipTotDens+(iRow-1)*nBasPerSym(i)+iCol-1+iCnt2)
-        end if
-      end do
+call dcopy_(nBasTotSquare,Work(ipDensInact),1,Work(ipTotDens),1)
+call daxpy_(nBasTotSquare,One,Work(ipDensAct),1,Work(ipTotDens),1)
+!Pack density
+iCnt = 0
+iCnt2 = 0
+do i=1,nSym
+  do iRow=1,nBasPerSym(i)
+    do iCol=1,iRow
+      iCnt = iCnt+1
+      if (iRow == iCol) then
+        Work(ipTotDensP+iCnt-1) = Work(ipTotDens+(iRow-1)*nBasPerSym(i)+iCol-1+iCnt2)
+      else
+        Work(ipTotDensP+iCnt-1) = 2*Work(ipTotDens+(iRow-1)*nBasPerSym(i)+iCol-1+iCnt2)
+      end if
     end do
-    iCnt2 = iCnt2+nBasPerSym(i)*nBasPerSym(i)
   end do
+  iCnt2 = iCnt2+nBasPerSym(i)*nBasPerSym(i)
+end do
 
-  call embPotOutput(nAtoms,ipTotDensP)
+call embPotOutput(nAtoms,ipTotDensP)
 
-  call GetMem('TotD','FREE','REAL',ipTotDens,iDensDim)
-  call GetMem('TotDp','FREE','REAL',ipTotDensP,iDensDimPck)
+call GetMem('TotD','FREE','REAL',ipTotDens,iDensDim)
+call GetMem('TotDp','FREE','REAL',ipTotDensP,iDensDimPck)
 
 end subroutine embPotOutputMODensities
