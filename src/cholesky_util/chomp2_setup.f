@@ -17,7 +17,7 @@ C
 C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
-      use ChoMP2, only: LnOcc
+      use ChoMP2, only: LnOcc, LnT1am
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -213,7 +213,6 @@ C     -------------------------------------
             End Do
          End If
 *
-         l_LnT1am    = nSym*nBatch
          l_LiT1am    = nSym*nSym*nBatch
          l_NumBatOrb = nBatch
          l_LnBatOrb  = nSym*nBatch
@@ -239,8 +238,8 @@ C     -------------------------------------
          Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
          Call mma_allocate(NumOcc,nBatch,Label='NumOcc')
          Call mma_allocate(LnOcc,nSym,nBatch,Label='LnOcc')
+         Call mma_allocate(LnT1am,nSym,nBatch,Label='LnT1am')
 
-         Call GetMem('LnT1am','Allo','Inte',ip_LnT1am,l_LnT1am)
          Call GetMem('LiT1am','Allo','Inte',ip_LiT1am,l_LiT1am)
          Call GetMem('LnMatij','Allo','Inte',ip_LnMatij,l_LnMatij)
          Call GetMem('LiMatij','Allo','Inte',ip_LiMatij,l_LiMatij)
@@ -255,7 +254,7 @@ C     -------------------------------------
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
      &                           NumOcc,LnOcc,
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
-     &                           iWork(ip_LnT1am),iWork(ip_LiT1am),
+     &                           LnT1am,iWork(ip_LiT1am),
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
      &                           iWork(ip_LnMatij),iWork(ip_LiMatij),
      &                           nSym,nBatch)
@@ -306,7 +305,7 @@ C     -------------------------------------
 *        The argument ip_LnPQprod is only used for the case where full
 *        Lpq-vectors are transformed for densities. Will be a dummy arg
 *        for regular MP2.
-         Accepted = ChoMP2_Setup_MemChk(iWork(ip_LnT1am),
+         Accepted = ChoMP2_Setup_MemChk(LnT1am,
      &                                  iWork(ip_LnPQprod),
      &                                  NumVec,nFrac,
      &                                  nSym,nBatch,lAvail)

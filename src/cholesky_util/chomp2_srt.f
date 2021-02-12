@@ -16,7 +16,7 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: copy out subblock of vectors.
 C
-      use ChoMP2, only: iFirstS, LnOcc
+      use ChoMP2, only: iFirstS, LnOcc, LnT1am
 #include "implicit.fh"
       Real*8  Vec(*), Srt(*)
 #include "cholesky.fh"
@@ -26,7 +26,6 @@ C
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
-      LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
       LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
       LiT1am(i,j,k)=iWork(ip_LiT1am-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
       LiPQprod(i,j,k)=iWork(ip_LiPQprod-1+nSym*nSym*(k-1)+nSym*(j-1)+i)

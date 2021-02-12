@@ -21,6 +21,7 @@ C     DelOrig: input : flag for deleting original vector files.
 C              output: flag to tell that at least 1 symmetry block has
 C                      in fact been deleted.
 C
+      use ChoMP2, only: LnT1am
 #include "implicit.fh"
       Integer irc
       Logical DelOrig
@@ -36,7 +37,6 @@ C
       Integer lWrk
       Real*8, Allocatable:: Wrk(:)
 
-      LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
       lUnit(i,j)=iWork(ip_lUnit-1+nSym*(j-1)+i)
 
       irc = 0

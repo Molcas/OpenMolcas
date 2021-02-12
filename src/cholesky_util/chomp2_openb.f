@@ -19,6 +19,7 @@ C              delete (iOpt=3) Cholesky vector files for MP2 program
 C              (batch vectors).
 C              For iOpt=0, the units are initialized (to -1).
 C
+      use ChoMP2, only: LnT1am
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2.fh"
@@ -32,7 +33,6 @@ C
 
       Character*6 BtchNm
 
-      LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
       lUnit(i,j)=iWork(ip_lUnit-1+nSym*(j-1)+i)
 
 C     Initialize units and return for iOpt=0.
