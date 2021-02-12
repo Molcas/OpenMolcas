@@ -26,15 +26,10 @@ subroutine embPotFreeMem()
 !                                                                      *
 !***********************************************************************
 
+use Embedding_Global, only: posEmbGridCoord, posEmbPotVal, posEmbWeight, nEmbGridPoints
+
 implicit none
 
-!***** Includes
-#include "WrkSpc.fh"
-
-! Holds the data which is read in in this subroutine
-#include "embpotdata.fh"
-
-!*****
 call GetMem('embG','FREE','REAL',posEmbGridCoord,nEmbGridPoints*3)
 call GetMem('embP','FREE','REAL',posEmbPotVal,nEmbGridPoints)
 call GetMem('embW','FREE','REAL',posEmbWeight,nEmbGridPoints)

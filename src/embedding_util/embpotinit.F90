@@ -27,6 +27,8 @@ subroutine embPotInit(preparingOutput)
 !                                                                      *
 !***********************************************************************
 
+use Embedding_Global, only: embDebug, embPotPath, nEmbGridPoints, outGridPath, outGridPathGiven, posEmbGridCoord, posEmbPotVal, &
+                            posEmbWeight
 use Definitions, only: iwp, u6
 
 implicit none
@@ -36,9 +38,6 @@ logical(kind=iwp), intent(in) :: preparingOutput
 
 !***** Includes
 #include "WrkSpc.fh"
-
-! Holds the data which is read in in this subroutine
-#include "embpotdata.fh"
 
 !***** Variables
 

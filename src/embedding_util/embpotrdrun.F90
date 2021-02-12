@@ -11,13 +11,11 @@
 
 subroutine embPotRdRun()
 
+use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPotInBasis, embPotPath, &
+                            embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
 use Definitions, only: iwp
 
 implicit none
-
-! Holds the data which is read in in this subroutine
-#include "embpotdata.fh"
-
 integer(kind=iwp) :: ioUnit
 integer(kind=iwp), external :: isFreeUnit
 

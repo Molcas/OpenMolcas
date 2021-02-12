@@ -30,13 +30,13 @@ subroutine embPotOutput(nAtoms,mAdDns)
 !                                                                      *
 !***********************************************************************
 
+use Embedding_Global, only: embOutEspPath, embWriteEsp, nEmbGridPoints, posEmbGridCoord
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, mAdDns
 
 #include "WrkSpc.fh"
-#include "embpotdata.fh"
 integer(kind=iwp) :: i, ipCoordsEmb, ipChargesEmb, ipEspGrid, iUnitEmb, j, nOrdOp
 real(kind=wp) :: distGpAtom
 integer(kind=iwp), external :: isFreeUnit

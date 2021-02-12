@@ -63,6 +63,9 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
+#ifdef _FDE_
+      use Embedding_global, only: embPot, embPotInBasis, embWriteEsp
+#endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset_array_real
 #endif
@@ -95,9 +98,6 @@
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
 #include "raswfn.fh"
 
       Logical DSCF

@@ -31,14 +31,14 @@
 *                                                                      *
 ************************************************************************
       use SCF_Arrays
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embPotInBasis
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
 *
 *---- Define local variables
       Character*8 Label

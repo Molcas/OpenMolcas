@@ -39,10 +39,6 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
-#ifdef _FDE_
-      ! Thomas Dresselhaus
-#include "embpotdata.fh"
-#endif
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

@@ -35,6 +35,9 @@
       use Real_Info, only: PotNuc, kVector
       use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt,
      &                        DoFMM, EMFR, GIAO, lPSOI
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embPotInBasis
+#endif
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -84,9 +87,6 @@
 #include "property_label.fh"
 #include "oneswi.fh"
 #include "warnings.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
       Integer iSymR(0:3)
       Character*8 Label
       Character*512 FName

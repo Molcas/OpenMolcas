@@ -50,6 +50,9 @@
       use Real_Info, only: PkAcc
       use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
       use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embPotInBasis
+#endif
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
@@ -61,9 +64,6 @@
 #include "status.fh"
 #include "print.fh"
 #include "gateway.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
       Integer nChoV(8)
       Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO

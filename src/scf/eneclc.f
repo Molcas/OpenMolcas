@@ -35,6 +35,7 @@
 ************************************************************************
 #ifdef _FDE_
       Use SCF_Arrays, Only: Emb
+      use Embedding_Global, only: embPot
 #endif
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
@@ -49,9 +50,6 @@
 
 #include "mxdm.fh"
 #include "infscf.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*

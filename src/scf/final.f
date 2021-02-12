@@ -59,16 +59,15 @@
 #endif
       Use Interfaces_SCF, Only: dOne_SCF
       use OFembed, only: Do_OFemb, FMaux
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embWriteEsp
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "file.fh"
-#ifdef _FDE_
-      ! Thomas Dresselhaus
-#include "embpotdata.fh"
-#endif
 #include "scfwfn.fh"
 #include "stdalloc.fh"
 *

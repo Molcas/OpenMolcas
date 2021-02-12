@@ -26,6 +26,7 @@ subroutine EmbPotKernel(expA,nPrimA,expB,nPrimB,Zeta,ZInv,rKappa,P,finalval,nZet
 !                                                                      *
 !***********************************************************************
 
+use Embedding_Global, only: embDebug, nEmbGridPoints, posEmbGridCoord, posEmbPotVal, posEmbWeight
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -47,9 +48,6 @@ real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3)
 
 !***** Includes
 #include "WrkSpc.fh"
-
-! Holds the data which is read in in this subroutine
-#include "embpotdata.fh"
 
 !***** Local Variables
 
