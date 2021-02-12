@@ -17,13 +17,13 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
-      Integer   nTriDens
-      Real*8    TriDens(nTriDens)
-      Type (Pointer_2D):: MP2X_e(8)
-      Real*8    CMO(*)
-      Integer   mSym
-      Integer   nOrbAll(8), nOccAll(8)
-      Logical   Diagonalize
+      Integer        , Intent(In)    ::nTriDens
+      Real*8         , Intent(InOut) :: TriDens(nTriDens)
+      Type (Pointer_2D), Intent(In)    :: MP2X_e(8)
+      Real*8         , Intent(In)    :: CMO(*)
+      Integer        , Intent(In)    :: mSym
+      Integer        , Intent(In)    :: nOrbAll(8), nOccAll(8)
+      Logical        , Intent(In)    :: Diagonalize
 
       Integer   ipSymRec(8)
       Integer   ipSymTri(8)
