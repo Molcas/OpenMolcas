@@ -21,7 +21,7 @@ C
       Integer nT1AOT, iT1AOT, nAOVir, iAOVir
       Integer nMatab, iMatab
       Integer lUnit_F
-      Integer ip_First, ip_NumOcc, ip_LnOcc, ip_LnT1am, ip_LiT1am,
+      Integer ip_NumOcc, ip_LnOcc, ip_LnT1am, ip_LiT1am,
      &        ip_LnMatij, ip_LiMatij,
      &        ip_lUnit, ip_FirstS,
      &        ip_First_Density, ip_Density,
@@ -30,7 +30,7 @@ C
      &        ip_First_DiaA, ip_DiaA,ip_tmpL, lTmpLvec
       Integer ip_NumBatOrb, ip_LnBatOrb, ip_LnPQprod,ip_LiPQprod
       Integer l_NumBatOrb, l_LnBatOrb, l_LnPQprod,l_LiPQprod
-      Integer l_First, l_NumOcc, l_LnOcc, l_LnT1am, l_LiT1am,
+      Integer l_NumOcc, l_LnOcc, l_LnT1am, l_LiT1am,
      &        l_LnMatij, l_LiMatij,
      &        l_lUnit, l_FirstS,
      &        l_Mp2Lagr, l_DiaA, l_Density
@@ -49,10 +49,10 @@ C
      &                  nT1AOT(8), iT1AOT(8,8), nAOVir(8), iAOVir(8,8),
      &                  nMatab(8), iMatab(8,8),
      &                  lUnit_F(8,nTypF)
-      Common / ChMP2p / ip_First, ip_FirstS, ip_NumOcc, ip_LnOcc,
+      Common / ChMP2p / ip_FirstS, ip_NumOcc, ip_LnOcc,
      &                  ip_LnT1am, ip_LiT1am, ip_LnMatij, ip_LiMatij,
      &                  ip_lUnit,
-     &                  l_First, l_FirstS, l_NumOcc, l_LnOcc,
+     &                  l_FirstS, l_NumOcc, l_LnOcc,
      &                  l_LnT1am, l_LiT1am, l_LnMatij, l_LiMatij,
      &                  l_lUnit
       Common / ChMP2g / ip_Density(8), l_Density, ip_First_Density,

@@ -23,6 +23,7 @@ C
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam='ChoMP2_Setup')
@@ -211,7 +212,6 @@ C     -------------------------------------
             End Do
          End If
 *
-         l_First     = nBatch
          l_FirstS    = nSym*nBatch
          l_NumOcc    = nBatch
          l_LnOcc     = nSym*nBatch
@@ -236,7 +236,9 @@ C     -------------------------------------
          l_lUnit  = nSym*nBatch
          Call ChoMP2_deallocate(irc)
          ChoMP2_allocated=.TRUE.
-         Call GetMem('First','Allo','Inte',ip_First,l_First)
+
+         Call mma_allocate(First,nBatch,Label='First')
+
          Call GetMem('FirstS','Allo','Inte',ip_FirstS,l_FirstS)
          Call GetMem('NumOcc','Allo','Inte',ip_NumOcc,l_NumOcc)
          Call GetMem('LnOcc','Allo','Inte',ip_LnOcc,l_LnOcc)
@@ -252,7 +254,7 @@ C     -------------------------------------
          Call GetMem('LnBatOrb','Allo','Inte',ip_LnBatOrb,l_LnBatOrb)
          Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
-         Call ChoMP2_Setup_Index(iWork(ip_First),iWork(ip_FirstS),
+         Call ChoMP2_Setup_Index(First,iWork(ip_FirstS),
      &                           iWork(ip_NumOcc),iWork(ip_LnOcc),
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           iWork(ip_LnT1am),iWork(ip_LiT1am),
@@ -260,7 +262,7 @@ C     -------------------------------------
      &                           iWork(ip_LnMatij),iWork(ip_LiMatij),
      &                           nSym,nBatch)
 
-         Call GetMem('MaxMP2','Max ','Real',ip_Dum,lWork)
+         Call mma_maxDBLE(lWork)
          If(.false.) Then
 *           All Memory available minus one full vector and some small
 *           vectors for the PCG-algorithm.
@@ -379,7 +381,7 @@ C
      &                    'Error')
       End If
 
-      Call Cho_iZero(iFirst,nBatch)
+      iFirst(:)=0
       Call Cho_iZero(iFirstS,nSym*nBatch)
       Call Cho_iZero(NumOcc,nBatch)
       Call Cho_iZero(NumBatOrb,nBatch)
@@ -596,6 +598,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: print setup for Cholesky MP2.
 C
+      Use ChoMP2, only: iFirst => First
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
@@ -604,7 +607,6 @@ C
 
       Integer iCount(8)
 
-      iFirst(i)=iWork(ip_First-1+i)
       NumOcc(i)=iWork(ip_NumOcc-1+i)
       LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
       NumBatOrb(i)=iWork(ip_NumBatOrb-1+i)
@@ -612,7 +614,7 @@ C
 
       irc = 0
 
-      Call Cho_iZero(iCount,nSym)
+      iCount(:)=0
 
       Call Cho_Head('Cholesky MP2 Setup','=',80,6)
 *     The values but not the names 'occupied' are updated to work

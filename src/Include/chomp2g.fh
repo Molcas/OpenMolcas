@@ -14,7 +14,7 @@
         Integer nMoMo, iMoMo, nMoType
         Integer iMoAo, nMoAo,iAoMo,nAoMo
         Integer iAdrOff, nAdrOff
-        Integer nOccVirT,
+        Integer nOccVirT
         Integer kPab, kPij, kPiK, kLagr, kFLagr, kWab,kWij,
      &          kWai, kWiK, kWaK, kPaK, kPai, kWJK,
      &          lPab, lPij, lPiK, lLagr, lFLagr, lWab,lWij,

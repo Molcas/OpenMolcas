@@ -21,6 +21,8 @@ Public:: MP2D_full, MP2D
 Public:: MP2W_e_full, MP2W_e
 Public:: MP2D_e_full, MP2D_e
 
+Public:: First
+
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
 Real*8, Allocatable:: OldVec(:)
@@ -43,4 +45,5 @@ Real*8, Allocatable:: EOccuT(:)
 Real*8, Allocatable:: EVirtT(:)
 
 Integer, Allocatable:: AdrR1(:,:,:), AdrR2(:,:,:)
+Integer, Allocatable:: First(:)
 End Module ChoMP2

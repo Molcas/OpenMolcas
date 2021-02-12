@@ -343,7 +343,7 @@ C     ====================================
             If (iPrint.lt.Inf_Timing) Then
                Call Cho_ZMem(irc,l_Z,iWork(ip_NVT),l_NVT,.True.,.False.)
             End If
-            Call GetMem('ZMax','Max ','Real',ip_Z,l_Z)
+            Call mma_maxDBLE(l_Z)
             Call Cho_Word2Byte(l_Z,8,Byte,Unt)
             Write(LuPri,'(A,I12,A,F7.3,1X,A,A)')
      &      'Largest available memory block:',l_Z,' words (',
