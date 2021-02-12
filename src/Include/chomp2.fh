@@ -25,8 +25,8 @@ C
      &        ip_First_WDensity, ip_WDensity,
      &        ip_First_Mp2Lagr,ip_Mp2Lagr,
      &        ip_First_DiaA, ip_DiaA,ip_tmpL, lTmpLvec
-      Integer ip_LnPQprod,ip_LiPQprod
-      Integer l_LnPQprod,l_LiPQprod
+      Integer ip_LiPQprod
+      Integer l_LiPQprod
       Integer l_Mp2Lagr, l_DiaA, l_Density
 
       Integer nTypF
@@ -47,8 +47,8 @@ C
      &                  ip_WDensity(8), ip_First_WDensity,
      &                  ip_Mp2Lagr(8), l_Mp2Lagr,ip_First_Mp2Lagr,
      &                  ip_DiaA(8)   , l_DiaA   ,ip_First_DiaA,
-     &                  ip_LnPQprod,ip_LiPQprod,
-     &                  l_LnPQprod,l_LiPQprod,
+     &                  ip_LiPQprod,
+     &                  l_LiPQprod,
      &                  nBatOrbT,iBatOrb(8),nPQ_Prod(8), iPQ_Prod(8,8),
      &                  nFroT,nDelT, ip_tmpL, lTmpLvec,
      &                  nPQ_prodij(8), nPQ_prodia(8), nPQ_prodab(8)

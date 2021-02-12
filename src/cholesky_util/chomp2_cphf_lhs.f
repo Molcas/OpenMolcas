@@ -17,7 +17,7 @@
 *     This will calculate a trial lefthandside of the cphf equations.
 *
 *
-      use ChoMP2, only: iFirstS, LnBatOrb
+      use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod
 #include "implicit.fh"
       Real*8 EOcc(*), Evir(*), EFro(*), EDel(*), Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -35,7 +35,6 @@
       iPvec(i,j,k)=ip_P + iVecOff(k) + j-1 + (nOcc(k)+nFro(k))*(i-1)
       LiPQprod(i,j,k) = iWork(ip_LiPQprod-1
      &                      + nSym*nSym*(k-1)+nSym*(j-1)+i)
-      LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
 *
       Do iSymJ = 1, nSym
          iSymB = iSymJ

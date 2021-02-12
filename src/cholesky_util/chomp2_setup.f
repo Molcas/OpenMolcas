@@ -19,6 +19,7 @@ C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
       use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
+      use ChoMP2, only: LnPQprod
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -217,14 +218,6 @@ C     -------------------------------------
          Call ChoMP2_deallocate(irc)
          ChoMP2_allocated=.TRUE.
 
-         If(.false.) Then
-            l_LnPQprod = nSym*nBatch
-            l_LiPQprod = nSym*nSym*nBatch
-         Else
-            l_LnPQprod = 1
-            l_LiPQprod = 1
-         End If
-
          Call mma_allocate(iFirst,nBatch,Label='iFirst')
          Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
          Call mma_allocate(NumOcc,nBatch,Label='NumOcc')
@@ -246,13 +239,19 @@ C     -------------------------------------
          Call mma_allocate(NumBatOrb,nBatch,Label='NumBatOrb')
 *     Generalization of LnOcc for arbitrary quantity to batch over.
          Call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
-         Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
+         If(.false.) Then
+            Call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
+            l_LiPQprod = nSym*nSym*nBatch
+         Else
+            Call mma_allocate(LnPQprod,   1,     1,Label='LnPQprod')
+            l_LiPQprod = 1
+         End If
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
      &                           NumOcc,LnOcc,
      &                           NumBatOrb,LnBatOrb,
      &                           LnT1am,LiT1am,
-     &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
+     &                           LnPQprod,iWork(ip_LiPQprod),
      &                           LnMatij,LiMatij,
      &                           nSym,nBatch)
 
@@ -299,12 +298,10 @@ C     -------------------------------------
             lAvail = lWork - nT1amx ! all minus one vector (for reading)
          End If
          Call GAiGOp_Scal(lAvail,'min')
-*        The argument ip_LnPQprod is only used for the case where full
+*        The argument LnPQprod is only used for the case where full
 *        Lpq-vectors are transformed for densities. Will be a dummy arg
 *        for regular MP2.
-         Accepted = ChoMP2_Setup_MemChk(LnT1am,
-     &                                  iWork(ip_LnPQprod),
-     &                                  NumVec,nFrac,
+         Accepted = ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,
      &                                  nSym,nBatch,lAvail)
 
          If (ForceBatch .and. nBatch.eq.1) Then
@@ -384,7 +381,7 @@ C
       LnT1am(:,:)=0
       LiT1am(:,:,:)=0
       If(.false.) Then
-         Call Cho_iZero(LnPQprod,nSym*nBatch)
+         LnPQprod(:,:)=0
          Call Cho_iZero(LiPQprod,nSym*nBatch)
       End If
       If (ChoAlg .eq. 2) Then

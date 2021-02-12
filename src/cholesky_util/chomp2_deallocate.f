@@ -16,6 +16,7 @@
       use ChoMP2, only: ChoMP2_allocated
       use ChoMP2, only: iFirst, iFirstS, NumOcc, LnOcc, LnT1am, LiT1am
       use ChoMP2, only: LnMatij, LiMatij, lUnit, NumBatOrb, LnBatOrb
+      use ChoMP2, only: LnPQprod
 C
 C     Purpose: to deallocate memory of the  Cholesky MP2 program.
 C
@@ -30,7 +31,7 @@ C
       If (.NOT.ChoMP2_allocated) Return
 
       Call GetMem('LiPQprod','Free','Inte',ip_LiPQprod,l_LiPQprod)
-      Call GetMem('LnPQprod','Free','Inte',ip_LnPQprod,l_LnPQprod)
+      Call mma_deallocate(LnPQprod)
       Call mma_deallocate(LnBatOrb)
       Call mma_deallocate(NumBatOrb)
       Call mma_deallocate(lUnit)
@@ -43,7 +44,6 @@ C
       Call mma_deallocate(iFirstS)
       Call mma_deallocate(iFirst)
 *
-      l_LnPQprod = 0
       l_LiPQprod = 0
 
       ChoMP2_allocated=.FALSE.
