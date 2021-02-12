@@ -23,7 +23,7 @@ Public:: MP2D_e_full, MP2D_e
 
 Public:: iFirst, iFirstS, NumOcc, LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
 Public:: lUnit, NumBatOrb, LnBatOrb
-Public:: LnPQprod
+Public:: LnPQprod, LiPQprod
 
 Logical:: ChoMP2_allocated=.FALSE.
 Logical:: ChoMP2g_allocated=.FALSE.
@@ -53,5 +53,5 @@ Integer, Allocatable:: LnT1am(:,:), LiT1am(:,:,:)
 Integer, Allocatable:: LnMatij(:,:), LiMatij(:,:,:)
 Integer, Allocatable:: lUnit(:,:)
 Integer, Allocatable:: NumBatOrb(:), LnBatOrb(:,:)
-Integer, Allocatable:: LnPQprod(:,:)
+Integer, Allocatable:: LnPQprod(:,:), LiPQprod(:,:,:)
 End Module ChoMP2

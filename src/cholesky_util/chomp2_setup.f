@@ -19,7 +19,7 @@ C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
       use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
-      use ChoMP2, only: LnPQprod
+      use ChoMP2, only: LnPQprod, LiPQprod
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -241,17 +241,19 @@ C     -------------------------------------
          Call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
          If(.false.) Then
             Call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
-            l_LiPQprod = nSym*nSym*nBatch
+            Call mma_allocate(LiPQprod,nSym,nSym,nBatch,
+     &                        Label='LiPQprod')
          Else
             Call mma_allocate(LnPQprod,   1,     1,Label='LnPQprod')
-            l_LiPQprod = 1
+            Call mma_allocate(LiPQprod,   1,   1,     1,
+     &                        Label='LiPQprod')
          End If
-         Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
+
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
      &                           NumOcc,LnOcc,
      &                           NumBatOrb,LnBatOrb,
      &                           LnT1am,LiT1am,
-     &                           LnPQprod,iWork(ip_LiPQprod),
+     &                           LnPQprod,LiPQprod,
      &                           LnMatij,LiMatij,
      &                           nSym,nBatch)
 
@@ -382,7 +384,7 @@ C
       LiT1am(:,:,:)=0
       If(.false.) Then
          LnPQprod(:,:)=0
-         Call Cho_iZero(LiPQprod,nSym*nBatch)
+         LiPQprod(:,:,:)=0
       End If
       If (ChoAlg .eq. 2) Then
          LnMatij(:,:)=0

@@ -16,7 +16,7 @@
      &                            nFroLeftI,nFroLeftJ)
 *     This will calculate the righthandside of the mp2lagrangian.
 *
-      use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod
+      use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
 #include "implicit.fh"
       Real*8 EOcc(*), EVir(*),EFro(*),EDel(*), Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -78,8 +78,6 @@
      &                           j-1
      &                        + (nOrb(k) + nDel(k))
      &                        * (i + nFro(k) + nOcc(k) - 1)
-      LiPQprod(i,j,k) = iWork(ip_LiPQprod-1+
-     &                        nSym*nSym*(k-1)+nSym*(j-1)+i)
 *
       Do iSymBJ = 1,nSym
          iSymAI = iSymBJ
