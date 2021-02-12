@@ -11,12 +11,12 @@
 * Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 ************************************************************************
       SubRoutine ChoMP2_Setup(irc)
-        use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS
 C
 C     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
 C
 C     Purpose: setup of Cholesky MP2 program.
 C
+      use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -212,8 +212,6 @@ C     -------------------------------------
             End Do
          End If
 *
-         l_FirstS    = nSym*nBatch
-         l_NumOcc    = nBatch
          l_LnOcc     = nSym*nBatch
          l_LnT1am    = nSym*nBatch
          l_LiT1am    = nSym*nSym*nBatch
@@ -239,8 +237,8 @@ C     -------------------------------------
 
          Call mma_allocate(iFirst,nBatch,Label='iFirst')
          Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
+         Call mma_allocate(NumOcc,nBatch,Label='NumOcc')
 
-         Call GetMem('NumOcc','Allo','Inte',ip_NumOcc,l_NumOcc)
          Call GetMem('LnOcc','Allo','Inte',ip_LnOcc,l_LnOcc)
          Call GetMem('LnT1am','Allo','Inte',ip_LnT1am,l_LnT1am)
          Call GetMem('LiT1am','Allo','Inte',ip_LiT1am,l_LiT1am)
@@ -255,7 +253,7 @@ C     -------------------------------------
          Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
-     &                           iWork(ip_NumOcc),iWork(ip_LnOcc),
+     &                           NumOcc,iWork(ip_LnOcc),
      &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
      &                           iWork(ip_LnT1am),iWork(ip_LiT1am),
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
@@ -598,7 +596,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: print setup for Cholesky MP2.
 C
-      Use ChoMP2, only: iFirst
+      Use ChoMP2, only: iFirst, NumOcc
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
@@ -607,7 +605,6 @@ C
 
       Integer iCount(8)
 
-      NumOcc(i)=iWork(ip_NumOcc-1+i)
       LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
       NumBatOrb(i)=iWork(ip_NumBatOrb-1+i)
       LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
