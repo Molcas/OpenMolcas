@@ -19,10 +19,12 @@
 *     Purpose: Construct the piece of the energy-weighted density
 *              usually labeled III.
 *
-      use ChoMP2, only: iFirstS
+      use ChoMP2, only: iFirstS, LnBatOrb
 #include "implicit.fh"
-      Real*8 Xaibj(LnPQRSprod)
+      Integer LnPQRSprod
+      Real*8  Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
+      Integer iBatch, jBatch
       Integer nOccLeftI(8),nOccLeftJ(8)
 #include "cholesky.fh"
 #include "chomp2.fh"
@@ -43,7 +45,6 @@
      &                    +  j-1
      &                    + (nOrb(k) + nDel(k))
      &                    * (i-1)
-      LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
       LiPQprod(i,j,k) = iWork(ip_LiPQprod-1+
      &                        nSym*nSym*(k-1)+nSym*(j-1)+i)
       LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)

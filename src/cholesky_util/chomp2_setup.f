@@ -18,7 +18,7 @@ C     Purpose: setup of Cholesky MP2 program.
 C
       use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
-      use ChoMP2, only: lUnit
+      use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -217,16 +217,6 @@ C     -------------------------------------
          Call ChoMP2_deallocate(irc)
          ChoMP2_allocated=.TRUE.
 
-         l_LiT1am    = nSym*nSym*nBatch
-         l_NumBatOrb = nBatch
-         l_LnBatOrb  = nSym*nBatch
-         If (ChoAlg .eq. 2) Then
-            Call mma_allocate(LnMatij,nSym,nBatch,Label='LnMatij')
-            Call mma_allocate(LiMatij,nSym,nSym,nBatch,Label='LiMatij')
-         Else
-            Call mma_allocate(LnMatij,   1,     1,Label='LnMatij')
-            Call mma_allocate(LiMatij,   1,   1,     1,Label='LiMatij')
-         End If
          If(.false.) Then
             l_LnPQprod = nSym*nBatch
             l_LiPQprod = nSym*nSym*nBatch
@@ -243,16 +233,24 @@ C     -------------------------------------
          Call mma_allocate(LiT1am,nSym,nSym,nBatch,Label='LiT1am')
          Call mma_allocate(lUnit,nSym,nBatch,Label='lUnit')
 
+         If (ChoAlg .eq. 2) Then
+            Call mma_allocate(LnMatij,nSym,nBatch,Label='LnMatij')
+            Call mma_allocate(LiMatij,nSym,nSym,nBatch,Label='LiMatij')
+         Else
+            Call mma_allocate(LnMatij,   1,     1,Label='LnMatij')
+            Call mma_allocate(LiMatij,   1,   1,     1,Label='LiMatij')
+         End If
+
 *     Generalization of NumOcc for arbitrary quantity to batch over
 *     Would be good to kill NumOcc safely and only use one...
-         Call GetMem('NumBatOrb','Allo','Inte',ip_NumBatOrb,l_NumBatOrb)
+         Call mma_allocate(NumBatOrb,nBatch,Label='NumBatOrb')
 *     Generalization of LnOcc for arbitrary quantity to batch over.
-         Call GetMem('LnBatOrb','Allo','Inte',ip_LnBatOrb,l_LnBatOrb)
+         Call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
          Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
          Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
          Call ChoMP2_Setup_Index(iFirst,iFirstS,
      &                           NumOcc,LnOcc,
-     &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
+     &                           NumBatOrb,LnBatOrb,
      &                           LnT1am,LiT1am,
      &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
      &                           LnMatij,LiMatij,
