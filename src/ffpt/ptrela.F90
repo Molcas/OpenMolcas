@@ -17,12 +17,12 @@ subroutine PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: nBas, nSym, ComStk, ComVal
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
 real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-#include "input.fh"
 character(len=8) :: Label
 character(len=20) :: PriLbl
 integer(kind=iwp) :: idum(1), iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts

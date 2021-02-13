@@ -16,13 +16,13 @@ subroutine PtAdd(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: LCumulate, nBas, nSym, ComStk
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
 real(kind=wp), intent(out) :: H0(nSize)
 real(kind=wp), intent(inout) :: Ovlp(nSize), RR(nSize), Temp(nTemp)
-#include "input.fh"
 character(len=8) :: Label
 integer(kind=iwp) :: idum(1), iComp, iOpt, iOpt1, iOpt2, iRc, iSyLbl, nInts
 logical(kind=iwp), parameter :: Debug = .false.

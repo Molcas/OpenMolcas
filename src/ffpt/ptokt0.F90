@@ -17,13 +17,13 @@ subroutine PtOkt0(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: nAtoms, nBas, nSym, ComStk, ComVal, Coor
 use Constants, only: Zero, One, Three, Five, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
 real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-#include "input.fh"
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig
@@ -37,7 +37,7 @@ logical(kind=iwp), parameter :: Debug = .false.
 !     Check if the command has been specified on input                 *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
+
 Exec = .false.
 Exec = Exec .or. ComStk(2,6,1,1)
 Exec = Exec .or. ComStk(2,6,1,2)

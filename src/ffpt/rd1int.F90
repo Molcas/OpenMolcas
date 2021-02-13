@@ -19,8 +19,9 @@ subroutine Rd1Int_FFPT()
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: nAtoms, nBas, nSym, Coor, Header
+
 implicit none
-#include "input.fh"
 
 !----------------------------------------------------------------------*
 !                                                                      *

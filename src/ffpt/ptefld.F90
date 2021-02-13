@@ -17,13 +17,13 @@ subroutine PtEfld(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: nAtoms, nBas, nSym, ComStk, ComVal, Coor
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
 real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-#include "input.fh"
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig, NoCntr

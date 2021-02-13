@@ -24,10 +24,11 @@ subroutine RdInp_FFPT()
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: Atoms, TranCoo, LCumulate, iSelection, Bonds, mLbl, mTit, MxTitL, nSets, MxLbl, MxSets, Title, ComStk, &
+                       ComVal, gLblN, gLblC, gLblW
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "input.fh"
 character(len=20) :: FmtLog
 character(len=72) :: Line, Temp1, Temp2
 character(len=4) :: Token

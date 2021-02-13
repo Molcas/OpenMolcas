@@ -16,11 +16,11 @@ subroutine MkCom()
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: MxParm, MxSub1, MxSub2, nCom, ComCtl, ComTab, ComStk, ComVal
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "input.fh"
 integer(kind=iwp) :: iCom, iParm, iSub1, iSub2
 
 !----------------------------------------------------------------------*

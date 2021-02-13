@@ -17,13 +17,13 @@ subroutine PtOkt1(Oper,Temp1,Temp2)
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: nAtoms, nBas, nSym, ComStk, ComVal, Coor
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=2), intent(in) :: Oper
 real(kind=wp), intent(inout) :: Temp1(*), Temp2(*)
-#include "input.fh"
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Orig

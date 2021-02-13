@@ -10,8 +10,9 @@
 #***********************************************************************
 
 set (sources
-     ffpt.F90
      main.F90
+     ffpt.F90
+     ffpt_global.F90
      mkcom.F90
      prdiop.F90
      prinp.F90
@@ -29,5 +30,7 @@ set (sources
      selectloc.F90
      transnow.F90
 )
+
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

@@ -16,10 +16,10 @@ subroutine PrInp_FFPT()
 !                                                                      *
 !***********************************************************************
 
+use FFPT_Global, only: mLbl, mTit, Title, Header, ComCtl, ComTab, ComStk, ComVal, gLblN, gLblC, gLblW
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "input.fh"
 character(len=120) :: PrLine, BlLine, StLine
 character(len=72) :: sData, Line
 character(len=8) :: Fmt1, Fmt2

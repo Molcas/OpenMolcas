@@ -29,13 +29,13 @@
 
 subroutine SelectLoc(H0,nSize)
 
+use FFPT_Global, only: LCumulate, nSets, nSym, iSelection, Bonds, nBas, Atoms
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize
 real(kind=wp), intent(inout) :: H0(nSize)
-#include "input.fh"
 #include "WrkSpc.fh"
 character(len=8) :: Label
 logical(kind=iwp) :: OneOrNot1, OneOrNot2, OneOrNot3, OneOrNot4, OneOrNot, CrazySet
@@ -180,7 +180,12 @@ do i=1,nBas(1)
         if (OneOrNot) Siff = One
         !-- Here we enable to set the weight in the bond-domain to some
         !   other number than one.
-        if (OneOrNot .and. (Atoms(k) .and. Bonds(k,l))) Siff = SiffBond
+        if (OneOrNot .and. (Atoms(k) .and. Bonds(k,l))) then
+          ! FIXME
+          write(u6,*) 'Bug! SiffBond is uninitialized!'
+          call Abend()
+          !Siff = SiffBond
+        end if
 999     continue
       end do
     end do

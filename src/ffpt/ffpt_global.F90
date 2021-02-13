@@ -38,24 +38,22 @@
 !     ComVal : paramater values read in                                *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
+
+module FFPT_global
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
 #include "Molcas.fh"
-!
-      Integer nCom, MxSub1, MxSub2, MxParm
-      Parameter ( nCom    = 5      )
-      Parameter ( MxSub1  = 6      )
-      Parameter ( MxSub2  = 2      )
-      Parameter ( MxParm  = 10     )
-!
-      Character*4 ComTab ( nCom,0:MxSub1,0:MxSub2,0:MxParm )
-      Integer     ComCtl ( nCom,0:MxSub1,0:MxSub2 )
-      Logical     ComStk ( nCom,0:MxSub1,0:MxSub2,0:MxParm )
-      Real*8      ComVal ( nCom,0:MxSub1,0:MxSub2,0:MxParm )
-      Common /Cmnd1/ ComVal
-      Common /Cmnd2/ ComTab
-      Common /Cmnd3/ ComCtl
-      Common /Cmnd4/ ComStk
-!
+
+integer(kind=iwp), parameter :: nCom = 5, MxSub1 = 6, MxSub2 = 2, MxParm = 10
+character(len=4) :: ComTab(nCom,0:MxSub1,0:MxSub2,0:MxParm)
+integer(kind=iwp) :: ComCtl(nCom,0:MxSub1,0:MxSub2)
+logical(kind=iwp) :: ComStk(nCom,0:MxSub1,0:MxSub2,0:MxParm)
+real(kind=wp) :: ComVal(nCom,0:MxSub1,0:MxSub2,0:MxParm)
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Allocate space to store general perturbation labels, components  *
@@ -65,62 +63,53 @@
 !     gLblC : general label component                                  *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      Integer mxLbl, mLbl
-      Parameter ( mxLbl=20 )
-      Character*8 gLblN(mxLbl)
-      Integer     gLblC(mxLbl)
-      Real*8      gLblW(mxLbl)
-      Common /Cmnd5/ mLbl,gLblC
-      Common /Cmnd6/ gLblW
-      Common /Cmnd7/ gLblN
-!
+
+integer(kind=iwp), parameter :: mxLbl = 20
+character(len=8) :: gLblN(mxLbl)
+integer(kind=iwp) :: gLblC(mxLbl), mLbl
+real(kind=wp) :: gLblW(mxLbl)
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Define the length of the recognition area for:                   *
 !     Commands, 1st level - and 2nd level subcommands                  *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      Integer lCom, lSub, lParm
-      Parameter ( lCom   = 4       )
-      Parameter ( lSub   = 4       )
-      Parameter ( lParm  = 3       )
-!
+
+integer(kind=iwp), parameter :: lCom = 4, lSub = 4, lParm = 3
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Allocate space to store the title                                *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      Integer MxTitL, mTit
-      Parameter ( MxTitL = 10      )
-      Character*72 Title(MxTitL)
-      Common /Tit   / mTit,Title
-!
+
+integer(kind=iwp), parameter :: MxTitL = 10
+character(len=72) :: Title(MxTitL)
+integer(kind=iwp) :: mTit
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Allocate space to store the header of the one-electron           *
 !     integral file.                                                   *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      Integer MxSets, MxChar
-      Parameter ( MxSets  = 100    )
-      Parameter ( MxChar  = 144    )
-!
-      Integer nSym,nBas(MxSym),nAtoms
-      Real*8 Coor(3,mxatom)
-      Character*4 Names(2,2*MxBas)
-      Character*1 Header(MxChar)
-      Common /I1Info/ Coor,nSym,nBas,nAtoms,Names,Header
-!
+
+integer(kind=iwp), parameter :: MxChar = 144
+integer(kind=iwp) :: nSym, nBas(MxSym), nAtoms
+real(kind=iwp) :: Coor(3,MxAtom)
+character :: Header(MxChar)
+
 !----------------------------------------------------------------------*
 !     An input vector for the SELEctive keyword.                       *
 !----------------------------------------------------------------------*
-!
-      Real*8 TranCoo(3), SiffBond
-      Integer iSelection(2,MxSets),nSets
-      Logical Atoms(MxSets),Bonds(MxSets,MxSets),LCumulate
-      Common /Selective/ TranCoo,SiffBond,iSelection,nSets,Atoms,Bonds, &
-     &            LCumulate
+
+integer(kind=iwp), parameter :: MxSets = 100
+real(kind=wp) :: TranCoo(3)
+integer(kind=iwp) :: iSelection(2,MxSets), nSets
+logical(kind=iwp) :: Atoms(MxSets), Bonds(MxSets,MxSets), LCumulate
+
+public :: Atoms, Bonds, ComCtl, ComStk, ComTab, ComVal, Coor, Header, LCumulate, MxLbl, MxParm, MxSets, MxSub1, MxSub2, MxTitL, &
+          Title, TranCoo, gLblC, gLblN, gLblW, iSelection, mLbl, mTit, nAtoms, nBas, nCom, nSets, nSym
+
+end module FFPT_global

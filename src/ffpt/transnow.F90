@@ -11,11 +11,11 @@
 
 subroutine TransNow(iV,ipS)
 
+use FFPT_Global, only: nBas, TranCoo, ComStk, ComVal
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iV, ipS
-#include "input.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iXYZ, j, kaunter
 real(kind=wp) :: Trana
