@@ -35,7 +35,7 @@
 !     ComCtl : Count the number of entries for each hierarchy          *
 !              level of the vocabulary                                 *
 !     ComStk : flag for each command which has been entered            *
-!     ComVal : paramater values read in                                *
+!     ComVal : parameter values read in                                *
 !                                                                      *
 !----------------------------------------------------------------------*
 
@@ -95,21 +95,31 @@ integer(kind=iwp) :: mTit
 !                                                                      *
 !----------------------------------------------------------------------*
 
-integer(kind=iwp), parameter :: MxChar = 144
 integer(kind=iwp) :: nSym, nBas(MxSym), nAtoms
-real(kind=iwp) :: Coor(3,MxAtom)
-character :: Header(MxChar)
+real(kind=iwp), allocatable :: Coor(:,:)
+character :: Header(144)
 
 !----------------------------------------------------------------------*
 !     An input vector for the SELEctive keyword.                       *
 !----------------------------------------------------------------------*
 
-integer(kind=iwp), parameter :: MxSets = 100
 real(kind=wp) :: TranCoo(3)
-integer(kind=iwp) :: iSelection(2,MxSets), nSets
-logical(kind=iwp) :: Atoms(MxSets), Bonds(MxSets,MxSets), LCumulate
+integer(kind=iwp) :: nSets
+logical(kind=iwp) :: LCumulate
+integer(kind=iwp), allocatable :: iSelection(:,:)
+logical(kind=iwp), allocatable :: Atoms(:), Bonds(:,:)
 
-public :: Atoms, Bonds, ComCtl, ComStk, ComTab, ComVal, Coor, Header, LCumulate, MxLbl, MxParm, MxSets, MxSub1, MxSub2, MxTitL, &
-          Title, TranCoo, gLblC, gLblN, gLblW, iSelection, mLbl, mTit, nAtoms, nBas, nCom, nSets, nSym
+public :: Atoms, Bonds, ComCtl, ComStk, ComTab, ComVal, Coor, Header, LCumulate, MxLbl, MxTitL, Title, TranCoo, gLblC, gLblN, &
+          gLblW, iSelection, mLbl, mTit, nAtoms, nBas, nCom, nSets, nSym, Cleanup
+
+contains
+
+subroutine Cleanup()
+  use stdalloc, only: mma_deallocate
+  if (allocated(Coor)) call mma_deallocate(Coor)
+  if (allocated(iSelection)) call mma_deallocate(iSelection)
+  if (allocated(Atoms)) call mma_deallocate(Atoms)
+  if (allocated(Bonds)) call mma_deallocate(Bonds)
+end subroutine Cleanup
 
 end module FFPT_global

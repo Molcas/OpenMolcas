@@ -24,8 +24,9 @@ subroutine RdInp_FFPT()
 !                                                                      *
 !***********************************************************************
 
-use FFPT_Global, only: Atoms, TranCoo, LCumulate, iSelection, Bonds, mLbl, mTit, MxTitL, nSets, MxLbl, MxSets, Title, ComStk, &
-                       ComVal, gLblN, gLblC, gLblW
+use FFPT_Global, only: Atoms, TranCoo, LCumulate, iSelection, Bonds, mLbl, mTit, MxTitL, nSets, MxLbl, Title, ComStk, ComVal, &
+                       gLblN, gLblC, gLblW
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
@@ -601,12 +602,6 @@ goto 85
 
 90 continue
 !-- Initialize
-do i=1,MxSets
-  Atoms(i) = .false.
-  do j=1,MxSets
-    Bonds(i,j) = .false.
-  end do
-end do
 ComStk(4,0,0,0) = .true.
 95 Temp2 = Temp1
 Temp1 = Line
@@ -615,6 +610,11 @@ read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 95
 read(Line,*) nSets
+call mma_allocate(iSelection,2,nSets,label='iSelection')
+call mma_allocate(Atoms,nSets,label='Atoms')
+call mma_allocate(Bonds,nSets,nSets,label='Bonds')
+Atoms(:) = .false.
+Bonds(:,:) = .false.
 do i=1,nSets
   read(u5,*) Atoms(i),iSelection(1,i),iSelection(2,i)
 end do

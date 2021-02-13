@@ -20,6 +20,7 @@ subroutine Rd1Int_FFPT()
 !***********************************************************************
 
 use FFPT_Global, only: nAtoms, nBas, nSym, Coor, Header
+use stdalloc, only: mma_allocate
 
 implicit none
 
@@ -34,6 +35,7 @@ call Get_cArray('Seward Title',Header,144)
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(Coor,3,nAtoms,label='Coor')
 call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 
 return

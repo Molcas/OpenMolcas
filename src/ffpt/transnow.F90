@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine TransNow(iV,ipS)
+subroutine TransNow(V,S)
 
 use FFPT_Global, only: nBas, TranCoo, ComStk, ComVal
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iV, ipS
-#include "WrkSpc.fh"
+real(kind=wp), intent(inout) :: V(nBas(1)*(nBas(1)+1)/2)
+real(kind=wp), intent(in) :: S(nBas(1)*(nBas(1)+1)/2)
 integer(kind=iwp) :: i, iXYZ, j, kaunter
 real(kind=wp) :: Trana
 
@@ -43,15 +43,15 @@ if ((.not. ComStk(2,1,1,1)) .and. (.not. ComStk(2,1,1,2)) .and. (.not. ComStk(2,
   write(u6,*) 'A strange error has occured. ComStk modified?'
   call Abend()
 end if
-kaunter = 0
-!write(u6,*) 'Trancoo',(TranCoo(i),i=1,3)
+kaunter = 1
+!write(u6,*) 'TranCoo',(TranCoo(i),i=1,3)
 do i=1,nBas(1)
   do j=1,i
     do iXYZ=1,3
       if (ComStk(2,1,1,iXYZ)) then
-        Trana = ComVal(2,1,1,iXYZ)*TranCoo(iXYZ)*Work(ipS+kaunter)
+        Trana = ComVal(2,1,1,iXYZ)*TranCoo(iXYZ)*S(kaunter)
         !-----Sign of Trana? See source code comment above.
-        Work(iV+kaunter) = Work(iV+kaunter)+Trana
+        V(kaunter) = V(kaunter)+Trana
       end if
     end do
     kaunter = kaunter+1

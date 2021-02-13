@@ -16,12 +16,11 @@ subroutine MkCom()
 !                                                                      *
 !***********************************************************************
 
-use FFPT_Global, only: MxParm, MxSub1, MxSub2, nCom, ComCtl, ComTab, ComStk, ComVal
+use FFPT_Global, only: ComCtl, ComTab, ComStk, ComVal
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iCom, iParm, iSub1, iSub2
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -30,18 +29,10 @@ integer(kind=iwp) :: iCom, iParm, iSub1, iSub2
 !                                                                      *
 !----------------------------------------------------------------------*
 
-do iCom=1,nCom
-  do iSub1=0,MxSub1
-    do iSub2=0,MxSub2
-      ComCtl(iCom,iSub1,iSub2) = 0
-      do iParm=0,MxParm
-        ComTab(iCom,iSub1,iSub2,iParm) = '????'
-        ComStk(iCom,iSub1,iSub2,iParm) = .false.
-        ComVal(iCom,iSub1,iSub2,iParm) = Zero
-      end do
-    end do
-  end do
-end do
+ComCtl(:,:,:) = 0
+ComTab(:,:,:,:) = '????'
+ComStk(:,:,:,:) = .false.
+ComVal(:,:,:,:) = Zero
 
 !----------------------------------------------------------------------*
 !     Define vocabulary                                                *

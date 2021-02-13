@@ -43,17 +43,16 @@ subroutine FFPT(ireturn)
 !                                                                      *
 !***********************************************************************
 
-use FFPT_Global, only: nBas, nSym
-use Definitions, only: iwp
+use FFPT_Global, only: nBas, nSym, Cleanup
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ipH0, ipOvlp, ipRR, ipTemp, nSize, nTemp
+integer(kind=iwp) :: i, nSize, nTemp
+real(kind=wp), allocatable :: H0(:), Ovlp(:), RR(:), Temp(:)
 
 !----------------------------------------------------------------------*
-!----------------------------------------------------------------------*
-!call Hello()
 call MkCom()
 call Rd1Int_FFPT()
 !----------------------------------------------------------------------*
@@ -65,21 +64,23 @@ do i=1,nSym
 end do
 nTemp = nTemp**2+4
 nSize = nSize+4
-call GetMem('H0','Allo','Real',ipH0,nSize)
-call GetMem('Ovlp','Allo','Real',ipOvlp,nSize)
-call GetMem('RR','Allo','Real',ipRR,nSize)
-call GetMem('Temp','Allo','Real',ipTemp,nTemp)
+call mma_allocate(H0,nSize,label='H0')
+call mma_allocate(Ovlp,nSize,label='H0')
+call mma_allocate(RR,nSize,label='H0')
+call mma_allocate(Temp,nTemp,label='H0')
 !----------------------------------------------------------------------*
 call RdInp_FFPT()
 call PrInp_FFPT()
-call PtAdd(Work(ipH0),Work(ipOvlp),Work(ipRR),nSize,Work(ipTemp),nTemp)
+call PtAdd(H0,Ovlp,RR,nSize,Temp,nTEmp)
 !----------------------------------------------------------------------*
-call GetMem('Temp','Free','Real',ipTemp,nTemp)
-call GetMem('RR','Free','Real',ipRR,nSize)
-call GetMem('Ovlp','Free','Real',ipOvlp,nSize)
-call GetMem('H0','Free','Real',ipH0,nSize)
+call mma_deallocate(H0)
+call mma_deallocate(Ovlp)
+call mma_deallocate(RR)
+call mma_deallocate(Temp)
 !----------------------------------------------------------------------*
 call FastIO('STATUS')
+!----------------------------------------------------------------------*
+call Cleanup()
 
 ireturn = 0
 
