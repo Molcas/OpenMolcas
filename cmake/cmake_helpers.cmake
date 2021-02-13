@@ -37,19 +37,6 @@ function (find_source Name Source_Roots)
   endif ()
 endfunction ()
 
-# Insert element New before Item in List, if Item does
-# not exist, append New at the end
-function (insert_before List Item New)
-  list (GET ${Item} 0 first)
-  list (FIND ${List} ${first} index)
-  if (index GREATER -1)
-    list (INSERT ${List} ${index} ${New})
-  else ()
-    list (APPEND ${List} ${New})
-  endif ()
-  set (${List} ${${List}} PARENT_SCOPE)
-endfunction ()
-
 # Has the same signature as add_library, but adds the
 # Fortran_MODULE_DIRECTORY property in addition.
 function (add_Fortran_library Target)

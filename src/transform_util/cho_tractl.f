@@ -231,7 +231,7 @@ CGG   ------------------------------------------------------------------
         Do iSym=1,MaxSym
           Do jSym=1,MaxSym
             TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-            iMemTCVX(iType,iSym,jSym,1)=0 ! Memory Address and
+            iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
             iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
           EndDo
         EndDo
@@ -279,7 +279,7 @@ CGG   ------------------------------------------------------------------
           Do iSym=1,MaxSym
             Do jSym=1,MaxSym
               TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-              iMemTCVX(iType,iSym,jSym,1)=0 ! Memory Address and
+              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
               iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
             EndDo
           EndDo
@@ -405,11 +405,11 @@ CGG   ------------------------------------------------------------------
           Do iType=1,MxTCVx
            Do iSym=1,MaxSym
             Do jSym=1,MaxSym
-             If(iMemTCVX(iType,iSym,jSym,1).GT.0) then
+             If(iMemTCVX(iType,iSym,jSym,1).NE.ip_Dummy) then
               iAddr=iMemTCVX(iType,iSym,jSym,1)
               iLen =iMemTCVX(iType,iSym,jSym,2)
               Call GetMem('iAddr','Free','Real',iAddr,iLen)
-              iMemTCVX(iType,iSym,jSym,1)=0
+              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy
               iMemTCVX(iType,iSym,jSym,2)=0
              EndIf
             EndDo
