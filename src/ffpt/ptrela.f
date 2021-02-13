@@ -1,47 +1,47 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
-*
-************************************************************************
-*                                                                      *
-*     Objective: Add the relativitic perturbation operator to          *
-*                the one-electron Hamiltonian                          *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Add the relativitic perturbation operator to          *
+!                the one-electron Hamiltonian                          *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
       Character*8 Label
       Character*20 PriLbl
       Logical Debug
       Data    Debug/.false./
       Dimension idum(1)
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Load mass-velocity and one-electron Darwin contact term.         *
-*     Add them to the one-electron Hamiltonian.                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Load mass-velocity and one-electron Darwin contact term.         *
+!     Add them to the one-electron Hamiltonian.                        *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!
       If ( .not.ComStk(2,5,0,1) ) then
          Return
       End If
-*
+!
       Label='MassVel '
       iRc=-1
       iOpt1=1
@@ -81,22 +81,22 @@
         Write(PriLbl(19:20),'(I2)') iComp
         Call PrDiOp(PriLbl,nSym,nBas,Temp)
       End If
-*
-*----------------------------------------------------------------------*
-*     Normal Exit                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Normal Exit                                                      *
+!----------------------------------------------------------------------*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
         Call Unused_real_array(Ovlp)
         Call Unused_real_array(RR)
       End If
-*
-*----------------------------------------------------------------------*
-*     Error Exit                                                       *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Error Exit                                                       *
+!----------------------------------------------------------------------*
+!
 991   Write (6,*) 'PtRela: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
       Call Abend()

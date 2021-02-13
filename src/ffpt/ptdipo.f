@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PtDipo(H0,Ovlp,RR,nSize,Temp,nTemp)
-*
-************************************************************************
-*                                                                      *
-*     Objective: Construct the modified Hamiltonian,                   *
-*                i.e., add dipole perturbation operator                *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Construct the modified Hamiltonian,                   *
+!                i.e., add dipole perturbation operator                *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
       Character*8 Label
       Character*20 PriLbl
       Logical Debug,Exec
       Data    Debug/.False./
       Dimension idum(1)
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Check if the command has been specified on input                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Check if the command has been specified on input                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!
       Exec=.false.
       Exec=Exec.or.ComStk(2,1,1,1)
       Exec=Exec.or.ComStk(2,1,1,2)
@@ -44,12 +44,12 @@
       If ( .not.Exec ) then
          Return
       End If
-*
-*----------------------------------------------------------------------*
-*     Loop over all components and add constributions to the           *
-*     one-electron Hamiltonian                                         *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Loop over all components and add constributions to the           *
+!     one-electron Hamiltonian                                         *
+!----------------------------------------------------------------------*
+!
       Do iComp=1,3
         If ( ComStk(2,1,1,iComp) ) Then
           Label='MltPl  1'
@@ -75,22 +75,22 @@
           H0(nInts+4)=H0(nInts+4)-Alpha*Temp(nInts+4)
         End If
       End Do
-*
-*----------------------------------------------------------------------*
-*     Normal Exit                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Normal Exit                                                      *
+!----------------------------------------------------------------------*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
         Call Unused_real_array(Ovlp)
         Call Unused_real_array(RR)
       End If
-*
-*----------------------------------------------------------------------*
-*     Error Exit                                                       *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Error Exit                                                       *
+!----------------------------------------------------------------------*
+!
 991   Write (6,*) 'PtDipi: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
       Call Abend()

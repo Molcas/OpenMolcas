@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PtOkt1(Oper,Temp1,Temp2)
-*
-************************************************************************
-*                                                                      *
-*     Objective: Construct the perturbation operator of the form       *
-*                <X*R**2>=<XXX>+<XYY>+<XZZ>                            *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Construct the perturbation operator of the form       *
+!                <X*R**2>=<XXX>+<XYY>+<XZZ>                            *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Dimension Temp1(*),Temp2(*)
-*
+!
       Character*2 Oper
       Character*8 Label
       Character*20 PriLbl
@@ -37,21 +37,21 @@
       Logical Debug,Orig
       Data    Debug/.False./
       Dimension idum(1)
-*
-*----------------------------------------------------------------------*
-*     Start procedure                                                  *
-*     Check if a origin has been specified                             *
-*     The unspecified components of the origin are set to 0.0 !        *
-*     If no origin has been given pick the center of mass!             *
-*----------------------------------------------------------------------*
-*
-*
+!
+!----------------------------------------------------------------------*
+!     Start procedure                                                  *
+!     Check if a origin has been specified                             *
+!     The unspecified components of the origin are set to 0.0 !        *
+!     If no origin has been given pick the center of mass!             *
+!----------------------------------------------------------------------*
+!
+!
       Orig=.false.
       Orig=Orig.or.ComStk(2,6,2,1)
       Orig=Orig.or.ComStk(2,6,2,2)
       Orig=Orig.or.ComStk(2,6,2,3)
       Orig=Orig.or.ComStk(2,6,2,4)
-*
+!
       If ( Orig ) Then
         XOrig=0.0
         YOrig=0.0
@@ -62,7 +62,7 @@
         If ( ComStk(2,6,2,4) ) Then
           iAtm=INT(ComVal(2,6,2,4))
           If ( iAtm.lt.0 .or. iAtm.gt.nAtoms ) Then
-             Write (6,*) 'PtOkt0: You specified a invalid atom number'
+             Write (6,*) 'PtOkt0: You specified a invalid atom number'  &
      &                 //' as the origin of the perturbation operator.'
              Call Abend()
           End If
@@ -76,14 +76,14 @@
         YOrig=Cntr(2)
         ZOrig=Cntr(3)
       End If
-      If ( Debug )
-     *  Write(6,'(6X,A,3F12.6)')'Origin of the perturbation operator =',
-     *  XOrig,YOrig,ZOrig
-*
-*----------------------------------------------------------------------*
-*     Loop over components                                             *
-*----------------------------------------------------------------------*
-*
+      If ( Debug )                                                      &
+     &  Write(6,'(6X,A,3F12.6)')'Origin of the perturbation operator =',&
+     &  XOrig,YOrig,ZOrig
+!
+!----------------------------------------------------------------------*
+!     Loop over components                                             *
+!----------------------------------------------------------------------*
+!
       Do iComp=1,3
          If ( Oper.eq.'XR' ) jComp=xrComp(iComp)
          If ( Oper.eq.'YR' ) jComp=yrComp(iComp)
@@ -104,7 +104,7 @@
          Y=Temp1(nInts+2)
          Z=Temp1(nInts+3)
          If ( X.ne.XOrig .or. Y.ne.YOrig .or. Z.ne.ZOrig ) Then
-             Write (6,*) 'PtOkt1: Input error, no matching center'
+             Write (6,*) 'PtOkt1: Input error, no matching center'      &
      &                 //' is found.'
              Call Abend()
          End If
@@ -117,17 +117,17 @@
             Temp2(nInts+4)=Temp2(nInts+4)+Alpha*Temp1(nInts+4)
          End If
       End Do
-*
-*----------------------------------------------------------------------*
-*     Normal Exit                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Normal Exit                                                      *
+!----------------------------------------------------------------------*
+!
       Return
-*
-*----------------------------------------------------------------------*
-*     Error Exit                                                       *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Error Exit                                                       *
+!----------------------------------------------------------------------*
+!
 991   Write (6,*) 'PtOkt1: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
       Call Abend()

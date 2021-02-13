@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2000, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2000, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine RdInp_FFPT
-*
-************************************************************************
-*                                                                      *
-*     Objective: Read and interprete input                             *
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     In order to introduce the ffpt input to the CERIUS2 interface    *
-*     the parser had to be changed!                                    *
-*     M. Fuelscher, Lund Univeristy, Sweden, February 2000             *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Read and interprete input                             *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     In order to introduce the ffpt input to the CERIUS2 interface    *
+!     the parser had to be changed!                                    *
+!     M. Fuelscher, Lund Univeristy, Sweden, February 2000             *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Parameter ( mCom = 11 )
       Character*20 FmtLog
       Character*4 Com(mCom)
       Data Com / 'TITL','DIPO','EFLD','QUAD','OCTU',
      &           'EFGR','RELA','GLBL','SELE','CUMU','END ' /
-*
+!
       Character*72 Line,Temp1,Temp2
       Character*4  Token
       Logical      Op0(9)
@@ -51,31 +51,31 @@
       Data         Op6 /8*.false./
 
       LCumulate=.False.
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Locate "start of input"                                          *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Locate "start of input"                                          *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
       Call RdNlst(5,'FFPT')
       Temp2 = ' '
       Temp1 = ' '
       Line  = ' &FFPT &END'
-*
-*----------------------------------------------------------------------*
-*     Initialize counters                                              *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Initialize counters                                              *
+!----------------------------------------------------------------------*
+!
       newline = 0
       mLbl = 0
       mTit = 0
-*
-*----------------------------------------------------------------------*
-*     Read the input stream line by line and identify key command      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Read the input stream line by line and identify key command      *
+!----------------------------------------------------------------------*
+!
       jCom=0
  1    Temp2 = Temp1
       Temp1 = Line
@@ -89,15 +89,15 @@
         If ( Token.eq.Com(iCom) ) jCom=iCom
       End Do
       If ( jCom.eq.0 ) Goto 992
-*
-*----------------------------------------------------------------------*
-*     Branch to the processing of the command sections                 *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Branch to the processing of the command sections                 *
+!----------------------------------------------------------------------*
+!
       Goto (10,20,30,40,50,60,70,80,90,100,1000),jCom
-*
-*---  Process the "TITL" command --------------------------------------*
-*
+!
+!---  Process the "TITL" command --------------------------------------*
+!
  10   Continue
       If ( Op0(1) ) Goto 993
       Op0(1) = .true.
@@ -117,9 +117,9 @@
          Title(mTit)=Line
       End If
       Goto 15
-*
-*---  Process the "DIPO" command --------------------------------------*
-*
+!
+!---  Process the "DIPO" command --------------------------------------*
+!
  20   Continue
       If ( Op0(2) ) Goto 993
       Op0(2) = .true.
@@ -168,9 +168,9 @@
         Goto 25
       End If
       Goto 992
-*
-*---  Process the "EFLD" command --------------------------------------*
-*
+!
+!---  Process the "EFLD" command --------------------------------------*
+!
  30   Continue
       If ( Op0(3) ) Goto 993
       Op0(3) = .true.
@@ -234,9 +234,9 @@
         Goto 35
       End If
       Goto 992
-*
-*---  Process the "QUAD" command --------------------------------------*
-*
+!
+!---  Process the "QUAD" command --------------------------------------*
+!
  40   Continue
       If ( Op0(4) ) Goto 993
       Op0(4) = .true.
@@ -335,9 +335,9 @@
         Goto 45
       End If
       Goto 992
-*
-*---  Process the "OCTU" command --------------------------------------*
-*
+!
+!---  Process the "OCTU" command --------------------------------------*
+!
  50   Continue
       If ( Op0(5) ) Goto 993
       Op0(5) = .true.
@@ -463,9 +463,9 @@
         Goto 55
       End If
       Goto 992
-*
-*---  Process the "EFGR" command --------------------------------------*
-*
+!
+!---  Process the "EFGR" command --------------------------------------*
+!
  60   Continue
       If ( Op0(6) ) Goto 993
       Op0(6) = .true.
@@ -555,9 +555,9 @@
         Goto 65
       End If
       Goto 992
-*
-*---  Process the "RELA" command --------------------------------------*
-*
+!
+!---  Process the "RELA" command --------------------------------------*
+!
  70   Continue
       If ( Op0(7) ) Goto 993
       Op0(7) = .true.
@@ -574,9 +574,9 @@
       ComStk(2,5,0,1) = .true.
       ComVal(2,5,0,1) = W
       Goto 1
-*
-*---  Process the "GLBL" command --------------------------------------*
-*
+!
+!---  Process the "GLBL" command --------------------------------------*
+!
  80   Continue
       If ( Op0(8) ) Goto 993
       Op0(8) = .true.
@@ -610,11 +610,11 @@
      &       gLblC(i).eq.gLblC(mLbl) ) Goto 993
       End Do
       Goto 85
-*
-*---  Process the "SELE" command --------------------------------------*
-*
+!
+!---  Process the "SELE" command --------------------------------------*
+!
  90   Continue
-*-- Initialize
+!-- Initialize
       Do i=1,MxSets
         Atoms(i)=.false.
         Do j=1,MxSets
@@ -641,65 +641,65 @@
         Enddo
       Enddo
       Read(5,*)(TranCoo(k),k=1,3)
-*      Read(5,*)SiffBond
+!      Read(5,*)SiffBond
 79121 Format(A,I1,A)
 79122 Format(A,I2,A)
       Go to 1
-*
-*---  Process the "CUMU" command --------------------------------------*
-*
+!
+!---  Process the "CUMU" command --------------------------------------*
+!
  100  Continue
-*     Add the perturbation to the current H0 instead of
-*     to the vacuum H0. This enables multiple FFPT runs after eachother,
-*     useful when using SELE.
+!     Add the perturbation to the current H0 instead of
+!     to the vacuum H0. This enables multiple FFPT runs after eachother,
+!     useful when using SELE.
       LCumulate=.True.
       Go to 1
 
-*
-*---  Process the "END " command --------------------------------------*
-*
+!
+!---  Process the "END " command --------------------------------------*
+!
  1000 Continue
       If ( Op0(9) ) Goto 993
       Op0(9) = .true.
-*      ComStk(4,0,0,0) = .true.
+!      ComStk(4,0,0,0) = .true.
       ComStk(5,0,0,0) = .true.
-*---  Check for redunancy in the origin input
+!---  Check for redunancy in the origin input
       If ( ComStk(2,2,2,4) ) Then
-         If ( ComStk(2,2,2,1) .or.
-     &        ComStk(2,2,2,2) .or.
+         If ( ComStk(2,2,2,1) .or.                                      &
+     &        ComStk(2,2,2,2) .or.                                      &
      &        ComStk(2,2,2,3)      ) Goto 996
       End If
       If ( ComStk(2,3,2,4) ) Then
-         If ( ComStk(2,3,2,1) .or.
-     &        ComStk(2,3,2,2) .or.
+         If ( ComStk(2,3,2,1) .or.                                      &
+     &        ComStk(2,3,2,2) .or.                                      &
      &        ComStk(2,3,2,3)      ) Goto 996
       End If
       If ( ComStk(2,4,2,4) ) Then
-         If ( ComStk(2,4,2,1) .or.
-     &        ComStk(2,4,2,2) .or.
+         If ( ComStk(2,4,2,1) .or.                                      &
+     &        ComStk(2,4,2,2) .or.                                      &
      &        ComStk(2,4,2,3)      ) Goto 996
       End If
       If ( ComStk(2,6,2,4) ) Then
-         If ( ComStk(2,6,2,1) .or.
-     &        ComStk(2,6,2,2) .or.
+         If ( ComStk(2,6,2,1) .or.                                      &
+     &        ComStk(2,6,2,2) .or.                                      &
      &        ComStk(2,6,2,3)      ) Goto 996
       End If
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
+!
       Return
-*
-*----------------------------------------------------------------------*
-*     Error handling                                                   *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Error handling                                                   *
+!----------------------------------------------------------------------*
+!
  991  Write (6,*)
       Write(6,'(2X,A)') 'The program failed to read the input.'
       Write(6,'(2X,A)') 'Please check your input data.'
       Write(6,*)
-      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,
+      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,     &
      &                         ' after the &FFPT &END line'
       Write(6,'(2X,A,A)') 'The current line is:      ',Line
       Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
@@ -709,7 +709,7 @@
       Write(6,'(2X,A)') 'The program has been supplied with an unknown'
       Write(6,'(2X,A)') 'keyword. Please correct your input data.'
       Write(6,*)
-      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,
+      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,     &
      &                         ' after the &FFPT &END line'
       Write(6,'(2X,A,A)') 'The current line is:      ',Line
       Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
@@ -719,7 +719,7 @@
       Write(6,'(2X,A)') 'A command or one of its components has been'
       Write(6,'(2X,A)') 'multiply defined. Please correct your input.'
       Write(6,*)
-      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,
+      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,     &
      &                         ' after the &FFPT &END line'
       Write(6,'(2X,A,A)') 'The current line is:      ',Line
       Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1

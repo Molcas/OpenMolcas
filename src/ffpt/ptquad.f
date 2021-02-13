@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
-*
-************************************************************************
-*                                                                      *
-*     Objective: Construct the modified Hamiltonian,                   *
-*                i.e., add quadrupole perturbation operator            *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Construct the modified Hamiltonian,                   *
+!                i.e., add quadrupole perturbation operator            *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
       Character*8 Label
       Character*20 PriLbl
@@ -31,15 +31,15 @@
       Logical Debug,Exec,Orig,Diag
       Data    Debug/.false./
       Dimension idum(1)
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Check if the command has been specified on input                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Check if the command has been specified on input                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!
       Exec=.false.
       Exec=Exec.or.ComStk(2,2,1,1)
       Exec=Exec.or.ComStk(2,2,1,2)
@@ -51,23 +51,23 @@
       If ( .not.Exec ) then
          Return
       End If
-*
-*----------------------------------------------------------------------*
-*     Check if a origin has been specified                             *
-*     The unspecified components of the origin are set to 0.0 !        *
-*     If no origin has been given pick the center of mass!             *
-*----------------------------------------------------------------------*
-*
-c        Do i=1,nAtoms
-c          Print *,i,(Coor(j,i),j=1,3)
-c        End Do
+!
+!----------------------------------------------------------------------*
+!     Check if a origin has been specified                             *
+!     The unspecified components of the origin are set to 0.0 !        *
+!     If no origin has been given pick the center of mass!             *
+!----------------------------------------------------------------------*
+!
+!        Do i=1,nAtoms
+!          Print *,i,(Coor(j,i),j=1,3)
+!        End Do
 
       Orig=.false.
       Orig=Orig.or.ComStk(2,2,2,1)
       Orig=Orig.or.ComStk(2,2,2,2)
       Orig=Orig.or.ComStk(2,2,2,3)
       Orig=Orig.or.ComStk(2,2,2,4)
-*
+!
       If ( Orig ) Then
         XOrig=0.0
         YOrig=0.0
@@ -77,11 +77,11 @@ c        End Do
         If ( ComStk(2,2,2,3) ) ZOrig=ComVal(2,2,2,3)
         If ( ComStk(2,2,2,4) ) Then
           iAtm=INT(ComVal(2,2,2,4))
-          If ( Debug )
-     *      Write(6,'(6X,A,I2)')'Origin of perturbation is centered '//
-     *                          'at atom ',iAtm
+          If ( Debug )                                                  &
+     &      Write(6,'(6X,A,I2)')'Origin of perturbation is centered '// &
+     &                          'at atom ',iAtm
           If ( iAtm.lt.0 .or. iAtm.gt.nAtoms ) Then
-             Write (6,*) 'PtOkt0: You specified a invalid atom number'
+             Write (6,*) 'PtOkt0: You specified a invalid atom number'  &
      &                 //' as the origin of the perturbation operator.'
              Call Abend()
           End If
@@ -95,22 +95,22 @@ c        End Do
         YOrig=Cntr(2)
         ZOrig=Cntr(3)
       End If
-      If ( Debug )
-     *  Write(6,'(6X,A,3F12.6)')'Origin of the perturbation operator =',
-     *  XOrig,YOrig,ZOrig
-*
-*----------------------------------------------------------------------*
-*     Check if a diagonal component has been specified.                *
-*     If so, compute R**2 first.                                       *
-*----------------------------------------------------------------------*
-*
+      If ( Debug )                                                      &
+     &  Write(6,'(6X,A,3F12.6)')'Origin of the perturbation operator =',&
+     &  XOrig,YOrig,ZOrig
+!
+!----------------------------------------------------------------------*
+!     Check if a diagonal component has been specified.                *
+!     If so, compute R**2 first.                                       *
+!----------------------------------------------------------------------*
+!
       Diag=.false.
       Do iDiag=1,3
         Diag=Diag.or.ComStk(2,2,1,DiComp(iDiag))
       End Do
-*-----or if RR option is used
+!-----or if RR option is used
       Diag=Diag.or.ComStk(2,2,1,7)
-*
+!
       If ( Diag ) Then
         Do iDiag=1,3
           Label='MltPl  2'
@@ -128,7 +128,7 @@ c        End Do
           Y=Temp(nInts+2)
           Z=Temp(nInts+3)
           If ( X.ne.XOrig .or. Y.ne.YOrig .or. Z.ne.ZOrig ) Then
-             Write (6,*) 'PtOkt0: Input error, no matching center'
+             Write (6,*) 'PtOkt0: Input error, no matching center'      &
      &                 //' is found.'
              Call Abend()
           End If
@@ -151,11 +151,11 @@ c        End Do
           Call PrDiOp(PriLbl,nSym,nBas,RR)
         End If
       End If
-*
-*----------------------------------------------------------------------*
-*     Loop over components                                             *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Loop over components                                             *
+!----------------------------------------------------------------------*
+!
       jDiag=1
       iDiag=DiComp(jDiag)
       Do iComp=1,6
@@ -174,7 +174,7 @@ c        End Do
           Y=Temp(nInts+2)
           Z=Temp(nInts+3)
           If ( X.ne.XOrig .or. Y.ne.YOrig .or. Z.ne.ZOrig ) Then
-             Write (6,*) 'PtOkt0: Input error, no matching center'
+             Write (6,*) 'PtOkt0: Input error, no matching center'      &
      &                 //' is found.'
              Call Abend()
           End If
@@ -202,25 +202,25 @@ c        End Do
           iDiag=DiComp(jDiag)
         End If
       End Do
-*-----RR option
+!-----RR option
       If ( ComStk(2,2,1,7) ) Then
          Alpha=2.0D0*(ComVal(2,2,1,7))
          CALL DAXPY_(nInts,Alpha,RR,1,H0,1)
          H0(nInts+4)=H0(nInts+4)-Alpha*RR(nInts+4)
       End If
-*
-*----------------------------------------------------------------------*
-*     Normal Exit                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Normal Exit                                                      *
+!----------------------------------------------------------------------*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Ovlp)
-*
-*----------------------------------------------------------------------*
-*     Error Exit                                                       *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Error Exit                                                       *
+!----------------------------------------------------------------------*
+!
 991   Write (6,*) 'PtQuad: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
       Call Abend()

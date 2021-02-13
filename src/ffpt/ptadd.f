@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PtAdd(H0,Ovlp,RR,nSize,Temp,nTemp)
-*
-************************************************************************
-*                                                                      *
-*     Objective: Construct the modified Hamiltonian                    *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Construct the modified Hamiltonian                    *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
       Character*8 Label
       Logical Debug
       Data Debug /.False./
       Dimension idum(1)
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Read nuclear attraction and kinteic energy integrals.            *
-*     Combine them to generate the one-electron Hamiltonian.           *
-*     Finally read the overlap matrix.                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Read nuclear attraction and kinteic energy integrals.            *
+!     Combine them to generate the one-electron Hamiltonian.           *
+!     Finally read the overlap matrix.                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!
       iOpt1=1
       iOpt2=2
       iComp=1
@@ -67,12 +67,12 @@
          Call PrDiOp('One Hamiltonian intgrl',nSym,nBas,H0)
          Write (6,*) 'PotNuc=',H0(nInts+4)
       End If
-*
-*----------------------------------------------------------------------*
-*     Loop over all possible commands and branch to "special purpose"  *
-*     subroutines to add perturbations.                                *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Loop over all possible commands and branch to "special purpose"  *
+!     subroutines to add perturbations.                                *
+!----------------------------------------------------------------------*
+!
       Call PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
       Call PtDipo(H0,Ovlp,RR,nSize,Temp,nTemp)
       Call PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
@@ -80,18 +80,18 @@
       Call PtEfld(H0,Ovlp,RR,nSize,Temp,nTemp)
       Call PtEfgr(H0,Ovlp,RR,nSize,Temp,nTemp)
       Call PtGLbl(H0,Ovlp,RR,nSize,Temp,nTemp)
-*
-*----------------------------------------------------------------------*
-*     If the user have requested a local (a la LoProp) perturbation    *
-*     then make some modifications to the perturbation matrix.         *
-*----------------------------------------------------------------------*
-*                                                                      *
+!
+!----------------------------------------------------------------------*
+!     If the user have requested a local (a la LoProp) perturbation    *
+!     then make some modifications to the perturbation matrix.         *
+!----------------------------------------------------------------------*
+!                                                                      *
       If(ComStk(4,0,0,0))Call SelectLoc(H0,nSize)
-*
-*----------------------------------------------------------------------*
-*     Terminate procedure                                              *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Terminate procedure                                              *
+!----------------------------------------------------------------------*
+!
       If ( Debug ) Then
          Call PrDiOp('Core Hamiltonian',nSym,nBas,H0)
          Write (6,*) 'PotNuc=',H0(nInts+4)
@@ -106,12 +106,12 @@
          Write (6,'(A,A)') 'Label=',Label
          Call Abend()
       End If
-*     Call Put_PotNuc(H0(nInts+4))
+!     Call Put_PotNuc(H0(nInts+4))
       Call Put_dScalar('PotNuc',H0(nInts+4))
-*
-*----------------------------------------------------------------------*
-*     Normal Exit                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Normal Exit                                                      *
+!----------------------------------------------------------------------*
+!
       Return
       End

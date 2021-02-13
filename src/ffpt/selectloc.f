@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
-*  SelectLoc
-*
-*> @brief
-*>   Localize the perturbation LoProp-style. This way a perturbation can be applied selectively on parts of a molecule
-*> @author A. Ohrn
-*>
-*> @details
-*> Collect \p H0 as it is, clean the vacuum part so only perturbation
-*> is there. Collect LoProp transformation and transform. Put zeros
-*> according to user specification and transform back. The localized
-*> perturbation is added to the one-electron Hamiltonian and \p H0 is
-*> returned.
-*>
-*> @param[in,out] H0    The one-electron Hamiltonain with perturbations so far. On output the localized perturbed one-electron Hamiltonian
-*> @param[in]     nSize Size of the triangular \p H0 with the additional origo and nuclear contribution
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
+!  SelectLoc
+!
+!> @brief
+!>   Localize the perturbation LoProp-style. This way a perturbation can be applied selectively on parts of a molecule
+!> @author A. Ohrn
+!>
+!> @details
+!> Collect \p H0 as it is, clean the vacuum part so only perturbation
+!> is there. Collect LoProp transformation and transform. Put zeros
+!> according to user specification and transform back. The localized
+!> perturbation is added to the one-electron Hamiltonian and \p H0 is
+!> returned.
+!>
+!> @param[in,out] H0    The one-electron Hamiltonain with perturbations so far. On output the localized perturbed one-electron Hamiltonian
+!> @param[in]     nSize Size of the triangular \p H0 with the additional origo and nuclear contribution
+!***********************************************************************
       Subroutine SelectLoc(H0,nSize)
       Implicit Real*8 (a-h,o-z)
 
@@ -40,9 +40,9 @@
       Data Debug /.false./
       Dimension idum(1)
 
-*
-*-- Commence!
-*
+!
+!-- Commence!
+!
       Write(6,*)
       Write(6,*)' The perturbation will be localized "LoProp style".'
       Write(6,*)
@@ -58,21 +58,21 @@
         Enddo
       Enddo
 
-*
-*-- No symmetry allowed.
-*
+!
+!-- No symmetry allowed.
+!
       Call Get_iScalar('nSym',nSym)
       If(nSym.ne.1) then
         Write(6,*)
-      Write(6,*)' You have specified symmetry. The keyword "SELEctive"',
+      Write(6,*)' You have specified symmetry. The keyword "SELEctive"',&
      & ' in FFPT is incompatible with this.'
         Write(6,*)' Aborting....'
         Call Abend()
       Endif
 
-*
-*-- Collect the overlap and some auxiliaries for LoProp.
-*
+!
+!-- Collect the overlap and some auxiliaries for LoProp.
+!
       Call GetMem('Orbital_Type','Allo','Inte',ipType,nBas(1))
       Call GetMem('Center_Index','Allo','Inte',ipCenter,nBas(1))
       Call Get_iArray('Orbital Type',iWork(ipType),nBas(1))
@@ -99,26 +99,26 @@
         Write(6,*)'Error reading overlap matrix in SELECTLOC!'
         Call Abend()
       Endif
-*-- Lets be square.
+!-- Lets be square.
       Call GetMem('SMatSq','Allo','Real',ipSSq,nBas(1)**2)
       Call Square(Work(ipSTr),Work(ipSSq),1,nBas(1),nBas(1))
 
-*
-*-- Call the localization utility and get the transformation matrix.
-*
+!
+!-- Call the localization utility and get the transformation matrix.
+!
       Call GetMem('T','Allo','Real',ipT,nBas(1)**2)
       Call GetMem('Tinv','Allo','Real',ipTinv,nBas(1)**2)
-      Call Localize_LoProp(Work(ipT),Work(ipTinv),nBas(1),Work(ipSSq)
+      Call Localize_LoProp(Work(ipT),Work(ipTinv),nBas(1),Work(ipSSq)   &
      &                    ,iWork(ipCenter),iWork(ipType))
       If(DeBug) then
         Call RecPrt('Total transfMat',' ',Work(ipT),nBas(1),nBas(1))
       Endif
 
-*
-*-- Transform the perturbation to the LoProp basis. FFPT accumulates the
-*   perturbation to H0, but we only want the perturbation V, hence first
-*   a subtraction is necessary.
-*
+!
+!-- Transform the perturbation to the LoProp basis. FFPT accumulates the
+!   perturbation to H0, but we only want the perturbation V, hence first
+!   a subtraction is necessary.
+!
       Call GetMem('VacH0','Allo','Real',iHVac,nInts+4)
       If(LCumulate) Then
          Label='OneHam  '
@@ -139,9 +139,9 @@
       H02=H0(nInts+2)
       H03=H0(nInts+3)
       H04=H0(nInts+4)
-*----But first translate the perturbation origo to the relevant centre
+!----But first translate the perturbation origo to the relevant centre
       Call TransNow(iV,ipSTr)
-*----You may proceed.
+!----You may proceed.
       Call GetMem('PertSq','Allo','Real',iVS,nBas(1)**2)
       Call Square(Work(iV),Work(iVS),1,nBas(1),nBas(1))
       If(DeBug) then
@@ -150,19 +150,19 @@
 
       Call GetMem('TEMP','Allo','Real',iTEMP,nBas(1)**2)
       Call GetMem('PertL','Allo','Real',iVLoP,nBas(1)**2)
-*----Go to basis where overlap matrix, S, is diagonal.
-      Call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipT)
+!----Go to basis where overlap matrix, S, is diagonal.
+      Call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipT)         &
      &          ,nBas(1),Work(iVS),nBas(1),ZERO,Work(iTEMP),nBas(1))
-      Call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTEMP),
+      Call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTEMP),      &
      &    nBas(1),Work(ipT),nBas(1),ZERO,Work(iVLoP),nBas(1))
       If(DeBug) then
         Call RecPrt('Pert:(Basis:LoP)',' ',Work(iVLop),nBas(1),nBas(1))
       Endif
 
-*
-*-- Set elements to zero as designated in input. The routine below is
-*   far from optimal, but we are not in need of great speed here so....
-*
+!
+!-- Set elements to zero as designated in input. The routine below is
+!   far from optimal, but we are not in need of great speed here so....
+!
 
       kaunter=0
       Do i=1,nBas(1)
@@ -179,16 +179,16 @@
               OneOrNot2=j.ge.iSelection(1,l).and.j.le.iSelection(2,l)
               OneOrNot3=i.ge.iSelection(1,l).and.i.le.iSelection(2,l)
               OneOrNot4=j.ge.iSelection(1,k).and.j.le.iSelection(2,k)
-              OneOrNot=(OneOrNot1.and.OneOrNot2).or.
+              OneOrNot=(OneOrNot1.and.OneOrNot2).or.                    &
      &                 (OneOrNot3.and.OneOrNot4)
-              CrazySet=(OneOrNot1.and.OneOrNot2).and.
+              CrazySet=(OneOrNot1.and.OneOrNot2).and.                   &
      &                 (OneOrNot3.and.OneOrNot4)
               If(CrazySet.and.Bonds(k,l).and..not.Atoms(k)) then
                 Write(6,*)'Your set selection is not exclusive!'
               Endif
               If(OneOrNot) Siff=1.0D+0
-*-- Here we enable to set the weight in the bond-domain to some
-*   other number than one.
+!-- Here we enable to set the weight in the bond-domain to some
+!   other number than one.
               If(OneOrNot.and.(Atoms(k).and.Bonds(k,l))) Siff=SiffBond
 999           Continue
             Enddo
@@ -198,22 +198,22 @@
         Enddo
       Enddo
 
-*
-*-- Transform back. Due to the non-unitarian and non-orthogonal basis
-*   the inverse is is contravariant (if the transformation was
-*   covariant). See the Book by Lanczos.
-*
-      Call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipTinv)
+!
+!-- Transform back. Due to the non-unitarian and non-orthogonal basis
+!   the inverse is is contravariant (if the transformation was
+!   covariant). See the Book by Lanczos.
+!
+      Call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipTinv)      &
      &          ,nBas(1),Work(iVLop),nBas(1),ZERO,Work(iTEMP),nBas(1))
-      Call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTEMP),
+      Call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTEMP),      &
      & nBas(1),Work(ipTinv),nBas(1),ZERO,Work(iVS),nBas(1))
       If(DeBug) then
         Call RecPrt('Pert.Zeroed',' ',Work(iVS),nBas(1),nBas(1))
       Endif
 
-*
-*-- Add this perturbation to the one-electron hamiltonian.
-*
+!
+!-- Add this perturbation to the one-electron hamiltonian.
+!
       kaunter=0
       Do i=1,nBas(1)
         Do j=1,i
@@ -222,15 +222,15 @@
           H0(kaunter)=Work(iHVac+kaunter-1)+Work(iVS+ind-1)
         Enddo
       Enddo
-*----And don't forget the orgio and the nuclear repulsion.
+!----And don't forget the orgio and the nuclear repulsion.
       H0(nInts+1)=H01
       H0(nInts+2)=H02
       H0(nInts+3)=H03
       H0(nInts+4)=H04
 
-*
-*-- Deallocations en masse.
-*
+!
+!-- Deallocations en masse.
+!
       Call GetMem('Orbital_Type','Free','Inte',ipType,nBas(1))
       Call GetMem('Center_Index','Free','Inte',ipCenter,nBas(1))
       Call GetMem('SMatSq','Free','Real',ipSSq,nBas(1)**2)
@@ -243,9 +243,9 @@
       Call GetMem('PertL','Free','Real',iVLoP,nBas(1)**2)
       Call GetMem('SMatTr','Free','Real',ipSTr,nInts+4)
 
-*
-*-- Exit
-*
+!
+!-- Exit
+!
       Write(6,*)
       Write(6,*)'  ....Done!'
       Write(6,*)

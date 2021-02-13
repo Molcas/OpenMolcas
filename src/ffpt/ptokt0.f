@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PtOkt0(H0,Ovlp,RR,nSize,Temp,nTemp)
-*
-************************************************************************
-*                                                                      *
-*     Objective: Construct the modified Hamiltonian,                   *
-*                i.e., add quadrupole perturbation operator            *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Construct the modified Hamiltonian,                   *
+!                i.e., add quadrupole perturbation operator            *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
       Character*8 Label
       Character*20 PriLbl
@@ -29,15 +29,15 @@
       Logical Debug,Exec,Orig
       Data    Debug/.False./
       Dimension idum(1)
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Check if the command has been specified on input                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Check if the command has been specified on input                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!
       Exec=.false.
       Exec=Exec.or.ComStk(2,6,1,1)
       Exec=Exec.or.ComStk(2,6,1,2)
@@ -52,19 +52,19 @@
       If ( .not.Exec ) then
          Return
       End If
-*
-*----------------------------------------------------------------------*
-*     Check if a origin has been specified                             *
-*     The unspecified components of the origin are set to 0.0 !        *
-*     If no origin has been given pick the center of mass!             *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Check if a origin has been specified                             *
+!     The unspecified components of the origin are set to 0.0 !        *
+!     If no origin has been given pick the center of mass!             *
+!----------------------------------------------------------------------*
+!
       Orig=.false.
       Orig=Orig.or.ComStk(2,6,2,1)
       Orig=Orig.or.ComStk(2,6,2,2)
       Orig=Orig.or.ComStk(2,6,2,3)
       Orig=Orig.or.ComStk(2,6,2,4)
-*
+!
       If ( Orig ) Then
         XOrig=0.0
         YOrig=0.0
@@ -75,7 +75,7 @@
         If ( ComStk(2,6,2,4) ) Then
           iAtm=INT(ComVal(2,6,2,4))
           If ( iAtm.lt.0 .or. iAtm.gt.nAtoms ) Then
-             Write (6,*) 'PtOkt0: You specified a invalid atom number'
+             Write (6,*) 'PtOkt0: You specified a invalid atom number'  &
      &                 //' as the origin of the perturbation operator.'
              Call Abend()
           End If
@@ -89,14 +89,14 @@
         YOrig=Cntr(2)
         ZOrig=Cntr(3)
       End If
-      If ( Debug )
-     *  Write(6,'(6X,A,3F12.6)')'Origin of the perturbation operator =',
-     *  XOrig,YOrig,ZOrig
-*
-*----------------------------------------------------------------------*
-*     Loop over components                                             *
-*----------------------------------------------------------------------*
-*
+      If ( Debug )                                                      &
+     &  Write(6,'(6X,A,3F12.6)')'Origin of the perturbation operator =',&
+     &  XOrig,YOrig,ZOrig
+!
+!----------------------------------------------------------------------*
+!     Loop over components                                             *
+!----------------------------------------------------------------------*
+!
       Do iComp=1,10
         If ( ComStk(2,6,1,iComp) ) Then
           If ( iComp.eq.1 .or. iComp.eq.4 .or. iComp.eq.6 ) Then
@@ -123,7 +123,7 @@
           Y=Temp(nInts+2)
           Z=Temp(nInts+3)
           If ( X.ne.XOrig .or. Y.ne.YOrig .or. Z.ne.ZOrig ) Then
-             Write (6,*) 'PtOkt0: Input error, no matching center'
+             Write (6,*) 'PtOkt0: Input error, no matching center'      &
      &                 //' is found.'
              Call Abend()
           End If
@@ -149,19 +149,19 @@
           End If
         End If
       End Do
-*
-*----------------------------------------------------------------------*
-*     Normal Exit                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Normal Exit                                                      *
+!----------------------------------------------------------------------*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Ovlp)
-*
-*----------------------------------------------------------------------*
-*     Error Exit                                                       *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Error Exit                                                       *
+!----------------------------------------------------------------------*
+!
 991   Write (6,*) 'PtOkt0: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
       Call Abend()

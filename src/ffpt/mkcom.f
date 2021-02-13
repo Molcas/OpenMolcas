@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine MkCom
-*
-************************************************************************
-*                                                                      *
-*     Objective: Initialize the Command tabels                         *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Initialize the Command tabels                         *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*     Initialize command tables                                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!     Initialize command tables                                        *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
       Do iCom=1,nCom
          Do iSub1=0,MxSub1
             Do iSub2=0,MxSub2
@@ -40,11 +40,11 @@
             End Do
          End Do
       End Do
-*
-*----------------------------------------------------------------------*
-*     Define vocabulary                                                *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Define vocabulary                                                *
+!----------------------------------------------------------------------*
+!
       ComTab(1,0,0,0)='TITL'
       ComTab(2,0,0,0)='FFPT'
          ComTab(2,1,0,0)='DIPO'
@@ -111,11 +111,11 @@
       ComTab(3,0,0,0)='GLBL'
       ComTab(4,0,0,0)='EXTR'
       ComTab(5,0,0,0)='END '
-*
-*----------------------------------------------------------------------*
-*     Set control tables                                               *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Set control tables                                               *
+!----------------------------------------------------------------------*
+!
       ComCtl(1,0,0)=0
       ComCtl(2,0,0)=5
          ComCtl(2,1,0)=1
@@ -137,10 +137,10 @@
       ComCtl(3,0,0)=0
       ComCtl(4,0,0)=0
       ComCtl(5,0,0)=0
-*
-*----------------------------------------------------------------------*
-*     Terminate procedure                                              *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Terminate procedure                                              *
+!----------------------------------------------------------------------*
+!
       Return
       End

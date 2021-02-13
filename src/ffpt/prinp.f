@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PrInp_FFPT
-*
-************************************************************************
-*                                                                      *
-*     Objective: Write the title page on the standard output unit      *
-*                                                                      *
-************************************************************************
-*
+!
+!***********************************************************************
+!                                                                      *
+!     Objective: Write the title page on the standard output unit      *
+!                                                                      *
+!***********************************************************************
+!
       Implicit Real*8 ( A-H,O-Z )
-*
+!
 
 #include "input.fh"
-*
+!
       Character*120 PrLine,BlLine,StLine
       Character*72  Data,Line
       Character*8 Fmt1,Fmt2
       Character*4 Com,Sub1,Sub2,Parm
       Integer StrnLn
       Logical clear, nice
-*
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Start procedure                                                  *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
-*----------------------------------------------------------------------*
-*     Initialize blank and header lines                                *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Start procedure                                                  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     Initialize blank and header lines                                *
+!----------------------------------------------------------------------*
       lLine=Len(PrLine)
       Do i=1,lLine
         BlLine(i:i)=' '
@@ -46,17 +46,17 @@
       left=(lPaper-lLine)/2
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-*----------------------------------------------------------------------*
-*     Print the project title                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print the project title                                          *
+!----------------------------------------------------------------------*
       If ( mTit.gt.0 ) then
          Write(6,*)
          nLine=mTit+5
          Do i=1,nLine
            PrLine=BlLine
-           If ( i.eq.1 .or. i.eq.nLine )
+           If ( i.eq.1 .or. i.eq.nLine )                                &
      &     PrLine=StLine
-           If ( i.eq.3 )
+           If ( i.eq.3 )                                                &
      &     PrLine='Project:'
            If ( i.ge.4 .and. i.le.nLine-2 ) then
               PrLine=Title(i-3)
@@ -66,11 +66,11 @@
          End Do
          Write(6,*)
       End If
-*
-*----------------------------------------------------------------------*
-*     Print file identifier                                            *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Print file identifier                                            *
+!----------------------------------------------------------------------*
+!
       Write(6,*)
       Write(6,'(6X,A)') 'Header of the ONEINT file:'
       Write(6,'(6X,A)') '--------------------------'
@@ -80,17 +80,17 @@
       Write(Line,'(72A1)') (Header(i),i=73,144)
       Write(6,'(6X,A)') Line(:StrnLn(Line))
       Write(6,*)
-*
-*----------------------------------------------------------------------*
-*     Print the coordinates of the system                              *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Print the coordinates of the system                              *
+!----------------------------------------------------------------------*
+!
       Call PrCoor
-*
-*----------------------------------------------------------------------*
-*     Print comand list                                                *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Print comand list                                                *
+!----------------------------------------------------------------------*
+!
       Write(6,*)
       Write(6,'(6X,A)')'The following tasks will be executed:'
       Write(6,'(6X,A)')'-------------------------------------'
@@ -174,17 +174,17 @@
          End Do
       End Do
       Do iTbl=1,mLbl
-         Write(6,'(6X,5A,I2,2A,F9.6)')
-     &   'GLBL    ',
-     &   'label="',gLblN(iTbl),'",',
-     &   'comp=',gLblC(iTbl),',',
+         Write(6,'(6X,5A,I2,2A,F9.6)')                                  &
+     &   'GLBL    ',                                                    &
+     &   'label="',gLblN(iTbl),'",',                                    &
+     &   'comp=',gLblC(iTbl),',',                                       &
      &   'weight=',gLblW(iTbl)
       End Do
       Write(6,*)
-*
-*----------------------------------------------------------------------*
-*     Terminate procedure                                              *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Terminate procedure                                              *
+!----------------------------------------------------------------------*
+!
       Return
       End
