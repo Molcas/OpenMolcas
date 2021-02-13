@@ -162,9 +162,9 @@ do i=1,nBas(1)
     do k=1,nSets
       do l=k,nSets
         if (k /= l) then
-          if (.not. Bonds(k,l)) goto 999
+          if (.not. Bonds(k,l)) cycle
         else
-          if (.not. Atoms(k)) goto 999
+          if (.not. Atoms(k)) cycle
         end if
         OneOrNot1 = i >= iSelection(1,k) .and. i <= iSelection(2,k)
         OneOrNot2 = j >= iSelection(1,l) .and. j <= iSelection(2,l)
@@ -184,7 +184,6 @@ do i=1,nBas(1)
           call Abend()
           !Siff = SiffBond
         end if
-999     continue
       end do
     end do
     VLoP(j,i) = VLoP(j,i)*Siff

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PtEfld(H0,Ovlp,RR,nSize,Temp,nTemp)
+subroutine PtEfld(H0,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Construct the modified Hamiltonian                    *
@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
-real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
+real(kind=wp), intent(inout) :: H0(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig, NoCntr
@@ -68,7 +68,7 @@ if (ComStk(2,3,2,1)) XOrig = ComVal(2,3,2,1)
 if (ComStk(2,3,2,2)) YOrig = ComVal(2,3,2,2)
 if (ComStk(2,3,2,3)) ZOrig = ComVal(2,3,2,3)
 if (ComStk(2,3,2,4)) then
-  iAtm = int(ComVal(2,3,2,4))
+  iAtm = int(ComVal(2,3,2,4),kind=iwp)
   if (iAtm < 0 .or. iAtm > nAtoms) then
     write(u6,*) 'PtEfld: You specified a invalid atom number as the origin of the perturbation operator.'
     call Abend()
@@ -126,9 +126,9 @@ do iComp=1,3
     Alpha = -ComVal(2,3,1,iComp)
     call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
     nInts = idum(1)
-    if (iRc /= 0) goto 991
+    if (iRc /= 0) call error()
     call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
-    if (iRc /= 0) goto 991
+    if (iRc /= 0) call error()
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     call daxpy_(nInts,Alpha,Temp,1,H0,1)
     H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
@@ -148,18 +148,17 @@ end do
 
 return
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Ovlp)
-  call Unused_real_array(RR)
-end if
+contains
 
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
+subroutine error()
 
-991 write(u6,*) 'PtEfld: Error reading ONEINT'
-write(u6,'(A,A)') 'Label=',Label
-call Abend()
+  write(u6,*) 'PtEfld: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
+  call Abend()
+
+end subroutine error
 
 end subroutine PtEfld

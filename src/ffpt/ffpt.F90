@@ -50,7 +50,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, nSize, nTemp
-real(kind=wp), allocatable :: H0(:), Ovlp(:), RR(:), Temp(:)
+real(kind=wp), allocatable :: H0(:), RR(:), Temp(:)
 
 !----------------------------------------------------------------------*
 call MkCom()
@@ -65,16 +65,14 @@ end do
 nTemp = nTemp**2+4
 nSize = nSize+4
 call mma_allocate(H0,nSize,label='H0')
-call mma_allocate(Ovlp,nSize,label='H0')
-call mma_allocate(RR,nSize,label='H0')
-call mma_allocate(Temp,nTemp,label='H0')
+call mma_allocate(RR,nSize,label='RR')
+call mma_allocate(Temp,nTemp,label='Temp')
 !----------------------------------------------------------------------*
 call RdInp_FFPT()
 call PrInp_FFPT()
-call PtAdd(H0,Ovlp,RR,nSize,Temp,nTEmp)
+call PtAdd(H0,RR,nSize,Temp,nTEmp)
 !----------------------------------------------------------------------*
 call mma_deallocate(H0)
-call mma_deallocate(Ovlp)
 call mma_deallocate(RR)
 call mma_deallocate(Temp)
 !----------------------------------------------------------------------*

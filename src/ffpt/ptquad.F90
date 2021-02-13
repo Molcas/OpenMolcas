@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
+subroutine PtQuad(H0,RR,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Construct the modified Hamiltonian,                   *
@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
-real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
+real(kind=wp), intent(inout) :: H0(nSize), RR(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig, Diag
@@ -74,7 +74,7 @@ if (Orig) then
   if (ComStk(2,2,2,2)) YOrig = ComVal(2,2,2,2)
   if (ComStk(2,2,2,3)) ZOrig = ComVal(2,2,2,3)
   if (ComStk(2,2,2,4)) then
-    iAtm = int(ComVal(2,2,2,4))
+    iAtm = int(ComVal(2,2,2,4),kind=iwp)
     if (Debug) write(u6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
     if (iAtm < 0 .or. iAtm > nAtoms) then
       write(u6,*) 'PtOkt0: You specified a invalid atom number as the origin of the perturbation operator.'
@@ -114,7 +114,7 @@ if (Diag) then
     iComp = DiComp(iDiag)
     call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
     nInts = idum(1)
-    if (iRc /= 0) goto 991
+    if (iRc /= 0) call error()
     call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     X = Temp(nInts+1)
@@ -159,7 +159,7 @@ do iComp=1,6
     iSyLbl = 0
     call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
     nInts = idum(1)
-    if (iRc /= 0) goto 991
+    if (iRc /= 0) call error()
     call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     X = Temp(nInts+1)
@@ -206,15 +206,17 @@ end if
 
 return
 
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Ovlp)
+contains
 
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
+subroutine error()
 
-991 write(u6,*) 'PtQuad: Error reading ONEINT'
-write(u6,'(A,A)') 'Label=',Label
-call Abend()
+  write(u6,*) 'PtQuad: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
+  call Abend()
+
+end subroutine error
 
 end subroutine PtQuad

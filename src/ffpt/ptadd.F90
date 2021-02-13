@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PtAdd(H0,Ovlp,RR,nSize,Temp,nTemp)
+subroutine PtAdd(H0,RR,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Construct the modified Hamiltonian                    *
@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
 real(kind=wp), intent(out) :: H0(nSize)
-real(kind=wp), intent(inout) :: Ovlp(nSize), RR(nSize), Temp(nTemp)
+real(kind=wp), intent(inout) :: RR(nSize), Temp(nTemp)
 character(len=8) :: Label
 integer(kind=iwp) :: idum(1), iComp, iOpt, iOpt1, iOpt2, iRc, iSyLbl, nInts
 logical(kind=iwp), parameter :: Debug = .false.
@@ -72,13 +72,13 @@ end if
 !     subroutines to add perturbations.                                *
 !----------------------------------------------------------------------*
 
-call PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
-call PtDipo(H0,Ovlp,RR,nSize,Temp,nTemp)
-call PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
-call PtOkt0(H0,Ovlp,RR,nSize,Temp,nTemp)
-call PtEfld(H0,Ovlp,RR,nSize,Temp,nTemp)
-call PtEfgr(H0,Ovlp,RR,nSize,Temp,nTemp)
-call PtGLbl(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtRela(H0,nSize,Temp,nTemp)
+call PtDipo(H0,nSize,Temp,nTemp)
+call PtQuad(H0,RR,nSize,Temp,nTemp)
+call PtOkt0(H0,RR,nSize,Temp,nTemp)
+call PtEfld(H0,nSize,Temp,nTemp)
+call PtEfgr(H0,nSize,Temp,nTemp)
+call PtGLbl(H0,nSize,Temp,nTemp)
 
 !----------------------------------------------------------------------*
 !     If the user have requested a local (a la LoProp) perturbation    *

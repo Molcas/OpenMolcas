@@ -53,7 +53,7 @@ if (Orig) then
   if (ComStk(2,6,2,2)) YOrig = ComVal(2,6,2,2)
   if (ComStk(2,6,2,3)) ZOrig = ComVal(2,6,2,3)
   if (ComStk(2,6,2,4)) then
-    iAtm = int(ComVal(2,6,2,4))
+    iAtm = int(ComVal(2,6,2,4),kind=iwp)
     if (iAtm < 0 .or. iAtm > nAtoms) then
       write(u6,*) 'PtOkt1: You specified a invalid atom number as the origin of the perturbation operator.'
       call Abend()
@@ -87,7 +87,7 @@ do iComp=1,3
   iSyLbl = 0
   call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)
   nInts = idum(1)
-  if (iRc /= 0) goto 991
+  if (iRc /= 0) call error()
   call RdOne(iRc,iOpt2,Label,jComp,Temp1,iSyLbl)
   call CmpInt(Temp1,nInts,nBas,nSym,iSyLbl)
   X = Temp1(nInts+1)
@@ -113,12 +113,17 @@ end do
 
 return
 
+contains
+
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
+subroutine error()
 
-991 write(u6,*) 'PtOkt1: Error reading ONEINT'
-write(u6,'(A,A)') 'Label=',Label
-call Abend()
+  write(u6,*) 'PtOkt1: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
+  call Abend()
+
+end subroutine error
 
 end subroutine PtOkt1

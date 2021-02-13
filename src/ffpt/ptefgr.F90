@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PtEfGr(H0,Ovlp,RR,nSize,Temp,nTemp)
+subroutine PtEfGr(H0,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Construct the modified Hamiltonian,                   *
@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
-real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
+real(kind=wp), intent(inout) :: H0(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig, NoCntr
@@ -72,7 +72,7 @@ if (ComStk(2,4,2,1)) XOrig = ComVal(2,4,2,1)
 if (ComStk(2,4,2,2)) YOrig = ComVal(2,4,2,2)
 if (ComStk(2,4,2,3)) ZOrig = ComVal(2,4,2,3)
 if (ComStk(2,4,2,4)) then
-  iAtm = int(ComVal(2,4,2,4))
+  iAtm = int(ComVal(2,4,2,4),kind=iwp)
   if (Debug) write(u6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
   if (iAtm < 0 .or. iAtm > nAtoms) then
     write(u6,*) 'PrEfGr: iAtm.lt.0 .or. iAtm.gt.nAtoms'
@@ -136,9 +136,9 @@ do iComp=1,6
     if (iComp /= 6) then
       call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
       nInts = idum(1)
-      if (iRc /= 0) goto 991
+      if (iRc /= 0) call error()
       call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
-      if (iRc /= 0) goto 991
+      if (iRc /= 0) call error()
       call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
       call daxpy_(nInts,Alpha,Temp,1,H0,1)
       H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
@@ -148,9 +148,9 @@ do iComp=1,6
       jComp = 1  ! the XX-term
       call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)
       nInts = idum(1)
-      if (iRc /= 0) goto 991
+      if (iRc /= 0) call error()
       call RdOne(iRc,iOpt2,Label,jComp,Temp,iSyLbl)
-      if (iRc /= 0) goto 991
+      if (iRc /= 0) call error()
       call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
       call daxpy_(nInts,-Alpha,Temp,1,H0,1)
       H0(nInts+4) = H0(nInts+4)+Alpha*Temp(nInts+4)
@@ -158,9 +158,9 @@ do iComp=1,6
       jComp = 4  ! the YY-term
       call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)
       nInts = idum(1)
-      if (iRc /= 0) goto 991
+      if (iRc /= 0) call error()
       call RdOne(iRc,iOpt2,Label,jComp,Temp,iSyLbl)
-      if (iRc /= 0) goto 991
+      if (iRc /= 0) call error()
       call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
       call daxpy_(nInts,-Alpha,Temp,1,H0,1)
       H0(nInts+4) = H0(nInts+4)+Alpha*Temp(nInts+4)
@@ -181,18 +181,17 @@ end do
 
 return
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Ovlp)
-  call Unused_real_array(RR)
-end if
+contains
 
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
+subroutine error()
 
-991 write(u6,*) 'PtEfGr: Error reading ONEINT'
-write(u6,'(A,A)') 'Label=',Label
-call Abend()
+  write(u6,*) 'PtEfGr: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
+  call Abend()
+
+end subroutine error
 
 end subroutine PtEfGr

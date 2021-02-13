@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
+subroutine PtRela(H0,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Add the relativitic perturbation operator to          *
@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSize, nTemp
-real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
+real(kind=wp), intent(inout) :: H0(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 integer(kind=iwp) :: idum(1), iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts
@@ -50,9 +50,9 @@ iComp = 1
 Alpha = ComVal(2,5,0,1)
 call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
 nInts = idum(1)
-if (iRc /= 0) goto 991
+if (iRc /= 0) call error()
 call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
-if (iRc /= 0) goto 991
+if (iRc /= 0) call error()
 call daxpy_(nInts,Alpha,Temp,1,H0,1)
 H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
 if (Debug) then
@@ -69,9 +69,9 @@ iSyLbl = 0
 iComp = 1
 call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
 nInts = idum(1)
-if (iRc /= 0) goto 991
+if (iRc /= 0) call error()
 call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
-if (iRc /= 0) goto 991
+if (iRc /= 0) call error()
 call daxpy_(nInts,Alpha,Temp,1,H0,1)
 H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
 if (Debug) then
@@ -87,18 +87,17 @@ end if
 
 return
 
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Ovlp)
-  call Unused_real_array(RR)
-end if
+contains
 
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
+subroutine error()
 
-991 write(u6,*) 'PtRela: Error reading ONEINT'
-write(u6,'(A,A)') 'Label=',Label
-call Abend()
+  write(u6,*) 'PtRela: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
+  call Abend()
+
+end subroutine error
 
 end subroutine PtRela
