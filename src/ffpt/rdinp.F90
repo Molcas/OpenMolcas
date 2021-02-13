@@ -32,7 +32,7 @@
       Parameter ( mCom = 11 )
       Character*20 FmtLog
       Character*4 Com(mCom)
-      Data Com / 'TITL','DIPO','EFLD','QUAD','OCTU',
+      Data Com / 'TITL','DIPO','EFLD','QUAD','OCTU',                    &
      &           'EFGR','RELA','GLBL','SELE','CUMU','END ' /
 !
       Character*72 Line,Temp1,Temp2
@@ -605,8 +605,8 @@
       gLblC(mLbl) = NINT(C)
       gLblW(mLbl) = W
       Do i = 1,mLbl-1
-        If ( gLblN(i).eq.gLblN(mLbl)
-     &      .and.
+        If ( gLblN(i).eq.gLblN(mLbl)                                    &
+     &      .and.                                                       &
      &       gLblC(i).eq.gLblC(mLbl) ) Goto 993
       End Do
       Goto 85
