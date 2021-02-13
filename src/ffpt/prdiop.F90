@@ -16,10 +16,13 @@ subroutine PrDiOp(Text,nSym,nBas,XInt)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-character*(*) Text
-dimension XInt(*)
-integer nBas(*)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*), intent(in) :: Text
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
+real(kind=wp), intent(in) :: XInt(*)
+integer(kind=iwp) :: iOff, iSym, lText, nBs
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -30,14 +33,15 @@ integer nBas(*)
 !----------------------------------------------------------------------*
 
 lText = min(120,len(Text))
-write(6,'(6X,A)') Text(1:lText)
-iOff = 0
+write(u6,'(6X,A)') Text(1:lText)
+iOff = 1
 do iSym=1,nSym
   nBs = nBas(iSym)
   if (nBs /= 0) then
-    write(6,'(6X,A,I2)') 'Symmetry species',iSym
-    call TriPrt(' ',' ',XInt(iOff+1),nBs)
+    write(u6,'(6X,A,I2)') 'Symmetry species',iSym
+    call TriPrt(' ',' ',XInt(iOff),nBs)
   end if
+  iOff = iOff+nBs*(nBs+1)/2
 end do
 
 !----------------------------------------------------------------------*
@@ -46,4 +50,4 @@ end do
 
 return
 
-end
+end subroutine PrDiOp

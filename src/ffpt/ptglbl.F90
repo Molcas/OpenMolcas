@@ -17,14 +17,18 @@ subroutine PtGLbl(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSize, nTemp
+real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
 #include "input.fh"
-real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-character*8 Label
-character*20 PriLbl
-logical Debug, Exec
-data Debug/.false./
-dimension idum(1)
+character(len=8) :: Label
+character(len=20) :: PriLbl
+logical(kind=iwp) :: Exec
+integer(kind=iwp) :: idum(1), iComp, iLbl, iOpt1, iOpt2, iRc, iSyLbl, nInts
+real(kind=wp) :: Alpha
+logical(kind=iwp), parameter :: Debug = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -49,7 +53,7 @@ do iLbl=1,mLbl
   iComp = gLblC(iLbl)
   Alpha = gLblW(iLbl)
   if (Debug) then
-    write(6,'(6X,5A,I2,2A,G9.2)') 'GLBL    ','label  ="',gLblN(iLbl),'",','comp   =',gLblC(iLbl),',','weight =',gLblW(iLbl)
+    write(u6,'(6X,5A,I2,2A,G9.2)') 'GLBL    ','label  ="',gLblN(iLbl),'",','comp   =',gLblC(iLbl),',','weight =',gLblW(iLbl)
   end if
   iRc = -1
   iOpt1 = 1
@@ -86,8 +90,8 @@ end if
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
 
-991 write(6,*) 'PtGlbl: Error reading ONEINT'
-write(6,'(A,A)') 'Label=',Label
+991 write(u6,*) 'PtGlbl: Error reading ONEINT'
+write(u6,'(A,A)') 'Label=',Label
 call Abend()
 
 end subroutine PtGLbl

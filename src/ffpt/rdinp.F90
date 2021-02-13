@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine RdInp_FFPT
+subroutine RdInp_FFPT()
 !***********************************************************************
 !                                                                      *
 !     Objective: Read and interprete input                             *
@@ -24,26 +24,18 @@ subroutine RdInp_FFPT
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u5, u6
+
+implicit none
 #include "input.fh"
-parameter(mCom=11)
-character*20 FmtLog
-character*4 Com(mCom)
-data Com/'TITL','DIPO','EFLD','QUAD','OCTU','EFGR','RELA','GLBL','SELE','CUMU','END '/
-character*72 Line, Temp1, Temp2
-character*4 Token
-logical Op0(9)
-data Op0/9*.false./
-logical Op2(3)
-data Op2/3*.false./
-logical Op3(4)
-data Op3/4*.false./
-logical Op4(8)
-data Op4/8*.false./
-logical Op5(12)
-data Op5/12*.false./
-logical Op6(8)
-data Op6/8*.false./
+character(len=20) :: FmtLog
+character(len=72) :: Line, Temp1, Temp2
+character(len=4) :: Token
+integer(kind=iwp) :: i, i1, i2, iCom, iEnd, iSta, j, jCom, k, newline
+real(kind=wp) :: C, W, X, Y, Z
+integer(kind=iwp), parameter :: mCom = 11
+character(len=4), parameter :: Com(mCom) = ['TITL','DIPO','EFLD','QUAD','OCTU','EFGR','RELA','GLBL','SELE','CUMU','END ']
+logical(kind=iwp) :: Op0(9) = .false., Op2(3) = .false., Op3(4) = .false., Op4(8) = .false., Op5(12) = .false., Op6(8) = .false.
 
 LCumulate = .false.
 
@@ -54,7 +46,7 @@ LCumulate = .false.
 !                                                                      *
 !----------------------------------------------------------------------*
 
-call RdNlst(5,'FFPT')
+call RdNlst(u5,'FFPT')
 Temp2 = ' '
 Temp1 = ' '
 Line = ' &FFPT &END'
@@ -74,7 +66,7 @@ mTit = 0
 jCom = 0
 1 Temp2 = Temp1
 Temp1 = Line
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 newline = newline+1
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 1
@@ -100,7 +92,7 @@ ComStk(1,0,0,0) = .true.
 15 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 15
 call StdFmt(Line,Token)
@@ -121,7 +113,7 @@ Op0(2) = .true.
 25 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 25
 call UpCase(Line)
@@ -172,7 +164,7 @@ Op0(3) = .true.
 35 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 35
 call UpCase(Line)
@@ -238,7 +230,7 @@ Op0(4) = .true.
 45 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',end=991) Line
+read(u5,'(A)',end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 45
 call UpCase(Line)
@@ -339,7 +331,7 @@ Op0(5) = .true.
 55 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 55
 call UpCase(Line)
@@ -467,7 +459,7 @@ Op0(6) = .true.
 65 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 65
 call UpCase(Line)
@@ -559,7 +551,7 @@ Op0(7) = .true.
 75 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 75
 i1 = 1
@@ -579,7 +571,7 @@ ComStk(3,0,0,0) = .true.
 85 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 85
 call UpCase(Line)
@@ -618,23 +610,23 @@ ComStk(4,0,0,0) = .true.
 95 Temp2 = Temp1
 Temp1 = Line
 newline = newline+1
-read(5,'(A)',Err=991,end=991) Line
+read(u5,'(A)',Err=991,end=991) Line
 call LeftAd(Line)
 if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 95
 read(Line,*) nSets
 do i=1,nSets
-  read(5,*) Atoms(i),iSelection(1,i),iSelection(2,i)
+  read(u5,*) Atoms(i),iSelection(1,i),iSelection(2,i)
 end do
 do i=2,nSets
   if (i < 10) write(FmtLog,79121) '(',i-1,'L2)'
   if (i >= 10) write(FmtLog,79122) '(',i-1,'L2)'
-  read(5,FmtLog) (Bonds(i,j),j=1,i-1)
+  read(u5,FmtLog) (Bonds(i,j),j=1,i-1)
   do j=1,i-1
     Bonds(j,i) = Bonds(i,j)
   end do
 end do
-read(5,*) (TranCoo(k),k=1,3)
-!read(5,*) SiffBond
+read(u5,*) (TranCoo(k),k=1,3)
+!read(u5,*) SiffBond
 79121 format(A,I1,A)
 79122 format(A,I2,A)
 Go to 1
@@ -679,40 +671,40 @@ return
 !     Error handling                                                   *
 !----------------------------------------------------------------------*
 
-991 write(6,*)
-write(6,'(2X,A)') 'The program failed to read the input.'
-write(6,'(2X,A)') 'Please check your input data.'
-write(6,*)
-write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
-write(6,'(2X,A,A)') 'The current line is:      ',Line
-write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
-write(6,'(2X,A,A)') 'The next previous line is:',Temp2
+991 write(u6,*)
+write(u6,'(2X,A)') 'The program failed to read the input.'
+write(u6,'(2X,A)') 'Please check your input data.'
+write(u6,*)
+write(u6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
+write(u6,'(2X,A,A)') 'The current line is:      ',Line
+write(u6,'(2X,A,A)') 'The previous line is:     ',Temp1
+write(u6,'(2X,A,A)') 'The next previous line is:',Temp2
 call Quit_OnUserError()
-992 write(6,*)
-write(6,'(2X,A)') 'The program has been supplied with an unknown'
-write(6,'(2X,A)') 'keyword. Please correct your input data.'
-write(6,*)
-write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
-write(6,'(2X,A,A)') 'The current line is:      ',Line
-write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
-write(6,'(2X,A,A)') 'The next previous line is:',Temp2
+992 write(u6,*)
+write(u6,'(2X,A)') 'The program has been supplied with an unknown'
+write(u6,'(2X,A)') 'keyword. Please correct your input data.'
+write(u6,*)
+write(u6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
+write(u6,'(2X,A,A)') 'The current line is:      ',Line
+write(u6,'(2X,A,A)') 'The previous line is:     ',Temp1
+write(u6,'(2X,A,A)') 'The next previous line is:',Temp2
 call Quit_OnUserError()
-993 write(6,*)
-write(6,'(2X,A)') 'A command or one of its components has been'
-write(6,'(2X,A)') 'multiply defined. Please correct your input.'
-write(6,*)
-write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
-write(6,'(2X,A,A)') 'The current line is:      ',Line
-write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
-write(6,'(2X,A,A)') 'The next previous line is:',Temp2
+993 write(u6,*)
+write(u6,'(2X,A)') 'A command or one of its components has been'
+write(u6,'(2X,A)') 'multiply defined. Please correct your input.'
+write(u6,*)
+write(u6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
+write(u6,'(2X,A,A)') 'The current line is:      ',Line
+write(u6,'(2X,A,A)') 'The previous line is:     ',Temp1
+write(u6,'(2X,A,A)') 'The next previous line is:',Temp2
 call Quit_OnUserError()
-994 write(6,*)
-write(6,'(2X,A)') 'The number of perturbations requested exceeds'
-write(6,'(2X,A)') 'the internal buffer size. Increase the para-'
-write(6,'(2X,A)') 'meter MxLbl and recompile the program.'
+994 write(u6,*)
+write(u6,'(2X,A)') 'The number of perturbations requested exceeds'
+write(u6,'(2X,A)') 'the internal buffer size. Increase the para-'
+write(u6,'(2X,A)') 'meter MxLbl and recompile the program.'
 call Quit_OnUserError()
-996 write(6,*)
-write(6,'(2X,A)') 'The definition of the origin of an operator '
-write(6,'(2X,A)') 'is not unique.  Please correct your input.'
+996 write(u6,*)
+write(u6,'(2X,A)') 'The definition of the origin of an operator '
+write(u6,'(2X,A)') 'is not unique.  Please correct your input.'
 call Quit_OnUserError()
 end subroutine RdInp_FFPT

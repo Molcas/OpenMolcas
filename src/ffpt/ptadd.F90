@@ -16,13 +16,16 @@ subroutine PtAdd(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSize, nTemp
+real(kind=wp), intent(out) :: H0(nSize)
+real(kind=wp), intent(inout) :: Ovlp(nSize), RR(nSize), Temp(nTemp)
 #include "input.fh"
-real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-character*8 Label
-logical Debug
-data Debug/.false./
-dimension idum(1)
+character(len=8) :: Label
+integer(kind=iwp) :: idum(1), iComp, iOpt, iOpt1, iOpt2, iRc, iSyLbl, nInts
+logical(kind=iwp), parameter :: Debug = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -39,9 +42,9 @@ iComp = 1
 iSyLbl = nSym
 if (LCumulate) then
   Label = 'OneHam  '
-  write(6,*)
-  write(6,*) 'Adding perturbation cumulatively'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Adding perturbation cumulatively'
+  write(u6,*)
 else
   Label = 'OneHam 0'
 end if
@@ -49,19 +52,19 @@ iRc = -1
 call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
 nInts = idum(1)
 if (iRc /= 0) then
-  write(6,*) 'PtAdd: Error reading ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'PtAdd: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 if (nInts+4 /= nSize) then
-  write(6,*) 'PtAdd: nInts+4.ne.nSize',nInts+4,nSize
+  write(u6,*) 'PtAdd: nInts+4.ne.nSize',nInts+4,nSize
   call Abend()
 end if
 iRc = -1
 call RdOne(iRc,iOpt2,Label,iComp,H0,iSyLbl)
 if (Debug) then
   call PrDiOp('One Hamiltonian intgrl',nSym,nBas,H0)
-  write(6,*) 'PotNuc=',H0(nInts+4)
+  write(u6,*) 'PotNuc=',H0(nInts+4)
 end if
 
 !----------------------------------------------------------------------*
@@ -90,7 +93,7 @@ if (ComStk(4,0,0,0)) call SelectLoc(H0,nSize)
 
 if (Debug) then
   call PrDiOp('Core Hamiltonian',nSym,nBas,H0)
-  write(6,*) 'PotNuc=',H0(nInts+4)
+  write(u6,*) 'PotNuc=',H0(nInts+4)
 end if
 iRc = -1
 iOpt = 0
@@ -98,8 +101,8 @@ iComp = 1
 Label = 'OneHam  '
 call WrOne(iRc,iOpt,Label,iComp,H0,iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'PtAdd: Error writing to ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'PtAdd: Error writing to ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 !call Put_PotNuc(H0(nInts+4))

@@ -11,19 +11,24 @@
 
 subroutine TransNow(iV,ipS)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: iV, ipS
 #include "input.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, iXYZ, j, kaunter
+real(kind=wp) :: Trana
 
 !-- Be informative.
 
 if (ComStk(2,1,1,0)) then
-  write(6,*)
-  write(6,*) '    The DIPO perturbation is translated.'
+  write(u6,*)
+  write(u6,*) '    The DIPO perturbation is translated.'
 else
-  write(6,*)
-  write(6,*) '    No translation of the perturbation (only implemented for DIPO.'
-  write(6,*) 'OBSERVE! Your result can be origo dependent!'
+  write(u6,*)
+  write(u6,*) '    No translation of the perturbation (only implemented for DIPO.'
+  write(u6,*) 'OBSERVE! Your result can be origo dependent!'
 end if
 
 !-- Translate the perturbation. Why, oh why, is the sign of Trana
@@ -34,12 +39,12 @@ end if
 !   a plus. Oh yeah!
 
 if ((.not. ComStk(2,1,1,1)) .and. (.not. ComStk(2,1,1,2)) .and. (.not. ComStk(2,1,1,3))) then
-  write(6,*)
-  write(6,*) 'A strange error has occured. ComStk modified?'
+  write(u6,*)
+  write(u6,*) 'A strange error has occured. ComStk modified?'
   call Abend()
 end if
 kaunter = 0
-!write(6,*) 'Trancoo',(TranCoo(i),i=1,3)
+!write(u6,*) 'Trancoo',(TranCoo(i),i=1,3)
 do i=1,nBas(1)
   do j=1,i
     do iXYZ=1,3

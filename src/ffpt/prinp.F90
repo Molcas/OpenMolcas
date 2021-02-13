@@ -9,21 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PrInp_FFPT
+subroutine PrInp_FFPT()
 !***********************************************************************
 !                                                                      *
 !     Objective: Write the title page on the standard output unit      *
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "input.fh"
-character*120 PrLine, BlLine, StLine
-character*72 data, Line
-character*8 Fmt1, Fmt2
-character*4 Com, Sub1, Sub2, Parm
-integer StrnLn
-logical clear, nice
+character(len=120) :: PrLine, BlLine, StLine
+character(len=72) :: sData, Line
+character(len=8) :: Fmt1, Fmt2
+character(len=4) :: Com, Sub1, Sub2, Parm
+logical(kind=iwp) :: clear, nice
+integer(kind=iwp) :: i, iParm, iPoint, iPr, ist, iSub1, iSub2, iTbl, left, lLine, lPaper, nLine, nParm, nSub1, nSub2
+real(kind=wp) :: z
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -47,7 +50,7 @@ write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 !     Print the project title                                          *
 !----------------------------------------------------------------------*
 if (mTit > 0) then
-  write(6,*)
+  write(u6,*)
   nLine = mTit+5
   do i=1,nLine
     PrLine = BlLine
@@ -57,24 +60,24 @@ if (mTit > 0) then
       PrLine = Title(i-3)
     end if
     call Center(PrLine)
-    write(6,Fmt1) '*'//PrLine//'*'
+    write(u6,Fmt1) '*'//PrLine//'*'
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 !----------------------------------------------------------------------*
 !     Print file identifier                                            *
 !----------------------------------------------------------------------*
 
-write(6,*)
-write(6,'(6X,A)') 'Header of the ONEINT file:'
-write(6,'(6X,A)') '--------------------------'
-write(6,*)
+write(u6,*)
+write(u6,'(6X,A)') 'Header of the ONEINT file:'
+write(u6,'(6X,A)') '--------------------------'
+write(u6,*)
 write(Line,'(72A1)') (Header(i),i=1,72)
-write(6,'(6X,A)') Line(:StrnLn(Line))
+write(u6,'(6X,A)') trim(Line)
 write(Line,'(72A1)') (Header(i),i=73,144)
-write(6,'(6X,A)') Line(:StrnLn(Line))
-write(6,*)
+write(u6,'(6X,A)') trim(Line)
+write(u6,*)
 
 !----------------------------------------------------------------------*
 !     Print the coordinates of the system                              *
@@ -86,10 +89,10 @@ call PrCoor()
 !     Print comand list                                                *
 !----------------------------------------------------------------------*
 
-write(6,*)
-write(6,'(6X,A)') 'The following tasks will be executed:'
-write(6,'(6X,A)') '-------------------------------------'
-write(6,*)
+write(u6,*)
+write(u6,'(6X,A)') 'The following tasks will be executed:'
+write(u6,'(6X,A)') '-------------------------------------'
+write(u6,*)
 do iPr=1,120
   PrLine(iPr:iPr) = ' '
 end do
@@ -116,9 +119,9 @@ do iSub1=1,nSub1
   end do
   if (PrLine(1:4) /= '    ') then
     if (clear) then
-      write(6,'(14X,A)') PrLine(9:120)
+      write(u6,'(14X,A)') PrLine(9:120)
     else
-      write(6,'(6X,A)') PrLine
+      write(u6,'(6X,A)') PrLine
     end if
     do iPr=1,120
       PrLine(iPr:iPr) = ' '
@@ -139,27 +142,27 @@ do iSub1=1,nSub1
         PrLine(ist:ist+3) = Parm
         ist = ist+4
         z = ComVal(2,iSub1,iSub2,iParm)
-        write(data,'(F10.6)') z
-        call LeftAd(data)
-        iPoint = index(data,'.')
+        write(sData,'(F10.6)') z
+        call LeftAd(sData)
+        iPoint = index(sData,'.')
         nice = .true.
-        do i=iPoint+1,Strnln(data)
-          if (data(i:i) /= '0') nice = .false.
+        do i=iPoint+1,len_trim(sData)
+          if (sData(i:i) /= '0') nice = .false.
         end do
         if (nice) then
-          PrLine(ist:ist+iPoint-1) = data(1:1+iPoint-2)
+          PrLine(ist:ist+iPoint-1) = sData(1:1+iPoint-2)
           ist = ist+iPoint+1
         else
-          PrLine(ist:ist+iPoint+5) = data(1:1+iPoint+5)
+          PrLine(ist:ist+iPoint+5) = sData(1:1+iPoint+5)
           ist = ist+iPoint+7
         end if
       end if
     end do
     if (PrLine(1:4) /= '    ') then
       if (clear) then
-        write(6,'(22X,A)') PrLine(17:120)
+        write(u6,'(22X,A)') PrLine(17:120)
       else
-        write(6,'(6X,A)') PrLine
+        write(u6,'(6X,A)') PrLine
       end if
       do iPr=1,120
         PrLine(iPr:iPr) = ' '
@@ -169,9 +172,9 @@ do iSub1=1,nSub1
   end do
 end do
 do iTbl=1,mLbl
-  write(6,'(6X,5A,I2,2A,F9.6)') 'GLBL    ','label="',gLblN(iTbl),'",','comp=',gLblC(iTbl),',','weight=',gLblW(iTbl)
+  write(u6,'(6X,5A,I2,2A,F9.6)') 'GLBL    ','label="',gLblN(iTbl),'",','comp=',gLblC(iTbl),',','weight=',gLblW(iTbl)
 end do
-write(6,*)
+write(u6,*)
 
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *

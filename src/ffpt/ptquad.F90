@@ -17,17 +17,20 @@ subroutine PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Two, Half, OneHalf
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSize, nTemp
+real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
 #include "input.fh"
-real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-character*8 Label
-character*20 PriLbl
-dimension Cntr(3)
-integer DiComp(3)
-data DiComp/1,4,6/
-logical Debug, Exec, Orig, Diag
-data Debug/.false./
-dimension idum(1)
+character(len=8) :: Label
+character(len=20) :: PriLbl
+logical(kind=iwp) :: Exec, Orig, Diag
+integer(kind=iwp) :: idum(1), iAtm, iComp, iDiag, iOpt1, iOpt2, iRc, iSyLbl, jDiag, nInts
+real(kind=wp) :: Alpha, Cntr(3), X, XOrig, Y, YOrig, Z, ZOrig
+integer(kind=iwp), parameter :: DiComp(3) = [1,4,6]
+logical(kind=iwp), parameter :: Debug = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -64,17 +67,17 @@ Orig = Orig .or. ComStk(2,2,2,3)
 Orig = Orig .or. ComStk(2,2,2,4)
 
 if (Orig) then
-  XOrig = 0.0
-  YOrig = 0.0
-  ZOrig = 0.0
+  XOrig = Zero
+  YOrig = Zero
+  ZOrig = Zero
   if (ComStk(2,2,2,1)) XOrig = ComVal(2,2,2,1)
   if (ComStk(2,2,2,2)) YOrig = ComVal(2,2,2,2)
   if (ComStk(2,2,2,3)) ZOrig = ComVal(2,2,2,3)
   if (ComStk(2,2,2,4)) then
     iAtm = int(ComVal(2,2,2,4))
-    if (Debug) write(6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
+    if (Debug) write(u6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
     if (iAtm < 0 .or. iAtm > nAtoms) then
-      write(6,*) 'PtOkt0: You specified a invalid atom number as the origin of the perturbation operator.'
+      write(u6,*) 'PtOkt0: You specified a invalid atom number as the origin of the perturbation operator.'
       call Abend()
     end if
     XOrig = Coor(1,iAtm)
@@ -87,7 +90,7 @@ else
   YOrig = Cntr(2)
   ZOrig = Cntr(3)
 end if
-if (Debug) write(6,'(6X,A,3F12.6)') 'Origin of the perturbation operator =',XOrig,YOrig,ZOrig
+if (Debug) write(u6,'(6X,A,3F12.6)') 'Origin of the perturbation operator =',XOrig,YOrig,ZOrig
 
 !----------------------------------------------------------------------*
 !     Check if a diagonal component has been specified.                *
@@ -118,18 +121,18 @@ if (Diag) then
     Y = Temp(nInts+2)
     Z = Temp(nInts+3)
     if (X /= XOrig .or. Y /= YOrig .or. Z /= ZOrig) then
-      write(6,*) 'PtOkt0: Input error, no matching center is found.'
+      write(u6,*) 'PtOkt0: Input error, no matching center is found.'
       call Abend()
     end if
     if (iComp == 1) then
-      call dcopy_(nInts,[0.0d0],0,RR,1)
-      RR(nInts+4) = 0.0d0
+      call dcopy_(nInts,[Zero],0,RR,1)
+      RR(nInts+4) = Zero
     end if
-    Alpha = -0.5d0
+    Alpha = -Half
     call daxpy_(nInts,Alpha,Temp,1,RR,1)
     RR(nInts+4) = RR(nInts+4)+Alpha*Temp(nInts+4)
     if (Debug) then
-      write(6,'(6X,A,F8.6)') 'weight =',ComVal(2,2,1,iComp)
+      write(u6,'(6X,A,F8.6)') 'weight =',ComVal(2,2,1,iComp)
       PriLbl = 'MltPl  2; Comp =    '
       write(PriLbl(19:20),'(I2)') iComp
       call PrDiOp(PriLbl,nSym,nBas,Temp)
@@ -163,22 +166,22 @@ do iComp=1,6
     Y = Temp(nInts+2)
     Z = Temp(nInts+3)
     if (X /= XOrig .or. Y /= YOrig .or. Z /= ZOrig) then
-      write(6,*) 'PtOkt0: Input error, no matching center is found.'
+      write(u6,*) 'PtOkt0: Input error, no matching center is found.'
       call Abend()
     end if
     if (iComp == iDiag) then
       Alpha = -ComVal(2,2,1,iComp)
       call daxpy_(nInts,Alpha,RR,1,H0,1)
       H0(nInts+4) = H0(nInts+4)-Alpha*RR(nInts+4)
-      Alpha = 1.5*Alpha
+      Alpha = OneHalf*Alpha
       call daxpy_(nInts,Alpha,Temp,1,H0,1)
       H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
     else
-      Alpha = -1.5d0*ComVal(2,2,1,iComp)
+      Alpha = -OneHalf*ComVal(2,2,1,iComp)
       call daxpy_(nInts,Alpha,Temp,1,H0,1)
       H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
       if (Debug) then
-        write(6,'(6X,A,F8.6)') 'weight =',ComVal(2,2,1,iComp)
+        write(u6,'(6X,A,F8.6)') 'weight =',ComVal(2,2,1,iComp)
         PriLbl = 'MltPl  2; Comp =    '
         write(PriLbl(19:20),'(I2)') iComp
         call PrDiOp(PriLbl,nSym,nBas,Temp)
@@ -192,7 +195,7 @@ do iComp=1,6
 end do
 !-----RR option
 if (ComStk(2,2,1,7)) then
-  Alpha = 2.0d0*(ComVal(2,2,1,7))
+  Alpha = Two*(ComVal(2,2,1,7))
   call DAXPY_(nInts,Alpha,RR,1,H0,1)
   H0(nInts+4) = H0(nInts+4)-Alpha*RR(nInts+4)
 end if
@@ -210,8 +213,8 @@ if (.false.) call Unused_real_array(Ovlp)
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
 
-991 write(6,*) 'PtQuad: Error reading ONEINT'
-write(6,'(A,A)') 'Label=',Label
+991 write(u6,*) 'PtQuad: Error reading ONEINT'
+write(u6,'(A,A)') 'Label=',Label
 call Abend()
 
 end subroutine PtQuad

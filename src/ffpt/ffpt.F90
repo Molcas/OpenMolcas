@@ -43,9 +43,13 @@ subroutine FFPT(ireturn)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "input.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, ipH0, ipOvlp, ipRR, ipTemp, nSize, nTemp
 
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*

@@ -41,6 +41,7 @@
 !
 #include "Molcas.fh"
 !
+      Integer nCom, MxSub1, MxSub2, MxParm
       Parameter ( nCom    = 5      )
       Parameter ( MxSub1  = 6      )
       Parameter ( MxSub2  = 2      )
@@ -65,6 +66,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer mxLbl, mLbl
       Parameter ( mxLbl=20 )
       Character*8 gLblN(mxLbl)
       Integer     gLblC(mxLbl)
@@ -80,6 +82,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer lCom, lSub, lParm
       Parameter ( lCom   = 4       )
       Parameter ( lSub   = 4       )
       Parameter ( lParm  = 3       )
@@ -90,6 +93,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer MxTitL, mTit
       Parameter ( MxTitL = 10      )
       Character*72 Title(MxTitL)
       Common /Tit   / mTit,Title
@@ -101,6 +105,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer MxSets, MxChar
       Parameter ( MxSets  = 100    )
       Parameter ( MxChar  = 144    )
 !
@@ -114,7 +119,7 @@
 !     An input vector for the SELEctive keyword.                       *
 !----------------------------------------------------------------------*
 !
-      Real*8 TranCoo(3)
+      Real*8 TranCoo(3), SiffBond
       Integer iSelection(2,MxSets),nSets
       Logical Atoms(MxSets),Bonds(MxSets,MxSets),LCumulate
       Common /Selective/ TranCoo,SiffBond,iSelection,nSets,Atoms,Bonds, &

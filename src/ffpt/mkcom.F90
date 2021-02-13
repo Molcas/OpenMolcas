@@ -16,8 +16,12 @@ subroutine MkCom()
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
 #include "input.fh"
+integer(kind=iwp) :: iCom, iParm, iSub1, iSub2
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -33,7 +37,7 @@ do iCom=1,nCom
       do iParm=0,MxParm
         ComTab(iCom,iSub1,iSub2,iParm) = '????'
         ComStk(iCom,iSub1,iSub2,iParm) = .false.
-        ComVal(iCom,iSub1,iSub2,iParm) = 0.0
+        ComVal(iCom,iSub1,iSub2,iParm) = Zero
       end do
     end do
   end do

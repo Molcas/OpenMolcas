@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Rd1Int_FFPT
+subroutine Rd1Int_FFPT()
 !***********************************************************************
 !                                                                      *
 !     Objective: Read the header of the one-electron integral file     *
@@ -19,7 +19,7 @@ subroutine Rd1Int_FFPT
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "input.fh"
 
 !----------------------------------------------------------------------*

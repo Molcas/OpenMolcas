@@ -17,15 +17,19 @@ subroutine PtOkt0(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Three, Five, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSize, nTemp
+real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
 #include "input.fh"
-real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-character*8 Label
-character*20 PriLbl
-dimension Cntr(3)
-logical Debug, Exec, Orig
-data Debug/.false./
-dimension idum(1)
+character(len=8) :: Label
+character(len=20) :: PriLbl
+logical(kind=iwp) :: Exec, Orig
+integer(kind=iwp) :: idum(1), iAtm, iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts
+real(kind=wp) :: Alpha, Cntr(3), X, XOrig, Y, YOrig, Z, ZOrig
+logical(kind=iwp), parameter :: Debug = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -62,16 +66,16 @@ Orig = Orig .or. ComStk(2,6,2,3)
 Orig = Orig .or. ComStk(2,6,2,4)
 
 if (Orig) then
-  XOrig = 0.0
-  YOrig = 0.0
-  ZOrig = 0.0
+  XOrig = Zero
+  YOrig = Zero
+  ZOrig = Zero
   if (ComStk(2,6,2,1)) XOrig = ComVal(2,6,2,1)
   if (ComStk(2,6,2,2)) YOrig = ComVal(2,6,2,2)
   if (ComStk(2,6,2,3)) ZOrig = ComVal(2,6,2,3)
   if (ComStk(2,6,2,4)) then
     iAtm = int(ComVal(2,6,2,4))
     if (iAtm < 0 .or. iAtm > nAtoms) then
-      write(6,*) 'PtOkt0: You specified a invalid atom number as the origin of the perturbation operator.'
+      write(u6,*) 'PtOkt0: You specified a invalid atom number as the origin of the perturbation operator.'
       call Abend()
     end if
     XOrig = Coor(1,iAtm)
@@ -84,7 +88,7 @@ else
   YOrig = Cntr(2)
   ZOrig = Cntr(3)
 end if
-if (Debug) write(6,'(6X,A,3F12.6)') 'Origin of the perturbation operator =',XOrig,YOrig,ZOrig
+if (Debug) write(u6,'(6X,A,3F12.6)') 'Origin of the perturbation operator =',XOrig,YOrig,ZOrig
 
 !----------------------------------------------------------------------*
 !     Loop over components                                             *
@@ -116,25 +120,25 @@ do iComp=1,10
     Y = Temp(nInts+2)
     Z = Temp(nInts+3)
     if (X /= XOrig .or. Y /= YOrig .or. Z /= ZOrig) then
-      write(6,*) 'PtOkt0: Input error, no matching center is found.'
+      write(u6,*) 'PtOkt0: Input error, no matching center is found.'
       call Abend()
     end if
-    Alpha = 5.0d0
+    Alpha = Five
     call DSCAL_(nInts+4,Alpha,Temp,1)
     if (iComp == 1 .or. iComp == 7 .or. iComp == 10) then
-      Alpha = -3.0d0
+      Alpha = -Three
       call daxpy_(nInts,Alpha,RR,1,Temp,1)
       Temp(nInts+4) = Temp(nInts+4)+Alpha*RR(nInts+4)
     else if (iComp /= 5) then
-      Alpha = -1.0d0
+      Alpha = -One
       call daxpy_(nInts,Alpha,RR,1,Temp,1)
       Temp(nInts+4) = Temp(nInts+4)+Alpha*RR(nInts+4)
     end if
-    Alpha = 0.5d0*ComVal(2,6,1,iComp)
+    Alpha = Half*ComVal(2,6,1,iComp)
     call daxpy_(nInts,Alpha,Temp,1,H0,1)
     H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
     if (Debug) then
-      write(6,'(6X,A,F8.6)') 'weight =',ComVal(2,6,1,iComp)
+      write(u6,'(6X,A,F8.6)') 'weight =',ComVal(2,6,1,iComp)
       PriLbl = 'MltPl  3; Comp =    '
       write(PriLbl(19:20),'(I2)') iComp
       call PrDiOp(PriLbl,nSym,nBas,Temp)
@@ -155,8 +159,8 @@ if (.false.) call Unused_real_array(Ovlp)
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
 
-991 write(6,*) 'PtOkt0: Error reading ONEINT'
-write(6,'(A,A)') 'Label=',Label
+991 write(u6,*) 'PtOkt0: Error reading ONEINT'
+write(u6,'(A,A)') 'Label=',Label
 call Abend()
 
 end subroutine PtOkt0

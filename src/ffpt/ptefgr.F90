@@ -18,14 +18,19 @@ subroutine PtEfGr(H0,Ovlp,RR,nSize,Temp,nTemp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSize, nTemp
+real(kind=wp), intent(inout) :: H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
 #include "input.fh"
-real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-character*8 Label
-character*20 PriLbl
-logical Debug, Exec, Orig, NoCntr
-data Debug/.false./
-dimension idum(1)
+character(len=8) :: Label
+character(len=20) :: PriLbl
+logical(kind=iwp) :: Exec, Orig, NoCntr
+integer(kind=iwp) :: idum(1), iAtm, iCntr, iComp, iOpt1, iOpt2, iRc, iSyLbl, jComp, MxCntr, nInts
+real(kind=wp) :: Alpha, X, XOrig, Y, YOrig, Z, ZOrig
+logical(kind=iwp), parameter :: Debug = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -56,30 +61,30 @@ Orig = Orig .or. ComStk(2,4,2,2)
 Orig = Orig .or. ComStk(2,4,2,3)
 Orig = Orig .or. ComStk(2,4,2,4)
 if (.not. Orig) then
-  write(6,*) 'PtEfGr: Input error, no matching center found.'
+  write(u6,*) 'PtEfGr: Input error, no matching center found.'
   call Abend()
 end if
 
-XOrig = 0.0d0
-YOrig = 0.0d0
-ZOrig = 0.0d0
+XOrig = Zero
+YOrig = Zero
+ZOrig = Zero
 if (ComStk(2,4,2,1)) XOrig = ComVal(2,4,2,1)
 if (ComStk(2,4,2,2)) YOrig = ComVal(2,4,2,2)
 if (ComStk(2,4,2,3)) ZOrig = ComVal(2,4,2,3)
 if (ComStk(2,4,2,4)) then
   iAtm = int(ComVal(2,4,2,4))
-  if (Debug) write(6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
+  if (Debug) write(u6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
   if (iAtm < 0 .or. iAtm > nAtoms) then
-    write(6,*) 'PrEfGr: iAtm.lt.0 .or. iAtm.gt.nAtoms'
-    write(6,*) 'iAtm,nAtoms=',iAtm,nAtoms
-    write(6,*) 'You specified a invalid atom number as the origin of the perturbation operator.'
+    write(u6,*) 'PrEfGr: iAtm.lt.0 .or. iAtm.gt.nAtoms'
+    write(u6,*) 'iAtm,nAtoms=',iAtm,nAtoms
+    write(u6,*) 'You specified a invalid atom number as the origin of the perturbation operator.'
     call Abend()
   end if
   XOrig = Coor(1,iAtm)
   YOrig = Coor(2,iAtm)
   ZOrig = Coor(3,iAtm)
 end if
-if (Debug) write(6,'(6X,A,3F12.6)') 'Origin of perturbation operator =',XOrig,YOrig,ZOrig
+if (Debug) write(u6,'(6X,A,3F12.6)') 'Origin of perturbation operator =',XOrig,YOrig,ZOrig
 
 !----------------------------------------------------------------------*
 !     Loop over the max possible number of centers and                 *
@@ -110,11 +115,11 @@ do iCntr=1,MxCntr
   end if
 end do
 if (NoCntr) then
-  write(6,*) 'PrEfGr: No center found!'
-  write(6,*) 'XOrig,YOrig,ZOrig=',XOrig,YOrig,ZOrig
+  write(u6,*) 'PrEfGr: No center found!'
+  write(u6,*) 'XOrig,YOrig,ZOrig=',XOrig,YOrig,ZOrig
   call Abend()
 end if
-if (Debug) write(6,'(6X,A,A)') 'Label of perturbation operator =',Label
+if (Debug) write(u6,'(6X,A,A)') 'Label of perturbation operator =',Label
 
 !----------------------------------------------------------------------*
 !     Read all components and reduce the diagonal ones                 *
@@ -161,7 +166,7 @@ do iComp=1,6
       H0(nInts+4) = H0(nInts+4)+Alpha*Temp(nInts+4)
     end if
     if (Debug) then
-      write(6,'(6X,A,F8.6)') 'weight =',ComVal(2,4,1,iComp)
+      write(u6,'(6X,A,F8.6)') 'weight =',ComVal(2,4,1,iComp)
       PriLbl = '        ; Comp =    '
       PriLbl(1:8) = Label
       write(PriLbl(19:20),'(I2)') iComp
@@ -186,8 +191,8 @@ end if
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
 
-991 write(6,*) 'PtEfGr: Error reading ONEINT'
-write(6,'(A,A)') 'Label=',Label
+991 write(u6,*) 'PtEfGr: Error reading ONEINT'
+write(u6,'(A,A)') 'Label=',Label
 call Abend()
 
 end subroutine PtEfGr

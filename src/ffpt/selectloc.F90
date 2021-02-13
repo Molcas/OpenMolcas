@@ -29,31 +29,35 @@
 
 subroutine SelectLoc(H0,nSize)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSize
+real(kind=wp), intent(inout) :: H0(nSize)
 #include "input.fh"
 #include "WrkSpc.fh"
-parameter(ZERO=0.0D+0,ONE=1.0D+0)
-real*8 H0(nSize)
-character*8 Label
-logical Debug, OneOrNot1, OneOrNot2, OneOrNot3, OneOrNot4, OneOrNot
-logical CrazySet
-data Debug/.false./
-dimension idum(1)
+character(len=8) :: Label
+logical(kind=iwp) :: OneOrNot1, OneOrNot2, OneOrNot3, OneOrNot4, OneOrNot, CrazySet
+integer(kind=iwp) :: idum(1), i, iHVac, ind, iOpt0, iOpt1, iOpt2, ipCenter, ipSSq, ipSTr, ipT, ipTinv, ipType, iRc, iSymLbl, &
+                     iTEMP, iV, iVLoP, iVS, j, k, kaunter, l, nInts
+real(kind=wp) :: H01, H02, H03, H04, Siff
+logical(kind=iwp), parameter :: Debug = .false.
 
 !-- Commence!
 
-write(6,*)
-write(6,*) ' The perturbation will be localized "LoProp style".'
-write(6,*)
-write(6,*) ' -- Number of basis subsets:',nSets
+write(u6,*)
+write(u6,*) ' The perturbation will be localized "LoProp style".'
+write(u6,*)
+write(u6,*) ' -- Number of basis subsets:',nSets
 do k=1,nSets
-  write(6,*) '    ',iSelection(1,k),iSelection(2,k)
+  write(u6,*) '    ',iSelection(1,k),iSelection(2,k)
 end do
-write(6,*) ' -- Atoms and bonds logical flags:'
+write(u6,*) ' -- Atoms and bonds logical flags:'
 do i=1,nSets
-  write(6,*) '      Set atom:  ',i,Atoms(i)
+  write(u6,*) '      Set atom:  ',i,Atoms(i)
   do j=i+1,nSets
-    write(6,*) '      Sets bond: ',i,j,Bonds(i,j)
+    write(u6,*) '      Sets bond: ',i,j,Bonds(i,j)
   end do
 end do
 
@@ -61,9 +65,9 @@ end do
 
 call Get_iScalar('nSym',nSym)
 if (nSym /= 1) then
-  write(6,*)
-  write(6,*) ' You have specified symmetry. The keyword "SELEctive" in FFPT is incompatible with this.'
-  write(6,*) ' Aborting....'
+  write(u6,*)
+  write(u6,*) ' You have specified symmetry. The keyword "SELEctive" in FFPT is incompatible with this.'
+  write(u6,*) ' Aborting....'
   call Abend()
 end if
 
@@ -75,7 +79,7 @@ call Get_iArray('Orbital Type',iWork(ipType),nBas(1))
 call Get_iArray('Center Index',iWork(ipCenter),nBas(1))
 do i=ipType,ipType+nBas(1)-1
   if (iWork(i) /= 1 .and. iWork(i) /= 0) then
-    write(6,*) 'Orbital type vector is corrupted!'
+    write(u6,*) 'Orbital type vector is corrupted!'
     call Abend()
   end if
 end do
@@ -92,7 +96,7 @@ if (iRc == 0) nInts = idum(1)
 call GetMem('SMatTr','Allo','Real',ipSTr,nInts+4)
 call RdOne(iRc,iOpt0,Label,1,Work(ipSTr),iSymLbl)
 if (iRc /= 0) then
-  write(6,*) 'Error reading overlap matrix in SELECTLOC!'
+  write(u6,*) 'Error reading overlap matrix in SELECTLOC!'
   call Abend()
 end if
 !-- Let's be square.
@@ -121,7 +125,7 @@ end if
 iRc = -1
 call RdOne(iRc,iOpt2,Label,1,Work(iHVac),iSymLbl)
 if (iRc /= 0) then
-  write(6,*) 'Error reading H0 in SELECTLOC!'
+  write(u6,*) 'Error reading H0 in SELECTLOC!'
   call Abend()
 end if
 call GetMem('Pert','Allo','Real',iV,nInts)
@@ -144,8 +148,8 @@ end if
 call GetMem('TEMP','Allo','Real',iTEMP,nBas(1)**2)
 call GetMem('PertL','Allo','Real',iVLoP,nBas(1)**2)
 !----Go to basis where overlap matrix, S, is diagonal.
-call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipT),nBas(1),Work(iVS),nBas(1),ZERO,Work(iTEMP),nBas(1))
-call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTEMP),nBas(1),Work(ipT),nBas(1),ZERO,Work(iVLoP),nBas(1))
+call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),One,Work(ipT),nBas(1),Work(iVS),nBas(1),Zero,Work(iTEMP),nBas(1))
+call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),One,Work(iTEMP),nBas(1),Work(ipT),nBas(1),Zero,Work(iVLoP),nBas(1))
 if (DeBug) then
   call RecPrt('Pert:(Basis:LoP)',' ',Work(iVLop),nBas(1),nBas(1))
 end if
@@ -156,7 +160,7 @@ end if
 kaunter = 0
 do i=1,nBas(1)
   do j=1,nBas(1)
-    Siff = 0.0D+0
+    Siff = Zero
     do k=1,nSets
       do l=k,nSets
         if (k /= l) then
@@ -171,9 +175,9 @@ do i=1,nBas(1)
         OneOrNot = (OneOrNot1 .and. OneOrNot2) .or. (OneOrNot3 .and. OneOrNot4)
         CrazySet = (OneOrNot1 .and. OneOrNot2) .and. (OneOrNot3 .and. OneOrNot4)
         if (CrazySet .and. Bonds(k,l) .and. .not. Atoms(k)) then
-          write(6,*) 'Your set selection is not exclusive!'
+          write(u6,*) 'Your set selection is not exclusive!'
         end if
-        if (OneOrNot) Siff = 1.0D+0
+        if (OneOrNot) Siff = One
         !-- Here we enable to set the weight in the bond-domain to some
         !   other number than one.
         if (OneOrNot .and. (Atoms(k) .and. Bonds(k,l))) Siff = SiffBond
@@ -189,8 +193,8 @@ end do
 !   the inverse is is contravariant (if the transformation was
 !   covariant). See the Book by Lanczos.
 
-call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),ONE,Work(ipTinv),nBas(1),Work(iVLop),nBas(1),ZERO,Work(iTEMP),nBas(1))
-call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),ONE,Work(iTEMP),nBas(1),Work(ipTinv),nBas(1),ZERO,Work(iVS),nBas(1))
+call DGEMM_('T','N',nBas(1),nBas(1),nBas(1),One,Work(ipTinv),nBas(1),Work(iVLop),nBas(1),Zero,Work(iTEMP),nBas(1))
+call DGEMM_('N','N',nBas(1),nBas(1),nBas(1),One,Work(iTEMP),nBas(1),Work(ipTinv),nBas(1),Zero,Work(iVS),nBas(1))
 if (DeBug) then
   call RecPrt('Pert.Zeroed',' ',Work(iVS),nBas(1),nBas(1))
 end if
@@ -227,9 +231,9 @@ call GetMem('SMatTr','Free','Real',ipSTr,nInts+4)
 
 !-- Exit
 
-write(6,*)
-write(6,*) '  ....Done!'
-write(6,*)
+write(u6,*)
+write(u6,*) '  ....Done!'
+write(u6,*)
 
 return
 
