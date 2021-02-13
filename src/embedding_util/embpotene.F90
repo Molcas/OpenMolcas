@@ -26,6 +26,7 @@
 
 !real(kind=wp) function embPotEne1(density,length)
 !
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Definitions, only: wp, iwp
 !
 !implicit none
@@ -33,20 +34,18 @@
 !real(kind=wp), intent(in) :: density(length)
 !
 !! Local variables
-!integer(kind=iwp) :: mAdEmbInts, readCheck
-!real(kind=wp) :: embpotenescf
-!
-!! Includes
-!#include "WrkSpc.fh"
+!integer(kind=iwp) :: readCheck
+!real(kind=wp), allocatable :: embInts(:)
+!real(kind=wp), external :: embpotenescf
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !! Allocate memory for the integrals
-!call GetMem('EmbPotInts','Allo','Real',mAdEmbInts,length)
+!call mma_allocate(embInts,length,label='EmbPotInts')
 !
 !! Read in the one-electron integrals due to the embedding potential
 !readCheck = -1
-!call RdOne(readCheck,6,'embpot  ',1,Work(mAdEmbInts),1)
+!call RdOne(readCheck,6,'embpot  ',1,embInts,1)
 !if (readCheck /= 0) then
 !  write(u6,*) 'R1Inta: Error readin ONEINT'
 !  write(u6,'(a,a)') 'Label=embpot  '
@@ -54,10 +53,10 @@
 !end if
 !
 !! Calculate
-!embPotEne1 = embPotEneSCF(density,Work(mAdEmbInts),length)
+!embPotEne1 = embPotEneSCF(density,embInts,length)
 !
 !! Clean Memory
-!call GetMem('EmbPotInts','Free','Real',mAdEmbInts,length)
+!call mma_deallocate(embInts)
 !
 !end function
 
@@ -78,13 +77,13 @@ embPotEneSCF = DDot_(length,density,1,embeddingInts,1)
 end function embPotEneSCF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-real(kind=wp) function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nFrozenOrbs,nSym)
+real(kind=wp) function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
 
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBasPerSym(nSym), nBasTotSquare, nFrozenOrbs
+integer(kind=iwp), intent(in) :: nSym, nBasPerSym(nSym), nBasTotSquare
 real(kind=wp), intent(in) :: densityInactive(nBasTotSquare), densityActive(nBasTotSquare), embeddingInts(*)
 !real(kind=wp), intent(in) :: coefficientMatrix(nBasFunc**2)
 
@@ -165,9 +164,7 @@ deallocate(totalDensity)
 deallocate(totalDensityPacked)
 !deallocate(transformedEmbInts)
 
-! Avoid unused argument warnings
 return
-if (.false.) call Unused_integer(nFrozenOrbs)
 
 end function embPotEneMODensities
 
@@ -176,6 +173,7 @@ end function embPotEneMODensities
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !subroutine transAOtoMO (coefficientMatrix,inMatrix,outMatrix,nBasFunc,nFrozenOrbs)
 !
+!use stdalloc, only: mma_allocate, mma_deallocate
 !use Definitions, only: wp, iwp
 !
 !implicit none
@@ -184,7 +182,10 @@ end function embPotEneMODensities
 !real(kind=wp), intent(out) :: outMatrix(nBasFunc*(nBasFunc+1)/2)
 !
 !! Local variables
-!real(kind=wp) :: unpackedMatrix(nBasFunc**2), halfTrafoMat(nBasFunc**2)
+!real(kind=wp), allocatable :: unpackedMatrix(:), halfTrafoMat(:)
+!
+!call mma_allocate(unpackedMatrix,nBasFunc**2,label='unpackedMatrix')
+!call mma_allocate(halfTrafoMat,nBasFunc**2,label='halfTrafoMat')
 !
 !! TODO
 !if (nFrozenOrbs > 0) then
@@ -206,5 +207,8 @@ end function embPotEneMODensities
 !call MXMT(halfTrafoMat,nBasFunc,1, &
 !          coefficientMatrix(nFrozenOrbs*nBasFunc),1, &
 !          nBasFunc,outMatrix,nBasFunc,nBasFunc)
+!
+!call mma_deallocate(unpackedMatrix)
+!call mma_deallocate(halfTrafoMat)
 !
 !end subroutine

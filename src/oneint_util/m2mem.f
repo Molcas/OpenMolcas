@@ -10,7 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      Subroutine M2Mem(nHer,MemM2,la,lb,lr)
+      Subroutine M2Mem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
 ************************************************************************
 *  Object: to compute the number of real*8 the kernal routine will     *
 *          need for the computation of a matrix element between two    *
@@ -23,21 +26,25 @@
 *                                                                      *
 ************************************************************************
 *
+#include "mem_interface.fh"
       nElem(i) = (i+1)*(i+2)/2
 *
       nHer=(la+lb+2)/2
-      MemM2 = 3*nHer*(la+1) +
-     &        3*nHer*(lb+1) +
-     &        3*nHer +
-     &        3*(la+1)*(lb+1) +
-     &        5 + nElem(la)*nElem(lb)
+      Mem = 3*nHer*(la+1) +
+     &      3*nHer*(lb+1) +
+     &      3*nHer +
+     &      3*(la+1)*(lb+1) +
+     &      5 + nElem(la)*nElem(lb)
 *
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(lr)
       End
 *
-      Subroutine PAM2Mem(nHer,MemM2,la,lb,lr)
+      Subroutine PAM2Mem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
 ************************************************************************
 *  Object: to compute the number of real*8 the kernal routine will     *
 *          need for the computation of a matrix element between two    *
@@ -50,16 +57,17 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *
+#include "mem_interface.fh"
       nElem(i) = (i+1)*(i+2)/2
 *
       nComp = nElem(lr)
 *
        nHer=(la+lb+lr+2)/2
-      MemM2 = 3*nHer*(la+1) +
-     &        3*nHer*(lb+1) +
-     &        3*nHer*(lr+1) +
-     &        3*(la+1)*(lb+1)*(lr+1) +
-     &        5 + nElem(la)*nElem(lb)*nComp
+      Mem = 3*nHer*(la+1) +
+     &      3*nHer*(lb+1) +
+     &      3*nHer*(lr+1) +
+     &      3*(la+1)*(lb+1)*(lr+1) +
+     &      5 + nElem(la)*nElem(lb)*nComp
 *
       Return
       End

@@ -36,7 +36,7 @@
       use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt,
      &                        DoFMM, EMFR, GIAO, lPSOI
 #ifdef _FDE_
-      use Embedding_Global, only: embPot, embPotInBasis
+      use Embedding_Global, only: embInt, embPot, embPotInBasis
 #endif
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
@@ -1367,7 +1367,7 @@ c           iPAMcount=iPAMcount+1
          if (embpot) then
           Label='embpot  '
           iRC = -1
-          Call WrOne(iRC,iOpt,Label,1,Work(ipEmb),lOper)
+          Call WrOne(iRC,iOpt,Label,1,embInt,lOper)
           If (iRC.ne.0) then
              Call WarningMessage(2,
      &                   'Drv1El: Error writing ONEINT;'

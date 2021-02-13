@@ -21,15 +21,15 @@ integer(kind=iwp) :: nEmbGridPoints
 ! The energy coming from the embedding potential
 real(kind=wp) :: Eemb
 
-!****** Positions in the Work array
+!****** Arrays
 ! Coordinates of the grid points, stored as x1, y1, z1, x2, y2...
-integer(kind=iwp) :: posEmbGridCoord
+real(kind=wp), allocatable :: embGridCoord(:,:)
 ! The actual value of the embedding potential at grid point i
-integer(kind=iwp) :: posEmbPotVal
+real(kind=wp), allocatable :: embPotVal(:)
 ! The corresponding weighting factor of grid point i
-integer(kind=iwp) :: posEmbWeight
+real(kind=wp), allocatable :: embWeight(:)
 ! The integrals in form <a|embPot|b>
-integer(kind=iwp) :: ipEmb
+real(kind=wp), allocatable :: embInt(:)
 
 !****** Flags
 ! Flag whether an embedding potential is used
@@ -51,8 +51,8 @@ character(len=256) :: outGridPath
 ! The output data, for density, electrostatic potential and its gradient
 character(len=256) :: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath
 
-public :: nEmbGridPoints, Eemb, posEmbGridCoord, posEmbPotVal, posEmbWeight, ipEmb, embPot, embPotInBasis, outGridPathGiven, &
-          embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, embDebug, embPotPath, outGridPath, embOutDensPath, embOutEspPath, &
+public :: nEmbGridPoints, Eemb, embGridCoord, embPotVal, embWeight, embInt, embPot, embPotInBasis, outGridPathGiven, embWriteDens, &
+          embWriteEsp, embWriteGrad, embWriteHess, embDebug, embPotPath, outGridPath, embOutDensPath, embOutEspPath, &
           embOutGradPath, embOutHessPath
 
 end module Embedding_Global

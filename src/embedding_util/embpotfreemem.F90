@@ -26,13 +26,14 @@ subroutine embPotFreeMem()
 !                                                                      *
 !***********************************************************************
 
-use Embedding_Global, only: posEmbGridCoord, posEmbPotVal, posEmbWeight, nEmbGridPoints
+use Embedding_Global, only: embGridCoord, embPotVal, embWeight
+use stdalloc, only: mma_deallocate
 
 implicit none
 
-call GetMem('embG','FREE','REAL',posEmbGridCoord,nEmbGridPoints*3)
-call GetMem('embP','FREE','REAL',posEmbPotVal,nEmbGridPoints)
-call GetMem('embW','FREE','REAL',posEmbWeight,nEmbGridPoints)
+call mma_deallocate(embGridCoord)
+call mma_deallocate(embPotVal)
+call mma_deallocate(embWeight)
 
 return
 

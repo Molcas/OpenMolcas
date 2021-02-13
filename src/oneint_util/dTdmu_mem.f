@@ -10,29 +10,33 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine dTdmu_mem(nRys,Mem_dTdMu,la,lb,lr)
+      Subroutine dTdmu_mem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-      Mem_dTdMu=0
-      nRys =0
+      Mem=0
+      nHer =0
       Call EFMmP(nOrder,MmEFP,la,lb+1,lr)
-      Mem_dTdMu=Max(Mem_dTdMu,MmEFP)
-      nRys =Max(nRys,nOrder)
+      Mem=Max(Mem,MmEFP)
+      nHer =Max(nHer,nOrder)
       If (lb.ge.1) Then
          Call EFMmP(nOrder,MmEFP,la,lb-1,lr)
-         Mem_dTdMu=Max(Mem_dTdMu,MmEFP)
-         nRys =Max(nRys,nOrder)
+         Mem=Max(Mem,MmEFP)
+         nHer =Max(nHer,nOrder)
       End If
 *
 *     Add a scratch area for intermediate integrals
 *
       MemDer = 3*nElem(la)*nElem(lb+1)
       If (lb.ge.1) MemDer=MemDer + 3*nElem(la)*nElem(lb-1)
-      Mem_dTdMu = Mem_dTdMu + MemDer + 1
-      Mem_dTdMu = Mem_dTdMu + nElem(la)*nElem(lb)*3
+      Mem = Mem + MemDer + 1
+      Mem = Mem + nElem(la)*nElem(lb)*3
 *
       Return
       End

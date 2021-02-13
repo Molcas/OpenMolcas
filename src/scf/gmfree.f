@@ -34,6 +34,9 @@
 ************************************************************************
       use SCF_Arrays
       use Orb_Type
+#ifdef _FDE_
+      use Embedding_Global, only: embInt
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
@@ -64,7 +67,7 @@
       Call mma_deallocate(OneHam)
       Call mma_deallocate(HDiag)
 #ifdef _FDE_
-      If (Allocated(Emb)) Call mma_deallocate(Emb)
+      If (Allocated(embInt)) Call mma_deallocate(embInt)
 #endif
 *
 *----------------------------------------------------------------------*

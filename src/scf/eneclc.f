@@ -34,8 +34,7 @@
 *                                                                      *
 ************************************************************************
 #ifdef _FDE_
-      Use SCF_Arrays, Only: Emb
-      use Embedding_Global, only: embPot
+      use Embedding_Global, only: Eemb, embInt, embPot
 #endif
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
@@ -73,7 +72,7 @@ c set to Zero for RHF
 *
 #ifdef _FDE_
       ! Embedding
-      if (embPot) Eemb = DDot_(nBT*nD,Emb,1,Dens(1,1,iPsLst),1)
+      if (embPot) Eemb = DDot_(nBT*nD,embInt,1,Dens(1,1,iPsLst),1)
 #endif
 *
 *     If just one electron make sure that the two-electron energy

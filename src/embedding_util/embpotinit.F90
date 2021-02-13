@@ -27,8 +27,8 @@ subroutine embPotInit(preparingOutput)
 !                                                                      *
 !***********************************************************************
 
-use Embedding_Global, only: embDebug, embPotPath, nEmbGridPoints, outGridPath, outGridPathGiven, posEmbGridCoord, posEmbPotVal, &
-                            posEmbWeight
+use Embedding_Global, only: embDebug, embPotPath, nEmbGridPoints, outGridPath, outGridPathGiven, embGridCoord, embPotVal, embWeight
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
@@ -36,17 +36,11 @@ implicit none
 ! output needs to be read
 logical(kind=iwp), intent(in) :: preparingOutput
 
-!***** Includes
-#include "WrkSpc.fh"
-
-!***** Variables
-
 ! iunit: Unit of input file (the embedding potential)
 ! i: Index
 integer(kind=iwp) :: iunit, i
 integer(kind=iwp), external :: isFreeUnit
 
-!*****
 embDebug = .false.
 
 ! Open the file
@@ -63,17 +57,16 @@ end if
 read(iunit,*) nEmbGridPoints
 
 ! Allocate memory for the grid points, potential and weights
-call GetMem('embG','ALLO','REAL',posEmbGridCoord,nEmbGridPoints*3)
-call GetMem('embP','ALLO','REAL',posEmbPotVal,nEmbGridPoints)
-call GetMem('embW','ALLO','REAL',posEmbWeight,nEmbGridPoints)
+call mma_allocate(embGridCoord,3,nEmbGridPoints,label='embG')
+call mma_allocate(embPotVal,nEmbGridPoints,label='embP')
+call mma_allocate(embWeight,nEmbGridPoints,label='embW')
 
 ! Read in data
 do i=1,nEmbGridPoints
   if (preparingOutput .and. outGridPathGiven) then
-    read(iunit,*) Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1)
+    read(iunit,*) embGridCoord(:,i)
   else
-    read(iunit,*) Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1),Work(posEmbWeight+i-1), &
-                  Work(posEmbPotVal+i-1)
+    read(iunit,*) embGridCoord(:,i),embWeight(i),embPotVal(i)
   end if
 end do
 
@@ -85,14 +78,14 @@ if (embDebug) then
   write(u6,*) 'Potential has been read in. Coords:'
   do i=1,nEmbGridPoints
     if (mod(i,587) == 0) then
-      write(u6,*) i,Work(posEmbGridCoord+i*3-3),Work(posEmbGridCoord+i*3-2),Work(posEmbGridCoord+i*3-1)
+      write(u6,*) i,embGridCoord(:,i)
     end if
   end do
   write(u6,*) '---------------------------------------------------'
   write(u6,*) 'Potential value, weight'
   do i=1,nEmbGridPoints
     if (mod(i,587) == 0) then
-      write(u6,*) i,Work(posEmbPotVal+i-1),Work(posEmbWeight+i-1)
+      write(u6,*) i,embPotVal(i),embWeight(i)
     end if
   end do
   write(u6,*) '---------------------------------------------------'

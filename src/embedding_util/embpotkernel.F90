@@ -11,8 +11,10 @@
 ! Copyright (C) Thomas Dresselhaus                                     *
 !***********************************************************************
 
-subroutine EmbPotKernel(expA,nPrimA,expB,nPrimB,Zeta,ZInv,rKappa,P,finalval,nZeta,nIC,nComp,lA,lB,coordA,coordB,nRys,Array,nArr, &
-                        CCoor,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
+subroutine EmbPotKernel( &
+#define _CALLING_
+#include "int_interface.fh"
+)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine to calculate integrals over an embedding      *
@@ -26,102 +28,105 @@ subroutine EmbPotKernel(expA,nPrimA,expB,nPrimB,Zeta,ZInv,rKappa,P,finalval,nZet
 !                                                                      *
 !***********************************************************************
 
-use Embedding_Global, only: embDebug, nEmbGridPoints, posEmbGridCoord, posEmbPotVal, posEmbWeight
+#include "macros.fh"
+
+use Embedding_Global, only: embDebug, nEmbGridPoints, embGridCoord, embPotVal, embWeight
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-! Number of primitives
-integer(kind=iwp), intent(in) :: nPrimA, nPrimB
-! Exponents of primitives
-real(kind=wp), intent(in) :: expA(nPrimA), expB(nPrimB)
-! Angular momentum
-integer(kind=iwp), intent(in) :: lA, lB
-! Orbital coordinates
-real(kind=wp), intent(in) :: coordA(3), coordB(3)
-! Output: <A|sum_(gridpoints){potValue*weight}|B>
-real(kind=wp), intent(out) :: finalval(nPrimA,nPrimB,(lA+1)*(lA+2)/2,(lB+1)*(lB+2)/2)
-! Other input variables (unused, unknown)
-integer(kind=iwp), intent(in) :: nZeta, nIC, nComp, nRys, nArr, nOrdOp, nStabM, nGrid, iAddPot, iStabM(0:nStabM-1), lOper(nComp), &
-                                 iChO(nComp)
-real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), CCoor(3,nComp), Array(nZeta*nArr), PtChrg
-
-!***** Includes
-#include "WrkSpc.fh"
+#include "int_interface.fh"
 
 !***** Local Variables
 
 ! Index
-integer(kind=iwp) :: i, j, a, b, m, ix, iy, iz, nShellA, nShellB
-! Positions in the work array
-integer(kind=iwp) :: posRadA, posRadB, posSphA, posSphB
+integer(kind=iwp) :: i, j, ia, ib, m, ix, iy, iz, nShellA, nShellB
 ! distance of the current grid point to A/B
 real(kind=wp) :: dRA(3), dRB(3)
 real(kind=wp) :: prefactor
+! Arrays
+real(kind=wp), allocatable :: radA(:), radB(:), sphA(:), sphB(:)
 ! Function return value
 real(kind=wp), external :: gaussRad
 
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(nIC)
+unused_var(nHer)
+unused_var(Array)
+unused_var(Ccoor)
+unused_var(nOrdOp)
+unused_var(lOper)
+unused_var(iCho)
+unused_var(iStabM)
+unused_var(PtChrg)
+unused_var(nGrid)
+unused_var(iAddPot)
+
 !***** Initialization ***************************************************
 
-nShellA = (lA+1)*(lA+2)/2
-nShellB = (lB+1)*(lB+2)/2
+nShellA = (la+1)*(la+2)/2
+nShellB = (lb+1)*(lb+2)/2
 
 ! Intermediate arrays, radial and angular part of gaussians
-call GetMem('radA','ALLO','REAL',posRadA,nPrimA)
-call GetMem('radB','ALLO','REAL',posradB,nPrimB)
-call GetMem('sphA','ALLO','REAL',posSphA,nShellA)
-call GetMem('sphB','ALLO','REAL',posSphB,nShellB)
+call mma_allocate(radA,nAlpha,label='radA')
+call mma_allocate(radB,nBeta,label='radB')
+call mma_allocate(sphA,nShellA,label='sphA')
+call mma_allocate(sphB,nShellB,label='sphB')
 
 !***** Calculation ******************************************************
 
 ! Init result var
-finalval(:,:,:,:) = Zero
+Final(:,:,:,:) = Zero
 
 ! Now loop over grid points first
 do m=1,nEmbGridPoints
   ! Calculate distances from gaussian centers to current grid point
   do i=1,3
-    dRA(i) = Work(posEmbGridCoord+(m-1)*3+i-1)-coordA(i)
-    dRB(i) = Work(posEmbGridCoord+(m-1)*3+i-1)-coordB(i)
+    dRA(i) = embGridCoord(i,m)-A(i)
+    dRB(i) = embGridCoord(i,m)-RB(i)
   end do
 
-  prefactor = Work(posEmbPotVal+m-1)*Work(posEmbWeight+m-1)
+  prefactor = embPotVal(m)*embWeight(m)
 
   ! Precalculate radial factors
-  do a=1,nPrimA
-    Work(posRadA+a-1) = gaussRad(expA(a),dRA)
+  do ia=1,nAlpha
+    radA(ia) = gaussRad(Alpha(ia),dRA)
   end do
 
-  do b=1,nPrimB
-    Work(posRadB+b-1) = gaussRad(expB(b),dRB)
+  do ib=1,nBeta
+    radB(ib) = gaussRad(Beta(ib),dRB)
   end do
 
   ! Precalculate spherial factors
   ! shell A
   i = 0
-  do ix=lA,0,-1
-    do iy=lA-ix,0,-1
-      iz = lA-ix-iy
+  do ix=la,0,-1
+    do iy=la-ix,0,-1
+      iz = la-ix-iy
       i = i+1
-      Work(posSphA+i-1) = dRA(1)**ix*dRA(2)**iy*dRA(3)**iz
+      sphA(i) = dRA(1)**ix*dRA(2)**iy*dRA(3)**iz
     end do
   end do
   ! shell B
   i = 0
-  do ix=lB,0,-1
-    do iy=lB-ix,0,-1
-      iz = lB-ix-iy
+  do ix=lb,0,-1
+    do iy=lb-ix,0,-1
+      iz = lb-ix-iy
       i = i+1
-      Work(posSphB+i-1) = dRB(1)**ix*dRB(2)**iy*dRB(3)**iz
+      sphB(i) = dRB(1)**ix*dRB(2)**iy*dRB(3)**iz
     end do
   end do
 
   ! Put them together
-  do a=1,nPrimA
-    do b=1,nPrimB
+  do ia=1,nAlpha
+    do ib=1,nBeta
       do i=1,nShellA
         do j=1,nShellB
-          finalval(a,b,i,j) = finalval(a,b,i,j)+(prefactor*Work(posRadA+a-1)*Work(posRadB+b-1)*Work(posSphA+i-1)*Work(posSphB+j-1))
+          Final(ia,ib,i,j) = Final(ia,ib,i,j)+(prefactor*radA(ia)*radB(ib)*sphA(i)*sphB(j))
         end do
       end do
     end do
@@ -131,13 +136,13 @@ do m=1,nEmbGridPoints
     if (mod(m,587) == 0) then
       write(u6,*) '-------------------------------------------------'
       write(u6,*) 'm=',m
-      write(u6,*) 'A=',coordA(1),coordA(2),coordA(3)
-      write(u6,*) 'r=',Work(posEmbGridCoord+(m-1)*3),Work(posEmbGridCoord+(m-1)*3+1),Work(posEmbGridCoord+(m-1)*3+2)
+      write(u6,*) 'A=',A(:)
+      write(u6,*) 'r=',embGridCoord(:,m)
       write(u6,*) 'dRA=',dRA(1),dRA(2),dRA(3)
-      write(u6,*) 'expA(1)=',expA(1),'; gaussRad(...)=',gaussRad(expA(1),dRA)
+      write(u6,*) 'Alpha(1)=',Alpha(1),'; gaussRad(...)=',gaussRad(Alpha(1),dRA)
       write(u6,*) '-------------------------------------------------'
       write(u6,*) 'm=',m,'prefactor=',prefactor
-      write(u6,*) 'radA(1)=',Work(posRadA),'; sphA(1)=',Work(posSphA),', radB(2)=',Work(posRadB+1),'; sphB(2)=',Work(posSphB+1)
+      write(u6,*) 'radA(1)=',radA(1),'; sphA(1)=',sphA(1),', radB(2)=',radB(2),'; sphB(2)=',sphB(2)
       write(u6,*) '-------------------------------------------------'
     end if
   end if
@@ -146,11 +151,11 @@ end do ! m, grid point
 
 if (embDebug) then
   write(u6,*) '-------------------------------------------------'
-  do a=1,nPrimA
-    do b=1,nPrimB
+  do ia=1,nAlpha
+    do ib=1,nBeta
       do i=1,nShellA
         do j=1,nShellB
-          write(u6,*) finalval(a,b,i,j)
+          write(u6,*) Final(ia,ib,i,j)
         end do
       end do
     end do
@@ -162,30 +167,12 @@ end if
 
 !***** Done. Tidy up. ****************************************************
 
-call GetMem('radA','FREE','REAL',posRadA,nPrimA)
-call GetMem('radB','FREE','REAL',posradB,nPrimB)
-call GetMem('sphA','FREE','REAL',posSphA,nShellA)
-call GetMem('sphB','FREE','REAL',posSphB,nShellB)
+call mma_deallocate(radA)
+call mma_deallocate(radB)
+call mma_deallocate(sphA)
+call mma_deallocate(sphB)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call unused_real_array(Zeta)
-  call unused_real_array(ZInv)
-  call unused_real_array(rKappa)
-  call unused_real_array(P)
-  call unused_integer(nIC)
-  call unused_integer(nRys)
-  call unused_real_array(Array)
-  call unused_real_array(CCoor)
-  call unused_integer(nOrdOp)
-  call unused_integer_array(lOper)
-  call unused_integer_array(iCho)
-  call unused_integer_array(iStabM)
-  call unused_real(PtChrg)
-  call unused_integer(nGrid)
-  call unused_integer(iAddPot)
-end if
 
 end subroutine EmbPotKernel
 

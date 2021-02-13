@@ -10,14 +10,18 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine VpMem(nRys,MemVp,la,lb,lr)
+      Subroutine VpMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
       Integer iAngV(4)
 *
       nElem(i)=(i+1)*(i+2)/2
 *
       Call mHrr(la,lb+1,nFlop,nMem)
 *
-      nRys=(la+lb+1+lr+2)/2
+      nHer=(la+lb+1+lr+2)/2
       iAngV(1) = la
       iAngV(2) = lb+1
       iAngV(3) = 0
@@ -29,7 +33,7 @@
       If (lb.ne.0) Then
          Call mHrr(la,lb-1,nFlop,nMem)
 *
-         nRys=(la+lb-1+lr+2)/2
+         nHer=(la+lb-1+lr+2)/2
          iAngV(1) = la
          iAngV(2) = lb-1
          iAngV(3) = 0
@@ -41,12 +45,12 @@
          MemNA2=0
       End If
 *
-      MemVp=Max(MemNA1,MemNA2)
+      Mem=Max(MemNA1,MemNA2)
 *
-      MemVp=MemVp+1
+      Mem=Mem+1
 *
-      MemVp = MemVp+nElem(la)*nElem(lb+1)
-      If (lb.ne.0) MemVp=MemVp+nElem(la)*nElem(lb-1)
+      Mem = Mem+nElem(la)*nElem(lb+1)
+      If (lb.ne.0) Mem=Mem+nElem(la)*nElem(lb-1)
 *
       Return
       End
