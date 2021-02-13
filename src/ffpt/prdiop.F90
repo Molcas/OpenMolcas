@@ -8,19 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PrDiOp(Text,nSym,nBas,XInt)
+
+subroutine PrDiOp(Text,nSym,nBas,XInt)
 !***********************************************************************
 !                                                                      *
 !     Object: Print a diagonal block matrix                            *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 ( A-H,O-Z )
-!
-      Character*(*) Text
-      Dimension XInt(*)
-      Integer nBas(*)
-!
+
+implicit real*8(A-H,O-Z)
+character*(*) Text
+dimension XInt(*)
+integer nBas(*)
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Start procedure                                                  *
@@ -28,21 +28,22 @@
 !     blocks.                                                          *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      lText=Min(120,LEN(Text))
-      Write(6,'(6X,A)')Text(1:lText)
-      iOff=0
-      Do iSym=1,nSym
-        nBs=nBas(iSym)
-        If ( nBs.ne.0 ) Then
-          Write(6,'(6X,A,I2)') 'Symmetry species',iSym
-          Call TriPrt(' ',' ',XInt(iOff+1),nBs)
-        End If
-      End Do
-!
+
+lText = min(120,len(Text))
+write(6,'(6X,A)') Text(1:lText)
+iOff = 0
+do iSym=1,nSym
+  nBs = nBas(iSym)
+  if (nBs /= 0) then
+    write(6,'(6X,A,I2)') 'Symmetry species',iSym
+    call TriPrt(' ',' ',XInt(iOff+1),nBs)
+  end if
+end do
+
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end

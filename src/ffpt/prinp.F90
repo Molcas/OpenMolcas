@@ -8,183 +8,175 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PrInp_FFPT
-!
+
+subroutine PrInp_FFPT
 !***********************************************************************
 !                                                                      *
 !     Objective: Write the title page on the standard output unit      *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 ( A-H,O-Z )
-!
 
+implicit real*8(A-H,O-Z)
 #include "input.fh"
-!
-      Character*120 PrLine,BlLine,StLine
-      Character*72  Data,Line
-      Character*8 Fmt1,Fmt2
-      Character*4 Com,Sub1,Sub2,Parm
-      Integer StrnLn
-      Logical clear, nice
-!
+character*120 PrLine, BlLine, StLine
+character*72 data, Line
+character*8 Fmt1, Fmt2
+character*4 Com, Sub1, Sub2, Parm
+integer StrnLn
+logical clear, nice
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Start procedure                                                  *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
+
 !----------------------------------------------------------------------*
 !     Initialize blank and header lines                                *
 !----------------------------------------------------------------------*
-      lLine=Len(PrLine)
-      Do i=1,lLine
-        BlLine(i:i)=' '
-        StLine(i:i)='*'
-      End Do
-      lPaper=132
-      left=(lPaper-lLine)/2
-      Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
-      Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+lLine = len(PrLine)
+do i=1,lLine
+  BlLine(i:i) = ' '
+  StLine(i:i) = '*'
+end do
+lPaper = 132
+left = (lPaper-lLine)/2
+write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
+write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 !----------------------------------------------------------------------*
 !     Print the project title                                          *
 !----------------------------------------------------------------------*
-      If ( mTit.gt.0 ) then
-         Write(6,*)
-         nLine=mTit+5
-         Do i=1,nLine
-           PrLine=BlLine
-           If ( i.eq.1 .or. i.eq.nLine )                                &
-     &     PrLine=StLine
-           If ( i.eq.3 )                                                &
-     &     PrLine='Project:'
-           If ( i.ge.4 .and. i.le.nLine-2 ) then
-              PrLine=Title(i-3)
-           End If
-           Call Center(PrLine)
-           Write(6,Fmt1) '*'//PrLine//'*'
-         End Do
-         Write(6,*)
-      End If
-!
+if (mTit > 0) then
+  write(6,*)
+  nLine = mTit+5
+  do i=1,nLine
+    PrLine = BlLine
+    if (i == 1 .or. i == nLine) PrLine = StLine
+    if (i == 3) PrLine = 'Project:'
+    if (i >= 4 .and. i <= nLine-2) then
+      PrLine = Title(i-3)
+    end if
+    call Center(PrLine)
+    write(6,Fmt1) '*'//PrLine//'*'
+  end do
+  write(6,*)
+end if
+
 !----------------------------------------------------------------------*
 !     Print file identifier                                            *
 !----------------------------------------------------------------------*
-!
-      Write(6,*)
-      Write(6,'(6X,A)') 'Header of the ONEINT file:'
-      Write(6,'(6X,A)') '--------------------------'
-      Write(6,*)
-      Write(Line,'(72A1)') (Header(i),i=1,72)
-      Write(6,'(6X,A)') Line(:StrnLn(Line))
-      Write(Line,'(72A1)') (Header(i),i=73,144)
-      Write(6,'(6X,A)') Line(:StrnLn(Line))
-      Write(6,*)
-!
+
+write(6,*)
+write(6,'(6X,A)') 'Header of the ONEINT file:'
+write(6,'(6X,A)') '--------------------------'
+write(6,*)
+write(Line,'(72A1)') (Header(i),i=1,72)
+write(6,'(6X,A)') Line(:StrnLn(Line))
+write(Line,'(72A1)') (Header(i),i=73,144)
+write(6,'(6X,A)') Line(:StrnLn(Line))
+write(6,*)
+
 !----------------------------------------------------------------------*
 !     Print the coordinates of the system                              *
 !----------------------------------------------------------------------*
-!
-      Call PrCoor
-!
+
+call PrCoor()
+
 !----------------------------------------------------------------------*
 !     Print comand list                                                *
 !----------------------------------------------------------------------*
-!
-      Write(6,*)
-      Write(6,'(6X,A)')'The following tasks will be executed:'
-      Write(6,'(6X,A)')'-------------------------------------'
-      Write(6,*)
-      Do iPr=1,120
-         PrLine(iPr:iPr)=' '
-      End Do
-      Com='FFPT'
-      nSub1=ComCtl(2,0,0)
-      clear=.false.
-      Do iSub1=1,nSub1
-         Sub1=ComTab(2,iSub1,0,0)
-         nSub2=ComCtl(2,iSub1,0)
-         nParm=0
-         If ( nSub2.eq.0 ) nParm=ComCtl(2,iSub1,1)
-         ist=25
-         Do iParm=0,nParm
-            If ( ComStk(2,iSub1,0,iParm) ) Then
-               Parm=ComTab(2,iSub1,0,iParm)
-               PrLine(1:4)=Com
-               PrLine(9:12)=Sub1
-               PrLine(ist:ist+3)=Parm
-               ist=ist+4
-               z=ComVal(2,iSub1,0,iParm)
-               Write(PrLine(ist:ist+7),'(F8.6)')z
-               ist=ist+10
-            End If
-         End Do
-         If ( PrLine(1:4).ne.'    ' ) Then
-            If ( clear ) Then
-               Write(6,'(14X,A)') PrLine(9:120)
-            Else
-               Write(6,'(6X,A)') PrLine
-            End If
-            Do iPr=1,120
-               PrLine(iPr:iPr)=' '
-            End Do
-            clear=.true.
-         End If
-         clear=.false.
-         Do iSub2=1,nSub2
-            Sub2=ComTab(2,iSub1,iSub2,0)
-            nParm=ComCtl(2,iSub1,iSub2)
-            ist=25
-            Do iParm=0,nParm
-               If ( ComStk(2,iSub1,iSub2,iParm) ) Then
-                  Parm=ComTab(2,iSub1,iSub2,iParm)
-                  PrLine(1:4)=Com
-                  PrLine(9:12)=Sub1
-                  PrLine(17:20)=Sub2
-                  PrLine(ist:ist+3)=Parm
-                  ist=ist+4
-                  z=ComVal(2,iSub1,iSub2,iParm)
-                  Write(Data,'(F10.6)')z
-                  Call LeftAd(Data)
-                  iPoint=Index(Data,'.')
-                  nice=.true.
-                  Do i=iPoint+1,Strnln(Data)
-                     If ( Data(i:i).ne.'0' ) nice=.false.
-                  End Do
-                  If ( nice ) then
-                     PrLine(ist:ist+iPoint-1)=Data(1:1+iPoint-2)
-                     ist=ist+iPoint+1
-                  Else
-                     PrLine(ist:ist+iPoint+5)=Data(1:1+iPoint+5)
-                     ist=ist+iPoint+7
-                  End If
-               End If
-            End Do
-            If ( PrLine(1:4).ne.'    ' ) Then
-               If ( clear ) Then
-                  Write(6,'(22X,A)') PrLine(17:120)
-               Else
-                  Write(6,'(6X,A)') PrLine
-               End If
-               Do iPr=1,120
-                  PrLine(iPr:iPr)=' '
-               End Do
-               clear=.true.
-            End If
-         End Do
-      End Do
-      Do iTbl=1,mLbl
-         Write(6,'(6X,5A,I2,2A,F9.6)')                                  &
-     &   'GLBL    ',                                                    &
-     &   'label="',gLblN(iTbl),'",',                                    &
-     &   'comp=',gLblC(iTbl),',',                                       &
-     &   'weight=',gLblW(iTbl)
-      End Do
-      Write(6,*)
-!
+
+write(6,*)
+write(6,'(6X,A)') 'The following tasks will be executed:'
+write(6,'(6X,A)') '-------------------------------------'
+write(6,*)
+do iPr=1,120
+  PrLine(iPr:iPr) = ' '
+end do
+Com = 'FFPT'
+nSub1 = ComCtl(2,0,0)
+clear = .false.
+do iSub1=1,nSub1
+  Sub1 = ComTab(2,iSub1,0,0)
+  nSub2 = ComCtl(2,iSub1,0)
+  nParm = 0
+  if (nSub2 == 0) nParm = ComCtl(2,iSub1,1)
+  ist = 25
+  do iParm=0,nParm
+    if (ComStk(2,iSub1,0,iParm)) then
+      Parm = ComTab(2,iSub1,0,iParm)
+      PrLine(1:4) = Com
+      PrLine(9:12) = Sub1
+      PrLine(ist:ist+3) = Parm
+      ist = ist+4
+      z = ComVal(2,iSub1,0,iParm)
+      write(PrLine(ist:ist+7),'(F8.6)') z
+      ist = ist+10
+    end if
+  end do
+  if (PrLine(1:4) /= '    ') then
+    if (clear) then
+      write(6,'(14X,A)') PrLine(9:120)
+    else
+      write(6,'(6X,A)') PrLine
+    end if
+    do iPr=1,120
+      PrLine(iPr:iPr) = ' '
+    end do
+    clear = .true.
+  end if
+  clear = .false.
+  do iSub2=1,nSub2
+    Sub2 = ComTab(2,iSub1,iSub2,0)
+    nParm = ComCtl(2,iSub1,iSub2)
+    ist = 25
+    do iParm=0,nParm
+      if (ComStk(2,iSub1,iSub2,iParm)) then
+        Parm = ComTab(2,iSub1,iSub2,iParm)
+        PrLine(1:4) = Com
+        PrLine(9:12) = Sub1
+        PrLine(17:20) = Sub2
+        PrLine(ist:ist+3) = Parm
+        ist = ist+4
+        z = ComVal(2,iSub1,iSub2,iParm)
+        write(data,'(F10.6)') z
+        call LeftAd(data)
+        iPoint = index(data,'.')
+        nice = .true.
+        do i=iPoint+1,Strnln(data)
+          if (data(i:i) /= '0') nice = .false.
+        end do
+        if (nice) then
+          PrLine(ist:ist+iPoint-1) = data(1:1+iPoint-2)
+          ist = ist+iPoint+1
+        else
+          PrLine(ist:ist+iPoint+5) = data(1:1+iPoint+5)
+          ist = ist+iPoint+7
+        end if
+      end if
+    end do
+    if (PrLine(1:4) /= '    ') then
+      if (clear) then
+        write(6,'(22X,A)') PrLine(17:120)
+      else
+        write(6,'(6X,A)') PrLine
+      end if
+      do iPr=1,120
+        PrLine(iPr:iPr) = ' '
+      end do
+      clear = .true.
+    end if
+  end do
+end do
+do iTbl=1,mLbl
+  write(6,'(6X,5A,I2,2A,F9.6)') 'GLBL    ','label="',gLblN(iTbl),'",','comp=',gLblC(iTbl),',','weight=',gLblW(iTbl)
+end do
+write(6,*)
+
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine PrInp_FFPT

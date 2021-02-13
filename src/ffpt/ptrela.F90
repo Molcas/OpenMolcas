@@ -8,27 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
-!
+
+subroutine PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Add the relativitic perturbation operator to          *
 !                the one-electron Hamiltonian                          *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 ( A-H,O-Z )
-!
 
+implicit real*8(A-H,O-Z)
 #include "input.fh"
-!
-      Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-      Character*8 Label
-      Character*20 PriLbl
-      Logical Debug
-      Data    Debug/.false./
-      Dimension idum(1)
-!
+real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
+character*8 Label
+character*20 PriLbl
+logical Debug
+data Debug/.false./
+dimension idum(1)
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Start procedure                                                  *
@@ -36,68 +33,69 @@
 !     Add them to the one-electron Hamiltonian.                        *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-!
-      If ( .not.ComStk(2,5,0,1) ) then
-         Return
-      End If
-!
-      Label='MassVel '
-      iRc=-1
-      iOpt1=1
-      iOpt2=2
-      iSyLbl=0
-      iComp=1
-      Alpha=ComVal(2,5,0,1)
-      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-      nInts=idum(1)
-      If ( iRc.ne.0 ) Goto 991
-      Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
-      If ( iRc.ne.0 ) Goto 991
-      call daxpy_(nInts,Alpha,Temp,1,H0,1)
-      H0(nInts+4)=H0(nInts+4)-Alpha*Temp(nInts+4)
-      If ( Debug ) Then
-        Write (6,'(6X,A,F8.6)') 'weight =',Alpha
-        PriLbl='Mass-Velocity term  '
-        Write(PriLbl(19:20),'(I2)') iComp
-        Call PrDiOp(PriLbl,nSym,nBas,Temp)
-      End If
-      Label='Darwin  '
-      iRc=-1
-      iOpt1=1
-      iOpt2=2
-      iSyLbl=0
-      iComp=1
-      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-      nInts=idum(1)
-      If ( iRc.ne.0 ) Goto 991
-      Call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
-      If ( iRc.ne.0 ) Goto 991
-      call daxpy_(nInts,Alpha,Temp,1,H0,1)
-      H0(nInts+4)=H0(nInts+4)-Alpha*Temp(nInts+4)
-      If ( Debug ) Then
-        Write (6,'(6X,A,F8.6)') 'weight =',Alpha
-        PriLbl='1el. Darwin term    '
-        Write(PriLbl(19:20),'(I2)') iComp
-        Call PrDiOp(PriLbl,nSym,nBas,Temp)
-      End If
-!
+
+if (.not. ComStk(2,5,0,1)) then
+  return
+end if
+
+Label = 'MassVel '
+iRc = -1
+iOpt1 = 1
+iOpt2 = 2
+iSyLbl = 0
+iComp = 1
+Alpha = ComVal(2,5,0,1)
+call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+nInts = idum(1)
+if (iRc /= 0) goto 991
+call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+if (iRc /= 0) goto 991
+call daxpy_(nInts,Alpha,Temp,1,H0,1)
+H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
+if (Debug) then
+  write(6,'(6X,A,F8.6)') 'weight =',Alpha
+  PriLbl = 'Mass-Velocity term  '
+  write(PriLbl(19:20),'(I2)') iComp
+  call PrDiOp(PriLbl,nSym,nBas,Temp)
+end if
+Label = 'Darwin  '
+iRc = -1
+iOpt1 = 1
+iOpt2 = 2
+iSyLbl = 0
+iComp = 1
+call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+nInts = idum(1)
+if (iRc /= 0) goto 991
+call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+if (iRc /= 0) goto 991
+call daxpy_(nInts,Alpha,Temp,1,H0,1)
+H0(nInts+4) = H0(nInts+4)-Alpha*Temp(nInts+4)
+if (Debug) then
+  write(6,'(6X,A,F8.6)') 'weight =',Alpha
+  PriLbl = '1el. Darwin term    '
+  write(PriLbl(19:20),'(I2)') iComp
+  call PrDiOp(PriLbl,nSym,nBas,Temp)
+end if
+
 !----------------------------------------------------------------------*
 !     Normal Exit                                                      *
 !----------------------------------------------------------------------*
-!
-      Return
+
+return
+
 ! Avoid unused argument warnings
-      If (.False.) Then
-        Call Unused_real_array(Ovlp)
-        Call Unused_real_array(RR)
-      End If
-!
+if (.false.) then
+  call Unused_real_array(Ovlp)
+  call Unused_real_array(RR)
+end if
+
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
-!
-991   Write (6,*) 'PtRela: Error reading ONEINT'
-      Write (6,'(A,A)') 'Label=',Label
-      Call Abend()
-      End
+
+991 write(6,*) 'PtRela: Error reading ONEINT'
+write(6,'(A,A)') 'Label=',Label
+call Abend()
+
+end subroutine PtRela

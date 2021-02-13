@@ -8,20 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
-#ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
-#endif
-      implicit real*8 (a-h,o-z)
 
-      Character*20 Module_Name
-      Parameter (Module_Name = 'ffpt')
+program main
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+use, intrinsic :: ieee_exceptions
+#endif
+implicit real*8(a-h,o-z)
+
+character*20 Module_Name
+parameter(Module_Name='ffpt')
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
 #endif
 
-!      Call link_it()
-      Call Start(Module_Name)
-      Call ffpt(ireturn)
-      Call Finish(ireturn)
-      end
+!call link_it()
+call Start(Module_Name)
+call ffpt(ireturn)
+call Finish(ireturn)
+
+end program main

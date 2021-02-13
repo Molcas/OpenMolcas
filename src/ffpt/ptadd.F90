@@ -8,25 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PtAdd(H0,Ovlp,RR,nSize,Temp,nTemp)
-!
+
+subroutine PtAdd(H0,Ovlp,RR,nSize,Temp,nTemp)
 !***********************************************************************
 !                                                                      *
 !     Objective: Construct the modified Hamiltonian                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 ( A-H,O-Z )
-!
 
+implicit real*8(A-H,O-Z)
 #include "input.fh"
-!
-      Real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
-      Character*8 Label
-      Logical Debug
-      Data Debug /.False./
-      Dimension idum(1)
-!
+real*8 H0(nSize), Ovlp(nSize), RR(nSize), Temp(nTemp)
+character*8 Label
+logical Debug
+data Debug/.false./
+dimension idum(1)
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Start procedure                                                  *
@@ -35,83 +32,83 @@
 !     Finally read the overlap matrix.                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-!
-      iOpt1=1
-      iOpt2=2
-      iComp=1
-      iSyLbl=nSym
-      If(LCumulate) Then
-         Label='OneHam  '
-         Write(6,*)
-         Write(6,*)'Adding perturbation cumulatively'
-         Write(6,*)
-      Else
-         Label='OneHam 0'
-      EndIf
-      iRc=-1
-      Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-      nInts=idum(1)
-      If ( iRc.ne.0 ) Then
-         Write (6,*) 'PtAdd: Error reading ONEINT'
-         Write (6,'(A,A)') 'Label=',Label
-         Call Abend()
-      End If
-      If (nInts+4.ne.nSize) Then
-         Write (6,*) 'PtAdd: nInts+4.ne.nSize',nInts+4,nSize
-         Call Abend
-      End If
-      iRc=-1
-      Call RdOne(iRc,iOpt2,Label,iComp,H0,iSyLbl)
-      If ( Debug ) Then
-         Call PrDiOp('One Hamiltonian intgrl',nSym,nBas,H0)
-         Write (6,*) 'PotNuc=',H0(nInts+4)
-      End If
-!
+
+iOpt1 = 1
+iOpt2 = 2
+iComp = 1
+iSyLbl = nSym
+if (LCumulate) then
+  Label = 'OneHam  '
+  write(6,*)
+  write(6,*) 'Adding perturbation cumulatively'
+  write(6,*)
+else
+  Label = 'OneHam 0'
+end if
+iRc = -1
+call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+nInts = idum(1)
+if (iRc /= 0) then
+  write(6,*) 'PtAdd: Error reading ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
+if (nInts+4 /= nSize) then
+  write(6,*) 'PtAdd: nInts+4.ne.nSize',nInts+4,nSize
+  call Abend()
+end if
+iRc = -1
+call RdOne(iRc,iOpt2,Label,iComp,H0,iSyLbl)
+if (Debug) then
+  call PrDiOp('One Hamiltonian intgrl',nSym,nBas,H0)
+  write(6,*) 'PotNuc=',H0(nInts+4)
+end if
+
 !----------------------------------------------------------------------*
 !     Loop over all possible commands and branch to "special purpose"  *
 !     subroutines to add perturbations.                                *
 !----------------------------------------------------------------------*
-!
-      Call PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
-      Call PtDipo(H0,Ovlp,RR,nSize,Temp,nTemp)
-      Call PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
-      Call PtOkt0(H0,Ovlp,RR,nSize,Temp,nTemp)
-      Call PtEfld(H0,Ovlp,RR,nSize,Temp,nTemp)
-      Call PtEfgr(H0,Ovlp,RR,nSize,Temp,nTemp)
-      Call PtGLbl(H0,Ovlp,RR,nSize,Temp,nTemp)
-!
+
+call PtRela(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtDipo(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtQuad(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtOkt0(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtEfld(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtEfgr(H0,Ovlp,RR,nSize,Temp,nTemp)
+call PtGLbl(H0,Ovlp,RR,nSize,Temp,nTemp)
+
 !----------------------------------------------------------------------*
 !     If the user have requested a local (a la LoProp) perturbation    *
 !     then make some modifications to the perturbation matrix.         *
 !----------------------------------------------------------------------*
-!                                                                      *
-      If(ComStk(4,0,0,0))Call SelectLoc(H0,nSize)
-!
+
+if (ComStk(4,0,0,0)) call SelectLoc(H0,nSize)
+
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *
 !----------------------------------------------------------------------*
-!
-      If ( Debug ) Then
-         Call PrDiOp('Core Hamiltonian',nSym,nBas,H0)
-         Write (6,*) 'PotNuc=',H0(nInts+4)
-      End If
-      iRc=-1
-      iOpt=0
-      iComp=1
-      Label='OneHam  '
-      Call WrOne(iRc,iOpt,Label,iComp,H0,iSyLbl)
-      If ( iRc.ne.0 ) Then
-         Write (6,*) 'PtAdd: Error writing to ONEINT'
-         Write (6,'(A,A)') 'Label=',Label
-         Call Abend()
-      End If
-!     Call Put_PotNuc(H0(nInts+4))
-      Call Put_dScalar('PotNuc',H0(nInts+4))
-!
+
+if (Debug) then
+  call PrDiOp('Core Hamiltonian',nSym,nBas,H0)
+  write(6,*) 'PotNuc=',H0(nInts+4)
+end if
+iRc = -1
+iOpt = 0
+iComp = 1
+Label = 'OneHam  '
+call WrOne(iRc,iOpt,Label,iComp,H0,iSyLbl)
+if (iRc /= 0) then
+  write(6,*) 'PtAdd: Error writing to ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
+!call Put_PotNuc(H0(nInts+4))
+call Put_dScalar('PotNuc',H0(nInts+4))
+
 !----------------------------------------------------------------------*
 !     Normal Exit                                                      *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine PtAdd

@@ -9,4 +9,25 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     ffpt.F90
+     main.F90
+     mkcom.F90
+     prdiop.F90
+     prinp.F90
+     ptadd.F90
+     ptdipo.F90
+     ptefgr.F90
+     ptefld.F90
+     ptglbl.F90
+     ptokt0.F90
+     ptokt1.F90
+     ptquad.F90
+     ptrela.F90
+     rd1int.F90
+     rdinp.F90
+     selectloc.F90
+     transnow.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

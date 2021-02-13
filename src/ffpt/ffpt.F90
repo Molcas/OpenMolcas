@@ -12,7 +12,8 @@
 !               1999, Roland Lindh                                     *
 !               2005, Anders Ohrn                                      *
 !***********************************************************************
-      Subroutine FFPT(ireturn)
+
+subroutine FFPT(ireturn)
 !***********************************************************************
 !                                                                      *
 !                    ######  ######  #####    #####                    *
@@ -41,42 +42,43 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "input.fh"
 #include "WrkSpc.fh"
-!
+
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
-!     Call Hello
-      Call MkCom
-      Call Rd1Int_FFPT
+!call Hello()
+call MkCom()
+call Rd1Int_FFPT()
 !----------------------------------------------------------------------*
-      nSize=0
-      nTemp=0
-      Do i = 1, nSym
-         nSize=nSize+nBas(i)*(nBas(i)+1)/2
-         nTemp=nTemp+nBas(i)
-      End Do
-      nTemp=nTemp**2+4
-      nSize=nSize+4
-      Call GetMem('H0','Allo','Real',ipH0,nSize)
-      Call GetMem('Ovlp','Allo','Real',ipOvlp,nSize)
-      Call GetMem('RR','Allo','Real',ipRR,nSize)
-      Call GetMem('Temp','Allo','Real',ipTemp,nTemp)
+nSize = 0
+nTemp = 0
+do i=1,nSym
+  nSize = nSize+nBas(i)*(nBas(i)+1)/2
+  nTemp = nTemp+nBas(i)
+end do
+nTemp = nTemp**2+4
+nSize = nSize+4
+call GetMem('H0','Allo','Real',ipH0,nSize)
+call GetMem('Ovlp','Allo','Real',ipOvlp,nSize)
+call GetMem('RR','Allo','Real',ipRR,nSize)
+call GetMem('Temp','Allo','Real',ipTemp,nTemp)
 !----------------------------------------------------------------------*
-      Call RdInp_FFPT
-      Call PrInp_FFPT
-      Call PtAdd(Work(ipH0),Work(ipOvlp),Work(ipRR),nSize,              &
-     &           Work(ipTemp),nTemp)
+call RdInp_FFPT()
+call PrInp_FFPT()
+call PtAdd(Work(ipH0),Work(ipOvlp),Work(ipRR),nSize,Work(ipTemp),nTemp)
 !----------------------------------------------------------------------*
-      Call GetMem('Temp','Free','Real',ipTemp,nTemp)
-      Call GetMem('RR','Free','Real',ipRR,nSize)
-      Call GetMem('Ovlp','Free','Real',ipOvlp,nSize)
-      Call GetMem('H0','Free','Real',ipH0,nSize)
+call GetMem('Temp','Free','Real',ipTemp,nTemp)
+call GetMem('RR','Free','Real',ipRR,nSize)
+call GetMem('Ovlp','Free','Real',ipOvlp,nSize)
+call GetMem('H0','Free','Real',ipH0,nSize)
 !----------------------------------------------------------------------*
-      Call FastIO('STATUS')
-!
-      ireturn=0
-      return
-      End
+call FastIO('STATUS')
+
+ireturn = 0
+
+return
+
+end subroutine FFPT

@@ -8,8 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Rd1Int_FFPT
-!
+
+subroutine Rd1Int_FFPT
 !***********************************************************************
 !                                                                      *
 !     Objective: Read the header of the one-electron integral file     *
@@ -18,23 +18,23 @@
 !                and kinetic integrals.                                *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 ( A-H,O-Z )
-!
+
+implicit real*8(A-H,O-Z)
 #include "input.fh"
-!
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Start procedure                                                  *
 !     Read one-electron integral file header etc.                      *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      Call Get_cArray('Seward Title',Header,144)
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('nBas',nBas,nSym)
-      Call Get_iScalar('Unique atoms',nAtoms)
-      Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
-!
-      Return
-      End
+
+call Get_cArray('Seward Title',Header,144)
+call Get_iScalar('nSym',nSym)
+call Get_iArray('nBas',nBas,nSym)
+call Get_iScalar('Unique atoms',nAtoms)
+call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
+
+return
+
+end subroutine Rd1Int_FFPT

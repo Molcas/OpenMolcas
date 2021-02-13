@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine RdInp_FFPT
-!
+
+subroutine RdInp_FFPT
 !***********************************************************************
 !                                                                      *
 !     Objective: Read and interprete input                             *
@@ -23,715 +23,696 @@
 !     M. Fuelscher, Lund Univeristy, Sweden, February 2000             *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 ( A-H,O-Z )
-!
 
+implicit real*8(A-H,O-Z)
 #include "input.fh"
-!
-      Parameter ( mCom = 11 )
-      Character*20 FmtLog
-      Character*4 Com(mCom)
-      Data Com / 'TITL','DIPO','EFLD','QUAD','OCTU',                    &
-     &           'EFGR','RELA','GLBL','SELE','CUMU','END ' /
-!
-      Character*72 Line,Temp1,Temp2
-      Character*4  Token
-      Logical      Op0(9)
-      Data         Op0 /9*.false./
-      Logical      Op2(3)
-      Data         Op2 /3*.false./
-      Logical      Op3(4)
-      Data         Op3 /4*.false./
-      Logical      Op4(8)
-      Data         Op4 /8*.false./
-      Logical      Op5(12)
-      Data         Op5 /12*.false./
-      Logical      Op6(8)
-      Data         Op6 /8*.false./
+parameter(mCom=11)
+character*20 FmtLog
+character*4 Com(mCom)
+data Com/'TITL','DIPO','EFLD','QUAD','OCTU','EFGR','RELA','GLBL','SELE','CUMU','END '/
+character*72 Line, Temp1, Temp2
+character*4 Token
+logical Op0(9)
+data Op0/9*.false./
+logical Op2(3)
+data Op2/3*.false./
+logical Op3(4)
+data Op3/4*.false./
+logical Op4(8)
+data Op4/8*.false./
+logical Op5(12)
+data Op5/12*.false./
+logical Op6(8)
+data Op6/8*.false./
 
-      LCumulate=.False.
-!
+LCumulate = .false.
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !     Start procedure                                                  *
 !     Locate "start of input"                                          *
 !                                                                      *
 !----------------------------------------------------------------------*
-!
-      Call RdNlst(5,'FFPT')
-      Temp2 = ' '
-      Temp1 = ' '
-      Line  = ' &FFPT &END'
-!
+
+call RdNlst(5,'FFPT')
+Temp2 = ' '
+Temp1 = ' '
+Line = ' &FFPT &END'
+
 !----------------------------------------------------------------------*
 !     Initialize counters                                              *
 !----------------------------------------------------------------------*
-!
-      newline = 0
-      mLbl = 0
-      mTit = 0
-!
+
+newline = 0
+mLbl = 0
+mTit = 0
+
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
-!
-      jCom=0
- 1    Temp2 = Temp1
-      Temp1 = Line
-      Read(5,'(A)',Err=991,End=991) Line
-      newline = newline+1
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 1
-      Call StdFmt(Line,Token)
- 2    jCom=0
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) jCom=iCom
-      End Do
-      If ( jCom.eq.0 ) Goto 992
-!
+
+jCom = 0
+1 Temp2 = Temp1
+Temp1 = Line
+read(5,'(A)',Err=991,end=991) Line
+newline = newline+1
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 1
+call StdFmt(Line,Token)
+2 jCom = 0
+do iCom=1,mCom
+  if (Token == Com(iCom)) jCom = iCom
+end do
+if (jCom == 0) goto 992
+
 !----------------------------------------------------------------------*
 !     Branch to the processing of the command sections                 *
 !----------------------------------------------------------------------*
-!
-      Goto (10,20,30,40,50,60,70,80,90,100,1000),jCom
-!
+
+goto(10,20,30,40,50,60,70,80,90,100,1000),jCom
+
 !---  Process the "TITL" command --------------------------------------*
-!
- 10   Continue
-      If ( Op0(1) ) Goto 993
-      Op0(1) = .true.
-      ComStk(1,0,0,0)=.true.
- 15   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 15
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      mTit=mTit+1
-      If ( mTit.le.MxTitL ) then
-         Title(mTit)=Line
-      End If
-      Goto 15
-!
+
+10 continue
+if (Op0(1)) goto 993
+Op0(1) = .true.
+ComStk(1,0,0,0) = .true.
+15 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 15
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+mTit = mTit+1
+if (mTit <= MxTitL) then
+  Title(mTit) = Line
+end if
+goto 15
+
 !---  Process the "DIPO" command --------------------------------------*
-!
- 20   Continue
-      If ( Op0(2) ) Goto 993
-      Op0(2) = .true.
- 25   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 25
-      Call UpCase(Line)
-      Do i = 1,LEN(Line)
-        If ( Line(i:i).eq.'=' ) Line(i:i) = ' '
-        If ( Line(i:i).eq.CHAR(9) ) Line(i:i) = ' '
-      End Do
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      i1 = 2
-      i2 = LEN(Line)
-      If ( Token.eq.'X' ) then
-        If ( Op2(1) ) Goto 993
-        Op2(1) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,1,1,0) = .true.
-        ComStk(2,1,1,1) = .true.
-        ComVal(2,1,1,1) = W
-        Goto 25
-      End If
-      If ( Token.eq.'Y' ) then
-        If ( Op2(2) ) Goto 993
-        Op2(2) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,1,1,0) = .true.
-        ComStk(2,1,1,2) = .true.
-        ComVal(2,1,1,2) = W
-        Goto 25
-      End If
-      If ( Token.eq.'Z' ) then
-        If ( Op2(3) ) Goto 993
-        Op2(3) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,1,1,0) = .true.
-        ComStk(2,1,1,3) = .true.
-        ComVal(2,1,1,3) = W
-        Goto 25
-      End If
-      Goto 992
-!
+
+20 continue
+if (Op0(2)) goto 993
+Op0(2) = .true.
+25 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 25
+call UpCase(Line)
+do i=1,len(Line)
+  if (Line(i:i) == '=') Line(i:i) = ' '
+  if (Line(i:i) == char(9)) Line(i:i) = ' '
+end do
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+i1 = 2
+i2 = len(Line)
+if (Token == 'X') then
+  if (Op2(1)) goto 993
+  Op2(1) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,1,1,0) = .true.
+  ComStk(2,1,1,1) = .true.
+  ComVal(2,1,1,1) = W
+  goto 25
+end if
+if (Token == 'Y') then
+  if (Op2(2)) goto 993
+  Op2(2) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,1,1,0) = .true.
+  ComStk(2,1,1,2) = .true.
+  ComVal(2,1,1,2) = W
+  goto 25
+end if
+if (Token == 'Z') then
+  if (Op2(3)) goto 993
+  Op2(3) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,1,1,0) = .true.
+  ComStk(2,1,1,3) = .true.
+  ComVal(2,1,1,3) = W
+  goto 25
+end if
+goto 992
+
 !---  Process the "EFLD" command --------------------------------------*
-!
- 30   Continue
-      If ( Op0(3) ) Goto 993
-      Op0(3) = .true.
- 35   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 35
-      Call UpCase(Line)
-      Do i = 1,LEN(Line)
-        If ( Line(i:i).eq.'=' ) Line(i:i) = ' '
-        If ( Line(i:i).eq.CHAR(9) ) Line(i:i) = ' '
-      End Do
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      i1 = 2
-      i2 = LEN(Line)
-      If ( Token.eq.'X' ) then
-        If ( Op3(1) ) Goto 993
-        Op3(1) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,3,1,0) = .true.
-        ComStk(2,3,1,1) = .true.
-        ComVal(2,3,1,1) = W
-        Goto 35
-      End If
-      If ( Token.eq.'Y' ) then
-        If ( Op3(2) ) Goto 993
-        Op3(2) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,3,1,0) = .true.
-        ComStk(2,3,1,2) = .true.
-        ComVal(2,3,1,2) = W
-        Goto 35
-      End If
-      If ( Token.eq.'Z' ) then
-        If ( Op3(3) ) Goto 993
-        Op3(3) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,3,1,0) = .true.
-        ComStk(2,3,1,3) = .true.
-        ComVal(2,3,1,3) = W
-        Goto 35
-      End If
-      i1 = 5
-      If ( Token.eq.'ORIG' ) then
-        If ( Op3(4) ) Goto 993
-        Op3(4) = .true.
-        i1=5
-        Read(Line(i1:i2),*,Err=991,End=991) X,Y,Z
-        ComStk(2,3,2,0) = .true.
-        ComStk(2,3,2,1) = .true.
-        ComVal(2,3,2,1) = X
-        ComStk(2,3,2,2) = .true.
-        ComVal(2,3,2,2) = Y
-        ComStk(2,3,2,3) = .true.
-        ComVal(2,3,2,3) = Z
-        Goto 35
-      End If
-      Goto 992
-!
+
+30 continue
+if (Op0(3)) goto 993
+Op0(3) = .true.
+35 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 35
+call UpCase(Line)
+do i=1,len(Line)
+  if (Line(i:i) == '=') Line(i:i) = ' '
+  if (Line(i:i) == char(9)) Line(i:i) = ' '
+end do
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+i1 = 2
+i2 = len(Line)
+if (Token == 'X') then
+  if (Op3(1)) goto 993
+  Op3(1) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,3,1,0) = .true.
+  ComStk(2,3,1,1) = .true.
+  ComVal(2,3,1,1) = W
+  goto 35
+end if
+if (Token == 'Y') then
+  if (Op3(2)) goto 993
+  Op3(2) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,3,1,0) = .true.
+  ComStk(2,3,1,2) = .true.
+  ComVal(2,3,1,2) = W
+  goto 35
+end if
+if (Token == 'Z') then
+  if (Op3(3)) goto 993
+  Op3(3) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,3,1,0) = .true.
+  ComStk(2,3,1,3) = .true.
+  ComVal(2,3,1,3) = W
+  goto 35
+end if
+i1 = 5
+if (Token == 'ORIG') then
+  if (Op3(4)) goto 993
+  Op3(4) = .true.
+  i1 = 5
+  read(Line(i1:i2),*,Err=991,end=991) X,Y,Z
+  ComStk(2,3,2,0) = .true.
+  ComStk(2,3,2,1) = .true.
+  ComVal(2,3,2,1) = X
+  ComStk(2,3,2,2) = .true.
+  ComVal(2,3,2,2) = Y
+  ComStk(2,3,2,3) = .true.
+  ComVal(2,3,2,3) = Z
+  goto 35
+end if
+goto 992
+
 !---  Process the "QUAD" command --------------------------------------*
-!
- 40   Continue
-      If ( Op0(4) ) Goto 993
-      Op0(4) = .true.
- 45   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 45
-      Call UpCase(Line)
-      Do i = 1,LEN(Line)
-        If ( Line(i:i).eq.'=' ) Line(i:i) = ' '
-        If ( Line(i:i).eq.CHAR(9) ) Line(i:i) = ' '
-      End Do
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      i1 = 3
-      i2 = LEN(Line)
-      If ( Token.eq.'XX' ) then
-        If ( Op4(1) ) Goto 993
-        Op4(1) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,1) = .true.
-        ComVal(2,2,1,1) = W
-        Goto 45
-      End If
-      If ( Token.eq.'YY' ) then
-        If ( Op4(2) ) Goto 993
-        Op4(2) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,4) = .true.
-        ComVal(2,2,1,4) = W
-        Goto 45
-      End If
-      If ( Token.eq.'ZZ' ) then
-        If ( Op4(3) ) Goto 993
-        Op4(3) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,6) = .true.
-        ComVal(2,2,1,6) = W
-        Goto 45
-      End If
-      If ( Token.eq.'XY' ) then
-        If ( Op4(4) ) Goto 993
-        Op4(4) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,2) = .true.
-        ComVal(2,2,1,2) = W
-        Goto 45
-      End If
-      If ( Token.eq.'XZ' ) then
-        If ( Op4(5) ) Goto 993
-        Op4(5) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,3) = .true.
-        ComVal(2,2,1,3) = W
-        Goto 45
-      End If
-      If ( Token.eq.'YZ' ) then
-        If ( Op4(6) ) Goto 993
-        Op4(6) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,5) = .true.
-        ComVal(2,2,1,5) = W
-        Goto 45
-      End If
-      If ( Token.eq.'RR' ) then
-        If ( Op4(7) ) Goto 993
-        Op4(7) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,2,1,0) = .true.
-        ComStk(2,2,1,7) = .true.
-        ComVal(2,2,1,7) = W
-        Goto 45
-      End If
-      If ( Token.eq.'ORIG' ) then
-        If ( Op4(8) ) Goto 993
-        Op4(8) = .true.
-        i1=5
-        Read(Line(i1:i2),*,Err=991,End=991) X,Y,Z
-        ComStk(2,2,2,0) = .true.
-        ComStk(2,2,2,1) = .true.
-        ComVal(2,2,2,1) = X
-        ComStk(2,2,2,2) = .true.
-        ComVal(2,2,2,2) = Y
-        ComStk(2,2,2,3) = .true.
-        ComVal(2,2,2,3) = Z
-        Goto 45
-      End If
-      Goto 992
-!
+
+40 continue
+if (Op0(4)) goto 993
+Op0(4) = .true.
+45 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 45
+call UpCase(Line)
+do i=1,len(Line)
+  if (Line(i:i) == '=') Line(i:i) = ' '
+  if (Line(i:i) == char(9)) Line(i:i) = ' '
+end do
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+i1 = 3
+i2 = len(Line)
+if (Token == 'XX') then
+  if (Op4(1)) goto 993
+  Op4(1) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,1) = .true.
+  ComVal(2,2,1,1) = W
+  goto 45
+end if
+if (Token == 'YY') then
+  if (Op4(2)) goto 993
+  Op4(2) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,4) = .true.
+  ComVal(2,2,1,4) = W
+  goto 45
+end if
+if (Token == 'ZZ') then
+  if (Op4(3)) goto 993
+  Op4(3) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,6) = .true.
+  ComVal(2,2,1,6) = W
+  goto 45
+end if
+if (Token == 'XY') then
+  if (Op4(4)) goto 993
+  Op4(4) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,2) = .true.
+  ComVal(2,2,1,2) = W
+  goto 45
+end if
+if (Token == 'XZ') then
+  if (Op4(5)) goto 993
+  Op4(5) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,3) = .true.
+  ComVal(2,2,1,3) = W
+  goto 45
+end if
+if (Token == 'YZ') then
+  if (Op4(6)) goto 993
+  Op4(6) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,5) = .true.
+  ComVal(2,2,1,5) = W
+  goto 45
+end if
+if (Token == 'RR') then
+  if (Op4(7)) goto 993
+  Op4(7) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,2,1,0) = .true.
+  ComStk(2,2,1,7) = .true.
+  ComVal(2,2,1,7) = W
+  goto 45
+end if
+if (Token == 'ORIG') then
+  if (Op4(8)) goto 993
+  Op4(8) = .true.
+  i1 = 5
+  read(Line(i1:i2),*,Err=991,end=991) X,Y,Z
+  ComStk(2,2,2,0) = .true.
+  ComStk(2,2,2,1) = .true.
+  ComVal(2,2,2,1) = X
+  ComStk(2,2,2,2) = .true.
+  ComVal(2,2,2,2) = Y
+  ComStk(2,2,2,3) = .true.
+  ComVal(2,2,2,3) = Z
+  goto 45
+end if
+goto 992
+
 !---  Process the "OCTU" command --------------------------------------*
-!
- 50   Continue
-      If ( Op0(5) ) Goto 993
-      Op0(5) = .true.
- 55   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 55
-      Call UpCase(Line)
-      Do i = 1,LEN(Line)
-        If ( Line(i:i).eq.'=' ) Line(i:i) = ' '
-        If ( Line(i:i).eq.CHAR(9) ) Line(i:i) = ' '
-      End Do
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      i1 = 4
-      i2 = LEN(Line)
-      If ( Token.eq.'XXX' ) then
-        If ( Op5(1) ) Goto 993
-        Op5(1) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,1) = .true.
-        ComStk(2,6,1,1) = .true.
-        ComVal(2,6,1,1) = W
-        Goto 55
-      End If
-      If ( Token.eq.'XYY' ) then
-        If ( Op5(2) ) Goto 993
-        Op5(2) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,4) = .true.
-        ComStk(2,6,1,4) = .true.
-        ComVal(2,6,1,4) = W
-        Goto 55
-      End If
-      If ( Token.eq.'XZZ' ) then
-        If ( Op5(3) ) Goto 993
-        Op5(3) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,6) = .true.
-        ComStk(2,6,1,6) = .true.
-        ComVal(2,6,1,6) = W
-        Goto 55
-      End If
-      If ( Token.eq.'XXY' ) then
-        If ( Op5(4) ) Goto 993
-        Op5(4) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,2) = .true.
-        ComStk(2,6,1,2) = .true.
-        ComVal(2,6,1,2) = W
-        Goto 55
-      End If
-      If ( Token.eq.'YYY' ) then
-        If ( Op5(5) ) Goto 993
-        Op5(5) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,7) = .true.
-        ComStk(2,6,1,7) = .true.
-        ComVal(2,6,1,7) = W
-        Goto 55
-      End If
-      If ( Token.eq.'YZZ' ) then
-        If ( Op5(6) ) Goto 993
-        Op5(6) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,9) = .true.
-        ComStk(2,6,1,9) = .true.
-        ComVal(2,6,1,9) = W
-        Goto 55
-      End If
-      If ( Token.eq.'XXZ' ) then
-        If ( Op5(7) ) Goto 993
-        Op5(8) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,3) = .true.
-        ComStk(2,6,1,3) = .true.
-        ComVal(2,6,1,3) = W
-        Goto 55
-      End If
-      If ( Token.eq.'YYZ' ) then
-        If ( Op5(9) ) Goto 993
-        Op5(9) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,8) = .true.
-        ComStk(2,6,1,8) = .true.
-        ComVal(2,6,1,8) = W
-        Goto 55
-      End If
-      If ( Token.eq.'ZZZ' ) then
-        If ( Op5(10) ) Goto 993
-        Op5(10) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,10) = .true.
-        ComStk(2,6,1,10) = .true.
-        ComVal(2,6,1,10) = W
-        Goto 55
-      End If
-      If ( Token.eq.'XYZ' ) then
-        If ( Op5(11) ) Goto 993
-        Op5(11) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,6,1,5) = .true.
-        ComStk(2,6,1,5) = .true.
-        ComVal(2,6,1,5) = W
-        Goto 55
-      End If
-      If ( Token.eq.'ORIG' ) then
-        If ( Op5(12) ) Goto 993
-        Op5(12) = .true.
-        i1=5
-        Read(Line(i1:i2),*,Err=991,End=991) X,Y,Z
-        ComStk(2,6,2,0) = .true.
-        ComStk(2,6,2,1) = .true.
-        ComVal(2,6,2,1) = X
-        ComStk(2,6,2,2) = .true.
-        ComVal(2,6,2,2) = Y
-        ComStk(2,6,2,3) = .true.
-        ComVal(2,6,2,3) = Z
-        Goto 55
-      End If
-      Goto 992
-!
+
+50 continue
+if (Op0(5)) goto 993
+Op0(5) = .true.
+55 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 55
+call UpCase(Line)
+do i=1,len(Line)
+  if (Line(i:i) == '=') Line(i:i) = ' '
+  if (Line(i:i) == char(9)) Line(i:i) = ' '
+end do
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+i1 = 4
+i2 = len(Line)
+if (Token == 'XXX') then
+  if (Op5(1)) goto 993
+  Op5(1) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,1) = .true.
+  ComStk(2,6,1,1) = .true.
+  ComVal(2,6,1,1) = W
+  goto 55
+end if
+if (Token == 'XYY') then
+  if (Op5(2)) goto 993
+  Op5(2) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,4) = .true.
+  ComStk(2,6,1,4) = .true.
+  ComVal(2,6,1,4) = W
+  goto 55
+end if
+if (Token == 'XZZ') then
+  if (Op5(3)) goto 993
+  Op5(3) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,6) = .true.
+  ComStk(2,6,1,6) = .true.
+  ComVal(2,6,1,6) = W
+  goto 55
+end if
+if (Token == 'XXY') then
+  if (Op5(4)) goto 993
+  Op5(4) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,2) = .true.
+  ComStk(2,6,1,2) = .true.
+  ComVal(2,6,1,2) = W
+  goto 55
+end if
+if (Token == 'YYY') then
+  if (Op5(5)) goto 993
+  Op5(5) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,7) = .true.
+  ComStk(2,6,1,7) = .true.
+  ComVal(2,6,1,7) = W
+  goto 55
+end if
+if (Token == 'YZZ') then
+  if (Op5(6)) goto 993
+  Op5(6) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,9) = .true.
+  ComStk(2,6,1,9) = .true.
+  ComVal(2,6,1,9) = W
+  goto 55
+end if
+if (Token == 'XXZ') then
+  if (Op5(7)) goto 993
+  Op5(8) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,3) = .true.
+  ComStk(2,6,1,3) = .true.
+  ComVal(2,6,1,3) = W
+  goto 55
+end if
+if (Token == 'YYZ') then
+  if (Op5(9)) goto 993
+  Op5(9) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,8) = .true.
+  ComStk(2,6,1,8) = .true.
+  ComVal(2,6,1,8) = W
+  goto 55
+end if
+if (Token == 'ZZZ') then
+  if (Op5(10)) goto 993
+  Op5(10) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,10) = .true.
+  ComStk(2,6,1,10) = .true.
+  ComVal(2,6,1,10) = W
+  goto 55
+end if
+if (Token == 'XYZ') then
+  if (Op5(11)) goto 993
+  Op5(11) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,6,1,5) = .true.
+  ComStk(2,6,1,5) = .true.
+  ComVal(2,6,1,5) = W
+  goto 55
+end if
+if (Token == 'ORIG') then
+  if (Op5(12)) goto 993
+  Op5(12) = .true.
+  i1 = 5
+  read(Line(i1:i2),*,Err=991,end=991) X,Y,Z
+  ComStk(2,6,2,0) = .true.
+  ComStk(2,6,2,1) = .true.
+  ComVal(2,6,2,1) = X
+  ComStk(2,6,2,2) = .true.
+  ComVal(2,6,2,2) = Y
+  ComStk(2,6,2,3) = .true.
+  ComVal(2,6,2,3) = Z
+  goto 55
+end if
+goto 992
+
 !---  Process the "EFGR" command --------------------------------------*
-!
- 60   Continue
-      If ( Op0(6) ) Goto 993
-      Op0(6) = .true.
- 65   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 65
-      Call UpCase(Line)
-      Do i = 1,LEN(Line)
-        If ( Line(i:i).eq.'=' ) Line(i:i) = ' '
-        If ( Line(i:i).eq.CHAR(9) ) Line(i:i) = ' '
-      End Do
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      i1 = 3
-      i2 = LEN(Line)
-      If ( Token.eq.'XX' ) then
-        If ( Op6(1) ) Goto 993
-        Op6(1) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,4,1,0) = .true.
-        ComStk(2,4,1,1) = .true.
-        ComVal(2,4,1,1) = W
-        Goto 65
-      End If
-      If ( Token.eq.'YY' ) then
-        If ( Op6(2) ) Goto 993
-        Op6(2) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,4,1,0) = .true.
-        ComStk(2,4,1,4) = .true.
-        ComVal(2,4,1,4) = W
-        Goto 65
-      End If
-      If ( Token.eq.'ZZ' ) then
-        If ( Op6(3) ) Goto 993
-        Op6(3) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,4,1,0) = .true.
-        ComStk(2,4,1,6) = .true.
-        ComVal(2,4,1,6) = W
-        Goto 65
-      End If
-      If ( Token.eq.'XY' ) then
-        If ( Op6(4) ) Goto 993
-        Op6(4) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,4,1,0) = .true.
-        ComStk(2,4,1,2) = .true.
-        ComVal(2,4,1,2) = W
-        Goto 65
-      End If
-      If ( Token.eq.'XZ' ) then
-        If ( Op6(5) ) Goto 993
-        Op6(5) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,4,1,0) = .true.
-        ComStk(2,4,1,3) = .true.
-        ComVal(2,4,1,3) = W
-        Goto 65
-      End If
-      If ( Token.eq.'YZ' ) then
-        If ( Op6(6) ) Goto 993
-        Op6(6) = .true.
-        Read(Line(i1:i2),*,Err=991,End=991) W
-        ComStk(2,4,1,0) = .true.
-        ComStk(2,4,1,5) = .true.
-        ComVal(2,4,1,5) = W
-        Goto 65
-      End If
-      If ( Token.eq.'ORIG' ) then
-        If ( Op6(8) ) Goto 993
-        Op6(8) = .true.
-        i1=5
-        Read(Line(i1:i2),*,Err=991,End=991) X,Y,Z
-        ComStk(2,4,2,0) = .true.
-        ComStk(2,4,2,1) = .true.
-        ComVal(2,4,2,1) = X
-        ComStk(2,4,2,2) = .true.
-        ComVal(2,4,2,2) = Y
-        ComStk(2,4,2,3) = .true.
-        ComVal(2,4,2,3) = Z
-        Goto 65
-      End If
-      Goto 992
-!
+
+60 continue
+if (Op0(6)) goto 993
+Op0(6) = .true.
+65 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 65
+call UpCase(Line)
+do i=1,len(Line)
+  if (Line(i:i) == '=') Line(i:i) = ' '
+  if (Line(i:i) == char(9)) Line(i:i) = ' '
+end do
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+i1 = 3
+i2 = len(Line)
+if (Token == 'XX') then
+  if (Op6(1)) goto 993
+  Op6(1) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,4,1,0) = .true.
+  ComStk(2,4,1,1) = .true.
+  ComVal(2,4,1,1) = W
+  goto 65
+end if
+if (Token == 'YY') then
+  if (Op6(2)) goto 993
+  Op6(2) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,4,1,0) = .true.
+  ComStk(2,4,1,4) = .true.
+  ComVal(2,4,1,4) = W
+  goto 65
+end if
+if (Token == 'ZZ') then
+  if (Op6(3)) goto 993
+  Op6(3) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,4,1,0) = .true.
+  ComStk(2,4,1,6) = .true.
+  ComVal(2,4,1,6) = W
+  goto 65
+end if
+if (Token == 'XY') then
+  if (Op6(4)) goto 993
+  Op6(4) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,4,1,0) = .true.
+  ComStk(2,4,1,2) = .true.
+  ComVal(2,4,1,2) = W
+  goto 65
+end if
+if (Token == 'XZ') then
+  if (Op6(5)) goto 993
+  Op6(5) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,4,1,0) = .true.
+  ComStk(2,4,1,3) = .true.
+  ComVal(2,4,1,3) = W
+  goto 65
+end if
+if (Token == 'YZ') then
+  if (Op6(6)) goto 993
+  Op6(6) = .true.
+  read(Line(i1:i2),*,Err=991,end=991) W
+  ComStk(2,4,1,0) = .true.
+  ComStk(2,4,1,5) = .true.
+  ComVal(2,4,1,5) = W
+  goto 65
+end if
+if (Token == 'ORIG') then
+  if (Op6(8)) goto 993
+  Op6(8) = .true.
+  i1 = 5
+  read(Line(i1:i2),*,Err=991,end=991) X,Y,Z
+  ComStk(2,4,2,0) = .true.
+  ComStk(2,4,2,1) = .true.
+  ComVal(2,4,2,1) = X
+  ComStk(2,4,2,2) = .true.
+  ComVal(2,4,2,2) = Y
+  ComStk(2,4,2,3) = .true.
+  ComVal(2,4,2,3) = Z
+  goto 65
+end if
+goto 992
+
 !---  Process the "RELA" command --------------------------------------*
-!
- 70   Continue
-      If ( Op0(7) ) Goto 993
-      Op0(7) = .true.
- 75   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 75
-      i1 = 1
-      i2 = LEN(Line)
-      Read(Line(i1:i2),*,Err=991,End=991) W
-      ComStk(2,5,0,0) = .true.
-      ComStk(2,5,0,1) = .true.
-      ComVal(2,5,0,1) = W
-      Goto 1
-!
+
+70 continue
+if (Op0(7)) goto 993
+Op0(7) = .true.
+75 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 75
+i1 = 1
+i2 = len(Line)
+read(Line(i1:i2),*,Err=991,end=991) W
+ComStk(2,5,0,0) = .true.
+ComStk(2,5,0,1) = .true.
+ComVal(2,5,0,1) = W
+goto 1
+
 !---  Process the "GLBL" command --------------------------------------*
-!
- 80   Continue
-      If ( Op0(8) ) Goto 993
-      Op0(8) = .true.
-      ComStk(3,0,0,0)=.true.
- 85   Temp2 = Temp1
-      Temp1 = Line
-      newline = newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 85
-      Call UpCase(Line)
-      Call StdFmt(Line,Token)
-      Do iCom=1,mCom
-        If ( Token.eq.Com(iCom) ) Goto 2
-      End Do
-      i1 = 1
-      i2 = LEN(Line)
-      mLbl = mLbl+1
-      If ( mLbl.gt.MxLbl ) Goto 994
-      iSta = INDEX(Line,'''')
-      Line(i1:iSta) = ' '
-      iEnd = INDEX(Line,'''')
-      gLblN(mLbl) = Line(iSta+1:iEnd-1)
-      Line(i1:iEnd) = ' '
-      Read(Line(i1:i2),*,End=991) C,W
-      gLblC(mLbl) = NINT(C)
-      gLblW(mLbl) = W
-      Do i = 1,mLbl-1
-        If ( gLblN(i).eq.gLblN(mLbl)                                    &
-     &      .and.                                                       &
-     &       gLblC(i).eq.gLblC(mLbl) ) Goto 993
-      End Do
-      Goto 85
-!
+
+80 continue
+if (Op0(8)) goto 993
+Op0(8) = .true.
+ComStk(3,0,0,0) = .true.
+85 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 85
+call UpCase(Line)
+call StdFmt(Line,Token)
+do iCom=1,mCom
+  if (Token == Com(iCom)) goto 2
+end do
+i1 = 1
+i2 = len(Line)
+mLbl = mLbl+1
+if (mLbl > MxLbl) goto 994
+iSta = index(Line,'''')
+Line(i1:iSta) = ' '
+iEnd = index(Line,'''')
+gLblN(mLbl) = Line(iSta+1:iEnd-1)
+Line(i1:iEnd) = ' '
+read(Line(i1:i2),*,end=991) C,W
+gLblC(mLbl) = nint(C)
+gLblW(mLbl) = W
+do i=1,mLbl-1
+  if (gLblN(i) == gLblN(mLbl) .and. gLblC(i) == gLblC(mLbl)) goto 993
+end do
+goto 85
+
 !---  Process the "SELE" command --------------------------------------*
-!
- 90   Continue
+
+90 continue
 !-- Initialize
-      Do i=1,MxSets
-        Atoms(i)=.false.
-        Do j=1,MxSets
-          Bonds(i,j)=.false.
-        Enddo
-      Enddo
-      ComStk(4,0,0,0)=.true.
- 95   Temp2=Temp1
-      Temp1=Line
-      newline=newline+1
-      Read(5,'(A)',Err=991,End=991) Line
-      Call LeftAd(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 95
-      Read(Line,*)nSets
-      Do i=1,nSets
-        Read(5,*)Atoms(i),iSelection(1,i),iSelection(2,i)
-      Enddo
-      Do i=2,nSets
-        If(i.lt.10) Write(FmtLog,79121)'(',i-1,'L2)'
-        If(i.ge.10) Write(FmtLog,79122)'(',i-1,'L2)'
-        Read(5,FmtLog)(Bonds(i,j),j=1,i-1)
-        Do j=1,i-1
-          Bonds(j,i)=Bonds(i,j)
-        Enddo
-      Enddo
-      Read(5,*)(TranCoo(k),k=1,3)
-!      Read(5,*)SiffBond
-79121 Format(A,I1,A)
-79122 Format(A,I2,A)
-      Go to 1
-!
+do i=1,MxSets
+  Atoms(i) = .false.
+  do j=1,MxSets
+    Bonds(i,j) = .false.
+  end do
+end do
+ComStk(4,0,0,0) = .true.
+95 Temp2 = Temp1
+Temp1 = Line
+newline = newline+1
+read(5,'(A)',Err=991,end=991) Line
+call LeftAd(Line)
+if (Line(1:1) == ' ' .or. Line(1:1) == '*') goto 95
+read(Line,*) nSets
+do i=1,nSets
+  read(5,*) Atoms(i),iSelection(1,i),iSelection(2,i)
+end do
+do i=2,nSets
+  if (i < 10) write(FmtLog,79121) '(',i-1,'L2)'
+  if (i >= 10) write(FmtLog,79122) '(',i-1,'L2)'
+  read(5,FmtLog) (Bonds(i,j),j=1,i-1)
+  do j=1,i-1
+    Bonds(j,i) = Bonds(i,j)
+  end do
+end do
+read(5,*) (TranCoo(k),k=1,3)
+!read(5,*) SiffBond
+79121 format(A,I1,A)
+79122 format(A,I2,A)
+Go to 1
+
 !---  Process the "CUMU" command --------------------------------------*
-!
- 100  Continue
+
+100 continue
 !     Add the perturbation to the current H0 instead of
 !     to the vacuum H0. This enables multiple FFPT runs after eachother,
 !     useful when using SELE.
-      LCumulate=.True.
-      Go to 1
+LCumulate = .true.
+Go to 1
 
-!
 !---  Process the "END " command --------------------------------------*
-!
- 1000 Continue
-      If ( Op0(9) ) Goto 993
-      Op0(9) = .true.
-!      ComStk(4,0,0,0) = .true.
-      ComStk(5,0,0,0) = .true.
+
+1000 continue
+if (Op0(9)) goto 993
+Op0(9) = .true.
+!mStk(4,0,0,0) = .true.
+ComStk(5,0,0,0) = .true.
 !---  Check for redunancy in the origin input
-      If ( ComStk(2,2,2,4) ) Then
-         If ( ComStk(2,2,2,1) .or.                                      &
-     &        ComStk(2,2,2,2) .or.                                      &
-     &        ComStk(2,2,2,3)      ) Goto 996
-      End If
-      If ( ComStk(2,3,2,4) ) Then
-         If ( ComStk(2,3,2,1) .or.                                      &
-     &        ComStk(2,3,2,2) .or.                                      &
-     &        ComStk(2,3,2,3)      ) Goto 996
-      End If
-      If ( ComStk(2,4,2,4) ) Then
-         If ( ComStk(2,4,2,1) .or.                                      &
-     &        ComStk(2,4,2,2) .or.                                      &
-     &        ComStk(2,4,2,3)      ) Goto 996
-      End If
-      If ( ComStk(2,6,2,4) ) Then
-         If ( ComStk(2,6,2,1) .or.                                      &
-     &        ComStk(2,6,2,2) .or.                                      &
-     &        ComStk(2,6,2,3)      ) Goto 996
-      End If
-!
+if (ComStk(2,2,2,4)) then
+  if (ComStk(2,2,2,1) .or. ComStk(2,2,2,2) .or. ComStk(2,2,2,3)) goto 996
+end if
+if (ComStk(2,3,2,4)) then
+  if (ComStk(2,3,2,1) .or. ComStk(2,3,2,2) .or. ComStk(2,3,2,3)) goto 996
+end if
+if (ComStk(2,4,2,4)) then
+  if (ComStk(2,4,2,1) .or. ComStk(2,4,2,2) .or. ComStk(2,4,2,3)) goto 996
+end if
+if (ComStk(2,6,2,4)) then
+  if (ComStk(2,6,2,1) .or. ComStk(2,6,2,2) .or. ComStk(2,6,2,3)) goto 996
+end if
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-!
+
+return
+
 !----------------------------------------------------------------------*
 !     Error handling                                                   *
 !----------------------------------------------------------------------*
-!
- 991  Write (6,*)
-      Write(6,'(2X,A)') 'The program failed to read the input.'
-      Write(6,'(2X,A)') 'Please check your input data.'
-      Write(6,*)
-      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,     &
-     &                         ' after the &FFPT &END line'
-      Write(6,'(2X,A,A)') 'The current line is:      ',Line
-      Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
-      Write(6,'(2X,A,A)') 'The next previous line is:',Temp2
-      Call Quit_OnUserError
- 992  Write (6,*)
-      Write(6,'(2X,A)') 'The program has been supplied with an unknown'
-      Write(6,'(2X,A)') 'keyword. Please correct your input data.'
-      Write(6,*)
-      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,     &
-     &                         ' after the &FFPT &END line'
-      Write(6,'(2X,A,A)') 'The current line is:      ',Line
-      Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
-      Write(6,'(2X,A,A)') 'The next previous line is:',Temp2
-      Call Quit_OnUserError
- 993  Write (6,*)
-      Write(6,'(2X,A)') 'A command or one of its components has been'
-      Write(6,'(2X,A)') 'multiply defined. Please correct your input.'
-      Write(6,*)
-      Write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,     &
-     &                         ' after the &FFPT &END line'
-      Write(6,'(2X,A,A)') 'The current line is:      ',Line
-      Write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
-      Write(6,'(2X,A,A)') 'The next previous line is:',Temp2
-      Call Quit_OnUserError
- 994  Write (6,*)
-      Write(6,'(2X,A)') 'The number of perturbations requested exceeds'
-      Write(6,'(2X,A)') 'the internal buffer size. Increase the para-'
-      Write(6,'(2X,A)') 'meter MxLbl and recompile the program.'
-      Call Quit_OnUserError
- 996  Write (6,*)
-      Write(6,'(2X,A)') 'The definition of the origin of an operator '
-      Write(6,'(2X,A)') 'is not unique.  Please correct your input.'
-      Call Quit_OnUserError
-      End
+
+991 write(6,*)
+write(6,'(2X,A)') 'The program failed to read the input.'
+write(6,'(2X,A)') 'Please check your input data.'
+write(6,*)
+write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
+write(6,'(2X,A,A)') 'The current line is:      ',Line
+write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
+write(6,'(2X,A,A)') 'The next previous line is:',Temp2
+call Quit_OnUserError()
+992 write(6,*)
+write(6,'(2X,A)') 'The program has been supplied with an unknown'
+write(6,'(2X,A)') 'keyword. Please correct your input data.'
+write(6,*)
+write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
+write(6,'(2X,A,A)') 'The current line is:      ',Line
+write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
+write(6,'(2X,A,A)') 'The next previous line is:',Temp2
+call Quit_OnUserError()
+993 write(6,*)
+write(6,'(2X,A)') 'A command or one of its components has been'
+write(6,'(2X,A)') 'multiply defined. Please correct your input.'
+write(6,*)
+write(6,'(2X,A,I3.3,A)') 'The error occured at line',newline,' after the &FFPT &END line'
+write(6,'(2X,A,A)') 'The current line is:      ',Line
+write(6,'(2X,A,A)') 'The previous line is:     ',Temp1
+write(6,'(2X,A,A)') 'The next previous line is:',Temp2
+call Quit_OnUserError()
+994 write(6,*)
+write(6,'(2X,A)') 'The number of perturbations requested exceeds'
+write(6,'(2X,A)') 'the internal buffer size. Increase the para-'
+write(6,'(2X,A)') 'meter MxLbl and recompile the program.'
+call Quit_OnUserError()
+996 write(6,*)
+write(6,'(2X,A)') 'The definition of the origin of an operator '
+write(6,'(2X,A)') 'is not unique.  Please correct your input.'
+call Quit_OnUserError()
+end subroutine RdInp_FFPT
