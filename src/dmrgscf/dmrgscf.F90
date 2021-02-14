@@ -10,30 +10,33 @@
 !                                                                      *
 ! Copyright (C) 2017, Stefan Knecht                                    *
 !***********************************************************************
-  subroutine dmrgscf(iReturn)
+
+subroutine dmrgscf(iReturn)
 
 #ifdef _DMRG_
-  use qcmaquis_interface_cfg
+use qcmaquis_interface_cfg
 #endif
-  implicit none
+use Definitions, only: iwp
 
-  integer, intent(inout) :: iReturn
+implicit none
+
+integer(kind=iwp), intent(inout) :: iReturn
 ! ----------------------------------------------------------------------
 
-  !> set DMRG driver as active space solver
-  call set_as_solver()
+!> set DMRG driver as active space solver
+call set_as_solver()
 
-  !> read DMRG settings (driver-specific input)
-  call set_dmrg_settings()
+!> read DMRG settings (driver-specific input)
+call set_dmrg_settings()
 
-  !> call wave function optimizer
-  iReturn = 0
-  call rasscf(iReturn)
+!> call wave function optimizer
+iReturn = 0
+call rasscf(iReturn)
 
 #ifdef _DMRG_
-  !> reset in case we call RASSCF (or RASSI or CASPT2) afterwards requesting a CI driver
-  if(doDMRG) doDMRG = .false.
+!> reset in case we call RASSCF (or RASSI or CASPT2) afterwards requesting a CI driver
+if (doDMRG) doDMRG = .false.
 #endif
 
-  end subroutine dmrgscf
+end subroutine dmrgscf
 ! ----------------------------------------------------------------------

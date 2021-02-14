@@ -10,55 +10,52 @@
 !                                                                      *
 ! Copyright (C) 2017, Stefan Knecht                                    *
 !***********************************************************************
-  subroutine set_dmrg_settings()
+
+subroutine set_dmrg_settings()
 
 ! module dependencies
-  use active_space_solver_cfg, only: as_solver, as_solver_inp_proc
+use active_space_solver_cfg, only: as_solver, as_solver_inp_proc
+use Definitions, only: iwp, u6
 
-  implicit none
-
+implicit none
 ! ----------------------------------------------------------------------
-  integer            :: luspool, irc, nr_lines
-  character(len=180) :: line, blank
+integer(kind=iwp)  :: luspool, irc, nr_lines
+character(len=180) :: line
 
-  external           :: get_ln, isfreeunit
-  character(len=180) :: get_ln
-  integer            :: isfreeunit
+character(len=180), external :: get_ln
+integer(kind=iwp), external  :: isfreeunit
 ! ----------------------------------------------------------------------
 
+nr_lines = 0
+luspool = isfreeunit(18)
+call spoolinp(luspool)
 
-  nr_lines = 0
-  luspool = 18
-  luspool = isfreeunit(luspool)
-  call spoolinp(luspool)
+rewind(luspool)
+call rdnlst(luspool,'DMRGSCF')
 
-  rewind(luspool)
-  call rdnlst(luspool,'DMRGSCF')
-  blank=' '
+call setpos(luspool,'DMRG',line,irc)
 
+if (irc /= 0) then
+  call warningmessage(2,'Error in input processing.')
+  write(u6,*) ' SET_DMRG_SETTUNGS: active space solver settings are missing but'
+  write(u6,*) ' are required for DMRG calculations in OpenMOLCAS to set compulsory'
+  write(u6,*) ' DMRG internal parameters, for example:'
+  write(u6,*) ' max_bond_dimension (aka m), nsweeps, ...'
+  write(u6,*) ' Please consult the manual for the active space solver ',as_solver(1:8),' for further details.'
+  iRc = 112
+  call abend()
+end if
+
+if (as_solver(1:8) == 'qcmaquis') then
+# ifdef _DMRG_
+  call qcmaquis_rdinp(luspool,1,nr_lines)
   call setpos(luspool,'DMRG',line,irc)
+  call qcmaquis_rdinp(luspool,2,nr_lines)
+# endif
+  as_solver_inp_proc = .true.
+end if
 
-  if(irc /= 0)then
-    call warningmessage(2,'Error in input processing.')
-    write(6,*)' SET_DMRG_SETTUNGS: active space solver settings are missing but'
-    write(6,*)' are required for DMRG calculations in OpenMOLCAS to set compulsory'
-    write(6,*)' DMRG internal parameters, for example:'
-    write(6,*)' max_bond_dimension (aka m), nsweeps, ...'
-    write(6,*)' Please consult the manual for the active space solver ',as_solver(1:8),' for further details.'
-    iRc=112
-    call abend()
-  end if
+call close_luspool(luspool)
 
-  if(as_solver(1:8) == 'qcmaquis')then
-#ifdef _DMRG_
-    call qcmaquis_rdinp(luspool,1,nr_lines)
-    call setpos(luspool,'DMRG',line,irc)
-    call qcmaquis_rdinp(luspool,2,nr_lines)
-#endif
-    as_solver_inp_proc = .true.
-  end if
-
-  call close_luspool(luspool)
-
-  end subroutine set_dmrg_settings
+end subroutine set_dmrg_settings
 ! ----------------------------------------------------------------------
