@@ -215,7 +215,6 @@ C     Local as well as global are reordered.
 C     -------------------------------------------------
 
       Call iCopy(nSym,nQual,1,nQual_Old,1)
-      l_iQScr = MxQ
       Call mma_allocate(iQScr,MxQ,Label='iQScr')
 
       Call Cho_P_ReoQual(iQScr,IDKVec,nKVec)

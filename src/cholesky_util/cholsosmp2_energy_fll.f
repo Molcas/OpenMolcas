@@ -111,7 +111,7 @@ C
       Integer iClos
       Integer iTyp
       Integer iSym
-      Integer l_V, l_X
+      Integer l_X
       Integer Nai
       Integer nBlock
       Integer iOpt, iAddr, l_Tot
@@ -131,6 +131,7 @@ C
       Integer j, k
       Real*8  epsi, epsa
       Integer MulD2h
+
       epsi(j,k)=EOcc(iOcc(k)+j)
       epsa(j,k)=EVir(iVir(k)+j)
       MulD2h(j,k)=iEOr(j-1,k-1)+1
@@ -185,7 +186,6 @@ C
             Call ChoMP2_OpenF(1,iTyp,iSym)
             ! allocate memory for vectors
             l_Tot=Nai*nEnrVec(iSym)
-            l_V=2*l_Tot
             Call mma_allocate(V,l_Tot,2,Label='V')
             ! Read all vectors
             iOpt=2

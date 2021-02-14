@@ -591,7 +591,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: print setup for Cholesky MP2.
 C
-      Use ChoMP2, only: iFirst, NumOcc, LnOcc
+      Use ChoMP2, only: iFirst, NumOcc, LnOcc, NumBatOrb, LnBatOrb
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
@@ -599,9 +599,6 @@ C
 #include "WrkSpc.fh"
 
       Integer iCount(8)
-
-      NumBatOrb(i)=iWork(ip_NumBatOrb-1+i)
-      LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
 
       irc = 0
 

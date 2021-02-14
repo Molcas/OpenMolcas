@@ -74,7 +74,6 @@ C     ------------------------------------------
             LINT  = NUMCD*NUMAB
             pINT1(1:LINT) => INT1(     1:     LINT)
             pINT2(1:LINT) => INT1(LINT+1:LINT+LINT)
-            KINT2 = 1 + LINT
 
 C           Calculate integrals (CD|AB).
 C           ----------------------------

@@ -17,7 +17,7 @@
 *                                                                      *
 *     Purpose: Finalize MP2 Density.                                   *
 ************************************************************************
-      use ChoMP2, only: Pointer_2D, MP2D, MP2W, MP2W_e, MP2D_e
+      use ChoMP2, only: MP2D, MP2W, MP2W_e, MP2D_e
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 CMO(*)
