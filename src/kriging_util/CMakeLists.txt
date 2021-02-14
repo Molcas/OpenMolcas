@@ -33,4 +33,8 @@ set (sources
      trans_k.F90
 )
 
+set (modfile_list
+     kriging_mod.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

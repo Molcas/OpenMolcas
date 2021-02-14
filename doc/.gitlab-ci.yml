@@ -49,7 +49,8 @@ doc:
     - cd build
     - cmake ..
     - export PDF_FILE="../Manual.pdf"
-    - make doc_all install
+    - make doc_all
+    - make install
     # Now build doxygen doc
     - cd ../doc/doxygen
     - >
