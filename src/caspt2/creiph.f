@@ -11,6 +11,7 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
+      use output_caspt2, only:iPrGlb,usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
@@ -22,7 +23,6 @@ C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -217,10 +217,10 @@ C Write a diagonal Hamiltonian in the JOBMIX:
           CALL CollapseOutput(0,'Mixed CI coefficients:')
           WRITE(6,*)
         END IF
-C In case of XMS/XDW and NOMUL, the CI vectors are replaced by the
+C In case of XMS/XDW/RMS and NOMUL, the CI vectors are replaced by the
 C rotated zeroth-order states (they should have been printed earlier,
 C in grpini)
-      ELSE IF (IFXMS) THEN
+      ELSE IF (IFXMS.or.IFRMS) THEN
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)

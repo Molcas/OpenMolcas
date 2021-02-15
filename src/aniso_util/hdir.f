@@ -14,7 +14,7 @@ c      this routine generates the directions of the applied magnetic
 c      field according to Lebedev-Laikov grids using the the given parameters (nsymm, ngrid)
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter           :: wp=kind(0.d0)
       Integer                      :: nP,nDirTot,nDir,nDirZee,i,j
       Integer                      :: nsymm,ngrid
 

@@ -14,7 +14,7 @@
      &                       WLIN, WDIP, WKEX, WDMO, WITO, W, Z, iPrint)
 c this function prints the energies and eigenvectors of the interaction Hamiltonians:
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: exch
       Integer, intent(in)          :: lmax
       Integer, intent(in)          :: iPrint

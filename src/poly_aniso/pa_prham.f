@@ -16,7 +16,7 @@
 c this function prints the exchange Hamiltonian
 c it does not compute any new infromation
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
 #include "warnings.fh"
       Integer, intent(in)          :: exch

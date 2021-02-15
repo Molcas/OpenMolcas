@@ -14,7 +14,7 @@ C THIS ROUTINE CALCULATES THE INVERSE OF A SQUARE 3x3 MATRIX, AND ITS DETERMINAN
 C
 
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8)  :: A_dir(3,3)
       Real(kind=8)  :: A_inv(3,3)
       Real(kind=8)  :: A(3,3)
