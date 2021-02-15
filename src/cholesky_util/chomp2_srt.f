@@ -16,21 +16,16 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: copy out subblock of vectors.
 C
+      use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am
+      use ChoMP2, only: LnBatOrb
+      use ChoMP2, only: LnPQprod, LiPQprod
 #include "implicit.fh"
       Real*8  Vec(*), Srt(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 #include "chomp2_cfg.fh"
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
-      LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
-      LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
-      LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
-      LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
-      LiT1am(i,j,k)=iWork(ip_LiT1am-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
-      LiPQprod(i,j,k)=iWork(ip_LiPQprod-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
 
       If(.not.DoDens) Then
          Do iVec = 1,nVec
