@@ -60,8 +60,10 @@ subroutine wgtinit(H)
             ! add a small positive constant to numerator to avoid 0/0
             Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
             Hag = abs(H(J,K))
-
-            xi_ag = Dag/sqrt(Hag)
+            ! add the smallest value of the same type as Hag to the
+            ! denominator to avoid division by 0 which can lead to
+            ! segfault with certain compilers
+            xi_ag = Dag/(sqrt(Hag)+tiny(Hag))
           end if
 
           Wtot = Wtot + exp(-zeta*xi_ag)
@@ -78,8 +80,10 @@ subroutine wgtinit(H)
           ! add a small positive constant to numerator to avoid 0/0
           Dab = abs(Ealpha - Ebeta) + 1.0e-9_wp
           Hab = abs(H(J,I))
-
-          xi_ab = Dab/sqrt(Hab)
+          ! add the smallest value of the same type as Hag to the
+          ! denominator to avoid division by 0 which can lead to
+          ! segfault with certain compilers
+          xi_ab = Dab/(sqrt(Hab)+tiny(Hab))
         end if
 
         IJ = (I - 1) + nState*(J - 1)
