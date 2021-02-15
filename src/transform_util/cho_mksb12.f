@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
-      Subroutine MkExSB12(iAddSB,LenSB,
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+      Subroutine MkExSB12(iAddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *

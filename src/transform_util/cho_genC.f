@@ -262,7 +262,7 @@ CGG   ------------------------------------------------------------------
         Do iB = 1,LenB(iSB_B)
           Do iSB_A = 1, 3
 
-            If (LenA(1)==0) Cycle
+            If (LenA(iSB_A)==0) Cycle
 
             ! SB(iSB_A,iSB_B)
             iAddSBi = 1 + LenA(iSB_A) * (iB-1)
