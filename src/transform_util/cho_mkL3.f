@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
-      Subroutine MkL3(iSymA,iSymI,iI, numV, LyType,iJy, iAddLx0, SameLx)
+      Subroutine MkL3(iSymA,iSymI,iI, numV, LyType,iJy, AddLx0, SameLx)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -21,11 +21,13 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Integer iSymA,iSymI,iI, numV, LyType,iJy
+      Real*8 AddLx0(*)
+      Logical SameLx
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
-      Logical SameLx
 
 *     Build Lx
       If (iI.LE.nIsh(iSymI)) then
@@ -49,10 +51,10 @@
         EndIf
       EndIf
 
-      iAddLx  = iAddLx0
+      iAddLx  = 1
       iAddTCVX= iMemTCVX(LxType,iSymA,iSymI,1)+nSsh(iSymA)*(iIx-1)
       Do iV=1,numV
-        Call dCopy_(nSsh(iSymA),Work(iAddTCVX),1,Work(iAddLx),1)
+        Call dCopy_(nSsh(iSymA),Work(iAddTCVX),1,AddLx0(iAddLx),1)
         iAddTCVX= iAddTCVX +  nSsh(iSymA) * nIx
         iAddLx  = iAddLx + nSsh(iSymA)
       EndDo

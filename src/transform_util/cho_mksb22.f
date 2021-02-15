@@ -23,39 +23,44 @@
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
       Logical SameLx
+
+      Real*8, Allocatable:: Lx0(:), Ly0(:)
 
 *   - SubBlock 2 2
       LenSB = nAsh(iSymA) * nAsh(iSymB)
       Call GetMem('SB','Allo','Real',iAddSB,LenSB)
 
 *     Build Lx
-      Call GetMem('Lx','Allo','Real',iAddLx0,nAsh(iSymA)*numV)
+      Call mma_allocate(Lx0,nAsh(iSymA)*numV,Label='Lx0')
       LxType=0
       iIx=0
       SameLx=.False.
-      Call MkL2(iSymA,iSymI,iI,numV, LxType,iIx, iAddLx0,SameLx)
+      Call MkL2(iSymA,iSymI,iI,numV, LxType,iIx, Lx0,SameLx)
 
 *     Build Ly
-      Call GetMem('Ly','Allo','Real',iAddLy0,nAsh(iSymB)*numV)
+      Call mma_allocate(Ly0,nAsh(iSymB)*numV,Label='Ly0')
       If(iSymA.EQ.iSymB) SameLx=.True.
-      Call MkL2(iSymB,iSymJ,iJ,numV, LxType,iIx, iAddLy0,SameLx)
+      Call MkL2(iSymB,iSymJ,iJ,numV, LxType,iIx, Ly0,SameLx)
 
 *     Generate the SubBlock
       If (.NOT.SameLx) then
-        Call DGEMM_('N','T',nAsh(iSymB),nAsh(iSymA),numV,1.0d0,
-     &    Work(iAddLy0),nAsh(iSymB), Work(iAddLx0),nAsh(iSymA),
-     &                     0.0d0,Work(iAddSB),nAsh(iSymB) )
+        Call DGEMM_('N','T',nAsh(iSymB),nAsh(iSymA),numV,
+     &              1.0d0,Ly0,nAsh(iSymB),
+     &                    Lx0,nAsh(iSymA),
+     &              0.0d0,Work(iAddSB),nAsh(iSymB) )
       else
-        Call DGEMM_('N','T',nAsh(iSymA),nAsh(iSymA),numV,1.0d0,
-     &    Work(iAddLx0),nAsh(iSymA), Work(iAddLx0),nAsh(iSymA),
-     &                     0.0d0,Work(iAddSB),nAsh(iSymA) )
+        Call DGEMM_('N','T',nAsh(iSymA),nAsh(iSymA),numV,
+     &              1.0d0,Lx0,nAsh(iSymA),
+     &                    Lx0,nAsh(iSymA),
+     &              0.0d0,Work(iAddSB),nAsh(iSymA) )
       EndIf
 
-      Call GetMem('Ly','Free','Real',iAddLy0,nAsh(iSymB)*numV)
-      Call GetMem('Lx','Free','Real',iAddLx0,nAsh(iSymA)*numV)
+      Call mma_deallocate(Ly0)
+      Call mma_deallocate(Lx0)
 
       Return
       End

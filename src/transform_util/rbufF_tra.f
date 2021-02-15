@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine RBufF_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IST,IADXS,MEMX)
       Implicit real*8(a-h,o-z)
-      Integer  MEMX,BLKSZ,NBLCK,NPASS,BPASS,BSIZE,NRST
+      Integer  MEMX,BLKSZ,NBLCK,NPASS,BPASS,NRST
       Integer  i,j
 
 #include "SysDef.fh"
@@ -21,7 +21,6 @@
 
       BLKSZ=(NOTU-1)*IADXS+LBuf
       NBLCK=MEMX/BLKSZ
-      BSIZE=BLKSZ*NBLCK
 
       Call mma_allocate(BUF,BLKSZ,NBLCK,LABEL='BUF')
 

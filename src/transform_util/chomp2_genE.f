@@ -42,46 +42,51 @@
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
-*           Jannuary February 2005                                     *
+*           January February 2005                                      *
 * Modified for Cholesky-MP2 May 2005                                   *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
       Logical SameLx
+
+      Real*8, Allocatable:: Lx0(:), Ly0(:)
 
 *   - SubBlock 3 3
       LenSB = nSsh(iSymA) * nSsh(iSymB)
       Call GetMem('SB','Allo','Real',iAddSB,LenSB)
 
 *     Build Lx
-      Call GetMem('Lx','Allo','Real',iAddLx0,nSsh(iSymA)*numV)
+      Call mma_allocate(Lx0,nSsh(iSymA)*numV,Label='Lx0')
       LxType=0
       iIx=0
       SameLx=.False.
-      Call MkL3(iSymA,iSymI,iI,numV, LxType,iIx, iAddLx0,SameLx)
+      Call MkL3(iSymA,iSymI,iI,numV, LxType,iIx, Lx0,SameLx)
 
 *     Build Ly
-      Call GetMem('Ly','Allo','Real',iAddLy0,nSsh(iSymB)*numV)
+      Call mma_allocate(Ly0,nSsh(iSymB)*numV,Label='Ly0')
       If(iSymA.EQ.iSymB) SameLx=.True.
-      Call MkL3(iSymB,iSymJ,iJ,numV, LxType,iIx, iAddLy0,SameLx)
+      Call MkL3(iSymB,iSymJ,iJ,numV, LxType,iIx, Ly0,SameLx)
 
 *     Generate the SubBlock
       If (.NOT.SameLx) then
-        Call DGEMM_('N','T',nSsh(iSymB),nSsh(iSymA),numV,1.0d0,
-     &   Work(iAddLy0),nSsh(iSymB), Work(iAddLx0),nSsh(iSymA),
-     &                        1.0d0,Work(iAddEx),nSsh(iSymB) )
+        Call DGEMM_('N','T',nSsh(iSymB),nSsh(iSymA),numV,
+     &               1.0d0,Ly0,nSsh(iSymB),
+     &                     Lx0,nSsh(iSymA),
+     &               1.0d0,Work(iAddEx),nSsh(iSymB) )
       else
-        Call DGEMM_('N','T',nSsh(iSymA),nSsh(iSymA),numV,1.0d0,
-     &   Work(iAddLx0),nSsh(iSymA), Work(iAddLx0),nSsh(iSymA),
-     &                        1.0d0,Work(iAddEx),nSsh(iSymA) )
+        Call DGEMM_('N','T',nSsh(iSymA),nSsh(iSymA),numV,
+     &              1.0d0,Lx0,nSsh(iSymA),
+     &                    Lx0,nSsh(iSymA),
+     &              1.0d0,Work(iAddEx),nSsh(iSymA) )
       EndIf
 
-      Call GetMem('Ly','Free','Real',iAddLy0,nSsh(iSymB)*numV)
-      Call GetMem('Lx','Free','Real',iAddLx0,nSsh(iSymA)*numV)
+      Call mma_deallocate(Ly0)
+      Call mma_deallocate(Lx0)
 
       Return
 c Avoid unused argument warnings

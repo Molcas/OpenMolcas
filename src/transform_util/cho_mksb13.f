@@ -23,32 +23,36 @@
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
       Logical SameLx
+
+      Real*8, Allocatable:: Lx0(:), Ly0(:)
 
 *   - SubBlock 1 3
       LenSB = nIsh(iSymA) * nSsh(iSymB)
       Call GetMem('SB','Allo','Real',iAddSB,LenSB)
 
 *     Build Lx
-      Call GetMem('Lx','Allo','Real',iAddLx0,nIsh(iSymA)*numV)
+      Call mma_allocate(Lx0,nIsh(iSymA)*numV,Label='Lx0')
       LxType=0
       iIx=0
       SameLx=.False.
-      Call MkL1(iSymA,iSymI,iI,numV, LxType,iIx, iAddLx0,SameLx)
+      Call MkL1(iSymA,iSymI,iI,numV, LxType,iIx, Lx0,SameLx)
 
 *     Build Ly
-      Call GetMem('Ly','Allo','Real',iAddLy0,nSsh(iSymB)*numV)
-      Call MkL3(iSymB,iSymJ,iJ,numV, LxType,iIx, iAddLy0,SameLx)
+      Call mma_allocate(Ly0,nSsh(iSymB)*numV,Label='Ly0')
+      Call MkL3(iSymB,iSymJ,iJ,numV, LxType,iIx, Ly0,SameLx)
 
 *     Generate the SubBlock
-      Call DGEMM_('N','T',nSsh(iSymB),nIsh(iSymA),numV,1.0d0,
-     &    Work(iAddLy0),nSsh(iSymB), Work(iAddLx0),nIsh(iSymA),
-     &                     0.0d0,Work(iAddSB),nSsh(iSymB) )
+      Call DGEMM_('N','T',nSsh(iSymB),nIsh(iSymA),numV,
+     &            1.0d0,Ly0,nSsh(iSymB),
+     &                  Lx0,nIsh(iSymA),
+     &            0.0d0,Work(iAddSB),nSsh(iSymB) )
 
-      Call GetMem('Ly','Free','Real',iAddLy0,nSsh(iSymB)*numV)
-      Call GetMem('Lx','Free','Real',iAddLx0,nIsh(iSymA)*numV)
+      Call mma_deallocate(Ly0)
+      Call mma_deallocate(Lx0)
 
       Return
       End

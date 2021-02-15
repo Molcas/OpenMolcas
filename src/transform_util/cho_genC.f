@@ -67,10 +67,10 @@
         Real*8, Allocatable:: A(:)
         Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
         End Subroutine MkCouSB11
-        Subroutine MkCouSB12(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-        Real*8, Allocatable:: A(:)
-        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
-        End Subroutine MkCouSB12
+C       Subroutine MkCouSB12(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+C       Real*8, Allocatable:: A(:)
+C       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+C       End Subroutine MkCouSB12
 C       Subroutine MkCouSB13(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 C       Real*8, Allocatable:: A(:)
 C       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV

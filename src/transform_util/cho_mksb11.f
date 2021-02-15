@@ -23,39 +23,45 @@
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
       Logical SameLx
+
+      Real*8, Allocatable:: Lx0(:), Ly0(:)
+
 
 *   - SubBlock 1 1
       LenSB = nIsh(iSymA) * nIsh(iSymB)
       Call GetMem('SB','Allo','Real',iAddSB,LenSB)
 
 *     Build Lx
-      Call GetMem('Lx','Allo','Real',iAddLx0,nIsh(iSymA)*numV)
+      Call mma_allocate(Lx0,nIsh(iSymA)*numV,Label='Lx0')
       LxType=0
       iIx=0
       SameLx=.False.
-      Call MkL1(iSymA,iSymI,iI,numV, LxType,iIx, iAddLx0,SameLx)
+      Call MkL1(iSymA,iSymI,iI,numV, LxType,iIx, Lx0,SameLx)
 
 *     Build Ly
-      Call GetMem('Ly','Allo','Real',iAddLy0,nIsh(iSymB)*numV)
+      Call mma_allocate(Ly0,nIsh(iSymB)*numV,Label='Ly0')
       If(iSymA.EQ.iSymB) SameLx=.True.
-      Call MkL1(iSymB,iSymJ,iJ,numV, LxType,iIx, iAddLy0,SameLx)
+      Call MkL1(iSymB,iSymJ,iJ,numV, LxType,iIx, Ly0,SameLx)
 
 *     Generate the SubBlock (Ly*Lx)
       If (.NOT.SameLx) then
-        Call DGEMM_('N','T',nIsh(iSymB),nIsh(iSymA),numV,1.0d0,
-     &    Work(iAddLy0),nIsh(iSymB), Work(iAddLx0),nIsh(iSymA),
-     &                     0.0d0,Work(iAddSB),nIsh(iSymB) )
+        Call DGEMM_('N','T',nIsh(iSymB),nIsh(iSymA),numV,
+     &              1.0d0,Ly0,nIsh(iSymB),
+     &                    Lx0,nIsh(iSymA),
+     &              0.0d0,Work(iAddSB),nIsh(iSymB) )
       else
-        Call DGEMM_('N','T',nIsh(iSymA),nIsh(iSymA),numV,1.0d0,
-     &    Work(iAddLx0),nIsh(iSymA), Work(iAddLx0),nIsh(iSymA),
-     &                     0.0d0,Work(iAddSB),nIsh(iSymA) )
+        Call DGEMM_('N','T',nIsh(iSymA),nIsh(iSymA),numV,
+     &              1.0d0,Lx0,nIsh(iSymA),
+     &                    Lx0,nIsh(iSymA),
+     &              0.0d0,Work(iAddSB),nIsh(iSymA) )
       EndIf
 
-      Call GetMem('Ly','Free','Real',iAddLy0,nIsh(iSymB)*numV)
-      Call GetMem('Lx','Free','Real',iAddLx0,nIsh(iSymA)*numV)
+      Call mma_deallocate(Ly0)
+      Call mma_deallocate(Lx0)
 
       Return
       End
