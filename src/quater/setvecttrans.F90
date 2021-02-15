@@ -41,7 +41,7 @@ real(kind=wp) :: O1(3), O2(3)
 
 O1(:) = Geom1(:,XYZ1(1))
 O2(:) = Geom2(:,XYZ2(1))
-V(:) = O1(:) - O2(:)
+V(:) = O1(:)-O2(:)
 
 if (debug) then
   call RecPrt('Vtrans',' ',V,3,1)

@@ -102,9 +102,9 @@
       Do I=1,lRoots
         WORK(LHRot+(I-1)*(lRoots+1))=ENER(I,ITER)
       End Do
-      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LRState),
+      Call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0D0,Work(LRState),
      &     lRoots,Work(LHRot),lRoots,0.0D0,Work(LHScr),lRoots)
-      Call DGEMM_('n','t',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
+      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
      &     lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
       LUROT=IsFreeUnit(LURot)
       CALL Molcas_Open(LURot,'ROT_HAM')
@@ -115,7 +115,7 @@
       write(LURot,*) MatInfo
       Close(LUROT)
       if(IPRLEV.GE.DEBUG) Then
-       write(LF,'(6X,A)') 'Rotated Hamialtonian matrix '
+       write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
        write(LF,*) (Work(LHRot+jroot),jroot=0,NHRot-1)
       End if
 
@@ -126,7 +126,7 @@
         Call DDafile(JOBIPH,2,Work(LRCItmp),nConf,rcidisk)
         LRCItmp=LRCItmp+NConf
       End Do
-      Call DGEMM_('n','t',NConf,lRoots,lRoots,1.0D0,Work(LRCIScr),
+      Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,Work(LRCIScr),
      &     nConf,Work(LRState),lRoots,0.0D0,Work(LRCIVec),nConf)
 C      Call DGEMM_('n','t',lRoots,NConf,lRoots,1.0D0,Work(LRState),
 C    &       lRoots,Work(LRCIVec),nConf,0.0D0,Work(LRCIScr),lRoots)
