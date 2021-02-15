@@ -104,8 +104,7 @@
      &                         U, MM, MS, ML, DM, ANGMOM, EDMOM,
      &                         amfi, HSO )
       Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset,
-     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
-     &               mh5_close_file
+     &               mh5_fetch_dset, mh5_close_file
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
@@ -261,10 +260,8 @@ c      END IF
       IF ( mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.
      &     mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG') ) THEN
 !         found_sos_coeff=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_REAL',
-     &                                          RR )
-         Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_IMAG',
-     &                                          RI )
+         Call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_REAL', RR )
+         Call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_IMAG', RI )
          ! assemble the complex matrix U:
          DO i=1,nss
             DO j=1,nss
@@ -300,7 +297,7 @@ c      END IF
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_ANGMOM')) THEN
 !         found_angmom=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SFS_ANGMOM',AL)
+         Call mh5_fetch_dset(fileid,'SFS_ANGMOM',AL)
          DO i=1,nstate
             DO j=1,nstate
                DO l=1,3
@@ -337,7 +334,7 @@ c      END IF
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_EDIPMOM')) THEN
          found_edmom=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SFS_EDIPMOM',AL)
+         Call mh5_fetch_dset(fileid,'SFS_EDIPMOM',AL)
          DO i=1,nstate
             DO j=1,nstate
                DO l=1,3
@@ -374,7 +371,7 @@ c      END IF
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_AMFIINT')) THEN
 !         found_amfi=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SFS_AMFIINT',AL)
+         Call mh5_fetch_dset(fileid,'SFS_AMFIINT',AL)
          DO i=1,nstate
             DO j=1,nstate
                DO l=1,3
@@ -418,8 +415,8 @@ c      END IF
       IF ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL').and.
      &     mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) THEN
 !         found_hso=.true.
-         Call mh5_fetch_dset_array_real(fileid,'HSO_MATRIX_REAL',RR )
-         Call mh5_fetch_dset_array_real(fileid,'HSO_MATRIX_IMAG',RI )
+         Call mh5_fetch_dset(fileid,'HSO_MATRIX_REAL',RR )
+         Call mh5_fetch_dset(fileid,'HSO_MATRIX_IMAG',RI )
          ! assemble the complex matrix U:
          DO i=1,nss
             DO j=1,nss
@@ -582,8 +579,7 @@ c----- expand the spin free basis to the spin-orbit basis:
       SUBROUTINE read_hdf5_poly( file_h5, nss, nstate,
      &                           eso, MM, MS,iReturn )
       Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset,
-     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
-     &               mh5_close_file
+     &               mh5_fetch_dset, mh5_close_file
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
@@ -673,7 +669,7 @@ c      END IF
 !      Call dcopy_(nstate,[0.0_wp],0,etmp,1)
 !      IF (mh5_exists_dset(fileid,'SFS_ENERGIES')) THEN
 !         found_esfs=.true.
-!         Call mh5_fetch_dset_array_real(fileid,'SFS_ENERGIES',etmp)
+!         Call mh5_fetch_dset(fileid,'SFS_ENERGIES',etmp)
 !         RNRM=0.0_wp
 !         RNRM=dnrm2_(nstate,etmp,1)
 !         IF ( RNRM.lt.1.0D-50 ) THEN
@@ -743,10 +739,8 @@ c      END IF
       IF ( mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.
      &     mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG') ) THEN
 !         found_sos_coeff=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_REAL',
-     &                                          RR )
-         Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_IMAG',
-     &                                          RI )
+         Call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_REAL', RR )
+         Call mh5_fetch_dset(fileid,'SOS_COEFFICIENTS_IMAG', RI )
          ! assemble the complex matrix U:
          DO i=1,nss
             DO j=1,nss
@@ -782,7 +776,7 @@ c      END IF
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_ANGMOM')) THEN
 !         found_angmom=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SFS_ANGMOM',AL)
+         Call mh5_fetch_dset(fileid,'SFS_ANGMOM',AL)
          DO i=1,nstate
             DO j=1,nstate
                DO l=1,3
@@ -821,7 +815,7 @@ c      END IF
 !      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
 !      IF (mh5_exists_dset(fileid,'SFS_EDIPMOM')) THEN
 !         found_edmom=.true.
-!         Call mh5_fetch_dset_array_real(fileid,'SFS_EDIPMOM',AL)
+!         Call mh5_fetch_dset(fileid,'SFS_EDIPMOM',AL)
 !         DO i=1,nstate
 !            DO j=1,nstate
 !               DO l=1,3
@@ -858,7 +852,7 @@ c      END IF
 !      Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
 !      IF (mh5_exists_dset(fileid,'SFS_AMFIINT')) THEN
 !         found_amfi=.true.
-!         Call mh5_fetch_dset_array_real(fileid,'SFS_AMFIINT',AL)
+!         Call mh5_fetch_dset(fileid,'SFS_AMFIINT',AL)
 !         DO i=1,nstate
 !            DO j=1,nstate
 !               DO l=1,3
@@ -902,8 +896,8 @@ c      END IF
 !      IF ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL').and.
 !     &     mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) THEN
 !         found_hso=.true.
-!         Call mh5_fetch_dset_array_real(fileid,'HSO_MATRIX_REAL',RR )
-!         Call mh5_fetch_dset_array_real(fileid,'HSO_MATRIX_IMAG',RI )
+!         Call mh5_fetch_dset(fileid,'HSO_MATRIX_REAL',RR )
+!         Call mh5_fetch_dset(fileid,'HSO_MATRIX_IMAG',RI )
 !         ! assemble the complex matrix U:
 !         DO i=1,nss
 !            DO j=1,nss

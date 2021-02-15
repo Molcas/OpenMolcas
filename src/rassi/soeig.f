@@ -15,7 +15,7 @@
       use sorting_funcs, only : leq_r
 #ifdef _HDF5_
       use Dens2HDF5
-      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -281,8 +281,8 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
       call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
       call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
 #ifdef _HDF5_
-      call mh5_put_dset_array_real(wfn_sos_hsor,HAMSOR)
-      call mh5_put_dset_array_real(wfn_sos_hsoi,HAMSOI)
+      call mh5_put_dset(wfn_sos_hsor,HAMSOR)
+      call mh5_put_dset(wfn_sos_hsoi,HAMSOI)
 #endif
 
       !> use complex matrix diagonalization
@@ -358,8 +358,8 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sos_energy, ENSOR)
-      call mh5_put_dset_array_real(wfn_sos_coefr,USOR)
-      call mh5_put_dset_array_real(wfn_sos_coefi,USOI)
+      call mh5_put_dset(wfn_sos_coefr,USOR)
+      call mh5_put_dset(wfn_sos_coefi,USOI)
 #endif
       !> free memory for H_SO - do not use it below!
       !> eigenvalues are stored in ENSOR!

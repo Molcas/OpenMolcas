@@ -68,7 +68,7 @@
      &    embWriteEsp
 #endif
 #ifdef _HDF5_
-      use mh5, only: mh5_put_attr, mh5_put_dset_array_real
+      use mh5, only: mh5_put_attr, mh5_put_dset
 #endif
       use OFembed, only: Do_OFemb, FMaux
 
@@ -1328,8 +1328,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
       CALL DDAFILE(JOBIPH,1,CONV,6*mxIter,IAD15)
 #ifdef _HDF5_
-      call mh5_put_attr (wfn_iter, Iter)
-      call mh5_put_dset_array_real(wfn_energy, ENER(1,Iter))
+      call mh5_put_attr(wfn_iter, Iter)
+      call mh5_put_dset(wfn_energy, ENER(1,Iter))
 #endif
 *
 * Print output of energies and convergence parameters
@@ -1807,10 +1807,10 @@ c Clean-close as much as you can the CASDFT stuff...
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
-               Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
+               Call mh5_put_dset(wfn_transdens,Work(LW6:LW6+NAC*NAC-1),
      &              [NAC,NAC,1], [0,0,idx-1])
                If (iSpin.gt.1)
-     &         Call mh5_put_dset_array_real(wfn_transsdens, Work(LW7),
+     &         Call mh5_put_dset(wfn_transsdens,Work(LW7:LW7+NAC*NAC-1),
      &              [NAC,NAC,1], [0,0,idx-1])
             End Do
          End Do

@@ -15,7 +15,7 @@ subroutine cre_dyn()
 
 #ifdef _HDF5_
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_init_dset, mh5_create_dset_real, mh5_create_dset_str, mh5_create_dset_int, &
-               mh5_put_dset, mh5_fetch_attr, mh5_put_dset_array_real, mh5_close_file, mh5_open_file_r, mh5_exists_attr
+               mh5_put_dset, mh5_fetch_attr, mh5_close_file, mh5_open_file_r, mh5_exists_attr, mh5_close_dset
 use Dynamix_Globals, only: dyn_dt, dyn_etot, dyn_etot0, dyn_fileid, dyn_geom, dyn_mass, dyn_nh, dyn_time, dyn_vel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -60,7 +60,7 @@ if (nsym > 1) then
 else
   call Get_dArray('Unique Coordinates',coord,3*natoms)
 end if
-call mh5_put_dset_array_real(dyn_geom,coord)
+call mh5_put_dset(dyn_geom,coord)
 call mma_deallocate(coord)
 
 ! Atom labels
