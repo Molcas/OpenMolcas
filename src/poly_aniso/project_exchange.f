@@ -12,7 +12,7 @@
 c  this function determines the local pseuDospins and rotates the hamiltonian
 c  to the local pseuDospin basis
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer N1,N2
 !     spin-orbit energies on each site
       Real(kind=8) ::  E1(N1), E2(N2)

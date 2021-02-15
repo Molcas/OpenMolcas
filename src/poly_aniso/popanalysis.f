@@ -21,7 +21,7 @@ c  neq(Nneq) number of equivalent sites of type i
 c
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 c main input variables
       Integer, intent(in)          :: nneq, exch, nmax, lmax
       Integer, intent(in)          :: neq(nneq), nexch(nneq)

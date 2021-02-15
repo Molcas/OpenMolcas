@@ -11,18 +11,22 @@
 * Copyright (C) 2004,2005, Thomas Bondo Pedersen                       *
 ************************************************************************
       SubRoutine ChoMP2_Setup(irc)
-      use ChoMP2
 C
 C     Thomas Bondo Pedersen, Oct. 2004 / Feb. 2005.
 C
 C     Purpose: setup of Cholesky MP2 program.
 C
+      use ChoMP2, only: ChoMP2_allocated, iFirst, iFirstS, NumOcc
+      use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
+      use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
+      use ChoMP2, only: LnPQprod, LiPQprod
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam='ChoMP2_Setup')
@@ -211,56 +215,49 @@ C     -------------------------------------
             End Do
          End If
 *
-         l_First     = nBatch
-         l_FirstS    = nSym*nBatch
-         l_NumOcc    = nBatch
-         l_LnOcc     = nSym*nBatch
-         l_LnT1am    = nSym*nBatch
-         l_LiT1am    = nSym*nSym*nBatch
-         l_NumBatOrb = nBatch
-         l_LnBatOrb  = nSym*nBatch
-         If (ChoAlg .eq. 2) Then
-            l_LnMatij = nSym*nBatch
-            l_LiMatij = nSym*nSym*nBatch
-         Else
-            l_LnMatij = 1
-            l_LiMatij = 1
-         End If
-         If(.false.) Then
-            l_LnPQprod = nSym*nBatch
-            l_LiPQprod = nSym*nSym*nBatch
-         Else
-            l_LnPQprod = 1
-            l_LiPQprod = 1
-         End If
-         l_lUnit  = nSym*nBatch
          Call ChoMP2_deallocate(irc)
          ChoMP2_allocated=.TRUE.
-         Call GetMem('First','Allo','Inte',ip_First,l_First)
-         Call GetMem('FirstS','Allo','Inte',ip_FirstS,l_FirstS)
-         Call GetMem('NumOcc','Allo','Inte',ip_NumOcc,l_NumOcc)
-         Call GetMem('LnOcc','Allo','Inte',ip_LnOcc,l_LnOcc)
-         Call GetMem('LnT1am','Allo','Inte',ip_LnT1am,l_LnT1am)
-         Call GetMem('LiT1am','Allo','Inte',ip_LiT1am,l_LiT1am)
-         Call GetMem('LnMatij','Allo','Inte',ip_LnMatij,l_LnMatij)
-         Call GetMem('LiMatij','Allo','Inte',ip_LiMatij,l_LiMatij)
-         Call GetMem('lUnit','Allo','Inte',ip_lUnit,l_lUnit)
+
+         Call mma_allocate(iFirst,nBatch,Label='iFirst')
+         Call mma_allocate(iFirstS,nSym,nBatch,Label='iFirstS')
+         Call mma_allocate(NumOcc,nBatch,Label='NumOcc')
+         Call mma_allocate(LnOcc,nSym,nBatch,Label='LnOcc')
+         Call mma_allocate(LnT1am,nSym,nBatch,Label='LnT1am')
+         Call mma_allocate(LiT1am,nSym,nSym,nBatch,Label='LiT1am')
+         Call mma_allocate(lUnit,nSym,nBatch,Label='lUnit')
+
+         If (ChoAlg .eq. 2) Then
+            Call mma_allocate(LnMatij,nSym,nBatch,Label='LnMatij')
+            Call mma_allocate(LiMatij,nSym,nSym,nBatch,Label='LiMatij')
+         Else
+            Call mma_allocate(LnMatij,   1,     1,Label='LnMatij')
+            Call mma_allocate(LiMatij,   1,   1,     1,Label='LiMatij')
+         End If
+
 *     Generalization of NumOcc for arbitrary quantity to batch over
 *     Would be good to kill NumOcc safely and only use one...
-         Call GetMem('NumBatOrb','Allo','Inte',ip_NumBatOrb,l_NumBatOrb)
+         Call mma_allocate(NumBatOrb,nBatch,Label='NumBatOrb')
 *     Generalization of LnOcc for arbitrary quantity to batch over.
-         Call GetMem('LnBatOrb','Allo','Inte',ip_LnBatOrb,l_LnBatOrb)
-         Call GetMem('LnPQprod','Allo','Inte',ip_LnPQprod,l_LnPQprod)
-         Call GetMem('LiPQprod','Allo','Inte',ip_LiPQprod,l_LiPQprod)
-         Call ChoMP2_Setup_Index(iWork(ip_First),iWork(ip_FirstS),
-     &                           iWork(ip_NumOcc),iWork(ip_LnOcc),
-     &                           iWork(ip_NumBatOrb),iWork(ip_LnBatOrb),
-     &                           iWork(ip_LnT1am),iWork(ip_LiT1am),
-     &                           iWork(ip_LnPQprod),iWork(ip_LiPQprod),
-     &                           iWork(ip_LnMatij),iWork(ip_LiMatij),
+         Call mma_allocate(LnBatOrb,nSym,nBatch,Label='LnBatOrb')
+         If(.false.) Then
+            Call mma_allocate(LnPQprod,nSym,nBatch,Label='LnPQprod')
+            Call mma_allocate(LiPQprod,nSym,nSym,nBatch,
+     &                        Label='LiPQprod')
+         Else
+            Call mma_allocate(LnPQprod,   1,     1,Label='LnPQprod')
+            Call mma_allocate(LiPQprod,   1,   1,     1,
+     &                        Label='LiPQprod')
+         End If
+
+         Call ChoMP2_Setup_Index(iFirst,iFirstS,
+     &                           NumOcc,LnOcc,
+     &                           NumBatOrb,LnBatOrb,
+     &                           LnT1am,LiT1am,
+     &                           LnPQprod,LiPQprod,
+     &                           LnMatij,LiMatij,
      &                           nSym,nBatch)
 
-         Call GetMem('MaxMP2','Max ','Real',ip_Dum,lWork)
+         Call mma_maxDBLE(lWork)
          If(.false.) Then
 *           All Memory available minus one full vector and some small
 *           vectors for the PCG-algorithm.
@@ -303,12 +300,10 @@ C     -------------------------------------
             lAvail = lWork - nT1amx ! all minus one vector (for reading)
          End If
          Call GAiGOp_Scal(lAvail,'min')
-*        The argument ip_LnPQprod is only used for the case where full
+*        The argument LnPQprod is only used for the case where full
 *        Lpq-vectors are transformed for densities. Will be a dummy arg
 *        for regular MP2.
-         Accepted = ChoMP2_Setup_MemChk(iWork(ip_LnT1am),
-     &                                  iWork(ip_LnPQprod),
-     &                                  NumVec,nFrac,
+         Accepted = ChoMP2_Setup_MemChk(LnT1am,LnPQprod,NumVec,nFrac,
      &                                  nSym,nBatch,lAvail)
 
          If (ForceBatch .and. nBatch.eq.1) Then
@@ -379,21 +374,21 @@ C
      &                    'Error')
       End If
 
-      Call Cho_iZero(iFirst,nBatch)
-      Call Cho_iZero(iFirstS,nSym*nBatch)
-      Call Cho_iZero(NumOcc,nBatch)
-      Call Cho_iZero(NumBatOrb,nBatch)
-      Call Cho_iZero(LnOcc,nSym*nBatch)
-      Call Cho_iZero(LnBatOrb,nSym*nBatch)
-      Call Cho_iZero(LnT1am,nSym*nBatch)
-      Call Cho_iZero(LiT1am,nSym*nSym*nBatch)
+      iFirst(:)=0
+      iFirstS(:,:)=0
+      NumOcc(:)=0
+      NumBatOrb(:)=0
+      LnOcc(:,:)=0
+      LnBatOrb(:,:)=0
+      LnT1am(:,:)=0
+      LiT1am(:,:,:)=0
       If(.false.) Then
-         Call Cho_iZero(LnPQprod,nSym*nBatch)
-         Call Cho_iZero(LiPQprod,nSym*nBatch)
+         LnPQprod(:,:)=0
+         LiPQprod(:,:,:)=0
       End If
       If (ChoAlg .eq. 2) Then
-         Call Cho_iZero(LnMatij,nSym*nBatch)
-         Call Cho_iZero(LiMatij,nSym*nSym*nBatch)
+         LnMatij(:,:)=0
+         LiMatij(:,:,:)=0
       End If
 *
       Num = nBatOrbT/nBatch
@@ -596,6 +591,7 @@ C     Thomas Bondo Pedersen, Nov. 2004 / Feb. 2005.
 C
 C     Purpose: print setup for Cholesky MP2.
 C
+      Use ChoMP2, only: iFirst, NumOcc, LnOcc, NumBatOrb, LnBatOrb
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
@@ -604,15 +600,9 @@ C
 
       Integer iCount(8)
 
-      iFirst(i)=iWork(ip_First-1+i)
-      NumOcc(i)=iWork(ip_NumOcc-1+i)
-      LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
-      NumBatOrb(i)=iWork(ip_NumBatOrb-1+i)
-      LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
-
       irc = 0
 
-      Call Cho_iZero(iCount,nSym)
+      iCount(:)=0
 
       Call Cho_Head('Cholesky MP2 Setup','=',80,6)
 *     The values but not the names 'occupied' are updated to work

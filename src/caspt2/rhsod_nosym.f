@@ -22,13 +22,13 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_NOSYM(IVEC)
+      use output_caspt2, only:iPrGlb,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
@@ -85,10 +85,10 @@
       SUBROUTINE RHSOD_A_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
@@ -195,10 +195,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_C_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
@@ -318,10 +318,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_B_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
@@ -505,10 +505,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_F_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
@@ -691,10 +691,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_H_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOSYM(8,8)
@@ -831,10 +831,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
@@ -996,10 +996,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_E_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)
@@ -1214,10 +1214,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_G_NOSYM(IVEC)
       USE SUPERINDEX
       USE CHOVEC_IO
+      use output_caspt2, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION IOBRA(8,8), IOKET(8,8)

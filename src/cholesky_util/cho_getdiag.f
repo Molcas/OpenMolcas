@@ -23,7 +23,6 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       CHARACTER*11 SECNAM

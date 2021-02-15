@@ -13,9 +13,7 @@ C Stuff for decomposing (ai|bj) integrals or amplitudes in MP2:
 C
       Logical InCore
       Integer iOption_MP2CD, NowSym
-      Integer ip_OldVec, l_OldVec
       Integer ip_EOc, ip_EVir
 
       Common / CHOMD1 / InCore(8)
-      Common / CHOMD2 / iOption_MP2CD, NowSym, ip_OldVec, l_OldVec,
-     &                  ip_EOc, ip_EVir
+      Common / CHOMD2 / iOption_MP2CD, NowSym, ip_EOc, ip_EVir

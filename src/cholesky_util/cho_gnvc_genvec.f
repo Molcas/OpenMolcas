@@ -15,12 +15,15 @@ C     Purpose: generate Cholesky vectors from raw integral columns.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec, IndRed
+      use GnVcMp, only: RS2RS
 #include "implicit.fh"
+      Integer lInt
       Real*8  Diag(*), xInt(lInt)
+      Integer mSym,mPass
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
+      Integer iPass1,NumPass
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GenVec'
@@ -29,10 +32,7 @@ C
 
       Real*8, Allocatable:: Wrk(:), VecTmp(:)
 
-      Integer ip_mapRS2RS, l_mapRS2RS
-      Common / GnVcMp / ip_mapRS2RS(8), l_mapRS2RS(8)
-
-      mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
+      mapRS2RS(i,j)=RS2RS(j)%Map(i)
 
 C     Check input.
 C     ------------

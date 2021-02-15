@@ -21,7 +21,6 @@ C
       Implicit None
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Integer i

@@ -18,7 +18,7 @@
 !             If L=3 (i.e.Z), rotation of the M occurs in the XY plane
 
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Integer       :: nP, L, iprint
       Real(kind=8) :: dX(nP), dY(nP), dZ(nP), Ang(nP)
       !local variables

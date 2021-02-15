@@ -13,7 +13,7 @@
 !
 
       Implicit None
-      Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in):: m1,m2,dim,l
       Integer            :: ipar
       Real(kind=8)      :: S, MM1, MM2, R, D, F

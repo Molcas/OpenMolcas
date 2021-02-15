@@ -13,7 +13,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
       EXTERNAL ASIND
 

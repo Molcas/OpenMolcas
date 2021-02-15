@@ -20,7 +20,6 @@ C
       Integer LstQSP(NumSP)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=12), Parameter:: SecNam = 'Cho_Decom_A4'
@@ -28,8 +27,9 @@ C
       Integer NumCho_Old(8), nQual_Old(8)
       Integer NumV(8), nkVec(8)
 
-      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:)
-      Integer, Allocatable:: IDKVec(:)
+      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:), xInt(:),
+     &                      Wrk1(:)
+      Integer, Allocatable:: IDKVec(:), iQScr(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -215,10 +215,11 @@ C     Local as well as global are reordered.
 C     -------------------------------------------------
 
       Call iCopy(nSym,nQual,1,nQual_Old,1)
-      l_iQScr = MxQ
-      Call GetMem('iQScr','Allo','Inte',ip_iQScr,l_iQScr)
-      Call Cho_P_ReoQual(iWork(ip_iQScr),IDKVec,nKVec)
-      Call GetMem('iQScr','Free','Inte',ip_iQScr,l_iQScr)
+      Call mma_allocate(iQScr,MxQ,Label='iQScr')
+
+      Call Cho_P_ReoQual(iQScr,IDKVec,nKVec)
+
+      Call mma_deallocate(iQScr)
       Call iCopy(nSym,nKVec,1,nQual,1)
 
       Call Cho_Timer(C2,W2)
@@ -247,7 +248,7 @@ C        Allocate memory for integrals/vectors.
 C        --------------------------------------
 
          l_xInt = max(nnBstR(iSym,2)*nQual(iSym),1)
-         Call GetMem('xInt','Allo','Real',ip_xInt,l_xInt)
+         Call mma_allocate(xInt,l_xInt,Label='xInt')
 
          If (nnBstR(iSym,2) .gt. 0) Then
 
@@ -255,9 +256,8 @@ C           Read integral columns from disk, ordered according to IDK.
 C           ----------------------------------------------------------
 
             Call Cho_Timer(C1,W1)
-            Call Cho_RdQCol_Indx(Work(ip_xInt),IDKVec(kI),
-     &                           nnBstR(iSym,2),nQual(iSym),
-     &                           LuSel(iSym))
+            Call Cho_RdQCol_Indx(xInt,IDKVec(kI),nnBstR(iSym,2),
+     &                           nQual(iSym),LuSel(iSym))
             Call Cho_Timer(C2,W2)
             tDecom(1,1) = tDecom(1,1) + C2 - C1
             tDecom(2,1) = tDecom(2,1) + W2 - W1
@@ -265,20 +265,22 @@ C           ----------------------------------------------------------
 C           Compute vectors.
 C           ----------------
 
-            Call GetMem('CmpV_Max','Max ','Real',ip_Wrk1,l_Wrk1)
-            Call GetMem('CmpV_Wrk','Allo','Real',ip_Wrk1,l_Wrk1)
-            Call Cho_CompVec(Diag,Work(ip_xInt),KVec(kV),QDiag(kQD),
-     &                       Work(ip_Wrk1),l_Wrk1,iSym,iPass)
-            Call GetMem('CmpV_Wrk','Free','Real',ip_Wrk1,l_Wrk1)
+            Call mma_maxDBLE(l_Wrk1)
+            Call mma_allocate(Wrk1,l_Wrk1,Label='Wrk1')
+
+            Call Cho_CompVec(Diag,xInt,KVec(kV),QDiag(kQD),
+     &                       Wrk1,SIZE(Wrk1),iSym,iPass)
+
+            Call mma_deallocate(Wrk1)
 
 C           Write vectors to disk and update vector counters.
 C           -------------------------------------------------
 
             Call Cho_Timer(C1,W1)
             iVec1 = NumCho(iSym) + 1
-            Call Cho_PutVec(Work(ip_xInt),nnBstR(iSym,2),nQual(iSym),
+            Call Cho_PutVec(xInt,nnBstR(iSym,2),nQual(iSym),
      &                      iVec1,iSym)
-            Call Cho_VecBuf_Copy(Work(ip_xInt),nQual(iSym),iSym)
+            Call Cho_VecBuf_Copy(xInt,nQual(iSym),iSym)
             NumCho(iSym) = NumCho(iSym) + nQual(iSym)
             NumChT = NumChT + nQual(iSym)
             Call Cho_Timer(C2,W2)
@@ -294,7 +296,7 @@ C        ------------------------------------------
          iRed = 2
          Jin = NumV(iSym) + 1
          Jfi = NumV(iSym) + nQual(iSym)
-         Call Cho_P_VecTransp(Work(ip_xInt),Jin,Jfi,iSym,iRed,iPass)
+         Call Cho_P_VecTransp(xInt,Jin,Jfi,iSym,iRed,iPass)
          Call Cho_Timer(C2,W2)
          tDecom(1,2) = tDecom(1,2) + C2 - C1
          tDecom(2,2) = tDecom(2,2) + W2 - W1
@@ -302,7 +304,7 @@ C        ------------------------------------------
 C        Deallocate memory for integrals/vectors.
 C        ----------------------------------------
 
-         Call GetMem('xInt','Free','Real',ip_xInt,l_xInt)
+         Call mma_deallocate(xInt)
 
 C        Empty symmetry blocks jump here.
 C        --------------------------------

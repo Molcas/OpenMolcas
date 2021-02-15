@@ -14,7 +14,7 @@
      &                                AMFI, HSO )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(inout)        :: nss, nstate
       Integer, intent(out)          :: multiplicity(nstate)
       Real(kind=8), intent(out)    :: eso(nss), esfs(nstate)
@@ -192,7 +192,7 @@ c compatibility with the present version: of aniso_i.input file
      &                                multiplicity, eso, MM, MS, ML )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(inout)        :: nss, nstate
       Integer, intent(out)          :: multiplicity(nstate)
       Real(kind=8), intent(out)    :: eso(nss)
@@ -298,7 +298,7 @@ c      End If
      &                                      iReturn )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(inout)        :: nss, nstate, nLoc, iReturn
       ! nLoc is the maximal value of the array nss(1:nneq)
       Real(kind=8), intent(out)    :: eso(nLoc)
@@ -403,7 +403,7 @@ c      End If
      &                                  edmom, amfi, HSO )
 
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: nss, nstate, multiplicity(nstate)
       Real(kind=8), intent(in)    :: eso(nss), esfs(nstate)
       Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)
@@ -483,7 +483,7 @@ c      End If
      &                                MM, MS, ML )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: nss
       Real(kind=8), intent(out)    :: eso(nss)
       Complex(kind=8), intent(out) :: MM(3,nss,nss)
@@ -580,7 +580,7 @@ c compatibility with the present version: of aniso_i.input file
       Subroutine write_formatted_aniso_poly( filename, nss, eso, MM, MS)
 
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: nss
       Real(kind=8), intent(in)    :: eso(nss)
       Complex(kind=8), intent(in) :: MM(3,nss,nss)
@@ -609,6 +609,363 @@ c compatibility with the present version: of aniso_i.input file
          End Do
       End Do
       Close(LuAniso)
+      Return
+      End
+
+
+
+
+
+
+
+
+
+      Subroutine write_new_formatted_aniso(
+     &                               nss, nstate, multiplicity, eso_au,
+     &                               esfs_au, U, MM, MS, DM, angmom,
+     &                               edmom, amfi, HSO )
+
+      Implicit None
+      Integer, parameter        :: wp=kind(0.d0)
+      Integer, intent(in)         :: nss, nstate, multiplicity(nstate)
+      Real(kind=8), intent(in)    :: eso_au(nss), esfs_au(nstate)
+      Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)
+      Real(kind=8), intent(in)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(in)    ::   amfi(3,nstate,nstate)
+      Complex(kind=8), intent(in) :: MM(3,nss,nss)
+      Complex(kind=8), intent(in) :: MS(3,nss,nss)
+      Complex(kind=8), intent(in) :: DM(3,nss,nss)
+      Complex(kind=8), intent(in) ::    U(nss,nss)
+      Complex(kind=8), intent(in) ::  HSO(nss,nss)
+      ! local stuff
+#include "stdalloc.fh"
+      Integer                     :: njob, mxjob, mult, iss, ipar, ist
+      Integer                     :: data_file_format
+      Integer                     :: i,IsFreeUnit,Lu,Lutmp
+      !Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
+      External                    :: IsFreeUnit
+      Integer, allocatable        :: szproj(:), jbnum(:), mltplt(:)
+      Integer, allocatable        :: nroot(:)
+      Character(len=128)          :: Filename
+      Character(len=1024)         :: molcas,fname,molcasversion
+      LOGICAL                     :: dbg
+
+      dbg=.false.
+
+      !-------------------------------------------------------------
+      ! some preparations
+      njob=0
+      mxjob=0
+      Call get_iScalar('NJOB_SINGLE',njob)
+      Call get_iScalar('MXJOB_SINGLE',mxjob)
+      ! allocate temporary memory:
+      Call mma_allocate(jbnum,nstate,'jbnum')
+      Call mma_allocate(mltplt,mxjob,'mltplt')
+      ! get the information from RUNFILE:
+      mltplt=0
+      jbnum=0
+      Call get_iArray('MLTP_SINGLE',mltplt,mxjob)
+      Call get_iArray('JBNUM_SINGLE',jbnum,nstate)
+      !-------------------------------------------------------------
+
+
+      !-------------------------------------------------------------
+      ! prepare the szproj index table
+      Call mma_allocate(szproj,nss,'szproj')
+      szproj(1:nss)=0
+      iss=0
+      ipar=mod(multiplicity(1),2)
+      Do Ist=1,nstate
+         Mult=Multiplicity(Ist)
+         Do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
+            If( (Ipar==0) .AND. (I==0)) Go To 310
+               Iss=Iss+1
+               szproj(iss)=I
+  310       Continue
+         End Do ! i
+      End Do ! ist
+
+      Call get_iScalar('MXJOB_SINGLE',mxjob)
+      Call mma_allocate(nroot,mxjob,'nroot')
+      nroot=0
+      Call get_iArray('NSTAT_SINGLE',nroot,mxjob)
+
+
+      !-------------------------------------------------------------
+      ! Get the MOLCAS version: index table
+      CALL getenvf('MOLCAS ',molcas)
+      WRITE(fname,'(A)') trim(molcas)//'/.molcasversion'
+      Lutmp=IsFreeUnit(89)
+      CALL molcas_open(Lutmp,fname)
+      READ(Lutmp,'(A180)') molcasversion
+      CLOSE(Lutmp)
+
+
+      !-------------------------------------------------------------
+      ! write the data to the new aniso file
+      FileName='ANISOFILE'
+      Lu=IsFreeUnit(81)
+
+      Call molcas_open(Lu,FileName)
+      data_file_format=2021
+
+      !fmt_key='(A)'
+      !fmt_real='(5ES22.14,1x)'
+      !fmt_int='(40(I0,1x))'
+
+      WRITE(Lu,'(        A)') '# OPENMOLCAS interface to ANISO'
+      !-------------------------------------------------------------
+      ! ORIGIN of DATA file
+      WRITE(Lu,'(        A)') '$source '
+      WRITE(Lu,'(       2A)') 'MOLCAS  ',trim(molcas)
+      WRITE(Lu,'(       2A)') 'VERSION ',trim(molcasversion)
+      WRITE(Lu,'(        A)')
+      !-------------------------------------------------------------
+      ! DATA FILE FORMAT VERSION:
+      WRITE(Lu,'(        A)') '$format '
+      WRITE(Lu,'(40(I0,1x))')  data_file_format
+      WRITE(Lu,'(        A)')
+      !-------------------------------------------------------------
+      ! Number of spin orbit states
+      CALL write_nss ( LU, nss, dbg )
+      !-------------------------------------------------------------
+      ! Number of spin free states
+      CALL write_nstate ( LU, nstate, dbg )
+      !-------------------------------------------------------------
+      ! Number of spin multiplicities
+      CALL write_nmult ( LU, njob, dbg )
+      !-------------------------------------------------------------
+      ! Values of the spin multiplicity
+      CALL write_imult ( LU, njob, mltplt, dbg )
+      !-------------------------------------------------------------
+      ! Number of roots in each spin multiplicity
+      CALL write_nroot ( LU, njob, nroot, dbg )
+      !-------------------------------------------------------------
+      ! SZ projection of the states defining the ording
+      CALL write_szproj ( LU, nss, szproj, dbg )
+      !-------------------------------------------------------------
+      ! spin multiplicity for all states
+      CALL write_multiplicity ( LU, nstate, multiplicity, dbg )
+      !-------------------------------------------------------------
+      ! Eigenvalues of the HBO matrix (spin-free energies from RASSCF)
+      ! atomic units
+      CALL write_eso ( LU, nss, eso_au, dbg )
+      !-------------------------------------------------------------
+      ! Eigenvalues of the HBO matrix (spin-free energies from RASSCF)
+      ! atomic units
+      CALL write_esfs ( LU, nstate, esfs_au, dbg )
+      !-------------------------------------------------------------
+      ! Angular momentum operator in the basis of spin free states,
+      ! component X,Y,Z
+      CALL write_angmom ( LU, nstate, angmom, dbg )
+      !-------------------------------------------------------------
+      ! AMFI/SOMF operator in the basis of spin free states
+      ! (see eq. 35 in:
+      ! D. Ganyushin and F. Neese, J. Chem. Phys. 138, 104113, 2013.
+      ! Note that the meaning of AMFI integrals is different in
+      ! MOLCAS and ORCA
+      CALL write_amfi ( LU, nstate, amfi, dbg )
+      !-------------------------------------------------------------
+      ! Electric transition-dipole moments in the basis of spin
+      ! free states
+      ! The dipole moments, where bra and ket have the same state,
+      ! are not computed. ??
+      CALL write_edipmom ( LU, nstate, edmom, dbg )
+      !-------------------------------------------------------------
+      ! Magnetic dipole moment in the basis of SO states
+      CALL write_magnetic_moment ( LU, nss, MM, dbg )
+      !-------------------------------------------------------------
+      ! Spin moment in the basis of SO states
+      CALL write_spin_moment ( Lu, nss, MS, dbg )
+      !-------------------------------------------------------------
+      ! Electric transition-dipole moments in the basis of SO states
+      CALL write_electric_moment ( LU, nss, DM, dbg )
+      !-------------------------------------------------------------
+      ! Eigenvectors of the HBO+SOC matrix
+      CALL write_eigen ( LU, nss, U, dbg )
+      !-------------------------------------------------------------
+      ! The HBO+SOC matrix, atomic units
+      CALL write_hso ( LU, nss, HSO, dbg )
+      !-------------------------------------------------------------
+      FLUSH(Lu)
+      CLOSE(Lu)
+
+      Call mma_deallocate(szproj)
+      Call mma_deallocate(jbnum)
+      Call mma_deallocate(mltplt)
+      Call mma_deallocate(nroot)
+
+      Return
+      End
+
+
+
+
+
+
+      Subroutine read_formatted_new_aniso( input_file_name, nss, nstate,
+     &                                multiplicity, eso, esfs,
+     &                                U, MM, MS, ML, DM, ANGMOM, EDMOM,
+     &                                AMFI, HSO, eso_au, esfs_au )
+
+      Implicit None
+      Integer, Parameter           :: wp=kind(0.d0)
+      Integer, intent(inout)       :: nss, nstate
+      Integer, intent(out)         :: multiplicity(nstate)
+      Real(kind=8), intent(out)    :: eso(nss), esfs(nstate)
+      Real(kind=8), intent(out)    :: eso_au(nss), esfs_au(nstate)
+      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    :: angmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
+!     electric dipole moment
+      Complex(kind=8), intent(out) :: DM(3,nss,nss)
+      Complex(kind=8), intent(out) ::   U(nss,nss)
+      Complex(kind=8), intent(out) :: HSO(nss,nss)
+      Character(Len=180)           :: input_file_name
+      ! local variables:
+      Integer       :: l,i,j,LuAniso,IsFreeUnit
+      Real(kind=8)  :: g_e,conv_au_to_cm1
+      External      :: IsFreeUnit
+      logical       :: DBG
+
+      dbg=.false.
+      If(dbg) write(6,'(A)') 'Enterring read_formatted_aniso_new'
+      If(dbg) call xFlush(6)
+      g_e=2.00231930437180_wp
+      conv_au_to_cm1=2.194746313702E5_wp
+!     set to zero all arrays:
+      multiplicity=0
+      eso=0.0_wp
+      esfs=0.0_wp
+      edmom=0.0_wp
+      angmom=0.0_wp
+      MM=(0.0_wp,0.0_wp)
+      MS=(0.0_wp,0.0_wp)
+      ML=(0.0_wp,0.0_wp)
+      DM=(0.0_wp,0.0_wp)
+       U=(0.0_wp,0.0_wp)
+!     read the data file:
+      LuAniso=IsFreeUnit(81)
+      Call molcas_open(LuAniso,input_file_name)
+      Call read_magnetic_moment(LuAniso,nss,MM,dbg)
+      Call read_electric_moment(LuAniso,nss,DM,dbg)
+      Call read_spin_moment(LuAniso,nss,MS,dbg)
+      Call read_angmom(LuAniso,nstate,angmom,dbg)
+      Call read_amfi(LuAniso,nstate,amfi,dbg)
+      Call read_edipmom(LuAniso,nstate,EDMOM,dbg)
+      Call read_multiplicity(LuAniso,nstate,multiplicity,dbg)
+      Call read_eso(LuAniso,nss,eso_au,dbg)
+      Call read_esfs(LuAniso,nstate,esfs_au,dbg)
+      Call read_hso(LuAniso,nss,HSO,dbg)
+      Call read_eigen(LuAniso,nss,U,dbg)
+
+      ! compute the relative spin-orbit energies in cm-1
+      do i=1,nss
+        eso(i)=(eso_au(i)-eso_au(1))*conv_au_to_cm1
+      end do
+
+      ! compute the relative spin-free energies in cm-1
+      do i=1,nstate
+        esfs(i)=(esfs_au(i)-esfs_au(1))*conv_au_to_cm1
+      end do
+      write(6,*) esfs
+
+      ! compute the orbital moment
+      do l=1,3
+        do i=1,nss
+          do j=1,nss
+            ML(l,i,j) = -MM(l,i,j) - MS(l,i,j)*g_e
+          end do
+        end do
+      end do
+
+      !read_nmult,
+      !read_imult,
+      !read_format,
+      !read_nroot,
+      !read_szproj,
+
+      Close(LuAniso)
+      Return
+      End
+
+
+      Subroutine read_formatted_aniso_poly_NEW (
+     &                                      input_file_name, nss,
+     &                                      nstate, eso, MM, MS,
+     &                                      iReturn )
+      Implicit None
+#include "stdalloc.fh"
+      Integer, Parameter           :: wp=kind(0.d0)
+      Integer, intent(inout)       :: nss, nstate, iReturn
+      ! nLoc is the maximal value of the array nss(1:nneq)
+      Real(kind=8), intent(out)    :: eso(nss)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Character(len=180)           :: input_file_name
+      ! local variables:
+      Real(wp), allocatable        :: eso_au(:)
+      Real(wp) :: conv_au_to_cm1
+      Integer  :: i,j,l,LuAniso,IsFreeUnit
+      External :: IsFreeUnit
+      Logical  :: dbg
+
+      dbg=.false.
+      iReturn=0
+      conv_au_to_cm1=2.194746313702E5_wp
+      eso(1:nss)=0.0_wp
+      MM(1:3,1:nss,1:nss)=(0.0_wp,0.0_wp)
+      MS(1:3,1:nss,1:nss)=(0.0_wp,0.0_wp)
+      Call mma_allocate(eso_au,nss,'eso_au')
+      eso_au=0.0_wp
+
+      LuAniso=IsFreeUnit(81)
+      Call molcas_open(LuAniso,input_file_name)
+
+      Call read_nss( LuAniso, nss, dbg )
+      If(dbg) Write(6,*) 'read_formatted_aniso_poly_NEW: nss=',nss
+      Call read_nstate( LuAniso, nstate, dbg )
+      If(dbg) Write(6,*) 'read_formatted_aniso_poly_NEW: nstate=',nstate
+      Call read_eso( LuAniso, nss, eso_au, dbg )
+      If(dbg) Write(6,*) 'read_formatted_aniso_poly_NEW: eso_au=',
+     &                   (eso_au(i),i=1,nss)
+      Call read_magnetic_moment ( LuAniso, nss,
+     &                            MM(1:3,1:nss,1:nss), dbg )
+      IF (dbg) WRITE (6,*) 'Call read_spin_moment'
+      FLUSH(6)
+      Call read_spin_moment ( LuAniso, nss,
+     &                        MS, dbg )
+
+      ! compute the relative spin-orbit energies in cm-1
+      do i=1,nss
+        eso(i)=(eso_au(i)-eso_au(1))*conv_au_to_cm1
+      end do
+      Call mma_deallocate(eso_au)
+      Close(LuAniso)
+
+      IF (dbg) THEN
+        WRITE(6,*) 'read_formatted_aniso_poly_NEW:  nss: ',nss
+        WRITE(6,*) 'read_formatted_aniso_poly_NEW:   MM: '
+        DO l=1,3
+          WRITE(6,'(A,I0)') 'projection: L=',l
+          DO i=1,nss
+             WRITE(6,'(10(2F8.4,2x))')  ( MM(l,i,j), j=1,nss )
+          END DO
+        END DO
+
+        WRITE(6,*) 'read_formatted_aniso_poly_NEW:   MS'
+        DO l=1,3
+          WRITE(6,'(A,I0)') 'projection: L=',l
+          DO i=1,nss
+             WRITE(6,'(10(2F8.4,2x))')  ( MS(l,i,j),j=1,nss )
+          END DO
+        END DO
+      END IF
+
+
       Return
       End
 

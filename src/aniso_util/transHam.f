@@ -13,7 +13,7 @@
 c purpose:  transform the exchange Hamiltonian
 c           matrices to the basis of their local pseudospins
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
 !     exchange basis of both sites
       Integer, intent(in)           :: n1, n2, iopt
