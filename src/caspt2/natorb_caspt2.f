@@ -21,7 +21,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
       DIMENSION DMAT(*),CMO(*),OCC(*),CNAT(*)
 C Given DMAT, symmetry-blocked array of triangular

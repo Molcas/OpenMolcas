@@ -21,7 +21,6 @@
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
       INTEGER IFC
       REAL*8 FACT,X(*),Y(*)
       INTEGER NAS,NIS,ITQ,ITT
