@@ -24,11 +24,11 @@
 *>
 *> @param[in] iSymI,iSymJ,iSymA,iSymB Symmetry block of the two-electrons integrals
 *> @param[in] NumV                    Number of Cholesky vectors to transform in the current batch
-*> @param[in] iAddCou                 Memory pointer of the ``A,B`` integrals block
+*> @param[in] AddCou                  Array of the ``A,B`` integrals block
 *> @param[in] LenCou                  Length of the ``A,B`` integrals block
 ************************************************************************
       Subroutine Cho_GenC(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                      iAddCou,LenCou, LenEx)
+     &                    AddCou,LenCou, LenEx)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -43,6 +43,9 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+      Integer LenCou, LenEx
+      Real*8 AddCou(LenCou)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -233,15 +236,19 @@ CGG   ------------------------------------------------------------------
 
 * --- GATERING of SubBlocks
       Call GetMem('CSq','Allo','Real',iAddSq,LenEx)
+
       iAddCouSB = iAddSq
+
       iLenAi = nIsh(iSymA)
       iLenAt = nAsh(iSymA)
       iLenAa = nSsh(iSymA)
       Do iSB_B = 1, 3
+
         iLenB = 0
         If (iSB_B.EQ.1) iLenB = nIsh(iSymB)
         If (iSB_B.EQ.2) iLenB = nAsh(iSymB)
         If (iSB_B.EQ.3) iLenB = nSsh(iSymB)
+
         Do iB = 1,iLenB
           If (iLenAi.GT.0) then                          ! SB(1,iSB_B)
             iAddSBi = iAddSB(iSB_B,1) + iLenAi * (iB-1)
@@ -258,6 +265,7 @@ CGG   ------------------------------------------------------------------
             Call dCopy_(iLenAa,Work(iAddSBi),1,Work(iAddCouSB),1)
             iAddCouSB = iAddCouSB + iLenAa
           EndIf
+
         EndDo  ! iB
       EndDo ! iSB_B
       nOrbA = nOrb(iSymA)
@@ -271,14 +279,14 @@ CGG   ------------------------------------------------------------------
 CGG   ------------------------------------------------------------------
 
       Call Local_Triang(nOrbA, Work(iAddSq))
-      call daxpy_(LenCou,1.0d0,Work(iAddSq),1,Work(iAddCou),1)
+      call daxpy_(LenCou,1.0d0,Work(iAddSq),1,AddCou,1)
       Call GetMem('CSq','Free','Real',iAddSq,LenEx)
 CGG   ------------------------------------------------------------------
       If(IfTest) then
       Write(6,*)
       Call XFlush(6)
       Write(6,*)'        The Triangular Integrals matrix'
-      Call PrintDiagMat(nOrbA,Work(iAddCou))
+      Call PrintDiagMat(nOrbA,AddCou)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------

@@ -60,8 +60,11 @@
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
+
+      Real*8, Allocatable:: AddCou(:)
 
       nSymP=(nSym**2+nSym)/2
       Call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
@@ -128,19 +131,19 @@ CGG   ------------------------------------------------------------------
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
-              Call GetMem('Coul','Allo','Real',iAddCou,nN_AB)
+              Call mma_allocate(AddCou,nN_AB,Label='AddCou')
               If (iBatch.GT.1) then
-                Call dDaFile(LUINTM,2,Work(iAddCou),nN_AB,
-     &                                     iAddrIAD2Mij)   ! Reload Int
+                Call dDaFile(LUINTM,2,AddCou,nN_AB,iAddrIAD2Mij)
+                ! Reload Int
                 iAddrIAD2Mij=iAddrIAD2Mij-nN_AB
               else
-                Call dCopy_(nN_AB,[0.0d0],0,Work(iAddCou),1)
+                AddCou(:)=0.0d0
               EndIf
               Call Cho_GenC(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                                          iAddCou,nN_AB, nN_Ex1 )
-              Call GAdSum(Work(iAddCou),nN_AB)
-              Call dDaFile(LUINTM,1,Work(iAddCou),nN_AB,iAddrIAD2Mij)
-              Call GetMem('Coul','Free','Real',iAddCou,nN_AB)
+     &                      AddCou,nN_AB, nN_Ex1 )
+              Call GAdSum(AddCou,nN_AB)
+              Call dDaFile(LUINTM,1,AddCou,nN_AB,iAddrIAD2Mij)
+              Call mma_deallocate(AddCou)
             EndDo
           EndDo
 *   ---   End Loop on i, j

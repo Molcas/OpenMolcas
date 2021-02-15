@@ -36,7 +36,6 @@
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
       Character*16 Frmt1,Frmt3
@@ -210,7 +209,7 @@
        EndDo
       EndDo
 
-      Call GetMem('MaxMem','MAX','REAL',KDUM,MEMX)
+      Call mma_maxDBLE(MEMX)
       MemFree0 = Max( MEMX - MEMX/10 , 0 )
 
       MemPerVec2 = LenTCVx + MaxSlice
