@@ -22,7 +22,7 @@
 !
 !
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter           :: wp=kind(0.d0)
       Integer, intent(in)          :: N, NM, L
       Real(kind=8), intent(in)    :: W(N), T, dX, dY, dZ, H
       Real(kind=8), intent(out)   :: MT, Z

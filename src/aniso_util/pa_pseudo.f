@@ -27,7 +27,7 @@ c SF(3,dim,dim) -- spin moment in the pseuDospin basis
 
       Implicit None
 
-      Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer            :: dim,info,i,j,k,l,i1,i2,iopt
       Integer            :: iprint
       Real (kind=8) :: gtens(3),w(dim),maxes(3,3),det,FindDetR

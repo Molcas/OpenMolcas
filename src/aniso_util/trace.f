@@ -10,7 +10,7 @@
 ************************************************************************
       Complex*16 Function trace( n, A, B )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 !     size of the square matrices A(n,n) and B(n,n)
       Integer, intent(in)          :: n
       Complex(kind=8), intent(in) :: A(n,n), B(n,n)
@@ -30,7 +30,7 @@
 
       Complex*16 Function trace2( n, A, B )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 !     size of the square matrices A(n,n) and B(n,n)
       Integer, intent(in)          :: n
       Complex(kind=8), intent(in) :: A(n,n), B(n,n)
@@ -49,7 +49,7 @@
 
       Real*8 Function real_1_trace2( n, A )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 !     size of the square matrices A(n,n)
       Integer, intent(in)          :: n
       Real(kind=8), intent(in)    :: A(n,n)
@@ -66,7 +66,7 @@
 
       Complex*16 Function complex_1_trace2( n, A )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 !     size of the square matrices A(n,n)
       Integer, intent(in)          :: n
       Complex(kind=8), intent(in)    :: A(n,n)
@@ -86,7 +86,7 @@
 
       Complex*16 Function trace_exch( n1, n2, A, B )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 !     size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
       Integer, intent(in)          :: n1, n2
       Complex(kind=8), intent(in) :: A(n1,n1,n2,n2), B(n1,n1,n2,n2)
@@ -111,7 +111,7 @@
 
       Complex*16 Function trace_exch2( n1, n2, A, O1, O2 )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 !     size of the square matrices A(n1,n1,n2,n2) and B(n1,n1,n2,n2)
       Integer, intent(in)          :: n1, n2
       Complex(kind=8), intent(in) :: A(n1,n1,n2,n2)

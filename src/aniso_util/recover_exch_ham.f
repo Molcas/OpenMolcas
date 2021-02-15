@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine recover_exch_HAM_from_Naoya_ITO(n1,n2,J,HAM)
       Implicit none
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
       Complex(kind=8), intent(in)  ::
@@ -97,7 +97,7 @@
 
       Subroutine recover_exch_HAM_from_Liviu_ITO(n1,n2,B,HAM)
       Implicit none
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
       Complex(kind=8), intent(in)  ::
@@ -186,7 +186,7 @@
 
       Subroutine recover_exch_HAM_from_Stevens_ESO(n1,n2,S,HAM)
       Implicit none
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
       Complex(kind=8), intent(in)  ::
