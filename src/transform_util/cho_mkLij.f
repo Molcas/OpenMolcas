@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
-      Subroutine MkLij(iSymI,iSymJ,iI,iJ,numV, iAddLij)
+      Subroutine MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Torino University, Italy                                   *
@@ -21,6 +21,8 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Integer iSymI,iSymJ,iI,iJ,numV
+      Real*8 Lij(NumV)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -59,7 +61,7 @@ CGG   ------------------------------------------------------------------
       EndIf
 CGG   ------------------------------------------------------------------
       iAddTCVX= iMemTCVX(LijType,iSymI,iSymJ,1) + nIx*(iJy-1) + iIx - 1
-      Call dCopy_(numV,Work(iAddTCVX),nIx*nJy,Work(iAddLij),1)
+      Call dCopy_(numV,Work(iAddTCVX),nIx*nJy,Lij,1)
 
       Return
       End

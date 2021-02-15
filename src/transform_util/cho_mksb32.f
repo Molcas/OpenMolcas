@@ -61,8 +61,7 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_integer(LenSBt)
       End
 
-      Subroutine MkCouSB32(AddSB,
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+      Subroutine MkCouSB32(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -73,18 +72,21 @@ c Avoid unused argument warnings
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Real*8, Allocatable:: AddSB(:)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
 
-      Real*8, Allocatable:: AddSB(:)
+      Real*8, Allocatable:: Lij(:)
+      Real*8, Allocatable:: AddSBt(:)
 
 *   - SubBlock 3 2
       LenSB = nSsh(iSymA) * nAsh(iSymB)
       Call mma_allocate(AddSB,LenSB,Label='AddSB')
-      Call GetMem('SBt','Allo','Real',iAddSBt,LenSB)
+
+      Call mma_allocate(AddSBt,LenSB,Label='AddSBt')
 
 *     Define Lab
       iAddAB = iMemTCVX(5,iSymA,iSymB,1)
@@ -98,18 +100,18 @@ c      EndIf
 CGG   ------------------------------------------------------------------
 
 *     Build Lij
-      LenLij = numV
-      Call GetMem('Lij','Allo','Real',iAddLij,LenLij)
-      Call MkLij(iSymI,iSymJ,iI,iJ,numV, iAddLij)
+      Call mma_allocate(Lij,NumV,Label='Lij')
+      Call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 
 *     Generate the SubBlock
-      Call DGEMM_('N','N',LenAB,1,numV,1.0d0,
-     &    Work(iAddAB),LenAB, Work(iAddLij),LenLij,
-     &                0.0d0,Work(iAddSBt),LenSB )
-      Call Trnsps(nSsh(iSymA),nAsh(iSymB),Work(iAddSBt),AddSB)
+      Call DGEMM_('N','N',LenAB,1,numV,
+     &            1.0d0,Work(iAddAB),LenAB,
+     &                  Lij,NumV,
+     &            0.0d0,AddSBt,LenSB )
+      Call Trnsps(nSsh(iSymA),nAsh(iSymB),AddSBt,AddSB)
 
-      Call GetMem('Lij','Free','Real',iAddLij,LenLij)
-      Call GetMem('SBt','Free','Real',iAddSBt,LenSB)
+      Call mma_deallocate(Lij)
+      Call mma_deallocate(AddSBt)
 
       Return
       End

@@ -61,8 +61,7 @@
       Return
       End
 
-      Subroutine MkCouSB33(AddSB,
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+      Subroutine MkCouSB33(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -73,13 +72,14 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Real*8, Allocatable:: AddSB(:)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
 
-      Real*8, Allocatable:: AddSB(:)
+      Real*8, Allocatable:: Lij(:)
 
 *   - SubBlock 3 3
       LenSB = nSsh(iSymA) * nSsh(iSymB)
@@ -97,16 +97,16 @@ c      EndIf
 CGG   ------------------------------------------------------------------
 
 *     Build Lij
-      LenLij = numV
-      Call GetMem('Lij','Allo','Real',iAddLij,LenLij)
-      Call MkLij(iSymI,iSymJ,iI,iJ,numV, iAddLij)
+      Call mma_allocate(Lij,NumV,Label='Lij')
+      Call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 
 *     Generate the SubBlock
-      Call DGEMM_('N','N',LenAB,1,numV,1.0d0,
-     &    Work(iAddAB),LenAB, Work(iAddLij),LenLij,
-     &                0.0d0,AddSB,LenSB )
+      Call DGEMM_('N','N',LenAB,1,numV,
+     &            1.0d0,Work(iAddAB),LenAB,
+     &                  Lij,NumV,
+     &            0.0d0,AddSB,LenSB )
 
-      Call GetMem('Lij','Free','Real',iAddLij,LenLij)
+      Call mma_deallocate(Lij)
 
       Return
       End

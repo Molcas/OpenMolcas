@@ -47,7 +47,6 @@
       Integer LenCou, LenEx
       Real*8 AddCou(LenCou)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
