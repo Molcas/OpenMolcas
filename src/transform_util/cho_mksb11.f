@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
-      Subroutine MkExSB11(iAddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+      Subroutine MkExSB11(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -21,8 +21,9 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Real*8, Allocatable:: AddSB(:)
+      Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
@@ -33,7 +34,7 @@
 
 *   - SubBlock 1 1
       LenSB = nIsh(iSymA) * nIsh(iSymB)
-      Call GetMem('SB','Allo','Real',iAddSB,LenSB)
+      Call mma_allocate(AddSB,LenSB,Label='LenSB')
 
 *     Build Lx
       Call mma_allocate(Lx0,nIsh(iSymA)*numV,Label='Lx0')
@@ -52,12 +53,12 @@
         Call DGEMM_('N','T',nIsh(iSymB),nIsh(iSymA),numV,
      &              1.0d0,Ly0,nIsh(iSymB),
      &                    Lx0,nIsh(iSymA),
-     &              0.0d0,Work(iAddSB),nIsh(iSymB) )
+     &              0.0d0,AddSB,nIsh(iSymB) )
       else
         Call DGEMM_('N','T',nIsh(iSymA),nIsh(iSymA),numV,
      &              1.0d0,Lx0,nIsh(iSymA),
      &                    Lx0,nIsh(iSymA),
-     &              0.0d0,Work(iAddSB),nIsh(iSymA) )
+     &              0.0d0,AddSB,nIsh(iSymA) )
       EndIf
 
       Call mma_deallocate(Ly0)

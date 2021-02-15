@@ -45,37 +45,81 @@
       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, LenEx
       Real*8 AddEx(LenEx)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
-      Integer iAddSB(3,3)
+
+      Type V1
+        Real*8, Allocatable:: A(:)
+      End Type V1
+      Type (V1):: AddSB(3,3)
 
       Integer LenA(3), LenB(3)
-
-      Do iSB_A = 1, 3
-        Do iSB_B = 1, 3
-          iAddSB(iSB_A,iSB_B)= ip_Dummy  ! Mem Address of the SubBlocks
-        EndDo
-      EndDo
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        Subroutine MkExSB11(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkExSB11
+        Subroutine MkExSB12(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkExSB12
+        Subroutine MkExSB13(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkExSB13
+        Subroutine MkExSB21(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,B)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+          Real*8 B(*)
+        End Subroutine MkExSB21
+        Subroutine MkExSB22(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkExSB22
+        Subroutine MkExSB23(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkExSB23
+        Subroutine MkExSB31(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,B)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+          Real*8 B(*)
+        End Subroutine MkExSB31
+        Subroutine MkExSB32(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,B)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+          Real*8 B(*)
+        End Subroutine MkExSB32
+        Subroutine MkExSB33(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+          Real*8, Allocatable:: A(:)
+          Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkExSB33
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 * --- GENERATION of SubBlocks
-      If (SubBlocks(1,1)) Call MkExSB11(iAddSB(1,1),
+      If (SubBlocks(1,1)) Call MkExSB11(AddSB(1,1)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-      If (SubBlocks(1,2)) Call MkExSB12(iAddSB(1,2),
+      If (SubBlocks(1,2)) Call MkExSB12(AddSB(1,2)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-      If (SubBlocks(1,3)) Call MkExSB13(iAddSB(1,3),
+      If (SubBlocks(1,3)) Call MkExSB13(AddSB(1,3)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-      If (SubBlocks(2,1)) Call MkExSB21(iAddSB(2,1),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, iAddSB(1,2))
-      If (SubBlocks(2,2)) Call MkExSB22(iAddSB(2,2),
+      If (SubBlocks(2,1)) Call MkExSB21(AddSB(2,1)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, AddSB(1,2)%A)
+      If (SubBlocks(2,2)) Call MkExSB22(AddSB(2,2)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-      If (SubBlocks(2,3)) Call MkExSB23(iAddSB(2,3),
+      If (SubBlocks(2,3)) Call MkExSB23(AddSB(2,3)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-      If (SubBlocks(3,1)) Call MkExSB31(iAddSB(3,1),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, iAddSB(1,3))
-      If (SubBlocks(3,2)) Call MkExSB32(iAddSB(3,2),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, iAddSB(2,3))
-      If (SubBlocks(3,3)) Call MkExSB33(iAddSB(3,3),
+      If (SubBlocks(3,1)) Call MkExSB31(AddSB(3,1)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, AddSB(1,3)%A)
+      If (SubBlocks(3,2)) Call MkExSB32(AddSB(3,2)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, AddSB(2,3)%A)
+      If (SubBlocks(3,3)) Call MkExSB33(AddSB(3,3)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 * --- END GENERATION of SubBlocks
 
@@ -96,9 +140,10 @@
              Do iSB_B = 1, 3
                If (LenB(iSB_B)==0) Cycle                  ! SB(1,iSB_A)
 
-               iAddSBi = iAddSB(iSB_A,1) + LenB(iSB_B) * (iA-1)
-               call daxpy_(LenB(iSB_B),1.0d0,Work(iAddSBi),1,
-     &                      AddEx(iAddExSB),1)
+               iAddSBi = 1 + LenB(iSB_B) * (iA-1)
+               call daxpy_(LenB(iSB_B),1.0d0,
+     &                     AddSB(iSB_A,iSB_B)%A(iAddSBi),1,
+     &                     AddEx(iAddExSB),1)
                iAddExSB = iAddExSB + LenB(iSB_B)
              EndDo
            EndDo  ! iA
@@ -111,8 +156,9 @@
              Do iSB_A = 1, 3
                If (LenA(iSB_A)==0) Cycle                   ! SB(1,iSB_B)
 
-               iAddSBi = iAddSB(iSB_B,iSB_A) + LenA(iSB_A) * (iB-1)
-               call daxpy_(LenA(iSB_A),1.0d0,Work(iAddSBi),1,
+               iAddSBi = 1 + LenA(iSB_A) * (iB-1)
+               call daxpy_(LenA(iSB_A),1.0d0,
+     &                     AddSB(iSB_B,iSB_A)%A(iAddSBi),1,
      &                     AddEx(iAddExSB),1)
                iAddExSB = iAddExSB + LenA(iSB_A)
              EndDo  ! iSB_A
@@ -129,8 +175,9 @@
          If (iLenBb.GT.0) then                          ! SB(3,3)
            iLenA = nSsh(iSymA)
            Do iA = 1,iLenA
-             iAddSBi = iAddSB(3,3) + iLenBb * (iA-1)
-             call daxpy_(iLenBb,1.0d0,Work(iAddSBi),1,AddEx(iAddExSB),1)
+             iAddSBi = 1 + iLenBb * (iA-1)
+             call daxpy_(iLenBb,1.0d0,
+     &                   AddSB(3,3)%A(iAddSBi),1,AddEx(iAddExSB),1)
              iAddExSB = iAddExSB + iLenBb
            EndDo  ! iA
          EndIf
@@ -139,8 +186,9 @@
          If (iLenAa.GT.0) then                          ! SB(3,3)
            iLenB = nSsh(iSymB)
            Do iB = 1,iLenB
-             iAddSBi = iAddSB(3,3) + iLenAa * (iB-1)
-             call daxpy_(iLenAa,1.0d0,Work(iAddSBi),1,AddEx(iAddExSB),1)
+             iAddSBi = 1 + iLenAa * (iB-1)
+             call daxpy_(iLenAa,1.0d0,
+     &                   AddSB(3,3)%A(iAddSBi),1,AddEx(iAddExSB),1)
              iAddExSB = iAddExSB + iLenAa
            EndDo  ! iB
          EndIf
@@ -152,9 +200,8 @@
       iDum=0
       Do iSB_A = 1, 3
         Do iSB_B = 1, 3
-          If (iAddSB(iSB_A,iSB_B).NE.ip_Dummy)
-     &      Call GetMem('SB','Free','Real',
-     &                  iAddSB(iSB_A,iSB_B), iDum)
+          If (Allocated(AddSB(iSB_A,iSB_B)%A))
+     &      Call mma_deallocate(AddSB(iSB_A,iSB_B)%A)
         EndDo
       EndDo
 
