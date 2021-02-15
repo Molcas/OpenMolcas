@@ -28,7 +28,7 @@
 *> @param[in] LenEx                   Length of the ``A,B`` integrals block
 ************************************************************************
       Subroutine Cho_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                      iAddEx,LenEx)
+     &                    AddEx,LenEx)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -42,6 +42,8 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, LenEx
+      Real*8 AddEx(LenEx)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -78,7 +80,7 @@
 * --- END GENERATION of SubBlocks
 
 * --- GATERING of SubBlocks
-      iAddExSB = iAddEx
+      iAddExSB = 1
       IF (DoTCVA) THEN
 
        LenB(1) = nIsh(iSymB)
@@ -96,7 +98,7 @@
 
                iAddSBi = iAddSB(iSB_A,1) + LenB(iSB_B) * (iA-1)
                call daxpy_(LenB(iSB_B),1.0d0,Work(iAddSBi),1,
-     &                      Work(iAddExSB),1)
+     &                      AddEx(iAddExSB),1)
                iAddExSB = iAddExSB + LenB(iSB_B)
              EndDo
            EndDo  ! iA
@@ -111,7 +113,7 @@
 
                iAddSBi = iAddSB(iSB_B,iSB_A) + LenA(iSB_A) * (iB-1)
                call daxpy_(LenA(iSB_A),1.0d0,Work(iAddSBi),1,
-     &                     Work(iAddExSB),1)
+     &                     AddEx(iAddExSB),1)
                iAddExSB = iAddExSB + LenA(iSB_A)
              EndDo  ! iSB_A
 
@@ -128,7 +130,7 @@
            iLenA = nSsh(iSymA)
            Do iA = 1,iLenA
              iAddSBi = iAddSB(3,3) + iLenBb * (iA-1)
-             call daxpy_(iLenBb,1.0d0,Work(iAddSBi),1,Work(iAddExSB),1)
+             call daxpy_(iLenBb,1.0d0,Work(iAddSBi),1,AddEx(iAddExSB),1)
              iAddExSB = iAddExSB + iLenBb
            EndDo  ! iA
          EndIf
@@ -138,7 +140,7 @@
            iLenB = nSsh(iSymB)
            Do iB = 1,iLenB
              iAddSBi = iAddSB(3,3) + iLenAa * (iB-1)
-             call daxpy_(iLenAa,1.0d0,Work(iAddSBi),1,Work(iAddExSB),1)
+             call daxpy_(iLenAa,1.0d0,Work(iAddSBi),1,AddEx(iAddExSB),1)
              iAddExSB = iAddExSB + iLenAa
            EndDo  ! iB
          EndIf
