@@ -155,7 +155,7 @@ c standard deviation data:
       Real(kind=8), allocatable :: XTtens_dMdH(:,:,:)
 
       Integer                    :: nTempTotal
-      Real(kind=8)              :: Xfield_1, Xfield_2, dltXF
+      Real(kind=8)              :: Xfield_1, Xfield_2, dltXF, F1, F2
       !Real(kind=8)             :: XTS(nT+nTempMagn)
 c Zeeman energy and M vector
 c      Real(kind=8)             :: dirX(nDir), dirY(nDir), dirZ(nDir)
@@ -794,19 +794,18 @@ c compute the total magnetizations according to the derived formulas:
          Call Add_Info('dM/dH    MT2', [dnrm2_(ibuf, MT2,1)],1,6)
 c  computing the AVERAGE MOMENTS calculated at dIfferent temperatures (T(i))
          Do iT=1,nTempTotal
+            F1=T(iT)*cm3tomB/dltXF
+            F2=T(iT)*cm3tomB/Xfield
 
             ! dM/dH model
-            XTtens_dMdH(iM,1,iT) = (MT2(1,iT)-MT1(1,iT))*T(iT)
-     &                             * cm3tomB / dltXF
-            XTtens_dMdH(iM,2,iT) = (MT2(2,iT)-MT1(2,iT))*T(iT)
-     &                             * cm3tomB / dltXF
-            XTtens_dMdH(iM,3,iT) = (MT2(3,iT)-MT1(3,iT))*T(iT)
-     &                             * cm3tomB / dltXF
+            XTtens_dMdH(iM,1,iT) = (MT2(1,iT)-MT1(1,iT))*F1
+            XTtens_dMdH(iM,2,iT) = (MT2(2,iT)-MT1(2,iT))*F1
+            XTtens_dMdH(iM,3,iT) = (MT2(3,iT)-MT1(3,iT))*F1
 
             ! M/H model
-            XTtens_MH(iM,1,iT) = MT0(1,iT)*T(iT)*cm3tomB/Xfield
-            XTtens_MH(iM,2,iT) = MT0(2,iT)*T(iT)*cm3tomB/Xfield
-            XTtens_MH(iM,3,iT) = MT0(3,iT)*T(iT)*cm3tomB/Xfield
+            XTtens_MH(iM,1,iT) = MT0(1,iT)*F2
+            XTtens_MH(iM,2,iT) = MT0(2,iT)*F2
+            XTtens_MH(iM,3,iT) = MT0(3,iT)*F2
          End Do
 c ///  closing the loops over field directions
       End Do ! iM (nDirX)
@@ -870,7 +869,7 @@ c  calcualtion of the standard deviation:
      &          dev( nT, XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),
      &                   chit_exp((1+nTempMagn):(nT+nTempMagn))  )
          Write(6,'(a,5x, f20.14)') 'ST.DEV: X=  M/H :',
-     &          dev( nT, XTM_MH((1+nTempMagn):(nT+nTempMagn)),
+     &          dev( nT, XTM_MH(  (1+nTempMagn):(nT+nTempMagn)),
      &                   chit_exp((1+nTempMagn):(nT+nTempMagn))  )
       Write(6,'(A)') '-----|----------------------------------------'//
      &               '----------------------------|'
@@ -896,7 +895,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         info=0
         wt=0.0_wp
         zt=0.0_wp
-        Call DIAG_R2( XTtens_dMdH(:,:,jT) ,3,info,wt,zt)
+        Call DIAG_R2( XTtens_dMdH(1:3,1:3,jT) ,3,info,wt,zt)
         Write(6,'(A)') '------------|---|'//
      &                 '------- x --------- y --------- z ---|'//
      &                 '-----------------|'//
@@ -934,7 +933,7 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
         info=0
         wt=0.0_wp
         zt=0.0_wp
-        Call DIAG_R2( XTtens_MH(:,:,jT) ,3,info,wt,zt)
+        Call DIAG_R2( XTtens_MH(1:3,1:3,jT) ,3,info,wt,zt)
         Write(6,'(A)') '------------|---|'//
      &                 '------- x --------- y --------- z ---|'//
      &                 '-----------------|'//
