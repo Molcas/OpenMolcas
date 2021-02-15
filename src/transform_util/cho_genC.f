@@ -48,180 +48,200 @@
       Real*8 AddCou(LenCou)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
-      Dimension iAddSB(3,3), LenSB(3,3)
+
+      Integer LenA(3), LenB(3)
+
+      Type V1
+        Real*8, Allocatable:: A(:)
+      End Type V1
+      Type (V1):: AddSB(3,3)
+
+      Real*8, Allocatable:: AddSq(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        Subroutine MkCouSB11(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB11
+        Subroutine MkCouSB12(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB12
+C       Subroutine MkCouSB13(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+C       Real*8, Allocatable:: A(:)
+C       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+C       End Subroutine MkCouSB13
+        Subroutine MkCouSB21(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB21
+        Subroutine MkCouSB22(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB22
+C       Subroutine MkCouSB23(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+C       Real*8, Allocatable:: A(:)
+C       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+C       End Subroutine MkCouSB23
+        Subroutine MkCouSB31(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB31
+        Subroutine MkCouSB32(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB32
+        Subroutine MkCouSB33(A,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+        Real*8, Allocatable:: A(:)
+        Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+        End Subroutine MkCouSB33
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 CGG   ------------------------------------------------------------------
 c      IfTest=.True.
 CGG   ------------------------------------------------------------------
 
-      Do iSB_A = 1, 3
-        Do iSB_B = 1, 3
-          iAddSB(iSB_A,iSB_B)= ip_Dummy  ! Mem Address of the SubBlocks
-          LenSB (iSB_A,iSB_B)= 0  ! Length of the SubBlocks
-        EndDo
-      EndDo
+      LenA(1) = nIsh(iSymA)
+      LenA(2) = nAsh(iSymA)
+      LenA(3) = nSsh(iSymA)
+      LenB(1) = nIsh(iSymB)
+      LenB(2) = nAsh(iSymB)
+      LenB(3) = nSsh(iSymB)
 
 * --- GENERATION of SubBlocks
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(1,1)) then
+      If (SubBlocks(1,1)) Call MkCouSB11(AddSB(1,1)%A,
+     &                  iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+CGG   ------------------------------------------------------------------
+      If(IfTest.and.Allocated(AddSB(1,1)%A)) Then
       Write(6,*)'       SB_11 :',nIsh(iSymA),' x',nIsh(iSymB)
-      Call XFlush(6)
-      EndIf
-CGG   ------------------------------------------------------------------
-      If (SubBlocks(1,1)) Call MkCouSB11(iAddSB(1,1),LenSB(1,1),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(1,1)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(1,1)+k),k=0,LenSB(1,1)-1)
+      Write(6,'(8F10.6)') AddSB(1,1)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(1,2)) then
-      Write(6,*)'       SB_12 :',nIsh(iSymA),' x',nAsh(iSymB)
-      Call XFlush(6)
-      EndIf
 CGG   ------------------------------------------------------------------
       If (SubBlocks(1,2)) then
         If (iSymA.NE.iSymB) then
           Continue ! CGG
 c excluded
-c          Call MkCouSB12(iAddSB(1,2),LenSB(1,2),
+c          Call MkCouSB12(AddSB(1,2)%A,
 c     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
         else
-          LenSB(1,2)=nIsh(iSymA)*nAsh(iSymB)
-          Call GetMem('SB','Allo','Real',iAddSB(1,2),LenSB(1,2))
+          LenSB=nIsh(iSymA)*nAsh(iSymB)
+          Call mma_Allocate(AddSB(1,2)%A,LenSB,Label='AddSB')
+          AddSB(1,2)%A(:)=0.0D0
         Endif
       Endif
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(1,2)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(1,2)+k),k=0,LenSB(1,2)-1)
+      If(IfTest .and.Allocated(AddSB(1,2)%A)) then
+      Write(6,*)'       SB_12 :',nIsh(iSymA),' x',nAsh(iSymB)
+      Write(6,'(8F10.6)')AddSB(1,2)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(1,3)) then
-      Write(6,*)'       SB_13 :',nIsh(iSymA),' x',nSsh(iSymB)
-      Call XFlush(6)
-      EndIf
 CGG   ------------------------------------------------------------------
       If (SubBlocks(1,3)) then
         If (iSymA.NE.iSymB) then
           Continue ! CGG
 c excluded
-c          Call MkCouSB13(iAddSB(1,3),LenSB(1,3),
+c          Call MkCouSB13(AddSB(1,3)%A,
 c     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
         else
-          LenSB(1,3)=nIsh(iSymA)*nSsh(iSymB)
-          Call GetMem('SB','Allo','Real',iAddSB(1,3),LenSB(1,3))
+          LenSB=nIsh(iSymA)*nSsh(iSymB)
+          Call mma_allocate(AddSB(1,3)%A,LenSB,Label='AddSB')
+          AddSB(1,3)%A(:)=0.0D0
         Endif
       Endif
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(1,3)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(1,3)+k),k=0,LenSB(1,3)-1)
+      If(IfTest .and.Allocated(AddSB(1,3)%A)) then
+      Write(6,*)'       SB_13 :',nIsh(iSymA),' x',nSsh(iSymB)
+      Write(6,'(8F10.6)')AddSB(1,3)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(2,1)) then
+      If (SubBlocks(2,1)) Call MkCouSB21(AddSB(2,1)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+CGG   ------------------------------------------------------------------
+      If(IfTest .and.Allocated(AddSB(2,1)%A)) then
       Write(6,*)'       SB_21 :',nAsh(iSymA),' x',nIsh(iSymB)
-      Call XFlush(6)
-      EndIf
-CGG   ------------------------------------------------------------------
-      If (SubBlocks(2,1)) Call MkCouSB21(iAddSB(2,1),LenSB(2,1),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(2,1)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(2,1)+k),k=0,LenSB(2,1)-1)
+      Write(6,'(8F10.6)')AddSB(2,1)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(2,2)) then
+      If (SubBlocks(2,2)) Call MkCouSB22(AddSB(2,2)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+CGG   ------------------------------------------------------------------
+      If(IfTest .and.Allocated(AddSB(2,2)%A)) then
       Write(6,*)'       SB_22 :',nAsh(iSymA),' x',nAsh(iSymB)
-      Call XFlush(6)
-      EndIf
-CGG   ------------------------------------------------------------------
-      If (SubBlocks(2,2)) Call MkCouSB22(iAddSB(2,2),LenSB(2,2),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(2,2)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(2,2)+k),k=0,LenSB(2,2)-1)
+      Write(6,'(8F10.6)')AddSB(2,2)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(2,3)) then
-      Write(6,*)'       SB_23 :',nAsh(iSymA),' x',nSsh(iSymB)
-      Call XFlush(6)
-      EndIf
 CGG   ------------------------------------------------------------------
       If (SubBlocks(2,3)) then
         If (iSymA.NE.iSymB) then
           Continue ! CGG
 c excluded
-c          Call MkCouSB23(iAddSB(2,3),LenSB(2,3),
+c          Call MkCouSB23(AddSB(2,3)%A,
 c     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
         else
-          LenSB(2,3)=nAsh(iSymA)*nSsh(iSymB)
-          Call GetMem('SB','Allo','Real',iAddSB(2,3),LenSB(2,3))
+          LenSB=nAsh(iSymA)*nSsh(iSymB)
+          Call mma_allocate(AddSB(2,3)%A,LenSB,Label='AddSB')
+          AddSB(2,3)%A(:)=0.0D0
         Endif
       Endif
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(2,3)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(2,3)+k),k=0,LenSB(2,3)-1)
+      If(IfTest .and.Allocated(AddSB(2,3)%A)) then
+      Write(6,*)'       SB_23 :',nAsh(iSymA),' x',nSsh(iSymB)
+      Write(6,'(8F10.6)')AddSB(2,3)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(3,1)) then
+      If (SubBlocks(3,1)) Call MkCouSB31(AddSB(3,1)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+CGG   ------------------------------------------------------------------
+      If(IfTest .and.Allocated(AddSB(3,1)%A)) then
       Write(6,*)'       SB_31 :',nSsh(iSymA),' x',nIsh(iSymB)
-      Call XFlush(6)
-      EndIf
-CGG   ------------------------------------------------------------------
-      If (SubBlocks(3,1)) Call MkCouSB31(iAddSB(3,1),LenSB(3,1),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(3,1)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(3,1)+k),k=0,LenSB(3,1)-1)
+      Write(6,'(8F10.6)')AddSB(3,1)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(3,2)) then
+      If (SubBlocks(3,2)) Call MkCouSB32(AddSB(3,2)%A,
+     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+CGG   ------------------------------------------------------------------
+      If(IfTest .and.Allocated(AddSB(3,2)%A)) then
       Write(6,*)'       SB_32 :',nSsh(iSymA),' x',nAsh(iSymB)
-      Call XFlush(6)
-      EndIf
-CGG   ------------------------------------------------------------------
-      If (SubBlocks(3,2)) Call MkCouSB32(iAddSB(3,2),LenSB(3,2),
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
-CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(3,2)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(3,2)+k),k=0,LenSB(3,2)-1)
+      Write(6,'(8F10.6)')AddSB(3,2)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(3,3)) then
-      Write(6,*)'       SB_33 :',nSsh(iSymA),' x',nSsh(iSymB)
-      Call XFlush(6)
-      EndIf
-CGG   ------------------------------------------------------------------
-      If(SubBlocks(3,3)) Call MkCouSB33(iAddSB(3,3),LenSB(3,3),
+      If(SubBlocks(3,3)) Call MkCouSB33(AddSB(3,3)%A,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 CGG   ------------------------------------------------------------------
-      If(IfTest .and.SubBlocks(3,3)) then
-      Write(6,'(8F10.6)')(Work(iAddSB(3,3)+k),k=0,LenSB(3,3)-1)
+      If(IfTest .and.Allocated(AddSB(3,3)%A)) then
+      Write(6,*)'       SB_33 :',nSsh(iSymA),' x',nSsh(iSymB)
+      Write(6,'(8F10.6)')AddSB(3,3)%A(:)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
@@ -235,37 +255,23 @@ CGG   ------------------------------------------------------------------
 * --- END GENERATION of SubBlocks
 
 * --- GATERING of SubBlocks
-      Call GetMem('CSq','Allo','Real',iAddSq,LenEx)
+      Call mma_allocate(AddSq,LenEx,Label='AddSq')
 
-      iAddCouSB = iAddSq
+      iAddCouSB = 1
 
-      iLenAi = nIsh(iSymA)
-      iLenAt = nAsh(iSymA)
-      iLenAa = nSsh(iSymA)
       Do iSB_B = 1, 3
+        Do iB = 1,LenB(iSB_B)
+          Do iSB_A = 1, 3
 
-        iLenB = 0
-        If (iSB_B.EQ.1) iLenB = nIsh(iSymB)
-        If (iSB_B.EQ.2) iLenB = nAsh(iSymB)
-        If (iSB_B.EQ.3) iLenB = nSsh(iSymB)
+            If (LenA(1)==0) Cycle
 
-        Do iB = 1,iLenB
-          If (iLenAi.GT.0) then                          ! SB(1,iSB_B)
-            iAddSBi = iAddSB(iSB_B,1) + iLenAi * (iB-1)
-            Call dCopy_(iLenAi,Work(iAddSBi),1,Work(iAddCouSB),1)
-            iAddCouSB = iAddCouSB + iLenAi
-          EndIf
-          If (iLenAt.GT.0) then                          ! SB(2,iSB_B)
-            iAddSBi = iAddSB(iSB_B,2) + iLenAt * (iB-1)
-            Call dCopy_(iLenAt,Work(iAddSBi),1,Work(iAddCouSB),1)
-            iAddCouSB = iAddCouSB + iLenAt
-          EndIf
-          If (iLenAa.GT.0) then                          ! SB(3,iSB_B)
-            iAddSBi = iAddSB(iSB_B,3) + iLenAa * (iB-1)
-            Call dCopy_(iLenAa,Work(iAddSBi),1,Work(iAddCouSB),1)
-            iAddCouSB = iAddCouSB + iLenAa
-          EndIf
+            ! SB(iSB_A,iSB_B)
+            iAddSBi = 1 + LenA(iSB_A) * (iB-1)
+            Call dCopy_(LenA(iSB_A),AddSB(iSB_B,iSB_A)%A(iAddSBi),1,
+     &                  AddSq(iAddCouSB),1)
+            iAddCouSB = iAddCouSB + LenA(iSB_A)
 
+          EndDo ! iSB_B
         EndDo  ! iB
       EndDo ! iSB_B
       nOrbA = nOrb(iSymA)
@@ -273,14 +279,14 @@ CGG   ------------------------------------------------------------------
       If(IfTest) then
       Write(6,*)
       Write(6,*)'        The Square Gatered matrix'
-      Call PrintSquareMat(nOrbA,Work(iAddSq))
+      Call PrintSquareMat(nOrbA,AddSq)
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
 
-      Call Local_Triang(nOrbA, Work(iAddSq))
-      call daxpy_(LenCou,1.0d0,Work(iAddSq),1,AddCou,1)
-      Call GetMem('CSq','Free','Real',iAddSq,LenEx)
+      Call Local_Triang(nOrbA, AddSq)
+      call daxpy_(LenCou,1.0d0,AddSq,1,AddCou,1)
+      Call mma_deallocate(AddSq)
 CGG   ------------------------------------------------------------------
       If(IfTest) then
       Write(6,*)
@@ -295,9 +301,8 @@ CGG   ------------------------------------------------------------------
 
       Do iSB_A = 1, 3
         Do iSB_B = 1, 3
-          If (iAddSB(iSB_A,iSB_B).NE.ip_Dummy)
-     &      Call GetMem('SB','Free','Real',
-     &                  iAddSB(iSB_A,iSB_B), LenSB(iSB_A,iSB_B))
+          If (Allocated(AddSB(iSB_A,iSB_B)%A))
+     &        Call mma_deallocate(AddSB(iSB_A,iSB_B)%A)
         EndDo
       EndDo
 

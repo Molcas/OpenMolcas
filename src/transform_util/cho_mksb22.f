@@ -61,7 +61,7 @@
       Return
       End
 
-      Subroutine MkCouSB22(iAddSB,LenSB,
+      Subroutine MkCouSB22(AddSB,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
@@ -75,12 +75,15 @@
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
 
+      Real*8, Allocatable:: AddSB(:)
+
 *   - SubBlock 2 2
       LenSB = nAsh(iSymA) * nAsh(iSymB)
-      Call GetMem('SB','Allo','Real',iAddSB,LenSB)
+      Call mma_allocate(AddSB,LenSB,Label='AddSB')
 
 *     Define Lab
       iAddAB = iMemTCVX(4,iSymA,iSymB,1)
@@ -101,7 +104,7 @@ CGG   ------------------------------------------------------------------
 *     Generate the SubBlock
       Call DGEMM_('N','N',LenAB,1,numV,1.0d0,
      &    Work(iAddAB),LenAB, Work(iAddLij),LenLij,
-     &                0.0d0,Work(iAddSB),LenSB )
+     &                0.0d0,AddSB,LenSB )
 
       Call GetMem('Lij','Free','Real',iAddLij,LenLij)
 

@@ -61,7 +61,7 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_integer(LenSBt)
       End
 
-      Subroutine MkCouSB32(iAddSB,LenSB,
+      Subroutine MkCouSB32(AddSB,
      &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
@@ -75,12 +75,15 @@ c Avoid unused argument warnings
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
 
+      Real*8, Allocatable:: AddSB(:)
+
 *   - SubBlock 3 2
       LenSB = nSsh(iSymA) * nAsh(iSymB)
-      Call GetMem('SB','Allo','Real',iAddSB,LenSB)
+      Call mma_allocate(AddSB,LenSB,Label='AddSB')
       Call GetMem('SBt','Allo','Real',iAddSBt,LenSB)
 
 *     Define Lab
@@ -103,7 +106,7 @@ CGG   ------------------------------------------------------------------
       Call DGEMM_('N','N',LenAB,1,numV,1.0d0,
      &    Work(iAddAB),LenAB, Work(iAddLij),LenLij,
      &                0.0d0,Work(iAddSBt),LenSB )
-      Call Trnsps(nSsh(iSymA),nAsh(iSymB),Work(iAddSBt),Work(iAddSB))
+      Call Trnsps(nSsh(iSymA),nAsh(iSymB),Work(iAddSBt),AddSB)
 
       Call GetMem('Lij','Free','Real',iAddLij,LenLij)
       Call GetMem('SBt','Free','Real',iAddSBt,LenSB)
