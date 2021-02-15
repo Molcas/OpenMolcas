@@ -339,5 +339,4 @@
             call read_neci_RDM(DMAT, D1S_MO, PSMAT, PAMAT)
         end if
       end subroutine get_neci_RDM
-
       end module fciqmc

@@ -2004,14 +2004,14 @@ C orbitals accordingly
         end if
 *--- This block is to process the DEFINEDET -------------------
         if(KeyDEFI) then
-          call mma_allocate(definedet, nActel)
           call setpos(luinput,'DEFI',line,irc)
+          allocate(character(len=2000) :: definedet)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           ReadStatus = ' Failure reading Definedet.'
-          Read(luinput,*,end=9910,Err=9920)(definedet(i), i = 1, nActEl)
+          Read(luinput,'(A)',end=9910,Err=9920) definedet
           ReadStatus = ' O.K. reading Definedet.'
           write(6,*)'definedet read in proc_inp of size:', nactel
-          write(6,*)(definedet(i), i = 1, nActEl)
+          write(6,*) trim(definedet)
         end if
         if(KeyTOTA) then
           call setpos(luinput,'TOTA',line,irc)
