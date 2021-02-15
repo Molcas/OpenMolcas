@@ -75,6 +75,7 @@ C              ErrStat(1) = min error
 C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
+      use ChoMP2, only: OldVec
 #include "implicit.fh"
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
@@ -146,10 +147,8 @@ C        Compute "old" and subtract "new".
 C        ---------------------------------
 
          If (InCore(iSym)) Then
-            kOff1 = ip_OldVec
-            kOff2 = ip_OldVec + ibj1 - 1
             Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),
-     &                 1.0d0,Work(kOff1),Nai,Work(kOff2),Nai,
+     &                 1.0d0,OldVec,Nai,OldVec(ibj1),Nai,
      &                 -1.0d0,Col,Nai)
          Else
             lU     = lUnit_F(iSym,1)
@@ -205,6 +204,7 @@ C              ErrStat(1) = min error
 C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
+      use ChoMP2, only: OldVec
 #include "implicit.fh"
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
@@ -268,10 +268,8 @@ C        Compute amplitudes from "old" vectors.
 C        --------------------------------------
 
          If (InCore(iSym)) Then
-            kOff1 = ip_OldVec
-            kOff2 = ip_OldVec + ibj1 - 1
             Call DGEMM_('N','T',Nai,Nbj,NumCho(iSym),
-     &                 1.0d0,Work(kOff1),Nai,Work(kOff2),Nai,
+     &                 1.0d0,OldVec,Nai,OldVec(ibj1),Nai,
      &                 0.0d0,Col,Nai)
          Else
             lU     = lUnit_F(iSym,1)

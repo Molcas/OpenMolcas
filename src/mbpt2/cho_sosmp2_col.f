@@ -16,6 +16,7 @@ C     Francesco Aquilante, May 2007.
 C
 C     Purpose: compute specified M(ai,bj)=(ai|bj)^2 columns.
 C
+      use ChoMP2, only: OldVec
 #include "implicit.fh"
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
@@ -51,7 +52,7 @@ C
 
          Fac = 0.0D0
          Call ChoMP2_Col_Comp(Col,nDim,iCol,nCol,
-     &                        Work(ip_OldVec),NumCho(iSym),
+     &                        OldVec,NumCho(iSym),
      &                        Buf,l_Buf,Fac,irc)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc

@@ -21,12 +21,12 @@ C     Purpose: Reads parts of cholesky vectors from disk and
 C              multiply them into two integral batches (or one batch if
 C              jBatch=iBatch).
 C
+      use ChoMP2, only: LnPQprod
       Implicit Real*8 (a-h,o-z)
       Real*8 Wrk(lWrk)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 *
       Character*15 ThisNm
       Character*25 SecNam
@@ -36,8 +36,6 @@ C
       Integer nEnrVec(8), LnPQRSprod, LiPQRSprod(8)
       Real*8 X(0:1)
       Data X /0.0D0,1.0D0/
-*
-      LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
 *
 C     Set number and type of vectors.
 C     -------------------------------
