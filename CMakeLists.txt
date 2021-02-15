@@ -1272,12 +1272,29 @@ if (LINALG STREQUAL "ACML")
   endif ()
 
   unset (LIBACML CACHE)
-  find_library (LIBACML
-    NAMES acml
+  # Search libflame first
+  find_library (LIBFLAME
+    NAMES flamePATHS ${ACMLROOT}
+    PATH_SUFFIXES lib
+    NO_DEFAULT_PATH
+  )
+
+  if (NOT LIBFLAME)
+    message (FATAL_ERROR "LIBFLAME not found" )
+  endif ()
+  # Search libblis
+  find_library (LIBBLIS
+    NAMES blis
     PATHS ${ACMLROOT}
     PATH_SUFFIXES lib
     NO_DEFAULT_PATH
   )
+
+  if (NOT LIBFLAME)
+    message (FATAL_ERROR "LIBBLIS not found" )
+  endif ()
+
+  set (LIBACML ${LIBFLAME} ${LIBBLIS})
 
   if (NOT LIBACML)
     message (FATAL_ERROR
