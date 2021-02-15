@@ -60,10 +60,6 @@ C --- For Coulomb only, the vectors symmetry is restricted to 1
            tcoul(i) = zero  !time for computing Coulomb
         end do
 
-
-      ipDLT = ip_of_Work(DLT(1))
-      ipFLT = ip_of_Work(FLT(1))
-
       iLoc = 3 ! use scratch location in reduced index arrays
 
       JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
@@ -116,7 +112,7 @@ C ---
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      Call switch_sto(irc,iLoc,ipDLT,ipDab,mode,add)
+      Call switch_sto(irc,iLoc,DLT,Work(ipDab),mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -183,7 +179,7 @@ C==========================================================
 c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
-         Call switch_sto(irc,iLoc,ipFLT,ipFab,mode,add)
+         Call switch_sto(irc,iLoc,FLT,Work(ipFab),mode,add)
       endif
 
 C --- free memory
@@ -256,14 +252,17 @@ c Print the Fock-matrix
 
 
 
-      SUBROUTINE switch_sto(irc,iLoc,ipXLT,ipXab,mode,add)
+      SUBROUTINE switch_sto(irc,iLoc,XLT,Xab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao
-      External cho_isao
+      Integer irc, iLoc
+      Real*8 XLT(*), Xab(*)
+      Character(LEN=6) mode
       Logical  add
-      Character*6 mode
+
+      Integer  ISLT(8)
+      Integer, External:: cho_isao
 
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -304,10 +303,9 @@ c Offsets to symmetry block in the LT matrix
             ibs   = ibg - ibas(iSyma)
             iab   = iTri(ias,ibs)
 
-            kfrom = ipXLT + isLT(iSyma) + iab - 1
+            kfrom = isLT(iSyma) + iab
 
-            Work(ipXab+jRab-1) = xf*Work(ipXab+jRab-1)
-     &                         +    Work(kfrom)
+            Xab(jRab) = xf*Xab(jRab) + XLT(kfrom)
 
          End Do  ! jRab loop
 
@@ -327,10 +325,9 @@ c Offsets to symmetry block in the LT matrix
             ibs   = ibg - ibas(iSyma)
             iab   = iTri(ias,ibs)
 
-            kto = ipXLT + isLT(iSyma) + iab - 1
+            kto = isLT(iSyma) + iab
 
-            Work(kto) = xf*Work(kto)
-     &                +    Work(ipXab+jRab-1)
+            XLT(kto) = xf*XLT(kto) + Xab(jRab)
 
          End Do  ! jRab loop
 

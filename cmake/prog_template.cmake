@@ -48,29 +48,47 @@ endforeach ()
 # There should be a main.* file, create an *.exe from it
 #-------------------------------------------------------
 add_Molcas_executable (${prog}.exe ${main})
-# program-specific dependencies (supermodules)
-if (DEFINED ${prog}_deplibs)
-  target_link_libraries (${prog}.exe ${${prog}_deplibs})
-endif ()
-# program-specific compile definitions
-if (DEFINED ${prog}_defs)
-  target_compile_definitions (${prog}.exe PRIVATE "${${prog}_defs}")
-endif ()
-# program-specific include directories
-list (APPEND ${prog}_incs ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories (${prog}.exe PRIVATE "${${prog}_incs}")
 
-# If there are any other files, create an object library
-# for *.exe to link with
-#--------------------------------------------------------
+# Append global dependencies to program_specific ones (supermodules)
+#-------------------------------------------------------------------
+set (deplibs ${${prog}_deplibs} libmolcas ${EXTERNAL_LIBRARIES})
+
+# If there are any other files, create library for *.exe to link with
+#--------------------------------------------------------------------
 if (sources)
-  add_Molcas_library (${prog} OBJECT ${sources})
-  target_compile_definitions (${prog} PRIVATE $<TARGET_PROPERTY:${prog}.exe,COMPILE_DEFINITIONS>)
-  target_include_directories (${prog} PRIVATE $<TARGET_PROPERTY:${prog}.exe,INCLUDE_DIRECTORIES>)
+  # first an object-only library, for use with only_objs
+  add_Molcas_library (${prog}_obj OBJECT ${sources})
+  # program-specific compile definitions
+  if (DEFINED ${prog}_defs)
+    target_compile_definitions (${prog}_obj PRIVATE "${${prog}_defs}")
+  endif ()
+  # program-specific include directories
+  list (APPEND ${prog}_incs ${CMAKE_CURRENT_SOURCE_DIR})
+  target_include_directories (${prog}_obj PRIVATE "${${prog}_incs}")
+
+  # then the true library, using the objects
+  add_library (${prog} "")
+  target_link_libraries (${prog} PUBLIC ${prog}_obj)
   target_link_libraries (${prog}.exe ${prog})
+  list (APPEND MOLCAS_LIBRARIES ${prog})
+  # also create a static library!
+  if (BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
+    add_library (${prog}_static STATIC "")
+    target_link_libraries (${prog}_static PUBLIC ${prog}_obj)
+    set_target_properties (${prog}_static PROPERTIES OUTPUT_NAME ${prog})
+    list (APPEND MOLCAS_LIBRARIES ${prog}_static)
+  endif ()
+  # library dependencies
+  target_link_libraries (${prog} INTERFACE ${deplibs})
+  if (TARGET ${prog}_static)
+    target_link_libraries (${prog}_static INTERFACE ${deplibs})
+  endif ()
+else ()
+  target_link_libraries (${prog}.exe ${deplibs})
 endif ()
 
 # Info for the main project
-list (APPEND sources ${main})
-set (${prog}_src     ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
-set (${prog}_sources ${sources}                  PARENT_SCOPE)
+list (APPEND sources  ${main})
+set (${prog}_src      ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+set (${prog}_sources  ${sources}                  PARENT_SCOPE)
+set (MOLCAS_LIBRARIES ${MOLCAS_LIBRARIES}         PARENT_SCOPE)

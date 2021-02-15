@@ -13,4 +13,6 @@ set (sources
      restart_dynamix.F90
 )
 
+set (modfile_list "")
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

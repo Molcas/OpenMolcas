@@ -21,11 +21,11 @@ C
 #include "choorb.fh"
 #include "choini.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 
-      INTEGER CHOISINI, IREO
+      Integer, Allocatable:: BkmDim(:), iScratch(:)
+      Real*8, Allocatable:: Scratch(:)
+      INTEGER CHOISINI, IREO, l
       INTEGER NUMV(8)
-      Integer ip, l
 #if defined (_DEBUGPRINT_)
       Integer is1CCD
 #endif
@@ -54,29 +54,28 @@ C     First, transpose array.
 C     ---------------------------
 
       If (WriteBookmarks) Then
-         l=4
-         Call GetMem('BkmDim','Allo','Inte',ip,l)
-         iWork(ip)=nCol_BkmVec
-         iWork(ip+1)=nRow_BkmVec
-         iWork(ip+2)=nCol_BkmThr
-         iWork(ip+3)=nRow_BkmThr
-         Call Put_iArray('Cholesky BkmDim',iWork(ip),l)
-         Call GetMem('BkmDim','Free','Inte',ip,l)
+         Call mma_allocate(BkmDim,4,Label='BkmDim')
+         BkmDim(1)=nCol_BkmVec
+         BkmDim(2)=nRow_BkmVec
+         BkmDim(3)=nCol_BkmThr
+         BkmDim(4)=nRow_BkmThr
+         Call Put_iArray('Cholesky BkmDim',BkmDim,SIZE(BkmDim))
+         Call mma_deallocate(BkmDim)
          If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
             l=nRow_BkmVec*nCol_BkmVec
-            Call GetMem('Scratch','Allo','Inte',ip,l)
-            Call iTrnsps(nSym,nCol_BkmVec,BkmVec,iWork(ip))
-            Call Put_iArray('Cholesky BkmVec',iWork(ip),l)
-            Call GetMem('Scratch','Free','Inte',ip,l)
+            Call mma_allocate(iScratch,l,Label='iScratch')
+            Call iTrnsps(nSym,nCol_BkmVec,BkmVec,iScratch)
+            Call Put_iArray('Cholesky BkmVec',iScratch,l)
+            Call mma_deallocate(iScratch)
             Call mma_deallocate(BkmVec)
             nRow_BkmVec=0
             nCol_BkmVec=0
             l=nRow_BkmThr*nCol_BkmThr
-            Call GetMem('Scratch','Allo','Real',ip,l)
-            Call Trnsps(nSym,nCol_BkmThr,BkmThr,Work(ip))
-            Call Put_dArray('Cholesky BkmThr',Work(ip),l)
-            Call GetMem('Scratch','Free','Real',ip,l)
+            Call mma_allocate(Scratch,l,Label='Scratch')
+            Call Trnsps(nSym,nCol_BkmThr,BkmThr,Scratch)
+            Call Put_dArray('Cholesky BkmThr',Scratch,l)
+            Call mma_deallocate(Scratch)
             Call mma_deallocate(BkmThr)
             nRow_BkmThr=0
             nCol_BkmThr=0

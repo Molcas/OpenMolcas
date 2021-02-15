@@ -32,9 +32,9 @@
 *
 * Put CI-vector from RASSCF on luc
 *
-*     if rvec>0, it should be a pointer to a second CI vector
+*     if rvec/=ip_Dummy, it should be a pointer to a second CI vector
 *     and a one-particle transition density matrix will be computed
-      tdm = rvec.gt.0
+      tdm = rvec.ne.ip_Dummy
       CALL GETMEM('LSCR1 ','ALLO','REAL',LSCR1,NSD_PER_SYM(IREFSM))
       CALL GETMEM('LSCR2 ','ALLO','REAL',LSCR2,NSD_PER_SYM(IREFSM))
       CALL COPVEC(WORK(C_POINTER),WORK(LSCR1),NCSF_PER_SYM(IREFSM))

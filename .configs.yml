@@ -52,7 +52,7 @@
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
   variables:
     CMAKE_GENERATOR: "Ninja"
-    make: "ninja"
+    make: "ninja -j 1"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Fast" CACHE STRING "high opt")
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")

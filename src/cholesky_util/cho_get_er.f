@@ -51,20 +51,21 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      Logical timings
-      Integer nOcc(*),iOcc(8),isMO(8)
+      Integer irc
+      Integer nOcc(*)
       Real*8  CMO(*),ER(*),W
+      Logical timings
+
+      Integer iOcc(8),isMO(8)
       Real*8  tread(2),tintg(2)
-      Character*10  SECNAM
+      Character(LEN=10), Parameter:: SECNAM = 'CHO_get_ER'
 
-      parameter (SECNAM = 'CHO_get_ER')
-      parameter (zero = 0.0d0, half = 0.5d0, two = 2.0d0)
-
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      parameter ( N2 = InfVec_N2 )
+      Real*8, Allocatable:: DLT(:), Lab(:), Dab(:), VJ(:)
 
       JSYM=1
       If (NumCho(JSYM).lt.1) Then
@@ -96,8 +97,8 @@ C --- compute some offsets and other quantities
       W = zero ! initialization of the ER-functional value
       Call Fzero(ER(1),nOccT) ! and its orbital components
 
-      Call GetMem('DLT','Allo','Real',ipDLT,MaxBB)
-      Call Fzero(Work(ipDLT),MaxBB)
+      Call mma_allocate(DLT,MaxBB,Label='DLT')
+      DLT(:)=Zero
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -125,9 +126,9 @@ C ---
 
       nRS = nDimRS(JSYM,JRED)
 
-      Call GetMem('rsD','Allo','Real',ipDab,nRS)
+      Call mma_allocate(Dab,nRS,Label='Dab')
 
-      Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+      Call mma_maxDBLE(LWORK)
 
       nVec  = Min(LWORK/(nRS+1),nVrs)
 
@@ -142,8 +143,8 @@ C ---
 
       LREAD = nRS*nVec
 
-      Call GetMem('rsL','Allo','Real',ipLab,LREAD)
-      Call GetMem('VJ','Allo','Real',ipVJ,nVec)
+      Call mma_allocate(Lab,LREAD,Label='Lab')
+      Call mma_allocate(VJ,nVec,Label='VJ')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -162,8 +163,7 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
          CALL CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Work(ipLab),LREAD,JVEC,IVEC2,JSYM,
-     &                  NUMV,JRED,MUSED)
+         CALL CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
 
          If (NUMV.le.0 .or. NUMV.ne.JNUM) then
             irc=77
@@ -189,18 +189,18 @@ C --- D[i](a,b) is stored as upper-triangular
                   Do ia=1,ib-1
 
                      ipa = isMO(kSym) + nBas(kSym)*(ik-1) + ia
-                     ipab = ipDLT + ib*(ib-1)/2 + ia - 1
-                     Work(ipab) = CMO(ipa)*CMO(ipb)
+                     ipab = ib*(ib-1)/2 + ia
+                     DLT(ipab) = CMO(ipa)*CMO(ipb)
 
                   End Do
 
-                  ipab = ipDLT + ib*(ib+1)/2 - 1
-                  Work(ipab) = half*CMO(ipb)**2  !diagonal scaled
+                  ipab = ib*(ib+1)/2
+                  DLT(ipab) = half*CMO(ipb)**2  !diagonal scaled
 
                End Do
 
 C --- Transform the density to reduced storage
-               Call switch_density(iLoc,ipDLT,ipDab,kSym)
+               Call switch_density(iLoc,DLT,Dab,kSym)
 
 C  ( r .ge. s )
 C ------------------------------------------------------------
@@ -208,8 +208,8 @@ C --- V[i]{#J} <- V[i]{#J} + 2 * sum_rs  L(rs,{#J}) * D[i](rs)
 C=============================================================
 
                CALL DGEMV_('T',nRS,JNUM,
-     &                    TWO,Work(ipLab),nRS,
-     &                    Work(ipDab),1,ZERO,Work(ipVJ),1)
+     &                    TWO,Lab,nRS,
+     &                    Dab,1,ZERO,VJ,1)
 
 
 C ----------------------------------------------------------
@@ -217,8 +217,7 @@ C --- ER[i] <- ER[i]  +  sum_J V[i](J)^2
 C===========================================================
                Do jv=1,JNUM
 
-                  ER(iOcc(kSym)+ik) = ER(iOcc(kSym)+ik)
-     &                              + Work(ipVJ+jv-1)**2
+                  ER(iOcc(kSym)+ik) = ER(iOcc(kSym)+ik) + VJ(jv)**2
                End Do
 
 
@@ -235,16 +234,16 @@ C===========================================================
       END DO  !end batch loop
 
 C --- free memory
-      Call GetMem('VJ','Free','Real',ipVJ,nVec)
-      Call GetMem('rsL','Free','Real',ipLab,LREAD)
-      Call GetMem('rsD','Free','Real',ipDab,nRS)
+      Call mma_deallocate(VJ)
+      Call mma_deallocate(Lab)
+      Call mma_deallocate(Dab)
 
 
 999   Continue
 
       END DO   ! loop over red sets
 
-      Call GetMem('DLT','Free','Real',ipDLT,MaxBB)
+      Call mma_deallocate(DLT)
 
 C --- Sync components
       Call GAdGOp(ER,nOccT,'+')
@@ -288,16 +287,18 @@ C --- Compute the ER-functional from its orbital components
 
 
 
-      SUBROUTINE switch_density(iLoc,ipXLT,ipXab,kSym)
+      SUBROUTINE switch_density(iLoc,XLT,Xab,kSym)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  cho_isao
-      External cho_isao
+      Integer, External:: cho_isao
+      Integer iLoc, kSym
+      Real*8 XLT(*), Xab(*)
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -321,12 +322,9 @@ C --- Compute the ER-functional from its orbital components
          ibs   = ibg - ibas(iSyma)
          iab   = iTri(ias,ibs)
 
-         kfrom = ipXLT + iab - 1
-
-         Work(ipXab+jRab-1) = xf*Work(kfrom)
+         Xab(jRab) = xf*XLT(iab)
 
       End Do  ! jRab loop
-
 
       Return
       End
