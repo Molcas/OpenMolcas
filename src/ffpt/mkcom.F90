@@ -18,7 +18,6 @@ subroutine MkCom()
 
 use FFPT_Global, only: ComCtl, ComTab, ComStk, ComVal
 use Constants, only: Zero
-use Definitions, only: iwp
 
 implicit none
 

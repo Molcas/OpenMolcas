@@ -23,7 +23,8 @@
 !> perturbation is added to the one-electron Hamiltonian and \p H0 is
 !> returned.
 !>
-!> @param[in,out] H0    The one-electron Hamiltonain with perturbations so far. On output the localized perturbed one-electron Hamiltonian
+!> @param[in,out] H0    The one-electron Hamiltonain with perturbations so far.
+!>                      On output the localized perturbed one-electron Hamiltonian
 !> @param[in]     nSize Size of the triangular \p H0 with the additional origo and nuclear contribution
 !***********************************************************************
 

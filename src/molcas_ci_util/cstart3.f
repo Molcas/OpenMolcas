@@ -126,7 +126,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
               call GetMem('kcnf','allo','inte',ivkcnf,nactel)
               Do i = 1,lRoots
                 call mh5_fetch_dset(mh5id,'CI_VECTORS',
-     $                  Work(iTmp1:iTmp+nconf-1),[nconf,1],[0,i-1])
+     $                  Work(iTmp1:iTmp1+nconf-1),[nconf,1],[0,i-1])
                 Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp1),C,iwork(ivkcnf))

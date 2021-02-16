@@ -17,7 +17,7 @@
 * Object: to setup the roots and weights of the Hermite polynomials    *
 *         for the evaluation of one electron integrals.                *
 *                                                                      *
-*    Authors: Per-Ake Malmqvist and Roland Lindh,                      *
+*    Authors: Per-AAke Malmqvist and Roland Lindh,                     *
 *             March 1992.                                              *
 ************************************************************************
       use Her_RW
