@@ -1,0 +1,6 @@
+ $ this file belongs to the Molcas repository $
+ (prgm) "$MOLCAS"/bin/mula.exe             executable
+ (file)  MAT0     "$WorkDir/$Project".Mat0     rw
+ (file)  NMAT     "$WorkDir/$Project".nMat     rw
+ (file)  NINC     "$WorkDir/$Project".nInc     rw
+ (file)  NDEC     "$WorkDir/$Project".nDec     rw
