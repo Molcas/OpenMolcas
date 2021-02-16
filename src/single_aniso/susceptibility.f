@@ -291,8 +291,8 @@ C
      &                          ' MAGNETIC SUSCEPTIBILITY'
         Write(6,'(5X,A,F12.7)') 'FROM EXPERIMENTAL VALUES PROVIDED '//
      &                          'IN THE INPUT FILE IS:',
-     &  dev( (nT-nTempMagn), chit_theta( (1+nTempMagn):(nT+nTempMagn) ),
-     &                            XTexp( (1+nTempMagn):(nT+nTempMagn) ))
+     &  dev( nT, chit_theta( (1+nTempMagn):(nT+nTempMagn) ),
+     &                XTexp( (1+nTempMagn):(nT+nTempMagn) ))
 
       End If
 
@@ -300,12 +300,12 @@ C
       WRITE(label,'(A)') "no_field"
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
-            Call plot_XT_with_Exp(label, nT-nTempMagn,
+            Call plot_XT_with_Exp(label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
      &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ),
      &                       XTexp((1+nTempMagn):(nT+nTempMagn) ), zJ )
          ELSE
-            Call plot_XT_no_Exp( label, nT-nTempMagn,
+            Call plot_XT_no_Exp( label, nT,
      &                           T((1+nTempMagn):(nT+nTempMagn) ),
      &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ), zJ )
          END IF

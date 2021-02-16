@@ -116,7 +116,8 @@
       ! find the gnuplot
       IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-      CALL systemf ( "which gnuplot >> lineOUT", iErr )
+      !CALL systemf ( "which gnuplot >> lineOUT", iErr )
+      CALL execute_command_line ( "which gnuplot >> lineOUT" )
 
       INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number,SIZE=file_size)
@@ -166,7 +167,8 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-        CALL systemf ( gnuplot_CMD, iErr )
+        !CALL systemf ( gnuplot_CMD, iErr )
+        CALL execute_command_line ( gnuplot_CMD )
 
         file_number=IsFreeUnit(452)
         Call molcas_open(file_number,'lineOUT')
@@ -408,7 +410,8 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-        CALL systemf ( gnuplot_CMD, iErr )
+        !CALL systemf ( gnuplot_CMD, iErr )
+        CALL execute_command_line ( gnuplot_CMD )
         IF ( gnuplot_version < 5.0_wp ) Then
           WRITE (StdOut,'(A,i0,A)') 'File "BARRIER.eps" was created '//
      &                              'in Working directory.'
