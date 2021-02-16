@@ -15,7 +15,7 @@
       Implicit None
 #include "warnings.fh"
 c input data:
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)        :: exch, ncut, encut_definition, nk,
      &                              mg, nTempMagn
       Real(kind=8), intent(in)  :: hmax, W(exch), encut_rate,

@@ -25,13 +25,19 @@ C
 
       INTEGER IJUMP, LCMP
 
+      Logical Test
+
 C     Find entry.
 C     -----------
 
       IF (LKEY.GT.0 .AND. NTABLE.GT.0) THEN
          IJUMP = 1
-         DO WHILE (IJUMP.LE.NTABLE .AND. TABLE(IJUMP).NE.WORD)
+         Test = IJUMP.LE.NTABLE
+         If (Test) Test=TABLE(IJUMP).NE.WORD
+         DO WHILE (Test)
             IJUMP = IJUMP + 1
+            Test = IJUMP.LE.NTABLE
+            If (Test) Test=TABLE(IJUMP).NE.WORD
          END DO
          IF (IJUMP .GT. NTABLE) THEN
             IF (LEOINP.GT.0 .AND. NEOINP.GT.0) THEN

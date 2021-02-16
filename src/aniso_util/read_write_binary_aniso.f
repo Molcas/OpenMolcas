@@ -12,7 +12,7 @@
      &                              esfs, U, MM, MS, ML, DM, angmom,
      &                              edmom, amfi, HSO )
       Implicit None
-      Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer            :: nss, nstate
       Integer            :: multiplicity(nstate)
       Real(kind=8)      :: eso(nss), esfs(nstate)
@@ -149,7 +149,7 @@
      &                               esfs, U, MM, MS, DM, ANGMOM,
      &                               EDMOM, AMFI, HSO )
       Implicit None
-      Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer            :: nss, nstate
       Integer            :: multiplicity(nstate)
       Real(kind=8)      :: eso(nss), esfs(nstate)

@@ -11,7 +11,7 @@
       Subroutine atens(moment, dim, gtens, maxes, iprint)
 
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
 c Calling variables:
       Integer,          intent(in)  :: dim, iprint
       Complex (kind=8),intent(in)  :: moment(3,dim,dim)

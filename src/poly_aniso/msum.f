@@ -31,7 +31,7 @@ c---------
 c  temporary (local) variables:
 c
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer       :: N, iopt
       Real(kind=8) :: Mex(3), Zex
       Real(kind=8) :: ML(N,3), ZL(N)

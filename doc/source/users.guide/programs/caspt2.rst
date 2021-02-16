@@ -267,74 +267,102 @@ Keywords
               </KEYWORD>
 
 :kword:`MULTistate`
-  Enter number of root states, and a list of which CI vector from
-  the CASSCF calculation to use for each state, for example "``2 1 2``"
-  would specify the first and second root.
-  Also used for single-state calculations, when the root state is not
-  the ground state, for example "``1 2``" would specify the second root.
-  The special value "``all``" can be used if all the states included
-  in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
-  are desired.
-  Please note thet this is different from an extended multi-state calculation,
-  see also :kword:`XMULtistate`.
+  Perform a single-state CASPT2 (SS-CASPT2) or a multi-state CASPT2 (MS-CASPT2)
+  calculation.
+  Enter the total number of states desired followed by a list of which CASSCF
+  roots to include, for example "``3 1 2 4``" would specify a 3-state calculation
+  including the first, second and fourth root.
+  To perform a single-state calculation, simply enter "``1``" followed by
+  the desired root state, for example "``1 3``" would specify the third root.
+  The special value "``all``" can be used if all the states included in the
+  CASSCF calculation (keyword :kword:`CIRoot` in :program:`RASSCF`) are desired.
+  This keyword is mutually exclusive with :kword:`XMULtistate` and :kword:`RMULtistate`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="XMULTISTATE,RMULTISTATE">
               <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: Multistate <basic> GUI:list
               <HELP>
-              Enter the number of states for CASPT2 to compute, and a list of numbers
-              showing which CASSCF state to use as root state for each.
-              Alternatively, enter "all" for all the states included in the CASSCF
-              orbital optimization.
+              Enter the number of states to include in the CASPT2 calculation
+              followed by a list of numbers indicating which CASSCF roots to use.
+              Alternatively, enter "all" to include all roots optimized in the
+              CASSCF calculation.
               </HELP>
               </KEYWORD>
 
 :kword:`XMULtistate`
-  Perform an extended MS-CASPT2 calculation according to :cite:`Granovsky2011,Shiozaki2011`.
-  Enter number of root states, and a list of which CI vector from
-  the CASSCF calculation to use for each state in the same exact way
-  as done for :kword:`MULTistate`. For example "``2 1 2``"
-  would specify the first and second root.
-  The special value "``all``" can be used if all the states included
-  in the CASSCF orbital optimization (keyword :kword:`CIRoot` in :program:`RASSCF`)
-  are desired.
-  This keyword is mutually exclusive with :kword:`MULTistate`.
+  Perform an extended MS-CASPT2 (XMS-CASPT2) calculation according to :cite:`Granovsky2011,Shiozaki2011`.
+  This keyword works in the same exact way as :kword:`MULTistate` and is
+  mutually exclusive with :kword:`MULTistate` and :kword:`RMULtistate`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="XMULTISTATE" APPEAR="Extended Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="MULTISTATE,RMULTISTATE">
               <ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: XMultistate <basic> GUI:list
               <HELP>
-              Enter the number of states for CASPT2 to compute, and a list of numbers
-              showing which CASSCF state to use as root state for each.
-              Alternatively, enter "all" for all the states included in the CASSCF
-              orbital optimization.
+              Enter the number of states to include in the CASPT2 calculation
+              followed by a list of numbers indicating which CASSCF roots to use.
+              Alternatively, enter "all" to include all roots optimized in the
+              CASSCF calculation.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RMULtistate`
+  Perform a rotated MS-CASPT2 (RMS-CASPT2) calculation according to :cite:`Battaglia2021`.
+  In this type of calculation the input CASSCF states are rotated to diagonalize the
+  state-average Fock operator and subsequently used in a conventional MS-CASPT2 calculation.
+  This keyword works in the same exact way as :kword:`MULTistate` and is
+  mutually exclusive with :kword:`MULTistate` and :kword:`XMULtistate`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="RMULTISTATE" APPEAR="Rotated Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="MULTISTATE,XMULTISTATE">
+              <ALTERNATE KIND="CHOICE" LIST="all" />
+              %%Keyword: RMultistate <basic> GUI:list
+              <HELP>
+              Enter the number of states to include in the CASPT2 calculation
+              followed by a list of numbers indicating which CASSCF roots to use.
+              Alternatively, enter "all" to include all roots optimized in the
+              CASSCF calculation.
               </HELP>
               </KEYWORD>
 
 :kword:`DWMS`
-  Used in conjunction with :kword:`XMULtistate` it performs a XDW-CASPT2
-  calculation according to :cite:`Battaglia2020`, thereby rotating the
-  input states to diagonalize the state-average Fock operator and
-  constructing the zeroth-order Hamiltonian using dynamically
-  weighted densities.
-  It is also possible to use this option with :kword:`MULTistate`, in
-  which case the original CASSCF states are used instead of the rotated
-  ones.
-  An integer number for the exponential factor :math:`\zeta` has to be
-  explicitly specified; a reasonable value is 50 (see :cite:`Battaglia2020`
-  for more details). By specifying any negative integer number, the
-  limit :math:`\zeta\to\infty` is taken, resulting in unit weights
-  as in MS-CASPT2. The other limit case is :math:`\zeta=0`, for which
-  equal weights are assigned to all states and thus XDW-CASPT2 is
-  exactly equivalent to XMS-CASPT2.
+  Used in conjunction with :kword:`XMULtistate` and :kword:`DWTYpe` it performs
+  an extended dynamically weighted CASPT2 (XDW-CASPT2) calculation according to
+  :cite:`Battaglia2020,Battaglia2021`, thereby rotating the input CASSCF states
+  to diagonalize the state-average Fock operator and constructing the zeroth-order
+  Hamiltonians using dynamically weighted densities.
+  A non-negative real number for the exponential factor :math:`\zeta`
+  has to be explicitly specified; reasonable values associated to :kword:`DWTYpe`
+  equal to 1, 2 and 3 are 50, 1e-8 and 1, respectively (see
+  :cite:`Battaglia2020,Battaglia2021` for more details).
+  It is also possible to use this option with :kword:`MULTistate` instaed of
+  :kword:`XMULtistate`, in which case the original CASSCF states are used
+  instead of the rotated ones.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="INT" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWMS" APPEAR="Dynamically Weighted Multi-State" KIND="REAL" LEVEL="BASIC">
               %%Keyword: DWMS <basic> GUI:number
               <HELP>
-              Enter an integer value specifying the exponent zeta used to
-              compute the weights. A negative value corresponds to taking
-              the limit to infinity, completely avoiding any mixing of
-              the densities.
+              Enter a non-negative value specifying the exponent zeta used to
+              compute the weights.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DWTYpe`
+  This keyword specifies which exponent is used to compute the weights
+  in a XDW-CASPT2 calculation.
+  Three options are available: :kword:`DWTYpe` equal to 1 uses the squared energy
+  difference between the states according to :cite:`Battaglia2020`. Note that this
+  option might mix states of different symmetry.
+  :kword:`DWTYpe` equal to 2 uses the square of the state total energy divided by
+  the Hamiltonian coupling between the states, while :kword:`DWTYpe` equal to 3
+  uses the energy difference divided by the square root of the
+  Hamiltonian coupling (see :cite:`Battaglia2021` for more info).
+  We suggest to use the third option associated with a value of 1 in
+  :kword:`DWMS`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DWTYPE" APPEAR="Dynamically Weighted Exponent" KIND="CHOICE" LIST="1: Squared energy difference,2: Square of total energy divided by Hamiltonian coupling,3: Energy difference divided by square root of Hamiltonian coupling" LEVEL="BASIC">
+              %%Keyword: DWType <basic> GUI:number
+              <HELP>
+              Set to either 1, 2 or 3 to select the exponent used to obtain
+              the weights in a XDW-CASPT2 calculation.
               </HELP>
               </KEYWORD>
 

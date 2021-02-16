@@ -16,7 +16,7 @@ c     this routine calculates the g-tensor and d-tensor in the basis of the any 
 c     (coming from 1 molecular term)
 c
       Implicit None
-      Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter :: wp=kind(0.d0)
 
       Integer, intent(in):: imltpl, dim, iprint
       logical, intent(in):: Do_structure_abc, GRAD
@@ -78,7 +78,7 @@ C
 C     dim ---  the multiplicity of the effective spin
 C
       Implicit None
-      Integer, parameter :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter :: wp=kind(0.d0)
 #include "barrier.fh"
 #include "stdalloc.fh"
       Integer, intent(in)         :: dim, iMLTPL, iprint

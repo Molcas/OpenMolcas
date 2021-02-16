@@ -19,22 +19,23 @@ C
       use ChoArr, only: iSP2F, MySP
       use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
+#include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*17 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_CALCINT_2')
+      CHARACTER(LEN=17), PARAMETER:: SECNAM = 'CHO_MCA_CALCINT_2'
 
-      LOGICAL   DOINTS, LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
-      PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
+      LOGICAL   DOINTS
+      LOGICAL, PARAMETER:: LOCDBG = .FALSE.
+      Integer, PARAMETER:: INFINT = INF_INT, INFIN2 = INF_IN2
 
       INTEGER NAB(8)
 
+      Real*8, Allocatable:: IntCol(:)
+
 #if defined (_DEBUGPRINT_)
-      CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
-      MEM_START = LLEAK
+      Call mma_maxDBLE(MEM_START)
 #endif
 
 C     Initializations.
@@ -55,7 +56,7 @@ C     ----------------
       END DO
 
       XXSHL = DBLE(NNSHL)
-      XSKIP = 0.0D0
+      XSKIP = Zero
 
       IF (IPRINT .GE. INFINT) WRITE(LUPRI,*)
 
@@ -64,8 +65,8 @@ C     qualified columns in reduced set,
 C     max. shell quadruple.
 C     ---------------------------------
 
-      CALL GETMEM('INT.col','ALLO','REAL',KCOL,LCOL)
-      CALL CHO_DZERO(WORK(KCOL),LCOL)
+      Call mma_allocate(IntCol,LCOL,Label='IntCol')
+      IntCol(:)=Zero
 
 C     Set mapping from shell pair AB to qualified columns.
 C     ----------------------------------------------------
@@ -81,7 +82,7 @@ C     ----------------------------------------------------
 C     Set memory used by seward.
 C     --------------------------
 
-      CALL GETMEM('INT.MAX','MAX ','REAL',KINT,LINT)
+      Call mma_maxDBLE(LINT)
       CALL XSETMEM_INTS(LINT)
 
 C     Loop over shell quadruples.
@@ -135,7 +136,7 @@ C           --------------------
 
             CALL CHO_TIMER(C1,W1)
             CALL CHO_MCA_INT_1(ISCD,ISHLAB,
-     &                         WORK(KCOL),LCOL,
+     &                         IntCol,LCOL,
      &                         LOCDBG.OR.(IPRINT.GE.100))
             CALL CHO_TIMER(C2,W2)
             TINTEG(1,1) = TINTEG(1,1) + C2 - C1
@@ -146,7 +147,7 @@ C           --------------------
 C           Update skip counter.
 C           --------------------
 
-            XSKIP = XSKIP + 1.0D0
+            XSKIP = XSKIP + One
 
 C           Print message.
 C           --------------
@@ -169,9 +170,9 @@ C     --------------------------
          LTOT = NNBSTR(ISYM,2)*NAB(ISYM)
          IF (LTOT .GT. 0) THEN
             IOPT = 1
-            KOFF = KCOL + IOFF_COL(ISYM)
+            KOFF = 1 + IOFF_COL(ISYM)
             IADR = NNBSTR(ISYM,2)*IOFFQ(ISYM)
-            CALL DDAFILE(LUSEL(ISYM),IOPT,WORK(KOFF),LTOT,IADR)
+            CALL DDAFILE(LUSEL(ISYM),IOPT,IntCol(KOFF),LTOT,IADR)
          END IF
       END DO
       CALL CHO_TIMER(C2,W2)
@@ -181,8 +182,8 @@ C     --------------------------
 C     Free memory: both memory used by seward and used here.
 C     ------------------------------------------------------
 
-      CALL XRLSMEM_INTS
-      CALL GETMEM('INT.col','FREE','REAL',KCOL,LCOL)
+      CALL XRLSMEM_INTS()
+      Call mma_deallocate(IntCol)
 
 C     Print skip statistics.
 C     ----------------------
@@ -194,8 +195,7 @@ C     ----------------------
       END IF
 
 #if defined (_DEBUGPRINT_)
-      CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
-      MEM_END = LLEAK
+      Call mma_maxDBLE(MEM_END)
       LEAK = MEM_END - MEM_START
       IF (LEAK .NE. 0) THEN
          WRITE(LUPRI,'(//,A,A,I9)')

@@ -14,11 +14,15 @@
 ************************************************************************
       SubRoutine ChoMP2_deallocate(irc)
       use ChoMP2, only: ChoMP2_allocated
+      use ChoMP2, only: iFirst, iFirstS, NumOcc, LnOcc, LnT1am, LiT1am
+      use ChoMP2, only: LnMatij, LiMatij, lUnit, NumBatOrb, LnBatOrb
+      use ChoMP2, only: LnPQprod, LiPQprod
 C
 C     Purpose: to deallocate memory of the  Cholesky MP2 program.
 C
 #include "implicit.fh"
 #include "chomp2.fh"
+#include "stdalloc.fh"
 
       irc = 0
 
@@ -26,40 +30,31 @@ C
 
       If (.NOT.ChoMP2_allocated) Return
 
-      Call GetMem('LiPQprod','Free','Inte',ip_LiPQprod,l_LiPQprod)
-      Call GetMem('LnPQprod','Free','Inte',ip_LnPQprod,l_LnPQprod)
-      Call GetMem('LnBatOrb','Free','Inte',ip_LnBatOrb,l_LnBatOrb)
-      Call GetMem('NumBatOrb','Free','Inte',ip_NumBatOrb,l_NumBatOrb)
-      Call GetMem('lUnit','Free','Inte',ip_lUnit,l_lUnit)
-      Call GetMem('LiMatij','Free','Inte',ip_LiMatij,l_LiMatij)
-      Call GetMem('LnMatij','Free','Inte',ip_LnMatij,l_LnMatij)
-      Call GetMem('LiT1am','Free','Inte',ip_LiT1am,l_LiT1am)
-      Call GetMem('LnT1am','Free','Inte',ip_LnT1am,l_LnT1am)
-      Call GetMem('LnOcc','Free','Inte',ip_LnOcc,l_LnOcc)
-      Call GetMem('NumOcc','Free','Inte',ip_NumOcc,l_NumOcc)
-      Call GetMem('FirstS','Free','Inte',ip_FirstS,l_FirstS)
-      Call GetMem('First','Free','Inte',ip_First,l_First)
+      Call mma_deallocate(LiPQprod)
+      Call mma_deallocate(LnPQprod)
+      Call mma_deallocate(LnBatOrb)
+      Call mma_deallocate(NumBatOrb)
+      Call mma_deallocate(lUnit)
+      Call mma_deallocate(LiMatij)
+      Call mma_deallocate(LnMatij)
+      Call mma_deallocate(LiT1am)
+      Call mma_deallocate(LnT1am)
+      Call mma_deallocate(LnOcc)
+      Call mma_deallocate(NumOcc)
+      Call mma_deallocate(iFirstS)
+      Call mma_deallocate(iFirst)
 *
-      l_LiT1am  = 0
-      l_LnT1am  = 0
-      l_LnOcc   = 0
-      l_NumOcc  = 0
-      l_First   = 0
-      l_FirstS  = 0
-      l_LnMatij = 0
-      l_LiMatij = 0
-      l_lUnit   = 0
-      l_NumBatOrb = 0
-      l_LnBatOrb  = 0
-      l_LnPQprod = 0
-      l_LiPQprod = 0
-
       ChoMP2_allocated=.FALSE.
 
       End
 
       SubRoutine ChoMP2g_deallocate(irc)
-      use ChoMP2, only: ChoMP2g_allocated
+      use ChoMP2, only: ChoMP2g_allocated, EFrozT, EOccuT, EVirtT
+      use ChoMP2, only: AdrR1, AdrR2
+      use ChoMP2, only: MP2D_full, MP2D
+      use ChoMP2, only: MP2W_full, MP2W
+      use ChoMP2, only: MP2D_e_full, MP2D_e
+      use ChoMP2, only: MP2W_e_full, MP2W_e
 *
 *     Purpose: Deallocate memory needed for
 *              MP2-gradients or properties.
@@ -67,21 +62,27 @@ C
 #include "implicit.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
+#include "stdalloc.fh"
 
       irc = 0
 
       If (.NOT.ChoMP2g_allocated) Return
 
-      Call GetMem('MoMoTable','Free','Inte',ipMoMoTable,lMoMoTable)
-      Call GetMem('MP2Density','Free','Real',ipMP2D, lDens)
-      Call GetMem('MP2WDensity','Free','Real',ipMP2W, lDens)
-      Call GetMem('MP2Density_e','Free','Real',ipMP2D_e, lDens_e)
-      Call GetMem('MP2WDensity_e','Free','Real',ipMP2W_e, lDens_e)
-      Call GetMem('AdrVector1','Free','Inte',ipAdrR1, lAdrR1)
-      Call GetMem('AdrVector2','Free','Inte',ipAdrR2, lAdrR2)
-      Call GetMem('EFro','Free','Real',ip_EFroz,nFroT)
-      Call GetMem('EOcc','Free','Real',ip_EOccu,nOccT)
-      Call GetMem('EVir','Free','Real',ip_EVirt,nVirT)
+      Call mma_deallocate(MP2D_full)
+      Call mma_deallocate(MP2W_full)
+      Call mma_deallocate(MP2D_e_full)
+      Call mma_deallocate(MP2W_e_full)
+      Do iSym = 1, 8
+         MP2D(iSym)%A=>Null()
+         MP2W(iSym)%A=>Null()
+         MP2D_e(iSym)%A=>Null()
+         MP2W_e(iSym)%A=>Null()
+      End Do
+      Call mma_deallocate(AdrR2)
+      Call mma_deallocate(AdrR1)
+      Call mma_deallocate(EVirtT)
+      Call mma_deallocate(EOccuT)
+      Call mma_deallocate(EFrozT)
 
       ChoMP2g_allocated=.FALSE.
 

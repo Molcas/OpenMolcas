@@ -11,7 +11,7 @@
       Subroutine KE_Covalent(N,lant,t,u,OPT, HCOV )
 c this function computes the covalent CF Hamiltonian ofr a given Lanthanide
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer N,OPT,lant
       Real(kind=8) ::  t,u
       Real(kind=8) ::  WCG ! Clebsh_Gordan Coefficeints

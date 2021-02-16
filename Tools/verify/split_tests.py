@@ -96,4 +96,4 @@ try:
   for i in sets[thisnum-1]:
     print(i)
 except IndexError:
-  pass
+  print ('.none')

@@ -24,7 +24,7 @@ C  THIS ROUTINE READS THE FILE "SINGLE_ANISO.INPUT".
 C
 C
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "warnings.fh"
 #include "mgrid.fh"
 
@@ -409,6 +409,20 @@ C ------------------------------------------
         End If
        Go To 100
       End If
+
+C-------------------------------------------
+
+      If (line(1:4).eq.'DATA') Then
+         Ifrestart=.true.
+         READ(5,*) tmpline
+         input_file_name=trim(tmpline)
+         input_to_read=6
+         If(DBG) WRITE(6,*) 'restart_check: DATA, input_file_name='
+         If(DBG) WRITE(6,*) input_file_name
+         LINENR=LINENR+1
+         Go To 100
+      End If
+
 C-------------------------------------------
       If (LINE(1:4).eq.'TINT') Then
         If(TINPUT.EQV..FALSE.) Then

@@ -37,6 +37,7 @@
 *                   as SCLFAC
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CSD(*),CCM(*),ISGVST(*)
+      Logical Test1, Test2
 *
       NTEST = 00
 *
@@ -49,11 +50,19 @@
       IPACK = 0
       FACTOR = 1.0D0
 *
-      IF(IDC.EQ.2.OR.IDC.EQ.4) THEN
+      Test1 = IDC.EQ.2.OR.IDC.EQ.4
+      If (.Not.Test1) Then
+         Test2 = IDC.EQ.4
+         If (Test2) Test2 = Test2 .and. IASM.EQ.ISGVST(IBSM)
+      Else
+         Test2 = .False.
+      End If
+
+      IF( Test1 ) THEN
          SIGN = PS
          FACTOR = SQRT2
          IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP) IPACK = 1
-      ELSE IF( IDC.EQ.4.AND.IASM.EQ.ISGVST(IBSM)) THEN
+      ELSE IF( Test2 ) THEN
         IF(IATP.EQ.IBTP) IPACK = 1
         SIGN = PS*PL
         FACTOR = 2.0D0

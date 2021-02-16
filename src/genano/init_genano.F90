@@ -44,7 +44,7 @@ do i=1,nAtoms
   if (LblCnt(i)(1:len(Center)) == Center) Found = .true.
 end do
 call mma_deallocate(LblCnt)
-if (.not.Found) then
+if (.not. Found) then
   call WarningMessage(2,'Center '//Center//' not found')
   call Quit_OnUserError()
 end if
@@ -81,7 +81,7 @@ length = 0
 next = 1
 do iShell=0,MxLqn
   length = nPrim(iShell)*(nPrim(iShell)+1)/2
-  do iComp = -iShell,iShell
+  do iComp=-iShell,iShell
     ind = ind+1
     iSymBk(ind) = next
     next = next+length

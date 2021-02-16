@@ -30,6 +30,7 @@ C
       Write(Lu,1000)NumV, NTs, NumV
       K = 0
       Last = 0
+      qt = 0.0D0
       If(Index.eq.2) then
         qmax=0.0d0
         qmin=0.0d0

@@ -11,7 +11,7 @@
       Subroutine dirvect( P1, R1, P2, R2,  vec, dist )
 c this Subroutine computes the directional vector of the origins of two points P1 and P2
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8), intent(in)  :: P1(3) ! coords of the first point
       Real(kind=8), intent(in)  :: P2(3) ! coords of the second point
 !     rot. matrix of the  first point to the general coordinate system
