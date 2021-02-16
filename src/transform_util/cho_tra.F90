@@ -28,7 +28,6 @@ Logical DoTCVA, DoFull, DoCoul, DoExc2
 Logical SubBlocks(3,3)
 Logical IfTest
 
-Integer iMemTCVX(MxTCVx,MaxSym,MaxSym,2)
 Logical  TCVXist(MxTCVx,MaxSym,MaxSym)
 
 Type v2

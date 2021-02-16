@@ -46,8 +46,8 @@
 *> MO Indices \f$ i,j \f$: Inactive; \f$ t,u \f$: Active; \f$ a,b \f$: Secondary
 *>
 *> Which TCVx have to be generated is defined in the logical array
-*> \c TCVXist by the routine ::Mem_Est and the memory pointer and length
-*> are contained in the array \c iMemTCVX.
+*> \c TCVXist by the routine ::Mem_Est and the memory is managed through
+*> the array \c TCVX of 2D allocatable matrices.
 *>
 *> Note that when \c Sym(p) &ne; \c Sym(q) the order of symmetry is
 *> exchanged while the first index is always the MO we excite into

@@ -129,7 +129,7 @@
 * *** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   **********
       DO iSymL=1,nSym
 
-*       Re-Inizialize the TCVx & iMemTCVX
+*       Re-Inizialize the TCVx
         TCVXist(:,:,:)=.False. ! TCVx existing flag.
 
         Call Mem_Est(iSymL,nVec,nFVec)
