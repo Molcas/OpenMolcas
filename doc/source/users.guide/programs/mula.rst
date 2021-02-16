@@ -20,7 +20,7 @@
             transitions between electronic states.
             </HELP>
 
-The :program:`MULA` calculates intensities of vibrational
+The :program:`MULA` program calculates intensities of vibrational
 transitions between electronic states.
 
 .. index::
@@ -31,7 +31,7 @@ transitions between electronic states.
 Dependencies
 ------------
 
-The :program:`MULA` program may need one or more UNSYM files produced
+The :program:`MULA` program may need one or more :file:`UNSYM` files produced
 by the :program:`MCLR` program, depending on input options.
 
 .. index::
@@ -166,8 +166,12 @@ Keywords
   If this keyword is included, a variational calculation will be made,
   instead of using the default double harmonic approximation.
 
-  .. xmldoc:: %%Keyword: VARIational <basic>
-              Make a variational calculation, nor harmonic approximation.
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="VARIATIONAL" APPEAR="Variatioal" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: VARIational <basic>
+              <HELP>
+              Make a variational calculation, no harmonic approximation.
+              </HELP>
+              </KEYWORD>
 
 :kword:`TRANsitions`
   Indicates the excitations to be printed in the output.
@@ -300,21 +304,33 @@ Keywords
   If this keyword is included, the vibrational levels of the two states will
   be printed in the output.
 
-  .. xmldoc:: %%Keyword: VIBWrite <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="VIBWRITE" APPEAR="Write vibrational levels" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: VIBWrite <basic>
+              <HELP>
               Print vibrational levels in the output.
+              </HELP>
+              </KEYWORD>
 
 :kword:`VIBPlot`
   Two files, plot.modes1 and plot.modes2, will be generated, with pictures of
   the normal vibrational modes of the two electronic states.
 
-  .. xmldoc:: %%Keyword: VIBPlot <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="VIBPLOT" APPEAR="Generate normal mode plots" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: VIBPlot <basic>
+              <HELP>
               Generate files plot.modes1 and plot.modes2 picturing normal modes.
+              </HELP>
+              </KEYWORD>
 
 :kword:`HUGElog`
   This keyword will give a much more detailed output file.
 
-  .. xmldoc:: %%Keyword: HUGElog <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="HUGELOG" APPEAR="Verbose output" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: HUGElog <basic>
+              <HELP>
               Much more detailed output.
+              </HELP>
+              </KEYWORD>
 
   .. :kword:`EXPANSION`
        This keyword indicates that the calculation will be aborted after
