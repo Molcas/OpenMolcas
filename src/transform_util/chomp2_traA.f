@@ -20,13 +20,16 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-
+      Integer NCMO
+      Real*8 CMO(NCMO)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
-      Dimension CMO(NCMO)
       Logical TCVC,TCVCt
+
+      Real*8, Allocatable:: XAj(:), XBi(:), FAB(:,:)
 
 * --- Memory to allocate & Nr. of Cholesky vectors transformable
 *     A=Alpha(AO);  B=Beta(AO)
@@ -36,7 +39,6 @@
       NFAB = 0
       Naj = 0  ! C
       Nbi = 0  ! C"
-      Len_FAB = 0
       Len_aj = 0  ! C
       Len_bi = 0  ! C"
       Len_XAj = 0   ! C
@@ -80,14 +82,13 @@
         If ( TCVCt ) iStrt0_bi = iStrt00_bi + (iFBatch-1) * nFVec * Nbi
 
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
-        Len_FAB = NFAB * NumFV
         iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
-        Call GetMem('FAB','Allo','Real',iStrt0_FAB,Len_FAB)
-        Call RdChoVec(Work(iStrt0_FAB),NFAB,NumFV,iStrtVec_FAB,lUCHFV)
+        Call mma_allocate(FAB,nFAB,NumFV,Label='FAB')
+        Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
 *  ---  Start Loop  iVec  ---
         Do iVec=1,NumFV   ! Loop  iVec
-          iStrt_FAB = iStrt0_FAB + (iVec-1) * NFAB
+
           If ( TCVC  ) iStrt_aj = iStrt0_aj + (iVec-1) * Naj
           If ( TCVCt ) iStrt_bi = iStrt0_bi + (iVec-1) * Nbi
 
@@ -99,9 +100,9 @@ C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
               jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
             EndDo
             jStrt0MO = jStrt0MO + nFro(jSym) * nBas(jSym)
-            Call GetMem('XAj','ALLO','REAL',iStrt0_XAj,Len_XAj)
-            Call ProdsA_2(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(jStrt0MO),nIsh(jSym), Work(iStrt0_XAj))
+            Call mma_allocate(XAj,Len_XAj,Label='XAj')
+            Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(jStrt0MO),nIsh(jSym), XAj)
           EndIf
 C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
           If ( TCVCt ) then
@@ -110,9 +111,9 @@ C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
               iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
             EndDo
             iStrt0MO = iStrt0MO + nFro(iSym) * nBas(iSym)
-            Call GetMem('XBi','ALLO','REAL',iStrt0_XBi,Len_XBi)
-            Call ProdsA_2t(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(iStrt0MO),nIsh(iSym), Work(iStrt0_XBi))
+            Call mma_allocate(XBi,Len_XBi,Label='XBi')
+            Call ProdsA_2t(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(iStrt0MO),nIsh(iSym), XBi)
           EndIf
 
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
@@ -123,7 +124,7 @@ C         From XAj(Alpha,jMO) to aj(a,j)
               iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
             EndDo
             iStrt0MO = iStrt0MO + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
-            Call ProdsA_1(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
      &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
           EndIf
 
@@ -134,23 +135,19 @@ C         From XBi(Beta,jMO) to bi(b,i)
               jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
             EndDo
             jStrt0MO = jStrt0MO + (nFro(jSym)+nIsh(jSym)) * nBas(jSym)
-            Call ProdsA_1(Work(iStrt0_XBi), nBas(jSym),nIsh(iSym),
+            Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
      &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bi))
           EndIf
 
 *     --- End of Transformations
 
-          If ( TCVC ) then
-            Call GetMem('XAj','FREE','REAL',iStrt0_XAj,Len_XAj)
-          EndIf
-          If ( TCVCt ) then
-            Call GetMem('XBi','FREE','REAL',iStrt0_XBi,Len_XBi)
-          EndIf
+          If (Allocated(XAj)) Call mma_deallocate(XAj)
+          If (Allocated(XBi)) Call mma_deallocate(XBi)
 
         EndDo
 *  ---  End Loop  iVec  ---
 
-        Call GetMem('FAB','Free','Real',iStrt0_FAB,Len_FAB)
+        Call mma_deallocate(FAB)
       ENDDO
 * --- END LOOP iFBatch -------------------------------------------------
 
