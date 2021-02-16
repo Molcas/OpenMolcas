@@ -23,12 +23,15 @@
      &                     RAVEMIN, RAVEMAX
       REAL (wp)         :: gnuplot_version
       INTEGER           :: file_number, i, l, j, i1, j1, k
-      INTEGER           :: LuPlt, LuData, file_size, StdOut, iErr
+      INTEGER           :: LuPlt, LuData, file_size, StdOut
       LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd
       CHARACTER(LEN=100):: line1, line2, fmtx, cdummy
       CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
       LOGICAL           :: dbg
       Integer, external :: IsFreeUnit, AixRm
+#ifndef __INTEL_COMPILER
+      INTEGER           :: iErr
+#endif
 
       dbg=.false.
       StdOut = 6
