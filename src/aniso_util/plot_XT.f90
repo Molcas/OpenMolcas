@@ -38,7 +38,6 @@
   !CHARACTER(LEN=100)    :: line1, line2, lineOut, cdummy
 
   StdOut=6
-  iErr=0
   dbg=.false.
   tmin=0.0_wp
   tmax=0.0_wp
@@ -106,7 +105,9 @@
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
 #ifdef __INTEL_COMPILER
+  iErr=0
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
   CALL execute_command_line ( "which gnuplot >> lineOUT" )
 #endif
@@ -158,6 +159,7 @@
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
 #ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
     CALL execute_command_line ( gnuplot_CMD )
 #endif
@@ -309,6 +311,7 @@
 
 #ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
     CALL execute_command_line ( gnuplot_CMD )
 #endif
@@ -367,7 +370,6 @@
 #endif
 
   StdOut=6
-  iErr=0
   dbg=.false.
   tmin=0.0_wp
   tmax=0.0_wp
@@ -430,7 +432,9 @@
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
 #ifdef __INTEL_COMPILER
+  iErr=0
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
   CALL execute_command_line ( "which gnuplot >> lineOUT" )
 #endif
@@ -477,6 +481,7 @@
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
 #ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
     CALL execute_command_line ( gnuplot_CMD )
 #endif
@@ -623,6 +628,7 @@
 
 #ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
     CALL execute_command_line ( gnuplot_CMD )
 #endif
