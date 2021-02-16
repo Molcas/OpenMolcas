@@ -298,55 +298,48 @@
         iMemTCVX(6,iSym,jSym,2)=Len_ab
       EndIf
 
-* --- START LOOP iFBatch -----------------------------------------------
-      DO iFBatch=1,nFBatch
-        If (iFBatch.EQ.nFBatch) then
-         NumFV = NumV - nFVec * (nFBatch-1)
-        Else
-         NumFV = nFVec
-        EndIf
-        If ( TCVA  ) iStrt0_ij = iStrt00_ij + (iFBatch-1) * nFVec * Nij
-        If ( TCVA  ) iStrt0_ji = iStrt00_ji + (iFBatch-1) * nFVec * Nji
-        If ( TCVB  ) iStrt0_tj = iStrt00_tj + (iFBatch-1) * nFVec * Ntj
-        If ( TCVB  ) iStrt0_jt = iStrt00_jt + (iFBatch-1) * nFVec * Njt
-        If ( TCVBt ) iStrt0_ui = iStrt00_ui + (iFBatch-1) * nFVec * Nui
-        If ( TCVBt ) iStrt0_iu = iStrt00_iu + (iFBatch-1) * nFVec * Niu
-        If ( TCVC  ) iStrt0_aj = iStrt00_aj + (iFBatch-1) * nFVec * Naj
-        If ( TCVCt ) iStrt0_bi = iStrt00_bi + (iFBatch-1) * nFVec * Nbi
-        If ( TCVD  ) iStrt0_tu = iStrt00_tu + (iFBatch-1) * nFVec * Ntu
-        If ( TCVD  ) iStrt0_ut = iStrt00_ut + (iFBatch-1) * nFVec * Nut
-        If ( TCVE  ) iStrt0_au = iStrt00_au + (iFBatch-1) * nFVec * Nau
-        If ( TCVEt ) iStrt0_bt = iStrt00_bt + (iFBatch-1) * nFVec * Nbt
-        If ( TCVF  ) iStrt0_ab = iStrt00_ab + (iFBatch-1) * nFVec * Nab
+      iStrt = 1
+      Do i=1,iSym-1
+         iStrt = iStrt + nBas(i) * nBas(i)
+      EndDo
+
+      jStrt = 1
+      Do j=1,jSym-1
+        jStrt = jStrt + nBas(j) * nBas(j)
+      EndDo
+
+* --- START LOOP iiVec   -----------------------------------------------
+      DO iiVec = 1, NumV, nFVec
+        NumFV=Max(nFVec,NumV-iiVec+1)
+        iFBatch = (iiVec+nFVec-1)/nFVec
 
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
+
         iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
+
         Call mma_allocate(FAB,NFAB,NumFV,Label='FAB')
         Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
-*  ---  Start Loop  iVec  ---
-        Do iVec=1,NumFV   ! Loop  iVec
+*  ---  Start Loop  jVec  ---
+        Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
+          iVec = jVec - iiVec + 1
 
-          If ( TCVA  ) iStrt_ij = iStrt0_ij + (iVec-1) * Nij
-          If ( TCVA  ) iStrt_ji = iStrt0_ji + (iVec-1) * Nji
-          If ( TCVB  ) iStrt_tj = iStrt0_tj + (iVec-1) * Ntj
-          If ( TCVB  ) iStrt_jt = iStrt0_jt + (iVec-1) * Njt
-          If ( TCVBt ) iStrt_ui = iStrt0_ui + (iVec-1) * Nui
-          If ( TCVBt ) iStrt_iu = iStrt0_iu + (iVec-1) * Niu
-          If ( TCVC  ) iStrt_aj = iStrt0_aj + (iVec-1) * Naj
-          If ( TCVCt ) iStrt_bi = iStrt0_bi + (iVec-1) * Nbi
-          If ( TCVD  ) iStrt_tu = iStrt0_tu + (iVec-1) * Ntu
-          If ( TCVD  ) iStrt_ut = iStrt0_ut + (iVec-1) * Nut
-          If ( TCVE  ) iStrt_au = iStrt0_au + (iVec-1) * Nau
-          If ( TCVEt ) iStrt_bt = iStrt0_bt + (iVec-1) * Nbt
-          If ( TCVF  ) iStrt_ab = iStrt0_ab + (iVec-1) * Nab
+          If ( TCVA  ) iStrt_ij = iStrt00_ij + (jVec-1) * Nij
+          If ( TCVA  ) iStrt_ji = iStrt00_ji + (jVec-1) * Nji
+          If ( TCVB  ) iStrt_tj = iStrt00_tj + (jVec-1) * Ntj
+          If ( TCVB  ) iStrt_jt = iStrt00_jt + (jVec-1) * Njt
+          If ( TCVBt ) iStrt_ui = iStrt00_ui + (jVec-1) * Nui
+          If ( TCVBt ) iStrt_iu = iStrt00_iu + (jVec-1) * Niu
+          If ( TCVC  ) iStrt_aj = iStrt00_aj + (jVec-1) * Naj
+          If ( TCVCt ) iStrt_bi = iStrt00_bi + (jVec-1) * Nbi
+          If ( TCVD  ) iStrt_tu = iStrt00_tu + (jVec-1) * Ntu
+          If ( TCVD  ) iStrt_ut = iStrt00_ut + (jVec-1) * Nut
+          If ( TCVE  ) iStrt_au = iStrt00_au + (jVec-1) * Nau
+          If ( TCVEt ) iStrt_bt = iStrt00_bt + (jVec-1) * Nbt
+          If ( TCVF  ) iStrt_ab = iStrt00_ab + (jVec-1) * Nab
 
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
-          jStrt0MO = 1
-          Do j=1,jSym-1
-            jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
-          EndDo
-          jStrt0MO = jStrt0MO + nFro(jSym) * nBas(jSym)
+          jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVA .or. TCVB .or. TCVC ) then
@@ -371,11 +364,7 @@ C         From CHFV A(Alpha,Beta) to XAb(Alpha,bMO)
      &                  CMO(jStrt0MO),nSsh(jSym), XAb)
           EndIf
 
-          iStrt0MO = 1
-          Do i=1,iSym-1
-            iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
-          EndDo
-          iStrt0MO = iStrt0MO + nFro(iSym) * nBas(iSym)
+          iStrt0MO = iStrt + nFro(iSym) * nBas(iSym)
 
 C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
           If ( TCVBt .or. TCVCt ) then
@@ -393,11 +382,7 @@ C         From CHFV A(Alpha,Beta) to XBt(Beta,tMO)
           EndIf
 
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
-          iStrt0MO = 1
-          Do i=1,iSym-1
-            iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
-          EndDo
-          iStrt0MO = iStrt0MO + nFro(iSym) * nBas(iSym)
+          iStrt0MO = iStrt + nFro(iSym) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to ij(i,j)
           If ( TCVA ) then
@@ -443,11 +428,7 @@ C         From XAb(Alpha,jMO) to ab(a,b)
      &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_ab))
           EndIf
 
-          jStrt0MO = 1
-          Do j=1,jSym-1
-            jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
-          EndDo
-          jStrt0MO = jStrt0MO + ( nFro(jSym) + nIsh(jSym) ) * nBas(jSym)
+          jStrt0MO = jStrt + ( nFro(jSym) + nIsh(jSym) ) * nBas(jSym)
 
 C         From XBi(Beta,jMO) to ui(u,i)
           If ( TCVBt ) then
@@ -479,11 +460,11 @@ C         From XBt(Beta,jMO) to bt(b,t)
           If (Allocated(XBt)) Call mma_deallocate(XBt)
 
         EndDo
-*  ---  End Loop  iVec  ---
+*  ---  End Loop  jVec  ---
 
         Call mma_deallocate(FAB)
       ENDDO
-* --- END LOOP iFBatch -------------------------------------------------
+* --- END LOOP iiVec   -------------------------------------------------
 
       Return
 c Avoid unused argument warnings
