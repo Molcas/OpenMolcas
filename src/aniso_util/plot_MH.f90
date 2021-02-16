@@ -28,11 +28,10 @@
   INTEGER, EXTERNAL   :: AixRm
   INTEGER             :: Length
   CHARACTER(LEN=1023) :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-#ifndef __INTEL_COMPILER
   INTEGER             :: iErr
-#endif
 
   dbg=.false.
+  iErr=0
   StdOut=6
   hmin=0.0_wp
   hmax=0.0_wp
@@ -90,6 +89,7 @@
      ! delete the file
      IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
      iErr=AixRm("lineOUT")
+     IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   ELSE
      IF (dbg) WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
@@ -99,7 +99,6 @@
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
 #ifdef __INTEL_COMPILER
-  iErr=0
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
   IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
@@ -140,6 +139,7 @@
   END IF
   ! remove file "lineOUT"
   iErr=AixRm("lineOUT")
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 !--------------------------------------------------------------------------------------------
 
 
@@ -163,6 +163,7 @@
     CLOSE (file_number)
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   END IF
 
 
@@ -197,6 +198,7 @@
 
      INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
      IF(file_exist)  iErr=AixRm( trim(datafile) )
+     IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
      LuData=554+iTempMagn
      Call molcas_open(LuData,datafile)
      IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file. iTempMagn=', iTempMagn
@@ -217,6 +219,7 @@
 
      INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
      IF(file_exist)  iErr=AixRm( trim(plotfile) )
+     IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
      LuPlt=455+iTempMagn
      Call molcas_open(LuPlt,plotfile)
      IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
@@ -371,9 +374,7 @@
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1023)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-#ifndef __INTEL_COMPILER
   INTEGER               :: iErr
-#endif
 
   color(  1)="#ffffff"; color(  2)="#000000"; color(  3)="#a0a0a0"; color(  4)="#ff0000"; color(  5)="#00c000"
   color(  6)="#0080ff"; color(  7)="#c000ff"; color(  8)="#00eeee"; color(  9)="#c04000"; color( 10)="#c8c800"
@@ -400,6 +401,7 @@
   color(111)="#ffffff"
 
   dbg=.false.
+  iErr=0
   StdOut=6
   hmin=0.0_wp
   hmax=0.0_wp
@@ -452,6 +454,7 @@
      ! delete the file
      IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
      iErr=AixRm("lineOUT")
+     IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   ELSE
      IF (dbg) WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
@@ -461,7 +464,6 @@
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
 #ifdef __INTEL_COMPILER
-  iErr=0
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
   IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
@@ -503,6 +505,7 @@
   END IF
   ! remove file "lineOUT"
   iErr=AixRm("lineOUT")
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 !--------------------------------------------------------------------------------------------
 
 
@@ -526,6 +529,7 @@
     CLOSE (file_number)
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   END IF
 
 
@@ -555,6 +559,7 @@
 ! create the file "MH.dat"
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist)  iErr=AixRm( trim(datafile) )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   LuData=454
   Call molcas_open(LuData, datafile )
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -576,6 +581,7 @@
   ! generate the GNUPLOT script in the $WorkDir
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) iErr=AixRm( trim(plotfile) )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   LuPlt=455
   Call molcas_open(LuPlt, plotfile )
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
