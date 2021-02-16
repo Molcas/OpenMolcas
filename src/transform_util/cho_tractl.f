@@ -103,7 +103,7 @@
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
       Dimension CMO(NCMO)
       Character*4 CHNm
@@ -226,10 +226,7 @@ CGG   ------------------------------------------------------------------
 
 * --- Inizialize information arrays. ---
 
-*     The TCVx existing flag and the Memory Allocation & Length array:
       TCVXist(:,:,:)=.False. ! TCVx existing flag.
-      iMemTCVX(:,:,:,1)=ip_Dummy ! Memory Address and
-      iMemTCVX(:,:,:,2)=0 ! Length in Work(TCVx)
 
 *     The Address Field for MOLINT:
       LenIAD2M=3*36*36
@@ -268,10 +265,7 @@ CGG   ------------------------------------------------------------------
 * *** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   **********
       DO iSymL=1,nSym
 
-*       Re-Inizialize the TCVx & iMemTCVX
         TCVXist(:,:,:)=.False. ! TCVx existing flag.
-        iMemTCVX(:,:,:,1)=ip_Dummy ! Memory Address and
-        iMemTCVX(:,:,:,2)=0 ! Length in Work(TCVx)
         Call Mem_Est(iSymL,nVec,nFVec)
 CGG   ------------------------------------------------------------------
       If(IfTest) then
@@ -307,9 +301,9 @@ CGG   ------------------------------------------------------------------
           else
             NumV = nVec
           EndIf
-          nFBatch = (NumV-1) / nFVec + 1
 CGG   ------------------------------------------------------------------
 c      If(IfTest) then
+c      nFBatch = (NumV-1) / nFVec + 1
 c      Write(6,*)
 c      Write(6,*)' iBatch=',iBatch,' of',nBatch,' - NumV=',NumV,
 c     &                                             ' - nFBatch=',nFBatch
@@ -340,10 +334,10 @@ CGG   ------------------------------------------------------------------
 
               If (iSym.EQ.jSym) then
                Call Cho_TraS(iSymL, iSym,jSym, NumV, CMO,NCMO,
-     &                      lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                      lUCHFV, iStrtVec_AB, nFVec)
               Else
                Call Cho_TraA(iSymL, iSym,jSym ,NumV, CMO,NCMO,
-     &                      lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                      lUCHFV, iStrtVec_AB, nFVec)
               EndIf
 
               Call dAClos(lUCHFV)
@@ -393,16 +387,14 @@ CGG   ------------------------------------------------------------------
           Do iType=1,MxTCVx
            Do iSym=1,MaxSym
             Do jSym=1,MaxSym
-             If(iMemTCVX(iType,iSym,jSym,1).NE.ip_Dummy) then
-              iAddr=iMemTCVX(iType,iSym,jSym,1)
-              iLen =iMemTCVX(iType,iSym,jSym,2)
-              Call GetMem('iAddr','Free','Real',iAddr,iLen)
-              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy
-              iMemTCVX(iType,iSym,jSym,2)=0
-             EndIf
+
+             If (Allocated(TCVX(iType,iSym,jSym)%A))
+     &          Call mma_deallocate(TCVX(iType,iSym,jSym)%A)
+
             EndDo
            EndDo
           EndDo
+
           Call Timing(CPU3,CPE,TIO3,TIOE)
           CPU_Gen=CPU_Gen+CPU3-CPU2
           TIO_Gen=TIO_Gen+TIO3-TIO2

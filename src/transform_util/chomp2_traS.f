@@ -11,7 +11,7 @@
 * Copyright (C) 2004,2005, Giovanni Ghigo                              *
 ************************************************************************
       Subroutine ChoMP2_TraS(iSymL, iSym,jSym, NumV, CMO,NCMO,
-     &                               lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                               lUCHFV, iStrtVec_AB, nFVec)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden                                    *
@@ -25,7 +25,6 @@
       Real*8 CMO(NCMO)
 
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 
@@ -44,11 +43,7 @@
       Naj = nSsh(iSym) * nIsh(jSym)
 
 *     Allocate memory for Transformed Cholesky Vectors - TCVx
-      Len_aj = Naj * NumV
-      iStrt_aj = 0
-      Call GetMem('aj','ALLO','REAL',iStrt00_aj,Len_aj)
-      iMemTCVX(3,iSym,jSym,1)=iStrt00_aj
-      iMemTCVX(3,iSym,jSym,2)=Len_aj
+      Call mma_allocate(TCVX(3,iSym,jSym)%A,Naj,NumV,Label='TCVX')
 
       iStrt = 1
       Do i=1,iSym-1
@@ -75,8 +70,6 @@
         Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
           iVec = jVec - iiVec + 1
 
-          iStrt_aj = iStrt00_aj + (jVec-1) * Naj
-
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
           jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
 
@@ -90,7 +83,8 @@ C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
 
 C         From XAj(Alpha,jMO) to aj(a,j)
           Call ProdsS_2(XAj, nBas(iSym),nIsh(jSym),
-     &              CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
+     &              CMO(iStrt0MO),nSsh(iSym),
+     &              TCVX(3,iSym,jSym)%A(:,jVec))
 
 *     --- End of Transformations
 

@@ -25,7 +25,6 @@
       Integer iSymI,iSymJ,iI,iJ,numV
       Real*8 Lij(NumV)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
       If (iI.LE.nIsh(iSymI)) then
@@ -60,8 +59,10 @@ CGG   ------------------------------------------------------------------
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
-      iAddTCVX= iMemTCVX(LijType,iSymI,iSymJ,1) + nIx*(iJy-1) + iIx - 1
-      Call dCopy_(numV,Work(iAddTCVX),nIx*nJy,Lij,1)
+      iAddTCVX= iIx + nIx*(iJy-1)
+      Call dCopy_(numV,
+     &            TCVX(LijType,iSymI,iSymJ)%A(iAddTCVX,1),nIx*nJy,
+     &            Lij,1)
 
       Return
       End

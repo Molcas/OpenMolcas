@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2004,2005, Giovanni Ghigo                              *
+*               2021, Roland Lindh                                     *
 ************************************************************************
 *  Cho_TraA
 *
@@ -19,7 +20,7 @@
 *> @details
 *> In the inner batch the Cholesky Full Vectors are transformed and
 *> stored in memory. Adresses (``1``) and length (``2``) are stored in the
-*> integer matrix <tt>iMemTCVX(iType, Sym(i), Sym(j), 1/2)</tt>.
+*> matrix <tt>TCVX(iType, Sym(i), Sym(j)) of allocatable 2D arrays</tt>.
 *>
 *> - \c iType = ``1``: TCVA
 *> - \c iType = ``2``: TCVB
@@ -48,11 +49,10 @@
 *> @param[in]     NCMO        Total number of MO coefficients
 *> @param[in]     lUCHFV      Unit number of the Cholesky Full Vector to transform (``CHFV``)
 *> @param[in,out] iStrtVec_AB Current initial disk pointer of the Cholesky Full Vector to transform (``CHFV``)
-*> @param[in]     nFVec       Number of Cholesky vectors to transform in the inner batch procedure (\p nFBatch)
-*> @param[in]     nFBatch     Number of cycles in the inner batch procedure
+*> @param[in]     nFVec       Number of Cholesky vectors to transform in the inner batch procedure
 ************************************************************************
       Subroutine Cho_TraA(iSymL, iSym,jSym, NumV, CMO,NCMO,
-     &                               lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                               lUCHFV, iStrtVec_AB, nFVec)
 ************************************************************************
 *  This is the routine for the transformation from AO basis to MO      *
 *  basis of the Cholesky Full Vectors when  iSym.NE.jSym.              *
@@ -116,20 +116,6 @@
       Nbt = 0  ! E"
       Nab = 0  ! F
 
-      Len_ij = 0  ! A
-      Len_ji = 0  ! A"
-      Len_tj = 0  ! B
-      Len_jt = 0  ! G
-      Len_ui = 0  ! B"
-      Len_iu = 0  ! G"
-      Len_aj = 0  ! C
-      Len_bi = 0  ! C"
-      Len_tu = 0  ! D
-      Len_ut = 0  ! D"
-      Len_au = 0  ! E
-      Len_bt = 0  ! E"
-      Len_ab = 0  ! F
-
       Len_XAj = 0   ! A/A", B, C
       Len_XAu = 0   ! D/D", E
       Len_XAb = 0   ! F
@@ -138,12 +124,16 @@
 
       NFAB = nBas(iSym) * nBas(jSym)
 
+
+*     Allocate memory for Transformed Cholesky Vectors - TCVx
 * TCV-A :
       If (TCVXist(1,iSym,jSym)) Then
         TCVA = .True.
         Len_XAj = nBas(iSym) * nIsh(jSym)
         Nij = nIsh(iSym) * nIsh(jSym)
         Nji = nIsh(jSym) * nIsh(iSym)
+        Call mma_allocate(TCVX(1,iSym,jSym)%A,Nij,NumV,Label='TCVA')
+        Call mma_allocate(TCVX(1,jSym,iSym)%A,Nji,NumV,Label='TCVA')
       EndIf
 
 * TCV-B :
@@ -152,12 +142,16 @@
         Len_XAj = nBas(iSym) * nIsh(jSym)
         Ntj = nAsh(iSym) * nIsh(jSym)
         Njt = nIsh(jSym) * nAsh(iSym)
+        Call mma_allocate(TCVX(2,iSym,jSym)%A,Ntj,NumV,Label='TCVB')
+        Call mma_allocate(TCVX(7,jSym,iSym)%A,Njt,NumV,Label='TCVB')
       EndIf
       If (TCVXist(2,jSym,iSym)) Then
         TCVBt= .True.
         Len_XBi = nBas(jSym) * nIsh(iSym)
         Nui = nAsh(jSym) * nIsh(iSym)
         Niu = nIsh(iSym) * nAsh(jSym)
+        Call mma_allocate(TCVX(2,jSym,iSym)%A,Nui,NumV,Label='TCVBt')
+        Call mma_allocate(TCVX(7,iSym,jSym)%A,Niu,NumV,Label='TCVBt')
       EndIf
 
 * TCV-C :
@@ -165,11 +159,13 @@
         TCVC = .True.
         Len_XAj = nBas(iSym) * nIsh(jSym)
         Naj = nSsh(iSym) * nIsh(jSym)
+        Call mma_allocate(TCVX(3,iSym,jSym)%A,Naj,NumV,Label='TCVC')
       EndIf
       If (TCVXist(3,jSym,iSym)) Then
         TCVCt= .True.
         Len_XBi = nBas(jSym) * nIsh(iSym)
         Nbi = nSsh(jSym) * nIsh(iSym)
+        Call mma_allocate(TCVX(3,jSym,iSym)%A,Nbi,NumV,Label='TCVCt')
       EndIf
 
 * TCV-D :
@@ -178,6 +174,8 @@
         Len_XAu = nBas(iSym) * nAsh(jSym)
         Ntu = nAsh(iSym) * nAsh(jSym)
         Nut = nAsh(jSym) * nAsh(iSym)
+        Call mma_allocate(TCVX(4,iSym,jSym)%A,Ntu,NumV,Label='TCVD')
+        Call mma_allocate(TCVX(4,jSym,iSym)%A,Nut,NumV,Label='TCVD')
       EndIf
 
 * TCV-E :
@@ -185,11 +183,13 @@
         TCVE = .True.
         Len_XAu = nBas(iSym) * nAsh(jSym)
         Nau = nSsh(iSym) * nAsh(jSym)
+        Call mma_allocate(TCVX(5,iSym,jSym)%A,Nau,NumV,Label='TCVE')
       EndIf
       If (TCVXist(5,jSym,iSym)) Then
         TCVEt= .True.
         Len_XBt = nBas(jSym) * nAsh(iSym)
         Nbt = nSsh(jSym) * nAsh(iSym)
+        Call mma_allocate(TCVX(5,jSym,iSym)%A,Nbt,NumV,Label='TCVEt')
       EndIf
 
 * TCV-F :
@@ -197,105 +197,7 @@
         TCVF = .True.
         Len_XAb = nBas(iSym) * nSsh(jSym)
         Nab = nSsh(iSym) * nSsh(jSym)
-      EndIf
-
-*     Allocate memory for Transformed Cholesky Vectors - TCVx
-      Len_ij = Nij * NumV
-      Len_ji = Nji * NumV
-      Len_tj = Ntj * NumV
-      Len_jt = Njt * NumV
-      Len_ui = Nui * NumV
-      Len_iu = Niu * NumV
-      Len_aj = Naj * NumV
-      Len_bi = Nbi * NumV
-      Len_tu = Ntu * NumV
-      Len_ut = Nut * NumV
-      Len_au = Nau * NumV
-      Len_bt = Nbt * NumV
-      Len_ab = Nab * NumV
-      iStrt_ij = 0  ! A
-      iStrt_ji = 0  ! A"
-      iStrt_tj = 0  ! B
-      iStrt_jt = 0  ! G
-      iStrt_ui = 0  ! B"
-      iStrt_iu = 0  ! G"
-      iStrt_aj = 0  ! C
-      iStrt_bi = 0  ! C"
-      iStrt_tu = 0  ! D
-      iStrt_ut = 0  ! D"
-      iStrt_au = 0  ! E
-      iStrt_bt = 0  ! E"
-      iStrt_ab = 0  ! F
-      iStrt0_ij = 0  ! A
-      iStrt0_ji = 0  ! A"
-      iStrt0_tj = 0  ! B
-      iStrt0_jt = 0  ! G
-      iStrt0_ui = 0  ! B"
-      iStrt0_iu = 0  ! G"
-      iStrt0_aj = 0  ! C
-      iStrt0_bi = 0  ! C"
-      iStrt0_tu = 0  ! D
-      iStrt0_ut = 0  ! D"
-      iStrt0_au = 0  ! E
-      iStrt0_bt = 0  ! E"
-      iStrt0_ab = 0  ! F
-
-      If ( TCVA  ) then
-        Call GetMem('ij','ALLO','REAL',iStrt00_ij,Len_ij)
-        iMemTCVX(1,iSym,jSym,1)=iStrt00_ij
-        iMemTCVX(1,iSym,jSym,2)=Len_ij
-        Call GetMem('ji','ALLO','REAL',iStrt00_ji,Len_ji)
-        iMemTCVX(1,jSym,iSym,1)=iStrt00_ji
-        iMemTCVX(1,jSym,iSym,2)=Len_ji
-      EndIf
-      If ( TCVB  ) then
-        Call GetMem('tj','ALLO','REAL',iStrt00_tj,Len_tj)
-        iMemTCVX(2,iSym,jSym,1)=iStrt00_tj
-        iMemTCVX(2,iSym,jSym,2)=Len_tj
-        Call GetMem('jt','ALLO','REAL',iStrt00_jt,Len_jt)
-        iMemTCVX(7,jSym,iSym,1)=iStrt00_jt
-        iMemTCVX(7,jSym,iSym,2)=Len_jt
-      EndIf
-      If ( TCVBt ) then
-        Call GetMem('ui','ALLO','REAL',iStrt00_ui,Len_ui)
-        iMemTCVX(2,jSym,iSym,1)=iStrt00_ui
-        iMemTCVX(2,jSym,iSym,2)=Len_ui
-        Call GetMem('iu','ALLO','REAL',iStrt00_iu,Len_iu)
-        iMemTCVX(7,iSym,jSym,1)=iStrt00_iu
-        iMemTCVX(7,iSym,jSym,2)=Len_iu
-      EndIf
-      If ( TCVC  ) then
-        Call GetMem('aj','ALLO','REAL',iStrt00_aj,Len_aj)
-        iMemTCVX(3,iSym,jSym,1)=iStrt00_aj
-        iMemTCVX(3,iSym,jSym,2)=Len_aj
-      EndIf
-      If ( TCVCt ) then
-        Call GetMem('bi','ALLO','REAL',iStrt00_bi,Len_bi)
-        iMemTCVX(3,jSym,iSym,1)=iStrt00_bi
-        iMemTCVX(3,jSym,iSym,2)=Len_bi
-      EndIf
-      If ( TCVD  ) then
-        Call GetMem('tu','ALLO','REAL',iStrt00_tu,Len_tu)
-        iMemTCVX(4,iSym,jSym,1)=iStrt00_tu
-        iMemTCVX(4,iSym,jSym,2)=Len_tu
-        Call GetMem('ut','ALLO','REAL',iStrt00_ut,Len_ut)
-        iMemTCVX(4,jSym,iSym,1)=iStrt00_ut
-        iMemTCVX(4,jSym,iSym,2)=Len_ut
-      EndIf
-      If ( TCVE  ) then
-        Call GetMem('au','ALLO','REAL',iStrt00_au,Len_au)
-        iMemTCVX(5,iSym,jSym,1)=iStrt00_au
-        iMemTCVX(5,iSym,jSym,2)=Len_au
-      EndIf
-      If ( TCVEt ) then
-        Call GetMem('bt','ALLO','REAL',iStrt00_bt,Len_bt)
-        iMemTCVX(5,jSym,iSym,1)=iStrt00_bt
-        iMemTCVX(5,jSym,iSym,2)=Len_bt
-      EndIf
-      If ( TCVF  ) then
-        Call GetMem('ab','ALLO','REAL',iStrt00_ab,Len_ab)
-        iMemTCVX(6,iSym,jSym,1)=iStrt00_ab
-        iMemTCVX(6,iSym,jSym,2)=Len_ab
+        Call mma_allocate(TCVX(6,jSym,iSym)%A,Nab,NumV,Label='TCVF')
       EndIf
 
       iStrt = 1
@@ -323,20 +225,6 @@
 *  ---  Start Loop  jVec  ---
         Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
           iVec = jVec - iiVec + 1
-
-          If ( TCVA  ) iStrt_ij = iStrt00_ij + (jVec-1) * Nij
-          If ( TCVA  ) iStrt_ji = iStrt00_ji + (jVec-1) * Nji
-          If ( TCVB  ) iStrt_tj = iStrt00_tj + (jVec-1) * Ntj
-          If ( TCVB  ) iStrt_jt = iStrt00_jt + (jVec-1) * Njt
-          If ( TCVBt ) iStrt_ui = iStrt00_ui + (jVec-1) * Nui
-          If ( TCVBt ) iStrt_iu = iStrt00_iu + (jVec-1) * Niu
-          If ( TCVC  ) iStrt_aj = iStrt00_aj + (jVec-1) * Naj
-          If ( TCVCt ) iStrt_bi = iStrt00_bi + (jVec-1) * Nbi
-          If ( TCVD  ) iStrt_tu = iStrt00_tu + (jVec-1) * Ntu
-          If ( TCVD  ) iStrt_ut = iStrt00_ut + (jVec-1) * Nut
-          If ( TCVE  ) iStrt_au = iStrt00_au + (jVec-1) * Nau
-          If ( TCVEt ) iStrt_bt = iStrt00_bt + (jVec-1) * Nbt
-          If ( TCVF  ) iStrt_ab = iStrt00_ab + (jVec-1) * Nab
 
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
           jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
@@ -387,45 +275,54 @@ C         From CHFV A(Alpha,Beta) to XBt(Beta,tMO)
 C         From XAj(Alpha,jMO) to ij(i,j)
           If ( TCVA ) then
             Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
-     &                  CMO(iStrt0MO),nIsh(iSym), Work(iStrt_ij))
+     &                    CMO(iStrt0MO),nIsh(iSym),
+     &                    TCVX(1,iSym,jSym)%A(:,jVec))
             Call Trnsps(nIsh(iSym),nIsh(jSym),
-     &                                    Work(iStrt_ij),Work(iStrt_ji))
+     &                  TCVX(1,iSym,jSym)%A(:,jVec),
+     &                  TCVX(1,jSym,iSym)%A(:,jVec))
           EndIf
           iStrt0MO = iStrt0MO + nIsh(iSym) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to tj(t,j)
           If ( TCVB ) then
             Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
-     &                  CMO(iStrt0MO),nAsh(iSym), Work(iStrt_tj))
+     &                  CMO(iStrt0MO),nAsh(iSym),
+     &                  TCVX(2,iSym,jSym)%A(:,jVec))
             Call Trnsps(nAsh(iSym),nIsh(jSym),
-     &                                    Work(iStrt_tj),Work(iStrt_jt))
+     &                  TCVX(2,iSym,jSym)%A(:,jVec),
+     &                  TCVX(7,jSym,iSym)%A(:,jVec))
           EndIf
 
 C         From XAu(Alpha,jMO) to tu(t,u)
           If ( TCVD ) then
             Call ProdsA_1(XAu, nBas(iSym),nAsh(jSym),
-     &                  CMO(iStrt0MO),nAsh(iSym), Work(iStrt_tu))
+     &                   CMO(iStrt0MO),nAsh(iSym),
+     &                   TCVX(4,iSym,jSym)%A(:,jVec))
             Call Trnsps(nAsh(iSym),nAsh(jSym),
-     &                                    Work(iStrt_tu),Work(iStrt_ut))
+     &                  TCVX(4,iSym,jSym)%A(:,jVec),
+     &                  TCVX(4,jSym,iSym)%A(:,jVec))
           EndIf
           iStrt0MO = iStrt0MO + nAsh(iSym) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to aj(a,j)
           If ( TCVC ) then
             Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
-     &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
+     &                   CMO(iStrt0MO),nSsh(iSym),
+     &                   TCVX(3,iSym,jSym)%A(:,jVec))
           EndIf
 
 C         From XAu(Alpha,jMO) to au(a,u)
           If ( TCVE ) then
             Call ProdsA_1(XAu, nBas(iSym),nAsh(jSym),
-     &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_au))
+     &                    CMO(iStrt0MO),nSsh(iSym),
+     &                    TCVX(5,iSym,jSym)%A(:,jVec))
           EndIf
 
 C         From XAb(Alpha,jMO) to ab(a,b)
           If ( TCVF ) then
             Call ProdsA_1(XAb, nBas(iSym),nSsh(jSym),
-     &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_ab))
+     &                   CMO(iStrt0MO),nSsh(iSym),
+     &                   TCVX(6,jSym,iSym)%A(:,jVec))
           EndIf
 
           jStrt0MO = jStrt + ( nFro(jSym) + nIsh(jSym) ) * nBas(jSym)
@@ -433,22 +330,26 @@ C         From XAb(Alpha,jMO) to ab(a,b)
 C         From XBi(Beta,jMO) to ui(u,i)
           If ( TCVBt ) then
             Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
-     &                  CMO(jStrt0MO),nAsh(jSym), Work(iStrt_ui))
+     &                    CMO(jStrt0MO),nAsh(jSym),
+     &                    TCVX(2,jSym,iSym)%A(:,jVec))
             Call Trnsps(nAsh(jSym),nIsh(iSym),
-     &                                    Work(iStrt_ui),Work(iStrt_iu))
+     &                  TCVX(2,jSym,iSym)%A(:,jVec),
+     &                  TCVX(7,iSym,jSym)%A(:,jVec))
           EndIf
           jStrt0MO = jStrt0MO + nAsh(jSym) * nBas(jSym)
 
 C         From XBi(Beta,jMO) to bi(b,i)
           If ( TCVCt ) then
             Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
-     &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bi))
+     &                   CMO(jStrt0MO),nSsh(jSym),
+     &                   TCVX(3,jSym,iSym)%A(:,jVec))
           EndIf
 
 C         From XBt(Beta,jMO) to bt(b,t)
           If ( TCVEt ) then
             Call ProdsA_1(XBt, nBas(jSym),nAsh(iSym),
-     &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bt))
+     &                   CMO(jStrt0MO),nSsh(jSym),
+     &                   TCVX(5,jSym,iSym)%A(:,jVec))
           EndIf
 
 *     --- End of Transformations

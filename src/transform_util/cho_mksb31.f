@@ -81,7 +81,6 @@ c Avoid unused argument warnings
       Implicit Integer (i-n)
       Real*8, Allocatable:: AddSB(:)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 
@@ -95,12 +94,11 @@ c Avoid unused argument warnings
       Call mma_allocate(AddSBt,LenSB,Label='AddSBt')
 
 *     Define Lab
-      iAddAB = iMemTCVX(3,iSymA,iSymB,1)
       LenAB  = LenSB
 CGG   ------------------------------------------------------------------
 c      If(IfTest) then
 c      Write(6,*)'     MkCouSB31: TCVB(',iSymA,',',iSymB,')'
-c      Write(6,'(8F10.6)')(Work(iAddAB+k),k=0,LenAB*numV-1)
+c      Write(6,'(8F10.6)') TCVX(3,iSymA,iSymB)%A(:,:)
 c      Call XFlush(6)
 c      EndIf
 CGG   ------------------------------------------------------------------
@@ -111,7 +109,7 @@ CGG   ------------------------------------------------------------------
 
 *     Generate the SubBlock
       Call DGEMM_('N','N',LenAB,1,numV,
-     &            1.0d0,Work(iAddAB),LenAB,
+     &            1.0d0,TCVX(3,iSymA,iSymB)%A,LenAB,
      &                  Lij,NumV,
      &            0.0d0,AddSBt,LenSB )
       Call Trnsps(nSsh(iSymA),nIsh(iSymB),AddSBt,AddSB)

@@ -11,7 +11,7 @@
 * Copyright (C) 2004,2005, Giovanni Ghigo                              *
 ************************************************************************
       Subroutine ChoMP2_TraA(iSymL, iSym,jSym, NumV, CMO,NCMO,
-     &                               lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                               lUCHFV, iStrtVec_AB, nFVec)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden                                    *
@@ -24,7 +24,6 @@
       Integer NCMO
       Real*8 CMO(NCMO)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
       Logical TCVC,TCVCt
@@ -55,20 +54,16 @@
         TCVC = .True.
         Len_XAj = nBas(iSym) * nIsh(jSym)
         Naj = nSsh(iSym) * nIsh(jSym)
-        Len_aj = Naj * NumV
-        Call GetMem('aj','ALLO','REAL',iStrt00_aj,Len_aj)
-        iMemTCVX(3,iSym,jSym,1)=iStrt00_aj
-        iMemTCVX(3,iSym,jSym,2)=Len_aj
+
+        Call mma_allocate(TCVX(3,iSym,jSym)%A,Naj,NumV,Label='TCVX')
       EndIf
 * TCV-Ct:
       If (TCVXist(3,jSym,iSym)) Then
         TCVCt= .True.
         Len_XBi = nBas(jSym) * nIsh(iSym)
         Nbi = nSsh(jSym) * nIsh(iSym)
-        Len_bi = Nbi * NumV
-        Call GetMem('bi','ALLO','REAL',iStrt00_bi,Len_bi)
-        iMemTCVX(3,jSym,iSym,1)=iStrt00_bi
-        iMemTCVX(3,jSym,iSym,2)=Len_bi
+
+        Call mma_allocate(TCVX(3,jSym,iSym)%A,Nbi,NumV,Label='TCVX')
       EndIf
 
       iStrt = 1
@@ -97,9 +92,6 @@
         Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
           iVec = jVec - iiVec + 1
 
-          If ( TCVC  ) iStrt_aj = iStrt00_aj + (jVec-1) * Naj
-          If ( TCVCt ) iStrt_bi = iStrt00_bi + (jVec-1) * Nbi
-
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVC ) then
@@ -121,14 +113,16 @@ C         From XAj(Alpha,jMO) to aj(a,j)
           If ( TCVC ) then
             iStrt0MO = iStrt + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
             Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
-     &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
+     &                  CMO(iStrt0MO),nSsh(iSym),
+     &                  TCVX(3,iSym,jSym)%A(:,jVec))
           EndIf
 
 C         From XBi(Beta,jMO) to bi(b,i)
           If ( TCVCt ) then
             jStrt0MO = jStrt + (nFro(jSym)+nIsh(jSym)) * nBas(jSym)
             Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
-     &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bi))
+     &                  CMO(jStrt0MO),nSsh(jSym),
+     &                  TCVX(3,jSym,iSym)%A(:,jVec))
           EndIf
 
 *     --- End of Transformations

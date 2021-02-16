@@ -26,7 +26,6 @@
       Real*8 AddLx0(*)
       Logical SameLx
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
 *     Build Lx
@@ -52,10 +51,11 @@
       EndIf
 
       iAddLx  = 1
-      iAddTCVX= iMemTCVX(LxType,iSymA,iSymI,1)+nSsh(iSymA)*(iIx-1)
+      iAddTCVX= 1+nSsh(iSymA)*(iIx-1)
       Do iV=1,numV
-        Call dCopy_(nSsh(iSymA),Work(iAddTCVX),1,AddLx0(iAddLx),1)
-        iAddTCVX= iAddTCVX +  nSsh(iSymA) * nIx
+        Call dCopy_(nSsh(iSymA),
+     &              TCVX(LxType,iSymA,iSymI)%A(iAddTCVX,iV),1,
+     &              AddLx0(iAddLx),1)
         iAddLx  = iAddLx + nSsh(iSymA)
       EndDo
 

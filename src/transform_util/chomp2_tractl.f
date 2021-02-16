@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2004,2005, Giovanni Ghigo                              *
+*               2021, Roland Lindh                                     *
 ************************************************************************
 *  ChoMP2_TraCtl
 *
@@ -50,7 +51,7 @@
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
       Dimension CMO(NCMO)
       Character*4 CHNm
@@ -107,16 +108,7 @@
 
 * --- Inizialize information arrays. ---
 
-*     The TCVx existing flag and the Memory Allocation & Length array:
-      Do iType=1,MxTCVx
-        Do iSym=1,MaxSym
-          Do jSym=1,MaxSym
-            TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-            iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
-            iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
-          EndDo
-        EndDo
-      EndDo
+      TCVXist(:,:,:)=.False. ! TCVx existing flag.
 
 *     The Address Field for MOLINT:
       LenIAD2M=3*36*36
@@ -138,13 +130,8 @@
       DO iSymL=1,nSym
 
 *       Re-Inizialize the TCVx & iMemTCVX
-        Do iSym=1,MaxSym
-          Do jSym=1,MaxSym
-            TCVXist(3,iSym,jSym)=.False. ! TCVx existing flag.
-            iMemTCVX(3,iSym,jSym,1)=ip_Dummy ! Memory Address and
-            iMemTCVX(3,iSym,jSym,2)=0 ! Length in Work(TCVx)
-          EndDo
-        EndDo
+        TCVXist(:,:,:)=.False. ! TCVx existing flag.
+
         Call Mem_Est(iSymL,nVec,nFVec)
         If (nVec.GT.0 .and. nFVec.GT.0) then
           nBatch =(NumCho(iSymL)-1)/nVec + 1
@@ -165,7 +152,6 @@
           else
             NumV = nVec
           EndIf
-          nFBatch = (NumV-1) / nFVec + 1
 
 *   ---   Start Transformation of Cholesy Vectors  CHFV -> TCVx
           Call Timing(CPU1,CPE,TIO1,TIOE)
@@ -183,10 +169,10 @@
               Call dAName_MF_WA(lUCHFV,CHName)
               If (iSym.EQ.jSym) then
                Call ChoMP2_TraS(iSymL, iSym,jSym, NumV, CMO,NCMO,
-     &                      lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                      lUCHFV, iStrtVec_AB, nFVec)
               Else
                Call ChoMP2_TraA(iSymL, iSym,jSym ,NumV, CMO,NCMO,
-     &                      lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                      lUCHFV, iStrtVec_AB, nFVec)
               EndIf
               Call dAClos(lUCHFV)
              EndIf
@@ -222,13 +208,10 @@
 
           Do iSym=1,MaxSym
            Do jSym=1,MaxSym
-            If(iMemTCVX(3,iSym,jSym,1).NE.ip_Dummy) then
-             iAddr=iMemTCVX(3,iSym,jSym,1)
-             iLen =iMemTCVX(3,iSym,jSym,2)
-             Call GetMem('iAddr','Free','Real',iAddr,iLen)
-             iMemTCVX(3,iSym,jSym,1)=ip_Dummy
-             iMemTCVX(3,iSym,jSym,2)=0
-            EndIf
+
+            If (Allocated(TCVX(3,iSym,jSym)%A))
+     &         Call mma_deallocate(TCVX(3,iSym,jSym)%A)
+
            EndDo
           EndDo
           Call Timing(CPU3,CPE,TIO3,TIOE)

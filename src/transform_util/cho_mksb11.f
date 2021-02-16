@@ -81,7 +81,6 @@
       Implicit Integer (i-n)
       Real*8, Allocatable:: AddSB(:)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 
@@ -92,12 +91,11 @@
       Call mma_allocate(AddSB,LenSB,Label='AddSB')
 
 *     Define Lab
-      iAddAB = iMemTCVX(1,iSymA,iSymB,1)
       LenAB  = LenSB
 CGG   ------------------------------------------------------------------
 c      If(IfTest) then
 c      Write(6,*)'     MkCouSB11: TCVA(',iSymA,',',iSymB,')'
-c      Write(6,'(8F10.6)')(Work(iAddAB+k),k=0,LenAB*numV-1)
+c      Write(6,'(8F10.6)') TCVX(1,iSymA,iSymB)%A(:,:)
 c      Call XFlush(6)
 c      EndIf
 CGG   ------------------------------------------------------------------
@@ -108,7 +106,7 @@ CGG   ------------------------------------------------------------------
 
 *     Generate the SubBlock
       Call DGEMM_('N','N',LenAB,1,numV,
-     &             1.0d0,Work(iAddAB),LenAB,
+     &             1.0d0,TCVX(1,iSymA,iSymB)%A,LenAB,
      &                   Lij,numV,
      &             0.0d0,AddSB,LenSB )
 
