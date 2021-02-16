@@ -21,13 +21,16 @@
   ! local variables
   REAL (wp) :: hmin, hmax, MHmin_exp, MHmax_exp, MHmin_calc, MHmax_calc, MHmin, MHmax
   REAL (wp) :: gnuplot_version
-  INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, file_size, StdOut, iErr
+  INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, file_size, StdOut
   LOGICAL   :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)  :: line1, line2, cdummy
   CHARACTER(LEN=100)  :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL   :: AixRm
   INTEGER             :: Length
   CHARACTER(LEN=1023) :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
+#ifndef __INTEL_COMPILER
+  INTEGER             :: iErr
+#endif
 
   dbg=.false.
   iErr=0
@@ -357,7 +360,7 @@
   ! local variables
   REAL (wp) :: hmin, hmax, MHmin_calc, MHmax_calc, MHmin, MHmax, r
   REAL (wp) :: gnuplot_version
-  INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, ik, ic, file_size, StdOut, iErr
+  INTEGER   :: file_number, iH, iTempMagn, LuPlt, LuData, ik, ic, file_size, StdOut
   LOGICAL   :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)    :: line1, line2, fmtline, cdummy
   CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
@@ -365,6 +368,9 @@
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1023)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
+#ifndef __INTEL_COMPILER
+  INTEGER               :: iErr
+#endif
 
   color(  1)="#ffffff"; color(  2)="#000000"; color(  3)="#a0a0a0"; color(  4)="#ff0000"; color(  5)="#00c000"
   color(  6)="#0080ff"; color(  7)="#c000ff"; color(  8)="#00eeee"; color(  9)="#c04000"; color( 10)="#c8c800"
