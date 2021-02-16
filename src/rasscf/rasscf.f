@@ -159,6 +159,9 @@
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
 
+* Set the HDF5 file id (a proper id will never be 0)
+      wfn_fileid = 0
+
 * Set some Cholesky stuff
       DoActive=.true.
       DoQmat=.false.
