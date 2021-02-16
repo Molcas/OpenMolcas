@@ -29,12 +29,11 @@
       CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
       LOGICAL           :: dbg
       Integer, external :: IsFreeUnit, AixRm
-#ifndef __INTEL_COMPILER
       INTEGER           :: iErr
-#endif
 
       dbg=.false.
       StdOut = 6
+      iErr=0
 
       xmin=        MINVAL(DBLE( M(3,1:nMult,:,1:nMult,:) )) -
      &     0.10_wp*MAXVAL(DBLE( M(3,1:nMult,:,1:nMult,:) ))
@@ -109,6 +108,7 @@
          ! delete the file
          IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
          iErr=AixRm("lineOUT")
+         IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       ELSE
          IF (dbg) WRITE (StdOut,'(A)') 'file "lineOUT" does not exist'//
      &                                 ' in WorkDir'
@@ -119,7 +119,6 @@
       IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
 #ifdef __INTEL_COMPILER
-      iErr=0
       CALL systemf ( "which gnuplot >> lineOUT", iErr )
       IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 #else
@@ -165,6 +164,7 @@
       END IF
       ! remove file "lineOUT"
       iErr=AixRm("lineOUT")
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 
 
 !!!!! check the version of the gnuplot:
@@ -189,6 +189,7 @@
         CLOSE (file_number)
         ! remove file "lineOUT"
         iErr=AixRm("lineOUT")
+        IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       END IF
 
 !!!!! prepare the energy data file:
@@ -196,6 +197,7 @@
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
       IF(file_exist)  iErr=AixRm(trim(datafile))
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       LuData=IsFreeUnit(785)
       Call molcas_open(LuData,datafile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -226,6 +228,7 @@
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
       IF(file_exist)  iErr=AixRm(trim(datafile))
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       LuData=IsFreeUnit(786)
       Call molcas_open(LuData,datafile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -279,6 +282,7 @@
       INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
       IF(file_exist) iErr=AixRm(trim(plotfile))
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       LuPlt=IsFreeUnit(855)
       Call molcas_open(LuPlt,plotfile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
