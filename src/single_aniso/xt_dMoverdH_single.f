@@ -441,11 +441,11 @@ C -------------------------------------------------------------------
 c  calcualtion of the standard deviation:
       If (tinput) Then
          Write(6,'(a,5x, f20.14)') 'ST.DEV: X= dM/dH:',
-     &          dev(  (nT-nTempMagn),
+     &          dev(  nT,
      &                     XTM_dMdH((1+nTempMagn):(nT+nTempMagn)),
      &                        XTexp((1+nTempMagn):(nT+nTempMagn))  )
          Write(6,'(a,5x, f20.14)') 'ST.DEV: X= M/H:',
-     &          dev(  (nT-nTempMagn),
+     &          dev(  nT,
      &                     XTM_MH((1+nTempMagn):(nT+nTempMagn)),
      &                      XTexp((1+nTempMagn):(nT+nTempMagn))  )
       Write(6,'(A)') '-----|----------------------------------------'//

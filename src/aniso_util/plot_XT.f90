@@ -12,7 +12,7 @@
 
   IMPLICIT NONE
 
-  Integer, parameter        :: wp=kind(0.d0)
+  Integer, parameter    :: wp=kind(0.d0)
   INTEGER, INTENT(in)   :: nT
   REAL (wp), INTENT(in) :: T(nT)
   REAL (wp), INTENT(in) :: XTexp(nT)
@@ -102,7 +102,8 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-  CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  !CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  CALL execute_command_line ( "which gnuplot >> lineOUT" )
 
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
@@ -149,7 +150,8 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-    CALL systemf ( gnuplot_CMD, iErr )
+    !CALL systemf ( gnuplot_CMD, iErr )
+    CALL execute_command_line ( gnuplot_CMD )
     file_number=452
     Call molcas_open(file_number,"lineOUT")
     READ (file_number,*) cdummy, gnuplot_version
@@ -296,7 +298,8 @@
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 
-    CALL systemf ( gnuplot_CMD, iErr )
+    !CALL systemf ( gnuplot_CMD, iErr )
+    CALL execute_command_line ( gnuplot_CMD )
 
     IF ( gnuplot_version < 5.0_wp ) Then
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
@@ -420,7 +423,8 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
-  CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  !CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  CALL execute_command_line ( "which gnuplot >> lineOUT" )
 
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
@@ -453,6 +457,7 @@
   END IF
   ! remove file "lineOUT"
   iErr=AixRm("lineOUT")
+  If(dbg) WRITE(StdOut,*) 'execute_gnuplot_cmd =', execute_gnuplot_cmd
 !--------------------------------------------------------------------------------------------
 
 
@@ -462,7 +467,8 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
-    CALL systemf ( gnuplot_CMD, iErr )
+    !CALL systemf ( gnuplot_CMD, iErr )
+    CALL execute_command_line ( gnuplot_CMD )
     file_number=452
     Call molcas_open(file_number,"lineOUT")
     READ (file_number,*) cdummy, gnuplot_version
@@ -588,6 +594,7 @@
     execute_gnuplot_cmd=.false.
   END IF
 
+
   IF (execute_gnuplot_cmd) Then
     ! attempt to execute the script
     IF (dbg) THEN
@@ -603,7 +610,8 @@
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 
-    CALL systemf ( gnuplot_CMD, iErr )
+    !CALL systemf ( gnuplot_CMD, iErr )
+    CALL execute_command_line ( gnuplot_CMD )
 
     IF ( gnuplot_version < 5.0_wp ) Then
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)

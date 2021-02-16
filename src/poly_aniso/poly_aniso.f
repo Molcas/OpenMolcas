@@ -859,7 +859,8 @@ c---------------------------------------------------------------------
      &                       Tmin, Tmax, XTexp, eso, w, T, R_ROT,
      &                       zJ, Xfield, EM, THRS, XT_no_field,
      &                       dipso, s_so, dipexch, s_exch,
-     &                       tinput, smagn, m_paranoid, m_accurate )
+     &                       tinput, smagn, m_paranoid, m_accurate,
+     &                       doplot )
          End If
       Else
          Write(6,'(A)') 'Computation of the magnetic susceptibility'//
