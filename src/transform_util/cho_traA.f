@@ -80,10 +80,14 @@
 
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
       Dimension CMO(NCMO)
       Logical TCVA,TCVB,TCVBt,TCVC,TCVCt,TCVD,TCVE,TCVEt,TCVF
+
+      Real*8, Allocatable:: XAj(:), XAu(:), XAb(:), XBi(:), XBt(:)
+      Real*8, Allocatable:: FAB(:,:)
 
 * --- Memory to allocate & Nr. of Cholesky vectors transformable
 *     A=Alpha(AO);  B=Beta(AO)
@@ -112,7 +116,6 @@
       Nbt = 0  ! E"
       Nab = 0  ! F
 
-      Len_FAB = 0
       Len_ij = 0  ! A
       Len_ji = 0  ! A"
       Len_tj = 0  ! B
@@ -236,6 +239,7 @@
       iStrt0_au = 0  ! E
       iStrt0_bt = 0  ! E"
       iStrt0_ab = 0  ! F
+
       If ( TCVA  ) then
         Call GetMem('ij','ALLO','REAL',iStrt00_ij,Len_ij)
         iMemTCVX(1,iSym,jSym,1)=iStrt00_ij
@@ -316,14 +320,13 @@
         If ( TCVF  ) iStrt0_ab = iStrt00_ab + (iFBatch-1) * nFVec * Nab
 
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
-        Len_FAB = NFAB * NumFV
         iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
-        Call GetMem('FAB','Allo','Real',iStrt0_FAB,Len_FAB)
-        Call RdChoVec(Work(iStrt0_FAB),NFAB,NumFV,iStrtVec_FAB,lUCHFV)
+        Call mma_allocate(FAB,NFAB,NumFV,Label='FAB')
+        Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
 *  ---  Start Loop  iVec  ---
         Do iVec=1,NumFV   ! Loop  iVec
-          iStrt_FAB = iStrt0_FAB + (iVec-1) * NFAB
+
           If ( TCVA  ) iStrt_ij = iStrt0_ij + (iVec-1) * Nij
           If ( TCVA  ) iStrt_ji = iStrt0_ji + (iVec-1) * Nji
           If ( TCVB  ) iStrt_tj = iStrt0_tj + (iVec-1) * Ntj
@@ -347,25 +350,25 @@
 
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVA .or. TCVB .or. TCVC ) then
-            Call GetMem('XAj','ALLO','REAL',iStrt0_XAj,Len_XAj)
-            Call ProdsA_2(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(jStrt0MO),nIsh(jSym), Work(iStrt0_XAj))
+            Call mma_allocate(XAj,Len_XAj,Label='XAj')
+            Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(jStrt0MO),nIsh(jSym), XAj)
           EndIf
           jStrt0MO = jStrt0MO + nIsh(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAu(Alpha,uMO)
           If ( TCVD .or. TCVE ) then
-            Call GetMem('XAu','ALLO','REAL',iStrt0_XAu,Len_XAu)
-            Call ProdsA_2(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(jStrt0MO),nAsh(jSym), Work(iStrt0_XAu))
+            Call mma_allocate(XAu,Len_XAu,Label='XAu')
+            Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(jStrt0MO),nAsh(jSym), XAu)
           EndIf
           jStrt0MO = jStrt0MO + nAsh(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAb(Alpha,bMO)
           If ( TCVF ) then
-            Call GetMem('XAb','ALLO','REAL',iStrt0_XAb,Len_XAb)
-            Call ProdsA_2(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt0_XAb))
+            Call mma_allocate(XAb,Len_XAb,Label='XAb')
+            Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(jStrt0MO),nSsh(jSym), XAb)
           EndIf
 
           iStrt0MO = 1
@@ -376,17 +379,17 @@ C         From CHFV A(Alpha,Beta) to XAb(Alpha,bMO)
 
 C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
           If ( TCVBt .or. TCVCt ) then
-            Call GetMem('XBi','ALLO','REAL',iStrt0_XBi,Len_XBi)
-            Call ProdsA_2t(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(iStrt0MO),nIsh(iSym), Work(iStrt0_XBi))
+            Call mma_allocate(XBi,Len_XBi,Label='XBi')
+            Call ProdsA_2t(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(iStrt0MO),nIsh(iSym), XBi)
           EndIf
           iStrt0MO = iStrt0MO + nIsh(iSym) * nBas(iSym)
 
 C         From CHFV A(Alpha,Beta) to XBt(Beta,tMO)
           If ( TCVEt ) then
-            Call GetMem('XBt','ALLO','REAL',iStrt0_XBt,Len_XBt)
-            Call ProdsA_2t(Work(iStrt_FAB), nBas(iSym),nBas(jSym),
-     &                  CMO(iStrt0MO),nAsh(iSym), Work(iStrt0_XBt))
+            Call mma_allocate(XBt,Len_XBt,Label='XBt')
+            Call ProdsA_2t(FAB(:,iVec), nBas(iSym),nBas(jSym),
+     &                  CMO(iStrt0MO),nAsh(iSym), XBt)
           EndIf
 
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
@@ -398,7 +401,7 @@ C         From CHFV A(Alpha,Beta) to XBt(Beta,tMO)
 
 C         From XAj(Alpha,jMO) to ij(i,j)
           If ( TCVA ) then
-            Call ProdsA_1(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
      &                  CMO(iStrt0MO),nIsh(iSym), Work(iStrt_ij))
             Call Trnsps(nIsh(iSym),nIsh(jSym),
      &                                    Work(iStrt_ij),Work(iStrt_ji))
@@ -407,7 +410,7 @@ C         From XAj(Alpha,jMO) to ij(i,j)
 
 C         From XAj(Alpha,jMO) to tj(t,j)
           If ( TCVB ) then
-            Call ProdsA_1(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
      &                  CMO(iStrt0MO),nAsh(iSym), Work(iStrt_tj))
             Call Trnsps(nAsh(iSym),nIsh(jSym),
      &                                    Work(iStrt_tj),Work(iStrt_jt))
@@ -415,7 +418,7 @@ C         From XAj(Alpha,jMO) to tj(t,j)
 
 C         From XAu(Alpha,jMO) to tu(t,u)
           If ( TCVD ) then
-            Call ProdsA_1(Work(iStrt0_XAu), nBas(iSym),nAsh(jSym),
+            Call ProdsA_1(XAu, nBas(iSym),nAsh(jSym),
      &                  CMO(iStrt0MO),nAsh(iSym), Work(iStrt_tu))
             Call Trnsps(nAsh(iSym),nAsh(jSym),
      &                                    Work(iStrt_tu),Work(iStrt_ut))
@@ -424,19 +427,19 @@ C         From XAu(Alpha,jMO) to tu(t,u)
 
 C         From XAj(Alpha,jMO) to aj(a,j)
           If ( TCVC ) then
-            Call ProdsA_1(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
      &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
           EndIf
 
 C         From XAu(Alpha,jMO) to au(a,u)
           If ( TCVE ) then
-            Call ProdsA_1(Work(iStrt0_XAu), nBas(iSym),nAsh(jSym),
+            Call ProdsA_1(XAu, nBas(iSym),nAsh(jSym),
      &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_au))
           EndIf
 
 C         From XAb(Alpha,jMO) to ab(a,b)
           If ( TCVF ) then
-            Call ProdsA_1(Work(iStrt0_XAb), nBas(iSym),nSsh(jSym),
+            Call ProdsA_1(XAb, nBas(iSym),nSsh(jSym),
      &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_ab))
           EndIf
 
@@ -448,7 +451,7 @@ C         From XAb(Alpha,jMO) to ab(a,b)
 
 C         From XBi(Beta,jMO) to ui(u,i)
           If ( TCVBt ) then
-            Call ProdsA_1(Work(iStrt0_XBi), nBas(jSym),nIsh(iSym),
+            Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
      &                  CMO(jStrt0MO),nAsh(jSym), Work(iStrt_ui))
             Call Trnsps(nAsh(jSym),nIsh(iSym),
      &                                    Work(iStrt_ui),Work(iStrt_iu))
@@ -457,38 +460,28 @@ C         From XBi(Beta,jMO) to ui(u,i)
 
 C         From XBi(Beta,jMO) to bi(b,i)
           If ( TCVCt ) then
-            Call ProdsA_1(Work(iStrt0_XBi), nBas(jSym),nIsh(iSym),
+            Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
      &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bi))
           EndIf
 
 C         From XBt(Beta,jMO) to bt(b,t)
           If ( TCVEt ) then
-            Call ProdsA_1(Work(iStrt0_XBt), nBas(jSym),nAsh(iSym),
+            Call ProdsA_1(XBt, nBas(jSym),nAsh(iSym),
      &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bt))
           EndIf
 
 *     --- End of Transformations
 
-          If ( TCVA .or. TCVB .or. TCVC ) then
-            Call GetMem('XAj','FREE','REAL',iStrt0_XAj,Len_XAj)
-          EndIf
-          If ( TCVD .or. TCVE ) then
-            Call GetMem('XAu','FREE','REAL',iStrt0_XAu,Len_XAu)
-          EndIf
-          If ( TCVF ) then
-            Call GetMem('XAb','FREE','REAL',iStrt0_XAb,Len_XAb)
-          EndIf
-          If ( TCVBt .or. TCVCt ) then
-            Call GetMem('XBi','FREE','REAL',iStrt0_XBi,Len_XBi)
-          EndIf
-          If ( TCVEt ) then
-            Call GetMem('XBt','FREE','REAL',iStrt0_XBt,Len_XBt)
-          EndIf
+          If ( TCVA .or. TCVB .or. TCVC ) Call mma_deallocate(XAj)
+          If ( TCVD .or. TCVE )           Call mma_deallocate(XAu)
+          If ( TCVF )                     Call mma_deallocate(XAb)
+          If ( TCVBt .or. TCVCt )         Call mma_deallocate(XBi)
+          If ( TCVEt )                    Call mma_deallocate(XBt)
 
         EndDo
 *  ---  End Loop  iVec  ---
 
-        Call GetMem('FAB','Free','Real',iStrt0_FAB,Len_FAB)
+        Call mma_deallocate(FAB)
       ENDDO
 * --- END LOOP iFBatch -------------------------------------------------
 

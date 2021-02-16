@@ -34,7 +34,7 @@
 ************************************************************************
       SubRoutine RdChoVec(Vec,nDim,nVec,iVec1,Lunit)
       Implicit None
-      Real*8 Vec(*)
+      Real*8 Vec(nDim,nVec)
       Integer nDim, nVec, iVec1, Lunit
 
       Integer iOpt, iAdr, nTot

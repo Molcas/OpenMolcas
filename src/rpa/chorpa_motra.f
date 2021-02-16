@@ -106,8 +106,8 @@ C
      *                                Work(ip_CMO(iSpin)),Work(ip_lCMO))
          ! Set base name for MO files
          ! Transform Cholesky vectors
-         Call Cho_MOTra_(Work(ip_lCMO),l_lCMO,nSym,
-     *                   nBas,nOrb,
+         Call Cho_MOTra_Internal(Work(ip_lCMO),l_lCMO,nSym,
+     *                           nBas,nOrb,
      *                  iWork(ip_lnFro),iWork(ip_lnOcc),iWork(ip_Zeros),
      *                   iWork(ip_lnVir),iWork(ip_lnDel),
      *                   BName(iSpin),.false.,0,.false.)

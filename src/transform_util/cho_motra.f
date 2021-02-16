@@ -8,91 +8,92 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-        Subroutine Cho_MOtra(CMO,nCMOs,Do_int,ihdf5)
-        Implicit None
-        Integer nCMOs, ihdf5
-        Real*8  CMO(nCMOs)
-        Logical Do_int
+      Subroutine Cho_MOtra(CMO,nCMOs,Do_int,ihdf5)
+      Implicit None
+      Integer nCMOs, ihdf5
+      Real*8  CMO(nCMOs)
+      Logical Do_int
 
-        Character*6 BName
+      Character*6 BName
 
-        Integer iSym
-        Integer nSym
-        Integer nBas(8), nOrb(8)
-        Integer nFro(8), nIsh(8), nAsh(8)
-        Integer nSsh(8), nDel(8)
+      Integer iSym
+      Integer nSym
+      Integer nBas(8), nOrb(8)
+      Integer nFro(8), nIsh(8), nAsh(8)
+      Integer nSsh(8), nDel(8)
 
-        Logical InitChoEnv
+      Logical InitChoEnv
 
-        Call Get_iScalar('nSym',nSym)
-        Call Get_iArray('nBas',nBas,nSym)
-        Call Get_iArray('nOrb',nOrb,nSym)
-        Call Get_iArray('nFro',nFro,nSym)
-        Call Get_iArray('nIsh',nIsh,nSym)
-        Call Get_iArray('nAsh',nAsh,nSym)
-        Call Get_iArray('nDel',nDel,nSym)
-        Do iSym=1,nSym
-           nSsh(iSym)=nBas(iSym)-nDel(iSym)-nAsh(iSym)
-     &               -nIsh(iSym)-nFro(iSym)
-        End Do
-        BName='_CHMOT'
-        InitChoEnv=.true.
-        Call Cho_MOTra_(CMO,nCMOs,nSym,nBas,nOrb,
-     &                  nFro,nIsh,nAsh,nSsh,nDel,
-     &                  BName,Do_Int,ihdf5,InitChoEnv)
+      Call Get_iScalar('nSym',nSym)
+      Call Get_iArray('nBas',nBas,nSym)
+      Call Get_iArray('nOrb',nOrb,nSym)
+      Call Get_iArray('nFro',nFro,nSym)
+      Call Get_iArray('nIsh',nIsh,nSym)
+      Call Get_iArray('nAsh',nAsh,nSym)
+      Call Get_iArray('nDel',nDel,nSym)
+      Do iSym=1,nSym
+         nSsh(iSym)=nBas(iSym)-nDel(iSym)-nAsh(iSym)
+     &             -nIsh(iSym)-nFro(iSym)
+      End Do
+      BName='_CHMOT'
+      InitChoEnv=.true.
+      Call Cho_MOTra_Internal(CMO,nCMOs,nSym,nBas,nOrb,nFro,nIsh,nAsh,
+     &                          nSsh,nDel,BName,Do_Int,ihdf5,InitChoEnv)
 
-        End
+      End
 ************************************************************************
-        Subroutine Cho_MOTra_(CMO,nCMOs,nSym,nBas,nOrb,
-     &                        nFro,nIsh,nAsh,nSsh,nDel,
-     &                        BName,Do_int,ihdf5,Do_ChoInit)
+      Subroutine Cho_MOTra_Internal(CMO,nCMOs,nSym,nBas,nOrb,
+     &                              nFro,nIsh,nAsh,nSsh,nDel,
+     &                              BName,Do_int,ihdf5,Do_ChoInit)
 C
-C       Note: frozen and deleted orbitals are not included in the
-C             transformation.
+C     Note: frozen and deleted orbitals are not included in the
+C           transformation.
 C
-        Implicit Real*8 (a-h,o-z)
-        Integer nCMOs, ihdf5
-        real*8  CMO(nCMOs)
-        Integer nSym
-        Integer nBas(nSym), nOrb(nSym)
-        Integer nFro(nSym), nIsh(nSym), nAsh(nSym)
-        Integer nSsh(nSym), nDel(nSym)
-        Character*6 BName
-        Logical Do_int
-        Logical Do_ChoInit
+      Implicit Real*8 (a-h,o-z)
+      Integer nCMOs, ihdf5
+      real*8  CMO(nCMOs)
+      Integer nSym
+      Integer nBas(nSym), nOrb(nSym)
+      Integer nFro(nSym), nIsh(nSym), nAsh(nSym)
+      Integer nSsh(nSym), nDel(nSym)
+      Character*6 BName
+      Logical Do_int
+      Logical Do_ChoInit
+      Integer, External:: ip_of_Work
 
-        Logical timings
-        COMMON /CHOTIME /timings
-#include "WrkSpc.fh"
+      Real*8, Allocatable:: CHMO(:), xInt(:)
+      Logical timings
+      COMMON /CHOTIME /timings
+#include "stdalloc.fh"
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 **************************************************
 
-        n=nBas(1)**2
-        Do iSym=2,nSym
-           n=n+nBas(iSym)**2
-        End Do
-        If (n.ne.nCMOs) Then
-           ! The dimension of CMO is assumed to be nBas**2 in Transp_MOs
-           ! with each symmetry block starting at
-           !  sym=1: 1
-           !  sym=2: 1+nBas(1)**2
-           !  sym=3: 1+nBas(1)**2+nBas(2)**2
-           ! etc.
-           ! This differs from, e.g., subroutine PriMO where each
-           ! symmetry block starts at
-           !  sym=1: 1
-           !  sym=2: 1+nBas(1)*nOrb(1)
-           !  sym=3: 1+nBas(1)*nOrb(1)+nBas(2)*nOrb(2)
-           ! etc.
-           ! This is only a potential problem if orbitals were removed
-           ! due to linear dependence (not deleted virtual orbitals)
-           Call WarningMessage(2,'Cho_MOTra_: n != nCMOs')
-           Write(6,*) 'n,nCMOs=',n,nCMOs
-           Call Abend()
-        End If
-        Call GetMem('CHMOs','Allo','Real',ipCMO,nCMOs)
-        Call Transp_MOs(CMO,Work(ipCMO),nSym,nFro,nIsh,nAsh,nSsh,nBas)
+      n=nBas(1)**2
+      Do iSym=2,nSym
+         n=n+nBas(iSym)**2
+      End Do
+      If (n.ne.nCMOs) Then
+         ! The dimension of CMO is assumed to be nBas**2 in Transp_MOs
+         ! with each symmetry block starting at
+         !  sym=1: 1
+         !  sym=2: 1+nBas(1)**2
+         !  sym=3: 1+nBas(1)**2+nBas(2)**2
+         ! etc.
+         ! This differs from, e.g., subroutine PriMO where each
+         ! symmetry block starts at
+         !  sym=1: 1
+         !  sym=2: 1+nBas(1)*nOrb(1)
+         !  sym=3: 1+nBas(1)*nOrb(1)+nBas(2)*nOrb(2)
+         ! etc.
+         ! This is only a potential problem if orbitals were removed
+         ! due to linear dependence (not deleted virtual orbitals)
+         Call WarningMessage(2,'Cho_MOTra_: n != nCMOs')
+         Write(6,*) 'n,nCMOs=',n,nCMOs
+         Call Abend()
+      End If
+      Call mma_allocate(CHMO,nCMOs,LABEL='CHMO')
+      Call Transp_MOs(CMO,CHMO,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 c
         timings=.True.
 c
@@ -113,7 +114,7 @@ c
                 EndIf
              End Do
           End Do
-          Call GetMem('DIAGON','Allo','Real',ipXint,lXint)
+          Call mma_allocate(xInt,lXint,Label='xInt')
         EndIf
 c
         If (Do_ChoInit) Then
@@ -127,8 +128,9 @@ c
               Call Abend()
            End If
         End If
+        ipCMO = ip_of_Work(CHMO)
         call CHO_TR_drv(irc,nIsh,nAsh,nSsh,ipCMO,BName,
-     &                      Do_int,ihdf5,Work(ipXint),lXint)
+     &                      Do_int,ihdf5,xInt,lXint)
         If (Do_ChoInit) Then
            Call Cho_X_final(irc)
            If (irc.ne.0) Then
@@ -140,13 +142,13 @@ c
         End If
 c
         If (Do_int) Then
-           Call GADSum(Work(ipXint),lXint)
+           Call GADSum(xInt,lXint)
            kdisk=0
-           Call ddafile(Lu_Xint,1,Work(ipXint),lXint,kdisk)
+           Call ddafile(Lu_Xint,1,Xint,lXint,kdisk)
            Call daclos(Lu_Xint)
-           Call GetMem('DIAGON','Free','Real',ipXint,lXint)
+           Call mma_deallocate(XInt)
         EndIf
-        Call GetMem('CHMOs','Free','Real',ipCMO,nCMOs)
+        Call mma_deallocate(CHMO)
 c
         return
 c Avoid unused argument warnings
@@ -200,6 +202,9 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: Lrs(:)
 
       integer isfreeunit
 
@@ -358,7 +363,7 @@ C ------------------------------------------------------------------
 
             nRS = nDimRS(JSYM,JRED)
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/(nRS+mvec+1),nVrs)
 
@@ -375,7 +380,7 @@ C ------------------------------------------------------------------
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
+            Call mma_allocate(Lrs,LREAD,Label='Lrs')
             Call GetMem('ChoT','Allo','Real',ipChoT,(mvec+1)*nVec)
 
 C --- BATCH over the vectors ----------------------------
@@ -395,7 +400,7 @@ C --- BATCH over the vectors ----------------------------
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM) then
@@ -425,7 +430,7 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nPorb,
      &                           ipLpb,iSkip,DoRead)
 
@@ -649,7 +654,7 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call GetMem('ChoT','Free','Real',ipChoT,(mvec+1)*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lrs)
 
 999         CONTINUE
 

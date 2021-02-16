@@ -197,7 +197,6 @@
       ENDIF
 * --- END GATERING of SubBlocks
 
-      iDum=0
       Do iSB_A = 1, 3
         Do iSB_B = 1, 3
           If (Allocated(AddSB(iSB_A,iSB_B)%A))

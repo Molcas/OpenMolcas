@@ -227,15 +227,9 @@ CGG   ------------------------------------------------------------------
 * --- Inizialize information arrays. ---
 
 *     The TCVx existing flag and the Memory Allocation & Length array:
-      Do iType=1,MxTCVx
-        Do iSym=1,MaxSym
-          Do jSym=1,MaxSym
-            TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-            iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
-            iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
-          EndDo
-        EndDo
-      EndDo
+      TCVXist(:,:,:)=.False. ! TCVx existing flag.
+      iMemTCVX(:,:,:,1)=ip_Dummy ! Memory Address and
+      iMemTCVX(:,:,:,2)=0 ! Length in Work(TCVx)
 
 *     The Address Field for MOLINT:
       LenIAD2M=3*36*36
@@ -275,15 +269,9 @@ CGG   ------------------------------------------------------------------
       DO iSymL=1,nSym
 
 *       Re-Inizialize the TCVx & iMemTCVX
-        Do iType=1,MxTCVx
-          Do iSym=1,MaxSym
-            Do jSym=1,MaxSym
-              TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
-              iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
-            EndDo
-          EndDo
-        EndDo
+        TCVXist(:,:,:)=.False. ! TCVx existing flag.
+        iMemTCVX(:,:,:,1)=ip_Dummy ! Memory Address and
+        iMemTCVX(:,:,:,2)=0 ! Length in Work(TCVx)
         Call Mem_Est(iSymL,nVec,nFVec)
 CGG   ------------------------------------------------------------------
       If(IfTest) then

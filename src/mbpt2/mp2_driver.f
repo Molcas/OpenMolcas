@@ -348,9 +348,7 @@
            End If
          EndIf
 *
-CGG         Call TraCtl
          iType=1  ! Means that TraCtl_Drv is called by MP2
-CGG      DoExch2=.True. ! Do generate Exch-2 integrals (not really used).
          Call TraCtl_Drv(iType,.True.,8)
 *
          Call DaClos(LuHlf1)
