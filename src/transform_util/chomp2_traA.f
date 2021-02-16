@@ -71,46 +71,46 @@
         iMemTCVX(3,jSym,iSym,2)=Len_bi
       EndIf
 
-* --- START LOOP iFBatch -----------------------------------------------
-      DO iFBatch=1,nFBatch
-        If (iFBatch.EQ.nFBatch) then
-         NumFV = NumV - nFVec * (nFBatch-1)
-        Else
-         NumFV = nFVec
-        EndIf
-        If ( TCVC  ) iStrt0_aj = iStrt00_aj + (iFBatch-1) * nFVec * Naj
-        If ( TCVCt ) iStrt0_bi = iStrt00_bi + (iFBatch-1) * nFVec * Nbi
+      iStrt = 1
+      Do i=1,iSym-1
+         iStrt = iStrt + nBas(i) * nBas(i)
+      EndDo
+
+      jStrt = 1
+      Do j=1,jSym-1
+         jStrt = jStrt + nBas(j) * nBas(j)
+      EndDo
+
+* --- START LOOP iiVec   -----------------------------------------------
+      DO iiVec = 1, NumV, nFVec
+        NumFV=Max(nFVec,NumV-iiVec+1)
+        iFBatch = (iiVec+nFVec-1)/nFVec
 
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
+
         iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
+
         Call mma_allocate(FAB,nFAB,NumFV,Label='FAB')
         Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
-*  ---  Start Loop  iVec  ---
-        Do iVec=1,NumFV   ! Loop  iVec
+*  ---  Start Loop  jVec  ---
+        Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
+          iVec = jVec - iiVec + 1
 
-          If ( TCVC  ) iStrt_aj = iStrt0_aj + (iVec-1) * Naj
-          If ( TCVCt ) iStrt_bi = iStrt0_bi + (iVec-1) * Nbi
+          If ( TCVC  ) iStrt_aj = iStrt00_aj + (jVec-1) * Naj
+          If ( TCVCt ) iStrt_bi = iStrt00_bi + (jVec-1) * Nbi
 
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVC ) then
-            jStrt0MO = 1
-            Do j=1,jSym-1
-              jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
-            EndDo
-            jStrt0MO = jStrt0MO + nFro(jSym) * nBas(jSym)
+            jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
             Call mma_allocate(XAj,Len_XAj,Label='XAj')
             Call ProdsA_2(FAB(:,iVec), nBas(iSym),nBas(jSym),
      &                  CMO(jStrt0MO),nIsh(jSym), XAj)
           EndIf
 C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
           If ( TCVCt ) then
-            iStrt0MO = 1
-            Do i=1,iSym-1
-              iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
-            EndDo
-            iStrt0MO = iStrt0MO + nFro(iSym) * nBas(iSym)
+            iStrt0MO = iStrt + nFro(iSym) * nBas(iSym)
             Call mma_allocate(XBi,Len_XBi,Label='XBi')
             Call ProdsA_2t(FAB(:,iVec), nBas(iSym),nBas(jSym),
      &                  CMO(iStrt0MO),nIsh(iSym), XBi)
@@ -119,22 +119,14 @@ C         From CHFV A(Alpha,Beta) to XBi(Beta,iMO)
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
 C         From XAj(Alpha,jMO) to aj(a,j)
           If ( TCVC ) then
-            iStrt0MO = 1
-            Do i=1,iSym-1
-              iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
-            EndDo
-            iStrt0MO = iStrt0MO + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
+            iStrt0MO = iStrt + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
             Call ProdsA_1(XAj, nBas(iSym),nIsh(jSym),
      &                  CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
           EndIf
 
 C         From XBi(Beta,jMO) to bi(b,i)
           If ( TCVCt ) then
-            jStrt0MO = 1
-            Do j=1,jSym-1
-              jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
-            EndDo
-            jStrt0MO = jStrt0MO + (nFro(jSym)+nIsh(jSym)) * nBas(jSym)
+            jStrt0MO = jStrt + (nFro(jSym)+nIsh(jSym)) * nBas(jSym)
             Call ProdsA_1(XBi, nBas(jSym),nIsh(iSym),
      &                  CMO(jStrt0MO),nSsh(jSym), Work(iStrt_bi))
           EndIf
@@ -145,11 +137,11 @@ C         From XBi(Beta,jMO) to bi(b,i)
           If (Allocated(XBi)) Call mma_deallocate(XBi)
 
         EndDo
-*  ---  End Loop  iVec  ---
+*  ---  End Loop  jVec  ---
 
         Call mma_deallocate(FAB)
       ENDDO
-* --- END LOOP iFBatch -------------------------------------------------
+* --- END LOOP iiVec   -------------------------------------------------
 
       Return
 c Avoid unused argument warnings

@@ -20,12 +20,16 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Integer NCMO
+      Real*8 CMO(NCMO)
 
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
-      Dimension CMO(NCMO)
+
+      Real*8, Allocatable:: XAj(:), FAB(:,:)
 
 * --- Memory to allocate & Nr. of Cholesky vectors transformable
 *     A=Alpha(AO);  B=Beta(AO)
@@ -33,7 +37,6 @@
       IF ( .NOT. TCVXist(3,iSym,jSym)) RETURN
 
       Naj = 0
-      Len_FAB = 0
       Len_aj = 0
       Len_XAj = 0
       NFAB = nBas(iSym) * ( nBas(jSym) + 1 ) /2
@@ -43,64 +46,62 @@
 *     Allocate memory for Transformed Cholesky Vectors - TCVx
       Len_aj = Naj * NumV
       iStrt_aj = 0
-      iStrt0_aj = 0
       Call GetMem('aj','ALLO','REAL',iStrt00_aj,Len_aj)
       iMemTCVX(3,iSym,jSym,1)=iStrt00_aj
       iMemTCVX(3,iSym,jSym,2)=Len_aj
 
-* --- START LOOP iFBatch -----------------------------------------------
-      DO iFBatch=1,nFBatch
-        If (iFBatch.EQ.nFBatch) then
-         NumFV = NumV - nFVec * (nFBatch-1)
-        Else
-         NumFV = nFVec
-        EndIf
-        iStrt0_aj = iStrt00_aj + (iFBatch-1) * nFVec * Naj
+      iStrt = 1
+      Do i=1,iSym-1
+         iStrt = iStrt + nBas(i) * nBas(i)
+      EndDo
+      jStrt = 1
+      Do j=1,jSym-1
+         jStrt = jStrt + nBas(j) * nBas(j)
+      EndDo
+
+* --- START LOOP iiVec   -----------------------------------------------
+      DO iiVec = 1, NumV, nFVec
+        NumFV=Max(nFVec,NumV-iiVec+1)
+        iFBatch = (iiVec+nFVec-1)/nFVec
 
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
-        Len_FAB = NFAB * NumFV
-        iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
-        Call GetMem('FAB','Allo','Real',iStrt0_FAB,Len_FAB)
-        Call RdChoVec(Work(iStrt0_FAB),NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
-*  ---  Start Loop  iVec  ---
-        Do iVec=1,NumFV   ! Loop  iVec
-          iStrt_FAB = iStrt0_FAB + (iVec-1) * NFAB
-          iStrt_aj = iStrt0_aj + (iVec-1) * Naj
+        iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
+
+        Call mma_allocate(FAB,NFAB,NumFV,Label='FAB')
+        Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
+
+*  ---  Start Loop jVec  ---
+        Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
+          iVec = jVec - iiVec + 1
+
+          iStrt_aj = iStrt00_aj + (jVec-1) * Naj
 
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
-          jStrt0MO = 1
-          Do j=1,jSym-1
-            jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
-          EndDo
-          jStrt0MO = jStrt0MO + nFro(jSym) * nBas(jSym)
+          jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
-          Call GetMem('XAj','ALLO','REAL',iStrt0_XAj,Len_XAj)
-          Call ProdsS_1(Work(iStrt_FAB), nBas(iSym),
-     &                CMO(jStrt0MO),nIsh(jSym), Work(iStrt0_XAj))
+          Call mma_allocate(XAj,Len_XAj,Label='XAj')
+          Call ProdsS_1(FAB(:,iVec), nBas(iSym),
+     &                CMO(jStrt0MO),nIsh(jSym), XAj)
 
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
-          iStrt0MO = 1
-          Do i=1,iSym-1
-            iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
-          EndDo
-          iStrt0MO = iStrt0MO + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
+          iStrt0MO = iStrt + (nFro(iSym)+nIsh(iSym)) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to aj(a,j)
-          Call ProdsS_2(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+          Call ProdsS_2(XAj, nBas(iSym),nIsh(jSym),
      &              CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
 
 *     --- End of Transformations
 
-          Call GetMem('XAj','FREE','REAL',iStrt0_XAj,Len_XAj)
+          Call mma_deallocate(XAj)
 
         EndDo
-*  ---  End Loop  iVec  ---
+*  ---  End Loop  jVec  ---
 
-        Call GetMem('FAB','Free','Real',iStrt0_FAB,Len_FAB)
+        Call mma_deallocate(FAB)
       ENDDO
-* --- END LOOP iFBatch -------------------------------------------------
+* --- END LOOP iiVec   -------------------------------------------------
 
       Return
 c Avoid unused argument warnings
