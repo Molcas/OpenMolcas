@@ -18,26 +18,7 @@
 *           Jannuary-February 2005                                     *
 * Modified for Cholesky-MP2 May 2005                                   *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-      Implicit Integer (i-n)
-      Integer iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,LenE
-      Real*8 AddEx(LenE)
-#include "rasdim.fh"
-#include "SysDef.fh"
-#include "cho_tra.fh"
-
-      Call MkExMP2(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, AddEx,LenE)
-
-      Return
-      End
-
-      Subroutine MkExMP2(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx,LenE)
-************************************************************************
-* Author :  Giovanni Ghigo                                             *
-*           Lund University, Sweden & Torino University, Italy         *
-*           January February 2005                                      *
-* Modified for Cholesky-MP2 May 2005                                   *
-************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,LenE
@@ -46,7 +27,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Logical SameLx
 
       Real*8, Allocatable:: Lx0(:), Ly0(:)

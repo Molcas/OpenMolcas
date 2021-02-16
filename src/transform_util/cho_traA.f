@@ -75,6 +75,7 @@
 *  Written :  October 2004                                             *
 *  Modified:  July 2005                                                *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 
@@ -82,7 +83,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Dimension CMO(NCMO)
       Logical TCVA,TCVB,TCVBt,TCVC,TCVCt,TCVD,TCVE,TCVEt,TCVF
 

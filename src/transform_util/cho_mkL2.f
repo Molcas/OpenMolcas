@@ -19,6 +19,7 @@
 * Purpuse:  Generation of the Cholesky matrix of Active(iSymA) for     *
 *           occupied iI(iSymI) for numV vectors.                       *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer iSymA,iSymI,iI, numV, LyType,iJy
@@ -27,7 +28,6 @@
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
 *     Build Lx
       If (iI.LE.nIsh(iSymI)) then

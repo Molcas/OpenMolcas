@@ -41,6 +41,7 @@
 * A,B MO                                                               *
 * OBS !!!!!  By now, it works only for iSymA .EQ. iSymB  !!!           *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
@@ -49,7 +50,6 @@
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Integer LenA(3), LenB(3)
 

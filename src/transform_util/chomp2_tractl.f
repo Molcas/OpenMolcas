@@ -46,12 +46,12 @@
 * THIS CODE IS ONLY FOR MBPT2 AND IT IS SPLIT FROM THE GENERAL CODE    *
 * BUT IT IS STILL INTEGRATED AND DEPENDENT ON THE GENERAL CODE         *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Dimension CMO(NCMO)
       Character*4 CHNm
       Character*6 CHName

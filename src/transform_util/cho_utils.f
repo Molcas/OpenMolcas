@@ -33,11 +33,11 @@
 * of Cholesky Vectors transformable.                                   *
 * The routine also define (calling Def_TCVx) which TCVx create.        *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Character*16 Frmt1,Frmt3
 
       MulD2h(i,j) = iEor(i-1,j-1)+1
@@ -307,9 +307,9 @@
 * TCVXist(iType,iSym,jSym) is .True. if the TCVx must be generated.    *
 * iType(x):  1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G                         *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-#include "cho_tra.fh"
 
       If(nIsh(jSym).GT.0) then
         If(nIsh(iSym).GT.0 .and. DoTCVA) then
@@ -365,9 +365,9 @@
 * nProdE2) matrices for each i,j and the length (nProdIJ) of the i,j   *
 * matrix for each Symmetry Block (iSymI,iSymJ,iSymA,iSymB)             *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-#include "cho_tra.fh"
       nProdIJ=0
       nProdAB=0
       nProdE1=0
@@ -417,9 +417,9 @@
 *----------------------------------------------------------------------*
 * Define the SubBlocks to calculate in the Exchange matrix.            *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-#include "cho_tra.fh"
       Do i=1,3
         Do j=1,3
           SubBlocks(i,j)=.False.

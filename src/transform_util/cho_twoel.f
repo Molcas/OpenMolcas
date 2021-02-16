@@ -56,12 +56,12 @@
 *   THE LAST ADRESS IS ZERO IF iSymI = iSymJ                           *
 *                                                                      *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Real*8, Allocatable:: AddCou(:), AddEx1(:)
       Real*8, Allocatable:: AddEx2(:), AddEx2t(:)

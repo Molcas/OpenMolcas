@@ -18,13 +18,13 @@
 * Written:  October-November 2004                                      *
 * Modified for Cholesky-MP2 May 2005                                   *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Real*8, Allocatable:: AddEx1(:), AddEx2(:), AddEx2t(:)
 

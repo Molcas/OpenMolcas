@@ -40,6 +40,7 @@
 * sub-blocks. These are combination of inactive, active, and secondary *
 * A,B MO                                                               *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, LenEx
@@ -47,7 +48,6 @@
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Type V1
         Real*8, Allocatable:: A(:)

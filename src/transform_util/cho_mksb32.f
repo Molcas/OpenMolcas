@@ -20,6 +20,7 @@
 * Purpuse:  Generation of the SubBlock(3,2) (p,q secondary,active) of  *
 *           two-electron integral matrix for each i,j occupied couple. *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Real*8, Allocatable:: AddSB(:)
@@ -28,7 +29,6 @@
 #include "rasdim.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Logical SameLx
 
       Real*8, Allocatable:: Lx0(:), Ly0(:)
@@ -74,6 +74,7 @@
 * Purpuse:  Generation of the SubBlock(3,2) (p secondary, q active) of *
 *           two-electron integral matrix for each i,j occupied couple. *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Real*8, Allocatable:: AddSB(:)
@@ -81,7 +82,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Real*8, Allocatable:: Lij(:)
       Real*8, Allocatable:: AddSBt(:)

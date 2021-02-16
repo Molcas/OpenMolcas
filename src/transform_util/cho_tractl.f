@@ -99,12 +99,12 @@
 *  <p,q|k,l>  where p,q: All MO; k,l: Occupied                         *
 * If DoFull=.True also <p,q|r,s> where p,q,r,s: All MO (for CC)        *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Dimension CMO(NCMO)
       Character*4 CHNm
       Character*6 CHName

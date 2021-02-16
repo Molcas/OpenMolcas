@@ -19,6 +19,7 @@
 * Purpuse:  Generation of the Cholesky vector for occupied iI(iSymI),  *
 *           iJ(iSymJ) for numV vectors.                                *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer iSymI,iSymJ,iI,iJ,numV
@@ -26,7 +27,6 @@
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       If (iI.LE.nIsh(iSymI)) then
         iIx = iI

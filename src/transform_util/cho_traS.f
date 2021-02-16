@@ -74,6 +74,7 @@
 *  Written :  October 2004                                             *
 *  Modified:  July 2005                                                *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer NCMO
@@ -83,7 +84,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Logical TCVA,TCVB,TCVC,TCVD,TCVE,TCVF
 
@@ -222,20 +222,20 @@
         iMemTCVX(6,iSym,jSym,2)=Len_ab
       EndIf
 
-* --- START LOOP iFBatch -----------------------------------------------
-      DO iFBatch=1,nFBatch
-        If (iFBatch.EQ.nFBatch) then
-         NumFV = NumV - nFVec * (nFBatch-1)
-        Else
-         NumFV = nFVec
-        EndIf
-        If ( TCVA ) iStrt0_ij = iStrt00_ij + (iFBatch-1) * nFVec * Nij
-        If ( TCVB ) iStrt0_tj = iStrt00_tj + (iFBatch-1) * nFVec * Ntj
-        If ( TCVB ) iStrt0_jt = iStrt00_jt + (iFBatch-1) * nFVec * Njt
-        If ( TCVC ) iStrt0_aj = iStrt00_aj + (iFBatch-1) * nFVec * Naj
-        If ( TCVD ) iStrt0_tu = iStrt00_tu + (iFBatch-1) * nFVec * Ntu
-        If ( TCVE ) iStrt0_au = iStrt00_au + (iFBatch-1) * nFVec * Nau
-        If ( TCVF ) iStrt0_ab = iStrt00_ab + (iFBatch-1) * nFVec * Nab
+      iStrt = 1
+      Do i=1,iSym-1
+         iStrt = iStrt + nBas(i) * nBas(i)
+      EndDo
+
+      jStrt = 1
+      Do j=1,jSym-1
+        jStrt = jStrt + nBas(j) * nBas(j)
+      EndDo
+
+* --- START LOOP iiVec   -----------------------------------------------
+      DO iiVec = 1, NumV, nFVec
+        NumFV=Max(nFVec,NumV-iiVec+1)
+        iFBatch = (iiVec+nFVec-1)/nFVec
 
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
         Len_FAB = NFAB * NumFV
@@ -244,22 +244,19 @@
         Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
 *  ---  Start Loop  iVec  ---
-        Do iVec=1,NumFV   ! Loop  iVec
+       Do jVec=iiVec,iiVec+NumFV-1   ! Loop  jVec
+          iVec = jVec - iiVec + 1
 
-          If ( TCVA ) iStrt_ij = iStrt0_ij + (iVec-1) * Nij
-          If ( TCVB ) iStrt_tj = iStrt0_tj + (iVec-1) * Ntj
-          If ( TCVB ) iStrt_jt = iStrt0_jt + (iVec-1) * Njt
-          If ( TCVC ) iStrt_aj = iStrt0_aj + (iVec-1) * Naj
-          If ( TCVD ) iStrt_tu = iStrt0_tu + (iVec-1) * Ntu
-          If ( TCVE ) iStrt_au = iStrt0_au + (iVec-1) * Nau
-          If ( TCVF ) iStrt_ab = iStrt0_ab + (iVec-1) * Nab
+          If ( TCVA ) iStrt_ij = iStrt00_ij + (jVec-1) * Nij
+          If ( TCVB ) iStrt_tj = iStrt00_tj + (jVec-1) * Ntj
+          If ( TCVB ) iStrt_jt = iStrt00_jt + (jVec-1) * Njt
+          If ( TCVC ) iStrt_aj = iStrt00_aj + (jVec-1) * Naj
+          If ( TCVD ) iStrt_tu = iStrt00_tu + (jVec-1) * Ntu
+          If ( TCVE ) iStrt_au = iStrt00_au + (jVec-1) * Nau
+          If ( TCVF ) iStrt_ab = iStrt00_ab + (jVec-1) * Nab
 
 *     --- 1st Half-Transformation  iBeta(AO) -> q(MO) only occupied
-          jStrt0MO = 1
-          Do j=1,jSym-1
-            jStrt0MO = jStrt0MO + nBas(j) * nBas(j)
-          EndDo
-          jStrt0MO = jStrt0MO + nFro(jSym) * nBas(jSym)
+          jStrt0MO = jStrt + nFro(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVA .or. TCVB .or. TCVC ) then
@@ -285,11 +282,7 @@ C         From CHFV A(Alpha,Beta) to XAb(Alpha,bMO)
           EndIf
 
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
-          iStrt0MO = 1
-          Do i=1,iSym-1
-            iStrt0MO = iStrt0MO + nBas(i) * nBas(i)
-          EndDo
-          iStrt0MO = iStrt0MO + nFro(iSym) * nBas(iSym)
+          iStrt0MO = iStrt + nFro(iSym) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to ij(i,j)
           If ( TCVA ) then
@@ -338,11 +331,11 @@ C         From XAb(Alpha,bMO) to ab(a,b)
           If (Allocated(XAb)) Call mma_deallocate(XAb)
 
         EndDo
-*  ---  End Loop  iVec  ---
+*  ---  End Loop  jVec  ---
 
         Call mma_deallocate(FAB)
       ENDDO
-* --- END LOOP iFBatch -------------------------------------------------
+* --- END LOOP iiVec   -------------------------------------------------
 
       Return
 c Avoid unused argument warnings

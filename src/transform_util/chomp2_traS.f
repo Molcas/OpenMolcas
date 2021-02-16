@@ -18,6 +18,7 @@
 * Written:  October 2004                                               *
 * Modified for Cholesky-MP2 May 2005                                   *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Integer NCMO
@@ -27,7 +28,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
 
       Real*8, Allocatable:: XAj(:), FAB(:,:)
 
