@@ -204,9 +204,9 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: Lrs(:)
+      Real*8, Allocatable:: Lrs(:), ChoT(:)
 
-      integer isfreeunit
+      Integer IsFreeUnit
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -381,7 +381,8 @@ C ------------------------------------------------------------------
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,LREAD,Label='Lrs')
-            Call GetMem('ChoT','Allo','Real',ipChoT,(mvec+1)*nVec)
+            Call mma_allocate(ChoT,(mvec+1)*nVec,Label='ChoT')
+            ipChoT = ip_of_Work(ChoT(1))
 
 C --- BATCH over the vectors ----------------------------
 
@@ -509,12 +510,11 @@ C --------------------------------------------------------------------
                         Else
                            Do ipq=0,NApq-1
                               call dcopy_(JNUM,Work(ipLpq+ipq),NApq,
-     &                                        Work(ipChoT),1)
+     &                                        ChoT,1)
                               If (Do_int) Then
                                  kt=kOff(iSymb)+ipq
-                                 Xint(kt)=Xint(kt)+ddot_(JNUM,
-     &                                                  Work(ipChoT),1,
-     &                                                  Work(ipChoT),1)
+                                 Xint(kt)=Xint(kt)
+     &                                   +ddot_(JNUM,ChoT,1,ChoT,1)
                               EndIf
                               idisk=iOffB(iSymb)+NumCho(jSym)*ipq
 #ifdef _HDF5_QCM_
@@ -523,9 +523,8 @@ C --------------------------------------------------------------------
                              ! the same content twice for large basis sets
                              if (ihdf5/=1) then
 #endif
-                              Call ddafile(LunChVF(jSym),1,Work(ipChoT),
-     &                                                   JNUM,
-     &                                                   idisk)
+                              Call ddafile(LunChVF(jSym),1,ChoT,JNUM,
+     &                                     idisk)
 
 #ifdef _HDF5_QCM_
                              ! Write the transformed Cholesky batch to the hdf5 dataset
@@ -541,7 +540,7 @@ C --------------------------------------------------------------------
                              else
                                call hdf5_write_cholesky(choset_id,
      &                           space_id,ipq,nVec*(iBatch-1)+iVrs-1,
-     &                                             JNUM,Work(ipChoT))
+     &                                                        JNUM,ChoT)
                              end if
 #endif
 
@@ -610,12 +609,11 @@ C --------------------------------------------------------------------
                         Else
                            Do ipq=0,NApq-1
                               call dcopy_(JNUM,Work(ipLpq+ipq),NApq,
-     &                                        Work(ipChoT),1)
+     &                                    ChoT,1)
                               If (Do_int) Then
                                  kt=kOff(iSymp)+ipq
-                                 Xint(kt)=Xint(kt)+ddot_(JNUM,
-     &                                                  Work(ipChoT),1,
-     &                                                  Work(ipChoT),1)
+                                 Xint(kt)=Xint(kt)+ddot_(JNUM,ChoT,1,
+     &                                                        ChoT,1)
                               EndIf
                               idisk=iOffB(iSymp)+NumCho(jSym)*ipq
 #ifdef _HDF5_QCM_
@@ -625,14 +623,12 @@ C --------------------------------------------------------------------
                              ! See above for more explanation
                              if (ihdf5==1) then
                                call hdf5_write_cholesky(choset_id,
-     &                           space_id,ipq,nVec*(iBatch-1),JNUM,
-     &                                                    Work(ipChoT))
+     &                           space_id,ipq,nVec*(iBatch-1),JNUM,ChoT)
                              end if
 #endif
 
-                              Call ddafile(LunChVF(jSym),1,Work(ipChoT),
-     &                                                   JNUM,
-     &                                                   idisk)
+                              Call ddafile(LunChVF(jSym),1,ChoT,JNUM,
+     &                                     idisk)
                            End Do
                            iOffB(iSymp)=iOffB(iSymp)+JNUM
                         EndIf
@@ -653,7 +649,7 @@ C --------------------------------------------------------------------
             END DO  ! end batch loop
 
 C --- free memory
-            Call GetMem('ChoT','Free','Real',ipChoT,(mvec+1)*nVec)
+            Call mma_deallocate(ChoT)
             Call mma_deallocate(Lrs)
 
 999         CONTINUE

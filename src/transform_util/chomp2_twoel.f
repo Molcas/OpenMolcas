@@ -22,8 +22,11 @@
       Implicit Integer (i-n)
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
+
+      Real*8, Allocatable:: AddEx1(:), AddEx2(:), AddEx2t(:)
 
       nSymP=(nSym**2+nSym)/2
       Call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
@@ -47,18 +50,18 @@
             iEndJ=nOsh(iSymJ)
           EndIf
           Do iJ=1,iEndJ
-            Call GetMem('Ex1','Allo','Real',iAddEx1,nN_Ex1)
+            Call mma_allocate(AddEx1,nN_Ex1,Label='AddEx1')
             If (iBatch.GT.1) then
-              Call dDaFile(LUINTM,2,Work(iAddEx1),nN_Ex1,
-     &                                    iAddrIAD2Mij)   ! Reload Int
+              ! Reload Int
+              Call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
               iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex1
             else
-              call dcopy_(nN_Ex1,[0.0d0],0,Work(iAddEx1),1)
+              AddEx1(:)=0.0D0
             EndIf
             Call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                                            iAddEx1,nN_Ex1 )
-            Call dDaFile(LUINTM,1,Work(iAddEx1),nN_Ex1,iAddrIAD2Mij)
-            Call GetMem('Ex1','Free','Real',iAddEx1,nN_Ex1)
+     &                                            AddEx1,nN_Ex1 )
+            Call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
+            Call mma_deallocate(AddEx1)
           EndDo
         EndDo
 *  ---  End Loop on i, j
@@ -88,22 +91,22 @@
           Do iJ=1,iEndJ
             nA=nSsh(iSymA)
             nB=nSsh(iSymB)
-            Call GetMem('Ex2','Allo','Real',iAddEx2,nN_Ex2)
-            Call GetMem('Ex2t','Allo','Real',iAddEx2t,nN_Ex2)
+            Call mma_allocate(AddEx2,nN_Ex2,Label='AddEx2')
+            Call mma_allocate(AddEx2t,nN_Ex2,Label='AddEx2t')
             If (iBatch.GT.1) then
-              Call dDaFile(LUINTM,2,Work(iAddEx2),nN_Ex2,
-     &                                    iAddrIAD2Mij)   ! Reload Int
+              ! Reload Int
+              Call dDaFile(LUINTM,2,AddEx2,nN_Ex2,iAddrIAD2Mij)
               iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex2
-              Call Trnsps(nA,nB,Work(iAddEx2),Work(iAddEx2t))
+              Call Trnsps(nA,nB,AddEx2,AddEx2t)
             else
-              call dcopy_(nN_Ex2,[0.0d0],0,Work(iAddEx2t),1)
+              AddEx2t(:)=0.0D0
             EndIf
             Call ChoMP2_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                                           iAddEx2t,nN_Ex2 )
-            Call Trnsps(nB,nA,Work(iAddEx2t),Work(iAddEx2))
-            Call dDaFile(LUINTM,1,Work(iAddEx2),nN_Ex2,iAddrIAD2Mij)
-            Call GetMem('Ex2t','Free','Real',iAddEx2t,nN_Ex2)
-            Call GetMem('Ex2','Free','Real',iAddEx2,nN_Ex2)
+     &                                           AddEx2t,nN_Ex2 )
+            Call Trnsps(nB,nA,AddEx2t,AddEx2)
+            Call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
+            Call mma_deallocate(AddEx2t)
+            Call mma_deallocate(AddEx2)
           EndDo
         EndDo
 *  ---  End Loop on i, j
