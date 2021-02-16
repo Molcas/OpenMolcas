@@ -76,13 +76,18 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Integer NCMO
+      Real*8 CMO(NCMO)
 
 #include "rasdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 #include "cho_tra.fh"
-      Dimension CMO(NCMO)
+
       Logical TCVA,TCVB,TCVC,TCVD,TCVE,TCVF
+
+      Real*8, Allocatable:: XAj(:), XAu(:), XAb(:), FAB(:,:)
 
 * --- Memory to allocate & Nr. of Cholesky vectors transformable
 *     A=Alpha(AO);  B=Beta(AO)
@@ -235,12 +240,12 @@
 *       Allocate memory & Load Full Cholesky Vectors - CHFV
         Len_FAB = NFAB * NumFV
         iStrtVec_FAB = iStrtVec_AB + nFVec * (iFBatch-1)
-        Call GetMem('FAB','Allo','Real',iStrt0_FAB,Len_FAB)
-        Call RdChoVec(Work(iStrt0_FAB),NFAB,NumFV,iStrtVec_FAB,lUCHFV)
+        Call mma_allocate(FAB,NFAB,NumFV,Label='FAB')
+        Call RdChoVec(FAB,NFAB,NumFV,iStrtVec_FAB,lUCHFV)
 
 *  ---  Start Loop  iVec  ---
         Do iVec=1,NumFV   ! Loop  iVec
-          iStrt_FAB = iStrt0_FAB + (iVec-1) * NFAB
+
           If ( TCVA ) iStrt_ij = iStrt0_ij + (iVec-1) * Nij
           If ( TCVB ) iStrt_tj = iStrt0_tj + (iVec-1) * Ntj
           If ( TCVB ) iStrt_jt = iStrt0_jt + (iVec-1) * Njt
@@ -258,25 +263,25 @@
 
 C         From CHFV A(Alpha,Beta) to XAj(Alpha,jMO)
           If ( TCVA .or. TCVB .or. TCVC ) then
-            Call GetMem('XAj','ALLO','REAL',iStrt0_XAj,Len_XAj)
-            Call ProdsS_1(Work(iStrt_FAB), nBas(iSym),
-     &                CMO(jStrt0MO),nIsh(jSym), Work(iStrt0_XAj))
+            Call mma_allocate(XAj,Len_XAj,Label='XAj')
+            Call ProdsS_1(FAB(:,iVec), nBas(iSym),
+     &                CMO(jStrt0MO),nIsh(jSym), XAj)
           EndIf
           jStrt0MO = jStrt0MO + nIsh(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAu(Alpha,uMO)
           If ( TCVD .or. TCVE ) then
-            Call GetMem('XAu','ALLO','REAL',iStrt0_XAu,Len_XAu)
-            Call ProdsS_1(Work(iStrt_FAB), nBas(iSym),
-     &                CMO(jStrt0MO),nAsh(jSym), Work(iStrt0_XAu))
+            Call mma_allocate(XAu,Len_XAu,Label='XAu')
+            Call ProdsS_1(FAB(:,iVec), nBas(iSym),
+     &                CMO(jStrt0MO),nAsh(jSym), XAu)
           EndIf
           jStrt0MO = jStrt0MO + nAsh(jSym) * nBas(jSym)
 
 C         From CHFV A(Alpha,Beta) to XAb(Alpha,bMO)
           If ( TCVF ) then
-            Call GetMem('XAb','ALLO','REAL',iStrt0_XAb,Len_XAb)
-            Call ProdsS_1(Work(iStrt_FAB), nBas(iSym),
-     &                CMO(jStrt0MO),nSsh(jSym), Work(iStrt0_XAb))
+            Call mma_allocate(XAb,Len_XAb,Label='XAb')
+            Call ProdsS_1(FAB(:,iVec), nBas(iSym),
+     &                CMO(jStrt0MO),nSsh(jSym), XAb)
           EndIf
 
 *     --- 2nd Half-Transformation  iAlpha(AO) -> p(MO)
@@ -288,14 +293,14 @@ C         From CHFV A(Alpha,Beta) to XAb(Alpha,bMO)
 
 C         From XAj(Alpha,jMO) to ij(i,j)
           If ( TCVA ) then
-            Call ProdsS_2(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsS_2(XAj, nBas(iSym),nIsh(jSym),
      &                CMO(iStrt0MO),nIsh(iSym), Work(iStrt_ij))
           EndIf
           iStrt0MO = iStrt0MO + nIsh(iSym) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to tj(t,j) & jt(j,t)
           If ( TCVB ) then
-            Call ProdsS_2(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsS_2(XAj, nBas(iSym),nIsh(jSym),
      &                CMO(iStrt0MO),nAsh(iSym), Work(iStrt_tj))
             Call Trnsps(nAsh(iSym),nIsh(jSym),
      &                                    Work(iStrt_tj),Work(iStrt_jt))
@@ -303,45 +308,39 @@ C         From XAj(Alpha,jMO) to tj(t,j) & jt(j,t)
 
 C         From XAu(Alpha,uMO) to tu(t,u)
           If ( TCVD ) then
-            Call ProdsS_2(Work(iStrt0_XAu), nBas(iSym),nAsh(jSym),
+            Call ProdsS_2(XAu, nBas(iSym),nAsh(jSym),
      &                CMO(iStrt0MO),nAsh(iSym), Work(iStrt_tu))
           EndIf
           iStrt0MO = iStrt0MO + nAsh(iSym) * nBas(iSym)
 
 C         From XAj(Alpha,jMO) to aj(a,j)
           If ( TCVC ) then
-            Call ProdsS_2(Work(iStrt0_XAj), nBas(iSym),nIsh(jSym),
+            Call ProdsS_2(XAj, nBas(iSym),nIsh(jSym),
      &                CMO(iStrt0MO),nSsh(iSym), Work(iStrt_aj))
           EndIf
 
 C         From XAu(Alpha,uMO) to au(a,u)
           If ( TCVE ) then
-            Call ProdsS_2(Work(iStrt0_XAu), nBas(iSym),nAsh(jSym),
+            Call ProdsS_2(XAu, nBas(iSym),nAsh(jSym),
      &                CMO(iStrt0MO),nSsh(iSym), Work(iStrt_au))
           EndIf
 
 C         From XAb(Alpha,bMO) to ab(a,b)
           If ( TCVF ) then
-            Call ProdsS_2(Work(iStrt0_XAb), nBas(iSym),nSsh(jSym),
+            Call ProdsS_2(XAb, nBas(iSym),nSsh(jSym),
      &                CMO(iStrt0MO),nSsh(iSym), Work(iStrt_ab))
           EndIf
 
 *     --- End of Transformations
 
-          If ( TCVA .or. TCVB .or. TCVC ) then
-            Call GetMem('XAj','FREE','REAL',iStrt0_XAj,Len_XAj)
-          EndIf
-          If ( TCVD .or. TCVE ) then
-            Call GetMem('XAu','FREE','REAL',iStrt0_XAu,Len_XAu)
-          EndIf
-          If ( TCVF ) then
-            Call GetMem('XAb','FREE','REAL',iStrt0_XAb,Len_XAb)
-          EndIf
+          If (Allocated(XAj)) Call mma_deallocate(XAj)
+          If (Allocated(XAu)) Call mma_deallocate(XAu)
+          If (Allocated(XAb)) Call mma_deallocate(XAb)
 
         EndDo
 *  ---  End Loop  iVec  ---
 
-        Call GetMem('FAB','Free','Real',iStrt0_FAB,Len_FAB)
+        Call mma_deallocate(FAB)
       ENDDO
 * --- END LOOP iFBatch -------------------------------------------------
 
@@ -353,20 +352,27 @@ c Avoid unused argument warnings
       Subroutine ProdsS_1(AB,iAB, CMO,nMO, Y)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-#include "WrkSpc.fh"
-      Dimension AB(iAB*(iAB+1)/2), CMO(iAB,nMO), Y(iAB,nMO)
-      Call GetMem('ABSq','ALLO','REAL',iAddABSq,iAB*iAB)
-      Call SQUARE(AB,Work(iAddABSq),1,iAB,iAB)
-      Call DGEMM_('N','N',iAB,nMO,iAB,1.0d0,Work(iAddABSq),iAB,CMO,iAB,
-     &                                                    0.0d0,Y,iAB)
-      Call GetMem('ABSq','FREE','REAL',iAddABSq,iAB*2)
+#include "stdalloc.fh"
+      Real*8 AB(iAB*(iAB+1)/2), CMO(iAB,nMO), Y(iAB,nMO)
+      Real*8, Allocatable:: ABSq(:)
+
+      Call mma_allocate(ABSq,iAB*iAB,Label='ABSq')
+      Call SQUARE(AB,ABSq,1,iAB,iAB)
+      Call DGEMM_('N','N',iAB,nMO,iAB,
+     &            1.0d0,ABSq,iAB,
+     &                  CMO,iAB,
+     &            0.0d0,Y,iAB)
+      Call mma_deallocate(ABSq)
       Return
       End
 
       Subroutine ProdsS_2(AB,iA,jMO, CMO,nMO, Y)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-      Dimension AB(iA,jMO), CMO(iA,nMO), Y(nMO,jMO)
-      Call DGEMM_('T','N',nMO,jMO,iA,1.0d0,CMO,iA,AB,iA,0.0d0,Y,nMO)
+      Real*8 AB(iA,jMO), CMO(iA,nMO), Y(nMO,jMO)
+      Call DGEMM_('T','N',nMO,jMO,iA,
+     &            1.0d0,CMO,iA,
+     &                  AB,iA,
+     &            0.0d0,Y,nMO)
       Return
       End

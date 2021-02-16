@@ -472,11 +472,11 @@ C         From XBt(Beta,jMO) to bt(b,t)
 
 *     --- End of Transformations
 
-          If ( TCVA .or. TCVB .or. TCVC ) Call mma_deallocate(XAj)
-          If ( TCVD .or. TCVE )           Call mma_deallocate(XAu)
-          If ( TCVF )                     Call mma_deallocate(XAb)
-          If ( TCVBt .or. TCVCt )         Call mma_deallocate(XBi)
-          If ( TCVEt )                    Call mma_deallocate(XBt)
+          If (Allocated(XAj)) Call mma_deallocate(XAj)
+          If (Allocated(XAu)) Call mma_deallocate(XAu)
+          If (Allocated(XAb)) Call mma_deallocate(XAb)
+          If (Allocated(XBi)) Call mma_deallocate(XBi)
+          If (Allocated(XBt)) Call mma_deallocate(XBt)
 
         EndDo
 *  ---  End Loop  iVec  ---
@@ -493,7 +493,7 @@ c Avoid unused argument warnings
       Subroutine ProdsA_1(AB,iA,iB, CMO,nMO, Y)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-      Dimension AB(iA,iB), CMO(iA,nMO), Y(nMO,iB)
+      Real*8 AB(iA,iB), CMO(iA,nMO), Y(nMO,iB)
       Call DGEMM_('T','N',nMO,iB,iA,1.0d0,CMO,iA,AB,iA,0.0d0,Y,nMO)
       Return
       End
@@ -501,7 +501,7 @@ c Avoid unused argument warnings
       Subroutine ProdsA_2(AB,iA,iB, CMO,nMO, Y)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-      Dimension AB(iA,iB), CMO(iB,nMO), Y(iA,nMO)
+      Real*8 AB(iA,iB), CMO(iB,nMO), Y(iA,nMO)
       Call DGEMM_('N','N',iA,nMO,iB,1.0d0,AB,iA,CMO,iB,0.0d0,Y,iA)
       Return
       End
@@ -509,7 +509,7 @@ c Avoid unused argument warnings
       Subroutine ProdsA_2t(AB,iA,iB, CMO,nMO, Y)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-      Dimension AB(iA,iB), CMO(iA,nMO), Y(iB,nMO)
+      Real*8 AB(iA,iB), CMO(iA,nMO), Y(iB,nMO)
       Call DGEMM_('T','N',iB,nMO,iA,1.0d0,AB,iA,CMO,iA,0.0d0,Y,iB)
       Return
       End
