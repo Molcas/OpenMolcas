@@ -64,8 +64,10 @@
      &                         iSkip,DoRead)
       Implicit Real*8 (a-h,o-z)
       Dimension RedVec(lRedVec)
-      Integer   ipChoT(8,*),nDen,kDen
-      Integer   iSkip(*),ipMOs(8,*),nPorb(8,*)
+      Integer   nDen,kDen
+      Integer   ipChoT(8,nDen)
+      Integer   iSkip(*)
+      Integer   ipMOs(8,nDen), nPorb(8,nDen)
       Logical   DoRead
       Character*13 SECNAM
       Parameter (SECNAM = 'Cho_X_GetVtra')

@@ -61,16 +61,13 @@
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer nDen,kDen
-      Integer ipChoT(8,*),ipMOs(8,*),iSkip(*),nPorb(8,*)
+      Integer ipChoT(8,nDen), ipMOs(8,nDen),iSkip(*),nPorb(8,nDen)
 
-      Integer  cho_isao
-      External cho_isao
+      Integer, External:: cho_isao
 
-      Character*8  SECNAM
-      Parameter (SECNAM = 'CHO_VTRA')
+      Character(Len=8), Parameter:: SECNAM = 'CHO_VTRA'
 
-      Real*8  Fac(0:1)
-      Data Fac /0.5D0,1.0D0/
+      Real*8::  Fac(0:1)=[0.5D0,1.0D0]
 
 #include "cholesky.fh"
 #include "choorb.fh"
