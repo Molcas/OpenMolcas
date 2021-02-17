@@ -1052,7 +1052,7 @@ def test_custom(lines, keyword):
         l += to_next_non_blank(lines[l:])
         word = first_word(lines[l])
         assert (word.upper() == 'SECOND')
-        l += to_next_non_blank(lines[l:]) 
+        l += to_next_non_blank(lines[l:])
         nums = to_int(fortran_split(lines[l]))
         l += to_next_non_blank(lines[l:])
       except:

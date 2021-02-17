@@ -21,7 +21,7 @@ MxLevels
 MxOrder of trans dip
   0
 
-OscStr  
+OscStr
 * This keyword means compute oscillator strengths
 * rather than intensities.
 
@@ -45,10 +45,10 @@ PlotWindow
 
 * Transitions we want to print from first and to second state
 * Default all printed
-Transitions  
- First state  
+Transitions
+ First state
   0
- Second 
+ Second
   0 1 2
 
 * The electronic Te energies.
@@ -59,34 +59,34 @@ Energies
   3.78 eV
 
 * List of individual atoms and their designation
-ATOMs  
- C10 
- C11 
- C20 
- C21 
- C30 
- C31 
- C40 
- C41 
- C50 
- C51 
- C60 
- C61 
- C70 
- C71 
- H10 
- H11 
- H30 
- H31 
- H40 
- H41 
- H50 
- H51 
- H60 
- H61 
- H70 
- H71 
-End Atoms 
+ATOMs
+ C10
+ C11
+ C20
+ C21
+ C30
+ C31
+ C40
+ C41
+ C50
+ C51
+ C60
+ C61
+ C70
+ C71
+ H10
+ H11
+ H30
+ H31
+ H40
+ H41
+ H50
+ H51
+ H60
+ H61
+ H70
+ H71
+End Atoms
 
 Geometry
  Cartesian
@@ -146,7 +146,7 @@ Geometry
      H61     -8.6701150084     -2.9706002210      0.000000000
      H70      5.0890849392     -0.0312180174      0.000000000
      H71     -5.0890849392      0.0312180174      0.000000000
- End  
+ End
 
 Modes
   1  2  3  4  5  6  7  8  9 10
@@ -164,78 +164,78 @@ Dipoles
        0.00000000      0.00000000      1.00000000
 
 Internal Coordinates
- Bond    C10 C20          
- Bond    C20 C30          
- Bond    C30 C40          
- Bond    C40 C50          
- Bond    C50 C60          
- Bond    C60 C70          
- Bond    C10 H10          
- Bond    C30 H30          
- Bond    C40 H40          
- Bond    C50 H50          
- Bond    C60 H60          
- Bond    C70 H70          
- Bond    C10 C11          
- Bond    C11 C21          
- Bond    C21 C31          
- Bond    C31 C41          
- Bond    C41 C51          
- Bond    C51 C61          
- Bond    C61 C71          
- Bond    C11 H11          
- Bond    C31 H31          
- Bond    C41 H41          
- Bond    C51 H51          
- Bond    C61 H61          
- Bond    C71 H71          
- Angle   C11 C10 H10      
- Angle   C11 C10 C20      
- Angle   C10 C20 C30      
- Angle   C20 C30 H30      
- Angle   C20 C30 C40      
- Angle   C30 C40 H40      
- Angle   C30 C40 C50      
- Angle   C40 C50 H50      
- Angle   C40 C50 C60      
- Angle   C50 C60 H60      
- Angle   C50 C60 C70      
- Angle   C60 C70 H70      
- Angle   C10 C11 H11      
- Angle   C10 C11 C21      
- Angle   C11 C21 C31      
- Angle   C21 C31 H31      
- Angle   C21 C31 C41      
- Angle   C31 C41 H41      
- Angle   C31 C41 C51      
- Angle   C41 C51 H51      
- Angle   C41 C51 C61      
- Angle   C51 C61 H61      
- Angle   C51 C61 C71      
- Angle   C61 C71 H71      
- Torsion C21 C11 C10 H10  
- Torsion C21 C11 C10 C20  
- Torsion C11 C10 C20 C30  
- Torsion C10 C20 C30 H30  
- Torsion C10 C20 C30 C40  
- Torsion C20 C30 C40 H40  
- Torsion C20 C30 C40 C50  
- Torsion C30 C40 C50 H50  
- Torsion C30 C40 C50 C60  
- Torsion C40 C50 C60 H60  
- Torsion C40 C50 C60 C70  
- Torsion C50 C60 C70 H70  
- Torsion C20 C10 C11 H11  
- Torsion C10 C11 C21 C31  
- Torsion C11 C21 C31 H31  
- Torsion C11 C21 C31 C41  
- Torsion C21 C31 C41 H41  
- Torsion C21 C31 C41 C51  
- Torsion C31 C41 C51 H51  
- Torsion C31 C41 C51 C61  
- Torsion C41 C51 C61 H61  
- Torsion C41 C51 C61 C71  
- Torsion C51 C61 C71 H71  
+ Bond    C10 C20
+ Bond    C20 C30
+ Bond    C30 C40
+ Bond    C40 C50
+ Bond    C50 C60
+ Bond    C60 C70
+ Bond    C10 H10
+ Bond    C30 H30
+ Bond    C40 H40
+ Bond    C50 H50
+ Bond    C60 H60
+ Bond    C70 H70
+ Bond    C10 C11
+ Bond    C11 C21
+ Bond    C21 C31
+ Bond    C31 C41
+ Bond    C41 C51
+ Bond    C51 C61
+ Bond    C61 C71
+ Bond    C11 H11
+ Bond    C31 H31
+ Bond    C41 H41
+ Bond    C51 H51
+ Bond    C61 H61
+ Bond    C71 H71
+ Angle   C11 C10 H10
+ Angle   C11 C10 C20
+ Angle   C10 C20 C30
+ Angle   C20 C30 H30
+ Angle   C20 C30 C40
+ Angle   C30 C40 H40
+ Angle   C30 C40 C50
+ Angle   C40 C50 H50
+ Angle   C40 C50 C60
+ Angle   C50 C60 H60
+ Angle   C50 C60 C70
+ Angle   C60 C70 H70
+ Angle   C10 C11 H11
+ Angle   C10 C11 C21
+ Angle   C11 C21 C31
+ Angle   C21 C31 H31
+ Angle   C21 C31 C41
+ Angle   C31 C41 H41
+ Angle   C31 C41 C51
+ Angle   C41 C51 H51
+ Angle   C41 C51 C61
+ Angle   C51 C61 H61
+ Angle   C51 C61 C71
+ Angle   C61 C71 H71
+ Torsion C21 C11 C10 H10
+ Torsion C21 C11 C10 C20
+ Torsion C11 C10 C20 C30
+ Torsion C10 C20 C30 H30
+ Torsion C10 C20 C30 C40
+ Torsion C20 C30 C40 H40
+ Torsion C20 C30 C40 C50
+ Torsion C30 C40 C50 H50
+ Torsion C30 C40 C50 C60
+ Torsion C40 C50 C60 H60
+ Torsion C40 C50 C60 C70
+ Torsion C50 C60 C70 H70
+ Torsion C20 C10 C11 H11
+ Torsion C10 C11 C21 C31
+ Torsion C11 C21 C31 H31
+ Torsion C11 C21 C31 C41
+ Torsion C21 C31 C41 H41
+ Torsion C21 C31 C41 C51
+ Torsion C31 C41 C51 H51
+ Torsion C31 C41 C51 C61
+ Torsion C41 C51 C61 H61
+ Torsion C41 C51 C61 C71
+ Torsion C51 C61 C71 H71
 End Internal Coordinates
 
 Forcefield

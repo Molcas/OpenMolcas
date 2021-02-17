@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux,naux)
+      Use stdalloc, Only: mma_allocate, mma_deallocate
       Implicit Real*8 (a-h,o-z)
       Real*8 a(lda,n),w(2,n), z(2*ldz*n), aux(naux)
-      parameter(nw1=200)
-      Real*8 w1(nw1)
+      Real*8, Allocatable :: w1(:)
 *
       If (iOpt.eq.2) Then
          Write (6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
@@ -31,10 +31,7 @@
          Write (6,*) 'not_DGeEV: nAux is too small (naux<2*n)!'
          Call Abend()
       End If
-      If (n.gt.nw1) Then
-         Write (6,*) 'not_DGeEV: nw1 is too small (nw1<n)!'
-         Call Abend()
-      End If
+      Call mma_allocate(w1,n,label='w1')
       iErr=0
       Call XEIGEN(iOpt,lda,n,a,w,w1,z,iErr)
       If (iErr.ne.0) Then
@@ -52,6 +49,7 @@
          w(1,i)=aux(i)    ! Real
          w(2,i)=w1(i)     ! Imaginary
       End Do
+      Call mma_deallocate(w1)
 *
 *-----Order eigenvector to ESSL standard
 *
