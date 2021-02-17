@@ -49,6 +49,7 @@ C
 C     Note: frozen and deleted orbitals are not included in the
 C           transformation.
 C
+      use Data_Structures, only: CMO_Type, Deallocate_CMO
       Implicit Real*8 (a-h,o-z)
       Integer nCMOs, ihdf5
       real*8  CMO(nCMOs)
@@ -60,7 +61,10 @@ C
       Logical Do_int
       Logical Do_ChoInit
 
-      Real*8, Allocatable:: CHMO(:), xInt(:)
+      Real*8, Allocatable:: xInt(:)
+
+      Type (CMO_Type), Target:: CHMO
+
       Logical timings
       COMMON /CHOTIME /timings
 #include "stdalloc.fh"
@@ -91,8 +95,20 @@ C
          Write(6,*) 'n,nCMOs=',n,nCMOs
          Call Abend()
       End If
-      Call mma_allocate(CHMO,nCMOs,LABEL='CHMO')
-      Call Transp_MOs(CMO,CHMO,nSym,nFro,nIsh,nAsh,nSsh,nBas)
+
+      CHMO%nSym=nSym
+      Call mma_allocate(CHMO%CMO_Full,nCMOs,LABEL='CHMO')
+      iE = 0
+      Do iSym = 1, nSym
+         n1 = nBas(iSym)
+         n2 = n1 - nFro(iSym) - nDel(iSym)
+         iS = iE + 1
+         iE = iE + n1 * n2
+
+         CHMO%pA(iSym)%A(1:n1,1:n2) => CHMO%CMO_Full(iS:iE)
+      End Do
+
+      Call Transp_MOs(CMO,CHMO%CMO_Full,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 c
         timings=.True.
 c
@@ -127,7 +143,7 @@ c
               Call Abend()
            End If
         End If
-        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CHMO,BName,
+        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CHMO%CMO_Full,BName,
      &                      Do_int,ihdf5,xInt,lXint)
         If (Do_ChoInit) Then
            Call Cho_X_final(irc)
@@ -146,7 +162,7 @@ c
            Call daclos(Lu_Xint)
            Call mma_deallocate(XInt)
         EndIf
-        Call mma_deallocate(CHMO)
+        Call Deallocate_CMO(CHMO)
 c
         return
 c Avoid unused argument warnings
@@ -203,6 +219,7 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
+      Real*8:: Vf(1)=[Zero]
       Real*8, Allocatable:: Lrs(:)
       Real*8, Allocatable, Target:: ChoT(:)
 
@@ -495,8 +512,8 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
-                        Vf=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
-                        Call Add_Info('Lpq',Vf,1,10)
+                        Vf(1)=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
+                        Call Add_Info('Lpq',Vf(1),1,10)
 
                         If (tv2disk.eq.'PQK') Then
 #ifdef _HDF5_QCM_
@@ -524,7 +541,7 @@ C --------------------------------------------------------------------
                            EndIf
                         Else
                            Do ipq=1,NApq
-                              call dcopy_(JNUM,Lpq(ipq,1),NApq,
+                              call dcopy_(JNUM,Lpq(ipq,:),NApq,
      &                                         ChoT,1)
                               If (Do_int) Then
                                  kt=kOff(iSymb)+ipq-1
@@ -613,8 +630,8 @@ C --------------------------------------------------------------------
                         iE = iS - 1 + NApq*JNUM
                         Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
-                        Vf=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
-                        Call Add_Info('Lpq',Vf,1,10)
+                        Vf(1)=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
+                        Call Add_Info('Lpq',Vf(1),1,10)
 
                         If (tv2disk.eq.'PQK') Then
                            Call ddafile(LunChVF(jSym),1,Lpq,
@@ -631,7 +648,7 @@ C --------------------------------------------------------------------
 
                         Else
                            Do ipq=1,NApq
-                              call dcopy_(JNUM,Lpq(ipq,1),NApq,ChoT,1)
+                              call dcopy_(JNUM,Lpq(ipq,:),NApq,ChoT,1)
                               If (Do_int) Then
                                  kt=kOff(iSymp)+ipq-1
                                  Xint(kt)=Xint(kt)+ddot_(JNUM,ChoT,1,
