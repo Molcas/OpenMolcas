@@ -483,6 +483,11 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
+
+                        Verify=DDot_(NApq*JNUM,Work(ipLpq),1,
+     &                                         Work(ipLpq),1)
+                        Call Add_Info('Lpq',Verify,1,10)
+
                         If (tv2disk.eq.'PQK') Then
 #ifdef _HDF5_QCM_
                          if (ihdf5/=1) then
@@ -592,6 +597,10 @@ C --------------------------------------------------------------------
                      CALL CWTIME(TCR3,TWR3)
 
                      If (NApq.ne.0) Then
+
+                        Verify=DDot_(NApq*JNUM,Work(ipLpq),1,
+     &                                         Work(ipLpq),1)
+                        Call Add_Info('Lpq',Verify,1,10)
 
                         If (tv2disk.eq.'PQK') Then
                            Call ddafile(LunChVF(jSym),1,Work(ipLpq),
