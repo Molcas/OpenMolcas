@@ -14,7 +14,7 @@
       USE rassi_global_arrays, only: JBNUM
 #ifdef _HDF5_
       USE Dens2HDF5
-      USE mh5, ONLY: mh5_put_dset, mh5_put_dset_array_real
+      USE mh5, ONLY: mh5_put_dset
 #endif
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
@@ -306,7 +306,7 @@ C especially for already diagonal Hamiltonian matrix.
 
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sfs_energy, ENERGY)
-      call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
+      call mh5_put_dset(wfn_sfs_coef, EIGVEC)
 #endif
 
       IF(IPGLOB.GE.TERSE) THEN

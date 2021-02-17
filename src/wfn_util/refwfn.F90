@@ -214,7 +214,7 @@ subroutine refwfn_data
 
   use stdalloc, only: mma_allocate, mma_deallocate
 # ifdef _HDF5_
-  use mh5, only: mh5_fetch_attr, mh5_fetch_dset, mh5_fetch_dset_array_real
+  use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
 
 # include "rasdim.fh"
@@ -235,7 +235,7 @@ subroutine refwfn_data
   call mma_allocate(tmp,NCMO,label='LCMORAS')
 # ifdef _HDF5_
   if (refwfn_is_h5) then
-    call mh5_fetch_dset_array_real(refwfn_id,'MO_VECTORS',tmp)
+    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',tmp)
   else
 # endif
     IAD15 = IADR15(9)
@@ -264,7 +264,7 @@ subroutine refwfn_data
 #       ifdef _HDF5_
         if (refwfn_is_h5) then
           !---  Read the CI coefficients from the HDF5 file
-          call mh5_fetch_dset_array_real(refwfn_id,'CI_VECTORS',tmp,[nconf,1],[0,ISNUM-1])
+          call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tmp,[nconf,1],[0,ISNUM-1])
         else
 #       endif
           !---  Read the CI coefficients from the JOBIPH file

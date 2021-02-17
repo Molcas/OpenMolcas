@@ -32,6 +32,11 @@
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
       use Logical_Info
       use Gateway_Interfaces, only: GetBS
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embPotInBasis, embPotPath,
+     &outGridPathGiven, embWriteDens, embWriteEsp, embWriteGrad,
+     &embWriteHess
+#endif
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -57,10 +62,6 @@
 #include "RelLight.fh"
 #include "gateway.fh"
 #include "hyper.fh"
-#ifdef _FDE_
-      ! Thomas Dresselhaus
-#include "embpotdata.fh"
-#endif
 #include "relae.fh"
       Common /AMFn/ iAMFn
 *

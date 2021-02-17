@@ -149,21 +149,21 @@ contains
       1, [length(orbital_table)])
     call mh5_init_attr(dset_id, 'DESCRIPTION', &
       'Index for the orbitals in active space.')
-    call mh5_put_dset_array_int(dset_id, orbital_table%index)
+    call mh5_put_dset(dset_id, orbital_table%index)
     call mh5_close_dset(dset_id)
 
     dset_id = mh5_create_dset_real(file_id, 'ORBITAL_ENERGIES', &
       1, [length(orbital_table)])
     call mh5_init_attr(dset_id, 'DESCRIPTION', &
       'Energies of orbitals in active space.')
-    call mh5_put_dset_array_real(dset_id, orbital_table%values)
+    call mh5_put_dset(dset_id, orbital_table%values)
     call mh5_close_dset(dset_id)
 
     dset_id = mh5_create_dset_int(file_id, 'FOCK_INDEX', &
       2, [2, length(fock_table)])
     call mh5_init_attr(dset_id, 'DESCRIPTION', &
       'The index i, j for the Fock matrix elements <i| F |j>.')
-    call mh5_put_dset_array_int(dset_id, fock_table%index)
+    call mh5_put_dset(dset_id, fock_table%index)
     call mh5_close_dset(dset_id)
 
     dset_id = mh5_create_dset_real(file_id, 'FOCK_VALUES', &
@@ -171,14 +171,14 @@ contains
     call mh5_init_attr(dset_id, 'DESCRIPTION', &
       'The Fock matrix elements <i| F |j>.')
     call mh5_init_attr(dset_id, 'CUTOFF', fock_table%cutoff)
-    call mh5_put_dset_array_real(dset_id, fock_table%values)
+    call mh5_put_dset(dset_id, fock_table%values)
     call mh5_close_dset(dset_id)
 
     dset_id = mh5_create_dset_int(file_id, 'TWO_EL_INT_INDEX', &
       2, [4, length(two_el_table)])
     call mh5_init_attr(dset_id, 'DESCRIPTION', &
       'The index i, j, k, l for the two electron integrals <i j | 1/r_{12} | k l >.')
-    call mh5_put_dset_array_int(dset_id, two_el_table%index)
+    call mh5_put_dset(dset_id, two_el_table%index)
     call mh5_close_dset(dset_id)
 
     dset_id = mh5_create_dset_real(file_id, 'TWO_EL_INT_VALUES', &
@@ -186,7 +186,7 @@ contains
     call mh5_init_attr(dset_id, 'DESCRIPTION', &
       'The two electron integrals <i j | 1/r_{12} | k l >.')
     call mh5_init_attr(dset_id, 'CUTOFF', two_el_table%cutoff)
-    call mh5_put_dset_array_real(dset_id, two_el_table%values)
+    call mh5_put_dset(dset_id, two_el_table%values)
     call mh5_close_dset(dset_id)
 
     call mh5_close_file(file_id)

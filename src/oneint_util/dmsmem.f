@@ -10,26 +10,30 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine DMSMem(nRys,MemDMS,la,lb,lr)
+      Subroutine DMSMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-      MemDMS=0
-      nRys =0
+      Mem=0
+      nHer =0
       Call EFMmP(nOrder,MmEFP,la,lb+1,lr-1)
-      MemDMS=Max(MemDMS,MmEFP)
-      nRys =Max(nRys,nOrder)
+      Mem=Max(Mem,MmEFP)
+      nHer =Max(nHer,nOrder)
       Call EFMmP(nOrder,MmEFP,la,lb,lr-1)
-      MemDMS=Max(MemDMS,MmEFP)
-      nRys =Max(nRys,nOrder)
+      Mem=Max(Mem,MmEFP)
+      nHer =Max(nHer,nOrder)
 *
 *     Add a scratch area for intermediate integrals
 *
       MemDer = 3*(nElem(la)*nElem(lb+1) +  nElem(la)*nElem(lb))
-      MemDMS = MemDMS + MemDer
-      MemDMS = MemDMS + nElem(la)*nElem(lb)*9
+      Mem = Mem + MemDer
+      Mem = Mem + nElem(la)*nElem(lb)*9
 *
       Return
       End
