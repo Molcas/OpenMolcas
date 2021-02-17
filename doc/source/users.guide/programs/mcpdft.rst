@@ -161,6 +161,16 @@ The :kword:`KSDFT` is the only required keyword.
               </HELP>
               </KEYWORD>
 
+:kword:`WJOB`
+  This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into file:`JOBIPH`. For MC-PDFT, only the energy of each state is written into file:`JOBIPH`, since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into file:`JOBIPH`, because an MS calculation changes the wave functions.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
+                                  %%Keyword: WJOB <basic>
+              <HELP>
+              Enable one to write the energies and eigenstates of MC-PDFT or MS-PDFT into the JOBIPH file.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 

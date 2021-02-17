@@ -81,6 +81,8 @@
 #include "ciinfo.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
+*Chen write JOBIPH
+#include "wjob.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
       CHARACTER(Len=18)::MatInfo
@@ -694,8 +696,10 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
+        If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
+
         If (Do_Rotate) Then
-        NHRot=lroots**2
+         NHRot=lroots**2
          Do Jroot=1,lroots
           Work(LHRot+Jroot-1+(Jroot-1)*lroots)=Work(iRef_E-1+Jroot)
          End DO
@@ -744,6 +748,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &     '(13X,',lRoots,'(A8,16X))'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
          end if
+*Added by Chen to write energies and states of MS-PDFT into JOBIPH
+         If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
          Call RecPrt(' ','',Work(LHRot),lroots,lroots)
 *         Write(6,*)
          refbas=.false.
