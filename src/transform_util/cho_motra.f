@@ -382,6 +382,7 @@ C ------------------------------------------------------------------
 
             Call mma_allocate(Lrs,LREAD,Label='Lrs')
             Call mma_allocate(ChoT,(mvec+1)*nVec,Label='ChoT')
+            ChoT(:)=0.0D0
             ipChoT = ip_of_Work(ChoT(1))
 
 C --- BATCH over the vectors ----------------------------
@@ -484,9 +485,9 @@ C --------------------------------------------------------------------
                      If (NApq.ne.0) Then
 
 
-                        Verify=DDot_(NApq*JNUM,Work(ipLpq),1,
-     &                                         Work(ipLpq),1)
-                        Call Add_Info('Lpq',Verify,1,10)
+                        Vf=DDot_(NApq*JNUM,Work(ipLpq),1,
+     &                                     Work(ipLpq),1)
+                        Call Add_Info('Lpq',Vf,1,10)
 
                         If (tv2disk.eq.'PQK') Then
 #ifdef _HDF5_QCM_
@@ -598,9 +599,9 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
-                        Verify=DDot_(NApq*JNUM,Work(ipLpq),1,
-     &                                         Work(ipLpq),1)
-                        Call Add_Info('Lpq',Verify,1,10)
+                        Vf=DDot_(NApq*JNUM,Work(ipLpq),1,
+     &                                     Work(ipLpq),1)
+                        Call Add_Info('Lpq',Vf,1,10)
 
                         If (tv2disk.eq.'PQK') Then
                            Call ddafile(LunChVF(jSym),1,Work(ipLpq),
