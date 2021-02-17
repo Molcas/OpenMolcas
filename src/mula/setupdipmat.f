@@ -32,7 +32,6 @@ C!    dip        : Real*8 array - values of dipole at the
 C!                 coordinates contained in var.
 C!    trfName    : Character array - transformation associated with each
 C!                 internal coordinate.
-C!    use_weight : Logical
 C!    max_term   : Integer - maximum order of the transition dipole terms.
 C!    W1,W2      : Real*8 two dimensional arrays - eigenvectors
 C!                 scaled by the square root of the eigenvalues.
@@ -63,8 +62,6 @@ C!
       Real*8 var(ndata,nvar)
       Real*8 dip (ndata)
       Character*80 trfName(MaxNumAt)
-      Logical      use_weight
-      Logical      find_minimum
       Integer mMat(0:mdim1,mdim2),mInc(0:mdim1,mdim2),
      &  mDec(0:mdim1,mdim2)
       Integer nMat(0:ndim1,ndim2),nInc(0:ndim1,ndim2),
@@ -79,8 +76,6 @@ c       Real*8   max_err,stand_dev
 
 C!
 C!---- Initialize.
-      find_minimum = .false.
-      use_weight = .false.
       Call GetMem('Dij','Allo','Real',
      &  ipDij,(max_mOrd+1)*(max_mOrd+1))
       Call GetMem('DijTrans','Allo','Real',

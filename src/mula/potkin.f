@@ -73,7 +73,6 @@ c       Real*8 rdx(4)
 
       nOsc2=nOsc*nOsc
       nOsc3=nOsc2*nOsc
-      nOsc4=nOsc3*nOsc
 
       Call GetMem('Tempa','Allo','Real',ipTempa,nOsc2)
       Call GetMem('Tempb','Allo','Real',ipTempb,nOsc2)
@@ -320,7 +319,7 @@ C!---- Initialize.
       Call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 
 c            temp=0.0d0
-      call dcopy_(nOsc*nOsc,0.0d0,0,temp,1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -343,7 +342,7 @@ c            temp=0.0d0
       Call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 C!
 c            temp=0.0d0
-      call dcopy_(nOsc*nOsc,0.0d0,0,temp,1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -366,7 +365,7 @@ c            temp=0.0d0
       Call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 
 c            temp=0.0d0
-      call dcopy_(nOsc*nOsc,0.0d0,0,temp,1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -389,7 +388,7 @@ c            temp=0.0d0
       Call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 
 c            temp=0.0d0
-      call dcopy_(nOsc*nOsc,0.0d0,0,temp,1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -411,7 +410,7 @@ c            temp=0.0d0
      &            0.0d0,Temp,nosc)
       Call Mul2(nmat,A,iCre,iAnn,Temp,max_ord,nosc,rdx)
 C!
-      call dcopy_(nOsc,0.0d0,0,t1,1)
+      call dcopy_(nOsc,[0.0d0],0,t1,1)
 c            t1=0.0d0
       Do i=1,nosc
       Do j=1,nosc
@@ -533,7 +532,7 @@ c            t1=0.0d0
       Call Mul4(nmat,A,iCre,iAnn,Temp3,max_ord,nosc,rdx)
 
 c            temp1=0.0d0
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,temp1,1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -564,7 +563,7 @@ c            temp1=0.0d0
      &            0.0d0,Temp2,nosc**2)
       Call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 c            temp1=0.0d0
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,temp1,1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -596,7 +595,7 @@ c            temp1=0.0d0
       Call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 
 c            temp1=0.0d0
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,temp1,1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -628,7 +627,7 @@ c            temp1=0.0d0
       Call Mul3(nmat,A,iCre,iAnn,Temp2,max_ord,nosc,rdx)
 
 c            temp1=0.0d0
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,temp1,1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,temp1,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc
@@ -662,7 +661,7 @@ c            temp1=0.0d0
       rdx(1)=1.0d0
       rdx(2)=1.0d0
 c            temp=0.0d0
-      call dcopy_(nOsc*nOsc,0.0d0,0,temp,1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,temp,1)
       Do i=1,nosc
       Do j=1,nosc
       Do k=1,nosc

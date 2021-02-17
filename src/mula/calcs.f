@@ -377,7 +377,6 @@ C!---- Calculation of the out of plane angle Phi.
       enddo
       Phi = ASin(Ddot_(3,F0,1,NR1,1))
       CosPhi = Cos(Phi)
-      SinPhi = Sin(Phi)
       TanPhi = Tan(Phi)
 C!
 C!---- Contributions to S.

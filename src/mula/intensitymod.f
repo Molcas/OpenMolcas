@@ -124,9 +124,6 @@ C!
       Integer  nvTabDim
 #include "WrkSpc.fh"
 C!
-C!---- Initialize.
-      nOscOld = nOsc
-C!
 C!---- Calculate dimensions given max level of excitation for the
 C!     different states.
       Call TabDim2_drv(m_max,nOsc,nvTabDim)
@@ -141,7 +138,6 @@ C! nTabDim2 = TabDim2(n_max2,nOsc)-1
       nTabDim2 = nvTabDim-1
       max_mOrd = mTabDim
       max_nOrd = nTabDim
-      max_mOrd2 = mTabDim
       max_nOrd2 = nTabDim
 C!
 C!---- Set up mMat for L.
@@ -177,10 +173,10 @@ C!     method or use the simpler harmonic approximation.
       n=ndimtot-1
       Call GetMem('FC2','Allo','Real',ipFC2,nDimTot*nDimTot*3)
 c       FC2=0.0d0
-      call dcopy_(nDimtot*nDimTot*3,0.0d0,0,Work(ipFC2),1)
+      call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipFC2),1)
       Call GetMem('DipMat','Allo','Real',ipDipMat,nDimTot*nDimTot*3)
 c       DipMat = 0.0d0
-      call dcopy_(nDimtot*nDimTot*3,0.0d0,0,Work(ipDipMat),1)
+      call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipDipMat),1)
       Call SetUpDipMat(Work(ipDipMat),max_dip,ipow,var,
      &     Tdip_x,trfName,C1,W1,det1,r01,
      &     C2,W2,det2,r02,max_mOrd,max_nOrd,max_nOrd,
@@ -369,10 +365,6 @@ C!
 
       Integer  nvTabDim
 #include "WrkSpc.fh"
-
-C!
-C!---- Initialize.
-      nOscOld = nOsc
 C!
 C!---- Calculate dimensions given max level of excitation for the
 C!     different states.
@@ -385,7 +377,6 @@ C!     different states.
       nTabDim2 = nvTabDim-1
       max_mOrd = mTabDim
       max_nOrd = nTabDim
-      max_mOrd2 = mTabDim
       max_nOrd2 = nTabDim
 C!
 C!---- Set up mMat for L.
@@ -420,10 +411,10 @@ C!     method or use the simpler harmonic approximation.
       n = nDimTot-1
       Call GetMem('FC2','Allo','Real',ipFC2,nDimTot*nDimTot*3)
 c       FC2 = 0.0d0
-      call dcopy_(nDimtot*nDimTot*3,0.0d0,0,Work(ipFC2),1)
+      call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipFC2),1)
       Call GetMem('DipMat','Allo','Real',ipDipMat,nDimTot*nDimTot*3)
 c       DipMat = 0.0d0
-      call dcopy_(nDimtot*nDimTot*3,0.0d0,0,Work(ipDipMat),1)
+      call dcopy_(nDimtot*nDimTot*3,[0.0d0],0,Work(ipDipMat),1)
       Call SetUpDipMat2(Work(ipDipMat),max_dip,
      &       C1,W1,det1,r01,C2,W2,det2,r02,
      &       max_mOrd,max_nOrd,max_nOrd,

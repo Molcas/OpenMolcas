@@ -19,11 +19,6 @@
 #include "io_mula.fh"
 C!
 C!---- Initialize.
-      Do i=0,maxMax_n
-        nIndex(1,i)=0
-        nIndex(2,i)=0
-        nIndex(3,i)=0
-      EndDo
       Do i=1,nOsc
         nMat0(i)=0
       EndDo

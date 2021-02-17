@@ -76,8 +76,8 @@ C!---- Cholesky decomposition of S.
       S(i,i) = S(i,i)+1.0d-6
       End Do
       Call Cholesky(S,Work(ipTmp1),n)
-      call dcopy_(nSqr,0.0d0,0,Work(ipT),1)
-      call dcopy_(n,1.0d0,0,Work(ipT),n+1)
+      call dcopy_(nSqr,[0.0d0],0,Work(ipT),1)
+      call dcopy_(n,[1.0d0],0,Work(ipT),n+1)
       Call Dool(Work(ipTmp1),n,n,Work(ipT),n,n,det)
 C!
 C!---- Make A symmetric and transform it to lower packed storage in
@@ -101,8 +101,8 @@ C!     Scratch.
       End Do
 C!
 C!---- Diagonalize Scratch.
-      call dcopy_(nSqr,0.0d0,0,Work(ipTmp1),1)
-      call dcopy_(n,1.0d0,0,Work(ipTmp1),n+1)
+      call dcopy_(nSqr,[0.0d0],0,Work(ipTmp1),1)
+      call dcopy_(n,[1.0d0],0,Work(ipTmp1),n+1)
       Call Jacob(Work(ipScr),Work(ipTmp1),n,n)
       Call Jacord(Work(ipScr),Work(ipTmp1),n,n)
 C!
@@ -244,12 +244,12 @@ C!
       Call GetMem('c_col','Allo','Real',ipc_col,n)
       Call GetMem('SC_col','Allo','Real',ipSC_col,n)
 c       Real*8 OccNumMat (0:nDimTot-1,nOsc)
-      call dcopy_(nDimTot*nOsc,0.0d0,0,OccNumMat,1)
+      call dcopy_(nDimTot*nOsc,[0.0d0],0,OccNumMat,1)
 c       OccNumMat = 0.0d0
       Do k = 1,n
       Do jOsc = 1,nosc
 c             C_col=0.0d0
-      call dcopy_(n,0.0d0,0,Work(ipc_col),1)
+      call dcopy_(n,[0.0d0],0,Work(ipc_col),1)
       Do l = 0,m
       Do iOsc = 1,nOsc
       lc = iCre(l,iosc)

@@ -336,7 +336,6 @@ C!---- Perform a least squares fit.
       Call TabDim_drv(max_term,nOsc,numCoef)
       Call GetMem('FitCoef','Allo','Real',ipFitCoef,numCoef)
 
-      n = numCoef-1
       Call GetMem('jPow','Allo','Inte',ipjPow,numCoef*nOsc)
       pot = .true.
       Call LSPotFit(r1,energy1,grad1,Hess1,D3_1,D4_1,
@@ -380,9 +379,9 @@ C!---- Block 11.
       call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
      &  D4,nterm,nvar)
       energy = energy-energy0
-      call dcopy_(nOsc,0.0d0,0,r0vec,1)
+      call dcopy_(nOsc,[0.0d0],0,r0vec,1)
 c       r0vec = 0.0d0
-      call dcopy_(nOsc,0.0d0,0,r_diff,1)
+      call dcopy_(nOsc,[0.0d0],0,r_diff,1)
 c              r_diff = 0.0d0
 c       Gtemp = G1
       call dcopy_(nOsc*nOsc,G1,1,Gtemp,1)
@@ -427,8 +426,8 @@ C!---- Block 22.
       energy = energy-energy0
 c       r0vec = 0.0d0
 c              r_diff = 0.0d0
-      call dcopy_(nOsc,0.0d0,0,r0vec,1)
-      call dcopy_(nOsc,0.0d0,0,r_diff,1)
+      call dcopy_(nOsc,[0.0d0],0,r0vec,1)
+      call dcopy_(nOsc,[0.0d0],0,r_diff,1)
 c       Gtemp = G2
       call dcopy_(nOsc*nOsc,G2,1,Gtemp,1)
 c              GprimeTemp = Gprime2
@@ -459,7 +458,7 @@ C!---- Block 12 and 21.
      &         C,W,det0,r0vec,L,U,FC00,alpha1,alpha2,beta,
      &       l_C1,nnsiz)
 c       r0vec  = r0-r0
-      call dcopy_(nOsc,0.0d0,0, r0vec,1)
+      call dcopy_(nOsc,[0.0d0],0, r0vec,1)
       call funcval(r0vec,Work(ipFitCoef),iWork(ipkPow),
      &  energy,nterm,nvar)
       call gradient(r0vec,Work(ipFitCoef),iWork(ipkPow),
@@ -471,7 +470,7 @@ c       r0vec  = r0-r0
       call fourthDer(r0vec,Work(ipFitCoef),iWork(ipkPow),
      &  D4,nterm,nvar)
       energy = energy-energy0
-      call dcopy_(nOsc,0.0d0,0, r0vec,1)
+      call dcopy_(nOsc,[0.0d0],0, r0vec,1)
 c       r0vec = 0.0d0
       do iv=1,nOsc
       r_diff(iv) = r01(iv)-r02(iv)

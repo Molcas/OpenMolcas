@@ -118,9 +118,9 @@ C!
       D0(2) = TranDip(2)
       D0(3) = TranDip(3)
       call dcopy_(nOsc,TranDipGrad,1,Work(ipD1),1)
-      call dcopy_(nOsc*nOsc,0.0d0,0,Work(ipD2),1)
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,Work(ipD3),1)
-      call dcopy_(nOsc*nOsc*nOsc*nOsc,0.0d0,0,Work(ipD4),1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,Work(ipD2),1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD3),1)
+      call dcopy_(nOsc*nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD4),1)
 
       Call DipMatEl(Work(ipDij),Work(ipW),Work(ipL),Work(ipU),
      &  FC00,nMat,nInc,nDec,D0(1),Work(ipD1),Work(ipD2),

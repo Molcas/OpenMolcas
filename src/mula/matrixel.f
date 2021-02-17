@@ -63,7 +63,7 @@ C!---- Initialize.
       nPlus = max_nOrd+1
       n_A=(max_mOrd+1)*(max_nOrd+1)
       Call GetMem('A','Allo','Real',ipA,n_A)
-      call dcopy_(n_A,0.0d0,0,Work(ipA),1)
+      call dcopy_(n_A,[0.0d0],0,Work(ipA),1)
 c       A = 0.0d0
 C!
       Call GetMem('Wtemp','Allo','Real',ipWtemp,nOscold*nOsc)
@@ -75,12 +75,11 @@ C!
      &            1.0d0,Base,nOscOld,
      &            W,nOsc,
      &            0.0d0,Work(ipWtemp),nOscold)
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipCtemp),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipCtemp),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipCtemp),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipCtemp),nOsc+1)
 c       temp = W
       call dcopy_(nOsc*nOsc,W,1,Work(iptemp),1)
       Call Dool(Work(iptemp),nOsc,nOsc,Work(ipCtemp),nOsc,nOsc,det)
-      det0 = 1.0d0/det
       Call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
 
       Call GetMem('rtemp1','Allo','Real',iprtemp1,nOsc)

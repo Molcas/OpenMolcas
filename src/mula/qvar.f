@@ -51,8 +51,6 @@ C!
       ix = index(trfcode,'AS IT IS')
       ia = index(trfcode,'-AVG')
       ie = index(trfcode,'EXP')
-      ir = index(trfcode,'RAD')
-      id = index(trfcode,'DEG')
       ic = index(trfcode,'COS')
       is = index(trfcode,'SIN')
       If ( ic.gt.0 ) Then

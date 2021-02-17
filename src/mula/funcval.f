@@ -177,7 +177,7 @@ C!
       Real*8   rfactor
 C!
 c       D3 = 0.0d0
-      call dcopy_(nvar*nvar*nvar,0.0d0,0,D3,1)
+      call dcopy_(nvar*nvar*nvar,[0.0d0],0,D3,1)
       Do ivar = 1,nvar
       Do jvar = ivar,nvar
       Do kvar = jvar,nvar
@@ -258,7 +258,7 @@ C!
       Real*8   rfactor
 C!
 c       D4 = 0.0d0
-      call dcopy_(nvar*nvar*nvar*nvar,0.0d0,0,D4,1)
+      call dcopy_(nvar*nvar*nvar*nvar,[0.0d0],0,D4,1)
       Do ivar = 1,nvar
       Do jvar = ivar,nvar
       Do kvar = jvar,nvar

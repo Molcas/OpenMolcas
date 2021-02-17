@@ -38,11 +38,8 @@ C!
       Real*8 W    (noscold,nosc)
 #include "WrkSpc.fh"
 C!
-C!---- Initialize.
-      mplus = max_ord+1
-C!
 C!---- Zeroth order term.
-      call dcopy_(max_ord+1,Energy,0,A,max_Ord+2)
+      call dcopy_(max_ord+1,[Energy],0,A,max_Ord+2)
       rdx(1) = 1.0d0
       rdx(2) = 1.0d0
       rdx(3) = 1.0d0

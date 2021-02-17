@@ -126,12 +126,6 @@ C!
       Real*8 PotCoef(nPolyTerm,1)
 #include "WrkSpc.fh"
 C!
-C!---- Format declarations.
-      Character*32 F1
-      Character*32 F2
-      F1='(a2,a)'
-      F2='(a2,a4,3f14.8,f20.8)'
-C!
       NumInt  = nOsc
       l_aNormModes=NumInt
       Call GetMem('aNormModes','Allo','Inte',

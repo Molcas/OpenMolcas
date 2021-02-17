@@ -20,11 +20,6 @@ C!
       Real*8 Mass (NumOfAt)
 #include "inout.fh"
 C!
-C!---- Format declarations.
-C!
-C!---- Initialize.
-      nAt = NumOfAt
-C!
 C!---- Write labels, coordinates and masses to log file.
       Write(6,*)
       Write(6,*)
@@ -75,7 +70,6 @@ C!---- Internal coordinates at equilibrium.
      & 'Angles    :                           radians         degrees'
       Write(6,*) ('----',i=1,16)
       k = 1
-      iLine=32
       Do j = 1,NumInt
       IntType = InterVec(k)
       If(IntType.eq.1) Then

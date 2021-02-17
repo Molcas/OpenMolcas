@@ -73,7 +73,7 @@ C!---- Set up weight matrix and right hand side.
 
       Call GetMem('weight','Allo','Real',ipweight,nDim*nDim)
 
-      call dcopy_(ndim**2,0.0d0,0,Work(ipweight),1)
+      call dcopy_(ndim**2,[0.0d0],0,Work(ipweight),1)
       n = 1
       Work(ipweight+n+nDim*(n-1)-1) = 1.0d4
       Work(ipweight+n+nterm+nDim*(n+nterm-1)-1) = 1.0d4
@@ -139,7 +139,7 @@ C!----
       l_vpow=mxdeg+1
       Call GetMem('vpow','Allo','Real',ipvpow,l_vpow*nvar)
       Call GetMem('Tmat','Allo','Real',ipTmat,nDim*nterm)
-      call dcopy_(nDim*nterm,0.0d0,0,work(ipTmat),1)
+      call dcopy_(nDim*nterm,[0.0d0],0,work(ipTmat),1)
 c       Tmat = 0.0d0
       Call GetMem('x','Allo','Real',ipx,nvar)
 

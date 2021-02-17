@@ -121,16 +121,15 @@ C!D Write(6,*)' NumInt:',NumInt
 C!D Write(6,*)' NumOfAt:',NumOfAt
       Call GetMem('S','Allo','Real',ipS,3*NumOfAt*NumInt)
       Call GetMem('V','Allo','Real',ipV,NumInt*NumInt)
-      n=3*NumOfAt
       Call GetMem('B','Allo','Real',ipB,3*NumOfAt*NumInt)
 
       Call GetMem('Bnew','Allo','Real',ipBnew,3*NumOfAt*NumInt)
       Call GetMem('Lambda','Allo','Real',ipLambda,NumInt)
-      call dcopy_(3*NumOfAt*NumInt,0.0d0,0,Work(ipS),1)
+      call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipS),1)
 C!
 C!---- Transform coordinates.
 c       xvec=0.0D0
-      call dcopy_(nosc,0.0d0,0,xvec,1)
+      call dcopy_(nosc,[0.0d0],0,xvec,1)
 C!D Write(6,*)' VIBFREQ, calling Cart_to_Int0.'
       Call Cart_To_Int0(InterVec,AtCoord,xvec,NumOfAt,NumInt)
 C!D Write(6,*)' VIBFREQ, back from Cart_to_Int0.'
@@ -140,7 +139,7 @@ C!
 C!---- Calculate the contributions to the S matrix for each internal
 C!     coordinate.
 c       S=0.0D0
-      call dcopy_(3*NumOfAt*NumInt,0.0d0,0,Work(ipS),1)
+      call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipS),1)
 C!D Write(6,*)' VIBFREQ, calling CalcS.'
       Call CalcS(AtCoord,InterVec,Work(ipS),NumInt,NumOfAt)
 C!D Write(6,*)' VIBFREQ, back from CalcS.'
@@ -151,8 +150,8 @@ C!D Write(6,*)' VIBFREQ, calling CalcG.'
 C!D Write(6,*)' VIBFREQ, back from CalcG.'
 c       Gprime = 0.0d0
 c       Gdbleprime = 0.0d0
-      call dcopy_(ngdim**3,0.0D0,0,GPrime,1)
-      call dcopy_(ngdim**4,0.0D0,0,GdblePrime,1)
+      call dcopy_(ngdim**3,[0.0D0],0,GPrime,1)
+      call dcopy_(ngdim**4,[0.0D0],0,GdblePrime,1)
       If ( max_term.gt.2 ) Then
       dh = 1.0d-3
       Call CalcGprime(Gprime,Mass,xvec,InterVec,AtCoord,
@@ -211,7 +210,7 @@ C!---- Anharmonicity calculations (if we have third and possibly fourth
 C!     derivatives). First calculation of the anharmonicity constants and
 C!     then calculation of the fundamental frequencies.
 c       x_anharm = 0.0d0
-      call dcopy_(nosc**2,0.0d0,0,x_anharm,1)
+      call dcopy_(nosc**2,[0.0d0],0,x_anharm,1)
       If ( max_term.gt.2 ) Then
       Call GetMem('C1','Allo','Real',ipC1,nOsc*nOsc)
       Call GetMem('Temp','Allo','Real',ipTemp,nOsc*nOsc)

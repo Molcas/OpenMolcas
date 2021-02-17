@@ -58,7 +58,7 @@ C!---- Initialize.
       Call GetMem('Amat','Allo','Real',ipAmat,3*NumOfAt*nFree)
       lAmat=n
 c       Amat = 0.0d0
-      call dcopy_(3*NumOfAt*nFree,0.0d0,0,Work(ipAmat),1)
+      call dcopy_(3*NumOfAt*nFree,[0.0d0],0,Work(ipAmat),1)
 C!
 C!---- Invert S matrix.
       Call GetMem('Temp2','Allo','Real',ipTemp2,NumInt*Numint)
@@ -72,8 +72,8 @@ C! Invert, by solving eq Temp2*X=Temp1. Solution computed in-place.
 C! Thus, Temp1=Unit matrix(in) and contains solution (out).
       Call GetMem('Temp1','Allo','Real',ipTemp1,NumInt*Numint)
 
-      call dcopy_(NumInt**2,0.0d0,0,Work(ipTemp1),1)
-      call dcopy_(NumInt,1.0d0,0,Work(ipTemp1),NumInt+1)
+      call dcopy_(NumInt**2,[0.0d0],0,Work(ipTemp1),1)
+      call dcopy_(NumInt,[1.0d0],0,Work(ipTemp1),NumInt+1)
       Call Dool(Work(ipTemp2),NumInt,NumInt,Work(ipTemp1),
      &  NumInt,NumInt,det)
 C!PAM01 Replacement for Dool, if superstable solution is wanted:
@@ -154,8 +154,8 @@ C!---- Project rotation and translation out of S matrix.
      &            Work(ipAmat),3*NumOfAt,
      &            0.0d0,Work(ipTemp1),nFree)
       Call GetMem('Ainv','Allo','Real',ipAinv,nFree*nFree)
-      call dcopy_(nFree**2,0.0d0,0,Work(ipAinv),1)
-      call dcopy_(nFree,1.0d0,0,Work(ipAinv),nFree+1)
+      call dcopy_(nFree**2,[0.0d0],0,Work(ipAinv),1)
+      call dcopy_(nFree,[1.0d0],0,Work(ipAinv),nFree+1)
       Call Dool(Work(ipTemp1),nFree,nFree,Work(ipAinv),nFree,
      &  nFree,det)
       Call GetMem('Temp1','Free','Real',ipTemp1,nFree*nFree)

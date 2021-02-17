@@ -77,7 +77,6 @@ c       mTemp = 0
       End Do
 C!
 C!---- Create table mMat.
-      numOld = num
       mMat_row = 1
       Do m = 1,m_max
       irow = 1
@@ -95,7 +94,6 @@ C!---- Produce all combinations for a given total sum = m_max.
       End Do
       istart_row = istart_row+1
       End Do
-      numOld = num
       num = numtemp
 C!---- Remove all entries which occur more than once.
       Do i = 1,num

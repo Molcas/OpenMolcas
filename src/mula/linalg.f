@@ -213,7 +213,7 @@ C!---- Transform S to lower packed storage in Scratch.
 C!
 C!---- Turn T into a unit matrix.
 cvv       T = 0.0d0
-      call dcopy_(nSqr,0.0D0,0,Work(ipT),1)
+      call dcopy_(nSqr,[0.0D0],0,Work(ipT),1)
       Do i = 1,n
       Work(ipT+i+n*(i-1)-1) = 1.0d0
       End Do
@@ -305,9 +305,9 @@ C!---- Initialize.
       nPolyTerm  = nterm
       myCoef2= 1
 cvv       rhs    = 0.0d0
-      call dcopy_(nterm,0.0D0,0,rhs,1)
+      call dcopy_(nterm,[0.0D0],0,rhs,1)
 cvv       equmat = 0.0d0
-      call dcopy_(nterm*nterm,0.0D0,0,equmat,1)
+      call dcopy_(nterm*nterm,[0.0D0],0,equmat,1)
 
 C!
 C!---- Set up weight vector.
@@ -326,7 +326,7 @@ C!---- Set up weight vector.
       End Do
       Else
 cvv          weight = 1.0d0
-      call dcopy_(ndata,0.1D0,0,Work(ipweight),1)
+      call dcopy_(ndata,[0.1D0],0,Work(ipweight),1)
       End If
 C!
 C!---- Accumulate equation matrix and right-hand-side.

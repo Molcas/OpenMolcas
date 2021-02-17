@@ -169,7 +169,6 @@ C!---- Write vibrational levels.
       If ( WriteVibLevels ) Then
       Call GetMem('VibLevel1','Allo','Real',ipVibLevel1,max_mOrd+1)
       Call GetMem('VibLevel2','Allo','Real',ipVibLevel2,max_nOrd+1)
-      max_Ord = max(max_mOrd,max_nOrd)
       If ( MatEl ) Then
       k = 0
       Do iOrd = 1,max_mOrd+1
@@ -531,7 +530,7 @@ C TermMin/Max must be in cm-1
       EndIf
       l_plotvec=TermMax-TermMin+1
       Call GetMem('plotvec','Allo','Real',ipplotvec,l_plotvec)
-      call dcopy_(l_plotvec,0.0d0,0,Work(ipplotvec),1)
+      call dcopy_(l_plotvec,[0.0d0],0,Work(ipplotvec),1)
 
       call molcas_open(plotunit,'plot.intensity')
 c      Open (Unit=plotUnit,File='plot.intensity')

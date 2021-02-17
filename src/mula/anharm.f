@@ -63,7 +63,7 @@ C!
       NumInt = nOsc
 C!
 C!---- Calculate the eigenvector matrix, C, in dimensionless normal coordinates.
-      call dcopy_(NumInt**2,0.0d0,0,Temp,1)
+      call dcopy_(NumInt**2,[0.0d0],0,Temp,1)
       Do i = 1,NumInt
       Temp(i,i) = 1.0d0/sqrt(harmfreq(i))
       End Do

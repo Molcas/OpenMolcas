@@ -31,6 +31,7 @@ C!-----------------------------------------------------------------------!
 #include "inout.fh"
 #include "WrkSpc.fh"
 #include "io_mula.fh"
+      Integer nIndex(3,0:maxMax_n)
       Real*8 C1(nOsc,nOsc),C2(nOsc,nosc),W1(nOsc,nOsc),W2(nOsc,nOsc),
      &       C(nOsc,nOsc),W(nOsc,nOsc)
       Real*8 r01(nOsc),r02(nOsc),r00(nOsc), det0,det1,det2, FC00
@@ -41,7 +42,6 @@ C!-----------------------------------------------------------------------!
       Integer mDec(0:mTabDim,nOsc) , nDec(nOsc,lBatch)
 
       Call TabDim2_drv(m_max,nosc,nvTabDim)
-      max_mOrd = nvTabDim-1
       Call TabDim2_drv(n_max,nosc,nvTabDim)
       max_nOrd = nvTabDim-1
       Call TabDim2_drv(m_max,nosc,nvTabDim)

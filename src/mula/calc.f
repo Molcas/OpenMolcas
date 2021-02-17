@@ -48,7 +48,7 @@ c       temp = alpha1+alpha2
       Call Daxpy_(nOscSqr,1.0d0,alpha2,1,Work(iptemp),1)
 
 c       alpha = 0.5d0*temp
-      call dcopy_(nOscSqr,0.0d0,0,Work(ipalpha),1)
+      call dcopy_(nOscSqr,[0.0d0],0,Work(ipalpha),1)
       Call Daxpy_(nOscSqr,0.5d0,Work(iptemp),1,Work(ipalpha),1)
 C!
 C!---- Calculate C using a Cholesky factorization of 2*alpha.
@@ -56,8 +56,8 @@ C!---- Calculate C using a Cholesky factorization of 2*alpha.
 
 C!
 C!---- Calculate W.
-      call dcopy_(nOscSqr,0.0d0,0,W,1)
-      call dcopy_(nOsc,1.0d0,0,W,nOsc+1)
+      call dcopy_(nOscSqr,[0.0d0],0,W,1)
+      call dcopy_(nOsc,[1.0d0],0,W,nOsc+1)
       call dcopy_(nOscSqr,C,1,Work(iptemp),1)
 c       temp = C
       Call Dool(Work(iptemp),nOsc,nOsc,W,my1,my2,det0)
@@ -82,7 +82,7 @@ c       r_temp(:,1) = r_temp1+r_temp2
       Work(ipr_temp+i-1)=Work(ipr_temp1+i-1)+Work(ipr_temp2+i-1)
       enddo
 c       temp = 2.0*alpha
-      call dcopy_(nOscSqr,0.0d0,0,Work(iptemp),1)
+      call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
       Call Daxpy_(nOscSqr,2.0d0,Work(ipalpha),1,Work(iptemp),1)
 
       Call Dool(Work(iptemp),nOsc,nOsc,Work(ipr_temp),nOsc,1,det)
@@ -98,7 +98,7 @@ c       temp1 = alpha1
       call dcopy_(nOscSqr,alpha1,1,Work(iptemp1),1)
 
 c       temp  = 2.0d0*alpha
-      call dcopy_(nOscSqr,0.0d0,0,Work(iptemp),1)
+      call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
       Call Daxpy_(nOscSqr,2.0d0,Work(ipalpha),1,Work(iptemp),1)
 
       Call Dool(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)

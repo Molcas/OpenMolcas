@@ -301,7 +301,6 @@ C!
       Integer mDec(0:mTabDim,nOsc), nDec(0:iMaxYes,nOsc)
 
       Call TabDim2_drv(m_max,nosc,nvTabDim)
-      max_mOrd = nvTabDim-1
       Call TabDim2_drv(n_max,nosc,nvTabDim)
       max_nOrd = nvTabDim-1
       Call TabDim2_drv(m_max,nosc,nvTabDim)

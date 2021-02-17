@@ -56,6 +56,7 @@ C!
 #include "WrkSpc.fh"
 #include "io_mula.fh"
 #include "warnings.fh"
+      Integer nIndex(3,0:maxMax_n)
 C!
 C!
 C!----      Initialize.
@@ -315,14 +316,14 @@ C!----      Calculate W matrices.
       End Do
 C!
 C!----      Calculate C = W^(-1).
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipC1),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipC1),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipC1),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipC1),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW1),1,Work(iptemp),1)
       Call Dool(Work(iptemp),nOsc,nOsc,Work(ipC1),
      &        nOsc,nOsc,det)
       det1 = abs(1.0d0/det)
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipC2),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipC2),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipC2),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipC2),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(iptemp),1)
       Call Dool(Work(iptemp),nOsc,nOsc,Work(ipC2),
      &        nOsc,nOsc,det)
@@ -412,8 +413,8 @@ C!      Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
      &            Work(iptemp),nOscOld,
      &            0.0d0,Work(ipHess1),nOsc)
       Call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
-      call dcopy_(nOscOld**2,0.0d0,0,Work(iptemp2),1)
-      call dcopy_(nOscOld,1.0d0,0,Work(iptemp2),nOscOld+1)
+      call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
+      call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
       Call Dool(Work(ipG1),nOsc,nOsc,work(iptemp2),
      &      nOscOld,nOscOld,det)
       Call DGEMM_('N','N',
@@ -428,8 +429,8 @@ C!      Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
      &            1.0d0,Work(ipBase),nOscOld,
      &            Work(iptemp),nOscOld,
      &            0.0d0,Work(iptemp2),nOsc)
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipG1),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipG1),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipG1),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipG1),nOsc+1)
       Call Dool(Work(iptemp2),nOscOld,nOscOld,
      &      Work(ipG1),nOsc,nOsc,det)
       Call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
@@ -451,8 +452,8 @@ C!      Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
      &      Work(iptemp+iv-1+nOsc*(jOsc-1))
       enddo
       End Do
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipC1),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipC1),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipC1),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipC1),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW1),1,Work(iptemp),1)
       Call Dool(Work(iptemp),nOscOld,nOsc,Work(ipC1),
      &        nOsc,nOsc,det)
@@ -475,8 +476,8 @@ C!----      Second state.
      &            Work(iptemp),nOscOld,
      &            0.0d0,Work(ipHess2),nOsc)
       Call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
-      call dcopy_(nOscOld**2,0.0d0,0,Work(iptemp2),1)
-      call dcopy_(nOscOld,1.0d0,0,Work(iptemp2),nOscOld+1)
+      call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
+      call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
       Call Dool(Work(ipG2),nOsc,nOsc,Work(iptemp2),
      &      nOscOld,nOscOld,det)
       Call DGEMM_('N','N',
@@ -491,8 +492,8 @@ C!----      Second state.
      &            1.0d0,Work(ipBase),nOscOld,
      &            Work(iptemp),nOscOld,
      &            0.0d0,Work(iptemp2),nOsc)
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipG2),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipG2),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipG2),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipG2),nOsc+1)
       Call Dool(Work(iptemp2),nOsc,nOsc,Work(ipG2),
      &      nOsc,nOsc,det)
       Call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
@@ -514,8 +515,8 @@ C!----      Second state.
      &      Work(iptemp+iv-1+nOsc*(jOsc-1))
       enddo
       End Do
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipC2),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipC2),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipC2),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipC2),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(iptemp),1)
       Call Dool(Work(iptemp),nOsc,nOsc,Work(ipC2),
      &        nOsc,nOsc,det)
@@ -573,7 +574,7 @@ C!
       If ( Forcefield.and.(max_dip.gt.0) ) Then
       call GetMem('Smat','Allo','Real',ipSmat,3*NumOfAt*nOscOld)
 c            Smat = 0.0d0
-      call dcopy_(3*NumOfAt*nOscOld,0.0d0,0,Work(ipSmat),1)
+      call dcopy_(3*NumOfAt*nOscOld,[0.0d0],0,Work(ipSmat),1)
       Call CalcS(Work(ipAtCoord),InterVec,Work(ipSmat),
      &      nOscOld,NumOfAt)
       Call GetMem('Bmat','Allo','Real',ipBmat,3*NumOfAt*nOscOld)
@@ -599,8 +600,8 @@ c            Smat = 0.0d0
      &            1.0d0,Work(ipBmat),3*NumOfAt,
      &            Work(ipBmat),3*NumOfAt,
      &            0.0d0,Work(iptemp),nOscOld)
-      call dcopy_(nOscOld**2,0.0d0,0,Work(iptemp3),1)
-      call dcopy_(nOscOld,1.0d0,0,Work(iptemp3),nOscOld+1)
+      call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp3),1)
+      call dcopy_(nOscOld,[1.0d0],0,Work(iptemp3),nOscOld+1)
       Call Dool(Work(iptemp),nOscOld,nOscOld,Work(iptemp3),
      &      nOscOld,nOscOld,det)
       Call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
@@ -699,7 +700,6 @@ C!      Initial State m
      &  iWork(ipmInc),iWork(ipmDec),nOsc)
 C!
 C!      Initialize Final State n
-        n_max_orig = n_max
         Call TabDim2_drv(n_max,nOsc,nvTabDim)
         nTabDim  = nvTabDim-1
         max_nOrd = nTabDim
@@ -1307,17 +1307,17 @@ c           l_l=1
       Call GetMem('OccNumMat2','Allo','Real',ipOccNumMat2,l_l*3)
 
 c            H1 = 0.0d0
-      call dcopy_(nDimTot*nDimTot,0.0d0,0,Work(ipH1),1)
-      call dcopy_(nDimTot*nDimTot,0.0d0,0,Work(ipS1),1)
-      call dcopy_(nDimTot*nDimTot,0.0d0,0,Work(ipH2),1)
-      call dcopy_(nDimTot*nDimTot,0.0d0,0,Work(ipS2),1)
+      call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipH1),1)
+      call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipS1),1)
+      call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipH2),1)
+      call dcopy_(nDimTot*nDimTot,[0.0d0],0,Work(ipS2),1)
 c           S1 = 0.0d0
 c            H2 = 0.0d0
 c            S2 = 0.0d0
 C!
 C!----      Calculate inverse mass tensor and its derivatives in r0.
       call GetMem('Smat','Allo','Real',ipSmat,3*NumOfAt*nOscOld)
-      call dcopy_(3*NumOfAt*nOscOld,0.0d0,0,Work(ipSmat),1)
+      call dcopy_(3*NumOfAt*nOscOld,[0.0d0],0,Work(ipSmat),1)
 C!      Call Int_To_Cart(InterVec,r0,AtCoord,NumOfAt,nOscOld,Mass)
       l_a=NumOfAt
       Call Int_To_Cart1(InterVec,Work(ipr0),
@@ -1466,8 +1466,8 @@ C!
       Call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
 C!
       call dcopy_(nOscOld*nOscOld,Work(ipG0),1,Work(iptemp),1)
-      call dcopy_(nOscOld**2,0.0d0,0,Work(iptemp2),1)
-      call dcopy_(nOscOld,1.0d0,0,Work(iptemp2),nOscOld+1)
+      call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
+      call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
       Call Dool(Work(iptemp),nOscOld,nOscOld,Work(iptemp2),
      &      nOscOld,nOscOld,det)
       Call DGEMM_('N','N',
@@ -1482,8 +1482,8 @@ C!
      &            1.0d0,Work(ipBase),nOscOld,
      &            Work(iptemp),nOscOld,
      &            0.0d0,Work(iptemp2),nOsc)
-      call dcopy_(nOsc**2,0.0d0,0,Work(ipG0),1)
-      call dcopy_(nOsc,1.0d0,0,Work(ipG0),nOsc+1)
+      call dcopy_(nOsc**2,[0.0d0],0,Work(ipG0),1)
+      call dcopy_(nOsc,[1.0d0],0,Work(ipG0),nOsc+1)
       Call Dool(Work(iptemp2),nOsc,nOsc,Work(ipG0),
      &      nOsc,nOsc,det)
 C!
@@ -1495,7 +1495,7 @@ C!
 C!----      Set up Hamilton matrix for the first state.
       If ( Forcefield ) Then
 c            Base2 = 0.0d0
-      call dcopy_(nOsc*nOsc,0.0d0,0,Work(ipBase2),1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,Work(ipBase2),1)
       Do i = 1,nOsc
       Work(ipBase2+i-1+nOsc*(i-1)) = 1.0d0
       End Do
@@ -1629,7 +1629,7 @@ C!      array TranDipGradInt must be formally all. anyway:
      &      ipIntensityMat,(l_IntensityMat_1+1)*(l_IntensityMat_2+1))
 c           call GetMem('IntensityMat','Allo','Real',ipIntensityMat,ndimtot*ndimtot)
       If ( Forcefield ) Then
-      call dcopy_(nOsc*nOsc,0.0d0,0,Work(ipBase2),1)
+      call dcopy_(nOsc*nOsc,[0.0d0],0,Work(ipBase2),1)
 c            Base2 = 0.0d0
       Do i = 1,nOsc
       Work(ipBase2+i-1+nOsc*(i-1)) = 1.0d0

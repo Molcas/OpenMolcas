@@ -19,6 +19,7 @@ C!
       Integer lNMAT, lNINC, lNDEC
 #include "WrkSpc.fh"
 #include "io_mula.fh"
+      Integer nIndex(3,0:maxMax_n)
 
 CGGt -------------------------------------------------------------------
 c      Write(6,*)
@@ -203,6 +204,7 @@ C!
       Integer lBatch,nBatch,leftBatch
 #include "WrkSpc.fh"
 #include "io_mula.fh"
+      Integer nIndex(3,0:maxMax_n)
 C!
 C!---- Initialize
 C!

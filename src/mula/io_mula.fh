@@ -11,4 +11,3 @@
       Parameter (lMinMBatch=  64) ! min memory for for batch (Disk)
       Parameter (lMaxMBatch= 512) ! Max memory for batch (Disk)
       Parameter (maxMax_n = 64)   ! Max
-      Integer nIndex(3,0:maxMax_n)

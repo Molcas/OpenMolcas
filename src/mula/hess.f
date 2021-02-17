@@ -44,8 +44,8 @@ C!
       Work(ipHess_lowT+k-1) = Hess(i,j)
       End Do
       End Do
-      call dcopy_(nDimSqr,0.0d0,0,Work(ipU),1)
-      call dcopy_(nDim,1.0d0,0,Work(ipU),nDim1)
+      call dcopy_(nDimSqr,[0.0d0],0,Work(ipU),1)
+      call dcopy_(nDim,[1.0d0],0,Work(ipU),nDim1)
       Call Jacob(Work(ipHess_lowT),Work(ipU),nDim,nDim)
       Call Jacord(Work(ipHess_lowT),Work(ipU),nDim,nDim)
       eigen_min = Work(ipHess_lowT)

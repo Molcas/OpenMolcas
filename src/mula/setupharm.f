@@ -97,7 +97,7 @@ C!---- Calculate Franck-Condon factors.
 C!
 C!---- Get the zeroth order contribution from transition dipole.
 c       Dipmat = 0.0d0
-      call dcopy_((max_mOrd+1)*(max_nOrd+1)*4, 0.0d0,0,Dipmat,1)
+      call dcopy_((max_mOrd+1)*(max_nOrd+1)*4,[0.0d0],0,Dipmat,1)
       Do iCar = 1,3
       do iv=0,max_mOrd
       do jv=0,max_nOrd

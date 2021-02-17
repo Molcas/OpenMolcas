@@ -83,13 +83,13 @@ C!     - Calculate matrix elements.
 C!
       max_term = 2
 c       grad = 0.0d0
-      call dcopy_(nOsc,0.0d0,0,Work(ipgrad),1)
+      call dcopy_(nOsc,[0.0d0],0,Work(ipgrad),1)
 c              D3 = 0.0d0
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,Work(ipD3),1)
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,Work(ipGprime),1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD3),1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,Work(ipGprime),1)
 c              D4 = 0.0d0
-      call dcopy_(nOsc*nOsc*nOsc*nOsc,0.0d0,0,Work(ipD4),1)
-      call dcopy_(nOsc*nOsc*nOsc*nOsc,0.0d0,0,Work(ipGdblePrime),1)
+      call dcopy_(nOsc*nOsc*nOsc*nOsc,[0.0d0],0,Work(ipD4),1)
+      call dcopy_(nOsc*nOsc*nOsc*nOsc,[0.0d0],0,Work(ipGdblePrime),1)
 c       Gprime = 0.0d0
 c              GdblePrime = 0.0d0
 C! Base = 0.0d0 ; Do i = 1,nOsc ; Base(i,i) = 1.0d0 ; End Do
@@ -106,7 +106,7 @@ C! Base = 0.0d0 ; Do i = 1,nOsc ; Base(i,i) = 1.0d0 ; End Do
      &  Work(ipalpha2),Work(ipbeta),
      &     nOsc,nnsiz)
 c       r_diff = 0.0d0
-      call dcopy_(nOsc,0.0d0,0,Work(ipr_diff),1)
+      call dcopy_(nOsc,[0.0d0],0,Work(ipr_diff),1)
       Call MatrixElements(Work(ipL),Work(ipU),FC00,Work(ipHij),
      &  Work(ipC0),Work(ipW0),Work(ipr_diff),mMat,nMat,
      &       nInc,nDec,max_nOrd, max_mOrd,nOsc,

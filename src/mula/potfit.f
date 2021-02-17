@@ -131,8 +131,8 @@ C!---- Check if a fit of alpha is wanted.
       Call GetMem('alphaTemp','Allo','Real',ipalphaTemp,nvar)
 
       Call GetMem('alphaRad','Allo','Real',ipalphaRad,nvar)
-      call dcopy_(nvar,-1.0d0,0,Work(ipalphaStart),1)
-      call dcopy_(nvar,-1.0d0,0,Work(ipalphaStop),1)
+      call dcopy_(nvar,[-1.0d0],0,Work(ipalphaStart),1)
+      call dcopy_(nvar,[-1.0d0],0,Work(ipalphaStop),1)
 c       alphaStart =-1.0d0
 c       alphaStop  =-1.0d0
       Do ivar = 1,nvar
@@ -264,14 +264,14 @@ C!---- Calculate gradient and quadratic, cubic and quartic force constants.
       If ( max_term.gt.2 ) Then
       call thirdDer(x,coef,ipow,D3,nterm,nvar)
       Else
-      call dcopy_(l_D*l_D*l_D,0.0d0,0,D3,1)
+      call dcopy_(l_D*l_D*l_D,[0.0d0],0,D3,1)
 c              D3 = 0.0d0
       End If
       If ( max_term.gt.3 ) Then
       call fourthDer(x,coef,ipow,D4,nterm,nvar)
       Else
 c              D4 = 0.0d0
-      call dcopy_(l_D*l_D*l_D*l_D,0.0d0,0,D4,1)
+      call dcopy_(l_D*l_D*l_D*l_D,[0.0d0],0,D4,1)
       End If
 C!
 C!---- Transform back to original coordinates.

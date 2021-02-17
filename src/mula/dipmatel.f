@@ -59,9 +59,7 @@ C!
 C!---- Initialize.
       max_nOrd = max_mOrd
       mPlus = max_mOrd+1
-      mPlusSqr = mPlus**2
       nPlus  = max_nOrd +1
-      nPlus2 = max_nOrd2+1
       nOscOld = nOsc
       l_A=(max_mOrd+1)*(max_nOrd+1)
       Call GetMem('A','Allo','Real',ipA,l_A)
@@ -71,7 +69,7 @@ C!---- Initialize.
      &            1.0d0,Base,nOscOld,
      &            W,nOsc,
      &            0.0d0,Work(ipWtemp),nOscOld)
-      call dcopy_(l_A,0.0d0,0,Work(ipA),1)
+      call dcopy_(l_A,[0.0d0],0,Work(ipA),1)
       Call PotEnergy(
      &      Work(ipA),nMat,nInc,nDec,D0,D1,D2,D3,D4,max_term,
      &      Work(ipWTemp),m_ord,nosc,nOscOld)

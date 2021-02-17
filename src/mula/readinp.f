@@ -609,9 +609,6 @@ C                  output.
 C
 C --- TRANsitions: End -------------------------------------------------
 
-C --- The number of bonds.
-      NumBond = nBond/2
-
 C -----------------------------------------------------------------------!
 C
 C                            Forcefield part
@@ -1342,7 +1339,7 @@ C!
         End Do
       Else If ( CoordType .eq. 'CARTESIAN' ) Then
         Call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
-        call dcopy_(3*NumOfAt*NumInt,0.0d0,0,Work(ipSS),1)
+        call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
 c          SS = 0.0d0
         Call CalcS(Work(ipAtCoord1),InterVec,Work(ipSS),NumInt,NumOfAt)
 C!---- Invert S matrix and remove total translation and
@@ -1477,7 +1474,7 @@ C!
       Else If ( CoordType .eq. 'CARTESIAN' ) Then
         Call GetMem('SS','Allo','Real',ipSS,3*NumOfAt*NumInt)
 
-        call dcopy_(3*NumOfAt*NumInt,0.0d0,0,Work(ipSS),1)
+        call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipSS),1)
 c          SS = 0.0d0
         Call CalcS(Work(ipAtCoord2),InterVec,Work(ipSS),NumInt,NumofAt)
 C!
@@ -1811,7 +1808,7 @@ C!
       Work(ipt_dipin2+idata-1) = GrdVal(idata,10)
       End Do
       Call GetMem('t_dipin3','Allo','Real',ipt_dipin3,ndata)
-      call dcopy_(ndata,0.0d0,0,Work(ipt_dipin3),1)
+      call dcopy_(ndata,[0.0d0],0,Work(ipt_dipin3),1)
 c       t_dipin3 = 0.0d0
 C!
 C!---- Make sure that all transition dipole values have the same sign.

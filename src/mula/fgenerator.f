@@ -22,7 +22,7 @@ C!
 C!
 
 c       F = 0.0d0
-      call dcopy_((m_ord+1)*(mx_ord+1)*3,0.0d0,0,F,1)
+      call dcopy_((m_ord+1)*(mx_ord+1)*3,[0.0d0],0,F,1)
       Do i = 0,50
       sqr(i) = sqrt(dble(i)/2.0d0)
       End Do

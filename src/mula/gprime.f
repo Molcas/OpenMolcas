@@ -57,7 +57,7 @@ C!
       xtmp(iv) = xvec(iv)
       enddo
 c              Gtemp = 0.0d0
-      call dcopy_(NumInt*NumInt*4,0.0d0,0,Work(ipGtemp),1)
+      call dcopy_(NumInt*NumInt*4,[0.0d0],0,Work(ipGtemp),1)
       iterm = 1
       Do ih = -3,3,2
       xtmp(icoord) = xvec(icoord)+dble(ih)*h
@@ -65,7 +65,7 @@ C!Call Int_To_Cart(InterVec,xtmp,AtCoord,NumOfAt,NumInt,Mass)
       Call Int_to_Cart1(InterVec,xtmp,AtCoord,
      &          NumOfAt,NumInt       )
 c             Stemp = 0.0d0
-      call dcopy_(3*NumOfAt*NumInt,0.0d0,0,Work(ipStemp),1)
+      call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Work(ipStemp),1)
 
       Call CalcS(AtCoord,InterVec,Work(ipStemp),NumInt,NumOfAt)
 c Gtemp(1,1,iterm)=1+NumInt*( 0 + NumInt*(iterm-1))-1

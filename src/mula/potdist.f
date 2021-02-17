@@ -49,7 +49,7 @@ C!---- Initialize.
 C!
 C!---- Calculate Potential Energy Distribution for each mode.
 c       PED = 0.0d0
-      call dcopy_(nOsc*nOsc*nOsc,0.0d0,0,PED,1)
+      call dcopy_(nOsc*nOsc*nOsc,[0.0d0],0,PED,1)
       Do i = 1,NumInt
       Denominator=max(1.0D-10,Lambda(i))
       Do k = 1,NumInt

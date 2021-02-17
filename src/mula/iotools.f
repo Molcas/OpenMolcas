@@ -46,7 +46,6 @@ C!---- Convert the Name to internal standard format.
 C!
 C!---- Read until an input Line is located which starts with
 C!     the string, Name, not before the second column
-      lLine = len(Line)
       Do while(.true.)
       Read(iUnit,'(A80)',End=900) Line
       Call LeftAd(Line)

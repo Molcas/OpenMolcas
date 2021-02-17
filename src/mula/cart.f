@@ -317,7 +317,7 @@ c       Real*8  G1(3),G2(3),G3(3)
       Integer i1,i2,k,nInt,i3,i4,iv
       Real*8 SR1,SR2,SR3,SR,R2R3
       Real*8 cosv,sinv,cosv0,sinv0,cosdv,sindv
-      Real*8 cos123,sin123,cot123,cos234,sin234,cot234
+      Real*8 cos123,sin123,cos234,sin234
 C!
       k = 1
       IntType = InterVec(k)
@@ -400,7 +400,6 @@ c!---- Torsion.
       if(cos123.gt. 1.0D0) cos123= 1.0D0
       if(cos123.lt.-1.0D0) cos123=-1.0D0
       sin123=sqrt(1.0D0-cos123**2)
-      cot123=cos123/sin123
       Normal123(1) = (NR1(2)*NR2(3)-NR1(3)*NR2(2))/sin123
       Normal123(2) = (NR1(3)*NR2(1)-NR1(1)*NR2(3))/sin123
       Normal123(3) = (NR1(1)*NR2(2)-NR1(2)*NR2(1))/sin123
@@ -408,7 +407,6 @@ c!---- Torsion.
       if(cos234.gt. 1.0D0) cos234= 1.0D0
       if(cos234.lt.-1.0D0) cos234=-1.0D0
       sin234=sqrt(1.0D0-cos234**2)
-      cot234=cos234/sin234
       Normal234(1) = (NR2(2)*NR3(3)-NR2(3)*NR3(2))/sin234
       Normal234(2) = (NR2(3)*NR3(1)-NR2(1)*NR3(3))/sin234
       Normal234(3) = (NR2(1)*NR3(2)-NR2(2)*NR3(1))/sin234
@@ -534,7 +532,7 @@ C! in each iteration.
 cvv       Call GetMem('Bmatrix','Allo','Real',ipBmatrix,3*NumOfAt*NumInt)
 
 c      BMatrix=0.0D0
-      call dcopy_(3*NumOfAt*NumInt,0.0d0,0,Bmatrix,1)
+      call dcopy_(3*NumOfAt*NumInt,[0.0d0],0,Bmatrix,1)
       Call GetMem('EqMat','Allo','Real',ipEqMat,ncart*ncart)
       Call GetMem('EqRHS','Allo','Real',ipEqRHS,ncart)
       Call GetMem('xvectmp','Allo','Real',ipxvectmp,NumInt)

@@ -24,6 +24,7 @@ C!
       Implicit Integer (i-n)
 #include "dims.fh"
 #include "io_mula.fh"
+      Integer nIndex(3,0:maxMax_n)
       Real*8 C1(nOsc,nOsc),C2(nOsc,nOsc),W1(nOsc,nOsc)
       Real*8 W2(nOsc,nOsc),C(nOsc,nOsc),W(nOsc,nOsc)
       Real*8 L (0:max_mOrd,0:max_nInc2)
@@ -101,7 +102,7 @@ c       temp = alpha1+alpha2
       call dcopy_(nOscSqr,Alpha1,1,Work(iptemp),1)
       Call Daxpy_(nOscSqr,1.0d0,Alpha2,1,Work(iptemp),1)
 c       alpha = 0.5d0*temp
-      call dcopy_(nOscSqr,0.0d0,0,Work(ipAlpha),1)
+      call dcopy_(nOscSqr,[0.0d0],0,Work(ipAlpha),1)
       Call Daxpy_(nOscSqr,0.5d0,Work(iptemp),1,Work(ipAlpha),1)
 
 C! Call xxDgemul(C,nOsc,'T',C,nOsc,'N',alpha,nOsc,nOsc,nOsc,nOsc)
@@ -111,7 +112,7 @@ C!---- Calculate C using a Cholesky factorization of 2*alpha.
 C! Call Cholesky(temp,C)
 C!
 C!---- Calculate W.
-C! call dcopy_(nOscSqr,0.0d0,0,W,1) ; call dcopy_(nOsc,1.0d0,0,W,nOsc+1)
+C! call dcopy_(nOscSqr,[0.0d0],0,W,1) ; call dcopy_(nOsc,[1.0d0],0,W,nOsc+1)
 C! temp = C ; Call Dool(temp,W,det0)
 C!
 C!---- Calculate r00.
@@ -131,7 +132,7 @@ c      Call XFlush(6)                                              ! CGGt
 c       temp1 = alpha1
       call dcopy_(nOscSqr,Alpha1,1,Work(iptemp1),1)
 c       temp  = 2.0d0*alpha
-      call dcopy_(nOscSqr,0.0d0,0,Work(iptemp),1)
+      call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
       Call Daxpy_(nOscSqr,2.0d0,Work(ipAlpha),1,Work(iptemp),1)
 
       Call Dool(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
@@ -225,7 +226,7 @@ C!
 
 C!
 C!---- Initialize L matrix.
-      call dcopy_((max_mord+1)*(max_ninc2+1),0.0d0,0,L,1)
+      call dcopy_((max_mord+1)*(max_ninc2+1),[0.0d0],0,L,1)
 c       L = 0.0d0
       L(0,0) = 1.0d0
 C!
@@ -242,7 +243,7 @@ C!
 C!---- Initialize U matrix.
 c      Write(6,*) 'CGGt[FCVal] Initialize U matrix.'               ! CGGt
 c      Call XFlush(6)                                              ! CGGt
-      call dcopy_((max_nord+1)*(max_nOrd2+1),0.0d0,0,U,1)
+      call dcopy_((max_nord+1)*(max_nOrd2+1),[0.0d0],0,U,1)
       U(0,0) = 1.0d0
       Do kOsc = 1,nOsc
 c      Write(6,*) 'CGGt[FCVal] Work(ipd2..)=',Work(ipd2+kOsc-1)    ! CGGt
