@@ -8,7 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine WelMem(nHer,MemWel,la,lb,lr)
+      Subroutine WelMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
       k = la+lb
       jsum = 1
@@ -16,9 +20,9 @@
          jsum = jsum + 3**i
  10   Continue
       nHer=1
-      MemWel = jsum +Max((k+1)*(k/2+1)*(k/4+1)+1,
-     &                   9+3**k,
-     &                   5)
+      Mem = jsum +Max((k+1)*(k/2+1)*(k/4+1)+1,
+     &                9+3**k,
+     &                5)
 *
       Return
 c Avoid unused argument warnings

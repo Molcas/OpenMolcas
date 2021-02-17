@@ -20,7 +20,7 @@
 * Object: kernel routine for computing matrix elements of the          *
 *         six hermitized products of two angular momentum ops          *
 *                                                                      *
-*     Author: Per-Ake Malmqvist, Dept. of Theoretical Chemistry,       *
+*     Author: Per-AAke Malmqvist, Dept. of Theoretical Chemistry,      *
 *             University of Lund, SWEDEN                               *
 *             November '96                                             *
 *     After pattern of other SEWARD soubroutines by R. Lindh.          *

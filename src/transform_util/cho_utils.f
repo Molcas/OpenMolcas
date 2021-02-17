@@ -444,7 +444,7 @@
       End
 
       Subroutine Local_Triang(nRow,A)
-C This routine is a modification of the Per-Ake's Triang routine
+C This routine is a modification of the Per-AAke's Triang routine
 C found in src/caspt2/triang.f
 *--------------------------------------------*
 * 1994  PER-AAKE MALMQUIST                   *
