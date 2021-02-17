@@ -63,8 +63,12 @@
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
+#ifdef _FDE_
+      use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
+     &    embWriteEsp
+#endif
 #ifdef _HDF5_
-      use mh5, only: mh5_put_attr, mh5_put_dset_array_real
+      use mh5, only: mh5_put_attr, mh5_put_dset
 #endif
       use OFembed, only: Do_OFemb, FMaux
 
@@ -95,9 +99,6 @@
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
 #include "raswfn.fh"
 
       Logical DSCF
@@ -157,6 +158,9 @@
 * Set the return code(s)
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
+
+* Set the HDF5 file id (a proper id will never be 0)
+      wfn_fileid = 0
 
 * Set some Cholesky stuff
       DoActive=.true.
@@ -374,7 +378,7 @@
       if (embpot) then
        ! I have no idea why i need memory for x+4 entries
        ! and not just x...
-       Call GetMem('Emb','ALLO','REAL',ipEmb,NTOT1+4)
+       call mma_allocate(embInt,NTOT1+4,label='Emb')
        if (embPotInBasis) then
         ! If the potential is given in basis set representation it
         ! has not been calculated with a OneEl call and is just read
@@ -382,14 +386,14 @@
         iunit = isFreeUnit(1)
         call molcas_open(iunit, embPotPath)
         do iEmb=1, NTOT1
-         read(iunit,*) Work(ipEmb+iEmb-1)
+         read(iunit,*) embInt(iEmb)
         end do
        else
         ! Read in the embedding potential one-electron integrals
         Label='embpot  '
         iRC=-1
         iOpt=0
-        Call RdOne(iRC,iOpt,Label,1,Work(ipEmb),iSyLbl)
+        Call RdOne(iRC,iOpt,Label,1,embInt,iSyLbl)
         If (iRC.ne.0) then
          Call WarningMessage(2,
      &                'Drv1El: Error reading ONEINT;'
@@ -847,11 +851,11 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 #ifdef _FDE_
           !Thomas Dresselhaus
           if (embpot) then
-            !Eemb=DDot_(NACPAR,Work(ipEmb),1,Work(LDMAT),1)
-!           Eemb=embPotEne(Work(LD1I), Work(LD1A), Work(ipEmb),
+            !Eemb=DDot_(NACPAR,embInt,1,Work(LDMAT),1)
+!           Eemb=embPotEne(Work(LD1I), Work(LD1A), embInt,
 !    &                   Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
             Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A),
-     &            Work(ipEmb), nBas, nTot2, nFrozenOrbs, nSym)
+     &            embInt, nBas, nTot2, nSym)
             Write(LF,*) "Energy from embedding potential with the"
             Write(LF,*) "initial CI vectors: ", Eemb
           end if
@@ -1327,8 +1331,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
       CALL DDAFILE(JOBIPH,1,CONV,6*mxIter,IAD15)
 #ifdef _HDF5_
-      call mh5_put_attr (wfn_iter, Iter)
-      call mh5_put_dset_array_real(wfn_energy, ENER(1,Iter))
+      call mh5_put_attr(wfn_iter, Iter)
+      call mh5_put_dset(wfn_energy, ENER(1,Iter))
 #endif
 *
 * Print output of energies and convergence parameters
@@ -1426,8 +1430,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
 #ifdef _FDE_
       ! Embedding
       if (embpot) then
-       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
-     &                nBas, nTot2, nFrozenOrbs, nSym)
+       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), embInt,
+     &                nBas, nTot2, nSym)
        Write(LF,*)"E from embedding potential (<Psi|v_emb|Psi>): ",Eemb
       end if
 #endif
@@ -1806,10 +1810,10 @@ c Clean-close as much as you can the CASDFT stuff...
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
-               Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
+               Call mh5_put_dset(wfn_transdens,Work(LW6:LW6+NAC*NAC-1),
      &              [NAC,NAC,1], [0,0,idx-1])
                If (iSpin.gt.1)
-     &         Call mh5_put_dset_array_real(wfn_transsdens, Work(LW7),
+     &         Call mh5_put_dset(wfn_transsdens,Work(LW7:LW7+NAC*NAC-1),
      &              [NAC,NAC,1], [0,0,idx-1])
             End Do
          End Do
@@ -1869,13 +1873,14 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
 #ifdef _FDE_
       ! Embedding
       if (embpot) then
-       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
-     &                nBas, nTot2, nFrozenOrbs, nSym)
+       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), embInt,
+     &                nBas, nTot2, nSym)
        Write(LF,*) "Final energy from embedding potential: ", Eemb
        ! Write out ESP on grid if requested
        if (embWriteEsp) then
         Call Get_iScalar('Unique atoms',nNuc)
-        Call embPotOutputMODensities(nNuc,nSym,LD1I,LD1A,nBas,nTot2)
+        Call embPotOutputMODensities(nNuc,nSym,Work(LD1I),Work(LD1A),
+     &                               nBas,nTot2)
        end if
       end if
 #endif

@@ -10,20 +10,24 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine EPEMem(nRys,MemEPE,la,lb,lr)
+      Subroutine EPEMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
       Integer iAngV(4)
 *
       Call mHrr(la,lb,nFlop,MemHrr)
 *
-      nRys=(la+lb+2)/2
+      nHer=(la+lb+2)/2
       iAngV(1) = la
       iAngV(2) = lb
       iAngV(3) = 0
       iAngV(4) = 0
-      Call MemRys(iAngV,MemEPE)
+      Call MemRys(iAngV,Mem)
 *
-      MemEPE = Max(MemEPE,MemHrr)
+      Mem = Max(Mem,MemHrr)
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(lr)

@@ -20,7 +20,7 @@ C     eigenfunctions
 C
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: dim
       Complex(kind=8), intent(in)  :: mm(3,dim,dim)
       Complex(kind=8), intent(in)  :: Zinp(dim,dim)
@@ -175,7 +175,7 @@ C     eigenfunctions
 C
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: dim
       Complex(kind=8), intent(in)  :: mm(3,dim,dim)
       Complex(kind=8), intent(in)  :: Zinp(dim,dim)

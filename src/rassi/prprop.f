@@ -13,7 +13,7 @@
       use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
 #ifdef _HDF5_
-      USE mh5, ONLY: mh5_put_dset_array_real
+      USE mh5, ONLY: mh5_put_dset
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
@@ -264,21 +264,21 @@ c add spin-orbit AMFI integrals:
       IF(IFANGM.EQV..TRUE.) THEN
        CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset_array_real(wfn_sfs_angmom,TMPL(:,:,:),
+       call mh5_put_dset(wfn_sfs_angmom,TMPL(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
       IF(IFDIP1.EQV..TRUE.) THEN
        CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset_array_real(wfn_sfs_edipmom,TMPE(:,:,:),
+       call mh5_put_dset(wfn_sfs_edipmom,TMPE(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
       IF(IFAMFI.EQV..TRUE.) THEN
        CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset_array_real(wfn_sfs_amfi,TMPA(:,:,:),
+       call mh5_put_dset(wfn_sfs_amfi,TMPA(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
@@ -400,9 +400,9 @@ C tjd-  BMII: Print out spin-orbit properties to a file
            CALL Put_dArray('ANGMR_NSS',SOPRR,3*NSS*NSS)
            CALL Put_dArray('ANGMI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
-           Call mh5_put_dset_array_real(wfn_sos_angmomr,
+           Call mh5_put_dset(wfn_sos_angmomr,
      $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset_array_real(wfn_sos_angmomi,
+           Call mh5_put_dset(wfn_sos_angmomi,
      $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
@@ -413,9 +413,9 @@ C tjd-  BMII: Print out spin-orbit properties to a file
            CALL Put_dArray('EDIPR_NSS',SOPRR,NSS**2*3)
            CALL Put_dArray('EDIPI_NSS',SOPRI,NSS**2*3)
 #ifdef _HDF5_
-           Call mh5_put_dset_array_real(wfn_sos_edipmomr,
+           Call mh5_put_dset(wfn_sos_edipmomr,
      $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset_array_real(wfn_sos_edipmomi,
+           Call mh5_put_dset(wfn_sos_edipmomi,
      $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
@@ -424,9 +424,9 @@ C tjd-  BMII: Print out spin-orbit properties to a file
            CALL Put_dArray('SPINR_NSS',SOPRR,3*NSS*NSS)
            CALL Put_dArray('SPINI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
-           Call mh5_put_dset_array_real(wfn_sos_spinr,
+           Call mh5_put_dset(wfn_sos_spinr,
      $                 SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset_array_real(wfn_sos_spini,
+           Call mh5_put_dset(wfn_sos_spini,
      $                 SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF

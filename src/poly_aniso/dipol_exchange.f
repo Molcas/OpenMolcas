@@ -11,7 +11,7 @@
       Subroutine Dipol_Exchange( N1, N2, vec, dist, M1, M2,  HDIP )
 c this Subroutine computes the dipolar coupling between the two moments
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: N1, N2
       Real(kind=8), intent(in)     :: vec(3), dist
       Complex(kind=8), intent(in)  :: M1(3,N1,N1)

@@ -15,6 +15,7 @@ C
 C      F. Aquilante, Geneva May 2008  (snick to Pedersen's code)
 C
 C
+      use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiMatij
 #include "implicit.fh"
       Logical Delete
       Real*8  P_ab(*), P_ii(*)
@@ -22,7 +23,6 @@ C
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
       Real*8  DeMP2
       Logical MP2_small
       Common / ChFNOPT/ DeMP2, MP2_small
@@ -37,10 +37,6 @@ C
       Integer iDummy
       Parameter (iDummy = -999999)
 
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
-      LnT1am(i,j)=iWork(ip_LnT1am-1+nSym*(j-1)+i)
-      LiMatij(i,j,k)=iWork(ip_LiMatij-1+nSym*nSym*(k-1)+nSym*(j-1)+i)
-      LnOcc(i,j)=iWork(ip_LnOcc-1+nSym*(j-1)+i)
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 

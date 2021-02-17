@@ -14,7 +14,7 @@
      &                            MR1,SR1,MR2,SR2)
 c  compute KE, within various options :
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: lant,OPT
       Real(kind=8),intent(in)      :: tpar,upar
       !the Ln site

@@ -42,7 +42,13 @@
               d) Powder magnetization
             </HELP>
 
-The :program:`SINGLE_ANISO` program is a routine which allows the non-perturbative calculation of effective spin (pseudospin) Hamiltonians and static magnetic properties of mononuclear complexes and fragments completely *ab initio*, including the spin-orbit interaction. As a starting point it uses the results of :program:`RASSI` calculation for the ground and several excited spin-orbital multiplets. A short description of methodology and applications can be found in :cite:`Chibotaru:1`, :cite:`Chibotaru:2`. The second version of the :program:`SINGLE_ANISO` program is able to calculate the following quantities:
+The :program:`SINGLE_ANISO` program is a routine which allows the non-perturbative calculation of
+effective spin (pseudospin) Hamiltonians and static magnetic properties of mononuclear complexes
+and fragments completely *ab initio*, including the spin-orbit interaction. As a starting point it
+uses the results of :program:`RASSI` calculation for the ground and several excited spin-orbital
+multiplets. A short description of methodology and applications can be found in :cite:`Chibotaru:1`,
+:cite:`Chibotaru:2`. The second version of the :program:`SINGLE_ANISO` program is able to calculate
+the following quantities:
 
 * Parameters of pseudospin magnetic Hamiltonians (the methodology is described in :cite:`Chibotaru:3`):
 
@@ -60,11 +66,20 @@ The :program:`SINGLE_ANISO` program is a routine which allows the non-perturbati
   #. Magnetization vector :math:`\vec M (\vec H)` for specified directions of the applied magnetic field :math:`\vec H`.
   #. Powder magnetization :math:`M_{\text{mol}}(H)`.
 
-The magnetic Hamiltonians are defined for a desired group of :math:`N` electronic states obtained in :program:`RASSI` calculation to which a pseudospin :math:`\tilde{S}` (it reduces to a true spin :math:`S` in the absence of spin-orbit coupling) is subscribed according to the relation :math:`N=2\tilde{S}+1`. For instance, the two wave functions of a Kramers doublet correspond to :math:`\tilde{S}=1/2`. The implementation is done for :math:`\tilde{S}=1/2, 1, 3/2, \ldots ,15/2`.
+The magnetic Hamiltonians are defined for a desired group of :math:`N` electronic states obtained
+in :program:`RASSI` calculation to which a pseudospin :math:`\tilde{S}` (it reduces to a true spin
+:math:`S` in the absence of spin-orbit coupling) is subscribed according to the relation :math:`N=2\tilde{S}+1`.
+For instance, the two wave functions of a Kramers doublet correspond to :math:`\tilde{S}=1/2`.
+The implementation is done for :math:`\tilde{S}=1/2, 1, 3/2, \ldots ,15/2`.
 
 .. The second version of the :program:`SINGLE_ANISO` program allows the calculation of all 27 parameters of the exact Crystal-Field acting on the ground atomic multiplet for lanthanides. Moreover, the *ab initio* wave functions corresponding to the lowest atomic multiplet :math:`\ket{J,M_J}` are decomposed in a linear combination of functions with definite projection of the total moment on the quantization axis.
 
-The calculation of magnetic properties takes into account the contribution of excited states (the ligand-field and charge transfer states of the complex or mononuclear fragment included in the RASSI calculation) via their thermal population and Zeeman admixture. The intermolecular exchange interaction between magnetic molecules in a crystal can be taken into account during the simulation of magnetic properties by a phenomenological parameter :math:`z_J` specified by the user (see keyword :kword:`MLTP`).
+The calculation of magnetic properties takes into account the contribution of excited states
+(the ligand-field and charge transfer states of the complex or mononuclear fragment included
+in the RASSI calculation) via their thermal population and Zeeman admixture. The intermolecular
+exchange interaction between magnetic molecules in a crystal can be taken into account during
+the simulation of magnetic properties by a phenomenological parameter :math:`z_J` specified by
+the user (see keyword :kword:`MLTP`).
 
 .. index::
    pair: Dependencies; Single_aniso
@@ -74,7 +89,15 @@ The calculation of magnetic properties takes into account the contribution of ex
 Dependencies
 ------------
 
-The :program:`SINGLE_ANISO` program takes all needed *ab initio* information from the :file:`RUNFILE`: i.e. matrix elements of angular momentum, spin-orbit energy spectrum and mixing coefficients, number of mixed states and their multiplicity, etc. In order to find the necessary information in the :file:`RUNFILE`, the keywords MEES and SPIN are mandatory for :program:`RASSI`. The :program:`SEWARD` keyword ANGM is also compulsory.
+The :program:`SINGLE_ANISO` program take, by default, all needed *ab initio* information from
+the :file:`RUNFILE`: i.e. matrix elements of angular momentum, spin-orbit energy spectrum and
+mixing coefficients, number of mixed states and their multiplicity, etc. In order to find the
+necessary information in the :file:`RUNFILE`, the keywords MEES and SPIN are mandatory for
+:program:`RASSI`. The :program:`SEWARD` keyword ANGM is also compulsory.
+
+As an alternative, the :program:`SINGLE_ANISO` program  may read an ASCII datafile obtained in a
+previous successful run :file:`$project.aniso`. For more information see the :kword:`DATA` below.
+
 
 .. index::
    pair: Files; Single_aniso
@@ -98,14 +121,33 @@ Restart files & options
 .. class:: filelist
 
 :file:`RUNFILE`
-  The file of communication between different modules in |molcas|. Normally it is already present in :file:`$WorkDir`.
-  The :program:`SINGLE_ANISO` may be restarted as many times as necessary in the same working directory where the previous :program:`RASSI` was succesfully executed. The :file:`RUNFILE` contains then all necessary data.
+  The file of communication between different modules in |molcas|. Normally it is already
+  present in :file:`$WorkDir`. The :program:`SINGLE_ANISO` may be restarted as many times as
+  necessary in the same working directory where the previous :program:`RASSI` was succesfully
+  executed. The :file:`RUNFILE` contains then all necessary data.
 
 :file:`ANISOINPUT`
-  The program may be restarted from the ASCII text file :file:`ANISOINPUT` generated by a previous succesful run of the :program:`SINGLE_ANISO` (the name of this file may be specified during execution, see :kword:`REST` keyword below). This file contains all necessary data for :program:`SINGLE_ANISO` as well as for the :program:`POLY_ANISO`. In this case the initial :file:`$WorkDir` may be empty (:file:`RUNFILE` is not necessary).
+  (Obsolescent. This option is being surpassed by the :kword:`DATA` keyword and the
+  :file:`ANISO-DATA-FILE`, see below) The program may be restarted from the ASCII text file
+  :file:`$Project.old.aniso` generated by default in a previous succesful run of the
+  :program:`SINGLE_ANISO` (the name of this file may be specified during restart execution,
+  see :kword:`REST` keyword below). This file contains all necessary data for :program:`SINGLE_ANISO`
+  as well as for the :program:`POLY_ANISO`. In this case the initial :file:`$WorkDir` may be
+  empty (:file:`RUNFILE` is not necessary).
 
-:file:`$Project.aniso`
-  The :program:`SINGLE_ANISO` may be restarted from the binary file :file:`$Project.aniso` produced in a previous run. The initial :file:`$WorkDir` may be empty (:file:`RUNFILE` is not necessary).
+:file:`ANISO-DATA-FILE`
+  The :program:`SINGLE_ANISO` may be restarted from the ASCII formatted file :file:`$Project.aniso`
+  produced in a previous successful run. This file can be saved at the end of any successful run of
+  :program:`SINGLE_ANISO`, and may be given as input under any name. The initial :file:`$WorkDir`
+  may be empty and :file:`RUNFILE` is not necessary. This option is used with the keyword :kword:`DATA`.
+
+  Example: ::
+
+   DATA
+     ANISO_DATA_FILE
+
+
+
 
 Output files
 ............
@@ -113,10 +155,10 @@ Output files
 .. class:: filelist
 
 :file:`$Project.aniso`
-  This binary file may be used for restart. It is produced by any successful run of the code.
+  This formatted file is recommended for restart. It is produced by any successful run of the code by default. This file will be used by POLY_ANISO.
 
-:file:`ANISOINPUT`
-  This file is intended to be as input for the :program:`POLY_ANISO` module in |molcas|. It is an ASCII formated file. It is produced by any successful run of the code.
+:file:`ANISO`
+ (Obsolescent) This file is intended to be as input for the :program:`POLY_ANISO` module in |molcas|. It is an ASCII formated file. It is produced by any successful run of the code.
 
 :file:`zeeman_energy_xxx.txt`
   Zeeman eignestates for the applied field in the direction # *xxx* are placed in the corresponding text file. It may be used directly with external plotting programs like gnuplot to visualize the data.
@@ -135,8 +177,22 @@ Output files
 Input
 -----
 
-Normally :program:`SINGLE_ANISO` runs without specifying any of the following keywords. The only unknown variable for :program:`SINGLE_ANISO` is the dimension (multiplicity) of the pseudospin. By default one multiplet is selected, which has the dimension equal to the multiplicity of the ground term. For example, in cases where spin-orbit coupling is weak, the multiplicity of the effective spin Hamiltonian is usually the same as the multiplicity of the lowest term, while in the cases with strong anisotropy (lanthanide or actinide complexes, :math:`\ce{Co^{2+}}` complexes, etc...) the lowest energy levels of the complexes form a group of states which can differ quite strong from the spin multiplicity of the lowest term. In these cases the user should specify the multiplicity corresponding to a chosen value of pseudospin :math:`(2\tilde{S}+1)`. For instance, in :math:`\ce{Dy^{3+}}` the spin of the ground state term is :math:`S=5/2`, but in many situations only the ground Kramers doublet is considered; then the user should set the multiplicity of the pseudospin equal to 2 (see :kword:`MLTP` keyword).
-The calculation of the parameters of the crystal field corresponding to the ground atomic multiplet for lanthanides should be requested by the CRYS keyword. ::
+Normally :program:`SINGLE_ANISO` runs without specifying any of the following
+keywords. The only unknown variable for :program:`SINGLE_ANISO` is the
+dimension (multiplicity) of the pseudospin. By default one multiplet is selected,
+which has the dimension equal to the multiplicity of the ground term. For example,
+in cases where spin-orbit coupling is weak, the multiplicity of the effective spin
+Hamiltonian is usually the same as the multiplicity of the lowest term, while in
+the cases with strong anisotropy (lanthanide or actinide complexes, :math:`\ce{Co^{2+}}`
+complexes, etc...) the lowest energy levels of the complexes form a group of states
+which can differ quite strong from the spin multiplicity of the lowest term. In these
+cases the user should specify the multiplicity corresponding to a chosen value of
+pseudospin :math:`(2\tilde{S}+1)`. For instance, in :math:`\ce{Dy^{3+}}` the spin of
+the ground state term is :math:`S=5/2`, but in many situations only the ground Kramers
+doublet is considered; then the user should set the multiplicity of the pseudospin
+equal to 2 (see :kword:`MLTP` keyword). The calculation of the parameters of the
+crystal field corresponding to the ground atomic multiplet for lanthanides should
+be requested by the CRYS keyword. ::
 
   &SINGLE_ANISO
 
@@ -159,7 +215,7 @@ Optional general keywords to control the input
               </KEYWORD>
 
 :kword:`TYPE`
-  This keyword is obsolete
+  This keyword is obsolete.
 
   .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="TYPE" KIND="INT" LEVEL="BASIC">
               %%Keyword: TYPE <basic>
@@ -181,11 +237,11 @@ Optional general keywords to control the input
 
     MLTP
     4
-    4 4 2 2
+    2 4 4 2
 
   :program:`SINGLE_ANISO` will compute the :math:`g` tensor for four groups of states:
-  the first two groups having the effective spin :math:`\tilde{S}=\ket{3/2}` each, while
-  the other two groups of states being Kramers doublets.
+  the second and third groups have the effective spin :math:`\tilde{S}=\ket{3/2}` each, while
+  the first and last groups of states being doublets.
 
   .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MLTP" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" DEFAULT_VALUE="1">
               %%Keyword: MLTP <basic>
@@ -199,6 +255,31 @@ Optional general keywords to control the input
               keyword the user overwrites the default.
               </HELP>
               </KEYWORD>
+
+
+:kword:`DATA`
+  This keyword will read on the next line the filename of an ANISO data file. The ANISO data file is produced by default by any
+  successful run of :program:`SINGLE_ANISO` under the name :file:`$Project.aniso`
+
+  Example: ::
+
+    DATA
+       project_aniso_saved_before.aniso
+
+
+  :program:`SINGLE_ANISO` will fetch the file name :file:`project_aniso_saved_before.aniso` from the input file and will attempt to open such file
+  from :file:`$WorkDir`. The file contains all required data for a successful run of :program:`SINGLE_ANISO`.
+
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="DATA" KIND="STRING" LEVEL="BASIC" DEFAULT_VALUE="aniso.input">
+              %%Keyword: DATA <basic>
+              <HELP>
+              This option allows to start SINGLE_ANISO from a datafile provided by the user.
+              The program SINGLE_ANISO will fetch the actual name of the datafile from  the input and
+              expects a file with this name in WorkDir. The datafile is produced by a previosu successful
+              run of SINGLE_ANISO under the name $Project.aniso
+              </HELP>
+              </KEYWORD>
+
 
 :kword:`TINT`
   Specifies the temperature points for the evaluation of the magnetic susceptibility. The program will read three numbers: :math:`T_{\text{min}}`, :math:`T_{\text{max}}`, :math:`n_T`.
@@ -503,6 +584,7 @@ Optional general keywords to control the input
               </KEYWORD>
 
 :kword:`POLY`
+  (Obsolescent. The formatted :file:`$Project.aniso` is generated and saved by default)
   The keyword is obsolete. The :program:`SINGLE_ANISO` creates by default one ASCII formated text file named :file:`ANISOINPUT`
   and also a binary file named :file:`$Project.Aniso`. Both may be used to restart (or re-run again) the :program:`SINGLE_ANISO` calculation.
 
@@ -612,7 +694,7 @@ Optional general keywords to control the input
   This keyword will generate a few plots (png or eps format) via an interface to the linux program *gnuplot*.
   The interface generates a datafile, a gnuplot script and attempts execution of the script for generation of the image.
   The plots are generated only if the respective function is invoked. The magnetic susceptibility, molar magnetisation and blocking barrier (UBAR) plots are generated.
-  The files are named: :file:`XT.dat`, :file:`XT.plt`, :file:`XT.png`, :file:`MH.dat`, :file:`MH.plt`, :file:`MH.png`, :file:`BARRIER_TME.dat`, :file:`BARRIER_ENE.dat`, :file:`BARRIER.plt` and :file:`BARRIER.png`.
+  The files are named: :file:`$Project.XT_no_field.dat`, :file:`$Project.XT_no_field.plt`, :file:`$Project.XT_no_field.png`, :file:`$Project.XT_no_field.dat`, :file:`$Project.XT_no_field.plt`, :file:`$Project.XT_with_field_M_over_H.dat`,  :file:`$Project.XT_with_field_M_over_H.png`, :file:`$Project.XT_with_field_dM_over_dH.plt`, :file:`$Project.XT_with_field_dM_over_dH.dat`, :file:`$Project.XT_with_field_M_over_H.png`,    :file:`$Project.MH.dat`, :file:`$Project.MH.plt`, :file:`$Project.MH.png`, :file:`$Project.BARRIER_TME.dat`, :file:`$Project.BARRIER_ENE.dat`, :file:`$Project.BARRIER.plt` and :file:`$Project.BARRIER.png`. In case the version of the :program:`GNUPLOT` is older than 5.0, then the eps images are generated.
 
   .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="PLOT" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: PLOT <basic>

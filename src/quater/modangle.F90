@@ -21,6 +21,6 @@ integer(kind=iwp) :: n
 
 n = int(Two*angle/ref)
 
-modangle = angle - n*ref
+modangle = angle-n*ref
 
 end function modangle

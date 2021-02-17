@@ -21,7 +21,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
 #include "stdalloc.fh"

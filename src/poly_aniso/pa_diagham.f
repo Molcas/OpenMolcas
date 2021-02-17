@@ -18,7 +18,7 @@
 c this function builds and diagonalizes the interaction Hamiltonians
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: exch
       Integer, intent(in)           :: npair
       Integer, intent(in)           :: i_pair(npair,2)

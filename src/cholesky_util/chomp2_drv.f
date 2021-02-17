@@ -25,6 +25,7 @@ C       - all MO Cholesky vector files generated here are deleted before
 C         exit, except for error terminations (i.e. no cleanup actions
 C         are taken!)
 C
+      use ChoMP2, only: EFrozT, EOccuT, EVirtT
 #include "implicit.fh"
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
@@ -45,7 +46,7 @@ C
       Logical DoSort, Delete
       Logical, Parameter:: Delete_def = .true.
 
-      Real*8, Allocatable:: Check(:)
+      Real*8, Allocatable:: Check(:), Diag(:)
 
 #if defined (_DEBUGPRINT_)
       Verbose = .true.
@@ -126,10 +127,10 @@ C     ----------------------------------------------------------
       Else
          lDiag = 1
       End If
-      Call GetMem('Diag','Allo','Real',ipDiag,lDiag)
+      Call mma_allocate(Diag,lDiag,Label='Diag')
 *
       If(.not.DoDens) Then
-         Call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),DecoMP2)
+         Call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
             Go To 1             ! exit
@@ -140,7 +141,7 @@ C     ----------------------------------------------------------
      &                       CPUTra1,WallTra2,WallTra1,iFmt)
          End If
       Else If(DoDens) Then
-         Call ChoMP2g_TraDrv(irc,CMO,Work(ipDiag),DecoMP2)
+         Call ChoMP2g_TraDrv(irc,CMO,Diag,DecoMP2)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
             Go To 1             ! exit
@@ -178,7 +179,7 @@ C     -------------------------------------------------------
             Call CWTime(CPUDec1,WallDec1)
          End If
          Delete = Delete_def ! delete transf. vector files after dec.
-         Call ChoMP2_DecDrv(irc,Delete,Work(ipDiag),'Integrals')
+         Call ChoMP2_DecDrv(irc,Delete,Diag,'Integrals')
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
             Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
@@ -193,9 +194,9 @@ C     -------------------------------------------------------
          If (Verbose) Then
             Call CWTime(CPUDec1,WallDec1)
          End If
-         Call ChoMP2g_AmpDiag(irc,ipDiag,EOcc,EVir)
+         Call ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
          Delete = .false.    ! do not delete transf. vectors.
-         Call ChoMP2_DecDrv(irc,Delete,Work(ipDiag),'Amplitudes')
+         Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
             Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
@@ -209,7 +210,7 @@ C     -------------------------------------------------------
       Else
          Call iCopy(nSym,NumCho,1,nMP2Vec,1)
       End If
-      Call GetMem('Diag','Free','Real',ipDiag,lDiag)
+      Call mma_deallocate(Diag)
 
 C     Presort Cholesky vectors if needed.
 C     -----------------------------------
@@ -270,8 +271,7 @@ C     ------------------------------
             Call CWTime(CPUEnr1,WallEnr1)
          End If
          Delete = .false.
-         Call ChoMP2g_DensDrv(irc,Work(ip_EOccu),Work(ip_EVirt),
-     &                       Work(ip_EFroz),CMO)
+         Call ChoMP2g_DensDrv(irc,EOccuT,EVirtT,EFrozT,CMO)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
             Go To 1             ! exit

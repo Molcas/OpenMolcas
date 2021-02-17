@@ -79,12 +79,12 @@ option (INSTALL_TESTS "Install the test files and verify script." OFF)
 set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-supplied definitions.")
 separate_arguments (DEBUG_DEFS)
 
-option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
-option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
+option (BUILD_SHARED_LIBS "Build dynamically-linked libraries." OFF)
+option (BUILD_STATIC_LIBS "Build statically-linked libraries too." OFF)
 if (BUILD_SHARED_LIBS)
-  mark_as_advanced (CLEAR BUILD_STATIC_LIB)
+  mark_as_advanced (CLEAR BUILD_STATIC_LIBS)
 else ()
-  mark_as_advanced (FORCE BUILD_STATIC_LIB)
+  mark_as_advanced (FORCE BUILD_STATIC_LIBS)
 endif ()
 
 option (MPI "Enable MPI parallellization." OFF)
@@ -535,9 +535,10 @@ set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
 set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 
+set (MIN_GCC_VERSION "4.8")
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "4.8")
-  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler.")
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS ${MIN_GCC_VERSION})
+  message (FATAL_ERROR "At least version ${MIN_GCC_VERSION} is required for the GNU Fortran compiler.")
 endif ()
 
 # Add runtime checks
@@ -653,9 +654,10 @@ set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -fno-alias -debug -traceback -warn all,nod
 set (FFLAGS_Intel_RELEASE "-O2 -fno-alias -traceback")
 set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
 
+set (MIN_IFORT_VERSION "13")
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
-    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
-  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler.")
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS ${MIN_IFORT_VERSION})
+  message (FATAL_ERROR "At least version ${MIN_IFORT_VERSION} is required for the Intel Fortran compiler.")
 endif ()
 
 # Intel versions prior to 15 used -openmp
@@ -917,6 +919,11 @@ endforeach ()
 
 if (NOT FCID)
   message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
+endif ()
+
+# flatten namespace on Mac OS X
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  set (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -flat_namespace")
 endif ()
 
 # Exception trapping
@@ -1603,7 +1610,9 @@ if (GA AND MPI)
     if (NOT LIBGA)
       message (FATAL_ERROR "LIBGA not found, make sure GAROOT environment variable is set.")
     else ()
-      list (APPEND GA_LIBRARIES ${LIBGA})
+      add_library (ga UNKNOWN IMPORTED)
+      set_target_properties (ga PROPERTIES IMPORTED_LOCATION ${LIBGA})
+      list (APPEND GA_LIBRARIES ga)
     endif ()
     find_library (LIBARMCI armci
       PATHS ENV GAROOT
@@ -1613,7 +1622,9 @@ if (GA AND MPI)
     if (NOT LIBARMCI)
       message (FATAL_ERROR "LIBARMCI not found, make sure GAROOT environment variable is set.")
     else ()
-      list (APPEND GA_LIBRARIES ${LIBARMCI})
+      add_library (armci UNKNOWN IMPORTED)
+      set_target_properties (armci PROPERTIES IMPORTED_LOCATION ${LIBARMCI})
+      list (APPEND GA_LIBRARIES armci)
     endif ()
     # Hackish: try to find out if ARMCI needs IBVERBS by looking for ibv_open_device
     execute_process (
@@ -1629,7 +1640,7 @@ if (GA AND MPI)
       if (NOT LIBARMCI)
         message (WARNING "LIBIBVERBS not found, but probably needed by GA.")
       else ()
-        list (APPEND GA_LIBRARIES ${LIBIBVERBS})
+        target_link_libraries (armci INTERFACE ${LIBIBVERBS})
       endif ()
     endif ()
     set (GA_FOUND TRUE)
@@ -1637,13 +1648,17 @@ if (GA AND MPI)
 
   # Final common settings
 
+  foreach (lib ${GA_LIBRARIES})
+    target_link_libraries (${lib} INTERFACE ${MPI_LIBRARIES})
+  endforeach ()
+
   add_compile_definitions (_GA_)
   include_directories (${GA_INCLUDE_PATH})
 
   message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
   message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
 
-  insert_before (EXTERNAL_LIBRARIES MPI_Fortran_LIBRARIES "${GA_LIBRARIES}")
+  list (APPEND EXTERNAL_LIBRARIES ${GA_LIBRARIES})
 endif ()
 
 # Gromacs
@@ -1878,13 +1893,6 @@ if (GCOV)
   endif ()
 endif ()
 
-# FDE interface
-#==============
-
-if (FDE)
-  add_compile_definitions (_FDE_)
-endif ()
-
 ################################################################################
 #                                                                              #
 # External programs/libraries: compilation does not require a molcas library,  #
@@ -2003,7 +2011,14 @@ if (HDF5 AND HDF5_FOUND AND DMRG)
   message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
   message ("-- HDF5_QCM_LIBRARIES: ${HDF5_QCM_LIBRARIES}")
 
-  insert_before (EXTERNAL_LIBRARIES HDF5_C_LIBRARIES "${HDF5_QCM_LIBRARIES}")
+  foreach (lib ${HDF5_QCM_LIBRARIES})
+    get_filename_component (name ${lib} NAME_WE)
+    add_library (${name} UNKNOWN IMPORTED)
+    set_target_properties (${name} PROPERTIES IMPORTED_LOCATION ${lib})
+    target_link_libraries (${name} INTERFACE ${HDF5_C_LIBRARIES})
+
+    list (APPEND EXTERNAL_LIBRARIES ${name})
+  endforeach ()
 else ()
   message ("HDF5 QCMaquis interface DISABLED")
 endif ()
@@ -2135,12 +2150,13 @@ if (WFA)
     add_subdirectory (${proj}/libwfa)
     target_include_directories (wfa_molcas PRIVATE ${proj} ${ARMADILLO_INC} ${HDF5_INCLUDE_DIRS})
     target_compile_definitions (wfa_molcas PRIVATE "ARMA_DONT_USE_WRAPPER")
+    target_link_libraries (wfa_molcas INTERFACE ${HDF5_CXX_LIBRARIES})
     list (APPEND wfa_libs wfa_molcas)
 
     message ("-- wfa_libs: ${wfa_libs}")
     message ("-- ARMADILLO_INC: ${ARMADILLO_INC}")
 
-    insert_before (EXTERNAL_LIBRARIES HDF5_C_LIBRARIES "${wfa_libs}")
+    list (APPEND EXTERNAL_LIBRARIES ${wfa_libs})
   else ()
     set (WFA_FOUND OFF)
     mark_as_advanced (FORCE ARMADILLO_INC)
@@ -2177,7 +2193,15 @@ if (NEVPT2)
 
   message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
 
-  insert_before (EXTERNAL_LIBRARIES HDF5_QCM_LIBRARIES "${NEVPT2_LIBRARIES}")
+  set (ext libmolcas ${EXTERNAL_LIBRARIES})
+  foreach (lib ${NEVPT2_LIBRARIES})
+    get_filename_component (name ${lib} NAME_WE)
+    add_library (${name} UNKNOWN IMPORTED)
+    set_target_properties (${name} PROPERTIES IMPORTED_LOCATION ${lib})
+    target_link_libraries (${name} INTERFACE ${ext} ${HDF5_QCM_LIBRARIES})
+
+    list (APPEND EXTERNAL_LIBRARIES ${name})
+  endforeach ()
 else ()
   message ("NEVPT2 support DISABLED")
 endif ()
@@ -2383,6 +2407,7 @@ foreach (util ${utils})
   endif ()
 endforeach ()
 
+# activate FDE interface
 if (FDE)
   set (util embedding_util)
   find_source (${util} ${source_roots})
@@ -2391,13 +2416,14 @@ if (FDE)
   else ()
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
+  # directories using FDE
   foreach (prog
     gateway_util
-    seward
-    scf
     rasscf
+    scf
+    seward
   )
-    list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${util}_src})
+    list (APPEND ${prog}_defs "_FDE_")
   endforeach ()
 endif ()
 
@@ -2452,7 +2478,6 @@ if (HDF5 AND HDF5_FOUND)
   foreach (prog
     aniso_util
     gateway_util
-    guessorb_util
     hyper_util
     molcas_ci_util
     msym_util
@@ -2580,6 +2605,7 @@ if (HDF5 AND HDF5_FOUND)
   foreach (prog
     caspt2
     dynamix
+    guessorb
     mcpdft
     nevpt2
     poly_aniso
@@ -2606,6 +2632,7 @@ endif ()
 list (SORT progs)
 
 # set program dependencies of super modules
+# (note dependencies are not recursive with object libraries, so child dependencies must be explicit)
 set (casvb_deplibs
   rasscf
 )
@@ -2647,7 +2674,11 @@ set (numerical_gradient_deplibs
   scf
   seward
 )
-if (BLOCK OR DMRG)
+set (seward_deplibs
+  guessorb
+)
+
+if (DMRG)
   list (APPEND last_energy_deplibs dmrgscf)
 endif ()
 
@@ -2752,20 +2783,14 @@ set_target_properties (libmolcas PROPERTIES PREFIX "")
 set (MOLCAS_LIBRARIES "libmolcas")
 target_link_libraries (libmolcas ${utils_obj})
 target_link_libraries (libmolcas mods_obj)
-if (BUILD_SHARED_LIBS)
-  # flatten namespace on Mac OS X
-  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set_target_properties (libmolcas PROPERTIES LINK_FLAGS "-Wl,-flat_namespace")
-  endif ()
-  # also create a static library!
-  if (BUILD_STATIC_LIB)
-    add_library (libmolcas_static STATIC "")
-    set_target_properties (libmolcas_static PROPERTIES PREFIX "")
-    set_target_properties (libmolcas_static PROPERTIES OUTPUT_NAME libmolcas)
-    list (APPEND MOLCAS_LIBRARIES "libmolcas_static")
-    target_link_libraries (libmolcas_static ${utils_obj})
-    target_link_libraries (libmolcas_static mods_obj)
-  endif ()
+# also create a static library!
+if (BUILD_SHARED_LIBS AND BUILD_STATIC_LIBS)
+  add_library (libmolcas_static STATIC "")
+  set_target_properties (libmolcas_static PROPERTIES PREFIX "")
+  set_target_properties (libmolcas_static PROPERTIES OUTPUT_NAME libmolcas)
+  list (APPEND MOLCAS_LIBRARIES "libmolcas_static")
+  target_link_libraries (libmolcas_static ${utils_obj})
+  target_link_libraries (libmolcas_static mods_obj)
 endif ()
 
 # if necessary, build BLAS/LAPACK
@@ -2804,11 +2829,10 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH "TRUE")
 
 # build the standard programs
 foreach (prog ${progs})
-  list (APPEND ${prog}_deplibs libmolcas ${EXTERNAL_LIBRARIES})
   add_subdirectory (src/${prog} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog})
-  if (TARGET ${prog})
-    add_dependencies (${prog}   ${utils_obj})
-    add_dependencies (only_objs ${prog})
+  if (TARGET ${prog}_obj)
+    add_dependencies (${prog}_obj ${utils_obj})
+    add_dependencies (only_objs   ${prog}_obj)
   endif ()
   if (EXTERNAL_PROJECTS)
     add_dependencies (${prog}.exe ${EXTERNAL_PROJECTS})
@@ -3202,6 +3226,8 @@ endif ()
 
 message ("Install directory: ${CMAKE_INSTALL_PREFIX}")
 
+set (CMAKE_SKIP_INSTALL_ALL_DEPENDENCY "TRUE")
+
 install (FILES
   ${PROJECT_BINARY_DIR}/.molcashome
   ${PROJECT_BINARY_DIR}/.molcasversion
@@ -3220,6 +3246,7 @@ install (DIRECTORY
 install (TARGETS
   ${PROGRAM_EXECUTABLES}
   ${MOLCAS_LIBRARIES}
+  OPTIONAL
   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
   ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
@@ -3248,6 +3275,7 @@ if (TARGET pymolcas_target)
   install (PROGRAMS
     ${PYMOLCAS_SCRIPT}
     DESTINATION ${CMAKE_INSTALL_PREFIX}/
+    OPTIONAL
   )
 endif ()
 
@@ -3278,18 +3306,12 @@ if (DEFINED EXTRA_DIR)
   )
 endif ()
 
-# Additional targets, files and directories to install (from external projects)
+# Additional targets and directories to install (from external projects)
 if (EXTRA_INSTALL_TARGETS)
   install (TARGETS
     ${EXTRA_INSTALL_TARGETS}
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-  )
-endif ()
-
-if (EXTRA_INSTALL_FILES)
-  install (TARGETS
-    ${EXTRA_INSTALL_TARGETS}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    OPTIONAL
   )
 endif ()
 
@@ -3298,6 +3320,7 @@ foreach (dir ${EXTRA_INSTALL_DIRS})
     ${dir}
     USE_SOURCE_PERMISSIONS
     DESTINATION ${CMAKE_INSTALL_PREFIX}
+    OPTIONAL
   )
 endforeach ()
 

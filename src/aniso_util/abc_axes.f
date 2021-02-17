@@ -19,7 +19,7 @@
       !    coord(3)-- Cartesian coordinates of the main magnetic center
 
       Implicit None
-      Integer, parameter          :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter          :: wp=kind(0.d0)
       Integer, intent(in)         :: Do_option
       Real(kind=8), intent(inout):: xyz(3,3), abc(3,3)
       Real(kind=8), intent(in)   :: cryst(6), coord(3)

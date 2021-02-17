@@ -15,7 +15,7 @@
      &                    nBlock,l_nBlock,
      &                    nV,l_nV1,l_nV2,
      &                    iV1,l_iV11,l_iV12,
-     &                    ip_Z,l_Z1,l_Z2)
+     &                    ip_Z,l_Z1,l_Z2,Z,l_Z)
 C
 C     Thomas Bondo Pedersen, April 2010.
 C
@@ -40,14 +40,14 @@ C
       Integer l_nBlock
       Integer l_nV1, l_nV2
       Integer l_iV11, l_iV12
-      Integer l_Z1, l_Z2
+      Integer l_Z1, l_Z2, l_Z
       Integer NVT(l_NVT)
       Integer nBlock(l_nBlock)
       Integer nV(l_NV1,l_NV2)
       Integer iV1(l_IV11,l_iV12)
       Integer ip_Z(l_Z1,l_Z2)
+      Real*8  Z(l_Z)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #if defined(_DEBUGPRINT_)
 #include "choprint.fh"
@@ -55,8 +55,7 @@ C
 
       Integer iSym
       Integer iLoc, iRedC, iRed
-      Integer ip_iRS2RS, l_iRS2RS
-      Integer ip_Wrk, l_Wrk
+      Integer l_Wrk
       Integer idRS2RS, KK1, nVRead, mUsed, kOffV
       Integer KK, KKK, iJ
       Integer jBlock, kBlock
@@ -78,9 +77,11 @@ C
 
       Integer, Pointer:: InfVct(:,:,:)
 
-      Integer i, j, k, iRS2RS, iTri
+      Integer i, j, k, iTri
 
-      iRS2RS(i)=iWork(ip_iRS2RS-1+i)
+      Integer, Allocatable:: iRS2RS(:)
+      Real*8, Allocatable:: Wrk(:)
+
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 *                                                                      *
 ************************************************************************
@@ -174,10 +175,10 @@ C     ------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call Cho_dZero(Work(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call Cho_dZero(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
      &                     nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2)
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call Cho_dZero(Work(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call Cho_dZero(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
      &                        nV(jBlock,iSym)*nV(kBlock,iSym))
             End Do
          End Do
@@ -214,18 +215,17 @@ C     --------------
       iRedC = -1
       Do iSym = 1,nSym
 
-         l_iRS2RS = nnBstR(iSym,1)
-         Call GetMem('RS-TO-RS','Allo','Inte',ip_iRS2RS,l_iRS2RS)
+         Call mma_allocate(iRS2RS,nnBstR(iSym,1),Label='iRS2RS')
          Call mma_maxDBLE(l_Wrk)
-         Call GetMem('Wrk','Allo','Real',ip_Wrk,l_Wrk)
-         Call iZero(iWork(ip_iRS2RS),l_iRS2RS)
+         Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
+         iRS2RS(:)=0
          idRS2RS = -2
          KK1 = 1
          Do While (KK1 .le. NumCho(iSym))
             nVRead = 0
             mUsed = 0
             Call Cho_Timer(C0,W0)
-            Call Cho_X_VecRd(Work(ip_Wrk),l_Wrk,KK1,NumCho(iSym),iSym,
+            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,
      &                       nVRead,iRedC,mUsed)
             If (nVRead .lt. 1) Then
                irc = 2
@@ -235,7 +235,7 @@ C     --------------
             tDecom(1,2)=tDecom(1,2)+(C1-C0)
             tDecom(2,2)=tDecom(2,2)+(W1-W0)
             nSys_Call=nSys_Call+1
-            kOffV = ip_Wrk - 1
+            kOffV = 0
             Do KKK = 0,nVRead-1
                KK = KK1 + KKK
                iRed = InfVec(KK,2,iSym)
@@ -248,8 +248,7 @@ C     --------------
                   iRedC = iRed
                End If
                If (idRS2RS .ne. iRedC) Then
-                  Call Cho_RS2RS(iWork(ip_iRS2RS),l_iRS2RS,
-     &                           2,iLoc,iRedC,iSym)
+                  Call Cho_RS2RS(iRS2RS,SIZE(iRS2RS),2,iLoc,iRedC,iSym)
                   idRS2RS = iRedC
                End If
                K = InfVec(KK,5,iSym)
@@ -265,7 +264,7 @@ C     --------------
                Do J_inBlock=K_inBlock,nV(kBlock,iSym)
                   J=iV1(kBlock,iSym)+J_inBlock-1
                   iJ=iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
-                  Work(kOffZ+iTri(J_inBlock,K_inBlock))=Work(kOffV+iJ)
+                  Z(kOffZ+iTri(J_inBlock,K_inBlock))=Wrk(kOffV+iJ)
                End Do
                Do jBlock=kBlock+1,nBlock(iSym)
                   kOffZ=ip_Z(iTri(jBlock,kBlock),iSym)-1
@@ -273,15 +272,15 @@ C     --------------
                   Do J_inBlock=1,nV(jBlock,iSym)
                      J=iV1(jBlock,iSym)+J_inBlock-1
                      iJ=iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
-                     Work(kOffZ+J_inBlock)=Work(kOffV+iJ)
+                     Z(kOffZ+J_inBlock)=Wrk(kOffV+iJ)
                   End Do
                End Do
                kOffV=kOffV+nnBstR(iSym,iLoc)
             End Do
             KK1=KK1+nVRead
          End Do
-         Call GetMem('Wrk','Free','Real',ip_Wrk,l_Wrk)
-         Call GetMem('RS-TO-RS','Free','Inte',ip_iRS2RS,l_iRS2RS)
+         Call mma_deallocate(Wrk)
+         Call mma_deallocate(iRS2RS)
 
       End Do
 
@@ -290,10 +289,10 @@ C     --------------------------------------
 
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
-            Call Cho_GAdGOp(Work(ip_Z(iTri(kBlock,kBlock),iSym)),
+            Call Cho_GAdGOp(Z(ip_Z(iTri(kBlock,kBlock),iSym)),
      &                      nV(kBlock,iSym)*(nV(kBlock,iSym)+1)/2,'+')
             Do jBlock=kBlock+1,nBlock(iSym)
-               Call Cho_GAdGOp(Work(ip_Z(iTri(jBlock,kBlock),iSym)),
+               Call Cho_GAdGOp(Z(ip_Z(iTri(jBlock,kBlock),iSym)),
      &                         nV(jBlock,iSym)*nV(kBlock,iSym),'+')
             End Do
          End Do
@@ -318,12 +317,12 @@ C     --------------------------------------------------------
      &            'Sym=',iSym,
      &            '  J=',iV1(jBlock,iSym)+J_inBlock-1,
      &            '  Z(J,J)=',
-     &            Work(kOffZ+iTri(J_inBlock,J_inBlock)),
+     &            Z(kOffZ+iTri(J_inBlock,J_inBlock)),
      &            '  Squared=',
-     &            Work(kOffZ+iTri(J_inBlock,J_inBlock))**2
+     &            Z(kOffZ+iTri(J_inBlock,J_inBlock))**2
                End If
-               If (abs(Work(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
-     &             .or. Work(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
+               If (abs(Z(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol
+     &             .or. Z(kOffZ+iTri(J_inBlock,J_inBlock)).lt.-Tol)
      &         Then
                   n=n+1
                   If (iPrint.ge.myDebugInfo) Then
@@ -342,7 +341,7 @@ C     --------------------------------------------------------
       Call Cho_CheckDiagFromZ(irc,NVT,l_NVT,nBlock,l_nBlock,
      &                        nV,l_nV1,l_nV2,
      &                        iV1,l_iV11,l_iV12,
-     &                        ip_Z,l_Z1,l_Z2,
+     &                        ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                        iPrint.ge.myDebugInfo)
       If (irc.ne.0) Then
          Go To 1 ! return
@@ -367,7 +366,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &                              nBlock,l_nBlock,
      &                              nV,l_nV1,l_nV2,
      &                              iV1,l_iV11,l_iV12,
-     &                              ip_Z,l_Z1,l_Z2,
+     &                              ip_Z,l_Z1,l_Z2,Z,l_Z,
      &                              Report)
 C
 C     Thomas Bondo Pedersen, April 2010.
@@ -388,23 +387,23 @@ C
       Integer l_nBlock
       Integer l_nV1, l_nV2
       Integer l_iV11, l_iV12
-      Integer l_Z1, l_Z2
+      Integer l_Z1, l_Z2, l_Z
       Integer NVT(l_NVT)
       Integer nBlock(l_nBlock)
       Integer nV(l_NV1,l_NV2)
       Integer iV1(l_IV11,l_iV12)
       Integer ip_Z(l_Z1,l_Z2)
+      Real*8  Z(l_Z)
       Logical Report
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character(LEN=18), Parameter:: SecNam='Cho_CheckDiagFromZ'
 
-      Integer ip_D, l_D
       Integer iSym
       Integer jBlock, kblock
       Integer J_inBlock, K_inBlock
-      Integer kOffD, kOffZ
+      Integer kOffZ
       Integer iD
       Integer n1, n2, n3, n4, n5
       Integer nTot
@@ -414,6 +413,8 @@ C
 
       Integer i, j
       Integer iTri
+
+      Real*8, Allocatable:: IntDia(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -425,21 +426,18 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
       ! Get pointer to global InfVec array
       Call Cho_X_getIP_InfVec(InfVcT)
 
       ! Allocate memory for exact integral diagonal
-      l_D=nnBstRT(1)
-      Call GetMem('IntDia','Allo','Real',ip_D,l_D)
+      Call mma_allocate(IntDia,nnBstRT(1),Label='IntDia')
 
       ! Read diagonal
-      Call Cho_IODiag(Work(ip_D),2)
+      Call Cho_IODiag(IntDia,2)
 
       ! Subtract Z vector contributions
-      kOffD=ip_D-1
       Do iSym=1,nSym
          Do kBlock=1,nBlock(iSym)
             Do K_inBlock=1,nV(kBlock,iSym)
@@ -447,8 +445,8 @@ C
                Do J_inBlock=K_inBlock,nV(kBlock,iSym)
                   J=iV1(kBlock,iSym)+J_inBlock-1
                   iD=InfVcT(J,1,iSym)
-                  Work(kOffD+iD)=Work(kOffD+iD)
-     &            -Work(kOffZ+iTri(J_inBlock,K_inBlock))**2
+                  IntDia(iD)=IntDia(iD)
+     &            -Z(kOffZ+iTri(J_inBlock,K_inBlock))**2
                End Do
             End Do
             Do jBlock=kBlock+1,nBlock(iSym)
@@ -458,8 +456,8 @@ C
                   Do J_inBlock=1,nV(jBlock,iSym)
                      J=iV1(jBlock,iSym)+J_inBlock-1
                      iD=InfVcT(J,1,iSym)
-                     Work(kOffD+iD)=Work(kOffD+iD)
-     &               -Work(kOffZ+J_inBlock)**2
+                     IntDia(iD)=IntDia(iD)
+     &               -Z(kOffZ+J_inBlock)**2
                   End Do
                End Do
             End Do
@@ -485,16 +483,16 @@ C
       Damin=9.0d9
       Do iSym=1,nSym
          Do J=1,NVT(iSym)
-            iD=InfVcT(J,1,iSym)-1
-            Dmax=max(Dmax,Work(ip_D+iD))
-            Damax=max(Damax,abs(Work(ip_D+iD)))
-            Dmin=min(Dmin,Work(ip_D+iD))
-            Damin=min(Damin,abs(Work(ip_D+iD)))
-            If (Work(ip_D+iD).le.ThrCom) n1=n1+1
-            If (Work(ip_D+iD).lt.0.0d0)  n2=n2+1
-            If (Work(ip_D+iD).lt.ThrNeg) n3=n3+1
-            If (Work(ip_D+iD).lt.WarNeg) n4=n4+1
-            If (Work(ip_D+iD).lt.TooNeg) n5=n5+1
+            iD=InfVcT(J,1,iSym)
+            Dmax=max(Dmax,IntDia(iD))
+            Damax=max(Damax,abs(IntDia(iD)))
+            Dmin=min(Dmin,IntDia(iD))
+            Damin=min(Damin,abs(IntDia(iD)))
+            If (IntDia(iD).le.ThrCom) n1=n1+1
+            If (IntDia(iD).lt.0.0d0)  n2=n2+1
+            If (IntDia(iD).lt.ThrNeg) n3=n3+1
+            If (IntDia(iD).lt.WarNeg) n4=n4+1
+            If (IntDia(iD).lt.TooNeg) n5=n5+1
          End Do
       End Do
 
@@ -529,7 +527,7 @@ C
       End If
 
       ! Deallocation
-      Call GetMem('IntDia','Free','Real',ip_D,l_D)
+      Call mma_deallocate(IntDia)
 
       ! Set return code and return
       If (n1.eq.nTot) Then

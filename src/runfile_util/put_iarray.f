@@ -197,6 +197,7 @@
          RecLab( 93)='XEle            '
          RecLab( 94)='iDmp            '
          RecLab( 95)='iDmp:S          '
+         Reclab( 96)='NSTAT_SINGLE    '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include

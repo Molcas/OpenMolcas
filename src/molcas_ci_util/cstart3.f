@@ -45,8 +45,8 @@
 ************************************************************************
 
 #ifdef _HDF5_
-      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r,
-     &               mh5_fetch_dset_array_real, mh5_close_file
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,
+     &               mh5_close_file
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -125,8 +125,8 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
               Call GetMem('Scr1','Allo','Real',iTmp1,nConf)
               call GetMem('kcnf','allo','inte',ivkcnf,nactel)
               Do i = 1,lRoots
-                call mh5_fetch_dset_array_real(mh5id,'CI_VECTORS',
-     $                  Work(iTmp1),[nconf,1],[0,i-1])
+                call mh5_fetch_dset(mh5id,'CI_VECTORS',
+     $                  Work(iTmp1:iTmp1+nconf-1),[nconf,1],[0,i-1])
                 Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp1),C,iwork(ivkcnf))

@@ -10,7 +10,11 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine XFdMem(nRys,MemXFd,la,lb,lr)
+      Subroutine XFdMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
       Integer iAngV(4)
 *
@@ -21,7 +25,7 @@
 *
       lc = lr
       ld = 0
-      nRys = (la+lb+lc+ld+2)/2
+      nHer = (la+lb+lc+ld+2)/2
       labMin=nabSz(Max(la,lb)-1)+1
       labMax=nabSz(la+lb)
       lcdMin=nabSz(lr-1)+1
@@ -41,6 +45,6 @@
       Call MemRys(iAngV,Mem2)
       Mem2 = Max(Mem2,kab*lcd)
 *
-      MemXFd=Mem1 + Mem2
+      Mem=Mem1 + Mem2
       Return
       End

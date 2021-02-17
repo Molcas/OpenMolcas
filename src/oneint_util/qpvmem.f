@@ -10,20 +10,24 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine QpVMem(nHer,MemQpV,la,lb,lr)
+      Subroutine QpVMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-      Call MltMmP(nOrder,MemQpV,la,lb+1,lr-1)
+      Call MltMmP(nOrder,Mem,la,lb+1,lr-1)
       nHer = nOrder
       If (lb.gt.0) Then
          Call MltMmP(nOrder,MmMltP,la,lb-1,lr-1)
-         MemQpV = Max(MemQpV,MmMltP) + nElem(la)*nElem(lb-1)*3
+         Mem = Max(Mem,MmMltP) + nElem(la)*nElem(lb-1)*3
       End If
-      MemQpV = MemQpV + 1 + nElem(la)*nElem(lb+1)*3
-      MemQpV = MemQpV + nElem(la)*nElem(lb)*6
+      Mem = Mem + 1 + nElem(la)*nElem(lb+1)*3
+      Mem = Mem + nElem(la)*nElem(lb)*6
 *
       Return
       End

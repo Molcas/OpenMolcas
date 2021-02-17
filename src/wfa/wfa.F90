@@ -13,7 +13,7 @@
 
 subroutine wfa(ireturn)
 
-use :: Definitions, only: iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -35,9 +35,9 @@ call SpoolInp(iLU)
 do while (Line(1:4) /= 'END ')
   Line = Get_ln(iLU)
 
-  ien = ist + len(trim(Line))
+  ien = ist+len(trim(Line))
   Inp(ist:ien) = trim(Line)
-  ist = ien + 1
+  ist = ien+1
 
   call Normal(Line)
 end do

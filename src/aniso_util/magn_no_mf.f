@@ -45,7 +45,7 @@ c     l -- labels the cartesian component of the momentum (convention: x=1, y=2,
 c    iT -- labes the temperature points;
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: EXCH, N, nT
       Real(kind=8), intent(in)    :: X, Y, Z, H
       Real(kind=8), intent(in)    :: W(EXCH), T(nT)

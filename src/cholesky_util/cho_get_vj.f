@@ -26,30 +26,34 @@
 *> Requires initialization of the Cholesky information.
 *>
 *> @param[out] irc     Return code
-*> @param[in]  ipDLT   Pointer to density matrix, stored as packed LT, consecutive symmetry blocks
+*> @param[in]  DLT     The density matrix, stored as packed LT, consecutive symmetry blocks
 *> @param[out] VJ      Coulomb intermediate
 *> @param[in]  Mvec    Number of Cholesky vectors (min. length of \p VJ)
 *> @param[in]  timings Switch on/off timings printout
 ************************************************************************
-      SUBROUTINE CHO_get_VJ(irc,ipDLT,VJ,Mvec,timings)
+      SUBROUTINE CHO_get_VJ(irc,DLT,VJ,Mvec,timings)
+
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+
       Implicit Real*8 (a-h,o-z)
+      Integer irc
+      Real*8  DLT(*)
       Logical timings
-      Integer ipDLT, Mvec
+      Integer Mvec
       Real*8  VJ(Mvec)
+
       Real*8  tread(2), tcalv(2)
+      Logical add
+      Character(LEN=6) mode
+      Character(LEN=10), Parameter:: SECNAM = 'CHO_get_VJ'
 
-      Logical  add
-      Character*6  mode
-      Character*10  SECNAM
-
-      parameter (SECNAM = 'CHO_get_VJ')
-      parameter (zero = 0.0d0, one = 1.0d0)
-
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: Dab(:), Lab(:)
 
       JSYM=1
 
@@ -97,10 +101,10 @@ C ------------------------------------------------------------------
 
        nRS = nDimRS(JSYM,JRED)
 
-       Call GetMem('rsD','Allo','Real',ipDab,nRS)
-       Call FZero(Work(ipDab),nRS)
+       Call mma_allocate(Dab,nRS,Label='Dab')
+       Dab(:)=Zero
 
-       Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+       Call mma_maxDBLE(LWORK)
 
        nVec  = Min(LWORK/nRS,nVrs)
 
@@ -115,7 +119,7 @@ C ------------------------------------------------------------------
 
        LREAD = nRS*nVec
 
-       Call GetMem('rsL','Allo','Real',ipLab,LREAD)
+       Call mma_allocate(Lab,LREAD,Label='Lab')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -134,8 +138,7 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
          CALL CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Work(ipLab),LREAD,JVEC,IVEC2,JSYM,
-     &                  NUMV,JRED,MUSED)
+         CALL CHO_VECRD(Lab,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
 
          If (NUMV.le.0 .or. NUMV.ne.JNUM) then
             irc=77
@@ -151,15 +154,15 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 C --- Transform the density to reduced storage
          mode = 'toreds'
          add  = .false.
-         Call switch_sto(irc,iLoc,ipDLT,ipDab,mode,add)
+         Call switch_sto(irc,iLoc,DLT,Dab,mode,add)
 
 C ------------------------------------------------------------
 C --- V{#J} <- V{#J} + sum_ab  L(ab,{#J}) * D(ab)
 C=============================================================
 
          CALL DGEMV_('T',nRS,JNUM,
-     &              One,Work(ipLab),nRS,
-     &                  Work(ipDab),1,
+     &              One,Lab,nRS,
+     &                  Dab,1,
      &              zero,VJ(jVec),1)
 
 
@@ -171,8 +174,8 @@ C=============================================================
        END DO  !end batch loop
 
 C --- free memory
-       Call GetMem('rsL','Free','Real',ipLab,LREAD)
-       Call GetMem('rsD','Free','Real',ipDab,nRS)
+       Call mma_deallocate(Lab)
+       Call mma_deallocate(Dab)
 
 
 999    Continue

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Lebedev_Laikov(nsymm,ngrid,nP,X,Y,Z,W)
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Integer, intent(in)        :: nsymm,ngrid
       Integer, intent(in)        :: nP
       Integer                    :: N
@@ -241,7 +241,7 @@
 
       Subroutine gen_oh2(code, num, x, y, z, w, a, b, v)
       Implicit logical(a-z)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8)     :: x(*),y(*),z(*),w(*)
       Real (kind=8)     :: a,b,v
       Integer            :: code
@@ -626,7 +626,7 @@ c
 
       Subroutine gen_oh4(code, num, x, y, z, w, a, b, v)
       Implicit logical(a-z)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: x(*),y(*),z(*),w(*)
       Real (kind=8) :: a,b,v
       Integer code
@@ -893,7 +893,7 @@ c
 
       Subroutine gen_oh8(code, num, x, y, z, w, a, b, v)
       Implicit logical(a-z)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: x(*),y(*),z(*),w(*)
       Real (kind=8) :: a,b,v
       Integer code
@@ -1092,7 +1092,7 @@ c
 
 clu ===  Subroutines for integration on a semi-sphere ===
       Subroutine LD2_0005(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   5)
       Real (kind=8) :: Y(   5)
       Real (kind=8) :: Z(   5)
@@ -1109,7 +1109,7 @@ CVW
       Return
       End
       Subroutine LD2_0009(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   9)
       Real (kind=8) :: Y(   9)
       Real (kind=8) :: Z(   9)
@@ -1128,7 +1128,7 @@ CVW
       Return
       End
       Subroutine LD2_0017(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  17)
       Real (kind=8) :: Y(  17)
       Real (kind=8) :: Z(  17)
@@ -1149,7 +1149,7 @@ CVW
       Return
       End
       Subroutine LD2_0025(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  25)
       Real (kind=8) :: Y(  25)
       Real (kind=8) :: Z(  25)
@@ -1171,7 +1171,7 @@ CVW
       Return
       End
       Subroutine LD2_0029(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  29)
       Real (kind=8) :: Y(  29)
       Real (kind=8) :: Z(  29)
@@ -1195,7 +1195,7 @@ CVW
       Return
       End
       Subroutine LD2_0045(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  45)
       Real (kind=8) :: Y(  45)
       Real (kind=8) :: Z(  45)
@@ -1222,7 +1222,7 @@ CVW
       Return
       End
       Subroutine LD2_0049(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  49)
       Real (kind=8) :: Y(  49)
       Real (kind=8) :: Z(  49)
@@ -1250,7 +1250,7 @@ CVW
       Return
       End
       Subroutine LD2_0061(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  61)
       Real (kind=8) :: Y(  61)
       Real (kind=8) :: Z(  61)
@@ -1281,7 +1281,7 @@ CVW
       Return
       End
       Subroutine LD2_0077(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  77)
       Real (kind=8) :: Y(  77)
       Real (kind=8) :: Z(  77)
@@ -1315,7 +1315,7 @@ CVW
       Return
       End
       Subroutine LD2_0093(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  93)
       Real (kind=8) :: Y(  93)
       Real (kind=8) :: Z(  93)
@@ -1352,7 +1352,7 @@ CVW
       Return
       End
       Subroutine LD2_0105(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 105)
       Real (kind=8) :: Y( 105)
       Real (kind=8) :: Z( 105)
@@ -1392,7 +1392,7 @@ CVW
       Return
       End
       Subroutine LD2_0125(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 125)
       Real (kind=8) :: Y( 125)
       Real (kind=8) :: Z( 125)
@@ -1436,7 +1436,7 @@ CVW
       Return
       End
       Subroutine LD2_0141(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 141)
       Real (kind=8) :: Y( 141)
       Real (kind=8) :: Z( 141)
@@ -1483,7 +1483,7 @@ CVW
       Return
       End
       Subroutine LD2_0161(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 161)
       Real (kind=8) :: Y( 161)
       Real (kind=8) :: Z( 161)
@@ -1534,7 +1534,7 @@ CVW
       Return
       End
       Subroutine LD2_0185(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 185)
       Real (kind=8) :: Y( 185)
       Real (kind=8) :: Z( 185)
@@ -1589,7 +1589,7 @@ CVW
       Return
       End
       Subroutine LD2_0229(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 229)
       Real (kind=8) :: Y( 229)
       Real (kind=8) :: Z( 229)
@@ -1653,7 +1653,7 @@ CVW
       Return
       End
       Subroutine LD2_0309(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 309)
       Real (kind=8) :: Y( 309)
       Real (kind=8) :: Z( 309)
@@ -1732,7 +1732,7 @@ CVW
       Return
       End
       Subroutine LD2_0401(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 401)
       Real (kind=8) :: Y( 401)
       Real (kind=8) :: Z( 401)
@@ -1828,7 +1828,7 @@ CVW
       Return
       End
       Subroutine LD2_0505(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 505)
       Real (kind=8) :: Y( 505)
       Real (kind=8) :: Z( 505)
@@ -1943,7 +1943,7 @@ CVW
       Return
       End
       Subroutine LD2_0621(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 621)
       Real (kind=8) :: Y( 621)
       Real (kind=8) :: Z( 621)
@@ -2079,7 +2079,7 @@ CVW
       Return
       End
       Subroutine LD2_0749(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 749)
       Real (kind=8) :: Y( 749)
       Real (kind=8) :: Z( 749)
@@ -2238,7 +2238,7 @@ CVW
       Return
       End
       Subroutine LD2_0889(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 889)
       Real (kind=8) :: Y( 889)
       Real (kind=8) :: Z( 889)
@@ -2422,7 +2422,7 @@ CVW
       Return
       End
       Subroutine LD2_1041(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1041)
       Real (kind=8) :: Y(1041)
       Real (kind=8) :: Z(1041)
@@ -2633,7 +2633,7 @@ CVW
       Return
       End
       Subroutine LD2_1205(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1205)
       Real (kind=8) :: Y(1205)
       Real (kind=8) :: Z(1205)
@@ -2873,7 +2873,7 @@ CVW
       Return
       End
       Subroutine LD2_1381(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1381)
       Real (kind=8) :: Y(1381)
       Real (kind=8) :: Z(1381)
@@ -3144,7 +3144,7 @@ CVW
       Return
       End
       Subroutine LD2_1569(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1569)
       Real (kind=8) :: Y(1569)
       Real (kind=8) :: Z(1569)
@@ -3448,7 +3448,7 @@ CVW
       Return
       End
       Subroutine LD2_1769(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1769)
       Real (kind=8) :: Y(1769)
       Real (kind=8) :: Z(1769)
@@ -3787,7 +3787,7 @@ CVW
       Return
       End
       Subroutine LD2_1981(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1981)
       Real (kind=8) :: Y(1981)
       Real (kind=8) :: Z(1981)
@@ -4163,7 +4163,7 @@ CVW
       Return
       End
       Subroutine LD2_2205(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(2205)
       Real (kind=8) :: Y(2205)
       Real (kind=8) :: Z(2205)
@@ -4578,7 +4578,7 @@ CVW
       Return
       End
       Subroutine LD2_2441(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(2441)
       Real (kind=8) :: Y(2441)
       Real (kind=8) :: Z(2441)
@@ -5034,7 +5034,7 @@ CVW
       Return
       End
       Subroutine LD2_2689(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(2689)
       Real (kind=8) :: Y(2689)
       Real (kind=8) :: Z(2689)
@@ -5533,7 +5533,7 @@ CVW
       Return
       End
       Subroutine LD2_2949(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(2949)
       Real (kind=8) :: Y(2949)
       Real (kind=8) :: Z(2949)
@@ -6086,7 +6086,7 @@ CVW
 
 clu ===  Subroutines for integration on a 4th-of-a-sphere ===
       Subroutine LD4_0004(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   4)
       Real (kind=8) :: Y(   4)
       Real (kind=8) :: Z(   4)
@@ -6103,7 +6103,7 @@ CVW
       Return
       End
       Subroutine LD4_0006(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   6)
       Real (kind=8) :: Y(   6)
       Real (kind=8) :: Z(   6)
@@ -6122,7 +6122,7 @@ CVW
       Return
       End
       Subroutine LD4_0011(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  11)
       Real (kind=8) :: Y(  11)
       Real (kind=8) :: Z(  11)
@@ -6143,7 +6143,7 @@ CVW
       Return
       End
       Subroutine LD4_0016(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  16)
       Real (kind=8) :: Y(  16)
       Real (kind=8) :: Z(  16)
@@ -6165,7 +6165,7 @@ CVW
       Return
       End
       Subroutine LD4_0017(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  17)
       Real (kind=8) :: Y(  17)
       Real (kind=8) :: Z(  17)
@@ -6189,7 +6189,7 @@ CVW
       Return
       End
       Subroutine LD4_0027(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  27)
       Real (kind=8) :: Y(  27)
       Real (kind=8) :: Z(  27)
@@ -6216,7 +6216,7 @@ CVW
       Return
       End
       Subroutine LD4_0028(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  28)
       Real (kind=8) :: Y(  28)
       Real (kind=8) :: Z(  28)
@@ -6244,7 +6244,7 @@ CVW
       Return
       End
       Subroutine LD4_0034(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  34)
       Real (kind=8) :: Y(  34)
       Real (kind=8) :: Z(  34)
@@ -6275,7 +6275,7 @@ CVW
       Return
       End
       Subroutine LD4_0041(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  41)
       Real (kind=8) :: Y(  41)
       Real (kind=8) :: Z(  41)
@@ -6309,7 +6309,7 @@ CVW
       Return
       End
       Subroutine LD4_0051(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  51)
       Real (kind=8) :: Y(  51)
       Real (kind=8) :: Z(  51)
@@ -6346,7 +6346,7 @@ CVW
       Return
       End
       Subroutine LD4_0057(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  57)
       Real (kind=8) :: Y(  57)
       Real (kind=8) :: Z(  57)
@@ -6386,7 +6386,7 @@ CVW
       Return
       End
       Subroutine LD4_0068(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  68)
       Real (kind=8) :: Y(  68)
       Real (kind=8) :: Z(  68)
@@ -6430,7 +6430,7 @@ CVW
       Return
       End
       Subroutine LD4_0075(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  75)
       Real (kind=8) :: Y(  75)
       Real (kind=8) :: Z(  75)
@@ -6477,7 +6477,7 @@ CVW
       Return
       End
       Subroutine LD4_0086(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  86)
       Real (kind=8) :: Y(  86)
       Real (kind=8) :: Z(  86)
@@ -6528,7 +6528,7 @@ CVW
       Return
       End
       Subroutine LD4_0098(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  98)
       Real (kind=8) :: Y(  98)
       Real (kind=8) :: Z(  98)
@@ -6583,7 +6583,7 @@ CVW
       Return
       End
       Subroutine LD4_0121(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 121)
       Real (kind=8) :: Y( 121)
       Real (kind=8) :: Z( 121)
@@ -6647,7 +6647,7 @@ CVW
       Return
       End
       Subroutine LD4_0162(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 162)
       Real (kind=8) :: Y( 162)
       Real (kind=8) :: Z( 162)
@@ -6726,7 +6726,7 @@ CVW
       Return
       End
       Subroutine LD4_0209(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 209)
       Real (kind=8) :: Y( 209)
       Real (kind=8) :: Z( 209)
@@ -6822,7 +6822,7 @@ CVW
       Return
       End
       Subroutine LD4_0262(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 262)
       Real (kind=8) :: Y( 262)
       Real (kind=8) :: Z( 262)
@@ -6937,7 +6937,7 @@ CVW
       Return
       End
       Subroutine LD4_0321(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 321)
       Real (kind=8) :: Y( 321)
       Real (kind=8) :: Z( 321)
@@ -7073,7 +7073,7 @@ CVW
       Return
       End
       Subroutine LD4_0386(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 386)
       Real (kind=8) :: Y( 386)
       Real (kind=8) :: Z( 386)
@@ -7232,7 +7232,7 @@ CVW
       Return
       End
       Subroutine LD4_0457(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 457)
       Real (kind=8) :: Y( 457)
       Real (kind=8) :: Z( 457)
@@ -7416,7 +7416,7 @@ CVW
       Return
       End
       Subroutine LD4_0534(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 534)
       Real (kind=8) :: Y( 534)
       Real (kind=8) :: Z( 534)
@@ -7627,7 +7627,7 @@ CVW
       Return
       End
       Subroutine LD4_0617(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 617)
       Real (kind=8) :: Y( 617)
       Real (kind=8) :: Z( 617)
@@ -7867,7 +7867,7 @@ CVW
       Return
       End
       Subroutine LD4_0706(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 706)
       Real (kind=8) :: Y( 706)
       Real (kind=8) :: Z( 706)
@@ -8138,7 +8138,7 @@ CVW
       Return
       End
       Subroutine LD4_0801(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 801)
       Real (kind=8) :: Y( 801)
       Real (kind=8) :: Z( 801)
@@ -8442,7 +8442,7 @@ CVW
       Return
       End
       Subroutine LD4_0902(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 902)
       Real (kind=8) :: Y( 902)
       Real (kind=8) :: Z( 902)
@@ -8781,7 +8781,7 @@ CVW
       Return
       End
       Subroutine LD4_1009(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1009)
       Real (kind=8) :: Y(1009)
       Real (kind=8) :: Z(1009)
@@ -9157,7 +9157,7 @@ CVW
       Return
       End
       Subroutine LD4_1122(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1122)
       Real (kind=8) :: Y(1122)
       Real (kind=8) :: Z(1122)
@@ -9572,7 +9572,7 @@ CVW
       Return
       End
       Subroutine LD4_1241(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1241)
       Real (kind=8) :: Y(1241)
       Real (kind=8) :: Z(1241)
@@ -10028,7 +10028,7 @@ CVW
       Return
       End
       Subroutine LD4_1366(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1366)
       Real (kind=8) :: Y(1366)
       Real (kind=8) :: Z(1366)
@@ -10527,7 +10527,7 @@ CVW
       Return
       End
       Subroutine LD4_1497(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(1497)
       Real (kind=8) :: Y(1497)
       Real (kind=8) :: Z(1497)
@@ -11084,7 +11084,7 @@ CVW
 
 clu ===  Subroutines for integration on a 8th-of-a-sphere ===
       Subroutine LD8_0003(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   3)
       Real (kind=8) :: Y(   3)
       Real (kind=8) :: Z(   3)
@@ -11101,7 +11101,7 @@ CVW
       Return
       End
       Subroutine LD8_0004(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   4)
       Real (kind=8) :: Y(   4)
       Real (kind=8) :: Z(   4)
@@ -11120,7 +11120,7 @@ CVW
       Return
       End
       Subroutine LD8_0007(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(   7)
       Real (kind=8) :: Y(   7)
       Real (kind=8) :: Z(   7)
@@ -11141,7 +11141,7 @@ CVW
       Return
       End
       Subroutine LD8_0a10(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  10)
       Real (kind=8) :: Y(  10)
       Real (kind=8) :: Z(  10)
@@ -11163,7 +11163,7 @@ CVW
       Return
       End
       Subroutine LD8_0b10(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  10)
       Real (kind=8) :: Y(  10)
       Real (kind=8) :: Z(  10)
@@ -11187,7 +11187,7 @@ CVW
       Return
       End
       Subroutine LD8_0a16(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  16)
       Real (kind=8) :: Y(  16)
       Real (kind=8) :: Z(  16)
@@ -11214,7 +11214,7 @@ CVW
       Return
       End
       Subroutine LD8_0b16(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  16)
       Real (kind=8) :: Y(  16)
       Real (kind=8) :: Z(  16)
@@ -11242,7 +11242,7 @@ CVW
       Return
       End
       Subroutine LD8_0019(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  19)
       Real (kind=8) :: Y(  19)
       Real (kind=8) :: Z(  19)
@@ -11273,7 +11273,7 @@ CVW
       Return
       End
       Subroutine LD8_0022(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  22)
       Real (kind=8) :: Y(  22)
       Real (kind=8) :: Z(  22)
@@ -11307,7 +11307,7 @@ CVW
       Return
       End
       Subroutine LD8_0028(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  28)
       Real (kind=8) :: Y(  28)
       Real (kind=8) :: Z(  28)
@@ -11344,7 +11344,7 @@ CVW
       Return
       End
       Subroutine LD8_0031(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  31)
       Real (kind=8) :: Y(  31)
       Real (kind=8) :: Z(  31)
@@ -11384,7 +11384,7 @@ CVW
       Return
       End
       Subroutine LD8_0037(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  37)
       Real (kind=8) :: Y(  37)
       Real (kind=8) :: Z(  37)
@@ -11428,7 +11428,7 @@ CVW
       Return
       End
       Subroutine LD8_0040(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  40)
       Real (kind=8) :: Y(  40)
       Real (kind=8) :: Z(  40)
@@ -11475,7 +11475,7 @@ CVW
       Return
       End
       Subroutine LD8_0046(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  46)
       Real (kind=8) :: Y(  46)
       Real (kind=8) :: Z(  46)
@@ -11526,7 +11526,7 @@ CVW
       Return
       End
       Subroutine LD8_0052(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  52)
       Real (kind=8) :: Y(  52)
       Real (kind=8) :: Z(  52)
@@ -11581,7 +11581,7 @@ CVW
       Return
       End
       Subroutine LD8_0064(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  64)
       Real (kind=8) :: Y(  64)
       Real (kind=8) :: Z(  64)
@@ -11645,7 +11645,7 @@ CVW
       Return
       End
       Subroutine LD8_0085(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X(  85)
       Real (kind=8) :: Y(  85)
       Real (kind=8) :: Z(  85)
@@ -11724,7 +11724,7 @@ CVW
       Return
       End
       Subroutine LD8_0109(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 109)
       Real (kind=8) :: Y( 109)
       Real (kind=8) :: Z( 109)
@@ -11820,7 +11820,7 @@ CVW
       Return
       End
       Subroutine LD8_0136(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 136)
       Real (kind=8) :: Y( 136)
       Real (kind=8) :: Z( 136)
@@ -11935,7 +11935,7 @@ CVW
       Return
       End
       Subroutine LD8_0166(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 166)
       Real (kind=8) :: Y( 166)
       Real (kind=8) :: Z( 166)
@@ -12071,7 +12071,7 @@ CVW
       Return
       End
       Subroutine LD8_0199(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 199)
       Real (kind=8) :: Y( 199)
       Real (kind=8) :: Z( 199)
@@ -12230,7 +12230,7 @@ CVW
       Return
       End
       Subroutine LD8_0235(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 235)
       Real (kind=8) :: Y( 235)
       Real (kind=8) :: Z( 235)
@@ -12414,7 +12414,7 @@ CVW
       Return
       End
       Subroutine LD8_0274(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 274)
       Real (kind=8) :: Y( 274)
       Real (kind=8) :: Z( 274)
@@ -12625,7 +12625,7 @@ CVW
       Return
       End
       Subroutine LD8_0316(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 316)
       Real (kind=8) :: Y( 316)
       Real (kind=8) :: Z( 316)
@@ -12865,7 +12865,7 @@ CVW
       Return
       End
       Subroutine LD8_0361(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 361)
       Real (kind=8) :: Y( 361)
       Real (kind=8) :: Z( 361)
@@ -13136,7 +13136,7 @@ CVW
       Return
       End
       Subroutine LD8_0409(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 409)
       Real (kind=8) :: Y( 409)
       Real (kind=8) :: Z( 409)
@@ -13440,7 +13440,7 @@ CVW
       Return
       End
       Subroutine LD8_0460(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 460)
       Real (kind=8) :: Y( 460)
       Real (kind=8) :: Z( 460)
@@ -13779,7 +13779,7 @@ CVW
       Return
       End
       Subroutine LD8_0514(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 514)
       Real (kind=8) :: Y( 514)
       Real (kind=8) :: Z( 514)
@@ -14155,7 +14155,7 @@ CVW
       Return
       End
       Subroutine LD8_0571(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 571)
       Real (kind=8) :: Y( 571)
       Real (kind=8) :: Z( 571)
@@ -14570,7 +14570,7 @@ CVW
       Return
       End
       Subroutine LD8_0631(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 631)
       Real (kind=8) :: Y( 631)
       Real (kind=8) :: Z( 631)
@@ -15026,7 +15026,7 @@ CVW
       Return
       End
       Subroutine LD8_0694(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 694)
       Real (kind=8) :: Y( 694)
       Real (kind=8) :: Z( 694)
@@ -15525,7 +15525,7 @@ CVW
       Return
       End
       Subroutine LD8_0760(X,Y,Z,W,N)
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Real (kind=8) :: X( 760)
       Real (kind=8) :: Y( 760)
       Real (kind=8) :: Z( 760)

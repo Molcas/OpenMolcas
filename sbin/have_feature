@@ -76,13 +76,22 @@ find_symbol() {
     return 0
   else
     Echo "$1 not found in $FILE"
-    if find_library libmolcas $2 ; then
-      FILE="$MOLCAS/lib/libmolcas.so"
+    if find_library lib$2 $2 ; then
+      FILE="$MOLCAS/lib/lib$2.so"
       if strings "$FILE" | grep -Ex $REGEXP > /dev/null ; then
         Echo "$1 found in $FILE"
         return 0
       else
         Echo "$1 not found in $FILE"
+        if find_library libmolcas $2 ; then
+          FILE="$MOLCAS/lib/libmolcas.so"
+          if strings "$FILE" | grep -Ex $REGEXP > /dev/null ; then
+            Echo "$1 found in $FILE"
+            return 0
+          else
+            Echo "$1 not found in $FILE"
+          fi
+        fi
       fi
     fi
   fi

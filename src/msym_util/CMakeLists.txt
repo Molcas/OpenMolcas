@@ -14,4 +14,6 @@ set (sources
      msymc.c
 )
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+set (modfile_list "")
+
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

@@ -9,4 +9,4 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Logical Lowdin_ON
-      Common /LON/ Lowdin_ON
+      Common /LON_M/ Lowdin_ON

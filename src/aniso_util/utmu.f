@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine UTMU( EXCH, N, Z, M1, M2 )
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: EXCH, N
       Complex(kind=8), intent(in)  :: M1(3,EXCH,EXCH)
@@ -154,7 +154,7 @@ c  local variables:
       ! the same as utmu, except being that the input m is
       ! being transformed.
       implicit none
-      integer, parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       integer, intent(in)            :: exch, n
       complex(kind=8), intent(inout):: m(3,exch,exch)
@@ -309,7 +309,7 @@ c  local variables:
       ! the same as UTMU, except being that the input M is
       ! being transformed and only one projection is done at a time.
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)            :: EXCH, N
 !     one projection is done

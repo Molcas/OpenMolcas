@@ -10,8 +10,12 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine NAMem(nRys,MemNA,la,lb,lr)
+      Subroutine NAMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
       use Basis_Info
+#include "mem_interface.fh"
       Integer iAngV(4)
 *
 *                                                                      *
@@ -23,20 +27,20 @@
       iAngV(2) = lb
       iAngV(3) = lr
       iAngV(4) = 0
-      Call MemRys(iAngV,MemNA)
-      nRys=(la+lb+lr+2)/2
+      Call MemRys(iAngV,Mem)
+      nHer=(la+lb+lr+2)/2
       If (Nuclear_Model.eq.mGaussian_Type) Then
 *
          labcd = (la+1)*(la+2)/2 * (lb+1)*(lb+2)/2
 *
          iAngV(3)=lr+2
          Call MemRys(iAngV,MemNA2)
-         MemNA=Max(MemNA,MemNA2)
-         nRys=(la+lb+lr+4)/2
-         MemNA=MemNA+labcd
+         Mem=Max(Mem,MemNA2)
+         nHer=(la+lb+lr+4)/2
+         Mem=Mem+labcd
       End If
 *
-      MemNA = Max(nMem,MemNA)
+      Mem = Max(nMem,Mem)
 *
       Return
       End

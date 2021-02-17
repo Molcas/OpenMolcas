@@ -34,6 +34,7 @@ C     Other input such as orbital energies are read from mbpt2 include
 C     files.
 C
 C
+      use ChoMP2, only: OldVec
 #include "implicit.fh"
       External ChoMP2_Col, ChoMP2_Vec
       Integer  irc
@@ -44,7 +45,6 @@ C
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'DecDrv'
@@ -61,7 +61,8 @@ C
       Integer iClos(2)
       Integer MxCDVec(8)
 
-      Real*8, Allocatable:: ErrStat(:), Bin(:)
+      Real*8, Allocatable:: ErrStat(:), Bin(:), Qual(:), Buf(:)
+      Integer, Allocatable:: iQual(:), iPivot(:)
 
 C     Initializations.
 C     ----------------
@@ -120,8 +121,6 @@ C For now, I simply define the array here:
          InCore(iSym)  = .false.
       End Do
       NowSym    = -999999
-      ip_OldVec = -999999
-      l_OldVec  = 0
 
       If (DelOrig) Then
          iClos(1) = 3  ! signals close and delete original vectors
@@ -215,29 +214,24 @@ C           --------------------
             End If
 #endif
 
-            lQual   = nDim*(MxQual + 1)
-            liQual  = MxQual
-            liPivot = nDim
-            Call GetMem('Qual','Allo','Real',ipQual,lQual)
-            Call GetMem('iQual','Allo','Inte',ipiQual,liQual)
-            Call GetMem('iPivot','Allo','Inte',ipiPivot,liPivot)
+            Call mma_allocate(Qual,nDim*(MxQual + 1),Label='Qual')
+            Call mma_allocate(iQual,MxQual,Label='iQual')
+            Call mma_allocate(iPivot,nDim,Label='iPivot')
 
-            Call GetMem('GetMax','Max ','Real',ipB,lB)
+            Call mma_maxDBLE(lB)
             lBuf = min((nDim+MxQual)*MxQual,lB)
             Left = lB - lBuf
             nInC = Left/nDim
             If (nInC .ge. NumCho(iSym)) Then
                InCore(iSym) = .true.
-               l_OldVec = nDim*NumCho(iSym)
-               Call GetMem('OldVec','Allo','Real',ip_OldVec,l_OldVec)
+               lTot = nDim*NumCho(iSym)
+               Call mma_allocate(OldVec,lTot,Label='OldVec')
                iOpt = 2
-               lTot = l_OldVec
                iAdr = 1
-               Call ddaFile(lUnit_F(iSym,1),iOpt,
-     &                      Work(ip_OldVec),lTot,iAdr)
+               Call ddaFile(lUnit_F(iSym,1),iOpt,OldVec,lTot,iAdr)
             End If
-            Call GetMem('GetMx2','Max ','Real',ipB,lBuf)
-            Call GetMem('DecBuf','Allo','Real',ipBuf,lBuf)
+            Call mma_maxDBLE(lBuf)
+            Call mma_allocate(Buf,lBuf,Label='Buf')
 
 C           Decompose this symmetry block.
 C           ------------------------------
@@ -247,8 +241,8 @@ C           ------------------------------
             If (ConventionalCD) Then
                Call ChoDec(ChoMP2_Col,ChoMP2_Vec,
      &                     Restart,Thr,Span,MxQual,
-     &                     Diag(kOffD),Work(ipQual),Work(ipBuf),
-     &                     iWork(ipiPivot),iWork(ipiQual),
+     &                     Diag(kOffD),Qual,Buf,
+     &                     iPivot,iQual,
      &                     nDim,lBuf,
      &                     ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
@@ -259,8 +253,8 @@ C           ------------------------------
             Else
                Call ChoDec_MxVec(ChoMP2_Col,ChoMP2_Vec,MxCDVec(iSym),
      &                           Restart,Thr,Span,MxQual,
-     &                           Diag(kOffD),Work(ipQual),Work(ipBuf),
-     &                           iWork(ipiPivot),iWork(ipiQual),
+     &                           Diag(kOffD),Qual,Buf,
+     &                           iPivot,iQual,
      &                           nDim,lBuf,
      &                           ErrStat,nMP2Vec(iSym),irc)
                If (irc .ne. 0) Then
@@ -315,8 +309,8 @@ C           ----------------------------------
                Write(6,*) 'Threshold, Span, MxQual: ',Thr,Span,MxQual
                Write(6,*) 'Error statistics for diagonal [min,max,rms]:'
                Write(6,*)  ErrStat(:)
-               Call ChoMP2_DecChk(irc,iSym,Work(ipQual),nDim,MxQual,
-     &                            Work(ipBuf),lBuf,ErrStat)
+               Call ChoMP2_DecChk(irc,iSym,Qual,nDim,MxQual,
+     &                            Buf,lBuf,ErrStat)
                If (irc .ne. 0) Then
                   If (irc .eq. -123456) Then
                      Write(6,*)
@@ -361,15 +355,11 @@ C           ----------------------------------
 C           Free memory.
 C           ------------
 
-            Call GetMem('DecBuf','Free','Real',ipBuf,lBuf)
-            If (InCore(iSym)) Then
-               Call GetMem('OldVec','Free','Real',ip_OldVec,l_OldVec)
-               ip_OldVec = -999999
-               l_OldVec  = 0
-            End If
-            Call GetMem('iPivot','Free','Inte',ipiPivot,liPivot)
-            Call GetMem('iQual','Free','Inte',ipiQual,liQual)
-            Call GetMem('Qual','Free','Real',ipQual,lQual)
+            Call mma_deallocate(Buf)
+            If (InCore(iSym)) Call mma_deallocate(OldVec)
+            Call mma_deallocate(iPivot)
+            Call mma_deallocate(iQual)
+            Call mma_deallocate(Qual)
 
 C           Close (possibly deleting original) files.
 C           -----------------------------------------

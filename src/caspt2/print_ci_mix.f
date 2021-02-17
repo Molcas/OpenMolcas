@@ -15,7 +15,7 @@
       Use RefWfn, Only: refwfn_active, refwfn_is_h5, refwfn_id,
      &                  refwfn_filename, refwfn_close, iadr15
 #ifdef _HDF5_
-      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset_array_real
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
 #endif
       Implicit None
 #include "WrkSpc.fh"
@@ -63,7 +63,7 @@
           jSNum=mState(iiState)
           If (refwfn_is_h5) Then
 #ifdef _HDF5_
-            Call mh5_fetch_dset_array_real(
+            Call mh5_fetch_dset(
      &           refwfn_id,'CI_VECTORS',cCI,[nConf,1],[0,jSNum-1])
 #else
 * This should never happen

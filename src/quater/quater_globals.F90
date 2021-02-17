@@ -21,7 +21,7 @@ logical(kind=iwp) :: debug
 ! options
 logical(kind=iwp) :: translate, rotate
 ! geoms
-integer(kind=iwp), parameter ::MAXGEOMS=100
+integer(kind=iwp), parameter :: MAXGEOMS = 100
 integer(kind=iwp) :: ngeoms, XYZ1(3), XYZ2(3)
 type geoitem
   integer(kind=iwp) :: nat

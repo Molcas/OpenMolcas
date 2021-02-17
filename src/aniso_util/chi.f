@@ -25,7 +25,7 @@
 !    dE -- energy diference E(i)-E(j)
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter           :: wp=kind(0.d0)
       Integer, intent(in)          :: N
       Real(kind=8), intent(in)    :: E(N), T
       Complex(kind=8), intent(in) :: M1(3,N,N), M2(3,N,N)

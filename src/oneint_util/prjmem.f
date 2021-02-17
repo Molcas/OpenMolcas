@@ -10,7 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      Subroutine PrjMem(nHer,MemPrj,la,lb,lr)
+      Subroutine PrjMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
 ************************************************************************
 *                                                                      *
 *  Object: to compute the number of real*8 the kernal routine will     *
@@ -25,11 +28,12 @@
 ************************************************************************
 *
       use Basis_Info, only: dbsc, nCnttp, Shells
+#include "mem_interface.fh"
 *
       nElem(i) = (i+1)*(i+2)/2
 *
       nHer=0
-      MemPrj = 0
+      Mem = 0
       Do 1960 iCnttp = 1, nCnttp
          If (.Not.dbsc(iCnttp)%ECP) Cycle
          Do 1966 iAng = 0, dbsc(iCnttp)%nPrj-1
@@ -48,7 +52,7 @@
 *
             Call MltMmP(nH,MemMlt,la,iAng,lr)
             nHer = Max(nH,nHer)
-            MemPrj = Max(MemPrj,ip+nExpi*MemMlt)
+            Mem = Max(Mem,ip+nExpi*MemMlt)
             ip = ip - 6 * nExpi
 *
             ncb = nElem(iAng)*nElem(lb)
@@ -60,11 +64,11 @@
 *
             Call MltMmP(nH,MemMlt,iAng,lb,lr)
             nHer = Max(nH,nHer)
-            MemPrj = Max(MemPrj,ip+nExpi*MemMlt)
+            Mem = Max(Mem,ip+nExpi*MemMlt)
             ip = ip - 6 * nExpi
 *
             ip = ip + Max(nExpi*nac,ncb*nBasisi)
-            MemPrj = Max(MemPrj,ip)
+            Mem = Max(Mem,ip)
 *
  1966    Continue
  1960 Continue
