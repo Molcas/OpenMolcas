@@ -246,7 +246,7 @@ C!---- Calculate intensities.
       const1 = (2.0d0/3.0d0)*32.13002d9
 c       Real*8 IntensityMat(0:l_IntensityMat_1,0:l_IntensityMat_2)
       call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),
-     &  0.0d0,0,IntensityMat,1)
+     &  [0.0d0],0,IntensityMat,1)
 c       IntensityMat = 0.0d0
       Do jOrd = 0,ndimtot-1
       Do iOrd = 0,ndimtot-1
@@ -489,7 +489,7 @@ C!
 C!---- Calculate intensities.
       const1 = (2.0d0/3.0d0)*32.13002d9
       call dcopy_((l_IntensityMat_1+1)*(l_IntensityMat_2+1),
-     &  0.0d0,0,IntensityMat,1)
+     &  [0.0d0],0,IntensityMat,1)
 c       IntensityMat = 0.0d0
       Do jOrd = 0,nDimTot-1
       Do iOrd = 0,nDimTot-1
