@@ -59,7 +59,6 @@ C
       Character*6 BName
       Logical Do_int
       Logical Do_ChoInit
-      Integer, External:: ip_of_Work
 
       Real*8, Allocatable:: CHMO(:), xInt(:)
       Logical timings
@@ -128,8 +127,7 @@ c
               Call Abend()
            End If
         End If
-        ipCMO = ip_of_Work(CHMO)
-        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,ipCMO,BName,
+        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CHMO,BName,
      &                      Do_int,ihdf5,xInt,lXint)
         If (Do_ChoInit) Then
            Call Cho_X_final(irc)
@@ -158,7 +156,7 @@ c Avoid unused argument warnings
         End If
         end
 ************************************************************************
-      SUBROUTINE CHO_TR_drv(rc,nIsh,nAsh,nSsh,ipPorb,BName,Do_int,ihdf5,
+      SUBROUTINE CHO_TR_drv(rc,nIsh,nAsh,nSsh,Porb,BName,Do_int,ihdf5,
      &                      Xint,lXint)
 **********************************************************************
 C
@@ -174,7 +172,7 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
-      Real*8    Xint(0:lXint-1)
+      Real*8    Xint(0:lXint-1), POrb(*)
       Character*6 BName
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
@@ -182,6 +180,7 @@ C
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8),iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
+      Integer, External:: ip_of_Work
 
       Character*7  Fnam
       Character*50 CFmt
@@ -204,7 +203,14 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: Lrs(:), ChoT(:)
+      Real*8, Allocatable:: Lrs(:)
+      Real*8, Allocatable, Target:: ChoT(:)
+
+*     Type V2
+*       Real*8, Pointer:: A(:,:)=>Null()
+*     End Type V2
+
+      Real*8, Pointer:: Lpq(:,:)=>Null()
 
       Integer IsFreeUnit
 
@@ -255,7 +261,7 @@ C ==================================================================
 
 c --- Various offsets & pointers
 c ------------------------------
-      ipOrb(1)=ipPorb
+      ipOrb(1)=ip_of_Work(Porb(1))
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NP=NPORB(ISYM-1)
@@ -415,6 +421,7 @@ C --- BATCH over the vectors ----------------------------
                tread(2) = tread(2) + (TWR2 - TWR1)
 
                lChoT=JNUM
+               iE = JNUM
                Do iSymp=1,nSym
 
                   iSymb = MulD2h(jSym,iSymp)
@@ -422,9 +429,15 @@ C --- BATCH over the vectors ----------------------------
                   ipLpb(iSymp) = ipChoT + lChoT
                   lChoT = lChoT + nPorb(iSymp)*nBas(iSymb)*JNUM
 
+                  iS = iE + 1
+                  iE = iE + nPorb(iSymp)*nBas(iSymb)*JNUM
+
                End Do
 
                ipLpq = ipChoT + lChot
+
+               iS = iE + 1
+
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
@@ -460,17 +473,18 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
+                        iE = iS - 1 + NApq*JNUM
+                        Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
+
                       Do JVC=1,JNUM
 
                        ipLJpb = ipLpb(iSymb)
      &                        + nPorb(iSymb)*nBas(iSymb)*(JVC-1)
-                       ipLJpq = ipLpq
-     &                        + NApq*(JVC-1)
 
                        CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
      &                            One,Work(ipLJpb),NAp,
      &                                Work(ipOrb(iSymb)),NAp,
-     &                           Zero,Work(ipLJpq),NAp)
+     &                           Zero,Lpq(:,jVC),NAp)
 
                       End Do
 
@@ -484,16 +498,14 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
-
-                        Vf=DDot_(NApq*JNUM,Work(ipLpq),1,
-     &                                     Work(ipLpq),1)
+                        Vf=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
                         Call Add_Info('Lpq',Vf,1,10)
 
                         If (tv2disk.eq.'PQK') Then
 #ifdef _HDF5_QCM_
                          if (ihdf5/=1) then
 #endif
-                           Call ddafile(LunChVF(jSym),1,Work(ipLpq),
+                           Call ddafile(LunChVF(jSym),1,Lpq,
      &                                                NApq*JNUM,
      &                                                iOffB(iSymb))
 #ifdef _HDF5_QCM_
@@ -506,23 +518,23 @@ C --------------------------------------------------------------------
                          end if
 #endif
                            If (Do_int) Then
-                              Do ipq=0,NApq-1
-                                 kt=kOff(iSymb)+ipq
-                                 kLpq=ipLpq+ipq
-                                Xint(kt)=Xint(kt)+ddot_(JNUM,Work(kLpq),
-     &                                             NApq,Work(kLpq),NApq)
+                              Do ipq=1,NApq
+                                 kt=kOff(iSymb)+ipq-1
+                                 Xint(kt)=Xint(kt)
+     &                                   +ddot_(JNUM,Lpq(ipq,:),NApq,
+     &                                               Lpq(ipq,:),NApq)
                               End Do
                            EndIf
                         Else
-                           Do ipq=0,NApq-1
-                              call dcopy_(JNUM,Work(ipLpq+ipq),NApq,
-     &                                        ChoT,1)
+                           Do ipq=1,NApq
+                              call dcopy_(JNUM,Lpq(ipq,1),NApq,
+     &                                         ChoT,1)
                               If (Do_int) Then
-                                 kt=kOff(iSymb)+ipq
+                                 kt=kOff(iSymb)+ipq-1
                                  Xint(kt)=Xint(kt)
      &                                   +ddot_(JNUM,ChoT,1,ChoT,1)
                               EndIf
-                              idisk=iOffB(iSymb)+NumCho(jSym)*ipq
+                              idisk=iOffB(iSymb)+NumCho(jSym)*(ipq-1)
 #ifdef _HDF5_QCM_
                              ! Leon 13.6.2017: Do not write Cholesky vectors to the regular file
                              ! if the hdf5 file is written. It becomes counterproductive to write
@@ -545,7 +557,7 @@ C --------------------------------------------------------------------
                              ! account for multiple reduced sets
                              else
                                call hdf5_write_cholesky(choset_id,
-     &                           space_id,ipq,nVec*(iBatch-1)+iVrs-1,
+     &                           space_id,ipq-1,nVec*(iBatch-1)+iVrs-1,
      &                                                        JNUM,ChoT)
                              end if
 #endif
@@ -553,6 +565,8 @@ C --------------------------------------------------------------------
                            End Do
                            iOffB(iSymb)=iOffB(iSymb)+JNUM
                         EndIf
+
+                        Lpq => Null()
 
                      EndIf
 
@@ -598,34 +612,34 @@ C --------------------------------------------------------------------
                      CALL CWTIME(TCR3,TWR3)
 
                      If (NApq.ne.0) Then
+                        iE = iS - 1 + NApq*JNUM
+                        Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
-                        Vf=DDot_(NApq*JNUM,Work(ipLpq),1,
-     &                                     Work(ipLpq),1)
+                        Vf=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
                         Call Add_Info('Lpq',Vf,1,10)
 
                         If (tv2disk.eq.'PQK') Then
-                           Call ddafile(LunChVF(jSym),1,Work(ipLpq),
+                           Call ddafile(LunChVF(jSym),1,Lpq,
      &                                                NApq*JNUM,
      &                                                iOffB(iSymp))
                            If (Do_int) Then
-                              Do ipq=0,NApq-1
-                                 kt=kOff(iSymp)+ipq
-                                 kLpq=ipLpq+ipq
-                                Xint(kt)=Xint(kt)+ddot_(JNUM,Work(kLpq),
-     &                                             NApq,Work(kLpq),NApq)
+                              Do ipq=1,NApq
+                                 kt=kOff(iSymp)+ipq-1
+                                 Xint(kt)=Xint(kt)
+     &                                   +ddot_(JNUM,Lpq(ipq,:),NApq,
+     &                                               Lpq(ipq,:),NApq)
                               End Do
                            EndIf
 
                         Else
-                           Do ipq=0,NApq-1
-                              call dcopy_(JNUM,Work(ipLpq+ipq),NApq,
-     &                                    ChoT,1)
+                           Do ipq=1,NApq
+                              call dcopy_(JNUM,Lpq(ipq,1),NApq,ChoT,1)
                               If (Do_int) Then
-                                 kt=kOff(iSymp)+ipq
+                                 kt=kOff(iSymp)+ipq-1
                                  Xint(kt)=Xint(kt)+ddot_(JNUM,ChoT,1,
      &                                                        ChoT,1)
                               EndIf
-                              idisk=iOffB(iSymp)+NumCho(jSym)*ipq
+                              idisk=iOffB(iSymp)+NumCho(jSym)*(ipq-1)
 #ifdef _HDF5_QCM_
                              ! Write the transformed Cholesky batch to the hdf5 dataset
                              ! The ordering in HDF5 is in column-major order, corresponding to
@@ -633,7 +647,7 @@ C --------------------------------------------------------------------
                              ! See above for more explanation
                              if (ihdf5==1) then
                                call hdf5_write_cholesky(choset_id,
-     &                           space_id,ipq,nVec*(iBatch-1),JNUM,ChoT)
+     &                           space_id,ipq-1,nVec*(iBatch-1),JNUM,ChoT)
                              end if
 #endif
 
@@ -642,6 +656,7 @@ C --------------------------------------------------------------------
                            End Do
                            iOffB(iSymp)=iOffB(iSymp)+JNUM
                         EndIf
+                        Lpq => Null()
 
                      EndIf
 
