@@ -601,7 +601,8 @@ C! direction of minimization always, is achieved indirectly:
      &        Work(ipEqMat+j+ncart*(j-1)-1)+1.0D-12
       end do
 C! Solve the linear equation system:
-      call Dool(Work(ipEqMat),ncart,ncart,Work(ipEqRHS),ncart,1,det)
+      call Dool_MULA(Work(ipEqMat),ncart,ncart,
+     &               Work(ipEqRHS),ncart,1,det)
 C!D Write(6,*)' Solution vector:'
 C!D Write(6,'(1x,5f16.8)') EqRHS
 C! After return from dool, EqMat is destroyed and EqRHS is solution.

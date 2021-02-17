@@ -60,7 +60,7 @@ C!---- Calculate W.
       call dcopy_(nOsc,[1.0d0],0,W,nOsc+1)
       call dcopy_(nOscSqr,C,1,Work(iptemp),1)
 c       temp = C
-      Call Dool(Work(iptemp),nOsc,nOsc,W,my1,my2,det0)
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,W,my1,my2,det0)
       det0=abs(det0)
 C!
 C!---- Calculate r00.
@@ -85,7 +85,7 @@ c       temp = 2.0*alpha
       call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
       Call Daxpy_(nOscSqr,2.0d0,Work(ipalpha),1,Work(iptemp),1)
 
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(ipr_temp),nOsc,1,det)
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipr_temp),nOsc,1,det)
       Call GetMem('beta','Allo','Real',ipbeta,nOscSqr)
 c       r00 = r_temp(:,1)
       do i=1,nOsc
@@ -101,7 +101,7 @@ c       temp  = 2.0d0*alpha
       call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
       Call Daxpy_(nOscSqr,2.0d0,Work(ipalpha),1,Work(iptemp),1)
 
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
       Call DGEMM_('N','N',
      &            nOsc,nOsc,nOsc,
      &            1.0d0,alpha2,nOsc,

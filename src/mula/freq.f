@@ -65,7 +65,7 @@ C!---- get memory space for U.
       Call GetMem('U','Allo','Real',ipU,nOsc*nOsc)
 C!
 C!---- Copy matrix containing eigenvectors to U, because this matrix
-C!     will be destroyed when subroutine Dool is called.
+C!     will be destroyed when subroutine Dool_MULA is called.
       nSqrInt = NumInt**2
       call dcopy_(nSqrInt,V,1,Work(ipU),1)
 C!
@@ -81,7 +81,7 @@ C!
      &            1.0d0,B,3*NumOfAt,
      &            B,3*NumOfAt,
      &            0.0d0,Work(ipTemp),NumInt)
-      Call Dool(Work(ipTemp),NumInt,NumInt,Work(ipU),
+      Call Dool_MULA(Work(ipTemp),NumInt,NumInt,Work(ipU),
      &  NumInt,NumInt,Det)
       Call DGEMM_('N','N',
      &            3*NumOfAt,NumInt,NumInt,

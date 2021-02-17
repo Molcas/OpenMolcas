@@ -74,9 +74,9 @@ C! Thus, Temp1=Unit matrix(in) and contains solution (out).
 
       call dcopy_(NumInt**2,[0.0d0],0,Work(ipTemp1),1)
       call dcopy_(NumInt,[1.0d0],0,Work(ipTemp1),NumInt+1)
-      Call Dool(Work(ipTemp2),NumInt,NumInt,Work(ipTemp1),
+      Call Dool_MULA(Work(ipTemp2),NumInt,NumInt,Work(ipTemp1),
      &  NumInt,NumInt,det)
-C!PAM01 Replacement for Dool, if superstable solution is wanted:
+C!PAM01 Replacement for Dool_MULA, if superstable solution is wanted:
 C! Eps=1.0D-8
 C! Call SymSolve(Temp2,Temp1,Temp3,Temp4,Eps)
 C! call dcopy_(NumInt**2,Temp3,1,Temp1,1)
@@ -156,7 +156,7 @@ C!---- Project rotation and translation out of S matrix.
       Call GetMem('Ainv','Allo','Real',ipAinv,nFree*nFree)
       call dcopy_(nFree**2,[0.0d0],0,Work(ipAinv),1)
       call dcopy_(nFree,[1.0d0],0,Work(ipAinv),nFree+1)
-      Call Dool(Work(ipTemp1),nFree,nFree,Work(ipAinv),nFree,
+      Call Dool_MULA(Work(ipTemp1),nFree,nFree,Work(ipAinv),nFree,
      &  nFree,det)
       Call GetMem('Temp1','Free','Real',ipTemp1,nFree*nFree)
 C!

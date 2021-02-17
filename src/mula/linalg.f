@@ -17,7 +17,7 @@ C!
 C!  Contains:
 C!    Cholesky    : Performs a Cholesky factorization of a positive
 C!                  definite matrix A.
-C!    Dool        : Solves the system of linear equations A*X = B.
+C!    Dool_MULA   : Solves the system of linear equations A*X = B.
 C!    SolveSecEq  : Solves the seqular equation A*C = S*C*D.
 C!    Polfit      : Fit a polynomial of requested dimension to the input
 C!                  data.
@@ -32,7 +32,7 @@ C!-----------------------------------------------------------------------!
 C!
 
 C!
-      Subroutine Dool(A,LA1,LA2,B,LB1,LB2,det)
+      Subroutine Dool_MULA(A,LA1,LA2,B,LB1,LB2,det)
 C!
 C!  Purpose:
 C!    Solve A*X = B
@@ -372,7 +372,7 @@ C!---- Solve the resulting equation system.
       Do i=1,nterm
       coef(i,1) = rhs(i)
       End do
-      Call Dool(equmat,nPolyTerm,nPolyTerm,coef,
+      Call Dool_MULA(equmat,nPolyTerm,nPolyTerm,coef,
      &  nPolyTerm,MyCoef2,det)
       If ( abs(det).eq.0.0 ) Write(6,*)
      &       'WARNING!! Determinant=0 in PolFit'

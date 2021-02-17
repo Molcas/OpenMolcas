@@ -113,7 +113,7 @@ C! Call Cholesky(temp,C)
 C!
 C!---- Calculate W.
 C! call dcopy_(nOscSqr,[0.0d0],0,W,1) ; call dcopy_(nOsc,[1.0d0],0,W,nOsc+1)
-C! temp = C ; Call Dool(temp,W,det0)
+C! temp = C ; Call Dool_MULA(temp,W,det0)
 C!
 C!---- Calculate r00.
       Call GetMem('r_temp1','Allo','Real',ipr_temp1,nOsc)
@@ -135,7 +135,7 @@ c       temp  = 2.0d0*alpha
       call dcopy_(nOscSqr,[0.0d0],0,Work(iptemp),1)
       Call Daxpy_(nOscSqr,2.0d0,Work(ipAlpha),1,Work(iptemp),1)
 
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
       Call DGEMM_('N','N',
      &            nOsc,nOsc,nOsc,
      &            1.0d0,Alpha2,nOsc,

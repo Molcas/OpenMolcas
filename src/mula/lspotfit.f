@@ -430,7 +430,7 @@ C!
      &            0.0d0,FitCoef,nterm)
 C!
 C!---- Solve the resulting equation system.
-      Call Dool(Work(ipEqumat),nterm,nterm,FitCoef,nterm,nterm,det)
+      Call Dool_MULA(Work(ipEqumat),nterm,nterm,FitCoef,nterm,nterm,det)
 C!
       Call GetMem('weight','Free','Real',ipweight,nDim*nDim)
       Call GetMem('mDec','Free','Inte',ipmDec,n_mDec*nvar)

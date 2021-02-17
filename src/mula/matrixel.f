@@ -79,7 +79,7 @@ C!
       call dcopy_(nOsc,[1.0d0],0,Work(ipCtemp),nOsc+1)
 c       temp = W
       call dcopy_(nOsc*nOsc,W,1,Work(iptemp),1)
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(ipCtemp),nOsc,nOsc,det)
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipCtemp),nOsc,nOsc,det)
       Call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
 
       Call GetMem('rtemp1','Allo','Real',iprtemp1,nOsc)

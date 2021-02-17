@@ -32,7 +32,7 @@ C!    Hess      : Real*8 two dimensional array - Hessian in
 C!                minimum.
 C!
 C!  Calls:
-C!    Dool
+C!    Dool_MULA
 C!    funcval
 C!    gradient
 C!    Hessian
@@ -99,7 +99,7 @@ C!---- Optimize using Newton-Raphson.
       do iv=1,nvar
       delta(iv,1) = -grad(iv)
       enddo
-      Call Dool(Hess,nterm,nvar,delta,nvar,1,det)
+      Call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
 c          Call calcNorm(delta(:,1),delta_norm)
       sum=0.0d0
       do iv=1,nvar
@@ -122,7 +122,7 @@ c          Call calcNorm(delta(:,1),delta_norm)
       do iv=1,nvar
       delta(iv,1) = -grad(iv)
       enddo
-      Call Dool(Hess,nterm,nvar,delta,nvar,1,det)
+      Call Dool_MULA(Hess,nterm,nvar,delta,nvar,1,det)
 c             Call calcNorm(delta(:,1), delta_norm)
       sum=0.0d0
       do iv=1,nvar

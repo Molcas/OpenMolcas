@@ -78,7 +78,7 @@ C!---- Cholesky decomposition of S.
       Call Cholesky(S,Work(ipTmp1),n)
       call dcopy_(nSqr,[0.0d0],0,Work(ipT),1)
       call dcopy_(n,[1.0d0],0,Work(ipT),n+1)
-      Call Dool(Work(ipTmp1),n,n,Work(ipT),n,n,det)
+      Call Dool_MULA(Work(ipTmp1),n,n,Work(ipT),n,n,det)
 C!
 C!---- Make A symmetric and transform it to lower packed storage in
 C!     Scratch.
@@ -160,7 +160,8 @@ c       temp2 = 2.0d0*alpha
       call dcopy_(nOscSqr,Work(ipalpha),1,Work(iptemp2),1)
       call dscal_(nOscSqr,2.0d0,Work(iptemp2),1)
 
-      Call Dool(Work(iptemp2),nOsc,nOsc,Work(iptemp1),nOsc,nOsc,det)
+      Call Dool_MULA(Work(iptemp2),nOsc,nOsc,
+     &               Work(iptemp1),nOsc,nOsc,det)
       Call DGEMM_('N','N',
      &            nOsc,nOsc,nOsc,
      &            1.0d0,Work(ipalpha2),nOsc,

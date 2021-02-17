@@ -319,13 +319,13 @@ C!----      Calculate C = W^(-1).
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipC1),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipC1),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW1),1,Work(iptemp),1)
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(ipC1),
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipC1),
      &        nOsc,nOsc,det)
       det1 = abs(1.0d0/det)
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipC2),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipC2),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(iptemp),1)
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(ipC2),
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipC2),
      &        nOsc,nOsc,det)
       det2 = abs(1.0d0/det)
       Call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
@@ -415,7 +415,7 @@ C!      Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
       Call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
       call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
       call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
-      Call Dool(Work(ipG1),nOsc,nOsc,work(iptemp2),
+      Call Dool_MULA(Work(ipG1),nOsc,nOsc,work(iptemp2),
      &      nOscOld,nOscOld,det)
       Call DGEMM_('N','N',
      &            nOscOld,nOsc,nOscOld,
@@ -431,7 +431,7 @@ C!      Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
      &            0.0d0,Work(iptemp2),nOsc)
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipG1),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipG1),nOsc+1)
-      Call Dool(Work(iptemp2),nOscOld,nOscOld,
+      Call Dool_MULA(Work(iptemp2),nOscOld,nOscOld,
      &      Work(ipG1),nOsc,nOsc,det)
       Call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
       Call GetMem('temp','Free','Real',iptemp,nOscOld*nOsc)
@@ -455,7 +455,7 @@ C!      Subroutine SolveRedSec(Hess,Gmat,freq,C,W,det)
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipC1),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipC1),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW1),1,Work(iptemp),1)
-      Call Dool(Work(iptemp),nOscOld,nOsc,Work(ipC1),
+      Call Dool_MULA(Work(iptemp),nOscOld,nOsc,Work(ipC1),
      &        nOsc,nOsc,det)
       det1 = abs(1.0d0/det)
       Call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
@@ -478,7 +478,7 @@ C!----      Second state.
       Call GetMem('temp2','Allo','Real',iptemp2,nOscOld*nOscOld)
       call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
       call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
-      Call Dool(Work(ipG2),nOsc,nOsc,Work(iptemp2),
+      Call Dool_MULA(Work(ipG2),nOsc,nOsc,Work(iptemp2),
      &      nOscOld,nOscOld,det)
       Call DGEMM_('N','N',
      &            nOscOld,nOsc,nOscOld,
@@ -494,7 +494,7 @@ C!----      Second state.
      &            0.0d0,Work(iptemp2),nOsc)
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipG2),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipG2),nOsc+1)
-      Call Dool(Work(iptemp2),nOsc,nOsc,Work(ipG2),
+      Call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(ipG2),
      &      nOsc,nOsc,det)
       Call GetMem('temp2','Free','Real',iptemp2,nOsc*nOsc)
       Call GetMem('temp','Free','Real',iptemp,nOscOld*nOsc)
@@ -518,7 +518,7 @@ C!----      Second state.
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipC2),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipC2),nOsc+1)
       call dcopy_(nOsc*nOsc,Work(ipW2),1,Work(iptemp),1)
-      Call Dool(Work(iptemp),nOsc,nOsc,Work(ipC2),
+      Call Dool_MULA(Work(iptemp),nOsc,nOsc,Work(ipC2),
      &        nOsc,nOsc,det)
       det2 = abs(1.0d0/det)
       Call GetMem('temp','Free','Real',iptemp,nOsc*nOsc)
@@ -602,7 +602,7 @@ c            Smat = 0.0d0
      &            0.0d0,Work(iptemp),nOscOld)
       call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp3),1)
       call dcopy_(nOscOld,[1.0d0],0,Work(iptemp3),nOscOld+1)
-      Call Dool(Work(iptemp),nOscOld,nOscOld,Work(iptemp3),
+      Call Dool_MULA(Work(iptemp),nOscOld,nOscOld,Work(iptemp3),
      &      nOscOld,nOscOld,det)
       Call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
       Call GetMem('temp1','Allo','Real',
@@ -1468,7 +1468,7 @@ C!
       call dcopy_(nOscOld*nOscOld,Work(ipG0),1,Work(iptemp),1)
       call dcopy_(nOscOld**2,[0.0d0],0,Work(iptemp2),1)
       call dcopy_(nOscOld,[1.0d0],0,Work(iptemp2),nOscOld+1)
-      Call Dool(Work(iptemp),nOscOld,nOscOld,Work(iptemp2),
+      Call Dool_MULA(Work(iptemp),nOscOld,nOscOld,Work(iptemp2),
      &      nOscOld,nOscOld,det)
       Call DGEMM_('N','N',
      &            nOscOld,nOsc,nOscOld,
@@ -1484,7 +1484,7 @@ C!
      &            0.0d0,Work(iptemp2),nOsc)
       call dcopy_(nOsc**2,[0.0d0],0,Work(ipG0),1)
       call dcopy_(nOsc,[1.0d0],0,Work(ipG0),nOsc+1)
-      Call Dool(Work(iptemp2),nOsc,nOsc,Work(ipG0),
+      Call Dool_MULA(Work(iptemp2),nOsc,nOsc,Work(ipG0),
      &      nOsc,nOsc,det)
 C!
       Call GetMem('temp','Free','Real',iptemp,nOscOld*nOscOld)
