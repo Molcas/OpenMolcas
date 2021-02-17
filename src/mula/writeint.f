@@ -463,8 +463,8 @@ C!
      &      OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ',
      &      ivee_cm,' ',Intensity
             if(Intensity.gt.1D-6) Then
-              Call Add_Info('Energy',vee_cm,1,5)
-              Call Add_Info('Intensity',Intensity,1,5)
+              Call Add_Info('Energy',[vee_cm],1,5)
+              Call Add_Info('Intensity',[Intensity],1,5)
             endif
           Else
             Write(6,'(a1,a15,a5,a1,f5.2,a1,f5.2,'//
@@ -473,8 +473,8 @@ C!
      &      OccNumMat2(jOrd,2),',',OccNumMat2(jOrd,3),')',' ',
      &      ivee_cm,' ',Intensity
             if(Intensity.gt.1D-6) Then
-              Call Add_Info('Energy',vee_cm,1,5)
-              Call Add_Info('Intensity',Intensity,1,5)
+              Call Add_Info('Energy',[vee_cm],1,5)
+              Call Add_Info('Intensity',[Intensity],1,5)
             endif
           End If
         Else
@@ -484,8 +484,8 @@ C!
      &      nMatChar(jOrd),' ',ivee_cm,'/',vee_eV,'/',ivee_nm,'  ',
      &      Intensity
             if(Intensity.gt.1D-6) Then
-              Call Add_Info('Energy',vee,1,5)
-              Call Add_Info('Intensity',Intensity,1,5)
+              Call Add_Info('Energy',[vee],1,5)
+              Call Add_Info('Intensity',[Intensity],1,5)
             endif
           Else
             Write(6,'(a1,a23,a7,a23,a4,i6,a1,f5.2,a1,i4,a2,e12.3)') ' ',
@@ -493,8 +493,8 @@ C!
      &      nMatChar(jOrd),' ',ivee_cm,'/',vee_eV,'/',ivee_nm,'  ',
      &      Intensity
             if(Intensity.gt.1D-6) Then
-              Call Add_Info('Energy',vee,1,5)
-              Call Add_Info('Intensity',Intensity,1,5)
+              Call Add_Info('Energy',[vee],1,5)
+              Call Add_Info('Intensity',[Intensity],1,5)
             endif
           End If
         End If
