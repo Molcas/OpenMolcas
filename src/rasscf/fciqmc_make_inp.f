@@ -245,7 +245,6 @@
       end subroutine make_inp
 
       subroutine cleanup()
-        use stdalloc, only : mma_deallocate
         if (allocated(definedet)) deallocate(definedet)
       end subroutine cleanup
 
