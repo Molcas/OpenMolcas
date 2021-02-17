@@ -206,9 +206,10 @@ C
       Real*8, Allocatable:: Lrs(:)
       Real*8, Allocatable, Target:: ChoT(:)
 
-*     Type V2
-*       Real*8, Pointer:: A(:,:)=>Null()
-*     End Type V2
+      Type V2
+        Real*8, Pointer:: A(:,:)=>Null()
+      End Type V2
+      Type (V2):: Lpb(8)
 
       Real*8, Pointer:: Lpq(:,:)=>Null()
 
@@ -422,22 +423,21 @@ C --- BATCH over the vectors ----------------------------
 
                lChoT=JNUM
                iE = JNUM
-               Do iSymp=1,nSym
+               Do iSymb=1,nSym
 
-                  iSymb = MulD2h(jSym,iSymp)
+                  iSymp = MulD2h(jSym,iSymb)
 
-                  ipLpb(iSymp) = ipChoT + lChoT
-                  lChoT = lChoT + nPorb(iSymp)*nBas(iSymb)*JNUM
+                  ipLpb(iSymb) = ipChoT + lChoT
+                  lChoT = lChoT + nPorb(iSymb)*nBas(iSymp)*JNUM
 
                   iS = iE + 1
-                  iE = iE + nPorb(iSymp)*nBas(iSymb)*JNUM
+                  iE = iE + nPorb(iSymb)*nBas(iSymp)*JNUM
 
+                  Lpb(iSymb)%A(1:nPorb(iSymb)*nBas(iSymp),1:JNUM)
+     &              => ChoT(iS:iE)
                End Do
 
-               ipLpq = ipChoT + lChot
-
-               iS = iE + 1
-
+               iS = iE + 1  !Lpq(:,;) starts at ChoT(iS:*)
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
@@ -446,7 +446,7 @@ C --------------------------------------------------------------------
                CALL CWTIME(TCM1,TWM1)
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nPorb,
+     &                           jSym,iSwap,IREDC,nMOs,kMOs,ipOrb,nPorb,
      &                           ipLpb,iSkip,DoRead)
 
                if (irc.ne.0) then
@@ -473,16 +473,13 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
-                        iE = iS - 1 + NApq*JNUM
-                        Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
+                      iE = iS - 1 + NApq*JNUM
+                      Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
                       Do JVC=1,JNUM
 
-                       ipLJpb = ipLpb(iSymb)
-     &                        + nPorb(iSymb)*nBas(iSymb)*(JVC-1)
-
                        CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
-     &                            One,Work(ipLJpb),NAp,
+     &                            One,Lpb(iSymb)%A(:,JVC),NAp,
      &                                Work(ipOrb(iSymb)),NAp,
      &                           Zero,Lpq(:,jVC),NAp)
 
@@ -587,21 +584,22 @@ C --------------------------------------------------------------------
 
                      CALL CWTIME(TCM3,TWM3)
 
-                     If(NApq.ne.0.and.iSymp.lt.iSymb)Then
+                     If (NApq.ne.0) Then
+                      iE = iS - 1 + NApq*JNUM
+                      Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
-                      Do JVC=1,JNUM
+                      If (iSymp.lt.iSymb)Then
+                       Do JVC=1,JNUM
 
-                       ipLJpb = ipLpb(iSymp)
-     &                        + nPorb(iSymp)*nBas(iSymb)*(JVC-1)
-                       ipLJpq = ipLpq
-     &                        + nPorb(iSymp)*nPorb(iSymb)*(JVC-1)
+                        CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
+     &                             One,Lpb(iSymp)%A(:,JVC),NAp,
+     &                                 Work(ipOrb(iSymb)),NAq,
+     &                            Zero,Lpq(:,JVC),NAp)
 
-                       CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                            One,Work(ipLJpb),NAp,
-     &                                Work(ipOrb(iSymb)),NAq,
-     &                           Zero,Work(ipLJpq),NAp)
-
-                      End Do
+                       End Do
+                      Else
+                    !  Lpq(:,:)=Zero
+                      End If
 
                      EndIf
 
@@ -670,6 +668,9 @@ C --------------------------------------------------------------------
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
+               Do iSym = 1, nSym
+                  Lpb(iSym)%A => Null()
+               End Do
 
             END DO  ! end batch loop
 
