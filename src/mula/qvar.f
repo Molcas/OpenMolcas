@@ -249,7 +249,7 @@ c       D4 = D4trans
 C!
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real(var)
+         Call Unused_real_array(var)
          Call Unused_integer(max_term)
       End If
       End
