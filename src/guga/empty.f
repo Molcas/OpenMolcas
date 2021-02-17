@@ -18,9 +18,9 @@
 #include "integ.fh"
 #include "files_guga.fh"
       DIMENSION BUF(kBuf),IBUF(kBuf+2),LASTAD(*),SO(*)
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 #include "addr_guga.fh"
-      COMMON/D/JNDX(500 000)
+#include "d.fh"
 *
       JO(L)=ICUNP(ICASE,L)
 *

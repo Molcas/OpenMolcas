@@ -16,9 +16,9 @@
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_guga.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 #include "addr_guga.fh"
-      COMMON/D/JNDX(500 000)
+#include "d.fh"
 *
       JO(L)=ICUNP(ICASE,L)
 *

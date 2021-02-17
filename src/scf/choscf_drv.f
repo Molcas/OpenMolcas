@@ -56,14 +56,14 @@ C
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2),ipMOs(2),ipKLT(2)
       Integer ALGO,NSCREEN
-      Logical REORD,DECO,Cho_AUfb
+      Logical REORD,DECO
       Real*8 FLT(*),FLT_ab(*)
       Real*8 DSQ(*),DSQ_ab(*),DLT(*),DLT_ab(*)
       character ww*512
 
       Common /CHOUNIT / Lunit
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
-      Common /CHOAUF / Cho_Aufb
+#include "choauf.fh"
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
 

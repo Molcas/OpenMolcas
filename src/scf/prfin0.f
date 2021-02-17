@@ -54,17 +54,8 @@
 #include "scfwfn.fh"
 #include "ksdft.fh"
 
-      Logical Do_Tw
-      COMMON  / Tw_corr_L   / Do_Tw
-      Character*16  ADDC_KSDFT
-      COMMON  / ADDcorr_C   / ADDC_KSDFT
-      Logical Do_Addc
-      COMMON  / ADDcorr_L   / Do_Addc
-      COMMON  / ADDcorr_R   / DE_KSDFT_c
-      Real*8 Erest_xc
-      COMMON /dCSCF_xc/ Erest_xc
-      Real*8 s2CNO
-      COMMON /dCSCF_s2/ s2CNO
+#include "addcorr.fh"
+#include "dcscf.fh"
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
 

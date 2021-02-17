@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 ************************************************************************
       PARAMETER (MXVERT=1000, MXCASE=14000)
-      COMMON/INTEG/ICASE(MXCASE),IO,IW,N,ISPIN,LN,
+      COMMON/INTEG_GUGA/ICASE(MXCASE),IO,IW,N,ISPIN,LN,
      &   IA(MXVERT),IB(MXVERT),IJ(55),ISPA,K0(4*MXVERT),
      &   K1(4*MXVERT),K2(4*MXVERT),
      &   K3(4*MXVERT),IAF(MXVERT),IBF(MXVERT),LNP,ILIM,

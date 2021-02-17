@@ -124,7 +124,7 @@ cbs                         ! integrals in memory
       Integer, Allocatable:: checkxy(:), checkz(:), interxyz(:,:),
      &                       SgnProd(:)
 *
-      common /ipowxyz/ ipowxyz(3,-Lmax:Lmax,0:Lmax)
+#include "ipowxyz.fh"
 c##########################################################################
 cbs  #####################################################################
 cbs         version with all angular integrals in memory
@@ -278,7 +278,7 @@ cbs
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "param.fh"
-      common /nucleus/ charge,Exp_finite
+#include "nucleus.fh"
       noccorb(0)=1
       do l=1,lmax_occ
          noccorb(l)=0

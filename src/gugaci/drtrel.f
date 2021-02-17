@@ -402,7 +402,7 @@ c Avoid unused argument warnings
 #include "pl_structure_h.fh"
 c ifrno(j)=i
 c irfno(i)=j no. i ref is no. j cfs in h0
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
       icsfwlk=0
@@ -458,7 +458,7 @@ c...end of irfrst
       subroutine irfrst_bak(iselcsf_occ)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
       logical log_exist

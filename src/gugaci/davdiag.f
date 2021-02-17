@@ -24,7 +24,7 @@ c
 #include "files_gugaci.fh"
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
-      common /thresh/ vthreen,vthrealp,vthreresid
+#include "thresh.fh"
       dimension idxvec(max_iter)
       dimension valpha(max_root),vcien(max_root),vcienold(max_root),
      *          difeci(max_root),vresid(max_root)
@@ -449,14 +449,9 @@ c
 !     *                      nf11,nf13,nf15,nf20,nf21,nf22,nf23
 !
 !      logical logic_tdav,logic_inivec_read
-!      common /program_control/ logic_tdav,logic_inivec_read
 !      common /scratch/ tmpdir,len_str
 !      character*256 tmpdir,filename
-      logical logic_tdav,logic_inivec_read,logic_mr,
-     *        logic_mrelcas,logic_calpro,logic_assign_actorb
-      common /program_control/ logic_tdav,logic_inivec_read,
-     *               logic_mr,logic_mrelcas,logic_calpro,
-     *               logic_assign_actorb
+#include "program_control.fh"
       data dzero/0.d0/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim)
       dimension indx(max_kspace),mjn(2*max_root),vcien(mroot)
@@ -590,15 +585,9 @@ c
 !      common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10,
 !     *                      nf11,nf13,nf15,nf20,nf21,nf22,nf23
 !      logical logic_tdav,logic_inivec_read
-!      common /program_control/ logic_tdav,logic_inivec_read
 !      common /scratch/ tmpdir,len_str
 !      character*256 tmpdir,filename
-      logical logic_tdav,logic_inivec_read,logic_mr,
-     *        logic_mrelcas,logic_calpro,logic_assign_actorb
-
-      common /program_control/ logic_tdav,logic_inivec_read,
-     *               logic_mr,logic_mrelcas,logic_calpro,
-     *               logic_assign_actorb
+#include "program_control.fh"
 
       data dzero/0.d0/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim),vdia(2*mroot)
@@ -853,12 +842,7 @@ c
       implicit real*8 (a-h,o-z)
 #include "ci_parameter.fh"
 #include "files_gugaci.fh"
-      logical logic_tdav,logic_inivec_read,logic_mr,
-     *        logic_mrelcas,logic_calpro,logic_assign_actorb
-
-      common /program_control/ logic_tdav,logic_inivec_read,
-     *               logic_mr,logic_mrelcas,logic_calpro,
-     *               logic_assign_actorb
+#include "program_control.fh"
 
       data dzero/0.d0/,epc/5.0d-3/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim),vdia(2*mroot)

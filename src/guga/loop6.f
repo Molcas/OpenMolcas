@@ -14,7 +14,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
       ISTOP=0
       KM1=KM+1
       IDIF=IA(J2(KM1))-IA(J1(KM1))

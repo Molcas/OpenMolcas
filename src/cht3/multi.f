@@ -61,8 +61,8 @@ c  PV/LAOG, 22 may 2003.
 c
       implicit none
 #include "ndisk.fh"
-      integer lg, ifile, ias, iloc,irest,kas,k, last,iopt
-      common/ioind/iopt(96)
+      integer lg, ifile, ias, iloc,irest,kas,k, last
+#include "ioind.fh"
       real*8 G(lg)
 c
       iloc=1

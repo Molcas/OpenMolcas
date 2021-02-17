@@ -25,11 +25,11 @@
 #include "grad_h.fh"
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
-      common /lgrn/ xlgrn(max_orb,max_orb)
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /grad_xyz/dxyz(3,max_atom),numat
-      common /ncprhf/ nrot,nxyz,ndbl,next,nsolv,nres,n_frz,n_all
+#include "lgrn.fh"
+#include "iaib.fh"
+#include "vect.fh"
+#include "grad_xyz.fh"
+#include "ncprhf.fh"
       parameter (htoklm=627.50956d+00,zero=0.0d+00)
 c================================================
 c    the main subroutine for ci gradient calculations.
@@ -65,8 +65,7 @@ c=====================================================
       subroutine moread(ii,jj,kk,ll,val)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /pcklab/ labsiz
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
 c====================================================
 !    transfer the ci mo indexs to scf mo indexs
 !    and use library function ishft() to save
@@ -101,8 +100,7 @@ c      write(nf2,'(4i4,f18.10)') lri,lrj,lrk,lrl,vector1(nijkl)
       subroutine trans_ijkl_intpos(ii,jj,kk,ll,nxo)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /pcklab/ labsiz
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
 c====================================================
 !    transfer the ci mo indexs to scf mo indexs
 !    and use library function ishft() to save
@@ -145,7 +143,6 @@ c      endif
 
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /pcklab/ labsiz
       dimension lijkl(4)
 
 c=========================================================
@@ -163,10 +160,10 @@ c Avoid unused argument warnings
       subroutine lagran_act(x1e)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /ncprhf/ nrot,nxyz,ndbl,next,nsolv,nres,n_frz,n_all
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /lgrn/ xlgrn(max_orb,max_orb)
+#include "vect.fh"
+#include "ncprhf.fh"
+#include "iaib.fh"
+#include "lgrn.fh"
       dimension x1e(50000),fock(n_all,n_all)
       parameter (zero=0.0d+00,two=2.0d+00)
 
@@ -414,9 +411,9 @@ c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
       subroutine lagran_all(x1e)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /lgrn/ xlgrn(max_orb,max_orb)
-      common /ncprhf/ nrot,nxyz,ndbl,next,nsolv,nres,n_frz,n_all
+#include "iaib.fh"
+#include "lgrn.fh"
+#include "ncprhf.fh"
       dimension x1e(50000)
       parameter (zero=0.0d+00,two=2.0d+00)
 
@@ -556,9 +553,9 @@ c      open(nf22,file='density',form='unformatted')
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
 c     character*256 filename
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /density/ p(max_orb,max_orb)
+#include "vect.fh"
+#include "iaib.fh"
+#include "density.fh"
       dimension ican_ab(norb_all),c(70000),dm1_act(naorbs,naorbs)
       logical resina
       parameter (htoklm=627.50956d+00,zero=0.0d+00,two=2.0d+00,
@@ -763,8 +760,8 @@ c      open(20,file='backdm2',form='unformatted')
 
       subroutine backtrans_test
 #include "drt_h.fh"
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "vect.fh"
+#include "iaib.fh"
 c-------------------------------------------------------------
 c this subroutine for test the backtrans result by just one density matr
 c ao, such as (ij|kl)
@@ -808,9 +805,9 @@ c
 
       subroutine grad_two
 #include "drt_h.fh"
-      common /grad_xyz/dxyz(3,max_atom),numat
+#include "grad_xyz.fh"
       common /ndao/ ndao
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
 !      character*256 filename
@@ -933,11 +930,11 @@ c      enddo
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
 !      character*256 filename
-      common /lgrn/ xlgrn(max_orb,max_orb)
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /grad_xyz/dxyz(3,max_atom),numat
-      common /density/ p(max_orb,max_orb)
+#include "lgrn.fh"
+#include "iaib.fh"
+#include "vect.fh"
+#include "grad_xyz.fh"
+#include "density.fh"
       dimension dsaos(3,numat,naorbs*(naorbs+1)/2)
       dimension dgxyz(3,numat),dmo1xyz(3,numat),dm1_act(naorbs,naorbs)
       parameter (htoklm=627.50956d+00)
@@ -1041,10 +1038,10 @@ c      enddo
 
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /lgrn/ xlgrn(max_orb,max_orb)
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /grad_xyz/dxyz(3,max_atom),numat
+#include "lgrn.fh"
+#include "iaib.fh"
+#include "vect.fh"
+#include "grad_xyz.fh"
       dimension dsaos(3,numat,naorbs*(naorbs+1)/2)
       dimension dgxyz(3,numat),dmo1xyz(3,numat)
       parameter (htoklm=627.50956d+00)
@@ -1133,8 +1130,8 @@ c      enddo
       subroutine density_ci_one(dm1_act)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
+#include "iaib.fh"
+#include "vect.fh"
       dimension dm1_act(naorbs,naorbs)
       parameter (zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
 
@@ -1163,9 +1160,9 @@ c      enddo
       subroutine lagran_fock(x1e,fock)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /ncprhf/ nrot,nxyz,ndbl,next,nsolv,nres,n_frz,n_all
+#include "vect.fh"
+#include "iaib.fh"
+#include "ncprhf.fh"
       dimension x1e(50000),fock(n_all,n_all)
       parameter (zero=0.0d+00,two=2.0d+00)
 

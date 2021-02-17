@@ -17,9 +17,7 @@
 #include "infscf.fh"
       Real*8  Grad(nGrad)
       Character*4 DFTFOCK
-      Real*8 Erest_xc
-      COMMON /dCSCF_xc/ Erest_xc
-
+#include "dcscf.fh"
 *
       Erest_xc=0.0d0
       Call GetMem('F-DS','Allo','Real',ipF_DFT,2*nBT)
@@ -87,8 +85,7 @@
       Logical Do_MO,Do_TwoEl,Do_Grad
       Character*4 DFTFOCK
       Character*16  KSDFT
-      Real*8 Erest_xc
-      COMMON /dCSCF_xc/ Erest_xc
+#include "dcscf.fh"
 *
       lKSDFT=LEN(KSDFT)
       Debug=.False.

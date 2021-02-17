@@ -18,7 +18,7 @@
       DIMENSION ISO(*),JSYM(*),JSY(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 #include "addr_guga.fh"
 #include "warnings.fh"
       DIMENSION MLL(64),IOCR(nIOCR),JREFX(9000),

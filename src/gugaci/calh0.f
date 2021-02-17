@@ -321,7 +321,7 @@ c--------------------------------------------------------------------
       subroutine minevalue(iselcsf_occ)
 #include "drt_h.fh"
 #include "files_gugaci.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(0:max_orb)
       data dzero/0.d0/

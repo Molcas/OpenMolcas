@@ -47,7 +47,7 @@
 *
       Integer   TcJobIph(1024)
       Integer   TcOneMO(1024)
-      Common /Tocs/ TcJobIph,TcOneMO
+      Common /Tocs_MOTRA/ TcJobIph,TcOneMO
 *----------------------------------------------------------------------*
 *                                                                      *
 *     Define TOC for the electron repulsion integrals in MO basis      *

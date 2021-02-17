@@ -76,7 +76,7 @@ c      REAL*8 INPRDD
 #include "lucinp.fh"
 #include "clunit.fh"
 *. Scratch for string information
-      COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
+#include "hidscr.fh"
       INTEGER SXSTSM(1)
 *. Specific input
       REAL*8 L

@@ -43,27 +43,26 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer IUHF,LU(6)
       integer i,nuga,nugc,nga,ngb,ngc,vblock, it1
-      integer NOAB,NNOAB,NUAB,NNUAB,iopt,isp,krem
+      integer isp,krem
       real*8 OEH(*),OEP(*),ddot_,ccsdt,ccsdt4,energ(4),tccsd,
      $     ENSCF, RESULT,times(10),
      $     times_parr(10), totcpu, totwal, timerel
 c     real*8 cpu0,cpu1,wall0,wall1
-      character ICH*1, FN*6
+      character FN*6
       logical ifvo
       integer IHW
       common /hermit_addr/ IHW
       integer la,t1a,t1b
         logical lastcall,scored
-      integer IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
 cmp
 c       integer maxspace
         integer nla,nlb
         real*8 enx1
 cmp
-      COMMON/PARAM/IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
-      COMMON/IOIND/IOPT(96)
+#include "param.fh"
+#include "ioind.fh"
       COMMON/ENERGY/ENSCF, RESULT(102,5)
-      COMMON/UHF/NOAB(2),NNOAB(3),NUAB(2),NNUAB(3),ICH(3)
+#include "uhf.fh"
       LOGICAL    RRT1,CSDAT,ORTHO,DETAIL
       COMMON/WHAT1/RRT1,CSDAT,ORTHO,DETAIL
 cmp

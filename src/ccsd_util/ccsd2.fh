@@ -159,7 +159,7 @@ c
        integer mapit23(1:8,1:8,1:8)
        integer posst230
 c
-       common /workarrayT2/ mapdt21,mapdt22,mapdt23,
+       common /ccsd_workarrayT2/ mapdt21,mapdt22,mapdt23,
      & posst210,posst220,posst230,
      & mapit21,mapit22,mapit23
 c
@@ -206,7 +206,7 @@ c
        integer mapiw14(1:8,1:8,1:8)
        integer possw140
 c
-       common /workarrayW1/ mapdw11,mapdw12,mapdw13,mapdw14,
+       common /ccsd_workarrayW1/ mapdw11,mapdw12,mapdw13,mapdw14,
      & possw110,possw120,possw130,possw140,
      & mapiw11,mapiw12,mapiw13,mapiw14
 c

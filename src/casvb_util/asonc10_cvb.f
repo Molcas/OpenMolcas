@@ -19,7 +19,7 @@
 #include "print_cvb.fh"
 
 #include "malloc_cvb.fh"
-      common /ipp/ipp,iter
+#include "ipp.fh"
       dimension c(nprm,nvec),axc(nprm,nvec)
 c      save iter,ipp
 
@@ -49,7 +49,7 @@ c Avoid unused argument warnings
 #include "print_cvb.fh"
 
 #include "malloc_cvb.fh"
-      common /ipp/ ipp,iter
+#include "ipp.fh"
 c      save iter
 
       iter=0

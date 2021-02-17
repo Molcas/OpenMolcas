@@ -19,8 +19,7 @@
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-      LOGICAL LWSP
-      COMMON /SPIN/ LWSP
+#include "spin.fh"
       JO(L)=ICUNP(ICASE,L)
 CPAM97      EXTERNAL UNPACK
 CPAM97      INTEGER UNPACK

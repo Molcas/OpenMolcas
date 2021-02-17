@@ -25,13 +25,11 @@
 #include "stdalloc.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
-      Integer ALGO,Nscreen
-      Real*8  dmpk
       Logical Fake_CMO2
       Real*8, Dimension(:), Allocatable:: Prod, FAO, DInAO
 
       COMMON / CHO_JOBS / Fake_CMO2
-      COMMON /CHORASSI / ALGO,Nscreen,dmpk
+#include "chorassi.fh"
 
 *****************************************************************
 *  CALCULATE AND RETURN ECORE, FOCKMO, AND TUVX. ECORE IS THE

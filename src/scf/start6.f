@@ -29,10 +29,7 @@
       Character FName*(*), Line*62
       Integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
       Integer nSsh(8), nSsh_ab(8)
-      Real*8 Erest_xc
-      COMMON /dCSCF_xc/ Erest_xc
-      Real*8 s2CNO
-      COMMON /dCSCF_s2/ s2CNO
+#include "dcscf.fh"
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
       COMMON  / SPAVE_I  / ip_DSc
@@ -496,9 +493,8 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       Real*8   Get_ExFac
       External Get_ExFac
-      Real*8 Erest_xc
 *
-      COMMON /dCSCF_xc/ Erest_xc
+#include "dcscf.fh"
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
       COMMON  / SPAVE_I  / ip_DSc

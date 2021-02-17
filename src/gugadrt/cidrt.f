@@ -117,7 +117,7 @@ c...end of subroutine gugadefault
 !      parameter (max_ref=128)
 !#endif
       common /mcorb/ lsmorb(max_orb),noidx(8)
-      common /refstate/ iref_occ(max_innorb,max_ref)
+#include "refstate.fh"
       dimension lsmtmp(maxgdm)
       logical log_debug
       dimension  itmpstr(72)
@@ -2527,7 +2527,7 @@ c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
      *                           jstep,kttmp,k0)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
-      common /refstate/ iref_occ(max_innorb,max_ref)
+#include "refstate.fh"
       common/ref/ndj,ndjgrop,ndjmod
       dimension indjk(ljk),itexcit(n_ref)
 

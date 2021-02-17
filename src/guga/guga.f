@@ -26,9 +26,9 @@
 #include "real_guga.fh"
 #include "integ.fh"
 #include "files_guga.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 #include "addr_guga.fh"
-      COMMON/D/JNDX(500 000)
+#include "d.fh"
 *      DIMENSION JSYM(30000),SO(1 000 000),JSY(3000)
       DIMENSION JSYM(30000),JSY(3000)
       DIMENSION L0(4*MXVERT),L1(4*MXVERT),L2(4*MXVERT),L3(4*MXVERT)

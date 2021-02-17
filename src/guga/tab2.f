@@ -17,7 +17,7 @@
      *JONE(*)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
       DIMENSION IORB(MXVERT)
       DIMENSION K00(MXVERT),K11(MXVERT),K22(MXVERT),K33(MXVERT)
       DIMENSION L00(MXVERT),L11(MXVERT),L22(MXVERT),L33(MXVERT)

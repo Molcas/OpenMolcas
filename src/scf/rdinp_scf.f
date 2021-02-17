@@ -68,21 +68,16 @@
       Integer Mode(1)
 *     character ww*128
       character Method*8
-      Logical Cho_Aufb,Estimate,Update
+      Logical Estimate,Update
       Logical TDen_UsrDef
 
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
       COMMON /CHOTIME / timings
       COMMON /CHODENSITY/ DensityCheck
       COMMON /CHOSCREEN/ Estimate,Update
-      Common /CHOAUF / Cho_Aufb
+#include "choauf.fh"
 
-      Logical Do_Tw
-      COMMON  / Tw_corr_L   / Do_Tw
-      Character*16  ADDC_KSDFT
-      COMMON  / ADDcorr_C   / ADDC_KSDFT
-      Logical Do_Addc
-      COMMON  / ADDcorr_L   / Do_Addc
+#include "addcorr.fh"
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
 

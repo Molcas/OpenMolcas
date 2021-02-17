@@ -17,9 +17,7 @@
 #include "infscf.fh"
       Real*8  Grad(nGrad), Ec_AB(2)
       Character*4 DFTFOCK
-      Character*16  ADDC_KSDFT
-      COMMON  / ADDcorr_C   / ADDC_KSDFT
-      COMMON  / ADDcorr_R   / DE_KSDFT_c
+#include "addcorr.fh"
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
       COMMON  / SPAVE_I  / ip_DSc

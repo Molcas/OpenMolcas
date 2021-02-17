@@ -12,8 +12,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine guga_ploop(npl,maxplcon)
 #include "drt_h.fh"
 #include "files_gugaci.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
 
 
       maxplcon=0
@@ -49,8 +49,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine sv_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
-      common/count/mhsum,lp_count(22),mhlpmax
+#include "lpdisk.fh"
+#include "count.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -70,8 +70,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine sd_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -93,8 +93,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine st_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -116,8 +116,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine ss_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -139,8 +139,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine tv_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -161,8 +161,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine td_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -184,8 +184,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine tt_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -208,8 +208,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine ts_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -231,8 +231,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine dv_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -252,8 +252,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine dd_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -276,8 +276,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine dt_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -299,8 +299,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine ds_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -322,8 +322,8 @@ c look for partial loops in active space drt and save them into disk
       subroutine vd_lp_search(npl)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       mhsum=0
       lpblock=0
       lp_count(1:22)=0
@@ -1383,8 +1383,8 @@ c look for partial loops in active space drt and save them into disk
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "files_gugaci.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       line=linelp
       mh=mhlp
       lg1=nlg1
@@ -1430,8 +1430,8 @@ c look for partial loops in active space drt and save them into disk
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "files_gugaci.fh"
-      common/count/mhsum,lp_count(22),mhlpmax
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "count.fh"
+#include "lpdisk.fh"
       dimension info(10)
 
       if(mh.gt.mhlpmax) mhlpmax=mh
@@ -1501,7 +1501,7 @@ c      print*, "in read_lp, write coe",idisk_lp,norb_inn-norb_dz
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 #include "files_gugaci.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
       dimension info(10)
 
       call idafile(luloop,2,info,10,idisk_lp)

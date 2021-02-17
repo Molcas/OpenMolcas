@@ -11,7 +11,7 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 ************************************************************************
       Parameter(MAXB=8)
-      COMMON/REAL/S,
+      COMMON/REAL_GUGA/S,
      &            BS1(MAXB+3),BS2(MAXB+3),BS3(MAXB+3),
      &            BS4(MAXB+3),BL1(MAXB+3),BL2(MAXB+3),
      &            COUP(55),COUP1(55)

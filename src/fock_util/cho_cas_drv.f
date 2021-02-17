@@ -22,7 +22,7 @@
       Logical   DeAllocte_CVA
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHOPMAT / ipPL
+#include "chopmat.fh"
       Common /CHLCAS / DoCholesky,ALGO
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 

@@ -17,7 +17,7 @@
 C     K.EQ.L , I.LT.J
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 c      COMMON/ADDR/IADD10,IAD10(9),IADD11,IDUM,COP(600),ICOP1(601)
       ITYP=0
       IF(L.LT.I.OR.L.GT.J)ITYP=1

@@ -29,7 +29,7 @@ c*************************************************
       subroutine mole_inf()
 c*************************************************
 #include "drt_h.fh"
-      common /thresh/ vthreen,vthrealp,vthreresid
+#include "thresh.fh"
       parameter ( ncmd=9 )
       character*4 command,cmd(ncmd)
       character*72  line
@@ -174,7 +174,7 @@ c set the default convergence threshhold
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
-      common /thresh/ vthreen,vthrealp,vthreresid
+#include "thresh.fh"
       common /mcorb/ lsmorb(max_orb),noidx(8)
       dimension lsmtmp(maxgdm)
       dimension idum(1)

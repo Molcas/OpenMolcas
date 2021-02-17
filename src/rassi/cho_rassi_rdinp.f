@@ -25,10 +25,8 @@
       Logical  Update,Estimate,Deco,PseudoChoMOs
       character*15 SECNAM
       parameter (SECNAM = 'CHO_RASSI_RDINP')
-      Integer  ALGO,Nscreen
-      Real*8   dmpk
 *
-      Common /CHORASSI / ALGO,Nscreen,dmpk
+#include "chorassi.fh"
       COMMON /CHOTIME / timings
       COMMON /LKSCREEN / Estimate, Update, Deco, PseudoChoMOs
 *

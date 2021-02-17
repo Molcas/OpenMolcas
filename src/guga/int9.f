@@ -17,7 +17,7 @@
 C     I.LT.L . CASE 1 J=K=L , CASE 2 I=J=K .
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 c      COMMON/ADDR/IADD10,IAD10(9),IADD11,IDUM,COP(600),ICOP1(601)
       ITYP=0
       FAC=D1

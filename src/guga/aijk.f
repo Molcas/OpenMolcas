@@ -18,7 +18,7 @@
       DIMENSION ITAI(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
+#include "cnsts.fh"
 #include "addr_guga.fh"
 *
       IOUT=0

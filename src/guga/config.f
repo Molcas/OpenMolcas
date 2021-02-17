@@ -18,8 +18,8 @@
      &          JJS(*),ISO(*),ICOR(*),JONE(*),JREFX(*)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
-      COMMON/D/JNDX(500 000)
+#include "cnsts.fh"
+#include "d.fh"
       DIMENSION IOC(55),ISP(55)
 *
       JSYL=30000

@@ -16,7 +16,7 @@ C
       SUBROUTINE DECOMP(NN,A,UL)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(NN,NN),UL(NN,NN),SCALES(200)
-      COMMON /IPS/IPS(200)
+#include "ips.fh"
       N=NN
       IDXPIV=0 ! dummy initialize
 C**** INITIALIZE IPS, UL AND SCALES

@@ -11,4 +11,4 @@
 * Copyright (C) 1986, Per E. M. Siegbahn                               *
 ************************************************************************
 #include "cop.fh"
-      COMMON/ADDR/IADD11,IDUM
+      COMMON/ADDR_GUGA/IADD11,IDUM
