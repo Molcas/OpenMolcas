@@ -12,10 +12,13 @@
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
+      use Data_structures, only: CMO_Type, Allocate_CMO,
+     &                           Deallocate_CMO
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8),ipAsh(2)
       LOGICAL   ISQARX
+      Type (CMO_Type) Ash(2)
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
@@ -270,11 +273,12 @@ C *** Only the active orbitals MO coeff need reordering
            Do iSym=1,nSym
             nVB = nVB + nAsh(iSym)*nBasF(iSym)
            End Do
-           Call GetMem('Cva','Allo','Real',ipAsh(1),nVB)
-           Call GetMem('Cvb','Allo','Real',ipAsh(2),nVB)
+           Call Allocate_CMO(Ash(1),nAsh,nBasF,nSym)
+           Call Allocate_CMO(Ash(2),nAsh,nBasF,nSym)
+           ipAsh(1) = ip_of_Work(Ash(1)%CMO_Full(1))
+           ipAsh(2) = ip_of_Work(Ash(2)%CMO_Full(1))
 
            ioff=0
-           ioff1=0
            Do iSym=1,nSym
 
             ioff2 = ioff + nBasF(iSym)*nIsh(iSym)
@@ -283,16 +287,16 @@ C *** Only the active orbitals MO coeff need reordering
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               call dcopy_(nBasF(iSym),CMO1(ioff3+1),1,
-     &                 Work(ipAsh(1)+ioff1+ikk-1),nAsh(iSym))
+               Ash(1)%pA(iSym)%A(ikk,:) =
+     &             CMO1(ioff3+1:ioff3+nBasF(iSym))
 
-               call dcopy_(nBasF(iSym),CMO2(ioff3+1),1,
-     &                    Work(ipAsh(2)+ioff1+ikk-1),nAsh(iSym))
+               Ash(2)%pA(iSym)%A(ikk,:) =
+     &             CMO2(ioff3+1:ioff3+nBasF(iSym))
 
             end do
 
             ioff=ioff+(nIsh(iSym)+nAsh(iSym))*nBasF(iSym)
-            ioff1=ioff1+nAsh(iSym)*nBasF(iSym)
+*           ioff1=ioff1+nAsh(iSym)*nBasF(iSym)
 
            End Do
 
@@ -314,8 +318,8 @@ c ---     and compute the (tu|vx) integrals
              CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
            EndIf
 
-           Call GetMem('Cva','Free','Real',ipAsh(1),nVB)
-           Call GetMem('Cvb','Free','Real',ipAsh(2),nVB)
+           Call Deallocate_CMO(Ash(2))
+           Call Deallocate_CMO(Ash(1))
 
          EndIf
 
