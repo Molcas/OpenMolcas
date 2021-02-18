@@ -40,6 +40,9 @@
 ***                                                                  ***
 ************************************************************************
 ************************************************************************
+      use OFembed, only: OFE_first, Xsigma, dFMD
+      use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
+     &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb, Checker
 #include "real.fh"
@@ -52,13 +55,6 @@
       Character*4 DFTFOCK
       Character*16 NamRfil
       Real*8 Vxc_ref(2)
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
 *     Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
       Real*8 Func_A_TF, Func_B_TF
@@ -67,6 +63,9 @@
       External Xlambda
 *
       Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
+#ifdef _NOT_USED_
+      Real*8, Allocatable:: Vemb(:), D1ao_x(:)
+#endif
 *
       Debug=.False.
       is_rhoA_on_file = .False.
@@ -85,32 +84,32 @@
           Call mma_allocate(D1ao_y,nh1)
           Call Get_NameRun(NamRfil) ! save the old RUNFILE name
           Call NameRun('AUXRFIL')   ! switch RUNFILE name
-          Call GetMem('Vemb_M','Allo','Real', ipVemb, nh1)
-          Call Get_dArray('dExcdRa', Work(ipVemb), nh1)
+          Call mma_allocate(Vemb,nh1,label='Vemb')
+          Call Get_dArray('dExcdRa', Vemb, nh1)
           Call mma_allocate(TmpA,nh1,Label='TmpA')
           Call Get_dArray('Nuc Potential',TmpA,nh1)
 *    Substract V_nuc_B
-          Call daxpy_(nh1,-One,TmpA,1,Work(ipVemb),1)
+          Call daxpy_(nh1,-One,TmpA,1,Vemb,1)
 *    Calculate nonelectr. V_emb with current Density
           Ynorm=dDot_(nh1,WD1ao_y,1,D1ao_y,1)
-          V_emb_x=dDot_(nh1,Work(ipVemb),1,D1ao_y,1)
+          V_emb_x=dDot_(nh1,Vemb,1,D1ao_y,1)
           Write (6,'(A,F19.10,4X,A,F10.5)')
      &          'Nonelectr. Vemb w. current density: ', V_emb_x,
      &          'Y_Norm = ', Ynorm
           Call mma_deallocate(D1ao_y)
 *    Get rho_A_ref
           Call NameRun('PRERFIL')
-          Call GetMem('Dens','Allo','Real',ipD1ao_x,nDens)
-          Call get_dArray('D1ao',Work(ipD1ao_x),nDens)
-          Xnorm=dDot_(nh1,Work(ipD1ao_x),1,Work(ipD1ao_x),1)
-          V_emb_x_ref=dDot_(nh1,Work(ipVemb),1,Work(ipD1ao_x),1)
+          Call mma_allocate(D1ao_x,nDens,Label='D1ao_x')
+          Call get_dArray('D1ao',ipD1ao_x,nDens)
+          Xnorm=dDot_(nh1,D1ao_x,1,D1ao_x,1)
+          V_emb_x_ref=dDot_(nh1,Vemb,1,pD1ao_x,1)
           Write (6,'(A,F19.10,4X,A,F10.5)')
      &          'Nonelectr. Vemb w.    ref. density: ', V_emb_x_ref,
      &          'X_Norm = ', Xnorm
-          Call VEMB_Exc_states(Work(ipVemb),nh1,KSDFT,Func_B)
+          Call VEMB_Exc_states(Vemb,nh1,KSDFT,Func_B)
           Call mma_deallocate(TmpA)
-          Call GetMem('Dens','Free','Real',ipD1ao_x,nDens)
-          Call GetMem('Vemb_M','Free','Real', ipVemb, nh1)
+          Call mma_deallocate(D1ao_x)
+          Call mma_dealloacte(Vemb)
           Call NameRun(NamRfil)     ! switch back to RUNFILE
       End If
 *     --- Section End
@@ -249,8 +248,6 @@
      &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
-*   calculate v_T, Subsys A
-      Xint_Ts_A=dDot_(nh1,F_DFT(:,3),1,D_DS(:,3),1)
 *---
       Call wrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Func_A,
      &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
@@ -479,7 +476,7 @@ c Avoid unused argument warnings
       Call Get_iArray('nBas',mBas(0),mIrrep)
       Call Get_iArray('nFro',nFro(0),mIrrep)
       Call Get_iArray('nIsh',nIsh(0),mIrrep)
-      Call qpg_dArray('nAsh',F_nAsh,nOrbA)
+      Call qpg_iArray('nAsh',F_nAsh,nOrbA)
       If(.not.F_nAsh .or. nOrbA.eq.0) Then
          Call Izero(nAsh(0),mIrrep)
       Else
@@ -492,7 +489,7 @@ c Avoid unused argument warnings
 *                                                                      *
        If (KSDFT.eq.'LDTF/LSDA ' .or.
      &     KSDFT.eq.'LDTF/LDA  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(LSDA_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -506,7 +503,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/LSDA5' .or.
      &          KSDFT.eq.'LDTF/LDA5 ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(LSDA5_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -519,7 +516,7 @@ c Avoid unused argument warnings
 *      LDTF/PBE   (Thomas-Fermi for KE)                                *
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(PBE_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -532,7 +529,7 @@ c Avoid unused argument warnings
 *      NDSD/PBE   (NDSD for KE)                                        *
 *                                                                      *
        Else If (KSDFT.eq.'NDSD/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Call DrvNQ(PBE_emb2,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -545,7 +542,7 @@ c Avoid unused argument warnings
 *      LDTF/BLYP  (Thomas-Fermi for KE)                                *
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(BLYP_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -558,7 +555,7 @@ c Avoid unused argument warnings
 *      NDSD/BLYP  (NDSD for KE)                                        *
 *                                                                      *
        Else If (KSDFT.eq.'NDSD/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Call DrvNQ(BLYP_emb2,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -571,7 +568,7 @@ c Avoid unused argument warnings
 *      Kinetic only  (Thomas-Fermi)                                    *
 *                                                                      *
        Else If (KSDFT.eq.'TF_only') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=LDA_type
          Call DrvNQ(Ts_only_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -584,7 +581,7 @@ c Avoid unused argument warnings
 *      HUNTER  (von Weizsacker KE, no calc of potential)               *
 *                                                                      *
        Else If (KSDFT.eq.'HUNTER') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=GGA_type
          Call DrvNQ(vW_hunter,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -597,7 +594,7 @@ c Avoid unused argument warnings
 *      NUCATT                                                          *
 *                                                                      *
        Else If (KSDFT.eq.'NUCATT_EMB') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=LDA_type
          Call DrvNQ(nucatt_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -609,7 +606,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *     Checker
       Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=meta_GGA_type2
          Call DrvNQ(Checker,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -680,7 +677,7 @@ c Avoid unused argument warnings
 *                                                                      *
        If (KSDFT.eq.'LDTF/LSDA ' .or.
      &     KSDFT.eq.'LDTF/LDA  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(VWN_III_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -694,7 +691,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/LSDA5' .or.
      &          KSDFT.eq.'LDTF/LDA5 ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(VWN_V_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -708,7 +705,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/PBE  ' .or.
      &          KSDFT.eq.'NDSD/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cPBE_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -722,7 +719,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/BLYP ' .or.
      &          KSDFT.eq.'NDSD/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cBLYP_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -735,7 +732,7 @@ c Avoid unused argument warnings
 *     Checker                                                          *
 *                                                                      *
       Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=meta_GGA_type2
          Call DrvNQ(Checker,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,

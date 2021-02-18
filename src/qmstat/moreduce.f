@@ -43,7 +43,6 @@
 *--- First we accumulate the different density matrices.
 *
       nSize=nBas(1)*(nBas(1)+1)/2
-      nStri=nState*(nState+1)/2
       weight=ONE/dble(nState)
       Call GetMem('DenM','Allo','Real',iDin,nSize)
       Call GetMem('DenA','Allo','Real',iDav,nSize)

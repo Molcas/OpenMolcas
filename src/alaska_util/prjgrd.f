@@ -64,14 +64,12 @@
       Real*8 C(3), TC(3)
       Integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
       Character*80 Label
-      Logical JfGrad(3,4), TstFnc, TF, ABeq(3), EQ
+      Logical JfGrad(3,4), ABeq(3), EQ
+      Logical, External :: TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
-
 *
       iRout = 192
       iPrint = nPrint(iRout)
@@ -96,7 +94,6 @@
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
-      iComp = 1
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961

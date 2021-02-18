@@ -77,8 +77,7 @@
       Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
      &                       nDCRR)
       Integer, Pointer :: iData(:)
-      Logical TF, TstFnc
-      External TstFnc
+      Logical, External :: TF
       Interface
          SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,
      &                  Eta,EInv,nEta,
@@ -100,8 +99,6 @@
 *     Statement function to compute canonical index
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,7 +128,6 @@
 *
          Call ICopy(1024,nPrint,1,iSave,1)
          Call ICopy(1024,[5],0,nPrint,1)
-         iR = iDCRR(lDCRR)
 *
          Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))

@@ -29,7 +29,7 @@
 *> (in ``real*8`` words) actually used.
 *>
 *> @note
-*> cholesky.fh and choptr.fh must be initialized.
+*> cholesky.fh must be initialized.
 *>
 *> @param[out]    Scr   contains the vectors on exit
 *> @param[in]     lScr  dimension of \p Scr

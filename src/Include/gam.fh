@@ -16,5 +16,5 @@ c   Ein-Elektronen-Integrale fuer die R-Matrix.
      &        gammaph(-2:2*lgammax+3,-2:2*lgammax+4)
       Common /rgam/ gammath,gammaph
       Common /igam/ lgamma
-      Common /igam1/ n,m
+      Common /igam1/ n_gam,m_gam
 ************************************************************************

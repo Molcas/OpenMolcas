@@ -32,9 +32,6 @@
      &       Wout(mcd*ijkla)
       Logical Tr3, Pr3, Tr4, Pr4
 *
-      iRout = 59
-      iPrint = nPrint(iRout)
-*     Call RecPrt(' In CrSph1: (a0|cd) ',' ',Win,ijkla,kCar*lCar)
       If (Tr3.and.Tr4) Then
 *        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
 *        Starting with IJKL,a,cd transforming to D,IJKL,a,c

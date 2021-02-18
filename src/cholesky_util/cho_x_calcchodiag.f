@@ -33,27 +33,19 @@
 *> @param[out] Diag Array containing diagonal on exit
 ************************************************************************
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
       Real*8    Diag(*)
-      Character*17 SECNAM
-      Parameter (SECNAM = 'Cho_X_CalcChoDiag')
+      Character(LEN=17), Parameter :: SECNAM = 'Cho_X_CalcChoDiag'
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-************************************************************************
+      Real*8, Allocatable:: Lrs(:,:)
 
       Call fZero(Diag,nnBstRT(1))
 
@@ -93,7 +85,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
             nRS = nDimRS(JSYM,JRED)
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/Max(nRS,1),nVrs)
 
@@ -107,9 +99,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
                nBatch = -9999  ! dummy assignment
             End If
 
-            LREAD = nRS*nVec
-
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
+            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
 C --- BATCH over the vectors ----------------------------
 
@@ -126,11 +116,11 @@ C --- BATCH over the vectors ----------------------------
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,SIZE(Lrs),JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+                  Call mma_deallocate(Lrs)
                   rc=77
                   Return
                End If
@@ -148,9 +138,7 @@ C --- Stored in the 1st reduced set
 
                   Do jvc=1,JNUM
 
-                     ipL = ipLrs + nRS*(jvc-1)
-                     Diag(jrs) = Diag(jrs)
-     &                         + Work(ipL+krs-1)**2
+                     Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
                   End Do
 
                End Do
@@ -161,7 +149,7 @@ C --------------------------------------------------------------------
             END DO  ! end batch loop
 
 C --- free memory
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lrs)
 
 999         Continue
 

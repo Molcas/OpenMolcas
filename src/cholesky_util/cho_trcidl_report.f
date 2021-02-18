@@ -16,46 +16,44 @@ C     Thomas Bondo Pedersen, May 2010.
 C
 C     Report idle status for all processors
 C
+      Use Para_Info, Only: nProcs
+      use ChoArr, only: Idle
       Implicit None
 #include "cholesky.fh"
-#include "choptr2.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer i
       Integer nIdle
-      Integer ip, l
+      Integer, Allocatable:: TIloc(:)
 
 #if defined (_DEBUGPRINT_)
-      If (l_Idle.lt.1 .or. .not.Trace_Idle) Then
+      If (.NOT.Allocated(Idle) .or. .not.Trace_Idle) Then
          Write(LuPri,'(A)')
      &   'Cho_TrcIdl_Report should not be called in this run!'
          Write(LuPri,*) 'Trace_Idle=',Trace_Idle
-         Write(LuPri,'(A,2I10)')
-     &   'ip_Idle,l_Idle=',ip_Idle,l_Idle
          Call Cho_Quit('Illegal call to Cho_TrcIdl_Report',103)
       End If
 #endif
 
       If (Cho_Real_Par) Then
 #if defined (_DEBUGPRINT_)
+         l_Idle=0
+         If (Allocated(Idle)) l_Idle = SIZE(Idle)
          If (l_Idle.lt.nProcs) Then
             Write(LuPri,'(A)')
      &      'Error detected in Cho_TrcIdl_Report: l_Idle < nProcs'
             Write(LuPri,*) 'Trace_Idle=',Trace_Idle
-            Write(LuPri,'(A,2I10)')
-     &      'ip_Idle,l_Idle=',ip_Idle,l_Idle
             Call Cho_Quit(
      &               'Cho_TrcIdle_Report: l_Idle not properly set!',103)
          End If
 #endif
-         l=nProcs
-         Call GetMem('TIloc','Allo','Inte',ip,l)
-         Call iCopy(nProcs,iWork(ip_Idle),1,iWork(ip),1)
-         Call Cho_GAIGOp(iWork(ip),nProcs,'+')
+         Call mma_allocate(TIloc,[0,nProcs-1],Label='TILoc')
+         Call iCopy(nProcs,Idle,1,TIloc,1)
+         Call Cho_GAIGOp(TIloc,nProcs,'+')
          nIdle=0
          Do i=0,nProcs-1
-            nIdle=nIdle+min(iWork(ip+i),1)
+            nIdle=nIdle+min(TIloc(i),1)
          End Do
          If (nIdle.eq.0) Then
             Write(LuPri,'(A)')
@@ -67,20 +65,20 @@ C
             Write(LuPri,'(A)')
      &      'List of idle procs:'
             Do i=0,nProcs-1
-               If (iWork(ip+i).gt.0) Then
+               If (TIloc(i).gt.0) Then
                   Write(LuPri,'(I4,A,I8,A)')
-     &            i,' (Idle counter:',iWork(ip+i),')'
+     &            i,' (Idle counter:',TIloc(i),')'
                End If
             End Do
          End If
-         Call GetMem('TIloc','Free','Inte',ip,l)
+         Call mma_deallocate(TIloc)
       Else
-         If (iWork(ip_Idle).eq.0) Then
+         If (Idle(1).eq.0) Then
             Write(LuPri,'(A)')
      &      'No idle procs to report!'
          Else
             Write(LuPri,'(A,I8,A)')
-     &      'Proc 0 has been idle',iWork(ip_Idle),' times'
+     &      'Proc 0 has been idle',Idle(1),' times'
          End If
       End If
       Call Cho_Flush(LuPri)

@@ -10,18 +10,22 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine PXMem(nRys,MemPV,la,lb,lr)
+      Subroutine PXMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
       External NAMem, MltMem, EFMem, CntMem
 #include "property_label.fh"
 *
       If (PLabel.eq.'NAInt ') Then
-         Call PVMem(nRys,MemPV,la,lb,lr,NAMem)
+         Call PVMem(nHer,Mem,la,lb,lr,NAMem)
       Else If (PLabel.eq.'MltInt') Then
-         Call PVMem(nRys,MemPV,la,lb,lr,MltMem)
+         Call PVMem(nHer,Mem,la,lb,lr,MltMem)
       Else If (PLabel.eq.'EFInt ') Then
-         Call PVMem(nRys,MemPV,la,lb,lr,EFMem)
+         Call PVMem(nHer,Mem,la,lb,lr,EFMem)
       Else If (PLabel.eq.'CntInt') Then
-         Call PVMem(nRys,MemPV,la,lb,lr,CntMem)
+         Call PVMem(nHer,Mem,la,lb,lr,CntMem)
       Else
          Call WarningMessage(2,'PXMem: Illegal type!')
          Write(6,*) '       PLabel=',PLabel

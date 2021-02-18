@@ -12,6 +12,7 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
+      use output_caspt2, only:iPrGlb,usual,verbose,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -23,7 +24,6 @@
 * for which a group offset JSTATE_OFF is passed in.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -213,7 +213,7 @@ c Modify the Fock matrix if needed
           if (IPRGLB.ge.VERBOSE) then
             write(6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-            call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+            call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
           end if
         end do
 

@@ -35,8 +35,7 @@ cbs   integrals are thrown away after each l,l,l,l-block
       logical keep,keepcart,makemean,bonn,
      *        breiT,sameorb,cleaner,NFINI
 cbs   NFINI means not finite nucleus
-      dimension l2block(0:Lmax,0:Lmax,0:Lmax,0:Lmax),
-     *          onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
+      dimension onecartX(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
      *          onecartY(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
      *          onecartZ(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax),
      *powexp(MxprimL,MxprimL,0:Lmax,0:Lmax,0:(Lmax+Lmax+5)),coulovlp(*),
@@ -50,7 +49,6 @@ cbs ####################################################################
 cbs   some preparation of factors needed later on..                    #
 cbs ####################################################################
       ipnt(i,j)=(max(i,j)*max(i,j)-max(i,j))/2+min(i,j)
-      roottwo=sqrt(2d0)
 cbs   calculate some prefactors that will be needed quite often
       call prefac(Lmax,preroots,clebsch)
       if (ifinite.ne.2) then
@@ -130,18 +128,6 @@ cbs   counter for total number of cartesian integrals
 cbs   same orbit integrals integrals  on carteXSO carteYSO and carteSO
 cbs   other orbit integrals  on carteXOO carteYOO and carteOO
       iangfirst=0 ! first block of angular integrals
-cbs ####################################################################
-cbs   loop over all (l,l,l,l) blocks generated in the radial part      #
-cbs ####################################################################
-      do lrun4=0,Lmax
-      do lrun3=0,Lmax
-      do lrun2=0,Lmax
-      do lrun1=0,Lmax
-      l2block(lrun1,lrun2,lrun3,lrun4)=0
-      enddo
-      enddo
-      enddo
-      enddo
 cbs   loop over all possible < l1 l2, l3 l4 > blocks
 CBS   write(6,'(A)') '   L1   L2   L3   L4'
       do l1=0,Lhigh   ! improving is probably possible...
@@ -215,7 +201,6 @@ cbs   determine the size icont4 for the radial integrals
       call gencoul(l1,l2,l3,l4,makemean,bonn,breit,
      *             sameorb,conSO,conOO,icont4,powexp,coulovlp)
 !gen and trans integrals
-        l2block(l1,l2,l3,l4)=1  ! can be used for getting the
 cbs   local counter for integral adresses
         mblock=0 ! counter of (m,m,m,m)-blocks for (l1,l2,l3,l4)
 cbs     if keep is set to false, the angular integrals are

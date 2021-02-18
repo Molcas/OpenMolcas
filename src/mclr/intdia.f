@@ -54,7 +54,6 @@
 * ======
 *
 *       OBS THIS WILL JUST WORK FOR CASSCF/RASSCF RESPONSE
-      ISYM=ism(1)
       LUDIA=0
 
       if(doDMRG)then  ! yma

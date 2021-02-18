@@ -78,23 +78,24 @@
         Write(iStdOut,*) ' Using the INPORB file'
         If(LFirstRun) Then
           Write(iStdOut,*) ' This is first run of Get_MpProp'
-          Write(iStdOut,*)
-          If(Method.eq.'UHF-SCF') Then
-            Write(iStdOut,*) ' Number of alpha electrons', nOcOB
-          Else
-            Write(iStdOut,*) ' Occupation Number ', nOcOB
-          EndIf
-          Write(iStdOut,*) ' Number of Orbitals' , nOrb
+          !Write(iStdOut,*)
+          !If(Method.eq.'UHF-SCF') Then
+          !  Write(iStdOut,*) ' Number of alpha electrons', nOcOB
+          !Else
+          !  Write(iStdOut,*) ' Occupation Number ', nOcOB
+          !EndIf
+          !Write(iStdOut,*) ' Number of Orbitals' , nOrb
         Else
           Write(iStdOut,*) ' Running Get_MpProp for the second time'
-          Write(iStdOut,*) ' Number beta electrons ', nOcOB
-          Write(iStdOut,*) ' Number of Orbitals' , nOrb
+          !Write(iStdOut,*)
+          !Write(iStdOut,*) ' Number beta electrons ', nOcOB
+          !Write(iStdOut,*) ' Number of Orbitals' , nOrb
         EndIf
       Else
         Write(iStdOut,*)' Using the densities from a Molcas calculation'
       EndIf
       Write(iStdOut,*)
-* Set the varible that knowes the component
+* Set the variable that knows the component
       Do iMltpl = 0,nMltPl
          iComp=0
          Do np=iMltpl,0,-1
@@ -302,7 +303,6 @@ C
                CorN(2)= CorN(2)/Qn
                CorN(3)= CorN(3)/Qn
             endif
-            Q=Qp+Qn
             Qs=Qp-Qn
             if(Qs.ne.0.0D00) then
                FracP= Qp/Qs
@@ -352,7 +352,6 @@ C Find the closest atom
                If( ((iA.ne.nA) .and. (iA.ne.nB) ) .and.
      &             ( (Smallest.lt.RA) .and.  (Smallest.lt.RB) ) ) Then
                   iA=iA
-                  iB=0
                   FracA=1.0D0
                   FracB=0.0D0
                   Write(iStdOut,*)
@@ -363,11 +362,9 @@ C Find the closest atom
                   Write(iStdOut,*)
                Else
                   iA=nA
-                  iB=nB
                EndIf
             Else
                iA=nA
-               iB=nB
             EndIf
 
 *                                                                      *

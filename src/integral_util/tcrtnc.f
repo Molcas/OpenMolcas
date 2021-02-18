@@ -217,7 +217,6 @@
                iPrm1=Indij(iZeta)-(iPrm2-1)*nPrm1
 *--------------Check for zero due to segmented basis
                If (Abs(Coeff1(iPrm1,iCntr1)).gt.Zero) Then
-                  ijZeta=(iPrm2-1)*nPrm1 + iPrm1
                   Do iVec = iiVec, iiVec+mVec-1
                      A3(iZeta,iVec) = A3(iZeta,iVec) +
      &                 Coeff1(iPrm1,iCntr1)*

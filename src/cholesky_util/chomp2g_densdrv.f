@@ -19,18 +19,19 @@
 *              decomposed MP2 amplitudes.
 
 #include "implicit.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Real*8 EOcc(*), EVir(*), EFro(*),CMO(*)
       Character*7  ThisNm
       Character*15 SecNam
       Parameter (SecNam = 'ChoMP2g_DensDrv', ThisNm = 'DensDrv')
 
-      Integer ipWrk, lWrk
+      Integer lWrk
+      Real*8, Allocatable:: Wrk(:)
 
       irc = 0
 
-      Call GetMem('GetMax', 'Max','Real',ipWrk,lWrk)
+      Call mma_maxDBLE(lWrk)
 *     Leave 5% of the memory unallocated
 *     ----------------------------------
 #ifdef _I8_
@@ -38,13 +39,15 @@
 #else
       lWrk = lWrk-lWrk/20
 #endif
-      Call GetMem('GetMax','Allo','Real',ipWrk,lWrk)
-*      Call FZero(Work(ipWrk),lWrk)
+      Call mma_allocate(Wrk,lWrk,Label='Wrk')
+*     Wrk(:)=0.0D0
 
-      Call ChoMP2g_Reord_R(irc,Work(ipWrk),lWrk)
+      Call ChoMP2g_Reord_R(irc,Wrk,lWrk)
 
-      Call ChoMP2g_density1(irc,EOcc,EVir,EFro,Work(ipWrk),lWrk)
-      Call ChoMP2g_density2(irc,EOcc,EVir,EFro,Work(ipWrk),lWrk)
-      Call GetMem('GetMax','Free','Real',ipWrk,lWrk)
+      Call ChoMP2g_density1(irc,EOcc,EVir,EFro,Wrk,lWrk)
+      Call ChoMP2g_density2(irc,EOcc,EVir,EFro,Wrk,lWrk)
+
+      Call mma_deallocate(Wrk)
+
       Call ChoMP2g_density3(irc,CMO)
       End

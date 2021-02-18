@@ -14,23 +14,18 @@ C
 C     Purpose: compute integrals for NumPass integral passes starting at
 C              pass iPass1.
 C
+      use ChoSwp, only: IndRSh, InfVec
 #include "implicit.fh"
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*15 SecNam
-      Parameter (SecNam = 'Cho_GnVc_GetInt')
+      Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GetInt'
 
-      Parameter (N2 = InfVec_N2)
+      Integer, Allocatable:: SPTmp(:)
 
-      Integer  Cho_F2SP
-      External Cho_F2SP
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      IndRSh(i)=iWork(ip_IndRSh-1+i)
+      Integer, External:: Cho_F2SP
 
 C     Initialization and input check.
 C     -------------------------------
@@ -60,10 +55,8 @@ C     -------------------------------
 C     Set up list of shell pairs to compute.
 C     --------------------------------------
 
-      l_SPTmp = nnShl
-      Call Cho_Mem('SPTmp','Allo','Inte',ip_SPTmp,l_SPTmp)
-      Call Cho_iZero(iWork(ip_SPTmp),l_SPTmp)
-      kOff0 = ip_SPTmp - 1
+      Call mma_allocate(SPTmp,nnShl,Label='SPTmp')
+      SPTmp(:)=0
       NumSP = 0
       Do iPass = iPass1,iPass2
          Do iSym = 1,nSym
@@ -74,8 +67,8 @@ C     --------------------------------------
                jShAB = IndRsh(iAB) ! shell pair (full)
                iShAB = Cho_F2SP(jShAB) ! reduced shell pair
                If (iShAB .gt. 0) Then
-                  If (iWork(kOff0+iShAB) .eq. 0) Then ! register SP
-                     iWork(kOff0+iShAB) = 1
+                  If (SPTmp(iShAB) .eq. 0) Then ! register SP
+                     SPTmp(iShAB) = 1
                      NumSP = NumSP + 1
                      ListSP(NumSP) = iShAB
                   End If
@@ -85,12 +78,12 @@ C     --------------------------------------
             End Do
          End Do
       End Do
-      Call Cho_Mem('SPTmp','Free','Inte',ip_SPTmp,l_SPTmp)
+      Call mma_deallocate(SPTmp)
 
 C     Set memory used by Seward.
 C     --------------------------
 
-      Call GetMem('Int.Max','Max ','Real',kSewInt,lSewInt)
+      Call mma_maxDBLE(lSewInt)
       Call xSetMem_Ints(lSewInt)
 
 C     Loop through shell pair list.

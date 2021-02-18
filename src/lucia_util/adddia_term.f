@@ -42,8 +42,6 @@
 *. Output
       DIMENSION SVEC(*)
 *
-      IDUM=0
-*
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
 *

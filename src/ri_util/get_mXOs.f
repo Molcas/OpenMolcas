@@ -9,19 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Get_mXOs(kOrb,XO,locc,nSkal,nIrrep,nOcc)
+      use ChoArr, only: nBasSh
       Implicit Real*8 (a-h,o-z)
       Integer kOrb, nOcc(nIrrep), nSkal
       Real*8 XO(locc,nSkal,nIrrep)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
-************************************************************************
-*                                                                      *
-*     Statement function
-*
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
 *                                                                      *
 ************************************************************************
 *                                                                      *

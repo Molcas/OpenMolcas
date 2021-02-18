@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Qmstat(ireturn)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
 #include "maxi.fh"
@@ -25,8 +28,6 @@
       Dimension nOcc(MxBas),natyp(MxAt)
       Character Labjhr*4
 ****************
-      Logical  Is_Real_Par
-      External Is_Real_Par
 
 *
 *-- The journey begins. Set non-zero return code.

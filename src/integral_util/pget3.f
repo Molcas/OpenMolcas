@@ -43,7 +43,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
-         iComp = 1
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
       End If
 *

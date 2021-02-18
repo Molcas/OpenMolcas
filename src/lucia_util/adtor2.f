@@ -164,12 +164,12 @@ C?    RETURN
           END IF
         END IF
 *
-        IJOFF = (JJOFF-1)*NORB+IIOFF
-        KLOFF = (LLOFF-1)*NORB+KKOFF
+C       IJOFF = (JJOFF-1)*NORB+IIOFF
+C       KLOFF = (LLOFF-1)*NORB+KKOFF
 C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
         IF(IACTIVE.EQ.1) THEN
-          IJOFF = (JJOFF-1)*NORB+IIOFF
-          KLOFF = (LLOFF-1)*NORB+LLOFF
+C         IJOFF = (JJOFF-1)*NORB+IIOFF
+C         KLOFF = (LLOFF-1)*NORB+LLOFF
             DO II = 1, NII
               DO JJ = 1, NJJ
                 DO KK = 1, NKK
@@ -329,7 +329,6 @@ C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
                       J_PACK    = J + JOFF - 1
                       K_PACK    = K + KOFF - 1
                       L_PACK    = L + LOFF - 1
-                      JI = (I+IOFF-2)*NORB + J+JOFF - 1
                       IJ_PACK   = I_PACK*(I_PACK-1)/2 + J_PACK
                       JI_PACK   = J_PACK*(J_PACK-1)/2 + I_PACK
                       KL_PACK   = K_PACK*(K_PACK-1)/2 + L_PACK

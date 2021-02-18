@@ -129,7 +129,6 @@
 *---- Call to GetOrd to fill nBatch etc.
 *
       If (Option.eq.0) Then
-         rc_Dummy=-1
          Call GetOrd(rd_Dummy,lDummy,iDummy,nDummy1,nDummy2)
       End If
 *

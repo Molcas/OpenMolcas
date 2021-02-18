@@ -37,6 +37,6 @@
       Parameter ( LuQnUpd = 4  )
       Parameter ( mxQnVec = 50 )
 
-      Common /QnCtl1/ nQnVec,nQnItr
-      Common /QnCtl2/ QnAlpha(mxQnVec),QnBeta(mxQnVec)
-      Common /QnCtl3/ E1,E2,GpX1,GpX2,iXold,iGold
+      Common /QnCtl1_M/ nQnVec,nQnItr
+      Common /QnCtl2_M/ QnAlpha(mxQnVec),QnBeta(mxQnVec)
+      Common /QnCtl3_M/ E1,E2,GpX1,GpX2,iXold,iGold

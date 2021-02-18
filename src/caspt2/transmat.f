@@ -24,7 +24,7 @@
       real(8),allocatable :: B(:,:)
 
 * Allocate temporary array B
-      call mma_allocate(B,N,N)
+      call mma_allocate(B,N,N,Label='B')
       B=0.0d0
 
 * B = U^T * A

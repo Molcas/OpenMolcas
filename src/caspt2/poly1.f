@@ -23,7 +23,6 @@
 * MATRIX FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
@@ -33,7 +32,6 @@
       INTEGER LSGM1,LG1TMP
 
       INTEGER I
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
 
       IF(NLEV.GT.0) THEN

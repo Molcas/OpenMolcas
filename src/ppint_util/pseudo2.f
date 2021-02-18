@@ -32,7 +32,6 @@ c
       use iso_c_binding
       real*8, target :: a(*)
       integer, pointer :: ia1(:),ia13(:),ia14(:),ia15(:),ia16(:),ia17(:)
-      tol=20.*log(10.d0)
       fctr2=a4
       itl=llt(lit,1)
       itu=llt(lit,2)

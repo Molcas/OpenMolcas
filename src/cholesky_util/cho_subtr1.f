@@ -18,24 +18,22 @@ C              This version is I/O-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
+      use ChoArr, only: iScr, LQ
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
+      use ChoVecBuf, only: nVec_in_Buf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "chosubscr.fh"
-#include "cholq.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SUBTR1')
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-
-      PARAMETER (N2 = INFVEC_N2)
 
       INTEGER IOFF(0:1), IVSTAT(2,2)
 
@@ -46,14 +44,6 @@ C
 
       INTEGER  CHO_X_NUMRD
       EXTERNAL CHO_X_NUMRD
-
-      ISCR(I)=IWORK(ip_ISCR-1+I)
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
-      DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 C     Return if nothing to do.
 C     ------------------------
@@ -173,7 +163,6 @@ C        Read as many vectors as possible into buffer.
 C        ---------------------------------------------
 
          CALL CHO_TIMER(C1,W1)
-         IRED1 = INFVEC(IVEC1,2,ISYM)
          NVRD  = 0
          MUSED = 0
          CALL CHO_VECRD(WRK(KREAD),LREAD,IVEC1,NUMCHO(ISYM),ISYM,
@@ -290,21 +279,13 @@ C           -----------------------------------------------------
 
                   IF (JRED .NE. IREDC) THEN
                      ILOC = 3
-                     KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
-                     KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                               IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                               IWORK(ip_iSP2F),
-     &                               MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                               .FALSE.)
-                     CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  IWORK(ip_NNBSTRSH),NSYM,NNSHL,
-     &                                  ILOC)
+                     CALL CHO_GETRED(JRED,ILOC,.FALSE.)
+                     CALL CHO_SETREDIND(ILOC)
                      IREDC = JRED
                   END IF
 
                   IF (JRED .NE. IMAPC) THEN
-                     CALL CHO_RS2RS(IWORK(ip_ISCR),l_ISCR,2,3,JRED,ISYM)
+                     CALL CHO_RS2RS(ISCR,SIZE(ISCR),2,3,JRED,ISYM)
                      IMAPC = JRED
                   END IF
 
@@ -381,17 +362,16 @@ C              ----------------------------------------------------
 
             ELSE ! unscreened subtraction
 
-               IF (L_LQ_SYM(ISYM) .GT. 0) THEN
+               IF (Associated(LQ(ISYM)%Array)) THEN
 
 C                 If the qualified block, L({ab},#J), is already in
 C                 core, use this block.
 C                 -------------------------------------------------
 
-                  LOFF = IP_LQ_SYM(ISYM) + LDLQ(ISYM)*(IVEC1_1-1)
-
                   CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                             WORK(LOFF),LDLQ(ISYM),
+     &                             LQ(ISYM)%Array(:,IVEC1_1),
+     &                             SIZE(LQ(ISYM)%Array,1),
      &                       ONE,XINT,NNBSTR(ISYM,2))
 
                ELSE

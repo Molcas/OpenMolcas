@@ -25,6 +25,7 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
       use Real_Info, only: ThrInt, CutInt
+      use Integral_Interfaces, only: DeDe_SCF
       Implicit None
       External No_Routine
 #include "print.fh"
@@ -44,13 +45,13 @@
       Logical      lNoSkip, EnergyWeight
       Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,
      &             iOpt, ip_ij, ipDMax,
-     &             ipFragDensAO, ipOneHam, ipTMax, iRC, iPrint, iRout,
+     &             ipFragDensAO, ipOneHam, ipTMax, iRC,
      &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
      &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
-     &             nOneHam, Nr_Dens, nSkal, nSkal_Fragments,
+     &             nOneHam, Nr_Dens, nSkal,
      &             nSkal_Valence
 
-      Real*8       Aint, Count, Disc, Disc_Mx, Dix_Mx, Dtst, ExFac,
+      Real*8       Aint, Count, Disc, Disc_Mx, Dtst, ExFac,
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
       Real*8, Allocatable, Target:: Dens(:), Fock(:)
@@ -59,7 +60,6 @@
       Integer      iFD
       Character*80 Line
 #endif
-#include "../integral_util/dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -70,8 +70,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 203
-      iPrint = nPrint(iRout)
       call xFlush(6)
       ExFac=One
       Nr_Dens=1
@@ -204,7 +202,6 @@ c              ! position in fragment density matrix
       DoFock=.True.
       DoGrad=.False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-      nSkal_Fragments=nSkal-nSkal_Valence
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -213,7 +210,6 @@ c              ! position in fragment density matrix
       Disc_Mx=Zero
 *
       Disc=Zero
-      Dix_Mx=Zero
       TskHi=Zero
       TskLw=Zero
       ThrInt = CutInt   ! Integral neglect threshold from SCF
@@ -287,7 +283,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          lNoSkip = lNoSkip.and.lS.le.nSkal_Valence
 
          If (lNoSkip) Then
-           Call Eval_Ints_New_Internal
+           Call Eval_Ints_New_Inner
      &                    (iS,jS,kS,lS,TInt,nTInt,
      &                     iTOffs,No_Routine,
      &                     pDq,pFq,mDens,[ExFac],Nr_Dens,

@@ -29,8 +29,8 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 191
-      iPrint = nPrint(iRout)
+*     iRout = 191
+*     iPrint = nPrint(iRout)
 *     Call GetMem(' Enter CmbnMV','LIST','REAL',iDum,iDum)
 *
       Const = - One2C2/Four

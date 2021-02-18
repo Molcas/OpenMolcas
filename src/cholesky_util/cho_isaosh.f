@@ -12,10 +12,12 @@
 C
 C     Purpose: return symmetry of AO number IAO in shell ISHL.
 C
+#if defined (_DEBUGPRINT_)
+      use ChoArr, only: nBstSh
+#endif
+      use ChoArr, only: iBasSh
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       INTEGER  CHO_IRANGE
       EXTERNAL CHO_IRANGE
@@ -23,8 +25,6 @@ C
 #if defined (_DEBUGPRINT_)
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_ISAOSH')
-
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
       IF ((ISHL.GT.NSHELL) .OR. (ISHL.LT.1)) THEN
          WRITE(LUPRI,'(//,1X,A,A,I10)')
@@ -54,7 +54,6 @@ C
       END IF
 #endif
 
-      KIBASSH = ip_IBASSH + NSYM*(ISHL-1)
-      CHO_ISAOSH = CHO_IRANGE(IAO,IWORK(KIBASSH),NSYM,.FALSE.)
+      CHO_ISAOSH = CHO_IRANGE(IAO,IBASSH(1,ISHL),NSYM,.FALSE.)
 
       END

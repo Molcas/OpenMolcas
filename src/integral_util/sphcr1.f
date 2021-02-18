@@ -37,8 +37,6 @@
      &       Wout(mcd*ijkla)
       Logical Tr3, Pr3, Tr4, Pr4
 *
-      iRout = 59
-      iPrint = nPrint(iRout)
 *     iQ = 0
 *     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
       If (Tr3.and.Tr4) Then

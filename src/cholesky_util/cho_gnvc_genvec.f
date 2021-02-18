@@ -13,27 +13,26 @@
 C
 C     Purpose: generate Cholesky vectors from raw integral columns.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec, IndRed
+      use GnVcMp, only: RS2RS
 #include "implicit.fh"
+      Integer lInt
       Real*8  Diag(*), xInt(lInt)
+      Integer mSym,mPass
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
+      Integer iPass1,NumPass
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*15 SecNam
-      Parameter (SecNam = 'Cho_GnVc_GenVec')
+      Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GenVec'
 
       Integer NumCho_OLD(8), iOff1(8), iOff2(8)
 
-      Integer ip_mapRS2RS, l_mapRS2RS
-      Common / GnVcMp / ip_mapRS2RS(8), l_mapRS2RS(8)
+      Real*8, Allocatable:: Wrk(:), VecTmp(:)
 
-      Parameter (N2 = InfVec_N2)
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
+      mapRS2RS(i,j)=RS2RS(j)%Map(i)
 
 C     Check input.
 C     ------------
@@ -69,12 +68,13 @@ C     ------------
 C     Subtract previous vectors.
 C     --------------------------
 
-      Call Cho_Mem('MxM.Subt','Max ','Real',ip_Wrk,l_Wrk)
+      Call mma_maxDBLE(l_Wrk)
+      Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
       Do iSym = 1,nSym
          kOff = iOff_Col(iSym) + 1
-         Call Cho_Subtr(xInt(kOff),Work(ip_Wrk),l_Wrk,iSym)
+         Call Cho_Subtr(xInt(kOff),Wrk,SIZE(Wrk),iSym)
       End Do
-      Call Cho_Mem('MxM.Subt','Free','Real',ip_Wrk,l_Wrk)
+      Call mma_deallocate(Wrk)
 
 C     Initialize vector generation.
 C     -----------------------------
@@ -103,7 +103,7 @@ C     -----------------------------
          End Do
       End Do
       l_VecTmp = max(l_VecTmp,MxSubtr)
-      Call Cho_Mem('GnVc.Tmp','Allo','Real',ip_VecTmp,l_VecTmp)
+      Call mma_allocate(VecTmp,l_VecTmp,Label='VecTmp')
 
 C     Copy reduced set iPass1 to location 3.
 C     --------------------------------------
@@ -165,15 +165,14 @@ C        ---------------------------------------------------------
             Do iSym = 1,nSym
                Do iV = 1,nVecRS(iSym,iPass)
                   lTot = nnBstR(iSym,2)
-                  Call Cho_dZero(Work(ip_VecTmp),lTot)
-                  kOff0 = ip_VecTmp - 1
+                  VecTmp(1:lTot)=0.0D0
                   lOff0 = iOff1(iSym) + nnBstR(iSym,2)*(iV-1) - 1
                   Do lAB = 1,nnBstR(iSym,3)
                      jAB = IndRed(iiBstR(iSym,3)+lAB,3) - iiBstR(iSym,1)
                      kAB = mapRS2RS(iSym,jAB)
-                     Work(kOff0+kAB) = xInt(lOff0+kAB)
+                     VecTmp(kAB) = xInt(lOff0+kAB)
                   End Do
-                  Call dCopy_(lTot,Work(ip_VecTmp),1,xInt(lOff0+1),1)
+                  Call dCopy_(lTot,VecTmp,1,xInt(lOff0+1),1)
                End Do
             End Do
          End If
@@ -239,9 +238,7 @@ C           --------------------------------------------
      &                                          xInt(kOff2),1)
                End Do
 
-               Call Cho_SetVecInf(iWork(ip_InfVec),
-     &                            MaxVec,InfVec_N2,nSym,
-     &                            iVec,iSym,iAB,iPass,3)
+               Call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
 
                If (iPrint .ge. INF_PROGRESS) Then
                   iVecT = NumChT + iV
@@ -259,7 +256,7 @@ C           ----------------------------------------
                nAB = nAB - nVecRS(iSym,jPass)
             End Do
             If (nAB .gt. 0) Then
-               ip_Scr = ip_VecTmp
+               ip_Scr = 1
                iP = iPass
                jVec0 = -1
                Do While (iP.lt.iPass2 .and. jVec0.lt.0)
@@ -276,7 +273,7 @@ C           ----------------------------------------
                      jVec = jVec0 + iAB
                      jAB  = InfVec(jVec,1,iSym)
                      kAB  = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
-                     Work(kOff1+iAB) = xInt(kOff2+kAB)
+                     VecTmp(kOff1+iAB) = xInt(kOff2+kAB)
                   End Do
                End Do
                kOff1 = iOff1(iSym)
@@ -285,7 +282,7 @@ C           ----------------------------------------
                Call DGEMM_('N','T',
      &                    nnBstR(iSym,2),nAB,nVecRS(iSym,iPass),
      &                    -1.0d0,xInt(kOff1),nnBstR(iSym,2),
-     &                           Work(ip_Scr),nAB,
+     &                           VecTmp,nAB,
      &                     1.0d0,xInt(kOff2),nnBstR(iSym,2))
             End If
 
@@ -295,14 +292,14 @@ C           -----------------------------------------------------------
 
             If (iPass .gt. iPass1) Then
                lTot = nnBstR(iSym,2)*nVecRS(iSym,iPass)
-               Call dCopy_(lTot,xInt(iOff1(iSym)),1,Work(ip_VecTmp),1)
+               Call dCopy_(lTot,xInt(iOff1(iSym)),1,VecTmp,1)
                Do iV = 1,nVecRS(iSym,iPass)
                   kOff0 = iOff2(iSym) + nnBstR(iSym,3)*(iV-1) - 1
-                  lOff0 = ip_VecTmp + nnBstR(iSym,2)*(iV-1) - 1
+                  lOff0 = nnBstR(iSym,2)*(iV-1)
                   Do kAB = 1,nnBstR(iSym,3)
                      jAB = IndRed(iiBstR(iSym,3)+kAB,3)
                      lAB = mapRS2RS(iSym,jAB-iiBstR(iSym,1))
-                     xInt(kOff0+kAB) = Work(lOff0+lAB)
+                     xInt(kOff0+kAB) = VecTmp(lOff0+lAB)
                   End Do
                End Do
             End If
@@ -365,10 +362,9 @@ C        Set next (iPass+1) reduced set at location 2.
 C        Reduced set iPass1 is now stored at location 3.
 C        -----------------------------------------------
 
-         Call Cho_SetRed(Diag,iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                   iWork(ip_IndRed),nSym,nnBstRT(1),nnShl)
+         Call Cho_SetRed(Diag)
          jPass = iPass + 1
-         Call Cho_SetRSDim(iWork(ip_nDimRS),nSym,MaxRed,jPass,2)
+         Call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
          If (iPrint .ge. INF_PASS) Then
             Call Cho_PrtRed(2)
             Call Cho_Flush(Lupri)
@@ -391,7 +387,7 @@ C        -----------------------------------------------
 C     Deallocate temporary vector array.
 C     ----------------------------------
 
-      Call Cho_Mem('GnVc.Tmp','Free','Real',ip_VecTmp,l_VecTmp)
+      Call mma_deallocate(VecTmp)
 
 C     Write vectors to disk.
 C     ----------------------

@@ -135,7 +135,7 @@
 *
 *           Get list of natural isotopes
 *
-            Subs=ElementList(AtNum)%Nat
+            Subs=Max(ElementList(AtNum)%Natural,1)
          End If
 *
          dMass = Mass(i)
@@ -184,7 +184,7 @@
 *
 *           Loop over all natural isotopes of this element.
 *
-            Do k = 1, ElementList(iElement)%Nat
+            Do k = 1, Max(ElementList(iElement)%Natural,1)
                IsoNum=ElementList(iElement)%Isotopes(k)%A
                Call Isotope(IsoNum,iElement,MassIso)
 *
@@ -243,7 +243,7 @@
                End If
             End Do
          Else
-            Subs=ElementList(AtNum)%Nat
+            Subs=Max(ElementList(AtNum)%Natural,1)
          End If
 *
 *        All isotopes first atom
@@ -267,7 +267,7 @@
                      End If
                   End Do
                Else
-                  Subs2=ElementList(AtNum2)%Nat
+                  Subs2=Max(ElementList(AtNum2)%Natural,1)
                End If
 *
 *              All isotopes for second atom

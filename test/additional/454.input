@@ -17,6 +17,7 @@ NNEQ
 2  T  F
 1  1
 2  4
+OLDA
 End of input
 
 *  2
@@ -25,6 +26,7 @@ NNEQ
 2  T  F
 1  1
 2  2
+OLDA
 LIN1
 1
 1  2  0.0
@@ -38,6 +40,7 @@ NNEQ
 2  2
 XFIE
 0.01
+OLDA
 LIN1
 1
 1  2  0.0
@@ -45,6 +48,7 @@ End of input
 
 *  4
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  T  F
 1  1
@@ -67,6 +71,7 @@ XFIE
 LIN1
 1
 1  2   2.0
+OLDA
 End of input
 
 *  6
@@ -75,6 +80,7 @@ NNEQ
 2  T  F
 1  1
 2  2
+OLDA
 PAIR
 1
 1  2  -0.5
@@ -86,6 +92,7 @@ NNEQ
 2  T  F
 1  1
 2  2
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
@@ -93,6 +100,7 @@ End of input
 
 *  8
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  T  F
 1  1
@@ -113,6 +121,7 @@ MVEC
 2
 1.0 0.0 0.0
 0.0 0.0 1.0
+OLDA
 End of input
 
 * 10
@@ -130,6 +139,7 @@ ZEEM
 1.0 0.0 0.0
 0.0 1.0 0.0
 0.0 0.0 1.0
+OLDA
 End of input
 
 * 11
@@ -138,6 +148,7 @@ MVEC
 2
 1.0 0.0 0.0
 0.0 0.0 1.0
+OLDA
 NNEQ
 2  T  F
 1  1
@@ -153,6 +164,7 @@ End of input
 
 * 12
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  T  F
 1  1
@@ -175,6 +187,7 @@ LIN3
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
+OLDA
 End of input
 
 * 14
@@ -189,6 +202,7 @@ LIN9
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
+OLDA
 End of input
 
 * 15
@@ -200,6 +214,7 @@ NNEQ
 LIN1
 1
 1  2  -0.5
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
@@ -221,6 +236,7 @@ COOR
 0.0  0.0  -1.0
 TINT
 0.0  14  55
+OLDA
 End of input
 
 * 17
@@ -237,6 +253,7 @@ COOR
 0.0  0.0  -1.0
 HINT
 0.0  3.4  18
+OLDA
 End of input
 
 * 18
@@ -255,6 +272,7 @@ COOR
 0.0  0.0  -1.0
 HINT
 0.0  3.4  18
+OLDA
 End of input
 
 * 19
@@ -268,6 +286,7 @@ NNEQ
 2  T  F
 1  1
 2  2
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
@@ -283,10 +302,12 @@ NNEQ
 2  T  F
 1  1
 2  2
+OLDA
 End of input
 
 * 21
 &POLY_ANISO &END
+OLDA
 XFIE
 12.0
 NNEQ
@@ -308,6 +329,7 @@ NNEQ
 2  T  F
 2  1
 2  2
+OLDA
 SYMM
 1
  1.0  0.0  0.0
@@ -324,6 +346,7 @@ End of input
 
 * 23
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  T  F
 2  1
@@ -347,6 +370,7 @@ End of input
 
 * 24
 &POLY_ANISO &END
+OLDA
 SYMM
 1
  1.0  0.0  0.0
@@ -386,6 +410,7 @@ SYMM
 -1.0  0.0  0.0
  0.0 -1.0  0.0
  0.0  0.0 -1.0
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
@@ -412,6 +437,7 @@ SYMM
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
+OLDA
 End of input
 
 * 27
@@ -437,6 +463,7 @@ PAIR
  1 2   0.1
  1 3   0.0
  2 3  -0.5
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
@@ -453,6 +480,7 @@ NNEQ
 2  T  F
 1  2
 2  2
+OLDA
 SYMM
 1
  1.0  0.0  0.0
@@ -496,10 +524,12 @@ SYMM
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
+OLDA
 End of input
 
 * 30
 &POLY_ANISO &END
+OLDA
 LIN3
  3
  1 2   0.1  0.1  0.0
@@ -544,6 +574,7 @@ NNEQ
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
+OLDA
 SYMM
 1
  1.0  0.0  0.0
@@ -564,6 +595,7 @@ End of input
 
 * 32
 &POLY_ANISO &END
+OLDA
 LIN3
  3
  1 2   0.1  0.1  0.0
@@ -595,6 +627,7 @@ End of input
 &POLY_ANISO &END
 XFIE
 12.0
+OLDA
 NNEQ
 2  T  F
 1  2
@@ -624,6 +657,7 @@ NNEQ
 MLTP
 3
 2 2 2
+OLDA
 SYMM
 1
  1.0  0.0  0.0
@@ -654,6 +688,7 @@ LIN3
  1 2   0.0  0.0  0.0
  1 3   0.0  0.0  0.0
  2 3   0.0  0.0  0.0
+OLDA
 SYMM
 1
  1.0  0.0  0.0

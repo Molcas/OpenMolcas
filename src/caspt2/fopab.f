@@ -13,7 +13,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
@@ -131,7 +130,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 10
-          CALL SIGMA1_CP2(LEVT,LEVU,FTU,LSYM,WORK(LKET),WORK(LSGM),
+          CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LKET),WORK(LSGM),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -184,7 +183,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0D-16) GOTO 20
-          CALL SIGMA1_CP2(LEVT,LEVU,FTU,LSYM,WORK(LBRA),WORK(LSGM),
+          CALL SIGMA1_CP2(LEVT,LEVU,FTU,STSYM,WORK(LBRA),WORK(LSGM),
      &         IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
      &         IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &         WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))

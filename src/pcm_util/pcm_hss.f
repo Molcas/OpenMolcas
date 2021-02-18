@@ -21,9 +21,6 @@
       Dimension Hess(nHss)
       Character*2 Elements(MxAtom*8)
 *
-      iRout = 1
-      iPrint = nPrint(iRout)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Compute the PCM cavity contributions to Hessian in solution

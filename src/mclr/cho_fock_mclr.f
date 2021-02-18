@@ -18,20 +18,20 @@
 *  Author : M. G. Delcey                                               *
 *                                                                      *
 ************************************************************************
+      use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_MCLR')
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kaOff(8),ipLpq(8,3)
+      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),ipLpq(8,3)
       Integer   ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 DA(*), G2(*), JA(*), KA(*), FkA(*), CMO(*), CVa(nVB,2)
-      parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
       parameter (FactCI = -2.0D0, FactXI = 0.5D0)
       Character*6 mode
@@ -43,12 +43,6 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
 ************************************************************************
 *
       nDen=1
@@ -57,7 +51,6 @@
 *
       ISTLT(1)=0
       ISTSQ(1)=0
-      kAOff(1)=0
       nnA=0
       nsBB=nBas(1)**2
       DO ISYM=2,NSYM
@@ -66,7 +59,6 @@
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
         nnA = nnA + nAsh(iSym-1)
-        kAOff(iSym)=nnA
       End Do
       nnA = nnA + nAsh(nSym)
 *
@@ -122,8 +114,6 @@
 *
         JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
         JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
-        myJRED1=JRED1 ! first red set present on this node
-        myJRED2=JRED2 ! last  red set present on this node
 
 c --- entire red sets range for parallel run
         Call GAIGOP_SCAL(JRED1,'min')
@@ -193,7 +183,6 @@ c         !set index arrays at iLoc
      &                     NUMV,IREDC,MUSED)
 
             If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-               rc=77
                RETURN
             End If
 *
@@ -218,10 +207,6 @@ C -------------------------------------------------------------
                 lChoa= lChoa + nAsh(k)*nBas(i)*3*JNUM
 
              End Do
-
-             iSwap = 0  ! Lvb,J are returned
-             kMOs = 1  !
-             nMOs = 1  ! Active MOs (1st set)
 *
 **  Read half-transformed cho vectors
 *

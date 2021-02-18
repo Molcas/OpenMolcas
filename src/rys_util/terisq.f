@@ -32,10 +32,9 @@
      &       rKapab(nT), rKapcd(nT),
      &       T(nT), Fact(nT), ZEInv(nT)
 *
+#ifdef _DEBUGPRINT_
       iRout = 56
       iPrint = nPrint(iRout)
-*
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TERISq',' ',Zeta,nT,1)
          Call RecPrt(' P in TERISq',' ',P,nT,3)

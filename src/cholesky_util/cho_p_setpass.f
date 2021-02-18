@@ -21,6 +21,7 @@ C              Conv=.True. if converged and nPotSh is the number of
 C              shell pairs whose max. diagonal element is larger than
 C              the decomposition threshold.
 C
+      use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
       Logical Sync, Conv
@@ -29,7 +30,6 @@ C
       Integer iLoc, nPotSh
 #include "cho_para_info.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       If (Cho_Real_Par) Then
 
@@ -45,7 +45,7 @@ C        original serial routine.
 C        -------------------------------------------------------------
 
          Call Cho_P_IndxSwp()
-         Call Cho_SetPass(Work(ip_Diag_G),DiaSh,iSySh,iLoc,Conv,nPotSh)
+         Call Cho_SetPass(Diag_G,DiaSh,iSySh,iLoc,Conv,nPotSh)
          Call Cho_P_IndxSwp()
 
       Else

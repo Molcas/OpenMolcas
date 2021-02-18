@@ -55,11 +55,10 @@
 #define _no_nShs_
 #include "iTOffs.fh"
 *
-#include "para_info.fh"
-      Character*6 Name_R*6
+      Character Name_R*6
       Integer iOff_3C(3,0:7), Lu_R(0:7), iAddr_R(0:7), iMax_R(2,0:7),
      &        iTtmp(0:7), NoChoVec(0:7), iOff_Rv(0:7)
-      Logical Verbose, Indexation, FreeK2, Distribute,
+      Logical Verbose, Indexation, FreeK2,
      &        DoGrad, DoFock, Out_of_Core, Rsv_Tsk, Reduce_Prt
       External Reduce_Prt
 *                                                                      *
@@ -77,12 +76,6 @@
 ************************************************************************
 *                                                                      *
       iRout = 9
-*
-#ifdef  _MOLCAS_MPP_
-      Distribute = nProcs.gt.1 .and. Is_Real_Par()
-#else
-      Distribute = .False.
-#endif
 *
 *     Get global print level
 *
@@ -249,9 +242,9 @@
       n3CMax=0
       nRvMax=0
       Call IZero(iMax_R,2*nIrrep)
-      Do klS = 1, nSkal2
-         kS = iWork(ip_iShij+(klS-1)*2  )
-         lS = iWork(ip_iShij+(klS-1)*2+1)
+      Do klS_ = 1, nSkal2
+         kS = iWork(ip_iShij+(klS_-1)*2  )
+         lS = iWork(ip_iShij+(klS_-1)*2+1)
          nRv = nSize_Rv(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_Rv,
      &                  nChV)
          nRvMax = Max (nRvMax,nRv)
@@ -486,14 +479,14 @@ C      End Do    ! klS
       Call GetMem('LBList','Allo','Inte',ip_LB,nSkal2)
       Call ICopy(nSkal2,[-1],0,iWork(ip_LB),1)
       Do iTask = 1, nTask
-         klS = iWork(ip_iRv-1+iTask)
-         iWork(ip_tmp-1+klS) = 1
+         klS_ = iWork(ip_iRv-1+iTask)
+         iWork(ip_tmp-1+klS_) = 1
       End Do
 *
       iLB=0
-      Do klS = 1, nSkal2
-         If (iWork(ip_tmp-1+klS).eq.1) Then
-            iWork(ip_LB+iLB)=klS
+      Do klS_ = 1, nSkal2
+         If (iWork(ip_tmp-1+klS_).eq.1) Then
+            iWork(ip_LB+iLB)=klS_
             iLB=iLB+1
          End If
       End Do
@@ -603,9 +596,9 @@ C      End Do    ! klS
 *
          iWork(ip_Addr) = 0
          Do i=2,nTask  ! init the addr for reading vectors
-               klS = iWork(ip_iRv-1+i-1)
-               kS = iWork(ip_iShij+(klS-1)*2  )
-               lS = iWork(ip_iShij+(klS-1)*2+1)
+               klS_ = iWork(ip_iRv-1+i-1)
+               kS = iWork(ip_iShij+(klS_-1)*2  )
+               lS = iWork(ip_iShij+(klS_-1)*2+1)
                n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
@@ -630,9 +623,9 @@ C      End Do    ! klS
 *           irrep, but for all auxiliary functions.
 *
             mMuNu=0
-            Do klS = 1, nSkal2
-               kS = iWork(ip_iShij+(klS-1)*2  )
-               lS = iWork(ip_iShij+(klS-1)*2+1)
+            Do klS_ = 1, nSkal2
+               kS = iWork(ip_iShij+(klS_-1)*2  )
+               lS = iWork(ip_iShij+(klS_-1)*2+1)
                n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
@@ -643,17 +636,17 @@ C      End Do    ! klS
                MuNu_s=mMuNu+1
                MuNu_e=mMuNu+nMuNu
 *
-               iWork(iLst +(klS-1)*2  ) = MuNu_s
-               iWork(iLst +(klS-1)*2+1) = MuNu_e
+               iWork(iLst +(klS_-1)*2  ) = MuNu_s
+               iWork(iLst +(klS_-1)*2+1) = MuNu_e
 *
  555           Continue
                mMuNu = mMuNu + nMuNu
             End Do
 *
             Do i = 1, nTask
-               klS = iWork(ip_iRv-1+i)
-               kS = iWork(ip_iShij+(klS-1)*2  )
-               lS = iWork(ip_iShij+(klS-1)*2+1)
+               klS_ = iWork(ip_iRv-1+i)
+               kS = iWork(ip_iShij+(klS_-1)*2  )
+               lS = iWork(ip_iShij+(klS_-1)*2+1)
 *
                n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
@@ -668,8 +661,8 @@ C      End Do    ! klS
 *              Copy the appropriate section into the RI vectors in
 *              Cholesky format.
 *
-               MuNu_s = iWork(iLst +(klS-1)*2  )
-               MuNu_e = iWork(iLst +(klS-1)*2+1)
+               MuNu_s = iWork(iLst +(klS_-1)*2  )
+               MuNu_e = iWork(iLst +(klS_-1)*2+1)
                j_s=1
                j_e=NumVec_
                Call Put_Chunk(ip_ChoVec,MuNu_s,MuNu_e,

@@ -94,7 +94,7 @@
 *                                                                      *
 *     Call to subroutine with extended parameter list.
 *
-      Call Eval_Ints_New_Internal
+      Call Eval_Ints_New_Inner
      &               (iiS,jjS,kkS,llS,TInt,nTInt,
      &                iTOffs,Integ_Proc,
      &                Dens,Fock,lDens,ExFac,nDens,

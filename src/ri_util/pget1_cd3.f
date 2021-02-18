@@ -40,18 +40,13 @@
       Real*8 PAO(ijkl,nPAO), DSO(nDSO), DSSO(nDSO), V_k(mV_k),
      &       U_k(mV_k), DSO_Var(nDSO)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-      Logical Shijij, skip
+      Logical Shijij
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
-      End If
+      iComp = 1
+      Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
 #endif
 *                                                                      *
 ************************************************************************
@@ -67,7 +62,6 @@ C     Fac = One / Four
 
       Fac = One / Two
       PMax=Zero
-      skip = .false.
       iPAO = 0
       jSym = 1
       kSym = 1

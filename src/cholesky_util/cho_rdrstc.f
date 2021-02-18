@@ -17,11 +17,10 @@ C              defined/initialized.
 C
 C     NB!!!! the restart files MUST be open on entry...
 C
+      use ChoSwp, only: InfRed, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_RDRSTC')
@@ -32,8 +31,6 @@ C
       PARAMETER (LSCR = 8)
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
-
-      INFRED(I)=IWORK(ip_INFRED-1+I)
 
 C     Set return code.
 C     ----------------
@@ -105,16 +102,16 @@ C     ------------------------
          GO TO 100
       ELSE
          IOPT = 2
-         CALL IDAFILE(LURST,IOPT,IWORK(ip_INFRED),XNPASS,IADR)
+         INFRED(:) = 0
+         CALL IDAFILE(LURST,IOPT,INFRED,XNPASS,IADR)
          IF (INFRED(1) .NE. 0) THEN
             WRITE(LUPRI,'(A,A,I10)')
-     &      SECNAM,': disk address of 1st reduced set:',IWORK(ip_INFRED)
+     &      SECNAM,': disk address of 1st reduced set:',INFRED(1)
             IFAIL = 4
             GO TO 100
          END IF
-         LREST = MAXRED - XNPASS
-         IF (LREST .GT. 0) CALL CHO_IZERO(IWORK(ip_INFRED+XNPASS),LREST)
       END IF
+
       DO ISYM = 1,NSYM
          IOPT = 2
          NRD  = 1
@@ -126,21 +123,13 @@ C     ------------------------
             IFAIL = 5
             GO TO 100
          ELSE IF (NUMCHO(ISYM) .EQ. 0) THEN
-            NDIM = MAXVEC*INFVEC_N2
-            KOFF = ip_INFVEC + NDIM*(ISYM-1)
-            CALL CHO_IZERO(IWORK(KOFF),NDIM)
+            INFVEC(:,:,ISYM) = 0
          ELSE
-            DO J = 1,INFVEC_N2
+            INFVEC(:,:,ISYM) = 0
+            DO J = 1,SIZE(INFVEC,2)
                IOPT = 2
-               KOFF = ip_INFVEC + MAXVEC*INFVEC_N2*(ISYM-1)
-     &              + MAXVEC*(J-1)
-               CALL IDAFILE(LURST,IOPT,IWORK(KOFF),NUMCHO(ISYM),IADR)
-               LREST = MAXVEC - NUMCHO(ISYM)
-               IF (LREST .GT. 0) THEN
-                  KOFF = ip_INFVEC + MAXVEC*INFVEC_N2*(ISYM-1)
-     &                 + MAXVEC*(J-1) + NUMCHO(ISYM)
-                  CALL CHO_IZERO(IWORK(KOFF),LREST)
-               END IF
+               CALL IDAFILE(LURST,IOPT,INFVEC(:,J,ISYM),NUMCHO(ISYM),
+     &                      IADR)
             END DO
          END IF
       END DO

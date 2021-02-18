@@ -153,7 +153,7 @@ c     N.B. use and destroy : all
 c     N.B. # of reads      : 4
 c
 c
-c        Paralell status
+c        Parallel status
 c
 c        Alternatives:
 c
@@ -184,10 +184,11 @@ c        a case on idaaaa, and idbbbb nodes contr. F13.1 and F13.3 resp.
 c        are set (nod add) directly to corresp. F1. On pilot nodes,
 c       cont. F13.2 and F13.4 are standardly added to F1's
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
        integer lunt2o1,lunt2o2,lunt2o3
@@ -197,16 +198,16 @@ c
 c     help variables
 c
        integer n1aalfa,n1abeta,n2aalfa,n2abeta
-       integer m1lenght,m2lenght,h1lenght,h2lenght,h3lenght
+       integer m1length,m2length,h1length,h2length,h3length
        integer syma,a
        integer rc,posst
        integer ssm3,ssm4,ssh4
 c
-c     paralell parameters
+c     parallel parameters
        integer yesa,yesb
 c
 c
-cA0   paralell
+cA0   parallel
 c
 c     I.par.1  - escape, if this node is not reserved for sumoverb_a
 c
@@ -338,13 +339,13 @@ c     H3(m,e,j) - <ma||ej>baba = W3(m,e,a,j)bbaa
 c     free: M3,M4,H4
 c
 cB.3  get mapd and mapi for M1,M2
-       call getmap (n1aalfa,possm10,m1lenght,mapdm1,mapim1,rc)
-       call getmap (n1aalfa,possm20,m2lenght,mapdm2,mapim2,rc)
+       call getmap (n1aalfa,possm10,m1length,mapdm1,mapim1,rc)
+       call getmap (n1aalfa,possm20,m2length,mapdm2,mapim2,rc)
 c
 cB.4  get mapd and mapi for H1 - H3
-       call getmap (n2aalfa,possh10,h1lenght,mapdh1,mapih1,rc)
-       call getmap (n2aalfa,possh20,h2lenght,mapdh2,mapih2,rc)
-       call getmap (n2aalfa,possh30,h3lenght,mapdh3,mapih3,rc)
+       call getmap (n2aalfa,possh10,h1length,mapdh1,mapih1,rc)
+       call getmap (n2aalfa,possh20,h2length,mapdh2,mapih2,rc)
+       call getmap (n2aalfa,possh30,h3length,mapdh3,mapih3,rc)
 c
 cB.5  write mapd and mapi of W3aaaa(H1), W3baab(H2) and W3bbaa(H3)
 cpar
@@ -361,8 +362,8 @@ c
        end if
 c
 c
-cB.6  skip cycle over a if lenght of all files is zero
-       if ((m1lenght+m2lenght+h1lenght+h2lenght+h3lenght).eq.0) goto
+cB.6  skip cycle over a if length of all files is zero
+       if ((m1length+m2length+h1length+h2length+h3length).eq.0) goto
      & 3000
 c
        do 2500 a=1,nva(syma)
@@ -371,13 +372,13 @@ c
         end if
 c
 c
-       if (h1lenght.gt.0) then
+       if (h1length.gt.0) then
 cW31.1.1    read H1(m,e,j) = <ma||ej>aaaa
 cpar
        if (myRank.eq.idaaaa) then
-       call rea (n2aalfa,h1lenght,wrk(possh10))
+       call rea (n2aalfa,h1length,wrk(possh10))
        else
-       call reajalovy (n2aalfa,h1lenght,wrk(possh10))
+       call reajalovy (n2aalfa,h1length,wrk(possh10))
        end if
 c
 c     Status:
@@ -455,13 +456,13 @@ c
 c
 c
 c
-       if (h2lenght.gt.0) then
+       if (h2length.gt.0) then
 cW31.5read H2(m,e,j) = <ma||ej>baab
 cpar
         if (myRank.eq.idbaab) then
-       call rea (n2aalfa,h2lenght,wrk(possh20))
+       call rea (n2aalfa,h2length,wrk(possh20))
         else
-       call reajalovy (n2aalfa,h2lenght,wrk(possh20))
+       call reajalovy (n2aalfa,h2length,wrk(possh20))
         end if
 
 c
@@ -528,13 +529,13 @@ c
 c
 c
 c
-       if (h3lenght.gt.0) then
+       if (h3length.gt.0) then
 cW31.6read H3(m,e,j) = <ma||ej>baba
 cpar
          if (myRank.eq.idbbaa) then
-       call rea (n2aalfa,h3lenght,wrk(possh30))
+       call rea (n2aalfa,h3length,wrk(possh30))
         else
-       call reajalovy (n2aalfa,h3lenght,wrk(possh30))
+       call reajalovy (n2aalfa,h3length,wrk(possh30))
         end if
 c
 c     Status:
@@ -635,14 +636,14 @@ c
 c
 c
 c
-       if (m1lenght.gt.0) then
+       if (m1length.gt.0) then
 c
 cB.7  read M1(m,ef) = <ma||ef>aaaa
 cpar
         if (myRank.eq.idaaaa) then
-       call rea (n1aalfa,m1lenght,wrk(possm10))
+       call rea (n1aalfa,m1length,wrk(possm10))
         else
-       call reajalovy (n1aalfa,m1lenght,wrk(possm10))
+       call reajalovy (n1aalfa,m1length,wrk(possm10))
         end if
 c
 c     Status:
@@ -715,8 +716,8 @@ cW32.1.3    H1(W3aaaa)(m,e,j) <- +1.0d0 . M4(m,e,j)
      & mapdm4,syma,mapdh1,mapih1,syma,rc)
 c
 cW3.1 write W3aaaa(m,e,j) to  lunw3aaaa file if size is not zero
-       if (h1lenght.gt.0) then
-       call wri (lunw3aaaa,h1lenght,wrk(possh10))
+       if (h1length.gt.0) then
+       call wri (lunw3aaaa,h1length,wrk(possh10))
        end if
 c
 c     ------- cont to FI3
@@ -746,13 +747,13 @@ c
 c
 c
 c
-       if (m2lenght.gt.0) then
+       if (m2length.gt.0) then
 cB.8  read M2(m,e,f) = <ma||e,f>baab
 cpar
         if ((myRank.eq.idbaab).or.(myRank.eq.idbbaa)) then
-       call rea (n1aalfa,m2lenght,wrk(possm20))
+       call rea (n1aalfa,m2length,wrk(possm20))
         else
-       call reajalovy (n1aalfa,m2lenght,wrk(possm20))
+       call reajalovy (n1aalfa,m2length,wrk(possm20))
         end if
 c
 c     Status:
@@ -827,8 +828,8 @@ cW32.5.2    H2(W3baab)(m,e,j) <- 1.0d0 M4(m,e,j)
      & mapdm4,syma,mapdh2,mapih2,syma,rc)
 c
 cW3.5 write W3baab(m,e,j) to  lunw3baab file if size is not zero
-       if (h2lenght.gt.0) then
-       call wri (lunw3baab,h2lenght,wrk(possh20))
+       if (h2length.gt.0) then
+       call wri (lunw3baab,h2length,wrk(possh20))
        end if
 cendpar
         end if
@@ -853,8 +854,8 @@ cW32.6.3    H3(W3bbaa)(m,e,j) <- -1.0d0 M3(m,e,j)
      & mapdm3,syma,mapdh3,mapih3,syma,rc)
 c
 cW3.6 write W3bbaa(m,e,j) to  lunw3bbaa file if size is not zero
-       if (h3lenght.gt.0) then
-       call wri (lunw3bbaa,h3lenght,wrk(possh30))
+       if (h3length.gt.0) then
+       call wri (lunw3bbaa,h3length,wrk(possh30))
        end if
 cparend
         end if
@@ -987,13 +988,13 @@ c     H3(m,e,j) - <ma||ej>abab = W3(m,e,a,j)aabb
 c     free: M3,M4,H4
 c
 cC.3  get mapd and mapi for M1,M2
-       call getmap (n1abeta,possm10,m1lenght,mapdm1,mapim1,rc)
-       call getmap (n1abeta,possm20,m2lenght,mapdm2,mapim2,rc)
+       call getmap (n1abeta,possm10,m1length,mapdm1,mapim1,rc)
+       call getmap (n1abeta,possm20,m2length,mapdm2,mapim2,rc)
 c
 cC.4  get mapd and mapi for H1 - H3
-       call getmap (n2abeta,possh10,h1lenght,mapdh1,mapih1,rc)
-       call getmap (n2abeta,possh20,h2lenght,mapdh2,mapih2,rc)
-       call getmap (n2abeta,possh30,h3lenght,mapdh3,mapih3,rc)
+       call getmap (n2abeta,possh10,h1length,mapdh1,mapih1,rc)
+       call getmap (n2abeta,possh20,h2length,mapdh2,mapih2,rc)
+       call getmap (n2abeta,possh30,h3length,mapdh3,mapih3,rc)
 c
 cC.5  write mapd and mapi of W3bbbb(H1), W3abba(H2) and W3aabb(H3)
 cpar
@@ -1011,8 +1012,8 @@ c
 cparend
 c
 c
-cC.6  skip cycle over a if lenght of all files is zero
-       if ((m1lenght+m2lenght+h1lenght+h2lenght+h3lenght).eq.0) goto
+cC.6  skip cycle over a if length of all files is zero
+       if ((m1length+m2length+h1length+h2length+h3length).eq.0) goto
      & 6000
 c
        do 5500 a=1,nvb(syma)
@@ -1021,13 +1022,13 @@ c
         end if
 c
 c
-       if (h1lenght.gt.0) then
+       if (h1length.gt.0) then
 cW31.2.1    read H1(m,e,j) = <ma||ej>bbbb
 cpar
         if (myRank.eq.idbbbb) then
-       call rea (n2abeta,h1lenght,wrk(possh10))
+       call rea (n2abeta,h1length,wrk(possh10))
         else
-       call reajalovy (n2abeta,h1lenght,wrk(possh10))
+       call reajalovy (n2abeta,h1length,wrk(possh10))
         end if
 c
 c     Status:
@@ -1104,13 +1105,13 @@ c
 c
 c
 c
-       if (h2lenght.gt.0) then
+       if (h2length.gt.0) then
 cW31.4read H2(m,e,j) = <ma||ej>abba
 cpar
         if (myRank.eq.idabba) then
-       call rea (n2abeta,h2lenght,wrk(possh20))
+       call rea (n2abeta,h2length,wrk(possh20))
         else
-       call reajalovy (n2abeta,h2lenght,wrk(possh20))
+       call reajalovy (n2abeta,h2length,wrk(possh20))
         end if
 c
 c     Status:
@@ -1171,13 +1172,13 @@ c
 c
 c
 c
-       if (h3lenght.gt.0) then
+       if (h3length.gt.0) then
 cW31.3read H3(m,e,j) = <ma||ej>abab
 cpar
         if (myRank.eq.idaabb) then
-       call rea (n2abeta,h3lenght,wrk(possh30))
+       call rea (n2abeta,h3length,wrk(possh30))
         else
-       call reajalovy (n2abeta,h3lenght,wrk(possh30))
+       call reajalovy (n2abeta,h3length,wrk(possh30))
         end if
 c
 c     Status:
@@ -1283,14 +1284,14 @@ c
 c
 c
 c
-       if (m1lenght.gt.0) then
+       if (m1length.gt.0) then
 c
 cC.7  read M1(m,ef) = <ma||ef>bbbb
 cpar
         if (myRank.eq.idbbbb) then
-       call rea (n1abeta,m1lenght,wrk(possm10))
+       call rea (n1abeta,m1length,wrk(possm10))
         else
-       call reajalovy (n1abeta,m1lenght,wrk(possm10))
+       call reajalovy (n1abeta,m1length,wrk(possm10))
         end if
 c
 c     Status:
@@ -1363,8 +1364,8 @@ cW32.2.3    H1(W3bbbb)(m,e,j) <- +1.0d0 . M4(m,e,j)
      & mapdm4,syma,mapdh1,mapih1,syma,rc)
 c
 cW3.2 write W3bbbb(m,e,j) to  lunw3bbbb file if size is not zero
-       if (h1lenght.gt.0) then
-       call wri (lunw3bbbb,h1lenght,wrk(possh10))
+       if (h1length.gt.0) then
+       call wri (lunw3bbbb,h1length,wrk(possh10))
        end if
 c
 c     ------- cont to FI3
@@ -1393,12 +1394,12 @@ c
 c
 c
 c
-       if (m2lenght.gt.0) then
+       if (m2length.gt.0) then
 cB.8  read M2(m,e,f) = <ma||e,f>abab
         if ((myRank.eq.idaabb).or.(myRank.eq.idabba)) then
-       call rea (n1abeta,m2lenght,wrk(possm20))
+       call rea (n1abeta,m2length,wrk(possm20))
         else
-       call reajalovy (n1abeta,m2lenght,wrk(possm20))
+       call reajalovy (n1abeta,m2length,wrk(possm20))
         end if
 c
 c     Status:
@@ -1471,8 +1472,8 @@ cW32.3.2    H3(W3aabb)(m,e,j) <- 1.0d0 M4(m,e,j)
      & mapdm4,syma,mapdh3,mapih3,syma,rc)
 c
 cW3.3 write W3aabb(m,e,j) to  lunw3baab file if size is not zero
-       if (h3lenght.gt.0) then
-       call wri (lunw3aabb,h3lenght,wrk(possh30))
+       if (h3length.gt.0) then
+       call wri (lunw3aabb,h3length,wrk(possh30))
        end if
 cparend
         end if
@@ -1497,8 +1498,8 @@ cW32.4.3    H2(W3abba)(m,e,j) <- -1.0d0 M3(m,e,j)
      & mapdm3,syma,mapdh2,mapih2,syma,rc)
 c
 cW3.4 write W3abba(m,e,j) to  lunw3baba file if size is not zero
-       if (h2lenght.gt.0) then
-       call wri (lunw3abba,h2lenght,wrk(possh20))
+       if (h2length.gt.0) then
+       call wri (lunw3abba,h2length,wrk(possh20))
        end if
 cparend
         end if

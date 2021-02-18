@@ -140,7 +140,6 @@ CGG   ------------------------------------------------------------------
       Call Cho_X_final(irc)
       CALL CWTIME(TCR2,TWR2)
       tcpu_reo=(TCR2-TCR1)
-      twal_reo=(TWR2-TWR1)
       write(6,*) ' Reordering of the Cholesky vectors to full storage. '
       write(6,*) ' Elapsed time for the reordering section: ',tcpu_reo
       write(6,*) ' CPU time for the reordering section: ',tcpu_reo
@@ -232,7 +231,7 @@ CGG   ------------------------------------------------------------------
         Do iSym=1,MaxSym
           Do jSym=1,MaxSym
             TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-            iMemTCVX(iType,iSym,jSym,1)=0 ! Memory Address and
+            iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
             iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
           EndDo
         EndDo
@@ -280,7 +279,7 @@ CGG   ------------------------------------------------------------------
           Do iSym=1,MaxSym
             Do jSym=1,MaxSym
               TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-              iMemTCVX(iType,iSym,jSym,1)=0 ! Memory Address and
+              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
               iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
             EndDo
           EndDo
@@ -386,7 +385,6 @@ CGG   ------------------------------------------------------------------
 CGG   ------------------------------------------------------------------
 
 *         Start Loop on I, J, A, B Symmetries
-          nSymP=(nSym**2+nSym)/2
           Do iSymI = 1, nSym
             Do iSymJ = 1, iSymI
               Do iSymA = 1, nSym
@@ -407,11 +405,11 @@ CGG   ------------------------------------------------------------------
           Do iType=1,MxTCVx
            Do iSym=1,MaxSym
             Do jSym=1,MaxSym
-             If(iMemTCVX(iType,iSym,jSym,1).GT.0) then
+             If(iMemTCVX(iType,iSym,jSym,1).NE.ip_Dummy) then
               iAddr=iMemTCVX(iType,iSym,jSym,1)
               iLen =iMemTCVX(iType,iSym,jSym,2)
               Call GetMem('iAddr','Free','Real',iAddr,iLen)
-              iMemTCVX(iType,iSym,jSym,1)=0
+              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy
               iMemTCVX(iType,iSym,jSym,2)=0
              EndIf
             EndDo

@@ -129,7 +129,6 @@ cvv
          Do l = 0, lMax
          Do ix = l, 0, -1
          Do iy = l-ix, 0, -1
-            iz = l-ix-iy
             iMu = iMu + 1
 *
 *....... Compute local properties

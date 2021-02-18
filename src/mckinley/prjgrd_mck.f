@@ -76,7 +76,6 @@
       mop(1) = nOp(1)
       mop(2) = nOp(2)
       DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
-      iComp = 1
 
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In PrjGrd: A',' ',A,1,3)

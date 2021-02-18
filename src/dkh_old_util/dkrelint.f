@@ -48,7 +48,7 @@ c
       logical dkhscfflg
       Integer snumber,tnumber,unumber,nbasp,nbaso
       Integer Get_sNumber, Get_tNumber, Get_uNumber
-      logical delflag,no_hamil,no_prop,no_s,no_u,LDKpert
+      logical no_hamil,no_prop,no_s,no_u,LDKpert
       dimension nInt(1)
 *                                                                      *
 ************************************************************************
@@ -378,13 +378,11 @@ CMR - IF THAT IS .TRUE. WE SHOULD WRITE XORDER.EQ.0
          tnumber=Get_tNumber(dkhunit4)
          unumber=Get_uNumber(dkhunit5)
 *
-         delflag=.FALSE.
          no_hamil=.false.
          no_prop=.true.
          k=0
 *
          Do L = 0, nSym-1
-            If (L.eq.nSym-1) delflag=.TRUE.
             n=nBas(L)
             iSize=n*(n+1)/2
             If (iSize.eq.0) Go To 911
@@ -613,13 +611,10 @@ C           Write (6,*) 'lOper=',lOper
 *
             Call GetMem('Core','Max','Real',iDum,Mem_Available)
 C           Write (6,*) 'Mem_Available=',Mem_Available
-            delflag=.FALSE.
             no_hamil=.true.
             no_prop=.false.
             k=0
             Do L = 0, nSym-1
-               If (L.eq.nSym-1 .and.
-     &             iProps.eq.numb_props) delflag=.TRUE.
                n=nBas(L)
                iSize=n*(n+1)/2
                If (iSize.eq.0) Go To 91
@@ -783,10 +778,8 @@ C    &                                  1.0D0,0)
 *        Loop over the symmetry blocks
 *
          epsilon=1.d-10
-         delflag=.FALSE.
          k=0
          Do L = 0, nSym-1
-            If (L.eq.nSym-1) delflag=.TRUE.
             n=nBas(L)
             iSize=n*(n+1)/2
             If (iSize.eq.0) goto 9

@@ -41,7 +41,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,symi,symj,possv2,lenght
+       integer symp,symq,symi,symj,possv2,length
        integer ii,iiv1d,iiv1i,possv1d,possv1i
        integer posst
 c
@@ -56,19 +56,19 @@ c
 c
 c*    def parameters of #2
        possv2=mapd2(ii,1)
-       lenght=mapd2(ii,2)
+       length=mapd2(ii,2)
        symp=mapd2(ii,3)
        symq=mapd2(ii,4)
        symi=mapd2(ii,5)
        symj=mapd2(ii,6)
 c
-c*    skip this step if lenght=0
-       if (lenght.eq.0) then
+c*    skip this step if length=0
+       if (length.eq.0) then
        goto 100
        end if
 c
 c*    vanish #2
-       call ccsort_mv0zero (lenght,lenght,wrk(possv2))
+       call ccsort_mv0zero (length,length,wrk(possv2))
 c
        if (symi.ge.symj) then
 c*    case symi>=symj - integrals in #1 are in that shape
@@ -261,7 +261,8 @@ c     reorg.fh may not be included
 c
 c     help variables
 c
-       integer p,q,r,s,pq,rs,pup,qup,rup,sup,rc,pqyes,rsyes
+       integer p,q,r,s,pq,rs,rc,pqyes,rsyes
+       integer :: pup=0,qup=0,rup=0,sup=0
        integer :: paddv1=-1,qaddv1=-1,raddv1=-1,saddv1=-1
        integer ind(1:4)
 c

@@ -31,8 +31,6 @@
      &                   Arr2(nVec,0:la+1,0:lb+1,0:ncdMax,3)
       Logical IfGrad(3,4)
 *
-      iRout = 233
-      iPrint = nPrint(iRout)
 *     iQ = 0
 *
       Do 10 iCar = 1, 3

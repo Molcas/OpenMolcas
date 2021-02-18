@@ -111,8 +111,6 @@
          ipBOff = ipBOff + 1
       End Do
 *
-      llOper = lOper(1)
-*
 *     Loop over centers of the grid
 *     But how to retrieve the grid ???
 *     I just read it in the ESPF file !
@@ -248,5 +246,6 @@ c Avoid unused argument warnings
         Call Unused_real_array(Final)
         Call Unused_integer(nRys)
         Call Unused_integer(nOrdOp)
+        Call Unused_integer_array(lOper)
       End If
       End

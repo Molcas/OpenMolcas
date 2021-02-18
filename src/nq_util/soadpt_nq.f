@@ -18,9 +18,7 @@
 #include "real.fh"
       Real*8 AOValue(mAO,nCoor,mBas_Eff,nCmp),
      &       SOValue(mAO,nCoor,mBas,nCmp*nDeg), Aux(8)
-      Integer   iTwoj(0:7)
       Character*80 Label
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
       iRout=133
       iPrint=nPrint(iRout)

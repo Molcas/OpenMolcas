@@ -40,7 +40,7 @@
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
       External Get_ExFac
-      Character*80 Fmt*60
+      Character*60 Fmt
       Real*8, Allocatable:: D1AV(:)
 
 *

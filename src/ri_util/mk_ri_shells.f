@@ -26,6 +26,7 @@
       use Sizes_of_Seward, only: S
       use RICD_Info, only: iRI_Type
       use Logical_Info, only: UnNorm
+      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -49,12 +50,6 @@
 
       Integer BasisTypes(4)
       Data DefNm/'basis_library'/
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-#include "getbs_interface.fh"
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -371,9 +366,7 @@
                Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
      &                           Label='Cff_p')
                iEnds= iEnd
-               iEnds= iEnds
-               iEndc = iStrt - 1
-               iEnd  = iStrt - 1
+               iEnd = iStrt - 1
 *              Read contraction coefficients
 *              Observe that the matrix will have nPrim rows and
 *              nCntrc columns

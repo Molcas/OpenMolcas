@@ -168,7 +168,7 @@
          RecLab( 63)='MkNemo.hDisp    '
          RecLab( 64)='Index ZMAT      '
          RecLab( 65)='NAT ZMAT        '
-         RecLab( 66)='                ' !Free slot
+         RecLab( 66)='                ' ! Free slot
          RecLab( 67)='nDisp           '
          RecLab( 68)='DegDisp         '
          RecLab( 69)='LBList          '
@@ -197,6 +197,7 @@
          RecLab( 93)='XEle            '
          RecLab( 94)='iDmp            '
          RecLab( 95)='iDmp:S          '
+         Reclab( 96)='NSTAT_SINGLE    '
 *                     1234567890123456
 
 * Do not go beyond 128 without changing the length of RecLab in include

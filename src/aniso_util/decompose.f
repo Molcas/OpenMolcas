@@ -10,10 +10,9 @@
 ************************************************************************
       Subroutine decomp_aniso(A,Jiso,Jsym,Jantisym,dbg)
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Real(kind=8), intent(in) :: A(3,3)
       Real(kind=8), intent(out):: Jiso, Jsym(3,3), Jantisym(3,3)
-      Real(kind=8), external   :: real_1_trace2
       Logical, intent(in)       :: dbg
 
       Integer :: i, j

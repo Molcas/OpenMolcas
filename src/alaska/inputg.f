@@ -27,6 +27,8 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
       use Temporary_Parameters
       use Real_Info, only: CutInt
+      use OFembed, only: Do_OFemb,KEonly,OFE_first, Xsigma, dFMD,
+     &                   OFE_KSDFT
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
@@ -49,14 +51,6 @@
       Logical timings,Reduce_Prt
       External Reduce_Prt
       COMMON /CHOTIME / timings
-
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
-      Character*16  OFE_KSDFT
-      COMMON  / OFembed_C / OFE_KSDFT
 *
       iRout = 99
       iPrint = nPrint(iRout)
@@ -75,7 +69,6 @@
       l2DI   = .True.
       HF_Force=.False.
       NO_NUC = .False.
-      State  =  0d0
       Timings_default = Timings
       Xsigma=1.0d4
       dFMD=0.0d0
@@ -422,7 +415,7 @@
  976  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 976
       If (KWord.eq.'')    Go To 976
-      Read(KWord,*) iRoot
+      Read(KWord,*) i
       Go To 998
 *                                                                      *
 ************************************************************************

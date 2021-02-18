@@ -62,14 +62,16 @@
 ************************************************************************
 *     purpose: initialize DGA and set the global rank and number of    *
 *              processes in mpp_procid and mpp_nprocs. Then also set   *
-*              the (initial) local myRank and nProcs varibles.         *
+*              the (initial) local myRank and nProcs variables.        *
 *     called from: DPMP2 (distributed parallel MP2)                    *
 *     calls to: MPI-2/DGA routines                                     *
 ************************************************************************
-      Implicit None
-#include "para_info.fh"
+      Use Para_Info, Only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
-#  include "mpp_info.fh"
+      Use Para_Info, Only: mpp_procid, mpp_nprocs, mpp_workshare
+#endif
+      Implicit None
+#ifdef _MOLCAS_MPP_
 #  include "global.fh"
       Character(Len=8) :: molcas_nprocs_env
       Integer :: molcas_nprocs, iRC
@@ -122,15 +124,16 @@ C     In such a situation, when the process eventually finishes, it
 C     will call this routine again, but then doing nothing. Such a use
 C     case is e.g. when we want to terminate slave processes and only
 C     continue to run the master process in serial mode.
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: mpp_nprocs
+#endif
       Implicit None
 #ifdef _MOLCAS_MPP_
-#  include "mpp_info.fh"
 #  include "global.fh"
       Logical, Save :: FirstCall = .true.
 #ifdef _GA_
       Integer iErr
 #endif
-      Logical, External :: Is_Real_Par
 
       if (FirstCall) then
         FirstCall=.false.
@@ -146,10 +149,12 @@ C     continue to run the master process in serial mode.
       End
 *----------------------------------------------------------------------*
       SubRoutine GASync
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
-      Logical, External :: Is_Real_Par
 
       If (Is_Real_Par()) Then
          Call ga_sync()
@@ -159,13 +164,15 @@ C     continue to run the master process in serial mode.
       End
 *----------------------------------------------------------------------*
       Subroutine GABrdcst(dType,Buf,nByte,Root)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer       dType,nByte,Root
       Character(Len=*)  buf
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 
-      Logical, External :: Is_Real_Par
       If (Is_Real_Par()) CALL GA_Brdcst(dType,Buf,nByte,Root)
 #else
 c Avoid unused argument warnings
@@ -198,6 +205,9 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       SubRoutine GADGOP(x,n,op)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer n
       Real*8 x(n)
@@ -205,7 +215,6 @@ c Avoid unused argument warnings
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
-      Logical, External :: Is_Real_Par
 
       If (Is_Real_Par()) Then
          Call ga_dgop(MT_DBL,x,n,op)
@@ -232,13 +241,15 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       SubRoutine GADSUM(x,n)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer n
       Real*8 x(n)
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
-      Logical, External ::  Is_Real_Par
 
       If (Is_Real_Par()) Then
          Call ga_dgop(MT_DBL,x,n,'+')
@@ -260,6 +271,9 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       SubRoutine GAIGOP(k,n,op)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer n
       Integer k(n)
@@ -267,7 +281,6 @@ c Avoid unused argument warnings
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
-      Logical, External :: Is_Real_Par
 
       If (Is_Real_Par()) Then
          Call ga_igop(MT_INT,k,n,op)
@@ -294,12 +307,14 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       SubRoutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer iGA,ilo,ihi,jlo,jhi,ld
       Real*8 buf(1:ld,1:*),alpha
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
-      Logical, External :: Is_Real_Par
 
       If (Is_Real_Par()) Then
          Call ga_acc(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
@@ -320,11 +335,13 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       SubRoutine GADupl(iGA1,iGA2)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer iGA1,iGA2
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
-      Logical, External :: Is_Real_Par
       Character gaLbl*5,gaLbl2*6
       Logical ok
 
@@ -352,12 +369,14 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       SubRoutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Integer iGA1,iGA2,iGA3
       Real*8 alpha,beta
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
-      Logical, External :: Is_Real_Par
 
       If (.Not. Is_Real_Par()) Return
       If ((iGA1.ge.0).OR.(iGA2.ge.0).OR.(iGA3.ge.0)) Return
@@ -376,9 +395,11 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       Integer Function GANodeID()
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: mpp_procid
+#endif
       Implicit None
 #ifdef _MOLCAS_MPP_
-#  include "mpp_info.fh"
       GANodeID = mpp_procid
 #else
       GANodeID = 0
@@ -387,9 +408,11 @@ c Avoid unused argument warnings
       End
 *----------------------------------------------------------------------*
       Integer Function GAnNodes()
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: mpp_nprocs
+#endif
       Implicit None
 #ifdef _MOLCAS_MPP_
-#  include "mpp_info.fh"
       GAnNodes = mpp_nprocs
 #else
       GAnNodes = 1

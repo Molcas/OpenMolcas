@@ -36,7 +36,6 @@ cbs   for finite nucleus
 cbs   kinemat generates kinematic factors in
 cbs   the basis of eigenvectors
       call kinemat(L,nprimit(L),eval,type1,type2,Energy)
-      incr=nprimit(L)*ncontrac(L)
 cbs   chngcont= changecont generates the contraction coeffs
 cbs   including kinematic factors and even exponents as factors
       call chngcont(

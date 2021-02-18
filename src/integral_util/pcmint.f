@@ -40,8 +40,10 @@
       Real*8 C(3), TC(3), Coora(3,4), Coori(3,4), CoorAC(3,2)
       Logical EQ, NoSpecial
       Integer iAnga(4), iDCRT(0:7), iChO(nComp)
+#ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+#endif
       Dimension jStab_(0:0)
 *
 *     Statement function for Cartesian index

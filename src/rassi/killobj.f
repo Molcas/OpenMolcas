@@ -10,10 +10,9 @@
 ************************************************************************
       SUBROUTINE KILLOBJ(LPOS)
       IMPLICIT NONE
-      INTEGER LPOS,NSIZE,ITYPE
+      INTEGER LPOS,NSIZE
 #include "WrkSpc.fh"
       NSIZE=IWORK(LPOS)
-      ITYPE=IWORK(LPOS)
       CALL GETMEM('KillObj','Free','Inte',LPOS,NSIZE)
       RETURN
       END

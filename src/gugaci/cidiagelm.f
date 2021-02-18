@@ -18,8 +18,6 @@ c ci diagonal elements
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      nst=norb_all
-      ndy=norb_ext
       do lr0=2,norb_all
         do lr=1,lr0-1
           vdint(lr,lr0)=voint(lr0,lr)
@@ -36,7 +34,8 @@ c     write(6,*)'               ***** start h-diaelm *****'
       jpae=jv
       ipae=1
       jaedownwei=iseg_downwei(ipae)
-      do jpad=1,mxnode
+      do jpad_=1,mxnode
+        jpad=jpad_ ! jpad is in common block, is this necessary?
         iw_sta(jpad,ipae)=ndimsum
         if(nu_ad(jpad).eq.0) cycle
         call seg_drt()
@@ -52,7 +51,8 @@ c     write(6,*)'               ***** start h-diaelm *****'
         ipae=1+im
         if(nu_ae(ipae).eq.0) cycle
         jaedownwei=iseg_downwei(ipae)
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -65,7 +65,6 @@ c     endif
           if(ndim .eq. 0) cycle
           call diagonal_act_d()
           call diagonal_act_c()
-          ista=iw_sta(jpad,ipae)+1
         enddo
       enddo
       do im=1,ng_sm
@@ -73,7 +72,8 @@ c     endif
         ipae=9+im
         if(nu_ae(ipae).eq.0) cycle
         jaedownwei=iseg_downwei(ipae)
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -90,7 +90,8 @@ c     endif
         ipae=17+im
         jaedownwei=iseg_downwei(ipae)
         if(nu_ae(ipae).eq.0) cycle
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -104,14 +105,16 @@ c     endif
       enddo
       call diagonal_dbl()
       call diagonal_ext()
-      do ipae=1,25
-        do jpad=1,mxnode
-          if(iw_sta(jpad,ipae).eq.0) cycle
-          nci_h0=iw_sta(jpad,ipae)
-          goto 200
+      out: do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
+          if(iw_sta(jpad,ipae).ne.0) then
+            nci_h0=iw_sta(jpad,ipae)
+            exit out
+          endif
         enddo
-      enddo
-200   continue
+      enddo out
 
       !do i=1,nci_dim
       !  write(6,"(i8,f18.8)") i,vector1(i)
@@ -149,7 +152,6 @@ c      write(6,*)  jpad,jpae
         return
       endif
       mp=0
-      nsum=0
 c 520
       mh=0
       me=0
@@ -269,7 +271,6 @@ c     write(6,*)'               ***** start h-diaelm *****'
 c      write(6,*)   '   diagonal_act_d:',jpad,ipae
       allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
       ndr=0
-      nsum=0
       do lr=norb_dz+1,norb_inn
         jp0=no(lr-1)+1
         jp1=no(lr)
@@ -304,7 +305,6 @@ c 520
 c     start '^'
           do idl=1,4
             if(jj_sub(idl,jp).eq.0) cycle
-            idr=idl
             jbl=jb(jp)
             ind1=idl-1
             if(ind1.eq.0) cycle
@@ -1135,7 +1135,8 @@ c     :   vo(lr0,la),vo(lr0,lb),vmd(lr0,la),vmd(lr0,lb)
       do lr=1,norb_dz
         wt0=wt0+voint(lr,lr)+voint(lr,lr)+vdint(lr,lr)
       enddo
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(1,ipae)
         do iwa=0,iwdownv-1
@@ -1154,7 +1155,8 @@ c       jps=js(1)
           jpad1=jpad+24
           wld=wt0-voint(lr0,lr0)-vdint(lr0,lr0)
           wls=wld-voint(lr0,lr0)
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad,ipae)
             do iwa=0,iwdownv-1
@@ -1164,7 +1166,8 @@ c       jps=js(1)
           enddo
 
           if(jb_sys.gt.0) then
-            do ipae=1,25
+            do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad1,ipae)
             do iwa=0,iwdownv-1
@@ -1176,7 +1179,8 @@ c       jps=js(1)
 ! d_800
          jpad=17+ns_sm
           iwd=just(lr0,lr0)
-          do ipae=1,25
+          do ipae_=1,25
+          ipae=ipae_ ! ipae is in common block, is this necessary?
           if(nu_ae(ipae).eq.0) cycle
           iwdownv=iw_downwei(jpad,ipae)
           do iwa=0,iwdownv-1
@@ -1196,7 +1200,8 @@ c       jps=js(1)
         iws=just(lr0,lr)
         iwt=iws            !
           wld=wld0-voint(lr,lr)-vdint(lr,lr)
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -1237,7 +1242,8 @@ c       jps=js(1)
       enddo
       jpad=1
       iwd=0
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(jpad,ipae)
         do iwa=0,iwdownv-1
@@ -1267,7 +1273,8 @@ c       jps=js(1)
       do lr0=1,lrm-1
        wls=wls+vdint(lr0,lrm)
       enddo
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(jpad,ipae)
         do iwa=0,iwdownv-1
@@ -1358,7 +1365,8 @@ c       jps=js(1)
          !       wlt1=wlt1+vdint(lr0,lrg)+vdint(lr,lrg)
        !     endif
           enddo
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -1401,8 +1409,6 @@ c ------------- end of delm --------------
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      character*10 cc
-        cc=' out_800_d'
         jws0=0
       do mra=1,8
         ipae=1+mra
@@ -1489,7 +1495,7 @@ c  2001.10.2 for norb_act<>0            mg1,mg2,mg3:
 #include "pl_structure_h.fh"
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      ndr=1
+!      ndr=1
       goto(100,200,300,400,500,600),idb
 ! in dbl_space
 100   ipae=mg2

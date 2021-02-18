@@ -12,11 +12,16 @@
       use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_utility_routines, only: str
-      use qcmaquis_info
+      use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
+     &    qcm_prefixes
+      use rasscf_data, only: doDMRG
 #endif
       use mspt2_eigenvectors
-      use rasscf_data, only: doDMRG
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_close_file
+#endif
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -33,10 +38,9 @@
 #include "SysDef.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
 
-      integer :: ref_nSym, ref_lSym, ref_nBas(mxSym), ref_iSpin
+      integer :: ref_nSym, ref_stSym, ref_nBas(mxSym), ref_iSpin
       integer :: ref_nfro(mxSym), ref_nish(mxSym), ref_nrs1(mxSym),
      &           ref_nrs2(mxSym), ref_nrs3(mxSym), ref_nssh(mxSym),
      &           ref_ndel(mxSym), ref_nash(mxSym)
@@ -98,7 +102,7 @@
       call mh5_fetch_attr (refwfn_id,'MOLCAS_MODULE', molcas_module)
       call mh5_fetch_attr (refwfn_id,'SPINMULT', ref_iSpin)
       call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
-      call mh5_fetch_attr (refwfn_id,'LSYM', ref_lSym)
+      call mh5_fetch_attr (refwfn_id,'LSYM', ref_stSym)
       call mh5_fetch_attr (refwfn_id,'NBAS', ref_nBas)
 
       call mh5_fetch_attr (refwfn_id,'NACTEL', ref_nactel)
@@ -163,7 +167,6 @@
           JBNUM(ISTAT(JOB)+I)=JOB
         END DO
       end if
-
       LROT1=ref_nroots
       DO I=0,NSTAT(JOB)-1
         NROOT0=root2state(LROOT(ISTAT(JOB)+I))
@@ -183,7 +186,7 @@
 * read the ms-caspt2/qd-nevpt2 effective hamiltonian if it is available
       If (mh5_exists_dset(refwfn_id, heff_string)) Then
         call mma_allocate(ref_Heff,ref_nstates,ref_nstates)
-        call mh5_fetch_dset_array_real(refwfn_id,heff_string,ref_Heff)
+        call mh5_fetch_dset(refwfn_id,heff_string,ref_Heff)
         HAVE_HEFF=.TRUE.
 * with ejob, only read diagonal
         If (ifejob) Then
@@ -197,31 +200,30 @@
             Work(LREFENE+istate-1)=ref_Heff(ISNUM,ISNUM)
           END DO
         Else
-        write(6,'(2x,a)')
-     & ' Effective Hamiltonian from MRPT2 in action'
-        write(6,'(2x,a)')
-     & ' ------------------------------------------'
-        DO I=1,NSTAT(JOB)
-          ISTATE=ISTAT(JOB)-1+I
+          write(6,'(2x,a)')
+     &   ' Effective Hamiltonian from MRPT2 in action'
+          write(6,'(2x,a)')
+     &   ' ------------------------------------------'
+          DO I=1,NSTAT(JOB)
+            ISTATE=ISTAT(JOB)-1+I
             ISNUM=root2state(LROOT(ISTATE))
-          DO J=1,NSTAT(JOB)
-            JSTATE=ISTAT(JOB)-1+J
+            DO J=1,NSTAT(JOB)
+              JSTATE=ISTAT(JOB)-1+J
               JSNUM=root2state(LROOT(JSTATE))
-            iadr=(istate-1)*nstate+jstate-1
+              iadr=(istate-1)*nstate+jstate-1
               Work(l_heff+iadr)=ref_Heff(ISNUM,JSNUM)
-!           write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
-!    &      Work(l_heff+iadr)
-!           call xflush(6)
+!             write(6,*) 'readin: Heff(',istate,',',jstate,') = ',
+!    &        Work(l_heff+iadr)
+!             call xflush(6)
+            END DO
           END DO
-        END DO
         End If
         call mma_deallocate(ref_Heff)
 * read the caspt2/qdnevpt2 reference energies if available
       Else If (mh5_exists_dset(refwfn_id, pt2_e_string)) Then
         HAVE_DIAG=.TRUE.
         call mma_allocate(ref_energies,ref_nstates)
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         pt2_e_string,ref_energies)
+        call mh5_fetch_dset(refwfn_id,pt2_e_string,ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
@@ -232,8 +234,7 @@
       Else If (mh5_exists_dset(refwfn_id, 'ROOT_ENERGIES')) Then
         HAVE_DIAG=.TRUE.
         call mma_allocate(ref_energies,ref_nroots)
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         'ROOT_ENERGIES',ref_energies)
+        call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
@@ -256,13 +257,9 @@
 
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
-            call mh5_fetch_dset_array_str(refwfn_id,
-     &                                    'QCMAQUIS_CHECKPOINT',
-     &                                     qcm_group_names(job)
-     &                                     %states(i),
-     &                                     [1],
-     &                                     [LROOT(ISTATE)-1]
-     &                                    )
+            call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',
+     &                          qcm_group_names(job)%states(i:i),
+     &                          [1],[LROOT(ISTATE)-1])
 !           Write(6,'(I3,A,A)') ISTATE, '   ',
 !    &      trim(qcm_group_names(job)%states(i))
           END DO
@@ -307,7 +304,7 @@
       NHOLE1(JOB)=ref_nhole1
       NELE3(JOB)=ref_nelec3
       MLTPLT(JOB)=ref_iSpin
-      IRREP(JOB)=ref_lSym
+      IRREP(JOB)=ref_stSym
       NCONF(JOB)=ref_nConf
       NROOTS(JOB)=ref_nroots
 
@@ -503,8 +500,8 @@ C Using effective Hamiltonian from JobIph file?
 C If both EJOB and HEFF are given, read only the diagonal
         IF(IFEJOB) THEN
           HAVE_DIAG=.TRUE.
-        DO I=1,NSTAT(JOB)
-          ISTATE=ISTAT(JOB)-1+I
+          DO I=1,NSTAT(JOB)
+            ISTATE=ISTAT(JOB)-1+I
             ISNUM=LROOT(ISTATE)
             HIJ=WORK(LHEFF-1+ISNUM+LROT1*(ISNUM-1))
             Work(LREFENE+istate-1)=HIJ
@@ -515,15 +512,15 @@ C If both EJOB and HEFF are given, read only the diagonal
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
             ISNUM=LROOT(ISTATE)
-          DO J=1,NSTAT(JOB)
-            JSTATE=ISTAT(JOB)-1+J
+            DO J=1,NSTAT(JOB)
+              JSTATE=ISTAT(JOB)-1+J
               JSNUM=LROOT(JSTATE)
-            HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
-            iadr=(istate-1)*nstate+jstate-1
-            Work(l_heff+iadr)=HIJ
+              HIJ=WORK(LHEFF-1+ISNUM+LROT1*(JSNUM-1))
+              iadr=(istate-1)*nstate+jstate-1
+              Work(l_heff+iadr)=HIJ
               Work(LREFENE+istate-1)=HIJ
+            END DO
           END DO
-        END DO
         END IF
         CALL GETMEM('HEFF','FREE','REAL',LHEFF,NHEFF)
       END IF
@@ -694,6 +691,10 @@ C Where is the CMO data set stored?
 *                                                                      *
 ************************************************************************
       Subroutine rdjob_nstates(JOB)
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
+     &               mh5_close_file
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -702,7 +703,6 @@ C Where is the CMO data set stored?
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
       integer :: ref_nstates
 #endif

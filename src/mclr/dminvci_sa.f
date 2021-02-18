@@ -71,6 +71,9 @@
        call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
       End If
       return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
 c Avoid unused argument warnings
       If (.False.) Then
        Call Unused_real(rC_HE_C)

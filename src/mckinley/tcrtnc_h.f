@@ -63,7 +63,6 @@
       ipA3=1
       nA3=nVec*lZeta         ! This is the same for the second set!
       ipA2=ipA3 + nA3
-      nA2=IncVec*n1*m2
 *
       Call TncHlf_h(Coef1,m1,n1,Coef2,m2,n2,iDum,lZeta,nVec,
      &              IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndZet)

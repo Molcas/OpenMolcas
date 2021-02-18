@@ -12,13 +12,15 @@
 * WRAPPERS FOR PARALLEL S AND B MATRIX ROUTINES
 *
       SUBROUTINE PSBMAT_GETMEM(cNAME,lg_M,nSize)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -26,7 +28,6 @@ C tridiagonal local array at Work(lg_M)
 #include "SysDef.fh"
 
       CHARACTER(len=*) cNAME
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -51,13 +52,15 @@ C tridiagonal local array at Work(lg_M)
       END
 
       SUBROUTINE PSBMAT_FREEMEM(cNAME,lg_M,nSize)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -65,7 +68,6 @@ C tridiagonal local array at Work(lg_M)
 #include "SysDef.fh"
 
       CHARACTER(len=*) cNAME
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -89,10 +91,12 @@ C tridiagonal local array at Work(lg_M)
       SUBROUTINE PSBMAT_WRITE(cNAME,iCase,iSym,lg_M,nSize)
 CSVC20100902: write the global array lg_M to disk using DRA interface,
 C or if replicate or serial, write WORK(lg_M) to LUSBT
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -100,7 +104,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 #include "SysDef.fh"
       CHARACTER cNAME
 
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -108,19 +111,27 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 
 
       IF (CNAME.EQ.'S') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(1)
+#endif
         IDISK=IDSMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'B') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(2)
+#endif
         IDISK=IDBMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'T') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(3)
+#endif
         IDISK=IDTMAT(iSym,iCase)
         nBlock=nSize
       ELSE IF (CNAME.EQ.'M') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(4)
+#endif
         IDISK=IDSTMAT(iSym,iCase)
         nBlock=nSize
       END IF
@@ -152,10 +163,12 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 CSVC20100902: read the disk array stored as cName+iSym using DRA
 C interface into global array lg_M, or if replicate or serial, read from
 C LUSBT into WORK(lg_M)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
@@ -163,7 +176,6 @@ C LUSBT into WORK(lg_M)
 #include "SysDef.fh"
       CHARACTER cNAME
 
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -171,19 +183,27 @@ C LUSBT into WORK(lg_M)
 
 
       IF (CNAME.EQ.'S') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(1)
+#endif
         IDISK=IDSMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'B') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(2)
+#endif
         IDISK=IDBMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'T') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(3)
+#endif
         IDISK=IDTMAT(iSym,iCase)
         nBlock=nSize
       ELSE IF (CNAME.EQ.'M') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(4)
+#endif
         IDISK=IDSTMAT(iSym,iCase)
         nBlock=nSize
       END IF
@@ -213,10 +233,12 @@ C LUSBT into WORK(lg_M)
       END
 
       REAL*8 FUNCTION PSBMAT_FPRINT(lg_M,NM)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

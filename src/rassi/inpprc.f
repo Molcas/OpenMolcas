@@ -145,7 +145,6 @@ C (IPUSED will be set later, set it to zero now.)
       IOPT=15
       LABEL='UNDEF'
       CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-      IF(IRC.EQ.0) NSIZ=IDUM(1)
       IF(IRC.NE.0) GOTO 110
       IPRP=1
       CALL UPCASE(LABEL)
@@ -158,7 +157,6 @@ C (IPUSED will be set later, set it to zero now.)
         IRC=-1
         IOPT=23
         CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-        IF(IRC.EQ.0) NSIZ=IDUM(1)
         IF(IRC.NE.0) GOTO 110
         IPRP=IPRP+1
         CALL UPCASE(LABEL)

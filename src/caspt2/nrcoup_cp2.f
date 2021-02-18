@@ -22,7 +22,6 @@
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
       COMMON /SEGTAB/ IC1(26),IC2(26),ITVPT(26),IBVPT(26),ISVC(26),
      &                NIVR,LIVR,NSGMNT,LSGMNT
@@ -200,7 +199,9 @@ C THIS IS AN UPPER WALK.
           NWALK=NWALK+NOW(2,ISYM,MV)
  254    CONTINUE
  253  CONTINUE
+#ifdef _DEBUGPRINT_
       NLW=NWALK-NUW
+#endif
 
       NICOUP=0
       DO 260 INDEO=1,MXEO

@@ -39,8 +39,10 @@
       Logical First
       Integer IndZet(lZeta), IndEta(lEta)
 *
+#ifdef _DEBUGPRINT_
       iRout = 18
       iPrint = nPrint(iRout)
+#endif
 *
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 *define _DEBUGPRINT_

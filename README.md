@@ -106,7 +106,7 @@ freely (according to the terms of the LGPL). If you would like your
 contributions to be included in the main repository, please contact one of the
 developers, write a message in the
 [forum](https://cobalt.itc.univie.ac.at/molcasforum/index.php) or submit a
-[merge request](https://docs.gitlab.com/ee/gitlab-basics/README.html). We are
-currently only accepting [Molcas
-developers](http://www.molcas.org/cgi-bin/dev.plx) as members of the `Molcas`
-group, but everyone is welcome to send patches, suggestions and bug reports. 
+[merge
+request](https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html).
+Everyone is welcome to send patches, suggestions and bug reports, but please
+let us know if you would like to be a "developer" member of the `Molcas` group.

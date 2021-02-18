@@ -80,11 +80,6 @@ C     WRITE(6,*) ' IGASL = ', IGASL
 C     WRITE(6,*) ' NSTRTOT = ', NSTRTOT
       IF(IGASL.EQ.0) GOTO 2810
 *
-      NELL = NELFGP(ITPFGS(IGASL))
-      NELML = NEL - NELL
-      NSTRGASL = NSTFGS(IGASL)
-      IBGASL = IBSTFGS(IGASL)
-*
       IF(NSTRTOT.EQ.0) GOTO 1001
 *. Loop over GAS spaces
       NELB = 0

@@ -21,7 +21,7 @@
       Parameter (Conver2=2.0d0*Pi/360.0d0)
       Character*3 EelP
       Character*40 Word1,Word2,Word3
-      Logical Eq,Pr,It,Si,Cl,Qu
+      Logical Eq,Pr,It,Cl,Qu
       External Len_TrimAO
 
 *
@@ -31,7 +31,6 @@
 *
 *-- Make sure that the string is of correct length.
 *
-      ia=Len_TrimAO(EelP)
       If(Len_TrimAO(EelP).ne.3) then
         Write(6,*)'Illegal call to NiceOutPut'
         Call Quit(_RC_INTERNAL_ERROR_)
@@ -43,13 +42,11 @@
       Eq=.false.
       Pr=.false.
       It=.false.
-      Si=.false.
       Cl=.false.
       Qu=.false.
       If(index(EelP,'E').ne.0) Eq=.true.
       If(index(EelP,'P').ne.0) Pr=.true.
       If(index(EelP,'I').ne.0) It=.true.
-      If(index(EelP,'S').ne.0) Si=.true.
       If(index(EelP,'C').ne.0) Cl=.true.
       If(index(EelP,'Q').ne.0) Qu=.true.
 

@@ -44,7 +44,6 @@
 *
        Call mma_maxDBLE(nMax)
        nmax=nmax/2
-       npp=nconf*10
 *
        If (Page) Then
 *
@@ -82,6 +81,8 @@
        ipopen=DiskBased
 *
        Return
+* Avoid unused argument warnings
+       If (.False.) Call Unused_integer(nconf)
        End
 *                                                                      *
 ************************************************************************
@@ -177,7 +178,17 @@
           Status(ipget)=In_Memory
           W(ipget)%Vec(:)=Zero
        Else
-          Status(ipget)=Null_Vector
+*         Status(ipget)=Null_Vector
+*
+*         The calling code doesn't have the logic to handle the
+*         case that W(i)%Vec is not allocated. Hence, we have
+*         to make a dummy allocation to make sure that the compiler
+*         doesn't puke.
+          n(ipget)=1
+          Write (Label,'(I3.3)') n_CI_Vectors
+          Call mma_allocate(W(ipget)%Vec,1,Label='ipget'//Label)
+          Status(ipget)=In_Memory
+          W(ipget)%Vec(:)=Zero
        End If
 *
 *      If diskbased mode put vector on disc and release memory
@@ -343,7 +354,6 @@
        If (.not.diskbased) Return
 *
        If (Status(ii).eq.In_Memory .and. ii.gt.0) Then
-          nn=n(ii)
           Status(ii)=On_Disk
           Call mma_deallocate(W(ii)%Vec)
        Else

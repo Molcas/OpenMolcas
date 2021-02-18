@@ -37,7 +37,6 @@
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       ng1=itri(ntash,ntash)
-      ng2=itri(ng1,ng1)
 *
       Call mma_allocate(G1Q,ng1,Label='G1Q')
       Call mma_allocate(G1R,ntash**2,Label='G1R')

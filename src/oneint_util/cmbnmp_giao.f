@@ -31,9 +31,6 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 134
-      iPrint = nPrint(iRout)
-*
       Do 10 ixa = 0, la
          iyaMax=la-ixa
       Do 11 ixb = 0, lb

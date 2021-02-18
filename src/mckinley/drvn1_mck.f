@@ -33,9 +33,6 @@
       Integer iDCRR(0:7)
       Logical EQ, TstFnc
 *
-      iRout = 33
-      iPrint = nPrint(iRout)
-*
       iIrrep = 0
       mdc = 0
 *-----Loop over centers with the same change

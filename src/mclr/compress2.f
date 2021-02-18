@@ -35,7 +35,6 @@
       indexC=0
       jT=-1
       i1=0
-      i2=0
       Fact=1.0d0
       If (dsym.lt.0) Fact=-Fact
       dsym=abs(dsym)
@@ -49,19 +48,19 @@
             If (jBas.le.nIsh(jsym)) Then
                jT=0
                i1=nIsh(isym)
-               j1=nIsh(jsym)
+*              j1=nIsh(jsym)
             Else If (jBas.le.nIsh(jsym)+nRs1(jsym)) Then
                jT=1
                i1=nRs1(isym)
-               j1=nRs1(jsym)
+*              j1=nRs1(jsym)
             Else If (jBas.le.nIsh(jsym)+nRs2(jsym)) Then
                jT=2
                i1=nRs2(isym)
-               j1=nRs2(jsym)
+*              j1=nRs2(jsym)
             Else If (jBas.le.nIsh(jsym)+nRs3(jsym)) Then
                jT=3
                i1=nRs3(isym)
-               j1=nRs3(jsym)
+*              j1=nRs3(jsym)
             End If
 *
             Do iBas=1,nOrb(iSym)
@@ -69,35 +68,35 @@
                If (iBas.le.nIsh(isym)) Then
                   iT=0
                   ij=0
-                  ji=j1
+*                 ji=j1
                Else If (iBas.le.nIsh(isym)+nRs1(isym)) Then
                   iT=1
                   ij=0
-                  ji=j1
+*                 ji=j1
                   If (it.gt.jt) Then
                      ij=i1
-                     ji=0
+*                    ji=0
                   End if
                Else If (iBas.le.nIsh(isym)+nRs2(isym)) Then
                   iT=2
                   ij=0
-                  ji=j1
+*                 ji=j1
                   If (it.gt.jt) Then
                      ij=i1
-                     ji=0
+*                    ji=0
                   End if
                Else If (iBas.le.nIsh(isym)+nRs3(isym)) Then
                   iT=3
                   ij=0
-                  ji=j1
+*                 ji=j1
                   If (it.gt.jt) Then
                      ij=i1
-                     ji=0
+*                    ji=0
                   End if
                Else
                  iT=4
                  ij=i1
-                 ji=0
+*                ji=0
                End If
 *                                                                      *
 ************************************************************************

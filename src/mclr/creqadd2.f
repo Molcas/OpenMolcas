@@ -56,7 +56,6 @@
                             ipQ=ipMat(ipS,iS)+nOrb(ipS)*(iAA-1)
                             ipM=1+nIsh(jS)*nOrb(ipS)
                             Do jAsh=1,nAsh(jS)
-                               jAA=jAsh+nIsh(jS)
                                iij=nna*(iAsh+nA(iS)-1)+jAsh+nA(jS)
                                ipG=itri(iij,ikl)
                                P_ijkl=G2(ipG)

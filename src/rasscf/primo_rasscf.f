@@ -14,7 +14,6 @@
 * Print MO-coefficients
 *
 ************************************************************************
-
       Implicit Real*8 (A-H,O-Z)
 
       Character*(*) VecTit

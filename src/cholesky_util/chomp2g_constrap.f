@@ -19,7 +19,6 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Real*8 Scr(lScr), Ap(lAp), Dens(lDens)
 
@@ -181,9 +180,7 @@
          kY = kEndX
          kEndY = kY + lY
 *        Z-vector
-         lZ = nVec*nIQ
          kZ = kEndY
-         kEndZ = kZ + lZ
 *
       nBatL = (NumCho(iSym)-1)/nVec + 1
 

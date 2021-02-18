@@ -34,7 +34,11 @@
 *                                                                      *
 ************************************************************************
       use OccSets
-      use IOBUF
+      use OFembed
+      use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r
+#endif
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
@@ -50,12 +54,9 @@
 #include "file.fh"
 #include "iprlv.fh"
 #include "ksdft.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 *
 *---- Define local variables
-      Character*180  Key, Line, BLIne
+      Character*180  Key, Line
       Character*180 Get_Ln
       External Get_Ln
       Integer nLev,iArray(32)
@@ -75,14 +76,7 @@
       COMMON /CHODENSITY/ DensityCheck
       COMMON /CHOSCREEN/ Estimate,Update
       Common /CHOAUF / Cho_Aufb
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      Character*16  OFE_KSDFT
-      COMMON  / OFembed_C / OFE_KSDFT
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
-      COMMON  / OFembed_T / ThrFThaw
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
+
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
       Character*16  ADDC_KSDFT
@@ -99,7 +93,6 @@
 *
       Call ICopy(2*MxPrLv,[0],0,iPrLV,1)
 *
-      BLine=' '
       OccSet=.false.
       FermSet=.false.
       CharSet=.false.
@@ -136,16 +129,6 @@
       Do_Addc=.false.
       Do_SpinAV=.false.
       iTer2run=2
-* Orbital-free embedding
-      Do_OFemb=.false.
-      KEonly  =.false.
-      OFE_first  =.true.
-      ThrFThaw = 0.0d0
-      dFMD = 0.0d0
-      Xsigma = 1.0d4
-      ipFMaux = -666666
-      ip_NDSD = -696969
-      l_NDSD = 0
 * KSDFT exch. and corr. scaling factors
       CoefX = 1.0D0
       CoefR = 1.0D0

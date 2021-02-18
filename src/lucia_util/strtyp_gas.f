@@ -209,7 +209,6 @@ C     END DO
 *. Number of electrons to be subtracted or added
 *
       MAXSUB = 2
-      MAXADD = 2
 *. electrons are only added for systems that atleast have halffilled
 *. shells
       IGRP = 0
@@ -217,7 +216,6 @@ C     END DO
       MNAL = NAEL
       MXBL = NBEL
       MNBL = NBEL
-      NORBL = NTOOB
       DO IGAS = 1, NGAS
 *. occupation constraints 1
        MXA1 = MIN(MXGSOC(IGAS),NOBPT(IGAS),MXAL)
@@ -426,10 +424,7 @@ C?      WRITE(6,*) '  GASSPC : ITYP IDEL ', ITYP,IDEL
         END IF
 *. Number of electrons in present type
 *. Loop over  SUPER GROUPS with current nomenclature!
-*. Temp max for loop
-        MXLOOP = 10000
         IONE = 1
-        NLOOP = 0
  1000   CONTINUE
 *. Number of electrons in present supergroup
           NEL = 0

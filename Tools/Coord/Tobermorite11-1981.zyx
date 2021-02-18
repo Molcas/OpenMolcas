@@ -3,7 +3,7 @@
 *
 *  Tobermorite 11A
 *
-*    Reference: 
+*    Reference:
 *    Hamid SA
 *    Zeitschift fur Kristallographie 154 (1981) 189-198
 *    Cell parameters:
@@ -20,9 +20,9 @@ Ca  0.75   0.25    0.413
 Ca  0.506  0.38    0.198
 Ca  0.506  0.88    0.198
 Si  0.25   0.287   0.056
-Si  0.25   0.707   0.056   
+Si  0.25   0.707   0.056
 Si  0.068  0.909   0.141
-Si  0.25   0.207   0.373                                 
+Si  0.25   0.207   0.373
 Si  0.084  0.417   0.282
 Si  0.25   0.787   0.373
 O   0.25   0.17    0.12
@@ -48,11 +48,11 @@ W   0.75   0.25    0.11
 
 ****
 * X - OH
-* W - H2O 
+* W - H2O
 ***
 
 #unit
-x    y   z 
+x    y   z
 -x  -y   z+1/2
 
 #scale

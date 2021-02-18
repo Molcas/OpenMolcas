@@ -12,6 +12,9 @@
      &                  EigVec)
       use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -32,7 +35,6 @@
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
-      Character*3 ASDLAB
       Character*8 EFPROP
       Character*8 PSOPROP
       Character*8 DMPPROP
@@ -262,21 +264,21 @@ c add spin-orbit AMFI integrals:
       IF(IFANGM.EQV..TRUE.) THEN
        CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset_array_real(wfn_sfs_angmom,TMPL(:,:,:),
+       call mh5_put_dset(wfn_sfs_angmom,TMPL(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
       IF(IFDIP1.EQV..TRUE.) THEN
        CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset_array_real(wfn_sfs_edipmom,TMPE(:,:,:),
+       call mh5_put_dset(wfn_sfs_edipmom,TMPE(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
       IF(IFAMFI.EQV..TRUE.) THEN
        CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset_array_real(wfn_sfs_amfi,TMPA(:,:,:),
+       call mh5_put_dset(wfn_sfs_amfi,TMPA(:,:,:),
      $      [NSTATE,NSTATE,3], [0,0,0])
 #endif
       ENDIF
@@ -398,9 +400,9 @@ C tjd-  BMII: Print out spin-orbit properties to a file
            CALL Put_dArray('ANGMR_NSS',SOPRR,3*NSS*NSS)
            CALL Put_dArray('ANGMI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
-           Call mh5_put_dset_array_real(wfn_sos_angmomr,
+           Call mh5_put_dset(wfn_sos_angmomr,
      $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset_array_real(wfn_sos_angmomi,
+           Call mh5_put_dset(wfn_sos_angmomi,
      $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
@@ -411,9 +413,9 @@ C tjd-  BMII: Print out spin-orbit properties to a file
            CALL Put_dArray('EDIPR_NSS',SOPRR,NSS**2*3)
            CALL Put_dArray('EDIPI_NSS',SOPRI,NSS**2*3)
 #ifdef _HDF5_
-           Call mh5_put_dset_array_real(wfn_sos_edipmomr,
+           Call mh5_put_dset(wfn_sos_edipmomr,
      $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset_array_real(wfn_sos_edipmomi,
+           Call mh5_put_dset(wfn_sos_edipmomi,
      $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
@@ -422,9 +424,9 @@ C tjd-  BMII: Print out spin-orbit properties to a file
            CALL Put_dArray('SPINR_NSS',SOPRR,3*NSS*NSS)
            CALL Put_dArray('SPINI_NSS',SOPRI,3*NSS*NSS)
 #ifdef _HDF5_
-           Call mh5_put_dset_array_real(wfn_sos_spinr,
+           Call mh5_put_dset(wfn_sos_spinr,
      $                 SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset_array_real(wfn_sos_spini,
+           Call mh5_put_dset(wfn_sos_spini,
      $                 SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
 #endif
         ENDIF
@@ -443,6 +445,11 @@ C tjd-  BMII: Print out spin-orbit properties to a file
 ******************************************************
 * printout of special properties
 ******************************************************
+
+       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
+       ! numerically: 2/c^3 (in a.u. of time ^ -1)
+       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
+     &           /CONST_AU_TIME_IN_SI_
 
       IF (IPGLOB.GE.USUAL) THEN
         WRITE(6,*)
@@ -542,7 +549,6 @@ C printing threshold
            Do iVec = 1, nVec
 *
          i_Print=0
-         AFACTOR=32.1299D09
 
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
@@ -712,11 +718,6 @@ C printing threshold
         Do iVec = 1, nVec
 *
          i_Print=0
-         ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-         ! 1/c^3 (in a.u. of time ^ -1)
-         AFACTOR = 2.0D0/CONST_C_IN_AU_**3
-     &             /CONST_AU_TIME_IN_SI_
-
          CALL GETMEM('DXR','ALLO','REAL',LDXR,NSS**2)
          CALL GETMEM('DXI','ALLO','REAL',LDXI,NSS**2)
          CALL DCOPY_(NSS**2,[0.0D0],0,WORK(LDXR),1)
@@ -1280,7 +1281,7 @@ C printing threshold
 
 !       IPRDXYX=0
 !       IPRDXYY=0 ! YYX These are the same due to symmetry
-        IPRDXYZ=0 ! Not present
+!       IPRDXYZ=0 ! Not present
 
 !       IPRDXZX=0
 !       IPRDXZY=0
@@ -1328,7 +1329,7 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
            IF(ISOCMP(ISOPR).EQ.4) IPRDYYX=ISOPR ! Changed from XYY
-           IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
            IF(ISOCMP(ISOPR).EQ.6) IPRDZZX=ISOPR ! Changed from XZZ
            IF(ISOCMP(ISOPR).EQ.7) IPRDYYY=ISOPR
            IF(ISOCMP(ISOPR).EQ.8) IPRDYYZ=ISOPR
@@ -1583,17 +1584,17 @@ C printing threshold
         IPRDZY=0
         IPRDZZ=0
 ! Spin-Magnetic-Quadrupole
-        IPRSXX=0
+!       IPRSXX=0
         IPRSXY=0
         IPRSXZ=0
 
         IPRSYX=0
-        IPRSYY=0
+!       IPRSYY=0
         IPRSYZ=0
 
         IPRSZX=0
         IPRSZY=0
-        IPRSZZ=0
+!       IPRSZZ=0
 ! Electric-Dipole
         IPRDX=0
         IPRDY=0
@@ -1625,17 +1626,17 @@ C printing threshold
           ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRSXZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.2) IPRSYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRSYY=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.2) IPRSYY=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSYZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.3) IPRSZX=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRSZY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRSZZ=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.3) IPRSZZ=ISOPR
 
           END IF
         END DO
@@ -2050,11 +2051,8 @@ C printing threshold
         IPRQXX=0
         IPRQXY=0
         IPRQXZ=0
-        IPRQYX=0
         IPRQYY=0
         IPRQYZ=0
-        IPRQZX=0
-        IPRQZY=0
         IPRQZZ=0
 
         IFANYD=0
@@ -2423,11 +2421,8 @@ C printing threshold
         IPRQXX=0
         IPRQXY=0
         IPRQXZ=0
-        IPRQYX=0
         IPRQYY=0
         IPRQYZ=0
-        IPRQZX=0
-        IPRQZY=0
         IPRQZZ=0
 
         IFANYD=0
@@ -2809,7 +2804,6 @@ C printing threshold
      &                  '---------------------------' //
      &                  '-------------------------------------------'//
      &                  '-------------------'
-        FMAX=0.0D0
         DO I=1,NSS
          DO J=1,NSS
           F=SODYSAMPS(I,J)*SODYSAMPS(I,J)
@@ -3906,7 +3900,7 @@ C Mapping from spin states to spin-free state and to spin:
         IF(PNAME(IPROP)(1:3).EQ.'ASD'.AND.ICOMP(IPROP).EQ.1) THEN
 
 * Get the center number
-         Read (PNAME(IPROP),'(a4,i4)') ASDLAB,ICEN
+         Read (PNAME(IPROP),'(4x,i4)') ICEN
 
       WRITE(6,*) '  ========================================='
       write(6,*) '  A(Total)-Matrix for center:',ICEN

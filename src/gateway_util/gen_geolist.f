@@ -85,6 +85,7 @@
          Z = dbsc(jCnttp)%Charge
          mCnt = dbsc(jCnttp)%nCntr
          If (dbsc(jCnttp)%Aux.or.dbsc(jCnttp)%Frag) Cycle
+         If (dbsc(jCnttp)%ECP.and.dbsc(jCnttp)%nVal.eq.0) Cycle
          Do jCnt = 1, mCnt
             ndc = jCnt + dbsc(jCnttp)%mdci
             Do i = 0, nIrrep/dc(ndc)%nStab - 1

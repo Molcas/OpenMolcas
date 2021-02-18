@@ -242,7 +242,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(PtChrg)
-         Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If
       End

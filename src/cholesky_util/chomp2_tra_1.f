@@ -19,13 +19,12 @@ C              block iSym. Files are assumed open.
 C              If requested (DoDiag=.true.), compute (ai|ai) integral
 C              diagonal.
 C
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       Real*8  COcc(*), CVir(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'ChoMP2_Tra_1')
@@ -34,10 +33,6 @@ C
       External Cho_lRead
 
       Integer ai
-
-      Parameter (N2 = InfVec_N2)
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
 C     Check if anything to do.
 C     ------------------------

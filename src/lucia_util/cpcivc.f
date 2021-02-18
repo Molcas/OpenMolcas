@@ -79,7 +79,7 @@
 *      Find nrec and lrec
 *   ========================
 *
-      CALL blkfo_min(lsym, nrec, lrec)
+      CALL blkfo_min(stsym, nrec, lrec)
       IDISK(IFILE)=0
 *
 *   =================================

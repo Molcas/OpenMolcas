@@ -29,7 +29,7 @@ c     this routine open direct acces file
 c
 c     name  - name of the file A8 (I)
 c     lun   - logical unit number (I)
-c     recl - record lenght in R8 (I)
+c     recl - record length in R8 (I)
 c     nrec  - number of records (if needed) (I)
 c
        integer lun,recl,nrec
@@ -58,31 +58,31 @@ c Avoid unused argument warnings
 c
 c     ------------------------------
 c
-       subroutine daread (lun,irec0,vector,lenght,recl)
+       subroutine daread (lun,irec0,vector,length,recl)
 c
-c     this routine read vector with required lenght from
+c     this routine read vector with required length from
 c     opened direct access file lun starting from record number
 c     irec0
 c     lun   - logical unit of direct access file (I)
 c     irec0 - initial recored number (I)
 c     vector- vector (O)
-c     lenght- number of R8 data to be readed (I)
-c     recl  - lenght of one record in lun  in R8 (I)
+c     length- number of R8 data to be readed (I)
+c     recl  - length of one record in lun  in R8 (I)
 c
-       real*8 vector(1:lenght)
-       integer lun,irec0,lenght,recl
+       real*8 vector(1:length)
+       integer lun,irec0,length,recl
 c
 c     help variables
 c
        integer ilow,iup,need,irec,i
 c
-       if (lenght.eq.0) then
+       if (length.eq.0) then
        return
        end if
 c
 c*    def need,ilow,iup,irec
 c
-       need=lenght
+       need=length
        ilow=1
        iup=0
        irec=irec0
@@ -106,32 +106,32 @@ c
 c
 c     ------------------------
 c
-       subroutine dawrite (lun,irec0,vector,lenght,recl)
+       subroutine dawrite (lun,irec0,vector,length,recl)
 c
-c     this routine write vector with required lenght to
+c     this routine write vector with required length to
 c     opened direct access file lun starting from record number
 c     irec0
 c
 c     lun   - logical unit of direct access file (I)
 c     irec0 - initial recored number (I)
 c     vector- vector (I)
-c     lenght- number of R8 data to be readed (I)
-c     recl  - lenght of one record in lun in R8 (I)
+c     length- number of R8 data to be readed (I)
+c     recl  - length of one record in lun in R8 (I)
 c
-       real*8 vector(1:lenght)
-       integer lun,irec0,lenght,recl
+       real*8 vector(1:length)
+       integer lun,irec0,length,recl
 c
 c     help variables
 c
        integer ilow,iup,need,irec,i
 c
-       if (lenght.eq.0) then
+       if (length.eq.0) then
        return
        end if
 c
 c*    def need,ilow,iup,irec
 c
-       need=lenght
+       need=length
        ilow=1
        irec=irec0
        iup=0
@@ -168,7 +168,7 @@ c
 c     help variables
 c
        integer a,b,bup,symp,symq,symab
-       integer lenghtpq,nrecc,nrest,irec
+       integer lengthpq,nrecc,nrest,irec
 c
 cT    test, if there are any ab pair
 c
@@ -193,9 +193,9 @@ c
 c*    define number of records, required to store this block
 c     and determine shift in initial possitions
 c
-       lenghtpq=norb(symp)*norb(symq)
-       nrecc=int(lenghtpq/recl)
-       nrest=lenghtpq-nrecc*recl
+       lengthpq=norb(symp)*norb(symq)
+       nrecc=int(lengthpq/recl)
+       nrest=lengthpq-nrecc*recl
        if (nrest.gt.0) then
        nrecc=nrecc+1
        end if
@@ -235,7 +235,7 @@ c
 c     help variables
 c
        integer a,symp,symq,symm,symam
-       integer lenghtmpq,nrecc,nrest,irec
+       integer lengthmpq,nrecc,nrest,irec
 c
 cT    test, if there are any a in this symmtry
 c
@@ -261,9 +261,9 @@ c
 c*    define number of records, required to store this block
 c     and determine shift in initial possitions
 c
-       lenghtmpq=noa(symm)*norb(symp)*norb(symq)
-       nrecc=int(lenghtmpq/recl)
-       nrest=lenghtmpq-nrecc*recl
+       lengthmpq=noa(symm)*norb(symp)*norb(symq)
+       nrecc=int(lengthmpq/recl)
+       nrest=lengthmpq-nrecc*recl
        if (nrest.gt.0) then
        nrecc=nrecc+1
        end if
@@ -310,7 +310,7 @@ c
 c
 c     help variables
 c
-       integer p,q,pq,irec0,lenght,b,bup,bvint
+       integer p,q,pq,irec0,length,b,bup,bvint
 c
 cT    if there are no ab pair, or no integrals in _a_bpq block return
 c
@@ -318,9 +318,9 @@ c
        return
        end if
 c
-c*    def lenght of _a_b(p,q) block
+c*    def length of _a_b(p,q) block
 c
-       lenght=norb(symp)*norb(symq)
+       length=norb(symp)*norb(symq)
 c
        if (syma.eq.symb) then
        bup=a
@@ -346,7 +346,7 @@ c
 c*    put this block to iappropriate possition in direct acces file
 c
        irec0=abmap(a,b,symp)
-       call dawrite (lunda1,irec0,wrk(poss30),lenght,recl)
+       call dawrite (lunda1,irec0,wrk(poss30),length,recl)
 c
  1000   continue
 c
@@ -383,7 +383,7 @@ c
 c
 c     help variables
 c
-       integer m,p,q,pq,irec0,lenght
+       integer m,p,q,pq,irec0,length
 c
 cT    if there are no a, or no integrals in _a_mpq block return
 c
@@ -391,9 +391,9 @@ c
        return
        end if
 c
-c*    def lenght of _a(m,p,q) block
+c*    def length of _a(m,p,q) block
 c
-       lenght=noa(symm)*norb(symp)*norb(symq)
+       length=noa(symm)*norb(symp)*norb(symq)
 c
 c*    map _a(mpq) block into #v3
 c
@@ -411,7 +411,7 @@ c
 c*    put this block to iappropriate possition in direct acces file
 c
        irec0=ammap(a,symm,symp)
-       call dawrite (lunda2,irec0,wrk(poss30),lenght,recl)
+       call dawrite (lunda2,irec0,wrk(poss30),length,recl)
 c
        return
        end
@@ -432,7 +432,7 @@ c
 c
 c     help variables
 c
-       integer nhelp,lenght,symp,symq,symab,irec0,poss3
+       integer nhelp,length,symp,symq,symab,irec0,poss3
        integer poss,a,b,bup,ii,rc
 c
 c*    def symab
@@ -466,15 +466,15 @@ c
 c
        symp=ii
        symq=mul(symab,symp)
-       lenght=norb(symp)*norb(symq)
+       length=norb(symp)*norb(symq)
        mapd3(ii,1)=poss
-       mapd3(ii,2)=lenght
+       mapd3(ii,2)=length
        mapd3(ii,3)=symp
        mapd3(ii,4)=symq
        mapd3(ii,5)=1
        mapd3(ii,6)=1
        mapi3(symp,1,1)=ii
-       poss=poss+lenght
+       poss=poss+length
 c
  200    continue
 c
@@ -507,22 +507,22 @@ c
 c***  def irec0 for this a,b,symp in TEMPDA1
        irec0=abmap(a,b,symp)
 c
-c***  def corresponding possition and lenght in #3
+c***  def corresponding possition and length in #3
        ii=mapi3(symp,1,1)
        poss3=mapd3(ii,1)
-       lenght=mapd3(ii,2)
+       length=mapd3(ii,2)
 c
 c***  read this block to #3
-       if (lenght.gt.0) then
-       call daread (lunda1,irec0,wrk(poss3),lenght,recl)
+       if (length.gt.0) then
+       call daread (lunda1,irec0,wrk(poss3),length,recl)
        end if
 c
  500    continue
 c
 c**   since there must be some integrals, write them to TEMPAB
 c
-       call deflenght (mapd3,lenght)
-       call dawri (lunab,lenght,wrk(poss30))
+       call deflength (mapd3,length)
+       call dawri (lunab,length,wrk(poss30))
 c
  1001   continue
  1000   continue
@@ -533,37 +533,35 @@ c
 c     ------------------------
 c
        subroutine mkampq (wrk,wrksize,
-     & a,syma,ammap)
+     & a,ammap)
 c
 c     this routine reconstruct #2 V2<_a,m|p,q> from corresponding TEMPDA2 file
 c
 #include "wrk.fh"
 #include "reorg.fh"
 #include "ccsort.fh"
-       integer a,syma
+       integer a
        integer ammap(1:mbas,1:8,1:8)
 c
 c     help variables
 c
-       integer symm,symp,symq,symam
-       integer iiv2,lenght,poss,irec0
+       integer symm,symp
+       integer iiv2,length,poss,irec0
 c
 c*    loops over symmetry combinations
        do 100 symm=1,nsym
-       symam=mul(syma,symm)
        do 101 symp=1,nsym
-       symq=mul(symam,symp)
 c
 c*    def initioal record possition in TEMPDA2
-c     and corresponding possition and lenght in wrk (#2)
+c     and corresponding possition and length in wrk (#2)
 c
        irec0=ammap(a,symm,symp)
        iiv2=mapi2(symm,symp,1)
        poss=mapd2(iiv2,1)
-       lenght=mapd2(iiv2,2)
+       length=mapd2(iiv2,2)
 c
-       if (lenght.gt.0) then
-       call daread (lunda2,irec0,wrk(poss),lenght,recl)
+       if (length.gt.0) then
+       call daread (lunda2,irec0,wrk(poss),length,recl)
        end if
 c
  101    continue

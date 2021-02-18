@@ -18,8 +18,7 @@
 #include "real.fh"
       Real*8 COUT(*)
       Integer iCmp(4),nBs(4)
-      Integer iTwoj(0:7),iaoii(4)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer iaoii(4)
 *
       nBs(1)=iBasi
       nBs(2)=jBasj

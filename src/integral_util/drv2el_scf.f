@@ -44,6 +44,7 @@
       use k2_arrays, only: pDq, pFq
       use IOBUF
       use Real_Info, only: ThrInt, CutInt
+      use Integral_Interfaces, only: DeDe_SCF
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -60,23 +61,12 @@
      &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
       Integer iTOffs(8,8,8)
-      Logical Debug
       Character*72 SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
-*
-#include "dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-       Debug=.true.
-#else
-       Debug=.false.
-#endif
-*
       SLine='Computing 2-electron integrals'
       Call StatusLine(' SCF:',SLine)
 *                                                                      *
@@ -175,7 +165,6 @@
 *
       If (FstItr) Then
          Triangular=.True.
-         Call Alloc_TList(Triangular,P_Eff)
          Call Init_TList(Triangular,P_Eff)
          Call Init_PPList
          Call Init_GTList
@@ -249,7 +238,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Eval_Ints_New_Internal
+         Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
@@ -291,7 +280,6 @@
       Go To 10
  11   Continue
 *     End of big task loop
-      Lu=6
       Call CWTime(TCpu2,TWall2)
       Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 *                                                                      *
@@ -322,9 +310,7 @@
 ************************************************************************
 *                                                                      *
 CMAW start
-#ifdef _F90ENABLE_
-      CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
-#endif
+C     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
 CMAW end
       Call Free_iSD()
       Return

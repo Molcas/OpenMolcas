@@ -12,20 +12,16 @@
 C
 C     Purpose: deallocate and finalize vector buffer.
 C
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+     &                     nVec_in_Buf
       Implicit None
 #include "cholesky.fh"
-#include "chovecbuf.fh"
+#include "stdalloc.fh"
 
-      If (l_ChVBuf .gt. 0) Then
-         Call Cho_Mem('CHVBUF','Free','Real',ip_ChVBuf,l_ChVBuf)
-      End If
-      l_ChVBuf=0
-      ip_ChVBuf=0
-      If (l_ChVBfI .gt. 0) Then
-         Call Cho_Mem('ChVBfI','Free','Real',ip_ChVBfI,l_ChVBfI)
-      End If
-      l_ChVBfI=0
-      ip_ChVBfI=0
+      If (Allocated(CHVBUF)) Call mma_deallocate(CHVBUF)
+      If (Allocated(CHVBFI)) Call mma_deallocate(CHVBFI)
+
       Call Cho_iZero(ip_ChVBuf_Sym,nSym)
       Call Cho_iZero(l_ChVBuf_Sym,nSym)
       Call Cho_iZero(ip_ChVBFI_Sym,nSym)

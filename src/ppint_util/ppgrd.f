@@ -45,15 +45,14 @@
       Integer nkcrl(lproju+1,kcrs),nkcru(lproju+1,kcrs),lcr(kcrs),
      &        ncr(imax)
 *
-      Logical EQ, TstFnc, TF
+      Logical EQ
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function for Cartesian index
 *
       nElem(i) = (i+1)*(i+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,7 +112,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iComp = 1
       kdc = 0
       Do iCnttp = 1, nCnttp
         If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr

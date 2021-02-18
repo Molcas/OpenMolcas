@@ -8,50 +8,46 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,lWarn,Label,dBf,
-     &                      ldB)
+      Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,Label,dBf,ldB)
+      use Slapaf_Info, only: Weights, RefGeo, R12, GradRef
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
-#include "info_slapaf.fh"
       Real*8 Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
-
-      Logical l_Write, ldB, lWarn, lTrans
-      Character*8 Label
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      xyz0(i,j)=Work(ipRef+(j-1)*3+i-1)
-      r12(i,j)=Work(ipR12_+(j-1)*3+i-1)
+      Logical l_Write, ldB, lTrans
+      Character(LEN=8) Label
+      Real*8, Allocatable, Target:: TV(:,:)
+      Real*8, Pointer:: r12_p(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     The reference direction (normal to the hyperplane) is taken from
-*     the input (ipGradRef) if Ref_Grad=.True., or from the stored
+*     the input (GradRef) if allocated, or from the stored
 *     transverse direction if there is one, or from the R-P vector
-*     (ipR12) otherwise
+*     (R12) otherwise
 *
-      Call qpg_dArray('Transverse',lTrans,nTrans)
-      If (Ref_Grad) Then
+      If (Allocated(GradRef)) Then
          lTrans = .False.
-         ipR12_ = ipGradRef
+         r12_p => GradRef
 c        write(6,*), 'Using Reference Gradient'
-      Else If (lTrans) Then
-         Call Allocate_Work(ipR12_,3*nCent)
-         Call Get_dArray('Transverse',Work(ipR12_),3*nCent)
-c        write(6,*), 'Using stored Transverse'
       Else
-         ipR12_ = ipR12
-c        write(6,*), 'Using R-P Vector'
+         Call qpg_dArray('Transverse',lTrans,nTrans)
+         If (lTrans) Then
+            Call mma_allocate(TV,3,nCent,Label='TV')
+            Call Get_dArray('Transverse',TV,3*nCent)
+            r12_p => TV
+c           write(6,*), 'Using stored Transverse'
+         Else
+            r12_p => R12
+c           write(6,*), 'Using R-P Vector'
+         End If
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     Call RecPrt('Ref',' ',Work(ipRef),3,nCent)
-c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
+c     Call RecPrt('Ref',' ',RefGeo,3,nCent)
+c     Call RecPrt('R12',' ',r12_p,3,nCent)
 *
 *     Length of the direction vector (weighted)
 *
@@ -59,10 +55,10 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
       TWeight = Zero
       Do iCent = 1, nCent
          Fact = Dble(iDeg(xyz(1,iCent)))
-         xWeight = Fact*Work(ipWeights+iCent-1)
+         xWeight = Fact*Weights(iCent)
          TWeight = TWeight+xWeight
          Do i = 1, 3
-            RR_R12 = RR_R12 + xWeight*(r12(i,iCent))**2
+            RR_R12 = RR_R12 + xWeight*(r12_p(i,iCent))**2
          End Do
       End Do
       RR_R12=Sqrt(RR_R12)
@@ -76,9 +72,10 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
       f=Zero
       Do iCent = 1, nCent
          Fact = Dble(iDeg(xyz(1,iCent)))
-         xWeight = Fact*Work(ipWeights+iCent-1)
+         xWeight = Fact*Weights(iCent)
          Do i = 1, 3
-            f = f + xWeight*(xyz(i,iCent)-xyz0(i,iCent))*r12(i,iCent)
+            f = f + xWeight*(xyz(i,iCent)-RefGeo(i,iCent))
+     &        *  r12_p(i,iCent)
          End Do
       End Do
 *
@@ -111,9 +108,9 @@ c     Write (6,*) 'f, RR_R12=',f,RR_R12
 *
          Do iCent = 1, nCent
             Fact = Dble(iDeg(xyz(1,iCent)))
-            xWeight = Fact*Work(ipWeights+iCent-1)
+            xWeight = Fact*Weights(iCent)
             Do i = 1, 3
-               Bf(i,iCent) = xWeight*r12(i,iCent)/RR_R12*SqInvTWeight
+               Bf(i,iCent) = xWeight*r12_p(i,iCent)/RR_R12*SqInvTWeight
             End Do
          End Do
       End If
@@ -127,11 +124,10 @@ c     Call RecPrt('Bf',' ',Bf,3,nCent)
          Call FZero(dBf,(3*nCent)**2)
       End If
 *
-      If (lTrans) Call Free_Work(ipR12_)
+      If (lTrans) Call mma_deallocate(TV)
+      r12_p => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(lWarn)
       End

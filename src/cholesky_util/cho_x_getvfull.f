@@ -66,7 +66,6 @@
       Parameter (SECNAM = 'Cho_X_GetVfull')
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

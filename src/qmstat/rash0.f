@@ -25,7 +25,6 @@
       Dimension DiagH0(MxState)
 
       nBTri=nB*(nB+1)/2
-      nTri=nState*(nState+1)/2
       If(.not.AddExt) then
         kaunter=0
         Do 1, i=1,nState

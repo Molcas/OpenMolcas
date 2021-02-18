@@ -15,21 +15,16 @@ C              For serial runs, this is trivial. For parallel runs, we
 C              need first to figure out if the treated diagonal element
 C              is in fact present in the local diagonal.
 C
+      use ChoSwp, only: IndRed
+      use ChoArr, only: iL2G
       Implicit None
       Real*8  Diag(*)
       Integer iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Integer iAB1, iAB2, iAB, jAB, kAB
-
-      Integer i, j
-      Integer IndRed, iL2G
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iL2G(i)=iWork(ip_iL2G-1+i)
 
       If (Cho_Real_Par) Then
          iAB1 = iiBstR(iSym,2) + 1

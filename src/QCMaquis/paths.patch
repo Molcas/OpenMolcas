@@ -1,0 +1,261 @@
+--- tools/distributed-4rdm/prepare_rdm_template.sh.orig	2020-10-12 14:29:22.323838224 +0200
++++ tools/distributed-4rdm/prepare_rdm_template.sh	2020-10-12 14:29:17.919859056 +0200
+@@ -3,8 +3,8 @@
+ t3rdmmode=0
+ spin=0
+ states=()
+-submitfile=$MOLCAS/Tools/distributed-4rdm/submit-4rdm.sh
+-jobmanager=$MOLCAS/pytools/jobmanager.py
++submitfile=$MOLCAS/qcmaquis/Tools/distributed-4rdm/submit-4rdm.sh
++jobmanager=$MOLCAS/qcmaquis/pytools/jobmanager.py
+
+ command_usage()
+ {
+@@ -105,7 +105,7 @@
+   echo "Done."
+ else
+   echo -n "Creating scratch files for distributed t-3-RDM evaluation for states "
+-  submitfile=$MOLCAS/Tools/distributed-4rdm/submit-3rdm.sh
++  submitfile=$MOLCAS/qcmaquis/Tools/distributed-4rdm/submit-3rdm.sh
+   for statei in ${states[@]}; do
+     for statej in ${states[@]}; do
+       if [ ${statei} -lt ${statej} ]; then
+--- src/qcmaquis_interface_measurements.f90.orig	2020-10-12 14:32:01.099085865 +0200
++++ src/qcmaquis_interface_measurements.f90	2020-10-12 14:12:44.444497901 +0200
+@@ -71,11 +71,11 @@
+     logical                    :: cionly
+
+     if(cionly)then
+-      call system("$MOLCAS/pytools/rdmsave_su2_onlyone.py "//result//" ")
++      call system("$MOLCAS/qcmaquis/pytools/rdmsave_su2_onlyone.py "//result//" ")
+     else
+-      call system("$MOLCAS/pytools/rdmsave_su2.py "//result//" ")
++      call system("$MOLCAS/qcmaquis/pytools/rdmsave_su2.py "//result//" ")
+     end if
+-    call system("$MOLCAS/pytools/spdmsave_su2.py "//result//" ")
++    call system("$MOLCAS/qcmaquis/pytools/spdmsave_su2.py "//result//" ")
+
+                     call system("mv "//"oneparticle.rdm "//DM1)
+                     call system("mv "//"oneparticle.spd "//SPD)
+--- src/qcmaquis_interface_main.f90.orig	2019-07-10 16:21:14.000000000 +0200
++++ src/qcmaquis_interface_main.f90	2020-10-12 14:08:17.845780711 +0200
+@@ -669,7 +669,7 @@
+       end if
+       overlap = 0.0d0
+
+-      pydriver    = "$MOLCAS/pytools/runDMRG.py "
++      pydriver    = "$MOLCAS/qcmaquis/pytools/runDMRG.py "
+       overlap_exe = "mps_overlap_su2u1pg "
+
+       !> compute overlap <MPS1 | MPS2>
+@@ -712,7 +712,7 @@
+
+       overlap = 0.0d0
+
+-      pydriver    = "$MOLCAS/pytools/runDMRG.py "
++      pydriver    = "$MOLCAS/qcmaquis/pytools/runDMRG.py "
+       overlap_exe = "mps_overlap_su2u1pg "
+
+       !> compute overlap <MPS1 | MPS2>
+@@ -739,7 +739,7 @@
+
+       overlap = 0.0d0
+
+-      pydriver    = "$MOLCAS/pytools/runDMRG.py "
++      pydriver    = "$MOLCAS/qcmaquis/pytools/runDMRG.py "
+       overlap_exe = "mps_overlap_2u1pg "
+
+       !> set prefix for QCMaquis results/checkpoint files
+@@ -775,7 +775,7 @@
+
+       call getenv("CurrDir",currdir)
+       state_tag(1:5) = ' '
+-      pydriver       = "$MOLCAS/pytools/runDMRG.py "
++      pydriver       = "$MOLCAS/qcmaquis/pytools/runDMRG.py "
+       MPScrot_exe    = "mps_rotate_2u1pg "
+
+       maquis_name_state     = ""
+@@ -1278,7 +1278,7 @@
+
+       !print *, 'OPTION is for TDMs == ',option
+
+-      input = ' $MOLCAS/template-files/template-dmrg-tdm.maquis'
++      input = ' $MOLCAS/qcmaquis/template-files/template-dmrg-tdm.maquis'
+
+       select case(isrdm)
+       case(1)
+@@ -1292,7 +1292,7 @@
+
+ ! write(6,*) 'these are my commands: '
+
+-! write(6,*) '$MOLCAS/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                                   &
++! write(6,*) '$MOLCAS/qcmaquis/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                                    &
+ !                      " --executable=dmrg_meas"//                                                                    &
+ !                      " --output=dmrg.TDM_OUT "//' --tmpfull=$PWD/tmp'//                                             &
+ !                      ' --lhs='//trim(maquis_name_states(1))//' --rhs='//trim(maquis_name_states(2))//               &
+@@ -1300,7 +1300,7 @@
+ !                      trim(maquis_norb)//trim(maquis_result)//' '//trim(option)//' '//trim(input)
+
+           !> off-diagonal part of 1-TDM
+-          call system('$MOLCAS/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                                   &
++          call system('$MOLCAS/qcmaquis/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                          &
+                       " --executable=dmrg_meas"//                                                                    &
+                       " --output=dmrg.TDM_OUT "//' --tmpfull=$PWD/tmp'//                                             &
+                       ' --lhs='//trim(maquis_name_states(1))//' --rhs='//trim(maquis_name_states(2))//               &
+@@ -1308,7 +1308,7 @@
+                       trim(maquis_norb)//trim(maquis_result)//' '//trim(option)//' '//trim(input)                    &
+                      )
+
+-!write(6,*) '$MOLCAS/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                                   &
++!write(6,*) '$MOLCAS/qcmaquis/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                                     &
+ !                      " --executable=onetdm_diag_2u1pg"//                                                            &
+ !                      " --output=dmrg.diagTDM_OUT "//' --tmpfull=$PWD/tmp'//                                         &
+ !                      ' --lhs='//trim(maquis_name_states(1))//' --rhs='//trim(maquis_name_states(2))//               &
+@@ -1316,7 +1316,7 @@
+ !                      trim(maquis_norb)//trim(maquis_result)//' '//trim(option)//' '//trim(input)
+
+           !> diagonal part of 1-TDM
+-          call system('$MOLCAS/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                                   &
++          call system('$MOLCAS/qcmaquis/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=1 '//                          &
+                       " --executable=onetdm_diag_2u1pg"//                                                            &
+                       " --output=dmrg.diagTDM_OUT "//' --tmpfull=$PWD/tmp'//                                         &
+                       ' --lhs='//trim(maquis_name_states(1))//' --rhs='//trim(maquis_name_states(2))//               &
+@@ -1324,14 +1324,14 @@
+                       trim(maquis_norb)//trim(maquis_result)//' '//trim(option)//' '//trim(input)                    &
+                       )
+
+-!write(6,*) "$MOLCAS/pytools/tdmsave.py "//trim(maquis_name_results(2))//" "//trim(state_tag(1))//" "&
++!write(6,*) "$MOLCAS/qcmaquis/pytools/tdmsave.py "//trim(maquis_name_results(2))//" "//trim(state_tag(1))//" "  &
+ !                      //trim(state_tag(2))//" 1 > tdm_save."//trim(state_tag(1))//"."                          &
+ !                      //trim(state_tag(2))//".out"
+
+           !> save result in oneparticle.tdm.(iroot-1).(jroot-1)
+-          call system("$MOLCAS/pytools/tdmsave.py "//trim(maquis_name_results(2))//" "//trim(state_tag(1))//" "&
+-                      //trim(state_tag(2))//" 1 > tdm_save."//trim(state_tag(1))//"."                          &
+-                      //trim(state_tag(2))//".out"                                                             &
++          call system("$MOLCAS/qcmaquis/pytools/tdmsave.py "//trim(maquis_name_results(2))//" "//trim(state_tag(1))//" "&
++                      //trim(state_tag(2))//" 1 > tdm_save."//trim(state_tag(1))//"."                                   &
++                      //trim(state_tag(2))//".out"                                                                      &
+                      )
+           print *, 'saving 1-TDM to oneparticle.tdm.'//trim(state_tag(1))//"."//trim(state_tag(2))
+         end if
+@@ -1346,7 +1346,7 @@
+           write(6,*) 'compute 2-TDM for <',trim(state_tag(1)),'|c+c+ cc|',trim(state_tag(2)),'>'
+
+           !> 2-TDM
+-          call system('$MOLCAS/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=2 '//                             &
++          call system('$MOLCAS/qcmaquis/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=2 '//                    &
+                       " --executable=dmrg_meas"//                                                              &
+                       " --output=dmrg.TDM_OUT "//' --tmpfull=$PWD/tmp'//                                       &
+                       ' --lhs='//trim(maquis_name_states(1))//' --rhs='//trim(maquis_name_states(2))//         &
+@@ -1355,9 +1355,9 @@
+                      )
+
+           !> save result in twoparticle.tdm.(iroot-1).(jroot-1)
+-          call system("$MOLCAS/pytools/tdmsave.py "//trim(maquis_name_results(2))//" "//trim(state_tag(1))//" "&
+-                      //trim(state_tag(2))//" 2 > tdm_save."//trim(state_tag(1))//"."                          &
+-                      //trim(state_tag(2))//".out"                                                             &
++          call system("$MOLCAS/qcmaquis/pytools/tdmsave.py "//trim(maquis_name_results(2))//" "//trim(state_tag(1))//" "&
++                      //trim(state_tag(2))//" 2 > tdm_save."//trim(state_tag(1))//"."                                   &
++                      //trim(state_tag(2))//".out"                                                                      &
+                      )
+
+         end if
+@@ -1375,7 +1375,7 @@
+           write(6,*)'compute 3-TDM for <',trim(state_tag(1)),'|c+c+c+ ccc|',trim(state_tag(2)),'>'
+
+           ! 3-TDM
+-          call system('$MOLCAS/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=3 '//                             &
++          call system('$MOLCAS/qcmaquis/pytools/runDMRG.py '//' --tdm '//' --tdmlevel=3 '//                    &
+                       " --executable=dmrg_meas"//" --output=dmrg.TDM_OUT "//' --tmpfull=$PWD/tmp'//            &
+                       ' --lhs='//trim(maquis_name_states(1))//' --rhs='//trim(maquis_name_states(2))//         &
+                       trim(maquis_msprojL)//' '//trim(maquis_msproj)//' '//                                    &
+@@ -1383,10 +1383,10 @@
+                      )
+
+           !> save result in threeparticle.tdm.(iroot-1).(jroot-1)
+-          call system("$MOLCAS/pytools/transition_threeptrdm.py "//trim(maquis_name_results(2))//" "//         &
+-                      trim(state_tag(1))//" "  &
+-                      //trim(state_tag(2))//" 3 > tdm_save."//trim(state_tag(1))//"."                          &
+-                      //trim(state_tag(2))//".out"                                                             &
++          call system("$MOLCAS/qcmaquis/pytools/transition_threeptrdm.py "//trim(maquis_name_results(2))//" " &
++                      //trim(state_tag(1))//" "                                                               &
++                      //trim(state_tag(2))//" 3 > tdm_save."//trim(state_tag(1))//"."                         &
++                      //trim(state_tag(2))//".out"                                                            &
+                      )
+         end if
+       case default
+@@ -2266,7 +2266,7 @@
+         logical,intent(in),optional :: run_qcmaquis ! Run QCMaquis directly to evaluate the RDM if true, otherwise only write the template for later evaluation
+         integer,intent(in),optional :: compress_Mmax ! M for MPS compression
+         !---
+-        character(len=*),parameter :: runDMRG = '$MOLCAS/pytools/runDMRG.py'
++        character(len=*),parameter :: runDMRG = '$MOLCAS/qcmaquis/pytools/runDMRG.py'
+         character(len=*),parameter :: mpstransform = 'mps_transform_pg'
+         character(len=*),parameter :: extract4RDM = '$MOLCAS/qcmaquis/lib/python/pyeval/fourptrdm_perm.py'
+         character(len=*),parameter :: extract3RDM = '$MOLCAS/qcmaquis/lib/python/pyeval/transition_threeptrdm.py'
+@@ -2318,7 +2318,7 @@
+               case default ! nactel >= 4
+               ! generate the input name and set the template name
+               inputname = 'meas-4rdm.'//trim(irootstr)//'.in'
+-              templatename = '$MOLCAS/template-files/template-dmrg-4rdm.maquis'
++              templatename = '$MOLCAS/qcmaquis/template-files/template-dmrg-4rdm.maquis'
+
+               ! the code below assumes that numbers will never exceed 4 digits
+
+@@ -2384,7 +2384,7 @@
+                 stop '3-TDM QCMaquis template file requested but second root not provided!'
+               end if
+               inputname = 'meas-3tdm.'//trim(irootstr)//'.'//trim(jrootstr)//'.in'
+-              templatename = '$MOLCAS/template-files/template-dmrg-trans3rdm.maquis'
++              templatename = '$MOLCAS/qcmaquis/template-files/template-dmrg-trans3rdm.maquis'
+               bra_checkpointname = trim(prj)//".checkpoint_state."//trim(jrootstr)//"."//trim(ms2str)//"."//trim(ms2str)//".h5"
+               write (runstring,'(a,i4,a,i4,a,i4,a,i4,a)') ' --replace="orbital_number=',dmrg_external%norb,   &
+                               '" --replace="isup=',nup,'" --replace="isdown=',ndown,  &
+@@ -2437,7 +2437,7 @@
+       ! command exit status
+       integer :: status
+
+-      character(len=*),parameter :: runDMRG = '$MOLCAS/pytools/runDMRG.py'
++      character(len=*),parameter :: runDMRG = '$MOLCAS/qcmaquis/pytools/runDMRG.py'
+       character(len=*),parameter :: mpscompress = 'mps_compress_2u1pg'
+
+       status = 0
+@@ -2501,8 +2501,8 @@
+         input    = ' $DALTON/template-files/template-dmrg-su2.maquis'
+         pydriver = ' $DALTON/pytools/runDMRG.py  '
+       else if (dmrg_host_program_settings%dmrg_host_program(1:7) == 'molcas ')then
+-        input    = ' $MOLCAS/template-files/template-dmrg-su2.maquis'
+-        pydriver = ' $MOLCAS/pytools/runDMRG.py  '
++        input    = ' $MOLCAS/qcmaquis/template-files/template-dmrg-su2.maquis'
++        pydriver = ' $MOLCAS/qcmaquis/pytools/runDMRG.py  '
+       end if
+
+       istart = 1; iend = 1
+@@ -2854,7 +2854,7 @@
+                                                  dmrgci )
+
+           !> extract state-specific energy
+-          call system("$MOLCAS/pytools/energy_last.py "//trim(maquis_name_results(iroot))//&
++          call system("$MOLCAS/qcmaquis/pytools/energy_last.py "//trim(maquis_name_results(iroot))//&
+                       " > dmrg_energy.out")
+           open(unit=987,file="dmrg_energy.out",status='old')
+           read(987,*)
+@@ -2885,7 +2885,7 @@
+           dmrg_energy%max_truncW_old(iroot)  = ttmp
+
+           !> extract orbital ordering
+-          call system("$MOLCAS/pytools/ordering.py "//trim(maquis_name_results(iroot))//" > ordering.out")
++          call system("$MOLCAS/qcmaquis/pytools/ordering.py "//trim(maquis_name_results(iroot))//" > ordering.out")
+
+           !> rename some input/log files to keep in scratch
+           if(dmrg_host_program_settings%dmrg_host_program(1:7) == 'molcas ')then
+@@ -2911,7 +2911,7 @@
+         else
+
+           if(fiedler)then
+-            call system("$MOLCAS/pytools/fiedler.py "//trim(maquis_name_results(iroot))//" > fiedler.out")
++            call system("$MOLCAS/qcmaquis/pytools/fiedler.py "//trim(maquis_name_results(iroot))//" > fiedler.out")
+             open(unit=987,file="fiedler.out",status='old')
+             read(987,'(a,a,a)') dmrg_orbital_ordering%fiedler_order(iroot)
+             close(987,status='delete')

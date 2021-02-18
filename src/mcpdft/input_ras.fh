@@ -42,7 +42,7 @@
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
      &     KeyGSOR, KeyDFCF, KeyZZZZ
 
-      Common /InputFlags/ KeyAAAA,
+      Common /InputFlags_M/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
      &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,
@@ -70,33 +70,33 @@
 *------------------------------------------------------
 * Actual keywords, note: Order matters!
       Character*4 CMD(nKeys)
-      DATA CMD / 'ALTE','ATOM','AVER','CHAR','CHOI',
-     &           'CHOL','CIMX','CION','CIRE','CIRO',
-     &           'CISE','CLEA','CORE','DELE','END ',
-     &           'FILE','FROZ','HOME','INAC','INPO',
-     &           'IPHN','ITER','JOBI','KSDF','LEVS',
-     &           'LINE','LOWD','LOWM','LUMO','MAXO',
-     &           'NACT','NEWI','NONE','NOQU','OPTO',
-     &           'ORBA','ORBL','ORBO','ORDE','OUTO',
-     &           'OUTP','PRIN','PROR','PRSP','PRWF',
-     &           'QUNE','RAS1','RAS2','RAS3','GASS',
-     &           'RFPE','CIRF','RFRO','RLXR','RASS',
-     &           'SDAV','SPIN','SUPS','SXDA','SYMM',
-     &           'THRS','TIGH','TITL','TYPE','VB  ',
-     &           'EXPE','SPLI','NUSP','ENSP','PESP',
-     &           'FOSP','MDRL','OFEM','FTHA','DFMD',
-     &           'BKAP','ALPH','FARO','DMRG','3RDM',
-     &           'NECI','NWAL','TIME','CYCL','RDMS',
-     &           'RDMP','RSPC','DEFD','DISH','EXNE',
-     &           'BLOK','SOCC','RGIN','PRSD','FCID',
-     &           'NOCA','SAVE','EXPA','H5OR','H5CI',
-     &           'HEXS','HEUR','MSPD','GRAD','NOGR',
-     &           'GSOR','DFCF','ZZZZ'/
+      Parameter (CMD = ['ALTE','ATOM','AVER','CHAR','CHOI',
+     &                  'CHOL','CIMX','CION','CIRE','CIRO',
+     &                  'CISE','CLEA','CORE','DELE','END ',
+     &                  'FILE','FROZ','HOME','INAC','INPO',
+     &                  'IPHN','ITER','JOBI','KSDF','LEVS',
+     &                  'LINE','LOWD','LOWM','LUMO','MAXO',
+     &                  'NACT','NEWI','NONE','NOQU','OPTO',
+     &                  'ORBA','ORBL','ORBO','ORDE','OUTO',
+     &                  'OUTP','PRIN','PROR','PRSP','PRWF',
+     &                  'QUNE','RAS1','RAS2','RAS3','GASS',
+     &                  'RFPE','CIRF','RFRO','RLXR','RASS',
+     &                  'SDAV','SPIN','SUPS','SXDA','SYMM',
+     &                  'THRS','TIGH','TITL','TYPE','VB  ',
+     &                  'EXPE','SPLI','NUSP','ENSP','PESP',
+     &                  'FOSP','MDRL','OFEM','FTHA','DFMD',
+     &                  'BKAP','ALPH','FARO','DMRG','3RDM',
+     &                  'NECI','NWAL','TIME','CYCL','RDMS',
+     &                  'RDMP','RSPC','DEFD','DISH','EXNE',
+     &                  'BLOK','SOCC','RGIN','PRSD','FCID',
+     &                  'NOCA','SAVE','EXPA','H5OR','H5CI',
+     &                  'HEXS','HEUR','MSPD','GRAD','NOGR',
+     &                  'GSOR','DFCF','ZZZZ'])
 *------------------------------------------------------
 * Input data sets:
-      Common /InputInt/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),
+      Common /InputInt_M/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),
      &           NFRO_I(8),NISH_I(8),NRS1_I(8),NRS2_I(8),
      &           NRS3_I(8),NDEL_I(8),ISPIN_I,LSYM_I,
      &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,
      &           LROOTS_I,IRLXROOT_I
-      Common /InputReal/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
+      Common /InputReal_M/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)

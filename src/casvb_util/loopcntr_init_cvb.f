@@ -8,11 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine loopcntr_init_cvb(inputmode1,initfalse)
       implicit real*8(a-h,o-z)
-#include "ext_cvb.fh"
+c ... Files/Hamiltonian available ...
+      logical, external :: ifcasci_cvb
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -271,9 +275,10 @@ c  Next loop iteration :
       ioptstep=noptstep+1
 
 1000  continue
-      do ioptim=1,noptim
-      if(iopt2step(ioptim).eq.ioptstep)goto 1100
+      do i=1,noptim
+      if(iopt2step(i).eq.ioptstep)goto 1099
       enddo
+1099  ioptim=i
 1100  loopcntr_iterate_cvb=(ioptim.le.noptim)
       return
       end

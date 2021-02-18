@@ -1,4 +1,4 @@
-************************************************************************
+**********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -10,35 +10,39 @@
 ************************************************************************
       Subroutine RlxCtl(iStop)
       Use Chkpnt
+      use thermochem, only: lTherm
       Use kriging_mod, only: Kriging, nspAI
+      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH,
+     &                       Free_Slapaf, qInt, dqInt, Lbl
+      use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth,
+     &                             HSet, BSet, PrQ, Numerical, iNeg,
+     &                             E_Delta, iRef, lNmHss, Cubic,
+     &                             Request_Alaska, Request_RASSI, lCtoF,
+     &                             isFalcon, nDimBC, mTROld,
+     &                             NmIter, MxItr, mTtAtm, nWNdw, iter
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
 ************************************************************************
-#include "info_slapaf.fh"
-      Parameter(nLabels=10*MxAtom,nLbl=10*MxAtom)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nadc.fh"
 #include "weighting.fh"
 #include "db.fh"
-#include "print.fh"
 #include "stdalloc.fh"
-      Logical Numerical, GoOn, PrQ, TSReg,
-     &        Do_ESPF, Just_Frequencies, Found
-      Character*8 GrdLbl, StpLbl, Labels(nLabels), Lbl(nLbl)
-      Character*1 Step_trunc
-      Integer AixRm, iNeg(2)
+#include "print.fh"
+      Logical GoOn, Do_ESPF, Just_Frequencies, Found, Error
+      Character(LEN=1) Step_trunc
+      Integer, External:: AixRm
       Integer nGB
-      Real*8, Allocatable:: GB(:)
-*
+      Real*8 rDum(1)
+      Real*8, Allocatable:: GB(:), HX(:), HQ(:), KtB(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
       Lu=6
-      iRout = 32
-      iPrint=nPrint(iRout)
-      StpLbl=' '
-      GrdLbl=' '
       Just_Frequencies=.False.
 *                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
 *-----Process the input
@@ -46,7 +50,8 @@
       LuSpool=21
       Call SpoolInp(LuSpool)
 *
-      Call RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,.False.)
+      Call RdCtl_Slapaf(LuSpool,.False.)
+      mInt = nDimBC - mTROld
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -59,44 +64,25 @@
 *
 *        Alaska/RASSI only
          iStop=3
-
-         Go To 999
-      End If
-
-      If (isFalcon) Then
+         Call Free_Slapaf()
+         Return
+       Else If (isFalcon) Then
          iStop=1
-         Goto 999
+         Call Free_Slapaf()
+         Return
       End if
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      jPrint=nPrint(iRout)
-*
-      If (nLbl.lt.nBVec) Then
-         Call WarningMessage(2,'Error in RlxCtl')
-         Write (Lu,*)
-         Write (Lu,*) '**********************'
-         Write (Lu,*) ' ERROR: nLbl.lt.nBVec '
-         Write (Lu,*) ' nLbl=',nLbl
-         Write (Lu,*) ' nBVec=',nBVec
-         Write (Lu,*) '**********************'
-         Call Quit_OnUserError()
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
       PrQ= .Not.Request_Alaska
-*     PrQ=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
-     &                                   nsAtom,AtomLbl,
-     &                                   Work(ipCoor),jStab,nStab)
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-----Compute the Wilson B-matrices, this describe the transformations
+*-----Compute the Wilson B-matrices, which describe the transformations
 *     between internal and Cartesian coordinates. Values of the
 *     Internal coordinates are computed too.
 *
@@ -107,19 +93,20 @@
 *---- Compute number of steps for numerical differentiation
 *
       NmIter=1
-      If (lRowH)  NmIter=nRowH+1     ! Numerical only for some rows
+      ! Numerical only for some rows
+      If (Allocated(mRowH))  NmIter=SIZE(mRowH)+1
       If (lNmHss) NmIter=2*mInt+1    ! Full numerical
       If (Cubic)  NmIter=2*mInt**2+1 ! Full cubic
 *
       If (lTherm .and. iter.EQ.1) then
-         Call Put_dArray('Initial Coordinates',Work(ipCoor),3*nsAtom)
+         Call Put_dArray('Initial Coordinates',Coor,SIZE(Coor))
       EndIf
 *
 *---- Fix the definition of internal during numerical differentiation
       If (lNmHss.and.iter.lt.NmIter.and.iter.ne.1) nPrint(122)=5
 *
 *---- Do not overwrite numerical Hessian
-      If ((lNmHss.or.lRowH)
+      If ((lNmHss.or.Allocated(mRowH))
      &    .and.(iter.gt.NmIter.or.iter.lt.NmIter)) HSet = .False.
 *
 *---- Set logical to indicate status during numerical differentiation
@@ -127,49 +114,25 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
-     &           User_Def,nStab,jStab,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
-     &           MaxItr,nWndw)
+      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
+      nQQ = SIZE(qInt,1)
 *
       nPrint(30) = nPrint(30)-1
 *
-      Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*nQQ)
+      Call Put_dArray('BMtrx',BMx,SIZE(Coor)*nQQ)
       Call Put_iScalar('No of Internal coordinates',nQQ)
-*
-*     Too many constraints?
-*
-      If (nLambda.gt.nQQ) Then
-         Call WarningMessage(2,'Error in RlxCtl')
-         Write (Lu,*)
-         Write (Lu,*) '********************************************'
-         Write (Lu,*) ' ERROR: nLambda.gt.nQQ'
-         Write (Lu,*) ' nLambda=',nLambda
-         Write (Lu,*) ' nQQ=',nQQ
-         Write (Lu,*) ' There are more constraints than coordinates'
-         Write (Lu,*) '********************************************'
-         Call Quit_OnUserError()
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,
-     &                  Degen,Iter,Work(ipCx),mTtAtm,iWork(ipANr),
-     &                  DDV_Schlegel,iOptC,rHidden,ThrGrd)
+      Call Reset_ThrGrd(Iter,mTtAtm,ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
 *-----Compute the norm of the Cartesian gradient.
 *
-      ipOff = (iter-1)*3*nsAtom + ipGx
-      Call G_Nrm(Work(ipOff),nsAtom,nQQ,Work(ipGNrm),iter,
-     &           Work(ipdqInt),Degen,mIntEff)
-      If (nPrint(116).ge.6) Call ListU(Lu,Lbl,Work(ipdqInt),nQQ,iter)
+      Call G_Nrm(nQQ,GNrm,iter,dqInt,mIntEff)
+      If (nPrint(116).ge.6) Call ListU(Lu,Lbl,dqInt,nQQ,iter)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -177,97 +140,70 @@
 *     Accumulate gradient for complete or partial numerical
 *     differentiation of the Hessian.
 *
-      If (lRowH.and.iter.lt.NmIter) Then
+      If ((Allocated(mRowH).and.iter.lt.NmIter) .or.
+     &        (lNmHss.and.iter.lt.NmIter)) Then
+
+         If (Allocated(mRowH).and.iter.lt.NmIter) Then
 *
 *----------------------------------------------------------------------*
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,Work(ipShf),
-     &              Work(ipqInt))
-         UpMeth='RowH  '
-      Else If (lNmHss.and.iter.lt.NmIter) Then
+            Call Freq1()
+            UpMeth='RowH  '
+         Else
 *
 *----------------------------------------------------------------------*
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-         Call Freq2(iter,Work(ipdqInt),Work(ipShf),nQQ,Delta,Stop,
-     &              Work(ipqInt),.Not.User_Def,nsAtom,Work(ipCM))
-         UpMeth='NumHss'
-      Else
-         Go To 777
-      End If
+            Call NwShft()
+            UpMeth='NumHss'
+         End If
 *
-      Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,
-     &            Work(ipdqInt+(iter-1)*nQQ),
-     &            Work(ipShf+(iter-1)*nQQ),Lbl)
-      iNeg(1)=-99
-      iNeg(2)=-99
-      HUpMet='None  '
-      Stop = .False.
-      nPrint(116)=nPrint(116)-3
-      nPrint( 52)=nPrint( 52)-1  ! Status
-      nPrint( 53)=nPrint( 53)-1
-      nPrint( 54)=nPrint( 54)-1
-      Write (6,*) ' Accumulate the gradient for selected '//
-     &            'numerical differentiation.'
-      Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
-      Ed=Zero
-      Step_Trunc=' '
-         Go To 666
-*
- 777  Continue
+         Call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
+         iNeg(:)=-99
+         HUpMet='None  '
+         nPrint(116)=nPrint(116)-3
+         nPrint( 52)=nPrint( 52)-1  ! Status
+         nPrint( 53)=nPrint( 53)-1
+         nPrint( 54)=nPrint( 54)-1
+         Write (6,*) ' Accumulate the gradient for selected '//
+     &               'numerical differentiation.'
+         Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
+         E_Delta=Zero
+         Step_Trunc=' '
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
-*-----Compute updated geometry in Internal coordinates
+      Else
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+*--------Compute updated geometry in Internal coordinates
 *
-      Step_Trunc=' '
-      ed=zero
-      If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
+         Step_Trunc=' '
+         E_Delta=zero
+         If (Allocated(mRowH).or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
-      Call Setup_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
+         Call Init_UpdMask(nInter)
 #endif
 *
-*     Update geometry
+*        Update geometry
 *
-      If (Kriging .and. Iter.ge.nspAI) Then
-         Call Update_Kriging(
-     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
-     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
-     &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
-     &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),Work(ipGx),
-     &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &               Labels,nLabels,FindTS,TSConstraints,nRowH,
-     &               nWndw,Mode,Work(ipMF),
-     &               iOptH,HUpMet,kIter,GNrm_Threshold,
-     &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
-      Else
-         Call Update_sl(
-     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
-     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
-     &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
-     &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),GrdMax,
-     &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &               Labels,nLabels,FindTS,TSConstraints,nRowH,
-     &               nWndw,Mode,Work(ipMF),
-     &               iOptH,HUpMet,kIter,GNrm_Threshold,
-     &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen)
-      End If
+         If (Kriging .and. Iter.ge.nspAI) Then
+            Call Update_Kriging(Step_Trunc,nWndw)
+         Else
+            Call Update_sl(Step_Trunc,nWndw,kIter)
+         End If
 *
 #ifdef UNIT_MM
-      Call Free_UpdMask()
+         Call Free_UpdMask()
 #endif
-*
- 666  Continue
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -275,23 +211,13 @@
 *-----Transform the new internal coordinates to Cartesians
 *     (if not already done by Kriging)
 *
-      If (.not.(Kriging .and. Iter.ge.nspAI)) Then
-         Call GetMem(' DFC  ', 'Allo','Real',ipDFC, 3*nsAtom)
-         Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
-         Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
+      If (Kriging .and. Iter.ge.nspAI) Then
+         Coor(:,:) = Cx(:,:,Iter+1)
+      Else
          PrQ=.False.
+         Error=.False.
          iRef=0
-         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
-     &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
-     &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
-     &               AtomLbl,iSym,Smmtrc,Degen,
-     &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
-     &               User_Def,nStab,jStab,Curvilinear,Numerical,
-     &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef)
-         Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
-         Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
-         Call GetMem(' DFC  ', 'Free','Real',ipDFC, 3*nsAtom)
+         Call NewCar(Iter,Size(Coor,2),Coor,mTtAtm,Error)
       End If
 *                                                                      *
 ************************************************************************
@@ -303,15 +229,15 @@
       Do_ESPF = .False.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
-       Call LA_Morok(nsAtom,work(ipCoor),2)
-       call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipCx+3*nsAtom*Iter),1)
+       Call LA_Morok(SIZE(Coor,2),Coor,2)
+       Cx(:,:,Iter+1) = Coor(:,:)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Adjust some print levels
 *
-      If ((lNmHss.or.lRowH).and.iter.eq.NmIter) Then
+      If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
 *
 *        If only frequencies no more output
 *
@@ -328,27 +254,17 @@
 *     Fix correct reference structure in case of Numerical Hessian
 *     optimization.
 *
-      If ((lNmHss.or.lRowH).and.kIter.eq.1) Then
-         ip_1=ipCx
-         ip_x=ipCx+(iter-1)*3*nsAtom
-         call dcopy_(3*nsAtom,Work(ip_1),1,Work(ip_x),1)
+      If ((lNmHss.or.Allocated(mRowH)).and.kIter.eq.1) Then
+         Cx(:,:,iter) = Cx(:,:,1)
       End If
 *
 *---- Print statistics and check on convergence
 *
-      GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
-      TSReg = iAnd(iOptC,8192).eq.8192
-      Call Convrg(iter,kIter,nQQ,Work(ipqInt),Work(ipShf),
-     &            Work(ipdqInt),Lbl,Work(ipGNrm),
-     &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
-     &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,ed,
-     &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
-     &            Analytic_Hessian,rMEP,MEP,nMEP,
-     &            (lNmHss.or.lRowH).and.iter.le.NmIter,
-     &            Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
-     &            TSReg,ThrMEP)
-      Call Free_Work(ipShf)
+      GoOn = (lNmHss.and.iter.lt.NmIter) .OR.
+     &       (Allocated(mRowH).and.iter.lt.NmIter)
+      Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
+      Call Convrg(iter,kIter,nQQ,iStop,MxItr,mIntEff,
+     &            mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 *
 ************************************************************************
 *                                                                      *
@@ -358,12 +274,13 @@
 *
 *-----Write information to files
 *
-      Call DstInf(iStop,Just_Frequencies,
-     &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
-      If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
-     &         nsAtom,AtomLbl,Work(ipCoor),jStab,nStab)
+      Numerical = (lNmHss.or.Allocated(mRowH)) .and. iter.le.NmIter
+
+      Call DstInf(iStop,Just_Frequencies)
+
+      If (lCtoF) Call Def_CtoF(.True.)
       If (.Not.User_Def .and.
-     &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
+     &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt()
 *
 *-----After a numerical frequencies calculation, restore the original
 *     runfile, but save the useful data (gradient and Hessian)
@@ -372,49 +289,58 @@
          Call f_Inquire('RUNBACK',Found)
          If (Found) Then
 *           Read data
-            nGB=3*nsAtom
+            nGB=SIZE(Coor)
             Call mma_allocate(GB,nGB,Label='GB')
             Call Get_Grad(GB,nGB)
+
             Call Qpg_dArray('Hss_X',Found,nHX)
-            Call GetMem('HssX','Allo','Real',ipHX,nHX)
-            Call Get_dArray('Hss_X',Work(ipHX),nHX)
+            Call mma_allocate(HX,nHX,Label='HX')
+            Call Get_dArray('Hss_X',HX,nHX)
+
             Call Qpg_dArray('Hss_Q',Found,nHQ)
-            Call GetMem('HssQ','Allo','Real',ipHQ,nHQ)
-            Call Get_dArray('Hss_Q',Work(ipHQ),nHQ)
+            Call mma_allocate(HQ,nHQ,Label='HQ')
+            Call Get_dArray('Hss_Q',HQ,nHQ)
+
             Call Qpg_dArray('KtB',Found,nKtB)
-            Call GetMem('KtB','Allo','Real',ipKtB,nKtB)
-            Call Get_dArray('KtB',Work(ipKtB),nKtB)
+            Call mma_allocate(KtB,nKtB,Label='KtB')
+            Call Get_dArray('KtB',KtB,nKtB)
+
             Call Get_iScalar('No of Internal coordinates',nIntCoor)
 *           Write data in backup file
             Call NameRun('RUNBACK')
             Call Put_Grad(GB,nGB)
-            Call Put_dArray('Hss_X',Work(ipHX),nHX)
-            Call Put_dArray('Hss_Q',Work(ipHQ),nHQ)
-            Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
-            Call Put_dArray('Hess',Work(ipHQ),nHQ)
-            Call Put_dArray('KtB',Work(ipKtB),nKtB)
+            Call Put_dArray('Hss_X',HX,nHX)
+            Call Put_dArray('Hss_Q',HQ,nHQ)
+            Call Put_dArray('Hss_upd',rdum,0)
+            Call Put_dArray('Hess',HQ,nHQ)
+            Call Put_dArray('KtB',KtB,nKtB)
             Call Put_iScalar('No of Internal coordinates',nIntCoor)
 *           Pretend the Hessian is analytical
             nHX2=Int(Sqrt(Dble(nHX)))
             iOff=0
             Do i=1,nHX2
                Do j=1,i
-                  Work(ipHx+iOff)=Work(ipHX+(i-1)*nHX2+(j-1))
                   iOff=iOff+1
+                  HX(iOff)=HX((i-1)*nHX2+j)
                End Do
             End Do
-            Call Put_AnalHess(Work(ipHX),iOff)
+#ifdef _DEBUGPRINT_
+            Call TriPrt('AnalHess',' ',HX,nHX2)
+#endif
+
+            Call Put_AnalHess(HX,iOff)
             Call NameRun('#Pop')
+
             Call mma_deallocate(GB)
-            Call GetMem('HssX','Free','Real',ipHX,nHX)
-            Call GetMem('HssQ','Free','Real',ipHQ,nHQ)
-            Call GetMem('KtB','Free','Real',ipKtB,nKtB)
+            Call mma_deallocate(HX)
+            Call mma_deallocate(HQ)
+            Call mma_deallocate(KtB)
 *
 *           Restore and remove the backup runfile
 *
             Call fCopy('RUNBACK','RUNFILE',iErr)
-            If (iErr.ne.0) Call Abend
-            If (AixRm('RUNBACK').ne.0) Call Abend
+            If (iErr.ne.0) Call Abend()
+            If (AixRm('RUNBACK').ne.0) Call Abend()
          End If
       End If
 *
@@ -432,34 +358,9 @@
 *                                                                      *
 *-----Deallocate memory
 *
-      Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
- 999  Continue
-*
-      If (ip_B.ne.ip_Dummy) Call Free_Work(ip_B)
-      If (ip_dB.ne.ip_Dummy) Call Free_Work(ip_dB)
-      If (ip_iB.ne.ip_iDummy) Call Free_iWork(ip_iB)
-      If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
-      If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
-*
-      If (ipNADC.ne.ip_Dummy) Call Free_Work(ipNADC)
-      If (Ref_Geom) Call Free_Work(ipRef)
-      If (Ref_Grad) Call Free_Work(ipGradRef)
-      If (lRP)      Call Free_Work(ipR12)
-      If (ipqInt.ne.ip_Dummy) Then
-          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-          Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
-      End If
-      Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
-      Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
-      Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)
-      Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
-      Call GetMem('Charge','Free','Real',ipCM,  nsAtom)
-*     The weights array length is actually the total number of atoms,
-*     not just symmetry-unique, but that doesn't matter for deallocation
-      Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
+      Call Free_Slapaf()
 *
 *-----Terminate the calculations.
-*
 *
       Return
       End

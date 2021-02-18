@@ -172,20 +172,23 @@
      &                                   NISHZ_, NASHZ_  )
       Implicit None
       Integer ::       LUINTMZ_, NSYMZ_
-      Integer ::       NORBZ_(8), NOSHZ_(8), NISHZ_(8), NASHZ_(8)
+      Integer ::       NORBZ_(8), NISHZ_(8), NASHZ_(8)
       Integer ::       nLength, iAddress, i
 #include "intgrl.fh"
       iAddress=0
       IAD2M(1:3,1:36*36)=0
       nLength=3*36*36
-      NOSHZ_(1:8)=0
       ! read the address list from the existing file
       Call iDaFile(LUINTMZ_,2,IAD2M,nLength,iAddress)
       NSYMZ=NSYMZ_
       LUINTMZ=LUINTMZ_
       Do i=1,NSYMZ_
         NORBZ(i) = NORBZ_(i)
-        NOSHZ(i) = NISHZ_(i) + NASHZ_(i)
       End Do
       Return
+* Avoid unused argument warnings
+      If (.False.) Then
+        Call Unused_integer_array(NISHZ_)
+        Call Unused_integer_array(NASHZ_)
+      End If
       End

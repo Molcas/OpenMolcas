@@ -10,7 +10,10 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine SROMem(nHer,MemSRO,la,lb,lr)
+      Subroutine SROMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
 ************************************************************************
 *  Object: to compute the number of real*8 the kernal routine will     *
 *          need for the computation of a matrix element between two    *
@@ -24,11 +27,12 @@
 ************************************************************************
 *
       use Basis_Info, only: dbsc, nCnttp, Shells
+#include "mem_interface.fh"
 *
       nElem(i) = (i+1)*(i+2)/2
 *
       nHer = 0
-      MemSRO = 0
+      Mem = 0
       Do 1960 iCnttp = 1, nCnttp
          If (.Not.dbsc(iCnttp)%ECP) Cycle
          Do 1966 iAng = 0, dbsc(iCnttp)%nSRO-1
@@ -47,7 +51,7 @@
 *
             Call MltMmP(nH,MemMlt,la,iAng,lr)
             nHer = Max(nH,nHer)
-            MemSRO = Max(MemSRO,ip+nExpi*MemMlt)
+            Mem = Max(Mem,ip+nExpi*MemMlt)
             ip = ip - 6 * nExpi
 *
             ncb = nElem(iAng)*nElem(lb)
@@ -59,11 +63,11 @@
 *
             Call MltMmP(nH,MemMlt,iAng,lb,lr)
             nHer = Max(nH,nHer)
-            MemSRO = Max(MemSRO,ip+nExpi*MemMlt)
+            Mem = Max(Mem,ip+nExpi*MemMlt)
             ip = ip - 6 * nExpi
 *
             ip = ip + Max(nExpi*nac,ncb*nExpi)
-            MemSRO = Max(MemSRO,ip)
+            Mem = Max(Mem,ip)
 *
  1966    Continue
  1960 Continue

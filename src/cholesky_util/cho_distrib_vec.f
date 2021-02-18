@@ -13,10 +13,10 @@ C
 C     Unless you know exactly what you are doing,
 C     do NOT call this routine directly; use Cho_P_Distrib_Vec instead!
 C
+      Use Para_Info, Only: MyRank, nProcs
       Implicit None
       Integer  Jin, Jfi, nV
       Integer  iDV(*)
-#include "para_info.fh"
 
       Integer i, iNode
 

@@ -29,8 +29,6 @@
       Dimension Dummy(1)
 *
       Lu=6
-      iRout = 127
-      iPrint = nPrint(iRout)
       Label=' '
       If (mCentr.gt.Max_Center) Go To 99
 *

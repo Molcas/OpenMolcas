@@ -28,7 +28,7 @@ C
       IPACK = 1
       IF(IPACK.NE.0) THEN
 *. Read if ARRAY is zero
-        MMBLOCK = MBLOCK
+C       MMBLOCK = MBLOCK
 C       IF(MMBLOCK.GE.2) MMBLOCK = 2
 C       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
         CALL IFRMDS(ISCR,2,2,IFILE)

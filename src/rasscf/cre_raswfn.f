@@ -11,11 +11,16 @@
       subroutine cre_raswfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _HDF5_
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_attr_int, mh5_create_dset_real,
+     &               mh5_create_dset_int, mh5_create_dset_str,
+     &               mh5_put_dset, mh5_close_dset
       implicit none
-#ifdef _HDF5_
+
 #  include "rasdim.fh"
 #  include "rasscf.fh"
 #  include "WrkSpc.fh"
@@ -25,8 +30,7 @@
 #  include "gugx.fh"
 #  include "gas.fh"
 #  include "input_ras.fh"
-      Integer         IDXCI(mxAct), IDXSX(mxAct)
-      Common /IDSXCI/ IDXCI,        IDXSX
+#  include "sxci.fh"
 
       integer :: dsetid
       integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3
@@ -55,7 +59,7 @@
 
 *     general wavefunction attributes
       call mh5_init_attr (wfn_fileid,'SPINMULT', iSpin)
-      call mh5_init_attr (wfn_fileid,'LSYM', lSym)
+      call mh5_init_attr (wfn_fileid,'LSYM', stSym)
       call mh5_init_attr (wfn_fileid,'NACTEL', nActEl)
       call mh5_init_attr (wfn_fileid,'NHOLE1', nHole1)
       call mh5_init_attr (wfn_fileid,'NELEC3', nElec3)

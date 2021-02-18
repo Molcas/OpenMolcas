@@ -73,8 +73,8 @@ def main(my_name):
   parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog,max_help_position=42,width=120))
   parser.add_argument('-s', '--setup', help='set up a custom molcasrc file with useful environment variables', action='store_true')
   parser.add_argument('-env', '--environment', help='display information about environment', action='store_true')
-  parser.add_argument('-clean', '--clean_scratch', help='clean scratch area after calculation', action='store_true')
-  parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation', action='store_true')
+  parser.add_argument('-clean', '--clean_scratch', help='clean scratch area after calculation (not in parallel)', action='store_true')
+  parser.add_argument('-new', '--new_scratch', help='clean scratch area before calculation (not in parallel)', action='store_true')
   parser.add_argument('-old', '--old_scratch', help='reuse scratch area (default)', action='store_true')
   parser.add_argument('-ign', '--ignore_environment', help='run ignoring resource files', action='store_true')
   parser.add_argument('-val', '--validate', help='validate input only (dry run)', action='store_true')
@@ -94,7 +94,6 @@ def main(my_name):
   args = vars(parser.parse_args())
 
   from molcas_aux import find_molcas, find_sources, attach_streams, dotmolcas
-  from write_molcasrc import write_molcasrc
   from molcas_wrapper import Molcas_wrapper, MolcasException
 
   # Checking for version right at the beginning, in case MOLCAS cannot be found
@@ -104,10 +103,7 @@ def main(my_name):
     return(0)
 
   if (args['setup']):
-    if (write_molcasrc(dotmolcas('molcasrc'), parser.prog)):
-      return(0)
-    else:
-      return(1)
+    args['filename'] = 'setup'
 
   xbin_list={}
   find_molcas(xbin_list, here=(not args['not_here']))

@@ -17,16 +17,18 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS2_RPT2 (CI,SGM1,SGM2,G1,G2)
+      use output_caspt2, only:iPrGlb,debug
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      USE Para_Info, ONLY: nProcs, Is_Real_Par, King
+#endif
       IMPLICIT NONE
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       REAL*8 CI(MXCI),SGM1(MXCI),SGM2(MXCI)
@@ -82,7 +84,7 @@ c Special code for closed-shell:
 
 * For the general cases, we use actual CI routine calls, and
 * have to take account of orbital order.
-* We will use level inices LT,LU... in these calls, but produce
+* We will use level indices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
 * Translation tables L2ACT and LEVEL, in pt2_guga.fh
 
@@ -122,11 +124,11 @@ C         LTU=LTU+1
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,LSYM)
+          ISSG=MUL(ISTU,STSYM)
           NSGM=NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
-          CALL GETSGM2(LU,LT,LSYM,CI,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI,1,SGM1,1)
             G1(IT,IU)=GTU
@@ -158,7 +160,7 @@ C then actually T=U=V=X.
                 IF(LVX.EQ.LTU) THEN
                   GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
                 ELSE
-                  CALL GETSGM2(LX,LV,LSYM,CI,SGM2)
+                  CALL GETSGM2(LX,LV,STSYM,CI,SGM2)
                   GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
                 END IF
               END IF

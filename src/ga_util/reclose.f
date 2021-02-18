@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ReClose()
+      Use Para_Info, Only: nProcs
       Implicit None
 #include "WrkSpc.fh"
 #include "timtra.fh"
-#include "para_info.fh"
 *                                                                      *
 ************************************************************************
-* Deallocate the arrays allocated by ReStart                           *
+* Deallocate the arrays allocated by StartLight                        *
 ************************************************************************
 *                                                                      *
       If (nfld_tim.ne.0)

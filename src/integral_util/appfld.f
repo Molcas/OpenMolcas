@@ -15,7 +15,6 @@
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
 *
-      nCavSph=(lMax+1)**2
       Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
       Call AppFld_(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
       Call mma_deallocate(CavSph)
@@ -85,7 +84,6 @@
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
 *
-      nCavSph=(lMax+1)**2
       Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
       Call AppFld_1(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
       Call mma_deallocate(CavSph)
@@ -147,7 +145,6 @@ c Avoid unused argument warnings
       Real*8, Allocatable:: CavSph(:,:)
       Logical NonEq
 *
-      nCavSph=(lMax+1)**2
       Call mma_allocate(CavSph,lmax+1,lmax+1,Label='CavSph')
       Call AppFld_2(Cavxyz,CavSph,radius,Eps,lmax,EpsInf,NonEq)
       Call mma_deallocate(CavSph)

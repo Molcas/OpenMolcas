@@ -37,7 +37,6 @@
       Call Get_iArray('Center Index',iWork(ip_Center),nB)
       Call GetMem('PickPoints','Allo','Inte',ipPick,nEPP)
       Call GetMem('DistPick','Allo','Real',ipDPick,nEPP)
-      nB2=nB*(nB+1)/2
 
 *
 *-- Do a 'clever' determination of the threshold for the multipole
@@ -52,10 +51,8 @@
       kauntA=0
       nAbove=0
       Do iAtom=1,nAt
-        ii=iAtom*(iAtom+1)/2
         Do jAtom=1,iAtom
           ij=iAtom*(iAtom-1)/2+jAtom
-          jj=jAtom*(jAtom+1)/2
 *
 *-- Pick up the nuclei+core charge.
 *

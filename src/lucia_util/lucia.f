@@ -78,12 +78,6 @@ c      IF(PNTGRP.GT.1) CALL MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
         CALL QUIT(_RC_ALL_IS_WELL_)
       END IF
 *
-*. Last space where CI vectors were stored
-*
-      ISTOSPC = 0
-      IF(IRESTR.EQ.1) ISTOSPC = 1
-      IRESTR_ORIG=IRESTR
-*
       LBLOCK = MXSOOB
       LBLOCK = MAX(LBLOCK,LCSBLK)
 * JESPER : Should reduce I/O

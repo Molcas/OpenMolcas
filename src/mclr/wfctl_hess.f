@@ -26,6 +26,10 @@
       use Exp, only: Exp_Close
       use Arrays, only: CMO, Int2, FIMO
       use ipPage, only: W
+      use Para_Info, only: myRank, nProcs
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
@@ -43,7 +47,6 @@
 #include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
 *
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
@@ -111,7 +114,6 @@
       fail=.false.
       Converged(:)=.true.
       lprint=.false.
-      idasave=0
 *     If (SAVE) CALL DANAME(50,'RESIDUALS')
       If (SAVE) Then
          Write (LuWr,*) 'WfCtl: SAVE option not implemented'
@@ -145,7 +147,6 @@
 *
 *     Change output unit
 *
-      Call Get_MyRank(MyRank)
       LuWr_save=LuWr
       If (MyRank.ne.0) Then
          LuWr=55
@@ -234,7 +235,7 @@ C     Do iSym=kksym,kkksym
 *          Output: Commonblocks (Pointers.fh)
 *
         PState_SYM=iEor(State_Sym-1,iSym-1)+1
-        nConf2=nint(xispsm(PState_SYM,1))
+*       nConf2=nint(xispsm(PState_SYM,1))
 *       nConf2=ndtasm(PState_SYM)
         nconf3=nint(Max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
 *       nconf3=Max(ndtasm(PState_SYM),ndtasm(State_SYM))
@@ -900,7 +901,6 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           End If
       Go To 888
  999  Continue
-      Call Get_nProcs(nProcs)
       If(nProcs.ge.2) Then
        Write (LuWr,*)
        Write (LuWr,*) ' Perturbations were printed only by master node'
@@ -965,4 +965,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
 ************************************************************************
 *                                                                      *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

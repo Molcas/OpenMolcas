@@ -45,7 +45,6 @@
       nO=nAsh(js)+nIsh(js)
       nTri=itri(nd,nd)
       iBB=ib+nA(is)
-      iiB=ib+nish(is)
       jVert=nOrb(js)-nIsh(js)-nAsh(js)
       itAA=itri(iBB,iBB)
       i2=nD-jVert+1

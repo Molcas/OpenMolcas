@@ -32,6 +32,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
+      use OFembed, only: Do_OFemb
+#ifdef _FDE_
+      use Embedding_Global, only: embPot
+#endif
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
@@ -44,14 +51,9 @@
 #include "file.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
 #include "scfwfn.fh"
 #include "ksdft.fh"
 
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
       Character*16  ADDC_KSDFT

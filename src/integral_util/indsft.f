@@ -147,7 +147,6 @@
 *
                 MemSO2 = MemSO2 + 1
                 nkl = 0
-                fac = one
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
                    Do 220 kAOk = 0, kBas-1

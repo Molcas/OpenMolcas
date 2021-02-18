@@ -44,12 +44,6 @@
          if(iSymA.eq.iSymB) nB = iA
          Do iB = 1, nB
 *
-            fac_ab = One
-            if((iA.ne.iB).and.(iSymA.eq.iSymB)) fac_ab = Two
-*           If I is not equal J there is a symmetry J I B A
-*           that is identical and not stored.
-            if(iSymA.ne.iSymB) fac_ab = Two
-*
             Call Exch(iSymI,iSymA,iSymJ,iSymB,
      &                iA+nOcc(iSymA)+nFro(iSymA),
      &                iB+nOcc(iSymB)+nFro(iSymB),
@@ -171,11 +165,6 @@
          Do iJ = 1, nJ
 *           If we are only looping over a triangular matrix
 *           we need to count each offdiagonal element twice.
-            fac_ij = One
-            If((iI.ne.iJ).and.(iSymI.eq.iSymJ)) fac_ij = Two
-*           If I is not equal J there is a symmetry J I B A
-*           that is identical and not stored.
-            If(iSymI.Ne.iSymJ) fac_ij = Two
 *           Copy one AB-block of integrals to the workspace
             Call Exch(iSymA,iSymI,iSymB,iSymJ,iI,
      &                iJ,Work(ipInt1),

@@ -37,7 +37,6 @@
 * Some warnings
 *
       Call Get_iScalar('nSym',nSym)
-      nIrrep=nSym
       If (nSym.gt.1) Then
          Write(6,'(A)')' Symmetry cannot be used together with ESPF.'
          Call Quit_OnUserError()
@@ -169,7 +168,7 @@
      &                 ' Nuclear energy, including Ext Pot = ',RepNuc
       Else
          Call StatusLine(' espf:',' Computing gradient components')
-         Call espf_grad(natom,nAtQM,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,
+         Call espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,
      &                  ipGradCl,DoTinker,DoGromacs)
          If (ipMltp.eq.ip_Dummy)
      &      Call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)

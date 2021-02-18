@@ -10,9 +10,11 @@
 ************************************************************************
       Subroutine Put_Chunk(ip_ChoVec,MuNu_s,MuNu_e,j_s,j_e,Rv,nMuNu,
      &                     LenVec)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-#include "para_info.fh"
       Real*8 Rv(nMuNu,(j_e-j_s+1))
 *                                                                      *
 ************************************************************************

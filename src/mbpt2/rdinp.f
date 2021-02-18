@@ -102,7 +102,6 @@
 *
       LuSpool = 17
       Call SpoolInp(LuSpool)
-      LuRd=5
       Rewind(LuSpool)
       Call RdNLst(LuSpool,'MBPT2')
       Blank=' '
@@ -157,7 +156,7 @@
 * ---------------------
       nTit=0
       iTst=0
-      nTstP=-1
+C     nTstP=-1
       iPrt=0
       Call Get_iArray('Non valence orbitals',nFro1,nSym)
       Do iSym=1,nSym
@@ -208,8 +207,8 @@ C        nFro1(iSym)=0
             Goto 507
          Case(8)
             Goto 508
-         Case(9)
-            Goto 509
+C        Case(9)
+C           Goto 509
          Case(10)
             Goto 510
          Case(11)
@@ -396,10 +395,10 @@ C        nFro1(iSym)=0
       iTst=1
       Goto 100
 *---  Process the "TSTP" input card -----------------------------------*
- 509  Continue
-      iTst=1
-      Line = Get_Ln(LuSpool)
-      Read(Line,*,err=995) nTstP
+C509  Continue
+C     iTst=1
+C     Line = Get_Ln(LuSpool)
+C     Read(Line,*,err=995) nTstP
       Goto 100
 *---  Process the "PRPT" input card -----------------------------------*
  510  Continue

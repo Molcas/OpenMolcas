@@ -20,14 +20,7 @@
 #ifdef _DEBUGPRINT_
       Logical Temp
 #endif
-      Logical TF, TstFnc
       Integer, Save:: Active=0
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function
-*
-      TF(iIrrep,iComp) = TstFnc(iCoSet,iIrrep,iComp,nIrrep/nCoSet)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -224,4 +217,11 @@ C                     Write (*,*) 'Doesn''t belong!'
 ************************************************************************
 *                                                                      *
       Return
+*
+      Contains
+      Logical Function TF(iIrrep,iComp)
+      Implicit Real*8 (a-h,o-z)
+      Logical, External :: TstFnc
+      TF = TstFnc(iCoSet,iIrrep,iComp,nIrrep/nCoSet)
+      End Function TF
       End

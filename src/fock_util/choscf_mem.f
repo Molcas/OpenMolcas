@@ -31,7 +31,7 @@
 *                 only in connection with the truth table defined
 *                 in the calling routine
 ******************************************************************
-
+      use ChoArr, only: nDimRS
       Implicit Real*8 (a-h,o-z)
       Integer nSym,nBas(nSym),MinMem(nSym),iUHF,ALGO
       Integer Moccmx(nSym),Mabmx(nSym),MxBas(nSym)
@@ -39,12 +39,9 @@
       Integer ipNocc(*)
 
 #include "WrkSpc.fh"
-#include "choptr.fh"
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-**************************************************
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 **************************************************
 
 
@@ -77,7 +74,6 @@ C Max dimension of a read symmetry block
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. Moccmx(isym).ne.0 )then
            Nmax = NBAS(iSym)
-           iSymMax= iSym
            endif
         End Do
 

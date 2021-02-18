@@ -17,17 +17,18 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "sigma.fh"
       DIMENSION DPT2(*)
       DIMENSION IFCOUP(13,13)
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

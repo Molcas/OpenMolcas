@@ -25,7 +25,7 @@ C Author:     Teodoro Laino.  Scuola Normale Superiore di Pisa (Italy)  C
 C Date:       27.02.2004  Lund (Sweden)                                 C
 C                                                                       C
 C The original idea to implement this NAC computation was due to        C
-C Per-Ake Malmqvist on January 2000                                     C
+C Per-AAke Malmqvist on January 2000                                    C
 C                                                                       C
 C On Input:                                                             C
 C             SCR:  Transition density matrice in AO basis.             C
@@ -49,12 +49,7 @@ C***********************************************************************C
       REAL*8 SCR(nSCR)
       DIMENSION IOFF(*)
       Integer IndGrd(0:7)
-      Logical TF, TstFnc
-* Statement Function
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
-
-
+      Logical, External :: TF
 *
 * Main Loop on all  geometrical displacements to perform
 * calculation of NonAdiabatic Couplings
@@ -104,7 +99,6 @@ C***********************************************************************C
 * INDGRD(IIRREP) will be zero, except for those irreps, and
 * will then contain the ordering number of the displacement.
                   Do iIrrep = 0, nIrrep-1
-                     iSmLbl = 2**iIrrep
                      If ((iAnd(2**iIrrep,lOper).ne.0).and.
      &                    (MUL(iIrrep+1,isy12).eq.1))  Then
                         idisp = indgrd(iirrep)
@@ -156,7 +150,7 @@ C Author:     Teodoro Laino.  Scuola Normale Superiore di Pisa (Italy)  C
 C Date:       27.02.2004  Lund (Sweden)                                 C
 C                                                                       C
 C The original idea to implement this NAC computation was due to        C
-C Per-Ake Malmqvist on January 2000                                     C
+C Per-AAke Malmqvist on January 2000                                    C
 C                                                                       C
 C Files needed by this routine:                                         C
 C                                                                       C

@@ -95,7 +95,6 @@
       Logical Inverse_H
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-      nD = iUHF + 1
       Thr=1.0D-9
 *
 *     Dummy initializations

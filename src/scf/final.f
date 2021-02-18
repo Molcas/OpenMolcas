@@ -54,16 +54,20 @@
       use EFP_Module
       use EFP
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
+      Use Interfaces_SCF, Only: dOne_SCF
+      use OFembed, only: Do_OFemb, FMaux
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embWriteEsp
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "file.fh"
-#ifdef _FDE_
-      ! Thomas Dresselhaus
-#include "embpotdata.fh"
-#endif
 #include "scfwfn.fh"
 #include "stdalloc.fh"
 *
@@ -72,9 +76,6 @@
      &       Fock(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
      &       Darwin(mBT)
 *
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
       COMMON  / SPAVE_I  / ip_DSc
@@ -103,7 +104,6 @@
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
-#include "interfaces_scf.fh"
       Dimension Dummy(1)
 *
 *----------------------------------------------------------------------*
@@ -318,7 +318,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
 #ifdef _FDE_
       ! Embedding
       if (embPot.and.(embWriteEsp)) then
-         Call embPotOutput(nAtoms,ip_of_Work(Dens(1,1,1)))
+         Call embPotOutput(nAtoms,Dens)
       end if
 #endif
 *
@@ -533,7 +533,7 @@ c make a fix for energies for deleted orbitals
      &     KSDFT.ne.'SCF'        ) Call ClsSew
 *
       If (Do_OFemb) Then
-          Call GetMem('FMaux','Free','Real',ipFMaux,nBT)
+        Call mma_deallocate(FMaux)
 #ifdef _NOT_USED_CODE_
           If (l_NDSD.gt.0)
      &        Call GetMem('NDSD','Free','Real',ip_NDSD,l_NDSD)

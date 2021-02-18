@@ -58,11 +58,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       If (Command.EQ.'END') GoTo 100
       iErr = 0
       NA = 0
-      NB = 0
-      NT = 0
       Dist  = 0.0d0
-      Beta  = 0.0d0
-      Theta = 0.0d0
 
 *  Here we read number or a file.
       read(Line,*,err=666,end=666) NA

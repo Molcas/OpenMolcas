@@ -54,7 +54,6 @@ C         Freq(i) = Freq(i) * 4.55633538D-06
        Zero=0.0D00
        One=1.0D00
        Two=2.0D00
-       Three=3.0D00
 C      r_k = 1.38065800D-23
        r_k = CONST_BOLTZMANN_
 C      r_J2au=2.29371049D+17 ! Convert Joule to atomic units

@@ -199,7 +199,7 @@ c Avoid unused argument warnings
       integer a,b,c,aa,ab,bc,ac
       real*8 XX,YY,enx,den,dena,denb,denc
       integer ndim,adim,noab,nuab,i,j,k,nga,iasblock(3),lu(2),N
-      integer ias,nga_offset,nug_offset,jk,ij,ik,ii,jj,nug,nnoab
+      integer ias,nga_offset,nug_offset,jk,ij,ik,nug,nnoab
       logical ifvo
       real*8  ka(adim*(adim-1)/2,N,*),kb(*),kc(*)
       real*8  la(N*adim,nnoab),mi(*),mij(*)
@@ -225,10 +225,8 @@ C
          call multi_readir(ka(1,1,i),N*ndim,lu(1),ias)
          enddo
          do i=3,noab
-         ii=(i-1)*N*ndim+1
          jk=0
          do j=2,i-1
-         jj=(j-1)*N*ndim+1
          ij=(i-1)*(i-2)/2+j
          ik=(i-1)*(i-2)/2
          do k=1,j-1

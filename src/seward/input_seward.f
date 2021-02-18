@@ -46,8 +46,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      LuWr=6
-*
       If (Primitive_Pass) Then
          Show_Save=Show
       Else ! .Not.Primitive

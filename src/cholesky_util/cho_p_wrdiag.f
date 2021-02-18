@@ -13,23 +13,22 @@ C
 C     Purpose: store global diagonal on disk (Parallel only).
 C              NB: on exit, initial global diagonal is stored!
 C
+      use ChoSwp, only: Diag_G
       Implicit None
-#include "WrkSpc.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-      Integer ip_Diag_L
-      Integer l_Diag_L
+#include "stdalloc.fh"
+      Real*8, Allocatable:: Diag_L(:)
 
       If (Cho_Real_Par) Then
-         l_Diag_L = nnBstRT(1)
-         Call GetMem('DiagL','Allo','Real',ip_Diag_L,l_Diag_L)
-         Call Cho_IODiag(Work(ip_Diag_L),2)
-         Call Cho_P_SyncDiag(Work(ip_Diag_L),1)
+         Call mma_allocate(Diag_L,nnBstRT(1),Label='Diag_L')
+         Call Cho_IODiag(Diag_L,2)
+         Call Cho_P_SyncDiag(Diag_L,1)
          Call Cho_P_IndxSwp()
-         Call Cho_IODiag(Work(ip_Diag_G),1)
+         Call Cho_IODiag(Diag_G,1)
          Call Cho_P_IndxSwp()
-         Call GetMem('DiagL','Free','Real',ip_Diag_L,l_Diag_L)
+         Call mma_deallocate(Diag_L)
       End If
 
       End

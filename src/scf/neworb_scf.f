@@ -414,7 +414,7 @@ c    &                 '(20F10.4)',TraF,nOrbmF)
      &                       nBas(iSym),0,-1,
      &                       'J',nFound,iErr)
 *
-*           Fix standard phase pf the orbitals
+*           Fix standard phase of the orbitals
 *
             Do i = 1, nBas(iSym)
                tmp = OrbPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))

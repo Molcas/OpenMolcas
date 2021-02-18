@@ -59,11 +59,10 @@ C
       Integer ip_Int, l_Int
       Integer ip_I, l_I
       Integer ip_Indx, l_Indx
-      Integer ip_Stat, l_Stat
       Integer iShell
       Integer m, N
 
-      Real*8 x
+      Real*8 x, Stat(11)
 
       Integer i, j
       Integer nBasSh
@@ -195,9 +194,7 @@ C
       ! Check PSD
       irc=-1
       If (doDiagonalization) Then ! diagonalization
-         l_Stat=11
-         Call GetMem('PSDStat','Allo','Real',ip_Stat,l_Stat)
-         Call LDF_CheckPSD_Full_Diag(N,Work(ip_Int),Work(ip_Stat),irc)
+         Call LDF_CheckPSD_Full_Diag(N,Work(ip_Int),Stat,irc)
          If (irc.lt.0) Then
             Call WarningMessage(2,
      &                           SecNam//': irc<0 from diagonalization')
@@ -217,29 +214,28 @@ C
          Write(6,'(A,10X,I10)')
      &   'Number of eigenvalues..................',N
          Write(6,'(A,10X,I10)')
-     &   'Number of large negative eigenvalues...',int(Work(ip_Stat+8))
+     &   'Number of large negative eigenvalues...',int(Stat(9))
          Write(6,'(A,10X,I10)')
-     &   'Number of slightly neg. eigenvalues....',int(Work(ip_Stat+9))
+     &   'Number of slightly neg. eigenvalues....',int(Stat(10))
          Write(6,'(A,10X,I10)')
-     &   'Number of zero or pos. eigenvalues.....',int(Work(ip_Stat+10))
+     &   'Number of zero or pos. eigenvalues.....',int(Stat(11))
          Write(6,'(A,1P,D20.10)')
-     &   'Minimum eigenvalue.....................',Work(ip_Stat)
+     &   'Minimum eigenvalue.....................',Stat(1)
          Write(6,'(A,1P,D20.10)')
-     &   'Maximum................................',Work(ip_Stat+1)
+     &   'Maximum................................',Stat(2)
          Write(6,'(A,1P,D20.10)')
-     &   'Sum....................................',Work(ip_Stat+2)
+     &   'Sum....................................',Stat(3)
          Write(6,'(A,1P,D20.10)')
-     &   'Norm...................................',Work(ip_Stat+3)
+     &   'Norm...................................',Stat(4)
          Write(6,'(A,1P,D20.10)')
-     &   'Average................................',Work(ip_Stat+4)
+     &   'Average................................',Stat(5)
          Write(6,'(A,1P,D20.10)')
-     &   'Standard deviation.....................',Work(ip_Stat+5)
+     &   'Standard deviation.....................',Stat(6)
          Write(6,'(A,1P,D20.10)')
-     &   'Skewness...............................',Work(ip_Stat+6)
+     &   'Skewness...............................',Stat(7)
          Write(6,'(A,1P,D20.10)')
-     &   'Kurtosis...............................',Work(ip_Stat+7)
+     &   'Kurtosis...............................',Stat(8)
          Call xFlush(6)
-         Call GetMem('PSDStat','Free','Real',ip_Stat,l_Stat)
       Else ! Cholesky decomposition
          Call LDF_CheckPSD_Full_CD(N,Work(ip_Int),Thr,irc)
          If (irc.lt.0) Then

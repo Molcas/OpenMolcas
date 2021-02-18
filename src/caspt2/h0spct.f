@@ -9,17 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT
+      use output_caspt2, only:iPrGlb,verbose
+      use output_caspt2, only:dnmThr,cntThr,cmpThr
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather
+      USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
-#include "para_info.fh"
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

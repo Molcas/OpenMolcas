@@ -23,7 +23,6 @@
 #include "g_zmatconv.fh"
 
       nAtoms = 0
-      nBase  = 0
       Do i = 1, Num_Elem
         Base(i)   = ' '
         BasAva(i) = .False.

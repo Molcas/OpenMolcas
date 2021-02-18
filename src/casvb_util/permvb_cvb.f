@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
 c  *********************************************************************
 c  *                                                                   *
@@ -23,7 +24,6 @@ c  *********************************************************************
 c  Permutes orbitals in V1 according to IPERM.
       implicit real*8 (a-h,o-z)
       logical vb
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -76,7 +76,6 @@ cDLC iw(maddr_r2i_cvb(iaddr_ci(iv1))) --> w(iaddr_ci(iv1))
       subroutine permci_cvb(v1,iperm)
       implicit real*8 (a-h,o-z)
       logical vb
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

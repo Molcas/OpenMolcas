@@ -8,9 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine P_Mem(nHer,MemP,la,lb,lr)
+      Subroutine P_Mem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
-      MemP=1
+      Mem=1
 *
       Return
 c Avoid unused argument warnings

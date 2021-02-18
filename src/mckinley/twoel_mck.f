@@ -202,7 +202,6 @@
       lc = iAngV(3)
       ld = iAngV(4)
       ldot2=ldot
-      iSmAng=la+lb+lc+ld
       iCmpa = iCmp(1)
       jCmpb = iCmp(2)
       kCmpc = iCmp(3)
@@ -244,9 +243,6 @@
       iuvwx(2) = dc(jStb)%nStab
       iuvwx(3) = dc(kStb)%nStab
       iuvwx(4) = dc(lStb)%nStab
-*
-      iffab = 9
-      iffcd = 9
 *                                                                      *
 ************************************************************************
 *                                                                      *

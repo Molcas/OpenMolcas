@@ -19,12 +19,10 @@
 *
       Do iZeta=1,nZeta
         xMax=0.0d0
-        iaMax=1
         Do iab = 1, nab
             xTest = Abs(abab(iZeta,iab,iab))
             If (xTest.gt.xMax) Then
                xMax = xTest
-               iaMax = iab
             End If
         End Do
         ab(iZeta) = Sqrt(xMax)

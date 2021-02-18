@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine SavTim(iFld,TCPU,TWall)
+      Use Para_Info, Only: MyRank
       Implicit Real*8 (a-h,o-z)
-#include "para_info.fh"
 #include "timtra.fh"
 #include "WrkSpc.fh"
 *
@@ -27,9 +27,9 @@
       Return
       End
       SubRoutine SavStat(iFld,Value,op)
+      Use Para_Info, Only: MyRank
       Implicit Real*8 (a-h,o-z)
       character*(*) op
-#include "para_info.fh"
 #include "timtra.fh"
 #include "WrkSpc.fh"
 *

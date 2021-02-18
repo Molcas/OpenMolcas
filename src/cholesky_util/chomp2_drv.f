@@ -25,6 +25,7 @@ C       - all MO Cholesky vector files generated here are deleted before
 C         exit, except for error terminations (i.e. no cleanup actions
 C         are taken!)
 C
+      use ChoMP2, only: EFrozT, EOccuT, EVirtT
 #include "implicit.fh"
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
@@ -33,16 +34,19 @@ C
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*3  ThisNm
       Character*10 SecNam
       Parameter (SecNam = 'ChoMP2_Drv', ThisNm = 'Drx')
 
-      Parameter (Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15)
-      Parameter (iFmt = 0)
+      Real*8, Parameter:: Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15
+      Integer, Parameter:: iFmt = 0
 
-      Logical DoSort, Delete, Delete_def
-      Parameter (Delete_def = .true.)
+      Logical DoSort, Delete
+      Logical, Parameter:: Delete_def = .true.
+
+      Real*8, Allocatable:: Check(:), Diag(:)
 
 #if defined (_DEBUGPRINT_)
       Verbose = .true.
@@ -65,9 +69,8 @@ C     ----------------
          Call CWTime(CPUIni1,WallIni1)
       End If
 
-      l_Dum = 1
-      Call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
-      Work(ip_Dum) = Chk_Mem_ChoMP2
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1) = Chk_Mem_ChoMP2
 
       FracMem = 0.0d0 ! no buffer allocated
       Call Cho_X_Init(irc,FracMem)
@@ -124,10 +127,10 @@ C     ----------------------------------------------------------
       Else
          lDiag = 1
       End If
-      Call GetMem('Diag','Allo','Real',ipDiag,lDiag)
+      Call mma_allocate(Diag,lDiag,Label='Diag')
 *
       If(.not.DoDens) Then
-         Call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),DecoMP2)
+         Call ChoMP2_TraDrv(irc,CMO,Diag,DecoMP2)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
             Go To 1             ! exit
@@ -138,7 +141,7 @@ C     ----------------------------------------------------------
      &                       CPUTra1,WallTra2,WallTra1,iFmt)
          End If
       Else If(DoDens) Then
-         Call ChoMP2g_TraDrv(irc,CMO,Work(ipDiag),DecoMP2)
+         Call ChoMP2g_TraDrv(irc,CMO,Diag,DecoMP2)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2g_TraDrv returned ',irc
             Go To 1             ! exit
@@ -176,7 +179,7 @@ C     -------------------------------------------------------
             Call CWTime(CPUDec1,WallDec1)
          End If
          Delete = Delete_def ! delete transf. vector files after dec.
-         Call ChoMP2_DecDrv(irc,Delete,Work(ipDiag),'Integrals')
+         Call ChoMP2_DecDrv(irc,Delete,Diag,'Integrals')
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
             Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
@@ -191,9 +194,9 @@ C     -------------------------------------------------------
          If (Verbose) Then
             Call CWTime(CPUDec1,WallDec1)
          End If
-         Call ChoMP2g_AmpDiag(irc,ipDiag,EOcc,EVir)
+         Call ChoMP2g_AmpDiag(irc,Diag,EOcc,EVir)
          Delete = .false.    ! do not delete transf. vectors.
-         Call ChoMP2_DecDrv(irc,Delete,Work(ipDiag),'Amplitudes')
+         Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
             Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',' ')
@@ -207,7 +210,7 @@ C     -------------------------------------------------------
       Else
          Call iCopy(nSym,NumCho,1,nMP2Vec,1)
       End If
-      Call GetMem('Diag','Free','Real',ipDiag,lDiag)
+      Call mma_deallocate(Diag)
 
 C     Presort Cholesky vectors if needed.
 C     -----------------------------------
@@ -268,8 +271,7 @@ C     ------------------------------
             Call CWTime(CPUEnr1,WallEnr1)
          End If
          Delete = .false.
-         Call ChoMP2g_DensDrv(irc,Work(ip_EOccu),Work(ip_EVirt),
-     &                       Work(ip_EFroz),CMO)
+         Call ChoMP2g_DensDrv(irc,EOccuT,EVirtT,EFrozT,CMO)
          If (irc .ne. 0) Then
             Write(6,*) SecNam,': ChoMP2g_DensDrv returned ',irc
             Go To 1             ! exit
@@ -326,7 +328,7 @@ C     ------------------------------
 C     Exit.
 C     -----
 
-    1 Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
+    1 Diff = abs(Check(1)-Chk_Mem_ChoMP2)
       If (Diff .gt. Tol) Then
          Write(6,*) SecNam,': Memory Boundary Error!'
          If (irc .eq. 0) irc = -9999
@@ -336,7 +338,7 @@ C     -----
          Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,
      &                   WallTot2,WallTot1,iFmt)
       End If
-      Call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
-      Call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
+      Call ChoMP2_deallocate(irc)
+      Call mma_deallocate(Check)
       Return
       End

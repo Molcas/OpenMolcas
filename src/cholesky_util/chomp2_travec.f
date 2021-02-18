@@ -17,14 +17,14 @@ C     Thomas Bondo Pedersen, Dec. 2004.
 C
 C     Purpose: compute ai-vector from reduced set AO vector.
 C
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
 #include "implicit.fh"
       Real*8 VecAO(*), VecMO(*), COcc(*), CVir(*)
       Real*8 Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'ChoMP2_TraVec')
@@ -32,8 +32,6 @@ C
       Real*8 Fac(0:1)
       Data Fac /0.5D0,1.0D0/
 
-      iRS2F(i,j)=iWork(ip_iRS2F-1+2*(j-1)+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+nnBstrT(1)*(j-1)+i)
       MulD2h(i,j)=iEor(i-1,j-1)+1
 
       If (iLoc.lt.2 .or. iLoc.gt.3) Then

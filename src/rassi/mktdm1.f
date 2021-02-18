@@ -58,10 +58,13 @@ C Overlap:
       SIJ=0.0D00
 
       IF(MPLET1.EQ.MPLET2.AND.MSPROJ1.EQ.MSPROJ2) THEN
+
 #ifdef _DMRG_
         if(.not.doDMRG)then
 #endif
-          SIJ=OVERLAP_RASSI(IFSBTAB1,IFSBTAB2,DET1,DET2)
+
+      SIJ=OVERLAP_RASSI(IFSBTAB1,IFSBTAB2,DET1,DET2)
+
 #ifdef _DMRG_
         else
             sij = qcmaquis_mpssi_overlap(
@@ -70,7 +73,10 @@ C Overlap:
      &         qcm_prefixes(job2),
      &         jst,
      &         .true.)
+
         end if ! DMRG or not
+
+
 #endif
       END IF ! mmplet and msproj check
 
@@ -132,14 +138,7 @@ C General 1-particle transition density matrix:
      &             TDMBB,
      &             NSPD1)
           end if
-
-c         if(debug_dmrg_rassi_code)then
-c           write(6,*) 'density for i, j',istate,jstate
-c           write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
-c           call pretty_print_util(SPD1,1,nasorb,1,nasorb,
-c      &                           nasorb,nasorb,1,6)
-c         end if
-      end if
+        end if
 #endif
       END IF
 C Create a scalar, and an WE-reduced spin, transition density matrix.
@@ -179,12 +178,6 @@ C Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
         IUABS=MAPORB(JSORB)
 
-c #ifdef _DMRG_
-c         if(debug_dmrg_rassi_code)then
-c           write(6,'(a,2i3,4f12.8)') ' i,j: GAA,GBB,GAB,GBA ==> ',
-c      &                itabs,iuabs,gaa,gbb,gab,gba
-c         end if
-c #endif
 
         !> scalar TDM
         TDM1(ITABS,IUABS)=GAA+GBB
@@ -227,28 +220,14 @@ C Thus obtain reduced matrix element from Wigner-Eckart theorem:
        END DO
       END DO
 
-c #ifdef _DMRG_
-c       if(debug_dmrg_rassi_code)then
-c         !> debug print
-c         write(6,*) '1-tdm density for i, j',istate,jstate
-c         call pretty_print_util(tdm1,1,nasht,1,nasht,
-c      &                         nasht,nasht,1,6)
-c         write(6,*) '1-tdm sp-density for i, j',istate,jstate
-c         call pretty_print_util(tsdm1,1,nasht,1,nasht,
-c      &                         nasht,nasht,1,6)
-c         write(6,*) 'w-reduced tdm for i, j',istate,jstate
-c         call pretty_print_util(wtdm1,1,nasht,1,nasht,
-c      &                         nasht,nasht,1,6)
-c       end if
-c #endif
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
-        CALL Unused_integer(job1)
-        CALL Unused_integer(job2)
-        CALL Unused_integer(ist)
-        CALL Unused_integer(jst)
+        call Unused_integer(job1)
+        call Unused_integer(job2)
+        call Unused_integer(ist)
+        call Unused_integer(jst)
       END IF
 
 #ifdef _DMRG_

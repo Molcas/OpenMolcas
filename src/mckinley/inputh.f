@@ -42,7 +42,6 @@ c      Logical DoCholesky
       Character*1 xyz(0:2)
       Character*8 Label,labelop
       Character*32 Label2
-      character*4 lab
       Logical Run_MCLR
       Character*80  KWord, Key
       Integer iSym(3), iTemp(3*MxAtom)
@@ -133,7 +132,6 @@ c      EndIf
       If (KWord(1:1).eq.'*') Go To 975
       If (KWord.eq.'')    Go To 975
       Call UpCase(KWord)
-      Lab=KWORD(1:4)
       If (KWORD(1:4).eq.'HESS') Then
          ipert=2
       Else If (KWORD(1:4).eq.'GEOM') Then

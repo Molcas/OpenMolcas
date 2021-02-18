@@ -44,7 +44,7 @@ except IOError:
 
 val = False
 with open(outfile, 'r') as f:
-  
+
   for line in f:
     if line.startswith('-- Input validation'):
       val = True

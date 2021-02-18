@@ -805,17 +805,17 @@ c Avoid unused argument warnings
 c
 c     ----------
 c
-       subroutine mkqhelp2 (vector,dimv,lenght,factor)
+       subroutine mkqhelp2 (vector,dimv,length,factor)
 c
 c     this routine do vector = vector*factot
 c     vector - multilyied vector (I/O)
 c     dimv   - dimension of vecrot
-c     lenght - lenght of vector to be multiplyied
+c     length - length of vector to be multiplyied
 c     factor - scaling factor
 c
 c     $N.B. this routine should be substitued by mv0s3v
 c
-       integer dimv,lenght
+       integer dimv,length
        real*8 vector(1:dimv)
        real*8 factor
 c
@@ -823,8 +823,8 @@ c     help variable
 c
        integer n
 c
-       if (lenght.gt.0) then
-       do 10 n=1,lenght
+       if (length.gt.0) then
+       do 10 n=1,length
        vector(n)=vector(n)*factor
  10     continue
        end if

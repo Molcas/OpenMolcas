@@ -8,17 +8,22 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2016, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015,2016,2020, Ignacio Fdez. Galván                   *
 #***********************************************************************
 if (NOT DEFINED BASE_DIR)
-        set (BASE_DIR ${PROJECT_SOURCE_DIR})
+  set (BASE_DIR ${PROJECT_SOURCE_DIR})
 endif ()
 file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
 foreach (prog IN ITEMS grid2cube)
-        add_executable(${prog}.exe ${prog}.F90)
-        file (COPY ${CMAKE_CURRENT_LIST_DIR}/${prog}.py
-              DESTINATION ${EXECUTABLE_OUTPUT_PATH}
-        )
+  add_executable (${prog}.exe ${prog}.F90)
+  file (COPY ${CMAKE_CURRENT_LIST_DIR}/${prog}.py
+        DESTINATION ${EXECUTABLE_OUTPUT_PATH}
+  )
+  install (PROGRAMS
+           ${EXECUTABLE_OUTPUT_PATH}/${prog}.exe
+           ${EXECUTABLE_OUTPUT_PATH}/${prog}.py
+           DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}
+  )
 endforeach (prog)

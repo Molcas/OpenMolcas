@@ -22,12 +22,15 @@
 ************************************************************************
 
       Subroutine RasScf_Init()
+
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
+
 #include "rasdim.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='RasScf_Init')
+
 #include "rasscf.fh"
 #include "casvb.fh"
 #include "general.fh"
@@ -79,7 +82,7 @@ C        ICIRST=1 ! to be activated!
       End If
 
 * Initialize print levels: See output_ras.fh
-* Global logical unit numbers for standard input and standard output
+* Global logical unit numbers for standard output
       IO=5
       LF=6
 * Externally set default print level control. Should the program be silent?
@@ -280,7 +283,7 @@ C        ICIRST=1 ! to be activated!
 * default spin value (singlet)
       ISPIN=1
 * default symmetry
-      LSYM=1
+      STSYM=1
 * default number of active electrons
       NACTEL=0
 * default maximum number of holes in RAS1

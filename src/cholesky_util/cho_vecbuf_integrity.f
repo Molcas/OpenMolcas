@@ -19,13 +19,16 @@ C
 C     Enable integrity check of buffer: allocate and store norm and sum
 C     of each vector in the buffer.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Integer irc
 #include "cholesky.fh"
-#include "chovecbuf.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "choprint.fh"
+#include "stdalloc.fh"
 
       Real*8   dDot_, Cho_dSumElm
       external dDot_, Cho_dSumElm
@@ -35,15 +38,7 @@ C
       Integer jVec
       Integer jRed
       Integer ipV
-
-      Integer N2
-      Parameter (N2=InfVec_N2)
-
-      Integer i, j, k
-      Integer nDimRS
-      Integer InfVec
-      nDimRS(i,j)=iWork(ip_nDimRS-1+nSym*(j-1)+i)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
+      Integer l_ChVBfI
 
       ! Set return code
       irc=0
@@ -54,13 +49,13 @@ C
       If (RUN_MODE.NE.RUN_EXTERNAL) Return
 
       ! Return if no buffer is allocated
-      If (l_ChVBuf.lt.1) Return
+      If (.NOT.Allocated(CHVBUF)) Return
 
       ! Return if already enabled
-      If (l_ChVBfI.gt.0) Return
+      If (Allocated(CHVBFI)) Return
 
       ! Check that nDimRS is allocated
-      If (l_nDimRS.lt.1) Then
+      If (.NOT.Allocated(nDimRS)) Then
          irc=1
          Return
       End If
@@ -72,8 +67,8 @@ C
          l_ChVBfI=l_ChVBfI+l_ChVBfI_Sym(iSym)
       End Do
       If (l_ChVBfI.gt.0) Then
-         Call Cho_Mem('ChVBfI','Allo','Real',ip_ChVBfI,l_ChVBfI)
-         ip=ip_ChVBfI
+         Call mma_allocate(CHVBFI,l_ChVBfI,Label='CHVBFI')
+         ip=1
          Do iSym=1,nSym
             ip_ChVBfI_Sym(iSym)=ip
             ip=ip+l_ChVBfI_Sym(iSym)
@@ -83,9 +78,9 @@ C
             ip=ip_ChvBfI_Sym(iSym)
             Do jVec=1,nVec_in_Buf(iSym)
                jRed=InfVec(jVec,2,iSym)
-               Work(ip)=sqrt(dDot_(nDimRS(iSym,jRed),
-     &                            Work(ipV),1,Work(ipV),1))
-               Work(ip+1)=Cho_dSumElm(Work(ipV),nDimRS(iSym,jRed))
+               CHVBFI(ip)=sqrt(dDot_(nDimRS(iSym,jRed),
+     &                            CHVBUF(ipV),1,CHVBUF(ipV),1))
+               CHVBFI(ip+1)=Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
                ipV=ipV+nDimRS(iSym,jRed)
                ip=ip+2
             End Do
@@ -96,8 +91,6 @@ C
          Write(LuPri,'(A)')
      &   'Cholesky vector buffer integrity checks enabled'
       Else
-         l_ChVBfI=0
-         ip_ChVBfI=0
          Call Cho_iZero(l_ChVBfI_Sym,nSym)
          Call Cho_iZero(ip_ChVBfI_Sym,nSym)
       End If
@@ -183,38 +176,35 @@ C     Check Cholesky vector buffer integrity: compute norm and sum of
 C     vectors in the buffer and compare these values to the table
 C     generated at buffer initialization.
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Real*8  Tol
       Logical Report
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "chovecbuf.fh"
-#include "WrkSpc.fh"
 
       Logical OK
 
       Real*8   dDot_, Cho_dSumElm
       external ddot_, Cho_dSumElm
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
 
       Real*8 Nrm, Sm
 
       Integer nErr, iSym, jVec, jRed, n, ipV
 
-      Integer i, j, k
-      Integer nDimRS
-      Integer InfVec
+      Integer i, j
       Real*8  RefNrm
       Real*8  RefSm
-      nDimRS(i,j)=iWork(ip_nDimRS-1+nSym*(j-1)+i)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      RefNrm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1))
-      RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
+      RefNrm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
+      RefSm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
       nErr=0
-      If (l_ChVBuf.gt.0 .and. l_ChVBfI.gt.0 .and. l_nDimRS.gt.0) Then
+      If (Allocated(CHVBUF) .and. Allocated(CHVBFI) .and.
+     &    Allocated(nDimRS)) Then
          Do iSym=1,nSym
             If (nVec_in_Buf(iSym).gt.0 .and.
      &          l_ChVBfI_Sym(iSym).gt.0) Then
@@ -222,8 +212,8 @@ C
                Do jVec=1,nVec_in_Buf(iSym)
                   jRed=InfVec(jVec,2,iSym)
                   n=nDimRS(iSym,jRed)
-                  Nrm=sqrt(dDot_(n,Work(ipV),1,Work(ipV),1))
-                  Sm=Cho_dSumElm(Work(ipV),n)
+                  Nrm=sqrt(dDot_(n,CHVBUF(ipV),1,CHVBUF(ipV),1))
+                  Sm=Cho_dSumElm(CHVBUF(ipV),n)
                   OK=abs(Nrm-RefNrm(jVec,iSym)).lt.Tol .and.
      &               abs(Sm-RefSm(jVec,iSym)).lt.Tol
                   If (.not.OK) Then
@@ -273,6 +263,7 @@ C     Return codes:
 C        irc=0: no differences detected.
 C        irc>0: number of vectors for which differences are detected.
 C
+      use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
       Implicit None
       Integer n
       Integer nVec
@@ -280,8 +271,6 @@ C
       Integer J1
       Integer iSym
       Integer irc
-#include "WrkSpc.fh"
-#include "chovecbuf.fh"
 
       Real*8   dDot_, Cho_dSumElm
       external ddot_, Cho_dSumElm
@@ -299,11 +288,11 @@ C
       Integer k, l
       Real*8  RefNorm
       Real*8  RefSum
-      RefNorm(k,l)=Work(ip_ChVBfI_Sym(l)+2*(k-1))
-      RefSum(k,l)=Work(ip_ChVBfI_Sym(l)+2*(k-1)+1)
+      RefNorm(k,l)=CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1))
+      RefSum(k,l)=CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1)+1)
 
       irc=0
-      If (l_ChvBfI.gt.0) Then
+      If (Allocated(CHVBFI)) Then
          J0=J1-1
          mVec=min(J0+nVec,nVec_in_Buf(iSym))-J0
          Do J=1,mVec
@@ -328,33 +317,27 @@ C     Print reference norm and sum of vectors in buffer.
 C     Txt is printed along with the reference values (for
 C     identification).
 C
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
+      use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
       Implicit None
       Character*(*) Txt
-#include "WrkSpc.fh"
-#include "choptr.fh"
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
 
       Integer iSym, jVec, jRed, nDim
 
-      Integer i, j, k
-      Integer nDimRS
-      Integer InfVec
+      Integer i, j
       Real*8  RefNrm
       Real*8  RefSm
-      nDimRS(i,j)=iWork(ip_nDimRS-1+nSym*(j-1)+i)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      RefNrm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1))
-      RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
+      RefNrm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
+      RefSm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
-      If (l_nDimRS.lt.1) Then
+      If (.NOT.Allocated(nDimRS)) Then
          Call Cho_Quit(
      &        'Cho_VecBuf_PrtRef: unable to print reference values',104)
       End If
-      If (l_ChVBfI.gt.0) Then
+      If (Allocated(CHVBFI)) Then
          Do iSym=1,nSym
             Do jVec=1,nVec_in_Buf(iSym)
                jRed=InfVec(jVec,2,iSym)

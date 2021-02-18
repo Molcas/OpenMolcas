@@ -24,29 +24,26 @@ C
       Real*8  EVir(*)
       Logical Sorted
       Logical DelOrig
+
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*17 SecNam
-      Parameter (SecNam='ChoLSOSMP2_Energy')
+      Character(LEN=17), Parameter:: SecNam='ChoLSOSMP2_Energy'
 
       Integer  CheckDenomRange
-      Integer  TestMinimaxLaplace
-      External TestMinimaxLaplace
+      Integer, External:: TestMinimaxLaplace
 
-      Logical Debug
 #if defined (_DEBUGPRINT_)
-      Parameter (Debug=.true.)
+      Logical, Parameter:: Debug=.true.
 #else
-      Parameter (Debug=.false.)
+      Logical, Parameter:: Debug=.false.
 #endif
 
       Logical Verb, FermiShift
 
-      Integer ip_w, l_w
-      Integer ip_t, l_t
+      Integer l_w
 
       Real*8 ELOMO, EHOMO
       Real*8 ELUMO, EHUMO
@@ -55,6 +52,8 @@ C
 
       Integer iSym
       Integer i
+
+      Real*8, Allocatable:: W(:), T(:)
 
 C====================
 C     Initializations
@@ -179,11 +178,10 @@ C-tbp:
       Else
          l_w=Laplace_nGridPoints
       End If
-      l_t=l_w
-      Call GetMem('Lap_w','Allo','Real',ip_w,l_w)
-      Call GetMem('Lap_t','Allo','Real',ip_t,l_t)
+      Call mma_allocate(W,l_w,Label='W')
+      Call mma_allocate(T,l_w,Label='T')
       Call MinimaxLaplace(Verbose,Laplace_nGridPoints,xmin,xmax,
-     &                    l_w,Work(ip_w),Work(ip_t),irc)
+     &                    l_w,W,T,irc)
       If (irc.ne.0) Then
          Write(6,'(A,A,I6)') SecNam,': MinimaxLaplace returned',irc
          irc=1
@@ -196,9 +194,7 @@ C======================================
 
       If (Sorted) Then
          Call ChoLSOSMP2_Energy_Srt(Laplace_nGridPoints,
-     &                              Work(ip_w),Work(ip_t),
-     &                              EOcc,EVir,
-     &                              DelOrig,EMP2,irc)
+     &                              W,T,EOcc,EVir,DelOrig,EMP2,irc)
          If (irc .ne. 0) Then
             Write(6,'(A,A,I6)')
      &      SecNam,': ChoLSOSMP2_Energy_Srt returned',irc
@@ -207,9 +203,7 @@ C======================================
       Else
          If (nBatch .eq. 1) Then
             Call ChoLSOSMP2_Energy_Fll(Laplace_nGridPoints,
-     &                                 Work(ip_w),Work(ip_t),
-     &                                 EOcc,EVir,
-     &                                 DelOrig,EMP2,irc)
+     &                                 W,T,EOcc,EVir,DelOrig,EMP2,irc)
             If (irc .ne. 0) Then
                Write(6,'(A,A,I6)')
      &         SecNam,': ChoLSOSMP2_Energy_Fll returned',irc
@@ -241,8 +235,8 @@ C============
       End If
 
       ! deallocations
-      Call GetMem('Lap_t','Free','Real',ip_t,l_t)
-      Call GetMem('Lap_w','Free','Real',ip_w,l_w)
+      Call mma_deallocate(T)
+      Call mma_deallocate(W)
 
       End
       Integer Function CheckDenomRange(xmin,xmax,nSym,EOcc,Evir,

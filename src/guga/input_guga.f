@@ -46,7 +46,6 @@
       ILIM=4
       N=-1
       NACTEL=-1
-      IS=1
       NISHT=0
 *     NSYM=1
       Call Get_iScalar('nSym',NSYM)
@@ -124,7 +123,7 @@ CPAM97 IFCORE.ne.0 means core-polarization orbitals (NOCO keyword).
       Write (6,*)'Input_GUGA: keyword SYMMETRY is obsolete and ignored!'
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 400
-      Read(Line,*,Err=992) iDummy
+      Read(Line,*,Err=992) I
       Goto 10
 *
 *---  process ACTIVE   command ----------------------------------------*

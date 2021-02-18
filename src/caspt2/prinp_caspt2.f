@@ -30,14 +30,14 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use output_caspt2, only:iPrGlb,terse,usual,verbose
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "pt2_guga.fh"
       Character(Len=8)   Fmt1,Fmt2
-      Character(Len=120)  Line,BlLine,StLine
+      Character(Len=120)  Line
       Character(Len=3) lIrrep(8)
       Character(Len=20) calctype,FockOpType
 *----------------------------------------------------------------------*
@@ -48,10 +48,6 @@
 *----------------------------------------------------------------------*
       Line=' '
       lLine=Len(Line)
-      Do i=1,lLine
-        BlLine(i:i)=' '
-        StLine(i:i)='*'
-      End Do
       lPaper=132
       left=(lPaper-lLine)/2
       WRITE(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
@@ -104,7 +100,7 @@
       WRITE(6,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           0.5D0*DBLE(ISPIN-1)
       WRITE(6,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
       WRITE(6,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCONF
       WRITE(6,Fmt2//'A,T45,I6)')'Number of root(s) available',
@@ -210,6 +206,9 @@
             else
               calctype='DW-CASPT2'
             end if
+          else if (IFRMS) then
+              FockOpType='state-specific'
+              calctype='RMS-CASPT2'
           else
             if (IFXMS) then
               FockOpType='state-average'
@@ -228,8 +227,9 @@
 
         write(6,Fmt2//'A,T50,A)')'Fock operator',trim(FockOpType)
         if (IFDW) then
+          write(6,Fmt2//'A,T45,I6)')'DW Type',DWType
           if (zeta.ge.0) then
-            write(6,Fmt2//'A,T41,I10)')'DW exponent',zeta
+            write(6,Fmt2//'A,T50,E10.4)')'DW exponent',zeta
           else
             write(6,Fmt2//'A,T50,A)')'DW exponent','infinity'
           end if
@@ -251,7 +251,7 @@
      &                 ' to quasi-canonical'
         end if
 
-        if (IFXMS) then
+        if (IFXMS .or. IFRMS) then
           write(6,Fmt1)'The input states will be rotated to '//
      &     'diagonalize the Fock operator'
         end if

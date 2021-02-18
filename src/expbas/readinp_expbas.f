@@ -11,11 +11,11 @@
 * Copyright (C) Giovanni Li Manni                                      *
 ************************************************************************
       Subroutine Readinp_expbas()
+      use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
 c
 c     Author: G. Li Manni (University of Geneva)
 c
       Implicit Real*8(a-h,o-z)
-#include "info_expbas.fh"
       Character*180  Line, Blank, key, Get_Ln
       External Get_Ln
 c

@@ -44,7 +44,7 @@ c
       xka=xc-xi
       yka=yc-yi
       zka=zc-zi
-      ca=sqrt(xka*xka+yka*yka+zka*zka)
+      !ca=sqrt(xka*xka+yka*yka+zka*zka)
       if(lit.eq.1) go to 220
       crda(2,1)=xka
       crda(2,2)=yka
@@ -58,7 +58,7 @@ c
   220 xkb=xc-xj
       ykb=yc-yj
       zkb=zc-zj
-      cb=sqrt(xkb*xkb+ykb*ykb+zkb*zkb)
+      !cb=sqrt(xkb*xkb+ykb*ykb+zkb*zkb)
       if(ljt.eq.1) go to 240
       crdb(2,1)=xkb
       crdb(2,2)=ykb

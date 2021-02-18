@@ -11,7 +11,7 @@
       Subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
 c this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: N1, N2, OPT, lant
       Real(kind=8), intent(in)     :: t, u
       Complex(kind=8), intent(out) :: HEXC(N1,N1,N2,N2)

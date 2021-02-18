@@ -31,7 +31,7 @@
      &       dFdP2ontop(ndFdP2ontop,nGrid),
      &       RhoI(mRho,nGrid),RhoA(mRho,nGrid),
      &       TmpPUVX(nTmpPUVX)
-      Integer iOff_Ash(0:7),iOff_Bas(0:7)
+      Integer iOff_Bas(0:7)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,7 +43,6 @@
 *                                                                      *
       jOff_=0
       Do iIrrep = 0, mIrrep-1
-         iOff_Ash(iIrrep)=jOff_ + nIsh(iIrrep) ! ? not used
          iOff_Bas(iIrrep)=jOff_
          jOff_=jOff_+mBas(iIrrep)
       End Do

@@ -116,19 +116,19 @@ c Avoid unused argument warnings
       Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
       Integer, Pointer :: iData1(:),iData2(:)
 *
+#ifdef _DEBUGPRINT_
       iRout = 12
+      iPrint = nPrint(iRout)
+#endif
 *
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
      &              Shells(iShll(3))%Prjct.and.
      &              Shells(iShll(4))%Prjct
-      iPrint = nPrint(iRout)
       QInd(1)=Quad_ijkl
       RST_triplet=One
 *
       Do_tnsctl=.False.
-      ipDij=1
-      ipDkl=1
       kabcd=0
 *
 #ifdef _DEBUGPRINT_
@@ -876,8 +876,6 @@ c Avoid unused argument warnings
       Real*8, Target :: Data1(*),Data2(*)
       Integer, Pointer :: iData1(:),iData2(:)
 *
-      iRout = 12
-      iPrint = nPrint(iRout)
       All_Spherical=Shells(iShll(1))%Prjct.and.
      &              Shells(iShll(2))%Prjct.and.
      &              Shells(iShll(3))%Prjct.and.

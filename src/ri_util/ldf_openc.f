@@ -9,10 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer Function LDF_OpenC()
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer LuC
 #if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
       LuC=7
       If (nProcs.gt.1 .and. Is_Real_Par()) Then
          Call DAName_MF_WA(LuC,'MyLC')

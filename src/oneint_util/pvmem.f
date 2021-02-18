@@ -10,18 +10,18 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine PVMem(nRys,MemPV,la,lb,lr,KrnMem)
+      Subroutine PVMem(nHer,Mem,la,lb,lr,KrnMem)
       External KrnMem
 *
-      Call KrnMem(nRys,MemNA1,la+1,lb,lr-1)
+      Call KrnMem(nHer,MemNA1,la+1,lb,lr-1)
 *
       If (la.ne.0) Then
-         Call KrnMem(nRys,MemNA2,la-1,lb,lr-1)
+         Call KrnMem(nHer,MemNA2,la-1,lb,lr-1)
       Else
          MemNA2=0
       End If
 *
-      MemPV=Max(MemNA1,MemNA2)
+      Mem=Max(MemNA1,MemNA2)
 *
       Return
       End

@@ -22,7 +22,6 @@ C              Called from MAIN before OUTCTL
 C
 C          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 C
-
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

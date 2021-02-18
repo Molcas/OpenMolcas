@@ -15,26 +15,22 @@ C
 C     Author: Thomas Bondo Pedersen, April 2007.
 C     Purpose: fake parallel distribution of vectors.
 C
+      Use Para_Info, Only: nProcs, Is_Real_Par
+      use ChoSwp, only: InfVec
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
-#include "cho_para_info.fh"
+#include "stdalloc.fh"
 
-      Character*15 SecNam
-      Parameter (SecNam = 'Cho_PFake_VDist')
+      Character(LEN=15), Parameter:: SecNam = 'Cho_PFake_VDist'
 
       Integer iSym
-      Integer ip_IDV, l_IDV
-      Integer ip_Wrk, l_Wrk
-      Integer ip_InfV, l_InfV
+      Integer l_Wrk
       Integer iRedC, iV, nV
-      Integer kOff, nRead
+      Integer nRead
 
-      Integer i, j
-      Integer InfV
-      InfV(i,j)=iWork(ip_InfV-1+2*(j-1)+i)
+      Integer, Allocatable:: InfV(:,:), IDV(:)
+      Real*8, Allocatable:: Wrk(:)
 
 C     Return if nothing to do.
 C     ------------------------
@@ -45,12 +41,10 @@ C     ------------------------
 C     Memory allocation.
 C     ------------------
 
-      l_InfV = 2*(MaxVec+1)
-      l_IDV = MaxVec
-      Call GetMem('InfV_','Allo','Inte',ip_InfV,l_InfV)
-      Call GetMem('IDV_','Allo','Inte',ip_IDV,l_IDV)
-      Call GetMem('MAX_','Max ','Real',ip_Wrk,l_Wrk)
-      Call GetMem('Wrk_','Allo','Real',ip_Wrk,l_Wrk)
+      Call mma_allocate(InfV,2,MaxVec+1,Label='InfV')
+      Call mma_allocate(IDV,MaxVec,Label='IDV')
+      Call mma_maxDBLE(l_Wrk)
+      Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
 
 C     Distribute vectors in each symmetry:
 C     read from LuCho files; put into LuCho_G files.
@@ -58,21 +52,20 @@ C     ----------------------------------------------
 
       iRedC = -1
       Do iSym = 1,nSym
-         Call iZero(iWork(ip_InfV),l_InfV)
+         InfV(:,:)=0
          nV = 0
-         Call Cho_Distrib_Vec(1,NumCho(iSym),iWork(ip_IDV),nV)
+         Call Cho_Distrib_Vec(1,NumCho(iSym),IDV,nV)
          iV = 0
          Do While (iV .lt. nV)
             nRead = 0
-            Call Cho_PFake_GetVec(Work(ip_Wrk),l_Wrk,
-     &                            iWork(ip_IDV+iV),nV-iV,
-     &                            iWork(ip_InfV+2*iV),
+            Call Cho_PFake_GetVec(Wrk,SIZE(Wrk),
+     &                            IDV(iV+1),nV-iV,
+     &                            InfV(:,iV+1),
      &                            iSym,nRead,iRedC)
             If (nRead .lt. 1) Then
                Call Cho_Quit('Insufficient memory in '//SecNam,101)
             End If
-            Call Cho_PFake_PutVec(Work(ip_Wrk),iWork(ip_InfV),nRead,
-     &                            iSym,iV+1)
+            Call Cho_PFake_PutVec(Wrk,InfV,nRead,iSym,iV+1)
             iV = iV + nRead
          End Do
 #if defined (_DEBUGPRINT_)
@@ -80,18 +73,17 @@ C     ----------------------------------------------
             Call Cho_Quit('Logical error in '//SecNam,103)
          End If
 #endif
-         kOff = ip_InfVec - 1 + MaxVec*InfVec_N2*(iSym-1) + MaxVec*2
          Do iV = 1,nV
-            iWork(kOff+iV) = InfV(2,iV)
+            InfVec(iV,3,iSym)= InfV(2,iV)
          End Do
       End Do
 
 C     Deallocation.
 C     -------------
 
-      Call GetMem('Wrk_','Free','Real',ip_Wrk,l_Wrk)
-      Call GetMem('IDV_','Free','Inte',ip_IDV,l_IDV)
-      Call GetMem('InfV_','Free','Inte',ip_InfV,l_InfV)
+      Call mma_deallocate(Wrk)
+      Call mma_deallocate(IDV)
+      Call mma_deallocate(InfV)
 
       End
       SubRoutine Cho_PFake_GetVec(Vec,lVec,IDV,lIDV,InfV,iSym,nRead,

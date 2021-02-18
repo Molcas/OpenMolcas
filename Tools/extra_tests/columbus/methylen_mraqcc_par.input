@@ -1,6 +1,6 @@
 *-------------------------------------------------------------------------------
 * Molecule: CH2
-* Basis: cc-pvtz 
+* Basis: cc-pvtz
 * Symmetry: C2v
 *-------------------------------------------------------------------------------
  &SEWARD   &END
@@ -58,7 +58,7 @@ END_DRT
 SUBSPACEDIM
  5
 ITERATIONS
- 40  1 
+ 40  1
 ACCURACY
  0.001
 REFSPACE
@@ -75,5 +75,5 @@ REFCAS
  3 1 2 0
 PARALLEL
 END_SECTION_MRCI
-end of input 
+end of input
 

@@ -18,26 +18,25 @@ C           1) full Cholesky vectors are read
 C           2) calculations are performed in full (no use of red. sets
 C              apart from first)
 C
+      use ChoArr, only: nBstSh
 #include "implicit.fh"
       INTEGER ISHLQ(4,NSHLQ)
       LOGICAL PRTLAB
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*16 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_DBGINT_S')
+      CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_S'
 
-      INTEGER  CHO_F2SP
-      EXTERNAL CHO_F2SP
+      INTEGER, EXTERNAL:: CHO_F2SP
 
-      DIMENSION XLBAS(8)
+      Real*8 XLBAS(8)
 
-      CHARACTER*8 LABEL
+      CHARACTER(LEN=8) LABEL
+
+      Real*8, Allocatable:: INT1(:), WRK(:)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
 
 C     Return if nothing specified.
@@ -68,20 +67,19 @@ C     ----------------
 C     Make first reduced set the current reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                IWORK(ip_INDRED),1,2,NSYM,NNSHL,MMBSTRT,3)
+      CALL CHO_RSCOPY(1,2)
 
 C     Allocate memory for largest integral quadruple.
 C     -----------------------------------------------
 
       LINTMX = MX2SH*MX2SH
-      CALL GETMEM('DBGINT.1','ALLO','REAL',KINT1,LINTMX)
+      Call mma_allocate(INT1,LINTMX,Label='INT1')
 
 C     Allocate max. memory
 C     ----------------------------------------------------------
 
-      CALL GETMEM('DBGINT.2','MAX ','REAL',KWRK,LWRK)
-      CALL GETMEM('DBGINT.2','ALLO','REAL',KWRK,LWRK/2)
+      Call mma_maxDBLE(LWRK)
+      Call mma_allocate(WRK,LWRK/2,Label='WRK')
       CALL XSETMEM_INTS(LWRK/2)
 
 C     Print header.
@@ -132,13 +130,13 @@ C           ----------------------------------
                CALL CHO_QUIT('CHO_F2SP<1 in '//SECNAM,103)
             END IF
 
-            CALL CHO_DZERO(WORK(KINT1),LINT1)
-            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,WORK(KINT1),LINT1,.FALSE.)
+            INT1(1:LINT1)=0.0d0
+            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,INT1,LINT1,.FALSE.)
 
 C           Calculate integrals from Cholesky vectors.
 C           ------------------------------------------
 
-            CALL CHO_DBGINT_CHO(WORK(KINT1),NUMCD,NUMAB,WORK(KWRK),
+            CALL CHO_DBGINT_CHO(INT1,NUMCD,NUMAB,WRK,
      &                          LWRK/2,ERRMAX,ERRMIN,ERRRMS,NCMP,
      &                          ISHLCD,ISHLAB)
 
@@ -195,9 +193,8 @@ C     Release all memory allocated here (and release seward memory).
 C     --------------------------------------------------------------
 
       CALL XRLSMEM_INTS
-      CALL GETMEM('DBGINT.2','FREE','REAL',KWRK,LWRK/2)
-      CALL GETMEM('INTDBG.3','FLUSH','REAL',KINT1,LINTMX)
-      CALL GETMEM('INTDBG.4','FREE','REAL',KINT1,LINTMX)
+      Call mma_deallocate(WRK)
+      Call mma_deallocate(INT1)
 
 C     Check total number of comparisons.
 C     ----------------------------------

@@ -48,11 +48,9 @@ c      Data Debug/.True./   ! CGG
       NRI=0
       DO 10 iSymI=1,nSym
        nOccI=nOcc(iSymI)
-       nOrbI=nOrb(iSymI)
        NRJ=0
        DO 20 iSymJ=1,iSymI
         nOccJ=nOcc(iSymJ)
-        nOrbJ=nOrb(iSymJ)
         NRA=0
         DO 30 iSymA=1,nSym
          nExtA=nExt(iSymA)
@@ -76,7 +74,6 @@ c      Data Debug/.True./   ! CGG
             LAB = nOrbA * nOrbB
             If (DoCholesky) LAB=nExtA * nExtB
             LAB1= nExtA * nExtB
-            LB  = nExtB
             Call GetMem('INT1','ALLO','REAL',LINT1,LAB)
             Call GetMem('INT2','ALLO','REAL',LINT2,LAB)
             Call GetMem('AIBJ','ALLO','REAL',LAIBJ,LAB1) ! AB|IJ

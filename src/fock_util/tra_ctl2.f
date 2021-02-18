@@ -39,7 +39,7 @@
 *
       Dimension CMO(*), PUVX(*), TUVX(*)
       Dimension D1I(*), D1A(*), FI(*), FA(*)
-      Integer state_symmetry, SymProd
+      Integer SymProd
       Integer off_PUVX(mxSym,mxSym,mxSym),
      &        off_sqMat(mxSym), off_ltMat(mxSym)
       Logical lSquare
@@ -54,9 +54,6 @@
         Write(6,*)
         Call GetMem('TRA_CTL','List','Real',junk,junk)
       End If
-*
-*     nasty, but necessary
-      state_symmetry=lSym
 *
 *     generate offsets
 *
@@ -209,10 +206,6 @@ C  Synchronize PUVX if running parallel:
 *     save integrals on disk
       iDisk=0
       Call DDaFile(LUINTM,1,PUVX,nPUVX,iDisk)
-
-*     nasty, but necessary
-      lSym=state_symmetry
-
 
       Return
       End

@@ -17,13 +17,15 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use output_caspt2, only:iPrGlb,debug
+#endif
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES 1-EL AND 2-EL
 * DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
@@ -33,10 +35,9 @@
       INTEGER LSGM1,LSGM2,LG1TMP,LG2TMP
 
       INTEGER I
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
-
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
+      REAL*8, EXTERNAL :: DNRM2_
       INTEGER NAC4
 #endif
 

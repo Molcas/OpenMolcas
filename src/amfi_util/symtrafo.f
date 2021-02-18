@@ -25,12 +25,12 @@ cbs
       parameter(maxorbs=MxOrb)
       parameter(maxcent=MxAtom)
       Real*8 SOInt(LenTot)
-      character*8 xa,ya,za,xa2
+      character*8 ya,za,xa2
       character*3 END
 CBS   character*20 filename
       logical  EX
 CBS   namelist /SYMTRA/ none
-      dimension xa(4),ya(4),za(4)
+      dimension ya(4),za(4)
       dimension xa2(4)
       dimension ncent(maxorbs), Lval(maxorbs),mval(maxorbs),
      *          nadpt(maxorbs),nphase(8,maxorbs),idummy(8),
@@ -43,16 +43,12 @@ c#######################################################################
       IPNT(I,J)=(max(i,j)*max(i,j)-max(i,j))/2 +min(i,j)
 *
       END='   '  ! added due to cray warnings. B.S. 04/10/04
-      xa(1)='********'
       ya(1)='********'
       za(1)='********'
-      xa(2)='        '
       ya(2)='        '
       Za(2)='        '
-      xa(3)='ANTISYMM'
       ya(3)='ANTISYMM'
       Za(3)='ANTISYMM'
-      xa(4)='X1SPNORB'
       ya(4)='Y1SPNORB'
       ZA(4)='Z1SPNORB'
       call mma_allocate(ifirstLM,[0,Lmax],[-Lmax,Lmax],[1,maxcent],
@@ -125,7 +121,6 @@ c     clean up arrays for new integrals
 *     loop over unique centres to read integrals and information
 *
       iunit=LUPROP
-      nSCR=numboffunct3*3
       Call mma_allocate(Scr,numboffunct3,3,Label='Scr')
       Scr(:,:)=Zero
       ipSCR=1
@@ -356,4 +351,12 @@ cDebugDebug
       Call mma_deallocate(AMFI_Int)
 CBS   write(6,*) 'Symmetry transformation successfully done'
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Then
+         Call Unused_integer_array(idummy)
+         Call Unused_character(ya)
+         Call Unused_character(za)
+         Call Unused_character(xa2)
+      End If
+#endif
       End

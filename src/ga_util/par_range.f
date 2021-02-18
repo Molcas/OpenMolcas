@@ -13,7 +13,7 @@
       ! the range (i,j) of this particular process.
       ! If there is no valid range, then j<i will be returned,
       ! so it is possible to use it consistently for looping.
-#include "para_info.fh"
+      use Para_Info, only: MyRank, nProcs
       nqot = n / nprocs
       nrem = n - nqot * nprocs
       if (myrank .lt. nrem) then

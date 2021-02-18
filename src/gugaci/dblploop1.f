@@ -1906,7 +1906,6 @@ c          wl=wl*vlop0
           w0sd11=w0_sd(11)
           w1sd11=w1_sd(11)
           w0sd14=w0_sd(14)
-          w1sd14=0.d0
           ni=mod(norb_dz-lrj,2)
           if(ni.eq.1) then
             w0sd2 =-w0sd2
@@ -2200,7 +2199,6 @@ c          wl=wl*vlop0
           w0sd10=w0_sd1(10)
           w1sd10=w1_sd1(10)
           w0sd11=w0_sd1(11)
-          w1sd11=0.d0
           w0sd12=w0_sd1(12)
           w0sd13=w0_sd1(13)
           ni=mod(norb_dz-lrj,2)
@@ -2394,7 +2392,6 @@ c            wl=wl*vlop0
 !td(13-5) (22)d&&l(33)b^l(23)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
-        isma=lmi
         if(lmi.ne.jmlr) cycle
         w0td1=w0_td(1)
         w0td4=w0_td(4)
@@ -2532,7 +2529,6 @@ c            wl=wl*vlop0
 !t1d1(15-5) (11)d&&l(33)b^l(13)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
-        isma=lmi
         if(lmi.ne.jmlr) cycle
         w0td1=w0_t1d1(1)
         w0td4=w0_t1d1(4)

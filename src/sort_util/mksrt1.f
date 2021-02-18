@@ -144,7 +144,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
 #endif
                 End Do
                 If ( nij.eq.0 ) then
-                    rc=001
                     Write(6,*)
                     Write(6,'(2X,A,I3.3,A)')
      &              '*** Error in MKSRT1 ***'
@@ -197,7 +196,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
       End If
 *
       If ( nBin.gt.mxBin ) Then
-        rc=003
         Write(6,*)
         Write(6,'(2X,A,I3.3,A)')
      &  '*** Error in MKSRT1 ***'
@@ -213,7 +211,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
       End If
 *
       If ( MxSrtA1.gt.lSrtA ) Then
-        rc=004
         Write(6,*)
         Write(6,'(2X,A,I3.3,A)')
      &  '*** Error in MKSRT1 ***'

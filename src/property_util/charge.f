@@ -866,7 +866,6 @@ c second call, make a real print out
          ik=0
          ikk=0
          Do IST=1,nNuc,6
-            Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+6,nNuc)
             Write(6,*)
             Write(6,'(14X,6(14X,A,4X))')
@@ -936,7 +935,6 @@ c icase=2 for usual mulliken, =2 for spin population.
 *
          IEND=0
          Do IST=1,nNuc,12
-            Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+12,nNuc)
             Write(6,*)
             Write(6,'(14X,12(2X,A))') (CNAME(I),I=IST,IEND)

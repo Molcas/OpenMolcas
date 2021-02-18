@@ -18,10 +18,12 @@ NNEQ
 2  2
 A  B
 2.0 2.0 2.0 0.0 0.0
+OLDA
 End of input
 
 *  2
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  F  F
 1  1
@@ -41,6 +43,7 @@ NNEQ
 2  2
 A  B
 2.0 2.0 2.0 0.0 0.0
+OLDA
 LIN1
 1
 1  2  -0.5
@@ -57,6 +60,7 @@ A  B
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
+OLDA
 End of input
 
 *  5
@@ -67,6 +71,7 @@ NNEQ
 2  2
 A  B
 2.0 2.0 2.0 0.0 0.0
+OLDA
 LIN1
 1
 1  2  -0.5
@@ -86,6 +91,7 @@ A  B
 LIN1
 1
 1  2  -0.5
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0
@@ -93,6 +99,7 @@ End of input
 
 *  7
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  F  F
 1  1
@@ -125,6 +132,7 @@ COOR
 0.0  0.0  -1.0
 TINT
 0.0  14  55
+OLDA
 End of input
 
 *  9
@@ -132,6 +140,7 @@ End of input
 LIN1
 1
 1  2  -0.5
+OLDA
 NNEQ
 2  F  F
 1  1
@@ -150,6 +159,7 @@ End of input
 
 * 10
 &POLY_ANISO &END
+OLDA
 NNEQ
 2  F  F
 1  1
@@ -169,6 +179,7 @@ B  A
 LIN1
 1
 1  2  0.0
+OLDA
 End of input
 
 * 12
@@ -179,6 +190,7 @@ NNEQ
 2  2
 B  A
 2.0 2.0 2.0 0.0 0.0
+OLDA
 LIN1
 1
 1  2  -0.5
@@ -192,6 +204,7 @@ NNEQ
 2  2
 B  A
 2.1 2.1 2.1 0.0 0.0
+OLDA
 COOR
 0.0  0.0   0.0
 0.0  0.0  -1.0

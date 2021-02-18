@@ -39,7 +39,6 @@
       Character xLblCnt(MxAtom)*(LENIN)
       Logical Pseudo
       Integer nDel(8)
-#include "vrsn_seward.fh"
       Logical Found
 *
       Logical DoEMPC
@@ -47,10 +46,6 @@
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
       Integer, Allocatable :: NTC(:), ICh(:), IsMM(:), nStab(:)
-************************************************************************
-*                                                                      *
-      LuWr=6
-*                                                                      *
 ************************************************************************
 *                                                                      *
       Call ICopy(8,[0],0,nDel,1)

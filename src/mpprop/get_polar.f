@@ -28,7 +28,6 @@
       iStdOut = 6
       iA = 0 ! Added by EB
 
-      NORBI = nBas
       WRITE(iStdOut,*) '  '
       WRITE(iStdOut,*) ' CALCULATE THE POLARIZATION TENSOR '
       WRITE(iStdOut,*) '  '
@@ -143,7 +142,6 @@ C Find the closest atom
                If( ((iA.ne.nA) .and. (iA.ne.nB) ) .and.
      &             ( (Smallest.lt.RA) .and.  (Smallest.lt.RB) ) ) Then
                   iA=iA
-                  iB=0
                   FracA=1.0D0
                   FracB=0.0D0
 !                  Write(iStdOut,*)
@@ -153,11 +151,9 @@ C Find the closest atom
 !                  Write(iStdOut,*)
                Else
                   iA=nA
-                  iB=nB
                EndIf
             Else
                iA=nA
-               iB=nB
             EndIf
             IF(BondMat(nA,nB)) THEN
                Do i=1,6

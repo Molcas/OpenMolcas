@@ -49,7 +49,10 @@
       Character ChOper(0:7)*3, Label*8, dbas*(LENIN)
       Integer nOp(2), lOper(nComp), iChO(nComp),
      &        iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
-      Logical Do_PGamma,NATEST
+      Logical Do_PGamma
+#ifdef _GEN1INT_
+      Logical NATEST
+#endif
       Real*8  SOInt(l_SOInt)
       Integer iTwoj(0:7), i
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -158,12 +161,11 @@
         Call Get_nAtoms_All(nAtoms)
         l_Coord=3*nAtoms
         Call Get_dArray('Bfn Coordinates',Coord,l_Coord)
-         NATEST=.false.
         if (nAtoms.eq.2) then
          nAtoms=nAtoms+1
-         NATEST=.true.
-         endif
+        endif
 #ifdef _GEN1INT_
+        NATEST=(nAtoms.eq.2)
         call test_f90mod_sgto_pso(iShell,jShell,iCmp,jCmp,
      &                                     iBas,jBas,iAng,jAng,
      &                                     iPrim,jPrim,mdci,mdcj,

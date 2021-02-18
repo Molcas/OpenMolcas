@@ -27,8 +27,6 @@
 
       ZERO = 0.0D0
       ONE = 1.0D0
-      MULTS = MULTSP
-      MS2 = MS2P
       IOFFCS = 0 ! dummy initialize
       IOFFDT = 0 ! dummy initialize
       IOFFCD = 0 ! dummy initialize

@@ -29,7 +29,8 @@ C      a,b,g,d:  AO-index
 C      k:        MO-index   belonging to (Frozen+Inactive)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,ipLab(8,2)
@@ -41,7 +42,10 @@ C
       Integer   ipDLT(nDen),ipFLT(nDen)
       Integer   ipPorb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
-      Logical   Debug,timings,DoRead
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead
       Character*50 CFmt
       Character*8 SECNAM
       Parameter (SECNAM = 'CHO_FSCF')
@@ -50,29 +54,19 @@ C
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
       Logical add
       Character*6 mode
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
 
       FactCI = one
       FactXI = xone*ExFac
@@ -444,7 +438,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -481,7 +474,8 @@ c Print the Fock-matrix
 
 
       SUBROUTINE move_sto(irc,iLoc,nDen,ipXLT,ipXab,mode,add)
-
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao,nDen
       External cho_isao
@@ -490,16 +484,11 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 

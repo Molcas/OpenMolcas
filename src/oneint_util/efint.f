@@ -144,8 +144,6 @@
      &            Array(iOffyy+i) - Array(iOffzz+i)
                YY = Two * Array(iOffyy+i) -
      &            Array(iOffxx+i) - Array(iOffzz+i)
-               ZZ = Two * Array(iOffzz+i) -
-     &            Array(iOffxx+i) - Array(iOffyy+i)
                Array(iOffxx+i) = XX * ThreeI
                Array(iOffyy+i) = YY * ThreeI
                Array(iOffzz+i) = RR
@@ -186,7 +184,6 @@ c Avoid unused argument warnings
          Call Unused_real_array(Beta)
          Call Unused_integer(nHer)
          Call Unused_real_array(PtChrg)
-         Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If
       End

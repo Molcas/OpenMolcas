@@ -10,9 +10,11 @@
 ************************************************************************
       Subroutine Get_Chunk(ip_ChoVec,LenVec,NumVec_,iChoVec,iSym,
      &                     ip_iMap,iVec_Global)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 #endif
@@ -64,19 +66,18 @@ C
 C     Set mapping from local to global vector index (needed in parallel
 C     RI gradient code).
 C
+      use ChoSwp, only: InfVec
       Implicit None
       Integer iVec_Global, iVec_Local, J_s, J_e, iSym
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Integer kOff, iOff, nVec, iVec
+      Integer iOff, nVec, iVec
 
-      kOff = ip_InfVec-2+MaxVec*(InfVec_N2*(iSym-1)+4)+iVec_Local
       iOff = iVec_Global + J_s - 2
       nVec = J_e - J_s + 1
       Do iVec = 1,nVec
-         iWork(kOff+iVec) = iOff + iVec
+         InfVec(iVec_Local-1+iVec,5,iSym) = iOff + iVec
       End Do
 
       End

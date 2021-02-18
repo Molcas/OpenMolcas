@@ -45,7 +45,6 @@
 *     Quit if the datadfield 'NewGeom' is not available
 *
       If ( lBuf.eq.0 ) then
-         nNuc=0
          Return
       End If
 *

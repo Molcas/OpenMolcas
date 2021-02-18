@@ -23,7 +23,7 @@
 * The input CI vector is on LUCIN and the transformed CI vector
 * will be delivered on LUCOUT.
 *
-* Transformation as conceived by Per-Aake Malmquist
+* Transformation as conceived by Per-AAke Malmquist
 * (I.J.Q.C. vol XXX, p479 ,1986 (OCTOBER ISSUE ))
 *
 *  Jeppe Olsen 1988
@@ -46,8 +46,6 @@
       DIMENSION X(*),VEC1(*),VEC2(*)
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
-*
-      IDUM=0
 *
       NTEST = 0
       IF(NTEST.GE.5) THEN

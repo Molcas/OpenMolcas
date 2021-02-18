@@ -861,7 +861,6 @@ c second call, make a real print out
          ik=0
          ikk=0
          Do IST=1,nNuc,6
-            Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+6,nNuc)
             Write(6,*)
             Write(6,'(14X,6(14X,A,4X))')
@@ -931,7 +930,6 @@ c icase=2 for usual mulliken, =2 for spin population.
 *
          IEND=0
          Do IST=1,nNuc,12
-            Fact = DBLE(nStab(ist))/DBLE(nSym)
             IEND=MIN(IEND+12,nNuc)
             Write(6,*)
             Write(6,'(14X,12(2X,A))') (CNAME(I),I=IST,IEND)
@@ -958,7 +956,7 @@ c     &                 DDot_(nNuc,[One],0,QSum,1)
 c           Write(6,'(6X,A,F12.6)') 'Total electronic charge=',
 c     &                 DDot_(nNuc,[One],0,QSum,1)
            Write(6,*)
-           TCh=DDot_(nNuc,[One],0,Work(ip_Charge),1)
+c           TCh=DDot_(nNuc,[One],0,Work(ip_Charge),1)
 c           Write(6,'(6X,A,F12.6)') 'Total            charge=',
 c     &                    DDot_(nNuc,[One],0,Work(ip_Charge),1)
 c         Call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)

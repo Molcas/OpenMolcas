@@ -155,7 +155,7 @@
          RecLab( 48)='agrad           ' ! Forces analytical gradients
          RecLab( 49)='LDF Constraint  ' ! Constraint type for LDF
          RecLab( 50)='OptimType       ' ! Optimization type in hyper
-         RecLab( 51)='LSYM            ' ! symmetry of the CAS root(s)
+         RecLab( 51)='STSYM           ' ! symmetry of the CAS root(s)
          RecLab( 52)='RF CASSCF root  '
          RecLab( 53)='RF0CASSCF root  '
          RecLab( 54)='nCoordFiles     ' ! number of xyz-files in gateway

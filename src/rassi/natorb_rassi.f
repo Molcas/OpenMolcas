@@ -186,7 +186,6 @@ C SIORB.1, SIORB.2, ...
           ENDIF
           ISTOCC=ISTOCC+NB
         END DO
-        IFOCC=1
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,

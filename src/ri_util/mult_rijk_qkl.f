@@ -24,6 +24,8 @@
 *            nIrrep : number of irreps.
 **************************************************************************
       use pso_stuff
+      use Para_Info, Only: Is_Real_Par
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
       Character  Fname*6, Fname2*6, Name_Q*6
@@ -32,7 +34,6 @@
       Parameter (SECNAM = 'MULT_RIJK_QKL')
       Logical timings
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
 *#define _DEBUGPRINT_
@@ -40,15 +41,12 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 *
-      parameter ( N2 = InfVec_N2 )
       COMMON  /CHOTIME /timings
 *
 *************************
 *     Define some indeces
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 *************************
 
       CALL CWTime(TotCPU1,TotWall1)
@@ -73,7 +71,6 @@
 
 *     Loop over the first cholesky symmetry
 *
-      kCount=0
       Do jSym = 1, nIrrep
 *
 ***      Check so the symmetry contains vectors

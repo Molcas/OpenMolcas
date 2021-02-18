@@ -15,6 +15,7 @@
      &                          nOrbLeftI,nOrbLeftJ,
      &                          nFroLeftI,nFroLeftJ)
 *     This will calculate the righthandside of the mp2lagrangian.
+      use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
 #include "implicit.fh"
       Real*8 EOcc(*), EVir(*),EFro(*),EDel(*), Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -38,11 +39,6 @@
       iMp2Lagr(i,j,k) = ip_Mp2Lagr(k) +
      &                          j-1 + (nOcc(k)+nFro(k))*(i-1)
       iDiaA(i,j,k) = ip_DiaA(k) + j-1 + (nOcc(k)+nFro(k))*(i-1)
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
-      LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
-      LiPQprod(i,j,k)=iWork(ip_LiPQprod-1+
-     &                        nSym*nSym*(k-1)+nSym*(j-1)+i)
-      LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
 *
       Do iSymIP = 1, nSym
          iSymAQ = iSymIP
@@ -67,7 +63,6 @@
                   iSymAI = MulD2h(iSymI,iSymA)
                   iSymQ = MulD2h(iSymA,iSymAQ)
                   iSymIQ = MulD2h(iSymI,iSymQ)
-                  iSymAP = iSymIQ
                   LaOrb = LnBatOrb(iSymA,jBatch)
      &                  - nOccLeftJ(iSymA)
                   Do La = 1, LaOrb

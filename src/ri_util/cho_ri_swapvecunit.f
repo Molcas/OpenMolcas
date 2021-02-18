@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_RI_SwapVecUnit(iSym)
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer iSym
 #include "cholesky.fh"
@@ -16,7 +19,6 @@
       Logical doSwap
       Integer iTmp
 #if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
       doSwap = nProcs.gt.1 .and. Is_Real_Par()
 #else
       doSwap = .False.

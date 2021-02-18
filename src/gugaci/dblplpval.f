@@ -199,7 +199,6 @@ C dbl space partial loop values
 
 !VV(25) Drl(33)-
         W0_VV   = FGSQ2
-        W1_VV   = DZERO
 
 C===============================================================
         IF(JB_SYS.EQ.0) RETURN

@@ -34,8 +34,6 @@ C
 *
        NTU_REO = NAC*(NT_REO-1) + NU_REO
        NUT_REO = NAC*(NU_REO-1) + NT_REO
-       NTU=NAC*(NT-1)+NU
-       NUT=NAC*(NU-1)+NT
        NTUT=NTUT+1
        NTUK=(NTUT**2+NTUT)/2
        RK(NTU_REO)=WORK(LTUVX+NTUK-1)

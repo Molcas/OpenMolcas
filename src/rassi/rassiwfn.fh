@@ -8,10 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#ifdef _HDF5_
-#include "mh5.fh"
-#endif
-
       integer                wfn_fileid,
      &       wfn_sfs_energy, wfn_sos_energy,
      &       wfn_sfs_coef, wfn_sos_coefr, wfn_sos_coefi,

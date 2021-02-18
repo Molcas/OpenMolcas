@@ -41,7 +41,6 @@ c
 c
       integer i,l,m,n,pos,istart,idum2
       logical action
-      real*8 DBLE
 c
       if (idum.eq.1 .and. leng.lt.3) Then
          Write (stdout,*) 'ERROR1 in substitute_term'

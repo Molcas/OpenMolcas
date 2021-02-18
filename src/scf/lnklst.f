@@ -126,7 +126,7 @@
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
-      Integer lvec,LUnit,iterat,iLList,NoAllo,iroot,lislen,incore
+      Integer lvec,LUnit,iterat,iLList,NoAllo,iroot,lislen
       Real*8 vec(lvec)
       Character opcode*4
 *
@@ -151,7 +151,6 @@ C     Integer iDskPt,len
 *     read listhead
       iroot=nLList(iLList,1)
       lislen=nLList(iLList,2)
-      incore=nLList(iLList,3)
 
       If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Then
         If (opcode.eq.'NOOP') Then
@@ -504,8 +503,6 @@ c      Integer iDskPt
       nLList(iLList,0)=0
 *     read listhead
       iroot=nLList(iLList,1)
-      lislen=nLList(iLList,2)
-      incore=nLList(iLList,3)
 
       If (iroot.le.0) Then
 * linked list has zero length, that's strange

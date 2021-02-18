@@ -57,7 +57,6 @@
       If (jvert.eq.0) Return
 *
       i2=nD-jVert+1
-      i1=(nAsh(js)+nish(js))*nbas(js)
       ip=iTri1(i2,i2)
       rF=sign*Fockti
       call dcopy_(nBa**2,[0.0d0],0,Temp2,1)

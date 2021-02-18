@@ -101,7 +101,6 @@
              AixPRd=99
              return
             endif
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixPRd=AixErr(ErrTxt)
             Call SysQuitFileMsg(_RC_IO_ERROR_READ_,
@@ -113,7 +112,6 @@
              AixPRd=99
              return
             endif
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixPRd=eEof
             Call SysQuitFileMsg(_RC_IO_ERROR_READ_,

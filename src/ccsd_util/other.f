@@ -83,7 +83,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,dimp,dimq,dime,dimf,dimef,lenghtn
+       integer symp,symq,dimp,dimq,dime,dimf,dimef,lengthn
        integer ir1,ir2,ir3,ir4,possr1,possr2,possr3,possr4
        integer possn,in,inp,inm,possnp,possnm
 c
@@ -91,9 +91,9 @@ c
        symq=mmul(ssn,symp)
 c
        in=mapin(symp,1,1)
-       lenghtn=mapdn(in,2)
+       lengthn=mapdn(in,2)
 c
-       if (lenghtn.eq.0) goto 1000
+       if (lengthn.eq.0) goto 1000
 c
        if (symp.eq.symq) then
 c     symp=symq
@@ -324,15 +324,15 @@ c
        integer in,inm,inp,ir1,ir2,ir3,ir4,ir5,ir6
        integer possn,possnp,possnm,possr1,possr2,possr3,possr4,possr5,
      & possr6
-       integer lenghtn
+       integer lengthn
 c
        do 1000 symp=1,nsym
        symq=mmul(ssn,symp)
 c
        in=mapin(symp,1,1)
-       lenghtn=mapdn(in,2)
+       lengthn=mapdn(in,2)
 c
-       if (lenghtn.eq.0) goto 1000
+       if (lengthn.eq.0) goto 1000
 c
        if (symp.eq.symq) then
 c     symp=symq
@@ -802,7 +802,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,dimp,dimq,dime,dimf,dimef,lenghtn
+       integer symp,symq,dimp,dimq,dime,dimf,dimef,lengthn
        integer ir1,possr1,bb
        integer possn,in,inp,inm,possnp,possnm
 c
@@ -814,9 +814,9 @@ c
        symq=mmul(ssn,symp)
 c
        in=mapin(symp,1,1)
-       lenghtn=mapdn(in,2)
+       lengthn=mapdn(in,2)
 c
-       if (lenghtn.eq.0) goto 1000
+       if (lengthn.eq.0) goto 1000
 c
        if (symp.eq.symq) then
 c     symp=symq

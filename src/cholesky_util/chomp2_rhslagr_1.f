@@ -16,6 +16,7 @@
      &                            nFroLeftI,nFroLeftJ)
 *     This will calculate the righthandside of the mp2lagrangian.
 *
+      use ChoMP2, only: iFirstS, LnBatOrb, LnPQprod, LiPQprod
 #include "implicit.fh"
       Real*8 EOcc(*), EVir(*),EFro(*),EDel(*), Xaibj(LnPQRSprod)
       Integer LiPQRSprod(8)
@@ -77,17 +78,9 @@
      &                           j-1
      &                        + (nOrb(k) + nDel(k))
      &                        * (i + nFro(k) + nOcc(k) - 1)
-      iFirstS(i,j)=iWork(ip_FirstS-1+nSym*(j-1)+i)
-      LnBatOrb(i,j)=iWork(ip_LnBatOrb-1+nSym*(j-1)+i)
-      LiPQprod(i,j,k) = iWork(ip_LiPQprod-1+
-     &                        nSym*nSym*(k-1)+nSym*(j-1)+i)
-      LnPQprod(i,j)=iWork(ip_LnPQprod-1+nSym*(j-1)+i)
 *
       Do iSymBJ = 1,nSym
          iSymAI = iSymBJ
-         iSymCI = iSymBJ
-         iSymKB = iSymBJ
-         iSymKI = iSymAI
 ********************************************************************
 ****   Common code for Pab, Wab, Lagr(3) and PaB
 ********************************************************************
@@ -111,7 +104,6 @@
                      iSymA = MulD2h(iSymI,iSymAI)
                      iSymAJ = MulD2h(iSymA,iSymJ)
                      iSymBI = iSymAJ
-                     iSymKJ = iSymBI
                      iSymP = iSymA
                      LiOrb = min(LnBatOrb(iSymI,iBatch)
      &                     - nFroLeftI(iSymI),
@@ -170,21 +162,21 @@
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
      &                            * (Li + nFroLeftI(iSymI) - 1) + iP
-                              Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
-     &                            + (nOcc(iSymP) + nVir(iSymP)
-     &                            +  nFro(iSymP) + nDel(iSymP))
-     &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
+*                             Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
+*    &                            + (nOcc(iSymP) + nVir(iSymP)
+*    &                            +  nFro(iSymP) + nDel(iSymP))
+*    &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
                               If(iBatch.eq.jBatch) Then
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + iTri(Lpi,Lbj)
-                                 ip_jpib = 0
+*                                ip_jpib = 0
                               Else
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + LnPQprod(iSymBJ,iBatch)
      &                                   * (Lbj-1) + Lpi
-                                 ip_jpib = LiPQRSprod(iSymBI)
-     &                                   + LnPQprod(iSymBI,iBatch)
-     &                                   * (Lpj-1) + Lbi
+*                                ip_jpib = LiPQRSprod(iSymBI)
+*    &                                   + LnPQprod(iSymBI,iBatch)
+*    &                                   * (Lpj-1) + Lbi
                               End If
                               X2 = Xaibj(ip_ipjb)
 *******************************************************************
@@ -373,11 +365,6 @@
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
      &                            * (Lb+nOccLeftJ(iSymB)-1)
-     &                            + iP
-                              Lap = LiPQprod(iSymP,iSymA,iBatch)
-     &                            + (nOcc(iSymP) + nVir(iSymP)
-     &                            +  nFro(iSymP) + nDel(iSymP))
-     &                            * (La+nOccLeftI(iSymA)-1)
      &                            + iP
                               If(iBatch.eq.jBatch) Then
                                  ip_iapb = LiPQRSprod(iSymAI)

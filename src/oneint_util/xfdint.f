@@ -70,7 +70,6 @@ C     nElem(ixyz) = 2*ixyz+1
       lab=(mabMax-mabMin+1)
       kab=nElem(la)*nElem(lb)
       lcd=(mcdMax-mcdMin+1)
-      kcd=nElem(iOrdOp)*nElem(0)
       labcd=lab*lcd
 *
 *     Compute FLOP's and size of work array which Hrr will use.
@@ -90,8 +89,6 @@ C     nElem(ixyz) = 2*ixyz+1
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-*
-      llOper = lOper(1)
 *
 *     Loop over centers of the external field.
 *
@@ -240,7 +237,6 @@ c Avoid unused argument warnings
          Call Unused_integer(nHer)
          Call Unused_real_array(CCoor)
          Call Unused_real_array(PtChrg)
-         Call Unused_integer(nGrid)
          Call Unused_integer(iAddPot)
       End If
       End

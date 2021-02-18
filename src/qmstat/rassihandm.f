@@ -62,8 +62,6 @@
 *
       kaunt=0
       iCi=iQ_Atoms*(iQ_Atoms+1)/2
-      nSav1=0
-      nSav2=0
       Do 1, i=1,nState
         Do 2, j=1,i
           kaunt=kaunt+1

@@ -55,9 +55,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)

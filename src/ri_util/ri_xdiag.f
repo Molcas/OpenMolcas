@@ -16,11 +16,12 @@ C     Thomas Bondo Pedersen, Jan. 2007.
 C
 C     Purpose: compute exact integral diagonal.
 C
+      use ChoArr, only: iSP2F, nBstSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
       Implicit None
       Integer nDiag
       Real*8  Diag(nDiag)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer ip0, ip_Scr, l_Scr
@@ -33,13 +34,7 @@ C
       Logical  Rsv_Tsk
       External Rsv_Tsk
 
-      Integer i, j, k
-      Integer iSP2F, nBstSh, IndRed, iiBstRSh, nnBstRSh
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Integer i
 
 C     Allocate memory.
 C     ----------------

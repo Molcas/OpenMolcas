@@ -51,18 +51,11 @@
 *
                Do 30 iHer = 1, nHer
                   Do 10 iZCar = 1, 3*nZeta
-c vv. splitted in order to make GNU compiler on Mac more happy.
-#ifdef _DARWIN_
-                  vv1=Axyz(iZCar,iHer,ia)*Rxyz(iZCar,iHer,ir)
-                       vv2=Bxyz(iZCar,iHer,ib)*HerW(iHer)
-                  Rnxyz(iZCar,ia,ib,ir)= Rnxyz(iZCar,ia,ib,ir)+vv1*vv2
-#else
                      Rnxyz(iZCar,ia,ib,ir) = Rnxyz(iZCar,ia,ib,ir) +
      &                             Axyz(iZCar,iHer,ia)*
      &                             Rxyz(iZCar,iHer,ir)*
      &                             Bxyz(iZCar,iHer,ib)*
      &                             HerW(iHer)
-#endif
  10               Continue
  30            Continue
 *

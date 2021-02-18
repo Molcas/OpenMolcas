@@ -214,7 +214,6 @@
       MemFree0 = Max( MEMX - MEMX/10 , 0 )
 
       MemPerVec2 = LenTCVx + MaxSlice
-      MemTmp2 = 2 * MaxInt
 
       MemMin = LenCHFV + LenTmpTra + LenTCVx + MaxSlice + 2 * MaxInt
       MemFree = MemFree0 - MemMin
@@ -378,12 +377,8 @@
       nOccJ = nOsh(iSymJ)
       nOrbA = nOrb(iSymA)
       nOrbB = nOrb(iSymB)
-      nOrbA2= nOrb(iSymB)
-      nOrbB2= nOrb(iSymA)
       nExtA = nSsh(iSymA)
       nExtB = nSsh(iSymB)
-      nExtA2= nSsh(iSymB)
-      nExtB2= nSsh(iSymA)
       If(iSymI.EQ.iSymJ) then
         nProdIJ=nOccI*(nOccJ+1)/2
       else
@@ -450,7 +445,7 @@
       End
 
       Subroutine Local_Triang(nRow,A)
-C This routine is a modification of the Per-Ake's Triang routine
+C This routine is a modification of the Per-AAke's Triang routine
 C found in src/caspt2/triang.f
 *--------------------------------------------*
 * 1994  PER-AAKE MALMQUIST                   *

@@ -100,7 +100,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        mapd(i,2)=nhelp1
 c
 c     def sym p,q
@@ -136,7 +136,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)/2
        else
@@ -212,7 +212,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)*nhelp3/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -299,7 +299,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -372,7 +372,7 @@ c
        integer nhelp1,nhelp2,nhelp3
 c
 c
-c1    def the lenght of the mediate
+c1    def the length of the mediate
        nhelp1=mapda(0,5)
        nhelp3=mapda(nhelp1,1)+mapda(nhelp1,2)-mapda(1,1)
 c
@@ -412,20 +412,20 @@ c     N.B. this routine should be done using matrix operations
 c
 c     help variables
 c
-       integer possa0,possb0,lenght,nhelp
+       integer possa0,possb0,length,nhelp
 c
 c
-c1    def the lenght of the mediate
+c1    def the length of the mediate
        nhelp=mapda(0,5)
-       lenght=mapda(nhelp,1)+mapda(nhelp,2)-mapda(1,1)
-       if (lenght.eq.0) return
+       length=mapda(nhelp,1)+mapda(nhelp,2)-mapda(1,1)
+       if (length.eq.0) return
 c
 c2    def initial possitions
        possa0=mapda(1,1)
        possb0=mapdb(1,1)
 c
 c3    set B=f.A
-       do 100 nhelp=0,lenght-1
+       do 100 nhelp=0,length-1
        wrk(possb0+nhelp)=factor*wrk(possa0+nhelp)
  100    continue
 c
@@ -452,7 +452,7 @@ c
        integer nhelp1,nhelp2,nhelp3
 c
 c
-c1    def the lenght of the mediate
+c1    def the length of the mediate
        nhelp1=mapda(0,5)
        nhelp3=mapda(nhelp1,1)+mapda(nhelp1,2)-mapda(1,1)
 c

@@ -26,9 +26,6 @@
       Real*8, Allocatable :: Cord(:,:), Chrg(:), FactOp(:)
       Integer, Allocatable :: lOper(:)
       Real*8, Allocatable:: D1ao(:)
-*
-      iRout = 1
-      iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *

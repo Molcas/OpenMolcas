@@ -32,9 +32,9 @@
 *
 * Put CI-vector from RASSCF on luc
 *
-*     if rvec>0, it should be a pointer to a second CI vector
+*     if rvec/=ip_Dummy, it should be a pointer to a second CI vector
 *     and a one-particle transition density matrix will be computed
-      tdm = rvec.gt.0
+      tdm = rvec.ne.ip_Dummy
       CALL GETMEM('LSCR1 ','ALLO','REAL',LSCR1,NSD_PER_SYM(IREFSM))
       CALL GETMEM('LSCR2 ','ALLO','REAL',LSCR2,NSD_PER_SYM(IREFSM))
       CALL COPVEC(WORK(C_POINTER),WORK(LSCR1),NCSF_PER_SYM(IREFSM))
@@ -71,7 +71,7 @@ c      END IF
 *
 * Allocate arrays
 *
-      IDUM=0
+*     IDUM=0
 *     CALL MEMMAN(IDUM, IDUM, 'MARK', IDUM, 'DENS_M')
       CALL GETMEM('VEC1  ','ALLO','REAL',KVEC1,LBLOCK)
       CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,kvec3_length)
@@ -132,7 +132,6 @@ C      ksrho1 : DONE!!! - Comming with glbbas.fh.
          CALL TriPak(work(krho1), work(lw6), 1, ntoob, ntoob)
          CALL TriPak(work(ksrho1), work(lw7), 1, ntoob, ntoob)
       END IF
-      LRHO2 = NTOOB**2*(NTOOB**2+1)/2
 *
       CALL CSDTVC(work(lscr1),work(lscr2),2,work(kdtoc_pointer),
      &     iwork(KSDREO_POINTER), iRefSm, 1)

@@ -70,7 +70,6 @@
   logical               :: debug_dmrg_rassi_code = .false.
   real*8, allocatable   :: tmat(:,:) ! active-active rotation matrix
 
-
   if(.not.trorb)then
     write(lupri,'(a,a)') ' prepMPS: no MPS rotation requested for state ', &
     qcm_group_names(job)%states(ist)
@@ -111,9 +110,11 @@
 
   if (nsym.gt.1) stop "MPS rotation not supported with symmetry"
 
+
+!   call mma_allocate(tmat,nash(1),nash(1))
+  ! Leon: I get a maybe-uninitialized error if I use mma_allocate on tmat
   allocate(tmat(nash(1),nash(1)))
   tmat = 0.0d0
-
   ista = 1
   jorb = 0
   do isym = 1, nsym
@@ -135,6 +136,7 @@
                              mspro)
 
   if (allocated(tmat)) deallocate(tmat)
+  ! call mma_deallocate(tmat)
 
   ! Avoid unused variable warnings
   if (.false.) then

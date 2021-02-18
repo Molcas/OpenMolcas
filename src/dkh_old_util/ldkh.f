@@ -60,7 +60,7 @@
 *
       Integer poss(maxsnumber),post(maxsnumber),posu(maxunumber)
 *
-      Integer i,j,k,l,m,counter,firstc,lastc,icen,jcen,itrian
+      Integer i,j,k,l,counter,firstc,lastc,icen,jcen,itrian
 *
       Real*8 det
       Integer adrmem,isfreeunit,dkh_48,adrnext
@@ -292,7 +292,6 @@ c
 **     Reconstruct the full variables
 *
         itrian=1
-        m=1
         l=1
         Do icen=firstc,lastc
            Do k=indx2(icen,1),indx2(icen,2)

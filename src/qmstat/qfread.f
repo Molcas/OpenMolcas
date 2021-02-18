@@ -66,7 +66,7 @@
       Dimension Coord(MxAt*3),Chge(MxAt),CoordCC(3*3),ChgeCC(3)
       Dimension Cmo(MxBas**2),Cmo_S(MxBas**2),Occu(MxBas),Dummy(MxBas)
 
-      Dimension nSh(MxAt),nfSh(MxAt,MxAngqNr),nCnC(MxBas),nCnC_C(MxBasC)
+      Dimension nSh(MxAt),nfSh(MxAt,MxAngqNr),nCnC_C(MxBasC)
       Dimension nOcc(MxBas),natyp(MxAt),natypC(MxAt),iDumm(MxBas)
       Dimension nBas(MxSym),nBasCC(1),iCon(MxAt,MxPrCon)
       Dimension iC_icon(MxAt,MxPrCon)
@@ -211,7 +211,6 @@
       kold=1
       iold=1
       indold=0
-      diff=0
       Do 149, i=1,nntyp
         nOcc(i)=0
 149   Continue
@@ -230,7 +229,6 @@
               ibas=ibas+1
               indold=indold+1
               nOcc(i)=nOcc(i)+2*k-1
-              nCnC(ibas)=nnaa
               ind=ind+1
               iQang(ibas)=k
               icont=Icon(i,ind)
@@ -335,7 +333,6 @@
      &,MxPrCon,MxBas,MxAngqNr,ipACC,nACCSizeC)
       iBas=0
       iAtom=0
-      mbash=0
       kold=1
       iold=1
       indold=0

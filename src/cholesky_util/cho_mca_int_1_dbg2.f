@@ -12,26 +12,26 @@
 C
 C     Purpose: test symmetry of integral matrix.
 C
+      use ChoArr, only: iSP2F, nBstSh
+
 #include "implicit.fh"
+#include "real.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*18 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INT_1_DBG2')
+      CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG2'
 
-      LOGICAL PRTINT
-      PARAMETER (PRTINT = .FALSE.)
+      LOGICAL, PARAMETER:: PRTINT = .FALSE.
 
-      PARAMETER (THR = 1.0D-14)
+      Real*8, PARAMETER:: THR = 1.0D-14
 
-      INTEGER  CHO_ISAOSH
-      EXTERNAL CHO_ISAOSH
+      INTEGER, EXTERNAL:: CHO_ISAOSH
+
+      Real*8, Allocatable, Target:: INT1(:)
+      Real*8, Pointer:: pINT1(:)=>Null(), pINT2(:)=>Null()
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)
@@ -48,8 +48,8 @@ C     ------------------------------------------
       END IF
 
       LINTT = 2*MX2SH*MX2SH
-      CALL GETMEM('Int1.dbg2.1','ALLO','REAL',KINT1,LINTT)
-      CALL GETMEM('Int1.dbg2.2','MAX ','REAL',KSEW,LSEW)
+      Call mma_allocate(INT1,LINTT,Label='INT1')
+      Call mma_maxDBLE(LSEW)
       CALL XSETMEM_INTS(LSEW)
 
       NTST = 0
@@ -72,28 +72,27 @@ C     ------------------------------------------
                NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
             END IF
             LINT  = NUMCD*NUMAB
-            KINT2 = KINT1 + LINT
+            pINT1(1:LINT) => INT1(     1:     LINT)
+            pINT2(1:LINT) => INT1(LINT+1:LINT+LINT)
 
 C           Calculate integrals (CD|AB).
 C           ----------------------------
 
-            CALL CHO_DZERO(WORK(KINT1),LINT)
-            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,WORK(KINT1),LINT,
-     &                         PRTINT)
+            pINT1(:)=Zero
+            CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,pINT1,LINT,PRTINT)
 
 C           Calculate integrals (AB|CD).
 C           ----------------------------
 
-            CALL CHO_DZERO(WORK(KINT2),LINT)
-            CALL CHO_MCA_INT_1(ISHLAB,ISHLCD,WORK(KINT2),LINT,
-     &                         PRTINT)
+            pINT2(:)=Zero
+            CALL CHO_MCA_INT_1(ISHLAB,ISHLCD,pINT2,LINT,PRTINT)
 
 C           Compare.
 C           --------
 
             ITST = 0
             IERR = 0
-            CALL CHO_MCA_INT1_1_DBG2_CMP(WORK(KINT1),WORK(KINT2),
+            CALL CHO_MCA_INT1_1_DBG2_CMP(pINT1,pINT2,
      &                                  NUMCD,NUMAB,ERRMIN,ICDMN,IABMN,
      &                                  ERRMAX,ICDMX,IABMX,ITST,IERR,
      &                                  THR,.FALSE.,LUPRI)
@@ -105,10 +104,10 @@ C           --------
      &      ' #tests: ',ITST
             IF (IERR .NE. 0) THEN
 c              WRITE(LUPRI,*) '    Here is the shell quadruple in INT1:'
-c              CALL CHO_OUTPUT(WORK(KINT1),1,NUMCD,1,NUMAB,NUMCD,NUMAB,
+c              CALL CHO_OUTPUT(pINT1,1,NUMCD,1,NUMAB,NUMCD,NUMAB,
 c    &                         1,LUPRI)
 c              WRITE(LUPRI,*) '    And the shell quadruple in INT2:'
-c              CALL CHO_OUTPUT(WORK(KINT1),1,NUMAB,1,NUMCD,NUMAB,NUMCD,
+c              CALL CHO_OUTPUT(pINT2,1,NUMAB,1,NUMCD,NUMAB,NUMCD,
 c    &                         1,LUPRI)
                DO IB = 1,NBSTSH(ISHLB)
                   ISYMB = CHO_ISAOSH(IB,ISHLB)
@@ -131,13 +130,13 @@ c    &                         1,LUPRI)
                               ICD = NBSTSH(ISHLC)*(ID - 1) + IC
                            END IF
                            IABCD = NUMCD*(IAB - 1) + ICD
-                           TST   = ABS(WORK(KINT1+IABCD-1))
+                           TST   = ABS(pINT1(IABCD))
                            IF ((TST.GT.0.0D0).AND.(ISYMCD.NE.ISYMAB))
      &                     THEN
                               WRITE(LUPRI,*) 'Symmetry break!!'
                               WRITE(LUPRI,*) 'element ',ICD,IAB,
      &                                       ' is non-zero: ',
-     &                                       WORK(KINT1+IABCD-1)
+     &                                       pINT1(IABCD)
                               WRITE(LUPRI,*) 'Symmetry is: ',
      &                                       MULD2H(ISYMCD,ISYMAB)
                            END IF
@@ -150,9 +149,10 @@ c    &                         1,LUPRI)
          END DO
       END DO
 
-      CALL XRLSMEM_INTS
-      CALL GETMEM('Int1.flsh','FLUSH','REAL',KINT1,LINTT)
-      CALL GETMEM('Int1.free','FREE','REAL',KINT1,LINTT)
+      CALL XRLSMEM_INTS()
+      Call mma_deallocate(INT1)
+      pINT1=>Null()
+      pINT2=>Null()
 
       WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,
      &               ' #errors: ',NERR

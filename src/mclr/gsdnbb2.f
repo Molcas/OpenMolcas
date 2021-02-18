@@ -95,8 +95,6 @@
       DIMENSION IAOC(*),IBOC(*),JAOC(*),JBOC(*),NOBPTS(*),IOBPTS(*)
       DIMENSION ITSOB(1)
 *
-      IACTIVE = 0
-*
       iUseab=0
       ii=1
       If (ieaw.eq.1) ii=2

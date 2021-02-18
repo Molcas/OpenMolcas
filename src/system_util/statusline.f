@@ -28,11 +28,12 @@
 *> @param[in] STR1 Status
 ************************************************************************
       Subroutine StatusLine(STR,STR1)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: King
+#endif
       character*(*) STR, STR1
       Integer Lu
 #ifdef _MOLCAS_MPP_
-      Logical King
-      External King
       if(.Not.King()) return
 #endif
       Lu=2

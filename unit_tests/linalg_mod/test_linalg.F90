@@ -15,7 +15,7 @@ module test_linalg_mod
     use fruit
     use definitions, only: wp
     use linalg_mod, only: mult, operator(.isclose.), Gram_Schmidt, symmetric, &
-        sym_diagonalize, canonicalize, norm
+        sym_diagonalize, canonicalize
     implicit none
     private
     public :: test_mult_N_N, test_mult_T_N, test_mult_N_T, test_mult_T_T, test_diagonalization
@@ -249,6 +249,7 @@ program test_linalg
     call random_seed(put=seed)
     call init_fruit()
     call inimem()
+    call init_linalg()
 
     call test_linalg_driver()
 

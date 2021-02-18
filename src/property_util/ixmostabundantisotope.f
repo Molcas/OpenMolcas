@@ -42,7 +42,7 @@
 * Opt - Options.                                                       *
 *                                                                      *
 ************************************************************************
-      Use isotopes
+      Use isotopes, only: Initialize_Isotopes, ElementList, MaxAtomNum
       Implicit None
 *----------------------------------------------------------------------*
 * Parameters.                                                          *

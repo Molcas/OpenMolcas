@@ -58,7 +58,6 @@ c     iPrint = nPrint(iRout)
 c     If (iPrint.ge.99) Then
 c        Write (*,*) ' In NAGrd: nArr=',nArr
 c     End If
-      nGrad=lDisp(0)
 *
       nRys=nHer
 *

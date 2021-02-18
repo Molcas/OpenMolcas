@@ -18,18 +18,17 @@
 *--------------------------------------------*
       SUBROUTINE TRDNS2D(IVEC,JVEC,DPT2,NDPT2)
 
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
-#ifdef _MOLCAS_MPP_
-      LOGICAL Is_Real_Par, KING
-#endif
 
       DIMENSION DPT2(NDPT2)
 

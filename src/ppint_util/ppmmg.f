@@ -26,7 +26,7 @@
       MmPPG=MmPPG+2*lamlb
 *
       lalbp=Max(nElem(la),nElem(lb+1))**2
-      MmPPG=MmPPG+2*laplb
+      MmPPG=MmPPG+2*lalbp
 *
       If (lb.gt.0) Then
          lalbm=Max(nElem(la),nElem(lb-1))**2

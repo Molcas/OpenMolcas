@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function D_Bend(Ind,iOp_,nStab,jStab,mxdc,nSym)
+      Function D_Bend(Ind,iOp_,nSym)
+      use Slapaf_Info, only: jStab, nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Integer jStab(0:7,mxdc), nStab(mxdc), Ind(3), iOp_(3)
+      Integer Ind(3), iOp_(3)
       Real*8 D_Bend
 *                                                                      *
 ************************************************************************

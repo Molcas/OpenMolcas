@@ -44,20 +44,16 @@ c This was taken from smmat.f and modified slightly
       DO ISTATE=1,NSTATE
        JOB1=JBNUM(ISTATE)
        MPLET1=MLTPLT(JOB1)
-       S1=0.5D0*DBLE(MPLET1-1)
 
        DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-        SM1=0.5D0*DBLE(MSPROJ1)
         ISS=ISS+1
         JSS=0
 
         DO JSTATE=1,NSTATE
          JOB2=JBNUM(JSTATE)
          MPLET2=MLTPLT(JOB2)
-         S2=0.5D0*DBLE(MPLET2-1)
 
          DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-          SM2=0.5D0*DBLE(MSPROJ2)
           JSS=JSS+1
 
           IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
@@ -212,9 +208,6 @@ C            CALL ADD_INFO('CURD3_INT6',DUM6,1,6)
 c perform the state diagonalization similar to
 c what is done in single_aniso
       IF(SODIAGNSTATE.GT.0) THEN
-
-!       Triangular part of a matrix
-        LSOSIZ=SODIAGNSTATE*(SODIAGNSTATE+1)
 
 c This actually does all the work
         CALL SODIAG(WORK(LUMATR), WORK(LUMATI), NSS)

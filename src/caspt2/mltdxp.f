@@ -17,13 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTDXP(IMLTOP,LST1,LST2,X,F,Y)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1), LST2(4,NLST2)
 #include "sigma.fh"
-#include "para_info.fh"
-#ifdef _MOLCAS_MPP_
-#endif
 
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given

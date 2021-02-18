@@ -59,6 +59,10 @@
       use qcmaquis_interface_cfg
 #endif
       use fciqmc, only : DoNECI
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
+
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -83,7 +87,6 @@
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
       COMMON /CHLCAS /DoCholesky,ALGO
-
       ipDMAT=ip_Dummy
       nDMAT = 1
 

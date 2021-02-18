@@ -73,8 +73,6 @@
       Dimension Buf(*)
       Character*80 Text,HeadErr
 
-      Character*16 TheName
-      Data TheName/'DaFile'/
       Integer iRc
       Data    iRc/0/
 

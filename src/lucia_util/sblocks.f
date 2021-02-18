@@ -239,7 +239,6 @@ c      END IF
                   LLBTP = LBTP(IPERM)
 *.Loop over Sigma blocks in batch
                   DO JSBLOCK = 1, NSBLOCK
-                     IDENT = 0
                      IF(ISBLOCK(1,JSBLOCK).GT.0) THEN
                         IATP = ISBLOCK(1,JSBLOCK)
                         IBTP = ISBLOCK(2,JSBLOCK)
@@ -256,9 +255,6 @@ c      END IF
      &                                  MXEXC,
      &                                  IH_OCC_CONS,
      &                                  INTERACT)
-                        IDENT = 0
-                        IF(IASM.EQ.JASM.AND.IATP.EQ.JATP.AND.
-     &                       IBSM.EQ.JBSM.AND.IBTP.EQ.JBTP) IDENT = 1
 *
                      END IF
                   END DO
@@ -408,7 +404,6 @@ C               IF(IPERTOP.NE.0) THEN
 *. Not exact Hamiltonian in use
                       IPTSPC = IH0SPC(IATP,IBTP)
                       JPTSPC = IH0SPC(JATP,JBTP)
-                      IJOP   = IH0INSPC(IPTSPC)
 *
                       IF(IPTSPC.NE.JPTSPC) GOTO 8764
 *. BK-like approximation stuff
@@ -471,7 +466,6 @@ C               IF(IPERTOP.NE.0) THEN
             IASM = ISBLOCK(3,ISBLK)
             IBSM = ISBLOCK(4,ISBLK)
             ISOFF  = ISBLOCK(5,ISBLK)
-            ISOFFP = ISBLOCK(6,ISBLK)
             NIA = NSSOA(IASM,IATP)
             NIB = NSSOB(IBSM,IBTP)
             IF(ICJKAIB.NE.0) THEN
@@ -494,4 +488,6 @@ C               IF(IPERTOP.NE.0) THEN
       END IF
 *
       RETURN
+* Avoid unused argument warnings
+      IF (.FALSE.) CALL Unused_integer_array(IH0INSPC)
       END

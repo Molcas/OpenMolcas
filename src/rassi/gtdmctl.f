@@ -25,7 +25,6 @@
 #endif
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
-
       use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -39,7 +38,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 #include "stdalloc.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)
@@ -176,12 +174,12 @@ C Pick up orbitals of ket and bra states.
       CALL RDCMO_RASSI(JOB1,CMO1)
       CALL RDCMO_RASSI(JOB2,CMO2)
 
-
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
       NTSDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
+
 
 ! +++ J. Norell 13/7 - 2018
 C 1D arrays for Dyson orbital coefficients
@@ -626,9 +624,8 @@ C Disk address for writing to scratch file is IDWSCR.
       IDWSCR=0
       DO IST=1,NSTAT(JOB1)
         ISTATE=ISTAT(JOB1)-1+IST
-#ifdef _DMRG_
+
         if(.not.doDMRG)then
-#endif
 C Read ISTATE wave function
           IF(WFTP1.EQ.'GENERAL ') THEN
             CALL READCI(ISTATE,ISGSTR1,ICISTR1,NCONF1,WORK(LCI1))
@@ -647,8 +644,8 @@ C         Transform to bion basis, Split-Guga format
 C Write out the determinant expansion to disk.
           IDDET1(ISTATE)=IDWSCR
           CALL  DDAFILE(LUSCR,1,WORK(LDET1),NDET1,IDWSCR)
-#ifdef _DMRG_
         else
+#ifdef _DMRG_
           call prepMPS(
      &                 TRORB,
      &                 LROOT(ISTATE),
@@ -667,8 +664,8 @@ C Write out the determinant expansion to disk.
      &                 job1,
      &                 ist
      &                )
-        end if
 #endif
+        end if
       END DO
 
       If (DoGSOR) Then
@@ -963,35 +960,33 @@ C             Write density 1-matrices in AO basis to disk.
           !> PAM 2011 Nov 3, writing transition matrices if requested
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
             call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
-     &                    TDMAB,TDM2,CMO1,CMO2)
+     &                    TDMAB,TDM2,CMO1,CMO2,SIJ)
           END IF
 
           !Store SIJ temporarily
           IF (IFEJOB.and.(ISTATE.ne.JSTATE)) THEN
             HAM(ISTATE,JSTATE) = SIJ
             HAM(JSTATE,ISTATE) = SIJ
-            END IF
-
+          END IF
           IF(IFHAM.AND..NOT.(IFHEXT.or.IFHEFF.or.IFEJOB))THEN
             HZERO              = ECORE*SIJ
             HIJ                = HZERO+HONE+HTWO
             HAM(ISTATE,JSTATE) = HIJ
             HAM(JSTATE,ISTATE) = HIJ
 
-         !SI-PDFT related code for "second_time" case
-          if(second_time) then
-            Energies(:) =0.0d0
-            CALL DANAME(LUIPH,'JOBGS')
-            IAD = 0
-            Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
-            IAD=ITOC15(6)
-            Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
-            do i=1,NSTAT(JOB1)
-              HAM(i,i) = Energies(i)
-            end do
-            Call DACLOS(LUIPH)
-          end if
-
+            !SI-PDFT related code for "second_time" case
+            if(second_time) then
+              Energies(:) =0.0d0
+              CALL DANAME(LUIPH,'JOBGS')
+              IAD = 0
+              Call IDAFILE(LUIPH,2,ITOC15,30,IAD)
+              IAD=ITOC15(6)
+              Call DDAFILE(LUIPH,2,Energies,NSTAT(JOB1),IAD)
+              do i=1,NSTAT(JOB1)
+                HAM(i,i) = Energies(i)
+              end do
+              Call DACLOS(LUIPH)
+            end if
 
             IF(IPGLOB.GE.DEBUG) THEN
               WRITE(6,'(1x,a,2I5)')' ISTATE, JSTATE:',ISTATE,JSTATE
@@ -1050,8 +1045,8 @@ C             Write density 1-matrices in AO basis to disk.
      &                           TRA2,NCONF2,Work(LCI2))
           CALL PREPSD(WFTP2,ISGSTR2,ICISTR2,LSYM2,
      &                IWORK(LCNFTAB2),IWORK(LSPNTAB2),
-     &          IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
-     &          WORK(LDET2))
+     &                IWORK(LSSTAB),IWORK(LFSBTAB2),NCONF2,WORK(LCI2),
+     &                WORK(LDET2))
 
           CALL GETMEM('ThetaN','ALLO','REAL',LThetaN,NCONF2)
           CALL DCOPY_(NCONF2,Work(LCI2_o),1,WORK(LThetaN),1)
@@ -1063,7 +1058,7 @@ C             Write density 1-matrices in AO basis to disk.
           !Open(unit=87,file='CI_THETA', action='read',iostat=ios)
           if(JST-1.ge.2) then
             do i=1,NCONF2
-              Read(LUCITH,*) dummy
+              Read(LUCITH,*) dot_prod ! dummy
             end do
           end if
           CALL GETMEM('ThetaM','ALLO','REAL',LThetaM,NCONF2)

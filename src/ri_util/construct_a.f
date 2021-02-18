@@ -11,7 +11,7 @@
 * Copyright (C) Jonas Bostrom                                          *
 ************************************************************************
       subroutine Construct_A(nFIorb,nIrrep)
-**************************************************************
+************************************************************************
 *     Author: Jonas Bostr{\"o}m
 *
 *     Purpose: Computation of the matrix A to contract with the 2-center
@@ -23,7 +23,7 @@
 *            nFIOrb: Array of # of Inactive(Occupied) + frozen orbitals
 *                    in each irrep.
 *            nIrrep: Number of irreducible representations.
-**************************************************************************
+************************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer  nVec(8)
       Integer nFIorb(8)
@@ -33,7 +33,6 @@
 
 #include "cholesky.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 *
 *************************
 *     Define some indeces

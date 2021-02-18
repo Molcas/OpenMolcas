@@ -26,23 +26,16 @@
 * Read!                                                                 *
 *-----------------------------------------------------------------------*
       iDisk=0
-      Ind=nCent*nPart
-      IndMa=nPol*nPart
       If(nSkipp.ne.0.and.iPrint.ge.4) then      !If we are to skip
         Write(6,*)' Reading from configuration ',nskipp,'.' !something.
       Endif
       Do 11, j=1,nSkipp+1
         If(j.ne.1.and.iRead.ne.9) then
-          Call dDaFile(9,2,Dum,1,iDisk)
-          Etot=Dum(1)
-          Call dDaFile(9,2,Dum,1,iDisk)
-          Ract=Dum(1)
-          Call dDaFile(9,2,Dum,1,iDisk)
-          GamOld=Dum(1)
-          Call dDaFile(9,2,Dum,1,iDisk)
-          Gam=Dum(1)
-          Call dDaFile(9,2,Dum,1,iDisk)
-          ESub=Dum(1)
+          Call dDaFile(9,2,Dum,1,iDisk) !Etot
+          Call dDaFile(9,2,Dum,1,iDisk) !Ract
+          Call dDaFile(9,2,Dum,1,iDisk) !GamOld
+          Call dDaFile(9,2,Dum,1,iDisk) !Gam
+          Call dDaFile(9,2,Dum,1,iDisk) !ESub
         Endif
         If(iRead.eq.9) then  !If this is a sampfile we do not care about
                           !the induced dipoles, so we just read them to

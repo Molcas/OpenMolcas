@@ -64,7 +64,6 @@
 
       Integer iScr(lStRec)
       Real*8   Scr(lStRec)
-      Integer rc
 *
 *----------------------------------------------------------------------*
 *     Turn timing ON                                                   *
@@ -110,7 +109,6 @@
       mInds=(lIBin+ItoB-1)/ItoB
       mInt(3,iBin)=mInt(3,iBin)+mInds
       If ( lIBin.gt.mxIRec ) then
-         rc=001
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
@@ -121,7 +119,6 @@
          Call Abend
       End If
       If ( lIBin.ne.lIRec ) then
-         rc=002
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
@@ -135,7 +132,6 @@
       mInts=(lVBin+RtoB-1)/RtoB
       mInt(2,iBin)=mInt(2,iBin)+mInts
       If ( lVBin.gt.mxVRec ) then
-         rc=003
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'
@@ -146,7 +142,6 @@
          Call Abend
       End If
       If ( lVBin.ne.lVRec ) then
-         rc=004
          Write(6,*)
          Write(6,'(2X,A,I3.3,A)')
      &   '*** Error in SAVEBIN ***'

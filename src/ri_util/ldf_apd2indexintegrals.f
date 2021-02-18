@@ -292,8 +292,8 @@ C
       Character*25 SecNam
       Parameter (SecNam='LDF_APD2IndexIntegrals_22')
 
-      Integer  LDF_nBasAux_Atom, LDF_nBasAux_Pair
-      External LDF_nBasAux_Atom, LDF_nBasAux_Pair
+      Integer  LDF_nBasAux_Pair
+      External LDF_nBasAux_Pair
 
       Integer nAB, nCD
       Integer ip_Int, l_Int

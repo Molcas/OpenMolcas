@@ -72,12 +72,14 @@ C                 orbital indices, setup by setsxci.
 C     IADR15(19)--IADR15(30): Presently unused.
 C     ********** IBM 3090 MOLCAS Release 90 02 22 **********
 C
+
       IMPLICIT REAL*8 (A-H,O-Z)
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
       Dimension Dum(1)
 
 
@@ -92,7 +94,7 @@ C New layout scheme; length is 30 integers.
 C
 C     DUMMY WRITE THE REMAINING RECORDS TO OBTAIN ADDRESSES
 C
-      CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,LSYM,
+      CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,STSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
      &            NAME,LENIN8*mxOrb,NCONF,HEADER,144,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,

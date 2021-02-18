@@ -72,7 +72,6 @@
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
       Integer ipXmi(5)
-      Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk2, Found,
      &        FreeK2, Verbose
@@ -110,8 +109,6 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
@@ -226,7 +223,6 @@
 *
       iOff=0
       Do iSym = 0, nSym-1
-         iDlt=ipDMLT(1)+iOff-1
          kS=1+nSkal_Valence*iSym ! note diff wrt declaration of iBDsh
          Do j=1,nBas(iSym)
             jsh=Cho_Irange(j,iBDsh(kS),nSkal_Valence,.true.)
@@ -234,6 +230,7 @@
                ish=Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
                ijS=ip_MaxDens-1+jsh*(jsh-1)/2+ish
                Do iSO=1,nJDens
+                 If (ipDMLT(iSO).eq.ip_Dummy) Cycle
                  ij=ipDMLT(iSO)+iOff-1+j*(j-1)/2+i
                  Dm_ij=abs(Work(ij))
                  Work(ijS)=Max(Work(ijS),Dm_ij)
@@ -243,8 +240,9 @@
          iOff=iOff+nBas(iSym)*(nBas(iSym)+1)/2
       End Do
 *
-      Call Free_Work(ipDMLT(1))
-      If (nKdens.eq.2) Call Free_Work(ipDMLT(2))
+      If (ipDMLT(1).ne.ip_Dummy) Call Free_Work(ipDMLT(1))
+      If (nKdens.eq.2 .and. ipDMLT(2).ne.ip_Dummy)
+     &   Call Free_Work(ipDMLT(2))
 *
 *     Create list of non-vanishing pairs
 *
@@ -535,8 +533,6 @@
                   End If
                End Do
             End Do
-            nHrrTb(iAng,jAng,1)=nHrrab
-            nHrrTb(jAng,iAng,1)=nHrrab
          End Do
       End Do
 *                                                                      *
@@ -897,18 +893,23 @@
          Call GetMem('MOs_Yij','Free','Real',jr_Xki(1),2*nKVec*nXki)
          Call GetMem('MaxDG','Free','Real',ipSDG,nnSkal)
          Call GetMem('Ymnij','Free','Inte',ipYmnij(1),NumOrb)
-         Call GetMem('CijK','Free','Real',ip_CijK,lCijK)
-         Call GetMem('CilK','Free','Real',ip_CilK,lCilK)
-         Call GetMem('BklK','Free','Real',ip_BklK,lBklK)
-         Call GetMem('ijList','Free','Inte',ipijList,lijList)
-         Call GetMem('ijListTri','Free','Inte',ipijListTri,lijList)
-         Call GetMem('JKVEC','Free','Real',ip_VJ,ljkVec)
-         Do i=1,nKDens
-           If (lCMOi(i).gt.0) Then
-              Call GetMem('CMO_inv','FREE','Real',ip_CMOi(i), lCMOi(i))
-           End If
-         End DO
       End If
+      If (ip_CijK.ne.ip_Dummy)
+     &   Call GetMem('CijK','Free','Real',ip_CijK,lCijK)
+      If (ip_CilK.ne.ip_Dummy)
+     &   Call GetMem('CilK','Free','Real',ip_CilK,lCilK)
+      If (ip_BklK.ne.ip_Dummy)
+     &   Call GetMem('BklK','Free','Real',ip_BklK,lBklK)
+      If (ipijList.ne.ip_iDummy)
+     &   Call GetMem('ijList','Free','Inte',ipijList,lijList)
+      If (ipijListTri.ne.ip_iDummy)
+     &   Call GetMem('ijListTri','Free','Inte',ipijListTri,lijList)
+      If (ip_VJ.ne.ip_Dummy)
+     &   Call GetMem('JKVEC','Free','Real',ip_VJ,ljkVec)
+      Do i=1,nKDens
+         If (ip_CMOi(i).ne.ip_Dummy)
+     &      Call GetMem('CMO_inv','FREE','Real',ip_CMOi(i), lCMOi(i))
+      End Do
       Call GetMem('MaxDensity','Free','Real',ip_MaxDens,lMaxDens)
 *
       If(iMp2prpt .eq. 2) Then

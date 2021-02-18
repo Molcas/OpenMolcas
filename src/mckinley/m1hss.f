@@ -37,17 +37,16 @@
 *     Local variables
       Integer iDCRT(0:7)
       Real*8 C(3), TC(3)
-      Logical TstFnc, TF, EQ, IfG(0:3),Tr(0:3)
+      Logical EQ, IfG(0:3),Tr(0:3)
       Real*8 Coora(3,4), Coori(3,4), CoorAC(3,2)
       Integer iAnga(4), JndGrd(0:2,0:3,0:7),
      &           JndHss(0:3,0:2,0:3,0:2,0:7),
      &           mOp(4), iuvwx(4)
       Logical JfHss(0:3,0:2,0:3,0:2),JfGrd(0:2,0:3)
+      Logical, External :: TF
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       IX(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
 c     If (iPrint.ge.99) Then
 c        Write (6,*) ' In M1Hss: nArr=',nArr

@@ -13,7 +13,7 @@
      &                           chiT_theta, doplot, iPrint, mem )
 
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
       Integer          , intent(in) ::  nss, iprint, nT, nTempMagn, mem
       Real (kind=8)   , intent(in) :: eso(nss)
       Real (kind=8)   , intent(in) :: zJ, tmin, tmax
@@ -46,14 +46,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                               unity(:,:), a_dir(:,:), a_inv(:,:)
       ! main values and axes of XT tensors:
       Real (kind=8), allocatable :: WT(:), ZT(:,:)
-      Real (kind=8) :: rdummy(1)
       Character(len=50) :: label
 c constants used in this subrutine
       RtoB=8
       mem_local=0
       coeff_X=0.125048612_wp*3.0_wp
       boltz_k=0.6950356_wp !boltzmann constant
-      rdummy=0.0_wp
 
       DBG=.false.
       If(iPrint.gt.2) DBG=.true.
@@ -293,8 +291,8 @@ C
      &                          ' MAGNETIC SUSCEPTIBILITY'
         Write(6,'(5X,A,F12.7)') 'FROM EXPERIMENTAL VALUES PROVIDED '//
      &                          'IN THE INPUT FILE IS:',
-     &        dev( (nT-nTempMagn), chit_theta( (1+nTempMagn):(nT) ),
-     &                                  XTexp( (1+nTempMagn):(nT) )  )
+     &  dev( (nT-nTempMagn), chit_theta( (1+nTempMagn):(nT+nTempMagn) ),
+     &                            XTexp( (1+nTempMagn):(nT+nTempMagn) ))
 
       End If
 
@@ -303,13 +301,13 @@ C
       IF ( DoPlot ) THEN
          IF ( tinput ) THEN
             Call plot_XT_with_Exp(label, nT-nTempMagn,
-     &                                     T((1+nTempMagn):(nT) ),
-     &                            chit_theta((1+nTempMagn):(nT) ),
-     &                                 XTexp((1+nTempMagn):(nT) ), zJ )
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+     &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ),
+     &                       XTexp((1+nTempMagn):(nT+nTempMagn) ), zJ )
          ELSE
             Call plot_XT_no_Exp( label, nT-nTempMagn,
-     &                                    T((1+nTempMagn):(nT) ),
-     &                           chit_theta((1+nTempMagn):(nT) ), zJ )
+     &                           T((1+nTempMagn):(nT+nTempMagn) ),
+     &                  chit_theta((1+nTempMagn):(nT+nTempMagn) ), zJ )
          END IF
       END IF
 !------------------------- END PLOTs -------------------------------------!

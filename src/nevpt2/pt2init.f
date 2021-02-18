@@ -14,19 +14,24 @@
       subroutine pt2init(refwfn_in)
 
 #ifdef _DMRG_
-      use qcmaquis_info
+      use qcmaquis_info, only: qcm_group_names
+      use qcmaquis_interface, only:
+     &  qcmaquis_interface_measure_and_save_trans3rdm,
+     &  qcmaquis_interface_get_3rdm_elements,
+     &  qcmaquis_interface_get_4rdm_elements
+      use qcmaquis_interface_utility_routines, only: str
 #endif
 #ifdef _HDF5_QCM_
       use hdf5_utils
+      use mh5, only: mh5_is_hdf5
 #endif
-      use refwfn
+      use refwfn, only: refwfn_init, refwfn_info, refwfn_data,
+     &                  refwfn_close
       use nevpt2_cfg
       use info_state_energy  ! energies
       use info_orbital_space ! orbital specifications read from JobIph
       use nevpt2wfn
       implicit none
-
-      logical, external :: mh5_is_hdf5
 
       character(len=*), intent(in) :: refwfn_in
       character(len=:), allocatable :: refwfnfile
@@ -99,9 +104,9 @@
       call Quit_OnUserError()
 #endif
       Call refwfn_init(refwfnfile)
-      Call refwfn_info
-      Call refwfn_data
-      Call refwfn_close
+      Call refwfn_info()
+      Call refwfn_data()
+      Call refwfn_close()
 
       !> fill nevpt2 confuguration variables from caspt2.fh commons
       !> ----------------------------------------------------------

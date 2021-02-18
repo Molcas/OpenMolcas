@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY3(IFF)
+      use output_caspt2, only:iPrGlb,verbose
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
@@ -38,7 +39,6 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 #include "SysDef.fh"
@@ -110,7 +110,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
           ELSE
             WRITE(6,*)' With new orbitals, the CI array is:'
           END IF
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
+          CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
         END IF
       ELSE
         WORK(LCI)=1.0D0

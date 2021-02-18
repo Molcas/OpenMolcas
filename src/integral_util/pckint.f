@@ -32,7 +32,7 @@
       Logical Mode
 *
       iRout=399
-      iPrint=nPrint(399)
+      iPrint=nPrint(iRout)
 *
       If (Mode) Then
 *--------Integrals

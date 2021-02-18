@@ -14,24 +14,20 @@ C     Purpose: test diagonal, reduced set IRED. Note that the
 C              diagonal *must* be the original diagonal stored
 C              in reduced set 1.
 C
+      use ChoArr, only: nBstSh, iSP2F
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
 #include "implicit.fh"
-      DIMENSION DIAG(*)
+      Integer IRED
+      Real*8 DIAG(*)
+#include "real.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*18 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INT_1_DBG1')
+      CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'
 
-      LOGICAL PRTINT
-      PARAMETER (PRTINT = .FALSE.)
+      LOGICAL, PARAMETER:: PRTINT = .FALSE.
 
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      INDRSH(I)=IWORK(ip_INDRSH-1+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
+      Real*8, Allocatable:: xINT(:)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)
@@ -48,8 +44,8 @@ C     ------------------------------------------
       END IF
 
       LINT1 = MX2SH*MX2SH
-      CALL GETMEM('Int1.dbg1.1','ALLO','REAL',KINT,LINT1)
-      CALL GETMEM('Int1.dbg1.2','MAX ','REAL',KSEW,LSEW)
+      Call mma_allocate(xINT,LINT1,Label='INT')
+      Call mma_maxDBLE(LSEW)
       CALL XSETMEM_INTS(LSEW)
 
       NERR = 0
@@ -70,8 +66,8 @@ C        --------------------------------------------
 C        Calculate integrals.
 C        --------------------
 
-         CALL CHO_DZERO(WORK(KINT),LINT)
-         CALL CHO_MCA_INT_1(ISHLAB,ISHLAB,WORK(KINT),LINT,PRTINT)
+         xINT(1:LINT)=Zero
+         CALL CHO_MCA_INT_1(ISHLAB,ISHLAB,xINT,LINT,PRTINT)
 
 C        Look up all diagonal elements in DIAG and compare to
 C        values just calculated.
@@ -117,8 +113,8 @@ C        ----------------------------------------------------
      &                             103)
                   END IF
 
-                  KABAB = KINT + NUMAB*(IAB - 1) + IAB - 1
-                  DIFF  = DIAG(JAB) - WORK(KABAB)
+                  KABAB = NUMAB*(IAB - 1) + IAB
+                  DIFF  = DIAG(JAB) - xINT(KABAB)
                   IF (ABS(DIFF) .GT. 1.0D-14) THEN
                      WRITE(LUPRI,*)
      &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',
@@ -186,8 +182,8 @@ C        ----------------------------------------------------
      &                             103)
                   END IF
 
-                  KABAB = KINT + NUMAB*(IAB - 1) + IAB - 1
-                  DIFF  = DIAG(KAB) - WORK(KABAB)
+                  KABAB = NUMAB*(IAB - 1) + IAB
+                  DIFF  = DIAG(KAB) - xINT(KABAB)
                   IF (ABS(DIFF) .GT. 1.0D-14) THEN
                      WRITE(LUPRI,*)
      &               SECNAM,': ISHLA,ISHLB,JAB,IAB,DIFF: ',
@@ -214,9 +210,8 @@ C        ----------------------------------------------------
 
       END DO
 
-      CALL XRLSMEM_INTS
-      CALL GETMEM('Int1.flsh','FLUSH','REAL',KINT,LINT1)
-      CALL GETMEM('Int1.free','FREE','REAL',KINT,LINT1)
+      CALL XRLSMEM_INTS()
+      Call mma_deallocate(xINT)
 
       WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,
      &               ' #errors: ',NERR

@@ -76,9 +76,10 @@ string(REPLACE ";" "<->" GA_LIBRARIES_NEVPT "${GA_LIBRARIES}")
     "-DGA_LIBS=${GA_LIBRARIES_NEVPT}")
 endif()
 
-if (QCMaquis_ROOT)
+
+if (MAQUIS_DMRG_DIR)
 list(APPEND NEVPT2CMakeArgs
-  "-DMAQUIS_DMRG_DIR=${QCMaquis_ROOT}/share/cmake")
+        "-DMAQUIS_DMRG_DIR=${MAQUIS_DMRG_DIR}")
 endif()
 
 

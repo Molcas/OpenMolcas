@@ -16,14 +16,13 @@
 #include "MolProp.fh"
 #include "warnings.fh"
 
-      Integer      nBondCount(mxAtomMP)
       Character*3  EndKey
 *Jose Character*4  TestLabe(0:nAtoms), KWord
       Character*4   KWord
       Character*6  TestLabe(0:nAtoms)
       Character*180 Key, BLine
       Character*180 Get_Ln
-      Logical Debug, lTtl, LNearestAtom
+      Logical Debug, LNearestAtom
       Logical LAllCenters, AveOrb, Diffuse(3)
       Logical LLumorb
       Dimension dLimmo(2)
@@ -50,9 +49,7 @@
 *
 *     KeyWord directed input
 *
- 998  lTtl = .False.
-!EB 9988 Continue
-      Key = Get_Ln(LuRd)
+ 998  Key = Get_Ln(LuRd)
       If (Debug) Write (iStdOut,*) ' Processing:',Key
       KWord = Trim(Key)
       Call UpCase(KWord)
@@ -90,7 +87,6 @@
 * Get the input for bonds
 981   LAllCenters=.True.
       Do i=1,MxAtomMP
-         nBondCount(i)=0
          NUB(i) = 0
          Do j=1,MxAtomMP
             NBI(i,j) = 0

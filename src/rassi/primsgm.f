@@ -26,7 +26,6 @@
       INTEGER ISBS1,ISBS2,ISORB,KOINFO,KSBSCR,KSBSAN
       INTEGER KSBS1,KSBS2,KSORB,KSSTCR,KSSTAN,MORSBITS
 C     INTEGER NBLKDET1,NBLKDET2,NDETS1,NDETS2,IERR
-      INTEGER NBLKDET1,NBLKDET2,NDETS1,NDETS2
 C     INTEGER LDUM,NDUM
 #include "WrkSpc.fh"
 C Purpose: Add to the wave function SGM the result of applying
@@ -56,10 +55,8 @@ C The substring table:
       END IF
 C The FS blocks of the SGM wave function:
       NFSB1=IFSBTAB1(3)
-      NDETS1=IFSBTAB1(5)
       KSTARR1=8
 C The FS blocks of the PSI wave function:
-      NDETS2=IFSBTAB2(5)
       NHSH2=IFSBTAB2(6)
       KHSH2=IFSBTAB2(7)
       KSTARR2=8
@@ -79,7 +76,6 @@ C Loop over FS blocks of the SGM wave function
         DO ISP=1,NASPRT
           ISSTARR(ISP)=IFSBTAB1(KPOS-1+ISP)
         END DO
-        NBLKDET1 =IFSBTAB1(KPOS+NASPRT  )
         IBLKPOS1 =IFSBTAB1(KPOS+NASPRT+1)
 C Initial values for lower and higher dimensions.
 C Also, extra phase factor due to spin orbitals in higher substrings.
@@ -118,7 +114,6 @@ C Get the corresponding FS block number
         ISSTARR(ISPART)=ISST1
         IF(IFSB2.EQ.0) GOTO 200
         KPOS=KSTARR2+(NASPRT+2)*(IFSB2-1)
-        NBLKDET2 =IFSBTAB2(KPOS+NASPRT  )
         IBLKPOS2 =IFSBTAB2(KPOS+NASPRT+1)
 C Now loop over ket substrings in this subpartition
         DO KSBS1=1,NSBS1

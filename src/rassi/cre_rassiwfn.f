@@ -11,16 +11,16 @@
       subroutine cre_rassiwfn
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
+#ifdef _HDF5_
       use kVectors
       use rasscf_data, only: doDMRG
-#ifdef _HDF5_
       use rassi_global_arrays, only: JBNUM
-#endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_real
       implicit none
-#ifdef _HDF5_
 #  include "Molcas.fh"
 #  include "cntrl.fh"
 #  include "rassi.fh"

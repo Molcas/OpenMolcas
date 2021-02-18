@@ -13,12 +13,12 @@ c
 c
 c!      drajver o2v4 procesu
 c
+        use Para_Info, only: nProcs
         implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "wrk.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "chcc_casy.fh"
 c
         integer NvGrp,NvSGrp,LunAux
@@ -249,11 +249,11 @@ c       (...)"       - SubGroup, SubBlock
 c
 cD      list of most important variables
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "wrk.fh"
 #include "chcc1.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
         integer NaGrp,NbeGrp,NaSGrp,NbeSgrp,LunAux

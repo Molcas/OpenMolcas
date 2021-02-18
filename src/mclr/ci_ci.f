@@ -43,4 +43,7 @@
       End Do
       Call DSCAL_(nroots*ncsf(state_SYM),2.0d0,W(ipS2)%Vec,1)
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

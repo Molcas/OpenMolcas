@@ -15,11 +15,13 @@ C              shell pair distribution (**|ISHLA ISHLB).
 C
 C     Version 1: store full shell quadruple.
 C
+      use ChoArr, only: nBstSh, iSP2F
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
+#include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       CHARACTER*17 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_CALCINT_1')
@@ -30,15 +32,10 @@ C
 
       INTEGER NAB(8)
 
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
+      Real*8, Allocatable:: Int4Sh(:), IntCol(:)
 
 #if defined (_DEBUGPRINT_)
-      CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
+      Call mma_maxDBLE(LLEAK)
       MEM_START = LLEAK
 #endif
 
@@ -87,7 +84,7 @@ C     ----------------
       L4SHMX = MAXCD*NUMAB
 
       XXSHL = DBLE(NNSHL)
-      XSKIP = 0.0D0
+      XSKIP = Zero
 
       IF (IPRINT .GE. INFINT) WRITE(LUPRI,*)
 
@@ -96,14 +93,14 @@ C     qualified columns in reduced set,
 C     max. shell quadruple.
 C     ---------------------------------
 
-      CALL GETMEM('INT.4sh','ALLO','REAL',K4SH,L4SHMX)
-      CALL GETMEM('INT.col','ALLO','REAL',KCOL,LCOL)
-      CALL CHO_DZERO(WORK(KCOL),LCOL)
+      Call mma_allocate(Int4Sh,L4SHMX,Label='Int4Sh')
+      Call mma_allocate(IntCol,LCOL,Label='IntCol')
+      IntCol(:)=Zero
 
 C     Set memory used by seward.
 C     --------------------------
 
-      CALL GETMEM('INT.MAX','MAX ','REAL',KINT,LINT)
+      Call mma_maxDBLE(LINT)
       CALL XSETMEM_INTS(LINT)
 
 C     Loop over shell quadruples.
@@ -150,9 +147,9 @@ C           --------------------
 
             CALL CHO_TIMER(C1,W1)
             L4SH = NUMCD*NUMAB
-            CALL CHO_DZERO(WORK(K4SH),L4SH)
+            Int4Sh(1:L4SH)=Zero
             CALL CHO_MCA_INT_1(ISHLCD,ISHLAB,
-     &                         WORK(K4SH),L4SH,
+     &                         Int4SH,L4SH,
      &                         LOCDBG.OR.(IPRINT.GE.100))
             CALL CHO_TIMER(C2,W2)
             TINTEG(1,1) = TINTEG(1,1) + C2 - C1
@@ -176,11 +173,11 @@ C           -----------------------------------------
                      JCD  = IIBSTR(ISYM,2) + JCDS
                      ICD  = INDRED(INDRED(JCD,2),1)
 
-                     KOFF1 = KCOL + IOFF_COL(ISYM)
-     &                     + NNBSTR(ISYM,2)*(KAB - 1) + JCDS - 1
-                     KOFF2 = K4SH + NUMCD*(IAB - 1) + ICD - 1
+                     KOFF1 = IOFF_COL(ISYM)
+     &                     + NNBSTR(ISYM,2)*(KAB - 1) + JCDS
+                     KOFF2 = NUMCD*(IAB - 1) + ICD
 
-                     WORK(KOFF1) = WORK(KOFF2)
+                     IntCol(KOFF1) = Int4Sh(KOFF2)
 
                   END DO
 
@@ -192,7 +189,7 @@ C           -----------------------------------------
 C           Update skip counter.
 C           --------------------
 
-            XSKIP = XSKIP + 1.0D0
+            XSKIP = XSKIP + One
 
 C           Print message.
 C           --------------
@@ -215,9 +212,9 @@ C     --------------------------
          LTOT = NNBSTR(ISYM,2)*NAB(ISYM)
          IF (LTOT .GT. 0) THEN
             IOPT = 1
-            KOFF = KCOL + IOFF_COL(ISYM)
+            KOFF = 1 + IOFF_COL(ISYM)
             IADR = NNBSTR(ISYM,2)*IOFFQ(ISYM)
-            CALL DDAFILE(LUSEL(ISYM),IOPT,WORK(KOFF),LTOT,IADR)
+            CALL DDAFILE(LUSEL(ISYM),IOPT,IntCol(KOFF),LTOT,IADR)
          END IF
       END DO
       CALL CHO_TIMER(C2,W2)
@@ -227,9 +224,9 @@ C     --------------------------
 C     Free memory: both memory used by seward and used here.
 C     ------------------------------------------------------
 
-      CALL XRLSMEM_INTS
-      CALL GETMEM('INT.col','FREE','REAL',KCOL,LCOL)
-      CALL GETMEM('INT.4sh','FREE','REAL',K4SH,L4SHMX)
+      CALL XRLSMEM_INTS()
+      Call mma_deallocate(IntCol)
+      Call mma_deallocate(Int4Sh)
 
 C     Print skip statistics.
 C     ----------------------
@@ -241,7 +238,7 @@ C     ----------------------
       END IF
 
 #if defined (_DEBUGPRINT_)
-      CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)
+      Call mma_maxDBLE(LLEAK)
       MEM_END = LLEAK
       LEAK = MEM_END - MEM_START
       IF (LEAK .NE. 0) THEN

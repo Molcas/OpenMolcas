@@ -27,7 +27,6 @@
       Real*8 A(3),COOR(3,*), B(3)
       Character*(LENIN) Lab
       mdc=0
-      iIrrep=0
 *
       Write(LUT,'(A)') '*BEGIN COORDINATES'
       Write(LUT,'(A)') '*LABEL COORDINATES CHARGE '

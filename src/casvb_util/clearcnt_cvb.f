@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine clearcnt_cvb(icode)
 c  ICODE=1 : Orbitals changed
@@ -16,7 +17,6 @@ c  ICODE=2 : CI coefficients changed
 c  ICODE=3 : Everything changed
       implicit real*8 (a-h,o-z)
       logical initialize
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

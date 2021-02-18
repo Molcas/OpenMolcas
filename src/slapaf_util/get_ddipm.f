@@ -8,63 +8,63 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_dDipM(dDipM,DipM,mInter,nInter)
+      Subroutine Get_dDipM(dDipM,DipM,nDoF,nInter)
 ************************************************************************
 *                                                                      *
 *     Objective: to compute the dipole moment derivative in Cartesians *
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
+      use Slapaf_Info, only: Coor
+      use Slapaf_Parameters, only: mTROld
       Implicit Real*8 (a-h,o-z)
-#include "info_slapaf.fh"
-#include "WrkSpc.fh"
-      Real*8 dDipM(3,mInter), DipM(3)
+#include "stdalloc.fh"
+      Real*8 dDipM(3,nDoF), DipM(3)
       Logical Found
+      Real*8, Allocatable:: Tmp2(:), BOld(:), TROld(:)
 *
-      nX=3*nsAtom
+      nX=3*SIZE(Coor,2)
 *
-      Call Allocate_Work(ipTmp2,nX**2)
-      Call Allocate_Work(ipBOld,nX*nInter)
+      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
+      Call mma_allocate(BOld,nX*nInter,Label='BOld')
       Call Qpg_dArray('BMxOld',Found,nBMx)
       If (Found.and.(nBMx.eq.nX*nInter)) Then
-         Call Get_dArray('BMxOld',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMxOld',BOld,nX*nInter)
       Else
-         Call Get_dArray('BMtrx',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
       If (mTROld.gt.0) Then
-         Call Allocate_Work(ipTROld,nX*mTROld)
+         Call mma_allocate(TROld,nX*mTROld,Label='TROld')
          Call Qpg_dArray('TROld',Found,nTR)
          If (Found.and.(nTR.eq.nX*mTROld)) Then
-            Call Get_dArray('TROld',Work(ipTROld),nX*mTROld)
+            Call Get_dArray('TROld',TROld,nX*mTROld)
          Else
-            Call Get_dArray('TR',Work(ipTROld),nX*mTROld)
+            Call Get_dArray('TR',TROld,nX*mTROld)
          End If
       Else
-         ipTROld = ip_Dummy
+         Call mma_allocate(TROld,1,Label='TROld')
       End If
 *
-      Call Get_dDipM_(nX,Work(ipBOld),Work(ipTROld),mInter,nInter,Degen,
-     &                Work(ipTmp2),dDipM,mTROld,Work(ipCx),Smmtrc,
-     &                nsAtom,DipM)
+      Call Get_dDipM_(nX,BOld,TROld,nDoF,nInter,Tmp2,dDipM,mTROld,
+     &                SIZE(Coor,2),DipM)
 *
-      If (mTROld.gt.0) Call Free_Work(ipTROld)
-      Call Free_Work(ipBOld)
-      Call Free_Work(ipTmp2)
+      Call mma_deallocate(TROld)
+      Call mma_deallocate(BOld)
+      Call mma_deallocate(Tmp2)
 *
       Return
       End
-      Subroutine Get_dDipM_(nX,BMtrx,TRVec,mInter,nInter,Degen,
-     &                     Tmp2,dDipM,mTR,Coor,Smmtrc,nAtom,DipM)
+      Subroutine Get_dDipM_(nX,BMtrx,TRVec,nDoF,nInter,
+     &                     Tmp2,dDipM,mTR,nAtom,DipM)
+      use Slapaf_Info, only: Cx, Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Logical Smmtrc(3,nAtom)
-      Real*8 TRVec(nX,mTR), Degen(3,nAtom), BMtrx(nX,nInter),
-     &       Tmp2(nX**2), Coor(3,nAtom), dDipM(3,nInter+mTR), DipM(3)
+      Real*8 TRVec(nX,mTR), BMtrx(nX,nInter),
+     &       Tmp2(nX**2), dDipM(3,nInter+mTR), DipM(3)
 *
       Real*8 CM(3)
       Parameter ( thr = 1.0D-12 )
@@ -87,7 +87,7 @@
          Do iAtom = 1, nAtom
             rNorm=rNorm+Degen(i,iAtom)
             If (Smmtrc(i,iAtom)) Then
-               CM(i) = CM(i) + Degen(i,iAtom)*Coor(i,iAtom)
+               CM(i) = CM(i) + Degen(i,iAtom)*Cx(i,iAtom,1)
             End If
          End Do
          CM(i)=CM(i)/rNorm
@@ -109,14 +109,14 @@
             Tx = Tx + TRVec((i-1)*3+1,iX)*Degen(1,i)
             Ty = Ty + TRVec((i-1)*3+2,iX)*Degen(2,i)
             Tz = Tz + TRVec((i-1)*3+3,iX)*Degen(3,i)
-            Rx = Rx +(TRVec((i-1)*3+2,iX)*(Coor(3,i)-CM(3)) -
-     &                TRVec((i-1)*3+3,iX)*(Coor(2,i)-CM(2)))
+            Rx = Rx +(TRVec((i-1)*3+2,iX)*(Cx(3,i,1)-CM(3)) -
+     &                TRVec((i-1)*3+3,iX)*(Cx(2,i,1)-CM(2)))
      &              * Degen(1,i)
-            Ry = Ry +(TRVec((i-1)*3+3,iX)*(Coor(1,i)-CM(1)) -
-     &                TRVec((i-1)*3+1,iX)*(Coor(3,i)-CM(3)))
+            Ry = Ry +(TRVec((i-1)*3+3,iX)*(Cx(1,i,1)-CM(1)) -
+     &                TRVec((i-1)*3+1,iX)*(Cx(3,i,1)-CM(3)))
      &              * Degen(2,i)
-            Rz = Rz +(TRVec((i-1)*3+1,iX)*(Coor(2,i)-CM(2)) -
-     &                TRVec((i-1)*3+2,iX)*(Coor(1,i)-CM(1)))
+            Rz = Rz +(TRVec((i-1)*3+1,iX)*(Cx(2,i,1)-CM(2)) -
+     &                TRVec((i-1)*3+2,iX)*(Cx(1,i,1)-CM(1)))
      &              * Degen(3,i)
          End Do
 #ifdef _DEBUGPRINT_
@@ -193,9 +193,9 @@
          End Do
 *
       End Do
-      call dcopy_(3*mInter,Tmp2,1,dDipM,1)
+      call dcopy_(3*nDoF,Tmp2,1,dDipM,1)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('dDipM(cartesian)',' ',dDipM,3,mInter)
+      Call RecPrt('dDipM(cartesian)',' ',dDipM,3,nDoF)
 #endif
 *                                                                      *
 ************************************************************************

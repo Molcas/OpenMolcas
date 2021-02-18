@@ -80,36 +80,36 @@
 
             Else
                rho_tot=Rho(1,iGrid)+Rho(2,iGrid)
-               OnTop=Rho(1,iGrid)*Rho(2,iGrid)
-               det=sqrt(rho_tot*rho_tot-4.0d0*OnTop)
-               rho_x=Rho(3,iGrid)+Rho(6,iGrid)
-               rho_y=Rho(4,iGrid)+Rho(7,iGrid)
-               rho_z=Rho(5,iGrid)+Rho(8,iGrid)
-               P2_x=Rho(3,iGrid)*Rho(2,iGrid)+
-     &              Rho(1,iGrid)*Rho(6,iGrid)
-               P2_y=Rho(4,iGrid)*Rho(2,iGrid)+
-     &              Rho(1,iGrid)*Rho(7,iGrid)
-               P2_z=Rho(5,iGrid)*Rho(2,iGrid)+
-     &              Rho(1,iGrid)*Rho(8,iGrid)
+c              OnTop=Rho(1,iGrid)*Rho(2,iGrid)
+c              det=sqrt(rho_tot*rho_tot-4.0d0*OnTop)
+c              rho_x=Rho(3,iGrid)+Rho(6,iGrid)
+c              rho_y=Rho(4,iGrid)+Rho(7,iGrid)
+c              rho_z=Rho(5,iGrid)+Rho(8,iGrid)
+c              P2_x=Rho(3,iGrid)*Rho(2,iGrid)+
+c    &              Rho(1,iGrid)*Rho(6,iGrid)
+c              P2_y=Rho(4,iGrid)*Rho(2,iGrid)+
+c    &              Rho(1,iGrid)*Rho(7,iGrid)
+c              P2_z=Rho(5,iGrid)*Rho(2,iGrid)+
+c    &              Rho(1,iGrid)*Rho(8,iGrid)
 
-      t0 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
-     &rho_x)*rho_tot/det**3
-      t1 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
-     &rho_y)*rho_tot/det**3
-      t2 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
-     &rho_z)*rho_tot/det**3
-      t3 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
-     &rho_x)*rho_tot/det**3
-      t4 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
-     &rho_y)*rho_tot/det**3
-      t5 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
-     &rho_z)*rho_tot/det**3
-      t6 = -rho_x/det**2-2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
-      t7 = -rho_y/det**2-2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
-      t8 = -rho_z/det**2-2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
-      t9 = rho_x/det**2+2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
-      t10 = rho_y/det**2+2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
-      t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
+c     t0 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
+c    &rho_x)*rho_tot/det**3
+c     t1 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
+c    &rho_y)*rho_tot/det**3
+c     t2 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
+c    &rho_z)*rho_tot/det**3
+c     t3 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
+c    &rho_x)*rho_tot/det**3
+c     t4 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
+c    &rho_y)*rho_tot/det**3
+c     t5 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
+c    &rho_z)*rho_tot/det**3
+c     t6 = -rho_x/det**2-2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
+c     t7 = -rho_y/det**2-2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
+c     t8 = -rho_z/det**2-2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
+c     t9 = rho_x/det**2+2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
+c     t10 = rho_y/det**2+2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
+c     t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
                rab1 = 1.0d0/(Rho(1,iGrid)-Rho(2,iGrid))
                dFdRa  = dF_dRho(ipRa,iGrid)
                dFdRb  = dF_dRho(ipRb,iGrid)
@@ -119,10 +119,6 @@
                dFdRby = dF_dRho(ipdRyb,iGrid)
                dFdRaz = dF_dRho(ipdRza,iGrid)
                dFdRbz = dF_dRho(ipdRzb,iGrid)
-      tmp3=dFdRax*t0+dFdRay*t1+dFdRaz*t2-
-     &     dFdRbx*t3-dFdRby*t4-dFdRbz*t5
-      tmp4=dFdRax*t6+dFdRay*t7+dFdRaz*t8+
-     &     dFdRbx*t9+dFdRby*t10+dFdRbz*t11
 *
               tmp1= (Rho(1,iGrid)*Rho(6,iGrid)-Rho(2,iGrid)*
      &                                Rho(3,iGrid))*(dFdRbx-dFdRax)+
@@ -152,7 +148,6 @@
                dF_dRho(ipRb,iGrid) = rab1*
      &                             (dFdRb-dFdRa) +
      &                              rab1*rab1*tmp2
-c     &                              tmp4
                dF_dRho(ipdRxb,iGrid) = rab1*
      &                             (dFdRbx-dFdRax)
                dF_dRho(ipdRyb,iGrid) = rab1*

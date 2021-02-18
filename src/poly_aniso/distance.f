@@ -10,7 +10,7 @@
 ************************************************************************
       Real*8 function distance(N,C1,C2)
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: N
       Real(kind=8), intent(in) :: C1(N), C2(N)
       ! local variables

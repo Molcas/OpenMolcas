@@ -49,7 +49,7 @@
 #endif
 
       Integer i1, i2, i3, i4
-      Integer iShlI, iShlJ, iShlL
+      Integer iShlI
       Integer iSO, jSO, lSO
       Integer iSOi, jSOj, lSOl
       Integer ii, jj, ll
@@ -101,8 +101,6 @@
 #endif
 
       iShlI=SHA
-      iShlJ=SHB
-      iShlL=SHC
       i3=1
       Do i4=1,lCmp
          lSO=iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)

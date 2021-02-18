@@ -45,8 +45,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
       SLine='Computing 2-electron integrals'
       Call StatusLine(' Seward:',SLine)
 *                                                                      *
@@ -77,7 +75,6 @@
 *                                                                      *
       Thize=Zero               ! Not used for conventional integrals
       PreSch=.True.            ! Not used for conventional integrals
-      Disc_Mx=Zero             ! Not used for conventional integrals
 *
       Disc=Zero
       Dix_Mx=Zero
@@ -117,7 +114,6 @@
 ************************************************************************
 *                                                                      *
       Triangular=.True.
-      Call Alloc_TList(Triangular,P_Eff)
       Call Init_TList(Triangular,P_Eff)
       Call Init_PPList
       Call Init_GTList
@@ -175,7 +171,7 @@
 *
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (AInt.lt.CutInt) Go To 14
-         Call Eval_Ints_New_Internal
+         Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,Integral_WrOut,
 * the following are dummy arguments

@@ -36,22 +36,22 @@ C
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*6  ThisNm
-      Character*13 SecNam
-      Parameter (SecNam = 'ChoMP2_O4_Drv', ThisNm = 'O4_Drv')
+      Character(LEN=6), Parameter:: ThisNm = 'O4_Drv'
+      Character(LEN=13), Parameter:: SecNam = 'ChoMP2_O4_Drv'
 
-      Parameter (Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15)
-      Parameter (iFmt = 0)
+      Real*8, Parameter:: Chk_Mem_ChoMP2 = 0.123456789D0, Tol = 1.0D-15
+      Integer, Parameter:: iFmt = 0
 
-      Logical Delete, Delete_def, DoAmpDiag
-      Parameter (Delete_def = .true.)
+      Logical Delete, DoAmpDiag
+      Logical, Parameter:: Delete_def = .true.
 
       Integer a, ai
       Integer lU_AO(8)
 
-      Character*3 BaseName_AO
+      Character(LEN=3) BaseName_AO
+      Real*8, Allocatable:: Check(:), Diag(:)
 
       MulD2h(k,l)=iEor(k-1,l-1)+1
 
@@ -73,9 +73,8 @@ C     ----------------
          Call CWTime(CPUIni1,WallIni1)
       End If
 
-      l_Dum = 1
-      Call GetMem('Dummy','Allo','Real',ip_Dum,l_Dum)
-      Work(ip_Dum) = Chk_Mem_ChoMP2
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1) = Chk_Mem_ChoMP2
 
       FracMem = 0.0d0 ! no buffer allocated
       Call Cho_X_Init(irc,FracMem)
@@ -120,13 +119,15 @@ C     ----------------------------------------------------------
       Do iSym = 2,nSym
          lDiag = lDiag + nT1am(iSym)
       End Do
-      Call GetMem('Diag','Allo','Real',ipDiag,lDiag)
-      Call ChoMP2_TraDrv(irc,CMO,Work(ipDiag),.True.)
+
+      Call mma_allocate(Diag,lDiag,Label='Diag')
+
+      Call ChoMP2_TraDrv(irc,CMO,Diag,.True.)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ChoMP2_TraDrv returned ',irc
          Go To 1  ! exit
       End If
-      kD0 = ipDiag - 1
+      kD0 = 0
       Do iSym = 1,nSym
          Do iSymi = 1,nSym
             iSyma = MulD2h(iSymi,iSym)
@@ -137,7 +138,7 @@ C     ----------------------------------------------------------
                Do a = 1,nVir(iSyma)
                   ai = kD2 + a
                   DE = 2.0d0*(EVir(iVir(iSyma)+a)-Ei)
-                  Work(ai) = Work(ai)/DE
+                  Diag(ai) = Diag(ai)/DE
                End Do
             End Do
          End Do
@@ -168,13 +169,13 @@ C The number of vectors is always written to nMP2Vec(iSym) in
 C chomp2.fh - this is overwritten too, if you do another CD!!
 
       Delete = Delete_def ! delete transf. vector files after dec.
-      Call ChoMP2_DecDrv(irc,Delete,Work(ipDiag),'Amplitudes')
+      Call ChoMP2_DecDrv(irc,Delete,Diag,'Amplitudes')
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ChoMP2_DecDrv returned ',irc
          Call ChoMP2_Quit(SecNam,'MP2 decomposition failed!',
      &                    ' ')
       End If
-      Call GetMem('Diag','Free','Real',ipDiag,lDiag)
+      Call mma_deallocate(Diag)
 
       If (Verbose) Then
          Call CWTime(CPUDec2,WallDec2)
@@ -202,16 +203,17 @@ C     --------------------------------------------------
             lDiag = lDiag + nBas(iSyma)*nBas(iSymb)
          End Do
       End Do
-      Call GetMem('AODiag','Allo','Real',ipDiag,lDiag)
+
+      Call mma_allocate(Diag,lDiag,Label='Diag')
       Call ChoMP2_VectorMO2AO(iTyp,Delete,BaseName_AO,CMO,DoAmpDiag,
-     &                        Work(ipDiag),lDiag,lU_AO,irc)
+     &                        Diag,lDiag,lU_AO,irc)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ChoMP2_VectorMO2AO returned ',irc
          Call ChoMP2_Quit(SecNam,
      &                'MP2 amplitude vector backtransformation failed!',
      &                ' ')
       End If
-      Call GetMem('Diag','Free','Real',ipDiag,lDiag)
+      Call mma_deallocate(Diag)
 
       If (Verbose) Then
          Call CWTime(CPUBT2,WallBT2)
@@ -252,7 +254,7 @@ C     Exit.
 C     -----
 
     1 Continue
-      Diff = abs(Work(ip_Dum)-Chk_Mem_ChoMP2)
+      Diff = abs(Check(1)-Chk_Mem_ChoMP2)
       If (Diff .gt. Tol) Then
          Write(6,*) SecNam,': Memory Boundary Error!'
          If (irc .eq. 0) irc = -9999
@@ -262,6 +264,6 @@ C     -----
          Call Cho_PrtTim('Cholesky MP2',CPUTot2,CPUTot1,
      &                   WallTot2,WallTot1,iFmt)
       End If
-      Call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
-      Call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
+
+      Call mma_deallocate(Check)
       End

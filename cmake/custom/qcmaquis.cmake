@@ -312,6 +312,10 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
                                                                            ${install_dir}/${QCM_MOD_SUBDIR}/qcmaquis_interface_cfg.mod
                                                                            ${install_dir}/${QCM_MOD_SUBDIR}/hdf5_utils.mod
                                                                            ${mod_dir})
+    ## set MAQUIS_DMRG_DIR so that future find_package calls can find QCMaquis
+    #if (NOT MAQUIS_DMRG_DIR)
+      #set(MAQUIS_DMRG_DIR ${install_dir}/share/cmake)
+    #endif()
 else()
   set (install_dir ${MAQUIS_DMRG_DIR}/../../)
   set (QCM_MOD_SUBDIR share/qcmaquis/fortran_mod)
@@ -332,15 +336,15 @@ set(DMRG_INCLUDE ${mod_dir} PARENT_SCOPE)
 
 # set library paths
 if (MAQUIS_DMRG_FOUND)
-  set(MAQUIS_DMRG_LIBRARIES qcmaquis-driver PARENT_SCOPE)
+  set(MAQUIS_DMRG_LIBRARIES "qcmaquis-driver ${MAQUIS_DMRG_LIBRARIES}" PARENT_SCOPE)
 else()
 # add static QCMaquis libraries
   set(MAQUIS_DMRG_LIBRARIES
-      ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_utils.a
-      ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_models.a
-      qcmaquis-driver
-      ${ALPS_LIBRARY}
       maquis_dmrg
+      ${ALPS_LIBRARY}
+      ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_models.a
+      ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_utils.a
+      qcmaquis-driver
       ${MAQUIS_DMRG_LIBRARIES}
     PARENT_SCOPE)
 endif()

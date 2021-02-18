@@ -20,8 +20,8 @@
 #include "nrmf.fh"
 #include "gam.fh"
 *
-      lsint=m
-      lcost=n
+      lsint=m_gam
+      lcost=n_gam
       k=(-1)**lcost
       if(k.eq.(-1)) then
        gammat=0.0d0

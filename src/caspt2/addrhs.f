@@ -15,7 +15,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
       DIMENSION TJVX(NT,NJ,NV,NX)
       DIMENSION Buff(nBuff)
@@ -104,7 +103,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 Case B:
@@ -295,7 +293,6 @@ C Put WBM on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AUVX(NA,NU,NV,NX)
@@ -388,7 +385,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AJVX(NV,NX,*)
@@ -517,7 +513,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AUVL(NA,NU,NV,NL)
@@ -622,7 +617,6 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
@@ -657,7 +651,6 @@ C Set up offset table:
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,6)
       NISM=NISUP(ISYM,7)
-      NIS=NISP+NISM
       NWP=NAS*NISP
       NWM=NAS*NISM
       NW=NWP+NWM
@@ -836,7 +829,6 @@ C Read WM:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AUCX(NA,NU,NC,NX)
@@ -1022,7 +1014,6 @@ C Put WFM on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 
@@ -1059,10 +1050,8 @@ C   Allocate W with parts WP,WM
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,10)
       NISM=NISUP(ISYM,11)
-      NIS=NISP+NISM
       NWGP=NAS*NISP
       NWGM=NAS*NISM
-      NWG=NWGP+NWGM
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1265,7 +1254,6 @@ C      NBXSZJ=NINABX
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
       DIMENSION AJCL(NC*NL,*)
@@ -1368,7 +1356,6 @@ C      NBXSZJ=NINABX
              NCSZ=ICEND-ICSTA+1
              DO ILSTA=1,NL,NBXSZL
                ILEND=MIN(ILSTA-1+NBXSZL,NL)
-               NLSZ=ILEND-ILSTA+1
 
                ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
 
@@ -1465,7 +1452,6 @@ C      NBXSZJ=NINABX
              NCSZ=ICEND-ICSTA+1
              DO ILSTA=1,NL,NBXSZL
                ILEND=MIN(ILSTA-1+NBXSZL,NL)
-               NLSZ=ILEND-ILSTA+1
 
                ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
 

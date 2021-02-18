@@ -44,8 +44,7 @@
      &       PAO(nT,nPAO), Grad(nGrad), Temp(9)
       Integer iAnga(4), IndGrd(3,4), Index(3,4),
      &          kOp(4), iuvwx(4),   JndGrd(3,4), lOp(4)
-      Logical AeqB, CeqD, AeqC, EQ, IfGrad(3,4),
-     &          JfGrad(3,4)
+      Logical IfGrad(3,4), JfGrad(3,4)
 *
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
@@ -77,9 +76,6 @@
       lb = iAnga(2)
       lc = iAnga(3)
       ld = iAnga(4)
-      AeqB = EQ(Coora(1,1),Coora(1,2))
-      CeqD = EQ(Coora(1,3),Coora(1,4))
-      AeqC = EQ(Coora(1,1),Coora(1,3))
       lla = 0
       llb = 0
       llc = 0

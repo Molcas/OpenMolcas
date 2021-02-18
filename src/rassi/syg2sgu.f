@@ -42,7 +42,6 @@ C CIOLD and CINEW are obvious.
 
 CTEST      write(*,*)' SYG2SGU, LSYM=',LSYM
 C Dereference ICISTRUCT and ISGSTRUCT for some data:
-      NIPWLK=ICISTRUCT(2)
       LNCSF =ICISTRUCT(5)
       NCONF =IWORK(LNCSF-1+LSYM)
       NWALK =ICISTRUCT(8)
@@ -631,7 +630,6 @@ C Purpose: Given a list of bit-packed total walks,
 C translate this into a list of elements of a CI array.
 C MXCPI= Max nr of case numbers packed in one integer.
 C Dereference iSGStruct:
-      nSym   =iSGStruct(1)
       nLev   =iSGStruct(2)
       lISm   =iSGStruct(3)
       nVert  =iSGStruct(4)

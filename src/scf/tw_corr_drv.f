@@ -57,17 +57,13 @@
 #include "WrkSpc.fh"
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
 C
-      Logical DoDens_
-      Integer ChoAlg_
       Integer nExt(8)
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "chomp2_cfg.fh"
       Dimension Grad(1)
 
-      DoDens_= DoDens
       DoDens = .false.
-      ChoAlg_= ChoAlg
       ChoAlg = 2
 *
       CALL GETMEM('DMAT','ALLO','REAL',ip_DM0,2*nBT)

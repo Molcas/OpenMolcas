@@ -16,7 +16,7 @@ C   TO OBTAIN THE MAIN ANISOTROPY AXES
 C
 
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter         :: wp=kind(0.d0)
       Integer, intent(in)        :: iprint
       Real(kind=8),intent(in)   :: Z(3,3)
       Complex(kind=8),intent(in):: E(0:2), F(0:2)

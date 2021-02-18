@@ -31,7 +31,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-      iQ = 0
 *     Call GetMem(' Enter CmbnRF','LIST','REAL',iDum,iDum)
 *
       Do 130 iZeta = 1, nZeta

@@ -55,14 +55,15 @@
 * log trans   integer dcent
       Real*8 A(3), B(3), RB(3),CCoor(3),dens(*)
       Character Label*8
-      Integer nOp(2), ip(8), ipc(0:7), iDCRR(0:7), iDCRT(0:7),
+      Integer nOp(2), ip(8), iDCRR(0:7), iDCRT(0:7),
      &        iStabM(0:7), iStabO(0:7), IndGrd(0:7)
-      Logical AeqB,TstFnc,TF,IfGrd(3,2),EQ,DiffOP,DiffCnt,Trans(2)
+      Logical IfGrd(3,2),EQ,DiffOP,DiffCnt,Trans(2)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
       Character(LEN=8) Lab_dsk
       Real*8, Allocatable:: Integrals(:), Zeta(:), ZI(:), Kappa(:),
      &                      PCoor(:,:), Fnl(:), Kern(:), ScrSph(:),
      &                      SO(:), Scr(:)
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -77,10 +78,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Statement functions
+*     Statement function
 *
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *                                                                      *
 ************************************************************************
@@ -103,14 +102,7 @@ C earlier center/irrep. Thus it is an offset.
       loper=0
 #ifdef _DEBUGPRINT_
       iprint=99
-#else
-      iprint=00
 #endif
-      ii=1
-      Do i=0,nirrep-1
-         ipC(i)=ii
-         ii=ii+nBas(i)**2
-      End Do
       nnIrrep=nIrrep
       If (sIrrep) nnIrrep=1
       Do iIrrep=0,nnIrrep-1
@@ -215,9 +207,6 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
 *       Memory requirements for contraction and Symmetry
 *       adoption of derivatives.
 *
-        MaxP= Max(S%MaxPrm(iAng),S%MaxPrm(jAng))
-        MaxZeta=S%MaxPrm(iAng)*S%MaxPrm(jAng)
-        MaxB= Max(S%MaxBas(iAng),S%MaxBas(jAng))
         lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &           nElem(iAng)*nElem(jAng)*nIrrep
 *
@@ -247,7 +236,6 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
 *
             DiffCnt=((mdci.eq.iDCnt).or.(mdcj.eq.iDCnt))
             If ((.not.DiffCnt).and.(.not.DiffOp)) Goto 131
-            AeqB = iS.eq.jS
             Call lCopy(6,[.false.],0,IfGrd,1)
 C Logical trans(2)
 C trans(iCnt) is true means there will be a sign shift in the SYMADO
@@ -466,10 +454,7 @@ C differentiation wrt center iCnt
 *     Compute properties or write integrals to disc and
 *     deallocate core.
 *
-      ipOut = 0
-      mDim = 0
       nDens=0
-      ipNuc = 0
       nDenssq=0
       Do iI=0,nIrrep-1
          nDenssq = nDenssq + nBas(ii)**2+nBas(ii)

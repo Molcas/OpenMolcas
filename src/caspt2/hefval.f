@@ -20,7 +20,6 @@ C the same for all the root states.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
@@ -70,7 +69,7 @@ C Read root vectors nr. IST and JST from LUCI.
         END DO
       END IF
 
-      CALL MKTG3(LSYM,LSYM,WORK(LCI1),WORK(LCI2),OVL,
+      CALL MKTG3(STSYM,STSYM,WORK(LCI1),WORK(LCI2),OVL,
      &           WORK(LTG1),WORK(LTG2),NTG3,WORK(LTG3))
       CALL GETMEM('MCCI1','FREE','REAL',LCI1,MXCI)
       CALL GETMEM('MCCI2','FREE','REAL',LCI2,MXCI)

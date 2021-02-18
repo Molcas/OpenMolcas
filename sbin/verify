@@ -1,4 +1,6 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -41,817 +43,327 @@
 #
 # Add --grep option
 # Ignacio Fdez. Galván, September 2020
+#
+# Translate from Perl to Python, include updatetest and chkunprint
+# Ignacio Fdez. Galván, November 2020
 
-# perl modules
-use warnings;
-use Getopt::Long;
-use Cwd;
-use File::Basename;
-use File::Copy;
-use File::Path;
-use File::Spec;
-use POSIX qw(strftime);
+import sys
+import os
+import subprocess as sp
+import re
+
+import locale
+import signal
+import datetime
+import time
+import argparse
+import shutil
+from collections import OrderedDict
+
+opt = {'quiet': False}
+
+#---------------
+# output control
+#---------------
+
+def print_stdout(text):
+  sys.stdout.write(text.encode())
+
+def msg(text):
+  if not opt['quiet']:
+    print_stdout(text)
+
+def msg_nl(lines):
+  if not opt['quiet']:
+    for line in lines:
+      print_stdout(line)
+      print_stdout('\n')
+
+def msg_list(prefix, items):
+  max_items = 10
+  counter = 0
+  padding = 4*' '
+  msg_nl([prefix])
+  for item in items:
+    if counter == 0:
+      msg(padding)
+    msg(item)
+    counter += 1
+    if counter == max_items:
+      msg('\n')
+      counter = 0
+  if counter:
+    msg('\n')
+
+def msg_overwrite(text, erase):
+  l = len(erase)
+  backup = l * '\b'
+  spaces = l * ' '
+  msg(backup + spaces + backup + text)
+
+def warning(text):
+  if not opt['quiet']:
+    print(text, file=sys.stderr)
+
+def error(text):
+  warning(text)
+  sys.exit(1)
+
+#-------------------------------------------------------
+# helper functions to deal with the group subdirectories
+#-------------------------------------------------------
+
+def list_groups():
+  groups = {}
+  vgroups = {}
+  for TESTDIR in TESTDIRS:
+    try:
+      subdir_names = os.listdir(TESTDIR)
+    except:
+      pass
+    else:
+      for subdir_name in subdir_names:
+        if subdir_name in ['log', 'failed', 'tmp']:
+          continue
+        subdir = os.path.join(TESTDIR, subdir_name)
+        if not os.path.isdir(subdir):
+          continue
+        if subdir_name in groups:
+          warning('duplicate directory "{}" at {} will be ignored'.format(subdir_name, TESTDIR))
+          continue
+        groups[subdir_name] = os.path.join(TESTDIR, subdir_name)
+        try:
+          dotfiles = os.listdir(subdir)
+        except:
+          pass
+        else:
+          for dotfile in dotfiles:
+            path = os.path.join(subdir, dotfile)
+            if not (os.path.isfile(path) and dotfile.startswith('.')):
+              continue
+            vgroups[dotfile] = True
+  maxlength = 0
+  # special groups
+  vgroups['.none'] = 1
+  vgroups['.everything'] = 1
+  for key in groups:
+    maxlength = max(maxlength, len(key))
+  for key in vgroups:
+    maxlength = max(maxlength, len(key))
+  fmt = '  {{:{}}} = {{}}\n'.format(maxlength)
+  msg('\nPhysical groups (directories)\n\n')
+  for key in sorted(groups, key=by_type_first):
+    group = vgroup_to_groups(key)
+    msg(fmt.format(key, location[key]))
+  msg('\nSpecial groups\n\n')
+  for key in ['.none', '.everything']:
+    group = vgroup_to_groups(key)
+    group = [i for i in group if i in groups]
+    msg(fmt.format(key, ' '.join(sorted(group, key=by_type_first))))
+  msg('\nVirtual groups\n\n')
+  for key in sorted(vgroups):
+    if key in ['.none', '.everything']:
+      continue
+    group = vgroup_to_groups(key)
+    group = [i for i in group if i in groups]
+    msg(fmt.format(key, ' '.join(sorted(group, key=by_type_first))))
+
+def vgroup_to_groups(vgroup):
+  # convert virtual group name from task to array of real group names:
+  #   standard  -> (standard)
+  #   .critical -> (standard, additional)
+  global location
+  groups = []
+  if vgroup.startswith('.'):
+    for TESTDIR in TESTDIRS:
+      try:
+        subdir_names = os.listdir(TESTDIR)
+      except:
+        pass
+      else:
+        for subdir_name in subdir_names:
+          subdir = os.path.join(TESTDIR, subdir_name)
+          if not os.path.isdir(subdir):
+            continue
+          if location.get(subdir_name, subdir) != subdir:
+            continue
+          # special groups ".none" and ".everything" don't rely on dot files
+          if vgroup == '.none':
+            continue
+          if vgroup == '.everything' or os.path.isfile(os.path.join(subdir, vgroup)):
+            groups.append(subdir_name)
+            location[subdir_name] = subdir
+  else:
+    for TESTDIR in TESTDIRS:
+      if os.path.isdir(os.path.join(TESTDIR, vgroup)):
+        groups.append(vgroup)
+        location[vgroup] = os.path.join(TESTDIR, vgroup)
+    if vgroup not in location:
+      warning('non-existing group: {}'.format(vgroup))
+  return groups
+
+def add_names_from_group_to_dictionary(group, name_list, dictionary):
+  for name in name_list:
+    dictionary['{}:{}'.format(group, name)] = True
+
+def flatten_numbers(numbers):
+  # convert task list to flat list of numbers:
+  #   002-004 -> (002, 003, 004)
+  start, end = re.match(r'^(\d{3})(?:-(\d{3}))?$', numbers).groups()
+  if end:
+    flattened = ['{:03d}'.format(i) for i in range(int(start), int(end)+1)]
+  else:
+    flattened = [start]
+  return flattened
+
+def find_all_names_from_group(group):
+  # convert a group name into a list of all test names in that group:
+  #   standard -> (000, 001, ..., 099) + any input file basenames
+  directory = location[group]
+  try:
+    inputs = os.listdir(directory)
+  except:
+    error('cannot open directory {} for group {}'.format(directory, group))
+  names = []
+  for inputfile in inputs:
+    name, ext = os.path.splitext(inputfile)
+    if ext == '.input':
+      names.append(name)
+  return names
+
+def special_failure(filename):
+  # function to check unprintable chars in a file (previously chkunprint)
+  segfault = re.compile(b'Segmentation *Vio')
+  controlchars = re.compile(b'[\x00-\x08\x0E-\x1F]')
+  extendedchars = re.compile(b'[\xA0-\xFF].*[\xA0-\xFF].*[\xA0-\xFF]')
+  failure = ''
+  try:
+    with open(filename, 'rb') as f:
+      for line in f:
+        if segfault.search(line):
+          failure = 'segfault'
+          break
+        if controlchars.search(line) or extendedchars.search(line):
+          failure = 'garbage'
+          break
+  except:
+    error('failure checking for unprintable characters')
+  return failure
+
+def failed_module(filename):
+  mod = ''
+  with open(filename, 'rb') as f:
+    for line in f:
+      if not re.search(rb'(Start|Stop) Module', line):
+        continue
+      if re.search(rb'check|auto', line):
+        continue
+      mod = re.search(rb'(?:Start|Stop) Module: +([^ ]+)', line).group(1).decode()
+  if not mod:
+    mod = '[none]'
+  return mod
+
+def by_standard_first(item):
+  # routine to sort keys starting with "standard"
+  if item.startswith('standard'):
+    return '0' + item
+  else:
+    return '1' + item
+
+def by_type_first(item):
+  # routine to sort keys according to the groups
+  group = item.split(':')[0]
+  if group in basic:
+    return '1' + item
+  elif group in critical:
+    return '2' + item
+  elif group in official:
+    return '3' + item
+  else:
+    return '4' + item
+
+#-----------------------------------------
+# functions originally in separate modules
+#-----------------------------------------
+
+# Function that appends generated checkfile to a test input.
+# First argument is the test input file and second is the
+# checkfile
+#
+# A checkfile is imbedded inside a test file using the EMIL
+# file command:
+# >>FILE checkfile
+# ... checkfile contents ...
+# >>EOF
+# We just replace the contents with the provided checkfile, or,
+# if the ">>FILE checkfile" line is not found it will be added.
+def updatetest(inputfile, checkfile):
+  # read and store the first section of the input
+  try:
+    input_lines = []
+    with open(inputfile, 'r', encoding='utf-8') as f:
+      for line in f:
+        if line.rstrip() == '>>FILE checkfile':
+          break
+        input_lines.append(line)
+  except IOError as e:
+    warning('cannot open test input: {}'.format(e))
+    return 1
+  # write the first section of the input and the contents of the
+  # checkfile back to the input file.
+  try:
+    with open(inputfile, 'w+', encoding='utf-8') as fi, open(checkfile, 'r', encoding='utf-8') as fc:
+      for line in input_lines:
+        fi.write(line)
+      fi.write('>>FILE checkfile\n')
+      for line in fc:
+        fi.write(line)
+      fi.write('>>EOF\n')
+  except IOError as e:
+    warning('cannot open file: {}'.format(e))
+    return 2
+  return 0
 
 # use proper locale
-use POSIX qw(locale_h);
-setlocale(LC_ALL, "C");
+locale.setlocale(locale.LC_ALL, 'C')
 
-# set hot pipes, flushes output
-$| = 1;
+# disable stdout buffering
+# (note that we should use print_stdout instead of print)
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
+
+# my name
+thisfile = os.path.basename(__file__)
 
 # trap interrupt
-my $active_pid;
-$SIG{INT} = sub { kill 'TERM', -$active_pid; print "killed $active_pid"; die("\nSTOP: user has terminated verify!\n") };
+active_pid = None
+def killexit(*args):
+  try:
+    os.kill(-active_pid, signal.SIGKILL)
+  except:
+    pass
+  error('\nSTOP: user has terminated {}'.format(thisfile))
+signal.signal(signal.SIGINT, killexit)
 
-my $starting_cwd = cwd;
+starting_cwd = os.getcwd()
 
-my $MOLCAS_DRIVER;
-$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
-my $DRIVER_base = basename($MOLCAS_DRIVER);
+MOLCAS_DRIVER = os.environ.get('MOLCAS_DRIVER', 'pymolcas')
+DRIVER_base = os.path.basename(MOLCAS_DRIVER)
 
-# default options
-my %opt = ();
-GetOptions ( \%opt,
-             "h",
-             "help",
-             "clean",
-             "cover",
-             "cycles=i",
-             "debug",
-             "existing",
-             "failed",
-             "flatlist",
-             "fromfile=s",
-             "fuzzy",
-             "generate",
-             "grep=s",
-             "grouplist",
-             "keep",
-             "list",
-             "module=s",
-             "parallel=i",
-             "pass",
-             "path=s",
-             "postproc=s",
-             "tmp=s",
-             "quiet",
-             "rawlist",
-             "reset",
-             "status",
-             "trap",
-             "timest",
-             "validate",
-             "word=s",
-           ) or short_help(1);
+def short_help():
+  msg('''
+{} {} [--keep|-k] [--debug|-d] [--list|-l] [--generate] [task]
 
-my @tasklist;
-
-if ($opt{fromfile}) {
-        my $file_list = File::Spec->catfile ($opt{fromfile});
-        if (-f $file_list) {
-                open (FILE_LIST, "<", $file_list)
-                  or error ("cannot open file $file_list\n");
-                chomp (@tasklist = <FILE_LIST>);
-                close (FILE_LIST);
-        } else {
-                error ("cannot open file $file_list\n");
-        }
-}
-
-push (@tasklist, @ARGV);
-
-@tasklist = ('.default') unless (@tasklist);
-
-# do we need help?
-short_help(0) if ($opt{h});
-help(0) if ($opt{help});
-
-# early parsing of options
-$opt{keep} = 1 if ($opt{debug});
-
-# are we running interactively?
-my $interactive = 0;
-if (-t select and not $opt{debug} and not $opt{status}) {
-        $interactive = 1;
-}
-
-# store environment info
-my $MOLCAS = $ENV{"MOLCAS"} or
-  die "MOLCAS not set, use $DRIVER_base verify\n";
-my $MOLCAS_ID=`cd $MOLCAS ; $MOLCAS_DRIVER version -l`;
-chomp ($MOLCAS_ID);
-my $MACHINE=`uname -a`;
-chomp ($MACHINE);
-my @DATE = localtime;
-my $DATE = strftime("%c",@DATE);
-
-my $header = <<EOF;
-$MOLCAS_ID
-== verification run ==
-machine: $MACHINE
-date: $DATE
-
-EOF
-
-#-------------------------------------------------
-# set up global Molcas settings used for each test
-#-------------------------------------------------
-
-# Get list of test directories, adding OPENMOLCAS at the beginning
-# and MOLCAS at the end, and removing duplicates
-my @TESTDIRS;
-if (-e File::Spec->catdir ($MOLCAS, 'test', 'testdirs')) {
-        open FILE, '<', File::Spec->catdir ($MOLCAS, 'test', 'testdirs');
-        chomp (@TESTDIRS = <FILE>);
-        close FILE;
-}
-if (-e File::Spec->catdir ($MOLCAS, 'sbin', 'find_sources')) {
-        my $OPENMOLCAS = `. \$MOLCAS/sbin/find_sources ; echo \$OPENMOLCAS_SOURCE`;
-        chomp ($OPENMOLCAS);
-        unshift @TESTDIRS, File::Spec->catdir ($OPENMOLCAS, 'test');
-}
-push @TESTDIRS, File::Spec->catdir ($MOLCAS, 'test');
-my %known;
-@TESTDIRS = grep {!$known{$_}++} @TESTDIRS;
-
-my $testdir;
-if ($opt{path}) {
-        $testdir = File::Spec->rel2abs($opt{path});
-} else {
-        $testdir = File::Spec->catdir ($MOLCAS, 'test');
-}
-my $tmpdir;
-if ($opt{tmp}) {
-        $tmpdir = File::Spec->rel2abs($opt{tmp});
-} else {
-        $tmpdir = File::Spec->catdir($testdir, 'tmp');
-}
-
-my $result = File::Spec->catfile ($testdir, 'result');
-my $timing = File::Spec->catfile ($testdir, 'timing.data');
-my $logroot= File::Spec->catdir  ($testdir, 'log');
-my $logdir = File::Spec->catdir  ($logroot, strftime("%F_at_%H-%M-%S",@DATE));
-my $failed = File::Spec->catfile ($testdir, 'failed');
-
-# reset only cleans up and then quits
-if ($opt{reset}) {
-        unlink $result if (-l $result);
-        unlink $timing if (-l $timing);
-        File::Path->rmtree($tmpdir,{}) if (-d $tmpdir);
-        File::Path->rmtree($logroot,{}) if (-d $logroot);
-        unlink $failed if (-l $failed);
-        exit 0;
-}
-
-$ENV{'MOLCAS_OUTPUT'} = 'WORKDIR';
-$ENV{'MOLCAS_TIME'} = 'YES';
-# set test type: generating or checking?
-if ($opt{generate}) {
-        $ENV{'MOLCAS_INFO'}= "$MOLCAS_ID!$MACHINE!$DATE!";
-        $ENV{'MOLCAS_TEST'} = 'GENE';
-        $ENV{'MOLCAS_NPROCS'} = '1';
-} else {
-        $ENV{'MOLCAS_TEST'} = 'CHECK';
-}
-# enable old behavior (do not fail with extra labels)
-if ($opt{fuzzy}) {
-        $ENV{'MOLCAS_CHECK_FUZZY'} = 'YES';
-}
-# to ignore failures, choose negative threshold
-if ($opt{pass}) {
-        $ENV{'MOLCAS_THR'} = '-1';
-        $ENV{'MOLCAS_PASSCHECK'} = '1';
-}
-$ENV{MOLCAS_VALIDATE}='YES' if(! defined($ENV{MOLCAS_VALIDATE}));
-# command-line options
-my $cli_opts = "-ign";
-if ($opt{validate}) {
-  $cli_opts = "$cli_opts --validate";
-}
-
-#-------------------------------------------
-# generate a list of files from the tasklist
-#-------------------------------------------
-
-my @filelist;
-my %group;
-my $location;
-my $none = 0;
-
-# (these must be done early in order to use it for sorting)
-# groups belonging to basic
-my %basic;
-my @basic_list = vgroup_to_groups('.basic');
-foreach my $group (@basic_list) {
-        $basic{$group} = 1;
-}
-# groups belonging to critical
-my %critical;
-my @critical_list = vgroup_to_groups('.critical');
-foreach my $group (@critical_list) {
-        $critical{$group} = 1;
-}
-# groups belonging to official
-my %official;
-my @official_list = vgroup_to_groups('.official');
-foreach my $group (@official_list) {
-        $official{$group} = 1;
-}
-
-# First convert the tasks to actual included/skipped tests.
-# These are kept in two hashes to allow different tasks to
-# influence each other, e.g.:
-#   $ molcas verify .all standard:x
-# would run all the tests from virtual group '.all', but
-# at the same time exclude all tests from standard.
-my %included; # keeps a dictionary of included test names (group:name)
-my %excluded; # keeps a dictionary of excluded test names (group:name)
-foreach my $task (@tasklist) {
-        if ($task eq '.none') {
-                # the special task .none will generate a result file
-                # even if there are no tests to run
-                $none = 1;
-        } elsif (-f $task) {
-                # the task is a file name, add immediately to the file list
-                my $file = File::Spec->rel2abs ($task);
-                push @filelist, $file;
-                $group{$file} = 'external';
-        } else {
-                # A single task is composed of:
-                # - an optional group name (if omitted, defaults to 'standard')
-                # - an optional, comma-separated lists of the following items:
-                #   * 3 digits: a test number to be included
-                #   * a minus sign and 3 digits: a test number to be excluded
-                #   * two groups of 3 digits separated by a dash:
-                #     a range of test numbers to be included
-                #   * a minus sign and two groups of 3 digits separated by a dash:
-                #     a range of test numbers to be excluded
-                #   * empty: includes all possible test numbers
-                #   * a minus sign: excludes all possible test numbers
-                # All of the above is condensed into a single regex:
-                my ($vgroup,$task_string) = ($task =~ /^([^\d:][^:]*)?:?([^:]*)$/);
-                $vgroup = '.default' unless ($vgroup);
-                my @subtasks = split /,/, $task_string;
-                # if no subtasks, set empty string as only element (this means all tests)
-                push @subtasks, '' x 1 if (not @subtasks);
-                # translate virtual group to list of real group names
-                my @group_list = vgroup_to_groups($vgroup);
-                foreach my $group (@group_list) {
-                    foreach my $subtask (@subtasks) {
-                        # decide on exclusion
-                        my $exclude_flag = 0;
-                        if ($subtask =~ /^-/) {
-                            $subtask =~ s/^-//;
-                            $exclude_flag = 1;
-                        }
-                        # create a list of file basenames
-                        my @basenames;
-                        if (not $subtask) {
-                            # empty task, match every possible input file
-                            @basenames = find_all_names_from_group($group);
-                        } else {
-                            my ($number_string) = ($subtask =~ /^(\d{3}(?:-\d{3})?)$/);
-                            if ($number_string) {
-                                # extract name from number(range)
-                                @basenames = flatten_numbers ($number_string);
-                            } else {
-                                # no number, assume subtask is a basename
-                                push @basenames, $subtask;
-                            }
-                        }
-                        # add basenames to proper hash
-                        if ($exclude_flag) {
-                            add_names_from_group_to_hash ($group, \@basenames, \%excluded);
-                        } else {
-                            add_names_from_group_to_hash ($group, \@basenames, \%included);
-                        }
-                    }
-                }
-        }
-}
-
-# add generated test names to file list
-foreach my $key (sort by_type_first keys %included) {
-        next if $excluded{$key};
-        my ($group, $number) = split(':',$key);
-        my $file = File::Spec->catfile($location{$group}, $number . '.input');
-        if( $opt{generate} && -f $file) { system ("cp $file $file.bak");}
-        push @filelist, $file if (-f $file);
-        $group{$file} = $group;
-}
-
-#-------------------------------------------------------------------------
-# now that we have the filelist, we can apply filters to the file contents
-#-------------------------------------------------------------------------
-
-# build up the regex pattern to use for filtering
-# this is a very simple filter: match _any_ pattern
-if ($opt{module} or $opt{word} or $opt{grep}) {
-        my @pattern_list;
-        if ($opt{module}) {
-                foreach my $mod (split(',', $opt{module})) {
-                        push @pattern_list, "&$mod";
-                }
-        }
-        if ($opt{word}) {
-                foreach my $key (split(',', $opt{word})) {
-                        push @pattern_list, "$key";
-                }
-        }
-        if ($opt{grep}) {
-                foreach my $key (split(',', $opt{grep})) {
-                        push @pattern_list, "[^*]*$key";
-                }
-        }
-        my $filter_pattern = '^\s*(' . join ('|', @pattern_list) . ')';
-        my @filtered_filelist;
-        for my $file (@filelist) {
-                open (FILE, '<', $file);
-                while (<FILE>) {
-                        if (/$filter_pattern/i) {
-                                push @filtered_filelist, $file;
-                                last;
-                        }
-                }
-        }
-        @filelist = @filtered_filelist;
-}
-
-#--------------------------------------------------------------
-# if we only rerun failed tests, then filter the filenames here
-#--------------------------------------------------------------
-
-if ($opt{failed}) {
-        my %failed_previously;
-        my $failed_list = File::Spec->catfile ($failed, "list");
-        if (-f $failed_list) {
-                open (FAILED_LIST, "<", $failed_list)
-                  or error ("cannot open file $failed_list\n");
-                while (<FAILED_LIST>) {
-                        chomp;
-                        $failed_previously{$_} = 1;
-                }
-                close (FAILED_LIST);
-        }
-        my @filtered_filelist;
-        for my $file (@filelist) {
-                push @filtered_filelist, $file if $failed_previously{$file};
-        }
-        @filelist = @filtered_filelist;
-}
-
-#------------------------------------------------------
-# print the final, filtered list if requested, and exit
-#------------------------------------------------------
-
-if      ($opt{rawlist}) {
-        msg_nl (@filelist);
-        exit 0;
-} elsif ($opt{flatlist}) {
-        my @test_list;
-        foreach my $file (@filelist) {
-                my $name = basename($file, '.input');
-                push @test_list, "$group{$file}:$name";
-        }
-        msg_nl (@test_list);
-        exit 0;
-} elsif ($opt{grouplist}) {
-        list_groups ();
-        exit 0;
-} elsif ($opt{list}) {
-        msg ("matching tests:\n");
-        my %test_list;
-        foreach my $file (@filelist) {
-                my $name = basename($file, '.input');
-                push @{$test_list{$group{$file}}}, " $name";
-        }
-        for my $key (sort by_type_first keys %test_list) {
-                my $prefix = "  $key:";
-                msg_list ($prefix, sort @{$test_list{$key}});
-        }
-        exit 0;
-}
-
-# final check: if empty filelist, just quit nicely
-unless (@filelist or $none) {
-        msg ("no tests requested, bye!\n");
-        exit 0;
-}
-
-#--------------------------
-# set up the infrastructure
-#--------------------------
-
-# the base directory for running tests
-if (! -d $testdir) {
-        mkdir $testdir
-          or error ("could not create $testdir\n");
-}
-if (! -w $testdir) {
-        error ("cannot write to $testdir\n");
-}
-File::Path->rmtree($tmpdir,{}) if (-d $tmpdir);
-if ($opt{clean}) {
-        File::Path->rmtree($logroot,{}) if (-d $logroot);
-}
-mkdir $tmpdir if (! -d $tmpdir);
-mkdir $logroot if (! -d $logroot);
-# remove log directories not ending in .bak and older than a day
-opendir (DIR, $logroot)
-  or error ("cannot open directory $logroot\n");
-my @subdir_names = readdir (DIR);
-closedir (DIR);
-foreach my $subdir_name (@subdir_names) {
-        next if $subdir_name =~ /^\.+$/;
-        my $subdir = File::Spec->catdir($logroot, $subdir_name);
-        next if $subdir =~ /\.bak$/;
-        next unless -d $subdir;
-        File::Path->rmtree($subdir,{}) if (-M $subdir > 1);
-}
-# finally, create the new log directory we are about to use
-if (-d $logdir) {
-        error ("existing log: $logdir\n");
-} else {
-        mkdir $logdir;
-}
-
-chdir $tmpdir
-  or error ("could not switch to $tmpdir\n");
-
-# Re-generate the version information from the build that will
-# actually be used to run the tests
-$MOLCAS_ID=`$MOLCAS_DRIVER version -l`;
-chomp ($MOLCAS_ID);
-if ($opt{generate}) {
-        # refuse to generate check files with a dirty tree
-        if ($MOLCAS_ID =~ /dirty/) {
-                my $msg = <<"EOF";
-******************************************************
-Dirty Molcas installation, cannot generate check files
-******************************************************
-  The compiled version of molcas does not correspond
-to a clean source tree (does not match a git commit).
-For reproducibility's sake generation of check files
-is disabled.
-  Please stash your changes and recompile.
-EOF
-                error ($msg);
-        } else {
-                $ENV{'MOLCAS_INFO'}= "$MOLCAS_ID!$MACHINE!$DATE!";
-        }
-}
-
-my $log_result = File::Spec->catfile ($logdir, 'result');
-my $log_timing = File::Spec->catfile ($logdir, 'result.timing');
-my $log_failed = File::Spec->catdir ($logdir, 'failed');
-my $log_failed_list = File::Spec->catfile ($log_failed, 'list');
-
-mkdir $log_failed
-  or error ("could not create $log_failed\n");
-
-# set up links to the actual result files
-unlink $result if (-l $result);
-unlink $timing if (-l $timing);
-unlink $failed if (-l $failed);
-symlink File::Spec->abs2rel ($log_result, $testdir), $result;
-symlink File::Spec->abs2rel ($log_timing, $testdir), $timing;
-symlink File::Spec->abs2rel ($log_failed, $testdir), $failed;
-
-# open the information files
-open (RESULT, ">", $log_result);
-open (TIMING, ">", $log_timing);
-open (FAILED_LIST, ">", $log_failed_list)
-  or error ("cannot open file $log_failed_list\n");
-
-# start by printing headers
-print RESULT $header;
-if ($opt{timest}) {
-  print TIMING <<"EOF";
-# Automatically-generated file. Do not modify!
-#
-# To generate this file run pymolcas verify -timest -pass .everything
-#
-# Note that what matters is relative timings, so do not
-# mix runs with different settings or environments.
-
-EOF
-} else {
-  print TIMING $header;
-}
-
-print RESULT <<"EOF";
-1: Basic tests that must pass
-2: Additional tests that must pass
-3: Other tests that may fail, but should be fixed
-4: Personal development tests that may fail or not
-
-EOF
-
-#-------------------------------------
-# loop over tests and run verification
-#-------------------------------------
-
-# counters
-my $failed_tests = 0;
-my $failed_critical_tests = 0;
-my $skipped_tests = 0;
-# message string during interactive
-my $prompt;
-
-my $n_tests = @filelist;
-my $index = 0;
-
-if ($opt{cover}) {
-    msg_nl("WARNING: you are running tests with code coverage,");
-    msg_nl("         this can add up to 1 min of time per test");
-    msg("running code coverage startup...");
-    system("$MOLCAS_DRIVER codecov -q --start");
-    msg_nl("done");
-};
-
-my $prev_group = '.none';
-FILELOOP:
-foreach my $file (@filelist) {
-        my $group = $group{$file};
-        my $name = basename($file,'.input');
-        my $project = $group . '__' . $name;
-        my $workdir = File::Spec->catdir($tmpdir, $project);
-        my $input = File::Spec->catfile ($workdir, $project . '.input');
-        my $out = File::Spec->catfile ($tmpdir, $project . '.out');
-        my $err = File::Spec->catfile ($tmpdir, $project . '.err');
-        my $status = File::Spec->catfile ($tmpdir, $project . '.status');
-        my $pc = int((++$index) / $n_tests * 100);
-        my $mark = '4';
-        $mark = '3' if $official{$group};
-        $mark = '2' if $critical{$group};
-        $mark = '1' if $basic{$group} and $critical{$group};
-        #----------------------------
-        # set up the work environment
-        #----------------------------
-        $ENV{Project} = $project;
-        $ENV{WorkDir} = $workdir;
-        if ($group eq 'performance' or $group eq 'benchmark') {
-                delete $ENV{MOLCAS_TIMELIM};
-        } else {
-                $ENV{MOLCAS_TIMELIM}=600 if(! defined($ENV{MOLCAS_TIMELIM}));
-        }
-        system("$MOLCAS_DRIVER codecov -q --prep") if $opt{cover};
-        # start repeated cycles (e.g. when tests fail randomly)
-        my $cycles = $opt{cycles} ? $opt{cycles} : 1;
-        $cycles = 2 * $cycles if ($opt{parallel});
-        print RESULT "----------\ngroup $group from: $location{$group}\n" if ($group ne $prev_group && $group ne 'external');
-        while ($cycles-- > 0) {
-                my $sttime = time;
-                if ($opt{parallel}) {
-                        if ($cycles % 2 == 1) {
-                                $ENV{MOLCAS_NPROCS} = 1;
-                        } else {
-                                $ENV{MOLCAS_NPROCS} = $opt{parallel};
-                        }
-                }
-                # if the work directory exists, remove it unless existing mode is used
-                if (-d $workdir) {
-                        if ($opt{existing}) {
-                                # we only need to delete the check counter, leave the rest
-                                my $check_counter = File::Spec->catfile ($workdir, 'molcas_check_count');
-                                unlink $check_counter;
-                        } else {
-                                File::Path->rmtree($workdir,{});
-                        }
-                }
-                mkdir $workdir unless (-d $workdir);
-                copy ($file, $input);
-                if ($interactive or $opt{status}) {
-                        $prompt = "Running test $group: $name ... ($pc%)";
-                        msg ($prompt);
-                }
-                # run molcas and capture the return code. The reason
-                # for the fork+exec is that when I just use a system
-                # call, I can't send an interrupt signal to the verify
-                # script to terminate verify itself.
-                my $rc;
-                my $child_pid = fork;
-                if ($child_pid == 0) {
-                                #child
-                        if ($opt{debug}) {
-                                exec("$MOLCAS_DRIVER $cli_opts $input");
-                        } else {
-                                exec("$MOLCAS_DRIVER $cli_opts $input -o $out -e $err");
-                        }
-                }
-                $active_pid = $child_pid;
-                if (waitpid($child_pid, 0)) {
-                        $rc = $? >> 8;
-                } else {
-                        error ("euhm, molcas process vanished into thin air 0_o\n");
-                }
-                my $special;
-                if (not $opt{debug}) {
-                        # check for special cases where the return code might be 0
-                        # but we should still cause a failure (segfault, garbage)
-                        $rc = 30 if ($special = special_failure ($out));
-                }
-                my $result = '';
-                if ($rc) {
-                        $cycles = 0;
-                        if (not $opt{debug}) {
-                                copy ($out, File::Spec->catfile ($log_failed, $project . '.out'));
-                                copy ($err, File::Spec->catfile ($log_failed, $project . '.err'));
-                        }
-                        # skip the test if a program is not available (RC_NOT_AVAILABLE)
-                        if ($rc == 36) {
-                                $result = ' S';
-                                # print results
-                                print RESULT "$mark:$group:$name Skipped!\n";
-                                msg_overwrite ("$group:$name Skipped!\n", $prompt) if ($interactive);
-                                msg (" Skipped!\n") if ($opt{status});
-                                # update counters
-                                $skipped_tests++;
-                                # pretend to be fine for the remainder of this test
-                                $rc = 0;
-                        } else {
-                                $result = ' F';
-                                # gather extra info
-                                my $mod = '';
-                                $mod = failed_module($out) if (not $opt{debug});
-                                $mod = "$mod, $special" if ($special);
-                                # print results
-                                print RESULT "$mark:$group:$name Failed! ($mod)\n";
-                                msg_overwrite ("$group:$name Failed! ($mod)\n", $prompt) if ($interactive);
-                                msg (" Failed! ($mod)\n") if ($opt{status});
-                                # update counters
-                                $failed_tests++;
-                                if ($critical{$group}) {
-                                        $failed_critical_tests++;
-                                }
-                                # update list of failed input files
-                                print FAILED_LIST "$file\n";
-                        }
-                } else {
-                        print RESULT "$mark:$group:$name OK\n";
-                        msg_overwrite ('', $prompt) if ($interactive);
-                        msg (" OK\n") if ($opt{status});
-                        if ($opt{generate}) {
-                                my $rc=system("$MOLCAS_DRIVER", "updatetest.plx", $file, File::Spec->catfile ($workdir, 'checkfile'));
-                                print "rc=",$rc,"\n" if ($rc!=0);
-                        }
-                }
-                # save timing info
-                if ($opt{timest}) {
-                        my $runtime = time - $sttime;
-                        if ($rc) {
-                                if ($rc == 36) {
-                                } else {
-                                }
-                        }
-                        print TIMING "--- $group{$file}:$name$result\n";
-                        print TIMING "$runtime\n";
-                } elsif (not $opt{debug}) {
-                        print TIMING "--- Run: $project\n";
-                        open ERR, "<", $err or error ("could not open $err\n");
-                        while (<ERR>) {
-                                print TIMING;
-                        }
-                        close ERR;
-                }
-                if ($opt{postproc}) {
-                        $ENV{project} = $project;
-                        system("$opt{postproc}");
-                }
-                # clean up
-                unless ($rc or $opt{keep}) {
-                        unlink $input, $out, $err, $status;
-                        File::Path->rmtree($workdir,{});
-                }
-                last FILELOOP if ($rc and $opt{trap});
-        }
-        if ($opt{cover}) {
-            if ($interactive) {
-                    $prompt = "Capturing coverage data for test $group: $name ... ($pc%)";
-                    msg ($prompt);
-            }
-            system("$MOLCAS_DRIVER codecov -q --measure --name $project");
-            msg_overwrite ('', $prompt) if ($interactive);
-        }
-        $prev_group = $group;
-}
-print RESULT "----------\n" if ($prev_group ne '.none');
-print RESULT "\n*Failed critical tests* $failed_critical_tests\n";
-
-system("$MOLCAS_DRIVER codecov --html") if ($opt{cover});
-
-close (RESULT);
-close (TIMING);
-close (FAILED_LIST);
-
-if ($failed_tests) {
-        # report directory with failed out/err relative to directory where verify was run
-        my $log_rel = File::Spec->abs2rel ($failed, $starting_cwd);
-        my $tmp_rel = File::Spec->abs2rel ($tmpdir, $starting_cwd);
-        my $info = <<"EOF";
-************************************************************************
-A total of $failed_tests test(s) failed, with $failed_critical_tests critical failure(s).
-************************************************************************
-Please check the directory:
-  $log_rel
-for the .out/.err files of the failed tests,
-and check the submit directory:
-  $tmp_rel
-for the working directories of the last run.
-EOF
-        if ($failed_critical_tests) {
-                error ($info);
-        } else {
-                msg ($info);
-        }
-}
-
-if ($opt{generate}) {
-        msg ("Generation of check files has been completed\n");
-} else {
-        msg ("Verification has been completed\n");
-}
-
-END {
-        chdir $starting_cwd;
-}
-
-exit 0;
-
-
-
-
-########################################################################
-# subroutines
-########################################################################
-
-#-----------------------------------------------------------------------
-# brief help information which is also displayed by "molcas help verify"
-#-----------------------------------------------------------------------
-
-sub short_help {
-        # %help
-        print <<"EOF";
-
-$DRIVER_base verify [--keep|-k] [--debug|-d] [--list|-l] [--generate] [task]
-
-where: task is a group name (standard, performance, benchmark,
-purgatory, failed) followed by colon and then a comma-separated
+where: task is a group name (standard, additional, benchmark,
+grayzone, failed) followed by colon and then a comma-separated
 list of numbers and/or ranges, e.g.: standard:000,005-121,-014
 
 use the long option --help for a complete description!
+'''.format(DRIVER_base, thisfile))
 
-EOF
-        exit shift(@_);
-}
-
-#----------------------------------------------------------
-# extended help information with explanation of all options
-#----------------------------------------------------------
-
-sub help {
-        print <<"EOF";
-
-$DRIVER_base verify [options] [task [task ...]]
-
-options:
-  --h              print short help
-  --help           print long help (you're reading it)
-  --parallel N     double cycles: one with 1 process, and one with N processes
-  --clean          clean up log directory before run
-  --cover          generate code coverage report (WARNING: can take a long time!)
-  --cycles N       cycle each test N times
-  --debug          print molcas output to terminal
-  --existing       use existing scratch if available
-  --failed         rerun tests that failed the last time
-  --flatlist       only list matching tests (as a flat list of tasks)
-  --fromfile FILE  read tasks from file FILE, in addition to command line
-  --fuzzy          do not fail if a label is not in the reference (old behavior)
-  --generate       generate checkfile and append to input
-  --grep WORD      filter test files containing WORD (anywhere but comments)
-  --grouplist      list the groups (see below)
-  --keep           keep the work directory after running a test
-  --list           only list matching tests
-  --module MODULE  filter test files containing MODULE
-  --pass           ignore checkfile failures
-  --path PATH      run with PATH as temporary directory
-  --postproc CMD   postprocessing command to run before cleaning up the work directory
-  --tmp TMP        run with TMP as parent scratch directory
-  --quiet          do not print any messages to the screen
-  --rawlist        only list matching tests (as a list of input files)
-  --reset          clean up any results and tmp/log directories and exit
-  --status         print status of the verification (useful for redirecting the output)
-  --timest         write time estimates (for split_tests)
-  --trap           stop immediately after a failed test
-  --word WORD      filter test files containing keyword WORD
-
-Any options can be used also in a short form, as long
-as it can be uniquely identified, e.g. -d instead of
---debug or -l instead of --list, etc.
-
+epilog='''
 task:
   Tests are divided into different groups: e.g.
-  standard, performance, benchmark, grayzone, ...
+  standard, additional, benchmark, grayzone, ...
   These groups are subdirectories of the test/
   directory. If the group name begins with a dot,
   it is a virtual group which consists of all
@@ -861,12 +373,11 @@ task:
   a group, optionally followed by a colon with a list
   or range of test numbers. Numbers or ranges preceded
   by a '-' sign are excluded. When no numbers or ranges
-  are give, all tests from the group are included. When
+  are given, all tests from the group are included. When
   only a '-' is give, all tests are excluded. When no
   group is specified, a default group is selected
-  (i.e. the 'standard' group). When nothing is specified,
-  the virtual group '.default' (which consists of
-  'standard', 'additional', and 'grayzone') is selected.
+  (i.e. the virtual '.default' group, which consists of
+  'standard', 'additional', and 'grayzone').
 
   empty: run all tests from group '.default'
   a list of tests (group:nr1[,nr2,...]):
@@ -889,299 +400,717 @@ task:
     .default
     .critical
     .all
-    ...
   a group followed by a colon and then any of the above
   lists of numbers/ranges:
     performance:000-100,-005-009,-043
   a file:
     path/to/file1.input
 
-individual tasks can be combined in any way as long as they
+Individual tasks can be combined in any way as long as they
 are separated by a space (you can mix e.g. number tasks and
 files)
 
 Examples:
-  $DRIVER_base verify                   - run default tests (standard, additional, grayzone)
-  $DRIVER_base verify .all              - run all tests (but not performance, benchmark)
-  $DRIVER_base verify .everything       - run _all_ tests (yes, ALL tests)
-  $DRIVER_base verify standard          - run all standard tests
-  $DRIVER_base verify performance       - run performance tests (ca 30 min)
-  $DRIVER_base verify benchmark         - run benchmark tests (several hours)
-  $DRIVER_base verify -m caspt2         - run standard tests that contain &caspt2 module
-  $DRIVER_base verify -w ksdft          - run all tests with 'ksdft' word
-  $DRIVER_base verify 001-005,-003      - run standard tests 001 to 005 but not 003
-  $DRIVER_base verify standard:050-070  - run standard tests from 050 to 070
-  $DRIVER_base verify .all standard:-   - run all tests except those from standard
-  $DRIVER_base verify --failed          - run (default) tests that failed the last time
-  $DRIVER_base verify -d 000            - run standard test 000 with output on the screen
+  {driver} {script}                   - run default tests (standard, additional, grayzone)
+  {driver} {script} .all              - run all tests (but not performance, benchmark)
+  {driver} {script} .everything       - run _all_ tests (yes, ALL tests)
+  {driver} {script} standard          - run all standard tests
+  {driver} {script} performance       - run performance tests (ca. 30 min)
+  {driver} {script} benchmark         - run benchmark tests (several hours)
+  {driver} {script} -m caspt2         - run default tests that contain &caspt2 module
+  {driver} {script} -w ksdft          - run default tests with 'ksdft' word
+  {driver} {script} 001-005,-003      - run tests 001 to 005 but not 003
+  {driver} {script} standard:050-070  - run standard tests from 050 to 070
+  {driver} {script} .all standard:-   - run all tests except those from standard
+  {driver} {script} --failed          - run (default) tests that failed the last time
+  {driver} {script} -d 000            - run standard test 000 with output on the screen
+'''.format(driver=DRIVER_base, script=thisfile)
 
-EOF
-        exit shift(@_);
-}
+# command-line options
+try:
+  parser = argparse.ArgumentParser(add_help=False, usage='{} {} [options] [task [task ...]]'.format(DRIVER_base, thisfile), epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+  parser.add_argument('task', nargs='*', help=argparse.SUPPRESS)
+  parser.add_argument('-h', action='store_true', help='print short help')
+  parser.add_argument('--help', action='store_true', help='print long help (you\'re reading it)')
+  parser.add_argument('--clean', action='store_true', help='clean up log directory before run')
+  parser.add_argument('--cover', action='store_true', help='generate code coverage report (WARNING: can take a long time!')
+  parser.add_argument('--cycles', type=int, help='cycle each test N times', metavar='N', default=1)
+  parser.add_argument('--debug', '-d', action='store_true', help='print output to terminal')
+  parser.add_argument('--existing', action='store_true', help='use existing scratch if available')
+  parser.add_argument('--failed', action='store_true', help='rerun tests that failed the last time')
+  parser.add_argument('--flatlist', action='store_true', help='only list matching tests (as a flat list of tasks)')
+  parser.add_argument('--fromfile', help='read tasks from file FILE, in addition to command line', metavar='FILE')
+  parser.add_argument('--fuzzy', action='store_true', help='do not fail if a label is not in the reference (old behavior)')
+  parser.add_argument('--generate', action='store_true', help='generate checkfile and append to input')
+  parser.add_argument('--grep', help='filter test files containing WORD (anywhere but comments)', metavar='WORD')
+  parser.add_argument('--grouplist', action='store_true', help='list the groups (see below)')
+  parser.add_argument('--keep', '-k', action='store_true', help='keep the work directory after running a test')
+  parser.add_argument('--list', '-l', action='store_true', help='only list matching tests')
+  parser.add_argument('--module', '-m', help='filter test files containing MODULE', metavar='MODULE')
+  parser.add_argument('--parallel', type=int, help='double cycles: one with 1 process, and one with N processes', metavar='N')
+  parser.add_argument('--pass', action='store_true', help='ignore checkfile failures')
+  parser.add_argument('--path', help='run with PATH as temporary directory', metavar='PATH')
+  parser.add_argument('--postproc', help='postprocessing command to run before cleaning up the work directory', metavar='CMD')
+  parser.add_argument('--tmp', help='run with TMP as parent scratch directory', metavar='TMP')
+  parser.add_argument('--quiet', '-q', action='store_true', help='do not print any messages to the screen')
+  parser.add_argument('--rawlist', action='store_true', help='only list matching tests (as a list of input files)')
+  parser.add_argument('--reset', action='store_true', help='clean up any results and tmp/log directories and exit')
+  parser.add_argument('--status', action='store_true', help='print status of the verification (useful for redirecting the output)')
+  parser.add_argument('--timest', action='store_true', help='write time estimates (for split_tests)')
+  parser.add_argument('--trap', action='store_true', help='stop immediately after a failed test')
+  parser.add_argument('--validate', action='store_true', help='only validate the input')
+  parser.add_argument('--word', '-w', help='filter test files containing keyword WORD', metavar='WORD')
+  opt = vars(parser.parse_args(sys.argv[1:]))
+except:
+  short_help()
+  sys.exit(1)
 
-# output control
-#---------------
+# do we need help?
+if opt['help']:
+  print_stdout(parser.format_help())
+  sys.exit(0)
+if opt['h']:
+  short_help()
+  sys.exit(0)
 
-sub msg {
-        print @_ unless ($opt{quiet});
-}
+tasklist = []
+if opt['fromfile']:
+  try:
+    with open(opt['fromfile'], 'r', encoding='utf-8') as f:
+      tasklist = f.read().split()
+  except:
+    error('cannot open file {}'.format(file_list))
 
-sub msg_nl {
-        unless ($opt{quiet}) {
-                while (my $line = shift) {
-                        print "$line\n";
-                }
-        }
-}
+tasklist.extend(opt['task'])
 
-sub msg_list {
-        my $prefix = shift;
-        my $max_items = 10;
-        my $counter = 0;
-        my $padding = ' ' x 4;
-        msg_nl ($prefix);
-        foreach my $item (@_) {
-                msg ($padding) if ($counter == 0);
-                msg ($item);
-                $counter++;
-                if ($counter == $max_items) {
-                        msg ("\n");
-                        $counter = 0;
-                }
-        }
-        msg ("\n") if ($counter);
-}
+if not tasklist:
+  tasklist = ['.default']
 
-sub msg_overwrite {
-        my $msg = shift;
-        my $erase = shift;
-        my $l = length($erase);
-        my $backup = "\b" x $l;
-        my $spaces = " " x $l;
-        msg ($backup, $spaces, $backup, $msg);
-}
+# early parsing of options
+if opt['debug']:
+  opt['keep'] = True
 
-sub warning {
-        print STDERR @_ unless ($opt{quiet});
-}
+# are we running interactively?
+interactive = False
+if sys.stdout.isatty() and not opt['debug'] and not opt['status']:
+  interactive = True
 
-sub error {
-        print STDERR @_ unless ($opt{quiet});
-        exit 1;
-}
+# store environment info
+try:
+  MOLCAS = os.environ['MOLCAS']
+except KeyError:
+  sys.exit('MOLCAS not set, use {} {}'.format(DRIVER_base, thisfile))
+try:
+  MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode().strip()
+except:
+  MOLCAS_ID = None
+MACHINE = sp.check_output(['uname', '-a']).decode().strip()
+date = datetime.datetime.today()
+DATE = date.strftime('%c')
 
-#---------------------------------------------------------
-# helper subroutines to deal with the group subdirectories
-#---------------------------------------------------------
+header = '''{}
+== verification run ==
+machine: {}
+date: {}
+'''.format(MOLCAS_ID, MACHINE, DATE)
 
-sub list_groups {
-        my %groups;
-        my %vgroups;
-        foreach my $TESTDIR (@TESTDIRS) {
-                if (opendir (DIR, $TESTDIR)) {
-                        my @subdir_names = grep {-d "$TESTDIR/$_" && ! /^\./ && ! /^(log|failed|tmp)$/} readdir (DIR);
-                        closedir (DIR);
-                        foreach my $dir (@subdir_names) {
-                                if ($groups{$dir}) {
-                                        warning ("duplicate directory \"$dir\" at $TESTDIR will be ignored\n");
-                                        next;
-                                }
-                                $groups{$dir} = "$TESTDIR/$dir";
-                                if (opendir (DIR, "$TESTDIR/$dir")) {
-                                        my @dotfiles = grep {-f "$TESTDIR/$dir/$_" && /^\./} readdir (DIR);
-                                        closedir (DIR);
-                                        $vgroups{$_} = 1 foreach @dotfiles;
-                                }
-                        }
-                }
-        }
-        my $maxlength = 0;
-        # special groups
-        $vgroups{'.none'} = 1;
-        $vgroups{'.everything'} = 1;
-        for (keys %groups) {
-                $maxlength = length if (length > $maxlength);
-        }
-        for (keys %vgroups) {
-                $maxlength = length if (length > $maxlength);
-        }
-        print "\nPhysical groups (directories)\n\n";
-        foreach my $key (sort by_type_first keys %groups) {
-                my @group = vgroup_to_groups($key);
-                printf ("  %-${maxlength}s = %s\n", $key, $location{$key});
-        }
-        print "\nSpecial groups\n\n";
-        foreach my $key (".none", ".everything") {
-                my @group = vgroup_to_groups($key);
-                printf ("  %-${maxlength}s = %s\n", $key, "@group");
-                delete $vgroups{$key};
-        }
-        print "\nVirtual groups\n\n";
-        foreach my $key (sort keys %vgroups) {
-                my @group = vgroup_to_groups($key);
-                printf ("  %-${maxlength}s = %s\n", $key, "@group");
-        }
-}
+#-------------------------------------------------
+# set up global Molcas settings used for each test
+#-------------------------------------------------
 
-sub vgroup_to_groups {
-        # convert virtual group name from task to array of real group names:
-        #   standard  -> (standard)
-        #   .critical -> (standard, additional)
-        my $vgroup = shift;
-        my @groups;
-        if ($vgroup =~ /^\./) {
-                foreach my $TESTDIR (@TESTDIRS) {
-                        if (opendir (DIR, $TESTDIR)) {
-                                my @subdir_names = readdir (DIR);
-                                closedir (DIR);
-                                foreach my $subdir_name (@subdir_names) {
-                                        next if $subdir_name =~ /^\.+$/;
-                                        my $subdir = File::Spec->catdir($TESTDIR, $subdir_name);
-                                        next unless -d $subdir;
-                                        next if ((exists $location{$subdir_name}) and ($location{$subdir_name} ne $subdir));
-                                        # special groups ".none" and ".everything" don't rely on dot files
-                                        next if ($vgroup eq ".none");
-                                        if (-f File::Spec->catfile($subdir, $vgroup) || $vgroup eq ".everything") {
-                                                push @groups, $subdir_name;
-                                                $location{$subdir_name} = $subdir;
-                                        }
-                                }
-                        }
-                }
-        } else {
-                foreach my $TESTDIR (@TESTDIRS) {
-                        if (-d File::Spec->catdir($TESTDIR, $vgroup)) {
-                                push @groups, $vgroup;
-                                $location{$vgroup} = File::Spec->catdir($TESTDIR, $vgroup);
-                                last;
-                        }
-                }
-                if (not $location{$vgroup}) {
-                        warning ("non-existing group: $vgroup\n")
-                }
-        }
-        return @groups;
-}
+# Get list of test directories, adding OPENMOLCAS at the beginning
+# and MOLCAS at the end, and removing duplicates
+TESTDIRS = []
+if os.path.exists(os.path.join(MOLCAS, 'sbin', 'find_sources')):
+  OPENMOLCAS = sp.check_output('. $MOLCAS/sbin/find_sources ; echo $OPENMOLCAS_SOURCE', shell=True).decode().strip()
+  TESTDIRS.append(os.path.join(OPENMOLCAS, 'test'))
+if os.path.exists(os.path.join(MOLCAS, 'test', 'testdirs')):
+  with open(os.path.join(MOLCAS, 'test', 'testdirs'), 'r', encoding='utf-8') as f:
+    TESTDIRS.extend(f.read().split())
+TESTDIRS.append(os.path.join(MOLCAS, 'test'))
+TESTDIRS = list(OrderedDict.fromkeys(TESTDIRS))
 
-sub add_names_from_group_to_hash {
-        my $group = shift;
-        my $name_list = shift;
-        my $hash = shift;
-        foreach my $name (@$name_list) {
-                $hash->{"$group:$name"} = 1;
-        }
-}
+if opt['path']:
+  testdir = os.path.abspath(opt['path'])
+else:
+  testdir = os.path.join(MOLCAS, 'test')
 
-sub flatten_numbers {
-        # convert task list to flat list of numbers:
-        #   002-004 -> (002, 003, 004)
-        my $numbers = shift;
-        my @flattened;
-        my ($start, $end) = ($numbers =~ /^(\d{3})(?:-(\d{3}))?$/);
-        if ($end) {
-                push @flattened, $start .. $end;
-        } else {
-                push @flattened, $start;
-        }
-        return @flattened;
-}
+if opt['tmp']:
+  tmpdir = os.path.abspath(opt['tmp'])
+else:
+  tmpdir = os.path.join(testdir, 'tmp')
 
-sub find_all_names_from_group {
-        # convert a group name into a list of all test names in that group:
-        #   standard -> (000, 001, ..., 099) + any input file basenames
-        my $group = shift;
-        my $dir = $location{$group};
-        opendir (DIR, $dir)
-          or error ("cannot open directory $dir for group $group\n");
-        my @inputs = grep (/\.input$/, readdir (DIR));
-        closedir (DIR);
-        my @names;
-        foreach my $input (@inputs) {
-                my $name = basename ($input, '.input');
-                push @names, $name;
-        }
-        return @names;
-}
+result  = os.path.join(testdir, 'result')
+timing  = os.path.join(testdir, 'timing.data')
+logroot = os.path.join(testdir, 'log')
+logdir  = os.path.join(logroot, date.strftime('%F_at_%H-%M-%S'))
+failed  = os.path.join(testdir, 'failed')
 
-sub special_failure {
-        my $file = shift;
-        system ("$MOLCAS_DRIVER chkunprint.plx < $file");
-        my $rc = $?;
-        if ($rc == -1) {
-                error ("failed to execute: $!\n");
-        } elsif ($rc & 127) {
-                $rc = $rc & 127;
-                error ("chkunprint died with signal $rc\n");
-        } else {
-                $rc = $rc >> 8;
-        }
-        my $failure = '';
-        if ($rc == 1) {
-                $failure = 'garbage';
-        } elsif ($rc == 2) {
-                $failure = 'segfault';
-        }
-        return $failure;
-}
+# reset only cleans up and then quits
+if opt['reset']:
+  if os.path.islink(result):
+    os.remove(result)
+  if os.path.islink(timing):
+    os.remove(timing)
+  if os.path.isdir(tmpdir):
+    shutil.rmtree(tmpdir)
+  if os.path.isdir(logroot):
+    shutil.rmtree(logroot)
+  if os.path.islink(failed):
+    os.remove(failed)
+  sys.exit(0)
 
-sub failed_module {
-        my $file = shift;
-        my $mod = '';
-        open (FILE, "<", $file);
-        while (<FILE>) {
-                next unless /(Start|Stop) Module/;
-                next if /check|auto/;
-                ($mod) = /(?:Start|Stop) Module: +([^ ]+)/;
-        }
-        $mod = '[none]' unless (defined $mod);
-        close (FILE);
-        return $mod;
-}
+os.environ['MOLCAS_OUTPUT'] = 'WORKDIR'
+os.environ['MOLCAS_TIME'] = 'YES'
+# set test type: generating or checking?
+if opt['generate']:
+  os.environ['MOLCAS_TEST'] = 'GENE'
+  os.environ['MOLCAS_NPROCS'] = '1'
+else:
+  os.environ['MOLCAS_TEST'] = 'CHECK'
+# enable old behavior (do not fail with extra labels)
+if opt['fuzzy']:
+  os.environ['MOLCAS_CHECK_FUZZY'] = 'YES'
+# to ignore failures, choose negative threshold
+if opt['pass']:
+  os.environ['MOLCAS_THR'] = '-1'
+  os.environ['MOLCAS_PASSCHECK'] = '1'
+os.environ['MOLCAS_VALIDATE'] = os.environ.get('MOLCAS_VALIDATE', 'YES')
+# command-line options
+cli_opts = '--ignore_environment'
+if opt['validate']:
+  cli_opts += ' --validate'
+cli_opts = cli_opts.split()
 
-sub by_standard_first {
-    # routine to sort keys starting with "standard",
-    # probably very inefficient.
-    my $rc;
-    if ($a =~ /^standard/) {
-        if ($b =~ /^standard/) {
-            $rc = $a cmp $b;
-        } else {
-            $rc = -1;
-        }
-    } else {
-        if ($b =~ /^standard/) {
-            $rc = 1;
-        } else {
-            $rc = $a cmp $b;
-        }
-    }
-    return $rc;
-}
+#-------------------------------------------
+# generate a list of files from the tasklist
+#-------------------------------------------
 
-sub by_type_first {
-    # routine to sort keys according to the groups,
-    # probably even more inefficient.
-    my $rc;
-    (my $ga = $a) =~ s/:.*//s;
-    if ($basic{$ga}) {
-        $ga = 1
-    } elsif ($critical{$ga}) {
-        $ga = 2
-    } elsif ($official{$ga}) {
-        $ga = 3
-    } else {
-        $ga = 4
-    }
-    (my $gb = $b) =~ s/:.*//s;
-    if ($basic{$gb}) {
-        $gb = 1
-    } elsif ($critical{$gb}) {
-        $gb = 2
-    } elsif ($official{$gb}) {
-        $gb = 3
-    } else {
-        $gb = 4
-    }
-    $rc = "$ga:$a" cmp "$gb:$b";
-    return $rc;
-}
+location = {}
+filelist = []
+filegroup = {}
+none = False
+
+# (these must be done early in order to use it for sorting)
+# groups belonging to basic
+basic = {}
+basic_list = vgroup_to_groups('.basic')
+for group in basic_list:
+  basic[group] = True
+# groups belonging to critical
+critical = {}
+critical_list = vgroup_to_groups('.critical')
+for group in critical_list:
+  critical[group] = True
+# groups belonging to official
+official = {}
+official_list = vgroup_to_groups('.official')
+for group in official_list:
+  official[group] = True
+# groups with no time limit
+nolimit = {'performance': True, 'benchmark': True}
+
+# First convert the tasks to actual included/skipped tests.
+# These are kept in two dictionaries to allow different tasks to
+# influence each other, e.g.:
+#   $ molcas verify .all standard:-
+# would run all the tests from virtual group '.all', but
+# at the same time exclude all tests from standard.
+included = {} # keeps a dictionary of included test names (group:name)
+excluded = {} # keeps a dictionary of excluded test names (group:name)
+for task in tasklist:
+  if task == '.none':
+    # the special task .none will generate a result file
+    # even if there are no tests to run
+    none = True
+  elif os.path.isfile(task):
+    # the task is a file name, add immediately to the file list
+    filename = os.path.abspath(task)
+    filelist.append(filename)
+    filegroup[filename] = 'external'
+  else:
+    # A single task is composed of:
+    # - an optional group name (if omitted, defaults to '.default')
+    # - an optional, comma-separated lists of the following items:
+    #   * 3 digits: a test number to be included
+    #   * a minus sign and 3 digits: a test number to be excluded
+    #   * two groups of 3 digits separated by a dash:
+    #     a range of test numbers to be included
+    #   * a minus sign and two groups of 3 digits separated by a dash:
+    #     a range of test numbers to be excluded
+    #   * empty: includes all possible test numbers
+    #   * a minus sign: excludes all possible test numbers
+    # All of the above is condensed into a single regex:
+    vgroup, task_string = re.match(r'^([^\d:][^:]*)?:?([^:]*)$', task).groups()
+    if not vgroup:
+      vgroup = '.default'
+    # if no subtasks, set empty string as only element (this means all tests)
+    subtasks = task_string.split(',')
+    # translate virtual group to list of real group names
+    for group in vgroup_to_groups(vgroup):
+      for subtask in subtasks:
+        # decide on exclusion
+        exclude_flag = False
+        if subtask.startswith('-'):
+          subtask = subtask[1:]
+          exclude_flag = True
+        # create a list of file basenames
+        basenames = []
+        if not subtask:
+          # empty task, match every possible input file
+          basenames = find_all_names_from_group(group)
+        else:
+          number_string = re.match(r'\d{3}(?:-\d{3})?$', subtask)
+          if number_string:
+            # extract name from number(range)
+            basenames = flatten_numbers(number_string.group(0))
+          else:
+            # no number, assume subtask is a basename
+            basenames.append(subtask)
+        # add basenames to proper dictionary
+        if exclude_flag:
+          add_names_from_group_to_dictionary(group, basenames, excluded)
+        else:
+          add_names_from_group_to_dictionary(group, basenames, included)
+
+# add generated test names to file list
+for key in sorted(included, key=by_type_first):
+  if key in excluded:
+    continue
+  group, number = key.split(':')
+  filename = os.path.join(location[group], number + '.input')
+  if os.path.isfile(filename):
+    if opt['generate']:
+      shutil.copyfile(filename, filename + '.bak')
+    filelist.append(filename)
+  filegroup[filename] = group
+
+#-------------------------------------------------------------------------
+# now that we have the filelist, we can apply filters to the file contents
+#-------------------------------------------------------------------------
+
+# build up the regex pattern to use for filtering
+# this is a very simple filter: match _any_ pattern
+if opt['module'] or opt['word'] or opt['grep']:
+  pattern_list = []
+  if opt['module']:
+    for mod in opt['module'].split(','):
+      pattern_list.append('&' + mod)
+  if opt['word']:
+    for key in opt['word'].split(','):
+      pattern_list.append(key)
+  if opt['grep']:
+    for key in opt['grep'].split(','):
+      pattern_list.append('[^*]*' + key)
+  filter_pattern = '^\s*(' + '|'.join(pattern_list) + ')'
+  filtered_filelist = []
+  for filename in filelist:
+    with open(filename, 'rb') as f:
+      for line in f:
+        if re.match(filter_pattern.encode(), line, re.IGNORECASE):
+          filtered_filelist.append(filename)
+          break
+  filelist = filtered_filelist
+
+#--------------------------------------------------------------
+# if we only rerun failed tests, then filter the filenames here
+#--------------------------------------------------------------
+
+if opt['failed']:
+  failed_previously = {}
+  failed_list = os.path.join(failed, 'list')
+  if os.path.isfile(failed_list):
+    try:
+      with open(failed_list, 'r', encoding='utf-8') as f:
+        for line in f:
+          failed_previously[line.strip()] = True
+    except IOError:
+      sys.exit('cannot open file {}'.failed(failed_list))
+  filtered_filelist = []
+  for filename in filelist:
+    if filename in failed_previously:
+      filtered_filelist.append(filename)
+  filelist = filtered_filelist
+
+#------------------------------------------------------
+# print the final, filtered list if requested, and exit
+#------------------------------------------------------
+
+if opt['rawlist']:
+  msg_nl(filelist)
+  sys.exit(0)
+elif opt['flatlist']:
+  test_list = []
+  for filename in filelist:
+    name = os.path.splitext(os.path.basename(filename))[0]
+    test_list.append('{}:{}'.format(filegroup[filename], name))
+  msg_nl(test_list)
+  sys.exit(0)
+elif opt['grouplist']:
+  list_groups()
+  sys.exit(0)
+elif opt['list']:
+  msg('matching tests:\n')
+  test_list = {}
+  for filename in filelist:
+    name = os.path.splitext(os.path.basename(filename))[0]
+    if filegroup[filename] not in test_list:
+      test_list[filegroup[filename]] = []
+    test_list[filegroup[filename]].append(' ' + name)
+  for key in sorted(test_list, key=by_type_first):
+    prefix = '  {}:'.format(key)
+    msg_list(prefix, sorted(test_list[key]))
+  sys.exit(0)
+
+# final check: if empty filelist, just quit nicely
+if not (filelist or none):
+  msg('no tests requested, bye!\n')
+  sys.exit(0)
+
+#--------------------------
+# set up the infrastructure
+#--------------------------
+
+if MOLCAS_ID is None:
+  error('Could not find [Open]Molcas version')
+
+# the base directory for running tests
+if not os.path.isdir(testdir):
+  try:
+    os.mkdir(testdir)
+  except:
+    error('could not create {}'.format(testdir))
+if not os.access(testdir, os.W_OK | os.X_OK):
+  error('cannot write to {}'.format(testdir))
+if os.path.isdir(tmpdir):
+  shutil.rmtree(tmpdir)
+if opt['clean'] and os.path.isdir(logroot):
+  shutil.rmtree(logroot)
+if not os.path.isdir(tmpdir):
+  os.mkdir(tmpdir)
+if not os.path.isdir(logroot):
+  os.mkdir(logroot)
+# remove log directories not ending in .bak and older than a day
+try:
+  subdir_names = os.listdir(logroot)
+except:
+  error('cannot open directory {}'.format(logroot))
+for subdir_name in subdir_names:
+  if subdir_name.endswith('.bak'):
+    continue
+  subdir = os.path.join(logroot, subdir_name)
+  if not os.path.isdir(subdir):
+    continue
+  age = date - datetime.datetime.fromtimestamp(os.path.getmtime(subdir))
+  if age.days > 1:
+    shutil.rmtree(subdir)
+# finally, create the new log directory we are about to use
+if os.path.isdir(logdir):
+  error('existing log: {}'.format(logdir))
+else:
+  os.mkdir(logdir)
+
+try:
+  os.chdir(tmpdir)
+except:
+  error('could not switch to {}'.format(tmpdir))
+
+# Re-generate the version information from the build that will
+# actually be used to run the tests
+MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode().strip()
+if opt['generate']:
+  if 'dirty' in MOLCAS_ID:
+    error('''\
+************************************************************
+Dirty [Open]Molcas installation, cannot generate check files
+************************************************************
+  The compiled version of molcas does not correspond
+to a clean source tree (does not match a git commit).
+For reproducibility's sake generation of check files
+is disabled.
+  Please stash your changes and recompile.''')
+  else:
+    os.environ['MOLCAS_INFO'] = '{}!{}!{}!'.format(MOLCAS_ID, MACHINE, DATE)
+
+log_result = os.path.join(logdir, 'result')
+log_timing = os.path.join(logdir, 'result.timing')
+log_failed = os.path.join(logdir, 'failed')
+log_failed_list = os.path.join(log_failed, 'list')
+
+try:
+  os.mkdir(log_failed)
+except:
+  error('could not create {}'.format(log_failed))
+
+# set up links to the actual result files
+if os.path.islink(result):
+  os.remove(result)
+if os.path.islink(timing):
+  os.remove(timing)
+if os.path.islink(failed):
+  os.remove(failed)
+os.symlink(os.path.relpath(log_result, testdir), result)
+os.symlink(os.path.relpath(log_timing, testdir), timing)
+os.symlink(os.path.relpath(log_failed, testdir), failed)
+
+# open the information files
+try:
+  RESULT = open(log_result, 'w+', encoding='utf-8', buffering=1)
+except:
+  error('cannot open file {}'.format(log_result))
+try:
+  TIMING = open(log_timing, 'w+', encoding='utf-8', buffering=1)
+except:
+  error('cannot open file {}'.format(log_timing))
+try:
+  FAILED_LIST = open(log_failed_list, 'w+', encoding='utf-8', buffering=1)
+except:
+  error('cannot open file {}'.format(log_failed_list))
+
+# start by printing headers
+print(header, file=RESULT)
+if opt['timest']:
+  print('''\
+# Automatically-generated file. Do not modify!
+#
+# To generate this file run {} {} {}
+#
+# Note that what matters is relative timings, so do not
+# mix runs with different settings or environments.
+'''.format(DRIVER_base, thisfile, ' '.join(sys.argv[1:])), file=TIMING)
+else:
+  print(header, file=TIMING)
+
+print('''\
+1: Basic tests that must pass
+2: Additional tests that must pass
+3: Other tests that may fail, but should be fixed
+4: Personal development tests that may fail or not
+''', file=RESULT)
+
+#-------------------------------------
+# loop over tests and run verification
+#-------------------------------------
+
+# counters
+failed_tests = 0
+failed_critical_tests = 0
+skipped_tests = 0
+
+n_tests = len(filelist)
+index = 0
+
+if opt['cover']:
+  msg('WARNING: you are running tests with code coverage,\n'
+      '         this can add up to 1 min of time per test\n')
+  msg('running code coverage startup... ')
+  process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--start'])
+  active_pid = process.pid
+  process.wait()
+  msg('done\n')
+
+prev_group = '.none'
+endloop = False
+
+for filename in filelist:
+  group = filegroup[filename]
+  name = os.path.splitext(os.path.basename(filename))[0]
+  project = '{}__{}'.format(group, name)
+  workdir = os.path.join(tmpdir, project)
+  infile = os.path.join(workdir, project + '.input')
+  outfile = os.path.join(tmpdir, project + '.out')
+  errfile = os.path.join(tmpdir, project + '.err')
+  status = os.path.join(tmpdir, project + '.status')
+  index += 1
+  pc = int(index / n_tests * 100)
+  mark = '4'
+  if group in official:
+    mark = '3'
+  if group in critical:
+    mark = '2'
+    if group in basic:
+      mark = '1'
+  #----------------------------
+  # set up the work environment
+  #----------------------------
+  os.environ['Project'] = project
+  os.environ['WorkDir'] = workdir
+  if group in nolimit:
+    os.environ.pop('MOLCAS_TIMELIM', None)
+  else:
+    os.environ['MOLCAS_TIMELIM'] = os.environ.get('MOLCAS_TIMELIM', '600')
+  if opt['cover']:
+    process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--prep'])
+    active_pid = process.pid
+    process.wait()
+  # start repeated cycles (e.g. when tests fail randomly)
+  cycles = opt['cycles']
+  if opt['parallel']:
+    cycles *= 2
+  if group != prev_group and group != 'external':
+    print('----------\ngroup {} from: {}'.format(group, location[group]), file=RESULT)
+  while cycles > 0:
+    cycles -= 1
+    sttime = time.time()
+    if opt['parallel']:
+      if cycles % 2 == 1:
+        os.environ['MOLCAS_NPROCS'] = 1
+      else:
+        os.environ['MOLCAS_NPROCS'] = opt['parallel']
+    # if the work directory exists, remove it unless existing mode is used
+    if os.path.isdir(workdir):
+      if opt['existing']:
+        # we only need to delete the check counter, leave the rest
+        check_counter = os.path.join(workdir, 'molcas_check_count')
+        os.remove(check_counter)
+      else:
+        shutil.rmtree(workdir)
+    if not os.path.isdir(workdir):
+      os.mkdir(workdir)
+    shutil.copyfile(filename, infile)
+    if interactive or opt['status']:
+      prompt = 'Running test {}: {}... ({}%)'.format(group, name, pc)
+      msg(prompt)
+    # run pymolcas and capture the return code.
+    if opt['debug']:
+      process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=sys.stdout, stderr=sys.stderr)
+    else:
+      with open(outfile, 'w+', encoding='utf-8') as fo, open(errfile, 'w+', encoding='utf-8') as fe:
+        process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=fo, stderr=fe)
+    active_pid = process.pid
+    rc = process.wait()
+    special = False
+    if not opt['debug']:
+      # check for special cases where the return code might be 0
+      # but we should still cause a failure (segfault, garbage)
+      special = special_failure(outfile)
+      if special:
+        rc = 30
+    result = ''
+    if rc:
+      cycles = 0
+      if not opt['debug']:
+        shutil.copyfile(outfile, os.path.join(log_failed, project + '.out'))
+        shutil.copyfile(errfile, os.path.join(log_failed, project + '.err'))
+      # skip the test if a program is not available (RC_NOT_AVAILABLE)
+      if rc == 36:
+        result = ' S'
+        # print results
+        print('{}:{}:{} Skipped!'.format(mark, group, name), file=RESULT)
+        if interactive:
+          msg_overwrite('{}:{} Skipped!\n'.format(group, name), prompt)
+        if opt['status']:
+          msg(' Skipped!\n')
+        # update counters
+        skipped_tests += 1
+        # pretend to be fine for the remainder of this test
+        rc = 0
+      else:
+        result = ' F'
+        # gather extra info
+        mod = ''
+        if not opt['debug']:
+          mod = failed_module(outfile)
+        if special:
+          mod = ', '.join([mod, special])
+        # print results
+        print('{}:{}:{} Failed! ({})'.format(mark, group, name, mod), file=RESULT)
+        if interactive:
+          msg_overwrite('{}:{} Failed! ({})\n'.format(group, name, mod), prompt)
+        if opt['status']:
+          msg(' Failed! ({})\n'.format(mod))
+        # update counters
+        failed_tests += 1
+        if group in critical:
+          failed_critical_tests += 1
+        # update list of failed input files
+        print(filename, file=FAILED_LIST)
+    else:
+      print('{}:{}:{} OK'.format(mark, group, name), file=RESULT)
+      if interactive:
+        msg_overwrite('', prompt)
+      if opt['status']:
+        msg(' OK\n')
+      if opt['generate']:
+        rc = updatetest(filename, os.path.join(workdir, 'checkfile'))
+        if rc:
+          print_stdout('rc={}\n'.format(rc))
+    # save timing info
+    if opt['timest']:
+      runtime = time.time() - sttime
+      print('--- {}:{}{}'.format(group, name, result), file=TIMING)
+      print(int(round(runtime)), file=TIMING)
+    elif not opt['debug']:
+      print('--- Run: {}'.format(project), file=TIMING)
+      try:
+        with open(errfile, 'r', encoding='utf-8') as f:
+          for line in f:
+            print(line, end='', file=TIMING)
+      except:
+        error('could not open {}'.format(errfile))
+    if opt['postproc']:
+      os.environ['project'] = project
+      sp.call(opt['postproc'], shell=True)
+    # clean up
+    if not (rc or opt['keep']):
+      if os.path.exists(infile):
+        os.remove(infile)
+      if os.path.exists(outfile):
+        os.remove(outfile)
+      if os.path.exists(errfile):
+        os.remove(errfile)
+      if os.path.exists(status):
+        os.remove(status)
+      shutil.rmtree(workdir)
+    if rc and opt['trap']:
+      break
+      endloop = True
+  if endloop:
+    break
+  if opt['cover']:
+    if interactive:
+      prompt = 'Capturing coverage data for test {}: {}... ({}%)'.format(group, name, pc)
+      msg(prompt)
+    process = sp.Popen([MOLCAS_DRIVER, 'codecov', '-q', '--measure', '--name', project])
+    active_pid = process.pid
+    process.wait()
+    if interactive:
+      msg_overwrite('', prompt)
+  prev_group = group
+if prev_group != '.none':
+  print('----------', file=RESULT)
+print('\n*Failed critical tests* {}'.format(failed_critical_tests), file=RESULT)
+
+if opt['cover']:
+  process = sp.Popen([MOLCAS_DRIVER, 'codecov', '--html'])
+  active_pid = process.pid
+  process.wait()
+
+RESULT.close()
+TIMING.close()
+FAILED_LIST.close()
+
+if failed_tests:
+  # report directory with failed out/err relative to directory where verify was run
+  log_rel = os.path.relpath(failed, starting_cwd)
+  tmp_rel = os.path.relpath(tmpdir, starting_cwd)
+  info = '''\
+************************************************************************
+A total of {} test(s) failed, with {} critical failure(s).
+************************************************************************
+Please check the directory:
+  {}
+for the .out/.err files of the failed tests,
+and check the submit directory:
+  {}
+for the working directories of the last run.
+'''.format(failed_tests, failed_critical_tests, log_rel, tmp_rel)
+  if failed_critical_tests:
+    error(info)
+  else:
+    msg(info)
+
+if opt['generate']:
+  msg('Generation of check files has been completed\n')
+else:
+  msg('Verification has been completed\n')

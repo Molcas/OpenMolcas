@@ -17,10 +17,10 @@
       INTEGER I,N,IEXTNUM,INPART,INSBP,ISORB,IPART,ISMLAB,ISOIND
       INTEGER ISPART,ISUM,KSPART
 C     INTEGER IPFR,IPIN,IPAC,IPSE,IPDE,IP
-      INTEGER IPFR,IPIN,IPAC,IPSE,IPDE
+      INTEGER IPFR,IPIN,IPAC,IPSE
       INTEGER ISYM
       INTEGER NPART,NSPART,NORBT,NSORBT,NSYM
-      INTEGER NAPART,NASPRT,NASPO,KORBPT,KOINFO,LOINFO,NTAB
+      INTEGER NAPART,NASPRT,NASPO,KOINFO,LOINFO,NTAB
       INTEGER NOES(8),INSYM(8)
 
       ISOIND = 0 ! dummy initialize
@@ -33,13 +33,11 @@ C Partitions for inactive, secondary,frozen, and deleted orbitals:
       IPIN=NAPART+1
       IPSE=NAPART+2
       IPFR=NAPART+3
-      IPDE=NAPART+4
 C Total nr of orbitals:
       NORBT=IPRTTAB(5)
       NSORBT=2*NORBT
 C Table words 1--10 contain some header info.
 C Table words 11--18 contain start index of each CMO symmetry block
-      KORBPT=11
 C Table words 19-- contain info for each separate spin orbital
 C Presently 8 table entries for each spin orbital.
       KOINFO=19

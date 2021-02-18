@@ -17,13 +17,13 @@
 *      Purpose: To reorder R-vectors so it is practical to access
 *               one ia-piece at the time.
 
+      use ChoMP2, only: AdrR1, AdrR2
 #include "implicit.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Character Fname*5
       Real*8 Wrk(lWrk)
@@ -33,7 +33,6 @@
       Parameter (SecNam = 'ChoMP2g_Reord_r', ThisNm = 'Reord_r')
 *
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-      iAdrVec(i,j,k) = (i-1) + (j-1)*nSym + (k-1)*nSym*nSym
 *
       iTypR = 2
       iVecOV = 6
@@ -58,11 +57,11 @@
          Do iSymA = 1, nSym
             iSym = MulD2h(iSymA,iSymI)
             Do iI = 1, nOcc(iSymI)
-               iWork(ipAdrR1 + iAdrVec(iSymA,iSymI,iI)) = iAdr1
+               AdrR1(iSymA,iSymI,iI) = iAdr1
                iAdr1 = iAdr1 + nVir(iSymA)*nMP2Vec(iSym)
             End Do
             Do iA = 1, nVir(iSymA)
-               iWork(ipAdrR2 + iAdrVec(iSymA,iSymI,iA)) = iAdr2
+               AdrR2(iSymA,iSymI,iA) = iAdr2
                iAdr2 = iAdr2 + nOcc(iSymI)*nMP2Vec(iSym)
             End Do
          End Do
@@ -84,10 +83,6 @@
          kEndRia1 = kRia1 + lRia
 
          kRia2 = kEndRia1
-         kEndRia2 = kRia2 + lRia
-
-         kRia3 = kEndRia2
-         kEndRia3 = kRia3 + lRia
 
 *        Open Cholesky amplitude vectors
 *        -------------------------------
@@ -129,7 +124,7 @@
                iSymA = MulD2h(iSymI,iSym)
                Do iI = 1, nOcc(iSymI)
                   lTot = nVir(iSymA)*NumVec
-                  iAdr = iWork(ipAdrR1 + iAdrVec(iSymA,iSymI,iI))
+                  iAdr = AdrR1(iSymA,iSymI,iI)
      &                 + (iVec-1)*nVir(iSymA)
                   iOffset2 = (iI-1)*NumVec*nVir(iSymA) +
      &                        iT1am(iSymA,iSymI)*NumVec
@@ -178,7 +173,7 @@
                iSymA = MulD2h(iSymI,iSym)
                Do iA = 1, nVir(iSymA)
                   lTot = nOcc(iSymI)*NumVec
-                  iAdr = iWork(ipAdrR2 + iAdrVec(iSymA,iSymI,iA))
+                  iAdr = AdrR2(iSymA,iSymI,iA)
      &                 + (iVec-1)*nOcc(iSymI)
                   iOffset2 = (iA-1)*NumVec*nOcc(iSymI) +
      &                        iT1am(iSymA,iSymI)*NumVec

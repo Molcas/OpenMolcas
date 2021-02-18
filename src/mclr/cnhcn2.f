@@ -131,7 +131,6 @@ c Avoid unused argument warnings
 *
 ** Hamiltonian matrix over determinants of the configurations
 *
-        NTESTP = MAX(0,NTEST-5)
         isym=0       ! eaw
         ecorep=0.0d0 ! eaw
         CALL C_F_POINTER(C_LOC(SCR(KLROU+NEL)),iSCRn,[1])

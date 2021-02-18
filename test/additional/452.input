@@ -1,9 +1,9 @@
 ***********************************************************************
 *   This test verifies the functionality of the POLY_ANISO code when  *
-*   no "aniso" input files are given, i.e. when one center is genera- *
-*   ted as isotropic. Computation of all magnetic properties is done. *
+*   one "aniso" input file is given, i.e. when one center is computed *
+*   ab initio. Computation of all magnetic properties is verified.    *
 *   g tensor, XT, M, zJ                                               *
-*   aniso_1.input -- old file format, containing only E, MM, SM, Mult *
+*   aniso_1.input -- OLD file format, containing only E, MM, SM, Mult *
 ***********************************************************************
 
 >>COPY AnisoFile aniso_1.input
@@ -13,6 +13,7 @@ NNEQ
 1  T  F
 1
 2
+OLDA
 End of input
 
 &POLY_ANISO &END
@@ -23,6 +24,7 @@ NNEQ
 1  T  F
 1
 2
+OLDA
 End of input
 
 &POLY_ANISO &END
@@ -30,11 +32,13 @@ NNEQ
 1  T  F
 1
 2
+OLDA
 COORD
 0.0 0.0 1.0
 End of input
 
 &POLY_ANISO &END
+OLDA
 NNEQ
 1  T  F
 1
@@ -46,6 +50,7 @@ ZJPR
 End of input
 
 &POLY_ANISO &END
+OLDA
 TMAG
 3  2.25  3.54  102.0
 NNEQ
@@ -57,6 +62,7 @@ COORD
 End of input
 
 &POLY_ANISO &END
+OLDA
 TMAG
 3  2.25  3.54  102.0
 MAVE
@@ -70,6 +76,7 @@ End of input
 &POLY_ANISO &END
 TMAG
 3  2.25  3.54  102.0
+OLDA
 MAVE
  1 6
 NNEQ
@@ -97,6 +104,7 @@ NNEQ
 2
 TMAG
 3  2.25  3.54  102.0
+OLDA
 End of input
 
 &POLY_ANISO &END
@@ -113,6 +121,7 @@ NNEQ
 2
 TMAG
 4  2.25  3.54 1.0  102.0
+OLDA
 End of input
 
 &POLY_ANISO &END
@@ -121,6 +130,7 @@ MVEC
 0.0 0.0 -1.0
 0.0 -1.0 0.0
 -1.0 0.0 0.0
+OLDA
 ZEEM
 3
 1.0 0.0 0.0
@@ -144,6 +154,7 @@ MVEC
  0.0  0.0 -1.0
  0.0 -1.0  0.0
 -1.0  0.0  0.0
+OLDA
 NNEQ
 1  T  F
 1
@@ -176,6 +187,7 @@ ZEEM
  1.0  0.0  0.0
  0.0  0.0 -1.0
  0.0 -1.0  0.0
+OLDA
 MAVE
 1 5
 TINT

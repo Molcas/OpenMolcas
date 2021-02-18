@@ -28,16 +28,16 @@
         do i = 1, (NACPAR*(NACPAR+1)/2)
           call two_el_idx(i, t_idx, u_idx, v_idx, x_idx)
           if(v_idx /= x_idx) then
-             if(abs(PMAT(i)+PA(i)).gt.thrsh) then
+             if(abs(PMAT(i)+PA(i)) > thrsh) then
                  write(6,'(1X,4I5,F20.12)')
      &           t_idx, u_idx, v_idx, x_idx, (PMAT(i)+PA(i))
              end if
-             if (abs(PMAT(i)-PA(i)).gt.thrsh) then
+             if (abs(PMAT(i)-PA(i)) > thrsh) then
                  write(6,'(1X,4I5,F20.12)')
      &           t_idx, u_idx, x_idx, v_idx, (PMAT(i)-PA(i))
              end if
           else
-             if (abs(PMAT(i)*2.0d0).gt.thrsh) then
+             if (abs(PMAT(i)*2.0d0) > thrsh) then
                 write(6,'(1X,4I5,F20.12)')
      &          t_idx, u_idx, v_idx, x_idx, PMAT(i)*2.0d0
              end if
@@ -46,18 +46,12 @@
 
         do i = 1, (NAC*(NAC+1)/2)
           call one_el_idx(i, t_idx, u_idx)
-          if(abs(DMAT(i)).gt.thrsh) then
+          if(abs(DMAT(i)) > thrsh) then
              write(6,'(1X,4I5,F20.12)')
      &          t_idx, u_idx, 0, 0, DMAT(i)
           end if
         end do
 
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',DMAT,NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',PMAT,NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',PA , NACPAR)
 
       end subroutine printRDMs_NECI
 

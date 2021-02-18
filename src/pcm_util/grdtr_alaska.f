@@ -33,9 +33,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
       Real*8 GradIn(3,MxAto), GradOut(nGrad)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
 *
       iIrrep=0
 *

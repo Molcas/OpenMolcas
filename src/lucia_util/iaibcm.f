@@ -34,9 +34,6 @@
       IATP = 1
       IBTP = 2
 *
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
-*
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *

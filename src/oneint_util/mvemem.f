@@ -10,16 +10,20 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      Subroutine MVeMem(nHer,MemMVe,la,lb,lr)
+      Subroutine MVeMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 *
       nHer=(la+lb+lr+2)/2
-      MemMVe = 3*nHer*(la+3) +
-     &         3*nHer*(lb+3) +
-     &         3*nHer*(lr-3) +
-     &         3*(la+3)*(lb+3)*(lr-3) +
-     &         3*(la+1)*(lb+1)*2 +
-     &         3*(la+1)*(lb+1) +
-     &         1 + 1
+      Mem = 3*nHer*(la+3) +
+     &      3*nHer*(lb+3) +
+     &      3*nHer*(lr-3) +
+     &      3*(la+3)*(lb+3)*(lr-3) +
+     &      3*(la+1)*(lb+1)*2 +
+     &      3*(la+1)*(lb+1) +
+     &      1 + 1
 *
       Return
       End

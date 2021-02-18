@@ -58,7 +58,9 @@
      &     only: fiedlerorder_length, file_name_generator,
      &           qcmaquis_interface_fcidump
 #endif
-
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -68,6 +70,7 @@
       Logical do_rotate
       ! function defined in misc_util/pcm_on.f
       Logical, external :: PCM_On
+
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -89,10 +92,10 @@
 #include "input_ras.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "raswfn.fh"
+#include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
 #endif
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
 #ifdef _DMRG_
       character(len=2300) :: maquis_name_states
@@ -287,7 +290,7 @@ C Local print level (if any)
                 end if
 
                 ! Import RDMs from QCMaquis that we've got from the last optimization
-                !> import 1p-spin density
+                ! Here we should import one-particle spin density.
                 ! Temporarily disable spin density here: spin density is calculated
                 ! only once at the end of DMRG-SCF optimisation. If you need it at every
                 ! iteration for some reason, please change this code accordingly
@@ -297,7 +300,7 @@ C Local print level (if any)
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
                  Call GetMem('Pscr','ALLO','REAL',LW10,NACPR2)
                  C_Pointer = Lw4
-                 CALL Lucia_Util('Densi',0,iDummy,rdum)
+                 CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &                     Work(LW9),Work(LW10))
@@ -614,7 +617,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
          If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
            if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi',0,iDummy,rdum)
+     &       CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Work(LW6),NAC)
@@ -702,10 +705,10 @@ CSVC: store a single column instead of the whole array (which is for each root!)
 C and for now don't bother with 2-electron active density matrices
 #ifdef _HDF5_
          call square(work(lw6),density_square,1,nac,nac)
-         call mh5_put_dset_array_real(wfn_dens, density_square,
+         call mh5_put_dset(wfn_dens, density_square,
      $           [nac,nac,1], [0,0,jRoot-1])
          call square(work(lw7),density_square,1,nac,nac)
-         call mh5_put_dset_array_real(wfn_spindens, density_square,
+         call mh5_put_dset(wfn_spindens, density_square,
      $           [nac,nac,1], [0,0,jRoot-1])
 #endif
        End Do
@@ -719,7 +722,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
-           CALL Lucia_Util('Densi',0,iDummy,rdum)
+           CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Work(LW6),NAC)
              CALL TRIPRT('DS after lucia',' ',Work(LW7),NAC)
@@ -798,6 +801,7 @@ c
        Call GetMem('CIVtmp','Allo','Real',LW11,nConf)
        iDisk = IADR15(4)
 
+       if (.not.doDMRG) then
        IF (.Not.DoSplitCAS) THEN
         Do i = 1,lRoots
           jDisk=iDisk
@@ -811,7 +815,7 @@ c
           END IF
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
 c        end if
@@ -821,36 +825,32 @@ c         call getmem('kcnf','free','inte',ivkcnf,nactel)
 c         if(.not.iDoGas)then
           Call DDafile(JOBIPH,1,Work(LW11),nConf,jDisk)
 #ifdef _HDF5_
-          call mh5_put_dset_array_real
-     $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,Work(LW11:LW11+nConf-1),
+     &                      [nconf,1],[0,i-1])
 
 #endif
 c         else
 c         call DDafile(JOBIPH,1,Work(LW4),nConf,jDisk)
 c         end if
 * printout of the wave function
-           if(doDMRG)then
-             ! If DMRG, the SRCAS can give the CI-coefficients
-           else
-             IF (IPRLEV.GE.USUAL) THEN
-              Write(LF,*)
-              Write(LF,'(6X,A,F6.2,A,I3)')
+            IF (IPRLEV.GE.USUAL) THEN
+            Write(LF,*)
+            Write(LF,'(6X,A,F6.2,A,I3)')
      &                'printout of CI-coefficients larger than',
      &                 PRWTHR,' for root',i
-              Write(LF,'(6X,A,F15.6)')
+            Write(LF,'(6X,A,F15.6)')
      &                 'energy=',ENER(I,ITER)
-               CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
+              CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
      &                  IWORK(LNOW),IWORK(LIOW),WORK(LW11))
-             End If
-           end if
+            End If
          else ! for iDoGas
           Write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
 c.. save CI vector on disk
           Call DDafile(JOBIPH,1,Work(LW4),nconf,jDisk)
 CSVC: store CI as a column array of the on-disk CI (which is for all roots!)
 #ifdef _HDF5_
-          call mh5_put_dset_array_real
-     $            (wfn_cicoef,Work(LW4),[nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,Work(LW4:LW4+nconf-1),
+     &                      [nconf,1],[0,i-1])
 #endif
 C.. printout of the wave function
           IF (IPRLEV.GE.USUAL) THEN
@@ -860,7 +860,7 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,lsym,iwork(kiconf(1)),
+          call gasprwf(iwork(lw12),nac,nactel,stsym,iwork(kiconf(1)),
      c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -883,15 +883,15 @@ C.. printout of the wave function
           END IF
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
 * save reorder CI vector on disk
           Call DDafile(JOBIPH,1,Work(LW11),nConf,jDisk)
 #ifdef _HDF5_
-          call mh5_put_dset_array_real
-     $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,Work(LW11:LW11+nConf-1),
+     &                      [nconf,1],[0,i-1])
 #endif
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL after Reord',' ',
@@ -909,14 +909,16 @@ C.. printout of the wave function
      &                IWORK(LNOW),IWORK(LIOW),WORK(LW11))
           END IF
         END IF
+        endif
 
         Call GetMem('PrSel','Free','Inte',LW12,nConf)
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
+
 #ifdef _DMRG_
-          call mh5_put_dset_array_str
+      if(doDMRG)then
+        call mh5_put_dset
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
-      if (doDMRG) then
         call mma_deallocate(d1all)
         if(twordm_qcm) call mma_deallocate(d2all)
         if(doEntanglement) then

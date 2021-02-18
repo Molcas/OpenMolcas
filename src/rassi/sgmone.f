@@ -21,10 +21,6 @@
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
-
-
-
-      nSym  =iSGStruct(1)
       lISm  =iSGStruct(3)
       lNOCSF=iCIStruct(6)
       lIOCSF=iCIStruct(7)

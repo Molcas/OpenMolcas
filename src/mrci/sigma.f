@@ -39,8 +39,6 @@
         END DO
       END IF
 
-      ILIM=4
-      IF(IFIRST.NE.0)ILIM=2
       CALL DIAGC(INTSY,CI,SGM)
       IF(IFIRST.EQ.0 .AND. ((IREST.EQ.1).OR.(ITER.GT.1)) ) THEN
         CALL ABCI_MRCI(INTSY,INDX,CI,SGM,BMN,IBMN,BIAC2,BICA2,BFIN3)
@@ -54,8 +52,6 @@ c
       CALL FAIBJ(INTSY,INDX,CI,SGM,ABIJ,AIBJ,AJBI,
      &           ASCR1,BSCR1,FSCR1,FSEC)
 
-      ILIM=4
-      IF(IFIRST.NE.0)ILIM=2
       IF(ITER.GT.0) THEN
         KTYP=1
 * Switch KTYP=1 means AI is actually handling AIJK integrals.

@@ -17,13 +17,13 @@
 *     Purpose: To Compute MP2 density from Cholesky MO-vectors and
 *              decomposed MP2 amplitudes.
 
+      use ChoMP2, only: AdrR1, AdrR2
 #include "implicit.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Character*16 SecNam
       Parameter (SecNam='ChoMP2g_density1')
@@ -35,7 +35,6 @@
       Data X /0.0D0,1.0D0/
 *     -----------------------------
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-      iAdrVec(i,j,k) = (i-1) + (j-1)*nSym + (k-1)*nSym*nSym
 *     -----------------------------
       maxvalue = 200
 
@@ -246,7 +245,6 @@
          lRia2 = nMoMo(iSym,iVecOV)*nVec
          kRia2 = kEndRia
          kEndRia2 = kRia2 + lRia2
-         kLia2 = kRia2
 
 *        Allocate memory for L-vectors
 *        -----------------------------
@@ -928,7 +926,6 @@
 *        -------------------------
          lV = nMoMo(jSym,iVecOV)*nVec
          kV = kEndU
-         kEndV = kV+lV
 
          nBatR = (nMP2Vec(jSym)-1)/nVec + 1
          nBatL = (NumCho(jSym)-1)/nVec + 1
@@ -994,7 +991,6 @@
                Do iSymI = 1, nSym
                   iSymC = MulD2h(jSym,iSymI)
                   iSymJC = MulD2h(iSymJ,iSymC)
-                  iSymIB = MulD2h(iSymI,iSymB)
                   NumIC = nOcc(iSymI)*nVir(iSymC)
                   If(nOcc(iSymI)*nVir(iSymC)*(NumRVecJ+NumLVecJ) .eq. 0)
      &              Go To 201
@@ -1017,7 +1013,7 @@
 
                            iOpt = 2
                            lTot = NumVecK*nVir(iSymC)
-                           iAdr = iWork(ipAdrR1+iAdrVec(iSymC,iSymJ,iJ))
+                           iAdr = AdrR1(iSymC,iSymJ,iJ)
      &                          + (kVec-1)*nVir(iSymC)
                            Call dDaFile(LuRInv(1),iOpt,Wrk(kRjc),
      &                                  lTot,iAdr)
@@ -1026,8 +1022,7 @@
                               iB = iBrel + (iB1-1)
                               iOpt = 2
                               lTot = NumVecK*nOcc(iSymI)
-                              iAdr = iWork(ipAdrR2+
-     &                                     iAdrVec(iSymB,iSymI,iB))
+                              iAdr = AdrR2(iSymB,iSymI,iB)
      &                             + (kVec-1)*nOcc(iSymI)
 *
                               Call dDaFile(LuRInv(2),iOpt, Wrk(kRib),

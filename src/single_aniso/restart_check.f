@@ -10,11 +10,12 @@
 ************************************************************************
       Subroutine restart_check( Ifrestart, input_to_read,
      &                          input_file_name, nT, nH, nTempMagn,
-     &                          nDir, nDirZee, nMult, GRAD)
+     &                          nDir, nDirZee, nMult, GRAD )
+
 c  this routine looks into the file "single_aniso.input" for the "RESTart" keyword
 c
       Implicit None
-      Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter        :: wp=kind(0.d0)
       Integer ::  linenr, input_to_read, Input, nT, nH, nTempMagn
       Integer ::  nDir, nDirZee, nMult, i
       Logical ::  Ifrestart
@@ -24,8 +25,9 @@ c
       Character(Len=180) :: input_file_name
       Integer :: ncut,nk,mg
       Real    :: encut_rate
-      Logical :: KeyREST,KeyTEXP,KeyHEXP,KeyHINT,KeyTINT,KeyTMAG,
-     &           KeyMVEC,KeyZEEM,KeyMLTP,KeyNCUT,KeyENCU,KeyERAT,KeyGRAD
+      Logical :: KeyHEXP,KeyHINT,KeyTMAG,
+     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
+c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD,KeyDATA
       Logical :: DBG
 
       DBG=.false.
@@ -41,20 +43,23 @@ c
       encut_rate=0.0_wp
       nTempMagn=0
       Input=5
+      input_file_name='aniso.input'
+c      origin_of_data_file='xxxxxxxx'
 
-      KeyREST=.false.
-      KeyTEXP=.false.
+c     KeyREST=.false.
+c     KeyTEXP=.false.
       KeyHEXP=.false.
       KeyHINT=.false.
-      KeyTINT=.false.
+c     KeyTINT=.false.
       KeyTMAG=.false.
       KeyMVEC=.false.
       KeyZEEM=.false.
-      KeyMLTP=.false.
+c     KeyMLTP=.false.
       KeyNCUT=.false.
       KeyENCU=.false.
       KeyERAT=.false.
-      KeyGRAD=.false.
+c     KeyGRAD=.false.
+c     KeyDATA=.false.
 
 C=========== End of default settings====================================
       REWIND(Input)
@@ -75,12 +80,12 @@ C=========== End of default settings====================================
      &   (LINE(1:4).ne.'MVEC').AND.(LINE(1:4).ne.'ZEEM').AND.
      &   (LINE(1:4).ne.'MLTP').AND.(LINE(1:4).ne.'NCUT').AND.
      &   (LINE(1:4).ne.'ENCU').AND.(LINE(1:4).ne.'ERAT').AND.
-     &   (LINE(1:4).ne.'GRAD')                          ) Go To 100
+     &   (LINE(1:4).ne.'GRAD').AND.(LINE(1:4).ne.'DATA')) Go To 100
       If((LINE(1:4).eq.'END ').OR. (LINE(1:4).eq.'    ')) Go To 200
 
       If (line(1:4).eq.'REST') Then
          Ifrestart=.true.
-         KeyREST=.true.
+c        KeyREST=.true.
          READ(Input,*) input_to_read
          input_file_name='aniso.input'
          If(DBG) WRITE(6,*) input_to_read
@@ -97,16 +102,28 @@ C=========== End of default settings====================================
          Go To 100
       End If
 
+      If (line(1:4).eq.'DATA') Then
+         Ifrestart=.true.
+         !KeyDATA=.true.
+         READ(Input,*) tmp
+         input_file_name=trim(tmp)
+         input_to_read=6
+         If(DBG) WRITE(6,*) 'restart_check: DATA, input_file_name='
+         If(DBG) WRITE(6,*) input_file_name
+         LINENR=LINENR+1
+         Go To 100
+      End If
+
       If (line(1:4).eq.'TEXP') Then
           READ(Input,*) nT
           IF(DBG) WRITE(6,*) 'restart_check: TEXP, nT=', nT
-          KeyTEXP=.true.
+c         KeyTEXP=.true.
           LINENR=LINENR+1
           Go To 100
       End If
 
       If (line(1:4).eq.'GRAD') Then
-          KeyGRAD=.true.
+c         KeyGRAD=.true.
           GRAD=.true.
           IF(DBG) WRITE(6,*) 'restart_check:  GRAD = ', GRAD
           LINENR=LINENR+1
@@ -134,7 +151,7 @@ C=========== End of default settings====================================
       If (line(1:4).eq.'TINT') Then
           READ(Input,*) rdummy, rdummy, nT
           IF(DBG) WRITE(6,*) 'restart_check: HINT, nT=', nT
-          KeyTINT=.true.
+c         KeyTINT=.true.
           LINENR=LINENR+1
           Go To 100
       End If
@@ -166,7 +183,7 @@ C=========== End of default settings====================================
       If (line(1:4).eq.'MLTP') Then
           READ(Input,*) nMult
           IF(DBG) WRITE(6,*) 'restart_check: MLTP, nMult=',nMult
-          KeyMLTP=.true.
+c         KeyMLTP=.true.
           LINENR=LINENR+1
           Go To 100
       End If
@@ -197,7 +214,8 @@ C=========== End of default settings====================================
       End If
 
 200   Continue
-      Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
+      Write(6,'(5X,A)') 'restart_check: NO ERROR WAS LOCATED WHILE '//
+     &                   'READING INPUT'
 
 c      print *,'KeyREST=',KeyREST
 c      print *,'KeyTEXP=',KeyTEXP
@@ -238,4 +256,7 @@ C------ errors ------------------------------
 
 190   Continue
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(rdummy)
+#endif
       End

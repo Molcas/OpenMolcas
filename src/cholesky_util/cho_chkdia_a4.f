@@ -20,22 +20,18 @@ C              xM = max. element in Diag
 C              yM = min. element in Diag
 C              zM = max. abs. element in Diag
 C
+      use ChoSwp, only: IndRed
       Implicit None
       Real*8  Diag(*), Dmax
       Integer iSym, nNeg, nNegT, nConv
       Real*8  xM, yM, zM
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'Cho_ChkDia_A4')
 
       Real*8  Tst
       Integer i, j, j1, j2
-
-      Integer IndRed
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       nNeg = 0
       nNegT = 0

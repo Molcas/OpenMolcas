@@ -35,6 +35,9 @@
       use Real_Info, only: PotNuc, kVector
       use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt,
      &                        DoFMM, EMFR, GIAO, lPSOI
+#ifdef _FDE_
+      use Embedding_Global, only: embInt, embPot, embPotInBasis
+#endif
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -84,15 +87,13 @@
 #include "property_label.fh"
 #include "oneswi.fh"
 #include "warnings.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
       Integer iSymR(0:3)
       Character*8 Label
       Character*512 FName
       Real*8 Ccoor(3)
-      Integer iAtmNr2(mxdbsc), nComp
-      Real*8 Charge2(mxdbsc)
+      Integer nComp
+      Integer, Allocatable:: iAtmNr2(:)
+      Real*8, Allocatable:: Charge2(:)
       Dimension dum(1),idum(1)
 *
       iRout = 131
@@ -305,8 +306,9 @@
          PLabel=' '
          rHrmt = One
          iPAMcount=1
-        Do 348 kCnttpPAM = 1, nCnttp
+        Do 348 kCnttpPAM_ = 1, nCnttp
 
+           kCnttpPAM=kCnttpPAM_
            nPAMltpl=dbsc(kCnttpPAM)%nPAM2
 
            If(nPAMltpl.lt.0) Go To 348
@@ -1365,7 +1367,7 @@ c           iPAMcount=iPAMcount+1
          if (embpot) then
           Label='embpot  '
           iRC = -1
-          Call WrOne(iRC,iOpt,Label,1,Work(ipEmb),lOper)
+          Call WrOne(iRC,iOpt,Label,1,embInt,lOper)
           If (iRC.ne.0) then
              Call WarningMessage(2,
      &                   'Drv1El: Error writing ONEINT;'
@@ -1715,18 +1717,14 @@ C     mMltpl=-1 ! Do only overlap.
 * BP -   Turn off AMFI integrals for certain atom types
 *        as requested by the PAMF keyword
 
-*        Note that Drv_AMFI will onluy process dbsc of valence typ.
+*        Note that Drv_AMFI will only process dbsc of valence typ.
 *        Hence the restriction on the loop.
 
+         Call mma_allocate(iAtmNr2,nCnttp,Label='iAtmNr2')
+         Call mma_allocate(Charge2,nCnttp,Label='Charge2')
          Do i=1,nCnttp
-            If (dbsc(i)%ECP  .or.
-     &          dbsc(i)%Aux  .or.
-     &          dbsc(i)%Frag) Cycle
             iAtmNr2(i) = dbsc(i)%AtmNr
             Charge2(i) = dbsc(i)%Charge
-
-c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
-c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
             iAtom_Number= dbsc(i)%AtmNr
             If (iAtom_Number<0 .or. iAtom_Number>SIZE(No_AMFI)) Then
@@ -1745,6 +1743,8 @@ c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
          Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,
      &                 Charge2)
 
+         Call mma_deallocate(iAtmNr2)
+         Call mma_deallocate(Charge2)
          Call Deallocate_Auxiliary()
       End If
 ************************************************************************

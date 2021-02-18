@@ -35,14 +35,6 @@
 *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 *
-* some dummy assignments to avoid compiler warnings about unused
-* variables.
-*
-      If (nSym.gt.0.and.nSkal.gt.0) Then
-         iDummy_2  = itOffs(0,0,0)
-         iDummy_3  = iShell(1)
-      End If
-*
 * call sorting routine
 *
       If (nSym==1) Then
@@ -91,6 +83,7 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_integer_array(iShell)
          Call Unused_integer_array(kOp)
          Call Unused_logical(Shijij)
          Call Unused_logical(IJeqKL)
@@ -99,5 +92,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
+         Call Unused_integer(nSkal)
+         Call Unused_integer_array(itOffs)
       End If
       End

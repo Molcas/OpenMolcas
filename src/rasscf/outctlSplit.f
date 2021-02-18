@@ -107,7 +107,7 @@ C Local print level (if any)
         Write(LF,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           (DBLE(ISPIN-1))/2.0d0
         Write(LF,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
         Call CollapseOutput(0,'Wave function specifications:')
 *
         Call Get_cArray('Irreps',lIrrep,24)
@@ -151,9 +151,9 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'----------------------------'
         Write(LF,*)
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
-     &                           NCSASM(LSYM)
+     &                           NCSASM(STSYM)
         Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(LSYM)
+     &                           NDTASM(STSYM)
         write(LF,Fmt2//'A,T45,I6)')  'Root required ', lrootSplit
         if (EnerSplit)
      &    write(LF,Fmt2//'A,T44,F7.2)')'Energy Gap (eV) in SplitCAS',
@@ -161,7 +161,7 @@ C Local print level (if any)
         if (PerSplit)
      &    write(LF,Fmt2//'A,T44,F7.1)')'Percentage sought in SplitCAS',
      &                            PercSpli
-        percent = Real(iDimBlockA)/Real(NCSASM(LSYM))*100.0d0
+        percent = Real(iDimBlockA)/Real(NCSASM(STSYM))*100.0d0
         write(LF,Fmt2//'A,T42,I9,A,F5.1,A)')'A-Block Size in '//
      &                          'SplitCAS (CSFs)',iDimBlockA,' (',
      &                          percent,' %)'

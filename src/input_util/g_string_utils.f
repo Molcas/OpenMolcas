@@ -53,7 +53,7 @@
       Data Chars /' +-1234567890.' /
       Logical NaN
       iErr=0
-      iNumber=0
+      dNumber=0.0d0
       NaN=.True.
       Do i=1,len(string)
       NaN=.True.

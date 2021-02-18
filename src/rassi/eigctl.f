@@ -14,6 +14,7 @@
       USE rassi_global_arrays, only: JBNUM
 #ifdef _HDF5_
       USE Dens2HDF5
+      USE mh5, ONLY: mh5_put_dset
 #endif
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
@@ -267,7 +268,6 @@ c               lower than 1.0D-4 cm-1
       DO II=1,MSTATE
         I=IWORK(LSTK-1+II)
         TMP=ENERGY(I)
-        JDIAG=0
         Do JJ=1,MSTATE
           J=IWORK(LSTK-1+JJ)
           IF(I==J) CYCLE
@@ -306,7 +306,7 @@ C especially for already diagonal Hamiltonian matrix.
 
 #ifdef _HDF5_
       call mh5_put_dset(wfn_sfs_energy, ENERGY)
-      call mh5_put_dset_array_real(wfn_sfs_coef, EIGVEC)
+      call mh5_put_dset(wfn_sfs_coef, EIGVEC)
 #endif
 
       IF(IPGLOB.GE.TERSE) THEN
@@ -500,7 +500,8 @@ C REPORT ON SECULAR EQUATION RESULT:
        END IF
       END IF
 c LU: save esfs array
-       CALL Put_dArray( 'ESFS_SINGLE',ESFS,NSTATE)
+       CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
+       CALL Put_dArray('ESFS_SINGLEAU', ENERGY, NSTATE)
        CALL MMA_DEALLOCATE(ESFS)
 c
 
@@ -658,7 +659,7 @@ C                                                                      C
       END IF
 *
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-      ! 1/c^3 (in a.u. of time ^ -1)
+      ! numerically: 2/c^3 (in a.u. of time ^ -1)
       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &          /CONST_AU_TIME_IN_SI_
 *
@@ -1109,9 +1110,9 @@ C                                                                      C
 !
 ! DEBUG
 !
-        IPRDX_TEMP=IPRDX
-        IPRDY_TEMP=IPRDY
-        IPRDZ_TEMP=IPRDZ
+!        IPRDX_TEMP=IPRDX
+!        IPRDY_TEMP=IPRDY
+!        IPRDZ_TEMP=IPRDZ
 ! BEBUG END
         IPRDX=0
         IPRDY=0
@@ -1350,12 +1351,12 @@ C                                                                      C
 !
 ! DEBUG
 !
-       IPRDXX_TEMP=IPRDXX
-       IPRDXY_TEMP=IPRDXY
-       IPRDXZ_TEMP=IPRDXZ
-       IPRDYY_TEMP=IPRDYY
-       IPRDYZ_TEMP=IPRDYZ
-       IPRDZZ_TEMP=IPRDZZ
+!       IPRDXX_TEMP=IPRDXX
+!       IPRDXY_TEMP=IPRDXY
+!       IPRDXZ_TEMP=IPRDXZ
+!       IPRDYY_TEMP=IPRDYY
+!       IPRDYZ_TEMP=IPRDYZ
+!       IPRDZZ_TEMP=IPRDZZ
 ! DEBUG END
         IPRDXXX=0 !
         IPRDXXY=0 !
@@ -1363,7 +1364,7 @@ C                                                                      C
 
 !       IPRDXYX=0
 !       IPRDXYY=0 ! YYX These are the same due to symmetry
-        IPRDXYZ=0 ! Not present
+!       IPRDXYZ=0 ! Not present
 
 !       IPRDXZX=0
 !       IPRDXZY=0
@@ -1411,7 +1412,7 @@ C                                                                      C
            IF(ICOMP(IPROP).EQ.2) IPRDXXY=IPROP
            IF(ICOMP(IPROP).EQ.3) IPRDXXZ=IPROP
            IF(ICOMP(IPROP).EQ.4) IPRDYYX=IPROP ! Changed from XYY
-           IF(ICOMP(IPROP).EQ.5) IPRDXYZ=IPROP
+           !IF(ICOMP(IPROP).EQ.5) IPRDXYZ=IPROP
            IF(ICOMP(IPROP).EQ.6) IPRDZZX=IPROP ! Changed from XZZ
            IF(ICOMP(IPROP).EQ.7) IPRDYYY=IPROP
            IF(ICOMP(IPROP).EQ.8) IPRDYYZ=IPROP
@@ -1825,11 +1826,8 @@ C                                                                      C
         IPRQXX=0
         IPRQXY=0
         IPRQXZ=0
-        IPRQYX=0
         IPRQYY=0
         IPRQYZ=0
-        IPRQZX=0
-        IPRQZY=0
         IPRQZZ=0
 
         IFANYD=0
@@ -2616,10 +2614,8 @@ C                                                                      C
                ij_=0
                Do i_=istart_,iend_
                   I=IndexE(I_)
-                  MPLET_I=MLTPLT(JBNUM(I))
                   Do j_=jstart_,jend_
                      J=IndexE(J_)
-                     MPLET_J=MLTPLT(JBNUM(J))
                      EDIFF=ENERGY(J)-ENERGY(I)
                      ij_=ij_+1
                      LFIJ=LF+(ij_-1)*2

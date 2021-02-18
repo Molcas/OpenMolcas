@@ -64,6 +64,7 @@ C     Deallocating Memory
 
 ******************************************************
       Subroutine CalcFckO(CMO,FI,FA,FckO)
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -148,6 +149,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 
 ******************************************************
       Subroutine GetGDMat(GDMat)
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -181,7 +183,7 @@ C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
 C        write(6,*)(WORK(iVecL+I),I=0,NConf-1)
 C        write(6,*)(WORK(iVecR+I),I=0,NConf-1)
         Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
-C        Call Lucia_Util('Densi',0,iDummy,rdum)
+C        Call Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
 C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
@@ -203,6 +205,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 
 ******************************************************
       Subroutine CalcFckS(FckO,GDMat,FckS)
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -298,7 +301,7 @@ C         write(6,*) (EigVec(IRow,ICol), ICol=1,NDim)
 C       END DO
        DO ICol=1,NDIM
         Do IRow=1,NDIM
-         EigVec(IRow,ICol)=WORK(LVal+(ICol-1)*NDIM+IRow-1)
+         EigVec(IRow,ICol)=WORK(LVal+(IRow-1)*NDIM+ICol-1)
         End Do
        END DO
        Call GetMem('EVa','FREE','REAL',LVal,NElem)
@@ -322,7 +325,7 @@ C       END DO
      &                Work(LScr),NScr,INFO)
        DO ICol=1,NDIM
         Do IRow=1,NDIM
-         EigVec(IRow,ICol)=WORK(LMat+(ICol-1)*NDIM+IRow-1)
+         EigVec(IRow,ICol)=WORK(LMat+(IRow-1)*NDIM+ICol-1)
         End Do
        END DO
        Call GetMem('Scr','Free','Real',LScr,NScr)

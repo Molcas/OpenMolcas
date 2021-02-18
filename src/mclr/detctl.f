@@ -68,8 +68,6 @@
       IPRSTR =  0
       IPRORB =  0
       IPRCIX =  0
-*. Define console file
-      LUOUT=6
 *. From shells to orbitals
       CALL ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp,IPRORB) ! OK
 *. Number of string types

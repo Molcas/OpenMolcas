@@ -17,11 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
-      USE REFWFN
+      use output_caspt2, only:iPrGlb,terse,usual,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       INTEGER LAXITY
@@ -44,8 +43,6 @@
       END IF
 
 C Write out the effective Hamiltonian, for use in e.g. RASSI:
-      IRC=-1
-      IOPT=1
       INLAB='HEFF'
       CALL put_darray(INLAB,HEFF,NSTATE**2)
 
@@ -117,7 +114,7 @@ C Use a symmetrized matrix, in triangular storage:
       CALL GETMEM('HTRI','FREE','REAL',LHTRI,NHTRI)
 
       IF(IPRGLB.GE.TERSE) THEN
-        If (IFXMS) Then
+        If (IFXMS.or.IFRMS) Then
           WRITE(6,*)
           WRITE(6,'(6X,A)')' Total XMS-CASPT2 energies:'
           DO I=1,NSTATE
@@ -144,9 +141,9 @@ C Use a symmetrized matrix, in triangular storage:
           END DO
           WRITE(6,*)
         END DO
-        if (IFXMS) then
+        if (IFXMS.or.IFRMS) then
 * Transform eigenvectors into the original input basis
-          call mma_allocate(Utmp,Nstate,Nstate)
+          call mma_allocate(Utmp,Nstate,Nstate,Label='Utmp')
           call dgemm_('N','N',Nstate,Nstate,Nstate,
      &                1.0d0,U0,Nstate,eigvec,Nstate,
      &                0.0d0,Utmp,Nstate)

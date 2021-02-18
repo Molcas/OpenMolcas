@@ -12,7 +12,6 @@ c
       subroutine stermha4(w,ww,ind1,jbr)
       implicit real*8 (a-h,o-z)
       data done,two/1.d0,2.d0/
-      isq=0
       w=0.0d0
       ww=0.0d0
 c     calculate w,ww
@@ -30,15 +29,13 @@ c     case a&r
       goto 1
 44    w=-fq*sqrt((b+two)/(b+done))
 c      if(abs(w).gt.1.e-13) then
-1     isq=1
-      ww=w
+1     ww=w
       return
       end
 c
       subroutine stermhd1(w,ww,ind1,jbr)
       implicit real*8 (a-h,o-z)
       data done,two,three/1.d0,2.d0,3.d0/
-      isq=0
       w=0.0d0
       ww=0.0d0
 c     calculate w,ww
@@ -57,20 +54,17 @@ c   d1: case d&r&l
       goto 2
 39    ww=-sqrt(b/(b+done))
 c      if(dldr.eq.2101) ww=(b+two)/(b+done)
-2     isq=2
-      return
+2     return
       end
 c
       subroutine stermhd5(w,ww)
       implicit real*8 (a-h,o-z)
       data two/2.d0/
-      isq=0
       w=0.0d0
       ww=0.0d0
 c     calculate w,ww
 c   d5: case d&r&r
       w=-sqrt(two)
-      isq=3
       return
       end
 c
@@ -348,7 +342,6 @@ c   segmid d10(d^r&l)
       implicit real*8 (a-h,o-z)
       data dzero,done/0.d0,1.d0/
 c     calculate w,ww
-      b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
       w=dzero
@@ -492,7 +485,7 @@ c     calculate w,ww
 48    w=fq*sqrt(two)
 2     if(abs(ww).gt.1.d-13) mw=2
       if(abs(w).gt.1.d-13) mw=mw+1
-      sq=401
+      isq=401
       goto 100
 100   return
       end
@@ -502,8 +495,6 @@ c
       data dzero,done,two,three/0.0d0,1.0d0,2.0d0,3.0d0/
 c     calculate w,ww
       b=dble(jbr)
-      if(mod(jbr,2).eq.0) fq=done
-      if(mod(jbr,2).ne.0) fq=-done
       w=dzero
       ww=dzero
       isq=0
@@ -522,7 +513,7 @@ c     write(6,*) 'this is case c2'
 48    w=done
       ww=done
       goto 2
-2     sq=302
+2     isq=302
       return
       end
 
@@ -537,7 +528,6 @@ c     calculate w,ww
       b=dble(jbr)
       if(mod(jbr,2).eq.0) fq=done
       if(mod(jbr,2).ne.0) fq=-done
-      jf=1
       goto(38,43,48),ind1
 c     case d^r^l
 38    w=-fq*sqrt(vtwo)

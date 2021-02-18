@@ -31,12 +31,14 @@
 * ********** IBM-3090 Release 88 09 07 **********
 *
 
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
 #endif
-
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -79,7 +81,7 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(lSym)
+      lSymMolpro=iChMolpro(stSym)
 
       LuFCK=isFreeUnit(27)
 *      open ( unit = LuFCK, file = "FOCK_CHEMPS2",

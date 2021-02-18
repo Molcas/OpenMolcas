@@ -14,6 +14,7 @@
       CHARACTER*2 LCHAR
       DIMENSION WGTLMB(0:9)
       LOGICAL IFTEST
+
 * Define mxsym etc.
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:

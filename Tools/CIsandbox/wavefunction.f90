@@ -125,7 +125,7 @@ CONTAINS
     ! computes |TAU> = |TAU> + FACT * Ê_pq |DETA,DETB>
     USE SECOND_QUANTIZATION
     IMPLICIT NONE
-    
+
     REAL(REAL64),INTENT(IN) :: FACT
     INTEGER, INTENT(IN) :: P, Q
     INTEGER, INTENT(IN) :: DETA, DETB
@@ -134,7 +134,7 @@ CONTAINS
     INTEGER :: IA, IB
     INTEGER :: TMPA, TMPB
     REAL(REAL64) :: FA, FB
-    
+
     ! compute E_(pa)(qa)
     TMPA=EX1(P,Q,DETA)
     IF (TMPA.NE.-1) THEN
@@ -300,7 +300,7 @@ CONTAINS
       DETB=LEX_NEXT(DETB)
     END DO
   END SUBROUTINE WFN_PK
-  
+
   SUBROUTINE WFN_PSD(NI,NA,NS,SGM,TAU)
     ! computes |TAU> = |TAU> + P_SD |SGM>
     USE SECOND_QUANTIZATION
@@ -338,7 +338,7 @@ CONTAINS
       DETB=LEX_NEXT(DETB)
     END DO
   END SUBROUTINE WFN_PSD
-  
+
   SUBROUTINE WFN_ORBROT(PSI,OVEC)
     ! Transforms the CI coefficients to match the orbital rotation given by the
     ! transformation matrix U. The dimensions of U should match those of the

@@ -17,9 +17,11 @@ C
 C     Purpose: return true if parallel run (nProcs>1), else return
 C              false.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
 #if defined (_MOLCAS_MPP_)
-#include "cho_para_info.fh"
       ChoMP2_ChkPar=nProcs.gt.1 .and. Is_Real_Par()
 #else
       ChoMP2_ChkPar=.False.

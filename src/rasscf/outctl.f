@@ -119,7 +119,7 @@ C Local print level (if any)
       Write(LF,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           (DBLE(ISPIN-1))/2.0d0
       Write(LF,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
       Call CollapseOutput(0,'Wave function specifications:')
 *
       Call Get_cArray('Irreps',lIrrep,24)
@@ -245,9 +245,9 @@ C Local print level (if any)
         Write(LF,Fmt2//'A)')'----------------------------'
         Write(LF,*)
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
-     &                           NCSASM(LSYM)
+     &                           NCSASM(STSYM)
         Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(LSYM)
+     &                           NDTASM(STSYM)
       end if
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                           NROOTS

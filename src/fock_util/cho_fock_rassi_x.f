@@ -31,7 +31,8 @@ C      k:        MO-index   belonging to (Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,ipLxy(8),ipScr(8,8)
@@ -40,7 +41,10 @@ C
       Integer   ISTLT(8), ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Integer   ipAorb(8,2)
-      Logical   Debug,timings,DoRead,DoReord
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead,DoReord
       Character*50 CFmt
       Character*16 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_RASSI_X')
@@ -55,28 +59,16 @@ C
 
 #include "rassi.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 **************************************************
 
-
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
 
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -590,7 +582,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in RASSI-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM

@@ -62,8 +62,10 @@
 *
 *     Sort from Large to Small
 *
-      nZeta=nAlpha*nBeta
 *define _New_Code_
+#if defined(_New_Code_) || defined(_DEBUGPRINT_)
+      nZeta=nAlpha*nBeta
+#endif
 #ifdef _New_Code_
       Do iZeta = 1, nZeta-1
          Tmp1 = rKappa(iZeta)

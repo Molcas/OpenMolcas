@@ -10,14 +10,12 @@
 ************************************************************************
       SUBROUTINE INPCTL_RASSI()
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
+      use rasscf_data, only: doDMRG
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_info
-
-      use qcmaquis_interface_mpssi
-      use qcmaquis_interface_utility_routines, only: str
+      use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
+      use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
 #endif
-      use rasscf_data, only: doDMRG
       use mspt2_eigenvectors
       IMPLICIT NONE
 #include "prgm.fh"
@@ -31,9 +29,6 @@
 #include "centra.fh"
 #include "rasdef.fh"
 #include "cntrl.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
       LOGICAL READ_STATES
       INTEGER JOB, i
@@ -104,7 +99,6 @@ C handle different active spaces per JobIph, but this is checked elsewhere
 #ifdef _DMRG_
       if (doDMRG)then
         !> stupid info.h defines "sum", so I cannot use the intrinsic sum function here...
-
         qcmaquis_param%L = 0; do i = 1, nsym; qcmaquis_param%L =
      &  qcmaquis_param%L + nash(i); end do
 
@@ -126,8 +120,6 @@ C handle different active spaces per JobIph, but this is checked elsewhere
           end if
         end do
       end if
-
-
 #endif
 
 * set orbital partitioning data
@@ -140,6 +132,8 @@ C Addition of NJOB,MSJOB and MLTPLT on RunFile.
       CALL Put_iscalar('MXJOB_SINGLE',MXJOB)
       CALL Put_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
 
+      CALL Put_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
+!     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
 C
 C .. and print it out
 CTEST      CALL PRINF()

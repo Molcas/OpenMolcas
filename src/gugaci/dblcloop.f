@@ -379,7 +379,6 @@ c=============== start  d10_ss(dd,ss,tt)  ==============================
              wltmp=wltmp+(vint_ci(list)-2*vint_ci(list+1))
            enddo
            wl0 =wl0+vl0_2*wltmp
-           wl_tmp=vl0_2*wltmp
 ! ar-arw    arw-al   ar-ar
            list=list3(lri,lrj,lrj)
            wl0=wl0-vl0_2*vint_ci(list)
@@ -490,7 +489,6 @@ c =============================  g41,42  == (v-t)=======================
          iml=lsm_inn(lrl)
          do 20 lrk=lrl+1,norb_dz-2
            imk=lsm_inn(lrk)
-           nkl=lrl+ngw2(lrk)
            do 30 lrj=lrk+1,norb_dz-1
             imj=lsm_inn(lrj)
              do 40 lri=norb_dz,lrj+1,-1

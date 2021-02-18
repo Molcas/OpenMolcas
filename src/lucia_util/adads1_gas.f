@@ -215,12 +215,10 @@
         IF(NK.NE.0) THEN
           IJ = 0
           DO  JJORB = JORB,JORB+NJORB-1
-            JJORBR = JJORB-JORB+1
             DO  IIORB = IORB, IORB + NIORB - 1
               IJ = IJ + 1
 C?            WRITE(6,*) ' IJ = ', IJ
 C?            IF(IIORB.GT.JJORB) THEN
-                IIORBR = IIORB - IORB + 1
                 WRITE(6,*)
      &          ' Info for orbitals (iorb,jorb) ', IIORB,JJORB
                 WRITE(6,*) ' Excited strings and sign '

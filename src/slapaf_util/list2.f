@@ -22,19 +22,18 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 *
       Real*8 gq(3*nAtom,nInter)
       Character Lbl(nAtom)*(*), Title*(*)
       Logical Smmtrc(3*nAtom)
+      Character(LEN=4), Allocatable:: qLbl(:)
 *
       n_qLbl=3*nAtom
-      nChar=4*n_qLbl
-      Call GetMem('qLbl','Allo','Char',ip_qLbl,nChar)
-      Call List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,cWork(ip_qLbl),
-     &            n_qLbl)
-      Call GetMem('qLbl','Free','Char',ip_qLbl,nChar)
+      Call mma_allocate(qLbl,n_qLbl,Label='qLbl')
+      Call List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
+      Call mma_deallocate(qLbl)
 *
       Return
       End
@@ -57,9 +56,6 @@
       Logical Start, Smmtrc(3*nAtom)
       character*16 filnam
       Lu=6
-*
-      iRout = 119
-      iPrint = nPrint(iRout)
 *
       Thr=0.001D+00 ! Threshold for printout.
 *

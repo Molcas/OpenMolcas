@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Destroy_Chunk(ip_Chunk,ip_iMap)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Integer ip_Chunk
-#include "para_info.fh"
 *
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then

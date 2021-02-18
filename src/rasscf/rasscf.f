@@ -58,12 +58,19 @@
       use write_orbital_files, only : OrbFiles, putOrbFile
 
       use generic_CI, only: CI_solver_t
-      use fciqmc, only: DoNECI, fciqmc_solver_t
+      use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
 
       use orthonormalization, only : ON_scheme
-      use print_RDMs_NECI_format, only: printRDMs_NECI
+#ifdef _FDE_
+      use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
+     &    embWriteEsp
+#endif
+#ifdef _HDF5_
+      use mh5, only: mh5_put_attr, mh5_put_dset
+#endif
+      use OFembed, only: Do_OFemb, FMaux
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -72,6 +79,7 @@
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "input_ras.fh"
+
 #include "rasscf.fh"
 #include "rasrc.fh"
 #include "general.fh"
@@ -92,14 +100,13 @@
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
 #include "raswfn.fh"
 
       Logical DSCF
       Logical lTemp, lOPTO
+#ifdef _FDE_
       Character*8 label
+#endif
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical DoQmat,DoActive
@@ -107,7 +114,6 @@
 #ifdef _DMRG_
       Logical Do_ESPF
 #endif
-
       Logical, External :: PCM_On ! function defined in misc_util/pcm_on.f
 
 * --------- Cholesky stuff:
@@ -121,22 +127,17 @@
       COMMON /CHOTIME / timings
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 * --------- End Cholesky stuff
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
-* --------- End Orbital-Free Embedding stuff
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
-* --------- Procedure pointers for CI-solvers
+* --------- CI-solver class
         class(CI_solver_t), allocatable :: CI_solver
-* --------- End Procedure pointers.
 
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
       integer :: actual_iter
 
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
       External Get_ProgName
       Character*100 ProgName, Get_ProgName
@@ -144,7 +145,6 @@
       External RasScf_Init
       External Scan_Inp
       External Proc_Inp
-
 #ifdef _DMRG_
       integer :: maxtrR
       real*8  :: maxtrW
@@ -152,8 +152,6 @@
 #endif
       Dimension Dummy(1)
 
-* Start the traceback utilities
-*
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -166,7 +164,6 @@
       DoActive=.true.
       DoQmat=.false.
       lOPTO=.False.
-
 * Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
       DoDMRG = .false.
@@ -177,7 +174,7 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
-      EAV1=0.0d0
+      THMAX=0.0d0
       Call RasScf_Init()
       Call Seward_Init()
 * Open the one-olectron integral file:
@@ -267,16 +264,15 @@
 
       Call InpPri(lOpto)
 
-* Note that CI_solver subclasses can provide a final procedure
-* (some people might call it destructor). Hence the deallocation and
+* Note that CI_solver subclasses provide a cleanup procedure
+* (C++ people might call it destructor). Hence the deallocation and
 * cleanup is automatically performed, when it goes out of scope.
       if (DoNECI) then
-        allocate(fciqmc_solver_t :: CI_solver)
+        allocate(CI_solver, source=fciqmc_solver_t(tGUGA_in))
       else if (Do_CC_CI) then
-        allocate(CC_CI_solver_t :: CI_solver)
+        allocate(CI_solver, source=CC_CI_solver_t())
       end if
 
-      if (allocated(CI_solver)) call CI_solver%init()
 
 
 *
@@ -312,7 +308,6 @@
       Call GetMem('OCCN','Allo','Real',LOCCN,NTOT)
       Call GetMem('LCMO','Allo','Real',LCMO,NTOT2)
       Call GetMem('DIAF','Allo','Real',LDIAF,NTOT)
-
 #ifdef _DMRG_
 * Allocate RDMs for the reaction field reference root in QCMaquis calculations
       if (PCM_On()) then
@@ -322,7 +317,6 @@
         end if
       end if
 #endif
-
       lfi_cvb=lfi
       lfa_cvb=lfa
       ld1i_cvb=ld1i
@@ -386,7 +380,7 @@
       if (embpot) then
        ! I have no idea why i need memory for x+4 entries
        ! and not just x...
-       Call GetMem('Emb','ALLO','REAL',ipEmb,NTOT1+4)
+       call mma_allocate(embInt,NTOT1+4,label='Emb')
        if (embPotInBasis) then
         ! If the potential is given in basis set representation it
         ! has not been calculated with a OneEl call and is just read
@@ -394,14 +388,14 @@
         iunit = isFreeUnit(1)
         call molcas_open(iunit, embPotPath)
         do iEmb=1, NTOT1
-         read(iunit,*) Work(ipEmb+iEmb-1)
+         read(iunit,*) embInt(iEmb)
         end do
        else
         ! Read in the embedding potential one-electron integrals
         Label='embpot  '
         iRC=-1
         iOpt=0
-        Call RdOne(iRC,iOpt,Label,1,Work(ipEmb),iSyLbl)
+        Call RdOne(iRC,iOpt,Label,1,embInt,iSyLbl)
         If (iRC.ne.0) then
          Call WarningMessage(2,
      &                'Drv1El: Error reading ONEINT;'
@@ -864,11 +858,11 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 #ifdef _FDE_
           !Thomas Dresselhaus
           if (embpot) then
-            !Eemb=DDot_(NACPAR,Work(ipEmb),1,Work(LDMAT),1)
-!           Eemb=embPotEne(Work(LD1I), Work(LD1A), Work(ipEmb),
+            !Eemb=DDot_(NACPAR,embInt,1,Work(LDMAT),1)
+!           Eemb=embPotEne(Work(LD1I), Work(LD1A), embInt,
 !    &                   Work(LCMO), nBasFunc, nFrozenOrbs, .true.)
             Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A),
-     &            Work(ipEmb), nBas, nTot2, nFrozenOrbs, nSym)
+     &            embInt, nBas, nTot2, nSym)
             Write(LF,*) "Energy from embedding potential with the"
             Write(LF,*) "initial CI vectors: ", Eemb
           end if
@@ -1175,7 +1169,9 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+#ifdef _FDE_
            Write(LF,*) 'Label = ',Label
+#endif
            Write(LF,*) 'iRc = ',iRc
            Call Abend
           End if
@@ -1230,8 +1226,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
      &                    WORK(LD1A),Work(ipTmpD1S_DFT))
         CALL GETMEM('TmpD1S_DFT','Free','REAL',ipTmpD1S_DFT,NTOT2)
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
-* to fix complains from garble option on borr machines... initialize THMAX to zero.
-        THMAX = 0.0d0
       end if
 
 c        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
@@ -1344,8 +1338,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
       CALL DDAFILE(JOBIPH,1,CONV,6*mxIter,IAD15)
 #ifdef _HDF5_
-      call mh5_put_attr (wfn_iter, Iter)
-      call mh5_put_dset_array_real(wfn_energy, ENER(1,Iter))
+      call mh5_put_attr(wfn_iter, Iter)
+      call mh5_put_dset(wfn_energy, ENER(1,Iter))
 #endif
 *
 * Print output of energies and convergence parameters
@@ -1406,13 +1400,13 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
-#endif
          Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
      &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
      &        ITER,ITERCI,IROT,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+#endif
             else
             Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
      &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
@@ -1443,8 +1437,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
 #ifdef _FDE_
       ! Embedding
       if (embpot) then
-       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
-     &                nBas, nTot2, nFrozenOrbs, nSym)
+       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), embInt,
+     &                nBas, nTot2, nSym)
        Write(LF,*)"E from embedding potential (<Psi|v_emb|Psi>): ",Eemb
       end if
 #endif
@@ -1808,7 +1802,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Do jRoot=2,lRoots
 *           Read and reorder the left CI vector
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
-            Call Reord2(NAC,NACTEL,LSYM,1,
+            Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
@@ -1816,16 +1810,16 @@ c Clean-close as much as you can the CASDFT stuff...
             Do kRoot=1,jRoot-1
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
-               Call Reord2(NAC,NACTEL,LSYM,1,
+               Call Reord2(NAC,NACTEL,STSYM,1,
      &                     iWork(KICONF(1)),iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
                idx=(jRoot-2)*(jRoot-1)/2+kRoot
-               Call mh5_put_dset_array_real(wfn_transdens, Work(LW6),
+               Call mh5_put_dset(wfn_transdens,Work(LW6:LW6+NAC*NAC-1),
      &              [NAC,NAC,1], [0,0,idx-1])
                If (iSpin.gt.1)
-     &         Call mh5_put_dset_array_real(wfn_transsdens, Work(LW7),
+     &         Call mh5_put_dset(wfn_transsdens,Work(LW7:LW7+NAC*NAC-1),
      &              [NAC,NAC,1], [0,0,idx-1])
             End Do
          End Do
@@ -1885,13 +1879,14 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
 #ifdef _FDE_
       ! Embedding
       if (embpot) then
-       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), Work(ipEmb),
-     &                nBas, nTot2, nFrozenOrbs, nSym)
+       Eemb=embPotEneMODensities(Work(LD1I), Work(LD1A), embInt,
+     &                nBas, nTot2, nSym)
        Write(LF,*) "Final energy from embedding potential: ", Eemb
        ! Write out ESP on grid if requested
        if (embWriteEsp) then
         Call Get_iScalar('Unique atoms',nNuc)
-        Call embPotOutputMODensities(nNuc,nSym,LD1I,LD1A,nBas,nTot2)
+        Call embPotOutputMODensities(nNuc,nSym,Work(LD1I),Work(LD1A),
+     &                               nBas,nTot2)
        end if
       end if
 #endif
@@ -1918,14 +1913,7 @@ c  i_root>0 gives natural spin orbitals for that root
       End Do
 
 * Create output orbital files:
-2009   Call OrbFiles(JOBIPH,IPRLEV)
-*
-************************************************************************
-************ Printing final RDMs in NECI format        *****************
-************************************************************************
-      If ( IPRLEV.ge.DEBUG ) then
-       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-      End If
+2009      Call OrbFiles(JOBIPH,IPRLEV)
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************
@@ -1959,7 +1947,7 @@ c deallocating TUVX memory...
             Write(LF,*)' Try to recover. Calculation continues.'
          endif
          If (Do_OFemb) Then
-            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call mma_deallocate(FMaux)
             Call OFE_print(EAV)
          EndIf
       endif
@@ -1978,7 +1966,6 @@ c deallocating TUVX memory...
       Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
       Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
-
 #ifdef _DMRG_
 * Free RDMs for the reaction field reference root in QCMaquis calculations
       if (PCM_On()) then
@@ -2055,6 +2042,7 @@ c      End If
       if(doDMRG)then
 #ifdef _DMRG_
         !Leon: Generate 4-RDM evaluation templates for NEVPT2
+
         !In the new interface the EvRDM keyword will be ignored.
         !Instead, NEVPT2Prep will always generate the template.
         !RDM evaluation will now happen in the NEVPT2 module
@@ -2097,7 +2085,6 @@ c      End If
      &        "since we have less than 3 electrons."
           end if
         end if
-
         ! is it really needed in the times of Fortran 2008?
         call qcmaquis_interface_deinit
 #endif

@@ -160,7 +160,6 @@
       iss=1
       if (ksym.ne.state_sym) iss=2
 *
-      NILNDW=NWALK
       NICASE=NWALK*NIPWLK
       Call mma_allocate(ICASE,NICASE,Label='ICASE')
       Call MKCLIST_MCLR(nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,

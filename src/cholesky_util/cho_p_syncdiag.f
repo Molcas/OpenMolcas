@@ -14,21 +14,17 @@ C     Purpose: synchronize global diagonal. Diag is the local diagonal
 C              and iLoc tells which memory location to use for reduced
 C              set index arrays.
 C
+      use ChoSwp, only: IndRed, Diag_G
+      use ChoArr, only: iL2G
       Implicit None
       Real*8  Diag(*)
       Integer iLoc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
-      Integer kDG, i, j
+      Integer i, j
       Real*8  c1, c2, w1, w2
-
-      Integer iL2G, IndRed
-      iL2G(i)=iWork(ip_iL2G-1+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
 C     Skip if serial run.
 C     -------------------
@@ -39,27 +35,26 @@ C     -------------------
 C     Zero all entries in global diagonal.
 C     ------------------------------------
 
-      Call Cho_dZero(Work(ip_Diag_G),nnBstRT_G(1))
+      Call Cho_dZero(Diag_G,nnBstRT_G(1))
 
 C     Copy elements from local to global diagonal.
 C     --------------------------------------------
 
-      kDG = ip_Diag_G - 1
       If (iLoc .eq. 1) Then
          Do i = 1,nnBstRT(1)
-            Work(kDG+iL2G(i)) = Diag(i)
+            Diag_G(iL2G(i)) = Diag(i)
          End Do
       Else
          Do j = 1,nnBstRT(iLoc)
             i = IndRed(j,iLoc)
-            Work(kDG+iL2G(i)) = Diag(i)
+            Diag_G(iL2G(i)) = Diag(i)
          End Do
       End If
 
 C     Synchronize global diagonal.
 C     ----------------------------
 
-      Call Cho_GADGop(Work(ip_Diag_G),nnBstRT_G(1),'+')
+      Call Cho_GADGop(Diag_G,nnBstRT_G(1),'+')
 
       Call Cho_Timer(c2,w2)
       tMisc(1,4)=tMisc(1,4)+c2-c1

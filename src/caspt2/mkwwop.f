@@ -12,7 +12,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -49,7 +48,6 @@ C as operating on the CASSCF space.
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -82,7 +80,7 @@ C Loop over symmetry ISYM
 * but this will obviously hardly affect this case.
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
+*        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for this block of excitation amplitudes:
 * Sectioning sizes instead. Replaced code:
@@ -262,7 +260,6 @@ C Deallocate temporary space:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 
@@ -293,7 +290,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 888
 C Allocate space for one section of excitation amplitudes:
 C Pick up a symmetry block of W1 and W2
@@ -314,7 +310,6 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA+MDVEC-1,MDVEC)
          NCOL=IIEND-IISTA+1
-         NSCT=NAS*NCOL
         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,WORK(LW1))
         IF (IVEC.NE.JVEC) CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,WORK(LW2))
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
@@ -395,7 +390,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
@@ -492,7 +486,6 @@ C Deallocate matrix product
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -517,7 +510,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
@@ -663,10 +655,8 @@ C Deallocate temporary space:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -692,7 +682,6 @@ C Loop over symmetry ISYM
         NAS=NASUP(ISYM,ICASE)
         NAS1=NAS/2
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
@@ -784,10 +773,8 @@ C Deallocate matrix product:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
@@ -808,7 +795,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
@@ -865,10 +851,8 @@ C End of loop over cases.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -893,7 +877,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 888
 C Allocate space for one section of excitation amplitudes:
 C Pick up a symmetry block of W1 and W2
@@ -973,7 +956,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
 C Pick up a symmetry block of W1 and W2
@@ -1054,10 +1036,8 @@ C Deallocate matrix product:
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Presently symmetry blocking is disregarded.
@@ -1078,7 +1058,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)
@@ -1133,10 +1112,8 @@ C End of loop over cases.
 
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
 
 C Given the coefficients for two excitation operators, available in
@@ -1154,7 +1131,6 @@ C Loop over symmetry ISYM
       DO ISYM=1,NSYM
         NAS=NASUP(ISYM,ICASE)
         NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 999
 C Allocate space for one section of excitation amplitudes:
         MDVEC=MODVEC(ISYM,ICASE)

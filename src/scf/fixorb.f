@@ -75,7 +75,6 @@
       iS     = 1
       iCMO   = 1
       iTrM   = 1
-      iOvrlp = 1
       Do iSym = 1, nSym
 #ifdef _DEBUGPRINT_
          Call RecPrt('FixOrb: CMO(in)',' ',CMO(iCMO),

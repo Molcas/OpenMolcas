@@ -72,7 +72,7 @@ PROGRAM CASPT2_MINI
   NS=2
   NMO=NI+NA+NS
   NAO=38
-  
+
   ECORE=-16.704241392292605D0
 
   ! initialize the wavefunction

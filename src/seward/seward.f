@@ -50,6 +50,9 @@
       use Real_Info, only: PkAcc
       use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
       use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
+#ifdef _FDE_
+      use Embedding_Global, only: embPot, embPotInBasis
+#endif
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
@@ -61,10 +64,7 @@
 #include "status.fh"
 #include "print.fh"
 #include "gateway.fh"
-#ifdef _FDE_
-#include "embpotdata.fh"
-#endif
-      Integer iix(2), nChoV(8)
+      Integer nChoV(8)
       Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
@@ -76,14 +76,12 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 C     Call Seward_Banner()
       lOPTO = .False.
-      nByte = iiLoc(iix(2)) - iiLoc(iix(1))
       nByte_r = idloc(rrx(2))-idloc(rrx(1))
       Call CWTime(TCpu1,TWall1)
 *
 *     Prologue
 *
       iRout=1
-      LuWr=6
       PrPrt_Save = .False. ! dummy initialize
 *                                                                      *
 ************************************************************************
@@ -428,7 +426,7 @@ C     Call Seward_Banner()
          Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
          Write (6,*)
          Write (6,'(A)')' Integrals are written in MOLCAS1 format'
-         Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
+         !Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -499,10 +497,7 @@ C     Call Seward_Banner()
 *
 *     Epilogue
 *
-      If (nPrint(iRout).ge.6) Then
-         Call FastIO('STATUS')
-      End If
-*
+      If (nPrint(iRout).ge.6) Call FastIO('STATUS')
 *
       If (Test)  Then
          ireturn=_RC_EXIT_EXPECTED_

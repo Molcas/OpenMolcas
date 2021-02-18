@@ -14,6 +14,10 @@
       subroutine cre_scfwfn
 *     SVC: Create a wavefunction file. If another .scf.h5 file already
 *     exists, it will be overwritten.
+#ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_real, mh5_create_dset_str
+#endif
       implicit none
 #ifdef _HDF5_
 #  include "mxdm.fh"

@@ -18,17 +18,17 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL
       USE PT2WFN
+      use output_caspt2, only:iPrGlb,usual,verbose
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "output.fh"
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
       Logical FullMlk,lSave,Do_ESPF
-#ifdef _MOLCAS_MPP_
-      LOGICAL Is_Real_Par
-#endif
 
       Character(Len=8) Label
       Character(Len=128) FILENAME,MDNAME
@@ -221,13 +221,6 @@ C Write natural orbitals to standard output.
         WRITE(6,'(6X,A)') 'Expectation values of various properties:'
         WRITE(6,'(6X,A)') '-----------------------------------------'
       END IF
-
-* The PRPT source code gives the following formula for the
-* scratch space needed:
-      NCOMP=6
-      NTCOMP=15
-      NSCR=(NBSQT+NBAST)/2+6+4*NCOMP+(NBAST*(NBAST+1))/2
-     &      +4+2*NTCOMP*(NTCOMP+1)
 
       nDens=0
       Do i = 1, nSym

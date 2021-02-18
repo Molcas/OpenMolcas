@@ -107,15 +107,11 @@ c
 *     declaration of calling arguments
       Integer ipCMO,lthCMO
       integer nfro_scf(8)
-      integer iskip,nfro
+      integer nfro
 #include "real.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
       Real*8, Allocatable:: CMO_t(:,:)
-
-*     declaration of local variables...
-      Logical Debug
-      Data Debug/.False./
 
 #include "SysDef.fh"
 
@@ -133,7 +129,6 @@ c
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c
-      iskip=nbas*nfro
       call mo_transp(Work(ipCMO),CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
 c
       Call mma_deallocate(CMO_t)
@@ -172,13 +167,14 @@ C      a,b,g,d:  AO-index
 C      p,q,r,s:  MO-indeces belonging to (probably frozen excluded ?)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead
+      Logical   timings,DoRead
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8)
 cmp
@@ -194,7 +190,6 @@ cmp
       parameter (zero = 0.0D0, one = 1.0D0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -204,18 +199,7 @@ cmp
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
-
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
 
 cmp
 cmp!<new 21/04/09

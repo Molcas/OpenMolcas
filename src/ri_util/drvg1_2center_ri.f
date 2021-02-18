@@ -40,6 +40,7 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"
@@ -53,7 +54,6 @@
 #include "setup.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
-#include "para_info.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -62,7 +62,6 @@
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-      Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD,
      &        DoGrad, DoFock, Indexation, FreeK2, Verbose,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk
@@ -94,8 +93,6 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
@@ -266,8 +263,6 @@
                   End If
                End Do
             End Do
-            nHrrTb(iAng,jAng,1)=nHrrab
-            nHrrTb(jAng,iAng,1)=nHrrab
          End Do
       End Do
 *                                                                      *
@@ -303,8 +298,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call Get_MyRank(MyRank_)
-C     If (MyRank_.ne.0) Go To 11
+C     If (MyRank.ne.0) Go To 11
 *     big loop over individual tasks, distributed over individual nodes
    10 Continue
 *     make reservation of a task on global task list and get task range

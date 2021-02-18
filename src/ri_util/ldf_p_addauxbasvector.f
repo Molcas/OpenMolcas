@@ -17,11 +17,11 @@ C     Thomas Bondo Pedersen, September 2010.
 C
 C     Purpose: Add aux bas vector across nodes.
 C
+      Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
       Integer ip_V
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-#include "para_info.fh"
 
       Integer  LDF_nAtom, LDF_nBasAux_Atom
       External LDF_nAtom, LDF_nBasAux_Atom

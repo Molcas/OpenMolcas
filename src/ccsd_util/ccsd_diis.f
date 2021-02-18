@@ -297,17 +297,17 @@ c
 c
 c     help variables
 c
-       integer poss1,poss2,lenght,ii
+       integer poss1,poss2,length,ii
 c
-c1    calc lenght
+c1    calc length
        ii=mapd1(0,5)
-       lenght=mapd1(ii,1)+mapd1(ii,2)-mapd1(1,1)
+       length=mapd1(ii,1)+mapd1(ii,2)-mapd1(1,1)
 c
 c2    realize substract
-       if (lenght.gt.0) then
+       if (length.gt.0) then
        poss1=mapd1(1,1)
        poss2=mapd2(1,1)
-       do 10 ii=0,lenght-1
+       do 10 ii=0,length-1
        wrk(poss1+ii)=wrk(poss1+ii)-wrk(poss2+ii)
  10     continue
        end if
@@ -848,7 +848,7 @@ c
 c
 c     help variables
 c
-       integer poss0,poss1,poss2,poss3,poss4,nhelp,lenght
+       integer poss0,poss1,poss2,poss3,poss4,nhelp,length
 c
 c
        if (ndiis.eq.2) then
@@ -859,10 +859,10 @@ c
        poss2=mapd2(1,1)
 c
        nhelp=mapd1(0,5)
-       lenght=mapd1(nhelp,1)+mapd1(nhelp,2)-mapd1(1,1)
+       length=mapd1(nhelp,1)+mapd1(nhelp,2)-mapd1(1,1)
 c
-       if (lenght.gt.0) then
-       do 20 nhelp=0,lenght-1
+       if (length.gt.0) then
+       do 20 nhelp=0,length-1
        wrk(poss0+nhelp)=cdiis(1)*wrk(poss1+nhelp)
      & +cdiis(2)*wrk(poss2+nhelp)
  20     continue
@@ -877,10 +877,10 @@ c
        poss3=mapd3(1,1)
 c
        nhelp=mapd1(0,5)
-       lenght=mapd1(nhelp,1)+mapd1(nhelp,2)-mapd1(1,1)
+       length=mapd1(nhelp,1)+mapd1(nhelp,2)-mapd1(1,1)
 c
-       if (lenght.gt.0) then
-       do 30 nhelp=0,lenght-1
+       if (length.gt.0) then
+       do 30 nhelp=0,length-1
        wrk(poss0+nhelp)=cdiis(1)*wrk(poss1+nhelp)
      & +cdiis(2)*wrk(poss2+nhelp)
      & +cdiis(3)*wrk(poss3+nhelp)
@@ -897,10 +897,10 @@ c
        poss4=mapd4(1,1)
 c
        nhelp=mapd1(0,5)
-       lenght=mapd1(nhelp,1)+mapd1(nhelp,2)-mapd1(1,1)
+       length=mapd1(nhelp,1)+mapd1(nhelp,2)-mapd1(1,1)
 c
-       if (lenght.gt.0) then
-       do 40 nhelp=0,lenght-1
+       if (length.gt.0) then
+       do 40 nhelp=0,length-1
        wrk(poss0+nhelp)=cdiis(1)*wrk(poss1+nhelp)
      & +cdiis(2)*wrk(poss2+nhelp)
      & +cdiis(3)*wrk(poss3+nhelp)

@@ -125,8 +125,6 @@
       QlBas  = .False.
       Mem0 = MemMax
 *
-      ijPrInc=iPrInc*jPrInc
-      klPrInc=kPrInc*lPrInc
       mijkl = iPrInc*jPrInc*kPrInc*lPrInc
       nijkl = iBsInc*jBsInc*kBsInc*lBsInc
 *
@@ -322,8 +320,6 @@
       Mem0 = Mem0 - Mem2 - 1
 *
       ipMem2 = ipMem1 + Mem1
-*
-      MemSum=Mem1+Mem2
 *
 *     Auxiliary memory for integral packing
 *

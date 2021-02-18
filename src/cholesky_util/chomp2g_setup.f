@@ -12,28 +12,30 @@
 ************************************************************************
 
       SubRoutine ChoMP2g_Setup(irc,EOcc,EVir)
+      use ChoMP2, only: ChoMP2g_Allocated, EFrozT, EOccuT, EVirtT
+      use ChoMP2, only: AdrR1, AdrR2
+      use ChoMP2, only: MP2D_full, MP2D
+      use ChoMP2, only: MP2W_full, MP2W
+      use ChoMP2, only: MP2D_e_full, MP2D_e
+      use ChoMP2, only: MP2W_e_full, MP2W_e
 *
 *     Jonas Bostrom, Feb 2010
 *
 *     Purpose: Do some additional setup only needed for
 *              MP2-gradients or properties.
 #include "implicit.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-
-      Dimension EOcc(*), EVir(*)
+#include "stdalloc.fh"
+      Integer irc
+      Real*8 EOcc(*), EVir(*)
 *
 ******************************************************
       MulD2h(i,j)=iEor(i-1,j-1) + 1
-*
-      iMoMoTable(iOrb,iSym,iPar) = ipMoMoTable +
-     &                             iPar-1 + (iSym-1)*3 +
-     &                             (iOrb-1)*nSym*3
 ******************************************************
-
       nMOType = 3
       Call ChoMP2_GetInf(nOrb,nOcc,nFro,nDel,nVir)
 *
@@ -98,25 +100,6 @@
          End Do
       End Do
 
-
-*     Stupid memoryjumping here that should be solved
-      lMoMoTable = nOccVirT*3*nSym
-      Call GetMem('MoMoTable','Allo','Inte',ipMoMoTable,lMoMoTable)
-      Do iSym = 1, nSym
-         index = 0
-         Do iSymI = 1, nSym
-            iSymA = MulD2h(iSymI,iSym)
-            Do iI = 1, nOcc(iSymI)
-               Do iA = 1, nVir(iSymA)
-                  index = index + 1
-                  iWork(iMoMoTable(index,iSym,1)) = iSymI
-                  iWork(iMoMoTable(index,iSym,2)) = iI
-                  iWork(iMoMoTable(index,iSym,3)) = iA
-               End Do
-            End Do
-         End Do
-      End Do
-
 *     Allocate MP2_density
 *     --------------------
 
@@ -125,15 +108,20 @@
          lDens = lDens + nOrb(iSym)*nOrb(iSym)
       End Do
 *
-      Call GetMem('MP2Density','Allo','Real',ipMP2D, lDens)
-      Call GetMem('MP2WDensity','Allo','Real',ipMP2W, lDens)
-      Call FZero(Work(ipMP2D),lDens)
-      Call FZero(Work(ipMP2W),lDens)
-      ipDensity(1) = ipMP2D
-      ipWDensity(1) = ipMP2W
-      Do i = 2, nSym
-         ipDensity(i) = ipDensity(i-1) + nOrb(i-1)*nOrb(i-1)
-         ipWDensity(i) = ipWDensity(i-1) + nOrb(i-1)*nOrb(i-1)
+      ChoMP2g_Allocated=.True.
+
+      Call mma_allocate(MP2D_full,lDens,Label='MP2D_full')
+      Call mma_allocate(MP2W_full,lDens,Label='MP2W_full')
+      MP2D_full(:)=Zero
+      MP2W_full(:)=Zero
+
+      iE = 0
+      Do iSym = 1, nSym
+         nb=nOrb(iSym)
+         iS = iE + 1
+         iE = iE + nb**2
+         MP2D(iSym)%A(1:nb,1:nb) => MP2D_full(iS:iE)
+         MP2W(iSym)%A(1:nb,1:nb) => MP2W_full(iS:iE)
       End Do
 
 *     Allocate extended MP2_density (with deleted orbitals)
@@ -144,47 +132,46 @@
          lDens_e = lDens_e + (nOrb(iSym)+nDel(iSym))
      &                     * (nOrb(iSym)+nDel(iSym))
       End Do
-      Call GetMem('MP2Density_e','Allo','Real',ipMP2D_e, lDens_e)
-      Call GetMem('MP2WDensity_e','Allo','Real',ipMP2W_e, lDens_e)
-      Call FZero(Work(ipMP2D_e),lDens_e)
-      Call FZero(Work(ipMP2W_e),lDens_e)
-      ipDensity_e(1) = ipMP2D_e
-      ipWDensity_e(1) = ipMP2W_e
-      Do i = 2, nSym
-         ipDensity_e(i) = ipDensity_e(i-1) + (nOrb(iSym)+nDel(iSym))
-     &                                     * (nOrb(iSym)+nDel(iSym))
-         ipWDensity_e(i) = ipWDensity_e(i-1) + (nOrb(iSym)+nDel(iSym))
-     &                                       * (nOrb(iSym)+nDel(iSym))
-      End Do
 
+      Call mma_allocate(MP2D_e_full,lDens_e,Label='MP2D_e_full')
+      Call mma_allocate(MP2W_e_full,lDens_e,Label='MP2W_e_full')
+      MP2D_e_full(:)=Zero
+      MP2W_e_full(:)=Zero
+
+      iE = 0
+      Do iSym = 1, nSym
+         nb=nOrb(iSym)+nDel(iSym)
+         iS = iE + 1
+         iE = iE + nb**2
+         MP2D_e(iSym)%A(1:nb,1:nb) => MP2D_e_full(iS:iE)
+         MP2W_e(iSym)%A(1:nb,1:nb) => MP2W_e_full(iS:iE)
+      End Do
 
 *     Allocate adress-field for reordered R-vectors
 *     ---------------------------------------------
-      lAdrR1 = nSym*nSym*nOccT
-      lAdrR2 = nSym*nSym*nVirT
-      Call GetMem('AdrVector1','Allo','Inte',ipAdrR1, lAdrR1)
-      Call GetMem('AdrVector2','Allo','Inte',ipAdrR2, lAdrR2)
+      Call mma_allocate(AdrR1,nSym,nSym,nOccT,Label='AdrR1')
+      Call mma_allocate(AdrR2,nSym,nSym,nVirT,Label='AdrR2')
 
 *    Allocate a vector for the orbital energies of frozen and virtual
 *     frozen molecules.
-      Call GetMem('EFro','Allo','Real',ip_EFroz,nFroT)
-      Call GetMem('EOcc','Allo','Real',ip_EOccu,nOccT)
-      Call GetMem('EVir','Allo','Real',ip_EVirt,nVirT)
+      Call mma_allocate(EFrozT,Max(1,nFroT),Label='EFrozT')
+      Call mma_allocate(EOccuT,Max(1,nOccT),Label='EOccuT')
+      Call mma_allocate(EVirtT,Max(1,nVirT),Label='EVirtT')
 *     Fill them with the right things
       Do iSym = 1, nSym
-         Do i = 0, nFro(iSym)-1
-            Work(ip_EFroz + iFro(iSym)+i) =
-     &                    EOcc(iFro(iSym)+nOccT +i+1)
+         Do i = 1, nFro(iSym)
+            EFrozT(iFro(iSym)+i) = EOcc(iFro(iSym)+nOccT +i)
          End Do
-         Do i = 0, nOcc(iSym)-1
-            Work(ip_EOccu + iOcc(iSym)+i) =
-     &                    EOcc(iOcc(iSym) + i+1)
+         Do i = 1, nOcc(iSym)
+            EOccuT(iOcc(iSym)+i) =
+     &                    EOcc(iOcc(iSym) + i)
          End Do
-         Do i = 0, nVir(iSym)-1
-            Work(ip_EVirt + iVir(iSym)+i) =
-     &                    EVir(iVir(iSym)+iDel(iSym)+ i+1)
+         Do i = 1, nVir(iSym)
+            EVirtT(iVir(iSym)+i) =
+     &                    EVir(iVir(iSym)+iDel(iSym)+ i)
          End Do
       End Do
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(irc)
+
+      irc=0
+
       End

@@ -19,11 +19,6 @@
        If (RctFld_Status.eq.InActive) Return
        Call mma_deallocate(MM)
        If (lLangevin .or. (iXPolType.gt.0)) Then
-          If(iXPolType.eq.2) Then
-             nPolComp = 6
-          Else
-             nPolComp = 1
-          EndIf
           Call mma_deallocate(Field)
           Call mma_deallocate(dField)
           Call mma_deallocate(Dip)

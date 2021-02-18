@@ -83,7 +83,7 @@ C
       PreTd(:)=0.0d0
       ip1 = 1
       ip2 = 1
-      ipsave = 0
+*      ipsave = 0
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
          nD = nBas(jS) - nIsh(jS)
@@ -114,7 +114,7 @@ C
 *         Call RECPRT('PreTd',' ',PreTd(1 + ipsave),
 *     &              nBas(jS),nBas(iS))
          ip1 = ip1 + (nBas(iS)-nIsh(iS)-nAsh(iS))*nBas(jS)
-         ipsave = ip1
+*         ipsave = ip1
       End Do
 *      Call RECPRT('PreTd',' ',PreTd,nDens2,1)
 *

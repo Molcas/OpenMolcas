@@ -48,7 +48,7 @@ pymolcas.py
 
 molcas_wrapper.py
   Defines the Molcas class (main driver) and the Molcas_module class (to run a
-  program). 
+  program).
 
 molcas_aux.py
 simpleeval.py

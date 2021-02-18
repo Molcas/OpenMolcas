@@ -77,8 +77,6 @@ cnf
       Tot_El_Charge = Tot_El_Charge - DBLE(nActEl)
       Tot_Charge = Tot_Nuc_Charge + Tot_El_Charge
       iCharge = Int(Tot_Charge)
-      ERF = Zero
-      ERFhi = Zero
       Call DecideOnESPF(Do_ESPF)
       If ( Do_ESPF .or. lRF) then
          If (lRF) Then

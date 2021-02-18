@@ -62,4 +62,7 @@
       Call mma_deallocate(R)
 
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

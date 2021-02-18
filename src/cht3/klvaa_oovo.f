@@ -48,8 +48,9 @@ c     real*8 ddot_
       integer ix,ig,iscr, KADT, IJS, RAD, AADT
       integer isp,ias,vblock,n,i,j,k,lu,iasblock
       INTEGER A,A1,A2,B1,B2,NSTEP,ADIM,NUG,NGA,NGB,R,MAXDIM2
-      INTEGER IADT,ISTEP,IS2,KI,BADT, last,indab
-      CHARACTER FN*6,ich*1
+      INTEGER IS2,KI, last,indab
+      CHARACTER ich*1
+c      CHARACTER FN*6
       INTEGER IOPT,NOAB,NNOAB,NUAB,NNUAB,nno
 c     INTEGER m
 cmp
@@ -248,9 +249,9 @@ cmp
      & nnoab(isp)*vblock*vblock)
 cmp
 C starts <aa||oo> integrals
-      FN(1:5)='VVOOI'
+c      FN(1:5)='VVOOI'
       !!FN(6:6)=ich(isp)
-      FN(6:6)=ich(3)
+c      FN(6:6)=ich(3)
 cmp!      CALL GET3DM(FN,G(it),NNUAB(3),NNOAB(3),0)
 cmp
 cmp!        call w_alloc(il1,nc*no*maxdim,'IL1 klvaa-v')
@@ -602,8 +603,8 @@ C  mv T2(B,A,I,K) >> G(ix)
                KADT=(K-1)*NNUAB(3)*(NOAB(2)*(2-ISP)+ISP-1)
                DO I=1,NOAB(IS2)
                   KI=KI+1
-                  IADT=(I-1)*NNUAB(3)*(NOAB(2)*(2-IS2)+IS2-1)
-                  BADT=(2-ISP)*B1+(ISP-1)*(B1-1)*NUAB(2)
+cmpn                  IADT=(I-1)*NNUAB(3)*(NOAB(2)*(2-IS2)+IS2-1)
+cmpn                  BADT=(2-ISP)*B1+(ISP-1)*(B1-1)*NUAB(2)
                   do A=A1,A2
 cmpn
         if (nga.lt.ngb) then
@@ -619,7 +620,7 @@ cmpn     $                    *(A-1)*NUAB(2)+IG-1
 C  T2 <A,B,J,K> for isp=1 T2 <B,A,K,J> for isp=2
 !!
                      RAD=(KI-1)*adim*nstep+(A-A1)*nstep +IX
-                     ISTEP=(ISP-1)*NUAB(2)+2-ISP
+cmpn                     ISTEP=(ISP-1)*NUAB(2)+2-ISP
 cmpn
         if (nga.ge.ngb) then ! nga> ngb
 

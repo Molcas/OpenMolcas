@@ -47,7 +47,7 @@
       Parameter (SecNam='PLF_LDF_JK_2P_2')
 
       Integer i1, i2, i3, i4
-      Integer iShlJ, iShlK, iShlL
+      Integer iShlJ, iShlK
       Integer jSO, lSO, kSO
       Integer jSOj, lSOl, kSOk
       Integer ll, jj, kk
@@ -93,7 +93,6 @@
 #endif
          iShlJ=SHB
          iShlK=SHC
-         iShlL=SHD
          iShlKL=SPCD
          i1=1
          Do i4=1,lCmp

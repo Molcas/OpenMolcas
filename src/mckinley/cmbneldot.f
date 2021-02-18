@@ -254,7 +254,6 @@
         Do   iCar=1,3
           Do jCar=1,3
               icomp=jcar+1
-              iGrad = Abs(IndGrd(icnt,iCar,jcar,iirrep))
                If (iCnt.eq.1) Then
                   i1 = iCar
                   ps=DBLE(iChTbl(iIrrep,nOp(1)))

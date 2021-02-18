@@ -32,9 +32,7 @@
       Real*8 EF(3,2,nTs),DPnt(nTs,MxAto,3,3), Grad(nGrad),
      &       DCntr(nS,MxAto,3,3), Q(2,nTs)
       Integer iSph(nTs)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
 *
       iIrrep=0
 *

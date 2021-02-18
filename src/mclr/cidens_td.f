@@ -22,7 +22,9 @@
       Real*8 rP(*),rD(*)
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
 
+#ifdef _DEBUGPRINT_
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+#endif
 
 * LS = CI
 *
@@ -158,4 +160,7 @@ C
       Call mma_deallocate(De)
 
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

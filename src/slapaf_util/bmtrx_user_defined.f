@@ -8,129 +8,104 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_User_Defined(
-     &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,dMass,
-     &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
-     &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
+      Subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,mTR,nQQ)
+      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc,
+     &                       Lbl
+      use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
+     &                             MaxItr, iOptC, BSet, HSet, lOld,
+     &                             Numerical
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
-      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
-      Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Integer   iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
-     &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
+#include "stdalloc.fh"
+      Real*8 Coor(3,nsAtom)
+      Logical Proc_dB
+      Real*8, Allocatable:: Degen2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=133
-      iPrint=nPrint(iRout)
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *.... Section for user defined internal coordinates
 *
-      Call Rd_UDIC(nLines,iInt,nFix,nRowH)
+      Call Rd_UDIC(iInt,nFix,nRowH) ! nRowH is not used!
       nQQ=iInt+nFix
 *
-      If (ip_rInt.eq.ip_Dummy) Then
-         nqInt=nQQ*MaxItr
-         Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
-         Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
-         Call FZero(Work(ip_rInt),nqInt)
-         Call FZero(Work(ip_drInt),nqInt)
+      If (Allocated(qInt).and.SIZE(qInt,1)/=nQQ) Then
+         Call mma_deallocate(qInt)
+         Call mma_deallocate(dqInt)
       End If
-      Call Allocate_Work(ipBmx,3*nAtom*nQQ)
-      Call FZero(Work(ipBMx),3*nAtom*nQQ)
-      Call GetMem('rMult','Allo','Real',ipMult,nBVec)
-      Call GetMem('BVec','Allo','Real',ipBVec,nBVec*3*nAtom)
-      Call FZero(Work(ipBVec),nBVec*3*nAtom)
-      Call GetMem('Val','Allo','Real',ipVal,nBVec)
-      Call FZero(Work(ipVal),nBVec)
-      Call GetMem('Lab','Allo','Char',ipLab,nBVec*8)
+      If (.NOT.Allocated(qInt)) Then
+         Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
+         Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+         qInt(:,:) = Zero
+         dqInt(:,:) = Zero
+      End If
+      Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
+      BMx(:,:)=Zero
+
 *
 *-----Compute the B matrix in symmetry distinct basis and the
 *     internal coordinates.
 *
-      ip = ip_rInt + (nIter-1)*nQQ
-      Call DefInt(Work(ipBVec),nBVec,cWork(ipLab),Work(ipBMx),nQQ,
-     &            nAtom,nLines,Work(ipVal),Work(ip),Lbl,Name,
-     &            Coor,dMass,jStab,nStab,mxdc,Work(ipMult),
-     &            nDim-mTR,Redundant)
+*     iOptC(256) = constrained optimization
+      Proc_dB=HSet.and..Not.lOld.and.
+     &           (Analytic_Hessian.or.Numerical.or.
+     &            iAnd(iOptC,256).eq.256)
+*     Compute and store dBQQ in the reference structure
+      If (Proc_dB) Then
+*        Not implimented, sorry
+      End If
 *
-      Call GetMem('Lab','Free','Char',ipLab,nBVec*8)
-      Call GetMem('Val','Free','Real',ipVal,nBVec)
-      Call GetMem('BVec','Free','Real',ipBVec,nBVec*3*nAtom)
-      Call GetMem('rMult','Free','Real',ipMult,nBVec)
+      Call DefInt(nBVec,BMx,nQQ,nsAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the gradient
 *
-      If (BSet) Call Force(nFix,Gx(1,nIter),nAtom,nQQ,Work(ipBMx),
-     &                     Name,nIter,Work(ip_drInt),Lbl,Degen)
+      If (BSet) Call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,
+     &                     nIter,dqInt,Lbl,Degen)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (HSet.and..NOT.lOld.and.BSet) Then
-         Call Allocate_Work(ip_KtB,nDim*nQQ)
+         Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
 *
-         Call Allocate_Work(ipDegen,nDim)
+         Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
-         Do ix = 1, 3*nAtom
-            If (Smmtrc(ix)) Then
-               Work(ipDegen+i) = Degen(ix)
+         Do ix = 1, 3*nsAtom
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
+            If (Smmtrc(ixyz,iAtom)) Then
                i = i + 1
+               Degen2(i) = Degen(ixyz,iAtom)
             End If
          End Do
 *
          Do j = 1, nQQ
             i = 0
-            Do ix = 1, 3*nAtom
-               If (Smmtrc(ix)) Then
+            Do ix = 1, 3*nsAtom
+               iAtom = (ix+2)/3
+               ixyz = ix - (iAtom-1)*3
+               If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
-                  ij = (j-1)*nDim + i - 1 + ip_KtB
-                  ixj= (j-1)*3*nAtom + ix - 1 + ipBmx
-                  Work(ij) = Work(ixj)
+                  KtB(i,j) = BMx(ix,j)
                End If
             End Do
          End Do
 *
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
-               ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
-*              Work(ij) = Work(ij) / Sqrt(Work(ipDegen+iDim-1))
-               Work(ij) = Work(ij) / Work(ipDegen+iDim-1)
+*              KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
+               KtB(iDim,iInter) = KtB(iDim,iInter) / Degen2(iDim)
             End Do
          End Do
-         Call Free_Work(ipDegen)
-      Else
-         ip_KtB = ip_Dummy
+         Call mma_deallocate(Degen2)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(Cx)
-         Call Unused_integer(mTtAtm)
-         Call Unused_integer_array(iAnr)
-         Call Unused_logical(Numerical)
-         Call Unused_logical(HWRS)
-         Call Unused_logical(Analytic_Hessian)
-         Call Unused_integer(iOptC)
-         Call Unused_logical(PrQ)
-         Call Unused_integer_array(iCoSet)
-      End If
       End

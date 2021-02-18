@@ -28,7 +28,6 @@ C
 C
 C     CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 C
-      iZero=0
       DO 10 IHALF=1,2
         DO 11 MV=1,NMIDV
           DO 12 IS=1,NSYM

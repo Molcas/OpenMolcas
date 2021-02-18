@@ -54,11 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Temporary modifications to facilitate atomic calculations
 *
       nIrrep_Save=nIrrep

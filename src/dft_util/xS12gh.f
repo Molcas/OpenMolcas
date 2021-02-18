@@ -152,13 +152,11 @@ C      gamma = min(gamma_s, 1.0D-16 )
       gamma=gamma_s
       rho13 = rho**third
       rho43 = rho**four3
-      rhoinv=1.0d0/rho
 * lda part:
 C     xlda=-xldacff*rho43
 * Note: Use x=sqrt(gamma)/rho**four3
       x = sqrt(gamma)/rho43
       x2 = x*x
-      dxdr = -4.d0/3.d0*x/rho
 
 *      hgi = 0.50d0/gamma
 

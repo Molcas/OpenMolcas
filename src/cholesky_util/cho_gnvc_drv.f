@@ -15,29 +15,27 @@ C              First reduced set must have been set up, which is
 C              reasonable, since it is naturally done along with the
 C              diagonal.
 C
+      use ChoSwp, only: iQuAB, InfVec
+      use GnVcMp, only: RS2RS
 #include "implicit.fh"
+      Integer irc
       Real*8 Diag(*)
+#include "real.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*12 SecNam
-      Parameter (SecNam = 'Cho_GnVc_Drv')
+      Character(LEN=12), Parameter:: SecNam = 'Cho_GnVc_Drv'
 
-      Character*2  Unt
-      Character*26 String
+      Character(LEN=2)  Unt
+      Character(LEN=26 )String
 
       Integer LastRed(8), nScrV(8)
-      Integer ip_mapRS2RS, l_mapRS2RS
-      Common / GnVcMp / ip_mapRS2RS(8), l_mapRS2RS(8)
 
-      Parameter (N2 = InfVec_N2)
+      Integer, Allocatable:: LISTSP(:), nVecRS(:,:), iVecRS(:,:)
+      Real*8, Allocatable:: Wrk(:), xInt(:)
 
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      nVecRS(i,j)=iWork(ip_nVecRS-1+nSym*(j-1)+i)
-      iVecRS(i,j)=iWork(ip_iVecRS-1+nSym*(j-1)+i)
-      mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
+      mapRS2RS(i,j)=RS2RS(j)%Map(i)
 
 C     Start timing.
 C     -------------
@@ -48,12 +46,6 @@ C     Set return code.
 C     ----------------
 
       irc = 0
-
-C     Make a dummy allocation.
-C     ------------------------
-
-      l_GnVcDum = 1
-      Call Cho_Mem('GnVcDum','Allo','Real',ip_GnVcDum,l_GnVcDum)
 
 C     Copy first reduced set to current reduced set stored at location
 C     2.
@@ -68,8 +60,7 @@ C     ----------------------------------------------------------------
 C     Allocate memory for shell pair list.
 C     ------------------------------------
 
-      l_ListSP = nnShl
-      Call Cho_Mem('ListSP','Allo','Inte',ip_ListSP,l_ListSP)
+      Call mma_allocate(ListSP,nnShl,Label='ListSP')
 
 C     Set number of integral passes (= number of reduced sets).
 C     Set ID of last reduced set in each symmetry.
@@ -95,12 +86,11 @@ C     iVecRS(iSym,jRed): 1st vec. of sym. iSym, reduced set jRed.
 C                        (0 means no vectors!!)
 C     -----------------------------------------------------------
 
-      l_nVecRS = nSym*nPass
-      l_iVecRS = l_nVecRS
-      Call Cho_Mem('nVecRS','Allo','Inte',ip_nVecRS,l_nVecRS)
-      Call Cho_Mem('iVecRS','Allo','Inte',ip_iVecRS,l_iVecRS)
-      Call Cho_iZero(iWork(ip_nVecRS),l_nVecRS)
-      Call Cho_iZero(iWork(ip_iVecRS),l_iVecRS)
+      Call mma_allocate(nVecRS,nSym,nPass,Label='nVecRS')
+      Call mma_allocate(iVecRS,nSym,nPass,Label='iVecRS')
+      nVecRS(:,:)=0
+      iVecRS(:,:)=0
+
       Do iSym = 1,nSym
          nTotVec = 0
          Do jRed = 1,LastRed(iSym)
@@ -110,8 +100,8 @@ C     -----------------------------------------------------------
      &                       //'Cho_X_nVecRS returned negative nVec',
      &                       103)
             Else
-               iWork(ip_nVecRS-1+nSym*(jRed-1)+iSym) = nVec
-               iWork(ip_iVecRS-1+nSym*(jRed-1)+iSym) = iVec1
+               nVecRS(iSym,jRed) = nVec
+               iVecRS(iSym,jRed) = iVec1
             End If
             nTotVec = nTotVec + nVecRS(iSym,jRed)
          End Do
@@ -124,15 +114,15 @@ C     Allocate RS-to-RS mapping array.
 C     --------------------------------
 
       Do iSym = 1,nSym
-         l_mapRS2RS(iSym) = nnBstR(iSym,1)
-         Call Cho_Mem('mapRS2RS','Allo','Inte',
-     &                ip_mapRS2RS(iSym),l_mapRS2RS(iSym))
+         call mma_allocate(RS2RS(iSym)%Map,nnBstR(iSym,1),
+     &              Label='RS2RS(iSym)%Map')
       End Do
 
 C     Split remaining memory.
 C     -----------------------
 
-      Call Cho_Mem('GnVcMx','GetM','Real',ip_Wrk,l_WrkT)
+      Call mma_MaxDBLE(l_WrkT)
+      Call mma_allocate(Wrk,l_WrkT,Label='Wrk')
       If (l_WrkT .lt. 2) Then
          Write(Lupri,*) SecNam,': max. allocatable memory is ',
      &                  l_WrkT
@@ -249,8 +239,8 @@ C        ------
 C        Allocate memory for integral columns and initialize.
 C        ----------------------------------------------------
 
-         Call Cho_Mem('GnVc.Int','Allo','Real',ip_Int,l_Int)
-         Call Cho_dZero(Work(ip_Int),l_Int)
+         Call mma_allocate(xInt,l_Int,Label='xInt')
+         xInt(:)=Zero
 
 C        Set up map from first reduced set to reduced set iPass1.
 C        --------------------------------------------------------
@@ -263,7 +253,7 @@ C        --------------------------------------------------------
      &                    104)
          End If
          Do iSym = 1,nSym
-            Call Cho_RS2RS(iWork(ip_mapRS2RS(iSym)),l_mapRS2RS(iSym),
+            Call Cho_RS2RS(RS2RS(iSym)%Map,SIZE(RS2RS(iSym)%Map),
      &                     3,2,iPass1,iSym)
          End Do
 
@@ -277,7 +267,6 @@ C        ----------------------------------------------------------
          iPass2 = iPass1 + NumPass - 1
          Do jPass = iPass1,iPass2
             Do iSym = 1,nSym
-               kOff0 = ip_iQuAB - 1 + MaxQual*(iSym-1)
                iV1 = iVecRS(iSym,jPass)
                iV2 = iV1 + nVecRS(iSym,jPass) - 1
                Do iV = iV1,iV2
@@ -294,7 +283,7 @@ C        ----------------------------------------------------------
                   End If
 #endif
                   nQual(iSym) = nQual(iSym) + 1
-                  iWork(kOff0+nQual(iSym)) = iiBstR(iSym,2) + kAB
+                  iQuAB(nQual(iSym),iSym) = iiBstR(iSym,2) + kAB
                End Do
             End Do
          End Do
@@ -314,9 +303,7 @@ C        ------------------------------------------------
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlInt1,WlInt1)
          NumSP = 0
-         Call Cho_GnVc_GetInt(Work(ip_Int),l_Int,
-     &                        iWork(ip_nVecRS),iWork(ip_iVecRS),
-     &                        iWork(ip_ListSP),
+         Call Cho_GnVc_GetInt(xInt,SIZE(xInt),nVecRS,iVecRS,ListSP,
      &                        nSym,nPass,nnShl,iPass1,NumPass,NumSP)
          If (NumSP .lt. 1) Then
             Call Cho_Quit('No shell pairs calculated!',104)
@@ -327,15 +314,14 @@ C        Generate vectors.
 C        -----------------
 
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlDec1,WlDec1)
-         Call Cho_GnVc_GenVec(Diag,Work(ip_Int),l_Int,
-     &                        iWork(ip_nVecRS),iWork(ip_iVecRS),
+         Call Cho_GnVc_GenVec(Diag,xInt,SIZE(xInt),nVecRS,iVecRS,
      &                        nSym,nPass,iPass1,NumPass)
          If (iPrint .ge. INF_PASS) Call Cho_Timer(TlDec2,WlDec2)
 
 C        Deallocate memory.
 C        ------------------
 
-         Call Cho_Mem('GnVc.Int','Free','Real',ip_Int,l_Int)
+         Call mma_deallocate(xInt)
 
 C        Print timing for this batch.
 C        ----------------------------
@@ -369,12 +355,20 @@ C        --------------------
 
       End Do ! integral pass loop
 
-C     Exit after deallocating memory (by flushing).
-C     ---------------------------------------------
+C     Exit after deallocating memory.
+C     -------------------------------
 
   100 Continue
       Did_DecDrv = .true.
-      Call Cho_Mem('GnVcDum','Flush','Real',ip_GnVcDum,l_GnVcDum)
+
+      Call mma_deallocate(Wrk)
+      Do iSym = 1,nSym
+         Call mma_deallocate(RS2RS(iSym)%Map)
+      End Do
+      Call mma_deallocate(iVecRS)
+      Call mma_deallocate(nVecRS)
+      Call mma_deallocate(ListSP)
+
       Call Cho_Timer(tCPU2,tWall2)
       tDecDrv(1) = tDecDrv(1) + tCPU2  - tCPU1
       tDecDrv(2) = tDecDrv(2) + tWall2 - tWall1

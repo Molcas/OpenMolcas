@@ -9,21 +9,23 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_FINAL(WriteBookmarks)
+      use ChoArr, only: iSOShl
 C
 C     Purpose: Cholesky finalizations.
 C
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
       Implicit None
       Logical WriteBookmarks
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "choini.fh"
-#include "chobkm.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      INTEGER CHOISINI, IREO
+      Integer, Allocatable:: BkmDim(:), iScratch(:)
+      Real*8, Allocatable:: Scratch(:)
+      INTEGER CHOISINI, IREO, l
       INTEGER NUMV(8)
-      Integer ip, l
 #if defined (_DEBUGPRINT_)
       Integer is1CCD
 #endif
@@ -33,7 +35,7 @@ C     ------------------------------------------------------------
 
       CALL CHO_P_GETGV(NUMV,NSYM)
       CALL PUT_IARRAY('NUMCHO',NUMV,NSYM)
-      CALL PUT_IARRAY('iSOShl',IWORK(ip_ISOSHL),NBAST)
+      CALL PUT_IARRAY('iSOShl',ISOSHL,NBAST)
       CALL PUT_DSCALAR('Cholesky Threshold',THRCOM)
 #if defined (_DEBUGPRINT_)
       ! This is needed in order for bookmark tests in cho_x_init to work
@@ -52,49 +54,40 @@ C     First, transpose array.
 C     ---------------------------
 
       If (WriteBookmarks) Then
-         l=4
-         Call GetMem('BkmDim','Allo','Inte',ip,l)
-         iWork(ip)=nCol_BkmVec
-         iWork(ip+1)=nRow_BkmVec
-         iWork(ip+2)=nCol_BkmThr
-         iWork(ip+3)=nRow_BkmThr
-         Call Put_iArray('Cholesky BkmDim',iWork(ip),l)
-         Call GetMem('BkmDim','Free','Inte',ip,l)
+         Call mma_allocate(BkmDim,4,Label='BkmDim')
+         BkmDim(1)=nCol_BkmVec
+         BkmDim(2)=nRow_BkmVec
+         BkmDim(3)=nCol_BkmThr
+         BkmDim(4)=nRow_BkmThr
+         Call Put_iArray('Cholesky BkmDim',BkmDim,SIZE(BkmDim))
+         Call mma_deallocate(BkmDim)
          If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
             l=nRow_BkmVec*nCol_BkmVec
-            Call GetMem('Scratch','Allo','Inte',ip,l)
-            Call iTrnsps(nSym,nCol_BkmVec,iWork(ip_BkmVec),iWork(ip))
-            Call Put_iArray('Cholesky BkmVec',iWork(ip),l)
-            Call GetMem('Scratch','Free','Inte',ip,l)
-            Call GetMem('BkmVec','Free','Inte',ip_BkmVec,l_BkmVec)
-            ip_BkmVec=0
-            l_BkmVec=0
+            Call mma_allocate(iScratch,l,Label='iScratch')
+            Call iTrnsps(nSym,nCol_BkmVec,BkmVec,iScratch)
+            Call Put_iArray('Cholesky BkmVec',iScratch,l)
+            Call mma_deallocate(iScratch)
+            Call mma_deallocate(BkmVec)
             nRow_BkmVec=0
             nCol_BkmVec=0
             l=nRow_BkmThr*nCol_BkmThr
-            Call GetMem('Scratch','Allo','Real',ip,l)
-            Call Trnsps(nSym,nCol_BkmThr,Work(ip_BkmThr),Work(ip))
-            Call Put_dArray('Cholesky BkmThr',Work(ip),l)
-            Call GetMem('Scratch','Free','Real',ip,l)
-            Call GetMem('BkmVec','Free','Real',ip_BkmThr,l_BkmThr)
-            ip_BkmThr=0
-            l_BkmThr=0
+            Call mma_allocate(Scratch,l,Label='Scratch')
+            Call Trnsps(nSym,nCol_BkmThr,BkmThr,Scratch)
+            Call Put_dArray('Cholesky BkmThr',Scratch,l)
+            Call mma_deallocate(Scratch)
+            Call mma_deallocate(BkmThr)
             nRow_BkmThr=0
             nCol_BkmThr=0
          End If
       End If
-      If (l_BkmVec.gt.0) Then
-         Call GetMem('BkmVec','Free','Inte',ip_BkmVec,l_BkmVec)
-         ip_BkmVec=0
-         l_BkmVec=0
+      If (Allocated(BkmVec)) Then
+         Call mma_deallocate(BkmVec)
          nRow_BkmVec=0
          nCol_BkmVec=0
       End If
-      If (l_BkmThr.gt.0) Then
-         Call GetMem('BkmThr','Free','Real',ip_BkmThr,l_BkmThr)
-         ip_BkmThr=0
-         l_BkmThr=0
+      If (Allocated(BkmThr)) Then
+         Call mma_deallocate(BkmThr)
          nRow_BkmThr=0
          nCol_BkmThr=0
       End If

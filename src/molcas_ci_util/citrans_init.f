@@ -14,15 +14,13 @@
       implicit none
 
       integer, intent(in) :: nel, norb, mult
-      integer :: nela, nelb, nhoa, nhob
+      integer :: nela, nelb
 
       integer :: ido, iso
 
       ! compute alpha/beta subsets
       nela = (nel+(mult-1))/2
-      nhoa = norb - nela
       nelb = (nel-(mult-1))/2
-      nhob = norb - nelb
 
       ! determine the range of the configuration groups
       if (nel.gt.norb) then

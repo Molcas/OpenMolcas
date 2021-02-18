@@ -10,15 +10,15 @@
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
 ************************************************************************
-      SubRoutine Cho_X_GetIP_InfVec(ip_InfVec_T)
+      SubRoutine Cho_X_GetIP_InfVec(InfVcT)
 C
 C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: get pointer to InfVec array for all vectors.
 C
+      use ChoSwp, only: InfVec, InfVec_Bak
       Implicit None
-      Integer ip_InfVec_T
-#include "choptr.fh"
+      Integer, Pointer:: InfVct(:,:,:)
 #include "chopar.fh"
 #if defined (_MOLCAS_MPP_)
 #include "cho_para_info.fh"
@@ -28,14 +28,14 @@ C
 #endif
 
       If (Cho_Real_Par) Then
-         If (l_InfVec_Bak .gt. 0) Then
-            ip_InfVec_T=ip_InfVec_Bak
+         If (Allocated(InfVec_Bak)) Then
+            InfVcT => InfVec_Bak
           Else
             Call Cho_Quit(
      &               'Initialization problem in Cho_X_GetIP_InfVec',103)
          End If
       Else
-         ip_InfVec_T=ip_InfVec
+         InfVcT => InfVec
       End If
 
       End

@@ -21,8 +21,13 @@ C
 C --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
 C
 C********************************************************
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      Logical Debug,add,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical add,timings
       Real*8  DLT(*),FLT(*)
       Real*8  tread(2),tcoul(2)
       Character*16  SECNAM
@@ -34,28 +39,15 @@ C********************************************************
       parameter (zero = 0.0d0, one = 1.0d0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-************************************************************************
-
 #ifdef _DEBUGPRINT_
       Debug=.true.
-#else
-      Debug=.false.
 #endif
 
 
       FactC = one
-
-      IREDC = -1
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
@@ -67,10 +59,6 @@ C --- For Coulomb only, the vectors symmetry is restricted to 1
            tread(i) = zero  !time for reading the vectors
            tcoul(i) = zero  !time for computing Coulomb
         end do
-
-
-      ipDLT = ip_of_Work(DLT(1))
-      ipFLT = ip_of_Work(FLT(1))
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -95,8 +83,6 @@ C ---
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 
@@ -126,14 +112,12 @@ C ---
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      Call switch_sto(irc,iLoc,ipDLT,ipDab,mode,add)
+      Call switch_sto(irc,iLoc,DLT,Work(ipDab),mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
       nBatch = (nVrs-1)/nVec + 1
 
-      tmp1=0.0D0
-      tmp2=0.0D0
       DO iBatch=1,nBatch
 
          If (iBatch.eq.nBatch) Then
@@ -195,7 +179,7 @@ C==========================================================
 c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
-         Call switch_sto(irc,iLoc,ipFLT,ipFab,mode,add)
+         Call switch_sto(irc,iLoc,FLT,Work(ipFab),mode,add)
       endif
 
 C --- free memory
@@ -268,25 +252,24 @@ c Print the Fock-matrix
 
 
 
-      SUBROUTINE switch_sto(irc,iLoc,ipXLT,ipXab,mode,add)
-
+      SUBROUTINE switch_sto(irc,iLoc,XLT,Xab,mode,add)
+      use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao
-      External cho_isao
+      Integer irc, iLoc
+      Real*8 XLT(*), Xab(*)
+      Character(LEN=6) mode
       Logical  add
-      Character*6 mode
+
+      Integer  ISLT(8)
+      Integer, External:: cho_isao
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
 
@@ -320,10 +303,9 @@ c Offsets to symmetry block in the LT matrix
             ibs   = ibg - ibas(iSyma)
             iab   = iTri(ias,ibs)
 
-            kfrom = ipXLT + isLT(iSyma) + iab - 1
+            kfrom = isLT(iSyma) + iab
 
-            Work(ipXab+jRab-1) = xf*Work(ipXab+jRab-1)
-     &                         +    Work(kfrom)
+            Xab(jRab) = xf*Xab(jRab) + XLT(kfrom)
 
          End Do  ! jRab loop
 
@@ -343,10 +325,9 @@ c Offsets to symmetry block in the LT matrix
             ibs   = ibg - ibas(iSyma)
             iab   = iTri(ias,ibs)
 
-            kto = ipXLT + isLT(iSyma) + iab - 1
+            kto = isLT(iSyma) + iab
 
-            Work(kto) = xf*Work(kto)
-     &                +    Work(ipXab+jRab-1)
+            XLT(kto) = xf*XLT(kto) + Xab(jRab)
 
          End Do  ! jRab loop
 

@@ -24,7 +24,7 @@ C  THIS ROUTINE READS THE FILE "SINGLE_ANISO.INPUT".
 C
 C
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "warnings.fh"
 #include "mgrid.fh"
 
@@ -38,7 +38,7 @@ c      common/MVL/ compute_Mdir_vector
 c      common/MZEL/ zeeman_energy
 c----------------------------------------------------------------
       Integer :: nss, nstate
-      Integer :: iprint,nt,nh,nk,mg,igsm,l,jEnd
+      Integer :: iprint,nt,nh,nk,mg,l,jEnd
       Integer :: nlanth,ndimcf,ldimcf,axisoption, i_OxStat
       Integer :: input_to_read,encut_definition,ncut,ntempmagn
       Integer :: ndirtot
@@ -238,7 +238,6 @@ c      nTempMagn             = 1
       T1                    = 5.0_wp
       T2                    = 6.0_wp
       ZJ                    = 0.0_wp
-      IGSM                  = 1
       m_paranoid            =  .true.
       checkTMAG             =  .FALSE.
       compute_g_tensors     =  .FALSE.
@@ -373,7 +372,6 @@ C ------------------------------------------
         compute_g_tensors     =  .true.
         READ(5,*,Err=997) (NDIM(i),i=1,NMULT)
         IF(DBG) Write(6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
-        IGSM=NDIM(1)
         LINENR=LINENR+2
         Go To 100
       End If
@@ -411,6 +409,20 @@ C ------------------------------------------
         End If
        Go To 100
       End If
+
+C-------------------------------------------
+
+      If (line(1:4).eq.'DATA') Then
+         Ifrestart=.true.
+         READ(5,*) tmpline
+         input_file_name=trim(tmpline)
+         input_to_read=6
+         If(DBG) WRITE(6,*) 'restart_check: DATA, input_file_name='
+         If(DBG) WRITE(6,*) input_file_name
+         LINENR=LINENR+1
+         Go To 100
+      End If
+
 C-------------------------------------------
       If (LINE(1:4).eq.'TINT') Then
         If(TINPUT.EQV..FALSE.) Then

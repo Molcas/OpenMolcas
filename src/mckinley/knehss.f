@@ -44,7 +44,7 @@
       nip = nip + nZeta*3*nHer*(lb+3)
       ipRxyz = nip
       nip = nip + nZeta*3*nHer*(nOrdOp+1)
-      ipTxyz = nip
+*      ipTxyz = nip
 *      nip = nip + nZeta*3*(la+3)*(lb+3)*(nOrdOp+1)
       ipRnxyz = nip
       nip = nip + nZeta*3*(la+3)*(lb+3)*(nOrdOp+1)
