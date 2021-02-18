@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_LK_RASSI_X(ipDLT,ipMSQ1,ipMSQ2,ipFLT,ipK,ipFSQ,
-     &                          ipInt,ipAsh,nScreen,dmpk)
+     &                          ipInt,Ash,nScreen,dmpk)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -33,6 +33,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type, Map_to_CMO
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -44,7 +45,8 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAsh(2),ipAorb(8,2)
+      Type (CMO_Type)   Ash(2)
+      Integer   ipAorb(8,2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
       Logical   timings,DoRead,DoReord,DoScreen
@@ -180,14 +182,7 @@ c           If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
 
       DO jDen=1,nDen
 
-         ipAorb(1,jDen)= ipAsh(jDen)
-
-         DO ISYM=2,NSYM
-
-            ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                        + nAsh(iSym-1)*nBas(iSym-1)
-
-         END DO
+         Call Map_to_CMO(Ash(jDen),ipAOrb(:,jDen))
 
       END DO
 

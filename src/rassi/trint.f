@@ -16,7 +16,7 @@
      &                           Deallocate_CMO
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
-      DIMENSION KEEP(8),NBSX(8),ipAsh(2)
+      DIMENSION KEEP(8),NBSX(8)
       LOGICAL   ISQARX
       Type (CMO_Type) Ash(2)
 #include "rassi.fh"
@@ -275,8 +275,6 @@ C *** Only the active orbitals MO coeff need reordering
            End Do
            Call Allocate_CMO(Ash(1),nAsh,nBasF,nSym)
            Call Allocate_CMO(Ash(2),nAsh,nBasF,nSym)
-           ipAsh(1) = ip_of_Work(Ash(1)%CMO_Full(1))
-           ipAsh(2) = ip_of_Work(Ash(2)%CMO_Full(1))
 
            ioff=0
            Do iSym=1,nSym
@@ -306,14 +304,14 @@ c ---     and compute the (tu|vx) integrals
            If (Fake_CMO2) Then
 
              CALL CHO_LK_RASSI(ipDLT,ipMO1,ipMO2,ipFLT,LFAO,LTUVX,
-     &                         ipAsh,nScreen,dmpk)
+     &                         Ash,nScreen,dmpk)
            Else
 
              CALL GetMem('K-mat','Allo','Real',ipK,NBSQ)
              Call FZero(Work(ipK),NFAO)
 
              CALL CHO_LK_RASSI_X(ipDLT,ipMO1,ipMO2,ipFLT,ipK,LFAO,LTUVX,
-     &                         ipAsh,nScreen,dmpk)
+     &                         Ash,nScreen,dmpk)
 
              CALL GetMem('K-mat','Free','Real',ipK,NBSQ)
            EndIf
