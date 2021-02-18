@@ -394,7 +394,7 @@
          Update=.True.
          Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
      &                     Txy,n_Txy*nAdens,ipTxy,
-     &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
+     &                     DoExchange,lSA,nChOrb,AOrb,nAsh,
      &                     DoCAS,Estimate,Update,
      &                     V_k(jp_V_k,1), nV_k,
      &                     U_k(jp_U_k),

@@ -14,7 +14,7 @@
       SUBROUTINE CHO_GET_GRAD(irc,nDen,
      &                        ipDLT,ipDLT2,ipMSQ,
      &                        Txy,nTxy,ipTxy,DoExchange,lSA,
-     &                        nChOrb_,ipAorb,nAorb,DoCAS,
+     &                        nChOrb_,AOrb,nAorb,DoCAS,
      &                        Estimate,Update,
      &                        V_k,nV_k,
      &                        U_k,
@@ -109,15 +109,18 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
+      Type (CMO_Type) AOrb(*)
+
       Logical   timings,DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
-      Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
+      Integer   ipMSQ(nDen),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), ipLxy(8), iSkip(8)
       Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
@@ -149,11 +152,11 @@
 #include "print.fh"
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
+      Integer ipAOrb(8,2)
 
       Logical add
       Character*6 mode
-      Integer  Cho_F2SP
-      External Cho_F2SP
+      Integer, External:: Cho_F2SP, ip_of_Work
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -191,6 +194,14 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *     General Initialization                                           *
 *                                                                      *
 ************************************************************************
+
+*     Temporary set up of ipAOrb -- to become obsolete
+      Do iADens = 1, nADens
+         Do iIrrep = 1, nSym
+            ipAOrb(iIrrep,iADens) =
+     &        ip_of_Work(AOrb(iADens)%pA(iIrrep)%A(1,1))
+         End Do
+      End Do
 
       iRout = 9
       iPrint = nPrint(iRout)
