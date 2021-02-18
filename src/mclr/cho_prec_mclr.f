@@ -27,15 +27,17 @@
 ************************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_structures, only: CMO_Type, Allocate_CMO
+      use Data_structures, only: Map_to_CMO, Deallocate_CMO
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.fh"
-      Character*13 SECNAM
-      Parameter (SECNAM = 'CHO_PREC_MCLR')
+      Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
+
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),ipLpq(8)
       Integer   LuAChoVec(8),ipCMOt(8),LuChoInt(2)
-      Integer  nAsh(8),nIsh(8),nIshb(8),nIshe(8),iSkip(8),
-     &        nAshb(8),nAshe(8)
+      Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),iSkip(8),
+     &          nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
@@ -51,7 +53,8 @@
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      CMOt(:), Lrs(:), ChoT(:), Integral(:)
+     &                      Lrs(:), ChoT(:), Integral(:)
+      Type (CMO_Type) CMOt
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -293,23 +296,16 @@
 *
 **    Transpose CMO
 *
-        nCMO=0
-        Do i=1,nsym
-          nCMO=nCMO+nIshe(i)*nBas(i)
-        End Do
-        Call mma_allocate(CMOt,nCMO,Label='CMOt')
-        ipCMOt(1)=1
+        Call allocate_CMO(CMOt,nIShe,nBas,nSym)
+        Call Map_to_CMO(CMOt,ipCMOt)
+
         ioff =0
-        ioff2=0
         Do iSym=1,nsym
-          ipCMOt(iSym)=ipCMOt(1)+ioff2
           Do j=1,nIshe(iSym)
             ioff3=ioff+nBas(iSym)*(nIshb(iSym)+j-1)
-            call dcopy_(nBas(iSym),CMO(1+ioff3),1,
-     &                 CMOt(ipCMOt(isym)+j-1),nIshe(iSym))
+            CMOt%pA(iSym)%A(j,:) = CMO(ioff3+1:ioff3+nBas(iSym))
           End Do
           ioff =ioff +nBas(iSym)**2
-          ioff2=ioff2+nBas(iSym)*nIshe(iSym)
         End Do
 *
 **      Loop over reduced sets
@@ -410,15 +406,12 @@ c         !set index arrays at iLoc
             kMOs = 1  !
             nMOs = 1  ! Active MOs (1st set)
 *
-            inc = ip_of_Work(CMOt(1))
-            ipCMOt(:) = ipCMOt(:) - 1 + inc
             inc2= ip_of_Work(ChoT(1))
             ipLpq(:) = ipLpq(:) - 1 + inc2
             CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,ipCMOt,
      &                        nIshe,ipLpq,iSkip,DoRead)
             ipLpq(:) = ipLpq(:) + 1 - inc2
-            ipCMOt(:) = ipCMOt(:) + 1 - inc
 
             if (irc.ne.0) then
                RETURN
@@ -768,7 +761,7 @@ c         !set index arrays at iLoc
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
-        Call mma_deallocate(CMOt)
+        Call deallocate_CMO(CMOt)
         Call mma_deallocate(iiab)
         If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches

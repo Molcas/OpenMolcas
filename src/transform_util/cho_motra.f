@@ -615,7 +615,7 @@ C --------------------------------------------------------------------
 
                        End Do
                       Else
-                    !  Lpq(:,:)=Zero
+                       Lpq(:,:)=Zero
                       End If
 
                      EndIf
@@ -626,7 +626,8 @@ C --------------------------------------------------------------------
 
                      CALL CWTIME(TCR3,TWR3)
 
-                     If (NApq.ne.0) Then
+                     If (NApq.ne.0 .and.
+     &                   iSymp.lt.iSymb) Then
                         iE = iS - 1 + NApq*JNUM
                         Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
