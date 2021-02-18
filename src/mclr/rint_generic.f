@@ -30,7 +30,6 @@
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
-      Integer ipAsh(2)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
      &                      DLT(:), Dens2(:), DA(:), G2x(:),
      &                      CoulExch(:,:)
@@ -41,12 +40,14 @@
       Interface
         SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                         ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
+        use Data_Structures, only: CMO_Type
         Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &          ipMO1,ipQ,ipAsh(2),ipCMO,ip_CMO_inv
+     &          ipMO1,ipQ,ipCMO,ip_CMO_inv
+        Type (CMO_Type) Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -265,17 +266,13 @@
         ipFkA     = ip_of_Work(FockA(1))
         ipMO1     = ip_of_Work(rMOs(1))
         ipQ       = ip_of_Work(Q(1))
-*       ipAsh(1)  = ip_of_Work(CVa(1,1))
-*       ipAsh(2)  = ip_of_Work(CVa(1,2))
-        ipAsh(1)  = ip_of_Work(CVa(1)%CMO_Full(1))
-        ipAsh(2)  = ip_of_Work(CVa(2)%CMO_Full(1))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 *

@@ -35,7 +35,6 @@
      &       MO1(*), Scr(*)
       Real*8 rDum(1)
       Logical Fake_CMO2,DoAct
-      Integer ipAsh(2)
       Real*8, Allocatable:: DLT(:), JA(:), KA(:), DA(:), G2x(:)
       Type (CMO_Type) CVa(2)
 *                                                                      *
@@ -44,12 +43,14 @@
       Interface
         SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                         ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
+        use Data_Structures, only: CMO_Type
         Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &          ipMO1,ipQ,ipAsh(2),ipCMO,ip_CMO_inv
+     &          ipMO1,ipQ,ipCMO,ip_CMO_inv
+        Type (CMO_Type) Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -410,16 +411,12 @@
         ipFkA     = ip_of_Work(FockA(1))
         ipMO1     = ip_of_Work(MO1(1))
         ipQ       = ip_of_Work(Q(1))
-*       ipAsh(1)  = ip_of_Work(Cva(1,1))
-*       ipAsh(2)  = ip_of_Work(Cva(1,2))
-        ipAsh(1)  = ip_of_Work(CVa(1)%CMO_Full(1))
-        ipAsh(2)  = ip_of_Work(CVa(2)%CMO_Full(1))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO(1))
 
         CALL CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -432,8 +429,8 @@
         Call mma_deallocate(KA)
         Call mma_deallocate(DLT)
         Call mma_deallocate(G2x)
-        Call deallocate_CMO(Cva(2))
-        Call deallocate_CMO(Cva(1))
+        Call deallocate_CMO(CVa(2))
+        Call deallocate_CMO(CVa(1))
         Call mma_deallocate(DA)
       EndIf
 ************************************************************************

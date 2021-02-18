@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                      ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -37,6 +37,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type, Map_to_CMO
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -50,7 +51,8 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tact(2)
       Real*8    tint1(2),tint2(2),tint3(2),tQmat(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAsh(2),ipAorb(8,2),nChMo(8)
+      Integer   ipAorb(8,2),nChMo(8)
+      Type (CMO_Type) Ash(2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
 #ifdef _DEBUGPRINT_
@@ -194,14 +196,7 @@ c --------------------
 
         DO jDen=1,nDen
 
-           ipAorb(1,jDen)= ipAsh(jDen)
-
-           DO ISYM=2,NSYM
-
-              ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                          + nAsh(iSym-1)*nBas(iSym-1)
-
-           END DO
+           Call Map_to_CMO(Ash(jDen),ipAorb(:,jDen))
 
         END DO
 
