@@ -13,14 +13,14 @@
 * ------------------------------------------------------------
 * Scan input lines after the '&MCPDFT' marker and until
 * finding keyword 'END ' or the end of file.
-* Keywords are identified according to file 'input_ras.fh'
-* Logical flags in 'input_ras.fh' are set according to input.
+* Keywords are identified according to file 'input_ras_mcpdft.fh'
+* Logical flags in 'input_ras_mcpdft.fh' are set according to input.
 * Return codes are _RC_ALL_IS_WELL_ or _RC_INPUT_ERROR_
 * ------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "output_ras.fh"
       Parameter(ROUTINE='Scan_Inp')
 *

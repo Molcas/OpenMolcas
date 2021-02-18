@@ -960,7 +960,7 @@ c
 cmp!        integer me,nprocs
 c
 #include "uhf.fh"
-#include "param.fh"
+#include "param_cht3.fh"
 cmp!        common /my_mpi_world_com/ me, nprocs
 c
 cmp!        include 'task_info_inc'

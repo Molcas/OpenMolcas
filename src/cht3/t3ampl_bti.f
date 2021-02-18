@@ -57,7 +57,7 @@ c       integer maxspace
         integer nla,nlb
         real*8 enx1
 cmp
-#include "param.fh"
+#include "param_cht3.fh"
 #include "ioind.fh"
 #include "uhf.fh"
 cmp

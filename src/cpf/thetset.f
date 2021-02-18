@@ -19,7 +19,7 @@
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-#include "spin.fh"
+#include "spin_cpf.fh"
       JO(L)=ICUNP(ICASE,L)
 CPAM97      EXTERNAL UNPACK
 CPAM97      INTEGER UNPACK

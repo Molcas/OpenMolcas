@@ -33,7 +33,7 @@
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "orthonormalize.fh"
+#include "orthonormalize_mcpdft.fh"
 #include "WrkSpc.fh"
 #include "ksdft.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)

@@ -20,7 +20,7 @@ C Read input and allocate memory
 #include "niocr.fh"
       Dimension IOCR(nIOCR)
       Dimension H(*), iH(*)
-#include "spin.fh"
+#include "spin_cpf.fh"
       Parameter ( nCmd=18 )
       Parameter ( mxTit=10 )
       Character*4 Command,Cmd(nCmd)

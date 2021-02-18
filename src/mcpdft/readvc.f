@@ -74,7 +74,7 @@
 #include "warnings.fh"
 #include "wadr.fh"
 #include "casvb.fh"
-#include "sxci.fh"
+#include "sxci_mcpdft.fh"
 *     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)

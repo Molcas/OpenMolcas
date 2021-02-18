@@ -19,7 +19,7 @@
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-#include "spin.fh"
+#include "spin_cpf.fh"
 CPAM97      EXTERNAL UNPACK
 CPAM97      INTEGER UNPACK
 CRL   JO(L)=IAND(ISHFT(QOCC((L+29)/30),-2*((L+29)/30*30-L)),3)

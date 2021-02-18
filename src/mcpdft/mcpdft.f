@@ -58,7 +58,7 @@
 #include "wadr.fh"
 #include "rasdim.fh"
 #include "warnings.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "rasrc.fh"
 #include "general.fh"
@@ -76,8 +76,8 @@
 #include "gugx.fh"
 #include "pamint.fh"
 #include "davctl.fh"
-#include "qnctl.fh"
-#include "orthonormalize.fh"
+#include "qnctl_mcpdft.fh"
+#include "orthonormalize_mcpdft.fh"
 #include "ciinfo.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
@@ -109,7 +109,7 @@
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 
-#include "sxci.fh"
+#include "sxci_mcpdft.fh"
 
       External Get_ProgName
 !      External Get_SuperName
@@ -173,7 +173,7 @@
 * with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 * substring beginning with '!' with blanks.
 * That copy will be in file 'CleanInput', and its unit number is returned
-* as LUInput in common (included file input_ras.fh) by the following call:
+* as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
       Call cpinp_(LUInput,iRc)
 !      write(*,*) LUINPUT, IRC
 * If something wrong with input file:

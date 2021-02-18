@@ -33,7 +33,7 @@
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='MSCTL   ')
 #include "rasscf.fh"
