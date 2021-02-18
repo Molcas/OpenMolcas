@@ -4,12 +4,8 @@
 
 .. _sec\:mula:
 
-:program:`Mula` |extramark|
-===========================
-
-.. warning::
-
-   This program is not available in |openmolcas|
+:program:`Mula`
+===============
 
 .. only:: html
 
@@ -17,11 +13,14 @@
      :local:
      :backlinks: none
 
-.. xmldoc:: %%Description:
+.. xmldoc:: <MODULE NAME="MULA">
+            %%Description:
+            <HELP>
             This program computes intensities of vibrational
             transitions between electronic states.
+            </HELP>
 
-The :program:`MULA` calculates intensities of vibrational
+The :program:`MULA` program calculates intensities of vibrational
 transitions between electronic states.
 
 .. index::
@@ -32,7 +31,7 @@ transitions between electronic states.
 Dependencies
 ------------
 
-The :program:`MULA` program may need one or more UNSYM files produced
+The :program:`MULA` program may need one or more :file:`UNSYM` files produced
 by the :program:`MCLR` program, depending on input options.
 
 .. index::
@@ -84,16 +83,24 @@ Keywords
 :kword:`TITLe`
   Followed by a single line, the title of the calculation.
 
-  .. xmldoc:: %%Keyword: TITLe <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="TITLE" APPEAR="Title" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: TITLe <basic>
+              <HELP>
               A single title line follows.
+              </HELP>
+              </KEYWORD>
 
 :kword:`FORCe`
   A force field will be given as input (or read from file), defining two
   oscillators for which individual vibrational levels and transition
   data will be computed.
 
-  .. xmldoc:: %%Keyword: FORCe <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="FORCE" APPEAR="Force field" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: FORCe <basic>
+              <HELP>
               A force field will be given as input (or read from file).
+              </HELP>
+              </KEYWORD>
 
 :kword:`ATOMs`
   Followed by one line for each individual atom in the molecule.
@@ -103,10 +110,14 @@ Keywords
   the file data/atomic.data.
   After these lines is one single line with the keyword "END of atoms".
 
-  .. xmldoc:: %%Keyword: ATOMs <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="ATOMS" APPEAR="Atoms" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: ATOMs <basic>
+              <HELP>
               Followed by one line with an atom label for each individual atom
               in the molecule. A label consists of element name followed by a
-              numeric label, optionally followed by a nuclear mass.0
+              numeric label, optionally followed by a nuclear mass.
+              </HELP>
+              </KEYWORD>
 
 :kword:`INTErnal`
   Specification of which internal coordinates that are to be used in the
@@ -118,10 +129,14 @@ Keywords
   Here, *a*...\ *d* stand for atom labels.
   After these lines follows one line with the keyword "END of internal".
 
-  .. xmldoc:: %%Keyword: INTErnal <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="INTERNAL" APPEAR="Internal coordinates" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: INTErnal <basic>
+              <HELP>
               Followed by lines of the form e.g. 'BOND C11 Br3', i.e. coordinate type
               and atom labels, Other choices are 'ANGLE a b c', 'TORSION a b c d'
               and 'OUTOFPL a b c d', where a--d are atom labels.
+              </HELP>
+              </KEYWORD>
 
 :kword:`MODEs`
   Selection of modes to be used in the intensity calculation. This is
@@ -129,22 +144,34 @@ Keywords
   The modes are numbered sequentially in order of vibrational frequency.
   After this list follows one line with the keyword "END of modes".
 
-  .. xmldoc:: %%Keyword: MODEs <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="MODES" APPEAR="Modes" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: MODEs <basic>
+              <HELP>
               Selection of modes to be used in the intensity calculation.
+              </HELP>
+              </KEYWORD>
 
 :kword:`MXLEvels`
   Followed by one line with
   the maximum number of excitations in each of the two states.
 
-  .. xmldoc:: %%Keyword: MXLEvels <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="MXLEVELS" APPEAR="Maximum levels" KIND="INTS" SIZE="2" LEVEL="BASIC">
+              %%Keyword: MXLEvels <basic>
+              <HELP>
               Followed by one line with max excitation level in the two states.
+              </HELP>
+              </KEYWORD>
 
 :kword:`VARIational`
   If this keyword is included, a variational calculation will be made,
   instead of using the default double harmonic approximation.
 
-  .. xmldoc:: %%Keyword: VARIational <basic>
-              Make a variational calculation, nor harmonic approximation.
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="VARIATIONAL" APPEAR="Variatioal" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: VARIational <basic>
+              <HELP>
+              Make a variational calculation, no harmonic approximation.
+              </HELP>
+              </KEYWORD>
 
 :kword:`TRANsitions`
   Indicates the excitations to be printed in the output.
@@ -154,98 +181,156 @@ Keywords
   potential function (force field). Then similarly, after a line with
   the word SECOND, a list of excitation levels for the second state.
 
-  .. xmldoc:: %%Keyword: TRANsitions <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="TRANSITIONS" APPEAR="Transitions" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: TRANsitions <basic>
+              <HELP>
               Followed by the word FIRST, then a line with a list of
               the number of phonons to be distributed among the modes,
               for the first state, then similarly for second state.
+              </HELP>
+              </KEYWORD>
 
 :kword:`ENERgies`
   The electronic :math:`T_0` energies of the two states, each value is followed by
   either "eV" or "au".
 
-  .. xmldoc:: %%Keyword: ENERgies <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="ENERGIES" APPEAR="Energies" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: ENERgies <basic>
+              <HELP>
               The electronic T_0 energies of the two states, each value
               followed by "eV" or "au".
+              </HELP>
+              </KEYWORD>
 
 :kword:`GEOMetry`
-  Geometry input. Followed by keywords FILE, CARTESIAN, or INTERNAL.
-  If FILE, the geometry input is taken from UNSYM1 and UNSYM2.
-  If CARTESIAN or INTERNAL, two sections follow, one headed by a line
-  with the word FIRST, the other with the word SECOND. For the CARTESIAN
+  Geometry input. Followed by keywords :kword:`FILE`, :kword:`CARTESIAN`, or :kword:`INTERNAL`.
+  If :kword:`FILE`, the geometry input is taken from :file:`UNSYM1` and :file:`UNSYM2`.
+  If :kword:`CARTESIAN` or :kword:`INTERNAL`, two sections follow, one headed by a line
+  with the word :kword:`FIRST`, the other with the word :kword:`SECOND`. For the :kword:`CARTESIAN`
   case, the following lines list the atoms and coordinates. On each line
-  is an atom label, and the three coordinates (:math:`x,y,z`). For the INTERNAL
+  is an atom label, and the three coordinates (:math:`x,y,z`). For the :kword:`INTERNAL`
   case, each line defines an internal coordinate in the same way as for
-  keyword INTERNAL, and the value.
+  keyword :kword:`INTERNAL`, and the value.
 
-  .. xmldoc:: %%Keyword: GEOMetry <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="GEOMETRY" APPEAR="Geometry" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: GEOMetry <basic>
+              <HELP>
               Geometry input follows. Next line is FILE, CARTESIAN, or INTERNAL.
               Followed by FIRST, then coordinates, then SECOND, then coordinates.
               Format: See User's Guide.
+              </HELP>
+              </KEYWORD>
 
 :kword:`MXORder`
   Maximum order of transition dipole expansion. Next line is 0, if the
   transition dipole is constant, 1 if it is a linear function, etc.
 
-  .. xmldoc:: %%Keyword: MXORder <basic>
-              Next line is 0 for constant transition dipol, 1 for linear function.
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="MXORDER" APPEAR="Maximum order" KIND="INT" LEVEL="BASIC">
+              %%Keyword: MXORder <basic>
+              <HELP>
+              Next line is 0 for constant transition dipole, 1 for linear function, etc.
+              </HELP>
+              </KEYWORD>
 
 :kword:`OSCStr`
   If this keyword is included, the oscillator strength, instead of the
   intensity, of the transitions will calculated.
 
-  .. xmldoc:: %%Keyword: OSCStr <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="OSCSTR" APPEAR="Oscillator strength" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: OSCStr <basic>
+              <HELP>
               Print oscillator strengths rather than intensities.
+              </HELP>
+              </KEYWORD>
 
 :kword:`BROAdplot`
-  Gives the peaks in the spectrum plot an artificial halfwidth. The default
-  lifetime is :math:`130\cdot 10^{-15}` s but this can be changed with keyword
-  LIFEtime followd by the value.
+  Gives the peaks in the spectrum plot an artificial halfwidth.
+  The lifetime use for broadening can be specified with the :kword:`LIFEtime` keyword.
 
-  .. xmldoc:: %%Keyword: BROAdplot <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="BROADPLOT" APPEAR="Broaden peaks" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: BROAdplot <basic>
+              <HELP>
+              Apply artificial broadening to the spectrum plot peaks.
+              </HELP>
+              </KEYWORD>
+
+:kword:`LIFEtime`
+  Specify the lifetime broadening (in seconds) for the spectrum plot peaks when :kword:`BROAdplot` is given.
+  The default value is :math:`130\cdot 10^{-15}` s.
+
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="LIFETIME" APPEAR="Lifetime" KIND="REAL" DEFAULT="130.0e-15" LEVEL="BASIC">
+              %%Keyword: LIFEtime <basic>
+              <HELP>
               Enter life time (sec) to be used for lifetime broadening of
               artificial spectrum.
+              </HELP>
+              </KEYWORD>
 
 :kword:`NANOmeters`
   If this keyword is included, the plot file will be in nanometers.
   Default is in eV.
 
-  .. xmldoc:: %%Keyword: NANOmeters <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="NANOMETERS" APPEAR="Plot in nm" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NANOmeters <basic>
+              <HELP>
               If this keyword is included, the plot file will be in nanometers.
               Default is in eV.
+              </HELP>
+              </KEYWORD>
 
 :kword:`CM-1`
   If this keyword is included, the plot file will be in
   cm\ :math:`^{-1}`. Default is in eV.
 
-  .. xmldoc:: %%Keyword: CM-1 <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="CM-1" APPEAR="Plot in cm-1" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CM-1 <basic>
+              <HELP>
               If this keyword is included, the plot file will be in cm^-1.
               Default is in eV.
+              </HELP>
+              </KEYWORD>
 
 :kword:`PLOT`
   Enter the limits (in eV, cm\ :math:`^{-1}`, or in nm) for the plot file.
 
-  .. xmldoc:: %%Keyword: PLOT <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="PLOT" APPEAR="Plot limits" KIND="REALS" SIZE="2" LEVEL="BASIC">
+              %%Keyword: PLOT <basic>
+              <HELP>
               Enter the limits (in eV, cm^-1, or in nm) for the plot file.
+              </HELP>
+              </KEYWORD>
 
 :kword:`VIBWrite`
   If this keyword is included, the vibrational levels of the two states will
   be printed in the output.
 
-  .. xmldoc:: %%Keyword: VIBWrite <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="VIBWRITE" APPEAR="Write vibrational levels" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: VIBWrite <basic>
+              <HELP>
               Print vibrational levels in the output.
+              </HELP>
+              </KEYWORD>
 
 :kword:`VIBPlot`
   Two files, plot.modes1 and plot.modes2, will be generated, with pictures of
   the normal vibrational modes of the two electronic states.
 
-  .. xmldoc:: %%Keyword: VIBPlot <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="VIBPLOT" APPEAR="Generate normal mode plots" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: VIBPlot <basic>
+              <HELP>
               Generate files plot.modes1 and plot.modes2 picturing normal modes.
+              </HELP>
+              </KEYWORD>
 
 :kword:`HUGElog`
   This keyword will give a much more detailed output file.
 
-  .. xmldoc:: %%Keyword: HUGElog <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="HUGELOG" APPEAR="Verbose output" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: HUGElog <basic>
+              <HELP>
               Much more detailed output.
+              </HELP>
+              </KEYWORD>
 
   .. :kword:`EXPANSION`
        This keyword indicates that the calculation will be aborted after
@@ -263,9 +348,13 @@ Keywords
   are an additional line for each cartesian coordinate of each atom, with the
   derivative of the transition dipole moment w.r.t. that nuclear coordinate.
 
-  .. xmldoc:: %%Keyword: DIPOles <basic>
+  .. xmldoc:: <KEYWORD MODULE="MULA" NAME="DIPOLES" APPEAR="Dipoles" KIND="REAL" SIZE="3" LEVEL="BASIC">
+              %%Keyword: DIPOles <basic>
+              <HELP>
               Transition dipole data follows. A single line with x,y,z components,
               if MAXORDER=0. Else additional lines with gradient values.
+              </HELP>
+              </KEYWORD>
 
 :kword:`NONLinear`
   Specifies non-linear variable substitutions to be used in the definition of
@@ -342,6 +431,7 @@ Input example
     0.50 0.03 0.01
     0.03 0.50 0.01
     0.01 0.01 0.25
+  End of ForceField
 
   DIPOles
     0.20 0.20 1.20
@@ -446,6 +536,9 @@ Input example
      file
    Second
      file
+  END OF FORCEFIELD
 
   DIPOLES
    file
+
+.. xmldoc:: </MODULE>
