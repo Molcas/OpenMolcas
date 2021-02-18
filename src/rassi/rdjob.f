@@ -13,13 +13,13 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
-      use mh5, only: mh5_fetch_dset_array_str
+      use mh5, only: mh5_fetch_dset
 #endif
       use mspt2_eigenvectors
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
-     &               mh5_fetch_dset_array_real, mh5_close_file
+     &               mh5_close_file
 #endif
       IMPLICIT NONE
 #include "prgm.fh"
@@ -181,7 +181,7 @@
 * read the ms-caspt2/qd-nevpt2 effective hamiltonian if it is available
       If (mh5_exists_dset(refwfn_id, heff_string)) Then
         call mma_allocate(ref_Heff,ref_nstates,ref_nstates)
-        call mh5_fetch_dset_array_real(refwfn_id,heff_string,ref_Heff)
+        call mh5_fetch_dset(refwfn_id,heff_string,ref_Heff)
         HAVE_HEFF=.TRUE.
 * with ejob, only read diagonal
         If (ifejob) Then
@@ -253,13 +253,9 @@
 
           DO I=1,NSTAT(JOB)
             ISTATE=ISTAT(JOB)-1+I
-            call mh5_fetch_dset_array_str(refwfn_id,
-     &                                    'QCMAQUIS_CHECKPOINT',
-     &                                     qcm_group_names(job)
-     &                                     %states(i),
-     &                                     [1],
-     &                                     [LROOT(ISTATE)-1]
-     &                                    )
+            call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',
+     &                          qcm_group_names(job)%states(i:i),
+     &                          [1],[LROOT(ISTATE)-1])
 !           Write(6,'(I3,A,A)') ISTATE, '   ',
 !    &      trim(qcm_group_names(job)%states(i))
           END DO

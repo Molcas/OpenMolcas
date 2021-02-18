@@ -25,7 +25,7 @@ C Author:     Teodoro Laino.  Scuola Normale Superiore di Pisa (Italy)  C
 C Date:       27.02.2004  Lund (Sweden)                                 C
 C                                                                       C
 C The original idea to implement this NAC computation was due to        C
-C Per-Ake Malmqvist on January 2000                                     C
+C Per-AAke Malmqvist on January 2000                                    C
 C                                                                       C
 C On Input:                                                             C
 C             SCR:  Transition density matrice in AO basis.             C
@@ -150,7 +150,7 @@ C Author:     Teodoro Laino.  Scuola Normale Superiore di Pisa (Italy)  C
 C Date:       27.02.2004  Lund (Sweden)                                 C
 C                                                                       C
 C The original idea to implement this NAC computation was due to        C
-C Per-Ake Malmqvist on January 2000                                     C
+C Per-AAke Malmqvist on January 2000                                    C
 C                                                                       C
 C Files needed by this routine:                                         C
 C                                                                       C

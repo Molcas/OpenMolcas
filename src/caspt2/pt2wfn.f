@@ -187,7 +187,7 @@
 
       subroutine pt2wfn_data
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
       implicit none
 #include "rasdim.fh"
@@ -202,8 +202,7 @@
         IDISK = IDCIEX
         DO ISTATE=1,NSTATE
           CALL DDAFILE(LUCIEX,2,BUF,NCONF,IDISK)
-          call mh5_put_dset_array_real(pt2wfn_cicoef,
-     &           BUF,[NCONF,1],[0,ISTATE-1])
+          call mh5_put_dset(pt2wfn_cicoef,BUF,[NCONF,1],[0,ISTATE-1])
         END DO
         call mma_deallocate(BUF)
 
@@ -218,7 +217,7 @@
 
       subroutine pt2wfn_estore(Heff)
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
       implicit none
 #include "rasdim.fh"
@@ -229,7 +228,7 @@
         call mh5_put_dset(pt2wfn_energy, ENERGY)
         call mh5_put_dset(pt2wfn_refene, REFENE)
         If (IFMSCOUP) Then
-          call mh5_put_dset_array_real(pt2wfn_heff, Heff)
+          call mh5_put_dset(pt2wfn_heff, Heff)
         End If
       End If
 #else
@@ -241,7 +240,7 @@ c Avoid unused argument warnings
 
       subroutine pt2wfn_densstore(Dmat,nDmat)
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
       implicit none
 #include "rasdim.fh"
@@ -250,8 +249,8 @@ c Avoid unused argument warnings
       real*8 :: Dmat(nDmat)
 #ifdef _HDF5_
       If (pt2wfn_is_h5) Then
-        call mh5_put_dset_array_real(pt2wfn_dens, Dmat,
-     $                               [nDmat, 1], [0, JSTATE-1])
+        call mh5_put_dset(pt2wfn_dens, Dmat,
+     $                    [nDmat, 1], [0, JSTATE-1])
       End If
 #else
       Return

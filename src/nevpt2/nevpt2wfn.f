@@ -188,7 +188,7 @@
 #endif
       use nevpt2_cfg, only : MultGroup
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
       implicit none
 #include "rasdim.fh"
@@ -210,9 +210,10 @@
 #ifdef _DMRG_
         if(allocated(qcm_group_names))then
           do i = 1, size(MultGroup%State)
-            call mh5_put_dset_array_str(
+            call mh5_put_dset(
      &           pt2wfn_ref_checkpoint,
-     &           qcm_group_names(1)%states(MultGroup%State(i)),
+     &           qcm_group_names(1)
+     &           %states(MultGroup%State(i):MultGroup%State(i)),
      &           [1],
      &           [i-1]
      &          )
@@ -228,7 +229,7 @@
       use nevpt2_cfg
       use info_state_energy  ! energies + effective Hamiltonian
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
       implicit none
 #ifdef _HDF5_
@@ -238,12 +239,12 @@
         call mh5_put_dset(pt2wfn_refene, e)
         call mh5_put_dset(pt2wfn_energy_sc, psimp)
         !> effective Hamiltonian
-        call mh5_put_dset_array_real(pt2wfn_heff_sc, e2mp)
+        call mh5_put_dset(pt2wfn_heff_sc, e2mp)
         if(.not.no_pc)then
           !> single-state PC energies
           call mh5_put_dset(pt2wfn_energy_pc, psien)
           !> effective PC Hamiltonian
-          call mh5_put_dset_array_real(pt2wfn_heff_pc, e2en)
+          call mh5_put_dset(pt2wfn_heff_pc, e2en)
         end if
       End If
 #endif

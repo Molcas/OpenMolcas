@@ -12,7 +12,7 @@
       use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
-     &               mh5_fetch_attr, mh5_fetch_dset_array_real
+     &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
 #endif
       IMPLICIT NONE
 #include "prgm.fh"
@@ -65,7 +65,7 @@
           call WarningMessage(2,'Invalid CI array index, abort!')
           call AbEnd
         END IF
-        call mh5_fetch_dset_array_real(refwfn_id,
+        call mh5_fetch_dset(refwfn_id,
      &         'CI_VECTORS',CI,[NCI,1],[0,IDXCI-1])
         call mh5_close_file(refwfn_id)
       Else

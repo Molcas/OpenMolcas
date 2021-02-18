@@ -25,8 +25,7 @@
 
       use mh5, only: mh5_init_attr, mh5_create_dset_str,
      &               mh5_create_dset_int, mh5_create_dset_real,
-     &               mh5_put_dset, mh5_put_dset_array_int,
-     &               mh5_put_dset_array_real, mh5_close_dset
+     &               mh5_put_dset, mh5_close_dset
       implicit none
       integer :: fileid
 #  include "Molcas.fh"
@@ -134,7 +133,7 @@
      $        'stored with atom index varying slowest')
       call mma_allocate(coord,3,nAtoms)
       Call Get_dArray('Un_cen Coordinates',coord,3*nAtoms)
-      call mh5_put_dset_array_real(dsetid,coord)
+      call mh5_put_dset(dsetid,coord)
       call mma_deallocate(coord)
       call mh5_close_dset(dsetid)
 
@@ -146,7 +145,7 @@
      $        'arranged as blocks of size [4*NBAS(i)], i=1,#irreps')
       call mma_allocate(basis_ids,4,nbast)
       Call Get_iArray('Basis IDs',basis_ids,4*nbast)
-      call mh5_put_dset_array_int(dsetid,basis_ids)
+      call mh5_put_dset(dsetid,basis_ids)
       call mma_deallocate(basis_ids)
       call mh5_close_dset(dsetid)
 
@@ -200,7 +199,7 @@
      $          'stored with atom index varying slowest')
         call mma_allocate(coord,3,MCENTR)
         call get_dArray('LP_Coor',coord,3*mcentr)
-        call mh5_put_dset_array_real(dsetid,coord)
+        call mh5_put_dset(dsetid,coord)
         call mma_deallocate(coord)
         call mh5_close_dset(dsetid)
 
@@ -211,7 +210,7 @@
      $          'arranged as one [4*NBAST] block, NBAST=sum(NBAS)')
         call mma_allocate(desym_basis_ids,4,nbast)
         Call get_iArray('Desym Basis IDs',desym_basis_ids,4*nbast)
-        call mh5_put_dset_array_int(dsetid,desym_basis_ids)
+        call mh5_put_dset(dsetid,desym_basis_ids)
         call mma_deallocate(desym_basis_ids)
         call mh5_close_dset(dsetid)
 
@@ -259,7 +258,7 @@
         end do
       end if
       call mma_deallocate(QMMap)
-      call mh5_put_dset_array_int(dsetid,PrimIDs)
+      call mh5_put_dset(dsetid,PrimIDs)
       call mma_deallocate(PrimIDs)
       call mh5_close_dset(dsetid)
 
@@ -272,7 +271,7 @@
      $        'exponent, contraction coefficient')
       call mma_allocate(Primitives,2,nPrim)
       call get_dArray('primitives', Primitives, 2*nPrim)
-      call mh5_put_dset_array_real(dsetid,Primitives)
+      call mh5_put_dset(dsetid,Primitives)
       call mma_deallocate(Primitives)
       call mh5_close_dset(dsetid)
 

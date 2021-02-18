@@ -18,7 +18,7 @@
       use kVectors
 #ifdef _HDF5_
       use Dens2HDF5
-      use mh5, only: mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -123,8 +123,7 @@ C Compute generalized transition density matrices, as needed:
       Call mma_deallocate(IDDET1)
 
 #ifdef _HDF5_
-      CALL mh5_put_dset_array_real(wfn_overlap,
-     &     OVLP,[NSTATE,NSTATE],[0,0])
+      CALL mh5_put_dset(wfn_overlap,OVLP,[NSTATE,NSTATE],[0,0])
 #endif
       Call Put_dArray('State Overlaps',OVLP,NSTATE*NSTATE)
 

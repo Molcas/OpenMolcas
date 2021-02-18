@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE RDCMO_RASSI(JOB,CMO)
 #ifdef _HDF5_
-      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r,
-     &               mh5_fetch_dset_array_real, mh5_close_file
+      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,
+     &               mh5_close_file
 #endif
       IMPLICIT NONE
 #include "prgm.fh"
@@ -58,7 +58,7 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
 ************************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
         refwfn_id = mh5_open_file_r(jbname(job))
-        call mh5_fetch_dset_array_real(refwfn_id,
+        call mh5_fetch_dset(refwfn_id,
      &         'MO_VECTORS', WORK(LBUF))
         call mh5_close_file(refwfn_id)
       Else

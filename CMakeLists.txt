@@ -1874,13 +1874,6 @@ if (GCOV)
   endif ()
 endif ()
 
-# FDE interface
-#==============
-
-if (FDE)
-  add_compile_definitions (_FDE_)
-endif ()
-
 ################################################################################
 #                                                                              #
 # External programs/libraries: compilation does not require a molcas library,  #
@@ -2395,6 +2388,7 @@ foreach (util ${utils})
   endif ()
 endforeach ()
 
+# activate FDE interface
 if (FDE)
   set (util embedding_util)
   find_source (${util} ${source_roots})
@@ -2403,13 +2397,14 @@ if (FDE)
   else ()
     message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
+  # directories using FDE
   foreach (prog
     gateway_util
-    seward
-    scf
     rasscf
+    scf
+    seward
   )
-    list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${util}_src})
+    list (APPEND ${prog}_defs "_FDE_")
   endforeach ()
 endif ()
 
