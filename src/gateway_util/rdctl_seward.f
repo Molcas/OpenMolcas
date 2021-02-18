@@ -61,8 +61,10 @@
 #include "print.fh"
 #include "RelLight.fh"
 #include "gateway.fh"
-#include "hyper.fh"
 #include "relae.fh"
+#ifdef _HAVE_EXTRA_
+#include "hyper.fh"
+#endif
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
@@ -115,6 +117,7 @@
       Logical NoDKroll
       Logical DoTinker
       Logical DoGromacs
+      Logical OrigInput
       Logical OriginSet
       Logical FragSet
       Logical HyperParSet
@@ -232,8 +235,9 @@
       ForceZMAT=.false.
       DoTinker = .False.
       DoGromacs = .False.
-      origin_input = .False.
+      OrigInput = .False.
 #ifdef _HAVE_EXTRA_
+      origin_input = .False.
       geoInput = .False.
       OldZmat = .False.
       isHold=-1
@@ -3314,7 +3318,10 @@ c
 *                                                                      *
 *     Defines translation and rotation for each xyz-file
 *
- 8015 Origin_input = .True.
+ 8015 OrigInput = .True.
+#ifdef _HAVE_EXTRA_
+      Origin_input = .True.
+#endif
       If(FragSet) Then
          Write(6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
          Call Quit_OnUserError()
@@ -3431,7 +3438,10 @@ c
 *                                                                      *
 ***** FRGM *************************************************************
 *                                                                      *
- 8025 Origin_input= .True.
+ 8025 OrigInput = .True.
+#ifdef _HAVE_EXTRA_
+      Origin_input = .True.
+#endif
       GWinput = .True.
       If(OriginSet) Then
          Write(6,*) 'Keywords FRGM and ORIG are mutually exclusive!'
@@ -4548,7 +4558,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Deallocate fields from keyword ORIGIN
 *
-      If(Origin_input) Then
+      If(OrigInput) Then
          Call mma_deallocate(OrigRot)
          Call mma_deallocate(OrigTrans)
       End If

@@ -36,7 +36,7 @@
 #include "qminp.fh"
 #include "files_qmstat.fh"
 #include "WrkSpc.fh"
-#include<constants.fh>
+#include "constants.fh"
 
 *     Parameter (BoltzK=1.0d-3*CONST_BOLTZMANN_/CONV_AU_TO_KJ_)
       Dimension iPermutation(2,MxParT)

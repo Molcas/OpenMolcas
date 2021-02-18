@@ -11,7 +11,7 @@
       Subroutine OffAtom(C1,C2,C3,C4,C5)
       Implicit Real*8 (a-z)
 
-#include<constants.fh>
+#include "constants.fh"
 #include "real.fh"
       Parameter (AuAng=1d10*CONST_BOHR_RADIUS_IN_SI_)
       Dimension C1(3),C2(3),C3(3),C4(3),C5(3)

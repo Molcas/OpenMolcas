@@ -25,8 +25,9 @@
       PARAMETER (LIOTAB=512*512)
 #include "Pointers.fh"
 #include "stdalloc.fh"
-#include "toc.fh"
 #include "Files_mclr.fh"
+      integer toca(8,8,8),tocb(36,8),tocc(5,36,8)
+      Save toca,tocB,tocc
       Integer, Allocatable:: Hlf1(:,:)
       Real*8, Allocatable:: Buffer(:)
 *                                                                      *

@@ -14,7 +14,6 @@
       Integer, Parameter            :: wp=kind(0.d0)
 #include "cntrl.fh"
 #include "mgrid.fh"
-#include "mvect.fh"
 #include "stdalloc.fh"
       Integer, intent(in)          :: nss, nm
       Integer, intent(in)          :: AngPoints

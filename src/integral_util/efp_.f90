@@ -8,9 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "compiler_features.h"
+
 #ifdef _EFP_
-#include "../../External/efp/interface/efp.f90"
-#else
-      Module EFP
-      End Module EFP
+
+! File from the EFP submodule
+#include "efp.f90"
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(efp_mod)
+
+#endif
+
+! This is to trigger the module selection in CMake
+#if (0)
+module EFP
+end module EFP
 #endif

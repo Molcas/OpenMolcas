@@ -12,7 +12,6 @@
 c ! max. angular momentum of basis functions  DO NOT INCREASE
 cbs                          TO MORE THAN SIX   !!!!!!!!!!!!!!!!!!!
 cbs                          if you do, you will have to edit the ixyzpow array by hand...............
-cbs                          (in datapow.fh)
       parameter (Lmax_occ=3)
 c ! highest L-value for occupied orbitals
       parameter (MxprimL=40)
