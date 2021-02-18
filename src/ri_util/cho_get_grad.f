@@ -109,7 +109,7 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: CMO_Type, Map_to_CMO
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
@@ -197,10 +197,7 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 
 *     Temporary set up of ipAOrb -- to become obsolete
       Do iADens = 1, nADens
-         Do iIrrep = 1, nSym
-            ipAOrb(iIrrep,iADens) =
-     &        ip_of_Work(AOrb(iADens)%pA(iIrrep)%A(1,1))
-         End Do
+         Call Map_to_CMO(AOrb(iADens),ipAOrb(:,iADens))
       End Do
 
       iRout = 9

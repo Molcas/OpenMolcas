@@ -16,7 +16,7 @@
 !***********************************************************************
 Module Data_Structures
 Private
-Public:: CMO_Type, Deallocate_CMO, Allocate_CMO
+Public:: CMO_Type, Deallocate_CMO, Allocate_CMO, Map_to_CMO
 #include "stdalloc.fh"
 
 Type V2
@@ -67,5 +67,18 @@ Contains
     Adam%pA(iSym)%A(1:n(iSym),1:m(iSym)) => Adam%CMO_Full(iS:iE)
   End Do
   End Subroutine Allocate_CMO
+
+  Subroutine Map_to_CMO(Adam,ipAdam)
+  Implicit None
+  Type (CMO_Type):: Adam
+  Integer ipAdam(*)
+  Integer, External:: ip_of_Work
+  Integer iSym
+
+  Do iSym=1, Adam%nSym
+     ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1))
+  End Do
+
+  End Subroutine Map_to_CMO
 
 End Module Data_Structures

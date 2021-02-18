@@ -14,7 +14,7 @@
       use Temporary_Parameters, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
-      use Data_Structures, only: Allocate_CMO
+      use Data_Structures, only: Allocate_CMO, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
@@ -352,22 +352,21 @@
          Allocate(AOrb(nADens))
          Do iADens = 1, nADens
             Call Allocate_CMO(AOrb(iADens),nAsh,nBas,nIrrep)
+            Call Map_to_CMO(AOrb(iADens),ipAOrb(:,iADens))
          End Do
 
 *
 * --- Reordering of the active MOs :  C(a,v) ---> C(v,a)
+*
          iCount=0
          Do iIrrep=0,nIrrep-1
 
             jCount = iCount + nBas(iIrrep)*nIOrb(iIrrep)
 
-
             iCount = iCount + nBas(iIrrep)**2
             If (nBas(iIrrep)*nASh(iIrrep)==0) Cycle
 
          Do iADens=1, nADens
-            ipAOrb(iIrrep,iADens) =
-     &             ip_of_Work(AOrb(iADens)%pA(iIrrep+1)%A(1,1))
 
             Do i=1,nASh(iIrrep)
                kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
