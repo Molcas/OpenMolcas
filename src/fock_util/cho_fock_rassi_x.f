@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE CHO_FOCK_RASSI_X(ipDLT,ipMO1,ipMO2,ipFLT,ipK,ipInt)
+      SUBROUTINE CHO_FOCK_RASSI_X(ipDLT,MO1,MO2,ipFLT,ipK,ipInt)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -33,8 +33,10 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
 
+      Type (CMO_Type) MO1(2), MO2(2)
       Integer   rc,ipLxy(8),ipScr(8,8)
       Integer   ipLab(8,2),ipOrb(8,2),nOrb(8,2)
       Integer   iSkip(8)
@@ -99,24 +101,18 @@ c --------------------
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB**2 ! Inactive Exch matrix
       END DO
 
-      ipOrb(1,1) = ipMO1
-      ipOrb(1,2) = ipMO2
+      Call Map_to_CMO(MO1(1),ipOrb(:,1))
+      Call Map_to_CMO(MO2(1),ipOrb(:,2))
+      Call Map_to_CMO(MO1(2),ipAOrb(:,1))
+      Call Map_to_CMO(MO2(2),ipAOrb(:,2))
 
       DO jDen=1,nDen
 
          nOrb(1,jDen)  = nIsh(1)
-         ipAorb(1,jDen)= ipOrb(1,jDen)
-     &                 + nOrb(1,jDen)*NBAS(1)
 
          DO ISYM=2,NSYM
 
-            ipOrb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                       + nAsh(iSym-1)*NBAS(iSym-1)
-
             nOrb(iSym,jDen)  = nIsh(iSym)
-
-            ipAorb(iSym,jDen)= ipOrb(iSym,jDen)
-     &                       + nOrb(iSym,jDen)*NBAS(iSym)
 
          END DO
 

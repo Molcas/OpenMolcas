@@ -18,7 +18,7 @@
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8)
       LOGICAL   ISQARX
-      Type (CMO_Type) Ash(2)
+      Type (CMO_Type) Ash(2), MO1(2), MO2(2)
 #include "rassi.fh"
 #include "symmul.fh"
 #include "Molcas.fh"
@@ -32,6 +32,7 @@
       Real*8  dmpk
       Logical Fake_CMO2
       Real*8, Dimension(:), Allocatable:: Prod, FAO, DInAO
+      Integer nAux(8)
 
       COMMON / CHO_JOBS / Fake_CMO2
       COMMON /CHORASSI / ALGO,Nscreen,dmpk
@@ -212,12 +213,11 @@ C --- to avoid double counting when using gadsum
          If (ALGO.eq.1) Then
 c --- reorder the MOs to fit Cholesky needs
 
-           nKB=0
-           Do iSym=1,nSym
-            nKB = nKB + (nIsh(iSym)+nAsh(iSym))*nBasF(iSym)
-           End Do
-           Call GetMem('Cka','Allo','Real',ipMO1,nKB)
-           Call GetMem('Ckb','Allo','Real',ipMO2,nKB)
+           nAux(1:nSym) = nIsh(1:nSym) + nAsh(1:nSym)
+           Call Allocate_CMO(MO1(1),nIsh,nBasF,nSym)
+           Call Allocate_CMO(MO1(2),nAsh,nBasF,nSym)
+           Call Allocate_CMO(MO2(1),nIsh,nBasF,nSym)
+           Call Allocate_CMO(MO2(2),nAsh,nBasF,nSym)
 
            ioff=0
            Do iSym=1,nSym
@@ -226,11 +226,11 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff1=ioff+nBasF(iSym)*(ikk-1)
 
-               call dcopy_(nBasF(iSym),CMO1(ioff1+1),1,
-     &                    Work(ipMO1+ioff+ikk-1),nIsh(iSym))
+               MO1(1)%pA(iSym)%A(ikk,:) =
+     &            CMO1(ioff1+1:ioff1+nBasF(iSym))
 
-               call dcopy_(nBasF(iSym),CMO2(ioff1+1),1,
-     &                    Work(ipMO2+ioff+ikk-1),nIsh(iSym))
+               MO2(1)%pA(iSym)%A(ikk,:) =
+     &            CMO2(ioff1+1:ioff1+nBasF(iSym))
             end do
 
             ioff2=ioff+nBasF(iSym)*nIsh(iSym)
@@ -239,11 +239,11 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               call dcopy_(nBasF(iSym),CMO1(ioff3+1),1,
-     &                    Work(ipMO1+ioff2+ikk-1),nAsh(iSym))
+               MO1(2)%pA(iSym)%A(ikk,:) =
+     &            CMO1(ioff3+1:ioff3+nBasF(iSym))
 
-               call dcopy_(nBasF(iSym),CMO2(ioff3+1),1,
-     &                    Work(ipMO2+ioff2+ikk-1),nAsh(iSym))
+               MO2(2)%pA(iSym)%A(ikk,:) =
+     &            CMO2(ioff3+1:ioff3+nBasF(iSym))
             end do
 
             ioff=ioff+nBasF(iSym)*(nIsh(iSym)+nAsh(iSym))
@@ -255,13 +255,15 @@ c --- Add the two-electron contribution to the Fock matrix
 c ---     and compute the (tu|vx) integrals
 
            If (Fake_CMO2) Then
-              CALL CHO_FOCK_RASSI(ipDLT,ipMO1,ipMO2,ipFLT,LTUVX)
+              CALL CHO_FOCK_RASSI(ipDLT,MO1,MO2,ipFLT,LTUVX)
            Else
-              CALL CHO_FOCK_RASSI_X(ipDLT,ipMO1,ipMO2,ipFLT,LFAO,LTUVX)
+              CALL CHO_FOCK_RASSI_X(ipDLT,MO1,MO2,ipFLT,LFAO,LTUVX)
            EndIf
 
-           Call GetMem('Ckb','Free','Real',ipMO2,nKB)
-           Call GetMem('Cka','Free','Real',ipMO1,nKB)
+           Call Deallocate_CMO(MO2(2))
+           Call Deallocate_CMO(MO2(1))
+           Call Deallocate_CMO(MO1(2))
+           Call Deallocate_CMO(MO1(1))
 
          Else  ! algo=2 (local exchange algorithm)
 
@@ -269,10 +271,6 @@ c ---     and compute the (tu|vx) integrals
            ipMO2 = ip_of_Work(CMO2(1))
 
 C *** Only the active orbitals MO coeff need reordering
-           nVB=0
-           Do iSym=1,nSym
-            nVB = nVB + nAsh(iSym)*nBasF(iSym)
-           End Do
            Call Allocate_CMO(Ash(1),nAsh,nBasF,nSym)
            Call Allocate_CMO(Ash(2),nAsh,nBasF,nSym)
 
