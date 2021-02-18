@@ -18,6 +18,7 @@
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "cholesky.fh"
 #include "etwas.fh"
@@ -29,7 +30,8 @@
       Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
       COMMON    /CHOTIME /timings
       Character*8 Method
-*                                                                      *
+
+*
 ************************************************************************
 *                                                                      *
       DoExchange=Exfac.ne.Zero
@@ -345,29 +347,42 @@
             iOff=iOff+iOff2*nnP(kIrrep)
             mAO=mAO+nBas(kIrrep)*nASh(kIrrep)
          End Do
-         Call GetMem('AOrb','Allo','Real',ipAOrb(0,1),mAO*nADens)
+
+         Allocate(AOrb(nADens))
+         Do iADens = 1, nADens
+            AOrb(iADens)%nSym=nIrrep
+            Call mma_allocate(AOrb(iADens)%CMO_Full,mAO,Label='CMO')
+         End Do
+
 *
 * --- Reordering of the active MOs :  C(a,v) ---> C(v,a)
          iCount=0
-         lCount=0
+         iE = 0
          Do iIrrep=0,nIrrep-1
+
             jCount = iCount + nBas(iIrrep)*nIOrb(iIrrep)
-            ipAOrb(iIrrep,1) = ipAOrb(0,1) + lCount
-            ipAOrb(iIrrep,2) = ipAOrb(iIrrep,1)+mAO
+
+            iS = iE + 1
+            iE = iE + nBas(iIrrep)*nASh(iIrrep)
+
+            iCount = iCount + nBas(iIrrep)**2
+            If (nBas(iIrrep)*nASh(iIrrep)==0) Cycle
+
+         Do iADens=1, nADens
+            AOrb(iADens)%pA(iIrrep+1)%A(1:nAsh(iIrrep),1:nBas(iIrrep))
+     &          => AOrb(iADens)%CMO_Full(iS:iE)
+            ipAOrb(iIrrep,iADens) =
+     &             ip_of_Work(AOrb(iADens)%CMO_Full(iS))
+
             Do i=1,nASh(iIrrep)
                kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
-               kOff2 = ipAOrb(iIrrep,1) + i - 1
-               Call dCopy_(nBas(iIrrep),CMO(kOff1,1),1,
-     &                               Work(kOff2),nASh(iIrrep))
-               If (lSA) Then
-                 kOff2 = ipAOrb(iIrrep,2) + i - 1
-                 Call dCopy_(nBas(iIrrep),CMO(kOff1,2),1,
-     &                               Work(kOff2),nASh(iIrrep))
-               EndIf
+               AOrb(iADens)%pA(iIrrep+1)%A(i,1:nBas(iIrrep)) =
+     &            CMO(kOff1:kOff1-1+nBas(iIrrep),iADens)
             End Do
-            iCount = iCount + nBas(iIrrep)**2
-            lCount = lCount + nBas(iIrrep)*nASh(iIrrep)
-         End Do
+
+         End Do ! iADens
+
+         End Do ! iIrrep
 *
          If (nKdens.eq.2) Then ! for Coulomb term
             Call daxpy_(nDens,One,Work(ipDMLT(2)),1,
@@ -396,7 +411,7 @@
      &                  'Compute_AuxVec: failed in Cho_Get_Grad !!')
             Call Abend()
          End If
-*         Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO)
+
          If (DoCAS .or. DoExchange) Then
             Call GetMem('ChMOs','Free','Real',ipChM(1),nCMO*nKdens)
          EndIf

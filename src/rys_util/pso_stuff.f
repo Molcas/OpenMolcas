@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Module PSO_Stuff
+      use Data_structures, only: CMO_type
       Logical lPSO,lsa, Case_3C, Case_2C, Case_mp2
       Integer nnP(0:7), iOff_ij2K(8),npos(0:7,3),ipAOrb(0:7,2)
       Real*8, Allocatable:: DMdiag(:,:), Thpkl(:), G2(:,:), CMO(:,:),
@@ -24,4 +25,8 @@
       Integer nZ_p_k
       Integer nV_K, nSOs1
       Integer iD0Lbl
+
+!     The should eventually totally replace ipAOrb
+      Type (CMO_Type), Allocatable, Target:: AOrb(:)
+
       End Module PSO_Stuff

@@ -662,7 +662,9 @@ C --------------------------------------------------------------------
                              ! See above for more explanation
                              if (ihdf5==1) then
                                call hdf5_write_cholesky(choset_id,
-     &                           space_id,ipq-1,nVec*(iBatch-1),JNUM,ChoT)
+     &                                                  space_id,ipq-1,
+     &                                                  nVec*(iBatch-1),
+     &                                                  JNUM,ChoT)
                              end if
 #endif
 
