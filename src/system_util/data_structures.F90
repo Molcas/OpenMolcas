@@ -16,7 +16,7 @@
 !***********************************************************************
 Module Data_Structures
 Private
-Public:: CMO_Type, Deallocate_CMO
+Public:: CMO_Type, Deallocate_CMO, Allocate_CMO
 #include "stdalloc.fh"
 
 Type V2
@@ -42,5 +42,30 @@ Contains
   Adam%nSym=0
 
   End Subroutine Deallocate_CMO
+
+  Subroutine Allocate_CMO(Adam,n,m,nSym)
+  Implicit None
+  Type (CMO_Type),Target:: Adam
+  Integer nSym
+  Integer n(nSym), m(nSym)
+  Integer iE, iS, iSym, MemTot
+
+  Adam%nSym=nSym
+
+  MemTot=0
+  Do iSym = 1, nSym
+     MemTot = MemTot + n(iSym)*m(iSym)
+  End Do
+  Call mma_allocate(Adam%CMO_Full,MemTot,Label='%CMO_Full')
+
+  iE = 0
+  Do iSym = 1, nSym
+    iS = iE + 1
+    iE = iE + n(iSym) * m(iSym)
+    Write (6,*) 'xx: iS, iE=',iS, iE
+
+    Adam%pA(iSym)%A(1:n(iSym),1:m(iSym)) => Adam%CMO_Full(iS:iE)
+  End Do
+  End Subroutine Allocate_CMO
 
 End Module Data_Structures
