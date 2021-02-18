@@ -32,7 +32,7 @@
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "io_util.fh"
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
       REAL*8 INPRDD
 *. Input
       DIMENSION T(*)

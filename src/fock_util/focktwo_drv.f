@@ -17,11 +17,9 @@
       Real*8 DLT(*),DSQ(*),FLT(nFLT)
       Integer nBas(8), nAux(8), Keep(8)
       Logical DoCholesky,GenInt
-      Integer ALGO
-      Logical REORD,DECO
       Real*8 CMO_DUMMY(1)
 
-      Common /CHORAS / REORD,DECO,ALGO
+#include "choras.fh"
 *
 * nAux is the number of occupied orbitals
       GenInt=.false.

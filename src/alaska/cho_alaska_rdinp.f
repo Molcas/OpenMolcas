@@ -24,8 +24,7 @@
       parameter (SECNAM = 'CHO_ALASKA_INPUT')
       Real*8 dmpK
       Integer nScreen
-      Logical timings
-      COMMON  /CHOTIME /timings
+#include "chotime.fh"
 *
 *     Set defaults
 *

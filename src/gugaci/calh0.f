@@ -11,8 +11,7 @@
       subroutine geth0()
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 c     character*256 filename
       dimension vad0(max_h0)
       real*8, allocatable :: vb1(:), vb2(:)
@@ -179,8 +178,7 @@ c      stop 888
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       real*8, allocatable :: buff(:)
 
       num=ndim_h0*(ndim_h0+1)/2

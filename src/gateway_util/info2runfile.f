@@ -41,8 +41,7 @@
       Integer nDel(8)
       Logical Found
 *
-      Logical DoEMPC
-      Common /EmbPCharg/ DoEMPC
+#include "embpcharg.fh"
       Real*8, Dimension(:,:), Allocatable :: DCo
       Real*8, Dimension(:), Allocatable :: DCh, DCh_Eff
       Integer, Allocatable :: NTC(:), ICh(:), IsMM(:), nStab(:)

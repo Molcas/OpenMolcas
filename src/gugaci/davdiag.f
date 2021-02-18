@@ -22,8 +22,7 @@ c------------------------------------------------------
 c
 #include "drt_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 #include "thresh.fh"
       dimension idxvec(max_iter)
       dimension valpha(max_root),vcien(max_root),vcienold(max_root),
@@ -449,8 +448,7 @@ c
 !     *                      nf11,nf13,nf15,nf20,nf21,nf22,nf23
 !
 !      logical logic_tdav,logic_inivec_read
-!      common /scratch/ tmpdir,len_str
-!      character*256 tmpdir,filename
+!#include "scratch.fh"
 #include "program_control.fh"
       data dzero/0.d0/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim)
@@ -585,8 +583,7 @@ c
 !      common /file_descript/nf1,nf2,nf3,nf4,nf7,nf8,nf9,nf10,
 !     *                      nf11,nf13,nf15,nf20,nf21,nf22,nf23
 !      logical logic_tdav,logic_inivec_read
-!      common /scratch/ tmpdir,len_str
-!      character*256 tmpdir,filename
+!#include "scratch.fh"
 #include "program_control.fh"
 
       data dzero/0.d0/
@@ -967,8 +964,7 @@ c****************************************************************
 #endif
 #include "drt_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       dimension valpha(max_root),vcien(max_root),vresid(max_root)
 c      dimension dav2(max_root),dav3(max_root),remei(max_root)
       dimension dav1(max_root),vcml(max_root)
@@ -1090,8 +1086,7 @@ c...end of get_eigvector
 
       subroutine matrix_vector_multi_v(sechc)
 #include "drt_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       external inn_ext_ss_loop_unpack
       external inn_ext_st_loop_unpack
       external inn_ext_ts_loop_unpack
@@ -1118,8 +1113,7 @@ c...end of get_eigvector
 
       subroutine matrix_vector_multi_d(sechc)
 #include "drt_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       external inn_ext_ss_loop_unpack
       external inn_ext_st_loop_unpack
       external inn_ext_ts_loop_unpack
@@ -1154,8 +1148,7 @@ c...end of get_eigvector
 
       subroutine matrix_vector_multi_parellel_drt(sechc)
 #include "drt_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       external inn_ext_ss_loop_unpack
       external inn_ext_st_loop_unpack
       external inn_ext_ts_loop_unpack
@@ -1196,8 +1189,7 @@ c...end of get_eigvector
 
       subroutine matrix_vector_multi_parellel_prt(sc3)
 #include "drt_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       external inn_ext_ss_loop_unpack
       external inn_ext_st_loop_unpack
       external inn_ext_ts_loop_unpack
@@ -1401,8 +1393,7 @@ c          e|ck>-h|ck>
 c          |ck>=\sigma(vu(i,m)*vector_i),i=1,j
 #include "drt_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       dimension idxvec(max_kspace)
       dimension vresid(max_root),vcien(max_root)
       data dzero/0.d0/
@@ -1506,8 +1497,7 @@ c          e|ck>-h|ck>
 c          |ck>=\sigma(vu(i,m)*vector_i),i=1,j
 #include "drt_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       dimension idxvec(max_kspace)
       dimension vresid(max_root),vcien(max_root)
       data dzero/0.d0/

@@ -23,7 +23,7 @@
       DIMENSION C(*),HC(*)
 *
 *.Definition of c and sigma
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"

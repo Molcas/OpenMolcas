@@ -45,7 +45,7 @@ cbs   the numbers of primitive and contracted functions for each l-value
       common /dims/ nprimit(0:Lmax),ncontrac(0:Lmax),nprimit_keep,
      *ncontrac_keep
 cbs   scratch should explain itself ...........
-      common /scratch/
+      common /scratch_amfi/
      *scratch4(4*MxprimL*MxprimL),
      *mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),
      *cntscrtch(MxprimL,MxcontL,0:Lmax)

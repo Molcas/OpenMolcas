@@ -13,7 +13,7 @@ c generate and print csfs
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common /mcorb/ lsmorb(max_orb),noidx(8)
+#include "mcorb.fh"
 #include "config.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)

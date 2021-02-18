@@ -30,11 +30,10 @@
       PARAMETER (MXPLST=50)
       CHARACTER*8 TRYNAME
       Real*8 tmp
-      Logical timings, Estimate, Update, Deco, PseudoChoMOs
       Logical lExists
 #include "chorassi.fh"
-      COMMON /CHOTIME / timings
-      COMMON /LKSCREEN / Estimate, Update, Deco, PseudoChoMOs
+#include "chotime.fh"
+#include "lkscreen.fh"
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS

@@ -550,7 +550,7 @@ c...end of irfrst
       end
 
       function min_itexcit(indjk)
-      common/ref/ndj,ndjgrop,ndjmod
+#include "ref.fh"
       dimension indjk(4)
 c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !    indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
@@ -583,7 +583,7 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
       end
 
       subroutine njexcit(idcc,indjk,locuk0,n_ref)
-      common/ref/ndj,ndjgrop,ndjmod
+#include "ref.fh"
       dimension indjk(4),locuk0(n_ref)
       nj=0
       do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop

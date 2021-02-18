@@ -61,25 +61,21 @@
       External Get_Ln
       Integer nLev,iArray(32)
       Logical lTtl, IfAufChg,OccSet,FermSet,CharSet,UHFSet,SpinSet
-      Logical Cholesky,REORD,DECO,timings,DensityCheck
-      Integer ALGO,NSCREEN
-      Real*8  dmpk,dFKmat
+      Logical Cholesky
       Real*8  ThrRd(1)
       Integer Mode(1)
 *     character ww*128
       character Method*8
-      Logical Estimate,Update
       Logical TDen_UsrDef
 
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
-      COMMON /CHOTIME / timings
-      COMMON /CHODENSITY/ DensityCheck
-      COMMON /CHOSCREEN/ Estimate,Update
+#include "choscf.fh"
+#include "chotime.fh"
+#include "chodensity.fh"
+#include "choscreen.fh"
 #include "choauf.fh"
 
 #include "addcorr.fh"
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "spave.fh"
 
 *
 *     copy input from standard input to a local scratch file

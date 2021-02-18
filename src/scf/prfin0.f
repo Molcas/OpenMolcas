@@ -56,8 +56,7 @@
 
 #include "addcorr.fh"
 #include "dcscf.fh"
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "spave.fh"
 
       Integer  Cho_X_GetTol
       External Cho_X_GetTol

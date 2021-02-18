@@ -30,8 +30,7 @@
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
 #include "cho_minp.fh"
-      Character*3  tv2disk
-      COMMON / CHOTRAW /tv2disk
+#include "chotraw.fh"
       Logical DoCholesky, Do_int
 *----------------------------------------------------------------------*
 *     Start program and say Hello                                      *

@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2008, Francesco Aquilante                              *
 ************************************************************************
-      SubRoutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,nActa,
-     &                          Thrs,DoMP2,all_Vir)
+      SubRoutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,
+     &                          Thrs,Do_MP2,allVir)
 
 ************************************************************************
 *                                                                      *
@@ -19,7 +19,7 @@
 *           The MP2 correction to the energy will later be computed    *
 *           only for the "active region" of the molecule.              *
 *           The MP2 correction due to the remaining frozen region      *
-*           is computed here if DoMP2=.true.                           *
+*           is computed here if Do_MP2=.true.                          *
 *                                                                      *
 * Author:   F. Aquilante  (Geneva, Jun. 2008)                          *
 *                                                                      *
@@ -31,13 +31,11 @@
 #include "corbinf.fh"
 #include "orbinf2.fh"
 #include "WrkSpc.fh"
-      Real*8 OED_Thr, EOSMP2, C_os, XEMP2, Wref
-      Common / ChSOS2 / OED_Thr, EOSMP2, C_os
-      Common / ChMP24 / XEMP2, Wref
+#include "chomp2_cfg.fh"
 
       Dimension CMO(*), EOcc(*), EVir(*)
       Real*8  Thrs
-      Logical DoMP2, all_Vir
+      Logical Do_MP2, allVir
       Character*(LENIN8) Name(mxBas)
       Character*(LENIN) NamAct(*)
       Logical ortho
@@ -108,12 +106,12 @@
 *
       Write(6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
       Write(6,*)
-      If (nActa.ne.0) Then
-         Write(6,'(A,I3,A)') ' Selected ',nActa,' atoms: '
+      If (n_Acta.ne.0) Then
+         Write(6,'(A,I3,A)') ' Selected ',n_Acta,' atoms: '
          Write(6,*)
-         Write(6,*) (NamAct(i),i=1,nActa)
+         Write(6,*) (NamAct(i),i=1,n_Acta)
          Write(6,*)
-      ElseIf (.not.DoMP2) Then
+      ElseIf (.not.Do_MP2) Then
          Write(6,'(A,18A4)') ' Selected atoms: *** None *** '
          Go To 2000
       Else
@@ -172,7 +170,7 @@
 *
       Call get_Orb_select(irc,Work(iCMO),Work(iXMO),Work(kEOcc),
      &                        Work(ipSQ),Work(ipSaa),Name,NamAct,
-     &                        nSym,nActa,nOcc,nBas,ortho,Thrs,ns_O)
+     &                        nSym,n_Acta,nOcc,nBas,ortho,Thrs,ns_O)
       If(irc.ne.0) Then
         Return
       End If
@@ -200,7 +198,7 @@
          loff=loff+nOcc(iSym)
       End Do
 *
-      If (all_Vir) Then
+      If (allVir) Then
          Do iSym=1,nSym
             ns_V(iSym)=nExt(iSym)
          End Do
@@ -224,7 +222,7 @@
 *
       Call get_Vir_select(irc,Work(iCMO),Work(iXMO),Work(kEVir),
      &                        Work(ipSQ),Name,NamAct,iWork(iD_vir),
-     &                        nSym,nActa,nExt,nBas,ortho,ns_V)
+     &                        nSym,n_Acta,nExt,nBas,ortho,ns_V)
       If(irc.ne.0) Then
         Return
       End If
@@ -269,7 +267,7 @@
 
 *     MP2 calculation on the Frozen region                             *
 *----------------------------------------------------------------------*
-      If (DoMP2) Then
+      If (Do_MP2) Then
 *
          iloc=0
          jloc=0

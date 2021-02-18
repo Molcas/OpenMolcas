@@ -24,8 +24,7 @@ C
       Real*8        R(Mpoint),V(Mpoint),FI(Mpoint),FIVFJ(Mpoint)
 
 C...  auxiliar constant pool:    only DFAC is used here.
-      PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
-      COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)
+#include "const.fh"
       EXTERNAL      RDNAME,SIMPLM
       DATA          PI/3.141592653589793D0/
 C...  Flags: MV bit 2, DW bit 3

@@ -55,10 +55,8 @@
       Character*3 SNAC
 #endif
       Logical DoCholesky
-      Logical DoLocK,Deco, lOPTO, l_casdft
-      Real*8  dmpK
-      Integer nScreen
-      COMMON /CHOLK / DoLocK,Deco,dmpk,Nscreen
+      Logical lOPTO, l_casdft
+#include "cholk.fh"
 #ifndef _DMRG_
       logical :: doDMRG = .false.
 #else

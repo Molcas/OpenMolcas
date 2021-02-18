@@ -32,7 +32,6 @@
       Character*50 CFmt
       Character*13 SECNAM
       Parameter (SECNAM = 'MULT_RIJK_QKL')
-      Logical timings
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
@@ -42,7 +41,7 @@
 #include "temptime.fh"
 #endif
 *
-      COMMON  /CHOTIME /timings
+#include "chotime.fh"
 *
 *************************
 *     Define some indeces

@@ -12,8 +12,7 @@
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       data istep_occ/0,1,1,2/
       data mul_tab/1,2,3,4,5,6,7,8,
      *             2,1,4,3,6,5,8,7,

@@ -23,8 +23,7 @@
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "grad_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 #include "lgrn.fh"
 #include "iaib.fh"
 #include "vect.fh"
@@ -507,8 +506,7 @@ c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
       subroutine writedm2(nx)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 !      character*256 filename
 
 !      filename=tmpdir(1:len_str)//"/density"
@@ -528,8 +526,7 @@ c Avoid unused argument warnings
       subroutine readdm2(nx)
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 c     character*256 filename
 
       vector2(1:nx)=0.0d+00
@@ -550,8 +547,7 @@ c      open(nf22,file='density',form='unformatted')
       subroutine backtransmo
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 c     character*256 filename
 #include "vect.fh"
 #include "iaib.fh"
@@ -808,8 +804,7 @@ c
 #include "grad_xyz.fh"
       common /ndao/ ndao
 #include "iaib.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 !      character*256 filename
       dimension index_atom(3,numat*(numat+1)/2),ndi0(ndao),ndj0(ndao),
      :          ndk0(ndao),ndl0(ndao),daoint1(ndao)
@@ -927,8 +922,7 @@ c      enddo
 
 #include "drt_h.fh"
 #include "grad_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 !      character*256 filename
 #include "lgrn.fh"
 #include "iaib.fh"

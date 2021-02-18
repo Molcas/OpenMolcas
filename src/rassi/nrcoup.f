@@ -17,8 +17,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='NRCOUP')
-      COMMON /SEGTAB/ IC1(26),IC2(26),ITVPT(26),IBVPT(26),ISVC(26),
-     *                NIVR,LIVR,NSGMNT,LSGMNT
+#include "segtab.fh"
 C INPUT PARAMETERS:
 CAR   ADD MVR MVL
 #include "Struct.fh"

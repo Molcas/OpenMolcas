@@ -14,8 +14,7 @@
 #include "pl_structure_h.fh"
 #include "grad_h.fh"
 #include "files_gugaci.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 c     character*256 filename
 #include "lgrn.fh"
 #include "iaib.fh"

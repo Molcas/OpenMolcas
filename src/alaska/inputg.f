@@ -48,9 +48,9 @@
       Character(LEN=1) :: xyz(0:2)=['x','y','z']
       Character(LEN=80) KWord, Key
       Integer iSym(3), iTemp(3*MxAtom)
-      Logical timings,Reduce_Prt
+      Logical Reduce_Prt
       External Reduce_Prt
-      COMMON /CHOTIME / timings
+#include "chotime.fh"
 *
       iRout = 99
       iPrint = nPrint(iRout)

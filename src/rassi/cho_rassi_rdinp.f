@@ -21,14 +21,13 @@
 #include "print.fh"
       Character*180 KWord, Key, Get_Ln
       External Get_Ln
-      Logical  DFonly,timings
-      Logical  Update,Estimate,Deco,PseudoChoMOs
+      Logical  DFonly
       character*15 SECNAM
       parameter (SECNAM = 'CHO_RASSI_RDINP')
 *
 #include "chorassi.fh"
-      COMMON /CHOTIME / timings
-      COMMON /LKSCREEN / Estimate, Update, Deco, PseudoChoMOs
+#include "chotime.fh"
+#include "lkscreen.fh"
 *
       iRout=1
       iPrint=nPrint(iRout)

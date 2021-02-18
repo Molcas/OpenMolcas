@@ -37,8 +37,7 @@
      &            'END '/
 *
 #include "cho_minp.fh"
-      Character*3 tv2disk
-      COMMON / CHOTRAW / tv2disk
+#include "chotraw.fh"
 *
 
 

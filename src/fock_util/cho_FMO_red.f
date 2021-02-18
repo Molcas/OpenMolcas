@@ -79,14 +79,13 @@
 #ifdef _DEBUGPRINT_
       Logical Debug
 #endif
-      Logical DensityCheck,Square,timings
-      Logical REORD,DECO,ALGO
+      Logical Square
       Character*50 CFmt
       Character*11 SECNAM
       Parameter (SECNAM = 'CHO_FMO_RED')
-      COMMON    /CHODENSITY/ DensityCheck
-      COMMON   /CHOTIME /timings
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
+#include "chodensity.fh"
+#include "chotime.fh"
+#include "choscf.fh"
 
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
       Logical DoRead

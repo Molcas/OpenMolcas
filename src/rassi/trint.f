@@ -25,10 +25,9 @@
 #include "stdalloc.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
-      Logical Fake_CMO2
       Real*8, Dimension(:), Allocatable:: Prod, FAO, DInAO
 
-      COMMON / CHO_JOBS / Fake_CMO2
+#include "cho_jobs.fh"
 #include "chorassi.fh"
 
 *****************************************************************

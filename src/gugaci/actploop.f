@@ -345,8 +345,7 @@ c look for partial loops in active space drt and save them into disk
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
       call get_jp(iptyl,iml,ipael,0)
       call get_jp(iptyr,imr,ipaer,0)
 

@@ -18,9 +18,7 @@
       Real*8  Grad(nGrad), Ec_AB(2)
       Character*4 DFTFOCK
 #include "addcorr.fh"
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
+#include "spave.fh"
 *
       Call GetMem('F-DS','Allo','Real',ipF_DFT,2*nBT)
       Call GetMem('D-DS','Allo','Real',ip_D_DS,2*nBT)

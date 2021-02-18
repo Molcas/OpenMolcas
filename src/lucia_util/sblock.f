@@ -37,7 +37,7 @@
 * =====
 *
 *.Definition of c and sigma spaces
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *. Sigma blocks require
       INTEGER IBLOCK(8,*)
 *
@@ -59,10 +59,7 @@
 #include "oper.fh"
 #include "io_util.fh"
 *
-      INTEGER ADASX,ASXAD,ADSXA,SXSXDX,SXDXSX
-      COMMON/CSMPRD/ADASX(MXPOBS,MXPOBS),ASXAD(MXPOBS,2*MXPOBS),
-     &              ADSXA(MXPOBS,2*MXPOBS),
-     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
+#include "csmprd.fh"
 #include "hidscr.fh"
 #include "cintfo.fh"
       DIMENSION CB(*),HCB(*)

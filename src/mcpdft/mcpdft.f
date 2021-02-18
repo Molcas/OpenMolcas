@@ -92,7 +92,6 @@
       Logical DSCF
       Logical lOPTO
       Character*80 Line
-      Logical DoQmat,DoActive
       Logical IfOpened
       Logical Found
       Character(len=8),DIMENSION(:),Allocatable::VecStat
@@ -102,15 +101,11 @@
       Logical Gradient
 
 * --------- Cholesky stuff:
-      Integer ALGO
-      Logical DoCholesky
-      Logical timings,DoLock,Deco
-      Integer Nscreen
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
-      COMMON /CHOPAR/ ChFracMem
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+#include "chotodo.fh"
+#include "chlcas.fh"
+#include "chopar.fh"
+#include "chotime.fh"
+#include "cholk.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 

@@ -20,7 +20,7 @@ C
       Integer n
       Integer nV(n)
 #include "cholesky.fh"
-#include "chopar.fh"
+#include "chpari.fh"
 #include "cho_para_info.fh"
 
       Integer iSym

@@ -45,8 +45,8 @@ C RAS state interaction.
 #include "stdalloc.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
-      Logical Fake_CMO2,CLOSEONE
-      COMMON / CHO_JOBS / Fake_CMO2
+      Logical CLOSEONE
+#include "cho_jobs.fh"
       INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),

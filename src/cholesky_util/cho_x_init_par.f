@@ -205,7 +205,7 @@ C     ------------
       use ChoSwp, only: InfVec, InfVec_Bak
       Implicit None
 #include "cholesky.fh"
-#include "chopar.fh"
+#include "chpari.fh"
 #include "stdalloc.fh"
 
       NumCho_Bak(:)=0

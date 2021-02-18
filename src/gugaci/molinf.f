@@ -175,7 +175,7 @@ c set the default convergence threshhold
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "thresh.fh"
-      common /mcorb/ lsmorb(max_orb),noidx(8)
+#include "mcorb.fh"
       dimension lsmtmp(maxgdm)
       dimension idum(1)
 

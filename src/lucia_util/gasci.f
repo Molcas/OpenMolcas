@@ -46,7 +46,7 @@
 #include "io_util.fh"
 *
 *. Common block for communicating with sigma
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *
 #include "cecore.fh"
 #include "cmxcj.fh"

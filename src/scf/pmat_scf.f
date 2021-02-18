@@ -60,10 +60,7 @@
       Real*8 Fock(nDT,nD)
       Logical FstItr, NoCoul
 *
-      Integer ALGO,NSCREEN
-      Logical REORD,DECO
-      Real*8  dmpk,dFKmat
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
+#include "choscf.fh"
 *
       Logical Found, EFP_On
 *
