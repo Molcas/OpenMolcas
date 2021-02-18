@@ -38,14 +38,8 @@
       NFAB = 0
       Naj = 0  ! C
       Nbi = 0  ! C"
-      Len_aj = 0  ! C
-      Len_bi = 0  ! C"
       Len_XAj = 0   ! C
       Len_XBi = 0   ! C"
-      iStrt_aj = 0  ! C
-      iStrt_bi = 0  ! C"
-      iStrt0_aj = 0  ! C
-      iStrt0_bi = 0  ! C"
       NFAB = nBas(iSym) * nBas(jSym)
 
 *     Allocate memory for Transformed Cholesky Vectors - TCVx

@@ -32,7 +32,6 @@
       Real*8  dmpk
       Logical Fake_CMO2
       Real*8, Dimension(:), Allocatable:: Prod, FAO, DInAO
-      Integer nAux(8)
 
       COMMON / CHO_JOBS / Fake_CMO2
       COMMON /CHORASSI / ALGO,Nscreen,dmpk
@@ -213,7 +212,6 @@ C --- to avoid double counting when using gadsum
          If (ALGO.eq.1) Then
 c --- reorder the MOs to fit Cholesky needs
 
-           nAux(1:nSym) = nIsh(1:nSym) + nAsh(1:nSym)
            Call Allocate_CMO(MO1(1),nIsh,nBasF,nSym)
            Call Allocate_CMO(MO1(2),nAsh,nBasF,nSym)
            Call Allocate_CMO(MO2(1),nIsh,nBasF,nSym)

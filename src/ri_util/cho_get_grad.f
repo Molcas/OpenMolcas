@@ -156,7 +156,7 @@
 
       Logical add
       Character*6 mode
-      Integer, External:: Cho_F2SP, ip_of_Work
+      Integer, External:: Cho_F2SP
 *                                                                      *
 ************************************************************************
 *                                                                      *

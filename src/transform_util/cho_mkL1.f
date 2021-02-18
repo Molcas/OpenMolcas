@@ -32,11 +32,9 @@
       If (iI.LE.nIsh(iSymI)) then
         LxType = 1
         iIx = iI
-        nIx = nIsh(iSymI)
       else
         LxType = 7
         iIx = iI - nIsh(iSymI)
-        nIx = nAsh(iSymI)
       EndIf
 
       If (.NOT.SameLx) then

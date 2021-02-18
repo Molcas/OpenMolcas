@@ -32,7 +32,6 @@
       Real*8, Allocatable:: Lx0(:), Ly0(:)
 
 *   - SubBlock 3 3
-      LenSB = nSsh(iSymA) * nSsh(iSymB)
 
 *     Build Lx
       Call mma_allocate(Lx0,nSsh(iSymA)*numV,Label='Lx0')
