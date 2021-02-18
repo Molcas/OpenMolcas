@@ -84,6 +84,7 @@ Daniel Fairhead
 Ignacio Fdez. Galván  
 Nicolas Ferré  
 Timo Fleig  
+Niclas Forsberg  
 Leon Freitag  
 Luis Manuel Frutos  
 Markus P. Fülscher  
