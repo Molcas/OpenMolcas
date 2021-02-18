@@ -799,122 +799,122 @@ c
 
       end
 
-      subroutine grad_two
-#include "drt_h.fh"
-#include "grad_xyz.fh"
-      common /ndao/ ndao
-#include "iaib.fh"
-#include "scratch.fh"
-!      character*256 filename
-      dimension index_atom(3,numat*(numat+1)/2),ndi0(ndao),ndj0(ndao),
-     :          ndk0(ndao),ndl0(ndao),daoint1(ndao)
-      dimension dgxyz(3,numat),daoxyz(3,numat)
-      parameter (htoklm=627.50956d+00)
-      parameter (zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
-
-      npat=numat*(numat+1)/2
-      index_atom(1:3,1:npat)=0
-
-      ndi0(:)=0
-      ndj0(:)=0
-      ndk0(:)=0
-      ndl0(:)=0
-      daoint1(:)=zero
-
-!      filename=tmpdir(1:len_str)//"/daoints"
-!      len=len_str+8
-
-!      open(40,file=filename(1:len),form='formatted')
-
-c      open(40,file='daoints',form='formatted')
-!      read(40,*)
-
-!      do i=1,3
-!         read(40,*) (index_atom(i,j),j=1,npat)
-!      enddo
-!      read(40,*) (ndi0(i),i=1,ndao)
-!      read(40,*) (ndj0(i),i=1,ndao)
-!      read(40,*) (ndk0(i),i=1,ndao)
-!      read(40,*) (ndl0(i),i=1,ndao)
-!      read(40,*) (daoint1(i),i=1,ndao)
+! FIXME: ndao is undefined
+!      subroutine grad_two
+!#include "drt_h.fh"
+!#include "grad_xyz.fh"
+!#include "iaib.fh"
+!#include "scratch.fh"
+!!      character*256 filename
+!      dimension index_atom(3,numat*(numat+1)/2),ndi0(ndao),ndj0(ndao),
+!     :          ndk0(ndao),ndl0(ndao),daoint1(ndao)
+!      dimension dgxyz(3,numat),daoxyz(3,numat)
+!      parameter (htoklm=627.50956d+00)
+!      parameter (zero=0.0d+00,one=1.0d+00,two=2.0d+00,four=4.0d+00)
 !
-!      close(40)
-
-      ncon=0
-
-      do i=1,numat
-         do j=1,i-1
-            nnij=ican_a(i)+j
-c            write(nf2,*) i,ican_a(i)
-            do k=1,3
-               ind=index_atom(k,nnij)
-               val=zero
-               do l=1,ind
-                  ncon=ncon+1
-                  i0=ndi0(ncon)
-                  j0=ndj0(ncon)
-                  k0=ndk0(ncon)
-                  l0=ndl0(ncon)
-                  val2=daoint1(ncon)
-c                 write(2,'(4i4,f18.10)')i0,j0,k0,l0,val2
-                  nij=ican_a(j0)+i0
-                  nkl=ican_a(l0)+k0
-                  nijkl=ican_b(nij)+nkl
-                  val1=vector1(nijkl)
-                  aa=one
-                  bb=one
-                  if(i0.ne.j0) aa=two*aa
-                  if(k0.ne.l0) bb=two*bb
-c===================================================
-c this place should multiple two, because the gradient
-c integral always exist the relation that :
-c index nij=i*(i-1)/2+j
-c index nkl=k*(k-1)/2+l
-c but here always the nij >= nkl.
-c
-                  val=val+val1*val2*aa*bb*two
-               enddo
-               daoxyz(k,i)=daoxyz(k,i)+val
-               daoxyz(k,j)=daoxyz(k,j)-val
-
-               dxyz(k,i)=dxyz(k,i)+val
-               dxyz(k,j)=dxyz(k,j)-val
-           enddo
-         enddo
-      enddo
-
-c      dgxyz(1:3,1:numat)=zero
-c      do i=1,numat
-c         do j=1,3
-c            dgxyz(j,i)=daoxyz(j,i)*htoklm
-c         enddo
-c      enddo
-
-
-c      write(nf2,'(//10x,''cartesian coordinate derivatives'',//3x,
-c     1''number  atom '',5x,''x'',12x,''y'',12x,''z'',/)')
-
-c      do i=1,numat
-c         write(nf2,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
-c      enddo
-
-      dgxyz(1:3,1:numat)=zero
-      do i=1,numat
-         do j=1,3
-            dgxyz(j,i)=dxyz(j,i)*htoklm
-         enddo
-      enddo
-
-
-!      write(nf2,'(//10x,''cartesian coordinate derivatives'',//3x,
-!     1''number  atom '',5x,''x'',12x,''y'',12x,''z'',/)')
-
-      do i=1,numat
-         write(6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
-      enddo
-
-
-      end
+!      npat=numat*(numat+1)/2
+!      index_atom(1:3,1:npat)=0
+!
+!      ndi0(:)=0
+!      ndj0(:)=0
+!      ndk0(:)=0
+!      ndl0(:)=0
+!      daoint1(:)=zero
+!
+!!      filename=tmpdir(1:len_str)//"/daoints"
+!!      len=len_str+8
+!
+!!      open(40,file=filename(1:len),form='formatted')
+!
+!c      open(40,file='daoints',form='formatted')
+!!      read(40,*)
+!
+!!      do i=1,3
+!!         read(40,*) (index_atom(i,j),j=1,npat)
+!!      enddo
+!!      read(40,*) (ndi0(i),i=1,ndao)
+!!      read(40,*) (ndj0(i),i=1,ndao)
+!!      read(40,*) (ndk0(i),i=1,ndao)
+!!      read(40,*) (ndl0(i),i=1,ndao)
+!!      read(40,*) (daoint1(i),i=1,ndao)
+!!
+!!      close(40)
+!
+!      ncon=0
+!
+!      do i=1,numat
+!         do j=1,i-1
+!            nnij=ican_a(i)+j
+!c            write(nf2,*) i,ican_a(i)
+!            do k=1,3
+!               ind=index_atom(k,nnij)
+!               val=zero
+!               do l=1,ind
+!                  ncon=ncon+1
+!                  i0=ndi0(ncon)
+!                  j0=ndj0(ncon)
+!                  k0=ndk0(ncon)
+!                  l0=ndl0(ncon)
+!                  val2=daoint1(ncon)
+!c                 write(2,'(4i4,f18.10)')i0,j0,k0,l0,val2
+!                  nij=ican_a(j0)+i0
+!                  nkl=ican_a(l0)+k0
+!                  nijkl=ican_b(nij)+nkl
+!                  val1=vector1(nijkl)
+!                  aa=one
+!                  bb=one
+!                  if(i0.ne.j0) aa=two*aa
+!                  if(k0.ne.l0) bb=two*bb
+!c===================================================
+!c this place should multiple two, because the gradient
+!c integral always exist the relation that :
+!c index nij=i*(i-1)/2+j
+!c index nkl=k*(k-1)/2+l
+!c but here always the nij >= nkl.
+!c
+!                  val=val+val1*val2*aa*bb*two
+!               enddo
+!               daoxyz(k,i)=daoxyz(k,i)+val
+!               daoxyz(k,j)=daoxyz(k,j)-val
+!
+!               dxyz(k,i)=dxyz(k,i)+val
+!               dxyz(k,j)=dxyz(k,j)-val
+!           enddo
+!         enddo
+!      enddo
+!
+!c      dgxyz(1:3,1:numat)=zero
+!c      do i=1,numat
+!c         do j=1,3
+!c            dgxyz(j,i)=daoxyz(j,i)*htoklm
+!c         enddo
+!c      enddo
+!
+!
+!c      write(nf2,'(//10x,''cartesian coordinate derivatives'',//3x,
+!c     1''number  atom '',5x,''x'',12x,''y'',12x,''z'',/)')
+!
+!c      do i=1,numat
+!c         write(nf2,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
+!c      enddo
+!
+!      dgxyz(1:3,1:numat)=zero
+!      do i=1,numat
+!         do j=1,3
+!            dgxyz(j,i)=dxyz(j,i)*htoklm
+!         enddo
+!      enddo
+!
+!
+!!      write(nf2,'(//10x,''cartesian coordinate derivatives'',//3x,
+!!     1''number  atom '',5x,''x'',12x,''y'',12x,''z'',/)')
+!
+!      do i=1,numat
+!         write(6,'(6x,i6,3f13.6)') i,(dgxyz(j,i),j=1,3)
+!      enddo
+!
+!
+!      end
 
 
 

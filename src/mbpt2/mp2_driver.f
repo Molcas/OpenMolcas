@@ -59,7 +59,7 @@
 #include "chomp2_cfg.fh"
 #include "mp2grad.fh"
 #include "namact.fh"
-      Common /ctimt/cpubas
+      Save cpubas
       Real*8 E2BJAI, ESCF, REFC, Seconds
       Integer nIsh(8), nAsh(8), nFro_tra(8), nDel_tra(8)
       Logical Ready, Direct, Debug, Exist

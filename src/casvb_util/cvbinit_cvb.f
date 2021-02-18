@@ -36,7 +36,6 @@
 c  Initializations below are only carried out once :
         call io_init_cvb()
         call main_bdata_cvb()
-        call extr_bdata_cvb()
       endif
       is_set=iset
       return

@@ -39,7 +39,7 @@
       Integer function iPrintLevel(Level)
       Data isFirst/0/
       Save isFirst
-      common /nPrintLevel/ nPrintLevel
+      Save nPrintLevel
       character *80 Name, Value
       if(Level.ge.0) Then
         nPrintLevel=Level
@@ -50,23 +50,23 @@
       if (isFirst.eq.0) then
         Name='MOLCAS_PRINT'
         call getenvf(Name,Value)
-            call UpCase(Value)
-               if     (Value.eq.'SILENT'.or.Value.eq.'0') then
-                       nPrintLevel=0
-               elseif (Value.eq.'TERSE'.or.Value.eq.'1') then
-                       nPrintLevel=1
-               elseif (Value.eq.'NORMAL'.or.Value.eq.'2') then
-                       nPrintLevel=2
-               elseif (Value.eq.'VERBOSE'.or.Value.eq.'3') then
-                       nPrintLevel=3
-               elseif (Value.eq.'DEBUG'.or.Value.eq.'4') then
-                       nPrintLevel=4
-               elseif (Value.eq.'INSANE'.or.Value.eq.'5') then
-                       nPrintLevel=5
-               else
-                       nPrintLevel=2
-               endif
-         endif
-        iPrintLevel=nPrintLevel
+        call UpCase(Value)
+        if     (Value.eq.'SILENT'.or.Value.eq.'0') then
+                nPrintLevel=0
+        elseif (Value.eq.'TERSE'.or.Value.eq.'1') then
+                nPrintLevel=1
+        elseif (Value.eq.'NORMAL'.or.Value.eq.'2') then
+                nPrintLevel=2
+        elseif (Value.eq.'VERBOSE'.or.Value.eq.'3') then
+                nPrintLevel=3
+        elseif (Value.eq.'DEBUG'.or.Value.eq.'4') then
+                nPrintLevel=4
+        elseif (Value.eq.'INSANE'.or.Value.eq.'5') then
+                nPrintLevel=5
+        else
+                nPrintLevel=2
+        endif
+      endif
+      iPrintLevel=nPrintLevel
       return
       end

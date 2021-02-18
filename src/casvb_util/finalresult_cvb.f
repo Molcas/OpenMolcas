@@ -23,10 +23,6 @@ c ... Make: up to date? ...
 #include "files_cvb.fh"
 #include "print_cvb.fh"
 
-      common /nfin_comcvb/nfinal
-
-      nfinal=nfinal+1
-
       if((.not.variat).and.up2date_cvb('SVB'))then
         call add_info('SVB',[abs(svb)],1,7)
       endif
@@ -35,6 +31,5 @@ c ... Make: up to date? ...
       endif
       return
       entry finalresult_init_cvb()
-      nfinal=0
       return
       end

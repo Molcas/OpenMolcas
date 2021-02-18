@@ -21,13 +21,12 @@
 #include "mxpdim.fh"
       CHARACTER*2 TYPE
 *./NONAB/
-      LOGICAL INVCNT
-      COMMON/NONAB/ INVCNT,NIG,NORASM(MXPOBS),
-     &              MNMLOB,MXMLOB,NMLOB,
-     &              MXMLST,MNMLST,NMLST,
-     &              NMLSX ,MNMLSX,MXMLSX,
-     &              MNMLCI,MXMLCI,NMLCI,
-     &              MXMLDX,MNMLDX,NMLDX
+* FIXME: These seem to be uninitialized
+      SAVE MNMLOB,NMLOB,
+     &     MNMLST,NMLST,
+     &     MNMLSX,NMLSX,
+     &     MNMLCI,NMLCI,
+     &     MNMLDX,NMLDX
 *./CSM/
 C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
 #include "csm.fh"

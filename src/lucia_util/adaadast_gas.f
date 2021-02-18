@@ -65,7 +65,7 @@
 *. Local scratch
 #include "hidscr.fh"
 #include "ssave.fh"
-      COMMON/UMMAGUMMA/NSTRIA(4)
+      SAVE NSTRI_
 C-jwk-cleanup      INTEGER KELFGRP(MXPNGAS)
       INTEGER KGRP(MXPNGAS)
       DIMENSION IDUM(1)
@@ -218,7 +218,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
          WRITE(6,*) ' REORDER array '
          CALL IWRTMA(iWORK(KLLREO),1,NSTRI,1,NSTRI)
        END IF
-       NSTRIA(I12) = NSTRI
+       NSTRI_ = NSTRI
 *
       END IF
       IF(NTEST.GE.1000) THEN
@@ -269,7 +269,7 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
      &                  iWORK(KLLOC), NELK,NSTRK,
      &                  iWORK(KLLREO),iWORK(KLLZ),
      &                     NOCOB,    KMAX,    KMIN,    IEND,  SCLFAC,
-     &                  NSTRIA(I12))
+     &                  NSTRI_)
 *
 *
        IF(NTEST.GE.1000) THEN

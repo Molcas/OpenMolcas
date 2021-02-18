@@ -45,13 +45,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer i,nuga,nugc,nga,ngb,ngc,vblock, it1
       integer isp,krem
       real*8 OEH(*),OEP(*),ddot_,ccsdt,ccsdt4,energ(4),tccsd,
-     $     ENSCF, RESULT,times(10),
+     $     times(10),
      $     times_parr(10), totcpu, totwal, timerel
 c     real*8 cpu0,cpu1,wall0,wall1
       character FN*6
       logical ifvo
-      integer IHW
-      common /hermit_addr/ IHW
       integer la,t1a,t1b
         logical lastcall,scored
 cmp
@@ -61,10 +59,7 @@ c       integer maxspace
 cmp
 #include "param.fh"
 #include "ioind.fh"
-      COMMON/ENERGY/ENSCF, RESULT(102,5)
 #include "uhf.fh"
-      LOGICAL    RRT1,CSDAT,ORTHO,DETAIL
-      COMMON/WHAT1/RRT1,CSDAT,ORTHO,DETAIL
 cmp
 #include "cht3_casy.fh"
 #include "WrkSpc.fh"
@@ -84,9 +79,6 @@ cmp
 cmp!!      integer me, err, len_trim
 !?      integer nprocs0
 !?cmp      common /my_mpi_world_com/ me, nprocs
-      integer LENPAR
-      common/LENPAR_com/LENPAR
-c
         integer itmp
         integer imy_tsk
         integer id,j
@@ -133,7 +125,6 @@ cmp!!      call gettim(cpu0,wall0)
 
       call zeroma(times,1,10)
       call zeroma(energ,1,4)
-      IHW=0
 
 c
 C calculate the T2-T3 contraction?  ifvo is the answer ! open-shell stuff !
@@ -787,9 +778,9 @@ cmp!         ccsdt4=ddot_(noab(1)*nuab(1)+noab(2)*nuab(2),w(t1a),1,w(t1b),1)
 cmp!      endif
       endif
 
-      RESULT(IT+3,5)=ccsdt4+ccsdt
+      !RESULT(IT+3,5)=ccsdt4+ccsdt
       IF(IT.EQ.0)THEN
-         RESULT(IT+1,5)=tccsd+ccsdt4+ccsdt
+         !RESULT(IT+1,5)=tccsd+ccsdt4+ccsdt
          if(ifvo)then
             WRITE(6,9993)TCCSD
             WRITE(6,9991)ccsdt4
@@ -797,7 +788,7 @@ cmp!      endif
          endif
          WRITE(6,9994)TCCSD+ccsdt+ccsdt4
       ELSE
-         RESULT(IT+2,5)=TCCSD
+         !RESULT(IT+2,5)=TCCSD
          WRITE(6,9993)TCCSD
          if(ifvo)then
             WRITE(6,9991)ccsdt4
