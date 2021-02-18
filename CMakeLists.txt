@@ -2481,14 +2481,15 @@ if (HDF5 AND HDF5_FOUND)
   endforeach ()
   if (DMRG)
     list (APPEND hdf5_qcm_progs motra rpa)
-    if (NEVPT2)
-      list (APPEND hdf5_qcm_progs nevpt2)
-    endif ()
     foreach (prog ${hdf5_qcm_progs})
       list (APPEND ${prog}_defs "_HDF5_QCM_")
-      #list (APPEND ${prog}_deplibs qcmaquis-driver)
+      list (APPEND ${prog}_deplibs qcmaquis-driver)
     endforeach ()
-
+    # NEVPT2 should be treated separately, no dependence on qcmaquis-driver here
+    # because otherwise the dependency order is wrong
+    if (NEVPT2)
+      list (APPEND nevpt2_defs "_HDF5_QCM_")
+    endif()
 
   endif ()
 endif ()
