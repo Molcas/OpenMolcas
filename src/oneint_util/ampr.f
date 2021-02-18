@@ -18,7 +18,7 @@
 *         moment operators, using elementary overlaps, dipole, and     *
 *         quadrupole integrals.                                        *
 *                                                                      *
-*     Author: Per-Ake Malmqvist, Dept. of Theoretical Chemistry,       *
+*     Author: Per-AAke Malmqvist, Dept. of Theoretical Chemistry,      *
 *             University of Lund, SWEDEN                               *
 *             November '96                                             *
 ************************************************************************

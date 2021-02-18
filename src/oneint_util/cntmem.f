@@ -8,15 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CntMem(nHer,MemCnt,la,lb,lr)
+      Subroutine CntMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
       use Sizes_of_Seward, only: s
       Implicit Real*8 (A-H,O-Z)
+#include "mem_interface.fh"
 *
       nHer=S%mCentr
-      MemCnt = 3*(la+1)*nHer +
-     &         3*(lb+1)*nHer +
-     &         ((la+1)*(la+2)/2) *
-     &         ((lb+1)*(lb+2)/2)
+      Mem = 3*(la+1)*nHer +
+     &      3*(lb+1)*nHer +
+     &      ((la+1)*(la+2)/2) *
+     &      ((lb+1)*(lb+2)/2)
 *
       Return
 c Avoid unused argument warnings

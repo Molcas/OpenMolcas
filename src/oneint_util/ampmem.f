@@ -11,7 +11,11 @@
 * Copyright (C) 1996, Per Ake Malmqvist                                *
 *               1996, Roland Lindh                                     *
 ************************************************************************
-      Subroutine AMPMem(nHer,MemAMP,la,lb,lr)
+      Subroutine AMPMem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
+#include "mem_interface.fh"
 C     Statement function for Cartesian index
       nElem(ixyz) = ((ixyz+1)*(ixyz+2))/2
 
@@ -41,7 +45,7 @@ C Mem3: Result from AMPr.
       End If
       Mem3=6*nElem(la)*nElem(lb)
 
-      MemAMP=Mem1+Mem2+Mem3+1
+      Mem=Mem1+Mem2+Mem3+1
 
       Return
 c Avoid unused argument warnings
