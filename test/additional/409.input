@@ -1,7 +1,7 @@
 &GATEWAY
 coord
 4
-angstrom 
+angstrom
 C  0.534004  0.000000  0.000000
 O -0.676110  0.000000  0.000000
 H  1.102430  0.000000  0.920125
@@ -25,7 +25,7 @@ group = nosym
     nActEl
     6 0 0
     INACTIVE
-    5  
+    5
     RAS2
     6
     ciroot

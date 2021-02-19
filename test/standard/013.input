@@ -9,7 +9,7 @@
 &GATEWAY
   * Just one s function to keep GATEWAY happy
   Coord = 3
-    
+
     O.ANO-S...1s -0.000000  0.000000  1.342757
     H.ANO-S...0s -1.929898  0.000000 -1.144049
     H.ANO-S...0s  1.929898  0.000000 -1.144049
