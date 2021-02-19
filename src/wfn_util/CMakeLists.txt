@@ -13,12 +13,14 @@ set (sources
      active_space_solver_cfg.F90
      qcmaquis_info.F90
      refwfn.F90
+     rasscf_data.f
 )
 
 set (modfile_list
      active_space_solver_cfg.F90
      qcmaquis_info.F90
      refwfn.F90
+     rasscf_data.f
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
