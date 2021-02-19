@@ -2001,14 +2001,14 @@ C orbitals accordingly
 *--- This block is to process the DEFINEDET -------------------
         if(KeyDEFI) then
           call setpos(luinput,'DEFI',line,irc)
-          allocate(character(len=2000) :: buffer)
+          call mma_allocate(buffer,2000)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           ReadStatus = ' Failure reading Definedet.'
           Read(luinput,'(A)',end=9910,Err=9920) buffer
           ReadStatus = ' O.K. reading Definedet.'
-          allocate(character(len=len_trim(buffer)) :: definedet)
-          definedet(:) = trim(buffer)
-          deallocate(buffer)
+          call mma_allocate(definedet,len_trim(buffer))
+          definedet = trim(buffer)
+          call mma_deallocate(buffer)
           write(6,*)'definedet read in proc_inp of size:', nactel
           write(6,*) definedet
         end if

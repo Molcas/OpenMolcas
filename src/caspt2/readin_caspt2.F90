@@ -11,18 +11,17 @@
 ! Copyright (C) Steven Vancoillie                                      *
 !***********************************************************************
 
+#include "compiler_features.h"
+
 module InputData
   !SVC: this module contains a data structure to keep all input variables.
-  ! Note that I use the standard 'allocate' here against the appropriate
-  ! Molcas practices. The reason is that these are (i) very small, and
-  ! (ii) there is need for allocating complex things such as derived
-  ! types, which are not supported with stdalloc. Hence, the infraction.
 
-  use definitions, only: wp,iwp
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use constants, only: Zero, One
+  use definitions, only: wp,iwp,u6
 
   implicit none
-
-#include "compiler_features.h"
+  private
 
   type States
     Integer(kind=iwp), allocatable :: State(:)
@@ -51,7 +50,7 @@ module InputData
     ! DWMS      use dynamical weighting to construct Fock
     Logical(kind=iwp) :: DWMS = .false.
     Integer(kind=iwp) :: DWType = -1
-    Real(kind=wp)     :: ZETA = 1.0_wp
+    Real(kind=wp)     :: ZETA = One
     ! EFOC      uses rotated E_0 energies with DWMS
     Logical(kind=iwp) :: EFOC = .false.
     ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
@@ -62,11 +61,11 @@ module InputData
 
     ! IPEA      sets the IP-EA shift
     Logical(kind=iwp) :: IPEA = .false.
-    Real(kind=wp)     :: BSHIFT = 0.0_wp
+    Real(kind=wp)     :: BSHIFT = Zero
     ! IMAG      size of extra 'imaginary' denominator shift
-    Real(kind=wp)     :: ShiftI = 0.0_wp
+    Real(kind=wp)     :: ShiftI = Zero
     ! SHIF      size of extra denominator shift
-    Real(kind=wp)     :: Shift = 0.0_wp
+    Real(kind=wp)     :: Shift = Zero
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -75,14 +74,14 @@ module InputData
     ! AFRE      freeze orbitals that do not have sufficient density on specified 'active' atoms
     Logical(kind=iwp) :: aFreeze = .false.
     Integer(kind=iwp) :: lnFro = 0
-    Real(kind=wp)     :: ThrFr = 0.0_wp,ThrDe = 0.0_wp
+    Real(kind=wp)     :: ThrFr = Zero,ThrDe = Zero
     Character(len=4),allocatable :: NamFro(:)
     ! LOVC      freeze orbitals that are not localized no the active site
     Logical(kind=iwp) :: LovCASPT2 = .false.
-    Real(kind=wp)     :: Thr_Atm = 0.0_wp
+    Real(kind=wp)     :: Thr_Atm = Zero
     ! FNOC      delete a fraction of virtual orbitals
     Logical(kind=iwp) :: FnoCASPT2 = .false.
-    Real(kind=wp)     :: VFrac = 0.0_wp
+    Real(kind=wp)     :: VFrac = Zero
     ! DOMP
     Logical(kind=iwp) :: doMP2 = .false.
     ! DOEN
@@ -91,7 +90,7 @@ module InputData
     Logical(kind=iwp) :: VIRA = .false.
     ! GHOS      excludes ghost orbitals from the PT2 treatment
     Logical(kind=iwp) :: GhostDelete = .false.
-    Real(kind=wp)     :: ThrGD = 0.0_wp
+    Real(kind=wp)     :: ThrGD = Zero
 
     ! FROZ      number of frozen orbitals in each irrep
     Logical(kind=iwp) :: FROZ = .false.
@@ -175,6 +174,8 @@ module InputData
   ! Define the Input as an InputTable structure
   type(InputTable),allocatable :: Input
 
+  public :: Input, readin_CASPT2, CleanUp_Input
+
   save
 
 contains
@@ -184,13 +185,6 @@ contains
     ! checks not required for reading in the input should be postponed till
     ! the proc_inp call (processing of input). The only variable needed here
     ! is nSym, as some input lines assume knowledge of the number of irreps.
-
-    use definitions, only:iwp
-#ifdef _ENABLE_CHEMPS2_DMRG_
-    use definitions, only:u6
-#endif
-
-    implicit none
 
     Integer(kind=iwp),intent(in) :: LuIn,nSym
 
@@ -248,11 +242,10 @@ contains
           if (iError /= 0) call IOError(Line)
           if (nStates <= 0) call StatesError(Line)
         end if
-        ! TODO: use mma_allocate if possible
-        allocate (Input%MultGroup%State(nStates))
+        call mma_allocate(Input%MultGroup%State,nStates,label='MultGroup')
         Input%nMultState = nStates
         iSplit = scan(Line,' ')
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line(iSplit:)
         iError = -1
         do while (iError < 0)
@@ -263,7 +256,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
       case ('XMUL')
         Input%XMUL = .true.
@@ -278,10 +271,10 @@ contains
           if (iError /= 0) call IOError(Line)
           if (nStates <= 0) call StatesError(Line)
         end if
-        allocate (Input%XMulGroup%State(nStates))
+        call mma_allocate(Input%XMulGroup%State,nStates,label='XMulGroup')
         Input%nXMulState = nStates
         iSplit = scan(Line,' ')
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line(iSplit:)
         iError = -1
         do while (iError < 0)
@@ -292,7 +285,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
       case ('RMUL')
         Input%RMUL = .true.
@@ -307,10 +300,10 @@ contains
           if (iError /= 0) call IOError(Line)
           if (nStates <= 0) call StatesError(Line)
         end if
-        allocate (Input%RMulGroup%State(nStates))
+        call mma_allocate(Input%RMulGroup%State,nStates,label='RMulGroup')
         Input%nRMulState = nStates
         iSplit = scan(Line,' ')
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line(iSplit:)
         iError = -1
         do while (iError < 0)
@@ -321,7 +314,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
       case ('DWMS')
         Input%DWMS = .true.
@@ -352,9 +345,9 @@ contains
 
       case ('FROZ')
         Input%FROZ = .true.
-        allocate (Input%nFro(nSYM))
+        call mma_allocate(Input%nFro,nSYM,label='nFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -365,13 +358,13 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
       case ('DELE')
         Input%DELE = .true.
-        allocate (Input%nDel(nSYM))
+        call mma_allocate(Input%nDel,nSYM,label='nDel')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -382,7 +375,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
         ! equation solver control
 
@@ -399,7 +392,7 @@ contains
       case ('THRE')
         Input%THRE = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -410,7 +403,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
       case ('SHIF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -449,7 +442,7 @@ contains
 
       case ('WTHR')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -460,7 +453,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
         ! properties
 
@@ -511,7 +504,7 @@ contains
         Input%aFreeze = .true.
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -522,11 +515,11 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
-        allocate (Input%NamFro(Input%lnFro))
+        call mma_deallocate (dLine)
+        call mma_allocate(Input%NamFro,Input%lnFro,label='NamFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call Upcase(Line)
-        allocate (Character(len=len(Line)) :: dLine)
+        call mma_allocate (dLine,len(Line),label='dLine')
         dLine = Line
         iError = -1
         do while (iError < 0)
@@ -538,7 +531,7 @@ contains
             call ExtendLine(dLine,Line)
           end if
         end do
-        deallocate (dLine)
+        call mma_deallocate (dLine)
 
       case ('LOVC')
         Input%LovCASPT2 = .true.
@@ -599,11 +592,11 @@ contains
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read (Line,*,IOStat=iError) nStates
         if (iError /= 0) call IOError(Line)
-        allocate (Input%Heff(nStates,nStates))
-        Input%Heff = 0.0_wp  ! 8 bytes
+        call mma_allocate(Input%Heff,nStates,nStates,label='Heff')
+        Input%Heff = Zero
         do i = 1,nStates
           if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-          allocate (Character(len=len(Line)) :: dLine)
+          call mma_allocate (dLine,len(Line),label='dLine')
           dLine = Line
           iError = -1
           do while (iError < 0)
@@ -614,7 +607,7 @@ contains
               call ExtendLine(dLine,Line)
             end if
           end do
-          deallocate (dLine)
+          call mma_deallocate (dLine)
         end do
 
         ! OBSOLETE KEYWORDS
@@ -675,20 +668,31 @@ contains
 
   end subroutine readin_CASPT2
 
+  subroutine CleanUp_Input()
+    if (allocated(Input)) then
+      if (allocated(Input%MultGroup%State)) call mma_deallocate(Input%MultGroup%State)
+      if (allocated(Input%XMulGroup%State)) call mma_deallocate(Input%XMulGroup%State)
+      if (allocated(Input%RMulGroup%State)) call mma_deallocate(Input%RMulGroup%State)
+      if (allocated(Input%NamFro)) call mma_deallocate(Input%NamFro)
+      if (allocated(Input%nFro)) call mma_deallocate(Input%nFro)
+      if (allocated(Input%nDel)) call mma_deallocate(Input%nDel)
+      if (allocated(Input%Heff)) call mma_deallocate(Input%Heff)
+      ! The input structure itself is a scalar, allocated outside mma
+      deallocate(Input)
+    end if
+  end subroutine CleanUp_Input
+
   subroutine ExtendLine(DynLine,Line)
-    implicit none
     Character(len=:),allocatable,intent(InOut) :: DynLine
     Character(len=*),intent(In)                :: Line
-    Character(len=len_trim(DynLine))           :: Aux
-    Aux = DynLine
-    deallocate (DynLine)
-    allocate (Character(len=len(Aux) + len(Line) + 1) :: DynLine)
-    DynLine = trim(Aux)//' '//Line
+    Character(len=:),allocatable               :: Aux
+    call mma_allocate(Aux,len_trim(DynLine)+len_trim(Line)+1,label='AuxLine')
+    Aux = trim(DynLine)//' '//trim(Line)
+    call mma_deallocate(DynLine)
+    call move_alloc(Aux,DynLine)
   end subroutine ExtendLine
 
   subroutine IOError(line)
-    use definitions,only:u6
-    implicit none
     Character(len=*),intent(in) :: line
 
     call WarningMessage(2,'I/O error when reading line.')
@@ -697,8 +701,6 @@ contains
   end subroutine IOError
 
   subroutine EOFError(line)
-    use definitions,only:u6
-    implicit none
     Character(len=*),intent(in) :: line
 
     call WarningMessage(2,'Premature end of input file.')
@@ -707,8 +709,6 @@ contains
   end subroutine EOFError
 
   subroutine StatesError(line)
-    use definitions,only:u6
-    implicit none
     Character(len=*),intent(in) :: line
 
     call WarningMessage(2,'Number of states must be > 0.')
@@ -716,4 +716,4 @@ contains
     call Quit_OnUserError
   end subroutine StatesError
 
-end module
+end module InputData

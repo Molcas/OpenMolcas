@@ -17,6 +17,8 @@
 !   [_SUBR_NAME_]_allo_[_DIMENSIONS_]D_lim
 !   [_SUBR_NAME_]_free_[_DIMENSIONS_]D
 
+! Note _DIMENSIONS_=0 is intended for deferred-length character strings
+
 #define PASTE(a) a
 #define CAT(a,b) PASTE(a)b
 
@@ -32,7 +34,9 @@
 
 #define _ALLO_NAME_ CAT(CAT(_SUBR_NAME_,_allo),CAT(_,CAT(_DIMENSIONS_,D)))
 
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+      subroutine _ALLO_NAME_(buffer,n0,label)
+#elif _DIMENSIONS_==1
       subroutine _ALLO_NAME_(buffer,n1,label)
 #elif _DIMENSIONS_==2
       subroutine _ALLO_NAME_(buffer,n1,n2,label)
@@ -46,7 +50,10 @@
       subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label)
 #endif
         implicit none
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+        _TYPE_, allocatable, intent(inout) :: buffer
+        integer, intent(in) :: n0
+#elif _DIMENSIONS_==1
         _TYPE_, allocatable, intent(inout) :: buffer(:)
         integer, intent(in) :: n1
 #elif _DIMENSIONS_==2
@@ -72,7 +79,9 @@
           call mma_double_allo
         end if
         call mma_maxbytes(mma_avail)
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+        ntot = n0
+#elif _DIMENSIONS_==1
         ntot = n1
 #elif _DIMENSIONS_==2
         ntot = n1*n2
@@ -85,11 +94,18 @@
 #elif _DIMENSIONS_==7
         ntot = n1*n2*n3*n4*n5*n6*n7
 #endif
+#if _DIMENSIONS_==0
+        ! we can't use storage_size(buffer) for an unallocated character(len=:)
+        bufsize = storage_size('a') * ntot / 8
+#else
         bufsize = storage_size(buffer) * ntot / 8
+#endif
         if (bufsize .gt. mma_avail) then
           call mma_oom(bufsize,mma_avail)
         else
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+          allocate(character(len=n0) :: buffer)
+#elif _DIMENSIONS_==1
           allocate(buffer(n1))
 #elif _DIMENSIONS_==2
           allocate(buffer(n1,n2))
@@ -103,7 +119,9 @@
           allocate(buffer(n1,n2,n3,n4,n5,n6,n7))
 #endif
           if (ntot.gt.0) then
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+            loffset = cptr2loff(buffer)
+#elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(1))
 #elif _DIMENSIONS_==2
             loffset = cptr2loff(buffer(1,1))
@@ -126,6 +144,8 @@
       end subroutine _ALLO_NAME_
 
 ! NAME_allo_xD_lim definition
+
+#if _DIMENSIONS_ > 0
 
 #define _ALLO_NAME_LIM_ CAT(_ALLO_NAME_,_lim)
 
@@ -231,13 +251,17 @@
         end if
       end subroutine _ALLO_NAME_LIM_
 
+#endif
+
 ! NAME_free_xD definition
 
 #define _FREE_NAME_ CAT(CAT(_SUBR_NAME_,_free),CAT(_,CAT(_DIMENSIONS_,D)))
 
       subroutine _FREE_NAME_(buffer)
         implicit none
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+        _TYPE_, allocatable, intent(inout) :: buffer
+#elif _DIMENSIONS_==1
         _TYPE_, allocatable, intent(inout) :: buffer(:)
 #elif _DIMENSIONS_==2
         _TYPE_, allocatable, intent(inout) :: buffer(:,:)
@@ -255,13 +279,19 @@
 #ifndef _DATA_NAME_
         integer :: bufsize
 #endif
+#if _DIMENSIONS_==0
+        ntot = 1
+#else
         ntot = size(buffer)
+#endif
 #ifndef _DATA_NAME_
         bufsize = storage_size(buffer) * ntot / 8
 #endif
         if (allocated(buffer)) then
           if (ntot.gt.0) then
-#if _DIMENSIONS_==1
+#if _DIMENSIONS_==0
+            loffset = cptr2loff(buffer)
+#elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(lbound(buffer,1)))
 #elif _DIMENSIONS_==2
             loffset = cptr2loff(buffer(lbound(buffer,1),                &

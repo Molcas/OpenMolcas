@@ -73,7 +73,10 @@ MAXITER
 IPEA
  0.25
 Multistate
- 6 1 2 3 4 5 6
+ 6
+*test splitting the line
+1 2 3
+4 5 6
 CONVergence
  1.0D-9
 PROPerties
