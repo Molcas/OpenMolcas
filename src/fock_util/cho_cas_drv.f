@@ -35,7 +35,7 @@
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 
-      Type (CMO_type) CVa(2), ChoMOt, POrb(2)
+      Type (CMO_type) CVa(2), POrb(3)
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
@@ -224,7 +224,7 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
 
         Call Getmem('rMOs','Allo','Real',ipPorb,NTaq)
         Call Allocate_CMO(POrb(1),nChI,nBas,nSym)
-        Call Allocate_CMO(POrb(2),nAOrb,nBas,nSym)
+        Call Allocate_CMO(POrb(3),nAOrb,nBas,nSym)
 
         nOcs=0
         ioff1=0
@@ -243,7 +243,7 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
               call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
      &        Work(ipPorb+ISTAQ(iSym)+nChI(iSym)*nBas(iSym)+ikk-1),
      &             nAorb(iSym))
-              POrb(2)%pA(iSym)%A(ikk,:) =
+              POrb(3)%pA(iSym)%A(ikk,:) =
      &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
      &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
@@ -359,11 +359,11 @@ C ---  Decompose the active density  -----------------------------
 
 c --- reorder "Cholesky MOs" to Cva storage
 
-        Call Allocate_CMO(ChoMOt,nChM,nBas,nSym)
+        Call Allocate_CMO(POrb(2),nChM,nBas,nSym)
         Do iSym=1,nSym
            If (nBas(iSym)*nChM(iSym).ne.0) Then
                do ikk=1,nChM(iSym)
-                  ChoMOt%pA(iSym)%A(ikk,:) =
+                  POrb(2)%pA(iSym)%A(ikk,:) =
      &               CVa(2)%pA(iSym)%A(:,ikk)
                end do
            EndIf
@@ -371,7 +371,7 @@ c --- reorder "Cholesky MOs" to Cva storage
 
       Else
 
-        Call Allocate_CMO(ChoMOt,[1],[1],1)
+        Call Allocate_CMO(POrb(2),[1],[1],1)
 
       EndIf
 C ----------------------------------------------------------------
@@ -389,7 +389,7 @@ C ----------------------------------------------------------------
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &        ipPorb,ipDILT,ipDALT,DoActive,ChoMOt,nChM,ipInt,ExFac)
+     &        ipPorb,ipDILT,ipDALT,DoActive,POrb(2),nChM,ipInt,ExFac)
 
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
@@ -418,8 +418,8 @@ C ----------------------------------------------------------------
          ipInt = LTUVX   ! (TU|VX) integrals only are computed
 
          CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,ChoMOt,nChM,ipInt,
-     &    ExFac)
+     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb(2),nChM,
+     &    ipInt,ExFac)
 
 *  Synchronization of the Fock matrices
          Call GaDsum(Work(ipFI),NTot1)
@@ -442,7 +442,9 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-      If (Allocated(ChoMOt%CMO_full)) Call Deallocate_CMO(ChoMOt)
+      If (Allocated(POrb(3)%CMO_full)) Call Deallocate_CMO(POrb(3))
+      If (Allocated(POrb(2)%CMO_full)) Call Deallocate_CMO(POrb(2))
+      If (Allocated(POrb(1)%CMO_full)) Call Deallocate_CMO(POrb(1))
       If (Allocated(CVa(1)%CMO_full)) Call Deallocate_CMO(CVa(1))
       If (Allocated(CVa(2)%CMO_full)) Call Deallocate_CMO(CVa(2))
 
@@ -454,8 +456,6 @@ C ----------------------------------------------------------------
         Call Getmem('rMOs','Free','Real',ipPorb,NTaq)
       EndIf
 
-      If (Allocated(POrb(2)%CMO_full)) Call Deallocate_CMO(POrb(2))
-      If (Allocated(POrb(1)%CMO_full)) Call Deallocate_CMO(POrb(1))
 
       If (Deco) CALL GETMEM('choIn','free','real',ipIna,NTot2)
 
