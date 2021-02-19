@@ -360,7 +360,6 @@ C ---  Decompose the active density  -----------------------------
 c --- reorder "Cholesky MOs" to Cva storage
 
         Call Allocate_CMO(ChoMOt,nChM,nBas,nSym)
-        ipChM = ip_of_Work(ChoMOt%CMO_Full(1))
         Do iSym=1,nSym
            If (nBas(iSym)*nChM(iSym).ne.0) Then
                do ikk=1,nChM(iSym)
@@ -373,7 +372,6 @@ c --- reorder "Cholesky MOs" to Cva storage
       Else
 
         Call Allocate_CMO(ChoMOt,[1],[1],1)
-        ipChM = ip_of_Work(ChoMOt%CMO_Full(1))
 
       EndIf
 C ----------------------------------------------------------------
@@ -420,7 +418,7 @@ C ----------------------------------------------------------------
          ipInt = LTUVX   ! (TU|VX) integrals only are computed
 
          CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,ipChM,nChM,ipInt,
+     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,ChoMOt,nChM,ipInt,
      &    ExFac)
 
 *  Synchronization of the Fock matrices
@@ -444,7 +442,7 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-      If (Allocated(ChoMOt%CMO_full)) Call Deallocate_CMO(ChoMOt)   ! ipChM
+      If (Allocated(ChoMOt%CMO_full)) Call Deallocate_CMO(ChoMOt)
       If (Allocated(CVa(1)%CMO_full)) Call Deallocate_CMO(CVa(1))
       If (Allocated(CVa(2)%CMO_full)) Call Deallocate_CMO(CVa(2))
 

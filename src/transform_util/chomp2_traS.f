@@ -36,7 +36,6 @@
       IF ( .NOT. TCVXist(3,iSym,jSym)) RETURN
 
       Naj = 0
-      Len_aj = 0
       Len_XAj = 0
       NFAB = nBas(iSym) * ( nBas(jSym) + 1 ) /2
       Len_XAj = nBas(iSym) * nIsh(jSym)

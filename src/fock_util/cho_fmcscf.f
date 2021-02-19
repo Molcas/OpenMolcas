@@ -50,7 +50,7 @@ C
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   ipOrb(8,3),nOrb(8,3)
       Integer   ISTAQ(8),iSkip(8)
-      Integer   ISTLT(8),ISTCH(8)
+      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
       Integer   ipDA1,ipDI
       Integer   ipPorb,ipFA,ipFI
@@ -126,7 +126,6 @@ c --- Various offsets
 c --------------------
         ISTAQ(1)=0
         ISTLT(1)=0
-        ISTCH(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
@@ -136,7 +135,6 @@ c --------------------
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
 ! Inactive and Active D and F matrices
         ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
-        ISTCH(ISYM)=ISTCH(ISYM-1)+NCH ! "Cholesky MOs"
       END DO
 
       Call Map_to_CMO(ChM,ipOrb(:,2))
@@ -146,7 +144,6 @@ c --------------------
          ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
          nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
 
-*        ipOrb(iSym,2) = ipChM + ISTCH(iSym)
          nOrb(iSym,2)  = nChM(iSym)
 
          ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)

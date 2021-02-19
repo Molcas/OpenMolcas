@@ -106,8 +106,6 @@
       Nau = 0
       Nab = 0
 
-      Len_FAB = 0
-
       Len_XAj = 0
       Len_XAu = 0
       Len_XAb = 0
