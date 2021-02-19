@@ -128,8 +128,6 @@ c --------------------
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         NP=NPORB(ISYM-1)
-        NP2=NB*NP
-        NCH=NB*NCHM(ISYM-1)
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
       END DO
 

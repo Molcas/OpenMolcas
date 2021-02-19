@@ -132,9 +132,7 @@ c --------------------
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         NP=NPORB(ISYM-1)
-        NP2=NB*NP
         NV2=NB*NAORB(ISYM-1)
-        NCH=NB*NCHM(ISYM-1)
 
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix
