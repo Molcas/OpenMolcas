@@ -389,7 +389,7 @@ C ----------------------------------------------------------------
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &        ipPorb,ipDILT,ipDALT,DoActive,POrb(2),nChM,ipInt,ExFac)
+     &        ipPorb,ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
 
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN

@@ -12,7 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                      ipPorb,ipDI,ipDA1,DoActive,ChM,nChM,ipInt,
+     &                      ipPorb,ipDI,ipDA1,DoActive,POrb,nChM,ipInt,
      &                      ExFac)
 
 **********************************************************************
@@ -45,7 +45,7 @@ C
       use Data_structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) ChM
+      Type (CMO_Type) POrb(3)
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   ipOrb(8,3),nOrb(8,3)
@@ -83,6 +83,7 @@ C
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
 
+      ipPOrb = 1* ipPOrb
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
           write(6,*) 'and end up with this message, you are in trouble.'
@@ -137,17 +138,19 @@ c --------------------
         ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
       END DO
 
-      Call Map_to_CMO(ChM,ipOrb(:,2))
+      Call Map_to_CMO(POrb(1),ipOrb(:,1))
+      Call Map_to_CMO(POrb(2),ipOrb(:,2))
+      Call Map_to_CMO(POrb(3),ipOrb(:,3))
 
       Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
 
-         ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
+*        ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
          nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
 
          nOrb(iSym,2)  = nChM(iSym)
 
-         ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
-     &                 + nOrb(iSym,1)*nBas(iSym)
+*        ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
+*    &                 + nOrb(iSym,1)*nBas(iSym)
          nOrb(iSym,3)  = nAorb(iSym)
 
       End Do
@@ -582,8 +585,6 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-*                     NK   = nForb(iSyma) + nIorb(iSyma)
-*                     ISMO = ipPorb + ISTAQ(iSyma) + NK*nBas(iSyma)
                       ISMO = ipOrb(iSyma,3)
 
                       Do JVC=1,JNUM
@@ -616,8 +617,6 @@ C --------------------------------------------------------------------
 
                      If(NAv*NAw.ne.0.and.iSymv.lt.iSymb)Then
 
-*                     NK = nForb(iSymb) + nIorb(iSymb)
-*                     ISMO = ipPorb + ISTAQ(iSymb) + NK*nBas(iSymb)
                       ISMO = ipOrb(iSymb,3)
 
                       Do JVC=1,JNUM
