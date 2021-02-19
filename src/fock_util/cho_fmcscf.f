@@ -582,8 +582,9 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-                      NK   = nForb(iSyma) + nIorb(iSyma)
-                      ISMO = ipPorb + ISTAQ(iSyma) + NK*nBas(iSyma)
+*                     NK   = nForb(iSyma) + nIorb(iSyma)
+*                     ISMO = ipPorb + ISTAQ(iSyma) + NK*nBas(iSyma)
+                      ISMO = ipOrb(iSyma,3)
 
                       Do JVC=1,JNUM
 
@@ -615,8 +616,9 @@ C --------------------------------------------------------------------
 
                      If(NAv*NAw.ne.0.and.iSymv.lt.iSymb)Then
 
-                      NK = nForb(iSymb) + nIorb(iSymb)
-                      ISMO = ipPorb + ISTAQ(iSymb) + NK*nBas(iSymb)
+*                     NK = nForb(iSymb) + nIorb(iSymb)
+*                     ISMO = ipPorb + ISTAQ(iSymb) + NK*nBas(iSymb)
+                      ISMO = ipOrb(iSymb,3)
 
                       Do JVC=1,JNUM
 
