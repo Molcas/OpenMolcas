@@ -50,7 +50,6 @@ C
       Integer   ISTLT(8),ISTCH(8),ISZW(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tqmat(2)
       Real*8    ExFac
-*      Integer   ipDA1,ipDA2,ipDI
       Integer   ipDA1,ipDA2(8,8,8),ipDI
       Integer   ipPorb,ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
@@ -125,10 +124,10 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-        ISTAQ(1)=0
-        ISTAV(1)=0
-        ISTLT(1)=0
-        ISTCH(1)=0
+      ISTAQ(1)=0
+      ISTAV(1)=0
+      ISTLT(1)=0
+      ISTCH(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
@@ -136,6 +135,7 @@ c --------------------
         NP2=NB*NP
         NV2=NB*NAORB(ISYM-1)
         NCH=NB*NCHM(ISYM-1)
+
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat
         ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix

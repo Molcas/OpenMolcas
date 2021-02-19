@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_CAS_DRV(rc,CMO,DI,FI,DA1,FA,DA2,TraOnly)
+      Use Data_Structures, only: CMO_Type, Allocate_CMO,
+     &                           Deallocate_CMO
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
@@ -26,14 +28,15 @@
       Common /CHLCAS / DoCholesky,ALGO
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 
-      Character*11 SECNAM
-      Parameter (SECNAM = 'CHO_CAS_DRV')
+      Character(LEN=11), Parameter:: SECNAM = 'CHO_CAS_DRV'
 
 #include "rasdim.fh"
 #include "wadr.fh"
 #include "general.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
+
+      Type (CMO_type) CVA(2)
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
@@ -211,7 +214,7 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
 c --- Various offsets
 c --------------------
-        ISTAQ(1)=0
+      ISTAQ(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NP=NCHI(ISYM-1)+NAORB(ISYM-1)
@@ -254,23 +257,23 @@ c     &                  nAorb(iSym),nBas(iSym))
       Else
 
 C *** Only the active orbitals MO coeff need reordering
-           nVB=0
-           Do iSym=1,nSym
-            nVB = nVB + nAorb(iSym)*nBas(iSym)
-           End Do
-           Call GetMem('Cva','Allo','Real',ipAorb(1),nVB)
+           Call Allocate_CMO(CVa(1),nAorb,nBas,nSym)
+           ipAorb(1) = ip_of_Work(CVa(1)%CMO_Full(1))
            DeAllocte_CVA=.True.
 
            ioff1 = 0
-           ioff3 = 0
+*          ioff3 = 0
            Do iSym=1,nSym
             ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
-               call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
-     &                 Work(ipAorb(1)+ioff3+ikk-1),nAorb(iSym))
+               ioff = ioff2+nBas(iSym)*(ikk-1)
+               CVa(1)%pA(iSym)%A(ikk,:) =
+     &           CMO(ioff +  1 : ioff + nBas(iSym))
+*              call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
+*    &                 Work(ipAorb(1)+ioff3+ikk-1),nAorb(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
-            ioff3 = ioff3 + nAorb(iSym)*nBas(iSym)
+*           ioff3 = ioff3 + nAorb(iSym)*nBas(iSym)
            End Do
 
       EndIf
@@ -464,7 +467,7 @@ C ----------------------------------------------------------------
 
       EndIf
 
-      If (DeAllocte_CVA) Call GetMem('Cva','free','Real',ipAorb(1),nVB)
+      If (DeAllocte_CVA) Call Deallocate_CMO(CVa(1))
 
 
       If(DoActive) CALL GETMEM('choMOs','free','real',ipVec,NTot2)

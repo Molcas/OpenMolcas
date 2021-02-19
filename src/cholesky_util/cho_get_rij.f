@@ -36,19 +36,22 @@
 *> Requires initialization of the Cholesky information.
 *>
 *> @param[out]    irc     Return code
-*> @param[in]     ipMO    Pointers to each symmetry block of the MO matrix, stored as \p C(k,a)
+*> @param[in]     MO      type CMO_type of block of the MO matrix, stored as \p C(k,a)
 *> @param[in]     nOcc    Number of orbitals to be localized in each symmetry
 *> @param[in,out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
 *> @param[in]     timings Switch on/off timings printout
 ************************************************************************
-      SUBROUTINE CHO_get_Rij(irc,ipMO,nOcc,Rij,timings)
+      SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
       Integer irc
-      Integer ipMO(*), nOcc(*)
+      Type (CMO_Type) MO
+      Integer nOcc(*)
       Real*8  Rij(*)
       Logical timings
+      Integer ipMO(8)
 
       Logical, Parameter:: DoRead=.FALSE.
       Integer iOcc(8),iOcs(8),ipLib(8),iSkip(8)
@@ -64,6 +67,8 @@
       Real*8, Allocatable:: Lab(:), Ltr(:)
 
       IREDC = -1
+
+      Call Map_to_CMO(MO,ipMO)
 
       JSYM=1
       If (NumCho(JSYM).lt.1) Then
