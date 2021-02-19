@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_LK_CASSCF(ipDI,ipDA1,ipFI,ipFA,ipKLT,ipMSQ,ipInt,
-     &             FactXI,nFIorb,nAorb,nChM,ipAsh,DoActive,
+     &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
 **********************************************************************
@@ -49,6 +49,7 @@ C
 #endif
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipLxy(8),ipScr(8,8),ipDIAH(1)
@@ -57,7 +58,8 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAsh(2),ipAorb(8,2),ipDab(2),ipFab(2),ipDD(2)
+      Integer   ipAorb(8,2),ipDab(2),ipFab(2),ipDD(2)
+      Type (CMO_Type)   Ash(2)
       Integer   nFIorb(8),nAorb(8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -120,12 +122,11 @@ C
       ipFLT(1) = ipFI
       ipFLT(2) = ipFA
 
-      FactC(1) = one
-      FactX(1) = FactXI*ExFac
-      FactC(2) = one
-      FactX(2) = -0.5D0*ExFac
+      FactC(:) = [ one, one ]
+      FactX(:) = [ FactXI*ExFac, -0.5D0*ExFac ]
 
       nDen=2  ! inactive and active density, respectively
+
       If (.not.DoActive) nDen=1
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -170,15 +171,11 @@ c --------------------
       nIt=0
       DO jDen=1,nDen
 
-         ipAorb(1,jDen)= ipAsh(jDen)
+         Call Map_to_CMO(Ash(jDen),ipAOrb(:,jDen))
 
          kOff(1,jDen) = nnO
 
          DO ISYM=2,NSYM
-
-            ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                        + nAorb(iSym-1)*nBas(iSym-1)*(2-jDen)
-     &                        + (jDen-1)*nBas(iSym-1)**2
 
             nnO = nnO + nFIorb(iSym-1)*(2-jDen)
      &                + nChM(iSym-1)*(jDen-1)

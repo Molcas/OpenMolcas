@@ -17,7 +17,7 @@
       Integer   ISTAQ(8),Nscreen
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
-      Integer   ipDSA2(8,8,8),nnA(8,8),ipAorb(2),ipKLT(2)
+      Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
       Logical   DoActive,DoQmat,TraOnly,DoLocK,Deco,DoCholesky
       Integer   ALGO
       Real*8    dmpk
@@ -40,7 +40,6 @@ C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
 
-
       rc=0
 
       IF (TraOnly) THEN
@@ -59,10 +58,6 @@ c
         Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
         Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
         Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
-C        Call MXMA(Work(iTmp1),1,iBas,
-C     &            CMO(iOff2+(iFro*iBas)),1,iBas,
-C     &            Work(iTmp2),1,iBas,
-C     &            iBas,iBas,iOrb)
         Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Work(iTmp1),
      &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
      &               0.0d0,Work(iTmp2),iBas)
@@ -255,21 +250,16 @@ c     &                  nAorb(iSym),nBas(iSym))
 
 C *** Only the active orbitals MO coeff need reordering
            Call Allocate_CMO(CVa(1),nAorb,nBas,nSym)
-           ipAorb(1) = ip_of_Work(CVa(1)%CMO_Full(1))
 
            ioff1 = 0
-*          ioff3 = 0
            Do iSym=1,nSym
             ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
                ioff = ioff2+nBas(iSym)*(ikk-1)
                CVa(1)%pA(iSym)%A(ikk,:) =
      &           CMO(ioff +  1 : ioff + nBas(iSym))
-*              call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
-*    &                 Work(ipAorb(1)+ioff3+ikk-1),nAorb(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
-*           ioff3 = ioff3 + nAorb(iSym)*nBas(iSym)
            End Do
 
       EndIf
@@ -325,7 +315,6 @@ C ---  Decompose the active density  -----------------------------
 #endif
 
         Call Allocate_CMO(CVa(2),nBas,nBas,nSym)
-        ipAOrb(2) = ip_of_Work(CVa(2)%CMO_Full(1))
         CALL GETMEM('ddec','allo','real',ipddec,NTot2)
         call dcopy_(NTot2,DA1(1),1,Work(ipddec),1)
 
@@ -356,7 +345,6 @@ C ---  Decompose the active density  -----------------------------
 
         ! Dummy allocation
         Call Allocate_CMO(CVa(2),[1],[1],1)
-        ipAOrb(2) = ip_of_Work(CVa(2)%CMO_Full(1))
         nChM(:) = 0
 
       EndIf
@@ -414,7 +402,7 @@ C ----------------------------------------------------------------
          EndIf
 
          CALL CHO_LK_CASSCF(ipDILT,ipDALT,ipFI,ipFA,ipKLT,ipInc,ipInt,
-     &                      FactXI,nChI,nAorb,nChM,ipAorb,DoActive,
+     &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
          If(DoActive) Call Getmem('KALT','Free','Real',ipKLT(2),NTot1)
@@ -451,8 +439,8 @@ C ----------------------------------------------------------------
       ENDIF
 
       If (Allocated(ChoMOt%CMO_full)) Call Deallocate_CMO(ChoMOt)   ! ipChM
-      If (Allocated(CVa(1)%CMO_full)) Call Deallocate_CMO(CVa(1))   ! ipAOrb(1)
-      If (Allocated(CVa(2)%CMO_full)) Call Deallocate_CMO(CVa(2))   ! ipAOrb(2)
+      If (Allocated(CVa(1)%CMO_full)) Call Deallocate_CMO(CVa(1))
+      If (Allocated(CVa(2)%CMO_full)) Call Deallocate_CMO(CVa(2))
 
       If (DoQmat.and.ALGO.ne.1) Then
          Call Getmem('P-mat','Free','Real',ipPmat,NPmat)
