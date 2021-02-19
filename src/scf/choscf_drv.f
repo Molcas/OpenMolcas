@@ -72,14 +72,13 @@ C
 
       Integer, External:: ip_of_Work, ip_of_iWork
 
-      Type (CMO_Type) Cka
+      Type (CMO_Type) Cka(2)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 C  **************************************************
 
       rc=0
-
 
       do i=1,8
          Lunit(i)=-1
@@ -240,35 +239,28 @@ c       end do
 
       elseif (ALGO.eq.3) then
 
-          nKB=0
           Do iSym=1,nSym
              nIorb(iSym,1) = iWork(ipNocc(1)+iSym-1)
-             nKB = nKB + nIorb(iSym,1)*nBas(iSym)
           End Do
-          Call Allocate_CMO(Cka,nIorb,nBas,nSym)
-          ipMOs(1) = ip_of_Work(Cka%CMO_Full(1))
+          Call Allocate_CMO(Cka(1),nIorb(:,1),nBas,nSym)
 
           ioff1=0
-          ioff2=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka%pA(iSym)%A(ikk,:) =
+                Cka(1)%pA(iSym)%A(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3-1+nBas(iSym))
-*               call dcopy_(nBas(iSym),Work(ipMSQ(1)+ioff3),1,
-*    &                     Work(ipMOs(1)+ioff2+ikk-1),nIorb(iSym,1))
              end do
            EndIf
            ioff1=ioff1+nBas(iSym)**2
-*          ioff2=ioff2+nIorb(iSym,1)*nBas(iSym)
            nForb(iSym,1) = 0
           End Do
 
-          CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,ipMOs,ipDLT,xFac)
+          CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Cka(1),ipDLT,xFac)
 
-          Call Deallocate_CMO(Cka)
+          Call Deallocate_CMO(Cka(1))
 
           If (rc.ne.0) GOTO 999
 
@@ -522,50 +514,43 @@ C Compute the total density Dalpha + Dbeta
              ipMSQ(2) = mAdCMO_ab   ! beta MOs coeff as in addr.fh
           EndIf
 
-          nKB1=0
-          nKB2=0
           Do iSym=1,nSym
              nIorb(iSym,1) = iWork(ipNocc(2)+iSym-1)
              nIorb(iSym,2) = iWork(ipNocc(3)+iSym-1)
-             nKB1 = nKB1 + nIorb(iSym,1)*nBas(iSym)
-             nKB2 = nKB2 + nIorb(iSym,2)*nBas(iSym)
           End Do
-          Call GetMem('Cka','Allo','Real',ipMOs(1),nKB1)
-          Call GetMem('Ckb','Allo','Real',ipMOs(2),nKB2)
+          Call Allocate_CMO(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_CMO(Cka(2),nIorb(:,2),nBas,nSym)
 
           ioff1=0
-          ioff2=0
-          ioff_ab=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                call dcopy_(nBas(iSym),Work(ipMSQ(1)+ioff3),1,
-     &                     Work(ipMOs(1)+ioff2+ikk-1),nIorb(iSym,1))
+                Cka(1)%pA(iSym)%A(ikk,:) =
+     &            Work(ipMSQ(1)+ioff3 :
+     &                 ipMSQ(1)+ioff3 - 1 + nBas(iSym))
              end do
            EndIf
            If (nBas(iSym)*nIorb(iSym,2).ne.0) Then
              do ikk=1,nIorb(iSym,2)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                call dcopy_(nBas(iSym),Work(ipMSQ(2)+ioff3),1,
-     &                     Work(ipMOs(2)+ioff_ab+ikk-1),nIorb(iSym,2))
+                Cka(2)%pA(iSym)%A(ikk,:) =
+     &            Work(ipMSQ(2)+ioff3 :
+     &                 ipMSQ(2)+ioff3 - 1 + nBas(iSym))
              end do
            EndIf
            ioff1=ioff1+nBas(iSym)**2
-           ioff2=ioff2+nIorb(iSym,1)*nBas(iSym)
-           ioff_ab=ioff_ab+nIorb(iSym,2)*nBas(iSym)
            nForb(iSym,1) = 0
            nForb(iSym,2) = 0
           End Do
 
           nMat=2  ! alpha and beta Fock matrices
 
-          CALL CHO_FSCF(rc,nMat,ipFLT,nForb,nIorb,
-     &                  ipMOs,ipDLT,ExFac)
+          CALL CHO_FSCF(rc,nMat,ipFLT,nForb,nIorb,Cka,ipDLT,ExFac)
 
 
-          Call GetMem('Cka','Free','Real',ipMOs(1),nKB1)
-          Call GetMem('Ckb','Free','Real',ipMOs(2),nKB2)
+          Call Deallocate_CMO(Cka(2))
+          Call Deallocate_CMO(Cka(1))
 
           If (rc.ne.0) GOTO 999
 
