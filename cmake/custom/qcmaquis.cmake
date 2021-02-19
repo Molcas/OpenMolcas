@@ -24,7 +24,7 @@ set(extprojpath     "${CMAKE_BINARY_DIR}/External/qcmaquis")
 
 if(NOT QCMaquis_ROOT)
 
-  if("${LOCAL_QCM_INSTALL_PATH}" STREQUAL "")
+  if(NOT LOCAL_QCM_INSTALL_PATH)
     set(LOCAL_QCM_INSTALL_PATH ${CMAKE_BINARY_DIR}/qcmaquis)
   endif()
   # Set up compilation of QCMaquis components
