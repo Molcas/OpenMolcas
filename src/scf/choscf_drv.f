@@ -34,14 +34,17 @@ C
          Call LDFSCF_Drv(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                FLT,FLT_ab,nFLT,ExFac,LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
       Else
-         Call ChoSCF_Drv_(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
+         Call ChoSCF_Drv_Internal(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                FLT,FLT_ab,nFLT,ExFac,LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
       End If
 
       End
-      SUBROUTINE CHOSCF_DRV_(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                FLT,FLT_ab,nFLT,ExFac,LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
+      SUBROUTINE CHOSCF_DRV_Internal(iUHF,nSym,nBas,DSQ,DLT,DSQ_ab,
+     &                               DLT_ab,FLT,FLT_ab,nFLT,ExFac,
+     &                               LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
 
+      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: Allocate_CMO, Deallocate_CMO
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -67,8 +70,9 @@ C
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
 
-      Integer  ip_of_Work, ip_of_iWork
-      External ip_of_Work, ip_of_iWork
+      Integer, External:: ip_of_Work, ip_of_iWork
+
+      Type (CMO_Type) Cka
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -241,7 +245,8 @@ c       end do
              nIorb(iSym,1) = iWork(ipNocc(1)+iSym-1)
              nKB = nKB + nIorb(iSym,1)*nBas(iSym)
           End Do
-          Call GetMem('Cka','Allo','Real',ipMOs(1),nKB)
+          Call Allocate_CMO(Cka,nIorb,nBas,nSym)
+          ipMOs(1) = ip_of_Work(Cka%CMO_Full(1))
 
           ioff1=0
           ioff2=0
@@ -249,22 +254,21 @@ c       end do
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                call dcopy_(nBas(iSym),Work(ipMSQ(1)+ioff3),1,
-     &                     Work(ipMOs(1)+ioff2+ikk-1),nIorb(iSym,1))
+                Cka%pA(iSym)%A(ikk,:) =
+     &            Work(ipMSQ(1)+ioff3 :
+     &                 ipMSQ(1)+ioff3-1+nBas(iSym))
+*               call dcopy_(nBas(iSym),Work(ipMSQ(1)+ioff3),1,
+*    &                     Work(ipMOs(1)+ioff2+ikk-1),nIorb(iSym,1))
              end do
            EndIf
            ioff1=ioff1+nBas(iSym)**2
-           ioff2=ioff2+nIorb(iSym,1)*nBas(iSym)
+*          ioff2=ioff2+nIorb(iSym,1)*nBas(iSym)
            nForb(iSym,1) = 0
           End Do
 
-c          CALL CHO_FSCF_AO(rc,ipFLT,nForb,nOcc,ipMOs,ipDLT)  ! obsolete
+          CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,ipMOs,ipDLT,xFac)
 
-          CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,
-     &                  ipMOs,ipDLT,xFac)
-
-
-          Call GetMem('Cka','Free','Real',ipMOs(1),nKB)
+          Call Deallocate_CMO(Cka)
 
           If (rc.ne.0) GOTO 999
 

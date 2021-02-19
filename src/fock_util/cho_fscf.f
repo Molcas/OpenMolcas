@@ -11,8 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,
-     &                       ipPorb,ipDLT,ExFac)
+      SUBROUTINE CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,ipPorb,ipDLT,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
