@@ -35,7 +35,7 @@
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 
-      Type (CMO_type) CVa(2), ChoMOt
+      Type (CMO_type) CVa(2), ChoMOt, POrb(2)
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
@@ -207,42 +207,48 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 c --- Various offsets
 c --------------------
       ISTAQ(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NP=NCHI(ISYM-1)+NAORB(ISYM-1)
+      iE = -1
+      NTaq = 0
+      DO ISYM=1,NSYM
+        iS = iE + 1
+        NB=NBAS(ISYM)
+        NP=NCHI(ISYM)+NAORB(ISYM)
         NP2=NB*NP
-        ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! Reordered MOs coeff
+        ISTAQ(ISYM) = iS   ! Reordered MOs coeff
+        iE = iE + NP2
+        NTaq = NTaq + NP2
       END DO
 
 C --- Reordering of the MOs coefficients to fit cholesky needs
       If(.not.DoLocK)Then
 
-        NTaq = ISTAQ(nSym) + nBas(nSym)*(nChI(nSym)+nAorb(nSym))
-
         Call Getmem('rMOs','Allo','Real',ipPorb,NTaq)
+        Call Allocate_CMO(POrb(1),nChI,nBas,nSym)
+        Call Allocate_CMO(POrb(2),nAOrb,nBas,nSym)
 
         nOcs=0
         ioff1=0
         Do iSym=1,nSym
+
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
               call dcopy_(nBas(iSym),Work(ipInc+ioff2),1,
      &        Work(ipPorb+ISTAQ(iSym)+ikk-1),nChI(iSym))
+              POrb(1)%pA(iSym)%A(ikk,:) =
+     &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
+
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
               call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
      &        Work(ipPorb+ISTAQ(iSym)+nChI(iSym)*nBas(iSym)+ikk-1),
      &             nAorb(iSym))
+              POrb(2)%pA(iSym)%A(ikk,:) =
+     &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
+     &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
            ioff1=ioff1+nBas(iSym)**2
-c           call recprt('ReorIMOs','',Work(ipPorb+ISTAQ(iSym)),
-c     &                  nChI(iSym),nBas(iSym))
-c           call recprt('ReorAMOs','',Work(ipPorb+ISTAQ(iSym)+nChI(iSym)*
-c     &                  nBas(iSym)),
-c     &                  nAorb(iSym),nBas(iSym))
-
-            nOcs = nOcs + nAorb(iSym)**2
+           nOcs = nOcs + nAorb(iSym)**2
 
         End Do
 
@@ -385,7 +391,7 @@ C ----------------------------------------------------------------
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &        ipPorb,ipDILT,ipDALT,DoActive,ipChM,nChM,ipInt,ExFac)
+     &        ipPorb,ipDILT,ipDALT,DoActive,ChoMOt,nChM,ipInt,ExFac)
 
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
@@ -449,6 +455,9 @@ C ----------------------------------------------------------------
       If(.not.DoLocK)Then
         Call Getmem('rMOs','Free','Real',ipPorb,NTaq)
       EndIf
+
+      If (Allocated(POrb(2)%CMO_full)) Call Deallocate_CMO(POrb(2))
+      If (Allocated(POrb(1)%CMO_full)) Call Deallocate_CMO(POrb(1))
 
       If (Deco) CALL GETMEM('choIn','free','real',ipIna,NTot2)
 

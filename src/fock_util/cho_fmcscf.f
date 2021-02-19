@@ -12,7 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                      ipPorb,ipDI,ipDA1,DoActive,ipChM,nChM,ipInt,
+     &                      ipPorb,ipDI,ipDA1,DoActive,ChM,nChM,ipInt,
      &                      ExFac)
 
 **********************************************************************
@@ -42,7 +42,10 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
+
+      Type (CMO_Type) ChM
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   ipOrb(8,3),nOrb(8,3)
@@ -58,8 +61,7 @@ C
 #endif
       Logical   timings,DoRead,DoTraInt,DoActive
       Character*50 CFmt
-      Character*10 SECNAM
-      Parameter (SECNAM = 'CHO_FMCSCF')
+      Character(LEN=10), Parameter:: SECNAM = 'CHO_FMCSCF'
       COMMON    /CHOTIME /timings
 
       parameter (FactCI = 1.0D0)
@@ -137,12 +139,14 @@ c --------------------
         ISTCH(ISYM)=ISTCH(ISYM-1)+NCH ! "Cholesky MOs"
       END DO
 
+      Call Map_to_CMO(ChM,ipOrb(:,2))
+
       Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
 
          ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
          nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
 
-         ipOrb(iSym,2) = ipChM + ISTCH(iSym)
+*        ipOrb(iSym,2) = ipChM + ISTCH(iSym)
          nOrb(iSym,2)  = nChM(iSym)
 
          ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
