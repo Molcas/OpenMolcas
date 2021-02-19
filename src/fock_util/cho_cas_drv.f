@@ -418,7 +418,7 @@ C ----------------------------------------------------------------
          ipInt = LTUVX   ! (TU|VX) integrals only are computed
 
          CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb(2),nChM,
+     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb,nChM,
      &    ipInt,ExFac)
 
 *  Synchronization of the Fock matrices

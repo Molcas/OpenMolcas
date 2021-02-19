@@ -13,7 +13,7 @@
 
       SUBROUTINE CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,
      &                          FactXI,ipPorb,ipDI,ipDA1,ipDA2,DoActive,
-     &                          DoQmat,ChM,nChM,ipInt,ExFac)
+     &                          DoQmat,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -45,7 +45,7 @@ C
       use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) ChM
+      Type (CMO_Type) POrb(3)
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   ipOrb(8,3),nOrb(8,3)
@@ -84,7 +84,7 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-
+      ipPOrb = 1*ipPOrb
       DoRead  = .false.
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -143,17 +143,19 @@ c --------------------
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix
       END DO
 
-      Call Map_to_CMO(ChM,ipOrb(:,2))
+      Call Map_to_CMO(POrb(1),ipOrb(:,1))
+      Call Map_to_CMO(POrb(2),ipOrb(:,2))
+      Call Map_to_CMO(POrb(3),ipOrb(:,3))
 
       Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
 
-         ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
+*        ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
          nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
 
          nOrb(iSym,2)  = nChM(iSym)
 
-         ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
-     &                 + nOrb(iSym,1)*nBas(iSym)
+*        ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
+*    &                 + nOrb(iSym,1)*nBas(iSym)
          nOrb(iSym,3)  = nAorb(iSym)
 
       End Do
@@ -595,8 +597,6 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-*                     NK   = nForb(iSyma) + nIorb(iSyma)
-*                     ISMO = ipPorb + ISTAQ(iSyma) + NK*nBas(iSyma)
                       ISMO = ipOrb(iSyma,3)
 
                       Do JVC=1,JNUM
@@ -629,8 +629,6 @@ C --------------------------------------------------------------------
 
                      If(NAv*NAw.ne.0.and.iSymv.gt.iSymb)Then
 
-*                     NK = nForb(iSymb) + nIorb(iSymb)
-*                     ISMO = ipPorb + ISTAQ(iSymb) + NK*nBas(iSymb)
                       ISMO = ipOrb(iSymb,3)
                       ipLvb = ipLab(iSymv,3)
                       ipLvw = ipLxy(iSymv)
