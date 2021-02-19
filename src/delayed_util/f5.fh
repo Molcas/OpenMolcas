@@ -1045,6 +1045,11 @@
       else
         write(6,*) 'no dsterf found!'
       end if
+      if (DLAddr(c_funloc(lb_dstev),c_loc(info)) /= 0) then
+        write(6,*) 'dstev from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dstev found!'
+      end if
       if (DLAddr(c_funloc(lb_dstevr),c_loc(info)) /= 0) then
         write(6,*) 'dstevr from: ',c_f_string(info%dli_fname)
       else
@@ -1064,6 +1069,11 @@
         write(6,*) 'dsyevr from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no dsyevr found!'
+      end if
+      if (DLAddr(c_funloc(lb_dsyevx),c_loc(info)) /= 0) then
+        write(6,*) 'dsyevx from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no dsyevx found!'
       end if
       if (DLAddr(c_funloc(lb_dsygs2),c_loc(info)) /= 0) then
         write(6,*) 'dsygs2 from: ',c_f_string(info%dli_fname)
@@ -1155,10 +1165,65 @@
       else
         write(6,*) 'no iparmq found!'
       end if
+      if (DLAddr(c_funloc(lb_zbdsqr),c_loc(info)) /= 0) then
+        write(6,*) 'zbdsqr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zbdsqr found!'
+      end if
+      if (DLAddr(c_funloc(lb_zdrot),c_loc(info)) /= 0) then
+        write(6,*) 'zdrot from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zdrot found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgebd2),c_loc(info)) /= 0) then
+        write(6,*) 'zgebd2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgebd2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgebrd),c_loc(info)) /= 0) then
+        write(6,*) 'zgebrd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgebrd found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgelq2),c_loc(info)) /= 0) then
+        write(6,*) 'zgelq2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgelq2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgelqf),c_loc(info)) /= 0) then
+        write(6,*) 'zgelqf from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgelqf found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgeqr2),c_loc(info)) /= 0) then
+        write(6,*) 'zgeqr2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgeqr2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgeqrf),c_loc(info)) /= 0) then
+        write(6,*) 'zgeqrf from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgeqrf found!'
+      end if
+      if (DLAddr(c_funloc(lb_zgesvd),c_loc(info)) /= 0) then
+        write(6,*) 'zgesvd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zgesvd found!'
+      end if
       if (DLAddr(c_funloc(lb_zheev),c_loc(info)) /= 0) then
         write(6,*) 'zheev from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no zheev found!'
+      end if
+      if (DLAddr(c_funloc(lb_zheevd),c_loc(info)) /= 0) then
+        write(6,*) 'zheevd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zheevd found!'
+      end if
+      if (DLAddr(c_funloc(lb_zheevx),c_loc(info)) /= 0) then
+        write(6,*) 'zheevx from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zheevx found!'
       end if
       if (DLAddr(c_funloc(lb_zhetd2),c_loc(info)) /= 0) then
         write(6,*) 'zhetd2 from: ',c_f_string(info%dli_fname)
@@ -1180,15 +1245,50 @@
       else
         write(6,*) 'no zhptrd found!'
       end if
+      if (DLAddr(c_funloc(lb_zlabrd),c_loc(info)) /= 0) then
+        write(6,*) 'zlabrd from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlabrd found!'
+      end if
       if (DLAddr(c_funloc(lb_zlacgv),c_loc(info)) /= 0) then
         write(6,*) 'zlacgv from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no zlacgv found!'
       end if
+      if (DLAddr(c_funloc(lb_zlacpy),c_loc(info)) /= 0) then
+        write(6,*) 'zlacpy from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlacpy found!'
+      end if
+      if (DLAddr(c_funloc(lb_zlacrm),c_loc(info)) /= 0) then
+        write(6,*) 'zlacrm from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlacrm found!'
+      end if
       if (DLAddr(c_funloc(lb_zladiv),c_loc(info)) /= 0) then
         write(6,*) 'zladiv from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no zladiv found!'
+      end if
+      if (DLAddr(c_funloc(lb_zlaed0),c_loc(info)) /= 0) then
+        write(6,*) 'zlaed0 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlaed0 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zlaed7),c_loc(info)) /= 0) then
+        write(6,*) 'zlaed7 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlaed7 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zlaed8),c_loc(info)) /= 0) then
+        write(6,*) 'zlaed8 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlaed8 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zlange),c_loc(info)) /= 0) then
+        write(6,*) 'zlange from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zlange found!'
       end if
       if (DLAddr(c_funloc(lb_zlanhe),c_loc(info)) /= 0) then
         write(6,*) 'zlanhe from: ',c_f_string(info%dli_fname)
@@ -1245,6 +1345,16 @@
       else
         write(6,*) 'no zlatrd found!'
       end if
+      if (DLAddr(c_funloc(lb_zstedc),c_loc(info)) /= 0) then
+        write(6,*) 'zstedc from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zstedc found!'
+      end if
+      if (DLAddr(c_funloc(lb_zstein),c_loc(info)) /= 0) then
+        write(6,*) 'zstein from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zstein found!'
+      end if
       if (DLAddr(c_funloc(lb_zsteqr),c_loc(info)) /= 0) then
         write(6,*) 'zsteqr from: ',c_f_string(info%dli_fname)
       else
@@ -1260,6 +1370,21 @@
       else
         write(6,*) 'no zung2r found!'
       end if
+      if (DLAddr(c_funloc(lb_zungbr),c_loc(info)) /= 0) then
+        write(6,*) 'zungbr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zungbr found!'
+      end if
+      if (DLAddr(c_funloc(lb_zungl2),c_loc(info)) /= 0) then
+        write(6,*) 'zungl2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zungl2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunglq),c_loc(info)) /= 0) then
+        write(6,*) 'zunglq from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunglq found!'
+      end if
       if (DLAddr(c_funloc(lb_zungql),c_loc(info)) /= 0) then
         write(6,*) 'zungql from: ',c_f_string(info%dli_fname)
       else
@@ -1274,6 +1399,46 @@
         write(6,*) 'zungtr from: ',c_f_string(info%dli_fname)
       else
         write(6,*) 'no zungtr found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunm2l),c_loc(info)) /= 0) then
+        write(6,*) 'zunm2l from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunm2l found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunm2r),c_loc(info)) /= 0) then
+        write(6,*) 'zunm2r from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunm2r found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunmbr),c_loc(info)) /= 0) then
+        write(6,*) 'zunmbr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunmbr found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunml2),c_loc(info)) /= 0) then
+        write(6,*) 'zunml2 from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunml2 found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunmlq),c_loc(info)) /= 0) then
+        write(6,*) 'zunmlq from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunmlq found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunmql),c_loc(info)) /= 0) then
+        write(6,*) 'zunmql from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunmql found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunmqr),c_loc(info)) /= 0) then
+        write(6,*) 'zunmqr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunmqr found!'
+      end if
+      if (DLAddr(c_funloc(lb_zunmtr),c_loc(info)) /= 0) then
+        write(6,*) 'zunmtr from: ',c_f_string(info%dli_fname)
+      else
+        write(6,*) 'no zunmtr found!'
       end if
       if (DLAddr(c_funloc(lb_zupgtr),c_loc(info)) /= 0) then
         write(6,*) 'zupgtr from: ',c_f_string(info%dli_fname)
