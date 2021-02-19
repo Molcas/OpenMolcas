@@ -15,9 +15,7 @@
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
-#include "files_guga.fh"
-#include "cnsts.fh"
-#include "addr_guga.fh"
+#include "files_addr.fh"
 *
       IOUT=0
       NMAT=0

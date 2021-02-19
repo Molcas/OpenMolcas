@@ -16,10 +16,8 @@
 #include "SysDef.fh"
 #include "real_guga.fh"
 #include "integ.fh"
-#include "files_guga.fh"
+#include "files_addr.fh"
       DIMENSION BUF(kBuf),IBUF(kBuf+2),LASTAD(*),SO(*)
-#include "cnsts.fh"
-#include "addr_guga.fh"
 #include "d.fh"
 *
       JO(L)=ICUNP(ICASE,L)

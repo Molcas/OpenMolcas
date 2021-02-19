@@ -24,7 +24,7 @@ c
 #endif
         implicit none
 #include "chcc1.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #include "chcc_files.fh"
 #include "chcc_reord.fh"
 c#include "SysDef.fh"

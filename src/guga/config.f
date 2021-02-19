@@ -18,7 +18,6 @@
      &          JJS(*),ISO(*),ICOR(*),JONE(*),JREFX(*)
 #include "real_guga.fh"
 #include "integ.fh"
-#include "cnsts.fh"
 #include "d.fh"
       DIMENSION IOC(55),ISP(55)
 *

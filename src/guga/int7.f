@@ -18,9 +18,7 @@
 C     I.LT.L  I.EQ.K  J.EQ.L
 #include "real_guga.fh"
 #include "integ.fh"
-#include "files_guga.fh"
-#include "cnsts.fh"
-#include "addr_guga.fh"
+#include "files_addr.fh"
 #include "d.fh"
 *
       IJJ=0 ! dummy initialize

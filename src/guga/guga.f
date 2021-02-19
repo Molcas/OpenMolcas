@@ -25,9 +25,7 @@
 #include "WrkSpc.fh"
 #include "real_guga.fh"
 #include "integ.fh"
-#include "files_guga.fh"
-#include "cnsts.fh"
-#include "addr_guga.fh"
+#include "files_addr.fh"
 #include "d.fh"
 *      DIMENSION JSYM(30000),SO(1 000 000),JSY(3000)
       DIMENSION JSYM(30000),JSY(3000)

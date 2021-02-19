@@ -14,7 +14,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
 #include "integ.fh"
-#include "cnsts.fh"
       ISTOP=0
 C     STOP THE LOOP
       KM1=KM+1

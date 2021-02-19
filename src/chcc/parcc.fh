@@ -77,6 +77,6 @@ c
         common /par1/ BetaID,BeAID,ABID,
      c                Xyes,XYyes,T2o2v4yes
 c
-        common /par2_chcc/ NChLoc
+        common /par2/ NChLoc
 c
         common /par3/ InqW3,InqW4

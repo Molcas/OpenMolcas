@@ -12,3 +12,9 @@
       Parameter (Ang_to_Bohr=1.0d0/Bohr_to_Ang)
       Parameter (au_to_kjmol=2625.501D0)
       Parameter (MxMltPl=10)
+*
+      Common /Address/ iAtMltPlAd(0:mxMltPl), iAtBoMltPlAd(0:mxMltPl),
+     &                 iMltPlAd(0:mxMltPl),iAtPolAd,iAtBoPolAd,iQnuc,
+     &                 iAtMltPlTotAd(0:mxMltPl),
+     &                 iAtBoMltPlTotAd(0:mxMltPl),
+     &                 iAtBoMltPlAdCopy(0:mxMltpl)

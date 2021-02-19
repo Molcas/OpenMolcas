@@ -15,3 +15,4 @@
      &            BS1(MAXB+3),BS2(MAXB+3),BS3(MAXB+3),
      &            BS4(MAXB+3),BL1(MAXB+3),BL2(MAXB+3),
      &            COUP(55),COUP1(55)
+      COMMON/CNSTS/D0,D1,D2

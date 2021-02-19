@@ -17,7 +17,6 @@
 C     I.LT.K.LT.J.LT.L
 #include "real_guga.fh"
 #include "integ.fh"
-#include "cnsts.fh"
       ITYP=0
       LJS=IJ(L+1)+1
       LJM=IJ(L)

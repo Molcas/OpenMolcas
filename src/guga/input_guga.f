@@ -14,12 +14,10 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "niocr.fh"
 #include "SysDef.fh"
-#include "files_guga.fh"
+#include "files_addr.fh"
       DIMENSION ISO(*),JSYM(*),JSY(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-#include "cnsts.fh"
-#include "addr_guga.fh"
 #include "warnings.fh"
       DIMENSION MLL(64),IOCR(nIOCR),JREFX(9000),
      *NISH(8),JJS(18),NVAL(8),NCOR(8),ICOR(55),IONE(8),JONE(8)

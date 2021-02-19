@@ -14,8 +14,7 @@
       Implicit Real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
-#include "MpParam.fh"
-#include "Address.fh"
+#include "MpData.fh"
 #include "MolProp.fh"
 
       Dimension OENE(nOrb) ! EB, ONUM(nOrb)
