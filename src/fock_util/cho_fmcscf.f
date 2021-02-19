@@ -12,8 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                      ipPorb,ipDI,ipDA1,DoActive,POrb,nChM,ipInt,
-     &                      ExFac)
+     &                      ipDI,ipDA1,DoActive,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -49,11 +48,11 @@ C
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   ipOrb(8,3),nOrb(8,3)
-      Integer   ISTAQ(8),iSkip(8)
+      Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
       Integer   ipDA1,ipDI
-      Integer   ipPorb,ipFA,ipFI
+      Integer   ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -83,7 +82,6 @@ C
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
 
-      ipPOrb = 1* ipPOrb
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
           write(6,*) 'and end up with this message, you are in trouble.'
@@ -125,8 +123,7 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-        ISTAQ(1)=0
-        ISTLT(1)=0
+      ISTLT(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
@@ -134,8 +131,6 @@ c --------------------
         NP2=NB*NP
         NCH=NB*NCHM(ISYM-1)
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
-! Inactive and Active D and F matrices
-        ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
       END DO
 
       Call Map_to_CMO(POrb(1),ipOrb(:,1))
@@ -144,13 +139,10 @@ c --------------------
 
       Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
 
-*        ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
          nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
 
          nOrb(iSym,2)  = nChM(iSym)
 
-*        ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
-*    &                 + nOrb(iSym,1)*nBas(iSym)
          nOrb(iSym,3)  = nAorb(iSym)
 
       End Do

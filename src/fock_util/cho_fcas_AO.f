@@ -12,7 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,
-     &                          FactXI,ipPorb,ipDI,ipDA1,ipDA2,DoActive,
+     &                          FactXI,ipDI,ipDA1,ipDA2,DoActive,
      &                          DoQmat,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
@@ -49,12 +49,12 @@ C
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   ipOrb(8,3),nOrb(8,3)
-      Integer   ISTAQ(8),ISTAV(8),iSkip(8)
+      Integer   ISTAV(8),iSkip(8)
       Integer   ISTLT(8),ISZW(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tqmat(2)
       Real*8    ExFac
       Integer   ipDA1,ipDA2(8,8,8),ipDI
-      Integer   ipPorb,ipFA,ipFI
+      Integer   ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -84,7 +84,6 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-      ipPOrb = 1*ipPOrb
       DoRead  = .false.
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -127,7 +126,6 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-      ISTAQ(1)=0
       ISTAV(1)=0
       ISTLT(1)=0
       DO ISYM=2,NSYM
@@ -139,7 +137,6 @@ c --------------------
         NCH=NB*NCHM(ISYM-1)
 
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat
-        ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix
       END DO
 
@@ -149,13 +146,10 @@ c --------------------
 
       Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
 
-*        ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
          nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
 
          nOrb(iSym,2)  = nChM(iSym)
 
-*        ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
-*    &                 + nOrb(iSym,1)*nBas(iSym)
          nOrb(iSym,3)  = nAorb(iSym)
 
       End Do

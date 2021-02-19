@@ -14,7 +14,7 @@
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
-      Integer   ISTAQ(8),Nscreen
+      Integer   Nscreen
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
       Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
@@ -204,25 +204,9 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
       EndIf
 
-c --- Various offsets
-c --------------------
-      ISTAQ(1)=0
-      iE = -1
-      NTaq = 0
-      DO ISYM=1,NSYM
-        iS = iE + 1
-        NB=NBAS(ISYM)
-        NP=NCHI(ISYM)+NAORB(ISYM)
-        NP2=NB*NP
-        ISTAQ(ISYM) = iS   ! Reordered MOs coeff
-        iE = iE + NP2
-        NTaq = NTaq + NP2
-      END DO
-
 C --- Reordering of the MOs coefficients to fit cholesky needs
       If(.not.DoLocK)Then
 
-        Call Getmem('rMOs','Allo','Real',ipPorb,NTaq)
         Call Allocate_CMO(POrb(1),nChI,nBas,nSym)
         Call Allocate_CMO(POrb(3),nAOrb,nBas,nSym)
 
@@ -232,17 +216,12 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
 
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
-              call dcopy_(nBas(iSym),Work(ipInc+ioff2),1,
-     &        Work(ipPorb+ISTAQ(iSym)+ikk-1),nChI(iSym))
               POrb(1)%pA(iSym)%A(ikk,:) =
      &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
 
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
-              call dcopy_(nBas(iSym),CMO(1+ioff2+nBas(iSym)*(ikk-1)),1,
-     &        Work(ipPorb+ISTAQ(iSym)+nChI(iSym)*nBas(iSym)+ikk-1),
-     &             nAorb(iSym))
               POrb(3)%pA(iSym)%A(ikk,:) =
      &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
      &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
@@ -389,7 +368,7 @@ C ----------------------------------------------------------------
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &        ipPorb,ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
+     &                   ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
 
 
       ELSEIF (ALGO.eq.1 .and. DoLocK) THEN
@@ -418,8 +397,8 @@ C ----------------------------------------------------------------
          ipInt = LTUVX   ! (TU|VX) integrals only are computed
 
          CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &    ipPorb,ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb,nChM,
-     &    ipInt,ExFac)
+     &                    ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb,
+     &                    nChM,ipInt,ExFac)
 
 *  Synchronization of the Fock matrices
          Call GaDsum(Work(ipFI),NTot1)
@@ -451,11 +430,6 @@ C ----------------------------------------------------------------
       If (DoQmat.and.ALGO.ne.1) Then
          Call Getmem('P-mat','Free','Real',ipPmat,NPmat)
       EndIf
-
-      If(.not.DoLocK)Then
-        Call Getmem('rMOs','Free','Real',ipPorb,NTaq)
-      EndIf
-
 
       If (Deco) CALL GETMEM('choIn','free','real',ipIna,NTot2)
 
