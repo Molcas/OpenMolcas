@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "macros.fh"
       SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,NTDM2,TDM2,
@@ -64,8 +65,8 @@ C Pick out nr of active orbitals from orbital table:
         write(6,*) "2-TDM import with QCMaquis in MPSSI "//
      &    "not implemented yet"
         call Quit_OnUserError()
-        call Unused_integer(ISTATE)
-        call Unused_integer(JSTATE)
+        unused_var(ISTATE)
+        unused_var(JSTATE)
       endif
 ! Old interface import
 !!#define BLUBB
@@ -238,14 +239,9 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
       END DO
       RETURN
 #ifndef _DMRG_
-! Leon: Avoid warnings for unused variables if DMRG support is disabled
-      if (.false.) then
-        call Unused_integer(ISTATE)
-        call Unused_integer(JSTATE)
-        call Unused_integer(job1)
-        call Unused_integer(job2)
-        call Unused_integer(ist)
-        call Unused_integer(jst)
-      endif
+      unused_var(ISTATE)
+      unused_var(JSTATE)
+      unused_var(job1)
+      unused_var(job2)
 #endif
       END

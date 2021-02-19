@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "macros.fh"
       SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,
      &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
@@ -221,14 +222,12 @@ C Thus obtain reduced matrix element from Wigner-Eckart theorem:
       END DO
 
 c Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(ISTATE)
-        CALL Unused_integer(JSTATE)
-        call Unused_integer(job1)
-        call Unused_integer(job2)
-        call Unused_integer(ist)
-        call Unused_integer(jst)
-      END IF
+      unused_var(ISTATE)
+      unused_var(JSTATE)
+      unused_var(job1)
+      unused_var(job2)
+      unused_var(ist)
+      unused_var(jst)
 
 #ifdef _DMRG_
       if (.not.doDMRG) then
