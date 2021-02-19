@@ -338,7 +338,7 @@ set(DMRG_INCLUDE ${mod_dir} PARENT_SCOPE)
 
 # set library paths
 if (MAQUIS_DMRG_FOUND)
-  set(MAQUIS_DMRG_LIBRARIES "qcmaquis-driver ${MAQUIS_DMRG_LIBRARIES}" PARENT_SCOPE)
+  set(MAQUIS_DMRG_LIBRARIES "qcmaquis-driver;${MAQUIS_DMRG_LIBRARIES}" PARENT_SCOPE)
 else()
 # add static QCMaquis libraries
   set(MAQUIS_DMRG_LIBRARIES
