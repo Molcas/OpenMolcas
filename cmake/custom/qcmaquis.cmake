@@ -111,13 +111,15 @@ elseif (LINALG STREQUAL "Internal")
   # It seems that ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES}
   # is not suited for this because it contains also other unnecessary libraries
 
+  # for some reason, the list does not work if the generator expression -lgfortran is not first
+  # but for correct linking it needs to be last AND with a prepended "-l"
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (Fortran_RUNTIME_LIBRARY "gfortran")
   endif()
 
   list(APPEND QCMaquisCMakeArgs
     "-DBLAS_LAPACK_SELECTOR=manual"
-    "-DMAQUISLapack_LIBRARIES=$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}\ >$<TARGET_FILE:blas>\ $<TARGET_FILE:lapack>")
+    "-DMAQUISLapack_LIBRARIES=$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}\ >$<TARGET_FILE:blas>\ $<TARGET_FILE:lapack>\ -l$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}>")
 endif ()
 
 
@@ -340,11 +342,11 @@ if (MAQUIS_DMRG_FOUND)
 else()
 # add static QCMaquis libraries
   set(MAQUIS_DMRG_LIBRARIES
+      qcmaquis-driver
       maquis_dmrg
       ${ALPS_LIBRARY}
       ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_models.a
       ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_utils.a
-      qcmaquis-driver
       ${MAQUIS_DMRG_LIBRARIES}
     PARENT_SCOPE)
 endif()
