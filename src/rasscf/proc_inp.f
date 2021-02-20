@@ -2007,7 +2007,7 @@ C orbitals accordingly
           Read(luinput,'(A)',end=9910,Err=9920) buffer
           ReadStatus = ' O.K. reading Definedet.'
           call mma_allocate(definedet,len_trim(buffer))
-          definedet = trim(buffer)
+          definedet(:) = trim(buffer)
           call mma_deallocate(buffer)
           write(6,*)'definedet read in proc_inp of size:', nactel
           write(6,*) definedet

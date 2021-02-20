@@ -95,7 +95,7 @@
         ntot = n1*n2*n3*n4*n5*n6*n7
 #endif
 #if _DIMENSIONS_==0
-        ! we can't use storage_size(buffer) for an unallocated character(len=:)
+!       we can't use storage_size(buffer) for an unallocated character(len=:)
         bufsize = storage_size('a') * ntot / 8
 #else
         bufsize = storage_size(buffer) * ntot / 8
@@ -121,6 +121,7 @@
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
             loffset = cptr2loff(buffer)
+            write(6,*) 'IFG allo loffset',loffset
 #elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(1))
 #elif _DIMENSIONS_==2
@@ -291,6 +292,7 @@
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
             loffset = cptr2loff(buffer)
+            write(6,*) 'IFG loffset',loffset
 #elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(lbound(buffer,1)))
 #elif _DIMENSIONS_==2

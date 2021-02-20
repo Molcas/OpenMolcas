@@ -21,12 +21,18 @@
 #include "mxpdim.fh"
       CHARACTER*2 TYPE
 *./NONAB/
-* FIXME: These seem to be uninitialized
-      SAVE MNMLOB,NMLOB,
-     &     MNMLST,NMLST,
-     &     MNMLSX,NMLSX,
-     &     MNMLCI,NMLCI,
-     &     MNMLDX,NMLDX
+* FIXME: This common block is never initialized or referenced elsewhere
+* In the absence of further information, I'm setting the values to 0
+*      COMMON /NONAB/ MNMLOB,NMLOB,
+*     &               MNMLST,NMLST,
+*     &               MNMLSX,NMLSX,
+*     &               MNMLCI,NMLCI,
+*     &               MNMLDX,NMLDX
+       PARAMETER (MNMLOB=0,NMLOB=0,
+     &            MNMLST=0,NMLST=0,
+     &            MNMLSX=0,NMLSX=0,
+     &            MNMLCI=0,NMLCI=0,
+     &            MNMLDX=0,NMLDX=0)
 *./CSM/
 C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
 #include "csm.fh"

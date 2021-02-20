@@ -246,7 +246,7 @@ contains
         Input%nMultState = nStates
         iSplit = scan(Line,' ')
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line(iSplit:)
+        dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) (Input%MultGroup%State(i),i=1,nStates)
@@ -275,7 +275,7 @@ contains
         Input%nXMulState = nStates
         iSplit = scan(Line,' ')
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line(iSplit:)
+        dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) (Input%XMulGroup%State(i),i=1,nStates)
@@ -304,7 +304,7 @@ contains
         Input%nRMulState = nStates
         iSplit = scan(Line,' ')
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line(iSplit:)
+        dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) (Input%RMulGroup%State(i),i=1,nStates)
@@ -348,7 +348,7 @@ contains
         call mma_allocate(Input%nFro,nSYM,label='nFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line
+        dLine(:) = Line
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) (Input%nFro(iSym),iSym=1,nSym)
@@ -365,7 +365,7 @@ contains
         call mma_allocate(Input%nDel,nSYM,label='nDel')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line
+        dLine(:) = Line
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) (Input%nDel(iSym),iSym=1,nSym)
@@ -393,7 +393,7 @@ contains
         Input%THRE = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line
+        dLine(:) = Line
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) Input%ThrsHN,Input%ThrsHS
@@ -443,7 +443,7 @@ contains
       case ('WTHR')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line
+        dLine(:) = Line
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) Input%DNMTHR,Input%CMPTHR,Input%CNTTHR
@@ -505,7 +505,7 @@ contains
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line
+        dLine(:) = Line
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) Input%lnFro,Input%ThrFr,Input%ThrDe
@@ -520,7 +520,7 @@ contains
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call Upcase(Line)
         call mma_allocate (dLine,len(Line),label='dLine')
-        dLine = Line
+        dLine(:) = Line
         iError = -1
         do while (iError < 0)
           read (dLine,*,IOStat=iError) (Input%NamFro(i),i=1,Input%lnFro)
@@ -597,7 +597,7 @@ contains
         do i = 1,nStates
           if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
           call mma_allocate (dLine,len(Line),label='dLine')
-          dLine = Line
+          dLine(:) = Line
           iError = -1
           do while (iError < 0)
             read (dLine,*,IOStat=iError) (Input%Heff(i,j),j=1,nStates)
@@ -687,9 +687,13 @@ contains
     Character(len=*),intent(In)                :: Line
     Character(len=:),allocatable               :: Aux
     call mma_allocate(Aux,len_trim(DynLine)+len_trim(Line)+1,label='AuxLine')
-    Aux = trim(DynLine)//' '//trim(Line)
+    Aux(:) = trim(DynLine)//' '//trim(Line)
     call mma_deallocate(DynLine)
-    call move_alloc(Aux,DynLine)
+    ! move_alloc does not work properly in all compilers
+    !call move_alloc(Aux,DynLine)
+    call mma_allocate(DynLine,len(Aux))
+    DynLine(:) = Aux
+    call mma_deallocate(Aux)
   end subroutine ExtendLine
 
   subroutine IOError(line)

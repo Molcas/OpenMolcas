@@ -305,7 +305,6 @@
       End If
 *
       iDNG=0
-      iAMFn = 0   ! usual AMFI
       BasisTypes(:)=0
       KeepBasis=' '
 cperiod
@@ -1958,7 +1957,6 @@ c Simplistic validity check for value
 *
  8761 Continue
       lAMFI=.True.
-      iAMFn = 1
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -1968,7 +1966,6 @@ c Simplistic validity check for value
 *
  8762 Continue
       lAMFI=.True.
-      iAMFn = 2
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -1978,7 +1975,6 @@ c Simplistic validity check for value
 *
  8763 Continue
       lAMFI=.True.
-      iAMFn = 3
       GWInput=.True.
       Go To 998
 *                                                                      *
