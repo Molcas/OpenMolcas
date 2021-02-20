@@ -19,12 +19,9 @@
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-dummy_empty_procedure(efp_mod)
-
-#endif
-
-! This is to trigger the module selection in CMake
-#if (0)
 module EFP
+contains
+dummy_empty_procedure(efp_mod)
 end module EFP
+
 #endif
