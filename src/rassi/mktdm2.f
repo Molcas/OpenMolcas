@@ -241,7 +241,5 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
 #ifndef _DMRG_
       unused_var(ISTATE)
       unused_var(JSTATE)
-      unused_var(job1)
-      unused_var(job2)
 #endif
       END
