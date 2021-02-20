@@ -131,7 +131,6 @@ c --------------------
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        NP=NPORB(ISYM-1)
         NV2=NB*NAORB(ISYM-1)
 
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat

@@ -125,9 +125,7 @@ c --- Various offsets
 c --------------------
       ISTLT(1)=0
       DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        NP=NPORB(ISYM-1)
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
       END DO
 
