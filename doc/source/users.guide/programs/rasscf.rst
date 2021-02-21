@@ -2221,21 +2221,39 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`DMRG`
-  Specify maximum number of renormalized states (or virtual bond dimension :math:`m`)
-  in each microiteration in DMRG calculations.
-  :math:`m` must be integer and should be at least 500.
+
+  .. warning::
+
+    This keyword has different meanings for QCMaquis, Block and CheMPS2 DMRG interfaces.
+
+  .. warning::
+
+    Using :kword:`DMRG` with QCMaquis interface is deprecated. It is advised to use the :program:`DMRGSCF` module for QCMaquis DMRG calculations.
+
+  For QCMaquis interface, this keyword is used standalone and activates the DMRG calculation with QCMaquis. It should then be followed by a :kword:`RGINPUT..ENDRG` block with parameters controlling the DMRG optimization settings in QCMaquis. This block is equivalent to the :kword:`DMRGSettings..EndDMRGSettings` block of the :program:`DMRGSCF` module (see :numref:`UG:sec:dmrgsettings_input:`).
+
+  For Block and CheMPS2 interfaces, it should be followed by an integer :math:`m`
+  Specify maximum number of renormalized states in the DMRG calculation, also known as (virtual) bond dimension :math:`m` in each microiteration in DMRG calculations.
+  :math:`m` should be at least 500.
   This keyword is supported in both CheMPS2 and Block interfaces.
   Note that DMRG-CASSCF calculations for excited states are not fully supported by the Block interface.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMRG" LEVEL="BASIC" APPEAR="Number of DMRG renormalized states" KIND="INT" DEFAULT_VALUE="0" EXCLUSIVE="NECI">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMRG" LEVEL="BASIC" APPEAR="DMRG flag" KIND="INT" DEFAULT_VALUE="0" EXCLUSIVE="NECI">
               <ALTERNATE KIND="SINGLE" />
               %%Keyword: DMRG <basic>
               <HELP>
-              The number of DMRG renormalized states.
+              DMRG flag:
+              - for QCMaquis interface, activates the DMRG calculation
+              - for Block and CheMPS2 interfaces, sets the number of renormalized states m
               </HELP>
               </KEYWORD>
 
 :kword:`3RDM`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Use this keyword to get the 3-particle and Fock matrix contracted with the 4-particle reduced density
   matrices (3-RDM and F.4-RDM) for DMRG-CASPT2.
   :kword:`OUTOrbitals` = ``CANOnical`` is automatically activated.
@@ -2245,11 +2263,16 @@ A list of these keywords is given below:
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="3RDM" APPEAR="Calculate 3- and 4-particle reduced density matrices" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: 3RDM <basic>
               <HELP>
-              Use this keyword to get the 3-particle and 4-particle reduced density matrices (3-RDM and F.4-RDM) for DMRG-CASPT2.
+              Use this keyword to get the 3-particle and 4-particle reduced density matrices (3-RDM and F.4-RDM) for DMRG-CASPT2 with CheMPS2 interface.
               </HELP>
               </KEYWORD>
 
 :kword:`CHBLb`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Specify a threshold for activating restart in CheMPS2.
   After each macroiteration, if the max BLB value is smaller than CHBLb, activate partial restart in CheMPS2.
   If the max BLB value is smaller than CHBLb/10.0, activate full restart in CheMPS2.
@@ -2264,6 +2287,11 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`DAVTolerance`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Specify value for Davidson tolerance in CheMPS2.
   Default value is 1.0d-7.
 
@@ -2276,6 +2304,11 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`NOISe`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Specify value for noise pre-factor in CheMPS2.
   This noise is set to 0.0 in the last instruction.
   Default value (recommended) is: 0.05.
@@ -2289,6 +2322,11 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`MXSWeep`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Maximum number of sweeps. in the last instruction in CheMPS2.
   Default value is: 8.
   In the last iteration of DMRG-SCF, :kword:`MXSW` is increased by five times (default 40).
@@ -2302,6 +2340,11 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`MXCAnonical`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Maximum number of sweeps in the last instruction with pseudocanonical orbitals in CheMPS2.
   Default value is: 40.
 
@@ -2328,6 +2371,11 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`DMREstart`
+
+  .. warning::
+
+    This keyword is only available for CheMPS2 DMRG interface.
+
   Use this keyword to activate restart in the last DMRG iteration from the previous iteration or calculation.
   This keyword only works when using :kword:`OUTOrbitals` = ``CANOnical`` or :kword:`3RDM`.
   :kword:`DMREstart` = ``0`` (default): start from scratch to calculate 3-RDM and F.4-RDM.

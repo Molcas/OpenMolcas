@@ -171,6 +171,16 @@ in this section. The start and end of the DMRGSettings input section is given by
 
   .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="IETL_JCD_TOL" KIND="REAL" LEVEL="UNDOCUMENTED" />
 
+:kword:`donotdelete`
+  Set :kword:`donotdelete=1` to restart DMRGSCF optimization from an existing QCMaquis MPS checkpoint. Useful e.g. to restart crashed calculations.
+
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="DONOTDELETE" KIND="INT" LEVEL="BASIC" />
+              %%Keyword: donotdelete <basic>
+              <HELP>
+              Restart DMRGSCF optimization from an existing QCMaquis checkpoint.
+              </HELP>
+              </KEYWORD>
+
   .. xmldoc:: </GROUP>
 
 OOptimizationSettings input section
@@ -195,7 +205,7 @@ are listed below. The start and end of the OptimizationSettings input section is
 
   .. xmldoc:: <GROUP MODULE="DMRGSCF" NAME="OOPTIMIZATIONSETTINGS" APPEAR="Orbital optimization settings" KIND="BLOCK" LEVEL="BASIC">
 
-  .. xmldoc:: <INCLUDE MODULE="RASSCF" EXCEPT="VB,RGINPUT,NEVPT2PREP" />
+  .. xmldoc:: <INCLUDE MODULE="RASSCF" EXCEPT="VB,RGINPUT" />
 
   .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="FCIDUMP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: fcidump <basic>
@@ -215,7 +225,7 @@ are listed below. The start and end of the OptimizationSettings input section is
               </KEYWORD>
 
 :kword:`NEVPT2prep`
-  Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. If this keyword is followed by a parameter :kword:`EVRDM`, then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. Otherwise, **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally. More about external RDM evaluation in Section 6.3 of the QCMaquis_ manual.
+  Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. Then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally or directly in the :program:`NEVPT2` program. More about external RDM evaluation in Section 6.3 of the QCMaquis_ manual.
 
   .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="NEVPT2PREP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NEVPT2prep <basic>
