@@ -213,8 +213,8 @@ C --- to avoid double counting when using gadsum
 c --- reorder the MOs to fit Cholesky needs
 
            Call Allocate_CMO(MO1(1),nIsh,nBasF,nSym)
-           Call Allocate_CMO(MO1(2),nAsh,nBasF,nSym)
-           Call Allocate_CMO(MO2(1),nIsh,nBasF,nSym)
+           Call Allocate_CMO(MO1(2),nIsh,nBasF,nSym)
+           Call Allocate_CMO(MO2(1),nAsh,nBasF,nSym)
            Call Allocate_CMO(MO2(2),nAsh,nBasF,nSym)
 
            ioff=0
@@ -227,7 +227,7 @@ c --- reorder the MOs to fit Cholesky needs
                MO1(1)%pA(iSym)%A(ikk,:) =
      &            CMO1(ioff1+1:ioff1+nBasF(iSym))
 
-               MO2(1)%pA(iSym)%A(ikk,:) =
+               MO1(2)%pA(iSym)%A(ikk,:) =
      &            CMO2(ioff1+1:ioff1+nBasF(iSym))
             end do
 
@@ -237,7 +237,7 @@ c --- reorder the MOs to fit Cholesky needs
 
                ioff3=ioff2+nBasF(iSym)*(ikk-1)
 
-               MO1(2)%pA(iSym)%A(ikk,:) =
+               MO2(1)%pA(iSym)%A(ikk,:) =
      &            CMO1(ioff3+1:ioff3+nBasF(iSym))
 
                MO2(2)%pA(iSym)%A(ikk,:) =

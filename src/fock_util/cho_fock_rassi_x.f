@@ -102,8 +102,8 @@ c --------------------
       END DO
 
       Call Map_to_CMO(MO1(1),ipOrb(:,1))
-      Call Map_to_CMO(MO2(1),ipOrb(:,2))
-      Call Map_to_CMO(MO1(2),ipAOrb(:,1))
+      Call Map_to_CMO(MO1(2),ipOrb(:,2))
+      Call Map_to_CMO(MO2(1),ipAOrb(:,1))
       Call Map_to_CMO(MO2(2),ipAOrb(:,2))
 
       DO jDen=1,nDen
