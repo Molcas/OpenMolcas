@@ -98,7 +98,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.16'
+  version = 'py2.17'
   rc = 0
 
   def __init__(self, **kwargs):
