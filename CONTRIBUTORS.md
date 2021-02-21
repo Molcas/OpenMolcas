@@ -84,6 +84,7 @@ Daniel Fairhead
 Ignacio Fdez. Galván  
 Nicolas Ferré  
 Timo Fleig  
+Niclas Forsberg  
 Leon Freitag  
 Luis Manuel Frutos  
 Markus P. Fülscher  
@@ -182,5 +183,6 @@ Sebastian Wouters
 Felipe Zapata  
 Alexander Zech  
 Yan Zhao  
+Chen Zhou  
 J. Patrick Zobel  
 
