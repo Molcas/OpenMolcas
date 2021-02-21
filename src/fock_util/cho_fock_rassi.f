@@ -454,7 +454,8 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
-     &                                Work(ipAorb(iSymb,kDen)),NAw,
+     &                                MO2(kDen)%pA(iSymb)%A,NAw,
+*    &                                Work(ipAorb(iSymb,kDen)),NAw,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do

@@ -319,10 +319,11 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
 
             Do jK=1,nkOrb
 
-               ipMO = (2-jDen)*(ipMSQ + ISTSQ(kSym)
-     &              + nBas(kSym)*(jK-1))
-     &              + (ipAorb(kSym,jDen)
-     &              + nBas(kSym)*(jK-1))*(jDen-1)
+               If (jDen.eq.2) Then
+               ipMO = ipAorb(kSym,jDen) + nBas(kSym)*(jK-1)
+               Else
+               ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
+               End If
 
                ipSk = ipSKsh + nShell*(kOff(kSym,jDen) + jK - 1)
 
@@ -715,10 +716,11 @@ c --------------------------------------------------------------------
 
                      CALL FZero(Work(ipChoT),nBas(lSym)*JNUM)
 
-                     ipMO = (2-jDen)*(ipMSQ + ISTSQ(kSym)
-     &                    + nBas(kSym)*(jK-1))
-     &                    + (ipAorb(kSym,jDen)
-     &                    + nBas(kSym)*(jK-1))*(jDen-1)
+                     If (jDen.eq.2) Then
+                     ipMO = ipAorb(kSym,jDen) + nBas(kSym)*(jK-1)
+                     Else
+                     ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
+                     End If
 
                      ipYk = ipY + MaxB*(kOff(kSym,jDen) + jK - 1)
 
