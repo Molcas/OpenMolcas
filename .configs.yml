@@ -229,10 +229,6 @@
     cache_file: |
       set (DMRG ON CACHE STRING "Enable DMRG")
       set (NEVPT2 ON CACHE STRING "Enable NEVPT2")
-      set (QCMaquis_NAME "GitLab CI" CACHE STRING "QCMaquis name")
-      set (QCMaquis_EMAIL "gitlab.ci@example.com" CACHE STRING "QCMaquis e-mail")
-    pre_run_script: |
-      . install_dir/qcmaquis/bin/qcmaquis.sh
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
