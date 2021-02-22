@@ -37,7 +37,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -51,7 +51,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tact(2)
       Real*8    tint1(2),tint2(2),tint3(2),tQmat(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAorb(8,2),nChMo(8)
+      Integer   nChMo(8)
       Type (CMO_Type) Ash(2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
@@ -193,12 +193,6 @@ c --------------------
             End Do
           End Do
         End Do
-
-        DO jDen=1,nDen
-
-           Call Map_to_CMO(Ash(jDen),ipAorb(:,jDen))
-
-        END DO
 
 C *** memory for the Q matrices --- temporary array
         Call GetMem('Qmat','ALLO','REAL',ipScr,nsAB*nDen)
@@ -1534,8 +1528,8 @@ C -------------------------------------------------------------
                  End Do
                Else
 * Lrs * MO
-                 CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb,nAsh,
+                 CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(1),nAsh,
      &                           ipLpq,iSkip,DoRead)
                EndIf
 
@@ -1582,7 +1576,7 @@ C --------------------------------------------------------------------
                      ipLvtw = ipLpq(iSymv,3) + NAv*Naw*(JVC-1)
                      CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
      &                          One,Work(ipLvb),NAv,
-     &                          Work(ipAOrb(iSymb,2)),Naw,
+     &                          Ash(2)%pA(iSymb)%A,NAw,
      &                         Zero,Work(ipLvtw),NAv)
                     CALL CWTIME(TCINT4,TWINT4)
                tint1(1) = tint1(1) + (TCINT4 - TCINT2)
@@ -1615,7 +1609,7 @@ C --------------------------------------------------------------------
                     ipLvw = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
                     CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
      &                         One,Work(ipLvb),NAv,
-     &                         Work(ipAOrb(iSymb,1)),Naw,
+     &                         Ash(1)%pA(iSymb)%A,NAw,
      &                        Zero,Work(ipLvw),NAv)
 
                    CALL CWTIME(TCINT2,TWINT2)
@@ -1765,8 +1759,8 @@ C --------------------------------------------------------------------
                    If (.not.Fake_CMO2) Then
                      CALL CWTIME(TCINT2,TWINT2)
 
-                     CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb(1,2),
+                     CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(2),
      &                           nAsh,ipLpq,iSkip,DoRead)
                      CALL CWTIME(TCINT3,TWINT3)
                      tint1(1) = tint1(1) + (TCINT3 - TCINT2)
