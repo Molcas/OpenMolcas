@@ -177,7 +177,7 @@ C
 #endif
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
@@ -187,7 +187,7 @@ C
       Type (CMO_Type) Porb
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   timings,DoRead,Do_int
-      Integer   nPorb(8),ipOrb(8)
+      Integer   nPorb(8)
       Integer   ipLpb(8),iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
       Integer, External:: ip_of_Work
@@ -270,8 +270,6 @@ c -----------------------------------
 
 
 C ==================================================================
-
-      Call Map_to_CMO(Porb,ipOrb)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -448,8 +446,8 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
-     &                           jSym,iSwap,IREDC,nMOs,kMOs,ipOrb,nPorb,
+               CALL CHO_X_getVtra2(irc,Lrs,LREAD,jVEC,JNUM,
+     &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,nPorb,
      &                           ipLpb,iSkip,DoRead)
 
                if (irc.ne.0) then
