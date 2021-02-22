@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,
-     &                   iSwap,nDen,kDen,ipMOs,nPorb,ipChoT,iSkip)
+     &                   iSwap,nDen,kDen,MOs,nPorb,ipChoT,iSkip)
 
 *********************************************************
 *   Author: F. Aquilante
@@ -58,10 +58,12 @@
 *********************************************************
       use ChoArr, only: nDimRS, iRS2F
       use ChoSwp, only: InfVec, IndRed
+      use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
+      Type (CMO_Type) MOs(nDen)
       Real*8  Scr(lscr)
       Integer nDen,kDen
-      Integer ipChoT(8,nDen), ipMOs(8,nDen),iSkip(*),nPorb(8,nDen)
+      Integer ipChoT(8,nDen), iSkip(*),nPorb(8,nDen)
 
       Integer, External:: cho_isao
 
@@ -72,10 +74,16 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Integer, Allocatable:: ipMOs(:,:)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
+      Call mma_allocate(ipMOs,8,nDen,Label='ipMOs')
+      Do iDen = 1, nDen
+         Call Map_to_CMO(MOs(iDen),ipMOs(:,iDen))
+      End Do
 
 **********************************************************
 C
@@ -622,6 +630,7 @@ C     -----------------------------------
       ENDIF  ! iSwap check
 
 
+      Call mma_deallocate(ipMOs)
       irc=0
 
 

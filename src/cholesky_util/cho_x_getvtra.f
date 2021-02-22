@@ -62,7 +62,7 @@
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,nPorb,ipChoT,
      &                         iSkip,DoRead)
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MOs(nDen)
@@ -81,15 +81,10 @@
 #include "stdalloc.fh"
 
       Integer, Allocatable:: ipVec(:,:)
-      Integer, Allocatable:: ipMOs(:,:)
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 **************************************************
-      Call mma_allocate(ipMOs,8,nDen,Label='ipMOs')
-      Do iDen = 1, nDen
-         Call Map_to_CMO(MOs(iDen),ipMOs(:,iDen))
-      End Do
 
       MXUSD = 0
       MUSED = 0
@@ -142,7 +137,7 @@ C ===============================================
         jVref = JVEC1 - IVEC1 + 1
 
         Call cho_vTra(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,
-     &            IREDC,iSwap,nDen,kDen,ipMOs,nPorb,ipVec,iSkip)
+     &            IREDC,iSwap,nDen,kDen,MOs,nPorb,ipVec,iSkip)
 
         if (irc.ne.0) then
            return
@@ -193,7 +188,7 @@ C --------------------------------------------------------------------
        JNUM = NUMV
 
        Call cho_vTra(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,
-     &              iSwap,nDen,kDen,ipMOs,nPorb,ipVec,iSkip)
+     &              iSwap,nDen,kDen,MOs,nPorb,ipVec,iSkip)
 
         if (irc.ne.0) then
            return
@@ -202,7 +197,6 @@ C --------------------------------------------------------------------
 
       END IF
 
-      Call mma_deallocate(ipMOs)
       Call mma_deallocate(ipVec)
 
       irc=0
