@@ -1529,7 +1529,7 @@ C -------------------------------------------------------------
                Else
 * Lrs * MO
                  CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(1),nAsh,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ASh(1),nAsh,
      &                           ipLpq,iSkip,DoRead)
                EndIf
 
@@ -1759,7 +1759,8 @@ C --------------------------------------------------------------------
                    If (.not.Fake_CMO2) Then
                      CALL CWTIME(TCINT2,TWINT2)
 
-                     CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+                     CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,
+     &                                  JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(2),
      &                           nAsh,ipLpq,iSkip,DoRead)
                      CALL CWTIME(TCINT3,TWINT3)

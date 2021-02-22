@@ -33,7 +33,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -46,7 +46,6 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
       Type (CMO_Type)   Ash(2)
-      Integer   ipAorb(8,2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
       Logical   timings,DoRead,DoReord,DoScreen
@@ -179,12 +178,6 @@ c           If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
 
       EndIf
 **************************************************
-
-      DO jDen=1,nDen
-
-         Call Map_to_CMO(Ash(jDen),ipAOrb(:,jDen))
-
-      END DO
 
 C --- Define the max number of vectors to be treated in core at once
 
@@ -1413,8 +1406,8 @@ C -------------------------------------------------------------
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb,nAsh,
+               CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash,nAsh,
      &                           ipLpq,iSkip,DoRead)
 
 
@@ -1441,7 +1434,6 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
-*    &                                Work(ipAorb(iSymb,kDen)),NAw,
      &                                Ash(kDen)%pA(iSymb)%A,NAw,
      &                           Zero,Work(ipLvw),NAv)
 
