@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=108)
+      Parameter (NKeys=109)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -40,7 +40,7 @@
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyZZZZ
+     &     KeyGSOR, KeyDFCF, KeyZZZZ, KeyWJOB
 
       Common /InputFlags_M/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -64,7 +64,7 @@
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
      &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyZZZZ
+     &     KeyGSOR, KeyDFCF, KeyZZZZ, KeyWJOB
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -91,7 +91,7 @@
      &                  'BLOK','SOCC','RGIN','PRSD','FCID',
      &                  'NOCA','SAVE','EXPA','H5OR','H5CI',
      &                  'HEXS','HEUR','MSPD','GRAD','NOGR',
-     &                  'GSOR','DFCF','ZZZZ'])
+     &                  'GSOR','DFCF','ZZZZ','WJOB'])
 *------------------------------------------------------
 * Input data sets:
       Common /InputInt_M/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),
@@ -100,3 +100,4 @@
      &           NACTEL_I,NHOLE_I,NELEC_I,NChrg_I,NROOTS_I,
      &           LROOTS_I,IRLXROOT_I
       Common /InputReal_M/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
+

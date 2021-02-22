@@ -843,6 +843,7 @@ c         call xflush(6)
             Ref_Ener(jroot)=CASDFT_E
          ELSE
             Energies(jroot)=CASDFT_E
+            ener(jroot,1)=CASDFT_E
          END IF
 
 

@@ -38,6 +38,8 @@
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
+*Chen write JOBIPH
+#include "wjob.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "csfbas.fh"
@@ -886,6 +888,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        If (DBG) Write(6,*) ' MSPD keyword was used.'
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
+       Call ChkIfKey_m()
+      End If
+*---  Process WJOB command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if write JOBIPH case.'
+      If (KeyWJOB) Then
+       If (DBG) Write(6,*) ' WJOB keyword was used.'
+       iWJOB=1
+       Call SetPos_m(LUInput,'WJOB',Line,iRc)
        Call ChkIfKey_m()
       End If
 *---  Process CION command --------------------------------------------*
