@@ -93,21 +93,21 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
   Select specific states to perform QD-NEVPT2 calculation. Followed by a list of whitespace-separated state numbers, preceded by their total amount. Example: ``MULT=3 1 2 4`` for states 1, 2, 4 of a preceeding DMRG-SCF calculation of 4 roots (or more). ``MULT=ALL`` includes all states and is the default.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="MULT" KIND="CUSTOM" LEVEL="BASIC">
-            %%Keyword: MULT <basic>
-            <HELP>
-            Select states for (multi-state) QD-NEVPT2 calculation.
-            </HELP>
-            </KEYWORD>
+              %%Keyword: MULT <basic>
+              <HELP>
+              Select states for (multi-state) QD-NEVPT2 calculation.
+              </HELP>
+              </KEYWORD>
 
 :kword:`FILE`
    Specify the path to a :file:`JobIph` or :file:`.h5` file with the reference wavefunction. By default, the reference wavefunction is read from :file:`JOBIPH`.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="FILE" KIND="STRING" LEVEL="BASIC">
-            %%Keyword: FILE <basic>
-            <HELP>
-            Select JobIph or file with the reference wavefunction.
-            </HELP>
-            </KEYWORD>
+              %%Keyword: FILE <basic>
+              <HELP>
+              Select JobIph or file with the reference wavefunction.
+              </HELP>
+              </KEYWORD>
 
 :kword:`FROZEN`
   Specify the number of frozen orbitals. The number of frozen orbitals may be specified in two ways: if only one number :math:`n` is specified, then all orbitals from 1 to :math:`n` are frozen. Otherwise, it is possible to freeze specific orbitals with the :kword:`SELECT` keyword which follows the :kword:`FROZEN` keyword. In this case, the total number of frozen orbitals followed by the space-separated list of frozen orbitals must be entered. Note that if symmetry is used, the orbital numbering for all symmetries is still consecutive, e.g. the 1st orbital of symmetry 2 is has the number :math:`m+1` if there are :math:`m` orbitals in symmetry 1.
@@ -115,11 +115,11 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
   If frozen orbitals are specified in :program:`MOTRA` input, they will be autodetected in :program:`NEVPT2` and there is no need to input them separately, so that this keyword is not needed.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="FROZEN" KIND="CUSTOM" LEVEL="BASIC">
-            %%Keyword: FROZEN <basic>
-            <HELP>
-            Select frozen orbitals.
-            </HELP>
-            </KEYWORD>
+              %%Keyword: FROZEN <basic>
+              <HELP>
+              Select frozen orbitals.
+              </HELP>
+              </KEYWORD>
 
 :kword:`NOPC`
    Disable the PC-NEVPT2 calculation. If the option is not present (default), both SC-NEVPT2 and PC-NEVPT2 calculations are performed.
@@ -167,3 +167,5 @@ Input example
 -------------
 
 An input example for NEVPT2 may be found in :numref:`TUT:sec:nevpt2_run:`.
+
+.. xmldoc:: </MODULE>

@@ -174,7 +174,7 @@ in this section. The start and end of the DMRGSettings input section is given by
 :kword:`donotdelete`
   Set :kword:`donotdelete=1` to restart DMRGSCF optimization from an existing QCMaquis MPS checkpoint. Useful e.g. to restart crashed calculations.
 
-  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="DONOTDELETE" KIND="INT" LEVEL="BASIC" />
+  .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="DONOTDELETE" KIND="INT" LEVEL="BASIC">
               %%Keyword: donotdelete <basic>
               <HELP>
               Restart DMRGSCF optimization from an existing QCMaquis checkpoint.
