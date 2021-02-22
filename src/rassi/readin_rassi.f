@@ -10,9 +10,9 @@
 ************************************************************************
       SUBROUTINE READIN_RASSI()
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
-      use rasscf_data, only: doDMRG
       use kVectors
 #ifdef _DMRG_
+      use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
 

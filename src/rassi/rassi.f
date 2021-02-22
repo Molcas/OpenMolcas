@@ -24,9 +24,9 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface, only: qcmaquis_interface_deinit
       use qcmaquis_info, only : qcmaquis_info_deinit
+      use rasscf_data, only: doDMRG
 #endif
 
-      use rasscf_data, only: doDMRG
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
 
       IMPLICIT REAL*8 (A-H,O-Z)

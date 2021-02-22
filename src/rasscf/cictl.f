@@ -289,11 +289,13 @@ C Local print level (if any)
                   call dcopy_(NACPR2,work(lw_rf2),1,work(lw8),1)
                 end if
 
-                ! Import RDMs from QCMaquis that we've got from the last optimization
-                ! Here we should import one-particle spin density.
-                ! Temporarily disable spin density here: spin density is calculated
-                ! only once at the end of DMRG-SCF optimisation. If you need it at every
-                ! iteration for some reason, please change this code accordingly
+        ! Import RDMs from QCMaquis that we've got from the last optimization
+        ! Here we should import one-particle spin density.
+        ! However, the spin density has been temporarily disabled here:
+        ! For performance reasons, it is calculated
+        ! only once in the last iteration of DMRG-SCF optimisation.
+        ! If you need it at every iteration for some reason
+        ! please change this code accordingly
                 call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
 #endif
                else

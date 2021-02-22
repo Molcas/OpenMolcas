@@ -23,7 +23,8 @@ type qcm_names
 end type
 
 type(qcm_names), allocatable :: qcm_group_names(:)
-character(len=256), allocatable :: qcm_prefixes(:) ! prefix for the particular group (although redundant but used in the new MPSSI interface)
+character(len=256), allocatable :: qcm_prefixes(:)
+! prefix for the particular group (although redundant but used in the new MPSSI interface)
 
 public :: qcm_group_names
 public :: qcm_prefixes

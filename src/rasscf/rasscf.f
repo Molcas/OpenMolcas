@@ -113,8 +113,9 @@
       Logical IfOpened
 #ifdef _DMRG_
       Logical Do_ESPF
+      ! function defined in misc_util/pcm_on.f
+      Logical, External :: PCM_On
 #endif
-      Logical, External :: PCM_On ! function defined in misc_util/pcm_on.f
 
 * --------- Cholesky stuff:
       Integer ALGO
@@ -310,7 +311,7 @@
       Call GetMem('DIAF','Allo','Real',LDIAF,NTOT)
 #ifdef _DMRG_
 * Allocate RDMs for the reaction field reference root in QCMaquis calculations
-      if (PCM_On()) then
+      if (doDMRG.and.PCM_On()) then
         Call GetMem('D1RF','Allo','Real',LW_RF1,NACPAR)
         if (twordm_qcm) then
           Call GetMem('D2RF','Allo','Real',LW_RF2,NACPR2)
@@ -1968,7 +1969,7 @@ c deallocating TUVX memory...
       Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
 #ifdef _DMRG_
 * Free RDMs for the reaction field reference root in QCMaquis calculations
-      if (PCM_On()) then
+      if (doDMRG.and.PCM_On()) then
         Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
         if (twordm_qcm) then
           Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)

@@ -13,12 +13,12 @@
       use rassi_global_arrays, only: JBNUM
       use sorting, only : argsort
       use sorting_funcs, only : leq_r
-      use rasscf_data, only: doDMRG
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
 #endif
 #ifdef _DMRG_
+      use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       IMPLICIT NONE
