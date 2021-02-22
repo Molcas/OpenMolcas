@@ -44,14 +44,13 @@
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (CMO_Type) MO
       Integer nOcc(*)
       Real*8  Rij(*)
       Logical timings
-      Integer ipMO(8)
 
       Logical, Parameter:: DoRead=.FALSE.
       Integer iOcc(8),iOcs(8),ipLib(8),iSkip(8)
@@ -67,8 +66,6 @@
       Real*8, Allocatable:: Lab(:), Ltr(:)
 
       IREDC = -1
-
-      Call Map_to_CMO(MO,ipMO)
 
       JSYM=1
       If (NumCho(JSYM).lt.1) Then
@@ -215,8 +212,8 @@ C --------------------------------------------------------------
 
          CALL CWTIME(TCT1,TWT1)
 
-         CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,ipMO,nOcc,
+         CALL CHO_X_getVtra2(irc,Lab,LREAD,jVEC,JNUM,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,nOcc,
      &                         ipLib,iSkip,DoRead)
 
                if (irc.ne.0) then
