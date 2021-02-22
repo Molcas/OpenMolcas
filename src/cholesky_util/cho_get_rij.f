@@ -244,7 +244,7 @@ C ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
      &                            One,Work(ipLib(kSym)),nOcc(kSym)*JNUM,
-     &                                Work(ipMO(kSym)),nOcc(kSym),
+     &                                MO%pA(kSym)%A,nOcc(kSym),
      &                           Zero,Lab(ipLij),nOcc(kSym)*JNUM)
 
 
