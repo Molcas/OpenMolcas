@@ -17,11 +17,15 @@ subroutine arrange_orbital_molcas()
 ! -----
 ! map_order_orbital    ab ---> ci
 
+use Definitions, only: iwp
+
+implicit none
 #include "gendrt.fh"
 #include "mcorb.fh"
 !#include "intsort_h.for"
-dimension lsmorbcount(ng_sm), map_tmp(max_orb)
-logical logi_norb_inn(norb_all)
+integer(kind=iwp) :: i, iccount, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, lsmorbcount(ng_sm), &
+                     lsmr, map_tmp(max_orb), ms, nim
+logical(kind=iwp) :: logi_norb_inn(norb_all)
 
 logi_norb_inn(1:norb_all) = .false.
 iorb = norb_all

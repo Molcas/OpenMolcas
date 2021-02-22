@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer max_ref,iintbit,n32int,n16int
 #ifndef _I8_
       parameter(max_ref=64)
       parameter (iintbit=32,n32int=4,n16int=2)

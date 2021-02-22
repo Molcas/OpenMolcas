@@ -11,9 +11,12 @@
 
 subroutine gugadrt_ext_downwalk()
 
+use Definitions, only: iwp
+
+implicit none
 #include "gendrt.fh"
 #include "casrst_drt.fh"
-dimension iwmij(8)
+integer(kind=iwp) :: im, imi, imij, imj, iwmij(8)
 
 nu_ae(1) = 1
 do im=1,ng_sm

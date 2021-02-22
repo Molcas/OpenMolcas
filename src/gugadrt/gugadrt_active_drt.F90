@@ -11,9 +11,12 @@
 
 subroutine gugadrt_active_drt()
 
+use Definitions, only: iwp, u6
+
+implicit none
 #include "gendrt.fh"
 #include "casrst_drt.fh"
-dimension iin(0:max_node)
+integer(kind=iwp) :: i, iin(0:max_node), im, indd, jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndd, ndi, ndim
 
 nci_dim = 0
 if (norb_act /= 0) goto 100
@@ -168,30 +171,30 @@ end do
 ! to the end of dbl,act,ext parts
 200 continue
 call gugadrt_dbl_downwalk()
-!write(6,*) '  end of drt,nci_dim= ',nci_dim
-!write(6,*) 'number of cfss: ',nci_dim
-write(6,*)
-write(6,*) '-----------------------------------------------'
-write(6,*) '    csf information'
-write(6,*) '    num. of configurations:        ',nci_dim
+!write(u6,*) '  end of drt,nci_dim= ',nci_dim
+!write(u6,*) 'number of cfss: ',nci_dim
+write(u6,*)
+write(u6,*) '-----------------------------------------------'
+write(u6,*) '    csf information'
+write(u6,*) '    num. of configurations:        ',nci_dim
 ndim = iseg_dim(1)
-write(6,*) '    num. of valence states:        ',ndim
+write(u6,*) '    num. of valence states:        ',ndim
 ndim = 0
 do i=2,9
   ndim = ndim+iseg_dim(i)
 end do
-write(6,'(5x,a32,1x,i12)') 'num. of doublet couple singles: ',ndim
+write(u6,'(5x,a32,1x,i12)') 'num. of doublet couple singles: ',ndim
 ndim = 0
 do i=10,17
   ndim = ndim+iseg_dim(i)
 end do
-write(6,'(5x,a32,1x,i12)') 'num. of triplet couple doubles: ',ndim
+write(u6,'(5x,a32,1x,i12)') 'num. of triplet couple doubles: ',ndim
 ndim = 0
 do i=18,25
   ndim = ndim+iseg_dim(i)
 end do
-write(6,'(5x,a32,1x,i12)') 'num. of singlet couple doubles: ',ndim
-write(6,*) '-----------------------------------------------'
+write(u6,'(5x,a32,1x,i12)') 'num. of singlet couple doubles: ',ndim
+write(u6,*) '-----------------------------------------------'
 
 return
 

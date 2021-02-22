@@ -10,10 +10,13 @@
 !***********************************************************************
 
 subroutine redabkm(iabkm,labkm,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
-! this subroutine unpack ja jb jm kt from compress arrays
+! this subroutine unpacks ja jb jm kt from compressed arrays
 
-implicit real*8(a-h,o-z)
-dimension iabkm(1:labkm)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iabkm(1:labkm), labkm, nabcbit, iabcbit
+integer(kind=iwp), intent(out) :: jatmp, jbtmp, jmtmp, kktmp
 
 call upacknod(iabkm,1,jatmp,nabcbit,iabcbit,labkm)
 call upacknod(iabkm,2,jbtmp,nabcbit,iabcbit,labkm)

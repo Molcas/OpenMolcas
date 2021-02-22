@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      integer ja,jb,jm,jj,kk,no,jv,jd,jt,js
       common/casrst_drt/ja(max_node),jb(max_node),jm(0:max_node)        &
      &    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)             &
      &    ,jv,jd(8),jt(8),js(8)

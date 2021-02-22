@@ -11,10 +11,14 @@
 
 subroutine writedrt(id)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: id
 #include "gendrt.fh"
 #include "files_gugadrt.fh"
 #include "casrst_drt.fh"
-dimension jbuf(4*(id+1)), idx(2)
+integer(kind=iwp) :: i, idisk, idx(2), jbuf(4*(id+1)), nc
 
 nc = 1
 do i=0,id

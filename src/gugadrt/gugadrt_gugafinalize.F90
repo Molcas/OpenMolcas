@@ -11,7 +11,7 @@
 
 subroutine gugadrt_gugafinalize()
 
-#include "gendrt.fh"
+implicit none
 #include "files_gugadrt.fh"
 
 call daclos(ludrt)

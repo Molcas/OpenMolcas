@@ -18,10 +18,13 @@ subroutine upacknod(ibuf,idx,ival,nin,nbit,lbuf)
 ! nin    number of integrals in one integral
 ! lbuf   length of ibuf
 
-implicit real*8(a-h,o-z)
-dimension ibuf(lbuf)
-integer*4, parameter :: one4 = 1
-integer, parameter :: i4 = kind(one4)
+use Definitions, only: iwp
+use iso_fortran_env, only: int32
+
+implicit none
+integer(kind=iwp), intent(in) :: ibuf(lbuf), idx, nin, nbit, lbuf
+integer(kind=iwp), intent(out) :: ival
+integer(kind=iwp) :: isp, ngrp, nidbit, nimod
 
 nimod = mod(idx,nin)
 if (nimod == 0) then
@@ -41,10 +44,10 @@ call abend()
 #else
 
 !call mvbits(ibuf(ngrp),isp,nbit,ival,0)
-call mvbits(ibuf(ngrp),int(isp,i4),int(nbit,i4),ival,0)
+call mvbits(ibuf(ngrp),int(isp,kind=int32),int(nbit,kind=int32),ival,0)
 #endif
-!write(6,*) isp,nbit-1
-!write(6,"(b64.64)") ival
+!write(u6,*) isp,nbit-1
+!write(u6,'(b64.64)') ival
 
 return
 

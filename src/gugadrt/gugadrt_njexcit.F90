@@ -11,11 +11,17 @@
 
 subroutine gugadrt_njexcit(indjk,ljk,iextbit,nextbit,ivalid,jstep,kttmp,k0)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ljk, iextbit, nextbit, jstep, k0
+integer(kind=iwp), intent(inout) :: indjk(ljk), kttmp
+integer(kind=iwp), intent(out) :: ivalid
 #include "gendrt.fh"
 #include "Sysdrt.fh"
 #include "refstate.fh"
 #include "ref.fh"
-dimension indjk(ljk), itexcit(n_ref)
+integer(kind=iwp) :: i, idxref, inm, itexcit(n_ref), ival, kp
 
 kp = k0
 do idxref=1,n_ref

@@ -18,8 +18,11 @@ subroutine gugadrt_dbl_downwalk()
 !     |ss(i>j)\       |
 !     |  2 1  \       |
 
+use Definitions, only: iwp
+
+implicit none
 #include "gendrt.fh"
-!integer lsml(10,10) !to del
+integer(kind=iwp) :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt
 
 if (norb_dbl /= 0) goto 200
 !----------- norb_dbl=0 ------------------------------------------------

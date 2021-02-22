@@ -11,18 +11,23 @@
 
 subroutine gugadrt_rcas(id,indd)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: id, indd
 #include "gendrt.fh"
 #include "Sysdrt.fh"
-#include "stdalloc.fh"
 #include "casrst_drt.fh"
-dimension locu(8,max_ref), jc(max_node)
-dimension noh(max_innorb), itm(0:max_node)
-allocatable :: ind(:,:), iwy(:,:)
+integer(kind=iwp) :: i, idd, ii, im, imd, ims, imt, inb, it, itm(0:max_node), iysum, j, j1, j2, j3, j4, ja0, jb0, jc(max_node), &
+                     jc0, jde, jds, jk, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, l, locu(8,max_ref), lr, nc, ndj, nel, nm, node, &
+                     noh(max_innorb)
+integer(kind=iwp), allocatable :: ind(:,:), iwy(:,:)
 
 call mma_allocate(ind,8,max_node,label='ind')
 call mma_allocate(iwy,[1,4],[0,max_node],label='iwy')
-write(6,*) ' '
-write(6,*) 'now generate distinct row tableau'
+write(u6,*) ' '
+write(u6,*) 'now generate distinct row tableau'
 noh = 0
 itm = 0
 iwy = 0
@@ -314,7 +319,7 @@ end if
 88 continue
 ! v=0
 if (jk > max_node) then
-  write(6,*) '    the nomber of j exceeds max_node',max_node
+  write(u6,*) '    the nomber of j exceeds max_node',max_node
   call abend()
 end if
 8 continue
@@ -322,8 +327,8 @@ if (kk(j) <= norb_inn-1) goto 7
 !************** external space  *************
 
 id = no(norb_inn)
-write(6,*)
-write(6,*) '    id=no(norb_inn)',id
+write(u6,*)
+write(u6,*) '    id=no(norb_inn)',id
 do 43 idd=no(norb_inn-1)+1,id
   if (ja(idd) == 0 .and. jb(idd) == 0 .and. jm(idd) == 1) jv = idd
   if (ja(idd) == 0 .and. jb(idd) == 1) then
@@ -468,7 +473,7 @@ no(norb_dz+1) = mxnode
 !write(nf10,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
 do 706 lr=norb_dz,norb_inn
   no(lr+1) = noh(lr)
-  write(6,'(2x,2i10)') lr+1,no(lr+1)
+  write(u6,'(2x,2i10)') lr+1,no(lr+1)
 706 continue
 
 itm(0) = 0
@@ -480,30 +485,30 @@ do im=1,8
 end do
 id = it
 if (it /= no(norb_inn+1)) then
-  write(6,*) '   rcas id is wrong!!   no(norb_inn)=',no(norb_inn),it
+  write(u6,*) '   rcas id is wrong!!   no(norb_inn)=',no(norb_inn),it
   call abend()
 end if
 iysum = 0
 do j=1,mxnode
   iysum = iysum+iwy(1,j)
 end do
-!write(6,*) '    end of rcas , node=',id,'  dimension=',iysum
-write(6,*)
+!write(u6,*) '    end of rcas , node=',id,'  dimension=',iysum
+write(u6,*)
 indd = no(norb_inn)
 !iprint=1
 if (iprint == 1) then
-  write(6,*) 'guga drt'
-  write(6,506)
+  write(u6,*) 'guga drt'
+  write(u6,506)
 end if
 
 do 541 j=1,id
   kk(j) = kk(j)+1
   if (iprint == 1) then
-    write(6,507) j,kk(j),ja(j),jb(j),jm(j),jj(1,j),jj(2,j),jj(3,j),jj(4,j),iwy(2,j),iwy(3,j),iwy(4,j),iwy(1,j),(ind(i,j),i=1,8)
+    write(u6,507) j,kk(j),ja(j),jb(j),jm(j),jj(1,j),jj(2,j),jj(3,j),jj(4,j),iwy(2,j),iwy(3,j),iwy(4,j),iwy(1,j),(ind(i,j),i=1,8)
   end if
 541 continue
-write(6,*) 'end of rcas, drt ..........'
-write(6,*)
+write(u6,*) 'end of rcas, drt ..........'
+write(u6,*)
 
 !open(21,file='fort.drt',form='unformatted')
 !write(21) id

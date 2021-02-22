@@ -12,14 +12,16 @@
 subroutine gugainit()
 ! default value for performing ci calculation
 
+use Definitions, only: wp, iwp
+
+implicit none
 #include "gendrt.fh"
 #include "files_gugadrt.fh"
-parameter(maxmolcasorb=5000)
-dimension ncone(64), nbas(mxsym), norb(mxsym), nfro(mxsym), ndel(mxsym)
-dimension idx_idisk(64)
-dimension cmo(max_orb**2)
-character bsbl(2*4*maxmolcasorb)*1
-dimension dum(1), idum(1)
+integer(kind=iwp), parameter :: maxmolcasorb = 5000
+integer(kind=iwp) :: i, idisk, idum(1), idx, idx_idisk(64), lenrd, nbas(mxsym), nc, ncone(64), ndel(mxsym), nfro(mxsym), &
+                     norb(mxsym), nsym
+real(kind=wp) :: cmo(max_orb**2), dum(1)
+character :: bsbl(2*4*maxmolcasorb)
 
 fnonemo = 'TRAONE'
 fndrt = 'CIDRT'
@@ -68,19 +70,19 @@ nlsm_bas(1:8) = nbas(1:8)
 nlsmddel(1:8) = nfro(1:8)
 nlsmedel(1:8) = ndel(1:8)
 
-!write(6,'(a4,1x,8(2x,i8))') 'ncon',ncone(1:8)
-!write(6,*) 'idisk : ', idisk
-!write(6,'(a4,1x,f18.9)') 'ecor',ecor
-!write(6,'(a4,1x,i8)') 'nsym',nsym
-!write(6,'(a4,1x,8(2x,i8))') 'nbas',nbas(1:8)
-!write(6,'(a4,1x,8(2x,i8))') 'norb',norb(1:8)
-!write(6,'(a4,1x,8(2x,i8))') 'nfro',nfro(1:8)
-!write(6,'(a4,1x,8(2x,i8))') 'ndel',ndel(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'ncon',ncone(1:8)
+!write(u6,*) 'idisk : ', idisk
+!write(u6,'(a4,1x,f18.9)') 'ecor',ecor
+!write(u6,'(a4,1x,i8)') 'nsym',nsym
+!write(u6,'(a4,1x,8(2x,i8))') 'nbas',nbas(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'norb',norb(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'nfro',nfro(1:8)
+!write(u6,'(a4,1x,8(2x,i8))') 'ndel',ndel(1:8)
 
 ng_sm = nsym
 nlsm_all(1:8) = norb(1:8)
 mroot = 1
-cm_cri = 0.03
+cm_cri = 0.03_wp
 
 return
 

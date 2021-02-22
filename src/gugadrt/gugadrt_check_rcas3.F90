@@ -11,9 +11,14 @@
 
 subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
 
+use Definitions, only: iwp
+
+implicit none
 #include "gendrt.fh"
+integer(kind=iwp), intent(in) :: jk, ind(8,max_node), ndj, locu(8,ndj)
+integer(kind=iwp), intent(out) :: inb
 #include "casrst_drt.fh"
-dimension ind(8,max_node), lsym(8), iexcit(ndj), locu(8,ndj)
+integer(kind=iwp) :: i, iex, iexcit(ndj), lsym(8), m, nsumel
 
 inb = 0
 nsumel = 0

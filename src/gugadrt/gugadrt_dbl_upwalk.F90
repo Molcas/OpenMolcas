@@ -11,29 +11,33 @@
 
 subroutine gugadrt_dbl_upwalk()
 
+use Definitions, only: iwp
+
+implicit none
 #include "gendrt.fh"
+integer(kind=iwp) :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
 
 if (norb_dbl == 1) then
-!     v(1),d(2-9),s(18-25)           for s=0
-!     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
+  ! v(1),d(2-9),s(18-25)             for s=0
+  ! v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
 
   mxnode = 17+ng_sm
   lri = norb_frz+1
   lsmi = lsm_inn(lri)
   lsmid = mul_tab(lsmi,ns_sm)
-  !for node_v
+  ! for node_v
   nu_ad(1) = 1
   jpad_upwei(1) = 1
-  !for node_d
+  ! for node_d
   nu_ad(1+lsmid) = 1+lsmid
   jpad_upwei(1+lsmid) = 1
-  !for node_s
+  ! for node_s
   nu_ad(17+ns_sm) = 17+ns_sm
   jpad_upwei(17+ns_sm) = 1
 
   if (jroute_sys == 1) return
   mxnode = 25+ng_sm
-  !for node_d'
+  ! for node_d'
   nu_ad(25+lsmid) = 25+lsmid
   jpad_upwei(25+lsmid) = 1
   return
@@ -60,7 +64,7 @@ do lri=norb_frz+1,norb_dz
     jpad_upwei(no_t) = jpad_upwei(no_t)+1
   end do
 end do
-!v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
+! v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
 select case (jroute_sys)
   case (1)
     goto 100
@@ -69,22 +73,26 @@ select case (jroute_sys)
   case (3)
     goto 300
 end select
-100 mxnode = 25 !v,d,t,s
+100 continue
+mxnode = 25 !v,d,t,s
 jpad_upwei(18:25) = jpad_upwei(10:17)
 jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
 goto 500
-200 mxnode = 25+8
+200 continue
+mxnode = 25+8
 jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
 jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
 jpad_upwei(26:33) = jpad_upwei(2:9)
 goto 500
-300 mxnode = 25+8+8
+300 continue
+mxnode = 25+8+8
 jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
 jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
 jpad_upwei(26:33) = jpad_upwei(2:9)
 jpad_upwei(34:41) = jpad_upwei(10:17)
 
-500 do node=2,mxnode
+500 continue
+do node=2,mxnode
   iw = jpad_upwei(node)
   if (iw == 0) cycle
   nu_ad(node) = node

@@ -11,6 +11,10 @@
 
 subroutine gugadrt(ireturn)
 
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "gendrt.fh"
 data istep_occ/0,1,1,2/
 data mul_tab/1,2,3,4,5,6,7,8, &
@@ -21,6 +25,8 @@ data mul_tab/1,2,3,4,5,6,7,8, &
              6,5,8,7,2,1,4,3, &
              7,8,5,6,3,4,1,2, &
              8,7,6,5,4,3,2,1/
+real(kind=wp) :: sc, sc0, sc1
+real(kind=r8), external :: seconds
 
 sc0 = seconds()
 

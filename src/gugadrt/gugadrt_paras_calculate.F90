@@ -10,6 +10,8 @@
 !***********************************************************************
 
 subroutine gugadrt_paras_calculate()
+
+implicit none
 #include "gendrt.fh"
 !#include "paraconstants_h.for"
 !#include "intsort_h.for"
@@ -47,7 +49,6 @@ subroutine gugadrt_paras_calculate()
 !   arbrb^r =10 (+a^r)    arblb^r =11 (+a^l)   arblb^l =12 (+a^r)
 !   drl     =13 (*)
 !****************************************************************
-
 !data inlptb_new
 !    */ -1,  0,  4,  5,  0,  0,  1,  1,  6,  0,  0,  1,
 !    *   0,  0,  0,  0,  7,  0,  2,  2,  0, -2,  0,  2,
@@ -62,8 +63,8 @@ subroutine gugadrt_paras_calculate()
 !    *   0,-11,  0,  0,  0,  0, 11, 11,  0,  0,  0, 11,
 !    * -12,  0,  0,  0,  0,  0, 12, 12,  0,  0,  0, 12,
 !    *   0,  0,  0,  0,  0,  9,  3, 13,  0,  0,  0,  0/
-
 !data indord_plptype/0,0,0,1,1,3,3,1,1,2,2,2/   !severe_new_error_1
+
 ja_sys = int(n_electron*0.5d0-spin)-norb_dz
 jb_sys = int(spin+spin)
 jc_sys = norb_all-ja_sys-jb_sys

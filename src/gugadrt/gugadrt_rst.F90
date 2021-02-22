@@ -13,22 +13,20 @@ subroutine gugadrt_rst(id,nndd)
 !*******************************************
 ! 10 may 2007 - revised by wyb
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: id, nndd
 #include "gendrt.fh"
 #include "Sysdrt.fh"
-!#ifndef _I8_
-!      parameter (iintbit=32,n32int=4,n16int=2)
-!#else
-!      parameter (iintbit=64,n32int=2,n16int=1)
-!#endif
 #include "casrst_drt.fh"
 #include "ref.fh"
-integer, pointer :: jabkm(:,:)
-integer, pointer :: ind(:,:)
-integer, pointer :: idjj(:,:)
-integer, pointer :: iwy(:,:)
-integer, pointer :: itm(:)
-dimension noh(max_innorb)
-dimension iextjj(n32int), iextii(n32int), jjabkm(1:n16int), jkabkm(1:n16int), iiabkm(1:n16int)
+integer(kind=iwp) :: i, iabcbit, idd, iextbit, ii, iiabkm(1:n16int), iextii(n32int), iextjj(n32int), im, imd, ims, imt, it, &
+                     ivalid, iysum, j, j1, j2, j3, j4, ja0, jac, jaj, jajk, jatmp, jb0, jbj, jbjk, jbtmp, jc0, jde, jds, ji, &
+                     jjabkm(1:n16int), jk, jkabkm(1:n16int), jmj, jmjk, jmtmp, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, kj1, &
+                     kkj, kkjk, kktmp, kttmp, l, lr, mxtnode, nabcbit, nextbit, nm, node, noh(max_innorb), nrefbit
+integer(kind=iwp), allocatable :: jabkm(:,:), ind(:,:), idjj(:,:), iwy(:,:), itm(:)
 
 ! estimate memory
 if (n_ref > 20) then
@@ -45,13 +43,13 @@ else
     mxtnode = 500000
   end if
 end if
-write(6,*)
-write(6,*) ' now generate distinct row tableau'
-allocate(jabkm(n16int,mxtnode))
-allocate(ind(n32int,0:mxtnode))
-allocate(idjj(4,0:mxtnode))
-allocate(iwy(4,0:mxtnode))
-allocate(itm(0:mxtnode))
+write(u6,*)
+write(u6,*) ' now generate distinct row tableau'
+call mma_allocate(jabkm,n16int,mxtnode,label='jabkm')
+call mma_allocate(ind,[1,n32int],[0,mxtnode],label='ind')
+call mma_allocate(idjj,[1,4],[0,mxtnode],label='idjj')
+call mma_allocate(iwy,[1,4],[0,mxtnode],label='iwy')
+call mma_allocate(itm,[0,mxtnode],label='itm')
 
 nm = ns_sm
 ndj = n_ref
@@ -76,7 +74,7 @@ j = 0
 ja0 = ja_sys
 jb0 = jb_sys
 jc0 = jc_sys
-write(6,'(4(1x,i4))') ja0,jb0,jc0
+write(u6,'(4(1x,i4))') ja0,jb0,jc0
 ! v_node
 ja(1) = ja0
 jb(1) = jb0
@@ -220,7 +218,7 @@ if (kkjk /= k0+1) no(k0) = jk
 jk = jk+1
 
 if (jk > mxtnode) then
-  write(6,*) ' the number of j exceeds max_node',mxtnode
+  write(u6,*) ' the number of j exceeds max_node',mxtnode
   call abend()
   !call errexit(777)
 end if
@@ -461,25 +459,24 @@ if (kktmp /= kj1) no(k0) = jk-1
 8 continue
 if (k0 <= norb_inn-1) goto 7
 
-!999 continue
-!if(iprint.eq.1) then
-!  open(100,file="tmp.dat")
+!if(iprint == 1) then
+!  open(100,file='tmp.dat')
 !  do i=1,jk
 !    jkabkm(1:n16int)=jabkm(1:n16int,i)
 !    call redabkm(jkabkm,n16int,nabcbit,iabcbit,jaj,jbj,jmj,kkj)
-!    j1=idjj(1,i)
-!    j2=idjj(2,i)
-!    j3=idjj(3,i)
-!    j4=idjj(4,i)
-!    write(100,"(5(1x,i8))") i,j1,j2,j3,j4
-!  enddo
+!    j1 = idjj(1,i)
+!    j2 = idjj(2,i)
+!    j3 = idjj(3,i)
+!    j4 = idjj(4,i)
+!    write(100,'(5(1x,i8))') i,j1,j2,j3,j4
+!  end do
 !  close(100)
-!endif
-!write(6,"(10(1x,i5))") no(1:norb_all)
- write(6,*)
+!end if
+!write(u6,'(10(1x,i5))') no(1:norb_all)
+ write(u6,*)
 !************** external space  *************
 id = no(norb_inn)
-!write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
+!write(u6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
 do idd=no(norb_inn-1)+1,id
   jjabkm(1:n16int) = jabkm(1:n16int,idd)
   call redabkm(jjabkm,n16int,nabcbit,iabcbit,jaj,jbj,jmj,kkj)
@@ -625,8 +622,8 @@ end do
 !open(10,file='rst.out')
 no(norb_dz) = 0
 no(norb_dz+1) = mxnode
-!write(6,*) '   end of rst, drt ..........'
-!write(6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
+!write(u6,*) '   end of rst, drt ..........'
+!write(u6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
 do 706 lr=norb_dz+1,norb_inn
   no(lr+1) = noh(lr)
 706 continue
@@ -643,33 +640,33 @@ do j=1,mxnode
 end do
 id = it
 if (it /= no(norb_inn+1)) then
-  write(6,*) '   rst id is wrong!!   no(norb_inn)=',no(norb_inn),it
+  write(u6,*) '   rst id is wrong!!   no(norb_inn)=',no(norb_inn),it
   call abend()
 end if
 
-write(6,*)
+write(u6,*)
 !iprint=1
 if (iprint == 1) then
-  write(6,*) 'guga drt'
-  write(6,506)
+  write(u6,*) 'guga drt'
+  write(u6,506)
 end if
 nndd = no(norb_inn)
 do 541 j=1,id
   kk(j) = kk(j)+1
   if (iprint == 1) then
-    write(6,510) j,kk(j),ja(j),jb(j),jm(j),jj(1,j),jj(2,j),jj(3,j),jj(4,j)
+    write(u6,510) j,kk(j),ja(j),jb(j),jm(j),jj(1,j),jj(2,j),jj(3,j),jj(4,j)
   end if
 541 continue
-write(6,*)
-write(6,*) 'end of rst, drt ..........'
+write(u6,*)
+write(u6,*) 'end of rst, drt ..........'
 
-deallocate(jabkm)
-deallocate(ind)
-deallocate(idjj)
-deallocate(iwy)
-deallocate(itm)
+call mma_deallocate(jabkm)
+call mma_deallocate(ind)
+call mma_deallocate(idjj)
+call mma_deallocate(iwy)
+call mma_deallocate(itm)
 
-!open(21,file="fort.drt",form="unformatted")
+!open(21,file='fort.drt',form='unformatted')
 !write(21) id
 !write(21) ja(1:id),jb(1:id),jm(1:id)
 !write(21) jj(1:4,0:id)

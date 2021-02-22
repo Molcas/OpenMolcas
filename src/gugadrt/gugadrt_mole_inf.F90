@@ -11,27 +11,24 @@
 
 subroutine gugadrt_mole_inf()
 
+use Definitions, only: iwp, u6
+
+implicit none
 #include "gendrt.fh"
 #include "files_gugadrt.fh"
 #include "Sysdrt.fh"
-!#ifndef _I8_
-!parameter (max_ref=64)
-!#else
-!parameter (max_ref=128)
-!#endif
 #include "mcorb.fh"
 #include "refstate.fh"
-dimension lsmtmp(maxgdm)
-logical log_debug
-dimension itmpstr(72)
+integer(kind=iwp) :: i, icmd, idisk, im, iml, imr, im_lr_sta, iorb, ispin, itmp, itmpstr(72), j, jcmd, l, ln1, lr, lsmtmp(maxgdm), &
+                     ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, norb1, norb2, norb_all_tmp, ntit
+logical(kind=iwp) :: log_debug
+character(len=4) :: command
+character(len=72) :: line
+character(len=132) :: modline
 ! copy from molcas, bsuo, jun. 30, 2009
-parameter(ncmd=18)
-parameter(mxtit=10)
-character*4 command, cmd(ncmd)
-character*72 line
-character*132 modline
-data Cmd/'TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE','NOCO','ONEO','EXTR','NONI','NACT', &
-         'END '/
+integer(kind=iwp), parameter :: ncmd = 18, mxtit = 10
+character(len=4), parameter :: cmd(ncmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL', &
+                                            'VALE','INTE','NOCO','ONEO','EXTR','NONI','NACT','END ']
 
 n_electron = 0
 nactel = 0
@@ -49,8 +46,8 @@ do icmd=1,ncmd
   if (command == cmd(icmd)) jcmd = icmd
 end do
 20 goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800) jcmd
-write(6,*) 'input: illegal keyword'
-write(6,'(a,a)') 'command=',command
+write(u6,*) 'input: illegal keyword'
+write(u6,'(a,a)') 'command=',command
 call abend()
 
 !---  process title    command ----------------------------------------*
@@ -84,7 +81,7 @@ goto 10
 
 !---  process symmetry command ----------------------------------------*
 400 continue
-!      write (6,*)'input_guga: keyword symmetry is obsolete and ignored!
+!write (u6,*)'input_guga: keyword symmetry is obsolete and ignored!
 read(5,'(a)',end=991) line
 if (line(1:1) == '*') goto 400
 read(line,*,err=992) ns_sm
@@ -111,10 +108,9 @@ read(5,'(a)',end=991) line
 if (line(1:1) == '*') goto 700
 read(line,*,err=992) n_ref,ln1
 if (n_ref > max_ref) then
-  write(6,*) ' Warnning! Program could not deal with so much',    &
-&             ' reference states!'
-  write(6,*) ' Maximum number of reference states is',max_ref
-  write(6,*) ' Set number of reference states into ',max_ref
+  write(u6,*) ' Warnning! Program could not deal with so many reference states!'
+  write(u6,*) ' Maximum number of reference states is',max_ref
+  write(u6,*) ' Set number of reference states into ',max_ref
   n_ref = max_ref
 end if
 if (ln1 == 0) then
@@ -178,13 +174,12 @@ read(modline,*,err=992) ! (ione(i),i=1,8)
 goto 10
 
 !---  process extract  command ----------------------------------------*
-1500 write(6,*) 'input: extract option is redundant and is ignored!'
+1500 write(u6,*) 'input: extract option is redundant and is ignored!'
 goto 10
 
 !---  process non-interact command -------------------------------------
 1600 continue
-write(6,*) 'input: non-interact option is redundant and is',     &
-&            ' ignored!'
+write(u6,*) 'input: non-interact option is redundant and is ignored!'
 goto 10
 
 !---  process nactel       command -------------------------------------
@@ -260,7 +255,7 @@ do ngsm=1,ng_sm
   norb_all_tmp = norb_all_tmp+nlsm_all(ngsm)
 end do
 if (norb_all_tmp /= norb_all) then
-  write(6,*) '  input num.of orbital err! check again!'
+  write(u6,*) '  input num.of orbital err! check again!'
   call abend()
 end if
 
@@ -278,10 +273,8 @@ do im=1,ng_sm
     if (imr > iml) cycle
     int_dd_offset(iml,imr) = im_lr_sta
     int_dd_offset(imr,iml) = im_lr_sta
-    if (iml == imr) im_lr_sta = im_lr_sta+                            &
-&           nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
-    if (iml /= imr) im_lr_sta = im_lr_sta+                            &
-&           nlsm_ext(iml)*nlsm_ext(imr)
+    if (iml == imr) im_lr_sta = im_lr_sta+nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
+    if (iml /= imr) im_lr_sta = im_lr_sta+nlsm_ext(iml)*nlsm_ext(imr)
   end do
   do l=1,nlsm_ext(im)
     lr = lr+1
@@ -316,7 +309,7 @@ do i=1,ng_sm
 end do
 !============ chck input data block ====================
 if (norb_frz > norb_dz) then
-  write(6,*) ' check input data: norb_frz  error'
+  write(u6,*) ' check input data: norb_frz  error'
   call abend()
 end if
 ! check number of electrons
@@ -324,8 +317,7 @@ if (nactel /= 0) then
   if (n_electron /= 0) then
     ne_act = n_electron-2*norb_dz
     if (nactel /= ne_act) then
-      write(6,*) 'Input error, Error in checking ELECtron',       &
-&                 ' and NACTel!'
+      write(u6,*) 'Input error, Error in checking ELECtron and NACTel!'
       call abend()
     end if
   else
@@ -338,16 +330,15 @@ else
     nactel = ne_act
   else
     ne_act = 0
-    write(6,*) 'Input error, you must input ELECtron or NACTel!'
+    write(u6,*) 'Input error, you must input ELECtron or NACTel!'
     call abend()
   end if
 end if
 nde = 2*norb_dz
 if (nde > n_electron) then
-  write(6,'(1x,42a)') 'check input date: number of elctrons error'
-  write(6,'(1x,a20,1x,i4)') 'number of electrons ',n_electron
-  write(6,'(1x,a36,1x,i4)') 'number of doubly occupied electrons '&
-&          ,nde
+  write(u6,'(1x,42a)') 'check input date: number of elctrons error'
+  write(u6,'(1x,a20,1x,i4)') 'number of electrons ',n_electron
+  write(u6,'(1x,a36,1x,i4)') 'number of doubly occupied electrons ',nde
   call abend()
 end if
 
@@ -357,16 +348,16 @@ do i=1,ng_sm
   norb2 = norb2+nlsm_all(i)
 end do
 if (norb1 /= norb2) then
-  write(6,*) ' check input data: orb_number error'
-  write(6,*) norb1,norb2
+  write(u6,*) ' check input data: orb_number error'
+  write(u6,*) norb1,norb2
   call abend()
 end if
 
 if (logic_mr) then
-  write(6,*) ' Refrence states'
+  write(u6,*) ' Refrence states'
   !ne_act = n_electron-2*norb_dz
   do i=1,n_ref
-    write(6,'(80i1)') iref_occ(1:norb_inn,i)
+    write(u6,'(80i1)') iref_occ(1:norb_inn,i)
     ms_ref = 1
     neact = 0
     do j=norb_dz+1,norb_inn
@@ -375,7 +366,7 @@ if (logic_mr) then
       if (iref_occ(j,i) == 2) neact = neact+2
     end do
     if (ms_ref /= ns_sm .or. neact /= ne_act) then
-      write(6,*) '  input ref_conf  err! check again! ',i
+      write(u6,*) '  input ref_conf  err! check again! ',i
       call abend()
     end if
   end do
@@ -384,16 +375,16 @@ end if
 !****************************************************
 log_debug = .false.
 if (log_debug) then
-  write(6,1001)
-  write(6,1002) norb_all,norb_frz,norb_dz,norb_inn,norb_ext
-  write(6,1002) nlsm_all(1:ng_sm)
-  write(6,1002) nlsm_frz(1:ng_sm)
-  write(6,1002) nlsm_dbl(1:ng_sm)
-  write(6,1002) nlsm_inn(1:ng_sm)
-  write(6,*) 'lsm inn'
-  write(6,1002) lsm_inn(1:norb_inn)
-  write(6,*) 'lsm all',norb_all
-  write(6,1002) (lsm(i),i=norb_all,1,-1)
+  write(u6,1001)
+  write(u6,1002) norb_all,norb_frz,norb_dz,norb_inn,norb_ext
+  write(u6,1002) nlsm_all(1:ng_sm)
+  write(u6,1002) nlsm_frz(1:ng_sm)
+  write(u6,1002) nlsm_dbl(1:ng_sm)
+  write(u6,1002) nlsm_inn(1:ng_sm)
+  write(u6,*) 'lsm inn'
+  write(u6,1002) lsm_inn(1:norb_inn)
+  write(u6,*) 'lsm all',norb_all
+  write(u6,1002) (lsm(i),i=norb_all,1,-1)
 end if
 !*****************************************************
 
@@ -444,27 +435,27 @@ do i=1,ng_sm
   noidx(i) = i
 end do
 mul = nint(2*spin)+1
-write(6,*) '-----------------------------------------------'
-write(6,*) '    ci orbitals information'
+write(u6,*) '-----------------------------------------------'
+write(u6,*) '    ci orbitals information'
 ndisk = 0
 do i=1,8
   ndisk = ndisk+nlsm_bas(i)
 end do
-write(6,*) '    num. of basis:          ',ndisk
-write(6,*) '    num. of orbitals:       ',norb_all
-write(6,*) '    num. of active-orbitals:',norb_act
-write(6,*) '    num. of electrons:      ',n_electron
-write(6,*) '    multiplicity:           ',mul
-write(6,*) '    symmetry:               ',ns_sm
-write(6,*)
-write(6,*) '    oribtials per-symmtry'
-write(6,1003) noidx(1:ng_sm)
-write(6,1004) nlsmddel(1:ng_sm)
-write(6,1005) nlsm_dbl(1:ng_sm)
-write(6,1006) nlsm_act(1:ng_sm)
-write(6,1007) nlsm_ext(1:ng_sm)
-write(6,1008) nlsmedel(1:ng_sm)
-write(6,*) '-----------------------------------------------'
+write(u6,*) '    num. of basis:          ',ndisk
+write(u6,*) '    num. of orbitals:       ',norb_all
+write(u6,*) '    num. of active-orbitals:',norb_act
+write(u6,*) '    num. of electrons:      ',n_electron
+write(u6,*) '    multiplicity:           ',mul
+write(u6,*) '    symmetry:               ',ns_sm
+write(u6,*)
+write(u6,*) '    oribtials per-symmtry'
+write(u6,1003) noidx(1:ng_sm)
+write(u6,1004) nlsmddel(1:ng_sm)
+write(u6,1005) nlsm_dbl(1:ng_sm)
+write(u6,1006) nlsm_act(1:ng_sm)
+write(u6,1007) nlsm_ext(1:ng_sm)
+write(u6,1008) nlsmedel(1:ng_sm)
+write(u6,*) '-----------------------------------------------'
 
 ! following information will be drts
 ! notice we do not close file ludrt here, it will be closed after drt
@@ -474,12 +465,12 @@ write(6,*) '-----------------------------------------------'
 return
 
 991 continue
-write(6,*) 'input: end of input file encountered'
-write(6,'(a,a)') 'last command: ',command
+write(u6,*) 'input: end of input file encountered'
+write(u6,'(a,a)') 'last command: ',command
 call abend()
 992 continue
-write(6,*) 'input: error while reading input!'
-write(6,'(a,a)') 'last command: ',command
+write(u6,*) 'input: error while reading input!'
+write(u6,'(a,a)') 'last command: ',command
 call abend()
 
 1001 format(1x,'norb all group sm')
