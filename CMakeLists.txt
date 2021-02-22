@@ -89,11 +89,6 @@ endif ()
 
 option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
-if (GA)
-  mark_as_advanced (CLEAR GA_BUILD)
-else ()
-  mark_as_advanced (FORCE GA_BUILD)
-endif ()
 
 option (OPENMP "Enable multi-threading." OFF)
 
