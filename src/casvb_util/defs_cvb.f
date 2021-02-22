@@ -20,8 +20,7 @@
 #include "print_cvb.fh"
 
 #include "frag_cvb.fh"
-      logical ifploc
-      common /ifploc_complc/ifploc
+      logical :: ifploc = .false.
       dimension ifxorb(mxorb)
 
 c  Default settings :

@@ -83,7 +83,7 @@ c
 #include "chcc_files.fh"
 #include "wrk.fh"
 #ifdef _MOLCAS_MPP_
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #endif
 c
         integer NaGrpR,NaSGrpR,NChBlk

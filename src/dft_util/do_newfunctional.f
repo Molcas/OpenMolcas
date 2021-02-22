@@ -28,8 +28,7 @@
      &       Rho(nRho,mGrid),P2_ontop(nP2_ontop,mGrid),
      &       F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-      Common /points/ GGrid(3,6000)
-      Common /ipoints/ iiGrid
+#include "points.fh"
 #include "nq_index.fh"
 *
       aConst=0.049180d0

@@ -10,7 +10,6 @@
 ************************************************************************
       Subroutine Set_Basis_Mode_Atomic(i,j)
       use Basis_Info, only: dbsc
-#include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 *
       If (dbsc(i)%Aux) Then

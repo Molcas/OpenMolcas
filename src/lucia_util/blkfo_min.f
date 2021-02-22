@@ -35,7 +35,7 @@
 #include "csm.fh"
 #include "strbas.fh"
 #include "crun.fh"
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC ! Jesper
+#include "cands.fh"
 
 *. Output : Should outside be dimensioned as MXNTTS
       INTEGER LEN_BLK(*)

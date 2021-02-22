@@ -22,15 +22,10 @@ cgh               =1 means the full shortrange code is run through, but
 cgh                  the conventional integrals are produced
 cgh               =2 only disables the special cases
 #ifdef MOLPRO
-      logical shortrange
       real *8 decay_int,thratten
-      integer isr_simulate
-      common/srintl/ shortrange
-      common/srinti/ isr_simulate
       common/srintr/ thratten,decay_int
-#else
+#endif
       Logical shortrange
       Integer isr_simulate
       Common /srintl/ shortrange
       Common /srinti/ isr_simulate
-#endif

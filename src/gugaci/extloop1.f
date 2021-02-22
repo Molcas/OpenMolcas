@@ -54,8 +54,7 @@ C Jul. 3, 2009 -BSUO- External space loops
 #include "drt_h.fh"
 #include "intsort_h.fh"
 
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       if ( isma .lt. ismb ) then
       ip3smabc=isma+jp2(ismb)+jp3(ismc)
       ip2cd=m_jc+(m_jd-1)*nlsm_ext(ismc)   !severe_new_error_1206
@@ -101,8 +100,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g11a_t_diffsym(isma,ismb,ismc)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=isma+jp2(ismc)+jp3(ismb)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       jdoffset=(m_jd-1)*nlsm_ext(ismb)
@@ -128,8 +126,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g11b_t_diffsym(isma,ismb,ismc)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=ismc+jp2(isma)+jp3(ismb)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       jdoffset=(m_jd-1)*nlsm_ext(ismb)
@@ -156,8 +153,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g1112_t_symaaaa(isma,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=isma+jp2(isma)+jp3(isma)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
 !
@@ -208,8 +204,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g11a11b_t_symaacc(isma,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=isma+jp2(isma)+jp3(ismc)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       num_smab=nlsm_ext(isma)
@@ -253,8 +248,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g36_t_ext(ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipos_intbasetmp=ip3_abd_ext_base+(id-1)*np3_abd_ext   !severe_new_
       iasta=ibsm_ext(ismc)
       ilwei=icnt_base+iwt_orb_ext(iasta,id)
@@ -270,8 +264,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g5_t_ext(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipos_intbasetmp=ip3_abd_ext_base+(ic-1)*np3_abd_ext
       ibsta=ibsm_ext(ismd)
       do ib=max(ic+1,ibsta),id-1
@@ -286,8 +279,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine   g9_t_ext(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipos_intbasetmp=ip3_abd_ext_base+(ic-1)*np3_abd_ext
       iasta=ibsm_ext(ismd)
       ilwei=icnt_base+iwt_orb_ext(iasta,ic)
@@ -345,8 +337,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g_dd_ext_sequence(ism)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       icano_nnsta=2
       icnt_base=0
       iasta=ibsm_ext(ism)
@@ -369,8 +360,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g_ss_ext_sequence(ism,itype)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -437,8 +427,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g12_diffsym(isma,ismb,ismc)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       if ( isma .lt. ismb ) then
       ip3smabc=isma+jp2(ismb)+jp3(ismc)
       ip2cd=m_jc+(m_jd-1)*nlsm_ext(ismc)      !severe_new_error_1206
@@ -484,8 +473,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g11a_diffsym(isma,ismb,ismc)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=isma+jp2(ismc)+jp3(ismb)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       jdoffset=(m_jd-1)*nlsm_ext(ismb)
@@ -511,8 +499,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g11b_diffsym(isma,ismb,ismc)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=ismc+jp2(isma)+jp3(ismb)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       jdoffset=(m_jd-1)*nlsm_ext(ismb)
@@ -539,8 +526,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g1112_symaaaa(isma,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=isma+jp2(isma)+jp3(isma)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
 !
@@ -592,8 +578,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g11a11b_symaacc(isma,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipsmabc=isma+jp2(isma)+jp3(ismc)
       ipos_intbasetmp=ip4_abcd_ext_base(ipsmabc)
       num_smab=nlsm_ext(isma)
@@ -637,8 +622,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g10_ext(ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipos_intbasetmp=ip3_abd_ext_base+(id-1)*np3_abd_ext   !severe_new_
       iasta=ibsm_ext(ismc)
       ilwei=icnt_base+iwt_orb_ext(iasta,id)
@@ -654,8 +638,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine g5_ext(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipos_intbasetmp=ip3_abd_ext_base+(ic-1)*np3_abd_ext
       ibsta=ibsm_ext(ismd)
       do ib=max(ic+1,ibsta),id-1
@@ -670,8 +653,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine   g9_ext(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ipos_intbasetmp=ip3_abd_ext_base+(ic-1)*np3_abd_ext
       iasta=ibsm_ext(ismd)
       ilwei=icnt_base+iwt_orb_ext(iasta,ic)
@@ -687,8 +669,7 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine   ext_lp_ab_s1(id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
       ipos_intbasetmp=ip3_abd_ext_base+(id-1)*np3_abd_ext
       ilwei=icnt_base
@@ -729,8 +710,7 @@ C Jul. 3, 2009 -BSUO- External space loops
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       iabc0=(lri-1)*nabc
       ic=m_jd
@@ -757,8 +737,7 @@ C Jul. 3, 2009 -BSUO- External space loops
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       iabc0=(lri-1)*nabc
 
@@ -784,8 +763,7 @@ C Jul. 3, 2009 -BSUO- External space loops
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       iabc0=(lri-1)*nabc
 
@@ -1315,9 +1293,8 @@ C              numint=(numb-1+ip2(numc))*numa
       subroutine g_dd_ext_sequence_G(ism)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "gext_sequence.fh"
+#include "iaib.fh"
       icano_nnsta=2
       icnt_base=0
       iasta=ibsm_ext(ism)
@@ -1344,8 +1321,7 @@ C              numint=(numb-1+ip2(numc))*numa
       subroutine g_tt_ext_sequence_G(ism)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -1399,8 +1375,7 @@ C              numint=(numb-1+ip2(numc))*numa
       subroutine g_ss_ext_sequence_G(ism,itype)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -1469,8 +1444,7 @@ C              numint=(numb-1+ip2(numc))*numa
       subroutine g12_diffsym_G(isma,ismb,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 !       write(nf2,*) 'g12_diff'
       lrc=norb_number(ic)
       lrd=norb_number(id)
@@ -1528,8 +1502,7 @@ c Avoid unused argument warnings
       subroutine g11a_diffsym_G(isma,ismb,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
 !       write(nf2,*) 'g11a_diff'
       lrc=norb_number(ic)
@@ -1562,8 +1535,7 @@ c Avoid unused argument warnings
       subroutine g11b_diffsym_G(isma,ismb,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 !       write(nf2,*) 'g11b_diff'
       lrc=norb_number(ic)
       lrd=norb_number(id)
@@ -1594,8 +1566,7 @@ c Avoid unused argument warnings
       subroutine g1112_symaaaa_G(isma,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 !       write(nf2,*) 'g1112_symaaaa'
       lrc=norb_number(ic)
       lrd=norb_number(id)
@@ -1656,8 +1627,7 @@ c Avoid unused argument warnings
       subroutine g11a11b_symaacc_G(isma,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
 !       write(nf2,*) 'g11a11b_symaacc'
       lrc=norb_number(ic)
@@ -1703,9 +1673,8 @@ c Avoid unused argument warnings
       subroutine g10_ext_G(ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "iaib.fh"
+#include "gext_sequence.fh"
 !        write(nf2,*) 'g10_ext'
       lrc=norb_number(ic)
       lrd=norb_number(id)
@@ -1729,9 +1698,8 @@ c Avoid unused argument warnings
       subroutine g5_ext_G(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "gext_sequence.fh"
+#include "iaib.fh"
 !        write(nf2,*) 'g5_ext'
       lrc=norb_number(ic)
       lrd=norb_number(id)
@@ -1754,9 +1722,8 @@ c Avoid unused argument warnings
       subroutine g9_ext_G(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "gext_sequence.fh"
+#include "iaib.fh"
 !         write(nf2,*) 'g9_ext'
       lrc=norb_number(ic)
       lrd=norb_number(id)
@@ -1780,9 +1747,8 @@ c Avoid unused argument warnings
       subroutine ext_lp_ab_s1_G(id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "gext_sequence.fh"
+#include "iaib.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
 !         write(nf2,*) 'ext_lp_ab_s1'
       lrd=norb_number(id)
@@ -1838,8 +1804,7 @@ C  non-triangle <Ci|H|Cj> which designates that I > J.
       subroutine g12_t_diffsym_G(isma,ismb,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
 
@@ -1895,8 +1860,7 @@ c Avoid unused argument warnings
       subroutine g11a_t_diffsym_G(isma,ismb,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
 
@@ -1926,8 +1890,7 @@ c Avoid unused argument warnings
       subroutine g11b_t_diffsym_G(isma,ismb,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
 
@@ -1958,8 +1921,7 @@ c Avoid unused argument warnings
       subroutine g1112_t_symaaaa_G(isma,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
 
@@ -2019,8 +1981,7 @@ c Avoid unused argument warnings
       subroutine g11a11b_t_symaacc_G(isma,ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
 
@@ -2064,9 +2025,8 @@ c Avoid unused argument warnings
       subroutine g36_t_ext_G(ismc,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "iaib.fh"
+#include "gext_sequence.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
       iasta=ibsm_ext(ismc)
@@ -2089,9 +2049,8 @@ c Avoid unused argument warnings
       subroutine g5_t_ext_G(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "gext_sequence.fh"
+#include "iaib.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
       ibsta=ibsm_ext(ismd)
@@ -2113,9 +2072,8 @@ c Avoid unused argument warnings
       subroutine g9_t_ext_G(ismd,ic,id)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "gext_sequence.fh"
+#include "iaib.fh"
       lrc=norb_number(ic)
       lrd=norb_number(id)
       iasta=ibsm_ext(ismd)
@@ -2140,8 +2098,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       LRC=norb_number(m_jd)
 
@@ -2174,8 +2131,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       LRC=norb_number(m_jd)
       ibsta=ibsm_ext(ismb)
@@ -2203,8 +2159,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       LRC=norb_number(m_jd)
       ibsta=ibsm_ext(ismb)
@@ -2234,8 +2189,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ic=m_jd
       lrc=norb_number(ic)
@@ -2335,8 +2289,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
 
       ic=m_jd
@@ -2403,8 +2356,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ic=m_jd
       lrc=norb_number(ic)
@@ -2468,8 +2420,7 @@ c Avoid unused argument warnings
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ic=m_jd
       lrc=norb_number(ic)

@@ -14,12 +14,10 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       External Int8, Int2, int1, int4
 #include "SysDef.fh"
-#include "files_guga.fh"
+#include "files_addr.fh"
       DIMENSION ITAI(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
-#include "addr_guga.fh"
 *
       IOUT=0
       NMAT=0

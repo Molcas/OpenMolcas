@@ -17,9 +17,7 @@
 #include "real.fh"
 #include "disp.fh"
       Real*8 Grad(nGrad),C(3)
-      parameter (lforce=20)
-      real*8 Force(lforce)
-      common /finfld/Force
+#include "finfld.fh"
 *
       logical, external :: TF
 *

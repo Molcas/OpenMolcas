@@ -28,12 +28,12 @@
 #include "WrkSpc.fh"
 #include "gas.fh"
 #include "rasscf.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "orthonormalize.fh"
+#include "orthonormalize_mcpdft.fh"
 #include "ksdft.fh"
       Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
@@ -64,19 +64,14 @@
 !      Dimension iMAlter(8,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
-      Logical DoCholesky,timings,DensityCheck
-      Logical DoLocK,Deco
-      Logical Estimate,Update
-      Integer ALGO,Nscreen
-      Real*8  dmpk,ChFracMem
       Logical DBG, exist
 
-      Common /CHLCAS / DoCholesky,ALGO
-      COMMON /CHODENSITY/ DensityCheck
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
-      COMMON /CHOSCREEN/ Estimate,Update
-      COMMON /CHOPAR/ ChFracMem
+#include "chlcas.fh"
+#include "chodensity.fh"
+#include "chotime.fh"
+#include "cholk.fh"
+#include "choscreen.fh"
+#include "chopar.fh"
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.

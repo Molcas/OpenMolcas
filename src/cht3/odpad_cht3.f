@@ -957,13 +957,10 @@ c define commons needed in DIRCC routines
 c
         implicit none
         integer nfr,nv,no
-        integer NOAB(2),NNOAB(3),NUAB(2),NNUAB(3)
-        character*1 ich(3)
-        integer IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
 cmp!        integer me,nprocs
 c
-        COMMON/UHF/NOAB,NNOAB,NUAB,NNUAB,ICH
-        COMMON/PARAM/IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
+#include "uhf.fh"
+#include "param_cht3.fh"
 cmp!        common /my_mpi_world_com/ me, nprocs
 c
 cmp!        include 'task_info_inc'
@@ -971,8 +968,7 @@ cmp!        include 'ws_conn_inc'
 c
 c       logical llmpi
 c
-        integer IOPT
-        COMMON/IOIND/IOPT(96)
+#include "ioind.fh"
 c
 c ----  UHF -----
 c

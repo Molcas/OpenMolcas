@@ -10,8 +10,7 @@
 ************************************************************************
       REAL*8 FUNCTION GAM(M)
       IMPLICIT REAL*8 (A-H,O-Z)
-      COMMON /CRELOP/ PI,ZWP,SQPI,VELIT,PREA,CSQ,ZWPH32,FAK(26),
-     *ZWPH12,BCO(210),GA(20),IMAX
+#include "crelop.fh"
 *rl   COMMON /CRELOP/ PI,ZWP,SQPI
       SAVE /CRELOP/
       IF (MOD(M,2).EQ.0) GOTO 10

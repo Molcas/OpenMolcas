@@ -23,10 +23,7 @@
 #include "rassi.fh"
 #include "symmul.fh"
 #include "WrkSpc.fh"
-      COMMON/TRNSFRM/ NPQ,NBPQ,NBRS,LADX,NAVX,NAP,NAQ,NAR,NAS,
-     *               NBP,NBQ,NBR,NBS,ISP,ISQ,ISR,ISS,IAPR(8),
-     *               LMOP1,LMOQ1,LMOR1,LMOS1,NX1MX,NX2MX,
-     *               NX3MX,NVXPQ
+#include "trnsfrm.fh"
       DIMENSION KEEP(8),NBSX(8)
       LOGICAL   ISQARX
 C CLEAR THE ARRAY OF TRANSFORMED INTEGRALS.

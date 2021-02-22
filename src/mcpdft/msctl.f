@@ -33,7 +33,7 @@
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='MSCTL   ')
 #include "rasscf.fh"
@@ -48,12 +48,10 @@
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
 #include "ksdft.fh"
-      Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly
-      Integer ALGO
 
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
+#include "chotodo.fh"
+#include "chlcas.fh"
 
 *
       Character*8 Label
@@ -73,8 +71,7 @@
       integer  i_off1,i_off2,ifone
       integer isym,iash,jsym
       integer LUGS
-      LOGICAL Do_Rotate
-      COMMON /MSPDFT/ Do_Rotate
+#include "mspdft.fh"
       External IsFreeUnit
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 

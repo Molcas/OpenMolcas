@@ -867,7 +867,7 @@ c
 #include "chcc_files.fh"
 #include "wrk.fh"
 #ifdef _MOLCAS_MPP_
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
 c       help variables
         character*6 LunName
@@ -1009,7 +1009,7 @@ c
 #include "chcc1.fh"
 #include "o2v4.fh"
 #ifdef _MOLCAS_MPP_
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
 c        help variables
         integer aSGrp,bSGrp,abSGrp,bSGrpUp,cSGrp,cdSGrp
@@ -1075,7 +1075,7 @@ c
 #include "chcc1.fh"
 #include "o2v4.fh"
 #ifdef _MOLCAS_MPP_
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
 c        help variables
         integer aSGrp,bSGrp,abSGrp,bSGrpUp,cSGrp
@@ -1130,7 +1130,7 @@ c
 #include "chcc1.fh"
 #include "o2v4.fh"
 #ifdef _MOLCAS_MPP_
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
 c        help variables
         integer aSGrp,bSGrp,abSGrp,bSGrpUp,cSGrp,cdSGrp,dSGrp,dSGrpUp
@@ -1194,7 +1194,7 @@ c
 #include "chcc1.fh"
 #include "o2v4.fh"
 #ifdef _MOLCAS_MPP_
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
 c        help variables
         integer abSGrp,cSGrp,cdSGrp,dSGrp,dSGrpUp

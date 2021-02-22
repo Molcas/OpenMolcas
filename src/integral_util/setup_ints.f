@@ -34,7 +34,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
-#include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "stdalloc.fh"
 #include "setup.fh"

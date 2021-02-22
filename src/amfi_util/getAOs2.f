@@ -13,7 +13,7 @@
 cbs   get expansions of atomic orbitals in contracted functions
 #include "para.fh"
 #include "param.fh"
-      common /nucleus/ charge,Exp_finite
+#include "nucleus.fh"
       integer closedshells(0:LMAX),openshells(0:LMAX)
       call getocc_ao(int(charge),closedshells,openshells)
       do lrun=0,lhigh

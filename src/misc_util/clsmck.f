@@ -40,9 +40,6 @@
 ************************************************************************
       Implicit Integer (A-Z)
 *
-#include "MckRc.fh"
-#include "MckFlags.fh"
-#include "SysDef.fh"
 #include "MckDat.fh"
 *----------------------------------------------------------------------*
 *     Check file status                                                *

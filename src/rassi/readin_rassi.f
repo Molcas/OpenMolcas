@@ -30,13 +30,11 @@
       INTEGER MXPLST
       PARAMETER (MXPLST=50)
       CHARACTER*8 TRYNAME
-      Integer ALGO,Nscreen
-      Real*8  dmpk, tmp
-      Logical timings, Estimate, Update, Deco, PseudoChoMOs
+      Real*8 tmp
       Logical lExists
-      Common /CHORASSI / ALGO,Nscreen,dmpk
-      COMMON /CHOTIME / timings
-      COMMON /LKSCREEN / Estimate, Update, Deco, PseudoChoMOs
+#include "chorassi.fh"
+#include "chotime.fh"
+#include "lkscreen.fh"
       Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
       Integer LuIn
       Integer NFLS

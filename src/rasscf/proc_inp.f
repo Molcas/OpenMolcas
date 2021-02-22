@@ -83,23 +83,18 @@
       Dimension iMAlter(MaxAlter,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
-      Logical DoCholesky,timings,DensityCheck
 #ifdef _DMRG_
 * DMRG-NEVPT2 variables: MPS compression, 4-RDM evaluation
 #include "nevptp.fh"
 #endif
-      Logical DoLocK,Deco
-      Logical Estimate,Update
-      Integer ALGO,Nscreen
-      Real*8  dmpk,ChFracMem
       Logical DBG, exist
 
-      Common /CHLCAS / DoCholesky,ALGO
-      COMMON /CHODENSITY/ DensityCheck
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
-      COMMON /CHOSCREEN/ Estimate,Update
-      COMMON /CHOPAR/ ChFracMem
+#include "chlcas.fh"
+#include "chodensity.fh"
+#include "chotime.fh"
+#include "cholk.fh"
+#include "choscreen.fh"
+#include "chopar.fh"
 
       Integer IScratch(10)
 * Label informing on what type of data is available on an INPORB file.
@@ -2004,14 +1999,14 @@ C orbitals accordingly
 *--- This block is to process the DEFINEDET -------------------
         if(KeyDEFI) then
           call setpos(luinput,'DEFI',line,irc)
-          allocate(character(len=2000) :: buffer)
+          call mma_allocate(buffer,2000)
           if(irc.ne._RC_ALL_IS_WELL_) goto 9810
           ReadStatus = ' Failure reading Definedet.'
           Read(luinput,'(A)',end=9910,Err=9920) buffer
           ReadStatus = ' O.K. reading Definedet.'
-          allocate(character(len=len_trim(buffer)) :: definedet)
+          call mma_allocate(definedet,len_trim(buffer))
           definedet(:) = trim(buffer)
-          deallocate(buffer)
+          call mma_deallocate(buffer)
           write(6,*)'definedet read in proc_inp of size:', nactel
           write(6,*) definedet
         end if

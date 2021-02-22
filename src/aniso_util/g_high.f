@@ -79,7 +79,6 @@ C     dim ---  the multiplicity of the effective spin
 C
       Implicit None
       Integer, parameter :: wp=kind(0.d0)
-#include "barrier.fh"
 #include "stdalloc.fh"
       Integer, intent(in)         :: dim, iMLTPL, iprint
       Real (kind=8), intent(in)  :: ESOM(dim), cryst(6), coord(3)
@@ -139,12 +138,12 @@ C
 !----------------------------------------------------------------------
       CALL atens(dipsom, dim, gtens, maxes, 2 )
 c  save data for construction of the blocking barriers
-      Do i=1,3
-        Do j=1,3
-          axes(iMLTPL,i,j)=0.0_wp
-          axes(iMLTPL,i,j)=maxes(i,j)
-        End Do
-      End Do
+!     Do i=1,3
+!       Do j=1,3
+!         axes(iMLTPL,i,j)=0.0_wp
+!         axes(iMLTPL,i,j)=maxes(i,j)
+!       End Do
+!     End Do
 c compute the magnetic axes in the crystalographic coordinate system, If requested:
       If(do_structure_abc) Then
         axes_in_abc=0.0_wp

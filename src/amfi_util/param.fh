@@ -45,7 +45,7 @@ cbs   the numbers of primitive and contracted functions for each l-value
       common /dims/ nprimit(0:Lmax),ncontrac(0:Lmax),nprimit_keep,
      *ncontrac_keep
 cbs   scratch should explain itself ...........
-      common /scratch/
+      common /scratch_amfi/
      *scratch4(4*MxprimL*MxprimL),
      *mcombina(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),
      *cntscrtch(MxprimL,MxcontL,0:Lmax)
@@ -75,11 +75,7 @@ cbs   common block with the cartesian integrals
      *mcombcart(2,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax,-Lmax:Lmax),
      *istartX,istartY,istartZ,
      *isignM(-Lmax:Lmax)
-cbs   the following array includes information about
-cbs   odd powers of  x y z in the real harmonics
-cbs   this is used to check whether integrals in the
-cbs   cartesian representation appear
-      common  /ipowxyz/ ipowxyz(3,-Lmax:Lmax,0:Lmax)
+#include "ipowxyz.fh"
 c     common /onepar/ ! one-particle integrals
 c    *oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
 c    *onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax)

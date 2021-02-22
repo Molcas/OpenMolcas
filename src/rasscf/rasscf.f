@@ -56,12 +56,10 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use write_orbital_files, only : OrbFiles, putOrbFile
-
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
-
       use orthonormalization, only : ON_scheme
 #ifdef _FDE_
       use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis,
@@ -79,7 +77,6 @@
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "input_ras.fh"
-
 #include "rasscf.fh"
 #include "rasrc.fh"
 #include "general.fh"
@@ -109,7 +106,6 @@
 #endif
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
-      Logical DoQmat,DoActive
       Logical IfOpened
 #ifdef _DMRG_
       Logical Do_ESPF
@@ -118,15 +114,11 @@
 #endif
 
 * --------- Cholesky stuff:
-      Integer ALGO
-      Logical DoCholesky
-      Logical timings,DoLock,Deco
-      Integer Nscreen
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
-      COMMON /CHOPAR/ ChFracMem
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+#include "chotodo.fh"
+#include "chlcas.fh"
+#include "chopar.fh"
+#include "chotime.fh"
+#include "cholk.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 * --------- FCIDUMP stuff:
@@ -153,13 +145,15 @@
 #endif
       Dimension Dummy(1)
 
-
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
 
 * Set the return code(s)
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
+
+* Set the HDF5 file id (a proper id will never be 0)
+      wfn_fileid = 0
 
 * Set some Cholesky stuff
       DoActive=.true.
@@ -273,8 +267,6 @@
       else if (Do_CC_CI) then
         allocate(CI_solver, source=CC_CI_solver_t())
       end if
-
-
 
 *
 * If this is not CASDFT make sure the DFT flag is unset
@@ -1547,6 +1539,7 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
+
 *
 * Convergence check:
 * check is done on largest BLB matrix
@@ -1915,6 +1908,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
 2009      Call OrbFiles(JOBIPH,IPRLEV)
+
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************

@@ -61,8 +61,7 @@
       Logical AllowFlip
       Logical Scram, em_On
 *
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "spave.fh"
       Real*8 Ovlp(nFO)
       Save iSeed
       Data iSeed/13/

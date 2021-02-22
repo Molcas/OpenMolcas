@@ -18,9 +18,7 @@
       Integer   Index(50), Lambda_all(1275), mDCR_all(1275),
      &          iDCR_all(0:7,1275)
       Save   Index, Lambda_all, mDCR_all, iDCR_all
-      Logical   Done(1275)
-      Common /DCR_Done/ Done
-      Common /DCR_nIndex/ nIndex
+#include "dcr.fh"
 *
       Ind1=0
       Do i = 1, nStab1-1
@@ -79,9 +77,7 @@
       End
 *
       Subroutine DCR_Init
-      Logical   Done(1275)
-      Common /DCR_Done/ Done
-      Common /DCR_nIndex/ nIndex
+#include "dcr.fh"
       nindex=0
       Do I=1,1275
          Done(I)=.False.

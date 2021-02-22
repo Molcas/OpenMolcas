@@ -36,7 +36,6 @@
       use CC_CI_mod, only: Do_CC_CI
 
       Implicit Real*8 (A-H,O-Z)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -56,10 +55,8 @@
       Character*3 SNAC
 #endif
       Logical DoCholesky
-      Logical DoLocK,Deco, lOPTO
-      Real*8  dmpK
-      Integer nScreen
-      COMMON /CHOLK / DoLocK,Deco,dmpk,Nscreen
+      Logical lOPTO
+#include "cholk.fh"
 #ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
@@ -84,7 +81,6 @@
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
       IF (IPRLEV.EQ.SILENT) GOTO 900
-
 *----------------------------------------------------------------------*
 *     Print the project title                                          *
 *----------------------------------------------------------------------*

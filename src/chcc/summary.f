@@ -55,7 +55,7 @@ c
 #include "o3v3.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
         integer NvGrp,LunAux,maxdim
         real*8 E1,E2,E2os

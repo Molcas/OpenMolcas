@@ -355,7 +355,7 @@ c-----------------------------------------------------------
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       line=lin
       lrg=lrg0
       lrs=lrs0
@@ -383,7 +383,7 @@ c-----------------------------------------------------------
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       parameter (two=2.0d+00,half=0.5d+00)
       line=lin
       lrg=lrg0
@@ -557,7 +557,7 @@ c-----------------------------------------------------------
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !td(13-1) (22)a&(23)
 !td(13-1) a&(23)c'(22)
 !td(13-2) a&(23)b&r(23)b^r(32)
@@ -618,7 +618,7 @@ c           call prodab_1(3,jpel,iwdl,iwdr,jwl,jwr,wl2,jper,list2,list3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !t1d1(15-1)  ar(13)-
 !t1d1(15-1)  ar(13)-c'(11)-
 
@@ -823,7 +823,7 @@ c-----------------------------------------------------------
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       jmlr=mul_tab(jml,jmr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
@@ -915,7 +915,7 @@ c           call prodab_1(3,jpel,iwdl,iwdr,jwl,jwr,wl2,jper,list2,list3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       jmlr=mul_tab(jml,jmr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
@@ -1002,8 +1002,7 @@ c           call prodab_1(3,jpel,iwdl,iwdr,jwl,jwr,wl2,jper,list2,list3)
 
       subroutine ext_space_loop_g()
 #include "drt_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ism=0
       do inx=18,25
@@ -1040,7 +1039,7 @@ c           call prodab_1(3,jpel,iwdl,iwdr,jwl,jwr,wl2,jper,list2,list3)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       lra=kk(jpel)-1
       jml=mod((jpadl-1),8)
       jmr=mod((jpad-1),8)

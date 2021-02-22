@@ -14,7 +14,7 @@
       subroutine span1_cvb(c,nvec,s,n,metr)
       implicit real*8 (a-h,o-z)
 #include "malloc_cvb.fh"
-      common /span_comcvb/iaddr,nvecmx,nvtot
+#include "span_comcvb.fh"
       dimension c(n,nvec),s(*)
 
       nvremain=nvec

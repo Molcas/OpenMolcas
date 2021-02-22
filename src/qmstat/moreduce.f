@@ -17,7 +17,6 @@
 #include "qm2.fh"
 #include "numbers.fh"
 #include "WrkSpc.fh"
-*Removed by Valera or maybe it wasn't in his version #include "MolcasQmStat.fh"
 #include "lenin.fh"
 
       Parameter (ReduceWarning=0.5d0)

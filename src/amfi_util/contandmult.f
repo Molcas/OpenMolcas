@@ -24,7 +24,7 @@
      *          onecart(mxcontL,MxcontL,(Lmax+Lmax+1)*(Lmax+1),Lmax,3),
      *          onecontr(mxcontL,MxcontL,-Lmax:Lmax,3,Lmax),
      *          oneoverR3((MxprimL*MxprimL+MxprimL)/2,Lmax)
-      common /nucleus/ charge,Exp_Finite
+#include "nucleus.fh"
 *
       IPNT(I,J)=(J*J-J)/2+I
 *

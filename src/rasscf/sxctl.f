@@ -62,7 +62,6 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
-
       Implicit Real*8 (A-H,O-Z)
 
       Dimension CMO(*),OCC(*),D(*),P(*),PA(*),FI(*),FA(*),D1A(*)
@@ -81,14 +80,12 @@
       Integer IndType(56)
       Character*80 VecTyp
       Save nCall
-      Logical DoActive,DoQmat,DoCholesky,TraOnly
-      Integer ALGO
+      Logical TraOnly
       Dimension P2act(1),CIDUMMY(1)
 
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
-      ipDMAT=ip_Dummy
-      nDMAT = 1
+#include "chotodo.fh"
+#include "chlcas.fh"
+
 
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.

@@ -89,11 +89,6 @@ endif ()
 
 option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
-if (GA)
-  mark_as_advanced (CLEAR GA_BUILD)
-else ()
-  mark_as_advanced (FORCE GA_BUILD)
-endif ()
 
 option (OPENMP "Enable multi-threading." OFF)
 
@@ -2000,6 +1995,8 @@ if (EFPLIB)
     link_directories (${proj_bin})
     list (APPEND EXTERNAL_PROJECTS ${projname})
 
+    list (APPEND integral_util_incs ${proj}/interface)
+
     set (EFP_LIBRARIES efp)
 
     message ("-- EFP_LIBRARIES: ${EFP_LIBRARIES}")
@@ -2110,7 +2107,7 @@ if (MolGUI)
   include (ExternalProject)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
-                       GIT_TAG f839f89edc9554efb54aa9f7905f0573410baa40
+                       GIT_TAG 2667899eac1195c28e1a33c6f3ae28b6350fe52c
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

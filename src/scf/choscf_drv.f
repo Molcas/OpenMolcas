@@ -49,23 +49,19 @@ C
       Integer nBas(nSym), MinMem(nSym),rc
       Parameter (MaxDs = 3)
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
-      Integer Lunit(8)
-      Real*8 FactC(MaxDs),FactX(MaxDs),ExFac,dmpk,dFKmat
+      Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
       Integer ipDLT(MaxDs),ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2),ipMOs(2),ipKLT(2)
-      Integer ALGO,NSCREEN
-      Logical REORD,DECO,Cho_AUfb
       Real*8 FLT(*),FLT_ab(*)
       Real*8 DSQ(*),DSQ_ab(*),DLT(*),DLT_ab(*)
       character ww*512
 
-      Common /CHOUNIT / Lunit
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
-      Common /CHOAUF / Cho_Aufb
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "chounit.fh"
+#include "choscf.fh"
+#include "choauf.fh"
+#include "spave.fh"
 
       Integer  ip_of_Work, ip_of_iWork
       External ip_of_Work, ip_of_iWork
