@@ -78,7 +78,7 @@ c.3 - invert the CMO matrix
         write (6,*) 'Dopice 2 ',rc
         end if
 
-        call CHO_CC_drv(rc,(/no/),(/0/),(/nv/),Cmo)
+        call CHO_CC_drv(rc,(/no/),(/0/),(/nv/),CMO)
         if (printkey.ge.10) then
         write (6,*) 'Dopice 3 '
         end if
@@ -101,12 +101,12 @@ c
 c
 c -------------------------------------
 c
-      Subroutine read_mo (Cmo,nfro,no,nv,ndel,nbas,nOrb)
+      Subroutine read_mo (CMO,nfro,no,nv,ndel,nbas,nOrb)
       use Data_Structures, only: CMO_Type
       Implicit Real*8 (A-H,O-Z)
 
 *     declaration of calling arguments
-      Type (CMO_Type) Cmo
+      Type (CMO_Type) CMO
       Integer lthCMO
       integer nfro_scf(8)
       integer nfro
@@ -170,7 +170,7 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) CMO
@@ -241,14 +241,7 @@ C ==================================================================
 
 c --- Various offsets & pointers
 c ------------------------------
-      ipOrb(1)=ip_of_Work(CMO%CMO_Full(1))
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NP=NPORB(ISYM-1)
-        NP2=NB*NP
-        ipOrb(ISYM)=ipOrb(ISYM-1)+NP2 !  MO coeff. symm pointers
-      END DO
-
+      Call Map_to_CMO(CMO,ipOrb)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -419,7 +412,7 @@ C --------------------------------------------------------------------
 
                     CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
      &                         One,Work(ipLJpb),NAp,
-     &                             Work(ipOrb(iSymb)),NAq,
+     &                             CMO%pA(iSymb)%A,NAq,
      &                        Zero,Work(ipLJpq),NAp)
 
                       End Do
