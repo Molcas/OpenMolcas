@@ -50,13 +50,14 @@ C     Note: frozen and deleted orbitals are not included in the
 C           transformation.
 C
       use Data_Structures, only: CMO_Type, Deallocate_CMO
+      use Data_Structures, only: Allocate_CMO
       Implicit Real*8 (a-h,o-z)
       Integer nCMOs, ihdf5
       real*8  CMO(nCMOs)
       Integer nSym
       Integer nBas(nSym), nOrb(nSym)
       Integer nFro(nSym), nIsh(nSym), nAsh(nSym)
-      Integer nSsh(nSym), nDel(nSym)
+      Integer nSsh(nSym), nDel(nSym), nAux(8)
       Character*6 BName
       Logical Do_int
       Logical Do_ChoInit
@@ -96,17 +97,8 @@ C
          Call Abend()
       End If
 
-      CHMO%nSym=nSym
-      Call mma_allocate(CHMO%CMO_Full,nCMOs,LABEL='CHMO')
-      iE = 0
-      Do iSym = 1, nSym
-         n1 = nBas(iSym)
-         n2 = n1 - nFro(iSym) - nDel(iSym)
-         iS = iE + 1
-         iE = iE + n1 * n2
-
-         CHMO%pA(iSym)%A(1:n1,1:n2) => CHMO%CMO_Full(iS:iE)
-      End Do
+      nAux(1:nSym) = nBas(1:nSym) - nFro(1:nSym) - nDel(1:nSym)
+      Call Allocate_CMO(CHMO,nBas,nAux,nSym)
 
       Call Transp_MOs(CMO,CHMO%CMO_Full,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 c
@@ -143,7 +135,7 @@ c
               Call Abend()
            End If
         End If
-        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CHMO%CMO_Full,BName,
+        call CHO_TR_drv(irc,nIsh,nAsh,nSsh,CHMO,BName,
      &                      Do_int,ihdf5,xInt,lXint)
         If (Do_ChoInit) Then
            Call Cho_X_final(irc)
@@ -185,12 +177,14 @@ C
 #endif
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: CMO_Type, Map_to_CMO
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
-      Real*8    Xint(0:lXint-1), POrb(*)
+      Real*8    Xint(0:lXint-1)
       Character*6 BName
 
+      Type (CMO_Type) Porb
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   timings,DoRead,Do_int
       Integer   nPorb(8),ipOrb(8)
@@ -277,15 +271,7 @@ c -----------------------------------
 
 C ==================================================================
 
-c --- Various offsets & pointers
-c ------------------------------
-      ipOrb(1)=ip_of_Work(Porb(1))
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NP=NPORB(ISYM-1)
-        NP2=NP*NB
-        ipOrb(ISYM)=ipOrb(ISYM-1)+NP2 !  MO coeff. symm pointers
-      END DO
+      Call Map_to_CMO(Porb,ipOrb)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -497,7 +483,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
      &                            One,Lpb(iSymb)%A(:,JVC),NAp,
-     &                                Work(ipOrb(iSymb)),NAp,
+     &                                Porb%pA(iSymb)%A,NAp,
      &                           Zero,Lpq(:,jVC),NAp)
 
                       End Do
@@ -610,7 +596,7 @@ C --------------------------------------------------------------------
 
                         CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
      &                             One,Lpb(iSymp)%A(:,JVC),NAp,
-     &                                 Work(ipOrb(iSymb)),NAq,
+     &                                 Porb%pA(iSymb)%A,NAq,
      &                            Zero,Lpq(:,JVC),NAp)
 
                        End Do

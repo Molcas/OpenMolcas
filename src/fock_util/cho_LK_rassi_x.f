@@ -1441,7 +1441,8 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
-     &                                Work(ipAorb(iSymb,kDen)),NAw,
+*    &                                Work(ipAorb(iSymb,kDen)),NAw,
+     &                                Ash(kDen)%pA(iSymb)%A,NAw,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do

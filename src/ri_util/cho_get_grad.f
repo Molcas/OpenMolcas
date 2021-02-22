@@ -176,18 +176,6 @@
 ** to store this offset array defined later on
 *
       iOffShp(i,j) = iiBstRSh(i,j,2)
-
-*
-** Jonas 2010
-** Thomas Bondo Pedersen, 2013:
-**   Usage of these statement functions has been commented out below,
-**   hence I comment them out here, too.
-*
-ctbp  ijList(iSym,jSym,i,j,jDen,jDen2) = ipijList +
-ctbp &                        iChOrbR(iSym,jSym,jDen) +
-ctbp &                        i + (j-1)*(nChOrb_(iSym,jDen2)+1)
-ctbp  ijListTri(iSym,i,j,jDen) = ipijListTri + iChOrbT(iSym,jDen) +
-ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1576,7 +1564,7 @@ C --- subtraction is done in the 1st reduced set
 
                              CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
      &                                  One,Work(ipLvb),NAv,
-     &                                      Work(ipAorb(iSymb,iMO2)),
+     &                                      Aorb(iMO2)%pA(iSymb)%A,
      &                                 NAv,Zero,Work(ipLvw),NAv)
 
                             End Do
@@ -1602,7 +1590,7 @@ C --- subtraction is done in the 1st reduced set
 
                              CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                                  One,Work(ipLvb),NAv,
-     &                                      Work(ipAorb(iSymb,iMO2)),
+     &                                      Aorb(iMO2)%pA(iSymb)%A,
      &                                 NAw,Zero,Work(ipLvw),NAv)
 
                             End Do
