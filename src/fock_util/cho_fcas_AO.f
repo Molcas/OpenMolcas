@@ -42,13 +42,13 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) POrb(3)
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
-      Integer   ipOrb(8,3),nOrb(8,3)
+      Integer   nOrb(8,3)
       Integer   ISTAV(8),iSkip(8)
       Integer   ISTLT(8),ISZW(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tqmat(2)
@@ -136,10 +136,6 @@ c --------------------
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix
       END DO
-
-      Call Map_to_CMO(POrb(1),ipOrb(:,1))
-      Call Map_to_CMO(POrb(2),ipOrb(:,2))
-      Call Map_to_CMO(POrb(3),ipOrb(:,3))
 
       Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
 
@@ -427,8 +423,8 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                CALL CWTIME(TCR3,TWR3)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+               CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
      &                         ipLab,iSkip,DoRead)
 
 
@@ -501,8 +497,8 @@ C --------------------------------------------------------------------
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
 
-                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+                  CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -567,8 +563,8 @@ C --------------------------------------------------------------------
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+               CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
      &                            ipLab,iSkip,DoRead)
 
 
