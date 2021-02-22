@@ -46,11 +46,7 @@
       Implicit Integer (A-Z)
 *
 #include "FileIDs.fh"
-#include "MckRc.fh"
-#include "MckFlags.fh"
-#include "SysDef.fh"
 #include "MckDat.fh"
-
 *
       Character*(*) Name
       Character*8   FnMCK

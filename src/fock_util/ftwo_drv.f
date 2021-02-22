@@ -20,9 +20,8 @@
 
       Integer nBas(8), nAsh(8), nSkipX(8)
       Dimension CMO(*) , D1A(*) , DI(*), FA(*)
-      Logical DoCholesky,REORD,DECO
-      Integer ALGO
-      COMMON /CHORAS/ REORD,DECO,ALGO
+      Logical DoCholesky
+#include "choras.fh"
 
 
       Call DecideOncholesky(DoCholesky)

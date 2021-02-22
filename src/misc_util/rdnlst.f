@@ -50,7 +50,7 @@
       Character*80 Line
       Integer StrnLn
       Logical No_Input_OK
-      common /igetline/igetline,myunit
+#include "igetline.fh"
         igetline=0
 *----------------------------------------------------------------------*
 *     push the entry name on the calling stack                         *

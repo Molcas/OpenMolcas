@@ -14,7 +14,7 @@
 * Alter the correlating orbital space by various freeze-delete schemes.
 *
 ************************************************************************
-      use inputdata
+      use InputData, only: Input
       use output_caspt2, only: EMP2
       implicit none
 #include "stdalloc.fh"

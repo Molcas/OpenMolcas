@@ -28,7 +28,7 @@
 *                                                                      *
 *     This subroutine has two entry points. The first, called          *
 *     SetTim is used to start a global timer. The second, called       *
-*     Timing, returns the cpu time used since the timer has been       *
+*     Timing, returns the cpu time used since the timer has been set   *
 *     and, in addition the cpu time used since the timer has been      *
 *     called the previous time.                                        *
 *                                                                      *

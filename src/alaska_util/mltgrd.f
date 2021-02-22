@@ -40,9 +40,7 @@
 
 *     Local variables
       Logical ABeq(3)
-      parameter (lforce=20)
-      real*8 Force(lforce)
-      common /finfld/Force
+#include "finfld.fh"
 *                                                                      *
 ************************************************************************
 *

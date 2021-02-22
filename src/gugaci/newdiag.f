@@ -60,8 +60,7 @@ c...end of matmulv
 
       subroutine cimtinverse(ndimt,vrouk)
 #include "drt_h.fh"
-      common /scratch/ tmpdir,len_str
-      character*256 tmpdir
+#include "scratch.fh"
 !      character*256 filename
 
       parameter (maxdimlu=1000,maxdimgit=10000)

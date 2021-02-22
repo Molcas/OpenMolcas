@@ -340,8 +340,8 @@ c...end of readint
 #include "drt_h.fh"
       integer, pointer :: jph(:),jeh(:),jwh(:)
       REAL*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
 
       allocate(jph(maxpl))
       allocate(jeh(maxpl))
@@ -361,8 +361,8 @@ c...end of readint
 #include "drt_h.fh"
       integer, pointer :: jph(:),jeh(:),jwh(:)
       REAL*8, pointer :: th(:),thh(:)
-      common/ptlph/jph,jeh,jwh
-      common/ptlphv/th,thh
+#include "ptlph.fh"
+#include "ptlphv.fh"
 
       deallocate(jph)
       deallocate(jeh)

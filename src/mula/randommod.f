@@ -70,7 +70,7 @@ C!
       Real*8           U(97),c,cd,cm
       Integer           i97,j97
       Logical           test
-      common /myrand/ U,c,cd,cm,i97,j97,test
+#include "myrand.fh"
       test = .false.
 C!
       If (( ij.lt.0 ).or.( ij.gt.31328 ).or.
@@ -135,7 +135,7 @@ C!
       Real*8 rvec(*)
       Real*8         uni
       Integer        ivec
-      common /myrand/ U,c,cd,cm,i97,j97,test
+#include "myrand.fh"
 C!
       If ( .not.test ) Then
       write(6, '(a)')

@@ -23,8 +23,7 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-      COMMON /SEGTAB/ IC1(26),IC2(26),ITVPT(26),IBVPT(26),ISVC(26),
-     &                NIVR,LIVR,NSGMNT,LSGMNT
+#include "segtab.fh"
 C INPUT PARAMETERS:
       DIMENSION MVL(NMIDV,2),MVR(NMIDV,2)
       DIMENSION IDRT(NVERT,5),ISGMNT(NVERT,26)

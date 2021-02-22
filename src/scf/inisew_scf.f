@@ -33,10 +33,7 @@
       External EFP_On
 #include "print.fh"
 #include "iprlv.fh"
-      Logical Do_Tw
-      COMMON  / Tw_corr_L   / Do_Tw
-      Logical Do_Addc
-      COMMON  / ADDcorr_L   / Do_Addc
+#include "addcorr.fh"
 *
 *
       Logical DSCF, RF_On, Langevin_On, PCM_On, EFP_On

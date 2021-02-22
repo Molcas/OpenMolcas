@@ -69,15 +69,14 @@
       Integer   Lunit,KSQ1(nSym),ISTSQ(nSym),ISTLT(nSym),MinMem(nSym)
       Integer   ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer   ipFLT(nDen),ipFSQ(nDen)
-      Common /CHOUNIT / Lunit(8)
+#include "chounit.fh"
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
       Logical   DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
       Real*8    tread(2),tcoul(2),texch(2)
-      Logical   timings
 
-      COMMON   /CHOTIME /timings
+#include "chotime.fh"
       Character*50 CFmt
       Character*11 SECNAM
       Parameter (SECNAM = 'CHO_FOCKTWO')

@@ -38,9 +38,6 @@
 *
       Implicit Integer (A-Z)
 *
-#include "OneRc.fh"
-#include "OneFlags.fh"
-
 #include "OneDat.fh"
 *---------------------------------------------------------------------*
 *     Start procedure                                                 *

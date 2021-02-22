@@ -14,7 +14,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
       DIMENSION IORB(MXVERT)
       nijj=0
       IEL=2

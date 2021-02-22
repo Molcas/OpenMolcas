@@ -245,7 +245,8 @@
       end subroutine make_inp
 
       subroutine cleanup()
-        if (allocated(definedet)) deallocate(definedet)
+        use stdalloc, only: mma_deallocate
+        if (allocated(definedet)) call mma_deallocate(definedet)
       end subroutine cleanup
 
       end module fciqmc_make_inp

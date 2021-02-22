@@ -17,7 +17,6 @@
 #include "qminp.fh"
 #include "integral.fh"
 #include "WrkSpc.fh"
-**Taked out by Valera #include "MolcasQmStat.fh"
 #include "lenin.fh"
 
       Dimension V2(MxBasC,MxOrb_C)

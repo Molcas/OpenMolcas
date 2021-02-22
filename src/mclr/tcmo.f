@@ -19,7 +19,7 @@
       Real*8 A(*)
       Real*8, Allocatable:: Temp(:)
       Real*8, Allocatable:: CMOInv(:)
-      Integer*8, Allocatable :: iCMOInv(:)
+      Integer, Allocatable :: iCMOInv(:)
 
       Call mma_allocate(Temp,nDens2,Label='Temp')
       Call ReLoad(A,isym,norb,nbas)

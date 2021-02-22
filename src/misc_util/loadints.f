@@ -44,7 +44,6 @@
 *
 #include "Molcas.fh"
 #include "TwoDat.fh"
-#include "TwoRc.fh"
       Logical Square
 *
 *     loop over all symmetry blocks

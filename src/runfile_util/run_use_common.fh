@@ -17,7 +17,7 @@
       Integer   nTocIA
       Parameter ( nTocIA = 128 )
       Integer   nTocIS
-      Parameter ( nTocIS = 64 )
+      Parameter ( nTocIS = 128 )
 
       integer i_run_CA_used
       common /run_ca_s/  i_run_CA_used(nTocCA)

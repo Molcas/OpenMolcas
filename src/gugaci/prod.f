@@ -78,7 +78,7 @@ c     26 feb 2007 - revised
 c
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-      common /cont_tmp/icount_ext
+#include "cont_tmp.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
 c     write(6,*) ' td_test _1/2',' dt_test '
 
@@ -1691,8 +1691,7 @@ c
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 c      write(6,*) 'sd_test 2/2','  td_test_2/2 012'
 
 

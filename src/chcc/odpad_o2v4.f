@@ -3796,7 +3796,7 @@ c
         implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
         integer NvGrp,NvSGrp,LunAux
 c
@@ -3956,7 +3956,7 @@ c
         use Para_Info, only: MyRank
         implicit none
 #include "chcc1.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #include "o2v4.fh"
 c
         integer NaGrp,NbeGrp,NaSGrp,NbeSgrp
@@ -4116,7 +4116,7 @@ c
         implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
         integer aSGrp,beSGrp,bSGrp,length
 c
@@ -4175,7 +4175,7 @@ c
         implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 c
         integer aSGrp,bSGrp,cSGrp,dSGrp,length
 c

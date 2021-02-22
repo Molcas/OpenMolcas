@@ -25,9 +25,6 @@
       Character*5 OP2
       Character*6 Label
       CHARACTER*4 IRL
-      Integer ip(40)
-      Logical Mark
-      Common /Memilimem/ num,ip,Mark
       INTRINSIC LEN
 #include "memman.fh"
 *

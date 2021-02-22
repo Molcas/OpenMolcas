@@ -62,8 +62,7 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-      Integer iBDsh(MxShll*8)
-      Common /BDshell/ iBDsh
+#include "bdshell.fh"
       Integer  Cho_irange
       External Cho_irange
 *     Local arrays
@@ -82,8 +81,8 @@
 *
       Integer iSD4(0:nSD,4)
       save MemPrm
-      Logical Timings,FlipFlop
-      COMMON /CHOTIME / timings
+      Logical FlipFlop
+#include "chotime.fh"
 #include "ymnij.fh"
 *                                                                      *
 ************************************************************************

@@ -56,7 +56,7 @@
       Subroutine SysWarnMsg(Location,Text1,Text2)
       Character*(*) Location,Text1, Text2
       Character Str*256
-      common /WarnMess/ MaxWarnMess
+#include "warn.fh"
       Level=1
 c for these messages assume that Level is 1
       if(Level.gt.MaxWarnMess) MaxWarnMess=Level

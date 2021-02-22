@@ -27,13 +27,13 @@ C********************************************************
 #ifdef _DEBUGPRINT_
       Logical Debug
 #endif
-      Logical add,timings
+      Logical add
       Real*8  DLT(*),FLT(*)
       Real*8  tread(2),tcoul(2)
       Character*16  SECNAM
       Character*6   mode
       Character*50 CFmt
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
 
       parameter (SECNAM = 'CHO_FOCK_DFT_RED')
       parameter (zero = 0.0d0, one = 1.0d0)

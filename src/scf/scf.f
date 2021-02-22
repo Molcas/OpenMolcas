@@ -305,8 +305,7 @@ c     MemRsv=6*nBT
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "infso.fh"
-      Common /Save/ SIntTh_old, EThr_old, DThr_old, DltNTh_old,
-     &              FThr_old, ThrInt_Old
+#include "save.fh"
 *
       Write (6,*)
       Write (6,*) 'Temporary increase of thresholds...'
@@ -342,8 +341,7 @@ c     MemRsv=6*nBT
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "infso.fh"
-      Common /Save/ SIntTh_old, EThr_old, DThr_old, DltNTh_old,
-     &              FThr_old, ThrInt_Old
+#include "save.fh"
 *
       Write (6,*)
       Write (6,*) 'Restore thresholds...'

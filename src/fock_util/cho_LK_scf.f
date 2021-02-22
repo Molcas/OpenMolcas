@@ -49,13 +49,12 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoScreen
-      Logical   Estimate,Update
+      Logical   DoScreen
       Character*50 CFmt
       Character*10 SECNAM
       Parameter (SECNAM = 'CHO_LK_SCF')
-      COMMON    /CHOTIME /timings
-      COMMON    /CHOSCREEN/ Estimate,Update
+#include "chotime.fh"
+#include "choscreen.fh"
 
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
       parameter (FactCI = one)

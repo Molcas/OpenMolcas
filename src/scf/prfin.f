@@ -58,8 +58,7 @@
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "spave.fh"
 *
 *---- Define local variables
       Character Fmt*60

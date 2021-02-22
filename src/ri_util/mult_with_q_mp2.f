@@ -30,9 +30,8 @@
 *
       Character*15 SECNAM
       Parameter (SECNAM = 'Mult_with_Q_MP2')
-      Logical timings
 *
-      COMMON  /CHOTIME /timings
+#include "chotime.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

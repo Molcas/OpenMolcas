@@ -18,7 +18,7 @@ c  16 apr 2007 - bsuo - revised to use molcas intergrals
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
       integer :: noffset(maxrecord)
-      common /mcorb/ lsmorb(max_orb),noidx(8)
+#include "mcorb.fh"
       REAL*8, pointer :: x(:)
       dimension xfock(max_orb*(max_orb+1)/2)
 
@@ -206,7 +206,7 @@ c....end of readtwoeint
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
-      common /mcorb/ lsmorb(max_orb),noidx(8)
+#include "mcorb.fh"
       REAL*8, pointer :: x(:)
       dimension xfock(max_orb*(max_orb+1)/2)
 

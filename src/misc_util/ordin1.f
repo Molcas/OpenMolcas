@@ -60,8 +60,8 @@
 *     !!! Double buffering and asynchronous I/O is preseen !!!        *
 *                                                                     *
 *---------------------------------------------------------------------*
-      Character*1 Buf1
-      Common /TWOBUF/ Buf1(8*lStRec)
+      Character*1 Buf1(8*lStRec)
+      Save Buf1
 
 #include "SysDef.fh"
 *

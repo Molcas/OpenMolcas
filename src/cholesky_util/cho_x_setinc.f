@@ -21,7 +21,7 @@ C              cholesky.fh
 C              chosew.fh
 C              chovecbuf.f90
 C              chosubscr.fh
-C              chopar.fh
+C              chpari.fh
 C              cho_para_info.fh
 C              and some in the Module choarr.f90
 C
@@ -37,7 +37,7 @@ C
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chopar.fh"
+#include "chpari.fh"
 #include "cho_para_info.fh"
 
       Integer iLarge
@@ -216,7 +216,7 @@ C     --------------
       SubScrStat(2) = 0.0d0
       SSNorm      = 'tbp'
 
-C     chopar.fh.
+C     chpari.fh.
 C     -----------
 
       Call Cho_iZero(NumCho_Bak,8)

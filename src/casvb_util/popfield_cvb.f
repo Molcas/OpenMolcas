@@ -20,7 +20,7 @@ c  IFC=1 --> read to end of line only, no new line -- DISABLED in MOLCAS
 c  IFC=2 --> begin read from next line
       implicit real*8 (a-h,o-z)
 c      character*8 string
-      common /pop_cvb/ ifield,nfield,nfold
+#include "pop_cvb.fh"
       save initpop
       data initpop/0/
       if(initpop.eq.0) then
@@ -44,7 +44,7 @@ c  IFIELD > NFIELD will signify no read
       subroutine pushfield_cvb()
       implicit real*8 (a-h,o-z)
 c      character*8 string
-      common /pop_cvb/ ifield,nfield,nfold
+#include "pop_cvb.fh"
       if(ifield.eq.1.or.nfield.eq.-1)then
         call pushline_cvb()
         ifield=nfold
@@ -58,7 +58,7 @@ c      character*8 string
 c  Check if field is applicable:
       implicit real*8 (a-h,o-z)
       character*8 string
-      common /pop_cvb/ ifield,nfield,nfold
+#include "pop_cvb.fh"
       ierr=0
       if(nfield.eq.-1)ierr=1
       if(ifield.gt.nfield)ierr=2
@@ -74,7 +74,7 @@ c      call gtstring_cvb(string,ifield)
 c  Check if field is applicable:
       implicit real*8 (a-h,o-z)
       character*8 string
-      common /pop_cvb/ ifield,nfield,nfold
+#include "pop_cvb.fh"
       ierr=0
       if(nfield.eq.-1)ierr=1
       if(ifield.gt.nfield)ierr=2
@@ -91,7 +91,7 @@ c      call gtint_cvb(intval,ifield,jerr)
 c  Check if field is applicable:
       implicit real*8 (a-h,o-z)
       character*8 string
-      common /pop_cvb/ ifield,nfield,nfold
+#include "pop_cvb.fh"
       ierr=0
       if(nfield.eq.-1)ierr=1
       if(ifield.gt.nfield)ierr=2

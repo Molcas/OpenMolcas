@@ -32,7 +32,6 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "print.fh"
 #include "real.fh"

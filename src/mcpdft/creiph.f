@@ -77,7 +77,7 @@ C
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
-#include "sxci.fh"
+#include "sxci_mcpdft.fh"
 
 
       DO I=1,15
