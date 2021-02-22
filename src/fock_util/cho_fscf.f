@@ -30,11 +30,11 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, Map_to_CMO
+      use Data_structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,ipLab(8,2)
-      Integer   ipOrb(8,2),nOrb(8,2)
+      Integer   nOrb(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
@@ -101,7 +101,6 @@ c --------------------
 
       DO jDen=1,nDen
 
-         Call Map_to_CMO(POrb(jDen),ipOrb(:,jDen))
          nOrb(1,jDen)  = nForb(1,jDen)+nIorb(1,jDen)
 
          DO ISYM=2,NSYM
@@ -307,8 +306,8 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+                  CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
      &                            ipLab,iSkip,DoRead)
 
                   CALL CWTIME(TCR4,TWR4)
