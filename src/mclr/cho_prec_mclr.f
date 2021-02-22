@@ -407,7 +407,7 @@ c         !set index arrays at iLoc
 *
             inc2= ip_of_Work(ChoT(1))
             ipLpq(:) = ipLpq(:) - 1 + inc2
-            CALL CHO_X_getVtra2(irc,Lrs,LREAD,jVEC,JNUM,
+            CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,CMOt,
      &                        nIshe,ipLpq,iSkip,DoRead)
             ipLpq(:) = ipLpq(:) + 1 - inc2

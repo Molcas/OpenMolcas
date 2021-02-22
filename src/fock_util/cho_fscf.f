@@ -306,7 +306,7 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-                  CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
      &                            ipLab,iSkip,DoRead)
 

@@ -212,7 +212,7 @@ C --------------------------------------------------------------
 
          CALL CWTIME(TCT1,TWT1)
 
-         CALL CHO_X_getVtra2(irc,Lab,LREAD,jVEC,JNUM,
+         CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,nOcc,
      &                         ipLib,iSkip,DoRead)
 
