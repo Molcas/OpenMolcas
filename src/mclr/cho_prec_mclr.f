@@ -28,14 +28,14 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_structures, only: CMO_Type, Allocate_CMO
-      use Data_structures, only: Map_to_CMO, Deallocate_CMO
+      use Data_structures, only: Deallocate_CMO
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.fh"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),ipLpq(8)
-      Integer   LuAChoVec(8),ipCMOt(8),LuChoInt(2)
+      Integer   LuAChoVec(8),LuChoInt(2)
       Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),iSkip(8),
      &          nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
@@ -297,7 +297,6 @@
 **    Transpose CMO
 *
         Call allocate_CMO(CMOt,nIShe,nBas,nSym)
-        Call Map_to_CMO(CMOt,ipCMOt)
 
         ioff =0
         Do iSym=1,nsym
@@ -408,8 +407,8 @@ c         !set index arrays at iLoc
 *
             inc2= ip_of_Work(ChoT(1))
             ipLpq(:) = ipLpq(:) - 1 + inc2
-            CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
-     &                        JSYM,iSwap,IREDC,nMOs,kMOs,ipCMOt,
+            CALL CHO_X_getVtra2(irc,Lrs,LREAD,jVEC,JNUM,
+     &                        JSYM,iSwap,IREDC,nMOs,kMOs,CMOt,
      &                        nIshe,ipLpq,iSkip,DoRead)
             ipLpq(:) = ipLpq(:) + 1 - inc2
 
