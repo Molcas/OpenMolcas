@@ -11,7 +11,7 @@
       Subroutine cZeroMatrix(a,n)
 * fills all elements of a square Complex matrix of size n by Complex zero
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          ::  n
       Complex(kind=8)             :: a(n,n)
       !local
@@ -27,7 +27,7 @@ c------------------------------------------------------------------------
       Subroutine rZeroMatrix(a,n)
 * fills all elements of a square Real matrix of size n by Complex zero
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Real(kind=8)                :: a(n,n)
       !local
@@ -43,7 +43,7 @@ c------------------------------------------------------------------------
       Subroutine cZeroVector(a,n)
 * fills all elements of a Complex vector of size n by Complex zero
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer                      :: n
       Complex(kind=8)             :: a(n)
       !local
@@ -57,7 +57,7 @@ c------------------------------------------------------------------------
       Subroutine rZeroVector(a,n)
 * fills all elements of a Complex vector of size n by Complex zero
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Real(kind=8)                :: a(n)
       !local
@@ -71,7 +71,7 @@ c------------------------------------------------------------------------
       Subroutine cZeroMoment(a,n)
 * fills all elements of a Complex matrix of size a(3,n,n)  by Complex zero
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Complex(kind=8)             :: a(3,n,n)
       !local
@@ -88,7 +88,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine prMom(a,m,n)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Complex(kind=8)              :: M(3,n,n)
       !local
@@ -114,7 +114,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine prMom_herm(a,m,n)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Complex(kind=8)             :: M(3,n,n)
       !local
@@ -137,7 +137,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine pa_prMat(a,m,n)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Complex(kind=8)             :: M(n,n)
       !local
@@ -155,7 +155,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine pa_prMatR(a,m,n)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Real(kind=8)                :: M(n,n)
       !local
@@ -173,7 +173,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine print_ZFS(a,m,n)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer                      :: i,j,n,k,jEnd
       Complex(kind=8), intent(in) :: M(n,n)
       Character*(*)                :: a
@@ -221,7 +221,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine print_ZFS_eigenvectors(a,m,n)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer                      :: i,j,n,k,jEnd
       Complex(kind=8), intent(in) :: M(n,n) ! eigenvectors
       Character*(1)                :: a
@@ -264,7 +264,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       Subroutine print_ZFS_naoya(A,M,N)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: N ! dimension of the pseudospin
 !     complex parameters to print
       Complex(kind=8), intent(in) :: M(n,n)
@@ -337,7 +337,7 @@ c------------------------------------------------------------------------
 
       Subroutine print_CFP_alpha(nlanth,n,B,C)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
       Integer, intent(in)          :: nlanth  ! number of the lanthanide
 !     real and imaginary CF parameters
@@ -405,7 +405,7 @@ c------------------------------------------------------------------------
 
       Subroutine print_CFP_LCLU(n,B,C,print_all)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters
       Real(kind=8), intent(in)    :: B(n,0:n), C(n,0:n)
@@ -462,7 +462,7 @@ c------------------------------------------------------------------------
 
       Subroutine print_CFP_stev(n,B,print_all)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters
       Real(kind=8), intent(in)    :: B(n,-n:n)
@@ -541,7 +541,7 @@ c------------------------------------------------------------------------
 
       Subroutine print_CFP_naoya(N,A,print_all)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: N ! dimension of the pseudospin
 !     complex parameters to print
       Complex(kind=8), intent(in) :: A( (n-1), -(n-1):(n-1) )
@@ -645,7 +645,7 @@ c------------------------------------------------------------------------
 
       Subroutine print_MOM_ITO_stev(n,B,print_all)
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters, for x,y,z
       Real(kind=8), intent(in)    :: B(3,n,-n:n)

@@ -11,7 +11,7 @@
       Subroutine momloc2( N, NL, nneq,  neq, neqv, r_rot, nsites,
      &                    nexch, W, Z, dipexch, s_exch, dipso, s_so )
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer          :: N
       Integer          :: NL
       Integer          :: nneq

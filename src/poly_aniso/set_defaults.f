@@ -31,7 +31,7 @@
 c==================================================================
       Implicit None
 #include "mgrid.fh"
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 c definintion of the cluster
       Integer, intent(in)  :: nneq
       Integer, intent(out) :: neq(nneq)

@@ -15,9 +15,6 @@
 *                                                                      *
 ************************************************************************
       Module SCF_Arrays
-#ifdef _FDE_
-      Real*8, Dimension(:), Allocatable:: Emb
-#endif
       Real*8, Dimension(:), Allocatable:: Ovrlp, OneHam, EDFT, KntE,
      &                                    Darwin, MssVlc
       Real*8, Dimension(:,:,:), Allocatable:: TwoHam, Vxc, Dens

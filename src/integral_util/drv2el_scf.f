@@ -310,9 +310,7 @@
 ************************************************************************
 *                                                                      *
 CMAW start
-#ifdef _F90ENABLE_
-      CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
-#endif
+C     CALL fmm_call_get_J_matrix(nDens,1,dens,TwoHam)
 CMAW end
       Call Free_iSD()
       Return

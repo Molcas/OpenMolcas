@@ -58,7 +58,7 @@
       use mh5, only: mh5_put_dset
 #endif
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset_array_real
+      use mh5, only: mh5_put_dset
 #endif
 
       Implicit Real* 8 (A-H,O-Z)
@@ -299,7 +299,7 @@ C Local print level (if any)
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
                  Call GetMem('Pscr','ALLO','REAL',LW10,NACPR2)
                  C_Pointer = Lw4
-                 CALL Lucia_Util('Densi',0,iDummy,rdum)
+                 CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
                  If (IFCAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &                     Work(LW9),Work(LW10))
@@ -557,7 +557,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
          If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
            if(.not.(doDMRG))
-     &       CALL Lucia_Util('Densi',0,iDummy,rdum)
+     &       CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Work(LW6),NAC)
@@ -654,10 +654,10 @@ CSVC: store a single column instead of the whole array (which is for each root!)
 C and for now don't bother with 2-electron active density matrices
 #ifdef _HDF5_
          call square(work(lw6),density_square,1,nac,nac)
-         call mh5_put_dset_array_real(wfn_dens, density_square,
+         call mh5_put_dset(wfn_dens, density_square,
      $           [nac,nac,1], [0,0,jRoot-1])
          call square(work(lw7),density_square,1,nac,nac)
-         call mh5_put_dset_array_real(wfn_spindens, density_square,
+         call mh5_put_dset(wfn_spindens, density_square,
      $           [nac,nac,1], [0,0,jRoot-1])
 #endif
        End Do
@@ -671,7 +671,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            C_Pointer = Lw4
-           CALL Lucia_Util('Densi',0,iDummy,rdum)
+           CALL Lucia_Util('Densi',ip_Dummy,iDummy,rdum)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Work(LW6),NAC)
              CALL TRIPRT('DS after lucia',' ',Work(LW7),NAC)
@@ -774,8 +774,8 @@ c         call getmem('kcnf','free','inte',ivkcnf,nactel)
 c         if(.not.iDoGas)then
           Call DDafile(JOBIPH,1,Work(LW11),nConf,jDisk)
 #ifdef _HDF5_
-          call mh5_put_dset_array_real
-     $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,Work(LW11:LW11+nConf-1),
+     &                      [nconf,1],[0,i-1])
 
 #endif
 c         else
@@ -802,8 +802,8 @@ c.. save CI vector on disk
           Call DDafile(JOBIPH,1,Work(LW4),nconf,jDisk)
 CSVC: store CI as a column array of the on-disk CI (which is for all roots!)
 #ifdef _HDF5_
-          call mh5_put_dset_array_real
-     $            (wfn_cicoef,Work(LW4),[nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,Work(LW4:LW4+nconf-1),
+     &                      [nconf,1],[0,i-1])
 #endif
 C.. printout of the wave function
           IF (IPRLEV.GE.USUAL) THEN
@@ -843,8 +843,8 @@ C.. printout of the wave function
 * save reorder CI vector on disk
           Call DDafile(JOBIPH,1,Work(LW11),nConf,jDisk)
 #ifdef _HDF5_
-          call mh5_put_dset_array_real
-     $            (wfn_cicoef,Work(LW11),[nconf,1],[0,i-1])
+          call mh5_put_dset(wfn_cicoef,Work(LW11:LW11+nConf-1),
+     &                      [nconf,1],[0,i-1])
 #endif
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL after Reord',' ',

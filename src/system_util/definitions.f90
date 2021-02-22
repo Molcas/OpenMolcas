@@ -13,22 +13,29 @@
 !***********************************************************************
 
 module definitions
-    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64, output_unit
+    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64, input_unit, output_unit
+    use, intrinsic :: iso_c_binding, only: c_double
+#   ifdef _I8_
+    use, intrinsic :: iso_c_binding, only: c_long
+#   else
+    use, intrinsic :: iso_c_binding, only: c_int
+#   endif
     implicit none
     private
     public :: wp, iwp, MPIInt, HDF5Int
     public :: int32, int64, real32, real64
+    public :: MOLCAS_C_INT, MOLCAS_C_REAL
     public :: i4, i8, r4, r8
-    public :: u6
+    public :: u5, u6
 
     ! This is the working precision and should be preferably used
     ! (we assume logical kinds are the same as integer kinds).
-#ifdef _I8_
-    integer(kind=int64), parameter :: iwp = int64
-#else
-    integer(kind=int32), parameter :: iwp = int32
-#endif
-    integer(kind=iwp), parameter :: wp = real64
+#   ifdef _I8_
+    integer(kind=int64), parameter :: iwp = int64, MOLCAS_C_INT = c_long
+#   else
+    integer(kind=int32), parameter :: iwp = int32, MOLCAS_C_INT = c_int
+#   endif
+    integer(kind=iwp), parameter :: wp = real64, MOLCAS_C_REAL = c_double
 
     ! This is the type of MPI arguments
     ! NOTE: If legacy integer*4 declarations are replaced with integer(MPIInt)
@@ -42,8 +49,9 @@ module definitions
     !       Which will require appropiate compile flags here.
     integer(kind=iwp), parameter :: HDF5Int = int32
 
-    ! Output unit, typically 6, but it could be something else
-    integer(kind=iwp), parameter :: u6 = output_unit
+    ! Output and input units, typically 5 & 6, but they could be something else
+    integer(kind=iwp), parameter :: u5 = input_unit, &
+                                    u6 = output_unit
 
     ! Although the constants from iso_fortran_env or `selected_real_kind`
     ! are preferred over non-standard real*8 etc.

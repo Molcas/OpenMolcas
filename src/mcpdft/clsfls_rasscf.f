@@ -26,9 +26,6 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-#ifdef _HDF5_
-      Use mh5, Only: mh5_close_file
-#endif
       Implicit Real*8 (A-H,O-Z)
       Logical DoCholesky
 #include "rasdim.fh"
@@ -39,7 +36,6 @@
 
 #include "davctl.fh"
 #include "qnctl.fh"
-#include "raswfn.fh"
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
@@ -56,9 +52,6 @@ C Local print level (if any)
         Call DaClos(JOBIPH)
         JOBIPH=-1
       End If
-#ifdef _HDF5_
-      call mh5_close_file(wfn_fileid)
-#endif
 *---  close the ORDINT file -------------------------------------------*
       CALL DecideOnCholesky(DoCholesky)
        If (.not.DoCholesky) then

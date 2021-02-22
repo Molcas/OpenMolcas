@@ -27,34 +27,34 @@ integer(kind=iwp) :: attr_id, i, restart_fileid, natom, nsym, dset_id, nh(1)
 character(len=256) :: tmp, sFile
 logical(kind=iwp) :: Exists
 
-write(u6,'(A)') 'Restarting dynamix from h5 file', file_h5res
+write(u6,'(A)') 'Restarting dynamix from h5 file',file_h5res
 
 ! Check the file exists
-sFile=File_H5Res
+sFile = File_H5Res
 call f_inquire(sFile,Exists)
-if (.not.Exists) then
+if (.not. Exists) then
   call getenvf('MOLCAS_SUBMIT_DIR',tmp)
   if (tmp /= ' ') then
-    i=index(tmp,' ')
+    i = index(tmp,' ')
     if (i > 0) then
-      sFile=tmp(1:i-1)//'/'//file_h5res
+      sFile = tmp(1:i-1)//'/'//file_h5res
       call f_inquire(sFile,Exists)
     end if
   end if
-  if (.not.Exists) then
+  if (.not. Exists) then
     call WarningMessage(2,'File '//trim(sFile)//' is not found')
     call Quit_OnUserError()
   end if
 end if
 
-restart_fileid=mh5_open_file_r(sFile)
+restart_fileid = mh5_open_file_r(sFile)
 
 ! read number of atoms
 call mh5_fetch_attr(restart_fileid,'NSYM',nsym)
 if (nsym > 1) then
-  attr_id=mh5_open_attr(restart_fileid,'NATOMS_ALL')
+  attr_id = mh5_open_attr(restart_fileid,'NATOMS_ALL')
 else
-  attr_id=mh5_open_attr(restart_fileid,'NATOMS_UNIQUE')
+  attr_id = mh5_open_attr(restart_fileid,'NATOMS_UNIQUE')
 end if
 call mh5_get_attr(attr_id,natom)
 call mh5_close_attr(attr_id)
@@ -84,7 +84,7 @@ call Put_dArray('Velocities',vel,3*natom)
 call mma_deallocate(vel)
 
 ! read thermostat info and save in RunFile
-dset_id=mh5_open_dset(restart_fileid,'NOSEHOOVER')
+dset_id = mh5_open_dset(restart_fileid,'NOSEHOOVER')
 call mh5_get_dset_dims(dset_id,nh)
 call mh5_close_dset(dset_id)
 call mma_allocate(NHC,nh(1))

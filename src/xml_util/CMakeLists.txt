@@ -27,4 +27,6 @@ set (sources
      xml_sdump.F90
 )
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+set (modfile_list "")
+
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

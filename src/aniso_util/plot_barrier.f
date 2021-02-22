@@ -12,7 +12,7 @@
 
       IMPLICIT NONE
 
-      Integer, parameter    :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       INTEGER, INTENT(in)   :: nBlock, nMult
       INTEGER, INTENT(in)   :: nDIM(nMult)
       COMPLEX (wp), INTENT(in) :: M(3,nMult,10,nMult,10)

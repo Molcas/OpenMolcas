@@ -9,4 +9,13 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.txt)
+set (sources
+     mh5_capi.c
+     mh5.F90
+)
+
+set (modfile_list
+     mh5.F90
+)
+
+include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

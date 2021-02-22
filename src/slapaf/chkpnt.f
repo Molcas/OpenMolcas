@@ -85,8 +85,7 @@
       Use mh5, Only: mh5_create_file, mh5_init_attr,
      &               mh5_create_attr_int, mh5_create_dset_str,
      &               mh5_create_dset_real, mh5_create_dset_int,
-     &               mh5_put_dset, mh5_put_dset_array_int,
-     &               mh5_close_dset
+     &               mh5_put_dset, mh5_close_dset
 #  include "Molcas.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
@@ -184,7 +183,7 @@
      &      '[NATOMS_ALL,4], each row contains the unique atom index'//
      &      'and the factors with which to multiply the x,y,z '//
      &      'coordinates')
-        Call mh5_put_dset_array_int(dsetid, desym)
+        Call mh5_put_dset(dsetid, desym)
         Call mh5_close_dset(dsetid)
         Call mma_deallocate(desym)
 
@@ -195,7 +194,7 @@
      &      'Indices of the Cartesian degrees of freedom, matrix of '//
      &      'size [DOF, 2], each row contains the atom index and the '//
      &      'Cartesian index (1=x, 2=y, 3=z)')
-        Call mh5_put_dset_array_int(dsetid, symdof)
+        Call mh5_put_dset(dsetid, symdof)
         Call mh5_close_dset(dsetid)
         Call mma_deallocate(symdof)
       End If
@@ -254,7 +253,7 @@
       Use Slapaf_Info, Only: Cx, Gx, Energy
       Use Slapaf_Parameters, Only: nDimBC, iter
       Use mh5, Only: mh5_put_attr, mh5_resize_dset,
-     &               mh5_put_dset, mh5_put_dset_array_real
+     &               mh5_put_dset
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
       Integer :: i, j
@@ -280,18 +279,18 @@
       Call mh5_put_attr(chkpnt_iter, Iter_all)
 *     energies
       Call mh5_resize_dset(chkpnt_ener, [Iter_all])
-      Call mh5_put_dset_array_real(chkpnt_ener,
-     &     Energy(Iter), [1], [Iter_all-1])
+      Call mh5_put_dset(chkpnt_ener,
+     &     Energy(Iter:Iter), [1], [Iter_all-1])
 *     coordinates
       Call mh5_resize_dset(chkpnt_coor, [3,SIZE(Cx,2),Iter_all])
-      Call mh5_put_dset_array_real(chkpnt_coor,
-     &     Cx(1,1,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
+      Call mh5_put_dset(chkpnt_coor,
+     &     Cx(:,:,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
 *     new coordinates
       Call mh5_put_dset(chkpnt_new,Cx(1,1,Iter+1))
 *     forces
       Call mh5_resize_dset(chkpnt_force, [3,SIZE(Cx,2),Iter_all])
-      Call mh5_put_dset_array_real(chkpnt_force,
-     &     Gx(1,1,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
+      Call mh5_put_dset(chkpnt_force,
+     &     Gx(:,:,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
 *     Hessian
       If (Found) Then
         Call mh5_put_dset(chkpnt_hess,Hss_X(1))

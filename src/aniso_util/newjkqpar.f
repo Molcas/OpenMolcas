@@ -11,7 +11,7 @@
       Subroutine newjkqpar(n1,n2,H,J,B,S)
 
       Implicit none
-      Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n1, n2
       Complex(kind=8),intent(in)   :: H(n1,n1,n2,n2)

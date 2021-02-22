@@ -12,7 +12,7 @@
 
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: N,iprint
       Complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
 

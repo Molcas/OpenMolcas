@@ -15,7 +15,7 @@ c N is the dimension N<MA
 c A is the Complex matrix
 c================================================= ======
       Implicit None
-      Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter            :: wp=kind(0.d0)
       Integer, intent(in)            :: N,MA
       Complex(kind=8), intent(inout):: A(MA,MA)
       Integer                        :: I,J,K,L,K1

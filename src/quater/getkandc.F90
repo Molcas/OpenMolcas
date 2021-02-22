@@ -41,12 +41,12 @@ real(kind=wp), intent(out) :: K(3), C
 real(kind=wp) :: T1(3), T2(3)
 real(kind=r8), external :: ddot_
 
-T1(:) = V1(:) - U1(:)     ! T1 = V1-U1
-T2(:) = V2(:) - U2(:)     ! T2 = V2-U2
+T1(:) = V1(:)-U1(:)     ! T1 = V1-U1
+T2(:) = V2(:)-U2(:)     ! T2 = V2-U2
 
-call cross(T1,T2,K)       ! K = T1 x T2 = (V1-U1) x (V2-U2)
-call cross(U1,U2,T1)      ! T1 = U1 x U2
-C = ddot_(3,K,1,T1,1)     ! C = K . (U1 x U2)
+call cross(T1,T2,K)     ! K = T1 x T2 = (V1-U1) x (V2-U2)
+call cross(U1,U2,T1)    ! T1 = U1 x U2
+C = ddot_(3,K,1,T1,1)   ! C = K . (U1 x U2)
 
 if (debug) then
   call RecPrt('K',' ',K,3,1)

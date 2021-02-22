@@ -24,29 +24,30 @@ C
       Implicit None
       Integer iTyp
       Real*8  COcc(*), CVir(*)
-      Character*3 BaseName_AO
+      Character(LEN=3) BaseName_AO
       Logical DoDiag
       Real*8  Diag(*)
+
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Character*14 SecNam
-      Parameter (SecNam = 'ChoMP2_BackTra')
+      Character(LEN=14), Parameter:: SecNam = 'ChoMP2_BackTra'
 
-      Character*4 FullName_AO
+      Character(LEN=4) FullName_AO
 
       Integer iSym, iSymb, iSyma, iSymi, iSymAl, iSymBe
       Integer nAB(8), iAB(8,8), nAB_Tot
-      Integer lU_AO
-      Integer ip_AOVec, l_AOVec, ip_Temp, l_Temp, ip_MOVec, l_MOVec
-      Integer ip_Buf, l_Buf
+      Integer lU_AO, l_Buf
       Integer MaxInCore, nVecInCore, nVecOnDisk, iVec, iOpt, iAdr, lVec
-      Integer kCVir, kCOcc, kMOVec, kAOVec, kAOV, kTemp, kDiag
-      Integer na, ni, nAl, AlBe, kD, kA
+      Integer kCVir, kCOcc, kMOVec, kAOVec, kTemp, kDiag
+      Integer na, ni, nAl, AlBe, kD
 
       Integer MulD2h, k, l
+
+      Real*8, Allocatable:: AOVec(:), Temp(:), MOVec(:), Buf(:)
+
       MulD2h(k,l)=iEOr(k-1,l-1)+1
 
 C     Set up index arrays.
@@ -83,18 +84,15 @@ C     --------------
          lU_AO = 7
          Call daName_MF_WA(lU_AO,FullName_AO)
 
-         l_AOVec = nAB(iSym)
-         l_Temp  = nT1AOT(iSym)
-         l_MOVec = nT1Am(iSym)
-         Call GetMem('AOVec','Allo','Real',ip_AOVec,l_AOVec)
-         Call GetMem('Temp','Allo','Real',ip_Temp,l_Temp)
-         Call GetMem('MOVec','Allo','Real',ip_MOVec,l_MOVec)
+         Call mma_allocate(AOVec,nAB(iSym),Label='AOVec')
+         Call mma_allocate(Temp,nT1AOT(iSym),Label='Temp')
+         Call mma_allocate(MOVec,nT1Am(iSym),Label='MOVec')
 
-         Call GetMem('GetMx','Max ','Real',ip_Buf,l_Buf)
+         Call mma_maxDBLE(l_Buf)
          If (l_Buf .lt. nAB(iSym)) Then
             Call ChoMP2_Quit(SecNam,'Insufficient memory!',' ')
          Else
-            Call GetMem('Buffer','Allo','Real',ip_Buf,l_Buf)
+            Call mma_allocate(Buf,l_Buf,Label='Buf')
          End If
          MaxInCore = min(l_Buf/nAB(iSym),nMP2Vec(iSym))
 
@@ -105,48 +103,45 @@ C     --------------
             iOpt = 2
             iAdr = nT1Am(iSym)*(iVec-1) + 1
             lVec = nT1Am(iSym)
-            Call ddaFile(lUnit_F(iSym,iTyp),iOpt,Work(ip_MOVec),lVec,
+            Call ddaFile(lUnit_F(iSym,iTyp),iOpt,MOVec,lVec,
      &                   iAdr)
 
             Do iSymi = 1,nSym
                iSyma  = MulD2h(iSymi,iSym)
                iSymAl = iSyma
                kCVir  = iAOVir(iSymAl,iSyma) + 1
-               kMOVec = ip_MOVec + iT1Am(iSyma,iSymi)
-               kTemp  = ip_Temp + iT1AOT(iSymi,iSymAl)
+               kMOVec = 1 + iT1Am(iSyma,iSymi)
+               kTemp  = 1 + iT1AOT(iSymi,iSymAl)
                na     = max(nVir(iSyma),1)
                nAl    = max(nBas(iSymAl),1)
                ni     = max(nOcc(iSymi),1)
                Call DGEMM_('T','T',nOcc(iSymi),nBas(iSymAl),nVir(iSyma),
-     &                    1.0d0,Work(kMOVec),na,CVir(kCVir),nAl,
-     &                    0.0d0,Work(kTemp),ni)
+     &                    1.0d0,MOVec(kMOVec),na,CVir(kCVir),nAl,
+     &                    0.0d0,Temp(kTemp),ni)
             End Do
 
             Do iSymBe = 1,nSym
                iSymAl = MulD2h(iSymBe,iSym)
                iSymi  = iSymBe
-               kTemp  = ip_Temp + iT1AOT(iSymi,iSymAl)
+               kTemp  = 1 + iT1AOT(iSymi,iSymAl)
                kCOcc  = iT1AOT(iSymi,iSymBe) + 1
-               kAOVec = ip_AOVec + iAB(iSymAl,iSymBe)
+               kAOVec = 1 + iAB(iSymAl,iSymBe)
                ni     = max(nOcc(iSymi),1)
                nAl    = max(nBas(iSymAl),1)
                Call DGEMM_('T','N',
      &                    nBas(iSymAl),nBas(iSymBe),nOcc(iSymi),
-     &                    1.0d0,Work(kTemp),ni,COcc(kCOcc),ni,
-     &                    0.0d0,Work(kAOVec),nAl)
+     &                    1.0d0,Temp(kTemp),ni,COcc(kCOcc),ni,
+     &                    0.0d0,AOVec(kAOVec),nAl)
             End Do
 
             If (DoDiag) Then
-               kAOV = ip_AOVec - 1
                Do AlBe = 1,nAB(iSym)
                   kD = kDiag + AlBe
-                  kA = kAOV + AlBe
-                  Diag(kD) = Diag(kD) + Work(kA)*Work(kA)
+                  Diag(kD) = Diag(kD) + AOVec(AlBe)**2
                End Do
             End If
 
-            Call dCopy_(nAB(iSym),Work(ip_AOVec),1,
-     &                           Work(ip_Buf+nVecInCore),MaxInCore)
+            Call dCopy_(nAB(iSym),AOVec,1,Buf(1+nVecInCore),MaxInCore)
             nVecInCore = nVecInCore + 1
 
             If (nVecInCore.eq.MaxInCore .or.
@@ -156,8 +151,7 @@ C     --------------
                   iAdr = nMP2Vec(iSym)*(AlBe-1) + nVecOnDisk + 1
                   lVec = nVecInCore
                   Call ddaFile(lU_AO,iOpt,
-     &                         Work(ip_Buf+MaxInCore*(AlBe-1)),lVec,
-     &                         iAdr)
+     &                         Buf(1+MaxInCore*(AlBe-1)),lVec,iAdr)
                End Do
                nVecOnDisk = nVecOnDisk + nVecInCore
                nVecInCore = 0
@@ -170,10 +164,10 @@ C     --------------
          End If
 #endif
 
-         Call GetMem('Buffer','Free','Real',ip_Buf,l_Buf)
-         Call GetMem('MOVec','Free','Real',ip_MOVec,l_MOVec)
-         Call GetMem('Temp','Free','Real',ip_Temp,l_Temp)
-         Call GetMem('AOVec','Free','Real',ip_AOVec,l_AOVec)
+         Call mma_deallocate(Buf)
+         Call mma_deallocate(MOVec)
+         Call mma_deallocate(Temp)
+         Call mma_deallocate(AOVec)
 
          Call daClos(lU_AO)
          iOpt = 2

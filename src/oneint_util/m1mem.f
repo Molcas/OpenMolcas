@@ -10,7 +10,10 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      Subroutine M1Mem(nRys,MemM1,la,lb,lr)
+      Subroutine M1Mem(
+#define _CALLING_
+#include "mem_interface.fh"
+     &)
 ************************************************************************
 *  Object: to compute the number of real*8 the kernal routine will     *
 *          need for the computation of a matrix element between two    *
@@ -23,6 +26,7 @@
 *                                                                      *
 ************************************************************************
 *
+#include "mem_interface.fh"
       Integer iAng(4)
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
@@ -35,7 +39,7 @@
       iAng(4) = 0
       Call MemRys(iAng,MemPrm)
       MemM10= 6 + MemPrm
-      nRys = (la+lb+2)/2
+      nHer = (la+lb+2)/2
 *
       k = nabSz(la+lb) - nabSz(Max(la,lb)-1)
 *
@@ -43,7 +47,7 @@
 *     k    : memory for primitives in M1Int0
 *     MemM10: scratch in M1Int0
 *
-      MemM1 = MemM10 + Max(nMem,k)
+      Mem = MemM10 + Max(nMem,k)
 *
       Return
 c Avoid unused argument warnings

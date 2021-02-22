@@ -18,7 +18,7 @@
      &                   hinput, r_rot, XLM, ZLM, XRM, ZRM )
 
       Implicit None
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 c------------------------------------------------------------

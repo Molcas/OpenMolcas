@@ -16,7 +16,7 @@ c  Fcal --- calculated array of size (N), Real(kind=8) ::, input
 c  Fexp --- experimental array of size (N), Real(kind=8) ::, input
 c   dev --- standard deviation, Real(kind=8) ::, output;
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)       :: N
       Real(kind=8), intent(in) :: Fcal(N), Fexp(N)
       Integer                   :: i

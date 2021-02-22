@@ -14,7 +14,7 @@
      &                                AMFI, HSO )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(inout)        :: nss, nstate
       Integer, intent(out)          :: multiplicity(nstate)
       Real(kind=8), intent(out)    :: eso(nss), esfs(nstate)
@@ -192,7 +192,7 @@ c compatibility with the present version: of aniso_i.input file
      &                                multiplicity, eso, MM, MS, ML )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(inout)        :: nss, nstate
       Integer, intent(out)          :: multiplicity(nstate)
       Real(kind=8), intent(out)    :: eso(nss)
@@ -298,7 +298,7 @@ c      End If
      &                                      iReturn )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(inout)        :: nss, nstate, nLoc, iReturn
       ! nLoc is the maximal value of the array nss(1:nneq)
       Real(kind=8), intent(out)    :: eso(nLoc)
@@ -403,7 +403,7 @@ c      End If
      &                                  edmom, amfi, HSO )
 
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: nss, nstate, multiplicity(nstate)
       Real(kind=8), intent(in)    :: eso(nss), esfs(nstate)
       Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)
@@ -483,7 +483,7 @@ c      End If
      &                                MM, MS, ML )
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)           :: nss
       Real(kind=8), intent(out)    :: eso(nss)
       Complex(kind=8), intent(out) :: MM(3,nss,nss)
@@ -580,7 +580,7 @@ c compatibility with the present version: of aniso_i.input file
       Subroutine write_formatted_aniso_poly( filename, nss, eso, MM, MS)
 
       Implicit None
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)          :: nss
       Real(kind=8), intent(in)    :: eso(nss)
       Complex(kind=8), intent(in) :: MM(3,nss,nss)
@@ -626,7 +626,7 @@ c compatibility with the present version: of aniso_i.input file
      &                               edmom, amfi, HSO )
 
       Implicit None
-      Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
       Integer, intent(in)         :: nss, nstate, multiplicity(nstate)
       Real(kind=8), intent(in)    :: eso_au(nss), esfs_au(nstate)
       Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)

@@ -13,7 +13,7 @@
      &                           chiT_theta, doplot, iPrint, mem )
 
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
       Integer          , intent(in) ::  nss, iprint, nT, nTempMagn, mem
       Real (kind=8)   , intent(in) :: eso(nss)
       Real (kind=8)   , intent(in) :: zJ, tmin, tmax

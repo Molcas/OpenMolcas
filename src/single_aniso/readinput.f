@@ -24,7 +24,7 @@ C  THIS ROUTINE READS THE FILE "SINGLE_ANISO.INPUT".
 C
 C
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "warnings.fh"
 #include "mgrid.fh"
 

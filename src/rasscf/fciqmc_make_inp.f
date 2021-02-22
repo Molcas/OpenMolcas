@@ -36,8 +36,8 @@
      &    highlypopwrite = 50,
      &    startsinglepart = 10,
      &    pops_core =  10000
-        integer, allocatable, public ::
-     &    definedet(:)
+        character(len=:), allocatable, public ::
+     &    definedet
         real*8, public ::
      &    proje_changeref = 1.2d0,
      &    max_tau = 0.02d0,
@@ -143,9 +143,7 @@
       write(file_id, A_fmt()) 'calc'
       call indent()
         if (allocated(DefineDet)) then
-          write(file_id, kw_fmt('('//str(nActEl)//'I5)'))
-     &        'definedet', (definedet(i), i = 1,nActEl)
-          write(file_id, A_fmt()) ''
+          write(file_id, A_fmt()) 'definedet '//trim(definedet)
         end if
         write(file_id, *)
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers
@@ -247,8 +245,7 @@
       end subroutine make_inp
 
       subroutine cleanup()
-        use stdalloc, only : mma_deallocate
-        if (allocated(definedet)) call mma_deallocate(definedet)
+        if (allocated(definedet)) deallocate(definedet)
       end subroutine cleanup
 
       end module fciqmc_make_inp

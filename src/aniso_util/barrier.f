@@ -18,7 +18,7 @@ c  N --  dimension of the barrier
 
       Implicit None
 #include "stdalloc.fh"
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter           :: wp=kind(0.d0)
       Integer, intent(in)          :: nBlock, nMult, iprint, imanifold
       Integer, intent(in)          :: nDim(nMult)
       Real(kind=8), intent(in)    :: W(nBlock)
@@ -842,7 +842,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Subroutine prbar(ist,s1,s2,M)
 
       Implicit none
-      Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter           :: wp=kind(0.d0)
       Integer, intent(in)          :: ist
       Character(len=5), intent(in) :: s1, s2
       Complex(kind=8), intent(in) :: M(3)

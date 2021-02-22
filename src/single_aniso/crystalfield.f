@@ -13,7 +13,7 @@
 
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
       Integer, intent(in)           :: iprint, iDIM
       Integer, intent(in)           :: nDIMcf, iopt, nlanth
       Real(kind=8), intent(in)     :: ESOJ(nDIMcf)
@@ -189,7 +189,7 @@ C================== Variable declarations =============================
 
       Implicit None
 #include "stdalloc.fh"
-      Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
       Integer, intent(in)           :: nDIMcf, nlanth, iprint
       Logical, intent(in)           :: GRAD
       Real(kind=8), intent(in)     :: ESOJ(nDIMcf)
@@ -342,7 +342,7 @@ c-----------------------------------------------------------------------
 
       Subroutine newCF(H,n,A, B,C,Bstev)
       Implicit none
-      Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "stdalloc.fh"
       Integer, intent(in)           :: n
       Complex(kind=8),intent(in)   :: H(n,n)
@@ -447,7 +447,7 @@ c-----------------------------------------------------------------------
 
       Subroutine recover_CF(N,HAM,Akq,B,C,Bstev)
       Implicit none
-      Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
       Integer, intent(in)          :: n
       Complex(kind=8), intent(in) :: HAM(n,n)
       Complex(kind=8), intent(in) :: Akq((n-1), -(n-1):(n-1))

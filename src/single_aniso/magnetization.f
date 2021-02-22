@@ -46,7 +46,7 @@
 ************************************************************************
 
       Implicit None
-      Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, Parameter            :: wp=kind(0.d0)
 #include "mgrid.fh"
 #include "stdalloc.fh"
 !----------------------------------------------------------------

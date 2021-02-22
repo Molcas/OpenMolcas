@@ -38,7 +38,7 @@
      &                          JITO_exchange )
 
       Implicit None
-      Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
+      Integer, parameter        :: wp=kind(0.d0)
 #include "mgrid.fh"
 
       Integer, intent(in)       :: iPrint

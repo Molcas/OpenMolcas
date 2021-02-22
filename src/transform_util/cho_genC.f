@@ -55,7 +55,7 @@ CGG   ------------------------------------------------------------------
 
       Do iSB_A = 1, 3
         Do iSB_B = 1, 3
-          iAddSB(iSB_A,iSB_B)= 0  ! Mem Address of the SubBlocks
+          iAddSB(iSB_A,iSB_B)= ip_Dummy  ! Mem Address of the SubBlocks
           LenSB (iSB_A,iSB_B)= 0  ! Length of the SubBlocks
         EndDo
       EndDo
@@ -287,8 +287,9 @@ CGG   ------------------------------------------------------------------
 
       Do iSB_A = 1, 3
         Do iSB_B = 1, 3
-          If (iAddSB(iSB_A,iSB_B).GT.0) Call GetMem('SB','Free','Real',
-     &                         iAddSB(iSB_A,iSB_B), LenSB(iSB_A,iSB_B))
+          If (iAddSB(iSB_A,iSB_B).NE.ip_Dummy)
+     &      Call GetMem('SB','Free','Real',
+     &                  iAddSB(iSB_A,iSB_B), LenSB(iSB_A,iSB_B))
         EndDo
       EndDo
 

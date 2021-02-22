@@ -28,7 +28,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iFrom, iTo, l, m
-integer(kind=iwp), parameter :: MxLst=MxLqn*(MxLqn*(MxLqn+6)+11)/6+1
+integer(kind=iwp), parameter :: MxLst = MxLqn*(MxLqn*(MxLqn+6)+11)/6+1
 character(len=8) :: CrtLst(0:MxLst), SphLst(0:MxLst)
 
 !----------------------------------------------------------------------*
