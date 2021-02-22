@@ -8,39 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine packnod(ibuf,idx,ival,nin,nbit,lbuf)
+
+subroutine packnod(ibuf,idx,ival,nin,nbit,lbuf)
 !**************************************************
-!  pack integral ival into ibuf on bit mode
-!  ibuf() integral buffer array
-!  idx    index
-!  nin    number of integrals in one integral
-!  lbuf   length of ibuf
-      implicit real*8 (a-h,o-z)
-      dimension ibuf(lbuf)
-      integer*4, parameter :: one4=1
-      integer, parameter :: i4=kind(one4)
+! pack integral ival into ibuf on bit mode
+! ibuf() integral buffer array
+! idx    index
+! nin    number of integrals in one integral
+! lbuf   length of ibuf
 
-      inv=ival
-      nimod=mod(idx,nin)
-      if(nimod.eq.0) then
-        ngrp=idx/nin
-        nidbit=0
-      else
-        ngrp=idx/nin+1
-        nidbit=(nin-nimod)*nbit
-      endif
+implicit real*8(a-h,o-z)
+dimension ibuf(lbuf)
+integer*4, parameter :: one4 = 1
+integer, parameter :: i4 = kind(one4)
 
-!      write(6,"(b64.64)") inv
+inv = ival
+nimod = mod(idx,nin)
+if (nimod == 0) then
+  ngrp = idx/nin
+  nidbit = 0
+else
+  ngrp = idx/nin+1
+  nidbit = (nin-nimod)*nbit
+end if
+
+!write(6,"(b64.64)") inv
 #ifdef _AIX_
-      call abend
+call abend()
 #else
-! IFG: changed to avoid compiler warnings, although it is
-!      probably the compiler's fault
-!     call mvbits(inv,0,nbit,ibuf(ngrp),nidbit)
-      call mvbits(inv,0,int(nbit,i4),ibuf(ngrp),int(nidbit,i4))
+!call mvbits(inv,0,nbit,ibuf(ngrp),nidbit)
+call mvbits(inv,0,int(nbit,i4),ibuf(ngrp),int(nidbit,i4))
 #endif
-!      write(6,"(b64.64)") ibuf(ngrp)
+!write(6,"(b64.64)") ibuf(ngrp)
 
-      return
-!...end of packnod
-      end
+return
+
+end subroutine packnod

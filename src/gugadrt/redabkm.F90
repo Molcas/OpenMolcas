@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine redabkm(iabkm,labkm,nabcbit,iabcbit,                   &
-     &                   jatmp,jbtmp,jmtmp,kktmp)
+
+subroutine redabkm(iabkm,labkm,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
 ! this subroutine unpack ja jb jm kt from compress arrays
-      implicit real*8 (a-h,o-z)
-      dimension iabkm(1:labkm)
 
-      call upacknod(iabkm,1,jatmp,nabcbit,iabcbit,labkm)
-      call upacknod(iabkm,2,jbtmp,nabcbit,iabcbit,labkm)
-      call upacknod(iabkm,3,jmtmp,nabcbit,iabcbit,labkm)
-      call upacknod(iabkm,4,kktmp,nabcbit,iabcbit,labkm)
+implicit real*8(a-h,o-z)
+dimension iabkm(1:labkm)
 
-      return
-!...end of reabtm
-      end
+call upacknod(iabkm,1,jatmp,nabcbit,iabcbit,labkm)
+call upacknod(iabkm,2,jbtmp,nabcbit,iabcbit,labkm)
+call upacknod(iabkm,3,jmtmp,nabcbit,iabcbit,labkm)
+call upacknod(iabkm,4,kktmp,nabcbit,iabcbit,labkm)
+
+return
+
+end subroutine redabkm

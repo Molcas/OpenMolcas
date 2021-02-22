@@ -8,10 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine gugadrt_gugafinalize()
-! default value for performing ci calculation
+
+subroutine gugadrt_gugafinalize()
+
 #include "gendrt.fh"
 #include "files_gugadrt.fh"
 
-      call daclos(ludrt)
-      end
+call daclos(ludrt)
+
+end subroutine gugadrt_gugafinalize

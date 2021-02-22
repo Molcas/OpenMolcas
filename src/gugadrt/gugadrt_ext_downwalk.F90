@@ -8,34 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine gugadrt_ext_downwalk()
+
+subroutine gugadrt_ext_downwalk()
+
 #include "gendrt.fh"
 #include "casrst_drt.fh"
-      dimension iwmij(8)
-      nu_ae(1)=1
-      do im=1,ng_sm
-        nu_ae(1+im)=1+im
-        nu_ae(9+im)=9+im
-        nu_ae(17+im)=17+im
-      enddo
+dimension iwmij(8)
 
-      iwmij=0
-      iseg_downwei(nu_ae(1))=1
-      do imi=1,ng_sm
-        iseg_downwei(nu_ae(1+imi))=nlsm_ext(imi)
-        do imj=imi,ng_sm
-          imij=mul_tab(imi,imj)
-          if(imij.ne.1) then
-           iwmij(imij)=iwmij(imij)+nlsm_ext(imi)*nlsm_ext(imj)
-             cycle
-          endif
-         iwmij(1)=iwmij(1)+nlsm_ext(imi)*(nlsm_ext(imi)-1)/2
-        enddo
-      enddo
-      do im=1,ng_sm
-        iseg_downwei(nu_ae(9+im))=iwmij(im)
-        iseg_downwei(nu_ae(17+im))=iwmij(im)
-      enddo
-      iseg_downwei(nu_ae(18))=iseg_downwei(nu_ae(18))+norb_ext
-      return
-      end
+nu_ae(1) = 1
+do im=1,ng_sm
+  nu_ae(1+im) = 1+im
+  nu_ae(9+im) = 9+im
+  nu_ae(17+im) = 17+im
+end do
+
+iwmij = 0
+iseg_downwei(nu_ae(1)) = 1
+do imi=1,ng_sm
+  iseg_downwei(nu_ae(1+imi)) = nlsm_ext(imi)
+  do imj=imi,ng_sm
+    imij = mul_tab(imi,imj)
+    if (imij /= 1) then
+      iwmij(imij) = iwmij(imij)+nlsm_ext(imi)*nlsm_ext(imj)
+      cycle
+    end if
+    iwmij(1) = iwmij(1)+nlsm_ext(imi)*(nlsm_ext(imi)-1)/2
+  end do
+end do
+do im=1,ng_sm
+  iseg_downwei(nu_ae(9+im)) = iwmij(im)
+  iseg_downwei(nu_ae(17+im)) = iwmij(im)
+end do
+iseg_downwei(nu_ae(18)) = iseg_downwei(nu_ae(18))+norb_ext
+
+return
+
+end subroutine gugadrt_ext_downwalk

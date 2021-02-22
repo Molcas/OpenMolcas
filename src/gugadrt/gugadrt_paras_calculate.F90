@@ -8,37 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine gugadrt_paras_calculate()
+
+subroutine gugadrt_paras_calculate()
 #include "gendrt.fh"
-!      include "paraconstants_h.for"
-!      include "intsort_h.for"
-!      data inlptb_new/
+!#include "paraconstants_h.for"
+!#include "intsort_h.for"
+!data inlptb_new/
 !         1  2  3  4  5  6  7  8  9  10  11  12 13
-! a^r=1
+!! a^r=1
 !     *    -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0,
-! a^l=2
+!! a^l=2
 !     *     0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0,
-! b_r=3
+!! b_r=3
 !     *    4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-! b_l=4
+!! b_l=4
 !     *    5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-! b^r=5
+!! b^r=5
 !     *    0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0,
-! b^l=6
+!! b^l=6
 !     *    0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9,
-! c^'=7
+!! c^'=7
 !     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3,
-! c^"=8
+!! c^"=8
 !     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,
-! d_l^r=9
+!! d_l^r=9
 !     *    6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-! d^r^r=10
+!! d^r^r=10
 !     *    0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-! d^r^l=11
+!! d^r^l=11
 !     *    0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0,
-! c^'" =12
+!! c^'" =12
 !     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
-!
+
 !****************************************************************
 !   ar      =1 (+a^r)     drr     =2 (+d^rr)   drl     =3 (+d^rl)
 !   arbr    =4 (+d^rr)    arbl    =5 (+d^rl)   ard_l^r =6 (+a^l)
@@ -47,7 +48,7 @@
 !   drl     =13 (*)
 !****************************************************************
 
-!     data inlptb_new
+!data inlptb_new
 !    */ -1,  0,  4,  5,  0,  0,  1,  1,  6,  0,  0,  1,
 !    *   0,  0,  0,  0,  7,  0,  2,  2,  0, -2,  0,  2,
 !    *   0,  0,  0,  0,  8,  9,  3,  3,  0,  0, -3,  3,
@@ -62,14 +63,15 @@
 !    * -12,  0,  0,  0,  0,  0, 12, 12,  0,  0,  0, 12,
 !    *   0,  0,  0,  0,  0,  9,  3, 13,  0,  0,  0,  0/
 
-!     data indord_plptype/0,0,0,1,1,3,3,1,1,2,2,2/   !severe_new_error_1
-      ja_sys=int(n_electron*0.5d0-spin)-norb_dz
-      jb_sys=int(spin+spin)
-      jc_sys=norb_all-ja_sys-jb_sys
+!data indord_plptype/0,0,0,1,1,3,3,1,1,2,2,2/   !severe_new_error_1
+ja_sys = int(n_electron*0.5d0-spin)-norb_dz
+jb_sys = int(spin+spin)
+jc_sys = norb_all-ja_sys-jb_sys
 
-      if ( jb_sys .eq.0 ) jroute_sys=1
-      if ( jb_sys .eq.1 ) jroute_sys=2
-      if ( jb_sys .gt.1 ) jroute_sys=3
+if (jb_sys == 0) jroute_sys = 1
+if (jb_sys == 1) jroute_sys = 2
+if (jb_sys > 1) jroute_sys = 3
 
-      return
-      end
+return
+
+end subroutine gugadrt_paras_calculate
