@@ -23,12 +23,13 @@
      &                     RAVEMIN, RAVEMAX
       REAL (wp)         :: gnuplot_version
       INTEGER           :: file_number, i, l, j, i1, j1, k
-      INTEGER           :: LuPlt, LuData, file_size, StdOut, iErr
+      INTEGER           :: LuPlt, LuData, file_size, StdOut
       LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd
       CHARACTER(LEN=100):: line1, line2, fmtx, cdummy
       CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
       LOGICAL           :: dbg
       Integer, external :: IsFreeUnit, AixRm
+      INTEGER           :: iErr
 
       dbg=.false.
       StdOut = 6
@@ -107,6 +108,7 @@
          ! delete the file
          IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
          iErr=AixRm("lineOUT")
+         IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       ELSE
          IF (dbg) WRITE (StdOut,'(A)') 'file "lineOUT" does not exist'//
      &                                 ' in WorkDir'
@@ -116,7 +118,12 @@
       ! find the gnuplot
       IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
+#ifdef __INTEL_COMPILER
       CALL systemf ( "which gnuplot >> lineOUT", iErr )
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+      CALL execute_command_line ( "which gnuplot >> lineOUT" )
+#endif
 
       INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number,SIZE=file_size)
@@ -157,6 +164,7 @@
       END IF
       ! remove file "lineOUT"
       iErr=AixRm("lineOUT")
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 
 
 !!!!! check the version of the gnuplot:
@@ -166,8 +174,12 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+#ifdef __INTEL_COMPILER
         CALL systemf ( gnuplot_CMD, iErr )
-
+        IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+        CALL execute_command_line ( gnuplot_CMD )
+#endif
         file_number=IsFreeUnit(452)
         Call molcas_open(file_number,'lineOUT')
         READ (file_number,*) cdummy, gnuplot_version
@@ -177,6 +189,7 @@
         CLOSE (file_number)
         ! remove file "lineOUT"
         iErr=AixRm("lineOUT")
+        IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       END IF
 
 !!!!! prepare the energy data file:
@@ -184,6 +197,7 @@
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
       IF(file_exist)  iErr=AixRm(trim(datafile))
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       LuData=IsFreeUnit(785)
       Call molcas_open(LuData,datafile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -214,6 +228,7 @@
       INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
       IF(file_exist)  iErr=AixRm(trim(datafile))
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       LuData=IsFreeUnit(786)
       Call molcas_open(LuData,datafile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -267,6 +282,7 @@
       INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,
      &        NUMBER=file_number)
       IF(file_exist) iErr=AixRm(trim(plotfile))
+      IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
       LuPlt=IsFreeUnit(855)
       Call molcas_open(LuPlt,plotfile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
@@ -408,7 +424,12 @@
         ! attempt to execute the script
         WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(plotfile)
         IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+#ifdef __INTEL_COMPILER
         CALL systemf ( gnuplot_CMD, iErr )
+        IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+        CALL execute_command_line ( gnuplot_CMD )
+#endif
         IF ( gnuplot_version < 5.0_wp ) Then
           WRITE (StdOut,'(A,i0,A)') 'File "BARRIER.eps" was created '//
      &                              'in Working directory.'

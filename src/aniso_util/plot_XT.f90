@@ -12,7 +12,7 @@
 
   IMPLICIT NONE
 
-  Integer, parameter        :: wp=kind(0.d0)
+  Integer, parameter    :: wp=kind(0.d0)
   INTEGER, INTENT(in)   :: nT
   REAL (wp), INTENT(in) :: T(nT)
   REAL (wp), INTENT(in) :: XTexp(nT)
@@ -22,13 +22,15 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_exp, XTmax_exp, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut
   LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)    :: line1, line2, cdummy
   CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1023)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
+  INTEGER               :: iErr
+
 
   !INTEGER               :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
   !LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
@@ -95,6 +97,7 @@
      ! delete the file
      IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
      iErr=AixRm("lineOUT")
+     IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   ELSE
      IF (dbg) WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
@@ -102,7 +105,12 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
+#ifdef __INTEL_COMPILER
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+  CALL execute_command_line ( "which gnuplot >> lineOUT" )
+#endif
 
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
@@ -139,6 +147,7 @@
   END IF
   ! remove file "lineOUT"
   iErr=AixRm("lineOUT")
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
 
 
 
@@ -149,7 +158,12 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+#ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+    CALL execute_command_line ( gnuplot_CMD )
+#endif
     file_number=452
     Call molcas_open(file_number,"lineOUT")
     READ (file_number,*) cdummy, gnuplot_version
@@ -158,6 +172,7 @@
     CLOSE (file_number)
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   END IF
 
 
@@ -187,6 +202,7 @@
 ! generate the file "XT.dat":
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) iErr=AixRm( trim(datafile) )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   LuData=454
   Call molcas_open(LuData,datafile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -207,6 +223,7 @@
   ! generate the GNUPLOT script in the $WorkDir
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist)  iErr=AixRm( trim(plotfile) )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   LuPlt=455
   Call molcas_open(LuPlt,plotfile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
@@ -296,8 +313,12 @@
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 
+#ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
-
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+    CALL execute_command_line ( gnuplot_CMD )
+#endif
     IF ( gnuplot_version < 5.0_wp ) Then
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
       IF(file_exist) THEN
@@ -341,24 +362,17 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-!<<<<<<< HEAD
-  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+  INTEGER               :: file_number, iT, LuPlt, LuData, file_size, StdOut
   LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)    :: line1, line2, cdummy
   CHARACTER(LEN=100)    :: datafile, plotfile, imagefile, epsfile
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1024)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
-!=======
-!  INTEGER           :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
-!  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-!  CHARACTER(LEN=100):: line1, line2, cdummy
-!  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
-!  INTEGER, EXTERNAL :: AixRm
-!>>>>>>> upstream/master
+  INTEGER               :: iErr
 
-  StdOut=6
   iErr=0
+  StdOut=6
   dbg=.false.
   tmin=0.0_wp
   tmax=0.0_wp
@@ -412,6 +426,7 @@
      ! delete the file
      IF (dbg) WRITE (StdOut,'(A)') 'deleting the file...'
      iErr=AixRm("lineOUT")
+     IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   ELSE
      IF (dbg) WRITE (StdOut,'(A)') 'file  "lineOUT" does not exist in WorkDir'
   END IF
@@ -420,8 +435,12 @@
   ! find the gnuplot
   IF (dbg) WRITE (StdOut,'(A)') 'inquire which GNUPLOT'
 
+#ifdef __INTEL_COMPILER
   CALL systemf ( "which gnuplot >> lineOUT", iErr )
-
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+  CALL execute_command_line ( "which gnuplot >> lineOUT" )
+#endif
   INQUIRE(FILE="lineOUT",EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number,SIZE=file_size)
 
   IF (dbg) WRITE (StdOut,*) 'File_number =',file_number
@@ -453,6 +472,8 @@
   END IF
   ! remove file "lineOUT"
   iErr=AixRm("lineOUT")
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+  If(dbg) WRITE(StdOut,*) 'execute_gnuplot_cmd =', execute_gnuplot_cmd
 !--------------------------------------------------------------------------------------------
 
 
@@ -462,7 +483,12 @@
     ! attempt to execute the script
     WRITE (gnuplot_CMD,'(2A)') trim(line2),' --version > lineOUT'
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',gnuplot_CMD
+#ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+    CALL execute_command_line ( gnuplot_CMD )
+#endif
     file_number=452
     Call molcas_open(file_number,"lineOUT")
     READ (file_number,*) cdummy, gnuplot_version
@@ -471,6 +497,7 @@
     CLOSE (file_number)
     ! remove file "lineOUT"
     iErr=AixRm("lineOUT")
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   END IF
 
 
@@ -498,6 +525,7 @@
 !--------------------------------------------------------------------------------------------
   INQUIRE(FILE=datafile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist) iErr=AixRm(trim(datafile))
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   LuData=454
   Call molcas_open(LuData,datafile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile)//'" file'
@@ -518,6 +546,7 @@
   ! generate the GNUPLOT script in the $WorkDir
   INQUIRE(FILE=plotfile,EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
   IF(file_exist)  iErr=AixRm( trim(plotfile) )
+  IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
   LuPlt=455
   Call molcas_open(LuPlt,plotfile)
   IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
@@ -588,6 +617,7 @@
     execute_gnuplot_cmd=.false.
   END IF
 
+
   IF (execute_gnuplot_cmd) Then
     ! attempt to execute the script
     IF (dbg) THEN
@@ -603,7 +633,12 @@
     WRITE (gnuplot_CMD,'(5A)') trim(line2),' ',trim(realname_plt)
     IF (dbg) WRITE (StdOut,'(A,A)') 'gnuplot_CMD=',trim(gnuplot_CMD)
 
+#ifdef __INTEL_COMPILER
     CALL systemf ( gnuplot_CMD, iErr )
+    IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
+#else
+    CALL execute_command_line ( gnuplot_CMD )
+#endif
 
     IF ( gnuplot_version < 5.0_wp ) Then
       INQUIRE(FILE=trim(realname_eps),EXIST=file_exist,OPENED=is_file_open,NUMBER=file_number)
