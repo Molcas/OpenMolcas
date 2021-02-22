@@ -58,7 +58,7 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAorb(8,2),ipDab(2),ipFab(2),ipDD(2)
+      Integer   ipDab(2),ipFab(2),ipDD(2)
       Type (CMO_Type)   Ash(2)
       Integer   nFIorb(8),nAorb(8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -170,8 +170,6 @@ c --------------------
       nnO=0
       nIt=0
       DO jDen=1,nDen
-
-         Call Map_to_CMO(Ash(jDen),ipAOrb(:,jDen))
 
          kOff(1,jDen) = nnO
 
@@ -1430,8 +1428,8 @@ C -------------------------------------------------------------
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                          JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb,nAorb,
+               CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,nAorb,
      &                          ipLpq,iSkip,DoRead)
 
 
