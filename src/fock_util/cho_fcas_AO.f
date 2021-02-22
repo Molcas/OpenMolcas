@@ -588,15 +588,13 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-                      ISMO = ipOrb(iSyma,3)
-
                       Do JVC=1,JNUM
 
                        ipLvb = ipLab(iSyma,3) + nBas(iSyma)*NAv*(JVC-1)
                        ipLvw = ipLxy(iSyma) + nnA(iSyma,iSyma)*(JVC-1)
 
                        CALL DGEMM_Tri('N','N',NAv,NAv,nBas(iSyma),
-     &                                One,Work(ISMO),NAv,
+     &                                One,POrb(3)%pA(iSyma)%A,NAv,
      &                                    Work(ipLvb),nBas(iSyma),
      &                               Zero,Work(ipLvw),NAv)
 
@@ -620,12 +618,11 @@ C --------------------------------------------------------------------
 
                      If(NAv*NAw.ne.0.and.iSymv.gt.iSymb)Then
 
-                      ISMO = ipOrb(iSymb,3)
                       ipLvb = ipLab(iSymv,3)
                       ipLvw = ipLxy(iSymv)
 
                       CALL DGEMM_('N','N',NAw,NAv*JNUM,nBas(iSymb),
-     &                            One,Work(ISMO),NAw,
+     &                            One,POrb(3)%pA(iSymb)%A,NAw,
      &                                Work(ipLvb),nBas(iSymb),
      &                           Zero,Work(ipLvw),NAw)
 
