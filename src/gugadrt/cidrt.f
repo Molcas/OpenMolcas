@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !-----------------------------------------------------------------------
 !list of subroutines in this file
 !      subroutine gugadrt_mole_inf()
@@ -35,8 +35,8 @@
 #include "gendrt.fh"
 #include "files_gugadrt.fh"
       parameter (maxmolcasorb=5000)
-      dimension ncone(64),nbas(mxsym),norb(mxsym),nfro(mxsym),
-     *          ndel(mxsym)
+      dimension ncone(64),nbas(mxsym),norb(mxsym),nfro(mxsym),          &
+     &          ndel(mxsym)
       dimension idx_idisk(64)
       dimension cmo(max_orb**2)
       character bsbl(2*4*maxmolcasorb)*1
@@ -51,14 +51,14 @@
 
       call daname(lucimo,fncimo)
       call daname(ludrt,fndrt)
-c      call molcas_open(ludrt,fndrt)
+!      call molcas_open(ludrt,fndrt)
 ! open file traone to read orbital informations
       call daname(luonemo,fnonemo)
-c      call molcas_open(luonemo,fnonemo)
+!      call molcas_open(luonemo,fnonemo)
       idisk=0
       call idafile(luonemo,2,ncone,64,idisk)
       call ddafile(luonemo,2,dum,1,idisk)
-c      ecor=dum(1)
+!      ecor=dum(1)
       call idafile(luonemo,2,idum,1,idisk)
       nsym=idum(1)
       call idafile(luonemo,2,nbas,8,idisk)
@@ -88,15 +88,15 @@ c      ecor=dum(1)
       nlsm_bas(1:8)=nbas(1:8)
       nlsmddel(1:8)=nfro(1:8)
       nlsmedel(1:8)=ndel(1:8)
-c#ifdef debug
-c      write(6,"(a4,1x,8(2x,i8))") "ncon",ncone(1:8)
-c      write(6,*) "idisk : ", idisk
-c      write(6,"(a4,1x,f18.9)") "ecor",ecor
-c      write(6,"(a4,1x,i8)") "nsym",nsym
-c      write(6,"(a4,1x,8(2x,i8))") "nbas",nbas(1:8)
-c      write(6,"(a4,1x,8(2x,i8))") "norb",norb(1:8)
-c      write(6,"(a4,1x,8(2x,i8))") "nfro",nfro(1:8)
-c      write(6,"(a4,1x,8(2x,i8))") "ndel",ndel(1:8)
+!#ifdef debug
+!      write(6,"(a4,1x,8(2x,i8))") "ncon",ncone(1:8)
+!      write(6,*) "idisk : ", idisk
+!      write(6,"(a4,1x,f18.9)") "ecor",ecor
+!      write(6,"(a4,1x,i8)") "nsym",nsym
+!      write(6,"(a4,1x,8(2x,i8))") "nbas",nbas(1:8)
+!      write(6,"(a4,1x,8(2x,i8))") "norb",norb(1:8)
+!      write(6,"(a4,1x,8(2x,i8))") "nfro",nfro(1:8)
+!      write(6,"(a4,1x,8(2x,i8))") "ndel",ndel(1:8)
 
       ng_sm=nsym
       nlsm_all(1:8)=norb(1:8)
@@ -104,7 +104,7 @@ c      write(6,"(a4,1x,8(2x,i8))") "ndel",ndel(1:8)
       cm_cri=0.03
 
       return
-c...end of subroutine gugadefault
+!...end of subroutine gugadefault
       end
 
       subroutine gugadrt_mole_inf()
@@ -127,11 +127,11 @@ c...end of subroutine gugadefault
       character*4 command,cmd(ncmd)
       character*72  line
       character*132 modline
-      Data Cmd /'TITL','ELEC','SPIN','SYMM','ACTI',
-     &          'PRIN','REFE','FIRS','INAC','CIAL',
-     &          'VALE','INTE','NOCO','ONEO','EXTR',
+      Data Cmd /'TITL','ELEC','SPIN','SYMM','ACTI',                     &
+     &          'PRIN','REFE','FIRS','INAC','CIAL',                     &
+     &          'VALE','INTE','NOCO','ONEO','EXTR',                     &
      &          'NONI','NACT','END '/
-*
+!
 
       n_electron=0
       nactel=0
@@ -139,7 +139,7 @@ c...end of subroutine gugadefault
       ns_sm=1
       call rdnlst(5,"GUGADRT")
       ntit=0
-10    read(5,'(a)',end=991) line
+ 10   read(5,'(a)',end=991) line
       command=line(1:8)
       call upcase(command)
       if ( command(1:1).eq.'*' ) goto 10
@@ -148,13 +148,13 @@ c...end of subroutine gugadefault
       do icmd=1,ncmd
          if ( command.eq.cmd(icmd) ) jcmd=icmd
       end do
-20    goto ( 100, 200, 300, 400, 500, 600, 700 ,800, 900,1000,
+ 20   goto ( 100, 200, 300, 400, 500, 600, 700 ,800, 900,1000,          &
      &      1100,1200,1300,1400,1500,1600,1700,1800           ) jcmd
       write (6,*) 'input: illegal keyword'
       write (6,'(a,a)') 'command=',command
       call abend()
-*
-*---  process title    command ----------------------------------------*
+!
+!---  process title    command ----------------------------------------*
  100  continue
       read(5,'(a)',end=991) line
       command=line(1:8)
@@ -167,53 +167,53 @@ c...end of subroutine gugadefault
       if ( jcmd.ne.0 ) goto 20
       ntit=ntit+1
       goto 100
-*
-*---  process electron command ----------------------------------------*
+!
+!---  process electron command ----------------------------------------*
  200  continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 200
       read(line,*,err=992) n_electron
       goto 10
-*
-*---  process spin     command ----------------------------------------*
+!
+!---  process spin     command ----------------------------------------*
  300  continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 300
       read(line,*,err=992) ispin
       spin=(ispin-1)/2.d0
       goto 10
-*
-*---  process symmetry command ----------------------------------------*
+!
+!---  process symmetry command ----------------------------------------*
  400  continue
 !      write (6,*)'input_guga: keyword symmetry is obsolete and ignored!
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 400
       read(line,*,err=992) ns_sm
       goto 10
-*
-*---  process active   command ----------------------------------------*
+!
+!---  process active   command ----------------------------------------*
  500  continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 500
       modline=line//' 0 0 0 0 0 0 0 0'
       read(modline,*,err=992) (nlsm_act(i),i=1,8)
       goto 10
-*
-*---  process print    command ----------------------------------------*
+!
+!---  process print    command ----------------------------------------*
  600  continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 600
       read(line,*,err=992) iprint
       goto 10
-*
-*---  process referenc command ----------------------------------------*
+!
+!---  process referenc command ----------------------------------------*
  700  continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 700
       read(line,*,err=992) n_ref,ln1
       if(n_ref.gt.max_ref) then
-        write(6,*) " Warnning! Program could not deal with so much",
-     *             " reference states!"
+        write(6,*) " Warnning! Program could not deal with so much",    &
+     &             " reference states!"
         write(6,*) " Maximum number of reference states is",max_ref
         write(6,*) " Set number of reference states into ",max_ref
         n_ref=max_ref
@@ -227,79 +227,79 @@ c...end of subroutine gugadefault
       enddo
       logic_mr=.true.
       goto 10
-*
-*---  process first    command ----------------------------------------*
+!
+!---  process first    command ----------------------------------------*
  800  continue
       goto 10
-*
-*---  process inactive command ----------------------------------------*
+!
+!---  process inactive command ----------------------------------------*
  900  continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 900
       modline=line//' 0 0 0 0 0 0 0 0'
       read(modline,*,err=992) (nlsm_dbl(i),i=1,8)
       goto 10
-*
-*---  process ciall    command ----------------------------------------*
-1000  continue
+!
+!---  process ciall    command ----------------------------------------*
+ 1000 continue
 !      read(5,'(a)',end=991) line
 !      if ( line(1:1).eq.'*' ) goto 1000
 !      read(line,*,err=992) ns_sm
       logic_mrelcas=.true.
       goto 10
-*
-*---  process valence  command ----------------------------------------*
-1100  continue
+!
+!---  process valence  command ----------------------------------------*
+ 1100 continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 1100
       modline=line//' 0 0 0 0 0 0 0 0'
       read(modline,*,err=992) (nlsm_ext(i),i=1,8)
       goto 10
-*
-*---  process interact command ----------------------------------------*
-1200  continue
+!
+!---  process interact command ----------------------------------------*
+ 1200 continue
       goto 10
-*
-*---  process nocorr   command ----------------------------------------*
-1300  continue
+!
+!---  process nocorr   command ----------------------------------------*
+ 1300 continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 1300
       modline=line//' 0 0 0 0 0 0 0 0'
       read(modline,*,err=992)  !(ncor(i),i=1,8)
-cbsuo, jun. 30, 2009 - neglect them
+!bsuo, jun. 30, 2009 - neglect them
       goto 10
-*
-*---  process oneocc   command ----------------------------------------*
-1400  continue
+!
+!---  process oneocc   command ----------------------------------------*
+ 1400 continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 1400
       modline=line//' 0 0 0 0 0 0 0 0'
       read(modline,*,err=992) ! (ione(i),i=1,8)
-cbsuo, jun. 30, 2009 - neglect them
+!bsuo, jun. 30, 2009 - neglect them
       goto 10
-*
-*---  process extract  command ----------------------------------------*
-1500  write (6,*) 'input: extract option is redundant and is ignored!'
+!
+!---  process extract  command ----------------------------------------*
+ 1500 write (6,*) 'input: extract option is redundant and is ignored!'
       goto 10
-*
-*---  process non-interact command -------------------------------------
-1600  continue
-      write (6,*) 'input: non-interact option is redundant and is',
-     *            ' ignored!'
+!
+!---  process non-interact command -------------------------------------
+ 1600 continue
+      write (6,*) 'input: non-interact option is redundant and is',     &
+     &            ' ignored!'
       goto 10
-*
-*---  process nactel       command -------------------------------------
-1700  continue
+!
+!---  process nactel       command -------------------------------------
+ 1700 continue
       read(5,'(a)',end=991) line
       if ( line(1:1).eq.'*' ) goto 200
       read(line,*,err=992) nactel
       goto 10
-*
-*---  the end of the input is reached, print the title ----------------*
-1800  continue
+!
+!---  the end of the input is reached, print the title ----------------*
+ 1800 continue
 
-c frozen orbital(dbl, ext) have been delete in mo trans step, so we negl
-c here.
+! frozen orbital(dbl, ext) have been delete in mo trans step, so we negl
+! here.
       nlsm_frz(1:ng_sm)=0
 
       norb_frz=0
@@ -381,10 +381,10 @@ c here.
           if ( imr .gt. iml ) cycle
           int_dd_offset(iml,imr)=im_lr_sta
           int_dd_offset(imr,iml)=im_lr_sta
-          if(iml.eq.imr)im_lr_sta=im_lr_sta+
-     :           nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
-          if(iml.ne.imr)im_lr_sta=im_lr_sta+
-     :           nlsm_ext(iml)*nlsm_ext(imr)
+          if(iml.eq.imr)im_lr_sta=im_lr_sta+                            &
+     &           nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
+          if(iml.ne.imr)im_lr_sta=im_lr_sta+                            &
+     &           nlsm_ext(iml)*nlsm_ext(imr)
         enddo
         do l=1,nlsm_ext(im)
           lr=lr+1
@@ -428,7 +428,7 @@ c here.
         if(n_electron.ne.0) then
           ne_act=n_electron-2*norb_dz
           if(nactel.ne.ne_act) then
-            write(6,*) "Input error, Error in checking ELECtron",
+            write(6,*) "Input error, Error in checking ELECtron",       &
      &                 " and NACTel!"
             call abend
           endif
@@ -450,8 +450,8 @@ c here.
       if(nde.gt.n_electron) then
         write(6,"(1x,42a)") 'check input date: number of elctrons error'
         write(6,"(1x,a20,1x,i4)") 'number of electrons ',n_electron
-        write(6,"(1x,a36,1x,i4)") "number of doubly occupied electrons "
-     *          ,nde
+        write(6,"(1x,a36,1x,i4)") "number of doubly occupied electrons "&
+     &          ,nde
         call abend
 !       stop 777
       endif
@@ -488,7 +488,7 @@ c here.
         enddo
       endif
 !============ block end =============================
-c****************************************************
+!****************************************************
       log_debug=.false.
       if(log_debug) then
         write(6,1001)
@@ -502,10 +502,10 @@ c****************************************************
         write(6,*) "lsm all",norb_all
         write(6,1002) (lsm(i),i=norb_all,1,-1)
       endif
-c*****************************************************
+!*****************************************************
 
 ! merge into molcas
-c write date into cidrt for ci calculation
+! write date into cidrt for ci calculation
       noidx=0
       idisk=0
       call idafile(ludrt,1,noidx,2,idisk)
@@ -580,52 +580,52 @@ c write date into cidrt for ci calculation
 !      print*, "in subroutine gugadrt_mole_inf"
 !      stop 1000
 !---------------------------------------------------------------------
-991   write (6,*) 'input: end of input file encountered'
+ 991  write (6,*) 'input: end of input file encountered'
       write (6,'(a,a)') 'last command: ',command
       call abend()
-992   write (6,*) 'input: error while reading input!'
+ 992  write (6,*) 'input: error while reading input!'
       write (6,'(a,a)') 'last command: ',command
       call abend()
-1001  format(1x,"norb all group sm")
-1002  format(8(1x,i3))
-1003  format(16x,8(i4))
-1004  format(8x,"frozen  ",8(i4))
-1005  format(8x,"double  ",8(i4))
-1006  format(8x,"active  ",8(i4))
-1007  format(8x,"virtual ",8(i4))
-1008  format(8x,"frz ext ",8(i4))
+ 1001 format(1x,"norb all group sm")
+ 1002 format(8(1x,i3))
+ 1003 format(16x,8(i4))
+ 1004 format(8x,"frozen  ",8(i4))
+ 1005 format(8x,"double  ",8(i4))
+ 1006 format(8x,"active  ",8(i4))
+ 1007 format(8x,"virtual ",8(i4))
+ 1008 format(8x,"frz ext ",8(i4))
       end
 
       subroutine gugadrt_paras_calculate()
 #include "gendrt.fh"
 !      include "paraconstants_h.for"
 !      include "intsort_h.for"
-c      data inlptb_new/
+!      data inlptb_new/
 !         1  2  3  4  5  6  7  8  9  10  11  12 13
-c a^r=1
-c     *    -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0,
-c a^l=2
-c     *     0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0,
-c b_r=3
-c     *    4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c b_l=4
-c     *    5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c b^r=5
-c     *    0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0,
-c b^l=6
-c     *    0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9,
-c c^'=7
-c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3,
-c c^"=8
-c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,
-c d_l^r=9
-c     *    6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c d^r^r=10
-c     *    0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0,
-c d^r^l=11
-c     *    0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0,
-c c^'" =12
-c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
+! a^r=1
+!     *    -1, 0, 0, 0, 0, 0,-7, 0,-9,-10,  0,-12, 0,
+! a^l=2
+!     *     0, 0, 0, 0, 0,-6, 0,-8, 0,  0,-11,  0, 0,
+! b_r=3
+!     *    4, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! b_l=4
+!     *    5, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! b^r=5
+!     *    0, 7, 8,10,11, 0, 0, 0, 0,  0,  0,  0, 0,
+! b^l=6
+!     *    0, 0, 9, 0,12, 0, 0, 0, 0,  0,  0,  0, 9,
+! c^'=7
+!     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 3,
+! c^"=8
+!     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,13,
+! d_l^r=9
+!     *    6, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! d^r^r=10
+!     *    0,-2, 0,-4, 0, 0, 0, 0, 0,  0,  0,  0, 0,
+! d^r^l=11
+!     *    0, 0,-3, 0,-5, 0, 0, 0, 0,  0,  0,  0, 0,
+! c^'" =12
+!     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
 !
 !****************************************************************
 !   ar      =1 (+a^r)     drr     =2 (+d^rr)   drl     =3 (+d^rl)
@@ -662,15 +662,15 @@ c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
       return
       end
 
-c****************************************************
+!****************************************************
       subroutine arrange_orbital_molcas()
-c****************************************************
-c  arrange orbital for ci calculation, in meld and
-c  molcas program, the orbital are arranged as the symmetry
-c  block. we transfer them to ci order
-c -----
-c map_order_orbital    ab ---> ci
-c
+!****************************************************
+!  arrange orbital for ci calculation, in meld and
+!  molcas program, the orbital are arranged as the symmetry
+!  block. we transfer them to ci order
+! -----
+! map_order_orbital    ab ---> ci
+!
 #include "gendrt.fh"
 !      include "intsort_h.for"
 #include "mcorb.fh"
@@ -706,7 +706,7 @@ c
           logi_norb_inn(lr_scf)=.true.
         enddo
       endif
-200   lr_scf0=norb_all
+ 200  lr_scf0=norb_all
       la=norb_inn+1
       do ms=ng_sm,1,-1
         lr_scf0=lr_scf0-nlsm_all(ms)
@@ -748,13 +748,13 @@ c
             goto 40
           endif
         enddo
-40    continue
+ 40   continue
 
-c      write(6,*) "map_order_orbit"
-c      write(6,1001) map_orb_order(1:norb_all)
+!      write(6,*) "map_order_orbit"
+!      write(6,1001) map_orb_order(1:norb_all)
       return
-c1001  format(20(1x,i3))
-c...end of arrange_orbital_molcas
+!1001  format(20(1x,i3))
+!...end of arrange_orbital_molcas
       end
 
       subroutine gugadrt_active_drt()
@@ -803,7 +803,7 @@ c...end of arrange_orbital_molcas
       enddo
       goto 200
 !====================  norb_act<>0 ========================
-100   if(logic_mr)  call gugadrt_rst(ndd,indd)
+ 100  if(logic_mr)  call gugadrt_rst(ndd,indd)
       if(logic_mrelcas) call gugadrt_rcas(ndd,indd)   !npp=3
 
       nu_ae(1)=jv
@@ -912,9 +912,9 @@ c...end of arrange_orbital_molcas
         iseg_upwei(jp)=iseg_dim(jp)/iseg_downwei(jp)
       enddo
 ! to the end of dbl,act,ext parts
-200   call gugadrt_dbl_downwalk()
-c      write(6,*)'  end of drt,nci_dim= ',nci_dim
-c      write(6,*)'number of cfss: ',nci_dim
+ 200  call gugadrt_dbl_downwalk()
+!      write(6,*)'  end of drt,nci_dim= ',nci_dim
+!      write(6,*)'number of cfss: ',nci_dim
       write(6,*)
       write(6,*)'-----------------------------------------------'
       write(6,*)'    csf information'
@@ -976,8 +976,8 @@ c      write(6,*)'number of cfss: ',nci_dim
       subroutine gugadrt_dbl_upwalk()
 #include "gendrt.fh"
       if(norb_dbl.eq.1) then
-c     v(1),d(2-9),s(18-25)           for s=0
-c     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
+!     v(1),d(2-9),s(18-25)           for s=0
+!     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
 
         mxnode=17+ng_sm
         lri=norb_frz+1
@@ -1022,7 +1022,7 @@ c     v(1),d(2-9),s(18-25),d'(26-33)   for s<>0
           jpad_upwei(no_t)=jpad_upwei(no_t)+1
         enddo
       enddo
-c     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
+!     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
       select case (jroute_sys)
         case(1)
           goto 100
@@ -1031,22 +1031,22 @@ c     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
         case(3)
           goto 300
       end select
-100     mxnode=25                     !v,d,t,s
+ 100    mxnode=25                     !v,d,t,s
         jpad_upwei(18:25)=jpad_upwei(10:17)
         jpad_upwei(17+ns_sm)=jpad_upwei(17+ns_sm)+norb_dbl
         goto 500
-200     mxnode=25+8
+ 200    mxnode=25+8
         jpad_upwei(18:25)=jpad_upwei(10:17)+jpad_upwei(10:17)
         jpad_upwei(17+ns_sm)=jpad_upwei(17+ns_sm)+norb_dbl
         jpad_upwei(26:33)=jpad_upwei(2:9)
         goto 500
-300     mxnode=25+8+8
+ 300    mxnode=25+8+8
         jpad_upwei(18:25)=jpad_upwei(10:17)+jpad_upwei(10:17)
         jpad_upwei(17+ns_sm)=jpad_upwei(17+ns_sm)+norb_dbl
         jpad_upwei(26:33)=jpad_upwei(2:9)
         jpad_upwei(34:41)=jpad_upwei(10:17)
 
-500   do node=2,mxnode
+ 500  do node=2,mxnode
         iw=jpad_upwei(node)
         if(iw.eq.0) cycle
         nu_ad(node)=node
@@ -1054,11 +1054,11 @@ c     v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
       return
       end
 
-c*******************************************
+!*******************************************
       subroutine gugadrt_rst(id,nndd)
-c*******************************************
-c 10 may 2007 - revised by wyb
-c
+!*******************************************
+! 10 may 2007 - revised by wyb
+!
 #include "gendrt.fh"
 #include "Sysdrt.fh"
 !#ifndef _I8_
@@ -1074,8 +1074,8 @@ c
       integer, pointer :: iwy(:,:)
       integer, pointer :: itm(:)
       dimension noh(max_innorb)
-      dimension iextjj(n32int),iextii(n32int),jjabkm(1:n16int),
-     *          jkabkm(1:n16int),iiabkm(1:n16int)
+      dimension iextjj(n32int),iextii(n32int),jjabkm(1:n16int),         &
+     &          jkabkm(1:n16int),iiabkm(1:n16int)
 ! estimate memory
       if(n_ref.gt.20) then
         if(norb_act.ge.10) then
@@ -1110,14 +1110,14 @@ c
       nrefbit=n32int
       jj(1:4,0:max_node)=0
 
-c 8 bits
+! 8 bits
       iextbit=2
       nextbit=iintbit/iextbit
-c 16 bits
+! 16 bits
       iabcbit=16
       nabcbit=iintbit/iabcbit
 
-c v node
+! v node
       j=0
       ja0=ja_sys
       jb0=jb_sys
@@ -1240,11 +1240,11 @@ c v node
       j=0
       jk=mxnode
       kk(jk)=norb_dz
-c      call packnod(idkk,jk,norb_dz,nabcbit,iabcbit,mxtnode)
+!      call packnod(idkk,jk,norb_dz,nabcbit,iabcbit,mxtnode)
 
-c**********************************************************************
-c
-7     j=j+1
+!**********************************************************************
+!
+ 7    j=j+1
       if(j.le.mxnode) then
         if(nu_ad(j).eq.0) goto 7
       endif
@@ -1270,10 +1270,10 @@ c
 !       stop 777
 !        call errexit(777)
       endif
-c =========================================================
-c                                            ***********
-c                                            *   d=0   *
-c                                            ***********
+! =========================================================
+!                                            ***********
+!                                            *   d=0   *
+!                                            ***********
 
       jatmp=jaj
       jbtmp=jbj
@@ -1282,8 +1282,8 @@ c                                            ***********
 
 
       iextjj(1:nrefbit)=ind(1:nrefbit,j)
-      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,
-     *                      0,kttmp,k0)
+      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,       &
+     &                      0,kttmp,k0)
       if(ivalid.eq.0) then
         jk=jk-1
         goto 11
@@ -1301,8 +1301,8 @@ c                                            ***********
         endif
       end if
 
-      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,
-     *             jmtmp,kktmp)
+      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,           &
+     &             jmtmp,kktmp)
       do 18 ii=no(k0)+1,jk-1
         iiabkm(1:n16int)=jabkm(1:n16int,ii)
         do i=1,n16int
@@ -1313,10 +1313,10 @@ c                                            ***********
         do i=1,nrefbit
           if(iextii(i).ne.iextjj(i)) goto 18
         enddo
-601     jk=jk-1
+ 601    jk=jk-1
         idjj(1,j)=ii
         goto 11
-18    continue
+ 18   continue
 
       ind(1:nrefbit,jk)=iextjj(1:nrefbit)
       idjj(1,j)=jk
@@ -1326,21 +1326,21 @@ c                                            ***********
       call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
       if(kktmp.ne.kj1) no(k0)=jk-1
 
-11    continue
-c =========================================================
+ 11   continue
+! =========================================================
       if(jbj.eq.0) goto 2
       jk=jk+1
-c                                            ***********
-c                                            *   d=1   *
-c                                            ***********
+!                                            ***********
+!                                            *   d=1   *
+!                                            ***********
       jatmp=jaj
       jbtmp=jbj-1
       jmtmp=mul_tab(lsm_inn(k0+1),jmj)
       kktmp=kkj+1
 
       iextjj(1:nrefbit)=ind(1:nrefbit,j)
-      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,
-     *                     1,kttmp,k0)
+      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,       &
+     &                     1,kttmp,k0)
 
       if(ivalid.eq.0) then
         jk=jk-1
@@ -1359,8 +1359,8 @@ c                                            ***********
         endif
       end if
 
-      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,
-     *             jmtmp,kktmp)
+      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,           &
+     &             jmtmp,kktmp)
       do 28 ii=no(k0)+1,jk-1
         iiabkm(1:n16int)=jabkm(1:n16int,ii)
         do i=1,n16int
@@ -1371,10 +1371,10 @@ c                                            ***********
         do i=1,nrefbit
           if(iextii(i).ne.iextjj(i)) goto 28
         enddo
-602     jk=jk-1
+ 602    jk=jk-1
         idjj(2,j)=ii
         goto 22
-28    continue
+ 28   continue
 
       ind(1:nrefbit,jk)=iextjj(1:nrefbit)
       idjj(2,j)=jk
@@ -1384,27 +1384,27 @@ c                                            ***********
       call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
       if(kktmp.ne.kj1) no(k0)=jk-1
 
-22    continue
-c =========================================================
-2     jac=norb_all-jaj-jbj
+ 22   continue
+! =========================================================
+ 2    jac=norb_all-jaj-jbj
       if(jaj.le.0) then
          goto 8
       else
          goto 5
       end if
-5     if(jac.eq.0) goto 3
+ 5    if(jac.eq.0) goto 3
       jk=jk+1
-c                                     *************
-c                                     *    d=2    *
-c                                     *************
+!                                     *************
+!                                     *    d=2    *
+!                                     *************
       jatmp=jaj-1
       jbtmp=jbj+1
       jmtmp=mul_tab(lsm_inn(k0+1),jmj)
       kktmp=kkj+1
 
       iextjj(1:nrefbit)=ind(1:nrefbit,j)
-      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,
-     *                     2,kttmp,k0)
+      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,       &
+     &                     2,kttmp,k0)
       if(ivalid.eq.0) then
         jk=jk-1
         goto 33
@@ -1422,8 +1422,8 @@ c                                     *************
         endif
       end if
 
-      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,
-     *             jmtmp,kktmp)
+      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,           &
+     &             jmtmp,kktmp)
       do 38 ii=no(k0)+1,jk-1
         iiabkm(1:n16int)=jabkm(1:n16int,ii)
         do i=1,n16int
@@ -1434,10 +1434,10 @@ c                                     *************
         do i=1,nrefbit
           if(iextii(i).ne.iextjj(i)) goto 38
         enddo
-603     jk=jk-1
+ 603    jk=jk-1
         idjj(3,j)=ii
         goto 33
-38    continue
+ 38   continue
 
       ind(1:nrefbit,jk)=iextjj(1:nrefbit)
       idjj(3,j)=jk
@@ -1447,21 +1447,21 @@ c                                     *************
       call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
       if(kktmp.ne.kj1) no(k0)=jk-1
 
-33    continue
-c =========================================================
-c                                         ************
-c                                         *    d=3   *
-c                                         ************
+ 33   continue
+! =========================================================
+!                                         ************
+!                                         *    d=3   *
+!                                         ************
 
-3     jk=jk+1
+ 3    jk=jk+1
       jatmp=jaj-1
       jbtmp=jbj
       jmtmp=jmj
       kktmp=kkj+1
 
       iextjj(1:nrefbit)=ind(1:nrefbit,j)
-      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,
-     *                     3,kttmp,k0)
+      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,       &
+     &                     3,kttmp,k0)
       if(ivalid.eq.0) then
         jk=jk-1
         goto 44
@@ -1479,8 +1479,8 @@ c                                         ************
         endif
       end if
 
-      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,
-     *             jmtmp,kktmp)
+      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,           &
+     &             jmtmp,kktmp)
       do 48 ii=no(k0)+1,jk-1
         iiabkm(1:n16int)=jabkm(1:n16int,ii)
         do i=1,n16int
@@ -1491,10 +1491,10 @@ c                                         ************
         do i=1,nrefbit
           if(iextii(i).ne.iextjj(i)) goto 48
         enddo
-604     jk=jk-1
+ 604    jk=jk-1
         idjj(4,j)=ii
         goto 44
-48    continue
+ 48   continue
 
       ind(1:nrefbit,jk)=iextjj(1:nrefbit)
       idjj(4,j)=jk
@@ -1504,12 +1504,12 @@ c                                         ************
       call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
       if(kktmp.ne.kj1) no(k0)=jk-1
 
-44    continue
-c      if(k0.eq.7) goto 999
-c===========================================================
-8     if(k0.le.norb_inn-1) goto 7
+ 44   continue
+!      if(k0.eq.7) goto 999
+!===========================================================
+ 8    if(k0.le.norb_inn-1) goto 7
 
-c999   continue
+!999   continue
 !      if(iprint.eq.1) then
 !        open(100,file="tmp.dat")
 !        do i=1,jk
@@ -1523,11 +1523,11 @@ c999   continue
 !        enddo
 !        close(100)
 !      endif
-c      write(6,"(10(1x,i5))") no(1:norb_all)
+!      write(6,"(10(1x,i5))") no(1:norb_all)
       write(6,*)
-c  ************** external space  *************
+!  ************** external space  *************
       id=no(norb_inn)
-c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
+!      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
       do idd=no(norb_inn-1)+1,id
         jjabkm(1:n16int)=jabkm(1:n16int,idd)
         call redabkm(jjabkm,n16int,nabcbit,iabcbit,jaj,jbj,jmj,kkj)
@@ -1586,21 +1586,21 @@ c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
             if(idjj(4,jp0).eq.jde) idjj(4,jp0)=0
           enddo
           goto 21
-304       if(j2.eq.0.or.iwy(1,j2).eq.0) goto 31
+ 304      if(j2.eq.0.or.iwy(1,j2).eq.0) goto 31
           iwy(2,jde)=iwy(1,j1)
-31        if(j3.eq.0.or.iwy(1,j3).eq.0) goto 32
+ 31       if(j3.eq.0.or.iwy(1,j3).eq.0) goto 32
           iwy(3,jde)=iwy(1,j1)+iwy(1,j2)
-32        if(j4.eq.0.or.iwy(1,j4).eq.0) goto 303
+ 32       if(j4.eq.0.or.iwy(1,j4).eq.0) goto 303
           iwy(4,jde)=iwy(1,jde)-iwy(1,j4)
-303       if(jde.eq.1) goto 21
+ 303      if(jde.eq.1) goto 21
           do 302 jp=jps,jde-1
             if(iwy(1,jp).ne.iwy(1,jde)) goto 302
             jq1=idjj(1,jp)
             jq2=idjj(2,jp)
             jq3=idjj(3,jp)
             jq4=idjj(4,jp)
-            if(j1.ne.jq1.or.j2.ne.jq2.or.j3.ne.jq3.or.j4.ne.jq4)
-     *        goto 302
+            if(j1.ne.jq1.or.j2.ne.jq2.or.j3.ne.jq3.or.j4.ne.jq4)        &
+     &        goto 302
             iwy(1,jde)=0
             do jp0=no(l-2)+1,no(l-1)
               if(idjj(1,jp0).eq.jde) idjj(1,jp0)=jp
@@ -1609,9 +1609,9 @@ c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
               if(idjj(4,jp0).eq.jde) idjj(4,jp0)=jp
             enddo
             goto 21
-302       continue
-21      continue
-20    continue
+ 302      continue
+ 21     continue
+ 20   continue
 
       it=mxnode
       itm(1)=1
@@ -1667,14 +1667,14 @@ c      write(6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
         enddo
       enddo
 
-c      open(10,file='rst.out')
+!      open(10,file='rst.out')
       no(norb_dz)=0
       no(norb_dz+1)=mxnode
-c      write(6,*) '   end of rst, drt ..........'
-c      write(6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
+!      write(6,*) '   end of rst, drt ..........'
+!      write(6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
       do 706 lr=norb_dz+1,norb_inn
         no(lr+1)=noh(lr)
-706   continue
+ 706  continue
       jv=itm(jv)
       itm(0)=0
       do im=1,8
@@ -1699,16 +1699,16 @@ c      write(6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
         write(6,*) "guga drt"
         write(6,506)
       endif
-506   format('       j    k   a  b  t jm    j0   j1   j2   j3       y1',
-     :       '       y2      y3         x   ind')
+ 506  format('       j    k   a  b  t jm    j0   j1   j2   j3       y1',&
+     &       '       y2      y3         x   ind')
       nndd=no(norb_inn)
       do 541 j=1,id
           kk(j)=kk(j)+1
         if(iprint.eq.1) then
-          write(6,510)j,kk(j),ja(j),jb(j),jm(j),
-     :             jj(1,j),jj(2,j),jj(3,j),jj(4,j)
+          write(6,510)j,kk(j),ja(j),jb(j),jm(j),                        &
+     &             jj(1,j),jj(2,j),jj(3,j),jj(4,j)
         endif
-541   continue
+ 541  continue
       write(6,*)
       write(6,*) 'end of rst, drt ..........'
 
@@ -1718,20 +1718,20 @@ c      write(6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
       deallocate(iwy)
       deallocate(itm)
 
-c
-c      open(21,file="fort.drt",form="unformatted")
-c      write(21) id
-c      write(21) ja(1:id),jb(1:id),jm(1:id)
-c      write(21) jj(1:4,0:id)
-c      write(21) kk(0:id)
-c      write(21) no(0:norb_inn+1)
-c      write(21) jv,jd(1:8),jt(1:8),js(1:8)
-c      close(21)
+!
+!      open(21,file="fort.drt",form="unformatted")
+!      write(21) id
+!      write(21) ja(1:id),jb(1:id),jm(1:id)
+!      write(21) jj(1:4,0:id)
+!      write(21) kk(0:id)
+!      write(21) no(0:norb_inn+1)
+!      write(21) jv,jd(1:8),jt(1:8),js(1:8)
+!      close(21)
 
       call writedrt(id)
       return
-c508   format(3x,a10,1x,i5,1x,16i8)
-510   format(3x,10(1x,i7))
+!508   format(3x,a10,1x,i5,1x,16i8)
+ 510  format(3x,10(1x,i7))
       end
 
       subroutine gugadrt_ref_gfs(nel,ndj,locu,nm)
@@ -1780,15 +1780,15 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                         lscu(6,mdj)=l6
                         lscu(7,mdj)=l7
                         lscu(8,mdj)=l8
-107                   continue
-106                 continue
-105               continue
-104             continue
-103           continue
-102         continue
-101       continue
-100     continue
-500   continue
+ 107                  continue
+ 106                continue
+ 105              continue
+ 104            continue
+ 103          continue
+ 102        continue
+ 101      continue
+ 100    continue
+ 500  continue
       ndj=0
       do 300 m=1,mdj
         npair=(ne_act-lscu(0,m))/2
@@ -1820,7 +1820,7 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                             if(m7.ne.locu(7,ldj)) goto 600
                             if(m8.ne.locu(8,ldj)) goto 600
                             goto 207
-600                       continue
+ 600                      continue
                           ndj=ndj+1
                           locu(1,ndj)=m1
                           locu(2,ndj)=m2
@@ -1831,15 +1831,15 @@ c508   format(3x,a10,1x,i5,1x,16i8)
                           locu(7,ndj)=m7
                           locu(8,ndj)=m8
                         endif
-207                   continue
-206                 continue
-205               continue
-204             continue
-203           continue
-202         continue
-201       continue
-200     continue
-300   continue
+ 207                  continue
+ 206                continue
+ 205              continue
+ 204            continue
+ 203          continue
+ 202        continue
+ 201      continue
+ 200    continue
+ 300  continue
 
       do nre=1,ndj
       write(6,'(5x,i6,8i3)')nre,(locu(i,nre),i=1,8)
@@ -1963,7 +1963,7 @@ c508   format(3x,a10,1x,i5,1x,16i8)
 
       j=0
       jk=mxnode
-7     j=j+1
+ 7    j=j+1
       if(j.le.mxnode) then
         if(nu_ad(j).eq.0) goto 7
       endif
@@ -1971,9 +1971,9 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       k0=kk(j)
       if(jc(j).eq.0) goto 1
       jk=jk+1
-c                                            ***********
-c                                            *   d=0   *
-c                                            ***********
+!                                            ***********
+!                                            *   d=0   *
+!                                            ***********
       ja(jk)=ja(j)
       jb(jk)=jb(j)
       jc(jk)=jc(j)-1
@@ -2003,19 +2003,19 @@ c                                            ***********
  601     jk=jk-1
          jj(1,j)=ii
          goto 11
-18       continue
+ 18      continue
       jj(1,j)=jk
       kk(jk)=kk(j)+1
       if(kk(jk).ne.kk(jk-1)) then
       no(k0)=jk-1
       end if
-11    continue
-c      v=0
-1     if(jb(j).eq.0) goto 2
+ 11   continue
+!      v=0
+ 1    if(jb(j).eq.0) goto 2
       jk=jk+1
-c                                            ***********
-c                                            *   d=1   *
-c                                            ***********
+!                                            ***********
+!                                            *   d=1   *
+!                                            ***********
       ja(jk)=ja(j)
       jb(jk)=jb(j)-1
       jc(jk)=jc(j)
@@ -2042,31 +2042,31 @@ c                                            ***********
            do i=1,8
             if(ind(i,jk).ne.ind(i,ii)) goto 119
           enddo
-607      jk=jk-1
+ 607     jk=jk-1
          jj(2,j)=ii
          goto 22
-119   continue
+ 119  continue
       jj(2,j)=jk
       kk(jk)=kk(j)+1
       if(kk(jk).ne.kk(jk-1)) then
       no(k0)=jk-1
       end if
-22    continue
-c      v=0
-2     if(ja(j).le.0) then
+ 22   continue
+!      v=0
+ 2    if(ja(j).le.0) then
          goto 8
       else
          goto 5
       end if
-5     if(jc(j).eq.0) goto 3
+ 5    if(jc(j).eq.0) goto 3
       jk=jk+1
-c                                     *************
-c                                     *    d=2    *
-c                                     *************
+!                                     *************
+!                                     *    d=2    *
+!                                     *************
       ja(jk)=ja(j)-1
       jb(jk)=jb(j)+1
       jc(jk)=jc(j)-1
-c-----------------------------------------------------------------------
+!-----------------------------------------------------------------------
       jm(jk)=mul_tab(lsm_inn(kk(j)+1),jm(j))
       do i=1,8
         ind(i,jk)=ind(i,j)
@@ -2090,22 +2090,22 @@ c-----------------------------------------------------------------------
          do i=1,8
            if(ind(i,jk).ne.ind(i,ii)) goto 181
          enddo
-603      jk=jk-1
+ 603     jk=jk-1
          jj(3,j)=ii
          goto 44
-181   continue
+ 181  continue
       jj(3,j)=jk
       kk(jk)=kk(j)+1
       if(kk(jk).ne.kk(jk-1)) then
       no(k0)=jk-1
       end if
-44    continue
-c      v=0
-c                                         ************
-c                                         *    d=3   *
-c                                         ************
+ 44   continue
+!      v=0
+!                                         ************
+!                                         *    d=3   *
+!                                         ************
 
-3     jk=jk+1
+ 3    jk=jk+1
       ja(jk)=ja(j)-1
       jb(jk)=jb(j)
       jc(jk)=jc(j)
@@ -2131,25 +2131,25 @@ c                                         ************
          if(kk(j).eq.norb_inn-1) goto 605
          do 606 i=1,8
            if(ind(i,jk).ne.ind(i,ii)) goto 118
-606      continue
-605      jk=jk-1
+ 606     continue
+ 605     jk=jk-1
          jj(4,j)=ii
          go to 88
-118   continue
+ 118  continue
       jj(4,j)=jk
       kk(jk)=kk(j)+1
       if(kk(jk).ne.kk(jk-1)) then
       no(k0)=jk-1
       end if
-88    continue
-c      v=0
+ 88   continue
+!      v=0
       if(jk.gt.max_node) then
         write(6,*) '    the nomber of j exceeds max_node',max_node
         call abend
 !       stop 777
       endif
-8     if(kk(j).le.norb_inn-1)goto 7
-c  ************** external space  *************
+ 8    if(kk(j).le.norb_inn-1)goto 7
+!  ************** external space  *************
 
       id=no(norb_inn)
       write(6,*)
@@ -2186,7 +2186,7 @@ c  ************** external space  *************
            if(jm(idd).eq.7) js(7)=idd
            if(jm(idd).eq.8) js(8)=idd
       endif
-43    continue
+ 43   continue
 
       iwy(1,jv)=1
       do im=1,ng_sm
@@ -2197,7 +2197,7 @@ c  ************** external space  *************
 
       do 21 i=1,4
       iwy(i,0)=0
-21    continue
+ 21   continue
       do 20 l=norb_inn-1,norb_dz,-1
          jps=no(l-1)+1
          jpe=no(l)
@@ -2220,13 +2220,13 @@ c  ************** external space  *************
              if(jj(4,jp0).eq.jde) jj(4,jp0)=0
            enddo
          goto 19
-304      if(j2.eq.0.or.iwy(1,j2).eq.0) goto 31
+ 304     if(j2.eq.0.or.iwy(1,j2).eq.0) goto 31
          iwy(2,jde)=iwy(1,j1)
-31       if(j3.eq.0.or.iwy(1,j3).eq.0) goto 32
+ 31      if(j3.eq.0.or.iwy(1,j3).eq.0) goto 32
          iwy(3,jde)=iwy(1,j1)+iwy(1,j2)
-32       if(j4.eq.0.or.iwy(1,j4).eq.0) goto 303
+ 32      if(j4.eq.0.or.iwy(1,j4).eq.0) goto 303
          iwy(4,jde)=iwy(1,jde)-iwy(1,j4)
-303      if(jde.eq.1) goto 19
+ 303     if(jde.eq.1) goto 19
          do 302 jp=jps,jde-1
            if(iwy(1,jp).ne.iwy(1,jde)) goto 302
            jq1=jj(1,jp)
@@ -2242,9 +2242,9 @@ c  ************** external space  *************
              if(jj(4,jp0).eq.jde) jj(4,jp0)=jp
            enddo
            goto 19
-302      continue
-19     continue
-20    continue
+ 302     continue
+ 19    continue
+ 20   continue
         it=mxnode
       itm(1)=1
         noh(norb_dz)=mxnode
@@ -2255,9 +2255,9 @@ c  ************** external space  *************
           it=it+1
           itm(jp)=it
           endif
-200     continue
+ 200    continue
       noh(lr+1)=it
-405   continue
+ 405  continue
 
       do 206 jpe=mxnode+1,id
         jp=itm(jpe)
@@ -2281,21 +2281,21 @@ c  ************** external space  *************
          iwy(i,jp)=iwy(i,jpe)
          jj(i,jp)=jj(i,jpe)
          ind(i,jp)=ind(i,jpe)
-704   continue
+ 704  continue
       do i=5,8
       ind(i,jp)=ind(i,jpe)
       enddo
-206   continue
+ 206  continue
 
-c      open(10,file='rcas.out')
+!      open(10,file='rcas.out')
       no(norb_dz)=0
       no(norb_dz+1)=mxnode
 
-c      write(nf10,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
+!      write(nf10,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
       do 706 lr=norb_dz,norb_inn
         no(lr+1)=noh(lr)
         write(6,'(2x,2i10)')lr+1,no(lr+1)
-706   continue
+ 706  continue
 
       itm(0)=0
       jv=itm(jv)
@@ -2314,7 +2314,7 @@ c      write(nf10,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
       do j=1,mxnode
         iysum=iysum+iwy(1,j)
       enddo
-c        write(6,*)'    end of rcas , node=',id,'  dimension=',iysum
+!        write(6,*)'    end of rcas , node=',id,'  dimension=',iysum
       write(6,*)
       indd=no(norb_inn)
 !      iprint=1
@@ -2322,33 +2322,33 @@ c        write(6,*)'    end of rcas , node=',id,'  dimension=',iysum
         write(6,*) "guga drt"
         write(6,506)
       endif
-506   format('       j    k   a  b  t jm    j0   j1   j2   j3       y1',
-     :       '    y2      y3         x   ind')
+ 506  format('       j    k   a  b  t jm    j0   j1   j2   j3       y1',&
+     &       '    y2      y3         x   ind')
 
       do 541 j=1,id
         kk(j)=kk(j)+1
         if(iprint.eq.1) then
-           write(6,507)j,kk(j),ja(j),jb(j),jm(j),
-     :             jj(1,j),jj(2,j),jj(3,j),jj(4,j),
-     :             iwy(2,j),iwy(3,j),iwy(4,j),iwy(1,j),(ind(i,j),i=1,8)
+           write(6,507)j,kk(j),ja(j),jb(j),jm(j),                       &
+     &             jj(1,j),jj(2,j),jj(3,j),jj(4,j),                     &
+     &             iwy(2,j),iwy(3,j),iwy(4,j),iwy(1,j),(ind(i,j),i=1,8)
         endif
-541   continue
+ 541  continue
       write(6,*) 'end of rcas, drt ..........'
       write(6,*)
 
-c      open(21,file="fort.drt",form="unformatted")
-c      write(21) id
-c      write(21) ja(1:id),jb(1:id),jm(1:id)
-c      write(21) jj(1:4,0:id)
-c      write(21) kk(0:id)
-c      write(21) no(0:norb_inn+1)
-c      write(21) jv,jd(1:8),jt(1:8),js(1:8)
-c      close(21)
+!      open(21,file="fort.drt",form="unformatted")
+!      write(21) id
+!      write(21) ja(1:id),jb(1:id),jm(1:id)
+!      write(21) jj(1:4,0:id)
+!      write(21) kk(0:id)
+!      write(21) no(0:norb_inn+1)
+!      write(21) jv,jd(1:8),jt(1:8),js(1:8)
+!      close(21)
 
       call writedrt(id)
       call mma_deallocate(ind)
       call mma_deallocate(iwy)
-507   format(3x,2i5,1x,3i3,1x,4i5,1x,4i10,1x,8i2)
+ 507  format(3x,2i5,1x,3i3,1x,4i5,1x,4i10,1x,8i2)
       end
 
       subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
@@ -2378,18 +2378,18 @@ c      close(21)
       return
       end
 
-c     juv,just(nost,nost),jud(nost)
-c     |  \  1         |
-c     | d,dd,s(i=i)   |
-c     |    \ s,t,tt(i<j)|
-c     |     \       1 2 |     deal with inner of dbl_space
-c     |ss(i>j)\       |
-c     |  2 1  \       |
+!     juv,just(nost,nost),jud(nost)
+!     |  \  1         |
+!     | d,dd,s(i=i)   |
+!     |    \ s,t,tt(i<j)|
+!     |     \       1 2 |     deal with inner of dbl_space
+!     |ss(i>j)\       |
+!     |  2 1  \       |
       subroutine gugadrt_dbl_downwalk()
 #include "gendrt.fh"
-c     integer lsml(10,10)       !to del
+!     integer lsml(10,10)       !to del
       if(norb_dbl.ne.0) goto 200
-c----------- norb_dbl=0 ------------------------------------------------
+!----------- norb_dbl=0 ------------------------------------------------
       do im=1,ng_sm
         nnd=iseg_sta(1+im)
         nnt=iseg_sta(9+im)
@@ -2414,9 +2414,9 @@ c----------- norb_dbl=0 ------------------------------------------------
            enddo
         enddo
       enddo
-c----------- norb_dbl=0 ------------------------------------------------
-c----------- norb_dbl<>0 -----------------------------------------------
-200   continue
+!----------- norb_dbl=0 ------------------------------------------------
+!----------- norb_dbl<>0 -----------------------------------------------
+ 200  continue
       do im=1,ng_sm
         nnd=0
         nns=0
@@ -2509,8 +2509,8 @@ c----------- norb_dbl<>0 -----------------------------------------------
 !      return
 !      end
 
-      subroutine gugadrt_njexcit(indjk,ljk,iextbit,nextbit,ivalid,
-     *                           jstep,kttmp,k0)
+      subroutine gugadrt_njexcit(indjk,ljk,iextbit,nextbit,ivalid,      &
+     &                           jstep,kttmp,k0)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
 #include "refstate.fh"
@@ -2551,14 +2551,14 @@ c----------- norb_dbl<>0 -----------------------------------------------
       return
       end
 
-c**************************************************
+!**************************************************
       subroutine packnod(ibuf,idx,ival,nin,nbit,lbuf)
-c**************************************************
-c  pack integral ival into ibuf on bit mode
-c  ibuf() integral buffer array
-c  idx    index
-c  nin    number of integrals in one integral
-c  lbuf   length of ibuf
+!**************************************************
+!  pack integral ival into ibuf on bit mode
+!  ibuf() integral buffer array
+!  idx    index
+!  nin    number of integrals in one integral
+!  lbuf   length of ibuf
       implicit real*8 (a-h,o-z)
       dimension ibuf(lbuf)
       integer*4, parameter :: one4=1
@@ -2574,35 +2574,35 @@ c  lbuf   length of ibuf
         nidbit=(nin-nimod)*nbit
       endif
 
-c      write(6,"(b64.64)") inv
+!      write(6,"(b64.64)") inv
 #ifdef _AIX_
       call abend
 #else
-c IFG: changed to avoid compiler warnings, although it is
-c      probably the compiler's fault
-c     call mvbits(inv,0,nbit,ibuf(ngrp),nidbit)
+! IFG: changed to avoid compiler warnings, although it is
+!      probably the compiler's fault
+!     call mvbits(inv,0,nbit,ibuf(ngrp),nidbit)
       call mvbits(inv,0,int(nbit,i4),ibuf(ngrp),int(nidbit,i4))
 #endif
-c      write(6,"(b64.64)") ibuf(ngrp)
+!      write(6,"(b64.64)") ibuf(ngrp)
 
       return
-c...end of packnod
+!...end of packnod
       end
 
-c**************************************************
-      subroutine packnod4(ibuf,idx1,idx2,ival,nin1,nbit1,
-     *                    lbuf1,lbuf2)
-c**************************************************
-c  pack integral ival into ibuf on bit mode
-c  ibuf() integral buffer array
-c  idx1   index of the ibuf(i,*)
-c  idx2   index of the ibuf(*,i)
-c  ival   the value will packed
-c  nin1   number of integrals in one integral in ibuf(i,*)
-c  nbit1  number of bits packed in ibuf(i,*)
-c  nin2   number of integrals in one integral in ibuf(*,i)
-c  nbit2  number of bits packed in ibuf(*,i)
-c  lbuf   length of ibuf
+!**************************************************
+      subroutine packnod4(ibuf,idx1,idx2,ival,nin1,nbit1,               &
+     &                    lbuf1,lbuf2)
+!**************************************************
+!  pack integral ival into ibuf on bit mode
+!  ibuf() integral buffer array
+!  idx1   index of the ibuf(i,*)
+!  idx2   index of the ibuf(*,i)
+!  ival   the value will packed
+!  nin1   number of integrals in one integral in ibuf(i,*)
+!  nbit1  number of bits packed in ibuf(i,*)
+!  nin2   number of integrals in one integral in ibuf(*,i)
+!  nbit2  number of bits packed in ibuf(*,i)
+!  lbuf   length of ibuf
       implicit real*8 (a-h,o-z)
       dimension ibuf(lbuf1,0:lbuf2)
       integer*4, parameter :: one4=1
@@ -2621,23 +2621,23 @@ c  lbuf   length of ibuf
       call abend
 #else
 
-c IFG: changed to avoid compiler warnings, although it is
-c      probably the compiler's fault
-c     call mvbits(inv,0,nbit1,ibuf(ngrp1,idx2),nidbit1)
+! IFG: changed to avoid compiler warnings, although it is
+!      probably the compiler's fault
+!     call mvbits(inv,0,nbit1,ibuf(ngrp1,idx2),nidbit1)
       call mvbits(inv,0,int(nbit1,i4),ibuf(ngrp1,idx2),int(nidbit1,i4))
 #endif
       return
-c...end of packnod4
+!...end of packnod4
       end
 
-c**************************************************
+!**************************************************
       subroutine upacknod(ibuf,idx,ival,nin,nbit,lbuf)
-c**************************************************
-c  pack integral ival into ibuf on bit mode
-c  ibuf() integral buffer array
-c  idx    index
-c  nin    number of integrals in one integral
-c  lbuf   length of ibuf
+!**************************************************
+!  pack integral ival into ibuf on bit mode
+!  ibuf() integral buffer array
+!  idx    index
+!  nin    number of integrals in one integral
+!  lbuf   length of ibuf
       implicit real*8 (a-h,o-z)
       dimension ibuf(lbuf)
       integer*4, parameter :: one4=1
@@ -2653,29 +2653,29 @@ c  lbuf   length of ibuf
       endif
 
       isp=nidbit
-c      inv=ibuf(ngrp)
-c      ival=ibits(inv,isp,nbit-1)
+!      inv=ibuf(ngrp)
+!      ival=ibits(inv,isp,nbit-1)
       ival=0
 #ifdef _AIX_
       call abend
 #else
 
-c IFG: changed to avoid compiler warnings, although it is
-c      probably the compiler's fault
-c     call mvbits(ibuf(ngrp),isp,nbit,ival,0)
+! IFG: changed to avoid compiler warnings, although it is
+!      probably the compiler's fault
+!     call mvbits(ibuf(ngrp),isp,nbit,ival,0)
       call mvbits(ibuf(ngrp),int(isp,i4),int(nbit,i4),ival,0)
 #endif
-c      write(6,*) isp,nbit-1
-c      write(6,"(b64.64)") ival
+!      write(6,*) isp,nbit-1
+!      write(6,"(b64.64)") ival
 
       return
-c...end of upacknod
+!...end of upacknod
       end
 
 
-      subroutine redabkm(iabkm,labkm,nabcbit,iabcbit,
-     *                   jatmp,jbtmp,jmtmp,kktmp)
-c this subroutine unpack ja jb jm kt from compress arrays
+      subroutine redabkm(iabkm,labkm,nabcbit,iabcbit,                   &
+     &                   jatmp,jbtmp,jmtmp,kktmp)
+! this subroutine unpack ja jb jm kt from compress arrays
       implicit real*8 (a-h,o-z)
       dimension iabkm(1:labkm)
 
@@ -2685,12 +2685,12 @@ c this subroutine unpack ja jb jm kt from compress arrays
       call upacknod(iabkm,4,kktmp,nabcbit,iabcbit,labkm)
 
       return
-c...end of reabtm
+!...end of reabtm
       end
 
-      subroutine wrtabkm(iabkm,labkm,nabcbit,iabcbit,
-     *                   jatmp,jbtmp,jmtmp,kktmp)
-c this subroutine unpack ja jb jm kt from compress arrays
+      subroutine wrtabkm(iabkm,labkm,nabcbit,iabcbit,                   &
+     &                   jatmp,jbtmp,jmtmp,kktmp)
+! this subroutine unpack ja jb jm kt from compress arrays
       implicit real*8 (a-h,o-z)
       dimension iabkm(1:labkm)
 
@@ -2700,7 +2700,7 @@ c this subroutine unpack ja jb jm kt from compress arrays
       call packnod(iabkm,4,kktmp,nabcbit,iabcbit,labkm)
 
       return
-c...end of reabtm
+!...end of reabtm
       end
 
       subroutine writedrt(id)
