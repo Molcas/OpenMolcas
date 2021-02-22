@@ -68,9 +68,6 @@
 *                                                                      *
 *         nChOrb_ : array of nr. of Cholesky orbitals in each irrep    *
 *                                                                      *
-*         ipAorb : array of pointers to the active orbitals of each    *
-*                  irrep. The storage MUST BE of type C(v,b)           *
-*                                                                      *
 *         nAorb : array with # of Active orbitals in each irrep        *
 *                 (The same orbital basis                              *
 *                 in which the 2-body Dmat is expressed)               *
@@ -152,7 +149,6 @@
 #include "print.fh"
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
-      Integer ipAOrb(8,2)
 
       Logical add
       Character*6 mode
@@ -182,11 +178,6 @@
 *     General Initialization                                           *
 *                                                                      *
 ************************************************************************
-
-*     Temporary set up of ipAOrb -- to become obsolete
-      Do iADens = 1, nADens
-         Call Map_to_CMO(AOrb(iADens),ipAOrb(:,iADens))
-      End Do
 
       iRout = 9
       iPrint = nPrint(iRout)
@@ -1533,9 +1524,10 @@ C --- subtraction is done in the 1st reduced set
 *                                                                      *
 ************************************************************************
 
-                     CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+                     CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,
+     &                                   JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
-     &                             ipAorb(1,iMO1),nAorb,ipLpq,iSkip,
+     &                             Aorb(iMO1),nAorb,ipLpq,iSkip,
      &                             DoRead)
 
                      if (irc.ne.0) then
