@@ -33,16 +33,15 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MO1(2), MO2(2)
       Integer   rc,ipLxy(8),ipScr(8,8)
-      Integer   ipLab(8,2),ipOrb(8,2),nOrb(8,2)
+      Integer   ipLab(8,2),nOrb(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8), ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
-      Integer   ipAorb(8,2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -100,11 +99,6 @@ c --------------------
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive Coul matrix
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB**2 ! Inactive Exch matrix
       END DO
-
-      Call Map_to_CMO(MO1(1),ipOrb(:,1))
-      Call Map_to_CMO(MO1(2),ipOrb(:,2))
-      Call Map_to_CMO(MO2(1),ipAOrb(:,1))
-      Call Map_to_CMO(MO2(2),ipAOrb(:,2))
 
       DO jDen=1,nDen
 
@@ -334,8 +328,8 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+               CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,MO1,nOrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -421,8 +415,8 @@ C -------------------------------------------------------------
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb,nAsh,
+               CALL CHO_X_getVtra2(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,MO2,nAsh,
      &                           ipLab,iSkip,DoRead)
 
                if (irc.ne.0) then
@@ -451,7 +445,6 @@ C --------------------------------------------------------------------
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
      &                                MO2(kDen)%pA(iSymb)%A,NAw,
-*    &                                Work(ipAorb(iSymb,kDen)),NAw,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do
