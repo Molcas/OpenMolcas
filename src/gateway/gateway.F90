@@ -24,46 +24,44 @@ subroutine Gateway(iReturn)
 !                                                                      *
 !***********************************************************************
 
-use Period
-use GeoList
-use MpmC
-use Basis_Info
-use Center_Info
+use Period, only: AdCell
+use GeoList, only: Centr, Chrg, Mass
+use MpmC, only: Coor_MPM
+use Basis_Info, only: dbsc, nBas, nCnttp, basis_info_dmp, basis_info_init, basis_info_get, basis_info_free
+use Center_Info, only: dc, center_info_dmp, center_info_init, center_info_get, center_info_free
 use external_centers, only: iXPolType, XF
 use Temporary_parameters, only: Primitive_Pass, Expert, VarR, VarT, DirInt
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
 use Symmetry_Info, only: nIrrep
-use Definitions, only: iwp
+use Gateway_global, only: Run_Mode, G_Mode
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-integer AixRm
-external AixRm
+implicit none
+integer(kind=iwp), intent(out) :: iReturn
 #include "Molcas.fh"
 #include "status.fh"
-#include "gateway.fh"
 #include "rctfld.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-character xLblCnt(MxAtom)*(LENIN)
-parameter(nMamn=MaxBfn+MaxBfn_Aux)
-character*(LENIN8), allocatable :: Mamn(:)
-logical lOPTO, Pseudo, Do_OneEl
-logical Cho_1Center
-!VV      LOGICAL GA_USES_MA,GA_MEMORY_LIMITED
+integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
+integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux
+character(len=LenIN) :: xLblCnt(MxAtom)
+logical(kind=iwp) :: lOPTO, Pseudo, Do_OneEl, Cho_1Center, IsBorn, Found
 !-SVC: identify runfile with a fingerprint
-character cDNA*256
-logical IsBorn, Found
-real*8, allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
-integer, allocatable :: nStab(:)
+character(len=256) :: cDNA
+character(len=LenIn8), allocatable :: Mamn(:)
+real(kind=wp), allocatable :: DCo(:,:), DCh(:), DCh_Eff(:)
+integer(kind=iwp), allocatable :: nStab(:)
+integer(kind=iwp), external :: AixRm
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Call Gateway_banner()
+!call Gateway_banner()
 iReturn = 0
 
-! If Gateway is running the Run_Mode on the runfile should always
-! be G_Mode.
+! If Gateway is running the Run_Mode on the runfile should always be G_Mode.
 
 Run_Mode = G_Mode
 call MkRun(iRC,0)
@@ -97,9 +95,8 @@ call Center_Info_Init()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Spool the input
+! Spool the input
 
-LuSpool = 21
 call SpoolInp(LuSpool)
 !                                                                      *
 !***********************************************************************
@@ -119,8 +116,7 @@ lOPTO = .false.
 call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
 
 ! Write the Basis_Info data to file. Release the arrays and read
-! them back from the runfile now allocating them to the proper
-! size.
+! them back from the runfile now allocating them to the proper size.
 
 call Basis_Info_Dmp()
 call Basis_Info_Free()
@@ -169,7 +165,7 @@ call DmpInf()
 
 call Drvn0()
 
-call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
+call Put_cArray('Unique Basis Names',Mamn(1),(LenIn8)*S%nDim)
 call Put_iArray('NBAS',nBas,nIrrep)
 call basis2run()
 call mma_deallocate(Mamn)
@@ -178,7 +174,7 @@ call mma_deallocate(Mamn)
 
 nNuc = 0
 do iCnttp=1,nCnttp
-  if (.not. dbsc(iCnttp)%pChrg .and. .not. dbsc(iCnttp)%Frag .and. .not. dbsc(iCnttp)%Aux) nNuc = nNuc+dbsc(iCnttp)%nCntr
+  if ((.not. dbsc(iCnttp)%pChrg) .and. (.not. dbsc(iCnttp)%Frag) .and. (.not. dbsc(iCnttp)%Aux)) nNuc = nNuc+dbsc(iCnttp)%nCntr
 end do
 
 call mma_allocate(DCo,3,nNuc)
@@ -188,14 +184,14 @@ call mma_allocate(nStab,nNuc)
 mdc = 0
 iNuc = 0
 do iCnttp=1,nCnttp
-  if (.not. dbsc(iCnttp)%pChrg .and. .not. dbsc(iCnttp)%Frag .and. .not. dbsc(iCnttp)%Aux) then
+  if ((.not. dbsc(iCnttp)%pChrg) .and. (.not. dbsc(iCnttp)%Frag) .and. (.not. dbsc(iCnttp)%Aux)) then
     do iCnt=1,dbsc(iCnttp)%nCntr
       mdc = mdc+1
       iNuc = iNuc+1
       DCo(1:3,iNuc) = dbsc(iCnttp)%Coor(1:3,iCnt)
       DCh_Eff(iNuc) = dbsc(iCnttp)%Charge
-      DCh(iNuc) = dble(dbsc(iCnttp)%AtmNr)
-      xLblCnt(iNuc) = dc(mdc)%LblCnt(1:LENIN)
+      DCh(iNuc) = real(dbsc(iCnttp)%AtmNr,kind=wp)
+      xLblCnt(iNuc) = dc(mdc)%LblCnt(1:LenIn)
       nStab(iNuc) = dc(mdc)%nStab
     end do
   else
@@ -206,7 +202,7 @@ call Put_iScalar('Unique atoms',nNuc)
 call Put_dArray('Unique Coordinates',DCo,3*nNuc)
 call Put_dArray('Nuclear charge',DCh,nNuc)
 call Put_dArray('Effective nuclear Charge',DCh_Eff,nNuc)
-call Put_cArray('Unique Atom Names',xLblCnt(1),LENIN*nNuc)
+call Put_cArray('Unique Atom Names',xLblCnt,LenIn*nNuc)
 call Put_iArray('nStab',nStab,nNuc)
 
 call mma_deallocate(nStab)
@@ -217,34 +213,34 @@ call mma_deallocate(DCh_Eff)
 ! Manipulate the option flag
 
 iOption = 0
-if (DirInt) iOption = ior(iOption,1)
-if (Expert) iOption = ior(iOption,2)
-if (lRF) iOption = ior(iOption,4)
-if (lLangevin .or. iXPolType > 0) iOption = ior(iOption,8)
+if (DirInt) iOption = ibset(iOption,0)
+if (Expert) iOption = ibset(iOption,1)
+if (lRF) iOption = ibset(iOption,2)
+if (lLangevin .or. (iXPolType > 0)) iOption = ibset(iOption,3)
 if (PCM) then
-  iOption = ior(iOption,16)
+  iOption = ibset(iOption,4)
   nPCM_Info = 0
   call Put_iScalar('PCM info length',nPCM_Info)
 end if
-iOption = ior(iOption,32)
-if (lRF .and. .not. PCM) iOption = ior(iOption,2**7)
+iOption = ibset(iOption,5)
+if (lRF .and. (.not. PCM)) iOption = ibset(iOption,7)
 Pseudo = .false.
 do iCnttp=1,nCnttp
   Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and. dbsc(iCnttp)%Fixed)
 end do
 if (allocated(XF) .or. Pseudo) then
-  iOption = ior(iOption,2**7)
-  iOption = ior(iOption,2**8)
+  iOption = ibset(iOption,7)
+  iOption = ibset(iOption,8)
 end if
-if (VarT) iOption = ior(iOption,2**7)
-if (VarR) iOption = ior(iOption,2**8)
+if (VarT) iOption = ibset(iOption,7)
+if (VarR) iOption = ibset(iOption,8)
 ! 2el-integrals from the Cholesky vectors
-if (Cholesky .or. Do_RI) iOption = ior(iOption,2**9)
+if (Cholesky .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option
-if (Do_RI) iOption = ior(iOption,2**10)
+if (Do_RI) iOption = ibset(iOption,10)
 ! 1C-CD
 Cho_1Center = Get_Cho_1Center()
-if (Cholesky .and. Cho_1Center) iOption = ior(iOption,2**12)
+if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
 call Put_iScalar('System BitSwitch',iOption)
 iter_S = 0

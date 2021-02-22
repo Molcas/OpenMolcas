@@ -8,6 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Run_Mode, G_Mode, S_Mode, GS_Mode
-      Parameter (G_Mode=1, S_Mode=2, GS_Mode=3)
-      Common /GW/ Run_Mode
+
+module Gateway_global
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: G_Mode = 1, &
+                                S_Mode = 2, &
+                                GS_Mode = 3
+integer(kind=iwp) :: Run_Mode
+
+public :: Run_Mode, G_Mode, S_Mode, GS_Mode
+
+end module Gateway_global

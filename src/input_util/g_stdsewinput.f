@@ -27,7 +27,6 @@
 #include "rctfld.fh"
 #include "real.fh"
 #include "print.fh"
-#include "gateway.fh"
 #include "stdalloc.fh"
 c
 c     IRELAE = 0  .... DKH

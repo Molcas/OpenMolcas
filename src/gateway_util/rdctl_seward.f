@@ -32,6 +32,7 @@
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
       use Logical_Info
       use Gateway_Interfaces, only: GetBS
+      use Gateway_global, only: Run_Mode, G_Mode, S_Mode
 #ifdef _FDE_
       use Embedding_Global, only: embPot, embPotInBasis, embPotPath,
      &outGridPathGiven, embWriteDens, embWriteEsp, embWriteGrad,
@@ -60,7 +61,6 @@
 #include "real.fh"
 #include "print.fh"
 #include "RelLight.fh"
-#include "gateway.fh"
 #include "relae.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"

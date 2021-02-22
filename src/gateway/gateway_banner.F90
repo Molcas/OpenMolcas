@@ -28,6 +28,6 @@ write(u6,100) "    \/___/  \/__/\/_/ \/__/\/____/ \/__//__/   \/__/\/_/ `/___/> 
 write(u6,100) "                                                            /\___/"
 write(u6,100) "                                                            \/__/"
 
-100 format(25x,a)
+100 format(16x,a)
 
 end subroutine Gateway_banner
