@@ -98,7 +98,7 @@ C
       End If
 
       nAux(1:nSym) = nBas(1:nSym) - nFro(1:nSym) - nDel(1:nSym)
-      Call Allocate_CMO(CHMO,nBas,nAux,nSym)
+      Call Allocate_CMO(CHMO,nAux,nBas,nSym)
 
       Call Transp_MOs(CMO,CHMO%CMO_Full,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 c

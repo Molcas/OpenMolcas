@@ -62,7 +62,6 @@ Contains
   Do iSym = 1, nSym
     iS = iE + 1
     iE = iE + n(iSym) * m(iSym)
-    Write (6,*) 'xx: iS, iE=',iS, iE
 
     Adam%pA(iSym)%A(1:n(iSym),1:m(iSym)) => Adam%CMO_Full(iS:iE)
   End Do
