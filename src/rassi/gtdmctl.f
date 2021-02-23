@@ -177,7 +177,6 @@ C Pick up orbitals of ket and bra states.
 C Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
-      NTSDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
 
 
@@ -211,9 +210,7 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
       END IF
 
       IF (IF11) THEN
-        NTRAD=NASHT**2
-        NTRASD=NASHT**2
-        NWERD=NASHT**2
+        NTRAD=NASHT**2 ! NTRAD == NWERD == NTRASD
         Call mma_allocate(TRAD,nTRAD+1,Label='TRAD')
         Call mma_allocate(TRASD,nTRAD+1,Label='TRASD')
         Call mma_allocate(WERD,nTRAD+1,Label='WERD')
@@ -744,7 +741,6 @@ C Read ISTATE wave function from disk
 
        if(doGSOR) then
          if(JOB1.ne.JOB2) then
-           ST_TOT = NSTAT(JOB2)
            Dot_prod = 0
            Dot_prod = DDOT_(NCONF2,Work(LCI1),1,Work(LCI2),1)
            Call DAXPY_(NCONF2,Dot_prod,Work(LCI2_o),1,Work(LTHETA1),1)

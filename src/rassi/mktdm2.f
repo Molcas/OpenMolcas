@@ -28,7 +28,7 @@
       REAL*8 SGNJL,SGNIK
       REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
       INTEGER LSYM1,MSPROJ1,LSYM2,MSPROJ2,ISYOP,MS2OP
-      INTEGER MPLET1,MPLET2, MPLETD
+      INTEGER MPLET1,MPLET2
       INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
       INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
@@ -53,7 +53,7 @@ C Pick out nr of active orbitals from orbital table:
       SPD2(:)=0.0D0
       ISYOP   = MUL(LSYM1,LSYM2)
       MS2OP   = MSPROJ1-MSPROJ2
-      MPLETD =  MPLET1 - MPLET2
+
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
@@ -65,8 +65,6 @@ C Pick out nr of active orbitals from orbital table:
         write(6,*) "2-TDM import with QCMaquis in MPSSI "//
      &    "not implemented yet"
         call Quit_OnUserError()
-        unused_var(ISTATE)
-        unused_var(JSTATE)
       endif
 ! Old interface import
 !!#define BLUBB
@@ -238,8 +236,8 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
         TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
       END DO
       RETURN
-#ifndef _DMRG_
+      unused_var(MPLET1)
+      unused_var(MPLET2)
       unused_var(ISTATE)
       unused_var(JSTATE)
-#endif
       END

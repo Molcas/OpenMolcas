@@ -68,9 +68,10 @@
       Logical Exist,Do_ESPF
 *JB   variables for state rotation on final states
       Logical do_rotate
+#ifdef _DMRG_
       ! function defined in misc_util/pcm_on.f
       Logical, external :: PCM_On
-
+#endif
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -1002,7 +1003,6 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
      &     ) Then
 
            rNorm = 1.0d0
-           overlap = 1.0d0
            ! Shouldn't the overlap in this case be always 1?
            ! For DMRG it seems it is...
            ! But just to make sure we calculate it anyway
@@ -1021,9 +1021,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
               Do i = 1, lRoots
                  if(doDMRG)then
 #ifdef _DMRG_
-                   overlap = 0.0d0
-                   overlap = qcmaquis_interface_get_overlap(i)
-                   qmax = abs(overlap)
+                   qmax = abs(qcmaquis_interface_get_overlap(i))
 #endif
                  else
                    Call DDafile(JOBIPH,2,Work(ipTemp),nConf,jDisk)

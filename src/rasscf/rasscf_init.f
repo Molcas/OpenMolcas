@@ -83,7 +83,6 @@ C        ICIRST=1 ! to be activated!
 
 * Initialize print levels: See output_ras.fh
 * Global logical unit numbers for standard output
-      IO=5
       LF=6
 * Externally set default print level control. Should the program be silent?
       IPRGLB_IN=iPrintLevel(-1)
