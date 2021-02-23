@@ -18,11 +18,11 @@ subroutine gugadrt_dbl_downwalk()
 !     |ss(i>j)\       |
 !     |  2 1  \       |
 
+use gugadrt_global, only: iseg_sta, iseg_downwei, lsm_inn, max_innorb, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
 use Definitions, only: iwp
 
 implicit none
-#include "gendrt.fh"
-integer(kind=iwp) :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt
+integer(kind=iwp) :: im, ismi, ismij, ismj, jud(max_innorb), just(max_innorb,max_innorb), lr0, lri, lrj, nnd, nns, nnt
 
 if (norb_dbl == 0) then
   !----------- norb_dbl=0 ------------------------------------------------

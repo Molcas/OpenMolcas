@@ -11,10 +11,10 @@
 
 subroutine gugadrt_paras_calculate()
 
+use gugadrt_global, only: ja_sys, jb_sys, jc_sys, jroute_sys, n_electron, norb_all, norb_dz, spin
+use constants, only: Half
+
 implicit none
-#include "gendrt.fh"
-!#include "paraconstants_h.for"
-!#include "intsort_h.for"
 !data inlptb_new/
 !         1  2  3  4  5  6  7  8  9  10  11  12 13
 !! a^r=1
@@ -65,7 +65,7 @@ implicit none
 !    *   0,  0,  0,  0,  0,  9,  3, 13,  0,  0,  0,  0/
 !data indord_plptype/0,0,0,1,1,3,3,1,1,2,2,2/   !severe_new_error_1
 
-ja_sys = int(n_electron*0.5d0-spin)-norb_dz
+ja_sys = int(n_electron*Half-spin)-norb_dz
 jb_sys = int(spin+spin)
 jc_sys = norb_all-ja_sys-jb_sys
 

@@ -11,14 +11,13 @@
 
 subroutine gugadrt_rcas(id,indd)
 
+use gugadrt_global, only: iseg_downwei, iprint, ja, ja_sys, jb, jb_sys, jc_sys, jd, jj, jm, jroute_sys, js, jt, jv, kk, lsm_inn, &
+                          max_innorb, max_node, max_ref, mul_tab, mxnode, n_electron, ng_sm, no, norb_dz, norb_inn, ns_sm, nu_ad
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: id, indd
-#include "gendrt.fh"
-#include "Sysdrt.fh"
-#include "casrst_drt.fh"
 integer(kind=iwp) :: i, idd, ii, im, imd, ims, imt, inb, it, itm(0:max_node), iysum, j, j1, j2, j3, j4, ja0, jb0, jc(max_node), &
                      jc0, jde, jds, jk, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, l, locu(8,max_ref), lr, nc, ndj, nel, nm, node, &
                      noh(max_innorb)

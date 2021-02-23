@@ -11,20 +11,11 @@
 
 subroutine gugadrt(ireturn)
 
+use gugadrt_global, only: nci_dim
 use Definitions, only: wp, iwp, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "gendrt.fh"
-data istep_occ/0,1,1,2/
-data mul_tab/1,2,3,4,5,6,7,8, &
-             2,1,4,3,6,5,8,7, &
-             3,4,1,2,7,8,5,6, &
-             4,3,2,1,8,7,6,5, &
-             5,6,7,8,1,2,3,4, &
-             6,5,8,7,2,1,4,3, &
-             7,8,5,6,3,4,1,2, &
-             8,7,6,5,4,3,2,1/
 real(kind=wp) :: sc, sc0, sc1
 real(kind=r8), external :: seconds
 

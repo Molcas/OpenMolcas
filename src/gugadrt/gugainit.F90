@@ -12,14 +12,14 @@
 subroutine gugainit()
 ! default value for performing ci calculation
 
+use gugadrt_global, only: ludrt, max_orb, ng_sm, nlsm_all, nlsm_bas, nlsmddel, nlsmedel
 use Definitions, only: wp, iwp
 
 implicit none
-#include "gendrt.fh"
-#include "files_gugadrt.fh"
 integer(kind=iwp), parameter :: maxmolcasorb = 5000
-integer(kind=iwp) :: i, idisk, idum(1), idx, idx_idisk(64), lenrd, nbas(mxsym), nc, ncone(64), ndel(mxsym), nfro(mxsym), &
-                     norb(mxsym), nsym
+integer(kind=iwp) :: i, idisk, idum(1), idx, idx_idisk(64), lenrd, lucimo, luonemo, nbas(8), nc, ncone(64), ndel(8), nfro(8), &
+                     norb(8), nsym
+character(len=8) :: fncimo, fndrt, fnonemo
 real(kind=wp) :: cmo(max_orb**2), dum(1)
 character :: bsbl(2*4*maxmolcasorb)
 
@@ -81,8 +81,6 @@ nlsmedel(1:8) = ndel(1:8)
 
 ng_sm = nsym
 nlsm_all(1:8) = norb(1:8)
-mroot = 1
-cm_cri = 0.03_wp
 
 return
 

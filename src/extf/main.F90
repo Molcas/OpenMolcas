@@ -13,7 +13,7 @@ program Main
 
 #ifdef _FPE_TRAP_
 use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
-use Definitions, only: int32
+use Definitions, only: DefInt
 #endif
 use Definitions, only: iwp
 
@@ -21,7 +21,7 @@ implicit none
 integer(kind=iwp) :: rc
 
 #ifdef _FPE_TRAP_
-call IEEE_Set_Halting_Mode(IEEE_Usual,.true._int32)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
 call Start('extf')

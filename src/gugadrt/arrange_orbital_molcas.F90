@@ -17,15 +17,13 @@ subroutine arrange_orbital_molcas()
 ! -----
 ! map_order_orbital    ab ---> ci
 
+use gugadrt_global, only: lsm_inn, max_orb, ng_sm, nlsm_all, norb_all, norb_dz, norb_inn
 use Definitions, only: iwp
 
 implicit none
-#include "gendrt.fh"
-#include "mcorb.fh"
-!#include "intsort_h.for"
-integer(kind=iwp) :: i, iccount, im, iorb, isum2, isum3, j, la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, lsmorbcount(ng_sm), &
-                     lsmr, map_tmp(max_orb), ms, nim
-logical(kind=iwp) :: logi_norb_inn(norb_all)
+integer(kind=iwp) :: i, iccount, im, iorb, isum2, isum3, j, jp2(max_orb), jp3(max_orb), la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, &
+                     lsmorbcount(ng_sm), lsmr, map_orb_order(max_orb), map_tmp(max_orb), ms, nim, norb_number(max_orb)
+logical(kind=iwp) :: logi_norb_inn(norb_all), logic_assign_actorb
 
 logi_norb_inn(1:norb_all) = .false.
 iorb = norb_all
@@ -41,6 +39,8 @@ do im=2,ng_sm
   lsmorbcount(im) = nim
 end do
 
+! FIXME: logic_assign_actorb was undefined
+logic_assign_actorb = .false.
 if (logic_assign_actorb) then
   do lr=1,norb_inn
     lr_scf = map_orb_order(lr)

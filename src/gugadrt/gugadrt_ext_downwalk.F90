@@ -11,11 +11,10 @@
 
 subroutine gugadrt_ext_downwalk()
 
+use gugadrt_global, only: iseg_downwei, mul_tab, ng_sm, nlsm_ext, norb_ext, nu_ae
 use Definitions, only: iwp
 
 implicit none
-#include "gendrt.fh"
-#include "casrst_drt.fh"
 integer(kind=iwp) :: im, imi, imij, imj, iwmij(8)
 
 nu_ae(1) = 1

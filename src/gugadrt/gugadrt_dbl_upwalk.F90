@@ -11,10 +11,10 @@
 
 subroutine gugadrt_dbl_upwalk()
 
+use gugadrt_global, only: jpad_upwei, jroute_sys, lsm_inn, mxnode, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, nu_ad, ns_sm
 use Definitions, only: iwp
 
 implicit none
-#include "gendrt.fh"
 integer(kind=iwp) :: iw, lri, lrj, lsmi, lsmid, lsmij, lsmit, lsmj, no_d, no_t, node
 
 if (norb_dbl == 1) then

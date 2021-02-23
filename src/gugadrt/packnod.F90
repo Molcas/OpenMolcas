@@ -17,8 +17,7 @@ subroutine packnod(ibuf,idx,ival,nin,nbit,lbuf)
 ! nin    number of integrals in one integral
 ! lbuf   length of ibuf
 
-use Definitions, only: iwp
-use iso_fortran_env, only: int32
+use Definitions, only: iwp, DefInt
 
 implicit none
 integer(kind=iwp), intent(in) :: idx, ival, nin, nbit, lbuf
@@ -40,7 +39,7 @@ end if
 call abend()
 #else
 !call mvbits(inv,0,nbit,ibuf(ngrp),nidbit)
-call mvbits(inv,0,int(nbit,kind=int32),ibuf(ngrp),int(nidbit,kind=int32))
+call mvbits(inv,0,int(nbit,kind=DefInt),ibuf(ngrp),int(nidbit,kind=DefInt))
 #endif
 !write(u6,'(b64.64)') ibuf(ngrp)
 

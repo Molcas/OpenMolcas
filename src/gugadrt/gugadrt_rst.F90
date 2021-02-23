@@ -13,15 +13,14 @@ subroutine gugadrt_rst(id,nndd)
 !*******************************************
 ! 10 may 2007 - revised by wyb
 
+use gugadrt_global, only: iseg_downwei, iprint, iintbit, ja, ja_sys, jb, jb_sys, jc_sys, jd, jj, jm, jroute_sys, js, jt, jv, kk, &
+                          lsm_inn, max_innorb, max_node, mul_tab, mxnode, n_ref, n16int, n32int, ng_sm, no, norb_act, norb_all, &
+                          norb_dz, norb_inn, ns_sm, nu_ad
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: id, nndd
-#include "gendrt.fh"
-#include "Sysdrt.fh"
-#include "casrst_drt.fh"
-#include "ref.fh"
 integer(kind=iwp) :: i, iabcbit, idd, iextbit, ii, iiabkm(1:n16int), iextii(n32int), iextjj(n32int), im, imd, ims, imt, it, &
                      ivalid, iysum, j, j1, j2, j3, j4, ja0, jac, jaj, jajk, jatmp, jb0, jbj, jbjk, jbtmp, jc0, jde, jds, ji, &
                      jjabkm(1:n16int), jk, jkabkm(1:n16int), jmj, jmjk, jmtmp, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, kj1, &
@@ -53,7 +52,6 @@ call mma_allocate(iwy,[1,4],[0,mxtnode],label='iwy')
 call mma_allocate(itm,[0,mxtnode],label='itm')
 
 nm = ns_sm
-ndj = n_ref
 no(1:norb_dz+1) = 0
 jabkm(1:n16int,1:mxtnode) = 0
 ind(1:n32int,0:mxtnode) = 0

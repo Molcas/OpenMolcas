@@ -11,12 +11,13 @@
 
 subroutine gugadrt_active_drt()
 
+use gugadrt_global, only: iseg_sta, iseg_downwei, jpad_upwei, jd, jj, js, jt, jv, logic_mr, logic_mrelcas, max_node, mxnode, &
+                          nci_dim, ng_sm, no, norb_act, norb_inn, nu_ad, nu_ae
 use Definitions, only: iwp, u6
 
 implicit none
-#include "gendrt.fh"
-#include "casrst_drt.fh"
-integer(kind=iwp) :: i, iin(0:max_node), im, indd, jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndd, ndi, ndim
+integer(kind=iwp) :: i, iin(0:max_node), im, indd, iseg_dim(25), iseg_upwei(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, &
+                     jtim, ndd, ndi, ndim
 
 nci_dim = 0
 if (norb_act == 0) then

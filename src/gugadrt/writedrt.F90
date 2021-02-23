@@ -11,13 +11,11 @@
 
 subroutine writedrt(id)
 
+use gugadrt_global, only: ja, jb, jd, jj, jm, js, jt, jv, kk, ludrt, no, norb_inn
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: id
-#include "gendrt.fh"
-#include "files_gugadrt.fh"
-#include "casrst_drt.fh"
 integer(kind=iwp) :: i, idisk, idx(2), jbuf(4*(id+1)), nc
 
 nc = 1

@@ -11,16 +11,17 @@
 
 subroutine gugadrt_mole_inf()
 
+use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_orb, max_ref, maxgdm, mul_tab, &
+                          n_electron, n_ref, ng_sm, nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, &
+                          norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
+use constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
-#include "gendrt.fh"
-#include "files_gugadrt.fh"
-#include "Sysdrt.fh"
-#include "mcorb.fh"
-#include "refstate.fh"
-integer(kind=iwp) :: err, i, icmd, idisk, im, iml, imr, im_lr_sta, iorb, ispin, itmp, itmpstr(72), j, jcmd, l, ln1, lr, &
-                     lsmtmp(maxgdm), ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, norb1, norb2, norb_all_tmp, ntit
+integer(kind=iwp) :: err, i, icmd, idisk, im, iml, imr, im_lr_sta, int_dd_offset(8,8), iorb, ispin, itmpstr(72), j, jcmd, l, ln1, &
+                     lr, lsm(max_orb), lsmtmp(maxgdm), ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, &
+                     nlsm_act(maxgdm), nlsm_dbl(maxgdm), nlsm_frz(maxgdm), nlsm_inn(maxgdm), noidx(8), norb1, norb2, norb_all_tmp, &
+                     ntit
 logical(kind=iwp) :: log_debug, skip
 character(len=4) :: command
 character(len=72) :: line
@@ -32,7 +33,7 @@ character(len=4), parameter :: cmd(ncmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','
 
 n_electron = 0
 nactel = 0
-spin = 0.d0
+spin = Zero
 ns_sm = 1
 call rdnlst(5,'GUGADRT')
 ntit = 0
@@ -90,7 +91,7 @@ do
       end do
       read(line,*,iostat=err) ispin
       if (err > 0) call error(2)
-      spin = (ispin-1)/2.d0
+      spin = (ispin-1)/Two
 
     case (4)
       !---  process symmetry command ----------------------------------------*
@@ -264,18 +265,6 @@ norb_ext = norb_all-norb_inn
 norb_dz = norb_dbl+norb_frz
 
 nstart_act = norb_dz+1
-ngw1(1) = 0
-ngw2(1) = 0
-ngw2(2) = 0
-ngw3(1) = 0
-ngw3(2) = 0
-ngw3(3) = 0
-do i=1,norb_all
-  ngw2(i+2) = ngw2(i+1)+i
-  ngw3(i+3) = ngw3(i+2)+ngw2(i+2)
-  ngw4(i+4) = ngw4(i+3)+ngw3(i+3)
-end do
-nabc = norb_ext-2+ngw2(norb_ext-1)+ngw3(norb_ext)
 
 iorb = 0
 do i=1,ng_sm
@@ -353,12 +342,6 @@ do i=1,norb_inn
   lsmtmp(lsm_inn(i)) = lsmtmp(lsm_inn(i))+1
 end do
 
-itmp = 0
-do i=1,ng_sm
-  ibsm_ext(i) = itmp+1
-  itmp = itmp+nlsm_ext(i)
-  iesm_ext(i) = itmp
-end do
 !============ chck input data block ====================
 if (norb_frz > norb_dz) then
   write(u6,*) ' check input data: norb_frz  error'
@@ -450,7 +433,7 @@ call idafile(ludrt,1,[ng_sm],1,idisk)
 ! state symmetry
 call idafile(ludrt,1,[ns_sm],1,idisk)
 ! number of roots to be cal
-call idafile(ludrt,1,[mroot],1,idisk)
+call idafile(ludrt,1,[1],1,idisk)
 ! number of corelation electrons
 call idafile(ludrt,1,[n_electron],1,idisk)
 ! number of active electrons
