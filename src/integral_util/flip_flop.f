@@ -14,7 +14,6 @@
        Implicit Real*8 (a-h,o-z)
        Logical Primitive
 #include "stdalloc.fh"
-#include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 *
       S%MaxBas(:)=0

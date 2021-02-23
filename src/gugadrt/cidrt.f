@@ -116,8 +116,8 @@ c...end of subroutine gugadefault
 !#else
 !      parameter (max_ref=128)
 !#endif
-      common /mcorb/ lsmorb(max_orb),noidx(8)
-      common /refstate/ iref_occ(max_innorb,max_ref)
+#include "mcorb.fh"
+#include "refstate.fh"
       dimension lsmtmp(maxgdm)
       logical log_debug
       dimension  itmpstr(72)
@@ -673,7 +673,7 @@ c map_order_orbital    ab ---> ci
 c
 #include "gendrt.fh"
 !      include "intsort_h.for"
-      common /mcorb/ lsmorb(max_orb),noidx(8)
+#include "mcorb.fh"
       dimension lsmorbcount(ng_sm),map_tmp(max_orb)
       logical logi_norb_inn(norb_all)
 
@@ -759,9 +759,7 @@ c...end of arrange_orbital_molcas
 
       subroutine gugadrt_active_drt()
 #include "gendrt.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
+#include "casrst_drt.fh"
       dimension iin(0:max_node)
       nci_dim=0
       if(norb_act.ne.0) goto 100
@@ -945,9 +943,7 @@ c      write(6,*)'number of cfss: ',nci_dim
 
       subroutine gugadrt_ext_downwalk()
 #include "gendrt.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
+#include "casrst_drt.fh"
       dimension iwmij(8)
       nu_ae(1)=1
       do im=1,ng_sm
@@ -1070,10 +1066,8 @@ c
 !#else
 !      parameter (iintbit=64,n32int=2,n16int=1)
 !#endif
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
-      common/ref/ndj,ndjgrop,ndjmod
+#include "casrst_drt.fh"
+#include "ref.fh"
       integer, pointer :: jabkm(:,:)
       integer, pointer :: ind(:,:)
       integer, pointer :: idjj(:,:)
@@ -1743,9 +1737,7 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       subroutine gugadrt_ref_gfs(nel,ndj,locu,nm)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
+#include "casrst_drt.fh"
       dimension lhsm(8),locu(8,max_ref),lscu(0:8,max_ref)
       ne_act=nel-2*norb_dz
       ne_s=nint(spin*2)
@@ -1859,9 +1851,7 @@ c508   format(3x,a10,1x,i5,1x,16i8)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
 #include "stdalloc.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
+#include "casrst_drt.fh"
       dimension locu(8,max_ref),jc(max_node)
       dimension noh(max_innorb),itm(0:max_node)
       allocatable :: ind(:,:),iwy(:,:)
@@ -2363,9 +2353,7 @@ c      close(21)
 
       subroutine gugadrt_check_rcas3(jk,ind,inb,ndj,locu)
 #include "gendrt.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
+#include "casrst_drt.fh"
       dimension ind(8,max_node),lsym(8),iexcit(ndj),locu(8,ndj)
       inb=0
       nsumel=0
@@ -2477,58 +2465,56 @@ c----------- norb_dbl<>0 -----------------------------------------------
       return
       end
 
-      subroutine gugadrt_ajphy(jp,in,jpihy)
-#include "gendrt.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
-      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
-     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      dimension iin(0:max_node),jpihy(max_wei)
-
-      iin(0)=0
-      if(jp.eq.jpad) then
-      in=1
-      jpihy(1)=0
-      return
-      endif
-      lr=kk(jp)
-c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
-      jpe=no(lr+1)
-      iin(jpad:jpe)=0
-      iin(jp)=1
-      do 10 jpn=no(lr-1),jpad,-1
-      iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
-     :        +iin(jj_sub(4,jpn))
-10    continue
-      in=iin(jpad)
-
-      do 30 l=1,in
-        jpihy(l)=0
-        jy=l
-        nn=jpad
-        do 349 i=norb_dz+1,lr-1
-          idr=0
-          do 40 j=1,4
-            if(jj(j,nn).eq.0) goto 40
-            if(jy.gt.iin(jj_sub(j,nn))) goto 353
-            idr=j
-            goto 350
-353         jy=jy-iin(jj_sub(j,nn))
-40        continue
-350       if(idr.ne.1)jpihy(l)=jpihy(l)+iy(idr,nn)
-          nn=jj_sub(idr,nn)
-349     continue
-30    continue
-      return
-      end
+!      subroutine gugadrt_ajphy(jp,in,jpihy)
+!#include "gendrt.fh"
+!#include "casrst_drt.fh"
+!      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
+!     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
+!      dimension iin(0:max_node),jpihy(max_wei)
+!
+!      iin(0)=0
+!      if(jp.eq.jpad) then
+!      in=1
+!      jpihy(1)=0
+!      return
+!      endif
+!      lr=kk(jp)
+!c     write(6,*)'  ajphy,jp,start,end',jp,no(nst-lr)+1,no(nst-lr+1)
+!      jpe=no(lr+1)
+!      iin(jpad:jpe)=0
+!      iin(jp)=1
+!      do 10 jpn=no(lr-1),jpad,-1
+!      iin(jpn)=iin(jj_sub(1,jpn))+iin(jj_sub(2,jpn))+iin(jj_sub(3,jpn))
+!     :        +iin(jj_sub(4,jpn))
+!10    continue
+!      in=iin(jpad)
+!
+!      do 30 l=1,in
+!        jpihy(l)=0
+!        jy=l
+!        nn=jpad
+!        do 349 i=norb_dz+1,lr-1
+!          idr=0
+!          do 40 j=1,4
+!            if(jj(j,nn).eq.0) goto 40
+!            if(jy.gt.iin(jj_sub(j,nn))) goto 353
+!            idr=j
+!            goto 350
+!353         jy=jy-iin(jj_sub(j,nn))
+!40        continue
+!350       if(idr.ne.1)jpihy(l)=jpihy(l)+iy(idr,nn)
+!          nn=jj_sub(idr,nn)
+!349     continue
+!30    continue
+!      return
+!      end
 
       subroutine gugadrt_njexcit(indjk,ljk,iextbit,nextbit,ivalid,
      *                           jstep,kttmp,k0)
 #include "gendrt.fh"
 #include "Sysdrt.fh"
-      common /refstate/ iref_occ(max_innorb,max_ref)
-      common/ref/ndj,ndjgrop,ndjmod
+#include "refstate.fh"
+#include "ref.fh"
       dimension indjk(ljk),itexcit(n_ref)
 
       kp=k0
@@ -2720,9 +2706,7 @@ c...end of reabtm
       subroutine writedrt(id)
 #include "gendrt.fh"
 #include "files_gugadrt.fh"
-      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
-     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
-     :    ,jv,jd(8),jt(8),js(8)
+#include "casrst_drt.fh"
       dimension jbuf(4*(id+1)),idx(2)
 
       nc=1

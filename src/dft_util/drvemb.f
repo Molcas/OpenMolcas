@@ -792,14 +792,14 @@ c Avoid unused argument warnings
       Real*8 Func_Bx
       Character*(*) xKSDFT
       Character*16 MyNamRfil
-#include <rasdim.fh>
+#include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "stdalloc.fh"
-#include <SysDef.fh>
+#include "SysDef.fh"
       Real*8, Allocatable:: D1ao_b(:), F_DFT(:)
       Real*8, Allocatable:: xxCMO(:), xxOCCN(:), DState(:)
       Real*8 :: Dummy(1)=[0.0D0]

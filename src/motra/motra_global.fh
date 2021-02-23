@@ -50,7 +50,7 @@ c     *                nAtoms,nSym,nBas,nOrb,nDel,nFro,iOper
 *
       Character*144 Header
       Character*80  VecTit
-      Common /Head  / Header,VecTit
+      Common /Head_MOTRA  / Header,VecTit
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -59,7 +59,7 @@ c     *                nAtoms,nSym,nBas,nOrb,nDel,nFro,iOper
 *----------------------------------------------------------------------*
 *
       Character*72 Title(mxTit)
-      Common /Tit   / nTit,Title
+      Common /Tit_MOTRA/ nTit,Title
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -75,7 +75,7 @@ c     *                nAtoms,nSym,nBas,nOrb,nDel,nFro,iOper
       Integer   iAutoCut
       Integer   iRFpert
       Integer   ihdf5
-      Common /Switches/
+      Common /Switches_MOTRA/
      &Debug,iPrint,iOneOnly,iVecTyp,iAutoCut,iRFpert,ihdf5
 *
 *----------------------------------------------------------------------*

@@ -76,13 +76,8 @@
      &       Fock(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
      &       Darwin(mBT)
 *
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
-      Logical Do_Addc
-      COMMON  / ADDcorr_L   / Do_Addc
-      Logical Do_Tw
-      COMMON  / Tw_corr_L   / Do_Tw
+#include "spave.fh"
+#include "addcorr.fh"
 #ifdef _EFP_
       Logical EFP_On
 #endif

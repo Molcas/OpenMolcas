@@ -13,8 +13,8 @@ c generate and print csfs
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common /mcorb/ lsmorb(max_orb),noidx(8)
-      common/config/ndr,nwalk(0:max_orb)
+#include "mcorb.fh"
+#include "config.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
@@ -182,7 +182,7 @@ c generate and print csfs
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
@@ -190,8 +190,8 @@ c generate and print csfs
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 !      dimension ndr(max_innorb)
       REAL*8, pointer :: jph(:),jeh(:),jwh(:)
-c      common/ptlph/jph,jeh,jwh,th,thh
-      common/ptlph/jph,jeh,jwh
+#include "ptlph.fh"
+c#include "ptlphv.fh"
 c     write(6,*)'               ***** start h-diaelm *****'
 c      write(6,*)   '   diagonal_act_d:',jpad,ipae
       do lr=norb_dz+1,norb_inn
@@ -226,7 +226,7 @@ c           call prodel(3,wt,jp,mpe,jw)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
@@ -340,7 +340,7 @@ c             call prodel(1,wld,0,ipae,iwad)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
 !      common/casrst/ja(max_node),jb(max_node),jm(0:max_node)
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
@@ -416,7 +416,7 @@ c           call prodel(2,wlt,0,ipat,jwt)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 

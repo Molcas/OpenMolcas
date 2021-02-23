@@ -13,7 +13,7 @@
 ************************************************************************
       subroutine span0_cvb(nvecmx1,n)
       implicit real*8 (a-h,o-z)
-      common /span_comcvb/iaddr,nvecmx,nvtot
+#include "span_comcvb.fh"
       save nmult
       data nmult/5/
 

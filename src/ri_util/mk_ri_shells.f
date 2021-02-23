@@ -44,8 +44,7 @@
       External Get_Ln
       Integer StrnLn
       External StrnLn
-      Logical Quit_On_Error
-      common /getlnQOE/ Quit_On_Error
+#include "getlnqoe.fh"
       Character*180 Get_Ln_Quit
 
       Integer BasisTypes(4)

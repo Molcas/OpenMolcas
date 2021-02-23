@@ -29,9 +29,7 @@
       Character Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
 CAOM<
-      parameter (lforce=20)
-      real*8 force(lforce)
-      common /finfld/force
+#include "finfld.fh"
       External MltGrd,MltMmG
 CAOM>
       Logical DiffOp, lECP, lPP, lFAIEMP

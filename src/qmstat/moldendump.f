@@ -13,7 +13,7 @@
 
 #include "maxi.fh"
 #include "WrkSpc.fh"
-#include<constants.fh>
+#include "constants.fh"
 #include "real.fh"
 
       Parameter (AuAng=1d10*CONST_BOHR_RADIUS_IN_SI_)

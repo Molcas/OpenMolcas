@@ -18,8 +18,7 @@
       Use Basis_Info
       Implicit Real*8 (A-H,O-Z)
 C...  auxiliar constant pool:       ready only up to g-valence/g-core
-      PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
-      COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)
+#include "const.fh"
 *
 *     Define statement function
       VF(N,X)=DFAC(N)/sqrt(X)**(N+1)

@@ -27,7 +27,7 @@
 #include "stdalloc.fh"
 #include "sigma.fh"
 #include "SysDef.fh"
-      COMMON /CPLCAS/ IFCOUP(MXCASE,MXCASE)
+#include "cplcas.fh"
 
 C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and

@@ -8,6 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-C saved info for parallel runs
-      Integer NumCho_Bak
-      Common / CHPARI / NumCho_Bak(8)
+      Real*8 ChFracMem
+      COMMON /CHOPAR/ ChFracMem

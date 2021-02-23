@@ -59,9 +59,7 @@
 *
 #include "real.fh"
 #include "WrkSpc.fh"
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
+#include "spave.fh"
 
 *
 *---- Statement function for triangular storage

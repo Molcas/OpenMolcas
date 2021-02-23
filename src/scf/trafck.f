@@ -58,8 +58,7 @@
      &       Ovrlp(nFock)
       Logical canorb
 *
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "spave.fh"
 *
       Real*8, Dimension(:), Allocatable:: FckM, FckS, HlfF, EigV,
      &                                    Ctmp, Scratch, CMOOld,

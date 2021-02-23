@@ -17,7 +17,6 @@
 C     I.LT.K.LT.L  J.EQ.L
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
       LJS=IJ(L+1)+1
       LJM=IJ(L)
       DO 10 LJ=LJS,LJM

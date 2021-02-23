@@ -55,8 +55,7 @@
 *
       Real*8 CInter(nCI,nD),TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
      &                      TrDD(nTr,nTr,nD)
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
+#include "spave.fh"
 *
 *---- Define local variables
       Real*8 Eline(MxOptm,2),Equad(MxOptm**2,2),DD(MxOptm**2,2)

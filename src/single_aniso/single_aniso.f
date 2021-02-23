@@ -89,7 +89,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       Implicit None
       Integer, Parameter            :: wp=kind(0.d0)
-#include "cntrl.fh"
+#include "cntrl_sa.fh"
 #include "stdalloc.fh"
       Integer                  :: mem,RtoB,CtoB,ItoB
       Integer, intent(in)      :: nss,nstate

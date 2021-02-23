@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Set_Basis_Mode(Label)
-#include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
       Character*(*) Label
       Character*7 Lbl

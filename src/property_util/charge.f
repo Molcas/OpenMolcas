@@ -114,9 +114,7 @@ c      Character*(LENIN) LblCnt(MxAtom)
       Save ipqswap
       Save ipDSswap
       Logical DMN_SpinAV
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
+#include "spave.fh"
       External Get_ProgName
       Character*100 ProgName, Get_ProgName
       Logical DoBond,Reduce_Prt

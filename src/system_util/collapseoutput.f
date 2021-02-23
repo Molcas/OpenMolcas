@@ -29,7 +29,7 @@
       Subroutine CollapseOutput(iSw, STR)
       character*(*) STR
       Integer iSw
-      Common /icolorize/icolorize
+#include "icolorize.fh"
       if(icolorize.eq.1) then
        if(iSw.eq.1) then
          write(6,'(A,A)') '++ ',STR(:mylen(STR))

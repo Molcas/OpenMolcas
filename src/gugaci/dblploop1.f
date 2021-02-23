@@ -12,7 +12,7 @@
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       w0ss1=0.d0
       w1ss1=0.d0
       w0ss2=0.d0
@@ -600,7 +600,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !st(2-1) ar(02)-bl(32)-
 !st(2-2) (22)ar(13)-bl(32)-
 !st(2-4) ar(23)-c'(12)-bl(32)-
@@ -783,7 +783,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !ts(3-1) ar(23)-bl(20)-
 !ts(3-2) (22)ar(23)-bl(31)-
 !ts(3-2) ar(23)-c'(22)-bl(31)-
@@ -909,7 +909,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !st1(4-1) ar(01)-bl(31)-
 !st1(4-2) (11)ar(23)-bl(31)-
 !st1(4-3) ar(13)-c'(21)-bl(31)-
@@ -1041,7 +1041,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !t1s(5-1)   ar(13)-bl(10)-
 !t1s(5-2)   ar(13)-bl(32)-
 !t1s(5-2)   ar(13)-c'(11)-bl(32)-
@@ -1228,7 +1228,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !tt(11-1) (22)ar(23)-bl(32)-
 !tt(11-1) ar(23)-c'(22)-bl(32)-
 !tt(11-1) ar(23)-bl(32)-c"(22)-
@@ -1370,7 +1370,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !t1t1(12-1)  ar(13)-bl(31)-
 !t1t1(12-1)  ar(13)-c'(11)-bl(31)-
 !t1t1(12-1)  ar(13)-bl(31)-c"(11)-
@@ -1489,7 +1489,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !dd(19-1) ar(23)-bl(32)-
 !dd(19-2) drl(22)-
 !dd(19-3) drl(33)-
@@ -1574,7 +1574,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !d1d1(20-1) ar(13)-bl(31)-
 !d1d1(20-1) drl(11)-
 !d1d1(20-1) drl(33)-
@@ -1653,7 +1653,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
         iwdl=jud(lri)
@@ -1691,7 +1691,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !d1d(22-1)   ar(13)-bl(32)-
 !d1d(22-2)   drl(12)-
       do lri=norb_frz+1,norb_dz-1
@@ -1749,7 +1749,7 @@ c              call comp_loop(11,lrk,lrs,lra,lra,vlop0,vlop1,wl1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
 !sv(10-1) ar(13)-br(23)-
 !sv(10-2) ar(23)-br(13)-
 !sv(10-3) drr(03)-
@@ -1823,7 +1823,7 @@ cwyb         call comp_loop(10,lri,lrs,lra,lra,vlop0,vlop1,wl)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       jmlr=mul_tab(jml,jmr)
 !sd(6-1) a&r(02)-
 !sd(6-2) c(22)a&r(13)-
@@ -2116,7 +2116,7 @@ c            wl=wl*vlop0
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       jmlr=mul_tab(jml,jmr)
 !sd1(8-1) a&r(01)-
 !sd1(8-2) c(11)a&r(23)-
@@ -2385,7 +2385,7 @@ c            wl=wl*vlop0
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       jmlr=mul_tab(jml,jmr)
 !td(13-1) (22)a&(23)
 !td(13-1) a&(23)c'(22)
@@ -2522,7 +2522,7 @@ c            wl=wl*vlop0
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
-      common/onepl/line,jph,jpel,jper,lrg,lrs,jwl,jwr,w0,w1
+#include "onepl.fh"
       jmlr=mul_tab(jml,jmr)
 !t1d1(15-1) (11)a&(13)
 !t1d1(15-1) a&(13)c'(11)

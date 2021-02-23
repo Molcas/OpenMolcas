@@ -17,7 +17,6 @@
      *K00(*),K11(*),K22(*),K33(*),L00(*),L11(*),L22(*),L33(*)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
       DIMENSION IOC(55),ISP(55)
       DIMENSION K0M(MXVERT),K1M(MXVERT),K2M(MXVERT),K3M(MXVERT)
       DIMENSION L0M(MXVERT),L1M(MXVERT),L2M(MXVERT),L3M(MXVERT)

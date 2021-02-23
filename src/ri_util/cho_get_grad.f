@@ -114,7 +114,7 @@
 #endif
       Implicit Real*8 (a-h,o-z)
 
-      Logical   timings,DoRead,DoExchange,DoCAS,lSA
+      Logical   DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
@@ -131,7 +131,7 @@
       Character*50 CFmt
       Character*12 SECNAM
       Parameter (SECNAM = 'CHO_GET_GRAD')
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
 
       parameter (DoRead = .false. )
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
@@ -147,9 +147,7 @@
 #include "temptime.fh"
 #endif
 #include "print.fh"
-      Integer iBDsh(MxShll*8)
-      Common /BDshell/ iBDsh
-
+#include "bdshell.fh"
       Logical add
       Character*6 mode
       Integer  Cho_F2SP

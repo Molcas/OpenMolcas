@@ -16,8 +16,7 @@ C     Note that both NP and NQ should be either even or odd, but
 C     not mixed.
 C
 C...  auxiliar constant pool:       ready only up to g-valence/g-core
-      PARAMETER (lp1=5,lp12=lp1*lp1,lp13=(lp1*lp1+lp1)/2)
-      COMMON/CONST/RCA(lp1,lp13),DFAC(lp12),KOSUU(lp13),NYU(lp1,lp13)
+#include "const.fh"
       IT11=2*NP
       IT22=2*NQ
       RT1=sqrt(ZP**(IT11+1)*ZQ**(IT22+1))/(DFAC(IT11)*DFAC(IT22))

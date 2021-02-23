@@ -18,9 +18,7 @@
       DIMENSION INDOUT(*),ICAD(*),IBUFL(*),L0(*),L1(*),L2(*),L3(*)
 #include "real_guga.fh"
 #include "integ.fh"
-#include "files_guga.fh"
-      COMMON/CNSTS/D0,D1,D2
-#include "addr_guga.fh"
+#include "files_addr.fh"
 *
       CALL JTIME(IST)
       CALL CI_SELECT_INTERNAL(INDOUT,IBUFL)

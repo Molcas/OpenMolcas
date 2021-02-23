@@ -16,22 +16,16 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-      Integer   nTocDS
-      Parameter ( nTocDS = 64 )
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
       Integer   sNotUsed
       Integer   sRegularField
       Integer   sSpecialField
       Parameter ( sNotUsed      = 0 )
       Parameter ( sRegularField = 1 )
       Parameter ( sSpecialField = 2 )
-      integer  i_run_DS_used
       Real*8   i_DS_inmem
       integer  DS_init, num_DS_init
       Character*16 iLbl_DS_inmem
-      common /run_ds_s/  i_run_DS_used(nTocDS)
+#include "run_use_common.fh"
 
       common /DS_inmem/     i_DS_inmem(nTocDS),num_DS_init
       common /DS_inmems/    DS_init(nTocDS)

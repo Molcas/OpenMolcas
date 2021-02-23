@@ -96,7 +96,7 @@ integer(kind=iwp) :: mTit
 !----------------------------------------------------------------------*
 
 integer(kind=iwp) :: nSym, nBas(MxSym), nAtoms
-real(kind=iwp), allocatable :: Coor(:,:)
+real(kind=wp), allocatable :: Coor(:,:)
 character :: Header(144)
 
 !----------------------------------------------------------------------*

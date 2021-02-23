@@ -18,9 +18,8 @@
 
       Implicit Real*8 (a-h,o-z)
 
-#include "MpParam.fh"
+#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "Address.fh"
 #include "MolProp.fh"
 
       Dimension OENE(NOCOB)

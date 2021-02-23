@@ -21,7 +21,7 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='SGPRWF  ')
 #include "gugx.fh"

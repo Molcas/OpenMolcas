@@ -58,11 +58,11 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoRead,DoReord,DoActive,DoQmat
+      Logical   DoRead,DoReord,DoActive,DoQmat
       Character*50 CFmt
       Character*11 SECNAM
       Parameter (SECNAM = 'CHO_FCAS_AO')
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
 
       parameter (FactCI = 1.0D0)
       parameter (FactCA = 1.0D0, FactXA = -0.5D0)

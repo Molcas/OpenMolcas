@@ -12,9 +12,8 @@
      &                  m_paranoid,smagn,H_torq,T_torq,ma,dbg)
       Implicit None
       Integer, Parameter            :: wp=kind(0.d0)
-#include "cntrl.fh"
+#include "cntrl_sa.fh"
 #include "mgrid.fh"
-#include "mvect.fh"
 #include "stdalloc.fh"
       Integer, intent(in)          :: nss, nm
       Integer, intent(in)          :: AngPoints

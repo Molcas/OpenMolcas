@@ -55,7 +55,7 @@
 #include "RdOrd.fh"
 
 #include "WrkSpc.fh"
-#include "TwoRc.fh"
+#include "TwoDat.fh"
 
 C *************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -102,7 +102,7 @@ C         ***QUIT*** bad initialization
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
       If (nVec .gt. 0) Then
-         nBatch = (NumCho(jSym) - 1)/nVec + 1
+         mBatch = (NumCho(jSym) - 1)/nVec + 1
       Else
 C         ***QUIT*** insufficient memory
          WRITE(6,*) 'Gen_Int: Insufficient memory for batch'
@@ -112,7 +112,7 @@ C         ***QUIT*** insufficient memory
          WRITE(6,*) 'jsym= ',jsym
          rc = rcRD05
          CALL Abend()
-         nBatch = -9999  ! dummy assignment
+         mBatch = -9999  ! dummy assignment
       End If
 
 C  --- Start the batch procedure for reading the vectors and computing
@@ -123,10 +123,10 @@ c      Call FZero(Xint,numpq*Nrs)
          Xint(i) = ZERO
       End Do
 
-      DO iBatch = 1,nBatch
+      DO iBatch = 1,mBatch
 
-         If (iBatch .eq. nBatch) Then
-            NumV = NumCho(jSym) - nVec*(nBatch - 1)
+         If (iBatch .eq. mBatch) Then
+            NumV = NumCho(jSym) - nVec*(mBatch - 1)
          Else
             NumV = nVec
          End If

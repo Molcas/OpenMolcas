@@ -18,8 +18,7 @@ C     THE RELOP PACKAGE
 C     V 1.0 - 12.3.86 - BERND HESS
 C
 #include "RelLight.fh"
-      COMMON /CRELOP/ PI,ZWP,SQPI,VELIT,PREA,CSQ,ZWPH32,FAK(26),
-     *                ZWPH12,BCO(210),GA(20),IMAX
+#include "crelop.fh"
       SAVE /CRELOP/
 c      WRITE (6,100)
 c100   FORMAT(/,

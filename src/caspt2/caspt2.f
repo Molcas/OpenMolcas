@@ -13,7 +13,7 @@
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
       USE SUPERINDEX
-      USE INPUTDATA
+      USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
       use output_caspt2, only:iPrGlb,terse,usual,verbose,debug
 #ifdef _MOLCAS_MPP_

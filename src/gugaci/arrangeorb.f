@@ -19,7 +19,7 @@ c map_order_orbital    ab ---> ci
 c
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /mcorb/ lsmorb(max_orb),noidx(8)
+#include "mcorb.fh"
       dimension lsmorbcount(ng_sm),map_tmp(max_orb)
       logical logi_norb_inn(norb_all)
 

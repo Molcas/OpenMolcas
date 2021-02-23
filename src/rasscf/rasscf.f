@@ -108,22 +108,18 @@
 #endif
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
-      Logical DoQmat,DoActive, l_casdft
+      Logical l_casdft
       Logical IfOpened
 #ifdef _DMRG_
       Logical Do_ESPF
 #endif
 
 * --------- Cholesky stuff:
-      Integer ALGO
-      Logical DoCholesky
-      Logical timings,DoLock,Deco
-      Integer Nscreen
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
-      COMMON /CHOPAR/ ChFracMem
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+#include "chotodo.fh"
+#include "chlcas.fh"
+#include "chopar.fh"
+#include "chotime.fh"
+#include "cholk.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 * --------- FCIDUMP stuff:

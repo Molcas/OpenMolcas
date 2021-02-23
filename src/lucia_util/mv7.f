@@ -23,7 +23,7 @@
       DIMENSION C(*),HC(*)
 *
 *.Definition of c and sigma
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
@@ -41,7 +41,7 @@
 #include "cprnt.fh"
 #include "glbbas.fh"
 #include "oper.fh"
-      COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
+#include "cmxcj.fh"
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'

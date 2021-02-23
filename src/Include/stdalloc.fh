@@ -13,6 +13,13 @@
 
        interface mma_allocate
 
+! 0D allocate
+         subroutine cmma_allo_0D(buffer,n1,label)
+           character(:), allocatable, intent(inout) :: buffer
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+
 ! 1D allocate
          subroutine dmma_allo_1D(buffer,n1,label)
            real*8, allocatable, intent(inout) :: buffer(:)
@@ -210,6 +217,11 @@
 
 
        interface mma_deallocate
+
+! 0D deallocate
+         subroutine cmma_free_0D(buffer)
+           character(len=:), allocatable, intent(inout) :: buffer
+         end subroutine
 
 ! 1D deallocate
          subroutine dmma_free_1D(buffer)

@@ -13,7 +13,7 @@
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
       call external_space_plpmode_value_vd()
 
@@ -306,7 +306,7 @@ c        enddo
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 c      write(6,*)'  sd_wyb'
 
       call external_space_plpmode_value_ds()
@@ -608,7 +608,7 @@ c        enddo
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
 c      write(6,*)'  td_wyb'
       call external_space_plpmode_value_dt()

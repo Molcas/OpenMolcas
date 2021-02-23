@@ -402,7 +402,7 @@ c Avoid unused argument warnings
 #include "pl_structure_h.fh"
 c ifrno(j)=i
 c irfno(i)=j no. i ref is no. j cfs in h0
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
       icsfwlk=0
@@ -458,7 +458,7 @@ c...end of irfrst
       subroutine irfrst_bak(iselcsf_occ)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
-      common/config/ndr,nwalk(0:max_orb)
+#include "config.fh"
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
       logical log_exist
@@ -550,7 +550,7 @@ c...end of irfrst
       end
 
       function min_itexcit(indjk)
-      common/ref/ndj,ndjgrop,ndjmod
+#include "ref.fh"
       dimension indjk(4)
 c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !    indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
@@ -583,7 +583,7 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
       end
 
       subroutine njexcit(idcc,indjk,locuk0,n_ref)
-      common/ref/ndj,ndjgrop,ndjmod
+#include "ref.fh"
       dimension indjk(4),locuk0(n_ref)
       nj=0
       do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop

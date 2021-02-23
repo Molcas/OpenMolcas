@@ -84,7 +84,7 @@
       Character*3 lIrrep(8)
       Logical DOTEST
       INTEGER LU,ISFREEUNIT
-      COMMON SumEigVal
+#include "ntocom.fh"
       EXTERNAL ISFREEUNIT, Molden_interface
 
       LU=233
@@ -490,7 +490,7 @@ C     OrbSymIndex gives the original orbital index for a orbital in iusesym
 C     If SquareSum(IUseSym) > Threshold, then print the coefficients in IUseSym symmetry
 C     If there are more than one symmetry with SquareSum(IUseSym) > Threshold,
 C     then give a warning message and print the one with the largest SquareSum
-      COMMON SumEigVal
+#include "ntocom.fh"
       INTEGER NPCMO,IPCMO
       Real*8,DIMENSION(:),allocatable::PCMO
 C     Printing control

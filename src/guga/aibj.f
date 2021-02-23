@@ -16,10 +16,8 @@
       DIMENSION L0(*),L1(*),L2(*),L3(*),ITAI(*)
 #include "real_guga.fh"
 #include "integ.fh"
-#include "files_guga.fh"
-      COMMON/CNSTS/D0,D1,D2
-#include "addr_guga.fh"
-      COMMON/D/JNDX(500 000)
+#include "files_addr.fh"
+#include "d.fh"
       DIMENSION NUMM(7)
 *
       JO(L)=ICUNP(ICASE,L)

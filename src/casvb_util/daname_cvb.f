@@ -1,4 +1,4 @@
-************************************************************************
+*s***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -14,8 +14,7 @@
       subroutine daname_cvb(lu,fname)
       implicit real*8 (a-h,o-z)
       character*(*) fname
-      parameter (mxfiles=40)
-      common /dancom_cvb/idan(mxfiles)
+#include "dancom_cvb.fh"
 #include "fio.fh"
       logical find_unused
 
@@ -52,8 +51,7 @@
       end
       subroutine daclos_cvb(lu)
       implicit real*8 (a-h,o-z)
-      parameter (mxfiles=40)
-      common /dancom_cvb/idan(mxfiles)
+#include "dancom_cvb.fh"
 #include "fio.fh"
 c      logical find_unused
 
@@ -63,8 +61,7 @@ c      logical find_unused
       end
       subroutine daninit_cvb()
       implicit real*8 (a-h,o-z)
-      parameter (mxfiles=40)
-      common /dancom_cvb/idan(mxfiles)
+#include "dancom_cvb.fh"
 #include "fio.fh"
 c      logical find_unused
       call istkinit_cvb(idan,mxfiles)

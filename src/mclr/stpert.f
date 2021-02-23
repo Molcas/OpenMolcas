@@ -19,7 +19,7 @@
 #include "Pointers.fh"
 #include "disp_mclr.fh"
 #include "stdalloc.fh"
-#include "spin.fh"
+#include "spin_mclr.fh"
 #include "cstate_mclr.fh"
 #include "Files_mclr.fh"
       Character(LEN=16) Label

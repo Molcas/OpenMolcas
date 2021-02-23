@@ -16,21 +16,15 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-      Integer   nTocIS
-      Parameter ( nTocIS = 128 )
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
       Integer   sNotUsed
       Integer   sRegularField
       Integer   sSpecialField
       Parameter ( sNotUsed      = 0 )
       Parameter ( sRegularField = 1 )
       Parameter ( sSpecialField = 2 )
-      integer    i_run_IS_used
       Integer    i_IS_inmem, IS_init, num_IS_init
       Character*16 iLbl_IS_inmem
-      common /run_is_s/  i_run_IS_used(nTocIS)
+#include "run_use_common.fh"
 
       common /IS_inmem/     i_IS_inmem(nTocIS),num_IS_init
       common /IS_inmems/    IS_init(nTocIS)
