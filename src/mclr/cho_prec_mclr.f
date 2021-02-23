@@ -428,7 +428,7 @@ c         !set index arrays at iLoc
             ipLpq(:) = ipLpq(:) - 1 + inc2
             CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,[CMOt],
-     &                        nIshe,ipLpq,iSkip,DoRead)
+     &                        ipLpq,iSkip,DoRead)
             ipLpq(:) = ipLpq(:) + 1 - inc2
 
             if (irc.ne.0) then

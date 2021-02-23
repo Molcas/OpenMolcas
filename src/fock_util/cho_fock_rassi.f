@@ -332,7 +332,7 @@ C -------------------------------------------------------------
 C *********************** HALF-TRANSFORMATION  ****************
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,MO1,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,MO1,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -419,7 +419,7 @@ C -------------------------------------------------------------
                nMOs = 1  ! Active MOs (1st set)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,MO2,nAsh,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,MO2,
      &                           ipLab,iSkip,DoRead)
 
                if (irc.ne.0) then

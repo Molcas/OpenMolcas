@@ -227,7 +227,7 @@ cmp
 c --- Define MOs used in CC
 c -----------------------------------
         do i=1,nSym
-           nPorb(i) = nIsh(i) + nAsh(i) + nSsh(i)
+           nPorb(i) = SIZE(CMO%pA(i)%A,1)
         end do
 
 
@@ -371,7 +371,7 @@ C --------------------------------------------------------------------
                CALL CWTIME(TCM1,TWM1)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,CMO,nPorb,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,CMO,
      &                           ipLpb,iSkip,DoRead)
 
                if (irc.ne.0) then

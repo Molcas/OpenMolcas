@@ -307,7 +307,7 @@ C -------------------------------------------------------------
 C *********************** HALF-TRANSFORMATION  ****************
 
                   CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
                   CALL CWTIME(TCR4,TWR4)

@@ -424,7 +424,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
                CALL CWTIME(TCR3,TWR3)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                         ipLab,iSkip,DoRead)
 
 
@@ -498,7 +498,7 @@ C --------------------------------------------------------------------
                   nMOs = 2
 
                   CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -564,7 +564,7 @@ C --------------------------------------------------------------------
                nMOs = 3  ! Active MOs
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
 

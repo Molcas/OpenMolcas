@@ -1529,7 +1529,7 @@ C -------------------------------------------------------------
                Else
 * Lrs * MO
                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ASh(1),nAsh,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ASh(1),
      &                           ipLpq,iSkip,DoRead)
                EndIf
 
@@ -1761,7 +1761,7 @@ C --------------------------------------------------------------------
 
                      CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(2),
-     &                           nAsh,ipLpq,iSkip,DoRead)
+     &                           ipLpq,iSkip,DoRead)
                      CALL CWTIME(TCINT3,TWINT3)
                      tint1(1) = tint1(1) + (TCINT3 - TCINT2)
                      tint1(2) = tint1(2) + (TWINT3 - TWINT2)

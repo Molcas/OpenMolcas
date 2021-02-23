@@ -213,7 +213,7 @@ C --------------------------------------------------------------
          CALL CWTIME(TCT1,TWT1)
 
          CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,nOcc,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,
      &                         ipLib,iSkip,DoRead)
 
                if (irc.ne.0) then

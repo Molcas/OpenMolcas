@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,
-     &                   iSwap,nDen,kDen,MOs,nPorb,ipChoT,iSkip)
+     &                   iSwap,nDen,kDen,MOs,ipChoT,iSkip)
 
 *********************************************************
 *   Author: F. Aquilante
@@ -65,7 +65,7 @@
 
       Real*8  Scr(lscr)
       Integer nDen,kDen
-      Integer ipChoT(8,nDen), iSkip(*),nPorb(8,nDen)
+      Integer ipChoT(8,nDen), iSkip(*)
 
       Integer, External:: cho_isao
 
@@ -78,9 +78,18 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
+      Integer, Allocatable:: nPorb(:,:)
+
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
+
+      Call mma_allocate(nPorb,8,nDen,Label='nPorb')
+      Do iDen = 1, nDen
+        Do iSym = 1, nSym
+          nPorb(iSym,iDen)=SIZE(MOs(iDen)%pA(iSym)%A,1)
+        End Do
+      End Do
 
 **********************************************************
 C
@@ -596,6 +605,7 @@ C     -----------------------------------
 
       ENDIF  ! iSwap check
 
+      Call mma_deallocate(nPorb)
       irc=0
 
       Return

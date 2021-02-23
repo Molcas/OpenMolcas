@@ -1440,7 +1440,7 @@ C -------------------------------------------------------------
                nMOs = 1  ! Active MOs (1st set)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,nAorb,
+     &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
      &                          ipLpq,iSkip,DoRead)
 
 

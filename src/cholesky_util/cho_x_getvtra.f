@@ -54,13 +54,12 @@
 *> @param[in]  nDen    total number of densities to which MOs refer
 *> @param[in]  kDen    first density for which the MO transformation has to be performed
 *> @param[in]  ipMOs   matrix (8 &times; \p nDen) of pointers to the MOs coefficients
-*> @param[in]  nPorb   number of orbitals in the primary space for a given symmetry and density
 *> @param[in]  ipChoT  pointers to the half transformed vectors
 *> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 *> @param[in]  DoRead  flag for reading the reduced vectors
 ************************************************************************
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
-     &                         iSwap,IREDC,nDen,kDen,MOs,nPorb,ipChoT,
+     &                         iSwap,IREDC,nDen,kDen,MOs,ipChoT,
      &                         iSkip,DoRead)
       use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
@@ -71,7 +70,6 @@
       Integer   nDen,kDen
       Integer   ipChoT(8,nDen)
       Integer   iSkip(*)
-      Integer   nPorb(8,nDen)
       Logical   DoRead
       Character(LEN=13), Parameter:: SECNAM = 'Cho_X_GetVtra'
 
@@ -95,12 +93,16 @@ C--------------------------
          IF (iSkip(iSymp).ne.0) THEN
             iSymb = muld2h(ISYM,iSymp)
             Do jDen=kDen,nDen
-               If (iSwap.eq.0 .or. iSwap.eq.2) then ! Lpb,J or LpJ,b
+               If (iSwap.eq.0 .or. iSwap.eq.2) Then ! Lpb,J or LpJ,b
                   Call FZero(Work(ipChoT(iSymp,jDen)),
-     &                 nPorb(iSymp,jDen)*nBas(iSymb)*NUMV)
-               ElseIf (iSwap.eq.1 .or. iSwap.eq.3) then !Laq,J or LaJ,q
+     &                       SIZE(MOs(jDen)%pA(iSymp)%A,1)*
+     &                       nBas(iSymb)*
+     &                       NUMV)
+               ElseIf (iSwap.eq.1 .or. iSwap.eq.3) Then !Laq,J or LaJ,q
                   Call FZero(Work(ipChoT(iSymp,jDen)),
-     &                 nPorb(iSymb,jDen)*nBas(iSymp)*NUMV)
+     &                       nBas(iSymp)*
+     &                       SIZE(MOs(jDen)%pA(iSymp)%A,1)*
+     &                       NUMV)
                EndIf
             End Do
          ENDIF
@@ -141,7 +143,7 @@ C ----------------------------------------------
         jVref = JVEC1 - IVEC1 + 1
 
         Call cho_vTra(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,
-     &            IREDC,iSwap,nDen,kDen,MOs,nPorb,ipVec,iSkip)
+     &            IREDC,iSwap,nDen,kDen,MOs,ipVec,iSkip)
 
         if (irc.ne.0) then
            return
@@ -156,10 +158,11 @@ C --------------------------------------------------------------------
 
          Do jDen=kDen,nDen
           do iSymp=1,nSym
+             n1 = SIZE(MOs(jDen)%pA(iSymp)%A,1)
              iSymb=mulD2h(iSymp,ISYM)
              if(iSkip(iSymp).ne.0)then
                ipVec(iSymp,jDen) = ipVec(iSymp,jDen)
-     &                            + nPorb(iSymp,jDen)*nBas(iSymb)*JNUM
+     &                           + n1*nBas(iSymb)*JNUM
              endif
           end do
          End Do
@@ -168,10 +171,11 @@ C --------------------------------------------------------------------
 
          Do jDen=kDen,nDen
           do iSyma=1,nSym
+             n2 = SIZE(MOs(jDen)%pA(iSyma)%A,1)
              iSymq=mulD2h(iSyma,ISYM)
              if(iSkip(iSyma).ne.0)then
                ipVec(iSyma,jDen) = ipVec(iSyma,jDen)
-     &                           + nBas(iSyma)*nPorb(iSymq,jDen)*JNUM
+     &                           + nBas(iSyma)*n2*JNUM
              endif
           end do
          End Do
@@ -198,7 +202,7 @@ C --------------------------------------------------------------------
        JNUM = NUMV
 
        Call cho_vTra(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,
-     &              iSwap,nDen,kDen,MOs,nPorb,ipVec,iSkip)
+     &              iSwap,nDen,kDen,MOs,ipVec,iSkip)
 
        if (irc.ne.0) then
           return
