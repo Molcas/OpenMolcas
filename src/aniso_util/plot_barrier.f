@@ -34,6 +34,7 @@
       CHARACTER(LEN=1023) :: realname_plt,
      &                       realname_e_dat, realname_m_dat,
      &                       realname_png, realname_eps, gnuplot_CMD
+      INTEGER, EXTERNAL :: IsFreeUnit
 
       dbg=.false.
       StdOut = 6
@@ -143,7 +144,7 @@
           IF (dbg) WRITE (StdOut,'(A)') 'new file  "lineOUT"  exists'//
      &                                  ' in WorkDir'
 
-          file_number=453
+          file_number=IsFreeUnit(45)
           Call molcas_open(file_number,"lineOUT")
 
           READ (file_number,'(A)') line1
@@ -184,7 +185,7 @@
 !#else
 !        CALL execute_command_line ( gnuplot_CMD )
 !#endif
-        file_number=452
+        file_number=IsFreeUnit(42)
         Call molcas_open(file_number,'lineOUT')
         READ (file_number,*) cdummy, gnuplot_version
         IF (dbg) WRITE (StdOut,'(A,F4.1)') 'gnuplot_version = ',
@@ -224,7 +225,7 @@
      &        NUMBER=file_number)
       IF(file_exist)  iErr=AixRm(trim(datafile_e))
       IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
-      LuData=785
+      LuData=IsFreeUnit(75)
       Call molcas_open(LuData,datafile_e)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile_e)//'" file'
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_e_dat)//
@@ -260,7 +261,7 @@
      &        NUMBER=file_number)
       IF(file_exist)  iErr=AixRm(trim(datafile_m))
       IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
-      LuData=786
+      LuData=IsFreeUnit(76)
       Call molcas_open(LuData,datafile_m)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(datafile_m)//'" file'
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_m_dat)//
@@ -315,7 +316,7 @@
      &        NUMBER=file_number)
       IF(file_exist) iErr=AixRm(trim(plotfile))
       IF(dbg)  WRITE (StdOut,*) 'iErr = ',iErr
-      LuPlt=855
+      LuPlt=IsFreeUnit(85)
       Call molcas_open(LuPlt,plotfile)
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(plotfile)//'" file'
       IF (dbg) WRITE (StdOut,*) 'Opening "'//trim(realname_plt)//
