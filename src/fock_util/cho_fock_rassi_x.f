@@ -45,18 +45,17 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoRead,DoReord
+      Logical   DoRead,DoReord
       Character*50 CFmt
       Character*16 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_RASSI_X')
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
 
       parameter (DoRead = .false. )
       parameter (FactCI = 1.0D0, FactXI = -1.0D0)
       parameter (zero = 0.0D0, one = 1.0D0, two = 2.0D0)
       Character*6 mode
-      Logical Fake_CMO2
-      COMMON / CHO_JOBS / Fake_CMO2
+#include "cho_jobs.fh"
 
 #include "rassi.fh"
 #include "cholesky.fh"

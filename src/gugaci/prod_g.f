@@ -1963,7 +1963,7 @@ c      print*, "out sd 1"
       subroutine gtd_sequence_extspace_g(iplplwei,iplprwei)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-      common /cont_tmp/icount_ext
+#include "cont_tmp.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
 c     write(*,*) ' td_test _1/2',' dt_test '
       ilpvalue=0
@@ -2095,8 +2095,7 @@ c     write(*,*) ' td_test _1/2',' dt_test '
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 c      write(*,*) 'sd_test 2/2','  td_test_2/2 2'
       ilpvalue=0
       mm0=ilwei
@@ -2128,7 +2127,7 @@ c      print*, "out sd 2"
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
 
       mm=ilw
       nn=irw+1
@@ -2163,8 +2162,8 @@ c      print*, "out sd 2"
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
-      common /cont_tmp/icount_ext
+#include "iaib.fh"
+#include "cont_tmp.fh"
       parameter (   v_sqtwo=1.414213562373095d0 )
 c     write(*,*) ' td_test _1/2',' dt_test '
       ilpvalue=0
@@ -2293,7 +2292,7 @@ c     write(*,*) ' td_test _1/2',' dt_test '
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
       parameter (v_sqtwo=1.414213562373095d0 )
 c      write(*,*) '  sd_test 1/2','  ds_test 0'
 
@@ -2596,7 +2595,7 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
 
       goto(100,200,300),idb
 ! in dbl_space
@@ -2711,7 +2710,7 @@ c     :             vector1(mm),vector1(nn)
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 #include "grad_h.fh"
-      common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
+#include "iaib.fh"
 
       goto(100,200,300),idb
 ! in dbl_space

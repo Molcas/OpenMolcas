@@ -64,15 +64,14 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoRead,DoTraInt,DoActive,DoScreen
-      Logical   Estimate,Update
+      Logical   DoRead,DoTraInt,DoActive,DoScreen
       Real*8    FactC(2),FactX(2),tau(2),xtau(2),thrv(2)
       Real*8    dmpK, dFmat,ExFac
       Character*50 CFmt
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_LK_CASSCF')
-      COMMON    /CHOTIME /timings
-      COMMON    /CHOSCREEN/ Estimate,Update
+#include "chotime.fh"
+#include "choscreen.fh"
 
       parameter (DoRead = .false. )
       parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)

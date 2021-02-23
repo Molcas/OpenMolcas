@@ -15,7 +15,7 @@ C
       SUBROUTINE SOLVE(NN,UL,B,X)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION UL(NN,NN),B(*),X(*)
-      COMMON /IPS/IPS(200)
+#include "ips.fh"
       N=NN
       NP1=N+1
 C

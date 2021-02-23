@@ -14,18 +14,15 @@
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
-      Integer   Nscreen
       Real*8    DA1(*),DI(*),DA2(*),FI(*),FA(*),CMO(*)
       Integer   nForb(8),nIorb(8),nAorb(8),nChM(8),nChI(8)
       Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
-      Logical   DoActive,DoQmat,TraOnly,DoLocK,Deco,DoCholesky
-      Integer   ALGO
-      Real*8    dmpk
+      Logical   TraOnly
 
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHOPMAT / ipPL
-      Common /CHLCAS / DoCholesky,ALGO
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+#include "chotodo.fh"
+#include "chopmat.fh"
+#include "chlcas.fh"
+#include "cholk.fh"
 
       Character(LEN=11), Parameter:: SECNAM = 'CHO_CAS_DRV'
 

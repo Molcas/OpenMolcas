@@ -20,7 +20,7 @@ c
       character*120 TMP
       character*2 Marker
       real*8 Value(iRank)
-      Common /icolorize/icolorize
+#include "icolorize.fh"
       if(icolorize.eq.1) then
         Marker='::'
         if(iCount.eq.0) then

@@ -65,7 +65,7 @@ C
       Parameter (SECNAM = 'CHO_LK_MCLR')
 #include "chomclr.fh"
       Logical Fake_CMO2,DoAct,ReadInter
-      COMMON / ChoLKMCLR / nVec_
+      Save nVec_
 *
       Integer nOrb(8),nAsh(8),nIsh(8)
 

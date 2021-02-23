@@ -41,7 +41,7 @@
 #include "lucinp.fh"
 #include "clunit.fh"
 *. Common block for communicating with sigma
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *
       DIMENSION X(*),VEC1(*),VEC2(*)
 * Some dummy initializations

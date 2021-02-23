@@ -21,8 +21,8 @@ C
       Integer      Job, iBatch
 #include "chomp2.fh"
 
-      Real*8 CME_Time
-      Common / CMETim / CME_Time(2,2)
+      Real*8 CME_Time(2,2)
+      Save CME_Time
 
       Character*17 SecNam
       Parameter (SecNam = 'ChoMP2_Energy_Prt')

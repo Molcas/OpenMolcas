@@ -80,12 +80,11 @@
       Integer IndType(56)
       Character*80 VecTyp
       Save nCall
-      Logical DoActive,DoQmat,DoCholesky,TraOnly,l_casdft
-      Integer ALGO
+      Logical TraOnly,l_casdft
       Dimension P2act(1),CIDUMMY(1)
 
-      COMMON /CHOTODO /DoActive,DoQmat,ipQmat
-      COMMON /CHLCAS /DoCholesky,ALGO
+#include "chotodo.fh"
+#include "chlcas.fh"
 #ifndef _DMRG_
       logical :: doDMRG = .false.
 #endif

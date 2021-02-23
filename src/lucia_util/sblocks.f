@@ -119,7 +119,7 @@
 #include "bk_approx.fh"
 #include "io_util.fh"
 *
-      COMMON/H_OCC_CONS/IH_OCC_CONS
+#include "h_occ_cons.fh"
 
       DIMENSION C(1),ICOOSC(1),IPHGAS(*),iDUMMY(1)
       INTEGER DXSTST(1)

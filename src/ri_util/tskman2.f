@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine Init_Tsk2(id,mTask,jOpt,List)
 #include "WrkSpc.fh"
+#include "tsk2.fh"
       Integer List(*)  ! either nTask or 0 long
-      Common /Tsk2/ iRsv,iOpt,nTask
 *
       nTask=mTask
       iOpt=jOpt
@@ -32,7 +32,7 @@
       Logical Function Rsv_Tsk2(id,kls)
       External Rsv_Tsk
 #include "WrkSpc.fh"
-      Common /Tsk2/ iRsv,iOpt,nTask
+#include "tsk2.fh"
       Logical Rsv_Tsk
 *
       If (iOpt.eq.0) Then
@@ -57,7 +57,7 @@
       Return
       End
       Subroutine Free_Tsk2(id)
-      Common /Tsk2/ iRsv,iOpt,nTask
+#include "tsk2.fh"
 *
       If (iOpt.eq.0) Then
          Call Free_Tsk(id)

@@ -44,9 +44,6 @@
 *
 
 #include "FileIDs.fh"
-#include "OneRc.fh"
-#include "OneFlags.fh"
-
 #include "OneDat.fh"
 *
       Character*(*) Name

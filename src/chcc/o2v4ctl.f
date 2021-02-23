@@ -18,7 +18,7 @@ c
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "wrk.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #include "chcc_casy.fh"
 c
         integer NvGrp,NvSGrp,LunAux
@@ -253,7 +253,7 @@ c
         implicit none
 #include "wrk.fh"
 #include "chcc1.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
         integer NaGrp,NbeGrp,NaSGrp,NbeSgrp,LunAux

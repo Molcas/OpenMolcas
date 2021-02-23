@@ -116,7 +116,26 @@ cbs                         ! integrals in memory
       logical AIMP       ! parameter to delete CORE for AIMP
       logical oneonly    ! parameter to use only oneelectron integrals
       character*4  symmetry
-#include "datapow.fh"
+      parameter (Lpowmax=6)
+      dimension ixyzpow(3*(Lpowmax+1)*(Lpowmax+1)) !
+      data ixyzpow /
+cbs   the ones and zeros stand four odd and even powers of x,y,z
+cbs   if you want to go higher than l=6, you have to look up
+cbs   the powers yourself, and add them to the table
+     *0,0,0,                                 ! s-function
+     *0,1,0, 0,0,1, 1,0,0,                   ! p-functions
+     *1,1,0, 0,1,1, 0,0,0,  1,0,1, 0,0,0,    ! d-functions
+     *0,1,0, 1,1,1, 0,1,0,  0,0,1, 1,0,0,    ! f-functions
+     *0,0,1, 1,0,0,                          ! f-functions
+     *1,1,0, 0,1,1, 1,1,0,  0,1,1, 0,0,0,    ! g-functions
+     *1,0,1, 0,0,0, 1,0,1,  0,0,0,           ! g-functions
+     *0,1,0, 1,1,1, 0,1,0,  1,1,1, 0,1,0,    ! h-functions
+     *0,0,1, 1,0,0, 0,0,1,  1,0,0, 0,0,1,    ! h-functions
+     *1,0,0,                                 ! h-functions
+     *1,1,0, 0,1,1, 1,1,0, 0,1,1, 1,1,0,     ! i-functions
+     *0,1,1, 0,0,0, 1,0,1, 0,0,0, 1,0,1,     ! i-functions
+     *0,0,0, 1,0,1, 0,0,0                    ! i-functions
+     */
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable:: oneoverR3(:), CartOne(:,:), OneContr(:),
@@ -124,7 +143,7 @@ cbs                         ! integrals in memory
       Integer, Allocatable:: checkxy(:), checkz(:), interxyz(:,:),
      &                       SgnProd(:)
 *
-      common /ipowxyz/ ipowxyz(3,-Lmax:Lmax,0:Lmax)
+#include "ipowxyz.fh"
 c##########################################################################
 cbs  #####################################################################
 cbs         version with all angular integrals in memory
@@ -278,7 +297,7 @@ cbs
       implicit real*8(a-h,o-z)
 #include "para.fh"
 #include "param.fh"
-      common /nucleus/ charge,Exp_finite
+#include "nucleus.fh"
       noccorb(0)=1
       do l=1,lmax_occ
          noccorb(l)=0

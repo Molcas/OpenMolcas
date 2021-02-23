@@ -886,8 +886,7 @@ C       ww1lp=-valuelptmp1*2.d0
       subroutine gsd_ext_sequence_G(iltype,ilsm,irsm,lri)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ismnodes=ilsm
       ismnoded=irsm
@@ -969,7 +968,7 @@ C       ww1lp=-valuelptmp1*2.d0
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
+#include "iaib.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
 
       next_sta=ibsm_ext(isma)-1

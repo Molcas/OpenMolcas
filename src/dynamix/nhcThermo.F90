@@ -38,9 +38,9 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(inout) :: vel(*)
 integer(kind=iwp) :: i, j, natom
-real(kind=iwp) :: Ekin, DT2, DT4, DT8, G1, G2, NHC(nh), Q1, Q2, sc, Vx1, Vx2, X1, X2
+real(kind=wp) :: Ekin, DT2, DT4, DT8, G1, G2, NHC(nh), Q1, Q2, sc, Vx1, Vx2, X1, X2
 real(kind=wp), allocatable :: Mass(:)
-real(kind=iwp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
+real(kind=wp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 
 !nh stands for the number of variables in the thermostat
 ! NHC = Q1,Q2,X1,X2,VX1,VX2,Scale

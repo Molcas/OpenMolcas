@@ -31,8 +31,6 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-      COMMON /LovCAS3/ STrA, STrF, STrX
-*
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
      &        nDel(nSym)
       Integer irc,nUniqAt,IFQCAN

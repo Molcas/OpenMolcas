@@ -26,7 +26,7 @@
       Integer  lBuf,nMat
 
 #include "RdOrd.fh"
-#include "TwoRc.fh"
+#include "TwoDat.fh"
 
       Character*4 BaseNm
       Character*6 Fname

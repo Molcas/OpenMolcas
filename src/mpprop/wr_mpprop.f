@@ -11,9 +11,8 @@
       Subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
       Implicit Real*8 (a-h,o-z)
 
-#include "MpParam.fh"
+#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "Address.fh"
 #include "MolProp.fh"
 
       Parameter (mxComp=(mxMltPl+1)*(mxMltPl+2)/2)

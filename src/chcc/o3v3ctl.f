@@ -16,7 +16,7 @@ c
         use Para_Info, only: nProcs
         implicit none
 #include "chcc1.fh"
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 #include "o3v3.fh"
 #include "wrk.fh"
 c

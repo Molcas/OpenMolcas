@@ -23,8 +23,7 @@ c
         integer rc
 c
         real*8  FracMem
-        Logical timings
-        COMMON /CHOTIME /timings
+#include "chotime.fh"
         integer idum(1)
 c
 c.1 - get the info on  nBas, nOrb, nOcc. Use nFro from input
@@ -177,7 +176,7 @@ C
       Integer   rc,nIsh(*),nAsh(*),nSsh(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   timings,DoRead
+      Logical   DoRead
       Integer   nPorb(8)
       Integer   ipLpb(8)
       integer   iskip(8)
@@ -186,7 +185,7 @@ C
       Character*10 SECNAM
       Parameter (SECNAM = 'CHO_CC_drv')
 
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
 
       parameter (zero = 0.0D0, one = 1.0D0)
 

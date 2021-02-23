@@ -46,8 +46,6 @@
 *
 
 #include "FileIDs.fh"
-#include "TwoRc.fh"
-#include "TwoFlags.fh"
 #include "Molcas.fh"
 #include "TwoDat.fh"
 *

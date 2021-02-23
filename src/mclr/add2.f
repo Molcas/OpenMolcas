@@ -22,7 +22,7 @@
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-#include "spin.fh"
+#include "spin_mclr.fh"
 
 #include "Input.fh"
 #include "real.fh"

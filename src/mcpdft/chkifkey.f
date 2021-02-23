@@ -15,7 +15,7 @@
 * a keyword. Print warning else.
 * ------------------------------------------------------------
 #include "rasdim.fh"
-#include "input_ras.fh"
+#include "input_ras_mcpdft.fh"
       Character*4 Command
       Character*(180)  Line
       Read(LUInput,*) Line

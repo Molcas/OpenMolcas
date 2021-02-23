@@ -11,7 +11,7 @@
        Subroutine Get_OCOF(nPrim,nBas,Work,nVec_p,OCOF)
        Implicit REAL*8 (a-h,o-z)
 
-#include "Ocof.fh"
+       Dimension oCof(nBas,nPrim)
        DIMENSION  Work(nVec_p)
 
        iStdOut = 6 ! Added by EB

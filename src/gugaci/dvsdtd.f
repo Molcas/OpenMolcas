@@ -13,7 +13,7 @@
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 
       call external_space_plpmode_value_dv()
 
@@ -846,7 +846,7 @@ c        enddo
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 c      write(6,*)'  sd_wyb'
 
 !      logic_sd=.true.
@@ -878,7 +878,7 @@ c        jmlr=mul_tab(jml,jmr)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 c      write(6,*)'  sd_wyb'
 
 !      logic_sd=.true.
@@ -1743,8 +1743,7 @@ c        enddo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ia0=(lri-1)*norb_ext
       iabc0=(lri-1)*nabc
@@ -1821,8 +1820,7 @@ c        enddo
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ia0=(lri-1)*norb_ext
       iabc0=(lri-1)*nabc
@@ -1881,8 +1879,7 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ia0=(lri-1)*norb_ext
       iabc0=(lri-1)*nabc
@@ -1937,8 +1934,7 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       ia0=(lri-1)*norb_ext
       ic=m_jd
@@ -1978,7 +1974,7 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      common/lpdisk/idisk_lp,idisk_array(13)
+#include "lpdisk.fh"
 c      write(6,*)'  td_wyb'
 
 !      logic_sd=.true.
@@ -2827,8 +2823,7 @@ c        enddo
       subroutine gsd_ext_sequence(iltype,ilsm,irsm,lri)
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
       ismnodes=ilsm
       ismnoded=irsm
       indl=0 !?
@@ -2887,8 +2882,7 @@ c        enddo
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
@@ -2977,8 +2971,7 @@ c        enddo
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
-     *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
+#include "gext_sequence.fh"
 
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)

@@ -24,19 +24,16 @@
 #include "WrkSpc.fh"
       Character*180 KWord, Key, Get_Ln
       External Get_Ln
-      Logical  DFonly,DensityCheck,timings,DoLock,Deco
-      Logical  DoCholesky,Estimate,Update
+      Logical  DFonly
       character*16 SECNAM
       parameter (SECNAM = 'CHO_RASSCF_RDINP')
-      Integer  ALGO,Nscreen
-      Real*8   dmpk
 *
-      Common /CHLCAS / DoCholesky,ALGO
-      COMMON /CHODENSITY/ DensityCheck
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
-      COMMON /CHOSCREEN/ Estimate,Update
-      COMMON /CHOPAR/ ChFracMem
+#include "chlcas.fh"
+#include "chodensity.fh"
+#include "chotime.fh"
+#include "cholk.fh"
+#include "choscreen.fh"
+#include "chopar.fh"
 
 *
 *

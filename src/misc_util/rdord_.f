@@ -51,7 +51,6 @@
 *
 #include "Molcas.fh"
 #include "TwoDat.fh"
-#include "TwoRc.fh"
 *
       Real*8 Buf(*)
       Logical Square
@@ -67,7 +66,7 @@
 *     Check the file status                                            *
 *----------------------------------------------------------------------*
       If ( Open.ne.1 ) Then
-        rc=rcRD10
+        rc=rcRD08
         Write (6,*) 'RdOrd: ORDINT not opened yet!'
         Call Abend()
       End If
@@ -76,7 +75,7 @@
 *----------------------------------------------------------------------*
       If ( TocTwo(isPkPa).lt.0 .or. TocTwo(isPkPa).gt.1 .or.
      &     TocTwo(isPkAs).lt.0 .or. TocTwo(isPkAs).gt.1      ) then
-        rc=rcRD11
+        rc=rcRD09
         Write (6,*) 'RdOrd: the packing flags are spoiled'
         Call Abend()
       End If

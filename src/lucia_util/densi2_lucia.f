@@ -50,7 +50,7 @@ c      REAL*8 INPRDD
 *
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
-      COMMON/CANDS/ICSM,ISSM,ICSPC,ISSPC
+#include "cands.fh"
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
@@ -69,14 +69,11 @@ c      REAL*8 INPRDD
 #include "glbbas.fh"
 *
       LOGICAL IPACK
-      INTEGER ADASX,ASXAD,ADSXA,SXSXDX,SXDXSX
-      COMMON/CSMPRD/ADASX(MXPOBS,MXPOBS),ASXAD(MXPOBS,2*MXPOBS),
-     &              ADSXA(MXPOBS,2*MXPOBS),
-     &              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
+#include "csmprd.fh"
 #include "lucinp.fh"
 #include "clunit.fh"
 *. Scratch for string information
-      COMMON/HIDSCR/KLOCSTR(4),KLREO(4),KLZ(4),KLZSCR
+#include "hidscr.fh"
       INTEGER SXSTSM(1)
 *. Specific input
       REAL*8 L

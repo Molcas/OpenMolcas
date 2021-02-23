@@ -23,16 +23,12 @@
       Logical  DFonly
       character*13 SECNAM
       parameter (SECNAM = 'CHO_SCF_RDINP')
-      Integer ALGO,NSCREEN
-      Logical REORD,DECO,DensityCheck,timings
-      Logical Estimate,Update
-      Real*8 dmpk,dFKmat
 *
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
-      COMMON /CHODENSITY/ DensityCheck
-      COMMON /CHOTIME / timings
-      COMMON /CHOSCREEN/ Estimate,Update
-      COMMON /CHOPAR/ ChFracMem
+#include "choscf.fh"
+#include "chodensity.fh"
+#include "chotime.fh"
+#include "choscreen.fh"
+#include "chopar.fh"
 
 *
       iRout=1

@@ -77,7 +77,7 @@ c
 #include "chcc1.fh"
 #include "chcc_reord.fh"
 cmp!
-#include "chcc_parcc.fh"
+#include "parcc.fh"
 cmp!
 
 c

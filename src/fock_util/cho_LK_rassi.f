@@ -55,16 +55,14 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoRead,DoReord,DoScreen
-      Logical   Estimate,Update,Deco,PseudoChoMOs
+      Logical   DoRead,DoReord,DoScreen
       Real*8    FactCI,FactXI,dmpk
       Character*50 CFmt
       Character*12 SECNAM
       Parameter (SECNAM = 'CHO_LK_RASSI')
-      COMMON    /CHOTIME /timings
-      COMMON /LKSCREEN / Estimate, Update, Deco, PseudoChoMOs
-      Logical Fake_CMO2
-      COMMON / CHO_JOBS / Fake_CMO2
+#include "chotime.fh"
+#include "lkscreen.fh"
+#include "cho_jobs.fh"
 
       parameter (DoRead = .false. )
       parameter (FactCI = 1.0D0, FactXI = -1.0D0)

@@ -255,16 +255,24 @@
 * (no _DATA_NAME_ defined to make sure size is counted in bytes)
 
 #define _SUBR_NAME_ cmma
-#define _TYPE_ character(len=*)
 
+#define _TYPE_ character(len=:)
+#  define _DIMENSIONS_ 0
+#  define _DEF_LABEL_ 'cmma_0D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
+
+#define _TYPE_ character(len=*)
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'cmma_1D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
+#undef _TYPE_
 
 #undef _SUBR_NAME_
-#undef _TYPE_
 
 * logical variants
 * (note that there is no specific _DATA_NAME_ for these)

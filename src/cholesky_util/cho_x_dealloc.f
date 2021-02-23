@@ -38,7 +38,7 @@ C              On exit, irc=0 signals sucessful completion.
 C
       Implicit None
       Integer irc
-#include "chopar.fh"
+#include "chpari.fh"
 #include "stdalloc.fh"
 
       Character*13 SecNam

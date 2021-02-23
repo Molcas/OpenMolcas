@@ -58,10 +58,10 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoRead,DoTraInt,DoActive
+      Logical   DoRead,DoTraInt,DoActive
       Character*50 CFmt
       Character(LEN=10), Parameter:: SECNAM = 'CHO_FMCSCF'
-      COMMON    /CHOTIME /timings
+#include "chotime.fh"
 
       parameter (FactCI = 1.0D0)
       parameter (FactCA = 1.0D0, FactXA = -0.5D0)

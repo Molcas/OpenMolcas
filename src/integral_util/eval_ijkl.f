@@ -80,7 +80,7 @@
 #include "setup.fh"
 #include "status.fh"
 *
-      Common /ibas_ricd/ jbas_, lbas_
+#include "ibas_ricd.fh"
 *     local variables to save
       Integer ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,
      &        iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,

@@ -14,7 +14,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real_guga.fh"
 #include "integ.fh"
-      COMMON/CNSTS/D0,D1,D2
       ISTOP=0
       KM1=KM+1
       J2F=IPO(J2(KM1))

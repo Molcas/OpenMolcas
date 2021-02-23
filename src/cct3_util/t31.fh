@@ -114,14 +114,11 @@ c2    name for joinded T3 integral file
        character*6 t3nam
        parameter (t3nam='T3VVVO')
 c
-c3    array for storing possitions of (ab|ci) blocks for given i
-       integer T3IntPoss(1:maxorb)
-c
-c4    array for disk address offsets in t3nam file
-       integer T3Off(1:512,1:8)
+       integer mxt3pos
+       parameter (mxt3pos=maxorb)
+#include "t3int.fh"
 c
 c5    diska address file
        integer daddr (1:8)
 c
-       common /cmmt31/ T3IntPoss,T3Off
        common /cmmt32/ daddr

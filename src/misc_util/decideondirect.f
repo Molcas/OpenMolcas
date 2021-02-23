@@ -13,10 +13,9 @@
       Implicit Integer (a-z)
       Logical CanDoDirect,FoundTwoEls,DoDirect,DoCholesky
       Logical Direct,Expert,NeverDirect,AlwaysDirect
-#include "OneDat.fh"
 c----------------------------------------------------------------------
 c                                                                     -
-c  All modules using two-elecont integrals should call this routine   -
+c  All modules using two-electron integrals should call this routine  -
 c  to decide whether to do the calculation integral-direct.           -
 c                                                                     -
 c  On input:     CanDoDirect : Direct capability of module (T/F).     -
@@ -33,7 +32,7 @@ c  Read option variable set in Seward
 
       Call DecideOnCholesky(DoCholesky)
       If (DoCholesky) then
-              DoDirect=.false.
+         DoDirect=.false.
          return
       Endif
 

@@ -69,16 +69,15 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(nSym),iSkip(nSym)
       Real*8    tread(2),tcoul(2),texch(2)
-      Common /CHOUNIT / Lunit(8)
+#include "chounit.fh"
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
 #ifdef _DEBUGPRINT_
       Logical Debug
 #endif
-      Logical DensityCheck,Square,timings
-      Logical REORD,DECO,ALGO
-      COMMON   /CHOTIME /timings
-      COMMON    /CHODENSITY/ DensityCheck
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
+      Logical Square
+#include "chotime.fh"
+#include "chodensity.fh"
+#include "choscf.fh"
       Character*50 CFmt
       Character*11 SECNAM
       Parameter (SECNAM = 'CHO_FTWO_MO')

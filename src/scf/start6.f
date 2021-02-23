@@ -29,13 +29,8 @@
       Character FName*(*), Line*62
       Integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
       Integer nSsh(8), nSsh_ab(8)
-      Real*8 Erest_xc
-      COMMON /dCSCF_xc/ Erest_xc
-      Real*8 s2CNO
-      COMMON /dCSCF_s2/ s2CNO
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
+#include "dcscf.fh"
+#include "spave.fh"
 * Pam 2012 Changed VECSORT arg list, need dummy array:
       Integer NewOrd(2)
       Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
@@ -485,9 +480,7 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Integer nBDT
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
-      Integer ALGO,NSCREEN
-      Logical REORD,DECO
-      Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
+#include "choscf.fh"
       Integer ipFLT(2), ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
       Integer ipPLT(2)
       Real*8, Dimension(:), Allocatable:: PLT
@@ -496,12 +489,9 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
 *
       Real*8   Get_ExFac
       External Get_ExFac
-      Real*8 Erest_xc
 *
-      COMMON /dCSCF_xc/ Erest_xc
-      Logical Do_SpinAV
-      COMMON  / SPAVE_L  / Do_SpinAV
-      COMMON  / SPAVE_I  / ip_DSc
+#include "dcscf.fh"
+#include "spave.fh"
 *
 
       nDMat=2

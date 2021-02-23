@@ -23,13 +23,11 @@ cmp      real*8 g(*),energ(*),oeh(*),oep(*),enx,t1a(*),t1b(*)
       integer t1_offset_a,t1_offset_b
       integer nuga,nugc
       INTEGER iasblock(5),aset,bset,cset
-      CHARACTER ich*1
-      INTEGER IOPT,NOAB,NNOAB,NUAB,NNUAB
 cmp
         integer jjj
 cmp
-      COMMON/UHF/NOAB(2),NNOAB(3),NUAB(2),NNUAB(3),ICH(3)
-      COMMON/IOIND/IOPT(96)
+#include "uhf.fh"
+#include "ioind.fh"
       integer kab,kca,kcb,kac,kbc,kc,la,lb,lxa,lxb,lxc,t3a,t3b,
      $     vab,vbc,vac,mij,mi
 cmp      SAVE      kab,kca,kcb,kac,kbc,kc,la,lb,lxa,lxb,lxc,t3a,t3b,

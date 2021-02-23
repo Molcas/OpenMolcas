@@ -16,14 +16,10 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "rasscf.fh"
-      Logical  timings,DoLock,Deco
-      Logical  DoCholesky
-      Integer  ALGO,Nscreen
-      Real*8   dmpk
 *
-      Common /CHLCAS / DoCholesky,ALGO
-      COMMON /CHOTIME / timings
-      Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
+#include "chlcas.fh"
+#include "chotime.fh"
+#include "cholk.fh"
 *
       Integer id_call
       Character*512 List

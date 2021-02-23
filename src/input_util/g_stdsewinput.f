@@ -49,7 +49,6 @@ c
 #include "relae.fh"
       Integer, Parameter:: nBuff=10000
       Real*8, Allocatable:: Buffer(:)
-      Common /AMFn/ iAMFn
 *
       Character Key*180, KWord*180,            BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, dbas*4

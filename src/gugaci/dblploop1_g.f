@@ -12,7 +12,7 @@
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
       w0ss1=0.d0
       w1ss1=0.d0
       w0ss2=0.d0
@@ -748,7 +748,7 @@ C            CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !ST(2-1) Ar(02)-Bl(32)-
 !ST(2-2) (22)Ar(13)-Bl(32)-
 !ST(2-4) Ar(23)-C'(12)-Bl(32)-
@@ -1000,7 +1000,7 @@ C    :                                                        LIST3_1)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !TS(3-1) Ar(23)-Bl(20)-
 !TS(3-2) (22)Ar(23)-Bl(31)-
 !TS(3-2) Ar(23)-C'(22)-Bl(31)-
@@ -1161,7 +1161,7 @@ C           CALL PRODAB_1(3,JPEL,IWDT,IWDS,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !ST1(4-1) Ar(01)-Bl(31)-
 !ST1(4-2) (11)Ar(23)-Bl(31)-
 !ST1(4-3) Ar(13)-C'(21)-Bl(31)-
@@ -1329,7 +1329,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !T1S(5-1)   Ar(13)-Bl(10)-
 !T1S(5-2)   Ar(13)-Bl(32)-
 !T1S(5-2)   Ar(13)-C'(11)-Bl(32)-
@@ -1575,7 +1575,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !TT(11-1) (22)Ar(23)-Bl(32)-
 !TT(11-1) Ar(23)-C'(22)-Bl(32)-
 !TT(11-1) Ar(23)-Bl(32)-C"(22)-
@@ -1761,7 +1761,7 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !T1T1(12-1)  Ar(13)-Bl(31)-
 !T1T1(12-1)  Ar(13)-C'(11)-Bl(31)-
 !T1T1(12-1)  Ar(13)-Bl(31)-C"(11)-
@@ -1927,7 +1927,7 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !DD(19-1) Ar(23)-Bl(32)-
 !DD(19-2) Drl(22)-
 !DD(19-3) Drl(33)-
@@ -2035,7 +2035,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !D1D1(20-1) Ar(13)-BL(31)-
 !D1D1(20-1) Drl(11)-
 !D1D1(20-1) Drl(33)-
@@ -2138,7 +2138,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
         IWDL=JUD(LRI)
@@ -2184,7 +2184,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !D1D(22-1)   Ar(13)-Bl(32)-
 !D1D(22-2)   Drl(12)-
       DO LRI=NORB_FRZ+1,NORB_DZ-1
@@ -2258,7 +2258,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "drt_h.fh"
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
 !SV(10-1) Ar(13)-Br(23)-
 !SV(10-2) Ar(23)-Br(13)-
 !SV(10-3) Drr(03)-
@@ -2356,7 +2356,7 @@ C           CALL PRODAB_1(3,JPEL,IWDL,IWDR,JWL,JWR,WL2,JPER,LIST2,LIST3)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       DIMENSION LPCOE(NORB_DZ+1:NORB_INN)
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
       JMLR=MUL_TAB(JML,JMR)
 !SD(6-1) A&r(02)-
 !SD(6-2) C(22)A&r(13)-
@@ -2804,7 +2804,7 @@ C        CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       DIMENSION LPCOE(NORB_DZ+1:NORB_INN)
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
       JMLR=MUL_TAB(JML,JMR)
 !SD1(8-1) A&r(01)-
 !SD1(8-2) C(11)A&r(23)-
@@ -3240,7 +3240,7 @@ C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       DIMENSION LPCOE(NORB_DZ+1:NORB_INN)
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
       JMLR=MUL_TAB(JML,JMR)
 !TD(13-1) (22)A&(23)
 !TD(13-1) A&(23)C'(22)
@@ -3455,7 +3455,7 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       DIMENSION LPCOE(NORB_DZ+1:NORB_INN)
-      COMMON/ONEPL/LINE,JPH,JPEL,JPER,LRG,LRS,JWL,JWR,W0,W1
+#include "onepl.fh"
       JMLR=MUL_TAB(JML,JMR)
 !T1D1(15-1) (11)A&(13)
 !T1D1(15-1) A&(13)C'(11)

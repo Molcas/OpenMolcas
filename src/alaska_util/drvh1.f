@@ -49,9 +49,7 @@
 #include "rctfld.fh"
       Character Method*8, Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
-      parameter (lforce=20)
-      real*8 force(lforce)
-      common /finfld/force
+#include "finfld.fh"
       character*30 fldname
       External MltGrd,MltMmG
       Real*8, Allocatable:: Coor(:,:), Fock(:), D_Var(:)
