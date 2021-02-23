@@ -371,7 +371,7 @@ C --------------------------------------------------------------------
                CALL CWTIME(TCM1,TWM1)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,CMO,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
      &                           ipLpb,iSkip,DoRead)
 
                if (irc.ne.0) then
