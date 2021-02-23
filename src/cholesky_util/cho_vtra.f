@@ -119,9 +119,11 @@ C     L{a,b,J} ---> L(a,J,q)
 
          NREAD = 0
          kchot = 0
-         DO JVEC=1,JNUM
+         DO JVEC=1,JNUM   ! Relative index in the JNUM batch
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+            LVEC = JVEC - 1 + JVREF  ! Relative index in the NUMV batch
+            kVEC = JVEC - 1 + JVEC1  ! Absolute index
+            JRED = InfVec(KVEC,2,jSym)
 
             IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
                Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
@@ -155,7 +157,7 @@ C     L(p,b,J) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                      DO jDen=kDen,nDen
 
-                        ichot = nPorb(iSyma,jDen)*nBas(iSyma)*(JVEC-1)
+                        ichot = nPorb(iSyma,jDen)*nBas(iSyma)*(LVEC-1)
      &                        + ipChoT(iSyma,jDen)
 
                         kchot = ichot + nPorb(iSyma,jDen)*(ias-1)
@@ -202,7 +204,7 @@ C     L(p,b,J) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                      DO jDen=kDen,nDen
 
-                        kchot = nPorb(iSyma,jDen)*nBas(iSymb)*(JVEC-1)
+                        kchot = nPorb(iSyma,jDen)*nBas(iSymb)*(LVEC-1)
      &                        + nPorb(iSyma,jDen)*(ibs-1)
      &                        + ipChoT(iSyma,jDen)
 
@@ -220,7 +222,7 @@ C     L(p,a,J) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                      DO jDen=kDen,nDen
 
-                        kchot = nPorb(iSymb,jDen)*nBas(isyma)*(JVEC-1)
+                        kchot = nPorb(iSymb,jDen)*nBas(isyma)*(LVEC-1)
      &                        + nPorb(iSymb,jDen)*(ias-1)
      &                        + ipChoT(iSymb,jDen)
 
@@ -244,7 +246,9 @@ C     -----------------------------------
       kchot = 0
       DO JVEC=1,JNUM
 
-         JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+         LVEC = JVEC - 1 + JVREF
+         kVEC = JVEC - 1 + JVEC1  ! Absolute index
+         JRED = InfVec(KVEC,2,jSym)
 
          IF (JRED .NE. IREDC) THEN ! JRED is not the reduced set in core
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
@@ -278,7 +282,7 @@ C     L(a,p,J) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
 
-               kchot = nBas(iSyma)*nPorb(iSyma,jDen)*(JVEC-1)
+               kchot = nBas(iSyma)*nPorb(iSyma,jDen)*(LVEC-1)
      &               + ipChoT(iSyma,jDen) - 1
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
@@ -319,7 +323,7 @@ C     L(a,q,J) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               kchot = nBas(iSyma)*nPorb(iSymb,jDen)*(JVEC-1)
+               kchot = nBas(iSyma)*nPorb(iSymb,jDen)*(LVEC-1)
      &               + ias
      &               + ipChoT(iSyma,jDen) - 1
 
@@ -337,7 +341,7 @@ C     L(b,q,J) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               kchot = nBas(iSymb)*nPorb(iSyma,jDen)*(JVEC-1)
+               kchot = nBas(iSymb)*nPorb(iSyma,jDen)*(LVEC-1)
      &               + ibs
      &               + ipChoT(iSymb,jDen) - 1
 
@@ -362,7 +366,9 @@ C     -----------------------------------
              kchot = 0
              DO JVEC=1,JNUM
 
-                JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+                LVEC = JVEC - 1 + JVREF
+                kVEC = JVEC - 1 + JVEC1  ! Absolute index
+                JRED = InfVec(KVEC,2,jSym)
 
                 IF (JRED .NE. IREDC) THEN
                    Call Cho_X_SetRed(irc,iLoc,JRED)
@@ -396,7 +402,7 @@ C     L(p,J,b) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                       DO jDen=kDen,nDen
 
-                         ichot = nPorb(iSyma,jDen)*(jVref+JVEC-2)
+                         ichot = nPorb(iSyma,jDen)*(LVEC-1)
      &                         + ipChoT(iSyma,jDen)
 
                          kchot = ichot + nPorb(iSyma,jDen)*NUMV*(ias-1)
@@ -442,7 +448,7 @@ C     -----------------------------------
                       DO jDen=kDen,nDen
 
                          kchot = nPorb(iSyma,jDen)*NUMV*(ibs-1)
-     &                         + nPorb(iSyma,jDen)*(jVref+JVEC-2)
+     &                         + nPorb(iSyma,jDen)*(LVEC-1)
      &                         + ipChoT(iSyma,jDen)
 
                          CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
@@ -461,7 +467,7 @@ C     -----------------------------------
 
 
                          kchot = nPorb(iSymb,jDen)*NUMV*(ias-1)
-     &                         + nPorb(iSymb,jDen)*(jVref+JVEC-2)
+     &                         + nPorb(iSymb,jDen)*(LVEC-1)
      &                         + ipChoT(iSymb,jDen)
 
                          CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
@@ -484,7 +490,9 @@ C     -----------------------------------
       kchot = 0
       DO JVEC=1,JNUM
 
-         JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+         LVEC = JVEC - 1 + JVREF
+         KVEC = JVEC - 1 + JVEC1  ! Absolute index
+         JRED = InfVec(KVEC,2,jSym)
 
          IF (JRED .NE. IREDC) THEN ! JRED is not the reduced set in core
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
@@ -519,7 +527,7 @@ C     ----------------------------------------
             DO jDen=kDen,nDen
 
                kchot = nBas(iSyma)*NUMV
-     &               + nBas(iSyma)*(jVref+JVEC-2)
+     &               + nBas(iSyma)*(LVEC-1)
      &               + ipChoT(iSyma,jDen) - 1
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
@@ -561,7 +569,7 @@ C     -----------------------------------
              DO jDen=kDen,nDen
 
                kchot = nBas(iSyma)*NUMV
-     &               + nBas(iSyma)*(jVref+JVEC-2) + ias
+     &               + nBas(iSyma)*(LVEC-1) + ias
      &               + ipChoT(iSyma,jDen) - 1
 
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
@@ -579,7 +587,7 @@ C     -----------------------------------
              DO jDen=kDen,nDen
 
                kchot = nBas(iSymb)*NUMV
-     &               + nBas(iSymb)*(jVref+JVEC-2) + ibs
+     &               + nBas(iSymb)*(LVEC-1) + ibs
      &               + ipChoT(iSymb,jDen) - 1
 
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),

@@ -78,8 +78,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Integer, Allocatable:: ipVec(:,:)
-
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 **************************************************
@@ -108,15 +106,6 @@ C--------------------------
          ENDIF
       End Do
 
-C --- define local pointers to the target arrays
-C ----------------------------------------------
-      Call mma_allocate(ipVec,8,nDen,Label='ipVec')
-
-      Do jDen=kDen,nDen
-         Do i=1,nSym
-            ipVec(i,jDen) = ipChoT(i,jDen)
-         End Do
-      End do
 *                                                                     *
 ***********************************************************************
 ***********************************************************************
@@ -126,8 +115,8 @@ C ----------------------------------------------
 ***********************************************************************
 ***********************************************************************
 *                                                                     *
-       JVEC1 = IVEC1
-       IVEC2 = JVEC1 + NUMV - 1
+       JVEC1 = IVEC1             ! Absolute starting index
+       IVEC2 = JVEC1 + NUMV - 1  ! Absolute ending index
 
        Do While (jVec1.le.iVec2)
 
@@ -140,55 +129,17 @@ C ----------------------------------------------
            RETURN
         End If
 
-        jVref = JVEC1 - IVEC1 + 1
+        JVREF = JVEC1 - IVEC1 + 1 ! Relative index
 
-        Call cho_vTra(irc,RedVec,lRedVec,jVref,JVEC1,JNUM,NUMV,ISYM,
-     &            IREDC,iSwap,nDen,kDen,MOs,ipVec,iSkip)
+        Call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,
+     &                IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
 
         if (irc.ne.0) then
            return
         endif
 
-        jVec1 = jVec1 + JNUM
-*                                                                     *
-***********************************************************************
-C --- Updating the local pointers to the target arrays (iff iSwap=0,1)
-C --------------------------------------------------------------------
-        IF(iSwap.eq.0)THEN    ! Lpb,J
+        JVEC1 = jVec1 + JNUM
 
-         Do jDen=kDen,nDen
-          do iSymp=1,nSym
-             n1 = SIZE(MOs(jDen)%pA(iSymp)%A,1)
-             iSymb=mulD2h(iSymp,ISYM)
-             if(iSkip(iSymp).ne.0)then
-               ipVec(iSymp,jDen) = ipVec(iSymp,jDen)
-     &                           + n1*nBas(iSymb)*JNUM
-             endif
-          end do
-         End Do
-
-        ELSEIF(iSwap.eq.1)THEN    ! Laq,J
-
-         Do jDen=kDen,nDen
-          do iSyma=1,nSym
-             iSymq=mulD2h(iSyma,ISYM)
-             n2 = SIZE(MOs(jDen)%pA(iSymq)%A,1)
-             if(iSkip(iSyma).ne.0)then
-               ipVec(iSyma,jDen) = ipVec(iSyma,jDen)
-     &                           + nBas(iSyma)*n2*JNUM
-             endif
-          end do
-         End Do
-
-        ELSEIF(iSwap.ne.2 .or. iSwap.ne.3)THEN
-
-         write(6,*)SECNAM//': invalid argument. Iswap= ',Iswap
-         irc=66
-         return
-
-        ENDIF
-***********************************************************************
-*                                                                     *
        End Do  ! end the while loop
 *                                                                     *
 ***********************************************************************
@@ -200,9 +151,9 @@ C --------------------------------------------------------------------
 ***********************************************************************
 *                                                                     *
        JNUM = NUMV
-
-       Call cho_vTra(irc,RedVec,lRedVec,1,IVEC1,JNUM,NUMV,ISYM,IREDC,
-     &              iSwap,nDen,kDen,MOs,ipVec,iSkip)
+       JVREF= 1
+       Call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
+     &               IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
 
        if (irc.ne.0) then
           return
@@ -216,8 +167,6 @@ C --------------------------------------------------------------------
 ***********************************************************************
 ***********************************************************************
 *                                                                     *
-      Call mma_deallocate(ipVec)
-
       irc=0
 
       RETURN

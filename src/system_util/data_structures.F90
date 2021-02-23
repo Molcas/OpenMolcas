@@ -16,32 +16,35 @@
 !***********************************************************************
 Module Data_Structures
 Private
-Public:: CMO_Type, Deallocate_CMO, Allocate_CMO, Map_to_CMO
+Public:: CMO_Type, Allocate_CMO, Deallocate_CMO, Map_to_CMO
+Public:: Lpq_Type, Allocate_Lpq, Deallocate_Lpq
 #include "stdalloc.fh"
 
 Type V2
-   Real*8, Pointer:: A(:,:)=>Null()
+  Real*8, Pointer:: A(:,:)=>Null()
 End Type V2
 
 Type CMO_Type
- Integer:: nSym=0
- Real*8, Allocatable :: CMO_Full(:)
- Type (V2):: pA(8)
+  Integer:: nSym=0
+  Real*8, Allocatable :: CMO_Full(:)
+  Type (V2):: pA(8)
 End Type CMO_Type
 
+Type V3
+  Real*8, Pointer:: A(:,:,:)=>Null()
+End Type V3
+
+Type Lpq_type
+  Integer:: iSwap=0
+  Integer:: iSym=0
+  Integer:: nSym=0
+  Real*8, Allocatable :: Lpq_Full(:)
+  Type (V3):: pA(8)
+End Type Lpq_type
+
+
 Contains
-  Subroutine Deallocate_CMO(Adam)
-  Implicit None
-  Type (CMO_Type) Adam
-  Integer iSym
 
-  Do iSym = 1, Adam%nSym
-     Adam%pA(iSym)%A => Null()
-  End Do
-  Call mma_deallocate(Adam%CMO_Full)
-  Adam%nSym=0
-
-  End Subroutine Deallocate_CMO
 
   Subroutine Allocate_CMO(Adam,n,m,nSym)
   Implicit None
@@ -67,6 +70,21 @@ Contains
   End Do
   End Subroutine Allocate_CMO
 
+
+  Subroutine Deallocate_CMO(Adam)
+  Implicit None
+  Type (CMO_Type) Adam
+  Integer iSym
+
+  Do iSym = 1, Adam%nSym
+     Adam%pA(iSym)%A => Null()
+  End Do
+  Call mma_deallocate(Adam%CMO_Full)
+  Adam%nSym=0
+
+  End Subroutine Deallocate_CMO
+
+
   Subroutine Map_to_CMO(Adam,ipAdam)
   Implicit None
   Type (CMO_Type):: Adam
@@ -79,5 +97,108 @@ Contains
   End Do
 
   End Subroutine Map_to_CMO
+
+
+  Subroutine Allocate_Lpq(Adam,n,m,NUMV,iSym,nSym,iSwap)
+  Implicit None
+  Type (Lpq_Type),Target:: Adam
+  Integer NUMV
+  Integer iSym
+  Integer nSym
+  Integer n(nSym), m(nSym)
+  Integer iSwap
+  Integer iE, iS, iSyma, iSymb, MemTot
+
+  Integer i, j, MulD2h
+  MulD2h(i,j) = iEOR(i-1,j-1) + 1
+
+  Adam%iSym=iSym
+  Adam%nSym=nSym
+  Adam%iSwap=iSwap
+
+  MemTot=0
+
+  Select Case (iSwap)
+    Case(0)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          MemTot = MemTot + n(iSyma)*m(iSymb)*NUMV
+       End Do
+    Case(1)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          MemTot = MemTot + m(iSyma)*n(iSymb)*NUMV
+       End Do
+    Case(2)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          MemTot = MemTot + n(iSyma)*NUMV*m(iSymb)
+       End Do
+    Case(3)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          MemTot = MemTot + m(iSyma)*NUMV*n(iSymb)
+       End Do
+    Case Default
+       Write (6,*) "Allocate_Lpq: Illegal case."
+       Call Abend()
+  End Select
+
+  Call mma_allocate(Adam%Lpq_Full,MemTot,Label='%Lpq_Full')
+
+
+  iE = 0
+
+  Select Case (iSwap)
+    Case(0)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          iS = iE + 1
+          iE = iE + n(iSyma)*m(iSymb)*NUMV
+          Adam%pA(iSyma)%A(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%Lpq_Full(iS:iE)
+       End Do
+    Case(1)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          iS = iE + 1
+          iE = iE + m(iSyma)*n(iSymb)*NUMV
+          Adam%pA(iSyma)%A(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%Lpq_Full(iS:iE)
+       End Do
+    Case(2)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          iS = iE + 1
+          iE = iE + n(iSyma)*NUMV*m(iSymb)
+          Adam%pA(iSyma)%A(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%Lpq_Full(iS:iE)
+       End Do
+    Case(3)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          iS = iE + 1
+          iE = iE + m(iSyma)*NUMV*n(iSymb)
+          Adam%pA(iSyma)%A(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%Lpq_Full(iS:iE)
+       End Do
+    Case Default
+       Write (6,*) "Allocate_Lpq: Illegal case."
+       Call Abend()
+  End Select
+  End Subroutine Allocate_Lpq
+
+
+  Subroutine Deallocate_Lpq(Adam)
+  Implicit None
+  Type (Lpq_Type) Adam
+  Integer iSym
+
+  Do iSym = 1, Adam%nSym
+     Adam%pA(iSym)%A => Null()
+  End Do
+  Call mma_deallocate(Adam%Lpq_Full)
+  Adam%iSwap=0
+  Adam%iSym=0
+  Adam%nSym=0
+
+  End Subroutine Deallocate_Lpq
+
 
 End Module Data_Structures

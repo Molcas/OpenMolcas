@@ -97,6 +97,7 @@ C
       End If
 
       nAux(1:nSym) = nBas(1:nSym) - nFro(1:nSym) - nDel(1:nSym)
+*     Call Allocate_CMO(CHMO,nBas,nAux,nSym)
       Call Allocate_CMO(CHMO,nAux,nBas,nSym)
 
       Call Transp_MOs(CMO,CHMO%CMO_Full,nSym,nFro,nIsh,nAsh,nSsh,nBas)
@@ -120,6 +121,9 @@ c
                 EndIf
              End Do
           End Do
+          Call mma_allocate(xInt,lXint,Label='xInt')
+        Else
+          lXint=1
           Call mma_allocate(xInt,lXint,Label='xInt')
         EndIf
 c
@@ -151,8 +155,8 @@ c
            kdisk=0
            Call ddafile(Lu_Xint,1,Xint,lXint,kdisk)
            Call daclos(Lu_Xint)
-           Call mma_deallocate(XInt)
         EndIf
+        Call mma_deallocate(XInt)
         Call Deallocate_CMO(CHMO)
 c
         return
@@ -495,6 +499,8 @@ C --------------------------------------------------------------------
                      If (NApq.ne.0) Then
 
                         Vf(1)=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
+c                       Write (6,*) 'Vf=',Vf(1)
+c                       Call RecPrt('LPQ',' ',Lpq,NApq,JNUM)
                         Call Add_Info('Lpq',Vf(1),1,10)
 
                         If (tv2disk.eq.'PQK') Then
@@ -523,8 +529,7 @@ C --------------------------------------------------------------------
                            EndIf
                         Else
                            Do ipq=1,NApq
-                              call dcopy_(JNUM,Lpq(ipq,:),NApq,
-     &                                         ChoT,1)
+                              ChoT(1:JNUM) = Lpq(ipq,1:JNUM)
                               If (Do_int) Then
                                  kt=kOff(iSymb)+ipq-1
                                  Xint(kt)=Xint(kt)
@@ -614,6 +619,8 @@ C --------------------------------------------------------------------
                         Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
                         Vf(1)=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
+c                       Write (6,*) 'Vf=',Vf(1)
+c                       Call RecPrt('LPQ',' ',Lpq,NApq,JNUM)
                         Call Add_Info('Lpq',Vf(1),1,10)
 
                         If (tv2disk.eq.'PQK') Then
@@ -631,7 +638,7 @@ C --------------------------------------------------------------------
 
                         Else
                            Do ipq=1,NApq
-                              call dcopy_(JNUM,Lpq(ipq,:),NApq,ChoT,1)
+                              ChoT(1:JNUM) = Lpq(ipq,1:JNUM)
                               If (Do_int) Then
                                  kt=kOff(iSymp)+ipq-1
                                  Xint(kt)=Xint(kt)+ddot_(JNUM,ChoT,1,
