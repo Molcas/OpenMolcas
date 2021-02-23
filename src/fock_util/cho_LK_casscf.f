@@ -49,7 +49,7 @@ C
 #endif
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipLxy(8),ipScr(8,8),ipDIAH(1)

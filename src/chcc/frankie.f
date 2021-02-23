@@ -180,10 +180,7 @@ C
       Logical   timings,DoRead
       Integer   nPorb(8)
       Integer   ipLpb(8)
-      integer, external:: ip_of_Work
-cmp
       integer   iskip(8)
-cmp
 
       Character*50 CFmt
       Character*10 SECNAM
@@ -197,8 +194,6 @@ cmp
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-
-      parameter ( N2 = InfVec_N2 )
 
       integer isfreeunit
 

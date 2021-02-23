@@ -106,7 +106,7 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Map_to_CMO
+      use Data_Structures, only: CMO_Type
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
