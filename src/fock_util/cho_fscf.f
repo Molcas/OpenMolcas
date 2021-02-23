@@ -34,7 +34,6 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,ipLab(8,2)
-      Integer   nOrb(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
@@ -96,19 +95,6 @@ c --------------------
       DO ISYM=2,NSYM
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-      END DO
-
-
-      DO jDen=1,nDen
-
-         nOrb(1,jDen)  = nForb(1,jDen)+nIorb(1,jDen)
-
-         DO ISYM=2,NSYM
-
-            nOrb(iSym,jDen)  = nForb(iSym,jDen)+nIorb(iSym,jDen)
-
-         END DO
-
       END DO
 
       iLoc = 3 ! use scratch location in reduced index arrays

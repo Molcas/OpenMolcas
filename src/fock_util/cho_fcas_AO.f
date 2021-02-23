@@ -48,7 +48,6 @@ C
       Type (CMO_Type) POrb(3)
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
-      Integer   nOrb(8,3)
       Integer   ISTAV(8),iSkip(8)
       Integer   ISTLT(8),ISZW(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tqmat(2)
@@ -136,16 +135,6 @@ c --------------------
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive and Active D and F mat
         ISTAV(ISYM)=ISTAV(ISYM-1)+NV2 ! Q-matrix
       END DO
-
-      Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
-
-         nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
-
-         nOrb(iSym,2)  = nChM(iSym)
-
-         nOrb(iSym,3)  = nAorb(iSym)
-
-      End Do
 
       iLoc = 3 ! use scratch location in reduced index arrays
 

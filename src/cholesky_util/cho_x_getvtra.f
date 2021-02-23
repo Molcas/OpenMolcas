@@ -171,8 +171,8 @@ C --------------------------------------------------------------------
 
          Do jDen=kDen,nDen
           do iSyma=1,nSym
-             n2 = SIZE(MOs(jDen)%pA(iSyma)%A,1)
              iSymq=mulD2h(iSyma,ISYM)
+             n2 = SIZE(MOs(jDen)%pA(iSymq)%A,1)
              if(iSkip(iSyma).ne.0)then
                ipVec(iSyma,jDen) = ipVec(iSyma,jDen)
      &                           + nBas(iSyma)*n2*JNUM

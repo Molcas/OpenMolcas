@@ -38,7 +38,7 @@ C
 
       Type (CMO_Type) MO1(2), MO2(2)
       Integer   rc,ipLxy(8),ipScr(8,8)
-      Integer   ipLab(8,2),nOrb(8,2)
+      Integer   ipLab(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8), ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
@@ -97,18 +97,6 @@ c --------------------
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive Coul matrix
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB**2 ! Inactive Exch matrix
-      END DO
-
-      DO jDen=1,nDen
-
-         nOrb(1,jDen)  = nIsh(1)
-
-         DO ISYM=2,NSYM
-
-            nOrb(iSym,jDen)  = nIsh(iSym)
-
-         END DO
-
       END DO
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
