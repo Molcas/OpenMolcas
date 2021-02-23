@@ -90,7 +90,19 @@ C
       External Cho_LK_ScreeningThreshold
       Integer  Cho_LK_MaxVecPerBatch
       External Cho_LK_MaxVecPerBatch
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+          Character(LEN=1) TRANS
+          Integer M, N
+          Real*8 ALPHA, BETA
+          Integer LDA, INCX, INCY
+          Real*8  A(lda,*), X(*), Y(*)
+        End subroutine dgemv_
+      End Interface
+*                                                                      *
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -918,7 +930,7 @@ C ---------------------------------------
      &                                        nBasSh(kSym,ibSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
      &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                               Ash(2)%pA(kSym)%A(1+iOffShb,jK),1,
+     &                               Ash(2)%pA(kSym)%A(1+iOffShb:,jK),1,
      &                                    ONE,Work(ipLab(iaSh)),1)
                                  Else
                                  CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
@@ -991,8 +1003,7 @@ C ---------------------------------------
      &                                       JNUM*nBasSh(lSym,iaSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
      &                                        nBasSh(kSym,ibSh),
-     &                               Ash(2)%pA(kSym)%A(1+ioffShb,jK),1,
-*    &                                     Work(ipMO+ioffShb),1,
+     &                               Ash(2)%pA(kSym)%A(1+ioffShb:,jK),1,
      &                                    ONE,Work(ipLab(iaSh)),1)
                                  Else
                                  CALL DGEMV_('T',nBasSh(kSym,ibSh),
