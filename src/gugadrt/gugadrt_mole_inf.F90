@@ -19,9 +19,9 @@ implicit none
 #include "Sysdrt.fh"
 #include "mcorb.fh"
 #include "refstate.fh"
-integer(kind=iwp) :: i, icmd, idisk, im, iml, imr, im_lr_sta, iorb, ispin, itmp, itmpstr(72), j, jcmd, l, ln1, lr, lsmtmp(maxgdm), &
-                     ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, norb1, norb2, norb_all_tmp, ntit
-logical(kind=iwp) :: log_debug
+integer(kind=iwp) :: err, i, icmd, idisk, im, iml, imr, im_lr_sta, iorb, ispin, itmp, itmpstr(72), j, jcmd, l, ln1, lr, &
+                     lsmtmp(maxgdm), ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, norb1, norb2, norb_all_tmp, ntit
+logical(kind=iwp) :: log_debug, skip
 character(len=4) :: command
 character(len=72) :: line
 character(len=132) :: modline
@@ -36,161 +36,213 @@ spin = 0.d0
 ns_sm = 1
 call rdnlst(5,'GUGADRT')
 ntit = 0
-10 read(5,'(a)',end=991) line
-command = line(1:8)
-call upcase(command)
-if (command(1:1) == '*') goto 10
-if (command == ' ') goto 10
-jcmd = 0
-do icmd=1,ncmd
-  if (command == cmd(icmd)) jcmd = icmd
+skip = .false.
+do
+  if (.not. skip) then
+    read(5,'(a)',iostat=err) line
+    if (err < 0) call error(1)
+    command = line(1:8)
+    call upcase(command)
+    if (command(1:1) == '*') cycle
+    if (command == ' ') cycle
+    jcmd = 0
+    do icmd=1,ncmd
+      if (command == cmd(icmd)) jcmd = icmd
+    end do
+  end if
+  skip = .false.
+  select case (jcmd)
+    case (1)
+      !---  process title    command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        command = line(1:8)
+        call upcase(command)
+        if (command(1:1) == '*') cycle
+        jcmd = 0
+        do icmd=1,ncmd
+          if (command == cmd(icmd)) jcmd = icmd
+        end do
+        if (jcmd /= 0) then
+          skip = .true.
+          exit
+        end if
+        ntit = ntit+1
+      end do
+
+    case (2)
+      !---  process electron command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=err) n_electron
+      if (err > 0) call error(2)
+
+    case (3)
+      !---  process spin     command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=err) ispin
+      if (err > 0) call error(2)
+      spin = (ispin-1)/2.d0
+
+    case (4)
+      !---  process symmetry command ----------------------------------------*
+      !write (u6,*)'input_guga: keyword symmetry is obsolete and ignored!
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=err) ns_sm
+      if (err > 0) call error(2)
+
+    case (5)
+      !---  process active   command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      modline = line//' 0 0 0 0 0 0 0 0'
+      read(modline,*,iostat=err) (nlsm_act(i),i=1,8)
+      if (err > 0) call error(2)
+
+    case (6)
+      !---  process print    command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=err) iprint
+      if (err > 0) call error(2)
+
+    case (7)
+      !---  process referenc command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=err) n_ref,ln1
+      if (err > 0) call error(2)
+      if (n_ref > max_ref) then
+        write(u6,*) ' Warnning! Program could not deal with so many reference states!'
+        write(u6,*) ' Maximum number of reference states is',max_ref
+        write(u6,*) ' Set number of reference states into ',max_ref
+        n_ref = max_ref
+      end if
+      if (ln1 == 0) then
+        logic_mr = .true.
+      else
+        do i=1,n_ref
+          read(5,'(80i1)',iostat=err) iref_occ(1:ln1,i)
+          if (err < 0) call error(1)
+          if (err > 0) call error(2)
+        end do
+        logic_mr = .true.
+      end if
+
+    case (8)
+      !---  process first    command ----------------------------------------*
+
+    case (9)
+      !---  process inactive command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      modline = line//' 0 0 0 0 0 0 0 0'
+      read(modline,*,iostat=err) (nlsm_dbl(i),i=1,8)
+      if (err > 0) call error(2)
+
+    case (10)
+      !---  process ciall    command ----------------------------------------*
+      !do
+      !  read(5,'(a)',iostat=err) line
+      !  if (err < 0) call error(1)
+      !  if (line(1:1) /= '*') exit
+      !end do
+      !read(line,*,iostat=err) ns_sm
+      !if (err > 0) call error(2)
+      logic_mrelcas = .true.
+
+    case (11)
+      !---  process valence  command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      modline = line//' 0 0 0 0 0 0 0 0'
+      read(modline,*,iostat=err) (nlsm_ext(i),i=1,8)
+      if (err > 0) call error(2)
+
+    case (12)
+      !---  process interact command ----------------------------------------*
+
+    case (13)
+      !---  process nocorr   command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      modline = line//' 0 0 0 0 0 0 0 0'
+      read(modline,*,iostat=err)  !(ncor(i),i=1,8)
+      if (err > 0) call error(2)
+      !bsuo, jun. 30, 2009 - neglect them
+
+    case (14)
+      !---  process oneocc   command ----------------------------------------*
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      modline = line//' 0 0 0 0 0 0 0 0'
+      read(modline,*,iostat=err) ! (ione(i),i=1,8)
+      if (err > 0) call error(2)
+      !bsuo, jun. 30, 2009 - neglect them
+
+    case (15)
+      !---  process extract  command ----------------------------------------*
+      write(u6,*) 'input: extract option is redundant and is ignored!'
+
+    case (16)
+      !---  process non-interact command -------------------------------------
+      write(u6,*) 'input: non-interact option is redundant and is ignored!'
+
+    case (17)
+      !---  process nactel       command -------------------------------------
+      do
+        read(5,'(a)',iostat=err) line
+        if (err < 0) call error(1)
+        if (line(1:1) /= '*') exit
+      end do
+      read(line,*,iostat=err) nactel
+      if (err > 0) call error(2)
+
+    case (18)
+      !---  the end of the input is reached, print the title ----------------*
+      exit
+
+    case default
+      write(u6,*) 'input: illegal keyword'
+      write(u6,'(a,a)') 'command=',command
+      call abend()
+
+  end select
+
 end do
-20 goto(100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800) jcmd
-write(u6,*) 'input: illegal keyword'
-write(u6,'(a,a)') 'command=',command
-call abend()
-
-!---  process title    command ----------------------------------------*
-100 continue
-read(5,'(a)',end=991) line
-command = line(1:8)
-call upcase(command)
-if (command(1:1) == '*') goto 100
-jcmd = 0
-do icmd=1,ncmd
-  if (command == cmd(icmd)) jcmd = icmd
-end do
-if (jcmd /= 0) goto 20
-ntit = ntit+1
-goto 100
-
-!---  process electron command ----------------------------------------*
-200 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 200
-read(line,*,err=992) n_electron
-goto 10
-
-!---  process spin     command ----------------------------------------*
-300 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 300
-read(line,*,err=992) ispin
-spin = (ispin-1)/2.d0
-goto 10
-
-!---  process symmetry command ----------------------------------------*
-400 continue
-!write (u6,*)'input_guga: keyword symmetry is obsolete and ignored!
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 400
-read(line,*,err=992) ns_sm
-goto 10
-
-!---  process active   command ----------------------------------------*
-500 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 500
-modline = line//' 0 0 0 0 0 0 0 0'
-read(modline,*,err=992) (nlsm_act(i),i=1,8)
-goto 10
-
-!---  process print    command ----------------------------------------*
-600 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 600
-read(line,*,err=992) iprint
-goto 10
-
-!---  process referenc command ----------------------------------------*
-700 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 700
-read(line,*,err=992) n_ref,ln1
-if (n_ref > max_ref) then
-  write(u6,*) ' Warnning! Program could not deal with so many reference states!'
-  write(u6,*) ' Maximum number of reference states is',max_ref
-  write(u6,*) ' Set number of reference states into ',max_ref
-  n_ref = max_ref
-end if
-if (ln1 == 0) then
-  logic_mr = .true.
-  goto 10
-end if
-do i=1,n_ref
-  read(5,'(80i1)',end=991,err=992) iref_occ(1:ln1,i)
-end do
-logic_mr = .true.
-goto 10
-
-!---  process first    command ----------------------------------------*
-800 continue
-goto 10
-
-!---  process inactive command ----------------------------------------*
-900 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 900
-modline = line//' 0 0 0 0 0 0 0 0'
-read(modline,*,err=992) (nlsm_dbl(i),i=1,8)
-goto 10
-
-!---  process ciall    command ----------------------------------------*
-1000 continue
-!      read(5,'(a)',end=991) line
-!      if ( line(1:1).eq.'*' ) goto 1000
-!      read(line,*,err=992) ns_sm
-logic_mrelcas = .true.
-goto 10
-
-!---  process valence  command ----------------------------------------*
-1100 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 1100
-modline = line//' 0 0 0 0 0 0 0 0'
-read(modline,*,err=992) (nlsm_ext(i),i=1,8)
-goto 10
-
-!---  process interact command ----------------------------------------*
-1200 continue
-goto 10
-
-!---  process nocorr   command ----------------------------------------*
-1300 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 1300
-modline = line//' 0 0 0 0 0 0 0 0'
-read(modline,*,err=992)  !(ncor(i),i=1,8)
-!bsuo, jun. 30, 2009 - neglect them
-goto 10
-
-!---  process oneocc   command ----------------------------------------*
-1400 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 1400
-modline = line//' 0 0 0 0 0 0 0 0'
-read(modline,*,err=992) ! (ione(i),i=1,8)
-!bsuo, jun. 30, 2009 - neglect them
-goto 10
-
-!---  process extract  command ----------------------------------------*
-1500 write(u6,*) 'input: extract option is redundant and is ignored!'
-goto 10
-
-!---  process non-interact command -------------------------------------
-1600 continue
-write(u6,*) 'input: non-interact option is redundant and is ignored!'
-goto 10
-
-!---  process nactel       command -------------------------------------
-1700 continue
-read(5,'(a)',end=991) line
-if (line(1:1) == '*') goto 200
-read(line,*,err=992) nactel
-goto 10
-
-!---  the end of the input is reached, print the title ----------------*
-1800 continue
 
 ! frozen orbital(dbl, ext) have been delete in mo trans step, so we negl here.
 nlsm_frz(1:ng_sm) = 0
@@ -464,15 +516,6 @@ write(u6,*) '-----------------------------------------------'
 
 return
 
-991 continue
-write(u6,*) 'input: end of input file encountered'
-write(u6,'(a,a)') 'last command: ',command
-call abend()
-992 continue
-write(u6,*) 'input: error while reading input!'
-write(u6,'(a,a)') 'last command: ',command
-call abend()
-
 1001 format(1x,'norb all group sm')
 1002 format(8(1x,i3))
 1003 format(16x,8(i4))
@@ -481,5 +524,19 @@ call abend()
 1006 format(8x,'active  ',8(i4))
 1007 format(8x,'virtual ',8(i4))
 1008 format(8x,'frz ext ',8(i4))
+
+contains
+
+subroutine error(code)
+  integer(kind=iwp), intent(in) :: code
+  select case (code)
+    case (1)
+      write(u6,*) 'input: end of input file encountered'
+    case (2)
+      write(u6,*) 'input: error while reading input!'
+  end select
+  write(u6,'(a,a)') 'last command: ',command
+  call abend()
+end subroutine error
 
 end subroutine gugadrt_mole_inf

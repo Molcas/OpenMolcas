@@ -26,6 +26,7 @@ integer(kind=iwp) :: i, iabcbit, idd, iextbit, ii, iiabkm(1:n16int), iextii(n32i
                      ivalid, iysum, j, j1, j2, j3, j4, ja0, jac, jaj, jajk, jatmp, jb0, jbj, jbjk, jbtmp, jc0, jde, jds, ji, &
                      jjabkm(1:n16int), jk, jkabkm(1:n16int), jmj, jmjk, jmtmp, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, kj1, &
                      kkj, kkjk, kktmp, kttmp, l, lr, mxtnode, nabcbit, nextbit, nm, node, noh(max_innorb), nrefbit
+logical(kind=iwp) :: flag
 integer(kind=iwp), allocatable :: jabkm(:,:), ind(:,:), idjj(:,:), iwy(:,:), itm(:)
 
 ! estimate memory
@@ -196,268 +197,272 @@ kk(jk) = norb_dz
 
 !**********************************************************************
 
-7 continue
-j = j+1
-if (j <= mxnode) then
-  if (nu_ad(j) == 0) goto 7
-end if
-if (j < mxnode) then
-  jaj = ja(j)
-  jbj = jb(j)
-  jmj = jm(j)
-  kkj = kk(j)
-  k0 = kkj
-else
-  jjabkm(1:n16int) = jabkm(1:n16int,j)
-  call redabkm(jjabkm,n16int,nabcbit,iabcbit,jaj,jbj,jmj,kkj)
-  k0 = kkj
-end if
-jkabkm(1:n16int) = jabkm(1:n16int,jk)
-call redabkm(jkabkm,n16int,nabcbit,iabcbit,jajk,jbjk,jmjk,kkjk)
-if (kkjk /= k0+1) no(k0) = jk
-jk = jk+1
-
-if (jk > mxtnode) then
-  write(u6,*) ' the number of j exceeds max_node',mxtnode
-  call abend()
-  !call errexit(777)
-end if
-!=========================================================
-! ***********
-! *   d=0   *
-! ***********
-
-jatmp = jaj
-jbtmp = jbj
-jmtmp = jmj
-kktmp = kkj+1
-
-iextjj(1:nrefbit) = ind(1:nrefbit,j)
-call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,0,kttmp,k0)
-if (ivalid == 0) then
-  jk = jk-1
-  goto 11
-end if
-
-if (k0 == norb_inn-1) then
-  ! act||ext
-  if ((jatmp == 1 .or. jbtmp == 2) .and. kttmp /= 0) then
-    jk = jk-1
-    goto 11
+do
+  j = j+1
+  if (j <= mxnode) then
+    if (nu_ad(j) == 0) cycle
   end if
-  if (jbtmp == 1 .and. kttmp == 2) then
-    jk = jk-1
-    goto 11
+  if (j < mxnode) then
+    jaj = ja(j)
+    jbj = jb(j)
+    jmj = jm(j)
+    kkj = kk(j)
+    k0 = kkj
+  else
+    jjabkm(1:n16int) = jabkm(1:n16int,j)
+    call redabkm(jjabkm,n16int,nabcbit,iabcbit,jaj,jbj,jmj,kkj)
+    k0 = kkj
   end if
-end if
+  jkabkm(1:n16int) = jabkm(1:n16int,jk)
+  call redabkm(jkabkm,n16int,nabcbit,iabcbit,jajk,jbjk,jmjk,kkjk)
+  if (kkjk /= k0+1) no(k0) = jk
+  jk = jk+1
 
-call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
-do 18 ii=no(k0)+1,jk-1
-  iiabkm(1:n16int) = jabkm(1:n16int,ii)
-  do i=1,n16int
-    if (iiabkm(i) /= jkabkm(i)) goto 18
-  end do
-  if (k0 == norb_inn-1) goto 601
-  iextii(1:nrefbit) = ind(1:nrefbit,ii)
-  do i=1,nrefbit
-    if (iextii(i) /= iextjj(i)) goto 18
-  end do
-  601 continue
-  jk = jk-1
-  idjj(1,j) = ii
-  goto 11
-18 continue
-
-ind(1:nrefbit,jk) = iextjj(1:nrefbit)
-idjj(1,j) = jk
-jabkm(1:n16int,jk) = jkabkm(1:n16int)
-
-iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
-call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
-if (kktmp /= kj1) no(k0) = jk-1
-
-11 continue
-! =========================================================
-if (jbj == 0) goto 2
-jk = jk+1
-! ***********
-! *   d=1   *
-! ***********
-jatmp = jaj
-jbtmp = jbj-1
-jmtmp = mul_tab(lsm_inn(k0+1),jmj)
-kktmp = kkj+1
-
-iextjj(1:nrefbit) = ind(1:nrefbit,j)
-call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,1,kttmp,k0)
-
-if (ivalid == 0) then
-  jk = jk-1
-  goto 22
-end if
-
-if (k0 == norb_inn-1) then
-  ! act||ext
-  if ((jatmp == 1 .or. jbtmp == 2) .and. kttmp /= 0) then
-    jk = jk-1
-    goto 22
+  if (jk > mxtnode) then
+    write(u6,*) ' the number of j exceeds max_node',mxtnode
+    call abend()
+    !call errexit(777)
   end if
-  if (jbtmp == 1 .and. kttmp == 2) then
+  !=========================================================
+  ! ***********
+  ! *   d=0   *
+  ! ***********
+
+  jatmp = jaj
+  jbtmp = jbj
+  jmtmp = jmj
+  kktmp = kkj+1
+
+  iextjj(1:nrefbit) = ind(1:nrefbit,j)
+  call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,0,kttmp,k0)
+
+  flag = .false.
+  if (ivalid == 0) then
     jk = jk-1
-    goto 22
+    flag = .true.
+  else if (k0 == norb_inn-1) then
+    ! act||ext
+    if (((jatmp == 1) .or. (jbtmp == 2)) .and. (kttmp /= 0)) then
+      jk = jk-1
+      flag = .true.
+    else if ((jbtmp == 1) .and. (kttmp == 2)) then
+      jk = jk-1
+      flag = .true.
+    end if
   end if
-end if
 
-call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
-do 28 ii=no(k0)+1,jk-1
-  iiabkm(1:n16int) = jabkm(1:n16int,ii)
-  do i=1,n16int
-    if (iiabkm(i) /= jkabkm(i)) goto 28
-  end do
-  if (k0 == norb_inn-1) goto 602
-  iextii(1:nrefbit) = ind(1:nrefbit,ii)
-  do i=1,nrefbit
-    if (iextii(i) /= iextjj(i)) goto 28
-  end do
-  602 continue
-  jk = jk-1
-  idjj(2,j) = ii
-  goto 22
-28 continue
-
-ind(1:nrefbit,jk) = iextjj(1:nrefbit)
-idjj(2,j) = jk
-jabkm(1:n16int,jk) = jkabkm(1:n16int)
-
-iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
-call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
-if (kktmp /= kj1) no(k0) = jk-1
-
-22 continue
-! =========================================================
-2 continue
-jac = norb_all-jaj-jbj
-if (jaj <= 0) then
-  goto 8
-else
-  goto 5
-end if
-5 if (jac == 0) goto 3
-jk = jk+1
-! *************
-! *    d=2    *
-! *************
-jatmp = jaj-1
-jbtmp = jbj+1
-jmtmp = mul_tab(lsm_inn(k0+1),jmj)
-kktmp = kkj+1
-
-iextjj(1:nrefbit) = ind(1:nrefbit,j)
-call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,2,kttmp,k0)
-if (ivalid == 0) then
-  jk = jk-1
-  goto 33
-end if
-
-if (k0 == norb_inn-1) then
-  ! act||ext
-  if ((jatmp == 1 .or. jbtmp == 2) .and. kttmp /= 0) then
-    jk = jk-1
-    goto 33
+  if (.not. flag) then
+    call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
+    outer_1: do ii=no(k0)+1,jk-1
+      iiabkm(1:n16int) = jabkm(1:n16int,ii)
+      do i=1,n16int
+        if (iiabkm(i) /= jkabkm(i)) cycle outer_1
+      end do
+      if (k0 /= norb_inn-1) then
+        iextii(1:nrefbit) = ind(1:nrefbit,ii)
+        do i=1,nrefbit
+          if (iextii(i) /= iextjj(i)) cycle outer_1
+        end do
+      end if
+      jk = jk-1
+      idjj(1,j) = ii
+      flag = .true.
+      if (flag) exit
+    end do outer_1
   end if
-  if (jbtmp == 1 .and. kttmp == 2) then
-    jk = jk-1
-    goto 33
+
+  if (.not. flag) then
+    ind(1:nrefbit,jk) = iextjj(1:nrefbit)
+    idjj(1,j) = jk
+    jabkm(1:n16int,jk) = jkabkm(1:n16int)
+
+    iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
+    call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
+    if (kktmp /= kj1) no(k0) = jk-1
   end if
-end if
 
-call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
-do 38 ii=no(k0)+1,jk-1
-  iiabkm(1:n16int) = jabkm(1:n16int,ii)
-  do i=1,n16int
-    if (iiabkm(i) /= jkabkm(i)) goto 38
-  end do
-  if (k0 == norb_inn-1) goto 603
-  iextii(1:nrefbit) = ind(1:nrefbit,ii)
-  do i=1,nrefbit
-    if (iextii(i) /= iextjj(i)) goto 38
-  end do
-  603 continue
-  jk = jk-1
-  idjj(3,j) = ii
-  goto 33
-38 continue
+  ! =========================================================
+  if (jbj /= 0) then
+    jk = jk+1
+    ! ***********
+    ! *   d=1   *
+    ! ***********
+    jatmp = jaj
+    jbtmp = jbj-1
+    jmtmp = mul_tab(lsm_inn(k0+1),jmj)
+    kktmp = kkj+1
 
-ind(1:nrefbit,jk) = iextjj(1:nrefbit)
-idjj(3,j) = jk
-jabkm(1:n16int,jk) = jkabkm(1:n16int)
+    iextjj(1:nrefbit) = ind(1:nrefbit,j)
+    call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,1,kttmp,k0)
 
-iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
-call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
-if (kktmp /= kj1) no(k0) = jk-1
+    flag = .false.
+    if (ivalid == 0) then
+      jk = jk-1
+      flag = .true.
+    else if (k0 == norb_inn-1) then
+      ! act||ext
+      if (((jatmp == 1) .or. (jbtmp == 2)) .and. (kttmp /= 0)) then
+        jk = jk-1
+        flag = .true.
+      else if ((jbtmp == 1) .and. (kttmp == 2)) then
+        jk = jk-1
+        flag = .true.
+      end if
+    end if
 
-33 continue
-! =========================================================
-! ************
-! *    d=3   *
-! ************
+    if (.not. flag) then
+      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
+      outer_2: do ii=no(k0)+1,jk-1
+        iiabkm(1:n16int) = jabkm(1:n16int,ii)
+        do i=1,n16int
+          if (iiabkm(i) /= jkabkm(i)) cycle outer_2
+        end do
+        if (k0 /= norb_inn-1) then
+          iextii(1:nrefbit) = ind(1:nrefbit,ii)
+          do i=1,nrefbit
+            if (iextii(i) /= iextjj(i)) cycle outer_2
+          end do
+        end if
+        jk = jk-1
+        idjj(2,j) = ii
+        flag = .true.
+        if (flag) exit
+      end do outer_2
+    end if
 
-3 continue
-jk = jk+1
-jatmp = jaj-1
-jbtmp = jbj
-jmtmp = jmj
-kktmp = kkj+1
+    if (.not. flag) then
+      ind(1:nrefbit,jk) = iextjj(1:nrefbit)
+      idjj(2,j) = jk
+      jabkm(1:n16int,jk) = jkabkm(1:n16int)
 
-iextjj(1:nrefbit) = ind(1:nrefbit,j)
-call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,3,kttmp,k0)
-if (ivalid == 0) then
-  jk = jk-1
-  goto 44
-end if
-
-if (k0 == norb_inn-1) then
-  ! act||ext
-  if ((jatmp == 1 .or. jbtmp == 2) .and. kttmp /= 0) then
-    jk = jk-1
-    goto 44
+      iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
+      call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
+      if (kktmp /= kj1) no(k0) = jk-1
+    end if
   end if
-  if (jbtmp == 1 .and. kttmp == 2) then
-    jk = jk-1
-    goto 44
+  ! =========================================================
+  jac = norb_all-jaj-jbj
+  if (jaj > 0) then
+    if (jac /= 0) then
+      jk = jk+1
+      ! *************
+      ! *    d=2    *
+      ! *************
+      jatmp = jaj-1
+      jbtmp = jbj+1
+      jmtmp = mul_tab(lsm_inn(k0+1),jmj)
+      kktmp = kkj+1
+
+      iextjj(1:nrefbit) = ind(1:nrefbit,j)
+      call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,2,kttmp,k0)
+
+      flag = .false.
+      if (ivalid == 0) then
+        jk = jk-1
+        flag = .true.
+      else if (k0 == norb_inn-1) then
+        ! act||ext
+        if (((jatmp == 1) .or. (jbtmp == 2)) .and. (kttmp /= 0)) then
+          jk = jk-1
+          flag = .true.
+        else if ((jbtmp == 1) .and. (kttmp == 2)) then
+          jk = jk-1
+          flag = .true.
+        end if
+      end if
+
+      if (.not. flag) then
+        call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
+        outer_3: do ii=no(k0)+1,jk-1
+          iiabkm(1:n16int) = jabkm(1:n16int,ii)
+          do i=1,n16int
+            if (iiabkm(i) /= jkabkm(i)) cycle outer_3
+          end do
+          if (k0 /= norb_inn-1) then
+            iextii(1:nrefbit) = ind(1:nrefbit,ii)
+            do i=1,nrefbit
+              if (iextii(i) /= iextjj(i)) cycle outer_3
+            end do
+          end if
+          jk = jk-1
+          idjj(3,j) = ii
+          flag = .true.
+          if (flag) exit
+        end do outer_3
+      end if
+
+      if (.not. flag) then
+        ind(1:nrefbit,jk) = iextjj(1:nrefbit)
+        idjj(3,j) = jk
+        jabkm(1:n16int,jk) = jkabkm(1:n16int)
+
+        iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
+        call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
+        if (kktmp /= kj1) no(k0) = jk-1
+      end if
+    end if
+    ! =========================================================
+    ! ************
+    ! *    d=3   *
+    ! ************
+
+    jk = jk+1
+    jatmp = jaj-1
+    jbtmp = jbj
+    jmtmp = jmj
+    kktmp = kkj+1
+
+    iextjj(1:nrefbit) = ind(1:nrefbit,j)
+    call gugadrt_njexcit(iextjj,nrefbit,iextbit,nextbit,ivalid,3,kttmp,k0)
+
+    flag = .false.
+    if (ivalid == 0) then
+      jk = jk-1
+      flag = .true.
+    else if (k0 == norb_inn-1) then
+      ! act||ext
+      if (((jatmp == 1) .or. (jbtmp == 2)) .and. (kttmp /= 0)) then
+        jk = jk-1
+        flag = .true.
+      else if ((jbtmp == 1) .and. (kttmp == 2)) then
+        jk = jk-1
+        flag = .true.
+      end if
+    end if
+
+    if (.not. flag) then
+      call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
+      outer_4: do ii=no(k0)+1,jk-1
+        iiabkm(1:n16int) = jabkm(1:n16int,ii)
+        do i=1,n16int
+          if (iiabkm(i) /= jkabkm(i)) cycle outer_4
+        end do
+        if (k0 /= norb_inn-1) then
+          iextii(1:nrefbit) = ind(1:nrefbit,ii)
+          do i=1,nrefbit
+            if (iextii(i) /= iextjj(i)) cycle outer_4
+          end do
+        end if
+        jk = jk-1
+        idjj(4,j) = ii
+        flag = .true.
+        if (flag) exit
+      end do outer_4
+    end if
+
+    if (.not. flag) then
+      ind(1:nrefbit,jk) = iextjj(1:nrefbit)
+      idjj(4,j) = jk
+      jabkm(1:n16int,jk) = jkabkm(1:n16int)
+
+      iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
+      call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
+      if (kktmp /= kj1) no(k0) = jk-1
+    end if
   end if
-end if
-
-call wrtabkm(jkabkm,n16int,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
-do 48 ii=no(k0)+1,jk-1
-  iiabkm(1:n16int) = jabkm(1:n16int,ii)
-  do i=1,n16int
-    if (iiabkm(i) /= jkabkm(i)) goto 48
-  end do
-  if (k0 == norb_inn-1) goto 604
-  iextii(1:nrefbit) = ind(1:nrefbit,ii)
-  do i=1,nrefbit
-    if (iextii(i) /= iextjj(i)) goto 48
-  end do
-  604 continue
-  jk = jk-1
-  idjj(4,j) = ii
-  goto 44
-48 continue
-
-ind(1:nrefbit,jk) = iextjj(1:nrefbit)
-idjj(4,j) = jk
-jabkm(1:n16int,jk) = jkabkm(1:n16int)
-
-iiabkm(1:n16int) = jabkm(1:n16int,jk-1)
-call upacknod(iiabkm,4,kj1,nabcbit,iabcbit,n16int)
-if (kktmp /= kj1) no(k0) = jk-1
-
-44 continue
-!if(k0.eq.7) goto 999
-!===========================================================
-8 continue
-if (k0 <= norb_inn-1) goto 7
+  !===========================================================
+  if (k0 > norb_inn-1) exit
+end do
 
 !if(iprint == 1) then
 !  open(100,file='tmp.dat')
@@ -473,29 +478,29 @@ if (k0 <= norb_inn-1) goto 7
 !  close(100)
 !end if
 !write(u6,'(10(1x,i5))') no(1:norb_all)
- write(u6,*)
+write(u6,*)
 !************** external space  *************
 id = no(norb_inn)
 !write(u6,508) 'befor,no=',(no(i),i=norb_dz,norb_inn)
 do idd=no(norb_inn-1)+1,id
   jjabkm(1:n16int) = jabkm(1:n16int,idd)
   call redabkm(jjabkm,n16int,nabcbit,iabcbit,jaj,jbj,jmj,kkj)
-  if (jaj == 0 .and. jbj == 0 .and. jmj == 1) jv = idd
-  if (jaj == 0 .and. jbj == 1) then
+  if ((jaj == 0) .and. (jbj == 0) .and. (jmj == 1)) jv = idd
+  if ((jaj == 0) .and. (jbj == 1)) then
     do i=1,ng_sm
       if (jmj == i) then
         jd(i) = idd
       end if
     end do
   end if
-  if (jaj == 0 .and. jbj == 2) then
+  if ((jaj == 0) .and. (jbj == 2)) then
     do i=1,ng_sm
       if (jmj == i) then
         jt(i) = idd
       end if
     end do
   end if
-  if (jaj == 1 .and. jbj == 0) then
+  if ((jaj == 1) .and. (jbj == 0)) then
     do i=1,ng_sm
       if (jmj == i) then
         js(i) = idd
@@ -506,64 +511,53 @@ end do
 
 iwy(1,jv) = 1
 do im=1,ng_sm
-  if (jd(im) /= 0 .and. iseg_downwei(1+im) /= 0) then
-    iwy(1,jd(im)) = 1
-  end if
-  if (jt(im) /= 0 .and. iseg_downwei(9+im) /= 0) then
-    iwy(1,jt(im)) = 1
-  end if
-  if (js(im) /= 0 .and. iseg_downwei(17+im) /= 0) then
-    iwy(1,js(im)) = 1
-  end if
+  if ((jd(im) /= 0) .and. (iseg_downwei(1+im) /= 0)) iwy(1,jd(im)) = 1
+  if ((jt(im) /= 0) .and. (iseg_downwei(9+im) /= 0)) iwy(1,jt(im)) = 1
+  if ((js(im) /= 0) .and. (iseg_downwei(17+im) /= 0)) iwy(1,js(im)) = 1
 end do
 
 iwy(1:4,0) = 0
-do 20 l=norb_inn-1,norb_dz,-1
+do l=norb_inn-1,norb_dz,-1
   jps = no(l-1)+1
   jpe = no(l)
-  do 21 jde=jps,jpe
+  do jde=jps,jpe
     j1 = idjj(1,jde)
     j2 = idjj(2,jde)
     j3 = idjj(3,jde)
     j4 = idjj(4,jde)
     iwy(1,jde) = iwy(1,j1)+iwy(1,j2)+iwy(1,j3)+iwy(1,j4)
-    if (iwy(1,jde) /= 0) goto 304
-    do jp0=no(l-2)+1,no(l-1)
-      if (idjj(1,jp0) == jde) idjj(1,jp0) = 0
-      if (idjj(2,jp0) == jde) idjj(2,jp0) = 0
-      if (idjj(3,jp0) == jde) idjj(3,jp0) = 0
-      if (idjj(4,jp0) == jde) idjj(4,jp0) = 0
-    end do
-    goto 21
-    304 continue
-    if (j2 == 0 .or. iwy(1,j2) == 0) goto 31
-    iwy(2,jde) = iwy(1,j1)
-    31 continue
-    if (j3 == 0 .or. iwy(1,j3) == 0) goto 32
-    iwy(3,jde) = iwy(1,j1)+iwy(1,j2)
-    32 continue
-    if (j4 == 0 .or. iwy(1,j4) == 0) goto 303
-    iwy(4,jde) = iwy(1,jde)-iwy(1,j4)
-    303 continue
-    if (jde == 1) goto 21
-    do 302 jp=jps,jde-1
-      if (iwy(1,jp) /= iwy(1,jde)) goto 302
+    if (iwy(1,jde) == 0) then
+      do jp0=no(l-2)+1,no(l-1)
+        if (idjj(1,jp0) == jde) idjj(1,jp0) = 0
+        if (idjj(2,jp0) == jde) idjj(2,jp0) = 0
+        if (idjj(3,jp0) == jde) idjj(3,jp0) = 0
+        if (idjj(4,jp0) == jde) idjj(4,jp0) = 0
+      end do
+      cycle
+    end if
+    if ((j2 /= 0) .and. (iwy(1,j2) /= 0)) iwy(2,jde) = iwy(1,j1)
+    if ((j3 /= 0) .and. (iwy(1,j3) /= 0)) iwy(3,jde) = iwy(1,j1)+iwy(1,j2)
+    if ((j4 /= 0) .and. (iwy(1,j4) /= 0)) iwy(4,jde) = iwy(1,jde)-iwy(1,j4)
+    if (jde == 1) cycle
+    do jp=jps,jde-1
+      if (iwy(1,jp) /= iwy(1,jde)) cycle
       jq1 = idjj(1,jp)
       jq2 = idjj(2,jp)
       jq3 = idjj(3,jp)
       jq4 = idjj(4,jp)
-      if (j1 /= jq1 .or. j2 /= jq2 .or. j3 /= jq3 .or. j4 /= jq4) goto 302
-      iwy(1,jde) = 0
-      do jp0=no(l-2)+1,no(l-1)
-        if (idjj(1,jp0) == jde) idjj(1,jp0) = jp
-        if (idjj(2,jp0) == jde) idjj(2,jp0) = jp
-        if (idjj(3,jp0) == jde) idjj(3,jp0) = jp
-        if (idjj(4,jp0) == jde) idjj(4,jp0) = jp
-      end do
-      goto 21
-    302 continue
-  21 continue
-20 continue
+      if ((j1 == jq1) .and. (j2 == jq2) .and. (j3 == jq3) .and. (j4 == jq4)) then
+        iwy(1,jde) = 0
+        do jp0=no(l-2)+1,no(l-1)
+          if (idjj(1,jp0) == jde) idjj(1,jp0) = jp
+          if (idjj(2,jp0) == jde) idjj(2,jp0) = jp
+          if (idjj(3,jp0) == jde) idjj(3,jp0) = jp
+          if (idjj(4,jp0) == jde) idjj(4,jp0) = jp
+        end do
+        exit
+      end if
+    end do
+  end do
+end do
 
 it = mxnode
 itm(1) = 1
@@ -624,9 +618,9 @@ no(norb_dz) = 0
 no(norb_dz+1) = mxnode
 !write(u6,*) '   end of rst, drt ..........'
 !write(u6,'(2x,2i10)')norb_dz+1,no(norb_dz+1)
-do 706 lr=norb_dz+1,norb_inn
+do lr=norb_dz+1,norb_inn
   no(lr+1) = noh(lr)
-706 continue
+end do
 jv = itm(jv)
 itm(0) = 0
 do im=1,8
@@ -651,12 +645,10 @@ if (iprint == 1) then
   write(u6,506)
 end if
 nndd = no(norb_inn)
-do 541 j=1,id
+do j=1,id
   kk(j) = kk(j)+1
-  if (iprint == 1) then
-    write(u6,510) j,kk(j),ja(j),jb(j),jm(j),jj(1,j),jj(2,j),jj(3,j),jj(4,j)
-  end if
-541 continue
+  if (iprint == 1) write(u6,510) j,kk(j),ja(j),jb(j),jm(j),jj(1,j),jj(2,j),jj(3,j),jj(4,j)
+end do
 write(u6,*)
 write(u6,*) 'end of rst, drt ..........'
 
@@ -679,8 +671,8 @@ call writedrt(id)
 
 return
 
-506 format('       j    k   a  b  t jm    j0   j1   j2   j3       y1','       y2      y3         x   ind')
+506 format('          j       k       a       b      jm      j0      j1      j2      j3')
 !508 format(3x,a10,1x,i5,1x,16i8)
-510 format(3x,10(1x,i7))
+510 format(3x,9(1x,i7))
 
 end subroutine gugadrt_rst

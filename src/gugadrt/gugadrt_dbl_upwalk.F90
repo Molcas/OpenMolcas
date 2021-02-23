@@ -67,31 +67,21 @@ end do
 ! v(1),d(2-9),t(10-17),s(18-25),d'(26-33),t'(34-41)
 select case (jroute_sys)
   case (1)
-    goto 100
+    mxnode = 25 !v,d,t,s
+    jpad_upwei(18:25) = jpad_upwei(10:17)
+    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
   case (2)
-    goto 200
+    mxnode = 25+8
+    jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
+    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+    jpad_upwei(26:33) = jpad_upwei(2:9)
   case (3)
-    goto 300
+    mxnode = 25+8+8
+    jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
+    jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
+    jpad_upwei(26:33) = jpad_upwei(2:9)
+    jpad_upwei(34:41) = jpad_upwei(10:17)
 end select
-100 continue
-mxnode = 25 !v,d,t,s
-jpad_upwei(18:25) = jpad_upwei(10:17)
-jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-goto 500
-200 continue
-mxnode = 25+8
-jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
-jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-jpad_upwei(26:33) = jpad_upwei(2:9)
-goto 500
-300 continue
-mxnode = 25+8+8
-jpad_upwei(18:25) = jpad_upwei(10:17)+jpad_upwei(10:17)
-jpad_upwei(17+ns_sm) = jpad_upwei(17+ns_sm)+norb_dbl
-jpad_upwei(26:33) = jpad_upwei(2:9)
-jpad_upwei(34:41) = jpad_upwei(10:17)
-
-500 continue
 do node=2,mxnode
   iw = jpad_upwei(node)
   if (iw == 0) cycle

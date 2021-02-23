@@ -24,34 +24,34 @@ implicit none
 #include "gendrt.fh"
 integer(kind=iwp) :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt
 
-if (norb_dbl /= 0) goto 200
-!----------- norb_dbl=0 ------------------------------------------------
-do im=1,ng_sm
-  nnd = iseg_sta(1+im)
-  nnt = iseg_sta(9+im)
-  nns = iseg_sta(17+im)
-  do lri=norb_dz,norb_frz+1,-1
-    ismi = lsm_inn(lri)
-    if (ismi /= im) cycle
-    jud(lri) = nnd
-    nnd = nnd+iseg_downwei(1+im)
-  end do
-  do lrj=norb_dz,norb_frz+1,-1
-    ismj = lsm_inn(lrj)
-    do lri=lrj,1,-1
+if (norb_dbl == 0) then
+  !----------- norb_dbl=0 ------------------------------------------------
+  do im=1,ng_sm
+    nnd = iseg_sta(1+im)
+    nnt = iseg_sta(9+im)
+    nns = iseg_sta(17+im)
+    do lri=norb_dz,norb_frz+1,-1
       ismi = lsm_inn(lri)
-      ismij = mul_tab(ismi,ismj)
-      if (ismij /= im) cycle
-      just(lri,lrj) = nns
-      nns = nns+iseg_downwei(17+im)
-      if (lri == lrj) cycle
-      just(lrj,lri) = nnt
-      nnt = nnt+iseg_downwei(9+im)
+      if (ismi /= im) cycle
+      jud(lri) = nnd
+      nnd = nnd+iseg_downwei(1+im)
+    end do
+    do lrj=norb_dz,norb_frz+1,-1
+      ismj = lsm_inn(lrj)
+      do lri=lrj,1,-1
+        ismi = lsm_inn(lri)
+        ismij = mul_tab(ismi,ismj)
+        if (ismij /= im) cycle
+        just(lri,lrj) = nns
+        nns = nns+iseg_downwei(17+im)
+        if (lri == lrj) cycle
+        just(lrj,lri) = nnt
+        nnt = nnt+iseg_downwei(9+im)
+      end do
     end do
   end do
-end do
+end if
 !----------- norb_dbl<>0 -----------------------------------------------
-200 continue
 do im=1,ng_sm
   nnd = 0
   nns = 0
