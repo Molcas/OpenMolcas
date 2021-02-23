@@ -77,7 +77,7 @@ c.3 - invert the CMO matrix
         write (6,*) 'Dopice 2 ',rc
         end if
 
-        call CHO_CC_drv(rc,(/no/),(/0/),(/nv/),CMO)
+        call CHO_CC_drv(rc,CMO)
         if (printkey.ge.10) then
         write (6,*) 'Dopice 3 '
         end if
@@ -159,7 +159,7 @@ c
 c
 c -------------------------------------
 c
-      SUBROUTINE CHO_CC_drv(rc,nIsh,nAsh,nSsh,CMO)
+      SUBROUTINE CHO_CC_drv(rc,CMO)
 
 **********************************************************************
 C
@@ -172,8 +172,8 @@ C
       use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
+      Integer   rc
       Type (CMO_Type) CMO
-      Integer   rc,nIsh(*),nAsh(*),nSsh(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   DoRead

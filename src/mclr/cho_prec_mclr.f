@@ -60,7 +60,7 @@
 *                                                                      *
       Interface
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
-     &                         iSwap,IREDC,nDen,kDen,MOs,nPorb,ipChoT,
+     &                         iSwap,IREDC,nDen,kDen,MOs,ipChoT,
      &                         iSkip,DoRead)
       use Data_Structures, only: CMO_Type
       Integer   irc, lRedVec
@@ -68,7 +68,6 @@
       Integer   IVEC1,NUMV,ISYM,iSwap,IREDC
       Integer   nDen,kDen
       Type (CMO_Type) MOs(nDen)
-      Integer   nPorb(8,nDen)
       Integer   ipChoT(8,nDen)
       Integer   iSkip(*)
       Logical   DoRead
