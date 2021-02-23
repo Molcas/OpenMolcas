@@ -58,6 +58,25 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+      Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
+     &                         iSwap,IREDC,nDen,kDen,MOs,nPorb,ipChoT,
+     &                         iSkip,DoRead)
+      use Data_Structures, only: CMO_Type
+      Integer   irc, lRedVec
+      Real*8    RedVec(lRedVec)
+      Integer   IVEC1,NUMV,ISYM,iSwap,IREDC
+      Integer   nDen,kDen
+      Type (CMO_Type) MOs(nDen)
+      Integer   nPorb(8,nDen)
+      Integer   ipChoT(8,nDen)
+      Integer   iSkip(*)
+      Logical   DoRead
+      End Subroutine Cho_X_getVtra
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 *                                                                      *
 ************************************************************************

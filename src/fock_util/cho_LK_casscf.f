@@ -114,6 +114,7 @@ C
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
 
+      ipMO = 0 ! Dummy initiate
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
