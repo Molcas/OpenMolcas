@@ -13,12 +13,14 @@ subroutine gugadrt_active_drt()
 
 use gugadrt_global, only: iseg_sta, iseg_downwei, jpad_upwei, jd, jj, js, jt, jv, logic_mr, logic_mrelcas, max_node, mxnode, &
                           nci_dim, ng_sm, no, norb_act, norb_inn, nu_ad, nu_ae
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iin(0:max_node), im, indd, iseg_dim(25), iseg_upwei(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, &
-                     jtim, ndd, ndi, ndim
+integer(kind=iwp) :: i, im, indd, iseg_dim(25), jde, jdim, jdn, jds, jji, jp, jpe, jpn, jsim, jtim, ndd, ndi, ndim
+integer(kind=iwp), allocatable :: iin(:)
 
+iseg_dim = 0
 nci_dim = 0
 if (norb_act == 0) then
   !====================  norb_act=0 ========================
@@ -55,10 +57,6 @@ if (norb_act == 0) then
   end do
   nci_dim = iseg_sta(25)+iseg_dim(25)
   iseg_sta(26) = nci_dim
-  do jp=1,25
-    if (iseg_downwei(jp) == 0) cycle
-    iseg_upwei(jp) = iseg_dim(jp)/iseg_downwei(jp)
-  end do
 else
   !====================  norb_act<>0 ========================
   if (logic_mr) call gugadrt_rst(ndd,indd)
@@ -74,13 +72,13 @@ else
   jde = mxnode
   jpe = no(norb_inn+1)
 
+  call mma_allocate(iin,[0,max_node],label='iin')
   iin(1:max_node) = 0
   jp = jv
   iin(1:jpe) = 0
   iin(0) = 0
   iin(jp) = 1
   iseg_sta(1) = 0 ! for node_ext
-  iseg_dim(1) = 0
   do jpn=jpe,1,-1
     do i=1,4
       jji = jj(i,jpn)
@@ -98,7 +96,6 @@ else
   do im=1,ng_sm
     jp = jd(im)
     iseg_sta(1+im) = nci_dim ! for node_d_ext
-    iseg_dim(1+im) = 0
     if (jp == 0) cycle
     iin(1:jpe) = 0
     iin(0) = 0
@@ -120,7 +117,6 @@ else
   do im=1,ng_sm
     jp = jt(im)
     iseg_sta(9+im) = nci_dim ! for node_t_ext
-    iseg_dim(9+im) = 0
     if (jp == 0) cycle
     iin(1:jpe) = 0
     iin(0) = 0
@@ -141,7 +137,6 @@ else
   do im=1,ng_sm
     jp = js(im)
     iseg_sta(17+im) = nci_dim ! for node_s_ext
-    iseg_dim(17+im) = 0
     if (jp == 0) cycle
     iin(1:jpe) = 0
     iin(0) = 0
@@ -164,10 +159,7 @@ else
   end do
   nci_dim = iseg_sta(25)+iseg_dim(25)
   iseg_sta(26) = nci_dim
-  do jp=1,25
-    if (iseg_downwei(jp) == 0) cycle
-    iseg_upwei(jp) = iseg_dim(jp)/iseg_downwei(jp)
-  end do
+  call mma_deallocate(iin)
 end if
 ! to the end of dbl,act,ext parts
 call gugadrt_dbl_downwalk()

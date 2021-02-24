@@ -19,10 +19,15 @@ subroutine gugadrt_dbl_downwalk()
 !     |  2 1  \       |
 
 use gugadrt_global, only: iseg_sta, iseg_downwei, lsm_inn, max_innorb, mul_tab, ng_sm, norb_dbl, norb_dz, norb_frz, ns_sm
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: im, ismi, ismij, ismj, jud(max_innorb), just(max_innorb,max_innorb), lr0, lri, lrj, nnd, nns, nnt
+integer(kind=iwp) :: im, ismi, ismij, ismj, lr0, lri, lrj, nnd, nns, nnt
+integer(kind=iwp), allocatable :: jud(:), just(:,:)
+
+call mma_allocate(jud,max_innorb,label='jud')
+call mma_allocate(just,max_innorb,max_innorb,label='just')
 
 if (norb_dbl == 0) then
   !----------- norb_dbl=0 ------------------------------------------------
@@ -88,6 +93,9 @@ do im=1,ng_sm
     end do
   end do
 end do
+
+call mma_deallocate(jud)
+call mma_deallocate(just)
 
 return
 

@@ -12,7 +12,8 @@
 subroutine gugainit()
 ! default value for performing ci calculation
 
-use gugadrt_global, only: ludrt, max_orb, ng_sm, nlsm_all, nlsm_bas, nlsmddel, nlsmedel
+use gugadrt_global, only: ludrt, ng_sm, nlsm_all, nlsm_bas, nlsmddel, nlsmedel
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -20,8 +21,9 @@ integer(kind=iwp), parameter :: maxmolcasorb = 5000
 integer(kind=iwp) :: i, idisk, idum(1), idx, idx_idisk(64), lenrd, lucimo, luonemo, nbas(8), nc, ncone(64), ndel(8), nfro(8), &
                      norb(8), nsym
 character(len=8) :: fncimo, fndrt, fnonemo
-real(kind=wp) :: cmo(max_orb**2), dum(1)
-character :: bsbl(2*4*maxmolcasorb)
+real(kind=wp) :: dum(1)
+real(kind=wp), allocatable :: cmo(:)
+character, allocatable :: bsbl(:)
 
 fnonemo = 'TRAONE'
 fndrt = 'CIDRT'
@@ -47,11 +49,13 @@ call idafile(luonemo,2,norb,8,idisk)
 call idafile(luonemo,2,nfro,8,idisk)
 call idafile(luonemo,2,ndel,8,idisk)
 lenrd = 2*4*maxmolcasorb
+call mma_allocate(bsbl,lenrd,label='bsbl')
 call cdafile(luonemo,2,bsbl,lenrd,idisk)
 nc = 0
 do i=1,nsym
   nc = nc+nbas(i)**2
 end do
+call mma_allocate(cmo,nc,label='cmo')
 call ddafile(luonemo,2,cmo,nc,idisk)
 
 idx = 0
@@ -63,6 +67,9 @@ call ddafile(lucimo,1,cmo,nc,idx)
 idx_idisk(4) = idx
 idx = 0
 call idafile(lucimo,1,idx_idisk,64,idx)
+
+call mma_deallocate(bsbl)
+call mma_deallocate(cmo)
 
 call daclos(lucimo)
 call daclos(luonemo)

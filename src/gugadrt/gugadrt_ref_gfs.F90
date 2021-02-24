@@ -12,13 +12,17 @@
 subroutine gugadrt_ref_gfs(nel,ndj,locu,nm)
 
 use gugadrt_global, only: lsm_inn, max_ref, mul_tab, norb_dz, norb_inn, nstart_act, spin
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nel, nm
 integer(kind=iwp), intent(out) :: ndj, locu(8,max_ref)
-integer(kind=iwp) :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, lscu(0:8,max_ref), m, m1, m2, m3, &
-                     m4, m5, m6, m7, m8, mdj, mys, ne_act, ne_s, nes, npair, nre
+integer(kind=iwp) :: i, l1, l2, l3, l4, l5, l6, l7, l8, ldj, lh, lhe, lhs, lhsm(8), lm, lpsum, m, m1, m2, m3, m4, m5, m6, m7, m8, &
+                     mdj, mys, ne_act, ne_s, nes, npair, nre
+integer(kind=iwp), allocatable :: lscu(:,:)
+
+call mma_allocate(lscu,[0,8],[1,max_ref],label='lscu')
 
 ne_act = nel-2*norb_dz
 ne_s = nint(spin*2)
@@ -121,6 +125,8 @@ do m=1,mdj
     end do
   end do
 end do
+
+call mma_deallocate(lscu)
 
 do nre=1,ndj
   write(u6,'(5x,i6,8i3)') nre,(locu(i,nre),i=1,8)

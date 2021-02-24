@@ -24,9 +24,9 @@ integer(kind=iwp), intent(out) :: id, nndd
 integer(kind=iwp) :: i, iabcbit, idd, iextbit, ii, iiabkm(1:n16int), iextii(n32int), iextjj(n32int), im, imd, ims, imt, it, &
                      ivalid, iysum, j, j1, j2, j3, j4, ja0, jac, jaj, jajk, jatmp, jb0, jbj, jbjk, jbtmp, jc0, jde, jds, ji, &
                      jjabkm(1:n16int), jk, jkabkm(1:n16int), jmj, jmjk, jmtmp, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, kj1, &
-                     kkj, kkjk, kktmp, kttmp, l, lr, mxtnode, nabcbit, nextbit, nm, node, noh(max_innorb), nrefbit
+                     kkj, kkjk, kktmp, kttmp, l, lr, mxtnode, nabcbit, nextbit, nm, node, nrefbit
 logical(kind=iwp) :: flag
-integer(kind=iwp), allocatable :: jabkm(:,:), ind(:,:), idjj(:,:), iwy(:,:), itm(:)
+integer(kind=iwp), allocatable :: jabkm(:,:), ind(:,:), idjj(:,:), iwy(:,:), itm(:), noh(:)
 
 ! estimate memory
 if (n_ref > 20) then
@@ -50,6 +50,7 @@ call mma_allocate(ind,[1,n32int],[0,mxtnode],label='ind')
 call mma_allocate(idjj,[1,4],[0,mxtnode],label='idjj')
 call mma_allocate(iwy,[1,4],[0,mxtnode],label='iwy')
 call mma_allocate(itm,[0,mxtnode],label='itm')
+call mma_allocate(noh,max_innorb,label='noh')
 
 nm = ns_sm
 no(1:norb_dz+1) = 0
@@ -217,7 +218,7 @@ do
   jk = jk+1
 
   if (jk > mxtnode) then
-    write(u6,*) ' the number of j exceeds max_node',mxtnode
+    write(u6,*) ' the number of j exceeds mxtnode',mxtnode
     call abend()
     !call errexit(777)
   end if
@@ -655,6 +656,7 @@ call mma_deallocate(ind)
 call mma_deallocate(idjj)
 call mma_deallocate(iwy)
 call mma_deallocate(itm)
+call mma_deallocate(noh)
 
 !open(21,file='fort.drt',form='unformatted')
 !write(21) id

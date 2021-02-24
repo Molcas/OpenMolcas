@@ -18,14 +18,17 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: id, indd
-integer(kind=iwp) :: i, idd, ii, im, imd, ims, imt, inb, it, itm(0:max_node), iysum, j, j1, j2, j3, j4, ja0, jb0, jc(max_node), &
-                     jc0, jde, jds, jk, jp, jp0, jpe, jps, jq1, jq2, jq3, jq4, k0, l, locu(8,max_ref), lr, nc, ndj, nel, nm, node, &
-                     noh(max_innorb)
+integer(kind=iwp) :: i, idd, ii, im, imd, ims, imt, inb, it, iysum, j, j1, j2, j3, j4, ja0, jb0, jc0, jde, jds, jk, jp, jp0, jpe, &
+                     jps, jq1, jq2, jq3, jq4, k0, l, lr, nc, ndj, nel, nm, node
 logical(kind=iwp) :: flag
-integer(kind=iwp), allocatable :: ind(:,:), iwy(:,:)
+integer(kind=iwp), allocatable :: ind(:,:), itm(:), iwy(:,:), jc(:), locu(:,:), noh(:)
 
 call mma_allocate(ind,8,max_node,label='ind')
+call mma_allocate(itm,[0,max_node],label='itm')
 call mma_allocate(iwy,[1,4],[0,max_node],label='iwy')
+call mma_allocate(jc,max_node,label='jc')
+call mma_allocate(locu,8,max_ref,label='locu')
+call mma_allocate(noh,max_innorb,label='noh')
 write(u6,*) ' '
 write(u6,*) 'now generate distinct row tableau'
 noh = 0
@@ -325,7 +328,7 @@ do
     end if
     ! v=0
     if (jk > max_node) then
-      write(u6,*) '    the nomber of j exceeds max_node',max_node
+      write(u6,*) '    the number of j exceeds max_node',max_node
       call abend()
     end if
   end if
@@ -523,7 +526,11 @@ write(u6,*)
 
 call writedrt(id)
 call mma_deallocate(ind)
+call mma_deallocate(itm)
 call mma_deallocate(iwy)
+call mma_deallocate(jc)
+call mma_deallocate(locu)
+call mma_deallocate(noh)
 
 506 format('       j    k   a  b jm    j0   j1   j2   j3         y1        y2        y3         x ind')
 507 format(3x,2i5,1x,3i3,1x,4i5,1x,4i10,1x,8i2)

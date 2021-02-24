@@ -18,19 +18,17 @@ subroutine arrange_orbital_molcas()
 ! map_order_orbital    ab ---> ci
 
 use gugadrt_global, only: lsm_inn, max_orb, ng_sm, nlsm_all, norb_all, norb_dz, norb_inn
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, iccount, im, iorb, isum2, isum3, j, jp2(max_orb), jp3(max_orb), la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, &
-                     lsmorbcount(ng_sm), lsmr, map_orb_order(max_orb), map_tmp(max_orb), ms, nim, norb_number(max_orb)
+integer(kind=iwp) :: i, iccount, im, j, la, lr, lr_scf, lr_scf0, lra, lrd, lsmid, lsmorbcount(ng_sm), lsmr, ms, nim
 logical(kind=iwp) :: logi_norb_inn(norb_all), logic_assign_actorb
+integer(kind=iwp), allocatable :: map_orb_order(:), map_tmp(:)
+
+call mma_allocate(map_orb_order,max_orb,label='map_orb_order')
 
 logi_norb_inn(1:norb_all) = .false.
-iorb = norb_all
-do la=1,norb_all
-  norb_number(la) = iorb
-  iorb = iorb-1
-end do
 
 nim = 0
 lsmorbcount(1) = nim
@@ -68,15 +66,6 @@ do ms=ng_sm,1,-1
   end do
 end do
 
-isum2 = 0
-isum3 = 0
-do i=1,ng_sm
-  jp2(i) = isum2
-  isum2 = isum2+i
-  jp3(i) = isum3
-  isum3 = isum3+isum2
-end do
-
 iccount = 1
 do lrd=1,norb_inn
   !ipwt(lrd) = iccount
@@ -89,6 +78,8 @@ do lrd=norb_dz,1,-1
   !ipws(lrd)=(lsmorbcount(lsmid)-1)*3+1
 end do
 
+call mma_allocate(map_tmp,max_orb,label='map_tmp')
+
 map_tmp(1:norb_all) = map_orb_order(1:norb_all)
 do i=1,norb_all
   do j=1,norb_all
@@ -98,6 +89,10 @@ do i=1,norb_all
     end if
   end do
 end do
+
+call mma_deallocate(map_tmp)
+
+call mma_deallocate(map_orb_order)
 
 !write(u6,*) 'map_order_orbit'
 !write(u6,1001) map_orb_order(1:norb_all)

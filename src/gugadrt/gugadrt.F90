@@ -28,8 +28,8 @@ call gugadrt_paras_calculate()
 call arrange_orbital_molcas()
 
 call gugadrt_dbl_upwalk()       ! add by wyb 01.9.5
-call gugadrt_ext_downwalk()       ! add by wyb 01.9.5
-call gugadrt_active_drt()        ! add by wyb 01.9.5
+call gugadrt_ext_downwalk()     ! add by wyb 01.9.5
+call gugadrt_active_drt()       ! add by wyb 01.9.5
 
 call add_info('CI_DIM',[dble(nci_dim)],1,1)
 call gugadrt_gugafinalize()

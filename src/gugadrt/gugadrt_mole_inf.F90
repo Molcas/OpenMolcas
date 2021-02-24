@@ -11,18 +11,19 @@
 
 subroutine gugadrt_mole_inf()
 
-use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_orb, max_ref, maxgdm, mul_tab, &
-                          n_electron, n_ref, ng_sm, nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, &
-                          norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
+use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_orb, max_ref, mul_tab, n_electron, n_ref, &
+                          ng_sm, nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, &
+                          norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
+use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: err, i, icmd, idisk, im, iml, imr, im_lr_sta, int_dd_offset(8,8), iorb, ispin, itmpstr(72), j, jcmd, l, ln1, &
-                     lr, lsm(max_orb), lsmtmp(maxgdm), ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, &
-                     nlsm_act(maxgdm), nlsm_dbl(maxgdm), nlsm_frz(maxgdm), nlsm_inn(maxgdm), noidx(8), norb1, norb2, norb_all_tmp, &
-                     ntit
+                     lr, lsmtmp(8), ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, nlsm_act(8), nlsm_dbl(8), &
+                     nlsm_frz(8), nlsm_inn(8), noidx(8), norb1, norb2, norb_all_tmp, ntit
 logical(kind=iwp) :: log_debug, skip
+integer(kind=iwp), allocatable :: lsm(:)
 character(len=4) :: command
 character(len=72) :: line
 character(len=132) :: modline
@@ -300,6 +301,8 @@ if (norb_all_tmp /= norb_all) then
   call abend()
 end if
 
+call mma_allocate(lsm,max_orb,label='lsm')
+
 do l=1,norb_inn
   lr = norb_all-l+1
   lsm(lr) = lsm_inn(l)
@@ -422,6 +425,8 @@ if (log_debug) then
   write(u6,1002) (lsm(i),i=norb_all,1,-1)
 end if
 !*****************************************************
+
+call mma_deallocate(lsm)
 
 ! merge into molcas
 ! write date into cidrt for ci calculation
