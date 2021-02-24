@@ -17,7 +17,7 @@
 Module Data_Structures
 Private
 Public:: CMO_Type, Allocate_CMO, Deallocate_CMO, Map_to_CMO
-Public:: Lpq_Type, Allocate_Lpq, Deallocate_Lpq
+Public:: Laq_Type, Allocate_Laq, Deallocate_Laq
 #include "stdalloc.fh"
 
 Type V2
@@ -34,13 +34,13 @@ Type V3
   Real*8, Pointer:: A(:,:,:)=>Null()
 End Type V3
 
-Type Lpq_type
+Type Laq_type
   Integer:: iSwap=0
   Integer:: iSym=0
   Integer:: nSym=0
-  Real*8, Allocatable :: Lpq_Full(:)
+  Real*8, Allocatable :: Laq_Full(:)
   Type (V3):: pA(8)
-End Type Lpq_type
+End Type Laq_type
 
 
 Contains
@@ -99,9 +99,9 @@ Contains
   End Subroutine Map_to_CMO
 
 
-  Subroutine Allocate_Lpq(Adam,n,m,NUMV,iSym,nSym,iSwap)
+  Subroutine Allocate_Laq(Adam,n,m,NUMV,iSym,nSym,iSwap)
   Implicit None
-  Type (Lpq_Type),Target:: Adam
+  Type (Laq_Type),Target:: Adam
   Integer NUMV
   Integer iSym
   Integer nSym
@@ -140,11 +140,11 @@ Contains
           MemTot = MemTot + m(iSyma)*NUMV*n(iSymb)
        End Do
     Case Default
-       Write (6,*) "Allocate_Lpq: Illegal case."
+       Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
   End Select
 
-  Call mma_allocate(Adam%Lpq_Full,MemTot,Label='%Lpq_Full')
+  Call mma_allocate(Adam%Laq_Full,MemTot,Label='%Laq_Full')
 
 
   iE = 0
@@ -155,50 +155,50 @@ Contains
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + n(iSyma)*m(iSymb)*NUMV
-          Adam%pA(iSyma)%A(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%Lpq_Full(iS:iE)
+          Adam%pA(iSyma)%A(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%Laq_Full(iS:iE)
        End Do
     Case(1)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + m(iSyma)*n(iSymb)*NUMV
-          Adam%pA(iSyma)%A(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%Lpq_Full(iS:iE)
+          Adam%pA(iSyma)%A(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%Laq_Full(iS:iE)
        End Do
     Case(2)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + n(iSyma)*NUMV*m(iSymb)
-          Adam%pA(iSyma)%A(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%Lpq_Full(iS:iE)
+          Adam%pA(iSyma)%A(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%Laq_Full(iS:iE)
        End Do
     Case(3)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + m(iSyma)*NUMV*n(iSymb)
-          Adam%pA(iSyma)%A(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%Lpq_Full(iS:iE)
+          Adam%pA(iSyma)%A(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%Laq_Full(iS:iE)
        End Do
     Case Default
-       Write (6,*) "Allocate_Lpq: Illegal case."
+       Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
   End Select
-  End Subroutine Allocate_Lpq
+  End Subroutine Allocate_Laq
 
 
-  Subroutine Deallocate_Lpq(Adam)
+  Subroutine Deallocate_Laq(Adam)
   Implicit None
-  Type (Lpq_Type) Adam
+  Type (Laq_Type) Adam
   Integer iSym
 
   Do iSym = 1, Adam%nSym
      Adam%pA(iSym)%A => Null()
   End Do
-  Call mma_deallocate(Adam%Lpq_Full)
+  Call mma_deallocate(Adam%Laq_Full)
   Adam%iSwap=0
   Adam%iSym=0
   Adam%nSym=0
 
-  End Subroutine Deallocate_Lpq
+  End Subroutine Deallocate_Laq
 
 
 End Module Data_Structures

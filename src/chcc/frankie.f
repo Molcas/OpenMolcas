@@ -169,7 +169,8 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: CMO_Type, Laq_Type
+      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -182,32 +183,29 @@ C
       integer   iskip(8)
 
       Character*50 CFmt
-      Character*10 SECNAM
-      Parameter (SECNAM = 'CHO_CC_drv')
+      Character(LEN=10), Parameter:: SECNAM = 'CHO_CC_drv'
 
+#include "real.fh"
 #include "chotime.fh"
-
-      parameter (zero = 0.0D0, one = 1.0D0)
-
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      integer isfreeunit
+      Integer, External:: isfreeunit, ip_of_Work
+
+      Type (Laq_Type) Laq
+      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable,Target:: Lpq(:)
+      Real*8, Pointer:: pLpq(:,:,:)=>Null()
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
 
-cmp
-cmp!<new 21/04/09
-        LunChVF = 80
-        LunChVF = isfreeunit(LunChVF)
-cmp!>
-        call DaName_mf_wa (LunChVF,'CD1tmp')
-        idisk=1
-cmp
+      LunChVF = 80
+      LunChVF = isfreeunit(LunChVF)
+      call DaName_mf_wa (LunChVF,'CD1tmp')
+      idisk=1
       DoRead  = .false.
       IREDC = -1  ! unknown reduced set in core
 
@@ -267,8 +265,8 @@ C ------------------------------------------------------------------
 
          do l=1,nSym
             k=Muld2h(l,JSYM)
-            mTvec = mTvec + nPorb(k)*nBas(l)
-            mTTvec = Max(mTTvec,nPorb(k)*nPorb(l))
+            mTvec = mTvec + nPorb(l)*nBas(k)
+            mTTvec = Max(mTTvec,nPorb(l)*nPorb(k))
          end do
 
          mvec = mTvec + mTTvec
@@ -292,8 +290,6 @@ C ------------------------------------------------------------------
 
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
             if(irc.ne.0)then
-cmp!              Write(6,*)SECNAM//'cho_X_setred non-zero return code.
-cmp!     &                           rc= ',irc
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                         ' rc= ',irc
               call abend()
@@ -320,8 +316,9 @@ cmp!     &                           rc= ',irc
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
-            Call GetMem('ChoT','Allo','Real',ipChoT,mvec*nVec)
+            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+            Call Allocate_Laq(Laq,nPorb,nBas,nVec,jSym,nSym,iSwap)
+            Call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
 
 C --- BATCH over the vectors ----------------------------
 
@@ -340,7 +337,7 @@ C --- BATCH over the vectors ----------------------------
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM) then
@@ -352,17 +349,10 @@ C --- BATCH over the vectors ----------------------------
                tread(1) = tread(1) + (TCR2 - TCR1)
                tread(2) = tread(2) + (TWR2 - TWR1)
 
-               lChoT=0
                Do iSymp=1,nSym
-
-                  iSymb = MulD2h(jSym,iSymp)
-
-                  ipLpb(iSymp) = ipChoT + lChoT
-                  lChoT = lChoT + nPorb(iSymp)*nBas(iSymb)*JNUM
-
+                  ipLpb(iSymp) =
+     &                ip_of_Work(Laq%pA(iSymp)%A(1,1,1))
                End Do
-
-               ipLpq = ipChoT + lChot
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
@@ -370,7 +360,7 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
      &                           ipLpb,iSkip,DoRead)
 
@@ -391,22 +381,21 @@ C --------------------------------------------------------------------
                   iSymp = MulD2h(JSYM,iSymb)
                   NAp = nPorb(iSymp)
                   NAq = nPorb(iSymb) ! iSymb=iSymq
+                  iS = 1
+                  iE = NAp * NAq * JNUM
+
+                  pLpq(1:NAp,1:NAq,1:JNUM) => Lpq(iS:iE)
 
                   CALL CWTIME(TCM3,TWM3)
 
                   If(NAp*NAq.ne.0)Then
 
-                   Do JVC=1,JNUM
+                    Do JVC=1,JNUM
 
-                    ipLJpb = ipLpb(iSymp)
-     &                     + nPorb(iSymp)*nBas(iSymb)*(JVC-1)
-                    ipLJpq = ipLpq
-     &                     + nPorb(iSymp)*nPorb(iSymb)*(JVC-1)
-
-                    CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                         One,Work(ipLJpb),NAp,
-     &                             CMO%pA(iSymb)%A,NAq,
-     &                        Zero,Work(ipLJpq),NAp)
+                      CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
+     &                           One,Laq%pA(iSymb)%A(:,:,JVC),NAp  ,
+     &                               CMO%pA(iSymb)%A,NAq,
+     &                          Zero,pLpq(:,:,JVC),NAp)
 
                       End Do
 
@@ -422,14 +411,15 @@ C     I can help you with that
                   CALL CWTIME(TCR3,TWR3)
 C --- WRITE transformed vectors to disk (each Jsym on a separate file!)
 c
-                call ddafile (LunChVF,1,Work(ipLpq),NAp*NAp*JNUM,idisk)
-cmp                  idisk=idisk+NAp*NAp*JNUM
+                  call ddafile (LunChVF,1,Lpq,NAp*NAq*JNUM,idisk)
 c
 C --- remember that this is inside a batch over J, the vector index
 
                   CALL CWTIME(TCR4,TWR4)
                   tread(1) = tread(1) + (TCR4 - TCR3)
                   tread(2) = tread(2) + (TWR4 - TWR3)
+
+                  pLpq => Null()
 
                End Do
 
@@ -439,8 +429,9 @@ C --------------------------------------------------------------------
             END DO  ! end batch loop
 
 C --- free memory
-            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lpq)
+            Call Deallocate_Laq(Laq)
+            Call mma_deallocate(Lrs)
 
 999         CONTINUE
 
@@ -482,12 +473,7 @@ C --- free memory
 
       endif
 
-
       rc  = 0
-
 
       Return
       END
-
-**************************************************************
-**************************************************************
