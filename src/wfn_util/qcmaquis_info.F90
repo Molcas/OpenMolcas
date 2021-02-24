@@ -16,6 +16,8 @@ module qcmaquis_info
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
+
+#ifdef _DMRG_
 private
 
 type qcm_names
@@ -105,5 +107,5 @@ end subroutine qcmaquis_info_deinit
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
 #undef _TYPE_
-
+#endif
 end module qcmaquis_info
