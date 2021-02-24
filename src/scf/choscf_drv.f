@@ -57,8 +57,6 @@ C
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2),ipMOs(2),ipKLT(2)
-      Integer ALGO,NSCREEN
-      Logical REORD,DECO,Cho_AUfb
       Real*8 FLT(*),FLT_ab(*)
       Real*8 DSQ(*),DSQ_ab(*),DLT(*),DLT_ab(*)
       character ww*512
