@@ -44,7 +44,8 @@
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: CMO_Type, Laq_Type
+      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (CMO_Type) MO
@@ -60,10 +61,13 @@
 #include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: Lab(:), Ltr(:)
+*     Real*8, Allocatable:: Laq(:)
+      Type (Laq_Type):: Laq
+      Real*8, Allocatable, Target:: Lab(:)
+      Real*8, Pointer:: pLab(:,:,:)=>Null()
+      Real*8, Pointer:: pLjj(:)=>Null()
 
       IREDC = -1
 
@@ -161,9 +165,9 @@ C ---
 
       LREAD = nRS*nVec
 
+      iSwap = 2  ! LiK,b are returned
+      Call Allocate_Laq(Laq,nOcc,nBas,nVec,JSYM,nSym,iSwap)
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
-      Call mma_allocate(Ltr,Maj*nVec,Label='Ltr')
-      ipLtr = ip_of_Work(Ltr(1))
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -196,17 +200,13 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
 C --- First half-transformation of the vectors : Lab,J --> LiJ,b
 C --------------------------------------------------------------
-         iSwap = 2  ! LiK,b are returned
 
          kMOs = 1
          nMOs = 1
 
-         lChoT=0
          Do kSym=1,nSym
-
-            ipLib(kSym) = ipLtr + lChot
-            lChot = lChot + nOcc(kSym)*JNUM*nBas(kSym)
-
+            ipLib(kSym)=
+     &          ip_of_Work(Laq%pA(kSym)%A(1,1,1))
          End Do
 
 
@@ -226,13 +226,17 @@ C --------------------------------------------------------------
          tmotr(2) = tmotr(2) + (TWT2 - TWT1)
 
 
-         ipLij = 1  ! re-use mem used for reading from red-sets
-
          Do kSym=1,nSym
 
-            If (iSkip(kSym) .ne. 0) Then
+            n1 = nOcc(kSym)
+            iS = 1
+            iE = n1*JNUM*n1
+            pLab(1:n1,1:JNUM,1:n1) => Lab(iS:iE)
+            iS = iE + 1
+            iE = iE + JNUM
+            pLjj(1:JNUM) => Lab(iS:iE)
 
-               ipLjj = ipLij + nOcc(kSym)**2 * JNUM
+            If (iSkip(kSym) .ne. 0) Then
 
                CALL CWTIME(TCT1,TWT1)
 C ---------------------------------------------------------------------
@@ -240,9 +244,9 @@ C --- Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
 C ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
-     &                            One,Work(ipLib(kSym)),nOcc(kSym)*JNUM,
+     &                            One,Laq%pA(kSym)%A,nOcc(kSym)*JNUM,
      &                                MO%pA(kSym)%A,nOcc(kSym),
-     &                           Zero,Lab(ipLij),nOcc(kSym)*JNUM)
+     &                           Zero,pLab,nOcc(kSym)*JNUM)
 
 
                CALL CWTIME(TCT2,TWT2)
@@ -256,10 +260,7 @@ C ---------------------------------------------------------------------
 
                   Do jv=1,JNUM
 
-                     jfrom = ipLij + nOcc(kSym)*JNUM*(lj-1)
-     &                     + nOcc(kSym)*(jv-1) + lj - 1
-                     jto = ipLjj + jv - 1
-                     Lab(jto) = Lab(jfrom)
+                     pLjj(jv) = pLab(lj,jv,lj)
 
                   End Do
 
@@ -268,11 +269,10 @@ C --- Compute   R(i,j) = sum_K  L(i,K)[j] * L(K)[j]
 C --------------------------------------------------------------------
 
                   jpR = iOcs(kSym) + nOcc(kSym)*(lj-1) + 1
-                  ipLik = ipLij + nOcc(kSym)*JNUM*(lj-1)
 
                   CALL DGEMV_('N',nOcc(kSym),JNUM,
-     &                       ONE,Lab(ipLik),nOcc(kSym),
-     &                           Lab(ipLjj),1,ONE,Rij(jpR),1)
+     &                       ONE,pLab(:,:,lj),nOcc(kSym),
+     &                           pLjj,1,ONE,Rij(jpR),1)
 
 
                End Do
@@ -282,6 +282,8 @@ C --------------------------------------------------------------------
                tintg(2) = tintg(2) + (TWI2 - TWI1)
 
             EndIf
+            pLjj => Null()
+            pLab => Null()
 
          End Do
 
@@ -290,7 +292,7 @@ C --------------------------------------------------------------------
       END DO  !end batch loop
 
 C --- free memory
-      Call mma_deallocate(Ltr)
+      Call Deallocate_Laq(Laq)
       Call mma_deallocate(Lab)
 
 999   Continue
