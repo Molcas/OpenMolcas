@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_LK_CASSCF(ipDI,ipDA1,ipFI,ipFA,ipKLT,ipMSQ,ipInt,
-     &             FactXI,nFIorb,nAorb,nChM,ipAsh,DoActive,
+     &             FactXI,nFIorb,nAorb,nChM,Ash,DoActive,
      &             nScreen,dmpk,dFmat,ExFac)
 
 **********************************************************************
@@ -49,6 +49,7 @@ C
 #endif
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipLxy(8),ipScr(8,8),ipDIAH(1)
@@ -57,7 +58,8 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAsh(2),ipAorb(8,2),ipDab(2),ipFab(2),ipDD(2)
+      Integer   ipDab(2),ipFab(2),ipDD(2)
+      Type (CMO_Type)   Ash(2)
       Integer   nFIorb(8),nAorb(8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -87,7 +89,19 @@ C
       External Cho_LK_ScreeningThreshold
       Integer  Cho_LK_MaxVecPerBatch
       External Cho_LK_MaxVecPerBatch
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+          Character(LEN=1) TRANS
+          Integer M, N
+          Real*8 ALPHA, BETA
+          Integer LDA, INCX, INCY
+          Real*8  A(lda,*), X(*), Y(*)
+        End subroutine dgemv_
+      End Interface
+*                                                                      *
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -111,6 +125,7 @@ C
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
 
+      ipMO = 0 ! Dummy initiate
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
 
@@ -119,12 +134,11 @@ C
       ipFLT(1) = ipFI
       ipFLT(2) = ipFA
 
-      FactC(1) = one
-      FactX(1) = FactXI*ExFac
-      FactC(2) = one
-      FactX(2) = -0.5D0*ExFac
+      FactC(:) = [ one, one ]
+      FactX(:) = [ FactXI*ExFac, -0.5D0*ExFac ]
 
       nDen=2  ! inactive and active density, respectively
+
       If (.not.DoActive) nDen=1
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -169,15 +183,9 @@ c --------------------
       nIt=0
       DO jDen=1,nDen
 
-         ipAorb(1,jDen)= ipAsh(jDen)
-
          kOff(1,jDen) = nnO
 
          DO ISYM=2,NSYM
-
-            ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                        + nAorb(iSym-1)*nBas(iSym-1)*(2-jDen)
-     &                        + (jDen-1)*nBas(iSym-1)**2
 
             nnO = nnO + nFIorb(iSym-1)*(2-jDen)
      &                + nChM(iSym-1)*(jDen-1)
@@ -316,16 +324,29 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
       Do jDen=1,nDen
          Do kSym=1,nSym
 
-            nkOrb = nFIorb(kSym)*(2-jDen)
-     &            + nChM(kSym)*(jDen-1)
+            If (jDen.eq.2) Then
+               Do jK=1,nChM(kSym)
 
-            Do jK=1,nkOrb
+               ipSk = ipSKsh + nShell*(kOff(kSym,jDen) + jK - 1)
 
-               ipMO = (2-jDen)*(ipMSQ + ISTSQ(kSym)
-     &              + nBas(kSym)*(jK-1))
-     &              + (ipAorb(kSym,jDen)
-     &              + nBas(kSym)*(jK-1))*(jDen-1)
+               Do iaSh=1,nShell
 
+                  ipMsh =  kOffSh(iaSh,kSym)
+
+                  SKsh=zero
+                  Do ik=1,nBasSh(kSym,iaSh)
+                     SKsh = SKsh + Ash(2)%pA(kSym)%A(ipMsh+ik,jK)**2
+                  End Do
+
+                  Work(ipSk+iaSh-1) = SKsh
+
+               End Do
+               End Do
+
+            Else
+               Do jK=1,nFIorb(kSym)
+
+               ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
                ipSk = ipSKsh + nShell*(kOff(kSym,jDen) + jK - 1)
 
                Do iaSh=1,nShell
@@ -340,8 +361,10 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                   Work(ipSk+iaSh-1) = SKsh
 
                End Do
+               End Do
 
-            End Do
+            End If
+
          End Do
       End Do
 
@@ -717,10 +740,11 @@ c --------------------------------------------------------------------
 
                      CALL FZero(Work(ipChoT),nBas(lSym)*JNUM)
 
-                     ipMO = (2-jDen)*(ipMSQ + ISTSQ(kSym)
-     &                    + nBas(kSym)*(jK-1))
-     &                    + (ipAorb(kSym,jDen)
-     &                    + nBas(kSym)*(jK-1))*(jDen-1)
+                     If (jDen.eq.1) Then
+
+                     ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
+
+                     End If
 
                      ipYk = ipY + MaxB*(kOff(kSym,jDen) + jK - 1)
 
@@ -741,9 +765,15 @@ C --- Setup the screening
 C------------------------------------------------------------------
                         ipDIH = ipDIAH(1) + ISSQ(lSym,kSym)
 
+                        If (jDen.eq.2) Then
+                        Do ik=1,nBas(kSym)
+                          Work(ipAbs-1+ik)=abs(Ash(2)%pA(kSym)%A(ik,jK))
+                        End Do
+                        Else
                         Do ik=0,nBas(kSym)-1
                            Work(ipAbs+ik) = abs(Work(ipMO+ik))
                         End Do
+                        Endif
 
                         If (lSym.ge.kSym) Then
 c --------------------------------------------------------------
@@ -894,12 +924,21 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
 
+                                 If (jDen.eq.2) Then
+                                 CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
+     &                                        nBasSh(kSym,ibSh),
+     &                                    ONE,Work(ipLF+jOff*JNUM),
+     &                                        nBasSh(lSym,iaSh)*JNUM,
+     &                               Ash(2)%pA(kSym)%A(1+iOffShb:,jK),1,
+     &                                    ONE,Work(ipLab(iaSh)),1)
+                                 Else
                                  CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
      &                                        nBasSh(kSym,ibSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
      &                                        nBasSh(lSym,iaSh)*JNUM,
      &                                     Work(ipMO+ioffShb),1,
      &                                    ONE,Work(ipLab(iaSh)),1)
+                                 End If
 
 
                                  EndIf
@@ -958,12 +997,21 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
 
+                                 If (JDen.eq.2) Then
+                                 CALL DGEMV_('T',nBasSh(kSym,ibSh),
+     &                                       JNUM*nBasSh(lSym,iaSh),
+     &                                    ONE,Work(ipLF+jOff*JNUM),
+     &                                        nBasSh(kSym,ibSh),
+     &                               Ash(2)%pA(kSym)%A(1+ioffShb:,jK),1,
+     &                                    ONE,Work(ipLab(iaSh)),1)
+                                 Else
                                  CALL DGEMV_('T',nBasSh(kSym,ibSh),
      &                                       JNUM*nBasSh(lSym,iaSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
      &                                        nBasSh(kSym,ibSh),
      &                                     Work(ipMO+ioffShb),1,
      &                                    ONE,Work(ipLab(iaSh)),1)
+                                 End If
 
                                  EndIf
 
@@ -1392,7 +1440,7 @@ C -------------------------------------------------------------
                nMOs = 1  ! Active MOs (1st set)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                          JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb,nAorb,
+     &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
      &                          ipLpq,iSkip,DoRead)
 
 
@@ -1419,7 +1467,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
-     &                                Work(ipAorb(iSymb,1)),NAv,
+     &                                Ash(1)%pA(iSymb)%A,NAv,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do
@@ -1448,7 +1496,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
-     &                                Work(ipAorb(iSymb,1)),NAw,
+     &                                Ash(1)%pA(iSymb)%A,NAw,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do

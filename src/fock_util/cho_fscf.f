@@ -11,8 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,
-     &                       ipPorb,ipDLT,ExFac)
+      SUBROUTINE CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Porb,ipDLT,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -31,16 +30,16 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,ipLab(8,2)
-      Integer   ipOrb(8,2),nOrb(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
       Integer   ipDLT(nDen),ipFLT(nDen)
-      Integer   ipPorb(nDen)
+      Type (CMO_Type)   Porb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -96,21 +95,6 @@ c --------------------
       DO ISYM=2,NSYM
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
-      END DO
-
-      DO jDen=1,nDen
-
-         ipOrb(1,jDen) = ipPorb(jDen)
-         nOrb(1,jDen)  = nForb(1,jDen)+nIorb(1,jDen)
-
-         DO ISYM=2,NSYM
-
-            ipOrb(iSym,jDen) = ipOrb(iSym-1,jDen)
-     &                       + nOrb(iSym-1,jDen)*nBas(iSym-1)
-            nOrb(iSym,jDen)  = nForb(iSym,jDen)+nIorb(iSym,jDen)
-
-         END DO
-
       END DO
 
       iLoc = 3 ! use scratch location in reduced index arrays
@@ -309,7 +293,7 @@ C -------------------------------------------------------------
 C *********************** HALF-TRANSFORMATION  ****************
 
                   CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
                   CALL CWTIME(TCR4,TWR4)

@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,
-     &                   iSwap,nDen,kDen,ipMOs,nPorb,ipChoT,iSkip)
+     &                   iSwap,nDen,kDen,MOs,ipChoT,iSkip)
 
 *********************************************************
 *   Author: F. Aquilante
@@ -58,27 +58,38 @@
 *********************************************************
       use ChoArr, only: nDimRS, iRS2F
       use ChoSwp, only: InfVec, IndRed
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
+
+      Type (CMO_Type) MOs(nDen)
+
       Real*8  Scr(lscr)
       Integer nDen,kDen
-      Integer ipChoT(8,*),ipMOs(8,*),iSkip(*),nPorb(8,*)
+      Integer ipChoT(8,nDen), iSkip(*)
 
-      Integer  cho_isao
-      External cho_isao
+      Integer, External:: cho_isao
 
-      Character*8  SECNAM
-      Parameter (SECNAM = 'CHO_VTRA')
+      Character(Len=8), Parameter:: SECNAM = 'CHO_VTRA'
 
-      Real*8  Fac(0:1)
-      Data Fac /0.5D0,1.0D0/
+      Real*8::  Fac(0:1)=[0.5D0,1.0D0]
 
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Integer, Allocatable:: nPorb(:,:)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
+
+      Call mma_allocate(nPorb,8,nDen,Label='nPorb')
+      Do iDen = 1, nDen
+        Do iSym = 1, nSym
+          nPorb(iSym,iDen)=SIZE(MOs(iDen)%pA(iSym)%A,1)
+        End Do
+      End Do
 
 **********************************************************
 C
@@ -104,14 +115,15 @@ C     L{a,b,J} ---> L(a,J,q)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
-
       IF (iSwap.eq.0) THEN     ! L(pb,J) storage
 
          NREAD = 0
          kchot = 0
-         DO JVEC=1,JNUM
+         DO JVEC=1,JNUM   ! Relative index in the JNUM batch
 
-            JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+            LVEC = JVEC - 1 + JVREF  ! Relative index in the NUMV batch
+            kVEC = JVEC - 1 + JVEC1  ! Absolute index
+            JRED = InfVec(KVEC,2,jSym)
 
             IF (JRED .NE. IREDC) THEN ! JRED is not the rs in core
                Call Cho_X_SetRed(irc,iLoc,JRED) !set indx arrays at iLoc
@@ -144,25 +156,23 @@ C
 C     L(p,b,J) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                      DO jDen=kDen,nDen
-                        ! pointer to C(1,a)
-                        ISMOSA = ipMOs(iSyma,jDen)
-     &                         + nPorb(iSyma,jDen)*(ias-1)
-                        ! pointer to C(1,b)
-                        ISMOSB = ipMOs(iSyma,jDen)
-     &                         + nPorb(iSyma,jDen)*(ibs-1)
 
-                        ichot = nPorb(iSyma,jDen)*nBas(iSyma)*(JVEC-1)
+                        ichot = nPorb(iSyma,jDen)*nBas(iSyma)*(LVEC-1)
      &                        + ipChoT(iSyma,jDen)
 
                         kchot = ichot + nPorb(iSyma,jDen)*(ias-1)
 
+                        ! C(1,b)
                         CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
-     &                             Work(ISMOSB),1,Work(kchot),1)
+     &                              MOs(JDen)%pA(iSyma)%A(:,ibs),1,
+     &                              Work(kchot),1)
 
                         kchot = ichot + nPorb(iSyma,jDen)*(ibs-1)
 
+                        ! C(1,a)
                         CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
-     &                             Work(ISMOSA),1,Work(kchot),1)
+     &                              MOs(JDen)%pA(iSyma)%A(:,ias),1,
+     &                              Work(kchot),1)
 
                      END DO  ! loop over densities
 
@@ -194,15 +204,13 @@ C     L(p,b,J) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                      DO jDen=kDen,nDen
 
-                        ISMOSA = ipMOs(iSyma,jDen)
-     &                         + nPorb(iSyma,jDen)*(ias-1)
-
-                        kchot = nPorb(iSyma,jDen)*nBas(iSymb)*(JVEC-1)
+                        kchot = nPorb(iSyma,jDen)*nBas(iSymb)*(LVEC-1)
      &                        + nPorb(iSyma,jDen)*(ibs-1)
      &                        + ipChoT(iSyma,jDen)
 
                         CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
-     &                           Work(ISMOSA),1,Work(kchot),1)
+     &                              MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                              Work(kchot),1)
 
                      END DO
 
@@ -214,15 +222,13 @@ C     L(p,a,J) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                      DO jDen=kDen,nDen
 
-                        ISMOSB = ipMOs(iSymb,jDen)
-     &                         + nPorb(iSymb,jDen)*(ibs-1)
-
-                        kchot = nPorb(iSymb,jDen)*nBas(isyma)*(JVEC-1)
+                        kchot = nPorb(iSymb,jDen)*nBas(isyma)*(LVEC-1)
      &                        + nPorb(iSymb,jDen)*(ias-1)
      &                        + ipChoT(iSymb,jDen)
 
                         CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
-     &                           Work(ISMOSB),1,Work(kchot),1)
+     &                              MOs(jDen)%pA(iSymb)%A(:,ibs),1,
+     &                              Work(kchot),1)
 
                      END DO
 
@@ -240,7 +246,9 @@ C     -----------------------------------
       kchot = 0
       DO JVEC=1,JNUM
 
-         JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+         LVEC = JVEC - 1 + JVREF
+         kVEC = JVEC - 1 + JVEC1  ! Absolute index
+         JRED = InfVec(KVEC,2,jSym)
 
          IF (JRED .NE. IREDC) THEN ! JRED is not the reduced set in core
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
@@ -274,20 +282,16 @@ C     L(a,p,J) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
 
-               ISMOSA = ipMOs(iSyma,jDen)
-     &                + nPorb(iSyma,jDen)*(ias-1)  ! pointer to C(1,a)
-
-               ISMOSB = ipMOs(iSyma,jDen)
-     &                + nPorb(iSyma,jDen)*(ibs-1)  ! pointer to C(1,b)
-
-               kchot = nBas(iSyma)*nPorb(iSyma,jDen)*(JVEC-1)
+               kchot = nBas(iSyma)*nPorb(iSyma,jDen)*(LVEC-1)
      &               + ipChoT(iSyma,jDen) - 1
 
-               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),Work(ISMOSB),
-     &                    1,Work(kchot+ias),nBas(iSyma))
+               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
+     &                     MOs(jDen)%pA(iSyma)%A(:,ibs),1,
+     &                     Work(kchot+ias),nBas(iSyma))
 
-               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),Work(ISMOSA),
-     &                    1,Work(kchot+ibs),nBas(iSyma))
+               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
+     &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                     Work(kchot+ibs),nBas(iSyma))
 
             END DO  ! loop over densities
 
@@ -319,15 +323,13 @@ C     L(a,q,J) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               ISMOSB = ipMOs(iSymb,jDen)
-     &                + nPorb(iSymb,jDen)*(ibs-1)  ! pointer to C(1,b)
-
-               kchot = nBas(iSyma)*nPorb(iSymb,jDen)*(JVEC-1)
+               kchot = nBas(iSyma)*nPorb(iSymb,jDen)*(LVEC-1)
      &               + ias
      &               + ipChoT(iSyma,jDen) - 1
 
-               CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),Work(ISMOSB),1,
-     &                    Work(kchot),nBas(iSyma))
+               CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
+     &                     MOs(jDen)%pA(iSymb)%A(:,ibs),1,
+     &                     Work(kchot),nBas(iSyma))
 
              END DO
 
@@ -339,15 +341,13 @@ C     L(b,q,J) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               ISMOSA = ipMOs(iSyma,jDen)
-     &                + nPorb(iSyma,jDen)*(ias-1)  ! pointer to C(1,a)
-
-               kchot = nBas(iSymb)*nPorb(iSyma,jDen)*(JVEC-1)
+               kchot = nBas(iSymb)*nPorb(iSyma,jDen)*(LVEC-1)
      &               + ibs
      &               + ipChoT(iSymb,jDen) - 1
 
-               CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),Work(ISMOSA),1,
-     &                    Work(kchot),nBas(iSyma))
+               CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
+     &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                     Work(kchot),nBas(iSyma))
 
              END DO
 
@@ -366,7 +366,9 @@ C     -----------------------------------
              kchot = 0
              DO JVEC=1,JNUM
 
-                JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+                LVEC = JVEC - 1 + JVREF
+                kVEC = JVEC - 1 + JVEC1  ! Absolute index
+                JRED = InfVec(KVEC,2,jSym)
 
                 IF (JRED .NE. IREDC) THEN
                    Call Cho_X_SetRed(irc,iLoc,JRED)
@@ -400,24 +402,20 @@ C     L(p,J,b) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                       DO jDen=kDen,nDen
 
-                         ISMOSA = ipMOs(iSyma,jDen)
-     &                          + nPorb(iSyma,jDen)*(ias-1)
-
-                         ISMOSB = ipMOs(iSyma,jDen)
-     &                          + nPorb(iSyma,jDen)*(ibs-1)
-
-                         ichot = nPorb(iSyma,jDen)*(jVref+JVEC-2)
+                         ichot = nPorb(iSyma,jDen)*(LVEC-1)
      &                         + ipChoT(iSyma,jDen)
 
                          kchot = ichot + nPorb(iSyma,jDen)*NUMV*(ias-1)
 
                          CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
-     &                           Work(ISMOSB),1,Work(kchot),1)
+     &                               MOs(jDen)%pA(iSyma)%A(:,ibs),1,
+     &                               Work(kchot),1)
 
                          kchot = ichot + nPorb(iSyma,jDen)*NUMV*(ibs-1)
 
                          CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
-     &                           Work(ISMOSA),1,Work(kchot),1)
+     &                               MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                               Work(kchot),1)
 
                       END DO  ! loop over densities
 
@@ -449,15 +447,13 @@ C     L(p,J,b) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                       DO jDen=kDen,nDen
 
-                         ISMOSA = ipMOs(iSyma,jDen)
-     &                          + nPorb(iSyma,jDen)*(ias-1)
-
                          kchot = nPorb(iSyma,jDen)*NUMV*(ibs-1)
-     &                         + nPorb(iSyma,jDen)*(jVref+JVEC-2)
+     &                         + nPorb(iSyma,jDen)*(LVEC-1)
      &                         + ipChoT(iSyma,jDen)
 
                          CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
-     &                              Work(ISMOSA),1,Work(kchot),1)
+     &                               MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                               Work(kchot),1)
 
                       END DO
 
@@ -469,15 +465,14 @@ C     L(p,J,a) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                       DO jDen=kDen,nDen
 
-                         ISMOSB = ipMOs(iSymb,jDen)
-     &                          + nPorb(iSymb,jDen)*(ibs-1)
 
                          kchot = nPorb(iSymb,jDen)*NUMV*(ias-1)
-     &                         + nPorb(iSymb,jDen)*(jVref+JVEC-2)
+     &                         + nPorb(iSymb,jDen)*(LVEC-1)
      &                         + ipChoT(iSymb,jDen)
 
                          CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
-     &                              Work(ISMOSB),1,Work(kchot),1)
+     &                               MOs(jDen)%pA(iSymb)%A(:,ibs),1,
+     &                               Work(kchot),1)
 
                       END DO
 
@@ -495,7 +490,9 @@ C     -----------------------------------
       kchot = 0
       DO JVEC=1,JNUM
 
-         JRED = InfVec(JVEC1-1+JVEC,2,jSym)
+         LVEC = JVEC - 1 + JVREF
+         KVEC = JVEC - 1 + JVEC1  ! Absolute index
+         JRED = InfVec(KVEC,2,jSym)
 
          IF (JRED .NE. IREDC) THEN ! JRED is not the reduced set in core
             Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
@@ -529,21 +526,17 @@ C     L(a,J,p) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
 
-               ISMOSA = ipMOs(iSyma,jDen)
-     &                + nPorb(iSyma,jDen)*(ias-1)  ! pointer to C(1,a)
-
-               ISMOSB = ipMOs(iSyma,jDen)
-     &                + nPorb(iSyma,jDen)*(ibs-1)  ! pointer to C(1,b)
-
                kchot = nBas(iSyma)*NUMV
-     &               + nBas(iSyma)*(jVref+JVEC-2)
+     &               + nBas(iSyma)*(LVEC-1)
      &               + ipChoT(iSyma,jDen) - 1
 
-               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),Work(ISMOSB),
-     &                    1,Work(kchot+ias),nBas(iSyma)*NUMV)
+               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
+     &                     MOs(jDen)%pA(iSyma)%A(:,ibs),1,
+     &                     Work(kchot+ias),nBas(iSyma)*NUMV)
 
-               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),Work(ISMOSA),
-     &                    1,Work(kchot+ibs),nBas(iSyma))
+               CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
+     &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                     Work(kchot+ibs),nBas(iSyma))
 
             END DO  ! loop over densities
 
@@ -575,15 +568,13 @@ C     L(a,J,q) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               ISMOSB = ipMOs(iSymb,jDen)
-     &                + nPorb(iSymb,jDen)*(ibs-1)  ! pointer to C(1,b)
-
                kchot = nBas(iSyma)*NUMV
-     &               + nBas(iSyma)*(jVref+JVEC-2) + ias
+     &               + nBas(iSyma)*(LVEC-1) + ias
      &               + ipChoT(iSyma,jDen) - 1
 
-               CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),Work(ISMOSB),1,
-     &                    Work(kchot),nBas(iSyma)*NUMV)
+               CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
+     &                     MOs(jDen)%pA(iSymb)%A(:,ibs),1,
+     &                     Work(kchot),nBas(iSyma)*NUMV)
 
              END DO
 
@@ -595,15 +586,13 @@ C     L(b,J,q) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               ISMOSA = ipMOs(iSyma,jDen)
-     &                + nPorb(iSyma,jDen)*(ias-1)  ! pointer to C(1,a)
-
                kchot = nBas(iSymb)*NUMV
-     &               + nBas(iSymb)*(jVref+JVEC-2) + ibs
+     &               + nBas(iSymb)*(LVEC-1) + ibs
      &               + ipChoT(iSymb,jDen) - 1
 
-               CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),Work(ISMOSA),1,
-     &                    Work(kchot),nBas(iSyma)*NUMV)
+               CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
+     &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
+     &                     Work(kchot),nBas(iSyma)*NUMV)
 
              END DO
 
@@ -624,9 +613,8 @@ C     -----------------------------------
 
       ENDIF  ! iSwap check
 
-
+      Call mma_deallocate(nPorb)
       irc=0
-
 
       Return
       END

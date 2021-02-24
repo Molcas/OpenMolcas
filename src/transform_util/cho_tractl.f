@@ -46,8 +46,8 @@
 *> MO Indices \f$ i,j \f$: Inactive; \f$ t,u \f$: Active; \f$ a,b \f$: Secondary
 *>
 *> Which TCVx have to be generated is defined in the logical array
-*> \c TCVXist by the routine ::Mem_Est and the memory pointer and length
-*> are contained in the array \c iMemTCVX.
+*> \c TCVXist by the routine ::Mem_Est and the memory is managed through
+*> the array \c TCVX of 2D allocatable matrices.
 *>
 *> Note that when \c Sym(p) &ne; \c Sym(q) the order of symmetry is
 *> exchanged while the first index is always the MO we excite into
@@ -99,12 +99,12 @@
 *  <p,q|k,l>  where p,q: All MO; k,l: Occupied                         *
 * If DoFull=.True also <p,q|r,s> where p,q,r,s: All MO (for CC)        *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Dimension CMO(NCMO)
       Character*4 CHNm
       Character*6 CHName
@@ -226,16 +226,7 @@ CGG   ------------------------------------------------------------------
 
 * --- Inizialize information arrays. ---
 
-*     The TCVx existing flag and the Memory Allocation & Length array:
-      Do iType=1,MxTCVx
-        Do iSym=1,MaxSym
-          Do jSym=1,MaxSym
-            TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-            iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
-            iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
-          EndDo
-        EndDo
-      EndDo
+      TCVXist(:,:,:)=.False. ! TCVx existing flag.
 
 *     The Address Field for MOLINT:
       LenIAD2M=3*36*36
@@ -274,16 +265,7 @@ CGG   ------------------------------------------------------------------
 * *** START LOOP iSymL on TOTAL SYMMETRY of L (iSym * jSym)   **********
       DO iSymL=1,nSym
 
-*       Re-Inizialize the TCVx & iMemTCVX
-        Do iType=1,MxTCVx
-          Do iSym=1,MaxSym
-            Do jSym=1,MaxSym
-              TCVXist(iType,iSym,jSym)=.False. ! TCVx existing flag.
-              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy ! Memory Address and
-              iMemTCVX(iType,iSym,jSym,2)=0 ! Length in Work(TCVx)
-            EndDo
-          EndDo
-        EndDo
+        TCVXist(:,:,:)=.False. ! TCVx existing flag.
         Call Mem_Est(iSymL,nVec,nFVec)
 CGG   ------------------------------------------------------------------
       If(IfTest) then
@@ -319,9 +301,9 @@ CGG   ------------------------------------------------------------------
           else
             NumV = nVec
           EndIf
-          nFBatch = (NumV-1) / nFVec + 1
 CGG   ------------------------------------------------------------------
 c      If(IfTest) then
+c      nFBatch = (NumV-1) / nFVec + 1
 c      Write(6,*)
 c      Write(6,*)' iBatch=',iBatch,' of',nBatch,' - NumV=',NumV,
 c     &                                             ' - nFBatch=',nFBatch
@@ -352,10 +334,10 @@ CGG   ------------------------------------------------------------------
 
               If (iSym.EQ.jSym) then
                Call Cho_TraS(iSymL, iSym,jSym, NumV, CMO,NCMO,
-     &                      lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                      lUCHFV, iStrtVec_AB, nFVec)
               Else
                Call Cho_TraA(iSymL, iSym,jSym ,NumV, CMO,NCMO,
-     &                      lUCHFV, iStrtVec_AB, nFVec,nFBatch)
+     &                      lUCHFV, iStrtVec_AB, nFVec)
               EndIf
 
               Call dAClos(lUCHFV)
@@ -405,16 +387,14 @@ CGG   ------------------------------------------------------------------
           Do iType=1,MxTCVx
            Do iSym=1,MaxSym
             Do jSym=1,MaxSym
-             If(iMemTCVX(iType,iSym,jSym,1).NE.ip_Dummy) then
-              iAddr=iMemTCVX(iType,iSym,jSym,1)
-              iLen =iMemTCVX(iType,iSym,jSym,2)
-              Call GetMem('iAddr','Free','Real',iAddr,iLen)
-              iMemTCVX(iType,iSym,jSym,1)=ip_Dummy
-              iMemTCVX(iType,iSym,jSym,2)=0
-             EndIf
+
+             If (Allocated(TCVX(iType,iSym,jSym)%A))
+     &          Call mma_deallocate(TCVX(iType,iSym,jSym)%A)
+
             EndDo
            EndDo
           EndDo
+
           Call Timing(CPU3,CPE,TIO3,TIOE)
           CPU_Gen=CPU_Gen+CPU3-CPU2
           TIO_Gen=TIO_Gen+TIO3-TIO2

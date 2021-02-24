@@ -18,6 +18,8 @@
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
 *                  pq       pq                 pq
 *
+      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: Allocate_CMO, Deallocate_CMO
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
@@ -28,22 +30,24 @@
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
-      Integer ipAsh(2)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
      &                      DLT(:), Dens2(:), DA(:), G2x(:),
-     &                      CoulExch(:,:), CVa(:,:)
+     &                      CoulExch(:,:)
+      Type (CMO_Type) CVa(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
         SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                         ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
+        use Data_Structures, only: CMO_Type
         Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &          ipMO1,ipQ,ipAsh(2),ipCMO,ip_CMO_inv
+     &          ipMO1,ipQ,ipCMO,ip_CMO_inv
+        Type (CMO_Type) Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -163,13 +167,11 @@
 *
 **      Form active density and MO coefficients
 *
-        nVB=0
         If (iMethod.eq.2) Then
           na2=0
           nAct=0
           nG2=0
           Do iSym=1,nSym
-            nVB = nVB + nAsh(iSym)*nOrb(iSym)
             na2 = na2+nAsh(iSym)**2
             nact=nact+nAsh(iSym)
             nAG2=0
@@ -181,11 +183,12 @@
           End Do
           nAtri=nact*(nact+1)/2
           nAtri=nAtri*(nAtri+1)/2
-          Call mma_allocate(CVa,nVB,2,Label='CVa')
+
+          Call Allocate_CMO(CVa(1),nAsh,nOrb,nSym)
+          Call Allocate_CMO(CVa(2),nAsh,nOrb,nSym)
           Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
-          ioff1=1
           ioff4=1
           ioffD=0
           Do iS=1,nSym
@@ -193,8 +196,8 @@
             ioff5 = ioff4+ nOrb(iS)*nIsh(iS)
             Do iB=1,nAsh(iS)
               ioff3=ioff2+nOrb(iS)*(iB-1)
-              call dcopy_(nOrb(iS),CMO(1+ioff3),1,
-     &                  CVa(ioff1-1+iB,1),nAsh(iS))
+              CVa(1)%pA(iS)%A(iB,:) =
+     &           CMO(ioff3+1:ioff3+nOrb(iS))
              Do jB=1,nAsh(iS)
               ip=ioffD+ib+(jB-1)*nAsh(is)
               iA=nA(is)+ib
@@ -204,12 +207,11 @@
              End Do
             End Do
 *MGD to check
-            Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),1.0d0,
-     &                  rkappa(ioff5),nOrb(iS),
-     &                  CMO(1+ioff),nOrb(iS),
-     &                  0.0d0,CVa(ioff1,2),nAsh(iS))
+            Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),
+     &                  1.0d0,rkappa(ioff5),nOrb(iS),
+     &                        CMO(1+ioff),nOrb(iS),
+     &                  0.0d0,CVa(2)%pA(iS)%A,nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
-            ioff1=ioff1+nAsh(iS)*nOrb(iS)
             ioffD=ioffD+nAsh(iS)**2
             ioff4=ioff4+nOrb(iS)**2
           End Do
@@ -264,15 +266,13 @@
         ipFkA     = ip_of_Work(FockA(1))
         ipMO1     = ip_of_Work(rMOs(1))
         ipQ       = ip_of_Work(Q(1))
-        ipAsh(1)  = ip_of_Work(CVa(1,1))
-        ipAsh(2)  = ip_of_Work(CVa(1,2))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
                                                                                *
         Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
-     &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 *
@@ -309,7 +309,8 @@
         Call mma_deallocate(CoulExch)
         If (iMethod.eq.2) Then
           Call mma_deallocate(Dens2)
-          Call mma_deallocate(CVa)
+          Call Deallocate_CMO(CVa(2))
+          Call Deallocate_CMO(CVa(1))
           Call mma_deallocate(Dens2)
         EndIf
         Call mma_deallocate(DLT)

@@ -13,8 +13,9 @@
 *     Integer  MEMX,KBUF,BLKSZ,NBLCK,NPASS,DLNGTH
 
 #include "SysDef.fh"
+*#include "stdalloc.fh"
       Dimension W(*)
-*      Call GetMem('MaxMem','MAX','REAL',KBUF,MEMX)
+*      Call mma_maxDBLE(MEMX)
 *      BLKSZ=(NOTU-1)*IADXS
 *      NBLCK=(MEMX)/BLKSZ
 

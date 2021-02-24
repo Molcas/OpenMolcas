@@ -86,7 +86,6 @@
 #include "chotodo.fh"
 #include "chlcas.fh"
 
-
 C PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 C Changes affect several of the subroutines of this part.
 C The program should now behave more gracefully when there are (almost)

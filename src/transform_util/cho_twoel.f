@@ -56,12 +56,15 @@
 *   THE LAST ADRESS IS ZERO IF iSymI = iSymJ                           *
 *                                                                      *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
+
+      Real*8, Allocatable:: AddCou(:), AddEx1(:)
+      Real*8, Allocatable:: AddEx2(:), AddEx2t(:)
 
       nSymP=(nSym**2+nSym)/2
       Call LenInt(iSymI,iSymJ,iSymA,iSymB,nN_IJ,nN_AB,nN_Ex1,nN_Ex2)
@@ -128,19 +131,19 @@ CGG   ------------------------------------------------------------------
       Call XFlush(6)
       EndIf
 CGG   ------------------------------------------------------------------
-              Call GetMem('Coul','Allo','Real',iAddCou,nN_AB)
+              Call mma_allocate(AddCou,nN_AB,Label='AddCou')
               If (iBatch.GT.1) then
-                Call dDaFile(LUINTM,2,Work(iAddCou),nN_AB,
-     &                                     iAddrIAD2Mij)   ! Reload Int
+                Call dDaFile(LUINTM,2,AddCou,nN_AB,iAddrIAD2Mij)
+                ! Reload Int
                 iAddrIAD2Mij=iAddrIAD2Mij-nN_AB
               else
-                Call dCopy_(nN_AB,[0.0d0],0,Work(iAddCou),1)
+                AddCou(:)=0.0d0
               EndIf
               Call Cho_GenC(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                                          iAddCou,nN_AB, nN_Ex1 )
-              Call GAdSum(Work(iAddCou),nN_AB)
-              Call dDaFile(LUINTM,1,Work(iAddCou),nN_AB,iAddrIAD2Mij)
-              Call GetMem('Coul','Free','Real',iAddCou,nN_AB)
+     &                      AddCou,nN_AB, nN_Ex1 )
+              Call GAdSum(AddCou,nN_AB)
+              Call dDaFile(LUINTM,1,AddCou,nN_AB,iAddrIAD2Mij)
+              Call mma_deallocate(AddCou)
             EndDo
           EndDo
 *   ---   End Loop on i, j
@@ -195,19 +198,19 @@ c     &  '  iAddrIAD2Mij=',iAddrIAD2Mij,'   #'
 c      Call XFlush(6)
 c      EndIf
 CGG   ------------------------------------------------------------------
-              Call GetMem('Ex1','Allo','Real',iAddEx1,nN_Ex1)
+              Call mma_allocate(AddEx1,nN_Ex1,Label='AddEx1')
               If (iBatch.GT.1) then
-                Call dDaFile(LUINTM,2,Work(iAddEx1),nN_Ex1,
-     &                                     iAddrIAD2Mij)   ! Reload Int
+                ! Reload Int
+                Call dDaFile(LUINTM,2,AddEx1,nN_Ex1,iAddrIAD2Mij)
                 iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex1
               else
-                call dcopy_(nN_Ex1,[0.0d0],0,Work(iAddEx1),1)
+                AddEx1(:)=0.0D0
               EndIf
               Call Cho_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-     &                                             iAddEx1,nN_Ex1 )
-              Call GAdSum(Work(iAddEx1),nN_Ex1)
-              Call dDaFile(LUINTM,1,Work(iAddEx1),nN_Ex1,iAddrIAD2Mij)
-              Call GetMem('Ex1','Free','Real',iAddEx1,nN_Ex1)
+     &                                             AddEx1,nN_Ex1 )
+              Call GAdSum(AddEx1,nN_Ex1)
+              Call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
+              Call mma_deallocate(AddEx1)
             EndDo
           EndDo
 *   ---   End Loop on i, j
@@ -271,31 +274,30 @@ CGG   ------------------------------------------------------------------
                 nA=nSsh(iSymA)
                 nB=nSsh(iSymB)
               EndIf
-              Call GetMem('Ex2','Allo','Real',iAddEx2,nN_Ex2)
-              Call GetMem('Ex2t','Allo','Real',iAddEx2t,nN_Ex2)
+              Call mma_allocate(AddEx2,nN_Ex2,Label='AddEx2')
+              Call mma_allocate(AddEx2t,nN_Ex2,Label='AddEx2t')
               If (iBatch.GT.1) then
-                Call dDaFile(LUINTM,2,Work(iAddEx2),nN_Ex2,
-     &                                     iAddrIAD2Mij)   ! Reload Int
+                ! Reload Int
+                Call dDaFile(LUINTM,2,AddEx2,nN_Ex2,iAddrIAD2Mij)
                 iAddrIAD2Mij=iAddrIAD2Mij-nN_Ex2
-                Call Trnsps(nA,nB,Work(iAddEx2),Work(iAddEx2t))
+                Call Trnsps(nA,nB,AddEx2,AddEx2t)
               else
-                call dcopy_(nN_Ex2,[0.0d0],0,Work(iAddEx2t),1)
+                AddEx2t(:)=0.0D0
               EndIf
               Call Cho_GenE(iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
-
-     &                                            iAddEx2t,nN_Ex2 )
-              Call Trnsps(nB,nA,Work(iAddEx2t),Work(iAddEx2))
+     &                                            AddEx2t,nN_Ex2 )
+              Call Trnsps(nB,nA,AddEx2t,AddEx2)
 CGG   ------------------------------------------------------------------
 c      If(IfTest) then
 c      Write(6,*) '    Integrals from Production code:'
-c      Write(6,'(8F10.6)') (Work(iAddEx2+i),i=0,nN_Ex2-1)
+c      Write(6,'(8F10.6)') (AddEx2(i),i=1,nN_Ex2)
 c      Call XFlush(6)
 c      EndIf
 CGG   ------------------------------------------------------------------
-              Call GAdSum(Work(iAddEx2),nN_Ex2)
-              Call dDaFile(LUINTM,1,Work(iAddEx2),nN_Ex2,iAddrIAD2Mij)
-              Call GetMem('Ex2t','Free','Real',iAddEx2t,nN_Ex2)
-              Call GetMem('Ex2','Free','Real',iAddEx2,nN_Ex2)
+              Call GAdSum(AddEx2,nN_Ex2)
+              Call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
+              Call mma_deallocate(AddEx2t)
+              Call mma_deallocate(AddEx2)
             EndDo
           EndDo
 *   ---   End Loop on i, j

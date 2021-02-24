@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_LK_RASSI(ipDLT,ipMSQ1,ipMSQ2,ipFLT,ipK,ipInt,
-     &                              ipAsh,nScreen,dmpk)
+     &                              Ash,nScreen,dmpk)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -37,6 +37,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -48,7 +49,7 @@ C
       Integer   ISTLT(8),ISTK(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAsh(2),ipAorb(8,2)
+      Type (CMO_Type) Ash(2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
 #ifdef _DEBUGPRINT_
@@ -183,19 +184,6 @@ c           If(nDen.eq.2)write(6,*)'Pseudo Cholesky MOs used for state B'
 
       EndIf
 **************************************************
-
-      DO jDen=1,nDen
-
-         ipAorb(1,jDen)= ipAsh(jDen)
-
-         DO ISYM=2,NSYM
-
-            ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
-     &                        + nAsh(iSym-1)*nBas(iSym-1)
-
-         END DO
-
-      END DO
 
 C --- Define the max number of vectors to be treated in core at once
 
@@ -1448,7 +1436,7 @@ C -------------------------------------------------------------
                nMOs = 1  ! Active MOs (1st set)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,ipAorb,nAsh,
+     &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
      &                           ipLpq,iSkip,DoRead)
 
 
@@ -1475,7 +1463,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Work(ipLvb),NAv,
-     &                                Work(ipAorb(iSymb,kDen)),NAw,
+     &                                Ash(kDen)%pA(iSymb)%A,NAw,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do
