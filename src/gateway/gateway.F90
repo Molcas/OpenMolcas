@@ -46,7 +46,7 @@ integer(kind=iwp), intent(out) :: iReturn
 #include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
 integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux
-character(len=LenIN) :: xLblCnt(MxAtom)
+character(len=LenIn) :: xLblCnt(MxAtom)
 logical(kind=iwp) :: lOPTO, Pseudo, Do_OneEl, Cho_1Center, IsBorn, Found
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
@@ -202,7 +202,7 @@ call Put_iScalar('Unique atoms',nNuc)
 call Put_dArray('Unique Coordinates',DCo,3*nNuc)
 call Put_dArray('Nuclear charge',DCh,nNuc)
 call Put_dArray('Effective nuclear Charge',DCh_Eff,nNuc)
-call Put_cArray('Unique Atom Names',xLblCnt,LenIn*nNuc)
+call Put_cArray('Unique Atom Names',xLblCnt(1),LenIn*nNuc)
 call Put_iArray('nStab',nStab,nNuc)
 
 call mma_deallocate(nStab)

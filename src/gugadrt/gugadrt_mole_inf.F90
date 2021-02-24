@@ -39,6 +39,7 @@ ns_sm = 1
 call rdnlst(5,'GUGADRT')
 ntit = 0
 skip = .false.
+jcmd = 0
 do
   if (.not. skip) then
     read(5,'(a)',iostat=err) line

@@ -11,7 +11,8 @@
 
 subroutine gugadrt(ireturn)
 
-use gugadrt_global, only: nci_dim
+use gugadrt_global, only: ja, jb, jj, jm, kk, max_node, nci_dim
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, r8
 
 implicit none
@@ -20,6 +21,12 @@ real(kind=wp) :: sc, sc0, sc1
 real(kind=r8), external :: seconds
 
 sc0 = seconds()
+
+call mma_allocate(ja,max_node,label='ja')
+call mma_allocate(jb,max_node,label='jb')
+call mma_allocate(jj,[1,4],[0,max_node],label='jj')
+call mma_allocate(jm,[0,max_node],label='jm')
+call mma_allocate(kk,[0,max_node],label='kk')
 
 call gugainit()
 
@@ -34,6 +41,12 @@ call gugadrt_active_drt()       ! add by wyb 01.9.5
 call add_info('CI_DIM',[dble(nci_dim)],1,1)
 call gugadrt_gugafinalize()
 ireturn = 0
+
+call mma_deallocate(ja)
+call mma_deallocate(jb)
+call mma_deallocate(jj)
+call mma_deallocate(jm)
+call mma_deallocate(kk)
 
 sc1 = seconds()
 sc = sc1-sc0

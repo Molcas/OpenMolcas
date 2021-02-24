@@ -15,7 +15,7 @@ subroutine redabkm(iabkm,labkm,nabcbit,iabcbit,jatmp,jbtmp,jmtmp,kktmp)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iabkm(1:labkm), labkm, nabcbit, iabcbit
+integer(kind=iwp), intent(in) :: labkm, iabkm(1:labkm), nabcbit, iabcbit
 integer(kind=iwp), intent(out) :: jatmp, jbtmp, jmtmp, kktmp
 
 call upacknod(iabkm,1,jatmp,nabcbit,iabcbit,labkm)
