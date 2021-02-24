@@ -215,7 +215,6 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8:: Vf(1)=[Zero]
       Real*8, Allocatable:: Lrs(:)
       Real*8, Allocatable, Target:: ChoT(:)
 
@@ -498,11 +497,6 @@ C --------------------------------------------------------------------
 
                      If (NApq.ne.0) Then
 
-                        Vf(1)=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
-c                       Write (6,*) 'Vf=',Vf(1)
-c                       Call RecPrt('LPQ',' ',Lpq,NApq,JNUM)
-                        Call Add_Info('Lpq',Vf(1),1,10)
-
                         If (tv2disk.eq.'PQK') Then
 #ifdef _HDF5_QCM_
                          if (ihdf5/=1) then
@@ -617,11 +611,6 @@ c                       Call RecPrt('LPQ',' ',Lpq,NApq,JNUM)
      &                   iSymp.lt.iSymb) Then
                         iE = iS - 1 + NApq*JNUM
                         Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
-
-                        Vf(1)=DDot_(NApq*JNUM,Lpq,1,Lpq,1)
-c                       Write (6,*) 'Vf=',Vf(1)
-c                       Call RecPrt('LPQ',' ',Lpq,NApq,JNUM)
-                        Call Add_Info('Lpq',Vf(1),1,10)
 
                         If (tv2disk.eq.'PQK') Then
                            Call ddafile(LunChVF(jSym),1,Lpq,
