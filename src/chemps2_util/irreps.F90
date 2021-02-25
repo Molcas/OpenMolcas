@@ -45,142 +45,142 @@
 !  'c2v'  a1  a2  b1  b2
 !  'c2h'  ag  bg  au  bu
 !  'd2h'  ag  b1g b2g b3g au  b1u b2u b3u
-!
-subroutine group_psi4number( groupname, psi4number )
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: psi4number
+subroutine group_psi4number(groupname,psi4number)
 
-  psi4number = -1 ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: psi4number
 
-  if ( groupname .eq. 'c1 ' ) psi4number = 0
-  if ( groupname .eq. 'ci ' ) psi4number = 1
-  if ( groupname .eq. 'c2 ' ) psi4number = 2
-  if ( groupname .eq. 'cs ' ) psi4number = 3
-  if ( groupname .eq. 'd2 ' ) psi4number = 4
-  if ( groupname .eq. 'c2v' ) psi4number = 5
-  if ( groupname .eq. 'c2h' ) psi4number = 6
-  if ( groupname .eq. 'd2h' ) psi4number = 7
+psi4number = -1 ! Error output
 
-end subroutine
+if (groupname == 'c1 ') psi4number = 0
+if (groupname == 'ci ') psi4number = 1
+if (groupname == 'c2 ') psi4number = 2
+if (groupname == 'cs ') psi4number = 3
+if (groupname == 'd2 ') psi4number = 4
+if (groupname == 'c2v') psi4number = 5
+if (groupname == 'c2h') psi4number = 6
+if (groupname == 'd2h') psi4number = 7
 
-subroutine molpro2psi( groupname, conversion )
+end subroutine group_psi4number
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: conversion(8)
-  integer,      parameter   :: X = -1
+subroutine molpro2psi(groupname,conversion)
 
-  conversion(1:8) = (/ X, X, X, X, X, X, X, X /) ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: conversion(8)
+integer, parameter :: X = -1
 
-  if ( groupname .eq. 'c1 ' ) conversion(1:8) = (/ 1, X, X, X, X, X, X, X /)
-  if ( groupname .eq. 'ci ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'c2 ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'cs ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'd2 ' ) conversion(1:8) = (/ 1, 4, 3, 2, X, X, X, X /)
-  if ( groupname .eq. 'c2v' ) conversion(1:8) = (/ 1, 3, 4, 2, X, X, X, X /)
-  if ( groupname .eq. 'c2h' ) conversion(1:8) = (/ 1, 3, 4, 2, X, X, X, X /)
-  if ( groupname .eq. 'd2h' ) conversion(1:8) = (/ 1, 8, 7, 2, 6, 3, 4, 5 /)
+conversion(1:8) = (/X,X,X,X,X,X,X,X/) ! Error output
 
-end subroutine
+if (groupname == 'c1 ') conversion(1:8) = (/1,X,X,X,X,X,X,X/)
+if (groupname == 'ci ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'c2 ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'cs ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'd2 ') conversion(1:8) = (/1,4,3,2,X,X,X,X/)
+if (groupname == 'c2v') conversion(1:8) = (/1,3,4,2,X,X,X,X/)
+if (groupname == 'c2h') conversion(1:8) = (/1,3,4,2,X,X,X,X/)
+if (groupname == 'd2h') conversion(1:8) = (/1,8,7,2,6,3,4,5/)
 
-subroutine psi2molpro( groupname, conversion )
+end subroutine molpro2psi
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: conversion(8)
-  integer,      parameter   :: X = -1
+subroutine psi2molpro(groupname,conversion)
 
-  conversion(1:8) = (/ X, X, X, X, X, X, X, X /) ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: conversion(8)
+integer, parameter :: X = -1
 
-  if ( groupname .eq. 'c1 ' ) conversion(1:8) = (/ 1, X, X, X, X, X, X, X /)
-  if ( groupname .eq. 'ci ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'c2 ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'cs ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'd2 ' ) conversion(1:8) = (/ 1, 4, 3, 2, X, X, X, X /)
-  if ( groupname .eq. 'c2v' ) conversion(1:8) = (/ 1, 4, 2, 3, X, X, X, X /)
-  if ( groupname .eq. 'c2h' ) conversion(1:8) = (/ 1, 4, 2, 3, X, X, X, X /)
-  if ( groupname .eq. 'd2h' ) conversion(1:8) = (/ 1, 4, 6, 7, 8, 5, 3, 2 /)
+conversion(1:8) = (/X,X,X,X,X,X,X,X/) ! Error output
 
-end subroutine
+if (groupname == 'c1 ') conversion(1:8) = (/1,X,X,X,X,X,X,X/)
+if (groupname == 'ci ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'c2 ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'cs ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'd2 ') conversion(1:8) = (/1,4,3,2,X,X,X,X/)
+if (groupname == 'c2v') conversion(1:8) = (/1,4,2,3,X,X,X,X/)
+if (groupname == 'c2h') conversion(1:8) = (/1,4,2,3,X,X,X,X/)
+if (groupname == 'd2h') conversion(1:8) = (/1,4,6,7,8,5,3,2/)
 
-subroutine molcas2molpro( groupname, conversion )
+end subroutine psi2molpro
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: conversion(8)
-  integer,      parameter   :: X = -1
+subroutine molcas2molpro(groupname,conversion)
 
-  conversion(1:8) = (/ X, X, X, X, X, X, X, X /) ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: conversion(8)
+integer, parameter :: X = -1
 
-  if ( groupname .eq. 'c1 ' ) conversion(1:8) = (/ 1, X, X, X, X, X, X, X /)
-  if ( groupname .eq. 'ci ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'c2 ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'cs ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'd2 ' ) conversion(1:8) = (/ 1, 3, 4, 2, X, X, X, X /)
-  if ( groupname .eq. 'c2v' ) conversion(1:8) = (/ 1, 2, 4, 3, X, X, X, X /)
-  if ( groupname .eq. 'c2h' ) conversion(1:8) = (/ 1, 4, 2, 3, X, X, X, X /)
-  if ( groupname .eq. 'd2h' ) conversion(1:8) = (/ 1, 6, 4, 7, 8, 3, 5, 2 /)
+conversion(1:8) = (/X,X,X,X,X,X,X,X/) ! Error output
 
-end subroutine
+if (groupname == 'c1 ') conversion(1:8) = (/1,X,X,X,X,X,X,X/)
+if (groupname == 'ci ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'c2 ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'cs ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'd2 ') conversion(1:8) = (/1,3,4,2,X,X,X,X/)
+if (groupname == 'c2v') conversion(1:8) = (/1,2,4,3,X,X,X,X/)
+if (groupname == 'c2h') conversion(1:8) = (/1,4,2,3,X,X,X,X/)
+if (groupname == 'd2h') conversion(1:8) = (/1,6,4,7,8,3,5,2/)
 
-subroutine molpro2molcas( groupname, conversion )
+end subroutine molcas2molpro
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: conversion(8)
-  integer,      parameter   :: X = -1
+subroutine molpro2molcas(groupname,conversion)
 
-  conversion(1:8) = (/ X, X, X, X, X, X, X, X /) ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: conversion(8)
+integer, parameter :: X = -1
 
-  if ( groupname .eq. 'c1 ' ) conversion(1:8) = (/ 1, X, X, X, X, X, X, X /)
-  if ( groupname .eq. 'ci ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'c2 ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'cs ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'd2 ' ) conversion(1:8) = (/ 1, 4, 2, 3, X, X, X, X /)
-  if ( groupname .eq. 'c2v' ) conversion(1:8) = (/ 1, 2, 4, 3, X, X, X, X /)
-  if ( groupname .eq. 'c2h' ) conversion(1:8) = (/ 1, 3, 4, 2, X, X, X, X /)
-  if ( groupname .eq. 'd2h' ) conversion(1:8) = (/ 1, 8, 6, 3, 7, 2, 4, 5 /)
+conversion(1:8) = (/X,X,X,X,X,X,X,X/) ! Error output
 
-end subroutine
+if (groupname == 'c1 ') conversion(1:8) = (/1,X,X,X,X,X,X,X/)
+if (groupname == 'ci ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'c2 ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'cs ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'd2 ') conversion(1:8) = (/1,4,2,3,X,X,X,X/)
+if (groupname == 'c2v') conversion(1:8) = (/1,2,4,3,X,X,X,X/)
+if (groupname == 'c2h') conversion(1:8) = (/1,3,4,2,X,X,X,X/)
+if (groupname == 'd2h') conversion(1:8) = (/1,8,6,3,7,2,4,5/)
 
-subroutine molcas2psi( groupname, conversion )
+end subroutine molpro2molcas
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: conversion(8)
-  integer,      parameter   :: X = -1
+subroutine molcas2psi(groupname,conversion)
 
-  conversion(1:8) = (/ X, X, X, X, X, X, X, X /) ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: conversion(8)
+integer, parameter :: X = -1
 
-  if ( groupname .eq. 'c1 ' ) conversion(1:8) = (/ 1, X, X, X, X, X, X, X /)
-  if ( groupname .eq. 'ci ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'c2 ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'cs ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'd2 ' ) conversion(1:8) = (/ 1, 3, 2, 4, X, X, X, X /)
-  if ( groupname .eq. 'c2v' ) conversion(1:8) = (/ 1, 3, 2, 4, X, X, X, X /)
-  if ( groupname .eq. 'c2h' ) conversion(1:8) = (/ 1, 2, 3, 4, X, X, X, X /)
-  if ( groupname .eq. 'd2h' ) conversion(1:8) = (/ 1, 3, 2, 4, 5, 7, 6, 8 /)
+conversion(1:8) = (/X,X,X,X,X,X,X,X/) ! Error output
 
-end subroutine
+if (groupname == 'c1 ') conversion(1:8) = (/1,X,X,X,X,X,X,X/)
+if (groupname == 'ci ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'c2 ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'cs ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'd2 ') conversion(1:8) = (/1,3,2,4,X,X,X,X/)
+if (groupname == 'c2v') conversion(1:8) = (/1,3,2,4,X,X,X,X/)
+if (groupname == 'c2h') conversion(1:8) = (/1,2,3,4,X,X,X,X/)
+if (groupname == 'd2h') conversion(1:8) = (/1,3,2,4,5,7,6,8/)
 
-subroutine psi2molcas( groupname, conversion )
+end subroutine molcas2psi
 
-  implicit none
-  character(len=3), intent(in)  :: groupname
-  integer,      intent(out) :: conversion(8)
-  integer,      parameter   :: X = -1
+subroutine psi2molcas(groupname,conversion)
 
-  conversion(1:8) = (/ X, X, X, X, X, X, X, X /) ! Error output
+implicit none
+character(len=3), intent(in) :: groupname
+integer, intent(out) :: conversion(8)
+integer, parameter :: X = -1
 
-  if ( groupname .eq. 'c1 ' ) conversion(1:8) = (/ 1, X, X, X, X, X, X, X /)
-  if ( groupname .eq. 'ci ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'c2 ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'cs ' ) conversion(1:8) = (/ 1, 2, X, X, X, X, X, X /)
-  if ( groupname .eq. 'd2 ' ) conversion(1:8) = (/ 1, 3, 2, 4, X, X, X, X /)
-  if ( groupname .eq. 'c2v' ) conversion(1:8) = (/ 1, 3, 2, 4, X, X, X, X /)
-  if ( groupname .eq. 'c2h' ) conversion(1:8) = (/ 1, 2, 3, 4, X, X, X, X /)
-  if ( groupname .eq. 'd2h' ) conversion(1:8) = (/ 1, 3, 2, 4, 5, 7, 6, 8 /)
+conversion(1:8) = (/X,X,X,X,X,X,X,X/) ! Error output
 
-end subroutine
+if (groupname == 'c1 ') conversion(1:8) = (/1,X,X,X,X,X,X,X/)
+if (groupname == 'ci ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'c2 ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'cs ') conversion(1:8) = (/1,2,X,X,X,X,X,X/)
+if (groupname == 'd2 ') conversion(1:8) = (/1,3,2,4,X,X,X,X/)
+if (groupname == 'c2v') conversion(1:8) = (/1,3,2,4,X,X,X,X/)
+if (groupname == 'c2h') conversion(1:8) = (/1,2,3,4,X,X,X,X/)
+if (groupname == 'd2h') conversion(1:8) = (/1,3,2,4,5,7,6,8/)
+
+end subroutine psi2molcas

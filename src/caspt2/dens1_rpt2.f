@@ -142,7 +142,7 @@
       If(NACTEL.GT.1) Then
 *QP: At this point, only load 2RDM of one state, JSTATE=1
         Call chemps2_load2pdm( nlev, G2, MSTATE(1) )
-        Call two2onerdm_bis( nlev, NACTEL, G2, G1 )
+        Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
         write(6,*) "FATAL ERROR: DMRG-CASPT2 with
      & CHEMPS2 does not work with NACTEL=1"
