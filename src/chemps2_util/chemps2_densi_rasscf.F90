@@ -16,57 +16,61 @@
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
 
 subroutine CHEMPS2_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
-implicit real*8(A-H,O-Z)
 
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: jRoot
 #include "rasdim.fh"
+real(kind=wp), intent(out) :: D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2), PT(NAC,NAC,NAC,NAC)
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: I, IJ_pack, IJKL_pack, J, K, L, LLIM
+real(kind=wp) :: D1sum
 
-dimension D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2)
-dimension PT(NAC,NAC,NAC,NAC)
+D(:) = Zero
+DS(:) = Zero
+PS(:) = Zero
+PA(:) = Zero
 
-call DCOPY_(NACPAR,0.0d0,0,D,1)
-call DCOPY_(NACPAR,0.0d0,0,DS,1)
-call DCOPY_(NACPR2,0.0d0,0,PS,1)
-call DCOPY_(NACPR2,0.0d0,0,PA,1)
-
-if (NACTEL > 1) then
-  call chemps2_load2pdm(NAC,PT,jRoot)
-  IJ_pack = 1
-  do J=1,NAC
-    do I=1,J
-      D1sum = 0.0d0
-      do K=1,NAC
-        D1sum = D1sum+PT(K,K,I,J)
-      end do
-      D(IJ_pack) = D1sum/(NACTEL-1)
-      IJ_pack = IJ_pack+1
-    end do
-  end do
-
-  IJKL_pack = 0
-  do I=1,NAC
-    do J=1,I
-      do K=1,I
-        LLIM = K
-        if (K == I) LLIM = J
-        do L=1,LLIM
-          IJKL_pack = IJKL_pack+1
-          if (K == L) then
-            PS(IJKL_pack) = 0.5d0*PT(L,K,J,I)
-          else
-            PS(IJKL_pack) = 0.5d0*(PT(L,K,J,I)+PT(K,L,J,I))
-            PA(IJKL_pack) = 0.5d0*(PT(L,K,J,I)-PT(K,L,J,I))
-          end if
-        end do
-      end do
-    end do
-  end do
-else
+if (NACTEL <= 1) then
   ! special case for NACTEL = 1
-  write(6,*) 'CheMPS2 does not allow 1 electron.'
+  write(u6,*) 'CheMPS2 does not allow 1 electron.'
+  return
 end if
+
+call chemps2_load2pdm(NAC,PT,jRoot)
+IJ_pack = 1
+do J=1,NAC
+  do I=1,J
+    D1sum = Zero
+    do K=1,NAC
+      D1sum = D1sum+PT(K,K,I,J)
+    end do
+    D(IJ_pack) = D1sum/(NACTEL-1)
+    IJ_pack = IJ_pack+1
+  end do
+end do
+
+IJKL_pack = 0
+do I=1,NAC
+  do J=1,I
+    do K=1,I
+      LLIM = K
+      if (K == I) LLIM = J
+      do L=1,LLIM
+        IJKL_pack = IJKL_pack+1
+        if (K == L) then
+          PS(IJKL_pack) = Half*PT(L,K,J,I)
+        else
+          PS(IJKL_pack) = Half*(PT(L,K,J,I)+PT(K,L,J,I))
+          PA(IJKL_pack) = Half*(PT(L,K,J,I)-PT(K,L,J,I))
+        end if
+      end do
+    end do
+  end do
+end do
 
 return
 

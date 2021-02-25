@@ -16,30 +16,24 @@
 
 subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot)
 
-use iso_c_binding
 #ifdef _MOLCAS_MPP_
 use MPI
 #endif
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
+use Constants, only: Zero
+use Definitions, only: wp, iwp, i1, u6
 
 implicit none
-integer, intent(in) :: NAC, NG3, chemroot
-integer*1, intent(in) :: idxG3(6,NG3)
-real*8, intent(out) :: storage(*)
-logical, intent(in) :: doG3
-real*8, intent(in) :: EPSA(NAC)
-real*8, intent(out) :: F2(NAC,NAC,NAC,NAC)
-
-character(LEN=30) :: file_3rdm
-character(LEN=30) :: file_f4rdm
-logical :: irdm, jrdm
-
-integer :: file_h5, group_h5
+integer(kind=iwp), intent(in) :: NAC, NG3, chemroot
+integer(kind=i1), intent(in) :: idxG3(6,NG3)
+real(kind=wp), intent(out) :: storage(*), F2(NAC,NAC,NAC,NAC)
+logical(kind=iwp), intent(in) :: doG3
+real(kind=wp), intent(in) :: EPSA(NAC)
+character(len=30) :: file_3rdm, file_f4rdm
 character(len=10) :: rootindex
-
-integer :: ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
-
-real*8, dimension(NAC**6) :: buffer
+integer(kind=iwp) :: file_h5, group_h5, ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
+logical(kind=iwp) :: irdm, jrdm
+real(kind=wp) :: buffer(NAC**6)
 
 write(rootindex,'(i2)') chemroot-1
 file_3rdm = 'molcas_3rdm.h5.r'//trim(adjustl(rootindex))
@@ -49,7 +43,7 @@ file_f4rdm = trim(adjustl(file_f4rdm))
 call f_inquire(file_3rdm,irdm)
 call f_inquire(file_f4rdm,jrdm)
 if ((.not. irdm) .or. (.not. jrdm)) then
-  write(6,'(1x,a15,i3,a26)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 3RDM or F.4RDM file'
+  write(u6,'(1x,a15,i3,a26)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 3RDM or F.4RDM file'
   call abend()
 end if
 
@@ -87,7 +81,7 @@ if (doG3) then
     do ip2=1,NAC
       do iq1=1,NAC
         do ip1=1,NAC
-          F2(ip1,iq1,ip2,iq2) = 0.0
+          F2(ip1,iq1,ip2,iq2) = Zero
           do ip3=1,NAC
             idx = ip1+NAC*(ip2-1+NAC*(ip3-1+NAC*(iq1-1+NAC*(iq2-1+NAC*(ip3-1)))))
             F2(ip1,iq1,ip2,iq2) = F2(ip1,iq1,ip2,iq2)+EPSA(ip3)*buffer(idx)

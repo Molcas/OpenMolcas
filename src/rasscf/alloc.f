@@ -23,6 +23,7 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='ALLOC   ')
       IPRLEV=IPRLOC(1)
       IF(IPRLEV.ge.DEBUG) THEN

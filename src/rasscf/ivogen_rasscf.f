@@ -55,7 +55,6 @@
 #include "stdalloc.fh"
 #include "warnings.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='IVOGEN_RASSCF   ')
 *
       Integer  nCMO, nEOrb, nSym
       Integer  nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)

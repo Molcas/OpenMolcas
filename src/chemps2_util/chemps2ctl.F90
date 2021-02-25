@@ -21,34 +21,31 @@ subroutine Chemps2Ctl(LW1,TUVX,IFINAL,IRST)
 #ifdef _MOLCAS_MPP_
 use MPI
 use Para_Info, only: Is_Real_Par, King
+use Definitions, only: MPIInt
 #endif
+use Constants, only: Zero, Five, Ten, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-
-dimension LW1(*), TUVX(*)
-
-integer iChMolpro(8)
-character*3 Label
-integer LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4
-integer conversion(8)
-integer activesize(8)
-real*8 chemps2_totale_4d, revdiff, chemps2_conv
-logical fiedler, mps0
-integer chemroot, chemps2_info
-character(len=10) :: rootindex
-character(len=100) :: imp1, imp2
-integer :: iOper(0:7), ihfocc
-
-#ifdef _MOLCAS_MPP_
-integer*4 IERROR4
-#endif
-
+implicit none
+integer(kind=iwp), intent(in) :: LW1(*), IFINAL, IRST
+real(kind=wp), intent(in) :: TUVX(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-parameter(ROUTINE='CHEMPS2CTL')
+integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4, conversion(8), activesize(8), chemroot, &
+                     chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lORbSym, lSymMolpro, LUCHEMIN, LUCONV, &
+                     LUTOTE, nIrrep, NRDM_ORDER
+#ifdef _MOLCAS_MPP_
+integer(kind=MPIInt) :: IERROR
+#endif
+real(kind=wp) :: chemps2_totale_4d, revdiff, chemps2_conv
+logical(kind=iwp) :: fiedler, mps0
+character(len=3) :: Label
+character(len=10) :: rootindex
+character(len=100) :: imp1, imp2
+integer(kind=iwp), external :: isFreeUnit
 
 ! Quan: FIXME: Do we need this?
 ! Load symmetry info from RunFile
@@ -80,7 +77,7 @@ if (NACTEL == 1) NRDM_ORDER = 1
 
 LINSIZE = (NAC*(NAC+1))/2
 NUM_TEI = (LINSIZE*(LINSIZE+1))/2
-call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,iWork(lOrbSym),0.0d0,LW1,TUVX,LINSIZE,NUM_TEI)
+call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,iWork(lOrbSym),Zero,LW1,TUVX,LINSIZE,NUM_TEI)
 
 call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
 
@@ -88,7 +85,7 @@ call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
 !  WRITEOUT ACTIVE FOCK  *
 !*************************
 
-!write(6,*) 'Currently the Fock matrix is printed in fckpt2.f'
+!write(u6,*) 'Currently the Fock matrix is printed in fckpt2.f'
 
 !************************
 !  WRITEOUT INPUT FILE  *
@@ -105,7 +102,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
       call f_inquire('CHEMNATFIE',fiedler)
       call f_inquire('CHEMNATMPS0',mps0)
       if (fiedler .and. mps0) then
-        write(6,*) 'CHEMPS2> Found checkpoint files for DMRG-SCF'
+        write(u6,*) 'CHEMPS2> Found checkpoint files for DMRG-SCF'
         ! Copy CheMPS2_natorb_MPSxxx.h5 to CheMPS2_MPSxxx.h5
         call fcopy('CHEMNATFIE','CHEMFIE',iErr)
         do chemroot=1,lroots
@@ -116,7 +113,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
         end do
       else
         ! Reset chemps2_restart = .false. if not checkpoint files
-        write(6,*) 'CHEMPS2> No checkpoint files for DMRG-SCF'
+        write(u6,*) 'CHEMPS2> No checkpoint files for DMRG-SCF'
         chemps2_restart = .false.
       end if
     end if
@@ -125,13 +122,12 @@ if (KING() .or. (.not. Is_Real_Par())) then
       call f_inquire('CHEMCANFIE',fiedler)
       call f_inquire('CHEMCANMPS0',mps0)
       if (fiedler .and. mps0) then
-        write(6,*) 'CHEMPS2> Found checkpoint files for n-RDM'
+        write(u6,*) 'CHEMPS2> Found checkpoint files for n-RDM'
       else
-        write(6,*) 'CHEMPS2> No checkpoint files for n-RDM'
+        write(u6,*) 'CHEMPS2> No checkpoint files for n-RDM'
         chemps2_lrestart = 0
       end if
     end if
-
   end if
 #ifdef _MOLCAS_MPP_
 end if
@@ -157,12 +153,12 @@ if (((abs(CBLBM) > chemps2_blb) .and. (IFINAL /= 2)) .or. &
   !Quan: FIXME: how to remove CheMPS2_MPS0.h5, etc with c_remove
   call systemf('rm -f CheMPS2_MPS*.h5',iErr)
   write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
-  write(6,*) 'CHEMPS2> Start DMRG from scratch'
+  write(u6,*) 'CHEMPS2> Start DMRG from scratch'
 
-  write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_STATES       = '
+  write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_STATES       = '
   dtemp = 500
   do
-    write(LUCHEMIN,('(i7,a2)'),ADVANCE='NO') dtemp,','
+    write(LUCHEMIN,('(i7,a2)'),advance='NO') dtemp,','
     dtemp = dtemp+min(dtemp,1000)
     if (dtemp >= MxDMRG) then
       write(LUCHEMIN,'(i7,a2,i7)') MxDMRG,',',MxDMRG
@@ -170,29 +166,29 @@ if (((abs(CBLBM) > chemps2_blb) .and. (IFINAL /= 2)) .or. &
     end if
   end do
 
-  write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_ENERGY_CONV  = '
+  write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_ENERGY_CONV  = '
   dtemp = 500
   do
     if (dtemp == 500) then
-      write(LUCHEMIN,'(e12.5,a3)',ADVANCE='NO') THRE*1000.0,','
+      write(LUCHEMIN,'(es12.5,a3)',advance='NO') THRE*1.0e3_wp,','
     else
-      write(LUCHEMIN,'(e12.5,a3)',ADVANCE='NO') THRE*100.0,','
+      write(LUCHEMIN,'(es12.5,a3)',advance='NO') THRE*1.0e2_wp,','
     end if
 
     dtemp = dtemp+min(dtemp,1000)
     if (dtemp >= MxDMRG) then
-      write(LUCHEMIN,'(e12.5,a3,e12.5)') THRE*5.0,',',THRE/2.0
+      write(LUCHEMIN,'(es12.5,a3,es12.5)') THRE*Five,',',THRE*Half
       exit
     end if
   end do
 
-  write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_MAX_SWEEPS   = '
+  write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_MAX_SWEEPS   = '
   dtemp = 500
   do
     if (dtemp == 500) then
-      write(LUCHEMIN,'(i7,a3)',ADVANCE='NO') max_sweep,','
+      write(LUCHEMIN,'(i7,a3)',advance='NO') max_sweep,','
     else
-      write(LUCHEMIN,'(i7,a3)',ADVANCE='NO') max_sweep/2,','
+      write(LUCHEMIN,'(i7,a3)',advance='NO') max_sweep/2,','
     end if
 
     dtemp = dtemp+min(dtemp,1000)
@@ -210,29 +206,29 @@ if (((abs(CBLBM) > chemps2_blb) .and. (IFINAL /= 2)) .or. &
     end if
   end do
 
-  write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_NOISE_PREFAC = '
+  write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_NOISE_PREFAC = '
   dtemp = 500
   do
-    write(LUCHEMIN,'(e12.5,a3)',ADVANCE='NO') chemps2_noise,','
+    write(LUCHEMIN,'(es12.5,a3)',advance='NO') chemps2_noise,','
     dtemp = dtemp+min(dtemp,1000)
     if (dtemp >= MxDMRG) then
-      write(LUCHEMIN,'(e12.5,a10)') chemps2_noise,' ,   0.00'
+      write(LUCHEMIN,'(es12.5,a10)') chemps2_noise,' ,   0.00'
       exit
     end if
   end do
 
-  write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_DVDSON_RTOL  = '
+  write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_DVDSON_RTOL  = '
   dtemp = 500
   do
     if (dtemp == 500) then
-      write(LUCHEMIN,'(a9)',ADVANCE='NO') '1.0e-3 ,'
+      write(LUCHEMIN,'(a9)',advance='NO') '1.0e-3 ,'
     else
-      write(LUCHEMIN,'(a9)',ADVANCE='NO') '1.0e-4 ,'
+      write(LUCHEMIN,'(a9)',advance='NO') '1.0e-4 ,'
     end if
 
     dtemp = dtemp+min(dtemp,1000)
     if (dtemp >= MxDMRG) then
-      write(LUCHEMIN,'(a9,e12.5)') '1.0e-4 ,',davidson_tol
+      write(LUCHEMIN,'(a9,es12.5)') '1.0e-4 ,',davidson_tol
       exit
     end if
   end do
@@ -240,17 +236,17 @@ if (((abs(CBLBM) > chemps2_blb) .and. (IFINAL /= 2)) .or. &
 
 else
   ! DMRG restart with fixed orbital order
-  if (((abs(CBLBM) > chemps2_blb/10.0) .and. (IFINAL /= 2)) .or. ((IRST == 0) .and. chemps2_restart)) then
-    write(6,*) 'CHEMPS2> Partial restart DMRG from previous step'
+  if (((abs(CBLBM) > chemps2_blb/Ten) .and. (IFINAL /= 2)) .or. ((IRST == 0) .and. chemps2_restart)) then
+    write(u6,*) 'CHEMPS2> Partial restart DMRG from previous step'
 
     write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_STATES       = '
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_STATES       = '
     write(LUCHEMIN,'(i7,a2,i7)') MxDMRG,',',MxDMRG
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_ENERGY_CONV  = '
-    write(LUCHEMIN,'(e12.5,a3,e12.5)') THRE*5.0,',',THRE/2.0
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_ENERGY_CONV  = '
+    write(LUCHEMIN,'(es12.5,a3,es12.5)') THRE*Five,',',THRE*Half
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_MAX_SWEEPS   = '
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_MAX_SWEEPS   = '
     if (IFINAL == 2) then
       if (Do3RDM .or. (iOrbTyp == 2)) then
         write(LUCHEMIN,'(i7,a3,i7)') max_sweep/2,',',max_canonical
@@ -261,23 +257,23 @@ else
       write(LUCHEMIN,'(i7,a3,i7)') max_sweep/2,',',max_sweep
     end if
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_NOISE_PREFAC = '
-    write(LUCHEMIN,'(e12.5,a10)') chemps2_noise,' ,   0.00'
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_NOISE_PREFAC = '
+    write(LUCHEMIN,'(es12.5,a10)') chemps2_noise,' ,   0.00'
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_DVDSON_RTOL  = '
-    write(LUCHEMIN,'(a9,e12.5)') '1.0e-4 ,',davidson_tol
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_DVDSON_RTOL  = '
+    write(LUCHEMIN,'(a9,es12.5)') '1.0e-4 ,',davidson_tol
     write(LUCHEMIN,*)
   else
-    !write(6,*) 'Full Restart'
-    write(6,*) 'CHEMPS2> Fully restart DMRG from previous step'
+    !write(u6,*) 'Full Restart'
+    write(u6,*) 'CHEMPS2> Fully restart DMRG from previous step'
     write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_STATES       = '
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_STATES       = '
     write(LUCHEMIN,'(i7)') MxDMRG
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_ENERGY_CONV  = '
-    write(LUCHEMIN,'(e12.5)') THRE/2.0
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_ENERGY_CONV  = '
+    write(LUCHEMIN,'(es12.5)') THRE*Half
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_MAX_SWEEPS   = '
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_MAX_SWEEPS   = '
     if ((IFINAL == 2) .or. ((IFINAL == 1) .and. (iCIonly == 1))) then
       if ((IFINAL == 2) .and. (Do3RDM .or. (iOrbTyp == 2))) then
         write(LUCHEMIN,'(i7)') max_canonical
@@ -288,34 +284,34 @@ else
       write(LUCHEMIN,'(i7)') max_sweep
     end if
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_NOISE_PREFAC = '
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_NOISE_PREFAC = '
     write(LUCHEMIN,'(a16)') '   0.00'
 
-    write(LUCHEMIN,'(1x,a21)',ADVANCE='NO') 'SWEEP_DVDSON_RTOL  = '
-    write(LUCHEMIN,'(e12.5)') davidson_tol
+    write(LUCHEMIN,'(1x,a21)',advance='NO') 'SWEEP_DVDSON_RTOL  = '
+    write(LUCHEMIN,'(es12.5)') davidson_tol
     write(LUCHEMIN,*)
   end if
 end if
 
-write(LUCHEMIN,'(a8)',ADVANCE='NO') 'NOCC = '
+write(LUCHEMIN,'(a8)',advance='nO') 'NOCC = '
 do nooctemp=1,NSYM-1
-  write(LUCHEMIN,'(a5)',ADVANCE='NO') '0 ,'
+  write(LUCHEMIN,'(a5)',advance='NO') '0 ,'
 end do
 write(LUCHEMIN,'(a3)') '0'
 
-write(LUCHEMIN,'(a8)',ADVANCE='NO') 'NACT = '
+write(LUCHEMIN,'(a8)',advance='NO') 'NACT = '
 call molpro2psi(Label,conversion)
 do iSym=1,nSym
   activesize(conversion(iChMolpro(iSym))) = NASH(iSym)
 end do
 do nooctemp=1,NSYM-1
-  write(LUCHEMIN,'(i3,a2)',ADVANCE='NO') activesize(nooctemp),' ,'
+  write(LUCHEMIN,'(i3,a2)',advance='NO') activesize(nooctemp),' ,'
 end do
 write(LUCHEMIN,'(i3)') activesize(NSYM)
 
-write(LUCHEMIN,'(a8)',ADVANCE='NO') 'NVIR = '
+write(LUCHEMIN,'(a8)',advance='NO') 'NVIR = '
 do nooctemp=1,NSYM-1
-  write(LUCHEMIN,'(a5)',ADVANCE='NO') '0 ,'
+  write(LUCHEMIN,'(a5)',advance='NO') '0 ,'
 end do
 write(LUCHEMIN,'(a3)') '0'
 write(LUCHEMIN,*)
@@ -325,18 +321,18 @@ write(LUCHEMIN,*) 'MOLCAS_STATE_AVG = TRUE'
 write(LUCHEMIN,*) 'MOLCAS_2RDM    = molcas_2rdm.h5'
 
 if (sum(hfocc) == NACTEL) then
-  write(6,*) 'CHEMPS2> Using user-specified ROHF guess'
-  write(LUCHEMIN,'(a13)',ADVANCE='NO') 'MOLCAS_OCC ='
+  write(u6,*) 'CHEMPS2> Using user-specified ROHF guess'
+  write(LUCHEMIN,'(a13)',advance='NO') 'MOLCAS_OCC ='
   do ihfocc=1,NAC-1
-    write(LUCHEMIN,'(i3,a2)',ADVANCE='NO') HFOCC(ihfocc),', '
+    write(LUCHEMIN,'(i3,a2)',advance='NO') HFOCC(ihfocc),', '
   end do
   write(LUCHEMIN,'(i3)') HFOCC(NAC)
 else
-  write(6,*) 'CHEMPS2> Using noise guess'
+  write(u6,*) 'CHEMPS2> Using noise guess'
 end if
 
 if ((IFINAL == 2) .and. Do3RDM .and. (NACTEL > 2)) then
-  write(6,*) 'CHEMPS2> Running 3-RDM and F.4-RDM'
+  write(u6,*) 'CHEMPS2> Running 3-RDM and F.4-RDM'
   write(LUCHEMIN,*) 'MOLCAS_3RDM    = molcas_3rdm.h5'
   write(LUCHEMIN,*) 'MOLCAS_F4RDM   = molcas_f4rdm.h5'
   write(LUCHEMIN,*) 'MOLCAS_FOCK    = FOCK_CHEMPS2'
@@ -350,7 +346,7 @@ write(LUCHEMIN,*) 'TMP_FOLDER = ./'
 close(LUCHEMIN)
 
 #ifdef _MOLCAS_MPP_
-write(6,'(1x,a21,i3)') 'CHEMPS2> ITERATION : ',ITER
+write(u6,'(1x,a21,i3)') 'CHEMPS2> ITERATION : ',ITER
 if (KING() .or. (.not. Is_Real_Par())) then
 #endif
 
@@ -358,7 +354,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
   if (((IFINAL == 2) .and. Do3RDM .and. (chemps2_lrestart > 0)) .or. &
       ((IFINAL == 2) .and. (iOrbTyp == 2) .and. (chemps2_lrestart > 0))) then
     if (chemps2_lrestart == 1) then
-      write(6,*) 'CHEMPS2> Using user-supplied checkpoint files'
+      write(u6,*) 'CHEMPS2> Using user-supplied checkpoint files'
       call fcopy('CHEMCANFIE','CHEMFIE',iErr)
       do chemroot=1,lroots
         write(rootindex,'(i2)') chemroot-1
@@ -369,7 +365,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
     end if
 
     if (chemps2_lrestart == 2) then
-      write(6,*) 'CHEMPS2> Using checkpoint files from previous step (not recommended)'
+      write(u6,*) 'CHEMPS2> Using checkpoint files from previous step (not recommended)'
       call fcopy('CHEMNATFIE','CHEMFIE',iErr)
       do chemroot=1,lroots
         write(rootindex,'(i2)') chemroot-1
@@ -382,7 +378,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
 
   ! Quan: save CANORB before actually calculating
   if (((IFINAL == 2) .and. Do3RDM) .or. ((IFINAL == 2) .and. (iOrbTyp == 2))) then
-    write(6,*) 'CHEMPS2> Save CANORB'
+    write(u6,*) 'CHEMPS2> Save CANORB'
     ! Quan: FIXME: Bug!
     !call OrbFiles(JOBIPH,IPRLEV)
   end if
@@ -393,7 +389,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
   ! Quan: save natorb checkpoint file in all iteration
   if (IFINAL < 2) then
     if (IFINAL == 1) then
-      write(6,*) 'CHEMPS2> Save natorb checkpoint files'
+      write(u6,*) 'CHEMPS2> Save natorb checkpoint files'
     end if
     call fcopy('CHEMFIE','CHEMNATFIE',iErr)
     do chemroot=1,lroots
@@ -407,7 +403,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
   ! Quan: save canorb checkpoint file if possible
   if (((IFINAL == 2) .and. Do3RDM) .or. ((IFINAL == 2) .and. (iOrbTyp == 2))) then
 
-    write(6,*) 'CHEMPS2> Save canorb checkpoint files'
+    write(u6,*) 'CHEMPS2> Save canorb checkpoint files'
     call fcopy('CHEMFIE','CHEMCANFIE',iErr)
     do chemroot=1,lroots
       write(rootindex,'(i2)') chemroot-1
@@ -428,7 +424,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
 end if
 
 if (Is_Real_Par()) then
-  call MPI_Barrier(MPI_COMM_WORLD,IERROR4)
+  call MPI_Barrier(MPI_COMM_WORLD,IERROR)
 end if
 
 !Quan: FIXME: softlink all the n-RDM files
@@ -475,8 +471,8 @@ call molcas_open(LUTOTE,'chemps2_totale_4d')
 do chemroot=1,lroots
   read(LUTOTE,*) chemps2_totale_4d
   revdiff = abs(chemps2_totale_4d-ENER(chemroot,ITER))/chemps2_totale_4d
-  if (revdiff > 1.0D-9) then
-    write(6,*) 'CHEMPS2> large (E(4m) - E(m))/E(4m) = ',revdiff,'for root',chemroot,', consider increasing m!'
+  if (revdiff > 1.0e-9_wp) then
+    write(u6,*) 'CHEMPS2> large (E(4m) - E(m))/E(4m) = ',revdiff,'for root',chemroot,', consider increasing m!'
   end if
 end do
 close(LUTOTE)
@@ -491,9 +487,9 @@ LUCONV = isFreeUnit(30)
 call molcas_open(LUCONV,'chemps2_conv')
 do chemroot=1,lroots
   read(LUCONV,*) chemps2_conv
-  write(6,'(1x,a14,i3,a30,e10.2)') 'CHEMPS2> Root ',chemroot,' :: DMRG energy convergence : ',chemps2_conv
-  if (abs(chemps2_conv) > THRE/2.0) then
-    write(6,*) 'CHEMPS2> DMRG not converged, consider increasing MXSWeep'
+  write(u6,'(1x,a14,i3,a30,es10.2)') 'CHEMPS2> Root ',chemroot,' :: DMRG energy convergence : ',chemps2_conv
+  if (abs(chemps2_conv) > THRE*Half) then
+    write(u6,*) 'CHEMPS2> DMRG not converged, consider increasing MXSWeep'
   end if
 end do
 close(LUCONV)
@@ -507,7 +503,7 @@ call molcas_open(LUCONV,'chemps2_info')
 read(LUCONV,*) chemps2_info
 close(LUCONV)
 if (chemps2_info /= 0) then
-  write(6,*) 'CHEMPS2> CheMPS2 ends abnormally, check calculation'
+  write(u6,*) 'CHEMPS2> CheMPS2 ends abnormally, check calculation'
 end if
 
 return

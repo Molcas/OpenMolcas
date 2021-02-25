@@ -55,7 +55,6 @@
 #include "output_ras.fh"
 #include "orthonormalize.fh"
 #include "ksdft.fh"
-      Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
 * Lucia-stuff:

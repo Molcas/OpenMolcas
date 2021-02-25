@@ -24,7 +24,7 @@ module definitions
     private
     public :: wp, iwp, DefInt, MPIInt, HDF5Int
     public :: MOLCAS_C_INT, MOLCAS_C_REAL
-    public :: i4, i8, r4, r8
+    public :: i1, i4, i8, r4, r8
     public :: u5, u6
 
     ! This is the working precision and should be preferably used
@@ -65,12 +65,14 @@ module definitions
     real*4 :: r4_example
     real*8 :: r8_example
 
+    integer*1 :: i1_example
     integer*4 :: i4_example
     integer*8 :: i8_example
 
     integer(kind=iwp), parameter :: &
         r4 = kind(r4_example), &
         r8 = kind(r8_example), &
+        i1 = kind(i1_example), &
         i4 = kind(i4_example), &
         i8 = kind(i8_example)
 

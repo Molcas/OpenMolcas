@@ -47,6 +47,7 @@
 #include "output_ras.fh"
 #include "WrkSpc.fh"
 #include "raswfn.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='FCKPT2  ')
 
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),

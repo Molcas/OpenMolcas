@@ -18,7 +18,6 @@ C
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter(Routine='MKRAW')
 C
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3),IRAW(NVERT,0:4)
 

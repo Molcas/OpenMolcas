@@ -12,7 +12,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "rasdim.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='ORBFILES')
 #include "rasscf.fh"
 #include "gas.fh"
 #include "WrkSpc.fh"

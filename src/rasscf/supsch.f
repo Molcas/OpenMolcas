@@ -28,7 +28,6 @@ C
 #include "general.fh"
 #include "rasscf.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='SUPSCH  ')
 #include "WrkSpc.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
 *
@@ -74,6 +73,7 @@ C
 #include "warnings.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='SUPSCH_ ')
 #include "rasscf.fh"
 

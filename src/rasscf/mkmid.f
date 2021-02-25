@@ -17,7 +17,6 @@ C
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter(Routine='MKMID')
 C
       DIMENSION IDRT(NVERT,5)
       DIMENSION IDAW(NVERT,0:4)

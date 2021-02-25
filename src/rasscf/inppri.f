@@ -41,7 +41,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='INPPRI  ')
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"

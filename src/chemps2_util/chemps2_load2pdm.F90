@@ -16,32 +16,27 @@
 
 subroutine chemps2_load2pdm(NAC,PT,CHEMROOT)
 
-use iso_c_binding
 #ifdef _MOLCAS_MPP_
 use MPI
 #endif
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: NAC, CHEMROOT
-real*8, intent(out) :: PT(NAC,NAC,NAC,NAC)
-
-character(LEN=30) :: file_2rdm
-
-integer :: file_h5, group_h5
-logical :: irdm
-
-integer :: i, j, k, l, idx
+integer(kind=iwp), intent(in) :: NAC, CHEMROOT
+real(kind=wp), intent(out) :: PT(NAC,NAC,NAC,NAC)
+character(len=30) :: file_2rdm
 character(len=10) :: rootindex
-
-real*8, dimension(NAC**4) :: two_rdm
+integer(kind=iwp) :: file_h5, group_h5, i, j, k, l, idx
+logical(kind=iwp) :: irdm
+real(kind=wp) :: two_rdm(NAC**4)
 
 write(rootindex,'(i2)') chemroot-1
 file_2rdm = 'molcas_2rdm.h5.r'//trim(adjustl(rootindex))
 file_2rdm = trim(adjustl(file_2rdm))
 call f_inquire(file_2rdm,irdm)
 if (.not. irdm) then
-  write(6,'(1x,a15,i3,a16)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 2RDM file'
+  write(u6,'(1x,a15,i3,a16)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 2RDM file'
   call abend()
 end if
 

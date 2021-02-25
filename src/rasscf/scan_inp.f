@@ -22,7 +22,6 @@
 #include "WrkSpc.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
-      Parameter(ROUTINE='Scan_Inp')
 *
       Character*4 Command
       Character*180  Line

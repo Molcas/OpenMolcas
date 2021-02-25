@@ -16,7 +16,6 @@
 *                                                                      *
 ************************************************************************
 #include "output_ras.fh"
-      Parameter (ROUTINE='RDSUPS  ')
       Integer iBuff(*)
       Integer is(288),ie(288)
       Character*288 Line

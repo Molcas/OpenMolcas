@@ -20,7 +20,6 @@ C
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='MKCOT   ')
 #include "gugx.fh"
 C
       DIMENSION ISM(NLEV),IDOWN(NVERT,0:3)

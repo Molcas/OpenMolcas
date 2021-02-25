@@ -48,6 +48,7 @@ c     Logical Exist
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='DMRGCTL ')
 #include "WrkSpc.fh"
 #include "SysDef.fh"

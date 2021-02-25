@@ -17,7 +17,6 @@ C
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='MKDAW   ')
 C
       DIMENSION IDOWN(NVERT,0:3),IDAW(NVERT,0:4)
 C

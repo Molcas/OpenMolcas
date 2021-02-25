@@ -21,7 +21,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='CICTL   ')
 #include "csfbas.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"

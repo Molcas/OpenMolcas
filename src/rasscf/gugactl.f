@@ -26,6 +26,7 @@ C
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='GUGACTL ')
 #include "gugx.fh"
 #include "WrkSpc.fh"

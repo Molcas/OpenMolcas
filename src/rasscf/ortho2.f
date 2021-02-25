@@ -19,7 +19,6 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "output_ras.fh"
 #include "warnings.fh"
-      Parameter (ROUTINE='ORTHO2  ')
       DIMENSION S(*),U(*),V(*)
       THR=1.D-10
       IF ( N.EQ.0 ) GOTO 90
