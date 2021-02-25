@@ -20,6 +20,7 @@ subroutine chemps2_load2pdm(NAC,PT,CHEMROOT)
 use MPI
 #endif
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -29,7 +30,7 @@ character(len=30) :: file_2rdm
 character(len=10) :: rootindex
 integer(kind=iwp) :: file_h5, group_h5, i, j, k, l, idx
 logical(kind=iwp) :: irdm
-real(kind=wp) :: two_rdm(NAC**4)
+real(kind=wp), allocatable :: two_rdm(:)
 
 write(rootindex,'(i2)') chemroot-1
 file_2rdm = 'molcas_2rdm.h5.r'//trim(adjustl(rootindex))
@@ -43,6 +44,8 @@ end if
 !#ifdef _MOLCAS_MPP_
 !if (MPP() .and. KING()) then
 !#endif
+
+call mma_allocate(two_rdm,NAC**4,label='two_rdm')
 
 file_h5 = mh5_open_file_r(file_2rdm)
 group_h5 = mh5_open_group(file_h5,'2-RDM')
@@ -64,5 +67,9 @@ do i=1,NAC
     end do
   end do
 end do
+
+call mma_deallocate(two_rdm)
+
+return
 
 end subroutine chemps2_load2pdm

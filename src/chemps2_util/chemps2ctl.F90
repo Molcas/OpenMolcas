@@ -23,6 +23,7 @@ use MPI
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
 use Definitions, only: wp, iwp, u6
 
@@ -32,11 +33,10 @@ real(kind=wp), intent(in) :: TUVX(*)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
-#include "output_ras.fh"
 integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4, conversion(8), activesize(8), chemroot, &
-                     chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lORbSym, lSymMolpro, LUCHEMIN, LUCONV, &
-                     LUTOTE, nIrrep, NRDM_ORDER
+                     chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lSymMolpro, LUCHEMIN, LUCONV, LUTOTE, &
+                     nIrrep, NRDM_ORDER
+integer(kind=iwp), allocatable :: OrbSym(:)
 #ifdef _MOLCAS_MPP_
 integer(kind=MPIInt) :: IERROR
 #endif
@@ -58,11 +58,11 @@ call Get_iScalar('Rotational Symmetry Number',iSigma)
 call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
 ! Convert orbital symmetry into MOLPRO format
-call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
+call mma_allocate(OrbSym,NAC,label='OrbSym')
 iOrb = 1
 do iSym=1,nSym
   do jOrb=1,NASH(iSym)
-    iWork(lOrbSym+iOrb-1) = iChMolpro(iSym)
+    OrbSym(iOrb) = iChMolpro(iSym)
     iOrb = iOrb+1
   end do
 end do
@@ -77,9 +77,9 @@ if (NACTEL == 1) NRDM_ORDER = 1
 
 LINSIZE = (NAC*(NAC+1))/2
 NUM_TEI = (LINSIZE*(LINSIZE+1))/2
-call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,iWork(lOrbSym),Zero,LW1,TUVX,LINSIZE,NUM_TEI)
+call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,OrbSym,Zero,LW1,TUVX,LINSIZE,NUM_TEI)
 
-call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
+call mma_deallocate(OrbSym)
 
 !*************************
 !  WRITEOUT ACTIVE FOCK  *

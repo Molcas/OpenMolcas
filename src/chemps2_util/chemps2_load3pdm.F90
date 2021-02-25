@@ -20,6 +20,7 @@ subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot)
 use MPI
 #endif
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, i1, u6
 
@@ -33,7 +34,7 @@ character(len=30) :: file_3rdm, file_f4rdm
 character(len=10) :: rootindex
 integer(kind=iwp) :: file_h5, group_h5, ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
 logical(kind=iwp) :: irdm, jrdm
-real(kind=wp) :: buffer(NAC**6)
+real(kind=wp), allocatable :: buffer(:)
 
 write(rootindex,'(i2)') chemroot-1
 file_3rdm = 'molcas_3rdm.h5.r'//trim(adjustl(rootindex))
@@ -46,6 +47,8 @@ if ((.not. irdm) .or. (.not. jrdm)) then
   write(u6,'(1x,a15,i3,a26)') 'CHEMPS2> Root: ',CHEMROOT,' :: No 3RDM or F.4RDM file'
   call abend()
 end if
+
+call mma_allocate(buffer,NAC**6,label='buffer')
 
 !#ifdef _MOLCAS_MPP_
 !if (MPP() .and. KING()) then
@@ -91,6 +94,8 @@ if (doG3) then
     end do
   end do
 end if
+
+call mma_deallocate(buffer)
 
 return
 
