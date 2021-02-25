@@ -277,8 +277,8 @@ c     &                   dipso5(  l,i1,j1,i2,j2), i,j
          Write(6,'(A)') 'The following files'
          Write(6,'(A)') '#-->  $WorkDir/$Project.BARRIER.plt'
          Write(6,'(A)') '#-->  $WorkDir/$Project.BARRIER_ENE.dat'
-         Write(6,'(A)') '#-->  $WorkDir/$Project.BARREIR_TME.dat'
-         Write(6,'(A)') '#-->  $WorkDir/$Project.BARREIR.plt'
+         Write(6,'(A)') '#-->  $WorkDir/$Project.BARRIER_TME.dat'
+         Write(6,'(A)') '#-->  $WorkDir/$Project.BARRIER.plt'
          Write(6,'(A)') 'Have been generated successfully.'
       End If
 
