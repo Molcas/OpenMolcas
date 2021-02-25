@@ -2230,7 +2230,7 @@ A list of these keywords is given below:
 
     Using :kword:`DMRG` with QCMaquis interface is deprecated. It is advised to use the :program:`DMRGSCF` module for QCMaquis DMRG calculations.
 
-  For QCMaquis interface, this keyword is used standalone and activates the DMRG calculation with QCMaquis. It should then be followed by a :kword:`RGINPUT..ENDRG` block with parameters controlling the DMRG optimization settings in QCMaquis. This block is equivalent to the :kword:`DMRGSettings..EndDMRGSettings` block of the :program:`DMRGSCF` module (see :numref:`UG:sec:dmrgsettings_input:`).
+  For QCMaquis interface, this keyword is used standalone and activates the DMRG calculation with QCMaquis. In this case, the input should also contain :kword:`RGINPUT` block with parameters controlling the DMRG optimization settings in QCMaquis.
 
   For Block and CheMPS2 interfaces, it should be followed by an integer :math:`m`
   Specify maximum number of renormalized states in the DMRG calculation, also known as (virtual) bond dimension :math:`m` in each microiteration in DMRG calculations.
@@ -2245,6 +2245,52 @@ A list of these keywords is given below:
               DMRG flag:
               - for QCMaquis interface, activates the DMRG calculation
               - for Block and CheMPS2 interfaces, sets the number of renormalized states m
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`RGInput`
+
+  .. warning::
+
+    This block only works with QCMaquis DMRG interface.
+
+    Using :kword:`RGInput` with QCMaquis interface is deprecated. It is advised to use the :program:`DMRGSCF` module for QCMaquis DMRG calculations.
+
+  This block, terminated by :kword:`EndRG`, is mandatory and contains parameters to QCMaquis which control the DMRG wavefunction optimization. This block is equivalent to the
+  :kword:`DMRGSettings..EndDMRGSettings` block of the :program:`DMRGSCF` module (see :numref:`UG:sec:dmrgsettings_input:`).
+
+  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="RGINPUT" APPEAR="QCMaquis DMRG settings" KIND="BLOCK" LEVEL="BASIC">
+              <INCLUDE MODULE="DMRGSCF" EXCEPT="ACTIVESPACEOPTIMIZER,FIEDLER,CIDEAS,OOPTIMIZATIONSETTINGS,FCIDUMP,SOCCUPY,NEVPT2PREP" />
+              </GROUP>
+
+:kword:`SOCCupy`
+
+  .. warning::
+
+    This block only works with QCMaquis DMRG interface.
+
+  Initial electronic configuration for the calculated state(s). This keyword is equivalent to the :kword:`hf_occ` card in the **QCMaquis** input (see Table 8 of the QCMaquis_ manual), but allows input for multiple states. The occupation is inserted as a string (strings) of aliases of occupations of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty. For several states, the occupation strings for each state are separated by newlines.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SOCCUPY" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: soccupy <basic>
+              <HELP>
+              Set HF determinant start guess for MPS wave functions. (QCMaquis)
+              </HELP>
+              </KEYWORD>
+
+:kword:`NEVPT2prep`
+
+  .. warning::
+
+    This block only works with QCMaquis DMRG interface.
+
+  Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. Then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally or directly in the :program:`NEVPT2` program. More about external RDM evaluation in Section 6.3 of the QCMaquis_ manual.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NEVPT2PREP" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NEVPT2prep <basic>
+              <HELP>
+              Prepare input for higher-order RDM/TDM evaluation. (QCMaquis)
               </HELP>
               </KEYWORD>
 
