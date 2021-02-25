@@ -41,7 +41,9 @@
 *       M.P. Fuelscher, University of Lund, Sweden, 1996               *
 *                                                                      *
 ************************************************************************
+
       Implicit Real*8 (A-H,O-Z)
+
 
 #include "rasdim.fh"
 #include "rasscf.fh"

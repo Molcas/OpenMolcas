@@ -205,7 +205,7 @@ are listed below. The start and end of the OptimizationSettings input section is
 
   .. xmldoc:: <GROUP MODULE="DMRGSCF" NAME="OOPTIMIZATIONSETTINGS" APPEAR="Orbital optimization settings" KIND="BLOCK" LEVEL="BASIC">
 
-  .. xmldoc:: <INCLUDE MODULE="RASSCF" EXCEPT="VB,RGINPUT" />
+  .. xmldoc:: <INCLUDE MODULE="RASSCF" EXCEPT="VB" />
 
   .. xmldoc:: <KEYWORD MODULE="DMRGSCF" NAME="FCIDUMP" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: fcidump <basic>
@@ -337,7 +337,3 @@ for a small CAS(6,6) problem. ::
   EndOOptimizationSettings
 
 .. xmldoc:: </MODULE>
-
-.. xmldoc:: <MODULE NAME="NEVPT2">
-            <KEYWORD MODULE="NEVPT2" NAME="STATES" KIND="INT" LEVEL="UNDOCUMENTED" />
-            </MODULE>

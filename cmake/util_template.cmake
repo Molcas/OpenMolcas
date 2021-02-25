@@ -19,7 +19,7 @@
 # * Supports:
 #   - ${util}_defs with utility-specific compile definitions
 #   - ${util}_incs with utility-specific include directories
-#   - ${util}_deplibs with utility-specific dependencies
+#   - ${util}_deps with utility-specific dependencies
 # * Defines:
 #   - ${util}_src with the path for the source directory
 #   - ${util}_sources with all the non-module source files
@@ -64,8 +64,8 @@ endforeach ()
 add_Molcas_library (${util}_obj OBJECT ${sources})
 
 # dependencies
-if (DEFINED ${util}_deplibs)
-  add_dependencies(${util}_obj ${${util}_deplibs})
+if (DEFINED ${util}_deps)
+  add_dependencies(${util}_obj ${${util}_deps})
 endif()
 # utility-specific compile definitions
 if (DEFINED ${util}_defs)

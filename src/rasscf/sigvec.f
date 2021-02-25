@@ -23,7 +23,6 @@ C
       DIMENSION CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
      &          X(*),C(*)
       DIMENSION HD(*)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

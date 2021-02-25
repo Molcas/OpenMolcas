@@ -37,9 +37,7 @@ C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
 
-
       rc=0
-
 
       IF (TraOnly) THEN
 c
@@ -203,7 +201,6 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 
       EndIf
 
-
 C --- Reordering of the MOs coefficients to fit cholesky needs
       If(.not.DoLocK)Then
 
@@ -213,11 +210,13 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
         nOcs=0
         ioff1=0
         Do iSym=1,nSym
+
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
               POrb(1)%pA(iSym)%A(ikk,:) =
      &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
+
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
               POrb(3)%pA(iSym)%A(ikk,:) =
@@ -333,6 +332,7 @@ C ---  Decompose the active density  -----------------------------
       EndIf
 
       If (.not.DoLocK .and. DoActive) Then
+
 c --- reorder "Cholesky MOs" to Cva storage
 
         Call Allocate_CMO(POrb(2),nChM,nBas,nSym)
@@ -417,7 +417,6 @@ C ----------------------------------------------------------------
          Return
 
       ENDIF
-
 
       If (Allocated(POrb(3)%CMO_full)) Call Deallocate_CMO(POrb(3))
       If (Allocated(POrb(2)%CMO_full)) Call Deallocate_CMO(POrb(2))

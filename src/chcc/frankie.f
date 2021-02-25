@@ -192,7 +192,6 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
 #include "stdalloc.fh"
 
       integer isfreeunit
@@ -236,7 +235,6 @@ C ==================================================================
 
 c --- Various offsets & pointers
 c ------------------------------
-
 
       iLoc = 3 ! use scratch location in reduced index arrays
 

@@ -428,11 +428,12 @@ def test_custom(lines, keyword):
 
   elif (module == 'DMRGSCF'):
     if (name == 'SOCCUPY'):
-      ll = 1
+      ll = 0
       while (l+ll < len(lines)):
         try:
-          parts = fortran_split(lines[l+ll])
-          assert all([i in '0ud2' for i in parts])
+          parts = lines[l+ll].split()
+          for part in parts:
+            assert all([i in '0ud2,' for i in part])
           ll += 1
         except:
           break

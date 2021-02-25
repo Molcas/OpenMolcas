@@ -22,15 +22,12 @@
 ************************************************************************
 
       Subroutine RasScf_Init()
-
       Implicit Real*8 (A-H,O-Z)
       External Get_SuperName
       Character*100 ProgName, Get_SuperName
-
 #include "rasdim.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='RasScf_Init')
-
 #include "rasscf.fh"
 #include "casvb.fh"
 #include "general.fh"

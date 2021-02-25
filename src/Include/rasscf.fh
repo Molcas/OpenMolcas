@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
       REAL*8          D0,D1,D2,D4,HALF
       COMMON/DATA/    D0,D1,D2,D4,HALF
-*
+!
       INTEGER, PARAMETER :: ITRIM=mxAct*(mxAct+1)/2
-* TODO: The IODUMMY variable is unused, but removing it causes warnings/
-* errors about size mismatch of common blocks.
-      INTEGER         IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,
-     &                ITER,MAXIT,NROOTS,IROOT(mxRoot),NAC,
-     &                ITRI(ITRIM),IADR15(30),
+! TODO: The IODUMMY variable is unused, but removing it causes warnings/
+! errors about size mismatch of common blocks.
+      INTEGER         IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,       &
+     &                ITER,MAXIT,NROOTS,IROOT(mxRoot),NAC,              &
+     &                ITRI(ITRIM),IADR15(30),                           &
      &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE
       CHARACTER(LENIN8) NAME(mxOrb)
       CHARACTER(2) HEADER(72)
@@ -25,106 +25,106 @@
       CHARACTER(3) QNUPDT
       Character(16) KSDFT, KSDFT_TEMP
       Character(4) DFTFOCK
-      COMMON/INTAUX/  IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,
-     &                ITER,MAXIT,NROOTS,IROOT,NAC,
-     &                ITRI,NAME,HEADER,IADR15,
-     &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE,
+      COMMON/INTAUX/  IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,       &
+     &                ITER,MAXIT,NROOTS,IROOT,NAC,                      &
+     &                ITRI,NAME,HEADER,IADR15,                          &
+     &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE,                    &
      &                QNSTEP,QNUPDT, KSDFT, KSDFT_TEMP, DFTFOCK
-*
-      REAL*8          ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),
-     &                FDIAG(mxOrb),THRE,THRTE,THRSX,ROTMAX,
-     &                ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM,
-     &                THREN,THFACT,TMIN,PRETHR,PROTHR,
-     &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
-     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
+!
+      REAL*8          ENER(mxRoot,mxIter+2),CONV(6,mxIter+2),           &
+     &                FDIAG(mxOrb),THRE,THRTE,THRSX,ROTMAX,             &
+     &                ECAS,CMAX,WEIGHT(mxRoot),DE,CBLBM,                &
+     &                THREN,THFACT,TMIN,PRETHR,PROTHR,                  &
+     &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,          &
+     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,             &
      &                CoreShift
-      COMMON/RELAUX/  ENER,CONV,FDIAG,THRE,THRTE,THRSX,ROTMAX,
-     &                ECAS,CMAX,WEIGHT,DE,CBLBM,
-     &                THREN,THFACT,TMIN,PRETHR,PROTHR,
-     &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
-     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
+      COMMON/RELAUX/  ENER,CONV,FDIAG,THRE,THRTE,THRSX,ROTMAX,          &
+     &                ECAS,CMAX,WEIGHT,DE,CBLBM,                        &
+     &                THREN,THFACT,TMIN,PRETHR,PROTHR,                  &
+     &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,          &
+     &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,             &
      &                CoreShift
-*
-      INTEGER         LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM(4),MAXJT,
-     &                IXSYM(mxOrb),IPRSEC(7),MAXORBOUT,
-     &                ICI(mxRoot,mxRef),JCJ(mxRoot,mxRef),
-     &                NFR,NIN,NSEC,NTIT,NO2M,
-     &                NACPAR,NACPR2,ISTORD(9),NFINT,
-     &                NORBT,NTOT3,ISTORP(9),NTOT4,ICICP,
-     &                ITMAX,IPT2,ISPDEN,LOWMS,
-     &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
-     &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
+!
+      INTEGER         LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM(4),MAXJT,    &
+     &                IXSYM(mxOrb),IPRSEC(7),MAXORBOUT,                 &
+     &                ICI(mxRoot,mxRef),JCJ(mxRoot,mxRef),              &
+     &                NFR,NIN,NSEC,NTIT,NO2M,                           &
+     &                NACPAR,NACPR2,ISTORD(9),NFINT,                    &
+     &                NORBT,NTOT3,ISTORP(9),NTOT4,ICICP,                &
+     &                ITMAX,IPT2,ISPDEN,LOWMS,                          &
+     &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,          &
+     &                iRlxRoot,n_Det,iAlphaBeta,                        &
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,          &
      &                hRoots,n_keep,hfocc(mxact)
-      COMMON/INTINP/  LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM,MAXJT,
-     &                IXSYM,IPRSEC,MAXORBOUT,
-     &                ICI,JCJ,
-     &                NFR,NIN,NSEC,NTIT,NO2M,
-     &                NACPAR,NACPR2,ISTORD,NFINT,
-     &                NORBT,NTOT3,ISTORP,NTOT4,ICICP,
-     &                ITMAX,IPT2,ISPDEN,LOWMS,
-     &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,
-     &                iRlxRoot,n_Det,iAlphaBeta,
-     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
+      COMMON/INTINP/  LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM,MAXJT,       &
+     &                IXSYM,IPRSEC,MAXORBOUT,                           &
+     &                ICI,JCJ,                                          &
+     &                NFR,NIN,NSEC,NTIT,NO2M,                           &
+     &                NACPAR,NACPR2,ISTORD,NFINT,                       &
+     &                NORBT,NTOT3,ISTORP,NTOT4,ICICP,                   &
+     &                ITMAX,IPT2,ISPDEN,LOWMS,                          &
+     &                ISUPSM,IORDEM,IFORDE,IPCMROOT,ICIRFROOT,          &
+     &                iRlxRoot,n_Det,iAlphaBeta,                        &
+     &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,          &
      &                hRoots,n_keep,hfocc
-*
-      Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
-     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
+!
+      Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro      &
+     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,       &
      &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 
-      COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
-     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
+      COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro      &
+     &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,       &
      &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
-*
-      REAL*8          PRWTHR,POTNUC,CCI,
+!
+      REAL*8          PRWTHR,POTNUC,CCI,                                &
      &                ECAS1,RLXGRD,EVAC
       CHARACTER(80) TITLE(18)
-      COMMON/RELINP/  PRWTHR,POTNUC,CCI(mxRoot,mxRef),
+      COMMON/RELINP/  PRWTHR,POTNUC,CCI(mxRoot,mxRef),                  &
      &                TITLE,ECAS1,RLXGRD,EVAC
-*
+!
       Character(8)    IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
       COMMON/CHRINP/  IPHNAME,OutFmt1,OutFmt2,SXSEL,PURIFY
 
-*
+!
       INTEGER         iCIonly,NSM(mxOrb),KTIGHT
       COMMON/INTCI/   iCIonly,NSM,KTIGHT
-*
-      INTEGER         IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,
+!
+      INTEGER         IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
      &                ICMSIterMin
       Real*8          CMSThreshold
-      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,
+      COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
      &                ICMSIterMin,CMSThreshold
-*
+!
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S
-*
-      INTEGER         IBLB(8),JBLB(8),NSXS,
+!
+      INTEGER         IBLB(8),JBLB(8),NSXS,                             &
      &                NROOT,NDIMSX,IZROT(ITRIM),NewFock
-      COMMON/INTSX/   IBLB,JBLB,NSXS,
+      COMMON/INTSX/   IBLB,JBLB,NSXS,                                   &
      &                NROOT,NDIMSX,IZROT,NewFock
-*
+!
       REAL*8          CBLB(8),LVSHFT,ESX,SXSHFT
       COMMON/RELSX/   CBLB,LVSHFT,ESX,SXSHFT
-*
+!
       INTEGER         iClean,ipCleanMask
       Common/CLEANMO/ iClean,ipCleanMask
-*
+!
       INTEGER         iOrbTyp,iOrbOnly,iOrbRoot
       Common/RASCOMM/ iOrbTyp,iOrbOnly,iOrbRoot
-*
+!
       Character(8) FnJob,FnOrb
       Integer      LuJob,LuOrb
       Common/Files_rasscf/ FnJob,FnOrb,LuJob,LuOrb
-*
+!
       INTEGER         iToc(64)
       Common/TOC    / iToc
-*
+!
       INTEGER           iOverwr
       Common/TypeIndex/ iOverwr
-*
+!
       REAL*8          Acc,Bcc,Aoo,Boo,Avv,Bvv
       Common /DFTFCK/ Acc,Bcc,Aoo,Boo,Avv,Bvv
-*
+!
 
 #ifdef _DMRG_
       Logical          domcpdftDMRG, twordm_qcm
@@ -135,8 +135,8 @@
       REAL*8           davidson_tol,chemps2_blb,chemps2_noise
       INTEGER          max_sweep,chemps2_lrestart,max_canonical
       LOGICAL          chemps2_restart
-      Common /CHEMPS2/ davidson_tol,chemps2_blb,chemps2_noise,
-     &                 max_sweep,chemps2_lrestart,max_canonical,
+      Common /CHEMPS2/ davidson_tol,chemps2_blb,chemps2_noise,          &
+     &                 max_sweep,chemps2_lrestart,max_canonical,        &
      &                 chemps2_restart
 #endif
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_

@@ -272,7 +272,6 @@ c -----------------------------------
 
 C ==================================================================
 
-
       iLoc = 3 ! use scratch location in reduced index arrays
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
@@ -475,11 +474,11 @@ C --------------------------------------------------------------------
                      CALL CWTIME(TCM3,TWM3)
 
                      If (NApq.ne.0) Then
+
                       iE = iS - 1 + NApq*JNUM
                       Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
                       Do JVC=1,JNUM
-
 
                        CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
      &                            One,Lpb(iSymb)%A(:,JVC),NAp,
@@ -561,6 +560,7 @@ C --------------------------------------------------------------------
                            End Do
                            iOffB(iSymb)=iOffB(iSymb)+JNUM
                         EndIf
+
                         Lpq => Null()
 
                      EndIf

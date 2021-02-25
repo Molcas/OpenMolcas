@@ -34,6 +34,7 @@
 *     University of Lund, Sweden, 2000                                 *
 *                                                                      *
 ************************************************************************
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"

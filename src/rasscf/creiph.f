@@ -72,9 +72,7 @@ C                 orbital indices, setup by setsxci.
 C     IADR15(19)--IADR15(30): Presently unused.
 C     ********** IBM 3090 MOLCAS Release 90 02 22 **********
 C
-
       IMPLICIT REAL*8 (A-H,O-Z)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"

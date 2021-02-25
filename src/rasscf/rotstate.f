@@ -17,7 +17,6 @@
 * ****************************************************************
 #include "rasdim.fh"
 #include "rasscf.fh"
-
 #include "splitcas.fh"
 #include "general.fh"
 #include "gas.fh"

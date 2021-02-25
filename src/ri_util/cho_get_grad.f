@@ -148,7 +148,6 @@
 #endif
 #include "print.fh"
 #include "bdshell.fh"
-
       Logical add
       Character*6 mode
       Integer, External:: Cho_F2SP
@@ -171,7 +170,6 @@
 ** to store this offset array defined later on
 *
       iOffShp(i,j) = iiBstRSh(i,j,2)
-
 *                                                                      *
 ************************************************************************
 *                                                                      *

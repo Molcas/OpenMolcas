@@ -64,7 +64,6 @@ C     Deallocating Memory
 
 ******************************************************
       Subroutine CalcFckO(CMO,FI,FA,FckO)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -149,7 +148,6 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 
 ******************************************************
       Subroutine GetGDMat(GDMat)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -205,7 +203,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 
 ******************************************************
       Subroutine CalcFckS(FckO,GDMat,FckS)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

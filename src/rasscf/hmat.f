@@ -20,7 +20,6 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION C(*),HC(*),HH(*)
       DIMENSION HD(NDIM)
-
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"

@@ -10,10 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2018, Stefan Knecht                                    *
 !***********************************************************************
-  subroutine mpssi(iReturn)
+
+subroutine mpssi(iReturn)
 
 #ifdef _DMRG_
-  use rasscf_data, only: doDMRG
+use rasscf_data, only: doDMRG
 #endif
 use Definitions, only: iwp, u6
 
@@ -21,7 +22,7 @@ implicit none
 integer(kind=iwp), intent(out) :: iReturn
 ! ----------------------------------------------------------------------
 
-  !> set QCMaquis as default (actually the only possible) DMRG driver in RASSI
+!> set QCMaquis as default (actually the only possible) DMRG driver in RASSI
 #ifdef _DMRG_
 doDMRG = .true.
 #else

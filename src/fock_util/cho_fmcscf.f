@@ -45,6 +45,7 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) POrb(3)
+
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   iSkip(8)
       Integer   ISTLT(8)
@@ -126,7 +127,6 @@ c --------------------
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
       END DO
-
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -558,7 +558,6 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-
                       Do JVC=1,JNUM
 
                        ipLvb = ipLab(iSyma,3) + NAv*nBas(iSyma)*(JVC-1)
@@ -588,7 +587,6 @@ C --------------------------------------------------------------------
                      NAw = nAorb(iSymb) ! iSymb=iSymw
 
                      If(NAv*NAw.ne.0.and.iSymv.lt.iSymb)Then
-
 
                       Do JVC=1,JNUM
 
