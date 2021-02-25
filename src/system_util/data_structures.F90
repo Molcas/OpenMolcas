@@ -17,7 +17,7 @@
 Module Data_Structures
 Private
 Public:: CMO_Type, Allocate_CMO, Deallocate_CMO, Map_to_CMO
-Public:: Laq_Type, Allocate_Laq, Deallocate_Laq
+Public:: Laq_Type, Allocate_Laq, Deallocate_Laq, Map_to_Laq
 #include "stdalloc.fh"
 
 Type V2
@@ -200,5 +200,17 @@ Contains
 
   End Subroutine Deallocate_Laq
 
+  Subroutine Map_to_Laq(Adam,ipAdam)
+  Implicit None
+  Type (Laq_Type):: Adam
+  Integer ipAdam(*)
+  Integer, External:: ip_of_Work
+  Integer iSym
+
+  Do iSym=1, Adam%nSym
+     ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1,1))
+  End Do
+
+  End Subroutine Map_to_Laq
 
 End Module Data_Structures

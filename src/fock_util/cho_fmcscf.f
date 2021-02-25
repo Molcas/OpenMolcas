@@ -62,16 +62,18 @@ C
       Character(LEN=10), Parameter:: SECNAM = 'CHO_FMCSCF'
 #include "chotime.fh"
 
-      parameter (FactCI = 1.0D0)
-      parameter (FactCA = 1.0D0, FactXA = -0.5D0)
-      parameter (zero = 0.0D0, one = 1.0D0)
-
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Parameter:: FactCI = One, FactCA = One, FactXA = -Half
 
       Logical add
       Character*6 mode
+
+      Real*8, Allocatable:: Lrs(:,:)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -243,7 +245,7 @@ C ------------------------------------------------------------------
 
             EndIf
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/(nRS+mTvec),nVrs)
 
@@ -260,7 +262,7 @@ C ------------------------------------------------------------------
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
+            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
             Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
 
             If(JSYM.eq.1)Then
@@ -287,7 +289,7 @@ C --- BATCH over the vectors ----------------------------
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM) then
@@ -313,7 +315,7 @@ C==========================================================
                   ipVJ = ipChoT
 
                   CALL DGEMV_('T',nRS,JNUM,
-     &                 ONE,Work(ipLrs),nRS,
+     &                 ONE,Lrs,nRS,
      &                 Work(ipDab(1)),1,ZERO,Work(ipVJ),1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
@@ -322,7 +324,7 @@ C===============================================================
                   xfac = dble(min(jVec-iVrs,1))
 
                   CALL DGEMV_('N',nRS,JNUM,
-     &                 FactCI,Work(ipLrs),nRS,
+     &                 FactCI,Lrs,nRS,
      &                 Work(ipVJ),1,xfac,Work(ipFab(1)),1)
 
 
@@ -335,7 +337,7 @@ C --- U{#J} <- U{#J}  +  sum_rs  L(rs,{#J}) * DA(rs)
 C==========================================================
 C
                      CALL DGEMV_('T',nRS,JNUM,
-     &                          ONE,Work(ipLrs),nRS,
+     &                          ONE,Lrs,nRS,
      &                          Work(ipDab(2)),1,ZERO,Work(ipVJ),1)
 
 C --- FA(rs){#J} <- FA(rs){#J} + FactCA * sum_J L(rs,{#J})*U{#J}
@@ -344,7 +346,7 @@ C===============================================================
                      xfac = dble(min(jVec-iVrs,1))
 
                      CALL DGEMV_('N',nRS,JNUM,
-     &                          FactCA,Work(ipLrs),nRS,
+     &                          FactCA,Lrs,nRS,
      &                          Work(ipVJ),1,xfac,Work(ipFab(2)),1)
 
                   EndIf
@@ -397,7 +399,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                CALL CWTIME(TCR3,TWR3)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                         ipLab,iSkip,DoRead)
 
@@ -412,7 +414,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
        write(6,*) 'Mem pointers ipLab :  ',(ipLab(i,1),i=1,nSym)
        write(6,*) 'ipLxy :  ',(ipLxy(i),i=1,nSym)
        write(6,*) 'iSkip :        ',(iSkip(i),i=1,nSym)
-       write(6,*) 'LREAD: ',LREAD,' allocated at ',ipLrs
+       write(6,*) 'LREAD: ',LREAD,' allocated at ',ip_of_Work(Lrs)
        write(6,*) 'JRED :        ',JRED
        write(6,*) 'JSYM :        ',JSYM
        write(6,*) 'JNUM :        ',JNUM
@@ -471,7 +473,7 @@ C --------------------------------------------------------------------
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
 
-                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
@@ -537,7 +539,7 @@ C --------------------------------------------------------------------
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
@@ -645,7 +647,7 @@ c --- backtransform fock matrix in full storage
 
 C --- free memory
             Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lrs)
 
             if (JSYM.eq.1) then
                if(DoActive)then

@@ -171,6 +171,7 @@ C
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type, Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -349,10 +350,7 @@ C --- BATCH over the vectors ----------------------------
                tread(1) = tread(1) + (TCR2 - TCR1)
                tread(2) = tread(2) + (TWR2 - TWR1)
 
-               Do iSymp=1,nSym
-                  ipLpb(iSymp) =
-     &                ip_of_Work(Laq%pA(iSymp)%A(1,1,1))
-               End Do
+               Call Map_to_Laq(Laq,ipLpb)
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J

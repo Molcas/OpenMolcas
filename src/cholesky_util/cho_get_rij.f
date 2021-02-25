@@ -46,6 +46,7 @@
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type, Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (CMO_Type) MO
@@ -204,11 +205,7 @@ C --------------------------------------------------------------
          kMOs = 1
          nMOs = 1
 
-         Do kSym=1,nSym
-            ipLib(kSym)=
-     &          ip_of_Work(Laq%pA(kSym)%A(1,1,1))
-         End Do
-
+         Call Map_to_Laq(Laq,ipLib)
 
          CALL CWTIME(TCT1,TWT1)
 
