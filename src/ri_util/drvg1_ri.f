@@ -27,6 +27,7 @@
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: myRank, nProcs
       use ChoSwp, only: InfVec
+      use Data_Structures, only: Deallocate_CMO
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "disp.fh"
@@ -75,7 +76,7 @@
       ip_CilK    =ip_Dummy
       ip_BklK    =ip_Dummy
       ip_A       =ip_Dummy
-      ipAOrb(:,:)=ip_Dummy
+C     ipAOrb(:,:)=ip_Dummy
 
       ipijList   =ip_iDummy
       ipijListTri=ip_iDummy
@@ -443,8 +444,14 @@
       Case_3C=.False.
       If(Allocated(Txy))  Call mma_deallocate(Txy)
       If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
-      If (ipAOrb(0,1).ne.ip_Dummy)
-     &   Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
+*     If (ipAOrb(0,1).ne.ip_Dummy)
+*    &   Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
+      If (Allocated(AOrb)) Then
+         Do iADens = 1, nADens
+            Call Deallocate_CMO(AOrb(iADens))
+         End Do
+         deallocate(AOrb)
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

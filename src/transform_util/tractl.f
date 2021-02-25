@@ -43,6 +43,7 @@ c 98-09-02 J.Hasegawa Modified for non-squared integrals.
 #include "warnings.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "intgrl.fh"
 #include "SysDef.fh"
 #include "trafo.fh"
@@ -50,6 +51,7 @@ c 98-09-02 J.Hasegawa Modified for non-squared integrals.
       Logical iSquar
       Logical DoCholesky
 
+      Real*8, Allocatable:: W1(:)
       IFTEST=.FALSE.
 #ifdef _DEBUGPRINT_
       IfTest=.True.
@@ -153,7 +155,7 @@ c Allocate largest possible array as work space:
         Write(6,*)
      &  ' -------------------------------------------------------------'
       End If
-      CALL GETMEM('LW1','MAX','REAL',LW1,MEMX)
+      Call mma_maxDBLE(MEMX)
       MEMX=MAX(MEMX-1*MEMX/6,0)
 
 C --- Reserve space for Integral generation from Cholesky vectors
@@ -163,7 +165,8 @@ C --- Reserve space for Integral generation from Cholesky vectors
          write(6,*)'Memx= ',MEMX
       End If
 C -----------------------------------------------------------------
-      CALL GETMEM('LW1','ALLO','REAL',LW1,MEMX)
+      Call mma_allocate(W1,MEMX,Label='W1')
+      LW1=1
       NCHAIN=0
       LMOP1=1
       ITP=0
@@ -250,8 +253,6 @@ C
      &            NOCP,NOCQ,NOCR,NOCS
           End If
 
-CPAM      MEMX=MXMEM
-CPAM      LW1=1
 cJHsta
           Mxx1=max(lBuf,NOP*NBQ,NBP*NOCQ,NOCP*NBQ)
           Mxx2=max(NBR*NBS,NBP*NBQ,NOP*NOR,NOP*NOS,NOQ*NOR,NOQ*NOS)
@@ -353,12 +354,12 @@ C XLPQRS, XMEMT not used after this.
           If (iSquar)then
 *            TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
              Call tr2Sq(Work(LCMO),
-     &                  Work(LW1),
-     &                  Work(LW2),
-     &                  Work(LW3),
-     &                  Work(LW4),
-     &                  Work(LW5),
-     &                  Work(LW6),lBuf)
+     &                  W1(LW1),
+     &                  W1(LW2),
+     &                  W1(LW3),
+     &                  W1(LW4),
+     &                  W1(LW5),
+     &                  W1(LW6),lBuf)
           Else
 *            tr2NsA(CMO,X1,X2,X3,pqUs,pqrU,pqTU,lBuf)
 c          LW2=LW1+Mxx1
@@ -381,29 +382,29 @@ c          LW6=LW5+LRUPQ
 
              LTUPQ=LTUPQX
              Call tr2NsA1(Work(LCMO),
-     &                   Work(LW1),LW2-LW1,
-     &                   Work(LW2),LW3-LW2,
-     &                   Work(LW3),LW4-LW3,
-     &                   Work(LW4),LW5-LW4,
-     &                   Work(LW5),LW6-LW5,
-     &                   Work(LW6),MEMX-(LW6-LW1),lBuf)
+     &                   W1(LW1),LW2-LW1,
+     &                   W1(LW2),LW3-LW2,
+     &                   W1(LW3),LW4-LW3,
+     &                   W1(LW4),LW5-LW4,
+     &                   W1(LW5),LW6-LW5,
+     &                   W1(LW6),MEMX-(LW6-LW1),lBuf)
              Call tr2NsA2(Work(LCMO),
-     &                   Work(LW1),LW2-LW1,
-     &                   Work(LW2),LW3-LW2,
-     &                   Work(LW5),LW6-LW5,
-     &                   Work(LW6),MEMX-(LW6-LW1))
+     &                   W1(LW1),LW2-LW1,
+     &                   W1(LW2),LW3-LW2,
+     &                   W1(LW5),LW6-LW5,
+     &                   W1(LW6),MEMX-(LW6-LW1))
              Call tr2NsA3(Work(LCMO),
-     &                   Work(LW1),LW2-LW1,
-     &                   Work(LW2),LW3-LW2,
-     &                   Work(LW4),LW5-LW4,
-     &                   Work(LW5),MEMX-(LW5-LW1))
+     &                   W1(LW1),LW2-LW1,
+     &                   W1(LW2),LW3-LW2,
+     &                   W1(LW4),LW5-LW4,
+     &                   W1(LW5),MEMX-(LW5-LW1))
 *            tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
              LTUPQ=LTURS
              Call tr2NsB(Work(LCMO),
-     &                   Work(LW1),
-     &                   Work(LW2B),
-     &                   Work(LW3B),
-     &                   Work(LW4B),lBuf,MaxRS)
+     &                   W1(LW1),
+     &                   W1(LW2B),
+     &                   W1(LW3B),
+     &                   W1(LW4B),lBuf,MaxRS)
           End If
   101     CONTINUE
          END DO
@@ -414,7 +415,7 @@ c          LW6=LW5+LRUPQ
        Write(6,*)
      & ' --------------------------------------------------------------'
       End If
-      CALL GETMEM('LW1','FREE','REAL',LW1,MEMX)
+      Call mma_deallocate(W1)
 C
 C     FINALLY WRITE OUT THE DAFILE ADDRESS LIST ON UNIT 13
 C

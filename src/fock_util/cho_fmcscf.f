@@ -12,8 +12,7 @@
 ************************************************************************
 
       SUBROUTINE CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
-     &                      ipPorb,ipDI,ipDA1,DoActive,ipChM,nChM,ipInt,
-     &                      ExFac)
+     &                      ipDI,ipDA1,DoActive,POrb,nChM,ipInt,ExFac)
 
 **********************************************************************
 *  Author : F. Aquilante
@@ -42,15 +41,17 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
 
+      Type (CMO_Type) POrb(3)
+
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
-      Integer   ipOrb(8,3),nOrb(8,3)
-      Integer   ISTAQ(8),iSkip(8)
-      Integer   ISTLT(8),ISTCH(8)
+      Integer   iSkip(8)
+      Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
       Integer   ipDA1,ipDI
-      Integer   ipPorb,ipFA,ipFI
+      Integer   ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -58,8 +59,7 @@ C
 #endif
       Logical   DoRead,DoTraInt,DoActive
       Character*50 CFmt
-      Character*10 SECNAM
-      Parameter (SECNAM = 'CHO_FMCSCF')
+      Character(LEN=10), Parameter:: SECNAM = 'CHO_FMCSCF'
 #include "chotime.fh"
 
       parameter (FactCI = 1.0D0)
@@ -122,34 +122,11 @@ C ==================================================================
 
 c --- Various offsets
 c --------------------
-        ISTAQ(1)=0
-        ISTLT(1)=0
-        ISTCH(1)=0
+      ISTLT(1)=0
       DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-        NP=NPORB(ISYM-1)
-        NP2=NB*NP
-        NCH=NB*NCHM(ISYM-1)
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
-! Inactive and Active D and F matrices
-        ISTAQ(ISYM)=ISTAQ(ISYM-1)+NP2 ! MOs coefficients
-        ISTCH(ISYM)=ISTCH(ISYM-1)+NCH ! "Cholesky MOs"
       END DO
-
-      Do iSym=1,nSym        ! MOs to feed in cho_x_getvtra
-
-         ipOrb(iSym,1) = ipPorb + ISTAQ(iSym)
-         nOrb(iSym,1)  = nForb(iSym)+nIorb(iSym)
-
-         ipOrb(iSym,2) = ipChM + ISTCH(iSym)
-         nOrb(iSym,2)  = nChM(iSym)
-
-         ipOrb(iSym,3) = ipPorb + ISTAQ(iSym)
-     &                 + nOrb(iSym,1)*nBas(iSym)
-         nOrb(iSym,3)  = nAorb(iSym)
-
-      End Do
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -421,7 +398,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
                CALL CWTIME(TCR3,TWR3)
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                         ipLab,iSkip,DoRead)
 
 
@@ -495,7 +472,7 @@ C --------------------------------------------------------------------
                   nMOs = 2
 
                   CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -561,7 +538,7 @@ C --------------------------------------------------------------------
                nMOs = 3  ! Active MOs
 
                CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
-     &                            JSYM,iSwap,IREDC,nMOs,kMOs,ipOrb,nOrb,
+     &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
 
@@ -581,9 +558,6 @@ C --------------------------------------------------------------------
 
                      If(NAv.ne.0)Then
 
-                      NK   = nForb(iSyma) + nIorb(iSyma)
-                      ISMO = ipPorb + ISTAQ(iSyma) + NK*nBas(iSyma)
-
                       Do JVC=1,JNUM
 
                        ipLvb = ipLab(iSyma,3) + NAv*nBas(iSyma)*(JVC-1)
@@ -591,7 +565,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,nBas(iSyma),
      &                                One,Work(ipLvb),NAv,
-     &                                    Work(ISMO),NAv,
+     &                                    POrb(3)%pA(iSyma)%A,NAv,
      &                               Zero,Work(ipLvw),NAv)
 
                       End Do
@@ -614,9 +588,6 @@ C --------------------------------------------------------------------
 
                      If(NAv*NAw.ne.0.and.iSymv.lt.iSymb)Then
 
-                      NK = nForb(iSymb) + nIorb(iSymb)
-                      ISMO = ipPorb + ISTAQ(iSymb) + NK*nBas(iSymb)
-
                       Do JVC=1,JNUM
 
                        ipLvb = ipLab(iSymv,3) + NAv*nBas(iSymb)*(JVC-1)
@@ -624,7 +595,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,nBas(iSymb),
      &                            One,Work(ipLvb),NAv,
-     &                                Work(ISMO),NAw,
+     &                                POrb(3)%pA(iSymb)%A,NAw,
      &                           Zero,Work(ipLvw),NAv)
 
                       End Do

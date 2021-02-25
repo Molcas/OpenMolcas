@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
-      Subroutine MkL3(iSymA,iSymI,iI, numV, LyType,iJy, iAddLx0, SameLx)
+      Subroutine MkL3(iSymA,iSymI,iI, numV, LyType,iJy, AddLx0, SameLx)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -19,23 +19,22 @@
 * Purpuse:  Generation of the Cholesky matrix of Secondary(iSymA) for  *
 *           occupied iI(iSymI) for numV vectors.                       *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
-#include "rasdim.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-#include "cho_tra.fh"
+      Integer iSymA,iSymI,iI, numV, LyType,iJy
+      Real*8 AddLx0(*)
       Logical SameLx
+#include "rasdim.fh"
+#include "SysDef.fh"
 
 *     Build Lx
       If (iI.LE.nIsh(iSymI)) then
         LxType = 3
         iIx = iI
-        nIx = nIsh(iSymI)
       else
         LxType = 5
         iIx = iI - nIsh(iSymI)
-        nIx = nAsh(iSymI)
       EndIf
 
       If (.NOT.SameLx) then
@@ -49,11 +48,12 @@
         EndIf
       EndIf
 
-      iAddLx  = iAddLx0
-      iAddTCVX= iMemTCVX(LxType,iSymA,iSymI,1)+nSsh(iSymA)*(iIx-1)
+      iAddLx  = 1
+      iAddTCVX= 1+nSsh(iSymA)*(iIx-1)
       Do iV=1,numV
-        Call dCopy_(nSsh(iSymA),Work(iAddTCVX),1,Work(iAddLx),1)
-        iAddTCVX= iAddTCVX +  nSsh(iSymA) * nIx
+        Call dCopy_(nSsh(iSymA),
+     &              TCVX(LxType,iSymA,iSymI)%A(iAddTCVX,iV),1,
+     &              AddLx0(iAddLx),1)
         iAddLx  = iAddLx + nSsh(iSymA)
       EndDo
 
