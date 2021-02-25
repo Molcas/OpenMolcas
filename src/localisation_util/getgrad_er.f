@@ -20,18 +20,20 @@ C              The R matrix is computed as R(i,j) = (ij|jj).
 C
 C     Note: symmetry is NOT allowed (but is not tested!).
 C
+      use Data_structures, only: CMO_type
+      use Data_structures, only: Allocate_CMO, Deallocate_CMO
       Implicit Real*8 (a-h,o-z)
       Real*8  R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
       Logical Timing
-#include "WrkSpc.fh"
 
-      Character*10 SecNam
-      Parameter (SecNam = 'GetGrad_ER')
+      Character(LEN=10), Parameter:: SecNam = 'GetGrad_ER'
 
       Character*80 Txt
 
-      Parameter (nSym = 1)
-      Integer nOcc(nSym), ipCMO(nSym)
+      Integer, Parameter:: nSym = 1
+      Integer nOcc(nSym)
+
+      Type (CMO_Type) CMOt
 
 C     Initialization.
 C     ---------------
@@ -43,11 +45,9 @@ C     ---------------
 C     Transpose CMO (only the part to be localised).
 C     ----------------------------------------------
 
-      lCMO = nOrb2Loc*nBasis
-      Call GetMem('CMO_T','Allo','Real',ipCMO(1),lCMO)
-      ip0 = ipCMO(1) - 1
+      Call Allocate_CMO(CMOt,[nOrb2Loc],[nBasis],nSym)
       Do i = 1,nOrb2Loc
-         Call dCopy_(nBasis,CMO(1,i),1,Work(ip0+i),nOrb2Loc)
+         CMOt%pA(1)%A(i,:) = CMO(:,i)
       End Do
 
 C     Compute R.
@@ -55,13 +55,13 @@ C     ----------
 
       nOcc(1) = nOrb2Loc
       irc = -1
-      Call Cho_Get_Rij(irc,ipCMO,nOcc,R,Timing)
+      Call Cho_Get_Rij(irc,CMOt,nOcc,R,Timing)
       If (irc .ne. 0) Then
          Write(Txt,'(A,I6)') 'Cho_Get_Rij returned',irc
          Call SysAbendMsg(SecNam,'Calculation of ER gradient failed:',
      &                    Txt)
       End If
-      Call GetMem('CMO_T','Free','Real',ipCMO(1),lCMO)
+      Call Deallocate_CMO(CMOt)
 
 C     Compute gradient norm and functional.
 C     -------------------------------------

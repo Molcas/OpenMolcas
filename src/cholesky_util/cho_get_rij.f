@@ -36,17 +36,19 @@
 *> Requires initialization of the Cholesky information.
 *>
 *> @param[out]    irc     Return code
-*> @param[in]     ipMO    Pointers to each symmetry block of the MO matrix, stored as \p C(k,a)
+*> @param[in]     MO      type CMO_type of block of the MO matrix, stored as \p C(k,a)
 *> @param[in]     nOcc    Number of orbitals to be localized in each symmetry
 *> @param[in,out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
 *> @param[in]     timings Switch on/off timings printout
 ************************************************************************
-      SUBROUTINE CHO_get_Rij(irc,ipMO,nOcc,Rij,timings)
+      SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
+      use Data_Structures, only: CMO_Type
       Implicit Real*8 (a-h,o-z)
       Integer irc
-      Integer ipMO(*), nOcc(*)
+      Type (CMO_Type) MO
+      Integer nOcc(*)
       Real*8  Rij(*)
       Logical timings
 
@@ -211,7 +213,7 @@ C --------------------------------------------------------------
          CALL CWTIME(TCT1,TWT1)
 
          CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
-     &                         JSYM,iSwap,IREDC,nMOs,kMOs,ipMO,nOcc,
+     &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,
      &                         ipLib,iSkip,DoRead)
 
                if (irc.ne.0) then
@@ -239,7 +241,7 @@ C ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
      &                            One,Work(ipLib(kSym)),nOcc(kSym)*JNUM,
-     &                                Work(ipMO(kSym)),nOcc(kSym),
+     &                                MO%pA(kSym)%A,nOcc(kSym),
      &                           Zero,Lab(ipLij),nOcc(kSym)*JNUM)
 
 

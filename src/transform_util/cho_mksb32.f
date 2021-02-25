@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2005, Giovanni Ghigo                                   *
 ************************************************************************
-      Subroutine MkExSB32(iAddSB,LenSB,
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV, iAddSBt,LenSBt)
+      Subroutine MkExSB32(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV,
+     &                    AddSBt)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -20,49 +20,52 @@
 * Purpuse:  Generation of the SubBlock(3,2) (p,q secondary,active) of  *
 *           two-electron integral matrix for each i,j occupied couple. *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Real*8, Allocatable:: AddSB(:)
+      Integer iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV
+      Real*8 AddSBt(*)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
       Logical SameLx
+
+      Real*8, Allocatable:: Lx0(:), Ly0(:)
 
 *   - SubBlock 3 2
       LenSB = nSsh(iSymA) * nAsh(iSymB)
-      Call GetMem('SB','Allo','Real',iAddSB,LenSB)
+      Call mma_allocate(AddSB,LenSB,Label='AddSB')
       If (iSymA.EQ.iSymB .and. iSymI.EQ.iSymJ .and. iI.EQ.iJ) then
 *       SB 3,2 = (SB 2,3)+
-        Call Trnsps(nSsh(iSymB),nAsh(iSymA),Work(iAddSBt),Work(iAddSB))
+        Call Trnsps(nSsh(iSymB),nAsh(iSymA),AddSBt,AddSB)
         Return
       EndIf
 
 *     Build Lx
-      Call GetMem('Lx','Allo','Real',iAddLx0,nSsh(iSymA)*numV)
+      Call mma_allocate(Lx0,nSsh(iSymA)*numV,Label='Lx0')
       LxType=0
       iIx=0
       SameLx=.False.
-      Call MkL3(iSymA,iSymI,iI,numV, LxType,iIx, iAddLx0,SameLx)
+      Call MkL3(iSymA,iSymI,iI,numV, LxType,iIx, Lx0,SameLx)
 
 *     Build Ly
-      Call GetMem('Ly','Allo','Real',iAddLy0,nAsh(iSymB)*numV)
-      Call MkL2(iSymB,iSymJ,iJ,numV, LxType,iIx, iAddLy0,SameLx)
+      Call mma_allocate(Ly0,nAsh(iSymB)*numV,Label='Ly0')
+      Call MkL2(iSymB,iSymJ,iJ,numV, LxType,iIx, Ly0,SameLx)
 
 *     Generate the SubBlock
-      Call DGEMM_('N','T',nAsh(iSymB),nSsh(iSymA),numV,1.0d0,
-     &    Work(iAddLy0),nAsh(iSymB), Work(iAddLx0),nSsh(iSymA),
-     &                     0.0d0,Work(iAddSB),nAsh(iSymB) )
+      Call DGEMM_('N','T',nAsh(iSymB),nSsh(iSymA),numV,
+     &            1.0d0,Ly0,nAsh(iSymB),
+     &                  Lx0,nSsh(iSymA),
+     &            0.0d0,AddSB,nAsh(iSymB) )
 
-      Call GetMem('Ly','Free','Real',iAddLy0,nAsh(iSymB)*numV)
-      Call GetMem('Lx','Free','Real',iAddLx0,nSsh(iSymA)*numV)
+      Call mma_deallocate(Ly0)
+      Call mma_deallocate(Lx0)
 
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(LenSBt)
       End
 
-      Subroutine MkCouSB32(iAddSB,LenSB,
-     &     iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
+      Subroutine MkCouSB32(AddSB,iSymI,iSymJ,iSymA,iSymB, iI,iJ, numV)
 ************************************************************************
 * Author :  Giovanni Ghigo                                             *
 *           Lund University, Sweden & Torino University, Italy         *
@@ -71,42 +74,46 @@ c Avoid unused argument warnings
 * Purpuse:  Generation of the SubBlock(3,2) (p secondary, q active) of *
 *           two-electron integral matrix for each i,j occupied couple. *
 ************************************************************************
+      use Cho_Tra
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+      Real*8, Allocatable:: AddSB(:)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
-#include "cho_tra.fh"
+
+      Real*8, Allocatable:: Lij(:)
+      Real*8, Allocatable:: AddSBt(:)
 
 *   - SubBlock 3 2
       LenSB = nSsh(iSymA) * nAsh(iSymB)
-      Call GetMem('SB','Allo','Real',iAddSB,LenSB)
-      Call GetMem('SBt','Allo','Real',iAddSBt,LenSB)
+      Call mma_allocate(AddSB,LenSB,Label='AddSB')
+
+      Call mma_allocate(AddSBt,LenSB,Label='AddSBt')
 
 *     Define Lab
-      iAddAB = iMemTCVX(5,iSymA,iSymB,1)
       LenAB  = LenSB
 CGG   ------------------------------------------------------------------
 c      If(IfTest) then
 c      Write(6,*)'     MkCouSB32: TCVE(',iSymA,',',iSymB,')'
-c      Write(6,'(8F10.6)')(Work(iAddAB+k),k=0,LenAB*numV-1)
+c      Write(6,'(8F10.6)')TCVX(5,iSymA,iSymB)%A(:,:)
 c      Call XFlush(6)
 c      EndIf
 CGG   ------------------------------------------------------------------
 
 *     Build Lij
-      LenLij = numV
-      Call GetMem('Lij','Allo','Real',iAddLij,LenLij)
-      Call MkLij(iSymI,iSymJ,iI,iJ,numV, iAddLij)
+      Call mma_allocate(Lij,NumV,Label='Lij')
+      Call MkLij(iSymI,iSymJ,iI,iJ,numV,Lij)
 
 *     Generate the SubBlock
-      Call DGEMM_('N','N',LenAB,1,numV,1.0d0,
-     &    Work(iAddAB),LenAB, Work(iAddLij),LenLij,
-     &                0.0d0,Work(iAddSBt),LenSB )
-      Call Trnsps(nSsh(iSymA),nAsh(iSymB),Work(iAddSBt),Work(iAddSB))
+      Call DGEMM_('N','N',LenAB,1,numV,
+     &            1.0d0,TCVX(5,iSymA,iSymB)%A,LenAB,
+     &                  Lij,NumV,
+     &            0.0d0,AddSBt,LenSB )
+      Call Trnsps(nSsh(iSymA),nAsh(iSymB),AddSBt,AddSB)
 
-      Call GetMem('Lij','Free','Real',iAddLij,LenLij)
-      Call GetMem('SBt','Free','Real',iAddSBt,LenSB)
+      Call mma_deallocate(Lij)
+      Call mma_deallocate(AddSBt)
 
       Return
       End

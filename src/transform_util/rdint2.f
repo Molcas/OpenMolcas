@@ -51,9 +51,10 @@ C     THE LAST ADRESS IS ZERO IF SYM T = SYM U
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "trafo.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
 
+      Real*8, Allocatable:: Tmp(:)
       Dimension IAD2M(3*36*36)
       Logical DoTCVA
       Logical Found
@@ -203,10 +204,10 @@ C     FOLLOWING LOOP STRUCTURE IS USED:
             IF (IADC.NE.0) THEN
              LInt=LInt+LREC
              If (IPRX.GT.0. and. IPRX.LT.3) then
-              Call GetMem('Tmp','ALLO','REAL',iTmp,LREC)
-              CALL dDAFILE(LUINTM,2,WORK(iTmp),LREC,IAD13C)
-          WRITE(6,1300) NI,NJ,IAD13C-LREC,(WORK(I),I=iTmp,iTmp+LREC-1)
-              Call GetMem('Tmp','FREE','REAL',iTmp,LREC)
+              Call mma_allocate(Tmp,LREC,Label='Tmp')
+              CALL dDAFILE(LUINTM,2,Tmp,LREC,IAD13C)
+          WRITE(6,1300) NI,NJ,IAD13C-LREC,(Tmp(I),I=1,LREC)
+              Call mma_deallocate(Tmp)
 1300          FORMAT(/1X,'<AB|IJ> COULOMB INTEGR.S FOR |ij> PAIR',2I3,
      &      '  DiskAdd=',I8  /(8F10.6))
              EndIf
@@ -221,10 +222,10 @@ C      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
             IF (IADX1.NE.0) THEN
              LEx1=LEx1+LRECX
              If (IPRX.GT.1) then
-              Call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
-              CALL dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD131)
-          WRITE(6,1310) NI,NJ,IAD131-LRECX,(WORK(I),I=iTmp,iTmp+LRECX-1)
-              Call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
+              Call mma_allocate(Tmp,LRECX,Label='Tmp')
+              CALL dDAFILE(LUINTM,2,Tmp,LRECX,IAD131)
+          WRITE(6,1310) NI,NJ,IAD131-LRECX,(Tmp(I),I=1,LRECX)
+              Call mma_deallocate(Tmp)
 1310          FORMAT(/1X,'EXCHAN1 INTEGRALS FOR |ij> PAIR',2I3,
      &      '  DiskAdd=',I8  /(8F10.6))
              EndIf
@@ -233,10 +234,10 @@ C      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
             IF (IADX2.NE.0) THEN
              LEx2=LEx2+LRECX
              If (IPRX.GT.1) then
-              Call GetMem('Tmp','ALLO','REAL',iTmp,LRECX)
-              CALL dDAFILE(LUINTM,2,WORK(iTmp),LRECX,IAD132)
-          WRITE(6,1320) NI,NJ,IAD132-LRECX,(WORK(I),I=iTmp,iTmp+LRECX-1)
-              Call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
+              Call mma_allocate(Tmp,LRECX,Label='Tmp')
+              CALL dDAFILE(LUINTM,2,Tmp,LRECX,IAD132)
+          WRITE(6,1320) NI,NJ,IAD132-LRECX,(Tmp(I),I=1,LRECX)
+              Call mma_deallocate(Tmp)
 1320          FORMAT(/1X,'EXCHAN2 INTEGRALS FOR |ij> PAIR',2I3,
      &      '  DiskAdd=',I8  /(8F10.6))
              EndIf

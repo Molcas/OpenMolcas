@@ -14,7 +14,7 @@
       SUBROUTINE CHO_GET_GRAD(irc,nDen,
      &                        ipDLT,ipDLT2,ipMSQ,
      &                        Txy,nTxy,ipTxy,DoExchange,lSA,
-     &                        nChOrb_,ipAorb,nAorb,DoCAS,
+     &                        nChOrb_,AOrb,nAorb,DoCAS,
      &                        Estimate,Update,
      &                        V_k,nV_k,
      &                        U_k,
@@ -68,9 +68,6 @@
 *                                                                      *
 *         nChOrb_ : array of nr. of Cholesky orbitals in each irrep    *
 *                                                                      *
-*         ipAorb : array of pointers to the active orbitals of each    *
-*                  irrep. The storage MUST BE of type C(v,b)           *
-*                                                                      *
 *         nAorb : array with # of Active orbitals in each irrep        *
 *                 (The same orbital basis                              *
 *                 in which the 2-body Dmat is expressed)               *
@@ -109,15 +106,18 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: CMO_Type
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
+      Type (CMO_Type) AOrb(*)
+
       Logical   DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
-      Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
+      Integer   ipMSQ(nDen),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), ipLxy(8), iSkip(8)
       Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
@@ -150,8 +150,7 @@
 #include "bdshell.fh"
       Logical add
       Character*6 mode
-      Integer  Cho_F2SP
-      External Cho_F2SP
+      Integer, External:: Cho_F2SP
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -171,18 +170,6 @@
 ** to store this offset array defined later on
 *
       iOffShp(i,j) = iiBstRSh(i,j,2)
-
-*
-** Jonas 2010
-** Thomas Bondo Pedersen, 2013:
-**   Usage of these statement functions has been commented out below,
-**   hence I comment them out here, too.
-*
-ctbp  ijList(iSym,jSym,i,j,jDen,jDen2) = ipijList +
-ctbp &                        iChOrbR(iSym,jSym,jDen) +
-ctbp &                        i + (j-1)*(nChOrb_(iSym,jDen2)+1)
-ctbp  ijListTri(iSym,i,j,jDen) = ipijListTri + iChOrbT(iSym,jDen) +
-ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1537,8 +1524,7 @@ C --- subtraction is done in the 1st reduced set
 
                      CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
-     &                             ipAorb(1,iMO1),nAorb,ipLpq,iSkip,
-     &                             DoRead)
+     &                             Aorb(iMO1),ipLpq,iSkip,DoRead)
 
                      if (irc.ne.0) then
                         RETURN
@@ -1566,7 +1552,7 @@ C --- subtraction is done in the 1st reduced set
 
                              CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
      &                                  One,Work(ipLvb),NAv,
-     &                                      Work(ipAorb(iSymb,iMO2)),
+     &                                      Aorb(iMO2)%pA(iSymb)%A,
      &                                 NAv,Zero,Work(ipLvw),NAv)
 
                             End Do
@@ -1592,7 +1578,7 @@ C --- subtraction is done in the 1st reduced set
 
                              CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                                  One,Work(ipLvb),NAv,
-     &                                      Work(ipAorb(iSymb,iMO2)),
+     &                                      Aorb(iMO2)%pA(iSymb)%A,
      &                                 NAw,Zero,Work(ipLvw),NAv)
 
                             End Do

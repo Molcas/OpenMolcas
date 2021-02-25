@@ -44,7 +44,7 @@ C
       Real*8    tscrn(2),tmotr(2)
       Real*8    FactCI,FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   ipPLT(nDen),ipFLT(nDen),ipKLT(nDen)
-      Integer   ipPorb(nDen), ipDIAH(1)
+      Integer   ipPorb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -62,6 +62,7 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "warnings.fh"
       Logical add
       Character*6 mode
@@ -69,10 +70,15 @@ C
       External Cho_F2SP
 
       Real*8 LKThr
-      Real*8   Cho_LK_ScreeningThreshold
-      External Cho_LK_ScreeningThreshold
-      Integer  Cho_LK_MaxVecPerBatch
-      External Cho_LK_MaxVecPerBatch
+      Real*8, External:: Cho_LK_ScreeningThreshold
+      Integer, External:: Cho_LK_MaxVecPerBatch
+      Integer, External:: ip_of_Work
+
+      Real*8, Allocatable:: Diag(:), DiaH(:)
+      Integer, Allocatable:: iShp_rs(:)
+#if defined (_MOLCAS_MPP_)
+      Real*8, Allocatable:: jDiag(:)
+#endif
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -84,8 +90,6 @@ C
       ipLab(i) = iWork(ip_Lab+i-1)
 ******
       kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
-******
-      iShp_rs(i) = iWork(ip_iShp_rs+i-1)
 ******
       SvShp(i) = Work(ip_SvShp+i-1)
 ****** next is a trick to save memory. Memory in "location 2" is used
@@ -202,7 +206,8 @@ C --- Vector MO transformation screening thresholds
       thrv(1) = ( sqrt(LKThr/(Max(1,nT1)*NumVT)) )*fcorr
       thrv(2) = ( sqrt(LKThr/(Max(1,nT2)*NumVT)) )*fcorr
 
-      CALL GETMEM('diagI','Allo','Real',ipDIAG,NNBSTRT(1))
+      CALL mma_allocate(DIAG,NNBSTRT(1),Label='DIAG')
+      DIAG(:)=0.0D0
 
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par()) Then
@@ -210,17 +215,17 @@ C --- Vector MO transformation screening thresholds
          Do i=1,nSym
             NNBSTMX = Max(NNBSTMX,NNBSTR(i,1))
          End Do
-         CALL GETMEM('diagJ','Allo','Real',ipjDIAG,NNBSTMX)
-         Call FZero(Work(ipjDIAG),NNBSTMX)
+         Call mma_allocate(jDiag,NNBSTMX,Label='jDiag')
+         jDiag(:)=0.0D0
       EndIf
 #endif
 
 C *************** Read the diagonal integrals (stored as 1st red set)
-      If (Update) CALL CHO_IODIAG(Work(ipDIAG),2) ! 2 means "read"
+      If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-      CALL GETMEM('diahI','Allo','Real',ipDIAH(1),NNBSQ)
-      CALL FZERO(Work(ipDIAH(1)),NNBSQ)
+      CALL mma_allocate(DIAH,NNBSQ,Label='DiaH')
+      DiaH(:)=0.0D0
 
 c --- allocate memory for the abs(C(l)[k])
       Call GetMem('absc','Allo','Real',ipAbs,MaxB)
@@ -249,7 +254,7 @@ c --- allocate memory for nnBfShp
       Call GetMem('ip_nnBfShp','Allo','Inte',ip_nnBfShp,nnShl_tot*nSym)
 
 c --- allocate memory for iShp_rs
-      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_allocate(iShp_rs,nnShl_tot,Label='iShp_rs')
 
 c --- allocate memory for the shell-pair Frobenius norm of the vectors
       Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
@@ -335,7 +340,7 @@ C *** Mapping shell pairs from the full to the reduced set
       Do iaSh=1,nShell
          Do ibSh=1,iaSh
             iShp = iaSh*(iaSh-1)/2 + ibSh
-            iWork(ip_iShp_rs+iShp-1) = Cho_F2SP(iShp)
+            iShp_rs(iShp) = Cho_F2SP(iShp)
          End Do
       End Do
 
@@ -551,7 +556,7 @@ C --- Estimate the diagonals :   D(a,b) = sum_J (Lab,J)^2
 C
                If (Estimate) Then
 
-                  Call Fzero(Work(ipDiag+iiBstR(jSym,1)),NNBSTR(jSym,1))
+                  Call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
 
                   Do krs=1,nRS
 
@@ -562,8 +567,7 @@ C
 
                         ipL = ipLrs + nRS*(jvc-1)
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                  + Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) + Work(ipL+krs-1)**2
 
                      End Do
 
@@ -591,7 +595,7 @@ C *** and blocked in shell pairs
 
                CALL CHO_getShFull(Work(ipLrs),lread,JNUM,JSYM,
      &                            IREDC,ipLF,Work(ip_SvShp),
-     &                            iWork(ip_iShp_rs))
+     &                            iShp_rs)
 
 
                CALL CWTIME(TCX2,TWX2)
@@ -611,8 +615,10 @@ c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    add  = .false.
                    nMat = 1
+                   ipDIAG = ip_of_Work(DIAG(1))
+                   ipDIAH = ip_of_Work(DIAH(1))
                    Call play_sto(irc,ired1,nMat,JSYM,ISTLT,ISSQ,
-     &                               ipDIAH,ipDIAG,mode,add)
+     &                               [ipDIAH],ipDIAG,mode,add)
 
 
                   CALL CWTIME(TCS2,TWS2)
@@ -648,7 +654,7 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                        ipDIH = ipDIAH(1) + ISSQ(lSym,kSym)
+                        ipDIH = 1 + ISSQ(lSym,kSym)
 
                         Do ik=0,nBas(kSym)-1
                            Work(ipAbs+ik) = abs(Work(ipMO+ik))
@@ -661,7 +667,7 @@ C===============================================================
                            nBs = Max(1,nBas(lSym))
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,Work(ipDIH),nBs,
+     &                                ONE,DiaH(ipDIH),nBs,
      &                                    Work(ipAbs),1,
      &                               ZERO,Work(ipYk),1)
 
@@ -672,12 +678,12 @@ C===============================================================
                            nBs = Max(1,nBas(kSym))
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,Work(ipDIH),nBs,
+     &                                ONE,DiaH(ipDIH),nBs,
      &                                    Work(ipAbs),1,
      &                               ZERO,Work(ipYk),1)
 
                         EndIf
-c            Call recprt('DH','',Work(ipDIH),nBas(lSym),nBas(kSym))
+c            Call recprt('DH','',DiaH(ipDIH),nBas(lSym),nBas(kSym))
 c            write(6,*)'Y(k)= ',(Work(ipYk+i-1),i=1,nBas(lSym))
 c            write(6,*)'|C(k)|= ',(Work(ipAbs+i-1),i=1,nBas(kSym))
 
@@ -1223,8 +1229,7 @@ C --- subtraction is done in the 1st reduced set
                      Do jvc=1,JNUM
 
                         ipL = ipLrs + nRS*(jvc-1)
-                        Work(ipjDiag+jrs-1) = Work(ipjDiag+jrs-1)
-     &                                      + Work(ipL+krs-1)**2
+                        jDiag(jrs) = jDiag(jrs) + Work(ipL+krs-1)**2
                      End Do
 
                    End Do
@@ -1239,8 +1244,7 @@ C --- subtraction is done in the 1st reduced set
                      Do jvc=1,JNUM
 
                         ipL = ipLrs + nRS*(jvc-1)
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     - Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) - Work(ipL+krs-1)**2
                      End Do
 
                    End Do
@@ -1256,8 +1260,7 @@ C --- subtraction is done in the 1st reduced set
                      Do jvc=1,JNUM
 
                         ipL = ipLrs + nRS*(jvc-1)
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     - Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) - Work(ipL+krs-1)**2
                      End Do
 
                   End Do
@@ -1268,6 +1271,7 @@ C --- subtraction is done in the 1st reduced set
                   tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
                EndIf
+*              Call RecPrt('Diag',' ',Diag,1,SIZE(Diag))
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
@@ -1308,10 +1312,10 @@ C --- Screening control section
 #if defined (_MOLCAS_MPP_)
             If (nProcs.gt.1 .and. Update .and. DoScreen
      &          .and. Is_Real_Par()) Then
-               Call GaDsum(Work(ipjDiag),nnBSTR(JSYM,1))
-               Call Daxpy_(nnBSTR(JSYM,1),xone,Work(ipjDiag),1,
-     &                    Work(ipDiag+iiBstR(JSYM,1)),1)
-               Call Fzero(Work(ipjDiag),nnBSTR(JSYM,1))
+               Call GaDsum(jDiag,nnBSTR(JSYM,1))
+               Call Daxpy_(nnBSTR(JSYM,1),xone,jDiag,1,
+     &                    Diag(1+iiBstR(JSYM,1)),1)
+               Call Fzero(jDiag,nnBSTR(JSYM,1))
             EndIf
 C--- Need to activate the screening to setup the contributing shell
 C--- indeces the first time the loop is entered .OR. whenever other nodes
@@ -1408,7 +1412,7 @@ c ---------------
 
       CALL GETMEM('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
       Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
-      Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_deallocate(iShp_rs)
       Call GetMem('ip_nnBfShp','Free','Inte',ip_nnBfShp,nnShl_tot*nSym)
       Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
       Call GetMem('ip_Lab','Free','Inte',ip_Lab,nShell)
@@ -1417,12 +1421,12 @@ c ---------------
       Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
       Call GetMem('yc','Free','Real',ipY,MaxB*nnO)
       Call GetMem('absc','Free','Real',ipAbs,MaxB)
-      CALL GETMEM('diahI','Free','Real',ipDIAH(1),NNBSQ)
+      Call mma_deallocate(DiaH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
-     &    CALL GETMEM('diagJ','Free','Real',ipjDIAG,NNBSTMX)
+     &    CALL mma_deallocate(jDIAG)
 #endif
-      CALL GETMEM('diagI','Free','Real',ipDIAG,NNBSTRT(1))
+      Call mma_deallocate(Diag)
 
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
