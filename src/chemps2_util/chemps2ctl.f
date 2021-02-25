@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2016, Sebastian Wouters                                *
-*               2016, Quan Phung                                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2016, Sebastian Wouters                                *
+!               2016, Quan Phung                                       *
+!***********************************************************************
 ! CheMPS2-Molcas main interface
 ! Based on Block interface, written by N. Nakatani
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
@@ -53,16 +53,16 @@
       Parameter (ROUTINE='CHEMPS2CTL')
 
 ! Quan: FIXME: Do we need this?
-* Load symmetry info from RunFile
+! Load symmetry info from RunFile
       iOper = 0
       Call Get_iScalar('NSYM',nIrrep)
       Call Get_iArray('Symmetry operations',iOper,nIrrep)
       Call Get_iScalar('Rotational Symmetry Number',iSigma)
 
-* Get character table to convert MOLPRO symmetry format
-      Call MOLPRO_ChTab_BIS(nSym,Label,iChMolpro)
+! Get character table to convert MOLPRO symmetry format
+      Call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
-* Convert orbital symmetry into MOLPRO format
+! Convert orbital symmetry into MOLPRO format
       Call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
       iOrb=1
       Do iSym=1,nSym
@@ -77,29 +77,29 @@
       If (NACTEL.EQ.1) NRDM_ORDER=1
 
 
-**********************
-*  WRITEOUT FCIDUMP  *
-**********************
+!*********************
+!  WRITEOUT FCIDUMP  *
+!*********************
 
       LINSIZE = ( NAC * ( NAC + 1 ) ) / 2
       NUM_TEI = ( LINSIZE * ( LINSIZE + 1 ) ) / 2
-      Call FCIDUMP_OUTPUT( NAC, NACTEL, ISPIN-1,
-     &                     lSymMolpro, iWork(lOrbSym),
-     &                     0.0d0, LW1, TUVX,
+      Call FCIDUMP_OUTPUT( NAC, NACTEL, ISPIN-1,                        &
+     &                     lSymMolpro, iWork(lOrbSym),                  &
+     &                     0.0d0, LW1, TUVX,                            &
      &                     LINSIZE, NUM_TEI )
 
 
       Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
 
-**************************
-*  WRITEOUT ACTIVE FOCK  *
-**************************
+!*************************
+!  WRITEOUT ACTIVE FOCK  *
+!*************************
 
 !      Write(6,*) "Currently the Fock matrix is printed in fckpt2.f"
 
-*************************
-*  WRITEOUT INPUT FILE  *
-*************************
+!************************
+!  WRITEOUT INPUT FILE  *
+!************************
 
 #ifdef _MOLCAS_MPP_
       if ( KING() .OR. .not.Is_Real_Par() ) then
@@ -155,11 +155,11 @@
       write(LUCHEMIN,'(1X,A13,I2)') 'EXCITATION = ', lRoots-1
       write(LUCHEMIN,*)
 
-      IF ((ABS(CBLBM)>chemps2_blb .AND. IFINAL.NE.2) .OR.
-     &   (IRST.EQ.0 .AND. (chemps2_restart.EQV..FALSE.)) .OR.
-     &   (IFINAL.EQ.2 .AND. (Do3RDM.EQV..TRUE.)
-     &                .AND. (chemps2_lrestart.EQ.0)) .OR.
-     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2
+      IF ((ABS(CBLBM)>chemps2_blb .AND. IFINAL.NE.2) .OR.               &
+     &   (IRST.EQ.0 .AND. (chemps2_restart.EQV..FALSE.)) .OR.           &
+     &   (IFINAL.EQ.2 .AND. (Do3RDM.EQV..TRUE.)                         &
+     &                .AND. (chemps2_lrestart.EQ.0)) .OR.               &
+     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2                                &
      &                .AND. (chemps2_lrestart.EQ.0))) THEN
 
             call c_remove("molcas_fiedler.txt")
@@ -208,10 +208,10 @@
           if (dtemp .GE. MxDMRG) then
            if (IFINAL.EQ.2) then
              if (Do3RDM .OR. (iOrbTyp.EQ.2)) THEN
-              write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','
+              write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','             &
      &                                   , max_canonical
              else
-              write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','
+              write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','             &
      &                                   , max_sweep*5
              endif
            else
@@ -251,39 +251,39 @@
 
       ELSE
 ! DMRG restart with fixed orbital order
-        IF ((ABS(CBLBM)>chemps2_blb/10.0 .AND. IFINAL.NE.2) .OR.
+        IF ((ABS(CBLBM)>chemps2_blb/10.0 .AND. IFINAL.NE.2) .OR.        &
      &   (IRST.EQ.0 .AND. (chemps2_restart.EQV..TRUE.))) THEN
-          write(6,*) 'CHEMPS2> Partial restart DMRG ',
+          write(6,*) 'CHEMPS2> Partial restart DMRG ',                  &
      &                  'from previous step'
 
           write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_STATES       = '
           write(LUCHEMIN,'(I7,A2,I7)') MxDMRG, ',', MxDMRG
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_ENERGY_CONV  = '
           write(LUCHEMIN,'(E12.5,A3,E12.5)') THRE*5.0, ',', THRE/2.0
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_MAX_SWEEPS   = '
           if (IFINAL.EQ.2) then
              if (Do3RDM .OR. (iOrbTyp.EQ.2)) THEN
-               write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','
+               write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','            &
      &                                    , max_canonical
              else
-               write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','
+               write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ','            &
      &                                    , max_sweep*5
              endif
           else
             write(LUCHEMIN,'(I7,A3,I7)') max_sweep/2, ',', max_sweep
           endif
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_NOISE_PREFAC = '
           write(LUCHEMIN,'(E12.5,A10)') chemps2_noise, ' ,   0.00'
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_DVDSON_RTOL  = '
           write(LUCHEMIN,'(A9,E12.5)') '1.0e-4 ,', davidson_tol
           write(LUCHEMIN,*)
@@ -291,15 +291,15 @@
 !          write(6,*) 'Full Restart'
           write(6,*) 'CHEMPS2> Fully restart DMRG from previous step'
           write(LUCHEMIN,*) 'MOLCAS_MPS     = TRUE'
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_STATES       = '
           write(LUCHEMIN,'(I7)') MxDMRG
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_ENERGY_CONV  = '
           write(LUCHEMIN,'(E12.5)') THRE/2.0
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_MAX_SWEEPS   = '
           if (IFINAL.EQ.2 .OR. (IFINAL.EQ.1 .AND. iCIonly.EQ.1)) then
             if (IFINAL.EQ.2 .AND. (Do3RDM .OR. (iOrbTyp.EQ.2))) THEN
@@ -311,11 +311,11 @@
             write(LUCHEMIN,'(I7)') max_sweep
           endif
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_NOISE_PREFAC = '
           write(LUCHEMIN,'(A16)') '   0.00'
 
-          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')
+          write(LUCHEMIN,'(1X,A21)',ADVANCE='NO')                       &
      &                                      'SWEEP_DVDSON_RTOL  = '
           write(LUCHEMIN,'(E12.5)') davidson_tol
           write(LUCHEMIN,*)
@@ -335,7 +335,7 @@
         activesize( conversion( iChMolpro( iSym ) ) ) = NASH( iSym )
       end do
       do nooctemp=1,NSYM-1
-        write(LUCHEMIN,'(I3,A2)',ADVANCE='NO')
+        write(LUCHEMIN,'(I3,A2)',ADVANCE='NO')                          &
      &                        activesize(nooctemp), ' ,'
       enddo
       write(LUCHEMIN,'(I3)')  activesize(NSYM)
@@ -382,10 +382,10 @@
 #endif
 
 ! Quan: overwrite CheMPS2_xxxorb_MPSX.h5 to CheMPS2_MPSX.h5
-         if (
-     &   (IFINAL.EQ.2 .AND. Do3RDM
-     &                .AND. (chemps2_lrestart>0)) .OR.
-     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2
+         if (                                                           &
+     &   (IFINAL.EQ.2 .AND. Do3RDM                                      &
+     &                .AND. (chemps2_lrestart>0)) .OR.                  &
+     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2                                &
      &                .AND. (chemps2_lrestart>0))) THEN
            if (chemps2_lrestart.EQ.1) then
              write(6,*) 'CHEMPS2> Using user-supplied checkpoint files'
@@ -399,7 +399,7 @@
            endif
 
            if (chemps2_lrestart.EQ.2) then
-             write(6,*) 'CHEMPS2> Using checkpoint files from',
+             write(6,*) 'CHEMPS2> Using checkpoint files from',         &
      &                   ' previous step (not recommended)'
              call fcopy('CHEMNATFIE','CHEMFIE',iErr)
              do chemroot=1,lroots
@@ -412,10 +412,10 @@
          endif
 
 ! Quan: save CANORB before actually calculating
-         if (
-     &   (IFINAL.EQ.2 .AND. Do3RDM
-     &                ) .OR.
-     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2
+         if (                                                           &
+     &   (IFINAL.EQ.2 .AND. Do3RDM                                      &
+     &                ) .OR.                                            &
+     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2                                &
      &                )) THEN
             write(6,*) 'CHEMPS2> Save CANORB'
 ! Quan: FIXME: Bug!
@@ -440,10 +440,10 @@
          endif
 
 ! Quan: save canorb checkpoint file if possible
-         if (
-     &   (IFINAL.EQ.2 .AND. Do3RDM
-     &                ) .OR.
-     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2
+         if (                                                           &
+     &   (IFINAL.EQ.2 .AND. Do3RDM                                      &
+     &                ) .OR.                                            &
+     &   (IFINAL.EQ.2 .AND. iOrbTyp.EQ.2                                &
      &                )) THEN
 
            write(6,*) 'CHEMPS2> Save canorb checkpoint files'
@@ -472,17 +472,17 @@
       end if
 
 !Quan: FIXME: softlink all the n-RDM files
-      if ( Is_Real_Par().AND.( KING().EQV..false. ) )
+      if ( Is_Real_Par().AND.( KING().EQV..false. ) )                   &
      &  then
         do chemroot=1,lroots
           write(rootindex,"(I2)") chemroot-1
-          imp1="ln -sf ../molcas_2rdm.h5.r"//
+          imp1="ln -sf ../molcas_2rdm.h5.r"//                           &
      &           trim(adjustl(rootindex))//" ."
           call systemf(imp1,iErr)
-          imp1="ln -sf ../molcas_3rdm.h5.r"//
+          imp1="ln -sf ../molcas_3rdm.h5.r"//                           &
      &           trim(adjustl(rootindex))//" ."
           call systemf(imp1,iErr)
-          imp1="ln -sf ../molcas_f4rdm.h5.r"//
+          imp1="ln -sf ../molcas_f4rdm.h5.r"//                          &
      &           trim(adjustl(rootindex))//" ."
           call systemf(imp1,iErr)
           imp1="ln -sf ../CheMPS2_natorb_MPS0.h5 ."
@@ -499,12 +499,12 @@
 #endif
 
 !Quan: a very dirty way to extract the total energy
-       call systemf(
-     & 'grep "***  2-RDM" -B 5 chemps2.log | grep "all instructions" '//
+       call systemf(                                                    &
+     & 'grep "***  2-RDM" -B 5 chemps2.log | grep "all instructions" '//&
      & '| cut -c 61- > chemps2_totale_4d', iErr)
 
 !Quan: fix bug E(FCI) != E(CASSCF)
-      call systemf(
+      call systemf(                                                     &
      & 'grep "Econst" chemps2.log | cut -c 39- > chemps2_totale', iErr)
 
       LUTOTE = isFreeUnit(30)
@@ -521,10 +521,10 @@
       call molcas_open(LUTOTE,'chemps2_totale_4d')
       do chemroot=1,lroots
         read(LUTOTE,*) chemps2_totale_4d
-        revdiff = abs(chemps2_totale_4d -
+        revdiff = abs(chemps2_totale_4d -                               &
      &                  ENER(chemroot,ITER))/chemps2_totale_4d
         if (revdiff > 1.0D-9) then
-          write(6,*) 'CHEMPS2> large (E(4m) - E(m))/E(4m) = ',
+          write(6,*) 'CHEMPS2> large (E(4m) - E(m))/E(4m) = ',          &
      &      revdiff, 'for root', chemroot, ', consider increasing m!'
         endif
       enddo
@@ -534,8 +534,8 @@
 !Quan: check chemps2 convergence
       write (rootindex, "(I2)") lroots+9
       imp1=""
-      imp1="grep ""***  2-RDM"" -B "//trim(adjustl(rootindex))//
-     & " chemps2.log | grep ""Energy difference"""//
+      imp1="grep ""***  2-RDM"" -B "//trim(adjustl(rootindex))//        &
+     & " chemps2.log | grep ""Energy difference"""//                    &
      & " | cut -c 69- > chemps2_conv"
       call systemf(imp1,iErr)
 
@@ -543,17 +543,17 @@
       call molcas_open(LUCONV,'chemps2_conv')
       do chemroot=1,lroots
          read(LUCONV,*) chemps2_conv
-         write(6,'(1X,A14,I3,A30,E10.2)') 'CHEMPS2> Root ', chemroot,
+         write(6,'(1X,A14,I3,A30,E10.2)') 'CHEMPS2> Root ', chemroot,   &
      &              ' :: DMRG energy convergence : ', chemps2_conv
          if (abs(chemps2_conv) > THRE/2.0) then
-            write(6,*) 'CHEMPS2> DMRG not converged, ',
+            write(6,*) 'CHEMPS2> DMRG not converged, ',                 &
      &                 'consider increasing MXSWeep'
          endif
       enddo
       close(LUCONV)
 
 !Quan: check if CheMPS2 finished without error
-      imp1="grep ""Info on DMRG"" chemps2.log | "//
+      imp1="grep ""Info on DMRG"" chemps2.log | "//                     &
      &       "cut -c 43- > chemps2_info"
       call systemf(imp1,iErr)
 

@@ -21,7 +21,7 @@ subroutine upacknod(ibuf,idx,ival,nin,nbit,lbuf)
 use Definitions, only: iwp, DefInt
 
 implicit none
-integer(kind=iwp), intent(in) :: ibuf(lbuf), idx, nin, nbit, lbuf
+integer(kind=iwp), intent(in) :: lbuf, ibuf(lbuf), idx, nin, nbit
 integer(kind=iwp), intent(out) :: ival
 integer(kind=iwp) :: isp, ngrp, nidbit, nimod
 
