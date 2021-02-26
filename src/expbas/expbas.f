@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Bjorn O. Roos                                    *
-*               2008, Valera Veryazov                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Bjorn O. Roos                                    *
+!               2008, Valera Veryazov                                  *
+!***********************************************************************
       subroutine expbas(ireturn)
       use info_expbas_mod
-************************************************************************
-*                                                                      *
-*     Objective: Expand MOs to larger basis set                        *
-*                                                                      *
-*     B. O. Roos, University of Lund, April 2008.                      *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Objective: Expand MOs to larger basis set                        *
+!                                                                      *
+!     B. O. Roos, University of Lund, April 2008.                      *
+!                                                                      *
+!***********************************************************************
       Implicit real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
       integer, intent(out) :: ireturn
-      Dimension nBas1(mxsym),nBas2(mxsym),Occ1(maxbfn),Eorb1(maxbfn),
+      Dimension nBas1(mxsym),nBas2(mxsym),Occ1(maxbfn),Eorb1(maxbfn),   &
      &          Occ2(maxbfn),Eorb2(maxbfn)
       Integer indt1(maxbfn),indt2(maxbfn),Indtype(56)
       Character*(LENIN8) Bas1(maxbfn),Bas2(maxbfn)
       Character*80 VecTit
       Character*512 FName
       Logical Exist_1,Exist_2,okay
-*----------------------------------------------------------------------*
-*     Start program and say Hello                                      *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-*     Read information from Runfile 1                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start program and say Hello                                      *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read information from Runfile 1                                  *
+!----------------------------------------------------------------------*
       FName='RUNFIL1'
       iLen=mylen(FName)
       Call f_Inquire(FName(:iLen),Exist_1)
@@ -54,9 +54,9 @@
          nTot1=nTot1+nBas1(iSym)**2
       End Do
       Call Get_cArray('Unique Basis Names',Bas1,(LENIN8)*nDim1)
-*----------------------------------------------------------------------*
-*     Read information from Runfile 2                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read information from Runfile 2                                  *
+!----------------------------------------------------------------------*
       FName='RUNFIL2'
       iLen=mylen(FName)
       Call f_Inquire(FName(:iLen),Exist_2)
@@ -74,9 +74,9 @@
          ntot2=ntot2+nBas2(iSym)**2
       End Do
       Call Get_cArray('Unique Basis Names',Bas2,(LENIN8)*nDim2)
-*----------------------------------------------------------------------*
-*     Read MO coefficients from a formatted vector file                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read MO coefficients from a formatted vector file                *
+!----------------------------------------------------------------------*
       Call GetMem('CMO1','Allo','Real',ipCMO1,nTot1)
       Call GetMem('CMO2','Allo','Real',ipCMO2,nTot2)
       FName=EB_FileOrb
@@ -85,17 +85,17 @@
       call f_Inquire (FName(:iLen),okay)
       If ( okay ) Then
         LuInpOrb=50
-        Call RdVec(FName(:iLen),LuInpOrb,'COEI',
+        Call RdVec(FName(:iLen),LuInpOrb,'COEI',                        &
      &  nSym1,nBas1,nBas1,Work(ipCMO1),Occ1,Eorb1,indt1,VecTit,1,iErr)
       Else
         Write (6,*) 'RdCMO: Error finding MO file'
         Call Abend()
       End If
 
-*----------------------------------------------------------------------*
-*     Print and check input information                                *
-*----------------------------------------------------------------------*
-*      Write(6,910) 'Start of option expand.'
+!----------------------------------------------------------------------*
+!     Print and check input information                                *
+!----------------------------------------------------------------------*
+!      Write(6,910) 'Start of option expand.'
   910 Format(/1x,A)
       Write(6,1000) Vectit(:mylen(Vectit))
  1000 Format(/1x,'Header on input orbitals file:'/A)
@@ -103,11 +103,11 @@
       Write(6,920) 'Number of symmetries',nSym1
   920 Format(1x,A30,8i5)
       Write(6,920) 'Number of basis functions',(nBas1(i),i=1,nSym1)
-C
+!
       Write(6,910) 'Information from expanded basis set runfile'
       Write(6,920) 'Number of symmetries',nSym2
       Write(6,920) 'Number of basis functions',(nBas2(i),i=1,nSym2)
-C     Check for inconsistensies:
+!     Check for inconsistensies:
       If(nSym1.ne.nSym2) then
        write(6,*) 'Symmetries are not equal. Stop here',nSym1, nSym2
        Call Abend()
@@ -115,14 +115,14 @@ C     Check for inconsistensies:
       Do isym=1,nSym1
        if(nBas1(isym).gt.nBas2(isym)) then
         write(6,*) 'Second basis set must be larger than first'
-        write(6,*) 'not fulfilled in sym',isym,'basis functions are',
+        write(6,*) 'not fulfilled in sym',isym,'basis functions are',   &
      &  nBas1(isym),nBas2(isym)
         Call Abend()
        Endif
       Enddo
-*----------------------------------------------------------------------*
-*     Build the new orbitals                                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Build the new orbitals                                           *
+!----------------------------------------------------------------------*
       ist1=0
       ist2=0
       ib1=1
@@ -131,8 +131,8 @@ C     Check for inconsistensies:
        nb1=nBas1(isym)
        nb2=nBas2(isym)
        If(nb2.gt.0) then
-        call expandbas(Bas1(ib1),nb1,Bas2(ib2),nb2,
-     & Work(ist1+ipCMO1),Work(ist2+ipCMO2),occ1(ib1),eorb1(ib1),
+        call expandbas(Bas1(ib1),nb1,Bas2(ib2),nb2,                     &
+     & Work(ist1+ipCMO1),Work(ist2+ipCMO2),occ1(ib1),eorb1(ib1),        &
      & indt1(ib1),occ2(ib2),eorb2(ib2),indt2(ib2))
         ist1=ist1+nb1**2
         ist2=ist2+nb2**2
@@ -140,11 +140,11 @@ C     Check for inconsistensies:
         ib2=ib2+nb2
        Endif
       Enddo
-*----------------------------------------------------------------------*
-*     Write the new orbitals in to the file EXPORB                     *
-*----------------------------------------------------------------------*
-C     First resort indt to standard
-C
+!----------------------------------------------------------------------*
+!     Write the new orbitals in to the file EXPORB                     *
+!----------------------------------------------------------------------*
+!     First resort indt to standard
+!
       Do i=1,56
        Indtype(i)=0
       Enddo
@@ -160,18 +160,18 @@ C
        Endif
        ishift=ishift+7
       Enddo
-C
+!
       VecTit='Basis set expanded orbital file EXPORB'
       Lu_=60
-      Call WRVEC('EXPORB',LU_,'COEI',nSym2,nBas2,nBas2,Work(ipCMO2),
+      Call WRVEC('EXPORB',LU_,'COEI',nSym2,nBas2,nBas2,Work(ipCMO2),    &
      & occ2,eorb2,Indtype,VecTit)
       Write(6,*)'New orbitals have been built in file EXPORB'
-*----------------------------------------------------------------------*
-*     Normal termination                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Normal termination                                               *
+!----------------------------------------------------------------------*
       Call GetMem('CMO1','Free','Real',ipCMO1,nTot2)
       Call GetMem('CMO2','Free','Real',ipCMO2,nTot2)
-*
+!
       ireturn=0
       return
       End

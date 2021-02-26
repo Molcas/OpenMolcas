@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Giovanni Li Manni                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Giovanni Li Manni                                      *
+!***********************************************************************
       Subroutine Readinp_expbas()
       use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
-c
-c     Author: G. Li Manni (University of Geneva)
-c
+!
+!     Author: G. Li Manni (University of Geneva)
+!
       Implicit Real*8(a-h,o-z)
       Character*180  Line, Blank, key, Get_Ln
       External Get_Ln
-c
-c Initial values
-c
+!
+! Initial values
+!
       DoExpbas = .true.
       DoDesy   = .false.
       EB_FileOrb  = ' '
-c
+!
       LuSpool=18
       LuSpool=isFreeUnit(LuSpool)
       Call SpoolInp(LuSpool)
@@ -34,7 +34,7 @@ c
       Blank=' '
 
   999 Continue
-*      Read(LuSpool,'(A)',End=9940) Line
+!      Read(LuSpool,'(A)',End=9940) Line
       key =Get_Ln(LuSpool)
       Call LeftAd(key)
       Line = key
@@ -49,27 +49,27 @@ c
       Call FindErrorLine
       Call Quit_OnUserError()
 
-*========= NOEX =============
+!========= NOEX =============
  1000 Continue
       DoExpbas = .false.
       Go To 999
 
-*========= DESY =============
+!========= DESY =============
  2000 Continue
       DoDesy   = .true.
       Go To 999
 
-*========= FILE =============
+!========= FILE =============
  3000 Continue
       Line=Get_Ln(LuSpool)
       Call FileOrb(Line,EB_FileOrb)
       Go To 999
 
-c
-c END of Input
-c
+!
+! END of Input
+!
 
-c9940  Continue
+!9940  Continue
       WRITE(6,*)' READIN: Premature end of file when reading selected'
       CALL ABEND()
 

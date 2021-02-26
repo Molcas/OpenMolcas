@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine expandbas(Bas1,Nbas1,Bas2,Nbas2,Orb1,Orb2,occ1,eorb1,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine expandbas(Bas1,Nbas1,Bas2,Nbas2,Orb1,Orb2,occ1,eorb1,  &
      &                  indt1,occ2,eorb2,indt2)
-C
-C     This subroutine expands the MOs for a given symmetry
-C     Orb1 are the input orbitals of dimension Nbas1*bas1 (file INPORB)
-C     Orb2 are the output orbitals of dimension Nbas2*bas2 (file EXPORB)
-C     Bas1 and Bas2 are the basis set specifications for the old and
-C     new basis, respectively. They have dimensions Nbas1 and Nbas2.
-C
-C
+!
+!     This subroutine expands the MOs for a given symmetry
+!     Orb1 are the input orbitals of dimension Nbas1*bas1 (file INPORB)
+!     Orb2 are the output orbitals of dimension Nbas2*bas2 (file EXPORB)
+!     Bas1 and Bas2 are the basis set specifications for the old and
+!     new basis, respectively. They have dimensions Nbas1 and Nbas2.
+!
+!
       Implicit real*8 (a-h,o-z)
 #include "Molcas.fh"
       Character*(LENIN8) Bas1(*),Bas2(*)
       Integer indt1(*),indt2(*)
-      Dimension Orb1(*),Orb2(*),Izero(Nbas2),occ1(*),eorb1(*),
+      Dimension Orb1(*),Orb2(*),Izero(Nbas2),occ1(*),eorb1(*),          &
      &          occ2(*),eorb2(*)
-C
-C     Loop through the new basis labels and compare with the old.
-C     If they are equal copy orbital coefficients
-C     If not, add zeros until they fit again
-C
+!
+!     Loop through the new basis labels and compare with the old.
+!     If they are equal copy orbital coefficients
+!     If not, add zeros until they fit again
+!
       Nzero=0
       Ibas2=1
       If(Nbas1.eq.0) go to 200
@@ -56,9 +56,9 @@ C
       Endif
       If(Ibas1.le.Nbas1) go to 100
   200 Continue
-C
-C     Add zeros at the end of each basis function
-C
+!
+!     Add zeros at the end of each basis function
+!
       If(Ibas2.le.Nbas2) then
        Do i=Ibas2,Nbas2
         Nzero=Nzero+1
@@ -70,9 +70,9 @@ C
         Enddo
        Enddo
       Endif
-C
-C     Add new basis functions at the end and expand occ, eorb, and indt
-C
+!
+!     Add new basis functions at the end and expand occ, eorb, and indt
+!
       If(nBas1.ne.0) then
        Do imo=1,nBas1
         occ2(imo)=occ1(imo)
