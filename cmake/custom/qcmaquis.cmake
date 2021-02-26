@@ -47,7 +47,7 @@ set(OPENMOLCAS_TOOLS_DIR ${CMAKE_BINARY_DIR}/Tools/qcmaquis)
 if(SINGLE_MOD_DIR)
   set(mod_dir ${MAIN_MOD_DIR}/_single)
 else()
-  set(mod_dir ${MAIN_MOD_DIR}/qcmaquis)
+  set(mod_dir ${MAIN_MOD_DIR}) # making a subdirectory for qcmaquis dirs doesn't work
 endif()
 set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 

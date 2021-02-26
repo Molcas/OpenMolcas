@@ -1912,7 +1912,6 @@ if (DMRG)
   endforeach ()
 
   message ("Enabled QCMaquis DMRG support.")
-  message ("-- QCMaquis include path: ${DMRG_INCLUDE}")
   if (NOT MAQUIS_DMRG_FOUND)
     message ("-- QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
   else ()
@@ -2645,10 +2644,6 @@ if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
 endif ()
 set_target_properties (mods_obj PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR})
-if (DMRG)
-  include_directories (${DMRG_INCLUDE})
-  set_target_properties (mods_obj PROPERTIES Fortran_MODULE_DIRECTORY ${DMRG_INCLUDE})
-endif ()
 
 # now go through utility list
 foreach (util ${utils})
