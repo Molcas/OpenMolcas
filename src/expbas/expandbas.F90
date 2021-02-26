@@ -9,19 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine expandbas(Bas1,Nbas1,Bas2,Nbas2,Orb1,Orb2,occ1,eorb1,indt1,occ2,eorb2,indt2)
-
+subroutine expandbas(Bas1,nBas1,Bas2,nBas2,Orb1,Orb2,occ1,eorb1,indt1,occ2,eorb2,indt2)
 !     This subroutine expands the MOs for a given symmetry
-!     Orb1 are the input orbitals of dimension Nbas1*bas1 (file INPORB)
-!     Orb2 are the output orbitals of dimension Nbas2*bas2 (file EXPORB)
+!     Orb1 are the input orbitals of dimension nBas1*bas1 (file INPORB)
+!     Orb2 are the output orbitals of dimension nBas2*bas2 (file EXPORB)
 !     Bas1 and Bas2 are the basis set specifications for the old and
-!     new basis, respectively. They have dimensions Nbas1 and Nbas2.
+!     new basis, respectively. They have dimensions nBas1 and nBas2.
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
 #include "Molcas.fh"
-character*(LENIN8) Bas1(*), Bas2(*)
-integer indt1(*), indt2(*)
-dimension Orb1(*), Orb2(*), Izero(Nbas2), occ1(*), eorb1(*),occ2(*), eorb2(*)
+character(len=LenIn8), intent(in) :: Bas1(*), Bas2(*)
+integer(kind=iwp), intent(in) :: nBas1, nBas2, indt1(*)
+integer(kind=iwp), intent(out) :: indt2(*)
+real(kind=wp), intent(in) :: Orb1(*), occ1(*), eorb1(*)
+real(kind=wp),intent(out) :: Orb2(*), occ2(*), eorb2(*)
+integer(kind=iwp) :: i, Ibas1, Ibas2, imo, Izero(nBas2), lmo1, lmo2, Nzero
 
 !     Loop through the new basis labels and compare with the old.
 !     If they are equal copy orbital coefficients
@@ -29,13 +34,13 @@ dimension Orb1(*), Orb2(*), Izero(Nbas2), occ1(*), eorb1(*),occ2(*), eorb2(*)
 
 Nzero = 0
 Ibas2 = 1
-if (Nbas1 == 0) go to 200
+if (nBas1 == 0) go to 200
 Ibas1 = 1
 100 continue
 if (Bas2(Ibas2) == Bas1(Ibas1)) then
   lmo1 = 0
   lmo2 = 0
-  do imo=1,Nbas1
+  do imo=1,nBas1
     Orb2(lmo2+Ibas2) = Orb1(lmo1+Ibas1)
     lmo1 = lmo1+nBas1
     lmo2 = lmo2+nBas2
@@ -46,24 +51,24 @@ else if (Bas2(Ibas2) /= Bas1(Ibas1)) then
   Nzero = Nzero+1
   Izero(Nzero) = Ibas2
   lmo2 = 0
-  do imo=1,Nbas1
-    Orb2(lmo2+Ibas2) = 0.d0
+  do imo=1,nBas1
+    Orb2(lmo2+Ibas2) = Zero
     lmo2 = lmo2+nBas2
   end do
   Ibas2 = Ibas2+1
 end if
-if (Ibas1 <= Nbas1) go to 100
+if (Ibas1 <= nBas1) go to 100
 200 continue
 
 ! Add zeros at the end of each basis function
 
-if (Ibas2 <= Nbas2) then
-  do i=Ibas2,Nbas2
+if (Ibas2 <= nBas2) then
+  do i=Ibas2,nBas2
     Nzero = Nzero+1
     Izero(Nzero) = i
     lmo2 = 0
-    do imo=1,Nbas1
-      Orb2(lmo2+i) = 0.d0
+    do imo=1,nBas1
+      Orb2(lmo2+i) = Zero
       lmo2 = lmo2+nBas2
     end do
   end do
@@ -79,16 +84,16 @@ if (nBas1 /= 0) then
   end do
 end if
 
-if (Nbas1 < Nbas2) then
+if (nBas1 < nBas2) then
   Nzero = 0
-  do imo=Nbas1+1,Nbas2
+  do imo=nBas1+1,nBas2
     Nzero = Nzero+1
-    do Ibas2=1,Nbas2
-      Orb2(Nbas2*(imo-1)+Ibas2) = 0.d0
+    do Ibas2=1,nBas2
+      Orb2(nBas2*(imo-1)+Ibas2) = Zero
     end do
-    Orb2(Nbas2*(imo-1)+Izero(Nzero)) = 1.d0
-    occ2(imo) = 0.d0
-    eorb2(imo) = 0.d0
+    Orb2(nBas2*(imo-1)+Izero(Nzero)) = One
+    occ2(imo) = Zero
+    eorb2(imo) = Zero
     indt2(imo) = 6
   end do
 end if

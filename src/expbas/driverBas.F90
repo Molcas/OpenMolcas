@@ -13,9 +13,10 @@ subroutine driverBas(ireturn)
 
 use desymmetrize_mod, only: desym
 use info_expbas_mod
+use Definitions, only: iwp
 
 implicit none
-integer, intent(out) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 
 ireturn = 0
 

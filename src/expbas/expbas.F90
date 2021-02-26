@@ -21,27 +21,30 @@ subroutine expbas(ireturn)
 !                                                                      *
 !***********************************************************************
 
-use info_expbas_mod
+use info_expbas_mod, only: EB_FileOrb
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-integer, intent(out) :: ireturn
-dimension nBas1(mxsym), nBas2(mxsym), Occ1(maxbfn), Eorb1(maxbfn), Occ2(maxbfn), Eorb2(maxbfn)
-integer indt1(maxbfn), indt2(maxbfn), Indtype(56)
-character*(LENIN8) Bas1(maxbfn), Bas2(maxbfn)
-character*80 VecTit
-character*512 FName
-logical Exist_1, Exist_2, okay
+integer(kind=iwp) :: i, ib1, ib2, iErr, iLen, ind, ipCMO1, ipCMO2, ishift, ist1, ist2, iSym, Lu_, LuInpOrb, nb1, nb2, nDim1, &
+                     nDim2, nSym1, nSym2, nTot1, nTot2, nBas1(mxsym), nBas2(mxsym), indt1(maxbfn), indt2(maxbfn), Indtype(56)
+
+real(kind=wp) :: Occ1(maxbfn), Eorb1(maxbfn), Occ2(maxbfn), Eorb2(maxbfn)
+character(len=LenIn8) :: Bas1(maxbfn), Bas2(maxbfn)
+character(len=80) :: VecTit
+character(len=512) :: FName
+logical(kind=iwp) :: Exist_1, Exist_2, okay
 
 !----------------------------------------------------------------------*
 !     Read information from Runfile 1                                  *
 !----------------------------------------------------------------------*
 FName = 'RUNFIL1'
-iLen = mylen(FName)
+iLen = len_trim(FName)
 call f_Inquire(FName(:iLen),Exist_1)
 if (.not. Exist_1) then
-  write(6,*) 'Error finding file '//FName(:iLen)
+  write(u6,*) 'Error finding file '//FName(:iLen)
   call Abend()
 end if
 call namerun(FName(:iLen))
@@ -58,10 +61,10 @@ call Get_cArray('Unique Basis Names',Bas1,(LENIN8)*nDim1)
 !     Read information from Runfile 2                                  *
 !----------------------------------------------------------------------*
 FName = 'RUNFIL2'
-iLen = mylen(FName)
+iLen = len_trim(FName)
 call f_Inquire(FName(:iLen),Exist_2)
 if (.not. Exist_2) then
-  write(6,*) 'Error finding file '//FName(:iLen)
+  write(u6,*) 'Error finding file '//FName(:iLen)
   call Abend()
 end if
 call namerun(FName(:iLen))
@@ -80,43 +83,37 @@ call Get_cArray('Unique Basis Names',Bas2,(LENIN8)*nDim2)
 call GetMem('CMO1','Allo','Real',ipCMO1,nTot1)
 call GetMem('CMO2','Allo','Real',ipCMO2,nTot2)
 FName = EB_FileOrb
-if (mylen(FName) == 0) FName = 'INPORB'
-iLen = mylen(FName)
+if (len_trim(FName) == 0) FName = 'INPORB'
+iLen = len_trim(FName)
 call f_Inquire(FName(:iLen),okay)
 if (okay) then
   LuInpOrb = 50
-  call RdVec(FName(:iLen),LuInpOrb,'COEI',                        &
-&  nSym1,nBas1,nBas1,Work(ipCMO1),Occ1,Eorb1,indt1,VecTit,1,iErr)
+  call RdVec(FName(:iLen),LuInpOrb,'COEI',nSym1,nBas1,nBas1,Work(ipCMO1),Occ1,Eorb1,indt1,VecTit,1,iErr)
 else
-  write(6,*) 'RdCMO: Error finding MO file'
+  write(u6,*) 'RdCMO: Error finding MO file'
   call Abend()
 end if
 
 !----------------------------------------------------------------------*
 !     Print and check input information                                *
 !----------------------------------------------------------------------*
-!write(6,910) 'Start of option expand.'
-910 format(/1x,A)
-write(6,1000) Vectit(:mylen(Vectit))
-1000 format(/1x,'Header on input orbitals file:'/A)
-write(6,910) 'Information from input runfile'
-write(6,920) 'Number of symmetries',nSym1
-920 format(1x,A30,8i5)
-write(6,920) 'Number of basis functions',(nBas1(i),i=1,nSym1)
-!
-write(6,910) 'Information from expanded basis set runfile'
-write(6,920) 'Number of symmetries',nSym2
-write(6,920) 'Number of basis functions',(nBas2(i),i=1,nSym2)
+!write(u6,910) 'Start of option expand.'
+write(u6,930) trim(Vectit)
+write(u6,910) 'Information from input runfile'
+write(u6,920) 'Number of symmetries',nSym1
+write(u6,920) 'Number of basis functions',(nBas1(i),i=1,nSym1)
+write(u6,910) 'Information from expanded basis set runfile'
+write(u6,920) 'Number of symmetries',nSym2
+write(u6,920) 'Number of basis functions',(nBas2(i),i=1,nSym2)
 ! Check for inconsistensies:
 if (nSym1 /= nSym2) then
-  write(6,*) 'Symmetries are not equal. Stop here',nSym1,nSym2
+  write(u6,*) 'Symmetries are not equal. Stop here',nSym1,nSym2
   call Abend()
 end if
 do isym=1,nSym1
   if (nBas1(isym) > nBas2(isym)) then
-    write(6,*) 'Second basis set must be larger than first'
-    write(6,*) 'not fulfilled in sym',isym,'basis functions are',   &
- &  nBas1(isym),nBas2(isym)
+    write(u6,*) 'Second basis set must be larger than first'
+    write(u6,*) 'not fulfilled in sym',isym,'basis functions are',nBas1(isym),nBas2(isym)
     call Abend()
   end if
 end do
@@ -131,9 +128,8 @@ do isym=1,nsym1
   nb1 = nBas1(isym)
   nb2 = nBas2(isym)
   if (nb2 > 0) then
-    call expandbas(Bas1(ib1),nb1,Bas2(ib2),nb2,                     &
- & Work(ist1+ipCMO1),Work(ist2+ipCMO2),occ1(ib1),eorb1(ib1),        &
- & indt1(ib1),occ2(ib2),eorb2(ib2),indt2(ib2))
+    call expandbas(Bas1(ib1),nb1,Bas2(ib2),nb2,Work(ist1+ipCMO1),Work(ist2+ipCMO2),occ1(ib1),eorb1(ib1),indt1(ib1),occ2(ib2), &
+                   eorb2(ib2),indt2(ib2))
     ist1 = ist1+nb1**2
     ist2 = ist2+nb2**2
     ib1 = ib1+nb1
@@ -144,7 +140,6 @@ end do
 !     Write the new orbitals in to the file EXPORB                     *
 !----------------------------------------------------------------------*
 ! First resort indt to standard
-
 do i=1,56
   Indtype(i) = 0
 end do
@@ -163,9 +158,8 @@ end do
 
 VecTit = 'Basis set expanded orbital file EXPORB'
 Lu_ = 60
-call WRVEC('EXPORB',LU_,'COEI',nSym2,nBas2,nBas2,Work(ipCMO2),    &
-& occ2,eorb2,Indtype,VecTit)
-write(6,*) 'New orbitals have been built in file EXPORB'
+call WRVEC('EXPORB',LU_,'COEI',nSym2,nBas2,nBas2,Work(ipCMO2),occ2,eorb2,Indtype,VecTit)
+write(u6,*) 'New orbitals have been built in file EXPORB'
 !----------------------------------------------------------------------*
 !     Normal termination                                               *
 !----------------------------------------------------------------------*
@@ -175,5 +169,9 @@ call GetMem('CMO2','Free','Real',ipCMO2,nTot2)
 ireturn = 0
 
 return
+
+910 format(/1x,a)
+920 format(1x,a30,8i5)
+930 format(/1x,'Header on input orbitals file:'/a)
 
 end subroutine expbas

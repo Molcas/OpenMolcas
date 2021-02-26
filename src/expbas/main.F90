@@ -9,22 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-program main
+program Main
 
 #ifdef _FPE_TRAP_
-use, intrinsic :: ieee_exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
+use Definitions, only: iwp
 
 implicit none
-character(len=20), parameter :: module_name = 'expbas'
-integer :: ireturn
+integer(kind=iwp) :: rc
 
 #ifdef _FPE_TRAP_
-call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-call Start(Module_Name)
-call driverBas(ireturn)
-call Finish(ireturn)
+call Start('expbas')
+call driverBas(rc)
+call Finish(rc)
 
-end program main
+end program Main

@@ -11,10 +11,12 @@
 
 module info_expbas_mod
 
+use Definitions, only: iwp
+
 implicit none
 private
 
-logical :: DoExpbas, DoDesy
+logical(kind=iwp) :: DoExpbas, DoDesy
 character(len=512) :: EB_FileOrb
 
 public :: DoExpbas, DoDesy, EB_FileOrb

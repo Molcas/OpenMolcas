@@ -15,9 +15,13 @@ subroutine Readinp_expbas()
 ! Author: G. Li Manni (University of Geneva)
 
 use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
-implicit real*8(a-h,o-z)
-character*180 Line, Blank, key, Get_Ln
-external Get_Ln
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: LuSpool
+character(len=180) :: Line, key
+integer(kind=iwp), external :: isFreeUnit
+character(len=180), external :: Get_Ln
 
 ! Initial values
 
@@ -31,7 +35,6 @@ call SpoolInp(LuSpool)
 
 rewind(LuSpool)
 call RdNLst(LuSpool,'EXPBAS')
-Blank = ' '
 
 999 continue
 !read(LuSpool,'(A)',End=9940) Line
@@ -39,14 +42,14 @@ key = Get_Ln(LuSpool)
 call LeftAd(key)
 Line = key
 if (Line(1:1) == '*') goto 999
-if (Line == Blank) goto 999
+if (Line == ' ') goto 999
 call UpCase(Line)
 if (Line(1:4) == 'NOEX') goto 1000
 if (Line(1:4) == 'DESY') goto 2000
 if (Line(1:4) == 'FILE') goto 3000
 if (Line(1:4) == 'END ') Go To 99999
-write(6,*) 'Unidentified key word  : '
-call FindErrorLine
+write(u6,*) 'Unidentified key word  : '
+call FindErrorLine()
 call Quit_OnUserError()
 
 !========= NOEX =============
@@ -68,8 +71,8 @@ Go To 999
 ! END of Input
 
 !9940  Continue
-write(6,*) ' READIN: Premature end of file when reading selected'
-call ABEND()
+write(u6,*) ' READIN: Premature end of file when reading selected'
+call Abend()
 
 99999 continue
 

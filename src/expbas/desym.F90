@@ -22,31 +22,31 @@ use Symmetry_Info, only: nIrrep, lIrrep
 use sorting, only: sort
 use info_expbas_mod, only: DoExpbas, EB_FileOrb
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp
+use definitions, only: wp, iwp, u6
 
 implicit none
 private
 public :: desym
 
-integer, parameter :: nNumber = 61
-character(len=1), parameter :: number(nNumber) = ['1','2','3','4','5','6','7','8','9','0', &
-                                                  'a','b','c','d','e','f','g','h','i','j', &
-                                                  'k','l','m','n','o','p','q','r','s','t', &
-                                                  'u','v','w','x','y','z','A','B','C','D', &
-                                                  'E','F','G','H','I','J','K','L','M','N', &
-                                                  'O','P','Q','R','S','T','V','W','X','Y', &
-                                                  'Z']
+integer(kind=iwp), parameter :: nNumber = 61
+character, parameter :: number(nNumber) = ['1','2','3','4','5','6','7','8','9','0', &
+                                           'a','b','c','d','e','f','g','h','i','j', &
+                                           'k','l','m','n','o','p','q','r','s','t', &
+                                           'u','v','w','x','y','z','A','B','C','D', &
+                                           'E','F','G','H','I','J','K','L','M','N', &
+                                           'O','P','Q','R','S','T','V','W','X','Y', &
+                                           'Z']
 !> Different kinds of orbitals
 !> f, i, 1, 2, 3, s, d
-integer, parameter :: n_orb_kinds = 7
+integer(kind=iwp), parameter :: n_orb_kinds = 7
 
 ! NOTE: These global variables are ugly as hell, but we need
 !  it to support the shitty SUN compiler.
 #ifndef INTERNAL_PROC_ARG
 !> This is the orbital kind for each orbital.
-integer, allocatable :: kind_per_orb(:)
-real(wp), allocatable :: energy(:), occ(:)
-real(wp), allocatable :: CMO(:,:)
+integer(kind=iwp), allocatable :: kind_per_orb(:)
+real(kind=wp), allocatable :: energy(:), occ(:)
+real(kind=wp), allocatable :: CMO(:,:)
 #endif
 
 contains
@@ -79,44 +79,36 @@ subroutine desym(ireturn)
 !   END                                                                *
 !                                                                      *
 !***********************************************************************
-  integer, intent(out) :: ireturn
 
-  integer :: ierr
+  integer(kind=iwp), intent(out) :: ireturn
+
 # include "Molcas.fh"
 # include "WrkSpc.fh"
-  real(wp), parameter :: EorbThr = 50._wp
-  real(wp) :: Coor(3,MxAtom), Znuc(MxAtom)
-  character(len=LENIN) :: AtomLabel(MxAtom)
+  integer(kind=iwp) :: ierr, ibas_lab(MxAtom), nOrb(8)
+  real(kind=wp) :: Coor(3,MxAtom), Znuc(MxAtom)
+  real(kind=wp), parameter :: EorbThr = 50.0_wp
+  character(len=LenIn) :: AtomLabel(MxAtom)
   character(len=512) :: FilesOrb
-  character(len=LENIN8), allocatable :: label(:)
   character(len=8) :: MO_Label(maxbfn)
-  integer :: ibas_lab(MxAtom), nOrb(8)
+  character(len=LenIn8), allocatable :: label(:)
 # ifdef INTERNAL_PROC_ARG
   !> This is the orbital kind for each orbital.
-  integer, allocatable :: kind_per_orb(:)
-  real(wp), allocatable :: energy(:), occ(:)
-  real(wp), allocatable :: CMO(:,:)
+  integer(kind=iwp), allocatable :: kind_per_orb(:)
+  real(kind=wp), allocatable :: energy(:), occ(:), CMO(:,:)
 # endif
   !> This is the number of orbitals for every kind.
-  integer :: n_kinds(n_orb_kinds)
+  integer(kind=iwp) :: n_kinds(n_orb_kinds)
 
-  character(len=LENIN8+1) :: gtolabel(maxbfn)
+  character(len=LenIn8+1) :: gtolabel(maxbfn)
   character(len=50) :: VTitle
   character(len=128) :: SymOrbName
-  logical :: exists, found
-  logical, parameter :: y_cart = .false.
+  logical(kind=iwp) :: exists, found
+  logical(kind=iwp), parameter :: y_cart = .false.
 
-  integer :: nAtom, nData, nDeg, nTot, nTot2, nB
-  integer :: iCnttp
-  integer :: ipCent, ipCent2, ipCent3
-  integer :: ipPhase, ipC2, ipV
-  integer :: mAdOcc, mAdEor, mAdCMO
-  integer :: file_id, iWfType
-  integer, parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0, iWarn = 1
-  integer :: iatom, iDeg, ishell, iIrrep
-
-  integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
-  integer :: ipc, icontr, nBasisi, icntr
+  integer(kind=iwp) :: nAtom, nData, nDeg, nTot, nTot2, nB, iCnttp, ipCent, ipCent2, ipCent3, ipPhase, ipC2, ipV, mAdOcc, mAdEor, &
+                       mAdCMO, file_id, iWfType, iatom, iDeg, ishell, iIrrep, mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, &
+                       iv, ipc, icontr, nBasisi, icntr
+  integer(kind=iwp), parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0, iWarn = 1
 
   ireturn = 0
 
@@ -161,28 +153,30 @@ subroutine desym(ireturn)
   ! Later this list will be used in the transformation of sabf (the
   ! symmetry adapted basis functions).
 
-  iatom = 0; mdc = 0; kk = 0
-  do iCnttp=1,nCnttp             ! loop over unique basis sets
+  iatom = 0
+  mdc = 0
+  kk = 0
+  do iCnttp=1,nCnttp                ! loop over unique basis sets
     if (.not.(dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag)) then
-      do iCntr=1,dbsc(iCnttp)%nCntr! loop over symmetry unique centers
+      do iCntr=1,dbsc(iCnttp)%nCntr ! loop over symmetry unique centers
         mdc = mdc+1
         nDeg = nIrrep/dc(mdc)%nStab
-        do iDeg=1,nDeg             ! loop over centers
+        do iDeg=1,nDeg              ! loop over centers
           iAtom = iAtom+1
 
           if (dbsc(iCnttp)%nVal > 6) then
-            write(6,*) 'Desym: too high angular momentum!'
-            write(6,*) 'iCnttp and dbsc(iCnttp)%nVal= ',iCnttp,dbsc(iCnttp)%nVal
+            write(u6,*) 'Desym: too high angular momentum!'
+            write(u6,*) 'iCnttp and dbsc(iCnttp)%nVal= ',iCnttp,dbsc(iCnttp)%nVal
             call Abend()
           end if
 
           do l=0,dbsc(iCnttp)%nVal-1
             ishell = dbsc(iCnttp)%iVal+l
             nBasisi = Shells(iShell)%nBasis
-            !write(6,*) 'nBasisi', Shells(iShell)%nBasis
+            !write(u6,*) 'nBasisi', Shells(iShell)%nBasis
             if (nBasisi > nNumber) then
-              write(6,*) 'Desym: too many contracted functions!'
-              write(6,*) 'nBasisi=',Shells(iShell)%nBasis
+              write(u6,*) 'Desym: too many contracted functions!'
+              write(u6,*) 'nBasisi=',Shells(iShell)%nBasis
               call Abend()
             end if
 
@@ -387,8 +381,8 @@ subroutine desym(ireturn)
   end do
   kk_Max = kk
   if (nB > kk_max) then
-    write(6,*) 'nB > kk_max'
-    write(6,*) 'nB,kk_Max=',nB,kk_Max
+    write(u6,*) 'nB > kk_max'
+    write(u6,*) 'nB,kk_Max=',nB,kk_Max
     call ClsSew()
     return
   end if
@@ -474,7 +468,7 @@ subroutine desym(ireturn)
           ik = 1
         end if
       end if
-      write(MO_Label(i),'(I5,A3)') iB,lirrep(iIrrep)
+      write(MO_Label(i),'(i5,a3)') iB,lirrep(iIrrep)
 
       do j=1,nB
 
@@ -551,14 +545,15 @@ end subroutine desym
 #ifdef INTERNAL_PROC_ARG
 
 subroutine reorder_orbitals(nTot,kind_per_orb,CMO,occ,energy)
-  integer, intent(in) :: nTot
-  integer, intent(inout) :: kind_per_orb(nTot)
-  real(wp), intent(inout) :: CMO(nTot,nTot), occ(nTot), energy(nTot)
 
-  integer :: i
-  integer, allocatable :: idx(:)
+  integer(kind=iwp), intent(in) :: nTot
+  integer(kind=iwp), intent(inout) :: kind_per_orb(nTot)
+  real(kind=wp), intent(inout) :: CMO(nTot,nTot), occ(nTot), energy(nTot)
 
-  allocate(idx(nTot))
+  integer(kind=iwp) :: i
+  integer(kind=iwp), allocatable :: idx(:)
+
+  call mma_allocate(idx,nTot,label='idx')
 
   idx(:) = [(i,i=1,nTot)]
 
@@ -568,6 +563,8 @@ subroutine reorder_orbitals(nTot,kind_per_orb,CMO,occ,energy)
   energy(:) = energy(idx)
   CMO(:,:) = CMO(:,idx)
   occ(:) = occ(idx)
+
+  call mma_deallocate(idx)
 
 contains
 
@@ -583,8 +580,8 @@ contains
   !>  input orbitals are automatically by irrep the output
   !>  will be sorted last ascendingly by irrep.
   pure function closure_compare(i,j) result(res)
-    integer, intent(in) :: i, j
-    logical :: res
+    logical(kind=iwp) :: res
+    integer(kind=iwp), intent(in) :: i, j
 
     if (kind_per_orb(i) /= kind_per_orb(j)) then
       res = kind_per_orb(i) < kind_per_orb(j)
@@ -598,16 +595,18 @@ contains
       res = .true.
     end if
   end function
+
 end subroutine reorder_orbitals
 
 #else
 
 subroutine reorder_orbitals()
-  integer :: nTot, i
-  integer, allocatable :: idx(:)
+
+  integer(kind=iwp) :: nTot, i
+  integer(kind=iwp), allocatable :: idx(:)
 
   nTot = size(kind_per_orb)
-  allocate(idx(nTot))
+  call mma_allocate(idx,nTot,label='idx')
   idx(:) = [(i,i=1,nTot)]
 
   call sort(idx,compare)
@@ -617,13 +616,17 @@ subroutine reorder_orbitals()
   CMO(:,:) = CMO(:,idx)
   occ(:) = occ(idx)
 
+  call mma_deallocate(idx)
+
 # ifdef _WARNING_WORKAROUND_
+  return
   ! There was a wrong and stupid warning from GFortran 4.8
   ! If we stop supporting this compiler remove this ugly workaround.
   if (.false.) then
     if (compare(1,2)) continue
   end if
 # endif
+
 end subroutine reorder_orbitals
 
 !> @brief
@@ -638,8 +641,9 @@ end subroutine reorder_orbitals
 !>  input orbitals are automatically by irrep the output
 !>  will be sorted last ascendingly by irrep.
 pure function compare(i,j) result(res)
-  integer, intent(in) :: i, j
-  logical :: res
+
+  logical(kind=iwp) :: res
+  integer(kind=iwp), intent(in) :: i, j
 
   if (kind_per_orb(i) /= kind_per_orb(j)) then
     res = kind_per_orb(i) < kind_per_orb(j)
@@ -652,6 +656,7 @@ pure function compare(i,j) result(res)
     ! to be non-strict.
     res = .true.
   end if
+
 end function compare
 
 #endif
