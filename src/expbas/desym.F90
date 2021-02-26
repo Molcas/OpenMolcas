@@ -15,14 +15,8 @@
 
 module desymmetrize_mod
 
-use Basis_Info, only: nBas, nCnttp, dbsc, Shells, MolWgh
-use Center_Info, only: dc
-use linalg_mod, only: verify_
-use Symmetry_Info, only: nIrrep, lIrrep
-use sorting, only: sort
-use info_expbas_mod, only: DoExpbas, EB_FileOrb
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
@@ -36,9 +30,6 @@ character, parameter :: number(nNumber) = ['1','2','3','4','5','6','7','8','9','
                                            'E','F','G','H','I','J','K','L','M','N', &
                                            'O','P','Q','R','S','T','V','W','X','Y', &
                                            'Z']
-!> Different kinds of orbitals
-!> f, i, 1, 2, 3, s, d
-integer(kind=iwp), parameter :: n_orb_kinds = 7
 
 ! NOTE: These global variables are ugly as hell, but we need
 !  it to support the shitty SUN compiler.
@@ -80,17 +71,18 @@ subroutine desym(ireturn)
 !                                                                      *
 !***********************************************************************
 
+  use Basis_Info, only: nBas, nCnttp, dbsc, Shells, MolWgh
+  use Center_Info, only: dc
+  use linalg_mod, only: verify_
+  use Symmetry_Info, only: nIrrep
+  use info_expbas_mod, only: DoExpbas, EB_FileOrb, LenIn, MxAtom, mxsym, n_orb_kinds
+  use Constants, only: Zero
+
   integer(kind=iwp), intent(out) :: ireturn
 
-# include "Molcas.fh"
-# include "WrkSpc.fh"
-  integer(kind=iwp) :: ierr, ibas_lab(MxAtom), nOrb(8)
-  real(kind=wp) :: Coor(3,MxAtom), Znuc(MxAtom)
+  integer(kind=iwp) :: iErr, nOrb(mxsym)
   real(kind=wp), parameter :: EorbThr = 50.0_wp
-  character(len=LenIn) :: AtomLabel(MxAtom)
   character(len=512) :: FilesOrb
-  character(len=8) :: MO_Label(maxbfn)
-  character(len=LenIn8), allocatable :: label(:)
 # ifdef INTERNAL_PROC_ARG
   !> This is the orbital kind for each orbital.
   integer(kind=iwp), allocatable :: kind_per_orb(:)
@@ -99,16 +91,28 @@ subroutine desym(ireturn)
   !> This is the number of orbitals for every kind.
   integer(kind=iwp) :: n_kinds(n_orb_kinds)
 
-  character(len=LenIn8+1) :: gtolabel(maxbfn)
   character(len=50) :: VTitle
   character(len=128) :: SymOrbName
   logical(kind=iwp) :: exists, found
   logical(kind=iwp), parameter :: y_cart = .false.
 
-  integer(kind=iwp) :: nAtom, nData, nDeg, nTot, nTot2, nB, iCnttp, ipCent, ipCent2, ipCent3, ipPhase, ipC2, ipV, mAdOcc, mAdEor, &
-                       mAdCMO, file_id, iWfType, iatom, iDeg, ishell, iIrrep, mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, &
-                       iv, ipc, icontr, nBasisi, icntr
+  integer(kind=iwp) :: nAtom, nData, nDeg, nTot, nTot2, nB, iCnttp, file_id, iWfType, iatom, iDeg, ishell, iIrrep, mdc, kk, i, j, &
+                       ik, k, l, kk_Max, ii, iB, ipp, ic, iv, ipc, icontr, nBasisi, icntr
+  real(kind=wp) :: dummy(1)
+  integer(kind=iwp), allocatable :: Cent(:), Center(:), iBas_Lab(:), nCent(:), Phase(:)
+  real(kind=wp), allocatable :: AdCMO(:), AdEor(:), AdOcc(:), CMO2(:), Coor(:,:), Vector(:), Znuc(:)
+  character(len=LenIn), allocatable :: AtomLabel(:)
+  character(len=LenIn+8), allocatable :: Label(:)
+  character(len=LenIn+9), allocatable :: gtolabel(:)
   integer(kind=iwp), parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0, iWarn = 1
+  character(len=8), parameter :: baslab_0(1) = ['01s     '], &
+                                 baslab_1(3) = ['02px    ','02py    ','02pz    '], &
+                                 baslab_2(5) = ['03d02-  ','03d01-  ','03d00   ','03d01+  ','03d02+  '], &
+                                 baslab_3(7) = ['04f03-  ','04f02-  ','04f01-  ','04f00   ','04f01+  ','04f02+  ','04f03+  '], &
+                                 baslab_4(9) = ['05g04-  ','05g03-  ','05g02-  ','05g01-  ','05g00   ', &
+                                                '05g01+  ','05g02+  ','05g03+  ','05g04+  '], &
+                                 baslab_5(11) = ['06h05-  ','06004-  ','06h03-  ','06h02-  ','06h01-  ','06h00   ', &
+                                                 '06h01+  ','06h02+  ','06h03+  ','06h04+  ','06h05+  ']
 
   ireturn = 0
 
@@ -125,7 +129,14 @@ subroutine desym(ireturn)
   !     This call will also fill info.fh and the dynamic storage in
   !     Work(ipInf)
 
+  call mma_allocate(AtomLabel,MxAtom,label='AtomLabel')
+  call mma_allocate(iBas_Lab,MxAtom,label='iBas_Lab')
+  call mma_allocate(Coor,3,MxAtom,label='Coor')
+  call mma_allocate(Znuc,MxAtom,label='Znuc')
   call Inter1(AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
+  call mma_deallocate(iBas_Lab)
+  call mma_deallocate(Coor)
+  call mma_deallocate(Znuc)
   call Qpg_iArray('nOrb',found,nData)
   if (found) then
     call Get_iArray('nOrb',nOrb,nData)
@@ -136,14 +147,15 @@ subroutine desym(ireturn)
   ! Compute memory requirements and allocate memory
 
   nB = sum(nBas(0:nIrrep-1))
-  call GetMem('ICENT','ALLO','INTE',ipCent,8*nB)
-  call GetMem('IPHASE','ALLO','INTE',ipPhase,8*nB)
-  call GetMem('nCENT','ALLO','INTE',ipCent2,nB)
-  call GetMem('ICENTER','ALLO','INTE',ipCent3,nB)
-  call GetMem('CMO2','ALLO','REAL',ipC2,nB**2)
-  call GetMem('VECTOR','ALLO','REAL',ipV,nB**2)
-  call dcopy_(nB**2,[0._wp],0,Work(ipV),1)
-  call FZero(Work(ipC2),nB**2)
+  call mma_allocate(Cent,8*nB,label='Cent')
+  call mma_allocate(Phase,8*nB,label='Phase')
+  call mma_allocate(nCent,nB,label='nCent')
+  call mma_allocate(Center,nB,label='Center')
+  call mma_allocate(CMO2,nB**2,label='CMO2')
+  call mma_allocate(Vector,nB**2,label='Vector')
+  call mma_allocate(gtolabel,nB,label='gtolabel')
+  CMO2(:) = Zero
+  Vector(:) = Zero
 
   ! Read exponents and contraction coefficients of each unique basis.
   ! Write the present basis set (iCnttp) to the molden.input file for
@@ -182,198 +194,64 @@ subroutine desym(ireturn)
 
             ! Iterate over each contracted GTO
 
-            if (l == 0) then
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'01s     '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-            end if
-            if (l == 1) then
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'02px    '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'02py    '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'02pz    '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-            end if
-            if ((l == 2) .and. (.not. y_cart)) then
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'03d02-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'03d01-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'03d00   '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'03d01+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'03d02+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-            end if
-            if ((l == 3) .and. (.not. y_cart)) then
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f03-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f02-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f01-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f00   '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f01+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f02+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'04f03+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-            end if
-            if ((l == 4) .and. (.not. y_cart)) then
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g04-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g03-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g02-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g01-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g00   '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g01+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g02+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g03+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'05g04+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-            end if
-            if ((l == 5) .and. (.not. y_cart)) then
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h05+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h04-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h03-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h02-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h01-  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h00   '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h01+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h02+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h03+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h04+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-              do icontr=1,nBasisi
-                kk = kk+1
-                gtolabel(kk) = AtomLabel(iAtom)//'06h05+  '//number(icontr)
-                iWork(ipCent3+kk-1) = iAtom
-              end do
-            end if
+            select case (l)
+              case (0)
+                do i=1,size(baslab_0)
+                    do icontr=1,nBasisi
+                      kk = kk+1
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_0(i)//number(icontr)
+                      Center(kk) = iAtom
+                    end do
+                end do
+              case (1)
+                do i=1,size(baslab_1)
+                    do icontr=1,nBasisi
+                      kk = kk+1
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_1(i)//number(icontr)
+                      Center(kk) = iAtom
+                    end do
+                end do
+              case (2)
+                if (.not. y_cart) then
+                  do i=1,size(baslab_2)
+                    do icontr=1,nBasisi
+                      kk = kk+1
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_2(1)//number(icontr)
+                      Center(kk) = iAtom
+                    end do
+                  end do
+                end if
+              case (3)
+                if (.not. y_cart) then
+                  do i=1,size(baslab_3)
+                    do icontr=1,nBasisi
+                      kk = kk+1
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_3(1)//number(icontr)
+                      Center(kk) = iAtom
+                    end do
+                  end do
+                end if
+              case (4)
+                if (.not. y_cart) then
+                  do i=1,size(baslab_4)
+                    do icontr=1,nBasisi
+                      kk = kk+1
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_4(1)//number(icontr)
+                      Center(kk) = iAtom
+                    end do
+                  end do
+                end if
+              case (5)
+                if (.not. y_cart) then
+                  do i=1,size(baslab_5)
+                    do icontr=1,nBasisi
+                      kk = kk+1
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_5(1)//number(icontr)
+                      Center(kk) = iAtom
+                    end do
+                  end do
+                end if
+            end select
           end do
         end do
       end do
@@ -387,36 +265,38 @@ subroutine desym(ireturn)
     return
   end if
 
+  call mma_deallocate(AtomLabel)
+
   nTot = sum(nBas(0:nIrrep-1))
   nTot2 = sum(nBas(0:nIrrep-1)**2)
 
   call mma_allocate(kind_per_orb,nTot)
-  call GetMem('Occ','Allo','Real',mAdOcc,nTot)
-  call GetMem('Eor','Allo','Real',mAdEor,nTot)
-  call GetMem('CMO','Allo','Real',mAdCMO,nTot2)
-  call FZero(Work(mAdOcc),nTot)
-  call FZero(Work(mAdEor),nTot)
-  call FZero(Work(mAdCMO),nTot2)
+  call mma_allocate(AdOcc,nTot,label='AdOcc')
+  call mma_allocate(AdEor,nTot,label='AdEor')
+  call mma_allocate(AdCMO,nTot2,label='AdCMO')
+  AdOcc(:) = Zero
+  AdEor(:) = Zero
+  AdCMO(:) = Zero
 
   !---- Read HF CMOs from file
   FilesOrb = EB_FileOrb
   if (len_trim(FilesOrb) == 0) FilesOrb = 'INPORB'
   if (DoExpbas) FilesOrb = 'EXPORB'
-  call RdVec_(trim(FilesOrb),file_id,'COEI',noUHF,nIrrep,nBas,nBas,Work(mAdCMO),Work(ip_Dummy),Work(mAdOcc),Work(ip_Dummy), &
-              Work(mAdEor),Work(ip_Dummy),kind_per_orb,VTitle,iWarn,iErr,iWfType)
+  call RdVec_(trim(FilesOrb),file_id,'COEI',noUHF,nIrrep,nBas,nBas,AdCMO,dummy,AdOcc,dummy,AdEor,dummy,kind_per_orb,VTitle,iWarn, &
+              iErr,iWfType)
 
   if (iErr /= 0) then
     ireturn = 1
     return
   end if
 
-  ! Get the coeff. of sym adapted basis functions (ipC2)
+  ! Get the coeff. of sym adapted basis functions (CMO2)
 
-  call Dens_IF_SCF(Work(ipC2),Work(mAdCMO),'F')
-  call GetMem('CMO','Free','Real',mAdCMO,nTot2)
+  call Dens_IF_SCF(CMO2,AdCMO,'F')
+  call mma_deallocate(AdCMO)
 
   !  Back 'transformation' of the symmetry adapted basis functions.
-  !  Probably somewhat clumsy, but it seems to work.If someone
+  !  Probably somewhat clumsy, but it seems to work. If someone
   !  knows a more elegant way to do it, please improve this part!
   !
   !  PART 1: Obtain symmetry information (soout), construct a label
@@ -424,31 +304,29 @@ subroutine desym(ireturn)
   !          corresponding GTO in the MOLDEN list by comparing with
   !          gtolabel
   !
-  !  nB       --- Total number of contracted basis functions
-  !  ipcent2  --- degeneracy of a basis function
-  !  ipCent   --- centres over which the basis function is
+  !  nB     --- Total number of contracted basis functions
+  !  nCent  --- degeneracy of a basis function
+  !  Cent   --- centres over which the basis function is
   !               delocalized
-  !  ipPhase  --- phase of the AO in the linear combination
+  !  Phase  --- phase of the AO in the linear combination
 
-  call mma_allocate(Label,MaxBfn+MaxBfn_Aux,label='Label')
-  call icopy(8*nB,[0],0,iWork(ipPhase),1)
-  call icopy(8*nB,[0],0,iWork(ipCent),1)
-  call SOout(label,iWork(ipCent),iWork(ipPhase))
-  ipc = 0
+  call mma_allocate(Label,nB,label='Label')
+  Phase(:) = 0
+  Cent(:) = 0
+  call SOout(label,Cent,Phase)
+  ipc = 1
   do iContr=1,nB
-    iWork(ipCent2+iContr-1) = 0
+    nCent(iContr) = 0
     do k=1,8
-      if (iWork(ipCent+ipc) /= 0) then
-        iWork(ipcent2+iContr-1) = iWork(ipCent2+iContr-1)+1
-      end if
+      if (Cent(ipc) /= 0) nCent(iContr) = nCent(iContr)+1
       ipc = ipc+1
     end do
   end do
   ! Part 2: -Take a MOLCAS symmetry functions (loop i)
   !         -Find the corresponding label in the MOLDEN list (loop j)
   !         -Copy the coeff of the sabf in the MOLDEN MO (vector), multiply
-  !          by the appropriate factor (ipPhase),and divide by the number of
-  !          centres over which the sabf is delocalized (ipCent3).
+  !          by the appropriate factor (Phase),and divide by the number of
+  !          centres over which the sabf is delocalized (Center).
   !         -The vectors are copied by rows!
   !
   ! loop over MOLCAS symmetry functions
@@ -468,22 +346,21 @@ subroutine desym(ireturn)
           ik = 1
         end if
       end if
-      write(MO_Label(i),'(i5,a3)') iB,lirrep(iIrrep)
 
       do j=1,nB
 
         if (gtolabel(j) == label(i)//number(ik)) then
           do k=1,8
-            ipc = (i-1)*8+k-1
+            ipc = (i-1)*8+k
             ipp = ipc
-            if (iWork(ipCent+ipc) == iWork(ipcent3+j-1)) then
+            if (Cent(ipc) == Center(j)) then
               do ii=1,nB
-                ic = (ii-1)*nB+(i-1)
-                iv = (ii-1)*nB+(j-1)
+                ic = (ii-1)*nB+i
+                iv = (ii-1)*nB+j
                 if (MolWgh == 0) then
-                  Work(ipV+iv) = Work(ipV+iv)+Work(ipC2+ic)*dble(iWork(ipPhase+ipp))/dble(iWork(ipcent2+i-1))
+                  Vector(iv) = Vector(iv)+CMO2(ic)*real(Phase(ipp),kind=wp)/real(nCent(i),kind=wp)
                 else
-                  Work(ipV+iv) = Work(ipV+iv)+Work(ipC2+ic)*dble(iWork(ipPhase+ipp))/sqrt(dble(iWork(ipcent2+i-1)))
+                  Vector(iv) = Vector(iv)+CMO2(ic)*real(Phase(ipp),kind=wp)/sqrt(real(nCent(i),kind=wp))
                 end if
               end do
             end if
@@ -493,6 +370,7 @@ subroutine desym(ireturn)
     end do
   end do
   call mma_deallocate(Label)
+  call mma_deallocate(gtolabel)
 
   !**************************** START SORTING ****************************
 
@@ -500,12 +378,11 @@ subroutine desym(ireturn)
   call mma_allocate(occ,nTot)
   call mma_allocate(energy,nTot)
 
-  energy(:) = Work(mAdEor:mAdEor+nTot-1)
-  occ(:) = Work(mAdOcc:mAdocc+nTot-1)
+  energy(:) = AdEor(:)
+  occ(:) = AdOcc(:)
 
-  do i=0,nTot-1
-    l = ipV+nTot*i
-    CMO(:,i+1) = work(l:l+nTot-1)
+  do i=1,nTot
+    CMO(:,i) = Vector(nTot*(i-1)+1:nTot*i)
   end do
 
 # ifdef INTERNAL_PROC_ARG
@@ -521,22 +398,21 @@ subroutine desym(ireturn)
 
   SymOrbName = 'DESORB'
   VTitle = 'Basis set desymmetrized orbital file DESORB'
-  call WrVec_(SymOrbName,file_id,'COEI',noUHF,notSymm,[nTot],[nTot],CMO,Work(ip_Dummy),occ,Work(ip_Dummy),energy,Work(ip_Dummy), &
-              n_kinds,VTitle,iWFtype)
+  call WrVec_(SymOrbName,file_id,'COEI',noUHF,notSymm,[nTot],[nTot],CMO,dummy,occ,dummy,energy,dummy,n_kinds,VTitle,iWFtype)
   call Add_Info('desym CMO',CMO,999,8)
 
   call mma_deallocate(occ)
   call mma_deallocate(CMO)
   call mma_deallocate(energy)
   call mma_deallocate(kind_per_orb)
-  call GetMem('Eor','Free','Real',mAdEor,nTot)
-  call GetMem('Occ','Free','Real',mAdOcc,nTot)
-  call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
-  call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
-  call GetMem('nCENT','FREE','INTE',ipCent2,nB)
-  call GetMem('ICENTER','FREE','INTE',ipCent3,nB)
-  call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
-  call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
+  call mma_deallocate(AdOcc)
+  call mma_deallocate(AdEor)
+  call mma_deallocate(Cent)
+  call mma_deallocate(Phase)
+  call mma_deallocate(nCent)
+  call mma_deallocate(Center)
+  call mma_deallocate(CMO2)
+  call mma_deallocate(Vector)
 
   call ClsSew()
 
@@ -545,6 +421,8 @@ end subroutine desym
 #ifdef INTERNAL_PROC_ARG
 
 subroutine reorder_orbitals(nTot,kind_per_orb,CMO,occ,energy)
+
+  use sorting, only: sort
 
   integer(kind=iwp), intent(in) :: nTot
   integer(kind=iwp), intent(inout) :: kind_per_orb(nTot)
@@ -601,6 +479,8 @@ end subroutine reorder_orbitals
 #else
 
 subroutine reorder_orbitals()
+
+  use sorting, only: sort
 
   integer(kind=iwp) :: nTot, i
   integer(kind=iwp), allocatable :: idx(:)

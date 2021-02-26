@@ -16,9 +16,17 @@ use Definitions, only: iwp
 implicit none
 private
 
+!> Different kinds of orbitals
+!> f, i, 1, 2, 3, s, d
+integer(kind=iwp), parameter :: n_orb_kinds = 7
+
 logical(kind=iwp) :: DoExpbas, DoDesy
 character(len=512) :: EB_FileOrb
 
-public :: DoExpbas, DoDesy, EB_FileOrb
+public :: DoExpbas, DoDesy, EB_FileOrb, n_orb_kinds
+
+! Exporting some useful parameters
+#include "Molcas.fh"
+public :: LenIn, MxAtom, mxsym
 
 end module info_expbas_mod
