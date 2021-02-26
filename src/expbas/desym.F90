@@ -197,19 +197,19 @@ subroutine desym(ireturn)
             select case (l)
               case (0)
                 do i=1,size(baslab_0)
-                    do icontr=1,nBasisi
-                      kk = kk+1
-                      gtolabel(kk) = AtomLabel(iAtom)//baslab_0(i)//number(icontr)
-                      Center(kk) = iAtom
-                    end do
+                  do icontr=1,nBasisi
+                    kk = kk+1
+                    gtolabel(kk) = AtomLabel(iAtom)//baslab_0(i)//number(icontr)
+                    Center(kk) = iAtom
+                  end do
                 end do
               case (1)
                 do i=1,size(baslab_1)
-                    do icontr=1,nBasisi
-                      kk = kk+1
-                      gtolabel(kk) = AtomLabel(iAtom)//baslab_1(i)//number(icontr)
-                      Center(kk) = iAtom
-                    end do
+                  do icontr=1,nBasisi
+                    kk = kk+1
+                    gtolabel(kk) = AtomLabel(iAtom)//baslab_1(i)//number(icontr)
+                    Center(kk) = iAtom
+                  end do
                 end do
               case (2)
                 if (.not. y_cart) then

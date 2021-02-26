@@ -36,44 +36,30 @@ call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'EXPBAS')
 
-999 continue
-!read(LuSpool,'(A)',End=9940) Line
-key = Get_Ln(LuSpool)
-call LeftAd(key)
-Line = key
-if (Line(1:1) == '*') goto 999
-if (Line == ' ') goto 999
-call UpCase(Line)
-if (Line(1:4) == 'NOEX') goto 1000
-if (Line(1:4) == 'DESY') goto 2000
-if (Line(1:4) == 'FILE') goto 3000
-if (Line(1:4) == 'END ') Go To 99999
-write(u6,*) 'Unidentified key word  : '
-call FindErrorLine()
-call Quit_OnUserError()
-
-!========= NOEX =============
-1000 continue
-DoExpbas = .false.
-Go To 999
-
-!========= DESY =============
-2000 continue
-DoDesy = .true.
-Go To 999
-
-!========= FILE =============
-3000 continue
-Line = Get_Ln(LuSpool)
-call FileOrb(Line,EB_FileOrb)
-Go To 999
+do
+  key = Get_Ln(LuSpool)
+  call LeftAd(key)
+  Line = key
+  if (Line(1:1) == '*') cycle
+  if (Line == ' ') cycle
+  call UpCase(Line)
+  select case (Line(1:4))
+    case ('NOEX')
+      DoExpbas = .false.
+    case ('DESY')
+      DoDesy = .true.
+    case ('FILE')
+      Line = Get_Ln(LuSpool)
+      call FileOrb(Line,EB_FileOrb)
+    case ('END ')
+      exit
+    case default
+      write(u6,*) 'Unidentified key word  : '
+      call FindErrorLine()
+      call Quit_OnUserError()
+  end select
+end do
 
 ! END of Input
-
-!9940  Continue
-write(u6,*) ' READIN: Premature end of file when reading selected'
-call Abend()
-
-99999 continue
 
 end subroutine Readinp_expbas

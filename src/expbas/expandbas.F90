@@ -10,11 +10,11 @@
 !***********************************************************************
 
 subroutine expandbas(Bas1,nBas1,Bas2,nBas2,Orb1,Orb2,occ1,eorb1,indt1,occ2,eorb2,indt2)
-!     This subroutine expands the MOs for a given symmetry
-!     Orb1 are the input orbitals of dimension nBas1*bas1 (file INPORB)
-!     Orb2 are the output orbitals of dimension nBas2*bas2 (file EXPORB)
-!     Bas1 and Bas2 are the basis set specifications for the old and
-!     new basis, respectively. They have dimensions nBas1 and nBas2.
+! This subroutine expands the MOs for a given symmetry
+! Orb1 are the input orbitals of dimension nBas1*bas1 (file INPORB)
+! Orb2 are the output orbitals of dimension nBas2*bas2 (file EXPORB)
+! Bas1 and Bas2 are the basis set specifications for the old and
+! new basis, respectively. They have dimensions nBas1 and nBas2.
 
 use info_expbas_mod, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -26,43 +26,41 @@ character(len=LenIn+8), intent(in) :: Bas1(*), Bas2(*)
 integer(kind=iwp), intent(in) :: nBas1, nBas2, indt1(*)
 integer(kind=iwp), intent(out) :: indt2(*)
 real(kind=wp), intent(in) :: Orb1(*), occ1(*), eorb1(*)
-real(kind=wp),intent(out) :: Orb2(*), occ2(*), eorb2(*)
+real(kind=wp), intent(out) :: Orb2(*), occ2(*), eorb2(*)
 integer(kind=iwp) :: i, Ibas1, Ibas2, imo, lmo1, lmo2, Nzero
 integer(kind=iwp), allocatable :: Izero(:)
 
-!     Loop through the new basis labels and compare with the old.
-!     If they are equal copy orbital coefficients
-!     If not, add zeros until they fit again
+! Loop through the new basis labels and compare with the old.
+! If they are equal copy orbital coefficients
+! If not, add zeros until they fit again
 
 call mma_allocate(Izero,nBas2,label='Izero')
 
 Nzero = 0
 Ibas2 = 1
-if (nBas1 == 0) go to 200
 Ibas1 = 1
-100 continue
-if (Bas2(Ibas2) == Bas1(Ibas1)) then
-  lmo1 = 0
-  lmo2 = 0
-  do imo=1,nBas1
-    Orb2(lmo2+Ibas2) = Orb1(lmo1+Ibas1)
-    lmo1 = lmo1+nBas1
-    lmo2 = lmo2+nBas2
-  end do
-  Ibas1 = Ibas1+1
-  Ibas2 = Ibas2+1
-else if (Bas2(Ibas2) /= Bas1(Ibas1)) then
-  Nzero = Nzero+1
-  Izero(Nzero) = Ibas2
-  lmo2 = 0
-  do imo=1,nBas1
-    Orb2(lmo2+Ibas2) = Zero
-    lmo2 = lmo2+nBas2
-  end do
-  Ibas2 = Ibas2+1
-end if
-if (Ibas1 <= nBas1) go to 100
-200 continue
+do while (Ibas1 <= nBas1)
+  if (Bas2(Ibas2) == Bas1(Ibas1)) then
+    lmo1 = 0
+    lmo2 = 0
+    do imo=1,nBas1
+      Orb2(lmo2+Ibas2) = Orb1(lmo1+Ibas1)
+      lmo1 = lmo1+nBas1
+      lmo2 = lmo2+nBas2
+    end do
+    Ibas1 = Ibas1+1
+    Ibas2 = Ibas2+1
+  else
+    Nzero = Nzero+1
+    Izero(Nzero) = Ibas2
+    lmo2 = 0
+    do imo=1,nBas1
+      Orb2(lmo2+Ibas2) = Zero
+      lmo2 = lmo2+nBas2
+    end do
+    Ibas2 = Ibas2+1
+  end if
+end do
 
 ! Add zeros at the end of each basis function
 
