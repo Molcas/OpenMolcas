@@ -8,22 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Subroutine driverBas(ireturn)
-    use desymmetrize_mod, only: desym
-    use info_expbas_mod
 
-    implicit none
-    integer, intent(out) :: ireturn
-    ireturn = 0
+subroutine driverBas(ireturn)
 
-    call Readinp_expbas()
-    if (DoExpbas) then
-        Call expbas(ireturn)
-        if (ireturn /= 0) return
-    end if
+use desymmetrize_mod, only: desym
+use info_expbas_mod
 
-    if (DoDesy) then
-        Call desym(ireturn)
-        if (ireturn /= 0) return
-    end if
-end subroutine
+implicit none
+integer, intent(out) :: ireturn
+
+ireturn = 0
+
+call Readinp_expbas()
+if (DoExpbas) then
+  call expbas(ireturn)
+  if (ireturn /= 0) return
+end if
+
+if (DoDesy) then
+  call desym(ireturn)
+  if (ireturn /= 0) return
+end if
+
+end subroutine driverBas

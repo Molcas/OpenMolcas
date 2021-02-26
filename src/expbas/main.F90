@@ -8,19 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
-#ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
-#endif
-      implicit none
-      character(len=20), parameter :: module_name = 'expbas'
-      integer :: ireturn
+
+program main
 
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+use, intrinsic :: ieee_exceptions
 #endif
 
-      Call Start(Module_Name)
-      Call driverBas(ireturn)
-      Call Finish(ireturn)
-      end program main
+implicit none
+character(len=20), parameter :: module_name = 'expbas'
+integer :: ireturn
+
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+#endif
+
+call Start(Module_Name)
+call driverBas(ireturn)
+call Finish(ireturn)
+
+end program main

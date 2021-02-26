@@ -8,10 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-module info_expbas_mod
-    private
-    public :: DoExpbas, DoDesy, EB_FileOrb
 
-    logical :: DoExpbas, DoDesy
-    character(len=512) :: EB_FileOrb
-end module
+module info_expbas_mod
+
+implicit none
+private
+
+logical :: DoExpbas, DoDesy
+character(len=512) :: EB_FileOrb
+
+public :: DoExpbas, DoDesy, EB_FileOrb
+
+end module info_expbas_mod

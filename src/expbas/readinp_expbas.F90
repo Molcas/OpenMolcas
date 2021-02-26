@@ -10,69 +10,67 @@
 !                                                                      *
 ! Copyright (C) Giovanni Li Manni                                      *
 !***********************************************************************
-      Subroutine Readinp_expbas()
-      use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
-!
-!     Author: G. Li Manni (University of Geneva)
-!
-      Implicit Real*8(a-h,o-z)
-      Character*180  Line, Blank, key, Get_Ln
-      External Get_Ln
-!
+
+subroutine Readinp_expbas()
+! Author: G. Li Manni (University of Geneva)
+
+use info_expbas_mod, only: DoExpbas, DoDesy, EB_FileOrb
+implicit real*8(a-h,o-z)
+character*180 Line, Blank, key, Get_Ln
+external Get_Ln
+
 ! Initial values
-!
-      DoExpbas = .true.
-      DoDesy   = .false.
-      EB_FileOrb  = ' '
-!
-      LuSpool=18
-      LuSpool=isFreeUnit(LuSpool)
-      Call SpoolInp(LuSpool)
 
-      Rewind(LuSpool)
-      Call RdNLst(LuSpool,'EXPBAS')
-      Blank=' '
+DoExpbas = .true.
+DoDesy = .false.
+EB_FileOrb = ' '
 
-  999 Continue
-!      Read(LuSpool,'(A)',End=9940) Line
-      key =Get_Ln(LuSpool)
-      Call LeftAd(key)
-      Line = key
-      If (Line(1:1).eq.'*' ) Goto 999
-      If (Line.eq.Blank ) Goto 999
-      Call UpCase(Line)
-      If (Line(1:4).eq.'NOEX') Goto 1000
-      If (Line(1:4).eq.'DESY') Goto 2000
-      If (Line(1:4).eq.'FILE') Goto 3000
-      If (Line(1:4).eq.'END ') Go To 99999
-      Write (6,*) 'Unidentified key word  : '
-      Call FindErrorLine
-      Call Quit_OnUserError()
+LuSpool = 18
+LuSpool = isFreeUnit(LuSpool)
+call SpoolInp(LuSpool)
+
+rewind(LuSpool)
+call RdNLst(LuSpool,'EXPBAS')
+Blank = ' '
+
+999 continue
+!read(LuSpool,'(A)',End=9940) Line
+key = Get_Ln(LuSpool)
+call LeftAd(key)
+Line = key
+if (Line(1:1) == '*') goto 999
+if (Line == Blank) goto 999
+call UpCase(Line)
+if (Line(1:4) == 'NOEX') goto 1000
+if (Line(1:4) == 'DESY') goto 2000
+if (Line(1:4) == 'FILE') goto 3000
+if (Line(1:4) == 'END ') Go To 99999
+write(6,*) 'Unidentified key word  : '
+call FindErrorLine
+call Quit_OnUserError()
 
 !========= NOEX =============
- 1000 Continue
-      DoExpbas = .false.
-      Go To 999
+1000 continue
+DoExpbas = .false.
+Go To 999
 
 !========= DESY =============
- 2000 Continue
-      DoDesy   = .true.
-      Go To 999
+2000 continue
+DoDesy = .true.
+Go To 999
 
 !========= FILE =============
- 3000 Continue
-      Line=Get_Ln(LuSpool)
-      Call FileOrb(Line,EB_FileOrb)
-      Go To 999
+3000 continue
+Line = Get_Ln(LuSpool)
+call FileOrb(Line,EB_FileOrb)
+Go To 999
 
-!
 ! END of Input
-!
 
 !9940  Continue
-      WRITE(6,*)' READIN: Premature end of file when reading selected'
-      CALL ABEND()
+write(6,*) ' READIN: Premature end of file when reading selected'
+call ABEND()
 
-99999 Continue
+99999 continue
 
-      End
+end subroutine Readinp_expbas
