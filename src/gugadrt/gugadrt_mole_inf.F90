@@ -11,19 +11,17 @@
 
 subroutine gugadrt_mole_inf()
 
-use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_orb, max_ref, mul_tab, n_electron, n_ref, &
-                          ng_sm, nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, &
-                          norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin
-use stdalloc, only: mma_allocate, mma_deallocate
+use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_ref, mul_tab, n_electron, n_ref, ng_sm, &
+                          nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, &
+                          norb_frz, norb_inn, ns_sm, nstart_act, spin
 use constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: err, i, icmd, idisk, im, iml, imr, im_lr_sta, int_dd_offset(8,8), iorb, ispin, itmpstr(72), j, jcmd, l, ln1, &
-                     lr, lsmtmp(8), ms_ref, mul, nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, nlsm_act(8), nlsm_dbl(8), &
-                     nlsm_frz(8), nlsm_inn(8), noidx(8), norb1, norb2, norb_all_tmp, ntit
+integer(kind=iwp) :: err, i, icmd, idisk, im, iorb, ispin, itmpstr(72), j, jcmd, ln1, lsm, lsmtmp(8), ms_ref, mul, nact_sm, &
+                     nactel, nde, ndisk, ne_act, neact, ngsm, nlsm_act(8), nlsm_dbl(8), nlsm_frz(8), nlsm_inn(8), noidx(8), norb1, &
+                     norb2, norb_all_tmp, ntit
 logical(kind=iwp) :: log_debug, skip
-integer(kind=iwp), allocatable :: lsm(:)
 character(len=4) :: command
 character(len=72) :: line
 character(len=132) :: modline
@@ -302,31 +300,14 @@ if (norb_all_tmp /= norb_all) then
   call abend()
 end if
 
-call mma_allocate(lsm,max_orb,label='lsm')
-
-do l=1,norb_inn
-  lr = norb_all-l+1
-  lsm(lr) = lsm_inn(l)
+lsm = 0
+do im=ng_sm,1,-1
+  if (nlsm_ext(im) > 0) then
+    lsm = im
+    exit
+  end if
 end do
-
-lr = 0
-int_dd_offset(1:8,1:8) = 0
-do im=1,ng_sm
-  im_lr_sta = 0
-  do iml=1,ng_sm
-    imr = mul_tab(im,iml)
-    if (imr > iml) cycle
-    int_dd_offset(iml,imr) = im_lr_sta
-    int_dd_offset(imr,iml) = im_lr_sta
-    if (iml == imr) im_lr_sta = im_lr_sta+nlsm_ext(iml)*(nlsm_ext(iml)-1)/2
-    if (iml /= imr) im_lr_sta = im_lr_sta+nlsm_ext(iml)*nlsm_ext(imr)
-  end do
-  do l=1,nlsm_ext(im)
-    lr = lr+1
-    lsm(lr) = im
-  end do
-end do
-lsm_inn(norb_inn+1) = lsm(norb_ext)
+lsm_inn(norb_inn+1) = lsm
 
 lsmtmp(1:8) = 0
 if (logic_mr) then
@@ -422,12 +403,8 @@ if (log_debug) then
   write(u6,1002) nlsm_inn(1:ng_sm)
   write(u6,*) 'lsm inn'
   write(u6,1002) lsm_inn(1:norb_inn)
-  write(u6,*) 'lsm all',norb_all
-  write(u6,1002) (lsm(i),i=norb_all,1,-1)
 end if
 !*****************************************************
-
-call mma_deallocate(lsm)
 
 ! merge into molcas
 ! write date into cidrt for ci calculation

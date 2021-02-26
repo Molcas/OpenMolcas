@@ -96,15 +96,9 @@ do m=1,mdj
                     m7 = l7*2+lscu(7,m)
                     m8 = l8*2+lscu(8,m)
                     do ldj=1,ndj
-                      if (m1 /= locu(1,ldj)) cycle
-                      if (m2 /= locu(2,ldj)) cycle
-                      if (m3 /= locu(3,ldj)) cycle
-                      if (m4 /= locu(4,ldj)) cycle
-                      if (m5 /= locu(5,ldj)) cycle
-                      if (m6 /= locu(6,ldj)) cycle
-                      if (m7 /= locu(7,ldj)) cycle
-                      if (m8 /= locu(8,ldj)) cycle
-                      cycle outer
+                      if (all([m1,m2,m3,m4,m5,m6,m7,m8] == locu(:,ldj))) then
+                        cycle outer
+                      end if
                     end do
                     ndj = ndj+1
                     locu(1,ndj) = m1

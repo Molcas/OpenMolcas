@@ -27,6 +27,11 @@ call mma_allocate(jb,max_node,label='jb')
 call mma_allocate(jj,[1,4],[0,max_node],label='jj')
 call mma_allocate(jm,[0,max_node],label='jm')
 call mma_allocate(kk,[0,max_node],label='kk')
+ja(:) = 0
+jb(:) = 0
+jj(:,:) = 0
+jm(:) = 0
+kk(:) = 0
 
 call gugainit()
 
