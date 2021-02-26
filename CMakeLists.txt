@@ -1053,7 +1053,18 @@ if (MPI)
   elseif (MPIEXEC_VERSION MATCHES "HYDRA")
     set (MPI_IMPLEMENTATION "mpich")
   else ()
-    message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
+    # check for MPICH 3, which has only "mpichversion" as an executable,
+    # but "mpiexec --version" does not work
+    execute_process (
+    COMMAND "mpichversion"
+    OUTPUT_VARIABLE MPIEXEC_VERSION
+    ERROR_VARIABLE MPIEXEC_VERSION
+    )
+    if (MPIEXEC_VERSION MATCHES "MPICH")
+      set (MPI_IMPLEMENTATION "mpich")
+    else ()
+      message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
+    endif ()
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
