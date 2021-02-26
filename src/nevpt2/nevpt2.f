@@ -26,7 +26,9 @@
         use nevpt2_cfg         ! input variables
         use info_state_energy  ! energies
         use info_orbital_space ! orbital space info
-
+#ifdef _MOLCAS_MPP_
+        use Para_Info, only: King
+#endif
         implicit none
 
         integer iReturn
@@ -39,7 +41,6 @@
 
 #ifdef _MOLCAS_MPP_
         ! Make sure we run single-threaded in an MPI environment
-        logical, external :: King
 
         IF (KING()) then
 #endif

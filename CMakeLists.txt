@@ -1068,6 +1068,12 @@ if (MPI)
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
+  # GCC > 10.0 requires explicit MPI interface
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+      CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
+    add_compile_definitions(_NEED_EXPLICIT_MPI_INTERFACE_)
+  endif ()
+
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
 
@@ -2755,7 +2761,7 @@ endforeach (prog)
 # Set proper install RPATH if using internal QCMaquis
 if (DMRG)
   foreach (prog ${dmrg_progs})
-    if (NOT MAQUIS_DMRG_FOUND)
+    if (NOT MAQUIS_DMRG_FOUND AND TARGET ${prog}.exe)
       set_target_properties (${prog}.exe PROPERTIES
         BUILD_WITH_INSTALL_RPATH TRUE
         INSTALL_RPATH_USE_LINK_PATH TRUE

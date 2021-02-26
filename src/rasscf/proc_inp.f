@@ -22,7 +22,7 @@
      &        qcmaquis_interface_stdout
       use active_space_solver_cfg, only: as_solver_inp_proc
 #ifdef _MOLCAS_MPP_
-      use Para_Info, Only: nProcs
+      use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
       use write_orbital_files, only: OrbFiles
@@ -3222,8 +3222,8 @@ C Test read failed. JOBOLD cannot be used.
      &    thre,
      &    weight,
 #ifdef _MOLCAS_MPP_
-     &    nprocs,
-     &    myrank,
+     &    mpp_nprocs,
+     &    mpp_procid,
 #endif
      &    initial_occ)
        ! TODO: Support sweep_bond_dimension!

@@ -226,6 +226,7 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
       set(EP_CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
         "-DBUILD_OPENMOLCAS_MPI:BOOL=ON"
         "-DGA_INCLUDE_DIR:STRING=${GA_INCLUDE_PATH}"
+        "-DGA_LIBRARIES:STRING=${GA_LIBRARIES}"
       )
     endif()
 
@@ -338,7 +339,7 @@ set(DMRG_INCLUDE ${mod_dir} PARENT_SCOPE)
 
 # set library paths
 if (MAQUIS_DMRG_FOUND)
-  set(MAQUIS_DMRG_LIBRARIES "qcmaquis-driver;${MAQUIS_DMRG_LIBRARIES}" PARENT_SCOPE)
+  set(MAQUIS_DMRG_LIBRARIES qcmaquis-driver ${MAQUIS_DMRG_LIBRARIES} PARENT_SCOPE)
 else()
 # add static QCMaquis libraries
   set(MAQUIS_DMRG_LIBRARIES
@@ -350,6 +351,7 @@ else()
       ${MAQUIS_DMRG_LIBRARIES}
     PARENT_SCOPE)
 endif()
+
 # add HDF5 QCMaquis interface libraries
 set(HDF5_QCM_INCLUDE ${mod_dir} PARENT_SCOPE)
 set(HDF5_QCM_LIBRARIES qcmaquis-hdf5-interface PARENT_SCOPE)
