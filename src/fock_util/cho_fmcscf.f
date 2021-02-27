@@ -363,30 +363,29 @@ C ************ BEGIN EXCHANGE CONTRIBUTIONS  ****************
 
 C --- Set pointers to the half-transformed Cholesky vectors
                lChoT=0
+               lChoT1 = 0
+               lChoT2 = 0
+               lChoT3 = 0
                Do iSymb=1,nSym
 
                   iSymp = MulD2h(JSYM,iSymb)
 
-                  ipLab(iSymp,1) = ipChoT + lChoT  ! LkJ,b
-                  ipLab(iSymp,2) = ipLab(iSymp,1)  ! LxJ,b
-
-                  ipLab(iSymp,3) = ipLab(iSymp,1)  ! Lvb,J
+                  ipLab(iSymp,1) = ipChoT + lChoT1 ! LkJ,b
+                  ipLab(iSymp,2) = ipChoT + lChoT2 ! LxJ,b
+                  ipLab(iSymp,3) = ipChoT + lChoT3 ! Lvb,J
                   ipLxy(iSymp) = ipLab(iSymp,3)    ! Lvw,J
      &                         + nAorb(iSymp)*nBas(iSymb)*JNUM
 
                   lChoT = lChoT + nBas(iSymb)*
-     &                    Max((nForb(iSymp)+nIorb(iSymp)),
-     &                         nAorb(iSymp),nChM(iSymp))*JNUM
+     &                    Max(nAorb(iSymp),nChM(iSymp))*JNUM
      &                  + nnA(iSymp,iSymb)*JNUM
-
-#ifdef _DEBUGPRINT_
-            write(6,*)'JRED,iBatch,nBatch= ',jred,iBatch,nBatch
-            write(6,*)'JSYM,iSymp,iSymb,lChot= ',JSYM,iSymp,iSymb,lChot
-            write(6,*)'Lxb starts in= ',ipLab(iSymp,3)
-            write(6,*)'and occupies ',nAorb(iSymp)*nBas(iSymb)*JNUM
-            write(6,*)'Lxy starts in= ',ipLxy(iSymp)
-            write(6,*)'and occupies ',nnA(iSymp,iSymb)*JNUM
-#endif
+                  lChoT1= lChoT1 + nBas(iSymb)
+     &                           * (nForb(iSymp)+nIorb(iSymp)) * JNUM
+                  lChoT2= lChoT2 + nBas(iSymb)
+     &                           * nChM(iSymp) * JNUM
+                  lChoT3= lChoT3 + nBas(iSymb)
+     &                           * nAorb(iSymp) * JNUM
+     &                  + nnA(iSymp,iSymb)*JNUM
 
                End Do
 
@@ -408,17 +407,6 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
                tread(1) = tread(1) + (TCR4 - TCR3)
                tread(2) = tread(2) + (TWR4 - TWR3)
 
-#ifdef _DEBUGPRINT_
-       write(6,*) 'Half-transformation in the Inactive space'
-       write(6,*) 'Total allocated :     ',mTvec*nVec,' at ',ipChoT
-       write(6,*) 'Mem pointers ipLab :  ',(ipLab(i,1),i=1,nSym)
-       write(6,*) 'ipLxy :  ',(ipLxy(i),i=1,nSym)
-       write(6,*) 'iSkip :        ',(iSkip(i),i=1,nSym)
-       write(6,*) 'LREAD: ',LREAD,' allocated at ',ip_of_Work(Lrs)
-       write(6,*) 'JRED :        ',JRED
-       write(6,*) 'JSYM :        ',JSYM
-       write(6,*) 'JNUM :        ',JNUM
-#endif
 
                if (irc.ne.0) then
                   rc = irc
@@ -620,8 +608,8 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,ipScr,ipLab,ipLxy,ipInt,nAorb,
-     &                            JSYM,JNUM,DoTraInt)
+               CALL CHO_eval_waxy(irc,ipScr,ipLab(:,3),ipLxy,ipInt,
+     &                            nAorb,JSYM,JNUM,DoTraInt)
 
                CALL CWTIME(TCINT2,TWINT2)
                tintg(1) = tintg(1) + (TCINT2 - TCINT1)
