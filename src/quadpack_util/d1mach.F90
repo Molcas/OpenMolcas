@@ -8,37 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION D1MACH(I)
-      INTEGER I
+
+real*8 function D1Mach(I)
+! DOUBLE-PRECISION MACHINE CONSTANTS
 !
-!  DOUBLE-PRECISION MACHINE CONSTANTS
+! D1MACH(1) = B**(EMIN-1), THE SMALLEST POSITIVE MAGNITUDE.
 !
-!  D1MACH( 1) = B**(EMIN-1), THE SMALLEST POSITIVE MAGNITUDE.
-!
-!  D1MACH( 4) = B**(1-T), THE LARGEST RELATIVE SPACING.
-!
-      real*8 eps,xmin,xmax
+! D1MACH(4) = B**(1-T), THE LARGEST RELATIVE SPACING.
+
+integer I
+real*8 eps, xmin, xmax
 ! PAM 2008 These declarations should be used with machar
-!      real*8 epsneg
-!      integer ibeta,it,irnd,ngrd,machep,negep,iexp,minexp,maxexp
+!real*8 epsneg
+!integer ibeta, it, irnd, ngrd, machep, negep, iexp, minexp, maxexp
 
 ! PAM 2008 Do not use machar any more. Try hardcoded values:
-!      call machar(ibeta,it,irnd,ngrd,machep,negep,iexp,minexp,
-!     *maxexp,eps,epsneg,xmin,xmax)
-      EPS=1.0D-15
-      XMIN=1.0D-300
-      XMAX=1.0D+300
+!call machar(ibeta,it,irnd,ngrd,machep,negep,iexp,minexp,maxexp,eps,epsneg,xmin,xmax)
+EPS = 1.0D-15
+XMIN = 1.0D-300
+XMAX = 1.0D+300
 
-      If (I.eq.1) then
-         D1Mach = xmin
-      Else If (I.eq.2) then
-         D1Mach = xmax
-      Else If (I.eq.4) then
-         D1Mach = eps
-      Else
-         D1Mach = -1d0
-      End If
+if (I == 1) then
+  D1Mach = xmin
+else if (I == 2) then
+  D1Mach = xmax
+else if (I == 4) then
+  D1Mach = eps
+else
+  D1Mach = -1d0
+end if
 
-      RETURN
+return
 
-      END
+end function D1Mach

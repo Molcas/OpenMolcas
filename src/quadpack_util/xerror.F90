@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Subroutine xerror(Label,ix,ier,lvl)
-       Character*(*) Label
-       Integer ix,ier,lvl
-!
-       Write (6,*) 'Terminate in xerror!'
-       Write (6,'(A)') Label
-       Write (6,'(A,I5)') 'ix=',ix
-       Write (6,'(A,I5)') 'ier=',ier
-       Write (6,'(A,I5)') 'lvl=',lvl
-       Call Abend()
-!
-       Return
-       End
+
+subroutine xerror(Label,ix,ier,lvl)
+
+character*(*) Label
+integer ix, ier, lvl
+
+write(6,*) 'Terminate in xerror!'
+write(6,'(A)') Label
+write(6,'(A,I5)') 'ix=',ix
+write(6,'(A,I5)') 'ier=',ier
+write(6,'(A,I5)') 'lvl=',lvl
+call Abend()
+
+return
+
+end subroutine xerror
