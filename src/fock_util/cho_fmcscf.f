@@ -41,10 +41,13 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type
+      use Data_structures, only: CMO_Type, Laq_Type
+      use Data_structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) POrb(3)
+      Type (Laq_Type), Target:: Laq(3)
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
       Integer   iSkip(8)
@@ -73,7 +76,9 @@ C
       Logical add
       Character*6 mode
 
+      Integer nAux(8)
       Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Pointer:: VJ(:)=>Null()
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -174,18 +179,15 @@ C *** setup pointers to the symmetry blocks of (wa|xy)
          End Do
 
 C --- Set up the skipping flags + some initializations --------
+         ipLab(:,:) = -6666  ! pointers to Lk,Jb
+         ipLab(:,:) = -6666  ! pointers to "cholesky MOs vectors"
+         ipLab(:,:) = -6666  ! pointers to Lvb,J
+         ipLxy(:) = -6666  ! pointers to Lxy,J
 C -------------------------------------------------------------
          Do i=1,nSym
-
             k = Muld2h(i,JSYM)
             iSkip(i) = Min(1,nBas(i)*nBas(k)) ! skip Lik vector
             iSkip(i) = iSkip(i)*(nPorb(i)+nChM(i))
-
-            ipLab(i,1) = -6666  ! pointers to Lk,Jb
-            ipLab(i,2) = -6666  ! pointers to "cholesky MOs vectors"
-            ipLab(i,3) = -6666  ! pointers to Lvb,J
-            ipLxy(i) = -6666  ! pointers to Lxy,J
-
          End Do
 C -------------------------------------------------------------
 
@@ -198,15 +200,18 @@ C ------------------------------------------------------------------
          mTvec1 = 0  ! mem for storing the half-transformed vec
          mTvec2 = 0  ! mem for storing the half-transformed vec
          mTvec3 = 0  ! mem for storing the half-transformed vec
+         mTvec4 = 0  ! mem for storing the half-transformed vec
 
+         nAux(:) = nForb(:) + nIorb(:)
          do l=1,nSym
             k=Muld2h(l,JSYM)
-            mTvec1= mTvec1+ nBas(l)*(nForb(k)+nIorb(k))
-            mTvec2= mTvec2+ nBas(l)*nChM(k)
-            mTvec3= mTvec3+ nBas(l)*nAorb(k) + nnA(k,l)
+            mTvec1= mTvec1+ nBas(k)*nAux(l)
+            mTvec2= mTvec2+ nBas(k)*nChM(l)
+            mTvec3= mTvec3+ nBas(k)*nAorb(l)
+            mTvec4= mTvec4+ nnA(k,l)
          end do
 
-         mTvec = Max(mTvec1,mTvec2,mTvec3,1)
+         mTvec = Max(mTvec1,mTvec2,mTvec3+mTvec4,1)
 
 C ------------------------------------------------------------------
 C ------------------------------------------------------------------
@@ -267,7 +272,6 @@ C ------------------------------------------------------------------
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
-            Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
 
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
@@ -281,6 +285,8 @@ C --- BATCH over the vectors ----------------------------
             nBatch = (nVrs-1)/nVec + 1
 
             DO iBatch=1,nBatch
+               iSwap = 2  ! LpJ,b are returned
+               Call Allocate_Laq(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
 
                If (iBatch.eq.nBatch) Then
                   JNUM = nVrs - nVec*(nBatch-1)
@@ -316,11 +322,11 @@ C==========================================================
 
                   CALL CWTIME(TCC1,TWC1)
 
-                  ipVJ = ipChoT
+                  VJ(1:JNUM) => Laq(1)%Laq_Full(1:JNUM)
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab(1)),1,ZERO,Work(ipVJ),1)
+     &                 Work(ipDab(1)),1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -329,7 +335,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 Work(ipVJ),1,xfac,Work(ipFab(1)),1)
+     &                 VJ,1,xfac,Work(ipFab(1)),1)
 
 
                   If (DoActive) Then
@@ -342,7 +348,7 @@ C==========================================================
 C
                      CALL DGEMV_('T',nRS,JNUM,
      &                          ONE,Lrs,nRS,
-     &                          Work(ipDab(2)),1,ZERO,Work(ipVJ),1)
+     &                          Work(ipDab(2)),1,ZERO,VJ,1)
 
 C --- FA(rs){#J} <- FA(rs){#J} + FactCA * sum_J L(rs,{#J})*U{#J}
 C===============================================================
@@ -351,7 +357,7 @@ C===============================================================
 
                      CALL DGEMV_('N',nRS,JNUM,
      &                          FactCA,Lrs,nRS,
-     &                          Work(ipVJ),1,xfac,Work(ipFab(2)),1)
+     &                          VJ,1,xfac,Work(ipFab(2)),1)
 
                   EndIf
 
@@ -360,21 +366,14 @@ C===============================================================
                   tcoul(1) = tcoul(1) + (TCC2 - TCC1)
                   tcoul(2) = tcoul(2) + (TWC2 - TWC1)
 
+                  VJ=>Null()
 
                ENDIf  ! Coulomb (jsym=1)
 
 C ************ BEGIN EXCHANGE CONTRIBUTIONS  ****************
 
 C --- Set pointers to the half-transformed Cholesky vectors
-               lChoT1 = 0
-               Do iSymb=1,nSym
-                  iSymp = MulD2h(JSYM,iSymb)
-                  ipLab(iSymp,1) = ipChoT + lChoT1 ! LkJ,b
-                  lChoT1= lChoT1 + nBas(iSymb)
-     &                           * (nForb(iSymp)+nIorb(iSymp)) * JNUM
-               End Do
-
-               iSwap = 2  ! LpJ,b are returned
+               Call Map_to_Laq(Laq(1),ipLab(:,1))
 
 C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
@@ -417,8 +416,8 @@ C ---------------------------------------------------------------------
                      ISFI = ipFI + ISTLT(iSyma)
 
                      CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
-     &                         NK*JNUM,FactXI,Work(ipLab(iSymk,1)),
-     &                         NK*JNUM,Work(ipLab(iSymk,1)),NK*JNUM,
+     &                         NK*JNUM,FactXI,Laq(1)%pA(iSymk)%A,
+     &                         NK*JNUM,Laq(1)%pA(iSymk)%A,NK*JNUM,
      &                         One,Work(ISFI),nBas(iSyma))
 
 
@@ -434,8 +433,12 @@ C --------------------------------------------------------------------
                texch(1) = texch(1) + (TCX2 - TCX1)
                texch(2) = texch(2) + (TWX2 - TWX1)
 
+               Call Deallocate_Laq(Laq(1))
 
                IF(DoActive)THEN
+                  iSwap = 2  ! LxJ,b are returned
+                  Call Allocate_Laq(Laq(2),nChM,nBas,nVec,JSYM,nSym,
+     &                              iSwap)
 C *********************** "CHOLESKY" HALF-TRANSFORMATION  ****************
 C --------------------------------------------------------------------
 c --- Using "Cholesky MOs" obtained by cholesky decomposing DA
@@ -444,12 +447,7 @@ C --------------------------------------------------------------------
                   CALL CWTIME(TCR5,TWR5)
 
 C --- Set pointers to the half-transformed Cholesky vectors
-                  lChoT2 = 0
-                  Do iSymb=1,nSym
-                     iSymp = MulD2h(JSYM,iSymb)
-                     ipLab(iSymp,2) = ipChoT + lChoT2 ! LxJ,b
-                     lChoT2= lChoT2 + nBas(iSymb) * nChM(iSymp) * JNUM
-                  End Do
+                  Call Map_to_Laq(Laq(2),ipLab(:,2))
 
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
@@ -487,8 +485,8 @@ C ---------------------------------------------------------------------
                         ISFA = ipFA + ISTLT(iSyma)
 
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
-     &                         NAch*JNUM,FactXA,Work(ipLab(iSymw,2)),
-     &                         NAch*JNUM,Work(ipLab(iSymw,2)),NAch*JNUM,
+     &                         NAch*JNUM,FactXA,Laq(2)%pA(iSymw)%A,
+     &                         NAch*JNUM,Laq(2)%pA(iSymw)%A,NAch*JNUM,
      &                         One,Work(ISFA),nBas(iSyma))
 
 
@@ -504,15 +502,16 @@ C --------------------------------------------------------------------
                   texch(1) = texch(1) + (TCX4 - TCX3)
                   texch(2) = texch(2) + (TWX4 - TWX3)
 
+                  Call Deallocate_Laq(Laq(2))
                ENDIF   ! Do Active Exchange
-
-
 C ************  END EXCHANGE CONTRIBUTIONS  ****************
 
 
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
 C --------------------------------------------------------------------
+               Call GetMem('ChoT','Allo','Real',ipChoT3,mTvec3*nVec)
+               Call GetMem('ChoT','Allo','Real',ipChoT4,mTvec4*nVec)
 
                CALL CWTIME(TCR7,TWR7)
 
@@ -520,13 +519,15 @@ C --- Set pointers to the half-transformed Cholesky vectors
                lChoT3 = 0
                Do iSymb=1,nSym
                   iSymp = MulD2h(JSYM,iSymb)
-                  ipLab(iSymp,3) = ipChoT + lChoT3 ! Lvb,J
+                  ipLab(iSymp,3) = ipChoT3 + lChoT3 ! Lvb,J
                   lChoT3= lChoT3 + nBas(iSymb) * nAorb(iSymp) * JNUM
                End Do
+
+               lChoT4 = 0
                Do iSymb=1,nSym
                   iSymp = MulD2h(JSYM,iSymb)
-                  ipLxy(iSymp) = ipChot + lChoT3   ! Lvw,J
-                  lChoT3= lChoT3 + nnA(iSymp,iSymb)*JNUM
+                  ipLxy(iSymp) = ipChot4 + lChoT4   ! Lvw,J
+                  lChoT4= lChoT4 + nnA(iSymp,iSymb)*JNUM
                End Do
 
                iSwap = 0  ! Lvb,J are returned
@@ -628,6 +629,8 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
+               Call GetMem('ChoT','Free','Real',ipChoT4,mTvec4*nVec)
+               Call GetMem('ChoT','Free','Real',ipChoT3,mTvec3*nVec)
 
             END DO  ! end batch loop
 
@@ -640,7 +643,6 @@ c --- backtransform fock matrix in full storage
             endif
 
 C --- free memory
-            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
             Call mma_deallocate(Lrs)
 
             if (JSYM.eq.1) then
