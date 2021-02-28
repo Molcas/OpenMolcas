@@ -195,15 +195,18 @@ C ------------------------------------------------------------------
 C --- compute memory needed to store at least 1 vector of JSYM
 C --- and do all the subsequent calculations
 C ------------------------------------------------------------------
-         mTvec  = 0  ! mem for storing the half-transformed vec
+         mTvec1 = 0  ! mem for storing the half-transformed vec
+         mTvec2 = 0  ! mem for storing the half-transformed vec
+         mTvec3 = 0  ! mem for storing the half-transformed vec
 
          do l=1,nSym
             k=Muld2h(l,JSYM)
-            mTvec = mTvec + nBas(l)*Max((nForb(k)+nIorb(k)),
-     &              nAorb(k),nChM(k)) + nnA(k,l)
+            mTvec1= mTvec1+ nBas(l)*(nForb(k)+nIorb(k))
+            mTvec2= mTvec2+ nBas(l)*nChM(k)
+            mTvec3= mTvec3+ nBas(l)*nAorb(k) + nnA(k,l)
          end do
 
-         mTvec = Max(mTvec,1)
+         mTvec = Max(mTvec1,mTvec2,mTvec3,1)
 
 C ------------------------------------------------------------------
 C ------------------------------------------------------------------
@@ -263,6 +266,7 @@ C ------------------------------------------------------------------
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+
             Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
 
             If(JSYM.eq.1)Then
