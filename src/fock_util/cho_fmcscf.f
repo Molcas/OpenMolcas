@@ -366,31 +366,12 @@ C===============================================================
 C ************ BEGIN EXCHANGE CONTRIBUTIONS  ****************
 
 C --- Set pointers to the half-transformed Cholesky vectors
-               lChoT=0
                lChoT1 = 0
-               lChoT2 = 0
-               lChoT3 = 0
                Do iSymb=1,nSym
-
                   iSymp = MulD2h(JSYM,iSymb)
-
                   ipLab(iSymp,1) = ipChoT + lChoT1 ! LkJ,b
-                  ipLab(iSymp,2) = ipChoT + lChoT2 ! LxJ,b
-                  ipLab(iSymp,3) = ipChoT + lChoT3 ! Lvb,J
-                  ipLxy(iSymp) = ipLab(iSymp,3)    ! Lvw,J
-     &                         + nAorb(iSymp)*nBas(iSymb)*JNUM
-
-                  lChoT = lChoT + nBas(iSymb)*
-     &                    Max(nAorb(iSymp),nChM(iSymp))*JNUM
-     &                  + nnA(iSymp,iSymb)*JNUM
                   lChoT1= lChoT1 + nBas(iSymb)
      &                           * (nForb(iSymp)+nIorb(iSymp)) * JNUM
-                  lChoT2= lChoT2 + nBas(iSymb)
-     &                           * nChM(iSymp) * JNUM
-                  lChoT3= lChoT3 + nBas(iSymb)
-     &                           * nAorb(iSymp) * JNUM
-     &                  + nnA(iSymp,iSymb)*JNUM
-
                End Do
 
                iSwap = 2  ! LpJ,b are returned
@@ -462,6 +443,14 @@ C --------------------------------------------------------------------
 
                   CALL CWTIME(TCR5,TWR5)
 
+C --- Set pointers to the half-transformed Cholesky vectors
+                  lChoT2 = 0
+                  Do iSymb=1,nSym
+                     iSymp = MulD2h(JSYM,iSymb)
+                     ipLab(iSymp,2) = ipChoT + lChoT2 ! LxJ,b
+                     lChoT2= lChoT2 + nBas(iSymb) * nChM(iSymp) * JNUM
+                  End Do
+
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
 
@@ -526,6 +515,19 @@ C --- First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
 C --------------------------------------------------------------------
 
                CALL CWTIME(TCR7,TWR7)
+
+C --- Set pointers to the half-transformed Cholesky vectors
+               lChoT3 = 0
+               Do iSymb=1,nSym
+                  iSymp = MulD2h(JSYM,iSymb)
+                  ipLab(iSymp,3) = ipChoT + lChoT3 ! Lvb,J
+                  lChoT3= lChoT3 + nBas(iSymb) * nAorb(iSymp) * JNUM
+               End Do
+               Do iSymb=1,nSym
+                  iSymp = MulD2h(JSYM,iSymb)
+                  ipLxy(iSymp) = ipChot + lChoT3   ! Lvw,J
+                  lChoT3= lChoT3 + nnA(iSymp,iSymb)*JNUM
+               End Do
 
                iSwap = 0  ! Lvb,J are returned
                kMOs = 3  ! Active MOs
