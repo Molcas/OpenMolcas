@@ -15,6 +15,7 @@
       use kVectors
       use rassi_global_arrays, only: JBNUM
 #ifdef _DMRG_
+      use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       use mh5, only: mh5_create_file, mh5_init_attr,

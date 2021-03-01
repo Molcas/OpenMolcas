@@ -160,19 +160,7 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 #=====================================
 message ("Configuring compilers:")
 
-if (DMRG)
-  enable_language (CXX)
-  if (NOT DEFINED QCMaquis_ROOT)
-    if (DEFINED ENV{QCMaquis_ROOT})
-      set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
-    else ()
-      set (QCMaquis_ROOT "None")
-    endif ()
-    set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE PATH "Specify path to existing QCMaquis installation. This will allow to skip the installation of ALPS/BOOST and QCMaquis.")
-  endif ()
-endif ()
-
-if (WFA OR MolGUI)
+if (WFA OR MolGUI OR DMRG)
   enable_language (CXX)
 endif ()
 
@@ -1065,9 +1053,26 @@ if (MPI)
   elseif (MPIEXEC_VERSION MATCHES "HYDRA")
     set (MPI_IMPLEMENTATION "mpich")
   else ()
-    message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
+    # check for MPICH 3, which has only "mpichversion" as an executable,
+    # but "mpiexec --version" does not work
+    execute_process (
+    COMMAND "mpichversion"
+    OUTPUT_VARIABLE MPIEXEC_VERSION
+    ERROR_VARIABLE MPIEXEC_VERSION
+    )
+    if (MPIEXEC_VERSION MATCHES "MPICH")
+      set (MPI_IMPLEMENTATION "mpich")
+    else ()
+      message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
+    endif ()
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
+
+  # GCC > 10.0 requires explicit MPI interface
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+      CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
+    add_compile_definitions(_NEED_EXPLICIT_MPI_INTERFACE_)
+  endif ()
 
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
@@ -1089,6 +1094,11 @@ if (HDF5)
     if (HDF5_FOUND)
       message ("-- HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}")
       message ("-- HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}")
+      if (HDF5_VERSION)
+        if (DMRG AND HDF5_VERSION VERSION_EQUAL "1.10.0.1")
+          message (FATAL_ERROR "This HDF5 version (${HDF5_VERSION}) is not supported by QCMaquis.")
+        endif ()
+      endif ()
       list (APPEND EXTERNAL_LIBRARIES ${HDF5_C_LIBRARIES})
       if (HDF5_CXX_LIBRARIES)
         message ("-- HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}")
@@ -1796,70 +1806,6 @@ else ()
   message ("CHEMPS2 interface DISABLED")
 endif ()
 
-# QCMaquis support
-#=================
-
-if (DMRG)
-  mark_as_advanced (CLEAR DMRG_DEBUG)
-  # Name and e-mail required for downloading QCMaquis
-  # Try to get the real name from the system account information
-  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set (QCMaquis_NAME_GET_CMD "id -F")
-  else ()
-  # should we distinguish other platforms?
-    set (QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
-  endif ()
-  execute_process (
-    COMMAND ${QCMaquis_NAME_GET_CMD}
-    OUTPUT_VARIABLE QCMaquis_NAME_
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
-
-  # Update QCMaquis flag. Off by default.
-  # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
-  # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
-  if (NOT QCMaquis_UPDATE)
-    set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
-  endif ()
-
-  # try to get the e-mail address from git config (TODO: is there a better option?)
-  execute_process (
-    COMMAND ${GIT} "config" "user.email"
-    OUTPUT_VARIABLE QCMaquis_EMAIL_
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
-
-  # Prepare variables for QCMaquis: separate name and surname
-  set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
-
-  separate_arguments (QCMaquis_NAME_LIST)
-  list (LENGTH QCMaquis_NAME_LIST qcm_name_len)
-  if (qcm_name_len LESS 2)
-    message (FATAL_ERROR
-             "Your name has been specified as: " ${QCMaquis_NAME} "\n"
-             "Please specify both name and surname. If you have only one name, please specify it twice.")
-  endif ()
-
-  # Separate first name from the last name
-  # Currently, only the first word is treated by QCMaquis as the first name,
-  # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
-  # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
-  # the last name. However, this has no influence on the QCMaquis download.
-  list (GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
-  list (REMOVE_AT QCMaquis_NAME_LIST 0)
-  foreach (arg ${QCMaquis_NAME_LIST})
-    set (QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
-  endforeach ()
-
-  # Set QCMaquis download URL and path to the download script
-  set (QCMaquis_URL "https://scine.ethz.ch/download/")
-  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/QCMaquis/get_qcmaquis.sh")
-else ()
-  mark_as_advanced (FORCE DMRG_DEBUG)
-endif ()
-
 # GPerfTools: CPU profiling
 #==========================
 
@@ -1951,71 +1897,47 @@ endif ()
 if (DMRG)
   message ("Configuring QCMaquis DMRG support:")
 
-  if ( "${QCMaquis_NAME}" STREQUAL "" OR "${QCMaquis_EMAIL}" STREQUAL "")
-    message (WARNING "Please set your name and e-mail with -DQCMaquis_NAME and -DQCMaquis_EMAIL to be able to download QCMaquis.")
-  else ()
-    message ("-- Your name (used to download QCMaquis): " ${QCMaquis_NAME})
-    message ("-- Your email (used to download QCMaquis): " ${QCMaquis_EMAIL})
+  if (DEFINED ENV{QCMaquis_ROOT})
+    set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
+  endif ()
+  if (QCMaquis_ROOT)
+    message (STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
+    set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of QCMaquis.")
+    set (MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
+    find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
   endif ()
 
   add_compile_definitions (_DMRG_)
-  if (DMRG_DEBUG)
-    add_compile_definitions (_DMRG_DEBUG_)
-  endif ()
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/QCMaquis)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis)
 
-  configure_file (${proj}/CMakeLists.txt.in         ${proj_bin}/CMakeLists.txt            COPYONLY)
-  configure_file (${proj}/alps_find_hdf5.patch      ${proj_bin}/alps_find_hdf5.patch      COPYONLY)
-  configure_file (${proj}/pyalps_parse_labels.patch ${proj_bin}/pyalps_parse_labels.patch COPYONLY)
-  configure_file (${proj}/paths.patch               ${proj_bin}/paths.patch               COPYONLY)
-  configure_file (${proj}/findmaquislapack.patch    ${proj_bin}/findmaquislapack.patch    COPYONLY)
+  configure_file (${custom_dir}/qcmaquis.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
-  # Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
+  ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
-
-  get_directory_property (${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
-  get_directory_property (${DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${DMRG_LIBRARIES})
-
-  message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
-  message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
-
-  list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
-  list (APPEND EXTRA_INSTALL_DIRS ${PROJECT_BINARY_DIR}/qcmaquis)
-else ()
-  message ("DMRG support DISABLED")
-endif ()
-
-# HDF5 QCMaquis interface
-# QCMaquis uses its own HDF5 interface, which is used here
-# TODO: Leon: Actually, it's mostly NEVPT2 code that's using this interface, therefore it should be independent from DMRG/QCMaquis once we have a CASSCF-NEVPT2 interface
-# and in that case we should add another variable here (or another variable for NEVPT2 and link the HDF5_QCM support to it)
-if (HDF5 AND HDF5_FOUND AND DMRG)
-  message ("Configuring HDF5 QCMaquis support:")
-
-  set (proj ${PROJECT_SOURCE_DIR}/src/HDF5_qcm_util)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/HDF5_qcm_util)
-
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-  add_subdirectory (${proj_bin} ${proj_bin})
-
-  get_directory_property (${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
-  get_directory_property (${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
-
-  message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
-  message ("-- HDF5_QCM_LIBRARIES: ${HDF5_QCM_LIBRARIES}")
 
   foreach (lib ${HDF5_QCM_LIBRARIES})
     get_filename_component (name ${lib} NAME_WE)
-    add_library (${name} UNKNOWN IMPORTED)
-    set_target_properties (${name} PROPERTIES IMPORTED_LOCATION ${lib})
+    if (NOT TARGET ${name})
+      add_library (${name} UNKNOWN IMPORTED)
+      set_target_properties (${name} PROPERTIES IMPORTED_LOCATION ${lib})
+    endif ()
     target_link_libraries (${name} INTERFACE ${HDF5_C_LIBRARIES})
 
     list (APPEND EXTERNAL_LIBRARIES ${name})
   endforeach ()
+
+  message ("Enabled QCMaquis DMRG support.")
+  if (NOT MAQUIS_DMRG_FOUND)
+    message ("-- QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
+  else ()
+    message ("-- External QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
+  endif ()
+  message ("-- HDF5 QCMaquis include path: ${HDF5_QCM_INCLUDE}")
+  message ("-- HDF5 QCMaquis libraries: ${HDF5_QCM_LIBRARIES}")
 else ()
-  message ("HDF5 QCMaquis interface DISABLED")
+  message ("QCMaquis DMRG support DISABLED")
 endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
@@ -2110,10 +2032,10 @@ endif ()
 if (GEN1INT)
   message ("Configuring Gen1Int:")
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/Gen1Int_util)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/Gen1Int_util)
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+  configure_file (${custom_dir}/gen1int.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
@@ -2175,30 +2097,18 @@ if (NEVPT2)
 
   message ("Configuring NEVPT2:")
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
-
-  configure_file (${proj}/CMakeLists.txt.in    ${proj_bin}/CMakeLists.txt       COPYONLY)
-  configure_file (${proj}/cmakelists_txt.patch ${proj_bin}/cmakelists_txt.patch COPYONLY)
+  configure_file (${custom_dir}/nevpt2.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${NEVPT2_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_INCLUDE})
   get_directory_property (${NEVPT2_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${NEVPT2_LIBRARIES})
 
-  add_dependencies (nevpt2_ext hdf5-qcm qcmaquis-driver)
+  add_dependencies (nevpt2_ext qcmaquis-driver)
 
   message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
-
-  set (ext libmolcas ${EXTERNAL_LIBRARIES})
-  foreach (lib ${NEVPT2_LIBRARIES})
-    get_filename_component (name ${lib} NAME_WE)
-    add_library (${name} UNKNOWN IMPORTED)
-    set_target_properties (${name} PROPERTIES IMPORTED_LOCATION ${lib})
-    target_link_libraries (${name} INTERFACE ${ext} ${HDF5_QCM_LIBRARIES})
-
-    list (APPEND EXTERNAL_LIBRARIES ${name})
-  endforeach ()
 else ()
   message ("NEVPT2 support DISABLED")
 endif ()
@@ -2390,7 +2300,7 @@ list (REMOVE_ITEM progs
   parnell
   symmetrize
   wfa
-  nevpt2 # although not necessarily
+  nevpt2
   dmrgscf
   mpssi
 )
@@ -2488,32 +2398,11 @@ if (HDF5 AND HDF5_FOUND)
     list (APPEND ${prog}_defs "_HDF5_")
   endforeach ()
   if (DMRG)
-    foreach (prog
+    foreach (util
       transform_util
     )
-      list (APPEND ${prog}_defs "_HDF5_QCM_")
-    endforeach ()
-  endif ()
-endif ()
-
-# DMRG include directories where needed
-if (DMRG)
-  foreach (prog
-    dmrgscf
-    mpssi
-    rasscf
-    rassi
-    wfn_util
-  )
-    list (APPEND ${prog}_incs ${DMRG_INCLUDE})
-  endforeach ()
-  if (HDF5 AND HDF5_FOUND)
-    foreach (prog
-      motra
-      transform_util
-      wfn_util
-    )
-      list (APPEND ${prog}_incs ${HDF5_QCM_INCLUDE})
+      list (APPEND ${util}_defs "_HDF5_QCM_")
+      list (APPEND ${util}_deps qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
 endif ()
@@ -2521,7 +2410,8 @@ endif ()
 if (NEVPT2)
   set (prog nevpt2)
   list (APPEND progs ${prog})
-  list (APPEND ${prog}_incs ${NEVPT2_INCLUDE} ${HDF5_QCM_INCLUDE})
+  list (APPEND ${prog}_incs ${NEVPT2_INCLUDE})
+  list (APPEND ${prog}_deplibs ${NEVPT2_LIBRARIES})
 endif ()
 
 # activate MSYM support
@@ -2621,8 +2511,32 @@ if (HDF5 AND HDF5_FOUND)
       nevpt2
     )
       list (APPEND ${prog}_defs "_HDF5_QCM_")
+      list (APPEND ${prog}_deplibs qcmaquis-hdf5-interface)
     endforeach ()
   endif ()
+endif ()
+
+# Libraries that require QCMaquis-OpenMolcas interface
+# must link with libstdc++ and against QCMaquis libraries
+# (CXX linker does NOT work on some architectures)
+# All other libraries do not require this (avoiding unnecessary linking saves compilation time)
+if (DMRG)
+  # Link QCMaquis libraries
+  list (APPEND dmrg_progs
+    casvb
+    dmrgscf
+    last_energy
+    loprop
+    mcpdft
+    mpssi
+    nevpt2
+    numerical_gradient
+    rasscf
+    rassi
+  )
+  foreach (prog ${dmrg_progs})
+    list (APPEND ${prog}_deplibs ${MAQUIS_DMRG_LIBRARIES} -lstdc++)
+  endforeach ()
 endif ()
 
 # finally, sort the list
@@ -2740,19 +2654,8 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
-if (DMRG)
-  if (HDF5 AND HDF5_FOUND)
-    add_dependencies (mods_obj hdf5-qcm)
-  else ()
-    message (FATAL_ERROR "QCMaquis DMRG support requires the HDF5 library.")
-  endif ()
-  add_dependencies (mods_obj qcmaquis-driver)
-endif ()
 if (GEN1INT)
   add_dependencies (mods_obj gen1int)
-endif ()
-if (NEVPT2)
-  add_dependencies (mods_obj nevpt2_ext)
 endif ()
 if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
@@ -2854,6 +2757,19 @@ foreach (prog ${progs})
     endif ()
   endif ()
 endforeach (prog)
+
+# Set proper install RPATH if using internal QCMaquis
+if (DMRG)
+  foreach (prog ${dmrg_progs})
+    if (NOT MAQUIS_DMRG_FOUND AND TARGET ${prog}.exe)
+      set_target_properties (${prog}.exe PROPERTIES
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH TRUE
+        INSTALL_RPATH "\$ORIGIN/../qcmaquis/lib:${INSTALL_RPATH}"
+      )
+    endif ()
+  endforeach ()
+endif ()
 
 # build parnell as a stand-alone executable
 set (prog parnell)
@@ -3303,6 +3219,26 @@ if (DEFINED EXTRA_DIR)
   )
 endif ()
 
+if (DMRG)
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/qcmaquis
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/Tools/qcmaquis
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/Tools
+  )
+endif ()
+if (NEVPT2)
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/Tools/distributed-4rdm
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/Tools
+  )
+endif ()
+
 # Additional targets and directories to install (from external projects)
 if (EXTRA_INSTALL_TARGETS)
   install (TARGETS
@@ -3320,15 +3256,6 @@ foreach (dir ${EXTRA_INSTALL_DIRS})
     OPTIONAL
   )
 endforeach ()
-
-if (DMRG)
-  # Fix paths in the sourceable QCMaquis file
-  install (CODE
-    "file (READ \"${PROJECT_BINARY_DIR}/qcmaquis/bin/qcmaquis.sh\" filedata)
-    string (REPLACE \"${PROJECT_BINARY_DIR}\" \"${CMAKE_INSTALL_PREFIX}\" filedata \"$\{filedata\}\")
-    file (WRITE \"${CMAKE_INSTALL_PREFIX}/qcmaquis/bin/qcmaquis.sh\" \"$\{filedata\}\")"
-  )
-endif ()
 
 if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
   install (CODE "execute_process (COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")

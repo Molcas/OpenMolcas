@@ -218,10 +218,12 @@
   procedure(int_dstemr), pointer :: lb_dstemr
   procedure(int_dsteqr), pointer :: lb_dsteqr
   procedure(int_dsterf), pointer :: lb_dsterf
+  procedure(int_dstev), pointer :: lb_dstev
   procedure(int_dstevr), pointer :: lb_dstevr
   procedure(int_dsyev), pointer :: lb_dsyev
   procedure(int_dsyevd), pointer :: lb_dsyevd
   procedure(int_dsyevr), pointer :: lb_dsyevr
+  procedure(int_dsyevx), pointer :: lb_dsyevx
   procedure(int_dsygs2), pointer :: lb_dsygs2
   procedure(int_dsygst), pointer :: lb_dsygst
   procedure(int_dsygv), pointer :: lb_dsygv
@@ -240,13 +242,31 @@
   procedure(int_ilazlr), pointer :: lb_ilazlr
   procedure(int_iparam2stage), pointer :: lb_iparam2stage
   procedure(int_iparmq), pointer :: lb_iparmq
+  procedure(int_zbdsqr), pointer :: lb_zbdsqr
+  procedure(int_zdrot), pointer :: lb_zdrot
+  procedure(int_zgebd2), pointer :: lb_zgebd2
+  procedure(int_zgebrd), pointer :: lb_zgebrd
+  procedure(int_zgelq2), pointer :: lb_zgelq2
+  procedure(int_zgelqf), pointer :: lb_zgelqf
+  procedure(int_zgeqr2), pointer :: lb_zgeqr2
+  procedure(int_zgeqrf), pointer :: lb_zgeqrf
+  procedure(int_zgesvd), pointer :: lb_zgesvd
   procedure(int_zheev), pointer :: lb_zheev
+  procedure(int_zheevd), pointer :: lb_zheevd
+  procedure(int_zheevx), pointer :: lb_zheevx
   procedure(int_zhetd2), pointer :: lb_zhetd2
   procedure(int_zhetrd), pointer :: lb_zhetrd
   procedure(int_zhpev), pointer :: lb_zhpev
   procedure(int_zhptrd), pointer :: lb_zhptrd
+  procedure(int_zlabrd), pointer :: lb_zlabrd
   procedure(int_zlacgv), pointer :: lb_zlacgv
+  procedure(int_zlacpy), pointer :: lb_zlacpy
+  procedure(int_zlacrm), pointer :: lb_zlacrm
   procedure(int_zladiv), pointer :: lb_zladiv
+  procedure(int_zlaed0), pointer :: lb_zlaed0
+  procedure(int_zlaed7), pointer :: lb_zlaed7
+  procedure(int_zlaed8), pointer :: lb_zlaed8
+  procedure(int_zlange), pointer :: lb_zlange
   procedure(int_zlanhe), pointer :: lb_zlanhe
   procedure(int_zlanhp), pointer :: lb_zlanhp
   procedure(int_zlarf), pointer :: lb_zlarf
@@ -258,12 +278,25 @@
   procedure(int_zlasr), pointer :: lb_zlasr
   procedure(int_zlassq), pointer :: lb_zlassq
   procedure(int_zlatrd), pointer :: lb_zlatrd
+  procedure(int_zstedc), pointer :: lb_zstedc
+  procedure(int_zstein), pointer :: lb_zstein
   procedure(int_zsteqr), pointer :: lb_zsteqr
   procedure(int_zung2l), pointer :: lb_zung2l
   procedure(int_zung2r), pointer :: lb_zung2r
+  procedure(int_zungbr), pointer :: lb_zungbr
+  procedure(int_zungl2), pointer :: lb_zungl2
+  procedure(int_zunglq), pointer :: lb_zunglq
   procedure(int_zungql), pointer :: lb_zungql
   procedure(int_zungqr), pointer :: lb_zungqr
   procedure(int_zungtr), pointer :: lb_zungtr
+  procedure(int_zunm2l), pointer :: lb_zunm2l
+  procedure(int_zunm2r), pointer :: lb_zunm2r
+  procedure(int_zunmbr), pointer :: lb_zunmbr
+  procedure(int_zunml2), pointer :: lb_zunml2
+  procedure(int_zunmlq), pointer :: lb_zunmlq
+  procedure(int_zunmql), pointer :: lb_zunmql
+  procedure(int_zunmqr), pointer :: lb_zunmqr
+  procedure(int_zunmtr), pointer :: lb_zunmtr
   procedure(int_zupgtr), pointer :: lb_zupgtr
 ! Legacy procedures
   procedure(int_dgetf2), pointer :: lb_dgetf2

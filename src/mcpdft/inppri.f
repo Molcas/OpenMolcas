@@ -40,7 +40,7 @@
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
-      Logical DoCholesky,DoDMRG
+      Logical DoCholesky
       Logical lOPTO
 #include "cholk.fh"
 

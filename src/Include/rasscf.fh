@@ -13,7 +13,9 @@
       COMMON/DATA/    D0,D1,D2,D4
 !
       INTEGER, PARAMETER :: ITRIM=mxAct*(mxAct+1)/2
-      INTEGER         IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,               &
+! TODO: The IODUMMY variable is unused, but removing it causes warnings/
+! errors about size mismatch of common blocks.
+      INTEGER         IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,       &
      &                ITER,MAXIT,NROOTS,IROOT(mxRoot),NAC,              &
      &                ITRI(ITRIM),IADR15(30),                           &
      &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE
@@ -23,7 +25,7 @@
       CHARACTER(3) QNUPDT
       Character(16) KSDFT, KSDFT_TEMP
       Character(4) DFTFOCK
-      COMMON/INTAUX/  IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,               &
+      COMMON/INTAUX/  IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,       &
      &                ITER,MAXIT,NROOTS,IROOT,NAC,                      &
      &                ITRI,NAME,HEADER,IADR15,                          &
      &                IBLBM,JBLBM,ISYMBB,ISCF,NQUNE,                    &
@@ -68,10 +70,11 @@
 !
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro      &
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,       &
-     &                DoGSOR, kIvo, IfCRPR
+     &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
+
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro      &
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,       &
-     &                DoGSOR, kIvo, IfCRPR
+     &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 !
       REAL*8          PRWTHR,POTNUC,CCI,                                &
      &                ECAS1,RLXGRD,EVAC
@@ -122,6 +125,12 @@
       REAL*8          Acc,Bcc,Aoo,Boo,Avv,Bvv
       Common /DFTFCK/ Acc,Bcc,Aoo,Boo,Avv,Bvv
 !
+
+#ifdef _DMRG_
+      Logical          domcpdftDMRG, twordm_qcm
+      Common /QCMINP/  domcpdftDMRG, twordm_qcm
+#endif
+
 #ifdef _ENABLE_CHEMPS2_DMRG_
       REAL*8           davidson_tol,chemps2_blb,chemps2_noise
       INTEGER          max_sweep,chemps2_lrestart,max_canonical

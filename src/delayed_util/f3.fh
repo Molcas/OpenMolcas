@@ -1045,6 +1045,11 @@
         call c_f_procpointer(funptr, lb_dsterf)
       end if
 !
+      funptr=link_func('dstev')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dstev)
+      end if
+!
       funptr=link_func('dstevr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dstevr)
@@ -1063,6 +1068,11 @@
       funptr=link_func('dsyevr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_dsyevr)
+      end if
+!
+      funptr=link_func('dsyevx')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_dsyevx)
       end if
 !
       funptr=link_func('dsygs2')
@@ -1155,9 +1165,64 @@
         call c_f_procpointer(funptr, lb_iparmq)
       end if
 !
+      funptr=link_func('zbdsqr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zbdsqr)
+      end if
+!
+      funptr=link_func('zdrot')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zdrot)
+      end if
+!
+      funptr=link_func('zgebd2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgebd2)
+      end if
+!
+      funptr=link_func('zgebrd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgebrd)
+      end if
+!
+      funptr=link_func('zgelq2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgelq2)
+      end if
+!
+      funptr=link_func('zgelqf')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgelqf)
+      end if
+!
+      funptr=link_func('zgeqr2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgeqr2)
+      end if
+!
+      funptr=link_func('zgeqrf')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgeqrf)
+      end if
+!
+      funptr=link_func('zgesvd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zgesvd)
+      end if
+!
       funptr=link_func('zheev')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zheev)
+      end if
+!
+      funptr=link_func('zheevd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zheevd)
+      end if
+!
+      funptr=link_func('zheevx')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zheevx)
       end if
 !
       funptr=link_func('zhetd2')
@@ -1180,14 +1245,49 @@
         call c_f_procpointer(funptr, lb_zhptrd)
       end if
 !
+      funptr=link_func('zlabrd')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlabrd)
+      end if
+!
       funptr=link_func('zlacgv')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zlacgv)
       end if
 !
+      funptr=link_func('zlacpy')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlacpy)
+      end if
+!
+      funptr=link_func('zlacrm')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlacrm)
+      end if
+!
       funptr=link_func('zladiv')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zladiv)
+      end if
+!
+      funptr=link_func('zlaed0')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlaed0)
+      end if
+!
+      funptr=link_func('zlaed7')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlaed7)
+      end if
+!
+      funptr=link_func('zlaed8')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlaed8)
+      end if
+!
+      funptr=link_func('zlange')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zlange)
       end if
 !
       funptr=link_func('zlanhe')
@@ -1245,6 +1345,16 @@
         call c_f_procpointer(funptr, lb_zlatrd)
       end if
 !
+      funptr=link_func('zstedc')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zstedc)
+      end if
+!
+      funptr=link_func('zstein')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zstein)
+      end if
+!
       funptr=link_func('zsteqr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zsteqr)
@@ -1260,6 +1370,21 @@
         call c_f_procpointer(funptr, lb_zung2r)
       end if
 !
+      funptr=link_func('zungbr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zungbr)
+      end if
+!
+      funptr=link_func('zungl2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zungl2)
+      end if
+!
+      funptr=link_func('zunglq')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunglq)
+      end if
+!
       funptr=link_func('zungql')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zungql)
@@ -1273,6 +1398,46 @@
       funptr=link_func('zungtr')
       if (c_associated(funptr)) then
         call c_f_procpointer(funptr, lb_zungtr)
+      end if
+!
+      funptr=link_func('zunm2l')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunm2l)
+      end if
+!
+      funptr=link_func('zunm2r')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunm2r)
+      end if
+!
+      funptr=link_func('zunmbr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunmbr)
+      end if
+!
+      funptr=link_func('zunml2')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunml2)
+      end if
+!
+      funptr=link_func('zunmlq')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunmlq)
+      end if
+!
+      funptr=link_func('zunmql')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunmql)
+      end if
+!
+      funptr=link_func('zunmqr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunmqr)
+      end if
+!
+      funptr=link_func('zunmtr')
+      if (c_associated(funptr)) then
+        call c_f_procpointer(funptr, lb_zunmtr)
       end if
 !
       funptr=link_func('zupgtr')
