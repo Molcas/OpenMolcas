@@ -178,7 +178,7 @@ fc = (fval1/centr)/centr
 resg = wg(8)*fc
 resk = wgk(8)*fc
 resabs = abs(resk)
-do 10 j=1,7
+do j=1,7
   absc = hlgth*xgk(j)
   absc1 = centr-absc
   absc2 = centr+absc
@@ -196,12 +196,12 @@ do 10 j=1,7
   resg = resg+wg(j)*fsum
   resk = resk+wgk(j)*fsum
   resabs = resabs+wgk(j)*(abs(fval1)+abs(fval2))
-10 continue
+end do
 reskh = resk*Half
 resasc = wgk(8)*abs(fc-reskh)
-do 20 j=1,7
+do j=1,7
   resasc = resasc+wgk(j)*(abs(fv1(j)-reskh)+abs(fv2(j)-reskh))
-20 continue
+end do
 reslt = resk*hlgth
 resabs = resabs*hlgth
 resasc = resasc*hlgth

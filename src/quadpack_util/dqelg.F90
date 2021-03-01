@@ -102,14 +102,17 @@ oflow = d1mach(2)
 nres = nres+1
 abserr = oflow
 reslt = epstab(n)
-if (n < 3) go to 100
+if (n < 3) then
+  abserr = max(abserr,Five*epmach*abs(reslt))
+  return
+end if
 limexp = 50
 epstab(n+2) = epstab(n)
 newelm = (n-1)/2
 epstab(n) = oflow
 num = n
 k1 = n
-do 40 i=1,newelm
+do i=1,newelm
   k2 = k1-1
   k3 = k1-2
   res = epstab(k1+2)
@@ -123,18 +126,19 @@ do 40 i=1,newelm
   delta3 = e1-e0
   err3 = abs(delta3)
   tol3 = max(e1abs,abs(e0))*epmach
-  if (err2 > tol2 .or. err3 > tol3) go to 10
+  if ((err2 < tol2) .and. (err3 < tol3)) then
 
-  ! if e0, e1 and e2 are equal to within machine
-  ! accuracy, convergence is assumed.
-  ! reslt = e2
-  ! abserr = abs(e1-e0)+abs(e2-e1)
+    ! if e0, e1 and e2 are equal to within machine
+    ! accuracy, convergence is assumed.
+    ! reslt = e2
+    ! abserr = abs(e1-e0)+abs(e2-e1)
 
-  reslt = res
-  abserr = err2+err3
-  ! ***jump out of do-loop
-  go to 100
-  10 continue
+    reslt = res
+    abserr = err2+err3
+    ! ***jump out of do-loop
+    abserr = max(abserr,Five*epmach*abs(reslt))
+    return
+  end if
   e3 = epstab(k1)
   epstab(k1) = e1
   delta1 = e1-e3
@@ -144,7 +148,11 @@ do 40 i=1,newelm
   ! if two elements are very close to each other, omit
   ! a part of the table by adjusting the value of n
 
-  if (err1 <= tol1 .or. err2 <= tol2 .or. err3 <= tol3) go to 20
+  if (err1 <= tol1 .or. err2 <= tol2 .or. err3 <= tol3) then
+    n = i+i-1
+    ! ***jump out of do-loop
+    exit
+  end if
   ss = One/delta1+One/delta2-One/delta3
   epsinf = abs(ss*e1)
 
@@ -152,57 +160,55 @@ do 40 i=1,newelm
   ! eventually omit a part of the table adjusting the value
   ! of n.
 
-  if (epsinf > 1.0e-4_wp) go to 30
-  20 continue
-  n = i+i-1
-  ! ***jump out of do-loop
-  go to 50
+  if (epsinf <= 1.0e-4_wp) then
+    n = i+i-1
+    ! ***jump out of do-loop
+    exit
+  end if
 
   ! compute a new element and eventually adjust
   ! the value of reslt.
 
-  30 continue
   res = e1+One/ss
   epstab(k1) = res
   k1 = k1-2
   error = err2+abs(res-e2)+err3
-  if (error > abserr) go to 40
+  if (error <= abserr) cycle
   abserr = error
   reslt = res
-40 continue
+end do
 
 ! shift the table.
 
-50 continue
 if (n == limexp) n = 2*(limexp/2)-1
 ib = 1
 if ((num/2)*2 == num) ib = 2
 ie = newelm+1
-do 60 i=1,ie
+do i=1,ie
   ib2 = ib+2
   epstab(ib) = epstab(ib2)
   ib = ib2
-60 continue
-if (num == n) go to 80
-indx = num-n+1
-do 70 i=1,n
-  epstab(i) = epstab(indx)
-  indx = indx+1
-70 continue
-80 continue
-if (nres >= 4) go to 90
-res3la(nres) = reslt
-abserr = oflow
-go to 100
+end do
+if (num /= n) then
+  indx = num-n+1
+  do i=1,n
+    epstab(i) = epstab(indx)
+    indx = indx+1
+  end do
+end if
+if (nres < 4) then
+  res3la(nres) = reslt
+  abserr = oflow
+  abserr = max(abserr,Five*epmach*abs(reslt))
+  return
+end if
 
 ! compute error estimate
 
-90 continue
 abserr = abs(reslt-res3la(3))+abs(reslt-res3la(2))+abs(reslt-res3la(1))
 res3la(1) = res3la(2)
 res3la(2) = res3la(3)
 res3la(3) = reslt
-100 continue
 abserr = max(abserr,Five*epmach*abs(reslt))
 
 return

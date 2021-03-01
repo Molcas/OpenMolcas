@@ -72,39 +72,42 @@ real(kind=wp), intent(in) :: elist(last)
 real(kind=wp), intent(out) :: ermax
 real(kind=wp) :: errmax, errmin
 integer(kind=iwp) :: i, ibeg, ido, isucc, j, jbnd, jupbn, k
+logical(kind=iwp) :: jump
 
 !***first executable statement  dqpsrt
 
 ! check whether the list contains more than
 ! two error estimates.
 
-if (last > 2) go to 10
-iord(1) = 1
-iord(2) = 2
-go to 90
+if (last <= 2) then
+  iord(1) = 1
+  iord(2) = 2
+  maxerr = iord(nrmax)
+  ermax = elist(maxerr)
+  return
+end if
 
 ! this part of the routine is only executed if, due to a
 ! difficult integrand, subdivision increased the error
 ! estimate. in the normal case the insert procedure should
 ! start after the nrmax-th largest error estimate.
 
-10 continue
 errmax = elist(maxerr)
-if (nrmax == 1) go to 30
-ido = nrmax-1
-do 20 i=1,ido
-  isucc = iord(nrmax-1)
-  ! ***jump out of do-loop
-  if (errmax <= elist(isucc)) go to 30
-  iord(nrmax) = isucc
-  nrmax = nrmax-1
-20 continue
+if (nrmax /= 1) then
+  ido = nrmax-1
+  do i=1,ido
+    isucc = iord(nrmax-1)
+    ! ***jump out of do-loop
+    if (errmax <= elist(isucc)) exit
+    iord(nrmax) = isucc
+    nrmax = nrmax-1
+  end do
+end if
 
 ! compute the number of elements in the list to be maintained
 ! in descending order. this number depends on the number of
 ! subdivisions still allowed.
 
-30 continue
 jupbn = last
 if (last > (limit/2+2)) jupbn = limit+3-last
 errmin = elist(last)
@@ -114,38 +117,42 @@ errmin = elist(last)
 
 jbnd = jupbn-1
 ibeg = nrmax+1
-if (ibeg > jbnd) go to 50
-do 40 i=ibeg,jbnd
-  isucc = iord(i)
-  ! ***jump out of do-loop
-  if (errmax >= elist(isucc)) go to 60
-  iord(i-1) = isucc
-40 continue
-50 continue
-iord(jbnd) = maxerr
-iord(jupbn) = last
-go to 90
+jump = .false.
+if (ibeg <= jbnd) then
+  do i=ibeg,jbnd
+    isucc = iord(i)
+    ! ***jump out of do-loop
+    if (errmax >= elist(isucc)) then
+      jump = .true.
+      exit
+    end if
+    iord(i-1) = isucc
+  end do
+end if
+if (.not. jump) then
+  iord(jbnd) = maxerr
+  iord(jupbn) = last
+else
 
-! insert errmin by traversing the list bottom-up.
+  ! insert errmin by traversing the list bottom-up.
 
-60 continue
-iord(i-1) = maxerr
-k = jbnd
-do 70 j=i,jbnd
-  isucc = iord(k)
-  ! ***jump out of do-loop
-  if (errmin < elist(isucc)) go to 80
-  iord(k+1) = isucc
-  k = k-1
-70 continue
-iord(i) = last
-go to 90
-80 continue
-iord(k+1) = last
+  iord(i-1) = maxerr
+  k = jbnd
+  do j=i,jbnd
+    isucc = iord(k)
+    ! ***jump out of do-loop
+    if (errmin < elist(isucc)) then
+      iord(k+1) = last
+      exit
+    end if
+    iord(k+1) = isucc
+    k = k-1
+  end do
+  iord(i) = last
+end if
 
 ! set maxerr and ermax.
 
-90 continue
 maxerr = iord(nrmax)
 ermax = elist(maxerr)
 

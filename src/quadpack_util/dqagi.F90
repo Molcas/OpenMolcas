@@ -192,20 +192,21 @@ neval = 0
 last = 0
 reslt = Zero
 abserr = Zero
-if ((limit < 1) .or. (lenw < limit*4)) go to 10
+if ((limit >= 1) .and. (lenw >= limit*4)) then
 
-! prepare call for dqagie.
+  ! prepare call for dqagie.
 
-l1 = limit+1
-l2 = limit+l1
-l3 = limit+l2
+  l1 = limit+1
+  l2 = limit+l1
+  l3 = limit+l2
 
-call dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,work(1),work(l1),work(l2),work(l3),iwork,last)
+  call dqagie(f,bound,inf,epsabs,epsrel,limit,reslt,abserr,neval,ier,work(1),work(l1),work(l2),work(l3),iwork,last)
+
+end if
 
 ! call error handler if necessary.
 
 lvl = 0
-10 continue
 if (ier == 6) lvl = 1
 if (ier /= 0) call xerror('abnormal return from dqagi',26,ier,lvl)
 

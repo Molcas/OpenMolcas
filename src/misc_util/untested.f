@@ -16,7 +16,7 @@
       write(6,*)
       write(6,*) label
       write(6,*) 'This code is untested and should be carefully '//
-     &           'debugged.'
+     &           'verified.'
 #ifndef _DEVEL_
       call abend()
 #endif

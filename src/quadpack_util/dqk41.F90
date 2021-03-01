@@ -184,7 +184,7 @@ fc = f(centr)
 resg = Zero
 resk = fc*wgk(21)
 resabs = abs(resk)
-do 10 j=1,10
+do j=1,10
   jtw = j*2
   absc = hlgth*xgk(jtw)
   fval1 = f(centr-absc)
@@ -195,8 +195,8 @@ do 10 j=1,10
   resg = resg+wg(j)*fsum
   resk = resk+wgk(jtw)*fsum
   resabs = resabs+wgk(jtw)*(abs(fval1)+abs(fval2))
-10 continue
-do 15 j=1,10
+end do
+do j=1,10
   jtwm1 = j*2-1
   absc = hlgth*xgk(jtwm1)
   fval1 = f(centr-absc)
@@ -206,12 +206,12 @@ do 15 j=1,10
   fsum = fval1+fval2
   resk = resk+wgk(jtwm1)*fsum
   resabs = resabs+wgk(jtwm1)*(abs(fval1)+abs(fval2))
-15 continue
+end do
 reskh = resk*Half
 resasc = wgk(21)*abs(fc-reskh)
-do 20 j=1,20
+do j=1,20
   resasc = resasc+wgk(j)*(abs(fv1(j)-reskh)+abs(fv2(j)-reskh))
-20 continue
+end do
 reslt = resk*hlgth
 resabs = resabs*dhlgth
 resasc = resasc*dhlgth
