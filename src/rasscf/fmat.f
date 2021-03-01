@@ -65,7 +65,6 @@
 #include "WrkSpc.fh"
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
-      logical l_casdft
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -137,23 +136,6 @@ C Local print level (if any)
          End Do
        End If
 
-*************************************************************
-* Initialize global variable for mcpdft functionals
-*************************************************************
-       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &            KSDFT(1:6).eq.'TLSDA5'  .or.
-     &            KSDFT(1:5).eq.'TBLYP'   .or.
-     &            KSDFT(1:6).eq.'TSSBSW'  .or.
-     &            KSDFT(1:5).eq.'TSSBD'   .or.
-     &            KSDFT(1:5).eq.'TS12G'   .or.
-     &            KSDFT(1:4).eq.'TPBE'    .or.
-     &            KSDFT(1:5).eq.'FTPBE'   .or.
-     &            KSDFT(1:5).eq.'TOPBE'   .or.
-     &            KSDFT(1:6).eq.'FTOPBE'  .or.
-     &            KSDFT(1:7).eq.'TREVPBE' .or.
-     &            KSDFT(1:8).eq.'FTREVPBE'.or.
-     &            KSDFT(1:6).eq.'FTLSDA'  .or.
-     &            KSDFT(1:6).eq.'FTBLYP'
 *     create FA in AO basis
       Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
       Call Fold(nSym,nBas,D1A,Work(iTmp1))

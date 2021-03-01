@@ -16,15 +16,20 @@ module qcmaquis_info
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
+
+#ifdef _DMRG_
 private
 
 type qcm_names
-  character(len=256), allocatable :: states(:)
+  character(len=256), allocatable :: states(:) ! full checkpoint names for every state
 end type
 
 type(qcm_names), allocatable :: qcm_group_names(:)
+character(len=256), allocatable :: qcm_prefixes(:)
+! prefix for the particular group (although redundant but used in the new MPSSI interface)
 
 public :: qcm_group_names
+public :: qcm_prefixes
 public :: qcmaquis_info_init, qcmaquis_info_deinit
 
 ! Private extension to mma interfaces
@@ -49,6 +54,7 @@ subroutine qcmaquis_info_init(igroup,nstates,tag)
 
   if (tag == 0) then
     call mma_allocate(qcm_group_names,igroup,label='qcm_group_names')
+    call mma_allocate(qcm_prefixes,igroup,label='qcm_prefixes')
   else if (tag == 1) then
     call mma_allocate(qcm_group_names(igroup)%states,nstates,label='qcm_igroup')
     qcm_group_names(igroup)%states = ''
@@ -81,6 +87,7 @@ subroutine qcmaquis_info_deinit
     call mma_allocate(qcm_group_names,[0,0])
   end if
 # endif
+  if(allocated(qcm_prefixes)) call mma_deallocate(qcm_prefixes)
 
 end subroutine qcmaquis_info_deinit
 
@@ -100,5 +107,5 @@ end subroutine qcmaquis_info_deinit
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
 #undef _TYPE_
-
+#endif
 end module qcmaquis_info

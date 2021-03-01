@@ -18,6 +18,8 @@
         module procedure allgather_R, allgather_I
       end interface
 
+#include "mpi_interfaces.fh"
+
       contains
       SUBROUTINE ALLGATHER_R(SEND,NSEND,RECV,NRECV)
       use mpi

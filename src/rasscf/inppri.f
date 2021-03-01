@@ -29,7 +29,7 @@
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_environment, only: print_dmrg_info
+      use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
       use fcidump, only : DumpOnly
       use fciqmc, only: DoNECI
@@ -55,11 +55,9 @@
       Character*3 SNAC
 #endif
       Logical DoCholesky
-      Logical lOPTO, l_casdft
+      Logical lOPTO
 #include "cholk.fh"
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#else
+#ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
 
@@ -83,23 +81,6 @@
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
       IF (IPRLEV.EQ.SILENT) GOTO 900
-*----------------------------------------------------------------------*
-*     Initialize l_casdft global variable for mcpdft                   *
-*----------------------------------------------------------------------*
-      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &           KSDFT(1:6).eq.'TLSDA5'  .or.
-     &           KSDFT(1:5).eq.'TBLYP'   .or.
-     &           KSDFT(1:6).eq.'TSSBSW'  .or.
-     &           KSDFT(1:5).eq.'TSSBD'   .or.
-     &           KSDFT(1:5).eq.'TS12G'   .or.
-     &           KSDFT(1:4).eq.'TPBE'    .or.
-     &           KSDFT(1:5).eq.'FTPBE'   .or.
-     &           KSDFT(1:5).eq.'TOPBE'   .or.
-     &           KSDFT(1:6).eq.'FTOPBE'  .or.
-     &           KSDFT(1:7).eq.'TREVPBE' .or.
-     &           KSDFT(1:8).eq.'FTREVPBE'.or.
-     &           KSDFT(1:6).eq.'FTLSDA'  .or.
-     &           KSDFT(1:6).eq.'FTBLYP'
 *----------------------------------------------------------------------*
 *     Print the project title                                          *
 *----------------------------------------------------------------------*

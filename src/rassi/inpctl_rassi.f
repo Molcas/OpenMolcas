@@ -11,10 +11,10 @@
       SUBROUTINE INPCTL_RASSI()
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
 #ifdef _DMRG_
+      use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_environment,
-     & only: initialize_dmrg_rassi
-      use qcmaquis_info, only: qcmaquis_info_init
+      use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
+      use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
 #endif
       use mspt2_eigenvectors
       IMPLICIT NONE
@@ -99,10 +99,26 @@ C handle different active spaces per JobIph, but this is checked elsewhere
 #ifdef _DMRG_
       if (doDMRG)then
         !> stupid info.h defines "sum", so I cannot use the intrinsic sum function here...
-        dmrg_external%norb = 0; do i = 1, nsym; dmrg_external%norb =
-     &  dmrg_external%norb + nash(i); end do
-        !> initialize the MPS-SI interface
-        call initialize_dmrg_rassi(nstate)
+        qcmaquis_param%L = 0; do i = 1, nsym; qcmaquis_param%L =
+     &  qcmaquis_param%L + nash(i); end do
+
+        ! Initialise the new MPSSI interface
+        call qcmaquis_mpssi_init(qcm_prefixes,
+     &                           LROOT,NSTAT(1),NJOB)
+      end if
+
+      ! Check if number of active electrons is the same for all job files
+      ! Otherwise, quit on error, as Dyson orbitals are not supported yet with DMRG
+      if (NJOB.gt.1) then
+        JOB=NACTE(1)
+        do i=2,NJOB
+          if (NACTE(i).ne.JOB) then
+            Call WarningMessage(2,'Number of active electrons')
+            Write(6,*)' is not the same in different JOBIPH files'
+            Write(6,*)' Dyson orbitals are not yet supported in MPSSI.'
+            Call Quit_OnUserError()
+          end if
+        end do
       end if
 #endif
 
@@ -115,6 +131,7 @@ C Addition of NJOB,MSJOB and MLTPLT on RunFile.
       CALL Put_iscalar('NJOB_SINGLE',NJOB)
       CALL Put_iscalar('MXJOB_SINGLE',MXJOB)
       CALL Put_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
+
       CALL Put_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
 !     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
 C

@@ -16,5 +16,5 @@
      &        kint1_pointer, kh0_pointer, Lucia_base, Lucia_length,
      &        kvec3_length, kint1o_pointer, ksdreo_pointer,
      &        KDTOC_POINTER, iSigma_on_disk,ini_h0, Memory_Needed_Lucia
-      INTEGER LW6,LW7,LW8,LW9
-      COMMON/DENSI_POINTERS/LW6,LW7,LW8,LW9
+      INTEGER LW6,LW7,LW8,LW9,LW_RF1,LW_RF2
+      COMMON/DENSI_POINTERS/LW6,LW7,LW8,LW9,LW_RF1,LW_RF2

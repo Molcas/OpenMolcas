@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "macros.fh"
       SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,
      &                  EigVec)
       use rassi_global_arrays, only: SODYSAMPS
@@ -7317,7 +7318,7 @@ C backtransformation in two steps, -phi and -theta
 
       RETURN
 c Avoid unused argument warnings
-      IF (.FALSE.)  CALL Unused_real(DIPSOm_SA)
+      unused_var(DIPSOm_SA)
       END
 
       SUBROUTINE ADARASSI(N,A,D,DROT)

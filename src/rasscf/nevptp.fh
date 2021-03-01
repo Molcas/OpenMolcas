@@ -9,5 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer :: MPSCompressM
-      Logical :: DoNEVPT2Prep, DoEvaluateRDM
-      Common /NEVPTP/ DoNEVPT2Prep, DoEvaluateRDM, MPSCompressM
+      Logical :: DoNEVPT2Prep, DoDelChk
+      Common /NEVPTP/ DoNEVPT2Prep,DoDelChk,MPSCompressM
