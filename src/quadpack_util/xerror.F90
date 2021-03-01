@@ -11,14 +11,17 @@
 
 subroutine xerror(Label,ix,ier,lvl)
 
-character*(*) Label
-integer ix, ier, lvl
+use Definitions, only: iwp, u6
 
-write(6,*) 'Terminate in xerror!'
-write(6,'(A)') Label
-write(6,'(A,I5)') 'ix=',ix
-write(6,'(A,I5)') 'ier=',ier
-write(6,'(A,I5)') 'lvl=',lvl
+implicit none
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: ix, ier, lvl
+
+write(u6,*) 'Terminate in xerror!'
+write(u6,'(a)') Label
+write(u6,'(a,i5)') 'ix=',ix
+write(u6,'(a,i5)') 'ier=',ier
+write(u6,'(a,i5)') 'lvl=',lvl
 call Abend()
 
 return
