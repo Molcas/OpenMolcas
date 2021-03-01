@@ -30,7 +30,8 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type
+      use Data_structures, only: CMO_Type, Laq_Type, Map_to_Laq
+      use Data_structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,ipLab(8,2)
@@ -46,18 +47,25 @@ C
 #endif
       Logical   DoRead
       Character*50 CFmt
-      Character*8 SECNAM
-      Parameter (SECNAM = 'CHO_FSCF')
+      Character(LEN=8), Parameter:: SECNAM = 'CHO_FSCF'
 #include "chotime.fh"
 
-      parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
-
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Parameter:: xone = -one
 
       Logical add
       Character*6 mode
+
+      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: VJ(:)
+      Integer:: nAux(8)
+
+      Type (Laq_type) Laq(2)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -81,11 +89,10 @@ C
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero  !time read/transform vectors
-           tcoul(i) = zero  !time for computing Coulomb
-           texch(i) = zero  !time for computing Exchange
-        end do
+        ! 1 --> CPU   2 --> Wall
+        tread(:) = zero  !time read/transform vectors
+        tcoul(:) = zero  !time for computing Coulomb
+        texch(:) = zero  !time for computing Exchange
 
 C ==================================================================
 
@@ -160,7 +167,7 @@ C ------------------------------------------------------------------
 
             EndIf
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             nVec  = Min(LWORK/(nRS+mTvec),nVrs)
 
@@ -176,8 +183,7 @@ C ------------------------------------------------------------------
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
-            Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
@@ -199,12 +205,13 @@ C --- BATCH over the vectors ----------------------------
                   JNUM = nVec
                endif
 
+
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
@@ -226,11 +233,11 @@ C==========================================================
 C
                   CALL CWTIME(TCC1,TWC1)
 
-                  ipVJ = ipChoT
+                  Call mma_allocate(VJ,JNUM,Label='VJ')
 
                   CALL DGEMV_('T',nRS,JNUM,
-     &                 ONE,Work(ipLrs),nRS,
-     &                 Work(ipDab),1,ZERO,Work(ipVJ),1)
+     &                 ONE,Lrs,nRS,
+     &                 Work(ipDab),1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -238,40 +245,30 @@ C===============================================================
                   Fact = dble(min(jVec-iVrs,1))
 
                   CALL DGEMV_('N',nRS,JNUM,
-     &                 FactCI,Work(ipLrs),nRS,
-     &                 Work(ipVJ),1,Fact,Work(ipFab),1)
+     &                 FactCI,Lrs,nRS,
+     &                 VJ,1,Fact,Work(ipFab),1)
 
 
                   CALL CWTIME(TCC2,TWC2)
                   tcoul(1) = tcoul(1) + (TCC2 - TCC1)
                   tcoul(2) = tcoul(2) + (TWC2 - TWC1)
 
+                  Call mma_deallocate(VJ)
+
                EndIf  ! Coulomb contribution
 
 
+               iSwap = 2  ! LpJ,b are returned
 C *************** EXCHANGE CONTRIBUTIONS  ***********************
 
+               Do jDen=1,nDen
+
+                  nAux(:) =nForb(:,jDen)+nIorb(:,jDen)
+                  Call Allocate_Laq(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,
+     &                              iSwap)
+
 C --- Set pointers to the half-transformed Cholesky vectors
-               Do jDen=1,nDen
-
-                  lChoT=0
-                  Do iSymb=1,nSym
-
-                     iSymp = MulD2h(JSYM,iSymb)
-
-                     ipLab(iSymp,jDen) = ipChoT + lChoT  ! LpJ,b
-
-                     lChoT = lChoT + nBas(iSymb)*
-     &                      (nForb(iSymp,jDen)+nIorb(iSymp,jDen))*JNUM
-
-                  End Do
-
-               End Do
-
-
-               iSwap = 2  ! LpJ,b are returned
-
-               Do jDen=1,nDen
+                  Call Map_to_Laq(Laq(jDen),ipLab(:,jDen))
 
                   CALL CWTIME(TCR3,TWR3)
 
@@ -292,24 +289,13 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
                   CALL CWTIME(TCR4,TWR4)
                   tread(1) = tread(1) + (TCR4 - TCR3)
                   tread(2) = tread(2) + (TWR4 - TWR3)
-
-#ifdef _DEBUGPRINT_
-      write(6,*) 'Half-transformation in the MO space: ',jDen
-      write(6,*) 'Total allocated :     ',mTvec*nVec,' at ',ipChoT
-      write(6,*) 'Mem pointers ipLab: ',((ipLab(i,j),i=1,nSym),j=1,jDen)
-      write(6,*) 'iSkip :             ',(iSkip(k),k=1,nSym)
-      write(6,*) 'LREAD: ',LREAD,' allocated at ',ipLrs
-      write(6,*) 'JSYM :                ',JSYM
-      write(6,*) 'JRED :                ',JRED
-      write(6,*) 'JNUM :                ',JNUM
-#endif
 
                   if (irc.ne.0) then
                      rc = irc
@@ -335,13 +321,10 @@ C ---------------------------------------------------------------------
                         ISFI = ipFLT(jDen) + ISTLT(iSyma)
 
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
-     &                         NK*JNUM,FactXI,Work(ipLab(iSymk,jDen)),
-     &                         NK*JNUM,Work(ipLab(iSymk,jDen)),NK*JNUM,
+     &                         NK*JNUM,FactXI,Laq(jDen)%pA(iSymk)%A,
+     &                         NK*JNUM,Laq(jDen)%pA(iSymk)%A,NK*JNUM,
      &                         One,Work(ISFI),nBas(iSyma))
 
-
-c          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMA
-c          CALL TRIPRT('FI: jSym>1',' ',Work(ISFI),nBas(iSyma))
 
                      EndIf
 
@@ -353,6 +336,7 @@ C --------------------------------------------------------------------
                   texch(2) = texch(2) + (TWX2 - TWX1)
 
 
+                  Call Deallocate_Laq(Laq(jDen))
                End Do   ! loop over densities
 
 C --------------------------------------------------------------------
@@ -370,8 +354,7 @@ c --- backtransform fock matrix to full storage
             EndIf
 
 C --- free memory
-            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
               Call GetMem('rsFC','Free','Real',ipFab,nRS)
