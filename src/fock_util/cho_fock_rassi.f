@@ -158,8 +158,6 @@ C ------------------------------------------------------------------
             mTvec = mTvec + nDen*nBas(l)*nIsh(k)
             mTTvec = mTTvec + (nBas(l)+nAsh(l))*nAsh(k)
          end do
-         mTVec1=mTVec
-         mTVec2=mTTVec
 
          mTvec=Max(mTvec,mTTvec,1)
 
