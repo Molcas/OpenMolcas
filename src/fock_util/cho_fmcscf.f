@@ -80,6 +80,17 @@ C
       Real*8, Allocatable:: Lrs(:,:)
       Real*8, Pointer:: VJ(:)=>Null()
 
+      Type V2
+         Real*8, Pointer:: A(:,:)
+      End Type V2
+
+      Type Lxy_Type
+         Real*8, Allocatable:: Lxy_full(:)
+         Type (V2):: pA(8)
+      End Type Lxy_Type
+
+      Type (Lxy_Type), Target:: Lxy
+
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
@@ -287,7 +298,6 @@ C --- BATCH over the vectors ----------------------------
             DO iBatch=1,nBatch
                iSwap = 2  ! LpJ,b are returned
                Call Allocate_Laq(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
-
                If (iBatch.eq.nBatch) Then
                   JNUM = nVrs - nVec*(nBatch-1)
                else
@@ -510,27 +520,25 @@ C ************  END EXCHANGE CONTRIBUTIONS  ****************
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
 C --------------------------------------------------------------------
-               Call GetMem('ChoT','Allo','Real',ipChoT3,mTvec3*nVec)
-               Call GetMem('ChoT','Allo','Real',ipChoT4,mTvec4*nVec)
+               iSwap = 0  ! Lvb,J are returned
+               Call allocate_Laq(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+               Call mma_allocate(Lxy%Lxy_full,mTvec4*nVec,Label='Lxy')
 
                CALL CWTIME(TCR7,TWR7)
 
 C --- Set pointers to the half-transformed Cholesky vectors
-               lChoT3 = 0
+               Call Map_to_Laq(Laq(3),ipLab(:,3))
+
+               iE = 0
                Do iSymb=1,nSym
                   iSymp = MulD2h(JSYM,iSymb)
-                  ipLab(iSymp,3) = ipChoT3 + lChoT3 ! Lvb,J
-                  lChoT3= lChoT3 + nBas(iSymb) * nAorb(iSymp) * JNUM
+                  n =  nnA(iSymp,iSymb)
+                  iS = iE + 1
+                  iE = iE + n*JNUM
+                  Lxy%pA(iSymp)%A(1:n,1:JNUM) => Lxy%Lxy_full(iS:iE)
+                  ipLxy(iSymp) = ip_of_Work(Lxy%pA(iSymp)%A(1,1))! Lvw,J
                End Do
 
-               lChoT4 = 0
-               Do iSymb=1,nSym
-                  iSymp = MulD2h(JSYM,iSymb)
-                  ipLxy(iSymp) = ipChot4 + lChoT4   ! Lvw,J
-                  lChoT4= lChoT4 + nnA(iSymp,iSymb)*JNUM
-               End Do
-
-               iSwap = 0  ! Lvb,J are returned
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
 
@@ -557,13 +565,10 @@ C --------------------------------------------------------------------
 
                       Do JVC=1,JNUM
 
-                       ipLvb = ipLab(iSyma,3) + NAv*nBas(iSyma)*(JVC-1)
-                       ipLvw = ipLxy(iSyma) + nnA(iSyma,iSyma)*(JVC-1)
-
                        CALL DGEMM_Tri('N','T',NAv,NAv,nBas(iSyma),
-     &                                One,Work(ipLvb),NAv,
+     &                              One,Laq(3)%pA(iSyma)%A(:,:,JVC),NAv,
      &                                    POrb(3)%pA(iSyma)%A,NAv,
-     &                               Zero,Work(ipLvw),NAv)
+     &                               Zero,Lxy%pA(iSyma)%A(:,JVC),NAv)
 
                       End Do
 
@@ -587,13 +592,10 @@ C --------------------------------------------------------------------
 
                       Do JVC=1,JNUM
 
-                       ipLvb = ipLab(iSymv,3) + NAv*nBas(iSymb)*(JVC-1)
-                       ipLvw = ipLxy(iSymv) + nnA(iSymv,iSymb)*(JVC-1)
-
                        CALL DGEMM_('N','T',NAv,NAw,nBas(iSymb),
-     &                            One,Work(ipLvb),NAv,
+     &                            One,Laq(3)%pA(iSymv)%A(:,:,JVC),NAv,
      &                                POrb(3)%pA(iSymb)%A,NAw,
-     &                           Zero,Work(ipLvw),NAv)
+     &                           Zero,Lxy%pA(iSymv)%A(:,JVC),NAv)
 
                       End Do
 
@@ -629,8 +631,8 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
-               Call GetMem('ChoT','Free','Real',ipChoT4,mTvec4*nVec)
-               Call GetMem('ChoT','Free','Real',ipChoT3,mTvec3*nVec)
+               Call mma_deallocate(Lxy%Lxy_full)
+               Call Deallocate_Laq(Laq(3))
 
             END DO  ! end batch loop
 
