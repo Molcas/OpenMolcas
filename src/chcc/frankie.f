@@ -192,8 +192,6 @@ C
 #include "choorb.fh"
 #include "stdalloc.fh"
 
-      Integer, External:: isfreeunit, ip_of_Work
-
       Type (Laq_Type) Laq
       Real*8, Allocatable:: Lrs(:,:)
       Real*8, Allocatable,Target:: Lpq(:)
