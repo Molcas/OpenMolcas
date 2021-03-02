@@ -29,7 +29,6 @@
 #include "general.fh"
 #include "splitcas.fh"
 #include "warnings.fh"
-      Parameter ( ROUTINE='ChkSplit' )
 
 *      IF(DoSplitCAS) THEN
         IERR=0

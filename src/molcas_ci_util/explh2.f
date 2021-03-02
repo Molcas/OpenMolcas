@@ -58,7 +58,6 @@
 #include "WrkSpc.fh"
 #include "timers.fh"
 #include "output_ras.fh"
-      PARAMETER (ROUTINE='EXPLH2  ')
       DIMENSION DIAG(*)
       DIMENSION ONEINT(*)
       DIMENSION TUVX(*)

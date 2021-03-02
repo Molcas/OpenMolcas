@@ -35,7 +35,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='ClsFls  ')
 
 #include "davctl.fh"
 #include "qnctl.fh"

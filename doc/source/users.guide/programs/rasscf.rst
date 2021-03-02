@@ -411,7 +411,6 @@ Optional important keywords are:
               </HELP>
               </KEYWORD>
 
-
 :kword:`REOR`
   The user can input a permutation by specifying the number of non
   fixed point elements, followed by the order of the non fixed point elements.
@@ -2220,230 +2219,6 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`DMRG`
-
-  .. warning::
-
-    This keyword has different meanings for QCMaquis, Block and CheMPS2 DMRG interfaces.
-
-  .. warning::
-
-    Using :kword:`DMRG` with QCMaquis interface is deprecated. It is advised to use the :program:`DMRGSCF` module for QCMaquis DMRG calculations.
-
-  For QCMaquis interface, this keyword is used standalone and activates the DMRG calculation with QCMaquis. In this case, the input should also contain :kword:`RGINPUT` block with parameters controlling the DMRG optimization settings in QCMaquis.
-
-  For Block and CheMPS2 interfaces, it should be followed by an integer :math:`m`
-  Specify maximum number of renormalized states in the DMRG calculation, also known as (virtual) bond dimension :math:`m` in each microiteration in DMRG calculations.
-  :math:`m` should be at least 500.
-  This keyword is supported in both CheMPS2 and Block interfaces.
-  Note that DMRG-CASSCF calculations for excited states are not fully supported by the Block interface.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMRG" LEVEL="BASIC" APPEAR="DMRG flag" KIND="INT" DEFAULT_VALUE="0" EXCLUSIVE="NECI">
-              <ALTERNATE KIND="SINGLE" />
-              %%Keyword: DMRG <basic>
-              <HELP>
-              DMRG flag:
-              - for QCMaquis interface, activates the DMRG calculation
-              - for Block and CheMPS2 interfaces, sets the number of renormalized states m
-              </HELP>
-              </KEYWORD>
-
-
-:kword:`RGInput`
-
-  .. warning::
-
-    This block only works with QCMaquis DMRG interface.
-
-    Using :kword:`RGInput` with QCMaquis interface is deprecated. It is advised to use the :program:`DMRGSCF` module for QCMaquis DMRG calculations.
-
-  This block, terminated by :kword:`EndRG`, is mandatory and contains parameters to QCMaquis which control the DMRG wavefunction optimization. This block is equivalent to the
-  :kword:`DMRGSettings..EndDMRGSettings` block of the :program:`DMRGSCF` module (see :numref:`UG:sec:dmrgsettings_input:`).
-
-  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="RGINPUT" APPEAR="QCMaquis DMRG settings" KIND="BLOCK" LEVEL="BASIC">
-              <INCLUDE MODULE="DMRGSCF" EXCEPT="ACTIVESPACEOPTIMIZER,FIEDLER,CIDEAS,OOPTIMIZATIONSETTINGS,FCIDUMP,SOCCUPY,NEVPT2PREP" />
-              </GROUP>
-
-:kword:`SOCCupy`
-
-  .. warning::
-
-    This block only works with QCMaquis DMRG interface.
-
-  Initial electronic configuration for the calculated state(s). This keyword is equivalent to the :kword:`hf_occ` card in the **QCMaquis** input (see Table 8 of the QCMaquis_ manual), but allows input for multiple states. The occupation is inserted as a string (strings) of aliases of occupations of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty. For several states, the occupation strings for each state are separated by newlines.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SOCCUPY" KIND="CUSTOM" LEVEL="BASIC">
-              %%Keyword: soccupy <basic>
-              <HELP>
-              Set HF determinant start guess for MPS wave functions. (QCMaquis)
-              </HELP>
-              </KEYWORD>
-
-:kword:`NEVPT2prep`
-
-  .. warning::
-
-    This block only works with QCMaquis DMRG interface.
-
-  Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. Then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally or directly in the :program:`NEVPT2` program. More about external RDM evaluation in Section 6.3 of the QCMaquis_ manual.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NEVPT2PREP" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: NEVPT2prep <basic>
-              <HELP>
-              Prepare input for higher-order RDM/TDM evaluation. (QCMaquis)
-              </HELP>
-              </KEYWORD>
-
-:kword:`3RDM`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Use this keyword to get the 3-particle and Fock matrix contracted with the 4-particle reduced density
-  matrices (3-RDM and F.4-RDM) for DMRG-CASPT2.
-  :kword:`OUTOrbitals` = ``CANOnical`` is automatically activated.
-  In CheMPS2 interface, both 3-RDM and F.4-RDM are calculated.
-  In Block interface, only 3-RDM is calculated while F.4-RDM is approximated in the CASPT2 module.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="3RDM" APPEAR="Calculate 3- and 4-particle reduced density matrices" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: 3RDM <basic>
-              <HELP>
-              Use this keyword to get the 3-particle and 4-particle reduced density matrices (3-RDM and F.4-RDM) for DMRG-CASPT2 with CheMPS2 interface.
-              </HELP>
-              </KEYWORD>
-
-:kword:`CHBLb`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Specify a threshold for activating restart in CheMPS2.
-  After each macroiteration, if the max BLB value is smaller than CHBLb, activate partial restart in CheMPS2.
-  If the max BLB value is smaller than CHBLb/10.0, activate full restart in CheMPS2.
-  Default value is: 0.5d-2.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHBLB" LEVEL="BASIC" APPEAR="Threshold for restart (CheMPS2)" KIND="REAL" DEFAULT_VALUE="0.05">
-              %%Keyword: CHBLb <basic>
-              <HELP>
-              Threshold for activating restart in CheMPS2.
-              </HELP>
-              (Default: 0.05)
-              </KEYWORD>
-
-:kword:`DAVTolerance`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Specify value for Davidson tolerance in CheMPS2.
-  Default value is 1.0d-7.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DAVTOLERANCE" LEVEL="BASIC" APPEAR="Davidson tolerance (CheMPS2)" KIND="REAL" DEFAULT_VALUE="1.0d-7">
-              %%Keyword: DAVTolerance <basic>
-              <HELP>
-              Davidson tolerance in CheMPS2.
-              </HELP>
-              (Default: 1.0d-7)
-              </KEYWORD>
-
-:kword:`NOISe`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Specify value for noise pre-factor in CheMPS2.
-  This noise is set to 0.0 in the last instruction.
-  Default value (recommended) is: 0.05.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NOISE" LEVEL="BASIC" APPEAR="Noise pre-factor (CheMPS2)" KIND="REAL" DEFAULT_VALUE="0.05">
-              %%Keyword: NOISe <basic>
-              <HELP>
-              Noise pre-factor in CheMPS2.
-              </HELP>
-              (Default: 0.05)
-              </KEYWORD>
-
-:kword:`MXSWeep`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Maximum number of sweeps. in the last instruction in CheMPS2.
-  Default value is: 8.
-  In the last iteration of DMRG-SCF, :kword:`MXSW` is increased by five times (default 40).
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MXSWEEP" LEVEL="BASIC" APPEAR="Maximum number of sweeps (CheMPS2)" KIND="INT" DEFAULT_VALUE="8">
-              %%Keyword: MXSWeep <basic>
-              <HELP>
-              Maximum number of sweeps in the last instruction in CheMPS2.
-              </HELP>
-              (Default: 8)
-              </KEYWORD>
-
-:kword:`MXCAnonical`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Maximum number of sweeps in the last instruction with pseudocanonical orbitals in CheMPS2.
-  Default value is: 40.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MXCANONICAL" LEVEL="BASIC" APPEAR="Maximum number of sweeps with pseudocanonical orbitals (CheMPS2)" KIND="INT" DEFAULT_VALUE="40">
-              %%Keyword: MXCAnonical <basic>
-              <HELP>
-              Maximum number of sweeps in the last instruction with pseudocanonical orbitals in CheMPS2.
-              </HELP>
-              (Default: 40)
-              </KEYWORD>
-
-:kword:`CHREstart`
-  Use this keyword to activate restart in the first DMRG iteration from a previous calculation.
-  The working directory must contain :file:`molcas_natorb_fiedler.txt` and :file:`CheMPS2_natorb_MPSx.h5` (``x``\=0 for the ground state,
-  1 for the first excited state, etc.).
-  If these files are not in the working directory, a warning is printed at the beginning of
-  the calculation and restart is skipped (start from scratch).
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHRESTART" APPEAR="Restart in the first DMRG iteration (CheMPS2)" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: CHREstart <basic>
-              <HELP>
-              Use this keyword to activate restart in the first DMRG iteration from a previous calculation in CheMPS2.
-              </HELP>
-              </KEYWORD>
-
-:kword:`DMREstart`
-
-  .. warning::
-
-    This keyword is only available for CheMPS2 DMRG interface.
-
-  Use this keyword to activate restart in the last DMRG iteration from the previous iteration or calculation.
-  This keyword only works when using :kword:`OUTOrbitals` = ``CANOnical`` or :kword:`3RDM`.
-  :kword:`DMREstart` = ``0`` (default): start from scratch to calculate 3-RDM and F.4-RDM.
-
-  :kword:`DMREstart` = ``1``: start form user-supplied checkpoint files.
-  The working directory must contain :file:`molcas_canorb_fiedler.txt` and :file:`CheMPS2_canorb_MPSx.h5` (``x``\=0 for the ground state,
-  1 for the first excited state, etc.).
-  If these files are not in the working directory, a warning is printed at the
-  beginning of the calculation and restart is skipped (start from scratch).
-
-  :kword:`DMREstart` = ``2`` (Not recommended): start form previous checkpoint files with natural orbitals.
-  :kword:`DMREstart` = ``2`` is not recommended since this may produce non-optimal energy
-  because the orbital ordering is not optimized.
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMRESTART" LEVEL="BASIC" APPEAR="Restart in the last DMRG iteration (CheMPS2)" KIND="INT" DEFAULT_VALUE="0">
-              %%Keyword: DMREstart <basic>
-              <HELP>
-              Activate restart in the last DMRG iteration in CheMPS2.
-              </HELP>
-              (Default: 0)
-              </KEYWORD>
-
 :kword:`XMSInter`
   This keyword can be used in an XMS-PDFT calculation (which needs :program:`RASSCF` and :program:`MCPDFT` modules). This keyword stands for XMS Intermediate states. It rotates the CASSCF, CASCI, RASSCF or RASCI states into the XMS intermediate states.
   This keyword generates a file named :file:`Do_Rotate.txt` that stores the rotation vector and another file named :file:`H0_Rotate.txt` that stores the Hamiltonian matrix, called the intermediate Hamiltonian matrix, for the XMS intermediate states. The intermediate Hamiltonian matrix is the XMS-PDFT effective Hamiltonian matrix before one replaces the diagonal elements with the MC-PDFT energies.
@@ -2504,7 +2279,6 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-
 :kword:`ROSTate`
   This keyword can be used in an MS-PDFT calculation. This keyword stands for ROtate STates, and it rotate the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.
   This keyword is only effective when there is a file named :file:`Do_Rotate.txt` present in the scratch directory; otherwise the states will not be rotated.
@@ -2517,6 +2291,189 @@ A list of these keywords is given below:
               <HELP>
               This keyword rotates the states after the last diagonalization of the CASSCF, CASCI, RASSCF or RASCI calculation.
               </HELP>
+              </KEYWORD>
+
+DMRG keywords
+.............
+
+.. warning::
+
+   The :kword:`DMRG` keyword has different meanings for QCMaquis, Block and CheMPS2 DMRG interfaces.
+
+.. class:: keywordlist
+
+:kword:`DMRG`
+  For QCMaquis interface, this keyword is used standalone and activates the DMRG calculation with QCMaquis. In this case, the input should also contain :kword:`RGINPUT` block with parameters controlling the DMRG optimization settings in QCMaquis.
+
+  For Block and CheMPS2 interfaces, it should be followed by an integer :math:`m`
+  Specify maximum number of renormalized states in the DMRG calculation, also known as (virtual) bond dimension :math:`m` in each microiteration in DMRG calculations.
+  :math:`m` should be at least 500.
+  This keyword is supported in both CheMPS2 and Block interfaces.
+  Note that DMRG-CASSCF calculations for excited states are not fully supported by the Block interface.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMRG" LEVEL="BASIC" APPEAR="DMRG flag" KIND="INT" DEFAULT_VALUE="0" EXCLUSIVE="NECI">
+              <ALTERNATE KIND="SINGLE" />
+              %%Keyword: DMRG <basic>
+              <HELP>
+              DMRG flag:
+              - for QCMaquis interface, activates the DMRG calculation
+              - for Block and CheMPS2 interfaces, sets the number of renormalized states m
+              </HELP>
+              </KEYWORD>
+
+Keywords for the QCMaquis DMRG interface:
+
+.. warning::
+
+   Using :kword:`DMRG` with QCMaquis interface is deprecated. It is advised to use the :program:`DMRGSCF` module for QCMaquis DMRG calculations.
+
+.. class:: keywordlist
+
+:kword:`RGInput`
+  This block, terminated by :kword:`EndRG`, is mandatory and contains parameters to QCMaquis which control the DMRG wavefunction optimization. This block is equivalent to the
+  :kword:`DMRGSettings..EndDMRGSettings` block of the :program:`DMRGSCF` module (see :numref:`UG:sec:dmrgsettings_input`).
+
+  .. xmldoc:: <GROUP MODULE="RASSCF" NAME="RGINPUT" APPEAR="QCMaquis DMRG settings" KIND="BLOCK" LEVEL="BASIC">
+              <INCLUDE MODULE="DMRGSCF" EXCEPT="ACTIVESPACEOPTIMIZER,FIEDLER,CIDEAS,OOPTIMIZATIONSETTINGS,FCIDUMP,SOCCUPY,NEVPT2PREP" />
+              </GROUP>
+
+:kword:`SOCCupy`
+  Initial electronic configuration for the calculated state(s). This keyword is equivalent to the :kword:`hf_occ` card in the **QCMaquis** input (see Table 8 of the QCMaquis manual), but allows input for multiple states. The occupation is inserted as a string (strings) of aliases of occupations of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty. For several states, the occupation strings for each state are separated by newlines.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="SOCCUPY" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: soccupy <basic>
+              <HELP>
+              Set HF determinant start guess for MPS wave functions. (QCMaquis)
+              </HELP>
+              </KEYWORD>
+
+:kword:`NEVPT2prep`
+  Prepare for a subsequent DMRG-NEVPT2 or CASPT2 calculation. Then the four- and transition three-particle density matrices (4- and t-3RDMs), required for the MRPT2 calculations, will be evaluated and stored on disk in :file:`$WorkDir`. **QCMaquis** input files for the 4- and t-3RDMs evaluation are prepared and the RDM evaluation may be performed externally or directly in the :program:`NEVPT2` program. More about external RDM evaluation in Section 6.3 of the QCMaquis manual.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NEVPT2PREP" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NEVPT2prep <basic>
+              <HELP>
+              Prepare input for higher-order RDM/TDM evaluation. (QCMaquis)
+              </HELP>
+              </KEYWORD>
+
+Keywords for the CheMPS2 DMRG interface:
+
+.. class:: keywordlist
+
+:kword:`3RDM`
+  Use this keyword to get the 3-particle and Fock matrix contracted with the 4-particle reduced density
+  matrices (3-RDM and F.4-RDM) for DMRG-CASPT2.
+  :kword:`OUTOrbitals` = ``CANOnical`` is automatically activated.
+  In CheMPS2 interface, both 3-RDM and F.4-RDM are calculated.
+  In Block interface, only 3-RDM is calculated while F.4-RDM is approximated in the CASPT2 module.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="3RDM" APPEAR="Calculate 3- and 4-particle reduced density matrices" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: 3RDM <basic>
+              <HELP>
+              Use this keyword to get the 3-particle and 4-particle reduced density matrices (3-RDM and F.4-RDM) for DMRG-CASPT2 with CheMPS2 interface.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHBLb`
+  Specify a threshold for activating restart in CheMPS2.
+  After each macroiteration, if the max BLB value is smaller than CHBLb, activate partial restart in CheMPS2.
+  If the max BLB value is smaller than CHBLb/10.0, activate full restart in CheMPS2.
+  Default value is: 0.5d-2.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHBLB" LEVEL="BASIC" APPEAR="Threshold for restart (CheMPS2)" KIND="REAL" DEFAULT_VALUE="0.05">
+              %%Keyword: CHBLb <basic>
+              <HELP>
+              Threshold for activating restart in CheMPS2.
+              </HELP>
+              (Default: 0.05)
+              </KEYWORD>
+
+:kword:`DAVTolerance`
+  Specify value for Davidson tolerance in CheMPS2.
+  Default value is 1.0d-7.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DAVTOLERANCE" LEVEL="BASIC" APPEAR="Davidson tolerance (CheMPS2)" KIND="REAL" DEFAULT_VALUE="1.0d-7">
+              %%Keyword: DAVTolerance <basic>
+              <HELP>
+              Davidson tolerance in CheMPS2.
+              </HELP>
+              (Default: 1.0d-7)
+              </KEYWORD>
+
+:kword:`NOISe`
+  Specify value for noise pre-factor in CheMPS2.
+  This noise is set to 0.0 in the last instruction.
+  Default value (recommended) is: 0.05.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NOISE" LEVEL="BASIC" APPEAR="Noise pre-factor (CheMPS2)" KIND="REAL" DEFAULT_VALUE="0.05">
+              %%Keyword: NOISe <basic>
+              <HELP>
+              Noise pre-factor in CheMPS2.
+              </HELP>
+              (Default: 0.05)
+              </KEYWORD>
+
+:kword:`MXSWeep`
+  Maximum number of sweeps. in the last instruction in CheMPS2.
+  Default value is: 8.
+  In the last iteration of DMRG-SCF, :kword:`MXSW` is increased by five times (default 40).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MXSWEEP" LEVEL="BASIC" APPEAR="Maximum number of sweeps (CheMPS2)" KIND="INT" DEFAULT_VALUE="8">
+              %%Keyword: MXSWeep <basic>
+              <HELP>
+              Maximum number of sweeps in the last instruction in CheMPS2.
+              </HELP>
+              (Default: 8)
+              </KEYWORD>
+
+:kword:`MXCAnonical`
+  Maximum number of sweeps in the last instruction with pseudocanonical orbitals in CheMPS2.
+  Default value is: 40.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MXCANONICAL" LEVEL="BASIC" APPEAR="Maximum number of sweeps with pseudocanonical orbitals (CheMPS2)" KIND="INT" DEFAULT_VALUE="40">
+              %%Keyword: MXCAnonical <basic>
+              <HELP>
+              Maximum number of sweeps in the last instruction with pseudocanonical orbitals in CheMPS2.
+              </HELP>
+              (Default: 40)
+              </KEYWORD>
+
+:kword:`CHREstart`
+  Use this keyword to activate restart in the first DMRG iteration from a previous calculation.
+  The working directory must contain :file:`molcas_natorb_fiedler.txt` and :file:`CheMPS2_natorb_MPSx.h5` (``x``\=0 for the ground state,
+  1 for the first excited state, etc.).
+  If these files are not in the working directory, a warning is printed at the beginning of
+  the calculation and restart is skipped (start from scratch).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHRESTART" APPEAR="Restart in the first DMRG iteration (CheMPS2)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CHREstart <basic>
+              <HELP>
+              Use this keyword to activate restart in the first DMRG iteration from a previous calculation in CheMPS2.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DMREstart`
+  Use this keyword to activate restart in the last DMRG iteration from the previous iteration or calculation.
+  This keyword only works when using :kword:`OUTOrbitals` = ``CANOnical`` or :kword:`3RDM`.
+  :kword:`DMREstart` = ``0`` (default): start from scratch to calculate 3-RDM and F.4-RDM.
+
+  :kword:`DMREstart` = ``1``: start form user-supplied checkpoint files.
+  The working directory must contain :file:`molcas_canorb_fiedler.txt` and :file:`CheMPS2_canorb_MPSx.h5` (``x``\=0 for the ground state,
+  1 for the first excited state, etc.).
+  If these files are not in the working directory, a warning is printed at the
+  beginning of the calculation and restart is skipped (start from scratch).
+
+  :kword:`DMREstart` = ``2`` (Not recommended): start form previous checkpoint files with natural orbitals.
+  :kword:`DMREstart` = ``2`` is not recommended since this may produce non-optimal energy
+  because the orbital ordering is not optimized.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMRESTART" LEVEL="BASIC" APPEAR="Restart in the last DMRG iteration (CheMPS2)" KIND="INT" DEFAULT_VALUE="0">
+              %%Keyword: DMREstart <basic>
+              <HELP>
+              Activate restart in the last DMRG iteration in CheMPS2.
+              </HELP>
+              (Default: 0)
               </KEYWORD>
 
 A general comment concerning the input orbitals: The orbitals are ordered by

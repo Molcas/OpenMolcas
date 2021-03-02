@@ -49,7 +49,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='OVLP    ')
 #include "WrkSpc.fh"
 
       Dimension C1(*),C2(*),Smat(*)

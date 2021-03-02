@@ -13,7 +13,6 @@
 #include "nq_info.fh"
 #include "real.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='MOD_P2  ')
       Real*8 P2mo(nP2Act),D1mo(nD1mo), DS1mo(nD1mo)
       Integer iOff_Ash(0:7)
 *                                                                      *

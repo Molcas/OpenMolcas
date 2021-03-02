@@ -98,7 +98,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-  version = 'py2.17'
+  version = 'py2.18'
   rc = 0
 
   def __init__(self, **kwargs):
@@ -1324,8 +1324,9 @@ class Molcas_module(object):
     else:
       self.parent.run_logue('module.prologue')
       if (isfile(self._exec[0]) and access(self._exec[0], X_OK)):
-        teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
-        self._read_rc()
+        self.rc = teed_call(command, cwd=self.parent.scratch, stdout=self._output, stderr=self._error, no_tee=no_tee)
+        if (self.rc == 0):
+          self._read_rc()
       else:
         self.rc = '_RC_NOT_AVAILABLE_'
       self.parent.run_logue('module.epilogue')

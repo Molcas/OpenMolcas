@@ -65,7 +65,7 @@
         ELSE
           NAC4 = NLEV * NLEV * NLEV * NLEV
           CALL chemps2_load2pdm( NASHT, WORK( LG2TMP ), MSTATE(JSTATE) )
-          CALL TWO2ONERDM_BIS(NASHT,NACTEL,WORK(LG2TMP),WORK(LG1TMP))
+          CALL TWO2ONERDM(NASHT,NACTEL,WORK(LG2TMP),WORK(LG1TMP))
           IF(iPrGlb.GE.DEBUG) THEN
             WRITE(6,'("DEBUG> ",A)')
      &        "CHEMPS2: norms of the density matrices:"

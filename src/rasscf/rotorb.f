@@ -28,6 +28,7 @@ c
 #include "general.fh"
 #include "output_ras.fh"
 #include "gas.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='ROTORB  ')
 #include "rasscf.fh"
 #include "WrkSpc.fh"

@@ -35,7 +35,6 @@
 #include "output_ras.fh"
 #include "orthonormalize_mcpdft.fh"
 #include "ksdft.fh"
-      Parameter (ROUTINE='READIN  ')
 #include "casvb.fh"
 #include "pamint.fh"
 *Chen write JOBIPH

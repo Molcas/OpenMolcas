@@ -33,6 +33,7 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
       Dimension P2reo(1)
@@ -369,6 +370,7 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
 

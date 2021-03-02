@@ -34,7 +34,6 @@ C
 #include "timers.fh"
 #include "rasscf_lucia.fh"
 #include "output_ras.fh"
-      PARAMETER (ROUTINE='CIDIA_CI')
 C
       DIMENSION CSFDIA(*)
       DIMENSION G(*)

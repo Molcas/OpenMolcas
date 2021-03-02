@@ -16,7 +16,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      PARAMETER(ROUTINE='STEPVECTOR_NEXT')
 #include "gugx.fh"
 #include "WrkSpc.fh"
 
@@ -40,7 +39,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      PARAMETER(ROUTINE='GETSTEPVECTOR')
 #include "gugx.fh"
 #include "WrkSpc.fh"
 

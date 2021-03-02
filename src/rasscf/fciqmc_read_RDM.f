@@ -147,7 +147,6 @@
       logical :: tExist, switch
       real*8 :: fac, RDMval, fcnacte
       real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
-      parameter(routine = 'read_neci_RDM')
 
 
       iprlev = iprloc(1)

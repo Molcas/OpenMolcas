@@ -31,8 +31,6 @@ C
 #include "output_ras.fh"
 #include "splitcas.fh"
 
-      Parameter (ROUTINE='NATORB  ')
-
       DIMENSION CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
 
       IPRLEV=IPRLOC(7)

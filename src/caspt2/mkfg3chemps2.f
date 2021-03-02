@@ -34,7 +34,7 @@
       If(NACTEL.GT.1) Then
         NAC4 = NLEV * NLEV * NLEV * NLEV
         Call chemps2_load2pdm( nlev, G2, MSTATE(JSTATE) )
-        Call two2onerdm_bis( nlev, NACTEL, G2, G1 )
+        Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
         write(6,*) "FATAL ERROR: DMRG-CASPT2 with
      & CHEMPS2 does not work with NACTEL=1"

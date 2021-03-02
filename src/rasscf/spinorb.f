@@ -21,6 +21,7 @@ C
 #include "general.fh"
 #include "output_ras.fh"
 #include "WrkSpc.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='SPINORB ')
       DIMENSION D(*),CMO(*),OCC(*)
 C

@@ -71,6 +71,7 @@
 #include "general.fh"
 #include "input_ras.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='SXCTL   ')
 #include "WrkSpc.fh"
 #include "wadr.fh"

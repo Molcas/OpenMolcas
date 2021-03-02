@@ -84,7 +84,6 @@
 #include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='RASSCF  ')
 #include "rctfld.fh"
 #include "timers.fh"
 #include "casvb.fh"

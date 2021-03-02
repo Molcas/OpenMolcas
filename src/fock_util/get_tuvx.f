@@ -42,7 +42,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='XXXXXXXX')
 
       Integer off_Ash(mxSym), off_PUVX(mxSym)
 

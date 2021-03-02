@@ -34,7 +34,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='CASDFT_Terms')
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"

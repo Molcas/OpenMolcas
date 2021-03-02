@@ -41,7 +41,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
-      Parameter (ROUTINE='ORTHO   ')
 *
       Dimension Smat(*),SCRATCH(*),CMO(*),Temp(*)
 *                                                                      *
