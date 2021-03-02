@@ -37,7 +37,7 @@
 ccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 ccccccccccccccccccccccccccccccccccccccc
-      Call Untested(Radlq)
+      Call Untested('Radlq')
 *                                                                      *
 ************************************************************************
 *                                                                      *
