@@ -69,13 +69,12 @@ C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-
 #include "rasdim.fh"
 #include "warnings.fh"
 #include "general.fh"
+#include "rasscf.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='SUPSCH_ ')
-#include "rasscf.fh"
 
       DIMENSION CMOO(*),CMON(*),SMAT(*)
 

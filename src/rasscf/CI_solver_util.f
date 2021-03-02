@@ -33,6 +33,7 @@
 #include "global.fh"
       integer(MPIInt) :: error
       integer(MPIInt), parameter :: ROOT = 0_MPIInt
+#include "mpi_interfaces.fh"
 #endif
 
       interface

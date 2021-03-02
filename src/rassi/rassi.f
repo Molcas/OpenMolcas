@@ -22,9 +22,11 @@
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_environment, only: finalize_dmrg
+      use qcmaquis_interface, only: qcmaquis_interface_deinit
       use qcmaquis_info, only : qcmaquis_info_deinit
+      use rasscf_data, only: doDMRG
 #endif
+
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -328,7 +330,7 @@ C Will also handle mixing of states (sodiag.f)
 #ifdef _DMRG_
 !     !> finalize MPS-SI interface
       if (doDMRG)then
-        call finalize_dmrg()
+        call qcmaquis_interface_deinit
         call qcmaquis_info_deinit
       end if
 #endif

@@ -11,13 +11,19 @@
 
       !> Read information provided on runfile/jobiph files and
       !> initialize pt2wfn file
-      subroutine pt2init(refwfnfile)
+      subroutine pt2init(refwfn_in)
 
 #ifdef _DMRG_
       use qcmaquis_info, only: qcm_group_names
+      use qcmaquis_interface, only:
+     &  qcmaquis_interface_measure_and_save_trans3rdm,
+     &  qcmaquis_interface_get_3rdm_elements,
+     &  qcmaquis_interface_get_4rdm_elements
+      use qcmaquis_interface_utility_routines, only: str
 #endif
 #ifdef _HDF5_QCM_
       use hdf5_utils
+      use mh5, only: mh5_is_hdf5
 #endif
       use refwfn, only: refwfn_init, refwfn_info, refwfn_data,
      &                  refwfn_close
@@ -27,7 +33,8 @@
       use nevpt2wfn
       implicit none
 
-      character(len=*), intent(in) :: refwfnfile
+      character(len=*), intent(in) :: refwfn_in
+      character(len=:), allocatable :: refwfnfile
 
       integer :: istate,ii,j,nDiff,nishprev,nfroprev
 
@@ -35,6 +42,9 @@
       real*8, allocatable :: readbuf(:,:)
 #include "mxdm.fh"
 #include "caspt2.fh"
+      ! Save current directory into the CurrDir string
+      call GetEnvF("CurrDir", curr_dir)
+      call GetEnvF("Project", molcas_project)
 
       ! call the Molcas routine to check whether we're using Cholesky
       call DecideOnCholesky(do_cholesky)
@@ -61,6 +71,38 @@
       LUONEM=16
       CALL DANAME_wa(LUONEM,'MOLONE')
 
+      ! We can only open HDF5 files, so if no HDF5 file is specified in the input
+      ! or JOBIPH is not a HDF5 file, try to find the corresponding HDF5 file,
+      ! if not found, exit
+
+#ifdef _HDF5_
+
+#ifdef _WARNING_WORKAROUND_
+      ! fix a compiler warning/error about possibly uninitialized variables
+      allocate(character(len=0)::refwfnfile)
+#endif
+      refwfnfile = trim(refwfn_in)
+      If (.not.mh5_is_hdf5(refwfnfile)) Then
+        ! try $Project.dmrgscf.h5
+        refwfnfile = trim(molcas_project)//".dmrgscf.h5"
+        If (.not.mh5_is_hdf5(refwfnfile)) Then
+          ! try $Project.rasscf.h5
+          refwfnfile = trim(molcas_project)//".rasscf.h5"
+          If (.not.mh5_is_hdf5(refwfnfile)) Then
+            call WarningMessage(1,
+     & "Cannot find a HDF5 file with the reference wavefunction. "//
+     & "Make sure that file "//trim(molcas_project)//".rasscf.h5 "//
+     & "or .dmrgscf.h5 exists")
+            call Quit_OnUserError()
+          end if
+        endif
+      endif
+#else
+      call WarningMessage(1,
+     & "Please compile OpenMolcas with HDF5 support "//
+     &  "for NEVPT2 to work")
+      call Quit_OnUserError()
+#endif
       Call refwfn_init(refwfnfile)
       Call refwfn_info()
       Call refwfn_data()
@@ -193,8 +235,13 @@
           ! fill igelo by symmetry
           !! TODO: Check here for what has been frozen in MOTRA and subtract it (!!)
           do ii=1, nSym
-            nishprev=merge(0,nfro(ii-1)+nish(ii-1),ii.eq.1)
-            nfroprev=merge(0,nfro(ii-1),ii.eq.1)
+            if (ii.eq.1) then
+              nishprev=0
+              nfroprev=0
+            else
+              nishprev=nfro(ii-1)+nish(ii-1)
+              nfroprev=nfro(ii-1)
+            endif
             do j=1,nfro(ii)
               igelo(nfroprev+j)=nishprev+j
             end do
