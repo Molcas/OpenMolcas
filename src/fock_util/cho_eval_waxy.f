@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_eval_waxy(irc,ipScr,ipChoV1,ipChoV2,ipInt,nAorb,
+      SUBROUTINE CHO_eval_waxy(irc,ipScr,ChoV1,ChoV2,ipInt,nAorb,
      &                         JSYM,NUMV,DoTraInt)
 
+      Use Data_structures, only: Laq_Type
       Implicit Real*8 (a-h,o-z)
-      Integer ipChoV1(*),ipChoV2(*),ipInt,nAorb(*)
+      Integer ipInt,nAorb(*)
+      Type (Laq_type) ChoV1, ChoV2
       Integer ipScr(8,8)
       Integer off_PWXY(8,8,8),ISTSQ(8)
       Logical DoTraInt
@@ -40,8 +42,7 @@ C==========================================================
 
          iSymx=MulD2h(iSymy,JSYM)
 
-         Nxy  = nAorb(iSymx)*nAorb(iSymy)
-     &        + Min(0,JSYM-2)*nAorb(iSymx)*(nAorb(iSymy)-1)/2
+         Nxy=SIZE(ChoV2%pA2(iSymx)%A,1)
 
          If (iSymx.le.iSymy.and.Nxy.gt.0) then
 
@@ -49,13 +50,14 @@ C==========================================================
 
                iSymw=MulD2h(iSyma,JSYM)
 
-               Nwa  = nAorb(iSymw)*nBas(iSyma)
+               Nwa  = SIZE(ChoV1%pA(iSymw)%A,1)*
+     &                SIZE(ChoV1%pA(iSymw)%A,2)
 
                If (Nwa.gt.0) then
 
                   CALL DGEMM_('N','T',Nwa,Nxy,NumV,
-     &                       ONE,Work(ipChoV1(iSymw)),Nwa,
-     &                       WORK(ipChoV2(iSymx)),Nxy,ONE,
+     &                       ONE,ChoV1%pA(iSymw)%A,Nwa,
+     &                           ChoV2%pA2(iSymx)%A,Nxy,ONE,
      &                       Work(ipScr(iSymw,iSymx)),Nwa)
 
 

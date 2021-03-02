@@ -53,7 +53,7 @@ C
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
 
-      Integer   ipLxy(8),ipScr(8,8),ipDIAH(1)
+      Integer   ipScr(8,8),ipDIAH(1)
       Integer   ipLpq(8),ipDLT(2),ipFLT(2),ipKLT(2)
       Integer   iSkip(8),kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
@@ -1431,7 +1431,6 @@ C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
 C -------------------------------------------------------------
                Call Map_to_Laq(Laq,ipLpq)
-               Call Map_to_Laq(Lxy,ipLxy)
 
                Do i=1,nSym
                   k = Muld2h(i,JSYM)
@@ -1509,7 +1508,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,ipScr,ipLpq,ipLxy,ipInt,nAorb,
+               CALL CHO_eval_waxy(irc,ipScr,Laq,Lxy,ipInt,nAorb,
      &                            JSYM,JNUM,DoTraInt)
 
                CALL CWTIME(TCINT2,TWINT2)

@@ -50,7 +50,7 @@ C
       Type (Laq_Type), Target:: Laq(3)
       Type (Laq_Type), Target:: Lxy
 
-      Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
+      Integer   rc,ipLab(8,3),ipScr(8,8)
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
@@ -184,7 +184,6 @@ C --- Set up the skipping flags + some initializations --------
          ipLab(:,:) = -6666  ! pointers to Lk,Jb
          ipLab(:,:) = -6666  ! pointers to "cholesky MOs vectors"
          ipLab(:,:) = -6666  ! pointers to Lvb,J
-         ipLxy(:) = -6666  ! pointers to Lxy,J
 C -------------------------------------------------------------
          Do i=1,nSym
             k = Muld2h(i,JSYM)
@@ -523,7 +522,6 @@ C --------------------------------------------------------------------
 
 C --- Set pointers to the half-transformed Cholesky vectors
                Call Map_to_Laq(Laq(3),ipLab(:,3))
-               Call Map_to_Laq(Lxy,ipLxy)
 
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
@@ -603,7 +601,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,ipScr,ipLab(:,3),ipLxy,ipInt,
+               CALL CHO_eval_waxy(irc,ipScr,Laq(3),Lxy,ipInt,
      &                            nAorb,JSYM,JNUM,DoTraInt)
 
                CALL CWTIME(TCINT2,TWINT2)
