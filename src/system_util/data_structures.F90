@@ -154,6 +154,22 @@ Contains
           End If
           MemTot = MemTot + n2dim*NUMV
        End Do
+    Case(5)
+       Do iSyma = 1, nSym
+          If (n(iSyma)/=m(iSyma)) Then
+             Write (6,*) 'Allocate_Laq: iSwap=5 only valid if n(:)=m(:).'
+             Call abend()
+          End If
+          iSymb = MulD2h(iSym,iSyma)
+          If (iSyma==iSymb) Then
+            n2Dim = n(iSyma)*(n(iSyma)+1)/2
+          Else If (iSymb>iSyma) Then
+            n2Dim = n(iSyma)*n(iSymb)
+          Else
+            n2Dim = 0
+          End If
+          MemTot = MemTot + n2dim*NUMV
+       End Do
     Case Default
        Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
@@ -205,6 +221,19 @@ Contains
           iE = iE + n2Dim*NUMV
           Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
        End Do
+    Case(5)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          If (iSymb>iSyma) Cycle
+          iS = iE + 1
+          If (iSyma==iSymb) Then
+            n2Dim = n(iSyma)*(n(iSyma)+1)/2
+          Else
+            n2Dim = n(iSyma)*n(iSymb)
+          End If
+          iE = iE + n2Dim*NUMV
+          Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
+       End Do
     Case Default
        Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
@@ -243,7 +272,7 @@ Contains
   Integer i, j, MulD2h
   MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
-  If (Adam%iSwap/=4) Then
+  If (Adam%iSwap<4) Then
      Do iSym=1, Adam%nSym
         ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1,1))
      End Do

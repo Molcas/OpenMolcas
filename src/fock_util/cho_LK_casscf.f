@@ -93,15 +93,7 @@ C
       Real*8, Allocatable:: Lrs(:,:)
       Real*8, Allocatable:: VJ(:)
       Type (Laq_Type) Laq
-
-      Type V2
-        Real*8, Pointer:: A(:,:)
-      End Type V2
-      Type Lxy_type
-        Real*8, Allocatable:: Lxy_full(:)
-        Type (V2):: pA(8)
-      End Type Lxy_type
-      Type (Lxy_Type), Target:: Lxy
+      Type (Laq_Type) Lxy
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1422,9 +1414,11 @@ C --- subtraction is done in the 1st reduced set
                Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
                CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 
+               ! Lvw,J , strictly LT storage
+               iSwap = 5
+               Call Allocate_Laq(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
                iSwap = 0  ! Lvb,J are returned
                Call Allocate_Laq(Laq,nAorb,nBas,nVec,JSYM,nSym,iSwap)
-               Call mma_allocate(Lxy%Lxy_Full,mTvec2*nVec,Label='Lxy')
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
 C --------------------------------------------------------------------
@@ -1437,22 +1431,11 @@ C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
 C -------------------------------------------------------------
                Call Map_to_Laq(Laq,ipLpq)
+               Call Map_to_Laq(Lxy,ipLxy)
+
                Do i=1,nSym
                   k = Muld2h(i,JSYM)
                   iSkip(k) = Min(1,nAorb(k)*nBas(i))
-               End Do
-
-               iE = 0
-               Do i=1,nSym
-
-                  k = Muld2h(i,JSYM)
-                  If (k.le.i) Then
-                     iS = iE + 1
-                     iE = iE + nnA(k,i)*JNUM
-                     Lxy%pA(k)%A(1:nnA(k,i),1:JNUM)=>Lxy%Lxy_full(iS:iE)
-                     ipLxy(k) = ip_of_Work(Lxy%pA(k)%A(1,1))
-                  End If
-
                End Do
 
                kMOs = 1  !
@@ -1461,7 +1444,6 @@ C -------------------------------------------------------------
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
      &                          ipLpq,iSkip,DoRead)
-
 
                if (irc.ne.0) then
                   RETURN
@@ -1485,7 +1467,7 @@ C --------------------------------------------------------------------
                        CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
      &                            One,Laq%pA(iSymb)%A(:,:,JVC),NAv,
      &                                Ash(1)%pA(iSymb)%A,NAv,
-     &                           Zero,Lxy%pA(iSymb)%A(:,JVC),NAv)
+     &                           Zero,Lxy%pA2(iSymb)%A(:,JVC),NAv)
 
                       End Do
 
@@ -1512,7 +1494,7 @@ C --------------------------------------------------------------------
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq%pA(iSymv)%A(:,:,JVC),NAv,
      &                                Ash(1)%pA(iSymb)%A,NAw,
-     &                           Zero,Lxy%pA(iSymv)%A(:,JVC),NAv)
+     &                           Zero,Lxy%pA2(iSymv)%A(:,JVC),NAv)
 
                       End Do
 
@@ -1538,7 +1520,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
                   RETURN
                endif
 
-               Call mma_deallocate(Lxy%Lxy_Full)
+               Call Deallocate_Laq(Lxy)
                Call Deallocate_Laq(Laq)
 
 C --------------------------------------------------------------------
