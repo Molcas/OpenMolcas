@@ -221,7 +221,7 @@ blist(1) = b
 rlist(1) = Zero
 elist(1) = Zero
 iord(1) = 0
-if (epsabs <= Zero .and. epsrel < max(50.0_wp*epmach,5.0e-29_wp)) ier = 6
+if ((epsabs <= Zero) .and. (epsrel < max(50.0_wp*epmach,5.0e-29_wp))) ier = 6
 if (ier == 6) return
 
 ! first approximation to the integral
@@ -245,117 +245,127 @@ iord(1) = 1
 ! test on accuracy.
 
 errbnd = max(epsabs,epsrel*abs(reslt))
-if (abserr <= 50.0_wp*epmach*defabs .and. abserr > errbnd) ier = 2
+if ((abserr <= 50.0_wp*epmach*defabs) .and. (abserr > errbnd)) ier = 2
 if (limit == 1) ier = 1
-if ((ier == 0) .and. ((abserr > errbnd) .or. (abserr == resabs)) .and. (abserr /= Zero)) then
-
-  ! initialization
-  ! --------------
-
-  errmax = abserr
-  maxerr = 1
-  area = reslt
-  errsum = abserr
-  nrmax = 1
-  iroff1 = 0
-  iroff2 = 0
-
-  ! main do-loop
-  ! ------------
-
-  do last=2,limit
-
-    ! bisect the subinterval with the largest error estimate.
-
-    a1 = alist(maxerr)
-    b1 = Half*(alist(maxerr)+blist(maxerr))
-    a2 = b1
-    b2 = blist(maxerr)
-    if (keyf == 1) call dqk15(f,a1,b1,area1,error1,resabs,defab1)
-    if (keyf == 2) call dqk21(f,a1,b1,area1,error1,resabs,defab1)
-    if (keyf == 3) call dqk31(f,a1,b1,area1,error1,resabs,defab1)
-    if (keyf == 4) call dqk41(f,a1,b1,area1,error1,resabs,defab1)
-    if (keyf == 5) call dqk51(f,a1,b1,area1,error1,resabs,defab1)
-    if (keyf == 6) call dqk61(f,a1,b1,area1,error1,resabs,defab1)
-    if (keyf == 1) call dqk15(f,a2,b2,area2,error2,resabs,defab2)
-    if (keyf == 2) call dqk21(f,a2,b2,area2,error2,resabs,defab2)
-    if (keyf == 3) call dqk31(f,a2,b2,area2,error2,resabs,defab2)
-    if (keyf == 4) call dqk41(f,a2,b2,area2,error2,resabs,defab2)
-    if (keyf == 5) call dqk51(f,a2,b2,area2,error2,resabs,defab2)
-    if (keyf == 6) call dqk61(f,a2,b2,area2,error2,resabs,defab2)
-
-    ! improve previous approximations to integral
-    ! and error and test for accuracy.
-
-    neval = neval+1
-    area12 = area1+area2
-    erro12 = error1+error2
-    errsum = errsum+erro12-errmax
-    area = area+area12-rlist(maxerr)
-    if ((defab1 /= error1) .and. (defab2 /= error2)) then
-      if (abs(rlist(maxerr)-area12) <= 1.0e-5_wp*abs(area12) .and. erro12 >= 0.99_wp*errmax) iroff1 = iroff1+1
-      if (last > 10 .and. erro12 > errmax) iroff2 = iroff2+1
-    end if
-    rlist(maxerr) = area1
-    rlist(last) = area2
-    errbnd = max(epsabs,epsrel*abs(area))
-    if (errsum > errbnd) then
-
-      ! test for roundoff error and eventually set error flag.
-
-      if (iroff1 >= 6 .or. iroff2 >= 20) ier = 2
-
-      ! set error flag in the case that the number of subintervals
-      ! equals limit.
-
-      if (last == limit) ier = 1
-
-      ! set error flag in the case of bad integrand behaviour
-      ! at a point of the integration range.
-
-      if (max(abs(a1),abs(b2)) <= (One+100.0_wp*epmach)*(abs(a2)+1000.0_wp*uflow)) ier = 3
-    end if
-
-    ! append the newly-created intervals to the list.
-
-    if (error2 <= error1) then
-      alist(last) = a2
-      blist(maxerr) = b1
-      blist(last) = b2
-      elist(maxerr) = error1
-      elist(last) = error2
-    else
-      alist(maxerr) = a2
-      alist(last) = a1
-      blist(last) = b1
-      rlist(maxerr) = area2
-      rlist(last) = area1
-      elist(maxerr) = error2
-      elist(last) = error1
-    end if
-
-    ! call subroutine dqpsrt to maintain the descending ordering
-    ! in the list of error estimates and select the subinterval
-    ! with the largest error estimate (to be bisected next).
-
-    call dqpsrt(limit,last,maxerr,errmax,elist,iord,nrmax)
-    ! ***jump out of do-loop
-    if (ier /= 0 .or. errsum <= errbnd) exit
-  end do
-
-  ! compute final result.
-  ! ---------------------
-
-  reslt = Zero
-  do k=1,last
-    reslt = reslt+rlist(k)
-  end do
-  abserr = errsum
+if ((ier /= 0) .or. ((abserr <= errbnd) .and. (abserr /= resabs)) .or. (abserr == Zero)) then
+  call finish()
+  return
 end if
 
-if (keyf /= 1) neval = (10*keyf+1)*(2*neval+1)
-if (keyf == 1) neval = 30*neval+15
+! initialization
+! --------------
+
+errmax = abserr
+maxerr = 1
+area = reslt
+errsum = abserr
+nrmax = 1
+iroff1 = 0
+iroff2 = 0
+
+! main do-loop
+! ------------
+
+do last=2,limit
+
+  ! bisect the subinterval with the largest error estimate.
+
+  a1 = alist(maxerr)
+  b1 = Half*(alist(maxerr)+blist(maxerr))
+  a2 = b1
+  b2 = blist(maxerr)
+  if (keyf == 1) call dqk15(f,a1,b1,area1,error1,resabs,defab1)
+  if (keyf == 2) call dqk21(f,a1,b1,area1,error1,resabs,defab1)
+  if (keyf == 3) call dqk31(f,a1,b1,area1,error1,resabs,defab1)
+  if (keyf == 4) call dqk41(f,a1,b1,area1,error1,resabs,defab1)
+  if (keyf == 5) call dqk51(f,a1,b1,area1,error1,resabs,defab1)
+  if (keyf == 6) call dqk61(f,a1,b1,area1,error1,resabs,defab1)
+  if (keyf == 1) call dqk15(f,a2,b2,area2,error2,resabs,defab2)
+  if (keyf == 2) call dqk21(f,a2,b2,area2,error2,resabs,defab2)
+  if (keyf == 3) call dqk31(f,a2,b2,area2,error2,resabs,defab2)
+  if (keyf == 4) call dqk41(f,a2,b2,area2,error2,resabs,defab2)
+  if (keyf == 5) call dqk51(f,a2,b2,area2,error2,resabs,defab2)
+  if (keyf == 6) call dqk61(f,a2,b2,area2,error2,resabs,defab2)
+
+  ! improve previous approximations to integral
+  ! and error and test for accuracy.
+
+  neval = neval+1
+  area12 = area1+area2
+  erro12 = error1+error2
+  errsum = errsum+erro12-errmax
+  area = area+area12-rlist(maxerr)
+  if ((defab1 /= error1) .and. (defab2 /= error2)) then
+    if ((abs(rlist(maxerr)-area12) <= 1.0e-5_wp*abs(area12)) .and. (erro12 >= 0.99_wp*errmax)) iroff1 = iroff1+1
+    if ((last > 10) .and. (erro12 > errmax)) iroff2 = iroff2+1
+  end if
+  rlist(maxerr) = area1
+  rlist(last) = area2
+  errbnd = max(epsabs,epsrel*abs(area))
+  if (errsum > errbnd) then
+
+    ! test for roundoff error and eventually set error flag.
+
+    if ((iroff1 >= 6) .or. (iroff2 >= 20)) ier = 2
+
+    ! set error flag in the case that the number of subintervals
+    ! equals limit.
+
+    if (last == limit) ier = 1
+
+    ! set error flag in the case of bad integrand behaviour
+    ! at a point of the integration range.
+
+    if (max(abs(a1),abs(b2)) <= (One+100.0_wp*epmach)*(abs(a2)+1000.0_wp*uflow)) ier = 3
+  end if
+
+  ! append the newly-created intervals to the list.
+
+  if (error2 <= error1) then
+    alist(last) = a2
+    blist(maxerr) = b1
+    blist(last) = b2
+    elist(maxerr) = error1
+    elist(last) = error2
+  else
+    alist(maxerr) = a2
+    alist(last) = a1
+    blist(last) = b1
+    rlist(maxerr) = area2
+    rlist(last) = area1
+    elist(maxerr) = error2
+    elist(last) = error1
+  end if
+
+  ! call subroutine dqpsrt to maintain the descending ordering
+  ! in the list of error estimates and select the subinterval
+  ! with the largest error estimate (to be bisected next).
+
+  call dqpsrt(limit,last,maxerr,errmax,elist,iord,nrmax)
+  ! ***jump out of do-loop
+  if ((ier /= 0) .or. (errsum <= errbnd)) exit
+end do
+
+! compute final result.
+! ---------------------
+
+reslt = Zero
+do k=1,last
+  reslt = reslt+rlist(k)
+end do
+abserr = errsum
+
+call finish()
 
 return
+
+contains
+
+subroutine finish()
+
+  if (keyf /= 1) neval = (10*keyf+1)*(2*neval+1)
+  if (keyf == 1) neval = 30*neval+15
+
+end subroutine finish
 
 end subroutine dqage

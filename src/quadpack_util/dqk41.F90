@@ -216,7 +216,7 @@ reslt = resk*hlgth
 resabs = resabs*dhlgth
 resasc = resasc*dhlgth
 abserr = abs((resk-resg)*hlgth)
-if (resasc /= Zero .and. abserr /= Zero) abserr = resasc*min(One,(200.0_wp*abserr/resasc)**OneHalf)
+if ((resasc /= Zero) .and. (abserr /= Zero)) abserr = resasc*min(One,(200.0_wp*abserr/resasc)**OneHalf)
 if (resabs > uflow/(50.0_wp*epmach)) abserr = max((epmach*50.0_wp)*resabs,abserr)
 
 return

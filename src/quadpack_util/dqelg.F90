@@ -66,8 +66,8 @@ implicit none
 integer(kind=iwp), intent(inout) :: n, nres
 real(kind=wp), intent(inout) :: epstab(52), res3la(3)
 real(kind=wp), intent(out) :: reslt, abserr
-integer(kind=iwp) :: i, ib, ib2, ie, indx, k1, k2, k3, limexp, newelm,num
-real(kind=wp) :: delta1, delta2, delta3, epmach, epsinf,error, err1, err2, err3, e0, e1, e1abs, e2, e3, oflow, res, ss, tol1, &
+integer(kind=iwp) :: i, ib, ib2, ie, indx, k1, k2, k3, limexp, newelm, num
+real(kind=wp) :: delta1, delta2, delta3, epmach, epsinf, error, err1, err2, err3, e0, e1, e1abs, e2, e3, oflow, res, ss, tol1, &
                  tol2, tol3
 real(kind=wp), external :: d1mach
 
@@ -148,7 +148,7 @@ do i=1,newelm
   ! if two elements are very close to each other, omit
   ! a part of the table by adjusting the value of n
 
-  if (err1 <= tol1 .or. err2 <= tol2 .or. err3 <= tol3) then
+  if ((err1 <= tol1) .or. (err2 <= tol2) .or. (err3 <= tol3)) then
     n = i+i-1
     ! ***jump out of do-loop
     exit

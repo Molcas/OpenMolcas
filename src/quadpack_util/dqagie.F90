@@ -256,7 +256,7 @@ erlarg = Zero ! dummy initialize
 ertest = Zero ! dummy initialize
 small = Zero ! dummy initialize
 
-if (epsabs <= Zero .and. epsrel < max(50.0_wp*epmach,0.5e-28_wp)) ier = 6
+if ((epsabs <= Zero) .and. (epsrel < max(50.0_wp*epmach,0.5e-28_wp))) ier = 6
 if (ier == 6) return
 
 ! first approximation to the integral
@@ -279,10 +279,10 @@ elist(1) = abserr
 iord(1) = 1
 dres = abs(reslt)
 errbnd = max(epsabs,epsrel*dres)
-if (abserr <= 100.0_wp*epmach*defabs .and. abserr > errbnd) ier = 2
+if ((abserr <= 100.0_wp*epmach*defabs) .and. (abserr > errbnd)) ier = 2
 if (limit == 1) ier = 1
 if ((ier /= 0) .or. ((abserr <= errbnd) .and. (abserr /= resabs)) .or. (abserr == Zero)) then
-  call finish(.false.)
+  call finish(compute=.false.)
   return
 end if
 
@@ -337,7 +337,7 @@ main: do last=2,limit
       if (extrap) iroff2 = iroff2+1
       if (.not. extrap) iroff1 = iroff1+1
     end if
-    if (last > 10 .and. erro12 > errmax) iroff3 = iroff3+1
+    if ((last > 10) .and. (erro12 > errmax)) iroff3 = iroff3+1
   end if
   rlist(maxerr) = area1
   rlist(last) = area2
@@ -345,7 +345,7 @@ main: do last=2,limit
 
   ! test for roundoff error and eventually set error flag.
 
-  if (iroff1+iroff2 >= 10 .or. iroff3 >= 20) ier = 2
+  if ((iroff1+iroff2 >= 10) .or. (iroff3 >= 20)) ier = 2
   if (iroff2 >= 5) ierro = 3
 
   ! set error flag in the case that the number of
@@ -382,7 +382,7 @@ main: do last=2,limit
 
   call dqpsrt(limit,last,maxerr,errmax,elist,iord,nrmax)
   if (errsum <= errbnd) then
-    call finish(.true.)
+    call finish(compute=.true.)
     return
   end if
   if (ier /= 0) exit main
@@ -428,7 +428,7 @@ main: do last=2,limit
   rlist2(numrl2) = area
   call dqelg(numrl2,rlist2,reseps,abseps,res3la,nres)
   ktmin = ktmin+1
-  if (ktmin > 5 .and. abserr < 1.0e-3_wp*errsum) ier = 5
+  if ((ktmin > 5) .and. (abserr < 1.0e-3_wp*errsum)) ier = 5
   if (abseps < abserr) then
     ktmin = 0
     abserr = abseps
@@ -454,7 +454,7 @@ end do main
 ! ------------------------------------
 
 if (abserr == oflow) then
-  call finish(.true.)
+  call finish(compute=.true.)
   return
 end if
 if ((ier+ierro) /= 0) then
@@ -462,16 +462,16 @@ if ((ier+ierro) /= 0) then
   if (ier == 0) ier = 3
   if ((reslt == Zero) .or. (area == Zero)) then
     if (abserr > errsum) then
-      call finish(.true.)
+      call finish(compute=.true.)
       return
     end if
     if (area == Zero) then
-      call finish(.false.)
+      call finish(compute=.false.)
       return
     end if
   else
     if (abserr/abs(reslt) > errsum/abs(area)) then
-      call finish(.true.)
+      call finish(compute=.true.)
       return
     end if
   end if
@@ -480,9 +480,9 @@ end if
 ! test on divergence
 
 if ((ksgn /= -1) .or. (max(abs(reslt),abs(area)) > defabs*1.0e-2_wp)) then
-  if (1.0e-2_wp > (reslt/area) .or. (reslt/area) > 100.0_wp .or. errsum > abs(area)) ier = 6
+  if ((1.0e-2_wp > reslt/area) .or. (reslt/area > 100.0_wp) .or. (errsum > abs(area))) ier = 6
 end if
-call finish(.false.)
+call finish(compute=.false.)
 
 return
 
@@ -491,14 +491,15 @@ contains
 subroutine finish(compute)
 
   logical(kind=iwp), intent(in) :: compute
+  integer(kind=iwp) :: i
 
   if (compute) then
 
     ! compute global integral sum.
 
     reslt = Zero
-    do k=1,last
-      reslt = reslt+rlist(k)
+    do i=1,last
+      reslt = reslt+rlist(i)
     end do
     abserr = errsum
 
