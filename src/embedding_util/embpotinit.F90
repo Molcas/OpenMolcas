@@ -21,8 +21,6 @@ subroutine embPotInit(preparingOutput)
 !              DrvMO                                                   *
 !              EmbPotOutput                                            *
 !                                                                      *
-! Calling    : GetMem                                                  *
-!                                                                      *
 !     Author: Thomas Dresselhaus                                       *
 !                                                                      *
 !***********************************************************************

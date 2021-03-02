@@ -98,16 +98,16 @@ option (EXPERT "Show advanced compiler flags in CMake GUI)." OFF)
 
 option (BIGOT "Do not allow any compiler warning (treat them as errors)." OFF)
 
-set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, AOCL, Accelerate.")
+set (LINALG_OPTIONS "Choose linear algebra library, options: Internal (default), Runtime, MKL, OpenBLAS, AOCL, Accelerate, Manual.")
 if (DEFINED LINALG)
   set (LINALG "${LINALG}" CACHE STRING "${LINALG_OPTIONS}")
-  if (NOT ";Internal;Runtime;MKL;OpenBLAS;AOCL;Accelerate;" MATCHES ";${LINALG};")
+  if (NOT ";Internal;Runtime;MKL;OpenBLAS;AOCL;Accelerate;Manual;" MATCHES ";${LINALG};")
       message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
   endif ()
 else ()
   set (LINALG "Internal" CACHE STRING "${LINALG_OPTIONS}")
 endif ()
-set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL Accelerate)
+set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS AOCL Accelerate Manual)
 
 option (CUBLAS "Enable CUDA BLAS library." OFF)
 option (NVBLAS "Enable NVidia BLAS library." OFF)
@@ -1068,8 +1068,9 @@ if (MPI)
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
-  # GCC > 10.0 requires explicit MPI interface
-  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+  # MPICH and GCC > 10.0 requires explicit MPI interface
+  if (MPI_IMPLEMENTATION STREQUAL "mpich" AND
+      CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER "10.0")
     add_compile_definitions(_NEED_EXPLICIT_MPI_INTERFACE_)
   endif ()
@@ -1432,6 +1433,13 @@ if (LINALG STREQUAL "Runtime")
   set (LINALG_LIBRARIES "dl")
 
   list (APPEND system_util_defs "_DELAYED_")
+endif ()
+
+if (LINALG STREQUAL "Manual")
+  message ("-- Manual linear algebra libraries, using LINALG_LIBRARIES as specified")
+  set (LINALG_LIBRARIES "${LINALG_LIBRRARIES}" CACHE STRING "Manual linear algebra libraries.")
+else ()
+  unset (LINALG_LIBRARIES CACHE)
 endif ()
 
 list (APPEND EXTERNAL_LIBRARIES ${LINALG_LIBRARIES})
