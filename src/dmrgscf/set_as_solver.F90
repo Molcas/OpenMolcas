@@ -19,6 +19,7 @@ use active_space_solver_cfg, only: as_solver
 use qcmaquis_interface_cfg
 #endif
 use Definitions, only: iwp, u6
+use rasscf_data, only: doDMRG
 
 implicit none
 ! ----------------------------------------------------------------------

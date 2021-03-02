@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INIT_RASSI
+
+      use rasscf_data, only: doDMRG
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -24,6 +27,10 @@
       Logical FoundTwoEls,DoCholesky
 
 
+* Initialise doDMRG if compiled without QCMaquis
+#ifndef _DMRG_
+      DoDMRG = .false.
+#endif
 
 C SET UP SYMMETRY MULTIPLICATION TABLE:
       MUL(1,1)=1

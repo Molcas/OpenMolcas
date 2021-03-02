@@ -18,6 +18,7 @@
       use mh5, only: mh5_put_dset
 #endif
 #ifdef _DMRG_
+      use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       IMPLICIT NONE

@@ -8,19 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+#include "macros.fh"
       SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
      &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,NTDM2,TDM2,
-     &                  ISTATE,JSTATE,job1,job2,ist,jst)
+     &                  ISTATE,JSTATE)
 
       !> module dependencies
 #ifdef _DMRG_
-      use rassi_global_arrays, only: LROOT
-      use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
-      use qcmaquis_interface_utility_routines, only:
-     &    pretty_print_util
-      use qcmaquis_info, only: qcm_group_names
+      use rasscf_data, only: doDMRG
+      use qcmaquis_info
 #endif
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*),NTDM2
@@ -37,10 +34,6 @@
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
       INTEGER NASGEM,NSPD2,ISTATE,JSTATE
-      INTEGER job1,job2,ist,jst
-#ifdef _DMRG_
-      LOGICAL :: debug_dmrg_rassi_code = .false.
-#endif
 #include "symmul.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -60,6 +53,7 @@ C Pick out nr of active orbitals from orbital table:
       SPD2(:)=0.0D0
       ISYOP   = MUL(LSYM1,LSYM2)
       MS2OP   = MSPROJ1-MSPROJ2
+
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
@@ -68,62 +62,59 @@ C Pick out nr of active orbitals from orbital table:
 #ifdef _DMRG_
       else
 
-!#define BLUBB
-        if (doMPSSICheckpoints) then
-          call dmrg_interface_ctl(
-     &                          task       = 'imp rdmY',
-#ifndef BLUBB
-     &                          x2         = spd2,
-     &                          mdim       = nasgem,
-#else
-     &                          x2         = tdm2,
-     &                          mdim       = ntdm2,
-#endif
-     &                          checkpoint1=
-     &                          qcm_group_names(job1)%states(ist),
-     &                          checkpoint2=
-     &                          qcm_group_names(job2)%states(jst),
-     &                          msproj     = msproj1,
-     &                          msprojL    = msproj2,
-     &                          multiplet  = MPLET1-1, ! (we need 2*S)
-     &                          multipletL = MPLET2-1, ! (we need 2*S)
-     &                          rdm1       = .false.,
-     &                          rdm2       = .true.
-     &                          )
-        else
-          call dmrg_interface_ctl(
-     &                          task       = 'imp rdmY',
-#ifndef BLUBB
-     &                          x2         = spd2,
-     &                          mdim       = nasgem,
-#else
-     &                          x2         = tdm2,
-     &                          mdim       = ntdm2,
-#endif
-     &                          state      = LROOT(ISTATE),
-     &                          stateL     = LROOT(JSTATE),
-     &                          msproj     = msproj1,
-     &                          msprojL    = msproj2,
-     &                          multiplet  = MPLET1-1, ! (we need 2*S)
-     &                          multipletL = MPLET2-1, ! (we need 2*S)
-     &                          rdm1       = .false.,
-     &                          rdm2       = .true.
-     &                          )
-        end if
-#ifdef BLUBB
-        goto 124
-#endif
-      end if
+        write(6,*) "2-TDM import with QCMaquis in MPSSI "//
+     &    "not implemented yet"
+        call Quit_OnUserError()
+      endif
+! Old interface import
+!!#define BLUBB
+!        if (doMPSSICheckpoints) then
+!          call dmrg_interface_ctl(
+!     &                          task       = 'imp rdmY',
+!#ifndef BLUBB
+!     &                          x2         = spd2,
+!     &                          mdim       = nasgem,
+!#else
+!     &                          x2         = tdm2,
+!     &                          mdim       = ntdm2,
+!#endif
+!     &                          checkpoint1=
+!     &                          qcm_group_names(job1)%states(ist),
+!     &                          checkpoint2=
+!     &                          qcm_group_names(job2)%states(jst),
+!     &                          msproj     = msproj1,
+!     &                          msprojL    = msproj2,
+!     &                          multiplet  = MPLET1-1, ! (we need 2*S)
+!     &                          multipletL = MPLET2-1, ! (we need 2*S)
+!     &                          rdm1       = .false.,
+!     &                          rdm2       = .true.
+!     &                          )
+!        else
+!          call dmrg_interface_ctl(
+!     &                          task       = 'imp rdmY',
+!#ifndef BLUBB
+!     &                          x2         = spd2,
+!     &                          mdim       = nasgem,
+!#else
+!     &                          x2         = tdm2,
+!     &                          mdim       = ntdm2,
+!#endif
+!     &                          state      = iWork(lLROOT+ISTATE-1),
+!     &                          stateL     = iWork(lLROOT+JSTATE-1),
+!     &                          msproj     = msproj1,
+!     &                          msprojL    = msproj2,
+!     &                          multiplet  = MPLET1-1, ! (we need 2*S)
+!     &                          multipletL = MPLET2-1, ! (we need 2*S)
+!     &                          rdm1       = .false.,
+!     &                          rdm2       = .true.
+!     &                          )
+!        end if
+!#ifdef BLUBB
+!        goto 124
+!#endif
+!      end if
 #endif
 
-#ifdef _DMRG_
-      if(debug_dmrg_rassi_code)then
-        write(6,*)'density for i, j',istate,jstate
-        write(6,*)'dimension: ',nasgem**2, '--> #nact', nasorb
-        call pretty_print_util(SPD2,1,nasgem,1,nasgem,
-     &                         nasgem,nasgem,1,6)
-      end if
-#endif
 
       SGNJL=1.0D0 ! dummy initialize
       SGNIK=1.0D0 ! dummy initialize
@@ -245,17 +236,8 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
         TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
       END DO
       RETURN
-! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_integer(MPLET1)
-        call Unused_integer(MPLET2)
-        call Unused_integer(ISTATE)
-        call Unused_integer(JSTATE)
-#ifndef _DMRG_
-        call Unused_integer(job1)
-        call Unused_integer(job2)
-        call Unused_integer(ist)
-        call Unused_integer(jst)
-#endif
-      endif
+      unused_var(MPLET1)
+      unused_var(MPLET2)
+      unused_var(ISTATE)
+      unused_var(JSTATE)
       END
