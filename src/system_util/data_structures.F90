@@ -40,6 +40,7 @@ Type Laq_type
   Integer:: nSym=0
   Real*8, Allocatable :: Laq_Full(:)
   Type (V3):: pA(8)
+  Type (V2):: pA2(8)
 End Type Laq_type
 
 
@@ -107,7 +108,7 @@ Contains
   Integer nSym
   Integer n(nSym), m(nSym)
   Integer iSwap
-  Integer iE, iS, iSyma, iSymb, MemTot
+  Integer iE, iS, iSyma, iSymb, MemTot, n2Dim
 
   Integer i, j, MulD2h
   MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -138,6 +139,20 @@ Contains
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           MemTot = MemTot + m(iSyma)*NUMV*n(iSymb)
+       End Do
+    Case(4)
+       Do iSyma = 1, nSym
+          If (n(iSyma)/=m(iSyma)) Then
+             Write (6,*) 'Allocate_Laq: iSwap=4 only valid if n(:)=m(:).'
+             Call abend()
+          End If
+          iSymb = MulD2h(iSym,iSyma)
+          If (iSyma==iSymb) Then
+            n2Dim = n(iSyma)*(n(iSyma)+1)/2
+          Else
+            n2Dim = n(iSyma)*n(iSymb)
+          End If
+          MemTot = MemTot + n2dim*NUMV
        End Do
     Case Default
        Write (6,*) "Allocate_Laq: Illegal case."
@@ -178,6 +193,18 @@ Contains
           iE = iE + m(iSyma)*NUMV*n(iSymb)
           Adam%pA(iSyma)%A(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%Laq_Full(iS:iE)
        End Do
+    Case(4)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          iS = iE + 1
+          If (iSyma==iSymb) Then
+            n2Dim = n(iSyma)*(n(iSyma)+1)/2
+          Else
+            n2Dim = n(iSyma)*n(iSymb)
+          End If
+          iE = iE + n2Dim*NUMV
+          Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
+       End Do
     Case Default
        Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
@@ -190,9 +217,15 @@ Contains
   Type (Laq_Type) Adam
   Integer iSym
 
-  Do iSym = 1, Adam%nSym
-     Adam%pA(iSym)%A => Null()
-  End Do
+  If (Adam%iSwap==4) Then
+     Do iSym = 1, Adam%nSym
+        Adam%pA2(iSym)%A => Null()
+     End Do
+  Else
+     Do iSym = 1, Adam%nSym
+        Adam%pA(iSym)%A => Null()
+     End Do
+  End If
   Call mma_deallocate(Adam%Laq_Full)
   Adam%iSwap=0
   Adam%iSym=0
@@ -205,11 +238,21 @@ Contains
   Type (Laq_Type):: Adam
   Integer ipAdam(*)
   Integer, External:: ip_of_Work
-  Integer iSym
+  Integer iSym,jSym
 
-  Do iSym=1, Adam%nSym
-     ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1,1))
-  End Do
+  Integer i, j, MulD2h
+  MulD2h(i,j) = iEOR(i-1,j-1) + 1
+
+  If (Adam%iSwap/=4) Then
+     Do iSym=1, Adam%nSym
+        ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1,1))
+     End Do
+  Else
+     Do iSym=1, Adam%nSym
+        jsym=MulD2h(iSym,Adam%iSym)
+        ipAdam(jSym) = ip_of_Work(Adam%pA2(jSym)%A(1,1))
+     End Do
+  End If
 
   End Subroutine Map_to_Laq
 
