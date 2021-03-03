@@ -8,22 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Print_Input(Title,nSym,nBas,wSet,nSet)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Print_Input(Title,nSym,nBas,wSet,nSet)
+
+implicit real*8(a-h,o-z)
 
 #include "mxdm.fh"
 #include "mxave.fh"
 
-      Dimension wSet(nSet),nBas(MxSym)
-      Character*72 Title
-      Parameter (lPaper=132)
+dimension wSet(nSet), nBas(MxSym)
+character*72 Title
+parameter(lPaper=132)
 
-      Call Banner(Title,1,lPaper-7)
-      Write(6,*)
-      Write(6,*)
-      Write(6,*)'Number of symmetries:',nSym
-      Write(6,*)'Basis functions:',(nBas(iSym),iSym=1,nSym)
-      Write(6,*)'Normalized weights:',(wSet(iS),iS=1,nSet)
+call Banner(Title,1,lPaper-7)
+write(6,*)
+write(6,*)
+write(6,*) 'Number of symmetries:',nSym
+write(6,*) 'Basis functions:',(nBas(iSym),iSym=1,nSym)
+write(6,*) 'Normalized weights:',(wSet(iS),iS=1,nSet)
 
-      Return
-      End
+return
+
+end subroutine Print_Input

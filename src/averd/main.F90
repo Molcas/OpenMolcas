@@ -8,17 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: ieee_exceptions
 #endif
-      Character*20 Module_Name
-      Parameter (Module_Name = 'averd')
+character*20 Module_Name
+parameter(Module_Name='averd')
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
 #endif
 
-      Call Start(Module_Name)
-      Call averd(ireturn)
-      Call Finish(ireturn)
-      end
+call Start(Module_Name)
+call averd(ireturn)
+call Finish(ireturn)
+
+end program Main
