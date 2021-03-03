@@ -44,7 +44,7 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   ipLxy(8),ipScr(8,8)
+      Integer   ipScr(8,8)
       Integer   ipLpq(8,2)
       Integer   iSkip(8),kOff(8)
       Integer   ISTLT(8),ISTK(8),ISSQ(8,8)
@@ -1469,13 +1469,7 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               Do iSym=1,nSym
-                  ksym = mulD2h(iSym,JSYM)
-                  ipLxy(kSym) = ipLpq(iSym,2)
-c                 ! switch to column-wise storage
-               End Do
-
-               CALL CHO_rassi_twxy(irc,ipScr,ipLxy,ipInt,nAsh,
+               CALL CHO_rassi_twxy(irc,ipScr,ipLpq(:,2),ipInt,nAsh,
      &                                 JSYM,JNUM,DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)

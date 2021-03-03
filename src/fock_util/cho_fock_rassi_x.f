@@ -38,7 +38,7 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MO1(2), MO2(2)
-      Integer   rc,ipLxy(8),ipScr(8,8)
+      Integer   rc,ipScr(8,8)
       Integer   ipLab(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8), ISTSQ(8)
@@ -436,12 +436,7 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               Do iSym=1,nSym
-                  ksym = mulD2h(iSym,JSYM)
-                  ipLxy(kSym) = ipLab(iSym,2) ! switch to column storage
-               End Do
-
-               CALL CHO_rassi_twxy(irc,ipScr,ipLxy,ipInt,nAsh,
+               CALL CHO_rassi_twxy(irc,ipScr,ipLab(:,2),ipInt,nAsh,
      &                                 JSYM,JNUM,DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)

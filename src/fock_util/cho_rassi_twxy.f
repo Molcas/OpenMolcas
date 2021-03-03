@@ -54,8 +54,8 @@ C==========================================================
                If (Ntw.gt.0) then
 
                   CALL DGEMM_('N','T',Ntw,Nxy,NumV,
-     &                       ONE,Work(ipChoV(iSymw)),Ntw,
-     &                       WORK(ipChoV(iSymy)),Nxy,ONE,
+     &                       ONE,Work(ipChoV(iSymt)),Ntw,
+     &                       WORK(ipChoV(iSymx)),Nxy,ONE,
      &                       Work(ipScr(iSymw,iSymy)),Ntw)
 
 
