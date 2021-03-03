@@ -343,6 +343,26 @@ Case (1) ! waxy
         End Do
      End If
   End Do
+Case (2)  ! twxy
+  Do iSymy=1,nSym
+     If (n(iSymy)/=m(iSymy)) Then
+        Write (6,*) 'Allocate_twxy: iCase=2 only valid if n(:)=m(:).'
+        Call abend()
+     End If
+     iSymx=MulD2h(iSymy,JSYM)
+     n2=n(iSymx)*n(iSymy)
+     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
+     If (iSymx.ge.iSymy) then
+        Do iSymw=iSymy,nSym
+           iSymt=MulD2h(iSymw,JSYM)
+           If (iSymt.ge.iSymw) Then
+              n1=n(iSymt)*n(iSymw)
+              If (iSymt==iSymw) n1=n(iSymt)*(n(iSymt)+1)/2
+              mtwxy = mtwxy + n1 * n2
+           End If
+        End Do
+     End If
+  End Do
 Case Default
   Write (6,*) "Allocate_twxy: Illegal case."
   Call Abend()
@@ -379,6 +399,25 @@ Case (1)
            iS = iE + 1
            iE = iE + n1*n2
            twxy%pA(iSymw,iSymx)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+        End Do
+     End If
+  End Do
+Case (2) ! twxy
+  Do iSymy=1,nSym
+     iSymx=MulD2h(iSymy,JSYM)
+     n2=n(iSymx)*n(iSymy)
+     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
+     If (iSymx.ge.iSymy) then
+        Do iSymw=iSymy,nSym ! iSymw.ge.iSymy
+           iSymt=MulD2h(iSymw,JSYM)
+           If (iSymt.ge.iSymw) Then
+              n1=n(iSymt)*n(iSymw)
+              If (iSymt==iSymw) n1=n(iSymt)*(n(iSymt)+1)/2
+              iS = iE + 1
+              iE = iE + n1 * n2
+              twxy%pA(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+              twxy%pA(iSymy,iSymw)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE) ! symmetrization
+           End If
         End Do
      End If
   End Do
@@ -434,6 +473,19 @@ Case (1)
         Do iSyma=1,Adam%nSym
            iSymw=MulD2h(iSyma,Adam%JSYM)
            ipAdam(iSymw,iSymx) = ip_of_Work(Adam%pA(iSymw,iSymx)%A(1,1))
+        End Do
+     End If
+  End Do
+Case (2)
+  Do iSymy=1,Adam%nSym
+     iSymx=MulD2h(iSymy,Adam%JSYM)
+     If (iSymx.ge.iSymy) then
+        Do iSymw=iSymy,Adam%nSym ! iSymw.ge.iSymy
+           iSymt=MulD2h(iSymw,Adam%JSYM)
+           If (iSymt.ge.iSymw) Then
+              ipAdam(iSymw,iSymy) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
+              ipAdam(iSymy,iSymw) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
+           End If
         End Do
      End If
   End Do

@@ -61,20 +61,22 @@ C
 #endif
       Logical   DoRead,DoReord,DoActive,DoQmat
       Character*50 CFmt
-      Character*11 SECNAM
-      Parameter (SECNAM = 'CHO_FCAS_AO')
+      Character(LEN=11), Parameter :: SECNAM = 'CHO_FCAS_AO'
 #include "chotime.fh"
+#include "real.fh"
 
-      parameter (FactCI = 1.0D0)
-      parameter (FactCA = 1.0D0, FactXA = -0.5D0)
-      parameter (zero = 0.0D0, one = 1.0D0, two = 2.0d0)
+      Real*8, Parameter :: FactCI=One, FactCA=One, FactXA=-Half
 
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Logical add
       Character*6 mode
+
+      Real*8, Allocatable, Target:: Lrs_Full(:)
+      Real*8, Pointer:: Lrs(:,:)=>Null()
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -104,13 +106,12 @@ C
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero  !time read/transform vectors
-           tcoul(i) = zero  !time for computing Coulomb
-           texch(i) = zero  !time for computing Exchange
-           tintg(i) = zero  !time for computing (tw|xy) integrals
-           tqmat(i) = zero  !time for computing Q-matrix
-        end do
+        ! 1 --> CPU   2 --> Wall
+        tread(:) = zero  !time read/transform vectors
+        tcoul(:) = zero  !time for computing Coulomb
+        texch(:) = zero  !time for computing Exchange
+        tintg(:) = zero  !time for computing (tw|xy) integrals
+        tqmat(:) = zero  !time for computing Q-matrix
 
 c --- Define MOs in the Primary space
 c --- ( Frozen + Inactive + Active )
@@ -256,7 +257,7 @@ C ------------------------------------------------------------------
 
             EndIf
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             mNeed1 = Max(nRS,mTZvec)
 
@@ -275,8 +276,8 @@ C ------------------------------------------------------------------
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,mNeed1*nVec)
-            Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+            Call mma_allocate(Lrs_full,mNeed1*nVec,Label='Lrs_full')
+            Lrs(1:nRS,1:nVec) => Lrs_full(1:nRS*nVec)
 
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
@@ -297,12 +298,14 @@ C --- BATCH over the vectors ----------------------------
                   JNUM = nVec
                endif
 
+               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM) then
@@ -328,7 +331,7 @@ C==========================================================
                   ipVJ = ipChoT
 
                   CALL DGEMV_('T',nRS,JNUM,
-     &                 ONE,Work(ipLrs),nRS,
+     &                 ONE,Lrs,nRS,
      &                 Work(ipDab(1)),1,ZERO,Work(ipVJ),1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
@@ -337,7 +340,7 @@ C===============================================================
                   xfac = dble(min(jVec-iVrs,1))
 
                   CALL DGEMV_('N',nRS,JNUM,
-     &                 FactCI,Work(ipLrs),nRS,
+     &                 FactCI,Lrs,nRS,
      &                 Work(ipVJ),1,xfac,Work(ipFab(1)),1)
 
 
@@ -350,7 +353,7 @@ C --- U{#J} <- U{#J}  +  sum_rs  L(rs,{#J}) * DA(rs)
 C==========================================================
 C
                      CALL DGEMV_('T',nRS,JNUM,
-     &                          ONE,Work(ipLrs),nRS,
+     &                          ONE,Lrs,nRS,
      &                          Work(ipDab(2)),1,ZERO,Work(ipVJ),1)
 
 C --- FA(rs){#J} <- FA(rs){#J} + FactCA * sum_J L(rs,{#J})*U{#J}
@@ -359,7 +362,7 @@ C===============================================================
                      xfac = dble(min(jVec-iVrs,1))
 
                      CALL DGEMV_('N',nRS,JNUM,
-     &                          FactCA,Work(ipLrs),nRS,
+     &                          FactCA,Lrs,nRS,
      &                          Work(ipVJ),1,xfac,Work(ipFab(2)),1)
 
                   EndIf
@@ -412,7 +415,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                CALL CWTIME(TCR3,TWR3)
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                         ipLab,iSkip,DoRead)
 
@@ -486,7 +489,7 @@ C --------------------------------------------------------------------
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
 
-                  CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
@@ -552,7 +555,7 @@ C --------------------------------------------------------------------
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
 
-               CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            ipLab,iSkip,DoRead)
 
@@ -644,6 +647,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
 C ---------------- END (TW|XY) EVALUATION -----------------------
 
+               Lrs=>Null()
+               ipLrs = ip_of_Work(Lrs_full(1))
                kZvw = ipLrs ! mem used earlier for reading AO vectors
 
                IF (DoQmat) THEN
@@ -736,6 +741,7 @@ C ---------------- END Q-MATRIX SECTION -------------------------
 C
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
+            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
 
             END DO  ! end batch loop
 
@@ -748,8 +754,7 @@ c --- backtransform fock matrix in full storage
             endif
 
 C --- free memory
-            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,mNeed1*nVec)
+            Call mma_deallocate(Lrs_Full)
 
             if (JSYM.eq.1) then
                if(DoActive)then
