@@ -52,7 +52,7 @@ C
       Type (Laq_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
-      Integer   rc,ipLab(8,3),ipScr(8,8)
+      Integer   rc,ipLab(8,3)
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
@@ -148,7 +148,6 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
          iCase = 1 ! (wa|xy)
          Call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
-         Call Map_to_twxy(Scr,ipScr)
 
 C --- Set up the skipping flags + some initializations --------
          ipLab(:,:) = -6666  ! pointers to Lk,Jb

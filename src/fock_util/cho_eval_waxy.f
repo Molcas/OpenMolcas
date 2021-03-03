@@ -58,7 +58,6 @@ C==========================================================
                CALL DGEMM_('N','T',Nwa,Nxy,NumV,
      &                    ONE,ChoV1%pA(iSymw)%A,Nwa,
      &                        ChoV2%pA2(iSymx)%A,Nxy,ONE,
-*    &                    Work(ipScr(iSymw,iSymx)),Nwa)
      &                    Scr%pA(iSymw,iSymx)%A,Nwa)
 
 
@@ -139,8 +138,6 @@ C ------------------------------------------------------------
 
                   Do ixy = 1,Nxy
 
-*                       ipMwa = ipScr(iSymw,iSymx) + Nwa*(ixy-1)
-
                         ipMpw = ipInt + off_PWXY(iSyma,iSymw,iSymx)
      &                        + Npw*(ixy-1)
 
@@ -154,7 +151,6 @@ C --------------------------------------------------------
                         CALL DGEMM_('T','T',
      &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),
      &                             ONE,Work(ipMS),nBas_a,
-*    &                                 Work(ipMwa),nAob_w,
      &                              Scr%pA(iSymw,iSymx)%A(:,ixy),nAob_w,
      &                            ZERO,Work(ipMpw),nOrb_a)
 

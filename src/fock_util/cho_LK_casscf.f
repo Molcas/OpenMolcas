@@ -55,7 +55,7 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Integer   ipScr(8,8),ipDIAH(1)
+      Integer   ipDIAH(1)
       Integer   ipLpq(8),ipDLT(2),ipFLT(2),ipKLT(2)
       Integer   iSkip(8),kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
@@ -456,49 +456,8 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
          End Do
 
 
-#ifdef _NOT_USED
-C *** memory for the (wa|xy) integrals --- temporary array
-         Mwaxy = 0
-         Do iSymy=1,nSym
-            iSymx=MulD2h(iSymy,JSYM)
-            If (iSymx.le.iSymy) then
-               Do iSyma=1,nSym
-                  iSymw=MulD2h(iSyma,JSYM)
-                  Mwaxy = Mwaxy + nAorb(iSymw)*nBas(iSyma)
-     &                                        *nnA(iSymx,iSymy)
-               End Do
-             End If
-         End Do
-
-         Call GetMem('Mtmp','ALLO','REAL',ipItmp,Mwaxy)
-         Call Fzero(Work(ipItmp),Mwaxy)
-
-C *** setup pointers to the symmetry blocks of (wa|xy)
-         Do i=1,nSym
-            Do j=1,nSym
-               ipScr(j,i) = ipItmp
-            End Do
-         End Do
-
-         kScr=ipItmp
-         Do iSymy=1,nSym
-            iSymx=MulD2h(iSymy,JSYM)
-            If (iSymx.le.iSymy) then
-               Do iSyma=1,nSym
-                  iSymw=MulD2h(iSyma,JSYM)
-                  ipScr(iSymw,iSymx) = kScr
-                  kScr = kScr + nAorb(iSymw)*nBas(iSyma)
-     &                                      *nnA(iSymx,iSymy)
-               End Do
-             End If
-         End Do
-#else
          iCase = 1  ! (wa|xy)
          Call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
-*        ipItmp = ip_of_Work(Scr%twxy_full(1))
-         Call Map_to_twxy(Scr,ipScr)
-#endif
-
 
 C ****************     MEMORY MANAGEMENT SECTION    *****************
 C ------------------------------------------------------------------
