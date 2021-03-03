@@ -46,6 +46,7 @@ Type Laq_type
 End Type Laq_type
 
 Type twxy_type
+  Integer :: iCase=0
   Integer :: JSYM=0
   Integer :: nSym=0
   Real*8, Allocatable:: twxy_full(:)
@@ -296,29 +297,56 @@ Contains
 
 
 
-Subroutine Allocate_twxy(twxy,nAsh,JSYM,nSym)
+Subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
 Implicit None
 Type (twxy_type), Target:: twxy
-Integer JSYM, nSym
-Integer nAsh(nSym)
+Integer JSYM, nSym, iCase
+Integer n(nSym), m(nSym)
 Integer iSymx, iSymy, iSymt, iSymw
+Integer iSyma
 Integer mtwxy
 Integer iS, iE, n1, n2
 
 Integer i, j, MulD2h
 MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
+twxy%iCase=iCase
 twxy%JSYM=JSYM
 twxy%nSym=nSym
 ! *** memory for the (tw|xy) integrals --- temporary array
 mtwxy = 0
-Do iSymy=1,nSym
-   iSymx=MulD2h(iSymy,JSYM)
-   Do iSymw=iSymy,nSym    ! iSymw.ge.iSymy (particle symmetry)
-      iSymt=MulD2h(isymw,JSYM)
-      mtwxy=mtwxy+nAsh(iSymt)*nAsh(iSymw)*nAsh(iSymx)*nAsh(iSymy)
-   End Do
-End Do
+Select Case (iCase)
+Case (0)  ! twxy
+  Do iSymy=1,nSym
+     If (n(iSymy)/=m(iSymy)) Then
+        Write (6,*) 'Allocate_twxy: iCase=0 only valid if n(:)=m(:).'
+        Call abend()
+     End If
+     iSymx=MulD2h(iSymy,JSYM)
+     n2 = n(iSymx)*n(iSymy)
+     Do iSymw=iSymy,nSym    ! iSymw.ge.iSymy (particle symmetry)
+        iSymt=MulD2h(isymw,JSYM)
+        n1 = n(iSymt)*n(iSymw)
+        mtwxy = mtwxy + n1 * n2
+     End Do
+  End Do
+Case (1) ! waxy
+  Do iSymy=1,nSym
+     iSymx=MulD2h(iSymy,JSYM)
+     n2=n(iSymx)*n(iSymy)
+     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
+     If (iSymx.le.iSymy) then
+        Do iSyma=1,nSym
+           iSymw=MulD2h(iSyma,JSYM)
+           n1=n(iSymw)*m(iSyma)
+           mtwxy = mtwxy + n1 * n2
+        End Do
+     End If
+  End Do
+Case Default
+  Write (6,*) "Allocate_twxy: Illegal case."
+  Call Abend()
+End Select
 
 Call mma_allocate(twxy%twxy_full,mtwxy,Label='twxy')
 twxy%twxy_full(:)=Zero
@@ -326,24 +354,42 @@ twxy%twxy_full(:)=Zero
 ! *** setup pointers to the symmetry blocks of (tw|xy)
 
 iE = 0
-Do iSymy=1,nSym
-   iSymx=MulD2h(iSymy,JSYM)
-   n1 = nAsh(iSymx)*nAsh(iSymy)
-   Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
-      iSymt=MulD2h(isymw,JSYM)
-      n2 = nAsh(iSymt)*nAsh(iSymw)
-      iS = iE + 1
-      iE = iE + n2*n1
-      twxy%pA(iSymw,iSymy)%A(1:n2,1:n1) => twxy%twxy_full(iS:iE)
-   End Do
-End Do
+Select Case (iCase)
+Case (0)
+  Do iSymy=1,nSym
+     iSymx=MulD2h(iSymy,JSYM)
+     n2 = n(iSymx)*n(iSymy)
+     Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
+        iSymt=MulD2h(isymw,JSYM)
+        n1 = n(iSymt)*n(iSymw)
+        iS = iE + 1
+        iE = iE + n1*n2
+        twxy%pA(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+     End Do
+  End Do
+Case (1)
+  Do iSymy=1,nSym
+     iSymx=MulD2h(iSymy,JSYM)
+     n2=n(iSymx)*n(iSymy)
+     If (iSymx==iSymy) n2=n(iSymx)*(n(iSymx)+1)/2
+     If (iSymx.le.iSymy) then
+        Do iSyma=1,nSym
+           iSymw=MulD2h(iSyma,JSYM)
+           n1 =  n(iSymw)*m(iSyma)
+           iS = iE + 1
+           iE = iE + n1*n2
+           twxy%pA(iSymw,iSymx)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+        End Do
+     End If
+  End Do
+End Select
 
 End Subroutine Allocate_twxy
 
 Subroutine Deallocate_twxy(twxy)
 Implicit None
 Type (twxy_type) twxy
-Integer iSymx, iSymy, iSymt, iSymw
+Integer iSymy, iSymw
 
 Integer i, j, MulD2h
 MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -352,10 +398,8 @@ Call mma_deallocate(twxy%twxy_full)
 
 ! *** setup pointers to the symmetry blocks of (tw|xy)
 
-Do iSymy=1,twxy%nSym
-   iSymx=MulD2h(iSymy,twxy%JSYM)
-   Do iSymw=iSymy,twxy%nSym   ! iSymw.ge.iSymy (particle symmetry)
-      iSymt=MulD2h(isymw,twxy%JSYM)
+Do iSymy=1,8
+   Do iSymw=1,8
       twxy%pA(iSymw,iSymy)%A => Null()
    End Do
 End Do
@@ -368,20 +412,32 @@ Type (twxy_type):: Adam
 Integer ipAdam(8,8)
 Integer, External:: ip_of_Work
 Integer iSymx, iSymy, iSymt, iSymw
+Integer iSyma
 
 Integer i, j, MulD2h
 MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
 ipAdam(:,:)=0
-Do iSymy=1,Adam%nSym
-   iSymx=MulD2h(iSymy,Adam%JSYM)
-   Do iSymw=iSymy,Adam%nSym   ! iSymw.ge.iSymy (particle symmetry)
-      iSymt=MulD2h(isymw,Adam%JSYM)
-
-      ipAdam(iSymw,iSymy) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
-
-   End Do
-End Do
+Select Case (Adam%iCase)
+Case (0)
+  Do iSymy=1,Adam%nSym
+     iSymx=MulD2h(iSymy,Adam%JSYM)
+     Do iSymw=iSymy,Adam%nSym   ! iSymw.ge.iSymy (particle symmetry)
+        iSymt=MulD2h(isymw,Adam%JSYM)
+        ipAdam(iSymw,iSymy) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
+     End Do
+  End Do
+Case (1)
+  Do iSymy=1,Adam%nSym
+     iSymx=MulD2h(iSymy,Adam%JSYM)
+     If (iSymx.le.iSymy) then
+        Do iSyma=1,Adam%nSym
+           iSymw=MulD2h(iSyma,Adam%JSYM)
+           ipAdam(iSymw,iSymx) = ip_of_Work(Adam%pA(iSymw,iSymx)%A(1,1))
+        End Do
+     End If
+  End Do
+End Select
 
 End Subroutine Map_to_twxy
 

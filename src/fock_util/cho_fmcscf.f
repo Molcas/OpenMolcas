@@ -44,11 +44,13 @@ C
       use Data_structures, only: CMO_Type, Laq_Type
       use Data_structures, only: Allocate_Laq, Deallocate_Laq
       use Data_structures, only: Map_to_Laq
+      use Data_structures, only: twxy_Type, Map_to_twxy
+      use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) POrb(3)
-      Type (Laq_Type), Target:: Laq(3)
-      Type (Laq_Type), Target:: Lxy
+      Type (Laq_Type), Target:: Laq(3), Lxy
+      Type (twxy_type) Scr
 
       Integer   rc,ipLab(8,3),ipScr(8,8)
       Integer   iSkip(8)
@@ -144,41 +146,10 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
          If (NumCho(jSym).lt.1) GOTO 1000
 
-C *** memory for the (wa|xy) integrals --- temporary array
-         Mwaxy = 0
-         Do iSymy=1,nSym
-            iSymx=MulD2h(iSymy,JSYM)
-            If (iSymx.le.iSymy) then
-               Do iSyma=1,nSym
-                  iSymw=MulD2h(iSyma,JSYM)
-                  Mwaxy = Mwaxy + nAorb(iSymw)*nBas(iSyma)
-     &                                        *nnA(iSymx,iSymy)
-               End Do
-             End If
-         End Do
-
-         Call GetMem('Mtmp','ALLO','REAL',ipItmp,Mwaxy)
-         Call Fzero(Work(ipItmp),Mwaxy)
-
-C *** setup pointers to the symmetry blocks of (wa|xy)
-         Do i=1,nSym
-            Do j=1,nSym
-               ipScr(j,i) = ipItmp
-            End Do
-         End Do
-
-         kScr=ipItmp
-         Do iSymy=1,nSym
-            iSymx=MulD2h(iSymy,JSYM)
-            If (iSymx.le.iSymy) then
-               Do iSyma=1,nSym
-                  iSymw=MulD2h(iSyma,JSYM)
-                  ipScr(iSymw,iSymx) = kScr
-                  kScr = kScr + nAorb(iSymw)*nBas(iSyma)
-     &                                      *nnA(iSymx,iSymy)
-               End Do
-             End If
-         End Do
+         iCase = 1 ! (wa|xy)
+         Call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
+         Call Map_to_twxy(Scr,ipScr)
+#endif
 
 C --- Set up the skipping flags + some initializations --------
          ipLab(:,:) = -6666  ! pointers to Lk,Jb
@@ -645,7 +616,7 @@ C --- free memory
 
          END DO   ! loop over red sets
 
-         Call GetMem('Mtmp','Free','REAL',ipItmp,Mwaxy)
+         Call Deallocate_twxy(Scr)
 
 1000     CONTINUE
 

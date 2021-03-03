@@ -116,7 +116,8 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
         If (NumCho(jSym).lt.1) GOTO 1000
 
-      Call Allocate_twxy(Scr,nAsh,JSYM,nSym)
+      iCase = 0 ! twxy
+      Call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 

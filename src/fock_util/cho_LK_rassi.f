@@ -398,7 +398,8 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
          End Do
 
 
-      Call Allocate_twxy(Scr,nAsh,JSYM,nSym)
+      iCase=0 ! twxy
+      Call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
