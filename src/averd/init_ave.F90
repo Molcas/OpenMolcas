@@ -10,28 +10,30 @@
 !***********************************************************************
 
 subroutine Init_ave(Title,iPrint,Wset,Wsum,PrOcc,PrEne,DensityBased,ThrOcc,Dummy,iDummy)
-
-implicit real*8(a-h,o-z)
-
 !-- Initializations and defaults.
-#include "mxdm.fh"
-#include "real.fh"
-#include "mxave.fh"
 
-dimension Wset(MxSets)
-logical PrOcc, PrEne, DensityBased
-character Title*72
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+#include "mxdm.fh"
+#include "mxave.fh"
+character(len=72), intent(out) :: Title
+integer(kind=iwp), intent(out) :: iPrint, iDummy
+real(kind=wp), intent(out) :: Wset(MxSets), Wsum, ThrOcc, Dummy
+logical(kind=iwp), intent(out) :: PrOcc, PrEne, DensityBased
+integer(kind=iwp) :: i
 
 iPrint = 2
 do 10,i=1,MxSets
-  Wset(i) = 0.0d0
+  Wset(i) = Zero
 10 continue
-Wsum = 0.0d0
+Wsum = Zero
 PrOcc = .true.
 PrEne = .false.
 DensityBased = .true.
-ThrOcc = 1.0d-5
-Dummy = 1.0
+ThrOcc = 1.0e-5_wp
+Dummy = One
 iDummy = 1
 Title = ' Untitled job. '
 

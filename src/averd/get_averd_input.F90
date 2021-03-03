@@ -23,20 +23,20 @@
 
 subroutine Get_Averd_input(Title,Wset,iPrint,Nset,DensityBased,ThrOcc)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
 
+implicit none
 #include "mxave.fh"
+character(len=72), intent(inout) :: Title
+real(kind=wp), intent(inout) :: Wset(MxSets), ThrOcc
+integer(kind=iwp), intent(inout) :: iPrint, Nset
+logical(kind=iwp), intent(inout) :: DensityBased
 #include "warnings.fh"
-
-character*72 Title
-dimension Wset(MxSets)
-logical DensityBased
-
-character*180 Key
-character*4 Kword
-character*180 Get_Ln
-integer iCLast
-external Get_Ln, iCLast
+integer(kind=iwp) :: iChrct, Last, LuRd
+character(len=180) :: Key
+character(len=4) :: Kword
+character(len=180), external :: Get_Ln
+integer(kind=iwp), external :: iCLast
 
 !-- Call subroutines that handle the input.
 
@@ -69,9 +69,9 @@ if (Kword(1:4) == 'END ') Go To 9999
 
 iChrct = len(KWord)
 Last = iCLast(KWord,iChrct)
-write(6,*) ' '
-write(6,'(1X,A,A)') Kword(1:Last),' is not a valid keyword!'
-write(6,*) ' ERROR!'
+write(u6,*) ' '
+write(u6,'(1x,a,a)') Kword(1:Last),' is not a valid keyword!'
+write(u6,*) ' ERROR!'
 call Quit(_RC_INPUT_ERROR_)
 
 !-- Read weights.

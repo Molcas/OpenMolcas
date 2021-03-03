@@ -11,21 +11,23 @@
 
 subroutine Print_Input(Title,nSym,nBas,wSet,nSet)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
 
+implicit none
 #include "mxdm.fh"
 #include "mxave.fh"
-
-dimension wSet(nSet), nBas(MxSym)
-character*72 Title
-parameter(lPaper=132)
+character(len=72), intent(in) :: Title
+integer(kind=iwp), intent(in) :: nSym, nBas(MxSym), nSet
+real(kind=wp), intent(in) :: wSet(nSet)
+integer(kind=iwp) :: iS, iSym
+integer(kind=iwp), parameter :: lPaper=132
 
 call Banner(Title,1,lPaper-7)
-write(6,*)
-write(6,*)
-write(6,*) 'Number of symmetries:',nSym
-write(6,*) 'Basis functions:',(nBas(iSym),iSym=1,nSym)
-write(6,*) 'Normalized weights:',(wSet(iS),iS=1,nSet)
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Number of symmetries:',nSym
+write(u6,*) 'Basis functions:',(nBas(iSym),iSym=1,nSym)
+write(u6,*) 'Normalized weights:',(wSet(iS),iS=1,nSet)
 
 return
 

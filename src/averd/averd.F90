@@ -18,22 +18,30 @@ subroutine Averd(ireturn)
 !
 !   Author: Anders Ohrn.
 
-implicit real*8(a-h,o-z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-!-- Include.
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "mxdm.fh"
-#include "real.fh"
 #include "mxave.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-
-!-- Allocate.
-dimension Wset(MxSets), nBas(MxSym)
-logical PrOcc, PrEne, DensityBased
-character Title*72, Fname*7, OLabel*10, Titorb*40, OrbFile*128
-character BsLbl*4000, PLab*3
-dimension Dummy(1), iDummy(7,8)
-real*8, allocatable :: DTmp(:)
+integer(kind=iwp) :: i, iAUX, iB, iB1, iB2, iC, iCMO, icomp, iD, iDao, iDs, iDt, iDtemp, iDummy(7,8), iErr, ind, indB, indS, indt, &
+                     iO, iOcc, iOccNat, iOccs, iopt, iOrbs, iOrtoD, iOrtoDt, iPrint, iS, iset, iSi, irc, iSp, iSs, iSt, iSym, &
+                     isyml, itBas, iTrani, iTrans, iVecs, iZero, j, k, kaunt, kaunter, lsmat, Luinp, LuOut, nB, nBas(MxSym), nBS, &
+                     nBT, nOrb, Nset, nSym, ntot, ntot2
+real(kind=wp) :: Dum, Dummy(1), Sqroot, Thr, Thro, ThrOcc, Wset(MxSets), Wsum
+logical(kind=iwp) :: PrOcc, PrEne, DensityBased
+character(len=72) :: Title
+character(len=7) :: Fname
+character(len=10) :: OLabel
+character(len=40) :: Titorb
+character(len=128) :: OrbFile
+character(len=4000) :: BsLbl
+character(len=3) :: PLab
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), allocatable :: DTmp(:)
 
 !-- Banner.
 
@@ -111,7 +119,7 @@ if (.not. DensityBased) then
   call GetMem('Occ','Allo','Real',iOcc,ntot)
   do 90,iset=1,Nset
     Fname = 'NAT001'
-    write(Fname(4:6),'(I3.3)') iset
+    write(Fname(4:6),'(i3.3)') iset
     ! Read orbital coefficients and occupation numbers.
     call RdVec(Fname,Luinp,'CO',Nsym,nBas,nBas,Work(iCMO),Work(iOcc),Dummy,iDummy,Titorb,0,iErr)
     iC = 0
@@ -146,7 +154,7 @@ else
   call dcopy_(lsmat,[Zero],0,Work(iDtemp),1)
   do 95,iset=1,Nset
     Fname = 'RUN001'
-    write(Fname(4:6),'(I3.3)') iset
+    write(Fname(4:6),'(i3.3)') iset
     call NameRun(Fname)
     ! Collect density from runfile.
     call mma_allocate(DTmp,lsmat,Label='DTmp')
@@ -248,7 +256,7 @@ do 201,iSym=1,nSym
   call Jacord3(Work(iOccNat),Work(iAUX),nBas(iSym),nBas(iSym))
   call Add_Info('AVERD_OCC',Work(iOccNat),5,5)
   if (iPrint >= 5) then
-    write(Titorb,'(A)') 'All average orbitals in this irrep.'
+    write(Titorb,'(a)') 'All average orbitals in this irrep.'
     Thr = -1d0
     call Primo(Titorb,.true.,.false.,Thr,Dum,1,nBas(iSym),nBas(iSym),BsLbl,Dummy,Work(iOccNat),Work(iAUX),-1)
   end if
@@ -269,22 +277,22 @@ do 201,iSym=1,nSym
   indS = indS+nBS
   indB = indB+nBas(iSym)
 201  continue
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,*) '---Average natural orbital generation completed!---'
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) '---Average natural orbital generation completed!---'
+write(u6,*)
 
 !-- Write average orbitals to a file with the same format as
 !   SCF-orbitals. To the outfile are orbital energies added just
 !   to make the NEMO happy, the numbers are just bosh!
 
-write(6,*)
-write(6,*)
-write(6,*) 'Average orbitals put on AVEORB'
-write(6,*)
-write(6,*) 'NB: Dummy orbital energies added to AVEORB for compatability reasons.'
-write(6,*) '    They have no physical meaning.'
+write(u6,*)
+write(u6,*)
+write(u6,*) 'Average orbitals put on AVEORB'
+write(u6,*)
+write(u6,*) 'NB: Dummy orbital energies added to AVEORB for compatability reasons.'
+write(u6,*) '    They have no physical meaning.'
 call GetMem('Zeros','Allo','Real',iZero,ntot)
 call dcopy_(ntot,[Zero],0,Work(iZero),1)
 LuOut = 65
@@ -296,12 +304,12 @@ call WrVec(OrbFile,LuOut,Plab,nSym,nBas,nBas,Work(iOrbs),Work(iOccs),Work(iZero)
 
 !-- Say something about orbital occupation.
 
-write(6,*)
-write(6,*)
-write(6,'(A)') ' |  Average orbital occupation.'
-write(6,'(A)') ' |-----------------------------'
-write(6,'(A,E18.8)') ' |    Threshold: ',ThrOcc
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(a)') ' |  Average orbital occupation.'
+write(u6,'(a)') ' |-----------------------------'
+write(u6,'(a,e18.8)') ' |    Threshold: ',ThrOcc
+write(u6,*)
 nOrb = 0
 iO = 0
 do 9991,iSym=1,nSym
@@ -309,10 +317,10 @@ do 9991,iSym=1,nSym
     if (Work(iOccs+iO+iB-1) < ThrOcc) goto 9992
     nOrb = nOrb+1
   9992  continue
-  write(6,9999) '      Symmetry:',iSym,'   Number of orbitals below threshold:',nOrb
+  write(u6,9999) '      Symmetry:',iSym,'   Number of orbitals below threshold:',nOrb
   iO = iO+nBas(iSym)
 9991  continue
-write(6,*)
+write(u6,*)
 call GetMem('Zeros','Free','Real',iZero,ntot)
 call GetMem('NatOrbAcc','Free','Real',iOrbs,ntot2)
 call GetMem('NatOccAcc','Free','Real',iOccs,ntot)
