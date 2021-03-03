@@ -9,16 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SUBROUTINE CHO_rassi_twxy(irc,ipScr,ipChoV,ipInt,nAorb,
+      SUBROUTINE CHO_rassi_twxy(irc,ipScr,ChoV,ipInt,nAorb,
      &                              JSYM,NUMV,DoReord)
 
+      use Data_Structures, only: Laq_type
       Implicit Real*8 (a-h,o-z)
-      Integer irc,ipChoV(*),ipInt,nAorb(*),JSYM,NUMV,iAorb(8)
+      Integer irc,ipInt,nAorb(*),JSYM,NUMV,iAorb(8)
+      Type (Laq_Type) ChoV
       Integer ipScr(8,8)
       Logical DoReord
 
-      parameter (zero = 0.0D0, one = 1.0D0)
-
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -54,9 +55,9 @@ C==========================================================
                If (Ntw.gt.0) then
 
                   CALL DGEMM_('N','T',Ntw,Nxy,NumV,
-     &                       ONE,Work(ipChoV(iSymt)),Ntw,
-     &                       WORK(ipChoV(iSymx)),Nxy,ONE,
-     &                       Work(ipScr(iSymw,iSymy)),Ntw)
+     &                       ONE,ChoV%pA(iSymt)%A,Ntw,
+     &                           ChoV%pA(iSymx)%A,Nxy,
+     &                       One,Work(ipScr(iSymw,iSymy)),Ntw)
 
 
                End If

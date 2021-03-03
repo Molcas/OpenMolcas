@@ -1469,7 +1469,7 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,ipScr,ipLpq(:,2),ipInt,nAsh,
+               CALL CHO_rassi_twxy(irc,ipScr,Laq(2),ipInt,nAsh,
      &                                 JSYM,JNUM,DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)
