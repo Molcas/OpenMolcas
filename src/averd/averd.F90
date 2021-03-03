@@ -60,9 +60,9 @@ call Get_Averd_input(Title,Wset,iPrint,Nset,DensityBased,ThrOcc)
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 itBas = 0
-do 31,iSym=1,nSym
+do iSym=1,nSym
   itBas = itBas+nBas(isym)
-31  continue
+end do
 call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*itBas)
 
 !-- Some dimensions.
@@ -70,11 +70,11 @@ call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*itBas)
 lsmat = 0
 ntot = 0
 ntot2 = 0
-do 70 i=1,nSym
+do i=1,nSym
   lsmat = lsmat+(nBas(i)*(nBas(i)+1))/2
   ntot = ntot+nBas(i)
   ntot2 = ntot2+nBas(i)**2
-70  continue
+end do
 
 !-- Read AO-basis overlap matrix.
 
@@ -87,20 +87,20 @@ isyml = 1
 call RdOne(irc,iopt,OLabel,icomp,Work(iS),isyml)
 if (iprint >= 99) then
   ind = 0
-  do 72,iSym=1,nSym
+  do iSym=1,nSym
     call TriPrt('Overlap Matrix',' ',Work(iS+ind),nBas(iSym))
     ind = ind+nBas(iSym)*(nBas(iSym)+1)/2
-  72  continue
+  end do
 end if
 
 !-- Normalize weights.
 
-do 80,iset=1,mxsets
+do iset=1,mxsets
   Wsum = Wsum+wset(iset)
-80  continue
-do 81,iset=1,Nset
+end do
+do iset=1,Nset
   Wset(iset) = Wset(iset)/Wsum
-81  continue
+end do
 
 !-- Print some Bla Bla...
 
@@ -117,7 +117,7 @@ if (.not. DensityBased) then
   Luinp = 10
   call GetMem('Orbitals','Allo','Real',iCMO,ntot2)
   call GetMem('Occ','Allo','Real',iOcc,ntot)
-  do 90,iset=1,Nset
+  do iset=1,Nset
     Fname = 'NAT001'
     write(Fname(4:6),'(i3.3)') iset
     ! Read orbital coefficients and occupation numbers.
@@ -126,33 +126,33 @@ if (.not. DensityBased) then
     iO = 0
     iD = 0
     ! Up-date average density matrix.
-    do 93,isym=1,nSym
+    do isym=1,nSym
       kaunter = 0
-      do 931,i=1,nBas(iSym)
-        do 932,j=1,nBas(iSym)
-          do 933,k=1,nBas(iSym)
+      do i=1,nBas(iSym)
+        do j=1,nBas(iSym)
+          do k=1,nBas(iSym)
             Work(iDao+iD+kaunter) = Work(iDao+iD+kaunter)+Wset(iSet)*Work(iOcc+iO+k-1)*Work(iCMO+iC+i+(k-1)*nBas(iSym)-1)* &
                                     Work(iCMO+iC+j+(k-1)*nBas(iSym)-1)
-          933        continue
+          end do
           kaunter = kaunter+1
-        932      continue
-      931    continue
+        end do
+      end do
       iC = iC+nBas(isym)**2
       iD = iD+nBas(isym)**2
       iO = iO+nBas(isym)
-    93   continue
+    end do
     ! Print print print.
     if (iPrint >= 5) then
       ThrO = 1d-5
       call Primo(Titorb,PrOcc,PrEne,ThrO,Dummy(1),nSym,nBas,nBas,BsLbl,Dummy,Work(iOcc),Work(iCMO),-1)
     end if
-  90  continue
+  end do
   call GetMem('Orbitals','Free','Real',iCMO,ntot2)
   call GetMem('Occ','Free','Real',iOcc,ntot)
 else
   call GetMem('DensityT','Allo','Real',iDtemp,lsmat)
   call dcopy_(lsmat,[Zero],0,Work(iDtemp),1)
-  do 95,iset=1,Nset
+  do iset=1,Nset
     Fname = 'RUN001'
     write(Fname(4:6),'(i3.3)') iset
     call NameRun(Fname)
@@ -161,16 +161,16 @@ else
     call Get_D1ao(Dtmp,lsmat)
     call DaxPy_(lsmat,Wset(iset),Dtmp,1,Work(iDtemp),1)
     call mma_deallocate(DTmp)
-  95  continue
+  end do
   ! Square the density matrix.
   iDt = 0
   iDs = 0
-  do 97,iSym=1,nSym
+  do iSym=1,nSym
     nB = nBas(iSym)
     call Dsq(Work(iDtemp+iDt),Work(iDao+iDs),1,nB,nB)
     iDt = iDt+nB*(nB+1)/2
     iDs = iDs+nB**2
-  97  continue
+  end do
   call GetMem('DensityT','Free','Real',iDtemp,lsmat)
 end if
 
@@ -182,7 +182,7 @@ indS = 0
 indB = 0
 call GetMem('NatOrbAcc','Allo','Real',iOrbs,ntot2)
 call GetMem('NatOccAcc','Allo','Real',iOccs,ntot)
-do 201,iSym=1,nSym
+do iSym=1,nSym
   nBT = nBas(iSym)*(nBas(iSym)+1)/2
   nBS = nBas(iSym)**2
   call GetMem('EigV','Allo','Real',iVecs,nBS)
@@ -199,19 +199,19 @@ do 201,iSym=1,nSym
   call dcopy_(nBT,[Zero],0,Work(iSt),1)
   call dcopy_(nBT,[Zero],0,Work(iSi),1)
   kaunter = 0
-  do 2011,iB1=1,nBas(iSym)
-    do 2012,iB2=1,nBas(iSym)
+  do iB1=1,nBas(iSym)
+    do iB2=1,nBas(iSym)
       Work(iVecs+kaunter) = Zero
       if (iB1 == iB2) Work(iVecs+kaunter) = One
       kaunter = kaunter+1
-    2012  continue
-  2011  continue
+    end do
+  end do
   call Jacob(Work(iS+indT),Work(iVecs),nBas(iSym),nBas(iSym))
-  do 205,i=1,nBas(iSym)
+  do i=1,nBas(iSym)
     Sqroot = sqrt(Work(iS+indT+i*(i+1)/2-1))
     Work(iSt+i*(i+1)/2-1) = Sqroot
     Work(iSi+i*(i+1)/2-1) = One/Sqroot
-  205  continue
+  end do
   call Square(Work(iSt),Work(iSs),1,nBas(iSym),nBas(iSym))
   call Square(Work(iSi),Work(iSp),1,nBas(iSym),nBas(iSym))
   call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,Work(iVecs),nBas(iSym),Work(iSs),nBas(iSym),Zero,Work(iAUX),nBas(iSym))
@@ -225,34 +225,34 @@ do 201,iSym=1,nSym
   call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,Work(iAUX),nBas(iSym),Work(iTrans),nBas(iSym),Zero,Work(iOrtoD), &
               nBas(iSym))
   kaunter = 0
-  do 2051,iB1=1,nBas(iSym)
-    do 2052,iB2=1,nBas(iSym)
+  do iB1=1,nBas(iSym)
+    do iB2=1,nBas(iSym)
       Work(iVecs+kaunter) = Zero
       if (iB1 == iB2) Work(iVecs+kaunter) = One
       kaunter = kaunter+1
-    2052  continue
-  2051  continue
+    end do
+  end do
   kaunter = 0
-  do 2053,i=1,nBas(iSym)
-    do 2054,j=1,i
+  do i=1,nBas(iSym)
+    do j=1,i
       Work(iOrtoDt+kaunter) = Work(iOrtoD+i+(j-1)*nBas(iSym)-1)
       kaunter = kaunter+1
-    2054  continue
-  2053  continue
+    end do
+  end do
   call Jacob(Work(iOrtoDt),Work(iVecs),nBas(iSym),nBas(iSym))
   call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,Work(iTrani),nBas(iSym),Work(iVecs),nBas(iSym),Zero,Work(iAUX), &
               nBas(iSym))
   kaunt = 0
   kaunter = 0
-  do 208,i=1,nBas(iSym)
-    do 209,j=1,i
+  do i=1,nBas(iSym)
+    do j=1,i
       if (i == j) then
         Work(iOccNat+kaunt) = Work(iOrtoDt+kaunter)
         kaunt = kaunt+1
       end if
       kaunter = kaunter+1
-    209  continue
-  208  continue
+    end do
+  end do
   call Jacord3(Work(iOccNat),Work(iAUX),nBas(iSym),nBas(iSym))
   call Add_Info('AVERD_OCC',Work(iOccNat),5,5)
   if (iPrint >= 5) then
@@ -276,7 +276,7 @@ do 201,iSym=1,nSym
   indT = indT+nBT
   indS = indS+nBS
   indB = indB+nBas(iSym)
-201  continue
+end do
 write(u6,*)
 write(u6,*)
 write(u6,*)
@@ -312,14 +312,14 @@ write(u6,'(a,e18.8)') ' |    Threshold: ',ThrOcc
 write(u6,*)
 nOrb = 0
 iO = 0
-do 9991,iSym=1,nSym
-  do 9992,iB=1,nBas(iSym)
-    if (Work(iOccs+iO+iB-1) < ThrOcc) goto 9992
+do iSym=1,nSym
+  do iB=1,nBas(iSym)
+    if (Work(iOccs+iO+iB-1) < ThrOcc) cycle
     nOrb = nOrb+1
-  9992  continue
-  write(u6,9999) '      Symmetry:',iSym,'   Number of orbitals below threshold:',nOrb
+  end do
+  write(u6,'(a,i2,a,i4)') '      Symmetry:',iSym,'   Number of orbitals below threshold:',nOrb
   iO = iO+nBas(iSym)
-9991  continue
+end do
 write(u6,*)
 call GetMem('Zeros','Free','Real',iZero,ntot)
 call GetMem('NatOrbAcc','Free','Real',iOrbs,ntot2)
@@ -332,7 +332,5 @@ call GetMem('Overlap','Free','Real',iS,lsmat+4)
 ireturn = 0
 
 return
-
-9999 format(a,i2,a,i4)
 
 end subroutine Averd

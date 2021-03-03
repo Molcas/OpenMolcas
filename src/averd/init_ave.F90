@@ -25,9 +25,9 @@ logical(kind=iwp), intent(out) :: PrOcc, PrEne, DensityBased
 integer(kind=iwp) :: i
 
 iPrint = 2
-do 10,i=1,MxSets
+do i=1,MxSets
   Wset(i) = Zero
-10 continue
+end do
 Wsum = Zero
 PrOcc = .true.
 PrEne = .false.

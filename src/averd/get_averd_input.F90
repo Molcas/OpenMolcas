@@ -45,74 +45,75 @@ call SpoolInp(LuRd)
 rewind(LuRd)
 call RdNLst(LuRd,'AVERD')
 
-!-- Label 1000 is the top.
+do
 
-1000 continue
+  !-- Get_Ln read the keyword and skips line starting with *
+  !   or is empty.
 
-!-- Get_Ln read the keyword and skips line starting with *
-!   or is empty.
+  Key = Get_Ln(LuRd)
+  Kword = trim(Key)
+  call UpCase(Kword)
 
-Key = Get_Ln(LuRd)
-Kword = trim(Key)
-call UpCase(Kword)
+  !-- The keywords...
 
-!-- The keywords...
+  select case (Kword(1:4))
 
-if (Kword(1:4) == 'WSET') Go To 101
-if (Kword(1:4) == 'PRIN') Go To 102
-if (Kword(1:4) == 'TITL') Go To 103
-if (Kword(1:4) == 'ORBI') Go To 104
-if (Kword(1:4) == 'OCCU') Go To 105
-if (Kword(1:4) == 'END ') Go To 9999
+    case ('WSET')
 
-!-- ...and what happens if something else is encountered.
+      !-- Read weights.
 
-iChrct = len(KWord)
-Last = iCLast(KWord,iChrct)
-write(u6,*) ' '
-write(u6,'(1x,a,a)') Kword(1:Last),' is not a valid keyword!'
-write(u6,*) ' ERROR!'
-call Quit(_RC_INPUT_ERROR_)
+      Key = Get_Ln(LuRd)
+      call Get_I1(1,Nset)
+      Key = Get_Ln(LuRd)
+      call Get_F(1,Wset,Nset)
 
-!-- Read weights.
+    case ('PRIN')
 
-101 continue
-Key = Get_Ln(LuRd)
-call Get_I1(1,Nset)
-Key = Get_Ln(LuRd)
-call Get_F(1,Wset,Nset)
-Go To 1000
+      !-- How much print?
 
-!-- How much print?
+      Key = Get_Ln(LuRd)
+      call Get_I1(1,iPrint)
 
-102 continue
-Key = Get_Ln(LuRd)
-call Get_I1(1,iPrint)
-Go To 1000
+    case ('TITL')
 
-!-- Title
+      !-- Title
 
-103 continue
-Key = Get_Ln(LuRd)
-Title = Key(1:len(Title))
-Go To 1000
+      Key = Get_Ln(LuRd)
+      Title = Key(1:len(Title))
 
-!-- Should it be density based, or orbital based.
+    case ('ORBI')
 
-104 continue
-DensityBased = .false.
-Go To 1000
+      !-- Should it be density based, or orbital based.
 
-!-- I want to be told which orbitals have occ.num. below threshold.
+      DensityBased = .false.
 
-105 continue
-Key = Get_Ln(LuRd)
-call Get_F1(1,ThrOcc)
-Go To 1000
+    case ('OCCU')
+
+      !-- I want to be told which orbitals have occ.num. below threshold.
+
+      Key = Get_Ln(LuRd)
+      call Get_F1(1,ThrOcc)
+
+    case ('END ')
+
+      exit
+
+    case default
+
+      !-- ...and what happens if something else is encountered.
+
+      iChrct = len(KWord)
+      Last = iCLast(KWord,iChrct)
+      write(u6,*) ' '
+      write(u6,'(1x,a,a)') Kword(1:Last),' is not a valid keyword!'
+      write(u6,*) ' ERROR!'
+      call Quit(_RC_INPUT_ERROR_)
+
+  end select
+
+end do
 
 !-- A most Graceful Exit.
-
-9999 continue
 
 return
 
