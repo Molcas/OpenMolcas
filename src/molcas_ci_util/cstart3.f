@@ -59,7 +59,6 @@
 #include "csfbas.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-      PARAMETER (ROUTINE='CSTART  ')
 #include "SysDef.fh"
 
 c      Dimension iToc(15)

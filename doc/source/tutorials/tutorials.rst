@@ -30,6 +30,7 @@ A complete flowchart for the |molcas| suite of programs follows.
    tut_mbpt2
    tut_rasscf
    tut_caspt2
+   tut_nevpt2
    tut_rassi
    tut_casvb
    tut_motra

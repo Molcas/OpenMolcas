@@ -79,6 +79,7 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='CICTL   ')
 #include "csfbas.fh"
 #include "gugx.fh"

@@ -30,7 +30,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='FOCKOC  ')
 #include "wadr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

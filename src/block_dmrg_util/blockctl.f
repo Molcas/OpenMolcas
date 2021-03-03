@@ -50,7 +50,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='BLOCKCTL')
 
 * Load symmetry info from RunFile
       Call Get_iScalar('NSYM',nIrrep)

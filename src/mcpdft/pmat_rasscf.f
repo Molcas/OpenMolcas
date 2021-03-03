@@ -25,6 +25,7 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='PMAT    ')
       DIMENSION X(*),P(*)
 C Local print level (if any)

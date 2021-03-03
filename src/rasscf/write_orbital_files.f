@@ -45,7 +45,6 @@
       use gas_data, only : nGssh
 
 #include "output_ras.fh"
-      Parameter (ROUTINE='ORBFILES')
 #include "WrkSpc.fh"
       integer, intent(in) :: JobIph, iPrlev
 

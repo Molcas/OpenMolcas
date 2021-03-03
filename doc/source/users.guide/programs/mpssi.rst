@@ -199,6 +199,7 @@ Input example
 .............
 
 An example with single JobIph:
+
 ::
 
   &MPSSI
@@ -222,7 +223,9 @@ An example with single JobIph:
   * spanned by the 2 input functions
 
 An example with two separate JobIphs (singlet and triplet calculation of methylene):
+
 ::
+
   * Triplet calculation
   &DMRGSCF
     ActiveSpaceOptimizer=QCMaquis

@@ -26,7 +26,6 @@ c *******************************************************************
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      PARAMETER (ROUTINE='DMATDMAT')
       DIMENSION Dmat(*),DDarray(*), iOffOrb(nSym)
 
       nTest = 000

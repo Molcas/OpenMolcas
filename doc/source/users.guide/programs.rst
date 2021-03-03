@@ -48,6 +48,7 @@ Programs
    programs/mrci
    programs/mula
    programs/nemo
+   programs/nevpt2
    programs/numerical_gradient
    programs/poly_aniso
    programs/qmstat

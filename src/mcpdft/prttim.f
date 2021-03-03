@@ -33,7 +33,6 @@
 #include "timers.fh"
 #include "output_ras.fh"
 #include "splitcas.fh"
-      Parameter (ROUTINE='XXXXXXXX')
       Integer, Parameter :: MAX_TIMERS = 40
 
       Dimension T(MAX_TIMERS),F(MAX_TIMERS)

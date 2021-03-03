@@ -23,7 +23,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='PRIMO   ')
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 

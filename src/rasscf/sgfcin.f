@@ -64,6 +64,7 @@
       implicit none
 #include "rasdim.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='SGFCIN  ')
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
