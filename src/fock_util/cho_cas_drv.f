@@ -388,28 +388,6 @@ C ----------------------------------------------------------------
          If(DoActive) Call Getmem('KALT','Free','Real',ipKLT(2),NTot1)
          Call Getmem('KILT','Free','Real',ipKLT(1),NTot1)
 
-
-      ELSEIF (ALGO.eq.2) THEN
-
-         ipInt = LTUVX   ! (TU|VX) integrals only are computed
-
-         CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &                    ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb,
-     &                    nChM,ipInt,ExFac)
-
-*  Synchronization of the Fock matrices
-         Call GaDsum(Work(ipFI),NTot1)
-         Call GaDsum(Work(ipFA),NTot1)
-*  Synchronization of the Q-matrix
-         lQ=0
-         Do i=1,nSym
-            lQ = lQ + nBas(i)*nAorb(i)
-         End Do
-         Call GaDsum(Work(ipQmat),lQ)
-*  Synchronization of the (TU|VX) integrals
-         Call GaDsum(Work(LTUVX),NACPR2)
-
-
       ELSE
 
          write(6,*)SECNAM//': wrong input parameter. ALGO= ',ALGO
