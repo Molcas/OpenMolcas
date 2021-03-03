@@ -35,14 +35,13 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: CMO_Type, Laq_Type, Map_to_Laq
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
-      use Data_Structures, only: twxy_Type, Map_to_twxy
+      use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   ipScr(8,8)
       Integer   ipLpq(8,2)
       Integer   iSkip(8),kOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8)
@@ -391,7 +390,6 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
 
         Call Allocate_twxy(Scr,nAsh,JSYM,nSym)
-        Call Map_to_twxy(Scr,ipScr)
 
         iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -1419,7 +1417,7 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,ipScr,Laq(2),ipInt,nAsh,
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
      &                                 JSYM,JNUM,DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)

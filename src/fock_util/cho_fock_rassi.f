@@ -40,7 +40,7 @@ C
       use Data_Structures, only: CMO_Type
       use Data_Structures, only: Laq_Type, Map_to_Laq
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
-      use Data_Structures, only: twxy_Type, Map_to_twxy
+      use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
@@ -48,7 +48,7 @@ C
       Type (Laq_type), Target:: Laq(2)
       Type (twxy_type) Scr
 
-      Integer   rc,ipScr(8,8)
+      Integer   rc
       Integer   ipLab(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8)
@@ -117,8 +117,6 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
         If (NumCho(jSym).lt.1) GOTO 1000
 
       Call Allocate_twxy(Scr,nAsh,JSYM,nSym)
-      Call Map_to_twxy(Scr,ipScr)
-
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -414,7 +412,7 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
                DoReord = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_rassi_twxy(irc,ipScr,Laq(2),ipInt,nAsh,
+               CALL CHO_rassi_twxy(irc,Scr,Laq(2),ipInt,nAsh,
      &                                 JSYM,JNUM,DoReord)
 
                CALL CWTIME(TCINT2,TWINT2)

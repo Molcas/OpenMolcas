@@ -9,14 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SUBROUTINE CHO_rassi_twxy(irc,ipScr,ChoV,ipInt,nAorb,
-     &                              JSYM,NUMV,DoReord)
+      SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,ipInt,nAorb,JSYM,NUMV,
+     &                          DoReord)
 
-      use Data_Structures, only: Laq_type
+      use Data_Structures, only: Laq_type, twxy_type
       Implicit Real*8 (a-h,o-z)
       Integer irc,ipInt,nAorb(*),JSYM,NUMV,iAorb(8)
       Type (Laq_Type) ChoV
-      Integer ipScr(8,8)
+      Type (twxy_type) Scr
       Logical DoReord
 
 #include "real.fh"
@@ -57,7 +57,7 @@ C==========================================================
                   CALL DGEMM_('N','T',Ntw,Nxy,NumV,
      &                       ONE,ChoV%pA(iSymt)%A,Ntw,
      &                           ChoV%pA(iSymx)%A,Nxy,
-     &                       One,Work(ipScr(iSymw,iSymy)),Ntw)
+     &                       One,Scr%pA(iSymw,iSymy)%A,Ntw)
 
 
                End If
@@ -90,67 +90,58 @@ C ------------------------------------------------------------
 
             Nxy = nAorb(iSymx)*nAorb(iSymy)
 
-            If (Nxy.gt.0) then
+            If (Nxy<=0) Cycle
 
-               Do iSymw=iSymy,nSym
+            Do iSymw=iSymy,nSym
 
-                  iSymt=MulD2h(iSymw,JSYM)
+               iSymt=MulD2h(iSymw,JSYM)
 
-                  Ntw = nAorb(iSymt)*nAorb(iSymw)
+               Ntw = nAorb(iSymt)*nAorb(iSymw)
 
-                  If (Ntw.gt.0) then
+               If (Ntw<=0) Cycle
 
-                     Do iy=1,nAorb(iSymy)
+               Do iy=1,nAorb(iSymy)
 
-                      iyG = iAorb(iSymy) + iy  !global index
+                   iyG = iAorb(iSymy) + iy  !global index
 
-                      Do ix=1,nAorb(iSymx)
+                   Do ix=1,nAorb(iSymx)
 
-                       ixG  = iAorb(iSymx) + ix
+                    ixG  = iAorb(iSymx) + ix
 
-                       ixy  = nAorb(iSymx)*(iy-1) + ix
+                    ixy  = ix + nAorb(iSymx)*(iy-1)
 
-                       ixyG = nTA*(iyG-1) + ixG ! global index
+                    ixyG = nTA*(iyG-1) + ixG ! global index
 
-                       Do iw=1,nAorb(iSymw)
+                    Do iw=1,nAorb(iSymw)
 
-                        iwG  = iAorb(iSymw) + iw
+                     iwG  = iAorb(iSymw) + iw
 
-                        Do it=1,nAorb(iSymt)
+                     Do it=1,nAorb(iSymt)
 
-                           itG  = iAorb(iSymt) + it
+                        itG  = iAorb(iSymt) + it
 
-                           itw  = nAorb(iSymt)*(iw-1) + it
+                        itw  = it + nAorb(iSymt)*(iw-1)
 
-                           itwG = nTA*(iwG-1) + itG ! global index
+                        itwG = nTA*(iwG-1) + itG ! global index
 
-                           iScr = ipScr(iSymw,iSymy) + Ntw*(ixy-1)
-     &                          + itw - 1
+                        iRes = ipInt + iTri(itwG,ixyG) - 1
 
-                           iRes = ipInt + iTri(itwG,ixyG) - 1
-
-                           Work(iRes) = Work(iScr)
-
-                        End Do
-
-                       End Do
-
-                      End Do
+                        Work(iRes) = Scr%pA(iSymw,iSymy)%A(itw,ixy)
 
                      End Do
 
-                  End If
+                    End Do
+
+                   End Do
 
                End Do
 
-            End If
+            End Do
 
          End Do
 
 
       ENDIF
-
-
 
       irc=0
 
