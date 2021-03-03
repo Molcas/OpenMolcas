@@ -9,4 +9,13 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     averd.F90
+     averd_global.F90
+     get_averd_input.F90
+     init_ave.F90
+     print_input.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

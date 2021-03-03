@@ -12,31 +12,32 @@
 ! Read input for averd.
 !
 ! Title         -Title
-! Wset          -Set of weights. Dimension is Nset.
+! Wset          -Set of weights. Dimension is nSet.
 ! iPrint        -How much print.(1=minimal,2=print average orbitals,
 !                5=print all orbitals,99=wacko!)
-! Nset          -Number of orbitals to read
+! nSet          -Number of orbitals to read
 ! DensityBased  -Is the procedure density or orbital based
 ! ThrOcc        -Print which orbitals have occupation number below
 !                this threshold.
 !-----------------------------------------------------------------------
 
-subroutine Get_Averd_input(Title,Wset,iPrint,Nset,DensityBased,ThrOcc)
+subroutine Get_Averd_input(Title,iPrint,nSet,DensityBased,ThrOcc)
 
+use Averd_global, only: Wset
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "mxave.fh"
 character(len=72), intent(inout) :: Title
-real(kind=wp), intent(inout) :: Wset(MxSets), ThrOcc
-integer(kind=iwp), intent(inout) :: iPrint, Nset
+real(kind=wp), intent(inout) :: ThrOcc
+integer(kind=iwp), intent(inout) :: iPrint, nSet
 logical(kind=iwp), intent(inout) :: DensityBased
-#include "warnings.fh"
 integer(kind=iwp) :: iChrct, Last, LuRd
 character(len=180) :: Key
 character(len=4) :: Kword
 character(len=180), external :: Get_Ln
 integer(kind=iwp), external :: iCLast
+#include "warnings.fh"
 
 !-- Call subroutines that handle the input.
 
@@ -63,9 +64,10 @@ do
       !-- Read weights.
 
       Key = Get_Ln(LuRd)
-      call Get_I1(1,Nset)
+      call Get_I1(1,nSet)
+      call mma_allocate(Wset,nSet,label='Wset')
       Key = Get_Ln(LuRd)
-      call Get_F(1,Wset,Nset)
+      call Get_F(1,Wset,nSet)
 
     case ('PRIN')
 

@@ -9,26 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Print_Input(Title,nSym,nBas,wSet,nSet)
+module Averd_global
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp
 
 implicit none
-#include "mxdm.fh"
-#include "mxave.fh"
-character(len=72), intent(in) :: Title
-integer(kind=iwp), intent(in) :: nSym, nBas(MxSym), nSet
-real(kind=wp), intent(in) :: wSet(nSet)
-integer(kind=iwp) :: iS, iSym
-integer(kind=iwp), parameter :: lPaper=132
+private
 
-call Banner(Title,1,lPaper-7)
-write(u6,*)
-write(u6,*)
-write(u6,*) 'Number of symmetries:',nSym
-write(u6,*) 'Basis functions:',(nBas(iSym),iSym=1,nSym)
-write(u6,*) 'Normalized weights:',(wSet(iS),iS=1,nSet)
+real(kind=wp), allocatable :: Wset(:)
 
-return
+public :: Wset
 
-end subroutine Print_Input
+end module Averd_global
