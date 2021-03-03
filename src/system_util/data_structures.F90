@@ -18,7 +18,9 @@ Module Data_Structures
 Private
 Public:: CMO_Type, Allocate_CMO, Deallocate_CMO, Map_to_CMO
 Public:: Laq_Type, Allocate_Laq, Deallocate_Laq, Map_to_Laq
+Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
 #include "stdalloc.fh"
+#include "real.fh"
 
 Type V2
   Real*8, Pointer:: A(:,:)=>Null()
@@ -42,6 +44,13 @@ Type Laq_type
   Type (V3):: pA(8)
   Type (V2):: pA2(8)
 End Type Laq_type
+
+Type twxy_type
+  Integer :: JSYM=0
+  Integer :: nSym=0
+  Real*8, Allocatable:: twxy_full(:)
+  Type (V2):: pA(8,8)
+End Type twxy_type
 
 
 Contains
@@ -284,5 +293,96 @@ Contains
   End If
 
   End Subroutine Map_to_Laq
+
+
+
+Subroutine Allocate_twxy(twxy,nAsh,JSYM,nSym)
+Implicit None
+Type (twxy_type), Target:: twxy
+Integer JSYM, nSym
+Integer nAsh(nSym)
+Integer iSymx, iSymy, iSymt, iSymw
+Integer mtwxy
+Integer iS, iE, n1, n2
+
+Integer i, j, MulD2h
+MulD2h(i,j) = iEOR(i-1,j-1) + 1
+
+twxy%JSYM=JSYM
+twxy%nSym=nSym
+! *** memory for the (tw|xy) integrals --- temporary array
+mtwxy = 0
+Do iSymy=1,nSym
+   iSymx=MulD2h(iSymy,JSYM)
+   Do iSymw=iSymy,nSym    ! iSymw.ge.iSymy (particle symmetry)
+      iSymt=MulD2h(isymw,JSYM)
+      mtwxy=mtwxy+nAsh(iSymt)*nAsh(iSymw)*nAsh(iSymx)*nAsh(iSymy)
+   End Do
+End Do
+
+Call mma_allocate(twxy%twxy_full,mtwxy,Label='twxy')
+twxy%twxy_full(:)=Zero
+
+! *** setup pointers to the symmetry blocks of (tw|xy)
+
+iE = 0
+Do iSymy=1,nSym
+   iSymx=MulD2h(iSymy,JSYM)
+   n1 = nAsh(iSymx)*nAsh(iSymy)
+   Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
+      iSymt=MulD2h(isymw,JSYM)
+      n2 = nAsh(iSymt)*nAsh(iSymw)
+      iS = iE + 1
+      iE = iE + n2*n1
+      twxy%pA(iSymw,iSymy)%A(1:n2,1:n1) => twxy%twxy_full(iS:iE)
+   End Do
+End Do
+
+End Subroutine Allocate_twxy
+
+Subroutine Deallocate_twxy(twxy)
+Implicit None
+Type (twxy_type) twxy
+Integer iSymx, iSymy, iSymt, iSymw
+
+Integer i, j, MulD2h
+MulD2h(i,j) = iEOR(i-1,j-1) + 1
+
+Call mma_deallocate(twxy%twxy_full)
+
+! *** setup pointers to the symmetry blocks of (tw|xy)
+
+Do iSymy=1,twxy%nSym
+   iSymx=MulD2h(iSymy,twxy%JSYM)
+   Do iSymw=iSymy,twxy%nSym   ! iSymw.ge.iSymy (particle symmetry)
+      iSymt=MulD2h(isymw,twxy%JSYM)
+      twxy%pA(iSymw,iSymy)%A => Null()
+   End Do
+End Do
+
+End Subroutine Deallocate_twxy
+
+Subroutine Map_to_twxy(Adam,ipAdam)
+Implicit None
+Type (twxy_type):: Adam
+Integer ipAdam(8,8)
+Integer, External:: ip_of_Work
+Integer iSymx, iSymy, iSymt, iSymw
+
+Integer i, j, MulD2h
+MulD2h(i,j) = iEOR(i-1,j-1) + 1
+
+ipAdam(:,:)=0
+Do iSymy=1,Adam%nSym
+   iSymx=MulD2h(iSymy,Adam%JSYM)
+   Do iSymw=iSymy,Adam%nSym   ! iSymw.ge.iSymy (particle symmetry)
+      iSymt=MulD2h(isymw,Adam%JSYM)
+
+      ipAdam(iSymw,iSymy) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
+
+   End Do
+End Do
+
+End Subroutine Map_to_twxy
 
 End Module Data_Structures

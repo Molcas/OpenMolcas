@@ -40,9 +40,13 @@ C
       use Data_Structures, only: CMO_Type
       use Data_Structures, only: Laq_Type, Map_to_Laq
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: twxy_Type, Map_to_twxy
+      use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MO1(2), MO2(2)
+      Type (Laq_type), Target:: Laq(2)
+      Type (twxy_type) Scr
 
       Integer   rc,ipScr(8,8)
       Integer   ipLab(8,2)
@@ -71,7 +75,6 @@ C
 
       Real*8, Allocatable:: Lrs(:,:)
 
-      Type (Laq_type), Target:: Laq(2)
       Real*8, Pointer:: VJ(:)=>Null()
 
 **************************************************
@@ -113,35 +116,8 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
         If (NumCho(jSym).lt.1) GOTO 1000
 
-C *** memory for the (tw|xy) integrals --- temporary array
-      Mtwxy = 0
-      Do iSymy=1,nSym
-         iSymx=MulD2h(iSymy,JSYM)
-         Do iSymw=iSymy,nSym    ! iSymw.ge.iSymy (particle symmetry)
-            iSymt=MulD2h(isymw,JSYM)
-            Mtwxy=Mtwxy+nAsh(iSymt)*nAsh(iSymw)*nAsh(iSymx)*nAsh(iSymy)
-         End Do
-      End Do
-
-      Call GetMem('Mtmp','ALLO','REAL',ipItmp,Mtwxy)
-      Call Fzero(Work(ipItmp),Mtwxy)
-
-C *** setup pointers to the symmetry blocks of (tw|xy)
-      Do i=1,nSym
-         Do j=1,nSym
-            ipScr(j,i) = ipItmp
-         End Do
-      End Do
-
-      kScr=ipItmp
-      Do iSymy=1,nSym
-         iSymx=MulD2h(iSymy,JSYM)
-         Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
-            iSymt=MulD2h(isymw,JSYM)
-            ipScr(iSymw,iSymy) = kScr
-            kScr=kScr+nAsh(iSymt)*nAsh(iSymw)*nAsh(iSymx)*nAsh(iSymy)
-         End Do
-      End Do
+      Call Allocate_twxy(Scr,nAsh,JSYM,nSym)
+      Call Map_to_twxy(Scr,ipScr)
 
 
       iLoc = 3 ! use scratch location in reduced index arrays
@@ -477,7 +453,7 @@ C --- free memory
 
          END DO   ! loop over red sets
 
-         Call GetMem('Mtmp','Free','REAL',ipItmp,Mtwxy)
+         Call Deallocate_twxy(Scr)
 
 1000  CONTINUE
 

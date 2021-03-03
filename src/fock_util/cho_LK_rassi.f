@@ -39,6 +39,8 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: CMO_Type, Laq_Type, Map_to_Laq
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: twxy_Type, Map_to_twxy
+      use Data_Structures, only: Allocate_twxy, Deallocate_twxy
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -50,7 +52,11 @@ C
       Integer   ISTLT(8),ISTK(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
+
       Type (CMO_Type) Ash(2)
+      Type (Laq_Type) Laq(2)
+      Type (twxy_Type) Scr
+
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
 #ifdef _DEBUGPRINT_
@@ -81,7 +87,6 @@ C
       Real*8,  External :: Cho_LK_ScreeningThreshold
 
       Real*8, Allocatable:: Lrs(:,:)
-      Type (Laq_type) Laq(2)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -394,35 +399,8 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
          End Do
 
 
-C *** memory for the (tw|xy) integrals --- temporary array
-      Mtwxy = 0
-      Do iSymy=1,nSym
-         iSymx=MulD2h(iSymy,JSYM)
-         Do iSymw=iSymy,nSym    ! iSymw.ge.iSymy (particle symmetry)
-            iSymt=MulD2h(isymw,JSYM)
-            Mtwxy=Mtwxy+nAsh(iSymt)*nAsh(iSymw)*nAsh(iSymx)*nAsh(iSymy)
-         End Do
-      End Do
-
-      Call GetMem('Mtmp','ALLO','REAL',ipItmp,Mtwxy)
-      Call Fzero(Work(ipItmp),Mtwxy)
-
-C *** setup pointers to the symmetry blocks of (tw|xy)
-      Do i=1,nSym
-         Do j=1,nSym
-            ipScr(j,i) = ipItmp
-         End Do
-      End Do
-
-      kScr=ipItmp
-      Do iSymy=1,nSym
-         iSymx=MulD2h(iSymy,JSYM)
-         Do iSymw=iSymy,nSym   ! iSymw.ge.iSymy (particle symmetry)
-            iSymt=MulD2h(isymw,JSYM)
-            ipScr(iSymw,iSymy) = kScr
-            kScr=kScr+nAsh(iSymt)*nAsh(iSymw)*nAsh(iSymx)*nAsh(iSymy)
-         End Do
-      End Do
+      Call Allocate_twxy(Scr,nAsh,JSYM,nSym)
+      Call Map_to_twxy(Scr,ipScr)
 
 
       iLoc = 3 ! use scratch location in reduced index arrays
@@ -1537,7 +1515,7 @@ C--- have performed screening in the meanwhile
          END DO   ! loop over red sets
 
 
-         Call GetMem('Mtmp','Free','REAL',ipItmp,Mtwxy)
+         Call Deallocate_twxy(Scr)
 
 1000  CONTINUE
 
