@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Ohrn                                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Ohrn                                            *
+!***********************************************************************
       Subroutine Averd(ireturn)
       Implicit Real*8 (a-h,o-z)
-*
-*
-*-- Compute average density and corresponding natural orbitals. Two
-*   possibilities exists, either construct average from input orbitals,
-*   or from density matrices.
-*
-*   Author: Anders Ohrn.
-*
-*
+!
+!
+!-- Compute average density and corresponding natural orbitals. Two
+!   possibilities exists, either construct average from input orbitals,
+!   or from density matrices.
+!
+!   Author: Anders Ohrn.
+!
+!
 
-*
-*-- Include.
-*
+!
+!-- Include.
+!
 #include "mxdm.fh"
 #include "real.fh"
 #include "mxave.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-*
-*-- Allocate.
-*
+!
+!-- Allocate.
+!
       Dimension Wset(MxSets),nBas(MxSym)
       Logical PrOcc,PrEne,DensityBased
       Character Title*72, Fname*7,OLabel*10,Titorb*40,OrbFile*128
@@ -42,25 +42,25 @@
       Real*8, Allocatable:: DTmp(:)
 
 
-*
-*-- Banner.
-*
+!
+!-- Banner.
+!
       ireturn=99
 
-*
-*-- Define defaults and initialize.
-*
-      Call Init_ave(Title,iPrint,Wset,Wsum,PrOcc,PrEne,DensityBased
+!
+!-- Define defaults and initialize.
+!
+      Call Init_ave(Title,iPrint,Wset,Wsum,PrOcc,PrEne,DensityBased     &
      &         ,ThrOcc,Dummy(1),iDummy(1,1))
 
-*
-*-- Read input.
-*
+!
+!-- Read input.
+!
       Call Get_Averd_input(Title,Wset,iPrint,Nset,DensityBased,ThrOcc)
 
-*
-*-- Read some information from RUNFILE.
-*
+!
+!-- Read some information from RUNFILE.
+!
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
       itBas=0
@@ -69,9 +69,9 @@
 31    Continue
       Call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*itBas)
 
-*
-*-- Some dimensions.
-*
+!
+!-- Some dimensions.
+!
       lsmat=0
       ntot=0
       ntot2=0
@@ -81,9 +81,9 @@
         ntot2=ntot2+nBas(i)**2
 70    Continue
 
-*
-*-- Read AO-basis overlap matrix.
-*
+!
+!-- Read AO-basis overlap matrix.
+!
       Call GetMem('Overlap','Allo','Real',iS,lsmat+4)
       OLabel='Mltpl  0'
       irc=0
@@ -99,9 +99,9 @@
 72      Continue
       Endif
 
-*
-*-- Normalize weights.
-*
+!
+!-- Normalize weights.
+!
       Do 80, iset=1,mxsets
         Wsum=Wsum+wset(iset)
 80    Continue
@@ -109,17 +109,17 @@
         Wset(iset)=Wset(iset)/Wsum
 81    Continue
 
-*
-*-- Print some Bla Bla...
-*
+!
+!-- Print some Bla Bla...
+!
       If(iprint.ge.2) then
         Call Print_Input(Title,nSym,nBas,wSet,nSet)
       Endif
 
-*
-*-- Do the dirty work. Different paths for orbital- and density-based
-*   averageing.
-*
+!
+!-- Do the dirty work. Different paths for orbital- and density-based
+!   averageing.
+!
 
       Call GetMem('Density','Allo','Real',iDao,ntot2)
       call dcopy_(ntot2,[Zero],0,Work(iDao),1)
@@ -130,20 +130,20 @@
         Do 90, iset=1,Nset
           Fname='NAT001'
           Write(Fname(4:6),'(I3.3)') iset
-*------- Read orbital coefficients and occupation numbers.
-          Call RdVec(Fname,Luinp,'CO',Nsym,nBas,nBas,Work(iCMO)
+!------- Read orbital coefficients and occupation numbers.
+          Call RdVec(Fname,Luinp,'CO',Nsym,nBas,nBas,Work(iCMO)         &
      &           ,Work(iOcc),Dummy,iDummy,Titorb,0,iErr)
           iC=0
           iO=0
           iD=0
-*------- Up-date average density matrix.
+!------- Up-date average density matrix.
           Do 93, isym=1,nSym
             kaunter=0
             Do 931, i=1,nBas(iSym)
               Do 932, j=1,nBas(iSym)
                 Do 933, k=1,nBas(iSym)
-                  Work(iDao+iD+kaunter)=Work(iDao+iD+kaunter)
-     &  +Wset(iSet)*Work(iOcc+iO+k-1)*Work(iCMO+iC+i+(k-1)*nBas(iSym)-1)
+                  Work(iDao+iD+kaunter)=Work(iDao+iD+kaunter)           &
+     &  +Wset(iSet)*Work(iOcc+iO+k-1)*Work(iCMO+iC+i+(k-1)*nBas(iSym)-1)&
      &                               *Work(iCMO+iC+j+(k-1)*nBas(iSym)-1)
 933             Continue
                 kaunter=kaunter+1
@@ -153,10 +153,10 @@
             iD=iD+nBas(isym)**2
             iO=iO+nBas(isym)
 93        Continue
-*------- Print print print.
+!------- Print print print.
           If(iPrint.ge.5) then
             ThrO=1d-5
-            Call Primo(Titorb,PrOcc,PrEne,ThrO,Dummy(1),nSym,nBas,nBas
+            Call Primo(Titorb,PrOcc,PrEne,ThrO,Dummy(1),nSym,nBas,nBas  &
      &                ,BsLbl,Dummy,Work(iOcc),Work(iCMO),-1)
           Endif
 90      Continue
@@ -169,13 +169,13 @@
           Fname='RUN001'
           Write(Fname(4:6),'(I3.3)') iset
           Call NameRun(Fname)
-*------- Collect density from runfile.
+!------- Collect density from runfile.
           Call mma_allocate(DTmp,lsmat,Label='DTmp')
           Call Get_D1ao(Dtmp,lsmat)
           Call DaxPy_(lsmat,Wset(iset),Dtmp,1,Work(iDtemp),1)
           Call mma_deallocate(DTmp)
 95      Continue
-*----- Square the density matrix.
+!----- Square the density matrix.
         iDt=0
         iDs=0
         Do 97, iSym=1,nSym
@@ -187,10 +187,10 @@
         Call GetMem('DensityT','Free','Real',iDtemp,lsmat)
       Endif
 
-*
-*-- With the average density in store, lets orthogonalize (canonical),
-*   then diagonalize to get natural orbitals.
-*
+!
+!-- With the average density in store, lets orthogonalize (canonical),
+!   then diagonalize to get natural orbitals.
+!
       indT=0
       indS=0
       indB=0
@@ -228,23 +228,23 @@
 205     Continue
         Call Square(Work(iSt),Work(iSs),1,nBas(iSym),nBas(iSym))
         Call Square(Work(iSi),Work(iSp),1,nBas(iSym),nBas(iSym))
-        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iVecs),nBas(iSym),Work(iSs),nBas(iSym),Zero
+        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iVecs),nBas(iSym),Work(iSs),nBas(iSym),Zero     &
      &            ,Work(iAUX),nBas(iSym))
-        Call Dgemm_('N','T',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iAUX),nBas(iSym),Work(iVecs),nBas(iSym),Zero
+        Call Dgemm_('N','T',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iAUX),nBas(iSym),Work(iVecs),nBas(iSym),Zero    &
      &            ,Work(iTrans),nBas(iSym))
-        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iVecs),nBas(iSym),Work(iSp),nBas(iSym),Zero
+        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iVecs),nBas(iSym),Work(iSp),nBas(iSym),Zero     &
      &            ,Work(iAUX),nBas(iSym))
-        Call Dgemm_('N','T',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iAUX),nBas(iSym),Work(iVecs),nBas(iSym),Zero
+        Call Dgemm_('N','T',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iAUX),nBas(iSym),Work(iVecs),nBas(iSym),Zero    &
      &            ,Work(iTrani),nBas(iSym))
-        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iTrans),nBas(iSym),Work(iDao+indS),nBas(iSym)
+        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iTrans),nBas(iSym),Work(iDao+indS),nBas(iSym)   &
      &            ,Zero,Work(iAUX),nBas(iSym))
-        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iAUX),nBas(iSym),Work(iTrans),nBas(iSym),Zero
+        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iAUX),nBas(iSym),Work(iTrans),nBas(iSym),Zero   &
      &            ,Work(iOrtoD),nBas(iSym))
         kaunter=0
         Do 2051, iB1=1,nBas(iSym)
@@ -262,8 +262,8 @@
 2054      Continue
 2053    Continue
         Call Jacob(Work(iOrtoDt),Work(iVecs),nBas(iSym),nBas(iSym))
-        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One
-     &            ,Work(iTrani),nBas(iSym),Work(iVecs),nBas(iSym),Zero
+        Call Dgemm_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One        &
+     &            ,Work(iTrani),nBas(iSym),Work(iVecs),nBas(iSym),Zero  &
      &            ,Work(iAUX),nBas(iSym))
         kaunt=0
         kaunter=0
@@ -281,7 +281,7 @@
         If(iPrint.ge.5) then
           Write(Titorb,'(A)')'All average orbitals in this irrep.'
           Thr=-1D0
-          Call Primo(Titorb,.true.,.false.,Thr,Dum,1,nBas(iSym)
+          Call Primo(Titorb,.true.,.false.,Thr,Dum,1,nBas(iSym)         &
      &              ,nBas(iSym),BsLbl,Dummy,Work(iOccNat),Work(iAUX),-1)
         Endif
         call dcopy_(nBS,Work(iAUX),1,Work(iOrbs+indS),1)
@@ -308,16 +308,16 @@
       Write(6,*)
 
 
-*
-*-- Write average orbitals to a file with the same format as
-*   SCF-orbitals. To the outfile are orbital energies added just
-*   to make the NEMO happy, the numbers are just bosh!
-*
+!
+!-- Write average orbitals to a file with the same format as
+!   SCF-orbitals. To the outfile are orbital energies added just
+!   to make the NEMO happy, the numbers are just bosh!
+!
       Write(6,*)
       Write(6,*)
       Write(6,*)'Average orbitals put on AVEORB'
       Write(6,*)
-      Write(6,*)'NB: Dummy orbital energies added to AVEORB for '
+      Write(6,*)'NB: Dummy orbital energies added to AVEORB for '       &
      &//'compatability reasons.'
       Write(6,*)'    They have no physical meaning.'
       Call GetMem('Zeros','Allo','Real',iZero,ntot)
@@ -327,12 +327,12 @@
       Title='Average Orbitals'
       OrbFile='AVEORB'
       Plab='COE'
-      Call WrVec(OrbFile,LuOut,Plab,nSym,nBas,nBas,Work(iOrbs)
+      Call WrVec(OrbFile,LuOut,Plab,nSym,nBas,nBas,Work(iOrbs)          &
      &           ,Work(iOccs),Work(iZero),iDummy,Title)
 
-*
-*-- Say something about orbital occupation.
-*
+!
+!-- Say something about orbital occupation.
+!
       Write(6,*)
       Write(6,*)
       Write(6,'(A)')' |  Average orbital occupation.'
@@ -346,7 +346,7 @@
           If(Work(iOccs+iO+iB-1).lt.ThrOcc) GoTo 9992
           nOrb=nOrb+1
 9992    Continue
-        Write(6,9999)'      Symmetry:',iSym,'   Number of orbitals '
+        Write(6,9999)'      Symmetry:',iSym,'   Number of orbitals '    &
      &//'below threshold:',nOrb
         iO=iO+nBas(iSym)
 9991  Continue
@@ -358,9 +358,9 @@
       Call GetMem('Density','Free','Real',iDao,ntot2)
       Call GetMem('Overlap','Free','Real',iS,lsmat+4)
 
-*
-*-- Good Bye.
-*
+!
+!-- Good Bye.
+!
       ireturn=0
       Return
       End
