@@ -149,7 +149,6 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
          iCase = 1 ! (wa|xy)
          Call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
          Call Map_to_twxy(Scr,ipScr)
-#endif
 
 C --- Set up the skipping flags + some initializations --------
          ipLab(:,:) = -6666  ! pointers to Lk,Jb
@@ -572,7 +571,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.JRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,ipScr,Laq(3),Lxy,ipInt,
+               CALL CHO_eval_waxy(irc,Scr,Laq(3),Lxy,ipInt,
      &                            nAorb,JSYM,JNUM,DoTraInt)
 
                CALL CWTIME(TCINT2,TWINT2)

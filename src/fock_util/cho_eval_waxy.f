@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_eval_waxy(irc,ipScr,ChoV1,ChoV2,ipInt,nAorb,
+      SUBROUTINE CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,ipInt,nAorb,
      &                         JSYM,NUMV,DoTraInt)
 
-      Use Data_structures, only: Laq_Type
+      Use Data_structures, only: Laq_Type, twxy_Type
       Implicit Real*8 (a-h,o-z)
       Integer ipInt,nAorb(*)
       Type (Laq_type) ChoV1, ChoV2
-      Integer ipScr(8,8)
+      Type (twxy_type) Scr
       Integer off_PWXY(8,8,8),ISTSQ(8)
       Logical DoTraInt
 
@@ -53,15 +53,14 @@ C==========================================================
                Nwa  = SIZE(ChoV1%pA(iSymw)%A,1)*
      &                SIZE(ChoV1%pA(iSymw)%A,2)
 
-               If (Nwa.gt.0) then
+               If (Nwa<=0) Cycle
 
-                  CALL DGEMM_('N','T',Nwa,Nxy,NumV,
-     &                       ONE,ChoV1%pA(iSymw)%A,Nwa,
-     &                           ChoV2%pA2(iSymx)%A,Nxy,ONE,
-     &                       Work(ipScr(iSymw,iSymx)),Nwa)
+               CALL DGEMM_('N','T',Nwa,Nxy,NumV,
+     &                    ONE,ChoV1%pA(iSymw)%A,Nwa,
+     &                        ChoV2%pA2(iSymx)%A,Nxy,ONE,
+*    &                    Work(ipScr(iSymw,iSymx)),Nwa)
+     &                    Scr%pA(iSymw,iSymx)%A,Nwa)
 
-
-               End If
 
             End Do
 
@@ -140,7 +139,7 @@ C ------------------------------------------------------------
 
                   Do ixy = 1,Nxy
 
-                        ipMwa = ipScr(iSymw,iSymx) + Nwa*(ixy-1)
+*                       ipMwa = ipScr(iSymw,iSymx) + Nwa*(ixy-1)
 
                         ipMpw = ipInt + off_PWXY(iSyma,iSymw,iSymx)
      &                        + Npw*(ixy-1)
@@ -152,10 +151,12 @@ C --------------------------------------------------------
                         nAob_w = max(nAorb(iSymw),1)
                         nOrb_a = max(nOrb(iSyma),1)
 
-                        CALL DGEMM_('T','T',nOrb(iSyma),nAorb(iSymw),
-     &                             nBas(iSyma),ONE,Work(ipMS),
-     &                             nBas_a,Work(ipMwa),nAob_w,
-     &                             ZERO,Work(ipMpw),nOrb_a)
+                        CALL DGEMM_('T','T',
+     &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),
+     &                             ONE,Work(ipMS),nBas_a,
+*    &                                 Work(ipMwa),nAob_w,
+     &                              Scr%pA(iSymw,iSymx)%A(:,ixy),nAob_w,
+     &                            ZERO,Work(ipMpw),nOrb_a)
 
 
                   End Do

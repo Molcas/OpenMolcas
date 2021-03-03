@@ -51,6 +51,8 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: CMO_Type, Laq_Type, Map_to_Laq
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: twxy_Type, Map_to_twxy
+      use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipScr(8,8),ipDIAH(1)
@@ -60,7 +62,11 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
       Integer   ipDab(2),ipFab(2),ipDD(2)
+
       Type (CMO_Type)   Ash(2)
+      Type (Laq_Type) Laq, Lxy
+      Type (twxy_Type) Scr
+
       Integer   nFIorb(8),nAorb(8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -92,8 +98,6 @@ C
 
       Real*8, Allocatable:: Lrs(:,:)
       Real*8, Allocatable:: VJ(:)
-      Type (Laq_Type) Laq
-      Type (Laq_Type) Lxy
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -452,6 +456,7 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
          End Do
 
 
+#ifdef _NOT_USED
 C *** memory for the (wa|xy) integrals --- temporary array
          Mwaxy = 0
          Do iSymy=1,nSym
@@ -487,6 +492,13 @@ C *** setup pointers to the symmetry blocks of (wa|xy)
                End Do
              End If
          End Do
+#else
+         iCase = 1  ! (wa|xy)
+         Call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
+*        ipItmp = ip_of_Work(Scr%twxy_full(1))
+         Call Map_to_twxy(Scr,ipScr)
+#endif
+
 
 C ****************     MEMORY MANAGEMENT SECTION    *****************
 C ------------------------------------------------------------------
@@ -1508,7 +1520,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,ipScr,Laq,Lxy,ipInt,nAorb,
+               CALL CHO_eval_waxy(irc,Scr,Laq,Lxy,ipInt,nAorb,
      &                            JSYM,JNUM,DoTraInt)
 
                CALL CWTIME(TCINT2,TWINT2)
@@ -1579,7 +1591,8 @@ C--- have performed screening in the meanwhile
          END DO   ! loop over red sets
 
 
-         Call GetMem('Mtmp','Free','REAL',ipItmp,Mwaxy)
+         Call Deallocate_twxy(Scr)
+*        Call GetMem('Mtmp','Free','REAL',ipItmp,Mwaxy)
 
 1000  CONTINUE
 
