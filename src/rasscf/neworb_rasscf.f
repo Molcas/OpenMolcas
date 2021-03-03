@@ -60,6 +60,7 @@ C     Calling arguments:
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='NEWORB  ')
 #include "SysDef.fh"
 #include "raswfn.fh"

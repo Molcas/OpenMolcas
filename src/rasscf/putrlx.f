@@ -17,6 +17,7 @@
 #include "rasscf.fh"
 #include "output_ras.fh"
 #include "WrkSpc.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='PUTRLX  ')
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
       Dimension rdum(1)

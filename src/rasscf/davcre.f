@@ -47,6 +47,7 @@ C
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='DAVCRE  ')
       CHARACTER*4 IOUTW,IOUTX
       DIMENSION C((NROOT+NSXS)*NROOT*(ITMAX+1))

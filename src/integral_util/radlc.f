@@ -13,7 +13,7 @@
       SubRoutine Radlc(Zeta,nZeta,lsum,Rnr)
 ************************************************************************
 *                                                                      *
-* Object: to compute the radial part of the continuum  multipole       *
+* Object: to compute the radial part of the continuum multipole        *
 *         integrals within an R-matrix run                             *
 *                                                                      *
 * Called from: Mltint                                                  *
@@ -40,6 +40,7 @@ ccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 ccccccccccccccccccccccccccccccccccccccc
       Result=Zero
+      Call Untested('Radlc')
 *
 ************************************************************************
 *

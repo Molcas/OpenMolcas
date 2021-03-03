@@ -44,7 +44,6 @@
 #include "ciinfo.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-      Parameter(ROUTINE='splitCTL')
 #include "csfbas.fh"
 #include "spinfo.fh"
 #include "strnum.fh"

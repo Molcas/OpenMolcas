@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !
-      REAL*8          D0,D1,D2,D4,HALF
-      COMMON/DATA/    D0,D1,D2,D4,HALF
+      REAL*8          D0,D1,D2,D4
+      COMMON/DATA/    D0,D1,D2,D4
 !
       INTEGER, PARAMETER :: ITRIM=mxAct*(mxAct+1)/2
 ! TODO: The IODUMMY variable is unused, but removing it causes warnings/

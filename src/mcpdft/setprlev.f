@@ -12,7 +12,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "warnings.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='SETPRLEV')
       Dimension IPRLOC_IN(7)
 *
       Logical REDUCE_PRT

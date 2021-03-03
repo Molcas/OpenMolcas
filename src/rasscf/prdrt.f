@@ -14,7 +14,6 @@ C     PURPOSE: PRINT THE DRT TABLE
 C
       IMPLICIT INTEGER (A-Z)
 #include "output_ras.fh"
-      Parameter (ROUTINE='PRDRT   ')
 C
       DIMENSION DRT(NVERT,5),DOWN(NVERT,0:3)
 C

@@ -21,9 +21,9 @@
             Currently, NEVPT2 requires a DMRG reference wavefunction calculated with QCMaquis (with RASSCF or DMRGSCF module).
             </HELP>
 
-NEVPT2 is a second-order perturbation theory with a CAS (or a CAS-like) reference wavefunction originally developed by Angeli et al. :cite:`Angeli_JChemPhys_Introduction_2001,Angeli_ChemPhysLett_Nelectron_2001,Angeli_JChemPhys_nelectron_2002,Angeli_JChemPhys_quasidegenerate_2004` In contrast to CASPT2, it uses a Dyall Hamiltonian:cite:`Dyall_JChemPhys_choice_1995` as the zeroth-order Hamiltonian and is therefore inherently free of intruder states and parameters such as the IPEA shift. NEVPT2 exists in two formulations -- the strongly- (SC-) and the partially-contracted NEVPT2 (PC-NEVPT2), which differ in the basis of the first-order wavefunction expansion.
+NEVPT2 is a second-order perturbation theory with a CAS (or a CAS-like) reference wavefunction originally developed by Angeli et al. :cite:`Angeli_JChemPhys_Introduction_2001,Angeli_ChemPhysLett_Nelectron_2001,Angeli_JChemPhys_nelectron_2002,Angeli_JChemPhys_quasidegenerate_2004` In contrast to CASPT2, it uses a Dyall Hamiltonian :cite:`Dyall_JChemPhys_choice_1995` as the zeroth-order Hamiltonian and is therefore inherently free of intruder states and parameters such as the IPEA shift. NEVPT2 exists in two formulations -- the strongly- (SC-) and the partially-contracted NEVPT2 (PC-NEVPT2), which differ in the basis of the first-order wavefunction expansion.
 
-The implementation in the :program:`NEVPT2` program is based on the original NEVPT2 implementation by Angeli et al. :cite:`Angeli_JChemPhys_nelectron_2002,Angeli_JChemPhys_quasidegenerate_2004`, with the implementation of the QCMaquis DMRG reference wave function and Cholesky decomposition for the two-electron integrals:cite:`Freitag_JChemTheoryComput_Multireference_2017`. For excited states both single-state and multi-state calculations with the QD-NEVPT2 approach:cite:`Angeli_JChemPhys_quasidegenerate_2004` are supported.
+The implementation in the :program:`NEVPT2` program is based on the original NEVPT2 implementation by Angeli et al. :cite:`Angeli_JChemPhys_nelectron_2002,Angeli_JChemPhys_quasidegenerate_2004`, with the implementation of the QCMaquis DMRG reference wave function and Cholesky decomposition for the two-electron integrals :cite:`Freitag_JChemTheoryComput_Multireference_2017`. For excited states both single-state and multi-state calculations with the QD-NEVPT2 approach :cite:`Angeli_JChemPhys_quasidegenerate_2004` are supported.
 
 .. _UG\:sec\:nevpt2_dependencies:
 
@@ -31,7 +31,7 @@ Dependencies
 ------------
 The :program:`NEVPT2` program needs the :file:`JOBIPH` file (or its HDF5 equivalent) with a reference wavefunction a from a :program:`RASSCF`/:program:`DMRGSCF` calculation. Currently, **only DMRG reference wavefunctions calculated with QCMaquis** are supported. Additionally, transformed MO integrals or Cholesky vectors from :program:`MOTRA` are required.
 
-Optionally, four-particle reduced density matrices (and transition three-particle reduced density matrices for QD-NEVPT2 calculations) can be precalculated with QCMaquis in a massively parallel fashion and stored on disk.  These QCMaquis calculations may be prepared and executed with the help of two scripts found in :file:`$MOLCAS/Tools/distributed-4rdm` directory, namely :file:`jobmanager.py` and   :file:`prepare_rdm_template.sh`. The distributed RDM evaluation is strongly recommended for active spaces larger than 10-11 orbitals and is described in detail in :numref:`TUT:sec:nevpt2_distrdm`.
+Optionally, four-particle reduced density matrices (and transition three-particle reduced density matrices for QD-NEVPT2 calculations) can be precalculated with QCMaquis in a massively parallel fashion and stored on disk. These QCMaquis calculations may be prepared and executed with the help of two scripts found in :file:`$MOLCAS/Tools/distributed-4rdm` directory, namely :file:`jobmanager.py` and :file:`prepare_rdm_template.sh`. The distributed RDM evaluation is strongly recommended for active spaces larger than 10-11 orbitals and is described in detail in :numref:`TUT:sec:nevpt2_distrdm`.
 
 .. _UG\:sec\:nevpt2_input_files:
 
@@ -100,7 +100,7 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
               </KEYWORD>
 
 :kword:`FILE`
-   Specify the path to a :file:`JobIph` or :file:`.h5` file with the reference wavefunction. By default, the reference wavefunction is read from :file:`JOBIPH`.
+  Specify the path to a :file:`JobIph` or :file:`.h5` file with the reference wavefunction. By default, the reference wavefunction is read from :file:`JOBIPH`.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="FILE" KIND="STRING" LEVEL="BASIC">
               %%Keyword: FILE <basic>
@@ -122,7 +122,7 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
               </KEYWORD>
 
 :kword:`NOPC`
-   Disable the PC-NEVPT2 calculation. If the option is not present (default), both SC-NEVPT2 and PC-NEVPT2 calculations are performed.
+  Disable the PC-NEVPT2 calculation. If the option is not present (default), both SC-NEVPT2 and PC-NEVPT2 calculations are performed.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="NOPC" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: NOPC <basic>
@@ -152,7 +152,7 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
               </KEYWORD>
 
 :kword:`DISTributedRDM`
-  Enable reading of the RDMs calculated with the distributed RDM evaluation script. This keyword should be followed by another line, which specifies the path to the folder with the calculation results. The 4-RDM will then be read from QCMaquis HDF5 files found in :file:`<path>/4rdm-scratch.<state>/parts/part-*/$Project.results_state.<state>.h5`. The distributed n-RDM evaluation is described in the NEVPT2 program-based tutorial. If the tutorial is followed, the path should be :file:`$WorkDir`.
+  Enable reading of the RDMs calculated with the distributed RDM evaluation script. This keyword should be followed by another line, which specifies the path to the folder with the calculation results. The 4-RDM will then be read from QCMaquis HDF5 files found in :file:`<path>/4rdm-scratch.<state>/parts/part-*/$Project.results_state.<state>.h5`. The distributed :math:`n`-RDM evaluation is described in the NEVPT2 program-based tutorial. If the tutorial is followed, the path should be :file:`$WorkDir`.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="DistributedRDM" KIND="STRING" LEVEL="BASIC">
               %%Keyword: DistributedRDM <basic>
@@ -166,6 +166,6 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
 Input example
 -------------
 
-An input example for NEVPT2 may be found in :numref:`TUT:sec:nevpt2_run:`.
+An input example for NEVPT2 may be found in :numref:`TUT:sec:nevpt2_run`.
 
 .. xmldoc:: </MODULE>

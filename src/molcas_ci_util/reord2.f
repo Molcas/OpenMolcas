@@ -63,7 +63,6 @@
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-      PARAMETER (ROUTINE='REORD2  ')
 C
       DIMENSION ICONF(*),ISPIN(*)
       DIMENSION CIOLD(*),CINEW(*)

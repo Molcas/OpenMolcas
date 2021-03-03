@@ -40,7 +40,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-      Parameter (ROUTINE='Alter_MO')
 #include "rasscf.fh"
 
 C Local print level (if any)

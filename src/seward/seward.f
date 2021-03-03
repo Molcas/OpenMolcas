@@ -53,6 +53,7 @@
 #ifdef _FDE_
       use Embedding_Global, only: embPot, embPotInBasis
 #endif
+      use Gateway_global, only: Run_Mode, G_Mode, S_Mode, GS_Mode
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
@@ -63,7 +64,6 @@
 #include "setup.fh"
 #include "status.fh"
 #include "print.fh"
-#include "gateway.fh"
       Integer nChoV(8)
       Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO

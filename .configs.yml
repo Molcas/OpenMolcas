@@ -224,7 +224,7 @@
     - docker
 
 .qcmaquis:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/qcmaquis:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/qcmaquis:latest
   variables:
     cache_file: |
       set (DMRG ON CACHE STRING "Enable DMRG")

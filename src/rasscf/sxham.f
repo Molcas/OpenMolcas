@@ -47,6 +47,7 @@ C
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
+      Character*16 ROUTINE
       Parameter (ROUTINE='SXHAM   ')
       DIMENSION D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),
      *          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)

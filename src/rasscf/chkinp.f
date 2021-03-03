@@ -43,7 +43,6 @@
 
       integer :: spin_orbs_per_GAS(nGAS), max_per_GAS(nGAS),
      &             min_per_GAS(nGAS)
-      Parameter (ROUTINE='ChkInp  ')
 *----------------------------------------------------------------------*
 C Local print level (if any)
       IERR=0
