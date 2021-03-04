@@ -55,7 +55,11 @@ End Type twxy_type
 
 
 Contains
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                  C M O - T Y P E   S E C T I O N                    !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   Subroutine Allocate_CMO(Adam,n,m,nSym)
   Implicit None
@@ -109,6 +113,11 @@ Contains
 
   End Subroutine Map_to_CMO
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                  L A Q - T Y P E   S E C T I O N                    !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   Subroutine Allocate_Laq(Adam,n,m,NUMV,iSym,nSym,iSwap)
   Implicit None
@@ -180,6 +189,20 @@ Contains
           End If
           MemTot = MemTot + n2dim*NUMV
        End Do
+    Case(6)
+       Do iSyma = 1, nSym
+          If (n(iSyma)/=m(iSyma)) Then
+             Write (6,*) 'Allocate_Laq: iSwap=5 only valid if n(:)=m(:).'
+             Call abend()
+          End If
+          iSymb = MulD2h(iSym,iSyma)
+          If (iSyma>=iSymb) Then
+            n2Dim = n(iSyma)*n(iSymb)
+          Else
+            n2Dim = 0
+          End If
+          MemTot = MemTot + n2dim*NUMV
+       End Do
     Case Default
        Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
@@ -244,6 +267,15 @@ Contains
           iE = iE + n2Dim*NUMV
           Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
        End Do
+    Case(6)
+       Do iSyma = 1, nSym
+          iSymb = MulD2h(iSym,iSyma)
+          If (iSymb>iSyma) Cycle
+          iS = iE + 1
+          n2Dim = n(iSyma)*n(iSymb)
+          iE = iE + n2Dim*NUMV
+          Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
+       End Do
     Case Default
        Write (6,*) "Allocate_Laq: Illegal case."
        Call Abend()
@@ -256,7 +288,7 @@ Contains
   Type (Laq_Type) Adam
   Integer iSym
 
-  If (Adam%iSwap==4) Then
+  If (Adam%iSwap>=4) Then
      Do iSym = 1, Adam%nSym
         Adam%pA2(iSym)%A => Null()
      End Do
@@ -295,6 +327,11 @@ Contains
 
   End Subroutine Map_to_Laq
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                  T W X Y - T Y P E   S E C T I O N                  !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 Subroutine Allocate_twxy(twxy,n,m,JSYM,nSym,iCase)
