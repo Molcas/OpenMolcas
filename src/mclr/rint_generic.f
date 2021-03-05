@@ -308,10 +308,10 @@
         Call mma_deallocate(Dens2)
         Call mma_deallocate(CoulExch)
         If (iMethod.eq.2) Then
-          Call mma_deallocate(Dens2)
+          Call mma_deallocate(G2x)
           Call Deallocate_CMO(CVa(2))
           Call Deallocate_CMO(CVa(1))
-          Call mma_deallocate(Dens2)
+          Call mma_deallocate(DA)
         EndIf
         Call mma_deallocate(DLT)
         Call mma_deallocate(DI)

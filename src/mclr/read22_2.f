@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO, Int1, G1t, G2t
+      use Arrays, only: CMO, CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: CMO_Type
       use Data_Structures, only: Allocate_CMO, Deallocate_CMO
       Implicit Real*8(a-h,o-z)
@@ -413,12 +413,13 @@
         ipQ       = ip_of_Work(Q(1))
         ipCMO     = ip_of_Work(CMO(1))
         ip_CMO_inv= ip_of_Work(CMO(1))
+        istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
-     &                   LuAChoVec,LuIChoVec,iAChoVec)
+     &                   LuAChoVec,LuIChoVec,istore)
 
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2

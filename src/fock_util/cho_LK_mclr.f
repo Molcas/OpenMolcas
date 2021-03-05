@@ -1263,7 +1263,7 @@ C------------------------------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,kDen)-ipAbs))) ! = 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1276,7 +1276,7 @@ C------------------------------------------------------------
                                ipFbb = ipFk + MxBasSh + ibSh - 1
 
                                ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
+     &                                  abs(ipLab(ibSh,1)-ipAbs)))
 
                                iShp = nShell*(iaSh-1) + ibSh
 
@@ -1333,7 +1333,7 @@ C --------------------------------------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,kDen)-ipAbs))) ! = 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1346,7 +1346,7 @@ C --------------------------------------------------------------------
                                ipFbb = ipFk + MxBasSh + ibSh - 1
 
                                ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
+     &                                  abs(ipLab(ibSh,1)-ipAbs)))
 
                                iShp = nShell*(iaSh-1) + ibSh
 
