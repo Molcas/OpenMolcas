@@ -97,9 +97,14 @@ if (BOOST_ROOT)
   )
 endif(BOOST_ROOT)
 
-if (LINALG STREQUAL "MKL")
+if (LINALG_LIBRARIES)
   list(APPEND QCMaquisCMakeArgs
-    -DBLAS_LAPACK_SELECTOR=mkl_sequential
+    "-DBLAS_LAPACK_SELECTOR=manual"
+    "-DMAQUISLapack_LIBRARIES=${LINALG_LIBRARIES}"
+  )
+elseif (LINALG STREQUAL "MKL")
+  list(APPEND QCMaquisCMakeArgs
+    "-DBLAS_LAPACK_SELECTOR=mkl_sequential"
   )
 elseif (LINALG STREQUAL "OpenBLAS")
   list(APPEND QCMaquisCMakeArgs
@@ -229,10 +234,11 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     endif()
 
     if(MPI AND GA)
+      target_files(GA_LIBRARIES_FILES ${GA_LIBRARIES})
       set(EP_CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
         "-DBUILD_OPENMOLCAS_MPI:BOOL=ON"
         "-DGA_INCLUDE_DIR:STRING=${GA_INCLUDE_PATH}"
-        "-DGA_LIBRARIES:STRING=${GA_LIBRARIES}"
+        "-DGA_LIBRARIES:STRING=${GA_LIBRARIES_FILES}"
       )
     endif()
 
