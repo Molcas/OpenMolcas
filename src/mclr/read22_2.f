@@ -412,7 +412,7 @@
         ipMO1     = ip_of_Work(MO1(1))
         ipQ       = ip_of_Work(Q(1))
         ipCMO     = ip_of_Work(CMO(1))
-        ip_CMO_inv= ip_of_Work(CMO(1))
+        ip_CMO_inv= ip_of_Work(CMO_Inv(1))
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
