@@ -1616,8 +1616,6 @@ C --- subtraction is done in the 1st reduced set
 
                             Else
 *MGD may rearrange the loops
-                              If (iSymx/=iSymy) Call Abend()
-                              Call Abend()
 
                               Do i=1,nnP(JSYM)
                                  ioff=ipTxy(iSymx,iSymy,iTxy)+
