@@ -40,16 +40,18 @@ else()
   set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
 endif()
 
-if (LINALG STREQUAL "Internal")
-  set (LINALG_LIBRARIES $<TARGET_FILE:blas> $<TARGET_FILE:lapack>)
+if (LINALG_LIBRARIES)
+  target_files(LINALG_LIBRARIES_FILES ${LINALG_LIBRARIES})
+elseif (LINALG STREQUAL "Internal")
+  set (LINALG_LIBRARIES_FILES $<TARGET_FILE:blas> $<TARGET_FILE:lapack>)
 endif()
 
 # CMake does not support passing lists inside lists, so we need to
 # replace the semicolons in the lists and pass them as normal strings
 # and then replace the new separators with semicolons on the other side
 
-string(REPLACE ";" "<->" LINALG_LIBRARIES_NEVPT "${LINALG_LIBRARIES}")
-        list(APPEND NEVPT2CMakeArgs
+string(REPLACE ";" "<->" LINALG_LIBRARIES_NEVPT "${LINALG_LIBRARIES_FILES}")
+list(APPEND NEVPT2CMakeArgs
   "-DCMAKE_BUILD_TYPE=${NEVPT2_BUILD_TYPE}"
   "-DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/External"
   "-DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}"
@@ -79,14 +81,14 @@ if (MPI AND GA)
 target_files(GA_LIBRARIES_FILES ${GA_LIBRARIES})
 list(APPEND GA_LIBRARIES_FILES "${MPI_Fortran_LIBRARIES}")
 string(REPLACE ";" "<->" GA_LIBRARIES_NEVPT "${GA_LIBRARIES_FILES}")
-  list(APPEND NEVPT2CMakeArgs
-    "-DGA_LIBS=${GA_LIBRARIES_NEVPT}")
+list(APPEND NEVPT2CMakeArgs
+  "-DGA_LIBS=${GA_LIBRARIES_NEVPT}")
 endif()
 
 
 if (MAQUIS_DMRG_DIR)
 list(APPEND NEVPT2CMakeArgs
-        "-DMAQUIS_DMRG_DIR=${MAQUIS_DMRG_DIR}")
+  "-DMAQUIS_DMRG_DIR=${MAQUIS_DMRG_DIR}")
 endif()
 
 
