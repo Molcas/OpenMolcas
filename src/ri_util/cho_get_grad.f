@@ -120,7 +120,7 @@
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
-      Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), ipLxy(8), iSkip(8)
+      Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), iSkip(8)
       Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
