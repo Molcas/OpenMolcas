@@ -467,9 +467,6 @@ Implicit None
 Type (twxy_type) twxy
 Integer iSymy, iSymw
 
-Integer i, j, MulD2h
-MulD2h(i,j) = iEOR(i-1,j-1) + 1
-
 Call mma_deallocate(twxy%twxy_full)
 
 ! *** setup pointers to the symmetry blocks of (tw|xy)

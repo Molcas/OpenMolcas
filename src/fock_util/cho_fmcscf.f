@@ -44,7 +44,7 @@ C
       use Data_structures, only: CMO_Type, Laq_Type
       use Data_structures, only: Allocate_Laq, Deallocate_Laq
       use Data_structures, only: Map_to_Laq
-      use Data_structures, only: twxy_Type, Map_to_twxy
+      use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
