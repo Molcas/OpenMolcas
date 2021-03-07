@@ -58,6 +58,127 @@
 *> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 *> @param[in]  DoRead  flag for reading the reduced vectors
 ************************************************************************
+      Subroutine Cho_X_getVtraX(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
+     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
+     &                         iSkip,DoRead)
+      use Data_Structures, only: CMO_Type, Laq_Type
+      use Data_Structures, only: Map_to_Laq
+      Implicit Real*8 (a-h,o-z)
+
+      Type (CMO_Type) MOs(nDen)
+      Type (Laq_Type) Chot(nDen)
+
+      Dimension RedVec(lRedVec)
+      Integer   nDen,kDen
+      Integer   iSkip(*)
+      Logical   DoRead
+      Integer   ipChoT(8,8)
+      Character(LEN=13), Parameter:: SECNAM = 'Cho_X_GetVtra'
+
+#include "real.fh"
+#include "cholesky.fh"
+#include "choorb.fh"
+#include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+**************************************************
+      MulD2h(i,j) = iEOR(i-1,j-1) + 1
+**************************************************
+
+      MXUSD = 0
+      MUSED = 0
+
+      If (nDen.gt.8) Call Abend()
+C zeroing the target arrays
+C--------------------------
+      Do jDen=kDen,nDen
+         Call Map_to_Laq(ChoT(jDen),ipChoT(:,jDen))
+      End Do
+      Do iSymp=1,nSym
+         IF (iSkip(iSymp)==0) Cycle
+         iSymb = muld2h(ISYM,iSymp)
+         Do jDen=kDen,nDen
+            ChoT(jDen)%pA(iSymp)%A(:,:,:)=Zero
+*           If (iSwap.eq.0 .or. iSwap.eq.2) Then ! Lpb,J or LpJ,b
+*              Call FZero(Work(ipChoT(iSymp,jDen)),
+*    &                    SIZE(MOs(jDen)%pA(iSymp)%A,1)*
+*    &                    nBas(iSymb)*
+*    &                    NUMV)
+*           ElseIf (iSwap.eq.1 .or. iSwap.eq.3) Then !Laq,J or LaJ,q
+*              Call FZero(Work(ipChoT(iSymp,jDen)),
+*    &                    nBas(iSymp)*
+*    &                    SIZE(MOs(jDen)%pA(iSymp)%A,1)*
+*    &                    NUMV)
+*           EndIf
+         End Do
+      End Do
+
+*                                                                     *
+***********************************************************************
+***********************************************************************
+*                                                                     *
+      IF (DoRead) THEN
+*                                                                     *
+***********************************************************************
+***********************************************************************
+*                                                                     *
+       JVEC1 = IVEC1             ! Absolute starting index
+       IVEC2 = JVEC1 + NUMV - 1  ! Absolute ending index
+
+       Do While (jVec1.le.iVec2)
+
+        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED)
+
+        MXUSD = MAX(MXUSD,MUSED)
+
+        If (JNUM.le.0 .or. JNUM.gt.(IVEC2-JVEC1+1)) then
+           irc=77
+           RETURN
+        End If
+
+        JVREF = JVEC1 - IVEC1 + 1 ! Relative index
+
+        Call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,
+     &                IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
+
+        if (irc.ne.0) then
+           return
+        endif
+
+        JVEC1 = jVec1 + JNUM
+
+       End Do  ! end the while loop
+*                                                                     *
+***********************************************************************
+***********************************************************************
+*                                                                     *
+      ELSE ! only MO transformation
+*                                                                     *
+***********************************************************************
+***********************************************************************
+*                                                                     *
+       JNUM = NUMV
+       JVREF= 1
+       Call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
+     &               IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
+
+       if (irc.ne.0) then
+          return
+       endif
+*                                                                     *
+***********************************************************************
+***********************************************************************
+*                                                                     *
+      END IF
+*                                                                     *
+***********************************************************************
+***********************************************************************
+*                                                                     *
+      irc=0
+
+      RETURN
+      END
+
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ipChoT,
      &                         iSkip,DoRead)

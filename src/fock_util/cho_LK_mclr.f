@@ -1525,9 +1525,9 @@ C -------------------------------------------------------------
                  End Do
                Else
 * Lrs * MO
-                 CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+                 CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,ASh(1),
-     &                           ipLpq,iSkip,DoRead)
+     &                           Lpq,iSkip,DoRead)
                EndIf
 
                if (irc.ne.0) then
@@ -1754,9 +1754,9 @@ C --------------------------------------------------------------------
                    If (.not.Fake_CMO2) Then
                      CALL CWTIME(TCINT2,TWINT2)
 
-                     CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+                     CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(2),
-     &                           ipLpq,iSkip,DoRead)
+     &                           Lpq,iSkip,DoRead)
                      CALL CWTIME(TCINT3,TWINT3)
                      tint1(1) = tint1(1) + (TCINT3 - TCINT2)
                      tint1(2) = tint1(2) + (TWINT3 - TWINT2)
