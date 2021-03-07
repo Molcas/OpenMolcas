@@ -46,7 +46,7 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   ipScr
-      Integer   ipLpq(8,3)
+      Integer   ipLpq(8)
       Integer   iSkip(8),kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
@@ -1500,9 +1500,7 @@ C -------------------------------------------------------------
                Call Allocate_Laq(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
                Call Allocate_Laq(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
                Call Allocate_Laq(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-               Call Map_to_Laq(Lpq(1),ipLpq(:,1))
-               Call Map_to_Laq(Lpq(2),ipLpq(:,2))
-               Call Map_to_Laq(Lpq(3),ipLpq(:,3))
+               Call Map_to_Laq(Lpq(1),ipLpq)
 
                Do i=1,nSym
                   k = Muld2h(i,JSYM)
@@ -1582,17 +1580,16 @@ C --- Formation of the Q matrix Qpx = Lpy Lv~w Gxyvw
 C --------------------------------------------------------------------
 *~Lxy=Lv~w Gxyvw
 *MGD probably additional nSym loop
-                     ipLtxy = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
                      ipG    = ipG2
                      CALL DGEMV_('N',NAv*Naw,NAv*Naw,
      &                  ONE,Work(ipG),NAv*Naw,
      &                      Lpq(3)%pa(iSymv)%A(:,:,JVC),1,
-     &                  ZERO,Work(ipLtxy),1)
+     &                  ZERO,Lpq(2)%pA(iSymv)%A(:,:,JVC),1)
 *Qpx=Lpy ~Lxy
                      ipQpx=ipScr+nsAB
                      Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                          2.0d0,Lpq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                          Work(ipLtxy),Naw,
+     &                          Lpq(2)%pA(iSymv)%A(:,:,JVC),Naw,
      &                         ONE,Work(ipQpx),NBAS(iSymb))
                       CALL CWTIME(TCINT3,TWINT3)
                       tQmat(1) = tQmat(1) + (TCINT3 - TCINT4)
@@ -1617,7 +1614,6 @@ C
 C
 C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
                    If (iSymv.gt.iSymb) Go to 20
-                   ipLvw=ipLpq(iSymv,2)
                    Do isymx=1,iSymb
                      iSymy=MulD2h(JSYM,iSymx)
                      If (iSymy.gt.iSymx.or.
@@ -1626,15 +1622,14 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
                      Nay=nAsh(iSymy)
                      If(NAx*Nay.ne.0)Then
 
-                      ipLvtw=ipLpq(iSymx,2)
-                      If (.not.Fake_CMO2) ipLvtw=ipLpq(iSymx,3)
+                      i = 2
+                      If (.not.Fake_CMO2) i = 3
 
 * (tu|v~w) = Ltu*Lv~w
                         ipaMO=ipMOScr+iASQ(iSymb,iSymv,iSymx)
-                        Call DGEMM_('N','T',Nav*Naw,NAx*Nay,
-     &                              JNUM,ONE,
-     &                              Work(ipLvw), NAv*Naw,
-     &                              Work(ipLvtw),NAx*Nay,
+                        Call DGEMM_('N','T',Nav*Naw,NAx*Nay,JNUM,
+     &                              One, Lpq(2)%pA(iSymv)%A,NAv*Naw,
+     &                                   Lpq(i)%pA(iSymx)%A,NAx*Nay,
      &                              ONE,Work(ipaMO),NAv*Naw)
                      ENdIf
                    EndDo
@@ -1661,11 +1656,11 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                     NAw = nAsh(iSymb)
 
                     If(NAv*Naw.ne.0)Then
-                     ipLvtw = ipLpq(iSymv,3)
-                     If (Fake_CMO2) ipLvtw = ipLpq(iSymv,2)
+                     i=3
+                     If (Fake_CMO2) i = 2
 
                      CALL DGEMV_('T',Nav*Naw,JNUM,
-     &                          ONE,Work(ipLvtw),Nav*Naw,
+     &                          ONE,Lpq(i)%pA(iSymv)%A,Nav*Naw,
      &                          Work(ipDA2),1,ONE,VJ,1)
                     EndIf
                     ipDA2=ipDA+NAv*Naw
@@ -1705,19 +1700,16 @@ C --------------------------------------------------------------------
                       If(NAx*Nay.ne.0)Then
                        Call DGEMM_('N','N',Nav*Naw,JNUM,NAx*Nay,
      &                              One,Work(ipG),NAv*Naw,
-     &                              Work(ipLpq(iSymy,2)),NAx*Nay,
-*    &                              Lpq(2)%pA(iSymy)%A,NAx*Nay,
-     &                              ONE,Work(ipLpq(iSymv,3)),Nav*Naw)
+     &                              Lpq(2)%pA(iSymy)%A,NAx*Nay,
+     &                              ONE,Lpq(3)%pA(iSymv)%A,Nav*Naw)
                       EndIf
 
                     End Do
 
                     Do JVC=1,JNUM
-                      ipLxy = ipLpq(iSymv,3) + NAv*Naw*(JVC-1)
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                           One,Lpq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                           Work(ipLxy),Nav,
-*    &                           Lpq(3)%pA(iSymv)%A(:,:,JVC),Nav,
+     &                           Lpq(3)%pA(iSymv)%A(:,:,JVC),Nav,
      &                           ONE,Work(ipQpx),NBAS(iSymb))
                     End Do
 
@@ -1734,7 +1726,6 @@ C --------------------------------------------------------------------
                Call Deallocate_Laq(Lpq(2))
 
                Call Allocate_Laq(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-               Call Map_to_Laq(Lpq(2),ipLpq(:,2))
 C
 C
 C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
@@ -1799,12 +1790,11 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                   If(NAv*Naw.ne.0)Then
 
                    Do JVC=1,JNUM
-                     ipLwb = ipLpq(iSymv,2)+ NAv*NBAS(iSymb)*(JVC-1)
                      Do is=1,NBAS(iSymb)
                       ipFock=ipKA+nBas(iSymb)*(is-1)+ISTSQ(iSymb)
                       CALL DGEMV_('N',NBAS(iSymb),Nav,
-     &                     -FactXI,Work(ipLwb),NBAS(iSymb),
-     &                     Lpq(1)%pA(iSymv)%A(:,is,JVC),1,
+     &                  -FactXI,Lpq(2)%pA(iSymb)%A(:,:,JVC),NBAS(iSymb),
+     &                          Lpq(1)%pA(iSymv)%A(:,is,JVC),1,
      &                     ONE,Work(ipFock),1)
 
                     EndDo
