@@ -289,9 +289,9 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                            ipLab,iSkip,DoRead)
+     &                            Laq,iSkip,DoRead)
 
                   CALL CWTIME(TCR4,TWR4)
                   tread(1) = tread(1) + (TCR4 - TCR3)

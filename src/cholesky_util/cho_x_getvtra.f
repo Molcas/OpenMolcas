@@ -53,7 +53,7 @@
 *> @param[in]  IREDC   reduced set in core
 *> @param[in]  nDen    total number of densities to which MOs refer
 *> @param[in]  kDen    first density for which the MO transformation has to be performed
-*> @param[in]  ipMOs   matrix (8 &times; \p nDen) of pointers to the MOs coefficients
+*> @param[in]  MOs     the MOs coefficients stored in the data type CMO_Type, i.e. symmetry blocked.
 *> @param[in]  ipChoT  pointers to the half transformed vectors
 *> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 *> @param[in]  DoRead  flag for reading the reduced vectors
