@@ -288,9 +288,9 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,MO1,
-     &                            ipLab,iSkip,DoRead)
+     &                            Laq,iSkip,DoRead)
 
 
                CALL CWTIME(TCR4,TWR4)
@@ -369,9 +369,9 @@ C -------------------------------------------------------------
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,MO2,
-     &                           ipLab,iSkip,DoRead)
+     &                           Laq,iSkip,DoRead)
 
                if (irc.ne.0) then
                   rc = irc

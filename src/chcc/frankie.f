@@ -356,9 +356,9 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
-     &                           ipLpb,iSkip,DoRead)
+     &                           Laq,iSkip,DoRead)
 
                if (irc.ne.0) then
                   rc = irc

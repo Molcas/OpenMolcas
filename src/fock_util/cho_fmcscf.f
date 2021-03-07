@@ -351,9 +351,9 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                CALL CWTIME(TCR3,TWR3)
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                         ipLab,iSkip,DoRead)
+     &                         Laq,iSkip,DoRead)
 
 
                CALL CWTIME(TCR4,TWR4)
@@ -421,9 +421,9 @@ C --- Set pointers to the half-transformed Cholesky vectors
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
 
-                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                            ipLab,iSkip,DoRead)
+     &                            Laq,iSkip,DoRead)
 
 
                   CALL CWTIME(TCR6,TWR6)
@@ -495,9 +495,9 @@ C --- Set pointers to the half-transformed Cholesky vectors
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                            ipLab,iSkip,DoRead)
+     &                            Laq,iSkip,DoRead)
 
 
                if (irc.ne.0) then
