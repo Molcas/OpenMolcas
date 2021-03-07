@@ -29,6 +29,8 @@
       use ChoSwp, only: InfVec
       use Data_structures, only: CMO_Type, Allocate_CMO
       use Data_structures, only: Deallocate_CMO
+      use Data_structures, only: Laq_Type, Map_to_Laq
+      use Data_structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.fh"
@@ -41,20 +43,21 @@
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Character*50 CFmt
-      parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
+      Real*8, parameter:: xone=-One
       Character*6 mode
-      Logical DoRead,taskleft
-      parameter (DoRead = .false. )
-      Integer   Cho_LK_MaxVecPerBatch
-      External  Cho_LK_MaxVecPerBatch
+      Logical taskleft
+      Logical, Parameter :: DoRead = .false.
+      Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
      &                      Lrs(:), ChoT(:), Integral(:)
       Type (CMO_Type) CMOt
+      Type (Laq_Type) Lpq
 *                                                                      *
 ************************************************************************
 *                                                                      *

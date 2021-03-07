@@ -1523,9 +1523,9 @@ C --- subtraction is done in the 1st reduced set
                      kMOs = 1  !
                      nMOs = 1  ! Active MOs (1st set)
 
-                     CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+                     CALL CHO_X_getVtrax(irc,Lrs,LREAD,jVEC,JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
-     &                             Aorb(iMO1),ipLpq,iSkip,DoRead)
+     &                             Aorb(iMO1),Laq,iSkip,DoRead)
 
                      if (irc.ne.0) then
                         RETURN
