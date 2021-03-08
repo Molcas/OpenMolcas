@@ -180,6 +180,8 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type
+      use Data_Structures, only: Laq_Type, Map_to_Laq
+      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
@@ -187,6 +189,8 @@ C
       Character*6 BName
 
       Type (CMO_Type) Porb
+      Type (Laq_Type), Target:: ChoT
+
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical, Parameter ::   DoRead=.False.
       Logical   Do_int
@@ -216,14 +220,13 @@ C
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:)
-      Real*8, Allocatable, Target:: ChoT(:)
 
       Type V2
         Real*8, Pointer:: A(:,:)=>Null()
       End Type V2
       Type (V2):: Lpb(8)
 
-      Real*8, Pointer:: Lpq(:,:)=>Null()
+      Real*8, Allocatable :: Lpq(:,:)
       Real*8, Allocatable :: Lpq_J(:)
 
       Integer IsFreeUnit
@@ -247,10 +250,6 @@ C
 #endif
 
       IREDC = -1  ! unknown reduced set in core
-
-      iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-      kMOs = 1
-      nMOs = 1
 
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
@@ -389,10 +388,16 @@ C ------------------------------------------------------------------
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,LREAD,Label='Lrs')
-            Call mma_allocate(ChoT,mvec*nVec,Label='ChoT')
             Call mma_allocate(Lpq_J,nVec,Label='Lpq_j')
-            ChoT(:)=0.0D0
-            ipChoT = ip_of_Work(ChoT(1))
+
+            iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
+            Call Allocate_Laq(ChoT,nPorb,nBas,nVec,JSYM,nSym,iSwap)
+            Chot%Laq_Full(:)=0.0D0
+            ipChot=ip_of_Work(Chot%Laq_Full(1))
+
+*           Call mma_allocate(ChoT,mTVec*nVec,Label='ChoT')
+*           ChoT(:)=0.0D0
+*           ipChoT = ip_of_Work(ChoT(1))
 
 C --- BATCH over the vectors ----------------------------
 
@@ -436,16 +441,17 @@ C --- BATCH over the vectors ----------------------------
                   iE = iE + nPorb(iSymb)*nBas(iSymp)*JNUM
 
                   Lpb(iSymb)%A(1:nPorb(iSymb)*nBas(iSymp),1:JNUM)
-     &              => ChoT(iS:iE)
+     &              => ChoT%Laq_full(iS:iE)
                End Do
-
-               iS = iE + 1  !Lpq(:,;) starts at ChoT(iS:*)
 
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
 C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
+
+               kMOs = 1
+               nMOs = 1
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,
@@ -475,8 +481,7 @@ C --------------------------------------------------------------------
 
                      If (NApq==0) Cycle
 
-                     iE = iS - 1 + NApq*JNUM
-                     Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
+                     Call mma_allocate(Lpq,NApq,JNUM,Label='Lpq')
 
                      Do JVC=1,JNUM
 
@@ -557,7 +562,7 @@ C --------------------------------------------------------------------
                       iOffB(iSymb)=iOffB(iSymb)+JNUM
                      EndIf
 
-                     Lpq => Null()
+                     Call mma_deallocate(Lpq)
 
                      CALL CWTIME(TCR4,TWR4)
                      tread(1) = tread(1) + (TCR4 - TCR3)
@@ -578,8 +583,7 @@ C --------------------------------------------------------------------
 
                      If (NApq==0) Cycle
 
-                     iE = iS - 1 + NApq*JNUM
-                     Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
+                     Call mma_allocate(Lpq,NApq,JNUM,Label='Lpq')
 
                      If (iSymp.lt.iSymb)Then
                        Do JVC=1,JNUM
@@ -601,8 +605,6 @@ C --------------------------------------------------------------------
                      CALL CWTIME(TCR3,TWR3)
 
                      If (iSymp.lt.iSymb) Then
-                        iE = iS - 1 + NApq*JNUM
-                        Lpq(1:NApq,1:JNUM) => ChoT(iS:iE)
 
                         If (tv2disk.eq.'PQK') Then
                            Call ddafile(LunChVF(jSym),1,Lpq,
@@ -651,7 +653,7 @@ C --------------------------------------------------------------------
                      tread(1) = tread(1) + (TCR4 - TCR3)
                      tread(2) = tread(2) + (TWR4 - TWR3)
 
-                     Lpq => Null()
+                     Call mma_deallocate(Lpq)
 
                   End Do
 
@@ -667,7 +669,8 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call mma_deallocate(Lpq_J)
-            Call mma_deallocate(ChoT)
+*           Call mma_deallocate(ChoT)
+            Call Deallocate_Laq(ChoT)
             Call mma_deallocate(Lrs)
 
 999         CONTINUE
