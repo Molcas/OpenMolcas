@@ -55,7 +55,7 @@
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:), ChoT(:), Integral(:)
+     &                      Lrs(:), ChoT(:), Integral(:), Lii(:)
       Type (CMO_Type) CMOt
       Type (Laq_Type) Lpq
 *                                                                      *
@@ -244,7 +244,7 @@
         Do i=1,nsym
           k=MulD2h(i,jsym)
           nip=nip+nIshe(i)*nBas(k)
-          ntotie=ntotie+nIshe(i)
+          ntotie=ntotie+nIshe(i) ! For Lii^J
         End Do
         nip=nip+ntotie ! for Lii^J
 *
@@ -369,7 +369,6 @@ c         !set index arrays at iLoc
           LREAD = nRS*nVec
 *
           Call mma_allocate(Lrs,LREAD,Label='Lrs')
-          Call mma_allocate(ChoT,max(nIP,ntp)*nVec,Label='ChoT')
 *
           nBatch = (nVrs-1)/nVec + 1
 *
@@ -384,6 +383,9 @@ c         !set index arrays at iLoc
             endif
             JVEC = nVec*(jBatch-1) + iVrs
             IVEC2 = JVEC - 1 + JNUM
+
+            Call mma_allocate(ChoT,(nip-ntotie)*nVec,Label='ChoT')
+            Call mma_allocate(Lii,ntotie*nVec,Label='Lii')
 ************************************************************************
 *                                                                      *
 *                Let's start the real work                             *
@@ -467,8 +469,7 @@ c         !set index arrays at iLoc
 **          Lii^J = sum_q Liq^J Xiq
 *
             If (jSym.eq.1) Then
-*             The end of ChoT is allocated for Lii^J
-              ipLii=1+(nIP-ntotie)*nVec
+              ipLii=1
               ipMO=1
               Do isym=1,nsym
                 Do ii=1,nIshe(iSym)
@@ -479,9 +480,8 @@ c         !set index arrays at iLoc
                   Call dGeMV_('T',nBas(iSym),JNUM,
      &                       1.0d0,ChoT(ipLip),nBas(iSym)*nIshe(iSym),
      &                             CMO(ipMOi),1,
-     &                       0.0d0,ChoT(ipLiii),1)
+     &                       0.0d0,Lii(ipLiii),1)
                 End Do
-*                ipMO=ipMO+nIsh(iSym)*nBas(iSym)
                 ipLii=ipLii+JNUM*nIshe(iSym)
               End Do
             CALL CWTIME(TCR1,TWR1)
@@ -492,20 +492,22 @@ c         !set index arrays at iLoc
 **            Integral formation
 **            (i i | p q ) = sum_J Lii^J  Lpq^J
 *
-              ipLii=1+(nIP-ntotie)*nVec
               Call DGEMM_('N','N',nRS,ntotie,JNUM,
      &                    1.0d0,Lrs,nRS,
-     &                          ChoT(ipLii),JNUM,
+     &                          Lii,JNUM,
      &                    1.0d0,iirs,nRS)
             CALL CWTIME(TCR2,TWR2)
             tform2(1) = tform2(1) + (TCR2 - TCR1)
             tform2(2) = tform2(2) + (TWR2 - TWR1)
 
             EndIf
+            Call mma_deallocate(Lii)
+            Call mma_deallocate(ChoT)
 *
 ************************************************************************
 **          Read half-transformed active vectors
 *
+            Call mma_allocate(ChoT,ntp*nVec,Label='ChoT')
             lChoA=0
             Do i=1,nSym
                k = Muld2h(i,JSYM)
@@ -596,7 +598,8 @@ c         !set index arrays at iLoc
 *                                                                      *
 ************************************************************************
 
-          End Do ! J batch
+           Call mma_deallocate(ChoT)
+          End Do ! jbatch
 *
 **        Transform to full storage, use Lrs as temp storage
 *
@@ -618,7 +621,6 @@ c         !set index arrays at iLoc
           EndIf
 *
           Call mma_deallocate(Lrs)
-          Call mma_deallocate(ChoT)
  998      Continue
         End Do ! reduced set JRED
 *
