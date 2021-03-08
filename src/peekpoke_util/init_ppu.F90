@@ -36,18 +36,18 @@
 
 subroutine Init_ppu(Force)
 
+use Definitions, only: iwp
+
 implicit none
 #include "pp_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Dummy arguments.                                                     *
 !----------------------------------------------------------------------*
-logical Force
+logical(kind=iwp), intent(in) :: Force
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-logical FirstTime
-save FirstTime
-data FirstTime/.true./
+logical(kind=iwp) :: FirstTime = .true.
 
 !----------------------------------------------------------------------*
 ! Initialize the peek/poke utility                                     *

@@ -34,39 +34,43 @@
 !> by a text label.
 !>
 !> @param[in]  Label Name of field
-!> @param[out] Data  Data to get from runfile
+!> @param[out] Val   Data to get from runfile
 !***********************************************************************
 
-subroutine Peek_dScalar(Label,data)
+subroutine Peek_dScalar(Label,val)
+
+use Definitions, only: wp, iwp
 
 implicit none
 #include "pp_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-character*(*) Label
-real*8 data
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(out) :: val
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-logical Found
-integer indx
-integer i
+logical(kind=iwp) :: Found
+integer(kind=iwp) :: indx, i
 
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 Found = .false.
-!write(6,'(2a)') 'peek_dscalar: Label is ',Label
-!write(6,'(a,i8)') 'peek_dscalar: ds_no is ',ds_no
+!write(u6,'(2a)') 'peek_dscalar: Label is ',Label
+!write(u6,'(a,i8)') 'peek_dscalar: ds_no is ',ds_no
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
 indx = -1
 do i=1,ds_no
-  if (ds_label(i) == Label) indx = i
+  if (ds_label(i) == Label) then
+    indx = i
+    exit
+  end if
 end do
-!write(6,'(a,i8)') 'peek_dscalar: indx is ',indx
+!write(u6,'(a,i8)') 'peek_dscalar: indx is ',indx
 !----------------------------------------------------------------------*
 ! Get data from buffer.                                                *
 !----------------------------------------------------------------------*
@@ -78,16 +82,16 @@ if (indx == -1) then
   indx = ds_no
   call Qpg_dScalar(Label,Found)
   if (Found) then
-    call Get_dScalar(Label,data)
+    call Get_dScalar(Label,val)
   else
     call SysAbendMsg('Peek_dScalar','Field not found',Label)
   end if
   ds_label(indx) = Label
-  ds_value(indx) = data
+  ds_value(indx) = val
 else
-  data = ds_value(indx)
+  val = ds_value(indx)
 end if
-!write(6,'(a,e20.8)') 'peek_dscalar: Data is ',Data
+!write(u6,'(a,e20.8)') 'peek_dscalar: Val is ',Val
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*

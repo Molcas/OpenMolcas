@@ -34,29 +34,30 @@
 !> by a text label.
 !>
 !> @param[in] Label Name of field
-!> @param[in] Data  Data to put on runfile
+!> @param[in] Val   Data to put on runfile
 !***********************************************************************
 
-subroutine Poke_iScalar(Label,data)
+subroutine Poke_iScalar(Label,val)
+
+use Definitions, only: wp, iwp
 
 implicit none
 #include "pp_is_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-character*(*) Label
-integer data
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: val
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-integer indx
-integer i
+integer(kind=iwp) :: indx, i
 
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
-!write(6,'(2a)') 'poke_iscalar: Label is ',Label
-!write(6,'(a,i8)') 'poke_iscalar: Data is ',Data
+!write(u6,'(2a)') 'poke_iscalar: Label is ',Label
+!write(u6,'(a,i8)') 'poke_iscalar: Val is ',Val
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
@@ -64,7 +65,7 @@ indx = -1
 do i=1,is_no
   if (is_label(i) == Label) indx = i
 end do
-!write(6,'(a,i8)') 'poke_iscalar: indx is ',indx
+!write(u6,'(a,i8)') 'poke_iscalar: indx is ',indx
 !----------------------------------------------------------------------*
 ! Save data in buffer.                                                 *
 !----------------------------------------------------------------------*
@@ -76,8 +77,8 @@ if (indx == -1) then
   indx = is_no
 end if
 is_label(indx) = Label
-is_value(indx) = data
-!write(6,'(a,i8)') 'poke_iscalar: is_no is ',is_no
+is_value(indx) = val
+!write(u6,'(a,i8)') 'poke_iscalar: is_no is ',is_no
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
