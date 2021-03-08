@@ -36,61 +36,62 @@
 !> @param[in]  Label Name of field
 !> @param[out] Data  Data to get from runfile
 !***********************************************************************
-      Subroutine Peek_iScalar(Label,Data)
-      Implicit None
+
+subroutine Peek_iScalar(Label,data)
+
+implicit none
 #include "pp_is_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       Data
+character*(*) Label
+integer data
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Logical Found
-      Integer indx
-      Integer i
+logical Found
+integer indx
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
-      Found=.false.
-!     Write(6,'(2a)') 'peek_iscalar: Label is ',Label
-!     Write(6,'(a,i8)') 'peek_iscalar: is_no is ',is_no
+Found = .false.
+!write(6,'(2a)') 'peek_iscalar: Label is ',Label
+!write(6,'(a,i8)') 'peek_iscalar: is_no is ',is_no
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      indx=-1
-      Do i=1,is_no
-         If(is_label(i).eq.Label) indx=i
-      End Do
-!     Write(6,'(a,i8)') 'peek_iscalar: indx is ',indx
+indx = -1
+do i=1,is_no
+  if (is_label(i) == Label) indx = i
+end do
+!write(6,'(a,i8)') 'peek_iscalar: indx is ',indx
 !----------------------------------------------------------------------*
 ! Get data from buffer.                                                *
 !----------------------------------------------------------------------*
-      If(indx.eq.-1) Then
-         If(is_no.ge.nTabIS) Then
-            Call SysAbendMsg('Peek_iScalar',                            &
-     &         'Too many fields',                                       &
-     &         'Increase nTabIS and recompile')
-         End If
-         is_no=is_no+1
-         indx=is_no
-         Call Qpg_iScalar(Label,Found)
-         If(Found) Then
-            Call Get_iScalar(Label,Data)
-         Else
-            Call SysAbendMsg('Peek_iScalar',                            &
-     &         'Field not found',                                       &
-     &         Label)
-         End If
-         is_label(indx)=Label
-         is_value(indx)=Data
-      Else
-         Data=is_value(indx)
-      End If
-!     Write(6,'(a,i8)') 'peek_iscalar: Data is ',Data
+if (indx == -1) then
+  if (is_no >= nTabIS) then
+    call SysAbendMsg('Peek_iScalar','Too many fields','Increase nTabIS and recompile')
+  end if
+  is_no = is_no+1
+  indx = is_no
+  call Qpg_iScalar(Label,Found)
+  if (Found) then
+    call Get_iScalar(Label,data)
+  else
+    call SysAbendMsg('Peek_iScalar','Field not found',Label)
+  end if
+  is_label(indx) = Label
+  is_value(indx) = data
+else
+  data = is_value(indx)
+end if
+!write(6,'(a,i8)') 'peek_iscalar: Data is ',Data
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End
+
+return
+
+end subroutine Peek_iScalar

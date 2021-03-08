@@ -36,49 +36,51 @@
 !> @param[in] Label Name of field
 !> @param[in] Data  Data to put on runfile
 !***********************************************************************
-      Subroutine Poke_iScalar(Label,Data)
-      Implicit None
+
+subroutine Poke_iScalar(Label,data)
+
+implicit none
 #include "pp_is_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       Data
+character*(*) Label
+integer data
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Integer indx
-      Integer i
+integer indx
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
-!     Write(6,'(2a)') 'poke_iscalar: Label is ',Label
-!     Write(6,'(a,i8)') 'poke_iscalar: Data is ',Data
+!write(6,'(2a)') 'poke_iscalar: Label is ',Label
+!write(6,'(a,i8)') 'poke_iscalar: Data is ',Data
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      indx=-1
-      Do i=1,is_no
-         If(is_label(i).eq.Label) indx=i
-      End Do
-!     Write(6,'(a,i8)') 'poke_iscalar: indx is ',indx
+indx = -1
+do i=1,is_no
+  if (is_label(i) == Label) indx = i
+end do
+!write(6,'(a,i8)') 'poke_iscalar: indx is ',indx
 !----------------------------------------------------------------------*
 ! Save data in buffer.                                                 *
 !----------------------------------------------------------------------*
-      If(indx.eq.-1) Then
-         If(is_no.ge.nTabIS) Then
-            Call SysAbendMsg('Poke_iScalar',                            &
-     &         'Too many fields',                                       &
-     &         'Increase nTabIS and recompile')
-         End If
-         is_no=is_no+1
-         indx=is_no
-      End If
-      is_label(indx)=Label
-      is_value(indx)=Data
-!     Write(6,'(a,i8)') 'poke_iscalar: is_no is ',is_no
+if (indx == -1) then
+  if (is_no >= nTabIS) then
+    call SysAbendMsg('Poke_iScalar','Too many fields','Increase nTabIS and recompile')
+  end if
+  is_no = is_no+1
+  indx = is_no
+end if
+is_label(indx) = Label
+is_value(indx) = data
+!write(6,'(a,i8)') 'poke_iscalar: is_no is ',is_no
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Poke_iScalar

@@ -36,61 +36,61 @@
 !> @param[in]  Label Name of field
 !> @param[out] Data  Data to get from runfile
 !***********************************************************************
-      Subroutine Peek_dScalar(Label,Data)
-      Implicit None
+
+subroutine Peek_dScalar(Label,data)
+
+implicit none
 #include "pp_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Real*8        Data
+character*(*) Label
+real*8 data
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Logical Found
-      Integer indx
-      Integer i
+logical Found
+integer indx
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
-      Found=.false.
-!     Write(6,'(2a)') 'peek_dscalar: Label is ',Label
-!     Write(6,'(a,i8)') 'peek_dscalar: ds_no is ',ds_no
+Found = .false.
+!write(6,'(2a)') 'peek_dscalar: Label is ',Label
+!write(6,'(a,i8)') 'peek_dscalar: ds_no is ',ds_no
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      indx=-1
-      Do i=1,ds_no
-         If(ds_label(i).eq.Label) indx=i
-      End Do
-!     Write(6,'(a,i8)') 'peek_dscalar: indx is ',indx
+indx = -1
+do i=1,ds_no
+  if (ds_label(i) == Label) indx = i
+end do
+!write(6,'(a,i8)') 'peek_dscalar: indx is ',indx
 !----------------------------------------------------------------------*
 ! Get data from buffer.                                                *
 !----------------------------------------------------------------------*
-      If(indx.eq.-1) Then
-         If(ds_no.ge.nTabDS) Then
-            Call SysAbendMsg('Peek_dScalar',                            &
-     &         'Too many fields',                                       &
-     &         'Increase nTabDS and recompile')
-         End If
-         ds_no=ds_no+1
-         indx=ds_no
-         Call Qpg_dScalar(Label,Found)
-         If(Found) Then
-            Call Get_dScalar(Label,Data)
-         Else
-            Call SysAbendMsg('Peek_dScalar',                            &
-     &         'Field not found',                                       &
-     &         Label)
-         End If
-         ds_label(indx)=Label
-         ds_value(indx)=Data
-      Else
-         Data=ds_value(indx)
-      End If
-!     Write(6,'(a,e20.8)') 'peek_dscalar: Data is ',Data
+if (indx == -1) then
+  if (ds_no >= nTabDS) then
+    call SysAbendMsg('Peek_dScalar','Too many fields','Increase nTabDS and recompile')
+  end if
+  ds_no = ds_no+1
+  indx = ds_no
+  call Qpg_dScalar(Label,Found)
+  if (Found) then
+    call Get_dScalar(Label,data)
+  else
+    call SysAbendMsg('Peek_dScalar','Field not found',Label)
+  end if
+  ds_label(indx) = Label
+  ds_value(indx) = data
+else
+  data = ds_value(indx)
+end if
+!write(6,'(a,e20.8)') 'peek_dscalar: Data is ',Data
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Peek_dScalar

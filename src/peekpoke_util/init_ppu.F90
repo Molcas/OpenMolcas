@@ -33,28 +33,32 @@
 !>
 !> @param[in] Force Force initialization
 !***********************************************************************
-      Subroutine Init_ppu(Force)
-      Implicit None
+
+subroutine Init_ppu(Force)
+
+implicit none
 #include "pp_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Dummy arguments.                                                     *
 !----------------------------------------------------------------------*
-      Logical Force
+logical Force
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Logical FirstTime
-      Save    FirstTime
-      Data    FirstTime/.true./
+logical FirstTime
+save FirstTime
+data FirstTime/.true./
+
 !----------------------------------------------------------------------*
 ! Initialize the peek/poke utility                                     *
 !----------------------------------------------------------------------*
-      If(FirstTime.or.Force) Then
-         ds_no=0
-      End If
-      FirstTime=.false.
+if (FirstTime .or. Force) then
+  ds_no = 0
+end if
+FirstTime = .false.
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Init_ppu
