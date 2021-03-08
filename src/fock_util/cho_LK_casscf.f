@@ -49,14 +49,14 @@ C
 #endif
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Laq_Type, Map_to_Laq
+      use Data_Structures, only: CMO_Type, Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipDIAH(1)
-      Integer   ipLpq(8),ipDLT(2),ipFLT(2),ipKLT(2)
+      Integer   ipDLT(2),ipFLT(2),ipKLT(2)
       Integer   iSkip(8),kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
@@ -1396,12 +1396,11 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCINT1,TWINT1)
 
-C --- Set up the skipping flags and the pointers ipLpq
+C --- Set up the skipping flags
 C --- The memory used before for the full-dimension AO-vectors
 C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
 C -------------------------------------------------------------
-               Call Map_to_Laq(Laq,ipLpq)
 
                Do i=1,nSym
                   k = Muld2h(i,JSYM)
@@ -1411,7 +1410,7 @@ C -------------------------------------------------------------
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
      &                          Laq,iSkip,DoRead)
 

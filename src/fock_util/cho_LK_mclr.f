@@ -38,7 +38,7 @@ C
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Laq_Type, Map_to_Laq
+      use Data_Structures, only: Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -46,7 +46,6 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   ipScr
-      Integer   ipLpq(8)
       Integer   iSkip(8),kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
@@ -1486,7 +1485,7 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCINT1,TWINT1)
 
-C --- Set up the skipping flags and the pointers ipLpq
+C --- Set up the skipping flags
 C --- The memory used before for the full-dimension AO-vectors
 C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
@@ -1500,7 +1499,6 @@ C -------------------------------------------------------------
                Call Allocate_Laq(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
                Call Allocate_Laq(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
                Call Allocate_Laq(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-               Call Map_to_Laq(Lpq(1),ipLpq)
 
                Do i=1,nSym
                   k = Muld2h(i,JSYM)
@@ -1525,7 +1523,7 @@ C -------------------------------------------------------------
                  End Do
                Else
 * Lrs * MO
-                 CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+                 CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,ASh(1),
      &                           Lpq,iSkip,DoRead)
                EndIf
@@ -1754,7 +1752,7 @@ C --------------------------------------------------------------------
                    If (.not.Fake_CMO2) Then
                      CALL CWTIME(TCINT2,TWINT2)
 
-                     CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+                     CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(2),
      &                           Lpq,iSkip,DoRead)
                      CALL CWTIME(TCINT3,TWINT3)

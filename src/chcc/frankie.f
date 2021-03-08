@@ -171,7 +171,6 @@ C
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type, Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
-      use Data_Structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -180,7 +179,6 @@ C
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   DoRead
       Integer   nPorb(8)
-      Integer   ipLpb(8)
       integer   iskip(8)
 
       Character*50 CFmt
@@ -249,7 +247,6 @@ C -------------------------------------------------------------
             k = Muld2h(i,JSYM)
             iSkip(i) = Min(1,nBas(i)*nBas(k)) ! skip Lik vector
 
-            ipLpb(i) = -6666
          End Do
 C -------------------------------------------------------------
 
@@ -348,15 +345,13 @@ C --- BATCH over the vectors ----------------------------
                tread(1) = tread(1) + (TCR2 - TCR1)
                tread(2) = tread(2) + (TWR2 - TWR1)
 
-               Call Map_to_Laq(Laq,ipLpb)
-
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
 C --------------------------------------------------------------------
 
                CALL CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
      &                           Laq,iSkip,DoRead)
 

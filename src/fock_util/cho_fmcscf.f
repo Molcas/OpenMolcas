@@ -43,7 +43,6 @@ C
       use ChoSwp, only: InfVec
       use Data_structures, only: CMO_Type, Laq_Type
       use Data_structures, only: Allocate_Laq, Deallocate_Laq
-      use Data_structures, only: Map_to_Laq
       use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
@@ -52,7 +51,7 @@ C
       Type (Laq_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
-      Integer   rc,ipLab(8,3)
+      Integer   rc
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
@@ -149,10 +148,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
          iCase = 1 ! (wa|xy)
          Call Allocate_twxy(Scr,nAorb,nBas,JSYM,nSym,iCase)
 
-C --- Set up the skipping flags + some initializations --------
-         ipLab(:,:) = -6666  ! pointers to Lk,Jb
-         ipLab(:,:) = -6666  ! pointers to "cholesky MOs vectors"
-         ipLab(:,:) = -6666  ! pointers to Lvb,J
+C --- Set up the skipping flags --------
 C -------------------------------------------------------------
          Do i=1,nSym
             k = Muld2h(i,JSYM)
@@ -341,9 +337,6 @@ C===============================================================
 
 C ************ BEGIN EXCHANGE CONTRIBUTIONS  ****************
 
-C --- Set pointers to the half-transformed Cholesky vectors
-               Call Map_to_Laq(Laq(1),ipLab(:,1))
-
 C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                kMOs = 1  ! inactive MOs
@@ -351,7 +344,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                CALL CWTIME(TCR3,TWR3)
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                         Laq,iSkip,DoRead)
 
@@ -415,13 +408,10 @@ C --------------------------------------------------------------------
 
                   CALL CWTIME(TCR5,TWR5)
 
-C --- Set pointers to the half-transformed Cholesky vectors
-                  Call Map_to_Laq(Laq(2),ipLab(:,2))
-
                   kMOs = 2  ! Cholesky MOs
                   nMOs = 2
 
-                  CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            Laq,iSkip,DoRead)
 
@@ -489,13 +479,10 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCR7,TWR7)
 
-C --- Set pointers to the half-transformed Cholesky vectors
-               Call Map_to_Laq(Laq(3),ipLab(:,3))
-
                kMOs = 3  ! Active MOs
                nMOs = 3  ! Active MOs
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            Laq,iSkip,DoRead)
 

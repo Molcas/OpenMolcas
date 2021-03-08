@@ -29,14 +29,14 @@
       use ChoSwp, only: InfVec
       use Data_structures, only: CMO_Type, Allocate_CMO
       use Data_structures, only: Deallocate_CMO
-      use Data_structures, only: Laq_Type, Map_to_Laq
+      use Data_structures, only: Laq_Type
       use Data_structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.fh"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),ipLpq(8)
+      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Integer   LuAChoVec(8),LuChoInt(2)
       Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),iSkip(8),
      &          nAshb(8),nAshe(8)
@@ -55,30 +55,12 @@
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:), ChoT(:), Integral(:), Lij(:)
+     &                      Lrs(:), Integral(:), Lij(:)
       Type (CMO_Type) CMOt
       Type (Laq_Type) Lpq
 
       Real*8, Allocatable, Target :: Lii(:)
       Real*8, Pointer :: pLii(:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-      Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
-     &                         iSwap,IREDC,nDen,kDen,MOs,ipChoT,
-     &                         iSkip,DoRead)
-      use Data_Structures, only: CMO_Type
-      Integer   irc, lRedVec
-      Real*8    RedVec(lRedVec)
-      Integer   IVEC1,NUMV,ISYM,iSwap,IREDC
-      Integer   nDen,kDen
-      Type (CMO_Type) MOs(nDen)
-      Integer   ipChoT(8,nDen)
-      Integer   iSkip(*)
-      Logical   DoRead
-      End Subroutine Cho_X_getVtra
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -424,7 +406,7 @@ c         !set index arrays at iLoc
             kMOs = 1  !
             nMOs = 1  ! Active MOs (1st set)
 *
-            CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+            CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,[CMOt],
      &                        Lpq,iSkip,DoRead)
 
@@ -508,7 +490,6 @@ c         !set index arrays at iLoc
 *
             iSwap = 0 ! Lvb,J
             Call Allocate_Laq(Lpq,nAsh,nBas,nVec,JSYM,nSym,iSwap)
-            Call Map_to_Laq(Lpq,ipLpq)
 
             Call mma_allocate(Lij,ntue*nVec,Label='Lij')
 

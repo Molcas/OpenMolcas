@@ -33,7 +33,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Laq_Type, Map_to_Laq
+      use Data_Structures, only: CMO_Type, Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
@@ -42,7 +42,6 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   ipLpq(8,2)
       Integer   iSkip(8),kOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
@@ -1357,7 +1356,7 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCINT1,TWINT1)
 
-C --- Set up the skipping flags and the pointers ipLpq
+C --- Set up the skipping flags
 C --- The memory used before for the full-dimension AO-vectors
 C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
@@ -1365,8 +1364,6 @@ C -------------------------------------------------------------
                iSwap = 0  ! Lvb,J are returned
                Call Allocate_Laq(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
                Call Allocate_Laq(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-               Call Map_to_Laq(Laq(1),ipLpq(:,1))
-               Call Map_to_Laq(Laq(2),ipLpq(:,2))
                Do i=1,nSym
 
                   k = Muld2h(i,JSYM)
@@ -1378,7 +1375,7 @@ C -------------------------------------------------------------
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
      &                           Laq,iSkip,DoRead)
 

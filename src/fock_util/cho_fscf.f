@@ -30,11 +30,11 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, Laq_Type, Map_to_Laq
+      use Data_structures, only: CMO_Type, Laq_Type
       use Data_structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
 
-      Integer   rc,nDen,ipLab(8,2)
+      Integer   rc,nDen
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2)
@@ -267,9 +267,6 @@ C *************** EXCHANGE CONTRIBUTIONS  ***********************
                   Call Allocate_Laq(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,
      &                              iSwap)
 
-C --- Set pointers to the half-transformed Cholesky vectors
-                  Call Map_to_Laq(Laq(jDen),ipLab(:,jDen))
-
                   CALL CWTIME(TCR3,TWR3)
 
                   kMOs = jDen  ! 1--> alpha  2-->beta MOs
@@ -289,7 +286,7 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-                  CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
      &                            Laq,iSkip,DoRead)
 

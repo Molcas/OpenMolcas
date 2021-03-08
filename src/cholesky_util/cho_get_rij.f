@@ -46,7 +46,6 @@
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type, Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
-      use Data_Structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (CMO_Type) MO
@@ -55,7 +54,7 @@
       Logical timings
 
       Logical, Parameter:: DoRead=.FALSE.
-      Integer iOcc(8),iOcs(8),ipLib(8),iSkip(8)
+      Integer iOcc(8),iOcs(8),iSkip(8)
       Real*8  tread(2),tintg(2),tmotr(2)
       Character(LEN=11), Parameter:: SECNAM = 'CHO_get_Rij'
 
@@ -205,11 +204,9 @@ C --------------------------------------------------------------
          kMOs = 1
          nMOs = 1
 
-         Call Map_to_Laq(Laq,ipLib)
-
          CALL CWTIME(TCT1,TWT1)
 
-         CALL CHO_X_getVtraX(irc,Lab,LREAD,jVEC,JNUM,
+         CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,
      &                         Laq,iSkip,DoRead)
 

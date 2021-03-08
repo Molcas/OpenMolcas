@@ -23,14 +23,10 @@
 *> \p DoRead = ``.false.`` the reduced vectors must be supplied in
 *> array \p RedVec.
 *>
-*> Given a set of pointers (\p ipChoT) to target
-*> arrays, the routine performs a half-MO-transformation of \p NUMV Cholesky
+*> Given (\p ChoT),the target arrays of type Laq_Type,
+*> the routine performs a half-MO-transformation of \p NUMV Cholesky
 *> vectors of compound symmetry \p ISYM starting with
 *> vector \p IVEC1 and returns them in the target arrays.
-*> Each pointer should thereby point to a
-*> location where the corresponding Cholesky
-*> vector of a given unique symmetry pair
-*> of indices has to be stored
 *>
 *> - \p iSwap = ``0``: \f$ L(k,b,J) \f$ is returned
 *> - \p iSwap = ``1``: \f$ L(a,k,J) \f$ is returned
@@ -54,11 +50,11 @@
 *> @param[in]  nDen    total number of densities to which MOs refer
 *> @param[in]  kDen    first density for which the MO transformation has to be performed
 *> @param[in]  MOs     the MOs coefficients stored in the data type CMO_Type, i.e. symmetry blocked.
-*> @param[in]  ipChoT  pointers to the half transformed vectors
+*> @param[in]  ChoT    the half transformed vectors, symmetry blocked as type Laq_Type
 *> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 *> @param[in]  DoRead  flag for reading the reduced vectors
 ************************************************************************
-      Subroutine Cho_X_getVtraX(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
+      Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         iSkip,DoRead)
       use Data_Structures, only: CMO_Type, Laq_Type
@@ -99,132 +95,7 @@ C--------------------------
          iSymb = muld2h(ISYM,iSymp)
          Do jDen=kDen,nDen
             ChoT(jDen)%pA(iSymp)%A(:,:,:)=Zero
-*           If (iSwap.eq.0 .or. iSwap.eq.2) Then ! Lpb,J or LpJ,b
-*              Call FZero(Work(ipChoT(iSymp,jDen)),
-*    &                    SIZE(MOs(jDen)%pA(iSymp)%A,1)*
-*    &                    nBas(iSymb)*
-*    &                    NUMV)
-*           ElseIf (iSwap.eq.1 .or. iSwap.eq.3) Then !Laq,J or LaJ,q
-*              Call FZero(Work(ipChoT(iSymp,jDen)),
-*    &                    nBas(iSymp)*
-*    &                    SIZE(MOs(jDen)%pA(iSymp)%A,1)*
-*    &                    NUMV)
-*           EndIf
          End Do
-      End Do
-
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
-      IF (DoRead) THEN
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
-       JVEC1 = IVEC1             ! Absolute starting index
-       IVEC2 = JVEC1 + NUMV - 1  ! Absolute ending index
-
-       Do While (jVec1.le.iVec2)
-
-        Call CHO_VECRD(RedVec,lRedVec,JVEC1,IVEC2,ISYM,JNUM,IREDC,MUSED)
-
-        MXUSD = MAX(MXUSD,MUSED)
-
-        If (JNUM.le.0 .or. JNUM.gt.(IVEC2-JVEC1+1)) then
-           irc=77
-           RETURN
-        End If
-
-        JVREF = JVEC1 - IVEC1 + 1 ! Relative index
-
-        Call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,
-     &                IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
-
-        if (irc.ne.0) then
-           return
-        endif
-
-        JVEC1 = jVec1 + JNUM
-
-       End Do  ! end the while loop
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
-      ELSE ! only MO transformation
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
-       JNUM = NUMV
-       JVREF= 1
-       Call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
-     &               IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
-
-       if (irc.ne.0) then
-          return
-       endif
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
-      END IF
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
-      irc=0
-
-      RETURN
-      END
-
-      Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
-     &                         iSwap,IREDC,nDen,kDen,MOs,ipChoT,
-     &                         iSkip,DoRead)
-      use Data_Structures, only: CMO_Type
-      Implicit Real*8 (a-h,o-z)
-
-      Type (CMO_Type) MOs(nDen)
-
-      Dimension RedVec(lRedVec)
-      Integer   nDen,kDen
-      Integer   ipChoT(8,nDen)
-      Integer   iSkip(*)
-      Logical   DoRead
-      Character(LEN=13), Parameter:: SECNAM = 'Cho_X_GetVtra'
-
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-
-**************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-**************************************************
-
-      MXUSD = 0
-      MUSED = 0
-
-C zeroing the target arrays
-C--------------------------
-      Do iSymp=1,nSym
-         IF (iSkip(iSymp).ne.0) THEN
-            iSymb = muld2h(ISYM,iSymp)
-            Do jDen=kDen,nDen
-               If (iSwap.eq.0 .or. iSwap.eq.2) Then ! Lpb,J or LpJ,b
-                  Call FZero(Work(ipChoT(iSymp,jDen)),
-     &                       SIZE(MOs(jDen)%pA(iSymp)%A,1)*
-     &                       nBas(iSymb)*
-     &                       NUMV)
-               ElseIf (iSwap.eq.1 .or. iSwap.eq.3) Then !Laq,J or LaJ,q
-                  Call FZero(Work(ipChoT(iSymp,jDen)),
-     &                       nBas(iSymp)*
-     &                       SIZE(MOs(jDen)%pA(iSymp)%A,1)*
-     &                       NUMV)
-               EndIf
-            End Do
-         ENDIF
       End Do
 
 *                                                                     *

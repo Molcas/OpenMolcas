@@ -106,7 +106,7 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Laq_type, Map_to_Laq
+      use Data_Structures, only: CMO_Type, Laq_type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
@@ -120,7 +120,7 @@
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
-      Integer   kOff(8,5), LuRVec(8,3), ipLpq(8), iSkip(8)
+      Integer   kOff(8,5), LuRVec(8,3), iSkip(8)
       Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
@@ -1491,7 +1491,7 @@ C --- subtraction is done in the 1st reduced set
 
                   CALL CWTIME(TCC1,TWC1)
 *
-** Set up the skipping flags and the pointers ipLpq
+** Set up the skipping flags
 ** The memory used before for the full-dimension AO-vectors
 **     is now re-used to store half and full transformed
 **     vectors in the active space
@@ -1499,7 +1499,6 @@ C --- subtraction is done in the 1st reduced set
                   iSwap = 0  ! Lvb,J are returned
                   Call Allocate_Laq(Laq,nAorb,nBas,nVec,JSYM,nSym,
      &                              iSwap)
-                  Call Map_to_Laq(Laq,ipLpq)
 
                   iMO2=1
                   Do iMO1=1,nAdens
@@ -1523,7 +1522,7 @@ C --- subtraction is done in the 1st reduced set
                      kMOs = 1  !
                      nMOs = 1  ! Active MOs (1st set)
 
-                     CALL CHO_X_getVtrax(irc,Lrs,LREAD,jVEC,JNUM,
+                     CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
      &                             Aorb(iMO1),Laq,iSkip,DoRead)
 

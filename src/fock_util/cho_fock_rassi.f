@@ -38,7 +38,7 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Laq_Type, Map_to_Laq
+      use Data_Structures, only: Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
@@ -49,7 +49,6 @@ C
       Type (twxy_type) Scr
 
       Integer   rc
-      Integer   ipLab(8,2)
       Integer   iSkip(8)
       Integer   ISTLT(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
@@ -269,11 +268,6 @@ C===============================================================
 
 C *************** EXCHANGE CONTRIBUTIONS  ***********************
 
-C --- Set pointers to the half-transformed Cholesky vectors
-               Do jDen=1,nDen
-                  Call Map_to_Laq(Laq(jDen),ipLab(:,jDen))
-               End Do
-
                CALL CWTIME(TCR3,TWR3)
 
                kMOs = 1
@@ -292,7 +286,7 @@ C -------------------------------------------------------------
 
 C *********************** HALF-TRANSFORMATION  ****************
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,MO1,
      &                            Laq,iSkip,DoRead)
 
@@ -354,24 +348,19 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCR7,TWR7)
 
-C --- Set pointers to the half-transformed Cholesky vectors
-               Call Map_to_Laq(Laq(1),ipLab(:,1))
-               Call Map_to_Laq(Laq(2),ipLab(:,2))
-
 C --- Set up the skipping flags
 C -------------------------------------------------------------
                Do i=1,nSym
 
                   k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,
-     &                 NBAS(i)*nAsh(k))
+                  iSkip(k) = Min(1,NBAS(i)*nAsh(k))
 
                End Do
 
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,MO2,
      &                           Laq,iSkip,DoRead)
 

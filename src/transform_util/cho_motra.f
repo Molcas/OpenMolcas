@@ -426,7 +426,7 @@ C --------------------------------------------------------------------
                kMOs = 1
                nMOs = 1
 
-               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,
      &                           ChoT,iSkip,DoRead)
 
