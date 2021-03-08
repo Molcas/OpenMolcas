@@ -39,10 +39,10 @@
 
 subroutine Poke_iScalar(Label,val)
 
+use peekpoke, only: is_label, is_value, is_no
 use Definitions, only: wp, iwp
 
 implicit none
-#include "pp_is_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
@@ -70,7 +70,7 @@ end do
 ! Save data in buffer.                                                 *
 !----------------------------------------------------------------------*
 if (indx == -1) then
-  if (is_no >= nTabIS) then
+  if (is_no >= size(is_value)) then
     call SysAbendMsg('Poke_iScalar','Too many fields','Increase nTabIS and recompile')
   end if
   is_no = is_no+1

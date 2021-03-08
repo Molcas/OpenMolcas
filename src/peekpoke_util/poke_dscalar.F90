@@ -39,10 +39,10 @@
 
 subroutine Poke_dScalar(Label,val)
 
+use peekpoke, only: ds_label, ds_value, ds_no
 use Definitions, only: wp, iwp
 
 implicit none
-#include "pp_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
@@ -73,7 +73,7 @@ end do
 ! Save data in buffer.                                                 *
 !----------------------------------------------------------------------*
 if (indx == -1) then
-  if (ds_no >= nTabDS) then
+  if (ds_no >= size(ds_value)) then
     call SysAbendMsg('Poke_dScalar','Too many fields','Increase nTabDS and recompile')
   end if
   ds_no = ds_no+1

@@ -10,21 +10,23 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! Header file for the peek/poke_iScalar utilities.                     *
+! Module file for the peek/poke utilities.                             *
 !                                                                      *
 !***********************************************************************
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Integer     nTabIS
-      Parameter ( nTabIS = 32 )
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Character*24 is_label(nTabIS)
-      Integer      is_value(nTabIS)
-      Integer      is_no
-      Common /pp_buf_is/ is_label,is_value,is_no
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
+
+module peekpoke
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer, parameter :: nTabDS = 32, nTabIS = 32
+character(len=24) :: ds_label(nTabDS), is_label(nTabIS)
+real(kind=wp) :: ds_value(nTabIS)
+integer(kind=iwp) :: is_value(nTabDS)
+integer(kind=iwp) :: ds_no, is_no
+
+public :: ds_label, ds_value, ds_no, is_label, is_value, is_no
+
+end module peekpoke

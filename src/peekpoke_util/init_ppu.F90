@@ -36,10 +36,10 @@
 
 subroutine Init_ppu(Force)
 
+use peekpoke, only: ds_no, is_no
 use Definitions, only: iwp
 
 implicit none
-#include "pp_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Dummy arguments.                                                     *
 !----------------------------------------------------------------------*
@@ -54,6 +54,7 @@ logical(kind=iwp) :: FirstTime = .true.
 !----------------------------------------------------------------------*
 if (FirstTime .or. Force) then
   ds_no = 0
+  is_no = 0
 end if
 FirstTime = .false.
 !----------------------------------------------------------------------*
