@@ -55,12 +55,12 @@
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:), ChoT(:), Integral(:)
+     &                      Lrs(:), ChoT(:), Integral(:), Lij(:)
       Type (CMO_Type) CMOt
       Type (Laq_Type) Lpq
 
-      Real*8, Allocatable, Target :: Lii(:), Lij(:)
-      Real*8, Pointer :: pLii(:,:), pLij(:,:)
+      Real*8, Allocatable, Target :: Lii(:)
+      Real*8, Pointer :: pLii(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -506,7 +506,7 @@ c         !set index arrays at iLoc
 ************************************************************************
 **          Read half-transformed active vectors
 *
-            iSwap = 1 ! Lvb,J
+            iSwap = 0 ! Lvb,J
             Call Allocate_Laq(Lpq,nAsh,nBas,nVec,JSYM,nSym,iSwap)
             Call Map_to_Laq(Lpq,ipLpq)
 
@@ -529,23 +529,18 @@ c         !set index arrays at iLoc
                 k = Muld2h(i,JSYM)
 
                 Do it=0,nAshe(k)-1
-                  itt = nAshb(k)+it+1
-
-*                 ipLtp=ipLpq(k)+ nAshb(k)+it + nAsh(k)*nBas(i)*(j-1)
-                  ipLtp=ipLpq(i)+ nAshb(k)+it + nAsh(k)*nBas(i)*(j-1)
+                  itt = nAshb(k)+it + 1
 
                   Do iu=0,nAshb(k)+it
+                     iuu = iu + 1
 
                     itu=it*(2*nAshb(k)+it+1)/2+iu
 
-*                   ipLuq=ipLpq(k)+iu+nAsh(k)*nBas(i)*(j-1)
-                    ipLuq=ipLpq(i)+iu+nAsh(k)*nBas(i)*(j-1)
-
                     ipInt=iptpuq+ioff+itu*nBas(i)**2
+
                     Call DGER(nBas(i),nBas(i),
-     &                        1.0d0,Work(ipLtp),nAsh(k),
-*    &                 1.0d0,Lpq%pA(k)%A(itt,:,j),nAsh(k),
-     &                              Work(ipLuq),nAsh(k),
+     &                 1.0d0,Lpq%pA(i)%A(itt,1,j),nAsh(k),
+     &                       Lpq%pA(i)%A(iuu,1,j),nAsh(k),
      &                              tupq(ipInt),nBas(i))
 
                   End Do
@@ -570,11 +565,11 @@ c         !set index arrays at iLoc
              Do i=1,nsym
                iS = iE + 1
                Do j=1,JNUM
-                 ipLtp=ipLpq(i)+(j-1)*(nBas(i)*nAsh(i))
+
                  ipMO=1+ioff+nBas(i)*(nIsh(i)+nAshb(i))
                  Do k=0,nAshe(i)-1
                    Call dGeMV_('N',nAshb(i)+k+1,nBas(i),
-     &                         1.0d0,Work(ipLtp),nAsh(i),
+     &                  1.0d0,Lpq%pA(i)%A(:,:,j),nAsh(i),
      &                               CMO(ipMO+k*nBas(i)),1,
      &                         0.0d0,Lij(ipLtu),1)
                    ipLtu=ipLtu+(nAshb(i)+k+1)
@@ -776,14 +771,10 @@ c         !set index arrays at iLoc
             call DDAFILE(LuChoInt(2),1,tupq(ip3),nBas(iSym)**2,iAdrtu)
 
             Do i=isym+1,nsym
-*               j=MulD2h(i,jsym)
                 iAdrtu=iAdrtu+nBas(i)**2
             End Do
             ip3=ip3+nBas(iSym)**2
 *
-*            Do i=1,nsym
-*              iAdrtu=iAdrtu+nBas(i)**2
-*            enddo
           End Do
 
         End Do
