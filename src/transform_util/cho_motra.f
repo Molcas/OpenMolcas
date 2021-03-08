@@ -197,7 +197,6 @@ C
       Integer   nPorb(8)
       Integer   iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
-      Integer, External:: ip_of_Work
 
       Character*7  Fnam
       Character*50 CFmt

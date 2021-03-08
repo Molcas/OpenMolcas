@@ -114,7 +114,7 @@
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) AOrb(*)
-      Type (Laq_Type) Laq, Lxy
+      Type (Laq_Type) Laq(1), Lxy
 
       Logical   DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
@@ -156,6 +156,29 @@
       Integer, External:: Cho_F2SP
 
       Real*8, Allocatable:: Lrs(:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+
+        Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
+     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
+     &                         iSkip,DoRead)
+        use Data_Structures, only: CMO_Type, Laq_Type
+        Integer irc, lRedVec
+        Real*8 RedVec(lRedVec)
+        Integer IVEC1,NUMV,ISYM,iSwap,IREDC
+        Integer   nDen,kDen
+
+        Type (CMO_Type) MOs(nDen)
+        Type (Laq_Type) Chot(nDen)
+
+        Integer   iSkip(*)
+        Logical   DoRead
+        End Subroutine Cho_X_getVtra
+
+      End Interface
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1497,7 +1520,7 @@ C --- subtraction is done in the 1st reduced set
 **     vectors in the active space
 *
                   iSwap = 0  ! Lvb,J are returned
-                  Call Allocate_Laq(Laq,nAorb,nBas,nVec,JSYM,nSym,
+                  Call Allocate_Laq(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
      &                              iSwap)
 
                   iMO2=1
@@ -1524,7 +1547,7 @@ C --- subtraction is done in the 1st reduced set
 
                      CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
-     &                             [Aorb(iMO1)],Laq,iSkip,DoRead)
+     &                             Aorb(iMO1),Laq(1),iSkip,DoRead)
 
                      if (irc.ne.0) then
                         RETURN
@@ -1548,7 +1571,7 @@ C --- subtraction is done in the 1st reduced set
                            Do JVC=1,JNUM
                              !  triangular blocks
                              CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
-     &                                 One,Laq%pA(iSymb)%A(:,:,JVC),NAv,
+     &                              One,Laq(1)%pA(iSymb)%A(:,:,JVC),NAv,
      &                                      Aorb(iMO2)%pA(iSymb)%A,NAv,
      &                                 Zero,Lxy%pA2(iSymb)%A(:,JVC),NAv)
 
@@ -1570,7 +1593,7 @@ C --- subtraction is done in the 1st reduced set
 
                              ! square or rectangular blocks
                              CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
-     &                                 One,Laq%pA(iSymv)%A(:,:,JVC),NAv,
+     &                              One,Laq(1)%pA(iSymv)%A(:,:,JVC),NAv,
      &                                      Aorb(iMO2)%pA(iSymb)%A,NAw,
      &                                 Zero,Lxy%pA2(iSymv)%A(:,JVC),NAv)
 
@@ -1654,7 +1677,7 @@ C --- subtraction is done in the 1st reduced set
                   tcasg(1) = tcasg(1) + (TCC2 - TCC1)
                   tcasg(2) = tcasg(2) + (TWC2 - TWC1)
 
-                  Call Deallocate_Laq(Laq)
+                  Call Deallocate_Laq(Laq(1))
 
 
                EndIf  ! DoCAS

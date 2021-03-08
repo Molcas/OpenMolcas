@@ -55,12 +55,12 @@
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:), Integral(:), Lij(:)
+     &                      Lrs(:,:), Integral(:)
       Type (CMO_Type) CMOt
       Type (Laq_Type) Lpq
 
-      Real*8, Allocatable, Target :: Lii(:)
-      Real*8, Pointer :: pLii(:,:)
+      Real*8, Allocatable, Target :: Lii(:), Lij(:)
+      Real*8, Pointer :: pLii(:,:), pLij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -353,7 +353,7 @@ c         !set index arrays at iLoc
           EndIf
           LREAD = nRS*nVec
 *
-          Call mma_allocate(Lrs,LREAD,Label='Lrs')
+          Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
 *
           nBatch = (nVrs-1)/nVec + 1
 *
@@ -471,15 +471,18 @@ c         !set index arrays at iLoc
 **            Integral formation
 **            (i i | p q ) = sum_J Lii^J  Lpq^J
 *
+              pLii(1:JNUM,1:ntotie) => Lii(1:JNUM*ntotie)
               Call DGEMM_('N','N',nRS,ntotie,JNUM,
      &                    1.0d0,Lrs,nRS,
-     &                          Lii,JNUM,
+     &                          pLii,JNUM,
      &                    1.0d0,iirs,nRS)
-            CALL CWTIME(TCR2,TWR2)
-            tform2(1) = tform2(1) + (TCR2 - TCR1)
-            tform2(2) = tform2(2) + (TWR2 - TWR1)
+              pLii => Null()
 
-            EndIf  ! jSym
+              CALL CWTIME(TCR2,TWR2)
+              tform2(1) = tform2(1) + (TCR2 - TCR1)
+              tform2(2) = tform2(2) + (TWR2 - TWR1)
+
+            End If  ! jSym
 
             Call mma_deallocate(Lii)
             Call Deallocate_Laq(Lpq)
@@ -550,7 +553,7 @@ c         !set index arrays at iLoc
                  ipMO=1+ioff+nBas(i)*(nIsh(i)+nAshb(i))
                  Do k=0,nAshe(i)-1
                    Call dGeMV_('N',nAshb(i)+k+1,nBas(i),
-     &                  1.0d0,Lpq%pA(i)%A(:,:,j),nAsh(i),
+     &                  1.0d0,Lpq%pA(i)%A(1,1,j),nAsh(i),
      &                               CMO(ipMO+k*nBas(i)),1,
      &                         0.0d0,Lij(ipLtu),1)
                    ipLtu=ipLtu+(nAshb(i)+k+1)
@@ -566,12 +569,19 @@ c         !set index arrays at iLoc
 *
              ipInt=1
              ipLtu=1
+             iE = 0
              Do i=1,nsym
                na2 = nAshe(i)*nAshb(i) + nAshe(i)*(nAshe(i)+1)/2
                If (na2==0) Cycle
+               iS = iE + 1
+               iE = iE + na2 * JNUM
+
+               pLij(1:na2,1:JNUM) => Lij(iS:iE)
+
                Call DGEMM_('N','T',nRS,na2,JNUM,
      &                     1.0d0,Lrs,nRS,
-     &                           Lij(ipLtu),na2,
+*    &                           Lij(ipLtu),na2,
+     &                           pLij,na2,
      &                     1.0d0,turs(ipInt),nRS)
                ipLtu=ipLtu+na2*JNUM
                ipInt=ipInt+nRS*na2

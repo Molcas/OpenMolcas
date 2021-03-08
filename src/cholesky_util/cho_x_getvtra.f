@@ -58,7 +58,6 @@
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         iSkip,DoRead)
       use Data_Structures, only: CMO_Type, Laq_Type
-      use Data_Structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MOs(nDen)
@@ -75,10 +74,6 @@
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-
-**************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-**************************************************
 
       MXUSD = 0
       MUSED = 0
