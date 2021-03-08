@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE CHO_VTRA(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,
-     &                   iSwap,nDen,kDen,MOs,ipChoT,iSkip)
+     &                   iSwap,nDen,kDen,MOs,ChoT,iSkip)
 
 *********************************************************
 *   Author: F. Aquilante
@@ -20,14 +20,10 @@
 *             starting from JVEC1 and stored in reduced
 *             sets. The routine performs an MOs half transformation
 *             of these elements in a set of target
-*             arrays identified by the pointers ipChoT.
+*             arrays, ChoT, identified the data type Laq_Type.
 *             In the target arrays, the vectors are
 *             stored in full dimension and as a
 *             subset of a a given NUMV number of vectors.
-*             Each pointer should thereby point to a
-*             location where the corresponding Cholesky
-*             vector of a given unique symmetry pair
-*             of indices has to be stored
 *
 *   Input:
 *       jVref =  index of the first vector to be transformed
@@ -58,14 +54,16 @@
 *********************************************************
       use ChoArr, only: nDimRS, iRS2F
       use ChoSwp, only: InfVec, IndRed
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: CMO_Type, Laq_Type
+      use Data_Structures, only: Map_to_Laq
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) MOs(nDen)
-
+      Integer irc, nDen,kDen,lScr
       Real*8  Scr(lscr)
-      Integer nDen,kDen
-      Integer ipChoT(8,nDen), iSkip(*)
+      Type (CMO_Type) MOs(nDen)
+      Type (Laq_Type) ChoT(nDen)
+
+      Integer iSkip(*)
 
       Integer, External:: cho_isao
 
@@ -79,6 +77,7 @@
 #include "stdalloc.fh"
 
       Integer, Allocatable:: nPorb(:,:)
+      Integer, Allocatable:: ipChoT(:,:)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -89,6 +88,11 @@
         Do iSym = 1, nSym
           nPorb(iSym,iDen)=SIZE(MOs(iDen)%pA(iSym)%A,1)
         End Do
+      End Do
+!     Temporry code while cleaning up.
+      Call mma_allocate(ipChoT,8,nDen,Label='ipChoT')
+      Do iDen = 1, nDen
+         Call Map_to_Laq(ChoT(iDen),ipChoT(:,iDen))
       End Do
 
 **********************************************************
@@ -160,19 +164,21 @@ C     ----------------------------------------
                         ichot = nPorb(iSyma,jDen)*nBas(iSyma)*(LVEC-1)
      &                        + ipChoT(iSyma,jDen)
 
-                        kchot = ichot + nPorb(iSyma,jDen)*(ias-1)
+*                       kchot = ichot + nPorb(iSyma,jDen)*(ias-1)
 
                         ! C(1,b)
                         CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                              MOs(JDen)%pA(iSyma)%A(:,ibs),1,
-     &                              Work(kchot),1)
+*    &                              Work(kchot),1)
+     &                             ChoT(jDen)%pA(iSyma)%A(:,ias,LVEC),1)
 
-                        kchot = ichot + nPorb(iSyma,jDen)*(ibs-1)
+*                       kchot = ichot + nPorb(iSyma,jDen)*(ibs-1)
 
                         ! C(1,a)
                         CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                              MOs(JDen)%pA(iSyma)%A(:,ias),1,
-     &                              Work(kchot),1)
+*    &                              Work(kchot),1)
+     &                             ChoT(jDen)%pA(iSyma)%A(:,ibs,LVEC),1)
 
                      END DO  ! loop over densities
 
@@ -204,13 +210,14 @@ C     L(p,b,J) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                      DO jDen=kDen,nDen
 
-                        kchot = nPorb(iSyma,jDen)*nBas(iSymb)*(LVEC-1)
-     &                        + nPorb(iSyma,jDen)*(ibs-1)
-     &                        + ipChoT(iSyma,jDen)
+*                       kchot = nPorb(iSyma,jDen)*nBas(iSymb)*(LVEC-1)
+*    &                        + nPorb(iSyma,jDen)*(ibs-1)
+*    &                        + ipChoT(iSyma,jDen)
 
                         CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                              MOs(jDen)%pA(iSyma)%A(:,ias),1,
-     &                              Work(kchot),1)
+*    &                              Work(kchot),1)
+     &                             ChoT(jDen)%pA(iSyma)%A(:,ibs,LVEC),1)
 
                      END DO
 
@@ -222,13 +229,14 @@ C     L(p,a,J) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                      DO jDen=kDen,nDen
 
-                        kchot = nPorb(iSymb,jDen)*nBas(isyma)*(LVEC-1)
-     &                        + nPorb(iSymb,jDen)*(ias-1)
-     &                        + ipChoT(iSymb,jDen)
+*                       kchot = nPorb(iSymb,jDen)*nBas(isyma)*(LVEC-1)
+*    &                        + nPorb(iSymb,jDen)*(ias-1)
+*    &                        + ipChoT(iSymb,jDen)
 
                         CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                              MOs(jDen)%pA(iSymb)%A(:,ibs),1,
-     &                              Work(kchot),1)
+*    &                              Work(kchot),1)
+     &                             ChoT(jDen)%pA(iSymb)%A(:,ias,LVEC),1)
 
                      END DO
 
@@ -613,6 +621,7 @@ C     -----------------------------------
 
       ENDIF  ! iSwap check
 
+      Call mma_deallocate(ipChoT)
       Call mma_deallocate(nPorb)
       irc=0
 

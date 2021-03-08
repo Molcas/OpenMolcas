@@ -68,7 +68,6 @@
       Integer   nDen,kDen
       Integer   iSkip(*)
       Logical   DoRead
-      Integer   ipChoT(8,8)
       Character(LEN=13), Parameter:: SECNAM = 'Cho_X_GetVtra'
 
 #include "real.fh"
@@ -84,20 +83,11 @@
       MXUSD = 0
       MUSED = 0
 
-      If (nDen.gt.8) Call Abend()
 C zeroing the target arrays
 C--------------------------
       Do jDen=kDen,nDen
-         Call Map_to_Laq(ChoT(jDen),ipChoT(:,jDen))
+         ChoT(jDen)%Laq_Full(:)=Zero
       End Do
-      Do iSymp=1,nSym
-         IF (iSkip(iSymp)==0) Cycle
-         iSymb = muld2h(ISYM,iSymp)
-         Do jDen=kDen,nDen
-            ChoT(jDen)%pA(iSymp)%A(:,:,:)=Zero
-         End Do
-      End Do
-
 *                                                                     *
 ***********************************************************************
 ***********************************************************************
@@ -124,7 +114,7 @@ C--------------------------
         JVREF = JVEC1 - IVEC1 + 1 ! Relative index
 
         Call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,
-     &                IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
+     &                IREDC,iSwap,nDen,kDen,MOs,ChoT,iSkip)
 
         if (irc.ne.0) then
            return
@@ -145,7 +135,7 @@ C--------------------------
        JNUM = NUMV
        JVREF= 1
        Call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
-     &               IREDC,iSwap,nDen,kDen,MOs,ipChoT,iSkip)
+     &               IREDC,iSwap,nDen,kDen,MOs,ChoT,iSkip)
 
        if (irc.ne.0) then
           return

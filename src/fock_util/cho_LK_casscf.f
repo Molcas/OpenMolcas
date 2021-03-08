@@ -1412,7 +1412,7 @@ C -------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
-     &                          Laq,iSkip,DoRead)
+     &                          [Laq],iSkip,DoRead)
 
                if (irc.ne.0) then
                   RETURN
