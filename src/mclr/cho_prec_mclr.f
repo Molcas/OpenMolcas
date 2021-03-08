@@ -391,6 +391,7 @@ c         !set index arrays at iLoc
             Call Allocate_Laq(Lpq,nIshe,nBas,nVec,JSYM,nSym,iSwap)
             Call mma_allocate(Lii,ntotie*nVec,Label='Lii')
 ************************************************************************
+************************************************************************
 *                                                                      *
 *                Let's start the real work                             *
 *                                                                      *
@@ -502,6 +503,7 @@ c         !set index arrays at iLoc
             Call Deallocate_Laq(Lpq)
 *
 ************************************************************************
+************************************************************************
 **          Read half-transformed active vectors
 *
 *           Call mma_allocate(ChoT,(ntp-ntue)*nVec,Label='ChoT')
@@ -516,8 +518,8 @@ c         !set index arrays at iLoc
               k = Muld2h(i,JSYM)
               lvec=nAsh(k)*nBas(i)*JNUM
               iAdr2=(JVEC-1)*nAsh(k)*nBas(i)+ioff
-*             call DDAFILE(LuAChoVec(Jsym),2,Lpq%pA(k),lvec,iAdr2)
-              call DDAFILE(LuAChoVec(Jsym),2,Work(ipLpq(k)),lvec,iAdr2)
+              call DDAFILE(LuAChoVec(Jsym),2,Lpq%pA(k)%A,lvec,iAdr2)
+*             call DDAFILE(LuAChoVec(Jsym),2,Work(ipLpq(k)),lvec,iAdr2)
             End Do
 *
 ************************************************************************
@@ -594,9 +596,9 @@ c         !set index arrays at iLoc
 *                Cholesky loop is over!                                *
 *                                                                      *
 ************************************************************************
+************************************************************************
 
            Call mma_deallocate(Lij)
-*          Call mma_deallocate(ChoT)
            Call Deallocate_Laq(Lpq)
           End Do ! jbatch
 *
