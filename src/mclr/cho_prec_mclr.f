@@ -55,12 +55,12 @@
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:), ChoT(:), Integral(:), Lij(:)
+     &                      Lrs(:), ChoT(:), Integral(:)
       Type (CMO_Type) CMOt
       Type (Laq_Type) Lpq
 
-      Real*8, Allocatable, Target :: Lii(:)
-      Real*8, Pointer :: pLii(:,:)
+      Real*8, Allocatable, Target :: Lii(:), Lij(:)
+      Real*8, Pointer :: pLii(:,:), pLij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -393,7 +393,7 @@ c         !set index arrays at iLoc
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*                Let's start the real work                             *
+*                Let''s start the real work                            *
 *                                                                      *
 ************************************************************************
 *
@@ -497,7 +497,7 @@ c         !set index arrays at iLoc
             tform2(1) = tform2(1) + (TCR2 - TCR1)
             tform2(2) = tform2(2) + (TWR2 - TWR1)
 
-            EndIf
+            EndIf  ! jSym
 
             Call mma_deallocate(Lii)
             Call Deallocate_Laq(Lpq)
@@ -506,41 +506,51 @@ c         !set index arrays at iLoc
 ************************************************************************
 **          Read half-transformed active vectors
 *
-*           Call mma_allocate(ChoT,(ntp-ntue)*nVec,Label='ChoT')
             iSwap = 1 ! Lvb,J
             Call Allocate_Laq(Lpq,nAsh,nBas,nVec,JSYM,nSym,iSwap)
             Call Map_to_Laq(Lpq,ipLpq)
 
             Call mma_allocate(Lij,ntue*nVec,Label='Lij')
 
-            ioff=0
             Do i=1,nSym
               k = Muld2h(i,JSYM)
               lvec=nAsh(k)*nBas(i)*JNUM
-              iAdr2=(JVEC-1)*nAsh(k)*nBas(i)+ioff
-              call DDAFILE(LuAChoVec(Jsym),2,Lpq%pA(k)%A,lvec,iAdr2)
-*             call DDAFILE(LuAChoVec(Jsym),2,Work(ipLpq(k)),lvec,iAdr2)
+              iAdr2=(JVEC-1)*nAsh(k)*nBas(i)
+              call DDAFILE(LuAChoVec(Jsym),2,Lpq%pA(i)%A,lvec,iAdr2)
             End Do
 *
 ************************************************************************
 **          Form (tp|uq) integrals
 *
             Do j=1,JNUM
+
               ioff=0
               Do i=1,nsym
                 k = Muld2h(i,JSYM)
+
                 Do it=0,nAshe(k)-1
-                  ipLtp=ipLpq(k)+nAshb(k)+it+nAsh(k)*nBas(i)*(j-1)
+                  itt = nAshb(k)+it+1
+
+*                 ipLtp=ipLpq(k)+ nAshb(k)+it + nAsh(k)*nBas(i)*(j-1)
+                  ipLtp=ipLpq(i)+ nAshb(k)+it + nAsh(k)*nBas(i)*(j-1)
+
                   Do iu=0,nAshb(k)+it
+
                     itu=it*(2*nAshb(k)+it+1)/2+iu
-                    ipLuq=ipLpq(k)+iu+nAsh(k)*nBas(i)*(j-1)
+
+*                   ipLuq=ipLpq(k)+iu+nAsh(k)*nBas(i)*(j-1)
+                    ipLuq=ipLpq(i)+iu+nAsh(k)*nBas(i)*(j-1)
+
                     ipInt=iptpuq+ioff+itu*nBas(i)**2
                     Call DGER(nBas(i),nBas(i),
      &                        1.0d0,Work(ipLtp),nAsh(k),
+*    &                 1.0d0,Lpq%pA(k)%A(itt,:,j),nAsh(k),
      &                              Work(ipLuq),nAsh(k),
      &                              tupq(ipInt),nBas(i))
+
                   End Do
                 End Do
+
                 ioff=ioff+nAshe(k)*(2*nAshb(k)+nAshe(k)+1)/2*
      &               nBas(i)**2
               End Do
@@ -554,8 +564,11 @@ c         !set index arrays at iLoc
 *
            If (jsym.eq.1) Then
              ipLtu=1
+
              ioff=0
+             iE = 0
              Do i=1,nsym
+               iS = iE + 1
                Do j=1,JNUM
                  ipLtp=ipLpq(i)+(j-1)*(nBas(i)*nAsh(i))
                  ipMO=1+ioff+nBas(i)*(nIsh(i)+nAshb(i))
@@ -569,6 +582,7 @@ c         !set index arrays at iLoc
                End Do
                ioff=ioff+nBas(i)**2
              End Do
+
             CALL CWTIME(TCR2,TWR2)
 *
 ************************************************************************
@@ -577,15 +591,14 @@ c         !set index arrays at iLoc
              ipInt=1
              ipLtu=1
              Do i=1,nsym
-               na2=nAshe(i)*nAshb(i)+nAshe(i)*(nAshe(i)+1)/2
-               If (na2.gt.0) Then
-                 Call DGEMM_('N','T',nRS,na2,JNUM,
-     &                       1.0d0,Lrs,nRS,
-     &                             Lij(ipLtu),na2,
-     &                       1.0d0,turs(ipInt),nRS)
-                 ipLtu=ipLtu+na2*JNUM
-                 ipInt=ipInt+nRS*na2
-               End If
+               na2 = nAshe(i)*nAshb(i) + nAshe(i)*(nAshe(i)+1)/2
+               If (na2==0) Cycle
+               Call DGEMM_('N','T',nRS,na2,JNUM,
+     &                     1.0d0,Lrs,nRS,
+     &                           Lij(ipLtu),na2,
+     &                     1.0d0,turs(ipInt),nRS)
+               ipLtu=ipLtu+na2*JNUM
+               ipInt=ipInt+nRS*na2
              End Do
             CALL CWTIME(TCR1,TWR1)
             tforma2(1) = tforma2(1) + (TCR1 - TCR2)
