@@ -55,7 +55,7 @@
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      Lrs(:), ChoT(:), Integral(:), Lii(:)
+     &                      Lrs(:), ChoT(:), Integral(:), Lii(:), Lij(:)
       Type (CMO_Type) CMOt
       Type (Laq_Type) Lpq
 *                                                                      *
@@ -384,7 +384,11 @@ c         !set index arrays at iLoc
             JVEC = nVec*(jBatch-1) + iVrs
             IVEC2 = JVEC - 1 + JNUM
 
-            Call mma_allocate(ChoT,(nip-ntotie)*nVec,Label='ChoT')
+*           Call mma_allocate(ChoT,(nip-ntotie)*nVec,Label='ChoT')
+*           ipChoT= ip_of_Work(ChoT(1))
+            iSwap = 1 ! Lqi,J are returned
+            Call Allocate_Laq(Lpq,nIshe,nBas,nVec,JSYM,nSym,iSwap)
+            ipChoT= ip_of_Work(Lpq%Laq_Full(1))
             Call mma_allocate(Lii,ntotie*nVec,Label='Lii')
 ************************************************************************
 *                                                                      *
@@ -418,22 +422,18 @@ c         !set index arrays at iLoc
                iSkip(k) = Min(1,
      &              nBas(k)*nIshe(i))
 
-               ipLpq(k) = 1 + lChoI       ! Lvb,J
+               ipLpq(k) = ipChot + lChoI       ! Lvb,J
 
                lChoI= lChoI + nIshe(i)*nBas(k)*JNUM
 
             End Do
 
-            iSwap = 1 ! Lqi,J are returned
             kMOs = 1  !
             nMOs = 1  ! Active MOs (1st set)
 *
-            inc2= ip_of_Work(ChoT(1))
-            ipLpq(:) = ipLpq(:) - 1 + inc2
             CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,[CMOt],
      &                        ipLpq,iSkip,DoRead)
-            ipLpq(:) = ipLpq(:) + 1 - inc2
 
             if (irc.ne.0) then
                RETURN
@@ -454,8 +454,8 @@ c         !set index arrays at iLoc
                  ipLip=ipLpq(ksym)+nBas(kSym)*(ii-1)
 *
                  Call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,
-     &                        1.0d0,ChoT(ipLip),nBas(kSym)*nIshe(iSym),
-     &                              ChoT(ipLip),nBas(kSym)*nIshe(iSym),
+     &                        1.0d0,Work(ipLip),nBas(kSym)*nIshe(iSym),
+     &                              Work(ipLip),nBas(kSym)*nIshe(iSym),
      &                        1.0d0,iiab(ip1:)  ,nBas(kSym))
                  ip1=ip1+nBas(kSym)**2
               End Do
@@ -478,7 +478,7 @@ c         !set index arrays at iLoc
                   ipMOi=ipMO+(nIshb(isym)+ii-1)*nBas(iSym)
                   ipLiii=ipLii+(ii-1)*JNUM
                   Call dGeMV_('T',nBas(iSym),JNUM,
-     &                       1.0d0,ChoT(ipLip),nBas(iSym)*nIshe(iSym),
+     &                       1.0d0,Work(ipLip),nBas(iSym)*nIshe(iSym),
      &                             CMO(ipMOi),1,
      &                       0.0d0,Lii(ipLiii),1)
                 End Do
@@ -501,13 +501,16 @@ c         !set index arrays at iLoc
             tform2(2) = tform2(2) + (TWR2 - TWR1)
 
             EndIf
+
             Call mma_deallocate(Lii)
-            Call mma_deallocate(ChoT)
+*           Call mma_deallocate(ChoT)
+            Call Deallocate_Laq(Lpq)
 *
 ************************************************************************
 **          Read half-transformed active vectors
 *
-            Call mma_allocate(ChoT,ntp*nVec,Label='ChoT')
+            Call mma_allocate(ChoT,(ntp-ntue)*nVec,Label='ChoT')
+            Call mma_allocate(Lij,ntue*nVec,Label='Lij')
             lChoA=0
             Do i=1,nSym
                k = Muld2h(i,JSYM)
@@ -554,7 +557,7 @@ c         !set index arrays at iLoc
 **          Second MO transformation
 *
            If (jsym.eq.1) Then
-             ipLtu=1+(ntp-ntue)*nVec
+             ipLtu=1
              ioff=0
              Do i=1,nsym
                Do j=1,JNUM
@@ -564,7 +567,7 @@ c         !set index arrays at iLoc
                    Call dGeMV_('N',nAshb(i)+k+1,nBas(i),
      &                         1.0d0,ChoT(ipLtp),nAsh(i),
      &                               CMO(ipMO+k*nBas(i)),1,
-     &                         0.0d0,ChoT(ipLtu),1)
+     &                         0.0d0,Lij(ipLtu),1)
                    ipLtu=ipLtu+(nAshb(i)+k+1)
                  EndDo
                End Do
@@ -576,13 +579,13 @@ c         !set index arrays at iLoc
 **           Formation of the (tu|rs) integral
 *
              ipInt=1
-             ipLtu=1+(ntp-ntue)*nVec
+             ipLtu=1
              Do i=1,nsym
                na2=nAshe(i)*nAshb(i)+nAshe(i)*(nAshe(i)+1)/2
                If (na2.gt.0) Then
                  Call DGEMM_('N','T',nRS,na2,JNUM,
      &                       1.0d0,Lrs,nRS,
-     &                             ChoT(ipLtu),na2,
+     &                             Lij(ipLtu),na2,
      &                       1.0d0,turs(ipInt),nRS)
                  ipLtu=ipLtu+na2*JNUM
                  ipInt=ipInt+nRS*na2
@@ -598,6 +601,7 @@ c         !set index arrays at iLoc
 *                                                                      *
 ************************************************************************
 
+           Call mma_deallocate(Lij)
            Call mma_deallocate(ChoT)
           End Do ! jbatch
 *
