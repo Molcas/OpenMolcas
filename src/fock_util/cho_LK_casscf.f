@@ -64,7 +64,7 @@ C
       Integer   ipDab(2),ipFab(2),ipDD(2)
 
       Type (CMO_Type)   Ash(2)
-      Type (Laq_Type) Laq, Lxy
+      Type (Laq_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
 
       Integer   nFIorb(8),nAorb(8),nChM(8)
@@ -102,6 +102,23 @@ C
 ************************************************************************
 *                                                                      *
       Interface
+
+        Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
+     &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
+     &                         iSkip,DoRead)
+        use Data_Structures, only: CMO_Type, Laq_Type
+        Integer irc, lRedVec
+        Real*8 RedVec(lRedVec)
+        Integer IVEC1,NUMV,ISYM,iSwap,IREDC
+        Integer   nDen,kDen
+
+        Type (CMO_Type) MOs(nDen)
+        Type (Laq_Type) Chot(nDen)
+
+        Integer   iSkip(*)
+        Logical   DoRead
+        End Subroutine Cho_X_getVtra
+
         subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
           Character(LEN=1) TRANS
           Integer M, N
@@ -109,6 +126,7 @@ C
           Integer LDA, INCX, INCY
           Real*8  A(lda,*), X(*), Y(*)
         End subroutine dgemv_
+
       End Interface
 *                                                                      *
 ************************************************************************
@@ -1389,7 +1407,7 @@ C --- subtraction is done in the 1st reduced set
                iSwap = 5
                Call Allocate_Laq(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
                iSwap = 0  ! Lvb,J are returned
-               Call Allocate_Laq(Laq,nAorb,nBas,nVec,JSYM,nSym,iSwap)
+               Call Allocate_Laq(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
 C --------------------------------------------------------------------
@@ -1412,7 +1430,7 @@ C -------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
-     &                          [Laq],iSkip,DoRead)
+     &                          Laq(1),iSkip,DoRead)
 
                if (irc.ne.0) then
                   RETURN
@@ -1434,7 +1452,7 @@ C --------------------------------------------------------------------
 
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
-     &                            One,Laq%pA(iSymb)%A(:,:,JVC),NAv,
+     &                            One,Laq(1)%pA(iSymb)%A(:,:,JVC),NAv,
      &                                Ash(1)%pA(iSymb)%A,NAv,
      &                           Zero,Lxy%pA2(iSymb)%A(:,JVC),NAv)
 
@@ -1461,7 +1479,7 @@ C --------------------------------------------------------------------
 
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
-     &                            One,Laq%pA(iSymv)%A(:,:,JVC),NAv,
+     &                            One,Laq(1)%pA(iSymv)%A(:,:,JVC),NAv,
      &                                Ash(1)%pA(iSymb)%A,NAw,
      &                           Zero,Lxy%pA2(iSymv)%A(:,JVC),NAv)
 
@@ -1478,7 +1496,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
                DoTraInt = JRED.eq.myJRED2.and.iBatch.eq.nBatch
 
-               CALL CHO_eval_waxy(irc,Scr,Laq,Lxy,ipInt,nAorb,
+               CALL CHO_eval_waxy(irc,Scr,Laq(1),Lxy,ipInt,nAorb,
      &                            JSYM,JNUM,DoTraInt)
 
                CALL CWTIME(TCINT2,TWINT2)
@@ -1490,7 +1508,7 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
                endif
 
                Call Deallocate_Laq(Lxy)
-               Call Deallocate_Laq(Laq)
+               Call Deallocate_Laq(Laq(1))
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
