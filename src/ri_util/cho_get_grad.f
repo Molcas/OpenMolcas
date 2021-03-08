@@ -1524,7 +1524,7 @@ C --- subtraction is done in the 1st reduced set
 
                      CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
-     &                             Aorb(iMO1),Laq,iSkip,DoRead)
+     &                             [Aorb(iMO1)],Laq,iSkip,DoRead)
 
                      if (irc.ne.0) then
                         RETURN
