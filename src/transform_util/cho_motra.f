@@ -180,7 +180,7 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Laq_Type, Map_to_Laq
+      use Data_Structures, only: Laq_Type
       use Data_Structures, only: Allocate_Laq, Deallocate_Laq
       Implicit Real*8 (a-h,o-z)
 
@@ -195,7 +195,7 @@ C
       Logical, Parameter ::   DoRead=.False.
       Logical   Do_int
       Integer   nPorb(8)
-      Integer   ipLpb(8),iSkip(8)
+      Integer   iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
       Integer, External:: ip_of_Work
 
@@ -220,11 +220,6 @@ C
 #include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:)
-
-      Type V2
-        Real*8, Pointer:: A(:,:)=>Null()
-      End Type V2
-      Type (V2):: Lpb(8)
 
       Real*8, Allocatable :: Lpq(:,:)
       Real*8, Allocatable :: Lpq_J(:)
@@ -296,7 +291,6 @@ c
 C --- Set up the skipping flags + some initializations --------
 C -------------------------------------------------------------
          Do i=1,nSym
-            ipLpb(i) = -6666
             k=Muld2h(i,JSYM)
             iSkip(i) = Min(1,nPorb(i)*nPorb(k)) ! skip Lik vector
             If (i.lt.k) Then
@@ -393,11 +387,6 @@ C ------------------------------------------------------------------
             iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
             Call Allocate_Laq(ChoT,nPorb,nBas,nVec,JSYM,nSym,iSwap)
             Chot%Laq_Full(:)=0.0D0
-            ipChot=ip_of_Work(Chot%Laq_Full(1))
-
-*           Call mma_allocate(ChoT,mTVec*nVec,Label='ChoT')
-*           ChoT(:)=0.0D0
-*           ipChoT = ip_of_Work(ChoT(1))
 
 C --- BATCH over the vectors ----------------------------
 
@@ -428,22 +417,6 @@ C --- BATCH over the vectors ----------------------------
                tread(1) = tread(1) + (TCR2 - TCR1)
                tread(2) = tread(2) + (TWR2 - TWR1)
 
-               lChoT=0
-               iE = 0
-               Do iSymb=1,nSym
-
-                  iSymp = MulD2h(jSym,iSymb)
-
-                  ipLpb(iSymb) = ipChoT + lChoT
-                  lChoT = lChoT + nPorb(iSymb)*nBas(iSymp)*JNUM
-
-                  iS = iE + 1
-                  iE = iE + nPorb(iSymb)*nBas(iSymp)*JNUM
-
-                  Lpb(iSymb)%A(1:nPorb(iSymb)*nBas(iSymp),1:JNUM)
-     &              => ChoT%Laq_full(iS:iE)
-               End Do
-
 C --------------------------------------------------------------------
 C --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
 C --------------------------------------------------------------------
@@ -453,9 +426,9 @@ C --------------------------------------------------------------------
                kMOs = 1
                nMOs = 1
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
+               CALL CHO_X_getVtraX(irc,Lrs,LREAD,jVEC,JNUM,
      &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                           ipLpb,iSkip,DoRead)
+     &                           ChoT,iSkip,DoRead)
 
                if (irc.ne.0) then
                   rc = irc
@@ -486,7 +459,7 @@ C --------------------------------------------------------------------
                      Do JVC=1,JNUM
 
                       CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
-     &                           One,Lpb(iSymb)%A(:,JVC),NAp,
+     &                           One,ChoT%pA(iSymb)%A(:,:,JVC),NAp,
      &                               Porb%pA(iSymb)%A,NAp,
      &                          Zero,Lpq(:,jVC),NAp)
 
@@ -589,7 +562,7 @@ C --------------------------------------------------------------------
                        Do JVC=1,JNUM
 
                         CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                             One,Lpb(iSymp)%A(:,JVC),NAp,
+     &                             One,ChoT%pA(iSymp)%A(:,:,JVC),NAp,
      &                                 Porb%pA(iSymb)%A,NAq,
      &                            Zero,Lpq(:,JVC),NAp)
 
@@ -661,15 +634,11 @@ C --------------------------------------------------------------------
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
-               Do iSym = 1, nSym
-                  Lpb(iSym)%A => Null()
-               End Do
 
             END DO  ! end batch loop
 
 C --- free memory
             Call mma_deallocate(Lpq_J)
-*           Call mma_deallocate(ChoT)
             Call Deallocate_Laq(ChoT)
             Call mma_deallocate(Lrs)
 
