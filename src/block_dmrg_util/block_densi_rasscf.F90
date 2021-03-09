@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2014, Naoki Nakatani                                   *
 !***********************************************************************
-      Subroutine BLOCK_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine BLOCK_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
 ! Load 2RDM from Block DMRG and compute D, DS, PS, and PA
 ! Written by N. Nakatani, Oct. 2014
 !
@@ -24,68 +24,69 @@
 ! PA  : anti-symmetrized 2-El density matrix
 !
 ! PT  : working space for 2-El density matrix (NAC**4)
-!
+
+implicit real*8(A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
-!
-      Dimension D(NACPAR),DS(NACPAR),PS(NACPR2),PA(NACPR2)
-      Dimension PT(NAC,NAC,NAC,NAC)
-!
-      Call DCOPY_(NACPAR,0.0D0,0,D, 1)
-      Call DCOPY_(NACPAR,0.0D0,0,DS,1)
-      Call DCOPY_(NACPR2,0.0D0,0,PS,1)
-      Call DCOPY_(NACPR2,0.0D0,0,PA,1)
-!
-      If(NACTEL.GT.1) Then
-        Call block_load2pdm(NAC,PT,jRoot,jRoot)
-! No spin density is obtained from Spin-adapted DMRG (Block's default)
-! TODO: 1-El density matrix should be computed with spin-orbital index
-!       to store spin density with Block code...
-        IJ_pack=1
-        Do J=1,NAC
-          Do I=1,J
-            D1sum=0.0D0
-            Do K=1,NAC
-              D1sum=D1sum+PT(K,K,I,J)
-            End Do
-            D(IJ_pack)=D1sum/(NACTEL-1)
-!           DS(IJ_pack)=0.0D0
-            IJ_pack=IJ_pack+1
-          End Do
-        End Do
+dimension D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2)
+dimension PT(NAC,NAC,NAC,NAC)
 
-        IJKL_pack=0
-        Do I=1,NAC
-          Do J=1,I
-            Do K=1,I
-              LLIM=K
-              If(K.EQ.I)LLIM=J
-              DO L=1,LLIM
-                IJKL_pack=IJKL_pack+1
-                If(K.EQ.L) Then
-                  PS(IJKL_pack)=0.5D0*PT(L,K,J,I)
-!                 PA(IJKL_pack)=0.0D0
-                Else
-                  PS(IJKL_pack)=0.5D0*(PT(L,K,J,I)+PT(K,L,J,I))
-                  PA(IJKL_pack)=0.5D0*(PT(L,K,J,I)-PT(K,L,J,I))
-                End If
-              End Do
-            End Do
-          End Do
-        End Do
-      Else
-! special case for NACTEL = 1
-        Call block_load1pdm(NAC,PT,jRoot,jRoot)
-        IJ_pack=1
-        Do J=1,NAC
-          Do I=1,J
-            D(IJ_pack)=PT(I,J,1,1)
-            IJ_pack=IJ_pack+1
-          End Do
-        End Do
-      End If
+call DCOPY_(NACPAR,0.0d0,0,D,1)
+call DCOPY_(NACPAR,0.0d0,0,DS,1)
+call DCOPY_(NACPR2,0.0d0,0,PS,1)
+call DCOPY_(NACPR2,0.0d0,0,PA,1)
 
-      RETURN
-      END
+if (NACTEL > 1) then
+  call block_load2pdm(NAC,PT,jRoot,jRoot)
+  ! No spin density is obtained from Spin-adapted DMRG (Block's default)
+  ! TODO: 1-El density matrix should be computed with spin-orbital index
+  !       to store spin density with Block code...
+  IJ_pack = 1
+  do J=1,NAC
+    do I=1,J
+      D1sum = 0.0d0
+      do K=1,NAC
+        D1sum = D1sum+PT(K,K,I,J)
+      end do
+      D(IJ_pack) = D1sum/(NACTEL-1)
+      !DS(IJ_pack) = 0.0D0
+      IJ_pack = IJ_pack+1
+    end do
+  end do
+
+  IJKL_pack = 0
+  do I=1,NAC
+    do J=1,I
+      do K=1,I
+        LLIM = K
+        if (K == I) LLIM = J
+        do L=1,LLIM
+          IJKL_pack = IJKL_pack+1
+          if (K == L) then
+            PS(IJKL_pack) = 0.5d0*PT(L,K,J,I)
+            !PA(IJKL_pack) = 0.0D0
+          else
+            PS(IJKL_pack) = 0.5d0*(PT(L,K,J,I)+PT(K,L,J,I))
+            PA(IJKL_pack) = 0.5d0*(PT(L,K,J,I)-PT(K,L,J,I))
+          end if
+        end do
+      end do
+    end do
+  end do
+else
+  ! special case for NACTEL = 1
+  call block_load1pdm(NAC,PT,jRoot,jRoot)
+  IJ_pack = 1
+  do J=1,NAC
+    do I=1,J
+      D(IJ_pack) = PT(I,J,1,1)
+      IJ_pack = IJ_pack+1
+    end do
+  end do
+end if
+
+return
+
+end subroutine BLOCK_DENSI_RASSCF
