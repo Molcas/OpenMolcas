@@ -46,7 +46,7 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   iSkip(8),kOff(8)
+      Integer   kOff(8)
       Integer   ISTLT(8),ISTK(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
@@ -1389,22 +1389,17 @@ C --------------------------------------------------------------------
 
                CALL CWTIME(TCINT1,TWINT1)
 
-C --- Set up the skipping flags
 C --- The memory used before for the full-dimension AO-vectors
 C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
 C -------------------------------------------------------------
-               Do i=1,nSym
-                  k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,nBas(i)*nAsh(k))
-               End Do
 
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
-     &                           Laq,iSkip,DoRead)
+     &                           Laq,DoRead)
 
 
                if (irc.ne.0) then

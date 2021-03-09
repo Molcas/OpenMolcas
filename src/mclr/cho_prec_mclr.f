@@ -38,8 +38,7 @@
 
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Integer   LuAChoVec(8),LuChoInt(2)
-      Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),iSkip(8),
-     &          nAshb(8),nAshe(8)
+      Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
@@ -398,17 +397,12 @@ c         !set index arrays at iLoc
 **          MO Half-transformation
 **          Liq^J= sum_p Lpq^J Xip
 *
-            Do i=1,nSym
-               k = Muld2h(i,JSYM)
-               iSkip(k) = Min(1,nBas(k)*nIshe(i))
-            End Do
-
             kMOs = 1  !
             nMOs = 1  ! Active MOs (1st set)
 *
             CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,[CMOt],
-     &                        Lpq,iSkip,DoRead)
+     &                        Lpq,DoRead)
 
             if (irc.ne.0) then
                RETURN

@@ -120,7 +120,7 @@
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
-      Integer   kOff(8,5), LuRVec(8,3), iSkip(8)
+      Integer   kOff(8,5), LuRVec(8,3)
       Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
@@ -163,7 +163,7 @@
 
         Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
-     &                         iSkip,DoRead)
+     &                         DoRead)
         use Data_Structures, only: CMO_Type, Laq_Type
         Integer irc, lRedVec
         Real*8 RedVec(lRedVec)
@@ -173,7 +173,6 @@
         Type (CMO_Type) MOs(nDen)
         Type (Laq_Type) Chot(nDen)
 
-        Integer   iSkip(*)
         Logical   DoRead
         End Subroutine Cho_X_getVtra
 
@@ -1547,7 +1546,7 @@ C --- subtraction is done in the 1st reduced set
 
                      CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                             JSYM,iSwap,IREDC,nMOs,kMOs,
-     &                             Aorb(iMO1),Laq(1),iSkip,DoRead)
+     &                             Aorb(iMO1),Laq(1),DoRead)
 
                      if (irc.ne.0) then
                         RETURN

@@ -33,8 +33,6 @@
 *> - \p iSwap = ``2``: \f$ L(k,J,b) \f$ is returned
 *> - \p iSwap = ``3``: \f$ L(a,J,k) \f$ is returned
 *>
-*> - \p iSkip(syma) = ``0``: skip the symmetry block \f$ a \f$. Any vector \f$ L_{ab} \f$ or \f$ L_{ba} \f$
-*>                           with \c syma &times; \c symb = \p ISYM won't be returned in the target array
 *>
 *> - \p IREDC: reduced set in core at the moment of the call to the routine.
 *>             Can be set to ``-1`` (= unknown or undefined) by the calling routine.
@@ -51,12 +49,11 @@
 *> @param[in]  kDen    first density for which the MO transformation has to be performed
 *> @param[in]  MOs     the MOs coefficients stored in the data type CMO_Type, i.e. symmetry blocked.
 *> @param[in]  ChoT    the half transformed vectors, symmetry blocked as type Laq_Type
-*> @param[in]  iSkip   skipping parameters for each symmetry block \f$ (ab) \f$ of compound symmetry \p ISYM
 *> @param[in]  DoRead  flag for reading the reduced vectors
 ************************************************************************
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
-     &                         iSkip,DoRead)
+     &                         DoRead)
       use Data_Structures, only: CMO_Type, Laq_Type
       Implicit Real*8 (a-h,o-z)
 
@@ -65,7 +62,6 @@
 
       Dimension RedVec(lRedVec)
       Integer   nDen,kDen
-      Integer   iSkip(*)
       Logical   DoRead
       Character(LEN=13), Parameter:: SECNAM = 'Cho_X_GetVtra'
 
@@ -109,7 +105,7 @@ C--------------------------
         JVREF = JVEC1 - IVEC1 + 1 ! Relative index
 
         Call cho_vTra(irc,RedVec,lRedVec,JVREF,JVEC1,JNUM,NUMV,ISYM,
-     &                IREDC,iSwap,nDen,kDen,MOs,ChoT,iSkip)
+     &                IREDC,iSwap,nDen,kDen,MOs,ChoT)
 
         if (irc.ne.0) then
            return
@@ -130,7 +126,7 @@ C--------------------------
        JNUM = NUMV
        JVREF= 1
        Call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
-     &               IREDC,iSwap,nDen,kDen,MOs,ChoT,iSkip)
+     &               IREDC,iSwap,nDen,kDen,MOs,ChoT)
 
        if (irc.ne.0) then
           return

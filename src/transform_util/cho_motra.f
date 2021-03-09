@@ -195,7 +195,6 @@ C
       Logical, Parameter ::   DoRead=.False.
       Logical   Do_int
       Integer   nPorb(8)
-      Integer   iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
 
       Character*7  Fnam
@@ -291,7 +290,6 @@ C --- Set up the skipping flags + some initializations --------
 C -------------------------------------------------------------
          Do i=1,nSym
             k=Muld2h(i,JSYM)
-            iSkip(i) = Min(1,nPorb(i)*nPorb(k)) ! skip Lik vector
             If (i.lt.k) Then
                kOff(i)=Mpq
                nOB(i)=nPorb(i)*nPorb(k)*NumCho(jSym)
@@ -427,7 +425,7 @@ C --------------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                           ChoT(1),iSkip,DoRead)
+     &                           ChoT(1),DoRead)
 
                if (irc.ne.0) then
                   rc = irc

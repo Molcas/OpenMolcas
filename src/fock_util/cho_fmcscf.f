@@ -346,7 +346,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                         Laq,iSkip,DoRead)
+     &                         Laq,DoRead)
 
 
                CALL CWTIME(TCR4,TWR4)
@@ -413,7 +413,7 @@ C --------------------------------------------------------------------
 
                   CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                            Laq,iSkip,DoRead)
+     &                            Laq,DoRead)
 
 
                   CALL CWTIME(TCR6,TWR6)
@@ -484,7 +484,7 @@ C --------------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                            JSYM,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                            Laq,iSkip,DoRead)
+     &                            Laq,DoRead)
 
 
                if (irc.ne.0) then

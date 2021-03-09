@@ -57,7 +57,7 @@ C
 
       Integer   ipDIAH(1)
       Integer   ipDLT(2),ipFLT(2),ipKLT(2)
-      Integer   iSkip(8),kOff(8,2),nnA(8,8)
+      Integer   kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
@@ -105,7 +105,7 @@ C
 
         Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
-     &                         iSkip,DoRead)
+     &                         DoRead)
         use Data_Structures, only: CMO_Type, Laq_Type
         Integer irc, lRedVec
         Real*8 RedVec(lRedVec)
@@ -115,7 +115,6 @@ C
         Type (CMO_Type) MOs(nDen)
         Type (Laq_Type) Chot(nDen)
 
-        Integer   iSkip(*)
         Logical   DoRead
         End Subroutine Cho_X_getVtra
 
@@ -1420,17 +1419,12 @@ C ---     is now re-used to store half and full transformed
 C ---     vectors in the active space
 C -------------------------------------------------------------
 
-               Do i=1,nSym
-                  k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,nAorb(k)*nBas(i))
-               End Do
-
                kMOs = 1  !
                nMOs = 1  ! Active MOs (1st set)
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                          JSYM,iSwap,IREDC,nMOs,kMOs,Ash,
-     &                          Laq(1),iSkip,DoRead)
+     &                          Laq(1),DoRead)
 
                if (irc.ne.0) then
                   RETURN

@@ -46,7 +46,7 @@ C
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   ipScr
-      Integer   iSkip(8),kOff(8),kaOff(8)
+      Integer   kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tact(2)
@@ -1500,11 +1500,6 @@ C -------------------------------------------------------------
                Call Allocate_Laq(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
                Call Allocate_Laq(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
 
-               Do i=1,nSym
-                  k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,nBas(i)*nAsh(k))
-               End Do
-
 *MGD should we compute only if there are active orbitals in this sym?
 *
 **             Read vectors
@@ -1525,7 +1520,7 @@ C -------------------------------------------------------------
 * Lrs * MO
                  CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,ASh(1),
-     &                           Lpq,iSkip,DoRead)
+     &                           Lpq,DoRead)
                EndIf
 
                if (irc.ne.0) then
@@ -1754,7 +1749,7 @@ C --------------------------------------------------------------------
 
                      CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,Ash(2),
-     &                           Lpq,iSkip,DoRead)
+     &                           Lpq,DoRead)
                      CALL CWTIME(TCINT3,TWINT3)
                      tint1(1) = tint1(1) + (TCINT3 - TCINT2)
                      tint1(2) = tint1(2) + (TWINT3 - TWINT2)

@@ -179,7 +179,6 @@ C
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   DoRead
       Integer   nPorb(8)
-      integer   iskip(8)
 
       Character*50 CFmt
       Character(LEN=10), Parameter:: SECNAM = 'CHO_CC_drv'
@@ -240,14 +239,6 @@ c
 
          If (NumCho(jSym).lt.1) GOTO 1000
 
-C --- Set up the skipping flags + some initializations --------
-C -------------------------------------------------------------
-         Do i=1,nSym
-
-            k = Muld2h(i,JSYM)
-            iSkip(i) = Min(1,nBas(i)*nBas(k)) ! skip Lik vector
-
-         End Do
 C -------------------------------------------------------------
 
 
@@ -353,7 +344,7 @@ C --------------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
-     &                           Laq,iSkip,DoRead)
+     &                           Laq,DoRead)
 
                if (irc.ne.0) then
                   rc = irc

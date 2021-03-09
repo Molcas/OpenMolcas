@@ -208,7 +208,7 @@ C --------------------------------------------------------------
 
          CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,
-     &                         Laq,iSkip,DoRead)
+     &                         Laq,DoRead)
 
                if (irc.ne.0) then
                    RETURN
