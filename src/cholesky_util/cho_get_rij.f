@@ -63,8 +63,7 @@
 #include "choorb.fh"
 #include "stdalloc.fh"
 
-*     Real*8, Allocatable:: Laq(:)
-      Type (SBA_Type):: Laq
+      Type (SBA_Type):: Laq(1)
       Real*8, Allocatable, Target:: Lab(:)
       Real*8, Pointer:: pLab(:,:,:)=>Null()
       Real*8, Pointer:: pLjj(:)=>Null()
@@ -166,7 +165,7 @@ C ---
       LREAD = nRS*nVec
 
       iSwap = 2  ! LiK,b are returned
-      Call Allocate_SBA(Laq,nOcc,nBas,nVec,JSYM,nSym,iSwap)
+      Call Allocate_SBA(Laq(1),nOcc,nBas,nVec,JSYM,nSym,iSwap)
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
@@ -208,7 +207,7 @@ C --------------------------------------------------------------
 
          CALL CHO_X_getVtra(irc,Lab,LREAD,jVEC,JNUM,
      &                         JSYM,iSwap,IREDC,nMOs,kMOs,MO,
-     &                         Laq,DoRead)
+     &                         Laq(1),DoRead)
 
                if (irc.ne.0) then
                    RETURN
@@ -238,7 +237,7 @@ C --- Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
 C ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
-     &                            One,Laq%SB(kSym)%A3,nOcc(kSym)*JNUM,
+     &                           One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,
      &                                MO%SB(kSym)%A,nOcc(kSym),
      &                           Zero,pLab,nOcc(kSym)*JNUM)
 
@@ -286,7 +285,7 @@ C --------------------------------------------------------------------
       END DO  !end batch loop
 
 C --- free memory
-      Call Deallocate_SBA(Laq)
+      Call Deallocate_SBA(Laq(1))
       Call mma_deallocate(Lab)
 
 999   Continue
