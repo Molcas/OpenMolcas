@@ -71,7 +71,20 @@
 
       Integer, Allocatable:: nPorb(:,:)
       Logical Skip
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine daxpy_(n,da,dx,incx,dy,incy)
+      implicit none
+      real*8 :: da
+      integer :: incx,incy,n
+      real*8 :: dx(*),dy(*)
+      End Subroutine daxpy_
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
       Skip(jDen,iSym)=.NOT.Associated(ChoT(jDen)%SB(iSyma)%A3)
@@ -162,12 +175,12 @@ C     ----------------------------------------
                      ! C(1,b)
                      CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                           MOs(JDen)%SB(iSyma)%A(:,ibs),1,
-     &                          ChoT(jDen)%SB(iSyma)%A3(1,ias,LVEC),1)
+     &                          ChoT(jDen)%SB(iSyma)%A3(:,ias,LVEC),1)
 
                      ! C(1,a)
                      CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                           MOs(JDen)%SB(iSyma)%A(:,ias),1,
-     &                          ChoT(jDen)%SB(iSyma)%A3(1,ibs,LVEC),1)
+     &                          ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC),1)
 
                   END DO  ! loop over densities
 
@@ -200,7 +213,7 @@ C     -----------------------------------
 
                      CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                           MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                          ChoT(jDen)%SB(iSyma)%A3(1,ibs,LVEC),1)
+     &                          ChoT(jDen)%SB(iSyma)%A3(:,ibs,LVEC),1)
 
                   END DO
 
@@ -213,7 +226,7 @@ C     -----------------------------------
 
                      CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                           MOs(jDen)%SB(iSymb)%A(:,ibs),1,
-     &                          ChoT(jDen)%SB(iSymb)%A3(1,ias,LVEC),1)
+     &                          ChoT(jDen)%SB(iSymb)%A3(:,ias,LVEC),1)
 
                   END DO
 
@@ -270,11 +283,11 @@ C     ----------------------------------------
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ibs),1,
-     &                ChoT(jDen)%SB(iSyma)%A3(ias,1,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSyma)%A3(ias,:,LVEC),nBas(iSyma))
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                ChoT(jDen)%SB(iSyma)%A3(ibs,1,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSyma)%A3(ibs,:,LVEC),nBas(iSyma))
 
             END DO  ! loop over densities
 
@@ -306,7 +319,7 @@ C     -----------------------------------
 
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSymb)%A(:,ibs),1,
-     &                ChoT(jDen)%SB(iSyma)%A3(ias,1,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSyma)%A3(ias,:,LVEC),nBas(iSyma))
 
              END DO
 C
@@ -318,7 +331,7 @@ C     -----------------------------------
 
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                ChoT(jDen)%SB(iSymb)%A3(ibs,1,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSymb)%A3(ibs,:,LVEC),nBas(iSyma))
 
              END DO
 
@@ -376,11 +389,11 @@ C     ----------------------------------------
 
                       CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                            MOs(jDen)%SB(iSyma)%A(:,ibs),1,
-     &                          ChoT(jDen)%SB(iSyma)%A3(1,LVEC,ias),1)
+     &                          ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ias),1)
 
                       CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                            MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                          ChoT(jDen)%SB(iSyma)%A3(1,LVEC,ibs),1)
+     &                          ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs),1)
 
                    END DO  ! loop over densities
 
@@ -412,7 +425,7 @@ C     -----------------------------------
 
                       CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                            MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                          ChoT(jDen)%SB(iSyma)%A3(1,LVEC,ibs),1)
+     &                          ChoT(jDen)%SB(iSyma)%A3(:,LVEC,ibs),1)
 
                    END DO
 C
@@ -424,7 +437,7 @@ C     -----------------------------------
 
                       CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                            MOs(jDen)%SB(iSymb)%A(:,ibs),1,
-     &                          ChoT(jDen)%SB(iSymb)%A3(1,LVEC,ias),1)
+     &                          ChoT(jDen)%SB(iSymb)%A3(:,LVEC,ias),1)
 
                    END DO
 
@@ -481,12 +494,12 @@ C     ----------------------------------------
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ibs),1,
-     &                     ChoT(jDen)%SB(iSyma)%A3(ias,LVEC,1),
+     &                     ChoT(jDen)%SB(iSyma)%A3(ias,LVEC,:),
      &                     nBas(iSyma)*NUMV)
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                     ChoT(jDen)%SB(iSyma)%A3(ibs,LVEC,1),
+     &                     ChoT(jDen)%SB(iSyma)%A3(ibs,LVEC,:),
      &                     nBas(iSyma)*NUMV)
 
             END DO  ! loop over densities
@@ -519,7 +532,7 @@ C     -----------------------------------
 
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSymb)%A(:,ibs),1,
-     &                     ChoT(jDen)%SB(iSyma)%A3(ias,LVEC,1),
+     &                     ChoT(jDen)%SB(iSyma)%A3(ias,LVEC,:),
      &                     nBas(iSyma)*NUMV)
 
              END DO
@@ -532,7 +545,7 @@ C     -----------------------------------
 
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                     ChoT(jDen)%SB(iSymb)%A3(ibs,LVEC,1),
+     &                     ChoT(jDen)%SB(iSymb)%A3(ibs,LVEC,:),
      &                     nBas(iSyma)*NUMV)
 
              END DO
