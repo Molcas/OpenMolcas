@@ -542,17 +542,21 @@ C     L(a,J,p) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
 
-               kchot = nBas(iSyma)*NUMV
-     &               + nBas(iSyma)*(LVEC-1)
-     &               + ipChoT(iSyma,jDen) - 1
+*              kchot = nBas(iSyma)*NUMV
+*    &               + nBas(iSyma)*(LVEC-1)
+*    &               + ipChoT(iSyma,jDen) - 1
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ibs),1,
-     &                     Work(kchot+ias),nBas(iSyma)*NUMV)
+*    &                     Work(kchot+ias),nBas(iSyma)*NUMV)
+     &                     ChoT(jDen)%pA(iSyma)%A(ias,LVEC,1),
+     &                     nBas(iSyma)*NUMV)
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
-     &                     Work(kchot+ibs),nBas(iSyma))
+*    &                     Work(kchot+ibs),nBas(iSyma)*NUMV)
+     &                     ChoT(jDen)%pA(iSyma)%A(ibs,LVEC,1),
+     &                     nBas(iSyma)*NUMV)
 
             END DO  ! loop over densities
 
@@ -584,13 +588,15 @@ C     L(a,J,q) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               kchot = nBas(iSyma)*NUMV
-     &               + nBas(iSyma)*(LVEC-1) + ias
-     &               + ipChoT(iSyma,jDen) - 1
+*              kchot = nBas(iSyma)*NUMV
+*    &               + nBas(iSyma)*(LVEC-1) + ias
+*    &               + ipChoT(iSyma,jDen) - 1
 
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%pA(iSymb)%A(:,ibs),1,
-     &                     Work(kchot),nBas(iSyma)*NUMV)
+*    &                     Work(kchot),nBas(iSyma)*NUMV)
+     &                     ChoT(jDen)%pA(iSyma)%A(ias,LVEC,1),
+     &                     nBas(iSyma)*NUMV)
 
              END DO
 
@@ -602,13 +608,15 @@ C     L(b,J,q) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               kchot = nBas(iSymb)*NUMV
-     &               + nBas(iSymb)*(LVEC-1) + ibs
-     &               + ipChoT(iSymb,jDen) - 1
+*              kchot = nBas(iSymb)*NUMV
+*    &               + nBas(iSymb)*(LVEC-1) + ibs
+*    &               + ipChoT(iSymb,jDen) - 1
 
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
-     &                     Work(kchot),nBas(iSyma)*NUMV)
+*    &                     Work(kchot),nBas(iSyma)*NUMV)
+     &                     ChoT(jDen)%pA(iSymb)%A(ibs,LVEC,1),
+     &                     nBas(iSyma)*NUMV)
 
              END DO
 
