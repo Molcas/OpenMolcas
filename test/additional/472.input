@@ -1,3 +1,18 @@
+*-------------------------------------------------------------------------------
+* Molecule: Acrolein
+* Basis: Ethene
+* Symmetry: CS
+* Features tested: RI-SA-RASSCF gradients
+* Responsible person: Roland Lindh
+* Comments: Tests both the Cho-MO and the  Cho-Fock algorithm in the MCLR
+*           code in association with the Cholesky/RI option for the two-
+*           electron integrals.
+*-------------------------------------------------------------------------------
+
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
  &GATEWAY
 Coord
 6
