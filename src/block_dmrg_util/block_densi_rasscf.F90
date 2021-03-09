@@ -25,24 +25,22 @@ subroutine BLOCK_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
 !
 ! PT  : working space for 2-El density matrix (NAC**4)
 
+use rasscf_data, only: NACPAR, NACPR2, NAC, mxSym
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp), intent(inout) :: jRoot
 real(kind=wp), intent(out) :: D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2)
 real(kind=wp), intent(inout) :: PT(NAC,NAC,NAC,NAC)
+#include "general.fh"
 integer(kind=iwp) :: I, IJ_pack, IJKL_pack, J, K, L, LLIM
 real(kind=wp) :: D1sum
-#include "rasscf.fh"
-#include "general.fh"
-#include "WrkSpc.fh"
 
-call DCOPY_(NACPAR,Zero,0,D,1)
-call DCOPY_(NACPAR,Zero,0,DS,1)
-call DCOPY_(NACPR2,Zero,0,PS,1)
-call DCOPY_(NACPR2,Zero,0,PA,1)
+D(:) = Zero
+DS(:) = Zero
+PS(:) = Zero
+PA(:) = Zero
 
 if (NACTEL > 1) then
   call block_load2pdm(NAC,PT,jRoot,jRoot)

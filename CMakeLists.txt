@@ -1753,6 +1753,7 @@ if (BLOCK)
 
   if (EXISTS ${BLOCK_DIR}/libqcdmrg.so)
     foreach (prog
+      wfn_util
       caspt2
       rasscf
     )
@@ -1794,6 +1795,7 @@ if (CHEMPS2)
   endif ()
 
   foreach (prog
+    wfn_util
     caspt2
     rasscf
   )

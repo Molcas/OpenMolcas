@@ -39,20 +39,19 @@ subroutine BlockCtl(LW1,TUVX,IFINAL,IRST)
 !                                                                      *
 !***********************************************************************
 
+use rasscf_data, only: Do3RDM, ENER, HFOCC, iOrbTyp, ITER, lRoots, mxSym, MxDMRG, NAC, ROTMAX, THRE
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
-integer(kind=iwp) :: iChMolpro(8), iOper, iOrb, iSigma, iSym, jOrb, JRST, lOrbSym, lSymMolpro, nIrrep, NRDM_ORDER
+#include "general.fh"
+integer(kind=iwp) :: iChMolpro(8), iOper, iOrb, iSigma, iSym, jOrb, JRST, lSymMolpro, nIrrep, NRDM_ORDER
 real(kind=wp) :: ThDMRG, ThNoise
 character(len=3) :: Label
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
-#include "WrkSpc.fh"
-#include "output_ras.fh"
+integer(kind=iwp), allocatable :: OrbSym(:)
 
 ! Load symmetry info from RunFile
 call Get_iScalar('NSYM',nIrrep)
@@ -63,11 +62,11 @@ call Get_iScalar('Rotational Symmetry Number',iSigma)
 call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
 ! Convert orbital symmetry into MOLPRO format
-call Getmem('OrbSym','Allo','Inte',lOrbSym,NAC)
+call mma_allocate(OrbSym,NAC,label='OrbSym')
 iOrb = 1
 do iSym=1,nSym
   do jOrb=1,NASH(iSym)
-    iWork(lOrbSym+iOrb-1) = iChMolpro(iSym)
+    OrbSym(iOrb) = iChMolpro(iSym)
     iOrb = iOrb+1
   end do
 end do
@@ -139,16 +138,16 @@ end if
 ! line~46:  const char* hf_occ);
 
 ! Compute DMRG
-call block_calldmrg(JRST,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,iWork(lOrbSym),Zero,LW1,TUVX,MxDMRG,NRDM_ORDER,ThDMRG, &
+call block_calldmrg(JRST,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,OrbSym,Zero,LW1,TUVX,MxDMRG,NRDM_ORDER,ThDMRG, &
                     ThNoise,ENER(1,ITER),HFOCC,NRS2T)
 
 if (IFINAL == 2 .and. Do3RDM .and. NACTEL > 2) then
   ! Compute 3RDM for DMRG-cu4-CASPT2
-  call block_calldmrg(1,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,iWork(lOrbSym),Zero,LW1,TUVX,MxDMRG,3,THRE,Zero,ENER(1,ITER), &
+  call block_calldmrg(1,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,OrbSym,Zero,LW1,TUVX,MxDMRG,3,THRE,Zero,ENER(1,ITER), &
                       HFOCC,NRS2T)
 end if
 
-call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
+call mma_deallocate(OrbSym)
 
 return
 

@@ -20,11 +20,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "rasdim.fh"
+#include "caspt2.fh"
 real(kind=wp), intent(in) :: TORB(NTORB)
 real(kind=wp), intent(out) :: XMAT(NASHT,NASHT)
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 integer(kind=iwp) :: I, IR1, IR2, IR3, ISTART, ISYM, ITO, ITOEND, ITOSTA, J, JR1, JR2, JR3, NA, NI, NR1, NR2, NR3, NS
 
 if (NASHT > 0) then
