@@ -25,18 +25,24 @@ subroutine BLOCK_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
 !
 ! PT  : working space for 2-El density matrix (NAC**4)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
 #include "rasdim.fh"
+integer(kind=iwp), intent(inout) :: jRoot
+real(kind=wp), intent(out) :: D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2)
+real(kind=wp), intent(inout) :: PT(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: I, IJ_pack, IJKL_pack, J, K, L, LLIM
+real(kind=wp) :: D1sum
 #include "rasscf.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
-dimension D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2)
-dimension PT(NAC,NAC,NAC,NAC)
 
-call DCOPY_(NACPAR,0.0d0,0,D,1)
-call DCOPY_(NACPAR,0.0d0,0,DS,1)
-call DCOPY_(NACPR2,0.0d0,0,PS,1)
-call DCOPY_(NACPR2,0.0d0,0,PA,1)
+call DCOPY_(NACPAR,Zero,0,D,1)
+call DCOPY_(NACPAR,Zero,0,DS,1)
+call DCOPY_(NACPR2,Zero,0,PS,1)
+call DCOPY_(NACPR2,Zero,0,PA,1)
 
 if (NACTEL > 1) then
   call block_load2pdm(NAC,PT,jRoot,jRoot)
@@ -46,12 +52,12 @@ if (NACTEL > 1) then
   IJ_pack = 1
   do J=1,NAC
     do I=1,J
-      D1sum = 0.0d0
+      D1sum = Zero
       do K=1,NAC
         D1sum = D1sum+PT(K,K,I,J)
       end do
       D(IJ_pack) = D1sum/(NACTEL-1)
-      !DS(IJ_pack) = 0.0D0
+      !DS(IJ_pack) = Zero
       IJ_pack = IJ_pack+1
     end do
   end do
@@ -65,11 +71,11 @@ if (NACTEL > 1) then
         do L=1,LLIM
           IJKL_pack = IJKL_pack+1
           if (K == L) then
-            PS(IJKL_pack) = 0.5d0*PT(L,K,J,I)
-            !PA(IJKL_pack) = 0.0D0
+            PS(IJKL_pack) = Half*PT(L,K,J,I)
+            !PA(IJKL_pack) = Zero
           else
-            PS(IJKL_pack) = 0.5d0*(PT(L,K,J,I)+PT(K,L,J,I))
-            PA(IJKL_pack) = 0.5d0*(PT(L,K,J,I)-PT(K,L,J,I))
+            PS(IJKL_pack) = Half*(PT(L,K,J,I)+PT(K,L,J,I))
+            PA(IJKL_pack) = Half*(PT(L,K,J,I)-PT(K,L,J,I))
           end if
         end do
       end do

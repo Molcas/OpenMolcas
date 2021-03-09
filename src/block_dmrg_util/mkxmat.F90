@@ -16,12 +16,16 @@ subroutine MKXMAT(TORB,XMAT)
 ! from that stored for each symmetry in IAD1M(4)
 ! Written by N. Nakatani, Oct. 2014
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
+
+implicit none
 #include "rasdim.fh"
+real(kind=wp), intent(in) :: TORB(NTORB)
+real(kind=wp), intent(out) :: XMAT(NASHT,NASHT)
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-dimension TORB(NTORB), XMAT(NASHT,NASHT)
+integer(kind=iwp) :: I, IR1, IR2, IR3, ISTART, ISYM, ITO, ITOEND, ITOSTA, J, JR1, JR2, JR3, NA, NI, NR1, NR2, NR3, NS
 
 if (NASHT > 0) then
   ITOEND = 0

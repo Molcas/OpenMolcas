@@ -23,8 +23,8 @@ subroutine BlockCtl(LW1,TUVX,IFINAL,IRST)
 !     DMRG control section                                             *
 !                                                                      *
 !     calling arguments:                                               *
-!     LW1     : Memory pointer to active Fock matrix                   *
-!               array of real*8                                        *
+!     LW1     : array of real*8                                        *
+!               Memory pointer to active Fock matrix                   *
 !     TUVX    : array of real*8                                        *
 !               two-electron integrals (tu!vx)                         *
 !     IFINAL  : integer                                                *
@@ -39,10 +39,15 @@ subroutine BlockCtl(LW1,TUVX,IFINAL,IRST)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension LW1(*), TUVX(*)
-integer iChMolpro(8)
-character*3 Label
+use Constants, only: Zero, Five, Ten
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(inout) :: LW1(*), TUVX(*)
+integer(kind=iwp), intent(in) :: IFINAL, IRST
+integer(kind=iwp) :: iChMolpro(8), iOper, iOrb, iSigma, iSym, jOrb, JRST, lOrbSym, lSymMolpro, nIrrep, NRDM_ORDER
+real(kind=wp) :: ThDMRG, ThNoise
+character(len=3) :: Label
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
@@ -73,49 +78,49 @@ if (NACTEL == 1) NRDM_ORDER = 1
 
 ! Default setting for the first iteraction
 JRST = IRST
-ThDMRG = THRE*1.0d1
-ThNoise = 1.0d-4
+ThDMRG = THRE*Ten
+ThNoise = 1.0e-4_wp
 
 if (JRST /= 0) then
   if (IFINAL == 0) then
-    if (abs(ROTMAX) >= 1.0d-1) then
+    if (abs(ROTMAX) >= 1.0e-1_wp) then
       ! No restart
       JRST = 0
-      ThDMRG = THRE*1.0d1
-      ThNoise = 1.0d-4
-    else if (abs(ROTMAX) >= 0.5d-1) then
+      ThDMRG = THRE*Ten
+      ThNoise = 1.0e-4_wp
+    else if (abs(ROTMAX) >= 0.5e-1_wp) then
       ! Full-restart with noise
       JRST = 2
-      ThDMRG = THRE*5.0d0
-      ThNoise = 1.0d-5
-    else if (abs(ROTMAX) >= 0.1d-1) then
+      ThDMRG = THRE*Five
+      ThNoise = 1.0e-5_wp
+    else if (abs(ROTMAX) >= 1.0e-2_wp) then
       ! Full-restart with smaller noise
       JRST = 2
       ThDMRG = THRE
-      ThNoise = 1.0d-6
+      ThNoise = 1.0e-6_wp
     else
       ! Restart without noise
       JRST = 1
       ThDMRG = THRE
-      ThNoise = 0.0d0
+      ThNoise = Zero
     end if
   else if (IFINAL == 1) then
     ! Full-restart for CI-only
     JRST = 2
     ThDMRG = THRE
-    ThNoise = 1.0d-6
+    ThNoise = 1.0e-6_wp
   else
     ! Full-restart for the final wavefunction
     if (iOrbTyp == 2) then
       ! with OutOrb = Canonical, this will be problematic for LMO-DMRG calc.
       JRST = 2
       ThDMRG = THRE
-      ThNoise = 1.0d-6
+      ThNoise = 1.0e-6_wp
     else
       ! by default, just restarting
       JRST = 1
       ThDMRG = THRE
-      ThNoise = 0.0d0
+      ThNoise = Zero
     end if
   end if
 end if
@@ -134,12 +139,12 @@ end if
 ! line~46:  const char* hf_occ);
 
 ! Compute DMRG
-call block_calldmrg(JRST,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,iWork(lOrbSym),0.0d0,LW1,TUVX,MxDMRG,NRDM_ORDER,ThDMRG, &
+call block_calldmrg(JRST,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,iWork(lOrbSym),Zero,LW1,TUVX,MxDMRG,NRDM_ORDER,ThDMRG, &
                     ThNoise,ENER(1,ITER),HFOCC,NRS2T)
 
 if (IFINAL == 2 .and. Do3RDM .and. NACTEL > 2) then
   ! Compute 3RDM for DMRG-cu4-CASPT2
-  call block_calldmrg(1,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,iWork(lOrbSym),0.0d0,LW1,TUVX,MxDMRG,3,THRE,0.0d0,ENER(1,ITER), &
+  call block_calldmrg(1,lRoots,NAC,NACTEL,ISPIN-1,Label,lSymMolpro,iWork(lOrbSym),Zero,LW1,TUVX,MxDMRG,3,THRE,Zero,ENER(1,ITER), &
                       HFOCC,NRS2T)
 end if
 
