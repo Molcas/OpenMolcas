@@ -45,7 +45,7 @@
 *
 *       iSkip(syma)=0 : skip the symmetry block a.
 *                    Any vector L(ak) with syma x symk=JSYM
-*                    won't be returned in the target array
+*                    won''t be returned in the target array
 *
 *       IREDC :  reduced set in core at the moment of
 *                the first call to the routine.
@@ -77,10 +77,11 @@
 #include "stdalloc.fh"
 
       Integer, Allocatable:: nPorb(:,:)
-      Integer, Allocatable:: ipChoT(:,:)
+      Logical Skip
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
+      Skip(jDen,iSym)=.NOT.Associated(ChoT(jDen)%pA(iSyma)%A)
 ************************************************************************
 
       Call mma_allocate(nPorb,8,nDen,Label='nPorb')
@@ -88,11 +89,6 @@
         Do iSym = 1, nSym
           nPorb(iSym,iDen)=SIZE(MOs(iDen)%pA(iSym)%A,1)
         End Do
-      End Do
-!     Temporry code while cleaning up.
-      Call mma_allocate(ipChoT,8,nDen,Label='ipChoT')
-      Do iDen = 1, nDen
-         Call Map_to_Laq(ChoT(iDen),ipChoT(:,iDen))
       End Do
 
 **********************************************************
@@ -119,10 +115,11 @@ C     L{a,b,J} ---> L(a,J,q)
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
-      IF (iSwap.eq.0) THEN     ! L(pb,J) storage
+      Select Case (iSwap)
+      Case (0)
+*     IF (iSwap.eq.0) THEN     ! L(pb,J) storage
 
          NREAD = 0
-         kchot = 0
          DO JVEC=1,JNUM   ! Relative index in the JNUM batch
 
             LVEC = JVEC - 1 + JVREF  ! Relative index in the NUMV batch
@@ -151,7 +148,7 @@ C     L{a,b,J} ---> L(a,J,q)
 
                   kscr  = kscr + 1
 
-                  IF (iSkip(iSyma).ne.0) THEN
+*                 IF (iSkip(iSyma).ne.0) THEN
 
                      ias   = iag - ibas(iSyma) !address within that sym
                      ibs   = ibg - ibas(iSyma)
@@ -160,6 +157,8 @@ C
 C     L(p,b,J) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                      DO jDen=kDen,nDen
+
+                        If (skip(jDen,iSyma)) Cycle
 
                         ! C(1,b)
                         CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
@@ -173,7 +172,7 @@ C     ----------------------------------------
 
                      END DO  ! loop over densities
 
-                  ENDIF  ! skipping blocks check
+*                 ENDIF  ! skipping blocks check
 
                End Do  ! jRab loop
 
@@ -195,11 +194,13 @@ C     ----------------------------------------
                   ias   = iag - ibas(iSyma)  !address within that sym
                   ibs   = ibg - ibas(iSymb)
 
-                  IF (iSkip(iSyma).ne.0) THEN
+*                 IF (iSkip(iSyma).ne.0) THEN
 C
 C     L(p,b,J) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                      DO jDen=kDen,nDen
+
+                        If (skip(jDen,iSyma)) Cycle
 
                         CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                              MOs(jDen)%pA(iSyma)%A(:,ias),1,
@@ -207,13 +208,15 @@ C     -----------------------------------
 
                      END DO
 
-                  ENDIF  ! skipping block
+*                 ENDIF  ! skipping block
 
-                  IF (iSkip(iSymb).ne.0) THEN
+*                 IF (iSkip(iSymb).ne.0) THEN
 C
 C     L(p,a,J) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                      DO jDen=kDen,nDen
+
+                        If (skip(jDen,iSymb)) Cycle
 
                         CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                              MOs(jDen)%pA(iSymb)%A(:,ibs),1,
@@ -221,7 +224,7 @@ C     -----------------------------------
 
                      END DO
 
-                  ENDIF  ! skipping blocks check
+*                 ENDIF  ! skipping blocks check
 
                End Do  ! jRab loop
 
@@ -229,10 +232,10 @@ C     -----------------------------------
 
          END DO
 
-      ELSEIF (iSwap.eq.1) THEN     ! L(ap,J) storage
+      Case (1)
+*     ELSEIF (iSwap.eq.1) THEN     ! L(ap,J) storage
 
       NREAD = 0
-      kchot = 0
       DO JVEC=1,JNUM
 
          LVEC = JVEC - 1 + JVREF
@@ -261,7 +264,7 @@ C     -----------------------------------
 
             kscr  = kscr + 1
 
-            IF (iSkip(iSyma).ne.0) THEN
+*           IF (iSkip(iSyma).ne.0) THEN
 
             ias   = iag - ibas(iSyma)  !address within that symm block
             ibs   = ibg - ibas(iSyma)
@@ -270,6 +273,8 @@ C
 C     L(a,p,J) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
+
+               If (skip(jDen,iSyma)) Cycle
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ibs),1,
@@ -281,7 +286,7 @@ C     ----------------------------------------
 
             END DO  ! loop over densities
 
-            ENDIF  ! skipping blocks check
+*           ENDIF  ! skipping blocks check
 
          End Do  ! jRab loop
 
@@ -303,11 +308,13 @@ C     ----------------------------------------
             ias   = iag - ibas(iSyma)  !address within that symm block
             ibs   = ibg - ibas(iSymb)
 
-            IF (iSkip(iSyma).ne.0) THEN
+*           IF (iSkip(iSyma).ne.0) THEN
 C
 C     L(a,q,J) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
+
+               If (skip(jDen,iSyma)) Cycle
 
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%pA(iSymb)%A(:,ibs),1,
@@ -315,13 +322,15 @@ C     -----------------------------------
 
              END DO
 
-            ENDIF  ! skipping block
+*           ENDIF  ! skipping block
 
-            IF (iSkip(iSymb).ne.0) THEN
+*           IF (iSkip(iSymb).ne.0) THEN
 C
 C     L(b,q,J) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
+
+               If (skip(jDen,iSymb)) Cycle
 
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
@@ -329,7 +338,7 @@ C     -----------------------------------
 
              END DO
 
-            ENDIF  ! skipping blocks check
+*           ENDIF  ! skipping blocks check
 
          End Do  ! jRab loop
 
@@ -338,10 +347,10 @@ C     -----------------------------------
       END DO
 
 
-      ELSEIF (iSwap.eq.2) THEN     ! L(pJ,b) storage
+      Case (2)
+*     ELSEIF (iSwap.eq.2) THEN     ! L(pJ,b) storage
 
              NREAD = 0
-             kchot = 0
              DO JVEC=1,JNUM
 
                 LVEC = JVEC - 1 + JVREF
@@ -370,7 +379,7 @@ C     -----------------------------------
 
                    kscr  = kscr + 1
 
-                   IF (iSkip(iSyma).ne.0) THEN
+*                  IF (iSkip(iSyma).ne.0) THEN
 
                       ias   = iag - ibas(iSyma)
                       ibs   = ibg - ibas(iSyma)
@@ -379,6 +388,8 @@ C
 C     L(p,J,b) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                       DO jDen=kDen,nDen
+
+                         If (skip(jDen,iSyma)) Cycle
 
                          CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                               MOs(jDen)%pA(iSyma)%A(:,ibs),1,
@@ -390,7 +401,7 @@ C     ----------------------------------------
 
                       END DO  ! loop over densities
 
-                   ENDIF  ! skipping blocks check
+*                  ENDIF  ! skipping blocks check
 
                 End Do  ! jRab loop
 
@@ -412,11 +423,13 @@ C     ----------------------------------------
                    ias   = iag - ibas(iSyma)
                    ibs   = ibg - ibas(iSymb)
 
-                   IF (iSkip(iSyma).ne.0) THEN
+*                  IF (iSkip(iSyma).ne.0) THEN
 C
 C     L(p,J,b) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                       DO jDen=kDen,nDen
+
+                         If (skip(jDen,iSyma)) Cycle
 
                          CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                               MOs(jDen)%pA(iSyma)%A(:,ias),1,
@@ -424,13 +437,15 @@ C     -----------------------------------
 
                       END DO
 
-                   ENDIF  ! skipping block
+*                  ENDIF  ! skipping block
 
-                   IF (iSkip(iSymb).ne.0) THEN
+*                  IF (iSkip(iSymb).ne.0) THEN
 C
 C     L(p,J,a) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                       DO jDen=kDen,nDen
+
+                         If (skip(jDen,iSymb)) Cycle
 
                          CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                               MOs(jDen)%pA(iSymb)%A(:,ibs),1,
@@ -438,7 +453,7 @@ C     -----------------------------------
 
                       END DO
 
-                   ENDIF  ! skipping blocks check
+*                  ENDIF  ! skipping blocks check
 
                 End Do  ! jRab loop
 
@@ -446,10 +461,10 @@ C     -----------------------------------
 
            END DO
 
-      ELSEIF (iSwap.eq.3) THEN     ! L(aJ,p) storage
+      Case (3)
+*     ELSEIF (iSwap.eq.3) THEN     ! L(aJ,p) storage
 
       NREAD = 0
-      kchot = 0
       DO JVEC=1,JNUM
 
          LVEC = JVEC - 1 + JVREF
@@ -478,7 +493,7 @@ C     -----------------------------------
 
             kscr  = kscr + 1
 
-            IF (iSkip(iSyma).ne.0) THEN
+*           IF (iSkip(iSyma).ne.0) THEN
 
             ias   = iag - ibas(iSyma)  !address within that sym block
             ibs   = ibg - ibas(iSyma)
@@ -487,6 +502,8 @@ C
 C     L(a,J,p) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
+
+               If (skip(jDen,iSyma)) Cycle
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ibs),1,
@@ -500,7 +517,7 @@ C     ----------------------------------------
 
             END DO  ! loop over densities
 
-            ENDIF  ! skipping blocks check
+*           ENDIF  ! skipping blocks check
 
          End Do  ! jRab loop
 
@@ -522,11 +539,13 @@ C     ----------------------------------------
             ias   = iag - ibas(iSyma)  !address within that symm block
             ibs   = ibg - ibas(iSymb)
 
-            IF (iSkip(iSyma).ne.0) THEN
+*           IF (iSkip(iSyma).ne.0) THEN
 C
 C     L(a,J,q) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
+
+               If (skip(jDen,iSyma)) Cycle
 
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%pA(iSymb)%A(:,ibs),1,
@@ -535,13 +554,15 @@ C     -----------------------------------
 
              END DO
 
-            ENDIF  ! skipping block
+*           ENDIF  ! skipping block
 
-            IF (iSkip(iSymb).ne.0) THEN
+*           IF (iSkip(iSymb).ne.0) THEN
 C
 C     L(b,J,q) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
+
+               If (skip(jDen,iSyma)) Cycle
 
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%pA(iSyma)%A(:,ias),1,
@@ -550,7 +571,7 @@ C     -----------------------------------
 
              END DO
 
-            ENDIF  ! skipping blocks check
+*           ENDIF  ! skipping blocks check
 
          End Do  ! jRab loop
 
@@ -559,15 +580,16 @@ C     -----------------------------------
       END DO
 
 
-      ELSE   ! iSwap check
+      Case Default
+*     ELSE   ! iSwap check
 
          write(6,*)SECNAM//': invalid argument. Iswap= ',Iswap
          irc = 66
          Return
 
-      ENDIF  ! iSwap check
+      End Select
+*     ENDIF  ! iSwap check
 
-      Call mma_deallocate(ipChoT)
       Call mma_deallocate(nPorb)
       irc=0
 

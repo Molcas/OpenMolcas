@@ -189,7 +189,7 @@ C
       Character*6 BName
 
       Type (CMO_Type) Porb
-      Type (Laq_Type), Target:: ChoT
+      Type (Laq_Type), Target:: ChoT(1)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical, Parameter ::   DoRead=.False.
@@ -384,8 +384,8 @@ C ------------------------------------------------------------------
             Call mma_allocate(Lpq_J,nVec,Label='Lpq_j')
 
             iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-            Call Allocate_Laq(ChoT,nPorb,nBas,nVec,JSYM,nSym,iSwap)
-            Chot%Laq_Full(:)=0.0D0
+            Call Allocate_Laq(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
+            ChoT(1)%Laq_Full(:)=0.0D0
 
 C --- BATCH over the vectors ----------------------------
 
@@ -427,7 +427,7 @@ C --------------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           jSym,iSwap,IREDC,nMOs,kMOs,POrb,
-     &                           ChoT,iSkip,DoRead)
+     &                           ChoT(1),iSkip,DoRead)
 
                if (irc.ne.0) then
                   rc = irc
@@ -458,7 +458,7 @@ C --------------------------------------------------------------------
                      Do JVC=1,JNUM
 
                       CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
-     &                           One,ChoT%pA(iSymb)%A(:,:,JVC),NAp,
+     &                           One,ChoT(1)%pA(iSymb)%A(:,:,JVC),NAp,
      &                               Porb%pA(iSymb)%A,NAp,
      &                          Zero,Lpq(:,jVC),NAp)
 
@@ -561,7 +561,7 @@ C --------------------------------------------------------------------
                        Do JVC=1,JNUM
 
                         CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                             One,ChoT%pA(iSymp)%A(:,:,JVC),NAp,
+     &                             One,ChoT(1)%pA(iSymp)%A(:,:,JVC),NAp,
      &                                 Porb%pA(iSymb)%A,NAq,
      &                            Zero,Lpq(:,JVC),NAp)
 
@@ -638,7 +638,7 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call mma_deallocate(Lpq_J)
-            Call Deallocate_Laq(ChoT)
+            Call Deallocate_Laq(ChoT(1))
             Call mma_deallocate(Lrs)
 
 999         CONTINUE
