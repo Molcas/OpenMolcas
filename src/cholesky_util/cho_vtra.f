@@ -70,7 +70,8 @@
 #include "stdalloc.fh"
 
       Integer, Allocatable:: nPorb(:,:)
-      Logical Skip
+      Logical Skip3, Skip2, Skip1
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -87,7 +88,9 @@
 *                                                                      *
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-      Skip(jDen,iSym)=.NOT.Associated(ChoT(jDen)%SB(iSyma)%A3)
+      Skip1(jDen,iSyma)=.NOT.Associated(ChoT(jDen)%SB(iSyma)%A1)
+      Skip2(jDen,iSyma)=.NOT.Associated(ChoT(jDen)%SB(iSyma)%A2)
+      Skip3(jDen,iSyma)=.NOT.Associated(ChoT(jDen)%SB(iSyma)%A3)
 ************************************************************************
 
       Call mma_allocate(nPorb,8,nDen,Label='nPorb')
@@ -170,7 +173,7 @@ C     L(p,b,J) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                   DO jDen=kDen,nDen
 
-                     If (skip(jDen,iSyma)) Cycle
+                     If (skip3(jDen,iSyma)) Cycle
 
                      ! C(1,b)
                      CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
@@ -209,7 +212,7 @@ C     L(p,b,J) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                   DO jDen=kDen,nDen
 
-                     If (skip(jDen,iSyma)) Cycle
+                     If (skip3(jDen,iSyma)) Cycle
 
                      CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                           MOs(jDen)%SB(iSyma)%A(:,ias),1,
@@ -222,7 +225,7 @@ C     L(p,a,J) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                   DO jDen=kDen,nDen
 
-                     If (skip(jDen,iSymb)) Cycle
+                     If (skip3(jDen,iSymb)) Cycle
 
                      CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                           MOs(jDen)%SB(iSymb)%A(:,ibs),1,
@@ -279,15 +282,16 @@ C     L(a,p,J) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
 
-               If (skip(jDen,iSyma)) Cycle
+               If (skip2(jDen,iSyma)) Cycle
 
+               iE = SIZE(ChoT(jDen)%SB(iSyma)%A2,1)
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ibs),1,
-     &                ChoT(jDen)%SB(iSyma)%A3(ias,:,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSyma)%A2(ias:iE,LVEC),nBas(iSyma))
 
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                ChoT(jDen)%SB(iSyma)%A3(ibs,:,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSyma)%A2(ibs:iE,LVEC),nBas(iSyma))
 
             END DO  ! loop over densities
 
@@ -315,11 +319,12 @@ C     L(a,q,J) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               If (skip(jDen,iSyma)) Cycle
+               If (skip2(jDen,iSyma)) Cycle
 
+               iE = SIZE(ChoT(jDen)%SB(iSyma)%A2,1)
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSymb)%A(:,ibs),1,
-     &                ChoT(jDen)%SB(iSyma)%A3(ias,:,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSyma)%A2(ias:iE,LVEC),nBas(iSyma))
 
              END DO
 C
@@ -327,11 +332,12 @@ C     L(b,q,J) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               If (skip(jDen,iSymb)) Cycle
+               If (skip2(jDen,iSymb)) Cycle
 
+               iE = SIZE(ChoT(jDen)%SB(iSymb)%A2,1)
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                ChoT(jDen)%SB(iSymb)%A3(ibs,:,LVEC),nBas(iSyma))
+     &                ChoT(jDen)%SB(iSymb)%A2(ibs:iE,LVEC),nBas(iSyma))
 
              END DO
 
@@ -385,7 +391,7 @@ C     L(p,J,b) = sum_a  xfd* L(a,b,J) * C(p,a)
 C     ----------------------------------------
                    DO jDen=kDen,nDen
 
-                      If (skip(jDen,iSyma)) Cycle
+                      If (skip3(jDen,iSyma)) Cycle
 
                       CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                            MOs(jDen)%SB(iSyma)%A(:,ibs),1,
@@ -421,7 +427,7 @@ C     L(p,J,b) = sum_a  L(a,b,J) * C(p,a)
 C     -----------------------------------
                    DO jDen=kDen,nDen
 
-                      If (skip(jDen,iSyma)) Cycle
+                      If (skip3(jDen,iSyma)) Cycle
 
                       CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                            MOs(jDen)%SB(iSyma)%A(:,ias),1,
@@ -433,7 +439,7 @@ C     L(p,J,a) = sum_b  L(a,b,J) * C(p,b)
 C     -----------------------------------
                    DO jDen=kDen,nDen
 
-                      If (skip(jDen,iSymb)) Cycle
+                      If (skip3(jDen,iSymb)) Cycle
 
                       CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                            MOs(jDen)%SB(iSymb)%A(:,ibs),1,
@@ -490,16 +496,19 @@ C     L(a,J,p) = sum_b  xfd* L(a,b,J) * C(p,b)
 C     ----------------------------------------
             DO jDen=kDen,nDen
 
-               If (skip(jDen,iSyma)) Cycle
+               If (skip1(jDen,iSyma)) Cycle
 
+               n1 = SIZE(ChoT(jDen)%SB(iSyma)%A3,1)
+               ij= ias + n1*(LVEC-1)
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ibs),1,
-     &                     ChoT(jDen)%SB(iSyma)%A3(ias,LVEC,:),
+     &                     ChoT(jDen)%SB(iSyma)%A1(ij:),
      &                     nBas(iSyma)*NUMV)
 
+               ij= ibs + n1*(LVEC-1)
                CALL DAXPY_(nPorb(iSyma,jDen),xfd*Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                     ChoT(jDen)%SB(iSyma)%A3(ibs,LVEC,:),
+     &                     ChoT(jDen)%SB(iSyma)%A1(ij:),
      &                     nBas(iSyma)*NUMV)
 
             END DO  ! loop over densities
@@ -528,11 +537,13 @@ C     L(a,J,q) = sum_b  L(a,b,J) * C(q,b)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               If (skip(jDen,iSyma)) Cycle
+               If (skip1(jDen,iSyma)) Cycle
 
+               n1 = SIZE(ChoT(jDen)%SB(iSyma)%A3,1)
+               ij= ias + n1*(LVEC-1)
                CALL DAXPY_(nPorb(iSymb,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSymb)%A(:,ibs),1,
-     &                     ChoT(jDen)%SB(iSyma)%A3(ias,LVEC,:),
+     &                     ChoT(jDen)%SB(iSyma)%A1(ij:),
      &                     nBas(iSyma)*NUMV)
 
              END DO
@@ -541,11 +552,13 @@ C     L(b,J,q) = sum_a  L(a,b,J) * C(q,a)
 C     -----------------------------------
              DO jDen=kDen,nDen
 
-               If (skip(jDen,iSyma)) Cycle
+               If (skip1(jDen,iSyma)) Cycle
 
+               n1 = SIZE(ChoT(jDen)%SB(iSymb)%A3,1)
+               ij= ibs + n1*(LVEC-1)
                CALL DAXPY_(nPorb(iSyma,jDen),Scr(kscr),
      &                     MOs(jDen)%SB(iSyma)%A(:,ias),1,
-     &                     ChoT(jDen)%SB(iSymb)%A3(ibs,LVEC,:),
+     &                     ChoT(jDen)%SB(iSymb)%A1(ij:),
      &                     nBas(iSyma)*NUMV)
 
              END DO
