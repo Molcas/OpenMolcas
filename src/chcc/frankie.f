@@ -189,7 +189,7 @@ C
 #include "choorb.fh"
 #include "stdalloc.fh"
 
-      Type (SBA_Type) Laq
+      Type (SBA_Type) Laq(1)
       Real*8, Allocatable:: Lrs(:,:)
       Real*8, Allocatable,Target:: Lpq(:)
       Real*8, Pointer:: pLpq(:,:,:)=>Null()
@@ -304,7 +304,7 @@ C ------------------------------------------------------------------
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-            Call Allocate_SBA(Laq,nPorb,nBas,nVec,jSym,nSym,iSwap)
+            Call Allocate_SBA(Laq(1),nPorb,nBas,nVec,jSym,nSym,iSwap)
             Call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
 
 C --- BATCH over the vectors ----------------------------
@@ -344,7 +344,7 @@ C --------------------------------------------------------------------
 
                CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,
      &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],
-     &                           Laq,DoRead)
+     &                           Laq(1),DoRead)
 
                if (irc.ne.0) then
                   rc = irc
@@ -375,7 +375,7 @@ C --------------------------------------------------------------------
                     Do JVC=1,JNUM
 
                       CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                           One,Laq%SB(iSymb)%A3(:,:,JVC),NAp,
+     &                           One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAp,
      &                               CMO%SB(iSymb)%A,NAq,
      &                          Zero,pLpq(:,:,JVC),NAp)
 
@@ -412,7 +412,7 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call mma_deallocate(Lpq)
-            Call Deallocate_SBA(Laq)
+            Call Deallocate_SBA(Laq(1))
             Call mma_deallocate(Lrs)
 
 999         CONTINUE
