@@ -82,8 +82,17 @@
       Do is=1,nSym
        nAS=nAS+nAsh(is)
       end do
-*
-      If (newCho) Go to 50
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Select Case (NewCho)
+*                                                                      *
+************************************************************************
+*                                                                      *
+       Case (.False.)   ! Cho-MO algorithm
+*                                                                      *
+************************************************************************
+*                                                                      *
       Do iS=1,nSym
          Do jS=1,iS
             ijS=iEOr(iS-1,jS-1)+1
@@ -165,7 +174,9 @@
 *                                                                      *
 *    Construct Q matrix: Q = sum(jkl)(pj|kl)d
 *                         pi                 ijkl
+
       If (iMethod.eq.iCASSCF) Then
+
          Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
 *
 *        Sort out MO (ij|kl)
@@ -218,8 +229,8 @@
          kS=iS
          Do js=1,nSym
             lS=jS
-            If (iEor(iEor(is-1,js-1),iEor(ks-1,ls-1)).ne.0) Go To 200
-            If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Go To 200
+            If (iEor(iEor(is-1,js-1),iEor(ks-1,ls-1)).ne.0) Cycle
+            If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Cycle
             Do LB=1,nB(LS)
                Do JB=1,nB(JS)
 *                                                                      *
@@ -264,17 +275,15 @@
 *                                                                      *
                End Do
             End Do
- 200        Continue
-         End Do
-      End Do
-*
-************************************************************************
-*                                                                      *
-*     Cholesky code                                                    *
+         End Do ! jS
+      End Do ! iS
 *                                                                      *
 ************************************************************************
- 50   Continue
-      If (NewCho) Then
+*                                                                      *
+      Case (.TRUE.)   ! Cho-Fock Algorithm
+*                                                                      *
+************************************************************************
+*                                                                      *
         Fake_CMO2=.true.
         DoAct=.true.
 *
@@ -433,13 +442,13 @@
         Call deallocate_CMO(CVa(2))
         Call deallocate_CMO(CVa(1))
         Call mma_deallocate(DA)
-      EndIf
-************************************************************************
-*                                                                      *
-*     End of new Cho                                                   *
 *                                                                      *
 ************************************************************************
-*
+*                                                                      *
+      End Select
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call DaXpY_(ndens2,One,Int1,1,FockI,1)
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *

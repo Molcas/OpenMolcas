@@ -74,8 +74,17 @@
 *
       Fact=-One
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
-*
-      If (.not.newCho) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Select Case (NewCho)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (.FALSE.)   ! Cho-MO
+*                                                                      *
+************************************************************************
+*                                                                      *
         Call mma_allocate(MT1,nmba,Label='MT1')
         Call mma_allocate(MT2,nmba,Label='MT2')
         MT1(:)=Zero
@@ -106,12 +115,12 @@
            call daxpy_(ndens2,One,QTemp,1,Q,1)
            Call mma_deallocate(QTemp)
         End If
-*************************************************************************
-*                                                                       *
-*        Cholesky code                                                  *
-*                                                                       *
-*************************************************************************
-      Else
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (.TRUE.)   ! Cho-Fock
+*                                                                      *
+************************************************************************
         Fake_CMO2=.false.
         DoAct=.true.
 *
@@ -307,15 +316,20 @@
 *
         Call mma_deallocate(Dens2)
         Call mma_deallocate(CoulExch)
+
         If (iMethod.eq.2) Then
           Call mma_deallocate(G2x)
           Call Deallocate_CMO(CVa(2))
           Call Deallocate_CMO(CVa(1))
           Call mma_deallocate(DA)
         EndIf
+
         Call mma_deallocate(DLT)
         Call mma_deallocate(DI)
-      EndIf
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
