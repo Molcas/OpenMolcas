@@ -23,7 +23,7 @@
 *> \p DoRead = ``.false.`` the reduced vectors must be supplied in
 *> array \p RedVec.
 *>
-*> Given (\p ChoT),the target arrays of type Laq_Type,
+*> Given (\p ChoT),the target arrays of type SBA_Type,
 *> the routine performs a half-MO-transformation of \p NUMV Cholesky
 *> vectors of compound symmetry \p ISYM starting with
 *> vector \p IVEC1 and returns them in the target arrays.
@@ -48,17 +48,17 @@
 *> @param[in]  nDen    total number of densities to which MOs refer
 *> @param[in]  kDen    first density for which the MO transformation has to be performed
 *> @param[in]  MOs     the MOs coefficients stored in the data type CMO_Type, i.e. symmetry blocked.
-*> @param[in]  ChoT    the half transformed vectors, symmetry blocked as type Laq_Type
+*> @param[in]  ChoT    the half transformed vectors, symmetry blocked as type SBA_Type
 *> @param[in]  DoRead  flag for reading the reduced vectors
 ************************************************************************
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         DoRead)
-      use Data_Structures, only: CMO_Type, Laq_Type
+      use Data_Structures, only: CMO_Type, SBA_Type
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MOs(nDen)
-      Type (Laq_Type) Chot(nDen)
+      Type (SBA_Type) Chot(nDen)
 
       Dimension RedVec(lRedVec)
       Integer   nDen,kDen
@@ -77,7 +77,7 @@
 C zeroing the target arrays
 C--------------------------
       Do jDen=kDen,nDen
-         ChoT(jDen)%Laq_Full(:)=Zero
+         ChoT(jDen)%A0(:)=Zero
       End Do
 *                                                                     *
 ***********************************************************************

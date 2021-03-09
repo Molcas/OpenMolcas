@@ -30,8 +30,8 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, Laq_Type
-      use Data_structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_structures, only: CMO_Type, SBA_Type
+      use Data_structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen
@@ -65,7 +65,7 @@ C
       Real*8, Allocatable:: VJ(:)
       Integer:: nAux(8)
 
-      Type (Laq_type) Laq(2)
+      Type (SBA_Type) Laq(2)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -264,7 +264,7 @@ C *************** EXCHANGE CONTRIBUTIONS  ***********************
                Do jDen=1,nDen
 
                   nAux(:) =nForb(:,jDen)+nIorb(:,jDen)
-                  Call Allocate_Laq(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,
+                  Call Allocate_SBA(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,
      &                              iSwap)
 
                   CALL CWTIME(TCR3,TWR3)
@@ -318,8 +318,8 @@ C ---------------------------------------------------------------------
                         ISFI = ipFLT(jDen) + ISTLT(iSyma)
 
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
-     &                         NK*JNUM,FactXI,Laq(jDen)%pA(iSymk)%A,
-     &                         NK*JNUM,Laq(jDen)%pA(iSymk)%A,NK*JNUM,
+     &                         NK*JNUM,FactXI,Laq(jDen)%SB(iSymk)%A3,
+     &                         NK*JNUM,Laq(jDen)%SB(iSymk)%A3,NK*JNUM,
      &                         One,Work(ISFI),nBas(iSyma))
 
 
@@ -333,7 +333,7 @@ C --------------------------------------------------------------------
                   texch(2) = texch(2) + (TWX2 - TWX1)
 
 
-                  Call Deallocate_Laq(Laq(jDen))
+                  Call Deallocate_SBA(Laq(jDen))
                End Do   ! loop over densities
 
 C --------------------------------------------------------------------

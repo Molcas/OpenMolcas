@@ -37,8 +37,8 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Laq_Type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
 #if defined (_MOLCAS_MPP_)
@@ -52,7 +52,7 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (CMO_Type) Ash(2)
-      Type (Laq_Type) Laq(2)
+      Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
 
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
@@ -1381,8 +1381,8 @@ C ************  END EXCHANGE CONTRIBUTION  ****************
                CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 
                iSwap = 0  ! Lvb,J are returned
-               Call Allocate_Laq(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-               Call Allocate_Laq(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
 C --------------------------------------------------------------------
@@ -1421,9 +1421,9 @@ C --------------------------------------------------------------------
 
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
-     &                            One,Laq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                                Ash(kDen)%pA(iSymb)%A,NAw,
-     &                           Zero,Laq(2)%pA(iSymv)%A(:,:,JVC),NAv)
+     &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                                Ash(kDen)%SB(iSymb)%A,NAw,
+     &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do
 
@@ -1450,8 +1450,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 
 C ---------------- END (TW|XY) EVALUATION -----------------------
 
-               Call Deallocate_Laq(Laq(2))
-               Call Deallocate_Laq(Laq(1))
+               Call Deallocate_SBA(Laq(2))
+               Call Deallocate_SBA(Laq(1))
 
             END DO  ! end batch loop
 

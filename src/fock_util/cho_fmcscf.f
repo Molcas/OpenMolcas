@@ -41,14 +41,14 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, Laq_Type
-      use Data_structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_structures, only: CMO_Type, SBA_Type
+      use Data_structures, only: Allocate_SBA, Deallocate_SBA
       use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) POrb(3)
-      Type (Laq_Type), Target:: Laq(3), Lxy
+      Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
       Integer   rc
@@ -252,7 +252,7 @@ C --- BATCH over the vectors ----------------------------
 
             DO iBatch=1,nBatch
                iSwap = 2  ! LpJ,b are returned
-               Call Allocate_Laq(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
                If (iBatch.eq.nBatch) Then
                   JNUM = nVrs - nVec*(nBatch-1)
                else
@@ -287,7 +287,7 @@ C==========================================================
 
                   CALL CWTIME(TCC1,TWC1)
 
-                  VJ(1:JNUM) => Laq(1)%Laq_Full(1:JNUM)
+                  VJ(1:JNUM) => Laq(1)%A0(1:JNUM)
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
@@ -378,8 +378,8 @@ C ---------------------------------------------------------------------
                      ISFI = ipFI + ISTLT(iSyma)
 
                      CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
-     &                         NK*JNUM,FactXI,Laq(1)%pA(iSymk)%A,
-     &                         NK*JNUM,Laq(1)%pA(iSymk)%A,NK*JNUM,
+     &                         NK*JNUM,FactXI,Laq(1)%SB(iSymk)%A3,
+     &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
      &                         One,Work(ISFI),nBas(iSyma))
 
 
@@ -395,11 +395,11 @@ C --------------------------------------------------------------------
                texch(1) = texch(1) + (TCX2 - TCX1)
                texch(2) = texch(2) + (TWX2 - TWX1)
 
-               Call Deallocate_Laq(Laq(1))
+               Call Deallocate_SBA(Laq(1))
 
                IF(DoActive)THEN
                   iSwap = 2  ! LxJ,b are returned
-                  Call Allocate_Laq(Laq(2),nChM,nBas,nVec,JSYM,nSym,
+                  Call Allocate_SBA(Laq(2),nChM,nBas,nVec,JSYM,nSym,
      &                              iSwap)
 C *********************** "CHOLESKY" HALF-TRANSFORMATION  ****************
 C --------------------------------------------------------------------
@@ -444,8 +444,8 @@ C ---------------------------------------------------------------------
                         ISFA = ipFA + ISTLT(iSyma)
 
                         CALL DGEMM_TRI('T','N',nBas(iSyma),nBas(iSyma),
-     &                         NAch*JNUM,FactXA,Laq(2)%pA(iSymw)%A,
-     &                         NAch*JNUM,Laq(2)%pA(iSymw)%A,NAch*JNUM,
+     &                         NAch*JNUM,FactXA,Laq(2)%SB(iSymw)%A3,
+     &                         NAch*JNUM,Laq(2)%SB(iSymw)%A3,NAch*JNUM,
      &                         One,Work(ISFA),nBas(iSyma))
 
 
@@ -461,7 +461,7 @@ C --------------------------------------------------------------------
                   texch(1) = texch(1) + (TCX4 - TCX3)
                   texch(2) = texch(2) + (TWX4 - TWX3)
 
-                  Call Deallocate_Laq(Laq(2))
+                  Call Deallocate_SBA(Laq(2))
                ENDIF   ! Do Active Exchange
 C ************  END EXCHANGE CONTRIBUTIONS  ****************
 
@@ -471,11 +471,11 @@ C --- First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
 C --------------------------------------------------------------------
                ! Lvw,J, LT-storage for the diagonal symmetry blocks
                iSwap = 4
-               Call allocate_Laq(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
 *              Call mma_allocate(Lxy%Lxy_full,mTvec4*nVec,Label='Lxy')
 
                iSwap = 0  ! Lvb,J are returned
-               Call allocate_Laq(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
 
                CALL CWTIME(TCR7,TWR7)
 
@@ -506,9 +506,9 @@ C --------------------------------------------------------------------
                       Do JVC=1,JNUM
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,nBas(iSyma),
-     &                              One,Laq(3)%pA(iSyma)%A(:,:,JVC),NAv,
-     &                                    POrb(3)%pA(iSyma)%A,NAv,
-     &                               Zero,Lxy%pA2(iSyma)%A(:,JVC),NAv)
+     &                             One,Laq(3)%SB(iSyma)%A3(:,:,JVC),NAv,
+     &                                    POrb(3)%SB(iSyma)%A,NAv,
+     &                               Zero,Lxy%SB(iSyma)%A2(:,JVC),NAv)
 
                       End Do
 
@@ -533,9 +533,9 @@ C --------------------------------------------------------------------
                       Do JVC=1,JNUM
 
                        CALL DGEMM_('N','T',NAv,NAw,nBas(iSymb),
-     &                            One,Laq(3)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                                POrb(3)%pA(iSymb)%A,NAw,
-     &                           Zero,Lxy%pA2(iSymv)%A(:,JVC),NAv)
+     &                            One,Laq(3)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                                POrb(3)%SB(iSymb)%A,NAw,
+     &                           Zero,Lxy%SB(iSymv)%A2(:,JVC),NAv)
 
                       End Do
 
@@ -571,8 +571,8 @@ C *************** EVALUATION OF THE (WA|XY) INTEGRALS ***********
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
-               Call Deallocate_Laq(Lxy)
-               Call Deallocate_Laq(Laq(3))
+               Call Deallocate_SBA(Lxy)
+               Call Deallocate_SBA(Laq(3))
 
             END DO  ! end batch loop
 

@@ -12,10 +12,10 @@
       SUBROUTINE CHO_rassi_twxy(irc,Scr,ChoV,ipInt,nAorb,JSYM,NUMV,
      &                          DoReord)
 
-      use Data_Structures, only: Laq_type, twxy_type
+      use Data_Structures, only: SBA_Type, twxy_type
       Implicit Real*8 (a-h,o-z)
       Integer irc,ipInt,nAorb(*),JSYM,NUMV,iAorb(8)
-      Type (Laq_Type) ChoV
+      Type (SBA_Type) ChoV
       Type (twxy_type) Scr
       Logical DoReord
 
@@ -55,9 +55,9 @@ C==========================================================
                If (Ntw.gt.0) then
 
                   CALL DGEMM_('N','T',Ntw,Nxy,NumV,
-     &                       ONE,ChoV%pA(iSymt)%A,Ntw,
-     &                           ChoV%pA(iSymx)%A,Nxy,
-     &                       One,Scr%pA(iSymw,iSymy)%A,Ntw)
+     &                       ONE,ChoV%SB(iSymt)%A3,Ntw,
+     &                           ChoV%SB(iSymx)%A3,Nxy,
+     &                       One,Scr%SB(iSymw,iSymy)%A,Ntw)
 
 
                End If
@@ -126,7 +126,7 @@ C ------------------------------------------------------------
 
                         iRes = ipInt + iTri(itwG,ixyG) - 1
 
-                        Work(iRes) = Scr%pA(iSymw,iSymy)%A(itw,ixy)
+                        Work(iRes) = Scr%SB(iSymw,iSymy)%A(itw,ixy)
 
                      End Do
 

@@ -38,14 +38,14 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Laq_Type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) MO1(2), MO2(2)
-      Type (Laq_type), Target:: Laq(2)
+      Type (SBA_Type), Target:: Laq(2)
       Type (twxy_type) Scr
 
       Integer   rc
@@ -203,7 +203,7 @@ C --- BATCH over the vectors ----------------------------
 
                iSwap = 2  ! LpJ,b are returned
                Do jDen=1,nDen
-                  Call Allocate_Laq(Laq(jDen),nIsh,nBas,nVec,JSYM,nSYm,
+                  Call Allocate_SBA(Laq(jDen),nIsh,nBas,nVec,JSYM,nSYm,
      &                              iSwap)
                End Do
 
@@ -241,7 +241,7 @@ C==========================================================
 C
                   CALL CWTIME(TCC1,TWC1)
 
-                  VJ(1:JNUM) => Laq(1)%Laq_full(1:JNUM)
+                  VJ(1:JNUM) => Laq(1)%A0(1:JNUM)
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
@@ -319,8 +319,8 @@ C ---------------------------------------------------------------------
                      ISFI = ipFLT + ISTLT(iSyma)
 
                      CALL DGEMM_Tri('T','N',NBAS(iSyma),NBAS(iSyma),
-     &                         NK*JNUM,FactXI,Laq(kDen)%pA(iSymk)%A,
-     &                         NK*JNUM,Laq(kDen)%pA(iSymk)%A,NK*JNUM,
+     &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,
+     &                         NK*JNUM,Laq(kDen)%SB(iSymk)%A3,NK*JNUM,
      &                             One,Work(ISFI),NBAS(iSyma))
 
                   EndIf
@@ -336,12 +336,12 @@ C --------------------------------------------------------------------
 C ************  END EXCHANGE CONTRIBUTION  ****************
 
                Do jDen=1,nDen
-                  Call Deallocate_Laq(Laq(jDen))
+                  Call Deallocate_SBA(Laq(jDen))
                End Do
 
                iSwap = 0  ! Lvb,J are returned
-               Call Allocate_Laq(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
-               Call Allocate_Laq(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
 C --------------------------------------------------------------------
 C --- First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
 C --------------------------------------------------------------------
@@ -384,9 +384,9 @@ C --------------------------------------------------------------------
                       Do JVC=1,JNUM
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
-     &                            One,Laq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                                MO2(kDen)%pA(iSymb)%A,NAw,
-     &                           Zero,Laq(2)%pA(iSymv)%A(:,:,JVC),NAv)
+     &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                                MO2(kDen)%SB(iSymb)%A,NAw,
+     &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do
 
@@ -417,8 +417,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 C ---------------- END (TW|XY) EVALUATION -----------------------
 
 
-               Call Deallocate_Laq(Laq(2))
-               Call Deallocate_Laq(Laq(1))
+               Call Deallocate_SBA(Laq(2))
+               Call Deallocate_SBA(Laq(1))
             END DO  ! end batch loop
 
 

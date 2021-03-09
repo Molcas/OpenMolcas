@@ -1,4 +1,4 @@
-************************************************************************
+* ***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -38,8 +38,8 @@ C
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Laq_Type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -55,7 +55,7 @@ C
       Integer   nChMo(8)
 
       Type (CMO_Type) Ash(2)
-      Type (Laq_Type) Lpq(3)
+      Type (SBA_Type) Lpq(3)
 
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
@@ -1496,9 +1496,9 @@ C -------------------------------------------------------------
                ! Lvb,J
                ! Lvi,J i general MO index
                ! L~vi,J ~ transformed index
-               Call Allocate_Laq(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-               Call Allocate_Laq(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-               Call Allocate_Laq(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
 
 *MGD should we compute only if there are active orbitals in this sym?
 *
@@ -1512,7 +1512,7 @@ C -------------------------------------------------------------
                     k = Muld2h(i,JSYM)
                     lvec=nAsh(k)*nBas(i)*JNUM
                     iAdr2=(JVEC-1)*nAsh(k)*nBas(i)+ioff
-                    call DDAFILE(LuAChoVec(Jsym),2,Lpq(1)%pA(k)%A,
+                    call DDAFILE(LuAChoVec(Jsym),2,Lpq(1)%SB(k)%A3,
      &                           lvec,iAdr2)
                     ioff=ioff+nAsh(k)*nBas(i)*NumCho(jSym)
                  End Do
@@ -1536,7 +1536,7 @@ C -------------------------------------------------------------
                     k = Muld2h(i,JSYM)
                     lvec=nAsh(k)*nBas(i)*JNUM
                     iAdr2=(JVEC-1)*nAsh(k)*nBas(i)+ioff
-                    call DDAFILE(LuAChoVec(Jsym),1,Lpq(1)%pA(k)%A,
+                    call DDAFILE(LuAChoVec(Jsym),1,Lpq(1)%SB(k)%A3,
      &                           lvec,iAdr2)
                     ioff=ioff+nAsh(k)*nBas(i)*NumCho(jSym)
                  End Do
@@ -1562,9 +1562,9 @@ C --------------------------------------------------------------------
 *Lv~w
                     If (.not.Fake_CMO2) Then
                      CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
-     &                          One,Lpq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                              Ash(2)%pA(iSymb)%A,NAw,
-     &                         Zero,Lpq(3)%pA(iSymv)%A(:,:,JVC),NAv)
+     &                          One,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                              Ash(2)%SB(iSymb)%A,NAw,
+     &                         Zero,Lpq(3)%SB(iSymv)%A3(:,:,JVC),NAv)
                     CALL CWTIME(TCINT4,TWINT4)
                tint1(1) = tint1(1) + (TCINT4 - TCINT2)
                tint1(2) = tint1(2) + (TWINT4 - TWINT2)
@@ -1576,13 +1576,13 @@ C --------------------------------------------------------------------
                      ipG    = ipG2
                      CALL DGEMV_('N',NAv*Naw,NAv*Naw,
      &                  ONE,Work(ipG),NAv*Naw,
-     &                      Lpq(3)%pa(iSymv)%A(:,:,JVC),1,
-     &                  ZERO,Lpq(2)%pA(iSymv)%A(:,:,JVC),1)
+     &                      Lpq(3)%SB(iSymv)%A3(:,:,JVC),1,
+     &                  ZERO,Lpq(2)%SB(iSymv)%A3(:,:,JVC),1)
 *Qpx=Lpy ~Lxy
                      ipQpx=ipScr+nsAB
                      Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
-     &                          2.0d0,Lpq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                          Lpq(2)%pA(iSymv)%A(:,:,JVC),Naw,
+     &                          2.0d0,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                          Lpq(2)%SB(iSymv)%A3(:,:,JVC),Naw,
      &                         ONE,Work(ipQpx),NBAS(iSymb))
                       CALL CWTIME(TCINT3,TWINT3)
                       tQmat(1) = tQmat(1) + (TCINT3 - TCINT4)
@@ -1594,9 +1594,9 @@ C --- Active-Active transformation  Lvw,J = sum_b  Lvb,J * C2(w,b)
 C --------------------------------------------------------------------
 *Lvw
                     CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
-     &                         One,Lpq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                             Ash(1)%pA(iSymb)%A,NAw,
-     &                        Zero,Lpq(2)%pA(iSymv)%A(:,:,JVC),NAv)
+     &                         One,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                             Ash(1)%SB(iSymb)%A,NAw,
+     &                        Zero,Lpq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                    CALL CWTIME(TCINT2,TWINT2)
                    tint1(1) = tint1(1) + (TCINT2 - TCINT3)
@@ -1621,8 +1621,8 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
 * (tu|v~w) = Ltu*Lv~w
                         ipaMO=ipMOScr+iASQ(iSymb,iSymv,iSymx)
                         Call DGEMM_('N','T',Nav*Naw,NAx*Nay,JNUM,
-     &                              One, Lpq(2)%pA(iSymv)%A,NAv*Naw,
-     &                                   Lpq(i)%pA(iSymx)%A,NAx*Nay,
+     &                              One, Lpq(2)%SB(iSymv)%A3,NAv*Naw,
+     &                                   Lpq(i)%SB(iSymx)%A3,NAx*Nay,
      &                              ONE,Work(ipaMO),NAv*Naw)
                      ENdIf
                    EndDo
@@ -1653,7 +1653,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                      If (Fake_CMO2) i = 2
 
                      CALL DGEMV_('T',Nav*Naw,JNUM,
-     &                          ONE,Lpq(i)%pA(iSymv)%A,Nav*Naw,
+     &                          ONE,Lpq(i)%SB(iSymv)%A3,Nav*Naw,
      &                          Work(ipDA2),1,ONE,VJ,1)
                     EndIf
                     ipDA2=ipDA+NAv*Naw
@@ -1681,7 +1681,7 @@ C --------------------------------------------------------------------
 
                   If(NAv*Naw.ne.0)Then
 
-                    Lpq(3)%pA(iSymv)%A(:,:,:)=Zero
+                    Lpq(3)%SB(iSymv)%A3(:,:,:)=Zero
 
                     Do iSymx=1,nSym
                       iSymy=MulD2h(JSYM,iSymx)
@@ -1693,16 +1693,16 @@ C --------------------------------------------------------------------
                       If(NAx*Nay.ne.0)Then
                        Call DGEMM_('N','N',Nav*Naw,JNUM,NAx*Nay,
      &                              One,Work(ipG),NAv*Naw,
-     &                              Lpq(2)%pA(iSymy)%A,NAx*Nay,
-     &                              ONE,Lpq(3)%pA(iSymv)%A,Nav*Naw)
+     &                              Lpq(2)%SB(iSymy)%A3,NAx*Nay,
+     &                              ONE,Lpq(3)%SB(iSymv)%A3,Nav*Naw)
                       EndIf
 
                     End Do
 
                     Do JVC=1,JNUM
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
-     &                           One,Lpq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                           Lpq(3)%pA(iSymv)%A(:,:,JVC),Nav,
+     &                           One,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                           Lpq(3)%SB(iSymv)%A3(:,:,JVC),Nav,
      &                           ONE,Work(ipQpx),NBAS(iSymb))
                     End Do
 
@@ -1716,9 +1716,9 @@ C --------------------------------------------------------------------
                tQmat(1) = tQmat(1) + (TCINT3 - TCINT2)
                tQmat(2) = tQmat(2) + (TWINT3 - TWINT2)
 
-               Call Deallocate_Laq(Lpq(2))
+               Call Deallocate_SBA(Lpq(2))
 
-               Call Allocate_Laq(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+               Call Allocate_SBA(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
 C
 C
 C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
@@ -1733,9 +1733,9 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
                    Do JVC=1,JNUM
                      Call DGEMM_('T','N',NBAS(iSymb),Nav,Nav,
-     &                           ONE,Lpq(1)%pA(iSymv)%A(:,:,JVC),Nav,
+     &                           ONE,Lpq(1)%SB(iSymv)%A3(:,:,JVC),Nav,
      &                               Work(ipDA),Nav,
-     &                     ZERO,Lpq(2)%pA(iSymv)%A(:,:,JVC),NBAS(iSymb))
+     &                    ZERO,Lpq(2)%SB(iSymv)%A3(:,:,JVC),NBAS(iSymb))
                    End Do
                    CALL CWTIME(TCINT2,TWINT2)
                    tact(1) = tact(1) + (TCINT2 - TCINT3)
@@ -1759,8 +1759,8 @@ C --------------------------------------------------------------------
                      Do JVC=1,JNUM
                       ipQpx=ipScr+nsAB
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
-     &                           One,Lpq(1)%pA(iSymb)%A(:,:,JVC),NAv,
-     &                               Lpq(3)%pA(iSymv)%A(:,:,JVC),Naw,
+     &                           One,Lpq(1)%SB(iSymb)%A3(:,:,JVC),NAv,
+     &                               Lpq(3)%SB(iSymv)%A3(:,:,JVC),Naw,
      &                           ONE,Work(ipQpx),NBAS(iSymb))
                      End Do
                      CALL CWTIME(TCINT2,TWINT2)
@@ -1786,8 +1786,8 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                      Do is=1,NBAS(iSymb)
                       ipFock=ipKA+nBas(iSymb)*(is-1)+ISTSQ(iSymb)
                       CALL DGEMV_('N',NBAS(iSymb),Nav,
-     &                  -FactXI,Lpq(2)%pA(iSymb)%A(:,:,JVC),NBAS(iSymb),
-     &                          Lpq(1)%pA(iSymv)%A(:,is,JVC),1,
+     &                 -FactXI,Lpq(2)%SB(iSymb)%A3(:,:,JVC),NBAS(iSymb),
+     &                         Lpq(1)%SB(iSymv)%A3(:,is,JVC),1,
      &                     ONE,Work(ipFock),1)
 
                     EndDo
@@ -1800,9 +1800,9 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
                End Do ! iSymb
 *
-               Call Deallocate_Laq(Lpq(3))
-               Call Deallocate_Laq(Lpq(2))
-               Call Deallocate_Laq(Lpq(1))
+               Call Deallocate_SBA(Lpq(3))
+               Call Deallocate_SBA(Lpq(2))
+               Call Deallocate_SBA(Lpq(1))
 
                EndIf ! If (DoAct)
 

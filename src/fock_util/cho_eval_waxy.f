@@ -11,10 +11,10 @@
       SUBROUTINE CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,ipInt,nAorb,
      &                         JSYM,NUMV,DoTraInt)
 
-      Use Data_structures, only: Laq_Type, twxy_Type
+      Use Data_structures, only: SBA_Type, twxy_Type
       Implicit Real*8 (a-h,o-z)
       Integer ipInt,nAorb(*)
-      Type (Laq_type) ChoV1, ChoV2
+      Type (SBA_Type) ChoV1, ChoV2
       Type (twxy_type) Scr
       Integer off_PWXY(8,8,8),ISTSQ(8)
       Logical DoTraInt
@@ -42,7 +42,7 @@ C==========================================================
 
          iSymx=MulD2h(iSymy,JSYM)
 
-         Nxy=SIZE(ChoV2%pA2(iSymx)%A,1)
+         Nxy=SIZE(ChoV2%SB(iSymx)%A2,1)
 
          If (iSymx.le.iSymy.and.Nxy.gt.0) then
 
@@ -50,15 +50,15 @@ C==========================================================
 
                iSymw=MulD2h(iSyma,JSYM)
 
-               Nwa  = SIZE(ChoV1%pA(iSymw)%A,1)*
-     &                SIZE(ChoV1%pA(iSymw)%A,2)
+               Nwa  = SIZE(ChoV1%SB(iSymw)%A3,1)*
+     &                SIZE(ChoV1%SB(iSymw)%A3,2)
 
                If (Nwa<=0) Cycle
 
                CALL DGEMM_('N','T',Nwa,Nxy,NumV,
-     &                    ONE,ChoV1%pA(iSymw)%A,Nwa,
-     &                        ChoV2%pA2(iSymx)%A,Nxy,ONE,
-     &                    Scr%pA(iSymw,iSymx)%A,Nwa)
+     &                    ONE,ChoV1%SB(iSymw)%A3,Nwa,
+     &                        ChoV2%SB(iSymx)%A2,Nxy,ONE,
+     &                    Scr%SB(iSymw,iSymx)%A,Nwa)
 
 
             End Do
@@ -151,7 +151,7 @@ C --------------------------------------------------------
                         CALL DGEMM_('T','T',
      &                             nOrb(iSyma),nAorb(iSymw),nBas(iSyma),
      &                             ONE,Work(ipMS),nBas_a,
-     &                              Scr%pA(iSymw,iSymx)%A(:,ixy),nAob_w,
+     &                              Scr%SB(iSymw,iSymx)%A(:,ixy),nAob_w,
      &                            ZERO,Work(ipMpw),nOrb_a)
 
 

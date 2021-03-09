@@ -129,7 +129,7 @@ c
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c
-      call mo_transp(CMO%CMO_Full,CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
+      call mo_transp(CMO%A0,CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
 c
       Call mma_deallocate(CMO_t)
 c
@@ -169,8 +169,8 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, Laq_Type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -189,7 +189,7 @@ C
 #include "choorb.fh"
 #include "stdalloc.fh"
 
-      Type (Laq_Type) Laq
+      Type (SBA_Type) Laq
       Real*8, Allocatable:: Lrs(:,:)
       Real*8, Allocatable,Target:: Lpq(:)
       Real*8, Pointer:: pLpq(:,:,:)=>Null()
@@ -221,7 +221,7 @@ C
 c --- Define MOs used in CC
 c -----------------------------------
         do i=1,nSym
-           nPorb(i) = SIZE(CMO%pA(i)%A,1)
+           nPorb(i) = SIZE(CMO%SB(i)%A,1)
         end do
 
 
@@ -304,7 +304,7 @@ C ------------------------------------------------------------------
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-            Call Allocate_Laq(Laq,nPorb,nBas,nVec,jSym,nSym,iSwap)
+            Call Allocate_SBA(Laq,nPorb,nBas,nVec,jSym,nSym,iSwap)
             Call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
 
 C --- BATCH over the vectors ----------------------------
@@ -375,8 +375,8 @@ C --------------------------------------------------------------------
                     Do JVC=1,JNUM
 
                       CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                           One,Laq%pA(iSymb)%A(:,:,JVC),NAp  ,
-     &                               CMO%pA(iSymb)%A,NAq,
+     &                           One,Laq%SB(iSymb)%A3(:,:,JVC),NAp,
+     &                               CMO%SB(iSymb)%A,NAq,
      &                          Zero,pLpq(:,:,JVC),NAp)
 
                       End Do
@@ -412,7 +412,7 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call mma_deallocate(Lpq)
-            Call Deallocate_Laq(Laq)
+            Call Deallocate_SBA(Laq)
             Call mma_deallocate(Lrs)
 
 999         CONTINUE

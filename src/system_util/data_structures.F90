@@ -17,40 +17,45 @@
 Module Data_Structures
 Private
 Public:: CMO_Type, Allocate_CMO, Deallocate_CMO, Map_to_CMO
-Public:: Laq_Type, Allocate_Laq, Deallocate_Laq, Map_to_Laq
+Public:: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
 Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
 #include "stdalloc.fh"
 #include "real.fh"
+
+Type SB_Type
+  Real*8, Pointer:: A3(:,:,:)=>Null()
+  Real*8, Pointer:: A2(:,:)=>Null()
+  Real*8, Pointer:: A1(:)=>Null()
+End Type  SB_Type
 
 Type V2
   Real*8, Pointer:: A(:,:)=>Null()
 End Type V2
 
-Type CMO_Type
-  Integer:: nSym=0
-  Real*8, Allocatable :: CMO_Full(:)
-  Type (V2):: pA(8)
-End Type CMO_Type
-
 Type V3
   Real*8, Pointer:: A(:,:,:)=>Null()
 End Type V3
 
-Type Laq_type
-  Integer:: iSwap=0
+Type CMO_Type
+  Integer:: nSym=0
+  Real*8, Allocatable :: A0(:)
+  Type (V2):: SB(8)
+End Type CMO_Type
+
+Type SBA_Type
+  Integer:: iCase=0
   Integer:: iSym=0
   Integer:: nSym=0
-  Real*8, Allocatable :: Laq_Full(:)
-  Type (V3):: pA(8)
-  Type (V2):: pA2(8)
-End Type Laq_type
+  Real*8, Allocatable :: A0(:)
+  Type (SB_Type):: SB(8)
+End Type SBA_Type
 
 Type twxy_type
   Integer :: iCase=0
   Integer :: JSYM=0
   Integer :: nSym=0
   Real*8, Allocatable:: twxy_full(:)
-  Type (V2):: pA(8,8)
+  Type (V2):: SB(8,8)
 End Type twxy_type
 
 
@@ -74,14 +79,14 @@ Contains
   Do iSym = 1, nSym
      MemTot = MemTot + n(iSym)*m(iSym)
   End Do
-  Call mma_allocate(Adam%CMO_Full,MemTot,Label='%CMO_Full')
+  Call mma_allocate(Adam%A0,MemTot,Label='%A0')
 
   iE = 0
   Do iSym = 1, nSym
     iS = iE + 1
     iE = iE + n(iSym) * m(iSym)
 
-    Adam%pA(iSym)%A(1:n(iSym),1:m(iSym)) => Adam%CMO_Full(iS:iE)
+    Adam%SB(iSym)%A(1:n(iSym),1:m(iSym)) => Adam%A0(iS:iE)
   End Do
   End Subroutine Allocate_CMO
 
@@ -92,9 +97,9 @@ Contains
   Integer iSym
 
   Do iSym = 1, Adam%nSym
-     Adam%pA(iSym)%A => Null()
+     Adam%SB(iSym)%A => Null()
   End Do
-  Call mma_deallocate(Adam%CMO_Full)
+  Call mma_deallocate(Adam%A0)
   Adam%nSym=0
 
   End Subroutine Deallocate_CMO
@@ -108,37 +113,39 @@ Contains
   Integer iSym
 
   Do iSym=1, Adam%nSym
-     ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1))
+     ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A(1,1))
   End Do
 
   End Subroutine Map_to_CMO
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                     !
-!                  L A Q - T Y P E   S E C T I O N                    !
+!                  S B A - T Y P E   S E C T I O N                    !
+!                                                                     !
+!                    Symmetry Blocked Arrays                          !
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  Subroutine Allocate_Laq(Adam,n,m,NUMV,iSym,nSym,iSwap)
+  Subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase)
   Implicit None
-  Type (Laq_Type),Target:: Adam
+  Type (SBA_Type),Target:: Adam
   Integer NUMV
   Integer iSym
   Integer nSym
   Integer n(nSym), m(nSym)
-  Integer iSwap
-  Integer iE, iS, iSyma, iSymb, MemTot, n2Dim
+  Integer iCase
+  Integer iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
 
   Integer i, j, MulD2h
   MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
   Adam%iSym=iSym
   Adam%nSym=nSym
-  Adam%iSwap=iSwap
+  Adam%iCase=iCase
 
   MemTot=0
 
-  Select Case (iSwap)
+  Select Case (iCase)
     Case(0)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
@@ -162,7 +169,7 @@ Contains
     Case(4)
        Do iSyma = 1, nSym
           If (n(iSyma)/=m(iSyma)) Then
-             Write (6,*) 'Allocate_Laq: iSwap=4 only valid if n(:)=m(:).'
+             Write (6,*) 'Allocate_SBA: iCase=4 only valid if n(:)=m(:).'
              Call abend()
           End If
           iSymb = MulD2h(iSym,iSyma)
@@ -176,7 +183,7 @@ Contains
     Case(5)
        Do iSyma = 1, nSym
           If (n(iSyma)/=m(iSyma)) Then
-             Write (6,*) 'Allocate_Laq: iSwap=5 only valid if n(:)=m(:).'
+             Write (6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
              Call abend()
           End If
           iSymb = MulD2h(iSym,iSyma)
@@ -192,7 +199,7 @@ Contains
     Case(6)
        Do iSyma = 1, nSym
           If (n(iSyma)/=m(iSyma)) Then
-             Write (6,*) 'Allocate_Laq: iSwap=5 only valid if n(:)=m(:).'
+             Write (6,*) 'Allocate_SBA: iCase=5 only valid if n(:)=m(:).'
              Call abend()
           End If
           iSymb = MulD2h(iSym,iSyma)
@@ -204,43 +211,51 @@ Contains
           MemTot = MemTot + n2dim*NUMV
        End Do
     Case Default
-       Write (6,*) "Allocate_Laq: Illegal case."
+       Write (6,*) "Allocate_SBA: Illegal case."
        Call Abend()
   End Select
 
-  Call mma_allocate(Adam%Laq_Full,MemTot,Label='%Laq_Full')
+  Call mma_allocate(Adam%A0,MemTot,Label='%A0')
 
 
   iE = 0
 
-  Select Case (iSwap)
+  Select Case (iCase)
     Case(0)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + n(iSyma)*m(iSymb)*NUMV
-          Adam%pA(iSyma)%A(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%Laq_Full(iS:iE)
+          n2Dim = n(iSyma)*m(iSymb)
+          n3Dim = n2Dim*NUMV
+          Adam%SB(iSymb)%A1(1:n3Dim) => Adam%A0(iS:iE)
+          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+          Adam%SB(iSyma)%A3(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case(1)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + m(iSyma)*n(iSymb)*NUMV
-          Adam%pA(iSyma)%A(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%Laq_Full(iS:iE)
+          n2Dim = m(iSyma)*n(iSymb)
+          n3Dim = n2Dim*NUMV
+          Adam%SB(iSymb)%A1(1:n3Dim) => Adam%A0(iS:iE)
+          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+          Adam%SB(iSyma)%A3(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case(2)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + n(iSyma)*NUMV*m(iSymb)
-          Adam%pA(iSyma)%A(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%Laq_Full(iS:iE)
+          Adam%SB(iSyma)%A3(1:n(iSyma),1:NUMV,1:m(iSymb)) => Adam%A0(iS:iE)
        End Do
     Case(3)
        Do iSyma = 1, nSym
           iSymb = MulD2h(iSym,iSyma)
           iS = iE + 1
           iE = iE + m(iSyma)*NUMV*n(iSymb)
-          Adam%pA(iSyma)%A(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%Laq_Full(iS:iE)
+          Adam%SB(iSyma)%A3(1:m(iSyma),1:NUMV,1:n(iSymb)) => Adam%A0(iS:iE)
        End Do
     Case(4)
        Do iSyma = 1, nSym
@@ -252,7 +267,7 @@ Contains
             n2Dim = n(iSyma)*n(iSymb)
           End If
           iE = iE + n2Dim*NUMV
-          Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
+          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case(5)
        Do iSyma = 1, nSym
@@ -265,7 +280,7 @@ Contains
             n2Dim = n(iSyma)*n(iSymb)
           End If
           iE = iE + n2Dim*NUMV
-          Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
+          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case(6)
        Do iSyma = 1, nSym
@@ -274,39 +289,35 @@ Contains
           iS = iE + 1
           n2Dim = n(iSyma)*n(iSymb)
           iE = iE + n2Dim*NUMV
-          Adam%pA2(iSymb)%A(1:n2Dim,1:NUMV) => Adam%Laq_Full(iS:iE)
+          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case Default
-       Write (6,*) "Allocate_Laq: Illegal case."
+       Write (6,*) "Allocate_SBA: Illegal case."
        Call Abend()
   End Select
-  End Subroutine Allocate_Laq
+  End Subroutine Allocate_SBA
 
 
-  Subroutine Deallocate_Laq(Adam)
+  Subroutine Deallocate_SBA(Adam)
   Implicit None
-  Type (Laq_Type) Adam
+  Type (SBA_Type) Adam
   Integer iSym
 
-  If (Adam%iSwap>=4) Then
-     Do iSym = 1, Adam%nSym
-        Adam%pA2(iSym)%A => Null()
-     End Do
-  Else
-     Do iSym = 1, Adam%nSym
-        Adam%pA(iSym)%A => Null()
-     End Do
-  End If
-  Call mma_deallocate(Adam%Laq_Full)
-  Adam%iSwap=0
+  Do iSym = 1, Adam%nSym
+      Adam%SB(iSym)%A1 => Null()
+      Adam%SB(iSym)%A2 => Null()
+      Adam%SB(iSym)%A3 => Null()
+  End Do
+  Call mma_deallocate(Adam%A0)
+  Adam%iCase=0
   Adam%iSym=0
   Adam%nSym=0
 
-  End Subroutine Deallocate_Laq
+  End Subroutine Deallocate_SBA
 
-  Subroutine Map_to_Laq(Adam,ipAdam)
+  Subroutine Map_to_SBA(Adam,ipAdam)
   Implicit None
-  Type (Laq_Type):: Adam
+  Type (SBA_Type):: Adam
   Integer ipAdam(*)
   Integer, External:: ip_of_Work
   Integer iSym,jSym
@@ -314,18 +325,18 @@ Contains
   Integer i, j, MulD2h
   MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
-  If (Adam%iSwap<4) Then
+  If (Adam%iCase<4) Then
      Do iSym=1, Adam%nSym
-        ipAdam(iSym) = ip_of_Work(Adam%pA(iSym)%A(1,1,1))
+        ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
      End Do
   Else
      Do iSym=1, Adam%nSym
         jsym=MulD2h(iSym,Adam%iSym)
-        ipAdam(jSym) = ip_of_Work(Adam%pA2(jSym)%A(1,1))
+        ipAdam(jSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
      End Do
   End If
 
-  End Subroutine Map_to_Laq
+  End Subroutine Map_to_SBA
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                     !
@@ -421,7 +432,7 @@ Case (0)
         n1 = n(iSymt)*n(iSymw)
         iS = iE + 1
         iE = iE + n1*n2
-        twxy%pA(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+        twxy%SB(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
      End Do
   End Do
 Case (1)
@@ -435,7 +446,7 @@ Case (1)
            n1 =  n(iSymw)*m(iSyma)
            iS = iE + 1
            iE = iE + n1*n2
-           twxy%pA(iSymw,iSymx)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+           twxy%SB(iSymw,iSymx)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
         End Do
      End If
   End Do
@@ -452,8 +463,8 @@ Case (2) ! twxy
               If (iSymt==iSymw) n1=n(iSymt)*(n(iSymt)+1)/2
               iS = iE + 1
               iE = iE + n1 * n2
-              twxy%pA(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
-              twxy%pA(iSymy,iSymw)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE) ! symmetrization
+              twxy%SB(iSymw,iSymy)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE)
+              twxy%SB(iSymy,iSymw)%A(1:n1,1:n2) => twxy%twxy_full(iS:iE) ! symmetrization
            End If
         End Do
      End If
@@ -473,7 +484,7 @@ Call mma_deallocate(twxy%twxy_full)
 
 Do iSymy=1,8
    Do iSymw=1,8
-      twxy%pA(iSymw,iSymy)%A => Null()
+      twxy%SB(iSymw,iSymy)%A => Null()
    End Do
 End Do
 
@@ -497,7 +508,7 @@ Case (0)
      iSymx=MulD2h(iSymy,Adam%JSYM)
      Do iSymw=iSymy,Adam%nSym   ! iSymw.ge.iSymy (particle symmetry)
         iSymt=MulD2h(isymw,Adam%JSYM)
-        ipAdam(iSymw,iSymy) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
+        ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
      End Do
   End Do
 Case (1)
@@ -506,7 +517,7 @@ Case (1)
      If (iSymx.le.iSymy) then
         Do iSyma=1,Adam%nSym
            iSymw=MulD2h(iSyma,Adam%JSYM)
-           ipAdam(iSymw,iSymx) = ip_of_Work(Adam%pA(iSymw,iSymx)%A(1,1))
+           ipAdam(iSymw,iSymx) = ip_of_Work(Adam%SB(iSymw,iSymx)%A(1,1))
         End Do
      End If
   End Do
@@ -517,8 +528,8 @@ Case (2)
         Do iSymw=iSymy,Adam%nSym ! iSymw.ge.iSymy
            iSymt=MulD2h(iSymw,Adam%JSYM)
            If (iSymt.ge.iSymw) Then
-              ipAdam(iSymw,iSymy) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
-              ipAdam(iSymy,iSymw) = ip_of_Work(Adam%pA(iSymw,iSymy)%A(1,1))
+              ipAdam(iSymw,iSymy) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
+              ipAdam(iSymy,iSymw) = ip_of_Work(Adam%SB(iSymw,iSymy)%A(1,1))
            End If
         End Do
      End If

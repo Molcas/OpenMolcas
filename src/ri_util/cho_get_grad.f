@@ -106,15 +106,15 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, Laq_type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
       Type (CMO_Type) AOrb(*)
-      Type (Laq_Type) Laq(1), Lxy
+      Type (SBA_Type) Laq(1), Lxy
 
       Logical   DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
@@ -164,14 +164,14 @@
         Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         DoRead)
-        use Data_Structures, only: CMO_Type, Laq_Type
+        use Data_Structures, only: CMO_Type, SBA_Type
         Integer irc, lRedVec
         Real*8 RedVec(lRedVec)
         Integer IVEC1,NUMV,ISYM,iSwap,IREDC
         Integer   nDen,kDen
 
         Type (CMO_Type) MOs(nDen)
-        Type (Laq_Type) Chot(nDen)
+        Type (SBA_Type) Chot(nDen)
 
         Logical   DoRead
         End Subroutine Cho_X_getVtra
@@ -1519,7 +1519,7 @@ C --- subtraction is done in the 1st reduced set
 **     vectors in the active space
 *
                   iSwap = 0  ! Lvb,J are returned
-                  Call Allocate_Laq(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
+                  Call Allocate_SBA(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
      &                              iSwap)
 
                   iMO2=1
@@ -1529,7 +1529,7 @@ C --- subtraction is done in the 1st reduced set
 *                    iSwap_lxy=6 diagonal blocks are square
                      iSwap_lxy=5
                      If (iMO1==2) iSwap_lxy=6
-                     Call Allocate_Laq(Lxy,nAorb,nAorb,nVec,JSYM,nSym,
+                     Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,
      &                                 iSwap_lxy)
 
 
@@ -1570,9 +1570,9 @@ C --- subtraction is done in the 1st reduced set
                            Do JVC=1,JNUM
                              !  triangular blocks
                              CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
-     &                              One,Laq(1)%pA(iSymb)%A(:,:,JVC),NAv,
-     &                                      Aorb(iMO2)%pA(iSymb)%A,NAv,
-     &                                 Zero,Lxy%pA2(iSymb)%A(:,JVC),NAv)
+     &                             One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAv,
+     &                                      Aorb(iMO2)%SB(iSymb)%A,NAv,
+     &                                Zero,Lxy%SB(iSymb)%A2(:,JVC),NAv)
 
                           End Do
 
@@ -1592,9 +1592,9 @@ C --- subtraction is done in the 1st reduced set
 
                              ! square or rectangular blocks
                              CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
-     &                              One,Laq(1)%pA(iSymv)%A(:,:,JVC),NAv,
-     &                                      Aorb(iMO2)%pA(iSymb)%A,NAw,
-     &                                 Zero,Lxy%pA2(iSymv)%A(:,JVC),NAv)
+     &                             One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                                      Aorb(iMO2)%SB(iSymb)%A,NAw,
+     &                                 Zero,Lxy%SB(iSymv)%A2(:,JVC),NAv)
 
                             End Do
 
@@ -1631,7 +1631,7 @@ C --- subtraction is done in the 1st reduced set
      &                           nnP(JSYM),JNUM,nnA(iSymx,iSymy),
      &                           ONE,Txy(ipTxy(iSymx,iSymy,iTxy)),
      &                                   nnP(JSYM),
-     &                                   Lxy%pA2(iSymx)%A,
+     &                                   Lxy%SB(iSymx)%A2,
      &                                   nnA(iSymx,iSymy),
      &                               ONE,Z_p_k(ipZp,iAvec),nnP(JSYM))
 
@@ -1650,8 +1650,8 @@ C --- subtraction is done in the 1st reduced set
                                     Do l=0,k
                                        temp=temp+0.5d0*
      &                                     Txy(ioff+k*(k+1)/2+l)*
-     &                       (Lxy%pA2(iSymx)%A(l+1+nAOrb(iSymx)*k,j)+
-     &                        Lxy%pA2(iSymx)%A(k+1+nAOrb(iSymx)*l,j))
+     &                       (Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+
+     &                        Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
                                     End Do
                                   End Do
 
@@ -1669,14 +1669,14 @@ C --- subtraction is done in the 1st reduced set
                        End Do
                      End Do
 
-                     Call Deallocate_Laq(Lxy)
+                     Call Deallocate_SBA(Lxy)
                   End Do
 
                   CALL CWTIME(TCC2,TWC2)
                   tcasg(1) = tcasg(1) + (TCC2 - TCC1)
                   tcasg(2) = tcasg(2) + (TWC2 - TWC1)
 
-                  Call Deallocate_Laq(Laq(1))
+                  Call Deallocate_SBA(Laq(1))
 
 
                EndIf  ! DoCAS

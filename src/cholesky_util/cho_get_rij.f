@@ -44,8 +44,8 @@
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, Laq_Type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (CMO_Type) MO
@@ -64,7 +64,7 @@
 #include "stdalloc.fh"
 
 *     Real*8, Allocatable:: Laq(:)
-      Type (Laq_Type):: Laq
+      Type (SBA_Type):: Laq
       Real*8, Allocatable, Target:: Lab(:)
       Real*8, Pointer:: pLab(:,:,:)=>Null()
       Real*8, Pointer:: pLjj(:)=>Null()
@@ -166,7 +166,7 @@ C ---
       LREAD = nRS*nVec
 
       iSwap = 2  ! LiK,b are returned
-      Call Allocate_Laq(Laq,nOcc,nBas,nVec,JSYM,nSym,iSwap)
+      Call Allocate_SBA(Laq,nOcc,nBas,nVec,JSYM,nSym,iSwap)
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
@@ -238,8 +238,8 @@ C --- Second half-transformation  L(iK,j) = sum_b  L(iK,b) * C(j,b)
 C ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
-     &                            One,Laq%pA(kSym)%A,nOcc(kSym)*JNUM,
-     &                                MO%pA(kSym)%A,nOcc(kSym),
+     &                            One,Laq%SB(kSym)%A3,nOcc(kSym)*JNUM,
+     &                                MO%SB(kSym)%A,nOcc(kSym),
      &                           Zero,pLab,nOcc(kSym)*JNUM)
 
 
@@ -286,7 +286,7 @@ C --------------------------------------------------------------------
       END DO  !end batch loop
 
 C --- free memory
-      Call Deallocate_Laq(Laq)
+      Call Deallocate_SBA(Laq)
       Call mma_deallocate(Lab)
 
 999   Continue

@@ -99,7 +99,7 @@ C
       nAux(1:nSym) = nBas(1:nSym) - nFro(1:nSym) - nDel(1:nSym)
       Call Allocate_CMO(CMOT,nAux,nBas,nSym)
 
-      Call Transp_MOs(CMO,CMOT%CMO_Full,nSym,nFro,nIsh,nAsh,nSsh,nBas)
+      Call Transp_MOs(CMO,CMOT%A0,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 c
         timings=.True.
 c
@@ -180,8 +180,8 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Laq_Type
-      use Data_Structures, only: Allocate_Laq, Deallocate_Laq
+      use Data_Structures, only: SBA_Type
+      use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*),lXint, ihdf5
@@ -189,7 +189,7 @@ C
       Character*6 BName
 
       Type (CMO_Type) Porb
-      Type (Laq_Type), Target:: ChoT(1)
+      Type (SBA_Type), Target:: ChoT(1)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical, Parameter ::   DoRead=.False.
@@ -382,8 +382,8 @@ C ------------------------------------------------------------------
             Call mma_allocate(Lpq_J,nVec,Label='Lpq_j')
 
             iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-            Call Allocate_Laq(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
-            ChoT(1)%Laq_Full(:)=0.0D0
+            Call Allocate_SBA(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
+            ChoT(1)%A0(:)=0.0D0
 
 C --- BATCH over the vectors ----------------------------
 
@@ -456,8 +456,8 @@ C --------------------------------------------------------------------
                      Do JVC=1,JNUM
 
                       CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
-     &                           One,ChoT(1)%pA(iSymb)%A(:,:,JVC),NAp,
-     &                               Porb%pA(iSymb)%A,NAp,
+     &                           One,ChoT(1)%SB(iSymb)%A3(:,:,JVC),NAp,
+     &                               Porb%SB(iSymb)%A,NAp,
      &                          Zero,Lpq(:,jVC),NAp)
 
                      End Do
@@ -559,8 +559,8 @@ C --------------------------------------------------------------------
                        Do JVC=1,JNUM
 
                         CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
-     &                             One,ChoT(1)%pA(iSymp)%A(:,:,JVC),NAp,
-     &                                 Porb%pA(iSymb)%A,NAq,
+     &                            One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,
+     &                                 Porb%SB(iSymb)%A,NAq,
      &                            Zero,Lpq(:,JVC),NAp)
 
                        End Do
@@ -636,7 +636,7 @@ C --------------------------------------------------------------------
 
 C --- free memory
             Call mma_deallocate(Lpq_J)
-            Call Deallocate_Laq(ChoT(1))
+            Call Deallocate_SBA(ChoT(1))
             Call mma_deallocate(Lrs)
 
 999         CONTINUE
