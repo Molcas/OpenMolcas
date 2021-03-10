@@ -442,6 +442,11 @@
         Call deallocate_CMO(CVa(2))
         Call deallocate_CMO(CVa(1))
         Call mma_deallocate(DA)
+*
+        Call GADSum(FockI,nDens2)
+        Call GADSum(FockA,nDens2)
+        Call GADSum(    Q,nDens2)
+        Call GADSum(  MO1,nAtri)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -449,6 +454,18 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Do iSym = 1, nSym
+        Write (6,*) 'iSym=',iSym
+        Call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
+      End Do
+      nAtri=nas*(nas+1)/2
+      nAtri=nAtri*(nAtri+1)/2
+      Call RecPrt('MO1',' ',MO1,1,nAtri)
+#endif
       Call DaXpY_(ndens2,One,Int1,1,FockI,1)
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *

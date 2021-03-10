@@ -17,7 +17,7 @@
 *     &                   A_J,A_K,Scr,nScr,iAdr2)
 ************************************************************************
 *                                                                      *
-*     This routine remplaces precaii, precabi and precabb              *
+*     This routine replaces precaii, precabi and precabb               *
 *     in case the new Cholesky alrgorithm is used,                     *
 *     that is if only (ii|ab) and (ia|ib) integrals were computed      *
 *                                                                      *
@@ -70,6 +70,7 @@
                 nl=nBas(lsym)
                 If (nl.le.0) Go to 20
                 Call DDAFILE(LuChoInt(2),2,A_J,nl**2,iAdr)
+                Call GADSUM(A_J,nl**2)
 
                 If (lsym.eq.js) Then
                   If (iJK.eq.1) Then
