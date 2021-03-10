@@ -47,7 +47,7 @@ C     ----------------------------------------------
 
       Call Allocate_CMO(CMOt,[nOrb2Loc],[nBasis],nSym)
       Do i = 1,nOrb2Loc
-         CMOt%pA(1)%A(i,:) = CMO(:,i)
+         CMOt%SB(1)%A(i,:) = CMO(:,i)
       End Do
 
 C     Compute R.

@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO, Int1, G1t, G2t
+      use Arrays, only: CMO, CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: CMO_Type
       use Data_Structures, only: Allocate_CMO, Deallocate_CMO
       Implicit Real*8(a-h,o-z)
@@ -324,9 +324,9 @@
             nG2=nG2+nAG2**2
           End Do
           Call Allocate_CMO(CVa(1),nAsh,nOrb,nSym)
-          CVa(1)%CMO_Full(:)=0.0D0
+          CVa(1)%A0(:)=0.0D0
           Call Allocate_CMO(CVa(2),nAsh,nOrb,nSym)
-          CVa(2)%CMO_Full(:)=0.0D0
+          CVa(2)%A0(:)=0.0D0
           Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
@@ -335,7 +335,7 @@
             ioff2 = ioff + nOrb(iSym)*nIsh(iSym)
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
-               CVa(1)%pA(iSym)%A(ikk,:) =
+               CVa(1)%SB(iSym)%A(ikk,:) =
      &            CMO(ioff3+1:ioff3+nOrb(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
@@ -412,13 +412,14 @@
         ipMO1     = ip_of_Work(MO1(1))
         ipQ       = ip_of_Work(Q(1))
         ipCMO     = ip_of_Work(CMO(1))
-        ip_CMO_inv= ip_of_Work(CMO(1))
+        ip_CMO_inv= ip_of_Work(CMO_Inv(1))
+        istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
-     &                   LuAChoVec,LuIChoVec,iAChoVec)
+     &                   LuAChoVec,LuIChoVec,istore)
 
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2

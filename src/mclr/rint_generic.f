@@ -196,7 +196,7 @@
             ioff5 = ioff4+ nOrb(iS)*nIsh(iS)
             Do iB=1,nAsh(iS)
               ioff3=ioff2+nOrb(iS)*(iB-1)
-              CVa(1)%pA(iS)%A(iB,:) =
+              CVa(1)%SB(iS)%A(iB,:) =
      &           CMO(ioff3+1:ioff3+nOrb(iS))
              Do jB=1,nAsh(iS)
               ip=ioffD+ib+(jB-1)*nAsh(is)
@@ -210,7 +210,7 @@
             Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),
      &                  1.0d0,rkappa(ioff5),nOrb(iS),
      &                        CMO(1+ioff),nOrb(iS),
-     &                  0.0d0,CVa(2)%pA(iS)%A,nAsh(iS))
+     &                  0.0d0,CVa(2)%SB(iS)%A,nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
             ioffD=ioffD+nAsh(iS)**2
             ioff4=ioff4+nOrb(iS)**2
@@ -308,10 +308,10 @@
         Call mma_deallocate(Dens2)
         Call mma_deallocate(CoulExch)
         If (iMethod.eq.2) Then
-          Call mma_deallocate(Dens2)
+          Call mma_deallocate(G2x)
           Call Deallocate_CMO(CVa(2))
           Call Deallocate_CMO(CVa(1))
-          Call mma_deallocate(Dens2)
+          Call mma_deallocate(DA)
         EndIf
         Call mma_deallocate(DLT)
         Call mma_deallocate(DI)
