@@ -660,6 +660,7 @@ c         !set index arrays at iLoc
      &                            CMO(ipMO2),nBas(kSym2),
      &                      0.0d0,iiab(ip2)  ,nvirt2)
 *
+                Call GADSum(iiab(ip2),nvirt2**2)
                 call DDAFILE(LuChoInt(1),1,iiab(ip2),nvirt2**2,iAdr)
 *
                 ip2=ip2+nBas(kSym2)**2
@@ -685,6 +686,7 @@ c         !set index arrays at iLoc
             Do i=1,ksym-1
                 iAdr=iAdr+(nBas(i)-nIsh(i))**2
             End Do
+            Call GADSum(iiab(ip1:),nvirt**2)
             call DDAFILE(LuChoInt(1),1,iiab(ip1:),nvirt**2,iAdr)
             Do i=ksym+1,nsym
                 iAdr=iAdr+(nBas(i)-nIsh(i))**2
@@ -728,6 +730,7 @@ c         !set index arrays at iLoc
      &                              Integral,nBas(kSym2),
      &                              CMO(ipMO2),nBas(kSym2),
      &                        0.0d0,tupq(ip2)  ,nBas(kSym2))
+                  Call GADSum(tupq(ip2),nBas(kSym2)**2)
                   call DDAFILE(LuChoInt(2),1,tupq(ip2),nBas(kSym2)**2,
      &            iAdrtu)
 *
@@ -753,6 +756,7 @@ c         !set index arrays at iLoc
                 iAdrtu=iAdrtu+nBas(i)**2
             End Do
 
+            Call GADSum(tupq(ip3),nBas(iSym)**2)
             call DDAFILE(LuChoInt(2),1,tupq(ip3),nBas(iSym)**2,iAdrtu)
 
             Do i=isym+1,nsym

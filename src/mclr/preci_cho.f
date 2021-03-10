@@ -60,7 +60,6 @@
         Do isym=1,nsym
           nvirt2=nBas(isym)-nIsh(isym)
           call DDAFILE(LuChoInt(1),2,A_J,nvirt2**2,iAdr)
-          Call GADSum(A_J,nvirt2**2)
 
 *
 **        iaa

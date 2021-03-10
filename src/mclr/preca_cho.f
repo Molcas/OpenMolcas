@@ -70,7 +70,6 @@
                 nl=nBas(lsym)
                 If (nl.le.0) Go to 20
                 Call DDAFILE(LuChoInt(2),2,A_J,nl**2,iAdr)
-                Call GADSUM(A_J,nl**2)
 
                 If (lsym.eq.js) Then
                   If (iJK.eq.1) Then
