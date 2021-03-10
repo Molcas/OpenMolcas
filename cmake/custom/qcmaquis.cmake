@@ -82,7 +82,9 @@ list(APPEND QCMaquisCMakeArgs
   )
 if(HDF5_ROOT)
   list(APPEND QCMaquisCMakeArgs
-    -DHDF5_ROOT=${HDF5_ROOT})
+    -DHDF5_ROOT=${HDF5_ROOT}
+    -DCMAKE_POLICY_DEFAULT_CMP0074=NEW
+  )
 endif()
 
 if(NOT MAQUIS_DMRG_FOUND) # Does the opposite work?

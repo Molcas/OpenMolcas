@@ -77,7 +77,10 @@ Go To 999
 2000 continue
 ! read the # of states
 key = Get_Ln(LuSpool)
-read(key,*,Err=9920) nr_states
+read(key,*,err=9920) nr_states
+! using standard allocate and deallocate because MultGroup&State
+! is deallocated somewhere in the external library
+if (allocated(MultGroup%State)) deallocate(MultGroup%State)
 allocate(MultGroup%State(nr_states))
 do i=1,nr_states
   MultGroup%State(i) = i
@@ -103,15 +106,18 @@ if (key(1:4) == 'SELE') then
   ! read in the number of frozen orbitals, then the list
   frozen_str = Get_Ln(LuSpool)
   call LeftAd(frozen_str)
-  read(frozen_str,*,Err=9920) nr_frozen_orb
+  read(frozen_str,*,err=9920) nr_frozen_orb
   if (nr_frozen_orb <= 0) then
     call WarningMessage(2,'Nr of frozen orbitals for selection must be > 0!')
     call Quit_OnUserError()
   end if
   frozen_str = frozen_str(scan(frozen_str,' '):)
-  allocate(igelo(nr_frozen_orb)); igelo = 0
+  ! using standard allocate because igelo
+  ! is deallocated somewhere in the external library
+  allocate(igelo(nr_frozen_orb))
+  igelo(:) = 0
   do while (iError < 0)
-    read(frozen_str,*,IOStat=iError)(igelo(i),i=1,nr_frozen_orb)
+    read(frozen_str,*,iostat=iError) (igelo(i),i=1,nr_frozen_orb)
     if (iError > 0) goto 9920
     if (iError < 0) then
       frozen_str = trim(frozen_str)//trim(Get_Ln(LuSpool))
@@ -119,7 +125,7 @@ if (key(1:4) == 'SELE') then
   end do
 else ! read only the number of frozen orbitals and fill the frozen
   ! indexes consecutively from 1 to nr_frozen_orb
-  read(key,*,Err=9920) nr_frozen_orb
+  read(key,*,err=9920) nr_frozen_orb
   if (nr_frozen_orb < 0) then
     call WarningMessage(2,'Nr of frozen orbitals must be >= 0!')
     call Quit_OnUserError()
@@ -130,6 +136,8 @@ else ! read only the number of frozen orbitals and fill the frozen
       ! It will be detected in pt2init and reset back to 0
       nr_frozen_orb = -1
     else
+      ! using standard allocate because igelo
+      ! is deallocated somewhere in the external library
       allocate(igelo(nr_frozen_orb))
       do i=1,nr_frozen_orb
         igelo(i) = i
@@ -158,18 +166,21 @@ call upcase(key)
 if (trim(key) == 'ALL') then
   nr_states = 0
 else
-  read(Line,*,Err=9920,end=9920) nr_states
+  read(Line,*,err=9920,end=9920) nr_states
   if (nr_states <= 0) then
     write(u6,*) ' number of MULT states must be > 0, quitting!'
     call Quit_OnUserError()
   end if
 end if
+! using standard allocate and deallocate because MultGroup&State
+! is deallocated somewhere in the external library
+if (allocated(MultGroup%State)) deallocate(MultGroup%State)
 allocate(MultGroup%State(nr_states))
 iSplit = scan(Line,' ')
 dLine = line(iSplit:)
 iError = -1
 do while (iError < 0)
-  read(dLine,*,IOStat=iError) (MultGroup%State(i),i=1,nr_states)
+  read(dLine,*,iostat=iError) (MultGroup%State(i),i=1,nr_states)
   if (iError > 0) goto 9920
   if (iError < 0) then
     if (.not. next_non_comment(LuSpool,Line)) goto 9910
@@ -218,6 +229,11 @@ call ABEND()
 
 !> make sure the array is allocated for the minimal input
 !> &NEVPT2 &END
-if (.not. allocated(MultGroup%State)) allocate(MultGroup%State(1)); MultGroup%State(1) = 1
+if (.not. allocated(MultGroup%State)) then
+  ! using standard allocate because MultGroup%State
+  ! is deallocated somewhere in the external library
+  allocate(MultGroup%State(1))
+  MultGroup%State(:) = 1
+end if
 
 end subroutine rdinput

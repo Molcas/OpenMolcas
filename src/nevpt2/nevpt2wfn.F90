@@ -24,7 +24,7 @@ private
 
 logical(kind=iwp) :: pt2wfn_is_h5 = .false.
 integer(kind=iwp) :: pt2wfn_id, pt2wfn_refene, pt2wfn_energy_sc, pt2wfn_energy_pc, pt2wfn_mocoef, pt2wfn_heff_sc, pt2wfn_heff_pc, &
-                     pt2wfn_heff_evc_sc, pt2wfn_heff_evc_pc, pt2wfn_ref_checkpoint
+                     pt2wfn_ref_checkpoint
 
 public :: nevpt2wfn_close, nevpt2wfn_data, nevpt2wfn_estore, nevpt2wfn_init
 

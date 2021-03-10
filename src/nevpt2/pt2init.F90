@@ -105,6 +105,8 @@ call refwfn_close()
 
 !> check if nr_states has been requested as 'all'
 if (nr_states == 0) then
+  ! using standard allocate and deallocate because MultGroup&State
+  ! is deallocated somewhere in the external library
   if (allocated(MultGroup%State)) deallocate(MultGroup%State)
   !> nstate from common block in caspt2.fh
   nr_states = nstate
@@ -215,6 +217,8 @@ if (.not. allocated(igelo)) then
       nr_frozen_orb = nr_frozen_orb+nFro(ii)
     end do
 
+    ! using standard allocate because igelo
+    ! is deallocated somewhere in the external library
     allocate(igelo(nr_frozen_orb))
     ! fill igelo by symmetry
     !! TODO: Check here for what has been frozen in MOTRA and subtract it (!!)
@@ -279,7 +283,7 @@ write(u6,'(a/)') ' ---------------------------------------------'
 if (allocated(qcm_group_names)) then
   write(u6,'(a)') ' DMRG wavefunction data will be read from'
   write(u6,'(a)') ' ----------------------------------------'
-  if (.not. allocated(MultGroup%h5_file_name)) allocate(MultGroup%h5_file_name(nr_states))
+  if (.not. allocated(MultGroup%h5_file_name)) call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name')
   MultGroup%h5_file_name = ''
   do istate=1,nr_states
     MultGroup%h5_file_name(istate) = trim(qcm_group_names(1)%states(MultGroup%State(istate)))
