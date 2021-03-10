@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Leon Freitag                                     *
-*               2017, Stefan Knecht                                    *
-************************************************************************
-****************
-* This is the wrapper for Celestino Angeli's NEVPT2 code, modified for
-* DMRG and Cholesky support
-* Author: Leon Freitag, ETH Zurich
-* last modifications: S. Knecht, ETH Zurich, August 2017
-****************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Leon Freitag                                     *
+!               2017, Stefan Knecht                                    *
+!***********************************************************************
+!***************
+! This is the wrapper for Celestino Angeli's NEVPT2 code, modified for
+! DMRG and Cholesky support
+! Author: Leon Freitag, ETH Zurich
+! last modifications: S. Knecht, ETH Zurich, August 2017
+!***************
       subroutine nevpt2(iReturn)
 
         use koopro4QD
@@ -70,7 +70,7 @@
           write (6,*) "Skipping the calculation of Koopmans' matrices."
           inquire(file='nevpt.h5',exist=nevpth5_exists)
           if (.not.(nevpth5_exists)) then
-            call WarningMessage(1,"Requested to skip the Koopmans'"//
+            call WarningMessage(1,"Requested to skip the Koopmans'"//   &
      &     " matrix calculation step but nevpt.h5 file not found!")
             call Abend()
           end if

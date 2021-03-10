@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-* MOLCAS wrapper for Celestino Angeli's NEVPT2 code
-* rdinput reads input from the MOLCAS input file
-*
-********************
-* This routine is based on the EXPBAS input routine in
-* ../src/readinp_expbas.f
-* therefore we stick to ugly F77 code and use nice F90 features at the same time! O_o
-* One day it should be changed to proper F90 code
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+! MOLCAS wrapper for Celestino Angeli's NEVPT2 code
+! rdinput reads input from the MOLCAS input file
+!
+!*******************
+! This routine is based on the EXPBAS input routine in
+! ../src/readinp_expbas.f
+! therefore we stick to ugly F77 code and use nice F90 features at the same time! O_o
+! One day it should be changed to proper F90 code
 
       subroutine rdinput(refwfnfile)
 
@@ -34,12 +34,12 @@
       integer LuSpool, isFreeUnit, iError,i, isplit
       logical, external :: next_non_comment
 
-c
-c Initial values
-c
+!
+! Initial values
+!
 
       refwfnfile = "JOBIPH"
-c
+!
       LuSpool=18
       LuSpool=isFreeUnit(LuSpool)
       Call SpoolInp(LuSpool)
@@ -54,7 +54,7 @@ c
       nr_states = 1
 
   999 Continue
-*      Read(LuSpool,'(A)',End=9940) Line
+!      Read(LuSpool,'(A)',End=9940) Line
       key =Get_Ln(LuSpool)
       Call LeftAd(key)
       Line = key
@@ -75,13 +75,13 @@ c
       Call FindErrorLine
       Call Quit_OnUserError()
 
-*========= NOPC =============
+!========= NOPC =============
 
  1000 Continue
       no_pc = .true.
       Go To 999
 
-*========= STAT =============
+!========= STAT =============
  2000 Continue
       ! read the # of states
       key =Get_Ln(LuSpool)
@@ -91,7 +91,7 @@ c
         MultGroup%State(i) = i
       end do
       Go To 999
-*========= FROZ =============
+!========= FROZ =============
  3000 Continue
       ! Read in the information about frozen orbitals
       ! It can be provided either with a number of frozen orbitals
@@ -113,7 +113,7 @@ c
         Call LeftAd(frozen_str)
         read (frozen_str,*,Err=9920) nr_frozen_orb
         if (nr_frozen_orb.le.0) then
-           Call WarningMessage(2,'Nr of frozen orbitals for selection'
+           Call WarningMessage(2,'Nr of frozen orbitals for selection'  &
      &      //' must be > 0!')
            Call Quit_OnUserError
         end if
@@ -134,7 +134,7 @@ c
           Call Quit_OnUserError
         else
           if (nr_frozen_orb.eq.0) then
-            write (6,*) 'Number of frozen orbitals'
+            write (6,*) 'Number of frozen orbitals'                     &
      &       //' has been set to 0.'
             ! Set it to -1 to signal that frozen orbs have been set forcibly to 0 here
             ! It will be detected in pt2init and reset back to 0
@@ -148,18 +148,18 @@ c
         end if
       end if
       Go To 999
-*========= SKIP =============
+!========= SKIP =============
       ! Skip the calculation of Koopmans' matrices if requested by the
       ! SKIP(Koop) keyword
  4000 Continue
       skip_koopro_molcas = .true.
       Go To 999
-*========= NOMS =============
+!========= NOMS =============
       ! Skip the calculation of an effective Hamiltonian (suitable for multistate state-specific calculations)
  5000 Continue
       skip_effective_ham = .true.
       Go To 999
-*========= MULT =============
+!========= MULT =============
       ! multi-state QD-NEVPT2 calculation requested with the states given below
  6000 Continue
       If(.NOT.next_non_comment(LuSpool,Line)) GoTo 9910
@@ -179,7 +179,7 @@ c
       dLine = line(iSplit:)
       iError = -1
       Do While (iError.lt.0)
-        Read(dLine,*,IOStat=iError)
+        Read(dLine,*,IOStat=iError)                                     &
      &    (MultGroup%State(i), i=1,nr_states)
         If (iError.gt.0) GoTo 9920
         If (iError.lt.0) Then
@@ -188,7 +188,7 @@ c
         End If
       End Do
       Go To 999
-*========= FILE =============
+!========= FILE =============
       ! Specifiy the name of the reference wfn file for NEVPT2.
  7000 Continue
       If(.NOT.next_non_comment(LuSpool,Line)) GoTo 9910
@@ -196,7 +196,7 @@ c
       call fileorb(Line,refwfnfile)
 !     Read(Line,*,Err=9920,End=9920) refwfnfile
       Go To 999
-*========= RDMR ============= a.k.a. RDMRead
+!========= RDMR ============= a.k.a. RDMRead
 ! Skip calculation of 4-RDM and/or transition 3-RDMs at the beginning of the calculation
 ! This is useful only for single-file reading, e.g. when your previous calculation has crashed
 ! and you do not wish to recalculate the full 4-RDM again.
@@ -204,7 +204,7 @@ c
  8000 Continue
       rdm_read = .true.
       Go To 999
-*========= DIST ============= a.k.a. DistributedRDM
+!========= DIST ============= a.k.a. DistributedRDM
 ! Skip calculation of RDMs *and* read them from distributed RDM calculation
 ! Specify a path, where the program will look for subdirectories
 ! of the format "A-B-C-D", where A,B,C,D are the first four indices of the 4-RDM to be calculated
@@ -231,7 +231,7 @@ c
 
       !> make sure the array is allocated for the minimal input
       !> &NEVPT2 &END
-      if(.not.allocated(MultGroup%State))
+      if(.not.allocated(MultGroup%State))                               &
      &  allocate(MultGroup%State(1)); MultGroup%State(1) = 1
 
       end subroutine rdinput

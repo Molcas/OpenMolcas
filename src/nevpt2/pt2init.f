@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
       !> Read information provided on runfile/jobiph files and
       !> initialize pt2wfn file
@@ -15,9 +15,9 @@
 
 #ifdef _DMRG_
       use qcmaquis_info, only: qcm_group_names
-      use qcmaquis_interface, only:
-     &  qcmaquis_interface_measure_and_save_trans3rdm,
-     &  qcmaquis_interface_get_3rdm_elements,
+      use qcmaquis_interface, only:                                     &
+     &  qcmaquis_interface_measure_and_save_trans3rdm,                  &
+     &  qcmaquis_interface_get_3rdm_elements,                           &
      &  qcmaquis_interface_get_4rdm_elements
       use qcmaquis_interface_utility_routines, only: str
 #endif
@@ -25,7 +25,7 @@
       use hdf5_utils
       use mh5, only: mh5_is_hdf5
 #endif
-      use refwfn, only: refwfn_init, refwfn_info, refwfn_data,
+      use refwfn, only: refwfn_init, refwfn_info, refwfn_data,          &
      &                  refwfn_close
       use nevpt2_cfg
       use info_state_energy  ! energies
@@ -52,11 +52,11 @@
       Call Get_iScalar('nSym',nSym)
       ! Symmetry with Cholesky decomposition is not supported yet!
       if ( (nSym.gt.1) .and. do_cholesky) then
-        call WarningMessage(1, "Symmetry with Cholesky decomposition"//
+        call WarningMessage(1, "Symmetry with Cholesky decomposition"// &
      &    " is not supported yet!")
         Call Quit_OnUserError()
       end if
-      write (6,*) "Cholesky Decomposition: ",
+      write (6,*) "Cholesky Decomposition: ",                           &
      &    merge("Enabled ", "Disabled", do_cholesky)
 
       !> set up AO basis information (needed for post-NEVPT2 information transfer)
@@ -89,17 +89,17 @@
           ! try $Project.rasscf.h5
           refwfnfile = trim(molcas_project)//".rasscf.h5"
           If (.not.mh5_is_hdf5(refwfnfile)) Then
-            call WarningMessage(1,
-     & "Cannot find a HDF5 file with the reference wavefunction. "//
-     & "Make sure that file "//trim(molcas_project)//".rasscf.h5 "//
+            call WarningMessage(1,                                      &
+     & "Cannot find a HDF5 file with the reference wavefunction. "//    &
+     & "Make sure that file "//trim(molcas_project)//".rasscf.h5 "//    &
      & "or .dmrgscf.h5 exists")
             call Quit_OnUserError()
           end if
         endif
       endif
 #else
-      call WarningMessage(1,
-     & "Please compile OpenMolcas with HDF5 support "//
+      call WarningMessage(1,                                            &
+     & "Please compile OpenMolcas with HDF5 support "//                 &
      &  "for NEVPT2 to work")
       call Quit_OnUserError()
 #endif
@@ -128,7 +128,7 @@
 
       write (6,'(/a)')   " Wavefunction parameters for NEVPT2"
       write (6,'(a )')   " ----------------------------------"
-      write (6,'(a,i4)') " Number of active electrons ....... ",
+      write (6,'(a,i4)') " Number of active electrons ....... ",        &
      & nr_active_electrons
       write (6,'(a,i4)') " Spin ............................. ", nspin
 
@@ -180,7 +180,7 @@
       call hdf5_exit()
 #else
       ! Should never be the case!
-      call WarningMessage(1,"HDF5 QCMaquis interface not enabled, "//
+      call WarningMessage(1,"HDF5 QCMaquis interface not enabled, "//   &
      &  "cannot continue!")
       call Abend()
 #endif
@@ -218,7 +218,7 @@
             do ii = 1, nSym
               nFro(ii) = nFro(ii) - inforb_molcas%nfro(ii)
               if (nFro(ii).lt.0) then
-                call WarningMessage(1,"Warning: Additional frozen "//
+                call WarningMessage(1,"Warning: Additional frozen "//   &
      &            "orbitals in MOTRA.")
                 nFro(ii) = 0
               end if
@@ -254,9 +254,9 @@
         end if
         else
           if (maxval(inforb_molcas%nfro(1:nSym)).gt.0) then
-            call WarningMessage(2,"Warning: Orbitals have been "//
-     &        "frozen in MOTRA and manual freeze specification "//
-     &        "has been provided in NEVPT2 input. Make sure "//
+            call WarningMessage(2,"Warning: Orbitals have been "//      &
+     &        "frozen in MOTRA and manual freeze specification "//      &
+     &        "has been provided in NEVPT2 input. Make sure "//         &
      &        "you're not double-counting the frozen orbitals!")
         end if
       end if
@@ -269,19 +269,19 @@
       inforb_molcas%nbsqt       = nbsqt
 
       if (maxval(inforb_molcas%nfro(1:nSym)).gt.0) then
-        write (6,'(a,8(18i4))') " Frozen orbitals from MOTRA ....... ",
+        write (6,'(a,8(18i4))') " Frozen orbitals from MOTRA ....... ", &
      &               (inforb_molcas%nfro(ii),ii=1,nSym)
       end if
 
-      write (6,'(a,8(18i4))') " Inactive orbitals ................ ",
+      write (6,'(a,8(18i4))') " Inactive orbitals ................ ",   &
      &               (inforb_molcas%nish(ii),ii=1,nSym)
-      write (6,'(a,8(18i4))') " Active orbitals .................. ",
+      write (6,'(a,8(18i4))') " Active orbitals .................. ",   &
      &               (inforb_molcas%nash(ii),ii=1,nSym)
-      write (6,'(a,8(18i4))') " Secondary orbitals ............... ",
+      write (6,'(a,8(18i4))') " Secondary orbitals ............... ",   &
      &               (inforb_molcas%nssh(ii),ii=1,nSym)
 
       if (maxval(inforb_molcas%ndel(1:nSym)).gt.0) then
-        write (6,'(a,8(18i4))') " Deleted orbitals from MOTRA..... ",
+        write (6,'(a,8(18i4))') " Deleted orbitals from MOTRA..... ",   &
      &               (inforb_molcas%ndel(ii),ii=1,nSym)
       end if
 
@@ -294,7 +294,7 @@
       do istate = 1, nr_states
         !> copy reference energies
         e(istate) = refene(MultGroup%State(istate))
-        write (6,'(a,i4,a,f18.8)') " State ...",MultGroup%State(istate),
+        write (6,'(a,i4,a,f18.8)') " State ...",MultGroup%State(istate),&
      &         " ... Energy = ",e(istate)
       end do
       write (6,'(a/)')" ---------------------------------------------"
@@ -303,15 +303,15 @@
       if(allocated(qcm_group_names))then
         write (6,'(a)') " DMRG wavefunction data will be read from"
         write (6,'(a)') " ----------------------------------------"
-        if(.not.allocated(MultGroup%h5_file_name))
+        if(.not.allocated(MultGroup%h5_file_name))                      &
      &  allocate(MultGroup%h5_file_name(nr_states))
         MultGroup%h5_file_name = ''
         do istate = 1, nr_states
-          MultGroup%h5_file_name(istate) =
+          MultGroup%h5_file_name(istate) =                              &
      &    trim(qcm_group_names(1)%states(MultGroup%State(istate)))
           !> copy reference wfn file names
-          write (6,'(a,i4,a,a)') " State ...",MultGroup%State(istate),
-     &           " .......................... ",
+          write (6,'(a,i4,a,a)') " State ...",MultGroup%State(istate),  &
+     &           " .......................... ",                        &
      &          trim(qcm_group_names(1)%states(MultGroup%State(istate)))
         end do
         write (6,'(a/)')" ----------------------------------------"
