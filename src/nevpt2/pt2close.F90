@@ -9,28 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      !> Cleanup and close files
-      subroutine pt2close
+!> Cleanup and close files
+subroutine pt2close
 
-      use nevpt2_cfg
-      use info_state_energy  ! energies
-      use info_orbital_space ! orbital specifications read from JobIph
-      use nevpt2wfn
-      implicit none
+use nevpt2_cfg
+use info_state_energy  ! energies
+use info_orbital_space ! orbital specifications read from JobIph
+use nevpt2wfn
 
+implicit none
 #include "mxdm.fh"
 #include "caspt2.fh"
 
-      call nevpt2wfn_close
-      call deinit_energies
-      call finalize_inforb_molcas
+call nevpt2wfn_close()
+call deinit_energies()
+call finalize_inforb_molcas()
 
-      if(allocated(MultGroup%State))                                    &
-     &  deallocate(MultGroup%State)
-      if(allocated(MultGroup%h5_file_name))                             &
-     &  deallocate(MultGroup%h5_file_name)
+if (allocated(MultGroup%State)) deallocate(MultGroup%State)
+if (allocated(MultGroup%h5_file_name)) deallocate(MultGroup%h5_file_name)
 
-      !> close file LUONEM
-      call DaClos(LUONEM)
+!> close file LUONEM
+call DaClos(LUONEM)
 
-      end subroutine pt2close
+end subroutine pt2close

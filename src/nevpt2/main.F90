@@ -8,9 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
-      integer ireturn
-      Call Start('nevpt2')
-      Call nevpt2(ireturn)
-      Call Finish(ireturn)
-      end
+
+program Main
+
+#ifdef _FPE_TRAP_
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
+#endif
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
+#endif
+
+call Start('nevpt2')
+call nevpt2(rc)
+call Finish(rc)
+
+end program Main
