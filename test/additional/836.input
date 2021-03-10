@@ -2,7 +2,7 @@
 * Molecule: Acrolein
 * Basis: 6-31G
 * Symmetry: C1
-* Features tested: Singlet-triplet crossing optimization
+* Features tested: Singlet-triplet crossing optimization (with SCF)
 * Responsible person: I. Fdez. Galván
 * Comments:
 *-------------------------------------------------------------------------------

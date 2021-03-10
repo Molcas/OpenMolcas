@@ -149,7 +149,7 @@
         Else
           Energy0(iter)=E0
           Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
-          Gx0(1,1,iter) = -Gx0(1,1,iter)
+          Gx0(:,:,iter) = -Gx0(:,:,iter)
         End If
       End If
 *
