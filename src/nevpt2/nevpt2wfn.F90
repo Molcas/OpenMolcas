@@ -142,7 +142,7 @@ subroutine nevpt2wfn_init(create_h5)
       !> effective Hamiltonian (PC) - default
       pt2wfn_heff_pc = mh5_create_dset_real(pt2wfn_id,'H_EFF',2,[nr_states,nr_states])
       call mh5_init_attr(pt2wfn_heff_pc,'DESCRIPTION', &
-                       'Effective QD-NEVPT2 hamiltonian (PC), arranged as matrix of size [nr_states,nr_states]')
+                         'Effective QD-NEVPT2 hamiltonian (PC), arranged as matrix of size [nr_states,nr_states]')
 
     end if
 

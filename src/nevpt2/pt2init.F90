@@ -289,7 +289,7 @@ if (allocated(qcm_group_names)) then
     MultGroup%h5_file_name(istate) = trim(qcm_group_names(1)%states(MultGroup%State(istate)))
     !> copy reference wfn file names
     write(u6,'(a,i4,a,a)') ' State ...',MultGroup%State(istate),' .......................... ', &
-                          trim(qcm_group_names(1)%states(MultGroup%State(istate)))
+                           trim(qcm_group_names(1)%states(MultGroup%State(istate)))
   end do
   write(u6,'(a/)') ' ----------------------------------------'
 end if
