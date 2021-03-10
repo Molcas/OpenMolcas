@@ -44,7 +44,7 @@
      &            'EXPD','NEGP','LOWM','ELHE','SAVE',
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
-     &            'THER','NEWC','TWOS'/
+     &            'THER','CHOF','TWOS'/
       Integer iDum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *

@@ -169,6 +169,23 @@ A list of these keywords is given below:
               to be followed by an integer on the next line, specifying the
               excited state for which the gradient is required.
               </KEYWORD>
+:kword:`CHOF`
+  Makes :program:`MCLR`, in association with compute the Lagrangian multipliers for a state average
+  MCSCF wave function and the RI option, to use the so-called Cho-FOCK algorithm, rather than the default Cho-MO algorthm.
+  The Cho-Fock option is the fastest for calculations with large basis sets. For details consult the paper
+  entitled "Analytical gradients of the state-average complete active space self-consistent field method with density fitting", doi.org/10.1063/1.4927228.
+
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="CHOF" APPEAR="CHO-FOCK" KIND="SINGLE" LEVEL="BASIC">
+              <HELP>
+              Makes MCLR use the Cho-Fock algorithm in association with the RI option for the two-electron integrals
+              CASSCF wave function.
+              </HELP>
+              %%Keyword: CHOF <basic>
+              Makes MCLR, in association with compute the Lagrangian multipliers for a state average
+              MCSCF wave function and the RI option, to use the so-called Cho-FOCK algorithm, rather than the default Cho-MO algorthm.
+              The Cho-Fock option is the fastest for calculations with large basis sets. For details consult the paper
+              entitled "Analytical gradients of the state-average complete active space self-consistent field method with density fitting", doi.org/10.1063/1.4927228.
+              </KEYWORD>
 
 :kword:`NAC`
   Like :kword:`SALA`, but for computing nonadiabatic couplings. It must

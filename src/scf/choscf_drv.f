@@ -245,7 +245,7 @@ c       end do
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(1)%pA(iSym)%A(ikk,:) =
+                Cka(1)%SB(iSym)%A(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3-1+nBas(iSym))
              end do
@@ -522,7 +522,7 @@ C Compute the total density Dalpha + Dbeta
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(1)%pA(iSym)%A(ikk,:) =
+                Cka(1)%SB(iSym)%A(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3 - 1 + nBas(iSym))
              end do
@@ -530,7 +530,7 @@ C Compute the total density Dalpha + Dbeta
            If (nBas(iSym)*nIorb(iSym,2).ne.0) Then
              do ikk=1,nIorb(iSym,2)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(2)%pA(iSym)%A(ikk,:) =
+                Cka(2)%SB(iSym)%A(ikk,:) =
      &            Work(ipMSQ(2)+ioff3 :
      &                 ipMSQ(2)+ioff3 - 1 + nBas(iSym))
              end do

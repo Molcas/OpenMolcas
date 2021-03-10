@@ -213,13 +213,13 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
 
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
-              POrb(1)%pA(iSym)%A(ikk,:) =
+              POrb(1)%SB(iSym)%A(ikk,:) =
      &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
 
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
-              POrb(3)%pA(iSym)%A(ikk,:) =
+              POrb(3)%SB(iSym)%A(ikk,:) =
      &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
      &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
@@ -238,7 +238,7 @@ C *** Only the active orbitals MO coeff need reordering
             ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
                ioff = ioff2+nBas(iSym)*(ikk-1)
-               CVa(1)%pA(iSym)%A(ikk,:) =
+               CVa(1)%SB(iSym)%A(ikk,:) =
      &           CMO(ioff +  1 : ioff + nBas(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
@@ -307,7 +307,7 @@ C ---  Decompose the active density  -----------------------------
 ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
 !                 This will avoid warnings for negative-definit
              call CD_InCore(Work(ipd),nBas(i),
-     &                      CVa(2)%pA(i)%A,nBas(i),
+     &                      CVa(2)%SB(i)%A,nBas(i),
      &                      NumV,Thr,rc)
              If (rc.ne.0) Then
                 write(6,*)SECNAM//': ill-defined dens decomp for active'
@@ -339,8 +339,8 @@ c --- reorder "Cholesky MOs" to Cva storage
         Do iSym=1,nSym
            If (nBas(iSym)*nChM(iSym).ne.0) Then
                do ikk=1,nChM(iSym)
-                  POrb(2)%pA(iSym)%A(ikk,:) =
-     &               CVa(2)%pA(iSym)%A(:,ikk)
+                  POrb(2)%SB(iSym)%A(ikk,:) =
+     &               CVa(2)%SB(iSym)%A(:,ikk)
                end do
            EndIf
         End Do
@@ -388,28 +388,6 @@ C ----------------------------------------------------------------
          If(DoActive) Call Getmem('KALT','Free','Real',ipKLT(2),NTot1)
          Call Getmem('KILT','Free','Real',ipKLT(1),NTot1)
 
-
-      ELSEIF (ALGO.eq.2) THEN
-
-         ipInt = LTUVX   ! (TU|VX) integrals only are computed
-
-         CALL CHO_FCAS_AO(rc,ipFA,ipFI,ipQmat,nForb,nIorb,nAorb,FactXI,
-     &                    ipDILT,ipDALT,ipDSA2,DoActive,DoQmat,POrb,
-     &                    nChM,ipInt,ExFac)
-
-*  Synchronization of the Fock matrices
-         Call GaDsum(Work(ipFI),NTot1)
-         Call GaDsum(Work(ipFA),NTot1)
-*  Synchronization of the Q-matrix
-         lQ=0
-         Do i=1,nSym
-            lQ = lQ + nBas(i)*nAorb(i)
-         End Do
-         Call GaDsum(Work(ipQmat),lQ)
-*  Synchronization of the (TU|VX) integrals
-         Call GaDsum(Work(LTUVX),NACPR2)
-
-
       ELSE
 
          write(6,*)SECNAM//': wrong input parameter. ALGO= ',ALGO
@@ -418,11 +396,11 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-      If (Allocated(POrb(3)%CMO_full)) Call Deallocate_CMO(POrb(3))
-      If (Allocated(POrb(2)%CMO_full)) Call Deallocate_CMO(POrb(2))
-      If (Allocated(POrb(1)%CMO_full)) Call Deallocate_CMO(POrb(1))
-      If (Allocated(CVa(1)%CMO_full)) Call Deallocate_CMO(CVa(1))
-      If (Allocated(CVa(2)%CMO_full)) Call Deallocate_CMO(CVa(2))
+      If (Allocated(POrb(3)%A0)) Call Deallocate_CMO(POrb(3))
+      If (Allocated(POrb(2)%A0)) Call Deallocate_CMO(POrb(2))
+      If (Allocated(POrb(1)%A0)) Call Deallocate_CMO(POrb(1))
+      If (Allocated(CVa(1)%A0)) Call Deallocate_CMO(CVa(1))
+      If (Allocated(CVa(2)%A0)) Call Deallocate_CMO(CVa(2))
 
       If (DoQmat.and.ALGO.ne.1) Then
          Call Getmem('P-mat','Free','Real',ipPmat,NPmat)

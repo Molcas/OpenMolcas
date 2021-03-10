@@ -370,7 +370,7 @@
 
             Do i=1,nASh(iIrrep)
                kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
-               AOrb(iADens)%pA(iIrrep+1)%A(i,1:nBas(iIrrep)) =
+               AOrb(iADens)%SB(iIrrep+1)%A(i,1:nBas(iIrrep)) =
      &            CMO(kOff1:kOff1-1+nBas(iIrrep),iADens)
             End Do
 
