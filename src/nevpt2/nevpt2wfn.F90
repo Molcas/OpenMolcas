@@ -17,14 +17,16 @@
 
 module nevpt2wfn
 
-integer :: pt2wfn_id
-logical :: pt2wfn_is_h5 = .false.
-integer :: pt2wfn_refene, pt2wfn_energy_sc, pt2wfn_energy_pc
-integer :: pt2wfn_mocoef!, pt2wfn_occnum, pt2wfn_orbene
-integer :: pt2wfn_heff_sc, pt2wfn_heff_pc
-integer :: pt2wfn_heff_evc_sc, pt2wfn_heff_evc_pc
-integer :: pt2wfn_ref_checkpoint
-save
+use Definitions, only: iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: pt2wfn_is_h5 = .false.
+integer(kind=iwp) :: pt2wfn_id, pt2wfn_refene, pt2wfn_energy_sc, pt2wfn_energy_pc, pt2wfn_mocoef, pt2wfn_heff_sc, pt2wfn_heff_pc, &
+                     pt2wfn_heff_evc_sc, pt2wfn_heff_evc_pc, pt2wfn_ref_checkpoint
+
+public :: nevpt2wfn_close, nevpt2wfn_data, nevpt2wfn_estore, nevpt2wfn_init
 
 contains
 
@@ -32,28 +34,27 @@ contains
 subroutine nevpt2wfn_init(create_h5)
 
   use refwfn, only: refwfn_active
-  use nevpt2_cfg
-  use info_state_energy  ! energies, effective Hamiltonian
-  use info_orbital_space ! orbital specifications read from JobIph
 # ifdef _HDF5_
+  use nevpt2_cfg, only: MultGroup, no_pc, nr_active_electrons, nr_states, nSpin
+  use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_str, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
 # endif
 
-  implicit none
+  logical(kind=iwp), intent(in) :: create_h5
+# ifndef _HDF5_
+# include "macros.fh"
+  unused_var(create_h5)
+# else
 # include "rasdim.fh"
 # include "caspt2.fh"
-# include "WrkSpc.fh"
-# include "stdalloc.fh"
 # include "pt2_guga.fh"
-  logical, intent(in) :: create_h5
-# ifdef _HDF5_
-  integer :: dsetid, i
-  character(len=1), allocatable :: typestring(:)
+  integer(kind=iwp) :: dsetid, i
+  character, allocatable :: typestring(:)
 # endif
 
   if (refwfn_active) then
     call WarningMessage(2,'Active reference wavefunction file, cannot create new PT2 wavefunction file, aborting!')
-    call AbEnd
+    call AbEnd()
   end if
 
 # ifdef _HDF5_
@@ -159,25 +160,23 @@ subroutine nevpt2wfn_init(create_h5)
 
 end subroutine nevpt2wfn_init
 
-subroutine nevpt2wfn_data
+subroutine nevpt2wfn_data()
 
+# ifdef _HDF5_
 # ifdef _DMRG_
   use qcmaquis_info, only: qcm_group_names
 # endif
   use nevpt2_cfg, only: MultGroup
-# ifdef _HDF5_
   use mh5, only: mh5_put_dset
-# endif
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: wp
 
-  implicit none
 # include "rasdim.fh"
 # include "caspt2.fh"
-# include "stdalloc.fh"
-# ifdef _HDF5_
-  real*8, allocatable :: BUF(:)
-  integer :: IDISK
+  real(kind=wp), allocatable :: BUF(:)
+  integer(kind=iwp) :: IDISK
 # ifdef _DMRG_
-  integer :: i
+  integer(kind=iwp) :: i
 # endif
 
   if (pt2wfn_is_h5) then
@@ -201,15 +200,11 @@ end subroutine nevpt2wfn_data
 
 subroutine nevpt2wfn_estore()
 
-  use nevpt2_cfg
-  use info_state_energy  ! energies + effective Hamiltonian
 # ifdef _HDF5_
+  use nevpt2_cfg, only: no_pc
+  use info_state_energy, only: e, e2en, e2mp, psien, psimp ! energies + effective Hamiltonian
   use mh5, only: mh5_put_dset
-# endif
 
-  implicit none
-
-# ifdef _HDF5_
   if (pt2wfn_is_h5) then
     !> reference energies aka DMRG-SCF energies
     call mh5_put_dset(pt2wfn_refene,e)
@@ -227,24 +222,20 @@ subroutine nevpt2wfn_estore()
 
 end subroutine nevpt2wfn_estore
 
-subroutine nevpt2wfn_close
+subroutine nevpt2wfn_close()
 
+# ifdef _HDF5_
 # ifdef _DMRG_
   use qcmaquis_info, only: qcmaquis_info_deinit
 # endif
-# ifdef _HDF5_
   use mh5, only: mh5_close_file
-# endif
 
-  implicit none
-
-# ifdef _HDF5_
   if (pt2wfn_is_h5) then
     call mh5_close_file(pt2wfn_id)
     pt2wfn_is_h5 = .false.
     pt2wfn_id = -1
 #   ifdef _DMRG_
-    call qcmaquis_info_deinit
+    call qcmaquis_info_deinit()
 #   endif
 
   end if

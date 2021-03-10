@@ -20,22 +20,22 @@
 
 subroutine nevpt2(iReturn)
 
-use koopro4QD
-use qdnevpt_core
-use nevpt2wfn          ! wfn file
-use nevpt_header       ! header
-use nevpt2_cfg         ! input variables
-use info_state_energy  ! energies
-use info_orbital_space ! orbital space info
+use koopro4QD, only: koopro4qd_driver
+use qdnevpt_core, only: qdnevpt
+use nevpt2wfn, only: nevpt2wfn_estore                                  ! wfn file
+use nevpt_header, only: print_nevpt_header                             ! header
+use nevpt2_cfg, only: do_dmrg_pt, no_pc, nr_states, skip_koopro_molcas ! input variables
+use info_state_energy, only: e2en, e2mp                                ! energies
 use Para_Info, only: King
+use Definitions, only: iwp, u6, r4
 
 implicit none
-integer iReturn
-real*4 :: t13                      ! dummy variables for the koopro4QD call
-logical, parameter :: rel_ham = .false. ! rel_ham and t13
-logical, parameter :: from_molcas = .true.
-logical :: nevpth5_exists = .true.
+integer(kind=iwp), intent(out) :: iReturn
+logical(kind=iwp) :: nevpth5_exists = .true.
 character(len=256) :: refwfnfile
+! dummy variables for the koopro4QD call
+real(kind=r4) :: t13
+logical(kind=iwp), parameter :: rel_ham = .false., from_molcas = .true.
 
 ! Make sure we run single-threaded in an MPI environment
 
@@ -46,33 +46,33 @@ if (KING()) then
   !> print NEVPT2 header
   do_dmrg_pt = .true.
   call print_nevpt_header(rel_ham)
-  call xflush(6)
+  call xflush(u6)
 
   !> read and process input
   call rdinput(refwfnfile)
-  call xflush(6)
+  call xflush(u6)
 
   !> read and process input
   call pt2init(refwfnfile)
-  call xflush(6)
+  call xflush(u6)
 
   if (.not. skip_koopro_molcas) then
-    write(6,'(/a )') ' Calculating the Koopmans'' matrices'
-    write(6,'( a )') ' ----------------------------------'
+    write(u6,'(/a )') ' Calculating the Koopmans'' matrices'
+    write(u6,'( a )') ' ----------------------------------'
     call koopro4QD_driver(rel_ham,t13,from_molcas)
-    call xflush(6)
+    call xflush(u6)
   else
-    write(6,*) 'Skipping the calculation of Koopmans'' matrices.'
+    write(u6,*) 'Skipping the calculation of Koopmans'' matrices.'
     inquire(file='nevpt.h5',exist=nevpth5_exists)
     if (.not.(nevpth5_exists)) then
       call WarningMessage(1,'Requested to skip the Koopmans'' matrix calculation step but nevpt.h5 file not found!')
       call Abend()
     end if
   end if
-  write(6,'(/a )') ' Starting NEVPT2 perturbation summation'
-  write(6,'( a )') ' --------------------------------------'
+  write(u6,'(/a )') ' Starting NEVPT2 perturbation summation'
+  write(u6,'( a )') ' --------------------------------------'
   call qdnevpt(rel_ham,t13,from_molcas)
-  call xflush(6)
+  call xflush(u6)
 
   !> store the PT2 energy and effective hamiltonian on the wavefunction file
   call nevpt2wfn_estore()
@@ -84,7 +84,7 @@ if (KING()) then
   end if
 
   !> clean up and free memory
-  call pt2close
+  call pt2close()
 end if
 iReturn = 0
 

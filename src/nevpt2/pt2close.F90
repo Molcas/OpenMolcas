@@ -10,12 +10,12 @@
 !***********************************************************************
 
 !> Cleanup and close files
-subroutine pt2close
+subroutine pt2close()
 
-use nevpt2_cfg
-use info_state_energy  ! energies
-use info_orbital_space ! orbital specifications read from JobIph
-use nevpt2wfn
+use nevpt2_cfg, only: MultGroup
+use info_state_energy, only: deinit_energies         ! energies
+use info_orbital_space, only: finalize_inforb_molcas ! orbital specifications read from JobIph
+use nevpt2wfn, only: nevpt2wfn_close
 
 implicit none
 #include "mxdm.fh"

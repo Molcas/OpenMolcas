@@ -20,21 +20,23 @@ use qcmaquis_interface, only: qcmaquis_interface_measure_and_save_trans3rdm, qcm
 use qcmaquis_interface_utility_routines, only: str
 #endif
 #ifdef _HDF5_QCM_
-use hdf5_utils
+use hdf5_utils, only: hdf5_init, hdf5_close, hdf5_exit, hdf5_get_data, hdf5_open
 use mh5, only: mh5_is_hdf5
 #endif
 use refwfn, only: refwfn_init, refwfn_info, refwfn_data, refwfn_close
-use nevpt2_cfg
-use info_state_energy  ! energies
-use info_orbital_space ! orbital specifications read from JobIph
-use nevpt2wfn
+use nevpt2_cfg, only: curr_dir, do_cholesky, igelo, molcas_project, MultGroup, nr_active_electrons, nr_frozen_orb, nr_states, nspin
+use info_state_energy, only: e, init_energies                                                     ! energies
+use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initialize_inforb_molcas ! orbital specifications read from JobIph
+use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: refwfn_in
 character(len=:), allocatable :: refwfnfile
-integer :: istate, ii, j, nDiff, nishprev, nfroprev
-integer, allocatable :: nCore_local(:)
-real*8, allocatable :: readbuf(:,:)
+integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
+integer(kind=iwp), allocatable :: nCore_local(:)
+real(kind=wp), allocatable :: readbuf(:,:)
 #include "mxdm.fh"
 #include "caspt2.fh"
 
@@ -51,7 +53,7 @@ if ((nSym > 1) .and. do_cholesky) then
   call WarningMessage(1,'Symmetry with Cholesky decomposition is not supported yet!')
   call Quit_OnUserError()
 end if
-write(6,*) 'Cholesky Decomposition: ',merge('Enabled ','Disabled',do_cholesky)
+write(u6,*) 'Cholesky Decomposition: ',merge('Enabled ','Disabled',do_cholesky)
 
 !> set up AO basis information (needed for post-NEVPT2 information transfer)
 call Get_iArray('nBas',nBas,nSym)
@@ -116,10 +118,10 @@ end if
 nspin = ispin
 nr_active_electrons = nactel
 
-write(6,'(/a)') ' Wavefunction parameters for NEVPT2'
-write(6,'(a )') ' ----------------------------------'
-write(6,'(a,i4)') ' Number of active electrons ....... ',nr_active_electrons
-write(6,'(a,i4)') ' Spin ............................. ',nspin
+write(u6,'(/a)') ' Wavefunction parameters for NEVPT2'
+write(u6,'(a )') ' ----------------------------------'
+write(u6,'(a,i4)') ' Number of active electrons ....... ',nr_active_electrons
+write(u6,'(a,i4)') ' Spin ............................. ',nspin
 
 ! read the info about orbital spaces and initialise
 ! the NEVPT2 inforb array
@@ -135,7 +137,7 @@ if (maxval(nfro) /= 0) then
   ! Leon: a workaround if frozen orbitals in MCSCF have been detected:
   ! MCSCF frozen orbitals MUST count as active here and then added
   ! to igelo(:) later, otherwise the orbital numbers do not match!
-  write(6,*) 'Frozen orbitals in MCSCF detected.'
+  write(u6,*) 'Frozen orbitals in MCSCF detected.'
   inforb_molcas%nish(1:nSym) = nfro(1:nSym)+nish(1:nSym)
 else
   inforb_molcas%nish(1:nSym) = nish(1:nSym)
@@ -153,14 +155,15 @@ end if
 call hdf5_init()
 call hdf5_open(ijklname,file_id(2)) ! open ijkl.h5
 datadim(1) = nsym
-allocate(readbuf(nsym,3)); readbuf = -1
+call mma_allocate(readbuf,nsym,3,label='readbuf')
+readbuf(:,:) = -1
 call hdf5_get_data(file_id(2),'norb  ',datadim,readbuf(1,1))
 call hdf5_get_data(file_id(2),'nfro  ',datadim,readbuf(1,2))
 call hdf5_get_data(file_id(2),'ndel  ',datadim,readbuf(1,3))
 inforb_molcas%norb(1:nSym) = nint(readbuf(1:nSym,1))
 inforb_molcas%nfro(1:nSym) = nint(readbuf(1:nSym,2))
 inforb_molcas%ndel(1:nSym) = nint(readbuf(1:nSym,3))
-deallocate(readbuf)
+call mma_deallocate(readbuf)
 
 call hdf5_close(file_id(2)) ! close ijkl.h5
 call hdf5_exit()
@@ -183,7 +186,7 @@ if (.not. allocated(igelo)) then
     ! hence try to guess frozen orbitals from reference wavefunction
 
     ! Correct the # of frozen orbitals just as it is done in CASPT2
-    allocate(nCore_local(nSym))
+    call mma_allocate(nCore_local,nSym,label='nCore_local')
     call Get_iArray('Non valence orbitals',nCore_local,nSym)
     do ii=1,nSym
       if (nCore_local(ii) > nFro(ii)) then
@@ -193,7 +196,7 @@ if (.not. allocated(igelo)) then
         nISh(ii) = nISh(ii)-nDiff
       end if
     end do
-    deallocate(nCore_local)
+    call mma_deallocate(nCore_local)
 
     ! Check if orbitals have been frozen in MOTRA
     if (maxval(inforb_molcas%nfro(1:nSym)) > 0) then
@@ -248,43 +251,43 @@ inforb_molcas%ncmo = ncmo
 inforb_molcas%nbsqt = nbsqt
 
 if (maxval(inforb_molcas%nfro(1:nSym)) > 0) then
-  write(6,'(a,8(18i4))') ' Frozen orbitals from MOTRA ....... ',(inforb_molcas%nfro(ii),ii=1,nSym)
+  write(u6,'(a,8(18i4))') ' Frozen orbitals from MOTRA ....... ',(inforb_molcas%nfro(ii),ii=1,nSym)
 end if
 
-write(6,'(a,8(18i4))') ' Inactive orbitals ................ ',(inforb_molcas%nish(ii),ii=1,nSym)
-write(6,'(a,8(18i4))') ' Active orbitals .................. ',(inforb_molcas%nash(ii),ii=1,nSym)
-write(6,'(a,8(18i4))') ' Secondary orbitals ............... ',(inforb_molcas%nssh(ii),ii=1,nSym)
+write(u6,'(a,8(18i4))') ' Inactive orbitals ................ ',(inforb_molcas%nish(ii),ii=1,nSym)
+write(u6,'(a,8(18i4))') ' Active orbitals .................. ',(inforb_molcas%nash(ii),ii=1,nSym)
+write(u6,'(a,8(18i4))') ' Secondary orbitals ............... ',(inforb_molcas%nssh(ii),ii=1,nSym)
 
 if (maxval(inforb_molcas%ndel(1:nSym)) > 0) then
-  write(6,'(a,8(18i4))') ' Deleted orbitals from MOTRA..... ',(inforb_molcas%ndel(ii),ii=1,nSym)
+  write(u6,'(a,8(18i4))') ' Deleted orbitals from MOTRA..... ',(inforb_molcas%ndel(ii),ii=1,nSym)
 end if
 
-write(6,'(a/)') ' ----------------------------------'
+write(u6,'(a/)') ' ----------------------------------'
 
 call init_energies(nr_states)
 
-write(6,'(a)') ' Energies of zeroth-order DMRG wavefunction(s)'
-write(6,'(a)') ' ---------------------------------------------'
+write(u6,'(a)') ' Energies of zeroth-order DMRG wavefunction(s)'
+write(u6,'(a)') ' ---------------------------------------------'
 do istate=1,nr_states
   !> copy reference energies
   e(istate) = refene(MultGroup%State(istate))
-  write(6,'(a,i4,a,f18.8)') ' State ...',MultGroup%State(istate),' ... Energy = ',e(istate)
+  write(u6,'(a,i4,a,f18.8)') ' State ...',MultGroup%State(istate),' ... Energy = ',e(istate)
 end do
-write(6,'(a/)') ' ---------------------------------------------'
+write(u6,'(a/)') ' ---------------------------------------------'
 
 #ifdef _DMRG_
 if (allocated(qcm_group_names)) then
-  write(6,'(a)') ' DMRG wavefunction data will be read from'
-  write(6,'(a)') ' ----------------------------------------'
+  write(u6,'(a)') ' DMRG wavefunction data will be read from'
+  write(u6,'(a)') ' ----------------------------------------'
   if (.not. allocated(MultGroup%h5_file_name)) allocate(MultGroup%h5_file_name(nr_states))
   MultGroup%h5_file_name = ''
   do istate=1,nr_states
     MultGroup%h5_file_name(istate) = trim(qcm_group_names(1)%states(MultGroup%State(istate)))
     !> copy reference wfn file names
-    write(6,'(a,i4,a,a)') ' State ...',MultGroup%State(istate),' .......................... ', &
+    write(u6,'(a,i4,a,a)') ' State ...',MultGroup%State(istate),' .......................... ', &
                           trim(qcm_group_names(1)%states(MultGroup%State(istate)))
   end do
-  write(6,'(a/)') ' ----------------------------------------'
+  write(u6,'(a/)') ' ----------------------------------------'
 end if
 #endif
 

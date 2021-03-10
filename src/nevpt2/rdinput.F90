@@ -16,28 +16,30 @@
 
 subroutine rdinput(refwfnfile)
 
-use nevpt2_cfg ! use global variables directly from the NEVPT2 program
+! use global variables directly from the NEVPT2 program
+use nevpt2_cfg, only: igelo, MultGroup, no_pc, nr_frozen_orb, nr_states, rdm_distributed, rdm_path, rdm_read, skip_effective_ham, &
+                      skip_koopro_molcas
+use Definitions, only: iwp, u6
 
 implicit none
 character(len=*), intent(out) :: refwfnfile
-character*180 Line, Blank, key, Get_Ln
-character*9001 dline
-character*9001 frozen_str
-external Get_Ln, isFreeUnit
-integer LuSpool, isFreeUnit, iError, i, isplit
-logical, external :: next_non_comment
+character(len=180) :: Line, key
+character(len=9001) :: dline
+character(len=9001) :: frozen_str
+integer(kind=iwp) :: LuSpool, iError, i, isplit
+integer(kind=iwp), external :: isFreeUnit
+logical(kind=iwp), external :: next_non_comment
+character(len=180), external :: Get_Ln
 
 ! Initial values
 
 refwfnfile = 'JOBIPH'
 
-LuSpool = 18
-LuSpool = isFreeUnit(LuSpool)
+LuSpool = isFreeUnit(18)
 call SpoolInp(LuSpool)
 
 rewind(LuSpool)
 call RdNLst(LuSpool,'NEVPT2')
-Blank = ' '
 iError = -1
 
 !> set it to one in order to make sure NEVPT2 runs also with just the basic input
@@ -49,7 +51,7 @@ key = Get_Ln(LuSpool)
 call LeftAd(key)
 Line = key
 if (Line(1:1) == '*') goto 999
-if (Line == Blank) goto 999
+if (Line == ' ') goto 999
 call UpCase(Line)
 if (Line(1:4) == 'NOPC') goto 1000
 if (Line(1:4) == 'STAT') goto 2000
@@ -61,7 +63,7 @@ if (Line(1:4) == 'FILE') goto 7000
 if (Line(1:4) == 'RDMR') goto 8000
 if (Line(1:4) == 'DIST') goto 9000
 if (Line(1:4) == 'END ') Go To 99999
-write(6,*) 'Unidentified key word  : '
+write(u6,*) 'Unidentified key word  : '
 call FindErrorLine()
 call Quit_OnUserError()
 
@@ -123,7 +125,7 @@ else ! read only the number of frozen orbitals and fill the frozen
     call Quit_OnUserError()
   else
     if (nr_frozen_orb == 0) then
-      write(6,*) 'Number of frozen orbitals has been set to 0.'
+      write(u6,*) 'Number of frozen orbitals has been set to 0.'
       ! Set it to -1 to signal that frozen orbs have been set forcibly to 0 here
       ! It will be detected in pt2init and reset back to 0
       nr_frozen_orb = -1
@@ -158,7 +160,7 @@ if (trim(key) == 'ALL') then
 else
   read(Line,*,Err=9920,end=9920) nr_states
   if (nr_states <= 0) then
-    write(6,*) ' number of MULT states must be > 0, quitting!'
+    write(u6,*) ' number of MULT states must be > 0, quitting!'
     call Quit_OnUserError()
   end if
 end if
