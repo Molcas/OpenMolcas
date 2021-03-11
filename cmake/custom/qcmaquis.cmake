@@ -80,6 +80,12 @@ list(APPEND QCMaquisCMakeArgs
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   -DCMAKE_INSTALL_LIBDIR=lib
   )
+if(HDF5_ROOT)
+  list(APPEND QCMaquisCMakeArgs
+    -DHDF5_ROOT=${HDF5_ROOT}
+    -DCMAKE_POLICY_DEFAULT_CMP0074=NEW
+  )
+endif()
 
 if(NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
 
