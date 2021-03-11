@@ -23,28 +23,29 @@ logical(kind=iwp) :: Found
 
 ! Define name of subdirectory and files that must be copied over
 Sub = 'NG'
-Names(:) = [character(len=len(Names)) :: 'RUNFILE', &
-                                         'SEWARINP', &
-                                         'SCFINP', &
-                                         'RASSCINP', &
-                                         'CASPTINP', &
-                                         'MBPT2INP', &
-                                         'RASSIINP', &
-                                         'MOTRAINP', &
-                                         'CCSDTINP', &
-                                         'CHCCINP', &
-                                         'CHT3INP', &
-                                         'ESPFINP', &
-                                         'FALSEINP', &
-                                         'JOBIPH', &
-                                         'ESPF.SAV', &
-                                         'TINKER.XYZ', &
-                                         'TINKER.KEY', &
-                                         'MCPDFINP', &
-                                         'CHEMNATFIE', &
-                                         'CHEMCANFIE', &
-                                         'CHEMNATMPS0', &
-                                         'CHEMCANMPS0']
+Names(:) = [character(len=len(Names)) :: &
+            'RUNFILE', &
+            'SEWARINP', &
+            'SCFINP', &
+            'RASSCINP', &
+            'CASPTINP', &
+            'MBPT2INP', &
+            'RASSIINP', &
+            'MOTRAINP', &
+            'CCSDTINP', &
+            'CHCCINP', &
+            'CHT3INP', &
+            'ESPFINP', &
+            'FALSEINP', &
+            'JOBIPH', &
+            'ESPF.SAV', &
+            'TINKER.XYZ', &
+            'TINKER.KEY', &
+            'MCPDFINP', &
+            'CHEMNATFIE', &
+            'CHEMCANFIE', &
+            'CHEMNATMPS0', &
+            'CHEMCANMPS0']
 
 ! Get real filenames to copy
 do i=1,nFiles

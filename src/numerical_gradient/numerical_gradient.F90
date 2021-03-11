@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
+#include "LenIn.fh"
 #include "standard_iounits.fh"
 #include "WrkSpc.fh"
 #include "timtra.fh"
@@ -36,7 +36,7 @@ integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, i
                      irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
                      nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym
 character(len=8) :: Method
-character(len=LenIn) :: AtomLbl(MxAtom), Namei
+character(len=LenIn) :: Namei
 character(len=10) :: ESPFKey
 character(len=180) :: Line
 logical(kind=iwp) :: DispX, DispY, DispZ, Is_Roots_Set, Found, External_Coor_List, Do_ESPF, StandAlone, Exists, DoTinker, NMCart, &
@@ -45,6 +45,7 @@ integer(kind=iwp), allocatable :: IsMM(:)
 real(kind=wp), allocatable :: EnergyArray(:,:), GradArray(:,:), OldGrads(:,:), Grad(:), GNew(:), MMGrd(:,:), BMtrx(:,:), &
                               TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), AllC(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
                               Tmp2(:), Tmp(:,:)
+character(len=LenIn), allocatable :: AtomLbl(:)
 real(kind=wp), parameter :: ToHartree = One/auTokcalmol
 integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, ip_of_Work, iChAtm, iDeg
 character(len=180), external :: Get_Ln
@@ -129,7 +130,8 @@ else
 end if
 call Get_iScalar('Unique atoms',nAtoms)
 call mma_allocate(Coor,3,nAtoms,Label='Coor')
-call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
+call mma_allocate(AtomLbl,nAtoms,Label='AtomLbl')
+call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
 call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 if (iPL_Save >= 3) call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
 !                                                                      *
@@ -1015,6 +1017,7 @@ call mma_Deallocate(OldGrads)
 call mma_Deallocate(Grad)
 call mma_deallocate(Coor)
 call mma_deallocate(Energies_Ref)
+call mma_deallocate(AtomLbl)
 if (DoTinker) call mma_deallocate(IsMM)
 if (nAtMM > 0) call mma_deallocate(MMGrd)
 

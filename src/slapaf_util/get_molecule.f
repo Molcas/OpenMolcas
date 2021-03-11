@@ -14,7 +14,6 @@
 #include "sbs.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "weighting.fh"
 #include "Molcas.fh"
       Logical TransVar, RotVar, Found
       Integer Columbus

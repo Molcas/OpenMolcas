@@ -20,7 +20,9 @@
      &        Bk_nLambda, Bk_iRow_c,
      &        Bk_nMEP,
      &        Bk_nBVec, Bk_IRC,
-     &        Bk_mTtAtm, Bk_MEPnum
+     &        Bk_mTtAtm, Bk_MEPnum,
+     &        Bk_mB_Tot, Bk_mdB_Tot, Bk_mq,
+     &        Bk_iState(2)
 *
       Logical Bk_Stop,
      &        Bk_lOld, Bk_CurviLinear,
@@ -31,7 +33,9 @@
      &        Bk_lOld_Implicit, Bk_HrmFrq_Show, Bk_eMEPtest,
      &        Bk_Redundant, Bk_lCtoF, Bk_lSoft, Bk_CallLast,
      &        Bk_TwoRunFiles, Bk_TSConstraints, Bk_MEPCons, Bk_Track,
-     &        Bk_Request_Alaska, Bk_Request_RASSI
+     &        Bk_Request_Alaska, Bk_Request_RASSI,
+     &        Bk_WeightedConstraints,
+     &        Bk_NADC, Bk_EDiffZero, Bk_ApproxNADC
 *
       Real*8 Bk_ThrEne,
      &       Bk_ThrGrd, Bk_Beta, Bk_Delta, Bk_Rtrnc,
@@ -47,19 +51,6 @@
 *
       Logical Bk_isFalcon
 
-#include "db.fh"
-*
-      Integer Bk_mB_Tot, Bk_mdB_Tot, Bk_mq
-
 #include "sbs.fh"
 *
       Integer Bk_iSBS
-
-#include "weighting.fh"
-*
-      Logical Bk_WeightedConstraints
-
-#include "nadc.fh"
-*
-      Logical Bk_NADC, Bk_EDiffZero, Bk_ApproxNADC
-      Integer Bk_iState(2)

@@ -17,7 +17,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
-#include "nadc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Logical Is_Roots_Set

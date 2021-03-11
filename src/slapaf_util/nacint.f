@@ -12,7 +12,6 @@
       use Slapaf_Info, only: NAC
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
-#include "nadc.fh"
 #include "constants.fh"
       Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
       Logical lWrite_, ldB

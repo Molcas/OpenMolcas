@@ -25,9 +25,6 @@
 *     Program for determination of the new molecular geometry          *
 ************************************************************************
 #include "real.fh"
-#include "nadc.fh"
-#include "weighting.fh"
-#include "db.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Logical GoOn, Do_ESPF, Just_Frequencies, Found, Error

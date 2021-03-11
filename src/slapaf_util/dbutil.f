@@ -14,9 +14,9 @@
 ************************************************************************
 *                                                                      *
       use Slapaf_info, only: dBM, idBM, nqBM
+      use Slapaf_parameters, only: mq
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
-#include "db.fh"
       Real*8 dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
       Real*8, Allocatable:: X(:,:), K(:,:)
 *
@@ -65,10 +65,10 @@ C        Write (6,*) 'FAST out'
 ************************************************************************
 *                                                                      *
       use Slapaf_Info, only: dBM, idBM, nqBM
+      use Slapaf_parameters, only: mq
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "db.fh"
       Real*8, Allocatable:: dBQQ(:,:), K(:,:)
 
       If (.NOT.Allocated(dBM)) Return
@@ -104,10 +104,10 @@ C        Write (6,*) 'FAST out'
 ************************************************************************
 *                                                                      *
       use Slapaf_Info, only: dBM, idBM, nqBM
+      use Slapaf_parameters, only: mq
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "db.fh"
       Real*8 uM12(nDim), g(nQQ), Hss(nDim,nDim)
       Logical Inv
       Real*8, Allocatable:: Y(:), K(:,:), Temp(:,:)

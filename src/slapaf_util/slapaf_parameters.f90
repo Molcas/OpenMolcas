@@ -21,7 +21,7 @@ Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Sho
          eMEPTest, rMEP, MEP, nMEP, MEPNum, MEPCons, dMEPStep, MEP_Type, MEP_Algo, Header, &
          Max_Center, mTROld, Delta, RtRnc, rFuzz, lNmHss, Cubic, lRP, Request_Alaska, Request_RASSI, &
          lOld_Implicit, CallLast, lSoft, lCtoF, Track, TwoRunFiles, isFalcon, Stop, NmIter, MxItr, &
-         mTtAtm, nWndw, iter
+         mTtAtm, nWndw, iter, WeightedConstraints, mB_Tot, mdB_Tot, mq, Force_dB, NADC, EDiffZero, ApproxNADC, iState
 
 
 Integer i
@@ -47,6 +47,10 @@ Integer:: MxItr=0
 Integer:: mTtAtm=0
 Integer:: nWndw=5
 Integer:: iter=0
+Integer:: mB_Tot=0
+Integer:: mdB_Tot=0
+Integer:: mq=0
+Integer:: iState(2)=[0,0]
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.
@@ -81,6 +85,11 @@ Logical:: Track=.False.
 Logical:: TwoRunFiles=.False.
 Logical:: isFalcon=.False.
 Logical:: Stop=.False.
+Logical:: WeightedConstraints=.False.
+Logical:: Force_dB=.False.
+Logical:: NADC=.False.
+Logical:: EDiffZero=.False.
+Logical:: ApproxNADC=.False.
 
 
 #include "real.fh"

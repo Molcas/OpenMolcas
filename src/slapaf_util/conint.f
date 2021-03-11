@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
       use Slapaf_Info, only: Gx, Gx0, Energy, Energy0
+      use Slapaf_Parameters, only: NADC, ApproxNADC
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
-#include "nadc.fh"
 #include "constants.fh"
       Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
       Logical lWrite_, ldB

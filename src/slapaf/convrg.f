@@ -18,12 +18,11 @@
      &                             MaxItr, Numerical, iNeg, GrdMax,
      &                             E_Delta, ThrEne, ThrGrd, nLambda,
      &                             iOptC, ThrCons, ThrMEP, Baker,
-     &                             eMEPTest, rMEP, MEP, nMEP, Stop
+     &                             eMEPTest, rMEP, MEP, nMEP, Stop,
+     &                             NADC, EDiffZero, ApproxNADC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "weighting.fh"
-#include "nadc.fh"
 #include "print.fh"
 #include "warnings.fh"
       Integer:: IRC=0

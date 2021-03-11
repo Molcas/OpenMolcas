@@ -14,11 +14,11 @@
 subroutine genCxCTL(iStop,Cartesian,rDelta)
 !***********************************************************************
 !                                                                      *
-!     subroutine for automatic generation of coordinates for numerical *
-!     differentiation based on the rlxctl.f routine.                   *
+! subroutine for automatic generation of coordinates for numerical     *
+! differentiation based on the rlxctl.f routine.                       *
 !                                                                      *
-!     Author: R. Lindh, Uppsala University                             *
-!             2013, November                                           *
+! Author: R. Lindh, Uppsala University                                 *
+!         2013, November                                               *
 !***********************************************************************
 
 use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
@@ -31,9 +31,6 @@ implicit none
 integer(kind=iwp), intent(out) :: iStop
 logical(kind=iwp), intent(out) :: Cartesian
 real(kind=wp), intent(in) :: rDelta
-#include "nadc.fh"
-#include "weighting.fh"
-#include "db.fh"
 #include "print.fh"
 integer(kind=iwp) :: iDisp, iRow_c, jInter, Jter, LuSpool, mInt
 logical(kind=iwp) :: Found, TSC, Error
