@@ -15,37 +15,35 @@
 
 module subdirs
 
-use iso_c_binding
 implicit none
 private
+
+character(len=1024) :: Sub, OldWorkDir, NewWorkDir
+
 public :: f_setsubdir, Sub, OldWorkDir, NewWorkDir
-#include "molcastypes.fh"
-interface
-#ifdef _HAVE_EXTRA_
-  subroutine c_setsubdir(sub) bind(C,name="setsubdir")
-    use iso_c_binding
-    character(kind=c_char) :: sub(*)
-  end subroutine c_setsubdir
-#endif
-end interface
-character(len=1024), save :: Sub, OldWorkDir, NewWorkDir
 
 contains
 
 subroutine f_setsubdir(sub)
 #ifdef _HAVE_EXTRA_
-  use iso_c_binding
+  use, intrinsic :: iso_c_binding, only: c_null_char
   implicit none
-  character(len=*) :: sub
+  character(len=*), intent(in) :: sub
+  interface
+    subroutine c_setsubdir(sub) bind(C,name="setsubdir")
+      use, intrinsic :: iso_c_binding, only: c_char
+      character(kind=c_char) :: sub(*)
+    end subroutine c_setsubdir
+  end interface
   if (trim(sub) == '') then
     call c_setsubdir(''//c_null_char)
   else
     call c_setsubdir('/'//trim(sub)//c_null_char)
   end if
 #else
-  use Prgm
+  use Prgm, only: SetSubDir
   implicit none
-  character(len=*) :: sub
+  character(len=*), intent(in) :: sub
   if (trim(sub) == '') then
     call SetSubDir('')
   else

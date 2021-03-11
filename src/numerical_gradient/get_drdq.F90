@@ -13,28 +13,28 @@
 !***********************************************************************
 
 subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
+!***********************************************************************
+! subroutine to get the dr/dq vectors for the constraints as given in  *
+! the 'UDC' file.                                                      *
+!***********************************************************************
 
 use Slapaf_Info, only: BMx, Degen
 use Slapaf_Parameters, only: iRow_c, Curvilinear
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, r8, u6
 
 implicit none
-!***********************************************************************
-!     subroutine to get the dr/dq vectors for the constraints as given *
-!     in the 'UDC' file.                                               *
-!***********************************************************************
-#include "real.fh"
-#include "stdalloc.fh"
-integer, intent(In) :: mInt, nLambda
-real*8, intent(InOut) :: drdq(mInt,nLambda)
-integer, intent(Out) :: mLambda
-integer, intent(In) :: Iter
-integer n3, nBV, i, iLambda, iOff, iOff2, iAtom, ixyz
-real*8 RR
-real*8, external :: DDot_
-character(LEN=8), allocatable :: Lbl(:)
-real*8, allocatable :: BVc(:), dBVc(:), BMx_t(:,:), value(:), Value0(:), cInt(:), cInt0(:), Mult(:), dBMx(:)
-integer, allocatable :: iFlip(:)
-logical :: lWrite
+integer(kind=iwp), intent(in) :: mInt, nLambda, Iter
+real(kind=wp), intent(inout) :: drdq(mInt,nLambda)
+integer(kind=iwp), intent(out) :: mLambda
+integer(kind=iwp) :: n3, nBV, i, iLambda, iOff, iOff2, iAtom, ixyz
+real(kind=wp) :: RR
+logical(kind=iwp) :: lWrite
+integer(kind=iwp), allocatable :: iFlip(:)
+real(kind=wp), allocatable :: BVc(:), dBVc(:), BMx_t(:,:), Val(:), Val0(:), cInt(:), cInt0(:), Mult(:), dBMx(:)
+character(len=8), allocatable :: Lbl(:)
+real(kind=r8), external :: DDot_
 
 lWrite = .false.
 n3 = size(Degen)
@@ -45,9 +45,9 @@ if (nLambda /= 0) then
 
   call mma_allocate(BVc,n3*nBV,Label='BVc')
   call mma_allocate(dBVc,nBV*n3**2,Label='dBVc')
-  call mma_allocate(value,nBV,Label='Value')
-  call mma_allocate(Value0,nBV,Label='Value0')
-  Value0(:) = Zero
+  call mma_allocate(Val,nBV,Label='Val')
+  call mma_allocate(Val0,nBV,Label='Val0')
+  Val0(:) = Zero
   call mma_allocate(cInt,nLambda,Label='cInt')
   call mma_allocate(cInt0,nLambda,Label='cInt0')
   call mma_allocate(Mult,nBV**2,Label='Mult')
@@ -55,7 +55,7 @@ if (nLambda /= 0) then
   call mma_allocate(iFlip,nBV,Label='iFlip')
   call mma_allocate(Lbl,mInt,Label='Lbl')
 
-  call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,size(Degen,2),iRow_c,value,cInt,cInt0,Lbl,lWrite,Mult,dBMx,Value0,Iter,iFlip)
+  call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,size(Degen,2),iRow_c,Val,cInt,cInt0,Lbl,lWrite,Mult,dBMx,Val0,Iter,iFlip)
 
   call mma_deallocate(Lbl)
   call mma_deallocate(iFlip)
@@ -63,18 +63,18 @@ if (nLambda /= 0) then
   call mma_deallocate(Mult)
   call mma_deallocate(cInt0)
   call mma_deallocate(cInt)
-  call mma_deallocate(Value0)
-  call mma_deallocate(value)
+  call mma_deallocate(Val0)
+  call mma_deallocate(Val)
   call mma_deallocate(dBVc)
   call mma_deallocate(BVc)
 
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt('BMx_t',' ',BMx_t,n3,nLambda)
-#endif
+# endif
 
   ! Assemble dr/dq: Solve  B dr/dq = dr/dx
 
-  call FZero(drdq,nLambda*mInt)
+  drdq(:,:) = Zero
 
   ! Temporary fix of the dC/dx vector which always
   ! is propted up with the full degeneracy factor.
@@ -90,9 +90,9 @@ if (nLambda /= 0) then
   end if
 
   call Eq_Solver('N',n3,mInt,nLambda,BMx,Curvilinear,Degen,BMx_t,drdq)
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt('drdq',' ',drdq,mInt,nLambda)
-#endif
+# endif
 
   call mma_deallocate(BMx_t)
 end if
@@ -104,8 +104,8 @@ iOff2 = 1
 mLambda = nLambda
 do iLambda=1,nLambda
   RR = sqrt(DDot_(mInt,drdq(1,iOff),1,drdq(1,iOff),1))
-  if (RR < 1.0D-12) then
-    write(6,*) 'Warning: constraint ',iLambda,' has a null vector, I''ll remove it!'
+  if (RR < 1.0e-12_wp) then
+    write(u6,*) 'Warning: constraint ',iLambda,' has a null vector, I''ll remove it!'
     mLambda = mLambda-1
   else
     if (iOff /= iOff2) call dCopy_(mInt,drdq(1,iOff),1,drdq(1,iOff2),1)

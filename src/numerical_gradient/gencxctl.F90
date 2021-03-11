@@ -12,11 +12,6 @@
 !***********************************************************************
 
 subroutine genCxCTL(iStop,Cartesian,rDelta)
-
-use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
-use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ, Numerical, nLambda, iRef, nDimBC, mTROld, mTtAtm, nWndw, iter
-
-implicit real*8(a-h,o-z)
 !***********************************************************************
 !                                                                      *
 !     subroutine for automatic generation of coordinates for numerical *
@@ -25,14 +20,24 @@ implicit real*8(a-h,o-z)
 !     Author: R. Lindh, Uppsala University                             *
 !             2013, November                                           *
 !***********************************************************************
-#include "real.fh"
-#include "stdalloc.fh"
+
+use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
+use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ, Numerical, nLambda, iRef, nDimBC, mTROld, mTtAtm, nWndw, iter
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: iStop
+logical(kind=iwp), intent(out) :: Cartesian
+real(kind=wp), intent(in) :: rDelta
 #include "nadc.fh"
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
-logical Cartesian, Found, TSC, Error
-real*8, allocatable :: DList(:), CList(:,:), du(:), TMx(:), RefCoor(:,:)
+integer(kind=iwp) :: iDisp, iRow_c, jInter, Jter, LuSpool, mInt
+logical(kind=iwp) :: Found, TSC, Error
+real(kind=wp), allocatable :: DList(:), CList(:,:), du(:), TMx(:), RefCoor(:,:)
 
 !                                                                      *
 !***********************************************************************

@@ -20,6 +20,6 @@ public :: Half, Quart, OneHalf, Pi, SqrtP2, TwoP34, TwoP54, One2C2
 
 #include "constants2.fh"
 public :: diel, rPi, UTOAU, elmass, ATOKG, elcharge, rNAVO, cLight, auTocm, rPlanck, kBoltzmann, rBohr, cm_s, Debye, Angstrom, RF, &
-          auToHz, auTofs, auToN, auToeV, auTokJ, c_in_au
+          auToHz, auTofs, auToN, auToeV, auTokJ, auTokcalmol, c_in_au
 
 end module Constants

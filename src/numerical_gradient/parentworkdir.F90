@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ParentWorkDir
+subroutine ParentWorkDir()
 
 use subdirs, only: f_setsubdir, Sub, OldWorkDir, NewWorkDir
 use filesystem, only: remove_, chdir_
+use Definitions, only: iwp
+
 implicit none
-integer :: i
+integer(kind=iwp) :: i
 
 Sub = ''
 call f_setsubdir(Sub)
@@ -28,5 +30,7 @@ if (index(NewWorkDir,trim(OldWorkDir)) == 1) then
     call remove_(NewWorkDir)
   end if
 end if
+
+return
 
 end subroutine ParentWorkDir

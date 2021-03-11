@@ -18,58 +18,57 @@ use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
 use Para_Info, only: King
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
 #include "standard_iounits.fh"
 #include "WrkSpc.fh"
 #include "timtra.fh"
-#include "real.fh"
 #include "warnings.fh"
-#include "constants2.fh"
-#include "stdalloc.fh"
-real*8 Energy_Ref
-integer iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3)
-character*8 Method
-character AtomLbl(MxAtom)*(LENIN)
-character Namei*(LENIN)
-character*10 ESPFKey
-character*180 Line, Get_Ln
-external Get_Ln
-external Rsv_Tsk
+real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
+                 TempZ, x, x0, y, y0, z, z0
+integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
+                     id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, ipMltp, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
+                     irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
+                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym
+character(len=8) :: Method
+character(len=LenIn) :: AtomLbl(MxAtom), Namei
+character(len=10) :: ESPFKey
+character(len=180) :: Line
+logical(kind=iwp) :: DispX, DispY, DispZ, Is_Roots_Set, Found, External_Coor_List, Do_ESPF, StandAlone, Exists, DoTinker, NMCart, &
+                     DynExtPot, DoDirect, KeepOld
+integer(kind=iwp), allocatable :: IsMM(:)
+real(kind=wp), allocatable :: EnergyArray(:,:), GradArray(:,:), OldGrads(:,:), Grad(:), GNew(:), MMGrd(:,:), BMtrx(:,:), &
+                              TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), AllC(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
+                              Tmp2(:), Tmp(:,:)
+real(kind=wp), parameter :: ToHartree = One/auTokcalmol
+integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, ip_of_Work, iChAtm, iDeg
+character(len=180), external :: Get_Ln
+logical(kind=iwp), external :: Rsv_Tsk, Reduce_Prt
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
-character*80 SSTMNGR
-integer SSTMODE
-logical Rsv_Tsk_Even
-external Rsv_Tsk_Even
+character(len=80) :: SSTMNGR
+integer(kind=iwp) :: SSTMODE
+logical(kind=iwp), external :: Rsv_Tsk_Even
 #endif
-logical DispX, DispY, DispZ, Rsv_Tsk, Is_Roots_Set, Found, External_Coor_List, Do_ESPF, StandAlone, Exist, DoTinker, NMCart, &
-        DynExtPot, DoDirect, KeepOld, Reduce_Prt
-external Reduce_Prt
-real*8 FX(3), rDum(1)
-real*8, allocatable, dimension(:,:) :: EnergyArray, GradArray, OldGrads
-real*8, allocatable :: Grad(:), GNew(:), MMGrd(:,:)
-integer, allocatable :: IsMM(:)
-real*8, allocatable :: BMtrx(:,:), TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), all(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
-                       Tmp2(:), Tmp(:,:)
-integer rc, Read_Grad
-external Read_Grad
-parameter(ToHartree=CONV_CAL_TO_J_/CONV_AU_TO_KJ_PER_MOLE_)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 interface
   subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
-    integer, intent(In) :: nAtom
-    real*8, intent(In) :: Cord(3,nAtom)
-    integer, intent(In) :: ipMltp
-    integer, intent(In) :: IsMM(nAtom)
-    integer, intent(In) :: MltOrd
-    logical, intent(InOut) :: DynExtPot
-    integer, intent(In) :: iQMChg
-    integer, intent(InOut) :: nAtMM
-    logical, intent(In) :: StandAlone
-    logical, intent(In) :: DoDirect
+    integer, intent(in) :: nAtom
+    real*8, intent(in) :: Cord(3,nAtom)
+    integer, intent(in) :: ipMltp
+    integer, intent(in) :: IsMM(nAtom)
+    integer, intent(in) :: MltOrd
+    logical, intent(inout) :: DynExtPot
+    integer, intent(in) :: iQMChg
+    integer, intent(inout) :: nAtMM
+    logical, intent(in) :: StandAlone
+    logical, intent(in) :: DoDirect
   end subroutine RunTinker
 end interface
 
@@ -143,8 +142,8 @@ if (iPL_Save >= 3) call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
 DoTinker = .false.
 DoDirect = .false.
 ipMltp = ip_Dummy
-call F_Inquire('ESPF.DATA',Exist)
-if (Exist) then
+call F_Inquire('ESPF.DATA',Exists)
+if (Exists) then
   IPotFl = IsFreeUnit(15)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   Line = ' '
@@ -285,8 +284,8 @@ MaxDCR = nIrrep
 ! Set up displacement vector
 
 call Get_nAtoms_All(nAll)
-call mma_allocate(All,3,nAll,Label='All')
-call Get_Coord_All(All,nAll)
+call mma_allocate(AllC,3,nAll,Label='AllC')
+call Get_Coord_All(AllC,nAll)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -345,13 +344,13 @@ else
 
     ! Find the shortest distance to another atom!
 
-    rMax = 1.0d19
+    rMax = huge(rMax)
     do j=1,nAll
-      x = all(1,j)
-      y = all(2,j)
-      z = all(3,j)
+      x = AllC(1,j)
+      y = AllC(2,j)
+      z = AllC(3,j)
       rTest = sqrt((x-x0)**2+(y-y0)**2+(z-z0)**2)
-      if (rTest == Zero) rTest = 1.0d19
+      if (rTest == Zero) rTest = huge(rTest)
       rMax = min(rMax,rTest)
     end do
     if (DispX) Disp((i-1)*3+1) = rDelta*rMax
@@ -366,7 +365,7 @@ end if
 call mma_allocate(Deg,3,nAtoms,Label='Deg')
 Deg(:,:) = Zero
 do i=1,nAtoms
-  rDeg = dble(iDeg(Coor(:,i)))
+  rDeg = real(iDeg(Coor(:,i)),kind=wp)
   Deg(1,i) = rDeg
   Deg(2,i) = rDeg
   Deg(3,i) = rDeg
@@ -389,9 +388,9 @@ else
     ! Modify the geometry
 
     call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
-    Sign = One
-    if (mod(iDisp,2) == 0) Sign = -One
-    XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sign*Disp(icoor)
+    Sgn = One
+    if (mod(iDisp,2) == 0) Sgn = -One
+    XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sgn*Disp(icoor)
 101 continue
   end do
 end if
@@ -448,7 +447,7 @@ end if
 ! externally defined coordinates or not.
 
 if (iPL >= 3) then
-#ifdef _HIDE_
+# ifdef _HIDE_
   write(LuWr,'(1x,A)') '---------------------------------------------'
   write(LuWr,'(1x,A)') '               X           Y           Z     '
   write(LuWr,'(1x,A)') '---------------------------------------------'
@@ -459,7 +458,7 @@ if (iPL >= 3) then
     Namei = AtomLbl(iAtom)
     write(LuWr,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
   end do
-#endif
+# endif
   write(LuWr,'(1x,A)') '---------------------------------------------'
   write(LuWr,*)
   write(LuWr,*) 'Here we go ...'
@@ -552,14 +551,14 @@ call Put_Coord_New(C,nAtoms)
 
 ! Compute integrals
 
-! jPL = iPrintLevel(Max(iPL_Base,0)) ! Silent
+!jPL = iPrintLevel(Max(iPL_Base,0)) ! Silent
 call Set_Do_Parallel(.false.)
 
 ! Switch to a new directory
-!WARNING WARNING WARNING WARNING WARNING
+! WARNING WARNING WARNING WARNING WARNING
 ! ugly hack, do not try this at home
 call SubWorkDir()
-!WARNING WARNING WARNING WARNING WARNING
+! WARNING WARNING WARNING WARNING WARNING
 
 call StartLight('seward')
 call init_run_use()
@@ -888,9 +887,9 @@ do i=1,nDisp
   if (Disp(i) == Zero) then
     if (iPL_Save >= 3) then
       if (KeepOld) then
-        write(6,*) 'gradient set to old value'
+        write(u6,*) 'gradient set to old value'
       else
-        write(6,*) 'gradient set to zero'
+        write(u6,*) 'gradient set to zero'
       end if
     end if
     do iR=1,nRoots
@@ -900,11 +899,11 @@ do i=1,nDisp
     iDisp = iDisp+1
     do iR=1,nRoots
       iEp = iDisp*2-1
-      Eplus = EnergyArray(iR,iEp)
+      EPlus = EnergyArray(iR,iEp)
       iEm = iDisp*2
       EMinus = EnergyArray(iR,iEm)
       Dsp = Disp(i)
-      Grad(iR) = (Eplus-EMinus)/(Two*Dsp)
+      Grad(iR) = (EPlus-EMinus)/(Two*Dsp)
 
       ! If the gradient is not close to zero check that it is
       ! consistent. For CASPT2/CASSCF sometimes the active space
@@ -914,11 +913,11 @@ do i=1,nDisp
       ! one-point equation. The one with the lowest gradient is
       ! the one which is most likely to be correct.
 
-      if (abs(Grad(iR)) > 1.0D-1) then
+      if (abs(Grad(iR)) > 0.1_wp) then
         Energy_Ref = Energies_Ref(iR)
-        Grada = (Eplus-Energy_Ref)/Dsp
+        Grada = (EPlus-Energy_Ref)/Dsp
         Gradb = (Energy_Ref-EMinus)/Dsp
-        if ((abs(Grad(iR)/Grada) > 1.5d0) .or. (abs(Grad(iR)/Gradb) > 1.5d0)) then
+        if ((abs(Grad(iR)/Grada) > OneHalf) .or. (abs(Grad(iR)/Gradb) > OneHalf)) then
           if (abs(Grada) <= abs(Gradb)) then
             Grad(iR) = Grada
           else
@@ -948,11 +947,11 @@ do iR=1,nRoots
   ! Transform the gradient in PCO basis to the internal coordinate
   ! format.
 
-  call DGEMM_('N','N',nDisp,1,nDisp,1.0d0,TMtrx,nDisp,GradArray(1,iR),nDisp,0.0d0,Tmp2,nDisp)
+  call DGEMM_('N','N',nDisp,1,nDisp,One,TMtrx,nDisp,GradArray(1,iR),nDisp,Zero,Tmp2,nDisp)
 
   ! Transform internal coordinates to Cartesian.
 
-  call DGEMM_('N','N',3*nAtoms,1,nDisp,1.0d0,BMtrx,3*nAtoms,Tmp2,nDisp,0.0d0,Tmp,3*nAtoms)
+  call DGEMM_('N','N',3*nAtoms,1,nDisp,One,BMtrx,3*nAtoms,Tmp2,nDisp,Zero,Tmp,3*nAtoms)
   !call RecPrt('Tmp',' ',Tmp,3,nAtoms)
 
   ! Modify with degeneracy factors.
@@ -973,8 +972,8 @@ do iR=1,nRoots
 
   ! Apply Morokuma's scheme if needed
 
-  call F_Inquire('QMMM',Exist)
-  if (Exist .and. DoTinker) then
+  call F_Inquire('QMMM',Exists)
+  if (Exists .and. DoTinker) then
     call LA_Morok(nAtoms,Tmp,1)
   end if
 
@@ -1007,7 +1006,7 @@ call mma_deallocate(Tmp)
 
 call mma_deallocate(Deg)
 call mma_deallocate(Disp)
-call mma_deallocate(All)
+call mma_deallocate(AllC)
 call mma_Deallocate(TMtrx)
 call mma_Deallocate(BMtrx)
 call mma_Deallocate(EnergyArray)

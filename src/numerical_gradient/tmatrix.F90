@@ -12,21 +12,23 @@
 !***********************************************************************
 
 subroutine TMatrix(TMx,mInt)
-
-use Slapaf_Info, only: nStab, Coor
-use Slapaf_Parameters, only: iRow_c, nLambda, iter
-implicit none
 !***********************************************************************
 ! subroutine to get the T matrix that defines the constrained and      *
 ! unconstrained subspaces.                                             *
 !***********************************************************************
-#include "real.fh"
-#include "stdalloc.fh"
-integer, intent(In) :: mInt
-real*8, intent(InOut) :: TMx(mInt,mInt)
-integer Lambda1, Lambda2
-logical Invert
-real*8, allocatable, dimension(:,:) :: C1, C2, CT
+
+use Slapaf_Info, only: nStab, Coor
+use Slapaf_Parameters, only: iRow_c, nLambda, iter
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: mInt
+real(kind=wp), intent(inout) :: TMx(mInt,mInt)
+integer(kind=iwp) :: Lambda1, Lambda2
+logical(kind=iwp) :: Invert
+real(kind=wp), allocatable, dimension(:,:) :: C1, C2, CT
 
 ! Get the global constraint vectors
 
@@ -44,13 +46,13 @@ call get_drdq(C2,mInt,nLambda,Lambda2,Iter)
 
 nLambda = Lambda1+Lambda2
 call mma_Allocate(CT,mInt,mInt)
-call dCopy_(mInt*Lambda1,C1,1,CT(1,1),1)
-call dCopy_(mInt*Lambda2,C2,1,CT(1,Lambda1+1),1)
-call FZero(CT(1,nLambda+1),mInt*(mInt-nLambda))
+CT(:,1:Lambda1) = C1(:,:)
+CT(:,Lambda1+1:nLambda) = C2(:,:)
+CT(:,nLambda+1:) = Zero
 if (nLambda > 0) then
   call GS(CT,nLambda,TMx,mInt,.false.,.true.)
 else
-  call FZero(TMx,mInt**2)
+  TMx(:,:) = Zero
   call dCopy_(mInt,[One],0,TMx,mInt+1)
 end if
 
@@ -61,14 +63,14 @@ call Qpg_iScalar('Invert constraints',Invert)
 if (Invert) call Get_lScalar('Invert constraints',Invert)
 if (Invert) then
   Lambda2 = mInt-nLambda
-  call dCopy_(mInt*Lambda1,C1,1,CT(1,1),1)
-  call dCopy_(mInt*Lambda2,TMx(1,nLambda+1),1,CT(1,Lambda1+1),1)
+  CT(:,1:Lambda1) = C1(:,:)
+  CT(:,Lambda1+1:Lambda1+Lambda2) = TMx(:,nLambda+1:nLambda+Lambda2)
   nLambda = Lambda1+Lambda2
-  call FZero(CT(1,nLambda+1),mInt*(mInt-nLambda))
+  CT(:,nLambda+1:) = Zero
   if (nLambda > 0) then
     call GS(CT,nLambda,TMx,mInt,.false.,.true.)
   else
-    call FZero(TMx,mInt**2)
+    TMx(:,:) = Zero
     call dCopy_(mInt,[One],0,TMx,mInt+1)
   end if
 end if
