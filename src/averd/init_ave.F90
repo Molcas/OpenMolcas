@@ -12,7 +12,7 @@
 subroutine Init_ave(Title,iPrint,PrOcc,PrEne,DensityBased,ThrOcc,Dummy,iDummy)
 !-- Initializations and defaults.
 
-use Constants, only: Zero, One
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none

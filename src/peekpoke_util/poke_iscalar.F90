@@ -40,7 +40,7 @@
 subroutine Poke_iScalar(Label,val)
 
 use peekpoke, only: is_label, is_value, is_no
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 !----------------------------------------------------------------------*
