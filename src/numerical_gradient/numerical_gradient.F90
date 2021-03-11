@@ -31,7 +31,7 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "warnings.fh"
 real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
-integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
+integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
                      id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, ipMltp, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
                      irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
                      nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym
@@ -384,16 +384,16 @@ else
   mDisp = 0
   do iDisp=1,nDisp2
     iCoor = (iDisp+1)/2
-    if (Disp(icoor) == Zero) Go To 101
-    mDisp = mDisp+1
+    if (Disp(icoor) /= Zero) then
+      mDisp = mDisp+1
 
-    ! Modify the geometry
+      ! Modify the geometry
 
-    call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
-    Sgn = One
-    if (mod(iDisp,2) == 0) Sgn = -One
-    XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sgn*Disp(icoor)
-101 continue
+      call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
+      Sgn = One
+      if (mod(iDisp,2) == 0) Sgn = -One
+      XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sgn*Disp(icoor)
+    end if
   end do
 end if
 !                                                                      *
@@ -489,22 +489,24 @@ if (Do_ESPF) then
   call Molcas_Open(iSave,'ESPF.SAV')
   iData = IsFreeUnit(iSave)
   call Molcas_Open(iData,'ESPF.DATA')
-96 Line = Get_Ln(iData)
-  ESPFKey = Line(1:10)
-  if (ESPFKey == 'ENDOFESPF ') then
-    write(iSave,'(A132)') Line
-    goto 98
-  end if
-  if (ESPFKey /= 'MULTIPOLE ') then
-    write(iSave,'(A132)') Line
-  else
-    call Get_I1(2,nMult)
-    do iMlt=1,nMult
-      Line = Get_Ln(iData)
-    end do
-  end if
-  goto 96
-98 close(iSave)
+  do
+    Line = Get_Ln(iData)
+    ESPFKey = Line(1:10)
+    if (ESPFKey == 'ENDOFESPF ') then
+      write(iSave,'(A132)') Line
+      exit
+    else
+      if (ESPFKey /= 'MULTIPOLE ') then
+        write(iSave,'(A132)') Line
+      else
+        call Get_I1(2,nMult)
+        do iMlt=1,nMult
+          Line = Get_Ln(iData)
+        end do
+      end if
+    end if
+  end do
+  close(iSave)
   close(iData)
 end if
 ! FM End
@@ -530,244 +532,242 @@ end if
 call Init_Tsk(id_Tsk,mDisp-2*nLambda)
 #endif
 call mma_allocate(C,3,nAtoms,Label='C')
-10 continue
-#if defined (_MOLCAS_MPP_) && !defined(_GA_)
-if (SSTMODE == 1) then
-  if (.not. Rsv_Tsk(id_Tsk,iDisp)) goto 11
-else
-  if (.not. Rsv_Tsk_Even(id_Tsk,iDisp)) goto 11
-end if
-#else
-if (.not. Rsv_Tsk(id_Tsk,iDisp)) goto 11
-#endif
-
-! Offset for the constraints
-
-iDisp = iDisp+2*nLambda
-
-! Get the displaced geometry
-
-call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
-!call RecPrt('C',' ',C,3*nAtoms,1)
-call Put_Coord_New(C,nAtoms)
-
-! Compute integrals
-
-!jPL = iPrintLevel(Max(iPL_Base,0)) ! Silent
-call Set_Do_Parallel(.false.)
-
-! Switch to a new directory
-! WARNING WARNING WARNING WARNING WARNING
-! ugly hack, do not try this at home
-call SubWorkDir()
-! WARNING WARNING WARNING WARNING WARNING
-
-call StartLight('seward')
-call init_run_use()
-call init_ppu(.true.)
-call Disable_Spool()
-call Seward(ireturn)
-call ReClose()
-if (iReturn /= 0) then
-  write(LuWr,*) 'Numerical_Gradient failed ...'
-  write(LuWr,*) 'Seward returned with return code, rc = ',iReturn
-  write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-  call Abend()
-end if
-
-! Compute the ESPF stuff
-
-if (Do_ESPF) then
-  call StartLight('espf')
-  call init_run_use()
-  call Disable_Spool()
-  StandAlone = .true.
-  call ESPF(ireturn,StandAlone)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'ESPF returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
+do
+# if defined (_MOLCAS_MPP_) && !defined(_GA_)
+  if (SSTMODE == 1) then
+    if (.not. Rsv_Tsk(id_Tsk,iDisp)) exit
+  else
+    if (.not. Rsv_Tsk_Even(id_Tsk,iDisp)) exit
   end if
-end if
+# else
+  if (.not. Rsv_Tsk(id_Tsk,iDisp)) exit
+# endif
 
-! Compute the wave function
+  ! Offset for the constraints
 
-if ((Method(5:7) == 'SCF') .or. &
-    (Method(1:6) == 'KS-DFT') .or. &
-    (Method(1:5) == 'MBPT2') .or. &
-    (Method(1:4) == 'CHCC') .or. &
-    (Method(1:4) == 'CHT3')) then
-  call StartLight('scf')
-  call init_run_use()
-  call Disable_Spool()
-  call xml_open('module',' ',' ',0,'scf')
-  call SCF(iReturn)
-  call xml_close('module')
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'SCF returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
-  end if
-else if ((Method(1:6) == 'RASSCF') .or. &
-         (Method(1:6) == 'GASSCF') .or. &
-         (Method(1:6) == 'CASSCF') .or. &
-         (Method(1:6) == 'MCPDFT') .or. &
-         (Method(1:6) == 'CASPT2') .or. &
-         (Method(1:5) == 'CCSDT')) then
-  call StartLight('rasscf')
-  call init_run_use()
-  call Disable_Spool()
-  call RASSCF(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'RASSCF returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
-  end if
-else if (Method(1:8) == 'EXTERNAL') then
-  call StartLight('false')
-  call init_run_use()
-  call Disable_Spool()
-  call False_program(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'FALSE returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
-  end if
-end if
+  iDisp = iDisp+2*nLambda
 
-if (Method(1:5) == 'MBPT2') then
-  call StartLight('mbpt2')
-  call init_run_use()
-  call Disable_Spool()
-  call MP2_Driver(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'MBPT2 returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
-  end if
-end if
+  ! Get the displaced geometry
 
-if (Method(1:5) == 'CCSDT') then
-  call StartLight('motra')
+  call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
+  !call RecPrt('C',' ',C,3*nAtoms,1)
+  call Put_Coord_New(C,nAtoms)
+
+  ! Compute integrals
+
+  !jPL = iPrintLevel(Max(iPL_Base,0)) ! Silent
+  call Set_Do_Parallel(.false.)
+
+  ! Switch to a new directory
+  ! WARNING WARNING WARNING WARNING WARNING
+  ! ugly hack, do not try this at home
+  call SubWorkDir()
+  ! WARNING WARNING WARNING WARNING WARNING
+
+  call StartLight('seward')
   call init_run_use()
+  call init_ppu(.true.)
   call Disable_Spool()
-  call Motra(ireturn)
+  call Seward(ireturn)
   call ReClose()
   if (iReturn /= 0) then
     write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'Motra returned with return code, rc = ',iReturn
+    write(LuWr,*) 'Seward returned with return code, rc = ',iReturn
     write(LuWr,*) 'for the perturbation iDisp = ',iDisp
     call Abend()
   end if
 
-  call StartLight('ccsdt')
-  call init_run_use()
-  call Disable_Spool()
-  call CCSDT(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'CCSDT returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
+  ! Compute the ESPF stuff
+
+  if (Do_ESPF) then
+    call StartLight('espf')
+    call init_run_use()
+    call Disable_Spool()
+    StandAlone = .true.
+    call ESPF(ireturn,StandAlone)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'ESPF returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
-end if
 
-if ((Method(1:4) == 'CHCC') .or. &
-    (Method(1:4) == 'CHT3')) then
-  call StartLight('chcc')
-  call init_run_use()
-  call Disable_Spool()
-  call CHCC(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'CHCC returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
+  ! Compute the wave function
+
+  if ((Method(5:7) == 'SCF') .or. &
+      (Method(1:6) == 'KS-DFT') .or. &
+      (Method(1:5) == 'MBPT2') .or. &
+      (Method(1:4) == 'CHCC') .or. &
+      (Method(1:4) == 'CHT3')) then
+    call StartLight('scf')
+    call init_run_use()
+    call Disable_Spool()
+    call xml_open('module',' ',' ',0,'scf')
+    call SCF(iReturn)
+    call xml_close('module')
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'SCF returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
+  else if ((Method(1:6) == 'RASSCF') .or. &
+           (Method(1:6) == 'GASSCF') .or. &
+           (Method(1:6) == 'CASSCF') .or. &
+           (Method(1:6) == 'MCPDFT') .or. &
+           (Method(1:6) == 'CASPT2') .or. &
+           (Method(1:5) == 'CCSDT')) then
+    call StartLight('rasscf')
+    call init_run_use()
+    call Disable_Spool()
+    call RASSCF(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'RASSCF returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
+  else if (Method(1:8) == 'EXTERNAL') then
+    call StartLight('false')
+    call init_run_use()
+    call Disable_Spool()
+    call False_program(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'FALSE returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
-end if
 
-if (Method(1:4) == 'CHT3') then
-  call StartLight('cht3')
-  call init_run_use()
-  call Disable_Spool()
-  call CHT3(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'CHT3 returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
+  if (Method(1:5) == 'MBPT2') then
+    call StartLight('mbpt2')
+    call init_run_use()
+    call Disable_Spool()
+    call MP2_Driver(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'MBPT2 returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
-end if
 
-if (Method(1:6) == 'CASPT2') then
-  call StartLight('caspt2')
-  call init_run_use()
-  call Disable_Spool()
-  call CASPT2(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'CASPT2 returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
+  if (Method(1:5) == 'CCSDT') then
+    call StartLight('motra')
+    call init_run_use()
+    call Disable_Spool()
+    call Motra(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'Motra returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
+
+    call StartLight('ccsdt')
+    call init_run_use()
+    call Disable_Spool()
+    call CCSDT(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'CCSDT returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
-end if
 
-if (Method(1:6) == 'MCPDFT') then
-  call StartLight('mcpdft')
-  call init_run_use()
-  call Disable_Spool()
-  call MCPDFT(ireturn)
-  call ReClose()
-  if (iReturn /= 0) then
-    write(LuWr,*) 'Numerical_Gradient failed ...'
-    write(LuWr,*) 'MCPDFT returned with return code, rc = ',iReturn
-    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-    call Abend()
+  if ((Method(1:4) == 'CHCC') .or. &
+      (Method(1:4) == 'CHT3')) then
+    call StartLight('chcc')
+    call init_run_use()
+    call Disable_Spool()
+    call CHCC(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'CHCC returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
-end if
 
-!call Get_Energy(EnergyArray(iRoot,iDisp))
-if (nRoots > 1) then
-  call Get_dArray('Last energies',EnergyArray(1,iDisp),nRoots)
-else
-  call Get_dScalar('Last energy',EnergyArray(iRoot,iDisp))
-end if
+  if (Method(1:4) == 'CHT3') then
+    call StartLight('cht3')
+    call init_run_use()
+    call Disable_Spool()
+    call CHT3(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'CHT3 returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
+  end if
 
-! Restore directory and prgm database
+  if (Method(1:6) == 'CASPT2') then
+    call StartLight('caspt2')
+    call init_run_use()
+    call Disable_Spool()
+    call CASPT2(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'CASPT2 returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
+  end if
 
-call ParentWorkDir()
-call prgmfree()
-call prgminit('numerical_gradient')
+  if (Method(1:6) == 'MCPDFT') then
+    call StartLight('mcpdft')
+    call init_run_use()
+    call Disable_Spool()
+    call MCPDFT(ireturn)
+    call ReClose()
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'MCPDFT returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
+  end if
 
-call Set_Do_Parallel(.true.)
+  !call Get_Energy(EnergyArray(iRoot,iDisp))
+  if (nRoots > 1) then
+    call Get_dArray('Last energies',EnergyArray(1,iDisp),nRoots)
+  else
+    call Get_dScalar('Last energy',EnergyArray(iRoot,iDisp))
+  end if
 
-if (iPL >= 2) then
-  write(LuWr,200) '   * Point #',iDisp-2*nLambda,' of ',2*(nDisp-nLambda-3*nAtMM),' done.'
-  write(LuWr,200) '    (Perturbation ',iDisp,')'
-end if
-200 format(A,I4,A,I4,A)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-#if defined (_MOLCAS_MPP_) && !defined(_GA_)
-if (King() .and. (nProcs > 1) .and. (SSTMODE == 1)) Go To 11
-#endif
-Go To 10
-11 continue
+  ! Restore directory and prgm database
+
+  call ParentWorkDir()
+  call prgmfree()
+  call prgminit('numerical_gradient')
+
+  call Set_Do_Parallel(.true.)
+
+  if (iPL >= 2) then
+    write(LuWr,200) '   * Point #',iDisp-2*nLambda,' of ',2*(nDisp-nLambda-3*nAtMM),' done.'
+    write(LuWr,200) '    (Perturbation ',iDisp,')'
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+# if defined (_MOLCAS_MPP_) && !defined(_GA_)
+  if (King() .and. (nProcs > 1) .and. (SSTMODE == 1)) exit
+# endif
+end do
 !_MPP End Do
 #if !defined(_GA_) && defined(_MOLCAS_MPP_)
 if (SSTMODE == 1) then
@@ -796,10 +796,11 @@ do iRank=1,nProcs-1
   call GASync()
   if (iRank == MyRank) then
     rewind(LuWr)
-777 read(LuWr,'(A)',end=778) Line
-    write(LuWr_Save,*) Line
-    Go To 777
-778 continue
+    do
+      read(LuWr,'(A)',iostat=error) Line
+      if (error /= 0) exit
+      write(LuWr_Save,*) Line
+    end do
   end if
   call GASync()
 end do
@@ -1041,5 +1042,7 @@ if ((Method(1:6) == 'CASSCF') .or. &
 end if
 
 return
+
+200 format(A,I4,A,I4,A)
 
 end subroutine Numerical_Gradient
