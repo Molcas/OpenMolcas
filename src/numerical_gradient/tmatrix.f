@@ -1,46 +1,46 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2015, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2015, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       Subroutine TMatrix(TMx,mInt)
       use Slapaf_Info, only: nStab, Coor
       use Slapaf_Parameters, only: iRow_c, nLambda, iter
       Implicit None
-************************************************************************
-*     subroutine to get the T matrix that defines the constrained and  *
-*     unconstrained subspaces.                                         *
-************************************************************************
+!***********************************************************************
+!     subroutine to get the T matrix that defines the constrained and  *
+!     unconstrained subspaces.                                         *
+!***********************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
       Integer, Intent(In)    :: mInt
       Real*8,  Intent(InOut) :: TMx(mInt,mInt)
-*
+!
       Integer Lambda1,Lambda2
       Logical Invert
       Real*8, Allocatable, Dimension(:,:) :: C1,C2,CT
-*
-*     Get the global constraint vectors
-*
+!
+!     Get the global constraint vectors
+!
       Call mma_Allocate(C1,mInt,nLambda)
       Call get_drdq(C1,mInt,nLambda,Lambda1,Iter)
-*
-*     Get the NG constraint vectors
-*
+!
+!     Get the NG constraint vectors
+!
       Call Merge_Constraints('UDC.NG','','UDC',nLambda,iRow_c)
       Call Fix_UDC(iRow_c,nLambda,SIZE(Coor,2),nStab,.True.)
       Call mma_Allocate(C2,mInt,nLambda)
       Call get_drdq(C2,mInt,nLambda,Lambda2,Iter)
-*
-*     Combine both sets of constraints and get the T matrix
-*
+!
+!     Combine both sets of constraints and get the T matrix
+!
       nLambda=Lambda1+Lambda2
       Call mma_Allocate(CT,mInt,mInt)
       Call dCopy_(mInt*Lambda1,C1,1,CT(1,1),1)
@@ -52,10 +52,10 @@
         Call FZero(TMx,mInt**2)
         Call dCopy_(mInt,[One],0,TMx,mInt+1)
       End If
-*
-*     If NG constraints are to be inverted, combine the complement
-*     with the global constraints instead
-*
+!
+!     If NG constraints are to be inverted, combine the complement
+!     with the global constraints instead
+!
       Call Qpg_iScalar('Invert constraints',Invert)
       If (Invert) Call Get_lScalar('Invert constraints',Invert)
       If (Invert) Then
@@ -71,9 +71,9 @@
           Call dCopy_(mInt,[One],0,TMx,mInt+1)
         End If
       End If
-*
+!
       Call mma_Deallocate(C1)
       Call mma_Deallocate(C2)
       Call mma_Deallocate(CT)
-*
+!
       End Subroutine TMatrix

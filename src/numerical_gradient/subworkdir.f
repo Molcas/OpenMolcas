@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine SubWorkDir
       use subdirs, only : f_setsubdir, Sub, OldWorkDir, NewWorkDir
       use filesystem, only : getcwd_, chdir_, mkdir_
       Implicit None
       Integer :: i,Length,iErr
       Integer, Parameter :: nFiles=22
-      Character(Len=1024) :: Names(nFiles),
+      Character(Len=1024) :: Names(nFiles),                             &
      &                       OldFile(nFiles),NewFile(nFiles)
       Logical :: Found
 
-*     Define name of subdirectory and files that must be copied over
+!     Define name of subdirectory and files that must be copied over
       Sub='NG'
       Names( 1)='RUNFILE'
       Names( 2)='SEWARINP'
@@ -43,34 +43,34 @@
       Names(21)='CHEMNATMPS0'
       Names(22)='CHEMCANMPS0'
 
-*     Get real filenames to copy
+!     Get real filenames to copy
       Do i=1,nFiles
         Call prgmtranslate(Names(i),OldFile(i),Length)
       End Do
 
-*     Create the new directory and switch to it
+!     Create the new directory and switch to it
       Call getcwd_(OldWorkDir)
       NewWorkDir=Trim(OldWorkDir)//'/'//Trim(Sub)
       Call mkdir_(NewWorkDir)
       Call chdir_(NewWorkDir)
       Call f_setsubdir(Sub)
 
-*     Get real target filenames
+!     Get real target filenames
       Do i=1,nFiles
         Call prgmtranslate(Names(i),NewFile(i),Length)
-*       ESPF.SAV is copied to ESPF.DATA
+!       ESPF.SAV is copied to ESPF.DATA
         If (Names(i).eq.'ESPF.SAV') Then
           Call prgmtranslate('ESPF.DATA',NewFile(i),Length)
         End If
       End Do
 
-*     Copy the files from the old directory to the new
+!     Copy the files from the old directory to the new
       Do i=1,nFiles
         Call f_inquire(OldFile(i),Found)
         If (Found) Call fcopy(OldFile(i),NewFile(i),iErr)
       End Do
 
-*     The INPORB file is special...
+!     The INPORB file is special...
       Call f_inquire('../INPORB',Found)
       If (Found) Call fcopy('../INPORB','./INPORB',iErr)
 

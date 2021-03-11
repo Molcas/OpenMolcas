@@ -1,45 +1,45 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2013, Roland Lindh                                     *
-*               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2013, Roland Lindh                                     *
+!               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
+!***********************************************************************
       Subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
       use Slapaf_Info, only: BMx, Degen
       use Slapaf_Parameters, only: iRow_c, Curvilinear
       Implicit None
-************************************************************************
-*     subroutine to get the dr/dq vectors for the constraints as given *
-*     in the 'UDC' file.                                               *
-************************************************************************
+!***********************************************************************
+!     subroutine to get the dr/dq vectors for the constraints as given *
+!     in the 'UDC' file.                                               *
+!***********************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
       Integer, Intent(In)    :: mInt, nLambda
       Real*8,  Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(Out)   :: mLambda
       Integer, Intent(In)    :: Iter
-*
+!
       Integer n3,nBV,i,iLambda,iOff,iOff2, iAtom, ixyz
       Real*8 RR
       Real*8, External :: DDot_
-*
+!
       Character(LEN=8), Allocatable:: Lbl(:)
-      Real*8, Allocatable:: BVc(:), dBVc(:), BMx_t(:,:), Value(:),
-     &                      Value0(:), cInt(:), cInt0(:), Mult(:),
+      Real*8, Allocatable:: BVc(:), dBVc(:), BMx_t(:,:), Value(:),      &
+     &                      Value0(:), cInt(:), cInt0(:), Mult(:),      &
      &                      dBMx(:)
       Integer, Allocatable:: iFlip(:)
       Logical :: lWrite
-*
+!
       lWrite = .FALSE.
       n3=SIZE(Degen)
-*
+!
       If (nLambda.ne.0) Then
          nBV=iRow_c-nLambda-1
          Call mma_allocate(BMx_t,n3,nLambda,Label='BMx_t')
@@ -55,10 +55,10 @@
          Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
          Call mma_allocate(iFlip,nBV,Label='iFlip')
          Call mma_allocate(Lbl,mInt,Label='Lbl')
-*
-         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,
-     &                SIZE(Degen,2),iRow_c,
-     &                Value,cInt,cInt0,Lbl,lWrite,
+!
+         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,                       &
+     &                SIZE(Degen,2),iRow_c,                             &
+     &                Value,cInt,cInt0,Lbl,lWrite,                      &
      &                Mult,dBMx,Value0,Iter,iFlip)
 
          Call mma_deallocate(Lbl)
@@ -75,14 +75,14 @@
 #ifdef _DEBUGPRINT_
          Call RecPrt('BMx_t',' ',BMx_t,n3,nLambda)
 #endif
-*
-*        Assemble dr/dq: Solve  B dr/dq = dr/dx
-*
+!
+!        Assemble dr/dq: Solve  B dr/dq = dr/dx
+!
          Call FZero(drdq,nLambda*mInt)
-*
-*        Temporary fix of the dC/dx vector which always
-*        is propted up with the full degeneracy factor.
-*
+!
+!        Temporary fix of the dC/dx vector which always
+!        is propted up with the full degeneracy factor.
+!
          If (.not.Curvilinear) Then
             Do iLambda=1,nLambda
                Do i=1,n3
@@ -93,34 +93,34 @@
             End Do
          End If
 
-         Call Eq_Solver('N',n3,mInt,nLambda,BMx,Curvilinear,Degen,
+         Call Eq_Solver('N',n3,mInt,nLambda,BMx,Curvilinear,Degen,      &
      &                  BMx_t,drdq)
 #ifdef _DEBUGPRINT_
          Call RecPrt('drdq',' ',drdq,mInt,nLambda)
 #endif
-*
+!
          Call mma_deallocate(BMx_t)
       End If
-*
-*     Double check that we don't have any null vectors
-*
+!
+!     Double check that we don't have any null vectors
+!
       iOff=1
       iOff2=1
       mLambda=nLambda
       Do iLambda=1,nLambda
          RR=Sqrt(DDot_(mInt,drdq(1,iOff),1,drdq(1,iOff),1))
          If (RR.lt.1.0D-12) Then
-            Write (6,*) 'Warning: constraint ',iLambda,
+            Write (6,*) 'Warning: constraint ',iLambda,                 &
      &                  ' has a null vector, I''ll remove it!'
             mLambda=mLambda-1
          Else
-            If (iOff.ne.iOff2)
+            If (iOff.ne.iOff2)                                          &
      &         Call dCopy_(mInt,drdq(1,iOff),1,drdq(1,iOff2),1)
             iOff2=iOff2+1
          End If
          iOff=iOff+1
       End Do
-      If (mLambda.lt.nLambda)
+      If (mLambda.lt.nLambda)                                           &
      &   Call FZero(drdq(1,mLambda+1),mInt*(nLambda-mLambda))
-*
+!
       End Subroutine get_drdq
