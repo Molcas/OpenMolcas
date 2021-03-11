@@ -12,46 +12,46 @@
 !***********************************************************************
 ! Interfaces to C functions needed to create and remove
 ! a subdirectory in WorkDir
-      Module subdirs
-      Use iso_c_binding
-      implicit none
-      private
-      public :: f_setsubdir, Sub, OldWorkDir, NewWorkDir
+
+module subdirs
+
+use iso_c_binding
+implicit none
+private
+public :: f_setsubdir, Sub, OldWorkDir, NewWorkDir
 #include "molcastypes.fh"
-      Interface
+interface
 #ifdef _HAVE_EXTRA_
-        Subroutine c_setsubdir(sub) bind(C, name="setsubdir")
-          Use iso_c_binding
-          Character(Kind=c_char) :: sub(*)
-        End Subroutine c_setsubdir
+  subroutine c_setsubdir(sub) bind(C,name="setsubdir")
+    use iso_c_binding
+    character(kind=c_char) :: sub(*)
+  end subroutine c_setsubdir
 #endif
-      End Interface
-      Character(Len=1024), save :: Sub, OldWorkDir, NewWorkDir
+end interface
+character(len=1024), save :: Sub, OldWorkDir, NewWorkDir
 
-      Contains
+contains
 
+subroutine f_setsubdir(sub)
 #ifdef _HAVE_EXTRA_
-      Subroutine f_setsubdir(sub)
-        Use iso_c_binding
-        Implicit None
-        Character(Len=*) :: sub
-        If (Trim(sub).eq.'') Then
-          Call c_setsubdir(''//c_null_char)
-        Else
-          Call c_setsubdir('/'//Trim(sub)//c_null_char)
-        End If
-      End Subroutine f_setsubdir
+  use iso_c_binding
+  implicit none
+  character(len=*) :: sub
+  if (trim(sub) == '') then
+    call c_setsubdir(''//c_null_char)
+  else
+    call c_setsubdir('/'//trim(sub)//c_null_char)
+  end if
 #else
-      Subroutine f_setsubdir(sub)
-        Use Prgm
-        Implicit None
-        Character(Len=*) :: sub
-        If (Trim(sub).eq.'') Then
-          Call SetSubDir('')
-        Else
-          Call SetSubDir('/'//Trim(sub))
-        End If
-      End Subroutine f_setsubdir
+  use Prgm
+  implicit none
+  character(len=*) :: sub
+  if (trim(sub) == '') then
+    call SetSubDir('')
+  else
+    call SetSubDir('/'//trim(sub))
+  end if
 #endif
+end subroutine f_setsubdir
 
-      End Module subdirs
+end module subdirs

@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Numerical_Gradient(ireturn)
+
+subroutine Numerical_Gradient(ireturn)
+
 #ifndef _HAVE_EXTRA_
-      Use Prgm
+use Prgm
 #endif
-      Use Para_Info, Only: MyRank, nProcs, Set_Do_Parallel
+use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
-      Use Para_Info, Only: King
+use Para_Info, only: King
 #endif
-      Implicit Real*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "standard_iounits.fh"
 #include "WrkSpc.fh"
@@ -25,506 +28,484 @@
 #include "warnings.fh"
 #include "constants2.fh"
 #include "stdalloc.fh"
-      Real*8 Energy_Ref
-      Integer iOper(0:7), jStab(0:7), iCoSet(0:7,0:7),                  &
-     &        iDispXYZ(3)
-      Character*8 Method
-      Character AtomLbl(MxAtom)*(LENIN)
-      Character Namei*(LENIN)
-      Character*10 ESPFKey
-      Character*180 Line,Get_Ln
-      External Get_Ln
-      External Rsv_Tsk
+real*8 Energy_Ref
+integer iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3)
+character*8 Method
+character AtomLbl(MxAtom)*(LENIN)
+character Namei*(LENIN)
+character*10 ESPFKey
+character*180 Line, Get_Ln
+external Get_Ln
+external Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
-      Character*80  SSTMNGR
-      Integer  SSTMODE
-      Logical  Rsv_Tsk_Even
-      External Rsv_Tsk_Even
+character*80 SSTMNGR
+integer SSTMODE
+logical Rsv_Tsk_Even
+external Rsv_Tsk_Even
 #endif
-      Logical DispX, DispY, DispZ,Rsv_Tsk, Is_Roots_Set, Found,         &
-     &        External_Coor_List, Do_ESPF, StandAlone, Exist, DoTinker, &
-     &        NMCart, DynExtPot, DoDirect, KeepOld, Reduce_Prt
-      External Reduce_Prt
-      Real*8 FX(3), rDum(1)
-      Real*8, Allocatable, Dimension(:,:) :: EnergyArray, GradArray,    &
-     &                                       OldGrads
-      Real*8, Allocatable:: Grad(:), GNew(:), MMGrd(:,:)
-      Integer, Allocatable:: IsMM(:)
-      Real*8, Allocatable:: BMtrx(:,:), TMtrx(:,:), Coor(:,:),          &
-     &                      Energies_Ref(:), XYZ(:,:), All(:,:),        &
-     &                      Disp(:), Deg(:,:), Mltp(:), C(:,:),         &
-     &                      Tmp2(:), Tmp(:,:)
-      Integer rc, Read_Grad
-      External Read_Grad
-      Parameter (ToHartree = CONV_CAL_TO_J_ /                           &
-     &           CONV_AU_TO_KJ_PER_MOLE_)
+logical DispX, DispY, DispZ, Rsv_Tsk, Is_Roots_Set, Found, External_Coor_List, Do_ESPF, StandAlone, Exist, DoTinker, NMCart, &
+        DynExtPot, DoDirect, KeepOld, Reduce_Prt
+external Reduce_Prt
+real*8 FX(3), rDum(1)
+real*8, allocatable, dimension(:,:) :: EnergyArray, GradArray, OldGrads
+real*8, allocatable :: Grad(:), GNew(:), MMGrd(:,:)
+integer, allocatable :: IsMM(:)
+real*8, allocatable :: BMtrx(:,:), TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), all(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
+                       Tmp2(:), Tmp(:,:)
+integer rc, Read_Grad
+external Read_Grad
+parameter(ToHartree=CONV_CAL_TO_J_/CONV_AU_TO_KJ_PER_MOLE_)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,     &
-     &                     iQMChg,nAtMM,StandAlone,DoDirect)
-      Integer, Intent(In):: nAtom
-      Real*8, Intent(In):: Cord(3,nAtom)
-      Integer, Intent(In):: ipMltp
-      Integer, Intent(In):: IsMM(nAtom)
-      Integer, Intent(In):: MltOrd
-      Logical, Intent(InOut):: DynExtPot
-      Integer, Intent(In):: iQMChg
-      Integer, Intent(InOut):: nAtMM
-      Logical, Intent(In):: StandAlone
-      Logical, Intent(In):: DoDirect
-      End Subroutine RunTinker
-      End Interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Get the print level.
-!
-      iPL_Save=iPrintLevel(-1)
-      iPL=iPL_Save
+interface
+  subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
+    integer, intent(In) :: nAtom
+    real*8, intent(In) :: Cord(3,nAtom)
+    integer, intent(In) :: ipMltp
+    integer, intent(In) :: IsMM(nAtom)
+    integer, intent(In) :: MltOrd
+    logical, intent(InOut) :: DynExtPot
+    integer, intent(In) :: iQMChg
+    integer, intent(InOut) :: nAtMM
+    logical, intent(In) :: StandAlone
+    logical, intent(In) :: DoDirect
+  end subroutine RunTinker
+end interface
 
-      If (Reduce_Prt().and.iPL.lt.3) iPL=0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      ireturn=_RC_ALL_IS_WELL_
-!
-!     Get information regarding the last method used
-!
-      Call Get_cArray('Relax Method',Method,8)
-      Call DecideOnESPF(Do_ESPF)
-      Is_Roots_Set = .False.
-      Call Qpg_iScalar('Number of roots',Is_Roots_Set)
-      If (Is_Roots_Set) Then
-         Call Get_iScalar('Number of roots',nRoots)
-         If (nRoots.eq.1) Then
-            iRoot=1
-         Else
-            Call qpg_iScalar('NumGradRoot',Found)
-            If (Found) Then
-               Call Get_iScalar('NumGradRoot',iRoot)
-            Else
-               iRoot=1
-            End If
-         End If
-      Else
-         nRoots = 1
-         iRoot  = 1
-      End If
-      Call mma_allocate(Energies_Ref,nRoots,Label='Energies_Ref')
-!     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
-      If (iRoot .gt. nRoots) Then
-         Write(LuWr,*)
-         Write(LuWr,*) '****************** ERROR ******************'
-         Write(LuWr,*) 'It was selected to run numerical gradient'
-         Write(LuWr,*) 'using energies for root/state number ',iRoot
-         Write(LuWr,*) 'but only ',nRoots,' exists.'
-         Write(LuWr,*) '*******************************************'
-         Call Abend()
-      End If
+! Get the print level.
+
+iPL_Save = iPrintLevel(-1)
+iPL = iPL_Save
+
+if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (nRoots .gt. 1) Then
-         Call Get_dArray('Last energies',Energies_Ref,nRoots)
-      Else
-         Call Get_dScalar('Last energy',Energies_Ref(iRoot))
-      End If
-      Call Get_iScalar('Unique atoms',nAtoms)
-      Call mma_allocate(Coor,3,nAtoms,Label='Coor')
-      Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
-      Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
-      If (iPL_Save.ge.3)                                                &
-     &     Call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
+ireturn = _RC_ALL_IS_WELL_
+
+! Get information regarding the last method used
+
+call Get_cArray('Relax Method',Method,8)
+call DecideOnESPF(Do_ESPF)
+Is_Roots_Set = .false.
+call Qpg_iScalar('Number of roots',Is_Roots_Set)
+if (Is_Roots_Set) then
+  call Get_iScalar('Number of roots',nRoots)
+  if (nRoots == 1) then
+    iRoot = 1
+  else
+    call qpg_iScalar('NumGradRoot',Found)
+    if (Found) then
+      call Get_iScalar('NumGradRoot',iRoot)
+    else
+      iRoot = 1
+    end if
+  end if
+else
+  nRoots = 1
+  iRoot = 1
+end if
+call mma_allocate(Energies_Ref,nRoots,Label='Energies_Ref')
+!write(u6,*) 'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
+if (iRoot > nRoots) then
+  write(LuWr,*)
+  write(LuWr,*) '****************** ERROR ******************'
+  write(LuWr,*) 'It was selected to run numerical gradient'
+  write(LuWr,*) 'using energies for root/state number ',iRoot
+  write(LuWr,*) 'but only ',nRoots,' exists.'
+  write(LuWr,*) '*******************************************'
+  call Abend()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     If this is a QM/MM calculation, the gradient on the MM atoms
-!     is analytical (using the ESPF method for the QM/MM electrostatics)
-!     Accordingly, no need to loop over the MM atoms
-!
-      DoTinker = .False.
-      DoDirect = .False.
-      ipMltp = ip_Dummy
-      Call F_Inquire('ESPF.DATA',Exist)
-      If (Exist) Then
-         IPotFl = IsFreeUnit(15)
-         Call Molcas_Open(IPotFl,'ESPF.DATA')
-         Line = ' '
-         Do While (Index(Line,'ENDOFESPF ') .eq. 0)
-            Line = Get_Ln(IPotFl)
-            If (Index(Line,'TINKER ') .ne. 0) Then
-              DoTinker = .True.
-            Else If (Index(Line,'DIRECT ') .ne. 0) Then
-              DoDirect = .True.
-            Else If (Index(Line,'MLTORD ') .ne. 0) Then
-              Call Get_I1(2,MltOrd)
-              ibla = 0
-              Do ii = 0, MltOrd
-                 ibla = ibla + (ii+2)*(ii+1)/2
-              End Do
-              MltOrd = ibla
-            Else If (Index(Line,'MULTIPOLE ') .ne. 0) Then
-              Call Get_I1(2,nMult)
-              Call mma_allocate(Mltp,nMult,Label='Mltp')
-              ipMltp = ip_of_Work(Mltp(1))
-              Do iMlt = 1, nMult, MltOrd
-                Line = Get_Ln(IPotFl)
-                Call Get_I1(1,iAt)
-                Call Get_F(2,Mltp(iMlt),MltOrd)
-              End Do
-            End If
-         End Do
-         Close (IPotFl)
-      End If
-!
-      nAtMM = 0
-      If (DoTinker) Then
-         Call mma_allocate(IsMM,nAtoms,Label='IsMM')
-         Call MMCount(nAtoms,nAtMM,IsMM)
-         If (nAtMM .gt. 0) Then
-            iQMChg = 0
-            StandAlone = .False.
-            Call RunTinker(nAtoms,Coor,ipMltp,IsMM,MltOrd,              &
-     &               DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
-            Call mma_allocate(MMGrd,3,nAtoms,Label='MMGrd')
-            MMGrd(:,:)=Zero
-            ITkQMMM=IsFreeUnit(15)
-            Call Molcas_Open(ITkQMMM,'QMMM')
-            Line = ' '
-            Do While (Index(Line,'TheEnd') .eq. 0)
-               Line = Get_Ln(ITkQMMM)
-               If (Index(Line,'MMGradient') .ne. 0) Then
-                  Call Get_I1(2,iAtom)
-                  Call Get_F(3,FX,3)
-                  If (IsMM(iAtom) .eq. 1) MMGrd(:,iAtom)=FX(:)
-               End If
-            End Do
-            Call DScal_(3*nAtoms,Angstrom*ToHartree,MMGrd,1)
-            Close(ITkQMMM)
-            If (iPL_Save .ge. 3) Call RecPrt('MM Grad:',' ',MMGrd,3,    &
-     &                                       nAtoms)
-         End If
-         If (Allocated(Mltp)) Call mma_deallocate(Mltp)
-      End If
+if (nRoots > 1) then
+  call Get_dArray('Last energies',Energies_Ref,nRoots)
+else
+  call Get_dScalar('Last energy',Energies_Ref(iRoot))
+end if
+call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(Coor,3,nAtoms,Label='Coor')
+call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
+call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
+if (iPL_Save >= 3) call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Pick up rDelta from the runfile
-      Call Get_dScalar('Numerical Gradient rDelta',rDelta)
+! If this is a QM/MM calculation, the gradient on the MM atoms
+! is analytical (using the ESPF method for the QM/MM electrostatics)
+! Accordingly, no need to loop over the MM atoms
+
+DoTinker = .false.
+DoDirect = .false.
+ipMltp = ip_Dummy
+call F_Inquire('ESPF.DATA',Exist)
+if (Exist) then
+  IPotFl = IsFreeUnit(15)
+  call Molcas_Open(IPotFl,'ESPF.DATA')
+  Line = ' '
+  do while (index(Line,'ENDOFESPF ') == 0)
+    Line = Get_Ln(IPotFl)
+    if (index(Line,'TINKER ') /= 0) then
+      DoTinker = .true.
+    else if (index(Line,'DIRECT ') /= 0) then
+      DoDirect = .true.
+    else if (index(Line,'MLTORD ') /= 0) then
+      call Get_I1(2,MltOrd)
+      ibla = 0
+      do ii=0,MltOrd
+        ibla = ibla+(ii+2)*(ii+1)/2
+      end do
+      MltOrd = ibla
+    else if (index(Line,'MULTIPOLE ') /= 0) then
+      call Get_I1(2,nMult)
+      call mma_allocate(Mltp,nMult,Label='Mltp')
+      ipMltp = ip_of_Work(Mltp(1))
+      do iMlt=1,nMult,MltOrd
+        Line = Get_Ln(IPotFl)
+        call Get_I1(1,iAt)
+        call Get_F(2,Mltp(iMlt),MltOrd)
+      end do
+    end if
+  end do
+  close(IPotFl)
+end if
+
+nAtMM = 0
+if (DoTinker) then
+  call mma_allocate(IsMM,nAtoms,Label='IsMM')
+  call MMCount(nAtoms,nAtMM,IsMM)
+  if (nAtMM > 0) then
+    iQMChg = 0
+    StandAlone = .false.
+    call RunTinker(nAtoms,Coor,ipMltp,IsMM,MltOrd,DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
+    call mma_allocate(MMGrd,3,nAtoms,Label='MMGrd')
+    MMGrd(:,:) = Zero
+    ITkQMMM = IsFreeUnit(15)
+    call Molcas_Open(ITkQMMM,'QMMM')
+    Line = ' '
+    do while (index(Line,'TheEnd') == 0)
+      Line = Get_Ln(ITkQMMM)
+      if (index(Line,'MMGradient') /= 0) then
+        call Get_I1(2,iAtom)
+        call Get_F(3,FX,3)
+        if (IsMM(iAtom) == 1) MMGrd(:,iAtom) = FX(:)
+      end if
+    end do
+    call DScal_(3*nAtoms,Angstrom*ToHartree,MMGrd,1)
+    close(ITkQMMM)
+    if (iPL_Save >= 3) call RecPrt('MM Grad:',' ',MMGrd,3,nAtoms)
+  end if
+  if (allocated(Mltp)) call mma_deallocate(Mltp)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Check if there is a coordinate list from Slapaf on the run file.
-!     Read the B-matrix and T-matrix. To be used in case of
-!     differentiation in internal coordinates according to Slapaf.
-!
-      If (nAtMM .eq. 0) Call GenCxCTL(iRC,NMCart,rDelta)
-!
-      Call qpg_dArray('CList',Found,nCList)
-      If (Found) Then
-         External_Coor_List=.True.
-         Call Get_iScalar('No of Internal Coordinates',mInt)
-         Call Get_iScalar('nLambda',nLambda)
-         Call mma_allocate(BMtrx,3*nAtoms,mInt,Label='BMtrx')
-         Call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
-         Call Get_dArray('BMtrx',BMtrx,SIZE(BMtrx))
-         Call Get_dArray('T-Matrix',TMtrx,mInt**2)
-      Else
-         NMCart=.FALSE.
-         External_Coor_List=.False.
-         mInt=3*nAtoms
-         nLambda=0
-         Call mma_allocate(BMtrx,3*nAtoms,3*nAtoms,Label='BMtrx')
-         Call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
-         BMtrx(:,:)=Zero
-         Do i = 1, 3*nAtoms
-            BMtrx(i,i)=One
-         End Do
-         TMtrx(:,:)=Zero
-         Do i = 1, mInt
-            TMtrx(i,i)=One
-         End Do
-      End If
+! Pick up rDelta from the runfile
+call Get_dScalar('Numerical Gradient rDelta',rDelta)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Method(5:7) .eq. 'SCF'    .OR.                                &
-     &    Method(1:6) .eq. 'KS-DFT' .OR.                                &
-     &    Method(1:6) .eq. 'CASSCF' .OR.                                &
-     &    Method(1:6) .eq. 'RASSCF' .OR.                                &
-     &    Method(1:6) .eq. 'GASSCF' .OR.                                &
-     &    Method(1:6) .eq. 'CASPT2' .OR.                                &
-     &    Method(1:5) .eq. 'MBPT2'  .OR.                                &
-     &    Method(1:5) .eq. 'CCSDT'  .OR.                                &
-     &    Method(1:4) .eq. 'CHCC'   .OR.                                &
-     &    Method(1:6) .eq. 'MCPDFT' .OR.                                &
-     &    Method(1:4) .eq. 'CHT3'   .OR.                                &
-     &    Method(1:8) .eq. 'EXTERNAL') Then
-         If (iPL_Save.ge.3) Then
-            Write (LuWr,*)
-            Write (LuWr,'(A,A,A)')                                      &
-     &    ' Numerical_Gradient: Original ',Method,' Energies:'
-            Write (LuWr,'(G21.14)') Energies_Ref(:)
-            Write (LuWr,*)
-         End If
-      Else
-         Write (LuWr,'(A,A,A)') 'Numerical gradient for ',Method,       &
-     &                    ' is not implemented yet.'
-         Call Abend()
-      End If
-!
-      nDisp2 = 2*3*nAtoms
-      Call mma_Allocate(EnergyArray,nRoots,nDisp2)
-      Call FZero(EnergyArray,nRoots*nDisp2)
+! Check if there is a coordinate list from Slapaf on the run file.
+! Read the B-matrix and T-matrix. To be used in case of
+! differentiation in internal coordinates according to Slapaf.
+
+if (nAtMM == 0) call GenCxCTL(iRC,NMCart,rDelta)
+
+call qpg_dArray('CList',Found,nCList)
+if (Found) then
+  External_Coor_List = .true.
+  call Get_iScalar('No of Internal Coordinates',mInt)
+  call Get_iScalar('nLambda',nLambda)
+  call mma_allocate(BMtrx,3*nAtoms,mInt,Label='BMtrx')
+  call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
+  call Get_dArray('BMtrx',BMtrx,size(BMtrx))
+  call Get_dArray('T-Matrix',TMtrx,mInt**2)
+else
+  NMCart = .false.
+  External_Coor_List = .false.
+  mInt = 3*nAtoms
+  nLambda = 0
+  call mma_allocate(BMtrx,3*nAtoms,3*nAtoms,Label='BMtrx')
+  call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
+  BMtrx(:,:) = Zero
+  do i=1,3*nAtoms
+    BMtrx(i,i) = One
+  end do
+  TMtrx(:,:) = Zero
+  do i=1,mInt
+    TMtrx(i,i) = One
+  end do
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Pick up symmetry information
-!
-      Call Get_iScalar('nSym',nSym)
-      nIrrep=nSym
-      Call Get_iArray('Symmetry operations',iOper,nSym)
-      MaxDCR = nIrrep
+if ((Method(5:7) == 'SCF') .or. &
+    (Method(1:6) == 'KS-DFT') .or. &
+    (Method(1:6) == 'CASSCF') .or. &
+    (Method(1:6) == 'RASSCF') .or. &
+    (Method(1:6) == 'GASSCF') .or. &
+    (Method(1:6) == 'CASPT2') .or. &
+    (Method(1:5) == 'MBPT2') .or. &
+    (Method(1:5) == 'CCSDT') .or. &
+    (Method(1:4) == 'CHCC') .or. &
+    (Method(1:6) == 'MCPDFT') .or. &
+    (Method(1:4) == 'CHT3') .or. &
+    (Method(1:8) == 'EXTERNAL')) then
+  if (iPL_Save >= 3) then
+    write(LuWr,*)
+    write(LuWr,'(A,A,A)') ' Numerical_Gradient: Original ',Method,' Energies:'
+    write(LuWr,'(G21.14)') Energies_Ref(:)
+    write(LuWr,*)
+  end if
+else
+  write(LuWr,'(A,A,A)') 'Numerical gradient for ',Method,' is not implemented yet.'
+  call Abend()
+end if
+
+nDisp2 = 2*3*nAtoms
+call mma_Allocate(EnergyArray,nRoots,nDisp2)
+call FZero(EnergyArray,nRoots*nDisp2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Set up displacement vector
-!
-      Call Get_nAtoms_All(nAll)
-      Call mma_allocate(All,3,nAll,Label='All')
-      Call Get_Coord_All(All,nAll)
+! Pick up symmetry information
+
+call Get_iScalar('nSym',nSym)
+nIrrep = nSym
+call Get_iArray('Symmetry operations',iOper,nSym)
+MaxDCR = nIrrep
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (External_Coor_List) Then
-!
-!        Externally define displacement list
-!
-         nDisp=mInt
-         Call mma_allocate(Disp,mInt,Label='Disp')
-         Call Get_dArray('DList',Disp,mInt)
-!        Call RecPrt('Dlist',' ',Disp,1,mInt)
-!
-      Else
-!
-!        Cartesian displacement list
-!
-         nDisp=3*nAtoms
-         Call mma_allocate(Disp,nDisp,Label='Disp')
-         Call FZero(Disp,nDisp)
-!
-         Do i = 1, nAtoms
-!
-!           Find the stabilizer of this center
-!
-            iChxyz=iChAtm(Coor(:,i))
-            Call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
-!
-            Call IZero(iDispXYZ,3)
-            Do j = 0, nStab-1
-               If (iAnd(jStab(j),1).ne.0) Then
-                  iDispXYZ(1)=iDispXYZ(1)-1
-               Else
-                  iDispXYZ(1)=iDispXYZ(1)+1
-               End If
-               If (iAnd(jStab(j),2).ne.0) Then
-                  iDispXYZ(2)=iDispXYZ(2)-1
-               Else
-                  iDispXYZ(2)=iDispXYZ(2)+1
-               End If
-               If (iAnd(jStab(j),4).ne.0) Then
-                  iDispXYZ(3)=iDispXYZ(3)-1
-               Else
-                  iDispXYZ(3)=iDispXYZ(3)+1
-               End If
-            End Do
-!
-!           If this is a MM atom, do not make displacements
-!
-            If (DoTinker .and. IsMM(i) .eq. 1)                          &
-     &        Call IZero(iDispXYZ,3)
-            DispX=iDispXYZ(1).ne.0
-            DispY=iDispXYZ(2).ne.0
-            DispZ=iDispXYZ(3).ne.0
-            x0= Coor(1,i)
-            y0= Coor(2,i)
-            z0= Coor(3,i)
-!
-!           Find the shortest distance to another atom!
-!
-            rMax=1.0D19
-            Do j = 1, nAll
-               x = All(1,j)
-               y = All(2,j)
-               z = All(3,j)
-               rTest=Sqrt((x-x0)**2+(y-y0)**2+(z-z0)**2)
-               If (rTest.eq.Zero) rTest=1.0D19
-               rMax=Min(rMax,rTest)
-            End Do
-            If (DispX) Disp((i-1)*3+1)=rDelta*rMax
-            If (DispY) Disp((i-1)*3+2)=rDelta*rMax
-            If (DispZ) Disp((i-1)*3+3)=rDelta*rMax
-         End Do
-!        Call RecPrt('Disp',' ',Disp,1,nDisp)
-      End If
+! Set up displacement vector
+
+call Get_nAtoms_All(nAll)
+call mma_allocate(All,3,nAll,Label='All')
+call Get_Coord_All(All,nAll)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_allocate(Deg,3,nAtoms,Label='Deg')
-      Deg(:,:)=Zero
-      Do i = 1, nAtoms
-         rDeg=DBLE(iDeg(Coor(:,i)))
-         Deg(1,i)=rDeg
-         Deg(2,i)=rDeg
-         Deg(3,i)=rDeg
-      End Do
+if (External_Coor_List) then
+
+  ! Externally define displacement list
+
+  nDisp = mInt
+  call mma_allocate(Disp,mInt,Label='Disp')
+  call Get_dArray('DList',Disp,mInt)
+  !call RecPrt('Dlist',' ',Disp,1,mInt)
+
+else
+
+  ! Cartesian displacement list
+
+  nDisp = 3*nAtoms
+  call mma_allocate(Disp,nDisp,Label='Disp')
+  call FZero(Disp,nDisp)
+
+  do i=1,nAtoms
+
+    ! Find the stabilizer of this center
+
+    iChxyz = iChAtm(Coor(:,i))
+    call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
+
+    call IZero(iDispXYZ,3)
+    do j=0,nStab-1
+      if (iand(jStab(j),1) /= 0) then
+        iDispXYZ(1) = iDispXYZ(1)-1
+      else
+        iDispXYZ(1) = iDispXYZ(1)+1
+      end if
+      if (iand(jStab(j),2) /= 0) then
+        iDispXYZ(2) = iDispXYZ(2)-1
+      else
+        iDispXYZ(2) = iDispXYZ(2)+1
+      end if
+      if (iand(jStab(j),4) /= 0) then
+        iDispXYZ(3) = iDispXYZ(3)-1
+      else
+        iDispXYZ(3) = iDispXYZ(3)+1
+      end if
+    end do
+
+    ! If this is a MM atom, do not make displacements
+
+    if (DoTinker .and. (IsMM(i) == 1)) call IZero(iDispXYZ,3)
+    DispX = iDispXYZ(1) /= 0
+    DispY = iDispXYZ(2) /= 0
+    DispZ = iDispXYZ(3) /= 0
+    x0 = Coor(1,i)
+    y0 = Coor(2,i)
+    z0 = Coor(3,i)
+
+    ! Find the shortest distance to another atom!
+
+    rMax = 1.0d19
+    do j=1,nAll
+      x = all(1,j)
+      y = all(2,j)
+      z = all(3,j)
+      rTest = sqrt((x-x0)**2+(y-y0)**2+(z-z0)**2)
+      if (rTest == Zero) rTest = 1.0d19
+      rMax = min(rMax,rTest)
+    end do
+    if (DispX) Disp((i-1)*3+1) = rDelta*rMax
+    if (DispY) Disp((i-1)*3+2) = rDelta*rMax
+    if (DispZ) Disp((i-1)*3+3) = rDelta*rMax
+  end do
+  !call RecPrt('Disp',' ',Disp,1,nDisp)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_allocate(XYZ,3*nAtoms,2*nDisp,Label='XYZ')
-      XYZ(:,:)=Zero
-      If (External_Coor_List) Then
-         mDisp=nDisp*2
-         Call Get_dArray('CList',XYZ,3*nAtoms*mDisp)
-      Else
-         mDisp=0
-         Do iDisp = 1, nDisp2
-            iCoor=(iDisp+1)/2
-            If (Disp(icoor).eq.Zero) Go To 101
-            mDisp=mDisp+1
-!
-!--------   Modify the geometry
-!
-            call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
-            Sign=One
-            If (Mod(iDisp,2).eq.0) Sign=-One
-            XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)                         &
-     &                          + Sign*Disp(icoor)
- 101        Continue
-         End Do
-      End If
+call mma_allocate(Deg,3,nAtoms,Label='Deg')
+Deg(:,:) = Zero
+do i=1,nAtoms
+  rDeg = dble(iDeg(Coor(:,i)))
+  Deg(1,i) = rDeg
+  Deg(2,i) = rDeg
+  Deg(3,i) = rDeg
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Save the "new geometry" field from the RunFile, if any
-!
-      Call qpg_dArray('GeoNew',Found,nGNew)
-      If (.not.Found) nGNew=0
-      If (nGNew.gt.0) Then
-        Call mma_allocate(GNew,nGNew)
-        Call Get_dArray('GeoNew',GNew,nGNew)
-      End If
+call mma_allocate(XYZ,3*nAtoms,2*nDisp,Label='XYZ')
+XYZ(:,:) = Zero
+if (External_Coor_List) then
+  mDisp = nDisp*2
+  call Get_dArray('CList',XYZ,3*nAtoms*mDisp)
+else
+  mDisp = 0
+  do iDisp=1,nDisp2
+    iCoor = (iDisp+1)/2
+    if (Disp(icoor) == Zero) Go To 101
+    mDisp = mDisp+1
+
+    ! Modify the geometry
+
+    call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
+    Sign = One
+    if (mod(iDisp,2) == 0) Sign = -One
+    XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sign*Disp(icoor)
+101 continue
+  end do
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Save global print level
-!
-      iPL_Save=iPrintLevel(-1)
-!     iPL_Base=0
-!     If (iPL_Save.ge.3) iPl_Base=iPL_Save
-!
+! Save the "new geometry" field from the RunFile, if any
+
+call qpg_dArray('GeoNew',Found,nGNew)
+if (.not. Found) nGNew = 0
+if (nGNew > 0) then
+  call mma_allocate(GNew,nGNew)
+  call Get_dArray('GeoNew',GNew,nGNew)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Save global print level
+
+iPL_Save = iPrintLevel(-1)
+!iPL_Base = 0
+!If (iPL_Save >= 3) iPl_Base = iPL_Save
+
 #ifdef _DEBUGPRINT_
-      Call RecPrt('BMtrx',' ',BMtrx,3*nAtoms,mInt)
-      Call RecPrt('TMtrx',' ',TMtrx,mInt,mInt)
-      Call RecPrt('Degeneracy vector',' ',Deg,3,nAtoms)
-      Call RecPrt('Coordinate List',' ',XYZ,3*nAtoms,mDisp)
+call RecPrt('BMtrx',' ',BMtrx,3*nAtoms,mInt)
+call RecPrt('TMtrx',' ',TMtrx,mInt,mInt)
+call RecPrt('Degeneracy vector',' ',Deg,3,nAtoms)
+call RecPrt('Coordinate List',' ',XYZ,3*nAtoms,mDisp)
 #endif
 
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     Loop over displacements
+! Loop over displacements                                              *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-      If (iPL.ge.2) Then
-         Write (LuWr,*) 'Root to use: ',iRoot
-         Write (LuWr,*) 'Number of internal degrees            ', nDisp
-         Write (LuWr,*) 'Number of constraints                 ',       &
-     &                  nLambda
-         Write (LuWr,*) 'Number of displacements               ',       &
-     &                   nDisp*2
-         If (nAtMM.ne.0 .and. DoTinker .and. .not.DoDirect) Then
-            Write(LuWr,*) 'Number of MM degrees (analytical grad)',     &
-     &                    nAtMM*3
-         End If
-         Write (LuWr,*) 'Effective number of displacements     ',       &
-     &                   2*(nDisp-nLambda-3*nAtMM)
-         Write (LuWr,*) 'Relative displacements                ',       &
-     &                   rDelta
-         Write (LuWr,*)
-      End If
-!
-!     This printout is disabled since it means different things for
-!     externally defined coordinates or not.
-!
-      If (iPL.ge.3) Then
+if (iPL >= 2) then
+  write(LuWr,*) 'Root to use: ',iRoot
+  write(LuWr,*) 'Number of internal degrees            ',nDisp
+  write(LuWr,*) 'Number of constraints                 ',nLambda
+  write(LuWr,*) 'Number of displacements               ',nDisp*2
+  if ((nAtMM /= 0) .and. DoTinker .and. (.not. DoDirect)) then
+    write(LuWr,*) 'Number of MM degrees (analytical grad)',nAtMM*3
+  end if
+  write(LuWr,*) 'Effective number of displacements     ',2*(nDisp-nLambda-3*nAtMM)
+  write(LuWr,*) 'Relative displacements                ',rDelta
+  write(LuWr,*)
+end if
+
+! This printout is disabled since it means different things for
+! externally defined coordinates or not.
+
+if (iPL >= 3) then
 #ifdef _HIDE_
-         Write (LuWr,'(1x,A)')                                          &
-     &                 '---------------------------------------------'
-         Write (LuWr,'(1x,A)')                                          &
-     &                 '               X           Y           Z     '
-         Write (LuWr,'(1x,A)')                                          &
-     &                 '---------------------------------------------'
-         Do iAtom = 1, nAtoms
-            TempX = Disp(3*(iAtom-1)+1)
-            TempY = Disp(3*(iAtom-1)+2)
-            TempZ = Disp(3*(iAtom-1)+3)
-            Namei = AtomLbl(iAtom)
-            Write (LuWr,'(2X,A,3X,3F12.6)') Namei, TempX, TempY, TempZ
-         End Do
+  write(LuWr,'(1x,A)') '---------------------------------------------'
+  write(LuWr,'(1x,A)') '               X           Y           Z     '
+  write(LuWr,'(1x,A)') '---------------------------------------------'
+  do iAtom=1,nAtoms
+    TempX = Disp(3*(iAtom-1)+1)
+    TempY = Disp(3*(iAtom-1)+2)
+    TempZ = Disp(3*(iAtom-1)+3)
+    Namei = AtomLbl(iAtom)
+    write(LuWr,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
+  end do
 #endif
-         Write (LuWr,'(1x,A)')                                          &
-     &              '---------------------------------------------'
-         Write (LuWr,*)
-         Write (LuWr,*) 'Here we go ...'
-         Write (LuWr,*)
-      End If
+  write(LuWr,'(1x,A)') '---------------------------------------------'
+  write(LuWr,*)
+  write(LuWr,*) 'Here we go ...'
+  write(LuWr,*)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Change output unit
-!
-      LuWr_save=LuWr
-      If (MyRank.ne.0) Then
-         LuWr=55
-         LuWr=isFreeUnit(LuWr)
-         call molcas_open(luwr,'Temp_OutPut')
-      End If
-!
+! Change output unit
+
+LuWr_save = LuWr
+if (MyRank /= 0) then
+  LuWr = 55
+  LuWr = isFreeUnit(LuWr)
+  call molcas_open(luwr,'Temp_OutPut')
+end if
+
 ! FM 16/4/2013
 ! ESPF charges are set to zero so that no microiterations will be
 ! performed during numerical gradient
 ! IFG: swap files, as now NG uses a subdirectory
-!
-      iSave=15
-      If (Do_ESPF) Then
-         iSave = IsFreeUnit(iSave)
-         Call Molcas_Open(iSave,'ESPF.SAV')
-         iData = IsFreeUnit(iSave)
-         Call Molcas_Open(iData,'ESPF.DATA')
-96       Line = Get_Ln(iData)
-         ESPFKey = Line(1:10)
-         If (ESPFKey.eq.'ENDOFESPF ') Then
-            Write(iSave,'(A132)') Line
-            Goto 98
-         End If
-         If (ESPFKey.ne.'MULTIPOLE ') Then
-            Write(iSave,'(A132)') Line
-         Else
-            Call Get_I1(2,nMult)
-            Do iMlt = 1, nMult
-               Line = Get_Ln(iData)
-            End Do
-         End If
-         Goto 96
-98       Close (iSave)
-         Close (iData)
-      EndIf
+
+iSave = 15
+if (Do_ESPF) then
+  iSave = IsFreeUnit(iSave)
+  call Molcas_Open(iSave,'ESPF.SAV')
+  iData = IsFreeUnit(iSave)
+  call Molcas_Open(iData,'ESPF.DATA')
+96 Line = Get_Ln(iData)
+  ESPFKey = Line(1:10)
+  if (ESPFKey == 'ENDOFESPF ') then
+    write(iSave,'(A132)') Line
+    goto 98
+  end if
+  if (ESPFKey /= 'MULTIPOLE ') then
+    write(iSave,'(A132)') Line
+  else
+    call Get_I1(2,nMult)
+    do iMlt=1,nMult
+      Line = Get_Ln(iData)
+    end do
+  end if
+  goto 96
+98 close(iSave)
+  close(iData)
+end if
 ! FM End
 !                                                                      *
 !***********************************************************************
@@ -533,559 +514,530 @@
 ! Reserve task on global task list and get task range in return.
 ! Function will be false if no more tasks to execute.
 #if !defined(_GA_) && defined(_MOLCAS_MPP_)
-      Call getenvf('MOLCAS_SSTMNGR',SSTMNGR)
-      If (SSTMNGR(1:1).eq.'Y') Then
-          SSTMODE=1
-      Else
-          SSTMODE=0
-      End If
-      If (SSTMODE.eq.1) Then
-         Call Init_Tsk(id_Tsk,mDisp-2*nLambda)
-      Else
-         Call Init_Tsk_Even(id_Tsk,mDisp-2*nLambda)
-      End If
+call getenvf('MOLCAS_SSTMNGR',SSTMNGR)
+if (SSTMNGR(1:1) == 'Y') then
+  SSTMODE = 1
+else
+  SSTMODE = 0
+end if
+if (SSTMODE == 1) then
+  call Init_Tsk(id_Tsk,mDisp-2*nLambda)
+else
+  call Init_Tsk_Even(id_Tsk,mDisp-2*nLambda)
+end if
 #else
-      Call Init_Tsk(id_Tsk,mDisp-2*nLambda)
+call Init_Tsk(id_Tsk,mDisp-2*nLambda)
 #endif
-      Call mma_allocate(C,3,nAtoms,Label='C')
-   10 Continue
+call mma_allocate(C,3,nAtoms,Label='C')
+10 continue
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
-         If (SSTMODE.eq.1) Then
-           If (.Not. Rsv_Tsk(id_Tsk,iDisp)) Goto 11
-         Else
-           If (.Not. Rsv_Tsk_Even(id_Tsk,iDisp)) Goto 11
-         End If
+if (SSTMODE == 1) then
+  if (.not. Rsv_Tsk(id_Tsk,iDisp)) goto 11
+else
+  if (.not. Rsv_Tsk_Even(id_Tsk,iDisp)) goto 11
+end if
 #else
-         If (.Not. Rsv_Tsk(id_Tsk,iDisp)) Goto 11
+if (.not. Rsv_Tsk(id_Tsk,iDisp)) goto 11
 #endif
-!
-!        Offset for the constraints
-!
-         iDisp = iDisp + 2*nLambda
-!
-!------- Get the displaced geometry
-!
-         call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
-!        Call RecPrt('C',' ',C,3*nAtoms,1)
-         Call Put_Coord_New(C,nAtoms)
-!
-!        Compute integrals
-!
-!        jPL     =iPrintLevel(Max(iPL_Base,0)) ! Silent
-         Call Set_Do_Parallel(.False.)
-!
-!        Switch to a new directory
-!        WARNING WARNING WARNING WARNING WARNING
-!          ugly hack, do not try this at home
-         Call SubWorkDir()
-!        WARNING WARNING WARNING WARNING WARNING
-!
-         Call StartLight('seward')
-         Call init_run_use()
-         Call init_ppu(.True.)
-         Call Disable_Spool()
-         Call Seward(ireturn)
-         Call ReClose()
-         If (iReturn .ne. 0) Then
-            Write(LuWr,*) 'Numerical_Gradient failed ...'
-            Write(LuWr,*)'Seward returned with return code, rc = ',     &
-     &                    iReturn
-            Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-            Call Abend()
-         End If
-!
-!        Compute the ESPF stuff
-!
-         If (Do_ESPF) Then
-            Call StartLight('espf')
-            Call init_run_use()
-            Call Disable_Spool()
-            StandAlone=.True.
-            Call ESPF(ireturn,StandAlone)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*)'ESPF returned with return code, rc = ',    &
-     &                       iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-!        Compute the wave function
-!
-         If (Method(5:7) .eq. 'SCF' .OR.                                &
-     &       Method(1:6) .eq. 'KS-DFT' .OR.                             &
-     &       Method(1:5) .eq. 'MBPT2' .OR.                              &
-     &       Method(1:4) .eq. 'CHCC' .OR.                               &
-     &       Method(1:4) .eq. 'CHT3') Then
-            Call StartLight('scf')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call xml_open('module',' ',' ',0,'scf')
-            Call SCF(iReturn)
-            Call xml_close('module')
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'SCF returned with return code, rc = ',    &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         Else If (Method(1:6) .eq. 'RASSCF' .OR.                        &
-     &            Method(1:6) .eq. 'GASSCF' .OR.                        &
-     &            Method(1:6) .eq. 'CASSCF' .OR.                        &
-     &            Method(1:6) .eq. 'MCPDFT' .OR.                        &
-     &            Method(1:6) .eq. 'CASPT2' .OR.                        &
-     &            Method(1:5) .eq. 'CCSDT') Then
-            Call StartLight('rasscf')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call RASSCF(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'RASSCF returned with return code, rc = ', &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         Else If (Method(1:8) .eq. 'EXTERNAL') Then
-            Call StartLight('false')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call False_program(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'FALSE returned with return code, rc = ',  &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-         If (Method(1:5) .eq. 'MBPT2') Then
-            Call StartLight('mbpt2')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call MP2_Driver(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'MBPT2 returned with return code, rc = ',  &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-         If (Method(1:5) .eq. 'CCSDT') Then
-            Call StartLight('motra')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call Motra(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'Motra returned with return code, rc = ',  &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-!
-            Call StartLight('ccsdt')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call CCSDT(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'CCSDT returned with return code, rc = ',  &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-         If (Method(1:4) .eq. 'CHCC' .OR.                               &
-     &       Method(1:4) .eq. 'CHT3') Then
-            Call StartLight('chcc')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call CHCC(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'CHCC returned with return code, rc = ',   &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-         If (Method(1:4) .eq. 'CHT3') Then
-            Call StartLight('cht3')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call CHT3(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'CHT3 returned with return code, rc = ',   &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-         If (Method(1:6) .eq. 'CASPT2') Then
-            Call StartLight('caspt2')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call CASPT2(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'CASPT2 returned with return code, rc = ', &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
 
-         If (Method(1:6) .eq. 'MCPDFT') Then
-            Call StartLight('mcpdft')
-            Call init_run_use()
-            Call Disable_Spool()
-            Call MCPDFT(ireturn)
-            Call ReClose()
-            If (iReturn .ne. 0) Then
-               Write(LuWr,*) 'Numerical_Gradient failed ...'
-               Write(LuWr,*) 'MCPDFT returned with return code, rc = ', &
-     &                     iReturn
-               Write(LuWr,*) 'for the perturbation iDisp = ',iDisp
-               Call Abend()
-            End If
-         End If
-!
-!        Call Get_Energy(EnergyArray(iRoot,iDisp))
-         If (nRoots .gt. 1) Then
-            Call Get_dArray('Last energies',EnergyArray(1,iDisp),nRoots)
-         Else
-            Call Get_dScalar('Last energy',EnergyArray(iRoot,iDisp))
-         End If
-!
-!        Restore directory and prgm database
-!
-         Call ParentWorkDir()
-         Call prgmfree()
-         Call prgminit('numerical_gradient')
-!
-         Call Set_Do_Parallel(.True.)
+! Offset for the constraints
 
-         If (iPL.ge.2) Then
-            Write (LuWr,200)'   * Point #',iDisp-2*nLambda,' of ',      &
-     &                                2*(nDisp-nLambda-3*nAtMM),' done.'
-            Write (LuWr,200)'    (Perturbation ',iDisp,')'
-         End If
- 200     Format(A,I4,A,I4,A)
+iDisp = iDisp+2*nLambda
+
+! Get the displaced geometry
+
+call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
+!call RecPrt('C',' ',C,3*nAtoms,1)
+call Put_Coord_New(C,nAtoms)
+
+! Compute integrals
+
+! jPL = iPrintLevel(Max(iPL_Base,0)) ! Silent
+call Set_Do_Parallel(.false.)
+
+! Switch to a new directory
+!WARNING WARNING WARNING WARNING WARNING
+! ugly hack, do not try this at home
+call SubWorkDir()
+!WARNING WARNING WARNING WARNING WARNING
+
+call StartLight('seward')
+call init_run_use()
+call init_ppu(.true.)
+call Disable_Spool()
+call Seward(ireturn)
+call ReClose()
+if (iReturn /= 0) then
+  write(LuWr,*) 'Numerical_Gradient failed ...'
+  write(LuWr,*) 'Seward returned with return code, rc = ',iReturn
+  write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+  call Abend()
+end if
+
+! Compute the ESPF stuff
+
+if (Do_ESPF) then
+  call StartLight('espf')
+  call init_run_use()
+  call Disable_Spool()
+  StandAlone = .true.
+  call ESPF(ireturn,StandAlone)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'ESPF returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+! Compute the wave function
+
+if ((Method(5:7) == 'SCF') .or. &
+    (Method(1:6) == 'KS-DFT') .or. &
+    (Method(1:5) == 'MBPT2') .or. &
+    (Method(1:4) == 'CHCC') .or. &
+    (Method(1:4) == 'CHT3')) then
+  call StartLight('scf')
+  call init_run_use()
+  call Disable_Spool()
+  call xml_open('module',' ',' ',0,'scf')
+  call SCF(iReturn)
+  call xml_close('module')
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'SCF returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+else if ((Method(1:6) == 'RASSCF') .or. &
+         (Method(1:6) == 'GASSCF') .or. &
+         (Method(1:6) == 'CASSCF') .or. &
+         (Method(1:6) == 'MCPDFT') .or. &
+         (Method(1:6) == 'CASPT2') .or. &
+         (Method(1:5) == 'CCSDT')) then
+  call StartLight('rasscf')
+  call init_run_use()
+  call Disable_Spool()
+  call RASSCF(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'RASSCF returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+else if (Method(1:8) == 'EXTERNAL') then
+  call StartLight('false')
+  call init_run_use()
+  call Disable_Spool()
+  call False_program(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'FALSE returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+if (Method(1:5) == 'MBPT2') then
+  call StartLight('mbpt2')
+  call init_run_use()
+  call Disable_Spool()
+  call MP2_Driver(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'MBPT2 returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+if (Method(1:5) == 'CCSDT') then
+  call StartLight('motra')
+  call init_run_use()
+  call Disable_Spool()
+  call Motra(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'Motra returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+
+  call StartLight('ccsdt')
+  call init_run_use()
+  call Disable_Spool()
+  call CCSDT(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'CCSDT returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+if ((Method(1:4) == 'CHCC') .or. &
+    (Method(1:4) == 'CHT3')) then
+  call StartLight('chcc')
+  call init_run_use()
+  call Disable_Spool()
+  call CHCC(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'CHCC returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+if (Method(1:4) == 'CHT3') then
+  call StartLight('cht3')
+  call init_run_use()
+  call Disable_Spool()
+  call CHT3(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'CHT3 returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+if (Method(1:6) == 'CASPT2') then
+  call StartLight('caspt2')
+  call init_run_use()
+  call Disable_Spool()
+  call CASPT2(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'CASPT2 returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+if (Method(1:6) == 'MCPDFT') then
+  call StartLight('mcpdft')
+  call init_run_use()
+  call Disable_Spool()
+  call MCPDFT(ireturn)
+  call ReClose()
+  if (iReturn /= 0) then
+    write(LuWr,*) 'Numerical_Gradient failed ...'
+    write(LuWr,*) 'MCPDFT returned with return code, rc = ',iReturn
+    write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+    call Abend()
+  end if
+end if
+
+!call Get_Energy(EnergyArray(iRoot,iDisp))
+if (nRoots > 1) then
+  call Get_dArray('Last energies',EnergyArray(1,iDisp),nRoots)
+else
+  call Get_dScalar('Last energy',EnergyArray(iRoot,iDisp))
+end if
+
+! Restore directory and prgm database
+
+call ParentWorkDir()
+call prgmfree()
+call prgminit('numerical_gradient')
+
+call Set_Do_Parallel(.true.)
+
+if (iPL >= 2) then
+  write(LuWr,200) '   * Point #',iDisp-2*nLambda,' of ',2*(nDisp-nLambda-3*nAtMM),' done.'
+  write(LuWr,200) '    (Perturbation ',iDisp,')'
+end if
+200 format(A,I4,A,I4,A)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
-         If(King().and.nProcs.gt.1.and.SSTMODE.eq.1) Go To 11
+if (King() .and. (nProcs > 1) .and. (SSTMODE == 1)) Go To 11
 #endif
-         Go To 10
-  11  Continue
+Go To 10
+11 continue
 !_MPP End Do
 #if !defined(_GA_) && defined(_MOLCAS_MPP_)
-      If (SSTMODE.eq.1) Then
-         Call Free_Tsk(id_Tsk)
-      Else
-         Call Free_Tsk_Even(id_Tsk)
-      End If
+if (SSTMODE == 1) then
+  call Free_Tsk(id_Tsk)
+else
+  call Free_Tsk_Even(id_Tsk)
+end if
 #else
-      Call Free_Tsk(id_Tsk)
+call Free_Tsk(id_Tsk)
 #endif
-      Call GADSum(EnergyArray,nRoots*mDisp)
-      Call mma_deallocate(C)
-      Call mma_deallocate(XYZ)
+call GADSum(EnergyArray,nRoots*mDisp)
+call mma_deallocate(C)
+call mma_deallocate(XYZ)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     End of Loop                                                      *
+! End of Loop                                                          *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     Flush the output from the other nodes.
+! Flush the output from the other nodes.
 !
-      Do iRank = 1, nProcs-1
-         Call GASync()
-         If (iRank.eq.MyRank) Then
-            ReWind(LuWr)
- 777        Read(LuWr,'(A)',END=778) Line
-            Write (LuWr_Save,*) Line
-            Go To 777
- 778        Continue
-         End If
-         Call GASync()
-      End Do
-      If (MyRank.ne.0) Then
-         Close(LuWr)
-         LuWr=LuWr_save
-      End If
+do iRank=1,nProcs-1
+  call GASync()
+  if (iRank == MyRank) then
+    rewind(LuWr)
+777 read(LuWr,'(A)',end=778) Line
+    write(LuWr_Save,*) Line
+    Go To 777
+778 continue
+  end if
+  call GASync()
+end do
+if (MyRank /= 0) then
+  close(LuWr)
+  LuWr = LuWr_save
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Restore the "new geometry" field to the RunFile, if any
-!
-      If (nGNew.eq.0) Then
-        Call Put_Coord_New([Zero],0)
-      Else
-        Call Put_Coord_New(GNew,nGNew/3)
-        Call mma_deallocate(GNew)
-      End If
+! Restore the "new geometry" field to the RunFile, if any
+
+if (nGNew == 0) then
+  call Put_Coord_New([Zero],0)
+else
+  call Put_Coord_New(GNew,nGNew/3)
+  call mma_deallocate(GNew)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If(nProcs.ge.2 .and. iPL.ge.2) Then
-         Write (LuWr,*)
-         Write (LuWr,*) ' Points were printed only by master node'
-         Write (LuWr,*)
-      End If
+if ((nProcs >= 2) .and. (iPL >= 2)) then
+  write(LuWr,*)
+  write(LuWr,*) ' Points were printed only by master node'
+  write(LuWr,*)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Read old gradient(s) and convert to internal coordinates
-!
-      Call mma_Allocate(OldGrads,3*nAtoms,nRoots)
-      Call FZero(OldGrads,3*nAtoms*nRoots)
-      Call Get_lScalar('Keep old gradient',KeepOld)
-      If (KeepOld) Then
-        Call Query_Grads(Found,i,j)
-        If (Found.and.(i.ge.nRoots).and.(j.eq.3*nAtoms)) Then
-!         If there is a valid GRADS file, read each gradient
-          Do iR=1,nRoots
-            rc=Read_Grad(OldGrads(1,iR),3*nAtoms,iR,0,0)
-            If (rc.le.0) Then
-              Write(LuWr,*)
-              Write(LuWr,'(2X,A,I4,A)') 'No gradient found for root ',  &
-     &                                  iR,', using 0'
-              Write(LuWr,*)
-            End If
-          End Do
-        Else
-!         If the GRADS file does not exist or has the wrong sizes,
-!         read a single gradient from the runfile
-          Call qpg_dArray('GRAD',Found,nGrad)
-          If (Found) Then
-            Call Get_dArray('GRAD',OldGrads(1,1),nGrad)
-            Do iR=2,nRoots
-              Call dCopy_(nGrad,OldGrads(1,1),1,OldGrads(1,iR),1)
-            End Do
-            If (nRoots.gt.1) Then
-              Write(LuWr,*)
-              Write(LuWr,'(2X,A)') 'Using stored gradient for all roots'
-              Write(LuWr,*)
-            End If
-          Else
-            Write(LuWr,*)
-            Write(LuWr,'(2X,A)') 'No gradient found, using 0'
-            Write(LuWr,*)
-          End If
-        End If
-      End If
-      Call mma_allocate(Tmp2,nDisp,Label='Tmp2')
-      Do iR=1,nRoots
-        Call Eq_Solver('N',3*nAtoms,nDisp,1,BMtrx,.True.,               &
-     &                 rDum(1),OldGrads(1,iR),Tmp2)
-        Call FZero(OldGrads(1,iR),3*nAtoms)
-        Call Eq_Solver('N',nDisp,nDisp,1,TMtrx,.True.,                  &
-     &                 rDum(1),Tmp2,OldGrads(1,iR))
-      End Do
-      Call mma_deallocate(Tmp2)
+! Read old gradient(s) and convert to internal coordinates
+
+call mma_Allocate(OldGrads,3*nAtoms,nRoots)
+call FZero(OldGrads,3*nAtoms*nRoots)
+call Get_lScalar('Keep old gradient',KeepOld)
+if (KeepOld) then
+  call Query_Grads(Found,i,j)
+  if (Found .and. (i >= nRoots) .and. (j == 3*nAtoms)) then
+    ! If there is a valid GRADS file, read each gradient
+    do iR=1,nRoots
+      rc = Read_Grad(OldGrads(1,iR),3*nAtoms,iR,0,0)
+      if (rc <= 0) then
+        write(LuWr,*)
+        write(LuWr,'(2X,A,I4,A)') 'No gradient found for root ',iR,', using 0'
+        write(LuWr,*)
+      end if
+    end do
+  else
+    ! If the GRADS file does not exist or has the wrong sizes,
+    ! read a single gradient from the runfile
+    call qpg_dArray('GRAD',Found,nGrad)
+    if (Found) then
+      call Get_dArray('GRAD',OldGrads(1,1),nGrad)
+      do iR=2,nRoots
+        call dCopy_(nGrad,OldGrads(1,1),1,OldGrads(1,iR),1)
+      end do
+      if (nRoots > 1) then
+        write(LuWr,*)
+        write(LuWr,'(2X,A)') 'Using stored gradient for all roots'
+        write(LuWr,*)
+      end if
+    else
+      write(LuWr,*)
+      write(LuWr,'(2X,A)') 'No gradient found, using 0'
+      write(LuWr,*)
+    end if
+  end if
+end if
+call mma_allocate(Tmp2,nDisp,Label='Tmp2')
+do iR=1,nRoots
+  call Eq_Solver('N',3*nAtoms,nDisp,1,BMtrx,.true.,rDum(1),OldGrads(1,iR),Tmp2)
+  call FZero(OldGrads(1,iR),3*nAtoms)
+  call Eq_Solver('N',nDisp,nDisp,1,TMtrx,.true.,rDum(1),Tmp2,OldGrads(1,iR))
+end do
+call mma_deallocate(Tmp2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     jPL=iPrintLevel(iPL_Save)
-      If (iPL_Save.ge.3)                                                &
-     &    Call RecPrt('Energies','(8G16.10)',EnergyArray,nRoots,mDisp)
-      Call mma_Allocate(GradArray,nDisp,nRoots)
-      Call FZero(GradArray,nDisp*nRoots)
-      Call mma_Allocate(Grad,nRoots)
-!
-      iDisp = nLambda
-      Do i = 1, nDisp
-!
-         If (Disp(i).eq.Zero) then
-            If (iPL_Save .ge. 3) Then
-               If (KeepOld) Then
-                  Write(6,*) 'gradient set to old value'
-               Else
-                  Write(6,*) 'gradient set to zero'
-               End If
-            End If
-            Do iR = 1, nRoots
-               Grad(iR) = OldGrads(i,iR)
-            End Do
-         Else
-            iDisp = iDisp + 1
-            Do iR = 1, nRoots
-               iEp = iDisp*2-1
-               Eplus=EnergyArray(iR,iEp)
-               iEm = iDisp*2
-               EMinus=EnergyArray(iR,iEm)
-               Dsp=Disp(i)
-               Grad(iR) = (Eplus-EMinus)/(Two*Dsp)
-!
-!              If the gradient is not close to zero check that it is
-!              consistent. For CASPT2/CASSCF sometimes the active space
-!              breaks down and the computed gradient is rubbish. If we
-!              are lucky this happens only in one of the displacement
-!              directions. In that case compute the gradient with the
-!              one-point equation. The one with the lowest gradient is
-!              the one which is most likely to be correct.
-!
-               If (Abs(Grad(iR)).gt.1.0D-1) Then
-                  Energy_Ref=Energies_Ref(iR)
-                  Grada= (Eplus-Energy_Ref)/Dsp
-                  Gradb= (Energy_Ref-EMinus)/Dsp
-                  If (Abs(Grad(iR)/Grada).gt.1.5D0 .or.                 &
-     &                Abs(Grad(iR)/Gradb).gt.1.5D0 ) Then
-                     If (Abs(Grada).le.Abs(Gradb)) Then
-                        Grad(iR)=Grada
-                     Else
-                        Grad(iR)=Gradb
-                     End If
-                  End If
-               End If
-            End Do
-         End If
-!
-         call dCopy_(nRoots,Grad,1,GradArray(i,1),nDisp)
-!
-      End Do
-!     Call RecPrt('Grads (old)',' ',OldGrads,3*nAtoms,nRoots)
-!     Call RecPrt('BMtrx',' ',BMtrx,3*nAtoms,nDisp)
+!jPL = iPrintLevel(iPL_Save)
+if (iPL_Save >= 3) call RecPrt('Energies','(8G16.10)',EnergyArray,nRoots,mDisp)
+call mma_Allocate(GradArray,nDisp,nRoots)
+call FZero(GradArray,nDisp*nRoots)
+call mma_Allocate(Grad,nRoots)
+
+iDisp = nLambda
+do i=1,nDisp
+
+  if (Disp(i) == Zero) then
+    if (iPL_Save >= 3) then
+      if (KeepOld) then
+        write(6,*) 'gradient set to old value'
+      else
+        write(6,*) 'gradient set to zero'
+      end if
+    end if
+    do iR=1,nRoots
+      Grad(iR) = OldGrads(i,iR)
+    end do
+  else
+    iDisp = iDisp+1
+    do iR=1,nRoots
+      iEp = iDisp*2-1
+      Eplus = EnergyArray(iR,iEp)
+      iEm = iDisp*2
+      EMinus = EnergyArray(iR,iEm)
+      Dsp = Disp(i)
+      Grad(iR) = (Eplus-EMinus)/(Two*Dsp)
+
+      ! If the gradient is not close to zero check that it is
+      ! consistent. For CASPT2/CASSCF sometimes the active space
+      ! breaks down and the computed gradient is rubbish. If we
+      ! are lucky this happens only in one of the displacement
+      ! directions. In that case compute the gradient with the
+      ! one-point equation. The one with the lowest gradient is
+      ! the one which is most likely to be correct.
+
+      if (abs(Grad(iR)) > 1.0D-1) then
+        Energy_Ref = Energies_Ref(iR)
+        Grada = (Eplus-Energy_Ref)/Dsp
+        Gradb = (Energy_Ref-EMinus)/Dsp
+        if ((abs(Grad(iR)/Grada) > 1.5d0) .or. (abs(Grad(iR)/Gradb) > 1.5d0)) then
+          if (abs(Grada) <= abs(Gradb)) then
+            Grad(iR) = Grada
+          else
+            Grad(iR) = Gradb
+          end if
+        end if
+      end if
+    end do
+  end if
+
+  call dCopy_(nRoots,Grad,1,GradArray(i,1),nDisp)
+
+end do
+!call RecPrt('Grads (old)',' ',OldGrads,3*nAtoms,nRoots)
+!call RecPrt('BMtrx',' ',BMtrx,3*nAtoms,nDisp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Compute the gradient in Cartesian coordinates
 !
-      Call mma_allocate(Tmp2,nDisp,Label='Tmp2')
-      Call mma_allocate(Tmp,3,nAtoms,Label='Tmp')
-      Do iR = 1, nRoots
-         Tmp2(:)=Zero
-         Tmp(:,:)=Zero
-!
-!        Transform the gradient in PCO basis to the internal coordinate
-!        format.
-!
-         Call DGEMM_('N','N',nDisp,1,nDisp,                             &
-     &               1.0D0,TMtrx,nDisp,                                 &
-     &                     GradArray(1,iR),nDisp,                       &
-     &               0.0D0,Tmp2,nDisp)
-!
-!        Transform internal coordinates to Cartesian.
-!
-         Call DGEMM_('N','N',3*nAtoms,1,nDisp,                          &
-     &               1.0d0,BMtrx,3*nAtoms,                              &
-     &                     Tmp2,nDisp,                                  &
-     &               0.0d0,Tmp,3*nAtoms)
-!        Call RecPrt('Tmp',' ',Tmp,3,nAtoms)
-!
-!        Modify with degeneracy factors.
-!
-         If (.NOT.NMCart) Then
-            Do iAtom = 1, nAtoms
-               Do ixyz = 1, 3
-                  Tmp(ixyz,iAtom) = Tmp(ixyz,iAtom)/Deg(ixyz,iAtom)
-               End Do
-            End Do
-         End If
-!
-!        Add the MM contribution for MM atoms
-!
-         If (nAtMM .ne. 0) Then
-            call daxpy_(3*nAtoms,One,MMGrd,1,Tmp,1)
-         End If
-!
-!        Apply Morokuma's scheme if needed
-!
-         Call F_Inquire('QMMM',Exist)
-         If (Exist .and. DoTinker) Then
-            Call LA_Morok(nAtoms,Tmp,1)
-         End If
-!
-         If (iR.eq.iRoot) Call Put_Grad(Tmp,3*nAtoms)
-         Call Add_Info('Grad',Tmp,3*nAtoms,6)
-         Call Store_grad(Tmp,3*nAtoms,iR,0,0)
-!
-         If (iPL.ge.2) Then
-            Write (LuWr,*)
-            Write (LuWr,'(1x,A,I5)') 'Numerical gradient, root ',iR
-            Write (LuWr,'(2x,A)')                                       &
-     &                  '---------------------------------------------'
-            Write (LuWr,'(2x,A)')                                       &
-     &                  '               X           Y           Z'
-            Write (LuWr,'(2x,A)')                                       &
-     &                  '---------------------------------------------'
-            Do iAtom = 1, nAtoms
-               TempX = Tmp(1,iAtom)
-               TempY = Tmp(2,iAtom)
-               TempZ = Tmp(3,iAtom)
-               Namei = AtomLbl(iAtom)
-               Write (LuWr,'(2X,A,3X,3F12.6)')                          &
-     &               Namei, TempX, TempY, TempZ
-            End Do
-            Write (LuWr,'(2x,A)')                                       &
-     &                  '---------------------------------------------'
-         End If
-      End Do
-      Call mma_deallocate(Tmp2)
-      Call mma_deallocate(Tmp)
+call mma_allocate(Tmp2,nDisp,Label='Tmp2')
+call mma_allocate(Tmp,3,nAtoms,Label='Tmp')
+do iR=1,nRoots
+  Tmp2(:) = Zero
+  Tmp(:,:) = Zero
+
+  ! Transform the gradient in PCO basis to the internal coordinate
+  ! format.
+
+  call DGEMM_('N','N',nDisp,1,nDisp,1.0d0,TMtrx,nDisp,GradArray(1,iR),nDisp,0.0d0,Tmp2,nDisp)
+
+  ! Transform internal coordinates to Cartesian.
+
+  call DGEMM_('N','N',3*nAtoms,1,nDisp,1.0d0,BMtrx,3*nAtoms,Tmp2,nDisp,0.0d0,Tmp,3*nAtoms)
+  !call RecPrt('Tmp',' ',Tmp,3,nAtoms)
+
+  ! Modify with degeneracy factors.
+
+  if (.not. NMCart) then
+    do iAtom=1,nAtoms
+      do ixyz=1,3
+        Tmp(ixyz,iAtom) = Tmp(ixyz,iAtom)/Deg(ixyz,iAtom)
+      end do
+    end do
+  end if
+
+  ! Add the MM contribution for MM atoms
+
+  if (nAtMM /= 0) then
+    call daxpy_(3*nAtoms,One,MMGrd,1,Tmp,1)
+  end if
+
+  ! Apply Morokuma's scheme if needed
+
+  call F_Inquire('QMMM',Exist)
+  if (Exist .and. DoTinker) then
+    call LA_Morok(nAtoms,Tmp,1)
+  end if
+
+  if (iR == iRoot) call Put_Grad(Tmp,3*nAtoms)
+  call Add_Info('Grad',Tmp,3*nAtoms,6)
+  call Store_grad(Tmp,3*nAtoms,iR,0,0)
+
+  if (iPL >= 2) then
+    write(LuWr,*)
+    write(LuWr,'(1x,A,I5)') 'Numerical gradient, root ',iR
+    write(LuWr,'(2x,A)') '---------------------------------------------'
+    write(LuWr,'(2x,A)') '               X           Y           Z'
+    write(LuWr,'(2x,A)') '---------------------------------------------'
+    do iAtom=1,nAtoms
+      TempX = Tmp(1,iAtom)
+      TempY = Tmp(2,iAtom)
+      TempZ = Tmp(3,iAtom)
+      Namei = AtomLbl(iAtom)
+      write(LuWr,'(2X,A,3X,3F12.6)') Namei,TempX,TempY,TempZ
+    end do
+    write(LuWr,'(2x,A)') '---------------------------------------------'
+  end if
+end do
+call mma_deallocate(Tmp2)
+call mma_deallocate(Tmp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Deallocate
-!
-      Call mma_deallocate(Deg)
-      Call mma_deallocate(Disp)
-      Call mma_deallocate(All)
-      Call mma_Deallocate(TMtrx)
-      Call mma_Deallocate(BMtrx)
-      Call mma_Deallocate(EnergyArray)
-      Call mma_Deallocate(GradArray)
-      Call mma_Deallocate(OldGrads)
-      Call mma_Deallocate(Grad)
-      Call mma_deallocate(Coor)
-      Call mma_deallocate(Energies_Ref)
-      If (DoTinker) Call mma_deallocate(IsMM)
-      If (nAtMM.gt.0) Call mma_deallocate(MMGrd)
-!
-!     Since Numerical_Gradient itself cleans up after the modules
-!     then it's necessary to force nfld_tim and nfld_stat to zero,
-!     or finish will scream.
-!
-      nfld_tim  = 0
-      nfld_stat = 0
-!
-!     Restore iRlxRoot if changed as set by the RASSCF module.
-!
-      If (Method(1:6) .eq. 'CASSCF' .OR.                                &
-     &    Method(1:6) .eq. 'RASSCF' ) Then
-         Call Get_iScalar('Relax CASSCF root',irlxroot1)
-         Call Get_iScalar('Relax Original root',irlxroot2)
-         If (iRlxRoot1.ne.iRlxRoot2) Then
-            Call Put_iScalar('Relax CASSCF root',irlxroot2)
-            Call Put_iScalar('NumGradRoot',irlxroot2)
-         End If
-      End If
+! Deallocate
 
-!
-      Return
-      End
+call mma_deallocate(Deg)
+call mma_deallocate(Disp)
+call mma_deallocate(All)
+call mma_Deallocate(TMtrx)
+call mma_Deallocate(BMtrx)
+call mma_Deallocate(EnergyArray)
+call mma_Deallocate(GradArray)
+call mma_Deallocate(OldGrads)
+call mma_Deallocate(Grad)
+call mma_deallocate(Coor)
+call mma_deallocate(Energies_Ref)
+if (DoTinker) call mma_deallocate(IsMM)
+if (nAtMM > 0) call mma_deallocate(MMGrd)
+
+! Since Numerical_Gradient itself cleans up after the modules
+! then it's necessary to force nfld_tim and nfld_stat to zero,
+! or finish will scream.
+
+nfld_tim = 0
+nfld_stat = 0
+
+! Restore iRlxRoot if changed as set by the RASSCF module.
+
+if ((Method(1:6) == 'CASSCF') .or. &
+    (Method(1:6) == 'RASSCF')) then
+  call Get_iScalar('Relax CASSCF root',irlxroot1)
+  call Get_iScalar('Relax Original root',irlxroot2)
+  if (iRlxRoot1 /= iRlxRoot2) then
+    call Put_iScalar('Relax CASSCF root',irlxroot2)
+    call Put_iScalar('NumGradRoot',irlxroot2)
+  end if
+end if
+
+return
+
+end subroutine Numerical_Gradient
