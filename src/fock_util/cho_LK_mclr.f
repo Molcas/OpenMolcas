@@ -555,8 +555,7 @@ c           !set index arrays at iLoc
             If (iAChoVec.eq.1) nVec_=nVec
             ReadInter=(iAChoVec.eq.2).and.(nVec.eq.nVec_)
 !           nVec.ne.nVec_ should happen only if lack of memory
-*            ReadInter=.false.
-
+*           ReadInter=.false.
 
             If (nVec.lt.1) Then
                WRITE(6,*) SECNAM//': Insufficient memory for batch'
@@ -919,13 +918,6 @@ c     fake rassi (MOs1=MOs2) has a positive definite exchange
 
                      iWork(ipIndSh(1)) = numSh1
 
-c      Do jDen=1,nDen
-c         write(6,*)'ord-ML(k)= ',(Work(ipMLk(jDen)+i-1),i=1,nShell)
-c         write(6,*)'Ind-ML(k)= ',(iWork(ipIndSh(jDen)+i-1),i=1,nShell+1)
-c      End Do
-c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh1,numSh2= ',lSym,
-c     &              kSym,jSym,jk,nShell,numSh1,numSh2
-
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                      tscrn(2) = tscrn(2) + (TWS2 - TWS1)
@@ -1092,8 +1084,6 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
      &                                nBasSh(kSym,ibSh) .gt. 0
      &                           .and. abs(Work(ipSk(jDen)+ibSh-1)*
      &                           SvShp(iShp_rs(iShp)) ).ge. thrv(jDen))
-*     &                           .and. sqrt(abs(Work(ipSk(jDen)+ibSh-1)*
-*     &                           SvShp(iShp_rs(iShp)) )).ge. thrv(jDen))
      &                                Then
 
                                    ibcount = ibcount + 1
@@ -1941,62 +1931,6 @@ C--- have performed screening in the meanwhile
 *
 **Compute MO integrals
 *
-#ifdef NEW_CODE
-        Do iS=1,nSym
-          Do jS=1,iS
-            Do kS=1,iS
-              lS=iEOR(iEOr(iS-1,jS-1),kS-1)+1
-              If (lS.gt.kS.or.(iS.eq.kS.and.lS.gt.jS)) Goto 110
-
-              Do iAsh=1,nAsh(is)
-                nj=nAsh(jS)
-                If (iS.eq.jS) nj=iAsh
-                Do jAsh=1,nj
-                  iij=itri(iAsh+kAOff(is),jAsh+kAOff(jS))
-                  iijx=jAsh-1+(iAsh-1)*nAsh(jS)
-                  ijix=iAsh-1+(jAsh-1)*nAsh(iS)
-
-                  nk=nAsh(kS)
-                  If (iS.eq.kS) nK=iAsh
-                  Do kAsh=1,nK
-                    nl=nAsh(lS)
-                    If (kS.eq.lS)  nl=kAsh
-                    If (iAsh+kAOff(is).eq.kAsh+kAOff(ks)) nl=jAsh
-                    Do lAsh=1,nl
-                      ikl=itri(kAsh+kAOff(ks),lAsh+kAOff(lS))
-                      iklx=lAsh-1+(kAsh-1)*nAsh(lS)
-                      ilkx=kAsh-1+(lAsh-1)*nAsh(kS)
-
-                      ipG=ipMO1+itri(iij,ikl)-1
-                      ipGx=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iklx*nAsh(iS)*nAsh(jS)+iijx
-                      ipGx2=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ilkx*nAsh(iS)*nAsh(jS)+iijx
-                      ipGx3=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iklx*nAsh(iS)*nAsh(jS)+ijix
-                      ipGx4=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ilkx*nAsh(iS)*nAsh(jS)+ijix
-                      ipGx5=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iijx*nAsh(iS)*nAsh(jS)+iklx
-                      ipGx6=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ijix*nAsh(iS)*nAsh(jS)+iklx
-                      ipGx7=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iijx*nAsh(iS)*nAsh(jS)+ilkx
-                      ipGx8=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ijix*nAsh(iS)*nAsh(jS)+ilkx
-                      Work(ipG)=0.5d0*
-     &(Work(ipGx)+Work(ipGx2)+Work(ipGx3)+Work(ipGx4)+
-     & Work(ipGx5)+Work(ipGx6)+Work(ipGx7)+Work(ipGx8))
-
-                    End Do
-                  End Do
-                End Do
-              End Do
- 110          Continue
-            EndDo
-          End Do
-        End Do
-#else
         Do iS=1,nSym
           Do jS=1,nsym
             ijS=iEOR(is-1,js-1)+1
@@ -2027,7 +1961,6 @@ C--- have performed screening in the meanwhile
             End Do
           End Do
         End Do
-#endif
       EndIf
 *
 **Transform Fock and Q matrix to MO basis
@@ -2087,6 +2020,7 @@ C--- have performed screening in the meanwhile
         Call GetMem('Qmat','FREE','REAL',ipScr,nsAB*nDen)
         Call GetMem('MOScr','FREE','REAL',ipMOScr,nnA**4)
       EndIf
+
       Call GetMem('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
       Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
       Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)

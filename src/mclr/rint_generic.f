@@ -74,8 +74,17 @@
 *
       Fact=-One
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
-*
-      If (.not.newCho) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Select Case (NewCho)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (.FALSE.)   ! Cho-MO
+*                                                                      *
+************************************************************************
+*                                                                      *
         Call mma_allocate(MT1,nmba,Label='MT1')
         Call mma_allocate(MT2,nmba,Label='MT2')
         MT1(:)=Zero
@@ -106,12 +115,12 @@
            call daxpy_(ndens2,One,QTemp,1,Q,1)
            Call mma_deallocate(QTemp)
         End If
-*************************************************************************
-*                                                                       *
-*        Cholesky code                                                  *
-*                                                                       *
-*************************************************************************
-      Else
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Case (.TRUE.)   ! Cho-Fock
+*                                                                      *
+************************************************************************
         Fake_CMO2=.false.
         DoAct=.true.
 *
@@ -130,7 +139,9 @@
 **      Form AO 1-index transform inactive density
 *
         Call mma_allocate(Dens2,nDens2,Label='Dens2')
+        Dens2(:)=Zero
         Call mma_allocate(DLT,nDens2,Label='DLT')
+        DLT(:)=Zero
         Do iS=1,nSym
           If (nOrb(iS).ne.0) Then
             Do jS=1,nSym
@@ -150,14 +161,13 @@
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(jS))
 
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
-     &                         One,DI(ipCM(js)),
-     &                         nOrb(iS),CMO(ipCM(is)),
-     &                         nOrb(iS),Zero,
-     &                         DLT(ipMat(jS,iS)),nOrb(jS))
-                   Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,
-     &                         DLT(ipMat(jS,iS)),nOrb(iS),
-     &                         CMO(ipCM(js)),nOrb(jS),Zero,
-     &                         DI(ipCM(js)),nOrb(jS))
+     &                         One,DI(ipCM(js)),nOrb(iS),
+     &                             CMO(ipCM(is)),nOrb(iS),
+     &                         Zero,DLT(ipMat(jS,iS)),nOrb(jS))
+                   Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
+     &                         One, DLT(ipMat(jS,iS)),nOrb(iS),
+     &                              CMO(ipCM(js)),nOrb(jS),
+     &                         Zero,DI(ipCM(js)),nOrb(jS))
               EndIf
             End Do
           EndIf
@@ -250,6 +260,14 @@
         call dcopy_(ndens2,[0.0d0],0,FockA,1)
         call dcopy_(ndens2,[0.0d0],0,FockI,1)
         call dcopy_(nATri,[0.0d0],0,rMOs,1)
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+        Call RecPrt('DLT',' ',DLT,1,SIZE(DLT))
+        Call RecPrt('DI ',' ',DI ,1,SIZE(DI ))
+        Call RecPrt('DA ',' ',DA ,1,SIZE(DA ))
+        Call RecPrt('G2x',' ',G2x,1,SIZE(G2x))
+        Call RecPrt('rKappa ',' ',rKappa ,1,SIZE(rKappa))
+#endif
 *
 **      Compute the whole thing
 *
@@ -275,6 +293,25 @@
      &                   ipMO1,ipQ,CVa,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
+
+        Call GADSum(FockI,nDens2)
+        Call GADSum(FockA,nDens2)
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      nas=0
+      Do iSym = 1, nSym
+        Write (6,*) 'iSym=',iSym
+*       Call RecPrt('FIMO ',' ', FIMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+*       Call RecPrt('FAMO ',' ', FAMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+*       Call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
+        nas = nas + nAsh(iSym)
+      End Do
+      nAtri=nas*(nas+1)/2
+      nAtri=nAtri*(nAtri+1)/2
+*     Call RecPrt('MO1',' ',rMOs,1,nAtri)
+#endif
 *
 **      Calculate contribution from uncontracted indexes
 *
@@ -307,19 +344,45 @@
 *
         Call mma_deallocate(Dens2)
         Call mma_deallocate(CoulExch)
+
         If (iMethod.eq.2) Then
           Call mma_deallocate(G2x)
           Call Deallocate_CMO(CVa(2))
           Call Deallocate_CMO(CVa(1))
           Call mma_deallocate(DA)
         EndIf
+
         Call mma_deallocate(DLT)
         Call mma_deallocate(DI)
-      EndIf
+
+        Call GADSum(    Q,nDens2)
+        Call GADSum( rMOs,nAtri)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      If (NewCho) Then
+      nas=0
+      Do iSym = 1, nSym
+        Write (6,*) 'iSym=',iSym
+        Call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+        Call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
+        nas = nas + nAsh(iSym)
+      End Do
+      nAtri=nas*(nas+1)/2
+      nAtri=nAtri*(nAtri+1)/2
+      Call RecPrt('MO1',' ',rMOs,1,nAtri)
+      Call abend()
+      End If
+#endif
+
       Do iS=1,nSym
          jS=iEOr(iS-1,idsym-1)+1
 *

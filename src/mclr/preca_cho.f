@@ -17,7 +17,7 @@
 *     &                   A_J,A_K,Scr,nScr,iAdr2)
 ************************************************************************
 *                                                                      *
-*     This routine remplaces precaii, precabi and precabb              *
+*     This routine replaces precaii, precabi and precabb               *
 *     in case the new Cholesky alrgorithm is used,                     *
 *     that is if only (ii|ab) and (ia|ib) integrals were computed      *
 *                                                                      *

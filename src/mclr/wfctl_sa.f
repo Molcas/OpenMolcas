@@ -200,7 +200,6 @@
       iLen=nDensC
       iRHSDisp(iDisp)=iDis
       Call Compress(Temp4,Sigma,iSym)
-*     Call RecPrt('RHS',' ',Sigma,nDensc,1)
       r1=ddot_(nDensc,Sigma,1,Sigma,1)
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
@@ -448,6 +447,7 @@
 *
       Call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
       Call mma_allocate(Sc1,nDens2,Label='Sc1')
+      Sc1(:)=Zero
       Call mma_allocate(Sc2,nDens2,Label='Sc2')
       Call mma_allocate(Sc3,nDens2,Label='Sc3')
       Call mma_allocate(Temp3,nDens2,Label='Temp3')
