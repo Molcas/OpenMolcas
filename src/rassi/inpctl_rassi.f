@@ -105,7 +105,6 @@ C handle different active spaces per JobIph, but this is checked elsewhere
         ! Initialise the new MPSSI interface
         call qcmaquis_mpssi_init(qcm_prefixes,
      &                           LROOT,NSTAT(1),NJOB)
-      end if
 
       ! Check if number of active electrons is the same for all job files
       ! Otherwise, quit on error, as Dyson orbitals are not supported yet with DMRG
@@ -119,6 +118,8 @@ C handle different active spaces per JobIph, but this is checked elsewhere
             Call Quit_OnUserError()
           end if
         end do
+      end if
+
       end if
 #endif
 
