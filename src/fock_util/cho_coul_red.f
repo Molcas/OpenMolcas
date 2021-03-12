@@ -56,8 +56,8 @@ C*********************************************************
       Logical ::  Debug=.true.
 #endif
 
-      Integer, Allocatable:: ipDr(:) , ipFr(:), VJ(:)
-      Real*8, Allocatable:: Drs(:,:), Frs(:,:), Lrs(:,:)
+      Integer, Allocatable:: ipDr(:) , ipFr(:)
+      Real*8, Allocatable:: Drs(:,:), Frs(:,:), Lrs(:,:), VJ(:)
 
       FactC = one
 
