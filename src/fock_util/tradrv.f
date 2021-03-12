@@ -251,7 +251,6 @@
 *              unwrap triangular matrix of electron repulsion integrals
               If ( kSym.eq.lSym ) then
                  Call Square(TURS(iOff+1),Scrt1,1,kBas,kBas)
-                 lBuf9 = ip_of_Work(Scrt1)
                  Buf9(1:kbas**2) => Scrt1(1:kbas**2)
               Else
                  Buf9(1:kBas*lBas) => TURS(iOff+1:iOff+kBas*lBas)

@@ -37,9 +37,6 @@ C*********************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-#ifdef _DEBUGPRINT_
-      Logical Debug
-#endif
       Logical add
       Real*8  tread(2),tcoul(2)
       Integer ISLT(8),ipDLT(nDen),ipFLT(nDen)
@@ -49,21 +46,18 @@ C*********************************************************
 #include "chotime.fh"
 
       parameter (SECNAM = 'CHO_COUL_RED')
-      parameter (zero = 0.0d0, one = 1.0d0)
 
+#include "real.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
-
-************************************************************************
-      ipDr(i) = iWork(ipDab+i-1)
-******
-      ipFr(i) = iWork(ipFab+i-1)
-************************************************************************
-
+#include "stdalloc.fh"
 #ifdef _DEBUGPRINT_
-      Debug=.true.
+#include "WrkSpc.fh"
+      Logical ::  Debug=.true.
 #endif
+
+      Integer, Allocatable:: ipDr(:) , ipFr(:), VJ(:)
+      Real*8, Allocatable:: Drs(:,:), Frs(:,:), Lrs(:,:)
 
       FactC = one
 
@@ -89,8 +83,8 @@ c Offsets to symmetry block in the LT matrix
      &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
       END DO
 
-      Call GetMem('ipRedM','Allo','Inte',ipDab,2*nDen)
-      ipFab = ipDab + nDen - 1
+      Call mma_allocate(ipDr,nDen,Label='ipDr')
+      Call mma_allocate(ipFr,nDen,Label='ipFr')
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -118,14 +112,16 @@ C ---
 
       nRS = nDimRS(JSYM,JRED)
 
+      Call mma_allocate(Drs,nRS,nDen,Label='Drs')
+      Call mma_allocate(Frs,nRS,nDen,Label='Frs')
+      Drs(:,:)=Zero
+      Frs(:,:)=Zero
       Do jDen=1,nDen
-         Call GetMem('rsD','Allo','Real',iWork(ipDab+jDen-1),nRS)
-         Call GetMem('rsF','Allo','Real',iWork(ipFab+jDen-1),nRS)
-         Call Fzero(Work(ipDr(jDen)),nRS)
-         Call Fzero(Work(ipFr(jDen)),nRS)
+         ipDr(jDen) = ip_of_Work(Drs(1,jDen))
+         ipFr(jDen) = ip_of_Work(Frs(1,jDen))
       End Do
 
-      Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+      Call mma_maxDBLE(LWORK)
 
       nVec  = Min(LWORK/(nRS+1),nVrs)
 
@@ -140,14 +136,14 @@ C ---
 
       LREAD = nRS*nVec
 
-      Call GetMem('rsL','Allo','Real',ipLab,LREAD)
-      Call GetMem('VJ','Allo','Real',ipVJ,nVec)
+      Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+      Call mma_allocate(VJ,nVec,Label='VJ')
 
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
       Call swap_rs2full(irc,iLoc,nDen,JSYM,ISLT,
-     &                       ipDLT,iWork(ipDab),mode,add)
+     &                       ipDLT,ipDr,mode,add)
 
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
@@ -167,7 +163,7 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
          CALL CWTIME(TCR1,TWR1)
 
-         CALL CHO_VECRD(Work(ipLab),LREAD,JVEC,IVEC2,JSYM,
+         CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                  NUMV,JRED,MUSED)
 
          If (NUMV.le.0 .or. NUMV.ne.JNUM) then
@@ -195,8 +191,8 @@ C==========================================================
 C
 
             CALL DGEMV_('T',nRS,JNUM,
-     &                 ONE,Work(ipLab),nRS,
-     &                 Work(ipDr(jDen)),1,ZERO,Work(ipVJ),1)
+     &                 ONE,Lrs,nRS,
+     &                 Drs(:,jDen),1,ZERO,VJ,1)
 
 
 C --- Frs{#J} <- Frs{#J} + sum_J L(rs,{#J})*V{#J}
@@ -205,8 +201,8 @@ C==========================================================
             xfac = dble(min(jVec-iVrs,1))
 
             CALL DGEMV_('N',nRS,JNUM,
-     &                 FactC,Work(ipLab),nRS,
-     &                 Work(ipVJ),1,xfac,Work(ipFr(jDen)),1)
+     &                 FactC,Lrs,nRS,
+     &                 VJ,1,xfac,Frs(:,jDen),1)
 
 
          End Do
@@ -223,23 +219,22 @@ c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
          Call swap_rs2full(irc,iLoc,nDen,JSYM,ISLT,
-     &                          ipFLT,iWork(ipFab),mode,add)
+     &                          ipFLT,ipFr,mode,add)
       endif
 
 C --- free memory
-      Call GetMem('VJ','Free','Real',ipVJ,nVec)
-      Call GetMem('rsL','Free','Real',ipLab,LREAD)
-      Do jDen=1,nDen
-         Call GetMem('rsD','Free','Real',iWork(ipDab+jDen-1),nRS)
-         Call GetMem('rsF','Free','Real',iWork(ipFab+jDen-1),nRS)
-      End Do
+      Call mma_Deallocate(VJ)
+      Call mma_Deallocate(Lrs)
+      Call mma_Deallocate(Drs)
+      Call mma_Deallocate(Frs)
 
 
 999   Continue
 
       END DO   ! loop over red sets
 
-      Call GetMem('ipRedM','Free','Inte',ipDab,2*nDen)
+      Call mma_deallocate(ipFr)
+      Call mma_deallocate(ipDr)
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
@@ -303,9 +298,6 @@ c Print the Fock-matrix
 
       Return
       End
-
-
-
 
       SUBROUTINE swap_rs2full(irc,iLoc,nDen,JSYM,ISLT,
      &                             ipXLT,ipXab,mode,add)

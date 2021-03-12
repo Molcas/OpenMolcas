@@ -40,8 +40,6 @@
 
           Do jvc=1,numJ
 
-             iLaJ = ipLaJ + jvc - 1
-
              XMax = abs(LJa(jvc,1))
 
              Do ia=2,numA
