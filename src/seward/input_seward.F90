@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1991,1993, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Input_Seward(lOPTO)
+
+subroutine Input_Seward(lOPTO)
 !***********************************************************************
 !                                                                      *
 !     Object: to read the input to the integral package.               *
@@ -22,93 +23,96 @@
 !             January '91 additional input for property calculations.  *
 !             October '93 split up to RdCtl and SoCtl.                 *
 !***********************************************************************
-      use Sizes_of_Seward, only: S
-      use Basis_Info, only: nBas
-      use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
-      use Logical_Info, only: Do_GuessOrb
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
+
+use Sizes_of_Seward, only: S
+use Basis_Info, only: nBas
+use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
+use Logical_Info, only: Do_GuessOrb
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-      Parameter (nMamn=MaxBfn+MaxBfn_Aux)
-      Character*(LENIN8), Allocatable :: Mamn(:)
-      Logical Show_Save, lOPTO
-      Logical Reduce_Prt
-      External Reduce_Prt
-      Save Show_Save
+parameter(nMamn=MaxBfn+MaxBfn_Aux)
+character*(LENIN8), allocatable :: Mamn(:)
+logical Show_Save, lOPTO
+logical Reduce_Prt
+external Reduce_Prt
+save Show_Save
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      iRout=2
+iRout = 2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Primitive_Pass) Then
-         Show_Save=Show
-      Else ! .Not.Primitive
-         Show=Show_Save
-      End If
+if (Primitive_Pass) then
+  Show_Save = Show
+else
+  Show = Show_Save
+end if
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
+! Adjust the print level and some other parameters depending on
+! if we are iterating or not.
 !
-!     Adjust the print level and some other parameters depending on
-!     if we are iterating or not.
-!
-!     Set Show to false if Seward is run in property mode.
-      Show=Show.and..Not.Prprt
-!
-      If ((Reduce_Prt().and.nPrint(iRout).lt.6).and..Not.Prprt) Then
-         Show=.False.
-         Do_GuessOrb=.False.
-      End If
-!
-      Show=Show.and..Not.Primitive_Pass
-      Show = Show .or. Test
+! Set Show to false if Seward is run in property mode.
+Show = Show .and. .not. Prprt
+
+if ((Reduce_Prt() .and. nPrint(iRout) < 6) .and. .not. Prprt) then
+  Show = .false.
+  Do_GuessOrb = .false.
+end if
+
+Show = Show .and. .not. Primitive_Pass
+Show = Show .or. Test
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Modify storage of basis functions to be in accordance with a
-!     calculation in the primitive or contracted basis.
-!
-      Call Flip_Flop(Primitive_Pass)
+! Modify storage of basis functions to be in accordance with a
+! calculation in the primitive or contracted basis.
+
+call Flip_Flop(Primitive_Pass)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Start of output, collect all output to this routine!
-!
-      If (Show) Call Output1_Seward(lOPTO)
+! Start of output, collect all output to this routine!
+
+if (Show) call Output1_Seward(lOPTO)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !-----Generate the SO or AO basis set
-!
-      Call mma_allocate(Mamn,nMamn,label='Mamn')
-      Call SOCtl_Seward(Mamn,nMamn)
+
+call mma_allocate(Mamn,nMamn,label='Mamn')
+call SOCtl_Seward(Mamn,nMamn)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Test) Then
-         Return
-      End If
+if (Test) then
+  return
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write information on the run file.
-!
-      If (Primitive_Pass) Then
-         Call Put_iArray('nBas_Prim',nBas,nIrrep)
-         Call Info2Runfile()
-      End If
-      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
-      Call Put_iArray('nBas',nBas,nIrrep)
-      Call mma_deallocate(Mamn)
+! Write information on the run file.
+
+if (Primitive_Pass) then
+  call Put_iArray('nBas_Prim',nBas,nIrrep)
+  call Info2Runfile()
+end if
+call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
+call Put_iArray('nBas',nBas,nIrrep)
+call mma_deallocate(Mamn)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Input_Seward

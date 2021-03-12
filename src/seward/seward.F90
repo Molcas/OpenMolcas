@@ -11,7 +11,8 @@
 ! Copyright (C) 1989-1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Seward(ireturn)
+
+subroutine Seward(ireturn)
 !***********************************************************************
 ! In 1867, William Seward, for 2 cents per acre, purchased             *
 ! Alaska, a valueless wasteland of ice and snow.                       *
@@ -36,26 +37,28 @@
 !          Lund, SWEDEN. Modified to use Schwartz inequality for pre-  *
 !          screening, July 1991.                                       *
 !***********************************************************************
-      use Real_Spherical
-      use Period
-      use GeoList
-      use MpmC
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep, lIrrep
-      use LundIO
-      use Temporary_Parameters
-      use Integral_parameters, only: iPack, iWROpt
-      use DKH_Info, only: DKroll
-      use Real_Info, only: PkAcc
-      use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
-      use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
+
+use Real_Spherical
+use Period
+use GeoList
+use MpmC
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep, lIrrep
+use LundIO
+use Temporary_Parameters
+use Integral_parameters, only: iPack, iWROpt
+use DKH_Info, only: DKroll
+use Real_Info, only: PkAcc
+use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
+use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
 #ifdef _FDE_
-      use Embedding_Global, only: embPot, embPotInBasis
+use Embedding_Global, only: embPot, embPotInBasis
 #endif
-      use Gateway_global, only: Run_Mode, G_Mode, S_Mode, GS_Mode
-      Implicit Real*8 (A-H,O-Z)
-      External Integral_WrOut, Integral_WrOut2, Integral_RI_3
+use Gateway_global, only: Run_Mode, G_Mode, S_Mode, GS_Mode
+
+implicit real*8(A-H,O-Z)
+external Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
@@ -64,448 +67,422 @@
 #include "setup.fh"
 #include "status.fh"
 #include "print.fh"
-      Integer nChoV(8)
-      Real*8 rrx(2)
-      Logical PrPrt_Save, Exist, DoRys, lOPTO
-      Real*8  DiagErr(4), Dummy(2)
+integer nChoV(8)
+real*8 rrx(2)
+logical PrPrt_Save, Exist, DoRys, lOPTO
+real*8 DiagErr(4), Dummy(2)
 !-SVC: identify runfile with a fingerprint
-      Character cDNA*256
-      Logical IsBorn, Do_OneEl
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Call Seward_Banner()
-      lOPTO = .False.
-      nByte_r = idloc(rrx(2))-idloc(rrx(1))
-      Call CWTime(TCpu1,TWall1)
-!
-!     Prologue
-!
-      iRout=1
-      PrPrt_Save = .False. ! dummy initialize
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Figure out the run_mode
-!
-!     Seward can be run in two different modes!
-!     GS_Mode: does the work of both Gateway and Seward
-!     S_Mode:  only the work of Seward
-!
-!
-!     Check if the run file is there
-!
-      Call f_Inquire('RUNFILE',Exist)
-      If (Exist) Then
-         Call Qpg_iScalar('Run_Mode',Exist)
-         If (Exist) Then
-!
-!           The Run_mode of the runfile is either GS_Mode or G_Mode
-!
-            Call Get_iScalar('Run_Mode',Run_Mode)
-!
-!           If the Run_mode is that Gateway is in action then Seward
-!           should be run in S_mode.
-!
-            If (Run_Mode.eq.G_Mode) Run_Mode=S_Mode
-         Else
-            Run_Mode=GS_Mode
-         End If
-      Else
-!
-!        Seward runs without Gateway
-!
-         Run_Mode=GS_Mode
-         Call MkRun(iRC,0)
-         Call Put_iScalar('Run_Mode',Run_Mode)
-!
-!     Determine and save the fingerprint of the runfile in a field with
-!     label 'BirthCertificate' if it is empty.  This allows us to
-!     uniquely identify the runfile and any later associated files.
-!
-         Call qpg_cArray('BirthCertificate',IsBorn,nDNA)
-         If (.NOT.IsBorn) Then
-           Call Get_Genome(cDNA,nDNA)
-           Call Put_cArray('BirthCertificate',cDNA,nDNA)
-         End If
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Get the memory size available
-!
-      Call SetMem('Clear=Off')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     If Seward is run in S_mode most of the input is already on the
-!     runfile. If Seward is run in GS_Mode it will handle the input and
-!     runfile in the conventional way.
-!
-      Call Seward_Init()
-      If (Run_Mode.eq.S_Mode) Then
-!
-!        S_Mode
-!
-         DoRys=.True.
-         nDiff=0
-         Call GetInf(DoRys,nDiff)
-         Primitive_Pass=.True.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        GS_Mode
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Call Funi_Init()
-         Call Basis_Info_Init()
-         Call Center_Info_Init()
-!
-      End If ! Run_Mode.eq.S_Mode
+character cDNA*256
+logical IsBorn, Do_OneEl
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!   columbus support: initialize additional items in Runfile
-!   default: no mixed operation
-      call Put_iScalar('Columbus',0)
-      call Put_iScalar('colgradmode',0)
-      dummy(1)=0.0d0
-      dummy(2)=0.0d0
-      call Put_dArray ('MR-CISD energy',dummy,2)
-      Call NQGrid_Init()
+! Call Seward_Banner()
+lOPTO = .false.
+nByte_r = idloc(rrx(2))-idloc(rrx(1))
+call CWTime(TCpu1,TWall1)
+
+! Prologue
+
+iRout = 1
+PrPrt_Save = .false. ! dummy initialize
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Spool the input
+! Figure out the run_mode
 !
-      LuSpool=21
-      Call SpoolInp(LuSpool)
-!     Read the input from input file
+! Seward can be run in two different modes!
+! GS_Mode: does the work of both Gateway and Seward
+! S_Mode:  only the work of Seward
 !
-      Call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
-      If (Run_Mode.ne.S_Mode) Then
-         Call Basis_Info_Dmp()
-         Call Basis_Info_Free()
-         Call Basis_Info_Get()
-         Call Center_Info_Dmp()
-         Call Center_Info_Free()
-         Call Center_Info_Get()
-      End If
-!
-      Call Close_LuSpool(LuSpool)
-!
+! Check if the run file is there
+
+call f_Inquire('RUNFILE',Exist)
+if (Exist) then
+  call Qpg_iScalar('Run_Mode',Exist)
+  if (Exist) then
+
+    ! The Run_mode of the runfile is either GS_Mode or G_Mode
+
+    call Get_iScalar('Run_Mode',Run_Mode)
+
+    ! If the Run_mode is that Gateway is in action then Seward
+    ! should be run in S_mode.
+
+    if (Run_Mode == G_Mode) Run_Mode = S_Mode
+  else
+    Run_Mode = GS_Mode
+  end if
+else
+
+  ! Seward runs without Gateway
+
+  Run_Mode = GS_Mode
+  call MkRun(iRC,0)
+  call Put_iScalar('Run_Mode',Run_Mode)
+
+  ! Determine and save the fingerprint of the runfile in a field with
+  ! label 'BirthCertificate' if it is empty.  This allows us to
+  ! uniquely identify the runfile and any later associated files.
+
+  call qpg_cArray('BirthCertificate',IsBorn,nDNA)
+  if (.not. IsBorn) then
+    call Get_Genome(cDNA,nDNA)
+    call Put_cArray('BirthCertificate',cDNA,nDNA)
+  end if
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Get the memory size available
+
+call SetMem('Clear=Off')
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! If Seward is run in S_mode most of the input is already on the
+! runfile. If Seward is run in GS_Mode it will handle the input and
+! runfile in the conventional way.
+
+call Seward_Init()
+if (Run_Mode == S_Mode) then
+
+  ! S_Mode
+
+  DoRys = .true.
+  nDiff = 0
+  call GetInf(DoRys,nDiff)
+  Primitive_Pass = .true.
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! GS_Mode
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  call Funi_Init()
+  call Basis_Info_Init()
+  call Center_Info_Init()
+
+end if ! Run_Mode == S_Mode
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! columbus support: initialize additional items in Runfile
+! default: no mixed operation
+call Put_iScalar('Columbus',0)
+call Put_iScalar('colgradmode',0)
+dummy(1) = 0.0d0
+dummy(2) = 0.0d0
+call Put_dArray('MR-CISD energy',dummy,2)
+call NQGrid_Init()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Spool the input
+
+LuSpool = 21
+call SpoolInp(LuSpool)
+! Read the input from input file
+
+call RdCtl_Seward(LuSpool,lOPTO,Do_OneEl)
+if (Run_Mode /= S_Mode) then
+  call Basis_Info_Dmp()
+  call Basis_Info_Free()
+  call Basis_Info_Get()
+  call Center_Info_Dmp()
+  call Center_Info_Free()
+  call Center_Info_Get()
+end if
+
+call Close_LuSpool(LuSpool)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
- 199  Continue
-!
-!     Process the input.
-!
-      Call Input_Seward(lOPTO)
-!
-      If (Primitive_Pass) Then
-         PrPrt_Save = PrPrt
-         PrPrt=.False.
-      Else
-         PrPrt=PrPrt_Save
-      End If
+199 continue
+
+! Process the input.
+
+call Input_Seward(lOPTO)
+
+if (Primitive_Pass) then
+  PrPrt_Save = PrPrt
+  PrPrt = .false.
+else
+  PrPrt = PrPrt_Save
+end if
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     Compute the Nuclear potential energy
-!
-      If (.Not.Primitive_Pass) Call DrvN0()
+! Compute the Nuclear potential energy
+
+if (.not. Primitive_Pass) call DrvN0()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Show) Then
-!
-!        Print out basis set information
-!
-         Write(6,*)
-         Write(6,'(6X,A)')'Basis set specifications :'
-         Write(6,'(6X,A,T30,8(2X,A))')                                  &
-     &         'Symmetry species',     (lIrrep(i),i=0,nIrrep-1)
-         Write(6,'(6X,A,T30,8I5)')'Basis functions',                    &
-     &                                 (nBas(i),i=0,nIrrep-1)
-         Write(6,*)
-!
-      End If
+if (Show) then
+
+  ! Print out basis set information
+
+  write(6,*)
+  write(6,'(6X,A)') 'Basis set specifications :'
+  write(6,'(6X,A,T30,8(2X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
+  write(6,'(6X,A,T30,8I5)') 'Basis functions',(nBas(i),i=0,nIrrep-1)
+  write(6,*)
+
+end if
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     If only test case then clean up!
-!
-      If (Test) Go To 9999
+! If only test case then clean up!
+
+if (Test) Go To 9999
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write/update information on the run file.
-!
-      If (.Not.Primitive_Pass) Then
-         Call DmpInf()
-         Call basis2run()
-      End If
+! Write/update information on the run file.
+
+if (.not. Primitive_Pass) then
+  call DmpInf()
+  call basis2run()
+end if
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!     ONE-ELECTRON INTEGRAL SECTION
+! ONE-ELECTRON INTEGRAL SECTION
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
 #ifdef _FDE_
-      ! Embedding
-      if (embPot.and..not.embPotInBasis) then
-       Call embPotInit(.false.)
+! Embedding
+if (embPot .and. .not. embPotInBasis) then
+  call embPotInit(.false.)
+end if
+#endif
+
+Lu_One = 2
+iOpt = 1
+iRC = -1
+
+! Generate primimitive integrals only if needed.
+
+if (Primitive_Pass .and. (DKroll .or. Nemo)) then
+  call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
+  call OneBas('PRIM')
+else
+  call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
+end if
+if (iRC /= 0) then
+  call WarningMessage(2,' *** Error in subroutine INPUT ***;     Abend in subroutine OpnOne')
+  call Abend()
+end if
+
+if (Do_OneEl .and. (.not. Primitive_Pass .or. (Primitive_Pass .and. (DKroll .or. NEMO)))) call Drv1El()
+
+iOpt = 0
+iRC = -1
+call ClsOne(iRC,iOpt)
+if (iRC /= 0) then
+  call WarningMessage(2,' *** Error in SEWARD main ***;  Abend in subroutine ClsOne')
+  call Abend()
+end if
+
+#ifdef _FDE_
+! Embedding
+if (embPot .and. .not. embPotInBasis) call embPotFreeMem
+#endif
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! If a pass in which primitive integrals where computed do a second
+! pass.
+
+if (Primitive_Pass) then
+  Primitive_Pass = .false.
+  call Free_iSD()
+  Go To 199
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Branch out if only one-electron integrals are to be computed!
+
+if (Onenly) Go To 9999
+
+! If ERIs/CD/RI already available, one may want not to redo it!
+
+if (Fake_ERIs) then
+  call set_fake_ERIs()
+  Go To 9999
+end if
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+! TWO-ELECTRON INTEGRAL SECTION
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+if (iWRopt == 0) then
+
+  !----- Molcas format
+
+  if (Cholesky) then ! Cholesky decomposition
+    call Cho_MCA_Drv()
+    call Get_iArray('NumCho',nChoV,nIrrep)
+    write(6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
+    write(6,*)
+    write(6,*)
+  else if (Do_RI) then
+    if (LocalDF) then
+      call Drv2El_LocalDF()
+    else
+      if (nPrint(iRout) >= 6) then
+        write(6,*)
+        write(6,'(A)') 'Seward processing 2-center and 3-center ERIs'
+        write(6,*)
       end if
-#endif
+      call Drv2El_3Center_RI(Integral_RI_3,Zero)
+      call Get_iArray('NumCho',nChoV,nIrrep)
+      if (nPrint(iRout) >= 6) then
+        write(6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
+        write(6,*)
+        write(6,*)
+      end if
+    end if
+  else
+    iWrOpt_Save = iWrOpt
+    iWrOpt = 0
+    call Sort0
 
-      Lu_One=2
-      iOpt = 1
-      iRC = -1
-!
-!     Generate primimitive integrals only if needed.
-!
-      If (Primitive_Pass.and.(DKroll.or.Nemo)) Then
-         Call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-         Call OneBas('PRIM')
-      Else
-         Call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-      End If
-      If (iRC.ne.0) Then
-         Call WarningMessage(2,                                         &
-     &                  ' *** Error in subroutine INPUT ***;'           &
-     &                //'     Abend in subroutine OpnOne')
-         Call Abend()
-      End If
-!
-      If (Do_OneEl.and.                                                 &
-     &    (.Not.Primitive_Pass .or.                                     &
-     &    (Primitive_Pass.and.(DKroll.or.NEMO)) ) )                     &
-     &   Call Drv1El()
-!
-      iOpt = 0
-      iRC = -1
-      Call ClsOne(iRC,iOpt)
-      If (iRC.ne.0) then
-         Call WarningMessage(2,                                         &
-     &              ' *** Error in SEWARD main ***;'                    &
-     &            //'  Abend in subroutine ClsOne')
-         Call Abend()
-      End If
+    call Drv2El(Integral_WrOut2,Zero)
 
-#ifdef _FDE_
-      ! Embedding
-      if (embPot.and..not.embPotInBasis) Call embPotFreeMem
-#endif
+    call Sort1B
+    call Sort2
+    call Sort3(MaxDax)
 
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!     If a pass in which primitive integrals where computed do a second
-!     pass.
-!
-      If (Primitive_Pass) Then
-         Primitive_Pass=.False.
-         Call Free_iSD()
-         Go To 199
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Branch out if only one-electron integrals are to be computed!
-!
-      If (Onenly) Go To 9999
-!
-!     If ERIs/CD/RI already available, one may want not to redo it!
-!
-      If (Fake_ERIs) Then
-         Call set_fake_ERIs()
-         Go To 9999
-      EndIf
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!     TWO-ELECTRON INTEGRAL SECTION
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-!
-      If ( iWRopt.eq.0 ) then
-!
-!------- Molcas format
-!
-         If (Cholesky) Then ! Cholesky decomposition
-            Call Cho_MCA_Drv()
-            Call Get_iArray('NumCho',nChoV,nIrrep)
-            Write(6,'(6X,A,T30,8I5)')'Cholesky vectors',                &
-     &               (nChoV(i),i=1,nIrrep)
-            Write(6,*)
-            Write(6,*)
-         Else If (Do_RI) Then
-            If (LocalDF) Then
-               Call Drv2El_LocalDF()
-            Else
-               If (nPrint(iRout).ge.6) Then
-                  Write (6,*)
-                  Write (6,'(A)') 'Seward processing 2-center and '     &
-     &                          //'3-center ERIs'
-                  Write (6,*)
-               End If
-               Call Drv2El_3Center_RI(Integral_RI_3,Zero)
-               Call Get_iArray('NumCho',nChoV,nIrrep)
-               If (nPrint(iRout).ge.6) Then
-                  Write(6,'(6X,A,T30,8I5)')'RI vectors',                &
-     &                  (nChoV(i),i=1,nIrrep)
-                  Write(6,*)
-                  Write(6,*)
-               End If
-            End If
-         Else
-            iWrOpt_Save=iWrOpt
-            iWrOpt=0
-            Call Sort0
-!
-            Call Drv2El(Integral_WrOut2,Zero)
-!
-            Call Sort1B
-            Call Sort2
-            Call Sort3(MaxDax)
-!
-            If (nPrint(iRout).ge. 6) Then
-               Write (6,*)
-               Write (6,'(A)')                                          &
-     &           ' Integrals are written in MOLCAS2 format'
-               If ( iPack.ne.0 ) Then
-                  Write (6,'(A)')                                       &
-     &              ' No packing of integrals has been applied'
-               Else
-                  Write (6,'(A,G11.4)') ' Packing accuracy =',          &
-     &                                   PkAcc
-                  Write (6,'(A,I10)')                                   &
-     &             ' Highest disk address written',MaxDax
-               End If
-               Write (6,'(A,A)') ' Diagonal and subdiagonal, '          &
-     &           //'symmetry allowed 2-el',                             &
-     &           ' integral blocks are stored on Disk'
-            End If
-            iWrOpt=iWrOpt_Save
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else If (iWRopt.eq.1) Then
-!
-!------- Molecule format (Molcas 1.0)
-!
-         Lu_28=28
-         Lu_28=isfreeunit(Lu_28)
-         Call DaName_MF(Lu_28,'BASINT')
-         iDisk=0
-         lBuf=idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
-         lBuf=(lBuf+nByte_r)/nByte_r - 1
-!
-         Call Drv2El(Integral_WrOut,Zero)
-!
-         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-         Buf%nUt=-1
-         Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-         Write (6,*)
-         Write (6,'(A)')' Integrals are written in MOLCAS1 format'
-         !Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Else
-!
-         Call WarningMessage(2,'Seward: Invalid value of iWRopt!')
-         Call Abend()
-!
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     At the end of the calculation free all memory to check for
-!     corruption of the memory.
-!
+    if (nPrint(iRout) >= 6) then
+      write(6,*)
+      write(6,'(A)') ' Integrals are written in MOLCAS2 format'
+      if (iPack /= 0) then
+        write(6,'(A)') ' No packing of integrals has been applied'
+      else
+        write(6,'(A,G11.4)') ' Packing accuracy =',PkAcc
+        write(6,'(A,I10)') ' Highest disk address written',MaxDax
+      end if
+      write(6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
+    end if
+    iWrOpt = iWrOpt_Save
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else if (iWRopt == 1) then
 
- 9999 Call ClsSew()
-      If (Allocated(AdCell)) Call mma_deallocate(AdCell)
-      Call mma_deallocate(Coor_MPM)
-      Call mma_deallocate(Chrg)
-      Call mma_deallocate(Mass)
-      Call mma_deallocate(Centr)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(4,TCpu2-TCpu1,TWall2-TWall1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Diagonal ERI check
-!
-      If (Cholesky .or. Do_RI) Then
-         If (DiagCheck) Then
-            write(6,*)' ==== Start Diagonal ERI check  ===='
-            Call Cho_X_init(irc,ChFracMem)
-            if (irc.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                   ' Seward: Non-zero rc in Cho_X_init.')
-               Call Abend()
-            endif
-            Call Cho_X_CheckDiag(irc,DiagErr)
-            if (irc.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                   ' Seward: Non-zero rc in Cho_X_CheckDiag.')
-               Call Abend()
-            endif
-            Call Cho_X_Final(irc)
-            if (irc.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                   ' Seward: Non-zero rc in Cho_X_Final.')
-               CALL Abend()
-            endif
-            write(6,*)
-            write(6,*)' ====  End  Diagonal ERI check  ===='
-         EndIf
-      EndIf
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Automatic run of GuessOrb
-!
-      If (Do_GuessOrb.and.Do_FckInt) Call GuessOrb(iReturn,.FALSE.)
-      If (.not.Prprt.and.Do_OneEl) Call Put_NucAttr()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
-!     Epilogue
-!
-      If (nPrint(iRout).ge.6) Call FastIO('STATUS')
-!
-      If (Test)  Then
-         ireturn=_RC_EXIT_EXPECTED_
-      Else If (lRP_Post) Then
-         ireturn=_RC_INVOKED_OTHER_MODULE_
-      Else
-         ireturn=_RC_ALL_IS_WELL_
-      End If
+  !----- Molecule format (Molcas 1.0)
 
-      Return
-      End
+  Lu_28 = 28
+  Lu_28 = isfreeunit(Lu_28)
+  call DaName_MF(Lu_28,'BASINT')
+  iDisk = 0
+  lBuf = idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
+  lBuf = (lBuf+nByte_r)/nByte_r-1
+
+  call Drv2El(Integral_WrOut,Zero)
+
+  call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+  Buf%nUt = -1
+  call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+  write(6,*)
+  write(6,'(A)') ' Integrals are written in MOLCAS1 format'
+  !write(6,'(I10,A)') IntTot,' Integrals written on Disk'
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else
+
+  call WarningMessage(2,'Seward: Invalid value of iWRopt!')
+  call Abend()
+
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! At the end of the calculation free all memory to check for
+! corruption of the memory.
+
+9999 call ClsSew()
+if (allocated(AdCell)) call mma_deallocate(AdCell)
+call mma_deallocate(Coor_MPM)
+call mma_deallocate(Chrg)
+call mma_deallocate(Mass)
+call mma_deallocate(Centr)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call CWTime(TCpu2,TWall2)
+call SavTim(4,TCpu2-TCpu1,TWall2-TWall1)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Diagonal ERI check
+
+if (Cholesky .or. Do_RI) then
+  if (DiagCheck) then
+    write(6,*) ' ==== Start Diagonal ERI check  ===='
+    call Cho_X_init(irc,ChFracMem)
+    if (irc /= 0) then
+      call WarningMessage(2,' Seward: Non-zero rc in Cho_X_init.')
+      call Abend()
+    end if
+    call Cho_X_CheckDiag(irc,DiagErr)
+    if (irc /= 0) then
+      call WarningMessage(2,' Seward: Non-zero rc in Cho_X_CheckDiag.')
+      call Abend()
+    end if
+    call Cho_X_Final(irc)
+    if (irc /= 0) then
+      call WarningMessage(2,' Seward: Non-zero rc in Cho_X_Final.')
+      call Abend()
+    end if
+    write(6,*)
+    write(6,*) ' ====  End  Diagonal ERI check  ===='
+  end if
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Automatic run of GuessOrb
+
+if (Do_GuessOrb .and. Do_FckInt) call GuessOrb(iReturn,.false.)
+if (.not. Prprt .and. Do_OneEl) call Put_NucAttr()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Epilogue
+
+if (nPrint(iRout) >= 6) call FastIO('STATUS')
+
+if (Test) then
+  ireturn = _RC_EXIT_EXPECTED_
+else if (lRP_Post) then
+  ireturn = _RC_INVOKED_OTHER_MODULE_
+else
+  ireturn = _RC_ALL_IS_WELL_
+end if
+
+return
+
+end subroutine Seward

@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !               1996, Per Ake Malmqvist                                *
 !***********************************************************************
-      SubRoutine Drv1El()
+
+subroutine Drv1El()
 !***********************************************************************
 !                                                                      *
 ! Object: driver for computation of one-electron matrices.             *
@@ -20,63 +21,48 @@
 !             University of Lund, SWEDEN                               *
 !             January 1991                                             *
 !***********************************************************************
-      Use AMFI_Info
-      Use Basis_Info
-      Use GeoList
-      Use MpmC
-      Use PrpPnt
-      Use External_Centers
-      Use SW_file
-      use Symmetry_Info, only: iChBas
-      use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
-      use PAM2
-      use DKH_Info, only: BSS, DKroll
-      use Sizes_of_Seward, only: S
-      use Real_Info, only: PotNuc, kVector
-      use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt,       &
-     &                        DoFMM, EMFR, GIAO, lPSOI
+
+use AMFI_Info
+use Basis_Info
+use GeoList
+use MpmC
+use PrpPnt
+use External_Centers
+use SW_file
+use Symmetry_Info, only: iChBas
+use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
+use PAM2
+use DKH_Info, only: BSS, DKroll
+use Sizes_of_Seward, only: S
+use Real_Info, only: PotNuc, kVector
+use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lPSOI
 #ifdef _FDE_
-      use Embedding_Global, only: embInt, embPot, embPotInBasis
+use Embedding_Global, only: embInt, embPot, embPotInBasis
 #endif
-      Implicit Real*8 (A-H,O-Z)
-      External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,  &
-     &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,         &
-     &         QpVInt,  M1Int,  M2Int, SROInt, AMPInt, PXPInt,  PXInt,  &
-     &          VPInt,  PPInt, CntInt, EMFInt,                          &
-     &         MltInt_GIAO,                                             &
-     &         KneInt_GIAO,                                             &
-     &          NAInt_GIAO,                                             &
-     &          dTdmu_Int
-      External MltMem, KnEMem, MVeMem,  VeMem,  D1Mem,  NAMem,  EFMem,  &
-     &         OAMMem, OMQMem, DMSMem, WelMem, XFdMem,  PrjMem,         &
-     &         QpVMem,  M1Mem,  M2Mem, SROMem, AMPMem, PXPmem,  PXMem,  &
-     &          VPMem,  PPMem, CntMem, EMFMem,                          &
-     &         MltMem_GIAO,                                             &
-     &         KneMem_GIAO,                                             &
-     &          NAMem_GIAO,                                             &
-     &          dTdmu_Mem
-      External PAM2Int, FragPint,                                       &
-     &         PAM2Mem, FragPMem
-      External P_Int, EPEInt,                                           &
-     &         P_Mem, EPEMem
+
+implicit real*8(A-H,O-Z)
+external MltInt, KnEInt, MVeInt, VeInt, D1Int, NAInt, EFInt, OAMInt, OMQInt, DMSInt, WelInt, XFdInt, PrjInt, QpVInt, M1Int, M2Int, &
+         SROInt, AMPInt, PXPInt, PXInt, VPInt, PPInt, CntInt, EMFInt, MltInt_GIAO, KneInt_GIAO, NAInt_GIAO, dTdmu_Int
+external MltMem, KnEMem, MVeMem, VeMem, D1Mem, NAMem, EFMem, OAMMem, OMQMem, DMSMem, WelMem, XFdMem, PrjMem, QpVMem, M1Mem, M2Mem, &
+         SROMem, AMPMem, PXPmem, PXMem, VPMem, PPMem, CntMem, EMFMem, MltMem_GIAO, KneMem_GIAO, NAMem_GIAO, dTdmu_Mem
+external PAM2Int, FragPint, PAM2Mem, FragPMem
+external P_Int, EPEInt, P_Mem, EPEMem
 #ifdef _FDE_
-      ! Embedding
-      External embPotMem, embPotKernel
-      Real*8, Dimension(:), Allocatable :: Emb_Int
+! Embedding
+external embPotMem, embPotKernel
+real*8, dimension(:), allocatable :: Emb_Int
 #endif
-!     ipList: list of pointers to the integrals of each component
-!             of the operator
-!     OperI: list which irreps a particular component of the operator
-!            belongs to
-!     OperC: list the character of each component of the operator
-!     CoorO: list of origins of the operator, one for each component
-      Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
-      Real*8, Dimension(:), Allocatable :: CoorO, Nuc, KnE_Int, NA_Int, &
-     &                                     FragP, OneHam, PtEl,         &
-     &                                     PtNuc, SumEl, SumNuc
-      logical lECPnp,lECP
-      logical lPAM2np,lPAM2
-      logical lPP, lFAIEMP
+! ipList: list of pointers to the integrals of each component
+!         of the operator
+! OperI: list which irreps a particular component of the operator
+!        belongs to
+! OperC: list the character of each component of the operator
+! CoorO: list of origins of the operator, one for each component
+integer, dimension(:), allocatable :: ipList, OperI, OperC
+real*8, dimension(:), allocatable :: CoorO, Nuc, KnE_Int, NA_Int, FragP, OneHam, PtEl, PtNuc, SumEl, SumNuc
+logical lECPnp, lECP
+logical lPAM2np, lPAM2
+logical lPP, lFAIEMP
 #include "Molcas.fh"
 #include "print.fh"
 #include "nq_info.fh"
@@ -87,68 +73,66 @@
 #include "property_label.fh"
 #include "oneswi.fh"
 #include "warnings.fh"
-      Integer iSymR(0:3)
-      Character*8 Label
-      Character*512 FName
-      Real*8 Ccoor(3)
-      Integer nComp
-      Integer, Allocatable:: iAtmNr2(:)
-      Real*8, Allocatable:: Charge2(:)
-      Dimension dum(1),idum(1)
-!
-      iRout = 131
-      iPrint = nPrint(iRout)
-!
-      Call StatusLine(' Seward:',' Computing 1-electron integrals')
-!
-      Call Set_Basis_Mode('Valence')
-      Call Setup_iSD()
+integer iSymR(0:3)
+character*8 Label
+character*512 FName
+real*8 Ccoor(3)
+integer nComp
+integer, allocatable :: iAtmNr2(:)
+real*8, allocatable :: Charge2(:)
+dimension dum(1), idum(1)
+
+iRout = 131
+iPrint = nPrint(iRout)
+
+call StatusLine(' Seward:',' Computing 1-electron integrals')
+
+call Set_Basis_Mode('Valence')
+call Setup_iSD()
 #ifdef _FDE_
-      if (embPot) call EmbPotRdRun
+if (embPot) call EmbPotRdRun()
 #endif
-!
-      lPAM2 = .False.
-      lECP  = .False.
-      lPP   = .False.
-      lFAIEMP = .False.
-      Do i = 1, nCnttp
-         lPam2 = lPam2 .or. dbsc(i)%lPam2
-         lECP  = lECP  .or. dbsc(i)%ECP
-         lPP   = lPP   .or. dbsc(i)%nPP.ne.0
-         lFAIEMP  = lFAIEMP  .or. dbsc(i)%Frag
-      End Do
-!
-!     set center selector in OneSwi to all centers (default)
-!
-      NDDO = .FALSE.
-      If (Prprt.and.DKroll) Then
-         Call WarningMessage(2,                                         &
-     &               'Prprt and DKroll options can not be combined!')
-         Call Quit_OnUserError()
-      End If
-!
-!     We will always compute the following one-electron integrals per
-!     default.
-!     1) Multipole moments up to quadrupole moments
-!     2) Kinetic energy
-!     3) Nuclear Attraction
-!     4) ECP contributions
-!     5) One-Electron Hamiltonian
-!     6) Mass-Velocity
-!     7) Darwin 1-electron contact term
-!
-      lECPnp = lECP
-      lPAM2np = lPAM2
-      if (DKroll.and.Primitive_Pass) then
-         lECPnp = .False.
-      endif
-      If (Prprt) Then
-         FName=SW_FileOrb
-         Call GetDens(FName(:mylen(FName)),short,iPrint)
-         Call CollapseOutput(1,'   Molecular properties:')
-         Write (6,'(3X,A)')    '   ---------------------'
-         Write (6,*)
-      End If
+
+lPAM2 = .false.
+lECP = .false.
+lPP = .false.
+lFAIEMP = .false.
+do i=1,nCnttp
+  lPam2 = lPam2 .or. dbsc(i)%lPam2
+  lECP = lECP .or. dbsc(i)%ECP
+  lPP = lPP .or. dbsc(i)%nPP /= 0
+  lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
+end do
+
+! set center selector in OneSwi to all centers (default)
+
+NDDO = .false.
+if (Prprt .and. DKroll) then
+  call WarningMessage(2,'Prprt and DKroll options can not be combined!')
+  call Quit_OnUserError()
+end if
+
+! We will always compute the following one-electron integrals per default.
+! 1) Multipole moments up to quadrupole moments
+! 2) Kinetic energy
+! 3) Nuclear Attraction
+! 4) ECP contributions
+! 5) One-Electron Hamiltonian
+! 6) Mass-Velocity
+! 7) Darwin 1-electron contact term
+
+lECPnp = lECP
+lPAM2np = lPAM2
+if (DKroll .and. Primitive_Pass) then
+  lECPnp = .false.
+end if
+if (Prprt) then
+  FName = SW_FileOrb
+  call GetDens(FName(:mylen(FName)),short,iPrint)
+  call CollapseOutput(1,'   Molecular properties:')
+  write(6,'(3X,A)') '   ---------------------'
+  write(6,*)
+end if
 !***********************************************************************
 !***********************************************************************
 !1)                                                                    *
@@ -158,244 +142,208 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=One
-      iLow = 0
-      mMltpl=S%nMltpl
-      If (Prprt) iLow = 1
-!
-!     If not Douglas-Kroll and primitive pass do no property integrals
-!
-      If (Primitive_Pass) Then
-         iLow=0
-         If (.Not. DKroll) mMltpl=-1
-      End If
-!
-      Do 10 iMltpl = iLow, S%nMltpl
-         Write (Label,'(A,I2)') 'Mltpl ', iMltpl
-         nComp = (iMltpl+1)*(iMltpl+2)/2
-         Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,Ccoor,1)
-         Call Allocate_Auxiliary()
-         iComp=0
-         Do 11 ix = iMltpl, 0, -1
-            If (Mod(ix,2).eq.0) Then
-               iSymX=1
-            Else
-               ixyz=1
-               iSymX=2**IrrFnc(ixyz)
-               If (Ccoor(1).ne.Zero) iSymX = iOr(iSymX,1)
-            End If
-            Do 12 iy = iMltpl-ix, 0, -1
-               If (Mod(iy,2).eq.0) Then
-                  iSymY=1
-               Else
-                  ixyz=2
-                  iSymY=2**IrrFnc(ixyz)
-                  If (Ccoor(2).ne.Zero) iSymY = iOr(iSymY,1)
-               End If
-               iz = iMltpl-ix-iy
-               If (Mod(iz,2).eq.0) Then
-                  iSymZ=1
-               Else
-                  ixyz=4
-                  iSymZ=2**IrrFnc(ixyz)
-                  If (Ccoor(3).ne.Zero) iSymZ = iOr(iSymZ,1)
-               End If
-               iChO = Mod(ix,2)*iChBas(2)                               &
-     &              + Mod(iy,2)*iChBas(3)                               &
-     &              + Mod(iz,2)*iChBas(4)
-!
-               OperI(1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
-               OperC(1+iComp) = iChO
-               Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,                    &
-     &                    CoorO(1+iComp*3),1)
-               iComp = iComp + 1
- 12         Continue
- 11      Continue
-!
-         Call MltNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,iMltpl,nComp)
-!--- pow hack
-         If(iMltpl.eq.0) Then
-            Call Put_dScalar('Total Nuclear Charge',Nuc(1))
-         End If
-!--- pow hack
-         nOrdOp=iMltpl
-         Call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        Write FMM multipole moments to disk
-!
-         If (.Not.Prprt.and.DoFMM) Then
-            Write (Label,'(A,I2)') 'FMMInt', iMltpl
-            Call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,Nuc,rHrmt,OperC,                    &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-!
-!           FMM overlap distribution centres:
-!           Pretend they are 1-e integrals with three (x,y,z)
-!           components and write to disk in canonical order
-!
-            If(iMltpl.eq.0) Then
-               Write (Label,'(A)') 'FMMCnX'
-               Call OneEl(MltInt,MltMem,Label,ipList,OperI,             &
-     &                 nComp,CoorO,nOrdOp+1,Nuc,rHrmt,                  &
-     &                 OperC,dum,1,dum,idum,0,0,                        &
-     &                 dum,1,0)
-               Write (Label,'(A)') 'FMMCnY'
-               Call OneEl(MltInt,MltMem,Label,ipList,OperI,             &
-     &                 nComp,CoorO,nOrdOp+1,Nuc,rHrmt,                  &
-     &                 OperC,dum,1,dum,idum,0,0,                        &
-     &                 dum,1,0)
-               Write (Label,'(A)') 'FMMCnZ'
-               Call OneEl(MltInt,MltMem,Label,ipList,OperI,             &
-     &                 nComp,CoorO,nOrdOp+1,Nuc,rHrmt,                  &
-     &                 OperC,dum,1,dum,idum,0,0,                        &
-     &                 dum,1,0)
-            End If
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        For picture-change corrected integrals.
-!
-         If (DKroll.and.Primitive_Pass) Then
-            Write (Label,'(A,I2)') 'pMp   ', iMltpl
-            PLabel='MltInt'
-            Call FZero(Nuc,nComp)
-            Call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp+2,Nuc,rHrmt,OperC,                  &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         If (iMltpl.eq.0) Then
-!           these are overlap integrals...
-!           set center selector in OneSwi to single center...
-            NDDO = .TRUE.
-            Write (Label,'(A,I2)') 'MltplS', iMltpl
-            Call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,Nuc,rHrmt,OperC,                    &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-!           reset center selector in OneSwi to all centers...
-            NDDO = .FALSE.
-         End If
-!
-         Call Deallocate_Auxiliary()
-!
- 10   Continue
+PLabel = ' '
+rHrmt = One
+iLow = 0
+mMltpl = S%nMltpl
+if (Prprt) iLow = 1
+
+! If not Douglas-Kroll and primitive pass do no property integrals
+
+if (Primitive_Pass) then
+  iLow = 0
+  if (.not. DKroll) mMltpl = -1
+end if
+
+do iMltpl=iLow,S%nMltpl
+  write(Label,'(A,I2)') 'Mltpl ',iMltpl
+  nComp = (iMltpl+1)*(iMltpl+2)/2
+  call DCopy_(3,Coor_MPM(1,iMltpl+1),1,Ccoor,1)
+  call Allocate_Auxiliary()
+  iComp = 0
+  do ix=iMltpl,0,-1
+    if (mod(ix,2) == 0) then
+      iSymX = 1
+    else
+      ixyz = 1
+      iSymX = 2**IrrFnc(ixyz)
+      if (Ccoor(1) /= Zero) iSymX = ior(iSymX,1)
+    end if
+    do iy=iMltpl-ix,0,-1
+      if (mod(iy,2) == 0) then
+        iSymY = 1
+      else
+        ixyz = 2
+        iSymY = 2**IrrFnc(ixyz)
+        if (Ccoor(2) /= Zero) iSymY = ior(iSymY,1)
+      end if
+      iz = iMltpl-ix-iy
+      if (mod(iz,2) == 0) then
+        iSymZ = 1
+      else
+        ixyz = 4
+        iSymZ = 2**IrrFnc(ixyz)
+        if (Ccoor(3) /= Zero) iSymZ = ior(iSymZ,1)
+      end if
+      iChO = mod(ix,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz,2)*iChBas(4)
+
+      OperI(1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+      OperC(1+iComp) = iChO
+      call DCopy_(3,Coor_MPM(1,iMltpl+1),1,CoorO(1+iComp*3),1)
+      iComp = iComp+1
+    end do
+  end do
+
+  call MltNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,iMltpl,nComp)
+  !--- pow hack
+  if (iMltpl == 0) then
+    call Put_dScalar('Total Nuclear Charge',Nuc(1))
+  end if
+  !--- pow hack
+  nOrdOp = iMltpl
+  call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Write FMM multipole moments to disk
+  !
+  if (.not. Prprt .and. DoFMM) then
+    write(Label,'(A,I2)') 'FMMInt',iMltpl
+    call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+    ! FMM overlap distribution centres:
+    ! Pretend they are 1-e integrals with three (x,y,z)
+    ! components and write to disk in canonical order
+
+    if (iMltpl == 0) then
+      write(Label,'(A)') 'FMMCnX'
+      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      write(Label,'(A)') 'FMMCnY'
+      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+      write(Label,'(A)') 'FMMCnZ'
+      call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+1,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    end if
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! For picture-change corrected integrals.
+
+  if (DKroll .and. Primitive_Pass) then
+    write(Label,'(A,I2)') 'pMp   ',iMltpl
+    PLabel = 'MltInt'
+    call FZero(Nuc,nComp)
+    call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  if (iMltpl == 0) then
+    ! these are overlap integrals...
+    ! set center selector in OneSwi to single center...
+    NDDO = .true.
+    write(Label,'(A,I2)') 'MltplS',iMltpl
+    call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    ! reset center selector in OneSwi to all centers...
+    NDDO = .false.
+  end if
+
+  call Deallocate_Auxiliary()
+
+end do
 !***********************************************************************
 !***********************************************************************
 !1a)                                                                   *
 !                                                                      *
 !     PAM integrals                                                    *
 !                                                                      *
-!                                                                      *
-!                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (lPAM2np.and..Not.Primitive_Pass) Then
-         Call molcas_open(28,'R_vect')
-         PLabel=' '
-         rHrmt = One
-         iPAMcount=1
-        Do 348 kCnttpPAM_ = 1, nCnttp
+if (lPAM2np .and. .not. Primitive_Pass) then
+  call molcas_open(28,'R_vect')
+  PLabel = ' '
+  rHrmt = One
+  iPAMcount = 1
+  do kCnttpPAM_=1,nCnttp
 
-           kCnttpPAM=kCnttpPAM_
-           nPAMltpl=dbsc(kCnttpPAM)%nPAM2
+    kCnttpPAM = kCnttpPAM_
+    nPAMltpl = dbsc(kCnttpPAM)%nPAM2
 
-           If(nPAMltpl.lt.0) Go To 348
-!
-           iAddr=1
-           Do 347 iPAMltpl=0,nPAMltpl
-              nOrdOp= iPAMltpl
-              nComp =(iPAMltpl+1)*(iPAMltpl+2)/2
-              iPAMPrim=Int(dbsc(kCnttpPAM)%PAM2(iAddr))
-              iPAMBas =Int(dbsc(kCnttpPAM)%PAM2(iAddr+1))
+    if (nPAMltpl < 0) Go To 348
 
-              if(iPAMBas.eq.0.or.iPAMPrim.eq.0) go to 3471
-              Ccoor(:)=Zero
-              Call Allocate_Auxiliary()
-              Do iComp=0,nComp-1
-                 Call dcopy_(3,dbsc(kCnttpPAM)%Coor,1,                  &
-     &                       CoorO(1+3*iComp),1)
-              End Do
-!
-!****    Define symmetry properties of the operator:
-!
-         iComp=0
-         Do 111 ix = iPAMltpl, 0, -1
-            If (Mod(ix,2).eq.0) Then
-               iSymX=1
-            Else
-               ixyz=1
-               iSymX=2**IrrFnc(ixyz)
-               If (Ccoor(1).ne.Zero) iSymX = iOr(iSymX,1)
-            End If
-            Do 121 iy = iPAMltpl-ix, 0, -1
-               If (Mod(iy,2).eq.0) Then
-                  iSymY=1
-               Else
-                  ixyz=2
-                  iSymY=2**IrrFnc(ixyz)
-                  If (Ccoor(2).ne.Zero) iSymY = iOr(iSymY,1)
-               End If
-               iz = iPAMltpl-ix-iy
-               If (Mod(iz,2).eq.0) Then
-                  iSymZ=1
-               Else
-                  ixyz=4
-                  iSymZ=2**IrrFnc(ixyz)
-                  If (Ccoor(3).ne.Zero) iSymZ = iOr(iSymZ,1)
-               End If
-               iChO = Mod(ix,2)*iChBas(2)                               &
-     &              + Mod(iy,2)*iChBas(3)                               &
-     &              + Mod(iz,2)*iChBas(4)
-!
-               OperC(1+iComp) = iChO
-               OperI(1+iComp) = 1
-!
-               iComp = iComp + 1
- 121        Continue
- 111     Continue
-!
-!****    Loop over basis finction
-!
-         Call mma_allocate(PAMexp,iPAMPrim,2,label='PAMexp')
-         Call dcopy_(iPAMPrim,dbsc(kCnttpPAM)%PAM2(iAddr+2),1,          &
-     &               PAMexp(1,1),1)
-         Do iPAMf=1,iPAMBas
-            Call dcopy_(iPAMPrim,                                       &
-     &                  dbsc(kCnttpPAM)%PAM2(iAddr+2+iPAMPrim*iPAMf),1, &
-     &                  PAMexp(1,2),1)
-            Write (Label,'(A,I2.2,I1.1,I2.2)')                          &
-     &             'PAM', kCnttpPAM,iPAMltpl,iPAMf
-!
+    iAddr = 1
+    do iPAMltpl=0,nPAMltpl
+      nOrdOp = iPAMltpl
+      nComp = (iPAMltpl+1)*(iPAMltpl+2)/2
+      iPAMPrim = int(dbsc(kCnttpPAM)%PAM2(iAddr))
+      iPAMBas = int(dbsc(kCnttpPAM)%PAM2(iAddr+1))
 
-            Call dcopy_(nComp,[Zero],0,Nuc,1)
+      if (iPAMBas == 0 .or. iPAMPrim == 0) go to 3471
+      Ccoor(:) = Zero
+      call Allocate_Auxiliary()
+      do iComp=0,nComp-1
+        call dcopy_(3,dbsc(kCnttpPAM)%Coor,1,CoorO(1+3*iComp),1)
+      end do
+      !
+      !**** Define symmetry properties of the operator:
+      !
+      iComp = 0
+      do ix=iPAMltpl,0,-1
+        if (mod(ix,2) == 0) then
+          iSymX = 1
+        else
+          ixyz = 1
+          iSymX = 2**IrrFnc(ixyz)
+          if (Ccoor(1) /= Zero) iSymX = ior(iSymX,1)
+        end if
+        do iy=iPAMltpl-ix,0,-1
+          if (mod(iy,2) == 0) then
+            iSymY = 1
+          else
+            ixyz = 2
+            iSymY = 2**IrrFnc(ixyz)
+            if (Ccoor(2) /= Zero) iSymY = ior(iSymY,1)
+          end if
+          iz = iPAMltpl-ix-iy
+          if (mod(iz,2) == 0) then
+            iSymZ = 1
+          else
+            ixyz = 4
+            iSymZ = 2**IrrFnc(ixyz)
+            if (Ccoor(3) /= Zero) iSymZ = ior(iSymZ,1)
+          end if
+          iChO = mod(ix,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz,2)*iChBas(4)
 
-            Call OneEl(PAM2Int,PAM2Mem, Label,ipList,OperI,nComp,       &
-     &                 CoorO,nOrdOp,Nuc,rHrmt,OperC,                    &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
+          OperC(1+iComp) = iChO
+          OperI(1+iComp) = 1
 
-!           iPAMcount=iPAMcount+1
-!
-         End Do
-         Call mma_deallocate(PAMexp)
-         Call Deallocate_Auxiliary()
- 3471    iAddr=iAddr+2+iPAMPrim*(iPAMBas+1)
- 347     Continue
- 348    Continue
-        close(28)
-      End If
+          iComp = iComp+1
+        end do
+      end do
+      !
+      !**** Loop over basis functions
+      !
+      call mma_allocate(PAMexp,iPAMPrim,2,label='PAMexp')
+      call dcopy_(iPAMPrim,dbsc(kCnttpPAM)%PAM2(iAddr+2),1,PAMexp(1,1),1)
+      do iPAMf=1,iPAMBas
+        call dcopy_(iPAMPrim,dbsc(kCnttpPAM)%PAM2(iAddr+2+iPAMPrim*iPAMf),1,PAMexp(1,2),1)
+        write(Label,'(A,I2.2,I1.1,I2.2)') 'PAM',kCnttpPAM,iPAMltpl,iPAMf
+
+        call dcopy_(nComp,[Zero],0,Nuc,1)
+
+        call OneEl(PAM2Int,PAM2Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+        !iPAMcount = iPAMcount+1
+
+      end do
+      call mma_deallocate(PAMexp)
+      call Deallocate_Auxiliary()
+      3471            iAddr = iAddr+2+iPAMPrim*(iPAMBas+1)
+    end do
+    348             continue
+  end do
+  close(28)
+end if
 !***********************************************************************
 !***********************************************************************
 !2)                                                                    *
@@ -406,106 +354,69 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=One
-      nComp=1
-!
-      If (.Not.Prprt) Then
-         Call Allocate_Auxiliary()
-         Call dcopy_(3,[Zero],0,CoorO,1)
-         OperI(1) = 1
-         OperC(1) = iChBas(1)
-!
-         Label='Kinetic '
-         nOrdOp = 2
-         Call OneEl(KnEInt,KnEMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,[Zero],rHrmt,OperC,                    &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         nOrdOp = 0
-!
-         Label='Attract '
-         Call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,               &
-     &              CoorO,nOrdOp,[PotNuc],rHrmt,OperC,                  &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-#ifdef _FDE_
-         ! Embedding
-         if (embPot) then
-          Label='Embpot '
-          Call OneEl(EmbPotKernel,EmbPotMem,Label,ipList,OperI,nComp,   &
-     &               CoorO,nOrdOp,[Zero],rHrmt,OperC,                   &
-     &               dum,1,dum,idum,0,0,                                &
-     &               dum,1,0)
-         end if
-#endif
+PLabel = ' '
+rHrmt = One
+nComp = 1
 
-!        set center selector in OneSwi to two center NA Int...
-         NDDO = .TRUE.
-         Label='AttractS'
-         Call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,               &
-     &              CoorO,nOrdOp,[PotNuc],rHrmt,OperC,                  &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!        reset center selector in OneSwi to all centers...
-         NDDO = .FALSE.
-         If (lECPnp.and..Not.Primitive_Pass) Then
-!
-            Label='PrjInt  '
-            Call OneEl(PrjInt,PrjMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-            Label='M1Int   '
-            Call OneEl(M1Int, M1Mem, Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-            Label='M2Int   '
-            Call OneEl(M2Int, M2Mem, Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-            Label='SROInt  '
-            Call OneEl(SROInt,SROMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If     ! lECPnp
-         If (lPP.and..Not.Primitive_Pass) Then
-            Label='PPInt   '
-            Call OneEl(PPInt,PPMem,Label,ipList,OperI,nComp,            &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If
-         If (Allocated(XF).and..Not.Primitive_Pass) Then
-            mOrdOp=nOrd_XF
-            Label='XFdInt  '
-            Call OneEl(XFdInt,XFdMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,mOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If     ! lXF
-         If (lRel.and..Not.Primitive_Pass) Then
-            Label='MassVel '
-            nOrdOp=4
-            Call OneEl(MVeInt,MVeMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-            Label='Darwin  '
-            nOrdOp=0
-            Call OneEl(D1Int,D1Mem,Label,ipList,OperI,nComp,            &
-     &                 CoorO,nOrdOp,[Zero],rHrmt,OperC,                 &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If     ! lRel
-!
-         Call Deallocate_Auxiliary()
-      End If
+if (.not. Prprt) then
+  call Allocate_Auxiliary()
+  call dcopy_(3,[Zero],0,CoorO,1)
+  OperI(1) = 1
+  OperC(1) = iChBas(1)
+
+  Label = 'Kinetic '
+  nOrdOp = 2
+  call OneEl(KnEInt,KnEMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  nOrdOp = 0
+
+  Label = 'Attract '
+  call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+# ifdef _FDE_
+  ! Embedding
+  if (embPot) then
+    Label = 'Embpot '
+    call OneEl(EmbPotKernel,EmbPotMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+# endif
+
+  ! set center selector in OneSwi to two center NA Int...
+  NDDO = .true.
+  Label = 'AttractS'
+  call OneEl(NAInt,NAMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[PotNuc],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  ! reset center selector in OneSwi to all centers...
+  NDDO = .false.
+  if (lECPnp .and. .not. Primitive_Pass) then
+    Label = 'PrjInt  '
+    call OneEl(PrjInt,PrjMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    Label = 'M1Int   '
+    call OneEl(M1Int,M1Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    Label = 'M2Int   '
+    call OneEl(M2Int,M2Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    Label = 'SROInt  '
+    call OneEl(SROInt,SROMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+  if (lPP .and. .not. Primitive_Pass) then
+    Label = 'PPInt   '
+    call OneEl(PPInt,PPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+  if (allocated(XF) .and. .not. Primitive_Pass) then
+    mOrdOp = nOrd_XF
+    Label = 'XFdInt  '
+    call OneEl(XFdInt,XFdMem,Label,ipList,OperI,nComp,CoorO,mOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+  if (lRel .and. .not. Primitive_Pass) then
+    Label = 'MassVel '
+    nOrdOp = 4
+    call OneEl(MVeInt,MVeMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    Label = 'Darwin  '
+    nOrdOp = 0
+    call OneEl(D1Int,D1Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+
+  call Deallocate_Auxiliary()
+end if
 !***********************************************************************
 !***********************************************************************
 !8a)                                                                   *
@@ -514,32 +425,29 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=-One
-      If (Vlct.and..Not.Primitive_Pass) Then
-         nOrdOp = 1
-         Label='Velocity'
-         nComp = 3
-         Call Allocate_Auxiliary()
-         Call dcopy_(3*nComp,[Zero],0,CoorO,1)
-         ixyz=1
-         OperI(1  ) = 2**IrrFnc(ixyz)
-         OperC(1  ) = iChBas(2)
-         ixyz=2
-         OperI(1+1) = 2**IrrFnc(ixyz)
-         OperC(1+1) = iChBas(3)
-         ixyz=4
-         OperI(1+2) = 2**IrrFnc(ixyz)
-         OperC(1+2) = iChBas(4)
-!
-         Call dcopy_(3,[Zero],0,Nuc,1)
-         Call OneEl(VeInt,VeMem,Label,ipList,OperI,nComp,               &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If    ! Vlct
+PLabel = ' '
+rHrmt = -One
+if (Vlct .and. .not. Primitive_Pass) then
+  nOrdOp = 1
+  Label = 'Velocity'
+  nComp = 3
+  call Allocate_Auxiliary()
+  call dcopy_(3*nComp,[Zero],0,CoorO,1)
+  ixyz = 1
+  OperI(1) = 2**IrrFnc(ixyz)
+  OperC(1) = iChBas(2)
+  ixyz = 2
+  OperI(1+1) = 2**IrrFnc(ixyz)
+  OperC(1+1) = iChBas(3)
+  ixyz = 4
+  OperI(1+2) = 2**IrrFnc(ixyz)
+  OperC(1+2) = iChBas(4)
+
+  call dcopy_(3,[Zero],0,Nuc,1)
+  call OneEl(VeInt,VeMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if    ! Vlct
 !***********************************************************************
 !***********************************************************************
 !8b)                                                                   *
@@ -550,84 +458,78 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=-One ! Note used
-      If (EMFR.and..Not.Primitive_Pass) Then
-!
-!        The second term in eq. 14 of Bernadotte et al
-!
-         nOrdOp = 0
-         Label='EMFR0'
-         nComp = 2
-         Call Allocate_Auxiliary()
-!        Here we put in the k-vector
-         Call FZero(CoorO,3*nComp)
-         Call dcopy_(3,KVector,1,CoorO,1)
-!
-!        The electromagnetic field operator contributes to all
-!        irreducible irreps, hence OperI=255. Since the operator
-!        itself is not symmetry adapted OperC is set to a dummy value.
-!
-         OperI(1   ) = 255
-         OperI(1+1 ) = 255
-         OperC(1   ) = 0 ! Dummy
-         OperC(1+1 ) = 0 ! Dummy
-!
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-!
-!        The first (dominating) term in eq. 14 of Bernadotte et al
-!
-         nOrdOp = 1
-         Label='EMFR'
-         nComp = 12
-         Call Allocate_Auxiliary()
-!        Here we put in the k-vector
-         Call FZero(CoorO,3*nComp)
-         Call dcopy_(3,KVector,1,CoorO,1)
-!
-!        The electromagnetic field operator contributes to all
-!        irreducible irreps, hence OperI=255. Since the operator
-!        itself is not symmetry adapted OperC is set to a dummy value.
-!
-         OperI(1   ) = 255
-         OperI(1+1 ) = 255
-         OperI(1+2 ) = 255
-         OperI(1+3 ) = 255
-         OperI(1+4 ) = 255
-         OperI(1+5 ) = 255
-         OperI(1+6 ) = 255
-         OperI(1+7 ) = 255
-         OperI(1+8 ) = 255
-         OperI(1+9 ) = 255
-         OperI(1+10) = 255
-         OperI(1+11) = 255
-         OperC(1   ) = 0 ! Dummy
-         OperC(1+1 ) = 0 ! Dummy
-         OperC(1+2 ) = 0 ! Dummy
-         OperC(1+3 ) = 0 ! Dummy
-         OperC(1+4 ) = 0 ! Dummy
-         OperC(1+5 ) = 0 ! Dummy
-         OperC(1+6 ) = 0 ! Dummy
-         OperC(1+7 ) = 0 ! Dummy
-         OperC(1+8 ) = 0 ! Dummy
-         OperC(1+9 ) = 0 ! Dummy
-         OperC(1+10) = 0 ! Dummy
-         OperC(1+11) = 0 ! Dummy
-!
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If    ! EMFR
+PLabel = ' '
+rHrmt = -One ! Note used
+if (EMFR .and. .not. Primitive_Pass) then
+
+  ! The second term in eq. 14 of Bernadotte et al
+
+  nOrdOp = 0
+  Label = 'EMFR0'
+  nComp = 2
+  call Allocate_Auxiliary()
+  ! Here we put in the k-vector
+  call FZero(CoorO,3*nComp)
+  call dcopy_(3,KVector,1,CoorO,1)
+
+  ! The electromagnetic field operator contributes to all
+  ! irreducible irreps, hence OperI=255. Since the operator
+  ! itself is not symmetry adapted OperC is set to a dummy value.
+
+  OperI(1) = 255
+  OperI(1+1) = 255
+  OperC(1) = 0 ! Dummy
+  OperC(1+1) = 0 ! Dummy
+
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+
+  ! The first (dominating) term in eq. 14 of Bernadotte et al
+
+  nOrdOp = 1
+  Label = 'EMFR'
+  nComp = 12
+  call Allocate_Auxiliary()
+  ! Here we put in the k-vector
+  call FZero(CoorO,3*nComp)
+  call dcopy_(3,KVector,1,CoorO,1)
+
+  ! The electromagnetic field operator contributes to all
+  ! irreducible irreps, hence OperI=255. Since the operator
+  ! itself is not symmetry adapted OperC is set to a dummy value.
+
+  OperI(1) = 255
+  OperI(1+1) = 255
+  OperI(1+2) = 255
+  OperI(1+3) = 255
+  OperI(1+4) = 255
+  OperI(1+5) = 255
+  OperI(1+6) = 255
+  OperI(1+7) = 255
+  OperI(1+8) = 255
+  OperI(1+9) = 255
+  OperI(1+10) = 255
+  OperI(1+11) = 255
+  OperC(1) = 0 ! Dummy
+  OperC(1+1) = 0 ! Dummy
+  OperC(1+2) = 0 ! Dummy
+  OperC(1+3) = 0 ! Dummy
+  OperC(1+4) = 0 ! Dummy
+  OperC(1+5) = 0 ! Dummy
+  OperC(1+6) = 0 ! Dummy
+  OperC(1+7) = 0 ! Dummy
+  OperC(1+8) = 0 ! Dummy
+  OperC(1+9) = 0 ! Dummy
+  OperC(1+10) = 0 ! Dummy
+  OperC(1+11) = 0 ! Dummy
+
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if    ! EMFR
 !***********************************************************************
 !***********************************************************************
 !9)                                                                    *
@@ -638,149 +540,137 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      ixyz=1
-      iSymX = 2**IrrFnc(ixyz)
-      ixyz=2
-      iSymY = 2**IrrFnc(ixyz)
-      ixyz=4
-      iSymZ = 2**IrrFnc(ixyz)
-      ixyz=3
-      iSymXY = 2**IrrFnc(ixyz)
-      ixyz=5
-      iSymXZ = 2**IrrFnc(ixyz)
-      ixyz=6
-      iSymYZ = 2**IrrFnc(ixyz)
-      ixyz=7
-      iSyXYZ = 2**IrrFnc(ixyz)
-!
-      PLabel=' '
-      rHrmt=One
-      Do nOrdOp = 0, nOrdEF
-!
-         nComp = (nOrdOp+1)*(nOrdOp+2)/2
-!
-         Call Allocate_Auxiliary()
-!
-      Do iEF = 1, nEF
-!
-!        Note that this parsing is a bit different here!
-!
-         Write (Label,'(A,I1,I5)') 'EF',nOrdOp,iEF
-         Ccoor(:)=EF_Centers(:,iEF)
-!
-         iSymR(0) = 1
-         If (Ccoor(1).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymX)
-         If (Ccoor(2).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymY)
-         If (Ccoor(3).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)                   &
-     &      iSymR(0) = iOr(iSymR(0),iSymXY)
-         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)                   &
-     &      iSymR(0) = iOr(iSymR(0),iSymXZ)
-         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)                   &
-     &      iSymR(0) = iOr(iSymR(0),iSymYZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.              &
-     &       Ccoor(3).ne.Zero) iSymR(0) = iOr(iSymR(0),iSyXYZ)
-!
-         ixyz=1
-         iSym=2**IrrFnc(ixyz)
-         If (Ccoor(1).ne.Zero ) iSym = iOr(iSym,1)
-         iSymR(1)=iSym
-!
-         ixyz=2
-         iSym=2**IrrFnc(ixyz)
-         If (Ccoor(2).ne.Zero ) iSym = iOr(iSym,1)
-         iSymR(2)=iSym
-!
-         ixyz=4
-         iSym=2**IrrFnc(ixyz)
-         If (Ccoor(3).ne.Zero ) iSym = iOr(iSym,1)
-         iSymR(3)=iSym
-!
-         iComp=0
-         Do ix = nOrdOp, 0, -1
-            Do iy = nOrdOp-ix, 0, -1
-               iz=nOrdOp-ix-iy
-               iComp = iComp + 1
-!
-               iSymX=1
-               If (Mod(ix,2).ne.0) iSymX=iSymR(1)
-               iSymCX=MltLbl(iSymR(0),iSymX)
-               iSymY=1
-               If (Mod(iy,2).ne.0) iSymY=iSymR(2)
-               iSymCXY=MltLbl(iSymCX,iSymY)
-               iSymZ=1
-               If (Mod(iz,2).ne.0) iSymZ=iSymR(3)
-!
-               OperI(1+(iComp-1)) = MltLbl(iSymCXY,iSymZ)
-               OperC(1+(iComp-1)) = Mod(ix,2)*iChBas(2)                 &
-     &                              + Mod(iy,2)*iChBas(3)               &
-     &                              + Mod(iz,2)*iChBas(4)
-!
-               Call dcopy_(3,Ccoor,1,CoorO(1+(iComp-1)*3),1)
-            End Do
-         End Do
-!
-         Call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
-         Call OneEl(EFInt,EFMem,Label,ipList,OperI,nComp,               &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        For picture-change corrected property integrals.
-!
-         If (DKroll.and.Primitive_Pass) Then
-            Write (Label,'(A,I1,I5)') 'PP',nOrdOp,iEF
-            PLabel='EFInt '
-            Call FZero(Nuc,nComp)
-            Call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,nOrdOp+2,Nuc,rHrmt,OperC,                  &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End Do
-         Call Deallocate_Auxiliary()
-!
-! For a properties calculation, read the EF values saved in a temp file
-! and write the sum through Add_Info
-!
-         If (PrPrt.and.nEF.gt.0) Then
-           Call mma_allocate(PtEl,nComp,label='PtEl')
-           Call mma_allocate(PtNuc,nComp,label='PtNuc')
-           Call mma_allocate(SumEl,nComp,label='SumEl')
-           Call mma_allocate(SumNuc,nComp,label='SumNuc')
-           Call FZero(SumEl,nComp)
-           Call FZero(SumNuc,nComp)
-!          Read and sum the values
-           LuTmp=10
-           Call DaName(LuTmp,'TMPPRP')
-           iDisk=0
-           Do iEf=1,nEF
-             Call dDaFile(LuTmp,2,PtEl,nComp,iDisk)
-             Call dDaFile(LuTmp,2,PtNuc,nComp,iDisk)
-             Call DaXpY_(nComp,One,PtEl,1,SumEl,1)
-             Call DaXpY_(nComp,One,PtNuc,1,SumNuc,1)
-           End Do
-           Call DaClos(LuTmp)
-!          set the tolerance according to the total number of centers
-!          (assuming error scales with sqrt(nEF))
-           iTol=5
-           iTol=iTol-NInt(Half*Log10(Dble(nEF)))
-           Write (label,'(a,i1,a)') 'EF',nOrdOp,'   el'
-           Call Add_Info(label,SumEl,nComp,iTol)
-           Write (label,'(a,i1,a)') 'EF',nOrdOp,'  nuc'
-           Call Add_Info(label,SumNuc,nComp,iTol)
-           Call mma_deallocate(PtEl)
-           Call mma_deallocate(PtNuc)
-           Call mma_deallocate(SumEl)
-           Call mma_deallocate(SumNuc)
-         End If
-!
-      End Do
+ixyz = 1
+iSymX = 2**IrrFnc(ixyz)
+ixyz = 2
+iSymY = 2**IrrFnc(ixyz)
+ixyz = 4
+iSymZ = 2**IrrFnc(ixyz)
+ixyz = 3
+iSymXY = 2**IrrFnc(ixyz)
+ixyz = 5
+iSymXZ = 2**IrrFnc(ixyz)
+ixyz = 6
+iSymYZ = 2**IrrFnc(ixyz)
+ixyz = 7
+iSyXYZ = 2**IrrFnc(ixyz)
+
+PLabel = ' '
+rHrmt = One
+do nOrdOp=0,nOrdEF
+
+  nComp = (nOrdOp+1)*(nOrdOp+2)/2
+
+  call Allocate_Auxiliary()
+
+  do iEF=1,nEF
+
+    ! Note that this parsing is a bit different here!
+
+    write(Label,'(A,I1,I5)') 'EF',nOrdOp,iEF
+    Ccoor(:) = EF_Centers(:,iEF)
+
+    iSymR(0) = 1
+    if (Ccoor(1) /= Zero) iSymR(0) = ior(iSymR(0),iSymX)
+    if (Ccoor(2) /= Zero) iSymR(0) = ior(iSymR(0),iSymY)
+    if (Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSymZ)
+    if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero) iSymR(0) = ior(iSymR(0),iSymXY)
+    if (Ccoor(1) /= Zero .and. Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSymXZ)
+    if (Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSymYZ)
+    if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSyXYZ)
+
+    ixyz = 1
+    iSym = 2**IrrFnc(ixyz)
+    if (Ccoor(1) /= Zero) iSym = ior(iSym,1)
+    iSymR(1) = iSym
+
+    ixyz = 2
+    iSym = 2**IrrFnc(ixyz)
+    if (Ccoor(2) /= Zero) iSym = ior(iSym,1)
+    iSymR(2) = iSym
+
+    ixyz = 4
+    iSym = 2**IrrFnc(ixyz)
+    if (Ccoor(3) /= Zero) iSym = ior(iSym,1)
+    iSymR(3) = iSym
+
+    iComp = 0
+    do ix=nOrdOp,0,-1
+      do iy=nOrdOp-ix,0,-1
+        iz = nOrdOp-ix-iy
+        iComp = iComp+1
+
+        iSymX = 1
+        if (mod(ix,2) /= 0) iSymX = iSymR(1)
+        iSymCX = MltLbl(iSymR(0),iSymX)
+        iSymY = 1
+        if (mod(iy,2) /= 0) iSymY = iSymR(2)
+        iSymCXY = MltLbl(iSymCX,iSymY)
+        iSymZ = 1
+        if (mod(iz,2) /= 0) iSymZ = iSymR(3)
+
+        OperI(1+(iComp-1)) = MltLbl(iSymCXY,iSymZ)
+        OperC(1+(iComp-1)) = mod(ix,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz,2)*iChBas(4)
+
+        call dcopy_(3,Ccoor,1,CoorO(1+(iComp-1)*3),1)
+      end do
+    end do
+
+    call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
+    call OneEl(EFInt,EFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! For picture-change corrected property integrals.
+
+    if (DKroll .and. Primitive_Pass) then
+      write(Label,'(A,I1,I5)') 'PP',nOrdOp,iEF
+      PLabel = 'EFInt '
+      call FZero(Nuc,nComp)
+      call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  end do
+  call Deallocate_Auxiliary()
+
+  ! For a properties calculation, read the EF values saved in a temp file
+  ! and write the sum through Add_Info
+
+  if (PrPrt .and. nEF > 0) then
+    call mma_allocate(PtEl,nComp,label='PtEl')
+    call mma_allocate(PtNuc,nComp,label='PtNuc')
+    call mma_allocate(SumEl,nComp,label='SumEl')
+    call mma_allocate(SumNuc,nComp,label='SumNuc')
+    call FZero(SumEl,nComp)
+    call FZero(SumNuc,nComp)
+    ! Read and sum the values
+    LuTmp = 10
+    call DaName(LuTmp,'TMPPRP')
+    iDisk = 0
+    do iEf=1,nEF
+      call dDaFile(LuTmp,2,PtEl,nComp,iDisk)
+      call dDaFile(LuTmp,2,PtNuc,nComp,iDisk)
+      call DaXpY_(nComp,One,PtEl,1,SumEl,1)
+      call DaXpY_(nComp,One,PtNuc,1,SumNuc,1)
+    end do
+    call DaClos(LuTmp)
+    ! set the tolerance according to the total number of centers
+    ! (assuming error scales with sqrt(nEF))
+    iTol = 5
+    iTol = iTol-nint(Half*log10(dble(nEF)))
+    write(label,'(a,i1,a)') 'EF',nOrdOp,'   el'
+    call Add_Info(label,SumEl,nComp,iTol)
+    write(label,'(a,i1,a)') 'EF',nOrdOp,'  nuc'
+    call Add_Info(label,SumNuc,nComp,iTol)
+    call mma_deallocate(PtEl)
+    call mma_deallocate(PtNuc)
+    call mma_deallocate(SumEl)
+    call mma_deallocate(SumNuc)
+  end if
+
+end do
 !***********************************************************************
 !***********************************************************************
 !12)                                                                   *
@@ -789,51 +679,48 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=-One
-      If (Allocated(OAM_Center).and..Not.Primitive_Pass) Then
-         Label='AngMom  '
-         nComp = 3
-         nOrdOp = 2
-         Call Allocate_Auxiliary()
-         Call dcopy_(3,OAM_Center,1,CoorO(1  ),1)
-         Call dcopy_(3,OAM_Center,1,CoorO(1+3),1)
-         Call dcopy_(3,OAM_Center,1,CoorO(1+6),1)
-         Call dcopy_(3,OAM_Center,1,Ccoor,1)
-         ixyz=1
-         iSymX = 2**IrrFnc(ixyz)
-         ixyz=2
-         iSymY = 2**IrrFnc(ixyz)
-         ixyz=4
-         iSymZ = 2**IrrFnc(ixyz)
-         iSymCx = iSymX
-         If (Ccoor(1).ne.Zero) iSymCx = iOr(iSymCx,1)
-         iSymCy = iSymY
-         If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
-         iSymCz = iSymZ
-         If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
-!
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
-         iChOx = iChBas(3) + iChBas(4)
-         OperI(1  ) = iSymLx
-         OperC(1  ) = iChOx
-         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
-         iChOy = iChBas(4) + iChBas(2)
-         OperI(1+1) = iSymLy
-         OperC(1+1) = iChOy
-         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
-         iChOz = iChBas(2) + iChBas(3)
-         OperI(1+2) = iSymLz
-         OperC(1+2) = iChOz
-!
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(OAMInt,OAMMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If   ! lOAM
+PLabel = ' '
+rHrmt = -One
+if (allocated(OAM_Center) .and. .not. Primitive_Pass) then
+  Label = 'AngMom  '
+  nComp = 3
+  nOrdOp = 2
+  call Allocate_Auxiliary()
+  call dcopy_(3,OAM_Center,1,CoorO(1),1)
+  call dcopy_(3,OAM_Center,1,CoorO(1+3),1)
+  call dcopy_(3,OAM_Center,1,CoorO(1+6),1)
+  call dcopy_(3,OAM_Center,1,Ccoor,1)
+  ixyz = 1
+  iSymX = 2**IrrFnc(ixyz)
+  ixyz = 2
+  iSymY = 2**IrrFnc(ixyz)
+  ixyz = 4
+  iSymZ = 2**IrrFnc(ixyz)
+  iSymCx = iSymX
+  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  iSymCy = iSymY
+  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  iSymCz = iSymZ
+  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+
+  iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
+  iChOx = iChBas(3)+iChBas(4)
+  OperI(1) = iSymLx
+  OperC(1) = iChOx
+  iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
+  iChOy = iChBas(4)+iChBas(2)
+  OperI(1+1) = iSymLy
+  OperC(1+1) = iChOy
+  iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
+  iChOz = iChBas(2)+iChBas(3)
+  OperI(1+2) = iSymLz
+  OperC(1+2) = iChOz
+
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(OAMInt,OAMMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if   ! OAM_Center
 !***********************************************************************
 !***********************************************************************
 !12b)                                                                  *
@@ -843,62 +730,59 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=-One
-      If (Vlct.and.(S%nMltpl.ge.2).and..Not.Primitive_Pass) Then
-         Label='MLTPV  2'
-         nComp = 6
-         nOrdOp = 2
-         Call Allocate_Auxiliary()
-!
-!        Use origin for quadrupole moment
-         Call DCopy_(nComp,Coor_MPM(1,3),0,CoorO(1  ),3)
-         Call DCopy_(nComp,Coor_MPM(2,3),0,CoorO(1+1),3)
-         Call DCopy_(nComp,Coor_MPM(3,3),0,CoorO(1+2),3)
-         Call dCopy_(3,Coor_MPM(1,3),1,Ccoor,1)
-!
-         ixyz=1
-         iSymX = 2**IrrFnc(ixyz)
-         ixyz=2
-         iSymY = 2**IrrFnc(ixyz)
-         ixyz=4
-         iSymZ = 2**IrrFnc(ixyz)
-         iSymCx = iSymX
-         If (Ccoor(1).ne.Zero) iSymCx = iOr(iSymCx,1)
-         iSymCy = iSymY
-         If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
-         iSymCz = iSymZ
-         If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
-!
-! Calculates QpV_ij = r_i*p_j+p_i*r_j (or rater p -> nabla)
-!
-! QpVxx
-         OperI(1  ) = MltLbl(iSymCx,iSymX)
-         OperC(1  ) = iChBas(2)
-! QpVxy
-         OperI(1+1) = MltLbl(iSymCx,iSymY)
-         OperC(1+1) = iChBas(2) + iChBas(3)
-! QpVxz
-         OperI(1+2) = MltLbl(iSymCx,iSymZ)
-         OperC(1+2) = iChBas(2) + iChBas(4)
-! QpVyy
-         OperI(1+3) = MltLbl(iSymCy,iSymY)
-         OperC(1+3) = iChBas(3)
-! QpVyz
-         OperI(1+4) = MltLbl(iSymCy,iSymZ)
-         OperC(1+4) = iChBas(3) + iChBas(4)
-! QpVzz
-         OperI(1+5) = MltLbl(iSymCz,iSymZ)
-         OperC(1+5) = iChBas(4)
-!
-         Call DCopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(QpVInt,QpVMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If   ! Vlct.and.(S%nMltpl.ge.2)
+PLabel = ' '
+rHrmt = -One
+if (Vlct .and. (S%nMltpl >= 2) .and. .not. Primitive_Pass) then
+  Label = 'MLTPV  2'
+  nComp = 6
+  nOrdOp = 2
+  call Allocate_Auxiliary()
+
+  ! Use origin for quadrupole moment
+  call DCopy_(nComp,Coor_MPM(1,3),0,CoorO(1),3)
+  call DCopy_(nComp,Coor_MPM(2,3),0,CoorO(1+1),3)
+  call DCopy_(nComp,Coor_MPM(3,3),0,CoorO(1+2),3)
+  call dCopy_(3,Coor_MPM(1,3),1,Ccoor,1)
+
+  ixyz = 1
+  iSymX = 2**IrrFnc(ixyz)
+  ixyz = 2
+  iSymY = 2**IrrFnc(ixyz)
+  ixyz = 4
+  iSymZ = 2**IrrFnc(ixyz)
+  iSymCx = iSymX
+  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  iSymCy = iSymY
+  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  iSymCz = iSymZ
+  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+
+  ! Calculates QpV_ij = r_i*p_j+p_i*r_j (or rater p -> nabla)
+
+  ! QpVxx
+  OperI(1) = MltLbl(iSymCx,iSymX)
+  OperC(1) = iChBas(2)
+  ! QpVxy
+  OperI(1+1) = MltLbl(iSymCx,iSymY)
+  OperC(1+1) = iChBas(2)+iChBas(3)
+  ! QpVxz
+  OperI(1+2) = MltLbl(iSymCx,iSymZ)
+  OperC(1+2) = iChBas(2)+iChBas(4)
+  ! QpVyy
+  OperI(1+3) = MltLbl(iSymCy,iSymY)
+  OperC(1+3) = iChBas(3)
+  ! QpVyz
+  OperI(1+4) = MltLbl(iSymCy,iSymZ)
+  OperC(1+4) = iChBas(3)+iChBas(4)
+  ! QpVzz
+  OperI(1+5) = MltLbl(iSymCz,iSymZ)
+  OperC(1+5) = iChBas(4)
+
+  call DCopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(QpVInt,QpVMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if   ! Vlct .and. (S%nMltpl > 2)
 !***********************************************************************
 !***********************************************************************
 !12c)                                                                  *
@@ -907,157 +791,143 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=-One
-      If (Allocated(OMQ_Center).and..Not.Primitive_Pass) Then
-         Label='OMQ     '
-         nComp = 9
-         nOrdOp = 3
-         Call Allocate_Auxiliary()
-!
-         Call dcopy_(nComp,[OMQ_Center(1)],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[OMQ_Center(2)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[OMQ_Center(3)],0,CoorO(1+2),3)
-         Ccoor(:)=OMQ_Center(:)
-!
-         ixyz=1
-         iSymX = 2**IrrFnc(ixyz)
-         ixyz=2
-         iSymY = 2**IrrFnc(ixyz)
-         ixyz=4
-         iSymZ = 2**IrrFnc(ixyz)
-         iSymCx = iSymX
-         If (Ccoor(1).ne.Zero) iSymCx = iOr(iSymCx,1)
-         iSymCy = iSymY
-         If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
-         iSymCz = iSymZ
-         If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
-!
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
-         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
-         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
-!
-! Calculates M_ij = r_j*L_i + L_i*r_j = 2*r_j*L_i + i hbar E_ijk r_k
-! Since the i hbar is included outside we could do
-! M_ij = r_j*L_i + L_i*r_j = 2*r_j*L_i + E_ijk r_k
-! We use all nine components even if we only need 6 of these later.
-!
-! Mxx
-         iSymxLx = MltLbl(iSymCx,iSymLx)
-         iChOxx = iChBas(15)
-         OperI(1  ) = iSymxLx
-         OperC(1  ) = iChOxx
-! Mxy
-         iSymxLy = iSymCz
-         iChOxy = iChBas(4)
-         OperI(1+1) = iSymxLy
-         OperC(1+1) = iChOxy
-! Mxz
-         iSymxLz = iSymCy
-         iChOxz = iChBas(3)
-         OperI(1+2) = iSymxLz
-         OperC(1+2) = iChOxz
-! Myx
-         iSymyLx = iSymCz
-         iChOyx = iChBas(4)
-         OperI(1+3) = iSymyLx
-         OperC(1+3) = iChOyx
-! Myy
-         iSymyLy = MltLbl(iSymCy,iSymLy)
-         iChOyy = iChBas(15)
-         OperI(1+4) = iSymyLy
-         OperC(1+4) = iChOyy
-! Myz
-         iSymyLz = iSymCx
-         iChOyz = iChBas(4)
-         OperI(1+5) = iSymyLz
-         OperC(1+5) = iChOyz
-! Mzx
-         iSymzLx = iSymCy
-         iChOzx = iChBas(3)
-         OperI(1+6) = iSymzLx
-         OperC(1+6) = iChOzx
-! Mzy
-         iSymzLy = iSymCx
-         iChOzy = iChBas(4)
-         OperI(1+7) = iSymzLy
-         OperC(1+7) = iChOzy
-! Mzz
-         iSymzLz = MltLbl(iSymCz,iSymLz)
-         iChOzz = iChBas(15)
-         OperI(1+8) = iSymzLz
-         OperC(1+8) = iChOzz
-!
-         Call DCopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(OMQInt,OMQMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If   ! lOMQ
+PLabel = ' '
+rHrmt = -One
+if (allocated(OMQ_Center) .and. .not. Primitive_Pass) then
+  Label = 'OMQ     '
+  nComp = 9
+  nOrdOp = 3
+  call Allocate_Auxiliary()
+
+  call dcopy_(nComp,[OMQ_Center(1)],0,CoorO(1),3)
+  call dcopy_(nComp,[OMQ_Center(2)],0,CoorO(1+1),3)
+  call dcopy_(nComp,[OMQ_Center(3)],0,CoorO(1+2),3)
+  Ccoor(:) = OMQ_Center(:)
+
+  ixyz = 1
+  iSymX = 2**IrrFnc(ixyz)
+  ixyz = 2
+  iSymY = 2**IrrFnc(ixyz)
+  ixyz = 4
+  iSymZ = 2**IrrFnc(ixyz)
+  iSymCx = iSymX
+  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  iSymCy = iSymY
+  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  iSymCz = iSymZ
+  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+
+  iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
+  iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
+  iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
+
+  ! Calculates M_ij = r_j*L_i + L_i*r_j = 2*r_j*L_i + i hbar E_ijk r_k
+  ! Since the i hbar is included outside we could do
+  ! M_ij = r_j*L_i + L_i*r_j = 2*r_j*L_i + E_ijk r_k
+  ! We use all nine components even if we only need 6 of these later.
+
+  ! Mxx
+  iSymxLx = MltLbl(iSymCx,iSymLx)
+  iChOxx = iChBas(15)
+  OperI(1) = iSymxLx
+  OperC(1) = iChOxx
+  ! Mxy
+  iSymxLy = iSymCz
+  iChOxy = iChBas(4)
+  OperI(1+1) = iSymxLy
+  OperC(1+1) = iChOxy
+  ! Mxz
+  iSymxLz = iSymCy
+  iChOxz = iChBas(3)
+  OperI(1+2) = iSymxLz
+  OperC(1+2) = iChOxz
+  ! Myx
+  iSymyLx = iSymCz
+  iChOyx = iChBas(4)
+  OperI(1+3) = iSymyLx
+  OperC(1+3) = iChOyx
+  ! Myy
+  iSymyLy = MltLbl(iSymCy,iSymLy)
+  iChOyy = iChBas(15)
+  OperI(1+4) = iSymyLy
+  OperC(1+4) = iChOyy
+  ! Myz
+  iSymyLz = iSymCx
+  iChOyz = iChBas(4)
+  OperI(1+5) = iSymyLz
+  OperC(1+5) = iChOyz
+  ! Mzx
+  iSymzLx = iSymCy
+  iChOzx = iChBas(3)
+  OperI(1+6) = iSymzLx
+  OperC(1+6) = iChOzx
+  ! Mzy
+  iSymzLy = iSymCx
+  iChOzy = iChBas(4)
+  OperI(1+7) = iSymzLy
+  OperC(1+7) = iChOzy
+  ! Mzz
+  iSymzLz = MltLbl(iSymCz,iSymLz)
+  iChOzz = iChBas(15)
+  OperI(1+8) = iSymzLz
+  OperC(1+8) = iChOzz
+
+  call DCopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(OMQInt,OMQMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if   ! OMQ_Center
 !***********************************************************************
 !***********************************************************************
 !13)                                                                   *
 !                                                                      *
-!                                                                      *
-!                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (DKroll.and.Primitive_Pass) then
-         rHrmt=One
-         Label='pVp     '
-         PLabel='NAInt '
-         nOrdOp=2
-         nComp = 1
-         Call Allocate_Auxiliary()
-         Call dcopy_(3,[Zero],0,CoorO,1)
-         OperI(1  ) = 1
-         OperC(1  ) = iChBas(1)
+if (DKroll .and. Primitive_Pass) then
+  rHrmt = One
+  Label = 'pVp     '
+  PLabel = 'NAInt '
+  nOrdOp = 2
+  nComp = 1
+  call Allocate_Auxiliary()
+  call dcopy_(3,[Zero],0,CoorO,1)
+  OperI(1) = 1
+  OperC(1) = iChBas(1)
 
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
 
-         Call Deallocate_Auxiliary()
-!
-         If (BSS) Then
-            rHrmt=-One
-            nOrdOp = 1
-            nComp = 3
-            Call Allocate_Auxiliary()
-!
-            Call dcopy_(3*nComp,[Zero],0,CoorO,1)
-            Call dcopy_(3,[Zero],0,Nuc,1)
-!
-            ixyz=1
-            OperI(1  ) = 2**IrrFnc(ixyz)
-            OperC(1  ) = iChBas(2)
-            ixyz=2
-            OperI(1+1) = 2**IrrFnc(ixyz)
-            OperC(1+1) = iChBas(3)
-            ixyz=4
-            OperI(1+2) = 2**IrrFnc(ixyz)
-            OperC(1+2) = iChBas(4)
-!
-            Label='pV      '
-            PLabel='NAInt '
-            Call OneEl(PXInt,PXMem,Label,ipList,OperI,nComp,            &
-     &                 CoorO,nOrdOp,Nuc,rHrmt,OperC,                    &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-!
-            Label='Vp      '
-            Call OneEl(VPInt,VPMem,Label,ipList,OperI,nComp,            &
-     &                 CoorO,nOrdOp,Nuc,rHrmt,OperC,                    &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-!
-            Call Deallocate_Auxiliary()
-         End If    ! BSSInt
-      End If
+  call Deallocate_Auxiliary()
+
+  if (BSS) then
+    rHrmt = -One
+    nOrdOp = 1
+    nComp = 3
+    call Allocate_Auxiliary()
+
+    call dcopy_(3*nComp,[Zero],0,CoorO,1)
+    call dcopy_(3,[Zero],0,Nuc,1)
+
+    ixyz = 1
+    OperI(1) = 2**IrrFnc(ixyz)
+    OperC(1) = iChBas(2)
+    ixyz = 2
+    OperI(1+1) = 2**IrrFnc(ixyz)
+    OperC(1+1) = iChBas(3)
+    ixyz = 4
+    OperI(1+2) = 2**IrrFnc(ixyz)
+    OperC(1+2) = iChBas(4)
+
+    Label = 'pV      '
+    PLabel = 'NAInt '
+    call OneEl(PXInt,PXMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+    Label = 'Vp      '
+    call OneEl(VPInt,VPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+    call Deallocate_Auxiliary()
+  end if    ! BSS
+end if
 !***********************************************************************
 !***********************************************************************
 !14)                                                                   *
@@ -1066,83 +936,76 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=One
-!
-      mDMS=nDMS
-      If (Primitive_Pass) mDMS=0
-!
-      Do 1500 iDMS = 1, mDMS
-         Write (Label,'(A,I2,I2)') 'DMS ',1,iDMS
-         nComp = 9
-         nOrdOp=2
-         CCoor(:)=DMS_Centers(:,iDMS)
-         Call Allocate_Auxiliary()
-         iSymC = 1
-         If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
-         If (Ccoor(2).ne.Zero) iSymC = iOr(iSymC,iSymY)
-         If (Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSymZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)                   &
-     &      iSymC = iOr(iSymC,iSymXY)
-         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)                   &
-     &      iSymC = iOr(iSymC,iSymXZ)
-         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)                   &
-     &      iSymC = iOr(iSymC,iSymYZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.              &
-     &       Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSyXYZ)
-!
-         iComp = 0
-         iC = 0
-         Do 1510 ix = 1, 0, -1
-         Do 1511 iy = 1-ix, 0, -1
-            iz=1-ix-iy
-            iC = iC + 1
-            iChO1 = iChBas(iC+1)
-            ixyz=0
-            If (Mod(ix,2).ne.0) ixyz=iOr(ixyz,1)
-            If (Mod(iy,2).ne.0) ixyz=iOr(ixyz,2)
-            If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
-            iSym = 2**IrrFnc(ixyz)
-            If (Ccoor(iC).ne.Zero) iSym = iOr(iSym,1)
-            iD = 0
-            Do 1512 jx = 1, 0, -1
-            Do 1513 jy = 1-jx, 0, -1
-               jz=1-jx-jy
-               iD = iD + 1
-               iChO2 = iChBas(iD+1)
-               jxyz=0
-               If (Mod(jx,2).ne.0) jxyz=iOr(jxyz,1)
-               If (Mod(jy,2).ne.0) jxyz=iOr(jxyz,2)
-               If (Mod(jz,2).ne.0) jxyz=iOr(jxyz,4)
-               iSymD = 2**IrrFnc(jxyz)
-               If (Dxyz(iD).ne.Zero) iSymD = iOr(iSymD,1)
-               If (iC.eq.iD) Then
-                  i2 = iD + 1
-                  If (i2.gt.3) i2 = i2 - 3
-                  i3 = iD + 2
-                  If (i3.gt.3) i3 = i3 - 3
-                  iChO = iAnd(iChBas(i2+1),iChBas(i3+1))
-               Else
-                  iChO = iOr(iChO1,iChO2)
-               End If
-               OperI(1+iComp) = MltLbl(iSymD,MltLbl(iSym,iSymC))
-               OperC(1+iComp) = iChO
-               Call dcopy_(3,Ccoor,1,CoorO(1+iComp*3),1)
-               iComp = iComp + 1
- 1513       Continue
- 1512       Continue
- 1511    Continue
- 1510    Continue
-         Call dcopy_(3,Dxyz,1,CoorO(1+3),1)
-!
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(DMSInt,DMSMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-1500  Continue
+PLabel = ' '
+rHrmt = One
+
+mDMS = nDMS
+if (Primitive_Pass) mDMS = 0
+
+do iDMS=1,mDMS
+  write(Label,'(A,I2,I2)') 'DMS ',1,iDMS
+  nComp = 9
+  nOrdOp = 2
+  CCoor(:) = DMS_Centers(:,iDMS)
+  call Allocate_Auxiliary()
+  iSymC = 1
+  if (Ccoor(1) /= Zero) iSymC = ior(iSymC,iSymX)
+  if (Ccoor(2) /= Zero) iSymC = ior(iSymC,iSymY)
+  if (Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymZ)
+  if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero) iSymC = ior(iSymC,iSymXY)
+  if (Ccoor(1) /= Zero .and. Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymXZ)
+  if (Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymYZ)
+  if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymC = ior(iSymC,iSyXYZ)
+
+  iComp = 0
+  iC = 0
+  do ix=1,0,-1
+    do iy=1-ix,0,-1
+      iz = 1-ix-iy
+      iC = iC+1
+      iChO1 = iChBas(iC+1)
+      ixyz = 0
+      if (mod(ix,2) /= 0) ixyz = ior(ixyz,1)
+      if (mod(iy,2) /= 0) ixyz = ior(ixyz,2)
+      if (mod(iz,2) /= 0) ixyz = ior(ixyz,4)
+      iSym = 2**IrrFnc(ixyz)
+      if (Ccoor(iC) /= Zero) iSym = ior(iSym,1)
+      iD = 0
+      do jx=1,0,-1
+        do jy=1-jx,0,-1
+          jz = 1-jx-jy
+          iD = iD+1
+          iChO2 = iChBas(iD+1)
+          jxyz = 0
+          if (mod(jx,2) /= 0) jxyz = ior(jxyz,1)
+          if (mod(jy,2) /= 0) jxyz = ior(jxyz,2)
+          if (mod(jz,2) /= 0) jxyz = ior(jxyz,4)
+          iSymD = 2**IrrFnc(jxyz)
+          if (Dxyz(iD) /= Zero) iSymD = ior(iSymD,1)
+          if (iC == iD) then
+            i2 = iD+1
+            if (i2 > 3) i2 = i2-3
+            i3 = iD+2
+            if (i3 > 3) i3 = i3-3
+            iChO = iand(iChBas(i2+1),iChBas(i3+1))
+          else
+            iChO = ior(iChO1,iChO2)
+          end if
+          OperI(1+iComp) = MltLbl(iSymD,MltLbl(iSym,iSymC))
+          OperC(1+iComp) = iChO
+          call dcopy_(3,Ccoor,1,CoorO(1+iComp*3),1)
+          iComp = iComp+1
+        end do
+      end do
+    end do
+  end do
+  call dcopy_(3,Dxyz,1,CoorO(1+3),1)
+
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(DMSInt,DMSMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end do
 !***********************************************************************
 !***********************************************************************
 !15)                                                                   *
@@ -1151,9 +1014,9 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=One
-      Label='Center  '
+PLabel = ' '
+rHrmt = One
+Label = 'Center  '
 !***********************************************************************
 !***********************************************************************
 !16)                                                                   *
@@ -1162,26 +1025,23 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=One
-      If (.Not.Prprt.and..Not.Primitive_Pass) Then
-         nComp=1
-         iWel = 0
-         Call Allocate_Auxiliary()
-         Call dcopy_(3,[Zero],0,CoorO,1)
-         OperI(1) = 1
-         OperC(1) = iChBas(1)
-         Do 1600 iWel = 1, nWel
-            r0   = Wel_Info(1,iWel)
-            ExpB = Wel_Info(2,iWel)
-            Write (Label,'(A,I4)') 'Well',iWel
-            Call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,          &
-     &                 CoorO,iWel,[Zero],rHrmt,OperC,                   &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
- 1600    Continue
-         Call Deallocate_Auxiliary()
-      End If  ! .Not.Prprt
+PLabel = ' '
+rHrmt = One
+if (.not. Prprt .and. .not. Primitive_Pass) then
+  nComp = 1
+  iWel = 0
+  call Allocate_Auxiliary()
+  call dcopy_(3,[Zero],0,CoorO,1)
+  OperI(1) = 1
+  OperC(1) = iChBas(1)
+  do iWel=1,nWel
+    r0 = Wel_Info(1,iWel)
+    ExpB = Wel_Info(2,iWel)
+    write(Label,'(A,I4)') 'Well',iWel
+    call OneEl(WelInt,WelMem,Label,ipList,OperI,nComp,CoorO,iWel,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end do
+  call Deallocate_Auxiliary()
+end if  ! .not. Prprt
 !***********************************************************************
 !***********************************************************************
 !5)                                                                    *
@@ -1190,210 +1050,183 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (.Not.Prprt.and..Not.Primitive_Pass) Then
-         Call mma_allocate(KnE_Int,n2Tri(1)+4,label='KnE_Int')
-         Call mma_allocate(NA_Int,n2Tri(1)+4,label='NA_Int')
-#ifdef _FDE_
-         ! Embedding
-         if (embpot) Call mma_allocate(Emb_Int,n2Tri(1)+4,              &
-     &                                 label='Emb_Int')
-#endif
-         iOpt = 0
-         lOper = 0
-         iRC = -1
-         Label='Kinetic '
-         Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-         If (iRC.ne.0) then
-            Call WarningMessage(2,                                      &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-            Call Quit(_RC_IO_ERROR_READ_)
-         End If
-         Label='Attract '
-         lOper = 0
-         iRC = -1
-         Call RdOne(iRC,iOpt,Label,1,NA_Int,lOper)
-         If (iRC.ne.0) then
-            Call WarningMessage(2,                                      &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-            Call Quit(_RC_IO_ERROR_READ_)
-         End If
-         Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-#ifdef _FDE_
-         ! Embedding
-         if (embpot) then
-          if (embPotInBasis) then
-!           write(*,*) "ENTER"
-           ! If the potential is given in basis set representation it
-           ! has not been calculated with a OneEl call and is just read
-           ! from file here.
-           iunit = isFreeUnit(1)
-           call molcas_open(iunit, embPotPath)
-           do iEmb=1, n2Tri(1)
-            read(iunit,*) Emb_Int(iEmb)
-!            write(*,*) iEmb-1, ": ", Emb_Int(iEmb)
-           end do
-           close(iunit)
-          else
-           Label='embpot  '
-           lOper = 0
-           iRC=-1
-           Call RdOne(iRC,iOpt,Label,1,Emb_Int,lOper)
-           If (iRC.ne.0) then
-              Call WarningMessage(2,                                    &
-     &                    'Drv1El: Error reading ONEINT;'               &
-     &                  //'Label='//Label)
-              Call Quit(_RC_IO_ERROR_READ_)
-           End If
-          end if
-          Call DaXpY_(n2Tri(1)+4,One,Emb_Int,1,NA_Int,1)
-         end if
-#endif
-!
-!--------Add contribution from ECP
-!
-         If (lECPnp) Then
-            Label='PrjInt  '
-            lOper = 0
-            iRC = -1
-            Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-               Call Quit(_RC_IO_ERROR_READ_)
-            End If
-            Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-            Label='M1Int   '
-            lOper = 0
-            iRC = -1
-            Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-               Call Quit(_RC_IO_ERROR_READ_)
-            End If
-            Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-            Label='M2Int   '
-            lOper = 0
-            iRC = -1
-            Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-               Call Quit(_RC_IO_ERROR_READ_)
-            End If
-            Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-            Label='SROInt  '
-            lOper = 0
-            iRC = -1
-            Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-               Call Quit(_RC_IO_ERROR_READ_)
-            End If
-            Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-         End If   ! lECPnp
-!
-!--------Add contributions from the Pseudo Potential
-!
-         If (lPP) Then
-            Label='PPInt   '
-            lOper = 0
-            iRC = -1
-            Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-               Call Quit(_RC_IO_ERROR_READ_)
-            End If
-            Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-         End If
-!
-!--------Add contributions from the external field
-!
-         If (Allocated(XF)) Then
-            Label='XFdInt  '
-            lOper = 0
-            iRC = -1
-            Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-            If (iRC.ne.0) then
-               Call WarningMessage(2,                                   &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-               Call Quit(_RC_IO_ERROR_READ_)
-            End If
-            Call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
-         End If ! lXF
-!
-!--------Add contributions from Spherical wells
-!
-         If (nWel.ne.0) Then
-            Do iWel = 1, nWel
-               Fact=Wel_Info(3,iWel)
-               Write (Label,'(A,I4)') 'Well',iWel
-               lOper = 0
-               iRC = -1
-               Call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
-               If (iRC.ne.0) then
-                  Call WarningMessage(2,                                &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-                  Call Quit(_RC_IO_ERROR_READ_)
-               End If
-               Call DaXpY_(n2Tri(1)+4,Fact,KnE_Int,1,NA_Int,1)
-            End Do
-         End If  ! nWel.ne.0
-!
-         Label='OneHam  '
-         If (iPrint.ge.10) Call PrMtrx(Label,[lOper],1,[1],NA_Int)
-         iRC = -1
-         Call WrOne(iRC,iOpt,Label,1,NA_Int,lOper)
-         If (iRC.ne.0) then
-            Call WarningMessage(2,                                      &
-     &                  'Drv1El: Error writing ONEINT;'                 &
-     &                //'Label='//Label)
-            Call Quit(_RC_IO_ERROR_WRITE_)
-         End If
+if (.not. Prprt .and. .not. Primitive_Pass) then
+  call mma_allocate(KnE_Int,n2Tri(1)+4,label='KnE_Int')
+  call mma_allocate(NA_Int,n2Tri(1)+4,label='NA_Int')
+# ifdef _FDE_
+  ! Embedding
+  if (embpot) call mma_allocate(Emb_Int,n2Tri(1)+4,label='Emb_Int')
+# endif
+  iOpt = 0
+  lOper = 0
+  iRC = -1
+  Label = 'Kinetic '
+  call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_READ_)
+  end if
+  Label = 'Attract '
+  lOper = 0
+  iRC = -1
+  call RdOne(iRC,iOpt,Label,1,NA_Int,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_READ_)
+  end if
+  call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+# ifdef _FDE_
+  ! Embedding
+  if (embpot) then
+    if (embPotInBasis) then
+      !write(6,*) "ENTER"
+      ! If the potential is given in basis set representation it
+      ! has not been calculated with a OneEl call and is just read
+      ! from file here.
+      iunit = isFreeUnit(1)
+      call molcas_open(iunit,embPotPath)
+      do iEmb=1,n2Tri(1)
+        read(iunit,*) Emb_Int(iEmb)
+        !write(6,*) iEmb-1, ": ", Emb_Int(iEmb)
+      end do
+      close(iunit)
+    else
+      Label = 'embpot  '
+      lOper = 0
+      iRC = -1
+      call RdOne(iRC,iOpt,Label,1,Emb_Int,lOper)
+      if (iRC /= 0) then
+        call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+        call Quit(_RC_IO_ERROR_READ_)
+      end if
+    end if
+    call DaXpY_(n2Tri(1)+4,One,Emb_Int,1,NA_Int,1)
+  end if
+# endif
 
-#ifdef _FDE_
-         ! Embedding
-         if (embpot) then
-          Label='embpot  '
-          iRC = -1
-          Call WrOne(iRC,iOpt,Label,1,embInt,lOper)
-          If (iRC.ne.0) then
-             Call WarningMessage(2,                                     &
-     &                   'Drv1El: Error writing ONEINT;'                &
-     &                 //'Label='//Label)
-             Call Quit(_RC_IO_ERROR_WRITE_)
-          End If
-         end if
-#endif
-!
-         Label='OneHam 0'
-         iRC = -1
-         Call WrOne(iRC,iOpt,Label,1,NA_Int,lOper)
-         If (iRC.ne.0) then
-            Call WarningMessage(2,                                      &
-     &                  'Drv1El: Error writing ONEINT;'                 &
-     &                //'Label='//Label)
-            Call Quit(_RC_IO_ERROR_WRITE_)
-         End If
-         Call mma_deallocate(NA_Int)
-         Call mma_deallocate(KnE_Int)
+  !--------Add contribution from ECP
 
-#ifdef _FDE_
-         ! Embedding
-         if (embPot) Call mma_deallocate(Emb_Int)
-#endif
-      End If
+  if (lECPnp) then
+    Label = 'PrjInt  '
+    lOper = 0
+    iRC = -1
+    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_READ_)
+    end if
+    call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+    Label = 'M1Int   '
+    lOper = 0
+    iRC = -1
+    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_READ_)
+    end if
+    call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+    Label = 'M2Int   '
+    lOper = 0
+    iRC = -1
+    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_READ_)
+    end if
+    call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+    Label = 'SROInt  '
+    lOper = 0
+    iRC = -1
+    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_READ_)
+    end if
+    call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+  end if   ! lECPnp
+
+  !--------Add contributions from the Pseudo Potential
+
+  if (lPP) then
+    Label = 'PPInt   '
+    lOper = 0
+    iRC = -1
+    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_READ_)
+    end if
+    call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+  end if
+
+  !--------Add contributions from the external field
+
+  if (allocated(XF)) then
+    Label = 'XFdInt  '
+    lOper = 0
+    iRC = -1
+    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_READ_)
+    end if
+    call DaXpY_(n2Tri(1)+4,One,KnE_Int,1,NA_Int,1)
+  end if ! XF
+
+  !--------Add contributions from Spherical wells
+
+  if (nWel /= 0) then
+    do iWel=1,nWel
+      Fact = Wel_Info(3,iWel)
+      write(Label,'(A,I4)') 'Well',iWel
+      lOper = 0
+      iRC = -1
+      call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+      if (iRC /= 0) then
+        call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+        call Quit(_RC_IO_ERROR_READ_)
+      end if
+      call DaXpY_(n2Tri(1)+4,Fact,KnE_Int,1,NA_Int,1)
+    end do
+  end if  ! nWel /= 0
+
+  Label = 'OneHam  '
+  if (iPrint >= 10) call PrMtrx(Label,[lOper],1,[1],NA_Int)
+  iRC = -1
+  call WrOne(iRC,iOpt,Label,1,NA_Int,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_WRITE_)
+  end if
+
+# ifdef _FDE_
+  ! Embedding
+  if (embpot) then
+    Label = 'embpot  '
+    iRC = -1
+    call WrOne(iRC,iOpt,Label,1,embInt,lOper)
+    if (iRC /= 0) then
+      call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
+      call Quit(_RC_IO_ERROR_WRITE_)
+    end if
+  end if
+# endif
+
+  Label = 'OneHam 0'
+  iRC = -1
+  call WrOne(iRC,iOpt,Label,1,NA_Int,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_WRITE_)
+  end if
+  call mma_deallocate(NA_Int)
+  call mma_deallocate(KnE_Int)
+
+# ifdef _FDE_
+  ! Embedding
+  if (embPot) call mma_deallocate(Emb_Int)
+# endif
+end if
 !***********************************************************************
 !***********************************************************************
 !17)                                                                   *
@@ -1406,67 +1239,64 @@
 ! Component(1) is Lx*Lx
 ! Component(2) is (Lx*Ly+Ly*Lx)/2, etc.
 ! Coded P-A Malmqvist, Garching, Nov 1996
-      PLabel=' '
-      rHrmt=-One
-      If (Allocated(AMP_Center).and..Not.Primitive_Pass) Then
-         Label='AMProd  '
-         nComp = 6
-         nOrdOp = 2
-         Call Allocate_Auxiliary()
-         Call dcopy_(nComp,[AMP_Center(1)],0,CoorO(1  ),3)
-         Call dcopy_(nComp,[AMP_Center(2)],0,CoorO(1+1),3)
-         Call dcopy_(nComp,[AMP_Center(3)],0,CoorO(1+2),3)
-         CCoor(:)=AMP_Center(:)
-! Symmetry labels iSymX  for operator d/dx, etc.
-! Symmetry labels iSymLx for operator Lx, etc.
-! Characters iChOx for operator Lx, etc.
-         ixyz=1
-         iSymX = 2**IrrFnc(ixyz)
-         ixyz=2
-         iSymY = 2**IrrFnc(ixyz)
-         ixyz=4
-         iSymZ = 2**IrrFnc(ixyz)
-         iSymCx = iSymX
-         If (Ccoor(1).ne.Zero) iSymCx = iOr(iSymCx,1)
-         iSymCy = iSymY
-         If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
-         iSymCz = iSymZ
-         If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
-         iChOx = iChBas(3) + iChBas(4)
-         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
-         iChOy = iChBas(4) + iChBas(2)
-         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
-         iChOz = iChBas(2) + iChBas(3)
+PLabel = ' '
+rHrmt = -One
+if (allocated(AMP_Center) .and. .not. Primitive_Pass) then
+  Label = 'AMProd  '
+  nComp = 6
+  nOrdOp = 2
+  call Allocate_Auxiliary()
+  call dcopy_(nComp,[AMP_Center(1)],0,CoorO(1),3)
+  call dcopy_(nComp,[AMP_Center(2)],0,CoorO(1+1),3)
+  call dcopy_(nComp,[AMP_Center(3)],0,CoorO(1+2),3)
+  CCoor(:) = AMP_Center(:)
+  ! Symmetry labels iSymX  for operator d/dx, etc.
+  ! Symmetry labels iSymLx for operator Lx, etc.
+  ! Characters iChOx for operator Lx, etc.
+  ixyz = 1
+  iSymX = 2**IrrFnc(ixyz)
+  ixyz = 2
+  iSymY = 2**IrrFnc(ixyz)
+  ixyz = 4
+  iSymZ = 2**IrrFnc(ixyz)
+  iSymCx = iSymX
+  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  iSymCy = iSymY
+  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  iSymCz = iSymZ
+  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+  iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
+  iChOx = iChBas(3)+iChBas(4)
+  iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
+  iChOy = iChBas(4)+iChBas(2)
+  iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
+  iChOz = iChBas(2)+iChBas(3)
 
-! Symmetry labels and characters of products. Let G be the full
-!  molecular point group, and Gsub=subgroup of G=stabilizer of
-! gauge origin. The totally symmetric irrep of Gsub can be
-! decomposed into irreps of G.
-! Then symmetry label=packed array of bits, one for each irrep
-! of G. The bit is set, if that irrep is included in the
-! decomposition of the totally symmetric irrep of Gsub.
-         OperI(1  )=MltLbl(iSymLx,iSymLx)
-         OperI(1+1)=MltLbl(iSymLx,iSymLy)
-         OperI(1+2)=MltLbl(iSymLx,iSymLz)
-         OperI(1+3)=MltLbl(iSymLy,iSymLy)
-         OperI(1+4)=MltLbl(iSymLy,iSymLz)
-         OperI(1+5)=MltLbl(iSymLz,iSymLz)
-         OperC(1  )=0
-         OperC(1+1)=iEOr(iChOx,iChOy)
-         OperC(1+2)=iEOr(iChOx,iChOz)
-         OperC(1+3)=0
-         OperC(1+4)=iEOr(iChOy,iChOz)
-         OperC(1+5)=0
-!
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(AMPInt,AMPMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If
+  ! Symmetry labels and characters of products. Let G be the full
+  ! molecular point group, and Gsub=subgroup of G=stabilizer of
+  ! gauge origin. The totally symmetric irrep of Gsub can be
+  ! decomposed into irreps of G.
+  ! Then symmetry label=packed array of bits, one for each irrep
+  ! of G. The bit is set, if that irrep is included in the
+  ! decomposition of the totally symmetric irrep of Gsub.
+  OperI(1) = MltLbl(iSymLx,iSymLx)
+  OperI(1+1) = MltLbl(iSymLx,iSymLy)
+  OperI(1+2) = MltLbl(iSymLx,iSymLz)
+  OperI(1+3) = MltLbl(iSymLy,iSymLy)
+  OperI(1+4) = MltLbl(iSymLy,iSymLz)
+  OperI(1+5) = MltLbl(iSymLz,iSymLz)
+  OperC(1) = 0
+  OperC(1+1) = ieor(iChOx,iChOy)
+  OperC(1+2) = ieor(iChOx,iChOz)
+  OperC(1+3) = 0
+  OperC(1+4) = ieor(iChOy,iChOz)
+  OperC(1+5) = 0
+
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(AMPInt,AMPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if
 !***********************************************************************
 !***********************************************************************
 !17)                                                                   *
@@ -1475,658 +1305,595 @@
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      ixyz=1
-      iSymX = 2**IrrFnc(ixyz)
-      ixyz=2
-      iSymY = 2**IrrFnc(ixyz)
-      ixyz=4
-      iSymZ = 2**IrrFnc(ixyz)
-      ixyz=3
-      iSymXY = 2**IrrFnc(ixyz)
-      ixyz=5
-      iSymXZ = 2**IrrFnc(ixyz)
-      ixyz=6
-      iSymYZ = 2**IrrFnc(ixyz)
-      ixyz=7
-      iSyXYZ = 2**IrrFnc(ixyz)
-      PLabel=' '
-      rHrmt=One
-!
-      mCnt=0
-      If (nOrdEF.eq.2) mCnt=nEF
-!
-      nComp = 1
-      nOrdOp = 1
-      Do iCnt = 1, mCnt
-         Write (Label,'(A,I5)') 'Cnt',iCnt
-         CCoor(:)=EF_Centers(:,iCnt)
-         Call Allocate_Auxiliary()
-!
-         iSymR(0) = 1
-         If (Ccoor(1).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymX)
-         If (Ccoor(2).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymY)
-         If (Ccoor(3).ne.Zero) iSymR(0) = iOr(iSymR(0),iSymZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)                   &
-     &      iSymR(0) = iOr(iSymR(0),iSymXY)
-         If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)                   &
-     &      iSymR(0) = iOr(iSymR(0),iSymXZ)
-         If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)                   &
-     &      iSymR(0) = iOr(iSymR(0),iSymYZ)
-         If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.              &
-     &       Ccoor(3).ne.Zero) iSymR(0) = iOr(iSymR(0),iSyXYZ)
-!
-         OperI(1) = iSymR(0)
-         OperC(1) = 0
-!
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(CntInt,CntMem,Label,ipList,OperI,nComp,             &
-     &              Ccoor,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        For picture-change corrected integrals.
-!
-         If (DKroll.and.Primitive_Pass) Then
-            Write (Label,'(A,I2)') 'pCp   ', iCnt
-            PLabel='CntInt'
-            Call FZero(Nuc,nComp)
-            Call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,          &
-     &                 CCoor,nOrdOp+2,Nuc,rHrmt,OperC,                  &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-         End If
-!
-         Call Deallocate_Auxiliary()
-      End Do
-!
+ixyz = 1
+iSymX = 2**IrrFnc(ixyz)
+ixyz = 2
+iSymY = 2**IrrFnc(ixyz)
+ixyz = 4
+iSymZ = 2**IrrFnc(ixyz)
+ixyz = 3
+iSymXY = 2**IrrFnc(ixyz)
+ixyz = 5
+iSymXZ = 2**IrrFnc(ixyz)
+ixyz = 6
+iSymYZ = 2**IrrFnc(ixyz)
+ixyz = 7
+iSyXYZ = 2**IrrFnc(ixyz)
+PLabel = ' '
+rHrmt = One
+
+mCnt = 0
+if (nOrdEF == 2) mCnt = nEF
+
+nComp = 1
+nOrdOp = 1
+do iCnt=1,mCnt
+  write(Label,'(A,I5)') 'Cnt',iCnt
+  CCoor(:) = EF_Centers(:,iCnt)
+  call Allocate_Auxiliary()
+
+  iSymR(0) = 1
+  if (Ccoor(1) /= Zero) iSymR(0) = ior(iSymR(0),iSymX)
+  if (Ccoor(2) /= Zero) iSymR(0) = ior(iSymR(0),iSymY)
+  if (Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSymZ)
+  if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero) iSymR(0) = ior(iSymR(0),iSymXY)
+  if (Ccoor(1) /= Zero .and. Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSymXZ)
+  if (Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSymYZ)
+  if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymR(0) = ior(iSymR(0),iSyXYZ)
+
+  OperI(1) = iSymR(0)
+  OperC(1) = 0
+
+  call dcopy_(nComp,[Zero],0,Nuc,1)
+  call OneEl(CntInt,CntMem,Label,ipList,OperI,nComp,Ccoor,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! For picture-change corrected integrals.
+
+  if (DKroll .and. Primitive_Pass) then
+    write(Label,'(A,I2)') 'pCp   ',iCnt
+    PLabel = 'CntInt'
+    call FZero(Nuc,nComp)
+    call OneEl(PXPInt,PXPMem,Label,ipList,OperI,nComp,CCoor,nOrdOp+2,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  end if
+
+  call Deallocate_Auxiliary()
+end do
+
 ! For a properties calculation, read the CNT values saved in a temp file
 ! and write the sum through Add_Info
-!
-      If (PrPrt.and.mCnt.gt.0) Then
-        Call mma_allocate(PtEl,1,label='PtEl')
-        Call mma_allocate(PtNuc,1,label='PtNuc')
-        Call mma_allocate(SumEl,1,label='SumEl')
-        Call mma_allocate(SumNuc,1,label='SumNuc')
-        SumEl(1)=Zero
-        SumNuc(1)=Zero
-!       Read and sum the values
-        LuTmp=10
-        Call DaName(LuTmp,'TMPPRP')
-        iDisk=0
-        Do iCnt=1,mCnt
-          Call dDaFile(LuTmp,2,PtEl,1,iDisk)
-          Call dDaFile(LuTmp,2,PtNuc,1,iDisk)
-          SumEl(1)=SumEl(1)+PtEl(1)
-          SumNuc(1)=SumNuc(1)+PtNuc(1)
-        End Do
-        Call DaClos(LuTmp)
-!       set the tolerance according to the total number of centers
-!       (assuming error scales with sqrt(mCnt))
-        iTol=5
-        iTol=iTol-NInt(Half*Log10(Dble(mCnt)))
-        Write (label,'(a,a)') 'CNT','   el'
-        Call Add_Info(label,SumEl,1,iTol)
-        Write (label,'(a,a)') 'CNT','  nuc'
-        Call Add_Info(label,SumNuc,1,iTol)
-        Call mma_deallocate(PtEl)
-        Call mma_deallocate(PtNuc)
-        Call mma_deallocate(SumEl)
-        Call mma_deallocate(SumNuc)
-      End If
-!
+
+if (PrPrt .and. mCnt > 0) then
+  call mma_allocate(PtEl,1,label='PtEl')
+  call mma_allocate(PtNuc,1,label='PtNuc')
+  call mma_allocate(SumEl,1,label='SumEl')
+  call mma_allocate(SumNuc,1,label='SumNuc')
+  SumEl(1) = Zero
+  SumNuc(1) = Zero
+  !     Read and sum the values
+  LuTmp = 10
+  call DaName(LuTmp,'TMPPRP')
+  iDisk = 0
+  do iCnt=1,mCnt
+    call dDaFile(LuTmp,2,PtEl,1,iDisk)
+    call dDaFile(LuTmp,2,PtNuc,1,iDisk)
+    SumEl(1) = SumEl(1)+PtEl(1)
+    SumNuc(1) = SumNuc(1)+PtNuc(1)
+  end do
+  call DaClos(LuTmp)
+  ! set the tolerance according to the total number of centers
+  ! (assuming error scales with sqrt(mCnt))
+  iTol = 5
+  iTol = iTol-nint(Half*log10(dble(mCnt)))
+  write(label,'(a,a)') 'CNT','   el'
+  call Add_Info(label,SumEl,1,iTol)
+  write(label,'(a,a)') 'CNT','  nuc'
+  call Add_Info(label,SumNuc,1,iTol)
+  call mma_deallocate(PtEl)
+  call mma_deallocate(PtNuc)
+  call mma_deallocate(SumEl)
+  call mma_deallocate(SumNuc)
+end if
 !***********************************************************************
 !***********************************************************************
 !18)                                                                   *
+!                                                                      *
 !     Gradient of overlap integrals with respect to the magnetic field *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (GIAO.and..Not.Primitive_Pass) Then
-      PLabel=' '
-      rHrmt=-One
-      nB=3
-      iLow = 0
-      mMltpl=0 ! Do only overlap.
-!     mMltpl=-1 ! Do only overlap.
-      Do iMltpl = iLow, mMltpl
-         Write (Label,'(A,I2)') 'dMP/dB', iMltpl
-         mComp = (iMltpl+1)*(iMltpl+2)/2
-         nComp = mComp * nB
-         Call DCopy_(3,Coor_MpM(1,iMltpl+1),1,Ccoor,1)
-         Call Allocate_Auxiliary()
-!
-         iComp=0
-         Do ix = iMltpl, 0, -1
-!
-!---------- Pick up which irrep each of the cartesian components of
-!           the operator belongs to. If the operator is associated
-!           with a center other than origin add the total symmetric
-!           irrep.
-!
-            If (Mod(ix,2).eq.0) Then
-               iSymX=1
-            Else
-               ixyz=1
-               iSymX=2**IrrFnc(ixyz)
-               If (Ccoor(1).ne.Zero) iSymX = iOr(iSymX,1)
-            End If
-            Do iy = iMltpl-ix, 0, -1
-               If (Mod(iy,2).eq.0) Then
-                  iSymY=1
-               Else
-                  ixyz=2
-                  iSymY=2**IrrFnc(ixyz)
-                  If (Ccoor(2).ne.Zero) iSymY = iOr(iSymY,1)
-               End If
-               iz = iMltpl-ix-iy
-               If (Mod(iz,2).eq.0) Then
-                  iSymZ=1
-               Else
-                  ixyz=4
-                  iSymZ=2**IrrFnc(ixyz)
-                  If (Ccoor(3).ne.Zero) iSymZ = iOr(iSymZ,1)
-               End If
-!
-!------------- Multiply cartesian components to generate which irreps
-!              the current element of the multipole moment operator
-!              belong to. The lowest significant bit if set indicate that
-!              a particular irrep is included.
-!
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
-!
-               iChO = Mod(ix,2)*iChBas(2)                               &
-     &              + Mod(iy,2)*iChBas(3)                               &
-     &              + Mod(iz,2)*iChBas(4)
-!
-!------------- Now combine with the character of the first derivative
-!              with respect to the magnetic field.
-!
-               iSymRx=2**IrrFnc(1)
-               iSymRy=2**IrrFnc(2)
-               iSymRz=2**IrrFnc(4)
-!
-               iB = 1
-               iChOx = Mod(ix  ,2)*iChBas(2)                            &
-     &               + Mod(iy+1,2)*iChBas(3)                            &
-     &               + Mod(iz+1,2)*iChBas(4)
-               OperC(1+(iB-1)*mComp+iComp) = iChOx
-               iSymBx = MltLbl(iSymRy,iSymRz)
-               OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBx)
-               Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,                    &
-     &                      CoorO(1+((iB-1)*mComp+iComp)*3),1)
-!
-               iB = 2
-               iChOy = Mod(ix+1,2)*iChBas(2)                            &
-     &               + Mod(iy  ,2)*iChBas(3)                            &
-     &               + Mod(iz+1,2)*iChBas(4)
-               OperC(1+(iB-1)*mComp+iComp) = iChOy
-               iSymBy = MltLbl(iSymRz,iSymRx)
-               OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBy)
-               Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,                    &
-     &                      CoorO(1+((iB-1)*mComp+iComp)*3),1)
-!
-               iB = 3
-               iChOz = Mod(ix+1,2)*iChBas(2)                            &
-     &               + Mod(iy+1,2)*iChBas(3)                            &
-     &               + Mod(iz  ,2)*iChBas(4)
-               OperC(1+(iB-1)*mComp+iComp) = iChOz
-               iSymBz = MltLbl(iSymRx,iSymRy)
-               OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBz)
-               Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,                    &
-     &                      CoorO(1+((iB-1)*mComp+iComp)*3),1)
-!
-               iComp = iComp + 1
-            End Do
-         End Do
-!
-!        Zero nuclear contribution.
-         Call dcopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(MltInt_GIAO,MltMem_GIAO,                            &
-     &              Label,ipList,OperI,nComp,                           &
-     &              CoorO,iMltpl,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-!
-      End Do
-!
-      End If
+if (GIAO .and. .not. Primitive_Pass) then
+  PLabel = ' '
+  rHrmt = -One
+  nB = 3
+  iLow = 0
+  mMltpl = 0 ! Do only overlap.
+  !mMltpl = -1 ! Do only overlap.
+  do iMltpl=iLow,mMltpl
+    write(Label,'(A,I2)') 'dMP/dB',iMltpl
+    mComp = (iMltpl+1)*(iMltpl+2)/2
+    nComp = mComp*nB
+    call DCopy_(3,Coor_MpM(1,iMltpl+1),1,Ccoor,1)
+    call Allocate_Auxiliary()
+
+    iComp = 0
+    do ix=iMltpl,0,-1
+
+      !---- Pick up which irrep each of the cartesian components of
+      !     the operator belongs to. If the operator is associated
+      !     with a center other than origin add the total symmetric
+      !     irrep.
+
+      if (mod(ix,2) == 0) then
+        iSymX = 1
+      else
+        ixyz = 1
+        iSymX = 2**IrrFnc(ixyz)
+        if (Ccoor(1) /= Zero) iSymX = ior(iSymX,1)
+      end if
+      do iy=iMltpl-ix,0,-1
+        if (mod(iy,2) == 0) then
+          iSymY = 1
+        else
+          ixyz = 2
+          iSymY = 2**IrrFnc(ixyz)
+          if (Ccoor(2) /= Zero) iSymY = ior(iSymY,1)
+        end if
+        iz = iMltpl-ix-iy
+        if (mod(iz,2) == 0) then
+          iSymZ = 1
+        else
+          ixyz = 4
+          iSymZ = 2**IrrFnc(ixyz)
+          if (Ccoor(3) /= Zero) iSymZ = ior(iSymZ,1)
+        end if
+
+        !----- Multiply cartesian components to generate which irreps
+        !      the current element of the multipole moment operator
+        !      belong to. The lowest significant bit if set indicate that
+        !      a particular irrep is included.
+
+        iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+
+        iChO = mod(ix,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz,2)*iChBas(4)
+
+        !----- Now combine with the character of the first derivative
+        !      with respect to the magnetic field.
+
+        iSymRx = 2**IrrFnc(1)
+        iSymRy = 2**IrrFnc(2)
+        iSymRz = 2**IrrFnc(4)
+
+        iB = 1
+        iChOx = mod(ix,2)*iChBas(2)+mod(iy+1,2)*iChBas(3)+mod(iz+1,2)*iChBas(4)
+        OperC(1+(iB-1)*mComp+iComp) = iChOx
+        iSymBx = MltLbl(iSymRy,iSymRz)
+        OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBx)
+        call DCopy_(3,Coor_MPM(1,iMltpl+1),1,CoorO(1+((iB-1)*mComp+iComp)*3),1)
+
+        iB = 2
+        iChOy = mod(ix+1,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz+1,2)*iChBas(4)
+        OperC(1+(iB-1)*mComp+iComp) = iChOy
+        iSymBy = MltLbl(iSymRz,iSymRx)
+        OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBy)
+        call DCopy_(3,Coor_MPM(1,iMltpl+1),1,CoorO(1+((iB-1)*mComp+iComp)*3),1)
+
+        iB = 3
+        iChOz = mod(ix+1,2)*iChBas(2)+mod(iy+1,2)*iChBas(3)+mod(iz,2)*iChBas(4)
+        OperC(1+(iB-1)*mComp+iComp) = iChOz
+        iSymBz = MltLbl(iSymRx,iSymRy)
+        OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBz)
+        call DCopy_(3,Coor_MPM(1,iMltpl+1),1,CoorO(1+((iB-1)*mComp+iComp)*3),1)
+
+        iComp = iComp+1
+      end do
+    end do
+
+    ! Zero nuclear contribution.
+    call dcopy_(nComp,[Zero],0,Nuc,1)
+    call OneEl(MltInt_GIAO,MltMem_GIAO,Label,ipList,OperI,nComp,CoorO,iMltpl,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+    call Deallocate_Auxiliary()
+
+  end do
+
+end if
 !***********************************************************************
 !***********************************************************************
 !19)                                                                   *
+!                                                                      *
 !     Atomic mean field integrals for spin-orbit calculations          *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (lAMFI.and..Not.Prprt.and..Not.Primitive_Pass) Then
-         PLabel=' '
-         rHrmt=-One
-         Label='AMFI    '
-         nComp = 3
-         Call Allocate_Auxiliary()
-         OperI(1  )=2**IrrFnc(6)
-         OperC(1  )=iChBas(7)
-         OperI(1+1)=2**IrrFnc(5)
-         OperC(1+1)=iChBas(6)
-         OperI(1+2)=2**IrrFnc(3)
-         OperC(1+2)=iChBas(4)
+if (lAMFI .and. .not. Prprt .and. .not. Primitive_Pass) then
+  PLabel = ' '
+  rHrmt = -One
+  Label = 'AMFI    '
+  nComp = 3
+  call Allocate_Auxiliary()
+  OperI(1) = 2**IrrFnc(6)
+  OperC(1) = iChBas(7)
+  OperI(1+1) = 2**IrrFnc(5)
+  OperC(1+1) = iChBas(6)
+  OperI(1+2) = 2**IrrFnc(3)
+  OperC(1+2) = iChBas(4)
 
-! BP -   Turn off AMFI integrals for certain atom types
-!        as requested by the PAMF keyword
+  ! BP - Turn off AMFI integrals for certain atom types
+  !      as requested by the PAMF keyword
+  !
+  !      Note that Drv_AMFI will only process dbsc of valence type.
+  !      Hence the restriction on the loop.
 
-!        Note that Drv_AMFI will only process dbsc of valence typ.
-!        Hence the restriction on the loop.
+  call mma_allocate(iAtmNr2,nCnttp,Label='iAtmNr2')
+  call mma_allocate(Charge2,nCnttp,Label='Charge2')
+  do i=1,nCnttp
+    iAtmNr2(i) = dbsc(i)%AtmNr
+    Charge2(i) = dbsc(i)%Charge
 
-         Call mma_allocate(iAtmNr2,nCnttp,Label='iAtmNr2')
-         Call mma_allocate(Charge2,nCnttp,Label='Charge2')
-         Do i=1,nCnttp
-            iAtmNr2(i) = dbsc(i)%AtmNr
-            Charge2(i) = dbsc(i)%Charge
+    iAtom_Number = dbsc(i)%AtmNr
+    if (iAtom_Number < 0 .or. iAtom_Number > size(No_AMFI)) then
+      write(6,*) 'Illegal atom number.'
+      write(6,*) 'Atom number=',iAtom_Number
+      call Abend()
+    end if
+    if (No_AMFI(iAtom_Number)) then
+      write(6,*) "Disabling AMFI for atom type ",dbsc(i)%AtmNr
+      iAtmNr2(i) = 0
+      Charge2(i) = 0.0d0
+    end if
+  end do
 
-            iAtom_Number= dbsc(i)%AtmNr
-            If (iAtom_Number<0 .or. iAtom_Number>SIZE(No_AMFI)) Then
-               Write (6,*) 'Illegal atom number.'
-               Write (6,*) 'Atom number=',iAtom_Number
-               Call Abend()
-            End If
-            If (No_AMFI(iAtom_Number)) then
-               write(6,*) "Disabling AMFI for atom type ",              &
-     &                 dbsc(i)%AtmNr
-               iAtmNr2(i) = 0
-               Charge2(i) = 0.0d0
-            End if
-         End do
+  call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,Charge2)
 
-         Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,    &
-     &                 Charge2)
-
-         Call mma_deallocate(iAtmNr2)
-         Call mma_deallocate(Charge2)
-         Call Deallocate_Auxiliary()
-      End If
+  call mma_deallocate(iAtmNr2)
+  call mma_deallocate(Charge2)
+  call Deallocate_Auxiliary()
+end if
 !***********************************************************************
 !***********************************************************************
 !KAMAL)                                                                *
+!                                                                      *
 !              GEN1INT                                                 *
 !                                                                      *
-!                                                                      *
-!                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (lPSOI.and..Not.Prprt.and..Not.Primitive_Pass) Then
-#ifdef _GEN1INT_
-         PLabel=' '
-         rHrmt=-One
-         nComp = 3
-         Call Get_nAtoms_All(nAtoms)
-         Do iCnt=1, nAtoms
-         Write (Label,'(A,I2)') 'PSOI  ', iCnt
-         nPSOI=iCnt
-         nOrdOp = 1
-         Call Allocate_Auxiliary()
+if (lPSOI .and. .not. Prprt .and. .not. Primitive_Pass) then
+# ifdef _GEN1INT_
+  PLabel = ' '
+  rHrmt = -One
+  nComp = 3
+  call Get_nAtoms_All(nAtoms)
+  do iCnt=1,nAtoms
+    write(Label,'(A,I2)') 'PSOI  ',iCnt
+    nPSOI = iCnt
+    nOrdOp = 1
+    call Allocate_Auxiliary()
 
-         iComp=0
-         do iComp= 1,nComp
-! FIXME ipPSO is uninitialized
-!        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
-         Call SysAbendMsg('Drv1El',                                     &
-     &        'Faulty code (undefined Work index).',                    &
-     &        'Please correct it or contact the developer.')
-         enddo
+    iComp = 0
+    do iComp=1,nComp
+      ! FIXME ipPSO is uninitialized
+      !call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
+      call SysAbendMsg('Drv1El','Faulty code (undefined Work index).','Please correct it or contact the developer.')
+    end do
 
-         ixyz=1
-         iSymX = 2**IrrFnc(ixyz)
-         ixyz=2
-         iSymY = 2**IrrFnc(ixyz)
-         ixyz=4
-         iSymZ = 2**IrrFnc(ixyz)
-         iSymCx = iSymX
-         If (Ccoor(1).ne.Zero) iSymCx = iOr(iSymCx,1)
-         iSymCy = iSymY
-         If (Ccoor(2).ne.Zero) iSymCy = iOr(iSymCy,1)
-         iSymCz = iSymZ
-         If (Ccoor(3).ne.Zero) iSymCz = iOr(iSymCz,1)
-!
-         iSymLx = iOr(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
-         iChOx = iChBas(3) + iChBas(4)
-         OperI(1  ) = iSymLx
-         OperC(1  ) = iChOx
-         iSymLy = iOr(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
-         iChOy = iChBas(4) + iChBas(2)
-         OperI(1+1) = iSymLy
-         OperC(1+1) = iChOy
-         iSymLz = iOr(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
-         iChOz = iChBas(2) + iChBas(3)
-         OperI(1+2) = iSymLz
-         OperC(1+2) = iChOz
+    ixyz = 1
+    iSymX = 2**IrrFnc(ixyz)
+    ixyz = 2
+    iSymY = 2**IrrFnc(ixyz)
+    ixyz = 4
+    iSymZ = 2**IrrFnc(ixyz)
+    iSymCx = iSymX
+    if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+    iSymCy = iSymY
+    if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+    iSymCz = iSymZ
+    if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
 
-!        Zero nuclear contribution
-         Call DCopy_(nComp,[Zero],0,Nuc,1)
-         Call OneEl(PSOInt,PSOMem,Label,ipList,OperI,nComp,             &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-         enddo
-!1555      Continue
-          !Call PrMtrx(Label,lOper,nComp,ip)
-#else
-         Call WarningMessage(2,                                         &
-     &   'Drv1El: NO Gen1int interface available!')
-         Call Abend()
-#endif
-       End If   ! lOAM
+    iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
+    iChOx = iChBas(3)+iChBas(4)
+    OperI(1) = iSymLx
+    OperC(1) = iChOx
+    iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
+    iChOy = iChBas(4)+iChBas(2)
+    OperI(1+1) = iSymLy
+    OperC(1+1) = iChOy
+    iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
+    iChOz = iChBas(2)+iChBas(3)
+    OperI(1+2) = iSymLz
+    OperC(1+2) = iChOz
+
+    ! Zero nuclear contribution
+    call DCopy_(nComp,[Zero],0,Nuc,1)
+    call OneEl(PSOInt,PSOMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+    call Deallocate_Auxiliary()
+  end do
+  !call PrMtrx(Label,lOper,nComp,ip)
+# else
+  call WarningMessage(2,'Drv1El: NO Gen1int interface available!')
+  call Abend()
+# endif
+end if   ! lPSOI
 !***********************************************************************
 !***********************************************************************
 !20)                                                                   *
+!                                                                      *
 !     The gradient of the kinetic energy and the nuclear attraction    *
 !     energy with respect to the magnetic field.                       *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (GIAO.and..Not.Primitive_Pass) Then
-         PLabel=' '
-         rHrmt=-One
-         nOrdOp = 0
-         nComp = 3
-         Call Allocate_Auxiliary()
-         Call dcopy_(3*nComp,[Zero],0,CoorO,1)
-         ixyz=1
-         OperI(1  ) = 2**IrrFnc(ixyz)
-         OperC(1  ) = iChBas(2)
-         ixyz=2
-         OperI(1+1) = 2**IrrFnc(ixyz)
-         OperC(1+1) = iChBas(3)
-         ixyz=4
-         OperI(1+2) = 2**IrrFnc(ixyz)
-         OperC(1+2) = iChBas(4)
-!
-         Call dcopy_(3,[Zero],0,Nuc,1)
-!
-         Label='dT/dB   '
-         Call OneEl(KneInt_GIAO,KneMem_GIAO,Label,                      &
-     &              ipList,OperI,nComp,                                 &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         nOrdOp = 1
-         Label='dV/dB   '
-         Call OneEl( NAInt_GIAO, NAMem_GIAO,Label,                      &
-     &              ipList,OperI,nComp,                                 &
-     &              CoorO,nOrdOp,Nuc,rHrmt,OperC,                       &
-     &              dum,1,dum,idum,0,0,                                 &
-     &              dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-!
-!        Differentiate the generalized kinetic energy operator with respect
-!        to the magnetic moment at the centers.
-!
-         nOrdOp = 1
-         nComp = 3
-         ixyz=1
-         iSymX = 2**IrrFnc(ixyz)
-         ixyz=2
-         iSymY = 2**IrrFnc(ixyz)
-         ixyz=4
-         iSymZ = 2**IrrFnc(ixyz)
-         ixyz=3
-         iSymXY = 2**IrrFnc(ixyz)
-         ixyz=5
-         iSymXZ = 2**IrrFnc(ixyz)
-         ixyz=6
-         iSymYZ = 2**IrrFnc(ixyz)
-         ixyz=7
-         iSyXYZ = 2**IrrFnc(ixyz)
-!
-         iEF = 0
-         Do  iCnttp = 1, nCnttp
-            Do iCnt = 1, dbsc(iCnttp)%nCntr
-               iEF=iEF+1
-               Write (Label,'(A,I2)') 'dT/dmu',iEF
-               CCoor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-               Call Allocate_Auxiliary()
-               iSymC = 1
-               If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
-               If (Ccoor(2).ne.Zero) iSymC = iOr(iSymC,iSymY)
-               If (Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSymZ)
-               If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero)             &
-     &            iSymC = iOr(iSymC,iSymXY)
-               If (Ccoor(1).ne.Zero .and. Ccoor(3).ne.Zero)             &
-     &            iSymC = iOr(iSymC,iSymXZ)
-               If (Ccoor(2).ne.Zero .and. Ccoor(3).ne.Zero)             &
-     &            iSymC = iOr(iSymC,iSymYZ)
-               If (Ccoor(1).ne.Zero .and. Ccoor(2).ne.Zero .and.        &
-     &             Ccoor(3).ne.Zero) iSymC = iOr(iSymC,iSyXYZ)
-!
-               iComp=0
-               Do ix = nOrdOp, 0, -1
-                  Do iy = nOrdOp-ix, 0, -1
-                     iComp = iComp + 1
-                     iz = nOrdOp-ix-iy
-                     ixyz=0
-                     If (Mod(ix,2).ne.0) ixyz=iOr(ixyz,1)
-                     If (Mod(iy,2).ne.0) ixyz=iOr(ixyz,2)
-                     If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
-                     iSym = 2**IrrFnc(ixyz)
-                     If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-                     OperI(1+(iComp-1)) = MltLbl(iSymC,iSym)
-                     OperC(1+(iComp-1)) = iChBas(iComp+1)
-                     Call dcopy_(3,Ccoor,1,CoorO(1+(iComp-1)*3),1)
-                  End Do
-               End Do
-!
-!              Call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
-!
+if (GIAO .and. .not. Primitive_Pass) then
+  PLabel = ' '
+  rHrmt = -One
+  nOrdOp = 0
+  nComp = 3
+  call Allocate_Auxiliary()
+  call dcopy_(3*nComp,[Zero],0,CoorO,1)
+  ixyz = 1
+  OperI(1) = 2**IrrFnc(ixyz)
+  OperC(1) = iChBas(2)
+  ixyz = 2
+  OperI(1+1) = 2**IrrFnc(ixyz)
+  OperC(1+1) = iChBas(3)
+  ixyz = 4
+  OperI(1+2) = 2**IrrFnc(ixyz)
+  OperC(1+2) = iChBas(4)
 
-               Call OneEl(dTdmu_Int,dTdmu_Mem,Label,ipList,             &
-     &                    OperI,nComp,                                  &
-     &                    CoorO,nOrdOp,Nuc,rHrmt,                       &
-     &                    OperC,dum,1,dum,idum,0,0,                     &
-     &                    dum,1,0)
-!
-               Call Deallocate_Auxiliary()
-            End Do
-         End Do
-      End If
+  call dcopy_(3,[Zero],0,Nuc,1)
+
+  Label = 'dT/dB   '
+  call OneEl(KneInt_GIAO,KneMem_GIAO,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  nOrdOp = 1
+  Label = 'dV/dB   '
+  call OneEl(NAInt_GIAO,NAMem_GIAO,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+
+  ! Differentiate the generalized kinetic energy operator with respect
+  ! to the magnetic moment at the centers.
+
+  nOrdOp = 1
+  nComp = 3
+  ixyz = 1
+  iSymX = 2**IrrFnc(ixyz)
+  ixyz = 2
+  iSymY = 2**IrrFnc(ixyz)
+  ixyz = 4
+  iSymZ = 2**IrrFnc(ixyz)
+  ixyz = 3
+  iSymXY = 2**IrrFnc(ixyz)
+  ixyz = 5
+  iSymXZ = 2**IrrFnc(ixyz)
+  ixyz = 6
+  iSymYZ = 2**IrrFnc(ixyz)
+  ixyz = 7
+  iSyXYZ = 2**IrrFnc(ixyz)
+
+  iEF = 0
+  do iCnttp=1,nCnttp
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      iEF = iEF+1
+      write(Label,'(A,I2)') 'dT/dmu',iEF
+      CCoor(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+      call Allocate_Auxiliary()
+      iSymC = 1
+      if (Ccoor(1) /= Zero) iSymC = ior(iSymC,iSymX)
+      if (Ccoor(2) /= Zero) iSymC = ior(iSymC,iSymY)
+      if (Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymZ)
+      if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero) iSymC = ior(iSymC,iSymXY)
+      if (Ccoor(1) /= Zero .and. Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymXZ)
+      if (Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymC = ior(iSymC,iSymYZ)
+      if (Ccoor(1) /= Zero .and. Ccoor(2) /= Zero .and. Ccoor(3) /= Zero) iSymC = ior(iSymC,iSyXYZ)
+
+      iComp = 0
+      do ix=nOrdOp,0,-1
+        do iy=nOrdOp-ix,0,-1
+          iComp = iComp+1
+          iz = nOrdOp-ix-iy
+          ixyz = 0
+          if (mod(ix,2) /= 0) ixyz = ior(ixyz,1)
+          if (mod(iy,2) /= 0) ixyz = ior(ixyz,2)
+          if (mod(iz,2) /= 0) ixyz = ior(ixyz,4)
+          iSym = 2**IrrFnc(ixyz)
+          if (Ccoor(iComp) /= Zero) iSym = ior(iSym,1)
+          OperI(1+(iComp-1)) = MltLbl(iSymC,iSym)
+          OperC(1+(iComp-1)) = iChBas(iComp+1)
+          call dcopy_(3,Ccoor,1,CoorO(1+(iComp-1)*3),1)
+        end do
+      end do
+
+      !call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
+
+      call OneEl(dTdmu_Int,dTdmu_Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+      call Deallocate_Auxiliary()
+    end do
+  end do
+end if
 !***********************************************************************
 !***********************************************************************
+!21)                                                                   *
 !                                                                      *
-! 21) Atomic Fock matrix                                               *
+!     Atomic Fock matrix                                               *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      PLabel=' '
-      rHrmt=One
-      nComp=1
-      nOrdOp = 0
-      If (.Not.Prprt.and..Not.Primitive_Pass.and.Do_FckInt) Then
-         Call Allocate_Auxiliary()
-         Call dcopy_(3,[Zero],0,CoorO,1)
-         OperI(1) = 1
-         OperC(1) = iChBas(1)
-!
-         Label='FckInt  '
-         Call Drv_Fck(Label,ipList,OperI,nComp,                         &
-     &                CoorO,nOrdOp,[Zero],rHrmt,OperC,                  &
-     &                dum,1,dum,idum,0,0,                               &
-     &                dum,1,0)
-!
-         Call Deallocate_Auxiliary()
-      End If
+PLabel = ' '
+rHrmt = One
+nComp = 1
+nOrdOp = 0
+if (.not. Prprt .and. .not. Primitive_Pass .and. Do_FckInt) then
+  call Allocate_Auxiliary()
+  call dcopy_(3,[Zero],0,CoorO,1)
+  OperI(1) = 1
+  OperC(1) = iChBas(1)
+
+  Label = 'FckInt  '
+  call Drv_Fck(Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+
+  call Deallocate_Auxiliary()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-!     Deallocate memory for property calculation.
-!
-      If (Prprt) Then
-         If (Short) Call mma_deallocate(Den)
-         Call mma_deallocate(Vec)
-         Call mma_deallocate(Occ)
-         Call CollapseOutput(0,'   Molecular properties:')
-      End If
+! Deallocate memory for property calculation.
+
+if (Prprt) then
+  if (Short) call mma_deallocate(Den)
+  call mma_deallocate(Vec)
+  call mma_deallocate(Occ)
+  call CollapseOutput(0,'   Molecular properties:')
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Is this the second pass in a relativistic calculation?
-!     In that case: close ONEINT, open ONEREL, read the pVp
-!     integrals, close ONEREL, re-open ONEINT, calculate the
-!     DK integrals in the contracted basis set, transform and
-!     replace the one-electron integrals on ONEINT.
-!
-      If (DKroll.and..Not.Primitive_Pass) then
-      If (BSS) Then
-            Call BSSint
-         Else
-            Call DKRelInt_DP
-         End If
-      End If
+! Is this the second pass in a relativistic calculation?
+! In that case: close ONEINT, open ONEREL, read the pVp
+! integrals, close ONEREL, re-open ONEINT, calculate the
+! DK integrals in the contracted basis set, transform and
+! replace the one-electron integrals on ONEINT.
+
+if (DKroll .and. .not. Primitive_Pass) then
+  if (BSS) then
+    call BSSint()
+  else
+    call DKRelInt_DP()
+  end if
+end if
 !***********************************************************************
 !***********************************************************************
 !20)                                                                   *
+!                                                                      *
 !     Produce information for the NEMO interface.                      *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If (NEMO) Then
-         If (Primitive_Pass) Then
-!
-!           Compute p-matrix and put it temporarily on ONEREL.
-            PLabel=' '
-            rHrmt=One
-            nComp=3
-            nOrdOp = 0
-            Call Allocate_Auxiliary()
-            Do iComp = 1, nComp
-               Call dcopy_(3,[Zero],0,CoorO(1+(iComp-1)*3),1)
-               OperI(1+(iComp-1)) = 1
-               OperC(1+(iComp-1)) = iChBas(1)
-            End Do
-!
-            Label='P_matrix'
-            Call OneEl(P_Int,P_Mem,Label,ipList,OperI,nComp,            &
-     &                 CoorO,nOrdOp,[Zero,Zero,Zero],rHrmt,OperC,       &
-     &                 dum,1,dum,idum,0,0,                              &
-     &                 dum,1,0)
-            Call Deallocate_Auxiliary()
-         Else
-!
-!-----------Assemble transformation matrix between the contracted and
-!           the primitive basis.
-!
-            Call NEMO_Opt1()
-!
-         End If
-      End If
+if (NEMO) then
+  if (Primitive_Pass) then
+
+    ! Compute p-matrix and put it temporarily on ONEREL.
+    PLabel = ' '
+    rHrmt = One
+    nComp = 3
+    nOrdOp = 0
+    call Allocate_Auxiliary()
+    do iComp=1,nComp
+      call dcopy_(3,[Zero],0,CoorO(1+(iComp-1)*3),1)
+      OperI(1+(iComp-1)) = 1
+      OperC(1+(iComp-1)) = iChBas(1)
+    end do
+
+    Label = 'P_matrix'
+    call OneEl(P_Int,P_Mem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero,Zero,Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+    call Deallocate_Auxiliary()
+  else
+
+    !-------Assemble transformation matrix between the contracted and
+    !       the primitive basis.
+
+    call NEMO_Opt1()
+
+  end if
+end if
 !***********************************************************************
 !***********************************************************************
 !21)                                                                   *
+!                                                                      *
 !     Fragment AIEMP integrals: projection and 2-electron interaction  *
 !                               integrals contracted with the          *
 !                               fragment's density matrices            *
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
-      If(lFAIEMP.and..not.Primitive_Pass) Then
-! projection integrals
-        PLabel=' '
-        rHrmt=One
-        nComp=1
-        nOrdOp = 0
-        Call Allocate_Auxiliary()
-        Call dcopy_(3,[Zero],0,CoorO,1)
-        OperI(1) = 1
-        OperC(1) = iChBas(1)
-        Label='FragProj'
-        Call OneEl(FragPInt,FragPMem,Label,ipList,OperI,nComp,          &
-     &             CoorO,nOrdOp,[Zero],rHrmt,OperC,                     &
-     &             dum,1,dum,idum,0,0,                                  &
-     &             dum,1,0)
-        Call Deallocate_Auxiliary()
-! add the results to the one-electron hamiltonian
-        iOpt = 0
-        lOper = 0
-        iRC = -1
-        Call mma_allocate(FragP,n2Tri(1)+4,label='FragP')
-        Call RdOne(iRC,iOpt,Label,1,FragP,lOper)
-        If (iRC.ne.0) Then
-           Call WarningMessage(2,                                       &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-           Call Quit(_RC_IO_ERROR_READ_)
-        End If
-        Label = 'OneHam  '
-        lOper = 0
-        iRC = -1
-        Call mma_allocate(OneHam,n2Tri(1)+4,label='OneHam')
-        Call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
-        If (iRC.ne.0) Then
-           Call WarningMessage(2,                                       &
-     &                  'Drv1El: Error reading ONEINT;'                 &
-     &                //'Label='//Label)
-           Call Quit(_RC_IO_ERROR_READ_)
-        End If
-        Call DaXpY_(n2Tri(1)+4,One,FragP,1,OneHam,1)
-        iRC = -1
-        Call WrOne(iRC,iOpt,Label,1,OneHam,lOper)
-        If (iRC.ne.0) Then
-           Call WarningMessage(2,                                       &
-     &                  'Drv1El: Error writing ONEINT;'                 &
-     &                //'Label='//Label)
-           Call Quit(_RC_IO_ERROR_WRITE_)
-        End If
-        iRC = -1
-        Label = 'OneHam 0'
-        Call WrOne(iRC,iOpt,Label,1,OneHam,lOper)
-        If (iRC.ne.0) Then
-           Call WarningMessage(2,                                       &
-     &                  'Drv1El: Error writing ONEINT;'                 &
-     &                //'Label='//Label)
-           Call Quit(_RC_IO_ERROR_WRITE_)
-        End If
-        Call mma_deallocate(FragP)
-        Call mma_deallocate(OneHam)
-! 2-electron interaction integrals (are added to the one-electron
-! hamiltonian locally)
-        Call Drv2El_FAIEMP()
-      End If
+if (lFAIEMP .and. .not. Primitive_Pass) then
+  ! projection integrals
+  PLabel = ' '
+  rHrmt = One
+  nComp = 1
+  nOrdOp = 0
+  call Allocate_Auxiliary()
+  call dcopy_(3,[Zero],0,CoorO,1)
+  OperI(1) = 1
+  OperC(1) = iChBas(1)
+  Label = 'FragProj'
+  call OneEl(FragPInt,FragPMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,[Zero],rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
+  call Deallocate_Auxiliary()
+  ! add the results to the one-electron hamiltonian
+  iOpt = 0
+  lOper = 0
+  iRC = -1
+  call mma_allocate(FragP,n2Tri(1)+4,label='FragP')
+  call RdOne(iRC,iOpt,Label,1,FragP,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_READ_)
+  end if
+  Label = 'OneHam  '
+  lOper = 0
+  iRC = -1
+  call mma_allocate(OneHam,n2Tri(1)+4,label='OneHam')
+  call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_READ_)
+  end if
+  call DaXpY_(n2Tri(1)+4,One,FragP,1,OneHam,1)
+  iRC = -1
+  call WrOne(iRC,iOpt,Label,1,OneHam,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_WRITE_)
+  end if
+  iRC = -1
+  Label = 'OneHam 0'
+  call WrOne(iRC,iOpt,Label,1,OneHam,lOper)
+  if (iRC /= 0) then
+    call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
+    call Quit(_RC_IO_ERROR_WRITE_)
+  end if
+  call mma_deallocate(FragP)
+  call mma_deallocate(OneHam)
+  ! 2-electron interaction integrals (are added to the one-electron
+  ! hamiltonian locally)
+  call Drv2El_FAIEMP()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Free_iSD()
+call Free_iSD()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-!
-      Contains
-      Subroutine Allocate_Auxiliary()
-      Implicit None
-!
-      Call mma_Allocate(ipList,nComp,label='ipList')
-      Call mma_Allocate(OperI,nComp,label='OperI')
-      Call mma_Allocate(OperC,nComp,label='OperC')
-      Call mma_Allocate(CoorO,3*nComp,label='CoorO')
-      Call mma_Allocate(Nuc,nComp,label='Nuc')
-!
-      Return
-      End Subroutine Allocate_Auxiliary
-      Subroutine Deallocate_Auxiliary()
-      Implicit None
-!
-      Call mma_Deallocate(OperC)
-      Call mma_Deallocate(OperI)
-      Call mma_Deallocate(ipList)
-      Call mma_Deallocate(CoorO)
-      Call mma_Deallocate(Nuc)
-!
-      Return
-      End Subroutine Deallocate_Auxiliary
-!
-      End Subroutine Drv1el
+return
+
+contains
+
+subroutine Allocate_Auxiliary()
+  implicit none
+
+  call mma_Allocate(ipList,nComp,label='ipList')
+  call mma_Allocate(OperI,nComp,label='OperI')
+  call mma_Allocate(OperC,nComp,label='OperC')
+  call mma_Allocate(CoorO,3*nComp,label='CoorO')
+  call mma_Allocate(Nuc,nComp,label='Nuc')
+
+  return
+end subroutine Allocate_Auxiliary
+
+subroutine Deallocate_Auxiliary()
+  implicit none
+
+  call mma_Deallocate(OperC)
+  call mma_Deallocate(OperI)
+  call mma_Deallocate(ipList)
+  call mma_Deallocate(CoorO)
+  call mma_Deallocate(Nuc)
+
+  return
+end subroutine Deallocate_Auxiliary
+
+end subroutine Drv1el

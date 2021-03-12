@@ -21,7 +21,6 @@ C!    Dool_MULA   : Solves the system of linear equations A*X = B.
 C!    SolveSecEq  : Solves the seqular equation A*C = S*C*D.
 C!    Polfit      : Fit a polynomial of requested dimension to the input
 C!                  data.
-C!    factorial   : Returns factorial.
 C!    calcNorm    : Calculates norm of a vector.
 C!
 C!  Written by:

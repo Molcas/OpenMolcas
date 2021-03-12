@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2006, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine Output1_Seward(lOPTO)
+
+subroutine Output1_Seward(lOPTO)
 !***********************************************************************
 !                                                                      *
 !     Object: to write the output of seward                            *
@@ -18,25 +19,24 @@
 !     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 !             September '06                                            *
 !***********************************************************************
-      use Basis_Info
-      use Center_Info
-      use Period
-      use GeoList
-      use MpmC
-      use EFP_Module
-      use External_centers
-      use Temporary_Parameters
-      use DKH_Info
-      use Sizes_of_Seward, only: S
-      use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
-      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,              &
-     &                     Do_acCD_Basis, Skip_High_AC, Cho_OneCenter,  &
-     &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
-      use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO,     &
-     &                        FNMC, lPSOI
-      use Symmetry_Info, only: nIrrep
-      use Gateway_global, only: Run_Mode, GS_Mode
-      Implicit Real*8 (A-H,O-Z)
+
+use Basis_Info
+use Center_Info
+use Period
+use GeoList
+use MpmC
+use EFP_Module
+use External_centers
+use Temporary_Parameters
+use DKH_Info
+use Sizes_of_Seward, only: S
+use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
+use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
+use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lPSOI
+use Symmetry_Info, only: nIrrep
+use Gateway_global, only: Run_Mode, GS_Mode
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "real.fh"
@@ -46,528 +46,392 @@
 #include "relae.fh"
 #include "print.fh"
 #include "localdf.fh"
-      Logical l_aCD_Thr, lOPTO, Found
-      Logical lNoPair, lPam2, lECP, lPP
-      Character(LEN=80) Title(10)
+logical l_aCD_Thr, lOPTO, Found
+logical lNoPair, lPam2, lECP, lPP
+character(LEN=80) Title(10)
 #include "angstr.fh"
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      iRout=2
-      iPrint=nPrint(iRout)
-      LuWr=6
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      lNoPair = .False.
-      lPam2   = .False.
-      lECP    = .False.
-      lPP     = .False.
-      Do i = 1, nCnttp
-         lNoPair = lNoPair .or. dbsc(i)%NoPair
-         lPam2   = lPam2   .or. dbsc(i)%lPam2
-         lECP    = lECP    .or. dbsc(i)%ECP
-         lPP     = lPP     .or. dbsc(i)%nPP.ne.0
-         lECP    = lECP    .or. dbsc(i)%ECP
-         lPP     = lECP    .or. dbsc(i)%ECP
-      End Do
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Start of output
-!
-      If (Test) Then
-         Write (LuWr,*)
-         Write (LuWr,'(15X,88A)') ('*',i=1,45)
-         Write (LuWr,'(15X,A)')                                         &
-     &   '* TEST: SEWARD will only process the input! *'
-         Write (LuWr,'(15X,88A)') ('*',i=1,45)
-         Go To 99
-      End If
-!
-      iDKH_X_Order = iRELAE/10000
-      iParam = iRELAE-1000 - iDKH_X_Order*10000
-      iDKH_H_Order = iParam/10
-      iParam = iParam - iDKH_H_Order*10
-!
-      Write (LuWr,'(15X,A)') 'SEWARD will generate:'
-      Write (LuWr,'(15X,A,I2)')                                         &
-     &        '   Multipole Moment integrals up to order ',S%nMltpl
-      If (.Not.Prprt) Then
-         Write (LuWr,'(15X,A)')    '   Kinetic Energy integrals'
-         If (Nuclear_Model.eq.Gaussian_Type) Then
-            Write (LuWr,'(15X,A)')  '   Nuclear Attraction integrals'   &
-     &                              //' (finite nuclei - Gaussian type)'
-         Else If (Nuclear_Model.eq.Point_Charge) Then
-            Write (LuWr,'(15X,A)')  '   Nuclear Attraction integrals'   &
-     &                              //' (point charge)'
-         Else
-            Write (LuWr,'(15X,A)')  '   Nuclear Attraction integrals'   &
-     &                    //' (finite nuclei -  Modified Gaussian type)'
-         End If
-         If (lECP) Then
-            If (lNoPair) Then
-               If (IRELMP.EQ.0) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &               //' modified with ECP and No-Pair contributions'
-                Else If (IRELMP.EQ.1) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &         //' modified with ECP and No-Pair (DK1) contributions'
-                Else If (IRELMP.EQ.2) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &         //' modified with ECP and No-Pair (DK2) contributions'
-                Else If (IRELMP.EQ.3) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &         //' modified with ECP and No-Pair (DK3) contributions'
-                Else If (IRELMP.EQ.11) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &               //' modified with ECP and RESC contributions'
-                Else If (IRELMP.EQ.21) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &               //' modified with ECP and ZORA contributions'
-                Else If (IRELMP.EQ.22) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &               //' modified with ECP and ZORA-FP contributions'
-                Else If (IRELMP.EQ.23) Then
-                   Write (LuWr,'(15X,A)')                               &
-     &                 '   One-Electron Hamiltonian integrals'          &
-     &               //' modified with ECP and IORA contributions'
-                End If
-            Else
-               Write (LuWr,'(15X,A)')                                   &
-     &                '   One-Electron Hamiltonian integrals'           &
-     &              //' modified with ECP contributions'
-            End If
-         Else
-            Write (LuWr,'(15X,A)')                                      &
-     &             '   One-Electron Hamiltonian integrals'
-         End If
-         If(FNMC) Then
-            Write (LuWr,'(15X,A)')                                      &
-     &             '   Finite nuclear mass correction added'
-         End If
-         If (lPAM2) Then
-               Write (LuWr,'(15X,A)')                                   &
-     &                '   Include potentials for DMFT calculation'
-         End If
-         If (lRel) Then
-            Write (LuWr,'(15X,A)')    '   Mass-Velocity integrals'
-            Write (LuWr,'(15X,A)')                                      &
-     &             '   Darwin One-Electron Contact Term integrals'
-         End If
-         If (Vlct) Write (LuWr,'(15X,A)') '   Velocity integrals'
-         If (DKroll) Then
-            If (iRELAE.lt.1000) Then
-               If (iRELAE.EQ.0) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic Douglas-Kroll integrals'
-               Else If (IRELAE.EQ.1) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic Douglas-Kroll (DK1) integrals'
-               Else If (IRELAE.EQ.2) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic Douglas-Kroll (DK2) integrals'
-               Else If (IRELAE.EQ.3) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic Douglas-Kroll (DK3) integrals'
-               Else If (IRELAE.EQ.4) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &          '   full Relativistic Douglas-Kroll (DK3) integrals'
-               Else If (IRELAE.EQ.11) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic RESC integrals'
-               Else If (IRELAE.EQ.21) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic ZORA integrals'
-               Else If (IRELAE.EQ.22) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic ZORA-FP integrals'
-               Else If (IRELAE.EQ.23) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic IORA integrals'
-               Else If (IRELAE.EQ.101) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic X2C integrals'
-               Else If (IRELAE.EQ.102) Then
-                  Write (LuWr,'(15X,A)')                                &
-     &               '   Relativistic BSS integrals'
-               Else If (BSS) Then
-                  Write  (LuWr,'(15X,A)')                               &
-     &                '   Relativistic Barysz-Sadlej-Snijders integrals'
-               End If
-            Else
-               If (LDKroll) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &               ' Relativistic Local-Douglas-Kroll-Hess integrals:'
-                  If (nCtrLD.eq.0) Then
-                     If (radiLD.eq.0.0d0) Then
-                        Write(LuWr,'(17X,A)')                           &
-     &                  '   - Atomic approximation'
-                     Else
-                        Write(LuWr,'(17X,A)')                           &
-     &                  '   - Full local approximation'
-                     End If
-                  Else
-                     Write(LuWr,'(17X,A)')                              &
-     &               '   - Partial local approximation:'
-                     Write(LuWr,'(17X,A,10(A4))')                       &
-     &          '     - Centers: ', (dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
-                     Write(LuWr,'(17X,A,F6.2,A)')                       &
-     &          '     - Cutoff radius: ', radiLD, ' Bohr'
-                 End If
-               Else
-                  Write (LuWr,'(17X,A)')                                &
-     &               ' Relativistic Douglas-Kroll-Hess integrals:'
-               Endif
-               If (iParam.eq.1) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                  '   - Parametrization         : OPT'
-               Else If (iParam.eq.2) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                  '   - Parametrization         : EXP'
-               Else If (iParam.eq.3) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                  '   - Parametrization         : SQR'
-               Else If (iParam.eq.4) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                  '   - Parametrization         : MCW'
-               Else If (iParam.eq.5) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                  '   - Parametrization         : CAY'
-               End If
-               Write (LuWr,'(17X,A,I2)')                                &
-     &               '   - DKH order of Hamiltonian:',iDKH_H_order
-               Write (LuWr,'(17X,A,I2)')                                &
-     &               '   - DKH order of Properties :',iDKH_X_order
-               Write (LuWr,'(17X,A)')                                   &
-     &               '        - multipole moment operators'
-               Write (LuWr,'(17X,A)')                                   &
-     &               '        - electric potential operators'
-               Write (LuWr,'(17X,A)')                                   &
-     &               '        - contact operators'
-            End If
-         End If
-         If (lRF) Then
-            If (PCM) Then
-               Write (LuWr,'(15X,A)')                                   &
-     &               '   Reaction Field integrals (PCM)'
-            Else If (lLangevin) Then
-               Write (LuWr,'(15X,A)')                                   &
-     &               '   Reaction Field integrals (Langevin)'
-            Else
-               Write (LuWr,'(15X,A)')                                   &
-     &               '   Reaction Field integrals (KirkWood-Onsager)'
-            End If
-         End If
-         If (lPP)Write (LuWr,'(15X,A)')                                 &
-     &                '   Pseudo Potential integrals'
-      End If
-      If (Allocated(XF)) Write (LuWr,'(15X,A,I6,A)')                    &
-     &                       '   External field from',                  &
-     &                           nXF, ' point(s) added to the'          &
-     &                           //' one-electron Hamiltonian'
-      If (nEF.gt.0 .and. nOrdEF.ge.0) Write (LuWr,'(15X,A,I6,A)')       &
-     &                       '   Electric potential for',               &
-     &                           nEF, ' points'
-      If (nEF.gt.0 .and. nOrdEF.ge.1) Write (LuWr,'(15X,A,I6,A)')       &
-     &                       '   Electric field integrals for',         &
-     &                           nEF, ' points'
-      If (nEF.gt.0 .and. nOrdEF.ge.2) Write (LuWr,'(15X,A,I6,A)')       &
-     &            '   Electric field gradient integrals for',           &
-     &                           nEF, ' points'
-      If (nEF.gt.0 .and. nOrdEF.ge.2) Write (LuWr,'(15X,A,I6,A)')       &
-     &            '   Contact term integrals for',                      &
-     &                           nEF, ' points'
-      If (Allocated(DMS_Centers)) Write (LuWr,'(15X,A,I6,A)')           &
-     &            '   Diamagnetic shielding integrals for',             &
-     &                           nDMS, ' points'
-      If (Allocated(OAM_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')    &
-     &                       '   Orbital angular momentum around (',    &
-     &   (OAM_Center(i),i=1,3),')'
-      If (Allocated(OMQ_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')    &
-     &                       '   Orbital magnetic quadrupole around (', &
-     &   (OMQ_Center(i),i=1,3),')'
-      If (Vlct.and.(S%nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)') &
-     &                       '   Velocity quadrupole around (',         &
-     &   (Coor_MPM(i,3),i=1,3),')'
-      If (Allocated(AMP_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')    &
-     & '   Products of Orbital angular momentum operators around (',    &
-     &   (AMP_Center(i),i=1,3),')'
-      If (nWel.ne.0) Write (LuWr,'(15X,A,I4,A)')                        &
-     &             '   Spherical well for', nWel,                       &
-     &             ' exponent(s) added to the'                          &
-     &           //' one-electron Hamiltonian'
-      If (lAMFI) Write (LuWr,'(15X,A)') '   Atomic mean-field integrals'
-      If (lPSOI) Write (LuWr,'(15X,A)')                                 &
-     & '   (PSO) Paramagnetic Spin-Orbit integrals'                     &
-     &     //' calculated from Gen1Int F90 library'
-      If (DoFMM) Then
-         Write (LuWr,'(15X,A)')                                         &
-     &     '   Integral environment set up for FMM option'
-         Write (LuWr,'(15X,A,F10.5)')                                   &
-     &     '    - RPQMin: ',RPQMin
-      End If
-      If (lEFP) Then
-#ifdef _EFP_
-         Write (LuWr,'(15X,A)')                                         &
-     &     '   Effective Fragment potentials added       '
-         Write (LuWr,'(15X,A,I4)')                                      &
-     &     '    - # of fragments: ',nEFP_fragments
-#else
-         Write (LuWr,'(15X,A)')                                         &
-     &     '   EFP input specified but code not enabled for the option'
-         Call Abend()
-#endif
-      End If
-      If (.Not.Onenly) Then
-         If (Cholesky) Then
-            Write (LuWr,'(15X,A)')                                      &
-     &        '   Cholesky decomposed two-electron'                     &
-     &           //' repulsion integrals'
-           If (Cho_OneCenter) Then
-            Write (LuWr,'(17X,A,G10.2)')                                &
-     &                 '  - 1C-CD Threshold: ',Thrshld_CD
-           Else
-            Write (LuWr,'(17X,A,G10.2)')                                &
-     &                 '  - CD Threshold: ',Thrshld_CD
-           EndIf
-         Else If (Do_RI) Then
-            If (LocalDF) Then
-               If (LDF_Constraint.eq.-1) Then
-                  Write(LuWr,'(15X,A)')                                 &
-     &                  '   Local Density Fitting coefficients'
-               Else
-                  Write(LuWr,'(15X,A)')                                 &
-     &               '   Constrained Local Density Fitting coefficients'
-                  If (LDF_Constraint.eq.0) Then
-                     Write (LuWr,'(17X,A)')                             &
-     &                 '  - constraint type: charge'
-                  Else
-                     Call WarningMessage(2,'Unknown constraint!')
-                     Write(6,'(A,I10)') 'LDF_Constraint=',LDF_Constraint
-                     Call LDF_Quit(-1)
-                  End If
-               End If
-               If (LDF2) Then
-                  Write (LuWr,'(17X,A,G10.2)')                          &
-     &                 '  - two-center auxiliary functions included'    &
-     &                 //' (when needed); target accuracy: ',           &
-     &                 Thr_Accuracy
-               Else
-                  Write (LuWr,'(17X,A)')                                &
-     &                 '  - two-center auxiliary functions not included'
-               End If
-            Else If (LDF) Then
-               Write (LuWr,'(15X,A)')                                   &
-     &               '   LDF decomposed two-electron'                   &
-     &               //' repulsion integrals stored Cholesky style'
-               Write (LuWr,'(15X,A)') '    Concept demonstration only!'
-            Else
-               Write (LuWr,'(15X,A)')                                   &
-     &               '   RI decomposed two-electron'                    &
-     &               //' repulsion integrals stored Cholesky style'
-            End If
-            If (iRI_Type.eq.1) Then
-               Write (LuWr,'(17X,A)')                                   &
-     &                 '  - RIJ auxiliary basis'
-            Else If (iRI_Type.eq.2) Then
-               Write (LuWr,'(17X,A)')                                   &
-     &                 '  - RIJK auxiliary basis'
-            Else If (iRI_Type.eq.3) Then
-               Write (LuWr,'(17X,A)')                                   &
-     &                 '  - RIC auxiliary basis'
-            Else If (iRI_Type.eq.5) Then
-               Write (LuWr,'(17X,A)')                                   &
-     &                 '  - External RICD auxiliary basis'
-            Else
-               If (Do_nacCD_Basis) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                    '  - nacCD auxiliary basis'
-               Else
-                  If (Do_acCD_Basis) Then
-                     Write (LuWr,'(17X,A)')                             &
-     &                    '  - acCD auxiliary basis'
-                  Else
-                     Write (LuWr,'(17X,A)')                             &
-     &                       '  - aCD auxiliary basis'
-                  End If
-               End If
-               Write (LuWr,'(17X,A,G10.2)')                             &
-     &                 '  - CD Threshold: ',Thrshld_CD
-               l_aCD_Thr=.False.
-               Do iCnttp = 1, nCnttp
-                  l_aCD_Thr=l_aCD_Thr .or. dbsc(iCnttp)%aCD_Thr.ne.One
-               End Do
-               If (l_aCD_Thr) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                    '     Note that the threshold for individual' &
-     &                  //' basis sets might be modified!'
-               End If
-               If (Skip_High_AC) Then
-                  Write (LuWr,'(17X,A)')                                &
-     &                    '  - Skip high angular momentum combinations'
-               End If
-            End If
-         Else
-            Write (LuWr,'(15X,A)')                                      &
-     &        '   Two-Electron Repulsion integrals'
-         End If
-      End If
-      If (RMat_On) Then
-         Write (LuWr,*)
-         Write (LuWr,'(15X,A,A)')                                       &
-     &        '   OBSERVE that some integrals are modified to',         &
-     &        ' enable variational R-matrix calculations!'
-      End If
-      If (GIAO) Then
-         Write (LuWr,'(15X,A)')                                         &
-     &        '   GIAO integrals differentiated with respect to B'
-         Write (LuWr,'(15X,A)')                                         &
-     &        '     dS/dB                                        '
-         Write (LuWr,'(15X,A)')                                         &
-     &        '     dT/dB                                        '
-         Write (LuWr,'(15X,A)')                                         &
-     &        '     dV/dB                                        '
-      End If
-!
-!     Transition moment integrals for oscillator strengths of
-!     electronic transitions.
-!
-      If (EMFR) Then
-         Write (LuWr,'(15X,A)')                                         &
-     &        '   Transition moment intergrals'
-         Write (LuWr,'(15X,A,3(F7.4,1X),A)')                            &
-     &                       '   The wavevector k: (',                  &
-     &   (kVector(i),i=1,3),')'
-         temp=Sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
-         temp = (Two*Pi)/temp
-         Write (LuWr,'(15X,A,(F10.4,1X),A)')                            &
-     &                       '   Wavelength:        ',                  &
-     &   Temp,'a.u.'
-         Write (LuWr,'(15X,A,(F10.4,1X),A)')                            &
-     &                       '                      ',                  &
-     &   Temp*Angstr,'Angstrom'
-         Write (LuWr,'(15X,A,(F10.4,1X),A)')                            &
-     &                       '                      ',                  &
-     &   Temp*Angstr/Ten,'nm'
-      End If
+iRout = 2
+iPrint = nPrint(iRout)
+LuWr = 6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
- 99   Continue
-!
-      Call Qpg_cArray('SewardXTitle',Found,nTtl)
-      If (Found) Then
-         nTtl=nTtl/80
-         Call Get_cArray('SewardXTitle',Title(1),nTtl*80)
-         If (iPrint.ge.6) Then
-            Write (LuWr,*)
-            Write (LuWr,'(15X,88A)') ('*',i=1,88)
-            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
-            Do iTtl = 1, nTtl
-               Write (LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
-            End Do
-            Write (LuWr,'(15X,88A)') '*', (' ',i=1,86), '*'
-            Write (LuWr,'(15X,88A)') ('*',i=1,88)
-         Else
-            Write (LuWr,*)
-            Write (LuWr,'(A)') ' Title:'
-            Do iTtl = 1, nTtl
-               Write (LuWr,'(8X,A)') Title(iTtl)
-            End Do
-            Write (LuWr,*)
-         End If
-      End If
+lNoPair = .false.
+lPam2 = .false.
+lECP = .false.
+lPP = .false.
+do i=1,nCnttp
+  lNoPair = lNoPair .or. dbsc(i)%NoPair
+  lPam2 = lPam2 .or. dbsc(i)%lPam2
+  lECP = lECP .or. dbsc(i)%ECP
+  lPP = lPP .or. dbsc(i)%nPP /= 0
+  lECP = lECP .or. dbsc(i)%ECP
+  lPP = lECP .or. dbsc(i)%ECP
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Write (LuWr,*)
-      Write (LuWr,'(19X,A,E9.2)')                                       &
-     &      'Integrals are discarded if absolute value <:',ThrInt
-      Write (LuWr,'(19X,A,E9.2)')                                       &
-     &      'Integral cutoff threshold is set to       <:',CutInt
+! Start of output
+
+if (Test) then
+  write(LuWr,*)
+  write(LuWr,'(15X,88A)')('*',i=1,45)
+  write(LuWr,'(15X,A)') '* TEST: SEWARD will only process the input! *'
+  write(LuWr,'(15X,88A)') ('*',i=1,45)
+  Go To 99
+end if
+
+iDKH_X_Order = iRELAE/10000
+iParam = iRELAE-1000-iDKH_X_Order*10000
+iDKH_H_Order = iParam/10
+iParam = iParam-iDKH_H_Order*10
+
+write(LuWr,'(15X,A)') 'SEWARD will generate:'
+write(LuWr,'(15X,A,I2)') '   Multipole Moment integrals up to order ',S%nMltpl
+if (.not. Prprt) then
+  write(LuWr,'(15X,A)') '   Kinetic Energy integrals'
+  if (Nuclear_Model == Gaussian_Type) then
+    write(LuWr,'(15X,A)') '   Nuclear Attraction integrals (finite nuclei - Gaussian type)'
+  else if (Nuclear_Model == Point_Charge) then
+    write(LuWr,'(15X,A)') '   Nuclear Attraction integrals (point charge)'
+  else
+    write(LuWr,'(15X,A)') '   Nuclear Attraction integrals (finite nuclei -  Modified Gaussian type)'
+  end if
+  if (lECP) then
+    if (lNoPair) then
+      if (IRELMP == 0) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair contributions'
+      else if (IRELMP == 1) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK1) contributions'
+      else if (IRELMP == 2) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK2) contributions'
+      else if (IRELMP == 3) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and No-Pair (DK3) contributions'
+      else if (IRELMP == 11) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and RESC contributions'
+      else if (IRELMP == 21) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and ZORA contributions'
+      else if (IRELMP == 22) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and ZORA-FP contributions'
+      else if (IRELMP == 23) then
+        write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP and IORA contributions'
+      end if
+    else
+      write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals modified with ECP contributions'
+    end if
+  else
+    write(LuWr,'(15X,A)') '   One-Electron Hamiltonian integrals'
+  end if
+  if (FNMC) then
+    write(LuWr,'(15X,A)') '   Finite nuclear mass correction added'
+  end if
+  if (lPAM2) then
+    write(LuWr,'(15X,A)') '   Include potentials for DMFT calculation'
+  end if
+  if (lRel) then
+    write(LuWr,'(15X,A)') '   Mass-Velocity integrals'
+    write(LuWr,'(15X,A)') '   Darwin One-Electron Contact Term integrals'
+  end if
+  if (Vlct) write(LuWr,'(15X,A)') '   Velocity integrals'
+  if (DKroll) then
+    if (iRELAE < 1000) then
+      if (iRELAE == 0) then
+        write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll integrals'
+      else if (IRELAE == 1) then
+        write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK1) integrals'
+      else if (IRELAE == 2) then
+        write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK2) integrals'
+      else if (IRELAE == 3) then
+        write(LuWr,'(15X,A)') '   Relativistic Douglas-Kroll (DK3) integrals'
+      else if (IRELAE == 4) then
+        write(LuWr,'(15X,A)') '   full Relativistic Douglas-Kroll (DK3) integrals'
+      else if (IRELAE == 11) then
+        write(LuWr,'(15X,A)') '   Relativistic RESC integrals'
+      else if (IRELAE == 21) then
+        write(LuWr,'(15X,A)') '   Relativistic ZORA integrals'
+      else if (IRELAE == 22) then
+        write(LuWr,'(15X,A)') '   Relativistic ZORA-FP integrals'
+      else if (IRELAE == 23) then
+        write(LuWr,'(15X,A)') '   Relativistic IORA integrals'
+      else if (IRELAE == 101) then
+        write(LuWr,'(15X,A)') '   Relativistic X2C integrals'
+      else if (IRELAE == 102) then
+        write(LuWr,'(15X,A)') '   Relativistic BSS integrals'
+      else if (BSS) then
+        write(LuWr,'(15X,A)') '   Relativistic Barysz-Sadlej-Snijders integrals'
+      end if
+    else
+      if (LDKroll) then
+        write(LuWr,'(17X,A)') ' Relativistic Local-Douglas-Kroll-Hess integrals:'
+        if (nCtrLD == 0) then
+          if (radiLD == 0.0d0) then
+            write(LuWr,'(17X,A)') '   - Atomic approximation'
+          else
+            write(LuWr,'(17X,A)') '   - Full local approximation'
+          end if
+        else
+          write(LuWr,'(17X,A)') '   - Partial local approximation:'
+          write(LuWr,'(17X,A,10(A4))') '     - Centers: ',(dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
+          write(LuWr,'(17X,A,F6.2,A)') '     - Cutoff radius: ',radiLD,' Bohr'
+        end if
+      else
+        write(LuWr,'(17X,A)') ' Relativistic Douglas-Kroll-Hess integrals:'
+      end if
+      if (iParam == 1) then
+        write(LuWr,'(17X,A)') '   - Parametrization         : OPT'
+      else if (iParam == 2) then
+        write(LuWr,'(17X,A)') '   - Parametrization         : EXP'
+      else if (iParam == 3) then
+        write(LuWr,'(17X,A)') '   - Parametrization         : SQR'
+      else if (iParam == 4) then
+        write(LuWr,'(17X,A)') '   - Parametrization         : MCW'
+      else if (iParam == 5) then
+        write(LuWr,'(17X,A)') '   - Parametrization         : CAY'
+      end if
+      write(LuWr,'(17X,A,I2)') '   - DKH order of Hamiltonian:',iDKH_H_order
+      write(LuWr,'(17X,A,I2)') '   - DKH order of Properties :',iDKH_X_order
+      write(LuWr,'(17X,A)') '        - multipole moment operators'
+      write(LuWr,'(17X,A)') '        - electric potential operators'
+      write(LuWr,'(17X,A)') '        - contact operators'
+    end if
+  end if
+  if (lRF) then
+    if (PCM) then
+      write(LuWr,'(15X,A)') '   Reaction Field integrals (PCM)'
+    else if (lLangevin) then
+      write(LuWr,'(15X,A)') '   Reaction Field integrals (Langevin)'
+    else
+      write(LuWr,'(15X,A)') '   Reaction Field integrals (KirkWood-Onsager)'
+    end if
+  end if
+  if (lPP) write(LuWr,'(15X,A)') '   Pseudo Potential integrals'
+end if
+if (allocated(XF)) write(LuWr,'(15X,A,I6,A)') '   External field from',nXF,' point(s) added to the one-electron Hamiltonian'
+if (nEF > 0 .and. nOrdEF >= 0) write(LuWr,'(15X,A,I6,A)') '   Electric potential for',nEF,' points'
+if (nEF > 0 .and. nOrdEF >= 1) write(LuWr,'(15X,A,I6,A)') '   Electric field integrals for',nEF,' points'
+if (nEF > 0 .and. nOrdEF >= 2) write(LuWr,'(15X,A,I6,A)') '   Electric field gradient integrals for',nEF,' points'
+if (nEF > 0 .and. nOrdEF >= 2) write(LuWr,'(15X,A,I6,A)') '   Contact term integrals for',nEF,' points'
+if (allocated(DMS_Centers)) write(LuWr,'(15X,A,I6,A)') '   Diamagnetic shielding integrals for',nDMS,' points'
+if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
+if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
+if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,3),i=1,3),')'
+if (allocated(AMP_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') &
+                           '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
+if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'
+if (lAMFI) write(LuWr,'(15X,A)') '   Atomic mean-field integrals'
+if (lPSOI) write(LuWr,'(15X,A)') '   (PSO) Paramagnetic Spin-Orbit integrals calculated from Gen1Int F90 library'
+if (DoFMM) then
+  write(LuWr,'(15X,A)') '   Integral environment set up for FMM option'
+  write(LuWr,'(15X,A,F10.5)') '    - RPQMin: ',RPQMin
+end if
+if (lEFP) then
+# ifdef _EFP_
+  write(LuWr,'(15X,A)') '   Effective Fragment potentials added       '
+  write(LuWr,'(15X,A,I4)') '    - # of fragments: ',nEFP_fragments
+# else
+  write(LuWr,'(15X,A)') '   EFP input specified but code not enabled for the option'
+  call Abend()
+# endif
+end if
+if (.not. Onenly) then
+  if (Cholesky) then
+    write(LuWr,'(15X,A)') '   Cholesky decomposed two-electron repulsion integrals'
+    if (Cho_OneCenter) then
+      write(LuWr,'(17X,A,G10.2)') '  - 1C-CD Threshold: ',Thrshld_CD
+    else
+      write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
+    end if
+  else if (Do_RI) then
+    if (LocalDF) then
+      if (LDF_Constraint == -1) then
+        write(LuWr,'(15X,A)') '   Local Density Fitting coefficients'
+      else
+        write(LuWr,'(15X,A)') '   Constrained Local Density Fitting coefficients'
+        if (LDF_Constraint == 0) then
+          write(LuWr,'(17X,A)') '  - constraint type: charge'
+        else
+          call WarningMessage(2,'Unknown constraint!')
+          write(6,'(A,I10)') 'LDF_Constraint=',LDF_Constraint
+          call LDF_Quit(-1)
+        end if
+      end if
+      if (LDF2) then
+        write(LuWr,'(17X,A,G10.2)') '  - two-center auxiliary functions included (when needed); target accuracy: ',Thr_Accuracy
+      else
+        write(LuWr,'(17X,A)') '  - two-center auxiliary functions not included'
+      end if
+    else if (LDF) then
+      write(LuWr,'(15X,A)') '   LDF decomposed two-electron repulsion integrals stored Cholesky style'
+      write(LuWr,'(15X,A)') '    Concept demonstration only!'
+    else
+      write(LuWr,'(15X,A)') '   RI decomposed two-electron repulsion integrals stored Cholesky style'
+    end if
+    if (iRI_Type == 1) then
+      write(LuWr,'(17X,A)') '  - RIJ auxiliary basis'
+    else if (iRI_Type == 2) then
+      write(LuWr,'(17X,A)') '  - RIJK auxiliary basis'
+    else if (iRI_Type == 3) then
+      write(LuWr,'(17X,A)') '  - RIC auxiliary basis'
+    else if (iRI_Type == 5) then
+      write(LuWr,'(17X,A)') '  - External RICD auxiliary basis'
+    else
+      if (Do_nacCD_Basis) then
+        write(LuWr,'(17X,A)') '  - nacCD auxiliary basis'
+      else
+        if (Do_acCD_Basis) then
+          write(LuWr,'(17X,A)') '  - acCD auxiliary basis'
+        else
+          write(LuWr,'(17X,A)') '  - aCD auxiliary basis'
+        end if
+      end if
+      write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
+      l_aCD_Thr = .false.
+      do iCnttp=1,nCnttp
+        l_aCD_Thr = l_aCD_Thr .or. dbsc(iCnttp)%aCD_Thr /= One
+      end do
+      if (l_aCD_Thr) then
+        write(LuWr,'(17X,A)') '     Note that the threshold for individual basis sets might be modified!'
+      end if
+      if (Skip_High_AC) then
+        write(LuWr,'(17X,A)') '  - Skip high angular momentum combinations'
+      end if
+    end if
+  else
+    write(LuWr,'(15X,A)') '   Two-Electron Repulsion integrals'
+  end if
+end if
+if (RMat_On) then
+  write(LuWr,*)
+  write(LuWr,'(15X,A)') '   OBSERVE that some integrals are modified to enable variational R-matrix calculations!'
+end if
+if (GIAO) then
+  write(LuWr,'(15X,A)') '   GIAO integrals differentiated with respect to B'
+  write(LuWr,'(15X,A)') '     dS/dB                                        '
+  write(LuWr,'(15X,A)') '     dT/dB                                        '
+  write(LuWr,'(15X,A)') '     dV/dB                                        '
+end if
+
+! Transition moment integrals for oscillator strengths of
+! electronic transitions.
+
+if (EMFR) then
+  write(LuWr,'(15X,A)') '   Transition moment intergrals'
+  write(LuWr,'(15X,A,3(F7.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
+  temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
+  temp = (Two*Pi)/temp
+  write(LuWr,'(15X,A,(F10.4,1X),A)') '   Wavelength:        ',Temp,'a.u.'
+  write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstr,'Angstrom'
+  write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstr/Ten,'nm'
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (Run_Mode.eq.GS_Mode) Call Print_Symmetry()
+99 continue
+
+call Qpg_cArray('SewardXTitle',Found,nTtl)
+if (Found) then
+  nTtl = nTtl/80
+  call Get_cArray('SewardXTitle',Title(1),nTtl*80)
+  if (iPrint >= 6) then
+    write(LuWr,*)
+    write(LuWr,'(15X,88A)')('*',i=1,88)
+    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
+    do iTtl=1,nTtl
+      write(LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
+    end do
+    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(LuWr,'(15X,88A)')('*',i=1,88)
+  else
+    write(LuWr,*)
+    write(LuWr,'(A)') ' Title:'
+    do iTtl=1,nTtl
+      write(LuWr,'(8X,A)') Title(iTtl)
+    end do
+    write(LuWr,*)
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (nIrrep.gt.1) Then
-         If (MolWgh.eq.0) Then
-            Write (LuWr,*)
-            Write (LuWr,'(19X,A,A)') ' Symmetry adaptation a la',       &
-     &                          ' DCR.'
-            Write (LuWr,*)
-         End If
-         If (MolWgh.eq.1) Then
-            Write (LuWr,*)
-            Write (LuWr,'(19X,A,A)') ' Symmetry adaptation a la',       &
-     &                          ' MOLECULE.'
-            Write (LuWr,*)
-         End If
-         If (MolWgh.eq.2) Then
-            Write (LuWr,*)
-            Write (LuWr,'(19X,A)') ' Unitary symmetry adaptation'
-            Write (LuWr,*)
-         End If
-      End If
+write(LuWr,*)
+write(LuWr,'(19X,A,E9.2)') 'Integrals are discarded if absolute value <:',ThrInt
+write(LuWr,'(19X,A,E9.2)') 'Integral cutoff threshold is set to       <:',CutInt
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Print Cell unit information
-!
-      If (Cell_l) Then
-          Write(LuWr,'(6X,30(''-''))')
-          Write(LuWr,'(6X,A)') '* - the centers of the Unit Cell'
-          Write(LuWr,'(A)') ' '
-          Write(LuWr,'(A,3I3)') 'Spread of the unit cell:',             &
-     &      (ispread(i),i=1,3)
-          Write(LuWr,'(A)') ' '
-      End If
+if (Run_Mode == GS_Mode) call Print_Symmetry()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write out basis set information
-!
-      If (Run_Mode.eq.GS_Mode) Then
-         Call Print_Basis(lOPTO)
+if (nIrrep > 1) then
+  if (MolWgh == 0) then
+    write(LuWr,*)
+    write(LuWr,'(19X,A)') ' Symmetry adaptation a la DCR.'
+    write(LuWr,*)
+  end if
+  if (MolWgh == 1) then
+    write(LuWr,*)
+    write(LuWr,'(19X,A)') ' Symmetry adaptation a la MOLECULE.'
+    write(LuWr,*)
+  end if
+  if (MolWgh == 2) then
+    write(LuWr,*)
+    write(LuWr,'(19X,A)') ' Unitary symmetry adaptation'
+    write(LuWr,*)
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write out coordinates, bond, angles and torsional angles
-!
-         If (lOPTO) then
-            Call Print_Geometry(1)
-         else
-            Call Print_Geometry(0)
-         EndIf
-         Call Print_Isotopes()
+! Print Cell unit information
+
+if (Cell_l) then
+  write(LuWr,'(6X,30(''-''))')
+  write(LuWr,'(6X,A)') '* - the centers of the Unit Cell'
+  write(LuWr,'(A)') ' '
+  write(LuWr,'(A,3I3)') 'Spread of the unit cell:',(ispread(i),i=1,3)
+  write(LuWr,'(A)') ' '
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Rigid Rotor analysis etc.
-!
-         Call RigRot(Centr,Mass,S%kCentr)
+! Write out basis set information
+
+if (Run_Mode == GS_Mode) then
+  call Print_Basis(lOPTO)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Call Print_Basis2()
+! Write out coordinates, bond, angles and torsional angles
+
+  if (lOPTO) then
+    call Print_Geometry(1)
+  else
+    call Print_Geometry(0)
+  end if
+  call Print_Isotopes()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-         Call Print_OpInfo()
-      End If
+! Rigid Rotor analysis etc.
+
+  call RigRot(Centr,Mass,S%kCentr)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+  call Print_Basis2()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+  call Print_OpInfo()
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Output1_Seward
