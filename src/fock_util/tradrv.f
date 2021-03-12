@@ -42,18 +42,23 @@
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      Parameter(Zero=0.0d0)
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
 #include "timers.fh"
 *
       Integer off_PUVX(mxSym,mxSym,mxSym), off_sqMat(*), off_ltMat(*)
-      Dimension CMO(*), PUVX(*)
-      Dimension D1I(*), D1A(*), FI(*), FA(*)
+      Real*8 CMO(*), PUVX(*)
+      Real*8 D1I(*), D1A(*), FI(*), FA(*)
       Integer case1, case2
       Logical Process_Twice, lSquare
+
+      Real*8, Allocatable, Target:: Scrt1(:), PQVX(:), TURS(:),
+     &                              InBuf(:)
+      Real*8, Allocatable :: Buf2(:), Buf3(:)
+      Real*8, Pointer :: Buf9(:)=>Null()
+      Real*8, Pointer :: PQRS(:)=>Null(), PQRS_(:)=>Null()
 *
       iTri(i,j)=i*(i-1)/2+j
-*
 *
 *     generate offsets
       iiOff  = off_sqMat(iSym) + iFro*iBas + 1
@@ -77,9 +82,7 @@
       case2 = iAsh*jAsh*kAsh*lAsh
 *
 *     quit, if this integral block is not used
-      If ( case1.eq.4 .and. case2.eq.0 ) then
-        Return
-      End If
+      If ( case1.eq.4 .and. case2.eq.0 ) Return
 *
 *     allocate memory
       nScrt1=0
@@ -99,22 +102,21 @@
          nTURS = 0
       End If
 *
-      If (nScrt1.ne.0)
-     &    Call GetMem('TraScr1','Allo','Real',ipScrt1,nScrt1)
-      Call GetMem('TraScr2','Allo','Real',lBuf2,nBuf2)
-      Call GetMem('TraScr3','Allo','Real',lBuf3,nBuf3)
+      If (nScrt1.ne.0) Call mma_allocate(Scrt1,nScrt1,Label='Scrt1')
+      Call mma_allocate(Buf2,nBuf2,Label='Buf2')
+      Call mma_allocate(Buf3,nBuf3,Label='Buf3')
 *
-      Call GetMem('TraScr4','Allo','Real',ipPQVX,nPQVX)
-      call dcopy_(nPQVX,[Zero],0,Work(ipPQVX),1)
+      Call mma_allocate(PQVX,nPQVX,Label='PQVX')
+      PQVX(:)=Zero
       If (nTURS.gt.0) Then
-         Call GetMem('TraScr6','Allo','Real',ipTURS,nTURS)
-         call dcopy_(nTURS,[Zero],0,Work(ipTURS),1)
+         Call mma_allocate(TURS,nTURS,Label='TURS')
+         TURS(:)=Zero
       End If
 *
-      Call GetMem('TraScr5','Max ','Real',ipInBuf,nInBuf)
+      Call mma_maxDBLE(nInBuf)
       nInBuf=Min(nInBuf,(ij_Bas_pairs*kl_Bas_pairs+1))
       nInBuf=Max(nInBuf,(kl_Bas_pairs+1))
-      Call GetMem('TraScr5','Allo','Real',ipInBuf,nInBuf)
+      Call mma_allocate(InBuf,nInBuf,Label='InBuf')
 *
       If ( IPR.ge.5 .and. case2.ne.0 ) then
          Write(6,'(1X,4I2,2X,4I4,2X,4I4,2X,4I4)')
@@ -138,34 +140,32 @@
             iOpt = 1
             If ( ij_pair.ne.1 ) iOpt = 2
             Call RdOrd(iRc,iOpt,iSym,jSym,kSym,lSym,
-     &                 Work(ipInBuf),nInBuf,nPairs)
+     &                 InBuf,nInBuf,nPairs)
             nOff = 0
           End If
 *
 *         unwrap triangular matrix of electron repulsion integrals
-          ipPQRS_ = ipInBuf+nOff
           If ( kSym.eq.lSym ) then
-            Call Square(Work(ipInBuf+nOff),Work(ipScrt1),1,kBas,kBas)
-            ipPQRS = ipScrt1
+            klBas=kBas*(kBas+1)/2
+            Call Square(InBuf(nOff+1),Scrt1,1,kBas,kBas)
+            PQRS(1:kBas**2) => Scrt1(1:kBas**2)
           Else
-            ipPQRS = ipInBuf+nOff
+            klBas=kBas*lBas
+            PQRS(1:klBas) => InBuf(nOff+1:nOff+klBas)
           End If
+          PQRS_(1:klBas) => InBuf(nOff+1:nOff+klBas)
 *
 *         generate Fock matrices
           If ( case1.ne.4 ) then
             Call Timing(Piaget_1,Swatch,Swatch,Swatch)
             If ( case1.eq.2 ) then
-              Call Ftwo(case1,ExFac,
-     &                  iSym,kSym,
-     &                  i,j,
+              Call Ftwo(case1,ExFac,iSym,kSym,i,j,
      &                  off_sqMat,off_ltMat,
-     &                  D1I,FI,D1A,FA,Work(ipPQRS))
+     &                  D1I,FI,D1A,FA,PQRS)
             Else
-              Call Ftwo(case1,ExFac,
-     &                  iSym,jSym,
-     &                  i,j,
+              Call Ftwo(case1,ExFac,iSym,jSym,i,j,
      &                  off_sqMat,off_ltMat,
-     &                  D1I,FI,D1A,FA,Work(ipPQRS))
+     &                  D1I,FI,D1A,FA,PQRS)
             End If
             Call Timing(Piaget_2,Swatch,Swatch,Swatch)
             Piaget_2 = Piaget_2 - Piaget_1
@@ -177,23 +177,21 @@
           If ( case2.ne.0 ) then
             Call Timing(Candino_1,Swatch,Swatch,Swatch)
             Call Tra2A(ij_pair,ij_Bas_pairs,kl_Orb_pairs,
-     &                 kSym,lSym,
-     &                 kBas,lBas,
-     &                 kAsh,lAsh,
+     &                 kSym,lSym,kBas,lBas,kAsh,lAsh,
      &                 CMO(kkkOff),CMO(lllOff),
-     &                 Work(ipPQRS),Work(lBuf2),
-     &                 Work(lBuf3),Work(ipPQVX))
+     &                 PQRS,Buf2,Buf3,PQVX)
             If (Process_Twice) Then
-                Call Tra2C(i,iSym,iBas,iAsh,
-     &                     j,jSym,jBas,jAsh,
+                Call Tra2C(i,iSym,iBas,iAsh,j,jSym,jBas,jAsh,
      &                     kl_Bas_pairs,ij_Orb_pairs,
      &                     CMO(iiiOff),CMO(jjjOff),
-     &                     Work(ipPQRS_),Work(lBuf2),Work(ipTURS))
+     &                     PQRS_,Buf2,TURS)
             End If
             Call Timing(Candino_2,Swatch,Swatch,Swatch)
             Candino_2 = Candino_2 - Candino_1
             Candino_3 = Candino_3 + Candino_2
           End If
+          PQRS =>Null()
+          PQRS_=>Null()
 *
           nPairs = nPairs-1
           nOff = nOff+kl_Bas_pairs
@@ -202,9 +200,8 @@
       End Do
       Call Timing(Candino_1,Swatch,Swatch,Swatch)
       If (IPR.ge.99) Then
-         Call RecPrt('PQVX',' ',Work(ipPQVX),ij_Bas_Pairs,
-     &                kl_Orb_Pairs)
-         If (Process_Twice) Call RecPrt('TURS',' ',Work(ipTURS),
+         Call RecPrt('PQVX',' ',PQVX,ij_Bas_Pairs,kl_Orb_Pairs)
+         If (Process_Twice) Call RecPrt('TURS',' ',TURS,
      &                                  kl_Bas_Pairs,ij_Orb_Pairs)
       End If
 *
@@ -216,27 +213,24 @@
 *        Call FZero(PUVX(1+i1),iOrb*jAsh*kl_Orb_pairs)
 *        Call FZero(PUVX(1+i2),jOrb*iAsh*kl_Orb_pairs)
          Do kl_pair = 1, kl_Orb_pairs
-           iOff=ipPQVX+(kl_pair-1)*ij_Bas_pairs
+           iOff=(kl_pair-1)*ij_Bas_pairs
 *
 *          unwrap triangular matrix of electron repulsion integrals
            If ( iSym.eq.jSym ) then
-             Call Square(Work(iOff),Work(ipScrt1),1,iBas,iBas)
-             lBuf9 = ipScrt1
+             Call Square(PQVX(iOff+1),Scrt1,1,iBas,iBas)
+             Buf9(1:iBas**2) => Scrt1(1:iBas**2)
            Else
-             lBuf9 = iOff
+             Buf9(1:iBas*jBas) => PQVX(iOff+1:iOff+iBas*jBas)
            End If
 *
 *          second half transformation of electron repulsion integrals:
 *          (vx!ij) --> (pu!vx)
-           Call Tra2B(iSym,jSym,
-     &                iBas,jBas,
-     &                iAsh,jAsh,
-     &                iOrb,jOrb,
+           Call Tra2B(iSym,jSym,iBas,jBas,iAsh,jAsh,iOrb,jOrb,
      &                kl_pair,kl_Orb_pairs,
      &                CMO(iiOff),CMO(jjOff),CMO(iiiOff),CMO(jjjOff),
-     &                Work(lBuf9),Work(lBuf2),
-     &                Work(lBuf3),Work(lBuf3),
+     &                Buf9,Buf2,Buf3,Buf3,
      &                PUVX(1+i1),PUVX(1+i2) )
+          Buf9=>Null()
 *
          End Do
          If (IPR.ge.99) Then
@@ -252,27 +246,25 @@
 *           Call FZero(PUVX(1+i1),kOrb*iAsh*ij_Orb_pairs)
 *           Call FZero(PUVX(1+i2),lOrb*kAsh*ij_Orb_pairs)
             Do ij_pair = 1, ij_Orb_pairs
-               iOff=ipTURS+(ij_pair-1)*kl_Bas_pairs
+               iOff=(ij_pair-1)*kl_Bas_pairs
 *
 *              unwrap triangular matrix of electron repulsion integrals
               If ( kSym.eq.lSym ) then
-                 Call Square(Work(iOff),Work(ipScrt1),1,kBas,kBas)
-                 lBuf9 = ipScrt1
+                 Call Square(TURS(iOff+1),Scrt1,1,kBas,kBas)
+                 lBuf9 = ip_of_Work(Scrt1)
+                 Buf9(1:kbas**2) => Scrt1(1:kbas**2)
               Else
-                 lBuf9 = iOff
+                 Buf9(1:kBas*lBas) => TURS(iOff+1:iOff+kBas*lBas)
               End If
 *
 *             second half transformation of electron repulsion integrals
 *             (vx!ij) --> (pu!vx)
-              Call Tra2B(kSym,lSym,
-     &                   kBas,lBas,
-     &                   kAsh,lAsh,
-     &                   kOrb,lOrb,
+              Call Tra2B(kSym,lSym,kBas,lBas,kAsh,lAsh,kOrb,lOrb,
      &                   ij_pair,ij_Orb_pairs,
      &                   CMO(kkOff),CMO(llOff),CMO(kkkOff),CMO(lllOff),
-     &                   Work(lBuf9),Work(lBuf2),
-     &                   Work(lBuf3),Work(lBuf3),
+     &                   Buf9,Buf2,Buf3,Buf3,
      &                   PUVX(1+i1),PUVX(1+i2) )
+              Buf9=>Null()
             End Do
             If (IPR.ge.99) Then
                 Call RecPrt('PUVX(k,l,i)',' ',PUVX(1+i1),kOrb,
@@ -285,13 +277,12 @@
       End If
 *
 *     deallocate memory
-      Call GetMem('TraScr5','Free','Real',ipInBuf,nInBuf)
-      If (nTURS.ne.0) Call GetMem('TraScr6','Free','Real',ipTURS,nTURS)
-      Call GetMem('TraScr4','Free','Real',ipPQVX,nPQVX)
-      Call GetMem('TraScr3','Free','Real',lBuf3,nBuf3)
-      Call GetMem('TraScr2','Free','Real',lBuf2,nBuf2)
-      If (nScrt1.ne.0)
-     &   Call GetMem('TraScr1','Free','Real',ipScrt1,nScrt1)
+      Call mma_deallocate(InBuf)
+      If (nTURS.ne.0) Call mma_deallocate(TURS)
+      Call mma_deallocate(PQVX)
+      Call mma_deallocate(Buf3)
+      Call mma_deallocate(Buf2)
+      If (Allocated(Scrt1)) Call mma_deallocate(Scrt1)
       Call Timing(Candino_2,Swatch,Swatch,Swatch)
       Candino_2 = Candino_2 - Candino_1
       Candino_3 = Candino_3 + Candino_2
