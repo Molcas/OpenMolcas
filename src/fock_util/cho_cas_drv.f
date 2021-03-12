@@ -19,6 +19,7 @@
       Integer   ipDSA2(8,8,8),nnA(8,8),ipKLT(2)
       Logical   TraOnly
 
+#include "real.fh"
 #include "chotodo.fh"
 #include "chopmat.fh"
 #include "chlcas.fh"
@@ -31,8 +32,14 @@
 #include "general.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Type (CMO_type) CVa(2), POrb(3)
+      Type (CMO_type) CVa(2), POrb(3), Ddec, ChoIn
+
+      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
+      Real*8, Allocatable:: DILT(:), DALT(:)
+      Real*8, Allocatable:: PMat(:), PL(:)
+      Real*8, Allocatable:: KLT(:,:)
 C ************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C  **************************************************
@@ -52,18 +59,18 @@ c
         iBas = nBas(iSym)
         iOrb = nOrb(iSym)
         iFro = nFro(iSym)
-        Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-        Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-        Call Square(FI(iOff1),Work(iTmp1),1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Work(iTmp1),
+        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
+        Call Square(FI(iOff1),Tmp1,1,iBas,iBas)
+        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,
      &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
-     &               0.0d0,Work(iTmp2),iBas)
-        Call MXMT(Work(iTmp2),iBas,1,
+     &               0.0d0,Tmp2,iBas)
+        Call MXMT(Tmp2,iBas,1,
      &            CMO(iOff2+(iFro*iBas)),1,iBas,
      &            FI(iOff3),
      &            iOrb,iBas)
-        Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-        Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
+        Call mma_deallocate(Tmp2)
+        Call mma_deallocate(Tmp1)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
@@ -77,19 +84,19 @@ c
         iBas = nBas(iSym)
         iOrb = nOrb(iSym)
         iFro = nFro(iSym)
-        Call GetMem('Scr1','Allo','Real',iTmp1,iBas*iBas)
-        Call GetMem('Scr2','Allo','Real',iTmp2,iOrb*iBas)
-        Call Square(FA(iOff1),Work(iTmp1),1,iBas,iBas)
-        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Work(iTmp1),
+        Call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+        Call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp1')
+        Call Square(FA(iOff1),Tmp1,1,iBas,iBas)
+        Call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,
      &               iBas,CMO(iOff2+(iFro*iBas)),max(iBas,iBas),
-     &               0.0d0,Work(iTmp2),iBas)
+     &               0.0d0,Tmp2,iBas)
 
-        Call MXMT(Work(iTmp2),iBas,1,
+        Call MXMT(Tmp2,iBas,1,
      &            CMO(iOff2+(iFro*iBas)),1,iBas,
      &            FA(iOff3),
      &            iOrb,iBas)
-        Call GetMem('Scr2','Free','Real',iTmp2,iOrb*iBas)
-        Call GetMem('Scr1','Free','Real',iTmp1,iBas*iBas)
+        Call mma_deallocate(Tmp2)
+        Call mma_deallocate(Tmp1)
         iOff1 = iOff1 + (iBas*iBas+iBas)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
@@ -114,11 +121,11 @@ c --- and v refers to the active orbitals only
 
 
 C --- Build the packed densities from the Squared ones
-      Call Getmem('DILT','Allo','Real',ipDILT,NTot1)
-      Call Getmem('DALT','Allo','Real',ipDALT,NTot1)
+      Call mma_allocate(DILT,NTot1,Label='DILT')
+      Call mma_allocate(DALT,NTot1,Label='DALT')
 
-      Call Fold(nSym,nBas,DI,Work(ipDILT))
-      Call Fold(nSym,nBas,DA1,Work(ipDALT))
+      Call Fold(nSym,nBas,DI,DILT)
+      Call Fold(nSym,nBas,DA1,DALT)
 
       FactXI = -1.0D0
 
@@ -133,19 +140,17 @@ C --- Build the packed densities from the Squared ones
 !         FactXI = 0-(ExFac*.5d0)
 
 c --- decompose the Inactive density on request
-         CALL GETMEM('choIn','allo','real',ipIna,NTot2)
-         CALL GETMEM('ddec','allo','real',ipddec,NTot2)
-         call dcopy_(NTot2,DI(1),1,Work(ipddec),1)
+         Call Allocate_CMO(ChoIn,nBas,nBas,nSym)
+         Call Allocate_CMO(DDec,nBas,nBas,nSym)
+         call dcopy_(NTot2,DI(1),1,DDec%A0,1)
 
-         ipInc = ipIna
+         ipInc = ip_of_Work(ChoIn%A0(1))
 
          Thr = 1.0d-12
-         ipd = ipddec
-         ipV = ipIna
          incs=0
          Do i=1,nSym
             if((nForb(i)+nIorb(i)).gt.0)then
-             CALL CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),
+             CALL CD_InCore(DDec%SB(i)%A,nBas(i),ChoIn%SB(i)%A,nBas(i),
      &                     NumV,Thr,rc)
              If (rc.ne.0) Then
               write(6,*)SECNAM//': ill-defined dens decomp for Inact'
@@ -161,8 +166,7 @@ c --- decompose the Inactive density on request
                incs=incs+1
                Ymax=0.0d0
                do ja=1,nBas(i)
-                  jaa=ipd-1+nBas(i)*(ja-1)+ja
-                  Ymax=Max(Ymax,Work(jaa))
+                  Ymax=Max(Ymax,DDec%SB(i)%A(ja,ja))
                end do
                write(6,*)'Max diagonal of the density in symm. ',i,' is'
      &                   //' equal to ',Ymax
@@ -170,8 +174,6 @@ c --- decompose the Inactive density on request
             else
              nChI(i) = 0
             endif
-            ipd = ipd + nBas(i)**2
-            ipV = ipV + nBas(i)**2
          End Do
 
          If (incs.gt.0 .and. DoLocK) then
@@ -180,7 +182,7 @@ c --- decompose the Inactive density on request
             write(6,*)'LK-damping decreased from ',dmpk_old,' to ',dmpk
          EndIf
 
-         CALL GETMEM('ddec','free','real',ipddec,NTot2)
+         Call Deallocate_CMO(DDEc)
 
 c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
          If(.not.DoLocK)Then
@@ -266,18 +268,17 @@ C --- Reorder the 2-el density matrix to fit cholesky needs
             End do
          End Do
 
-         Call Getmem('P-mat','Allo','Real',ipPmat,nPmat)
-         Call Getmem('P-scal','Allo','Real',ipPL,NACPR2)
-         Call CHO_Pmat(DA2,Work(ipPmat))
+         Call mma_allocate(PMat,nPMat,Label='PMat')
+         ipPmat = ip_of_Work(PMat(1))
+         Call mma_allocate(PL,NACPR2,Label='PL')
+         ipPL = ip_of_Work(PL(1))
+         Call CHO_Pmat(DA2,Pmat)
 
-         Call Fzero(Work(ipPmat),nPmat)
+         PMat(:)=Zero
 
-c         ipDA2 = ip_of_Work(DA2(1))
-         ipDA2 = ipPL
+         Call Reord_Pmat(ipPL,ipPmat,ipDSA2)
 
-         Call Reord_Pmat(ipDA2,ipPmat,ipDSA2)
-
-         Call Getmem('P-scal','Free','Real',ipPL,NACPR2)
+         Call mma_deallocate(PL)
 
       EndIf
 
@@ -289,24 +290,23 @@ C ---  Decompose the active density  -----------------------------
 #ifdef _DEBUGPRINT_
        koff=0
        do i=1,nSym
-          CALL CD_TESTER(rc,Work(ipDALT+koff),nBas(i),.true.)
+          CALL CD_TESTER(rc,DALT(1+koff),nBas(i),.true.)
           write(6,*) 'DALT for sym=', i
-          CALL TRIPRT('DALT',' ',Work(ipDALT+koff),nBas(i))
+          CALL TRIPRT('DALT',' ',DALT(1+koff),nBas(i))
           koff = koff + nBas(i)*(nBas(i)+1)/2
        end do
 #endif
 
         Call Allocate_CMO(CVa(2),nBas,nBas,nSym)
-        CALL GETMEM('ddec','allo','real',ipddec,NTot2)
-        call dcopy_(NTot2,DA1(1),1,Work(ipddec),1)
+        Call Allocate_CMO(DDec,nBas,nBas,nSym)
+        call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
 
         Thr = 1.0d-12
-        ipd = ipddec
         Do i=1,nSym
            if(nAorb(i).gt.0)then
 ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
 !                 This will avoid warnings for negative-definit
-             call CD_InCore(Work(ipd),nBas(i),
+             call CD_InCore(DDec%SB(i)%A,nBas(i),
      &                      CVa(2)%SB(i)%A,nBas(i),
      &                      NumV,Thr,rc)
              If (rc.ne.0) Then
@@ -318,10 +318,9 @@ C ---  Decompose the active density  -----------------------------
            else
              nChM(i) = 0
            endif
-           ipd = ipd + nBas(i)**2
         End Do
 
-        CALL GETMEM('ddec','free','real',ipddec,NTot2)
+        Call Deallocate_CMO(DDec)
 
       Else
 
@@ -362,7 +361,9 @@ C ----------------------------------------------------------------
       IF (ALGO.eq.1 .and. .not. DoLocK) THEN
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
-         ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
+         ipCM  = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
+         ipDILT= ip_of_Work(DILT(1))
+         ipDALT= ip_of_Work(DALT(1))
 
          CALL CHO_FMCSCF(rc,ipFA,ipFI,nForb,nIorb,nAorb,FactXI,
      &                   ipDILT,ipDALT,DoActive,POrb,nChM,ipInt,ExFac)
@@ -372,21 +373,23 @@ C ----------------------------------------------------------------
 
          ipInt = lpwxy   ! (PU|VX) integrals are computed
          ipCM = ip_of_work(CMO(1))  ! MOs coeff. in C(a,p) storage
-
-         Call Getmem('KILT','Allo','Real',ipKLT(1),NTot1)
-         Call Fzero(Work(ipKLT(1)),NTot1)
+         ipDILT= ip_of_Work(DILT(1))
+         ipDALT= ip_of_Work(DALT(1))
 
          If (DoActive) Then
-           Call Getmem('KALT','Allo','Real',ipKLT(2),NTot1)
-           Call Fzero(Work(ipKLT(2)),NTot1)
+           Call mma_allocate(KLT,NTOT1,2,Label='KLT')
+           ipKLT(2) = ip_of_Work(KLT(1,2))
+         Else
+           Call mma_allocate(KLT,NTOT1,1,Label='KLT')
          EndIf
+         ipKLT(1) = ip_of_Work(KLT(1,1))
+         KLT(:,:)=Zero
 
          CALL CHO_LK_CASSCF(ipDILT,ipDALT,ipFI,ipFA,ipKLT,ipInc,ipInt,
      &                      FactXI,nChI,nAorb,nChM,CVa,DoActive,
      &                      nScreen,dmpK,abs(CBLBM),ExFac)
 
-         If(DoActive) Call Getmem('KALT','Free','Real',ipKLT(2),NTot1)
-         Call Getmem('KILT','Free','Real',ipKLT(1),NTot1)
+         Call mma_deallocate(KLT)
 
       ELSE
 
@@ -402,19 +405,13 @@ C ----------------------------------------------------------------
       If (Allocated(CVa(1)%A0)) Call Deallocate_CMO(CVa(1))
       If (Allocated(CVa(2)%A0)) Call Deallocate_CMO(CVa(2))
 
-      If (DoQmat.and.ALGO.ne.1) Then
-         Call Getmem('P-mat','Free','Real',ipPmat,NPmat)
-      EndIf
+      If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
+      If (Deco) Call Deallocate_CMO(ChoIn)
 
-      If (Deco) CALL GETMEM('choIn','free','real',ipIna,NTot2)
-
-      Call Getmem('DALT','Free','Real',ipDALT,NTot1)
-      Call Getmem('DILT','Free','Real',ipDILT,NTot1)
-
-
+      Call mma_deallocate(DALT)
+      Call mma_deallocate(DILT)
 
       ENDIF
-
 
       Return
       END
