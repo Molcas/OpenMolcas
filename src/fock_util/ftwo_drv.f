@@ -12,15 +12,20 @@
      &                    DI,D1A,FA,nTot1,
      &                    ExFac,nTot2,nBMX,CMO)
 
-
+      use Data_Structures, only: CMO_Type, Allocate_CMO,
+     &                           Deallocate_CMO
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 
       Integer nBas(8), nAsh(8), nSkipX(8)
-      Dimension CMO(*) , D1A(*) , DI(*), FA(*)
+      Real*8 CMO(*) , D1A(*) , DI(*), FA(*)
       Logical DoCholesky
+
+      Type (CMO_Type) :: WFSQ
+
+      Real*8, Allocatable:: Temp(:)
 #include "choras.fh"
 
 
@@ -31,19 +36,19 @@
 * Building of the Fock matrix directly from Cholesky
 * vectors
 *
-         Call GetMem('LWFSQ','Allo','Real',LWFSQ,nTot2)
-         call dcopy_(nTot2,[Zero],0,Work(LWFSQ),1)
+         Call Allocate_CMO(WFSQ,nBas,nBas,nSym)
+         WFSQ%A0(:)=Zero
 
-         Call Allocate_Work(ipTemp,nTot1)
-         Call FZero(Work(ipTemp),nTot1)
+         Call mma_allocate(Temp,nTot1,Label='nTot1')
+         Temp(:)=Zero
 *
-         CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Work(ipTemp),
-     &                   ExFac,LWFSQ,CMO)
+         CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Temp,
+     &                   ExFac,WFSQ%A0,CMO)
 
-         Call DaXpY_(nTot1,One,Work(ipTemp),1,FA,1)
+         FA(1:nTot1) = FA(1:nTot1) + Temp(1:nTot1)
 *
-         Call Free_Work(ipTemp)
-         Call GetMem('LWFSQ','Free','Real',LWFSQ,nTot2)
+         Call mma_deallocate(Temp)
+         Call Deallocate_CMO(WFSQ)
 
       ELSE
 
