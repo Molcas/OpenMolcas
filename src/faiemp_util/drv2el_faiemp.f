@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Ben Swerts                                             *
-*               2016, Liviu Ungur                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Ben Swerts                                             *
+!               2016, Liviu Ungur                                      *
+!***********************************************************************
       SubRoutine Drv2El_FAIEMP()
-************************************************************************
-*                                                                      *
-*  Object: driver for the central-fragment interaction 2-electron      *
-*          integrals (based on drv2el_3center_RI and drv2el_scf)       *
-*                                                                      *
-*     Author: Ben Swerts                                               *
-*   Modified: Liviu Ungur                                              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!  Object: driver for the central-fragment interaction 2-electron      *
+!          integrals (based on drv2el_3center_RI and drv2el_scf)       *
+!                                                                      *
+!     Author: Ben Swerts                                               *
+!   Modified: Liviu Ungur                                              *
+!***********************************************************************
       use k2_arrays, only: pDq, pFq
       use Basis_Info
       use Center_Info
@@ -36,51 +36,51 @@
       Integer      nTInt
       Parameter(   nTInt=1)
       Real*8       TInt(nTInt)
-*
-      Logical      W2Disc, PreSch, FreeK2, Verbose, Indexation,
+!
+      Logical      W2Disc, PreSch, FreeK2, Verbose, Indexation,         &
      &             DoIntegrals, DoFock, DoGrad,NoCoul,NoExch
       Integer      iTOffs(8,8,8)
       Integer      nBas_Valence(0:7)
       Character*8  Label
       Logical      lNoSkip, EnergyWeight
-      Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,
-     &             iOpt, ip_ij, ipDMax,
-     &             ipFragDensAO, ipOneHam, ipTMax, iRC,
-     &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,
-     &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,
-     &             nOneHam, Nr_Dens, nSkal,
+      Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,       &
+     &             iOpt, ip_ij, ipDMax,                                 &
+     &             ipFragDensAO, ipOneHam, ipTMax, iRC,                 &
+     &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,     &
+     &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,   &
+     &             nOneHam, Nr_Dens, nSkal,                             &
      &             nSkal_Valence
 
-      Real*8       Aint, Count, Disc, Disc_Mx, Dtst, ExFac,
-     &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
+      Real*8       Aint, Count, Disc, Disc_Mx, Dtst, ExFac,             &
+     &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,         &
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
       Real*8, Allocatable, Target:: Dens(:), Fock(:)
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Integer      iFD
       Character*80 Line
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*----- Statement functions
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!----- Statement functions
+!
       TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
       DMax(i,j)=Work((j-1)*nSkal+i+ipDMax-1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       call xFlush(6)
       ExFac=One
       Nr_Dens=1
       DoIntegrals=.False.
       NoCoul=.False.
       NoExch=.False.
-c     W2Disc=.False.
+!     W2Disc=.False.
       W2Disc=.True.
-*
-*     Handle both the valence and the fragment basis set
-*
+!
+!     Handle both the valence and the fragment basis set
+!
       Call Set_Basis_Mode('Valence')
       Call Nr_Shells(nSkal_Valence)
       Call Free_iSD
@@ -94,23 +94,23 @@ c     W2Disc=.False.
         nBas(i) = nBas(i) + nBas_Frag(i)
         nBT = nBT + nBas(i)*(nBas(i)+1)/2
       enddo
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---  Construct custom density matrix
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---  Construct custom density matrix
+!
       Call mma_allocate(Dens,nBT,Label='Dens')
       Call mma_allocate(Fock,nBT,Label='Fock')
-* Valence part is zero
+! Valence part is zero
       Dens(:)=Zero
       Fock(:)=Zero
-* Each fragment needs it's (symmetrized) density matrix added along the
-* diagonal.
-* This density matrix first has to be constructed from the MO coeffs
-* so allocate space for the largest possible density matrix
+! Each fragment needs it's (symmetrized) density matrix added along the
+! diagonal.
+! This density matrix first has to be constructed from the MO coeffs
+! so allocate space for the largest possible density matrix
       maxDens = 0
       Do iCnttp = 1, nCnttp
-        If(dbsc(iCnttp)%nFragType.gt.0) maxDens = Max(maxDens,
+        If(dbsc(iCnttp)%nFragType.gt.0) maxDens = Max(maxDens,          &
      &     dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
       Call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
@@ -126,31 +126,31 @@ c     W2Disc=.False.
             mdc = mdc + dbsc(iCnttp)%nCntr
             Go To 1000
           End If
-* construct the density matrix
+! construct the density matrix
           EnergyWeight = .false.
-          Call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,
-     &                dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,
+          Call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,  &
+     &                dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,      &
      &                EnergyWeight,Work(ipFragDensAO))
-* create the symmetry adapted version if necessary
-* (fragment densities are always calculated without symmetry)
+! create the symmetry adapted version if necessary
+! (fragment densities are always calculated without symmetry)
 #ifdef _DEBUGPRINT_
-          Call TriPrt('Fragment density',' ',
+          Call TriPrt('Fragment density',' ',                           &
      &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
 #endif
 
           Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
-* only add fragment densities that are active in this irrep
-* => the following procedure still has to be verified thoroughly
-*    but appears to be working
+! only add fragment densities that are active in this irrep
+! => the following procedure still has to be verified thoroughly
+!    but appears to be working
             If(iAnd(dc(mdc)%iChCnt,iIrrep).eq.iOper(iIrrep)) Then
-* add it at the correct location in the large custom density matrix
+! add it at the correct location in the large custom density matrix
               iFpos = 1
-c              ! position in fragment density matrix
+!              ! position in fragment density matrix
               Do i = 1, dbsc(iCnttp)%nFragDens
                 iDpos = iDpos + nBasC
                 Do j = 0, i-1
-                  Dens(iDpos + j) =
+                  Dens(iDpos + j) =                                     &
      &                          Work(ipFragDensSO + iFpos + j - 1)
                 End Do
                 iDpos = iDpos + i
@@ -169,14 +169,14 @@ c              ! position in fragment density matrix
       End Do
 #endif
       Call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Desymmetrize the custom density matrix
-*
-* Should be possible to reduce the storage space for the Fock matrix
-* and only store the top nBas_Valence(0) rows (non-symmetry case tested)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Desymmetrize the custom density matrix
+!
+! Should be possible to reduce the storage space for the Fock matrix
+! and only store the top nBas_Valence(0) rows (non-symmetry case tested)
+!
       Call AlloK2()
       Call DeDe_SCF(Dens,Fock,nBT,mDens)
 #ifdef _DEBUGPRINT_
@@ -185,39 +185,39 @@ c              ! position in fragment density matrix
       Else
          iFD = 1
          Do iIrrep = 0, nIrrep - 1
-            Call TriPrt('Desymmetrized density',' ',
+            Call TriPrt('Desymmetrized density',' ',                    &
      &                  pDq(iFD),nBas(iIrrep))
             iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End Do
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Initialize for 2-electron integral evaluation. Do not generate
-*     tables for indexation.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Initialize for 2-electron integral evaluation. Do not generate
+!     tables for indexation.
+!
       ThrAO = Zero
       Indexation = .False.
       DoFock=.True.
       DoGrad=.False.
       Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Thize=1.0d-6
       PreSch=.False.
       Disc_Mx=Zero
-*
+!
       Disc=Zero
       TskHi=Zero
       TskLw=Zero
       ThrInt = CutInt   ! Integral neglect threshold from SCF
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---  Compute entities for prescreening at shell level
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---  Compute entities for prescreening at shell level
+!
       Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
       Call Shell_MxSchwz(nSkal,Work(ipTMax))
       TMax_all=Zero
@@ -228,11 +228,11 @@ c              ! position in fragment density matrix
       End Do
       Call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
       Call Shell_MxDens(Dens,work(ipDMax),nSkal)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Create list of non-vanishing pairs
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Create list of non-vanishing pairs
+!
       Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
       nij=0
       Do iS = 1, nSkal
@@ -245,36 +245,36 @@ c              ! position in fragment density matrix
          End Do
       End Do
       P_Eff=dble(nij)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
       Call CWTime(TCpu1,TWall1)
-*
-*     Now do a quadruple loop over shells
-*
-c     ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
+!
+!     Now do a quadruple loop over shells
+!
+!     ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
       ijS = 1
       iS = iWork((ijS-1)*2+ip_ij)
       jS = iWork((ijS-1)*2+ip_ij+1)
-c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
+!     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       klS = 1
       kS = iWork((klS-1)*2+ip_ij)
       lS = iWork((klS-1)*2+ip_ij+1)
  13   Continue
       If(ijS.gt.int(P_Eff)) Go To 12
-*                                                                      *
-************************************************************************
-*                                                                      *
-* density prescreening (results in iS > nSkal_Valence)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! density prescreening (results in iS > nSkal_Valence)
          Aint=TMax(iS,jS)*TMax(kS,lS)
-         Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
-     &            DMax(js,ls)/Four,DMax(js,ks)/Four,
+         Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,                    &
+     &            DMax(js,ls)/Four,DMax(js,ks)/Four,                    &
      &            DMax(is,js),DMax(ks,ls))
          lNoSkip = Aint*Dtst.ge.ThrInt
-* only calculate needed integrals and only update the valence part of the
-* Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
-* belonging to different regions)
+! only calculate needed integrals and only update the valence part of the
+! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
+! belonging to different regions)
          If(jS.le.nSkal_Valence) Then
            lNoSkip = lNoSkip.and.kS.gt.nSkal_Valence
          Else
@@ -283,12 +283,12 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          lNoSkip = lNoSkip.and.lS.le.nSkal_Valence
 
          If (lNoSkip) Then
-           Call Eval_Ints_New_Inner
-     &                    (iS,jS,kS,lS,TInt,nTInt,
-     &                     iTOffs,No_Routine,
-     &                     pDq,pFq,mDens,[ExFac],Nr_Dens,
-     &                     [NoCoul],[NoExch],
-     &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
+           Call Eval_Ints_New_Inner                                     &
+     &                    (iS,jS,kS,lS,TInt,nTInt,                      &
+     &                     iTOffs,No_Routine,                           &
+     &                     pDq,pFq,mDens,[ExFac],Nr_Dens,               &
+     &                     [NoCoul],[NoExch],                           &
+     &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,            &
      &                     Count,DoIntegrals,DoFock)
 #ifdef _DEBUGPRINT_
             write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
@@ -313,37 +313,37 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
          kS = iWork((klS-1)*2+ip_ij  )
          lS = iWork((klS-1)*2+ip_ij+1)
          Go To 13
-*
-*     Task endpoint
-*
+!
+!     Task endpoint
+!
  12   Continue
-*
-*     Use a time slot to save the number of tasks and shell
-*     quadruplets processed by an individual node
+!
+!     Use a time slot to save the number of tasks and shell
+!     quadruplets processed by an individual node
       Call SavStat(1,One,'+')
       Call SavStat(2,TskHi-TskLw+One,'+')
-*
+!
       Call CWTime(TCpu2,TWall2)
       Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                         E P I L O G U E                              *
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                         E P I L O G U E                              *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
       Call GetMem('DMax','Free','Real',ipDMax,nSkal**2)
       Call GetMem('TMax','Free','Real',ipTMax,nSkal)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Terminate integral environment.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Terminate integral environment.
+!
       Verbose = .False.
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
-*
+!
       Call Free_DeDe(Dens,Fock,nBT)
 
       Call mma_deallocate(Dens)
@@ -353,18 +353,18 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
       iFD = 1
       Do iIrrep = 0, nIrrep - 1
-         Write (Line,'(1X,A,I1)')
+         Write (Line,'(1X,A,I1)')                                       &
      &      ' Diagonal Symmetry Block ', iIrrep+1
          Call TriPrt(Line,' ',Fock(iFD),nBas_Valence(iIrrep))
          iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
       End Do
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Write the results to the one electron integral file
-*
-* read the one electron hamiltonian
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Write the results to the one electron integral file
+!
+! read the one electron hamiltonian
       Label = 'OneHam  '
       iRC = -1
       iOpt = 0
@@ -375,18 +375,18 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
         Write (6,'(A,A)') 'Label=',Label
         Call Abend()
       End If
-* add the calculated results
+! add the calculated results
       nOneHam = 0 ! counter in the ipOneHam matrices (small)
       nFock = 1   ! counter in the ipFock matrices (larger)
       Do iIrrep = 0, nIrrep - 1
         nBVTi = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-        call daxpy_(nBVTi,One,Fock(nFock),1,
+        call daxpy_(nBVTi,One,Fock(nFock),1,                            &
      &                       Work(ipOneHam+nOneHam),1)
         nOneHam = nOneHam + nBVTi
         nFock = nFock + nBas(iIrrep)*(nBas(iIrrep)+1)/2
       End Do
 
-* write out the results
+! write out the results
 #ifdef _DEBUGPRINT_
       iFD = ipOneHam
       Do iIrrep = 0, nIrrep - 1
@@ -410,22 +410,22 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
         Call Abend()
       End If
 
-* cleanup
+! cleanup
       Call GetMem('Temp','Free','Real',ipOneHam,nBVT+4)
       Call mma_deallocate(Fock)
-*                                                                      *
-************************************************************************
-************************************************************************
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
       Call Free_iSD
       Call Set_Basis_Mode('Valence')
       Call SetUp_iSD
       Do i = 0, nIrrep - 1
          nBas(i) = nBas_Valence(i)
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End
