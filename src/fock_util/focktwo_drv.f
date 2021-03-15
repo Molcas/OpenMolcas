@@ -11,13 +11,20 @@
       Subroutine FockTwo_Drv(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
      &                       ExFac,nBSQT,nBMX)
+      Use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 DLT(*),DSQ(*),FLT(nFLT)
       Integer nBas(8), nAux(8), Keep(8)
       Logical DoCholesky,GenInt
       Real*8 CMO_DUMMY(1)
+
+      Type (DSBA_Type) WFSQ
+
+      Real*8, Allocatable:: W1(:), W2(:), Temp(:)
 
 #include "choras.fh"
 *
@@ -28,23 +35,24 @@
 
       Call DecideOnCholesky(DoCholesky)
 
-      Call GetMem('LWFSQ','Allo','Real',LWFSQ,NBSQT)
-      call dcopy_(NBSQT,[Zero],0,Work(LWFSQ),1)
+      Call Allocate_DSBA(WFSQ,nBas,nBas,nSym)
+      WFSQ%A0(:)=Zero
+      LWFSQ = ip_of_Work(WFSQ%A0(1))
 
       if((.not.DoCholesky).or.(GenInt)) then
-      Call GetMem('LW2','Allo','Real',LW2,NBMX*NBMX)
+        Call mma_allocate(W2,NBMX**2,Label='W2')
       end if
 *
-      Call Allocate_Work(ipTemp,nFlt)
-      Call FZero(Work(ipTemp),nFlt)
+      Call mma_allocate(Temp,nFlt,Label='Temp')
+      Temp(:)=Zero
 *
-      Call GetMem('LW1','MAX','Real',LW1,LBUF)
+      Call mma_maxDBLE(LBUF)
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
 
       IF (.not.DoCholesky) THEN
-         Call GetMem('LW1','Allo','Real',LW1,LBUF)
+         Call mma_allocate(W1,LBUF,Label='W1')
 
       If (LBUF.LT.1+NBMX**2) Then
          WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
@@ -57,8 +65,8 @@
       End If
 *
       Call FOCKTWO(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac)
+     &             DLT,DSQ,Temp,nFlt,
+     &             WFSQ%A0,LBUF,W1,W2,ExFac)
 
       ENDIF
 *
@@ -67,7 +75,7 @@
 *
       IF (DoCholesky.and.GenInt) THEN ! save some space for GenInt
            LBUF = MAX(LBUF-LBUF/10,0)
-           Call GetMem('LW1','Allo','Real',LW1,LBUF)
+           Call mma_allocate(W1,LBUF,Label='W1')
 
       If (LBUF.LT.1+NBMX**2) Then
          WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
@@ -80,8 +88,8 @@
       End If
 *
       Call FOCKTWO(nSym,nBas,nAux,Keep,
-     &             DLT,DSQ,Work(ipTemp),nFlt,
-     &             Work(LWFSQ),LBUF,Work(LW1),Work(LW2),ExFac)
+     &             DLT,DSQ,Temp,nFlt,
+     &             WFSQ%A0,LBUF,W1,W2,ExFac)
 
       ENDIF
 
@@ -96,22 +104,22 @@
 *      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,
 *     &                      ExFac,LWFSQ,CMO)
        CALL CHOras_drv(nSym,nBas,nAux,DSQ,DLT,
-     &                 Work(ipTemp),ExFac,LWFSQ,CMO_DUMMY)
+     &                 Temp,ExFac,WFSQ,CMO_DUMMY)
 *
       ENDIF
 *
 
 
-      Call DaXpY_(nFlt,One,Work(ipTemp),1,FLT,1)
+      Call DaXpY_(nFlt,One,Temp,1,FLT,1)
 *
-      Call Free_Work(ipTemp)
+      Call mma_deallocate(Temp)
 
       if(.not.DoCholesky)then
-      Call GetMem('LW1','Free','Real',LW1,LBUF)
-      Call GetMem('LW2','Free','Real',LW2,NBMX*NBMX)
+         Call mma_deallocate(W1)
+         Call mma_deallocate(W2)
       endif
 
-      Call GetMem('LWFSQ','Free','Real',LWFSQ,NBSQT)
+      Call Deallocate_DSBA(WFSQ)
 *
       Return
       End

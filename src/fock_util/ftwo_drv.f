@@ -43,7 +43,7 @@
          Temp(:)=Zero
 *
          CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Temp,
-     &                   ExFac,WFSQ%A0,CMO)
+     &                   ExFac,WFSQ,CMO)
 
          FA(1:nTot1) = FA(1:nTot1) + Temp(1:nTot1)
 *

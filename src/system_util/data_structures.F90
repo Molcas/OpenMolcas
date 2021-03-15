@@ -77,7 +77,8 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
   Integer, Intent(In) :: n(nSym), m(nSym)
   Character(LEN=3), Intent(In), Optional :: Case
 
-  Integer iE, iS, iSym, MemTot, iCase
+  Integer iE, iS, iSym, MemTot
+  Integer :: iCase=0
 
   If (Present(Case)) Then
      Select Case (Case)

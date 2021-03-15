@@ -9,11 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,
-     &                      ExFac,LWFSQ,CMO)
+     &                      ExFac,WFSQ,CMO)
 
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+
+      Type (DSBA_Type) WFSQ
       Integer nBas(8), MinMem(8),rc
       Real*8 FLT(*),CMO(*)
       Real*8 DSQ(*),DLT(*)
@@ -46,7 +49,7 @@ C  **************************************************
       ipDLT(1) = ip_of_Work(DLT(1))
       ipDSQ(1) = ip_of_Work(DSQ(1))
       ipFLT(1) = ip_of_Work(FLT(1))
-      ipFSQ(1) = LWFSQ
+      ipFSQ(1) = ip_of_Work(WFSQ%A0(1))
 
       iUHF=0
 
