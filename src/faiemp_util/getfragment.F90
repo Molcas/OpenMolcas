@@ -11,7 +11,8 @@
 ! Copyright (C) Ben Swerts                                             *
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
-      SubRoutine GetFragment(lUnit,iCnttp)
+
+subroutine GetFragment(lUnit,iCnttp)
 !***********************************************************************
 !                                                                      *
 !    Objective: To read frozen fragment information.                   *
@@ -25,209 +26,202 @@
 !     Author: Ben Swerts                                               *
 !   Modified: Liviu Ungur                                              *
 !***********************************************************************
-      Use Basis_Info
-      Implicit None
+
+use Basis_Info
+
+implicit none
 #include "stdalloc.fh"
 #include "angstr.fh"
-      Integer lUnit,iCnttp
-      Character*180 Line, Get_Ln
-      integer storageSize,LineWords
-      parameter(storageSize = 200, LineWords=storageSize/8)
-      Integer nFragType,nFragCoor,nFragEner,nFragDens
-!     LineWords = 25
-      Character*(storageSize) sBasis
-      Real*8 eqBasis(LineWords)
-      Integer iPrint,i,j,iBasis,ierr
+integer lUnit, iCnttp
+character*180 Line, Get_Ln
+integer storageSize, LineWords
+parameter(storageSize=200,LineWords=storageSize/8)
+integer nFragType, nFragCoor, nFragEner, nFragDens
+character*(storageSize) sBasis
+real*8 eqBasis(LineWords)
+integer iPrint, i, j, iBasis, ierr
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
-      Integer lUnit, iStrt, iEnd, Inc, iErr
-      Real*8 Work(iend)
-      End subroutine Read_v
-      End Interface
+interface
+  subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
+    integer lUnit, iStrt, iEnd, Inc, iErr
+    real*8 Work(iend)
+  end subroutine Read_v
+end interface
+!LineWords = 25
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      iPrint=99
+iPrint = 99
 #else
-      iPrint=5
+iPrint = 5
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nFrag_LineWords=LineWords ! Needed in Module Basis_Info
+nFrag_LineWords = LineWords ! Needed in Module Basis_Info
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Keyword: LBASIS
+! Keyword: LBASIS
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Local basis sets for unique centers
+! Local basis sets for unique centers
 !
-      if(iPrint.ge.99) write(6,*) 'Reading LBASIS'
-      Line = Get_Ln(lUnit)
-      If (Index(Line,'LBASIS').eq.0) Then
-        write (6,*) 'ERROR: Keyword LBASIS expected, offending line:'
-        write (6,*) Line
-        Call Quit_OnUserError()
-      Endif
-!
-!     Fragment types
-!
-      Line = Get_Ln(lUnit)
-      Call Get_i1(1,nFragType)
-      dbsc(iCnttp)%nFragType=nFragType
-      Call mma_allocate(dbsc(iCnttp)%FragType,LineWords,nFragType,      &
-     &                  Label='FragType')
-      if(iPrint.ge.99) write(6,*) 'number of LBASIS = ',nFragType
+if (iPrint >= 99) write(6,*) 'Reading LBASIS'
+Line = Get_Ln(lUnit)
+if (index(Line,'LBASIS') == 0) then
+  write(6,*) 'ERROR: Keyword LBASIS expected, offending line:'
+  write(6,*) Line
+  call Quit_OnUserError()
+end if
+
+! Fragment types
+
+Line = Get_Ln(lUnit)
+call Get_i1(1,nFragType)
+dbsc(iCnttp)%nFragType = nFragType
+call mma_allocate(dbsc(iCnttp)%FragType,LineWords,nFragType,Label='FragType')
+if (iPrint >= 99) write(6,*) 'number of LBASIS = ',nFragType
 !
 !     read the basis sets labels
 !
-      do i = 1,nFragType
-          sBasis=Get_Ln(lUnit)
-          eqBasis=Transfer(sBasis,eqBasis) ! ???
-          do j = 1,LineWords
-             dbsc(iCnttp)%FragType(j,i) = eqBasis(j)
-          enddo
-          if(iPrint.ge.49) write(6,*) 'GetFragment: basis set ', sBasis
-      enddo
+do i=1,nFragType
+  sBasis = Get_Ln(lUnit)
+  eqBasis = transfer(sBasis,eqBasis) ! ???
+  do j=1,LineWords
+    dbsc(iCnttp)%FragType(j,i) = eqBasis(j)
+  end do
+  if (iPrint >= 49) write(6,*) 'GetFragment: basis set ',sBasis
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Keyword: RELCOORDS
+! Keyword: RELCOORDS
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     All atoms: index of the associated basis set and coordinates
-!
-      If(iPrint.ge.99) write(6,*) 'Reading RELCOORDS'
+! All atoms: index of the associated basis set and coordinates
 
-      Line = Get_Ln(lUnit)
-      If (Index(Line,'RELCOORDS').eq.0) Then
-        write (6,*) 'ERROR: Keyword RELCOORDS expected, offending line:'
-        write (6,*) Line
-        Call Quit_OnUserError()
-      Endif
+if (iPrint >= 99) write(6,*) 'Reading RELCOORDS'
 
-      Line = Get_Ln(lUnit)
-      Call Get_i1(1,nFragCoor)
-      dbsc(iCnttp)%nFragCoor=nFragCoor
-      if(iPrint.ge.99) write(6,*) 'number of RELCOORDS = ',nFragCoor
-!
-!     read all centers, but reserve space for the Mulliken charges
-!
-!     FragCoor(1,i): Index of the FragType
-!     FragCoor(2,i): x coordinate
-!     FragCoor(3,i): y coordinate
-!     FragCoor(4,i): z coordinate
-!     FragCoor(5,i): Mulliken charge
-!
-      Call mma_allocate(dbsc(iCnttp)%FragCoor,5,nFragCoor,              &
-     &                  Label='FragCoor')
-      do i = 1,nFragCoor
-        Line = Get_Ln(lUnit)
-        Call Get_i1(1,iBasis)
-        dbsc(iCnttp)%FragCoor(1,i) = dble(iBasis)
-        Call Get_f(2,dbsc(iCnttp)%FragCoor(2,i),3)
-        If (Index(Line,'ANGSTROM').ne.0) Then
-           If (iPrint.ge.49)                                            &
-     &        write(6,*) 'Reading the relcoords in Angstrom'
-              dbsc(iCnttp)%FragCoor(2:4,i)=                             &
-     &            dbsc(iCnttp)%FragCoor(2:4,i)/Angstr
-        End If
-      enddo
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     keyword: ENERGIES
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Orbital energies (taken from the ONE ELECTRON ENERGIES in ScfOrb)
-!
-      if(iPrint.ge.99) write(6,*) 'Reading ENERGIES'
-      Line = Get_Ln(lUnit)
-      If (Index(Line,'ENERGIES').eq.0) Then
-        write (6,*) 'ERROR: Keyword ENERGIES expected, offending line:'
-        write (6,*) Line
-        Call Quit_OnUserError()
-      Endif
+Line = Get_Ln(lUnit)
+if (index(Line,'RELCOORDS') == 0) then
+  write(6,*) 'ERROR: Keyword RELCOORDS expected, offending line:'
+  write(6,*) Line
+  call Quit_OnUserError()
+end if
 
-      Line = Get_Ln(lUnit)
-      Call Get_i1(1,nFragEner)
-      dbsc(iCnttp)%nFragEner=nFragEner
-      Call mma_Allocate(dbsc(iCnttp)%FragEner,nFragEner,                &
-     &                   Label='FragEner')
-!
-      Call Read_v(lUnit,dbsc(iCnttp)%FragEner,1,nFragEner,1,ierr)
-      if(iPrint.ge.99) Call RecPrt('Fragment MO energies',' ',          &
-     &                              dbsc(iCnttp)%FragEner,1,nFragEner)
-      If (ierr.ne.0) Then
-        write(6,*) 'ERROR: number of energy values is not correct'
-        write(6,*) ierr
-        Call Quit_OnUserError()
-      Endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     keyword: MOCOEFF
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     MO coefficients (taken from the ORBITALs in ScfOrb)
-!
-      if(iPrint.ge.99) write(6,*) 'Reading MOCOEFF'
-      Line = Get_Ln(lUnit)
-      If(Index(Line,'MOCOEFF').eq.0) Then
-        write(6,*) 'ERROR: Keyword MOCOEFF expected, offending line:'
-        write(6,*) Line
-        Call Quit_OnUserError()
-      Endif
+Line = Get_Ln(lUnit)
+call Get_i1(1,nFragCoor)
+dbsc(iCnttp)%nFragCoor = nFragCoor
+if (iPrint >= 99) write(6,*) 'number of RELCOORDS = ',nFragCoor
 
-      Line=Get_Ln(lUnit)
-      Call Get_i1(1,nFragDens)
-      dbsc(iCnttp)%nFragDens=nFragDens
-      Call mma_allocate(dbsc(iCnttp)%FragCoef,nFragDens,nFragEner,      &
-     &                  Label='FragCoef')
+! read all centers, but reserve space for the Mulliken charges
 !
-      Call Read_v(lUnit,dbsc(iCnttp)%FragCoef,1,nFragDens*nFragEner,1,  &
-     &                       iErr)
-      If(iPrint.ge.99) Call RecPrt('Fragment MO coefficients',' ',      &
-     &                      dbsc(iCnttp)%FragCoef,nFragDens,nFragEner)
-      If(ierr.ne.0) Then
-        write(6,*) 'ERROR: number of coefficients is not correct'
-        Call Quit_OnUserError()
-      Endif
+! FragCoor(1,i): Index of the FragType
+! FragCoor(2,i): x coordinate
+! FragCoor(3,i): y coordinate
+! FragCoor(4,i): z coordinate
+! FragCoor(5,i): Mulliken charge
+
+call mma_allocate(dbsc(iCnttp)%FragCoor,5,nFragCoor,Label='FragCoor')
+do i=1,nFragCoor
+  Line = Get_Ln(lUnit)
+  call Get_i1(1,iBasis)
+  dbsc(iCnttp)%FragCoor(1,i) = dble(iBasis)
+  call Get_f(2,dbsc(iCnttp)%FragCoor(2,i),3)
+  if (index(Line,'ANGSTROM') /= 0) then
+    if (iPrint >= 49) write(6,*) 'Reading the relcoords in Angstrom'
+    dbsc(iCnttp)%FragCoor(2:4,i) = dbsc(iCnttp)%FragCoor(2:4,i)/Angstr
+  end if
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     keyword: MULLIKEN
+! keyword: ENERGIES
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Mulliken charges
-!
-      if(iPrint.ge.99) write(6,*) 'Reading MULLIKEN'
-      Line = Get_Ln(lUnit)
-      If (Index(Line,'MULLIKEN').eq.0) Then
-        write(6,*) 'ERROR: Keyword MULLIKEN expected, offending line:'
-        write(6,*) Line
-        Call Quit_OnUserError()
-      Endif
-      Call Read_v(lUnit,dbsc(iCnttp)%FragCoor,5,5*nFragCoor,5,ierr)
-      If(iPrint.ge.99) Call RecPrt('Fragment Mulliken charges',' ',     &
-     &                      dbsc(iCnttp)%FragCoor,5,nFragCoor)
-      If(ierr.ne.0) Then
-        write(6,*) 'ERROR: number of Mulliken charges is not correct'
-        Call Quit_OnUserError()
-      Endif
+! Orbital energies (taken from the ONE ELECTRON ENERGIES in ScfOrb)
+
+if (iPrint >= 99) write(6,*) 'Reading ENERGIES'
+Line = Get_Ln(lUnit)
+if (index(Line,'ENERGIES') == 0) then
+  write(6,*) 'ERROR: Keyword ENERGIES expected, offending line:'
+  write(6,*) Line
+  call Quit_OnUserError()
+end if
+
+Line = Get_Ln(lUnit)
+call Get_i1(1,nFragEner)
+dbsc(iCnttp)%nFragEner = nFragEner
+call mma_Allocate(dbsc(iCnttp)%FragEner,nFragEner,Label='FragEner')
+
+call Read_v(lUnit,dbsc(iCnttp)%FragEner,1,nFragEner,1,ierr)
+if (iPrint >= 99) call RecPrt('Fragment MO energies',' ',dbsc(iCnttp)%FragEner,1,nFragEner)
+if (ierr /= 0) then
+  write(6,*) 'ERROR: number of energy values is not correct'
+  write(6,*) ierr
+  call Quit_OnUserError()
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+! keyword: MOCOEFF
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! MO coefficients (taken from the ORBITALs in ScfOrb)
+
+if (iPrint >= 99) write(6,*) 'Reading MOCOEFF'
+Line = Get_Ln(lUnit)
+if (index(Line,'MOCOEFF') == 0) then
+  write(6,*) 'ERROR: Keyword MOCOEFF expected, offending line:'
+  write(6,*) Line
+  call Quit_OnUserError()
+end if
+
+Line = Get_Ln(lUnit)
+call Get_i1(1,nFragDens)
+dbsc(iCnttp)%nFragDens = nFragDens
+call mma_allocate(dbsc(iCnttp)%FragCoef,nFragDens,nFragEner,Label='FragCoef')
+
+call Read_v(lUnit,dbsc(iCnttp)%FragCoef,1,nFragDens*nFragEner,1,iErr)
+if (iPrint >= 99) call RecPrt('Fragment MO coefficients',' ',dbsc(iCnttp)%FragCoef,nFragDens,nFragEner)
+if (ierr /= 0) then
+  write(6,*) 'ERROR: number of coefficients is not correct'
+  call Quit_OnUserError()
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! keyword: MULLIKEN
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Mulliken charges
+
+if (iPrint >= 99) write(6,*) 'Reading MULLIKEN'
+Line = Get_Ln(lUnit)
+if (index(Line,'MULLIKEN') == 0) then
+  write(6,*) 'ERROR: Keyword MULLIKEN expected, offending line:'
+  write(6,*) Line
+  call Quit_OnUserError()
+end if
+call Read_v(lUnit,dbsc(iCnttp)%FragCoor,5,5*nFragCoor,5,ierr)
+if (iPrint >= 99) call RecPrt('Fragment Mulliken charges',' ',dbsc(iCnttp)%FragCoor,5,nFragCoor)
+if (ierr /= 0) then
+  write(6,*) 'ERROR: number of Mulliken charges is not correct'
+  call Quit_OnUserError()
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine GetFragment

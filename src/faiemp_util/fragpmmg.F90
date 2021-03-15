@@ -11,7 +11,8 @@
 ! Copyright (C) Ben Swerts                                             *
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
-      Subroutine FragPMmG(nHer,MemFrag,la,lb,lr)
+
+subroutine FragPMmG(nHer,MemFrag,la,lb,lr)
 !***********************************************************************
 !  Object: to compute the number of real*8 the kernal routine will     *
 !          need for the computation of a matrix element between two    *
@@ -27,103 +28,92 @@
 !  based on PrjMmG                                                     *
 !                                                                      *
 !***********************************************************************
-      Use Basis_Info
-      Implicit None
-      Integer nHer,MemFrag,la,lb,lr
-      Integer i,nElem,nOrder,maxDensSize
-      Integer iCnttp,jCnttp,iAng,jAng,iShll,jShll
-      Integer ip,nac,ncb, nExpi, nExpj
-      Integer nBasisi, nBasisj
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
-      nOrder = 0
-      MemFrag = 0
-      maxDensSize = 0
-!  largest possible fragment energy weighted density matrix
-      Do iCnttp = 1, nCnttp
-        If(dbsc(iCnttp)%nFragType.gt.0)                                 &
-     &  maxDensSize = Max( maxDensSize,                                 &
-     &                     dbsc(iCnttp)%nFragDens                       &
-     &                   *(dbsc(iCnttp)%nFragDens+1)/2 )
-      End Do
-!
-      Do iCnttp = 1, nCnttp
-      If (.Not.dbsc(iCnttp)%Frag) cycle  ! Go To 1960
-!
-         Do iAng = 0, dbsc(iCnttp)%nVal-1
-         iShll = dbsc(iCnttp)%iVal + iAng
-         nExpi=Shells(iShll)%nExp
-         nBasisi=Shells(iShll)%nBasis
-         If (nExpi.eq.0 .or. nBasisi.eq.0) cycle !Go To 1966
-!
-            Do jCnttp = iCnttp, nCnttp
-! still figure out how to loop only over the centers belonging to the
-! same fragment (keep track of mdc?) ! still to be done !!!
-            If (.Not.dbsc(jCnttp)%Frag) cycle !Go To 1970
-!
-               Do jAng = 0, dbsc(jCnttp)%nVal-1
-               jShll = dbsc(jCnttp)%iVal + jAng
-               nExpj=Shells(jShll)%nExp
-               nBasisj=Shells(jShll)%nBasis
-               If (nExpj.eq.0 .or. nBasisj.eq.0) cycle
-!              Go To 1976
-!
-               ip =  2 * maxDensSize
-              nac =  4 * nElem(la) * nElem(iAng)
-               ip = ip + nExpi * nac
-               ip = ip + 3 * nExpi
-               ip = ip + nExpi
-               ip = ip + nExpi
-               ip = ip + nExpi
-             nHer = ((la+1)+iAng+2)/2
-           nOrder = Max(nHer,nOrder)
-               ip = ip + nExpi * 3 * nHer * (la+2)
-               ip = ip + nExpi * 3 * nHer * (iAng+1)
-               ip = ip + nExpi * 3 * nHer * (lr+1)
-               ip = ip + nExpi * 3 * nHer * (la+2)*(iAng+1)*(lr+1)
-               ip = ip + nExpi
-!
-          MemFrag = Max(MemFrag,ip)
-               ip = ip - nExpi                                          &
-     &            * (6 + 3*nHer*((la+2) + (iAng+1) + (lr+1)             &
-     &            + (la+2)*(iAng+1)*(lr+1)) + 1)
-!
-              ncb = 4*nElem(jAng)*nElem(lb)
-               ip = ip + nExpj*ncb
-               ip = ip + 3 * nExpj
-               ip = ip + nExpj
-               ip = ip + nExpj
-               ip = ip + nExpj
-             nHer = ((lb+1)+jAng+2)/2
-           nOrder = Max(nHer,nOrder)
-               ip = ip + nExpj*3*nHer*(lb+2)
-               ip = ip + nExpj*3*nHer*(jAng+1)
-               ip = ip + nExpj*3*nHer*(lr+1)
-               ip = ip + nExpj*3*nHer*(lb+2)*(jAng+1)*(lr+1)
-               ip = ip + nExpj
-!
-          MemFrag = Max(MemFrag,ip)
-               ip = ip - nExpj                                          &
-     &            * (6 + 3*nHer*((lb+2) + (jAng+1) + (lr+1)             &
-     &            +  (lb+2)*(jAng+1)*(lr+1)) + 1)
-!
-               ip = ip + Max(Max(nExpi,nBasisj)*nac,                    &
-     &                      ncb*nBasisj)
-          MemFrag = Max(MemFrag,ip)
-!
-! 1976          Continue
-               Enddo  !jAng
 
-! 1970       Continue
-            Enddo  !jCnttp
+use Basis_Info
 
-! 1966    Continue
-         Enddo !iAng
+implicit none
+integer nHer, MemFrag, la, lb, lr
+integer i, nElem, nOrder, maxDensSize
+integer iCnttp, jCnttp, iAng, jAng, iShll, jShll
+integer ip, nac, ncb, nExpi, nExpj
+integer nBasisi, nBasisj
 
-! 1960 Continue
-      Enddo ! iCnttp
-      nHer = nOrder
-!
-      Return
-      End
+nElem(i) = (i+1)*(i+2)/2
+
+nOrder = 0
+MemFrag = 0
+maxDensSize = 0
+! largest possible fragment energy weighted density matrix
+do iCnttp=1,nCnttp
+  if (dbsc(iCnttp)%nFragType > 0) maxDensSize = max(maxDensSize,dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
+end do
+
+do iCnttp=1,nCnttp
+  if (.not. dbsc(iCnttp)%Frag) cycle
+
+  do iAng=0,dbsc(iCnttp)%nVal-1
+    iShll = dbsc(iCnttp)%iVal+iAng
+    nExpi = Shells(iShll)%nExp
+    nBasisi = Shells(iShll)%nBasis
+    if (nExpi == 0 .or. nBasisi == 0) cycle
+
+    do jCnttp=iCnttp,nCnttp
+      ! still figure out how to loop only over the centers belonging to the
+      ! same fragment (keep track of mdc?) ! still to be done !!!
+      if (.not. dbsc(jCnttp)%Frag) cycle !Go To 1970
+
+      do jAng=0,dbsc(jCnttp)%nVal-1
+        jShll = dbsc(jCnttp)%iVal+jAng
+        nExpj = Shells(jShll)%nExp
+        nBasisj = Shells(jShll)%nBasis
+        if (nExpj == 0 .or. nBasisj == 0) cycle
+
+        ip = 2*maxDensSize
+        nac = 4*nElem(la)*nElem(iAng)
+        ip = ip+nExpi*nac
+        ip = ip+3*nExpi
+        ip = ip+nExpi
+        ip = ip+nExpi
+        ip = ip+nExpi
+        nHer = ((la+1)+iAng+2)/2
+        nOrder = max(nHer,nOrder)
+        ip = ip+nExpi*3*nHer*(la+2)
+        ip = ip+nExpi*3*nHer*(iAng+1)
+        ip = ip+nExpi*3*nHer*(lr+1)
+        ip = ip+nExpi*3*nHer*(la+2)*(iAng+1)*(lr+1)
+        ip = ip+nExpi
+
+        MemFrag = max(MemFrag,ip)
+        ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
+
+        ncb = 4*nElem(jAng)*nElem(lb)
+        ip = ip+nExpj*ncb
+        ip = ip+3*nExpj
+        ip = ip+nExpj
+        ip = ip+nExpj
+        ip = ip+nExpj
+        nHer = ((lb+1)+jAng+2)/2
+        nOrder = max(nHer,nOrder)
+        ip = ip+nExpj*3*nHer*(lb+2)
+        ip = ip+nExpj*3*nHer*(jAng+1)
+        ip = ip+nExpj*3*nHer*(lr+1)
+        ip = ip+nExpj*3*nHer*(lb+2)*(jAng+1)*(lr+1)
+        ip = ip+nExpj
+
+        MemFrag = max(MemFrag,ip)
+        ip = ip-nExpj*(6+3*nHer*((lb+2)+(jAng+1)+(lr+1)+(lb+2)*(jAng+1)*(lr+1))+1)
+
+        ip = ip+max(max(nExpi,nBasisj)*nac,ncb*nBasisj)
+        MemFrag = max(MemFrag,ip)
+      end do  !jAng
+
+    end do  !jCnttp
+
+  end do !iAng
+
+end do ! iCnttp
+nHer = nOrder
+
+return
+
+end subroutine FragPMmG

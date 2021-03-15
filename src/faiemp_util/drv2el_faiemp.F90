@@ -11,7 +11,8 @@
 ! Copyright (C) Ben Swerts                                             *
 !               2016, Liviu Ungur                                      *
 !***********************************************************************
-      SubRoutine Drv2El_FAIEMP()
+
+subroutine Drv2El_FAIEMP()
 !***********************************************************************
 !                                                                      *
 !  Object: driver for the central-fragment interaction 2-electron      *
@@ -20,155 +21,148 @@
 !     Author: Ben Swerts                                               *
 !   Modified: Liviu Ungur                                              *
 !***********************************************************************
-      use k2_arrays, only: pDq, pFq
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep, iOper
-      use Real_Info, only: ThrInt, CutInt
-      use Integral_Interfaces, only: DeDe_SCF
-      Implicit None
-      External No_Routine
+
+use k2_arrays, only: pDq, pFq
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep, iOper
+use Real_Info, only: ThrInt, CutInt
+use Integral_Interfaces, only: DeDe_SCF
+
+implicit none
+external No_Routine
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Integer      nTInt
-      Parameter(   nTInt=1)
-      Real*8       TInt(nTInt)
-!
-      Logical      W2Disc, PreSch, FreeK2, Verbose, Indexation,         &
-     &             DoIntegrals, DoFock, DoGrad,NoCoul,NoExch
-      Integer      iTOffs(8,8,8)
-      Integer      nBas_Valence(0:7)
-      Character*8  Label
-      Logical      lNoSkip, EnergyWeight
-      Integer      i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS,       &
-     &             iOpt, ip_ij, ipDMax,                                 &
-     &             ipFragDensAO, ipOneHam, ipTMax, iRC,                 &
-     &             ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc,     &
-     &             lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij,   &
-     &             nOneHam, Nr_Dens, nSkal,                             &
-     &             nSkal_Valence
+integer nTInt
+parameter(nTInt=1)
+real*8 TInt(nTInt)
 
-      Real*8       Aint, Count, Disc, Disc_Mx, Dtst, ExFac,             &
-     &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,         &
-     &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
-      Real*8, Allocatable, Target:: Dens(:), Fock(:)
+logical W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch
+integer iTOffs(8,8,8)
+integer nBas_Valence(0:7)
+character*8 Label
+logical lNoSkip, EnergyWeight
+integer i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, ip_ij, ipDMax, ipFragDensAO, ipOneHam, ipTMax, iRC, ipFragDensSO, iS, &
+        jS, lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
+
+real*8 Aint, Count, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2, DMax, &
+       TMax
+real*8, allocatable, target :: Dens(:), Fock(:)
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Integer      iFD
-      Character*80 Line
+integer iFD
+character*80 Line
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !----- Statement functions
-!
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
-      DMax(i,j)=Work((j-1)*nSkal+i+ipDMax-1)
+
+TMax(i,j) = Work((j-1)*nSkal+i+ipTMax-1)
+DMax(i,j) = Work((j-1)*nSkal+i+ipDMax-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      call xFlush(6)
-      ExFac=One
-      Nr_Dens=1
-      DoIntegrals=.False.
-      NoCoul=.False.
-      NoExch=.False.
-!     W2Disc=.False.
-      W2Disc=.True.
-!
-!     Handle both the valence and the fragment basis set
-!
-      Call Set_Basis_Mode('Valence')
-      Call Nr_Shells(nSkal_Valence)
-      Call Free_iSD
-      Call Set_Basis_Mode('WithFragments')
-      Call SetUp_iSD
-      nBT = 0
-      nBVT = 0
-      do i = 0, nIrrep - 1
-        nBas_Valence(i) = nBas(i)
-        nBVT = nBVT + nBas(i)*(nBas(i)+1)/2
-        nBas(i) = nBas(i) + nBas_Frag(i)
-        nBT = nBT + nBas(i)*(nBas(i)+1)/2
-      enddo
+call xFlush(6)
+ExFac = One
+Nr_Dens = 1
+DoIntegrals = .false.
+NoCoul = .false.
+NoExch = .false.
+!W2Disc = .false.
+W2Disc = .true.
+
+! Handle both the valence and the fragment basis set
+
+call Set_Basis_Mode('Valence')
+call Nr_Shells(nSkal_Valence)
+call Free_iSD
+call Set_Basis_Mode('WithFragments')
+call SetUp_iSD
+nBT = 0
+nBVT = 0
+do i=0,nIrrep-1
+  nBas_Valence(i) = nBas(i)
+  nBVT = nBVT+nBas(i)*(nBas(i)+1)/2
+  nBas(i) = nBas(i)+nBas_Frag(i)
+  nBT = nBT+nBas(i)*(nBas(i)+1)/2
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !---  Construct custom density matrix
-!
-      Call mma_allocate(Dens,nBT,Label='Dens')
-      Call mma_allocate(Fock,nBT,Label='Fock')
+
+call mma_allocate(Dens,nBT,Label='Dens')
+call mma_allocate(Fock,nBT,Label='Fock')
 ! Valence part is zero
-      Dens(:)=Zero
-      Fock(:)=Zero
+Dens(:) = Zero
+Fock(:) = Zero
 ! Each fragment needs it's (symmetrized) density matrix added along the
 ! diagonal.
 ! This density matrix first has to be constructed from the MO coeffs
 ! so allocate space for the largest possible density matrix
-      maxDens = 0
-      Do iCnttp = 1, nCnttp
-        If(dbsc(iCnttp)%nFragType.gt.0) maxDens = Max(maxDens,          &
-     &     dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
-      End Do
-      Call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
-      ipFragDensAO = ipFragDensSO
+maxDens = 0
+do iCnttp=1,nCnttp
+  if (dbsc(iCnttp)%nFragType > 0) maxDens = max(maxDens,dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
+end do
+call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
+ipFragDensAO = ipFragDensSO
 
-      iDpos = 1 ! position in the total density matrix
-      Do iIrrep = 0, nIrrep - 1
-        nBasC = nBas_Valence(iIrrep)
-        iDpos = iDpos + nBasC*(nBasC+1)/2
-        mdc = 0
-        Do 1000 iCnttp = 1, nCnttp
-          If(dbsc(iCnttp)%nFragType.le.0) Then
-            mdc = mdc + dbsc(iCnttp)%nCntr
-            Go To 1000
-          End If
-! construct the density matrix
-          EnergyWeight = .false.
-          Call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,  &
-     &                dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,      &
-     &                EnergyWeight,Work(ipFragDensAO))
-! create the symmetry adapted version if necessary
-! (fragment densities are always calculated without symmetry)
-#ifdef _DEBUGPRINT_
-          Call TriPrt('Fragment density',' ',                           &
-     &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
-#endif
+iDpos = 1 ! position in the total density matrix
+do iIrrep=0,nIrrep-1
+  nBasC = nBas_Valence(iIrrep)
+  iDpos = iDpos+nBasC*(nBasC+1)/2
+  mdc = 0
+  do iCnttp=1,nCnttp
+    if (dbsc(iCnttp)%nFragType <= 0) then
+      mdc = mdc+dbsc(iCnttp)%nCntr
+      Go To 1000
+    end if
+    ! construct the density matrix
+    EnergyWeight = .false.
+    call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight, &
+                  Work(ipFragDensAO))
+    ! create the symmetry adapted version if necessary
+    ! (fragment densities are always calculated without symmetry)
+#   ifdef _DEBUGPRINT_
+    call TriPrt('Fragment density',' ',Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
+#   endif
 
-          Do iCnt = 1, dbsc(iCnttp)%nCntr
-            mdc = mdc + 1
-! only add fragment densities that are active in this irrep
-! => the following procedure still has to be verified thoroughly
-!    but appears to be working
-            If(iAnd(dc(mdc)%iChCnt,iIrrep).eq.iOper(iIrrep)) Then
-! add it at the correct location in the large custom density matrix
-              iFpos = 1
-!              ! position in fragment density matrix
-              Do i = 1, dbsc(iCnttp)%nFragDens
-                iDpos = iDpos + nBasC
-                Do j = 0, i-1
-                  Dens(iDpos + j) =                                     &
-     &                          Work(ipFragDensSO + iFpos + j - 1)
-                End Do
-                iDpos = iDpos + i
-                iFpos = iFpos + i
-              End Do
-              nBasC = nBasC + dbsc(iCnttp)%nFragDens
-            End If
-          End Do
- 1000   Continue
-      End Do
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      mdc = mdc+1
+      ! only add fragment densities that are active in this irrep
+      ! => the following procedure still has to be verified thoroughly
+      !    but appears to be working
+      if (iand(dc(mdc)%iChCnt,iIrrep) == iOper(iIrrep)) then
+        ! add it at the correct location in the large custom density matrix
+        iFpos = 1
+        ! position in fragment density matrix
+        do i=1,dbsc(iCnttp)%nFragDens
+          iDpos = iDpos+nBasC
+          do j=0,i-1
+            Dens(iDpos+j) = Work(ipFragDensSO+iFpos+j-1)
+          end do
+          iDpos = iDpos+i
+          iFpos = iFpos+i
+        end do
+        nBasC = nBasC+dbsc(iCnttp)%nFragDens
+      end if
+    end do
+1000 continue
+  end do
+end do
 #ifdef _DEBUGPRINT_
-      iFD = 1
-      Do iIrrep = 0, nIrrep - 1
-         Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
-         iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      End Do
+iFD = 1
+do iIrrep=0,nIrrep-1
+  call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
+  iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
 #endif
-      Call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
+call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -176,155 +170,147 @@
 !
 ! Should be possible to reduce the storage space for the Fock matrix
 ! and only store the top nBas_Valence(0) rows (non-symmetry case tested)
-!
-      Call AlloK2()
-      Call DeDe_SCF(Dens,Fock,nBT,mDens)
+
+call AlloK2()
+call DeDe_SCF(Dens,Fock,nBT,mDens)
 #ifdef _DEBUGPRINT_
-      If (nIrrep.eq.1) Then
-         Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
-      Else
-         iFD = 1
-         Do iIrrep = 0, nIrrep - 1
-            Call TriPrt('Desymmetrized density',' ',                    &
-     &                  pDq(iFD),nBas(iIrrep))
-            iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         End Do
-      End If
+if (nIrrep == 1) then
+  call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
+else
+  iFD = 1
+  do iIrrep=0,nIrrep-1
+    call TriPrt('Desymmetrized density',' ',pDq(iFD),nBas(iIrrep))
+    iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  end do
+end if
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Initialize for 2-electron integral evaluation. Do not generate
-!     tables for indexation.
-!
-      ThrAO = Zero
-      Indexation = .False.
-      DoFock=.True.
-      DoGrad=.False.
-      Call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+! Initialize for 2-electron integral evaluation. Do not generate
+! tables for indexation.
+
+ThrAO = Zero
+Indexation = .false.
+DoFock = .true.
+DoGrad = .false.
+call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Thize=1.0d-6
-      PreSch=.False.
-      Disc_Mx=Zero
-!
-      Disc=Zero
-      TskHi=Zero
-      TskLw=Zero
-      ThrInt = CutInt   ! Integral neglect threshold from SCF
+Thize = 1.0d-6
+PreSch = .false.
+Disc_Mx = Zero
+
+Disc = Zero
+TskHi = Zero
+TskLw = Zero
+ThrInt = CutInt   ! Integral neglect threshold from SCF
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !---  Compute entities for prescreening at shell level
-!
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
-      TMax_all=Zero
-      Do iS = 1, nSkal
-         Do jS = 1, iS
-            TMax_all=Max(TMax_all,TMax(iS,jS))
-         End Do
-      End Do
-      Call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
-      Call Shell_MxDens(Dens,work(ipDMax),nSkal)
+
+call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
+call Shell_MxSchwz(nSkal,Work(ipTMax))
+TMax_all = Zero
+do iS=1,nSkal
+  do jS=1,iS
+    TMax_all = max(TMax_all,TMax(iS,jS))
+  end do
+end do
+call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
+call Shell_MxDens(Dens,work(ipDMax),nSkal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Create list of non-vanishing pairs
-!
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
-      nij=0
-      Do iS = 1, nSkal
-         Do jS = 1, iS
-            If (TMax_All*TMax(iS,jS).ge.CutInt) Then
-               nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
-            End If
-         End Do
-      End Do
-      P_Eff=dble(nij)
+! Create list of non-vanishing pairs
+
+call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+nij = 0
+do iS=1,nSkal
+  do jS=1,iS
+    if (TMax_All*TMax(iS,jS) >= CutInt) then
+      nij = nij+1
+      iWork((nij-1)*2+ip_ij) = iS
+      iWork((nij-1)*2+ip_ij+1) = jS
+    end if
+  end do
+end do
+P_Eff = dble(nij)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-      Call CWTime(TCpu1,TWall1)
-!
-!     Now do a quadruple loop over shells
-!
-!     ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
-      ijS = 1
-      iS = iWork((ijS-1)*2+ip_ij)
-      jS = iWork((ijS-1)*2+ip_ij+1)
-!     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
-      klS = 1
-      kS = iWork((klS-1)*2+ip_ij)
-      lS = iWork((klS-1)*2+ip_ij+1)
- 13   Continue
-      If(ijS.gt.int(P_Eff)) Go To 12
+call CWTime(TCpu1,TWall1)
+
+! Now do a quadruple loop over shells
+
+!ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
+ijS = 1
+iS = iWork((ijS-1)*2+ip_ij)
+jS = iWork((ijS-1)*2+ip_ij+1)
+!klS = int(TskLw-DBLE(ijS)*(dble(ijS)-One)/Two)
+klS = 1
+kS = iWork((klS-1)*2+ip_ij)
+lS = iWork((klS-1)*2+ip_ij+1)
+13 continue
+if (ijS > int(P_Eff)) Go To 12
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! density prescreening (results in iS > nSkal_Valence)
-         Aint=TMax(iS,jS)*TMax(kS,lS)
-         Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,                    &
-     &            DMax(js,ls)/Four,DMax(js,ks)/Four,                    &
-     &            DMax(is,js),DMax(ks,ls))
-         lNoSkip = Aint*Dtst.ge.ThrInt
+Aint = TMax(iS,jS)*TMax(kS,lS)
+Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
+lNoSkip = Aint*Dtst >= ThrInt
 ! only calculate needed integrals and only update the valence part of the
 ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
 ! belonging to different regions)
-         If(jS.le.nSkal_Valence) Then
-           lNoSkip = lNoSkip.and.kS.gt.nSkal_Valence
-         Else
-           lNoSkip = lNoSkip.and.kS.le.nSkal_Valence
-         End If
-         lNoSkip = lNoSkip.and.lS.le.nSkal_Valence
+if (jS <= nSkal_Valence) then
+  lNoSkip = lNoSkip .and. kS > nSkal_Valence
+else
+  lNoSkip = lNoSkip .and. kS <= nSkal_Valence
+end if
+lNoSkip = lNoSkip .and. lS <= nSkal_Valence
 
-         If (lNoSkip) Then
-           Call Eval_Ints_New_Inner                                     &
-     &                    (iS,jS,kS,lS,TInt,nTInt,                      &
-     &                     iTOffs,No_Routine,                           &
-     &                     pDq,pFq,mDens,[ExFac],Nr_Dens,               &
-     &                     [NoCoul],[NoExch],                           &
-     &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,            &
-     &                     Count,DoIntegrals,DoFock)
-#ifdef _DEBUGPRINT_
-            write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
-            If (nIrrep.eq.1) Then
-               Call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
-            Else
-               iFD = 1
-               Do iIrrep = 0, nIrrep - 1
-                 Call TriPrt('updated Fock',' ',pFq(iFD),nBas(iIrrep))
-                 iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-               End Do
-            End If
-#endif
-         End If
-         klS = klS + 1
-         If (klS.gt.ijS) Then
-            ijS = ijS + 1
-            klS = 1
-         End If
-         iS = iWork((ijS-1)*2+ip_ij  )
-         jS = iWork((ijS-1)*2+ip_ij+1)
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
-         Go To 13
+if (lNoSkip) then
+  call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize,W2Disc, &
+                           PreSch,Disc_Mx,Disc,Count,DoIntegrals,DoFock)
+# ifdef _DEBUGPRINT_
+  write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
+  if (nIrrep == 1) then
+    call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
+  else
+    iFD = 1
+    do iIrrep=0,nIrrep-1
+      call TriPrt('updated Fock',' ',pFq(iFD),nBas(iIrrep))
+      iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    end do
+  end if
+# endif
+end if
+klS = klS+1
+if (klS > ijS) then
+  ijS = ijS+1
+  klS = 1
+end if
+iS = iWork((ijS-1)*2+ip_ij)
+jS = iWork((ijS-1)*2+ip_ij+1)
+kS = iWork((klS-1)*2+ip_ij)
+lS = iWork((klS-1)*2+ip_ij+1)
+Go To 13
+
+! Task endpoint
+
+12 continue
+
+! Use a time slot to save the number of tasks and shell
+! quadruplets processed by an individual node
+call SavStat(1,One,'+')
+call SavStat(2,TskHi-TskLw+One,'+')
 !
-!     Task endpoint
-!
- 12   Continue
-!
-!     Use a time slot to save the number of tasks and shell
-!     quadruplets processed by an individual node
-      Call SavStat(1,One,'+')
-      Call SavStat(2,TskHi-TskLw+One,'+')
-!
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
+call CWTime(TCpu2,TWall2)
+call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -332,100 +318,99 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('DMax','Free','Real',ipDMax,nSkal**2)
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal)
+call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
+call GetMem('DMax','Free','Real',ipDMax,nSkal**2)
+call GetMem('TMax','Free','Real',ipTMax,nSkal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Terminate integral environment.
-!
-      Verbose = .False.
-      FreeK2=.True.
-      Call Term_Ints(Verbose,FreeK2)
-!
-      Call Free_DeDe(Dens,Fock,nBT)
 
-      Call mma_deallocate(Dens)
+Verbose = .false.
+FreeK2 = .true.
+call Term_Ints(Verbose,FreeK2)
+
+call Free_DeDe(Dens,Fock,nBT)
+
+call mma_deallocate(Dens)
 #ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*)
-      write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
-      iFD = 1
-      Do iIrrep = 0, nIrrep - 1
-         Write (Line,'(1X,A,I1)')                                       &
-     &      ' Diagonal Symmetry Block ', iIrrep+1
-         Call TriPrt(Line,' ',Fock(iFD),nBas_Valence(iIrrep))
-         iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-      End Do
+write(6,*)
+write(6,*)
+write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
+iFD = 1
+do iIrrep=0,nIrrep-1
+  write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
+  call TriPrt(Line,' ',Fock(iFD),nBas_Valence(iIrrep))
+  iFD = iFD+nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+end do
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Write the results to the one electron integral file
+! Write the results to the one electron integral file
 !
 ! read the one electron hamiltonian
-      Label = 'OneHam  '
-      iRC = -1
-      iOpt = 0
-      Call GetMem('Temp','Allo','Real',ipOneHam,nBVT+4)
-      Call RdOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
-      If(iRC.ne.0) Then
-        Write (6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
-        Write (6,'(A,A)') 'Label=',Label
-        Call Abend()
-      End If
+Label = 'OneHam  '
+iRC = -1
+iOpt = 0
+call GetMem('Temp','Allo','Real',ipOneHam,nBVT+4)
+call RdOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
+if (iRC /= 0) then
+  write(6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
 ! add the calculated results
-      nOneHam = 0 ! counter in the ipOneHam matrices (small)
-      nFock = 1   ! counter in the ipFock matrices (larger)
-      Do iIrrep = 0, nIrrep - 1
-        nBVTi = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-        call daxpy_(nBVTi,One,Fock(nFock),1,                            &
-     &                       Work(ipOneHam+nOneHam),1)
-        nOneHam = nOneHam + nBVTi
-        nFock = nFock + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      End Do
+nOneHam = 0 ! counter in the ipOneHam matrices (small)
+nFock = 1   ! counter in the ipFock matrices (larger)
+do iIrrep=0,nIrrep-1
+  nBVTi = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+  call daxpy_(nBVTi,One,Fock(nFock),1,Work(ipOneHam+nOneHam),1)
+  nOneHam = nOneHam+nBVTi
+  nFock = nFock+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
 
 ! write out the results
 #ifdef _DEBUGPRINT_
-      iFD = ipOneHam
-      Do iIrrep = 0, nIrrep - 1
-         Call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))
-         iFD = iFD + nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-      End Do
+iFD = ipOneHam
+do iIrrep=0,nIrrep-1
+  call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))
+  iFD = iFD+nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+end do
 #endif
-      iRC = -1
-      Call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
-      If(iRC.ne.0) Then
-        Write (6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
-        Write (6,'(A,A)') 'Label=',Label
-        Call Abend()
-      End If
-      iRC = -1
-      Label = 'OneHam 0'
-      Call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
-      If(iRC.ne.0) Then
-        Write (6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
-        Write (6,'(A,A)') 'Label=',Label
-        Call Abend()
-      End If
+iRC = -1
+call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
+if (iRC /= 0) then
+  write(6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
+iRC = -1
+Label = 'OneHam 0'
+call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
+if (iRC /= 0) then
+  write(6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
+  write(6,'(A,A)') 'Label=',Label
+  call Abend()
+end if
 
 ! cleanup
-      Call GetMem('Temp','Free','Real',ipOneHam,nBVT+4)
-      Call mma_deallocate(Fock)
+call GetMem('Temp','Free','Real',ipOneHam,nBVT+4)
+call mma_deallocate(Fock)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-      Call Free_iSD
-      Call Set_Basis_Mode('Valence')
-      Call SetUp_iSD
-      Do i = 0, nIrrep - 1
-         nBas(i) = nBas_Valence(i)
-      End Do
+call Free_iSD
+call Set_Basis_Mode('Valence')
+call SetUp_iSD
+do i=0,nIrrep-1
+  nBas(i) = nBas_Valence(i)
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Drv2El_FAIEMP
