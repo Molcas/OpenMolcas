@@ -8,13 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,
-     &                      ExFac,WFSQ,CMO)
+      SUBROUTINE CHORAS_DRV(nSym,nBas,nOcc,DSQ,DLT,FLT,ExFac,WFSQ,CMO)
 
-      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Type (DSBA_Type) WFSQ
       Integer nBas(8), MinMem(8),rc
@@ -25,7 +26,9 @@
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
       Integer ipDLT(MaxDs),ipDSQ(MaxDs),ipFLT(MaxDs),ipFSQ(MaxDs)
       Integer ipMSQ(MaxDs),ipNocc(MaxDs),nOcc(nSym)
-      Integer nnBSF(8,8),n2BSF(8,8)
+
+      Integer, Allocatable:: nVec(:)
+      Type (DSBA_Type) Vec, DDec
 
 #include "chounit.fh"
 #include "choras.fh"
@@ -35,58 +38,46 @@ C  **************************************************
 
       rc=0
 
-      do i=1,8
-         Lunit(i)=-1
-      end do
+      Lunit(:)=-1
 
       nDen = 1
       DoCoulomb(1)  = .true.
-      DoExchange(1) = ExFac.ne.0.0d0
-      FactC(1)      = 1.0D0
-      FactX(1)      = 0.5D0*ExFac ! ExFac used for hybrid functionals
+      DoExchange(1) = ExFac.ne.Zero
+      FactC(1)      = One
+      FactX(1)      = Half*ExFac ! ExFac used for hybrid functionals
 
 
       ipDLT(1) = ip_of_Work(DLT(1))
       ipDSQ(1) = ip_of_Work(DSQ(1))
       ipFLT(1) = ip_of_Work(FLT(1))
       ipFSQ(1) = ip_of_Work(WFSQ%A0(1))
+      ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
 
       iUHF=0
 
-      ipNocc(1) = ip_of_iwork(nOcc(1)) ! occup. numbers
-
        IF (DECO) THEN !use decomposed density
 * ==============  Alternative A: Use decomposed density matrix =====
-       call getmem('nVec','Allo','Inte',ipnVec,nSym)
-
-       CALL set_nnBSF(nSym,nBas,nnBSF,n2BSF)
-       lVdim=0
-       do i=1,nSym
-          lVdim = lVdim + n2BSF(i,i)
-       end do
+       Call mma_allocate(nVec,nSym,Label='nVec')
 
 * Allocate vectors representing decomposed density matrix:
-       CALL GETMEM('choMOs','allo','real',ipVec,lVdim)
+       Call Allocate_DSBA(Vec,nBas,nBas,nSym)
 
 * ------------------------------------------------------------------
-       CALL GETMEM('ddec','allo','real',ipddec,lVdim)
-       call dcopy_(lVdim,Work(ipDSQ(1)),1,Work(ipddec),1)
-       ipd = ipddec
-       ipV = ipVec
+       Call Allocate_DSBA(Ddec,nBas,nBas,nSym)
+       call dcopy_(SIZE(DDec%A0),Work(ipDSQ(1)),1,DDec%A0,1)
        Do i=1,nSym
 * Loop over symmetries
           if(nBas(i).gt.0)then
             Ymax=0.0d0
             do ja=1,nBas(i)
-               jaa=ipd-1+nBas(i)*(ja-1)+ja
-               Ymax=Max(Ymax,Work(jaa))
+               Ymax=Max(Ymax,DDec%SB(i)%A2(ja,ja))
             end do
             Thr = 1.0d-13*Ymax
 * Call for decomposition:
-            CALL CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),
+            CALL CD_InCore(DDec%SB(i)%A2,nBas(i),Vec%SB(i)%A2,nBas(i),
      &                     NumV,Thr,rc)
             If (rc.ne.0) GOTO 999
-            iwork(ipnVec+i-1) = NumV
+            nVec(i) = NumV
 
             if ( NumV .ne. nOcc(i) ) then
                write(6,*)'Warning! The number of occupied from the dec',
@@ -97,19 +88,17 @@ C  **************************************************
             endif
 
           else
-            iwork(ipnVec+i-1) = 0
+            nVec(i) = 0
           endif
-          ipd = ipd + n2BSF(i,i)
-          ipV = ipV + n2BSF(i,i)
 * End of loop over symmetries
        End Do
-       CALL GETMEM('ddec','free','real',ipddec,lVdim)
+       Call Deallocate_DSBA(DDec)
 * ------------------------------------------------------------------
 
 
-       ipNocc(1) = ipnVec ! occup. numbers
+       ipNocc(1) = ip_of_iWork(nVec(1)) ! occup. numbers
 
-       ipMSQ(1) = ipVec       ! "Cholesky" MOs
+       ipMSQ(1) = ip_of_Work(Vec%A0(1)) ! "Cholesky" MOs
 
 * ========End of  Alternative A: Use decomposed density matrix =====
       ENDIF
@@ -189,8 +178,8 @@ C  **************************************************
       end if
 
       IF (DECO) Then
-       CALL GETMEM('choMOs','free','real',ipVec,lVdim)
-       call getmem('nVec','Free','Inte',ipnVec,nSym)
+       Call Deallocate_DSBA(Vec)
+       Call mma_deallocate(nVec)
       End If
 
       Return

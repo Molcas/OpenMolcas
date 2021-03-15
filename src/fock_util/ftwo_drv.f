@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FTwo_Drv(nSym,nBas,nAsh,nSkipX,
-     &                    DI,D1A,FA,nTot1,
-     &                    ExFac,nTot2,nBMX,CMO)
+      SUBROUTINE FTwo_Drv(nSym,nBas,nAsh,nSkipX,DI,D1A,FA,nTot1,
+     &                    ExFac,nBMX,CMO)
 
       use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
@@ -42,8 +41,7 @@
          Call mma_allocate(Temp,nTot1,Label='nTot1')
          Temp(:)=Zero
 *
-         CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Temp,
-     &                   ExFac,WFSQ,CMO)
+         CALL CHORAS_DRV(nSym,nBas,nAsh,D1A,DI,Temp,ExFac,WFSQ,CMO)
 
          FA(1:nTot1) = FA(1:nTot1) + Temp(1:nTot1)
 *
@@ -55,9 +53,8 @@
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
-         Call FockTwo_Drv(nSym,nBas,nAsh,nSkipX,
-     &                    DI,D1A,FA,nTot1,
-     &                    ExFac,nTot2,nBMX)
+         Call FockTwo_Drv(nSym,nBas,nAsh,nSkipX,DI,D1A,FA,nTot1,
+     &                    ExFac,nBMX)
 
       ENDIF
 
