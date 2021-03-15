@@ -28,7 +28,7 @@ real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc
 #include "print.fh"
 #include "warnings.fh"
 integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iPrint, iRC, iRout, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
-real(kind=wp), dimension(:), allocatable :: Int1El
+real(kind=wp), allocatable :: Int1El(:)
 integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 integer(kind=iwp), external :: n2Tri
 #include "macros.fh"

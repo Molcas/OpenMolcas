@@ -65,7 +65,7 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "print.fh"
 integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nByte_r, nChoV(8), nDiff, nDNA
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), rrx(2), TCpu1, TCpu2, TWall1, Twall2
-logical(kind=iwp) :: PrPrt_Save, Exist, DoRys, lOPTO, IsBorn, Do_OneEl
+logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
 integer(kind=iwp), external :: idLoc, isFreeUnit
@@ -94,10 +94,10 @@ PrPrt_Save = .false. ! dummy initialize
 !
 ! Check if the run file is there
 
-call f_Inquire('RUNFILE',Exist)
-if (Exist) then
-  call Qpg_iScalar('Run_Mode',Exist)
-  if (Exist) then
+call f_Inquire('RUNFILE',Exists)
+if (Exists) then
+  call Qpg_iScalar('Run_Mode',Exists)
+  if (Exists) then
 
     ! The Run_mode of the runfile is either GS_Mode or G_Mode
 

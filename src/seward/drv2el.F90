@@ -36,14 +36,14 @@ use Definitions, only: wp, iwp
 implicit none
 external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
-integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
-real(kind=wp) :: A_int,  Disc, Dix_Mx, Dens(mDens), ExFac(1), Fock(mDens), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, &
-                 T_Eff, TCpu1, TCpu2, TInt(nTInt), Thize, TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
+real(kind=wp) :: A_int,  Disc, Dix_Mx, ExFac(1), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, Thize, &
+                 TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
 logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoIntegrals, DoFock, DoGrad, FckNoClmb(1), FckNoExch(1), &
                      Triangular
 character(len=72) :: SLine
-real(kind=wp), allocatable :: TMax(:,:)
+real(kind=wp), allocatable :: Dens(:), Fock(:), TInt(:), TMax(:,:)
+integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 
@@ -175,8 +175,14 @@ end if
 A_int = TMax(iS,jS)*TMax(kS,lS)
 if (A_Int < CutInt) Go To 14
 ! from Dens are dummy arguments
+call mma_allocate(TInt,nTInt,label='TInt')
+call mma_allocate(Dens,mDens,label='Dens')
+call mma_allocate(Fock,mDens,label='Fock')
 call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens,FckNoClmb,FckNoExch,Thize, &
                          W2Disc,PreSch,Dix_Mx,Disc,TskCount,DoIntegrals,DoFock)
+call mma_deallocate(TInt)
+call mma_deallocate(Dens)
+call mma_deallocate(Fock)
 14 continue
 TskCount = TskCount+One
 if (TskCount-TskHi > 1.0e-10_wp) Go To 12

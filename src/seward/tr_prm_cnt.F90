@@ -22,10 +22,10 @@ integer(kind=iwp), intent(in) :: idbg, nBas_Cont(8), nBas_Prim(0:7)
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "rinfo.fh"
-integer(kind=iwp) :: i, ia, iBas, iBasL, ic, icaddr(MxAO), icnt, iCnttp, iCont, idx, ihelp(MxAtom,iTabMx), iOff, ip, ipbasL, &
-                     iPrim, iPrint, iSym, j, k, ka, kbias, la, mcaddr(MxAO), nrSym, nSize, nSym, numb(MxAO), numc(MxAO), numck, &
-                     numcl
+integer(kind=iwp) :: i, ia, iBas, iBasL, ic, icnt, iCnttp, iCont, idx, iOff, ip, ipbasL, iPrim, iPrint, iSym, j, k, ka, kbias, la, &
+                     nBas_Cont_Tot, ncnt, nrSym, nSize, nSym, numck, numcl
 logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l
+integer(kind=iwp), allocatable :: icaddr(:), ihelp(:,:), mcaddr(:), numb(:), numc(:)
 real(kind=wp), allocatable :: Tr(:)
 
 ! contracted basis, atomic basis functions
@@ -50,6 +50,22 @@ if (iprint >= 10 .or. idbg > 0) then
   write(idbg,*) nSym,(nBas_Prim(i),i=0,nsym-1)
   write(idbg,*) nSym,(nBas_Cont(i),i=1,nsym)
 end if
+
+nBas_Cont_Tot = 0
+do iSym=1,nSym
+  nBas_Cont_Tot = nBas_Cont_Tot + nBas_Cont(iSym)
+end do
+ncnt = 0
+do iCnttp=1,nCnttp
+  do icnt=1,dbsc(iCnttp)%nCntr
+    ncnt = ncnt+1
+  end do
+end do
+call mma_allocate(icaddr,nBas_Cont_Tot,label='icaddr')
+call mma_allocate(mcaddr,nBas_Cont_Tot,label='mcaddr')
+call mma_allocate(numb,nBas_Cont_Tot,label='numb')
+call mma_allocate(numc,nBas_Cont_Tot,label='numc')
+call mma_allocate(ihelp,ncnt,iTabMx,label='ihelp')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -192,6 +208,11 @@ call Put_dArray('NEMO TPC',Tr,nSize)
 !***********************************************************************
 !                                                                      *
 call mma_deallocate(Tr)
+call mma_deallocate(icaddr)
+call mma_deallocate(mcaddr)
+call mma_deallocate(numb)
+call mma_deallocate(numc)
+call mma_deallocate(ihelp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

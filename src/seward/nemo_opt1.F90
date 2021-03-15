@@ -22,14 +22,14 @@ implicit none
 #include "warnings.fh"
 #include "rinfo.fh"
 #include "print.fh"
-integer(kind=iwp), parameter :: MxMltPl = 10
-integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), ipMP((MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6), &
-                     iSm((MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6), Length(1), n_int(1), i, iAngr, iBas, icnt, iCnttp, iComp, idbg, &
-                     iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, &
-                     kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nrSym, nSym
+integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), i, iAngr, iBas, icnt, iCnttp, &
+                     iComp, idbg, iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, &
+                     kExpi, kExpj, kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nrSym, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
 character(len=8) Label
-real(kind=wp), dimension(:), allocatable :: P_Matrix, MP_Matrix
+integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
+real(kind=wp), allocatable :: P_Matrix(:), MP_Matrix(:)
+integer(kind=iwp), parameter :: MxMltPl = 10
 
 iRout = 77
 iPrint = nPrint(iRout)
@@ -43,6 +43,9 @@ kCof = 0
 kAng = 0
 kExp = 0
 kC = 0
+
+call mma_allocate(ipMP,(MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6,label='ipMP')
+call mma_allocate(iSm,(MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6,label='iSm')
 
 ! Normalize coefficients
 
@@ -302,6 +305,8 @@ do iMltPl=0,MxMltPl
 end do
 300 continue
 call mma_deallocate(MP_Matrix)
+call mma_deallocate(ipMP)
+call mma_deallocate(iSm)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
