@@ -20,43 +20,45 @@ subroutine Output1_Seward(lOPTO)
 !             September '06                                            *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
-use Period
-use GeoList
-use MpmC
-use EFP_Module
-use External_centers
-use Temporary_Parameters
-use DKH_Info
+use Basis_Info, only: dbsc, Gaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge
+use Center_Info, only: dc
+use Period, only: Cell_l, ispread
+use GeoList, only: Centr, Mass
+use MpmC, only: Coor_MPM
+use EFP_Module, only: lEFP
+use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nXF, OAM_Center, OMQ_Center, XF
+use Temporary_Parameters, only: Onenly, Prprt, Test
+use DKH_Info, only: BSS, DKroll, iCtrLD, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
 use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
 use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO, FNMC, lPSOI
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: Run_Mode, GS_Mode
+use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+logical(kind=iwp), intent(in) :: lOPTO
 #include "Molcas.fh"
 #include "rinfo.fh"
-#include "real.fh"
 #include "rmat.fh"
 #include "rctfld.fh"
 #include "relmp.fh"
 #include "relae.fh"
 #include "print.fh"
 #include "localdf.fh"
-logical l_aCD_Thr, lOPTO, Found
-logical lNoPair, lPam2, lECP, lPP
-character(LEN=80) Title(10)
-#include "angstr.fh"
+integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nrSym, nTtl
+real(kind=wp) :: temp
+logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP
+character(len=80) :: Title(10)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 iRout = 2
 iPrint = nPrint(iRout)
-LuWr = 6
+LuWr = u6
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -168,7 +170,7 @@ if (.not. Prprt) then
       if (LDKroll) then
         write(LuWr,'(17X,A)') ' Relativistic Local-Douglas-Kroll-Hess integrals:'
         if (nCtrLD == 0) then
-          if (radiLD == 0.0d0) then
+          if (radiLD == Zero) then
             write(LuWr,'(17X,A)') '   - Atomic approximation'
           else
             write(LuWr,'(17X,A)') '   - Full local approximation'
@@ -255,7 +257,7 @@ if (.not. Onenly) then
           write(LuWr,'(17X,A)') '  - constraint type: charge'
         else
           call WarningMessage(2,'Unknown constraint!')
-          write(6,'(A,I10)') 'LDF_Constraint=',LDF_Constraint
+          write(LuWr,'(A,I10)') 'LDF_Constraint=',LDF_Constraint
           call LDF_Quit(-1)
         end if
       end if
@@ -324,8 +326,8 @@ if (EMFR) then
   temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
   temp = (Two*Pi)/temp
   write(LuWr,'(15X,A,(F10.4,1X),A)') '   Wavelength:        ',Temp,'a.u.'
-  write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstr,'Angstrom'
-  write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstr/Ten,'nm'
+  write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom,'Angstrom'
+  write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom/Ten,'nm'
 end if
 !                                                                      *
 !***********************************************************************

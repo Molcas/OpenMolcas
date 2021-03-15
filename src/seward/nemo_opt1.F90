@@ -11,23 +11,25 @@
 
 subroutine NEMO_Opt1()
 
-use Basis_Info
+use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, OneHalf
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
 #include "warnings.fh"
 #include "rinfo.fh"
 #include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-integer nBas_Prim(0:7), nBas_cont(0:7), lOper(3)
-parameter(MxMltPl=10)
-integer ipMP((MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6),iSm((MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6)
-integer ip(3), iSml(3)
-character*8 Label
-real*8, dimension(:), allocatable :: P_Matrix, MP_Matrix
-dimension Length(1), nint(1)
+integer(kind=iwp), parameter :: MxMltPl = 10
+integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), ipMP((MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6), &
+                     iSm((MxMltPl+1)*(MxMltPl+2)*(MxMltPl+3)/6), Length(1), n_int(1), i, iAngr, iBas, icnt, iCnttp, iComp, idbg, &
+                     iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, &
+                     kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nrSym, nSym
+real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
+character(len=8) Label
+real(kind=wp), dimension(:), allocatable :: P_Matrix, MP_Matrix
 
 iRout = 77
 iPrint = nPrint(iRout)
@@ -36,7 +38,7 @@ iPrint = nPrint(iRout)
 !                                                                      *
 ! Save basis set info from contracted run
 
-if (iprint >= 10) write(6,*) ' In NEMO_Opt1',ncnttp
+if (iprint >= 10) write(u6,*) ' In NEMO_Opt1',ncnttp
 kCof = 0
 kAng = 0
 kExp = 0
@@ -46,9 +48,9 @@ kC = 0
 
 do iCnttp=1,nCnttp
 
-!-- Make a check that no cartesian d or higher have been used.
-!   The reason for this restriction is found in tr_prm_cnt.
-!   If that routine is generalized, then remove this check.
+  !-- Make a check that no cartesian d or higher have been used.
+  !   The reason for this restriction is found in tr_prm_cnt.
+  !   If that routine is generalized, then remove this check.
 
   lSh = 0
   kShStr = dbsc(iCnttp)%iVal
@@ -56,35 +58,35 @@ do iCnttp=1,nCnttp
   do kSh=kShStr,kShEnd
     if (.not. Shells(kSh)%Transf .and. lSh >= 2) then
       call WarningMessage(2,'   NEMO Error')
-      write(6,*)
-      write(6,*)
-      write(6,*) 'Error! The NEMO keyword does not work with cartesian d-functions or higher.'
-      write(6,*) 'Request spherical functions to proceed.'
-      write(6,*)
-      write(6,*)
+      write(u6,*)
+      write(u6,*)
+      write(u6,*) 'Error! The NEMO keyword does not work with cartesian d-functions or higher.'
+      write(u6,*) 'Request spherical functions to proceed.'
+      write(u6,*)
+      write(u6,*)
       call Quit(_RC_INPUT_ERROR_)
     end if
     lSh = lSh+1
   end do
 
-!-- End check.
+  !-- End check.
 
   do icnt=1,dbsc(iCnttp)%nCntr
     kC = kC+1
     !do iAngr=0,nAngr(icnt)
     do iAngr=0,nAngr(kC)
-      !rI = iAngr+1.0d0+half
-      rI = dble(iAngr)+One+Half
+      !rI = iAngr+One+Half
+      rI = real(iAngr,kind=wp)+OneHalf
       kAng = kAng+1
       do iBas=1,nBasisr(kAng)
-        Sum = Zero
+        rSum = Zero
         kExpi = kExp
         kCofi = kCof
         do iExp=1,nPrimr(kAng)
           kExpi = kExpi+1
           kCofi = kCofi+1
           rExpi = rExp(kExpi)
-          !write(6,'(a11,f20.8)') ' Exponents',rExpi
+          !write(u6,'(a11,f20.8)') ' Exponents',rExpi
           rCofi = rCof(kCofi)
           kExpj = kExp
           kCofj = kCof
@@ -93,15 +95,15 @@ do iCnttp=1,nCnttp
             kCofj = kCofj+1
             rExpj = rExp(kExpj)
             rCofj = rCof(kCofj)
-            Sum = Sum+rCofi*rCofj*(Two*sqrt(rExpi*rExpj)/(rExpi+rExpj))**rI
+            rSum = rSum+rCofi*rCofj*(Two*sqrt(rExpi*rExpj)/(rExpi+rExpj))**rI
           end do
         end do
-        rNorm = One/sqrt(Sum)
-        if (iprint >= 10) write(6,*) ' rNorm',kAng,rNorm
+        rNorm = One/sqrt(rSum)
+        if (iprint >= 10) write(u6,*) ' rNorm',kAng,rNorm
         do iExp=1,nPrimr(kAng)
           rCof(kCof+iExp) = rCof(kCof+iExp)*rNorm
           if (iprint >= 10) then
-            write(6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
+            write(u6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
           end if
         end do
         kCof = kCof+nPrimr(kAng)
@@ -114,10 +116,10 @@ end do
 if (iPrint >= 10) then
   i = 0
   do L=1,nrSym
-    write(6,*) ' Irreducible representation',L
+    write(u6,*) ' Irreducible representation',L
     do ibas=1,nrBas(L)
       i = i+1
-      write(6,'(20i4)') i,icent(i),lnang(i),lmag(i)
+      write(u6,'(20i4)') i,icent(i),lnang(i),lmag(i)
     end do
   end do
 end if
@@ -141,8 +143,8 @@ call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nBas_Prim,nIrrep)
 
 if (iPrint >= 10) then
-  write(6,'(a,8i5)') ' Symmetries          ',nSym
-  write(6,'(a,8i5)') ' Primitive basis fcns',(nBas_Prim(i),i=0,nSym-1)
+  write(u6,'(a,8i5)') ' Symmetries          ',nSym
+  write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas_Prim(i),i=0,nSym-1)
 end if
 !                                                                      *
 !***********************************************************************
@@ -157,7 +159,7 @@ do iComp=1,nComp
   call iRdOne(iRC,iOpt,'P_matrix',iComp,Length,iSmLbl)
   if (iRC /= 0) then
     call WarningMessage(2,'Error reading length of P-Matrix')
-    write(6,*) 'iComp=',iComp
+    write(u6,*) 'iComp=',iComp
     call Abend()
   end if
   iSml(iComp) = iSmLbl
@@ -177,7 +179,7 @@ do iComp=1,nComp
   call RdOne(iRC,iOpt,'P_matrix',iComp,P_Matrix(ip(iComp)),iSmLbl)
   if (iRC /= 0) then
     call WarningMessage(2,'Error reading P-Matrix')
-    write(6,*) 'iComp=',iComp
+    write(u6,*) 'iComp=',iComp
     call Abend()
   end if
 end do
@@ -195,12 +197,12 @@ do iMltPl=0,MxMltPl
   do iComp=1,nComp
     iRC = -1
     iOpt = 1
-    nInt = 0
-    call iRdOne(iRC,iOpt,Label,iComp,nInt,iSmLbl)
+    n_Int = 0
+    call iRdOne(iRC,iOpt,Label,iComp,n_Int,iSmLbl)
     if (iRC /= 0) then
       if (iComp /= 1) then
         call WarningMessage(2,' Error reading length!')
-        write(6,*) ' Label=',Label,' Comp=',iComp
+        write(u6,*) ' Label=',Label,' Comp=',iComp
         call Abend()
       else
         Go To 100
@@ -209,7 +211,7 @@ do iMltPl=0,MxMltPl
     nip = nip+1
     iSm(nip) = iSmLbl
     ipMP(nip) = 1+nInt_Tot
-    nInt_Tot = nInt_Tot+nint(1)+4
+    nInt_Tot = nInt_Tot+n_int(1)+4
   end do
 end do
 100 continue
@@ -230,7 +232,7 @@ do iMltPl=0,MxMltPl
     call RdOne(iRC,iOpt,Label,iComp,MP_Matrix(ipMP(iip)),iSmLbl)
     if (iRC /= 0) then
       call WarningMessage(2,' Error reading integrals!')
-      write(6,*) ' Label=',Label,' Comp=',iComp
+      write(u6,*) ' Label=',Label,' Comp=',iComp
       call Abend()
     end if
   end do
@@ -271,7 +273,7 @@ do iComp=1,nComp
   call WrOne(iRC,iOpt,'P_matrix',iComp,P_Matrix(ip(iComp)),iSml(iComp))
   if (iRC /= 0) then
     call WarningMessage(2,'Error reading P-Matrix')
-    write(6,*) 'iComp=',iComp
+    write(u6,*) 'iComp=',iComp
     call Abend()
   end if
 end do
@@ -293,7 +295,7 @@ do iMltPl=0,MxMltPl
     call WrOne(iRC,iOpt,Label,iComp,MP_Matrix(ipMP(iip)),iSm(iip))
     if (iRC /= 0) then
       call WarningMessage(2,' Error writing integrals!')
-      write(6,*) ' Label=',Label,' Comp=',iComp
+      write(u6,*) ' Label=',Label,' Comp=',iComp
       call Abend()
     end if
   end do

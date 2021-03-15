@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer MxPrim,MxrCof
       Parameter(MxPrim=20*MxAO,MxrCof=10*MxPrim)
       Integer nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
       Integer icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO),         &

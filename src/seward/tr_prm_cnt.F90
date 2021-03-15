@@ -11,27 +11,31 @@
 
 subroutine Tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
 
-use Basis_Info
+use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
+implicit none
+integer(kind=iwp), intent(in) :: idbg, nBas_Cont(8), nBas_Prim(0:7)
 #include "Molcas.fh"
+#include "itmax.fh"
 #include "rinfo.fh"
-#include "stdalloc.fh"
-#include "real.fh"
-integer icaddr(MxAO), numc(MxAO), ihelp(MxAtom,iTabMx), numb(MxAO), mcaddr(MxAO), nBas_Cont(8), nBas_Prim(0:7)
-logical New_Center, New_l, New_m, Old_Center, Old_l
-real*8, dimension(:), allocatable :: Tr
+integer(kind=iwp) :: i, ia, iBas, iBasL, ic, icaddr(MxAO), icnt, iCnttp, iCont, idx, ihelp(MxAtom,iTabMx), iOff, ip, ipbasL, &
+                     iPrim, iPrint, iSym, j, k, ka, kbias, la, mcaddr(MxAO), nrSym, nSize, nSym, numb(MxAO), numc(MxAO), numck, &
+                     numcl
+logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l
+real(kind=wp), allocatable :: Tr(:)
 
-!     contracted basis, atomic basis functions
+! contracted basis, atomic basis functions
 !
-!     symmetry info
+! symmetry info
 !
-!     lant(i): number of atoms in i:th symmetry bf
-!     expand the coefficient matrix into symmetry basis set
-!     auxiliary
-!     icaddr(i): adresses in coeff for a symmetry adapted function
+! lant(i): number of atoms in i:th symmetry bf
+! expand the coefficient matrix into symmetry basis set
+! auxiliary
+! icaddr(i): adresses in coeff for a symmetry adapted function
 
 !                                                                      *
 ! THIS ROUTINE ONLY WORKS WITH SPHERICAL FUNCTIONS. NO CARTESIAN D:S!  *
@@ -70,7 +74,7 @@ if (iPrint >= 10 .or. idbg > 0) then
   do iCnttp=1,nCnttp
     do icnt=1,dbsc(iCnttp)%nCntr
       ia = ia+1
-      write(idbg,'(10i5)')(ihelp(ia,j),j=1,nAngr(ia)+1)
+      write(idbg,'(10i5)') (ihelp(ia,j),j=1,nAngr(ia)+1)
     end do
   end do
 end if
@@ -130,13 +134,13 @@ if (iPrint >= 10 .or. idbg > 0) then
   do iSym=1,nSym
     write(idbg,*) ' symmetry',iSym
     write(idbg,*) ' numb'
-    write(idbg,'(20i4)')(numb(i+ic),i=1,nBas_Cont(iSym))
+    write(idbg,'(20i4)') (numb(i+ic),i=1,nBas_Cont(iSym))
     write(idbg,*) ' numc'
-    write(idbg,'(20i4)')(numc(i+ic),i=1,nBas_Cont(iSym))
+    write(idbg,'(20i4)') (numc(i+ic),i=1,nBas_Cont(iSym))
     write(idbg,*) ' Pointer to contraction vector'
-    write(idbg,'(20i4)')(icaddr(i+ic),i=1,nBas_Cont(iSym))
+    write(idbg,'(20i4)') (icaddr(i+ic),i=1,nBas_Cont(iSym))
     write(idbg,*) ' mcaddr'
-    write(idbg,'(20i4)')(mcaddr(i+ic),i=1,nBas_Cont(iSym))
+    write(idbg,'(20i4)') (mcaddr(i+ic),i=1,nBas_Cont(iSym))
     ic = ic+nBas_Cont(iSym)
     ip = ip+nBas_Prim(iSym-1)
   end do
@@ -149,7 +153,7 @@ do iSym=1,nSym
   nSize = nSize+nBas_Cont(iSym)*nBas_Prim(iSym-1)
 end do
 call mma_allocate(Tr,nSize,label='Tr')
-call DCopy_(nSize,[Zero],0,Tr,1)
+Tr(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -172,9 +176,9 @@ do iSym=1,nSym
 
     do iPrim=1,numb(ibasL)
       ipbasL = ipbasL+1
-      index = iOff+(iBas-1)*nBas_Prim(iSym-1)+ipbasL
-      !write(6,*) iBas,ipbasL
-      Tr(index) = rCof(icaddr(ibasL)+iPrim)
+      idx = iOff+(iBas-1)*nBas_Prim(iSym-1)+ipbasL
+      !write(u6,*) iBas,ipbasL
+      Tr(idx) = rCof(icaddr(ibasL)+iPrim)
 
     end do     ! iPrim
   end do

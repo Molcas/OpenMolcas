@@ -38,15 +38,14 @@ subroutine Seward(ireturn)
 !          screening, July 1991.                                       *
 !***********************************************************************
 
-use Real_Spherical
-use Period
-use GeoList
-use MpmC
-use Basis_Info
-use Center_Info
+use Period, only: AdCell
+use GeoList, only: Centr, Chrg, Mass
+use MpmC, only: Coor_MPM
+use Basis_Info, only: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, nBas
+use Center_Info, only: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init
 use Symmetry_Info, only: nIrrep, lIrrep
-use LundIO
-use Temporary_Parameters
+use LundIO, only: Buf, iDisk, lBuf, Lu_28
+use Temporary_Parameters, only: Fake_ERIs, Onenly, Primitive_Pass, PrPrt, Test
 use Integral_parameters, only: iPack, iWROpt
 use DKH_Info, only: DKroll
 use Real_Info, only: PkAcc
@@ -56,29 +55,26 @@ use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Run_Mode, G_Mode, S_Mode, GS_Mode
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Integral_WrOut, Integral_WrOut2, Integral_RI_3
-#include "real.fh"
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "warnings.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "status.fh"
 #include "print.fh"
-integer nChoV(8)
-real*8 rrx(2)
-logical PrPrt_Save, Exist, DoRys, lOPTO
-real*8 DiagErr(4), Dummy(2)
+integer(kind=iwp) :: i, iOpt, iRC, iRout, iWrOpt_Save, Lu_One, LuSpool, MaxDax, nByte_r, nChoV(8), nDiff, nDNA
+real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), rrx(2), TCpu1, TCpu2, TWall1, Twall2
+logical(kind=iwp) :: PrPrt_Save, Exist, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
-character cDNA*256
-logical IsBorn, Do_OneEl
+character(len=256) :: cDNA
+integer(kind=iwp), external :: idLoc, isFreeUnit
+external :: Integral_WrOut, Integral_WrOut2, Integral_RI_3
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Call Seward_Banner()
+!call Seward_Banner()
 lOPTO = .false.
 nByte_r = idloc(rrx(2))-idloc(rrx(1))
 call CWTime(TCpu1,TWall1)
@@ -177,8 +173,8 @@ end if ! Run_Mode == S_Mode
 ! default: no mixed operation
 call Put_iScalar('Columbus',0)
 call Put_iScalar('colgradmode',0)
-dummy(1) = 0.0d0
-dummy(2) = 0.0d0
+dummy(1) = Zero
+dummy(2) = Zero
 call Put_dArray('MR-CISD energy',dummy,2)
 call NQGrid_Init()
 !                                                                      *
@@ -231,11 +227,11 @@ if (Show) then
 
   ! Print out basis set information
 
-  write(6,*)
-  write(6,'(6X,A)') 'Basis set specifications :'
-  write(6,'(6X,A,T30,8(2X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
-  write(6,'(6X,A,T30,8I5)') 'Basis functions',(nBas(i),i=0,nIrrep-1)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(6X,A)') 'Basis set specifications :'
+  write(u6,'(6X,A,T30,8(2X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
+  write(u6,'(6X,A,T30,8I5)') 'Basis functions',(nBas(i),i=0,nIrrep-1)
+  write(u6,*)
 
 end if
 
@@ -342,24 +338,24 @@ if (iWRopt == 0) then
   if (Cholesky) then ! Cholesky decomposition
     call Cho_MCA_Drv()
     call Get_iArray('NumCho',nChoV,nIrrep)
-    write(6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
-    write(6,*)
-    write(6,*)
+    write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
+    write(u6,*)
+    write(u6,*)
   else if (Do_RI) then
     if (LocalDF) then
       call Drv2El_LocalDF()
     else
       if (nPrint(iRout) >= 6) then
-        write(6,*)
-        write(6,'(A)') 'Seward processing 2-center and 3-center ERIs'
-        write(6,*)
+        write(u6,*)
+        write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
+        write(u6,*)
       end if
       call Drv2El_3Center_RI(Integral_RI_3,Zero)
       call Get_iArray('NumCho',nChoV,nIrrep)
       if (nPrint(iRout) >= 6) then
-        write(6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
-        write(6,*)
-        write(6,*)
+        write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
+        write(u6,*)
+        write(u6,*)
       end if
     end if
   else
@@ -374,15 +370,15 @@ if (iWRopt == 0) then
     call Sort3(MaxDax)
 
     if (nPrint(iRout) >= 6) then
-      write(6,*)
-      write(6,'(A)') ' Integrals are written in MOLCAS2 format'
+      write(u6,*)
+      write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
       if (iPack /= 0) then
-        write(6,'(A)') ' No packing of integrals has been applied'
+        write(u6,'(A)') ' No packing of integrals has been applied'
       else
-        write(6,'(A,G11.4)') ' Packing accuracy =',PkAcc
-        write(6,'(A,I10)') ' Highest disk address written',MaxDax
+        write(u6,'(A,G11.4)') ' Packing accuracy =',PkAcc
+        write(u6,'(A,I10)') ' Highest disk address written',MaxDax
       end if
-      write(6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
+      write(u6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
     end if
     iWrOpt = iWrOpt_Save
   end if
@@ -405,9 +401,9 @@ else if (iWRopt == 1) then
   call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
   Buf%nUt = -1
   call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-  write(6,*)
-  write(6,'(A)') ' Integrals are written in MOLCAS1 format'
-  !write(6,'(I10,A)') IntTot,' Integrals written on Disk'
+  write(u6,*)
+  write(u6,'(A)') ' Integrals are written in MOLCAS1 format'
+  !write(u6,'(I10,A)') IntTot,' Integrals written on Disk'
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -441,7 +437,7 @@ call SavTim(4,TCpu2-TCpu1,TWall2-TWall1)
 
 if (Cholesky .or. Do_RI) then
   if (DiagCheck) then
-    write(6,*) ' ==== Start Diagonal ERI check  ===='
+    write(u6,*) ' ==== Start Diagonal ERI check  ===='
     call Cho_X_init(irc,ChFracMem)
     if (irc /= 0) then
       call WarningMessage(2,' Seward: Non-zero rc in Cho_X_init.')
@@ -457,8 +453,8 @@ if (Cholesky .or. Do_RI) then
       call WarningMessage(2,' Seward: Non-zero rc in Cho_X_Final.')
       call Abend()
     end if
-    write(6,*)
-    write(6,*) ' ====  End  Diagonal ERI check  ===='
+    write(u6,*)
+    write(u6,*) ' ====  End  Diagonal ERI check  ===='
   end if
 end if
 !                                                                      *

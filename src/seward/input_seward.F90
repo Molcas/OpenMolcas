@@ -29,19 +29,18 @@ use Basis_Info, only: nBas
 use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
 use Logical_Info, only: Do_GuessOrb
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+logical(kind=iwp), intent(in) :: lOPTO
 #include "Molcas.fh"
-#include "real.fh"
-#include "SysDef.fh"
 #include "print.fh"
-#include "stdalloc.fh"
-parameter(nMamn=MaxBfn+MaxBfn_Aux)
-character*(LENIN8), allocatable :: Mamn(:)
-logical Show_Save, lOPTO
-logical Reduce_Prt
-external Reduce_Prt
-save Show_Save
+integer(kind=iwp) :: iRout
+logical(kind=iwp), save :: Show_Save
+logical(kind=iwp), external :: Reduce_Prt
+character(len=LenIn), allocatable :: Mamn(:)
+integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux
 
 !                                                                      *
 !***********************************************************************

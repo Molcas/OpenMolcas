@@ -14,21 +14,35 @@
 
 subroutine Drv_Fck(Label,ip,lOper,nComp,CCoor,nOrdOp,rNuc,rHrmt,iChO,opmol,ipad,opnuc,iopadr,idirect,isyop,PtChrg,nGrid,iAddPot)
 
-use PAM2
+use PAM2, only: iPAMcount
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "stdalloc.fh"
+implicit none
+character(len=8), intent(inout) :: Label
+integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), ipad, iopadr(*), idirect, isyop, nGrid, iAddPot
+integer(kind=iwp), intent(out) :: ip(nComp)
+real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
 #include "print.fh"
-#include "real.fh"
 #include "warnings.fh"
-character Label*8
-real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
-integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
-dimension opmol(*), opnuc(*), iopadr(*)
-real*8, dimension(:), allocatable :: Int1El
-integer iTwoj(0:7)
-data iTwoj/1,2,4,8,16,32,64,128/
+integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iPrint, iRC, iRout, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
+real(kind=wp), dimension(:), allocatable :: Int1El
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+integer(kind=iwp), external :: n2Tri
+#include "macros.fh"
+unused_var(CCoor)
+unused_var(nOrdOp)
+unused_var(iChO)
+unused_var(opmol(1))
+unused_var(opnuc(1))
+unused_var(ipad)
+unused_var(iopadr(1))
+unused_var(idirect)
+unused_var(isyop)
+unused_var(PtChrg)
+unused_var(iAddPot)
 
 !                                                                      *
 !***********************************************************************
@@ -36,16 +50,16 @@ data iTwoj/1,2,4,8,16,32,64,128/
 iRout = 112
 iPrint = nPrint(iRout)
 if (iPrint >= 19) then
-  write(6,*) ' In OneEl: Label',Label
-  write(6,*) ' In OneEl: nComp'
-  write(6,'(1X,8I5)') nComp
-  write(6,*) ' In OneEl: lOper'
-  write(6,'(1X,8I5)') lOper
-  write(6,*) ' In OneEl: n2Tri'
+  write(u6,*) ' In OneEl: Label',Label
+  write(u6,*) ' In OneEl: nComp'
+  write(u6,'(1X,8I5)') nComp
+  write(u6,*) ' In OneEl: lOper'
+  write(u6,'(1X,8I5)') lOper
+  write(u6,*) ' In OneEl: n2Tri'
   do iComp=1,nComp
     ip(iComp) = n2Tri(lOper(iComp))
   end do
-  write(6,'(1X,8I5)')(ip(iComp),iComp=1,nComp)
+  write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
   call RecPrt(' CCoor',' ',CCoor,3,nComp)
 end if
 !                                                                      *
@@ -62,7 +76,7 @@ do iComp=1,nComp
     if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) nIC = nIC+1
   end do
 end do
-if (iPrint >= 20) write(6,*) ' nIC =',nIC
+if (iPrint >= 20) write(u6,*) ' nIC =',nIC
 if (nIC == 0) Go To 999
 call SOS(iStabO,nStabO,llOper)
 !                                                                      *
@@ -96,8 +110,7 @@ end do
 !                                                                      *
 !---- Compute all SO integrals for all components of the operator.
 
-call Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,opmol,opnuc,ipad,iopadr,idirect,isyop,iStabO,nStabO, &
-                   nIC,PtChrg,nGrid,iAddPot)
+call Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -121,7 +134,7 @@ do iComp=1,nComp
   iOpt = 0
   iRC = -1
   if (Label(1:3) == 'PAM') write(Label,'(A5,I3.3)') 'PAM  ',iPAMcount
-  !write(6,*) ' oneel *',Label,'*'
+  !write(u6,*) ' oneel *',Label,'*'
 
   call WrOne(iRC,iOpt,Label,iComp,Int1El(ip(iComp)),iSmLbl)
 
@@ -129,8 +142,8 @@ do iComp=1,nComp
   iPAMcount = iPAMcount+1
 
   if (iRC /= 0) then
-    write(6,*) ' *** Error in subroutine ONEEL ***'
-    write(6,*) '     Abend in subroutine WrOne'
+    write(u6,*) ' *** Error in subroutine ONEEL ***'
+    write(u6,*) '     Abend in subroutine WrOne'
     call Quit(_RC_IO_ERROR_WRITE_)
   end if
 end do  ! iComp
@@ -149,8 +162,7 @@ return
 
 end subroutine Drv_Fck
 
-subroutine Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,opmol,opnuc,ipad,iopadr,idirect,isyop,iStabO, &
-                         nStabO,nIC,PtChrg,nGrid,iAddPot)
+subroutine Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the one-electron integrals. The method employed at*
@@ -176,33 +188,30 @@ subroutine Drv_Fck_Inner(Label,ip,Int1El,LenTot,lOper,nComp,CCoor,nOrdOp,rHrmt,i
 !             Modified loop structure April 99                         *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+character(len=8), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
+real(kind=wp), intent(in) :: Int1El(LenTot), rHrmt
 #include "angtp.fh"
-#include "real.fh"
-#include "rmat_option.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8 A(3), B(3), RB(3), CCoor(3,nComp), PtChrg(nGrid)
-character ChOper(0:7)*3, Label*8
-integer nOp(2), ip(nComp), lOper(nComp), iChO(nComp), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7)
-integer iTwoj(0:7)
-dimension opmol(*), opnuc(*), iopadr(*)
-real*8, dimension(:), allocatable :: Zeta, ZI, SO, Fnl
-real*8 Int1El(LenTot)
-data iTwoj/1,2,4,8,16,32,64,128/
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-
-!     Statement functions
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iElem, ii, iIC, iIrrep, ijB, &
+                     ijC, iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, &
+                     jCmp, jCnt, jCnttp, jElem, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, &
+                     nDCRT, nOp(2), nSkal, nSO, nStabM
+real(kind=wp) :: A(3), B(3), Fact, RB(3)
+real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 iRout = 112
 iPrint = nPrint(iRout)
@@ -256,20 +265,22 @@ do iS=1,nSkal
       iSmLbl = lOper(iComp)
       nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     end do
-    if (iPrint >= 29) write(6,*) ' nSO=',nSO
+    if (iPrint >= 29) write(u6,*) ' nSO=',nSO
     if (nSO == 0) Go To 131
     call mma_allocate(SO,nSO*iBas*jBas)
     call DCopy_(nSO*iBas*jBas,[Zero],0,SO,1)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    if (iPrint >= 19) write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
     !                                                                  *
     !*******************************************************************
     !                                                                  *
     ! Allocate memory for the final integrals all in the
     ! primitive basis.
-    lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    iElem = (iAng+1)*(iAng+2)/2
+    jElem = (jAng+1)*(jAng+2)/2
+    lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*iElem*jElem
     call mma_allocate(Fnl,lFinal)
     call dCopy_(lFinal,[Zero],0,Fnl,1)
     !                                                                  *
@@ -293,17 +304,17 @@ do iS=1,nSkal
     call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
     if (iPrint >= 19) then
-      write(6,*)
-      write(6,*) ' g      =',nIrrep
-      write(6,*) ' u      =',dc(mdci)%nStab
-      write(6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
-      write(6,*) ' v      =',dc(mdcj)%nStab
-      write(6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
-      write(6,*) ' LambdaR=',LmbdR
-      write(6,*) ' r      =',nDCRR
-      write(6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
-      write(6,*) ' m      =',nStabM
-      write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+      write(u6,*)
+      write(u6,*) ' g      =',nIrrep
+      write(u6,*) ' u      =',dc(mdci)%nStab
+      write(u6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),ii=0,dc(mdci)%nStab-1)
+      write(u6,*) ' v      =',dc(mdcj)%nStab
+      write(u6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),ii=0,dc(mdcj)%nStab-1)
+      write(u6,*) ' LambdaR=',LmbdR
+      write(u6,*) ' r      =',nDCRR
+      write(u6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
+      write(u6,*) ' m      =',nStabM
+      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
     end if
     !                                                                  *
     !*******************************************************************
@@ -312,11 +323,11 @@ do iS=1,nSkal
 
     iuv = dc(mdci)%nStab*dc(mdcj)%nStab
     if (MolWgh == 1) then
-      Fact = dble(nStabO)/dble(LambdT)
+      Fact = real(nStabO,kind=wp)/real(LambdT,kind=wp)
     else if (MolWgh == 0) then
-      Fact = dble(iuv*nStabO)/dble(nIrrep**2*LambdT)
+      Fact = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LambdT,kind=wp)
     else
-      Fact = sqrt(dble(iuv))*dble(nStabO)/dble(nirrep*LambdT)
+      Fact = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nirrep*LambdT,kind=wp)
     end if
     Fact = One/Fact
     !                                                                  *
@@ -329,7 +340,7 @@ do iS=1,nSkal
     do lDCRR=0,0
       call OA(iDCRR(lDCRR),B,RB)
       nOp(2) = NrOpr(iDCRR(lDCRR))
-      if (iPrint >= 49) write(6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
+      if (iPrint >= 49) write(u6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -342,8 +353,8 @@ do iS=1,nSkal
             ijC = (iC-1)*iCmp+iC
             iTo = +(ijC-1)*iBas**2+ijB
 #           ifdef _DEBUGPRINT_
-            write(6,*) 'ijB,ijC=',ijB,ijC
-            write(6,*) 'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
+            write(u6,*) 'ijB,ijC=',ijB,ijC
+            write(u6,*) 'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
 #           endif
             Fnl(iTo) = Shells(iShll)%FockOp(iB,jB)
           end do
@@ -389,7 +400,7 @@ do iS=1,nSkal
 
     if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO,1)
     if (iPrint >= 99) then
-      write(6,*) ' Scaling SO''s',Fact
+      write(u6,*) ' Scaling SO''s',Fact
       call RecPrt(' Accumulated SO integrals',' ',SO,iBas*jBas,nSO)
     end if
     !                                                                  *
@@ -428,20 +439,5 @@ call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
 return
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(CCoor)
-  call Unused_integer(nOrdOp)
-  call Unused_integer_array(iChO)
-  call Unused_real_array(opmol)
-  call Unused_real_array(opnuc)
-  call Unused_integer(ipad)
-  call Unused_integer_array(iopadr)
-  call Unused_integer(idirect)
-  call Unused_integer(isyop)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
 
 end subroutine Drv_Fck_Inner

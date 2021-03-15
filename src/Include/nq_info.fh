@@ -31,6 +31,7 @@
 !
 !     nGridMax:Real size of the array Grid
 !
+      Integer LMax_NQ
       Parameter(LMax_NQ=62)
       Integer Info_Ang(3,LMax_NQ)
       Integer mBas(0:7),nISh(0:7), nAsh(0:7), nFro(0:7)
@@ -41,6 +42,19 @@
      &        Functional_Type
       Integer Packing
       Parameter(On=1, Off=0)
+      Integer          iQStrt,                                          &
+     &                 ip_Fact, ndc,                                    &
+     &                           nAngularGrids,                         &
+     &                 L_Quad_save, nR_Save,                            &
+     &                 ipNQ,nx,ny,nz,number_of_subblocks,               &
+     &                 ip_nR_Eff,ip_R,ipMem,nMem,                       &
+     &                 L_Quad,nR,nAtoms,nMaxExp,                        &
+     &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,        &
+     &                 nGridMax,iOpt_Angular,ip_O,                      &
+     &                 mIrrep,                                          &
+     &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
+     &                 ipTabAOMax,NQ_Direct,                            &
+     &                 iQEnd,ip_OrbDip(3)
       Common /Quad_i / iQStrt,                                          &
      &                 ip_Fact, ndc,                                    &
      &                 Info_Ang, nAngularGrids,                         &
@@ -54,11 +68,14 @@
      &                 Grid_Type, Rotational_Invariance,                &
      &                 ipTmp,nTmp,mTmp,mRad,nAOMax,                     &
      &                 ipTabAOMax,NQ_Direct,Packing,                    &
-     &                 iQEnd,ip_OrbDip(3)
+     &                 iQEnd,ip_OrbDip
       Common /Quad_ii / nFro
 !
       Real*8 R_Max(0:LMax_NQ)
-      Real*8 Crowding
+      Real*8 rQStrt,Threshold_save,Crowding,Threshold,Energy_integrated, &
+     &       Dens_I,Grad_I,Tau_I,Flop,Dens_a1,Dens_b1,Dens_a2,Dens_b2,   &
+     &       Dens_t1,Dens_t2,Block_Size,x_min,x_max,y_min,y_max,z_min,   &
+     &       z_max,Fade,ThrC,T_X,T_Y,rQEnd
       Common /Quad_r /rQStrt,                                           &
      &                Threshold_save, Crowding,                         &
      &                Threshold,R_Max,Energy_integrated,                &

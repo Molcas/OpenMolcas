@@ -26,23 +26,26 @@ subroutine Drv2El(Integral_WrOut,ThrAO)
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
 
-use iSD_data
+use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Real_Info, only: CutInt
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Eight
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external Integral_WrOut, Rsv_GTList
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-parameter(nTInt=1,mDens=1)
-real*8 Dens(mDens), Fock(mDens), TInt(nTInt)
-integer iTOffs(8,8,8)
-logical Verbose, Indexation, FreeK2, W2Disc, PreSch, DoIntegrals, DoFock, DoGrad, FckNoClmb, FckNoExch, Rsv_GTList, Triangular
-character*72 SLine
-real*8, dimension(:,:), allocatable :: TMax
-integer, dimension(:,:), allocatable :: Pair_Index
-dimension ExFac(1), FckNoClmb(1), FckNoExch(1)
+implicit none
+external :: Integral_WrOut
+real(kind=wp), intent(in) :: ThrAO
+integer(kind=iwp), parameter :: nTInt = 1, mDens = 1
+real(kind=wp) :: A_int,  Disc, Dix_Mx, Dens(mDens), ExFac(1), Fock(mDens), P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, &
+                 T_Eff, TCpu1, TCpu2, TInt(nTInt), Thize, TMax_all, TskCount, TskHi, TskLw, TWall1, Twall2
+integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, iTOffs(8,8,8), jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, Nr_Dens, nSkal
+logical(kind=iwp) :: Verbose, Indexation, FreeK2, W2Disc, PreSch, DoIntegrals, DoFock, DoGrad, FckNoClmb(1), FckNoExch(1), &
+                     Triangular
+character(len=72) :: SLine
+real(kind=wp), allocatable :: TMax(:,:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
+logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************
@@ -111,7 +114,7 @@ do iS=1,nSkal
     end if
   end do
 end do
-P_Eff = dble(nij)
+P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -122,7 +125,7 @@ call Init_GTList
 iOpt = 0
 
 PP_Eff = P_Eff**2
-PP_Eff_delta = 0.10d0*PP_Eff
+PP_Eff_delta = 0.1_wp*PP_Eff
 PP_Count = Zero
 !                                                                      *
 !***********************************************************************
@@ -142,12 +145,12 @@ W2Disc = .false.
 ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 iS = Pair_Index(1,ijS)
 jS = Pair_Index(2,ijS)
-klS = int(TskLw-dble(ijS)*(dble(ijS)-One)/Two)
+klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 kS = Pair_Index(1,klS)
 lS = Pair_Index(2,klS)
-Count = TskLw
+TskCount = TskLw
 
-if (Count-TskHi > 1.0D-10) Go To 12
+if (TskCount-TskHi > 1.0e-10_wp) Go To 12
 13 continue
 
 ! Logic to avoid computing integrals in a mixed muonic and
@@ -160,23 +163,23 @@ kCnttp = iSD(13,kS)
 lCnttp = iSD(13,lS)
 if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Go To 14
 
-S_Eff = dble(ijS)
-T_Eff = dble(klS)
-ST_Eff = S_Eff*(S_Eff-One)/2d0+T_Eff
+S_Eff = real(ijS,kind=wp)
+T_Eff = real(klS,kind=wp)
+ST_Eff = S_Eff*(S_Eff-One)/Two+T_Eff
 if (ST_Eff >= PP_Count) then
-  write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100d0,'% done so far.'
+  write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
   call StatusLine(' Seward:',SLine)
   PP_Count = PP_Count+PP_Eff_delta
 end if
 
-Aint = TMax(iS,jS)*TMax(kS,lS)
-if (AInt < CutInt) Go To 14
+A_int = TMax(iS,jS)*TMax(kS,lS)
+if (A_Int < CutInt) Go To 14
 ! from Dens are dummy arguments
 call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,Integral_WrOut,Dens,Fock,mDens,ExFac,Nr_Dens,FckNoClmb,FckNoExch,Thize, &
-                         W2Disc,PreSch,Dix_Mx,Disc,Count,DoIntegrals,DoFock)
+                         W2Disc,PreSch,Dix_Mx,Disc,TskCount,DoIntegrals,DoFock)
 14 continue
-Count = Count+One
-if (Count-TskHi > 1.0D-10) Go To 12
+TskCount = TskCount+One
+if (TskCount-TskHi > 1.0e-10_wp) Go To 12
 klS = klS+1
 if (klS > ijS) then
   ijS = ijS+1

@@ -22,65 +22,66 @@ subroutine Drv1El()
 !             January 1991                                             *
 !***********************************************************************
 
-use AMFI_Info
-use Basis_Info
-use GeoList
-use MpmC
-use PrpPnt
-use External_Centers
-use SW_file
+use AMFI_Info, only: No_AMFI
+use Basis_Info, only: dbsc, nCnttp, PAMexp
+use GeoList, only: Centr, Chrg
+use MpmC, only: Coor_MpM
+use PrpPnt, only: Den, Occ, Vec
+use External_Centers, only: Dxyz, AMP_Center, EF_Centers, DMS_Centers, nDMS, nEF, nOrdEF, nOrd_XF, nWel, OAM_Center, OMQ_Center, &
+                            Wel_Info, XF
+use SW_file, only: SW_FileOrb
 use Symmetry_Info, only: iChBas
 use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
-use PAM2
+use PAM2, only: iPAMcount, iPAMPrim, kCnttpPAM
 use DKH_Info, only: BSS, DKroll
 use Sizes_of_Seward, only: S
 use Real_Info, only: PotNuc, kVector
 use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt, DoFMM, EMFR, GIAO, lPSOI
 #ifdef _FDE_
-use Embedding_Global, only: embInt, embPot, embPotInBasis
+use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external MltInt, KnEInt, MVeInt, VeInt, D1Int, NAInt, EFInt, OAMInt, OMQInt, DMSInt, WelInt, XFdInt, PrjInt, QpVInt, M1Int, M2Int, &
-         SROInt, AMPInt, PXPInt, PXInt, VPInt, PPInt, CntInt, EMFInt, MltInt_GIAO, KneInt_GIAO, NAInt_GIAO, dTdmu_Int
-external MltMem, KnEMem, MVeMem, VeMem, D1Mem, NAMem, EFMem, OAMMem, OMQMem, DMSMem, WelMem, XFdMem, PrjMem, QpVMem, M1Mem, M2Mem, &
-         SROMem, AMPMem, PXPmem, PXMem, VPMem, PPMem, CntMem, EMFMem, MltMem_GIAO, KneMem_GIAO, NAMem_GIAO, dTdmu_Mem
-external PAM2Int, FragPint, PAM2Mem, FragPMem
-external P_Int, EPEInt, P_Mem, EPEMem
-#ifdef _FDE_
-! Embedding
-external embPotMem, embPotKernel
-real*8, dimension(:), allocatable :: Emb_Int
-#endif
+implicit none
+#include "print.fh"
+#include "wldata.fh"
+#include "property_label.fh"
+#include "oneswi.fh"
+#include "warnings.fh"
+integer(kind=iwp) i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
+                  iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iEMb, iLow, &
+                  iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
+                  iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
+                  iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
+                  iSyXYZ, iTemp, iTol, iunit, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, &
+                  mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
+logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
+character(len=8) :: Label
+character(len=512) :: FName
+integer(kind=iwp), external :: IrrFnc, isFreeUnit, MltLbl, n2Tri
 ! ipList: list of pointers to the integrals of each component
 !         of the operator
 ! OperI: list which irreps a particular component of the operator
 !        belongs to
 ! OperC: list the character of each component of the operator
 ! CoorO: list of origins of the operator, one for each component
-integer, dimension(:), allocatable :: ipList, OperI, OperC
-real*8, dimension(:), allocatable :: CoorO, Nuc, KnE_Int, NA_Int, FragP, OneHam, PtEl, PtNuc, SumEl, SumNuc
-logical lECPnp, lECP
-logical lPAM2np, lPAM2
-logical lPP, lFAIEMP
-#include "Molcas.fh"
-#include "print.fh"
-#include "nq_info.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "wldata.fh"
-#include "property_label.fh"
-#include "oneswi.fh"
-#include "warnings.fh"
-integer iSymR(0:3)
-character*8 Label
-character*512 FName
-real*8 Ccoor(3)
-integer nComp
-integer, allocatable :: iAtmNr2(:)
-real*8, allocatable :: Charge2(:)
-dimension dum(1), idum(1)
+integer(kind=iwp), allocatable :: ipList(:), OperI(:), OperC(:), iAtmNr2(:)
+real(kind=wp), allocatable :: CoorO(:), Nuc(:), KnE_Int(:), NA_Int(:), FragP(:), OneHam(:), PtEl(:), PtNuc(:), SumEl(:), &
+                              SumNuc(:), Charge2(:)
+external :: MltInt, KnEInt, MVeInt, VeInt, D1Int, NAInt, EFInt, OAMInt, OMQInt, DMSInt, WelInt, XFdInt, PrjInt, QpVInt, M1Int, &
+            M2Int, SROInt, AMPInt, PXPInt, PXInt, VPInt, PPInt, CntInt, EMFInt, MltInt_GIAO, KneInt_GIAO, NAInt_GIAO, &
+            dTdmu_Int, PAM2Int, FragPint, P_Int, EPEInt
+external :: MltMem, KnEMem, MVeMem, VeMem, D1Mem, NAMem, EFMem, OAMMem, OMQMem, DMSMem, WelMem, XFdMem, PrjMem, QpVMem, M1Mem, &
+            M2Mem, SROMem, AMPMem, PXPmem, PXMem, VPMem, PPMem, CntMem, EMFMem, MltMem_GIAO, KneMem_GIAO, NAMem_GIAO, &
+            dTdmu_Mem, PAM2Mem, FragPMem, P_Mem, EPEMem
+#ifdef _FDE_
+! Embedding
+external :: embPotKernel, embPotMem
+real(kind=wp), allocatable :: Emb_Int(:)
+#endif
 
 iRout = 131
 iPrint = nPrint(iRout)
@@ -128,10 +129,10 @@ if (DKroll .and. Primitive_Pass) then
 end if
 if (Prprt) then
   FName = SW_FileOrb
-  call GetDens(FName(:mylen(FName)),short,iPrint)
+  call GetDens(trim(FName),short,iPrint)
   call CollapseOutput(1,'   Molecular properties:')
-  write(6,'(3X,A)') '   ---------------------'
-  write(6,*)
+  write(u6,'(3X,A)') '   ---------------------'
+  write(u6,*)
 end if
 !***********************************************************************
 !***********************************************************************
@@ -206,7 +207,7 @@ do iMltpl=iLow,S%nMltpl
   !*********************************************************************
   !                                                                    *
   ! Write FMM multipole moments to disk
-  !
+
   if (.not. Prprt .and. DoFMM) then
     write(Label,'(A,I2)') 'FMMInt',iMltpl
     call OneEl(MltInt,MltMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,dum,idum,0,0,dum,1,0)
@@ -284,9 +285,9 @@ if (lPAM2np .and. .not. Primitive_Pass) then
       do iComp=0,nComp-1
         call dcopy_(3,dbsc(kCnttpPAM)%Coor,1,CoorO(1+3*iComp),1)
       end do
-      !
+
       !**** Define symmetry properties of the operator:
-      !
+
       iComp = 0
       do ix=iPAMltpl,0,-1
         if (mod(ix,2) == 0) then
@@ -320,9 +321,9 @@ if (lPAM2np .and. .not. Primitive_Pass) then
           iComp = iComp+1
         end do
       end do
-      !
+
       !**** Loop over basis functions
-      !
+
       call mma_allocate(PAMexp,iPAMPrim,2,label='PAMexp')
       call dcopy_(iPAMPrim,dbsc(kCnttpPAM)%PAM2(iAddr+2),1,PAMexp(1,1),1)
       do iPAMf=1,iPAMBas
@@ -659,7 +660,7 @@ do nOrdOp=0,nOrdEF
     ! set the tolerance according to the total number of centers
     ! (assuming error scales with sqrt(nEF))
     iTol = 5
-    iTol = iTol-nint(Half*log10(dble(nEF)))
+    iTol = iTol-nint(Half*log10(real(nEF,kind=wp)))
     write(label,'(a,i1,a)') 'EF',nOrdOp,'   el'
     call Add_Info(label,SumEl,nComp,iTol)
     write(label,'(a,i1,a)') 'EF',nOrdOp,'  nuc'
@@ -1079,7 +1080,7 @@ if (.not. Prprt .and. .not. Primitive_Pass) then
   ! Embedding
   if (embpot) then
     if (embPotInBasis) then
-      !write(6,*) "ENTER"
+      !write(u6,*) "ENTER"
       ! If the potential is given in basis set representation it
       ! has not been calculated with a OneEl call and is just read
       ! from file here.
@@ -1087,7 +1088,7 @@ if (.not. Prprt .and. .not. Primitive_Pass) then
       call molcas_open(iunit,embPotPath)
       do iEmb=1,n2Tri(1)
         read(iunit,*) Emb_Int(iEmb)
-        !write(6,*) iEmb-1, ": ", Emb_Int(iEmb)
+        !write(u6,*) iEmb-1, ": ", Emb_Int(iEmb)
       end do
       close(iunit)
     else
@@ -1385,7 +1386,7 @@ if (PrPrt .and. mCnt > 0) then
   ! set the tolerance according to the total number of centers
   ! (assuming error scales with sqrt(mCnt))
   iTol = 5
-  iTol = iTol-nint(Half*log10(dble(mCnt)))
+  iTol = iTol-nint(Half*log10(real(mCnt,kind=wp)))
   write(label,'(a,a)') 'CNT','   el'
   call Add_Info(label,SumEl,1,iTol)
   write(label,'(a,a)') 'CNT','  nuc'
@@ -1534,14 +1535,14 @@ if (lAMFI .and. .not. Prprt .and. .not. Primitive_Pass) then
 
     iAtom_Number = dbsc(i)%AtmNr
     if (iAtom_Number < 0 .or. iAtom_Number > size(No_AMFI)) then
-      write(6,*) 'Illegal atom number.'
-      write(6,*) 'Atom number=',iAtom_Number
+      write(u6,*) 'Illegal atom number.'
+      write(u6,*) 'Atom number=',iAtom_Number
       call Abend()
     end if
     if (No_AMFI(iAtom_Number)) then
-      write(6,*) "Disabling AMFI for atom type ",dbsc(i)%AtmNr
+      write(u6,*) "Disabling AMFI for atom type ",dbsc(i)%AtmNr
       iAtmNr2(i) = 0
-      Charge2(i) = 0.0d0
+      Charge2(i) = Zero
     end if
   end do
 
