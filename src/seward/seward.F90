@@ -201,225 +201,229 @@ call Close_LuSpool(LuSpool)
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-199 continue
+do
 
-! Process the input.
+  ! Process the input.
 
-call Input_Seward(lOPTO)
+  call Input_Seward(lOPTO)
 
-if (Primitive_Pass) then
-  PrPrt_Save = PrPrt
-  PrPrt = .false.
-else
-  PrPrt = PrPrt_Save
-end if
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-! Compute the Nuclear potential energy
-
-if (.not. Primitive_Pass) call DrvN0()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if (Show) then
-
-  ! Print out basis set information
-
-  write(u6,*)
-  write(u6,'(6X,A)') 'Basis set specifications :'
-  write(u6,'(6X,A,T30,8(2X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
-  write(u6,'(6X,A,T30,8I5)') 'Basis functions',(nBas(i),i=0,nIrrep-1)
-  write(u6,*)
-
-end if
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! If only test case then clean up!
-
-if (Test) Go To 9999
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Write/update information on the run file.
-
-if (.not. Primitive_Pass) then
-  call DmpInf()
-  call basis2run()
-end if
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-! ONE-ELECTRON INTEGRAL SECTION
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-#ifdef _FDE_
-! Embedding
-if (embPot .and. .not. embPotInBasis) then
-  call embPotInit(.false.)
-end if
-#endif
-
-Lu_One = 2
-iOpt = 1
-iRC = -1
-
-! Generate primimitive integrals only if needed.
-
-if (Primitive_Pass .and. (DKroll .or. Nemo)) then
-  call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-  call OneBas('PRIM')
-else
-  call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-end if
-if (iRC /= 0) then
-  call WarningMessage(2,' *** Error in subroutine INPUT ***;     Abend in subroutine OpnOne')
-  call Abend()
-end if
-
-if (Do_OneEl .and. (.not. Primitive_Pass .or. (Primitive_Pass .and. (DKroll .or. NEMO)))) call Drv1El()
-
-iOpt = 0
-iRC = -1
-call ClsOne(iRC,iOpt)
-if (iRC /= 0) then
-  call WarningMessage(2,' *** Error in SEWARD main ***;  Abend in subroutine ClsOne')
-  call Abend()
-end if
-
-#ifdef _FDE_
-! Embedding
-if (embPot .and. .not. embPotInBasis) call embPotFreeMem
-#endif
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-! If a pass in which primitive integrals where computed do a second
-! pass.
-
-if (Primitive_Pass) then
-  Primitive_Pass = .false.
-  call Free_iSD()
-  Go To 199
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Branch out if only one-electron integrals are to be computed!
-
-if (Onenly) Go To 9999
-
-! If ERIs/CD/RI already available, one may want not to redo it!
-
-if (Fake_ERIs) then
-  call set_fake_ERIs()
-  Go To 9999
-end if
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-! TWO-ELECTRON INTEGRAL SECTION
-!                                                                      *
-!***********************************************************************
-!***********************************************************************
-!                                                                      *
-if (iWRopt == 0) then
-
-  !----- Molcas format
-
-  if (Cholesky) then ! Cholesky decomposition
-    call Cho_MCA_Drv()
-    call Get_iArray('NumCho',nChoV,nIrrep)
-    write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
-    write(u6,*)
-    write(u6,*)
-  else if (Do_RI) then
-    if (LocalDF) then
-      call Drv2El_LocalDF()
-    else
-      if (nPrint(iRout) >= 6) then
-        write(u6,*)
-        write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
-        write(u6,*)
-      end if
-      call Drv2El_3Center_RI(Integral_RI_3,Zero)
-      call Get_iArray('NumCho',nChoV,nIrrep)
-      if (nPrint(iRout) >= 6) then
-        write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
-        write(u6,*)
-        write(u6,*)
-      end if
-    end if
+  if (Primitive_Pass) then
+    PrPrt_Save = PrPrt
+    PrPrt = .false.
   else
-    iWrOpt_Save = iWrOpt
-    iWrOpt = 0
-    call Sort0
-
-    call Drv2El(Integral_WrOut2,Zero)
-
-    call Sort1B
-    call Sort2
-    call Sort3(MaxDax)
-
-    if (nPrint(iRout) >= 6) then
-      write(u6,*)
-      write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
-      if (iPack /= 0) then
-        write(u6,'(A)') ' No packing of integrals has been applied'
-      else
-        write(u6,'(A,G11.4)') ' Packing accuracy =',PkAcc
-        write(u6,'(A,I10)') ' Highest disk address written',MaxDax
-      end if
-      write(u6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
-    end if
-    iWrOpt = iWrOpt_Save
+    PrPrt = PrPrt_Save
   end if
   !                                                                    *
   !*********************************************************************
+  !*********************************************************************
   !                                                                    *
-else if (iWRopt == 1) then
+  ! Compute the Nuclear potential energy
 
-  !----- Molecule format (Molcas 1.0)
-
-  Lu_28 = 28
-  Lu_28 = isfreeunit(Lu_28)
-  call DaName_MF(Lu_28,'BASINT')
-  iDisk = 0
-  lBuf = idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
-  lBuf = (lBuf+nByte_r)/nByte_r-1
-
-  call Drv2El(Integral_WrOut,Zero)
-
-  call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-  Buf%nUt = -1
-  call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
-  write(u6,*)
-  write(u6,'(A)') ' Integrals are written in MOLCAS1 format'
-  !write(u6,'(I10,A)') IntTot,' Integrals written on Disk'
+  if (.not. Primitive_Pass) call DrvN0()
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else
+  if (Show) then
 
-  call WarningMessage(2,'Seward: Invalid value of iWRopt!')
-  call Abend()
+    ! Print out basis set information
 
-end if
+    write(u6,*)
+    write(u6,'(6X,A)') 'Basis set specifications :'
+    write(u6,'(6X,A,T30,8(2X,A))') 'Symmetry species',(lIrrep(i),i=0,nIrrep-1)
+    write(u6,'(6X,A,T30,8I5)') 'Basis functions',(nBas(i),i=0,nIrrep-1)
+    write(u6,*)
+
+  end if
+
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! If only test case then clean up!
+
+  if (Test) exit
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Write/update information on the run file.
+
+  if (.not. Primitive_Pass) then
+    call DmpInf()
+    call basis2run()
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! ONE-ELECTRON INTEGRAL SECTION
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+# ifdef _FDE_
+  ! Embedding
+  if (embPot .and. (.not. embPotInBasis)) then
+    call embPotInit(.false.)
+  end if
+# endif
+
+  Lu_One = 2
+  iOpt = 1
+  iRC = -1
+
+  ! Generate primimitive integrals only if needed.
+
+  if (Primitive_Pass .and. (DKroll .or. Nemo)) then
+    call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
+    call OneBas('PRIM')
+  else
+    call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
+  end if
+  if (iRC /= 0) then
+    call WarningMessage(2,' *** Error in subroutine INPUT ***;     Abend in subroutine OpnOne')
+    call Abend()
+  end if
+
+  if (Do_OneEl .and. ((.not. Primitive_Pass) .or. DKroll .or. NEMO)) call Drv1El()
+
+  iOpt = 0
+  iRC = -1
+  call ClsOne(iRC,iOpt)
+  if (iRC /= 0) then
+    call WarningMessage(2,' *** Error in SEWARD main ***;  Abend in subroutine ClsOne')
+    call Abend()
+  end if
+
+# ifdef _FDE_
+  ! Embedding
+  if (embPot .and. (.not. embPotInBasis)) call embPotFreeMem()
+# endif
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! If a pass in which primitive integrals where computed do a second
+  ! pass.
+
+  if (.not. Primitive_Pass) exit
+  Primitive_Pass = .false.
+  call Free_iSD()
+end do
+
+if (.not. Test) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Branch out if only one-electron integrals are to be computed!
+
+  if (.not. Onenly) then
+
+    ! If ERIs/CD/RI already available, one may want not to redo it!
+
+    if (Fake_ERIs) then
+      call set_fake_ERIs()
+    else
+      !                                                                *
+      !*****************************************************************
+      !*****************************************************************
+      !                                                                *
+      ! TWO-ELECTRON INTEGRAL SECTION
+      !                                                                *
+      !*****************************************************************
+      !*****************************************************************
+      !                                                                *
+      if (iWRopt == 0) then
+
+        !----- Molcas format
+
+        if (Cholesky) then ! Cholesky decomposition
+          call Cho_MCA_Drv()
+          call Get_iArray('NumCho',nChoV,nIrrep)
+          write(u6,'(6X,A,T30,8I5)') 'Cholesky vectors',(nChoV(i),i=1,nIrrep)
+          write(u6,*)
+          write(u6,*)
+        else if (Do_RI) then
+          if (LocalDF) then
+            call Drv2El_LocalDF()
+          else
+            if (nPrint(iRout) >= 6) then
+              write(u6,*)
+              write(u6,'(A)') 'Seward processing 2-center and 3-center ERIs'
+              write(u6,*)
+            end if
+            call Drv2El_3Center_RI(Integral_RI_3,Zero)
+            call Get_iArray('NumCho',nChoV,nIrrep)
+            if (nPrint(iRout) >= 6) then
+              write(u6,'(6X,A,T30,8I5)') 'RI vectors',(nChoV(i),i=1,nIrrep)
+              write(u6,*)
+              write(u6,*)
+            end if
+          end if
+        else
+          iWrOpt_Save = iWrOpt
+          iWrOpt = 0
+          call Sort0()
+
+          call Drv2El(Integral_WrOut2,Zero)
+
+          call Sort1B()
+          call Sort2()
+          call Sort3(MaxDax)
+
+          if (nPrint(iRout) >= 6) then
+            write(u6,*)
+            write(u6,'(A)') ' Integrals are written in MOLCAS2 format'
+            if (iPack /= 0) then
+              write(u6,'(A)') ' No packing of integrals has been applied'
+            else
+              write(u6,'(A,G11.4)') ' Packing accuracy =',PkAcc
+              write(u6,'(A,I10)') ' Highest disk address written',MaxDax
+            end if
+            write(u6,'(A)') ' Diagonal and subdiagonal, symmetry allowed 2-el integral blocks are stored on Disk'
+          end if
+          iWrOpt = iWrOpt_Save
+        end if
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+      else if (iWRopt == 1) then
+
+        !----- Molecule format (Molcas 1.0)
+
+        Lu_28 = 28
+        Lu_28 = isfreeunit(Lu_28)
+        call DaName_MF(Lu_28,'BASINT')
+        iDisk = 0
+        lBuf = idLoc(Buf%r_End)-idLoc(Buf%Buf(1))
+        lBuf = (lBuf+nByte_r)/nByte_r-1
+
+        call Drv2El(Integral_WrOut,Zero)
+
+        call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+        Buf%nUt = -1
+        call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
+        write(u6,*)
+        write(u6,'(A)') ' Integrals are written in MOLCAS1 format'
+        !write(u6,'(I10,A)') IntTot,' Integrals written on Disk'
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+      else
+
+        call WarningMessage(2,'Seward: Invalid value of iWRopt!')
+        call Abend()
+
+      end if
+
+    end if ! Fake_ERIs
+  end if   ! Onenly
+end if     ! Test
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! At the end of the calculation free all memory to check for
 ! corruption of the memory.
 
-9999 call ClsSew()
+call ClsSew()
 if (allocated(AdCell)) call mma_deallocate(AdCell)
 call mma_deallocate(Coor_MPM)
 call mma_deallocate(Chrg)
@@ -463,7 +467,7 @@ end if
 ! Automatic run of GuessOrb
 
 if (Do_GuessOrb .and. Do_FckInt) call GuessOrb(iReturn,.false.)
-if (.not. Prprt .and. Do_OneEl) call Put_NucAttr()
+if ((.not. Prprt) .and. Do_OneEl) call Put_NucAttr()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

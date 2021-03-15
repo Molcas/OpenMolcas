@@ -62,14 +62,14 @@ end if
 ! if we are iterating or not.
 !
 ! Set Show to false if Seward is run in property mode.
-Show = Show .and. .not. Prprt
+Show = Show .and. (.not. Prprt)
 
-if ((Reduce_Prt() .and. nPrint(iRout) < 6) .and. .not. Prprt) then
+if (Reduce_Prt() .and. (nPrint(iRout) < 6) .and. (.not. Prprt)) then
   Show = .false.
   Do_GuessOrb = .false.
 end if
 
-Show = Show .and. .not. Primitive_Pass
+Show = Show .and. (.not. Primitive_Pass)
 Show = Show .or. Test
 !                                                                      *
 !***********************************************************************

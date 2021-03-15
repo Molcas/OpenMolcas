@@ -11,7 +11,7 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
-Subroutine Seward_Banner()
+subroutine Seward_Banner()
 
 use Definitions, only: u6
 

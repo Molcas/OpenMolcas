@@ -77,7 +77,7 @@ do iComp=1,nComp
   end do
 end do
 if (iPrint >= 20) write(u6,*) ' nIC =',nIC
-if (nIC == 0) Go To 999
+if (nIC == 0) return
 call SOS(iStabO,nStabO,llOper)
 !                                                                      *
 !***********************************************************************
@@ -156,8 +156,6 @@ call mma_deallocate(Int1El)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-999 continue
-
 return
 
 end subroutine Drv_Fck
@@ -266,7 +264,7 @@ do iS=1,nSkal
       nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     end do
     if (iPrint >= 29) write(u6,*) ' nSO=',nSO
-    if (nSO == 0) Go To 131
+    if (nSO == 0) cycle
     call mma_allocate(SO,nSO*iBas*jBas)
     call DCopy_(nSO*iBas*jBas,[Zero],0,SO,1)
     !                                                                  *
@@ -431,7 +429,6 @@ do iS=1,nSkal
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-    131 continue
   end do
 end do
 

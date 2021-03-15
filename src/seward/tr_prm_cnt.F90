@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: Tr(:)
 !                                                                      *
 nSym = nIrrep
 iPrint = 0
-if (iprint >= 10 .or. idbg > 0) then
+if ((iprint >= 10) .or. (idbg > 0)) then
   write(idbg,*) ' in repmat',nsym
   write(idbg,*) nSym,(nBas(i),i=0,nsym-1)
   write(idbg,*) nSym,(nrBas(i),i=1,nsym)
@@ -53,7 +53,7 @@ end if
 
 nBas_Cont_Tot = 0
 do iSym=1,nSym
-  nBas_Cont_Tot = nBas_Cont_Tot + nBas_Cont(iSym)
+  nBas_Cont_Tot = nBas_Cont_Tot+nBas_Cont(iSym)
 end do
 ncnt = 0
 do iCnttp=1,nCnttp
@@ -84,7 +84,7 @@ do iCnttp=1,nCnttp
     end do
   end do
 end do
-if (iPrint >= 10 .or. idbg > 0) then
+if ((iPrint >= 10) .or. (idbg > 0)) then
   write(idbg,*) ' Help vector'
   ia = 0
   do iCnttp=1,nCnttp
@@ -134,7 +134,7 @@ do iSym=1,nSym
             numc(k) = nBasisr(ka)
             numb(k) = nPrimr(ka)
             icaddr(k) = ihelp(ia,la)+(kbias-1)*nPrimr(ka)
-            if (k > 1 .and. kbias == 1) numck = numcl+numck
+            if ((k > 1) .and. (kbias == 1)) numck = numcl+numck
             mcaddr(k) = numck
             numcl = nPrimr(ka)
           end if
@@ -144,7 +144,7 @@ do iSym=1,nSym
   end do        ! iCont
 end do          ! iSym
 k = 0
-if (iPrint >= 10 .or. idbg > 0) then
+if ((iPrint >= 10) .or. (idbg > 0)) then
   ic = 0
   ip = 0
   do iSym=1,nSym

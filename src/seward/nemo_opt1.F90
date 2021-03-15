@@ -59,7 +59,7 @@ do iCnttp=1,nCnttp
   kShStr = dbsc(iCnttp)%iVal
   kShEnd = dbsc(iCnttp)%iVal+dbsc(iCnttp)%nVal-1
   do kSh=kShStr,kShEnd
-    if (.not. Shells(kSh)%Transf .and. lSh >= 2) then
+    if ((.not. Shells(kSh)%Transf) .and. (lSh >= 2)) then
       call WarningMessage(2,'   NEMO Error')
       write(u6,*)
       write(u6,*)
@@ -140,7 +140,7 @@ iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEREL',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call error()
 
 call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nBas_Prim,nIrrep)
@@ -194,7 +194,7 @@ if (iPrint >= 10) call PrMtrx('P_matrix',lOper,nComp,ip,P_Matrix)
 
 nip = 0
 nInt_Tot = 0
-do iMltPl=0,MxMltPl
+outer1: do iMltPl=0,MxMltPl
   write(Label,'(a,i2)') 'MLTPL ',iMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp
@@ -207,27 +207,25 @@ do iMltPl=0,MxMltPl
         call WarningMessage(2,' Error reading length!')
         write(u6,*) ' Label=',Label,' Comp=',iComp
         call Abend()
-      else
-        Go To 100
       end if
+      exit outer1
     end if
     nip = nip+1
     iSm(nip) = iSmLbl
     ipMP(nip) = 1+nInt_Tot
     nInt_Tot = nInt_Tot+n_int(1)+4
   end do
-end do
-100 continue
+end do outer1
 
 call mma_allocate(MP_Matrix,nInt_Tot,label='MP_Matrix')
 
 iip = 0
-do iMltPl=0,MxMltPl
+outer2: do iMltPl=0,MxMltPl
   write(Label,'(a,i2)') 'MLTPL ',iMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp
     iip = iip+1
-    if (iip > nip) Go To 200
+    if (iip > nip) exit outer2
     iRC = -1
     iOpt = 0
     ipMP(iip) = ipMP(iip)
@@ -239,8 +237,7 @@ do iMltPl=0,MxMltPl
       call Abend()
     end if
   end do
-end do
-200 continue
+end do outer2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -249,12 +246,12 @@ end do
 iOpt = 0
 iRC = -1
 call ClsOne(iRC,iOpt)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call error()
 iOpt = 0
 iRC = -1
 Lu_One = 2
 call OpnOne(iRC,iOpt,'ONEINT',Lu_One)
-if (iRC /= 0) Go To 9999
+if (iRC /= 0) call error()
 
 call OneBas('PRIM')
 !                                                                      *
@@ -287,12 +284,12 @@ call mma_deallocate(P_Matrix)
 ! Process multipole integrals
 
 iip = 0
-do iMltPl=0,MxMltPl
+outer3: do iMltPl=0,MxMltPl
   write(Label,'(a,i2)') 'PLTPL ',iMltpl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   do iComp=1,nComp
     iip = iip+1
-    if (iip > nip) Go To 300
+    if (iip > nip) exit outer3
     iRC = -1
     iOpt = 0
     call WrOne(iRC,iOpt,Label,iComp,MP_Matrix(ipMP(iip)),iSm(iip))
@@ -302,8 +299,7 @@ do iMltPl=0,MxMltPl
       call Abend()
     end if
   end do
-end do
-300 continue
+end do outer3
 call mma_deallocate(MP_Matrix)
 call mma_deallocate(ipMP)
 call mma_deallocate(iSm)
@@ -318,8 +314,11 @@ call OneBas('CONT')
 !                                                                      *
 return
 
-9999 continue
-call WarningMessage(2,' *** Error in subroutine NEMO_Opt1 ***;     Abend in subroutine OpnOne or ClsOne')
-call Abend()
+contains
+
+subroutine error()
+  call WarningMessage(2,' *** Error in subroutine NEMO_Opt1 ***;     Abend in subroutine OpnOne or ClsOne')
+  call Abend()
+end subroutine
 
 end subroutine NEMO_Opt1

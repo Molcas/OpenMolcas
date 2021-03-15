@@ -9,4 +9,17 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     drv1el.F90
+     drv2el.F90
+     drv_fck.F90
+     input_seward.F90
+     nemo_opt1.F90
+     output1_seward.F90
+     seward_banner.F90
+     seward.F90
+     tr_prm_cnt.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
