@@ -114,7 +114,9 @@ C ---
 C --- Transform the density to reduced storage
       mode = 'toreds'
       add  = .false.
-      Call switch_sto(irc,iLoc,DLT,Drs,mode,add)
+      ipDLT = ip_of_Work(DLT(1))
+      ipDRS = ip_of_Work(Drs(1))
+      Call swap_rs2full(irc,iLoc,1,ipDLT,ipDrs,mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -180,7 +182,9 @@ C==========================================================
 c --- backtransform fock matrix in full storage
          mode = 'tofull'
          add  = JRED.gt.JRED1
-         Call switch_sto(irc,iLoc,FLT,Frs,mode,add)
+         ipFLT = ip_of_Work(FLT(1))
+         ipFRS = ip_of_Work(Frs(1))
+         Call swap_rs2full(irc,iLoc,1,ipFLT,ipFrs,mode,add)
       endif
 
 C --- free memory
@@ -247,100 +251,6 @@ c Print the Fock-matrix
 
 
       irc=0
-
-      Return
-      End
-
-
-
-      SUBROUTINE switch_sto(irc,iLoc,XLT,Xab,mode,add)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer irc, iLoc
-      Real*8 XLT(*), Xab(*)
-      Character(LEN=6) mode
-      Logical  add
-
-      Integer  ISLT(8)
-      Integer, External:: cho_isao
-
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-
-************************************************************************
-      iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-************************************************************************
-
-
-c Offsets to symmetry block in the LT matrix
-      ISLT(1)=0
-      DO ISYM=2,NSYM
-         ISLT(ISYM) = ISLT(ISYM-1)
-     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
-      END DO
-
-**************************************************
-
-      jSym = 1 ! only total symmetric density
-
-      xf=0.0d0
-      if (add) xf=1.0d0 !accumulate contributions
-
-      If (mode.eq.'toreds') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            kfrom = isLT(iSyma) + iab
-
-            Xab(jRab) = xf*Xab(jRab) + XLT(kfrom)
-
-         End Do  ! jRab loop
-
-      ElseIf (mode.eq.'tofull') then
-
-         Do jRab=1,nnBstR(jSym,iLoc)
-
-            kRab = iiBstr(jSym,iLoc) + jRab
-            iRab = IndRed(kRab,iLoc)
-
-            iag   = iRS2F(1,iRab)  !global address
-            ibg   = iRS2F(2,iRab)
-
-            iSyma = cho_isao(iag)  !symmetry block; Sym(b)=Sym(a)
-
-            ias   = iag - ibas(iSyma)  !address within that symm block
-            ibs   = ibg - ibas(iSyma)
-            iab   = iTri(ias,ibs)
-
-            kto = isLT(iSyma) + iab
-
-            XLT(kto) = xf*XLT(kto) + Xab(jRab)
-
-         End Do  ! jRab loop
-
-      Else
-
-         write(6,*)'Wrong input parameter. mode = ',mode
-         irc = 66
-         Call abend()
-
-      EndIf
-
-      irc = 0
 
       Return
       End
