@@ -20,8 +20,8 @@ C              The R matrix is computed as R(i,j) = (ij|jj).
 C
 C     Note: symmetry is NOT allowed (but is not tested!).
 C
-      use Data_structures, only: CMO_type
-      use Data_structures, only: Allocate_CMO, Deallocate_CMO
+      use Data_structures, only: DSBA_Type
+      use Data_structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
       Real*8  R(nOrb2Loc,nOrb2Loc), CMO(nBasis,nOrb2Loc)
       Logical Timing
@@ -33,7 +33,7 @@ C
       Integer, Parameter:: nSym = 1
       Integer nOcc(nSym)
 
-      Type (CMO_Type) CMOt
+      Type (DSBA_Type) CMOt
 
 C     Initialization.
 C     ---------------
@@ -45,9 +45,9 @@ C     ---------------
 C     Transpose CMO (only the part to be localised).
 C     ----------------------------------------------
 
-      Call Allocate_CMO(CMOt,[nOrb2Loc],[nBasis],nSym)
+      Call Allocate_DSBA(CMOt,[nOrb2Loc],[nBasis],nSym)
       Do i = 1,nOrb2Loc
-         CMOt%SB(1)%A(i,:) = CMO(:,i)
+         CMOt%SB(1)%A2(i,:) = CMO(:,i)
       End Do
 
 C     Compute R.
@@ -61,7 +61,7 @@ C     ----------
          Call SysAbendMsg(SecNam,'Calculation of ER gradient failed:',
      &                    Txt)
       End If
-      Call Deallocate_CMO(CMOt)
+      Call Deallocate_DSBA(CMOt)
 
 C     Compute gradient norm and functional.
 C     -------------------------------------

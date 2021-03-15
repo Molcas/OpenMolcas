@@ -106,14 +106,14 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) AOrb(*)
+      Type (DSBA_Type) AOrb(*)
       Type (SBA_Type) Laq(1), Lxy
 
       Logical   DoExchange,DoCAS,lSA
@@ -164,13 +164,13 @@
         Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         DoRead)
-        use Data_Structures, only: CMO_Type, SBA_Type
+        use Data_Structures, only: DSBA_Type, SBA_Type
         Integer irc, lRedVec
         Real*8 RedVec(lRedVec)
         Integer IVEC1,NUMV,ISYM,iSwap,IREDC
         Integer   nDen,kDen
 
-        Type (CMO_Type) MOs(nDen)
+        Type (DSBA_Type) MOs(nDen)
         Type (SBA_Type) Chot(nDen)
 
         Logical   DoRead
@@ -1571,7 +1571,7 @@ C --- subtraction is done in the 1st reduced set
                              !  triangular blocks
                              CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
      &                             One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAv,
-     &                                      Aorb(iMO2)%SB(iSymb)%A,NAv,
+     &                                      Aorb(iMO2)%SB(iSymb)%A2,NAv,
      &                                Zero,Lxy%SB(iSymb)%A2(:,JVC),NAv)
 
                           End Do
@@ -1593,7 +1593,7 @@ C --- subtraction is done in the 1st reduced set
                              ! square or rectangular blocks
                              CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                             One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                      Aorb(iMO2)%SB(iSymb)%A,NAw,
+     &                                      Aorb(iMO2)%SB(iSymb)%A2,NAw,
      &                                 Zero,Lxy%SB(iSymv)%A2(:,JVC),NAv)
 
                             End Do

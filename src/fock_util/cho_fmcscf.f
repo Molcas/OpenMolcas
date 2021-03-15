@@ -41,13 +41,13 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, SBA_Type
+      use Data_structures, only: DSBA_Type, SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       use Data_structures, only: twxy_Type
       use Data_structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) POrb(3)
+      Type (DSBA_Type) POrb(3)
       Type (SBA_Type), Target:: Laq(3), Lxy
       Type (twxy_type) Scr
 
@@ -507,7 +507,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,nBas(iSyma),
      &                             One,Laq(3)%SB(iSyma)%A3(:,:,JVC),NAv,
-     &                                    POrb(3)%SB(iSyma)%A,NAv,
+     &                                    POrb(3)%SB(iSyma)%A2,NAv,
      &                               Zero,Lxy%SB(iSyma)%A2(:,JVC),NAv)
 
                       End Do
@@ -534,7 +534,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,nBas(iSymb),
      &                            One,Laq(3)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                POrb(3)%SB(iSymb)%A,NAw,
+     &                                POrb(3)%SB(iSymb)%A2,NAw,
      &                           Zero,Lxy%SB(iSymv)%A2(:,JVC),NAv)
 
                       End Do

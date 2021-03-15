@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_CAS_DRV(rc,CMO,DI,FI,DA1,FA,DA2,TraOnly)
-      Use Data_Structures, only: CMO_Type, Allocate_CMO,
-     &                           Deallocate_CMO
+      Use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit real*8 (a-h,o-z)
 
       Integer   rc
@@ -34,7 +34,7 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Type (CMO_type) CVa(2), POrb(3), Ddec, ChoIn
+      Type (DSBA_Type) CVa(2), POrb(3), Ddec, ChoIn
 
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
       Real*8, Allocatable:: DILT(:), DALT(:)
@@ -140,8 +140,8 @@ C --- Build the packed densities from the Squared ones
 !         FactXI = 0-(ExFac*.5d0)
 
 c --- decompose the Inactive density on request
-         Call Allocate_CMO(ChoIn,nBas,nBas,nSym)
-         Call Allocate_CMO(DDec,nBas,nBas,nSym)
+         Call Allocate_DSBA(ChoIn,nBas,nBas,nSym)
+         Call Allocate_DSBA(DDec,nBas,nBas,nSym)
          call dcopy_(NTot2,DI(1),1,DDec%A0,1)
 
          ipInc = ip_of_Work(ChoIn%A0(1))
@@ -150,8 +150,8 @@ c --- decompose the Inactive density on request
          incs=0
          Do i=1,nSym
             if((nForb(i)+nIorb(i)).gt.0)then
-             CALL CD_InCore(DDec%SB(i)%A,nBas(i),ChoIn%SB(i)%A,nBas(i),
-     &                     NumV,Thr,rc)
+             CALL CD_InCore(DDec%SB(i)%A2,nBas(i),ChoIn%SB(i)%A2,
+     &                      nBas(i),NumV,Thr,rc)
              If (rc.ne.0) Then
               write(6,*)SECNAM//': ill-defined dens decomp for Inact'
               write(6,*) 'rc value produced = ', rc
@@ -166,7 +166,7 @@ c --- decompose the Inactive density on request
                incs=incs+1
                Ymax=0.0d0
                do ja=1,nBas(i)
-                  Ymax=Max(Ymax,DDec%SB(i)%A(ja,ja))
+                  Ymax=Max(Ymax,DDec%SB(i)%A2(ja,ja))
                end do
                write(6,*)'Max diagonal of the density in symm. ',i,' is'
      &                   //' equal to ',Ymax
@@ -182,7 +182,7 @@ c --- decompose the Inactive density on request
             write(6,*)'LK-damping decreased from ',dmpk_old,' to ',dmpk
          EndIf
 
-         Call Deallocate_CMO(DDEc)
+         Call Deallocate_DSBA(DDEc)
 
 c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
          If(.not.DoLocK)Then
@@ -206,8 +206,8 @@ c --- to get the right input arguments for CHO_FCAS_AO and CHO_FMCSCF
 C --- Reordering of the MOs coefficients to fit cholesky needs
       If(.not.DoLocK)Then
 
-        Call Allocate_CMO(POrb(1),nChI,nBas,nSym)
-        Call Allocate_CMO(POrb(3),nAOrb,nBas,nSym)
+        Call Allocate_DSBA(POrb(1),nChI,nBas,nSym)
+        Call Allocate_DSBA(POrb(3),nAOrb,nBas,nSym)
 
         nOcs=0
         ioff1=0
@@ -215,13 +215,13 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
 
            do ikk=1,nChI(iSym)
               ioff2=ioff1+nBas(iSym)*(ikk-1)
-              POrb(1)%SB(iSym)%A(ikk,:) =
+              POrb(1)%SB(iSym)%A2(ikk,:) =
      &           Work(ipInc+ioff2 : ipInc+ioff2 -1 + nBas(iSym))
            end do
 
            ioff2=ioff1+nBas(iSym)*(nForb(iSym)+nIorb(iSym))
            do ikk=1,nAorb(iSym)
-              POrb(3)%SB(iSym)%A(ikk,:) =
+              POrb(3)%SB(iSym)%A2(ikk,:) =
      &             CMO( ioff2+nBas(iSym)*(ikk-1) + 1 :
      &                  ioff2+nBas(iSym)*(ikk-1) + nBas(iSym))
            end do
@@ -233,14 +233,14 @@ C --- Reordering of the MOs coefficients to fit cholesky needs
       Else
 
 C *** Only the active orbitals MO coeff need reordering
-           Call Allocate_CMO(CVa(1),nAorb,nBas,nSym)
+           Call Allocate_DSBA(CVa(1),nAorb,nBas,nSym)
 
            ioff1 = 0
            Do iSym=1,nSym
             ioff2 = ioff1 + nBas(iSym)*(nForb(iSym)+nIorb(iSym))
             do ikk=1,nAorb(iSym)
                ioff = ioff2+nBas(iSym)*(ikk-1)
-               CVa(1)%SB(iSym)%A(ikk,:) =
+               CVa(1)%SB(iSym)%A2(ikk,:) =
      &           CMO(ioff +  1 : ioff + nBas(iSym))
             end do
             ioff1 = ioff1 + nBas(iSym)**2
@@ -297,8 +297,8 @@ C ---  Decompose the active density  -----------------------------
        end do
 #endif
 
-        Call Allocate_CMO(CVa(2),nBas,nBas,nSym)
-        Call Allocate_CMO(DDec,nBas,nBas,nSym)
+        Call Allocate_DSBA(CVa(2),nBas,nBas,nSym)
+        Call Allocate_DSBA(DDec,nBas,nBas,nSym)
         call dcopy_(NTot2,DA1(1),1,DDec%A0,1)
 
         Thr = 1.0d-12
@@ -306,8 +306,8 @@ C ---  Decompose the active density  -----------------------------
            if(nAorb(i).gt.0)then
 ! NOTE(Giovanni): CD will proceed with approx. decompos for QMC
 !                 This will avoid warnings for negative-definit
-             call CD_InCore(DDec%SB(i)%A,nBas(i),
-     &                      CVa(2)%SB(i)%A,nBas(i),
+             call CD_InCore(DDec%SB(i)%A2,nBas(i),
+     &                      CVa(2)%SB(i)%A2,nBas(i),
      &                      NumV,Thr,rc)
              If (rc.ne.0) Then
                 write(6,*)SECNAM//': ill-defined dens decomp for active'
@@ -320,12 +320,12 @@ C ---  Decompose the active density  -----------------------------
            endif
         End Do
 
-        Call Deallocate_CMO(DDec)
+        Call Deallocate_DSBA(DDec)
 
       Else
 
         ! Dummy allocation
-        Call Allocate_CMO(CVa(2),[1],[1],1)
+        Call Allocate_DSBA(CVa(2),[1],[1],1)
         nChM(:) = 0
 
       EndIf
@@ -334,19 +334,19 @@ C ---  Decompose the active density  -----------------------------
 
 c --- reorder "Cholesky MOs" to Cva storage
 
-        Call Allocate_CMO(POrb(2),nChM,nBas,nSym)
+        Call Allocate_DSBA(POrb(2),nChM,nBas,nSym)
         Do iSym=1,nSym
            If (nBas(iSym)*nChM(iSym).ne.0) Then
                do ikk=1,nChM(iSym)
-                  POrb(2)%SB(iSym)%A(ikk,:) =
-     &               CVa(2)%SB(iSym)%A(:,ikk)
+                  POrb(2)%SB(iSym)%A2(ikk,:) =
+     &               CVa(2)%SB(iSym)%A2(:,ikk)
                end do
            EndIf
         End Do
 
       Else
 
-        Call Allocate_CMO(POrb(2),[1],[1],1)
+        Call Allocate_DSBA(POrb(2),[1],[1],1)
 
       EndIf
 C ----------------------------------------------------------------
@@ -399,14 +399,14 @@ C ----------------------------------------------------------------
 
       ENDIF
 
-      If (Allocated(POrb(3)%A0)) Call Deallocate_CMO(POrb(3))
-      If (Allocated(POrb(2)%A0)) Call Deallocate_CMO(POrb(2))
-      If (Allocated(POrb(1)%A0)) Call Deallocate_CMO(POrb(1))
-      If (Allocated(CVa(1)%A0)) Call Deallocate_CMO(CVa(1))
-      If (Allocated(CVa(2)%A0)) Call Deallocate_CMO(CVa(2))
+      If (Allocated(POrb(3)%A0)) Call Deallocate_DSBA(POrb(3))
+      If (Allocated(POrb(2)%A0)) Call Deallocate_DSBA(POrb(2))
+      If (Allocated(POrb(1)%A0)) Call Deallocate_DSBA(POrb(1))
+      If (Allocated(CVa(1)%A0)) Call Deallocate_DSBA(CVa(1))
+      If (Allocated(CVa(2)%A0)) Call Deallocate_DSBA(CVa(2))
 
       If (DoQmat.and.ALGO.ne.1) Call mma_deallocate(PMat)
-      If (Deco) Call Deallocate_CMO(ChoIn)
+      If (Deco) Call Deallocate_DSBA(ChoIn)
 
       Call mma_deallocate(DALT)
       Call mma_deallocate(DILT)

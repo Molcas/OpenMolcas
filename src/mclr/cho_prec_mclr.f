@@ -27,8 +27,8 @@
 ************************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, Allocate_CMO
-      use Data_structures, only: Deallocate_CMO
+      use Data_structures, only: DSBA_Type, Allocate_DSBA
+      use Data_structures, only: Deallocate_DSBA
       use Data_structures, only: SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
@@ -55,7 +55,7 @@
       Integer, External::  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
      &                      Lrs(:,:), Integral(:)
-      Type (CMO_Type) CMOt
+      Type (DSBA_Type) CMOt
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
@@ -301,13 +301,13 @@
 *
 **    Transpose CMO
 *
-        Call allocate_CMO(CMOt,nIShe,nBas,nSym)
+        Call Allocate_DSBA(CMOt,nIShe,nBas,nSym)
 
         ioff =0
         Do iSym=1,nsym
           Do j=1,nIshe(iSym)
             ioff3=ioff+nBas(iSym)*(nIshb(iSym)+j-1)
-            CMOt%SB(iSym)%A(j,:) = CMO(ioff3+1:ioff3+nBas(iSym))
+            CMOt%SB(iSym)%A2(j,:) = CMO(ioff3+1:ioff3+nBas(iSym))
           End Do
           ioff =ioff +nBas(iSym)**2
         End Do
@@ -777,7 +777,7 @@ c         !set index arrays at iLoc
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
-        Call deallocate_CMO(CMOt)
+        Call Deallocate_DSBA(CMOt)
         Call mma_deallocate(iiab)
         If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches

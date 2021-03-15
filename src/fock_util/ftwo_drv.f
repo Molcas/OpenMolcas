@@ -12,8 +12,8 @@
      &                    DI,D1A,FA,nTot1,
      &                    ExFac,nTot2,nBMX,CMO)
 
-      use Data_Structures, only: CMO_Type, Allocate_CMO,
-     &                           Deallocate_CMO
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "stdalloc.fh"
@@ -23,7 +23,7 @@
       Real*8 CMO(*) , D1A(*) , DI(*), FA(*)
       Logical DoCholesky
 
-      Type (CMO_Type) :: WFSQ
+      Type (DSBA_Type) :: WFSQ
 
       Real*8, Allocatable:: Temp(:)
 #include "choras.fh"
@@ -36,7 +36,7 @@
 * Building of the Fock matrix directly from Cholesky
 * vectors
 *
-         Call Allocate_CMO(WFSQ,nBas,nBas,nSym)
+         Call Allocate_DSBA(WFSQ,nBas,nBas,nSym)
          WFSQ%A0(:)=Zero
 
          Call mma_allocate(Temp,nTot1,Label='nTot1')
@@ -48,7 +48,7 @@
          FA(1:nTot1) = FA(1:nTot1) + Temp(1:nTot1)
 *
          Call mma_deallocate(Temp)
-         Call Deallocate_CMO(WFSQ)
+         Call Deallocate_DSBA(WFSQ)
 
       ELSE
 

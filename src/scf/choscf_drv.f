@@ -43,8 +43,8 @@ C
      &                               DLT_ab,FLT,FLT_ab,nFLT,ExFac,
      &                               LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
 
-      use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Allocate_CMO, Deallocate_CMO
+      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -68,7 +68,7 @@ C
 
       Integer, External:: ip_of_Work, ip_of_iWork
 
-      Type (CMO_Type) Cka(2)
+      Type (DSBA_Type) Cka(2)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -238,14 +238,14 @@ c       end do
           Do iSym=1,nSym
              nIorb(iSym,1) = iWork(ipNocc(1)+iSym-1)
           End Do
-          Call Allocate_CMO(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
 
           ioff1=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(1)%SB(iSym)%A(ikk,:) =
+                Cka(1)%SB(iSym)%A2(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3-1+nBas(iSym))
              end do
@@ -256,7 +256,7 @@ c       end do
 
           CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Cka(1),ipDLT,xFac)
 
-          Call Deallocate_CMO(Cka(1))
+          Call Deallocate_DSBA(Cka(1))
 
           If (rc.ne.0) GOTO 999
 
@@ -514,15 +514,15 @@ C Compute the total density Dalpha + Dbeta
              nIorb(iSym,1) = iWork(ipNocc(2)+iSym-1)
              nIorb(iSym,2) = iWork(ipNocc(3)+iSym-1)
           End Do
-          Call Allocate_CMO(Cka(1),nIorb(:,1),nBas,nSym)
-          Call Allocate_CMO(Cka(2),nIorb(:,2),nBas,nSym)
+          Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_DSBA(Cka(2),nIorb(:,2),nBas,nSym)
 
           ioff1=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(1)%SB(iSym)%A(ikk,:) =
+                Cka(1)%SB(iSym)%A2(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3 - 1 + nBas(iSym))
              end do
@@ -530,7 +530,7 @@ C Compute the total density Dalpha + Dbeta
            If (nBas(iSym)*nIorb(iSym,2).ne.0) Then
              do ikk=1,nIorb(iSym,2)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(2)%SB(iSym)%A(ikk,:) =
+                Cka(2)%SB(iSym)%A2(ikk,:) =
      &            Work(ipMSQ(2)+ioff3 :
      &                 ipMSQ(2)+ioff3 - 1 + nBas(iSym))
              end do
@@ -545,8 +545,8 @@ C Compute the total density Dalpha + Dbeta
           CALL CHO_FSCF(rc,nMat,ipFLT,nForb,nIorb,Cka,ipDLT,ExFac)
 
 
-          Call Deallocate_CMO(Cka(2))
-          Call Deallocate_CMO(Cka(1))
+          Call Deallocate_DSBA(Cka(2))
+          Call Deallocate_DSBA(Cka(1))
 
           If (rc.ne.0) GOTO 999
 

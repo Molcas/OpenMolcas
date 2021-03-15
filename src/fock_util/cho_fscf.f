@@ -30,7 +30,7 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: CMO_Type, SBA_Type
+      use Data_structures, only: DSBA_Type, SBA_Type
       use Data_structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
@@ -40,7 +40,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    FactCI,FactXI,ExFac
       Integer   ipDLT(nDen),ipFLT(nDen)
-      Type (CMO_Type)   Porb(nDen)
+      Type (DSBA_Type)   Porb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
 #ifdef _DEBUGPRINT_
       Logical   Debug

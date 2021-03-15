@@ -33,7 +33,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
@@ -47,7 +47,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
-      Type (CMO_Type)   Ash(2)
+      Type (DSBA_Type)   Ash(2)
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
@@ -1392,7 +1392,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                Ash(kDen)%SB(iSymb)%A,NAw,
+     &                                Ash(kDen)%SB(iSymb)%A2,NAw,
      &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do

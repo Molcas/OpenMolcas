@@ -16,7 +16,7 @@
 !***********************************************************************
 Module Data_Structures
 Private
-Public:: CMO_Type, Allocate_CMO, Deallocate_CMO, Map_to_CMO
+Public:: DSBA_Type, Allocate_DSBA, Deallocate_DSBA, Map_to_DSBA
 Public:: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
 Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
 #include "stdalloc.fh"
@@ -28,19 +28,21 @@ Type SB_Type
   Real*8, Pointer:: A1(:)=>Null()
 End Type  SB_Type
 
+Type DSB_Type
+  Real*8, Pointer:: A2(:,:)=>Null()
+  Real*8, Pointer:: A1(:)=>Null()
+End Type  DSB_Type
+
 Type V2
   Real*8, Pointer:: A(:,:)=>Null()
 End Type V2
 
-Type V3
-  Real*8, Pointer:: A(:,:,:)=>Null()
-End Type V3
-
-Type CMO_Type
+Type DSBA_Type
+  Integer:: iCase=0
   Integer:: nSym=0
   Real*8, Allocatable :: A0(:)
-  Type (V2):: SB(8)
-End Type CMO_Type
+  Type (DSB_Type):: SB(8)
+End Type DSBA_Type
 
 Type SBA_Type
   Integer:: iCase=0
@@ -62,61 +64,110 @@ End Type twxy_type
 Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                     !
-!                  C M O - T Y P E   S E C T I O N                    !
+!                D S B A - T Y P E   S E C T I O N                    !
+!                                                                     !
+!                Diagonal Symmetry Blocked Arrays                     !
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  Subroutine Allocate_CMO(Adam,n,m,nSym)
+Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
   Implicit None
-  Type (CMO_Type),Target:: Adam
-  Integer nSym
-  Integer n(nSym), m(nSym)
-  Integer iE, iS, iSym, MemTot
+  Type (DSBA_Type),Target, Intent(Out) :: Adam
+  Integer, Intent(In) :: nSym
+  Integer, Intent(In) :: n(nSym), m(nSym)
+  Character(LEN=3), Intent(In), Optional :: Case
 
+  Integer iE, iS, iSym, MemTot, iCase
+
+  If (Present(Case)) Then
+     Select Case (Case)
+      Case ('TRI')
+        iCase=2
+        Do iSym = 1, nSym
+           If (n(iSym)/=m(iSym)) Then
+             Write (6,*) 'Allocate_DSBA: n(iSym)/=m(iSym), illegal if CASE="TRI".'
+             Call Abend()
+           End If
+        End Do
+      Case ('REC')
+        iCase=1
+      Case Default
+        Write (6,*) 'Allocate_DSBA: Illegal Case parameter, Case=',Case
+        Write (6,*) 'Allowed value are "TRI" and "REC".'
+        Call Abend()
+     End Select
+  Else
+    iCase=1
+  End If
+  Adam%iCase=iCase
   Adam%nSym=nSym
 
   MemTot=0
-  Do iSym = 1, nSym
-     MemTot = MemTot + n(iSym)*m(iSym)
-  End Do
+  If (iCase==1) Then
+    Do iSym = 1, nSym
+       MemTot = MemTot + n(iSym)*m(iSym)
+    End Do
+  Else
+    Do iSym = 1, nSym
+       MemTot = MemTot + n(iSym)*(n(iSym)+1)/2
+    End Do
+  End If
   Call mma_allocate(Adam%A0,MemTot,Label='%A0')
 
   iE = 0
-  Do iSym = 1, nSym
-    iS = iE + 1
-    iE = iE + n(iSym) * m(iSym)
+  If (iCase==1) Then
+    Do iSym = 1, nSym
+      iS = iE + 1
+      iE = iE + n(iSym) * m(iSym)
 
-    Adam%SB(iSym)%A(1:n(iSym),1:m(iSym)) => Adam%A0(iS:iE)
-  End Do
-  End Subroutine Allocate_CMO
+      Adam%SB(iSym)%A2(1:n(iSym),1:m(iSym)) => Adam%A0(iS:iE)
+      Adam%SB(iSym)%A1(1:n(iSym)*m(iSym))   => Adam%A0(iS:iE)
+    End Do
+  Else
+    Do iSym = 1, nSym
+      iS = iE + 1
+      iE = iE + n(iSym) * (n(iSym)+1)/2
+
+      Adam%SB(iSym)%A1(1:n(iSym)*(n(iSym)+1)/2)   => Adam%A0(iS:iE)
+    End Do
+  End If
+  End Subroutine Allocate_DSBA
 
 
-  Subroutine Deallocate_CMO(Adam)
+  Subroutine Deallocate_DSBA(Adam)
   Implicit None
-  Type (CMO_Type) Adam
+  Type (DSBA_Type) Adam
   Integer iSym
 
-  Do iSym = 1, Adam%nSym
-     Adam%SB(iSym)%A => Null()
-  End Do
+  If (Adam%iCase==1) Then
+    Do iSym = 1, Adam%nSym
+       Adam%SB(iSym)%A2=> Null()
+       Adam%SB(iSym)%A1=> Null()
+    End Do
+  Else
+    Do iSym = 1, Adam%nSym
+       Adam%SB(iSym)%A1=> Null()
+    End Do
+  End If
   Call mma_deallocate(Adam%A0)
   Adam%nSym=0
+  Adam%iCase=0
 
-  End Subroutine Deallocate_CMO
+  End Subroutine Deallocate_DSBA
 
 
-  Subroutine Map_to_CMO(Adam,ipAdam)
+  Subroutine Map_to_DSBA(Adam,ipAdam)
   Implicit None
-  Type (CMO_Type):: Adam
+  Type (DSBA_Type):: Adam
   Integer ipAdam(*)
   Integer, External:: ip_of_Work
   Integer iSym
 
   Do iSym=1, Adam%nSym
-     ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A(1,1))
+     ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
   End Do
 
-  End Subroutine Map_to_CMO
+  End Subroutine Map_to_DSBA
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                     !

@@ -49,7 +49,7 @@ C
 #endif
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
@@ -63,7 +63,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   ipDab(2),ipFab(2),ipDD(2)
 
-      Type (CMO_Type)   Ash(2)
+      Type (DSBA_Type)   Ash(2)
       Type (SBA_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
 
@@ -106,13 +106,13 @@ C
         Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
      &                         DoRead)
-        use Data_Structures, only: CMO_Type, SBA_Type
+        use Data_Structures, only: DSBA_Type, SBA_Type
         Integer irc, lRedVec
         Real*8 RedVec(lRedVec)
         Integer IVEC1,NUMV,ISYM,iSwap,IREDC
         Integer   nDen,kDen
 
-        Type (CMO_Type) MOs(nDen)
+        Type (DSBA_Type) MOs(nDen)
         Type (SBA_Type) Chot(nDen)
 
         Logical   DoRead
@@ -360,7 +360,7 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
 
                   SKsh=zero
                   Do ik=1,nBasSh(kSym,iaSh)
-                     SKsh = SKsh + Ash(2)%SB(kSym)%A(ipMsh+ik,jK)**2
+                     SKsh = SKsh + Ash(2)%SB(kSym)%A2(ipMsh+ik,jK)**2
                   End Do
 
                   Work(ipSk+iaSh-1) = SKsh
@@ -761,7 +761,7 @@ C------------------------------------------------------------------
 
                         If (jDen.eq.2) Then
                         Do ik=1,nBas(kSym)
-                          Work(ipAbs-1+ik)=abs(Ash(2)%SB(kSym)%A(ik,jK))
+                         Work(ipAbs-1+ik)=abs(Ash(2)%SB(kSym)%A2(ik,jK))
                         End Do
                         Else
                         Do ik=0,nBas(kSym)-1
@@ -923,7 +923,7 @@ C ---------------------------------------
      &                                        nBasSh(kSym,ibSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
      &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                               Ash(2)%SB(kSym)%A(1+iOffShb:,jK),1,
+     &                              Ash(2)%SB(kSym)%A2(1+iOffShb:,jK),1,
      &                                    ONE,Work(ipLab(iaSh)),1)
                                  Else
                                  CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
@@ -996,7 +996,7 @@ C ---------------------------------------
      &                                       JNUM*nBasSh(lSym,iaSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
      &                                        nBasSh(kSym,ibSh),
-     &                               Ash(2)%SB(kSym)%A(1+ioffShb:,jK),1,
+     &                              Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1,
      &                                    ONE,Work(ipLab(iaSh)),1)
                                  Else
                                  CALL DGEMV_('T',nBasSh(kSym,ibSh),
@@ -1447,7 +1447,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_Tri('N','T',NAv,NAv,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAv,
-     &                                Ash(1)%SB(iSymb)%A,NAv,
+     &                                Ash(1)%SB(iSymb)%A2,NAv,
      &                           Zero,Lxy%SB(iSymb)%A2(:,JVC),NAv)
 
                       End Do
@@ -1474,7 +1474,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                Ash(1)%SB(iSymb)%A,NAw,
+     &                                Ash(1)%SB(iSymb)%A2,NAw,
      &                           Zero,Lxy%SB(iSymv)%A2(:,JVC),NAv)
 
                       End Do

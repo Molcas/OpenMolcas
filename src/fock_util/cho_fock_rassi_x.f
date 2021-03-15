@@ -33,13 +33,13 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) MO1(2), MO2(2)
+      Type (DSBA_Type) MO1(2), MO2(2)
       Type (SBA_Type), Target:: Laq(2)
       Type (Twxy_Type) Scr
 
@@ -383,7 +383,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                MO2(kDen)%SB(iSymb)%A,NAw,
+     &                                MO2(kDen)%SB(iSymb)%A2,NAw,
      &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do

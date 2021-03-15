@@ -37,7 +37,7 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: DSBA_Type
       use Data_Structures, only: SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
 #if defined (_MOLCAS_MPP_)
@@ -54,7 +54,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (CMO_Type) Ash(2)
+      Type (DSBA_Type) Ash(2)
       Type (SBA_Type) Lpq(3)
 
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
@@ -1553,7 +1553,7 @@ C --------------------------------------------------------------------
                     If (.not.Fake_CMO2) Then
                      CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
      &                          One,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                              Ash(2)%SB(iSymb)%A,NAw,
+     &                              Ash(2)%SB(iSymb)%A2,NAw,
      &                         Zero,Lpq(3)%SB(iSymv)%A3(:,:,JVC),NAv)
                     CALL CWTIME(TCINT4,TWINT4)
                tint1(1) = tint1(1) + (TCINT4 - TCINT2)
@@ -1585,7 +1585,7 @@ C --------------------------------------------------------------------
 *Lvw
                     CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
      &                         One,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                             Ash(1)%SB(iSymb)%A,NAw,
+     &                             Ash(1)%SB(iSymb)%A2,NAw,
      &                        Zero,Lpq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                    CALL CWTIME(TCINT2,TWINT2)

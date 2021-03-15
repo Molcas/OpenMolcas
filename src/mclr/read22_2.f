@@ -21,8 +21,8 @@
 *                                                                  *
 ********************************************************************
       use Arrays, only: CMO, CMO_Inv, Int1, G1t, G2t
-      use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Allocate_CMO, Deallocate_CMO
+      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8(a-h,o-z)
 #include "real.fh"
 #include "Pointers.fh"
@@ -36,7 +36,7 @@
       Real*8 rDum(1)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: DLT(:), JA(:), KA(:), DA(:), G2x(:)
-      Type (CMO_Type) CVa(2)
+      Type (DSBA_Type) CVa(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -46,11 +46,11 @@
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
-        use Data_Structures, only: CMO_Type
+        use Data_Structures, only: DSBA_Type
         Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (CMO_Type) Ash(2)
+        Type (DSBA_Type) Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical DoAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -332,9 +332,9 @@
             End Do
             nG2=nG2+nAG2**2
           End Do
-          Call Allocate_CMO(CVa(1),nAsh,nOrb,nSym)
+          Call Allocate_DSBA(CVa(1),nAsh,nOrb,nSym)
           CVa(1)%A0(:)=0.0D0
-          Call Allocate_CMO(CVa(2),nAsh,nOrb,nSym)
+          Call Allocate_DSBA(CVa(2),nAsh,nOrb,nSym)
           CVa(2)%A0(:)=0.0D0
           Call mma_allocate(DA,na2,Label='DA')
 *
@@ -344,7 +344,7 @@
             ioff2 = ioff + nOrb(iSym)*nIsh(iSym)
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
-               CVa(1)%SB(iSym)%A(ikk,:) =
+               CVa(1)%SB(iSym)%A2(ikk,:) =
      &            CMO(ioff3+1:ioff3+nOrb(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
@@ -388,8 +388,8 @@
         Else
           na2=1
           nG2=1
-          Call Allocate_CMO(CVa(1),[1],[1],1) ! dummy allocation
-          Call Allocate_CMO(CVa(2),[1],[1],1)
+          Call Allocate_DSBA(CVa(1),[1],[1],1) ! dummy allocation
+          Call Allocate_DSBA(CVa(2),[1],[1],1)
           Call mma_allocate(DA,na2,Label='DA')
           Call mma_allocate(G2x,nG2,Label='G2x')
         EndIf
@@ -439,8 +439,8 @@
         Call mma_deallocate(KA)
         Call mma_deallocate(DLT)
         Call mma_deallocate(G2x)
-        Call deallocate_CMO(CVa(2))
-        Call deallocate_CMO(CVa(1))
+        Call Deallocate_DSBA(CVa(2))
+        Call Deallocate_DSBA(CVa(1))
         Call mma_deallocate(DA)
 *
         Call GADSum(FockI,nDens2)
