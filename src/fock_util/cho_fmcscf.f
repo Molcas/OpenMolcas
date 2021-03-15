@@ -79,7 +79,7 @@ C
       Character*6 mode
 
       Integer nAux(8)
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Frs(:,:)
       Real*8, Pointer:: VJ(:)=>Null()
 
 
@@ -90,7 +90,6 @@ C
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
 #endif
-
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
           write(6,*) 'and end up with this message, you are in trouble.'
@@ -209,12 +208,18 @@ C ------------------------------------------------------------------
 
             If(JSYM.eq.1)Then
 
-               Call GetMem('rsDI','Allo','Real',ipDab(1),nRS)
-               Call GetMem('rsFI','Allo','Real',ipFab(1),nRS)
-
                if(DoActive)then
-                 Call GetMem('rsDA1','Allo','Real',ipDab(2),nRS)
-                 Call GetMem('rsFA','Allo','Real',ipFab(2),nRS)
+                 Call mma_allocate(Drs,nRS,2,Label='Drs')
+                 ipDab(1) = ip_of_Work(Drs(1,1))
+                 ipDab(2) = ip_of_Work(Drs(1,2))
+                 Call mma_allocate(Frs,nRS,2,Label='Frs')
+                 ipFab(1) = ip_of_Work(Frs(1,1))
+                 ipFab(2) = ip_of_Work(Frs(1,2))
+               Else
+                 Call mma_allocate(Drs,nRS,1,Label='Drs')
+                 ipDab(1) = ip_of_Work(Drs(1,1))
+                 Call mma_allocate(Frs,nRS,1,Label='Frs')
+                 ipFab(1) = ip_of_Work(Frs(1,1))
                endif
 
             EndIf
@@ -291,7 +296,7 @@ C==========================================================
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab(1)),1,ZERO,VJ,1)
+     &                 Drs(:,1),1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -300,7 +305,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,xfac,Work(ipFab(1)),1)
+     &                 VJ,1,xfac,Frs(:,1),1)
 
 
                   If (DoActive) Then
@@ -313,7 +318,7 @@ C==========================================================
 C
                      CALL DGEMV_('T',nRS,JNUM,
      &                          ONE,Lrs,nRS,
-     &                          Work(ipDab(2)),1,ZERO,VJ,1)
+     &                          Drs(:,2),1,ZERO,VJ,1)
 
 C --- FA(rs){#J} <- FA(rs){#J} + FactCA * sum_J L(rs,{#J})*U{#J}
 C===============================================================
@@ -322,7 +327,7 @@ C===============================================================
 
                      CALL DGEMV_('N',nRS,JNUM,
      &                          FactCA,Lrs,nRS,
-     &                          VJ,1,xfac,Work(ipFab(2)),1)
+     &                          VJ,1,xfac,Frs(:,2),1)
 
                   EndIf
 
@@ -588,13 +593,10 @@ C --- free memory
             Call mma_deallocate(Lrs)
 
             if (JSYM.eq.1) then
-               if(DoActive)then
-                 Call GetMem('rsFA','Free','Real',ipFab(2),nRS)
-                 Call GetMem('rsDA1','Free','Real',ipDab(2),nRS)
-               endif
-               Call GetMem('rsFI','Free','Real',ipFab(1),nRS)
-               Call GetMem('rsDI','Free','Real',ipDab(1),nRS)
+               Call mma_deallocate(Drs)
+               Call mma_deallocate(Frs)
             endif
+
 
 
 999         CONTINUE

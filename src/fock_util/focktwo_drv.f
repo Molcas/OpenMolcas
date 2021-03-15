@@ -36,7 +36,6 @@
 
       Call Allocate_DSBA(WFSQ,nBas,nBas,nSym)
       WFSQ%A0(:)=Zero
-      LWFSQ = ip_of_Work(WFSQ%A0(1))
 
       if((.not.DoCholesky).or.(GenInt)) then
         Call mma_allocate(W2,NBMX**2,Label='W2')

@@ -96,7 +96,7 @@ C
       Real*8, External :: Cho_LK_ScreeningThreshold
       Integer, External :: Cho_LK_MaxVecPerBatch
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Frs(:,:)
       Real*8, Allocatable:: VJ(:)
 *                                                                      *
 ************************************************************************
@@ -539,11 +539,13 @@ c           !set index arrays at iLoc
             nRS = nDimRS(JSYM,JRED)
 
             If(JSYM.eq.1)Then
+             Call mma_allocate(Drs,nRS,nDen,Label='Drs')
+             Call mma_allocate(Frs,nRS,nDen,Label='Frs')
+             Drs(:,:)=Zero
+             Frs(:,:)=Zero
              Do jden=1,nden
-               Call GetMem('rsD','Allo','Real',ipDab(jden),nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab(jden),nRS)
-               Call Fzero(Work(ipDab(jden)),nRS)
-               Call Fzero(Work(ipFab(jden)),nRS)
+               ipDab(jden) = ip_of_Work(Drs(1,jDen))
+               ipFab(jden) = ip_of_Work(Frs(1,jDen))
              End Do
             EndIf
 
@@ -624,14 +626,14 @@ C==========================================================
 C
                    CALL DGEMV_('T',nRS,JNUM,
      &                  ONE,Lrs,nRS,
-     &                  Work(ipDab(jDen)),1,ZERO,VJ,1)
+     &                  Drs(:,jDen),1,ZERO,VJ,1)
 
 C --- F(rs){#J} <- F(rs){#J} + FactC * sum_J L(rs,{#J})*V{#J}
 C===============================================================
 
                    CALL DGEMV_('N',nRS,JNUM,
      &                 FactC(jDen),Lrs,nRS,
-     &                 VJ,1,Fact,Work(ipFab(jDen)),1)
+     &                 VJ,1,Fact,Frs(:,jDen),1)
 
                  End Do
                  Call mma_deallocate(VJ)
@@ -1522,10 +1524,8 @@ C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              do jden=nden,1,-1
-               Call GetMem('rsFC','Free','Real',ipFab(jden),nRS)
-               Call GetMem('rsD','Free','Real',ipDab(jden),nRS)
-              end do
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 999         Continue

@@ -60,19 +60,19 @@ C
       Character*50 CFmt
       Character(LEN=14), Parameter:: SECNAM = 'CHO_FOCK_RASSI'
 #include "chotime.fh"
+#include "real.fh"
 
-      parameter (FactCI = 1.0D0, FactXI = -1.0D0)
+      Real*8, Parameter:: FactCI = One, FactXI = -One
       Character*6 mode
 #include "cho_jobs.fh"
 
-#include "real.fh"
 #include "rassi.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
 
       Real*8, Pointer:: VJ(:)=>Null()
 
@@ -165,10 +165,10 @@ C ------------------------------------------------------------------
 
             If(JSYM.eq.1)Then
 
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
             EndIf
 
             Call mma_MaxDBLE(LWORK)
@@ -192,6 +192,7 @@ C ------------------------------------------------------------------
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
+               ipDab=ip_of_Work(Drs(1))
                Call swap_sto(irc,iLoc,ipDLT,ISTLT,ipDab,mode)
             EndIf
 
@@ -245,7 +246,7 @@ C
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,VJ,1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -254,7 +255,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs,1)
 
 
                   CALL CWTIME(TCC2,TWC2)
@@ -425,6 +426,7 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
+               ipFab=ip_of_Work(Frs(1))
                Call swap_sto(irc,iLoc,ipFLT,ISTLT,ipFab,mode)
             EndIf
 
@@ -432,8 +434,8 @@ C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 

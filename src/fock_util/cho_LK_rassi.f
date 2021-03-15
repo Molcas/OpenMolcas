@@ -84,7 +84,7 @@ C
       Integer, External :: Cho_LK_MaxVecPerBatch
       Real*8,  External :: Cho_LK_ScreeningThreshold
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -464,12 +464,10 @@ c           !set index arrays at iLoc
             nRS = nDimRS(JSYM,JRED)
 
             If(JSYM.eq.1)Then
-
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
-
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
             EndIf
 
             Call mma_maxDBLE(LWORK)
@@ -495,6 +493,7 @@ c           !set index arrays at iLoc
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
+               ipDab = ip_of_Work(Drs(1))
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
      &                                 ipDLT,ipDab,mode)
             EndIf
@@ -510,9 +509,6 @@ C --- BATCH over the vectors ----------------------------
                else
                   JNUM = nVec
                endif
-
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
 
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
@@ -540,11 +536,11 @@ C==========================================================
 C
                   CALL CWTIME(TCC1,TWC1)
 
-                  ipVJ = ipChoT
+                  Call mma_allocate(VJ,JNUM,Label='VJ')
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,Work(ipVJ),1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -553,8 +549,9 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 Work(ipVJ),1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs,1)
 
+                  Call mma_deallocate(VJ)
 
                   CALL CWTIME(TCC2,TWC2)
                   tcoul(1) = tcoul(1) + (TCC2 - TCC1)
@@ -562,6 +559,8 @@ C===============================================================
 
                EndIf  ! Coulomb contribution
 
+               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
 
 C *************** EXCHANGE CONTRIBUTIONS  ***********************
 
@@ -1459,6 +1458,7 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
+               ipFab = ip_of_Work(Frs(1))
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
      &                                 ipFLT,ipFab,mode)
             EndIf
@@ -1467,8 +1467,8 @@ C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 

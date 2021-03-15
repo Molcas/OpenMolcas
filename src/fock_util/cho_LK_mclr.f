@@ -63,20 +63,19 @@ C
       Logical   Debug
 #endif
       Logical   timings,DoScreen
-      Real*8    FactCI,FactXI,thrv(2),xtau(2),norm
+      Real*8    thrv(2),xtau(2),norm
       Character*50 CFmt
       Character(LEN=14), Parameter :: SECNAM = 'CHO_LK_MCLR'
 #include "chomclr.fh"
+#include "real.fh"
       Logical Fake_CMO2,DoAct,ReadInter
       Save nVec_
 *
+#include "cholesky.fh"
       Integer nOrb(8),nAsh(8),nIsh(8)
 
       Logical, Parameter ::  DoRead = .false.
-      parameter (FactCI = -2.0D0, FactXI = 0.5D0)
-      parameter (xone=-1.0D0)
-#include "real.fh"
-#include "cholesky.fh"
+      Real*8, Parameter :: FactCI = -Two, FactXI = Half, xone=-One
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -88,7 +87,7 @@ C
       Integer, External :: Cho_LK_MaxVecPerBatch
       Real*8,  External :: Cho_LK_ScreeningThreshold
 
-      Real*8, Allocatable :: Lrs(:,:), VJ(:)
+      Real*8, Allocatable :: Lrs(:,:), VJ(:), Drs(:), Frs(:,:)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -538,12 +537,14 @@ c           !set index arrays at iLoc
 
             If(JSYM.eq.1)Then
 
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               If (DoAct) Call GetMem('rsFC','Allo','Real',ipFab2,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
-               If (DoAct) Call Fzero(Work(ipFab2),nRS)
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               If (DoAct) Then
+                 Call mma_allocate(Frs,nRS,2,Label='Frs')
+               Else
+                 Call mma_allocate(Frs,nRS,1,Label='Frs')
+               End If
+               Drs(:)=Zero
+               Frs(:,:)=Zero
 
             EndIf
 
@@ -576,6 +577,7 @@ c           !set index arrays at iLoc
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
+               ipDab = ip_of_Work(Drs(1))
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
      &                                 ipDLT,ipDab,mode)
             EndIf
@@ -623,7 +625,7 @@ C
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,VJ,1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -632,7 +634,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs(:,1),1)
 
 
                   CALL CWTIME(TCC2,TWC2)
@@ -1651,7 +1653,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 *
                  CALL DGEMV_('N',nRS,JNUM,
      &                     -FactCI,Lrs,nRS,
-     &                     VJ,1,1.0d0,Work(ipFab2),1)
+     &                     VJ,1,1.0d0,Frs(:,2),1)
 
                  Call mma_deallocate(VJ)
 
@@ -1812,19 +1814,22 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
+               ipFab = ip_of_Work(Frs(1,1))
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
      &                                 ipJI,ipFab,mode)
-               If (DoAct) Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
+               If (DoAct) Then
+                  ipFab2 = ip_of_Work(Frs(1,2))
+                  Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
      &                                    ISSQ,ipJA,ipFab2,mode)
+               End If
             EndIf
 
 C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              If (DoAct) Call GetMem('rsFC','Free','Real',ipFab2,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 
