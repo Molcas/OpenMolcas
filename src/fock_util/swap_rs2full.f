@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
+* Copyright (C) 2021, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,add)
+      SUBROUTINE swap_rs2full(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)

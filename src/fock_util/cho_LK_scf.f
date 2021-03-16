@@ -483,7 +483,7 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
                nMat=1
-               Call play_sto(irc,iLoc,nMat,JSYM,
+               Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                           ipPLT,ipPab,mode,add)
             EndIf
 
@@ -617,7 +617,7 @@ c --------------------------------------------------------------------
                    nMat = 1
                    ipDIAG = ip_of_Work(DIAG(1))
                    ipDIAH = ip_of_Work(DIAH(1))
-                   Call play_sto(irc,ired1,nMat,JSYM,
+                   Call swap_rs2full(irc,ired1,nMat,JSYM,
      &                               [ipDIAH],ipDIAG,mode,add)
 
 
@@ -1285,7 +1285,7 @@ c --- backtransform fock matrix to full storage
                add  = .true.
                nMat = 1
                Do jDen = 1, nDen
-                  Call play_sto(irc,iLoc,nMat,JSYM,
+                  Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                           ipFLT(jDen),ipFab,mode,add)
                End Do
             EndIf
