@@ -39,6 +39,7 @@
       External  Cho_LK_MaxVecPerBatch
       Integer, Allocatable:: kOffSh(:,:)
       Real*8, Allocatable:: Scr(:), Fab(:), Lrs(:), LF(:)
+      Logical add
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -328,8 +329,9 @@ c --- backtransform fock matrix to full storage
              ipJA = ip_of_Work(JA(1))
              ipFab= ip_of_Work(Fab(1))
              nDen = 1
+             add = .True.
              Call play_rassi_sto(irc,iLoc,JSYM,
-     &                           ipJA,ipFab,mode)
+     &                           ipJA,ipFab,mode,add)
              Call mma_deallocate(Fab)
           EndIf
           Call mma_deallocate(Lrs)

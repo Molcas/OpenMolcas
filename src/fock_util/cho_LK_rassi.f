@@ -60,7 +60,7 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   DoReord,DoScreen
+      Logical   DoReord,DoScreen, add
       Real*8    dmpk
       Character*50 CFmt
       Character(LEN=12), Parameter :: SECNAM = 'CHO_LK_RASSI'
@@ -493,9 +493,10 @@ c           !set index arrays at iLoc
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
+               add = .False.
                ipDab = ip_of_Work(Drs(1))
                Call play_rassi_sto(irc,iLoc,JSYM,
-     &                                 ipDLT,ipDab,mode)
+     &                             ipDLT,ipDab,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -624,9 +625,10 @@ c ---                              Only the symmetry blocks with
 c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
                    mode = 'tosqrt'
+                   add = .False.
                    ired1 = 1 ! location of the 1st red set
                    Call play_rassi_sto(irc,ired1,JSYM,
-     &                                     ipDIAH,ipDIAG,mode)
+     &                                 ipDIAH,ipDIAG,mode,add)
 
                    CALL CWTIME(TCS2,TWS2)
                    tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1458,9 +1460,10 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
+               add =.True.
                ipFab = ip_of_Work(Frs(1))
                Call play_rassi_sto(irc,iLoc,JSYM,
-     &                                 ipFLT,ipFab,mode)
+     &                             ipFLT,ipFab,mode,add)
             EndIf
 
 C --- free memory

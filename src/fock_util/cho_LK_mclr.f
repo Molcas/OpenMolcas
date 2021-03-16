@@ -62,7 +62,7 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   timings,DoScreen
+      Logical   timings,DoScreen,add
       Real*8    thrv(2),xtau(2),norm
       Character*50 CFmt
       Character(LEN=14), Parameter :: SECNAM = 'CHO_LK_MCLR'
@@ -578,8 +578,9 @@ c           !set index arrays at iLoc
 C --- Transform the density to reduced storage
                mode = 'toreds'
                ipDab = ip_of_Work(Drs(1))
+               add = .False.
                Call play_rassi_sto(irc,iLoc,JSYM,
-     &                                 ipDLT,ipDab,mode)
+     &                             ipDLT,ipDab,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -710,9 +711,10 @@ c ---                              Only the symmetry blocks with
 c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
                    mode = 'tosqrt'
+                   add = .False.
                    ired1 = 1 ! location of the 1st red set
                    Call play_rassi_sto(irc,ired1,JSYM,
-     &                                     ipDIAH,ipDIAG,mode)
+     &                                 ipDIAH,ipDIAG,mode,add)
 
                    CALL CWTIME(TCS2,TWS2)
                    tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1814,13 +1816,14 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
+               add = .True.
                ipFab = ip_of_Work(Frs(1,1))
                Call play_rassi_sto(irc,iLoc,JSYM,
-     &                                 ipJI,ipFab,mode)
+     &                                 ipJI,ipFab,mode,add)
                If (DoAct) Then
                   ipFab2 = ip_of_Work(Frs(1,2))
                   Call play_rassi_sto(irc,iLoc,JSYM,
-     &                                    ipJA,ipFab2,mode)
+     &                                ipJA,ipFab2,mode,add)
                End If
             EndIf
 

@@ -10,12 +10,13 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE play_rassi_sto(irc,iLoc,JSYM,ipXLT,ipXab,mode)
+      SUBROUTINE play_rassi_sto(irc,iLoc,JSYM,ipXLT,ipXab,mode, add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer ISLT(8),ISSQ(8,8),cho_isao
       External cho_isao
+      Logical add
       Integer ipXLT,ipXab
       Character*6 mode
 
@@ -45,6 +46,7 @@
       END DO
 
       If (mode.eq.'toreds'.and.JSYM.eq.1) then ! TOTAL SYMMETRIC
+         add =.False.
 
          Do jRab=1,nnBstR(jSym,iLoc)
 
@@ -68,6 +70,7 @@
 
 
       ElseIf (mode.eq.'tofull'.and.JSYM.eq.1) then  ! TOTAL SYMMETRIC
+         add =.True.
 
          Do jRab=1,nnBstR(jSym,iLoc)
 
@@ -93,6 +96,7 @@
 
       ElseIf (mode.eq.'tosqrt'.and.JSYM.ne.1) then
 c      ! NON TOTAL-SYMMETRIC
+         add =.False.
 
          Do jRab=1,nnBstR(jSym,iLoc)
 
@@ -117,6 +121,7 @@ c      ! NON TOTAL-SYMMETRIC
 
 
       ElseIf (mode.eq.'tosqrt'.and.JSYM.eq.1) then
+         add =.False.
 
          Do jRab=1,nnBstR(jSym,iLoc)
 
