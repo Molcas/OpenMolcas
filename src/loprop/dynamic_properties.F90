@@ -8,118 +8,109 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Dynamic_Properties(Temp,nAtoms,rMP,nij,nPert,          &
-     &                              nElem,Delta,EC,Polar,               &
-     &                              iANr,Bond_Threshold,ChPol,          &
-     &                              ChPolBB)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Dynamic_Properties(Temp,nAtoms,rMP,nij,nPert,nElem,Delta,EC,Polar,iANr,Bond_Threshold,ChPol,ChPolBB)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 Temp(nij), A(3), B(3), EC(3,nij), Polar(6,nij),            &
-     &       rMP(nij,0:nElem-1,0:nPert-1), ChPol(6, nij),               &
-     &       ChPolBB(6, nij)
-      Integer iAnr(nAtoms)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Call RecPrt('rMP',' ',rMP,nij*nElem,nPert)
-      Write (6,*)
-      Write (6,*)  ' D y n a m i c  P r o p e r t i e s'
-      Write (6,*)
-      Write (6,*)  ' Properties computed with FFPT'
-      Write (6,*)
-
-      Do iPol = 1, 6
-         Do iAtom = 1, nAtoms
-            Do jAtom = 1, iAtom
-               ij=iAtom*(iAtom-1)/2+jAtom
-               ChPol(iPol, ij) = 0.0
-               ChPolBB(iPol, ij) = 0.0
-            End Do
-         End Do
-      End Do
-
-
-!
-!     iPol: index vector for polarizability
-!           (1,2,3,4,5,6)=(xx,yx,yy,zx,zy,zz)
-!
-      Do iPol = 1, 6
-         Call FZero(Temp,nij)
-!        Write (6,*)
-         Do iAtom = 1, nAtoms
-            ii = iAtom*(iAtom+1)/2
-            call dcopy_(3,EC(1,ii),1,A,1)
-            Do jAtom = 1, iAtom
-               jj = jAtom*(jAtom+1)/2
-               call dcopy_(3,EC(1,jj),1,B,1)
-!
-               ij=iAtom*(iAtom-1)/2+jAtom
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!              Polarizabilities: alpha(iAtom,jAtom,iCar,jCar)          *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!              iCar, jCar: index of cartesian for each perturbation
-!                        1=x, 2=y, 3=z
-               iCar = Int((One+sqrt(Eight*DBLE(iPol)-Three))/Two)
-               jCar = iPol   -iCar*(iCar-1)/2
-!
-!              iPert, jPert: index vector to actuall perturbation
-!                    (1,2,3,4,5,6)=(+dx,-dx,+dy,-dy,+dz,-dz)
-               iPert=(jCar-1)*2+1
-               jPert=iPert+1
-!
-!              Contribution due to change of localized dipole moment
-!
-!------------- mu(iAtom,jAtom,iCar,+dF(jCar))
-!------------- mu(iAtom,jAtom,iCar,-dF(jCar))
-!
-               Pol1a=(rMP(ij,iCar,iPert)-rMP(ij,iCar,jPert))/(Two*Delta)
-!
-               iPert_=(iCar-1)*2+1
-               jPert_=iPert_+1
-               Pol1b=(rMP(ij,jCar,iPert_)-rMP(ij,jCar,jPert_))          &
-     &              /(Two*Delta)
-               Pol1 = Half * (Pol1a+Pol1b)
-!              Write (*,*) 'Pol1',ij,iCar,iPert,jPert
-!              Write (*,*) rMP(ij,iCar,iPert),rMP(ij,iCar,jPert)
-!
-!              Contribution due to change of localized charges
-!
-               If (iAtom .ne. jAtom) Then
-                  Rij_iCar=B(iCar)-A(iCar)
-!                 Write (*,*) rMP(ij,0,iPert),rMP(ij,0,jPert)
-                  Pol2= (rMP(ij,0,iPert)-rMP(ij,0,jPert))               &
-     &                * Rij_iCar/(Two*Delta)
-               Else
-                  Pol2=Zero
-               End If
-!
-!              Write (*,*) Pol1, Pol2
-
-               Temp(ij) = Temp(ij) + Pol1 + Pol2
-               Polar(iPol,ij)=Temp(ij)
-!                                                                      *
-!***********************************************************************
-!              Compute Charge contrib                                  *
-!***********************************************************************
-!                                                                      *
-               ChPol(iPol,ij)=ChPol(iPol,ij) + Pol2
-               ChPolBB(iPol,ij)=ChPolBB(iPol,ij) + Pol2
-!***********************************************************************
-
+real*8 Temp(nij), A(3), B(3), EC(3,nij), Polar(6,nij), rMP(nij,0:nElem-1,0:nPert-1), ChPol(6,nij), ChPolBB(6,nij)
+integer iAnr(nAtoms)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-            End Do   ! jAtom
-         End Do      ! iAtom
+!call RecPrt('rMP',' ',rMP,nij*nElem,nPert)
+write(6,*)
+write(6,*) ' D y n a m i c  P r o p e r t i e s'
+write(6,*)
+write(6,*) ' Properties computed with FFPT'
+write(6,*)
+
+do iPol=1,6
+  do iAtom=1,nAtoms
+    do jAtom=1,iAtom
+      ij = iAtom*(iAtom-1)/2+jAtom
+      ChPol(iPol,ij) = 0.0
+      ChPolBB(iPol,ij) = 0.0
+    end do
+  end do
+end do
+
+! iPol: index vector for polarizability
+!       (1,2,3,4,5,6)=(xx,yx,yy,zx,zy,zz)
+
+do iPol=1,6
+  call FZero(Temp,nij)
+  !write (6,*)
+  do iAtom=1,nAtoms
+    ii = iAtom*(iAtom+1)/2
+    call dcopy_(3,EC(1,ii),1,A,1)
+    do jAtom=1,iAtom
+      jj = jAtom*(jAtom+1)/2
+      call dcopy_(3,EC(1,jj),1,B,1)
+
+      ij = iAtom*(iAtom-1)/2+jAtom
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      !        Polarizabilities: alpha(iAtom,jAtom,iCar,jCar)          *
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      ! iCar, jCar: index of cartesian for each perturbation
+      !           1=x, 2=y, 3=z
+      iCar = int((One+sqrt(Eight*dble(iPol)-Three))/Two)
+      jCar = iPol-iCar*(iCar-1)/2
+
+      ! iPert, jPert: index vector to actuall perturbation
+      !       (1,2,3,4,5,6)=(+dx,-dx,+dy,-dy,+dz,-dz)
+      iPert = (jCar-1)*2+1
+      jPert = iPert+1
+      !
+      ! Contribution due to change of localized dipole moment
+      !
+      !------- mu(iAtom,jAtom,iCar,+dF(jCar))
+      !------- mu(iAtom,jAtom,iCar,-dF(jCar))
+      !
+      Pol1a = (rMP(ij,iCar,iPert)-rMP(ij,iCar,jPert))/(Two*Delta)
+      !
+      iPert_ = (iCar-1)*2+1
+      jPert_ = iPert_+1
+      Pol1b = (rMP(ij,jCar,iPert_)-rMP(ij,jCar,jPert_))/(Two*Delta)
+      Pol1 = Half*(Pol1a+Pol1b)
+      !write(6,*) 'Pol1',ij,iCar,iPert,jPert
+      !write(6,*) rMP(ij,iCar,iPert),rMP(ij,iCar,jPert)
+      !
+      ! Contribution due to change of localized charges
+      !
+      if (iAtom /= jAtom) then
+        Rij_iCar = B(iCar)-A(iCar)
+        !write(6,*) rMP(ij,0,iPert),rMP(ij,0,jPert)
+        Pol2 = (rMP(ij,0,iPert)-rMP(ij,0,jPert))*Rij_iCar/(Two*Delta)
+      else
+        Pol2 = Zero
+      end if
+
+      !write(6,*) Pol1, Pol2
+
+      Temp(ij) = Temp(ij)+Pol1+Pol2
+      Polar(iPol,ij) = Temp(ij)
+      !                                                                *
+      !*****************************************************************
+      !        Compute Charge contrib                                  *
+      !*****************************************************************
+      !                                                                *
+      ChPol(iPol,ij) = ChPol(iPol,ij)+Pol2
+      ChPolBB(iPol,ij) = ChPolBB(iPol,ij)+Pol2
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+    end do   ! jAtom
+  end do     ! iAtom
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End Do   ! iPol
+end do   ! iPol
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -127,9 +118,9 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Move_Polar(Polar,EC,nAtoms,nij,iANr,Bond_Threshold)
-      Call Move_Polar(ChPol,EC,nAtoms,nij,iANr,Bond_Threshold)
+call Move_Polar(Polar,EC,nAtoms,nij,iANr,Bond_Threshold)
+call Move_Polar(ChPol,EC,nAtoms,nij,iANr,Bond_Threshold)
 
-      Return
+return
 
-      End
+end subroutine Dynamic_Properties

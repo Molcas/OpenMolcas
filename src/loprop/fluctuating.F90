@@ -8,51 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Fluctuating(AInv,nAtoms,Lambda,dQ,nij,nPert,           &
-     &                       iANr,rMP,nElem,EC,Alpha)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Fluctuating(AInv,nAtoms,Lambda,dQ,nij,nPert,iANr,rMP,nElem,EC,Alpha)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "constants.fh"
-      Real*8 AInv(nAtoms,nAtoms), Lambda(nAtoms), dQ(nAtoms), EC(3,nij),&
-     &       A(3), B(3), rMP(nij,0:nElem-1,0:nPert-1)
-      Integer iANr(nAtoms)
-!
-      Do iPert = 1, 6
-         Do iAtom = 1, nAtoms
-            ii=iAtom*(iAtom+1)/2
-            dQ(iAtom)=rMP(ii,0,0)-rMP(ii,0,iPert)
-         End Do
-!         Call RecPrt('dQ',' ',dQ,1,nAtoms)
-         Call DGEMM_('N','N',                                           &
-     &               nAtoms,1,nAtoms,                                   &
-     &               1.0d0,AInv,nAtoms,                                 &
-     &               dQ,nAtoms,                                         &
-     &               0.0d0,Lambda,nAtoms)
-!         Call RecPrt('Lambda',' ',Lambda,1,nAtoms)
-!
-         Do iAtom = 1, nAtoms
-            R_BS_i=Bragg_Slater(iANr(iAtom))
-            ii = iAtom*(iAtom+1)/2
-            call dcopy_(3,EC(1,ii),1,A,1)
-!
-            Do jAtom = 1, iAtom-1
-               R_BS_j=Bragg_Slater(iANr(jAtom))
-               jj = jAtom*(jAtom+1)/2
-               call dcopy_(3,EC(1,jj),1,B,1)
-               rij2=(A(1)-B(1))**2 +(A(2)-B(2))**2 +(A(3)-B(3))**2
-               ri=Lambda(iAtom)
-               rj=Lambda(jAtom)
-               rij02=((R_BS_i+R_BS_j))**2
-               ij=iAtom*(iAtom-1)/2+jAtom
-!              Write (6,*) ij,ri,rj,rij02
-               rMP(ij,0,iPert)=-(ri-rj)*Exp(-Alpha*(rij2/rij02))/Two
-!               Write (*,*) 'RMP',iAtom,jAtom,rMP(ij,0,iPert)
-            End Do
-!
-         End Do
-!
-      End Do
-!      Call RecPrt('rMP',' ',rMP,nij,nElem*nPert)
-!
-      Return
-      End
+real*8 AInv(nAtoms,nAtoms), Lambda(nAtoms), dQ(nAtoms), EC(3,nij), A(3), B(3), rMP(nij,0:nElem-1,0:nPert-1)
+integer iANr(nAtoms)
+
+do iPert=1,6
+  do iAtom=1,nAtoms
+    ii = iAtom*(iAtom+1)/2
+    dQ(iAtom) = rMP(ii,0,0)-rMP(ii,0,iPert)
+  end do
+  !call RecPrt('dQ',' ',dQ,1,nAtoms)
+  call DGEMM_('N','N',nAtoms,1,nAtoms,1.0d0,AInv,nAtoms,dQ,nAtoms,0.0d0,Lambda,nAtoms)
+  !call RecPrt('Lambda',' ',Lambda,1,nAtoms)
+
+  do iAtom=1,nAtoms
+    R_BS_i = Bragg_Slater(iANr(iAtom))
+    ii = iAtom*(iAtom+1)/2
+    call dcopy_(3,EC(1,ii),1,A,1)
+
+    do jAtom=1,iAtom-1
+      R_BS_j = Bragg_Slater(iANr(jAtom))
+      jj = jAtom*(jAtom+1)/2
+      call dcopy_(3,EC(1,jj),1,B,1)
+      rij2 = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
+      ri = Lambda(iAtom)
+      rj = Lambda(jAtom)
+      rij02 = ((R_BS_i+R_BS_j))**2
+      ij = iAtom*(iAtom-1)/2+jAtom
+      !write(6,*) ij,ri,rj,rij02
+      rMP(ij,0,iPert) = -(ri-rj)*exp(-Alpha*(rij2/rij02))/Two
+      !write(6,*) 'RMP',iAtom,jAtom,rMP(ij,0,iPert)
+    end do
+
+  end do
+
+end do
+!call RecPrt('rMP',' ',rMP,nij,nElem*nPert)
+
+return
+
+end subroutine Fluctuating
