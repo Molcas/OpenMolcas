@@ -737,10 +737,10 @@ c            !set index arrays at iLoc
 C --- Transform the densities to reduced set storage
                mode = 'toreds'
                add  = .false.
-               Call play_casscf_sto(irc,iLoc,nJdens,JSYM,
+               Call swap_rs2full(irc,iLoc,nJdens,JSYM,
      &                              ipDLT,ipDrs,mode,add)
                If(iMp2prpt .eq. 2) Then
-                  Call play_casscf_sto(irc,iLoc,nJdens,JSYM,
+                  Call swap_rs2full(irc,iLoc,nJdens,JSYM,
      &                              [ipDLT2],[ipDrs2],mode,add)
                End If
             EndIf
@@ -915,7 +915,7 @@ C --- Transform the densities to reduced set storage
                      ired1 = 1 ! location of the 1st red set
                      add  = .false.
                      nMat = 1
-                     Call play_casscf_sto(irc,ired1,nMat,JSYM,
+                     Call swap_rs2full(irc,ired1,nMat,JSYM,
      &                                  [ipDIAH],[ipDIAG],mode,add)
 
                      CALL CWTIME(TCS2,TWS2)

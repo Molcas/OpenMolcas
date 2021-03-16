@@ -16,7 +16,7 @@
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  irc, iLoc, nDen, JSYM
-      Integer ipXLT(nDen),ipXab(jDen)
+      Integer ipXLT(nDen),ipXab(nDen)
       Logical add
       Character*6 mode
 
