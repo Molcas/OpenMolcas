@@ -579,7 +579,8 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                ipDab = ip_of_Work(Drs(1))
                add = .False.
-               Call play_rassi_sto(irc,iLoc,JSYM,
+               nMat=1
+               Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                             ipDLT,ipDab,mode,add)
             EndIf
 
@@ -713,7 +714,8 @@ c --------------------------------------------------------------------
                    mode = 'tosqrt'
                    add = .False.
                    ired1 = 1 ! location of the 1st red set
-                   Call play_rassi_sto(irc,ired1,JSYM,
+                   nMat=1
+                   Call swap_rs2full(irc,ired1,nMat,JSYM,
      &                                 ipDIAH,ipDIAG,mode,add)
 
                    CALL CWTIME(TCS2,TWS2)
@@ -1818,11 +1820,12 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
                ipFab = ip_of_Work(Frs(1,1))
-               Call play_rassi_sto(irc,iLoc,JSYM,
+               nMat = 1
+               Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                                 ipJI,ipFab,mode,add)
                If (DoAct) Then
                   ipFab2 = ip_of_Work(Frs(1,2))
-                  Call play_rassi_sto(irc,iLoc,JSYM,
+                  Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                                ipJA,ipFab2,mode,add)
                End If
             EndIf

@@ -600,18 +600,18 @@ c         !set index arrays at iLoc
           If (jsym.eq.1) Then
             nDen=1
             add = .True.
+            mode = 'tofull'
+            nMat = 1
             Do i=1,ntotie
               ip1=ip_of_Work(iiab(1))+nab*(i-1)
               ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
-              mode = 'tofull'
-              Call play_rassi_sto(irc,iLoc,JSYM,
+              Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                                   ip1,ipRS1,mode,add)
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
               ipRS1=ip_of_Work(turs(1))+nrs*(i-1)
-              mode = 'tofull'
-              Call play_rassi_sto(irc,iLoc,JSYM,
+              Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                                   ip1,ipRS1,mode,add)
             End Do
           EndIf

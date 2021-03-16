@@ -330,7 +330,8 @@ c --- backtransform fock matrix to full storage
              ipFab= ip_of_Work(Fab(1))
              nDen = 1
              add = .True.
-             Call play_rassi_sto(irc,iLoc,JSYM,
+             nMat = 1
+             Call swap_rs2full(irc,iLoc,nMat,JSYM,
      &                           ipJA,ipFab,mode,add)
              Call mma_deallocate(Fab)
           EndIf
