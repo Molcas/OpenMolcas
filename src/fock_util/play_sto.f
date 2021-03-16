@@ -15,7 +15,7 @@
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  irc, iLoc, nDen, JSYM
-      Integer ipXLT(nDen),ipXab
+      Integer ipXLT(nDen),ipXab(jDen)
       Logical add
       Character*6 mode
 
@@ -72,7 +72,7 @@ c           !address within that symm block
 
                kfrom = ipXLT(jDen) + isLT(iSyma) + iab - 1
 
-               Work(ipXab+jRab-1) =  Work(kfrom)
+               Work(ipXab(jDen)+jRab-1) =  Work(kfrom)
 
             End Do
 
@@ -107,7 +107,7 @@ c      ! TOTAL SYMMETRIC
 
                kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
 
-               Work(kto) = Work(kto) + Work(ipXab+jRab-1)
+               Work(kto) = Work(kto) + Work(ipXab(jDen)+jRab-1)
 
             End Do
 
@@ -136,7 +136,7 @@ c      ! NON TOTAL-SYMMETRIC
 
                kto = ipXLT(jDen) - 1 + isSQ(iSyma,iSymb) + iab
 
-               Work(kto) = sqrt(abs(Work(ipXab+kRab-1)))
+               Work(kto) = sqrt(abs(Work(ipXab(jDen)+kRab-1)))
 
             End Do
 
@@ -164,9 +164,9 @@ c      ! NON TOTAL-SYMMETRIC
 
                kto = ipXLT(jDen) - 1 + isSQ(iSyma,iSyma)
 
-               Work(kto+iab) = sqrt(abs(Work(ipXab+kRab-1)))
+               Work(kto+iab) = sqrt(abs(Work(ipXab(jDen)+kRab-1)))
 
-               Work(kto+iba) = sqrt(abs(Work(ipXab+kRab-1)))
+               Work(kto+iba) = sqrt(abs(Work(ipXab(jDen)+kRab-1)))
 
             End Do
 

@@ -1283,9 +1283,11 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add  = .true.
-               nMat = nDen
-               Call play_sto(irc,iLoc,nMat,JSYM,
-     &                           ipFLT,ipFab,mode,add)
+               nMat = 1
+               Do jDen = 1, nDen
+                  Call play_sto(irc,iLoc,nMat,JSYM,
+     &                           ipFLT(jDen),ipFab,mode,add)
+               End Do
             EndIf
 
 C --- free memory
