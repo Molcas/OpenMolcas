@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
-* Copyright (C) 2021, Roland Lindh                                     *
+*               2021, Roland Lindh                                     *
 ************************************************************************
       SUBROUTINE swap_rs2full(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
