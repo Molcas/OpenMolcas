@@ -42,31 +42,26 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
-real(kind=wp) :: Coor(3,4), TMax, PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
+real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), iSD4(0:nSD,4), &
                      MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, iBsInc, iCar, &
-                     ijklA, ijS, Indij, iOpt, ijMax, ip_ij, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, ipxA, &
-                     ipxB, ipxG, ipxD, ipZi, Mem1, Mem2, iPrimi, iPrInc, ipTMax, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, &
-                     k2ij, k2kl, jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
-                     lBsInc, lPriml, lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, &
-                     nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
+                     ijklA, ijS, Indij, iOpt, ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, ipxA, ipxB, &
+                     ipxG, ipxD, ipZi, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, k2ij, k2kl, &
+                     jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, &
+                     lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
+                     nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
 logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList, &
                      FreeK2, Verbose, Triangular, lNoSkip
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
+integer(kind=iwp), allocatable :: ij(:)
+real(kind=wp), allocatable :: TMax(:,:)
 external :: Rsv_GTList
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statement functions
-
-TMax(i,j) = Work((j-1)*nSkal+i+ipTMax-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -129,8 +124,8 @@ nEta = MxPrm*MxPrm
 !                                                                      *
 !---  Compute entities for prescreening at shell level
 
-call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-call Shell_MxSchwz(nSkal,Work(ipTMax))
+call mma_allocate(TMax,nSkal,nSkal,label='TMax')
+call Shell_MxSchwz(nSkal,TMax)
 TMax_all = Zero
 do iS=1,nSkal
   do jS=1,iS
@@ -142,14 +137,14 @@ end do
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+call mma_allocate(ij,nSkal*(nSkal+1),label='ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
-      iWork((nij-1)*2+ip_ij) = iS
-      iWork((nij-1)*2+ip_ij+1) = jS
+      ij(nij*2-1) = iS
+      ij(nij*2) = jS
     end if
   end do
 end do
@@ -180,7 +175,7 @@ call Init_TList(Triangular,P_Eff)
 call Init_PPList
 call Init_GTList
 iOpt = 0
-call dcopy_(nGrad,[Zero],0,Temp,1)
+Temp(:) = Zero
 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDisp,iprint)
 !                                                                      *
 !***********************************************************************
@@ -200,11 +195,11 @@ if (.not. Rsv_GTList(TskLw,TskHi,iOpt,lDummy)) Go To 11
 ! Now do a quadruple loop over shells
 
 ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-iS = iWork((ijS-1)*2+ip_ij)
-jS = iWork((ijS-1)*2+ip_ij+1)
+iS = ij(ijS*2-1)
+jS = ij(ijS*2)
 klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-kS = iWork((klS-1)*2+ip_ij)
-lS = iWork((klS-1)*2+ip_ij+1)
+kS = ij(klS*2-1)
+lS = ij(klS*2)
 Cnt = TskLw
 call CWTime(TCpu1,TWall1)
 13 continue
@@ -334,10 +329,10 @@ if (klS > ijS) then
   ijS = ijS+1
   klS = 1
 end if
-iS = iWork((ijS-1)*2+ip_ij)
-jS = iWork((ijS-1)*2+ip_ij+1)
-kS = iWork((klS-1)*2+ip_ij)
-lS = iWork((klS-1)*2+ip_ij+1)
+iS = ij(ijS*2-1)
+jS = ij(ijS*2)
+kS = ij(klS*2-1)
+lS = ij(klS*2)
 Go To 13
 
 ! Task endpoint
@@ -360,8 +355,8 @@ call mma_deallocate(Sew_Scr)
 call Free_GTList
 call Free_PPList
 call Free_TList
-call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+call mma_deallocate(ij)
+call mma_deallocate(TMax)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

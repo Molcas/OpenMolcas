@@ -29,7 +29,6 @@ real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc
 #include "warnings.fh"
 integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iPrint, iRC, iRout, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
 real(kind=wp), allocatable :: Int1El(:)
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 integer(kind=iwp), external :: n2Tri
 #include "macros.fh"
 unused_var(CCoor)
@@ -73,7 +72,7 @@ llOper = 0
 do iComp=1,nComp
   llOper = ior(llOper,lOper(iComp))
   do iIrrep=0,nIrrep-1
-    if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) nIC = nIC+1
+    if (btest(lOper(iComp),iIrrep)) nIC = nIC+1
   end do
 end do
 if (iPrint >= 20) write(u6,*) ' nIC =',nIC
@@ -207,7 +206,6 @@ integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCR
                      nDCRT, nOp(2), nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
@@ -382,7 +380,7 @@ do iS=1,nSkal
         mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
         if (mSO == 0) then
           do iIrrep=0,nIrrep-1
-            if (iand(lOper(iComp),iTwoj(iIrrep)) /= 0) iIC = iIC+1
+            if (btest(lOper(iComp),iIrrep)) iIC = iIC+1
           end do
         else
           call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,iShell,jShell,iShll,jShll,iAO,jAO,Fnl,iBas,jBas,nIC,iIC,SO(iSOBlk),mSO,nOp)

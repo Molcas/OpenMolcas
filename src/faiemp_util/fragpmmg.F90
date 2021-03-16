@@ -35,10 +35,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(out) :: nHer, MemFrag
 integer(kind=iwp), intent(in) :: la, lb, lr
-integer(kind=iwp) :: i, nElem, nOrder, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, nExpi, nExpj, nBasisi, &
-                     nBasisj
-
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: nOrder, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, nExpi, nExpj, nBasisi, nBasisj
 
 nOrder = 0
 MemFrag = 0
@@ -69,7 +66,7 @@ do iCnttp=1,nCnttp
         if (nExpj == 0 .or. nBasisj == 0) cycle
 
         ip = 2*maxDensSize
-        nac = 4*nElem(la)*nElem(iAng)
+        nac = 4*(la+1)*(la+2)/2*(iAng+1)*(iAng+2)/2
         ip = ip+nExpi*nac
         ip = ip+3*nExpi
         ip = ip+nExpi
@@ -86,7 +83,7 @@ do iCnttp=1,nCnttp
         MemFrag = max(MemFrag,ip)
         ip = ip-nExpi*(6+3*nHer*((la+2)+(iAng+1)+(lr+1)+(la+2)*(iAng+1)*(lr+1))+1)
 
-        ncb = 4*nElem(jAng)*nElem(lb)
+        ncb = 4*(jAng+1)*(jAng+2)/2*(lb+1)*(lb+2)/2
         ip = ip+nExpj*ncb
         ip = ip+3*nExpj
         ip = ip+nExpj

@@ -34,16 +34,14 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nBas_Valence(0:7), nBT, nBVT
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "etwas.fh"
 #include "nac.fh"
-integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipt, ipTmp1, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iRout, iPrint, &
-                     iComp
+integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipTmp1, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iRout, iPrint, iComp
 logical(kind=iwp) :: lPrint
 real(kind=wp) :: CoefX, CoefR
 character(len=8) :: RlxLbl, Method
 character(len=16) :: KSDFT
-real(kind=wp), allocatable :: D1AV(:)
+real(kind=wp), allocatable :: D1AV(:), Tmp(:)
 real(kind=wp), external :: Get_ExFac
 
 !...  Prologue
@@ -175,8 +173,8 @@ call Get_D1ao_Var(DVar,nDens)
 
 call ReIndexFrag(D0,nDens,nDens_Valence,nBas,nBas_Valence,nIrrep)
 call ReIndexFrag(DVar,nDens,nDens_Valence,nBas,nBas_Valence,nIrrep)
-call AddFragDens(D0,nDens,nDens_Valence,nBas_Valence)
-call AddFragDens(DVar,nDens,nDens_Valence,nBas_Valence)
+call AddFragDens(D0,nDens,nBas_Valence)
+call AddFragDens(DVar,nDens,nBas_Valence)
 
 call mma_allocate(DS,nDens,Label='DS')
 call mma_allocate(DSVar,nDens,Label='DSVar')
@@ -319,9 +317,9 @@ if (lsa) then
   !
   !     G1 = <i|e_ab|i>
   !     G2 = sum i <i|e_ab|i>
-  call Getmem('TMP','ALLO','REAL',ipt,2*ndens)
-  call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),nish,nBas_Valence,nIrrep)
-  call Getmem('TMP','FREE','REAL',ipt,ndens)
+  call mma_allocate(Tmp,2*ndens,label='Tmp')
+  call Get_D1I(CMO(1,1),D0(1,1),Tmp,nish,nBas_Valence,nIrrep)
+  call mma_deallocate(Tmp)
 
   call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
   if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)

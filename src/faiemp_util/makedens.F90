@@ -36,7 +36,7 @@ subroutine MakeDens(nBas,nOrb,Cff,OrbEn,EnergyWeight,Dens)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -44,12 +44,10 @@ integer(kind=iwp), intent(in) :: nBas, nOrb
 real(kind=wp), intent(in) :: Cff(nBas*nOrb), OrbEn(nOrb)
 logical(kind=iwp), intent(in) :: EnergyWeight
 real(kind=wp), intent(out) :: Dens(nBas*(nBas+1)/2)
-integer(kind=iwp) :: i, j, Ind, ij, iRow, iCol
+integer(kind=iwp) :: i, Ind, ij, iRow, iCol
 real(kind=wp) :: energy, rSum
 logical(kind=iwp) :: DBG
 
-!---- Statement function for triangular storage
-Ind(i,j) = i*(i-1)/2+j
 energy = One
 
 DBG = .false.
@@ -72,7 +70,8 @@ do iRow=1,nBas
     if (EnergyWeight) energy = OrbEn(i)
     rSum = rSum+energy*Cff(iRow+ij*nBas)*Cff(iRow+ij*nBas)
   end do
-  Dens(Ind(iRow,iRow)) = Two*rSum
+  Ind = iRow*(iRow-1)/2
+  Dens(Ind+iRow) = Two*rSum
 
   do iCol=1,iRow-1
     rSum = Zero
@@ -82,7 +81,7 @@ do iRow=1,nBas
       if (EnergyWeight) energy = OrbEn(i)
       rSum = rSum+energy*Cff(iRow+ij*nBas)*Cff(iCol+ij*nBas)
     end do
-    Dens(Ind(iRow,iCol)) = Two*Two*rSum
+    Dens(Ind+iCol) = Four*rSum
   end do
 end do
 if (DBG) call TriPrt('Dens in MakeDens',' ',Dens,nBas)

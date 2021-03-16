@@ -33,16 +33,16 @@ use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, ip_ij, ipDMax, &
-                     ipFragDensAO, ipOneHam, ipTMax, iRC, ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, &
-                     nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
+integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, lS, kS, &
+                     klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
 real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TskHi, TskLw, &
-                 TWall1, TWall2, DMax, TMax
-real(kind=wp), allocatable, target :: Dens(:), Fock(:)
+                 TWall1, TWall2
 logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
 character(len=8) :: Label
+integer(kind=iwp), allocatable :: ij(:)
+real(kind=wp), allocatable, target :: Dens(:), Fock(:)
+real(kind=wp), allocatable :: DMax(:,:), FragDensSO(:), OneHam(:), TMax(:,:)
 external :: No_Routine
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -50,13 +50,6 @@ integer(kind=iwp) :: iFD
 character(len=80) :: Line
 #endif
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!----- Statement functions
-
-TMax(i,j) = Work((j-1)*nSkal+i+ipTMax-1)
-DMax(i,j) = Work((j-1)*nSkal+i+ipDMax-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -102,8 +95,7 @@ maxDens = 0
 do iCnttp=1,nCnttp
   if (dbsc(iCnttp)%nFragType > 0) maxDens = max(maxDens,dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
 end do
-call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
-ipFragDensAO = ipFragDensSO
+call mma_allocate(FragDensSO,maxDens,label='FragDSO')
 
 iDpos = 1 ! position in the total density matrix
 do iIrrep=0,nIrrep-1
@@ -117,12 +109,12 @@ do iIrrep=0,nIrrep-1
     end if
     ! construct the density matrix
     EnergyWeight = .false.
-    call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight, &
-                  Work(ipFragDensAO))
+    !call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight,FragDensAO)
+    call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight,FragDensSO)
     ! create the symmetry adapted version if necessary
     ! (fragment densities are always calculated without symmetry)
 #   ifdef _DEBUGPRINT_
-    call TriPrt('Fragment density',' ',Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
+    call TriPrt('Fragment density',' ',FragDensSO,dbsc(iCnttp)%nFragDens)
 #   endif
 
     do iCnt=1,dbsc(iCnttp)%nCntr
@@ -137,7 +129,7 @@ do iIrrep=0,nIrrep-1
         do i=1,dbsc(iCnttp)%nFragDens
           iDpos = iDpos+nBasC
           do j=0,i-1
-            Dens(iDpos+j) = Work(ipFragDensSO+iFpos+j-1)
+            Dens(iDpos+j) = FragDensSO(iFpos+j)
           end do
           iDpos = iDpos+i
           iFpos = iFpos+i
@@ -155,7 +147,7 @@ do iIrrep=0,nIrrep-1
   iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
 end do
 #endif
-call GetMem('FragDSO','Free','Real',ipFragDensSO,maxDens)
+call mma_deallocate(FragDensSO)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -204,29 +196,29 @@ ThrInt = CutInt   ! Integral neglect threshold from SCF
 !                                                                      *
 !---  Compute entities for prescreening at shell level
 
-call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-call Shell_MxSchwz(nSkal,Work(ipTMax))
+call mma_allocate(TMax,nSkal,nSkal,label='TMax')
+call Shell_MxSchwz(nSkal,TMax)
 TMax_all = Zero
 do iS=1,nSkal
   do jS=1,iS
     TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
-call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
-call Shell_MxDens(Dens,work(ipDMax),nSkal)
+call mma_allocate(DMax,nSkal,nSkal,label='DMax')
+call Shell_MxDens(Dens,DMax,nSkal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+call mma_allocate(ij,nSkal*(nSkal+1),label='ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
-      iWork((nij-1)*2+ip_ij) = iS
-      iWork((nij-1)*2+ip_ij+1) = jS
+      ij(nij*2-1) = iS
+      ij(nij*2) = jS
     end if
   end do
 end do
@@ -241,12 +233,12 @@ call CWTime(TCpu1,TWall1)
 
 !ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 ijS = 1
-iS = iWork((ijS-1)*2+ip_ij)
-jS = iWork((ijS-1)*2+ip_ij+1)
+iS = ij(ijS*2-1)
+jS = ij(ijS*2)
 !klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 klS = 1
-kS = iWork((klS-1)*2+ip_ij)
-lS = iWork((klS-1)*2+ip_ij+1)
+kS = ij(klS*2-1)
+lS = ij(klS*2)
 13 continue
 if (ijS > int(P_Eff)) Go To 12
 !                                                                      *
@@ -260,11 +252,11 @@ lNoSkip = A_int*Dtst >= ThrInt
 ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
 ! belonging to different regions)
 if (jS <= nSkal_Valence) then
-  lNoSkip = lNoSkip .and. kS > nSkal_Valence
+  lNoSkip = lNoSkip .and. (kS > nSkal_Valence)
 else
-  lNoSkip = lNoSkip .and. kS <= nSkal_Valence
+  lNoSkip = lNoSkip .and. (kS <= nSkal_Valence)
 end if
-lNoSkip = lNoSkip .and. lS <= nSkal_Valence
+lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
 if (lNoSkip) then
   call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize,W2Disc, &
@@ -287,10 +279,10 @@ if (klS > ijS) then
   ijS = ijS+1
   klS = 1
 end if
-iS = iWork((ijS-1)*2+ip_ij)
-jS = iWork((ijS-1)*2+ip_ij+1)
-kS = iWork((klS-1)*2+ip_ij)
-lS = iWork((klS-1)*2+ip_ij+1)
+iS = ij(ijS*2-1)
+jS = ij(ijS*2)
+kS = ij(klS*2-1)
+lS = ij(klS*2)
 Go To 13
 
 ! Task endpoint
@@ -311,9 +303,9 @@ call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-call GetMem('DMax','Free','Real',ipDMax,nSkal**2)
-call GetMem('TMax','Free','Real',ipTMax,nSkal)
+call mma_deallocate(ij)
+call mma_deallocate(DMax)
+call mma_deallocate(TMax)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -346,33 +338,33 @@ end do
 Label = 'OneHam  '
 iRC = -1
 iOpt = 0
-call GetMem('Temp','Allo','Real',ipOneHam,nBVT+4)
-call RdOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
+call mma_allocate(OneHam,nBVT+4,label='OneHam')
+call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
 if (iRC /= 0) then
   write(u6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ! add the calculated results
-nOneHam = 0 ! counter in the ipOneHam matrices (small)
-nFock = 1   ! counter in the ipFock matrices (larger)
+nOneHam = 1 ! counter in the OneHam matrices (small)
+nFock = 1   ! counter in the Fock matrices (larger)
 do iIrrep=0,nIrrep-1
   nBVTi = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
-  call daxpy_(nBVTi,One,Fock(nFock),1,Work(ipOneHam+nOneHam),1)
+  call daxpy_(nBVTi,One,Fock(nFock),1,OneHam(nOneHam),1)
   nOneHam = nOneHam+nBVTi
   nFock = nFock+nBas(iIrrep)*(nBas(iIrrep)+1)/2
 end do
 
 ! write out the results
 #ifdef _DEBUGPRINT_
-iFD = ipOneHam
+iFD = 1
 do iIrrep=0,nIrrep-1
-  call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))
+  call TriPrt('OneHam at end',' ',OneHam(iFD),nBas_Valence(iIrrep))
   iFD = iFD+nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
 end do
 #endif
 iRC = -1
-call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
+call WrOne(iRC,iOpt,Label,1,OneHam,lOper)
 if (iRC /= 0) then
   write(u6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -380,7 +372,7 @@ if (iRC /= 0) then
 end if
 iRC = -1
 Label = 'OneHam 0'
-call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
+call WrOne(iRC,iOpt,Label,1,OneHam,lOper)
 if (iRC /= 0) then
   write(u6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -388,7 +380,7 @@ if (iRC /= 0) then
 end if
 
 ! cleanup
-call GetMem('Temp','Free','Real',ipOneHam,nBVT+4)
+call mma_deallocate(OneHam)
 call mma_deallocate(Fock)
 !                                                                      *
 !***********************************************************************

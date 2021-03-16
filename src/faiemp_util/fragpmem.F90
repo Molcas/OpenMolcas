@@ -32,11 +32,7 @@ implicit none
 integer(kind=iwp), intent(inout) :: nHer
 integer(kind=iwp), intent(out) :: MemFrag
 integer(kind=iwp), intent(in) :: la, lb, lr
-integer(kind=iwp) :: nExpi, nExpj, i, nElem, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, MemMlt, nH, &
-                     nBasisi, nBasisj
-
-! statement function
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: nExpi, nExpj, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, MemMlt, nH, nBasisi, nBasisj
 
 MemFrag = 0
 maxDensSize = 0
@@ -67,7 +63,7 @@ do iCnttp=1,nCnttp
         !go to 1976
 
         ip = 2*maxDensSize
-        nac = nElem(la)*nElem(iAng)
+        nac = (la+1)*(la+2)/2*(iAng+1)*(iAng+2)/2
         ip = ip+nExpi*nac
         ip = ip+3*nExpi
         ip = ip+nExpi
@@ -79,7 +75,7 @@ do iCnttp=1,nCnttp
         MemFrag = max(MemFrag,ip+nExpi*MemMlt)
         ip = ip-6*nExpi
 
-        ncb = nElem(jAng)*nElem(lb)
+        ncb = (jAng+1)*(jAng+2)/2*(lb+1)*(lb+2)/2
         ip = ip+nExpj*ncb
         ip = ip+3*nExpj
         ip = ip+nExpj

@@ -66,20 +66,21 @@ real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZ
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
 #include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
-integer(kind=iwp) :: iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4), i, j, nElem, ia, ib, iAng, iBas, iRout, iPrint, nSkal, iCar, &
-                     iCent, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, &
-                     ipF2, ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, &
+integer(kind=iwp) :: iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4), i, j, ia, ib, iAng, iBas, iRout, iPrint, nSkal, iCar, iCent, &
+                     iCnttp, iCurCenter, iCurCnttp, iCurMdc, iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF2, &
+                     ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, &
                      iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, iStemp, iStrt, iVec, jAng, jBas, jCnttp, jPrim, jS, jSbasis, &
                      jShll, jSize, jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, nHer, &
-                     maxDensSize, nVecAC, nVecCB, iTri, iCnt, jCnt
+                     maxDensSize, nVecAC, nVecCB, iCnt, jCnt
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
 character(len=80) :: Label
 real(kind=r8), external :: DNrm2_
-
-! Statement function for Cartesian index
-
-nElem(i) = (i+1)*(i+2)/2
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(nRys)
+unused_var(lOper)
 
 iRout = 202
 iPrint = nPrint(iRout)
@@ -559,13 +560,19 @@ end do !iS
 call Free_iSD()
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_integer(nRys)
-  call Unused_integer_array(lOper)
-end if
+
+contains
+
+function nElem(i)
+  integer(kind=iwp) :: nElem
+  integer(kind=iwp), intent(in) :: i
+  nElem = (i+1)*(i+2)/2
+end function nElem
+
+function iTri(i,j)
+  integer(kind=iwp) :: iTri
+  integer(kind=iwp), intent(in) :: i, j
+  iTri = max(i,j)*(max(i,j)-1)/2+min(i,j)
+end function iTri
 
 end subroutine FragPGrd

@@ -74,13 +74,12 @@ implicit none
 #define _USE_WP_
 #include "int_interface.fh"
 ! Local variables
-integer(kind=iwp) :: i, j, ixyz, nElem, iTri, iAng, iBas, iCnttp, iComp, iCurCenter, iCurCnttp, iCurMdc, iIC, iIrrep, iLoc, iPrim, &
-                     ip, ipF1, ipF2, ipIJ, ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSend, iShll, &
-                     iSize, iSlocal, iSstart, iStemp, jAng, jBas, jCnttp, jPrim, jS, jShll, jSize, jSlocal, lDCRT, llOper, LmbdT, &
-                     mArr, maxDensSize, mdci, nac, ncb, nDCRT, nOp, nSkal, jSbasis, iCnt, jCnt, iDCRT(0:7)
+integer(kind=iwp) :: iAng, iBas, iCnttp, iComp, iCurCenter, iCurCnttp, iCurMdc, iIC, iIrrep, iLoc, iPrim, ip, ipF1, ipF2, ipIJ, &
+                     ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSend, iShll, iSize, iSlocal, iSstart, &
+                     iStemp, jAng, jBas, jCnttp, jPrim, jS, jShll, jSize, jSlocal, lDCRT, llOper, LmbdT, mArr, maxDensSize, mdci, &
+                     nac, ncb, nDCRT, nOp, nSkal, jSbasis, iCnt, jCnt, iDCRT(0:7)
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact, Factor, Xg
 logical(kind=iwp) :: EnergyWeight
-integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
 ! external functions:
 integer(kind=iwp), external :: NrOpr
 !real(kind=r8), external :: DNRM2_
@@ -89,11 +88,15 @@ integer(kind=iwp), external :: NrOpr
 integer(kind=iwp) :: ia, ib
 character(len=24) :: Label
 #endif
-
-! Statement functions
-
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+#include "macros.fh"
+unused_var(Zeta)
+unused_var(ZInv)
+unused_var(rKappa)
+unused_var(P)
+unused_var(nHer)
+unused_var(iCho)
+unused_var(PtChrg)
+unused_var(iAddPot)
 
 #ifdef _DEBUGPRINT_
 ! data for individual fragments:
@@ -123,7 +126,7 @@ call RecPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 call TrcPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 #endif
 
-call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,final,1)
+Final(:,:,:,:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -179,7 +182,6 @@ do iS=1,nSkal
   write(u6,*) 'In FragPInt: iS=',iS,' iAng  =',iAng
   write(u6,*) 'In FragPInt: iS=',iS,' iBas  =',iBas
   write(u6,*) 'In FragPInt: iS=',iS,' iPrim =',iPrim
-  write(u6,*) 'In FragPInt: iS=',iS,' ixyz  =',ixyz
   write(u6,*) 'In FragPInt: iS=',iS,' mdci  =',mdci
   write(u6,*) 'In FragPInt: iS=',iS,' iCnttp=',iCnttp
   write(u6,*) 'In FragPInt: iS=',iS,' iSize =',iSize
@@ -506,14 +508,14 @@ do iS=1,nSkal
       do ia=1,nElem(la)
         do ib=1,nElem(lb)
           write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-          call RecPrt(Label,' ',final(:,ia,ib,:),nAlpha,nBeta)
+          call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
         end do
       end do
 #     endif
 
       iIC = 0
       do iIrrep=0,nIrrep-1
-        if (iand(llOper,iTwoj(iIrrep)) /= 0) then
+        if (btest(llOper,iIrrep)) then
           iIC = iIC+1
           nOp = NrOpr(iDCRT(lDCRT))
           Xg = real(iChTbl(iIrrep,nOp),kind=wp)
@@ -524,7 +526,7 @@ do iS=1,nSkal
           call xFlush(u6)
 
           call FragPCont(Array(ipF1),nAlpha,iBas,nElem(la),iSize,Array(ipF2),jBas,nBeta,jSize,nElem(lb),Array(ipIJ), &
-                         final(:,:,:,iIC),Factor)
+                         Final(:,:,:,iIC),Factor)
         end if
       end do
       if (iIC /= nIC) stop 'iIC.ne.nIC'
@@ -534,7 +536,7 @@ do iS=1,nSkal
       do ia=1,nElem(la)
         do ib=1,nElem(lb)
           write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-          call RecPrt(Label,' ',final(:,ia,ib,:),nAlpha,nBeta)
+          call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
         end do
       end do
 #     endif
@@ -554,7 +556,7 @@ write(u6,*) ' Result in FragPInt'
 do ia=1,nElem(la)
   do ib=1,nElem(lb)
     write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
-    call RecPrt(Label,' ',final(:,ia,ib,:),nAlpha,nBeta)
+    call RecPrt(Label,' ',Final(:,ia,ib,:),nAlpha,nBeta)
   end do
 end do
 #endif
@@ -584,16 +586,19 @@ call SetUp_iSD
 call Nr_Shells(nSkal)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Zeta)
-  call Unused_real_array(ZInv)
-  call Unused_real_array(rKappa)
-  call Unused_real_array(P)
-  call Unused_integer(nHer)
-  call Unused_integer_array(iCho)
-  call Unused_real_array(PtChrg)
-  call Unused_integer(iAddPot)
-end if
+
+contains
+
+function nElem(i)
+  integer(kind=iwp) :: nElem
+  integer(kind=iwp), intent(in) :: i
+  nElem = (i+1)*(i+2)/2
+end function nElem
+
+function iTri(i,j)
+  integer(kind=iwp) :: iTri
+  integer(kind=iwp), intent(in) :: i, j
+  iTri = max(i,j)*(max(i,j)-1)/2+min(i,j)
+end function iTri
 
 end subroutine FragPInt
