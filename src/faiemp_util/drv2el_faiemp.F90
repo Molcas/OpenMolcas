@@ -66,9 +66,9 @@ W2Disc = .true.
 
 call Set_Basis_Mode('Valence')
 call Nr_Shells(nSkal_Valence)
-call Free_iSD
+call Free_iSD()
 call Set_Basis_Mode('WithFragments')
-call SetUp_iSD
+call SetUp_iSD()
 nBT = 0
 nBVT = 0
 do i=0,nIrrep-1
@@ -105,39 +105,41 @@ do iIrrep=0,nIrrep-1
   do iCnttp=1,nCnttp
     if (dbsc(iCnttp)%nFragType <= 0) then
       mdc = mdc+dbsc(iCnttp)%nCntr
-      Go To 1000
-    end if
-    ! construct the density matrix
-    EnergyWeight = .false.
-    !call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight,FragDensAO)
-    call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight,FragDensSO)
-    ! create the symmetry adapted version if necessary
-    ! (fragment densities are always calculated without symmetry)
-#   ifdef _DEBUGPRINT_
-    call TriPrt('Fragment density',' ',FragDensSO,dbsc(iCnttp)%nFragDens)
-#   endif
+    else
 
-    do iCnt=1,dbsc(iCnttp)%nCntr
-      mdc = mdc+1
-      ! only add fragment densities that are active in this irrep
-      ! => the following procedure still has to be verified thoroughly
-      !    but appears to be working
-      if (iand(dc(mdc)%iChCnt,iIrrep) == iOper(iIrrep)) then
-        ! add it at the correct location in the large custom density matrix
-        iFpos = 1
-        ! position in fragment density matrix
-        do i=1,dbsc(iCnttp)%nFragDens
-          iDpos = iDpos+nBasC
-          do j=0,i-1
-            Dens(iDpos+j) = FragDensSO(iFpos+j)
+      ! construct the density matrix
+      EnergyWeight = .false.
+      !call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight, &
+      !              FragDensAO)
+      call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,dbsc(iCnttp)%FragEner,EnergyWeight, &
+                    FragDensSO)
+      ! create the symmetry adapted version if necessary
+      ! (fragment densities are always calculated without symmetry)
+#     ifdef _DEBUGPRINT_
+      call TriPrt('Fragment density',' ',FragDensSO,dbsc(iCnttp)%nFragDens)
+#     endif
+
+      do iCnt=1,dbsc(iCnttp)%nCntr
+        mdc = mdc+1
+        ! only add fragment densities that are active in this irrep
+        ! => the following procedure still has to be verified thoroughly
+        !    but appears to be working
+        if (iand(dc(mdc)%iChCnt,iIrrep) == iOper(iIrrep)) then
+          ! add it at the correct location in the large custom density matrix
+          iFpos = 1
+          ! position in fragment density matrix
+          do i=1,dbsc(iCnttp)%nFragDens
+            iDpos = iDpos+nBasC
+            do j=0,i-1
+              Dens(iDpos+j) = FragDensSO(iFpos+j)
+            end do
+            iDpos = iDpos+i
+            iFpos = iFpos+i
           end do
-          iDpos = iDpos+i
-          iFpos = iFpos+i
-        end do
-        nBasC = nBasC+dbsc(iCnttp)%nFragDens
-      end if
-    end do
-1000 continue
+          nBasC = nBasC+dbsc(iCnttp)%nFragDens
+        end if
+      end do
+    end if
   end do
 end do
 #ifdef _DEBUGPRINT_
@@ -239,55 +241,51 @@ jS = ij(ijS*2)
 klS = 1
 kS = ij(klS*2-1)
 lS = ij(klS*2)
-13 continue
-if (ijS > int(P_Eff)) Go To 12
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! density prescreening (results in iS > nSkal_Valence)
-A_int = TMax(iS,jS)*TMax(kS,lS)
-Dtst = max(DMax(is,ls)*Quart,DMax(is,ks)*Quart,DMax(js,ls)*Quart,DMax(js,ks)*Quart,DMax(is,js),DMax(ks,ls))
-lNoSkip = A_int*Dtst >= ThrInt
-! only calculate needed integrals and only update the valence part of the
-! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
-! belonging to different regions)
-if (jS <= nSkal_Valence) then
-  lNoSkip = lNoSkip .and. (kS > nSkal_Valence)
-else
-  lNoSkip = lNoSkip .and. (kS <= nSkal_Valence)
-end if
-lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
-
-if (lNoSkip) then
-  call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize,W2Disc, &
-                           PreSch,Disc_Mx,Disc,Cnt,DoIntegrals,DoFock)
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
-  if (nIrrep == 1) then
-    call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
+do
+  if (ijS > int(P_Eff)) exit
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! density prescreening (results in iS > nSkal_Valence)
+  A_int = TMax(iS,jS)*TMax(kS,lS)
+  Dtst = max(DMax(is,ls)*Quart,DMax(is,ks)*Quart,DMax(js,ls)*Quart,DMax(js,ks)*Quart,DMax(is,js),DMax(ks,ls))
+  lNoSkip = A_int*Dtst >= ThrInt
+  ! only calculate needed integrals and only update the valence part of the
+  ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
+  ! belonging to different regions)
+  if (jS <= nSkal_Valence) then
+    lNoSkip = lNoSkip .and. (kS > nSkal_Valence)
   else
-    iFD = 1
-    do iIrrep=0,nIrrep-1
-      call TriPrt('updated Fock',' ',pFq(iFD),nBas(iIrrep))
-      iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
-    end do
+    lNoSkip = lNoSkip .and. (kS <= nSkal_Valence)
   end if
-# endif
-end if
-klS = klS+1
-if (klS > ijS) then
-  ijS = ijS+1
-  klS = 1
-end if
-iS = ij(ijS*2-1)
-jS = ij(ijS*2)
-kS = ij(klS*2-1)
-lS = ij(klS*2)
-Go To 13
+  lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
-! Task endpoint
-
-12 continue
+  if (lNoSkip) then
+    call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize, &
+                             W2Disc,PreSch,Disc_Mx,Disc,Cnt,DoIntegrals,DoFock)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
+    if (nIrrep == 1) then
+      call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
+    else
+      iFD = 1
+      do iIrrep=0,nIrrep-1
+        call TriPrt('updated Fock',' ',pFq(iFD),nBas(iIrrep))
+        iFD = iFD+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      end do
+    end if
+#   endif
+  end if
+  klS = klS+1
+  if (klS > ijS) then
+    ijS = ijS+1
+    klS = 1
+  end if
+  iS = ij(ijS*2-1)
+  jS = ij(ijS*2)
+  kS = ij(klS*2-1)
+  lS = ij(klS*2)
+end do
 
 ! Use a time slot to save the number of tasks and shell
 ! quadruplets processed by an individual node
@@ -387,9 +385,9 @@ call mma_deallocate(Fock)
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-call Free_iSD
+call Free_iSD()
 call Set_Basis_Mode('Valence')
-call SetUp_iSD
+call SetUp_iSD()
 do i=0,nIrrep-1
   nBas(i) = nBas_Valence(i)
 end do

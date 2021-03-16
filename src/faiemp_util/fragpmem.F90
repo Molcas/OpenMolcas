@@ -60,7 +60,6 @@ do iCnttp=1,nCnttp
         nExpj = Shells(jShll)%nExp
         nBasisj = Shells(jShll)%nBasis
         if (nExpj == 0 .or. nBasisj == 0) cycle
-        !go to 1976
 
         ip = 2*maxDensSize
         nac = (la+1)*(la+2)/2*(iAng+1)*(iAng+2)/2

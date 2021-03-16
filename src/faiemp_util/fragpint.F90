@@ -132,9 +132,9 @@ Final(:,:,:,:) = Zero
 !                                                                      *
 ! Setup the fragment shells
 
-call Free_iSD
+call Free_iSD()
 call Set_Basis_Mode('Fragments')
-call SetUp_iSD
+call SetUp_iSD()
 call Nr_Shells(nSkal)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nSkal_Fragment,nAlpha,nBeta = ',nSkal,nAlpha,nBeta
@@ -198,10 +198,9 @@ do iS=1,nSkal
     do iStemp=iSstart+1,nSkal
       if (abs(dbsc(iSD(13,iStemp))%nFragCoor) /= iCurMdc) then
         iSend = iStemp-1
-        goto 101
+        exit
       end if
     end do
-101 continue
     iSbasis = 1
     iCurCenter = iCurCenter+1
 
@@ -215,11 +214,10 @@ do iS=1,nSkal
       do jCnttp=iCurCnttp+1,nCnttp
         if (dbsc(jCnttp)%nFragType > 0) then
           iCurCnttp = jCnttp
-          goto 102
+          exit
         end if
       end do
 
-102   continue
       ! update the energy weighted density matrix of the current fragment
       EnergyWeight = .true.
       call MakeDens(dbsc(iCurCnttp)%nFragDens,dbsc(iCurCnttp)%nFragEner,dbsc(iCurCnttp)%FragCoef,dbsc(iCurCnttp)%FragEner, &
@@ -232,7 +230,7 @@ do iS=1,nSkal
 #     ifdef _DEBUGPRINT_
       call TriPrt('-1 Energy weighted fragment dens',' ',Array,dbsc(iCurCnttp)%nFragDens)
 #     endif
-      if (maxDensSize < dbsc(iCurCnttp)%nFragDens*(dbsc(iCurCnttp)%nFragDens+1)/2) call Abend !'maxIJSize'
+      if (maxDensSize < dbsc(iCurCnttp)%nFragDens*(dbsc(iCurCnttp)%nFragDens+1)/2) call Abend() !'maxIJSize'
     end if
   end if
 # ifdef _DEBUGPRINT_
@@ -332,7 +330,7 @@ do iS=1,nSkal
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
         write(u6,*) '  ip-1.gt.nArr*nZeta(1) in FragPInt'
-        call Abend
+        call Abend()
       end if
       mArr = (nArr*nZeta-(ip-1))/nZeta
 
@@ -364,7 +362,7 @@ do iS=1,nSkal
       ip = ip+jPrim*nBeta
       if (ip-1 > nArr*nZeta) then
         write(u6,*) '  ip-1.gt.nArr*nZeta(2) in FragPInt'
-        call Abend
+        call Abend()
       end if
       mArr = (nArr*nZeta-(ip-1))/nZeta
 
@@ -379,7 +377,7 @@ do iS=1,nSkal
       ip = ip+max(nAlpha*nac*max(iPrim,jBas),nBeta*ncb*jBas)
       if (ip-1 > nArr*nZeta) then
         write(u6,*) '  ip-1.gt.nArr*nZeta(3) in FragPInt'
-        call Abend
+        call Abend()
       end if
 #     ifdef _DEBUGPRINT_
       call RecPrt('<jS|beta> (bBas x Y)',' ',Array(ipF2),nBeta*jPrim,ncb)
@@ -580,9 +578,9 @@ end do
 !    end do
 !  end do
 !end if
-call Free_iSD
+call Free_iSD()
 call Set_Basis_Mode('Valence')
-call SetUp_iSD
+call SetUp_iSD()
 call Nr_Shells(nSkal)
 
 return

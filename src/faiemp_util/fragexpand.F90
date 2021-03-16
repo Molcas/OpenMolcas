@@ -106,7 +106,7 @@ do iCnttp=1,mCnttp
       nCnttp = nCnttp+1
       if (nCnttp > Mxdbsc) then
         write(u6,*) ' Increase Mxdbsc'
-        call ErrTra
+        call ErrTra()
         call Quit_OnUserError()
       end if
 
@@ -139,11 +139,7 @@ do iCnttp=1,mCnttp
           write(u6,'(A,A)') 'Fname=',Fname
           call Quit_OnUserError()
         end if
-1001    if (Fname(1:1) == ' ') then
-          Fname(1:79) = Fname(2:80)
-          Fname(80:80) = ' '
-          Go To 1001
-        end if
+        Fname = adjustl(Fname)
         dbsc(nCnttp)%Bsl = sBasis(1:Indx-1)
       end if
 #     ifdef _DEBUGPRINT_
@@ -184,7 +180,7 @@ do iCnttp=1,mCnttp
       if (mdc > MxAtom) then
         write(u6,*) ' FragExpand: Increase MxAtom'
         write(u6,*) '        MxAtom=',MxAtom
-        call ErrTra
+        call ErrTra()
         call Quit_OnUserError()
       end if
       ! get the relative coordinates

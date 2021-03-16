@@ -61,38 +61,37 @@ do iIrrep=0,nIrrep-1
   do iCnttp=1,nCnttp
     if (dbsc(iCnttp)%nFragType <= 0) then
       mdc = mdc+dbsc(iCnttp)%nCntr
-      Go To 1000
-    end if
+    else
 
-    ! construct the density matrix
-    EnergyWeight = .false.
-    !call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,rDummy,EnergyWeight,FragDensAO)
-    call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,rDummy,EnergyWeight,FragDensSO)
-    ! create the symmetry adapted version if necessary
-    ! (fragment densities are always calculated without symmetry)
-    !if (nIrrep /= 1) call SymmDens(FragDensAO,FragDensSO)
-    if (iPrint >= 99) call TriPrt('Fragment density',' ',FragDensSO,dbsc(iCnttp)%nFragDens)
-    do iCnt=1,dbsc(iCnttp)%nCntr
-      mdc = mdc+1
-      ! only add fragment densities that are active in this irrep
-      ! => the following procedure still has to be verified thoroughly
-      !    but appears to be working
-      if (iand(dc(mdc)%iChCnt,iIrrep) == iOper(iIrrep)) then
-        ! add it at the correct location in the large custom density matrix
-        iFpos = 1
-        ! position in fragment density matrix
-        do i=1,dbsc(iCnttp)%nFragDens
-          iDpos = iDpos+nBasC
-          do j=0,i-1
-            Array(iDpos+j) = FragDensSO(iFpos+j)
+      ! construct the density matrix
+      EnergyWeight = .false.
+      !call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,rDummy,EnergyWeight,FragDensAO)
+      call MakeDens(dbsc(iCnttp)%nFragDens,dbsc(iCnttp)%nFragEner,dbsc(iCnttp)%FragCoef,rDummy,EnergyWeight,FragDensSO)
+      ! create the symmetry adapted version if necessary
+      ! (fragment densities are always calculated without symmetry)
+      !if (nIrrep /= 1) call SymmDens(FragDensAO,FragDensSO)
+      if (iPrint >= 99) call TriPrt('Fragment density',' ',FragDensSO,dbsc(iCnttp)%nFragDens)
+      do iCnt=1,dbsc(iCnttp)%nCntr
+        mdc = mdc+1
+        ! only add fragment densities that are active in this irrep
+        ! => the following procedure still has to be verified thoroughly
+        !    but appears to be working
+        if (iand(dc(mdc)%iChCnt,iIrrep) == iOper(iIrrep)) then
+          ! add it at the correct location in the large custom density matrix
+          iFpos = 1
+          ! position in fragment density matrix
+          do i=1,dbsc(iCnttp)%nFragDens
+            iDpos = iDpos+nBasC
+            do j=0,i-1
+              Array(iDpos+j) = FragDensSO(iFpos+j)
+            end do
+            iDpos = iDpos+i
+            iFpos = iFpos+i
           end do
-          iDpos = iDpos+i
-          iFpos = iFpos+i
-        end do
-        nBasC = nBasC+dbsc(iCnttp)%nFragDens
-      end if
-    end do
-1000 continue
+          nBasC = nBasC+dbsc(iCnttp)%nFragDens
+        end if
+      end do
+    end if
   end do
 end do
 if (iPrint >= 19) then

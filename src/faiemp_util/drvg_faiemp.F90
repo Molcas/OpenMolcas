@@ -78,7 +78,7 @@ PMax = Zero
 call Set_Basis_Mode('Valence')
 call Nr_Shells(nSkal_Valence)
 call Set_Basis_Mode('WithFragments')
-call SetUp_iSD
+call SetUp_iSD()
 nBT = 0
 nBVT = 0
 do i=0,nIrrep-1
@@ -172,8 +172,8 @@ end do
 !                                                                      *
 Triangular = .true.
 call Init_TList(Triangular,P_Eff)
-call Init_PPList
-call Init_GTList
+call Init_PPList()
+call Init_GTList()
 iOpt = 0
 Temp(:) = Zero
 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDisp,iprint)
@@ -187,162 +187,161 @@ ipMem1 = 1
 !***********************************************************************
 !                                                                      *
 ! big loop over individual tasks, distributed over individual nodes
-10 continue
-! make reservation of a task on global task list and get task range
-! in return. Function will be false if no more tasks to execute.
-if (.not. Rsv_GTList(TskLw,TskHi,iOpt,lDummy)) Go To 11
+do
+  ! make reservation of a task on global task list and get task range
+  ! in return. Function will be false if no more tasks to execute.
+  if (.not. Rsv_GTList(TskLw,TskHi,iOpt,lDummy)) exit
 
-! Now do a quadruple loop over shells
+  ! Now do a quadruple loop over shells
 
-ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-iS = ij(ijS*2-1)
-jS = ij(ijS*2)
-klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-kS = ij(klS*2-1)
-lS = ij(klS*2)
-Cnt = TskLw
-call CWTime(TCpu1,TWall1)
-13 continue
-if (Cnt-TskHi > 1.0e-10_wp) Go To 12
-!
-A_int = TMax(iS,jS)*TMax(kS,lS)
+  ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
+  iS = ij(ijS*2-1)
+  jS = ij(ijS*2)
+  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
+  kS = ij(klS*2-1)
+  lS = ij(klS*2)
+  Cnt = TskLw
+  call CWTime(TCpu1,TWall1)
+  do
+    if (Cnt-TskHi > 1.0e-10_wp) exit
 
-lNoSkip = A_Int >= CutInt
-! only calculate needed integrals and only update the valence part of the
-! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
-! belonging to different regions)
-if (jS <= nSkal_Valence) then
-  lNoSkip = lNoSkip .and. kS > nSkal_Valence
-else
-  lNoSkip = lNoSkip .and. kS <= nSkal_Valence
-end if
-lNoSkip = lNoSkip .and. lS <= nSkal_Valence
-if (.not. lNoSkip) Go To 14
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
-if (No_batch) Go To 140
+    A_int = TMax(iS,jS)*TMax(kS,lS)
 
-call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! --------> Memory Managment <--------
-!
-! Compute memory request for the primitives, i.e.
-! how much memory is needed up to the transfer
-! equation.
-
-call MemRys_g(iSD4,nSD,nRys,MemPrm)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
-ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
-if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1 .and. iPrint > 15) write(u6,*) 'ABCDeq & ijklA'
-if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1) Go To 140
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Decide on the partioning of the shells based on the
-! available memory and the requested memory.
-!
-! Now check if all blocks can be computed and stored at
-! once.
-
-call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iPrint, &
-            iFnc,MemPSO)
-iBasi = iSD4(3,1)
-jBasj = iSD4(3,2)
-kBask = iSD4(3,3)
-lBasl = iSD4(3,4)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,indij,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
-                AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd,nHmcd, &
-                nIrrep)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Scramble arrays (follow angular index)
-
-do iCar=1,3
-  do iSh=1,4
-    JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
-    if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
-      JfGrad(iCar,iSh) = .true.
+    lNoSkip = A_Int >= CutInt
+    ! only calculate needed integrals and only update the valence part of the
+    ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
+    ! belonging to different regions)
+    if (jS <= nSkal_Valence) then
+      lNoSkip = lNoSkip .and. kS > nSkal_Valence
     else
-      JfGrad(iCar,iSh) = .false.
+      lNoSkip = lNoSkip .and. kS <= nSkal_Valence
     end if
-  end do
-end do
+    lNoSkip = lNoSkip .and. lS <= nSkal_Valence
+    if (lNoSkip) then
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
+      call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+    end if
+    if (No_batch) lNoSkip = .false.
+    if (lNoSkip) then
 
-do iBasAO=1,iBasi,iBsInc
-  iBasn = min(iBsInc,iBasi-iBasAO+1)
-  iAOst(1) = iBasAO-1
-  do jBasAO=1,jBasj,jBsInc
-    jBasn = min(jBsInc,jBasj-jBasAO+1)
-    iAOst(2) = jBasAO-1
+      call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      ! --------> Memory Managment <--------
+      !
+      ! Compute memory request for the primitives, i.e.
+      ! how much memory is needed up to the transfer
+      ! equation.
 
-    do kBasAO=1,kBask,kBsInc
-      kBasn = min(kBsInc,kBask-kBasAO+1)
-      iAOst(3) = kBasAO-1
-      do lBasAO=1,lBasl,lBsInc
-        lBasn = min(lBsInc,lBasl-lBasAO+1)
-        iAOst(4) = lBasAO-1
+      call MemRys_g(iSD4,nSD,nRys,MemPrm)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
+      ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
+      if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1 .and. iPrint > 15) write(u6,*) 'ABCDeq & ijklA'
+    end if
+    if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1) lNoSkip = .false.
+    if (lNoSkip) then
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      ! Decide on the partioning of the shells based on the
+      ! available memory and the requested memory.
+      !
+      ! Now check if all blocks can be computed and stored at
+      ! once.
 
-        !--Get the 2nd order density matrix in SO basis.
+      call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2, &
+                  iPrint,iFnc,MemPSO)
+      iBasi = iSD4(3,1)
+      jBasj = iSD4(3,2)
+      kBask = iSD4(3,3)
+      lBasl = iSD4(3,4)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,indij,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck, &
+                      mdcl,AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab, &
+                      ncd,nHmcd,nIrrep)
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      ! Scramble arrays (follow angular index)
 
-        nijkl = iBasn*jBasn*kBasn*lBasn
-        call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
-                   iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-        if (A_Int*PMax < CutInt) Go To 430
-
-        !--Compute gradients of shell quadruplet
-
-        call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR,Data_k2(k2kl),ncd, &
-                     nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
-                     Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
-                     Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,Mem_DBLE(ipZeta), &
-                     Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,Mem_DBLE(ipxA), &
-                     Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2), &
-                     Mem2,Aux,nAux,Shijij)
-
-        if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp,iPrint)
-
-430     continue
+      do iCar=1,3
+        do iSh=1,4
+          JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
+          if (iand(iSD4(15,iSh),2**(iCar-1)) == 2**(iCar-1)) then
+            JfGrad(iCar,iSh) = .true.
+          else
+            JfGrad(iCar,iSh) = .false.
+          end if
+        end do
       end do
-    end do
 
+      do iBasAO=1,iBasi,iBsInc
+        iBasn = min(iBsInc,iBasi-iBasAO+1)
+        iAOst(1) = iBasAO-1
+        do jBasAO=1,jBasj,jBsInc
+          jBasn = min(jBsInc,jBasj-jBasAO+1)
+          iAOst(2) = jBasAO-1
+
+          do kBasAO=1,kBask,kBsInc
+            kBasn = min(kBsInc,kBask-kBasAO+1)
+            iAOst(3) = kBasAO-1
+            do lBasAO=1,lBasl,lBsInc
+              lBasn = min(lBsInc,lBasl-lBasAO+1)
+              iAOst(4) = lBasAO-1
+
+              !--Get the 2nd order density matrix in SO basis.
+
+              nijkl = iBasn*jBasn*kBasn*lBasn
+              call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+                         iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+              if (A_Int*PMax >= CutInt) then
+
+                !--Compute gradients of shell quadruplet
+
+                call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,Data_k2(k2ij),nab,nHmab,nDCRR, &
+                             Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                             Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
+                             Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn, &
+                             Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,Mem_DBLE(ipEta),Mem_DBLE(ipEI),Mem_DBLE(ipQ), &
+                             nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd, &
+                             Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
+
+                if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp,iPrint)
+
+              end if
+            end do
+          end do
+
+        end do
+      end do
+
+    end if
+    Cnt = Cnt+One
+    klS = klS+1
+    if (klS > ijS) then
+      ijS = ijS+1
+      klS = 1
+    end if
+    iS = ij(ijS*2-1)
+    jS = ij(ijS*2)
+    kS = ij(klS*2-1)
+    lS = ij(klS*2)
   end do
+
+  call CWTime(TCpu2,TWall2)
+  call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
+  call SavStat(1,One,'+')
+  call SavStat(2,TskHi-TskLw+One,'+')
 end do
-
-140 continue
-
-14 continue
-Cnt = Cnt+One
-klS = klS+1
-if (klS > ijS) then
-  ijS = ijS+1
-  klS = 1
-end if
-iS = ij(ijS*2-1)
-jS = ij(ijS*2)
-kS = ij(klS*2-1)
-lS = ij(klS*2)
-Go To 13
-
-! Task endpoint
-12 continue
-call CWTime(TCpu2,TWall2)
-call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
-call SavStat(1,One,'+')
-call SavStat(2,TskHi-TskLw+One,'+')
-Go To 10
-11 continue
 ! End of big task loop
 !                                                                      *
 !***********************************************************************
@@ -352,9 +351,9 @@ Go To 10
 !***********************************************************************
 !                                                                      *
 call mma_deallocate(Sew_Scr)
-call Free_GTList
-call Free_PPList
-call Free_TList
+call Free_GTList()
+call Free_PPList()
+call Free_TList()
 call mma_deallocate(ij)
 call mma_deallocate(TMax)
 !                                                                      *

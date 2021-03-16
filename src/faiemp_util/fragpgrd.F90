@@ -59,10 +59,10 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 ! TODO: unknown intents, probably all "in", except Fin, Grad
 integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nRys, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
-                               nStabM, lOper(nComp), iStabM(0:nStabM-1)
+                                    nStabM, lOper(nComp), iStabM(0:nStabM-1)
 real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                           Fin(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr),Ccoor(3), Grad(nGrad), &
-                           DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
+                                Fin(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), &
+                                Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
 #include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
@@ -101,7 +101,7 @@ end if
 ! Setup the fragment shells
 
 call Set_Basis_Mode('Fragments')
-call SetUp_iSD
+call SetUp_iSD()
 call Nr_Shells(nSkal)
 if (iPrint >= 99) then
   write(u6,*) 'looping over ',nSkal,' shells'
@@ -152,10 +152,9 @@ do iS=1,nSkal
     do iStemp=iSstart+1,nSkal
       if (abs(dbsc(iSD(13,iStemp))%nFragCoor) /= iCurMdc) then
         iSend = iStemp-1
-        goto 101
+        exit
       end if
     end do
-101 continue
     iSbasis = 1
     iCurCenter = iCurCenter+1
     if (iCurCenter > dbsc(iCurCnttp)%nCntr) then
@@ -163,10 +162,9 @@ do iS=1,nSkal
       do jCnttp=iCurCnttp+1,nCnttp
         if (dbsc(jCnttp)%nFragType > 0) then
           iCurCnttp = jCnttp
-          goto 102
+          exit
         end if
       end do
-102   continue
       ! update the energy weighted density matrix of the current fragment
       EnergyWeight = .true.
       call MakeDens(dbsc(iCurCnttp)%nFragDens,dbsc(iCurCnttp)%nFragEner,dbsc(iCurCnttp)%FragCoef,dbsc(iCurCnttp)%FragEner, &
@@ -206,7 +204,7 @@ do iS=1,nSkal
     end do
   end do
   if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
-  if (mGrad == 0) Go To 1965
+  if (mGrad == 0) cycle
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -259,7 +257,7 @@ do iS=1,nSkal
       lOp(4) = lOp(3)
       call OA(iDCRT(lDCRT),C,TC)
       call OA(iDCRT(lDCRT),B,TB)
-      if (EQ(A,RB) .and. EQ(A,TC)) Go To 1967
+      if (EQ(A,RB) .and. EQ(A,TC)) cycle
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -490,7 +488,7 @@ do iS=1,nSkal
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,Fin,1)
+      Fin(:,:,:,:) = Zero
 
       if (iPrint >= 99) then
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
@@ -547,12 +545,10 @@ do iS=1,nSkal
 
       call Distg1X(Fin,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
-1967  continue !lDCRT
     end do !lDCRT
     jSbasis = jSbasis+jBas*jSize
   end do !jS
   iSbasis = iSbasis+iBas*iSize
-1965 continue !iS
 end do !iS
 
 ! Revert to the valence shells

@@ -231,118 +231,116 @@ end if
 
 !...  Get additional information in the case of a RASSCF wave function
 !...  Get the number of inactive, active and frozen orbitals
-if (.not. lpso) goto 1000
-call Get_iScalar('nSym',i)
-call Get_iArray('nIsh',nIsh,i)
-call Get_iArray('nAsh',nAsh,i)
-call Get_iArray('nFro',nFro,i)
-if (iPrint >= 99) then
-  write(u6,*) ' nISh=',nISh
-  write(u6,*) ' nASh=',nASh
-  write(u6,*) ' nFro=',nFro
-end if
-nAct = 0
-nTst = 0
-do iIrrep=0,nIrrep-1
-  nAct = nAct+nAsh(iIrrep)
-  nTst = nTst+nFro(iIrrep)
-end do
-if (nTst /= 0) then
-  write(u6,*)
-  write(u6,*) ' No frozen orbitals are allowed!'
-  write(u6,*) ' ALASKA can not continue'
-  write(u6,*)
-  call Quit_OnUserError()
-end if
-
-!...  Get the one body density for the active orbitals
-!     (not needed for SA-CASSCF)
-nG1 = nAct*(nAct+1)/2
-nsa = 1
-if (lsa) nsa = 0
-mG1 = nsa
-call mma_allocate(G1,nG1,mG1,Label='G1')
-if (nsa > 0) then
-  call Get_D1MO(G1(:,1),nG1)
-  if (iPrint >= 99) call TriPrt(' G1',' ',G1(:,1),nAct)
-end if
-
-!...  Get the two body density for the active orbitals
-nG2 = nG1*(nG1+1)/2
-nsa = 1
-if (lsa) nsa = 2
-mG2 = nsa
-call mma_allocate(G2,nG2,mG2,Label='G2')
-call Get_P2MO(G2(:,1),nG2)
-if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
-if (lsa) then
-
-  ! CMO1 Ordinary CMO's
-  !
-  ! CMO2 CMO*Kappa
-
-  call Get_LCMO(CMO(:,2),mCMO)
+if (lpso) then
+  call Get_iScalar('nSym',i)
+  call Get_iArray('nIsh',nIsh,i)
+  call Get_iArray('nAsh',nAsh,i)
+  call Get_iArray('nFro',nFro,i)
   if (iPrint >= 99) then
-    ipTmp1 = 1
-    do iIrrep=0,nIrrep-1
-      call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
-      ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
-    end do
+    write(u6,*) ' nISh=',nISh
+    write(u6,*) ' nASh=',nASh
+    write(u6,*) ' nFro=',nFro
+  end if
+  nAct = 0
+  nTst = 0
+  do iIrrep=0,nIrrep-1
+    nAct = nAct+nAsh(iIrrep)
+    nTst = nTst+nFro(iIrrep)
+  end do
+  if (nTst /= 0) then
+    write(u6,*)
+    write(u6,*) ' No frozen orbitals are allowed!'
+    write(u6,*) ' ALASKA can not continue'
+    write(u6,*)
+    call Quit_OnUserError()
   end if
 
-  ! P are stored as
-  !                            _                     _
-  !   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
-  !   P2=sum_i <i|e_pqrs|i>
+  !...  Get the one body density for the active orbitals
+  !     (not needed for SA-CASSCF)
+  nG1 = nAct*(nAct+1)/2
+  nsa = 1
+  if (lsa) nsa = 0
+  mG1 = nsa
+  call mma_allocate(G1,nG1,mG1,Label='G1')
+  if (nsa > 0) then
+    call Get_D1MO(G1(:,1),nG1)
+    if (iPrint >= 99) call TriPrt(' G1',' ',G1(:,1),nAct)
+  end if
 
-  call Get_PLMO(G2(:,2),nG2)
-  call Daxpy_(nG2,One,G2(:,2),1,G2(:,1),1)
-  if (iPrint >= 99) call TriPrt(' G2L',' ',G2(:,2),nG1)
-  if (iPrint >= 99) call TriPrt(' G2T',' ',G2(:,1),nG1)
+  !...  Get the two body density for the active orbitals
+  nG2 = nG1*(nG1+1)/2
+  nsa = 1
+  if (lsa) nsa = 2
+  mG2 = nsa
+  call mma_allocate(G2,nG2,mG2,Label='G2')
+  call Get_P2MO(G2(:,1),nG2)
+  if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
+  if (lsa) then
 
-  call Get_D2AV(G2(:,2),nG2)
-  if (iPrint >= 99) call TriPrt('G2A',' ',G2(:,2),nG2)
+    ! CMO1 Ordinary CMO's
+    !
+    ! CMO2 CMO*Kappa
 
-  ! Densities are stored as:
-  !
-  !     ipd0 AO:
-  !
-  !     D1 = inactive diagonal density matrix
-  !                              _                 _
-  !     D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D1
-  !
-  !     D3 = sum_i <i|E_pq|i> (active)
-  !
-  !     D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
-  !
-  !     G1 = <i|e_ab|i>
-  !     G2 = sum i <i|e_ab|i>
-  call mma_allocate(Tmp,2*ndens,label='Tmp')
-  call Get_D1I(CMO(1,1),D0(1,1),Tmp,nish,nBas_Valence,nIrrep)
-  call mma_deallocate(Tmp)
+    call Get_LCMO(CMO(:,2),mCMO)
+    if (iPrint >= 99) then
+      ipTmp1 = 1
+      do iIrrep=0,nIrrep-1
+        call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
+        ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
+      end do
+    end if
 
-  call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
-  if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-  if (iprint > 90) call PrMtrx('D0',[iD0Lbl],iComp,[1],D0)
+    ! P are stored as
+    !                            _                     _
+    !   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
+    !   P2=sum_i <i|e_pqrs|i>
 
-  ! This is necessary for the kap-lag
+    call Get_PLMO(G2(:,2),nG2)
+    call Daxpy_(nG2,One,G2(:,2),1,G2(:,1),1)
+    if (iPrint >= 99) call TriPrt(' G2L',' ',G2(:,2),nG1)
+    if (iPrint >= 99) call TriPrt(' G2T',' ',G2(:,1),nG1)
 
-  nG1 = nAct*(NAct+1)/2
-  call mma_Allocate(D1AV,nG1,Label='D1AV')
-  call Get_D1AV(D1AV,nG1)
-  call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nBas_Valence,nish,nash,nDens_Valence)
-  call mma_deallocate(D1AV)
+    call Get_D2AV(G2(:,2),nG2)
+    if (iPrint >= 99) call TriPrt('G2A',' ',G2(:,2),nG2)
 
-  call Get_DLAO(D0(1,4),nDens)
+    ! Densities are stored as:
+    !
+    !     ipd0 AO:
+    !
+    !     D1 = inactive diagonal density matrix
+    !                              _                 _
+    !     D2 = <i|E_pq|i> + sum_i <i|E_pq|i>+<i|E_pq|i> + sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> - 1/2 D1
+    !
+    !     D3 = sum_i <i|E_pq|i> (active)
+    !
+    !     D4 = sum_i sum_o k_po <i|E_oq|i> +k_oq <i|E_po|i> (inactive)
+    !
+    !     G1 = <i|e_ab|i>
+    !     G2 = sum i <i|e_ab|i>
+    call mma_allocate(Tmp,2*ndens,label='Tmp')
+    call Get_D1I(CMO(1,1),D0(1,1),Tmp,nish,nBas_Valence,nIrrep)
+    call mma_deallocate(Tmp)
+
+    call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
+    if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+    if (iprint > 90) call PrMtrx('D0',[iD0Lbl],iComp,[1],D0)
+
+    ! This is necessary for the kap-lag
+
+    nG1 = nAct*(NAct+1)/2
+    call mma_Allocate(D1AV,nG1,Label='D1AV')
+    call Get_D1AV(D1AV,nG1)
+    call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nBas_Valence,nish,nash,nDens_Valence)
+    call mma_deallocate(D1AV)
+
+    call Get_DLAO(D0(1,4),nDens)
+  end if
+  if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
+
 end if
-if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
 
-!...  Close 'RELAX' file
-1000 continue
-
-!...  Epilogue, end
 return
 
-100 format (1X,A26,20X,F18.6)
+100 format(1X,A26,20X,F18.6)
 
 end subroutine PrepP_FAIEMP
