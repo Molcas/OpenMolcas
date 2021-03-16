@@ -10,26 +10,31 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,
-     &                        ipXLT,ipXab,mode,add)
+      SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),ISSQ(8,8),cho_isao,nDen
-      External cho_isao
+      Integer  irc, iLoc, nDen, JSYM
       Integer ipXLT(nDen),ipXab
       Logical add
       Character*6 mode
+
+      Integer  ISLT(8),ISSQ(8,8)
+      Integer, External:: cho_isao
 
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
+      Integer i, j, MulD2h, iTri
+*                                                                      *
 ************************************************************************
+*                                                                      *
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
+*                                                                      *
 ************************************************************************
+*                                                                      *
 
       ISLT(1)=0
       DO ISYM=2,NSYM
@@ -45,9 +50,6 @@
             nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
          END DO
       END DO
-
-      xf=0.0d0
-      if (add) xf=1.0d0 !accumulate contributions
 
       If (mode.eq.'toreds'.and.JSYM.eq.1) then ! TOTAL SYMMETRIC
 
@@ -70,8 +72,7 @@ c           !address within that symm block
 
                kfrom = ipXLT(jDen) + isLT(iSyma) + iab - 1
 
-               Work(ipXab+jRab-1) = xf*Work(ipXab+jRab-1)
-     &                            +    Work(kfrom)
+               Work(ipXab+jRab-1) =  Work(kfrom)
 
             End Do
 
@@ -80,6 +81,13 @@ c           !address within that symm block
 
       ElseIf (mode.eq.'tofull'.and.JSYM.eq.1) then
 c      ! TOTAL SYMMETRIC
+
+         If (.NOT.add) Then
+            nTot = ISLT(NSYM) + NBAS(NSYM)*(NBAS(NSYM)+1)/2
+            Do jDen = 1, nDen
+               Call FZero(Work(ipXLT(jDen)),nTot)
+            End Do
+         End If
 
          Do jRab=1,nnBstR(jSym,iLoc)
 
@@ -99,8 +107,7 @@ c      ! TOTAL SYMMETRIC
 
                kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
 
-               Work(kto) = xf*Work(kto)
-     &                   +    Work(ipXab+jRab-1)
+               Work(kto) = Work(kto) + Work(ipXab+jRab-1)
 
             End Do
 
