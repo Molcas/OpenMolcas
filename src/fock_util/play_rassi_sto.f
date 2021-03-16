@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE play_rassi_sto(irc,iLoc,JSYM,ISLT,ISSQ,
-     &                        ipXLT,ipXab,mode)
+      SUBROUTINE play_rassi_sto(irc,iLoc,JSYM,ipXLT,ipXab,mode)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
@@ -30,7 +29,20 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 
+      ISLT(1)=0
+      DO ISYM=2,NSYM
+         ISLT(ISYM) = ISLT(ISYM-1)
+     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
+      END DO
 
+      nnBSQ=0
+      DO LSYM=1,NSYM
+         DO KSYM=LSYM,NSYM
+            ISSQ(KSYM,LSYM) = nnBSQ
+            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
+            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
+         END DO
+      END DO
 
       If (mode.eq.'toreds'.and.JSYM.eq.1) then ! TOTAL SYMMETRIC
 

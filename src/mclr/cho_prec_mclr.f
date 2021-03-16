@@ -36,7 +36,7 @@
 #include "warnings.fh"
       Character(LEN=13), Parameter:: SECNAM = 'CHO_PREC_MCLR'
 
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
+      Integer   ISTLT(8),ISTSQ(8)
       Integer   LuAChoVec(8),LuChoInt(2)
       Integer   nAsh(8),nIsh(8),nIshb(8),nIshe(8),nAshb(8),nAshe(8)
       Real*8    tread(2),ttran(2),tform(2) ,tform2(2) ,
@@ -598,18 +598,19 @@ c         !set index arrays at iLoc
 **        Transform to full storage, use Lrs as temp storage
 *
           If (jsym.eq.1) Then
+            nDen=1
             Do i=1,ntotie
               ip1=ip_of_Work(iiab(1))+nab*(i-1)
               ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
               mode = 'tofull'
-              Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
+              Call play_rassi_sto(irc,iLoc,JSYM,
      &                                   ip1,ipRS1,mode)
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
               ipRS1=ip_of_Work(turs(1))+nrs*(i-1)
               mode = 'tofull'
-              Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
+              Call play_rassi_sto(irc,iLoc,JSYM,
      &                                   ip1,ipRS1,mode)
             End Do
           EndIf

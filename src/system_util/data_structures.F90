@@ -280,8 +280,8 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
           iE = iE + n(iSyma)*m(iSymb)*NUMV
           n2Dim = n(iSyma)*m(iSymb)
           n3Dim = n2Dim*NUMV
-          Adam%SB(iSymb)%A1(1:n3Dim) => Adam%A0(iS:iE)
-          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+          Adam%SB(iSyma)%A1(1:n3Dim) => Adam%A0(iS:iE)
+          Adam%SB(iSyma)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
           Adam%SB(iSyma)%A3(1:n(iSyma),1:m(iSymb),1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case(1)
@@ -291,8 +291,8 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
           iE = iE + m(iSyma)*n(iSymb)*NUMV
           n2Dim = m(iSyma)*n(iSymb)
           n3Dim = n2Dim*NUMV
-          Adam%SB(iSymb)%A1(1:n3Dim) => Adam%A0(iS:iE)
-          Adam%SB(iSymb)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
+          Adam%SB(iSyma)%A1(1:n3Dim) => Adam%A0(iS:iE)
+          Adam%SB(iSyma)%A2(1:n2Dim,1:NUMV) => Adam%A0(iS:iE)
           Adam%SB(iSyma)%A3(1:m(iSyma),1:n(iSymb),1:NUMV) => Adam%A0(iS:iE)
        End Do
     Case(2)

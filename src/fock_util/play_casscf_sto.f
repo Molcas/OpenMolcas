@@ -10,16 +10,18 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE play_casscf_sto(irc,iLoc,nDen,JSYM,ISLT,ISSQ,
-     &                        ipXLT,ipXab,mode,add)
+      SUBROUTINE play_casscf_sto(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,
+     &                           add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),ISSQ(8,8),cho_isao,nDen
-      External cho_isao
+      Integer  irc,iLoc,nDen,JSYM
       Integer ipXLT(nDen),ipXab(nDen)
       Logical add
       Character*6 mode
+
+      Integer, External :: cho_isao
+      Integer  ISLT(8),ISSQ(8,8)
 
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -31,6 +33,20 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 
+      ISLT(1)=0
+      DO ISYM=2,NSYM
+         ISLT(ISYM) = ISLT(ISYM-1)
+     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
+      END DO
+
+      nnBSQ=0
+      DO LSYM=1,NSYM
+         DO KSYM=LSYM,NSYM
+            ISSQ(KSYM,LSYM) = nnBSQ
+            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
+            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
+         END DO
+      END DO
 
 
       xf=0.0d0

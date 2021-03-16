@@ -10,18 +10,17 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE swap_rs2full(irc,iLoc,nDen,ipXLT,ipXab,mode,add)
+      SUBROUTINE swap_rs2full(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  nDen
+      Integer  irc, iLoc, nDen, JSYM
       Integer ipXLT(nDen),ipXab(nDen)
       Logical add
       Character*6 mode
 
       Integer, External :: cho_isao
       Integer  ISLT(8)
-      Integer, Parameter:: JSYM=1
 
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -36,7 +35,7 @@
      &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
       END DO
 
-      If (mode.eq.'toreds') then ! TOTAL SYMMETRIC
+      If (mode.eq.'toreds' .and. JSYM==1) then ! TOTAL SYMMETRIC
 
          If (.NOT.add) Then
             nTot = nnBstR(jSym,iLoc)
@@ -68,7 +67,7 @@
 
          End Do  ! jRab loop
 
-      ElseIf (mode.eq.'tofull') then  ! TOTAL SYMMETRIC
+      ElseIf (mode.eq.'tofull' .and. JSYM==1) then  ! TOTAL SYMMETRIC
 
          If (.NOT.add) Then
             nTot = ISLT(NSYM) + NBAS(NSYM)*(NBAS(NSYM)+1)/2

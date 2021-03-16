@@ -189,7 +189,9 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                ipDab=ip_of_Work(Drs(1))
                add = .False.
-               Call swap_rs2full(irc,iLoc,1,ipDLT,ipDab,mode,add)
+               mDen=1
+               Call swap_rs2full(irc,iLoc,mDen,JSYM,ipDLT,ipDab,mode,
+     &                           add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -275,7 +277,7 @@ C -------------------------------------------------------------
                Do i=1,nSym
 
                   k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,NBAS(i)*nIsh(k))
+                  iSkip(k) = Min(1,nIsh(k)*NBAS(i))
 
                End Do
 C -------------------------------------------------------------
@@ -319,8 +321,6 @@ C ---------------------------------------------------------------------
      &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
      &                             One,Work(ISFI),NBAS(iSyma))
-
-
 
                   EndIf
 
@@ -427,7 +427,9 @@ c --- backtransform fock matrix to full storage
                mode = 'tofull'
                ipFab=ip_of_Work(Frs(1))
                add = .True.
-               Call swap_rs2full(irc,iLoc,1,ipFLT,ipFab,mode,add)
+               mDen=1
+               Call swap_rs2full(irc,iLoc,mDen,JSYM,ipFLT,ipFab,mode,
+     &                           add)
             EndIf
 
 C --- free memory

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,ISLT,ISSQ,
+      SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,
      &                        ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
@@ -31,7 +31,20 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 
+      ISLT(1)=0
+      DO ISYM=2,NSYM
+         ISLT(ISYM) = ISLT(ISYM-1)
+     &              + NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
+      END DO
 
+      nnBSQ=0
+      DO LSYM=1,NSYM
+         DO KSYM=LSYM,NSYM
+            ISSQ(KSYM,LSYM) = nnBSQ
+            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
+            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
+         END DO
+      END DO
 
       xf=0.0d0
       if (add) xf=1.0d0 !accumulate contributions

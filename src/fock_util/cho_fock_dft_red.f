@@ -116,7 +116,8 @@ C --- Transform the density to reduced storage
       add  = .false.
       ipDLT = ip_of_Work(DLT(1))
       ipDRS = ip_of_Work(Drs(1))
-      Call swap_rs2full(irc,iLoc,1,ipDLT,ipDrs,mode,add)
+      nDen=1
+      Call swap_rs2full(irc,iLoc,nDen,JSYM,ipDLT,ipDrs,mode,add)
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -184,7 +185,7 @@ c --- backtransform fock matrix in full storage
          add  = JRED.gt.JRED1
          ipFLT = ip_of_Work(FLT(1))
          ipFRS = ip_of_Work(Frs(1))
-         Call swap_rs2full(irc,iLoc,1,ipFLT,ipFrs,mode,add)
+         Call swap_rs2full(irc,iLoc,nDen,JSYM,ipFLT,ipFrs,mode,add)
       endif
 
 C --- free memory

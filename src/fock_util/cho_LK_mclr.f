@@ -578,7 +578,7 @@ c           !set index arrays at iLoc
 C --- Transform the density to reduced storage
                mode = 'toreds'
                ipDab = ip_of_Work(Drs(1))
-               Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
+               Call play_rassi_sto(irc,iLoc,JSYM,
      &                                 ipDLT,ipDab,mode)
             EndIf
 
@@ -711,7 +711,7 @@ c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
                    mode = 'tosqrt'
                    ired1 = 1 ! location of the 1st red set
-                   Call play_rassi_sto(irc,ired1,JSYM,ISTLT,ISSQ,
+                   Call play_rassi_sto(irc,ired1,JSYM,
      &                                     ipDIAH,ipDIAG,mode)
 
                    CALL CWTIME(TCS2,TWS2)
@@ -1815,12 +1815,12 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                ipFab = ip_of_Work(Frs(1,1))
-               Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
+               Call play_rassi_sto(irc,iLoc,JSYM,
      &                                 ipJI,ipFab,mode)
                If (DoAct) Then
                   ipFab2 = ip_of_Work(Frs(1,2))
-                  Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
-     &                                    ISSQ,ipJA,ipFab2,mode)
+                  Call play_rassi_sto(irc,iLoc,JSYM,
+     &                                    ipJA,ipFab2,mode)
                End If
             EndIf
 
