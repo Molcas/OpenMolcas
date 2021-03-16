@@ -36,57 +36,57 @@ subroutine MakeDens(nBas,nOrb,Cff,OrbEn,EnergyWeight,Dens)
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer nBas, nOrb
-real*8 Cff(nBas*nOrb)
-real*8 OrbEn(nOrb)
-real*8 Dens(nBas*(nBas+1)/2)
-logical EnergyWeight
-#include "real.fh"
-integer i, j, Ind
-integer ij, iRow, iCol
-real*8 energy, Sum
-logical DBG
+integer(kind=iwp), intent(in) :: nBas, nOrb
+real(kind=wp), intent(in) :: Cff(nBas*nOrb), OrbEn(nOrb)
+logical(kind=iwp), intent(in) :: EnergyWeight
+real(kind=wp), intent(out) :: Dens(nBas*(nBas+1)/2)
+integer(kind=iwp) :: i, j, Ind, ij, iRow, iCol
+real(kind=wp) :: energy, rSum
+logical(kind=iwp) :: DBG
 
 !---- Statement function for triangular storage
 Ind(i,j) = i*(i-1)/2+j
 energy = One
 
 DBG = .false.
-if (DBG) write(6,*) 'MakeDens:  EnergyWeight',EnergyWeight
-if (DBG) call xFlush(6)
-if (DBG) write(6,*) 'MakeDens:  nBas=',nBas
-if (DBG) call xFlush(6)
-if (DBG) write(6,*) 'MakeDens:  nOrb=',nOrb
-if (DBG) call xFlush(6)
-if (DBG) write(6,*) 'MakeDens: OrbEn=',(OrbEn(i),i=1,nOrb)
-if (DBG) call xFlush(6)
-if (DBG) write(6,*) 'MakeDens:   Cff=',(Cff(i),i=1,nBas*nOrb)
-if (DBG) call xFlush(6)
+if (DBG) write(u6,*) 'MakeDens:  EnergyWeight',EnergyWeight
+if (DBG) call xFlush(u6)
+if (DBG) write(u6,*) 'MakeDens:  nBas=',nBas
+if (DBG) call xFlush(u6)
+if (DBG) write(u6,*) 'MakeDens:  nOrb=',nOrb
+if (DBG) call xFlush(u6)
+if (DBG) write(u6,*) 'MakeDens: OrbEn=',(OrbEn(i),i=1,nOrb)
+if (DBG) call xFlush(u6)
+if (DBG) write(u6,*) 'MakeDens:   Cff=',(Cff(i),i=1,nBas*nOrb)
+if (DBG) call xFlush(u6)
 
 do iRow=1,nBas
-  Sum = Zero
+  rSum = Zero
   ij = -1
   do i=1,nOrb
     ij = ij+1
     if (EnergyWeight) energy = OrbEn(i)
-    Sum = Sum+energy*Cff(iRow+ij*nBas)*Cff(iRow+ij*nBas)
+    rSum = rSum+energy*Cff(iRow+ij*nBas)*Cff(iRow+ij*nBas)
   end do
-  Dens(Ind(iRow,iRow)) = Two*Sum
+  Dens(Ind(iRow,iRow)) = Two*rSum
 
   do iCol=1,iRow-1
-    Sum = Zero
+    rSum = Zero
     ij = -1
     do i=1,nOrb
       ij = ij+1
       if (EnergyWeight) energy = OrbEn(i)
-      Sum = Sum+energy*Cff(iRow+ij*nBas)*Cff(iCol+ij*nBas)
+      rSum = rSum+energy*Cff(iRow+ij*nBas)*Cff(iCol+ij*nBas)
     end do
-    Dens(Ind(iRow,iCol)) = Two*Two*Sum
+    Dens(Ind(iRow,iCol)) = Two*Two*rSum
   end do
 end do
 if (DBG) call TriPrt('Dens in MakeDens',' ',Dens,nBas)
-if (DBG) call xFlush(6)
+if (DBG) call xFlush(u6)
 
 return
 

@@ -21,12 +21,13 @@ subroutine ReIndexFrag(Array,nDens,nDens_Valence,nBas,nBas_Valence,nIrrep)
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer nDens, nDens_Valence, nIrrep
-real*8 Array(nDens)
-integer nBas(0:7), nBas_Valence(0:7)
-integer indexLarge, indexSmall, iIrrep
+integer(kind=iwp), intent(in) :: nDens, nDens_Valence, nBas(0:7), nBas_Valence(0:7), nIrrep
+real(kind=wp), intent(inout) :: Array(nDens)
+integer(kind=iwp) :: indexLarge, indexSmall, iIrrep
 
 if (nIrrep == 1) return
 

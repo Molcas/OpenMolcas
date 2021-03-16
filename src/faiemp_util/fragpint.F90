@@ -62,41 +62,33 @@ subroutine FragPInt(                                                    &
 !  nFragDens(mdci) = nBas of the entire fragment type "mdci"           *
 !***********************************************************************
 
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "real.fh"
-#include "print.fh"
-#include "nsd.fh"
-#include "setup.fh"
-
+#define _USE_WP_
 #include "int_interface.fh"
-
 ! Local variables
-real*8 C(3), TC(3), B(3), TB(3)
-integer iDCRT(0:7), iTwoj(0:7)
-logical EnergyWeight
+integer(kind=iwp) :: i, j, ixyz, nElem, iTri, iAng, iBas, iCnttp, iComp, iCurCenter, iCurCnttp, iCurMdc, iIC, iIrrep, iLoc, iPrim, &
+                     ip, ipF1, ipF2, ipIJ, ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSend, iShll, &
+                     iSize, iSlocal, iSstart, iStemp, jAng, jBas, jCnttp, jPrim, jS, jShll, jSize, jSlocal, lDCRT, llOper, LmbdT, &
+                     mArr, maxDensSize, mdci, nac, ncb, nDCRT, nOp, nSkal, jSbasis, iCnt, jCnt, iDCRT(0:7)
+real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact, Factor, Xg
+logical(kind=iwp) :: EnergyWeight
+integer(kind=iwp), parameter :: iTwoj(0:7) = [1,2,4,8,16,32,64,128]
+! external functions:
+integer(kind=iwp), external :: NrOpr
+!real(kind=r8), external :: DNRM2_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-character*24 Label
-integer ia, ib
+integer(kind=iwp) :: ia, ib
+character(len=24) :: Label
 #endif
-data iTwoj/1,2,4,8,16,32,64,128/
-
-integer i, j, ixyz, nElem, iTri, iAng, iBas, iCnttp, iComp, iCurCenter, iCurCnttp, iCurMdc, iIC, iIrrep, iLoc, iPrim, ip, ipF1, &
-        ipF2, ipIJ, ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSend, iShll, iSize, iSlocal, iSstart, &
-        iStemp, jAng, jBas, jCnttp, jPrim, jS, jShll, jSize, jSlocal, lDCRT, llOper, LmbdT, mArr, maxDensSize, mdci, nac, ncb, &
-        nDCRT, nOp, nSkal, jSbasis, iCnt, jCnt
-real*8 Fact, Factor, Xg
-! external functions:
-integer NrOpr
-external NrOpr
-!real*8  DNRM2_
-!external DNRM2_
 
 ! Statement functions
 
@@ -105,24 +97,24 @@ iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 #ifdef _DEBUGPRINT_
 ! data for individual fragments:
-write(6,*) ' In FragPInt:    nCnttp          = ',nCnttp
-write(6,*) ' In FragPInt: dbsc(nCnttp)%mdci  = ',(dbsc(i)%mdci,i=1,nCnttp)
-write(6,*) ' In FragPInt:     dbsc(nCnttp)%nCntr  = ',(dbsc(i)%nCntr,i=1,nCnttp)
-write(6,*) ' In FragPInt: nFragType(nCnttp)  = ',(dbsc(i)%nFragType,i=1,nCnttp)
-write(6,*) ' In FragPInt: nFragCoor(nCnttp)  = ',(dbsc(i)%nFragCoor,i=1,nCnttp)
-write(6,*) ' In FragPInt: nFragDens(nCnttp)  = ',(dbsc(i)%nFragDens,i=1,nCnttp)
-write(6,*) ' In FragPInt: nFragDens(nCnttp)  = ',(dbsc(i)%nFragDens,i=1,nCnttp)
+write(u6,*) ' In FragPInt:    nCnttp          = ',nCnttp
+write(u6,*) ' In FragPInt: dbsc(nCnttp)%mdci  = ',(dbsc(i)%mdci,i=1,nCnttp)
+write(u6,*) ' In FragPInt:     dbsc(nCnttp)%nCntr  = ',(dbsc(i)%nCntr,i=1,nCnttp)
+write(u6,*) ' In FragPInt: nFragType(nCnttp)  = ',(dbsc(i)%nFragType,i=1,nCnttp)
+write(u6,*) ' In FragPInt: nFragCoor(nCnttp)  = ',(dbsc(i)%nFragCoor,i=1,nCnttp)
+write(u6,*) ' In FragPInt: nFragDens(nCnttp)  = ',(dbsc(i)%nFragDens,i=1,nCnttp)
+write(u6,*) ' In FragPInt: nFragDens(nCnttp)  = ',(dbsc(i)%nFragDens,i=1,nCnttp)
 
-write(6,*) ' In FragPInt: nAlpha,nBeta=',' ',nAlpha,nBeta
-write(6,*) ' In FragPInt: Alpha=',' ',Alpha
-write(6,*) ' In FragPInt: Beta=',' ',Beta
+write(u6,*) ' In FragPInt: nAlpha,nBeta=',' ',nAlpha,nBeta
+write(u6,*) ' In FragPInt: Alpha=',' ',Alpha
+write(u6,*) ' In FragPInt: Beta=',' ',Beta
 
-write(6,*) ' In FragPInt: nZeta=',' ',nZeta
-write(6,*) ' In FragPInt:  nArr=',' ',nArr
-write(6,*) ' In FragPInt:   nIC=',' ',nIC
-write(6,*) ' In FragPInt: la,lb=',' ',la,lb
-write(6,*) ' In FragPInt: nElem(la)=',' ',nElem(la)
-write(6,*) ' In FragPInt: nElem(lb)=',' ',nElem(lb)
+write(u6,*) ' In FragPInt: nZeta=',' ',nZeta
+write(u6,*) ' In FragPInt:  nArr=',' ',nArr
+write(u6,*) ' In FragPInt:   nIC=',' ',nIC
+write(u6,*) ' In FragPInt: la,lb=',' ',la,lb
+write(u6,*) ' In FragPInt: nElem(la)=',' ',nElem(la)
+write(u6,*) ' In FragPInt: nElem(lb)=',' ',nElem(lb)
 call RecPrt(' In FragPInt: A     ',' ',A,1,3)
 call RecPrt(' In FragPInt: RB    ',' ',RB,1,3)
 call RecPrt(' In FragPInt: Ccoor ',' ',Ccoor,1,3)
@@ -142,7 +134,7 @@ call Set_Basis_Mode('Fragments')
 call SetUp_iSD
 call Nr_Shells(nSkal)
 #ifdef _DEBUGPRINT_
-write(6,*) 'nSkal_Fragment,nAlpha,nBeta = ',nSkal,nAlpha,nBeta
+write(u6,*) 'nSkal_Fragment,nAlpha,nBeta = ',nSkal,nAlpha,nBeta
 #endif
 !                                                                      *
 !***********************************************************************
@@ -154,7 +146,7 @@ do iCnttp=1,nCnttp
   if (dbsc(iCnttp)%nFragType > 0) then
     maxDensSize = max(maxDensSize,dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,i2,A,i6)') 'nFragDens(',iCnttp,')=',dbsc(iCnttp)%nFragDens
+    write(u6,'(A,i2,A,i6)') 'nFragDens(',iCnttp,')=',dbsc(iCnttp)%nFragDens
 #   endif
   end if
 end do
@@ -183,16 +175,16 @@ do iS=1,nSkal
   C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
   ! some printouts:
 # ifdef _DEBUGPRINT_
-  write(6,*) 'In FragPInt: iS=',iS,' iShll =',iShll
-  write(6,*) 'In FragPInt: iS=',iS,' iAng  =',iAng
-  write(6,*) 'In FragPInt: iS=',iS,' iBas  =',iBas
-  write(6,*) 'In FragPInt: iS=',iS,' iPrim =',iPrim
-  write(6,*) 'In FragPInt: iS=',iS,' ixyz  =',ixyz
-  write(6,*) 'In FragPInt: iS=',iS,' mdci  =',mdci
-  write(6,*) 'In FragPInt: iS=',iS,' iCnttp=',iCnttp
-  write(6,*) 'In FragPInt: iS=',iS,' iSize =',iSize
-  write(6,*) 'In FragPInt: iS=',iS,' iCurMdc =',iCurMdc
-  write(6,*) 'In FragPInt: nFragCoor(',iCnttp,') =',dbsc(iCnttp)%nFragCoor
+  write(u6,*) 'In FragPInt: iS=',iS,' iShll =',iShll
+  write(u6,*) 'In FragPInt: iS=',iS,' iAng  =',iAng
+  write(u6,*) 'In FragPInt: iS=',iS,' iBas  =',iBas
+  write(u6,*) 'In FragPInt: iS=',iS,' iPrim =',iPrim
+  write(u6,*) 'In FragPInt: iS=',iS,' ixyz  =',ixyz
+  write(u6,*) 'In FragPInt: iS=',iS,' mdci  =',mdci
+  write(u6,*) 'In FragPInt: iS=',iS,' iCnttp=',iCnttp
+  write(u6,*) 'In FragPInt: iS=',iS,' iSize =',iSize
+  write(u6,*) 'In FragPInt: iS=',iS,' iCurMdc =',iCurMdc
+  write(u6,*) 'In FragPInt: nFragCoor(',iCnttp,') =',dbsc(iCnttp)%nFragCoor
 # endif
 
   if (Shells(iShll)%Transf .and. Shells(iShll)%Prjct) iSize = 2*iAng+1
@@ -212,8 +204,8 @@ do iS=1,nSkal
     iCurCenter = iCurCenter+1
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'start of new fragment encountered'
-    write(6,*) 'iSstart,iSend,iCurCnttp,iCurCenter =',iSstart,iSend,iCurCnttp,iCurCenter
+    write(u6,*) 'start of new fragment encountered'
+    write(u6,*) 'iSstart,iSend,iCurCnttp,iCurCenter =',iSstart,iSend,iCurCnttp,iCurCenter
 #   endif
 
     if (iCurCenter > dbsc(iCurCnttp)%nCntr) then
@@ -242,8 +234,8 @@ do iS=1,nSkal
     end if
   end if
 # ifdef _DEBUGPRINT_
-  write(6,*) '  iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp',iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp
-  write(6,*) '  iPrim,iBas =',iPrim,iBas
+  write(u6,*) '  iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp',iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp
+  write(u6,*) '  iPrim,iBas =',iPrim,iBas
 # endif
   !                                                                    *
   !*********************************************************************
@@ -251,7 +243,7 @@ do iS=1,nSkal
   ! Loop over all other shells belonging to the same fragment
   jSbasis = 1
 # ifdef _DEBUGPRINT_
-  write(6,'(3(A,i4))') 'iS = ',iS,' iSstart=',iSstart,' iSEnd=',iSend
+  write(u6,'(3(A,i4))') 'iS = ',iS,' iSstart=',iSstart,' iSEnd=',iSend
 # endif
   do jS=iSstart,iSend
     jShll = iSD(0,jS)
@@ -263,18 +255,18 @@ do iS=1,nSkal
     jSize = nElem(jAng)
     B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 #   ifdef _DEBUGPRINT_
-    write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShll =',jShll
-    write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAng  =',jAng
-    write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jBas  =',jBas
-    write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jPrim =',jPrim
-    write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCnttp=',jCnttp
-    write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jSize =',jSize
+    write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShll =',jShll
+    write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAng  =',jAng
+    write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jBas  =',jBas
+    write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jPrim =',jPrim
+    write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCnttp=',jCnttp
+    write(u6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jSize =',jSize
 #   endif
 
     if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) jSize = 2*jAng+1
 #   ifdef _DEBUGPRINT_
-    write(6,*) '    jShll,jAng,jCnttp =',jShll,jAng,jCnttp
-    write(6,*) '    jPrim,jBas =',jPrim,jBas
+    write(u6,*) '    jShll,jAng,jCnttp =',jShll,jAng,jCnttp
+    write(u6,*) '    jPrim,jBas =',jPrim,jBas
 #   endif
     !                                                                  *
     !*******************************************************************
@@ -285,19 +277,19 @@ do iS=1,nSkal
     !             and from jSbasis to jSbasis + jBas*nElem(jAng) - 1
     ipIJ = 1+maxDensSize
 #   ifdef _DEBUGPRINT_
-    write(6,*) '    ipIJ=',ipIJ
-    write(6,*) '    extracting values from',iSbasis,' to',iSbasis+iBas*iSize-1,', and from',jSbasis,' to',jSbasis+jBas*jSize-1
+    write(u6,*) '    ipIJ=',ipIJ
+    write(u6,*) '    extracting values from',iSbasis,' to',iSbasis+iBas*iSize-1,', and from',jSbasis,' to',jSbasis+jBas*jSize-1
 #   endif
     do iSlocal=iSbasis,iSbasis+iBas*iSize-1
       do jSlocal=jSbasis,jSbasis+jBas*jSize-1
         iLoc = ipIJ+(jSlocal-jSbasis)*iBas*iSize+iSlocal-iSbasis
 #       ifdef _DEBUGPRINT_
-        write(6,'(A,i3,A,i3,A,i4,A,i8)') 'iTri(',iSlocal,',',jSlocal,')=',iTri(iSlocal,jSlocal),' iLoc=',iLoc
+        write(u6,'(A,i3,A,i3,A,i4,A,i8)') 'iTri(',iSlocal,',',jSlocal,')=',iTri(iSlocal,jSlocal),' iLoc=',iLoc
 #       endif
         Array(iLoc) = Array(iTri(iSlocal,jSlocal))
         if (iSlocal /= jSlocal) Array(iLoc) = Array(iLoc)/Two
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'Filling (',iSlocal-iSbasis+1,',',jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
+        write(u6,*) 'Filling (',iSlocal-iSbasis+1,',',jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
 #       endif
       end do
     end do
@@ -310,7 +302,7 @@ do iS=1,nSkal
     ! DCR stuff (iS and jS have always the same symmetry character)
 
     call DCR(LmbdT,iStabM,nStabM,dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -337,7 +329,7 @@ do iS=1,nSkal
       ipZI1 = ip
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(1) in FragPInt'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(1) in FragPInt'
         call Abend
       end if
       mArr = (nArr*nZeta-(ip-1))/nZeta
@@ -369,7 +361,7 @@ do iS=1,nSkal
       ipZI2 = ip
       ip = ip+jPrim*nBeta
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(2) in FragPInt'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(2) in FragPInt'
         call Abend
       end if
       mArr = (nArr*nZeta-(ip-1))/nZeta
@@ -384,7 +376,7 @@ do iS=1,nSkal
       ipTmp = ip
       ip = ip+max(nAlpha*nac*max(iPrim,jBas),nBeta*ncb*jBas)
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(3) in FragPInt'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(3) in FragPInt'
         call Abend
       end if
 #     ifdef _DEBUGPRINT_
@@ -421,7 +413,7 @@ do iS=1,nSkal
 
       !---2) aciK =  k,aci * k,K
 
-      call DGEMM_('T','N',nac*nAlpha,iBas,iPrim,1.0d0,Array(ipTmp),iPrim,Shells(iShll)%pCff,iPrim,0.0d0,Array(ipF1),nAlpha*nac)
+      call DGEMM_('T','N',nac*nAlpha,iBas,iPrim,One,Array(ipTmp),iPrim,Shells(iShll)%pCff,iPrim,Zero,Array(ipF1),nAlpha*nac)
 #     ifdef _DEBUGPRINT_
       call RecPrt('<alpha|iS>(regrouped, X x iPrim)',' ',Array(ipTmp),nAlpha*nac,iPrim)
       call RecPrt('Coeffs of iS (iPrim x iBas)',' ',Shells(iShll)%pCff,iPrim,iBas)
@@ -441,8 +433,8 @@ do iS=1,nSkal
       !---5) iKa,C = c,iKa * c,C
 
       if (Shells(iShll)%Transf .and. Shells(iShll)%Prjct) then
-        call DGEMM_('T','N',iBas*nElem(la)*nAlpha,iSize,nElem(iAng),1.0d0,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)),nElem(iAng), &
-                    0.0d0,Array(ipF1),nAlpha*iBas*nElem(la))
+        call DGEMM_('T','N',iBas*nElem(la)*nAlpha,iSize,nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)),nElem(iAng), &
+                    Zero,Array(ipF1),nAlpha*iBas*nElem(la))
 #       ifdef _DEBUGPRINT_
         call RecPrt('result (regrouped, X x nElem(iAng))',' ',Array(ipTmp),nElem(la)*nAlpha*iBas,nElem(iAng))
         call RecPrt('Spher of iS (nElem(iAng) x (2*iAng+1))',' ',RSph(ipSph(iAng)),nElem(iAng),(2*iAng+1))
@@ -457,7 +449,7 @@ do iS=1,nSkal
       !---And (almost) the same thing for the righthand side, form
       !   LjDb from ljdb
       !   1) jdb,L = l,jdb * l,L
-      call DGEMM_('T','N',nBeta*ncb,jBas,jPrim,1.0d0,Array(ipF2),jPrim,Shells(jShll)%pCff,jPrim,0.0d0,Array(ipTmp),nBeta*ncb)
+      call DGEMM_('T','N',nBeta*ncb,jBas,jPrim,One,Array(ipF2),jPrim,Shells(jShll)%pCff,jPrim,Zero,Array(ipTmp),nBeta*ncb)
 #     ifdef _DEBUGPRINT_
       call RecPrt('<jS|beta>(regrouped, X x jPrim)',' ',Array(ipF2),nBeta*ncb,jPrim)
       call RecPrt('Coeffs of jS (jPrim x jBas)',' ',Shells(jShll)%pCff,jPrim,jBas)
@@ -476,8 +468,8 @@ do iS=1,nSkal
       !---3) bLj,D = d,bLj * d,D
 
       if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) then
-        call DGEMM_('T','N',nElem(lb)*jBas*nBeta,jSize,nElem(jAng),1.0d0,Array(ipF2),nElem(jAng),RSph(ipSph(jAng)),nElem(jAng), &
-                    0.0d0,Array(ipTmp),nElem(lb)*jBas*nBeta)
+        call DGEMM_('T','N',nElem(lb)*jBas*nBeta,jSize,nElem(jAng),One,Array(ipF2),nElem(jAng),RSph(ipSph(jAng)),nElem(jAng), &
+                    Zero,Array(ipTmp),nElem(lb)*jBas*nBeta)
 #       ifdef _DEBUGPRINT_
         call RecPrt('multiply right 2 (Y x jSize)',' ',Array(ipTmp),nBeta*jBas*nElem(lb),jSize)
 #       endif
@@ -510,7 +502,7 @@ do iS=1,nSkal
       !                  W = iBas*iSize * jBas*jSize                      (iBas,   iSize, jBas,      jSize)
       !
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' Current contents of Final():'
+      write(u6,*) ' Current contents of Final():'
       do ia=1,nElem(la)
         do ib=1,nElem(lb)
           write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
@@ -524,12 +516,12 @@ do iS=1,nSkal
         if (iand(llOper,iTwoj(iIrrep)) /= 0) then
           iIC = iIC+1
           nOp = NrOpr(iDCRT(lDCRT))
-          Xg = dble(iChTbl(iIrrep,nOp))
+          Xg = real(iChTbl(iIrrep,nOp),kind=wp)
           ! Half is needed because we do a complete loop over iS,jS
           Factor = Xg*Fact*Half
-          !write(6,'(A,i24)') 'FragPInt:  ipIJ=',ipIJ
-          !print(6,*) 'CALL FragPCont'
-          call xFlush(6)
+          !write(u6,'(A,i24)') 'FragPInt:  ipIJ=',ipIJ
+          !print(u6,*) 'CALL FragPCont'
+          call xFlush(u6)
 
           call FragPCont(Array(ipF1),nAlpha,iBas,nElem(la),iSize,Array(ipF2),jBas,nBeta,jSize,nElem(lb),Array(ipIJ), &
                          final(:,:,:,iIC),Factor)
@@ -538,7 +530,7 @@ do iS=1,nSkal
       if (iIC /= nIC) stop 'iIC.ne.nIC'
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' After contraction:'
+      write(u6,*) ' After contraction:'
       do ia=1,nElem(la)
         do ib=1,nElem(lb)
           write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
@@ -551,14 +543,14 @@ do iS=1,nSkal
 
     jSbasis = jSbasis+jBas*jSize
   end do ! end loop over jS
-  call xFlush(6)
+  call xFlush(u6)
 
   iSbasis = iSbasis+iBas*iSize
 end do ! end loop over iS
-call xFlush(6)
+call xFlush(u6)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Result in FragPInt'
+write(u6,*) ' Result in FragPInt'
 do ia=1,nElem(la)
   do ib=1,nElem(lb)
     write(Label,'(A,I2,A,I2,A)') ' Final(',ia,',',ib,')'
@@ -576,13 +568,13 @@ end do
 !if (MyRank == 0) then
 !  do ia=1,nElem(la)
 !    do ib=1,nElem(lb)
-!      dA = 0.d0
+!      dA = Zero
 !      dA = dnrm2_(nAlpha*nBeta,Final(1,ia,ib,1),1)
-!      if (dA > 1.d-6) then
+!      if (dA > 1.0e-6_wp) then
 !        write(label,'(A,i2,A,i2)') 'Fragpint: ',ia,' ib ',ib
 !        call Add_Info(label,dA,1,6)
 !      end if
-!      call xFlush(6)
+!      call xFlush(u6)
 !    end do
 !  end do
 !end if

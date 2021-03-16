@@ -15,7 +15,7 @@ subroutine FragPMem(nHer,MemFrag,la,lb,lr)
 !***********************************************************************
 !  Object: to compute the number of real*8 the kernel routine will     *
 !          need for the computation of a matrix element between two    *
-!          cartesian Gaussin functions with the total angular momentum *
+!          cartesian Gaussian functions with the total angular momentum*
 !          of la and lb (la=0 s-function, la=1 p-function, etc.)       *
 !          lr is the order of the operator (this is only used when the *
 !          integrals are computed with the Hermite-Gauss quadrature).  *
@@ -25,11 +25,15 @@ subroutine FragPMem(nHer,MemFrag,la,lb,lr)
 !                R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
 
 implicit none
-integer nHer, MemFrag, la, lb, lr, nExpi, nExpj, i, nElem, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, &
-        MemMlt, nH, nBasisi, nBasisj
+integer(kind=iwp), intent(inout) :: nHer
+integer(kind=iwp), intent(out) :: MemFrag
+integer(kind=iwp), intent(in) :: la, lb, lr
+integer(kind=iwp) :: nExpi, nExpj, i, nElem, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, MemMlt, nH, &
+                     nBasisi, nBasisj
 
 ! statement function
 nElem(i) = (i+1)*(i+2)/2

@@ -11,7 +11,7 @@
 ! Copyright (C) Ben Swerts                                             *
 !***********************************************************************
 
-subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp,Grad,nGrad, &
+subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Fin,nZeta,la,lb,A,RB,nRys,Array,nArr,Ccoor,nOrdOp,Grad,nGrad, &
                     IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,iStabM,nStabM)
 !***********************************************************************
 !                                                                      *
@@ -28,9 +28,9 @@ subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb
 !              gaussians.                                              *
 !      P     : center of new gaussian from the products of bra and ket *
 !              gaussians.                                              *
-!      Final : array for computed integrals                            *
+!      Fin   : array for computed integrals                            *
 !      nZeta : nAlpha x nBeta                                          *
-!      nComp : number of components in the operator (e.g. dipolemoment *
+!      nComp : number of components in the operator (e.g. dipole moment*
 !              operator has three components)                          *
 !      la    : total angular momentum of bra gaussian                  *
 !      lb    : total angular momentum of ket gaussian                  *
@@ -47,50 +47,43 @@ subroutine FragPGrd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,final,nZeta,la,lb
 !     based on PrjGrd                                                  *
 !***********************************************************************
 
-use Her_RW
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use Her_RW, only: HerR, HerW, iHerR, iHerW
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
 use Symmetry_Info, only: iOper
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "Molcas.fh"
-#include "real.fh"
+! TODO: unknown intents, probably all "in", except Fin, Grad
+integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nRys, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
+                               nStabM, lOper(nComp), iStabM(0:nStabM-1)
+real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
+                           Fin(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr),Ccoor(3), Grad(nGrad), &
+                           DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
 #include "print.fh"
-#include "disp.fh"
-#include "nsd.fh"
-#include "setup.fh"
-integer nAlpha, nBeta, nZeta, la, lb, nRys, nArr, nOrdOp, nGrad, mdc, ndc, nComp, nStabM
-real*8 final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), &
-       P(nZeta,3), A(3), RB(3), Grad(nGrad), Array(nZeta*nArr), Ccoor(3), C(3), TC(3), B(3), TB(3), &
-       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp), iuvwx(4), kOp(2), lOp(4), IndGrd(3,2), JndGrd(3,4)
-character*80 Label
-logical IfGrad(3,2), JfGrad(3,4), ABeq(3), EQ
-logical EnergyWeight
-integer i, j, nElem, ia, ib, iAng, iBas
-integer iRout, iPrint, nSkal, iCar
-integer iCent, iCnttp, iCurCenter, iCurCnttp, iCurMdc
-integer iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF2
-integer ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz
-integer ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSEnd, iShll
-integer iSize, iSlocal, iSstart, iStemp, iStrt, iVec, jAng, jBas
-integer jCnttp, jPrim, jS, jSbasis, jShll, jSize
-integer jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC
-integer mVecCB, nac, ncb, nDAO, nDCRT, nHer, maxDensSize
-integer nVecAC, nVecCB, iTri, iCnt, jCnt
-real*8 Fact, DNrm2_
-external DNrm2_
+real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
+integer(kind=iwp) :: iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4), i, j, nElem, ia, ib, iAng, iBas, iRout, iPrint, nSkal, iCar, &
+                     iCent, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, &
+                     ipF2, ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, &
+                     iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, iStemp, iStrt, iVec, jAng, jBas, jCnttp, jPrim, jS, jSbasis, &
+                     jShll, jSize, jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, nHer, &
+                     maxDensSize, nVecAC, nVecCB, iTri, iCnt, jCnt
+logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
+character(len=80) :: Label
+real(kind=r8), external :: DNrm2_
 
 ! Statement function for Cartesian index
 
 nElem(i) = (i+1)*(i+2)/2
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-!
+
 iRout = 202
 iPrint = nPrint(iRout)
-!
+
 if (iPrint >= 49) then
   call RecPrt(' In FragPGrd: Grad',' ',Grad,1,nGrad)
   call RecPrt(' In FragPGrd: A',' ',A,1,3)
@@ -99,7 +92,7 @@ if (iPrint >= 49) then
   call RecPrt(' In FragPGrd: P',' ',P,nZeta,3)
   call RecPrt(' In FragPGrd: Alpha',' ',Alpha,nAlpha,1)
   call RecPrt(' In FragPGrd: Beta',' ',Beta,nBeta,1)
-  write(6,*) ' In FragPGrd: la,lb=',' ',la,lb
+  write(u6,*) ' In FragPGrd: la,lb=',' ',la,lb
 end if
 !                                                                      *
 !***********************************************************************
@@ -110,8 +103,8 @@ call Set_Basis_Mode('Fragments')
 call SetUp_iSD
 call Nr_Shells(nSkal)
 if (iPrint >= 99) then
-  write(6,*) 'looping over ',nSkal,' shells'
-  write(6,*) 'Shells()%Frag = ',(Shells(i)%Frag,i=1,10)
+  write(u6,*) 'looping over ',nSkal,' shells'
+  write(u6,*) 'Shells()%Frag = ',(Shells(i)%Frag,i=1,10)
 end if
 !                                                                      *
 !***********************************************************************
@@ -183,8 +176,8 @@ do iS=1,nSkal
       if (maxDensSize < dbsc(iCurCnttp)%nFragDens*(dbsc(iCurCnttp)%nFragDens+1)/2) stop 'maxIJSize'
     end if
   end if
-  !write(6,*) '  iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp',iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp
-  !write(6,*) '  iPrim,iBas =',iPrim,iBas
+  !write(u6,*) '  iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp',iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp
+  !write(u6,*) '  iPrim,iBas =',iPrim,iBas
 
   ! extra derivative stuff
   iuvwx(3) = dc(mdci)%nStab
@@ -211,7 +204,7 @@ do iS=1,nSkal
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
   if (mGrad == 0) Go To 1965
   !                                                                    *
   !*********************************************************************
@@ -228,8 +221,8 @@ do iS=1,nSkal
     jSize = nElem(jAng)
     if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) jSize = 2*jAng+1
     B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
-    !write(6,*) '    jShll,jAng,jCnttp =',jShll,jAng,jCnttp
-    !write(6,*) '    jPrim,jBas =',jPrim,jBas
+    !write(u6,*) '    jShll,jAng,jCnttp =',jShll,jAng,jCnttp
+    !write(u6,*) '    jPrim,jBas =',jPrim,jBas
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -238,13 +231,13 @@ do iS=1,nSkal
     ! contains values from iSbasis to iSbasis + iBas*nElem(iAng) - 1
     !             and from jSbasis to jSbasis + jBas*nElem(jAng) - 1
     ipIJ = 1+maxDensSize
-    !write(6,*) '    extracting values from',iSbasis,' to',iSbasis+iBas*iSize-1,', and from',jSbasis,' to',jSbasis+jBas*jSize-1
+    !write(u6,*) '    extracting values from',iSbasis,' to',iSbasis+iBas*iSize-1,', and from',jSbasis,' to',jSbasis+jBas*jSize-1
     do iSlocal=iSbasis,iSbasis+iBas*iSize-1
       do jSlocal=jSbasis,jSbasis+jBas*jSize-1
         iLoc = ipIJ+(jSlocal-jSbasis)*iBas*iSize+iSlocal-iSbasis
         Array(iLoc) = Array(iTri(iSlocal,jSlocal))
         if (iSlocal /= jSlocal) Array(iLoc) = Array(iLoc)/Two
-        !write(6,*) 'Filling (',iSlocal-iSbasis+1,',',jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
+        !write(u6,*) 'Filling (',iSlocal-iSbasis+1,',',jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
       end do
     end do
     if (iPrint >= 99) call RecPrt('W(KC,LD)',' ',Array(ipIJ),iBas*iSize,jBas*jSize)
@@ -254,7 +247,7 @@ do iS=1,nSkal
     ! DCR stuff (iS and jS have always the same symmetry character)
 
     call DCR(LmbdT,iStabM,nStabM,dc(mdci)%iStab,dc(mdci)%nStab,iDCRT,nDCRT)
-    Fact = dble(nStabM)/dble(LmbdT)
+    Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -286,7 +279,7 @@ do iS=1,nSkal
       ipZI1 = ip
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(1) in FragPGrd'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(1) in FragPGrd'
         call Abend()
       end if
 
@@ -309,7 +302,7 @@ do iS=1,nSkal
       ipA = ip
       ip = ip+nAlpha*iPrim
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(1b) in FragPGrd'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(1b) in FragPGrd'
         call Abend()
       end if
       ABeq(1) = A(1) == TC(1)
@@ -322,9 +315,9 @@ do iS=1,nSkal
       ABeq(3) = .false.
       call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
       if (iPrint >= 49) then
-        write(6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(la+2),Array(ipAxyz),1)
-        write(6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(iAng+1),Array(ipCxyz),1)
-        write(6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+        write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(la+2),Array(ipAxyz),1)
+        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(iAng+1),Array(ipCxyz),1)
+        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*iPrim*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
       end if
       call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*iPrim,HerW(iHerW(nHer)),nHer)
       iStrt = ipA
@@ -332,13 +325,13 @@ do iS=1,nSkal
         call dcopy_(nAlpha,Alpha,1,Array(iStrt),1)
         iStrt = iStrt+nAlpha
       end do
-      if (iPrint >= 49) write(6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
+      if (iPrint >= 49) write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
       call rKappa_Zeta(Array(ipK1),Array(ipZ1),iPrim*nAlpha)
       ld = 1
       call CmbnAC(Array(ipQ1),nAlpha*iPrim,la,iAng,Array(ipK1),Array(ipF1),Array(ipA),JfGrad(1,1),ld,nVecAC)
       if (iPrint >= 49) then
-        write(6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*iPrim*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-        write(6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
+        write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*iPrim*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+        write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
       end if
       ip = ip-nAlpha*iPrim*(6+3*nHer*(la+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
       !                                                                *
@@ -360,7 +353,7 @@ do iS=1,nSkal
       ipZI2 = ip
       ip = ip+jPrim*nBeta
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(2) in FragPGrd'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(2) in FragPGrd'
         call Abend()
       end if
 
@@ -383,7 +376,7 @@ do iS=1,nSkal
       ipB = ip
       ip = ip+nBeta*jPrim
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(2b) in FragPGrd'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(2b) in FragPGrd'
         call Abend()
       end if
       ABeq(1) = TB(1) == RB(1)
@@ -396,9 +389,9 @@ do iS=1,nSkal
       ABeq(3) = .false.
       call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
       if (iPrint >= 49) then
-        write(6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(jAng+1),Array(ipCxyz),1)
-        write(6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(lb+2),Array(ipBxyz),1)
-        write(6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(jAng+1),Array(ipCxyz),1)
+        write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(lb+2),Array(ipBxyz),1)
+        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*jPrim*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
       end if
       call Assmbl(Array(ipQ1),Array(ipCxyz),jAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,jPrim*nBeta,HerW(iHerW(nHer)),nHer)
       iStrt = ipB
@@ -406,13 +399,13 @@ do iS=1,nSkal
         call dcopy_(nBeta,Beta,1,Array(iStrt),jPrim)
         iStrt = iStrt+1
       end do
-      if (iPrint >= 49) write(6,*) ' Array(ipB)=',DNrm2_(jPrim*nBeta,Array(ipB),1)
+      if (iPrint >= 49) write(u6,*) ' Array(ipB)=',DNrm2_(jPrim*nBeta,Array(ipB),1)
       call rKappa_Zeta(Array(ipK2),Array(ipZ2),jPrim*nBeta)
       ld = 1
       call CmbnCB(Array(ipQ1),jPrim*nBeta,jAng,lb,Array(ipK2),Array(ipF2),Array(ipB),JfGrad(1,2),ld,nVecCB)
       if (iPrint >= 49) then
-        write(6,*) ' Array(ipQ1)=',DNrm2_(jPrim*nBeta*3*(la+2)*(jAng+1)*(nOrdOp+1),Array(ipQ1),1)
-        write(6,*) ' Array(ipB)=',DNrm2_(JPrim*nBeta,Array(ipB),1)
+        write(u6,*) ' Array(ipQ1)=',DNrm2_(jPrim*nBeta*3*(la+2)*(jAng+1)*(nOrdOp+1),Array(ipQ1),1)
+        write(u6,*) ' Array(ipB)=',DNrm2_(JPrim*nBeta,Array(ipB),1)
       end if
       ip = ip-nBeta*jPrim*(6+3*nHer*(lb+2)+3*nHer*(jAng+1)+3*nHer*(nOrdOp+1)+3*(lb+2)*(jAng+1)*(nOrdOp+1)+1)
       nac = nElem(la)*nElem(iAng)*nVecAC
@@ -420,7 +413,7 @@ do iS=1,nSkal
       ipTmp = ip
       ip = ip+max(nAlpha*max(iPrim,jBas)*nac,nBeta*ncb*jBas)
       if (ip-1 > nArr*nZeta) then
-        write(6,*) '  ip-1.gt.nArr*nZeta(3) in FragPGrd'
+        write(u6,*) '  ip-1.gt.nArr*nZeta(3) in FragPGrd'
         call Abend()
       end if
       nac = nElem(la)*nElem(iAng)
@@ -451,7 +444,7 @@ do iS=1,nSkal
 
       !---2) aciK =  k,aci * k,K (Contract over core orbital)
 
-      call DGEMM_('T','N',nac*nVecAC*nAlpha,iBas,iPrim,1.0d0,Array(ipTmp),iPrim,Shells(iShll)%pCff,iPrim,0.0d0,Array(ipF1), &
+      call DGEMM_('T','N',nac*nVecAC*nAlpha,iBas,iPrim,One,Array(ipTmp),iPrim,Shells(iShll)%pCff,iPrim,Zero,Array(ipF1), &
                   nac*nVecAC*nAlpha)
 
       !---3) a,ciK -> ciKa
@@ -461,8 +454,8 @@ do iS=1,nSkal
       !---4) iKa,C = c,iKa * c,C
 
       if (Shells(iShll)%Transf .and. Shells(iShll)%Prjct) then
-        call DGEMM_('T','N',nVecAC*nAlpha*iBas*nElem(la),iSize,nElem(iAng),1.0d0,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
-                    nElem(iAng),0.0d0,Array(ipF1),nVecAC*nAlpha*iBas*nElem(la))
+        call DGEMM_('T','N',nVecAC*nAlpha*iBas*nElem(la),iSize,nElem(iAng),One,Array(ipTmp),nElem(iAng),RSph(ipSph(iAng)), &
+                    nElem(iAng),Zero,Array(ipF1),nVecAC*nAlpha*iBas*nElem(la))
       else
         call DgeTMo(Array(ipTmp),nElem(iAng),nElem(iAng),nVecAC*iBas*nElem(la)*nAlpha,Array(ipF1),nVecAC*iBas*nElem(la)*nAlpha)
       end if
@@ -474,7 +467,7 @@ do iS=1,nSkal
       !   LjDb from ljdb
       !   1) jdb,L = l,jdb * l,L
 
-      call DGEMM_('T','N',nBeta*ncb*nVecCB,jBas,jPrim,1.0d0,Array(ipF2),jPrim,Shells(jShll)%pCff,jPrim,0.0d0,Array(ipTmp), &
+      call DGEMM_('T','N',nBeta*ncb*nVecCB,jBas,jPrim,One,Array(ipF2),jPrim,Shells(jShll)%pCff,jPrim,Zero,Array(ipTmp), &
                   nBeta*ncb*nVecCB)
 
       !---2)  j,dbL -> dbL,j
@@ -484,8 +477,8 @@ do iS=1,nSkal
       !---3) bLj,D = d,bLj * d,D
 
       if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) then
-        call DGEMM_('T','N',nElem(lb)*nVecCB*jBas*nBeta,jSize,nElem(jAng),1.0d0,Array(ipF2),nElem(jAng),RSph(ipSph(jAng)), &
-                    nElem(jAng),0.0d0,Array(ipTmp),nElem(lb)*nVecCB*jBas*nBeta)
+        call DGEMM_('T','N',nElem(lb)*nVecCB*jBas*nBeta,jSize,nElem(jAng),One,Array(ipF2),nElem(jAng),RSph(ipSph(jAng)), &
+                    nElem(jAng),Zero,Array(ipTmp),nElem(lb)*nVecCB*jBas*nBeta)
       else
         call DgeTMo(Array(ipF2),nElem(jAng),nElem(jAng),nVecCB*jBas*nElem(lb)*nBeta,Array(ipTmp),nVecCB*jBas*nElem(lb)*nBeta)
       end if
@@ -496,7 +489,7 @@ do iS=1,nSkal
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 
-      call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,final,1)
+      call dcopy_(nZeta*nElem(la)*nElem(lb)*6,[Zero],0,Fin,1)
 
       if (iPrint >= 99) then
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
@@ -508,7 +501,7 @@ do iS=1,nSkal
       mVecCB = 1
       do iCar=1,3
         do iCent=1,2
-          !write(6,*) 'iCar, iCent = ',iCar,iCent
+          !write(u6,*) 'iCar, iCent = ',iCar,iCent
           if (JfGrad(iCar,iCent)) then
             mVec = mVec+1
             if (iCent == 1) then
@@ -521,29 +514,29 @@ do iS=1,nSkal
               ipF2a = ipF2+(mVecCB-1)*jBas*nBeta*jSize*nElem(lb)
             end if
             if (iPrint >= 99) then
-              write(6,*) 'mVecAC, mVecCB = ',mVecAC,mVecCB
+              write(u6,*) 'mVecAC, mVecCB = ',mVecAC,mVecCB
               call RecPrt('ipF1a (nAlpha*aAng x iBas*iSize)',' ',Array(ipF1a),nAlpha*nElem(la),iBas*iSize)
               call RecPrt('ipF2a (nBeta*bAng x jBas*jSize)',' ',Array(ipF2a),nBeta*nElem(lb),jBas*jSize)
             end if
 
             call FragPCont(Array(ipF1a),nAlpha,iBas,nElem(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nElem(lb),Array(ipIJ), &
-                           final(:,:,:,mVec),Fact*Half)
+                           Fin(:,:,:,mVec),Fact*Half)
           end if
         end do !iCent
       end do !iCar
 
       if (iPrint >= 49) then
         do iVec=1,mVec
-          write(6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),final(1,1,1,iVec),1))
+          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nElem(la)*nElem(lb),Fin(1,1,1,iVec),1))
         end do
       end if
       if (iPrint >= 99) then
-        write(6,*) ' Result in FragPGrd'
+        write(u6,*) ' Result in FragPGrd'
         do ia=1,nElem(la)
           do ib=1,nElem(lb)
             do iVec=1,mVec
-              write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(',ia,',',ib,',',iVec,')'
-              call RecPrt(Label,' ',final(1,ia,ib,iVec),nAlpha,nBeta)
+              write(Label,'(A,I2,A,I2,A,I2,A)') ' Fin(',ia,',',ib,',',iVec,')'
+              call RecPrt(Label,' ',Fin(1,ia,ib,iVec),nAlpha,nBeta)
             end do
           end do
         end do
@@ -551,7 +544,7 @@ do iS=1,nSkal
 
       !---Distribute contributions to the gradient
 
-      call Distg1X(final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+      call Distg1X(Fin,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
 1967  continue !lDCRT
     end do !lDCRT

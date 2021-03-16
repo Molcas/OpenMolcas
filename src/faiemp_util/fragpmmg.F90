@@ -29,14 +29,14 @@ subroutine FragPMmG(nHer,MemFrag,la,lb,lr)
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Definitions, only: iwp
 
 implicit none
-integer nHer, MemFrag, la, lb, lr
-integer i, nElem, nOrder, maxDensSize
-integer iCnttp, jCnttp, iAng, jAng, iShll, jShll
-integer ip, nac, ncb, nExpi, nExpj
-integer nBasisi, nBasisj
+integer(kind=iwp), intent(out) :: nHer, MemFrag
+integer(kind=iwp), intent(in) :: la, lb, lr
+integer(kind=iwp) :: i, nElem, nOrder, maxDensSize, iCnttp, jCnttp, iAng, jAng, iShll, jShll, ip, nac, ncb, nExpi, nExpj, nBasisi, &
+                     nBasisj
 
 nElem(i) = (i+1)*(i+2)/2
 

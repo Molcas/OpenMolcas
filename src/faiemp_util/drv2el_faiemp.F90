@@ -23,38 +23,31 @@ subroutine Drv2El_FAIEMP()
 !***********************************************************************
 
 use k2_arrays, only: pDq, pFq
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
 use Real_Info, only: ThrInt, CutInt
 use Integral_Interfaces, only: DeDe_SCF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Quart
+use Definitions, only: wp, iwp, u6
 
 implicit none
-external No_Routine
-#include "print.fh"
-#include "real.fh"
-#include "setup.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
-integer nTInt
-parameter(nTInt=1)
-real*8 TInt(nTInt)
-
-logical W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch
-integer iTOffs(8,8,8)
-integer nBas_Valence(0:7)
-character*8 Label
-logical lNoSkip, EnergyWeight
-integer i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, ip_ij, ipDMax, ipFragDensAO, ipOneHam, ipTMax, iRC, ipFragDensSO, iS, &
-        jS, lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
-
-real*8 Aint, Count, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2, DMax, &
-       TMax
-real*8, allocatable, target :: Dens(:), Fock(:)
+integer(kind=iwp), parameter :: nTInt = 1
+integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, ip_ij, ipDMax, &
+                     ipFragDensAO, ipOneHam, ipTMax, iRC, ipFragDensSO, iS, jS, lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, &
+                     nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
+real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TskHi, TskLw, &
+                 TWall1, TWall2, DMax, TMax
+real(kind=wp), allocatable, target :: Dens(:), Fock(:)
+logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
+character(len=8) :: Label
+external :: No_Routine
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer iFD
-character*80 Line
+integer(kind=iwp) :: iFD
+character(len=80) :: Line
 #endif
 
 !                                                                      *
@@ -67,7 +60,7 @@ DMax(i,j) = Work((j-1)*nSkal+i+ipDMax-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call xFlush(6)
+call xFlush(u6)
 ExFac = One
 Nr_Dens = 1
 DoIntegrals = .false.
@@ -198,7 +191,7 @@ call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Thize = 1.0d-6
+Thize = 1.0e-6_wp
 PreSch = .false.
 Disc_Mx = Zero
 
@@ -237,7 +230,7 @@ do iS=1,nSkal
     end if
   end do
 end do
-P_Eff = dble(nij)
+P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -250,7 +243,7 @@ call CWTime(TCpu1,TWall1)
 ijS = 1
 iS = iWork((ijS-1)*2+ip_ij)
 jS = iWork((ijS-1)*2+ip_ij+1)
-!klS = int(TskLw-DBLE(ijS)*(dble(ijS)-One)/Two)
+!klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 klS = 1
 kS = iWork((klS-1)*2+ip_ij)
 lS = iWork((klS-1)*2+ip_ij+1)
@@ -260,9 +253,9 @@ if (ijS > int(P_Eff)) Go To 12
 !***********************************************************************
 !                                                                      *
 ! density prescreening (results in iS > nSkal_Valence)
-Aint = TMax(iS,jS)*TMax(kS,lS)
-Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
-lNoSkip = Aint*Dtst >= ThrInt
+A_int = TMax(iS,jS)*TMax(kS,lS)
+Dtst = max(DMax(is,ls)*Quart,DMax(is,ks)*Quart,DMax(js,ls)*Quart,DMax(js,ks)*Quart,DMax(is,js),DMax(ks,ls))
+lNoSkip = A_int*Dtst >= ThrInt
 ! only calculate needed integrals and only update the valence part of the
 ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
 ! belonging to different regions)
@@ -275,9 +268,9 @@ lNoSkip = lNoSkip .and. lS <= nSkal_Valence
 
 if (lNoSkip) then
   call Eval_Ints_New_Inner(iS,jS,kS,lS,TInt,nTInt,iTOffs,No_Routine,pDq,pFq,mDens,[ExFac],Nr_Dens,[NoCoul],[NoExch],Thize,W2Disc, &
-                           PreSch,Disc_Mx,Disc,Count,DoIntegrals,DoFock)
+                           PreSch,Disc_Mx,Disc,Cnt,DoIntegrals,DoFock)
 # ifdef _DEBUGPRINT_
-  write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
+  write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
   if (nIrrep == 1) then
     call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
   else
@@ -334,9 +327,9 @@ call Free_DeDe(Dens,Fock,nBT)
 
 call mma_deallocate(Dens)
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*)
-write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
+write(u6,*)
+write(u6,*)
+write(u6,'(a)') 'SO Integrals of type Frag2El Component 1'
 iFD = 1
 do iIrrep=0,nIrrep-1
   write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
@@ -356,8 +349,8 @@ iOpt = 0
 call GetMem('Temp','Allo','Real',ipOneHam,nBVT+4)
 call RdOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
 if (iRC /= 0) then
-  write(6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 ! add the calculated results
@@ -381,16 +374,16 @@ end do
 iRC = -1
 call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
 if (iRC /= 0) then
-  write(6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 iRC = -1
 Label = 'OneHam 0'
 call WrOne(iRC,iOpt,Label,1,Work(ipOneHam),lOper)
 if (iRC /= 0) then
-  write(6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'Drv2El_FAIEMP: Error writing to ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 

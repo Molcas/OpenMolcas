@@ -26,37 +26,34 @@ subroutine FragExpand(LuRd)
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
+use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
 use Gateway_Interfaces, only: GetBS
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: LuRd
 #include "Molcas.fh"
-#include "stdalloc.fh"
-#include "real.fh"
-#include "print.fh"
-integer storageSize, LineWords
-parameter(storageSize=200,LineWords=storageSize/8)
-real*8 eqBasis(LineWords)
-integer BasisTypes(4), LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr, ii, Indx, iSh, iShll, jShll, lAng, Last, LenBSL, lSTDINP, &
-        mCnttp, mdc, ndc
-real*8 x1, y1, z1
-character*4 label
-character*13 DefNm
-character*80 Ref(2)
-character*(storageSize) sBasis
-character*256 Basis_lib, Fname
-logical UnNorm
-#ifdef _DEBUGPRINT_
-integer i
-#endif
-character*180, allocatable :: STDINP(:)
+integer(kind=iwp), parameter :: storageSize = 200, LineWords = storageSize/8
+real(kind=wp) :: eqBasis(LineWords), x1, y1, z1
+integer(kind=iwp) :: BasisTypes(4), LenLbl, iAtom, ib, iBas, iCnttp, iCntr, ii, Indx, iSh, iShll, jShll, lAng, Last, LenBSL, &
+                     lSTDINP, mCnttp, mdc, ndc
+logical(kind=iwp) :: UnNorm
+character(len=4) :: label
+character(len=13) :: DefNm = 'basis_library'
+character(len=80) :: Ref(2)
+character(len=storageSize) :: sBasis
+character(len=256) :: Basis_lib, Fname
+character(len=180), allocatable :: STDINP(:)
 ! external functions and procedures
-integer iMostAbundantIsotope, iCLast
-real*8 NucExp, rMass
-external NucExp, rMass, iMostAbundantIsotope, iCLast
-data DefNm/'basis_library'/
+integer(kind=iwp), external :: iMostAbundantIsotope, iCLast
+real(kind=wp), external :: NucExp, rMass
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 !                                                                      *
 !***********************************************************************
@@ -70,16 +67,16 @@ iShll = S%Mx_Shll-1
 lSTDINP = 0
 mCnttp = nCnttp
 #ifdef _DEBUGPRINT_
-write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
+write(u6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
 #endif
 
 #ifdef _DEBUGPRINT_
-write(6,'(A,i6)') 'FragExpand: just before the ''Do iCnttp'''
-write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
-write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
-write(6,'(A)') ' dbsc(nCnttp)%mdci   dbsc(nCnttp)%nCntr  nFragType(nCnttp)   nFragCoor(nCnttp)  '
+write(u6,'(A,i6)') 'FragExpand: just before the ''Do iCnttp'''
+write(u6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
+write(u6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
+write(u6,'(A)') ' dbsc(nCnttp)%mdci   dbsc(nCnttp)%nCntr  nFragType(nCnttp)   nFragCoor(nCnttp)  '
 do i=1,mCnttp
-  write(6,'(4(3X,I6,11X))') dbsc(i)%mdci,dbsc(i)%nCntr,dbsc(i)%nFragType,dbsc(i)%nFragCoor
+  write(u6,'(4(3X,I6,11X))') dbsc(i)%mdci,dbsc(i)%nCntr,dbsc(i)%nFragType,dbsc(i)%nFragCoor
 end do
 #endif
 
@@ -108,7 +105,7 @@ do iCnttp=1,mCnttp
 
       nCnttp = nCnttp+1
       if (nCnttp > Mxdbsc) then
-        write(6,*) ' Increase Mxdbsc'
+        write(u6,*) ' Increase Mxdbsc'
         call ErrTra
         call Quit_OnUserError()
       end if
@@ -138,8 +135,8 @@ do iCnttp=1,mCnttp
       else
         Fname = sBasis(Indx+2:Last)
         if (Fname == ' ') then
-          write(6,*) ' No basis set library specified for'
-          write(6,'(A,A)') 'Fname=',Fname
+          write(u6,*) ' No basis set library specified for'
+          write(u6,'(A,A)') 'Fname=',Fname
           call Quit_OnUserError()
         end if
 1001    if (Fname(1:1) == ' ') then
@@ -150,8 +147,8 @@ do iCnttp=1,mCnttp
         dbsc(nCnttp)%Bsl = sBasis(1:Indx-1)
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
-      write(6,*) 'Fname = ',Fname
+      write(u6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
+      write(u6,*) 'Fname = ',Fname
 #     endif
       ! Now Fname contains the basis set directory and dbsc(.)%Bsl
       ! contains the basis set label
@@ -185,8 +182,8 @@ do iCnttp=1,mCnttp
       mdc = mdc+1
       n_dc = max(mdc,n_dc)
       if (mdc > MxAtom) then
-        write(6,*) ' FragExpand: Increase MxAtom'
-        write(6,*) '        MxAtom=',MxAtom
+        write(u6,*) ' FragExpand: Increase MxAtom'
+        write(u6,*) '        MxAtom=',MxAtom
         call ErrTra
         call Quit_OnUserError()
       end if
@@ -199,7 +196,7 @@ do iCnttp=1,mCnttp
       y1 = y1+dbsc(iCnttp)%Coor(2,iCntr)
       z1 = z1+dbsc(iCnttp)%Coor(3,iCntr)
 #     ifdef _DEBUGPRINT_
-      write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,' Coordinates:  x =',x1,' y=',y1,' z=',z1
+      write(u6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,' Coordinates:  x =',x1,' y=',y1,' z=',z1
 #     endif
       ! store them
       call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,Label='dbsc:C')
@@ -216,9 +213,9 @@ do iCnttp=1,mCnttp
         label(ii:ii) = '_'
       end do
 #     ifdef _DEBUGPRINT_
-      write(6,'(2A)') 'Label=',label
+      write(u6,'(2A)') 'Label=',label
 #     endif
-      ! LENIN possible BUG
+      ! LenIn possible BUG
       dc(mdc)%LblCnt = label
       if (mdc < 10) then
         write(label,'(a3,i1)') '___',mdc
@@ -229,10 +226,10 @@ do iCnttp=1,mCnttp
       else
         write(label,'(i4)') mdc
       end if
-      dc(mdc)%LblCnt(5:LENIN2) = label
+      dc(mdc)%LblCnt(5:LenIn2) = label
 #     ifdef _DEBUGPRINT_
-      write(6,'(2A)') 'Label=',label
-      write(6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt
+      write(u6,'(2A)') 'Label=',label
+      write(u6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt
 #     endif
       call Chk_LblCnt(dc(mdc)%LblCnt,mdc-1)
       ! store a reference to the originating fragment placeholder
@@ -251,12 +248,12 @@ end do      ! iCnttp
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(6,'(A,i6)') 'FragExpand: After the ''Do iCnttp'''
-write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
-write(6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp
-write(6,'(A)') ' dbsc(nCnttp)%mdci   dbsc(nCnttp)%nCntr  nFragType(nCnttp)   nFragCoor(nCnttp)  '
+write(u6,'(A,i6)') 'FragExpand: After the ''Do iCnttp'''
+write(u6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
+write(u6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp
+write(u6,'(A)') ' dbsc(nCnttp)%mdci   dbsc(nCnttp)%nCntr  nFragType(nCnttp)   nFragCoor(nCnttp)  '
 do i=1,nCnttp
-  write(6,'(4(3X,I6,11X))') dbsc(i)%mdci,dbsc(i)%nCntr,dbsc(i)%nFragType,dbsc(i)%nFragCoor
+  write(u6,'(4(3X,I6,11X))') dbsc(i)%mdci,dbsc(i)%nCntr,dbsc(i)%nFragType,dbsc(i)%nFragCoor
 end do
 #endif
 !                                                                      *

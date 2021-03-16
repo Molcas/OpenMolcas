@@ -26,52 +26,40 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 !     based on Drvg1                                                   *
 !***********************************************************************
 
-use k2_setup
-use iSD_data
+use k2_setup, only: Data_k2
+use iSD_data, only: iSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
-use Basis_Info
+use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
 use Real_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Eight, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-external Rsv_GTList
-#include "itmax.fh"
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
-! Local arrays
-integer nGrad
-real*8 Coor(3,4), Grad(nGrad), Temp(nGrad)
-integer iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-logical EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList, FreeK2, Verbose, &
-        Triangular
-character format*72
-logical lNoSkip
-integer nBas_Valence(0:7)
-
-integer iSD4(0:nSD,4)
-integer MemMax, MemPrm
-save MemPrm
-
-integer iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn
-integer iS, jS, iBasAO, iBsInc, iCar, ijklA, ijS, Indij, iOpt, ijMax
-integer ip_ij, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ
-integer iPrem, iPren, ipxA, ipxB, ipxG, ipxD, ipZi, Mem1, Mem2, iPrimi
-integer iPrInc, ipTMax, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc
-integer jPrInc, k2ij, k2kl, jPrimj, kBasAO, kBasn, kBask, kBsInc
-integer kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn
-integer lBsInc, lPriml, lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl
-integer MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab
-integer nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments
-integer nSkal_Valence, nSO, nZeta, nBtch
-real*8 TMax, PMax, Aint, Count, P_Eff, Prem, Pren
-real*8 TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
+real(kind=wp) :: Coor(3,4), TMax, PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
+integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), iSD4(0:nSD,4), &
+                     MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, iBsInc, iCar, &
+                     ijklA, ijS, Indij, iOpt, ijMax, ip_ij, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, ipxA, &
+                     ipxB, ipxG, ipxD, ipZi, Mem1, Mem2, iPrimi, iPrInc, ipTMax, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, &
+                     k2ij, k2kl, jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
+                     lBsInc, lPriml, lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, &
+                     nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
+logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList, &
+                     FreeK2, Verbose, Triangular, lNoSkip
+character(len=72) :: formt
+integer(kind=iwp), save :: MemPrm
+external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************
@@ -120,7 +108,7 @@ nQuad = nPairs*(nPairs+1)/2
 Pren = Zero
 Prem = Zero
 nSkal_Fragments = nSkal-nSkal_Valence
-if (iPrint >= 99) write(6,*) 'nSkal, nSkal_Valence, nSkal_Frag = ',nSkal,nSkal_Valence,nSkal_Fragments
+if (iPrint >= 99) write(u6,*) 'nSkal, nSkal_Valence, nSkal_Frag = ',nSkal,nSkal_Valence,nSkal_Fragments
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -165,7 +153,7 @@ do iS=1,nSkal
     end if
   end do
 end do
-P_Eff = dble(nij)
+P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -214,17 +202,17 @@ if (.not. Rsv_GTList(TskLw,TskHi,iOpt,lDummy)) Go To 11
 ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 iS = iWork((ijS-1)*2+ip_ij)
 jS = iWork((ijS-1)*2+ip_ij+1)
-klS = int(TskLw-dble(ijS)*(dble(ijS)-One)/Two)
+klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 kS = iWork((klS-1)*2+ip_ij)
 lS = iWork((klS-1)*2+ip_ij+1)
-Count = TskLw
+Cnt = TskLw
 call CWTime(TCpu1,TWall1)
 13 continue
-if (Count-TskHi > 1.0D-10) Go To 12
+if (Cnt-TskHi > 1.0e-10_wp) Go To 12
 !
-Aint = TMax(iS,jS)*TMax(kS,lS)
+A_int = TMax(iS,jS)*TMax(kS,lS)
 
-lNoSkip = AInt >= CutInt
+lNoSkip = A_Int >= CutInt
 ! only calculate needed integrals and only update the valence part of the
 ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
 ! belonging to different regions)
@@ -258,7 +246,7 @@ call MemRys_g(iSD4,nSD,nRys,MemPrm)
 !                                                                      *
 ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
 ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
-if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1 .and. iPrint > 15) write(6,*) 'ABCDeq & ijklA'
+if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1 .and. iPrint > 15) write(u6,*) 'ABCDeq & ijklA'
 if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1) Go To 140
 !                                                                      *
 !***********************************************************************
@@ -316,7 +304,7 @@ do iBasAO=1,iBasi,iBsInc
         nijkl = iBasn*jBasn*kBasn*lBasn
         call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                    iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-        if (AInt*PMax < CutInt) Go To 430
+        if (A_Int*PMax < CutInt) Go To 430
 
         !--Compute gradients of shell quadruplet
 
@@ -340,7 +328,7 @@ end do
 140 continue
 
 14 continue
-Count = Count+One
+Cnt = Cnt+One
 klS = klS+1
 if (klS > ijS) then
   ijS = ijS+1
@@ -385,11 +373,11 @@ call Term_Ints(Verbose,FreeK2)
 !                                                                      *
 call Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
 
-iPren = 3+max(1,int(log10(Pren+0.001D+00)))
-iPrem = 3+max(1,int(log10(Prem+0.001D+00)))
-write(format,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
+iPren = 3+max(1,int(log10(Pren+0.001_wp)))
+iPrem = 3+max(1,int(log10(Prem+0.001_wp)))
+write(formt,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
 if (iPrint >= 6) then
-  write(6,format) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
+  write(u6,formt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
 end if
 ! Accumulate the final results
 call DScal_(nGrad,Half,Temp,1)

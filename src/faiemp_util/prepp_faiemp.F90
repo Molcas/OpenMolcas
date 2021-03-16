@@ -23,28 +23,28 @@ subroutine PrepP_FAIEMP(nBas_Valence,nBT,nBVT)
 !***********************************************************************
 
 use aces_stuff, only: Gamma_On
-use pso_stuff
-use Basis_Info
+use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, id0Lbl, kCMO, lPSO, lsa, mCMo, mDens, mG1, mG2, nDens, nG1, nG2
+use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: nBas_Valence(0:7), nBT, nBVT
 #include "print.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 #include "etwas.fh"
 #include "nac.fh"
-integer nBas_Valence(0:7), nBT, nBVT, nFro(0:7)
-character*8 RlxLbl, Method, KSDFT*16
-logical lPrint
-integer i, iBas, iGo, iIrrep, ij, ipt, ipTmp1
-integer iSpin, jBas, nAct, nDens_Valence, nsa, nTst
-integer iRout, iPrint, iComp
-real*8 Get_ExFac, CoefX, CoefR
-external Get_ExFac
-character*60 Fmt
-real*8, allocatable :: D1AV(:)
+integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipt, ipTmp1, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iRout, iPrint, &
+                     iComp
+logical(kind=iwp) :: lPrint
+real(kind=wp) :: CoefX, CoefR
+character(len=8) :: RlxLbl, Method
+character(len=16) :: KSDFT
+real(kind=wp), allocatable :: D1AV(:)
+real(kind=wp), external :: Get_ExFac
 
 !...  Prologue
 iRout = 205
@@ -84,24 +84,23 @@ end if
 !                                                                      *
 if (Method == 'RHF-SCF ' .or. Method == 'UHF-SCF ' .or. (Method == 'KS-DFT  ' .and. iSpin == 1) .or. Method == 'ROHF    ') then
   if (lPrint) then
-    write(6,*)
-    write(6,'(2A)') ' Wavefunction type: ',Method
+    write(u6,*)
+    write(u6,'(2A)') ' Wavefunction type: ',Method
     if (Method == 'KS-DFT  ') then
-      write(6,'(2A)') ' Functional type:   ',KSDFT
-      Fmt = '(1X,A26,20X,F18.6)'
-      write(6,Fmt) 'Exchange scaling factor',CoefX
-      write(6,Fmt) 'Correlation scaling factor',CoefR
+      write(u6,'(2A)') ' Functional type:   ',KSDFT
+      write(u6,100) 'Exchange scaling factor',CoefX
+      write(u6,100) 'Correlation scaling factor',CoefR
     end if
-    write(6,*)
+    write(u6,*)
   end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 else if (Method == 'Corr. WF') then
   if (lPrint) then
-    write(6,*)
-    write(6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
+    write(u6,*)
   end if
   Gamma_On = .true.
   call Aces_Gamma()
@@ -121,10 +120,10 @@ else if (Method == 'RASSCF  ' .or. Method == 'CASSCF  ' .or. Method == 'CASDFT  
   mIrrep = nIrrep
   call ICopy(nIrrep,nBas,1,mBas,1)
   if (lPrint) then
-    write(6,*)
-    write(6,'(2A)') ' Wavefunction type: ',Method
-    if (Method == 'CASDFT  ') write(6,'(2A)') ' Functional type:   ',KSDFT
-    write(6,*)
+    write(u6,*)
+    write(u6,'(2A)') ' Wavefunction type: ',Method
+    if (Method == 'CASDFT  ') write(u6,'(2A)') ' Functional type:   ',KSDFT
+    write(u6,*)
   end if
 !                                                                      *
 !***********************************************************************
@@ -142,23 +141,23 @@ else if (Method == 'CASSCFSA' .or. Method == 'RASSCFSA') then
   mIrrep = nIrrep
   call ICopy(nIrrep,nBas,1,mBas,1)
   if (lPrint .and. lSA) then
-    write(6,*)
-    write(6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
-    write(6,*)
+    write(u6,*)
+    write(u6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
+    write(u6,*)
   else if (lPrint) then
-    write(6,*)
-    write(6,'(2A)') ' Wavefunction type: ',Method
+    write(u6,*)
+    write(u6,'(2A)') ' Wavefunction type: ',Method
   end if
   Method = 'RASSCF  '
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 else
-  write(6,*)
-  write(6,*) ' Wavefunction type:',Method
-  write(6,*) ' Illegal type of wave function!'
-  write(6,*) ' ALASKA can not continue'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Wavefunction type:',Method
+  write(u6,*) ' Illegal type of wave function!'
+  write(u6,*) ' ALASKA can not continue'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 
@@ -240,9 +239,9 @@ call Get_iArray('nIsh',nIsh,i)
 call Get_iArray('nAsh',nAsh,i)
 call Get_iArray('nFro',nFro,i)
 if (iPrint >= 99) then
-  write(6,*) ' nISh=',nISh
-  write(6,*) ' nASh=',nASh
-  write(6,*) ' nFro=',nFro
+  write(u6,*) ' nISh=',nISh
+  write(u6,*) ' nASh=',nASh
+  write(u6,*) ' nFro=',nFro
 end if
 nAct = 0
 nTst = 0
@@ -251,10 +250,10 @@ do iIrrep=0,nIrrep-1
   nTst = nTst+nFro(iIrrep)
 end do
 if (nTst /= 0) then
-  write(6,*)
-  write(6,*) ' No frozen orbitals are allowed!'
-  write(6,*) ' ALASKA can not continue'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' No frozen orbitals are allowed!'
+  write(u6,*) ' ALASKA can not continue'
+  write(u6,*)
   call Quit_OnUserError()
 end if
 
@@ -299,7 +298,7 @@ if (lsa) then
   !   P2=sum_i <i|e_pqrs|i>
 
   call Get_PLMO(G2(:,2),nG2)
-  call Daxpy_(nG2,1.0d0,G2(:,2),1,G2(:,1),1)
+  call Daxpy_(nG2,One,G2(:,2),1,G2(:,1),1)
   if (iPrint >= 99) call TriPrt(' G2L',' ',G2(:,2),nG1)
   if (iPrint >= 99) call TriPrt(' G2T',' ',G2(:,1),nG1)
 
@@ -345,5 +344,7 @@ if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
 
 !...  Epilogue, end
 return
+
+100 format (1X,A26,20X,F18.6)
 
 end subroutine PrepP_FAIEMP

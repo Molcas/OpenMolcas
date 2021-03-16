@@ -20,23 +20,21 @@ subroutine AddFragDens(Array,nDens,nDens_Valence,nBas_Valence)
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nBas, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "real.fh"
+integer(kind=iwp), intent(in) :: nDens, nDens_Valence, nBas_Valence(0:7)
+real(kind=wp), intent(inout) :: Array(nDens)
 #include "WrkSpc.fh"
-integer nDens, nDens_Valence
-real*8 Array(nDens)
-integer nBas_Valence(0:7)
-logical EnergyWeight
-integer iPrint, maxDens, iCnttp, ipFragDensAO, iDpos, ipFragDensSO
-integer i, j, iCnt, iFpos, iFD, mdc, iIrrep, nBasC
-real*8 rDummy(1)
+logical(kind=iwp) :: EnergyWeight
+integer(kind=iwp) :: iPrint, maxDens, iCnttp, ipFragDensAO, iDpos, ipFragDensSO, i, j, iCnt, iFpos, iFD, mdc, iIrrep, nBasC
+real(kind=wp) :: rDummy(1)
 
 if (nIrrep /= 1) then
-  write(6,*) 'AddFragDens: Symmetry not implemented yet'
+  write(u6,*) 'AddFragDens: Symmetry not implemented yet'
   call Abend()
 end if
 
