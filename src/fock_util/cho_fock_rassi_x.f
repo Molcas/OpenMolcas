@@ -50,7 +50,7 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   DoReord
+      Logical   DoReord, add
       Character*50 CFmt
       Character(LEN=16), Parameter:: SECNAM = 'CHO_FOCK_RASSI_X'
 #include "chotime.fh"
@@ -188,7 +188,8 @@ C ------------------------------------------------------------------
 C --- Transform the density to reduced storage
                mode = 'toreds'
                ipDab=ip_of_Work(Drs(1))
-               Call swap_sto(irc,iLoc,ipDLT,ISTLT,ipDab,mode)
+               add = .False.
+               Call swap_rs2full(irc,iLoc,1,ipDLT,ipDab,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -425,7 +426,8 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                ipFab=ip_of_Work(Frs(1))
-               Call swap_sto(irc,iLoc,ipFLT,ISTLT,ipFab,mode)
+               add = .True.
+               Call swap_rs2full(irc,iLoc,1,ipFLT,ipFab,mode,add)
             EndIf
 
 C --- free memory
