@@ -20,7 +20,7 @@ real(kind=wp), intent(in) :: h0(nBas*(nBas+1)/2+4), Ei(nBas*(nBas+1)/2+4), Delta
 integer(kind=iwp), intent(out) :: Energy
 integer(kind=iwp) :: i, iComp, ireturn, iRc, iSyLbl, mBas(8), nInts, nsize
 real(kind=wp) :: PotNuc_Save
-character(len=8) ::  Method, Label
+character(len=8) :: Method, Label
 real(kind=wp), allocatable :: h0_temp(:)
 
 nInts = nBas*(nBas+1)/2
@@ -49,45 +49,45 @@ iRc = -1
 call WrOne(iRc,0,Label,iComp,h0_temp,iSyLbl)
 !call TriPrt('H0_temp after wrone',' ',h0_temp,nBas)
 
-if (Method == 'RHF-SCF' .or. Method == 'UHF-SCF' .or. Method == 'KS-DFT') then
+if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'KS-DFT')) then
 
   call StartLight('scf')
   call Disable_Spool()
   call xml_open('module',' ',' ',0,'scf')
   call SCF(ireturn)
   call xml_close('module')
-  if (iReturn /= 0) Go To 99
+  if (iReturn /= 0) call error()
 
-  else if (Method(1:5) == 'MBPT2') then
+else if (Method(1:5) == 'MBPT2') then
 
   call StartLight('scf')
   call Disable_Spool()
   call xml_open('module',' ',' ',0,'scf')
   call SCF(ireturn)
   call xml_close('module')
-  if (iReturn /= 0) Go To 99
+  if (iReturn /= 0) call error()
   call StartLight('mbpt2')
   call Disable_Spool()
   call mp2_driver(ireturn)
-  if (iReturn /= 0) Go To 99
+  if (iReturn /= 0) call error()
 
-else if (Method == 'RASSCF' .or. Method == 'CASSCF') then
+else if ((Method == 'RASSCF') .or. (Method == 'CASSCF')) then
 
   call StartLight('rasscf')
   call Disable_Spool()
   call RASSCF(ireturn)
-  if (iReturn /= 0) Go To 99
+  if (iReturn /= 0) call error()
 
 else if (Method == 'CASPT2') then
 
   call StartLight('rasscf')
   call Disable_Spool()
   call RASSCF(ireturn)
-  if (iReturn /= 0) Go To 99
+  if (iReturn /= 0) call error()
   call StartLight('caspt2')
   call Disable_Spool()
   call CASPT2(ireturn)
-  if (iReturn /= 0) Go To 99
+  if (iReturn /= 0) call error()
 
 else
   write(u6,*) 'Method=',Method
@@ -105,10 +105,15 @@ call mma_deallocate(h0_temp)
 
 return
 
-99 continue
-write(u6,*)
-write(u6,*) 'Comp_f: Wave function calculation failed!'
-write(u6,*)
-call Abend()
+contains
+
+subroutine error()
+
+  write(u6,*)
+  write(u6,*) 'Comp_f: Wave function calculation failed!'
+  write(u6,*)
+  call Abend()
+
+end subroutine
 
 end subroutine Comp_F

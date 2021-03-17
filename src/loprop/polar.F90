@@ -213,7 +213,6 @@ if (.not. NoField) then
 
   call Dynamic_Properties(tmp,nAtoms,MP,nij,nPert,mElem,Delta,EC,Pol,iWork(ip_ANr),Bond_Threshold,Cpl,CplT)
 
-
 end if
 !                                                                      *
 !***********************************************************************

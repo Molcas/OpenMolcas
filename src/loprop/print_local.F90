@@ -182,7 +182,7 @@ do iAtom=1,nAtoms
         if (l >= 5) write(u6,'(A,I2)') 'Electronic multipole moment with l = ',l
         write(u6,'(10F12.8)') (rMP(ij,iElem),iElem=iStrt,iEnd)
         !****************************************************
-        if (iAtom == jAtom .and. l >= 1) then
+        if ((iAtom == jAtom) .and. (l >= 1)) then
           write(u6,'(A)') '... with nuclear contribution'
           write(u6,'(10F12.8)') (rMP(ij,iElem)+xnrMP(ij,iElem),iElem=iStrt,iEnd)
         end if
