@@ -24,7 +24,6 @@
       Integer iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,LenE
       Real*8 AddEx(LenE)
 #include "rasdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
       Logical SameLx
