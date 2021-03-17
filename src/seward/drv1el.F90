@@ -51,17 +51,17 @@ implicit none
 #include "oneswi.fh"
 #include "warnings.fh"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
-                     iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iEMb, &
-                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
-                     iSymCX, iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, &
-                     iSymxLx, iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, &
-                     iSymzLz, iSyXYZ, iTemp, iTol, iunit, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, &
-                     mCnt, mComp, mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+                     iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iLow, &
+                     iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
+                     iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
+                     iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
+                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, mDMS, &
+                     mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
 real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
 character(len=512) :: FName
-integer(kind=iwp), external :: IrrFnc, isFreeUnit, MltLbl, n2Tri
+integer(kind=iwp), external :: IrrFnc, MltLbl, n2Tri
 ! ipList: list of pointers to the integrals of each component
 !         of the operator
 ! OperI: list which irreps a particular component of the operator
@@ -79,8 +79,10 @@ external :: MltMem, KnEMem, MVeMem, VeMem, D1Mem, NAMem, EFMem, OAMMem, OMQMem, 
             dTdmu_Mem, PAM2Mem, FragPMem, P_Mem, EPEMem
 #ifdef _FDE_
 ! Embedding
-external :: embPotKernel, embPotMem
+integer(kind=iwp) :: iEMb, iunit
 real(kind=wp), allocatable :: Emb_Int(:)
+integer(kind=iwp), external :: isFreeUnit
+external :: embPotKernel, embPotMem
 #endif
 
 iRout = 131

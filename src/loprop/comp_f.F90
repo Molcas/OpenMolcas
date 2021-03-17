@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nBas
 real(kind=wp), intent(in) :: h0(nBas*(nBas+1)/2+4), Ei(nBas*(nBas+1)/2+4), Delta_i, S(nBas*(nBas+1)/2+4), Refx, Originx
-integer(kind=iwp), intent(out) :: Energy
+real(kind=wp), intent(out) :: Energy
 integer(kind=iwp) :: i, iComp, ireturn, iRc, iSyLbl, mBas(8), nInts, nsize
 real(kind=wp) :: PotNuc_Save
 character(len=8) :: Method, Label

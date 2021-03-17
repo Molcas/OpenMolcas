@@ -166,7 +166,7 @@ if (Diffuse(1)) then
   call mma_allocate(TP,nAtoms,label='ToPoint')
   call mma_allocate(MPp,nmu,label='NotToPoint')
   call dcopy_(nmu,MP,1,MPp,1)
-  call CoreToPoint(nAtoms,ipMPp,iTP)
+  call CoreToPoint(nAtoms,MPp,TP)
   LuYou = IsFreeUnit(81)
   call OpnFl('DIFFPR',LuYou,Exists)
   iTP = ip_of_Work(TP(1))

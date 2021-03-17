@@ -16,8 +16,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, iANr(nAtoms), nij, nPert, nElem
-integer(kind=iwp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
-integer(kind=iwp), intent(in) :: EC(3,nij), Alpha
+real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
+real(kind=wp), intent(in) :: EC(3,nij), Alpha
 real(kind=wp), allocatable :: A(:,:), AInv(:,:), dQ(:), Lambda(:)
 
 !                                                                      *

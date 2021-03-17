@@ -55,7 +55,7 @@ use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Run_Mode, G_Mode, S_Mode, GS_Mode
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
