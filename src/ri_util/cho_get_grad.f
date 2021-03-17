@@ -740,7 +740,7 @@ C --- Transform the densities to reduced set storage
                nMat=1
                Do jDen=1,nJdens
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              ipDLT(jDen),Work(ipDrs(jDen)),
+     &                              [ipDLT(jDen)],Work(ipDrs(jDen)),
      &                              mode,add)
                End Do
                If(iMp2prpt .eq. 2) Then

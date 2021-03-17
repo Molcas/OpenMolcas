@@ -242,8 +242,8 @@ C ------------------------------------------------------------------
 C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
-               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,ipDLT,Drs,mode,
-     &                           add)
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipDLT],Drs,
+     &                           mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -581,8 +581,8 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix in full storage
                mode = 'tofull'
                add  = .true.
-               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,ipFLT,Frs,mode,
-     &                           add)
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,[ipFLT],Frs,
+     &                           mode,add)
             endif
 
 C --- free memory

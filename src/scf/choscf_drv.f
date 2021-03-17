@@ -172,67 +172,71 @@ c       end do
 
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
-
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       if (ALGO.eq.1 .and. REORD) then
-
+*                                                                      *
+************************************************************************
+*                                                                      *
         FactX(1)=0.5d0*ExFac
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
      &                FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif (ALGO.eq.1 .and. .not.REORD) then
-
+*                                                                      *
+************************************************************************
+*                                                                      *
         FactX(1)=0.5d0*ExFac
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
      &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif  (ALGO.eq.2 .and. DECO) then  !use decomposed density
-
+*                                                                      *
+************************************************************************
+*                                                                      *
        FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
 
        if (REORD)then
-
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
        else
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
        endif
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif  (ALGO.eq.2 .and. REORD) then
-
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif  (ALGO.eq.2 .and. .not. REORD) then
 
       ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
-
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif (ALGO.eq.3) then
 
           Do iSym=1,nSym
@@ -257,9 +261,9 @@ c       end do
           CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Cka(1),ipDLT,xFac)
 
           Call Deallocate_DSBA(Cka(1))
-
-          If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif (ALGO.eq.4) then
 
              ipMOs(1)=ipMSQ(1)
@@ -273,14 +277,24 @@ c       end do
 
              CALL CHO_LK_SCF(rc,nDen,ipFLT,ipKLT,nForb,nIorb,
      &                         ipMOs,ipDLT,FactX(1),nSCReen,dmpk,dFKmat)
-
-          If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       else
+*                                                                      *
+************************************************************************
+*                                                                      *
           rc=99
           write(6,*)'Illegal Input. Specified Cholesky Algorithm= ',ALGO
           CALL QUIT(rc)
+*                                                                      *
+************************************************************************
+*                                                                      *
       endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (rc.ne.0) GOTO 999
 
       IF (DECO) CALL GETMEM('choMOs','free','real',ipVec,lVdim)
 

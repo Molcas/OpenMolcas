@@ -488,7 +488,7 @@ C --- Transform the density to reduced storage
                add = .False.
                nMat = 1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                             ipDLT,Drs,mode,add)
+     &                           [ipDLT],Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -624,7 +624,7 @@ c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    nMat=1
                    Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
-     &                                 ipDIAH,Work(ipDIAG),mode,add)
+     &                               [ipDIAH],Work(ipDIAG),mode,add)
 
                    CALL CWTIME(TCS2,TWS2)
                    tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1435,7 +1435,7 @@ c --- backtransform fock matrix to full storage
                add = .True.
                nMat=1
                Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                             ipFLT,Frs,mode,add)
+     &                           [ipFLT],Frs,mode,add)
             EndIf
 
 C --- free memory
