@@ -598,7 +598,6 @@ c         !set index arrays at iLoc
 **        Transform to full storage, use Lrs as temp storage
 *
           If (jsym.eq.1) Then
-            nDen=1
             add = .True.
             mode = 'tofull'
             nMat = 1

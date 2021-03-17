@@ -24,7 +24,7 @@
 #include "warnings.fh"
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_MCLR')
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),ipLpq(8,3)
+      Integer   ISTLT(8),ISTSQ(8),ipLpq(8,3)
       Integer   ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
@@ -62,15 +62,6 @@
         nnA = nnA + nAsh(iSym-1)
       End Do
       nnA = nnA + nAsh(nSym)
-*
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
-      END DO
 *
 **    Compute Shell Offsets ( MOs and transformed vectors)
 *
@@ -331,7 +322,7 @@ c --- backtransform fock matrix to full storage
              add = .True.
              nMat = 1
              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           ipJA,Fab,mode,add)
+     &                           [ipJA],Fab,mode,add)
              Call mma_deallocate(Fab)
           EndIf
           Call mma_deallocate(Lrs)
