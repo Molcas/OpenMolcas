@@ -95,14 +95,22 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Real*8, Allocatable:: DChk(:), Wab(:)
+      Real*8, Allocatable:: DChk(:)
+      Real*8, Allocatable, Target:: Wab(:)
+
+      Type V2
+        Real*8, Pointer:: A2(:,:)=>Null()
+      End Type V2
+
+      Type (V2) :: Lpq(8)
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
+******
+      nOcc(jSym,jDen) = iWork(ipNocc(jDen)-1+jSym)
 **************************************************
-
 
 #ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
@@ -110,17 +118,17 @@
 #endif
       IREDC = -1  ! unknown reduced set in core
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
+      CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        ! 1 --> CPU   2 --> Wall
-        tread(:) = zero  !time read/rreorder vectors
-        tcoul(:) = zero  !time for computing Coulomb
-        texch(:) = zero  !time for computing Exchange
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/rreorder vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
 
 c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
 c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
-        ISTSQ(1)=0
-        ISTLT(1)=0
+      ISTSQ(1)=0
+      ISTLT(1)=0
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NB2=NB*NB
@@ -136,11 +144,11 @@ c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
         if (DECO) xf=1.0d0
         Do jDen=1,nDen
           Do jSym=1,nSym
-           if (nBas(jSym).ne.0.and.iWork(ipNocc(jDen)+jSym-1).ne.0) then
+           if (nBas(jSym).ne.0.and.nOcc(jSym,jDen).ne.0) then
              Call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
              Call Cho_X_Test(Work(ipDSQ(jDen)+ISTSQ(jSym)),nBas(jSym),
      &                       Square,Work(ipMSQ(jDen)+ISTSQ(jSym)),
-     &                       iWork(ipNocc(jDen)+jSym-1),xf,Dchk,
+     &                       nOcc(jSym,jDen),xf,Dchk,
      &                       nBas(jSym)**2,Thr,irc)
              if(irc.eq.0)then
                 write(6,*)'*** DENSITY CHECK : OK! *** SYMM= ',jSym
@@ -197,7 +205,7 @@ C ------------------------------------------------------
 
 C SET UP THE READING
 C ------------------
-      Call GetMem('Maxavail','MAX','REAL',KDUM,LWORK)
+      Call mma_maxDBLE(LWORK)
 
       If (MinMem(jSym) .gt. 0) Then
          nVec = Min(LWORK/MinMem(jSym),NumCho(jSym))
@@ -250,35 +258,44 @@ c--- setup the skipping flags according to # of Occupied
             iSkip(k) = 666 ! always contribute to Coulomb
          else
           do jDen=1,nDen
-               iSkip(k) = iSkip(k) + iWork(ipNocc(jDen)+k-1)
-     &                             + iWork(ipNocc(jDen)+l-1)
+               iSkip(k) = iSkip(k) + nOcc(k,jDen) + nOcc(l,jDen)
           end do
          endif
       end do
 
 C --- Compute the total amount of memory needed to have the
 C --- vectors in core (full storage)
-         lChoV=0
+         iE=0
          Do iSymq=1,nSym
             iSymp = muld2h(jSym,iSymq)
-            IF (nBas(iSymq)*nBas(iSymp).ne.0) THEN
-             If(iSymp.gt.iSymq .and. iSkip(iSymp).ne.0) then
-               KSQ1(iSymp) = kWab + lChoV
-               lChoV = lChoV + Nbas(iSymp)*Nbas(iSymq)*NumV
-             Else
-               if(iSymp.eq.iSymq .and. iSkip(iSymp).ne.0) then
-                 KSQ1(iSymp) = kWab + lChoV
+
+            IF (nBas(iSymq)*nBas(iSymp)<=0) Cycle
+            iS = iE + 1
+
+            If(iSymp.gt.iSymq .and. iSkip(iSymp).ne.0) then
+               KSQ1(iSymp) = kWab + iE
+               iE = iE + Nbas(iSymp)*Nbas(iSymq)*NumV
+
+               Lpq(iSymq)%A2(1:Nbas(iSymp)*Nbas(iSymq),1:NumV) =>
+     &           Wab(iS:iE)
+            Else
+               If(iSymp.eq.iSymq .and. iSkip(iSymp).ne.0) then
+                 KSQ1(iSymp) = kWab + iE
 C --- Special trick for the vector L11 ; used to store X(a,Jb)
                  if(iSymp.eq.1.and.jSym.eq.1.and.DoSomeX)then
-                    lChoV = lChoV + lOff1*NumV
+                    iE = iE + lOff1*NumV
+                    Lpq(iSymq)%A2(1:lOff1,1:NumV) =>
+     &                  Wab(iS:iE)
                  else
-                    lChoV = lChoV + Nbas(iSymp)*(Nbas(iSymp)+1)/2*NumV
+                    iE = iE + Nbas(iSymp)*(Nbas(iSymp)+1)/2*NumV
+                    Lpq(iSymq)%A2(1:Nbas(iSymp)*(Nbas(iSymp)+1)/2,
+     &                            1:NumV) => Wab(iS:iE)
                  endif
-               endif
-             Endif
-            ENDIF
+               Endif
+            Endif
          End Do
 
+         lChoV = iE
          kLab = kWab + lChoV
          lScr = kTOT - lChoV
 
@@ -330,13 +347,14 @@ C
 
          CALL FZERO(Work(kLab),NumV)
          DO iSymr=1,nSym
-         IF(nBas(iSymr).ne.0.and.iWork(ipNocc(jDen)+iSymr-1).ne.0)THEN
+         IF(nBas(iSymr).ne.0.and.nOcc(isymr,jDen).ne.0)THEN
 
          ISDLT = ipDLT(jDen) + ISTLT(ISYMR)
          Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
 
          CALL DGEMV_('T',Naa,NumV,
      &              ONE,Work(KSQ1(iSymr)),Naa,
+*    &              ONE,Lpq(iSymr)%A2,Naa,
      &              Work(ISDLT),1,ONE,Work(kLab),1)
 
          ENDIF
@@ -355,6 +373,7 @@ C
 
            CALL DGEMV_('N',Naa,NumV,
      &              FactC(jDen),Work(KSQ1(iSyms)),Naa,
+*    &              FactC(jDen),Lpq(iSyms)%A2,Naa,
      &              Work(kLab),1,ONE,Work(ISFLT),1)
 
 c           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYMS
@@ -390,7 +409,7 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
           iSymr_Occ=0
           do jDen=1,nDen
-             iSymr_Occ = iSymr_Occ + iWork(ipNocc(jDen)+iSymr-1)
+             iSymr_Occ = iSymr_Occ + nOcc(iSymr,jDen)
           end do
           IF(nBas(iSymr).ne.0.and.iSymr_Occ.ne.0)THEN
 
@@ -418,10 +437,12 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
                       KOFF2 = (KQS2-1) + iSQ*(jS-1) + iVR + jR
 
-                      WORK(KOFF2) = WORK(KOFF1)
+                      WORK(KOFF2) = Lpq(iSymr)%A2(jSR,JVEC)
+*                     WORK(KOFF2) = WORK(KOFF1)
 
                       KOFF3 = (KQS2-1) + iSQ*(jR-1) + iVR + jS
 
+*                     WORK(KOFF2) = Lpq(iSymr)%A2(jSR,JVEC)
                       WORK(KOFF3) = WORK(KOFF1)
 
                    End Do
@@ -436,7 +457,7 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
            IF (DoExchange(jDen)) THEN
 
-              kOcc(iSymr) = iWork(ipNocc(jDen)+iSymr-1)
+              kOcc(iSymr) = nOcc(iSymr,jDen)
 
            IF (kOcc(iSymr).ne.0) THEN
 
@@ -511,7 +532,7 @@ C
        IF (DoExchange(jDen)) THEN
 C **** Occupation numbers needed for the Exchange term *****
               do iSym=1,nsym
-                 kOcc(iSym) = iWork(ipNocc(jDen)+iSym-1)
+                 kOcc(iSym) = nOcc(iSym,jDen)
               end do
 C **********************************************************
 C --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
