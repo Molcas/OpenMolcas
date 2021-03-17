@@ -81,19 +81,21 @@
 #endif
       Logical Square
       Character*50 CFmt
-      Character*11 SECNAM
-      Parameter (SECNAM = 'CHO_FMO_RED')
+      Character(LEN=11), Parameter :: SECNAM = 'CHO_FMO_RED'
 #include "chodensity.fh"
 #include "chotime.fh"
 #include "choscf.fh"
+#include "real.fh"
 
-      parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
-      Logical DoRead
-      parameter (DoRead = .true.)
+      Real*8, parameter :: xone = -One
+      Logical, Parameter :: DoRead = .true.
 
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Real*8, Allocatable:: DChk(:), Wab(:)
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -110,11 +112,10 @@
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero  !time read/rreorder vectors
-           tcoul(i) = zero  !time for computing Coulomb
-           texch(i) = zero  !time for computing Exchange
-        end do
+        ! 1 --> CPU   2 --> Wall
+        tread(:) = zero  !time read/rreorder vectors
+        tcoul(:) = zero  !time for computing Coulomb
+        texch(:) = zero  !time for computing Exchange
 
 c ISTSQ: Offsets to full symmetry block in DSQ,FSQ
 c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
@@ -136,21 +137,20 @@ c ISTLT: Offsets to packed LT symmetry blocks in DLT,FLT
         Do jDen=1,nDen
           Do jSym=1,nSym
            if (nBas(jSym).ne.0.and.iWork(ipNocc(jDen)+jSym-1).ne.0) then
-             Call Getmem('Dchk','allo','real',ipDchk,nBas(jSym)**2)
+             Call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
              Call Cho_X_Test(Work(ipDSQ(jDen)+ISTSQ(jSym)),nBas(jSym),
      &                       Square,Work(ipMSQ(jDen)+ISTSQ(jSym)),
-     &                       iWork(ipNocc(jDen)+jSym-1),xf,Work(ipDchk),
+     &                       iWork(ipNocc(jDen)+jSym-1),xf,Dchk,
      &                       nBas(jSym)**2,Thr,irc)
              if(irc.eq.0)then
                 write(6,*)'*** DENSITY CHECK : OK! *** SYMM= ',jSym
              else
                 write(6,*)'*** DENSITY CHECK FAILED IN SYMMETRY: ',
      &                    jSym,'FOR THE DENSITY NR. ',jDen
-                xnormY = sqrt(ddot_(nBas(jSym)**2,Work(ipDchk),1,
-     &                        Work(ipDchk),1))
+                xnormY = sqrt(ddot_(nBas(jSym)**2,Dchk,1,Dchk,1))
                 write(6,*)'    Norm of the residual vector = ',xnormY
              endif
-             Call Getmem('Dchk','free','real',ipDchk,nBas(jSym)**2)
+             Call mma_deallocate(Dchk)
            endif
           End Do
         End Do
@@ -239,7 +239,8 @@ C *************** BATCHING  *****************
          iVec = nVec*(iBatch - 1) + 1
 
          kTOT = MinMem(jSym)*NumV
-         Call GetMem('MemR','ALLO','REAL',kWab,kTOT)
+         Call mma_allocate(Wab,kTOT,Label='Wab')
+         kWab = ip_of_Work(Wab(1))
 
 c--- setup the skipping flags according to # of Occupied
       do k=1,nSym
@@ -453,14 +454,14 @@ C              -----------------------------------
      &               NK,NUMV*NBAS(ISYMR),NBAS(iSYMR),
      &               ONE,WORK(ISMSQ),NBAS(ISYMR),
      &                   Work(KQS2), NBAS(ISYMR),
-     &               ZERO,WORK(kWab),NK)
+     &               ZERO,Wab,NK)
 
 C              F(s,t) = F(s,t) - Sum(kJ) X(kJ,s)*X(kJ,t).
 C              ------------------------------------------
 c               CALL DGEMM_('T','N',
 c     &               NBAS(ISYMR),NBAS(iSYMR),NK*NUMV,
-c     &               -FactX(jDen),WORK(kWab),NK*NUMV,
-c     &                   Work(KWab),NK*NUMV,
+c     &               -FactX(jDen),Wab,NK*NUMV,
+c     &                   Wab,NK*NUMV,
 c     &                   One,Work(ISFSQ),NBAS(ISYMR))
 
 c *** Compute only the LT part of the exchange matrix ***************
@@ -650,7 +651,7 @@ C ************ END "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ***********
        ENDIF ! jSym.ne.1
 
 C --- Free the memory
-         Call GetMem('MemR','FREE','REAL',kWab,kTOT)
+         Call mma_deallocate(Wab)
 
       END DO  ! end of the batch procedure
 
