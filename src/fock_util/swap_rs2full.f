@@ -11,12 +11,13 @@
 * Copyright (C) Francesco Aquilante                                    *
 *               2021, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE swap_rs2full(irc,iLoc,nDen,JSYM,ipXLT,ipXab,mode,add)
+      SUBROUTINE swap_rs2full(irc,iLoc,nRS,nDen,JSYM,ipXLT,Xab,mode,add)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  irc, iLoc, nDen, JSYM
-      Integer ipXLT(nDen),ipXab(nDen)
+      Integer ipXLT(nDen)
+      Real*8 Xab(nRS,nDen)
       Logical add
       Character*6 mode
 
@@ -73,7 +74,7 @@ c           !address within that symm block
 
                kfrom = ipXLT(jDen) + isLT(iSyma) + iab - 1
 
-               Work(ipXab(jDen)+jRab-1) =  Work(kfrom)
+               Xab(jRab,jDen) =  Work(kfrom)
 
             End Do
 
@@ -108,7 +109,7 @@ c      ! TOTAL SYMMETRIC
 
                kto = ipXLT(jDen) + isLT(iSyma) + iab - 1
 
-               Work(kto) = Work(kto) + Work(ipXab(jDen)+jRab-1)
+               Work(kto) = Work(kto) + Xab(jRab,jDen)
 
             End Do
 
@@ -137,7 +138,7 @@ c      ! NON TOTAL-SYMMETRIC
 
                kto = ipXLT(jDen) - 1 + isSQ(iSyma,iSymb) + iab
 
-               Work(kto) = sqrt(abs(Work(ipXab(jDen)+kRab-1)))
+               Work(kto) = sqrt(abs(Xab(kRab,jDen)))
 
             End Do
 
@@ -165,9 +166,9 @@ c      ! NON TOTAL-SYMMETRIC
 
                kto = ipXLT(jDen) - 1 + isSQ(iSyma,iSyma)
 
-               Work(kto+iab) = sqrt(abs(Work(ipXab(jDen)+kRab-1)))
+               Work(kto+iab) = sqrt(abs(Xab(kRab,jDen)))
 
-               Work(kto+iba) = sqrt(abs(Work(ipXab(jDen)+kRab-1)))
+               Work(kto+iba) = sqrt(abs(Xab(kRab,jDen)))
 
             End Do
 

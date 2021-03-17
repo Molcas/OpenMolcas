@@ -61,7 +61,7 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipDab(2),ipFab(2),ipDD(2)
+      Integer   ipDD(2)
 
       Type (DSBA_Type)   Ash(2)
       Type (SBA_Type) Laq(1), Lxy
@@ -543,10 +543,6 @@ c           !set index arrays at iLoc
              Call mma_allocate(Frs,nRS,nDen,Label='Frs')
              Drs(:,:)=Zero
              Frs(:,:)=Zero
-             Do jden=1,nden
-               ipDab(jden) = ip_of_Work(Drs(1,jDen))
-               ipFab(jden) = ip_of_Work(Frs(1,jDen))
-             End Do
             EndIf
 
             Call mma_maxDBLE(LWORK)
@@ -573,8 +569,8 @@ c           !set index arrays at iLoc
 C --- Transform the densities to reduced set storage
                mode = 'toreds'
                add  = .false.
-               Call swap_rs2full(irc,iLoc,nDen,JSYM,
-     &                                  ipDLT,ipDab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,
+     &                                  ipDLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -713,8 +709,8 @@ c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    add  = .false.
                    nMat = 1
-                   Call swap_rs2full(irc,ired1,nMat,JSYM,
-     &                                     ipDIAH,ipDD,mode,add)
+                   Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+     &                               ipDIAH,Work(ipDD(1)),mode,add)
 
                   CALL CWTIME(TCS2,TWS2)
                   tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1516,8 +1512,8 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add  = .true.
-               Call swap_rs2full(irc,iLoc,nDen,JSYM,
-     &                                  ipFLT,ipFab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,
+     &                                  ipFLT,Frs,mode,add)
             EndIf
 
 C --- free memory

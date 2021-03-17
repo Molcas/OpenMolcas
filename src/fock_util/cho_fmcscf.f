@@ -57,7 +57,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2), ExFac
       Integer   ipDA1,ipDI
       Integer   ipFA,ipFI
-      Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
+      Integer   ipDLT(2),ipFLT(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
 #ifdef _DEBUGPRINT_
       Logical   Debug
@@ -210,16 +210,10 @@ C ------------------------------------------------------------------
 
                if(DoActive)then
                  Call mma_allocate(Drs,nRS,2,Label='Drs')
-                 ipDab(1) = ip_of_Work(Drs(1,1))
-                 ipDab(2) = ip_of_Work(Drs(1,2))
                  Call mma_allocate(Frs,nRS,2,Label='Frs')
-                 ipFab(1) = ip_of_Work(Frs(1,1))
-                 ipFab(2) = ip_of_Work(Frs(1,2))
                Else
                  Call mma_allocate(Drs,nRS,1,Label='Drs')
-                 ipDab(1) = ip_of_Work(Drs(1,1))
                  Call mma_allocate(Frs,nRS,1,Label='Frs')
-                 ipFab(1) = ip_of_Work(Frs(1,1))
                endif
 
             EndIf
@@ -248,7 +242,7 @@ C ------------------------------------------------------------------
 C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
-               Call swap_rs2full(irc,iLoc,nDen,JSYM,ipDLT,ipDab,mode,
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,ipDLT,Drs,mode,
      &                           add)
             EndIf
 
@@ -587,7 +581,7 @@ C --------------------------------------------------------------------
 c --- backtransform fock matrix in full storage
                mode = 'tofull'
                add  = .true.
-               Call swap_rs2full(irc,iLoc,nDen,JSYM,ipFLT,ipFab,mode,
+               Call swap_rs2full(irc,iLoc,nRS,nDen,JSYM,ipFLT,Frs,mode,
      &                           add)
             endif
 

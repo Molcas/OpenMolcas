@@ -327,12 +327,11 @@ c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
              mode = 'tofull'
              ipJA = ip_of_Work(JA(1))
-             ipFab= ip_of_Work(Fab(1))
              nDen = 1
              add = .True.
              nMat = 1
-             Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                           ipJA,ipFab,mode,add)
+             Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                           ipJA,Fab,mode,add)
              Call mma_deallocate(Fab)
           EndIf
           Call mma_deallocate(Lrs)

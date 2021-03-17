@@ -605,14 +605,14 @@ c         !set index arrays at iLoc
             Do i=1,ntotie
               ip1=ip_of_Work(iiab(1))+nab*(i-1)
               ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
-              Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                                   ip1,ipRS1,mode,add)
+              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                                   ip1,Work(ipRS1),mode,add)
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
-              ipRS1=ip_of_Work(turs(1))+nrs*(i-1)
-              Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                                   ip1,ipRS1,mode,add)
+              ipRS1=ip_of_Work(turs(1))+nRS*(i-1)
+              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                                   ip1,Work(ipRS1),mode,add)
             End Do
           EndIf
 *

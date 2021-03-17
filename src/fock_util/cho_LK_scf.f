@@ -42,7 +42,7 @@ C
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kOff(8,2)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    tscrn(2),tmotr(2)
-      Real*8    FactCI,FactXI,dmpk,dFmat,tau(2),thrv(2)
+      Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
       Integer   ipPLT(nDen),ipFLT(nDen),ipKLT(nDen)
       Integer   ipPorb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
@@ -51,13 +51,12 @@ C
 #endif
       Logical   DoScreen
       Character*50 CFmt
-      Character*10 SECNAM
-      Parameter (SECNAM = 'CHO_LK_SCF')
+      Character(LEN=10), Parameter :: SECNAM = 'CHO_LK_SCF'
 #include "chotime.fh"
 #include "choscreen.fh"
+#include "real.fh"
 
-      parameter (zero = 0.0D0, one = 1.0D0, xone = -1.0D0)
-      parameter (FactCI = one)
+      Real*8, Parameter :: xone = -One, FactCI = one
 
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -66,15 +65,14 @@ C
 #include "warnings.fh"
       Logical add
       Character*6 mode
-      Integer  Cho_F2SP
-      External Cho_F2SP
+      Integer, External:: Cho_F2SP
 
       Real*8 LKThr
       Real*8, External:: Cho_LK_ScreeningThreshold
       Integer, External:: Cho_LK_MaxVecPerBatch
       Integer, External:: ip_of_Work
 
-      Real*8, Allocatable:: Diag(:), DiaH(:)
+      Real*8, Allocatable:: Diag(:), DiaH(:), Lrs(:,:), Drs(:), Frs(:)
       Integer, Allocatable:: iShp_rs(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: jDiag(:)
@@ -113,13 +111,12 @@ C
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero  !time read/transform vectors
-           tcoul(i) = zero  !time for computing Coulomb
-           texch(i) = zero  !time for computing Exchange
-           tmotr(i) = zero  !time for the half-transf of vectors
-           tscrn(i) = zero  !time for screening overhead
-        end do
+        ! 1 --> CPU   2 --> Wall
+        tread(:) = zero  !time read/transform vectors
+        tcoul(:) = zero  !time for computing Coulomb
+        texch(:) = zero  !time for computing Exchange
+        tmotr(:) = zero  !time for the half-transf of vectors
+        tscrn(:) = zero  !time for screening overhead
 
 C ==================================================================
 
@@ -449,14 +446,14 @@ c           !set index arrays at iLoc
 
             If(JSYM.eq.1)Then
 
-               Call GetMem('rsPtot','Allo','Real',ipPab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipPab),nRS)
-               Call Fzero(Work(ipFab),nRS)
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
 
             EndIf
 
-            Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+            Call mma_maxDBLE(LWORK)
 
             nVec = min(LWORK/(nRS+mTvec+LFULL),min(nVrs,MaxVecPerBatch))
 
@@ -474,7 +471,7 @@ c           !set index arrays at iLoc
 
             LREAD = nRS*nVec
 
-            Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
+            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
             Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
             CALL GETMEM('FullV','Allo','Real',ipLF,LFULL*nVec)
 
@@ -483,8 +480,8 @@ C --- Transform the density to reduced storage
                mode = 'toreds'
                add  = .false.
                nMat=1
-               Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                           ipPLT,ipPab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                           ipPLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -504,7 +501,7 @@ C --- BATCH over the vectors ----------------------------
 
                CALL CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
@@ -529,8 +526,8 @@ C
                   ipVJ = ipChoT
 
                   CALL DGEMV_('T',nRS,JNUM,
-     &                       ONE,Work(ipLrs),nRS,
-     &                       Work(ipPab),1,ZERO,Work(ipVJ),1)
+     &                       ONE,Lrs,nRS,
+     &                       Drs,1,ZERO,Work(ipVJ),1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -538,8 +535,8 @@ C===============================================================
                   Fact = dble(min(jVec-iVrs,1))
 
                   CALL DGEMV_('N',nRS,JNUM,
-     &                       FactCI,Work(ipLrs),nRS,
-     &                       Work(ipVJ),1,Fact,Work(ipFab),1)
+     &                       FactCI,Lrs,nRS,
+     &                       Work(ipVJ),1,Fact,Frs,1)
 
 
                   CALL CWTIME(TCC2,TWC2)
@@ -565,9 +562,7 @@ C
 
                      Do jvc=1,JNUM
 
-                        ipL = ipLrs + nRS*(jvc-1)
-
-                        Diag(jrs) = Diag(jrs) + Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
 
                      End Do
 
@@ -593,7 +588,7 @@ C *** and blocked in shell pairs
                CALL FZero(Work(ipLF),LFULL*JNUM)
                CALL FZero(Work(ip_SvShp),2*nnShl)
 
-               CALL CHO_getShFull(Work(ipLrs),lread,JNUM,JSYM,
+               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,
      &                            IREDC,ipLF,Work(ip_SvShp),
      &                            iShp_rs)
 
@@ -615,10 +610,9 @@ c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    add  = .false.
                    nMat = 1
-                   ipDIAG = ip_of_Work(DIAG(1))
                    ipDIAH = ip_of_Work(DIAH(1))
-                   Call swap_rs2full(irc,ired1,nMat,JSYM,
-     &                               [ipDIAH],ipDIAG,mode,add)
+                   Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+     &                               [ipDIAH],DIAG,mode,add)
 
 
                   CALL CWTIME(TCS2,TWS2)
@@ -1228,8 +1222,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        ipL = ipLrs + nRS*(jvc-1)
-                        jDiag(jrs) = jDiag(jrs) + Work(ipL+krs-1)**2
+                        jDiag(jrs) = jDiag(jrs) + Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1243,8 +1236,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        ipL = ipLrs + nRS*(jvc-1)
-                        Diag(jrs) = Diag(jrs) - Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1259,8 +1251,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        ipL = ipLrs + nRS*(jvc-1)
-                        Diag(jrs) = Diag(jrs) - Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                      End Do
 
                   End Do
@@ -1285,19 +1276,19 @@ c --- backtransform fock matrix to full storage
                add  = .true.
                nMat = 1
                Do jDen = 1, nDen
-                  Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                           ipFLT(jDen),ipFab,mode,add)
+                  Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                           ipFLT(jDen),Frs,mode,add)
                End Do
             EndIf
 
 C --- free memory
             CALL GETMEM('FullV','Free','Real',ipLF,LFULL*nVec)
             Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-            Call GetMem('rsL','Free','Real',ipLrs,LREAD)
+            Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsPtot','Free','Real',ipPab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 999         Continue

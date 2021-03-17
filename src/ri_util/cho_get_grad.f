@@ -737,11 +737,15 @@ c            !set index arrays at iLoc
 C --- Transform the densities to reduced set storage
                mode = 'toreds'
                add  = .false.
-               Call swap_rs2full(irc,iLoc,nJdens,JSYM,
-     &                              ipDLT,ipDrs,mode,add)
+               nMat=1
+               Do jDen=1,nJdens
+                  Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                              ipDLT(jDen),Work(ipDrs(jDen)),
+     &                              mode,add)
+               End Do
                If(iMp2prpt .eq. 2) Then
-                  Call swap_rs2full(irc,iLoc,nJdens,JSYM,
-     &                              [ipDLT2],[ipDrs2],mode,add)
+                  Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                              [ipDLT2],Work(ipDrs2),mode,add)
                End If
             EndIf
 *
@@ -915,8 +919,8 @@ C --- Transform the densities to reduced set storage
                      ired1 = 1 ! location of the 1st red set
                      add  = .false.
                      nMat = 1
-                     Call swap_rs2full(irc,ired1,nMat,JSYM,
-     &                                  [ipDIAH],[ipDIAG],mode,add)
+                     Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+     &                                  [ipDIAH],Work(ipDIAG),mode,add)
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)

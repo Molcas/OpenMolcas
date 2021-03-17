@@ -486,10 +486,9 @@ c           !set index arrays at iLoc
 C --- Transform the density to reduced storage
                mode = 'toreds'
                add = .False.
-               ipDab = ip_of_Work(Drs(1))
                nMat = 1
-               Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                             ipDLT,ipDab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                             ipDLT,Drs,mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -624,8 +623,8 @@ c --------------------------------------------------------------------
                    add = .False.
                    ired1 = 1 ! location of the 1st red set
                    nMat=1
-                   Call swap_rs2full(irc,ired1,nMat,JSYM,
-     &                                 ipDIAH,ipDIAG,mode,add)
+                   Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+     &                                 ipDIAH,Work(ipDIAG),mode,add)
 
                    CALL CWTIME(TCS2,TWS2)
                    tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1434,10 +1433,9 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                add = .True.
-               ipFab = ip_of_Work(Frs(1))
                nMat=1
-               Call swap_rs2full(irc,iLoc,nMat,JSYM,
-     &                             ipFLT,ipFab,mode,add)
+               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
+     &                             ipFLT,Frs,mode,add)
             EndIf
 
 C --- free memory

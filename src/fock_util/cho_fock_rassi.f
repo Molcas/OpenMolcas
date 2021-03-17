@@ -192,10 +192,9 @@ C ------------------------------------------------------------------
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
-               ipDab=ip_of_Work(Drs(1))
                add =.False.
                mDen=1
-               Call swap_rs2full(irc,iLoc,mDen,JSYM,ipDLT,ipDab,mode,
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,ipDLT,Drs,mode,
      &                           add)
             EndIf
 
@@ -429,10 +428,9 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
-               ipFab=ip_of_Work(Frs(1))
                add = .True.
                mDen=1
-               Call swap_rs2full(irc,iLoc,mDen,JSYM,ipFLT,ipFab,mode,
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,ipFLT,Frs,mode,
      &                           add)
             EndIf
 
