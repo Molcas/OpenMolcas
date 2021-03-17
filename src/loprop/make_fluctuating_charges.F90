@@ -11,39 +11,39 @@
 
 subroutine Make_Fluctuating_Charges(nAtoms,iANr,nij,nPert,rMP,nElem,EC,Alpha)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, iANr(nAtoms), nij, nPert, nElem
 integer(kind=iwp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
 integer(kind=iwp), intent(in) :: EC(3,nij), Alpha
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ip_A, ip_AInv, ip_dq, ip_lambda
+real(kind=wp), allocatable :: A(:,:), AInv(:,:), dQ(:), Lambda(:)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! For the A-matrix
 
-call Allocate_Work(ip_AInv,nAtoms**2)
-call Allocate_Work(ip_A,nAtoms**2)
+call mma_allocate(AInv,nAtoms,nAtoms,label='AInv')
+call mma_allocate(A,nAtoms,nAtoms,label='A')
 
-call Build_AMatrix(nAtoms,iANr,Work(ip_A),Work(ip_AInv),EC,nij,Alpha)
+call Build_AMatrix(nAtoms,iANr,A,AInv,EC,nij,Alpha)
 
-call Free_Work(ip_A)
+call mma_deallocate(A)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Compute the fluctuating charges
 
-call Allocate_Work(ip_lambda,nAtoms)
-call Allocate_Work(ip_dq,nAtoms)
+call mma_allocate(Lambda,nAtoms,label='Lambda')
+call mma_allocate(dQ,nAtoms,label='dQ')
 
-call Fluctuating(Work(ip_AInv),nAtoms,Work(ip_lambda),Work(ip_dq),nij,nPert,iANr,rMP,nElem,EC,Alpha)
+call Fluctuating(AInv,nAtoms,Lambda,dQ,nij,nPert,iANr,rMP,nElem,EC,Alpha)
 
-call Free_Work(ip_lambda)
-call Free_Work(ip_dq)
-call Free_Work(ip_AInv)
+call mma_deallocate(Lambda)
+call mma_deallocate(dQ)
+call mma_deallocate(AInv)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

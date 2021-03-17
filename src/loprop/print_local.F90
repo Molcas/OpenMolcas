@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine Print_Local(rMP,nij,nElem,Coor,nAtoms,C_o_C,Q_Nuc,lMax,Lbl_Center,rMPq,EC,Polar,NoField,Temp,xrMP,xxRMP,xnrMP,iANr, &
-                       nOcOb,Energy_Without_FFPT,ip_Ene_Occ,MpProp_Level,Bond_Threshold,XHole,XHoleLoc,D2,ChPol,ChPolBB,LIonize)
+                       nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,XHole,XHoleLoc,D2,ChPolBB,LIonize)
 
 use Real_Spherical, only: Sphere, Sphere_Free
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -19,21 +19,20 @@ use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp), intent(in) :: nij, nElem, nAtoms, lMax, iANr(nAtoms), nOcOb, ip_Ene_Occ, MpProp_Level
+integer(kind=iwp), intent(in) :: nij, nElem, nAtoms, lMax, iANr(nAtoms), nOcOb, MpProp_Level
 real(kind=wp), intent(inout) :: rMP(nij,nElem), Temp(nij)
 real(kind=wp), intent(in) :: Coor(3,nAtoms), C_o_C(3), Q_Nuc(nAtoms), rMPq(nElem), EC(3,nij), Polar(6,nij), Energy_Without_FFPT, &
-                             Bond_Threshold, XHoleLoc(nij), D2, ChPol(6,nij), ChPolBB(6,nij)
+                             Ene_Occ(nOcOb), Bond_Threshold, XHoleLoc(nij), D2, ChPolBB(6,nij)
 character(len=LenIn), intent(in) :: Lbl_Center(nAtoms)
 logical(kind=iwp), intent(in) :: NoField, XHole, LIonize
 real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iAtom, i_Dim, iElem, iEnd, ij, iPol, iPrint, iScratch_New, iScratch_Org, iStrt, ix, iy, iz, jAtom, l, &
-                     nReal_Centers
+integer(kind=iwp) :: iAtom, i_Dim, iElem, iEnd, ij, iPol, iPrint, iStrt, ix, iy, iz, jAtom, l, nReal_Centers
 real(kind=wp) :: A(3), Charge_center, CRN, CRX, CRY, CRZ, CX(3), Dip_Tot, DR, LA, LI, LI_MIN, LI_TOT, Pol_Tot, Polar_M(6), &
                  rMP_Tot, rMP_Tot_Electronic, rMP_Tot_Nuclear, rms, Sites, TP, TP_Q, x2Dip
 character(len=80) :: Banner_Line(2)
 logical(kind=iwp) :: Center_OK, Check_Bond, get_BasisType
-real(kind=r8), external:: DDot_
+real(kind=wp), allocatable :: Scratch_New(:), Scratch_Org(:)
+real(kind=r8), external :: DDot_
 
 Sites = Zero
 LI_TOT = Zero
@@ -213,16 +212,16 @@ do iAtom=1,nAtoms
     end if ! Center_OK
 
     !debug
-    !call Allocate_Work(ip_EVec,9)
-    !call Allocate_Work(ip_EVal,6)
-    !call dcopy_(9,[Zero],0,Work(ip_EVec),1)
-    !call dcopy_(3,[One],0,Work(ip_EVec),4)
-    !call dcopy_(6,Polar(1,ij),1,Work(ip_EVal),1)
-    !call Jacob(Work(ip_EVal),Work(ip_EVec),3,3)
-    !call TriPrt('EVal',' ',Work(ip_EVal),3)
-    !call RecPrt('EVec',' ',Work(ip_EVec),3,3)
-    !call Free_Work(ip_EVal)
-    !call Free_Work(ip_EVec)
+    !call mma_allocate(EVec,9,label='EVec')
+    !call mma_allocate(EVal,6,label='EVal')
+    !call dcopy_(9,[Zero],0,EVec,1)
+    !call dcopy_(3,[One],0,EVec,4)
+    !call dcopy_(6,Polar(1,ij),1,EVal,1)
+    !call Jacob(EVal,EVec,3,3)
+    !call TriPrt('EVal',' ',EVal,3)
+    !call RecPrt('EVec',' ',EVec,3,3)
+    !call mma_deallocate(EVal)
+    !call mma_deallocate(EVec)
     !debug
     ! Reexpand all multipole moments to the center of mass
 
@@ -275,7 +274,7 @@ if (LIonize) then
     write(u6,'(A)') 'Lowest local ionization energy (eV)'
     write(u6,'(10F12.8)') LI_MIN*auToeV
     write(u6,'(A)') 'HOMO energy (absolute value, eV)'
-    write(u6,'(10F12.8)') abs(Work(ip_Ene_Occ+nOcOb-1))*auToeV
+    write(u6,'(10F12.8)') abs(Ene_Occ(nOcOb))*auToeV
     write(u6,'(A)') '=== =========================== ==='
     write(u6,'(A)')
   end if
@@ -315,16 +314,16 @@ if (.not. NoField) then
   end do
   call TriPrt('Molecular Polarizability Tensor',' ',Polar_M,3)
   !debug
-  !call Allocate_Work(ip_EVec,9)
-  !call Allocate_Work(ip_EVal,6)
-  !call dcopy_(9,Zero,0,Work(ip_EVec),1)
-  !call dcopy_(3,One,0,Work(ip_EVec),4)
-  !call dcopy_(6,Polar_M,1,Work(ip_EVal),1)
-  !call Jacob(Work(ip_EVal),Work(ip_EVec),3,3)
-  !call TriPrt('EVal',' ',Work(ip_EVal),3)
-  !call RecPrt('EVec',' ',Work(ip_EVec),3,3)
-  !call Free_Work(ip_EVal)
-  !call Free_Work(ip_EVec)
+  !call mma_allocate(EVec,9,label='EVec')
+  !call mma_allocate(EVal,6,label='EVal')
+  !call dcopy_(9,Zero,0,EVec,1)
+  !call dcopy_(3,One,0,EVec,4)
+  !call dcopy_(6,Polar_M,1,EVal,1)
+  !call Jacob(EVal,EVec,3,3)
+  !call TriPrt('EVal',' ',EVal,3)
+  !call RecPrt('EVec',' ',EVec,3,3)
+  !call mma_deallocate(EVal)
+  !call mma_deallocate(EVec)
   !debug
 end if
 if (XHole) then
@@ -336,10 +335,10 @@ end if
 !------ Generate mpprop file
 
 call Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl_Center,nAtoms,iANr,NoField,C_o_C,Coor,nOcOb,Energy_Without_FFPT, &
-                  ip_Ene_Occ,MpProp_Level,Bond_Threshold,nReal_Centers)
+                  Ene_Occ,MpProp_Level,Bond_Threshold,nReal_Centers)
 
-call Allocate_Work(iScratch_New,nij*(2*lMax+1))
-call Allocate_Work(iScratch_Org,nij*(2*lMax+1))
+call mma_allocate(Scratch_New,nij*(2*lMax+1),label='Scratch_New')
+call mma_allocate(Scratch_Org,nij*(2*lMax+1),label='Scratch_Org')
 
 !------ Compare the molecular multipole moments to the ones arrising from truncation
 !       xrMP contains the original multipole moments (electr. + nuclear)
@@ -351,11 +350,11 @@ call dCopy_(i_Dim,xrMP,1,xxrMP,1)
 
 iPrint = 1
 do l=lMax-1,0,-1
-  call CutOff_Error(l,lMax,xrMP,xxrMP,nij,EC,C_o_C,nElem,Work(iScratch_New),Work(iScratch_Org),nAtoms,iPrint,rms)
+  call CutOff_Error(l,lMax,xrMP,xxrMP,nij,EC,C_o_C,nElem,Scratch_New,Scratch_Org,nAtoms,iPrint,rms)
 end do
 
-call Free_Work(iScratch_New)
-call Free_Work(iScratch_Org)
+call mma_deallocate(Scratch_New)
+call mma_deallocate(Scratch_Org)
 call Sphere_Free()
 
 !-- Print warning if non-ANO basis sets have been used
@@ -370,7 +369,5 @@ end if
 !***********************************************************************
 !                                                                      *
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(ChPol)
 
 end subroutine Print_Local

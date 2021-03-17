@@ -9,26 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl,nAtoms,iANr,NoField,CoC,Coor,nOcOb,Energy_Without_FFPT, &
-                        ip_Ene_Occ,MpProp_Level,Bond_Threshold,nReal_Centers)
+subroutine Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl,nAtoms,iANr,NoField,CoC,Coor,nOcOb,Energy_Without_FFPT,Ene_Occ, &
+                        MpProp_Level,Bond_Threshold,nReal_Centers)
 
 !  rMP : Multipole moments moved to center of charge
 ! xrMP : Multipole moments kept on the expansion center
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp), intent(in) :: nij, nElem, lMax, nAtoms, iANr(nAtoms), nOcOb, ip_Ene_Occ, MpProp_Level, nReal_Centers
+integer(kind=iwp), intent(in) :: nij, nElem, lMax, nAtoms, iANr(nAtoms), nOcOb, MpProp_Level, nReal_Centers
 real(kind=wp), intent(in) :: rMP(nij,nElem), xrMP(nij,nElem), EC(3,nij), Polar(6,nij), CoC(3), Coor(3,nAtoms), &
-                             Energy_Without_FFPT, Bond_Threshold
+                             Energy_Without_FFPT, Ene_Occ(nOcOb), Bond_Threshold
 real(kind=wp), intent(inout) :: xnrMP(nij,nElem)
 character(len=LenIn), intent(in) :: Lbl(nAtoms)
 logical(kind=iwp), intent(in) :: NoField
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAtom, iElem, iEnd, ii, ij, iScratch_ele, iScratch_nuc, iSize, iStrt, iUnit, j, jAtom, l, Last_NonBlank, &
-                     lMax_for_size, MxMP, nBas(8), nCenters, nSym
+integer(kind=iwp) :: i, iAtom, iElem, iEnd, ii, ij, iSize, iStrt, iUnit, j, jAtom, l, Last_NonBlank, lMax_for_size, MxMP, nBas(8), &
+                     nCenters, nSym
 real(kind=wp) :: Polar_M(6)
 integer(kind=iwp), parameter :: lHeader = 144
 character(len=lHeader) :: Header
@@ -36,6 +36,7 @@ character(len=8) :: Method, Label
 character(len=6) :: fName
 logical(kind=iwp) :: Exists, Text, Bond_OK, Check_Bond, Found
 logical(kind=iwp), parameter :: Use_Two_Centers_For_Atoms = .false.
+real(kind=wp), allocatable :: Scratch_ele(:), Scratch_nuc(:)
 real(kind=r8), external :: DDot_
 
 MxMP = lMax
@@ -201,20 +202,20 @@ end do
 !*** Molecular properties
 
 write(iUnit,'(A)') '* Molecule properties'
-call Allocate_Work(iScratch_ele,nElem)
-call Allocate_Work(iScratch_nuc,nElem)
+call mma_allocate(Scratch_ele,nElem,label='Scratch_ele')
+call mma_allocate(Scratch_nuc,nElem,label='Scratch_nuc')
 do iElem=1,nElem
-  Work(iScratch_ele+iElem-1) = DDot_(nij,[One],0,rMP(1,iElem),1)
-  Work(iScratch_nuc+iElem-1) = DDot_(nij,[One],0,xnrMP(1,iElem),1)
+  Scratch_ele(iElem) = sum(rMP(:,iElem))
+  Scratch_nuc(iElem) = sum(xnrMP(:,iElem))
 end do
 iStrt = 1
 do l=0,MxMP
   iEnd = iStrt+(l+1)*(l+2)/2-1
-  write(iUnit,'(3F20.10)') (Work(iScratch_ele+iElem-1)+Work(iScratch_nuc+iElem-1),iElem=iStrt,iEnd)
+  write(iUnit,'(3F20.10)') (Scratch_ele(iElem)+Scratch_nuc(iElem),iElem=iStrt,iEnd)
   iStrt = iEnd+1
 end do
-call Free_Work(iScratch_ele)
-call Free_Work(iScratch_nuc)
+call mma_deallocate(Scratch_ele)
+call mma_deallocate(Scratch_nuc)
 
 if (NoField) then
   write(iUnit,'(3F20.10)') (Zero,iElem=1,6)
@@ -236,9 +237,7 @@ call Get_iArray('nBas',nBas,nSym)
 write(iUnit,'(A)') '* Orbital information'
 write(iUnit,'(2I5)') nBas(1),nOcOb
 write(iUnit,'(F20.10)') Energy_Without_FFPT
-write(iUnit,'(3F20.10)') (Work(ip_Ene_Occ+i),i=0,nOcOb-1)
-
-call Free_Work(ip_Ene_Occ)
+write(iUnit,'(3F20.10)') (Ene_Occ(i),i=1,nOcOb)
 
 close(iUnit)
 !                                                                      *

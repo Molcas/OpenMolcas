@@ -45,7 +45,7 @@ end do
 !       (1,2,3,4,5,6)=(xx,yx,yy,zx,zy,zz)
 
 do iPol=1,6
-  call FZero(Temp,nij)
+  Temp(:) = Zero
   !write (u6,*)
   do iAtom=1,nAtoms
     ii = iAtom*(iAtom+1)/2
@@ -64,7 +64,7 @@ do iPol=1,6
       !                                                                *
       ! iCar, jCar: index of cartesian for each perturbation
       !           1=x, 2=y, 3=z
-      iCar = int((One+sqrt(Eight*dble(iPol)-Three))/Two)
+      iCar = int((One+sqrt(Eight*real(iPol,kind=wp)-Three))/Two)
       jCar = iPol-iCar*(iCar-1)/2
 
       ! iPert, jPert: index vector to actuall perturbation

@@ -35,12 +35,12 @@ do iPert=1,6
   do iAtom=1,nAtoms
     R_BS_i = Bragg_Slater(iANr(iAtom))
     ii = iAtom*(iAtom+1)/2
-    call dcopy_(3,EC(1,ii),1,A,1)
+    A(:) = EC(:,ii)
 
     do jAtom=1,iAtom-1
       R_BS_j = Bragg_Slater(iANr(jAtom))
       jj = jAtom*(jAtom+1)/2
-      call dcopy_(3,EC(1,jj),1,B,1)
+      B(:) = EC(:,jj)
       rij2 = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
       ri = Lambda(iAtom)
       rj = Lambda(jAtom)

@@ -24,7 +24,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nij, iANr(nAtoms)
 real(kind=wp), intent(inout) :: Polar(6,nij)
 real(kind=wp), intent(in) :: EC(3,nij), Bond_Threshold
-integer(kind=iwp) :: iAtom, ii, ij, iPol, jAtom, jj
+integer(kind=iwp) :: iAtom, ii, ij, jAtom, jj
 logical(kind=iwp) :: Bond_Ok
 logical(kind=iwp), external :: Check_Bond
 
@@ -38,11 +38,9 @@ do iAtom=2,nAtoms
 
       ! Move half of the bond polarizabilities to each atom
 
-      do iPol=1,6
-        Polar(iPol,ii) = Polar(iPol,ii)+Half*Polar(iPol,ij)
-        Polar(iPol,jj) = Polar(iPol,jj)+Half*Polar(iPol,ij)
-        Polar(iPol,ij) = Zero
-      end do
+      Polar(:,ii) = Polar(:,ii)+Half*Polar(:,ij)
+      Polar(:,jj) = Polar(:,jj)+Half*Polar(:,ij)
+      Polar(:,ij) = Zero
     end if
   end do
 end do

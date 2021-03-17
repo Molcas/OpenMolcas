@@ -20,6 +20,7 @@ subroutine Polar(ireturn)
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,18 +31,19 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "WrkSpc.fh"
 integer(kind=iwp), parameter :: nElem = (iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6
 integer(kind=iwp) :: i, i_f, ip_ANr, ip_Center, ip_D(0:6), ip_EC, ip_Ene_Occ, ip_h0, ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), &
-                     ip_sq_temp, ip_tmp, ip_Ttot, ip_Ttot_Inv, ip_Type, ipC, ipCpl, ipCplT, iPert, iPlot, ipMP, ipMPp, ipMPq, &
-                     ipnxMP, ipP, ipPInv, ipPol, ipQ_Nuc, iPrint, ipXHLoc2, ipXHole2, ipxMP, ipxxMP, iTP, lMax, LoProp_Mode, &
-                     LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nDim, nij, nmu, nOcOb, nOrb(8), nPert, &
-                     nSize, nStateF, nStateI, nSym, nTemp, nThrs
+                     ip_Ttot, ip_Ttot_Inv, ip_Type, ipC, iPert, iPlot, ipMPp, ipP, ipPInv, ipQ_Nuc, iPrint, ipXHole2, iTP, lMax, &
+                     LoProp_Mode, LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nDim, nij, nmu, nOcOb, &
+                     nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp, nThrs
 real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), dMolExpec, Energy_Without_FFPT, Ep, Origin(3,0:iTabMx), &
                  SubScale, Thrs1, Thrs2, ThrsMul
 logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, XHole, Diffuse(3), Exists, &
                      LIonize
-character(len=LenIn) :: LblCnt(MxAtom)
-character(len=LenIn4) :: LblCnt4(MxAtom)
 character(len=12) :: Opt_Method
-integer(kind=iwp), external :: IsFreeUnit
+character(len=LenIn), allocatable :: LblCnt(:)
+character(len=LenIn4), allocatable :: LblCnt4(:)
+real(kind=wp), allocatable :: Cpl(:,:), CplT(:,:), EC(:,:), MP(:), MPp(:), MPq(:), nxMP(:), Pol(:,:), sq_temp(:), tmp(:), TP(:), &
+                              Ttot(:,:), Ttot_Inv(:,:), XHLoc2(:), xMP(:), xxMP(:)
+integer(kind=iwp), external :: IsFreeUnit, ip_of_Work
 
 !                                                                      *
 !***********************************************************************
@@ -74,11 +76,10 @@ call InfoToMp(nSym,nBas,Energy_Without_FFPT,ip_Ene_Occ,nOcOb,UserDen,Restart)
 !                                                                      *
 ! Do the LoProp localization.
 
-call GetMem('Ttot','Allo','Real',ip_Ttot,nBas1**2)
-call GetMem('TtotInv','Allo','Real',ip_Ttot_Inv,nBas1**2)
+call mma_allocate(Ttot,nBas1,nBas1,label='Ttot')
+call mma_allocate(Ttot_Inv,nBas1,nBas1,label='TtotInv')
 
-call Localize_LoProp_Drv(Work(ip_Ttot),Work(ip_Ttot_Inv),nBas,iWork(ip_Center),iWork(ip_Type),nBas1,nBas2,nSym,nBasMax,ipPInv, &
-                         Restart)
+call Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iWork(ip_Center),iWork(ip_Type),nBas1,nBas2,nSym,nBasMax,ipPInv,Restart)
 
 call Free_iWork(ip_type)
 !                                                                      *
@@ -92,11 +93,10 @@ write(u6,*)
 mElem = (lMax*(lMax**2+6*lMax+11)+6)/6
 
 nTemp = nBas1**2
-call Allocate_Work(ip_tmp,nTemp)
+call mma_allocate(tmp,nTemp,label='tmp')
 
-call Allocate_Work(ipMPq,mElem)
-call Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Work(ip_Ttot),Work(ip_tmp),Origin,Work(ipMPq),mElem,nBas1,nBas2,nBasMax,nTemp, &
-                        nSym,ipPInv,Restart,Utility)
+call mma_allocate(MPq,mElem,label='MPq')
+call Read_Multipole_Int(lMax,ip_sq_mu,nBas,ip_mu,Ttot,tmp,Origin,MPq,mElem,nBas1,nBas2,nBasMax,nTemp,nSym,ipPInv,Restart,Utility)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -141,56 +141,59 @@ nPert = 2*3+1
 if (NoField) nPert = 1
 nij = (nAtoms*(nAtoms+1)/2)
 nmu = nij*mElem*nPert
-call Allocate_Work(ipMP,nmu)
-call Allocate_Work(ip_sq_temp,nTemp)
-call Allocate_Work(ip_EC,3*nij)
+call mma_allocate(MP,nmu,label='MP')
+call mma_allocate(sq_temp,nTemp,label='sq_temp')
+call mma_allocate(EC,3,nij,label='EC')
 
-call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,Work(ip_sq_temp),Origin,iWork(ip_center),Work(ip_Ttot_Inv),Work(ip_tmp),nij, &
-                      nPert,ip_D,Work(ipMP),lMax,Work(ipMPq),CoC,Work(ip_EC),iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc), &
-                      Bond_Threshold,Utility,Opt_Method,iPlot,iPrint,nSym)
+call Local_Properties(Work(ipC),nAtoms,ip_sq_mu,mElem,sq_temp,Origin,iWork(ip_center),Ttot_Inv,tmp,nij,nPert,ip_D,MP,lMax,MPq,CoC, &
+                      EC,iWork(ip_ANr),Standard,nBas1,nTemp,Work(ipQ_Nuc),Bond_Threshold,Utility,Opt_Method,iPlot,iPrint,nSym)
 
 !-- If XHole integrals are available, localize them. Most unfortunate,
 !   the local_properties routine is focused on multipole moments,
 !   hence we rather write a new routine for Xhole, than significantly
 !   edit the local_properties routine.
 if (XHole) then
-  call Allocate_Work(ipXHLoc2,nij)
-  call Local_Xhole(ipXHole2,dMolExpec,nAtoms,nBas1,nTemp,iWork(ip_center),Work(ip_Ttot),Work(ip_Ttot_Inv),Work(ipC),nij, &
-                   Work(ip_EC),iWork(ip_ANr),Bond_Threshold,iPrint,ipXHLoc2)
-  call Free_Work(ipXHole2)
+  call mma_allocate(XHLoc2,nij,label='XHLoc2')
+  call Local_Xhole(ipXHole2,dMolExpec,nAtoms,nBas1,nTemp,iWork(ip_center),Ttot,Ttot_Inv,Work(ipC),nij,EC,iWork(ip_ANr), &
+                   Bond_Threshold,iPrint,XHLoc2)
 else
-  ipXHLoc2 = ip_Dummy
+  call mma_allocate(XHLoc2,0,label='XHLoc2')
 end if
 
 !-- If the dear user has requested to get diffuse distributions
 !   associated to the multipoles, go here.
 if (Diffuse(1)) then
-  call GetMem('ToPoint','Allo','Real',iTP,nAtoms)
-  call GetMem('NotToPoint','Allo','Real',ipMPp,nmu)
-  call dcopy_(nmu,Work(ipMP),1,Work(ipMPp),1)
+  call mma_allocate(TP,nAtoms,label='ToPoint')
+  call mma_allocate(MPp,nmu,label='NotToPoint')
+  call dcopy_(nmu,MP,1,MPp,1)
   call CoreToPoint(nAtoms,ipMPp,iTP)
   LuYou = IsFreeUnit(81)
   call OpnFl('DIFFPR',LuYou,Exists)
+  iTP = ip_of_Work(TP(1))
+  ipMPp = ip_of_Work(MPp(1))
+  ip_Ttot = ip_of_Work(Ttot(1,1))
+  ip_Ttot_Inv = ip_of_Work(Ttot_Inv(1,1))
+  ip_EC = ip_of_Work(EC(1,1))
   call Diff_MotherGoose(Diffuse,nAtoms,nBas1,ipMPp,ipC,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs, &
                         iPrint,ThrsMul,LuYou)
   close(LuYou)
-  call GetMem('ToPoint','Free','Real',iTP,nAtoms)
-  call GetMem('NotToPoint','Free','Real',ipMPp,nmu)
+  call mma_deallocate(TP)
+  call mma_deallocate(MPp)
 end if
 
 do i=mElem,1,-1
   call Free_Work(ip_sq_mu(i-1))
 end do
-call Free_Work(ip_Ttot)
-call Free_Work(ip_Ttot_Inv)
-call Free_Work(ip_sq_temp)
+call mma_deallocate(Ttot)
+call mma_deallocate(Ttot_Inv)
+call mma_deallocate(sq_temp)
 call Free_iWork(ip_center)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Allocate_Work(ipPol,6*nij)
-call Allocate_Work(ipCpl,6*nij)
-call Allocate_Work(ipCplT,6*nij)
+call mma_allocate(Pol,6,nij,label='Pol')
+call mma_allocate(Cpl,6,nij,label='Cpl')
+call mma_allocate(CplT,6,nij,label='CplT')
 
 if (.not. NoField) then
   !                                                                    *
@@ -202,14 +205,13 @@ if (.not. NoField) then
   !                                                                    *
   ! Compute the fluctuating charges
 
-  call Make_Fluctuating_Charges(nAtoms,iWork(ip_ANr),nij,nPert,Work(ipMP),mElem,Work(ip_EC),Alpha)
+  call Make_Fluctuating_Charges(nAtoms,iWork(ip_ANr),nij,nPert,MP,mElem,EC,Alpha)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   ! Assemble the localized polarizabilities
 
-  call Dynamic_Properties(Work(ip_tmp),nAtoms,Work(ipMP),nij,nPert,mElem,Delta,Work(ip_EC),Work(ipPol),iWork(ip_ANr), &
-                          Bond_Threshold,Work(ipCpl),Work(ipCplT))
+  call Dynamic_Properties(tmp,nAtoms,MP,nij,nPert,mElem,Delta,EC,Pol,iWork(ip_ANr),Bond_Threshold,Cpl,CplT)
 
 
 end if
@@ -218,41 +220,45 @@ end if
 !                                                                      *
 ! Print out the properties
 
-call Get_cArray('LP_L',LblCnt4,(LENIN4)*nAtoms)
+call mma_allocate(LbLCnt,nAtoms,label='LblCnt')
+call mma_allocate(LbLCnt4,nAtoms,label='LblCnt4')
+call Get_cArray('LP_L',LblCnt4,LenIn4*nAtoms)
 do i=1,nAtoms
-  LblCnt(i)(1:LENIN) = LblCnt4(i)(1:LENIN)
+  LblCnt(i) = LblCnt4(i)(1:LenIn)
 end do
+call mma_deallocate(LblCnt4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Allocate arrays needed in Print_Local
 
 nDim = nij*mElem
-call Allocate_Work(ipxMP,nDim)
-call Allocate_Work(ipxxMP,nDim)
-call Allocate_Work(ipnxMP,nDim)
-call Print_Local(Work(ipMP),nij,mElem,Work(ipC),nAtoms,CoC,Work(ipQ_Nuc),lMax,LblCnt,Work(ipMPq),Work(ip_EC),Work(ipPol),NoField, &
-                 Work(ip_Tmp),Work(ipxMP),Work(ipxxMP),Work(ipnxMP),iWork(ip_ANr),nOcOb,Energy_Without_FFPT,ip_Ene_Occ, &
-                 MpProp_Level,Bond_Threshold,XHole,Work(ipXHLoc2),dMolExpec,Work(ipCpl),Work(ipCplT),LIonize)
+call mma_allocate(xMP,nDim,label='xMP')
+call mma_allocate(xxMP,nDim,label='xxMP')
+call mma_allocate(nxMP,nDim,label='nxMP')
+call Print_Local(MP,nij,mElem,Work(ipC),nAtoms,CoC,Work(ipQ_Nuc),lMax,LblCnt,MPq,EC,Pol,NoField,tmp,xMP,xxMP,nxMP,iWork(ip_ANr), &
+                 nOcOb,Energy_Without_FFPT,Work(ip_Ene_Occ),MpProp_Level,Bond_Threshold,XHole,XHLoc2,dMolExpec,CplT,LIonize)
 
-call Free_Work(ipxMP)
-call Free_Work(ipxxMP)
-call Free_Work(ipnxMP)
+call mma_deallocate(LblCnt)
+call Free_Work(ip_Ene_Occ)
+call mma_deallocate(xMP)
+call mma_deallocate(xxMP)
+call mma_deallocate(nxMP)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Free_Work(ipPol)
-call Free_Work(ipCpl)
-call Free_Work(ipCplT)
+call mma_deallocate(Pol)
+call mma_deallocate(Cpl)
+call mma_deallocate(CplT)
 
 call Free_Work(ipQ_Nuc)
-call Free_Work(ipMPq)
-call Free_Work(ip_EC)
-call Free_Work(ipMP)
-call Free_Work(ip_Tmp)
+call mma_deallocate(MPq)
+call mma_deallocate(EC)
+call mma_deallocate(MP)
+call mma_deallocate(tmp)
 call Free_iWork(ip_ANr)
 call Free_Work(ipC)
-if (Xhole) call Free_Work(ipXHLoc2)
+call mma_deallocate(XHLoc2)
 if (nSym /= 1) then
   call Free_Work(ipP)
   call Free_Work(ipPInv)

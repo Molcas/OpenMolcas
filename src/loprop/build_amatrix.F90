@@ -28,11 +28,11 @@ real(kind=wp), external :: Bragg_Slater
 !                                                                      *
 do iAtom=1,nAtoms
   ii = iAtom*(iAtom+1)/2
-  call dcopy_(3,EC(1,ii),1,A,1)
+  A(:) = EC(:,ii)
   R_BS_i = Bragg_Slater(iANr(iAtom))
   do jAtom=1,iAtom-1
     jj = jAtom*(jAtom+1)/2
-    call dcopy_(3,EC(1,jj),1,B,1)
+    B(:) = EC(:,jj)
     R_BS_j = Bragg_Slater(iANr(jAtom))
     rij2 = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
     rij02 = ((R_BS_i+R_BS_j))**2
@@ -43,7 +43,7 @@ do iAtom=1,nAtoms
   temp = zero
   do jAtom=1,nAtoms
     jj = jAtom*(jAtom+1)/2
-    call dcopy_(3,EC(1,jj),1,B,1)
+    B(:) = EC(:,jj)
     R_BS_j = Bragg_Slater(iANr(jAtom))
     rij2 = (A(1)-B(1))**2+(A(2)-B(2))**2+(A(3)-B(3))**2
     rij02 = ((R_BS_i+R_BS_j))**2

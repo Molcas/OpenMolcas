@@ -546,7 +546,7 @@ C     Get multipole properties
         Call StoreMpAsLop(nAtoms,ip_ANr,nBas(1),ip_Ttot,ip_Ttot_Inv
      &                   ,ipMP,nMltPl,ip_EC)
         Call GetMem('ToPoint','Allo','Real',iTP,nAtoms)
-        Call CoreToPoint(nAtoms,ipMP,iTP)
+        Call CoreToPoint(nAtoms,Work(ipMP),Work(iTP))
         LuYou=IsFreeUnit(81)
         Call OpnFl('DIFFPR',LuYou,Exist)
         Call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),ipMP,ip_Coor

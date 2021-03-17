@@ -11,40 +11,22 @@
 
 subroutine Comp_F(h0,Ei,nBas,Delta_i,Energy,S,Refx,Originx)
 
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: nBas
-real(kind=wp), intent(in) :: h0(*), Ei(*), Delta_i, S(*), Refx, Originx
-integer(kind=iwp), intent(out) :: Energy
-#include "WrkSpc.fh"
-integer(kind=iwp) :: nInts, ip_h0
-
-nInts = nBas*(nBas+1)/2
-call Allocate_Work(ip_h0,nInts+4)
-call Comp_F_(h0,Ei,nBas,Delta_i,Energy,Work(ip_h0),S,Refx,Originx,nInts)
-call Free_Work(ip_h0)
-
-return
-
-end subroutine Comp_F
-
-subroutine Comp_F_(h0,Ei,nBas,Delta_i,Energy,h0_temp,S,Refx,Originx,nInts)
-
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nBas, nInts
-real(kind=wp), intent(in) :: h0(nInts+4), Ei(nInts+4), Delta_i, S(nInts+4), Refx, Originx
+integer(kind=iwp), intent(in) :: nBas
+real(kind=wp), intent(in) :: h0(nBas*(nBas+1)/2+4), Ei(nBas*(nBas+1)/2+4), Delta_i, S(nBas*(nBas+1)/2+4), Refx, Originx
 integer(kind=iwp), intent(out) :: Energy
-real(kind=wp), intent(out) :: h0_temp(nInts+4)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iComp, iDum, ipC, ireturn, iRc, iSyLbl, mBas(8), nsize
+integer(kind=iwp) :: i, iComp, ireturn, iRc, iSyLbl, mBas(8), nInts, nsize
 real(kind=wp) :: PotNuc_Save
 character(len=8) ::  Method, Label
+real(kind=wp), allocatable :: h0_temp(:)
+
+nInts = nBas*(nBas+1)/2
+call mma_allocate(h0_temp,nInts+4,label='h0_temp')
 
 call Get_cArray('Relax Method',Method,8)
-call Allocate_Work(ipC,1)
 call Get_iScalar('nSym',i)
 call Get_iArray('nBas',mBas,i)
 nsize = nInts+4
@@ -75,7 +57,6 @@ if (Method == 'RHF-SCF' .or. Method == 'UHF-SCF' .or. Method == 'KS-DFT') then
   call SCF(ireturn)
   call xml_close('module')
   if (iReturn /= 0) Go To 99
-  call GetMem('PT2','Flush','Real',ipC,iDum)
 
   else if (Method(1:5) == 'MBPT2') then
 
@@ -85,12 +66,10 @@ if (Method == 'RHF-SCF' .or. Method == 'UHF-SCF' .or. Method == 'KS-DFT') then
   call SCF(ireturn)
   call xml_close('module')
   if (iReturn /= 0) Go To 99
-  call GetMem('PT2','Flush','Real',ipC,iDum)
   call StartLight('mbpt2')
   call Disable_Spool()
   call mp2_driver(ireturn)
   if (iReturn /= 0) Go To 99
-  call GetMem('PT2','Flush','Real',ipC,iDum)
 
 else if (Method == 'RASSCF' .or. Method == 'CASSCF') then
 
@@ -98,7 +77,6 @@ else if (Method == 'RASSCF' .or. Method == 'CASSCF') then
   call Disable_Spool()
   call RASSCF(ireturn)
   if (iReturn /= 0) Go To 99
-  call GetMem('PT2','Flush','Real',ipC,iDum)
 
 else if (Method == 'CASPT2') then
 
@@ -106,12 +84,10 @@ else if (Method == 'CASPT2') then
   call Disable_Spool()
   call RASSCF(ireturn)
   if (iReturn /= 0) Go To 99
-  call GetMem('PT2','Flush','Real',ipC,iDum)
   call StartLight('caspt2')
   call Disable_Spool()
   call CASPT2(ireturn)
   if (iReturn /= 0) Go To 99
-  call GetMem('PT2','Flush','Real',ipC,iDum)
 
 else
   write(u6,*) 'Method=',Method
@@ -121,10 +97,11 @@ end if
 
 !call Get_Energy(Energy)
 call Get_dScalar('Last energy',Energy)
-call Free_Work(ipC)
 
 call WrOne(iRc,0,Label,iComp,h0,iSyLbl)
 call Put_dScalar('PotNuc',PotNuc_Save)
+
+call mma_deallocate(h0_temp)
 
 return
 
@@ -133,7 +110,5 @@ write(u6,*)
 write(u6,*) 'Comp_f: Wave function calculation failed!'
 write(u6,*)
 call Abend()
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nBas)
 
-end subroutine Comp_F_
+end subroutine Comp_F
