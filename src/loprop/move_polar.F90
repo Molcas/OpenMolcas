@@ -17,11 +17,16 @@ subroutine Move_Polar(Polar,EC,nAtoms,nij,iANr,Bond_Threshold)
 !
 ! Multipole moments are moved in the Move_Prop subroutine!
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 EC(3,nij), Polar(6,nij)
-integer iAnr(nAtoms)
-logical Bond_OK, Check_Bond
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nij, iANr(nAtoms)
+real(kind=wp), intent(inout) :: Polar(6,nij)
+real(kind=wp), intent(in) :: EC(3,nij), Bond_Threshold
+integer(kind=iwp) :: iAtom, ii, ij, iPol, jAtom, jj
+logical(kind=iwp) :: Bond_Ok
+logical(kind=iwp), external :: Check_Bond
 
 do iAtom=2,nAtoms
   ii = iAtom*(iAtom+1)/2

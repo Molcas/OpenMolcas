@@ -20,21 +20,28 @@ subroutine Polar(ireturn)
 !             of Lund, SWEDEN.                                         *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "timtra.fh"
-parameter(nElem=(iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6)
 #include "WrkSpc.fh"
-#include "real.fh"
-real*8 Origin(3,0:iTabMx), CoC(3)
-integer nBas(8), ip_mu(0:nElem-1), nOrb(8), ip_sq_mu(0:nElem-1), ip_D(0:6)
-logical NoField, Standard, Utility, UserDen, PrintDen, SubtractDen
-logical Restart, TDensity, XHole, Diffuse(3), Exist, LIonize
-character*(LENIN) LblCnt(MxAtom)
-character*(LENIN4) LblCnt4(MxAtom)
-character*12 Opt_Method
-dimension dLimmo(2)
+integer(kind=iwp), parameter :: nElem = (iTabMx*(iTabMx**2+6*iTabMx+11)+6)/6
+integer(kind=iwp) :: i, i_f, ip_ANr, ip_Center, ip_D(0:6), ip_EC, ip_Ene_Occ, ip_h0, ip_mu(0:nElem-1), ip_sq_mu(0:nElem-1), &
+                     ip_sq_temp, ip_tmp, ip_Ttot, ip_Ttot_Inv, ip_Type, ipC, ipCpl, ipCplT, iPert, iPlot, ipMP, ipMPp, ipMPq, &
+                     ipnxMP, ipP, ipPInv, ipPol, ipQ_Nuc, iPrint, ipXHLoc2, ipXHole2, ipxMP, ipxxMP, iTP, lMax, LoProp_Mode, &
+                     LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nDim, nij, nmu, nOcOb, nOrb(8), nPert, &
+                     nSize, nStateF, nStateI, nSym, nTemp, nThrs
+real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), dMolExpec, Energy_Without_FFPT, Ep, Origin(3,0:iTabMx), &
+                 SubScale, Thrs1, Thrs2, ThrsMul
+logical(kind=iwp) :: NoField, Standard, Utility, UserDen, PrintDen, SubtractDen, Restart, TDensity, XHole, Diffuse(3), Exists, &
+                     LIonize
+character(len=LenIn) :: LblCnt(MxAtom)
+character(len=LenIn4) :: LblCnt4(MxAtom)
+character(len=12) :: Opt_Method
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -80,8 +87,8 @@ call Free_iWork(ip_type)
 ! Read in the multipole moment integrals once and for all.
 
 call Get_iScalar('Highest Mltpl',lMax)
-write(6,'(A,I2)') ' Multipole moments will be processed up to order ',lMax
-write(6,*)
+write(u6,'(A,I2)') ' Multipole moments will be processed up to order ',lMax
+write(u6,*)
 mElem = (lMax*(lMax**2+6*lMax+11)+6)/6
 
 nTemp = nBas1**2
@@ -108,10 +115,10 @@ if (.not. NoField) then
   ! Read the one-electron hamiltonian.
   call Read_h0(nSize,nBas(1),ip_h0,Restart)
   do iPert=1,6
-    if = (iPert+1)/2
+    i_f = (iPert+1)/2
     Dlt = -Dlt
     if ((.not. Restart) .and. (.not. UserDen)) then
-      call Comp_F(Work(ip_h0),Work(ip_mu(if)),nBas(1),Dlt,Ep,Work(ip_mu(0)),CoC(if),Origin(if,1))
+      call Comp_F(Work(ip_h0),Work(ip_mu(i_f)),nBas(1),Dlt,Ep,Work(ip_mu(0)),CoC(i_f),Origin(i_f,1))
     end if
     call Get_Density_Matrix(ip_D(iPert),nBas1,nBas2,nBasMax,nBas,nSym,ipP,UserDen,PrintDen,SubtractDen,SubScale,Work(ipQ_Nuc), &
                             nAtoms,iPert,Restart,Utility,TDensity,nStateI,nStateF)
@@ -163,7 +170,7 @@ if (Diffuse(1)) then
   call dcopy_(nmu,Work(ipMP),1,Work(ipMPp),1)
   call CoreToPoint(nAtoms,ipMPp,iTP)
   LuYou = IsFreeUnit(81)
-  call OpnFl('DIFFPR',LuYou,Exist)
+  call OpnFl('DIFFPR',LuYou,Exists)
   call Diff_MotherGoose(Diffuse,nAtoms,nBas1,ipMPp,ipC,nij,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,lMax,iTP,dLimmo,Thrs1,Thrs2,nThrs, &
                         iPrint,ThrsMul,LuYou)
   close(LuYou)

@@ -12,12 +12,16 @@
 subroutine Build_AMatrix(nAtoms,iANr,AMatrix,AInvMatrix,EC,nij,Alpha)
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "constants.fh"
-real*8 A(3), B(3), AMatrix(nAtoms,nAtoms), AInvMatrix(nAtoms,nAtoms), EC(3,nij)
-integer iANr(nAtoms)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, iANr(nAtoms), nij
+real(kind=wp), intent(out) :: AMatrix(nAtoms,nAtoms), AInvMatrix(nAtoms,nAtoms)
+real(kind=wp), intent(in) :: EC(3,nij), Alpha
+integer(kind=iwp) :: i, iAtom, ii, ISING, j, jAtom, jj
+real(kind=wp) :: A(3), B(3), DET, R_BS_i, R_BS_j, rij02, rij2, Shift, temp
+real(kind=wp), external :: Bragg_Slater
 
 !                                                                      *
 !***********************************************************************
@@ -61,7 +65,7 @@ do i=1,nAtoms
   end do
 end do
 Shift = Two*Shift
-!write(6,*) 'Shift=',Shift
+!write(u6,*) 'Shift=',Shift
 call DaXpY_(nAtoms**2,Shift,[One],0,AMatrix,1)
 !call RecPrt('A-matrix(Shifted)','(5G12.5)',AMatrix,nAtoms, nAtoms)
 !                                                                      *

@@ -11,27 +11,32 @@
 
 subroutine Dynamic_Properties(Temp,nAtoms,rMP,nij,nPert,nElem,Delta,EC,Polar,iANr,Bond_Threshold,ChPol,ChPolBB)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 Temp(nij), A(3), B(3), EC(3,nij), Polar(6,nij), rMP(nij,0:nElem-1,0:nPert-1), ChPol(6,nij), ChPolBB(6,nij)
-integer iAnr(nAtoms)
+use Constants, only: Zero, One, Two, Three, Eight, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nij, nPert, nElem, iANr(nAtoms)
+real(kind=wp), intent(out) :: Temp(nij), Polar(6,nij), ChPol(6,nij), ChPolBB(6,nij)
+real(kind=wp), intent(in) :: rMP(nij,0:nElem-1,0:nPert-1), Delta, EC(3,nij), Bond_Threshold
+integer(kind=iwp) :: iAtom, iCar, ii, ij, iPert, iPert_, iPol, jAtom, jCar, jj, jPert, jPert_
+real(kind=wp) :: A(3), B(3), Pol1, Pol1a, Pol1b, Pol2, Rij_iCar
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !call RecPrt('rMP',' ',rMP,nij*nElem,nPert)
-write(6,*)
-write(6,*) ' D y n a m i c  P r o p e r t i e s'
-write(6,*)
-write(6,*) ' Properties computed with FFPT'
-write(6,*)
+write(u6,*)
+write(u6,*) ' D y n a m i c  P r o p e r t i e s'
+write(u6,*)
+write(u6,*) ' Properties computed with FFPT'
+write(u6,*)
 
 do iPol=1,6
   do iAtom=1,nAtoms
     do jAtom=1,iAtom
       ij = iAtom*(iAtom-1)/2+jAtom
-      ChPol(iPol,ij) = 0.0
-      ChPolBB(iPol,ij) = 0.0
+      ChPol(iPol,ij) = Zero
+      ChPolBB(iPol,ij) = Zero
     end do
   end do
 end do
@@ -41,7 +46,7 @@ end do
 
 do iPol=1,6
   call FZero(Temp,nij)
-  !write (6,*)
+  !write (u6,*)
   do iAtom=1,nAtoms
     ii = iAtom*(iAtom+1)/2
     call dcopy_(3,EC(1,ii),1,A,1)
@@ -78,20 +83,20 @@ do iPol=1,6
       jPert_ = iPert_+1
       Pol1b = (rMP(ij,jCar,iPert_)-rMP(ij,jCar,jPert_))/(Two*Delta)
       Pol1 = Half*(Pol1a+Pol1b)
-      !write(6,*) 'Pol1',ij,iCar,iPert,jPert
-      !write(6,*) rMP(ij,iCar,iPert),rMP(ij,iCar,jPert)
+      !write(u6,*) 'Pol1',ij,iCar,iPert,jPert
+      !write(u6,*) rMP(ij,iCar,iPert),rMP(ij,iCar,jPert)
       !
       ! Contribution due to change of localized charges
       !
       if (iAtom /= jAtom) then
         Rij_iCar = B(iCar)-A(iCar)
-        !write(6,*) rMP(ij,0,iPert),rMP(ij,0,jPert)
+        !write(u6,*) rMP(ij,0,iPert),rMP(ij,0,jPert)
         Pol2 = (rMP(ij,0,iPert)-rMP(ij,0,jPert))*Rij_iCar/(Two*Delta)
       else
         Pol2 = Zero
       end if
 
-      !write(6,*) Pol1, Pol2
+      !write(u6,*) Pol1, Pol2
 
       Temp(ij) = Temp(ij)+Pol1+Pol2
       Polar(iPol,ij) = Temp(ij)

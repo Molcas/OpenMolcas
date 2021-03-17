@@ -11,9 +11,14 @@
 
 subroutine Comp_F(h0,Ei,nBas,Delta_i,Energy,S,Refx,Originx)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nBas
+real(kind=wp), intent(in) :: h0(*), Ei(*), Delta_i, S(*), Refx, Originx
+integer(kind=iwp), intent(out) :: Energy
 #include "WrkSpc.fh"
-real*8 h0(*), Ei(*), S(*)
+integer(kind=iwp) :: nInts, ip_h0
 
 nInts = nBas*(nBas+1)/2
 call Allocate_Work(ip_h0,nInts+4)
@@ -26,12 +31,17 @@ end subroutine Comp_F
 
 subroutine Comp_F_(h0,Ei,nBas,Delta_i,Energy,h0_temp,S,Refx,Originx,nInts)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nBas, nInts
+real(kind=wp), intent(in) :: h0(nInts+4), Ei(nInts+4), Delta_i, S(nInts+4), Refx, Originx
+integer(kind=iwp), intent(out) :: Energy
+real(kind=wp), intent(out) :: h0_temp(nInts+4)
 #include "WrkSpc.fh"
-#include "real.fh"
-real*8 h0(nInts+4), h0_temp(nInts+4), Ei(nInts+4), S(nInts+4)
-character*8 Method, Label
-integer mBas(8)
+integer(kind=iwp) :: i, iComp, iDum, ipC, ireturn, iRc, iSyLbl, mBas(8), nsize
+real(kind=wp) :: PotNuc_Save
+character(len=8) ::  Method, Label
 
 call Get_cArray('Relax Method',Method,8)
 call Allocate_Work(ipC,1)
@@ -104,8 +114,8 @@ else if (Method == 'CASPT2') then
   call GetMem('PT2','Flush','Real',ipC,iDum)
 
 else
-  write(6,*) 'Method=',Method
-  write(6,*) ' Oups!'
+  write(u6,*) 'Method=',Method
+  write(u6,*) ' Oups!'
   call Abend()
 end if
 
@@ -119,9 +129,9 @@ call Put_dScalar('PotNuc',PotNuc_Save)
 return
 
 99 continue
-write(6,*)
-write(6,*) 'Comp_f: Wave function calculation failed!'
-write(6,*)
+write(u6,*)
+write(u6,*) 'Comp_f: Wave function calculation failed!'
+write(u6,*)
 call Abend()
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer(nBas)

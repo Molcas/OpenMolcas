@@ -11,11 +11,17 @@
 
 subroutine Fluctuating(AInv,nAtoms,Lambda,dQ,nij,nPert,iANr,rMP,nElem,EC,Alpha)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "constants.fh"
-real*8 AInv(nAtoms,nAtoms), Lambda(nAtoms), dQ(nAtoms), EC(3,nij), A(3), B(3), rMP(nij,0:nElem-1,0:nPert-1)
-integer iANr(nAtoms)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nij, nPert, iANr(nAtoms), nElem
+real(kind=wp), intent(in) :: AInv(nAtoms,nAtoms), EC(3,nij), Alpha
+real(kind=wp), intent(out) :: Lambda(nAtoms), dQ(nAtoms)
+real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
+integer(kind=iwp) :: iAtom, ii, ij, iPert, jAtom, jj
+real(kind=wp) :: A(3), B(3), R_BS_i, R_BS_j, ri, rij02, rij2, rj
+real(kind=wp), external :: Bragg_Slater
 
 do iPert=1,6
   do iAtom=1,nAtoms
@@ -23,7 +29,7 @@ do iPert=1,6
     dQ(iAtom) = rMP(ii,0,0)-rMP(ii,0,iPert)
   end do
   !call RecPrt('dQ',' ',dQ,1,nAtoms)
-  call DGEMM_('N','N',nAtoms,1,nAtoms,1.0d0,AInv,nAtoms,dQ,nAtoms,0.0d0,Lambda,nAtoms)
+  call DGEMM_('N','N',nAtoms,1,nAtoms,One,AInv,nAtoms,dQ,nAtoms,Zero,Lambda,nAtoms)
   !call RecPrt('Lambda',' ',Lambda,1,nAtoms)
 
   do iAtom=1,nAtoms
@@ -40,9 +46,9 @@ do iPert=1,6
       rj = Lambda(jAtom)
       rij02 = ((R_BS_i+R_BS_j))**2
       ij = iAtom*(iAtom-1)/2+jAtom
-      !write(6,*) ij,ri,rj,rij02
+      !write(u6,*) ij,ri,rj,rij02
       rMP(ij,0,iPert) = -(ri-rj)*exp(-Alpha*(rij2/rij02))/Two
-      !write(6,*) 'RMP',iAtom,jAtom,rMP(ij,0,iPert)
+      !write(u6,*) 'RMP',iAtom,jAtom,rMP(ij,0,iPert)
     end do
 
   end do

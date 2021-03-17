@@ -15,20 +15,28 @@ subroutine Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl,nAtoms,iANr,N
 !  rMP : Multipole moments moved to center of charge
 ! xrMP : Multipole moments kept on the expansion center
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
+
+implicit none
 #include "Molcas.fh"
-real*8 rMP(nij,nElem), xrMP(nij,nElem), xnrMP(nij,nElem), CoC(3), EC(3,nij), Polar(6,nij), Polar_M(6), Coor(3,nAtoms)
-integer iANr(nAtoms), nBas(8), lHeader
-parameter(lHeader=144)
-character*(lHeader) Header
-character*(LENIN) Lbl(nAtoms)
-character*8 Method, Label
-character*6 fName
-logical NoField, Exist, Text, Bond_OK, Check_Bond
-logical Use_Two_Centers_For_Atoms, Found
-parameter(Use_Two_Centers_For_Atoms=.false.)
+integer(kind=iwp), intent(in) :: nij, nElem, lMax, nAtoms, iANr(nAtoms), nOcOb, ip_Ene_Occ, MpProp_Level, nReal_Centers
+real(kind=wp), intent(in) :: rMP(nij,nElem), xrMP(nij,nElem), EC(3,nij), Polar(6,nij), CoC(3), Coor(3,nAtoms), &
+                             Energy_Without_FFPT, Bond_Threshold
+real(kind=wp), intent(inout) :: xnrMP(nij,nElem)
+character(len=LenIn), intent(in) :: Lbl(nAtoms)
+logical(kind=iwp), intent(in) :: NoField
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAtom, iElem, iEnd, ii, ij, iScratch_ele, iScratch_nuc, iSize, iStrt, iUnit, j, jAtom, l, Last_NonBlank, &
+                     lMax_for_size, MxMP, nBas(8), nCenters, nSym
+real(kind=wp) :: Polar_M(6)
+integer(kind=iwp), parameter :: lHeader = 144
+character(len=lHeader) :: Header
+character(len=8) :: Method, Label
+character(len=6) :: fName
+logical(kind=iwp) :: Exists, Text, Bond_OK, Check_Bond, Found
+logical(kind=iwp), parameter :: Use_Two_Centers_For_Atoms = .false.
+real(kind=r8), external :: DDot_
 
 MxMP = lMax
 if (lMax > MpProp_Level) MxMP = MpProp_Level
@@ -54,7 +62,7 @@ end do
 
 fName = 'MPPROP'
 iUnit = 11
-call OpnFl(fName,iUnit,Exist)
+call OpnFl(fName,iUnit,Exists)
 
 nCenters = nReal_Centers
 if (Use_Two_Centers_For_Atoms) then

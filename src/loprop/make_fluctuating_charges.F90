@@ -11,10 +11,14 @@
 
 subroutine Make_Fluctuating_Charges(nAtoms,iANr,nij,nPert,rMP,nElem,EC,Alpha)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, iANr(nAtoms), nij, nPert, nElem
+integer(kind=iwp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1)
+integer(kind=iwp), intent(in) :: EC(3,nij), Alpha
 #include "WrkSpc.fh"
-real*8 rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij)
-integer iANr(nAtoms)
+integer(kind=iwp) :: ip_A, ip_AInv, ip_dq, ip_lambda
 
 !                                                                      *
 !***********************************************************************
