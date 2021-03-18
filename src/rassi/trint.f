@@ -190,7 +190,7 @@ C Note: CHO_GETH1 also adds the reaction field contribution to the
 C 1-electron hamiltonian, and the variable ERFNuc in common /general/,
 C which is the RF contribution to the nuclear repulsion
 
-         CALL CHO_GETH1(nBtri,ipFLT,RFpert,ERFNuc)
+         CALL CHO_GETH1(nBtri,Work(ipFLT),RFpert,ERFNuc)
 
          ECORE1=DDOT_(nBtri,WORK(ipFLT),1,WORK(ipDLT),1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO

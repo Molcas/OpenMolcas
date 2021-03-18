@@ -70,6 +70,7 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer   ipFLT(nDen),ipFSQ(nDen)
 #include "chounit.fh"
+#include "real.fh"
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -78,22 +79,20 @@
 
 #include "chotime.fh"
       Character*50 CFmt
-      Character*11 SECNAM
-      Parameter (SECNAM = 'CHO_FOCKTWO')
+      Character(LEN=11), Parameter :: SECNAM = 'CHO_FOCKTWO'
 
-      Character*4 BaseNm
       Character*6 Fname
-      Parameter (BaseNm = 'CHFV')
-
-      parameter (zero = 0.0D0, one = 1.0D0)
-
+      Character(LEN=4), Parameter :: BaseNm = 'CHFV'
 
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
+******
+      nOcc(k,jDen)= iWork(ipNocc(jDen)+k-1)
 **************************************************
 
 #ifdef _DEBUGPRINT_
@@ -102,11 +101,10 @@
 
         CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero  !time read/rreorder vectors
-           tcoul(i) = zero  !time for computing Coulomb
-           texch(i) = zero  !time for computing Exchange
-        end do
+        ! 1 --> CPU   2 --> Wall
+        tread(:) = zero  !time read/rreorder vectors
+        tcoul(:) = zero  !time for computing Coulomb
+        texch(:) = zero  !time for computing Exchange
 
 C --- Tests on the type of calculation
         DoSomeC=.false.
@@ -174,7 +172,7 @@ C --- Reading of the vectors is done in the full dimension
 
 C SET UP THE READING
 C ------------------
-      Call GetMem('Maxmem','MAX ','REAL',KDUM,LWORK)
+      Call mma_maxDBLE(LWORK)
 
       If (MinMem(jSym) .gt. 0) Then
          nVec = Min(LWORK/MinMem(jSym),NumCho(jSym))
@@ -227,8 +225,7 @@ c--- setup the skipping flags according to # of Occupied
             iSkip(k) = 666 ! always contribute to Coulomb
          else
           do jDen=1,nDen
-               iSkip(k) = iSkip(k) + iWork(ipNocc(jDen)+k-1)
-     &                             + iWork(ipNocc(jDen)+l-1)
+               iSkip(k) = iSkip(k) + nOcc(k,jDen) + nOcc(l,jDen)
           end do
          endif
       end do
@@ -312,7 +309,7 @@ C
 
          CALL FZERO(Work(kLab),NumV)
          DO iSymr=1,nSym
-         IF(nBas(iSymr).ne.0.and.iWork(ipNocc(jDen)+iSymr-1).ne.0)THEN
+         IF(nBas(iSymr).ne.0.and.nOcc(iSymr,jDen).ne.0)THEN
 
          ISDLT = ipDLT(jDen) + ISTLT(ISYMR)
          Naa = nBas(iSymr)*(nBas(iSymr)+1)/2
@@ -370,7 +367,7 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
           iSymr_Occ=0
           do jDen=1,nDen
-             iSymr_Occ = iSymr_Occ + iWork(ipNocc(jDen)+iSymr-1)
+             iSymr_Occ = iSymr_Occ + nOcc(iSymr,jDen)
           end do
           IF(nBas(iSymr).ne.0.and.iSymr_Occ.gt.0)THEN
 
@@ -415,7 +412,7 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
 
            IF (DoExchange(jDen)) THEN
 
-               IF (iWork(ipNocc(jDen)+iSymr-1).ne.0) THEN
+               IF (nOcc(iSymr,jDen).ne.0) THEN
 
                CALL CWTIME(TC1X1,TW1X1)
 
@@ -546,7 +543,7 @@ C --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
 C -------------------------------
 C --- F(a,b) = - D(g,d) * (ad|gb)
 C -------------------------------
-               if (iWork(ipNocc(jDen)+iSymg-1).ne.0) then
+               if (nOcc(iSymg,jDen).ne.0) then
 
                ISFSQ = ISTSQ(ISYMB) + ipFSQ(jDen)
                ISDSQ = ISTSQ(ISYMG) + ipDSQ(jDen)
@@ -576,7 +573,7 @@ c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMA),NBAS(ISYMA))
 C -------------------------------
 C --- F(g,d) = - D(a,b) * (ad|gb)
 C -------------------------------
-               if (iWork(ipNocc(jDen)+iSyma-1).ne.0) then
+               if (nOcc(iSyma,jDen).ne.0) then
                ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
                ISDSQ = ISTSQ(ISYMB) + ipDSQ(jDen)
 
