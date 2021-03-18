@@ -66,7 +66,7 @@
 *                 a single Cholesky vector in full storage
 *
 ************************************************************************
-      use Data_structures, only: SBA_Type
+      use Data_structures, only: SBA_Type, Deallocate_SBA, Map_to_SBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,kOcc(8),KSQ1(8)
@@ -246,6 +246,10 @@ C *************** BATCHING  *****************
 
          kTOT = MinMem(jSym)*NumV
          Call mma_allocate(Wab%A0,kTOT,Label='Wab')
+         Wab%iSym=jSym
+         Wab%nSym=nSym
+         Wab%iCase=7
+
          kWab = ip_of_Work(Wab%A0(1))
 
 c--- setup the skipping flags according to # of Occupied
@@ -273,13 +277,11 @@ C --- vectors in core (full storage)
             iS = iE + 1
 
             If(iSymp.gt.iSymq .and. iSkip(iSymp).ne.0) then
-               KSQ1(iSymp) = kWab + iE
                iE = iE + np*nq*NumV
 
                Wab%SB(iSymq)%A2(1:np*nq,1:NumV) => Wab%A0(iS:iE)
             Else
                If(iSymp.eq.iSymq .and. iSkip(iSymp).ne.0) then
-                 KSQ1(iSymp) = kWab + iE
 C --- Special trick for the vector L11 ; used to store X(a,Jb)
                  npp=np*(np+1)/2
                  if(iSymp.eq.1.and.jSym.eq.1.and.DoSomeX)then
@@ -290,6 +292,9 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
                Endif
             Endif
          End Do
+
+         Call Map_to_SBA(Wab,KSQ1,Tweak=.True.)
+
          iE = iE + iadd*NumV
 
          lChoV = iE
@@ -670,7 +675,7 @@ C ************ END "OFF-DIAGONAL" EXCHANGE CONTRIBUTION  ***********
        ENDIF ! jSym.ne.1
 
 C --- Free the memory
-         Call mma_deallocate(Wab%A0)
+         Call Deallocate_SBA(Wab)
 
       END DO  ! end of the batch procedure
 

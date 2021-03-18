@@ -367,12 +367,16 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
 
   End Subroutine Deallocate_SBA
 
-  Subroutine Map_to_SBA(Adam,ipAdam)
+  Subroutine Map_to_SBA(Adam,ipAdam,Tweak)
   Implicit None
   Type (SBA_Type):: Adam
   Integer ipAdam(*)
+  Logical, Optional :: Tweak
+
+
   Integer, External:: ip_of_Work
   Integer iSym,jSym
+  Logical :: Swap=.False.
 
   Integer i, j, MulD2h
   MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -382,10 +386,22 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
         ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A3(1,1,1))
      End Do
   Else
-     Do iSym=1, Adam%nSym
-        jsym=MulD2h(iSym,Adam%iSym)
-        ipAdam(jSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
-     End Do
+     If (Present(Tweak)) Swap=Tweak
+     If (Swap) Then
+        Do iSym=1, Adam%nSym
+           jsym=MulD2h(iSym,Adam%iSym)
+           If (.NOT.Associated(Adam%SB(jSym)%A2)) Cycle
+
+           ipAdam(iSym) = ip_of_Work(Adam%SB(jSym)%A2(1,1))
+
+        End Do
+     Else
+        Do iSym=1, Adam%nSym
+           If (.NOT.Associated(Adam%SB(iSym)%A2)) Cycle
+
+           ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A2(1,1))
+        End Do
+     End If
   End If
 
   End Subroutine Map_to_SBA
