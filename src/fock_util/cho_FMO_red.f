@@ -290,7 +290,7 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
                Endif
             Endif
          End Do
-         iE = iE + iadd
+         iE = iE + iadd*NumV
 
          lChoV = iE
          lScr = kTOT - lChoV
