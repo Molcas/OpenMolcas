@@ -8,18 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine BasisConsistency(LuWr,iErr)
-      Implicit Integer (i-n)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine BasisConsistency(LuWr,iErr)
+
+implicit integer(i-n)
+implicit real*8(a-h,o-z)
 #include "g_zmatconv.fh"
 
-      iErr = 0
-      Do i = 1, 100
-        If (BasReq(i) .AND. .NOT.BasAva(i)) GoTo 9900
-      EndDo
-      Return
+iErr = 0
+do i=1,100
+  if (BasReq(i) .and. .not. BasAva(i)) goto 9900
+end do
+return
 
-9900  iErr = 1
-      Write(LuWr,*) ' [BasisConsistency]: Atom NA=',i,' requires BS'
-      Return
-      End
+9900 iErr = 1
+write(LuWr,*) ' [BasisConsistency]: Atom NA=',i,' requires BS'
+
+return
+
+end subroutine BasisConsistency

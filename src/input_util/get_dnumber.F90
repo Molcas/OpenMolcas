@@ -17,24 +17,29 @@
 ! Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
 ! Author:   Giovanni Ghigo                                             *
 !***********************************************************************
-      Subroutine Get_dNumber(string,dNumber,iErr)
-      Implicit Integer (i-n)
-      Implicit Real*8 (a-h,o-z)
-      Character*(*)  string
-      Character*14  Chars
-      Data Chars /' +-1234567890.' /
-      Logical NaN
-      iErr=0
-      dNumber=0.0d0
-      NaN=.True.
-      Do i=1,len(string)
-      NaN=.True.
-        Do j=1,14
-          If (string(i:i).EQ.Chars(j:j)) NaN=.False.
-        EndDo
-      If (NaN) GoTo 10
-      End Do
-10    If (.NOT.NaN) Read(string,*) dNumber
-      If (NaN) iErr=1
-      Return
-      End
+
+subroutine Get_dNumber(string,dNumber,iErr)
+
+implicit integer(i-n)
+implicit real*8(a-h,o-z)
+character*(*) string
+character*14 Chars
+data Chars/' +-1234567890.'/
+logical NaN
+
+iErr = 0
+dNumber = 0.0d0
+NaN = .true.
+do i=1,len(string)
+  NaN = .true.
+  do j=1,14
+    if (string(i:i) == Chars(j:j)) NaN = .false.
+  end do
+  if (NaN) goto 10
+end do
+10 if (.not. NaN) read(string,*) dNumber
+if (NaN) iErr = 1
+
+return
+
+end subroutine Get_dNumber

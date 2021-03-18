@@ -10,117 +10,120 @@
 !                                                                      *
 ! Copyright (C) 2017, Valera Veryazov                                  *
 !***********************************************************************
-      Subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,         &
-     &  nAskAtoms, nxbas,xb_label,xb_bas,iErr)
-      Implicit Integer (i-n)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,nxbas,xb_label,xb_bas,iErr)
+
+implicit integer(i-n)
+implicit real*8(a-h,o-z)
 #include "g_zmatconv.fh"
-      Character*80 Line, Blank
-      Character*3  Command
-      Character*24 Words(7)
-        character *(*) xb_label(*)
-        character *(*) xb_bas(*)
-       xb_label(1)=' '
-       xb_bas(1)=' '
-       nxbas=1
+character*80 Line, Blank
+character*3 Command
+character*24 Words(7)
+character*(*) xb_label(*)
+character*(*) xb_bas(*)
+
+xb_label(1) = ' '
+xb_bas(1) = ' '
+nxbas = 1
 ! nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
 ! nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
 ! nBasis : Nummer of atom types requiring Basis Set
 !  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
 !  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
 
-      iErr = 0
-      Blank = ' '
-      nAtoms  = 0
-      nXAtoms = 0
-      nBasis  = 0
-      Do i = 1, 100 ! MaxNat
-        BasReq(i) = .False.
-      EndDo
-      Do i = 1, MaxAtoms
-        Symbols(i) = '     '
-        NAT(i) = 0
-        iZmat(i,1) = 0
-        iZmat(i,2) = 0
-        iZmat(i,3) = 0
-        Zmat(i,1) = 0.0d0
-        Zmat(i,2) = 0.0d0
-        Zmat(i,3) = 0.0d0
-      EndDo
+iErr = 0
+Blank = ' '
+nAtoms = 0
+nXAtoms = 0
+nBasis = 0
+do i=1,100 ! MaxNat
+  BasReq(i) = .false.
+end do
+do i=1,MaxAtoms
+  Symbols(i) = '     '
+  NAT(i) = 0
+  iZmat(i,1) = 0
+  iZmat(i,2) = 0
+  iZmat(i,3) = 0
+  Zmat(i,1) = 0.0d0
+  Zmat(i,2) = 0.0d0
+  Zmat(i,3) = 0.0d0
+end do
 
 ! Read Line (or COMMAND)
-10    If ((nAtoms + nXAtoms).EQ.nAskAtoms) GoTo 100
-      Read(iZMUnit,'(A)',Err=9906,End=9999) Line
-      If ( Line(1:1).EQ.'*' ) GoTo 10
-      If ( Line.EQ.Blank ) GoTo 100
-      Command = Line(1:3)
-      Call UpCase(Command)
-      If (Command.EQ.'END') GoTo 100
-      iErr = 0
-      NA = 0
-      Dist  = 0.0d0
+10 if ((nAtoms+nXAtoms) == nAskAtoms) goto 100
+read(iZMUnit,'(A)',Err=9906,end=9999) Line
+if (Line(1:1) == '*') goto 10
+if (Line == Blank) goto 100
+Command = Line(1:3)
+call UpCase(Command)
+if (Command == 'END') goto 100
+iErr = 0
+NA = 0
+Dist = 0.0d0
 
-!  Here we read number or a file.
-      read(Line,*,err=666,end=666) NA
-      IreadHere=1
-      goto 667
-666   continue
-      Ireadhere=0
-      iXU=iZMUnit+1
-      call molcas_open(iXU,line)
-      read(iXU,*) NA
-667   continue
-        if(Ireadhere.eq.1) then
-            Read(iZMUnit,'(A)',Err=9906,End=9999) Line
-        else
-            Read(iXU,'(A)',Err=9906,End=9999) Line
-        endif
-      do i=1,NA
-        if(Ireadhere.eq.1) then
-            Read(iZMUnit,'(A)',Err=9906,End=9999) Line
-        else
-            Read(iXU,'(A)',Err=9906,End=9999) Line
-        endif
-      Call Pick_Words(Line,4,Nwords,Words)
-      If (Nwords.LT.4) GoTo 9993
-      Call FoundAtomicNumber(LuWr,Words(1),NAtom,iErr)
-      If (iErr.NE.0) GoTo 9998
-      If (NAtom.GE. 0) nAtoms  = nAtoms  + 1
-      If (NAtom.EQ.-1) nXAtoms = nXAtoms + 1
-      NAT(nAtoms + nXAtoms) = NAtom
-      Symbols(nAtoms + nXAtoms) = Trim(Words(1))
-      If (NAtom.GT. 0) BasReq(NAtom)=.True.
+! Here we read number or a file.
+read(Line,*,err=666,end=666) NA
+IreadHere = 1
+goto 667
+666 continue
+Ireadhere = 0
+iXU = iZMUnit+1
+call molcas_open(iXU,line)
+read(iXU,*) NA
+667 continue
+if (Ireadhere == 1) then
+  read(iZMUnit,'(A)',Err=9906,end=9999) Line
+else
+  read(iXU,'(A)',Err=9906,end=9999) Line
+end if
+do i=1,NA
+  if (Ireadhere == 1) then
+    read(iZMUnit,'(A)',Err=9906,end=9999) Line
+  else
+    read(iXU,'(A)',Err=9906,end=9999) Line
+  end if
+  call Pick_Words(Line,4,Nwords,Words)
+  if (Nwords < 4) goto 9993
+  call FoundAtomicNumber(LuWr,Words(1),NAtom,iErr)
+  if (iErr /= 0) goto 9998
+  if (NAtom >= 0) nAtoms = nAtoms+1
+  if (NAtom == -1) nXAtoms = nXAtoms+1
+  NAT(nAtoms+nXAtoms) = NAtom
+  Symbols(nAtoms+nXAtoms) = trim(Words(1))
+  if (NAtom > 0) BasReq(NAtom) = .true.
 
-      Call Get_dNumber(Words(2),Dist,iErr)
-      Zmat(nAtoms + nXAtoms, 1) = Dist
-      Call Get_dNumber(Words(3),Dist,iErr)
-      Zmat(nAtoms + nXAtoms, 2) = Dist
-      Call Get_dNumber(Words(4),Dist,iErr)
-      Zmat(nAtoms + nXAtoms, 3) = Dist
+  call Get_dNumber(Words(2),Dist,iErr)
+  Zmat(nAtoms+nXAtoms,1) = Dist
+  call Get_dNumber(Words(3),Dist,iErr)
+  Zmat(nAtoms+nXAtoms,2) = Dist
+  call Get_dNumber(Words(4),Dist,iErr)
+  Zmat(nAtoms+nXAtoms,3) = Dist
 
-      enddo
-      if(Ireadhere.eq.0) close(iXU)
+end do
+if (Ireadhere == 0) close(iXU)
 ! Pre-check Basis Set consistency  BasReq: Atom requiring Basis Set
-100   nBasis = 0
-      Do i = 1, 100
-        If (BasReq(i)) nBasis = nBasis + 1
-      EndDo
+100 nBasis = 0
+do i=1,100
+  if (BasReq(i)) nBasis = nBasis+1
+end do
 
-      GoTo 9999
+goto 9999
 
-9906  iErr = 1
-      Write(LuWr,*) ' [XMatReader]: Unable to read x-matrix file !'
-      GoTo 9999
+9906 iErr = 1
+write(LuWr,*) ' [XMatReader]: Unable to read x-matrix file !'
+goto 9999
 
-9993  iErr = 1
-      Write(LuWr,*) ' [XMatReader]: X-Matrix incomplete in line'
-      Write(LuWr,*) '               ',Line
-      GoTo 9999
+9993 iErr = 1
+write(LuWr,*) ' [XMatReader]: X-Matrix incomplete in line'
+write(LuWr,*) '               ',Line
+goto 9999
 
-9998  iErr = 1
-      Write(LuWr,*) ' [XMatReader]: Error in line'
-      Write(LuWr,*) '               ',Line
-      GoTo 9999
+9998 iErr = 1
+write(LuWr,*) ' [XMatReader]: Error in line'
+write(LuWr,*) '               ',Line
+goto 9999
 
-9999  Return
-      End
+9999 return
+
+end subroutine XMatReader

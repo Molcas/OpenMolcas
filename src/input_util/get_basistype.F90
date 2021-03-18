@@ -29,48 +29,50 @@
 !>
 !> @return ``.true.`` if the basis set in the current calculation has specific type
 !***********************************************************************
-        Logical function get_BasisType(BasisType)
-        character*(*) BasisType
-        Character*3 temp, TypeCon, TypeAll,TypeRel
+
+logical function get_BasisType(BasisType)
+
+character*(*) BasisType
+character*3 temp, TypeCon, TypeAll, TypeRel
 #include "basistype.fh"
-        Logical Found
-        integer BasisTypes(4)
-!
-        nData=0
-        Found=.False.
-        Call Qpg_iArray('BasType',Found,nData)
-        if (.not.Found) then
-          get_BasisType=.false.
-          return
-        endif
-        call get_bastype(BasisTypes,nData)
-        i=BasisTypes(1)
-        if(i.le.0) then
-          TypeCon='UNK'
-        else
-          TypeCon=BasTypeCon((i-1)*4+1:(i-1)*4+3)
-        endif
-        i=BasisTypes(2)
-        if(i.le.0) then
-          TypeAll='UNK'
-        else
-          TypeAll=BasTypeAll((i-1)*4+1:(i-1)*4+3)
-        endif
-        i=BasisTypes(3)
-        if(i.le.0) then
-          TypeRel='UNK'
-        else
-          TypeRel=BasTypeRel((i-1)*4+1:(i-1)*4+3)
-        endif
+logical Found
+integer BasisTypes(4)
 
-        i=len(BasisType)
-        if(i.gt.3) i=3
-        temp='___'
-        temp(1:i)=BasisType(1:i)
-        call UpCase(temp)
-        get_BasisType=.false.
-        if(temp.eq.TypeCon.or.temp.eq.TypeAll.or.temp.eq.TypeRel)       &
-     &  get_BasisType=.true.
+nData = 0
+Found = .false.
+call Qpg_iArray('BasType',Found,nData)
+if (.not. Found) then
+  get_BasisType = .false.
+  return
+end if
+call get_bastype(BasisTypes,nData)
+i = BasisTypes(1)
+if (i <= 0) then
+  TypeCon = 'UNK'
+else
+  TypeCon = BasTypeCon((i-1)*4+1:(i-1)*4+3)
+end if
+i = BasisTypes(2)
+if (i <= 0) then
+  TypeAll = 'UNK'
+else
+  TypeAll = BasTypeAll((i-1)*4+1:(i-1)*4+3)
+end if
+i = BasisTypes(3)
+if (i <= 0) then
+  TypeRel = 'UNK'
+else
+  TypeRel = BasTypeRel((i-1)*4+1:(i-1)*4+3)
+end if
 
-        return
-        end
+i = len(BasisType)
+if (i > 3) i = 3
+temp = '___'
+temp(1:i) = BasisType(1:i)
+call UpCase(temp)
+get_BasisType = .false.
+if (temp == TypeCon .or. temp == TypeAll .or. temp == TypeRel) get_BasisType = .true.
+
+return
+
+end function get_BasisType

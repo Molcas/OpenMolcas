@@ -11,215 +11,211 @@
 ! Copyright (C) 2001-2005, Valera Veryazov                             *
 !               2020, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Subroutine BasisType(Filename,inline,BasisTypes)
-!
-!  translate basis file names
-!
-      character *(*) Filename
-      Integer StrnLn
-      External StrnLn
-      character *256 DirName, OrigName
-      character *256 Line, LineComp
-      Character *4 tmp
-      integer BasisTypes(4),irecl
-      logical is_error,found
-      character*16 CONT, ALLE, RELA, NUCL
-      character*3 vCONT, vALLE, vRELA, vNUCL
+
+subroutine BasisType(Filename,inline,BasisTypes)
+
+! translate basis file names
+
+character*(*) Filename
+integer StrnLn
+external StrnLn
+character*256 DirName, OrigName
+character*256 Line, LineComp
+character*4 tmp
+integer BasisTypes(4), irecl
+logical is_error, found
+character*16 CONT, ALLE, RELA, NUCL
+character*3 vCONT, vALLE, vRELA, vNUCL
 #include "basistype.fh"
-      CONT='#Contraction '
-      ALLE='#AllElectron '
-      RELA='#Hamiltonian '
-      NUCL='#Nucleus '
-      vCONT='UNK'
-      vALLE='UNK'
-      vRELA='UNK'
-      vNUCL='UNK'
-      isKnown=0
-      If (inline.eq.1) Then
-         BasisTypes(1)=-1
-         BasisTypes(2)=-1
-         BasisTypes(3)=-1
-         BasisTypes(4)=-1
-         call SysWarnMsg('BasisType','inline basis is used',            &
-     & 'assuming all defaults for the basis types')
-         Return
-      End If
-      BasisTypes(3)=0
-      iunit=20
-      iunit=isfreeunit(iunit)
-      ileft=StrnLn(FileName)
-      i=StrnLn(FileName)
-      found=.false.
 
-      do while((.not.found).and.(i.gt.1))
-        if(FileName(i:i).eq.'/') then
-           ileft=i
-           found=.true.
-        endif
-        i=i-1
-      enddo
+CONT = '#Contraction '
+ALLE = '#AllElectron '
+RELA = '#Hamiltonian '
+NUCL = '#Nucleus '
+vCONT = 'UNK'
+vALLE = 'UNK'
+vRELA = 'UNK'
+vNUCL = 'UNK'
+isKnown = 0
+if (inline == 1) then
+  BasisTypes(1) = -1
+  BasisTypes(2) = -1
+  BasisTypes(3) = -1
+  BasisTypes(4) = -1
+  call SysWarnMsg('BasisType','inline basis is used','assuming all defaults for the basis types')
+  return
+end if
+BasisTypes(3) = 0
+iunit = 20
+iunit = isfreeunit(iunit)
+ileft = StrnLn(FileName)
+i = StrnLn(FileName)
+found = .false.
 
-      if(.not.found) then
-        ileft=StrnLn(FileName)
-        i=StrnLn(FileName)
-        do while((.not.found).and.(i.gt.1))
-           if(FileName(i:i).eq.'_') then
-           ileft=i
-           found=.true.
-           endif
-        i=i-1
-        enddo
-      endif
-      DirName=Filename(1:ileft)
-      i=index(Filename,' ')
-      if(i.eq.0) i=len(Filename)
-      OrigName=Filename(ileft+1:i)
-      LenOrig=i-ileft
-!
+do while ((.not. found) .and. (i > 1))
+  if (FileName(i:i) == '/') then
+    ileft = i
+    found = .true.
+  end if
+  i = i-1
+end do
+
+if (.not. found) then
+  ileft = StrnLn(FileName)
+  i = StrnLn(FileName)
+  do while ((.not. found) .and. (i > 1))
+    if (FileName(i:i) == '_') then
+      ileft = i
+      found = .true.
+    end if
+    i = i-1
+  end do
+end if
+DirName = Filename(1:ileft)
+i = index(Filename,' ')
+if (i == 0) i = len(Filename)
+OrigName = Filename(ileft+1:i)
+LenOrig = i-ileft
+
 ! first, check tbl.
-      call molcas_open_ext2(iunit,DirName(1:ileft)//'basistype.tbl',    &
-     & 'sequential','formatted',iostat,.false.,irecl,'old',is_error)
-!      open(iunit,file=DirName(1:ileft)//'basistype.tbl',
-!     &        Form='FORMATTED',IOSTAT=IOStat)
-         if(Iostat.ne.0) then
-         close(iunit)
-          call molcas_open_ext2(iunit,'BASLIB_basistype.tbl',           &
-     & 'sequential','formatted',iostat,.false.,irecl,'old',is_error)
-!         open(iunit,file='BASLIB_basistype.tbl',
-!     &        Form='FORMATTED',IOSTAT=IOStat)
-        endif
-        If (IOStat.ne.0) Then
-          write(6,*) 'basistype.tbl is not found'
-         close(iunit)
-       goto 40
-      endif
-20    read(iunit,'(a)',end=30, err=30) Line
-      if(Line(1:1).eq.'#') goto 20
-      i=index(Line,OrigName(1:LenOrig-1))
-      if(i.ne.1.or.Line(LenOrig:LenOrig).ne.' ') goto 20
-       i=LenOrig+1
-       iL=1
-       iflag=0
-       LineComp=' '
-       Do jj=i,256
-       if(Line(jj:jj).eq.' ') then
-         if(iflag.eq.0) then
-           iflag=1
-           LineComp(iL:iL)=':'
-           iL=iL+1
-         endif
-       else
-         iflag=0
-         LineComp(iL:iL)=Line(jj:jj)
-         iL=iL+1
-       endif
-       enddo
-       isKnown=1
-       vCONT=LineComp(2:4)
-       vALLE=LineComp(6:8)
-       vRELA=LineComp(10:12)
-       vNUCL=LineComp(14:16)
-       if(vCONT.eq.' ') vCONT='UNK'
-       if(vALLE.eq.' ') vALLE='UNK'
-       if(vRELA.eq.' ') vRELA='UNK'
-       if(vNUCL.eq.' ') vNUCL='UNK'
-30     close(iunit)
-
+call molcas_open_ext2(iunit,DirName(1:ileft)//'basistype.tbl','sequential','formatted',IOStat,.false.,irecl,'old',is_error)
+!open(iunit,file=DirName(1:ileft)//'basistype.tbl',form='FORMATTED',iostat=IOStat)
+if (Iostat /= 0) then
+  close(iunit)
+  call molcas_open_ext2(iunit,'BASLIB_basistype.tbl','sequential','formatted',IOStat,.false.,irecl,'old',is_error)
+  !open(iunit,file='BASLIB_basistype.tbl',form='FORMATTED',iostat=IOStat)
+end if
+if (IOStat /= 0) then
+  write(6,*) 'basistype.tbl is not found'
+  close(iunit)
+  goto 40
+end if
+20 read(iunit,'(a)',end=30,err=30) Line
+if (Line(1:1) == '#') goto 20
+i = index(Line,OrigName(1:LenOrig-1))
+if (i /= 1 .or. Line(LenOrig:LenOrig) /= ' ') goto 20
+i = LenOrig+1
+iL = 1
+iflag = 0
+LineComp = ' '
+do jj=i,256
+  if (Line(jj:jj) == ' ') then
+    if (iflag == 0) then
+      iflag = 1
+      LineComp(iL:iL) = ':'
+      iL = iL+1
+    end if
+  else
+    iflag = 0
+    LineComp(iL:iL) = Line(jj:jj)
+    iL = iL+1
+  end if
+end do
+isKnown = 1
+vCONT = LineComp(2:4)
+vALLE = LineComp(6:8)
+vRELA = LineComp(10:12)
+vNUCL = LineComp(14:16)
+if (vCONT == ' ') vCONT = 'UNK'
+if (vALLE == ' ') vALLE = 'UNK'
+if (vRELA == ' ') vRELA = 'UNK'
+if (vNUCL == ' ') vNUCL = 'UNK'
+30 close(iunit)
 
 ! now let's check the header of the basis file
-!
-      if(OrigName(1:LenOrig-1).eq.' ') goto 40
-      Call f_Inquire(DirName(1:ileft)//OrigName(1:LenOrig-1),Found)
-      if(.not.Found) goto 40
-!      print *, 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
-      call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
-777   read(iunit,'(a)', end=35, err=35) Line
-      if(Line(1:1).eq.'/') then
-!  we already reached body of the file.
-       LineComp=':'//vCONT//':'//vALLE//':'//vRELA//':'//vNUCL//':'
-             isKnown=1
-             goto 35
-      endif
-!     finish reading, let's create the return string
 
-!       print *,'line=',Line
-      if(index(Line,CONT(1:index(CONT,' '))).eq.1) then
-         i=index(Line,' ')
-         do j=i,len(Line)
-           if(Line(j:j).ne.' ') goto 701
-         enddo
-701         vCONT=Line(j:j+3)
-      endif
-      if(index(Line,ALLE(1:index(ALLE,' '))).eq.1) then
-         i=index(Line,' ')
-         do j=i,len(Line)
-           if(Line(j:j).ne.' ') goto 702
-         enddo
-702        vALLE=Line(j:j+3)
-      endif
-      if(index(Line,RELA(1:index(RELA,' '))).eq.1) then
-         i=index(Line,' ')
-         do j=i,len(Line)
-           if(Line(j:j).ne.' ') goto 703
-         enddo
-703        vRELA=Line(j:j+3)
-      endif
+if (OrigName(1:LenOrig-1) == ' ') goto 40
+call f_Inquire(DirName(1:ileft)//OrigName(1:LenOrig-1),Found)
+if (.not. Found) goto 40
+!write(6,*) 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
+call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
+777 read(iunit,'(a)',end=35,err=35) Line
+if (Line(1:1) == '/') then
+  ! we already reached body of the file.
+  LineComp = ':'//vCONT//':'//vALLE//':'//vRELA//':'//vNUCL//':'
+  isKnown = 1
+  goto 35
+end if
+! finish reading, let's create the return string
 
-      if(index(Line,NUCL(1:index(NUCL,' '))).eq.1) then
-         i=index(Line,' ')
-         do j=i,len(Line)
-           if(Line(j:j).ne.' ') goto 704
-         enddo
+!write(6,*) 'line=',Line
+if (index(Line,CONT(1:index(CONT,' '))) == 1) then
+  i = index(Line,' ')
+  do j=i,len(Line)
+    if (Line(j:j) /= ' ') goto 701
+  end do
+701 vCONT = Line(j:j+3)
+end if
+if (index(Line,ALLE(1:index(ALLE,' '))) == 1) then
+  i = index(Line,' ')
+  do j=i,len(Line)
+    if (Line(j:j) /= ' ') goto 702
+  end do
+702 vALLE = Line(j:j+3)
+end if
+if (index(Line,RELA(1:index(RELA,' '))) == 1) then
+  i = index(Line,' ')
+  do j=i,len(Line)
+    if (Line(j:j) /= ' ') goto 703
+  end do
+703 vRELA = Line(j:j+3)
+end if
 
-704       vNUCL=Line(j:j+3)
-      endif
+if (index(Line,NUCL(1:index(NUCL,' '))) == 1) then
+  i = index(Line,' ')
+  do j=i,len(Line)
+    if (Line(j:j) /= ' ') goto 704
+  end do
 
-      goto 777
+704 vNUCL = Line(j:j+3)
+end if
 
-!
-! well. now use tbl
-!
-35     close(iunit)
-40     if(isKnown.eq.0) LineComp=':UNK:UNK:UNK:UNK:'
-!       print *,'DEBUG=',LineComp
-          tmp=LineComp(2:5)
-          i1=index(BasTypeCon,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') Then
-             BasisTypes(1)=-1
-          Else
-             i1=i1/4+1
-             BasisTypes(1)=i1
-          End If
-!
-          tmp=LineComp(6:9)
-          i1=index(BasTypeAll,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') Then
-             BasisTypes(2)=-1
-          Else
-             i1=i1/4+1
-             BasisTypes(2)=i1
-! hack to map YES to AE_, and NO_ to NAE
-             if(BasisTypes(2).eq.3) BasisTypes(2)=1
-             if(BasisTypes(2).eq.4) BasisTypes(2)=2
-          EndIf
-!
-          tmp=LineComp(10:13)
-          i1=index(BasTypeRel,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') Then
-             BasisTypes(3)=-1
-          Else
-             i1=i1/4+1
-             BasisTypes(3)=i1
-          EndIf
-!
-          tmp=LineComp(14:17)
-          i1=index(BasTypeNuc,tmp)
-          if(i1.eq.0.or.tmp.eq.'UNK:') Then
-             BasisTypes(4)=-1
-          Else
-             i1=i1/4+1
-             BasisTypes(4)=i1
-          EndIf
+goto 777
 
-       return
-      end
+! well, now use tbl
+
+35 close(iunit)
+40 if (isKnown == 0) LineComp = ':UNK:UNK:UNK:UNK:'
+!write(6,*) 'DEBUG=',LineComp
+tmp = LineComp(2:5)
+i1 = index(BasTypeCon,tmp)
+if (i1 == 0 .or. tmp == 'UNK:') then
+  BasisTypes(1) = -1
+else
+  i1 = i1/4+1
+  BasisTypes(1) = i1
+end if
+
+tmp = LineComp(6:9)
+i1 = index(BasTypeAll,tmp)
+if (i1 == 0 .or. tmp == 'UNK:') then
+  BasisTypes(2) = -1
+else
+  i1 = i1/4+1
+  BasisTypes(2) = i1
+  ! hack to map YES to AE_, and NO_ to NAE
+  if (BasisTypes(2) == 3) BasisTypes(2) = 1
+  if (BasisTypes(2) == 4) BasisTypes(2) = 2
+end if
+
+tmp = LineComp(10:13)
+i1 = index(BasTypeRel,tmp)
+if (i1 == 0 .or. tmp == 'UNK:') then
+  BasisTypes(3) = -1
+else
+  i1 = i1/4+1
+  BasisTypes(3) = i1
+end if
+
+tmp = LineComp(14:17)
+i1 = index(BasTypeNuc,tmp)
+if (i1 == 0 .or. tmp == 'UNK:') then
+  BasisTypes(4) = -1
+else
+  i1 = i1/4+1
+  BasisTypes(4) = i1
+end if
+
+return
+
+end subroutine BasisType

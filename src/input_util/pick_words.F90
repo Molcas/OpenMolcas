@@ -16,37 +16,40 @@
 !----------------------------------------------------------------------*
 ! Author:   Giovanni Ghigo - October 2006 - Torino (IT)                *
 !***********************************************************************
-      Subroutine Pick_Words(string,MaxNwords,Nwords,Words)
-      Implicit Integer (i-n)
-      Character*(*) string
-      Character*(*) Words(MaxNwords)
-      Character*64  Word
 
-      If (string.eq.' ') then
-        Nwords = 0
-        GoTo 1000
-      EndIf
-      Do i = 1, MaxNwords
-        Words(i) = ' '
-      EndDo
-      NWords = 0
-      i = 0
-10    i = i + 1
-      Word = ''
-      If (i.GT.Len(string)) GoTo 1000
-      If (string(i:i).EQ.' ') GoTo 10
-        NWords = NWords + 1
-        ilett  = 1
-        Word(ilett:ilett) = string(i:i) ! First letter of word
-        If (i.EQ.Len(string)) GoTo 100
-20        i = i + 1
-          If (string(i:i).EQ.' ' .OR. i.GT.Len(string)) GoTo 100
-          ilett  = ilett + 1
-          Word(ilett:ilett) = string(i:i)
-        Goto 20
-100     Words(NWords) = Word
-      If (i.EQ.Len(string) .OR. NWords.EQ.MaxNwords) GoTo 1000
-      GoTo 10
+subroutine Pick_Words(string,MaxNwords,Nwords,Words)
 
-1000  Return
-      End
+implicit integer(i-n)
+character*(*) string
+character*(*) Words(MaxNwords)
+character*64 Word
+
+if (string == ' ') then
+  Nwords = 0
+  goto 1000
+end if
+do i=1,MaxNwords
+  Words(i) = ' '
+end do
+NWords = 0
+i = 0
+10 i = i+1
+Word = ''
+if (i > len(string)) goto 1000
+if (string(i:i) == ' ') goto 10
+NWords = NWords+1
+ilett = 1
+Word(ilett:ilett) = string(i:i) ! First letter of word
+if (i == len(string)) goto 100
+20 i = i+1
+if (string(i:i) == ' ' .or. i > len(string)) goto 100
+ilett = ilett+1
+Word(ilett:ilett) = string(i:i)
+goto 20
+100 Words(NWords) = Word
+if (i == len(string) .or. NWords == MaxNwords) goto 1000
+goto 10
+
+1000 return
+
+end subroutine Pick_Words
