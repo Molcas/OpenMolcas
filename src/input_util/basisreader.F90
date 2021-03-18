@@ -76,20 +76,3 @@
 9999  continue
       Return
       End
-
-
-      Subroutine BasisConsistency(LuWr,iErr)
-      Implicit Integer (i-n)
-      Implicit Real*8 (a-h,o-z)
-#include "g_zmatconv.fh"
-
-      iErr = 0
-      Do i = 1, 100
-        If (BasReq(i) .AND. .NOT.BasAva(i)) GoTo 9900
-      EndDo
-      Return
-
-9900  iErr = 1
-      Write(LuWr,*) ' [BasisConsistency]: Atom NA=',i,' requires BS'
-      Return
-      End
