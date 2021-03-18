@@ -19,10 +19,15 @@ subroutine ZMatrixConverter_GW(LuRd,LuWr,LuOut,nAskAtoms,iErr)
 ! This is an adaptation of Subroutine ZMatrixConverter for GateWay     *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-#include "constants.fh"
+use Constants, only: Zero, Pi
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuRd, LuWr, LuOut, nAskAtoms
+integer(kind=iwp), intent(out) :: iErr
 #include "g_zmatconv.fh"
+integer(kind=iwp) :: i, iAtom, j, k, nAtoms, nBasis, nXAtoms
+real(kind=wp) :: r, torad
 
 nAtoms = 0
 do i=1,Num_Elem
@@ -31,15 +36,12 @@ do i=1,Num_Elem
   BasReq(i) = .false.
 end do
 do i=1,MaxAtoms
-  Coords(i,1) = 0.0d0
-  Coords(i,2) = 0.0d0
-  Coords(i,3) = 0.0d0
+  Coords(i,:) = Zero
 end do
 nBasis = 0
 iErr = 0
 
 ! Reading input
-iErr = 0
 call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,iErr)
 if (iErr /= 0) goto 9906
 write(LuOut,*) nAtoms
@@ -57,7 +59,7 @@ call Put_iArray('Index ZMAT',iZmat,MaxAtoms*3)
 call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 
 ! Calculate coordinates
-torad = CONST_PI_/180.0d0
+torad = Pi/180.0_wp
 ! Atom #1
 if (nAtoms+nXAtoms == 1) goto 2000
 ! Atom #2
@@ -83,11 +85,11 @@ if (iErr /= 0) goto 9999
   if (NAT(i) > 0) then
     do j=i+1,nAtoms+nXAtoms
       if (NAT(j) > 0) then
-        r = 0.0d0
+        r = Zero
         do k=1,3
           r = r+(Coords(i,k)-Coords(j,k))**2
         end do
-        if (r < 0.0001d0) goto 9907
+        if (r < 1.0e-4_wp) goto 9907
       end if
     end do
   end if

@@ -10,21 +10,26 @@
 !***********************************************************************
 
 subroutine ZMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,iErr)
-
-implicit integer(i-n)
-implicit real*8(a-h,o-z)
-#include "g_zmatconv.fh"
-character*80 Line, Blank
-character*3 Command
-character*24 Words(7)
 ! nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
 ! nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
 ! nBasis : Nummer of atom types requiring Basis Set
-!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
-!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
+!  ***  nAskAtoms == -1  =>  Seward ZMAT input  => Use "End of"
+!  ***  nAskAtoms /= -1  =>  GateWay ZMAT input => Use nAskAtoms
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iZMUnit, LuWR, nAskAtoms
+integer(kind=iwp), intent(out) :: nAtoms, nXAtoms, nBasis, iErr
+#include "g_zmatconv.fh"
+integer(kind=iwp) :: i, NA, NAtom, NB, NT, Nwords
+real(kind=wp) :: Beta, Dist, Theta
+character(len=80) :: Line
+character(len=24) :: Words(7)
+character(len=3) :: Command
 
 iErr = 0
-Blank = ' '
 nAtoms = 0
 nXAtoms = 0
 nBasis = 0
@@ -34,19 +39,15 @@ end do
 do i=1,MaxAtoms
   Symbols(i) = '     '
   NAT(i) = 0
-  iZmat(i,1) = 0
-  iZmat(i,2) = 0
-  iZmat(i,3) = 0
-  Zmat(i,1) = 0.0d0
-  Zmat(i,2) = 0.0d0
-  Zmat(i,3) = 0.0d0
+  iZmat(i,:) = 0
+  Zmat(i,:) = Zero
 end do
 
 ! Read Line (or COMMAND)
 10 if ((nAtoms+nXAtoms) == nAskAtoms) goto 100
 read(iZMUnit,'(A)',Err=9906,end=9999) Line
 if (Line(1:1) == '*') goto 10
-if (Line == Blank) goto 100
+if (Line == ' ') goto 100
 Command = Line(1:3)
 call UpCase(Command)
 if (Command == 'END') goto 100
@@ -54,9 +55,9 @@ iErr = 0
 NA = 0
 NB = 0
 NT = 0
-Dist = 0.0d0
-Beta = 0.0d0
-Theta = 0.0d0
+Dist = Zero
+Beta = Zero
+Theta = Zero
 
 ! Read Symbol           [ Symb ]
 call Pick_Words(Line,7,Nwords,Words)
@@ -78,7 +79,7 @@ if (iErr /= 0) goto 9998
 if (NA >= (nAtoms+nXAtoms)) goto 9997
 call Get_dNumber(Words(3),Dist,iErr)
 if (iErr /= 0) goto 9998
-if (Dist <= 0.0d0) goto 9996
+if (Dist <= Zero) goto 9996
 iZmat(nAtoms+nXAtoms,1) = NA
 Zmat(nAtoms+nXAtoms,1) = Dist
 if ((nAtoms+nXAtoms) == 2) goto 10 ! Raed Only the Second Atom
@@ -91,7 +92,7 @@ if (iErr /= 0) goto 9998
 if (NB >= (nAtoms+nXAtoms)) goto 9997
 call Get_dNumber(Words(5),Beta,iErr)
 if (iErr /= 0) goto 9998
-if (Beta <= 0.0d0 .or. Beta >= 180.0d0) goto 9995
+if (Beta <= Zero .or. Beta >= 180.0_wp) goto 9995
 iZmat(nAtoms+nXAtoms,2) = NB
 Zmat(nAtoms+nXAtoms,2) = Beta
 if (NA == NB) goto 9994

@@ -13,8 +13,11 @@ subroutine crprod(a,b,c)
 
 ! calculates cross product:   a x b = c
 
-implicit real*8(a-h,o-z)
-dimension a(3), b(3), c(3)
+use Definitions, only: wp
+
+implicit none
+real(kind=wp), intent(in) :: a(3), b(3)
+real(kind=wp), intent(out) :: c(3)
 
 c(1) = a(2)*b(3)-a(3)*b(2)
 c(2) = a(3)*b(1)-a(1)*b(3)

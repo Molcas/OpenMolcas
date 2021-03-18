@@ -16,12 +16,18 @@ subroutine BasisTbl(Label,BasDir)
 
 ! a routine to translate basis set labels
 
-character*(*) Label
-character Temp*256, Line*256
-character*(*) BasDir
-integer Strnln, irecl
-external StrnLn
-logical Exist, is_error
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+implicit none
+character(len=*), intent(inout) :: Label
+character(len=*), intent(in) :: BasDir
+character(len=256) :: Temp, Line
+integer(kind=iwp) :: i, ia, ib, iLast, irecl, istatus, iUnit, jlast, jUnit
+integer(kind=iwp), external :: isFreeUnit, StrnLn
+logical(kind=iwp) :: Exists, is_error
 
 !i = index(Label,'.')
 !if (i > 0) then
@@ -30,13 +36,13 @@ logical Exist, is_error
 !  if (i /= 0) return
 !endif
 Temp = BasDir//'/basis.tbl'
-call f_Inquire(Temp,Exist)
-if (.not. Exist) return
+call f_Inquire(Temp,Exists)
+if (.not. Exists) return
 jUnit = 15
 iUnit = isfreeunit(jUnit)
-call molcas_Open_ext2(iunit,temp,'sequential','formatted',IOStat,.false.,irecl,'unknown',is_error)
-!open(unit=iUnit,file=Temp,form='FORMATTED',iostat=IOStat)
-if (IOStat /= 0) return
+call molcas_Open_ext2(iunit,temp,'sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
+!open(unit=iUnit,file=Temp,form='FORMATTED',iostat=istatus)
+if (istatus /= 0) return
 iLast = StrnLn(Label)
 
 ! Strip trailing dots
@@ -45,7 +51,7 @@ iLast = StrnLn(Label)
   iLast = iLast-1
   Go To 99
 end if
-!write(6,*) 'Label(1:iLast)=',Label(1:iLast)
+!write(u6,*) 'Label(1:iLast)=',Label(1:iLast)
 100 read(iUnit,'(a)',end=200,err=200) Line
 if (Line(1:1) == '#') goto 100
 if (Line == ' ') goto 100
@@ -71,7 +77,7 @@ ib = i
 ia = index(Line(ib:),' ')
 if (ia == 0) ia = len(Line)+1
 #ifdef _DEBUGPRINT_
-write(6,'(3a)') Label(1:iLast),'translated to ',Line(ib:ib+ia-1)
+write(u6,'(3a)') Label(1:iLast),'translated to ',Line(ib:ib+ia-1)
 #endif
 Label = Line(ib:ib+ia-1)
 200 close(iUnit)

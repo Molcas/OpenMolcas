@@ -11,18 +11,22 @@
 
 subroutine BasisConsistency(LuWr,iErr)
 
-implicit integer(i-n)
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuWr
+integer(kind=iwp), intent(out) :: iErr
 #include "g_zmatconv.fh"
+integer(kind=iwp) :: i
 
 iErr = 0
-do i=1,100
-  if (BasReq(i) .and. .not. BasAva(i)) goto 9900
+do i=1,size(BasReq)
+  if (BasReq(i) .and. (.not. BasAva(i))) then
+    iErr = 1
+    write(LuWr,*) ' [BasisConsistency]: Atom NA=',i,' requires BS'
+    exit
+  end if
 end do
-return
-
-9900 iErr = 1
-write(LuWr,*) ' [BasisConsistency]: Atom NA=',i,' requires BS'
 
 return
 

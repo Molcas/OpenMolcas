@@ -12,27 +12,31 @@
 !***********************************************************************
 
 subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,nxbas,xb_label,xb_bas,iErr)
+! nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
+! nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
+! nBasis : Nummer of atom types requiring Basis Set
+!  ***  nAskAtoms == -1  =>  Seward ZMAT input  => Use "End of"
+!  ***  nAskAtoms /= -1  =>  GateWay ZMAT input => Use nAskAtoms
 
-implicit integer(i-n)
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: iZMUnit, LuWr, nAskAtoms
+integer(kind=iwp), intent(out) :: nAtoms, nXAtoms, nBasis, nxbas, iErr
+character(len=*), intent(inout) :: xb_label(*), xb_bas(*)
 #include "g_zmatconv.fh"
-character*80 Line, Blank
-character*3 Command
-character*24 Words(7)
-character*(*) xb_label(*)
-character*(*) xb_bas(*)
+integer(kind=iwp) :: i, IreadHere, iXU, NA, NAtom, Nwords
+real(kind=wp) :: Dist
+character(len=80) :: Line
+character(len=24) :: Words(7)
+character(len=3) :: Command
 
 xb_label(1) = ' '
 xb_bas(1) = ' '
 nxbas = 1
-! nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
-! nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
-! nBasis : Nummer of atom types requiring Basis Set
-!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
-!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
 
 iErr = 0
-Blank = ' '
 nAtoms = 0
 nXAtoms = 0
 nBasis = 0
@@ -42,25 +46,21 @@ end do
 do i=1,MaxAtoms
   Symbols(i) = '     '
   NAT(i) = 0
-  iZmat(i,1) = 0
-  iZmat(i,2) = 0
-  iZmat(i,3) = 0
-  Zmat(i,1) = 0.0d0
-  Zmat(i,2) = 0.0d0
-  Zmat(i,3) = 0.0d0
+  iZmat(i,:) = 0
+  Zmat(i,:) = Zero
 end do
 
 ! Read Line (or COMMAND)
 10 if ((nAtoms+nXAtoms) == nAskAtoms) goto 100
 read(iZMUnit,'(A)',Err=9906,end=9999) Line
 if (Line(1:1) == '*') goto 10
-if (Line == Blank) goto 100
+if (Line == ' ') goto 100
 Command = Line(1:3)
 call UpCase(Command)
 if (Command == 'END') goto 100
 iErr = 0
 NA = 0
-Dist = 0.0d0
+Dist = Zero
 
 ! Here we read number or a file.
 read(Line,*,err=666,end=666) NA

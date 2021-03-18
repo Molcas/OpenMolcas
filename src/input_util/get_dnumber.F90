@@ -20,19 +20,23 @@
 
 subroutine Get_dNumber(string,dNumber,iErr)
 
-implicit integer(i-n)
-implicit real*8(a-h,o-z)
-character*(*) string
-character*14 Chars
-data Chars/' +-1234567890.'/
-logical NaN
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=*), intent(in) :: string
+real(kind=wp), intent(out) :: dNumber
+integer(kind=iwp), intent(out) :: iErr
+integer(kind=iwp) :: i, j
+logical(kind=iwp) :: NaN
+character(len=14), parameter :: Chars = ' +-1234567890.'
 
 iErr = 0
-dNumber = 0.0d0
+dNumber = Zero
 NaN = .true.
 do i=1,len(string)
   NaN = .true.
-  do j=1,14
+  do j=1,len(Chars)
     if (string(i:i) == Chars(j:j)) NaN = .false.
   end do
   if (NaN) goto 10

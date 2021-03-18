@@ -11,13 +11,20 @@
 
 subroutine vec(threshold,u,j,k,iErr)
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-dimension r(3), u(3)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: threshold
+real(kind=wp), intent(out) :: u(3)
+integer(kind=iwp), intent(in) :: j, k
+integer(kind=iwp), intent(out) :: iErr
 #include "g_zmatconv.fh"
+integer(kind=iwp) :: i
+real(kind=wp) :: r(3), r2
 
 iErr = 0
-r2 = 0.0d0
+r2 = Zero
 
 do i=1,3
   r(i) = Coords(j,i)-Coords(k,i)

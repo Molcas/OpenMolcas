@@ -19,10 +19,15 @@
 
 subroutine Pick_Words(string,MaxNwords,Nwords,Words)
 
-implicit integer(i-n)
-character*(*) string
-character*(*) Words(MaxNwords)
-character*64 Word
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: string
+integer(kind=iwp), intent(in) :: MaxNwords
+integer(kind=iwp), intent(out) :: Nwords
+character(len=*), intent(out) :: Words(MaxNwords)
+integer(kind=iwp) :: i, ilett
+character(len=64) :: Word
 
 if (string == ' ') then
   Nwords = 0

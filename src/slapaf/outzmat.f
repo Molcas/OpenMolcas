@@ -49,7 +49,7 @@
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "angstr.fh"
-      Parameter (MaxAtoms=256) ! See src/gateway_util/g_zmatconv.fh
+      Parameter (MaxAtoms=256) ! See src/input_util/g_zmatconv.fh
       Character(LEN=5) Symbols(N_ZMAT)   ! Obs: Restricted record
       Integer NAT(N_ZMAT)           ! Obs: Restricted record
       Integer iZmat(MaxAtoms,3)     ! Obs: Full record

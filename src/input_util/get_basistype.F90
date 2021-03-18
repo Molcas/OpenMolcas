@@ -23,20 +23,24 @@
 !> ``get_BasisType('segmented')`` is the same as ``get_BasisType('SEG')``.
 !>
 !> The list of available basis set types is available at
-!> src/Include/basistype.fh and basis_library/basistype.tbl.
+!> src/input_util/basistype.fh and basis_library/basistype.tbl.
 !>
 !> @param[in] BasisType Basis set type
 !>
 !> @return ``.true.`` if the basis set in the current calculation has specific type
 !***********************************************************************
 
-logical function get_BasisType(BasisType)
+function get_BasisType(BasisType)
 
-character*(*) BasisType
-character*3 temp, TypeCon, TypeAll, TypeRel
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: get_BasisType
+character(len=*), intent(in) :: BasisType
 #include "basistype.fh"
-logical Found
-integer BasisTypes(4)
+integer(kind=iwp) :: BasisTypes(4), i, nData
+logical(kind=iwp) :: Found
+character(len=3) :: temp, TypeCon, TypeAll, TypeRel
 
 nData = 0
 Found = .false.

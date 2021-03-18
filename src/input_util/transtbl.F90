@@ -16,15 +16,18 @@ subroutine TransTbl(Filename)
 
 ! translate basis file names
 
-character*256 Filename, DirName, OrigName
-character*256 Line
-integer Strnln, irecl
-external StrnLn
-logical is_error, found
-iunit = 20
-iunit = isfreeunit(iunit)
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=256), intent(inout) :: Filename
+character(len=256) :: DirName, OrigName, Line
+integer(kind=iwp) :: i, ia, ib, ileft, irecl, istatus, iunit, LenOrig
+integer(kind=iwp), external :: isFreeUnit, StrnLn
+logical(kind=iwp) :: is_error, found
+
+iunit = isFreeUnit(20)
 ileft = 0
-i = Strnln(FileName)
+i = StrnLn(FileName)
 found = .false.
 do while ((.not. found) .and. (i > 1))
   if (FileName(i:i) == '/') then
@@ -36,7 +39,7 @@ end do
 
 if (.not. found) then
   ileft = 0
-  i = Strnln(FileName)
+  i = StrnLn(FileName)
   found = .false.
   do while ((.not. found) .and. (i > 1))
     if (FileName(i:i) == '_') then
@@ -51,14 +54,14 @@ i = index(Filename,' ')
 if (i <= 0) i = len(Filename)+1
 OrigName = Filename(ileft+1:i-1)
 LenOrig = i-ileft
-call molcas_open_ext2(iunit,DirName(1:ileft)//'trans.tbl','sequential','formatted',IOStat,.false.,irecl,'unknown',is_error)
-!open(iunit,file=DirName(1:ileft)//'trans.tbl',form='FORMATTED',iostat=IOStat)
-if (IOStat /= 0) then
+call molcas_open_ext2(iunit,DirName(1:ileft)//'trans.tbl','sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
+!open(iunit,file=DirName(1:ileft)//'trans.tbl',form='FORMATTED',iostat=istatus)
+if (istatus /= 0) then
   close(iunit)
-  call molcas_open_ext2(iunit,'BASLIB_trans.tbl','sequential','formatted',IOStat,.false.,irecl,'unknown',is_error)
-  !open(iunit,file='BASLIB_trans.tbl',form='FORMATTED',iostat=IOStat)
-  if (IOStat /= 0) then
-    write(6,*) 'trans.tbl is not found'
+  call molcas_open_ext2(iunit,'BASLIB_trans.tbl','sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
+  !open(iunit,file='BASLIB_trans.tbl',form='FORMATTED',iostat=istatus)
+  if (istatus /= 0) then
+    write(u6,*) 'trans.tbl is not found'
     close(iunit)
     return
   end if
@@ -76,7 +79,7 @@ ia = index(Line(ib:),' ')
 if (ia == 0) ia = len(Line)+1
 FileName = DirName(1:ileft)//Line(ib:ib+ia-1)
 #ifdef _DEBUGPRINT_
-write(6,*) '*** Basis set was redirected to ',FileName
+write(u6,*) '*** Basis set was redirected to ',FileName
 #endif
 30 close(iunit)
 

@@ -11,15 +11,18 @@
 
 subroutine BasisReader(LuWr,nBase,iglobal,nxbas,xb_label,xb_bas,iErr)
 
-implicit integer(i-n)
-implicit real*8(a-h,o-z)
-character*48 Line
-character*2 SimbA
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuWr, iglobal
+integer(kind=iwp), intent(out) :: nBase, iErr
+integer(kind=iwp), intent(inout) :: nxbas
+character(len=*), intent(in) :: xb_label(*), xb_bas(*)
 #include "g_zmatconv.fh"
-logical Found
-character*(*) xb_label(*)
-character*(*) xb_bas(*)
-character*48 TMP
+integer(kind=iwp) :: i, icount
+logical(kind=iwp) :: Found
+character(len=48) :: Line, TMP
+character(len=2) :: SimbA
 
 iErr = 0
 nBase = 0
@@ -33,7 +36,7 @@ else
   Line = 'FF.'//trim(xb_bas(icount))
   nxbas = 1
 end if
-!write(6,*) '>>',Line
+!write(u6,*) '>>',Line
 Found = .false.
 SimbA = Line(1:2)
 if (SimbA(2:2) == '.') SimbA(2:2) = ' '

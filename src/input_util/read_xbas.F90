@@ -13,9 +13,14 @@
 
 subroutine read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
 
-character*(*) xb_label(*)
-character*(*) xb_bas(*)
-character*128 Line
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuRd
+integer(kind=iwp), intent(out) :: iglobal, nxbas, ierr
+character(len=*), intent(inout) :: xb_label(*), xb_bas(*)
+integer(kind=iwp) :: i, icount
+character(len=128) :: Line
 
 icount = 0
 iglobal = 0

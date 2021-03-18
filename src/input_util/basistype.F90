@@ -16,17 +16,20 @@ subroutine BasisType(Filename,inline,BasisTypes)
 
 ! translate basis file names
 
-character*(*) Filename
-integer StrnLn
-external StrnLn
-character*256 DirName, OrigName
-character*256 Line, LineComp
-character*4 tmp
-integer BasisTypes(4), irecl
-logical is_error, found
-character*16 CONT, ALLE, RELA, NUCL
-character*3 vCONT, vALLE, vRELA, vNUCL
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(in) :: Filename
+integer(kind=iwp), intent(in) :: inline
+integer(kind=iwp), intent(out) :: BasisTypes(4)
 #include "basistype.fh"
+integer(kind=iwp) :: i, i1, iflag, iL, ileft, irecl, istatus, isKnown, iunit, j, jj, LenOrig
+logical(kind=iwp) :: is_error, found
+character(len=256) :: DirName, OrigName, Line, LineComp
+character(len=16) :: CONT, ALLE, RELA, NUCL
+character(len=4) :: tmp
+character(len=3) :: vCONT, vALLE, vRELA, vNUCL
+integer(kind=iwp), external :: isFreeUnit, StrnLn
 
 CONT = '#Contraction '
 ALLE = '#AllElectron '
@@ -78,15 +81,15 @@ OrigName = Filename(ileft+1:i)
 LenOrig = i-ileft
 
 ! first, check tbl.
-call molcas_open_ext2(iunit,DirName(1:ileft)//'basistype.tbl','sequential','formatted',IOStat,.false.,irecl,'old',is_error)
-!open(iunit,file=DirName(1:ileft)//'basistype.tbl',form='FORMATTED',iostat=IOStat)
-if (Iostat /= 0) then
+call molcas_open_ext2(iunit,DirName(1:ileft)//'basistype.tbl','sequential','formatted',istatus,.false.,irecl,'old',is_error)
+!open(iunit,file=DirName(1:ileft)//'basistype.tbl',form='FORMATTED',iostat=istatus)
+if (istatus /= 0) then
   close(iunit)
-  call molcas_open_ext2(iunit,'BASLIB_basistype.tbl','sequential','formatted',IOStat,.false.,irecl,'old',is_error)
-  !open(iunit,file='BASLIB_basistype.tbl',form='FORMATTED',iostat=IOStat)
+  call molcas_open_ext2(iunit,'BASLIB_basistype.tbl','sequential','formatted',istatus,.false.,irecl,'old',is_error)
+  !open(iunit,file='BASLIB_basistype.tbl',form='FORMATTED',iostat=istatus)
 end if
-if (IOStat /= 0) then
-  write(6,*) 'basistype.tbl is not found'
+if (istatus /= 0) then
+  write(u6,*) 'basistype.tbl is not found'
   close(iunit)
   goto 40
 end if
@@ -127,7 +130,7 @@ if (vNUCL == ' ') vNUCL = 'UNK'
 if (OrigName(1:LenOrig-1) == ' ') goto 40
 call f_Inquire(DirName(1:ileft)//OrigName(1:LenOrig-1),Found)
 if (.not. Found) goto 40
-!write(6,*) 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
+!write(u6,*) 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
 call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
 777 read(iunit,'(a)',end=35,err=35) Line
 if (Line(1:1) == '/') then
@@ -138,7 +141,7 @@ if (Line(1:1) == '/') then
 end if
 ! finish reading, let's create the return string
 
-!write(6,*) 'line=',Line
+!write(u6,*) 'line=',Line
 if (index(Line,CONT(1:index(CONT,' '))) == 1) then
   i = index(Line,' ')
   do j=i,len(Line)
@@ -176,7 +179,7 @@ goto 777
 
 35 close(iunit)
 40 if (isKnown == 0) LineComp = ':UNK:UNK:UNK:UNK:'
-!write(6,*) 'DEBUG=',LineComp
+!write(u6,*) 'DEBUG=',LineComp
 tmp = LineComp(2:5)
 i1 = index(BasTypeCon,tmp)
 if (i1 == 0 .or. tmp == 'UNK:') then

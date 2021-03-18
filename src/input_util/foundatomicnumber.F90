@@ -11,9 +11,14 @@
 
 subroutine FoundAtomicNumber(LuWr,Symb,NAT,iErr)
 
-implicit integer(i-n)
-character*6 Symb
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuWr
+character(len=6), intent(inout) :: Symb
+integer(kind=iwp), intent(out) :: NAT, iErr
 #include "periodic_table.fh"
+integer(kind=iwp) :: i
 
 if ((Symb(1:1) <= 'z') .and. (Symb(1:1) >= 'a')) Symb(1:1) = char(ichar(Symb(1:1))-32)
 if ((Symb(2:2) <= 'Z') .and. (Symb(2:2) >= 'A')) Symb(2:2) = char(ichar(Symb(2:2))+32)

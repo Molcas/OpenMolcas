@@ -18,17 +18,23 @@ subroutine XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_lab
 ! This is an adaptation of GG Program ZMatrixConverter                 *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
-character*180 STDINP(mxAtom*2)
-character*180 aDebug
-character*12 Angstring
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LuRd, LuWr, mxAtom, iglobal
+character(len=180), intent(out) :: STDINP(mxAtom*2)
+integer(kind=iwp), intent(out) :: lSTDINP, iErr
+integer(kind=iwp), intent(inout) :: nxbas
+character(len=*), intent(inout) :: xb_label(*), xb_bas(*)
 #include "g_zmatconv.fh"
-logical IfTest
-character ll*5
-character lll*4
-character*(*) xb_label(*)
-character*(*) xb_bas(*)
+integer(kind=iwp) :: i, i4, i5, ineedfix, iSTDINP, j, k, nAtoms, NATprev, nBase, nBasis, nXAtoms
+real(kind=wp) :: r
+logical(kind=iwp) :: IfTest
+character(len=180) :: aDebug
+character(len=12) :: Angstring
+character(len=5) :: ll
+character(len=4) :: lll
 
 #ifdef _DEBUGPRINT_
 IfTest = .true.
@@ -60,9 +66,7 @@ do i=1,Num_Elem
   BasReq(i) = .false.
 end do
 do i=1,MaxAtoms
-  Coords(i,1) = 0.0d0
-  Coords(i,2) = 0.0d0
-  Coords(i,3) = 0.0d0
+  Coords(i,:) = Zero
 end do
 nBasis = 0
 iErr = 0
@@ -133,11 +137,11 @@ do i=1,nAtoms+nXAtoms
   if (NAT(i) > 0) then
     do j=i+1,nAtoms+nXAtoms
       if (NAT(j) > 0) then
-        r = 0.0d0
+        r = Zero
         do k=1,3
           r = r+(Coords(i,k)-Coords(j,k))**2
         end do
-        if (r < 0.0001d0) goto 9907
+        if (r < 1.0e-4_wp) goto 9907
       end if
     end do
   end if

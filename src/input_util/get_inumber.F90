@@ -20,18 +20,21 @@
 
 subroutine Get_iNumber(string,iNumber,iErr)
 
-implicit integer(i-n)
-character*(*) string
-character*11 Chars
-data Chars/' 1234567890'/
-logical NaN
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: string
+integer(kind=iwp), intent(out) :: iNumber, iErr
+integer(kind=iwp) :: i, j
+logical(kind=iwp) :: NaN
+character(len=11), parameter :: Chars = ' 1234567890'
 
 iErr = 0
 iNumber = 0
 NaN = .true.
 do i=1,len(string)
   NaN = .true.
-  do j=1,11
+  do j=1,len(Chars)
     if (string(i:i) == Chars(j:j)) NaN = .false.
   end do
   if (NaN) goto 10
