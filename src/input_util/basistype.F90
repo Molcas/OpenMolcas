@@ -16,13 +16,13 @@ subroutine BasisType(Filename,inline,BasisTypes)
 
 ! translate basis file names
 
+use BasisType_Mod, only: BasTypeAll, BasTypeCon, BasTypeNuc, BasTypeRel
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*), intent(in) :: Filename
 integer(kind=iwp), intent(in) :: inline
 integer(kind=iwp), intent(out) :: BasisTypes(4)
-#include "basistype.fh"
 integer(kind=iwp) :: i, i1, iflag, iL, ileft, irecl, istatus, isKnown, iunit, j, jj, LenOrig
 logical(kind=iwp) :: is_error, found
 character(len=256) :: DirName, OrigName, Line, LineComp

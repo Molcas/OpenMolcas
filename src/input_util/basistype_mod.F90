@@ -10,19 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2001-2005, Valera Veryazov                             *
 !***********************************************************************
-       Character*36 BasTypeCon
-       Character*20 BasTypeAll
-       Character*56 BasTypeRel
-       Character*16 BasTypeNuc
-       Parameter (BasTypeCon = 'SEG:ANO:RAF:CCC:UNK:UNC:ARC:GEN:SEC:')
-       Parameter (BasTypeAll = 'AE_:NAE:YES:NO_:UNK:')
-       Parameter (BasTypeRel =                                          &
-     &      'NRH:RH_:RCP:DKH:UNK:DK2:DK3:DK4:DK5:DK6:DK7:DK8:RYD:X2C:')
-       Parameter (BasTypeNuc = 'PN_:GN_:MGN:UNK:')
+
+module BasisType_Mod
+
+implicit none
+private
+
 !
 !  'strange' order is due to back compatibility issues
+!    UNK: unknown
 !
-
+character(len=36), parameter :: BasTypeCon = 'SEG:ANO:RAF:CCC:UNK:UNC:ARC:GEN:SEC:'
 ! 1: Contraction type
 !  - SEG: segmented
 !  - SEC: segmented Cartesian
@@ -32,11 +30,15 @@
 !  - UNC: uncontracted
 !  - ARC: automatic Raffenetti
 !  - GEN: general contraction
+
+character(len=20), parameter :: BasTypeAll = 'AE_:NAE:YES:NO_:UNK:'
 ! 2: All electron
 !  - AE_: all electron
 !  - NAE: not all electron
 !  - YES: same as AE_
 !  - NO_: same as NAE
+
+character(len=56), parameter :: BasTypeRel = 'NRH:RH_:RCP:DKH:UNK:DK2:DK3:DK4:DK5:DK6:DK7:DK8:RYD:X2C:'
 ! 3: Relativity
 !  - RH_: relativistic Hamiltonian
 !  - NRH: non relativistic Hamiltonian
@@ -44,7 +46,13 @@
 !  - DKH: DKH
 !  - X2C: exact 2-component
 !  - RYD: Rydberg
+
+character(len=16), parameter :: BasTypeNuc = 'PN_:GN_:MGN:UNK:'
 ! 4: Nucleus
 !  - PN_: point nucleus
 !  - GN_: Gaussian nucleus
-!  - MNG: modified Gaussian
+!  - MGN: modified Gaussian
+
+public :: BasTypeCon, BasTypeAll, BasTypeRel, BasTypeNuc
+
+end module BasisType_Mod

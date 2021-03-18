@@ -18,6 +18,7 @@ subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,nxbas,xb_labe
 !  ***  nAskAtoms == -1  =>  Seward ZMAT input  => Use "End of"
 !  ***  nAskAtoms /= -1  =>  GateWay ZMAT input => Use nAskAtoms
 
+use ZMatConv_Mod, only: BasReq, iZmat, MaxAtoms, NAT, Symbols, Zmat
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -25,7 +26,6 @@ implicit none
 integer(kind=iwp), intent(in) :: iZMUnit, LuWr, nAskAtoms
 integer(kind=iwp), intent(out) :: nAtoms, nXAtoms, nBasis, nxbas, iErr
 character(len=*), intent(inout) :: xb_label(*), xb_bas(*)
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i, IreadHere, iXU, NA, NAtom, Nwords
 real(kind=wp) :: Dist
 character(len=80) :: Line

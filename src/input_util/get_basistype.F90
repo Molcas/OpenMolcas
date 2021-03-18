@@ -32,12 +32,12 @@
 
 function get_BasisType(BasisType)
 
+use BasisType_Mod, only: BasTypeAll, BasTypeCon, BasTypeRel
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: get_BasisType
 character(len=*), intent(in) :: BasisType
-#include "basistype.fh"
 integer(kind=iwp) :: BasisTypes(4), i, nData
 logical(kind=iwp) :: Found
 character(len=3) :: temp, TypeCon, TypeAll, TypeRel

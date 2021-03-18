@@ -16,13 +16,13 @@ subroutine ZMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,iErr)
 !  ***  nAskAtoms == -1  =>  Seward ZMAT input  => Use "End of"
 !  ***  nAskAtoms /= -1  =>  GateWay ZMAT input => Use nAskAtoms
 
+use ZMatConv_Mod, only: BasReq, iZmat, MaxAtoms, NAT, Symbols, Zmat
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iZMUnit, LuWR, nAskAtoms
 integer(kind=iwp), intent(out) :: nAtoms, nXAtoms, nBasis, iErr
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i, NA, NAtom, NB, NT, Nwords
 real(kind=wp) :: Beta, Dist, Theta
 character(len=80) :: Line

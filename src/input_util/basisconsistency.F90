@@ -11,12 +11,12 @@
 
 subroutine BasisConsistency(LuWr,iErr)
 
+use ZMatConv_Mod, only: BasAva, BasReq
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuWr
 integer(kind=iwp), intent(out) :: iErr
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i
 
 iErr = 0

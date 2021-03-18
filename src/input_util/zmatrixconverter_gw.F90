@@ -19,13 +19,13 @@ subroutine ZMatrixConverter_GW(LuRd,LuWr,LuOut,nAskAtoms,iErr)
 ! This is an adaptation of Subroutine ZMatrixConverter for GateWay     *
 !***********************************************************************
 
+use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, iZmat, MaxAtoms, NAT, Num_Elem, Symbols, Zmat
 use Constants, only: Zero, Pi
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd, LuWr, LuOut, nAskAtoms
 integer(kind=iwp), intent(out) :: iErr
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i, iAtom, j, k, nAtoms, nBasis, nXAtoms
 real(kind=wp) :: r, torad
 

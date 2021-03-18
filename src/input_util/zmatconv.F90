@@ -11,13 +11,13 @@
 
 subroutine ZMatConv(LuWr,iAtom,iErr)
 
+use ZMatConv_Mod, only: iZmat, Coords, Zmat
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuWR, iAtom
 integer(kind=iwp), intent(out) :: iErr
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i
 real(kind=wp) :: arg, dCBiAtom, dCTiAtom, dSBiAtom, dSTiAtom, r, torad, u1(3), u2(3), u3(3), u4(3), vj(3), vp(3)
 

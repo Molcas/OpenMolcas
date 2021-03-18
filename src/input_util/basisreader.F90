@@ -11,6 +11,7 @@
 
 subroutine BasisReader(LuWr,nBase,iglobal,nxbas,xb_label,xb_bas,iErr)
 
+use ZMatConv_Mod, only: BasAva, Base, Num_Elem, PTab
 use Definitions, only: wp, iwp
 
 implicit none
@@ -18,7 +19,6 @@ integer(kind=iwp), intent(in) :: LuWr, iglobal
 integer(kind=iwp), intent(out) :: nBase, iErr
 integer(kind=iwp), intent(inout) :: nxbas
 character(len=*), intent(in) :: xb_label(*), xb_bas(*)
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i, icount
 logical(kind=iwp) :: Found
 character(len=48) :: Line, TMP

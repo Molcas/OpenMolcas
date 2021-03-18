@@ -18,6 +18,7 @@ subroutine XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_lab
 ! This is an adaptation of GG Program ZMatrixConverter                 *
 !***********************************************************************
 
+use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, MaxAtoms, NAT, Num_Elem, Symbols, Zmat
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -27,7 +28,6 @@ character(len=180), intent(out) :: STDINP(mxAtom*2)
 integer(kind=iwp), intent(out) :: lSTDINP, iErr
 integer(kind=iwp), intent(inout) :: nxbas
 character(len=*), intent(inout) :: xb_label(*), xb_bas(*)
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i, i4, i5, ineedfix, iSTDINP, j, k, nAtoms, NATprev, nBase, nBasis, nXAtoms
 real(kind=wp) :: r
 logical(kind=iwp) :: IfTest

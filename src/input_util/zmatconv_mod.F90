@@ -9,36 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine vec(threshold,u,j,k,iErr)
+module ZMatConv_Mod
 
-use ZMatConv_Mod, only: Coords
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: threshold
-real(kind=wp), intent(out) :: u(3)
-integer(kind=iwp), intent(in) :: j, k
-integer(kind=iwp), intent(out) :: iErr
-integer(kind=iwp) :: i
-real(kind=wp) :: r(3), r2
+private
 
-iErr = 0
-r2 = Zero
+integer(kind=iwp), parameter :: MaxAtoms = 256
+#include "periodic_table.fh"
+character(len=48) :: Base(Num_Elem)      ! Base: Basis Set string
+logical(kind=iwp) :: BasAva(Num_Elem), & ! Atom with available Basis Set
+                     BasReq(Num_Elem)    ! Atom requiring Basis Set
+character(len=5) :: Symbols(MaxAtoms)    ! Atomic symbol with index. (C12 or Hn)
+integer(kind=iwp) :: NAT(MaxAtoms), &    ! Atomic number
+                     iZmat(MaxAtoms,3)   ! Z-Mat indices
+real(kind=wp) :: ZMat(MaxAtoms,3), &     ! Z-Mat coordinates
+                 Coords(MaxAtoms,3)      ! Atomic coordinates
 
-do i=1,3
-  r(i) = Coords(j,i)-Coords(k,i)
-  r2 = r2+r(i)*r(i)
-end do
-r2 = sqrt(r2)
-if (r2 < threshold) then
-  iErr = 1
-  return
-end if
-do i=1,3
-  u(i) = r(i)/r2
-end do
+public :: Num_Elem, PTab, MaxAtoms, Base, BasAva, BasReq, Symbols, NAT, iZmat, ZMat, Coords
 
-return
-
-end subroutine vec
+end module ZMatConv_Mod

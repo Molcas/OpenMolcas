@@ -44,6 +44,7 @@ subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_lab
 ! by a copy on the code already present in RdCtl_Seward.               *
 !***********************************************************************
 
+use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, iZmat, MaxAtoms, NAT, Num_Elem, Symbols, Zmat
 use Constants, only: Zero, Pi
 use Definitions, only: wp, iwp
 
@@ -53,7 +54,6 @@ character(len=180), intent(out) ::  STDINP(mxAtom*2)
 integer(kind=iwp), intent(out) :: lSTDINP, iErr
 integer(kind=iwp), intent(inout) :: nxbas
 character(len=*), intent(in) :: xb_label(*), xb_bas(*)
-#include "g_zmatconv.fh"
 integer(kind=iwp) :: i, iAtom, iSTDINP, j, k, nAtoms, NATprev, nBase, nBasis, nXAtoms
 logical(kind=iwp) :: IfTest
 real(kind=wp) :: r, torad

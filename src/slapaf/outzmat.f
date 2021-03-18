@@ -46,10 +46,10 @@
 *           X dummy atoms - NAT(i)= 0 - are included in SEWARD         *
 *           Z ghost atoms - NAT(i)=-1 - are NOT included in SEWARD     *
 ************************************************************************
+      Use ZMatConv_Mod, Only: MaxAtoms
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "angstr.fh"
-      Parameter (MaxAtoms=256) ! See src/input_util/g_zmatconv.fh
       Character(LEN=5) Symbols(N_ZMAT)   ! Obs: Restricted record
       Integer NAT(N_ZMAT)           ! Obs: Restricted record
       Integer iZmat(MaxAtoms,3)     ! Obs: Full record
