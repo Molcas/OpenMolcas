@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine ZMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine ZMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,         &
      & nAskAtoms,iErr)
       Implicit Integer (i-n)
       Implicit Real*8 (a-h,o-z)
@@ -16,11 +16,11 @@
       Character*80 Line, Blank
       Character*3  Command
       Character*24 Words(7)
-* nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
-* nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
-* nBasis : Nummer of atom types requiring Basis Set
-C  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
-C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
+! nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
+! nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
+! nBasis : Nummer of atom types requiring Basis Set
+!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
+!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       iErr = 0
       Blank = ' '
       nAtoms  = 0
@@ -40,7 +40,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
         Zmat(i,3) = 0.0d0
       EndDo
 
-* Read Line (or COMMAND)
+! Read Line (or COMMAND)
 10    If ((nAtoms + nXAtoms).EQ.nAskAtoms) GoTo 100
       Read(iZMUnit,'(A)',Err=9906,End=9999) Line
       If ( Line(1:1).EQ.'*' ) GoTo 10
@@ -56,7 +56,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       Beta  = 0.0d0
       Theta = 0.0d0
 
-* Read Symbol           [ Symb ]
+! Read Symbol           [ Symb ]
       Call Pick_Words(Line,7,Nwords,Words)
       If (Nwords.LT.1) GoTo 9993
       Call FoundAtomicNumber(LuWr,Words(1),NAtom,iErr)
@@ -68,7 +68,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       If (NAtom.GT. 0) BasReq(NAtom)=.True.
       If ((nAtoms + nXAtoms).EQ.1) GoTo 10 ! Raed Only the First Atom
 
-* Read Distance         [ Symb   NA Dist ]
+! Read Distance         [ Symb   NA Dist ]
       Call Pick_Words(Line,7,Nwords,Words)
       If (Nwords.LT.3) GoTo 9993
       Call Get_iNumber(Words(2),NA,iErr)
@@ -81,7 +81,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       Zmat(nAtoms + nXAtoms, 1) = Dist
       If ((nAtoms + nXAtoms).EQ.2) GoTo 10 ! Raed Only the Second Atom
 
-* Read Planar angle     [ Symb   NA Dist   NB Beta ]
+! Read Planar angle     [ Symb   NA Dist   NB Beta ]
       Call Pick_Words(Line,7,Nwords,Words)
       If (Nwords.LT.5) GoTo 9993
       Call Get_iNumber(Words(4),NB,iErr)
@@ -95,7 +95,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       If (NA.EQ.NB) GoTo 9994
       If ((nAtoms + nXAtoms).EQ.3) GoTo 10 ! Raed Only the Second Atom
 
-* Read Dihedral angle   [ Symb   NA Dist   NB Beta   NT Theta]
+! Read Dihedral angle   [ Symb   NA Dist   NB Beta   NT Theta]
       Call Pick_Words(Line,7,Nwords,Words)
       If (Nwords.LT.7) GoTo 9993
       Call Get_iNumber(Words(6),NT,iErr)
@@ -108,7 +108,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       If (NA.EQ.NB .OR. NB.EQ.NT .OR. NA.EQ.NT) GoTo 9994
       GoTo 10
 
-* Pre-check Basis Set consistency  BasReq: Atom requiring Basis Set
+! Pre-check Basis Set consistency  BasReq: Atom requiring Basis Set
 100   nBasis = 0
       Do i = 1, 100
         If (BasReq(i)) nBasis = nBasis + 1

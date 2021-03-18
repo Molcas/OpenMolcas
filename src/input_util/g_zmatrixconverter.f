@@ -1,48 +1,48 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Giovanni Ghigo                                   *
-************************************************************************
-*  ZMatrixConverter
-*
-*> @brief
-*>   Routine for reading seward input in Z-Matrix format
-*> @author Giovanni Ghigo
-*>
-*> @details
-*> The input for seward is read and a string vector is generate (\p STDINP).
-*> This vector contains a standard seward input and it will be read later as usual
-*> by a modified copy of the section ``BASI`` code already present in ::RdCtl_Seward.
-*> This new code is in the ::StdSewInput routine.
-*> Only the standard basis present in the ``$MOLCAS/basis_library`` are allowed.
-*>
-*> @param[in]    LuRd    Input file unit number
-*> @param[in]    LuWr    Output file unit number
-*> @param[in]    mxAtom  Parameter
-*> @param[out]   STDINP  String vector of seward standard input
-*> @param[out]   lSTDINP Length of String vector \p STDINP
-*> @param[out]   iErr    Error flag
-************************************************************************
-       Subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Giovanni Ghigo                                   *
+!***********************************************************************
+!  ZMatrixConverter
+!
+!> @brief
+!>   Routine for reading seward input in Z-Matrix format
+!> @author Giovanni Ghigo
+!>
+!> @details
+!> The input for seward is read and a string vector is generate (\p STDINP).
+!> This vector contains a standard seward input and it will be read later as usual
+!> by a modified copy of the section ``BASI`` code already present in ::RdCtl_Seward.
+!> This new code is in the ::StdSewInput routine.
+!> Only the standard basis present in the ``$MOLCAS/basis_library`` are allowed.
+!>
+!> @param[in]    LuRd    Input file unit number
+!> @param[in]    LuWr    Output file unit number
+!> @param[in]    mxAtom  Parameter
+!> @param[out]   STDINP  String vector of seward standard input
+!> @param[out]   lSTDINP Length of String vector \p STDINP
+!> @param[out]   iErr    Error flag
+!***********************************************************************
+       Subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,     &
      & iglobal,nxbas,xb_label,xb_bas,iErr)
-************************************************************************
-* Author: Giovanni Ghigo                                               *
-*         Torino (Italy)  October-November 2006                        *
-*                                                                      *
-* This is an adaptation of Program ZMatrixConverter                    *
-* A converter of Z-Matrix in cartesian coordinates in MolCAS format.   *
-* Version 1.0                                                          *
-* The input for seward is read and a string vector is generate. This   *
-* vector is a standard seward input and it will be read later as usual *
-* by a copy on the code already present in RdCtl_Seward.               *
-************************************************************************
+!***********************************************************************
+! Author: Giovanni Ghigo                                               *
+!         Torino (Italy)  October-November 2006                        *
+!                                                                      *
+! This is an adaptation of Program ZMatrixConverter                    *
+! A converter of Z-Matrix in cartesian coordinates in MolCAS format.   *
+! Version 1.0                                                          *
+! The input for seward is read and a string vector is generate. This   *
+! vector is a standard seward input and it will be read later as usual *
+! by a copy on the code already present in RdCtl_Seward.               *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Character*180 STDINP(mxAtom*2)
@@ -60,19 +60,19 @@
       IfTest=.False.
 #endif
 
-C  ***  H-Fm (Atomic numbers 1-100)
-C  ***  X dummy atoms (NA = 0 )
-C  ***  Z ghost atoms (NA =-1 )
-C  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input
-C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input
+!  ***  H-Fm (Atomic numbers 1-100)
+!  ***  X dummy atoms (NA = 0 )
+!  ***  Z ghost atoms (NA =-1 )
+!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input
+!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input
 
-C nAtoms : nr. of atoms passed to SEWARD (includes X dummy atoms).
-C nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed
-C          by OutZMat in SLAPAF).
-C nBase  : number of BasisSets found in input.
-C Base(i): BasisSet for atom with Atomic Number -i-.
-C BasAva(i) & BasReq(i): Logical to check BasisSet-consistency.
-C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
+! nAtoms : nr. of atoms passed to SEWARD (includes X dummy atoms).
+! nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed
+!          by OutZMat in SLAPAF).
+! nBase  : number of BasisSets found in input.
+! Base(i): BasisSet for atom with Atomic Number -i-.
+! BasAva(i) & BasReq(i): Logical to check BasisSet-consistency.
+! Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
 
 
       nAtoms  = 0
@@ -93,9 +93,9 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       iErr   = 0
       Angstring = '  / Angstrom'
 
-* Reading input
+! Reading input
       iErr = 0
-      Call BasisReader(LuWr,nBase,iglobal,
+      Call BasisReader(LuWr,nBase,iglobal,                              &
      &      nxbas,xb_label,xb_bas,iErr)
       If (IfTest) then
         Write(LuWr,*)
@@ -114,19 +114,19 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
         Write(LuWr,*)
         Write(LuWr,*) '------------------------------------------------'
         Write(LuWr,*) 'ZMatrixConverter - From ZMatReader :'
-        Write(LuWr,*) '                   nAtoms=',nAtoms,
+        Write(LuWr,*) '                   nAtoms=',nAtoms,              &
      &     ', nXAtoms=',nXAtoms,', Tot=',nAtoms+nXAtoms
-        Write(LuWr,*)
+        Write(LuWr,*)                                                   &
      &' Label NA    i   bond        j   angle       k   dihedral'
         Do i = 1, nAtoms+nXAtoms
-          Write(LuWr,'(1X,A,I3,3(1X,I4,1X,F10.6))')
+          Write(LuWr,'(1X,A,I3,3(1X,I4,1X,F10.6))')                     &
      &    Symbols(i),NAT(i),(iZmat(i,j),Zmat(i,j),j=1,3)
         EndDo
         Write(LuWr,*)
       EndIf
       If (iErr.NE.0) GoTo 9906
 
-* Some checks
+! Some checks
       If (nBase.EQ.0) then
         Write(LuWr,*) 'ERROR: No basis set specified !'
         GoTo 9999
@@ -151,14 +151,14 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       Call Put_iArray('Index ZMAT',iZmat,MaxAtoms*3)
       Call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 
-* Calculate coordinates
+! Calculate coordinates
       torad = CONST_PI_ / 180.0d0
-*     Atom #1
+!     Atom #1
       If (nAtoms+nXAtoms.EQ.1) GoTo 2000
-*     Atom #2
+!     Atom #2
       Coords(2,3)=Zmat(2,1)  ! Z(2)=R
       If (nAtoms+nXAtoms.EQ.2) GoTo 2000
-*     Atom #3
+!     Atom #3
       If (iZmat(3,1).EQ.1) then
         Coords(3,1)=Zmat(3,1)*SIN(Zmat(3,2)*torad) ! X(2)=R sin(A)
         Coords(3,3)=Zmat(3,1)*COS(Zmat(3,2)*torad) ! Z(3)=R cos(A)
@@ -167,7 +167,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
         Coords(3,3)=Coords(2,3)-Zmat(3,1)*COS(Zmat(3,2)*torad)
       EndIf
       If (nAtoms+nXAtoms.EQ.3) GoTo 2000
-*     Atom #4 ->
+!     Atom #4 ->
       Do iAtom = 4, nAtoms+nXAtoms
         Call ZMatConv(LuWr,iAtom,iErr)
       EndDo
@@ -183,7 +183,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
         Write(LuWr,*)
       EndIf
 
-*     Check for superposed atoms
+!     Check for superposed atoms
       Do i = 1, nAtoms+nXAtoms
         If (NAT(i).GT.0) then
           Do j = i+1, nAtoms+nXAtoms
@@ -198,7 +198,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
         EndIf
       EndDo
 
-* Writing
+! Writing
 2000  Continue
       If (NAT(1).EQ.-1) then
         NATprev = -1
@@ -227,7 +227,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
           iSTDINP = iSTDINP + 1
           NATprev = NAT(i)
         EndIf
-        Write(STDINP(iSTDINP),'(A5,3F16.10,A)')
+        Write(STDINP(iSTDINP),'(A5,3F16.10,A)')                         &
      &          Symbols(i),(Coords(i,j),j=1,3),Angstring
         iSTDINP = iSTDINP + 1
 2100    Continue

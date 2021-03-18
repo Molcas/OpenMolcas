@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine BasisReader(LuWr,nBase,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine BasisReader(LuWr,nBase,                                &
      &      iglobal,nxbas,xb_label,xb_bas,iErr)
       Implicit Integer (i-n)
       Implicit Real*8 (a-h,o-z)
@@ -24,21 +24,21 @@
       icount=1
 
 10    CONTINUE
-C Read(iZMUnit,'(A)',Err=9904,End=9999) Line
+! Read(iZMUnit,'(A)',Err=9904,End=9999) Line
       if(iglobal.eq.0) then
         Line=trim(xb_label(icount))//'.'//trim(xb_bas(icount))
       else
               Line='FF.'//trim(xb_bas(icount))
         nxbas=1
       endif
-c      print *,'>>',Line
+!      print *,'>>',Line
       Found = .False.
       SimbA = Line(1:2)
       If (SimbA(2:2).EQ.'.') SimbA(2:2)=' '
       Do i = 1, Num_Elem
-        If ((SimbA(1:1).le.'z').and.(SimbA(1:1).ge.'a'))
+        If ((SimbA(1:1).le.'z').and.(SimbA(1:1).ge.'a'))                &
      &       SimbA(1:1)=char(ichar(SimbA(1:1))-32)
-        If ((SimbA(2:2).le.'Z').and.(SimbA(2:2).ge.'A'))
+        If ((SimbA(2:2).le.'Z').and.(SimbA(2:2).ge.'A'))                &
      &       SimbA(2:2)=char(ichar(SimbA(2:2))+32)
 
       If (SimbA.EQ.AdjustL(PTab(i)).and.iglobal.eq.0) then
@@ -70,9 +70,9 @@ c      print *,'>>',Line
       if(icount.le.nxbas) GoTo 10
 
 
-c9904  iErr = 1
-c      Write(LuWr,*) ' [BasisReader]: Unable to read z-matrix !'
-c      GoTo 9999
+!9904  iErr = 1
+!      Write(LuWr,*) ' [BasisReader]: Unable to read z-matrix !'
+!      GoTo 9999
 9999  continue
       Return
       End

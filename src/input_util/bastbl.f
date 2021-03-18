@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2001-2005, Valera Veryazov                             *
-*               2020, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2001-2005, Valera Veryazov                             *
+!               2020, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       Subroutine TransTbl(Filename)
-c
-c  translate basis file names
-c
+!
+!  translate basis file names
+!
       character *256 Filename, DirName, OrigName
       character *256 Line
       Integer Strnln,irecl
@@ -32,7 +32,7 @@ c
         endif
         i=i-1
       enddo
-c
+!
       if(.not.found) then
         ileft=0
         i=Strnln(FileName)
@@ -50,18 +50,18 @@ c
       if(i.le.0) i=len(Filename)+1
       OrigName=Filename(ileft+1:i-1)
       LenOrig=i-ileft
-      call molcas_open_ext2(iunit,DirName(1:ileft)//'trans.tbl',
-     & 'sequential','formatted',iostat,.false.,irecl,'unknown',
+      call molcas_open_ext2(iunit,DirName(1:ileft)//'trans.tbl',        &
+     & 'sequential','formatted',iostat,.false.,irecl,'unknown',         &
      & is_error)
-c      open(iunit,file=DirName(1:ileft)//'trans.tbl',
-c     &        Form='FORMATTED',IOSTAT=IOStat)
+!      open(iunit,file=DirName(1:ileft)//'trans.tbl',
+!     &        Form='FORMATTED',IOSTAT=IOStat)
       If (IOStat.ne.0) Then
          close(iunit)
-         call molcas_open_ext2(iunit,'BASLIB_trans.tbl',
-     & 'sequential','formatted',iostat,.false.,irecl,
+         call molcas_open_ext2(iunit,'BASLIB_trans.tbl',                &
+     & 'sequential','formatted',iostat,.false.,irecl,                   &
      &  'unknown',is_error)
-c         open(iunit,file='BASLIB_trans.tbl',
-c     &        Form='FORMATTED',IOSTAT=IOStat)
+!         open(iunit,file='BASLIB_trans.tbl',
+!     &        Form='FORMATTED',IOSTAT=IOStat)
         If (IOStat.ne.0) Then
           write(6,*) 'trans.tbl is not found'
          close(iunit)
@@ -87,54 +87,54 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
        return
       end
       Subroutine BasisTbl(Label,BasDir)
-c
-c  a routine to translate basis set labels
-c
+!
+!  a routine to translate basis set labels
+!
       Character*(*) Label
       Character Temp*256, Line*256
       Character *(*) BasDir
       Integer Strnln,irecl
       External StrnLn
       Logical Exist,is_error
-C     i=index(Label,'.')
-C     if(i.gt.0) then
-C     i=index(Label(i+1:),'.')
-c return if we have a complete name
-C     if(i.ne.0) return
-C     endif
+!     i=index(Label,'.')
+!     if(i.gt.0) then
+!     i=index(Label(i+1:),'.')
+! return if we have a complete name
+!     if(i.ne.0) return
+!     endif
       Temp=BasDir//'/basis.tbl'
       Call f_Inquire(Temp,Exist)
       if(.not.Exist) Return
       jUnit=15
       iUnit=isfreeunit(jUnit)
-      call molcas_Open_ext2(iunit,temp,'sequential','formatted',
+      call molcas_Open_ext2(iunit,temp,'sequential','formatted',        &
      & iostat,.false.,irecl,'unknown',is_error)
-c      open(unit=iUnit,File=Temp,form='FORMATTED',IOSTAT=IOStat)
+!      open(unit=iUnit,File=Temp,form='FORMATTED',IOSTAT=IOStat)
       if(IOStat.ne.0) return
       iLast=StrnLn(Label)
-*
-*
-*     Strip trailing dots
-*
+!
+!
+!     Strip trailing dots
+!
 99    If (Label(iLast:iLast).eq.'.') Then
          iLast=iLast-1
          Go To 99
       End If
-C     Write (*,*) 'Label(1:iLast)=',Label(1:iLast)
+!     Write (*,*) 'Label(1:iLast)=',Label(1:iLast)
 100     read(iUnit,'(a)',end=200,err=200) Line
         if(Line(1:1).eq.'#') goto 100
         if(Line.eq.' ') goto 100
         Call UpCase(Line)
-*
-*       Identify first non-blank segment in Line
-*
+!
+!       Identify first non-blank segment in Line
+!
         jlast=0
  98     If (Line(jlast+1:jlast+1).ne.' ') Then
            jLast = jLast +1
            Go To 98
         End If
         If (jlast.ne.ilast) Go To 100
-c       i=index(Line,Label(1:iLast))
+!       i=index(Line,Label(1:iLast))
         i=index(Line(1:jlast),Label(1:iLast))
         if(i.ne.1) goto 100
         i=iLast+1
@@ -146,7 +146,7 @@ c       i=index(Line,Label(1:iLast))
          ia=index(Line(ib:),' ')
          if(ia.eq.0) ia=len(Line)+1
 #ifdef _DEBUGPRINT_
-         write(6,'(3a)') Label(1:iLast),'translated to ',
+         write(6,'(3a)') Label(1:iLast),'translated to ',               &
      &      Line(ib:ib+ia-1)
 #endif
         Label=Line(ib:ib+ia-1)
@@ -154,9 +154,9 @@ c       i=index(Line,Label(1:iLast))
         return
         end
       Subroutine BasisType(Filename,inline,BasisTypes)
-c
-c  translate basis file names
-c
+!
+!  translate basis file names
+!
       character *(*) Filename
       Integer StrnLn
       External StrnLn
@@ -182,8 +182,8 @@ c
          BasisTypes(2)=-1
          BasisTypes(3)=-1
          BasisTypes(4)=-1
-         call SysWarnMsg('BasisType','inline basis is used',
-     * 'assuming all defaults for the basis types')
+         call SysWarnMsg('BasisType','inline basis is used',            &
+     & 'assuming all defaults for the basis types')
          Return
       End If
       BasisTypes(3)=0
@@ -217,18 +217,18 @@ c
       if(i.eq.0) i=len(Filename)
       OrigName=Filename(ileft+1:i)
       LenOrig=i-ileft
-c
-c first, check tbl.
-      call molcas_open_ext2(iunit,DirName(1:ileft)//'basistype.tbl',
+!
+! first, check tbl.
+      call molcas_open_ext2(iunit,DirName(1:ileft)//'basistype.tbl',    &
      & 'sequential','formatted',iostat,.false.,irecl,'old',is_error)
-c      open(iunit,file=DirName(1:ileft)//'basistype.tbl',
-c     &        Form='FORMATTED',IOSTAT=IOStat)
+!      open(iunit,file=DirName(1:ileft)//'basistype.tbl',
+!     &        Form='FORMATTED',IOSTAT=IOStat)
          if(Iostat.ne.0) then
          close(iunit)
-          call molcas_open_ext2(iunit,'BASLIB_basistype.tbl',
+          call molcas_open_ext2(iunit,'BASLIB_basistype.tbl',           &
      & 'sequential','formatted',iostat,.false.,irecl,'old',is_error)
-c         open(iunit,file='BASLIB_basistype.tbl',
-c     &        Form='FORMATTED',IOSTAT=IOStat)
+!         open(iunit,file='BASLIB_basistype.tbl',
+!     &        Form='FORMATTED',IOSTAT=IOStat)
         endif
         If (IOStat.ne.0) Then
           write(6,*) 'basistype.tbl is not found'
@@ -268,23 +268,23 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
 30     close(iunit)
 
 
-c now let's check the header of the basis file
-c
+! now let's check the header of the basis file
+!
       if(OrigName(1:LenOrig-1).eq.' ') goto 40
       Call f_Inquire(DirName(1:ileft)//OrigName(1:LenOrig-1),Found)
       if(.not.Found) goto 40
-c      print *, 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
+!      print *, 'open >',DirName(1:ileft)//OrigName(1:LenOrig-1),'<'
       call molcas_open(iunit,DirName(1:ileft)//OrigName(1:LenOrig-1))
 777   read(iunit,'(a)', end=35, err=35) Line
       if(Line(1:1).eq.'/') then
-c  we already reached body of the file.
+!  we already reached body of the file.
        LineComp=':'//vCONT//':'//vALLE//':'//vRELA//':'//vNUCL//':'
              isKnown=1
              goto 35
       endif
-c     finish reading, let's create the return string
+!     finish reading, let's create the return string
 
-c       print *,'line=',Line
+!       print *,'line=',Line
       if(index(Line,CONT(1:index(CONT,' '))).eq.1) then
          i=index(Line,' ')
          do j=i,len(Line)
@@ -318,12 +318,12 @@ c       print *,'line=',Line
 
       goto 777
 
-c
-c well. now use tbl
-c
+!
+! well. now use tbl
+!
 35     close(iunit)
 40     if(isKnown.eq.0) LineComp=':UNK:UNK:UNK:UNK:'
-c       print *,'DEBUG=',LineComp
+!       print *,'DEBUG=',LineComp
           tmp=LineComp(2:5)
           i1=index(BasTypeCon,tmp)
           if(i1.eq.0.or.tmp.eq.'UNK:') Then
@@ -332,7 +332,7 @@ c       print *,'DEBUG=',LineComp
              i1=i1/4+1
              BasisTypes(1)=i1
           End If
-c
+!
           tmp=LineComp(6:9)
           i1=index(BasTypeAll,tmp)
           if(i1.eq.0.or.tmp.eq.'UNK:') Then
@@ -340,11 +340,11 @@ c
           Else
              i1=i1/4+1
              BasisTypes(2)=i1
-c hack to map YES to AE_, and NO_ to NAE
+! hack to map YES to AE_, and NO_ to NAE
              if(BasisTypes(2).eq.3) BasisTypes(2)=1
              if(BasisTypes(2).eq.4) BasisTypes(2)=2
           EndIf
-c
+!
           tmp=LineComp(10:13)
           i1=index(BasTypeRel,tmp)
           if(i1.eq.0.or.tmp.eq.'UNK:') Then
@@ -353,7 +353,7 @@ c
              i1=i1/4+1
              BasisTypes(3)=i1
           EndIf
-c
+!
           tmp=LineComp(14:17)
           i1=index(BasTypeNuc,tmp)
           if(i1.eq.0.or.tmp.eq.'UNK:') Then

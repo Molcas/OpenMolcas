@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Giovanni Ghigo                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Giovanni Ghigo                                   *
+!***********************************************************************
        Subroutine ZMatrixConverter_GW(LuRd,LuWr,LuOut,nAskAtoms,iErr)
-************************************************************************
-* Author: Giovanni Ghigo                                               *
-*         Torino (Italy)  October-November 2006                        *
-*                                                                      *
-* This is an adaptation of Subroutine ZMatrixConverter for GateWay     *
-************************************************************************
+!***********************************************************************
+! Author: Giovanni Ghigo                                               *
+!         Torino (Italy)  October-November 2006                        *
+!                                                                      *
+! This is an adaptation of Subroutine ZMatrixConverter for GateWay     *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
 #include "constants.fh"
@@ -36,14 +36,14 @@
       nBasis = 0
       iErr   = 0
 
-* Reading input
+! Reading input
       iErr = 0
       Call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,iErr)
       If (iErr.NE.0) GoTo 9906
       Write(LuOut,*) nAtoms
       Write(LuOut,'(A)') 'Angstrom'
 
-* Some checks
+! Some checks
       If (nAtoms.EQ.0) then
         Write(LuWr,*) 'ERROR: No atom coordinates specified !'
         GoTo 9999
@@ -54,14 +54,14 @@
       Call Put_iArray('Index ZMAT',iZmat,MaxAtoms*3)
       Call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 
-* Calculate coordinates
+! Calculate coordinates
       torad = CONST_PI_ / 180.0d0
-*     Atom #1
+!     Atom #1
       If (nAtoms+nXAtoms.EQ.1) GoTo 2000
-*     Atom #2
+!     Atom #2
       Coords(2,3)=Zmat(2,1)  ! Z(2)=R
       If (nAtoms+nXAtoms.EQ.2) GoTo 2000
-*     Atom #3
+!     Atom #3
       If (iZmat(3,1).EQ.1) then
         Coords(3,1)=Zmat(3,1)*SIN(Zmat(3,2)*torad) ! X(2)=R sin(A)
         Coords(3,3)=Zmat(3,1)*COS(Zmat(3,2)*torad) ! Z(3)=R cos(A)
@@ -70,13 +70,13 @@
         Coords(3,3)=Coords(2,3)-Zmat(3,1)*COS(Zmat(3,2)*torad)
       EndIf
       If (nAtoms+nXAtoms.EQ.3) GoTo 2000
-*     Atom #4 ->
+!     Atom #4 ->
       Do iAtom = 4, nAtoms+nXAtoms
         Call ZMatConv(LuWr,iAtom,iErr)
       EndDo
       If (iErr.NE.0) GoTo 9999
 
-*     Check for superposed atoms
+!     Check for superposed atoms
 2000  Do i = 1, nAtoms+nXAtoms
         If (NAT(i).GT.0) then
           Do j = i+1, nAtoms+nXAtoms
@@ -91,7 +91,7 @@
         EndIf
       EndDo
 
-* Writing
+! Writing
 
       Do i = 1, nAtoms+nXAtoms
         If (NAT(i).GT.0) Write(LuOut,999) Symbols(i),(Coords(i,k),k=1,3)

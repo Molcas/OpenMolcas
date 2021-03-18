@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2004,2006, Giovanni Ghigo                              *
-************************************************************************
-************************************************************************
-* This routine check if -string- is an integer. If it is a number      *
-* NaN=.False. and -iNumber- contains the number, otherwise, NaN=.True. *
-*----------------------------------------------------------------------*
-* Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
-* Author:   Giovanni Ghigo                                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2004,2006, Giovanni Ghigo                              *
+!***********************************************************************
+!***********************************************************************
+! This routine check if -string- is an integer. If it is a number      *
+! NaN=.False. and -iNumber- contains the number, otherwise, NaN=.True. *
+!----------------------------------------------------------------------*
+! Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
+! Author:   Giovanni Ghigo                                             *
+!***********************************************************************
       Subroutine Get_iNumber(string,iNumber,iErr)
       Implicit Integer (i-n)
       Character*(*)  string
@@ -38,13 +38,13 @@
       Return
       End
 
-************************************************************************
-* This routine check if -string- is a Real*8 number. If it is a number *
-* NaN=.False. and -Number- contains the number, otherwise, NaN=.True.  *
-*----------------------------------------------------------------------*
-* Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
-* Author:   Giovanni Ghigo                                             *
-************************************************************************
+!***********************************************************************
+! This routine check if -string- is a Real*8 number. If it is a number *
+! NaN=.False. and -Number- contains the number, otherwise, NaN=.True.  *
+!----------------------------------------------------------------------*
+! Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
+! Author:   Giovanni Ghigo                                             *
+!***********************************************************************
       Subroutine Get_dNumber(string,dNumber,iErr)
       Implicit Integer (i-n)
       Implicit Real*8 (a-h,o-z)
@@ -67,12 +67,12 @@
       Return
       End
 
-************************************************************************
-* This routine check if -string- is empty (spaces are empty).          *
-* If empty, Logical Empty=.True.                                       *
-*----------------------------------------------------------------------*
-* Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
-************************************************************************
+!***********************************************************************
+! This routine check if -string- is empty (spaces are empty).          *
+! If empty, Logical Empty=.True.                                       *
+!----------------------------------------------------------------------*
+! Author:   Giovanni Ghigo - November 2004 - Lund(SE)                  *
+!***********************************************************************
       Subroutine Empty_(string,Empty)
       Implicit Integer (i-n)
       Character*(*)  string
@@ -85,12 +85,12 @@
       End
 
 
-************************************************************************
-* This routine find in a -string- up to -MaxNWords- and put the words  *
-* in the array -Words(MaxNwords)- and the number in -Nwords-           *
-*----------------------------------------------------------------------*
-* Author:   Giovanni Ghigo - October 2006 - Torino (IT)                *
-************************************************************************
+!***********************************************************************
+! This routine find in a -string- up to -MaxNWords- and put the words  *
+! in the array -Words(MaxNwords)- and the number in -Nwords-           *
+!----------------------------------------------------------------------*
+! Author:   Giovanni Ghigo - October 2006 - Torino (IT)                *
+!***********************************************************************
       Subroutine Pick_Words(string,MaxNwords,Nwords,Words)
       Implicit Integer (i-n)
       Character*(*) string
@@ -133,19 +133,19 @@
       Implicit Integer (i-n)
       Character*6 Symb
 #include "periodic_table.fh"
-      If ((Symb(1:1).le.'z').and.(Symb(1:1).ge.'a'))
+      If ((Symb(1:1).le.'z').and.(Symb(1:1).ge.'a'))                    &
      &     Symb(1:1)=char(ichar(Symb(1:1))-32)
-      If ((Symb(2:2).le.'Z').and.(Symb(2:2).ge.'A'))
+      If ((Symb(2:2).le.'Z').and.(Symb(2:2).ge.'A'))                    &
      &     Symb(2:2)=char(ichar(Symb(2:2))+32)
       iErr = 1
-* --- Z atoms are ghost atoms that will disappear in seward
-      If (Symb(1:1).EQ.'Z' .AND.
+! --- Z atoms are ghost atoms that will disappear in seward
+      If (Symb(1:1).EQ.'Z' .AND.                                        &
      &    Symb(2:2).NE.'n' .AND. Symb(2:2).NE.'r') then
         iErr = 0
         NAT = -1
         Return
       EndIf
-* --- X atoms are dummy atoms that will appear in seward
+! --- X atoms are dummy atoms that will appear in seward
       If (Symb(1:1).EQ.'X' .AND. Symb(2:2).NE.'e') then
         iErr = 0
         NAT =  0

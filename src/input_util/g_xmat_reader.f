@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Valera Veryazov                                  *
-************************************************************************
-      Subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Valera Veryazov                                  *
+!***********************************************************************
+      Subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,         &
      &  nAskAtoms, nxbas,xb_label,xb_bas,iErr)
       Implicit Integer (i-n)
       Implicit Real*8 (a-h,o-z)
@@ -23,11 +23,11 @@
        xb_label(1)=' '
        xb_bas(1)=' '
        nxbas=1
-* nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
-* nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
-* nBasis : Nummer of atom types requiring Basis Set
-C  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
-C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
+! nAtoms : Total number of real atoms. Include X dummy atoms: NAT(i)= 0
+! nXAtoms: Total number of ghost (Z) atoms:                   NAT(i)=-1
+! nBasis : Nummer of atom types requiring Basis Set
+!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input  => Use "End of"
+!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
 
       iErr = 0
       Blank = ' '
@@ -48,7 +48,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
         Zmat(i,3) = 0.0d0
       EndDo
 
-* Read Line (or COMMAND)
+! Read Line (or COMMAND)
 10    If ((nAtoms + nXAtoms).EQ.nAskAtoms) GoTo 100
       Read(iZMUnit,'(A)',Err=9906,End=9999) Line
       If ( Line(1:1).EQ.'*' ) GoTo 10
@@ -60,7 +60,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
       NA = 0
       Dist  = 0.0d0
 
-*  Here we read number or a file.
+!  Here we read number or a file.
       read(Line,*,err=666,end=666) NA
       IreadHere=1
       goto 667
@@ -100,7 +100,7 @@ C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input => Use nAskAtoms
 
       enddo
       if(Ireadhere.eq.0) close(iXU)
-* Pre-check Basis Set consistency  BasReq: Atom requiring Basis Set
+! Pre-check Basis Set consistency  BasReq: Atom requiring Basis Set
 100   nBasis = 0
       Do i = 1, 100
         If (BasReq(i)) nBasis = nBasis + 1

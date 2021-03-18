@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Valera Veryazov                                        *
-************************************************************************
-       Subroutine XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Valera Veryazov                                        *
+!***********************************************************************
+       Subroutine XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,     &
      & iglobal,nxbas,xb_label,xb_bas,iErr)
-************************************************************************
-* Author: Valera Veryazov                                              *
-*                                                                      *
-* This is an adaptation of GG Program ZMatrixConverter                 *
-************************************************************************
+!***********************************************************************
+! Author: Valera Veryazov                                              *
+!                                                                      *
+! This is an adaptation of GG Program ZMatrixConverter                 *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Character*180 STDINP(mxAtom*2)
@@ -35,19 +35,19 @@
       IfTest=.False.
 #endif
 
-C  ***  H-Fm (Atomic numbers 1-100)
-C  ***  X dummy atoms (NA = 0 )
-C  ***  Z ghost atoms (NA =-1 )
-C  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input
-C  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input
+!  ***  H-Fm (Atomic numbers 1-100)
+!  ***  X dummy atoms (NA = 0 )
+!  ***  Z ghost atoms (NA =-1 )
+!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input
+!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input
 
-C nAtoms : nr. of atoms passed to SEWARD (includes X dummy atoms).
-C nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed
-C          by OutZMat in SLAPAF).
-C nBase  : number of BasisSets found in input.
-C Base(i): BasisSet for atom with Atomic Number -i-.
-C BasAva(i) & BasReq(i): Logical to check BasisSet-consistency.
-C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
+! nAtoms : nr. of atoms passed to SEWARD (includes X dummy atoms).
+! nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed
+!          by OutZMat in SLAPAF).
+! nBase  : number of BasisSets found in input.
+! Base(i): BasisSet for atom with Atomic Number -i-.
+! BasAva(i) & BasReq(i): Logical to check BasisSet-consistency.
+! Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
 
       nAtoms  = 0
       nXAtoms = 0
@@ -67,10 +67,10 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       iErr   = 0
       Angstring = '  / Angstrom'
 
-* Reading input
+! Reading input
       iErr = 0
-      Call BasisReader(LuWr,nBase,iglobal,nxbas,
-     *     xb_label,xb_bas,iErr)
+      Call BasisReader(LuWr,nBase,iglobal,nxbas,                        &
+     &     xb_label,xb_bas,iErr)
       If (IfTest) then
         Write(LuWr,*)
         Write(LuWr,*) '------------------------------------------------'
@@ -83,18 +83,18 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       EndIf
       If (iErr.NE.0) GoTo 9905
       iErr = 0
-      Call XMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,-1,
+      Call XMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,-1,               &
      & nxbas,xb_label,xb_bas,iErr)
       If (IfTest) then
         Do i = 1, nAtoms+nXAtoms
-          Write(LuWr,'(1X,A,I3,3(F10.6))')
+          Write(LuWr,'(1X,A,I3,3(F10.6))')                              &
      &    Symbols(i),NAT(i),(Zmat(i,j),j=1,3)
         EndDo
         Write(LuWr,*)
       EndIf
       If (iErr.NE.0) GoTo 9906
 
-* Some checks
+! Some checks
       If (nBase.EQ.0) then
         Write(LuWr,*) 'ERROR: No basis set specified !'
         GoTo 9999
@@ -130,7 +130,7 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
         Write(LuWr,*)
       EndIf
 
-*     Check for superposed atoms
+!     Check for superposed atoms
       Do i = 1, nAtoms+nXAtoms
         If (NAT(i).GT.0) then
           Do j = i+1, nAtoms+nXAtoms
@@ -145,8 +145,8 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
         EndIf
       EndDo
 
-* Writing
-c2000  Continue
+! Writing
+!2000  Continue
       If (NAT(1).EQ.-1) then
         NATprev = -1
       else
@@ -189,7 +189,7 @@ c2000  Continue
            endif
          enddo
         endif
-        Write(STDINP(iSTDINP),'(A5,3F24.18,A)')
+        Write(STDINP(iSTDINP),'(A5,3F24.18,A)')                         &
      &          ll,(Coords(i,j),j=1,3),Angstring
         iSTDINP = iSTDINP + 1
 2100    Continue

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine ZMatConv(LuWr,iAtom,iErr)
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
@@ -43,7 +43,7 @@
       EndDo
       Call crprod(u3,u2,u4)
       Do i=1,3
-        vj(i) = Zmat(iAtom,1)*(-u2(i)*dCBiAtom+u4(i)*dSBiAtom*dCTiAtom
+        vj(i) = Zmat(iAtom,1)*(-u2(i)*dCBiAtom+u4(i)*dSBiAtom*dCTiAtom  &
      &                                       +u3(i)*dSBiAtom*dSTiAtom)
         Coords(iAtom,i) = Coords(iZmat(iAtom,1),i) + vj(i)
       EndDo
@@ -51,7 +51,7 @@
       GoTo 9999
 
 9990  iErr=1
-      Write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error ',
+      Write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error ',    &
      &'detected for atom ',iAtom
 
 9999  Return
