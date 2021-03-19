@@ -19,7 +19,7 @@ subroutine ZMatrixConverter_GW(LuRd,LuWr,LuOut,nAskAtoms,iErr)
 ! This is an adaptation of Subroutine ZMatrixConverter for GateWay     *
 !***********************************************************************
 
-use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, iZmat, MaxAtoms, NAT, Num_Elem, Symbols, Zmat
+use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, iZmat, NAT, Symbols, Zmat
 use Constants, only: Zero, Pi
 use Definitions, only: wp, iwp
 
@@ -30,66 +30,71 @@ integer(kind=iwp) :: i, iAtom, j, k, nAtoms, nBasis, nXAtoms
 real(kind=wp) :: r, torad
 
 nAtoms = 0
-do i=1,Num_Elem
-  Base(i) = ' '
-  BasAva(i) = .false.
-  BasReq(i) = .false.
-end do
-do i=1,MaxAtoms
-  Coords(i,:) = Zero
-end do
+Base(:) = ' '
+BasAva(:) = .false.
+BasReq(:) = .false.
+Coords(:,:) = Zero
 nBasis = 0
 iErr = 0
 
 ! Reading input
 call ZMatReader(LuRd,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,iErr)
-if (iErr /= 0) goto 9906
+if (iErr /= 0) then
+  write(LuWr,*) ' ERROR: Wrong input in Z-Matrix definition !'
+  return
+end if
 write(LuOut,*) nAtoms
 write(LuOut,'(A)') 'Angstrom'
 
 ! Some checks
 if (nAtoms == 0) then
   write(LuWr,*) 'ERROR: No atom coordinates specified !'
-  goto 9999
+  return
 end if
 
 call Put_iScalar('N ZMAT',nAtoms+nXAtoms)
 call Put_cArray('Symbol ZMAT',Symbols(1),(nAtoms+nXAtoms)*5)
-call Put_iArray('Index ZMAT',iZmat,MaxAtoms*3)
+call Put_iArray('Index ZMAT',iZmat,size(iZmat))
 call Put_iArray('NAT ZMAT',NAT,nAtoms+nXAtoms)
 
 ! Calculate coordinates
 torad = Pi/180.0_wp
 ! Atom #1
-if (nAtoms+nXAtoms == 1) goto 2000
-! Atom #2
-Coords(2,3) = Zmat(2,1)  ! Z(2)=R
-if (nAtoms+nXAtoms == 2) goto 2000
-! Atom #3
-if (iZmat(3,1) == 1) then
-  Coords(3,1) = Zmat(3,1)*sin(Zmat(3,2)*torad) ! X(2)=R sin(A)
-  Coords(3,3) = Zmat(3,1)*cos(Zmat(3,2)*torad) ! Z(3)=R cos(A)
-else
-  Coords(3,1) = Zmat(3,1)*sin(Zmat(3,2)*torad)
-  Coords(3,3) = Coords(2,3)-Zmat(3,1)*cos(Zmat(3,2)*torad)
+if (nAtoms+nXAtoms /= 1) then
+  ! Atom #2
+  Coords(3,2) = Zmat(1,2)  ! Z(2)=R
+  if (nAtoms+nXAtoms /= 2) then
+    ! Atom #3
+    if (iZmat(1,3) == 1) then
+      Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*torad) ! X(2)=R sin(A)
+      Coords(3,3) = Zmat(1,3)*cos(Zmat(2,3)*torad) ! Z(3)=R cos(A)
+    else
+      Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*torad)
+      Coords(3,3) = Coords(3,2)-Zmat(1,3)*cos(Zmat(2,3)*torad)
+    end if
+    if (nAtoms+nXAtoms /= 3) then
+      ! Atom #4 ->
+      do iAtom=4,nAtoms+nXAtoms
+        call ZMatConv(LuWr,iAtom,iErr)
+      end do
+      if (iErr /= 0) return
+    end if
+  end if
 end if
-if (nAtoms+nXAtoms == 3) goto 2000
-! Atom #4 ->
-do iAtom=4,nAtoms+nXAtoms
-  call ZMatConv(LuWr,iAtom,iErr)
-end do
-if (iErr /= 0) goto 9999
 
 ! Check for superposed atoms
-2000 do i=1,nAtoms+nXAtoms
+do i=1,nAtoms+nXAtoms
   if (NAT(i) > 0) then
     do j=i+1,nAtoms+nXAtoms
       if (NAT(j) > 0) then
         r = Zero
         do k=1,3
-          r = r+(Coords(i,k)-Coords(j,k))**2
+          r = r+(Coords(k,i)-Coords(k,j))**2
         end do
-        if (r < 1.0e-4_wp) goto 9907
+        if (r < 1.0e-4_wp) then
+          write(LuWr,*) ' ERROR: Superimposed atoms: ',i,j,'  r=',sqrt(r)
+          return
+        end if
       end if
     end do
   end if
@@ -98,16 +103,11 @@ end do
 ! Writing
 
 do i=1,nAtoms+nXAtoms
-  if (NAT(i) > 0) write(LuOut,999) Symbols(i),(Coords(i,k),k=1,3)
+  if (NAT(i) > 0) write(LuOut,999) Symbols(i),(Coords(k,i),k=1,3)
 end do
+
+return
+
 999 format(A5,1X,3(F12.6))
-goto 9999
-
-9906 write(LuWr,*) ' ERROR: Wrong input in Z-Matrix definition !'
-goto 9999
-9907 write(LuWr,*) ' ERROR: Superimposed atoms: ',i,j,'  r=',sqrt(r)
-goto 9999
-
-9999 return
 
 end subroutine ZMatrixConverter_GW

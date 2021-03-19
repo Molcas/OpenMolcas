@@ -45,7 +45,6 @@ integer(kind=iwp), external :: iCLast
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_allocate(Buffer,nBuff,Label='Buffer')
 iErr = 0
 !                                                                      *
 !***********************************************************************
@@ -60,168 +59,170 @@ BasisTypes(:) = 0
 !                                                                      *
 iSTDINP = 2
 
-10 nCnttp = nCnttp+1
-if (nCnttp > Mxdbsc) then
-  write(LuWr,*) ' Increase Mxdbsc'
-  iErr = 1
-  return
-end if
+call mma_allocate(Buffer,nBuff,Label='Buffer')
 
-! Read the basis set label
-
-Key = STDINP(iSTDINP)
-BSLbl = Key(1:80)
-!call UpCase(BSLbl)
-LenBSL = len(BSLbl)
-Last = iCLast(BSLbl,LenBSL)
-Indx = index(BSLbl,'/')
-if (Indx == 0) then
-  call WhichMolcas(Basis_lib)
-  if (Basis_lib(1:1) /= ' ') then
-    ib = index(Basis_lib,' ')-1
-    if (ib < 1) call SysAbendMsg('rdCtl','Too long PATH to MOLCAS',' ')
-    Fname = Basis_lib(1:ib)//'/basis_library'
-  else
-    Fname = DefNm
+do
+  nCnttp = nCnttp+1
+  if (nCnttp > Mxdbsc) then
+    write(LuWr,*) ' Increase Mxdbsc'
+    iErr = 1
+    return
   end if
-  Indx = Last+1
-  dbsc(nCnttp)%Bsl = BSLbl
-else
-  Fname = BSLbl(Indx+2:Last)
-  if (Fname == ' ') then
-    call WarningMessage(2,' No basis set library specified for;BSLbl='//BSLbl//';Fname='//Fname)
-    call Quit_OnUserError()
-  end if
-1919 if (Fname(1:1) == ' ') then
-    Fname(1:79) = Fname(2:80)
-    Fname(80:80) = ' '
-    Go To 1919
-  end if
-  dbsc(nCnttp)%Bsl = BSLbl(1:Indx-1)
-end if
 
-n = index(dbsc(nCnttp)%Bsl,' ')
-dbsc(nCnttp)%Bsl(n:n+5) = '.....'
+  ! Read the basis set label
 
-if (Show .and. nPrint(2) >= 6) then
-  write(LuWr,*)
-  write(LuWr,*)
-  write(LuWr,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
-  write(LuWr,'(1X,A,A)') 'Basis set is read from library:',Fname(1:index(Fname,' '))
-end if
-
-jShll = iShll
-dbsc(nCnttp)%Bsl_old = dbsc(nCnttp)%Bsl
-dbsc(nCnttp)%mdci = mdc
-call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,.true.,.true.,' ')
-
-Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
-if (itype == 0) then
-  if (BasisTypes(3) == 1 .or. BasisTypes(3) == 2) iType = BasisTypes(3)
-else
-  if (BasisTypes(3) == 1 .or. BasisTypes(3) == 2) then
-    if (BasisTypes(3) /= iType) then
-      BasisTypes(3) = -1
+  Key = STDINP(iSTDINP)
+  BSLbl = Key(1:80)
+  !call UpCase(BSLbl)
+  LenBSL = len(BSLbl)
+  Last = iCLast(BSLbl,LenBSL)
+  Indx = index(BSLbl,'/')
+  if (Indx == 0) then
+    call WhichMolcas(Basis_lib)
+    if (Basis_lib(1:1) /= ' ') then
+      ib = index(Basis_lib,' ')-1
+      if (ib < 1) call SysAbendMsg('rdCtl','Too long PATH to MOLCAS',' ')
+      Fname = Basis_lib(1:ib)//'/basis_library'
+    else
+      Fname = DefNm
     end if
-    iType = BasisTypes(3)
+    Indx = Last+1
+    dbsc(nCnttp)%Bsl = BSLbl
+  else
+    Fname = BSLbl(Indx+2:Last)
+    if (Fname == ' ') then
+      call WarningMessage(2,' No basis set library specified for;BSLbl='//BSLbl//';Fname='//Fname)
+      call Quit_OnUserError()
+    end if
+    Fname = adjustl(Fname)
+    dbsc(nCnttp)%Bsl = BSLbl(1:Indx-1)
   end if
-end if
-if (itype == 1) ifnr = 1
-if (itype == 2) ifnr = 0
 
-if (Show .and. nPrint(2) >= 6 .and. Ref(1) /= '' .and. Ref(2) /= '') then
-  write(LuWr,'(1x,a)') 'Basis Set Reference(s):'
-  if (Ref(1) /= '') write(LuWr,'(5x,a)') Ref(1)
-  if (Ref(2) /= '') write(LuWr,'(5x,a)') Ref(2)
-  write(LuWr,*)
-  write(LuWr,*)
-end if
-dbsc(nCnttp)%ECP = (dbsc(nCnttp)%nPrj+dbsc(nCnttp)%nSRO+dbsc(nCnttp)%nSOC+dbsc(nCnttp)%nPP+dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2) /= 0
-dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal+dbsc(nCnttp)%nPrj+dbsc(nCnttp)%nSRO+dbsc(nCnttp)%nSOC+dbsc(nCnttp)%nPP
+  n = index(dbsc(nCnttp)%Bsl,' ')
+  dbsc(nCnttp)%Bsl(n:n+5) = '.....'
 
-lAng = max(dbsc(nCnttp)%nVal,dbsc(nCnttp)%nSRO,dbsc(nCnttp)%nPrj)-1
-S%iAngMx = max(S%iAngMx,lAng)
-! No transformation needed for s and p shells
-Shells(jShll+1)%Transf = .false.
-Shells(jShll+1)%Prjct = .false.
-Shells(jShll+2)%Transf = .false.
-Shells(jShll+2)%Prjct = .false.
-nCnt = 0
-if (dbsc(nCnttp)%Aux) then
-  do iSh=jShll+1,iShll
-    Shells(iSh)%Aux = .true.
-  end do
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Here we will have to fix that the 6-31G family of basis sets
-! should by default be used with 6 d-functions rather than 5.
-
-KWord = ''
-KWord(1:Indx-1) = BSLbl(1:Indx-1)
-call UpCase(KWord)
-if (index(KWord,'6-31G') /= 0) then
-  do iSh=jShll+3,iShll
-    Shells(iSh)%Transf = .false.
-    Shells(iSh)%Prjct = .false.
-  end do
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-100 iSTDINP = iSTDINP+1
-Line = STDINP(iSTDINP)
-KWord = Line
-call UpCase(KWord)
-if (KWord(1:4) == 'END ') then
-  if (nCnt == 0) then
-    call WarningMessage(2,' Input error, no center specified!')
-    call Quit_OnUserError()
+  if (Show .and. (nPrint(2) >= 6)) then
+    write(LuWr,*)
+    write(LuWr,*)
+    write(LuWr,'(1X,A,I5,A,A)') 'Basis Set ',nCnttp,' Label: ',BSLbl(1:Indx-1)
+    write(LuWr,'(1X,A,A)') 'Basis set is read from library:',Fname(1:index(Fname,' '))
   end if
-  dbsc(nCnttp)%nCntr = nCnt
-  call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,Label='dbsc:C')
-  dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
-  call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
-  mdc = mdc+nCnt
-  Go To 900
-end if
 
-! Read Coordinates
+  jShll = iShll
+  dbsc(nCnttp)%Bsl_old = dbsc(nCnttp)%Bsl
+  dbsc(nCnttp)%mdci = mdc
+  call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,.true.,.true.,' ')
 
-nCnt = nCnt+1
-n_dc = max(mdc+nCnt,n_dc)
-if (mdc+nCnt > MxAtom) then
-  call WarningMessage(2,' RdCtl: Increase MxAtom')
-  write(LuWr,*) '        MxAtom=',MxAtom
-  call Quit_OnUserError()
-end if
-iend = index(KWord,' ')
-if (iEnd > LENIN+1) then
-  write(u6,*) 'Warning: the label ',KWord(1:iEnd),' will be truncated to ',LENIN,' characters!'
-end if
-dc(mdc+nCnt)%LblCnt = KWord(1:min(LENIN,iend-1))
-dbas = trim(dc(mdc+nCnt)%LblCnt(1:LENIN))
-call Upcase(dbas)
-if (dbas == 'DBAS') then
-  call WarningMessage(2,' RdCtl: ZMAT does not work with DBAS')
-  call Quit_OnUserError()
-end if
-if (mdc+nCnt > 1) call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
-iOff = 1+(nCnt-1)*3
-!write(u6,*) line
-read(Line,*)
-read(Line(6:),*)(Buffer(iOff+i),i=0,2) ! CGGn
-if (index(KWord,'ANGSTROM') /= 0) then
-  do i=0,2
-    Buffer(iOff+i) = Buffer(iOff+i)/Angstrom
+  Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
+  if (itype == 0) then
+    if ((BasisTypes(3) == 1) .or. (BasisTypes(3) == 2)) iType = BasisTypes(3)
+  else
+    if ((BasisTypes(3) == 1) .or. (BasisTypes(3) == 2)) then
+      if (BasisTypes(3) /= iType) then
+        BasisTypes(3) = -1
+      end if
+      iType = BasisTypes(3)
+    end if
+  end if
+  if (itype == 1) ifnr = 1
+  if (itype == 2) ifnr = 0
+
+  if (Show .and. (nPrint(2) >= 6) .and. (Ref(1) /= '') .and. (Ref(2) /= '')) then
+    write(LuWr,'(1x,a)') 'Basis Set Reference(s):'
+    if (Ref(1) /= '') write(LuWr,'(5x,a)') Ref(1)
+    if (Ref(2) /= '') write(LuWr,'(5x,a)') Ref(2)
+    write(LuWr,*)
+    write(LuWr,*)
+  end if
+  dbsc(nCnttp)%ECP = dbsc(nCnttp)%nPrj+dbsc(nCnttp)%nSRO+dbsc(nCnttp)%nSOC+dbsc(nCnttp)%nPP+dbsc(nCnttp)%nM1+dbsc(nCnttp)%nM2 /= 0
+  dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal+dbsc(nCnttp)%nPrj+dbsc(nCnttp)%nSRO+dbsc(nCnttp)%nSOC+dbsc(nCnttp)%nPP
+
+  lAng = max(dbsc(nCnttp)%nVal,dbsc(nCnttp)%nSRO,dbsc(nCnttp)%nPrj)-1
+  S%iAngMx = max(S%iAngMx,lAng)
+  ! No transformation needed for s and p shells
+  Shells(jShll+1)%Transf = .false.
+  Shells(jShll+1)%Prjct = .false.
+  Shells(jShll+2)%Transf = .false.
+  Shells(jShll+2)%Prjct = .false.
+  nCnt = 0
+  if (dbsc(nCnttp)%Aux) then
+    do iSh=jShll+1,iShll
+      Shells(iSh)%Aux = .true.
+    end do
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Here we will have to fix that the 6-31G family of basis sets
+  ! should by default be used with 6 d-functions rather than 5.
+
+  KWord = ''
+  KWord(1:Indx-1) = BSLbl(1:Indx-1)
+  call UpCase(KWord)
+  if (index(KWord,'6-31G') /= 0) then
+    do iSh=jShll+3,iShll
+      Shells(iSh)%Transf = .false.
+      Shells(iSh)%Prjct = .false.
+    end do
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  do
+    iSTDINP = iSTDINP+1
+    Line = STDINP(iSTDINP)
+    KWord = Line
+    call UpCase(KWord)
+    if (KWord(1:4) == 'END ') then
+      if (nCnt == 0) then
+        call WarningMessage(2,' Input error, no center specified!')
+        call Quit_OnUserError()
+      end if
+      dbsc(nCnttp)%nCntr = nCnt
+      call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,Label='dbsc:C')
+      dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
+      call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
+      mdc = mdc+nCnt
+      exit
+    end if
+
+    ! Read Coordinates
+
+    nCnt = nCnt+1
+    n_dc = max(mdc+nCnt,n_dc)
+    if (mdc+nCnt > MxAtom) then
+      call WarningMessage(2,' RdCtl: Increase MxAtom')
+      write(LuWr,*) '        MxAtom=',MxAtom
+      call Quit_OnUserError()
+    end if
+    iend = index(KWord,' ')
+    if (iEnd > LENIN+1) then
+      write(u6,*) 'Warning: the label ',KWord(1:iEnd),' will be truncated to ',LENIN,' characters!'
+    end if
+    dc(mdc+nCnt)%LblCnt = KWord(1:min(LENIN,iend-1))
+    dbas = trim(dc(mdc+nCnt)%LblCnt(1:LENIN))
+    call Upcase(dbas)
+    if (dbas == 'DBAS') then
+      call WarningMessage(2,' RdCtl: ZMAT does not work with DBAS')
+      call Quit_OnUserError()
+    end if
+    if (mdc+nCnt > 1) call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
+    iOff = 1+(nCnt-1)*3
+    !write(u6,*) line
+    read(Line,*)
+    read(Line(6:),*)(Buffer(iOff+i),i=0,2) ! CGGn
+    if (index(KWord,'ANGSTROM') /= 0) then
+      do i=0,2
+        Buffer(iOff+i) = Buffer(iOff+i)/Angstrom
+      end do
+    end if
   end do
-end if
 
-goto 100
+  iSTDINP = iSTDINP+2
+  if (iSTDINP >= lSTDINP) exit
+end do
 
-900 iSTDINP = iSTDINP+2
-if (iSTDINP < lSTDINP) Go to 10
+call mma_deallocate(Buffer)
 
 if (S%iAngMx < 0) then
   write(u6,*) ' There is an error somewhere in the input!'
@@ -229,7 +230,6 @@ if (S%iAngMx < 0) then
   iErr = 1
   return
 end if
-call mma_deallocate(Buffer)
 
 return
 

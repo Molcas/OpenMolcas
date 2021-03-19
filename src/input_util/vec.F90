@@ -27,7 +27,7 @@ iErr = 0
 r2 = Zero
 
 do i=1,3
-  r(i) = Coords(j,i)-Coords(k,i)
+  r(i) = Coords(i,j)-Coords(i,k)
   r2 = r2+r(i)*r(i)
 end do
 r2 = sqrt(r2)

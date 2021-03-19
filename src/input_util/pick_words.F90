@@ -31,30 +31,31 @@ character(len=64) :: Word
 
 if (string == ' ') then
   Nwords = 0
-  goto 1000
+  return
 end if
-do i=1,MaxNwords
-  Words(i) = ' '
-end do
+Words(:) = ' '
 NWords = 0
 i = 0
-10 i = i+1
-Word = ''
-if (i > len(string)) goto 1000
-if (string(i:i) == ' ') goto 10
-NWords = NWords+1
-ilett = 1
-Word(ilett:ilett) = string(i:i) ! First letter of word
-if (i == len(string)) goto 100
-20 i = i+1
-if (string(i:i) == ' ' .or. i > len(string)) goto 100
-ilett = ilett+1
-Word(ilett:ilett) = string(i:i)
-goto 20
-100 Words(NWords) = Word
-if (i == len(string) .or. NWords == MaxNwords) goto 1000
-goto 10
+do
+  i = i+1
+  Word = ''
+  if (i > len(string)) exit
+  if (string(i:i) == ' ') cycle
+  NWords = NWords+1
+  ilett = 1
+  Word(ilett:ilett) = string(i:i) ! First letter of word
+  if (i /= len(string)) then
+    do
+      i = i+1
+      if ((string(i:i) == ' ') .or. (i > len(string))) exit
+      ilett = ilett+1
+      Word(ilett:ilett) = string(i:i)
+    end do
+  end if
+  Words(NWords) = Word
+  if ((i == len(string)) .or. (NWords == MaxNwords)) exit
+end do
 
-1000 return
+return
 
 end subroutine Pick_Words

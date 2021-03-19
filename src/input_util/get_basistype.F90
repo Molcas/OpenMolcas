@@ -75,7 +75,7 @@ temp = '___'
 temp(1:i) = BasisType(1:i)
 call UpCase(temp)
 get_BasisType = .false.
-if (temp == TypeCon .or. temp == TypeAll .or. temp == TypeRel) get_BasisType = .true.
+if ((temp == TypeCon) .or. (temp == TypeAll) .or. (temp == TypeRel)) get_BasisType = .true.
 
 return
 

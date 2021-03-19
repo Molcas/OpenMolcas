@@ -24,25 +24,41 @@ real(kind=wp) :: arg, dCBiAtom, dCTiAtom, dSBiAtom, dSTiAtom, r, torad, u1(3), u
 iErr = 0
 
 torad = Pi/180.0_wp
-dCBiAtom = cos(torad*Zmat(iAtom,2))
-dSBiAtom = sin(torad*Zmat(iAtom,2))
-dCTiAtom = cos(torad*Zmat(iAtom,3))
-dSTiAtom = sin(torad*Zmat(iAtom,3))
+dCBiAtom = cos(torad*Zmat(2,iAtom))
+dSBiAtom = sin(torad*Zmat(2,iAtom))
+dCTiAtom = cos(torad*Zmat(3,iAtom))
+dSTiAtom = sin(torad*Zmat(3,iAtom))
 if (abs(dCBiAtom) < 1.0e-10_wp) dCBiAtom = Zero
 if (abs(dSBiAtom) < 1.0e-10_wp) dSBiAtom = Zero
 if (abs(dCTiAtom) < 1.0e-10_wp) dCTiAtom = Zero
 if (abs(dSTiAtom) < 1.0e-10_wp) dSTiAtom = Zero
 
-call vec(1.0e-6_wp,u1,iZmat(iAtom,2),iZmat(iAtom,3),iErr)
+call vec(1.0e-6_wp,u1,iZmat(2,iAtom),iZmat(3,iAtom),iErr)
 ! Vet. u1(NB-NT)
-if (iErr /= 0) goto 9990 ! Vettore u1 nullo
-call vec(1.0e-6_wp,u2,iZmat(iAtom,1),iZmat(iAtom,2),iErr)
+if (iErr /= 0) then ! Vettore u1 nullo
+  iErr = 1
+  write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error detected for atom ',iAtom
+  return
+end if
+call vec(1.0e-6_wp,u2,iZmat(1,iAtom),iZmat(2,iAtom),iErr)
 ! Vet. u2(NA,NB)
-if (iErr /= 0) goto 9990 ! Vettore u2 nullo
+if (iErr /= 0) then ! Vettore u2 nullo
+  iErr = 1
+  write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error detected for atom ',iAtom
+  return
+end if
 arg = One-(u1(1)*u2(1)+u1(2)*u2(2)+u1(3)*u2(3))**2
-if (arg < Zero) goto 9990 ! u1 e u2 allineati
+if (arg < Zero) then ! u1 e u2 allineati
+  iErr = 1
+  write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error detected for atom ',iAtom
+  return
+end if
 r = sqrt(arg) ! (u1.u2)^0.5
-if (r < 1.0e-6_wp) goto 9990 ! r piccolo
+if (r < 1.0e-6_wp) then ! r piccolo
+  iErr = 1
+  write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error detected for atom ',iAtom
+  return
+end if
 
 call crprod(u1,u2,vp) ! Vettore piano perpendicolare u1 x u2
 do i=1,3
@@ -50,15 +66,10 @@ do i=1,3
 end do
 call crprod(u3,u2,u4)
 do i=1,3
-  vj(i) = Zmat(iAtom,1)*(-u2(i)*dCBiAtom+u4(i)*dSBiAtom*dCTiAtom+u3(i)*dSBiAtom*dSTiAtom)
-  Coords(iAtom,i) = Coords(iZmat(iAtom,1),i)+vj(i)
+  vj(i) = Zmat(1,iAtom)*(-u2(i)*dCBiAtom+u4(i)*dSBiAtom*dCTiAtom+u3(i)*dSBiAtom*dSTiAtom)
+  Coords(i,iAtom) = Coords(i,iZmat(1,iAtom))+vj(i)
 end do
 
-goto 9999
-
-9990 iErr = 1
-write(LuWr,*) ' [Z-Mat_Conv] Incipient floating point error detected for atom ',iAtom
-
-9999 return
+return
 
 end subroutine ZMatConv

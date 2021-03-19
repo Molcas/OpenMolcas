@@ -23,10 +23,10 @@ logical(kind=iwp) :: BasAva(Num_Elem), & ! Atom with available Basis Set
                      BasReq(Num_Elem)    ! Atom requiring Basis Set
 character(len=5) :: Symbols(MaxAtoms)    ! Atomic symbol with index. (C12 or Hn)
 integer(kind=iwp) :: NAT(MaxAtoms), &    ! Atomic number
-                     iZmat(MaxAtoms,3)   ! Z-Mat indices
-real(kind=wp) :: ZMat(MaxAtoms,3), &     ! Z-Mat coordinates
-                 Coords(MaxAtoms,3)      ! Atomic coordinates
+                     iZmat(3,MaxAtoms)   ! Z-Mat indices
+real(kind=wp) :: ZMat(3,MaxAtoms), &     ! Z-Mat coordinates
+                 Coords(3,MaxAtoms)      ! Atomic coordinates
 
-public :: Num_Elem, PTab, MaxAtoms, Base, BasAva, BasReq, Symbols, NAT, iZmat, ZMat, Coords
+public :: PTab, Base, BasAva, BasReq, Symbols, NAT, iZmat, ZMat, Coords
 
 end module ZMatConv_Mod

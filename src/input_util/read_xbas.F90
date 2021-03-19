@@ -24,27 +24,29 @@ character(len=128) :: Line
 
 icount = 0
 iglobal = 0
-ierr = 0
-100 read(LuRd,'(a)',err=300,end=300) Line
-if (Line == ' ' .or. Line(1:3) == 'END' .or. Line(1:3) == 'end' .or. Line(1:3) == 'End') goto 200
-i = index(Line,'.')
-if (i == 0) then
-  if (icount == 0) then
-    iglobal = 1
-    xb_bas(1) = Line
-    goto 200
-  else
-    goto 300
+do
+  read(LuRd,'(a)',iostat=ierr) Line
+  if (ierr /= 0) then
+    ierr = 1
+    exit
   end if
-end if
-icount = icount+1
-nxbas = icount
-xb_label(nxbas) = Line(1:i-1)
-xb_bas(nxbas) = Line(i+1:)
-goto 100
-200 continue
-return
-300 ierr = 1
+  if ((Line == ' ') .or. (Line(1:3) == 'END') .or. (Line(1:3) == 'end') .or. (Line(1:3) == 'End')) exit
+  i = index(Line,'.')
+  if (i == 0) then
+    if (icount == 0) then
+      iglobal = 1
+      xb_bas(1) = Line
+      exit
+    else
+      ierr = 1
+      exit
+    end if
+  end if
+  icount = icount+1
+  nxbas = icount
+  xb_label(nxbas) = Line(1:i-1)
+  xb_bas(nxbas) = Line(i+1:)
+end do
 
 return
 

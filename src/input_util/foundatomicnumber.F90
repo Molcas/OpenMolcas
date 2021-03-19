@@ -11,7 +11,7 @@
 
 subroutine FoundAtomicNumber(LuWr,Symb,NAT,iErr)
 
-use ZMatConv_Mod, only: Num_Elem, PTab
+use ZMatConv_Mod, only: PTab
 use Definitions, only: iwp
 
 implicit none
@@ -23,33 +23,35 @@ integer(kind=iwp) :: i
 if ((Symb(1:1) <= 'z') .and. (Symb(1:1) >= 'a')) Symb(1:1) = char(ichar(Symb(1:1))-32)
 if ((Symb(2:2) <= 'Z') .and. (Symb(2:2) >= 'A')) Symb(2:2) = char(ichar(Symb(2:2))+32)
 iErr = 1
-! --- Z atoms are ghost atoms that will disappear in seward
-if (Symb(1:1) == 'Z' .and. Symb(2:2) /= 'n' .and. Symb(2:2) /= 'r') then
-  iErr = 0
-  NAT = -1
-  return
-end if
-! --- X atoms are dummy atoms that will appear in seward
-if (Symb(1:1) == 'X' .and. Symb(2:2) /= 'e') then
-  iErr = 0
-  NAT = 0
-  return
-end if
 
-do i=1,Num_Elem
+do i=1,size(PTab)
   if (Symb(1:2) == adjustl(PTab(i))) then
     iErr = 0
     NAT = i
     return
   end if
 end do
-do i=1,Num_Elem
+do i=1,size(PTab)
   if (Symb(1:1)//' ' == adjustl(PTab(i))) then
     iErr = 0
     NAT = i
     return
   end if
 end do
+
+! --- Z atoms are ghost atoms that will disappear in seward
+if (Symb(1:1) == 'Z') then
+  iErr = 0
+  NAT = -1
+  return
+end if
+! --- X atoms are dummy atoms that will appear in seward
+if (Symb(1:1) == 'X') then
+  iErr = 0
+  NAT = 0
+  return
+end if
+
 write(LuWr,*) '   [FoundAtomicNumber]: Wrong atomic symbol !'
 
 return

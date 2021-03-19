@@ -55,33 +55,36 @@ if (i <= 0) i = len(Filename)+1
 OrigName = Filename(ileft+1:i-1)
 LenOrig = i-ileft
 call molcas_open_ext2(iunit,DirName(1:ileft)//'trans.tbl','sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
-!open(iunit,file=DirName(1:ileft)//'trans.tbl',form='FORMATTED',iostat=istatus)
+!open(iunit,file=DirName(1:ileft)//'trans.tbl',form='formatted',iostat=istatus)
 if (istatus /= 0) then
   close(iunit)
   call molcas_open_ext2(iunit,'BASLIB_trans.tbl','sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
-  !open(iunit,file='BASLIB_trans.tbl',form='FORMATTED',iostat=istatus)
+  !open(iunit,file='BASLIB_trans.tbl',form='formatted',iostat=istatus)
   if (istatus /= 0) then
     write(u6,*) 'trans.tbl is not found'
     close(iunit)
     return
   end if
 end if
-20 read(iunit,'(a)',end=30,err=30) Line
-i = index(Line,OrigName(1:LenOrig-1))
-if (i /= 1 .or. Line(LenOrig:LenOrig) /= ' ') goto 20
-i = LenOrig+1
-25 if (Line(i:i) == ' ') then
-  i = i+1
-  if (i < len(Line)) goto 25
+do
+  read(iunit,'(a)',iostat=istatus) Line
+  if (istatus /= 0) exit
+  i = index(Line,OrigName(1:LenOrig-1))
+  if ((i == 1) .and. (Line(LenOrig:LenOrig) == ' ')) exit
+end do
+if (istatus == 0) then
+  do i=LenOrig+1,len(Line)
+    if (Line(i:i) /= ' ') exit
+  end do
+  ib = i
+  ia = index(Line(ib:),' ')
+  if (ia == 0) ia = len(Line)+1
+  FileName = DirName(1:ileft)//Line(ib:ib+ia-1)
+# ifdef _DEBUGPRINT_
+  write(u6,*) '*** Basis set was redirected to ',FileName
+# endif
 end if
-ib = i
-ia = index(Line(ib:),' ')
-if (ia == 0) ia = len(Line)+1
-FileName = DirName(1:ileft)//Line(ib:ib+ia-1)
-#ifdef _DEBUGPRINT_
-write(u6,*) '*** Basis set was redirected to ',FileName
-#endif
-30 close(iunit)
+close(iunit)
 
 return
 

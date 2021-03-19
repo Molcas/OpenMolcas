@@ -11,7 +11,7 @@
 
 subroutine BasisReader(LuWr,nBase,iglobal,nxbas,xb_label,xb_bas,iErr)
 
-use ZMatConv_Mod, only: BasAva, Base, Num_Elem, PTab
+use ZMatConv_Mod, only: BasAva, Base, PTab
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,53 +28,48 @@ iErr = 0
 nBase = 0
 icount = 1
 
-10 continue
-!read(iZMUnit,'(A)',err=9904,end=9999) Line
-if (iglobal == 0) then
-  Line = trim(xb_label(icount))//'.'//trim(xb_bas(icount))
-else
-  Line = 'FF.'//trim(xb_bas(icount))
-  nxbas = 1
-end if
-!write(u6,*) '>>',Line
-Found = .false.
-SimbA = Line(1:2)
-if (SimbA(2:2) == '.') SimbA(2:2) = ' '
-do i=1,Num_Elem
-  if ((SimbA(1:1) <= 'z') .and. (SimbA(1:1) >= 'a')) SimbA(1:1) = char(ichar(SimbA(1:1))-32)
-  if ((SimbA(2:2) <= 'Z') .and. (SimbA(2:2) >= 'A')) SimbA(2:2) = char(ichar(SimbA(2:2))+32)
-
-  if (SimbA == adjustl(PTab(i)) .and. iglobal == 0) then
-    Base(i) = Line
-    BasAva(i) = .true.
-    Found = .true.
-    nBase = nBase+1
+do
+  if (iglobal == 0) then
+    Line = trim(xb_label(icount))//'.'//trim(xb_bas(icount))
+  else
+    Line = 'FF.'//trim(xb_bas(icount))
+    nxbas = 1
   end if
-  if (iglobal == 1) then
-    Base(i) = Line
-    Base(i)(1:2) = adjustl(PTab(i))
-    if (Base(i)(2:2) == ' ') then
-      TMP = Base(i)(3:)
-      Base(i)(2:) = TMP(1:47)
+  !write(u6,*) '>>',Line
+  Found = .false.
+  SimbA = Line(1:2)
+  if (SimbA(2:2) == '.') SimbA(2:2) = ' '
+  do i=1,size(PTab)
+    if ((SimbA(1:1) <= 'z') .and. (SimbA(1:1) >= 'a')) SimbA(1:1) = char(ichar(SimbA(1:1))-32)
+    if ((SimbA(2:2) <= 'Z') .and. (SimbA(2:2) >= 'A')) SimbA(2:2) = char(ichar(SimbA(2:2))+32)
+
+    if ((SimbA == adjustl(PTab(i))) .and. (iglobal == 0)) then
+      Base(i) = Line
+      BasAva(i) = .true.
+      Found = .true.
+      nBase = nBase+1
+    else if (iglobal == 1) then
+      Base(i) = Line
+      Base(i)(1:2) = adjustl(PTab(i))
+      if (Base(i)(2:2) == ' ') then
+        TMP = Base(i)(3:)
+        Base(i)(2:) = TMP(1:47)
+      end if
+      BasAva(i) = .true.
+      Found = .true.
+      nBase = nBase+1
     end if
-    BasAva(i) = .true.
-    Found = .true.
-    nBase = nBase+1
+
+  end do
+  if (.not. Found) then
+    iErr = 1
+    write(LuWr,*) ' [BasisReader]: Wrong symbol in line'
+    write(LuWr,*) '                ',Line
+    exit
   end if
-
+  icount = icount+1
+  if (icount > nxbas) exit
 end do
-if (.not. Found) then
-  iErr = 1
-  write(LuWr,*) ' [BasisReader]: Wrong symbol in line'
-  write(LuWr,*) '                ',Line
-  goto 9999
-end if
-icount = icount+1
-if (icount <= nxbas) goto 10
-
-!9904 iErr = 1
-!write(LuWr,*) ' [BasisReader]: Unable to read z-matrix !'
-9999 continue
 
 return
 

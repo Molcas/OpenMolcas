@@ -46,16 +46,17 @@
 *           X dummy atoms - NAT(i)= 0 - are included in SEWARD         *
 *           Z ghost atoms - NAT(i)=-1 - are NOT included in SEWARD     *
 ************************************************************************
-      Use ZMatConv_Mod, Only: MaxAtoms
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
+#include "stdalloc.fh"
 #include "angstr.fh"
       Character(LEN=5) Symbols(N_ZMAT)   ! Obs: Restricted record
-      Integer NAT(N_ZMAT)           ! Obs: Restricted record
-      Integer iZmat(MaxAtoms,3)     ! Obs: Full record
+      Integer NAT(N_ZMAT)                ! Obs: Restricted record
+      Integer, Allocatable :: iZmat(:,:) ! Obs: Full record
+      Integer N_IZMAT
       Real*8 XYZCoords(3,nAtoms), ZMATCoords(3,N_ZMAT), ZMAT(N_ZMAT,3)
       Real*8 CTX(3,4), Bt(3,4), dBt(3,4,3,4)
-      Logical IfTest
+      Logical IfTest, Found
       Character(LEN=8) Label
       Real*8, Parameter :: ThrsTrasl=1.0d0  ! Threshold for warning
 *
@@ -72,7 +73,10 @@
       Call dZero(ZMAT,N_ZMAT*3)
       Call dZero(ZMATCoords,N_ZMAT*3)
       Call Get_cArray('Symbol ZMAT',Symbols,N_ZMAT*5)
-      Call Get_iArray('Index ZMAT',iZmat,MaxAtoms*3)
+      Call Qpg_iArray('Index ZMAT',Found,N_IZMAT)
+      N_IZMAT = N_IZMAT/3
+      Call mma_allocate(iZmat,3,N_IZMAT,label='iZmat')
+      Call Get_iArray('Index ZMAT',iZmat,N_IZMAT*3)
       Call Get_iArray('NAT ZMAT',NAT,N_ZMAT)
 
       If (IfTest) then
@@ -82,7 +86,7 @@
         Write(LuWr,*) '          N_ZMAT=',N_ZMAT
         Write(LuWr,*) '   Label  NA      i   j   k'
         Do i=1,N_ZMAT
-          Write(LuWr,97) i,Symbols(i),NAT(i),(iZmat(i,j),j=1,3)
+          Write(LuWr,97) i,Symbols(i),NAT(i),(iZmat(j,i),j=1,3)
         EndDo
         Write(LuWr,*)
         Write(LuWr,*) '------------------------------------------------'
@@ -107,7 +111,7 @@
       If (NAT(1).EQ.-1.and.NAT(2).EQ.-1.and.NAT(3).EQ.-1) then
         iBonded = 0
         Do i = 4, N_ZMAT
-          If (iZmat(i,1).EQ.2.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.2.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(3,2) = 1.0d0/angstr
@@ -116,14 +120,14 @@
         EndIf
         iBonded = 0
         Do i = 4, N_ZMAT
-          If (iZmat(i,1).EQ.3.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.3.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(1,3) = 1.0d0/angstr
         else
           ZMATCoords(1,3) = XYZCoords(1,iBonded-3)
         EndIf
-        If (iZmat(3,1).EQ.2) ZMATCoords(3,3) = ZMATCoords(3,2)
+        If (iZmat(1,3).EQ.2) ZMATCoords(3,3) = ZMATCoords(3,2)
         Do iAtom = 4, N_ZMAT
           ZMATCoords(1,iAtom)=XYZCoords(1,iAtom-3)
           ZMATCoords(2,iAtom)=XYZCoords(2,iAtom-3)
@@ -135,7 +139,7 @@
       If (NAT(1).EQ.-1.and.NAT(2).EQ.-1.and.NAT(3).GE.0) then
         iBonded = 0
         Do i = 3, N_ZMAT
-          If (iZmat(i,1).EQ.2.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.2.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(3,2) = 1.0d0/angstr
@@ -164,10 +168,10 @@
         dMaxTrasl = Max(0.0d0,ABS(dX),ABS(dY))
         If (dMaxTrasl.GE.ThrsTrasl) Write (LuWr,'(A)')
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(2)
-        If (iZmat(3,1).EQ.2) ZMATCoords(3,3) = ZMATCoords(3,2)
+        If (iZmat(1,3).EQ.2) ZMATCoords(3,3) = ZMATCoords(3,2)
         iBonded = 0
         Do i = 4, N_ZMAT
-          If (iZmat(i,1).EQ.3.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.3.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(1,3) = 1.0d0/angstr
@@ -196,7 +200,7 @@
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(1)
         iBonded = 0
         Do i = 4, N_ZMAT
-          If (iZmat(i,1).EQ.2.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.2.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(3,2) = 1.0d0/angstr
@@ -205,7 +209,7 @@
         EndIf
         iBonded = 0
         Do i = 4, N_ZMAT
-          If (iZmat(i,1).EQ.3.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.3.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(1,3) = 1.0d0/angstr
@@ -248,7 +252,7 @@
      &  '  Warning: MaxTrasl.GE.ThrsTrasl for atom ',Symbols(1)
         iBonded = 0
         Do i = 3, N_ZMAT
-          If (iZmat(i,1).EQ.2.and.iBonded.EQ.0) iBonded = i
+          If (iZmat(1,i).EQ.2.and.iBonded.EQ.0) iBonded = i
         EndDo
         If (iBonded.EQ.0) then
           ZMATCoords(3,2) = 1.0d0/angstr
@@ -279,10 +283,10 @@
         ZMATCoords(1,2)=XYZCoords(1,2)
         ZMATCoords(2,2)=XYZCoords(2,2)
         ZMATCoords(3,2)=XYZCoords(3,2)
-        If (iZmat(3,1).EQ.1) then
+        If (iZmat(1,3).EQ.1) then
           iBonded = 0
           Do i = 4, N_ZMAT
-            If (iZmat(i,1).EQ.3.and.iBonded.EQ.0) iBonded = i
+            If (iZmat(1,i).EQ.3.and.iBonded.EQ.0) iBonded = i
           EndDo
           If (iBonded.EQ.0) then
             ZMATCoords(1,3) = 1.0d0/angstr
@@ -317,7 +321,7 @@
       EndIf
 
       iAtom = 2
-      iRX = iZMAT(iAtom,1)
+      iRX = iZMAT(1,iAtom)
       dX = ZMATCoords(1,iAtom) - ZMATCoords(1,iRX)
       dY = ZMATCoords(2,iAtom) - ZMATCoords(2,iRX)
       dZ = ZMATCoords(3,iAtom) - ZMATCoords(3,iRX)
@@ -326,8 +330,8 @@
 
       If (N_ZMAT.GE.3) then
         iAtom = 3
-        iRX = iZMAT(iAtom,1)
-        iAX = iZMAT(iAtom,2)
+        iRX = iZMAT(1,iAtom)
+        iAX = iZMAT(2,iAtom)
         dX = ZMATCoords(1,iAtom) - ZMATCoords(1,iRX)
         dY = ZMATCoords(2,iAtom) - ZMATCoords(2,iRX)
         dZ = ZMATCoords(3,iAtom) - ZMATCoords(3,iRX)
@@ -351,9 +355,9 @@
             Write(LuWr,'(A)') ' Found X atom.           '
             Return
           EndIf
-          iRX = iZMAT(iAtom,1)
-          iAX = iZMAT(iAtom,2)
-          iTX = iZMAT(iAtom,3)
+          iRX = iZMAT(1,iAtom)
+          iAX = iZMAT(2,iAtom)
+          iTX = iZMAT(3,iAtom)
           dX = ZMATCoords(1,iAtom) - ZMATCoords(1,iRX)
           dY = ZMATCoords(2,iAtom) - ZMATCoords(2,iRX)
           dZ = ZMATCoords(3,iAtom) - ZMATCoords(3,iRX)
@@ -390,12 +394,13 @@
         If (i.EQ.1)
      &    Write(LuWr,201) Symbols(i)
         If (i.EQ.2)
-     &    Write(LuWr,202) Symbols(i),iZmat(i,1),ZMAT(i,1)
+     &    Write(LuWr,202) Symbols(i),iZmat(1,i),ZMAT(i,1)
         If (i.EQ.3)
-     &    Write(LuWr,203) Symbols(i),(iZmat(i,j),ZMAT(i,j),j=1,2)
+     &    Write(LuWr,203) Symbols(i),(iZmat(j,i),ZMAT(i,j),j=1,2)
         If (i.GE.4)
-     &    Write(LuWr,204) Symbols(i),(iZmat(i,j),ZMAT(i,j),j=1,3)
+     &    Write(LuWr,204) Symbols(i),(iZmat(j,i),ZMAT(i,j),j=1,3)
       EndDo
+      Call mma_deallocate(iZmat)
       Write (LuWr,*)
 201   Format (5X,A5)
 202   Format (5X,A5,1X,I4,F13.6)

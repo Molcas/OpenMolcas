@@ -39,10 +39,13 @@ do i=1,len(string)
   do j=1,len(Chars)
     if (string(i:i) == Chars(j:j)) NaN = .false.
   end do
-  if (NaN) goto 10
+  if (NaN) exit
 end do
-10 if (.not. NaN) read(string,*) dNumber
-if (NaN) iErr = 1
+if (NaN) then
+  iErr = 1
+else
+  read(string,*) dNumber
+end if
 
 return
 

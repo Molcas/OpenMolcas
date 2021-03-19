@@ -25,21 +25,20 @@ implicit none
 character(len=*), intent(inout) :: Label
 character(len=*), intent(in) :: BasDir
 character(len=256) :: Temp, Line
-integer(kind=iwp) :: i, ia, ib, iLast, irecl, istatus, iUnit, jlast, jUnit
+integer(kind=iwp) :: i, ia, ib, iLast, irecl, istatus, iUnit, jlast
 integer(kind=iwp), external :: isFreeUnit, StrnLn
 logical(kind=iwp) :: Exists, is_error
 
 !i = index(Label,'.')
 !if (i > 0) then
-!  i=index(Label(i+1:),'.')
+!  i = index(Label(i+1:),'.')
 !  !return if we have a complete name
 !  if (i /= 0) return
 !endif
 Temp = BasDir//'/basis.tbl'
 call f_Inquire(Temp,Exists)
 if (.not. Exists) return
-jUnit = 15
-iUnit = isfreeunit(jUnit)
+iUnit = isfreeunit(15)
 call molcas_Open_ext2(iunit,temp,'sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
 !open(unit=iUnit,file=Temp,form='FORMATTED',iostat=istatus)
 if (istatus /= 0) return
@@ -47,32 +46,35 @@ iLast = StrnLn(Label)
 
 ! Strip trailing dots
 
-99 if (Label(iLast:iLast) == '.') then
+do while (Label(iLast:iLast) == '.')
   iLast = iLast-1
-  Go To 99
-end if
+end do
 !write(u6,*) 'Label(1:iLast)=',Label(1:iLast)
-100 read(iUnit,'(a)',end=200,err=200) Line
-if (Line(1:1) == '#') goto 100
-if (Line == ' ') goto 100
-call UpCase(Line)
+do
+  read(iUnit,'(a)',iostat=istatus) Line
+  if (istatus /= 0) then
+    close(iunit)
+    return
+  end if
+  if (Line(1:1) == '#') cycle
+  if (Line == ' ') cycle
+  call UpCase(Line)
 
-! Identify first non-blank segment in Line
+  ! Identify first non-blank segment in Line
 
-jlast = 0
-98 if (Line(jlast+1:jlast+1) /= ' ') then
-  jLast = jLast+1
-  Go To 98
-end if
-if (jlast /= ilast) Go To 100
-!i = index(Line,Label(1:iLast))
-i = index(Line(1:jlast),Label(1:iLast))
-if (i /= 1) goto 100
+  jlast = 0
+  do while (Line(jlast+1:jlast+1) /= ' ')
+    jLast = jLast+1
+  end do
+  if (jlast /= ilast) cycle
+  !i = index(Line,Label(1:iLast))
+  i = index(Line(1:jlast),Label(1:iLast))
+  if (i == 1) exit
+end do
 i = iLast+1
-150 if (Line(i:i) == ' ') then
+do while (Line(i:i) == ' ')
   i = i+1
-  goto 150
-end if
+end do
 ib = i
 ia = index(Line(ib:),' ')
 if (ia == 0) ia = len(Line)+1
@@ -80,7 +82,7 @@ if (ia == 0) ia = len(Line)+1
 write(u6,'(3a)') Label(1:iLast),'translated to ',Line(ib:ib+ia-1)
 #endif
 Label = Line(ib:ib+ia-1)
-200 close(iUnit)
+close(iUnit)
 
 return
 

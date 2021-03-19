@@ -18,7 +18,7 @@ subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,nxbas,xb_labe
 !  ***  nAskAtoms == -1  =>  Seward ZMAT input  => Use "End of"
 !  ***  nAskAtoms /= -1  =>  GateWay ZMAT input => Use nAskAtoms
 
-use ZMatConv_Mod, only: BasReq, iZmat, MaxAtoms, NAT, Symbols, Zmat
+use ZMatConv_Mod, only: BasReq, iZmat, NAT, Symbols, Zmat
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -26,11 +26,13 @@ implicit none
 integer(kind=iwp), intent(in) :: iZMUnit, LuWr, nAskAtoms
 integer(kind=iwp), intent(out) :: nAtoms, nXAtoms, nBasis, nxbas, iErr
 character(len=*), intent(inout) :: xb_label(*), xb_bas(*)
-integer(kind=iwp) :: i, IreadHere, iXU, NA, NAtom, Nwords
+integer(kind=iwp) :: i, istatus, iXU, NA, NAtom, Nwords
+logical(kind=iwp) :: IreadHere, Skip
 real(kind=wp) :: Dist
 character(len=80) :: Line
 character(len=24) :: Words(7)
 character(len=3) :: Command
+integer(kind=iwp), external :: isFreeUnit
 
 xb_label(1) = ' '
 xb_bas(1) = ' '
@@ -40,90 +42,100 @@ iErr = 0
 nAtoms = 0
 nXAtoms = 0
 nBasis = 0
-do i=1,100 ! MaxNat
-  BasReq(i) = .false.
-end do
-do i=1,MaxAtoms
-  Symbols(i) = '     '
-  NAT(i) = 0
-  iZmat(i,:) = 0
-  Zmat(i,:) = Zero
-end do
+BasReq(:) = .false.
+Symbols(:) = ''
+NAT(:) = 0
+iZmat(:,:) = 0
+Zmat(:,:) = Zero
 
 ! Read Line (or COMMAND)
-10 if ((nAtoms+nXAtoms) == nAskAtoms) goto 100
-read(iZMUnit,'(A)',Err=9906,end=9999) Line
-if (Line(1:1) == '*') goto 10
-if (Line == ' ') goto 100
+Skip = .false.
+do
+  if ((nAtoms+nXAtoms) == nAskAtoms) then
+    Skip = .true.
+    exit
+  end if
+  read(iZMUnit,'(A)',iostat=istatus) Line
+  if (istatus > 0) call error()
+  if (istatus /= 0) return
+  if (Line(1:1) /= '*') exit
+end do
+if (Line == ' ') Skip = .true.
 Command = Line(1:3)
 call UpCase(Command)
-if (Command == 'END') goto 100
-iErr = 0
-NA = 0
-Dist = Zero
+if (Command == 'END') Skip = .true.
+if (.not. Skip) then
+  NA = 0
+  Dist = Zero
 
-! Here we read number or a file.
-read(Line,*,err=666,end=666) NA
-IreadHere = 1
-goto 667
-666 continue
-Ireadhere = 0
-iXU = iZMUnit+1
-call molcas_open(iXU,line)
-read(iXU,*) NA
-667 continue
-if (Ireadhere == 1) then
-  read(iZMUnit,'(A)',Err=9906,end=9999) Line
-else
-  read(iXU,'(A)',Err=9906,end=9999) Line
-end if
-do i=1,NA
-  if (Ireadhere == 1) then
-    read(iZMUnit,'(A)',Err=9906,end=9999) Line
+  ! Here we read number or a file.
+  read(Line,*,iostat=istatus) NA
+  if (istatus == 0) then
+    IreadHere = .true.
   else
-    read(iXU,'(A)',Err=9906,end=9999) Line
+    IreadHere = .false.
+    iXU = isFreeUnit(iZMUnit+1)
+    call molcas_open(iXU,line)
+    read(iXU,*) NA
   end if
-  call Pick_Words(Line,4,Nwords,Words)
-  if (Nwords < 4) goto 9993
-  call FoundAtomicNumber(LuWr,Words(1),NAtom,iErr)
-  if (iErr /= 0) goto 9998
-  if (NAtom >= 0) nAtoms = nAtoms+1
-  if (NAtom == -1) nXAtoms = nXAtoms+1
-  NAT(nAtoms+nXAtoms) = NAtom
-  Symbols(nAtoms+nXAtoms) = trim(Words(1))
-  if (NAtom > 0) BasReq(NAtom) = .true.
+  if (IreadHere) then
+    read(iZMUnit,'(A)',iostat=istatus) Line
+  else
+    read(iXU,'(A)',iostat=istatus) Line
+  end if
+  if (istatus > 0) call error()
+  if (istatus /= 0) return
+  do i=1,NA
+    if (IreadHere) then
+      read(iZMUnit,'(A)',iostat=istatus) Line
+    else
+      read(iXU,'(A)',iostat=istatus) Line
+    end if
+    if (istatus > 0) call error()
+    if (istatus /= 0) return
+    call Pick_Words(Line,4,Nwords,Words)
+    if (Nwords < 4) then
+      iErr = 1
+      write(LuWr,*) ' [XMatReader]: X-Matrix incomplete in line'
+      write(LuWr,*) '               ',Line
+      return
+    end if
+    call FoundAtomicNumber(LuWr,Words(1),NAtom,iErr)
+    if (iErr /= 0) then
+      iErr = 1
+      write(LuWr,*) ' [XMatReader]: Error in line'
+      write(LuWr,*) '               ',Line
+      return
+    end if
+    if (NAtom >= 0) nAtoms = nAtoms+1
+    if (NAtom == -1) nXAtoms = nXAtoms+1
+    NAT(nAtoms+nXAtoms) = NAtom
+    Symbols(nAtoms+nXAtoms) = trim(Words(1))
+    if (NAtom > 0) BasReq(NAtom) = .true.
 
-  call Get_dNumber(Words(2),Dist,iErr)
-  Zmat(nAtoms+nXAtoms,1) = Dist
-  call Get_dNumber(Words(3),Dist,iErr)
-  Zmat(nAtoms+nXAtoms,2) = Dist
-  call Get_dNumber(Words(4),Dist,iErr)
-  Zmat(nAtoms+nXAtoms,3) = Dist
+    call Get_dNumber(Words(2),Dist,iErr)
+    Zmat(1,nAtoms+nXAtoms) = Dist
+    call Get_dNumber(Words(3),Dist,iErr)
+    Zmat(2,nAtoms+nXAtoms) = Dist
+    call Get_dNumber(Words(4),Dist,iErr)
+    Zmat(3,nAtoms+nXAtoms) = Dist
 
-end do
-if (Ireadhere == 0) close(iXU)
+  end do
+  if (.not. IreadHere) close(iXU)
+end if
 ! Pre-check Basis Set consistency  BasReq: Atom requiring Basis Set
-100 nBasis = 0
-do i=1,100
+nBasis = 0
+do i=1,size(BasReq)
   if (BasReq(i)) nBasis = nBasis+1
 end do
 
-goto 9999
+return
 
-9906 iErr = 1
-write(LuWr,*) ' [XMatReader]: Unable to read x-matrix file !'
-goto 9999
+contains
 
-9993 iErr = 1
-write(LuWr,*) ' [XMatReader]: X-Matrix incomplete in line'
-write(LuWr,*) '               ',Line
-goto 9999
-
-9998 iErr = 1
-write(LuWr,*) ' [XMatReader]: Error in line'
-write(LuWr,*) '               ',Line
-goto 9999
-
-9999 return
+subroutine error()
+  iErr = 1
+  write(LuWr,*) ' [XMatReader]: Unable to read x-matrix file !'
+end subroutine error
 
 end subroutine XMatReader
