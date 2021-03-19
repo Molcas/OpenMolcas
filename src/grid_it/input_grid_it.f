@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Input_Grid_It(iRun,INPORB,iReturn)
-************************************************************************
-* Adapted from SAGIT to work with OpenMolcas (October 2020)            *
-************************************************************************
-*                                                                      *
-* Object: input module for grid code                                   *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
+!***********************************************************************
+!                                                                      *
+! Object: input module for grid code                                   *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -29,23 +29,23 @@
       Character SelectStr*120
       Character FileStr*256, FileIn*256
       Character MULLprt*80
-*
-      AllKeys=
-     *'PRIN BINA ASCI NPOI DENS '//
-     *'SPAR ORBI REGI ONE  TITL '//
-     *'GAP  END  NODE TOTA NAME '//
-     *'VB   ALL  ATOM CUBE GRID '//
-     *'PACK PKLI PKBI NOOR LINE '//
-     *'ORAN ERAN DEBU CUTO NOPA '//
-     *'GORI SELE NOSO FILE SPHR '//
-     *'COLO VIRT MULL SUBB XDER '//
-     *'YDER ZDER GDER CURD CRXJ '//
-     *'UMAX NOLU XFIE LUS1 LUS2 '//
-     *'PLUS MINU XFMI'
-*
-c      Do 108 i = 1, nRout
-c         nPrint(i) = 5
-c 108  Continue
+!
+      AllKeys=                                                          &
+     &'PRIN BINA ASCI NPOI DENS '//                                     &
+     &'SPAR ORBI REGI ONE  TITL '//                                     &
+     &'GAP  END  NODE TOTA NAME '//                                     &
+     &'VB   ALL  ATOM CUBE GRID '//                                     &
+     &'PACK PKLI PKBI NOOR LINE '//                                     &
+     &'ORAN ERAN DEBU CUTO NOPA '//                                     &
+     &'GORI SELE NOSO FILE SPHR '//                                     &
+     &'COLO VIRT MULL SUBB XDER '//                                     &
+     &'YDER ZDER GDER CURD CRXJ '//                                     &
+     &'UMAX NOLU XFIE LUS1 LUS2 '//                                     &
+     &'PLUS MINU XFMI'
+!
+!      Do 108 i = 1, nRout
+!         nPrint(i) = 5
+! 108  Continue
       isBinary=3
       isAuto=1
       isNet=0
@@ -65,7 +65,7 @@ c 108  Continue
       isAuMO=-1
       isAtom=0
       isTotal=0
-c      isVB=0
+!      isVB=0
       isAll=0
       isUserGrid=0
       iGauss=0
@@ -88,17 +88,17 @@ c      isVB=0
       isWDW=0
       iSubBlock=0
       isLuscus=1
-c      isLusMath=0
-c      aLusMath=-1
+!      isLusMath=0
+!      aLusMath=-1
 !not preparing the GRIDCHARGE file as external source for XFIELD input
       isXField=0
       XFminCh=0.d0
-c Default values for packing
+! Default values for packing
       imoPack=0
       isBinPack=0
       xLeft=0.005d0
       xRight=0.7d0
-c   (really, half range:)
+!   (really, half range:)
       iyRange=128
       nBytesPackedVal=1
       iMinYLeft=4
@@ -106,22 +106,22 @@ c   (really, half range:)
       xHiErr=0.25D0
       INPORB='INPORB'
       if(iRun.eq.0) then
-c make defaults for a fast run via call from other module
+! make defaults for a fast run via call from other module
         isNet=1  ! set sparse
-c        isBinary=0 ! temporary set Ascii output
-c       iMaxUp=1
-c       iMaxDown=5
-c        imoPack=0 ! packed grids not working with 64bit (?)
-c        isCutOff=1
-c        goto 500
+!        isBinary=0 ! temporary set Ascii output
+!       iMaxUp=1
+!       iMaxDown=5
+!        imoPack=0 ! packed grids not working with 64bit (?)
+!        isCutOff=1
+!        goto 500
       endif
 
-*
-*     KeyWord directed input
-*
+!
+!     KeyWord directed input
+!
       InUnit=5
-*      Function MyGetKey
-*     * (InUnit, What, IValue, RValue, SValue, N, IArray, RArray)
+!      Function MyGetKey
+!     * (InUnit, What, IValue, RValue, SValue, N, IArray, RArray)
 
       Call RdNLst(InUnit,'GRID_IT')
  998  if(MyGetKey(InUnit,'S',iD,rD,Key,iD,[iD],[rD]).ne.0) goto 997
@@ -131,46 +131,46 @@ c        goto 500
         Call Quit_OnUserError()
       endif
       iKey=(iKey-1)/5+1
-*
+!
       if(iKey.eq.1) then
-* PRIN
+! PRIN
       if(MyGetKey(InUnit,'I',n,rD,Key,iD,[iD],[rD]).ne.0) goto 666
       Do j = 1, n
       if(MyGetKey(InUnit,'A',iD,rD,Key,2,iTemp,[rD]).ne.0) goto 666
-c      print *,'debug'
-c         nPrint(iTemp(1))=iTemp(2)
+!      print *,'debug'
+!         nPrint(iTemp(1))=iTemp(2)
       enddo
       endif
       if(iKey.eq.2) then
-* BINARY = default
+! BINARY = default
         isBinary=1
       endif
       if(iKey.eq.3) then
-* ASCII = for debug
-c       Write(6,*) ' Keyword ASCII is obsolete'
-c       Write(6,*) ' It can be used only for debugging purpose'
-c       Write(6,*) ' Note that .lus files produced with this option '
-c       Write(6,*) '      can not be visualised'
+! ASCII = for debug
+!       Write(6,*) ' Keyword ASCII is obsolete'
+!       Write(6,*) ' It can be used only for debugging purpose'
+!       Write(6,*) ' Note that .lus files produced with this option '
+!       Write(6,*) '      can not be visualised'
         isBinary=0
       endif
       if(iKey.eq.4) then
-* NPOI
+! NPOI
       if(MyGetKey(InUnit,'A',iD,rD,Key,3,iGridNpt,[rD]).ne.0) goto 666
       isNet=-1
       isReadNet=isReadNet+1
       endif
       if(iKey.eq.5) then
-* DENSE - dense grid network..
+! DENSE - dense grid network..
         isNet=2
         isReadNet=isReadNet+1
       endif
       if(iKey.eq.6) then
-* SPARSE - rare grid network..
+! SPARSE - rare grid network..
         isNet=1
         isReadNet=isReadNet+1
       endif
       if(iKey.eq.7) then
-* ORBI Orbitals
+! ORBI Orbitals
       if(nReq.gt.0) then
         write(6,*) 'ORBI keyword can not be used together with SELEct'
         call Quit_OnUserError()
@@ -178,16 +178,16 @@ c       Write(6,*) '      can not be visualised'
       if(MyGetKey(InUnit,'I',nReq,rD,Key,iD,[iD],[rD]).ne.0) goto 666
 
       if(nReq.gt.MAXGRID) then
-      write(6,'(a,i5,a,i5)')
-     *      'Too many requested orbitals ',nReq,'>',MAXGRID
+      write(6,'(a,i5,a,i5)')                                            &
+     &      'Too many requested orbitals ',nReq,'>',MAXGRID
       Call Quit_OnUserError()
         endif
        read(inUnit,*, err=666, end=666) (iReq(i),i=1,nReq*2)
-cc      if(MyGetKey(InUnit,'A',iD,rD,Key,nReq*2,iReq,[rD]).ne.0) goto 666
+!c      if(MyGetKey(InUnit,'A',iD,rD,Key,nReq*2,iReq,[rD]).ne.0) goto 666
       isAuMO=0
       endif
       if(iKey.eq.8) then
-* REGION
+! REGION
       if(MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region).ne.0) goto 666
       itRange=1
       isAuMO=1
@@ -195,51 +195,51 @@ cc      if(MyGetKey(InUnit,'A',iD,rD,Key,nReq*2,iReq,[rD]).ne.0) goto 666
       write(6,*) ' ***         assumimg Energy range '
       endif
       if(iKey.eq.9) then
-* ONE - debug option
+! ONE - debug option
       if(MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor).ne.0) goto 666
       isTheOne=1
       isBinary=0
       endif
       if(iKey.eq.10) then
-* TITLE
-* NOTE: Title can be only ONE line here!!!
+! TITLE
+! NOTE: Title can be only ONE line here!!!
       if(MyGetKey(InUnit,'S',iD,rD,Title1,iD,[iD],[rD]).ne.0) goto 666
       endif
       if(iKey.eq.11) then
-* GAP
+! GAP
       if(MyGetKey(InUnit,'R',iD,TheGap,Key,iD,[iD],[rD]).ne.0) goto 666
       endif
 
       if(iKey.eq.12) then
-* END
+! END
       goto 997
       endif
       if(iKey.eq.13) then
-* NODENSITY
+! NODENSITY
       isDensity=0
       endif
       if(iKey.eq.14) then
-* TOTAL
+! TOTAL
       isTotal=1
       endif
       if(iKey.eq.15) then
-* NAME
+! NAME
       read(InUnit,'(a)') TheName
-c      if(MyGetKey(InUnit,'S',iD,rD,TheName,iD,[iD],[rD]).ne.0) goto 666
-c unfortunately MyGetKey uppercases strings!
+!      if(MyGetKey(InUnit,'S',iD,rD,TheName,iD,[iD],[rD]).ne.0) goto 666
+! unfortunately MyGetKey uppercases strings!
       endif
       if(iKey.eq.16) then
-* VB
-c      isVB=1
+! VB
+!      isVB=1
       call Quit_OnUserError()
       endif
       if(iKey.eq.17) then
-* All
+! All
       isAll=1
       endif
 
       if(iKey.eq.18) then
-* Atom
+! Atom
       isAtom=1
       isNet=-1
       iGridNpt(1)=0
@@ -247,13 +247,13 @@ c      isVB=1
       iGridNpt(3)=0
       endif
       if(iKey.eq.19) then
-* CUBE
+! CUBE
       iGauss=1
       isBinary=0
       write(6,*) 'Cube option is moved to grid2cube'
       call Quit_OnUserError()
       endif
-* Grid
+! Grid
       if(iKey.eq.20) then
       isUserGrid=1
       isBinary=0
@@ -261,17 +261,17 @@ c      isVB=1
       iGridNpt(1)=0
       iGridNpt(2)=0
       iGridNpt(3)=0
-      if(MyGetKey(InUnit,'I',nGridPoints,rD,Key,iD,[iD],[rD]).ne.0)
-     *      goto 666
+      if(MyGetKey(InUnit,'I',nGridPoints,rD,Key,iD,[iD],[rD]).ne.0)     &
+     &      goto 666
         Call GetMem('Grid','ALLO','REAL',ipGrid,nGridPoints*3)
-       Read(InUnit,*,Err=666, end=666)
-     *      (Work(ipGrid+i-1),i=1,nGridPoints*3)
+       Read(InUnit,*,Err=666, end=666)                                  &
+     &      (Work(ipGrid+i-1),i=1,nGridPoints*3)
       endif
-* Pack
+! Pack
       if (iKey .eq. 21) then
-c        imoPack=1
+!        imoPack=1
       endif
-* PkLims
+! PkLims
       if (iKey .eq. 22) then
         if (MyGetKey(InUnit,'D',iD,rD,Key,4,[iD],dTemp).ne.0) goto 666
         xLeft=dTemp(1)
@@ -279,20 +279,20 @@ c        imoPack=1
         xLoErr=dTemp(3)
         xHiErr=dTemp(4)
       endif
-* PkBits
+! PkBits
       if (iKey .eq. 23) then
-        if (MyGetKey(InUnit,'I',ibits,rD,Key,iD,[iD],[rD]).ne.0)
-     *      goto 666
+        if (MyGetKey(InUnit,'I',ibits,rD,Key,iD,[iD],[rD]).ne.0)        &
+     &      goto 666
         if (ibits .eq. 16) then
           iyRange=32768
           nBytesPackedVal=2
         endif
       endif
-* NoOrbitals
+! NoOrbitals
       if (iKey .eq. 24) then
         NoOrb=1
       endif
-* LINE - density on line
+! LINE - density on line
       if (iKey .eq. 25) then
       if(MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor).ne.0) goto 666
       isTheOne=1
@@ -301,34 +301,34 @@ c        imoPack=1
       isLine=1
       endif
       if(iKey.eq.26) then
-* ORANGE
+! ORANGE
       if(MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region).ne.0) goto 666
       itRange=0
       isAuMO=1
       NoSort=1
       endif
       if(iKey.eq.27) then
-* ERANGE
+! ERANGE
       if(MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region).ne.0) goto 666
       itRange=1
       isAuMO=1
       endif
-* DEBUG
+! DEBUG
       if(iKey.eq.28) then
       isBinary=0
       isDebug=1
       endif
       if(iKey.eq.29) then
-* CUTOFF
+! CUTOFF
       if(MyGetKey(InUnit,'R',iD,CutOff,Key,iD,[iD],[rD]).ne.0) goto 666
       isCutOff=1
       endif
       if(iKey.eq.30) then
-* NOPACK
-c      imoPack=0
+! NOPACK
+!      imoPack=0
       endif
       if(iKey.eq.31) then
-* GORI
+! GORI
       iCustOrig=1
       if(MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridOrigin).ne.0) goto 666
       if(MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis1).ne.0) goto 666
@@ -336,7 +336,7 @@ c      imoPack=0
       if(MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis3).ne.0) goto 666
       endif
       if(iKey.eq.32) then
-* SELEct
+! SELEct
       if(MyGetKey(InUnit,'S',iD,rD,SelectStr,iD,[iD],[rD]).ne.0) then
          goto 666
       endif
@@ -348,45 +348,45 @@ c      imoPack=0
        isAuMO=0
       endif
       if(iKey.eq.33) then
-* NOSOrt
+! NOSOrt
        NoSort=1
       endif
       if(iKey.eq.34) then
-* FILE
+! FILE
       read(InUnit,'(A)') FileIn
       isFileOrb=1
       call fileorb(FileIn,FileStr)
       write(6,*) 'INPORB file: ',FileStr(:mylen(FileStr))
       endif
       if(iKey.eq.35) then
-* SPHR
+! SPHR
       isSphere=1
       endif
       if(iKey.eq.36) then
-* COLOr
+! COLOr
       isColor=1
       endif
       if(iKey.eq.37) then
-* VIRT
+! VIRT
       isVirt=1
       if(MyGetKey(InUnit,'R',iD,Virt,Key,iD,[iD],[rD]).ne.0) goto 666
       endif
       if(iKey.eq.38) then
-* MULLiken charges per MO
+! MULLiken charges per MO
       isMULL=1
       read(InUnit,'(A)') MULLPRT
       Call upCASE(MULLPRT)
       Call LeftAd(MULLPRT)
       If (MULLPRT(1:4).eq.'LONG') isLONGPRT=1
       endif
-* SUBBLOCK
+! SUBBLOCK
       if(iKey.eq.39) then
       if(MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],SubBlock).ne.0) goto 666
-      if(MyGetKey(InUnit,'R',iD,rSubBlock,Key,iD,[iD],[rD]).ne.0)
-     *      goto 666
+      if(MyGetKey(InUnit,'R',iD,rSubBlock,Key,iD,[iD],[rD]).ne.0)       &
+     &      goto 666
       iSubBlock=1
       endif
-* XDER,YDER,ZDER,GDER
+! XDER,YDER,ZDER,GDER
       if(iKey.eq.40) then
          isDerivative=1
          call Quit_OnUserError()
@@ -404,70 +404,70 @@ c      imoPack=0
          call Quit_OnUserError()
          endif
 
-* CURD (current density)
+! CURD (current density)
       if(iKey.eq.44) then
          isCurDens=1
          call Quit_OnUserError()
          endif
 
-* CRXJ (current density, rxj)
+! CRXJ (current density, rxj)
       if(iKey.eq.45) then
         isCurDens=1
         isRxJ=1
         call Quit_OnUserError()
       endif
-* UMAX (use magnetic axes)
+! UMAX (use magnetic axes)
       if(iKey.eq.46) iuseMaxes=1
-* NOLUSCUS
+! NOLUSCUS
       if(iKey.eq.47) then
         isLuscus=0
         isBinary=0
       endif
-* XFIEld - ask Grid_It to compute electronic density on a DFT integration grid
+! XFIEld - ask Grid_It to compute electronic density on a DFT integration grid
       if(iKey.eq.48) then
         isXField=1
         isReadNet=isReadNet+1 !make the grid definition exclusive
       endif
-* LUS1
+! LUS1
       if(iKey.eq.49) then
       write(6,*) 'Not implemented'
-c      isLusMath=1
-c      read(InUnit,'(a)') LUS1
+!      isLusMath=1
+!      read(InUnit,'(a)') LUS1
       endif
-* LUS2
+! LUS2
       if(iKey.eq.50) then
       write(6,*) 'Not implemented'
-c      isLusMath=1
-c      read(InUnit,'(a)') LUS2
+!      isLusMath=1
+!      read(InUnit,'(a)') LUS2
       endif
-* PLUS
+! PLUS
       if(iKey.eq.51) then
       write(6,*) 'Not implemented'
-c      aLusMath=1
+!      aLusMath=1
       endif
-* MINUS
+! MINUS
       if(iKey.eq.52) then
       write(6,*) 'Not implemented'
-c      aLusMath=-1
+!      aLusMath=-1
       endif
-* XFMI xfield minimum charge of each grid point to be stored
+! XFMI xfield minimum charge of each grid point to be stored
       if(iKey.eq.53) then
-         if(MyGetKey(InUnit,'R',iD,XFminCh,Key,iD,[iD],[rD]).ne.0)
-     *     goto 666
+         if(MyGetKey(InUnit,'R',iD,XFminCh,Key,iD,[iD],[rD]).ne.0)      &
+     &     goto 666
       endif
       goto 998
 
- 666  write(6,'(a,a,a)')
-     *     'Error during reading ', Key(1:20), 'section in input file'
+ 666  write(6,'(a,a,a)')                                                &
+     &     'Error during reading ', Key(1:20), 'section in input file'
       Call Quit_OnUserError()
 
-************************************************************************
-*                                                                      *
-*                       End of input section.                          *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!                       End of input section.                          *
+!                                                                      *
+!***********************************************************************
  997  Continue
-c      if(isLusMath.eq.1) return
+!      if(isLusMath.eq.1) return
       if(isLuscus.eq.1.and.isBinary.eq.0) then
         write(6,*) 'ASCII keyword is set, but NoLUSCUS is not'
         write(6,*) 'calling abend as the best option available'
@@ -480,20 +480,20 @@ c      if(isLusMath.eq.1) return
           Call Quit_OnUserError()
         END IF
       END IF
-*
-      if(isReadNet.GT.1) write(6,'(a)')
-     *    'Warning: Double definition of GRID net'
+!
+      if(isReadNet.GT.1) write(6,'(a)')                                 &
+     &    'Warning: Double definition of GRID net'
 
-*
-*  Well, there is something to do!
-*
+!
+!  Well, there is something to do!
+!
        if(isFileOrb.eq.1) then
        INPORB=FileStr
        endif
        Call OpenGrid(INPORB)
-*
-*  try to generate grid position automatically
-*
+!
+!  try to generate grid position automatically
+!
 
           magicValue=0
           if(isNet.ge.0) then
@@ -507,10 +507,10 @@ c      if(isLusMath.eq.1) return
               call Quit_OnUserError()
             endif
           endif
-          Call MyCoor(isAuto,
-     &       GridOrigin(1),GridOrigin(2),GridOrigin(3),
-     &       GridAxis1(1),GridAxis2(2),GridAxis3(3),
-     &       iGridNpt(1),iGridNpt(2),iGridNpt(3), magicValue,
+          Call MyCoor(isAuto,                                           &
+     &       GridOrigin(1),GridOrigin(2),GridOrigin(3),                 &
+     &       GridAxis1(1),GridAxis2(2),GridAxis3(3),                    &
+     &       iGridNpt(1),iGridNpt(2),iGridNpt(3), magicValue,           &
      &       iCustOrig)
 
           if(iSubBlock.eq.1) then
@@ -527,7 +527,7 @@ c      if(isLusMath.eq.1) return
 
 
       Return
-* Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(iReturn)
       End
       Subroutine gridExpandSelect(SelectStr)
@@ -560,7 +560,7 @@ c      if(isLusMath.eq.1) return
          write(6,*) 'SELEct section is incomplete'
          call Quit_OnUserError()
       endif
-c      print *,'current',tmp
+!      print *,'current',tmp
       nReq=0
 1     istart=1
       iend=index(tmp(istart:),' ')
@@ -570,21 +570,21 @@ c      print *,'current',tmp
          write(6,*) 'Expecting : sign in >',tmp(istart:iend),'<'
          call Quit_OnUserError()
        endif
-c       print *,'v01 >',tmp(istart:istart+ibr-2),'<'
+!       print *,'v01 >',tmp(istart:istart+ibr-2),'<'
        read(tmp(istart:istart+ibr-2),*,err=20,end=20) isymm
        ibrm=index(tmp(istart+ibr+1:iend),'-')
        if(ibrm.eq.0) then
-c the only number
-c       print *,'v02 >',tmp(istart+ibr:iend),'<'
+! the only number
+!       print *,'v02 >',tmp(istart+ibr:iend),'<'
          read(tmp(istart+ibr:iend),*,err=20,end=20) iibeg
          iReq(2*nReq+1)=isymm
          iReq(2*nReq+2)=iibeg
          nReq=nReq+1
          if(nReq.gt.MAXGRID) goto 30
        else
-c         print *,'v03 >',tmp(istart+ibr:istart+ibr+ibrm-1),'<'
+!         print *,'v03 >',tmp(istart+ibr:istart+ibr+ibrm-1),'<'
          read(tmp(istart+ibr:istart+ibr+ibrm-1),*,err=20,end=20) iibeg
-c        print *,'v04 >',tmp(istart+ibr+ibrm+1:iend),'<'
+!        print *,'v04 >',tmp(istart+ibr+ibrm+1:iend),'<'
          read(tmp(istart+ibr+ibrm+1:iend),*,err=20,end=20) iiend
          if(iiend.lt.iibeg) then
           write(6,*) 'Wrong data in SELEct section'
@@ -597,7 +597,7 @@ c        print *,'v04 >',tmp(istart+ibr+ibrm+1:iend),'<'
          if(nReq.gt.MAXGRID) goto 30
         enddo
        endif
-c      print *,'current',tmp(iend+1:)
+!      print *,'current',tmp(iend+1:)
       tmp=tmp(iend+1:)
       if(tmp.ne.' ') goto 1
       Return

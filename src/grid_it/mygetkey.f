@@ -1,45 +1,45 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Valera Veryazov                                        *
-************************************************************************
-*  MyGetKey
-*
-*> @brief
-*>   General purpose routine to read arbitrary data from user input.
-*> @author V. Veryazov
-*>
-*> @details
-*> The routine read a line from unit \p InUnit (ignoring molcas comments
-*> and blank lines), and return a value or an array.
-*>
-*> Parameter \p What specifies the type of data:
-*> * ``I`` -- read an integer and return it as \p IValue
-*> * ``R`` -- read a real and return it as \p RValue
-*> * ``S`` -- read a string and return it as \p SValue
-*> * ``U`` -- recognize integer/real/string and return corresponding value
-*> * ``A`` -- read integer array and return \p IArr
-*> * ``D`` -- read real array and return \p RArr
-*>
-*> @param[in]     InUnit   Unit number
-*> @param[in,out] What     Type of input
-*> @param[out]    IValue   Integer Value
-*> @param[out]    RValue   Real Value
-*> @param[out]    SValue   String value
-*> @param[in]     N        Size of array
-*> @param[out]    IArr     Integer Array
-*> @param[out]    RArr     Real Array
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Valera Veryazov                                        *
+!***********************************************************************
+!  MyGetKey
+!
+!> @brief
+!>   General purpose routine to read arbitrary data from user input.
+!> @author V. Veryazov
+!>
+!> @details
+!> The routine read a line from unit \p InUnit (ignoring molcas comments
+!> and blank lines), and return a value or an array.
+!>
+!> Parameter \p What specifies the type of data:
+!> * ``I`` -- read an integer and return it as \p IValue
+!> * ``R`` -- read a real and return it as \p RValue
+!> * ``S`` -- read a string and return it as \p SValue
+!> * ``U`` -- recognize integer/real/string and return corresponding value
+!> * ``A`` -- read integer array and return \p IArr
+!> * ``D`` -- read real array and return \p RArr
+!>
+!> @param[in]     InUnit   Unit number
+!> @param[in,out] What     Type of input
+!> @param[out]    IValue   Integer Value
+!> @param[out]    RValue   Real Value
+!> @param[out]    SValue   String value
+!> @param[in]     N        Size of array
+!> @param[out]    IArr     Integer Array
+!> @param[out]    RArr     Real Array
       Function MyGetKey(InUnit,What,IValue,RValue,SValue,N,IArr,RArr)
-************************************************************************
-* Adapted from SAGIT to work with OpenMolcas (October 2020)            *
-************************************************************************
+!***********************************************************************
+! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
       character SValue *(*)
       Dimension IArr(*), RArr(*)

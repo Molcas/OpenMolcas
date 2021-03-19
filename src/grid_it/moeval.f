@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Roland Lindh                                     *
-*               2000, Valera Veryazov                                  *
-*               2014, Thomas Dresselhaus                               *
-************************************************************************
-      Subroutine MOEval(MOValue,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Roland Lindh                                     *
+!               2000, Valera Veryazov                                  *
+!               2014, Thomas Dresselhaus                               *
+!***********************************************************************
+      Subroutine MOEval(MOValue,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,        &
      &                  nDrv,mAO)
-************************************************************************
-*      Author:Roland Lindh, Dept. of Theoretical Chemistry, University *
-*             of Lund, SWEDEN. November 1995                           *
-*                                                                      *
-*      Modified: Thomas Dresselhaus, March 2014                        *
-*                Added ability to calculate 2nd derivative as well     *
-************************************************************************
+!***********************************************************************
+!      Author:Roland Lindh, Dept. of Theoretical Chemistry, University *
+!             of Lund, SWEDEN. November 1995                           *
+!                                                                      *
+!      Modified: Thomas Dresselhaus, March 2014                        *
+!                Added ability to calculate 2nd derivative as well     *
+!***********************************************************************
       use Real_Spherical
       use Basis_Info
       use Center_Info
@@ -37,21 +37,21 @@
       Integer mAO  ! Memory slots per point and basis functions. Should
                    ! be >=1 for nDrv=0, >=4 for nDrv=1, >=10 for nDrv=2.
       Real*8 MOValue(mAO,nCoor,nMOs),CMOs(nCMO)
-*
-*     Statement functions
-*
+!
+!     Statement functions
+!
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
+!
       iRout = 112
       iPrint = nPrint(iRout)
-*
+!
       If (iPrint.ge.99) Then
          Write (6,*) ' In MOEval'
       End If
       call dcopy_(mAO*nCoor*nMOs,[Zero],0,MOValue,1)
-*
-*     Loop over shells.
-*
+!
+!     Loop over shells.
+!
       iSkal=0
       Thr=0.0D0
 
@@ -59,20 +59,20 @@
 
          If (S%MaxPrm(iAng).eq.0) goto 100
          If (S%MaxBas(iAng).eq.0) goto 100
-*
-*        Scratch area for contraction step
-*
+!
+!        Scratch area for contraction step
+!
          nScr1 =  S%MaxPrm(iAng)* nElem(iAng)
          Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
-*
-*        Scratch area for the transformation to spherical gaussians
-*
+!
+!        Scratch area for the transformation to spherical gaussians
+!
          nScr2=S%MaxPrm(iAng)*nElem(iAng)
          Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
-*
-*        Loop over basis sets. Skip if basis set do not include
-*        angular momentum functions as specified above.
-*
+!
+!        Loop over basis sets. Skip if basis set do not include
+!        angular momentum functions as specified above.
+!
          iAOttp=0
          mdc = 0
          Do iCnttp = 1, nCnttp
@@ -93,20 +93,20 @@
                iCmp  = nElem(iAng)
             End If
 
-            Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+            Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,                &
      &                           Shells(iShll)%pCff)
             kSh=dbsc(iCnttp)%iVal+iAng
-*
-*           Loop over unique centers of basis set "iCnttp"
-*
+!
+!           Loop over unique centers of basis set "iCnttp"
+!
             Do iCnt = 1, nCnt
 
-               iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
+               iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO              &
      &             + Shells(kSh)%kOffAO
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-*
-*--------------Allocate memory for SO and AO values
-*
+!
+!--------------Allocate memory for SO and AO values
+!
                mRad     = nDrv + 1
 
                nForm    = 0
@@ -131,10 +131,10 @@
 
                nAngular=5*nForm*nTerm
                Call GetMem('Angular','Allo','Inte',ipAng,nAngular)
-*
-*------------- Loops over symmetry operations operating on the basis
-*              set center.
-*
+!
+!------------- Loops over symmetry operations operating on the basis
+!              set center.
+!
                Do iG = 0, nIrrep/dc(mdc+iCnt)%nStab - 1
                   iSkal=iSkal+1
                   Call OA(dc(mdc+iCnt)%iCoSet(iG,0),A,RA)
@@ -145,38 +145,38 @@
                   py=DBLE(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)))
                   pz=DBLE(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)))
                   nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0))
-*
-*---------------- Evaluate AOs at RA
-*
+!
+!---------------- Evaluate AOs at RA
+!
                   call dcopy_(nAO,[Zero],0,Work(ipAOs),1)
-                  Call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,
-     &                        Shells(iShll)%Transf,
-     &                        RSph(ipSph(iAng)),nElem(iAng),iCmp,
-     &                        iWork(ipAng),nTerm,nForm,Thr,mRad,
-     &                        iPrim,iPrim,Shells(iShll)%Exp,
-     &                        Work(ipRadial),iBas,
-     &                        Shells(iShll)%pCff,
+                  Call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,          &
+     &                        Shells(iShll)%Transf,                     &
+     &                        RSph(ipSph(iAng)),nElem(iAng),iCmp,       &
+     &                        iWork(ipAng),nTerm,nForm,Thr,mRad,        &
+     &                        iPrim,iPrim,Shells(iShll)%Exp,            &
+     &                        Work(ipRadial),iBas,                      &
+     &                        Shells(iShll)%pCff,                       &
      &                        Work(ipAOs),mAO,px,py,pz,ipx,ipy,ipz)
-*
-*---------------- Distribute contributions to the SOs
-*
-                  Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,
+!
+!---------------- Distribute contributions to the SOs
+!
+                  Call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,      &
      &                        Work(ipSOs),nDeg,iAO)
-*
+!
                End Do ! iG
-*
-*------------- Distribute contributions to the MOs
-*
-               Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,
+!
+!------------- Distribute contributions to the MOs
+!
+               Call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,        &
      &                     MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
-*
+!
                Call GetMem('Radial','Free','Real',ipRadial,nRadial)
                Call GetMem('Angular','Free','Inte',ipAng,nAngular)
                Call GetMem('tmp','Free','Real',iptmp,ntmp)
                Call GetMem('xyz','Free','Real',ipxyz,nxyz)
                Call GetMem('AOs','Free','Real',ipAOs,nAO)
                Call GetMem('SOs','Free','Real',ipSOs,nSO)
-*
+!
             End Do ! iCnt
  101        Continue
             mdc = mdc + dbsc(iCnttp)%nCntr
@@ -186,7 +186,7 @@
          Call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
  100     continue
       End Do
-*
+!
       Return
       End
 
@@ -203,16 +203,16 @@
 
       Call MOEval(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
-c        IJ1=1+(I-1)*4
-c        IJ2=2+(I-1)*4
-c        IJ3=3+(I-1)*4
-c        IJ4=4+(I-1)*4
-c
-c        MOValue(I)=Work(MOTmp-1+IJ1)
-c        MOValueDX(I)=Work(MOTmp-1+IJ2)
-c        MOValueDY(I)=Work(MOTmp-1+IJ3)
-c        MOValueDZ(I)=Work(MOTmp-1+IJ4)
-c      END DO
+!        IJ1=1+(I-1)*4
+!        IJ2=2+(I-1)*4
+!        IJ3=3+(I-1)*4
+!        IJ4=4+(I-1)*4
+!
+!        MOValue(I)=Work(MOTmp-1+IJ1)
+!        MOValueDX(I)=Work(MOTmp-1+IJ2)
+!        MOValueDY(I)=Work(MOTmp-1+IJ3)
+!        MOValueDZ(I)=Work(MOTmp-1+IJ4)
+!      END DO
 
       Return
       End
@@ -232,9 +232,9 @@ c      END DO
 
       Call MOEval(work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
-c iDir = 1 then do dX
-c iDir = 2 then do dY
-c iDir = 3 then do dZ
+! iDir = 1 then do dX
+! iDir = 2 then do dY
+! iDir = 3 then do dZ
       write(6,*) "iDir:",iDir
       if(iDir.gt.0.and.iDir.lt.4) then
         DO I=1,nCoor*nMOs
@@ -246,8 +246,8 @@ c iDir = 3 then do dZ
           IJX=2+(I-1)*4
           IJY=3+(I-1)*4
           IJZ=4+(I-1)*4
-          MOValue(I)=Work(iMoTmp-1+IJX)+
-     &               Work(iMoTmp-1+IJY)+
+          MOValue(I)=Work(iMoTmp-1+IJX)+                                &
+     &               Work(iMoTmp-1+IJY)+                                &
      &               Work(iMoTmp-1+IJZ)
         END DO
       end if

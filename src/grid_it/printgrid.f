@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine PrintLine(unit,line,len,isBinLuscus)
-************************************************************************
-* Adapted from SAGIT to work with OpenMolcas (October 2020)            *
-************************************************************************
+!***********************************************************************
+! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -23,7 +23,7 @@
       if (ISLUSCUS .eq. 1) then
         ll=len
         li=isBinLuscus
-c       print *,'before pl ',line,' ',ll,li
+!       print *,'before pl ',line,' ',ll,li
         call prt_lusc(unit, line, ll,li)
       else
         if (isBinary .eq. 1) then
@@ -34,10 +34,10 @@ c       print *,'before pl ',line,' ',ll,li
       end if
       Return
       End
-***
+!**
 
-************************************************************************
-      SubRoutine PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,
+!***********************************************************************
+      SubRoutine PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,      &
      &  iiCoord,nTypes,iCRSIZE,NBYTES,NINLINE,nBlocks )
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -48,8 +48,8 @@ c       print *,'before pl ',line,' ',ll,li
       LuVal_=LuVal
       if(isLUSCUS.eq.1) LuVal_=LID
       nShowMOs_=nShowMOs
-c      call bXML('Header')
-c      call iXML('UHF',isUHF)
+!      call bXML('Header')
+!      call iXML('UHF',isUHF)
       do iiUHF=0,isUHF
       if(iiUHF.eq.1) then
       LuVal_=LuVal_ab
@@ -57,16 +57,16 @@ c      call iXML('UHF',isUHF)
       nShowMOs_=nShowMOs_ab
       endif
       IF (ISLUSCUS .EQ. 1) THEN
-C debug
-C        write(*,*) 'N_of_MO=', nMOs
-C        write(*,*) 'N_of_Grids=', nShowMOs_
-C        write(*,*) 'N_of_Points=', nCoor
-C        write(*,*) 'Block_Size=', nInc
-C        write(*,*) 'N_Blocks=', nBlocks
-C        write(*,*) 'Is_cutoff=', isCutOff
-C        write(*,*) 'CutOff=', Cutoff
-C        write(*,*) 'N_P=', iiCoord
-C end debug
+! debug
+!        write(*,*) 'N_of_MO=', nMOs
+!        write(*,*) 'N_of_Grids=', nShowMOs_
+!        write(*,*) 'N_of_Points=', nCoor
+!        write(*,*) 'Block_Size=', nInc
+!        write(*,*) 'N_Blocks=', nBlocks
+!        write(*,*) 'Is_cutoff=', isCutOff
+!        write(*,*) 'CutOff=', Cutoff
+!        write(*,*) 'N_P=', iiCoord
+! end debug
 
 
         IF (nMOs .GT. 99999) THEN
@@ -88,7 +88,7 @@ C end debug
         nBlocks=nCoor/nInc+1
         IF (nBlocks .GT. 9999) THEN
           Write(6,*) 'Number of blocks can''t be larger that 9999'
-c          write(*,*) 'nBlocks = ', nBlocks
+!          write(*,*) 'nBlocks = ', nBlocks
           Call Quit_OnUserError()
         END IF
         IF (isCutOff .GT. 9) THEN
@@ -102,13 +102,13 @@ c          write(*,*) 'nBlocks = ', nBlocks
         WRITE(LINE,'(''<GRID>'')')
         CALL PRINTLINE(LUVAL_, LINE,6,0)
 
-        WRITE(LINE,1000)
-     +         nMOs, nShowMOs_, nCoor, nInc, nBlocks,
-     +         isCutOff, Cutoff, iiCoord
- 1000   FORMAT(1X,'N_of_MO=',I5,1X,'N_of_Grids=',I4,
-     +         1X,'N_of_Points=',I8,1X,'Block_Size=',I6,
-     +         1X,'N_Blocks=',I4,1X,'Is_cutoff=',I1,
-     +         1X,'CutOff=',F8.4,1X,'N_P=',I8)
+        WRITE(LINE,1000)                                                &
+     &         nMOs, nShowMOs_, nCoor, nInc, nBlocks,                   &
+     &         isCutOff, Cutoff, iiCoord
+ 1000   FORMAT(1X,'N_of_MO=',I5,1X,'N_of_Grids=',I4,                    &
+     &         1X,'N_of_Points=',I8,1X,'Block_Size=',I6,                &
+     &         1X,'N_Blocks=',I4,1X,'Is_cutoff=',I1,                    &
+     &         1X,'CutOff=',F8.4,1X,'N_P=',I8)
         CALL PRINTLINE(LUVAL_, LINE, 124,0)
         WRITE(LINE,1010) (nTypes(i),i=1,7)
  1010   FORMAT(1X,'N_INDEX=',7I5)
@@ -132,7 +132,7 @@ c          write(*,*) 'nBlocks = ', nBlocks
         WRITE(LINE,1060) GridAxis3
  1060   FORMAT(1X,'Axis_3=',3(1X,F12.3))
         CALL PRINTLINE(LUVAL_, LINE, 47,0)
-c Here we dump all missing information
+! Here we dump all missing information
         if(isLUSCUS.eq.0) then
         WRITE(LINE,'(1x,A,I2)') 'CR_SIZE=',iCRSIZE
         CALL PRINTLINE(LUVAL_, LINE, 20,0)
@@ -166,35 +166,35 @@ c Here we dump all missing information
         CALL PRINTLINE(LUVAL_, LINE, 30,0)
         endif
 
-C
-C skip file pointers
-C skip end orbital section
-C
+!
+! skip file pointers
+! skip end orbital section
+!
       ELSE
 
 
       if(isLine.eq.0) then
        write (line,'(a,a)') 'VERSION=     ',VERSION
        call PrintLine(LuVal_,line,23,0)
-c       write (line,'(a,a)') 'Extension=   ',0
-c       call PrintLine(LuVal_,line,23,0)
+!       write (line,'(a,a)') 'Extension=   ',0
+!       call PrintLine(LuVal_,line,23,0)
        write (line,'(a,i10)') 'N_of_MO=     ',nMOs
-c       call iXML('nMOs',nMOs)
+!       call iXML('nMOs',nMOs)
        call PrintLine(LuVal_,line,23,0)
        write (line,'(a,i10)') 'N_of_Grids=  ',nShowMOs_
-c       call iXML('nGrids',nShowMOs_)
+!       call iXML('nGrids',nShowMOs_)
        call PrintLine(LuVal_,line,23,0)
        write (line,'(a,i10)') 'N_of_Points= ',nCoor
-c       call iXML('nPoints',nCoor)
+!       call iXML('nPoints',nCoor)
        call PrintLine(LuVal_,line,23,0)
        write (line,'(a,i10)') 'Block_Size=  ',nInc
-c       call iXML('Block Size',nInc)
+!       call iXML('Block Size',nInc)
        call PrintLine(LuVal_,line,23,0)
        nBlocks=nCoor/nInc+1
        write (line,'(a,i10)')   'N_Blocks=    ',nBlocks
-c       call iXML('nBlocks',nBlocks)
+!       call iXML('nBlocks',nBlocks)
        call PrintLine(LuVal_,line,23,0)
-c new cut off
+! new cut off
        write (line,'(a,i10)')   'Is_cutoff=   ',isCutOff
        call PrintLine(LuVal_,line,23,0)
        write (line,'(a,f10.4)') 'CutOff=      ',CutOff
@@ -209,34 +209,34 @@ c new cut off
       endif
       if (isTheOne .eq. 1) goto 777
 
-      write (line,'(a,3i5)') 'Net=         ',iGridNpt(1)-1,
-     *        iGridNpt(2)-1,iGridNpt(3)-1
-c      call iaXML('Net',iGridNpt,3)
+      write (line,'(a,3i5)') 'Net=         ',iGridNpt(1)-1,             &
+     &        iGridNpt(2)-1,iGridNpt(3)-1
+!      call iaXML('Net',iGridNpt,3)
       call PrintLine(LuVal_,line,28,0)
 
       write (line,'(a,3f12.3)') 'Origin= ',GridOrigin
-c      call daXML('Origin',GridOrigin,3)
+!      call daXML('Origin',GridOrigin,3)
       call PrintLine(LuVal_,line,44,0)
 
       write (line,'(a,3f12.3)') 'Axis_1= ',GridAxis1
-c      call daXML('Axis 1',GridAxis1,3)
+!      call daXML('Axis 1',GridAxis1,3)
       call PrintLine(LuVal_,line,44,0)
       write (line,'(a,3f12.3)') 'Axis_2= ',GridAxis2
-c      call daXML('Axis 2',GridAxis2,3)
+!      call daXML('Axis 2',GridAxis2,3)
       call PrintLine(LuVal_,line,44,0)
       write (line,'(a,3f12.3)') 'Axis_3= ',GridAxis3
-c      call daXML('Axis 3',GridAxis3,3)
+!      call daXML('Axis 3',GridAxis3,3)
       call PrintLine(LuVal_,line,44,0)
 
 777   continue
       END IF
       enddo
-c      call eXML('Header')
+!      call eXML('Header')
 
       Return
       End
 
-************************************************************************
+!***********************************************************************
       Subroutine OpenGrid(INPORB)
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -248,7 +248,7 @@ c      call eXML('Header')
       Character INPORB*(*)
       CHARACTER(LEN=512) TMPLUS
       INTEGER RC
-c      logical exist
+!      logical exist
       Logical is_error
       Character Slash
       Character*12 Alpha
@@ -302,70 +302,70 @@ c      logical exist
 
       else
        l=1
-c       ii=1
-c       fullname=outf
+!       ii=1
+!       fullname=outf
 888     i=index(FullName(l:),Slash)
         if(i.gt.0) then
-c          ii=i+l
+!          ii=i+l
           l=l+i+1
           goto 888
         endif
         Call getenvf('Project',Project)
-c        Project=FullName(ii:)
+!        Project=FullName(ii:)
        if(TheName.eq.'NEW'.or.TheName.eq.'new'.or.TheName.eq.'New') then
         do i=1,99
          write(ss,'(i2)') i
          if(i.lt.10) ss(1:1)='0'
-         RealName=FullName(1:index(FullName,' ')-1)//Slash
-     +    //Project(1:index(Project,' ')-1)//'.'
-     +    //ss//Alpha
+         RealName=FullName(1:index(FullName,' ')-1)//Slash              &
+     &    //Project(1:index(Project,' ')-1)//'.'                        &
+     &    //ss//Alpha
         enddo
 
        else
 
-         RealName=FullName(1:index(FullName,' ')-1)//Slash
-     +    //Project(1:index(Project,' ')-1)//'.'
-     +    //TheName(1:index(TheName,' ')-1)//Alpha
+         RealName=FullName(1:index(FullName,' ')-1)//Slash              &
+     &    //Project(1:index(Project,' ')-1)//'.'                        &
+     &    //TheName(1:index(TheName,' ')-1)//Alpha
        endif
        write(6,*) 'Grid file: ',RealName(:mylen(RealName))
       endif
 
       if(TheName.ne.' ') then
-c         open(88,file='extra.prgm')
-         write(88,'(a,a,a)') ' (file) M2MSI ',
-     *        RealName(1:index(RealName,' ')),'  rwsg'
-c         close(88)
+!         open(88,file='extra.prgm')
+         write(88,'(a,a,a)') ' (file) M2MSI ',                          &
+     &        RealName(1:index(RealName,' ')),'  rwsg'
+!         close(88)
       endif
       if(iiUHF.eq.0) then
       LuVal=isFreeUnit(49)
       if (ISLUSCUS .EQ. 1) THEN
-C FIXME: User can't define luscus input file name
+! FIXME: User can't define luscus input file name
         RC=-1
         if(Thename.eq.' ') then
         if(isUHF.eq.0) TMPLUS(1:)="LUSCUS"
         if(isUHF.eq.1.and.iiUHF.eq.0) TMPLUS(1:8)="alph.lus"
         if(isUHF.eq.1.and.iiUHF.eq.1) TMPLUS(1:8)="beta.lus"
         mm=mylen(TMPLUS)
-c        print *,' before 2 lusop', mm
+!        print *,' before 2 lusop', mm
         RC=lusopen(LID,TMPLUS,mm)
         else
         mm=mylen(RealName)
-c        print *,' before 2 lusop', mm
+!        print *,' before 2 lusop', mm
         RC=lusopen(LID,RealName,mm)
         endif
-C        rc=AixOpn(LID,"LUSCUS",.TRUE.)
+!        rc=AixOpn(LID,"LUSCUS",.TRUE.)
         IF (RC .NE. 0) THEN
           write(6,*) 'ERROR: Can''t open luscus file!'
           CALL Abend()
         END IF
       ELSE ! not luscus
       if(isBinary.eq.1) Then
-      call molcas_open_ext2(LuVal,RealName,'sequential',
+      call molcas_open_ext2(LuVal,RealName,'sequential',                &
      & 'unformatted',iostat,.false.,irecl,'unknown',is_error)
-c        open(unit=LuVal,access='sequential',
-c     ,       form='unformatted', file=RealName)
-c        write(6,*) '** Create Grid file:',
-c     &        RealName(1:index(RealName,' '))
+!        open(unit=LuVal,access='sequential',
+!     ,       form='unformatted', file=RealName)
+!        write(6,*) '** Create Grid file:',
+!     &        RealName(1:index(RealName,' '))
         write(LuVal) 'a'
 !        if (imoPack .ne. 0) then
 !          g=2003.9
@@ -383,13 +383,13 @@ c     &        RealName(1:index(RealName,' '))
 
       if(isBinary.eq.0) Then
         call molcas_open(LuVal,RealName)
-c        open(unit=LuVal,file=RealName,Form='FORMATTED')
+!        open(unit=LuVal,file=RealName,Form='FORMATTED')
         if(isLine.eq.1) then
           Write(LuVal,'(a)') '# data in GNUplot format'
           goto 999
         endif
-c        write(6,*) '** Create Grid file (in ASCII format):',
-c     &        RealName(1:index(RealName,' '))
+!        write(6,*) '** Create Grid file (in ASCII format):',
+!     &        RealName(1:index(RealName,' '))
           if (isTheOne.eq.1) then
             write(LuVal,'(a1)') '9'
           else
@@ -404,19 +404,19 @@ c     &        RealName(1:index(RealName,' '))
       END IF
       else ! iiUHF
       if (ISLUSCUS .EQ. 1) THEN
-C FIXME: User can't define luscus input file name
+! FIXME: User can't define luscus input file name
         if(Thename.eq.' ') then
         if(isUHF.eq.1.and.iiUHF.eq.0) TMPLUS="AM2L"
         if(isUHF.eq.1.and.iiUHF.eq.1) TMPLUS="BM2L"
         mm=6
-c        print *,' before 1 lusop', mm
+!        print *,' before 1 lusop', mm
         RC=lusopen(LID_ab,TMPLUS,mm)
         else
         mm=mylen(RealName)
-c        print *,' before lusop', mm
+!        print *,' before lusop', mm
         RC=lusopen(LID_ab,RealName,mm)
         endif
-C        rc=AixOpn(LID,"LUSCUS",.TRUE.)
+!        rc=AixOpn(LID,"LUSCUS",.TRUE.)
         IF (RC .NE. 0) THEN
           write(6,*) 'ERROR: Can''t open luscus file!'
           CALL Abend()
@@ -426,12 +426,12 @@ C        rc=AixOpn(LID,"LUSCUS",.TRUE.)
 
 
       if(isBinary.eq.1) Then
-      call molcas_open_ext2(LuVal_ab,RealName,'sequential',
+      call molcas_open_ext2(LuVal_ab,RealName,'sequential',             &
      &  'unformatted',iostat,.false.,irecl,'unknown',is_error)
-c        open(unit=LuVal_ab,access='sequential',
-c     ,       form='unformatted', file=RealName)
-c        write(6,*) '** Create Grid file',
-c     &        RealName(1:index(RealName,' '))
+!        open(unit=LuVal_ab,access='sequential',
+!     ,       form='unformatted', file=RealName)
+!        write(6,*) '** Create Grid file',
+!     &        RealName(1:index(RealName,' '))
         write(LuVal_ab) 'a'
 !        if (imoPack .ne. 0) then
 !          g=2003.9
@@ -447,9 +447,9 @@ c     &        RealName(1:index(RealName,' '))
 
       if(isBinary.eq.0) Then
         call molcas_open(LuVal_ab,RealName)
-c        open(unit=LuVal_ab,file=RealName,Form='FORMATTED')
-c        write(6,*) '** Create Grid file (in ASCII format):',
-c     &        RealName(1:index(RealName,' '))
+!        open(unit=LuVal_ab,file=RealName,Form='FORMATTED')
+!        write(6,*) '** Create Grid file (in ASCII format):',
+!     &        RealName(1:index(RealName,' '))
           if (isTheOne.eq.1) then
             write(LuVal_ab,'(a1)') '9'
           else
@@ -473,16 +473,16 @@ c     &        RealName(1:index(RealName,' '))
       return
       end
 
-************************************************************************
-      Subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,
-     &  iWipGRef, isEner,  WipOcc, iWipType, Crypt,
-     &  iWipNZ, WipE, VBocc, ifpartial,isLine,isSphere,
+!***********************************************************************
+      Subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,             &
+     &  iWipGRef, isEner,  WipOcc, iWipType, Crypt,                     &
+     &  iWipNZ, WipE, VBocc, ifpartial,isLine,isSphere,                 &
      &  isColor, ISLUSCUS, nCoor,nBlocks,nInc)
       Implicit Real*8 (A-H,O-Z)
 
       Character Line*12000
       Character Crypt*7, bb
-      Dimension iWipGRef(*), WipOcc(*), iWipType(*),
+      Dimension iWipGRef(*), WipOcc(*), iWipType(*),                    &
      &          iWipNZ(*), WipE(*)
        Character LineT*10
        integer Sizeof8
@@ -490,76 +490,76 @@ c     &        RealName(1:index(RealName,' '))
       iActOrb=0
        LineT='GridName= '
        if(isLine.eq.1) LineT='#GridName='
-c       print *,'here',nInc, nBlocks, nCoor
+!       print *,'here',nInc, nBlocks, nCoor
       if(isLUSCUS.eq.1) then
-c        NFIRST=nInc
+!        NFIRST=nInc
 
-c        if(nBlocks.eq.1) NFIRST=nCoor
+!        if(nBlocks.eq.1) NFIRST=nCoor
 
-c      ii=0
-c      do i=1,nShowMOs
-c      write(Line,'(A17,1000i12)') ' File_pointers = ',
-c     * ((nFirst*(j-1)+ii)*Sizeof8,j=1,nBlocks)
-c      CALL PRINTLINE(LUVAL,LINE,12*nBlocks+17,0)
-c      ii=ii+nFirst*nBlocks
-c      enddo
+!      ii=0
+!      do i=1,nShowMOs
+!      write(Line,'(A17,1000i12)') ' File_pointers = ',
+!     * ((nFirst*(j-1)+ii)*Sizeof8,j=1,nBlocks)
+!      CALL PRINTLINE(LUVAL,LINE,12*nBlocks+17,0)
+!      ii=ii+nFirst*nBlocks
+!      enddo
       write(Line,'(A,i22)') ' ORBOFF = ', nCoor*nShowMOs*Sizeof8
-c     * + 28*nShowMOs - 20
-c ?? -20?
+!     * + 28*nShowMOs - 20
+! ?? -20?
       CALL PRINTLINE(LUVAL,LINE,32,0)
       endif
       do i=1,nShowMOs-isDensity-isSphere-isColor
         j=iWipGRef(i)
         if(isEner.eq.1) then
-          if(.not.(0.eq.1.and.
-     >       WipOcc(j).gt.0d0.and.
-     >       WipOcc(j).lt.2d0)) then
+          if(.not.(0.eq.1.and.                                          &
+     &       WipOcc(j).gt.0d0.and.                                      &
+     &       WipOcc(j).lt.2d0)) then
             ib=iWipType(j)
             bb=' '
             if(ib.gt.0.and.ib.lt.8) bb=Crypt(ib:ib)
             IF (ISLUSCUS .EQ. 1) THEN
-              WRITE(LINE,1000) iWipNZ(j), iWipNZ(j+nMOs), WipE(j),
-     +                         WipOcc(j), bb
+              WRITE(LINE,1000) iWipNZ(j), iWipNZ(j+nMOs), WipE(j),      &
+     &                         WipOcc(j), bb
               CALL PRINTLINE(LUVAL,LINE,72,0)
             ELSE
-              write (line,'(a,i2,i5,f12.4,'' ('',f4.2,'')'',1x,a)')
-     *                    LineT,
-     *                    iWipNZ(j),iWipNZ(j+nMOs),
-     *                    WipE(j),WipOcc(j),bb
+              write (line,'(a,i2,i5,f12.4,'' ('',f4.2,'')'',1x,a)')     &
+     &                    LineT,                                        &
+     &                    iWipNZ(j),iWipNZ(j+nMOs),                     &
+     &                    WipE(j),WipOcc(j),bb
               call PrintLine(LuVal,line,38,0)
             END IF
- 1000       FORMAT(1X,'GridName= Orbital sym=',i2,' index=',i5,
-     +             ' Energ=',F12.4,' occ=', F4.2,' type=',a1)
+ 1000       FORMAT(1X,'GridName= Orbital sym=',i2,' index=',i5,         &
+     &             ' Energ=',F12.4,' occ=', F4.2,' type=',a1)
           else
             iActOrb=iActOrb+1
             IF (ISLUSCUS .EQ. 1) THEN
               WRITE(LINE,1010) 'VB orbital',iActOrb,' (',VBocc,')'
- 1010         FORMAT(1X,'GridName= VB_orbital iActOrb= ',I4,
-     +               ' occ= ',F4.2)
+ 1010         FORMAT(1X,'GridName= VB_orbital iActOrb= ',I4,            &
+     &               ' occ= ',F4.2)
               CALL PRINTLINE(LUVAL,LINE,45,0)
             ELSE
-              write (line,'(2a,i4,5x,a,f4.2,a)') LineT,
-     *                    'VB orbital',iActOrb,' (',VBocc,')'
+              write (line,'(2a,i4,5x,a,f4.2,a)') LineT,                 &
+     &                    'VB orbital',iActOrb,' (',VBocc,')'
               call PrintLine(LuVal,line,38,0)
             END IF
           endif
         else
-          if(.not.(0.eq.1.and.
-     >       WipOcc(j).gt.0d0 .and.
-     >       WipOcc(j).lt.2d0)) then
+          if(.not.(0.eq.1.and.                                          &
+     &       WipOcc(j).gt.0d0 .and.                                     &
+     &       WipOcc(j).lt.2d0)) then
             ib=iWipType(j)
             bb=' '
             if(ib.gt.0.and.ib.lt.8) bb=Crypt(ib:ib)
             IF (ISLUSCUS .EQ. 1) THEN
-              WRITE(LINE,1020) iWipNZ(j), iWipNZ(j+nMOs),
-     +                         WipOcc(j), bb
- 1020         FORMAT(1X,'GridName= Orbital sym=',I2,' index=',I5,
-     +                  ' occ=',F4.2,' type=',A1)
+              WRITE(LINE,1020) iWipNZ(j), iWipNZ(j+nMOs),               &
+     &                         WipOcc(j), bb
+ 1020         FORMAT(1X,'GridName= Orbital sym=',I2,' index=',I5,       &
+     &                  ' occ=',F4.2,' type=',A1)
               CALL PRINTLINE(LUVAL,LINE,53,0)
             ELSE
-              write (line,'(a,i2,i5,'' ('',f8.6,'')'',1x,a)')
-     *                    LineT,iWipNZ(j),
-     *                    iWipNZ(j+nMOs), WipOcc(j),bb
+              write (line,'(a,i2,i5,'' ('',f8.6,'')'',1x,a)')           &
+     &                    LineT,iWipNZ(j),                              &
+     &                    iWipNZ(j+nMOs), WipOcc(j),bb
               call PrintLine(LuVal,line,30,0)
             END IF
           else
@@ -568,8 +568,8 @@ c ?? -20?
               WRITE(LINE,1010) iActOrb, VBocc
               CALL PRINTLINE(LUVAL,LINE,45,0)
             ELSE
-              write (line,'(2a,i4,5x,a,f4.2,a)') LineT,
-     *                         'VB orbital',iActOrb,' (',VBocc,')'
+              write (line,'(2a,i4,5x,a,f4.2,a)') LineT,                 &
+     &                         'VB orbital',iActOrb,' (',VBocc,')'
               call PrintLine(LuVal,line,30,0)
             END IF
           endif
@@ -608,21 +608,21 @@ c ?? -20?
           endif
 
       return
-* Avoid unused argumet warnings
+! Avoid unused argumet warnings
       if (.false.) then
         call Unused_integer(nBlocks)
         call Unused_integer(nInc)
       end if
       end
-********************************
-      Subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,
-     &  iWipGRef,  WipOcc, WipMO, WipOut, mCoor,
-     &   iGauss, nInc, imoPack, iWipPBlock,
-     &  cMoBlock,nBytesPackedVal, dnorm, Crypt, VbOcc,
-     &  isTheOne,isLine,isBinary, isEner, iWipType, iWipNZ,WipE,
-     &  WLine,nLine,WCoor,iPrintCount,isDebug,
-     &  isCutOff, iWipCutOff,isSphere,SphrDist,isColor,SphrColor,
-     +  ISLUSCUS, NBYTES,NINLINE)
+!*******************************
+      Subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,      &
+     &  iWipGRef,  WipOcc, WipMO, WipOut, mCoor,                        &
+     &   iGauss, nInc, imoPack, iWipPBlock,                             &
+     &  cMoBlock,nBytesPackedVal, dnorm, Crypt, VbOcc,                  &
+     &  isTheOne,isLine,isBinary, isEner, iWipType, iWipNZ,WipE,        &
+     &  WLine,nLine,WCoor,iPrintCount,isDebug,                          &
+     &  isCutOff, iWipCutOff,isSphere,SphrDist,isColor,SphrColor,       &
+     &  ISLUSCUS, NBYTES,NINLINE)
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 !      Dimension xLimits(4)
@@ -630,41 +630,41 @@ c ?? -20?
       Character*1  cMoBlock(*)
       Character Crypt*7, bb
       Character Line*128
-c     Character fmt*20
-C test
-c     character*3 cint
-c     character*1 cx(64)
-c     data cx /
-c    +         '0','1','2','3','4','5','6','7','8','9',
-c    +         'a','b','c','d','e','f','g','h','i','j',
-c    +         'k','l','m','n','o','p','q','r','s','t',
-c    +         'u','v','w','x','y','z','A','B','C','D',
-c    +         'E','F','G','H','I','J','K','L','M','N',
-c    +         'O','P','Q','R','S','T','U','V','W','X',
-c    +         'Y','Z','@','#' /
-C test end
-      Dimension iWipGRef(*), WipOcc(*), WipMO(*), WipOut(*),
-     &   iWipPBlock(*),iWipType(*), iWipNZ(*),WipE(*),
-     &  WLine(nLine,mCoor),WCoor(3,mCoor),iWipCutOff(*),
+!     Character fmt*20
+! test
+!     character*3 cint
+!     character*1 cx(64)
+!     data cx /
+!    +         '0','1','2','3','4','5','6','7','8','9',
+!    +         'a','b','c','d','e','f','g','h','i','j',
+!    +         'k','l','m','n','o','p','q','r','s','t',
+!    +         'u','v','w','x','y','z','A','B','C','D',
+!    +         'E','F','G','H','I','J','K','L','M','N',
+!    +         'O','P','Q','R','S','T','U','V','W','X',
+!    +         'Y','Z','@','#' /
+! test end
+      Dimension iWipGRef(*), WipOcc(*), WipMO(*), WipOut(*),            &
+     &   iWipPBlock(*),iWipType(*), iWipNZ(*),WipE(*),                  &
+     &  WLine(nLine,mCoor),WCoor(3,mCoor),iWipCutOff(*),                &
      &  SphrDist(mCoor),SphrColor(mCoor)
        Dimension DumArr(2)
 #include "WrkSpc.fh"
-c          write(*,*) 'entering DumpM2Msi'
+!          write(*,*) 'entering DumpM2Msi'
            if(irun.gt.100) print *, iGauss, nbytes, ninc, ninline
           iActOrb=0
           iPrintCount=iPrintCount+1
         do i=1, nShowMOs-isDensity-isSphere-isColor
           iMOs=iWipGRef(i)
 
-          if(.not.(0.eq.1.and.
-     >       WipOcc(iMOs).gt.0d0
-     >        .and.
-     >       WipOcc(iMOs).lt.2d0)) then
+          if(.not.(0.eq.1.and.                                          &
+     &       WipOcc(iMOs).gt.0d0                                        &
+     &        .and.                                                     &
+     &       WipOcc(iMOs).lt.2d0)) then
             call outmo(iMOs,1,WipMO,dumArr,WipOut,mCoor,nMOs)
-c          else
-c            iActOrb=iActOrb+1
-c            call outmo(0,1,WipMO,WipVBmat(1+(iActOrb-1)*nMOs),
-c     >           WipOut,mCoor,nMOs)
+!          else
+!            iActOrb=iActOrb+1
+!            call outmo(0,1,WipMO,WipVBmat(1+(iActOrb-1)*nMOs),
+!     >           WipOut,mCoor,nMOs)
           endif
 
         if(isLine.eq.0.and.isLuscus.eq.0) then
@@ -673,8 +673,8 @@ c     >           WipOut,mCoor,nMOs)
           endif
           if(isTheOne.eq.1)then
             if(isLine.eq.0 .AND. ISLUSCUS .eq. 0) then
-              write(LuVal,'(f18.12)')
-     *            (WipOut(j),j=1,mCoor)
+              write(LuVal,'(f18.12)')                                   &
+     &            (WipOut(j),j=1,mCoor)
             else
               if(i+1.le.nLine) then
                 do j=1,mCoor
@@ -703,7 +703,7 @@ c     >           WipOut,mCoor,nMOs)
 !            endif
 !          else
             if (isBinary .eq. 1) then
-c packing late
+! packing late
               if(isCutOff.eq.1) then
                 Call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
                 call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
@@ -718,33 +718,33 @@ c packing late
                 write (LuVal) (Work(ipCMP+j),j=0,iii-1)
                 Call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
               else
-c no cut off
+! no cut off
                 write (LuVal) (WipOut(j),j=1,mCoor)
 
               endif
             else !isBinary
-c             write(cint, '(i3.3)') i
+!             write(cint, '(i3.3)') i
               if(isDebug.eq.0) then
-c normal output - just numbers
+! normal output - just numbers
                if(isCutOff.eq.1) then
                   do j=1,mCoor
-                    if(iWipCutOff(j).eq.1)
+                    if(iWipCutOff(j).eq.1)                              &
      &                write (LuVal, '(E10.4)') WipOut(j)
                   enddo
                else if (isLUSCUS .eq. 1) then
-c NOPACKING
+! NOPACKING
 !                if(imoPack.eq.0) then
                  call dump_lusc(LID, WipOut,mCoor)
-c debug dump of data
-c
-c                  do j=1,mCoor,NINLINE
-c                    num=mCoor-j
-c                    if(num.gt.NINLINE) num=NINLINE
-c                    write(fmt,'(A,I2,A,I2,A,A)')
-c     &                       '(',NINLINE,'E',NBYTES,'.4',')'
-c                    write(line, fmt) (WipOut(j-1+ij),ij=1,num)
-c                    call printline(LID,line,NINLINE*NBYTES,0)
-c                  enddo
+! debug dump of data
+!
+!                  do j=1,mCoor,NINLINE
+!                    num=mCoor-j
+!                    if(num.gt.NINLINE) num=NINLINE
+!                    write(fmt,'(A,I2,A,I2,A,A)')
+!     &                       '(',NINLINE,'E',NBYTES,'.4',')'
+!                    write(line, fmt) (WipOut(j-1+ij),ij=1,num)
+!                    call printline(LID,line,NINLINE*NBYTES,0)
+!                  enddo
 !                else
 !c PACKING NOT implemented
 !C                  open(unit=38, file='testgr_'//cint//'.txt')
@@ -783,14 +783,14 @@ c                  enddo
 !
 !                endif !imoPack
                else!isCutOff
-C writing of data
-                  write (LuVal,'(E10.4)')
-     *                      (WipOut(j),j=1,mCoor)
+! writing of data
+                  write (LuVal,'(E10.4)')                               &
+     &                      (WipOut(j),j=1,mCoor)
                endif !isCutOff, isLuscus
               else !isDebug
-c extended output -
-                write (LuVal,'(E10.4,3f8.4)')
-     *       (WipOut(j),WCoor(1,j), WCoor(2,j), Wcoor(3,j) ,j=1,mCoor)
+! extended output -
+                write (LuVal,'(E10.4,3f8.4)')                           &
+     &       (WipOut(j),WCoor(1,j), WCoor(2,j), Wcoor(3,j) ,j=1,mCoor)
               endif !isDebug
             endif !isBinary
 !          endif !imoPack
@@ -798,51 +798,51 @@ c extended output -
         j=iWipGRef(i)
 
         if(isEner.eq.1) then
-          if(.not.(0.eq.1.and.
-     >       WipOcc(j).gt.0d0.and.WipOcc(j).lt.2d0))then
+          if(.not.(0.eq.1.and.                                          &
+     &       WipOcc(j).gt.0d0.and.WipOcc(j).lt.2d0))then
             ib=iWipType(j)
             bb=' '
             if(ib.gt.0.and.ib.lt.8) bb=Crypt(ib:ib)
-            if(iRun.eq.1.and.iPrintCount.eq.1)
-     *      write(6,'(a,i2,i5,f12.4,'' ('',f4.2,'') '',a)')
-     *            'GridName= ',
-     *            iWipNZ(j),iWipNZ(j+nMOs),
-     *            WipE(j),WipOcc(j),bb
+            if(iRun.eq.1.and.iPrintCount.eq.1)                          &
+     &      write(6,'(a,i2,i5,f12.4,'' ('',f4.2,'') '',a)')             &
+     &            'GridName= ',                                         &
+     &            iWipNZ(j),iWipNZ(j+nMOs),                             &
+     &            WipE(j),WipOcc(j),bb
           else
-c            iActOrb=iActOrb+1
-            if(iRun.eq.1.and.iPrintCount.eq.1)
-     *      write(6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ',
-     *            'VB orbital',iActOrb,' (',VBocc,')'
+!            iActOrb=iActOrb+1
+            if(iRun.eq.1.and.iPrintCount.eq.1)                          &
+     &      write(6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ',                &
+     &            'VB orbital',iActOrb,' (',VBocc,')'
           endif
         else
-          if(.not.(0.eq.1.and.
-     >       WipOcc(j).gt.0d0.and.WipOcc(j).lt.2d0))then
+          if(.not.(0.eq.1.and.                                          &
+     &       WipOcc(j).gt.0d0.and.WipOcc(j).lt.2d0))then
             ib=iWipType(j)
             bb=' '
             if(ib.gt.0.and.ib.lt.8) bb=Crypt(ib:ib)
-            if(iRun.eq.1.and.iPrintCount.eq.1)
-     *      write(6,'(a,i2,i5,'' ('',f8.6,'') '',a)')
-     *            'GridName= ',
-     *            iWipNZ(j),iWipNZ(j+nMOs),
-     *            WipOcc(j),bb
+            if(iRun.eq.1.and.iPrintCount.eq.1)                          &
+     &      write(6,'(a,i2,i5,'' ('',f8.6,'') '',a)')                   &
+     &            'GridName= ',                                         &
+     &            iWipNZ(j),iWipNZ(j+nMOs),                             &
+     &            WipOcc(j),bb
           else
-c            iActOrb=iActOrb+1
-            if(iRun.eq.1.and.iPrintCount.eq.1)
-     *      write(6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ',
-     *            'VB orbital',iActOrb,' (',VBocc,')'
+!            iActOrb=iActOrb+1
+            if(iRun.eq.1.and.iPrintCount.eq.1)                          &
+     &      write(6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ',                &
+     &            'VB orbital',iActOrb,' (',VBocc,')'
           endif
         endif
 3939      continue
         enddo
 
         if(isSphere.eq.1) then
-CVV FIXME: no packing.
+!VV FIXME: no packing.
             write (line,'(a,i4)') 'Title= ',-1
             call PrintLine(LuVal,line,12,1)
           if(isBinary.eq.0) then
            do j=1,mCoor
-              write (LuVal,'(E18.12)')
-     *        SphrDist(j)
+              write (LuVal,'(E18.12)')                                  &
+     &        SphrDist(j)
            enddo
           else
               write(LuVal) (SphrDist(j),j=1,mCoor)
@@ -850,13 +850,13 @@ CVV FIXME: no packing.
         endif
 
         if(isColor.eq.1) then
-CVV FIXME: no packing.
+!VV FIXME: no packing.
             write (line,'(a,i4)') 'Title= ',-10
             call PrintLine(LuVal,line,12,1)
           if(isBinary.eq.0) then
            do j=1,mCoor
-              write (LuVal,'(E18.12)')
-     *        SphrColor(j)
+              write (LuVal,'(E18.12)')                                  &
+     &        SphrColor(j)
            enddo
           else
               write(LuVal) (SphrColor(j),j=1,mCoor)
@@ -864,14 +864,14 @@ CVV FIXME: no packing.
         endif
 
         if(isDensity.eq.1) then
-          call outmo(0,2,WipMO,WipOcc,WipOut,
-     >               mCoor,nMOs)
+          call outmo(0,2,WipMO,WipOcc,WipOut,                           &
+     &               mCoor,nMOs)
           do j=1, mCoor
             dNorm=dNorm+WipOut(j)
           enddo
-*****
-c          write(6,*) " mCoor=",mCoor
-*****
+!****
+!          write(6,*) " mCoor=",mCoor
+!****
           if(isLine.eq.0.and.IsLuscus.eq.0) then
             write (line,'(a,i4)') 'Title= ',0
             call PrintLine(LuVal,line,12,1)
@@ -914,7 +914,7 @@ c          write(6,*) " mCoor=",mCoor
                Endif
 
             if (isBinary .eq. 1) then
-c packing late
+! packing late
               if(isCutOff.eq.1) then
                 Call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
                 call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
@@ -938,18 +938,18 @@ c packing late
             END IF
             Call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
            else
-c no cut off
-C              IF (ISLUSCUS .EQ. 1) THEN
-C                 call dump_lusc(LID, WipOut,mCoor)
-C           print *,'here'
-c                RC=C_WRITE(LID, WIPOUT, MCOOR*RTOB) !!!!!!!!!!!!!!!!!!!!check MCOOR
-c                IF (RC .EQ. 0) THEN
-c                  WRITE(6,*) 'error in writing luscus file!'
-c                  CALL Abend()
-c                END IF
-C              ELSE
+! no cut off
+!              IF (ISLUSCUS .EQ. 1) THEN
+!                 call dump_lusc(LID, WipOut,mCoor)
+!           print *,'here'
+!                RC=C_WRITE(LID, WIPOUT, MCOOR*RTOB) !!!!!!!!!!!!!!!!!!!!check MCOOR
+!                IF (RC .EQ. 0) THEN
+!                  WRITE(6,*) 'error in writing luscus file!'
+!                  CALL Abend()
+!                END IF
+!              ELSE
                  write (LuVal) (WipOut(j),j=1,mCoor)
-C              END IF
+!              END IF
             endif
             else
 
@@ -959,40 +959,40 @@ C              END IF
                 enddo
                else
                  if (isDebug.eq.0) then
-c normal output - just numbers
+! normal output - just numbers
             if(isCutOff.eq.1) then
               do j=1,mCoor
-                if(iWipCutOff(j).eq.1)
+                if(iWipCutOff(j).eq.1)                                  &
      &            write (LuVal, '(E18.12)') WipOut(j)
               enddo
              else
 
-              if(ISLUSCUS.eq.0)
+              if(ISLUSCUS.eq.0)                                         &
      &              write (LuVal,'(E18.12)') (WipOut(j),j=1,mCoor)
               endif
                  else
-c extra output -
-              if(ISLUSCUS.eq.0) write (LuVal,'(E18.12,3f8.4)')
+! extra output -
+              if(ISLUSCUS.eq.0) write (LuVal,'(E18.12,3f8.4)')          &
      &       (WipOut(j),WCoor(1,j), WCoor(2,j), Wcoor(3,j) ,j=1,mCoor)
                  endif
 
                endif
-CGG This is only for testing CASDFT functional. It will be restore.
-CGG              write (LuVal,'(E10.4)') (Work(j),j=ipOut,ipOut+mCoor-1)
+!GG This is only for testing CASDFT functional. It will be restore.
+!GG              write (LuVal,'(E10.4)') (Work(j),j=ipOut,ipOut+mCoor-1)
             endif
           endif
 !        endif
 
       if(isLine.eq.1.and.ISLUSCUS.eq.0) then
        do i=1,mCoor
-        write(LuVal,'(3F10.6,22E20.12)')
-     *  (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
+        write(LuVal,'(3F10.6,22E20.12)')                                &
+     &  (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
        enddo
       endif
 
-*
+!
       Return
-* Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(imoPack)
          Call Unused_integer_array(iWipPBlock)
