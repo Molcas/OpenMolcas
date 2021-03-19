@@ -95,9 +95,23 @@
       Real*8, Allocatable :: Dchk(:)
 
       Real*8, Pointer :: VJ(:)=>Null(), LrJs(:,:,:)=>Null(),
-     &                    XkJs(:,:,:)=>Null(), XdJb(:,:,:)=>Null(),
-     &                    XgJk(:,:,:)=>Null()
-
+     &                    XkJs(:)=>Null(), XdJb(:)=>Null(),
+     &                    XgJk(:)=>Null()
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        subroutine dgemv_(TRANS,M,N,ALPHA,A,LDA,X,INCX,BETA,Y,INCY)
+          Character(LEN=1) TRANS
+          Integer M, N
+          Real*8 ALPHA, BETA
+          Integer LDA, INCX, INCY
+          Real*8  A(lda,*), X(*), Y(*)
+        End subroutine dgemv_
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -457,7 +471,7 @@ C              -----------------------------------
                ISMSQ = ISTSQ(ISYMR) + ipMSQ(jDen)
                NK = kOcc(iSymr)
 
-               XkJs(1:NK,1:NumV,1:nr) => Wab%A0(1:NK*NumV*nr)
+               XkJs(1:NK*NumV*nr) => Wab%A0(1:NK*NumV*nr)
 
                CALL DGEMM_('T','N',
      &               NK,NUMV*NBAS(ISYMR),NBAS(iSYMR),
@@ -480,10 +494,11 @@ c *** Compute only the LT part of the exchange matrix ***************
                DO jS=1,NBAS(iSymS)
                      NBL = NBAS(iSymR) - (jS-1)
                      ipF = ISFSQ + NBAS(iSymR)*(jS-1) + (jS-1)
+                     jjS = 1 + LKV*(jS-1)
 
                      CALL DGEMV_('T',LKV,NBL,
-     &                    -FactX(jDen),XkJs(1,1,jS),LKV,
-     &                                 XkJs(1,1,jS),1,
+     &                    -FactX(jDen),XkJs(jjS:),LKV,
+     &                                 XkJs(jjS:),1,
      &                     ONE,Work(ipF),1)
 
                END DO
@@ -593,7 +608,7 @@ C --- F(a,b) = - D(g,d) * (ad|gb)
 C -------------------------------
                NK = kOcc(iSymG)
 
-               XdJb(1:NK,1:NumV,1:nb) => Wab%A0(1:NK*NumV*nb)
+               XdJb(1:NK*NumV*nb) => Wab%A0(1:NK*NumV*nb)
 
                if(NK.ne.0)then
 
@@ -627,10 +642,11 @@ c *** Compute only the LT part of the exchange matrix ***************
                DO jB=1,NBAS(iSymB)
                      NBL = NBAS(iSymA) - (jB-1)
                      ipF = ISFSQ + NBAS(iSymA)*(jB-1) + (jB-1)
+                     jjB = 1 + LKV*(jB-1)
 
                      CALL DGEMV_('T',LKV,NBL,
-     &                    -FactX(jDen),XdJb(1,1,jB),LKV,
-     &                                 XdJb(1,1,jB),1,
+     &                    -FactX(jDen),XdJb(jjB:),LKV,
+     &                                 XdJb(jjB:),1,
      &                             ONE,Work(ipF),1)
 
                END DO
@@ -652,7 +668,7 @@ C -------------------------------
                ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
                ISMSQ = ISTSQ(ISYMB) + ipMSQ(jDen)
 
-               XgJk(1:ng,1:NumV,1:NK) => Wab%A0(1:ng*NumV*NK)
+               XgJk(1:ng*NumV*NK) => Wab%A0(1:ng*NumV*NK)
 
 C              Calculate intermediate:
 C              X(gJ,k) = Sum(a) L(gJ,a) * C(a,k).
@@ -682,8 +698,8 @@ c *** Compute only the LT part of the exchange matrix ***************
                      ipF = ISFSQ + NBAS(iSymG)*(jD-1) + (jD-1)
 
                      CALL DGEMV_('N',NBL,LVK,
-     &                    -FactX(jDen),XgJk(jD,1,1),NBAS(iSymG),
-     &                                 XgJk(jD,1,1),NBAS(iSymD),
+     &                    -FactX(jDen),XgJk(jD:),NBAS(iSymG),
+     &                                 XgJk(jD:),NBAS(iSymD),
      &                             ONE,Work(ipF),1)
                END DO
 
