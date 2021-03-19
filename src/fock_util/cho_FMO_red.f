@@ -250,8 +250,6 @@ C *************** BATCHING  *****************
          Wab%nSym=nSym
          Wab%iCase=7
 
-         kWab = ip_of_Work(Wab%A0(1))
-
 c--- setup the skipping flags according to # of Occupied
       do k=1,nSym
          iSkip(k)=0

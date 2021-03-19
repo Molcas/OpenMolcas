@@ -214,8 +214,6 @@ C --- Allocate memory for reading the vectors
          Wab%nSym=nSym
          Wab%iCase=7
 
-         kWab=ip_of_Work(Wab%A0(1))
-
 c--- setup the skipping flags according to # Occupied
       do k=1,nSym
          iSkip(k)=0
@@ -295,7 +293,7 @@ C --- Reading of the vectors is done in Reduced sets
 
 #ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
-       write(6,*) 'Total allocated :     ',kTOT,' at ',kWab
+       write(6,*) 'Total allocated :     ',kTOT
        write(6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
        write(6,*) 'lScr:                 ',lScr
        write(6,*) 'JSYM:                 ',jSym
@@ -390,8 +388,6 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
              LrJs(1:nr,1:NUMV,1:nr) => Wab%A0(iE+1:iE+nr*NUMV*nr)
 
              Do JVEC=1,NUMV
-
-                iVR = NBAS(iSymr)*(JVEC-1)
 
                 Do jR=1,NBAS(iSymr)
                    Do jS=jR,NBAS(iSymr)
