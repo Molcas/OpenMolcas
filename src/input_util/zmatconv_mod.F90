@@ -16,17 +16,16 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: MaxAtoms = 256
-#include "periodic_table.fh"
-character(len=48) :: Base(Num_Elem)      ! Base: Basis Set string
-logical(kind=iwp) :: BasAva(Num_Elem), & ! Atom with available Basis Set
-                     BasReq(Num_Elem)    ! Atom requiring Basis Set
-character(len=5) :: Symbols(MaxAtoms)    ! Atomic symbol with index. (C12 or Hn)
-integer(kind=iwp) :: NAT(MaxAtoms), &    ! Atomic number
-                     iZmat(3,MaxAtoms)   ! Z-Mat indices
-real(kind=wp) :: ZMat(3,MaxAtoms), &     ! Z-Mat coordinates
-                 Coords(3,MaxAtoms)      ! Atomic coordinates
+integer(kind=iwp), parameter :: MaxAtoms = 1000
+character(len=48), allocatable :: Base(:)      ! Base: Basis Set string
+logical(kind=iwp), allocatable :: BasAva(:), & ! Atom with available Basis Set
+                                  BasReq(:)    ! Atom requiring Basis Set
+integer(kind=iwp), allocatable :: NAT(:), &    ! Atomic number
+                                  iZmat(:,:)   ! Z-Mat indices
+real(kind=wp), allocatable :: Zmat(:,:), &     ! Z-Mat coordinates
+                              Coords(:,:)      ! Atomic coordinates
+character(len=5), allocatable :: Symbols(:)    ! Atomic symbol with index. (C12 or Hn)
 
-public :: PTab, Base, BasAva, BasReq, Symbols, NAT, iZmat, ZMat, Coords
+public :: Base, BasAva, BasReq, Symbols, MaxAtoms, NAT, iZmat, Zmat, Coords
 
 end module ZMatConv_Mod

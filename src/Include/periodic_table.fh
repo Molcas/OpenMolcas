@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+! DEPRECATED: use the isotopes module
+
       Integer Num_Elem
       Parameter (Num_Elem=118)
       Character*2 PTab(0:Num_Elem)

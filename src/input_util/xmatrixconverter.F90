@@ -18,7 +18,9 @@ subroutine XMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_lab
 ! This is an adaptation of GG Program ZMatrixConverter                 *
 !***********************************************************************
 
-use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, NAT, Symbols, Zmat
+use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, MaxAtoms, NAT, Symbols, Zmat
+use isotopes, only: MaxAtomNum
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -33,7 +35,7 @@ real(kind=wp) :: r
 logical(kind=iwp) :: IfTest, ineedfix
 character(len=180) :: aDebug
 character(len=12) :: Angstring
-character(len=5) :: ll
+character(len=len(Symbols)) :: ll
 character(len=4) :: lll
 
 #ifdef _DEBUGPRINT_
@@ -48,8 +50,7 @@ IfTest = .false.
 !  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input
 
 ! nAtoms : nr. of atoms passed to SEWARD (includes X dummy atoms).
-! nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed
-!          by OutZMat in SLAPAF).
+! nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed by OutZMat in SLAPAF).
 ! nBase  : number of BasisSets found in input.
 ! Base(i): BasisSet for atom with Atomic Number -i-.
 ! BasAva(i) & BasReq(i): Logical to check BasisSet-consistency.
@@ -59,13 +60,22 @@ nAtoms = 0
 nXAtoms = 0
 nBase = 0
 lSTDINP = 0
-Base(:) = ' '
-BasAva(:) = .false.
-BasReq(:) = .false.
-Coords(:,:) = Zero
 nBasis = 0
 iErr = 0
 Angstring = '  / Angstrom'
+
+call mma_allocate(Base,MaxAtomNum,label='Base')
+call mma_allocate(BasAva,MaxAtomNum,label='BasAva')
+call mma_allocate(BasReq,MaxAtomNum,label='BasReq')
+call mma_allocate(NAT,MaxAtoms,label='NAT')
+call mma_allocate(Symbols,MaxAtoms,label='Symbols')
+call mma_allocate(Zmat,3,MaxAtoms,label='Zmat')
+Base(:) = ''
+BasAva(:) = .false.
+BasReq(:) = .false.
+NAT(:) = 0
+Symbols(:) = ''
+Zmat(:,:) = Zero
 
 ! Reading input
 call BasisReader(LuWr,nBase,iglobal,nxbas,xb_label,xb_bas,iErr)
@@ -95,29 +105,33 @@ if (iErr /= 0) then
   return
 end if
 
+call mma_allocate(Coords,3,nAtoms+nXAtoms,label='Coords')
+Coords(:,:) = Zmat(:,1:nAtoms+nXAtoms)
+
 ! Some checks
 if (nBase == 0) then
+  iErr = 1
   write(LuWr,*) 'ERROR: No basis set specified !'
   return
 end if
 if (nAtoms == 0) then
+  iErr = 1
   write(LuWr,*) 'ERROR: No atom coordinates specified !'
   return
 end if
 if (nBase < nBasis) then
+  iErr = 1
   write(LuWr,*) 'ERROR: Wrong number of basis sets !'
   write(LuWr,*) '       Available=',nBase,'  Required=',nBasis
   return
 end if
 call BasisConsistency(LuWr,iErr)
 if (iErr /= 0) then
+  iErr = 1
   write(LuWr,*) 'ERROR: Basis set inconsistency !'
   return
 end if
 call Put_iScalar('N ZMAT',0)
-do i=1,nAtoms+nXAtoms
-  Coords(:,i) = Zmat(:,i)
-end do
 
 if (IfTest) then
   write(LuWr,*)
@@ -139,6 +153,7 @@ do i=1,nAtoms+nXAtoms
           r = r+(Coords(k,i)-Coords(k,j))**2
         end do
         if (r < 1.0e-4_wp) then
+          iErr = 1
           write(LuWr,*) ' ERROR: Superimposed atoms: ',i,j,'  r=',sqrt(r)
           return
         end if
@@ -179,12 +194,12 @@ do i=1,nAtoms+nXAtoms
   ll = Symbols(i)
   write(lll,'(i4)') i
   ineedfix = .true.
-  do i5=1,5
+  do i5=1,len(ll)
     if (index('0123456789',ll(i5:i5)) /= 0) ineedfix = .false.
   end do
   if (ineedfix) then
     i5 = index(ll,' ')
-    do i4=1,4
+    do i4=1,len(lll)
       if (lll(i4:i4) /= ' ') then
         ll(i5:i5) = lll(i4:i4)
         i5 = i5+1
@@ -206,6 +221,14 @@ if (IfTest) then
   end do
   write(LuWr,*)
 end if
+
+call mma_deallocate(Base)
+call mma_deallocate(BasAva)
+call mma_deallocate(BasReq)
+call mma_deallocate(NAT)
+call mma_deallocate(Symbols)
+call mma_deallocate(Zmat)
+call mma_deallocate(Coords)
 
 return
 

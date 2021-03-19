@@ -50,13 +50,12 @@
       Implicit Integer (i-n)
 #include "stdalloc.fh"
 #include "angstr.fh"
-      Character(LEN=5) Symbols(N_ZMAT)   ! Obs: Restricted record
-      Integer NAT(N_ZMAT)                ! Obs: Restricted record
-      Integer, Allocatable :: iZmat(:,:) ! Obs: Full record
-      Integer N_IZMAT
+      Character(LEN=5) Symbols(N_ZMAT)
+      Integer NAT(N_ZMAT)
+      Integer, Allocatable :: iZmat(:,:)
       Real*8 XYZCoords(3,nAtoms), ZMATCoords(3,N_ZMAT), ZMAT(N_ZMAT,3)
       Real*8 CTX(3,4), Bt(3,4), dBt(3,4,3,4)
-      Logical IfTest, Found
+      Logical IfTest
       Character(LEN=8) Label
       Real*8, Parameter :: ThrsTrasl=1.0d0  ! Threshold for warning
 *
@@ -73,10 +72,8 @@
       Call dZero(ZMAT,N_ZMAT*3)
       Call dZero(ZMATCoords,N_ZMAT*3)
       Call Get_cArray('Symbol ZMAT',Symbols,N_ZMAT*5)
-      Call Qpg_iArray('Index ZMAT',Found,N_IZMAT)
-      N_IZMAT = N_IZMAT/3
-      Call mma_allocate(iZmat,3,N_IZMAT,label='iZmat')
-      Call Get_iArray('Index ZMAT',iZmat,N_IZMAT*3)
+      Call mma_allocate(iZmat,3,N_ZMAT,label='iZmat')
+      Call Get_iArray('Index ZMAT',iZmat,N_ZMAT*3)
       Call Get_iArray('NAT ZMAT',NAT,N_ZMAT)
 
       If (IfTest) then

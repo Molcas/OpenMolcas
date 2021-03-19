@@ -11,7 +11,8 @@
 
 subroutine BasisReader(LuWr,nBase,iglobal,nxbas,xb_label,xb_bas,iErr)
 
-use ZMatConv_Mod, only: BasAva, Base, PTab
+use ZMatConv_Mod, only: BasAva, Base
+use isotopes, only: MaxAtomNum, PTab
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,7 +22,7 @@ integer(kind=iwp), intent(inout) :: nxbas
 character(len=*), intent(in) :: xb_label(*), xb_bas(*)
 integer(kind=iwp) :: i, icount
 logical(kind=iwp) :: Found
-character(len=48) :: Line, TMP
+character(len=len(Base)) :: Line
 character(len=2) :: SimbA
 
 iErr = 0
@@ -39,7 +40,7 @@ do
   Found = .false.
   SimbA = Line(1:2)
   if (SimbA(2:2) == '.') SimbA(2:2) = ' '
-  do i=1,size(PTab)
+  do i=1,MaxAtomNum
     if ((SimbA(1:1) <= 'z') .and. (SimbA(1:1) >= 'a')) SimbA(1:1) = char(ichar(SimbA(1:1))-32)
     if ((SimbA(2:2) <= 'Z') .and. (SimbA(2:2) >= 'A')) SimbA(2:2) = char(ichar(SimbA(2:2))+32)
 
@@ -51,10 +52,7 @@ do
     else if (iglobal == 1) then
       Base(i) = Line
       Base(i)(1:2) = adjustl(PTab(i))
-      if (Base(i)(2:2) == ' ') then
-        TMP = Base(i)(3:)
-        Base(i)(2:) = TMP(1:47)
-      end if
+      if (Base(i)(2:2) == ' ') Base(i) = Base(i)(1:1)//Base(i)(3:)
       BasAva(i) = .true.
       Found = .true.
       nBase = nBase+1

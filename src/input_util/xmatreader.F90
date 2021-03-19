@@ -18,7 +18,7 @@ subroutine XMatReader(iZMUnit,LuWr,nAtoms,nXAtoms,nBasis,nAskAtoms,nxbas,xb_labe
 !  ***  nAskAtoms == -1  =>  Seward ZMAT input  => Use "End of"
 !  ***  nAskAtoms /= -1  =>  GateWay ZMAT input => Use nAskAtoms
 
-use ZMatConv_Mod, only: BasReq, iZmat, NAT, Symbols, Zmat
+use ZMatConv_Mod, only: BasReq, NAT, Symbols, Zmat
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -42,11 +42,6 @@ iErr = 0
 nAtoms = 0
 nXAtoms = 0
 nBasis = 0
-BasReq(:) = .false.
-Symbols(:) = ''
-NAT(:) = 0
-iZmat(:,:) = 0
-Zmat(:,:) = Zero
 
 ! Read Line (or COMMAND)
 Skip = .false.
@@ -109,6 +104,12 @@ if (.not. Skip) then
     end if
     if (NAtom >= 0) nAtoms = nAtoms+1
     if (NAtom == -1) nXAtoms = nXAtoms+1
+    if (nAtoms+nXAtoms > size(NAT)) then
+      iErr = 1
+      write(LuWr,*) ' [XMatReader]: Too many atoms'
+      write(LuWr,*) '               ',Line
+      return
+    end if
     NAT(nAtoms+nXAtoms) = NAtom
     Symbols(nAtoms+nXAtoms) = trim(Words(1))
     if (NAtom > 0) BasReq(NAtom) = .true.

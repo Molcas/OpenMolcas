@@ -11,7 +11,7 @@
 
 subroutine FoundAtomicNumber(LuWr,Symb,NAT,iErr)
 
-use ZMatConv_Mod, only: PTab
+use isotopes, only: MaxAtomNum, PTab
 use Definitions, only: iwp
 
 implicit none
@@ -24,15 +24,15 @@ if ((Symb(1:1) <= 'z') .and. (Symb(1:1) >= 'a')) Symb(1:1) = char(ichar(Symb(1:1
 if ((Symb(2:2) <= 'Z') .and. (Symb(2:2) >= 'A')) Symb(2:2) = char(ichar(Symb(2:2))+32)
 iErr = 1
 
-do i=1,size(PTab)
+do i=1,MaxAtomNum
   if (Symb(1:2) == adjustl(PTab(i))) then
     iErr = 0
     NAT = i
     return
   end if
 end do
-do i=1,size(PTab)
-  if (Symb(1:1)//' ' == adjustl(PTab(i))) then
+do i=1,MaxAtomNum
+  if (' '//Symb(1:1) == PTab(i)) then
     iErr = 0
     NAT = i
     return

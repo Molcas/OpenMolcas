@@ -34,11 +34,6 @@ iErr = 0
 nAtoms = 0
 nXAtoms = 0
 nBasis = 0
-BasReq(:) = .false.
-Symbols(:) = ''
-NAT(:) = 0
-iZmat(:,:) = 0
-Zmat(:,:) = Zero
 
 do
   ! Read Line (or COMMAND)
@@ -72,6 +67,10 @@ do
   end if
   if (NAtom >= 0) nAtoms = nAtoms+1
   if (NAtom == -1) nXAtoms = nXAtoms+1
+  if (nAtoms+nXAtoms > size(NAT)) then
+    call error(7)
+    return
+  end if
   NAT(nAtoms+nXAtoms) = NAtom
   Symbols(nAtoms+nXAtoms) = trim(Words(1))
   if (NAtom > 0) BasReq(NAtom) = .true.
@@ -191,6 +190,8 @@ subroutine error(code)
       write(LuWr,*) ' [ZMatReader]: Z-Matrix incomplete in line'
     case (6)
       write(LuWr,*) ' [ZMatReader]: Error in line'
+    case (7)
+      write(LuWr,*) ' [ZMatReader]: Too many atoms'
     case default
   end select
   write(LuWr,*) '               ',Line
