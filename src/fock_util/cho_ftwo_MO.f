@@ -60,12 +60,12 @@
 *                 a single Cholesky vector in full storage
 *
 ************************************************************************
-      use Data_Structures, only: SBA_Type, Deallocate_SBA, Map_to_SBA
+      use Data_Structures, only: SBA_Type, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen,nSym,nBas(nSym),NumCho(nSym),kOcc(nSym)
       Real*8    FactC(nDen),FactX(nDen)
-      Integer   Lunit,KSQ1(nSym),ISTSQ(nSym),ISTLT(nSym),lOff1
+      Integer   Lunit,ISTSQ(nSym),ISTLT(nSym),lOff1
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(nSym),iSkip(nSym)
       Real*8    tread(2),tcoul(2),texch(2)
@@ -90,12 +90,13 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Type (SBA_Type) , Target:: Wab
+      Type (SBA_Type) , Target:: Wab, LqJs
 
       Real*8, Allocatable :: Dchk(:)
 
       Real*8, Pointer :: VJ(:)=>Null(), LrJs(:,:,:)=>Null(),
-     &                    XkJs(:,:,:)=>Null()
+     &                    XkJs(:,:,:)=>Null(), XdJb(:,:,:)=>Null(),
+     &                    XgJk(:,:,:)=>Null()
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -189,7 +190,6 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *****************
          If (NumCho(jSym).lt.1) Cycle
 
 C --- Reading of the vectors is done in the full dimension
-         KSQ1(:)=-666
          Lunit(:) = -1
 
 C Open Files
@@ -258,8 +258,6 @@ C --- Allocate memory for reading the vectors
          Wab%nSym=nSym
          Wab%iCase=7
 
-         kWab = ip_of_Work(Wab%A0(1))
-
 c--- setup the skipping flags according to # of Occupied
       do k=1,nSym
          iSkip(k)=0
@@ -285,8 +283,6 @@ C Max dimension of a symmetry block
 
        iE=0
        Do ksym=1,nSym
-
-         kSab = kWab + iE
 
          iSymp=MulD2h(ksym,jSym)
 
@@ -316,8 +312,6 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
 
        End Do ! ends the loop over symmetries
 
-       Call Map_to_SBA(Wab,KSQ1)
-
        Do kSym = 1, nSym
          iSymp=MulD2h(ksym,jSym)
          If (.NOT.Associated(Wab%SB(iSymp)%A2)) Cycle
@@ -330,15 +324,10 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
        tread(1) = tread(1) + (TCR2 - TCR1)
        tread(2) = tread(2) + (TWR2 - TWR1)
 
-
-       kLab = kWab + iE  ! pointer to the scratch space
-
 #ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of ',nBatch,': NumV = ',NumV
-       write(6,*) 'Total allocated:     ',kRdMem,' at ',kWab
-       write(6,*) 'Memory pointers KSQ1:',(KSQ1(i),i=1,nSym)
+       write(6,*) 'Total allocated:     ',kRdMem
        write(6,*) 'iE:              ',iE
-       write(6,*) 'kLab:                ',kLab
        write(6,*) 'JSYM:                ',jSym
 #endif
 
@@ -481,8 +470,6 @@ C              F(r,s) = F(r,s) - FactX * Sum(kJ) X(kJ,r) * X(kJ,s).
 C              ----------------------------------------------------
 c               CALL DGEMM_('T','N',
 c     &                NBAS(ISYMR),NBAS(ISYMS),NK*NUMV,
-c     &             -FactX(jDen),WORK(KWab),NK*NUMV,
-c     &                          WORK(kWab),NK*NUMV,
 c     &             -FactX(jDen),XkJs,NK*NUMV,
 c     &                          XkJs,NK*NUMV,
 c     &                      One,Work(ISFSQ),NBAS(ISYMR))
@@ -538,41 +525,33 @@ C     CHOVEC(nq,ns,numv) ---> CHOVEC(nq,numv,ns)
 C     ------------------------------------------
             CALL CWTIME(TCREO3,TWREO3)
 
-            KQS1=0
-            KQS2=0
+            jE = iE
             DO ISYMS = 1,NSYM
 
-                  ISYMQ = MULD2H(ISYMS,JSYM)
+               ISYMQ = MULD2H(ISYMS,JSYM)
 
-            IF(nBas(iSyms)*nBas(iSymq).ne.0)THEN
+            ns=nBas(iSyms)
+            nq=nBas(iSymq)
+            IF(ns*nq<=0) Cycle
 
              IF (ISYMQ.gt.ISYMS .and. iSkip(iSymq).ne.0) THEN
 
-                  KQS1 = KSQ1(ISYMQ)
-                  KQS2 = kLab + (KQS1 - kWab)
+                  jS = JE + 1
+                  jE = JE + nq*NumV*ns
+                  LqJs%SB(ISYMQ)%A3(1:nq,1:NumV,1:ns) => Wab%A0(jS:jE)
 
-              KOFF1=0
-              KOFF2=0
               DO JVEC = 1,NUMV
 
                 DO jS=1,NBAS(iSyms)
 
-                   KOFF1 = KQS1 + NBAS(iSymq)*NBAS(iSyms)*(JVEC-1)
-     &                   + NBAS(iSymq)*(jS-1)
-
-                   KOFF2 = KQS2 + NBAS(iSymq)*NUMV*(jS-1)
-     &                   + NBAS(iSymq)*(JVEC-1)
-
-                  CALL DCOPY_(NBAS(iSymq),Wab%SB(ISYMQ)%A3(:,jS,jVEC),1,
-     &                                     Work(KOFF2),1)
+                  LqJs%SB(ISYMQ)%A3(:,jVec,jS) =
+     &               Wab%SB(ISYMQ)%A3(:,jS,jVEC)
 
                 END DO
 
               END DO   !loop over the vectors
 
              END IF  ! sym(Q) > sym(S)
-
-            END IF
 
             END DO  !loop over symmetry blocks
 
@@ -598,21 +577,23 @@ C --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
 
                ISYMB = MULD2H(ISYMG,JSYM)
 
-            IF(nBas(iSymb)*nBas(iSymg).ne.0)THEN
-
-               KQS1 = kWab   !mem used to store the intermediate
+            nb=nBas(iSymb)
+            ng=nBas(iSymg)
+            IF(nb*ng<=0) Cycle
 
                ISYMA = ISYMB     !block diagonal Fock Matrix
                ISYMD = ISYMG     !total symmetric densities
 
-             IF (ISYMG.gt.ISYMB .and. iSkip(iSymg).ne.0) THEN
+               nd=ng
 
-               KQS2 = kLab + (KSQ1(ISYMG) - kWab)
+             IF (ISYMG.gt.ISYMB .and. iSkip(iSymg).ne.0) THEN
 
 C -------------------------------
 C --- F(a,b) = - D(g,d) * (ad|gb)
 C -------------------------------
                NK = kOcc(iSymG)
+
+               XdJb(1:NK,1:NumV,1:nb) => Wab%A0(1:NK*NumV*nb)
 
                if(NK.ne.0)then
 
@@ -626,8 +607,9 @@ C              ----------------------------------
 
                CALL DGEMM_('T','N',
      &                    NK,NUMV*NBAS(ISYMB),NBAS(ISYMG),
-     &                    ONE,Work(ISMSQ),NBAS(ISYMG),Work(KQS2),
-     &                    NBAS(ISYMG),ZERO,WORK(KQS1),NK)
+     &                    ONE,Work(ISMSQ),NBAS(ISYMG),
+     &                        LqJs%SB(ISYMG)%A3,NBAS(ISYMG),
+     &                    ZERO,XdJb,NK)
 
 
 C              F(a,b) = F(a,b) - Sum(kJ) X(kJ,a) * X(kJ,b).
@@ -635,25 +617,24 @@ C              -------------------------------------------
 
 c               CALL DGEMM_('T','N',
 c     &              NBAS(ISYMA),NBAS(ISYMB),NK*NUMV,
-c     &              -FactX(jDen),WORK(KQS1),NK*NUMV,
-c     &                           WORK(KQS1),NK*NUMV,
+c     &              -FactX(jDen),XdJb,NK*NUMV,
+c     &                           XdJb,NK*NUMV,
 c     &                       ONE,Work(ISFSQ),NBAS(ISYMA))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipB=0
                ipF=0
                LKV=NK*NUMV
                DO jB=1,NBAS(iSymB)
-                     ipB = kQS1 + LKV*(jB-1)
                      NBL = NBAS(iSymA) - (jB-1)
                      ipF = ISFSQ + NBAS(iSymA)*(jB-1) + (jB-1)
 
                      CALL DGEMV_('T',LKV,NBL,
-     &                    -FactX(jDen),Work(ipB),LKV,
-     &                                 Work(ipB),1,
+     &                    -FactX(jDen),XdJb(1,1,jB),LKV,
+     &                                 XdJb(1,1,jB),1,
      &                             ONE,Work(ipF),1)
 
                END DO
+               XdJb=>Null()
 c ******************************************************************
 
 c         write(6,*)'Symmetry block of FSQ= ',isyma
@@ -671,15 +652,17 @@ C -------------------------------
                ISFSQ = ISTSQ(ISYMG) + ipFSQ(jDen)
                ISMSQ = ISTSQ(ISYMB) + ipMSQ(jDen)
 
+               XgJk(1:ng,1:NumV,1:NK) => Wab%A0(1:ng*NumV*NK)
+
 C              Calculate intermediate:
 C              X(gJ,k) = Sum(a) L(gJ,a) * C(a,k).
 C              ----------------------------------
 
                CALL DGEMM_('N','N',
      &                  NBAS(ISYMG)*NUMV,NK,NBAS(ISYMA),
-     &                  ONE,Work(KQS2),NBAS(ISYMG)*NUMV,
+     &                  ONE,LqJs%SB(ISYMG)%A3,NBAS(ISYMG)*NUMV,
      &                      WORK(ISMSQ),NBAS(ISYMA),
-     &                  ZERO,WORK(KQS1),NBAS(ISYMG)*NUMV)
+     &                  ZERO,XgJk,NBAS(ISYMG)*NUMV)
 
 
 C              F(g,d) = F(g,d) - Sum(Jk) X(g,Jk) * X(d,Jk).
@@ -687,32 +670,32 @@ C              -------------------------------------------
 
 c               CALL DGEMM_('N','T',
 c     &              NBAS(ISYMG),NBAS(ISYMD),NUMV*NK,
-c     &              -FactX(jDen),WORK(KQS1),NBAS(ISYMG),
-c     &                           WORK(KQS1),NBAS(ISYMD),
+c     &              -FactX(jDen),XgJk,NBAS(ISYMG),
+c     &                           XgJk,NBAS(ISYMD),
 c     &                       ONE,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
                ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)
-                     ipD = kQS1 + (jD-1)
                      NBL = NBAS(iSymG) - (jD-1)
                      ipF = ISFSQ + NBAS(iSymG)*(jD-1) + (jD-1)
 
                      CALL DGEMV_('N',NBL,LVK,
-     &                    -FactX(jDen),Work(ipD),NBAS(iSymG),
-     &                                 Work(ipD),NBAS(iSymD),
+     &                    -FactX(jDen),XgJk(jD,1,1),NBAS(iSymG),
+     &                                 XgJk(jD,1,1),NBAS(iSymD),
      &                             ONE,Work(ipF),1)
                END DO
 
 c         write(6,*)'Symmetry block of FSQ= ',isymg
 c         write(6,*)'Symmetry block of DSQ= ',isyma
 c         call recprt('FSQ','',Work(ISFSQ),NBAS(ISYMG),NBAS(ISYMG))
+               XgJk=>Null()
                endif
 
              ENDIF
+             LqJs%SB(ISYMG)%A3=>Null()
 
-            ENDIF
             END DO  ! loop over orbital symmetries
 
             CALL CWTIME(TC2X2,TW2X2)
