@@ -12,41 +12,40 @@
 !               2000, Valera Veryazov                                  *
 !               2014, Thomas Dresselhaus                               *
 !***********************************************************************
-      Subroutine MOEvalDer(MOValue,iDir,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
+subroutine MOEvalDer(MOValue,iDir,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
-      Implicit Real*8 (A-H,O-Z)
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
-      Real*8 Ccoor(3,nCoor),MOValue(nCoor*nMOs),CMOs(nCMO)
-      Integer DoIt(nMOs),mAO
-      integer nDrv
+real*8 Ccoor(3,nCoor), MOValue(nCoor*nMOs), CMOs(nCMO)
+integer DoIt(nMOs), mAO
+integer nDrv
 
-      mAO  = 4
-      nDrv = 1
+mAO = 4
+nDrv = 1
 
-      Call GetMem('MOTMP','Allo','Real',iMoTmp,4*nCoor*nMOs)
+call GetMem('MOTMP','Allo','Real',iMoTmp,4*nCoor*nMOs)
 
-      Call MOEval(work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
+call MOEval(work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
 ! iDir = 1 then do dX
 ! iDir = 2 then do dY
 ! iDir = 3 then do dZ
-      write(6,*) "iDir:",iDir
-      if(iDir.gt.0.and.iDir.lt.4) then
-        DO I=1,nCoor*nMOs
-          IJ=iDir+1+(I-1)*4
-          MOValue(I)=Work(iMoTmp-1+IJ)
-        END DO
-      else ! do gradient
-        DO I=1,nCoor*nMOs
-          IJX=2+(I-1)*4
-          IJY=3+(I-1)*4
-          IJZ=4+(I-1)*4
-          MOValue(I)=Work(iMoTmp-1+IJX)+                                &
-     &               Work(iMoTmp-1+IJY)+                                &
-     &               Work(iMoTmp-1+IJZ)
-        END DO
-      end if
-      Call GetMem('MOTMP','Free','Real',iMoTmp,4*nCoor*nMOs)
+!write(6,*) 'iDir:',iDir
+if (iDir > 0 .and. iDir < 4) then
+  do I=1,nCoor*nMOs
+    IJ = iDir+1+(I-1)*4
+    MOValue(I) = Work(iMoTmp-1+IJ)
+  end do
+else ! do gradient
+  do I=1,nCoor*nMOs
+    IJX = 2+(I-1)*4
+    IJY = 3+(I-1)*4
+    IJZ = 4+(I-1)*4
+    MOValue(I) = Work(iMoTmp-1+IJX)+Work(iMoTmp-1+IJY)+Work(iMoTmp-1+IJZ)
+  end do
+end if
+call GetMem('MOTMP','Free','Real',iMoTmp,4*nCoor*nMOs)
 
-      Return
-      End
+return
+
+end subroutine MOEvalDer

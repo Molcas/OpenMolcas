@@ -9,8 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !     This should have never been used outside casvb_util
-      Subroutine fmove(ia,ib,n)
-      Real*8 ia(*),ib(*)
-      Integer n
-      Call fmove_cvb(ia,ib,n)
-      End
+
+subroutine fmove(ia,ib,n)
+
+real*8 ia(*), ib(*)
+integer n
+call fmove_cvb(ia,ib,n)
+
+end subroutine fmove

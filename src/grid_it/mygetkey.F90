@@ -36,59 +36,64 @@
 !> @param[in]     N        Size of array
 !> @param[out]    IArr     Integer Array
 !> @param[out]    RArr     Real Array
-      Function MyGetKey(InUnit,What,IValue,RValue,SValue,N,IArr,RArr)
+
+function MyGetKey(InUnit,What,IValue,RValue,SValue,N,IArr,RArr)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      character SValue *(*)
-      Dimension IArr(*), RArr(*)
-      character What
-      character KWord*120
-      MyGetKey=0
-      iptr=1
-      i=1
- 1    Read(InUnit,'(A)',Err=20, end=20) KWord
-      If (KWord(1:1).eq.'*'.or.KWord.eq.' ') Go To 1
-      Call UpCase(KWord)
-        if(What.eq.'I') then
-              Read(KWord,*,Err=20) IValue
-          else
-           if(What.eq.'R') then
-               Read(KWord,*,Err=20) RValue
-             return
-           else
-           if(What.eq.'A') then
-               Read(KWord,*,Err=20, End=40) (IArr(i),i=iptr,N)
-           else
 
-            if(What.eq.'D') then
-               Read(KWord,*,Err=20, End=40) (RArr(i),i=iptr,N)
-            else
+implicit real*8(A-H,O-Z)
+character SValue*(*)
+dimension IArr(*), RArr(*)
+character What
+character KWord*120
 
-            if(What.eq.'S') then
-               Call NoBlanks(SValue, 120, KWord)
-               goto 100
-            else
-             if(What.eq.'U') then
-               Read(KWord,*,Err=2) IValue
-               What='I'
-               Goto 100
-2              Read(KWord,*,Err=3) RValue
-               What='R'
-               Goto 100
-3              Call NoBlanks(SValue, 120, KWord)
-               What='S'
-               Goto 100
-             endif
-            endif
-           endif
-          endif
-         endif
-        endif
-100    return
-40      iptr=i
-        goto 1
-20      MyGetKey=1
-        return
-       end
+MyGetKey = 0
+iptr = 1
+i = 1
+1 read(InUnit,'(A)',Err=20,end=20) KWord
+if (KWord(1:1) == '*' .or. KWord == ' ') Go To 1
+call UpCase(KWord)
+if (What == 'I') then
+  read(KWord,*,Err=20) IValue
+else
+  if (What == 'R') then
+    read(KWord,*,Err=20) RValue
+    return
+  else
+    if (What == 'A') then
+      read(KWord,*,Err=20,end=40) (IArr(i),i=iptr,N)
+    else
+
+      if (What == 'D') then
+        read(KWord,*,Err=20,end=40) (RArr(i),i=iptr,N)
+      else
+
+        if (What == 'S') then
+          call NoBlanks(SValue,120,KWord)
+          goto 100
+        else
+          if (What == 'U') then
+            read(KWord,*,Err=2) IValue
+            What = 'I'
+            goto 100
+2           read(KWord,*,Err=3) RValue
+            What = 'R'
+            goto 100
+3           call NoBlanks(SValue,120,KWord)
+            What = 'S'
+            goto 100
+          end if
+        end if
+      end if
+    end if
+  end if
+end if
+100 return
+40 iptr = i
+goto 1
+20 MyGetKey = 1
+
+return
+
+end function MyGetKey

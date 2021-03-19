@@ -8,13 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRTLUSENDGRID(LUVAL)
+
+subroutine PRTLUSENDGRID(LUVAL)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-      CHARACTER LINE*128
-      WRITE(LINE,'(A)') ' </INPORB>'
-      CALL PRINTLINE(LUVAL, LINE,10,0)
-      WRITE(LINE,'(A)') ' </GRID>'
-      CALL PRINTLINE(LUVAL, LINE,8,0)
-      END
+
+character LINE*128
+
+write(LINE,'(A)') ' </INPORB>'
+call PRINTLINE(LUVAL,LINE,10,0)
+write(LINE,'(A)') ' </GRID>'
+call PRINTLINE(LUVAL,LINE,8,0)
+
+return
+
+end subroutine PRTLUSENDGRID

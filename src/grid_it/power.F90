@@ -8,23 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine power(c,n,ipower)
+subroutine power(c,n,ipower)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-      implicit real*8 (a-h,o-z)
-      dimension c(n)
 
-      if(ipower.eq.1)then
-        return
-      elseif(ipower.eq.2)then
-        do 100 i=1,n
-         c(i)=c(i)*c(i)
-100     continue
-      elseif(ipower.eq.-2)then
-        do 200 i=1,n
-          c(i)=sign(c(i)*c(i),c(i))
-200     continue
-      endif
-      return
-      end
+implicit real*8(a-h,o-z)
+dimension c(n)
+
+if (ipower == 1) then
+  return
+elseif (ipower == 2) then
+  do i=1,n
+    c(i) = c(i)*c(i)
+  end do
+  elseif (ipower == -2) then
+  do i=1,n
+    c(i) = sign(c(i)*c(i),c(i))
+  end do
+end if
+
+return
+
+end subroutine power

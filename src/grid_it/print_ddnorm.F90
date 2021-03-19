@@ -11,14 +11,19 @@
 ! Copyright (C) Roland Lindh                                           *
 !               Valera Veryazov                                        *
 !***********************************************************************
-      subroutine print_ddNorm(nMOs,Wdd,det3)
+
+subroutine print_ddNorm(nMOs,Wdd,det3)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Dimension Wdd(nMOs,nMOs)
-        do i=1,nMOs
-        write (6,'(20F8.3)') (Wdd(i,j)*det3,j=1,nMOs)
-        enddo
-      return
-      end
+
+implicit real*8(A-H,O-Z)
+dimension Wdd(nMOs,nMOs)
+
+do i=1,nMOs
+  write(6,'(20F8.3)') (Wdd(i,j)*det3,j=1,nMOs)
+end do
+
+return
+
+end subroutine print_ddNorm

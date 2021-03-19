@@ -10,23 +10,28 @@
 !                                                                      *
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
-        subroutine NoBlanks(out,n,in)
+
+subroutine NoBlanks(out,n,in)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-        character out*(*), in*(n)
-        integer flag
-        flag=-1
-        j=0
-        do 1 i=1,len(in)
-         if(flag.eq.-1.and.in(i:i).eq.' ') goto 1
-         flag=0
-         if(i.le.len(in)-1) then
-           if(in(i:i+1).eq.'  ') goto 1
-         endif
-         j=j+1
-         out(j:j)=in(i:i)
-1       continue
-        out(j+1:)=' '
-        return
-        end
+character out*(*), in*(n)
+integer flag
+
+flag = -1
+j = 0
+do i=1,len(in)
+  if (flag == -1 .and. in(i:i) == ' ') goto 1
+  flag = 0
+  if (i <= len(in)-1) then
+    if (in(i:i+1) == '  ') goto 1
+  end if
+  j = j+1
+  out(j:j) = in(i:i)
+  1 continue
+end do
+out(j+1:) = ' '
+
+return
+
+end subroutine NoBlanks

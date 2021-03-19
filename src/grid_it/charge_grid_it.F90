@@ -11,10 +11,9 @@
 ! Copyright (C) 2011, Francesco Aquilante                              *
 !***********************************************************************
 
-      Subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,          &
-     &                          long_prt)
+subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,long_prt)
 
-!*********************************************************************
+!***********************************************************************
 !
 !  Author : F. Aquilante
 !
@@ -31,79 +30,75 @@
 !
 !                                            Toulouse, 28 Nov 2011
 !
-!*********************************************************************
+!***********************************************************************
 
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym, nBas(nSym), nCMO, iDoIt(*)
-      Real*8  CMO(nCMO), OCCN(*)
-      Logical long_prt
+implicit real*8(a-h,o-z)
+integer nSym, nBas(nSym), nCMO, iDoIt(*)
+real*8 CMO(nCMO), OCCN(*)
+logical long_prt
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-      CHARACTER*(LENIN8) NAME(MxBas)
+character*(LENIN8) NAME(MxBas)
 
+MXTYP = 0
+nTot1 = 0
+do iSym=1,nSym
+  MxTyp = MxTyp+nBas(iSym)
+  nTot1 = nTot1+nBas(iSym)*(nBas(iSym)+1)/2
+end do
+call Get_cArray('Unique Basis Names',Name,(LENIN8)*MxTyp)
+call GetMem('XOCC','ALLO','REAL',ipXocc,MXTYP)
+call Get_iScalar('Unique atoms',nNUC)
+call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
+call GetMem('Ovrlp','Allo','Real',ipS,nTot1)
+iRc = -1
+iOpt = 2
+iComp = 1
+iSyLbl = 1
+call RdOne(iRc,iOpt,'Mltpl  0',iComp,Work(ipS),iSyLbl)
+if (iRc /= 0) then
+  write(6,*) 'charge_grid_it: iRc from Call RdOne not 0'
+  !write(6,*) 'Label = ',Label
+  write(6,*) 'iRc = ',iRc
+  call Abend()
+end if
+write(6,*)
+write(6,*)
+write(6,*)
+write(6,'(A)') '         **************************'
+call CollapseOutput(1,'       Charges per occupied MO ')
+write(6,'(A)') '         **************************'
+write(6,*)
+write(6,*)
+write(6,*)
 
-      MXTYP=0
-      nTot1=0
-      Do iSym = 1, nSym
-         MxTyp=MxTyp+nBas(iSym)
-         nTot1=nTot1+nBas(iSym)*(nBas(iSym)+1)/2
-      End Do
-      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*MxTyp)
-      Call GetMem('XOCC','ALLO','REAL',ipXocc,MXTYP)
-      Call Get_iScalar('Unique atoms',nNUC)
-      Call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
-      Call GetMem('Ovrlp','Allo','Real',ipS,nTot1)
-      iRc=-1
-      iOpt=2
-      iComp=1
-      iSyLbl=1
-      Call RdOne(iRc,iOpt,'Mltpl  0',iComp,Work(ipS),iSyLbl)
-      If ( iRc.ne.0 ) then
-         Write(6,*) 'charge_grid_it: iRc from Call RdOne not 0'
-!         Write(6,*) 'Label = ',Label
-         Write(6,*) 'iRc = ',iRc
-         Call Abend
-      Endif
-      Write (6,*)
-      Write (6,*)
-      Write (6,*)
-      Write (6,'(A)')       '         **************************'
-      Call CollapseOutput(1,'       Charges per occupied MO ')
-      Write (6,'(A)')       '         **************************'
-      Write (6,*)
-      Write (6,*)
-      Write (6,*)
+call FZero(Work(ipXocc),MXTYP)
 
-      Call FZero(Work(ipXocc),MXTYP)
+iCase = 2
+jOcc = 1
+do iSym=1,nSym
+  do iOrb=1,nBas(iSym)
 
-      iCase=2
-      jOcc=1
-      Do iSym=1,nSym
-         Do iOrb=1,nBas(iSym)
+    if (IdoIt(jOcc) == 1 .and. OCCN(jOcc) > 0.0d0) then
 
-            If(IdoIt(jOcc).eq.1 .and. OCCN(jOcc).gt.0.0d0) Then
+      write(6,'(A,I4,A,I1,A,F6.4)') '          MO:',iOrb,'      Symm.: ',iSym,'      Occ. No.: ',OCCN(jOcc)
 
-              Write (6,'(A,I4,A,I1,A,F6.4)')'          MO:',iOrb,       &
-     &                                '      Symm.: ',iSym,             &
-     &                                '      Occ. No.: ',OCCN(jOcc)
+      lOcc = ipXocc+jOcc-1
+      Work(lOcc) = OCCN(jOcc)
 
-              lOcc=ipXocc+jOcc-1
-              Work(lOcc)=OCCN(jOcc)
+      call FZero(Work(ipQQ),MxTYP*nNuc)
+      call One_CHARGE(NSYM,NBAS,Name,CMO,Work(ipXocc),Work(ipS),iCase,long_prt,MXTYP,Work(ipQQ),nNuc)
+      Work(lOcc) = 0.0d0
+    end if
 
-              Call FZero(Work(ipQQ),MxTYP*nNuc)
-              Call One_CHARGE(NSYM,NBAS,Name,CMO,Work(ipXocc),Work(ipS),&
-     &                        iCase,long_prt,                           &
-     &                        MXTYP,Work(ipQQ),nNuc)
-              Work(lOcc)=0.0d0
-            EndIf
+    jOcc = jOcc+1
+  end do
+end do
 
-            jOcc=jOcc+1
-         End Do
-      End Do
+call GetMem('XOCC','FRee','REAL',ipXocc,MXTYP)
+call GetMem('Ovrlp','Free','Real',ipS,nTot1)
+call GetMem('QQ','FREE','REAL',ipQQ,MXTYP*nNuc)
 
-      Call GetMem('XOCC','FRee','REAL',ipXocc,MXTYP)
-      Call GetMem('Ovrlp','Free','Real',ipS,nTot1)
-      Call GetMem('QQ','FREE','REAL',ipQQ,MXTYP*nNuc)
-!
-      Return
-      End
+return
+
+end subroutine Charge_GRID_IT

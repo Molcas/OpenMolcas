@@ -12,7 +12,8 @@
 !               1990, IBM                                              *
 !               2000-2015, Valera Veryazov                             *
 !***********************************************************************
-      subroutine Grid_it(iRun,ireturn)
+
+subroutine Grid_it(iRun,ireturn)
 !  iRun =1 normal run, 0=truncated from scf
 !***********************************************************************
 !                                                                      *
@@ -35,70 +36,72 @@
 !   This code was rewritten from scratch by V. Veryazov                *
 !          Lund, 2000-2015                                             *
 !***********************************************************************
-      use Real_Spherical
-      Implicit Real*8 (A-H,O-Z)
+
+use Real_Spherical
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "grid.fh"
 !      Character*120 Lines(17)
-      Character(Len=1024) INPORB
-      Logical DoRys
+character(Len=1024) INPORB
+logical DoRys
 #include "warnings.fh"
-!
-!     Prologue
-!
-      levelprint=IPRINTLEVEL(-1)
-      if(iRun.eq.0.and.levelprint.lt.3) then
-        levelprint=0
-        levelprint=IPRINTLEVEL(levelprint)
-      endif
-      if(iRun.eq.1) then
-      Call SetTim
-!
-!      Call bXML('GRID_IT')
-!
-!     Get the work space size
-!
-      endif
-!
-      nDiff=0
-      DoRys=.False.
-      Call IniSew(DoRys,nDiff)
-!
+
+! Prologue
+
+levelprint = IPRINTLEVEL(-1)
+if (iRun == 0 .and. levelprint < 3) then
+  levelprint = 0
+  levelprint = IPRINTLEVEL(levelprint)
+end if
+if (iRun == 1) then
+  call SetTim()
+
+  !call bXML('GRID_IT')
+
+  ! Get the work space size
+
+end if
+
+nDiff = 0
+DoRys = .false.
+call IniSew(DoRys,nDiff)
+
 !---- Read the input
-!
-      iReturn=0
-      Call Input_Grid_It(iRun,INPORB,iReturn)
-      if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
-!* take care to close files and release the potential memory...
-!       close(unit=LuOrb)
-        close(unit=LuVal)
-        if(isUHF.eq.1) close(unit=LuVal_ab)
-      goto 999
-      endif
-!
-!     Start computing the spin density and spin density gradient
-!     at the grid.
-!
-      Call DrvMO(iRun,INPORB)
-!
+
+iReturn = 0
+call Input_Grid_It(iRun,INPORB,iReturn)
+if (iReturn == _RC_INVOKED_OTHER_MODULE_) then
+  ! take care to close files and release the potential memory...
+  !close(unit=LuOrb)
+  close(unit=LuVal)
+  if (isUHF == 1) close(unit=LuVal_ab)
+  goto 999
+end if
+
+! Start computing the spin density and spin density gradient at the grid.
+
+call DrvMO(iRun,INPORB)
+
 !-----At the end of the calculation free all memory to check for
 !     corruption of the memory.
-!
-999   continue
 
-      Call ClsSew()
-!
-!     Epilogue
-!
-      if(iRun.eq.1) then
-!        Call eXML('GRID_IT')
-!      else
-!      write(6,*) 'Input file for molcasgv was generated'
-      endif
-!      ireturn=0
+999 continue
 
-      return
-      End
+call ClsSew()
+
+! Epilogue
+
+!if (iRun == 1) then
+!  call eXML('GRID_IT')
+!else
+!  write(6,*) 'Input file for molcasgv was generated'
+!end if
+!ireturn = 0
+
+return
+
+end subroutine Grid_it

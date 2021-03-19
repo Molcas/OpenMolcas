@@ -12,28 +12,30 @@
 !               2000, Valera Veryazov                                  *
 !               2014, Thomas Dresselhaus                               *
 !***********************************************************************
-      Subroutine MOEvalDel(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Ccoor(3,nCoor),MOValueD(4*nCoor*nMOs),CMOs(nCMO)
-      Integer DoIt(nMOs),mAO
-      integer nDrv
+subroutine MOEvalDel(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
-      mAO  = 4
-      nDrv = 1
+implicit real*8(A-H,O-Z)
+real*8 Ccoor(3,nCoor), MOValueD(4*nCoor*nMOs), CMOs(nCMO)
+integer DoIt(nMOs), mAO
+integer nDrv
 
-      Call MOEval(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
+mAO = 4
+nDrv = 1
 
-!        IJ1=1+(I-1)*4
-!        IJ2=2+(I-1)*4
-!        IJ3=3+(I-1)*4
-!        IJ4=4+(I-1)*4
+call MOEval(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
+
+!  IJ1 = 1+(I-1)*4
+!  IJ2 = 2+(I-1)*4
+!  IJ3 = 3+(I-1)*4
+!  IJ4 = 4+(I-1)*4
 !
-!        MOValue(I)=Work(MOTmp-1+IJ1)
-!        MOValueDX(I)=Work(MOTmp-1+IJ2)
-!        MOValueDY(I)=Work(MOTmp-1+IJ3)
-!        MOValueDZ(I)=Work(MOTmp-1+IJ4)
-!      END DO
+!  MOValue(I) = Work(MOTmp-1+IJ1)
+!  MOValueDX(I) = Work(MOTmp-1+IJ2)
+!  MOValueDY(I) = Work(MOTmp-1+IJ3)
+!  MOValueDZ(I) = Work(MOTmp-1+IJ4)
+!end do
 
-      Return
-      End
+return
+
+end subroutine MOEvalDel

@@ -8,29 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine PrintLine(unit,line,len,isBinLuscus)
+
+subroutine PrintLine(unit,line,len,isBinLuscus)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "grid.fh"
-      character line*128
-      integer unit
-      integer len,ll,li
+character line*128
+integer unit
+integer len, ll, li
 
-      if (ISLUSCUS .eq. 1) then
-        ll=len
-        li=isBinLuscus
-!       print *,'before pl ',line,' ',ll,li
-        call prt_lusc(unit, line, ll,li)
-      else
-        if (isBinary .eq. 1) then
-          write (unit) line(1:len)
-        else
-          write (unit,'(A)') line(1:len)
-        endif
-      end if
-      Return
-      End
+if (ISLUSCUS == 1) then
+  ll = len
+  li = isBinLuscus
+  !write(6,*) 'before pl ',line,' ',ll,li
+  call prt_lusc(unit,line,ll,li)
+else
+  if (isBinary == 1) then
+    write(unit) line(1:len)
+  else
+    write(unit,'(A)') line(1:len)
+  end if
+end if
+
+return
+
+end subroutine PrintLine

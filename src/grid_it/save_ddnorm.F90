@@ -11,12 +11,17 @@
 ! Copyright (C) Roland Lindh                                           *
 !               Valera Veryazov                                        *
 !***********************************************************************
-      Subroutine save_ddNorm(ddNorm,ii,jj,Wdd,nMOs)
+
+subroutine save_ddNorm(ddNorm,ii,jj,Wdd,nMOs)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Dimension Wdd(nMOs,nMOs)
-      Wdd(ii,jj)=Wdd(ii,jj)+ddNorm
-      return
-      end
+
+implicit real*8(A-H,O-Z)
+dimension Wdd(nMOs,nMOs)
+
+Wdd(ii,jj) = Wdd(ii,jj)+ddNorm
+
+return
+
+end subroutine save_ddNorm
