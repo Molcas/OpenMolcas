@@ -416,11 +416,11 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
           do jDen=1,nDen
              iSymr_Occ = iSymr_Occ + nOcc(iSymr,jDen)
           end do
+          nr=NBAS(iSymr)
           IF(nBas(iSymr).ne.0.and.iSymr_Occ.ne.0)THEN
 
              CALL CWTIME(TCREO1,TWREO1)
 
-             nr=NBAS(iSymr)
              LrJs(1:nr,1:NUMV,1:nr) => Wab%A0(iS:iS-1+nr*NUMV*nr)
 
              Do JVEC=1,NUMV
