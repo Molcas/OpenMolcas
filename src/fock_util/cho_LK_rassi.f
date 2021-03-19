@@ -86,13 +86,11 @@ C
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 
-      Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:)
+      Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:)
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
 ******
       iShp_rs(i) = iWork(ip_iShp_rs+i-1)
 ******
@@ -248,7 +246,7 @@ c --- allocate memory for ipLab
       Call mma_allocate(ipLab,nShell,nDen,Label='ipLab')
 
 c --- allocate memory for kOffSh
-      Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
+      Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
 
 c --- allocate memory for nnBfShp
       Call mma_allocate(nnBfShp,nnShl_tot,nSym,Label='nnBfShp')
@@ -270,7 +268,7 @@ C *** Compute Shell Offsets ( MOs and transformed vectors)
 
          Do iaSh=1,nShell    ! kOffSh(iSh,iSym)
 
-            iWork(ip_kOffSh+nShell*(iSyma-1)+iaSh-1) = LKsh
+            kOffSh(iaSh,iSyma) = LKsh
 
             LKsh = LKsh + nBasSh(iSyma,iaSh)
 
@@ -1585,7 +1583,7 @@ c ---------------
       Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
       Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
       Call mma_deallocate(nnBfShp)
-      Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
+      Call mma_deallocate(kOffSh)
       Call mma_deallocate(ipLab)
       Do jDen=nDen,1,-1
          Call GetMem('Indx','Free','Inte',ipIndx(jDen),(nShell+1)*nnO)
