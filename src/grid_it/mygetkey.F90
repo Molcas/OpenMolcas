@@ -92,20 +92,3 @@
 20      MyGetKey=1
         return
        end
-        subroutine NoBlanks(out,n,in)
-        character out*(*), in*(n)
-        integer flag
-        flag=-1
-        j=0
-        do 1 i=1,len(in)
-         if(flag.eq.-1.and.in(i:i).eq.' ') goto 1
-         flag=0
-         if(i.le.len(in)-1) then
-           if(in(i:i+1).eq.'  ') goto 1
-         endif
-         j=j+1
-         out(j:j)=in(i:i)
-1       continue
-        out(j+1:)=' '
-        return
-        end

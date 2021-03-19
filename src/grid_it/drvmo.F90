@@ -731,21 +731,3 @@
 !
       Return
       End
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine save_ddNorm(ddNorm,ii,jj,Wdd,nMOs)
-      Implicit Real*8 (A-H,O-Z)
-      Dimension Wdd(nMOs,nMOs)
-      Wdd(ii,jj)=Wdd(ii,jj)+ddNorm
-      return
-      end
-
-      subroutine print_ddNorm(nMOs,Wdd,det3)
-      Implicit Real*8 (A-H,O-Z)
-      Dimension Wdd(nMOs,nMOs)
-        do i=1,nMOs
-        write (6,'(20F8.3)') (Wdd(i,j)*det3,j=1,nMOs)
-        enddo
-      return
-      end
