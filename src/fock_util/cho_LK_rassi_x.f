@@ -79,15 +79,13 @@ C
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 
-      Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:)
+      Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
+     &                       iShp_rs(:)
+      Real*8, Allocatable :: SvShp(:)
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      iShp_rs(i) = iWork(ip_iShp_rs+i-1)
-******
-      SvShp(i) = Work(ip_SvShp+i-1)
 ****** next is a trick to save memory. Memory in "location 2" is used
 ******      to store this offset array defined later on
       iOffShp(i,j) = iiBstRSh(i,j,2)
@@ -247,10 +245,10 @@ c --- allocate memory for nnBfShp
       Call mma_allocate(nnBfShp,nnShl_2,nSym,Label='nnBfShp')
 
 c --- allocate memory for iShp_rs
-      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_allocate(iShp_rs,nnShl_tot,Label='iShp_rs')
 
 c --- allocate memory for the shell-pair Frobenius norm of the vectors
-      Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
+      Call mma_allocate(SvShp,2*nnShl,Label='SvShp')
 
 
 C *** Compute Shell Offsets ( MOs and transformed vectors)
@@ -332,7 +330,7 @@ C *** Mapping shell pairs from the full to the reduced set
       Do iaSh=1,nShell
          Do ibSh=1,iaSh
             iShp = iaSh*(iaSh-1)/2 + ibSh
-            iWork(ip_iShp_rs+iShp-1) = Cho_F2SP(iShp)
+            iShp_rs(iShp) = Cho_F2SP(iShp)
          End Do
       End Do
 
@@ -593,11 +591,10 @@ C ***
 C *** and blocked in shell pairs
 
                CALL FZero(Work(ipLF),LFULL*JNUM)
-               CALL FZero(Work(ip_SvShp),2*nnShl)
+               SvShp(:)=Zero
 
-               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,
-     &                            IREDC,ipLF,Work(ip_SvShp),
-     &                            iWork(ip_iShp_rs))
+               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,SvShp,
+     &                            iShp_rs)
 
 
                CALL CWTIME(TCX2,TWX2)
@@ -1521,8 +1518,8 @@ C--- have performed screening in the meanwhile
 
 
       Call GetMem('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
-      Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
-      Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_deallocate(SvShp)
+      Call mma_deallocate(iShp_rs)
       Call mma_deallocate(nnBfShp)
       Call mma_deallocate(kOffSh)
       Call mma_deallocate(ipLab)

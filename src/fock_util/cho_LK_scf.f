@@ -79,12 +79,11 @@ C
 #endif
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:)
+      Real*8, Allocatable:: SvShp(:)
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      SvShp(i) = Work(ip_SvShp+i-1)
 ****** next is a trick to save memory. Memory in "location 2" is used
 ******      to store this offset array defined later on
       iOffShp(i,j) = iiBstRSh(i,j,2)
@@ -249,7 +248,7 @@ c --- allocate memory for iShp_rs
       Call mma_allocate(iShp_rs,nnShl_tot,Label='iShp_rs')
 
 c --- allocate memory for the shell-pair Frobenius norm of the vectors
-      Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
+      Call mma_allocate(SvShp,2*nnShl,Label='SvShp')
 
 C *** Compute Shell Offsets ( MOs and transformed vectors)
 
@@ -580,10 +579,9 @@ C ***
 C *** and blocked in shell pairs
 
                CALL FZero(Work(ipLF),LFULL*JNUM)
-               CALL FZero(Work(ip_SvShp),2*nnShl)
+               SvShp(:)=Zero
 
-               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,
-     &                            IREDC,ipLF,Work(ip_SvShp),
+               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,SvShp,
      &                            iShp_rs)
 
 
@@ -1398,7 +1396,7 @@ c ---------------
 
 
       CALL GETMEM('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
-      Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
+      Call mma_deallocate(SvShp)
       Call mma_deallocate(iShp_rs)
       Call mma_deallocate(nnBfShp)
       Call mma_deallocate(kOffSh)
