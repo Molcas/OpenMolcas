@@ -78,13 +78,11 @@ C
       Real*8, Allocatable:: jDiag(:)
 #endif
 
-      Integer, Allocatable:: nnBfShp(:,:)
+      Integer, Allocatable:: nnBfShp(:,:), ipLab(:)
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      ipLab(i) = iWork(ip_Lab+i-1)
 ******
       kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
 ******
@@ -241,7 +239,7 @@ c --- allocate memory for the Index array
       Call GetMem('Indx','Allo','Inte',ipIndx,(nShell+1)*nnO)
 
 c --- allocate memory for ipLab
-      Call GetMem('ip_Lab','Allo','Inte',ip_Lab,nShell)
+      Call mma_allocate(ipLab,nShell,Label='ipLab')
 
 c --- allocate memory for kOffSh
       Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
@@ -771,7 +769,7 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                             iOffSha = kOffSh(iaSh,lSym)
 
-                            iWork(ip_Lab+iaSh-1) = ipChoT + iOffSha*JNUM
+                            ipLab(iaSh) = ipChoT + iOffSha*JNUM
 
                             ibcount=0
 
@@ -818,7 +816,7 @@ C ---------------------------------------
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                            iWork(ip_Lab+iaSh-1) = ipLab(iaSh)*
+                            ipLab(iaSh) = ipLab(iaSh)*
      &                                             Min(1,ibcount)
      &                                  + ipAbs*(1-Min(1,ibcount))
 
@@ -834,7 +832,7 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 
                             iOffSha = kOffSh(iaSh,lSym)
 
-                            iWork(ip_Lab+iaSh-1) = ipChoT + iOffSha*JNUM
+                            ipLab(iaSh) = ipChoT + iOffSha*JNUM
 
                             ibcount=0
 
@@ -880,7 +878,7 @@ C ---------------------------------------
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                            iWork(ip_Lab+iaSh-1) = ipLab(iaSh)*
+                            ipLab(iaSh) = ipLab(iaSh)*
      &                                             Min(1,ibcount)
      &                                  + ipAbs*(1-Min(1,ibcount))
 
@@ -1406,7 +1404,7 @@ c ---------------
       Call mma_deallocate(iShp_rs)
       Call mma_deallocate(nnBfShp)
       Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
-      Call GetMem('ip_Lab','Free','Inte',ip_Lab,nShell)
+      Call mma_deallocate(ipLab)
       Call GetMem('Indx','Free','Inte',ipIndx,(nShell+1)*nnO)
       Call GetMem('SKsh','Free','Real',ipSKsh,nShell*nnO)
       Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
