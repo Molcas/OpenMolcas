@@ -89,12 +89,12 @@ C
 
       Real*8, Allocatable :: Lrs(:,:), VJ(:), Drs(:), Frs(:,:)
 
+      Integer, Allocatable:: nnBfShp(:,:)
+
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      nnBfShp(j,i) = iWork(ip_nnBfShp-1+nShell**2*(i-1)+j)
 ******
       ipLab(i,j) = iWork(ip_Lab+nShell*(j-1)+i-1)
 ******
@@ -329,7 +329,7 @@ c --- allocate memory for kOffSh
 
 c --- allocate memory for nnBfShp
       nnShl_2=nShell**2
-      Call GetMem('ip_nnBfShp','Allo','Inte',ip_nnBfShp,nnShl_2*nSym)
+      Call mma_allocate(nnBfShp,nnShl_2,nSym,Label='nnBfShp')
 
 c --- allocate memory for iShp_rs
       Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
@@ -402,8 +402,7 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
             iShp = nShell*(iaSh-1) + ibSh
 
-            iWork(ip_nnBfShp - 1 + nnShl_2*(iSyma-1)
-     &     + iShp) = LKShp   ! nnBfShp(iShp,iSyma)
+            nnBfShp(iShp,iSyma) = LKShp
 
             LKShp = LKShp + nBasSh(iSyma,iaSh)*nBasSh(iSyma,ibSh)
 
@@ -2032,7 +2031,7 @@ C--- have performed screening in the meanwhile
       Call GetMem('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
       Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
       Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
-      Call GetMem('ip_nnBfShp','Free','Inte',ip_nnBfShp,nnShl_2*nSym)
+      Call mma_deallocate(nnBfShp)
       Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
       Call GetMem('ip_Lab','Free','Inte',ip_Lab,nDen*nShell)
       Do jDen=nDen,1,-1
