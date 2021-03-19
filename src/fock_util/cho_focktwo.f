@@ -223,8 +223,6 @@ C     We allocate the array as an element of a SBA_type.
          Wab%isym=jSym
          Wab%icase=7
 
-         kWab=ip_of_Work(Wab%A0(1))
-
 c--- setup the skipping flags according to # of Occupied
       do k=1,nSym
          iSkip(k)=0
@@ -296,7 +294,7 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
 
 #ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of  ',nBatch,': NumV = ',NumV
-       write(6,*) 'Total allocated:     ',kRdMem,' at ',kWab
+       write(6,*) 'Total allocated:     ',kRdMem
        write(6,*) 'iE:                  ',iE
        write(6,*) 'iS:                ',iS
        write(6,*) 'JSYM:                ',JSYM
