@@ -91,7 +91,7 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
      &                       iShp_rs(:)
-      Real*8, Allocatable:: SvShp(:), Diag(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -303,7 +303,8 @@ c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
       CALL FZERO(Work(ipDIAH),NNBSQ)
 
 c --- allocate memory for the abs(C(l)[k])
-      Call GetMem('absc','Allo','Real',ipAbs,MaxB)
+      Call mma_allocate(AbsC,MaxB,Label='AbsC')
+      ipAbs = ip_of_Work(AbsC(1))
 
       Do jDen=1,nDen
 c --- allocate memory for the Y(l)[k] vectors
@@ -751,7 +752,7 @@ C------------------------------------------------------------------
                      Do jDen=1,nDen
 
                         Do ik=0,nBas(kSym)-1
-                           Work(ipAbs+ik) = abs(Work(ipMO(jDen)+ik))
+                           AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -762,7 +763,7 @@ C===============================================================
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk(jDen)),1)
 
                         Else
@@ -773,7 +774,7 @@ C===============================================================
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk(jDen)),1)
 
                         EndIf
@@ -2028,7 +2029,7 @@ C--- have performed screening in the meanwhile
          Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
          Call GetMem('yc','Free','Real',ipY(jDen),MaxB*nnO)
       End Do
-      Call GetMem('absc','Free','Real',ipAbs,MaxB)
+      Call mma_deallocate(AbsC)
       CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())

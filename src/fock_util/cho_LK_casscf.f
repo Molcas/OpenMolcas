@@ -101,7 +101,7 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:),
      &                       iShp_rs(:)
-      Real*8, Allocatable:: SvShp(:), Diag(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -287,7 +287,8 @@ c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
       CALL FZERO(Work(ipDIAH(1)),NNBSQ)
 
 c --- allocate memory for the abs(C(l)[k])
-      Call GetMem('absc','Allo','Real',ipAbs,MaxB)
+      Call mma_allocate(AbsC,MaxB,Label='AbsC')
+      ipAbs = ip_of_Work(AbsC(1))
 
 c --- allocate memory for the Y(l)[k] vectors
       Call GetMem('yc','Allo','Real',ipY,MaxB*nnO)
@@ -754,11 +755,11 @@ C------------------------------------------------------------------
 
                         If (jDen.eq.2) Then
                         Do ik=1,nBas(kSym)
-                         Work(ipAbs-1+ik)=abs(Ash(2)%SB(kSym)%A2(ik,jK))
+                         AbsC(ik)=abs(Ash(2)%SB(kSym)%A2(ik,jK))
                         End Do
                         Else
                         Do ik=0,nBas(kSym)-1
-                           Work(ipAbs+ik) = abs(Work(ipMO+ik))
+                           AbsC(1+ik) = abs(Work(ipMO+ik))
                         End Do
                         Endif
 
@@ -770,7 +771,7 @@ C===============================================================
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk),1)
 
                         Else
@@ -781,13 +782,13 @@ C===============================================================
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk),1)
 
                         EndIf
 
 c            write(6,*)'Y(k)= ',(Work(ipYk+i-1),i=1,nBas(lSym))
-c            write(6,*)'|C(k)|= ',(Work(ipAbs+i-1),i=1,nBas(kSym))
+c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
 
 c            Call recprt('DH','',Work(ipDIH),nBas(lSym),nBas(kSym))
 
@@ -1643,7 +1644,7 @@ c ---------------
       Call GetMem('SKsh','Free','Real',ipSKsh,nShell*nnO)
       Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
       Call GetMem('yc','Free','Real',ipY,MaxB*nnO)
-      Call GetMem('absc','Free','Real',ipAbs,MaxB)
+      Call mma_deallocate(AbsC)
       CALL GETMEM('diahI','Free','Real',ipDIAH(1),NNBSQ)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())

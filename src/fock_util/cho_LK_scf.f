@@ -76,7 +76,7 @@ C
       Integer, Allocatable:: iShp_rs(:)
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:)
-      Real*8, Allocatable:: SvShp(:), Diag(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -219,7 +219,8 @@ c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
       DiaH(:)=0.0D0
 
 c --- allocate memory for the abs(C(l)[k])
-      Call GetMem('absc','Allo','Real',ipAbs,MaxB)
+      Call mma_allocate(AbsC,MaxB,Label='AbsC')
+      ipAbs=ip_of_Work(AbsC(1))
 
 c --- allocate memory for the Y(l)[k] vectors
       Call GetMem('yc','Allo','Real',ipY,MaxB*nnO)
@@ -643,7 +644,7 @@ C------------------------------------------------------------------
                         ipDIH = 1 + ISSQ(lSym,kSym)
 
                         Do ik=0,nBas(kSym)-1
-                           Work(ipAbs+ik) = abs(Work(ipMO+ik))
+                           AbsC(1+ik) = abs(Work(ipMO+ik))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -654,7 +655,7 @@ C===============================================================
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                ONE,DiaH(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk),1)
 
                         Else
@@ -665,13 +666,13 @@ C===============================================================
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                ONE,DiaH(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk),1)
 
                         EndIf
 c            Call recprt('DH','',DiaH(ipDIH),nBas(lSym),nBas(kSym))
 c            write(6,*)'Y(k)= ',(Work(ipYk+i-1),i=1,nBas(lSym))
-c            write(6,*)'|C(k)|= ',(Work(ipAbs+i-1),i=1,nBas(kSym))
+c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
 
 C --- List the shells present in Y(l)[k] by the largest element
                         Do ish=1,nShell
@@ -1405,7 +1406,7 @@ c ---------------
       Call GetMem('SKsh','Free','Real',ipSKsh,nShell*nnO)
       Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
       Call GetMem('yc','Free','Real',ipY,MaxB*nnO)
-      Call GetMem('absc','Free','Real',ipAbs,MaxB)
+      Call mma_deallocate(AbsC)
       Call mma_deallocate(DiaH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
