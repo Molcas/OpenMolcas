@@ -72,14 +72,14 @@ C
       Integer, External:: Cho_LK_MaxVecPerBatch
       Integer, External:: ip_of_Work
 
-      Real*8, Allocatable:: Diag(:), DiaH(:), Lrs(:,:), Drs(:), Frs(:)
+      Real*8, Allocatable:: DiaH(:), Lrs(:,:), Drs(:), Frs(:)
       Integer, Allocatable:: iShp_rs(:)
-#if defined (_MOLCAS_MPP_)
-      Real*8, Allocatable:: jDiag(:)
-#endif
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:)
-      Real*8, Allocatable:: SvShp(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:)
+#if defined (_MOLCAS_MPP_)
+      Real*8, Allocatable:: DiagJ(:)
+#endif
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -206,8 +206,8 @@ C --- Vector MO transformation screening thresholds
          Do i=1,nSym
             NNBSTMX = Max(NNBSTMX,NNBSTR(i,1))
          End Do
-         Call mma_allocate(jDiag,NNBSTMX,Label='jDiag')
-         jDiag(:)=0.0D0
+         Call mma_allocate(DiagJ,NNBSTMX,Label='DiagJ')
+         DiagJ(:)=0.0D0
       EndIf
 #endif
 
@@ -1214,7 +1214,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        jDiag(jrs) = jDiag(jrs) + Lrs(krs,jvc)**2
+                        DiagJ(jrs) = DiagJ(jrs) + Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1297,10 +1297,10 @@ C --- Screening control section
 #if defined (_MOLCAS_MPP_)
             If (nProcs.gt.1 .and. Update .and. DoScreen
      &          .and. Is_Real_Par()) Then
-               Call GaDsum(jDiag,nnBSTR(JSYM,1))
-               Call Daxpy_(nnBSTR(JSYM,1),xone,jDiag,1,
+               Call GaDsum(DiagJ,nnBSTR(JSYM,1))
+               Call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,
      &                    Diag(1+iiBstR(JSYM,1)),1)
-               Call Fzero(jDiag,nnBSTR(JSYM,1))
+               Call Fzero(DiagJ,nnBSTR(JSYM,1))
             EndIf
 C--- Need to activate the screening to setup the contributing shell
 C--- indeces the first time the loop is entered .OR. whenever other nodes
@@ -1409,7 +1409,7 @@ c ---------------
       Call mma_deallocate(DiaH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
-     &    CALL mma_deallocate(jDIAG)
+     &    CALL mma_deallocate(DiagJ)
 #endif
       Call mma_deallocate(Diag)
 

@@ -101,7 +101,10 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:),
      &                       iShp_rs(:)
-      Real*8, Allocatable:: SvShp(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:)
+#if defined (_MOLCAS_MPP_)
+      Real*8, Allocatable:: DiagJ(:)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,7 +264,8 @@ C --- Vector MO transformation screening thresholds
       thrv(1) = ( sqrt(LKThr/(Max(1,nIt)*NumVT)) )*fcorr
       thrv(2) = ( sqrt(LKThr/(Max(1,nAt)*NumVT)) )*fcorr
 
-      CALL GETMEM('diagI','Allo','Real',ipDIAG,NNBSTRT(1))
+      CALL mma_allocate(DIAG,NNBSTRT(1),Label='DIAG')
+      ipDIAG = ip_of_Work(DIAG(1))
       ipDD(1)=ipDIAG
 
 #if defined (_MOLCAS_MPP_)
@@ -270,13 +274,13 @@ C --- Vector MO transformation screening thresholds
          Do i=1,nSym
             NNBSTMX = Max(NNBSTMX,NNBSTR(i,1))
          End Do
-         CALL GETMEM('diagJ','Allo','Real',ipjDIAG,NNBSTMX)
-         Call FZero(Work(ipjDIAG),NNBSTMX)
+         Call mma_allocate(diagJ,NNBSTMX,Label='diagJ')
+         diagJ(:)=Zero
       EndIf
 #endif
 
 C *************** Read the diagonal integrals (stored as 1st red set)
-      If (Update) CALL CHO_IODIAG(Work(ipDIAG),2) ! 2 means "read"
+      If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
       CALL GETMEM('diahI','Allo','Real',ipDIAH(1),NNBSQ)
@@ -646,7 +650,7 @@ C --- Estimate the diagonals :   D(a,b) = sum_J (Lab,J)^2
 C
                If (Estimate) Then
 
-                  Call Fzero(Work(ipDiag+iiBstR(jSym,1)),NNBSTR(jSym,1))
+                  Call Fzero(Diag(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
 
                   Do krs=1,nRS
 
@@ -655,8 +659,7 @@ C
 
                      Do jvc=1,JNUM
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     + Lrs(krs,jvc)**2
+                        Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
 
                      End Do
 
@@ -1345,8 +1348,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        Work(ipjDiag+jrs-1) = Work(ipjDiag+jrs-1)
-     &                                      + Lrs(krs,jvc)**2
+                        DiagJ(jrs) = DiagJ(jrs) + Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1360,8 +1362,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                      - Lrs(krs,jvc)**2
+                        Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                      End Do
 
                    End Do
@@ -1376,8 +1377,7 @@ C --- subtraction is done in the 1st reduced set
 
                      Do jvc=1,JNUM
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     - Lrs(krs,jvc)**2
+                        Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                      End Do
 
                   End Do
@@ -1530,10 +1530,10 @@ C --- Screening control section
 #if defined (_MOLCAS_MPP_)
             If (nProcs.gt.1 .and. Update .and. DoScreen
      &          .and. Is_Real_Par()) Then
-               Call GaDsum(Work(ipjDiag),nnBSTR(JSYM,1))
-               Call Daxpy_(nnBSTR(JSYM,1),xone,Work(ipjDiag),1,
-     &                    Work(ipDiag+iiBstR(JSYM,1)),1)
-               Call Fzero(Work(ipjDiag),nnBSTR(JSYM,1))
+               Call GaDsum(DiagJ,nnBSTR(JSYM,1))
+               Call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,
+     &                    Diag(1+iiBstR(JSYM,1)),1)
+               Call Fzero(DiagJ,nnBSTR(JSYM,1))
             EndIf
 C--- Need to activate the screening to setup the contributing shell
 C--- indeces the first time the loop is entered .OR. whenever other nodes
@@ -1647,9 +1647,9 @@ c ---------------
       CALL GETMEM('diahI','Free','Real',ipDIAH(1),NNBSQ)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
-     &    CALL GETMEM('diagJ','Free','Real',ipjDIAG,NNBSTMX)
+     &    Call mma_deallocate(DiagJ)
 #endif
-      CALL GETMEM('diagI','Free','Real',ipDIAG,NNBSTRT(1))
+      Call mma_deallocate(Diag)
 
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
