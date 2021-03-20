@@ -82,30 +82,22 @@ do iiUHF=0,isUHF
     call PRINTLINE(LUVAL_,LINE,6,0)
 
     write(LINE,1000) nMOs,nShowMOs_,nCoor,nInc,nBlocks,isCutOff,Cutoff,iiCoord
-1000 format(1X,'N_of_MO=',I5,1X,'N_of_Grids=',I4,1X,'N_of_Points=',I8,1X,'Block_Size=',I6,1X,'N_Blocks=',I4,1X,'Is_cutoff=',I1,1X, &
-            'CutOff=',F8.4,1X,'N_P=',I8)
     call PRINTLINE(LUVAL_,LINE,124,0)
     write(LINE,1010) (nTypes(i),i=1,7)
-1010 format(1X,'N_INDEX=',7I5)
     call PRINTLINE(LUVAL_,LINE,44,0)
     if (isLUSCUS == 0) then
       write(LINE,1020) iGridNpt(1)-1,iGridNpt(2)-1,iGridNpt(3)-1
     else
       write(LINE,1020) iGridNpt(1),iGridNpt(2),iGridNpt(3)
     end if
-1020 format(1X,'Net=',3I5)
     call PRINTLINE(LUVAL_,LINE,20,0)
     write(LINE,1030) GridOrigin
-1030 format(1X,'Origin=',3(1X,F12.8))
     call PRINTLINE(LUVAL_,LINE,47,0)
     write(LINE,1040) GridAxis1
-1040 format(1X,'Axis_1=',3(1X,F12.3))
     call PRINTLINE(LUVAL_,LINE,47,0)
     write(LINE,1050) GridAxis2
-1050 format(1X,'Axis_2=',3(1X,F12.3))
     call PRINTLINE(LUVAL_,LINE,47,0)
     write(LINE,1060) GridAxis3
-1060 format(1X,'Axis_3=',3(1X,F12.3))
     call PRINTLINE(LUVAL_,LINE,47,0)
     ! Here we dump all missing information
     if (isLUSCUS == 0) then
@@ -179,31 +171,40 @@ do iiUHF=0,isUHF
       write(line,'(a,2i10)') '# ',nShowMOs_,nCoor
       call PrintLine(LuVal_,line,23,0)
     end if
-    if (isTheOne == 1) goto 777
+    if (isTheOne /= 1) then
 
-    write(line,'(a,3i5)') 'Net=         ',iGridNpt(1)-1,iGridNpt(2)-1,iGridNpt(3)-1
-    !call iaXML('Net',iGridNpt,3)
-    call PrintLine(LuVal_,line,28,0)
+      write(line,'(a,3i5)') 'Net=         ',iGridNpt(1)-1,iGridNpt(2)-1,iGridNpt(3)-1
+      !call iaXML('Net',iGridNpt,3)
+      call PrintLine(LuVal_,line,28,0)
 
-    write(line,'(a,3f12.3)') 'Origin= ',GridOrigin
-    !call daXML('Origin',GridOrigin,3)
-    call PrintLine(LuVal_,line,44,0)
+      write(line,'(a,3f12.3)') 'Origin= ',GridOrigin
+      !call daXML('Origin',GridOrigin,3)
+      call PrintLine(LuVal_,line,44,0)
 
-    write(line,'(a,3f12.3)') 'Axis_1= ',GridAxis1
-    !call daXML('Axis 1',GridAxis1,3)
-    call PrintLine(LuVal_,line,44,0)
-    write(line,'(a,3f12.3)') 'Axis_2= ',GridAxis2
-    !call daXML('Axis 2',GridAxis2,3)
-    call PrintLine(LuVal_,line,44,0)
-    write(line,'(a,3f12.3)') 'Axis_3= ',GridAxis3
-    !call daXML('Axis 3',GridAxis3,3)
-    call PrintLine(LuVal_,line,44,0)
+      write(line,'(a,3f12.3)') 'Axis_1= ',GridAxis1
+      !call daXML('Axis 1',GridAxis1,3)
+      call PrintLine(LuVal_,line,44,0)
+      write(line,'(a,3f12.3)') 'Axis_2= ',GridAxis2
+      !call daXML('Axis 2',GridAxis2,3)
+      call PrintLine(LuVal_,line,44,0)
+      write(line,'(a,3f12.3)') 'Axis_3= ',GridAxis3
+      !call daXML('Axis 3',GridAxis3,3)
+      call PrintLine(LuVal_,line,44,0)
 
-777 continue
+    end if
   end if
 end do
 !call eXML('Header')
 
 return
+
+1000 format(1X,'N_of_MO=',I5,1X,'N_of_Grids=',I4,1X,'N_of_Points=',I8,1X,'Block_Size=',I6,1X,'N_Blocks=',I4,1X,'Is_cutoff=',I1,1X, &
+            'CutOff=',F8.4,1X,'N_P=',I8)
+1010 format(1X,'N_INDEX=',7I5)
+1020 format(1X,'Net=',3I5)
+1030 format(1X,'Origin=',3(1X,F12.8))
+1040 format(1X,'Axis_1=',3(1X,F12.3))
+1050 format(1X,'Axis_2=',3(1X,F12.3))
+1060 format(1X,'Axis_3=',3(1X,F12.3))
 
 end subroutine PrintHeader

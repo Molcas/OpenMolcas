@@ -57,7 +57,7 @@ ipCutOff = ip_iDummy
 
 dNorm = Zero
 !ddNorm = Zero
-if (iRun == 1 .and. levelprint >= 3) then
+if ((iRun == 1) .and. (levelprint >= 3)) then
   write(u6,*)
   write(u6,'(A,8I5)') 'Irreps  : ',(i,i=1,nIrrep)
   write(u6,'(A,8I5)') 'Basis   : ',(nBas(i),i=0,nIrrep-1)
@@ -74,15 +74,15 @@ do iIrrep=0,nIrrep-1
   nMOs = nMOs+nBas(iIrrep)
 end do
 
-if (isUHF /= 0 .and. (isDerivative /= 0 .or. isCurDens /= 0)) then
+if ((isUHF /= 0) .and. ((isDerivative /= 0) .or. (isCurDens /= 0))) then
   write(u6,*) 'ERROR - Current density or derivatives not implemented for UHF!!!'
   call Abend()
 end if
-if (NoOrb /= 0 .and. (isDerivative /= 0 .or. isCurDens /= 0)) then
+if ((NoOrb /= 0) .and. ((isDerivative /= 0) .or. (isCurDens /= 0))) then
   write(u6,*) 'ERROR - Current density or derivatives not implemented with the NOORB keyword!!!'
   call Abend()
 end if
-if (isAtom /= 0 .and. (isDerivative /= 0 .or. isCurDens /= 0)) then
+if ((isAtom /= 0) .and. ((isDerivative /= 0) .or. (isCurDens /= 0))) then
   write(u6,*) 'ERROR - Current density or derivatives not implemented with the ATOM keyword!!!'
   call Abend()
 end if
@@ -279,40 +279,40 @@ do i=0,nMOs-1
   if (isUHF == 1) iWork(ipDoIt_ab+i) = 0
 end do
 
-if (NoOrb == 1) goto 550
-do i=1,nShowMOs-isDensity-isSphere-isColor
-  iWork(ipDoIt+iWork(ipGRef+i-1)-1) = 1
-end do
-if (isUHF == 1) then
-  do i=1,nShowMOs_ab-isDensity-isSphere-isColor
-    iWork(ipDoIt_ab+iWork(ipGRef_ab+i-1)-1) = 1
+if (NoOrb /= 1) then
+  do i=1,nShowMOs-isDensity-isSphere-isColor
+    iWork(ipDoIt+iWork(ipGRef+i-1)-1) = 1
   end do
-end if
-ifpartial = 1-isTotal
-if (isTotal == 1) then
-  do i=0,nMOs-1
-    if (abs(Work(ipOcc+i)) > Zero) then
-      iWork(ipDoIt+i) = 1
-    end if
-    if (isUHF == 1) then
-      if (abs(Work(ipOcc_ab+i)) > Zero) then
-        iWork(ipDoIt_ab+i) = 1
+  if (isUHF == 1) then
+    do i=1,nShowMOs_ab-isDensity-isSphere-isColor
+      iWork(ipDoIt_ab+iWork(ipGRef_ab+i-1)-1) = 1
+    end do
+  end if
+  ifpartial = 1-isTotal
+  if (isTotal == 1) then
+    do i=0,nMOs-1
+      if (abs(Work(ipOcc+i)) > Zero) then
+        iWork(ipDoIt+i) = 1
       end if
-    end if
-  end do
-else
-  do i=0,nMOs-1
-    if (Work(ipOcc+i) > Zero .and. iWork(ipDoIt+i) /= 1) then
-      ifpartial = 1
-    end if
-    if (isUHF == 1) then
-      if (Work(ipOcc_ab+i) > Zero .and. iWork(ipDoIt_ab+i) /= 1) then
+      if (isUHF == 1) then
+        if (abs(Work(ipOcc_ab+i)) > Zero) then
+          iWork(ipDoIt_ab+i) = 1
+        end if
+      end if
+    end do
+  else
+    do i=0,nMOs-1
+      if ((Work(ipOcc+i) > Zero) .and. (iWork(ipDoIt+i) /= 1)) then
         ifpartial = 1
       end if
-    end if
-  end do
+      if (isUHF == 1) then
+        if ((Work(ipOcc_ab+i) > Zero) .and. (iWork(ipDoIt_ab+i) /= 1)) then
+          ifpartial = 1
+        end if
+      end if
+    end do
+  end if
 end if
-550 continue
 
 ! If plotting VB orbitals : count active orbitals and make sure
 ! all are included in DOIT :
@@ -349,7 +349,7 @@ ive1 = max(iGridNpt(1)-1,1)
 iv3 = 0
 iv2 = 0
 iv1 = 0
-!if (isAtom== 1) goto 6000
+!if (isAtom == 1) then
 
 iiiCoord = 0
 !if (isCutOff == 1) nCoor = iiCoord
@@ -362,47 +362,45 @@ do iSec=1,nCoor,nInc
   ! Generate next portion of points..
   if (isTheOne == 0) then
     ! general case: we have a CUBIC box.
-    ipPO = 0
-    667 continue
-    iiiCoord = iiiCoord+1
-    gv3 = One*iv3/ive3
-    gv2 = One*iv2/ive2
-    gv1 = One*iv1/ive1
+    do ipPO=0,mCoor-1
+      iiiCoord = iiiCoord+1
+      gv3 = One*iv3/ive3
+      gv2 = One*iv2/ive2
+      gv1 = One*iv1/ive1
 
-    if (isUserGrid == 0) then
-      if (isCutOff == 0) then
-        Work(ipC+ipPO*3) = GridOrigin(1)+GridAxis1(1)*gv1+GridAxis2(1)*gv2+GridAxis3(1)*gv3
-        Work(ipC+ipPO*3+1) = GridOrigin(2)+GridAxis1(2)*gv1+GridAxis2(2)*gv2+GridAxis3(2)*gv3
-        Work(ipC+ipPO*3+2) = GridOrigin(3)+GridAxis1(3)*gv1+GridAxis2(3)*gv2+GridAxis3(3)*gv3
-      else
-        ! using ipCutOff
-        Work(ipC+ipPO*3) = 40
-        Work(ipC+ipPO*3+1) = 40
-        Work(ipC+ipPO*3+2) = 40
-        if (iWork(ipCutOff+iiiCoord-1) == 1) then
+      if (isUserGrid == 0) then
+        if (isCutOff == 0) then
           Work(ipC+ipPO*3) = GridOrigin(1)+GridAxis1(1)*gv1+GridAxis2(1)*gv2+GridAxis3(1)*gv3
           Work(ipC+ipPO*3+1) = GridOrigin(2)+GridAxis1(2)*gv1+GridAxis2(2)*gv2+GridAxis3(2)*gv3
           Work(ipC+ipPO*3+2) = GridOrigin(3)+GridAxis1(3)*gv1+GridAxis2(3)*gv2+GridAxis3(3)*gv3
+        else
+          ! using ipCutOff
+          Work(ipC+ipPO*3) = 40
+          Work(ipC+ipPO*3+1) = 40
+          Work(ipC+ipPO*3+2) = 40
+          if (iWork(ipCutOff+iiiCoord-1) == 1) then
+            Work(ipC+ipPO*3) = GridOrigin(1)+GridAxis1(1)*gv1+GridAxis2(1)*gv2+GridAxis3(1)*gv3
+            Work(ipC+ipPO*3+1) = GridOrigin(2)+GridAxis1(2)*gv1+GridAxis2(2)*gv2+GridAxis3(2)*gv3
+            Work(ipC+ipPO*3+2) = GridOrigin(3)+GridAxis1(3)*gv1+GridAxis2(3)*gv2+GridAxis3(3)*gv3
+          end if
         end if
+      else
+        Work(ipC+ipPO*3+1-1) = Work(ipGrid+(iSec+ipPO-1)*3+1-1)
+        Work(ipC+ipPO*3+2-1) = Work(ipGrid+(iSec+ipPO-1)*3+2-1)
+        Work(ipC+ipPO*3+3-1) = Work(ipGrid+(iSec+ipPO-1)*3+3-1)
       end if
-    else
-      Work(ipC+ipPO*3+1-1) = Work(ipGrid+(iSec+ipPO-1)*3+1-1)
-      Work(ipC+ipPO*3+2-1) = Work(ipGrid+(iSec+ipPO-1)*3+2-1)
-      Work(ipC+ipPO*3+3-1) = Work(ipGrid+(iSec+ipPO-1)*3+3-1)
-    end if
-    ! make a local copy of the weights of the corresponding grid points:
-    iv3 = iv3+1
-    if (iv3 > ive3) then
-      iv3 = 0
-      iv2 = iv2+1
-    end if
-    if (iv2 > ive2) then
-      iv2 = 0
-      iv1 = iv1+1
-    end if
-    ipPO = ipPO+1
-    !write(u6,*) 'ipo',ipP0
-    if (ipPO <= mCoor-1) goto 667
+      ! make a local copy of the weights of the corresponding grid points:
+      iv3 = iv3+1
+      if (iv3 > ive3) then
+        iv3 = 0
+        iv2 = iv2+1
+      end if
+      if (iv2 > ive2) then
+        iv2 = 0
+        iv1 = iv1+1
+      end if
+      !write(u6,*) 'ipo',ipP0
+    end do
     ! end of CUBIC box
   else
     ! coords are given in specific points
@@ -424,7 +422,7 @@ do iSec=1,nCoor,nInc
   end if
   ! end of coordinates.
   !VV: FIXME; separate color and sphere
-  !if (isSphere == 1 .and. isColor == 1) then
+  !if ((isSphere == 1) .and. (isColor == 1)) then
   !  call Sphr_Grid(Work(ipCoor),mCoor,Work(ipC),Work(iSphrDist),Work(iSphrColor))
   !end if
 
@@ -473,7 +471,7 @@ do iSec=1,nCoor,nInc
   if (isVirt == 1) then
     do iiMO=1,nMOs
       do jjMO=1,nMOs
-        if (Work(ipOcc+iiMO-1) > 1.1_wp .and. Work(ipOcc+jjMO-1) < 0.9_wp) then
+        if ((Work(ipOcc+iiMO-1) > 1.1_wp) .and. (Work(ipOcc+jjMO-1) < 0.9_wp)) then
           !  here if this is a pair Occ-Virt
 
           do i=1,nMOs
@@ -546,23 +544,27 @@ if (isLine == 0) then
   ! Well, to avoid rewritting of Cerius2 we use old INPORB format temporary!
   LuOrb = isFreeUnit(46)
   call molcas_open_ext2(luorb,INPORB,'sequential','formatted',istatus,.false.,irecl,'old',is_error)
-  !4001 read(LuOrb,'(a)',err=5000,end=5000) str
-  !if (str /= '#ORB') goto 4001
-  5001 read(LuOrb,'(a)',err=5000,end=5000) str
-  !if (str(1:1) == '#') goto 5001
-  iLen = len(str)
-  do i=iLen,1,-1
-    if (str(i:i) /= ' ') goto 5060
+  !do
+  !  read(LuOrb,'(a)',iostat=istatus) str
+  !  if (istatus /= 0) exit
+  !  if (str == '#ORB') exit
+  !end do
+  do
+    read(LuOrb,'(a)',iostat=istatus) str
+    if (istatus /= 0) exit
+    !if (str(1:1) == '#') cycle
+    iLen = len(str)
+    do i=iLen,1,-1
+      if (str(i:i) /= ' ') exit
+    end do
+    call PrintLine(LuVal_,STR,I,0)
+    !if (isBinary == 0) then
+    !  write(LuVal_,'(a)') str(1:i)
+    !else
+    !  write(LuVal_) str(1:i)
+    !end if
   end do
-  5060 continue
-  call PrintLine(LuVal_,STR,I,0)
-  !5060 if (isBinary == 0) then
-  !  write(LuVal_,'(a)') str(1:i)
-  !else
-  !  write(LuVal_) str(1:i)
-  !end if
-  goto 5001
-  5000 close(unit=LuOrb)
+  close(unit=LuOrb)
 end if ! isLine
 close(unit=LuVal)
 if (isUHF == 1) close(unit=LuVal_ab)
@@ -576,7 +578,7 @@ end if
 !                                                                      *
 !... Epilogue, end
 
-!6000  continue
+!end if ! isAtom
 
 if (isAtom == 1) then
   mCoor = nCoor
@@ -648,7 +650,7 @@ call GetMem('Ener','FREE','REAL',ipE,nMOs)
 !if (isWDW == 1) call GetMem('WDW','FREE','REAL',ipWdW,nCenter)
 call GetMem('CMO','FREE','REAL',ipCMO,nCMO)
 
-if (isAtom == 0 .and. isXField == 0) call GetMem('Coor','FREE','REAL',ipCoor,3*nAtoms)
+if ((isAtom == 0) .and. (isXField == 0)) call GetMem('Coor','FREE','REAL',ipCoor,3*nAtoms)
 
 if (isCutOff == 1) call GetMem('CUTFL','FREE','INTE',ipCutOff,nCoor)
 

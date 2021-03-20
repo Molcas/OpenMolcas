@@ -51,42 +51,64 @@ character, intent(inout) :: What
 integer(kind=iwp), intent(out) :: IValue, IArr(*)
 real(kind=wp), intent(out) :: RValue, RArr(*)
 character(len=*), intent(out) :: SValue
-integer(kind=iwp) :: i, iptr
+integer(kind=iwp) :: i, iptr, istatus
+logical(kind=iwp) :: retry
 character(len=120) :: KWord
 
 MyGetKey = 0
 iptr = 1
 i = 1
-1 read(InUnit,'(A)',Err=20,end=20) KWord
-if (KWord(1:1) == '*' .or. KWord == ' ') Go To 1
-call UpCase(KWord)
-if (What == 'I') then
-  read(KWord,*,Err=20) IValue
-else if (What == 'R') then
-  read(KWord,*,Err=20) RValue
-  return
-else if (What == 'A') then
-  read(KWord,*,Err=20,end=40) (IArr(i),i=iptr,N)
-else if (What == 'D') then
-  read(KWord,*,Err=20,end=40) (RArr(i),i=iptr,N)
-else if (What == 'S') then
-  call NoBlanks(SValue,KWord)
-  goto 100
-else if (What == 'U') then
-  read(KWord,*,Err=2) IValue
-  What = 'I'
-  goto 100
-2 read(KWord,*,Err=3) RValue
-  What = 'R'
-  goto 100
-3 call NoBlanks(SValue,KWord)
-  What = 'S'
-  goto 100
-end if
-100 return
-40 iptr = i
-goto 1
-20 MyGetKey = 1
+retry = .true.
+do while (retry)
+  read(InUnit,'(A)',iostat=istatus) KWord
+  if (istatus /= 0) then
+    MyGetKey = 1
+    exit
+  end if
+  if ((KWord(1:1) == '*') .or. (KWord == ' ')) cycle
+  retry = .false.
+  call UpCase(KWord)
+  select case (What)
+    case ('I')
+      read(KWord,*,iostat=istatus) IValue
+      if (istatus > 0) MyGetKey = 1
+    case ('R')
+      read(KWord,*,iostat=istatus) RValue
+      if (istatus > 0) MyGetKey = 1
+    case ('A')
+      read(KWord,*,iostat=istatus) (IArr(i),i=iptr,N)
+      if (istatus > 0) then
+        MyGetKey = 1
+      else if (istatus < 0) then
+        iptr = i
+        retry = .true.
+      end if
+    case ('D')
+      read(KWord,*,iostat=istatus) (RArr(i),i=iptr,N)
+      if (istatus > 0) then
+        MyGetKey = 1
+      else if (istatus < 0) then
+        iptr = i
+        retry = .true.
+      end if
+    case ('S')
+      call NoBlanks(SValue,KWord)
+    case ('U')
+      read(KWord,*,iostat=istatus) IValue
+      if (istatus > 0) then
+        read(KWord,*,iostat=istatus) RValue
+        if (istatus > 0) then
+          call NoBlanks(SValue,KWord)
+          What = 'S'
+        else
+          What = 'R'
+        end if
+      else
+        What = 'I'
+      end if
+    case default
+  end select
+end do
 
 return
 

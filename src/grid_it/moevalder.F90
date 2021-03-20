@@ -33,7 +33,7 @@ call MOEval(Work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 ! iDir = 2 then do dY
 ! iDir = 3 then do dZ
 !write(u6,*) 'iDir:',iDir
-if (iDir > 0 .and. iDir < 4) then
+if ((iDir > 0) .and. (iDir < 4)) then
   do I=1,nCoor*nMOs
     IJ = iDir+1+(I-1)*4
     MOValue(I) = Work(iMoTmp-1+IJ)

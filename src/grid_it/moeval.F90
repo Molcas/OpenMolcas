@@ -64,8 +64,8 @@ Thr = Zero
 
 do iAng=S%iAngMx,0,-1
 
-  if (S%MaxPrm(iAng) == 0) goto 100
-  if (S%MaxBas(iAng) == 0) goto 100
+  if (S%MaxPrm(iAng) == 0) cycle
+  if (S%MaxBas(iAng) == 0) cycle
 
   ! Scratch area for contraction step
 
@@ -84,16 +84,21 @@ do iAng=S%iAngMx,0,-1
   mdc = 0
   do iCnttp=1,nCnttp
 
+    if (iCnttp > 1) then
+      mdc = mdc+dbsc(iCnttp-1)%nCntr
+      iAOttp = iAOttp+dbsc(iCnttp-1)%lOffAO*dbsc(iCnttp-1)%nCntr
+    end if
+
     nTest = dbsc(iCnttp)%nVal
-    if (iAng+1 > nTest) Go To 101
-    if (dbsc(iCnttp)%Aux) Go To 101
-    if (dbsc(iCnttp)%Frag) Go To 101
+    if (iAng+1 > nTest) cycle
+    if (dbsc(iCnttp)%Aux) cycle
+    if (dbsc(iCnttp)%Frag) cycle
     nCnt = dbsc(iCnttp)%nCntr
     iShll = dbsc(iCnttp)%iVal+iAng
     iPrim = Shells(iShll)%nExp
-    if (iPrim == 0) Go To 101
+    if (iPrim == 0) cycle
     iBas = Shells(iShll)%nBasis
-    if (iBas == 0) Go To 101
+    if (iBas == 0) cycle
     if (Shells(iShll)%Prjct) then
       iCmp = 2*iAng+1
     else
@@ -174,13 +179,9 @@ do iAng=S%iAngMx,0,-1
       call GetMem('SOs','Free','Real',ipSOs,nSO)
 
     end do ! iCnt
-101 continue
-    mdc = mdc+dbsc(iCnttp)%nCntr
-    iAOttp = iAOttp+dbsc(iCnttp)%lOffAO*dbsc(iCnttp)%nCntr
   end do
   call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
   call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
-100 continue
 end do
 
 return

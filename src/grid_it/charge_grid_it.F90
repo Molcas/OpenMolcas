@@ -83,7 +83,7 @@ jOcc = 1
 do iSym=1,nSym
   do iOrb=1,nBas(iSym)
 
-    if (IdoIt(jOcc) == 1 .and. OCCN(jOcc) > Zero) then
+    if ((IdoIt(jOcc) == 1) .and. (OCCN(jOcc) > Zero)) then
 
       write(u6,'(A,I4,A,I1,A,F6.4)') '          MO:',iOrb,'      Symm.: ',iSym,'      Occ. No.: ',OCCN(jOcc)
 

@@ -27,7 +27,7 @@ character(len=*), intent(out) :: INPORB
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "grid.fh"
-integer(kind=iwp) :: i, i_bits, iCustOrig, iD, iKey, inUnit, isAuto, isFileOrb, isNet, isReadNet, iTemp(3), j, magicValue, n
+integer(kind=iwp) :: i, i_bits, iCustOrig, iD, iErr, iKey, inUnit, isAuto, isFileOrb, isNet, isReadNet, iTemp(3), j, magicValue, n
 real(kind=wp) :: dTemp(4), rD
 character(len=265) :: AllKeys
 character(len=256) :: FileStr, FileIn
@@ -109,7 +109,7 @@ if (iRun == 0) then
   !iMaxDown = 5
   !imoPack = 0 ! packed grids not working with 64bit (?)
   !isCutOff = 1
-  !goto 500
+  !goto 500 (?)
 end if
 
 ! KeyWord directed input
@@ -118,346 +118,291 @@ InUnit = 5
 ! Function MyGetKey (InUnit, What, IValue, RValue, SValue, N, IArray, RArray)
 
 call RdNLst(InUnit,'GRID_IT')
-998 if (MyGetKey(InUnit,'S',iD,rD,Key,iD,[iD],[rD]) /= 0) goto 997
-iKey = index(AllKeys,Key(1:4))
-if (iKey == 0 .or. (iKey-1)/5*5 /= (iKey-1)) then
-  write(u6,'(a,a)') 'Unrecognized keyword in input file:',Key(1:4)
-  call Quit_OnUserError()
-end if
-iKey = (iKey-1)/5+1
-
-if (iKey == 1) then
-  ! PRIN
-  if (MyGetKey(InUnit,'I',n,rD,Key,iD,[iD],[rD]) /= 0) goto 666
-  do j=1,n
-    if (MyGetKey(InUnit,'A',iD,rD,Key,2,iTemp,[rD]) /= 0) goto 666
-    !write(u6,*) 'debug'
-    !nPrint(iTemp(1)) = iTemp(2)
-  end do
-end if
-if (iKey == 2) then
-  ! BINARY = default
-  isBinary = 1
-end if
-if (iKey == 3) then
-  ! ASCII = for debug
-  !write(u6,*) ' Keyword ASCII is obsolete'
-  !write(u6,*) ' It can be used only for debugging purpose'
-  !write(u6,*) ' Note that .lus files produced with this option '
-  !write(u6,*) '      can not be visualised'
-  isBinary = 0
-end if
-if (iKey == 4) then
-  ! NPOI
-  if (MyGetKey(InUnit,'A',iD,rD,Key,3,iGridNpt,[rD]) /= 0) goto 666
-  isNet = -1
-  isReadNet = isReadNet+1
-end if
-if (iKey == 5) then
-  ! DENSE - dense grid network..
-  isNet = 2
-  isReadNet = isReadNet+1
-end if
-if (iKey == 6) then
-  ! SPARSE - rare grid network..
-  isNet = 1
-  isReadNet = isReadNet+1
-end if
-if (iKey == 7) then
-  ! ORBI Orbitals
-  if (nReq > 0) then
-    write(u6,*) 'ORBI keyword can not be used together with SELEct'
+do
+  if (MyGetKey(InUnit,'S',iD,rD,Key,iD,[iD],[rD]) /= 0) exit
+  iKey = index(AllKeys,Key(1:4))
+  if ((iKey == 0) .or. ((iKey-1)/5*5 /= (iKey-1))) then
+    write(u6,'(a,a)') 'Unrecognized keyword in input file:',Key(1:4)
     call Quit_OnUserError()
   end if
-  if (MyGetKey(InUnit,'I',nReq,rD,Key,iD,[iD],[rD]) /= 0) goto 666
+  iKey = (iKey-1)/5+1
 
-  if (nReq > MAXGRID) then
-    write(u6,'(a,i5,a,i5)') 'Too many requested orbitals ',nReq,'>',MAXGRID
-    call Quit_OnUserError()
-  end if
-  read(inUnit,*,err=666,end=666) (iReq(i),i=1,nReq*2)
-  !if (MyGetKey(InUnit,'A',iD,rD,Key,nReq*2,iReq,[rD]) /= 0) goto 666
-  isAuMO = 0
-end if
-if (iKey == 8) then
-  ! REGION
-  if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) goto 666
-  itRange = 1
-  isAuMO = 1
-  write(u6,*) ' *** Warning keyword REGION is obsolete'
-  write(u6,*) ' ***         assumimg Energy range '
-end if
-if (iKey == 9) then
-  ! ONE - debug option
-  if (MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor) /= 0) goto 666
-  isTheOne = 1
-  isBinary = 0
-end if
-if (iKey == 10) then
-  ! TITLE
-  ! NOTE: Title can be only ONE line here!!!
-  if (MyGetKey(InUnit,'S',iD,rD,Title1,iD,[iD],[rD]) /= 0) goto 666
-end if
-if (iKey == 11) then
-  ! GAP
-  if (MyGetKey(InUnit,'R',iD,TheGap,Key,iD,[iD],[rD]) /= 0) goto 666
-end if
+  select case (iKey)
+    case (1)
+      ! PRIN
+      if (MyGetKey(InUnit,'I',n,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      do j=1,n
+        if (MyGetKey(InUnit,'A',iD,rD,Key,2,iTemp,[rD]) /= 0) call error()
+        !write(u6,*) 'debug'
+        !nPrint(iTemp(1)) = iTemp(2)
+      end do
+    case (2)
+      ! BINARY = default
+      isBinary = 1
+    case (3)
+      ! ASCII = for debug
+      !write(u6,*) ' Keyword ASCII is obsolete'
+      !write(u6,*) ' It can be used only for debugging purpose'
+      !write(u6,*) ' Note that .lus files produced with this option '
+      !write(u6,*) '      can not be visualised'
+      isBinary = 0
+    case (4)
+      ! NPOI
+      if (MyGetKey(InUnit,'A',iD,rD,Key,3,iGridNpt,[rD]) /= 0) call error()
+      isNet = -1
+      isReadNet = isReadNet+1
+    case (5)
+      ! DENSE - dense grid network..
+      isNet = 2
+      isReadNet = isReadNet+1
+    case (6)
+      ! SPARSE - rare grid network..
+      isNet = 1
+      isReadNet = isReadNet+1
+    case (7)
+      ! ORBI Orbitals
+      if (nReq > 0) then
+        write(u6,*) 'ORBI keyword can not be used together with SELEct'
+        call Quit_OnUserError()
+      end if
+      if (MyGetKey(InUnit,'I',nReq,rD,Key,iD,[iD],[rD]) /= 0) call error()
 
-if (iKey == 12) then
-  ! END
-  goto 997
-end if
-if (iKey == 13) then
-  ! NODENSITY
-  isDensity = 0
-end if
-if (iKey == 14) then
-  ! TOTAL
-  isTotal = 1
-end if
-if (iKey == 15) then
-  ! NAME
-  read(InUnit,'(a)') TheName
-  !if (MyGetKey(InUnit,'S',iD,rD,TheName,iD,[iD],[rD]) /= 0) goto 666
-  ! unfortunately MyGetKey uppercases strings!
-end if
-if (iKey == 16) then
-  ! VB
-  !isVB = 1
-  call Quit_OnUserError()
-end if
-if (iKey == 17) then
-  ! All
-  isAll = 1
-end if
-
-if (iKey == 18) then
-  ! Atom
-  isAtom = 1
-  isNet = -1
-  iGridNpt(1) = 0
-  iGridNpt(2) = 0
-  iGridNpt(3) = 0
-end if
-if (iKey == 19) then
-  ! CUBE
-  iGauss = 1
-  isBinary = 0
-  write(u6,*) 'Cube option is moved to grid2cube'
-  call Quit_OnUserError()
-end if
-if (iKey == 20) then
-  ! Grid
-  isUserGrid = 1
-  isBinary = 0
-  isNet = -1
-  iGridNpt(1) = 0
-  iGridNpt(2) = 0
-  iGridNpt(3) = 0
-  if (MyGetKey(InUnit,'I',nGridPoints,rD,Key,iD,[iD],[rD]) /= 0) goto 666
-  call GetMem('Grid','ALLO','REAL',ipGrid,nGridPoints*3)
-  read(InUnit,*,Err=666,end=666) (Work(ipGrid+i-1),i=1,nGridPoints*3)
-end if
-if (iKey == 21) then
-  ! Pack
-  !imoPack = 1
-end if
-if (iKey == 22) then
-  ! PkLims
-  if (MyGetKey(InUnit,'D',iD,rD,Key,4,[iD],dTemp) /= 0) goto 666
-  xLeft = dTemp(1)
-  xRight = dTemp(2)
-  xLoErr = dTemp(3)
-  xHiErr = dTemp(4)
-end if
-if (iKey == 23) then
-  ! PkBits
-  if (MyGetKey(InUnit,'I',i_bits,rD,Key,iD,[iD],[rD]) /= 0) goto 666
-  if (i_bits == 16) then
-    iyRange = 32768
-    nBytesPackedVal = 2
-  end if
-end if
-if (iKey == 24) then
-  ! NoOrbitals
-  NoOrb = 1
-end if
-if (iKey == 25) then
-  ! LINE - density on line
-  if (MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor) /= 0) goto 666
-  isTheOne = 1
-  isTotal = 1
-  isBinary = 0
-  isLine = 1
-end if
-if (iKey == 26) then
-  ! ORANGE
-  if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) goto 666
-  itRange = 0
-  isAuMO = 1
-  NoSort = 1
-end if
-if (iKey == 27) then
-  ! ERANGE
-  if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) goto 666
-  itRange = 1
-  isAuMO = 1
-end if
-if (iKey == 28) then
-  ! DEBUG
-  isBinary = 0
-  isDebug = 1
-end if
-if (iKey == 29) then
-  ! CUTOFF
-  if (MyGetKey(InUnit,'R',iD,CutOff,Key,iD,[iD],[rD]) /= 0) goto 666
-  isCutOff = 1
-end if
-if (iKey == 30) then
-  ! NOPACK
-  !imoPack = 0
-end if
-if (iKey == 31) then
-  ! GORI
-  iCustOrig = 1
-  if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridOrigin) /= 0) goto 666
-  if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis1) /= 0) goto 666
-  if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis2) /= 0) goto 666
-  if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis3) /= 0) goto 666
-end if
-if (iKey == 32) then
-  ! SELEct
-  if (MyGetKey(InUnit,'S',iD,rD,SelectStr,iD,[iD],[rD]) /= 0) then
-    goto 666
-  end if
-  if (nReq > 0) then
-    write(u6,*) 'SELEct keyword can not be used together with ORBItals'
-    call Quit_OnUserError()
-  end if
-  call gridExpandSelect(SelectStr)
-  isAuMO = 0
-end if
-if (iKey == 33) then
-  ! NOSOrt
-  NoSort = 1
-end if
-if (iKey == 34) then
-  ! FILE
-  read(InUnit,'(A)') FileIn
-  isFileOrb = 1
-  call fileorb(FileIn,FileStr)
-  write(u6,*) 'INPORB file: ',trim(FileStr)
-end if
-if (iKey == 35) then
-  ! SPHR
-  isSphere = 1
-end if
-if (iKey == 36) then
-  ! COLOr
-  isColor = 1
-end if
-if (iKey == 37) then
-  ! VIRT
-  isVirt = 1
-  if (MyGetKey(InUnit,'R',iD,Virt,Key,iD,[iD],[rD]) /= 0) goto 666
-end if
-if (iKey == 38) then
-  ! MULLiken charges per MO
-  isMULL = 1
-  read(InUnit,'(A)') MULLPRT
-  call upCASE(MULLPRT)
-  call LeftAd(MULLPRT)
-  if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
-end if
-if (iKey == 39) then
-  ! SUBBLOCK
-  if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],SubBlock) /= 0) goto 666
-  if (MyGetKey(InUnit,'R',iD,rSubBlock,Key,iD,[iD],[rD]) /= 0) goto 666
-  iSubBlock = 1
-end if
-! XDER,YDER,ZDER,GDER
-if (iKey == 40) then
-  isDerivative = 1
-  call Quit_OnUserError()
-end if
-if (iKey == 41) then
-  isDerivative = 2
-  call Quit_OnUserError()
-end if
-if (iKey == 42) then
-  isDerivative = 3
-  call Quit_OnUserError()
-end if
-if (iKey == 43) then
-  isDerivative = 4
-  call Quit_OnUserError()
-end if
-
-if (iKey == 44) then
-  ! CURD (current density)
-  isCurDens = 1
-  call Quit_OnUserError()
-end if
-
-if (iKey == 45) then
-  ! CRXJ (current density, rxj)
-  isCurDens = 1
-  isRxJ = 1
-  call Quit_OnUserError()
-end if
-if (iKey == 46) then
-  ! UMAX (use magnetic axes)
-  iuseMaxes = 1
-end if
-if (iKey == 47) then
-  ! NOLUSCUS
-  isLuscus = 0
-  isBinary = 0
-end if
-if (iKey == 48) then
-  ! XFIEld - ask Grid_It to compute electronic density on a DFT integration grid
-  isXField = 1
-  isReadNet = isReadNet+1 !make the grid definition exclusive
-end if
-if (iKey == 49) then
-  ! LUS1
-  write(u6,*) 'Not implemented'
-  !isLusMath = 1
-  !read(InUnit,'(a)') LUS1
-end if
-if (iKey == 50) then
-  ! LUS2
-  write(u6,*) 'Not implemented'
-  !isLusMath = 1
-  !read(InUnit,'(a)') LUS2
-end if
-if (iKey == 51) then
-  ! PLUS
-  write(u6,*) 'Not implemented'
-  !aLusMath = 1
-end if
-if (iKey == 52) then
-  ! MINUS
-  write(u6,*) 'Not implemented'
-  !aLusMath = -1
-end if
-if (iKey == 53) then
-  ! XFMI xfield minimum charge of each grid point to be stored
-  if (MyGetKey(InUnit,'R',iD,XFminCh,Key,iD,[iD],[rD]) /= 0) goto 666
-end if
-goto 998
-
-666 write(u6,'(a,a,a)') 'Error during reading ',Key(1:20),'section in input file'
-call Quit_OnUserError()
+      if (nReq > MAXGRID) then
+        write(u6,'(a,i5,a,i5)') 'Too many requested orbitals ',nReq,'>',MAXGRID
+        call Quit_OnUserError()
+      end if
+      read(inUnit,*,iostat=iErr) (iReq(i),i=1,nReq*2)
+      if (iErr /= 0) call error()
+      !if (MyGetKey(InUnit,'A',iD,rD,Key,nReq*2,iReq,[rD]) /= 0) call error()
+      isAuMO = 0
+    case (8)
+      ! REGION
+      if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) call error()
+      itRange = 1
+      isAuMO = 1
+      write(u6,*) ' *** Warning keyword REGION is obsolete'
+      write(u6,*) ' ***         assumimg Energy range '
+    case (9)
+      ! ONE - debug option
+      if (MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor) /= 0) call error()
+      isTheOne = 1
+      isBinary = 0
+    case (10)
+      ! TITLE
+      ! NOTE: Title can be only ONE line here!!!
+      if (MyGetKey(InUnit,'S',iD,rD,Title1,iD,[iD],[rD]) /= 0) call error()
+    case (11)
+      ! GAP
+      if (MyGetKey(InUnit,'R',iD,TheGap,Key,iD,[iD],[rD]) /= 0) call error()
+    case (12)
+      ! END
+      exit
+    case (13)
+      ! NODENSITY
+      isDensity = 0
+    case (14)
+      ! TOTAL
+      isTotal = 1
+    case (15)
+      ! NAME
+      read(InUnit,'(a)') TheName
+      !if (MyGetKey(InUnit,'S',iD,rD,TheName,iD,[iD],[rD]) /= 0) call error()
+      ! unfortunately MyGetKey uppercases strings!
+    case (16)
+      ! VB
+      !isVB = 1
+      call Quit_OnUserError()
+    case (17)
+      ! All
+      isAll = 1
+    case (18)
+      ! Atom
+      isAtom = 1
+      isNet = -1
+      iGridNpt(1) = 0
+      iGridNpt(2) = 0
+      iGridNpt(3) = 0
+    case (19)
+      ! CUBE
+      iGauss = 1
+      isBinary = 0
+      write(u6,*) 'Cube option is moved to grid2cube'
+      call Quit_OnUserError()
+    case (20)
+      ! Grid
+      isUserGrid = 1
+      isBinary = 0
+      isNet = -1
+      iGridNpt(1) = 0
+      iGridNpt(2) = 0
+      iGridNpt(3) = 0
+      if (MyGetKey(InUnit,'I',nGridPoints,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      call GetMem('Grid','ALLO','REAL',ipGrid,nGridPoints*3)
+      read(InUnit,*,iostat=iErr) (Work(ipGrid+i-1),i=1,nGridPoints*3)
+      if (iErr /= 0) call error()
+    case (21)
+      ! Pack
+      !imoPack = 1
+    case (22)
+      ! PkLims
+      if (MyGetKey(InUnit,'D',iD,rD,Key,4,[iD],dTemp) /= 0) call error()
+      xLeft = dTemp(1)
+      xRight = dTemp(2)
+      xLoErr = dTemp(3)
+      xHiErr = dTemp(4)
+    case (23)
+      ! PkBits
+      if (MyGetKey(InUnit,'I',i_bits,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      if (i_bits == 16) then
+        iyRange = 32768
+        nBytesPackedVal = 2
+      end if
+    case (24)
+      ! NoOrbitals
+      NoOrb = 1
+    case (25)
+      ! LINE - density on line
+      if (MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor) /= 0) call error()
+      isTheOne = 1
+      isTotal = 1
+      isBinary = 0
+      isLine = 1
+    case (26)
+      ! ORANGE
+      if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) call error()
+      itRange = 0
+      isAuMO = 1
+      NoSort = 1
+    case (27)
+      ! ERANGE
+      if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) call error()
+      itRange = 1
+      isAuMO = 1
+    case (28)
+      ! DEBUG
+      isBinary = 0
+      isDebug = 1
+    case (29)
+      ! CUTOFF
+      if (MyGetKey(InUnit,'R',iD,CutOff,Key,iD,[iD],[rD]) /= 0) call error()
+      isCutOff = 1
+    case (30)
+      ! NOPACK
+      !imoPack = 0
+    case (31)
+      ! GORI
+      iCustOrig = 1
+      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridOrigin) /= 0) call error()
+      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis1) /= 0) call error()
+      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis2) /= 0) call error()
+      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis3) /= 0) call error()
+    case (32)
+      ! SELEct
+      if (MyGetKey(InUnit,'S',iD,rD,SelectStr,iD,[iD],[rD]) /= 0) call error()
+      if (nReq > 0) then
+        write(u6,*) 'SELEct keyword can not be used together with ORBItals'
+        call Quit_OnUserError()
+      end if
+      call gridExpandSelect(SelectStr)
+      isAuMO = 0
+    case (33)
+      ! NOSOrt
+      NoSort = 1
+    case (34)
+      ! FILE
+      read(InUnit,'(A)') FileIn
+      isFileOrb = 1
+      call fileorb(FileIn,FileStr)
+      write(u6,*) 'INPORB file: ',trim(FileStr)
+    case (35)
+      ! SPHR
+      isSphere = 1
+    case (36)
+      ! COLOr
+      isColor = 1
+    case (37)
+      ! VIRT
+      isVirt = 1
+      if (MyGetKey(InUnit,'R',iD,Virt,Key,iD,[iD],[rD]) /= 0) call error()
+    case (38)
+      ! MULLiken charges per MO
+      isMULL = 1
+      read(InUnit,'(A)') MULLPRT
+      call upCASE(MULLPRT)
+      call LeftAd(MULLPRT)
+      if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
+    case (39)
+      ! SUBBLOCK
+      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],SubBlock) /= 0) call error()
+      if (MyGetKey(InUnit,'R',iD,rSubBlock,Key,iD,[iD],[rD]) /= 0) call error()
+      iSubBlock = 1
+    case (40)
+      ! XDER
+      isDerivative = 1
+      call Quit_OnUserError()
+    case (41)
+      ! YDER
+      isDerivative = 2
+      call Quit_OnUserError()
+    case (42)
+      ! ZDER
+      isDerivative = 3
+      call Quit_OnUserError()
+    case (43)
+      isDerivative = 4
+      call Quit_OnUserError()
+    case (44)
+      ! CURD (current density)
+      isCurDens = 1
+      call Quit_OnUserError()
+    case (45)
+      ! CRXJ (current density, rxj)
+      isCurDens = 1
+      isRxJ = 1
+      call Quit_OnUserError()
+    case (46)
+      ! UMAX (use magnetic axes)
+      iuseMaxes = 1
+    case (47)
+      ! NOLUSCUS
+      isLuscus = 0
+      isBinary = 0
+    case (48)
+      ! XFIEld - ask Grid_It to compute electronic density on a DFT integration grid
+      isXField = 1
+      isReadNet = isReadNet+1 !make the grid definition exclusive
+    case (49)
+      ! LUS1
+      write(u6,*) 'Not implemented'
+      !isLusMath = 1
+      !read(InUnit,'(a)') LUS1
+    case (50)
+      ! LUS2
+      write(u6,*) 'Not implemented'
+      !isLusMath = 1
+      !read(InUnit,'(a)') LUS2
+    case (51)
+      ! PLUS
+      write(u6,*) 'Not implemented'
+      !aLusMath = 1
+    case (52)
+      ! MINUS
+      write(u6,*) 'Not implemented'
+      !aLusMath = -1
+    case (53)
+      ! XFMI xfield minimum charge of each grid point to be stored
+      if (MyGetKey(InUnit,'R',iD,XFminCh,Key,iD,[iD],[rD]) /= 0) call error()
+    case default
+  end select
+end do
 
 !***********************************************************************
 !                                                                      *
 !                       End of input section.                          *
 !                                                                      *
 !***********************************************************************
-997 continue
 !if (isLusMath == 1) return
-if (isLuscus == 1 .and. isBinary == 0) then
+if ((isLuscus == 1) .and. (isBinary == 0)) then
   write(u6,*) 'ASCII keyword is set, but NoLUSCUS is not'
   write(u6,*) 'calling abend as the best option available'
   call Quit_OnUserError()
@@ -511,5 +456,12 @@ end if
 return
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer(iReturn)
+
+contains
+
+subroutine error()
+  write(u6,'(a,a,a)') 'Error during reading ',Key(1:20),'section in input file'
+  call Quit_OnUserError()
+end subroutine error
 
 end subroutine Input_Grid_It

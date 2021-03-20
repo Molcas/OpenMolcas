@@ -48,19 +48,19 @@ iPrintCount = iPrintCount+1
 do i=1,nShowMOs-isDensity-isSphere-isColor
   iMOs = iWipGRef(i)
 
-  if (.not.(.false. .and. WipOcc(iMOs) > Zero .and. WipOcc(iMOs) < Two)) then
+  if (.not.(.false. .and. (WipOcc(iMOs) > Zero) .and. (WipOcc(iMOs) < Two))) then
     call outmo(iMOs,1,WipMO,dumArr,WipOut,mCoor,nMOs)
   !else
   !  iActOrb = iActOrb+1
   !  call outmo(0,1,WipMO,WipVBmat(1+(iActOrb-1)*nMOs),WipOut,mCoor,nMOs)
   end if
 
-  if (isLine == 0 .and. isLuscus == 0) then
+  if ((isLine == 0) .and. (isLuscus == 0)) then
     write(line,'(a,i4)') 'Title= ',iMOs
     call PrintLine(LuVal,line,12,1)
   end if
   if (isTheOne == 1) then
-    if (isLine == 0 .and. ISLUSCUS == 0) then
+    if ((isLine == 0) .and. (ISLUSCUS == 0)) then
       write(LuVal,'(f18.12)') (WipOut(j),j=1,mCoor)
     else
       if (i+1 <= nLine) then
@@ -69,131 +69,130 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
         end do
       end if
     end if
-    goto 3939
-  end if
-
-  !if (imoPack /= 0) then
-  !  !call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
-  !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
-  !  call PrintLine(LuVal,line,73,0)
-  !  9000 format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
-  !  if (isBinary /= 0) then
-  !    !call IArrToChar(iWipPBlock,cMoBlock,mCoor)
-  !    !vv ! NOT CODED YET
-  !    write(LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
-  !  else
-  !    write(LuVal,'(I5)') (iWipPBlock(j), j=0,mCoor-1)
-  !  end if
-  !else
-  if (isBinary == 1) then
-    ! packing late
-    if (isCutOff == 1) then
-      call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
-      call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
-      iii = 0
-      do ii=1,mCoor
-        if (iWipCutOff(ii) == 1) then
-          Work(ipCMP+iii) = WipOut(ii)
-          iii = iii+1
-        end if
-      end do
-
-      write(LuVal) (Work(ipCMP+j),j=0,iii-1)
-      call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
-    else
-      ! no cut off
-      write(LuVal) (WipOut(j),j=1,mCoor)
-
-    end if
-  else !isBinary
-    !write(cint,'(i3.3)') i
-    if (isDebug == 0) then
-      ! normal output - just numbers
-      if (isCutOff == 1) then
-        do j=1,mCoor
-          if (iWipCutOff(j) == 1) write(LuVal,'(E10.4)') WipOut(j)
-        end do
-      else if (isLUSCUS == 1) then
-        ! NOPACKING
-        !if (imoPack == 0) then
-        call dump_lusc(LID,WipOut,mCoor)
-        ! debug dump of data
-        !
-        !  do j=1,mCoor,NINLINE
-        !    num = mCoor-j
-        !    if (num > NINLINE) num = NINLINE
-        !    write(formt,'(A,I2,A,I2,A,A)') '(',NINLINE,'E',NBYTES,'.4',')'
-        !    write(line,formt) (WipOut(j-1+ij),ij=1,num)
-        !    call printline(LID,line,NINLINE*NBYTES,0)
-        !  end do
-        !else
-        !  ! PACKING NOT implemented
-        !  !open(unit=38,file='testgr_'//cint//'.txt')
-        !  do j=1,min(mcoor,10)
-        !    iexpnt = int(log10(abs(WipOut(j))))
-        !    write(u6,*) 'num=',WipOut(j),'exp = ',iexpnt
-        !    dnum = (One+WipOut(j)/Ten**iexpnt)/Two
-        !
-        !    in1 = int(dnum*64.0_wp)
-        !    in2 = int((dnum-in1*64.0_wp)*4096.0_wp)
-        !    iexpnt = iexpnt+50
-        !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') WipOut(j),dnum,dexpnt,in1,in2,iexpnt
-        !    if (iexpnt < 1) then
-        !      iexpnt = 1
-        !    else if (iexpnt > 64) then
-        !      iexpnt = 64
-        !    end if
-        !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') WipOut(j),dnum,dexpnt,in1,in2,iexpnt
-        !    !                                       cx(in1:in1),cx(in2:in2),cx(iexpnt:iexpnt)
-        !    !write(u6,*) '-----------------------'
-        !  end do
-        !  !close(38)
-        !  !xxxmin = huge(xxxmin)
-        !  !xxxmax = -huge(xxxmax)
-        !  !do j=1,mCoor
-        !  !  if (WipOut(j) > xxxmax) xxxmax = WipOut(j)
-        !  !  if (WipOut(j) < xxxmin) xxxmin = WipOut(j)
-        !  !end do
-        !  !write(u6,*) 'test min/max',xxxmin,xxxmax
-        !
-        !end if !imoPack
-      else !isCutOff
-        ! writing of data
-        write(LuVal,'(E10.4)') (WipOut(j),j=1,mCoor)
-      end if !isCutOff, isLuscus
-    else !isDebug
-      ! extended output -
-      write(LuVal,'(E10.4,3f8.4)') (WipOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
-    end if !isDebug
-  end if !isBinary
-  !end if !imoPack
-
-  j = iWipGRef(i)
-
-  if (isEner == 1) then
-    if (.not.(.false. .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
-      ib = iWipType(j)
-      bb = ' '
-      if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
-      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(a,i2,i5,f12.4," (",f4.2,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
-                                                                                            WipE(j),WipOcc(j),bb
-    else
-      !iActOrb = iActOrb+1
-      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
-    end if
   else
-    if (.not.(.false. .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
-      ib = iWipType(j)
-      bb = ' '
-      if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
-      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
-                                                                                      WipOcc(j),bb
+
+    !if (imoPack /= 0) then
+    !  !call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
+    !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
+    !  call PrintLine(LuVal,line,73,0)
+    !  9000 format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
+    !  if (isBinary /= 0) then
+    !    !call IArrToChar(iWipPBlock,cMoBlock,mCoor)
+    !    !vv ! NOT CODED YET
+    !    write(LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
+    !  else
+    !    write(LuVal,'(I5)') (iWipPBlock(j), j=0,mCoor-1)
+    !  end if
+    !else
+    if (isBinary == 1) then
+      ! packing late
+      if (isCutOff == 1) then
+        call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
+        call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
+        iii = 0
+        do ii=1,mCoor
+          if (iWipCutOff(ii) == 1) then
+            Work(ipCMP+iii) = WipOut(ii)
+            iii = iii+1
+          end if
+        end do
+
+        write(LuVal) (Work(ipCMP+j),j=0,iii-1)
+        call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
+      else
+        ! no cut off
+        write(LuVal) (WipOut(j),j=1,mCoor)
+
+      end if
+    else !isBinary
+      !write(cint,'(i3.3)') i
+      if (isDebug == 0) then
+        ! normal output - just numbers
+        if (isCutOff == 1) then
+          do j=1,mCoor
+            if (iWipCutOff(j) == 1) write(LuVal,'(E10.4)') WipOut(j)
+          end do
+        else if (isLUSCUS == 1) then
+          ! NOPACKING
+          !if (imoPack == 0) then
+          call dump_lusc(LID,WipOut,mCoor)
+          ! debug dump of data
+          !
+          !  do j=1,mCoor,NINLINE
+          !    num = mCoor-j
+          !    if (num > NINLINE) num = NINLINE
+          !    write(formt,'(A,I2,A,I2,A,A)') '(',NINLINE,'E',NBYTES,'.4',')'
+          !    write(line,formt) (WipOut(j-1+ij),ij=1,num)
+          !    call printline(LID,line,NINLINE*NBYTES,0)
+          !  end do
+          !else
+          !  ! PACKING NOT implemented
+          !  !open(unit=38,file='testgr_'//cint//'.txt')
+          !  do j=1,min(mcoor,10)
+          !    iexpnt = int(log10(abs(WipOut(j))))
+          !    write(u6,*) 'num=',WipOut(j),'exp = ',iexpnt
+          !    dnum = (One+WipOut(j)/Ten**iexpnt)/Two
+          !
+          !    in1 = int(dnum*64.0_wp)
+          !    in2 = int((dnum-in1*64.0_wp)*4096.0_wp)
+          !    iexpnt = iexpnt+50
+          !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') WipOut(j),dnum,dexpnt,in1,in2,iexpnt
+          !    if (iexpnt < 1) then
+          !      iexpnt = 1
+          !    else if (iexpnt > 64) then
+          !      iexpnt = 64
+          !    end if
+          !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') WipOut(j),dnum,dexpnt,in1,in2,iexpnt
+          !    !                                       cx(in1:in1),cx(in2:in2),cx(iexpnt:iexpnt)
+          !    !write(u6,*) '-----------------------'
+          !  end do
+          !  !close(38)
+          !  !xxxmin = huge(xxxmin)
+          !  !xxxmax = -huge(xxxmax)
+          !  !do j=1,mCoor
+          !  !  if (WipOut(j) > xxxmax) xxxmax = WipOut(j)
+          !  !  if (WipOut(j) < xxxmin) xxxmin = WipOut(j)
+          !  !end do
+          !  !write(u6,*) 'test min/max',xxxmin,xxxmax
+          !
+          !end if !imoPack
+        else !isCutOff
+          ! writing of data
+          write(LuVal,'(E10.4)') (WipOut(j),j=1,mCoor)
+        end if !isCutOff, isLuscus
+      else !isDebug
+        ! extended output -
+        write(LuVal,'(E10.4,3f8.4)') (WipOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+      end if !isDebug
+    end if !isBinary
+    !end if !imoPack
+
+    j = iWipGRef(i)
+
+    if (isEner == 1) then
+      if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
+        ib = iWipType(j)
+        bb = ' '
+        if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
+        if ((iRun == 1) .and. (iPrintCount == 1)) &
+          write(u6,'(a,i2,i5,f12.4," (",f4.2,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
+      else
+        !iActOrb = iActOrb+1
+        if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      end if
     else
-      !iActOrb = iActOrb+1
-      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
+        ib = iWipType(j)
+        bb = ' '
+        if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
+        if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
+                                                                                      WipOcc(j),bb
+      else
+        !iActOrb = iActOrb+1
+        if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      end if
     end if
   end if
-3939 continue
 end do
 
 if (isSphere == 1) then
@@ -230,11 +229,11 @@ if (isDensity == 1) then
     !****
     !write(u6,*) ' mCoor=',mCoor
     !****
-  if (isLine == 0 .and. IsLuscus == 0) then
+  if ((isLine == 0) .and. (IsLuscus == 0)) then
     write(line,'(a,i4)') 'Title= ',0
     call PrintLine(LuVal,line,12,1)
   end if
-  !if (imoPack.ne.0) then
+  !if (imoPack /= 0) then
   !  write(u6,*) 'pack code'
   !  call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
   !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
@@ -335,7 +334,7 @@ if (isDensity == 1) then
 end if
 !end if
 
-if (isLine == 1 .and. ISLUSCUS == 0) then
+if ((isLine == 1) .and. (ISLUSCUS == 0)) then
   do i=1,mCoor
     write(LuVal,'(3F10.6,22E20.12)') (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
   end do

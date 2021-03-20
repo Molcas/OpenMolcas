@@ -52,10 +52,10 @@ end if
 do i=1,nShowMOs-isDensity-isSphere-isColor
   j = iWipGRef(i)
   if (isEner == 1) then
-    if (.not.(0 == 1 .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
+    if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
       ib = iWipType(j)
       bb = ' '
-      if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
+      if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
       if (ISLUSCUS == 1) then
         write(LINE,1000) iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
         call PRINTLINE(LUVAL,LINE,72,0)
@@ -63,12 +63,10 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
         write(line,'(a,i2,i5,f12.4," (",f4.2,")",1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
         call PrintLine(LuVal,line,38,0)
       end if
-1000  format(1X,'GridName= Orbital sym=',i2,' index=',i5,' Energ=',F12.4,' occ=',F4.2,' type=',a1)
     else
       iActOrb = iActOrb+1
       if (ISLUSCUS == 1) then
         write(LINE,1010) 'VB orbital',iActOrb,' (',VBocc,')'
-1010    format(1X,'GridName= VB_orbital iActOrb= ',I4,' occ= ',F4.2)
         call PRINTLINE(LUVAL,LINE,45,0)
       else
         write(line,'(2a,i4,5x,a,f4.2,a)') LineT,'VB orbital',iActOrb,' (',VBocc,')'
@@ -76,13 +74,12 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
       end if
     end if
   else
-    if (.not.(0 == 1 .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
+    if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
       ib = iWipType(j)
       bb = ' '
-      if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
+      if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
       if (ISLUSCUS == 1) then
         write(LINE,1020) iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
-1020    format(1X,'GridName= Orbital sym=',I2,' index=',I5,' occ=',F4.2,' type=',A1)
         call PRINTLINE(LUVAL,LINE,53,0)
       else
         write(line,'(a,i2,i5," (",f8.6,")",1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
@@ -138,5 +135,9 @@ if (.false.) then
   call Unused_integer(nBlocks)
   call Unused_integer(nInc)
 end if
+
+1000 format(1X,'GridName= Orbital sym=',i2,' index=',i5,' Energ=',F12.4,' occ=',F4.2,' type=',a1)
+1010 format(1X,'GridName= VB_orbital iActOrb= ',I4,' occ= ',F4.2)
+1020 format(1X,'GridName= Orbital sym=',I2,' index=',I5,' occ=',F4.2,' type=',A1)
 
 end subroutine PrintTitles

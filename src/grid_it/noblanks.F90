@@ -26,14 +26,13 @@ integer(kind=iwp) :: flag, i, j
 flag = -1
 j = 0
 do i=1,len(strin)
-  if (flag == -1 .and. strin(i:i) == ' ') goto 1
+  if ((flag == -1) .and. (strin(i:i) == ' ')) cycle
   flag = 0
   if (i <= len(strin)-1) then
-    if (strin(i:i+1) == '  ') goto 1
+    if (strin(i:i+1) == '  ') cycle
   end if
   j = j+1
   strout(j:j) = strin(i:i)
-  1 continue
 end do
 strout(j+1:) = ' '
 

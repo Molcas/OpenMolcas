@@ -59,7 +59,7 @@ do iAt=0,nCenter-1
   if (index(line,'Ori') /= 0) NoOrig = NoOrig+1
 end do
 
-if (ISLUSCUS == 1 .and. ISBINARY == 3) then
+if ((ISLUSCUS == 1) .and. (ISBINARY == 3)) then
   write(LINE,'(2X,I8)') NCENTER-NOORIG
   call PRINTLINE(LID,LINE,10,0)
   call PRINTLINE(LID,LINE,0,0)
@@ -104,79 +104,80 @@ do iAt=0,nCenter-1
   end if
 end do
 
-if (iCustOrig == 1) goto 500
+if (iCustOrig /= 1) then
 
-if (isAuto == 1) then
+  if (isAuto == 1) then
+    !------------------------------------------------------------------*
+    ! Find Cub parameters                                              *
+    !             Ox->RxMin, Rx->RxMax                                 *
+    !------------------------------------------------------------------*
+    Ox = huge(Ox)
+    Oy = huge(Oy)
+    Oz = huge(Oz)
+    Rx = -huge(Rx)
+    Ry = -huge(Ry)
+    Rz = -huge(Rz)
+
+    do iAt=0,nCenter-1
+      rrx = Work(ipCoor+3*iAt)
+      rry = Work(ipCoor+3*iAt+1)
+      rrz = Work(ipCoor+3*iAt+2)
+      if (rrx < Ox) Ox = rrx
+      if (rrx > Rx) Rx = rrx
+      if (rry < Oy) Oy = rry
+      if (rry > Ry) Ry = rry
+      if (rrz < Oz) Oz = rrz
+      if (rrz > Rz) Rz = rrz
+    end do
+    Rx = Rx-Ox
+    Ry = Ry-Oy
+    Rz = Rz-Oz
+
+    ! and now, expand this cub to place all atoms inside
+
+    Ox = int(Ox-TheGap)
+    Oy = int(Oy-TheGap)
+    Oz = int(Oz-TheGap)
+    Rx = int(Rx+Two*TheGap)
+    Ry = int(Ry+Two*TheGap)
+    Rz = int(Rz+Two*TheGap)
+  end if ! finish of iAuto.
   !--------------------------------------------------------------------*
-  !   Find Cub parameters                                              *
-  !               Ox->RxMin, Rx->RxMax                                 *
+  ! Calculate corrected coords                                         *
   !--------------------------------------------------------------------*
-  Ox = huge(Ox)
-  Oy = huge(Oy)
-  Oz = huge(Oz)
-  Rx = -huge(Rx)
-  Ry = -huge(Ry)
-  Rz = -huge(Rz)
 
-  do iAt=0,nCenter-1
-    rrx = Work(ipCoor+3*iAt)
-    rry = Work(ipCoor+3*iAt+1)
-    rrz = Work(ipCoor+3*iAt+2)
-    if (rrx < Ox) Ox = rrx
-    if (rrx > Rx) Rx = rrx
-    if (rry < Oy) Oy = rry
-    if (rry > Ry) Ry = rry
-    if (rrz < Oz) Oz = rrz
-    if (rrz > Rz) Rz = rrz
-  end do
-  Rx = Rx-Ox
-  Ry = Ry-Oy
-  Rz = Rz-Oz
+  ! make a stupid Patch: Cerius2 works well only with even nets!
 
-  ! and now, expand this cub to place all atoms inside
+  Rx = 2*(int(Rx)/2)
+  Ry = 2*(int(Ry)/2)
+  Rz = 2*(int(Rz)/2)
 
-  Ox = int(Ox-TheGap)
-  Oy = int(Oy-TheGap)
-  Oz = int(Oz-TheGap)
-  Rx = int(Rx+Two*TheGap)
-  Ry = int(Ry+Two*TheGap)
-  Rz = int(Rz+Two*TheGap)
-end if ! finish of iAuto.
-!----------------------------------------------------------------------*
-!     Calculate corrected coords                                       *
-!----------------------------------------------------------------------*
+  if (iMagic > 0) then
+    iGx = int(abs(Rx))*iMagic
+    iGy = int(abs(Ry))*iMagic
+    iGz = int(abs(Rz))*iMagic
+  end if
 
-! make a stupid Patch: Cerius2 works well only with even nets!
+  ! make a stupid Patch: Cerius2 works well only with even nets!
 
-Rx = 2*(int(Rx)/2)
-Ry = 2*(int(Ry)/2)
-Rz = 2*(int(Rz)/2)
+  iGx = (iGx+1)/2*2
+  iGy = (iGy+1)/2*2
+  iGz = (iGz+1)/2*2
+  mynCenter = nCenter
 
-if (iMagic > 0) then
-  iGx = int(abs(Rx))*iMagic
-  iGy = int(abs(Ry))*iMagic
-  iGz = int(abs(Rz))*iMagic
+  !--------------------------------------------------------------------*
+  ! Print coordinates of the system                                    *
+  !--------------------------------------------------------------------*
+  !call bXML('Coord')
+  !call iXML('nCoord',nCenter)
+  !do iAt=0,nCenter-1
+  !  call cXML('Atom',AtomLbl(lw2+iAt))
+  !  call daXML('Atom coord',Work(ipCoor+3*iAt),3)
+  !end do
+  !call eXML('Coord')
+
 end if
 
-! make a stupid Patch: Cerius2 works well only with even nets!
-
-iGx = (iGx+1)/2*2
-iGy = (iGy+1)/2*2
-iGz = (iGz+1)/2*2
-mynCenter = nCenter
-
-!----------------------------------------------------------------------*
-!     Print coordinates of the system                                  *
-!----------------------------------------------------------------------*
-!call bXML('Coord')
-!call iXML('nCoord',nCenter)
-!do iAt=0,nCenter-1
-!  call cXML('Atom',AtomLbl(lw2+iAt))
-!  call daXML('Atom coord',Work(ipCoor+3*iAt),3)
-!end do
-!call eXML('Coord')
-
-500 continue
 write(u6,*)
 write(u6,'(6X,A)') 'Cartesian coordinates:'
 write(u6,'(6X,A)') '-----------------------------------------'

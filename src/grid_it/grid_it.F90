@@ -54,7 +54,7 @@ integer(kind=iwp), external :: IPRINTLEVEL
 ! Prologue
 
 levelprint = IPRINTLEVEL(-1)
-if (iRun == 0 .and. levelprint < 3) then
+if ((iRun == 0) .and. (levelprint < 3)) then
   levelprint = 0
   levelprint = IPRINTLEVEL(levelprint)
 end if
@@ -80,17 +80,16 @@ if (iReturn == _RC_INVOKED_OTHER_MODULE_) then
   !close(unit=LuOrb)
   close(unit=LuVal)
   if (isUHF == 1) close(unit=LuVal_ab)
-  goto 999
+else
+
+  ! Start computing the spin density and spin density gradient at the grid.
+
+  call DrvMO(iRun,INPORB)
+
+  !-----At the end of the calculation free all memory to check for
+  !     corruption of the memory.
+
 end if
-
-! Start computing the spin density and spin density gradient at the grid.
-
-call DrvMO(iRun,INPORB)
-
-!-----At the end of the calculation free all memory to check for
-!     corruption of the memory.
-
-999 continue
 
 call ClsSew()
 

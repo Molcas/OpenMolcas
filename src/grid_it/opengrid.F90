@@ -64,7 +64,7 @@ do iiUHF=0,isUHF
     call molcas_open(88,'extra.prgm')
     iPRGM = 1
   end if
-  if (FullName == ' ' .or. TheName(1:1) == ' ') then
+  if ((FullName == ' ') .or. (TheName(1:1) == ' ')) then
     RealName = 'M2MSI'
     if (isUHF == 1) then
       if (isLuscus == 1) then
@@ -80,15 +80,15 @@ do iiUHF=0,isUHF
     l = 1
     !ii = 1
     !fullname = outf
-    888 i = index(FullName(l:),Slash)
-    if (i > 0) then
+    do
+      i = index(FullName(l:),Slash)
+      if (i == 0) exit
       !ii = i+l
       l = l+i+1
-      goto 888
-    end if
+    end do
     call getenvf('Project',Project)
     !Project = FullName(ii:)
-    if (TheName == 'NEW' .or. TheName == 'new' .or. TheName == 'New') then
+    if ((TheName == 'NEW') .or. (TheName == 'new') .or. (TheName == 'New')) then
       do i=1,99
         write(ss,'(i2)') i
         if (i < 10) ss(1:1) = '0'
@@ -115,8 +115,8 @@ do iiUHF=0,isUHF
       RC = -1
       if (Thename == ' ') then
         if (isUHF == 0) TMPLUS(1:) = 'LUSCUS'
-        if (isUHF == 1 .and. iiUHF == 0) TMPLUS(1:8) = 'alph.lus'
-        if (isUHF == 1 .and. iiUHF == 1) TMPLUS(1:8) = 'beta.lus'
+        if ((isUHF == 1) .and. (iiUHF == 0)) TMPLUS(1:8) = 'alph.lus'
+        if ((isUHF == 1) .and. (iiUHF == 1)) TMPLUS(1:8) = 'beta.lus'
         mm = len_trim(TMPLUS)
         !write(u6,*) ' before 2 lusop', mm
         RC = lusopen(LID,TMPLUS,mm)
@@ -153,7 +153,7 @@ do iiUHF=0,isUHF
         !open(unit=LuVal,file=RealName,Form='FORMATTED')
         if (isLine == 1) then
           write(LuVal,'(a)') '# data in GNUplot format'
-          goto 999
+          exit
         end if
         !write(u6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
         if (isTheOne == 1) then
@@ -172,8 +172,8 @@ do iiUHF=0,isUHF
     if (ISLUSCUS == 1) then
       ! FIXME: User can't define luscus input file name
       if (Thename == ' ') then
-        if (isUHF == 1 .and. iiUHF == 0) TMPLUS = 'AM2L'
-        if (isUHF == 1 .and. iiUHF == 1) TMPLUS = 'BM2L'
+        if ((isUHF == 1) .and. (iiUHF == 0)) TMPLUS = 'AM2L'
+        if ((isUHF == 1) .and. (iiUHF == 1)) TMPLUS = 'BM2L'
         mm = 6
         write(u6,*) ' before 1 lusop', mm
         RC = lusopen(LID_ab,TMPLUS,mm)
@@ -229,7 +229,6 @@ do iiUHF=0,isUHF
     end if
   end if
 end do
-999 continue
 if (iPRGM == 1) close(88)
 
 return

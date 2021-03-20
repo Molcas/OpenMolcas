@@ -55,26 +55,26 @@ end do
 
 eps = 1.0e-6_wp
 ! if no input, but TypeIndex contains 123
-if (isAuMO == -1 .and. isAll /= 1) then
+if ((isAuMO == -1) .and. (isAll /= 1)) then
   iActive = 0
   do i=0,nMOs-1
-    if (iWork(ipType+i) >= 3 .and. iWork(ipType+i) <= 5) iActive = iActive+1
+    if ((iWork(ipType+i) >= 3) .and. (iWork(ipType+i) <= 5)) iActive = iActive+1
   end do
   if (iActive > 0) then
     ii = 0
     do i=0,nMOs-1
-      if (iWork(ipType+i) >= 3 .and. iWork(ipType+i) <= 5) then
+      if ((iWork(ipType+i) >= 3) .and. (iWork(ipType+i) <= 5)) then
         iWork(ipGref+ii) = i+1
         ii = ii+1
       end if
     end do
     nShowMOs = iActive
-    goto 555
+    return
 
   end if
 end if
 
-if (isAuMo == -1 .and. ispin > 0) then
+if ((isAuMo == -1) .and. (ispin > 0)) then
   isAuMO = 1
   Region(1) = -Two+eps
   Region(2) = -eps
@@ -83,7 +83,7 @@ if (isAuMo == -1 .and. ispin > 0) then
 end if
 
 if (isAll == 0) then
-  if (isAuMO == 1 .and. itRange == 1) then
+  if ((isAuMO == 1) .and. (itRange == 1)) then
     s = Region(1)
     Region(1) = min(-Region(2),-Region(1))
     Region(2) = max(-Region(2),-s)
@@ -91,12 +91,12 @@ if (isAll == 0) then
     Region(1) = -Region(2)
     Region(2) = -s
   end if
-  if (isAuMO == -1 .and. itRange == 0) then
+  if ((isAuMO == -1) .and. (itRange == 0)) then
     isAuMO = 1
     Region(1) = -Two+eps
     Region(2) = -eps
   end if
-  if (isAuMO == -1 .and. isEner == 1) then
+  if ((isAuMO == -1) .and. (isEner == 1)) then
     Region(1) = -1000.0_wp
     Region(2) = 1000.0_wp
   end if
@@ -121,7 +121,7 @@ if (isAuMO == 0) then
   do i=1,nReq
     iia = iReq(i*2-1)
     iib = iReq(i*2)
-    if (iia <= 0 .or. iia > nIrrep .or. iib < 0 .or. iib > nBas(iia-1)) then
+    if ((iia <= 0) .or. (iia > nIrrep) .or. (iib < 0) .or. (iib > nBas(iia-1))) then
       write(u6,'(a)') 'Requested orbital does not exist'
       call Quit_OnUserError()
 
@@ -132,7 +132,7 @@ if (isAuMO == 0) then
 
   nShowMOs = nReq
   if (isUHF == 1) nShowMOs_ab = nReq
-  goto 555
+  return
 end if
 !***********************************************************************
 ! Well. The user didn't make an exact request. we need to choose orbitals.
@@ -161,7 +161,7 @@ end do
 if (NoSort == 1) then
   ik = 0
   do i=0,nMOs-1
-    if (Work(ipE+i) > Region(1) .and. Work(ipE+i) < Region(2)) then
+    if ((Work(ipE+i) > Region(1)) .and. (Work(ipE+i) < Region(2))) then
       !write(u6,*) 'EE',Work(ipE+i),Region(1),Region(2)
       ik = ik+1
       iWork(ipSort+i) = ik
@@ -172,9 +172,9 @@ else
 
   ik = 0
   do i=0,nMOs-1
-    if (Work(ipE+i) > Region(1) .and. Work(ipE+i) < Region(2)) then
+    if ((Work(ipE+i) > Region(1)) .and. (Work(ipE+i) < Region(2))) then
       do j=0,nMOs-1
-        if (Work(ipE+j) >= Work(ipE+i) .and. Work(ipE+j) >= Region(1) .and. Work(ipE+j) <= Region(2)) then
+        if ((Work(ipE+j) >= Work(ipE+i)) .and. (Work(ipE+j) >= Region(1)) .and. (Work(ipE+j) <= Region(2))) then
           if (Work(ipE+j) == Work(ipE+i)) then
             if (Work(ipOcc+j) <= Work(ipOcc+i)) then
               iWork(ipSort+i) = iWork(ipSort+i)+1
@@ -192,9 +192,9 @@ else
   if (isUHF == 1) then
     ik_ab = 0
     do i=0,nMOs-1
-      if (Work(ipE_ab+i) > Region(1) .and. Work(ipE_ab+i) < Region(2)) then
+      if ((Work(ipE_ab+i) > Region(1)) .and. (Work(ipE_ab+i) < Region(2))) then
         do j=0,nMOs-1
-          if (Work(ipE_ab+j) >= Work(ipE_ab+i) .and. Work(ipE_ab+j) >= Region(1) .and. Work(ipE_ab+j) <= Region(2)) then
+          if ((Work(ipE_ab+j) >= Work(ipE_ab+i)) .and. (Work(ipE_ab+j) >= Region(1)) .and. (Work(ipE_ab+j) <= Region(2))) then
             if (Work(ipE_ab+j) == Work(ipE_ab+i)) then
               if (Work(ipOcc_ab+j) <= Work(ipOcc_ab+i)) then
                 iWork(ipSort_ab+i) = iWork(ipSort_ab+i)+1
@@ -210,18 +210,18 @@ else
     end do
   end if
 end if
-if (isAuMO == -1 .and. isEner /= 0 .and. isAll == 0) then
+if ((isAuMO == -1) .and. (isEner /= 0) .and. (isAll == 0)) then
   ef = -1000.0_wp
   ief = 0
   ef_ab = ef
   ief_ab = ief
   do i=0,nMOs-1
-    if (Work(ipE+i) > ef .and. Work(ipOcc+i) > eps) then
+    if ((Work(ipE+i) > ef) .and. (Work(ipOcc+i) > eps)) then
       ef = Work(ipE+i)
       ief = i
     end if
     if (isUHF == 1) then
-      if (Work(ipE_ab+i) > ef_ab .and. Work(ipOcc_ab+i) > eps) then
+      if ((Work(ipE_ab+i) > ef_ab) .and. (Work(ipOcc_ab+i) > eps)) then
         ef_ab = Work(ipE_ab+i)
         ief_ab = i
       end if
@@ -232,9 +232,9 @@ if (isAuMO == -1 .and. isEner /= 0 .and. isAll == 0) then
   ii = iWork(ipSort+ief)
   if (isUHF == 1) ii_ab = iWork(ipSort_ab+ief_ab)
   do i=0,nMOs-1
-    if (iWork(ipSort+i) > ii+iMaxUp .or. iWork(ipSort+i) < ii-iMaxDown) iWork(ipSort+i) = 0
+    if ((iWork(ipSort+i) > ii+iMaxUp) .or. (iWork(ipSort+i) < ii-iMaxDown)) iWork(ipSort+i) = 0
     if (isUHF == 1) then
-      if (iWork(ipSort_ab+i) > ii_ab+iMaxUp .or. iWork(ipSort_ab+i) < ii_ab-iMaxDown) iWork(ipSort_ab+i) = 0
+      if ((iWork(ipSort_ab+i) > ii_ab+iMaxUp) .or. (iWork(ipSort_ab+i) < ii_ab-iMaxDown)) iWork(ipSort_ab+i) = 0
     end if
   end do
 end if
@@ -262,6 +262,6 @@ end if
 nShowMOs = il
 if (isUHF == 1) nShowMOs_ab = il_ab
 
-555 return
+return
 
 end subroutine PickOrb
