@@ -22,7 +22,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, atomNumberx3, nsAtom, efatom1, efatom2, ext, LuSpool
+integer(kind=iwp) :: i, j, atomNumberx3, nsAtom, efatom1, efatom2, ext, LuSpool
+integer(kind=iwp) :: efatom3, efatom4
 real(kind=wp) :: efmodul, efmodulAU, norm, posvect12(3)
 real(kind=wp), allocatable :: gradient(:,:), ExtGrad(:,:), modgrad(:,:), coord(:,:)
 real(kind=wp), parameter :: nnewt = auToN*1.0e9_wp
@@ -30,6 +31,11 @@ logical(kind=iwp) :: linear
 character(len=180) :: Key, Line
 character(len=180), external :: Get_Ln
 integer(kind=iwp) :: isfreeunit
+integer(kind=iwp) :: nCent
+real(kind=wp) :: Tau
+real(kind=wp) :: Bt(3,4), dBt(3,4,3,4), fourAtoms(3,4)
+logical(kind=iwp) :: torsional, lWrite,lWarn, ldB
+character(len=180) :: Label
 
 ! get initial values
 
@@ -50,6 +56,9 @@ call Get_dArray('Unique Coordinates',coord,atomNumberx3)
 LuSpool = isfreeunit(21)
 call SpoolInp(LuSpool)
 
+linear=.false.
+torsional=.false.
+
 rewind(LuSpool)
 call RdNLst(LuSpool,'extf')
 do
@@ -58,7 +67,7 @@ do
   call UpCase(Line)
   if (Line(1:3) == 'END') exit
   if (Line(1:4) == 'LINE') then
-!>>>>>>>>>>>>>>>>>>>> FORCe <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    !>>> LINEAR FORCe <<<
     linear = .true.
     write(u6,*) 'Linear forces between two atoms selected'
     Line = Get_Ln(LuSpool)
@@ -78,15 +87,51 @@ do
       write(u6,*) 'Extension force'
     end if
   end if
-!>>>>>>>>>>>>>>>>>>>> END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>>>>>>>>> LINEAR END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ if (Line(1:4) == 'TORS') then
+!>>>>>>>>>>>>>>>>>>>> torsional FORCE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    torsional = .true.
+    write(u6,*) 'Torsional force on a dihedral selected'
+    Line = Get_Ln(LuSpool)
+    call Get_I1(1,efatom1)
+    Line = Get_Ln(LuSpool)
+    call Get_I1(1,efatom2)
+    Line = Get_Ln(LuSpool)
+    call Get_I1(1,efatom3)
+    Line = Get_Ln(LuSpool)
+    call Get_I1(1,efatom4)
+    Line = Get_Ln(LuSpool)
+    call Get_F1(1,efmodul)
+    Line = Get_Ln(LuSpool)
+    call Get_I1(1,ext)
+    write(u6,*) 'atom1:',efatom1
+    write(u6,*) 'atom2:',efatom2
+    write(u6,*) 'atom3:',efatom3
+    write(u6,*) 'atom4:',efatom4
+    write(u6,*) 'Force:',efmodul,' nN'
+    if (ext == 1) then
+      write(u6,*) 'Closing force'
+    else
+      write(u6,*) 'Opening force'
+    end if
+ end if
+!>>>>>>>>>>>>>>>>>>>> torsional END <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 end do
+
+write(u6,*) 'Coordinates Found:'
+do i=1,nsAtom
+write(u6,*) i, coord(:,i)
+end do
+write(u6,*)
+
+write(u6,*) 'Gradient Found:'
+do i=1,nsAtom
+write(u6,*) i, gradient(:,i)
+end do
+write(u6,*)
+
 !>>>>>>>>>>>>>>>>>>>>> LINEAR CODE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 if (linear) then
-  write(u6,*) 'Gradient Found:'
-  do i=1,nsAtom
-    write(u6,*) i,gradient(:,i)
-  end do
-  write(u6,*)
 
   ! from nN to atomic units
   efmodulAU = efmodul/nnewt
@@ -124,6 +169,60 @@ if (linear) then
 
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of linear code <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+if (torsional) then
+  write(u6, *) 'Torsional force applied'
+  ! from nN to atomic units
+  efmodulAU = efmodul/nnewt
+
+  ! initialize the external gradient vector
+  ExtGrad(:,:) = Zero
+
+  fourAtoms(:,:) = Zero ! initialization matrix
+  fourAtoms(:,1) = coord(:,efatom1)
+  fourAtoms(:,2) = coord(:,efatom2)
+  fourAtoms(:,3) = coord(:,efatom3)
+  fourAtoms(:,4) = coord(:,efatom4)
+
+  nCent = 4
+  Tau = 0.0
+  Bt(:,:) = Zero ! initialization matrix
+  lWrite = .true. ! write something in output file
+  lWarn = .true. ! write warnings in output file
+  Label = 'Dihedral'
+  dBt(:,:,:,:) = Zero ! second derivative
+  ldB = .false. ! this will NOT calculate the second derivative
+  Call Trsn(fourAtoms,nCent,Tau,Bt,lWrite,lWarn,Label,dBt,ldB)
+
+  write(u6,*) "Bt vector:"
+  do i=1,4
+    write(u6,*) i, Bt(:,i)
+  end do
+
+  norm = 0.0
+  do i=1,4
+    do j=1,3
+      norm = norm + Bt(j,i)**2
+    end do
+  end do
+  norm = sqrt(norm)
+  write(u6, *) 'Bt norm before normalization:', norm
+
+
+  do i=1,4
+    do j=1,3
+      Bt(j,i) = Bt(j,i)/norm
+    end do
+  end do
+
+  ExtGrad(:,efatom1) = Bt(:,1)*efmodulAU
+  ExtGrad(:,efatom2) = Bt(:,2)*efmodulAU
+  ExtGrad(:,efatom3) = Bt(:,3)*efmodulAU
+  ExtGrad(:,efatom4) = Bt(:,4)*efmodulAU
+
+  modgrad(:,:) = gradient(:,:)+ExtGrad(:,:)
+
+end if
 
 write(u6,*)
 write(u6,*) 'Gradient after force application:'
