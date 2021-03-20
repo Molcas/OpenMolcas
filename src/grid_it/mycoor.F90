@@ -22,24 +22,26 @@ subroutine MyCoor(isAuto,Ox,Oy,Oz,Rx,Ry,Rz,iGx,iGy,iGz,iMagic,iCustOrig)
 !   iMagic = magic guess for net                                       *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One, Two, Angstrom
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: isAuto, iMagic, iCustOrig
+real(kind=wp), intent(inout) :: Ox, Oy, Oz, Rx, Ry, Rz
+integer(kind=iwp), intent(inout) :: iGx, iGy, iGz
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "grid.fh"
-#include "real.fh"
-!dimension iOper(8)
-!dimension RotVec(3)
-character*(LENIN) Byte4
-!character*4 tt
-character*128 Line
-!VV: the constant is used in all GV packages
-#define R529 0.52917721067d0
+#include "WrkSpc.fh"
+integer(kind=iwp) :: iAt, lw2, nCenter, NoOrig
+real(kind=wp) :: rrx, rry, rrz, x529
+character(len=128) :: Line
+character(len=LenIn) :: Byte4
 
 !----------------------------------------------------------------------*
 !     Prologue                                                         *
 !----------------------------------------------------------------------*
 if (isLUSCUS == 1) then
-  x529 = R529
+  x529 = Angstrom
 else
   x529 = One
 end if
@@ -109,12 +111,12 @@ if (isAuto == 1) then
   !   Find Cub parameters                                              *
   !               Ox->RxMin, Rx->RxMax                                 *
   !--------------------------------------------------------------------*
-  Ox = 9999.9d0
-  Oy = 9999.9d0
-  Oz = 9999.9d0
-  Rx = -9999.9d0
-  Ry = -9999.9d0
-  Rz = -9999.9d0
+  Ox = huge(Ox)
+  Oy = huge(Oy)
+  Oz = huge(Oz)
+  Rx = -huge(Rx)
+  Ry = -huge(Ry)
+  Rz = -huge(Rz)
 
   do iAt=0,nCenter-1
     rrx = Work(ipCoor+3*iAt)
@@ -133,12 +135,12 @@ if (isAuto == 1) then
 
   ! and now, expand this cub to place all atoms inside
 
-  Ox = dble(int(Ox-TheGap))
-  Oy = dble(int(Oy-TheGap))
-  Oz = dble(int(Oz-TheGap))
-  Rx = dble(int(Rx+Two*TheGap))
-  Ry = dble(int(Ry+Two*TheGap))
-  Rz = dble(int(Rz+Two*TheGap))
+  Ox = int(Ox-TheGap)
+  Oy = int(Oy-TheGap)
+  Oz = int(Oz-TheGap)
+  Rx = int(Rx+Two*TheGap)
+  Ry = int(Ry+Two*TheGap)
+  Rz = int(Rz+Two*TheGap)
 end if ! finish of iAuto.
 !----------------------------------------------------------------------*
 !     Calculate corrected coords                                       *
@@ -146,9 +148,9 @@ end if ! finish of iAuto.
 
 ! make a stupid Patch: Cerius2 works well only with even nets!
 
-Rx = dble(int(Rx)/2*2)
-Ry = dble(int(Ry)/2*2)
-Rz = dble(int(Rz)/2*2)
+Rx = 2*(int(Rx)/2)
+Ry = 2*(int(Ry)/2)
+Rz = 2*(int(Rz)/2)
 
 if (iMagic > 0) then
   iGx = int(abs(Rx))*iMagic
@@ -175,20 +177,20 @@ mynCenter = nCenter
 !call eXML('Coord')
 
 500 continue
-write(6,*)
-write(6,'(6X,A)') 'Cartesian coordinates:'
-write(6,'(6X,A)') '-----------------------------------------'
-write(6,'(6X,A)') 'No.  Label     X         Y         Z     '
-write(6,'(6X,A)') '-----------------------------------------'
+write(u6,*)
+write(u6,'(6X,A)') 'Cartesian coordinates:'
+write(u6,'(6X,A)') '-----------------------------------------'
+write(u6,'(6X,A)') 'No.  Label     X         Y         Z     '
+write(u6,'(6X,A)') '-----------------------------------------'
 do iAt=0,nCenter-1
-  write(6,'(4X,I4,3X,A,2X,3F10.5)') iAt+1,AtomLbl(lw2+iAt),Work(ipCoor+3*iAt),Work(ipCoor+3*iAt+1),Work(ipCoor+3*iAt+2)
+  write(u6,'(4X,I4,3X,A,2X,3F10.5)') iAt+1,AtomLbl(lw2+iAt),Work(ipCoor+3*iAt),Work(ipCoor+3*iAt+1),Work(ipCoor+3*iAt+2)
 end do
-write(6,'(6X,A)') '-----------------------------------------'
-write(6,'(6X,A,3F12.6)') 'Grid Origin      = ',Ox,Oy,Oz
-write(6,'(6X,A,3F12.6)') 'Grid Axis Length = ',Rx,Ry,Rz
-write(6,'(6X,A)') '-----------------------------------------'
-write(6,*)
-write(6,*)
+write(u6,'(6X,A)') '-----------------------------------------'
+write(u6,'(6X,A,3F12.6)') 'Grid Origin      = ',Ox,Oy,Oz
+write(u6,'(6X,A,3F12.6)') 'Grid Axis Length = ',Rx,Ry,Rz
+write(u6,'(6X,A)') '-----------------------------------------'
+write(u6,*)
+write(u6,*)
 
 !----------------------------------------------------------------------*
 !     Normal exit                                                      *

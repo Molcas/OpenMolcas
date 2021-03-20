@@ -9,14 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function LineNr(Lu)
+function LineNr(Lu)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer Lu, ios
-real*8 foo
+integer(kind=iwp) :: LineNr
+integer(kind=iwp), intent(in) :: Lu
+integer(kind=iwp) :: ios
+real(kind=wp) :: foo
 
 LineNr = 0
 do while (.true.)

@@ -22,38 +22,45 @@ subroutine MOEval(MOValue,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 !                Added ability to calculate 2nd derivative as well     *
 !***********************************************************************
 
-use Real_Spherical
-use Basis_Info
-use Center_Info
-use Phase_Info
+use Real_Spherical, only: ipSph, RSph
+use Basis_Info, only: dbsc, nCnttp, Shells
+use Center_Info, only: dc
+use Phase_Info, only: iPhase
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
+implicit none
+! nDrv: Between 0 and 2. The highest derivative to be calc.
+! mAO:  Memory slots per point and basis functions. Should be >=1 for nDrv=0, >=4 for nDrv=1, >=10 for nDrv=2.
+integer(kind=iwp), intent(in) :: nMOs, nCoor, nCMO, DoIt(nMOs), nDrv, mAO
+real(kind=wp), intent(out) :: MOValue(mAO,nCoor,nMOs)
+real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
 #include "WrkSpc.fh"
 #include "print.fh"
-real*8 A(3), Ccoor(3,nCoor), RA(3)
-integer DoIt(nMOs)
-integer nDrv ! Between 0 and 2. The highest derivative to be calc.
-integer mAO  ! Memory slots per point and basis functions. Should be >=1 for nDrv=0, >=4 for nDrv=1, >=10 for nDrv=2.
-real*8 MOValue(mAO,nCoor,nMOs), CMOs(nCMO)
+integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, ipAng, ipAOs, ipRadial, iPrim, iPrint, ipSOs, iptmp, &
+                     ipx, ipxyz, ipy, ipz, iRout, iScrt1, iScrt2, iShll, iSkal, kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nForm, &
+                     nOp, nRadial, nScr1, nScr2, nSO, nTerm, nTest, ntmp, nxyz
+real(kind=wp) :: A(3), px, py, pz, RA(3), Thr
+integer(kind=iwp), external :: NrOpr
 
 ! Statement functions
+integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
 iPrint = nPrint(iRout)
 
 if (iPrint >= 99) then
-  write(6,*) ' In MOEval'
+  write(u6,*) ' In MOEval'
 end if
-call dcopy_(mAO*nCoor*nMOs,[Zero],0,MOValue,1)
+MOValue(:,:,:) = Zero
 
 ! Loop over shells.
 
 iSkal = 0
-Thr = 0.0d0
+Thr = Zero
 
 do iAng=S%iAngMx,0,-1
 
@@ -137,9 +144,9 @@ do iAng=S%iAngMx,0,-1
         ipx = iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0))
         ipy = iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0))
         ipz = iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0))
-        px = dble(iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0)))
-        py = dble(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)))
-        pz = dble(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)))
+        px = real(iPhase(1,dc(mdc+iCnt)%iCoSet(iG,0)),kind=wp)
+        py = real(iPhase(2,dc(mdc+iCnt)%iCoSet(iG,0)),kind=wp)
+        pz = real(iPhase(3,dc(mdc+iCnt)%iCoSet(iG,0)),kind=wp)
         nOp = NrOpr(dc(mdc+iCnt)%iCoSet(iG,0))
 
         !----- Evaluate AOs at RA

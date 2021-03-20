@@ -8,17 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSIZE,NBYTES,NINLINE,nBlocks)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nMOs, nShowMOs, nShowMOs_ab, nCoor, nInc, iiCoord, nTypes(7), iCRSIZE, NBYTES, NINLINE
+integer(kind=iwp), intent(inout) :: nBlocks
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "grid.fh"
-character line*128
-integer nTypes(7)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iiUHF, LuVal_, NFIRST, NLAST, nn, nn1, nShowMOs_
+character(len=128) :: line
 
 LuVal_ = LuVal
 if (isLUSCUS == 1) LuVal_ = LID
@@ -33,44 +38,44 @@ do iiUHF=0,isUHF
   end if
   if (ISLUSCUS == 1) then
     ! debug
-    !write(6,*) 'N_of_MO=',nMOs
-    !write(6,*) 'N_of_Grids=',nShowMOs_
-    !write(6,*) 'N_of_Points=',nCoor
-    !write(6,*) 'Block_Size=',nInc
-    !write(6,*) 'N_Blocks=',nBlocks
-    !write(6,*) 'Is_cutoff=',isCutOff
-    !write(6,*) 'CutOff=',Cutoff
-    !write(6,*) 'N_P=',iiCoord
+    !write(u6,*) 'N_of_MO=',nMOs
+    !write(u6,*) 'N_of_Grids=',nShowMOs_
+    !write(u6,*) 'N_of_Points=',nCoor
+    !write(u6,*) 'Block_Size=',nInc
+    !write(u6,*) 'N_Blocks=',nBlocks
+    !write(u6,*) 'Is_cutoff=',isCutOff
+    !write(u6,*) 'CutOff=',Cutoff
+    !write(u6,*) 'N_P=',iiCoord
     ! end debug
 
     if (nMOs > 99999) then
-      write(6,*) 'Number of MO''s can''t be larger that 99999'
+      write(u6,*) 'Number of MO''s can''t be larger that 99999'
       call Quit_OnUserError()
     end if
     if (nShowMOs_ > 9999) then
-      write(6,*) 'Number of grids can''t be larger that 9999'
+      write(u6,*) 'Number of grids can''t be larger that 9999'
       call Quit_OnUserError()
     end if
     if (nCoor > 99999999) then
-      write(6,*) 'Number of points can''t be larger that 99999999'
+      write(u6,*) 'Number of points can''t be larger that 99999999'
       call Quit_OnUserError()
     end if
     if (nInc > 999999) then
-      write(6,*) 'Block size can''t be larger that 999999'
+      write(u6,*) 'Block size can''t be larger that 999999'
       call Quit_OnUserError()
     end if
     nBlocks = nCoor/nInc+1
     if (nBlocks > 9999) then
-      write(6,*) 'Number of blocks can''t be larger that 9999'
-      !write(6,*) 'nBlocks = ',nBlocks
+      write(u6,*) 'Number of blocks can''t be larger that 9999'
+      !write(u6,*) 'nBlocks = ',nBlocks
       call Quit_OnUserError()
     end if
     if (isCutOff > 9) then
-      write(6,*) 'Wrong cutoff'
+      write(u6,*) 'Wrong cutoff'
       call Quit_OnUserError()
     end if
     if (iiCoord > 99999999) then
-      write(6,*) 'N_P can''t be larger that 99999999'
+      write(u6,*) 'N_P can''t be larger that 99999999'
       call Quit_OnUserError()
     end if
     write(LINE,'(''<GRID>'')')

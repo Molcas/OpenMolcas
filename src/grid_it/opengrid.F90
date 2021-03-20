@@ -14,24 +14,23 @@ subroutine OpenGrid(INPORB)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*), intent(in) :: INPORB
 #include "Molcas.fh"
 #include "grid.fh"
-character FullName*256
-character RealName*306
-character ss*2
-character Env*40
-character INPORB*(*)
-character(LEN=512) TMPLUS
-integer RC
-!logical exist
-logical is_error
-character Slash
-character*12 Alpha
-integer LUSOPEN
-external LUSOPEN
-
-Slash = '/'
+integer(kind=iwp) :: i, iiUHF, istatus, iPRGM, irecl, l, LuOrb, mm, RC
+real(kind=wp) :: g
+logical(kind=iwp) :: is_error
+character(len=512) :: TMPLUS
+character(len=256) :: FullName
+character(len=306) :: RealName
+character(len=40) :: Env
+character(len=12) :: Alpha
+character(len=2) :: ss
+character, parameter :: Slash = '/'
+integer(kind=iwp), external :: isFreeUnit, LUSOPEN
 
 LuOrb = isFreeUnit(46)
 iPRGM = 0
@@ -101,7 +100,7 @@ do iiUHF=0,isUHF
       RealName = FullName(1:index(FullName,' ')-1)//Slash//Project(1:index(Project,' ')-1)//'.'//TheName(1:index(TheName,' ')-1)// &
                  Alpha
     end if
-    write(6,*) 'Grid file: ',RealName(:mylen(RealName))
+    write(u6,*) 'Grid file: ',trim(RealName)
   end if
 
   if (TheName /= ' ') then
@@ -118,32 +117,32 @@ do iiUHF=0,isUHF
         if (isUHF == 0) TMPLUS(1:) = 'LUSCUS'
         if (isUHF == 1 .and. iiUHF == 0) TMPLUS(1:8) = 'alph.lus'
         if (isUHF == 1 .and. iiUHF == 1) TMPLUS(1:8) = 'beta.lus'
-        mm = mylen(TMPLUS)
-        !write(6,*) ' before 2 lusop', mm
+        mm = len_trim(TMPLUS)
+        !write(u6,*) ' before 2 lusop', mm
         RC = lusopen(LID,TMPLUS,mm)
       else
-        mm = mylen(RealName)
-        !write(6,*) ' before 2 lusop', mm
+        mm = len_trim(RealName)
+        !write(u6,*) ' before 2 lusop', mm
         RC = lusopen(LID,RealName,mm)
       end if
       !rc = AixOpn(LID,'LUSCUS',.TRUE.)
       if (RC /= 0) then
-        write(6,*) 'ERROR: Can''t open luscus file!'
+        write(u6,*) 'ERROR: Can''t open luscus file!'
         call Abend()
       end if
     else ! not luscus
       if (isBinary == 1) then
-        call molcas_open_ext2(LuVal,RealName,'sequential','unformatted',iostat,.false.,irecl,'unknown',is_error)
+        call molcas_open_ext2(LuVal,RealName,'sequential','unformatted',istatus,.false.,irecl,'unknown',is_error)
         !open(unit=LuVal,access='sequential',form='unformatted',file=RealName)
-        !write(6,*) '** Create Grid file:',RealName(1:index(RealName,' '))
+        !write(u6,*) '** Create Grid file:',RealName(1:index(RealName,' '))
         write(LuVal) 'a'
         !if (imoPack /= 0) then
-        !  g = 2003.9
+        !  g = 2003.9_wp
         !  i = 0
         !  write(LuVal) g,nMOs,nShowMOs_,nCoor,nInc,nBlocks,isCutOff,Cutoff,iiCoord
         !  write(LuVal) i
         !else
-        g = 1999.0
+        g = 1999.0_wp
         write(LuVal) g
         !end if
         write(LuVal) Title1
@@ -156,7 +155,7 @@ do iiUHF=0,isUHF
           write(LuVal,'(a)') '# data in GNUplot format'
           goto 999
         end if
-        !write(6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
+        !write(u6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
         if (isTheOne == 1) then
           write(LuVal,'(a1)') '9'
         else
@@ -176,33 +175,33 @@ do iiUHF=0,isUHF
         if (isUHF == 1 .and. iiUHF == 0) TMPLUS = 'AM2L'
         if (isUHF == 1 .and. iiUHF == 1) TMPLUS = 'BM2L'
         mm = 6
-        write(6,*) ' before 1 lusop', mm
+        write(u6,*) ' before 1 lusop', mm
         RC = lusopen(LID_ab,TMPLUS,mm)
       else
-        mm = mylen(RealName)
-        write(6,*) ' before lusop', mm
+        mm = len_trim(RealName)
+        write(u6,*) ' before lusop', mm
         RC = lusopen(LID_ab,RealName,mm)
       end if
       !rc = AixOpn(LID,'LUSCUS',.TRUE.)
       if (RC /= 0) then
-        write(6,*) 'ERROR: Can''t open luscus file!'
+        write(u6,*) 'ERROR: Can''t open luscus file!'
         call Abend()
       end if
     end if
     LuVal_ab = isFreeUnit(51)
 
     if (isBinary == 1) then
-      call molcas_open_ext2(LuVal_ab,RealName,'sequential','unformatted',iostat,.false.,irecl,'unknown',is_error)
+      call molcas_open_ext2(LuVal_ab,RealName,'sequential','unformatted',istatus,.false.,irecl,'unknown',is_error)
       !open(unit=LuVal_ab,access='sequential',form='unformatted',file=RealName)
-      !write(6,*) '** Create Grid file',RealName(1:index(RealName,' '))
+      !write(u6,*) '** Create Grid file',RealName(1:index(RealName,' '))
       write(LuVal_ab) 'a'
       !if (imoPack /= 0) then
-      !  g = 2003.9
+      !  g = 2003.9_wp
       !  i = 0
       !  write(LuVal_ab) g
       !  write(LuVal_ab) i
       !else
-      g = 1999.0
+      g = 1999.0_wp
       write(LuVal_ab) g
       !end if
       write(LuVal_ab) Title1
@@ -211,7 +210,7 @@ do iiUHF=0,isUHF
     if (isBinary == 0) then
       call molcas_open(LuVal_ab,RealName)
       !open(unit=LuVal_ab,file=RealName,Form='FORMATTED')
-      !write(6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
+      !write(u6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
       if (isTheOne == 1) then
         write(LuVal_ab,'(a1)') '9'
       else

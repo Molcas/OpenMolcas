@@ -15,19 +15,24 @@ subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,iWipGRef,isEner,WipOcc,iWip
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-character Line*12000
-character Crypt*7, bb
-dimension iWipGRef(*), WipOcc(*), iWipType(*), iWipNZ(*), WipE(*)
-character LineT*10
-integer Sizeof8
+implicit none
+integer(kind=iwp), intent(in) :: LuVal, nShowMOs, isDensity, nMOs, iWipGRef(*), isEner, iWipType(*), iWipNZ(*), ifpartial, isLine, &
+                                 isSphere, isColor, ISLUSCUS, nCoor, nBlocks, nInc
+real(kind=iwp), intent(in) :: WipOcc(*), WipE(*), VBocc
+character(len=7), intent(in) :: Crypt
+integer(kind=iwp) :: i, iActOrb, ib, j, Sizeof8
+character(len=12000) :: Line
+character(len=10) :: LineT
+character :: bb
 
 Sizeof8 = 8
 iActOrb = 0
 LineT = 'GridName= '
 if (isLine == 1) LineT = '#GridName='
-!write(6,*) 'here',nInc, nBlocks, nCoor
+!write(u6,*) 'here',nInc, nBlocks, nCoor
 if (isLUSCUS == 1) then
   !NFIRST = nInc
 
@@ -47,7 +52,7 @@ end if
 do i=1,nShowMOs-isDensity-isSphere-isColor
   j = iWipGRef(i)
   if (isEner == 1) then
-    if (.not.(0 == 1 .and. WipOcc(j) > 0d0 .and. WipOcc(j) < 2d0)) then
+    if (.not.(0 == 1 .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
       ib = iWipType(j)
       bb = ' '
       if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
@@ -55,7 +60,7 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
         write(LINE,1000) iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
         call PRINTLINE(LUVAL,LINE,72,0)
       else
-        write(line,'(a,i2,i5,f12.4,'' ('',f4.2,'')'',1x,a)')LineT,iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
+        write(line,'(a,i2,i5,f12.4," (",f4.2,")",1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
         call PrintLine(LuVal,line,38,0)
       end if
 1000  format(1X,'GridName= Orbital sym=',i2,' index=',i5,' Energ=',F12.4,' occ=',F4.2,' type=',a1)
@@ -71,7 +76,7 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
       end if
     end if
   else
-    if (.not.(0 == 1 .and. WipOcc(j) > 0d0 .and. WipOcc(j) < 2d0)) then
+    if (.not.(0 == 1 .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
       ib = iWipType(j)
       bb = ' '
       if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
@@ -80,7 +85,7 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
 1020    format(1X,'GridName= Orbital sym=',I2,' index=',I5,' occ=',F4.2,' type=',A1)
         call PRINTLINE(LUVAL,LINE,53,0)
       else
-        write(line,'(a,i2,i5,'' ('',f8.6,'')'',1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
+        write(line,'(a,i2,i5," (",f8.6,")",1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
         call PrintLine(LuVal,line,30,0)
       end if
     else

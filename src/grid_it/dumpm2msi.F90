@@ -16,34 +16,39 @@ subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,iWipGRef,WipOcc,WipM
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
-!dimension xLimits(4)
-!integer iYDelta(3)
-character*1 cMoBlock(*)
-character Crypt*7, bb
-character Line*128
-!character fmt*20
-! test
-!character*3 cint
-!character*1 cx(64)
-!data cx /'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t', &
-!         'u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X', &
-!         'Y','Z','@','#' /
-! test end
-dimension iWipGRef(*), WipOcc(*), WipMO(*), WipOut(*), iWipPBlock(*), iWipType(*), iWipNZ(*), WipE(*), WLine(nLine,mCoor), &
-          WCoor(3,mCoor), iWipCutOff(*), SphrDist(mCoor), SphrColor(mCoor)
-dimension DumArr(2)
-#include "WrkSpc.fh"
+use Constants, only: Zero, Two, Ten
+use Definitions, only: wp, iwp, u6
 
-!write(6,*) 'entering DumpM2Msi'
+implicit none
+integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, isDensity, nMOs, iWipGRef(*), mCoor, iGauss, nInc, imoPack, &
+                                 iWipPBlock(*), nBytesPackedVal, isTheOne, isLine, isBinary, isEner, iWipType(*), iWipNZ(*), &
+                                 nLine, isDebug, isCutOff, iWipCutOff(*), isSphere, isColor, ISLUSCUS, NBYTES, NINLINE
+integer(kind=iwp), intent(inout) :: iPrintCount
+real(kind=wp), intent(in) :: WipOcc(*), WipMO(*), WipOut(*), VbOcc, WipE(*), WCoor(3,mCoor), SphrDist(mCoor), SphrColor(mCoor)
+character, intent(in) :: cMoBlock(*)
+real(kind=wp), intent(inout) :: dNorm, WLine(nLine,mCoor)
+character(len=7), intent(in) :: Crypt
+#include "SysDef.fh"
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iActOrb, ib, ii, iii, iMOs, ipCMP, j, RC !, iYDelta(3)
+real(kind=wp) :: DumArr(2) !, xLimits(4)
+character :: bb
+character(len=128) :: Line
+!character(len=20) :: formt
+! test
+!character(len=3) :: cint
+!character, parameter :: cx(64) = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#'
+! test end
+integer(kind=iwp), external :: C_WRITE
+
+!write(u6,*) 'entering DumpM2Msi'
 if (irun > 100) print *, iGauss,nbytes,ninc,ninline
 iActOrb = 0
 iPrintCount = iPrintCount+1
 do i=1,nShowMOs-isDensity-isSphere-isColor
   iMOs = iWipGRef(i)
 
-  if (.not.(0 == 1 .and. WipOcc(iMOs) > 0d0 .and. WipOcc(iMOs) < 2d0)) then
+  if (.not.(.false. .and. WipOcc(iMOs) > Zero .and. WipOcc(iMOs) < Two)) then
     call outmo(iMOs,1,WipMO,dumArr,WipOut,mCoor,nMOs)
   !else
   !  iActOrb = iActOrb+1
@@ -117,39 +122,39 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
         !  do j=1,mCoor,NINLINE
         !    num = mCoor-j
         !    if (num > NINLINE) num = NINLINE
-        !    write(fmt,'(A,I2,A,I2,A,A)') '(',NINLINE,'E',NBYTES,'.4',')'
-        !    write(line,fmt) (WipOut(j-1+ij),ij=1,num)
+        !    write(formt,'(A,I2,A,I2,A,A)') '(',NINLINE,'E',NBYTES,'.4',')'
+        !    write(line,formt) (WipOut(j-1+ij),ij=1,num)
         !    call printline(LID,line,NINLINE*NBYTES,0)
         !  end do
         !else
         !  ! PACKING NOT implemented
         !  !open(unit=38,file='testgr_'//cint//'.txt')
         !  do j=1,min(mcoor,10)
-        !    iexpnt = int(log10(abs(wipout(j))))
-        !    write(6,*) 'num=',wipout(j),'exp = ',iexpnt
-        !    dnum = (1.0D0+wipout(j)/10.0D0**iexpnt)/2.0D0
+        !    iexpnt = int(log10(abs(WipOut(j))))
+        !    write(u6,*) 'num=',WipOut(j),'exp = ',iexpnt
+        !    dnum = (One+WipOut(j)/Ten**iexpnt)/Two
         !
-        !    in1 = int(dnum*64.0d0)
-        !    in2 = int((dnum-dble(in1)*64.0D0)*4096.0D0)
+        !    in1 = int(dnum*64.0_wp)
+        !    in2 = int((dnum-in1*64.0_wp)*4096.0_wp)
         !    iexpnt = iexpnt+50
-        !    write(6,'(1x,3(1x,e18.8),2x,3(1x,i3))') wipout(j),dnum,dexpnt,in1,in2,iexpnt
+        !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') WipOut(j),dnum,dexpnt,in1,in2,iexpnt
         !    if (iexpnt < 1) then
         !      iexpnt = 1
         !    else if (iexpnt > 64) then
         !      iexpnt = 64
         !    end if
-        !    write(6,'(1x,3(1x,e18.8),2x,3(1x,i3))') wipout(j),dnum,dexpnt,in1,in2,iexpnt
-        !    !                                       cx(in1),cx(in2),cx(iexpnt)
-        !    !write(6,*) '-----------------------'
+        !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') WipOut(j),dnum,dexpnt,in1,in2,iexpnt
+        !    !                                       cx(in1:in1),cx(in2:in2),cx(iexpnt:iexpnt)
+        !    !write(u6,*) '-----------------------'
         !  end do
         !  !close(38)
-        !  !xxxmin = 9.99d+99
-        !  !xxxmax = -9.99d+99
+        !  !xxxmin = huge(xxxmin)
+        !  !xxxmax = -huge(xxxmax)
         !  !do j=1,mCoor
-        !  !  if (wipout(j) > xxxmax) xxxmax = wipout(j)
-        !  !  if (wipout(j) < xxxmin) xxxmin = wipout(j)
+        !  !  if (WipOut(j) > xxxmax) xxxmax = WipOut(j)
+        !  !  if (WipOut(j) < xxxmin) xxxmin = WipOut(j)
         !  !end do
-        !  !write(6,*) 'test min/max',xxxmin,xxxmax
+        !  !write(u6,*) 'test min/max',xxxmin,xxxmax
         !
         !end if !imoPack
       else !isCutOff
@@ -166,26 +171,26 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
   j = iWipGRef(i)
 
   if (isEner == 1) then
-    if (.not.(0 == 1 .and. WipOcc(j) > 0d0 .and. WipOcc(j) < 2d0)) then
+    if (.not.(.false. .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
       ib = iWipType(j)
       bb = ' '
       if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
-      if (iRun == 1 .and. iPrintCount == 1) write(6,'(a,i2,i5,f12.4,'' ('',f4.2,'') '',a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
+      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(a,i2,i5,f12.4," (",f4.2,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
                                                                                             WipE(j),WipOcc(j),bb
     else
       !iActOrb = iActOrb+1
-      if (iRun == 1 .and. iPrintCount == 1) write(6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
     end if
   else
-    if (.not.(0 == 1 .and. WipOcc(j) > 0d0 .and. WipOcc(j) < 2d0)) then
+    if (.not.(.false. .and. WipOcc(j) > Zero .and. WipOcc(j) < Two)) then
       ib = iWipType(j)
       bb = ' '
       if (ib > 0 .and. ib < 8) bb = Crypt(ib:ib)
-      if (iRun == 1 .and. iPrintCount == 1) write(6,'(a,i2,i5,'' ('',f8.6,'') '',a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
+      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
                                                                                       WipOcc(j),bb
     else
       !iActOrb = iActOrb+1
-      if (iRun == 1 .and. iPrintCount == 1) write(6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
+      if (iRun == 1 .and. iPrintCount == 1) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
     end if
   end if
 3939 continue
@@ -223,14 +228,14 @@ if (isDensity == 1) then
     dNorm = dNorm+WipOut(j)
   end do
     !****
-    !write(6,*) ' mCoor=',mCoor
+    !write(u6,*) ' mCoor=',mCoor
     !****
   if (isLine == 0 .and. IsLuscus == 0) then
     write(line,'(a,i4)') 'Title= ',0
     call PrintLine(LuVal,line,12,1)
   end if
   !if (imoPack.ne.0) then
-  !  write(6,*) 'pack code'
+  !  write(u6,*) 'pack code'
   !  call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
   !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
   !  call PrintLine(LuVal,line,73,0)
@@ -241,7 +246,7 @@ if (isDensity == 1) then
   !    if (ISLUSCUS == 1) then
   !      RC = C_WRITE(LID,CMOBLOCK,(mCoor*nBytesPackedVal)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) THEN
-  !        write(6,*) 'error in writing luscus file!'
+  !        write(u6,*) 'error in writing luscus file!'
   !        call Abend()
   !      end if
   !    else
@@ -251,7 +256,7 @@ if (isDensity == 1) then
   !    if (ISLUSCUS == 1) then
   !      RC = C_WRITE(LID,IWIPPBLOCK,(mCoor)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) then
-  !        write(6,*) 'error in writing luscus file!'
+  !        write(u6,*) 'error in writing luscus file!'
   !        call Abend()
   !      end if
   !    else
@@ -280,7 +285,7 @@ if (isDensity == 1) then
         !!!!!!!!!!!!!!!!!!!!check iii-1
         RC = C_WRITE(LID,WORK(IPCMP),(III-1)*RTOB)
         if (RC == 0) then
-          write(6,*) 'error in writing luscus file!'
+          write(u6,*) 'error in writing luscus file!'
           call Abend()
         end if
       else
@@ -291,10 +296,10 @@ if (isDensity == 1) then
       ! no cut off
       !if (ISLUSCUS == 1) then
       !  call dump_lusc(LID,WipOut,mCoor)
-      !  write(6,*) 'here'
+      !  write(u6,*) 'here'
       !  RC = C_WRITE(LID,WIPOUT,MCOOR*RTOB) !!!!!!!!!!!!!!!!!!!!check MCOOR
       !  if (RC == 0) then
-      !    write(6,*) 'error in writing luscus file!'
+      !    write(u6,*) 'error in writing luscus file!'
       !    call Abend()
       !  end if
       !else

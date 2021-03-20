@@ -22,45 +22,47 @@ subroutine DrvMO(iRun,INPORB)
 
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: nBas
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: iRun
+character(len=*), intent(in) :: INPORB
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-#include "real.fh"
 #include "grid.fh"
-
-!logical Debug
-character str*128, Crypt*7
-character INPORB*(*)
-character*80 myTitle
-character*128 line
-real*8 pp(3)
-integer nTypes(7)
-logical is_error
-data Crypt/'fi123sd'/
-!
+integer(kind=iwp) :: i, i1, i2, i3, iaia, iCRSIZE, ie1, ie2, ie3, iErr, ifpartial, ii, iiCoord, iiiCoord, iiMO, iIrrep, iLen, &
+                     istatus, ipC, ipCMO, ipCMO_ab, ipCutOff, ipdd, ipDoIt, ipDoIt_ab, ipE, ipE_ab, ipGRef, ipGRef_ab, ipLine, &
+                     ipMO, ipNZ, ipOcc, ipOcc_ab, ipOoo, ipOut, ipPab, ipPBlock, ipPO, iPrintCount, ipSort, ipSort_ab, ipType, &
+                     ipVol, irecl, iSec, isEner, iShiftCut, ishow, iSphrColor, iSphrDist, iv1, iv2, iv3, ive1, ive2, ive3, &
+                     iWFtype, j, jj, jjMO, LuOrb, LuVal_, LuVal_ab_, mCoor, MM, nBlocks, NBYTES, nCMO, nCoor, nDrv, nInc, NINLINE, &
+                     nLine, nMOs, nShowMOs, nShowMOs2, nShowMOs_ab, nSLine, nTypes(7)
+real(kind=wp) :: dd, det3, dNorm, gv1, gv2, gv3, pp(3), VBocc
+logical(kind=iwp) :: is_error
+character(len=128) :: line, str
+character(len=80) :: myTitle
+character(len=7), parameter :: Crypt = 'fi123sd'
 !---- Set size of batches
-!
-parameter(nIncPack=18*1024)
+integer(kind=iwp), parameter :: nIncPack = 18*1024
+character(len=nIncPack*2) :: cMoBlock
+integer(kind=iwp), external :: isFreeUnit
 
-character cMoBlock(nIncPack*2)
-
-nInc = nIncPack
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !... Prologue
-!Debug = .false.
+nInc = nIncPack
 isEner = 1
 ipCutOff = ip_iDummy
 
-dNorm = 0
-!ddNorm = 0
+dNorm = Zero
+!ddNorm = Zero
 if (iRun == 1 .and. levelprint >= 3) then
-  write(6,*)
-  write(6,'(A,8I5)') 'Irreps  : ',(i,i=1,nIrrep)
-  write(6,'(A,8I5)') 'Basis   : ',(nBas(i),i=0,nIrrep-1)
-  write(6,'(A,3I5)') 'Grid Net: ',(iGridNpt(i),i=1,3)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,8I5)') 'Irreps  : ',(i,i=1,nIrrep)
+  write(u6,'(A,8I5)') 'Basis   : ',(nBas(i),i=0,nIrrep-1)
+  write(u6,'(A,3I5)') 'Grid Net: ',(iGridNpt(i),i=1,3)
+  write(u6,*)
 end if
 
 !... Compute the size of the densities
@@ -73,15 +75,15 @@ do iIrrep=0,nIrrep-1
 end do
 
 if (isUHF /= 0 .and. (isDerivative /= 0 .or. isCurDens /= 0)) then
-  write(6,*) 'ERROR - Current density or derivatives not implemented for UHF!!!'
+  write(u6,*) 'ERROR - Current density or derivatives not implemented for UHF!!!'
   call Abend()
 end if
 if (NoOrb /= 0 .and. (isDerivative /= 0 .or. isCurDens /= 0)) then
-  write(6,*) 'ERROR - Current density or derivatives not implemented with the NOORB keyword!!!'
+  write(u6,*) 'ERROR - Current density or derivatives not implemented with the NOORB keyword!!!'
   call Abend()
 end if
 if (isAtom /= 0 .and. (isDerivative /= 0 .or. isCurDens /= 0)) then
-  write(6,*) 'ERROR - Current density or derivatives not implemented with the ATOM keyword!!!'
+  write(u6,*) 'ERROR - Current density or derivatives not implemented with the ATOM keyword!!!'
   call Abend()
 end if
 
@@ -117,9 +119,9 @@ if (isUHF == 0) then
 
   ! construct Pab
   if (NoOrb == 1) then
-    !write(6,*) 'nCMO,nMOs', nCMO,nMOs
+    !write(u6,*) 'nCMO,nMOs', nCMO,nMOs
     call makePab(Work(ipCMO),Work(ipOcc),Work(ipPab),nMOs,nMOs,nIrrep,nBas)
-    !write(6,*) 'Pab=', (Work(ipPab+i),i=0,nMOs-1)
+    !write(u6,*) 'Pab=', (Work(ipPab+i),i=0,nMOs-1)
   end if
   if (iErr == 1) then
     do j=0,nMOs-1
@@ -162,8 +164,8 @@ close(LuOrb)
 ! Calculate net.
 
 if (iRun == 1) then
-  write(6,'(A)') '   Input vectors read from INPORB'
-  write(6,'(A,A)') '   Orbital file label: ',myTitle(:mylen(myTitle))
+  write(u6,'(A)') '   Input vectors read from INPORB'
+  write(u6,'(A,A)') '   Orbital file label: ',trim(myTitle)
 end if
 do j=1,3
   iGridNpt(j) = iGridNpt(j)+1
@@ -176,7 +178,7 @@ iiCoord = nCoor
 
 if (isCutOff == 1) then
   if (isUserGrid == 1) then
-    write(6,*) 'Not implemented'
+    write(u6,*) 'Not implemented'
     call Quit_OnUserError()
   end if
 
@@ -184,7 +186,7 @@ if (isCutOff == 1) then
   ie1 = max(iGridNpt(1)-1,1)
   ie2 = max(iGridNpt(2)-1,1)
   ie3 = max(iGridNpt(3)-1,1)
-  !write(6,*) 'vv', ie1, ie2, ie3
+  !write(u6,*) 'vv',ie1,ie2,ie3
   iiCoord = 0
   iiiCoord = 0
   do i1=0,ie1
@@ -193,7 +195,7 @@ if (isCutOff == 1) then
         pp(1) = GridOrigin(1)+GridAxis1(1)*i1/ie1+GridAxis2(1)*i2/ie2+GridAxis3(1)*i3/ie3
         pp(2) = GridOrigin(2)+GridAxis1(2)*i1/ie1+GridAxis2(2)*i2/ie2+GridAxis3(2)*i3/ie3
         pp(3) = GridOrigin(3)+GridAxis1(3)*i1/ie1+GridAxis2(3)*i2/ie2+GridAxis3(3)*i3/ie3
-        !write(6,'(3f8.4)') pp
+        !write(u6,'(3f8.4)') pp
         ishow = 0
         do ii=1,nAtoms
           iaia = 0
@@ -212,14 +214,14 @@ if (isCutOff == 1) then
       end do
     end do
   end do
-  write(6,*) nCoor-iiCoord,' points are eliminated'
-  !write(6,*) 'old=',nCoor,' New=', iiCoord
+  write(u6,*) nCoor-iiCoord,' points are eliminated'
+  !write(u6,*) 'old=',nCoor,' New=', iiCoord
   !nCoor = iiCoord
 end if
-if (isTheOne == 1) nCoor = int(OneCoor(7)+0.3)
+if (isTheOne == 1) nCoor = int(OneCoor(7)+0.3_wp)
 if (isAtom == 1) nCoor = nAtoms
 if (isUserGrid == 1) nCoor = nGridPoints
-write(6,*) ' Number of grid points in file:  ',nCoor
+write(u6,*) ' Number of grid points in file:  ',nCoor
 !call iXML('nPoints',nCoor)
 
 !***********************************************************************
@@ -239,12 +241,12 @@ nShowMOs = nShowMOs+isDensity+isSphere+isColor
 !end if
 if (isUHF == 1) nShowMOs_ab = nShowMOs_ab+isDensity+isSphere+isColor
 nShowMOs2 = nShowMOs+nShowMOs_ab
-write(6,*)
-write(6,*) ' Total number of MOs               :',nMOs
+write(u6,*)
+write(u6,*) ' Total number of MOs               :',nMOs
 !call iXML('nMOs',nMOs)
-write(6,*) ' Number MOs for grid               :',nShowMOs2
-write(6,*) ' Batches processed in increments of:',nInc
-write(6,*)
+write(u6,*) ' Number MOs for grid               :',nShowMOs2
+write(u6,*) ' Batches processed in increments of:',nInc
+write(u6,*)
 iPrintCount = 0
 
 call GetMem('MOValue','ALLO','REAL',ipMO,nInc*nMOs)
@@ -320,11 +322,11 @@ end if
 iCRSIZE = 1
 NBYTES = 10
 NINLINE = 10
-!write(6,*) 'prepare  header '
+!write(u6,*) 'prepare  header '
 
 call PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSIZE,NBYTES,NINLINE,nBlocks)
 
-!write(6,*) 'HERE header isdone'
+!write(u6,*) 'HERE header isdone'
 
 LuVal_ = LuVal
 if (isLuscus == 1) LuVal_ = LID
@@ -363,9 +365,9 @@ do iSec=1,nCoor,nInc
     ipPO = 0
     667 continue
     iiiCoord = iiiCoord+1
-    gv3 = 1.0d+0*iv3/ive3
-    gv2 = 1.0d+0*iv2/ive2
-    gv1 = 1.0d+0*iv1/ive1
+    gv3 = One*iv3/ive3
+    gv2 = One*iv2/ive2
+    gv1 = One*iv1/ive1
 
     if (isUserGrid == 0) then
       if (isCutOff == 0) then
@@ -399,7 +401,7 @@ do iSec=1,nCoor,nInc
       iv1 = iv1+1
     end if
     ipPO = ipPO+1
-    !write(6,*) 'ipo',ipP0
+    !write(u6,*) 'ipo',ipP0
     if (ipPO <= mCoor-1) goto 667
     ! end of CUBIC box
   else
@@ -471,7 +473,7 @@ do iSec=1,nCoor,nInc
   if (isVirt == 1) then
     do iiMO=1,nMOs
       do jjMO=1,nMOs
-        if (Work(ipOcc+iiMO-1) > 1.1 .and. Work(ipOcc+jjMO-1) < 0.9) then
+        if (Work(ipOcc+iiMO-1) > 1.1_wp .and. Work(ipOcc+jjMO-1) < 0.9_wp) then
           !  here if this is a pair Occ-Virt
 
           do i=1,nMOs
@@ -481,7 +483,7 @@ do iSec=1,nCoor,nInc
           end do
 
           call outmo(0,2,Work(ipMO),Work(ipOoo),Work(ipOut),mCoor,nMOs)
-          dd = 0
+          dd = Zero
           do j=1,mCoor
             dd = dd+Work(ipOut+j-1)
           end do
@@ -494,7 +496,7 @@ do iSec=1,nCoor,nInc
 end do !iSec
 !ccccccccccccc  main loop ends here  ccccccccccccccccccccccccccccccccccc
 
-write(6,*)
+write(u6,*)
 ! Check norms
 
 if (isAtom /= 1) then
@@ -505,12 +507,12 @@ if (isAtom /= 1) then
   det3 = det3/((iGridNpt(1)-1)*(iGridNpt(2)-1)*(iGridNpt(3)-1))
   dNorm = dNorm*det3
 
-  !write(6,*) 'dNorm=',dNorm
+  !write(u6,*) 'dNorm=',dNorm
 
   if (isVirt == 1) then
     call print_ddNorm(nMOs,Work(ipdd),det3)
 
-  !write(6,*) 'ddNorm=',ddNorm*det3
+  !write(u6,*) 'ddNorm=',ddNorm*det3
 
   end if
 
@@ -543,7 +545,7 @@ if (isLine == 0) then
   !end if
   ! Well, to avoid rewritting of Cerius2 we use old INPORB format temporary!
   LuOrb = isFreeUnit(46)
-  call molcas_open_ext2(luorb,INPORB,'sequential','formatted',iostat,.false.,irecl,'old',is_error)
+  call molcas_open_ext2(luorb,INPORB,'sequential','formatted',istatus,.false.,irecl,'old',is_error)
   !4001 read(LuOrb,'(a)',err=5000,end=5000) str
   !if (str /= '#ORB') goto 4001
   5001 read(LuOrb,'(a)',err=5000,end=5000) str
@@ -581,14 +583,14 @@ if (isAtom == 1) then
   nDrv = 0
   call MOEval(Work(ipMO),nMOs,mCoor,Work(ipCoor),Work(ipCMO),nCMO,iWork(ipDoIt),nDrv,1)
   call outmo(0,2,Work(ipMO),Work(ipOcc),Work(ipOut),nCoor,nMOs)
-  write(6,'(60a1)') ('*',i=1,60)
+  write(u6,'(60a1)') ('*',i=1,60)
   if (ifpartial == 0) then
-    write(6,'(a5,3a10,a20)') 'Atom','x','y','z','Density'
+    write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density'
   else
-    write(6,'(a5,3a10,a20)') 'Atom','x','y','z','Density (partial)'
+    write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density (partial)'
   end if
   do i=0,nAtoms-1
-    write(6,'(a5,3f10.3,e20.10)') AtomLbl(i+1),Work(ipCoor+i*3),Work(ipCoor+i*3+1),Work(ipCoor+i*3+2),Work(ipOut+i)
+    write(u6,'(a5,3f10.3,e20.10)') AtomLbl(i+1),Work(ipCoor+i*3),Work(ipCoor+i*3+1),Work(ipCoor+i*3+2),Work(ipOut+i)
   end do
   call Add_Info('GRIDIT_ATOM',Work(ipOut),nAtoms,6)
 

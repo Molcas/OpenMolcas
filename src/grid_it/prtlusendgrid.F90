@@ -14,7 +14,11 @@ subroutine PRTLUSENDGRID(LUVAL)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-character LINE*128
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: LUVAL
+character(len=128) :: LINE
 
 write(LINE,'(A)') ' </INPORB>'
 call PRINTLINE(LUVAL,LINE,10,0)

@@ -11,26 +11,31 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
-subroutine NoBlanks(out,n,in)
+subroutine NoBlanks(strout,strin)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
-character out*(*), in*(n)
-integer flag
+
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(out) :: strout
+character(len=*), intent(in) :: strin
+integer(kind=iwp) :: flag, i, j
 
 flag = -1
 j = 0
-do i=1,len(in)
-  if (flag == -1 .and. in(i:i) == ' ') goto 1
+do i=1,len(strin)
+  if (flag == -1 .and. strin(i:i) == ' ') goto 1
   flag = 0
-  if (i <= len(in)-1) then
-    if (in(i:i+1) == '  ') goto 1
+  if (i <= len(strin)-1) then
+    if (strin(i:i+1) == '  ') goto 1
   end if
   j = j+1
-  out(j:j) = in(i:i)
+  strout(j:j) = strin(i:i)
   1 continue
 end do
-out(j+1:) = ' '
+strout(j+1:) = ' '
 
 return
 

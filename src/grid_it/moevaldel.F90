@@ -15,26 +15,15 @@
 
 subroutine MOEvalDel(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
-implicit real*8(A-H,O-Z)
-real*8 Ccoor(3,nCoor), MOValueD(4*nCoor*nMOs), CMOs(nCMO)
-integer DoIt(nMOs), mAO
-integer nDrv
+use Definitions, only: wp, iwp
 
-mAO = 4
-nDrv = 1
+implicit none
+integer, parameter :: nDrv = 1, mAO = 4
+integer(kind=iwp), intent(in) :: nMOs, nCoor, nCMO, DoIt(nMOs)
+real(kind=wp), intent(out) :: MOValueD(mAO,nCoor,nMOs)
+real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
 
 call MOEval(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
-
-!  IJ1 = 1+(I-1)*4
-!  IJ2 = 2+(I-1)*4
-!  IJ3 = 3+(I-1)*4
-!  IJ4 = 4+(I-1)*4
-!
-!  MOValue(I) = Work(MOTmp-1+IJ1)
-!  MOValueDX(I) = Work(MOTmp-1+IJ2)
-!  MOValueDY(I) = Work(MOTmp-1+IJ3)
-!  MOValueDZ(I) = Work(MOTmp-1+IJ4)
-!end do
 
 return
 

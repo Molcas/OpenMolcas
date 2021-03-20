@@ -12,25 +12,27 @@
 !               2000, Valera Veryazov                                  *
 !               2014, Thomas Dresselhaus                               *
 !***********************************************************************
+
 subroutine MOEvalDer(MOValue,iDir,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
-implicit real*8(A-H,O-Z)
-#include "WrkSpc.fh"
-real*8 Ccoor(3,nCoor), MOValue(nCoor*nMOs), CMOs(nCMO)
-integer DoIt(nMOs), mAO
-integer nDrv
+use Definitions, only: wp, iwp
 
-mAO = 4
-nDrv = 1
+implicit none
+integer, parameter :: nDrv = 1, mAO = 4
+integer(kind=iwp), intent(in) :: iDir, nMOs, nCoor, nCMO, DoIt(nMOs)
+real(kind=wp), intent(out) :: MOValue(nCoor*nMOs)
+real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: I, IJ, IJX, IJY, IJZ, iMoTmp
 
 call GetMem('MOTMP','Allo','Real',iMoTmp,4*nCoor*nMOs)
 
-call MOEval(work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
+call MOEval(Work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
 ! iDir = 1 then do dX
 ! iDir = 2 then do dY
 ! iDir = 3 then do dZ
-!write(6,*) 'iDir:',iDir
+!write(u6,*) 'iDir:',iDir
 if (iDir > 0 .and. iDir < 4) then
   do I=1,nCoor*nMOs
     IJ = iDir+1+(I-1)*4

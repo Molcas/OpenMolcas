@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PickOrb(ipNz,ipSort,ipGref,ipSort_ab,ipGref_ab,ipVol,ipE,ipOcc,ipE_ab,ipOcc_ab,nShowMOs,nShowMOs_ab,isener,nMOs, &
+subroutine PickOrb(ipNz,ipSort,ipGref,ipSort_ab,ipGref_ab,ipVol,ipE,ipOcc,ipE_ab,ipOcc_ab,nShowMOs,nShowMOs_ab,isEner,nMOs, &
                    myTitle,ipType)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
@@ -17,11 +17,19 @@ subroutine PickOrb(ipNz,ipSort,ipGref,ipSort_ab,ipGref_ab,ipVol,ipE,ipOcc,ipE_ab
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: ipNZ, ipSort, ipGref, ipSort_ab, ipGref_ab, ipVol, ipE, ipOcc, ipE_ab, ipOcc_ab, nMOs, ipType
+integer(kind=iwp), intent(out) :: nShowMOs, nShowMOs_ab
+integer(kind=iwp), intent(inout) :: isEner
+character(len=*), intent(in) :: myTitle
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "grid.fh"
-character myTitle*(*)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iActive, ief, ief_ab, ii, ii_ab, iia, iib, ik, ik_ab, il, il_ab, ishift, ispin, j
+real(kind=wp) :: ef, ef_ab, eps, R, s
 
 ispin = index(myTitle,' spin')
 
@@ -45,7 +53,7 @@ do i=0,nIrrep-1
   ishift = ishift+nBas(i)
 end do
 
-eps = 1d-6
+eps = 1.0e-6_wp
 ! if no input, but TypeIndex contains 123
 if (isAuMO == -1 .and. isAll /= 1) then
   iActive = 0
@@ -68,7 +76,7 @@ end if
 
 if (isAuMo == -1 .and. ispin > 0) then
   isAuMO = 1
-  Region(1) = -2+eps
+  Region(1) = -Two+eps
   Region(2) = -eps
   itRange = 0
   isEner = 0
@@ -85,17 +93,17 @@ if (isAll == 0) then
   end if
   if (isAuMO == -1 .and. itRange == 0) then
     isAuMO = 1
-    Region(1) = -2+eps
+    Region(1) = -Two+eps
     Region(2) = -eps
   end if
   if (isAuMO == -1 .and. isEner == 1) then
-    Region(1) = -1000
-    Region(2) = 1000
+    Region(1) = -1000.0_wp
+    Region(2) = 1000.0_wp
   end if
 end if
 if (isAll == 1) then
-  Region(1) = -1000
-  Region(2) = 1000
+  Region(1) = -1000.0_wp
+  Region(2) = 1000.0_wp
 end if
 
 ! 1. user defined number of orbitals. No auto function at all.
@@ -114,7 +122,7 @@ if (isAuMO == 0) then
     iia = iReq(i*2-1)
     iib = iReq(i*2)
     if (iia <= 0 .or. iia > nIrrep .or. iib < 0 .or. iib > nBas(iia-1)) then
-      write(6,'(a)') 'Requested orbital does not exist'
+      write(u6,'(a)') 'Requested orbital does not exist'
       call Quit_OnUserError()
 
     end if
@@ -136,7 +144,7 @@ if (itRange == 0) then
 end if
 
 do i=0,nMOs-1
-  Work(ipVol+i) = 0.0
+  Work(ipVol+i) = Zero
   iWork(ipSort+i) = 0
   if (isEner == 0) then
     Work(ipE+i) = -Work(ipOcc+i)
@@ -154,7 +162,7 @@ if (NoSort == 1) then
   ik = 0
   do i=0,nMOs-1
     if (Work(ipE+i) > Region(1) .and. Work(ipE+i) < Region(2)) then
-      !write(6,*) 'EE',Work(ipE+i),Region(1),Region(2)
+      !write(u6,*) 'EE',Work(ipE+i),Region(1),Region(2)
       ik = ik+1
       iWork(ipSort+i) = ik
     end if
@@ -203,7 +211,7 @@ else
   end if
 end if
 if (isAuMO == -1 .and. isEner /= 0 .and. isAll == 0) then
-  ef = -1000.
+  ef = -1000.0_wp
   ief = 0
   ef_ab = ef
   ief_ab = ief
@@ -219,8 +227,8 @@ if (isAuMO == -1 .and. isEner /= 0 .and. isAll == 0) then
       end if
     end if
   end do
-  !write(6,*) 'ef=',ef
-  !write(6,*) 'ief=',ief,ief_ab
+  !write(u6,*) 'ef=',ef
+  !write(u6,*) 'ief=',ief,ief_ab
   ii = iWork(ipSort+ief)
   if (isUHF == 1) ii_ab = iWork(ipSort_ab+ief_ab)
   do i=0,nMOs-1

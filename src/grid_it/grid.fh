@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer GridSparse, GridDense, GridNormal
+      Integer GridSparse, GridDense, GridNormal, MAXGRID
       PARAMETER (GridSparse=2, GridDense=10, GridNormal=3)
       PARAMETER (MAXGRID=100)
       CHARACTER*8 VERSION
@@ -18,9 +18,13 @@
 ! MAXGRID maximum number of generated grid ONLY if you set up it by hand!
 ! IMaxup/Down 0 default number of orbitals near HOMO-LUMO
 
-      Integer iGridNpt(3)
-      Dimension GridOrigin(3), GridAxis1(3),GridAxis2(3),GridAxis3(3),  &
-     & OneCoor(7), Region(2), SubBlock(3)
+      Integer iGridNpt(3), isBinary, nMOmin, nMOmax, nGrid, isTheOne,   &
+     & isDensity, isAuMO, isTotal, isAll, isAtom, NoOrb, iMaxUp,        &
+     & iMaxDown, isLine, itRange, isDebug, LevelPrint, NoSort, isSphere,&
+     & mynCenter, ipWdW, isColor, isVirt, isWDW, iSubBlock,             &
+     & isDerivative, isCurDens, isRxJ, iuseMaxes, ISLUSCUS, LID, LID_ab
+      Real*8    GridOrigin(3), GridAxis1(3),GridAxis2(3),GridAxis3(3),  &
+     & OneCoor(7), Region(2), SubBlock(3), TheGap, Virt, rSubBlock
       Common /m2mGrid/ GridOrigin, GridAxis1,GridAxis2,GridAxis3,       &
      & OneCoor, TheGap, Region, Virt, SubBlock, rSubBlock
       Common /m2miGrid/ iGridNpt, isBinary, nMOmin, nMOmax,             &
@@ -29,22 +33,28 @@
      & NoSort, isSphere,mynCenter,ipWdW,isColor, isVirt,isWDW,          &
      & iSubBlock,isDerivative,isCurDens,isRxJ,iuseMaxes,                &
      & ISLUSCUS, LID, LID_ab
+      Integer isVB, nActOrb, nActEl, LuVal, LuVal_ab, isUHF, nReq,      &
+     & iReq(MAXGRID*2)
       Common /m2miVB/ isVB, nActOrb, nActEl
       Common /Chanal/ LuVal,LuVal_ab,isUHF
-      Common /Request/ nReq, iReq(MAXGRID*2)
+      Common /Request/ nReq, iReq
       Character*(LENIN) AtomLbl(MxAtom)
       Common /AtomLbl/ AtomLbl
+      Integer isUserGrid,nGridPoints,ipGrid,ipWeight,nAtoms,nSym,ipCoor,&
+     & iGauss,nGatoms
       Common /Coord_G/ nAtoms,nSym,ipCoor
-      Integer isUserGrid,nGridPoints,ipGrid,ipWeight
       Common /UserGrid/ isUserGrid,nGridPoints,ipGrid,ipWeight
       Common/iGauss/ iGauss,nGatoms
       Character Project*64
       Common /Project/ Project
+      Real*8 xLeft,xRight,xLoErr,xHiErr,CutOff
       Common /m2mPack/ xLeft,xRight,xLoErr,xHiErr,CutOff
+      Integer nBytesPackedVal,iyRange,iMinYLeft,imoPack,isBinPack,      &
+     & isCutOff
       Common /m2miPack/ nBytesPackedVal,iyRange,iMinYLeft,              &
      & imoPack,isBinPack,isCutOff
-      Common/Title/Title1,TheName,LUS1,LUS2
       Character Title1*80, TheName*256, LUS1*256, LUS2*256
+      Common/Title/Title1,TheName,LUS1,LUS2
 !
       Integer isMULL, isLONGPRT
       Common /mullprt/ isMULL, isLONGPRT

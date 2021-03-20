@@ -14,23 +14,28 @@ subroutine SOAdpt(AOValue,mAO,nCoor,mBas,nCmp,nOp,SOValue,nDeg,iAO)
 use Symmetry_Info, only: nIrrep, iChTbl
 use SOAO_Info, only: iAOtSO
 use Basis_Info, only: MolWgh
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp), intent(in) :: mAO, nCoor, mBas, nCmp, nOp, nDeg, iAO
+real(kind=wp), intent(in) :: AOValue(mAO,nCoor,mBas,nCmp)
+real(kind=wp), intent(inout) :: SOValue(mAO,nCoor,mBas,nCmp*nDeg)
 #include "print.fh"
-#include "real.fh"
-real*8 AOValue(mAO,nCoor,mBas,nCmp), SOValue(mAO,nCoor,mBas,nCmp*nDeg), Aux(8)
-character*80 Label
+integer(kind=iwp) :: i1, iAux, iCmp, iPrint, iRout, iSO, j1
+real(kind=wp) :: Aux(8), Fact, xa
+character(len=80) :: Label
 
 iRout = 133
 iPrint = nPrint(iRout)
 !call GetMem('SOAdpt_E','CHEC','REAL',iDum,iDum)
 
 if (MolWgh == 0) then
-  Fact = One/dble(nDeg)
+  Fact = One/nDeg
 else if (MolWgh == 1) then
   Fact = One
 else
-  Fact = One/sqrt(dble(nDeg))
+  Fact = One/sqrt(real(nDeg,kind=wp))
 end if
 iSO = 1
 do i1=1,nCmp
@@ -38,7 +43,7 @@ do i1=1,nCmp
   do j1=0,nIrrep-1
     if (iAOtSO(iAO+i1,j1) < 0) cycle
     iaux = iaux+1
-    xa = dble(iChTbl(j1,nOp))
+    xa = iChTbl(j1,nOp)
     Aux(iAux) = Fact*xa
   end do
   if (iPrint >= 49) call RecPrt('Aux',' ',Aux,1,iAux)

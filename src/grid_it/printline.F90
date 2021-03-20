@@ -9,29 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PrintLine(unit,line,len,isBinLuscus)
+subroutine PrintLine(unt,line,length,isBinLuscus)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: unt, length, isBinLuscus
+character(len=128) :: line
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "grid.fh"
-character line*128
-integer unit
-integer len, ll, li
+#include "WrkSpc.fh"
+integer(kind=iwp) :: ll, li
 
 if (ISLUSCUS == 1) then
-  ll = len
+  ll = length
   li = isBinLuscus
-  !write(6,*) 'before pl ',line,' ',ll,li
-  call prt_lusc(unit,line,ll,li)
+  !write(u6,*) 'before pl ',line,' ',ll,li
+  call prt_lusc(unt,line,ll,li)
 else
   if (isBinary == 1) then
-    write(unit) line(1:len)
+    write(unt) line(1:length)
   else
-    write(unit,'(A)') line(1:len)
+    write(unt,'(A)') line(1:length)
   end if
 end if
 

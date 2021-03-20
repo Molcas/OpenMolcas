@@ -18,20 +18,23 @@ subroutine Input_Grid_It(iRun,INPORB,iReturn)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, Four, Quart
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: iRun, iReturn
+character(len=*), intent(out) :: INPORB
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "grid.fh"
+integer(kind=iwp) :: i, i_bits, iCustOrig, iD, iKey, inUnit, isAuto, isFileOrb, isNet, isReadNet, iTemp(3), j, magicValue, n
+real(kind=wp) :: dTemp(4), rD
+character(len=265) :: AllKeys
+character(len=256) :: FileStr, FileIn
+character(len=120) :: SelectStr
+character(len=80) :: Key, MULLprt
+integer(kind=iwp), external :: MyGetKey
 
-character Key*80
-character INPORB*(*)
-integer iTemp(3)
-dimension dTemp(4)
-character AllKeys*265
-character SelectStr*120
-character FileStr*256, FileIn*256
-character MULLprt*80
-!
 AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID '// &
           'PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER '// &
           'YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 PLUS MINU XFMI'
@@ -46,7 +49,7 @@ isReadNet = 0
 isTheOne = 0
 Title1 = ' '
 TheName = ' '
-TheGap = 4.0d0
+TheGap = Four
 nMOmin = 0
 nGrid = 5
 nReq = -1
@@ -69,7 +72,7 @@ isLine = 0
 itRange = 1
 isDebug = 0
 isCutOff = 0
-CutOff = 2.5d0
+CutOff = 2.5_wp
 iCustOrig = 0
 NoSort = 0
 isFileOrb = 0
@@ -85,18 +88,18 @@ isLuscus = 1
 !aLusMath = -1
 ! not preparing the GRIDCHARGE file as external source for XFIELD input
 isXField = 0
-XFminCh = 0.d0
+XFminCh = Zero
 ! Default values for packing
 imoPack = 0
 isBinPack = 0
-xLeft = 0.005d0
-xRight = 0.7d0
+xLeft = 0.005_wp
+xRight = 0.7_wp
 ! (really, half range:)
 iyRange = 128
 nBytesPackedVal = 1
 iMinYLeft = 4
-xLoErr = 0.10d0
-xHiErr = 0.25d0
+xLoErr = 0.10_wp
+xHiErr = Quart
 INPORB = 'INPORB'
 if (iRun == 0) then
   ! make defaults for a fast run via call from other module
@@ -118,7 +121,7 @@ call RdNLst(InUnit,'GRID_IT')
 998 if (MyGetKey(InUnit,'S',iD,rD,Key,iD,[iD],[rD]) /= 0) goto 997
 iKey = index(AllKeys,Key(1:4))
 if (iKey == 0 .or. (iKey-1)/5*5 /= (iKey-1)) then
-  write(6,'(a,a)') 'Unrecognized keyword in input file:',Key(1:4)
+  write(u6,'(a,a)') 'Unrecognized keyword in input file:',Key(1:4)
   call Quit_OnUserError()
 end if
 iKey = (iKey-1)/5+1
@@ -128,7 +131,7 @@ if (iKey == 1) then
   if (MyGetKey(InUnit,'I',n,rD,Key,iD,[iD],[rD]) /= 0) goto 666
   do j=1,n
     if (MyGetKey(InUnit,'A',iD,rD,Key,2,iTemp,[rD]) /= 0) goto 666
-    !write(6,*) 'debug'
+    !write(u6,*) 'debug'
     !nPrint(iTemp(1)) = iTemp(2)
   end do
 end if
@@ -138,10 +141,10 @@ if (iKey == 2) then
 end if
 if (iKey == 3) then
   ! ASCII = for debug
-  !write(6,*) ' Keyword ASCII is obsolete'
-  !write(6,*) ' It can be used only for debugging purpose'
-  !write(6,*) ' Note that .lus files produced with this option '
-  !write(6,*) '      can not be visualised'
+  !write(u6,*) ' Keyword ASCII is obsolete'
+  !write(u6,*) ' It can be used only for debugging purpose'
+  !write(u6,*) ' Note that .lus files produced with this option '
+  !write(u6,*) '      can not be visualised'
   isBinary = 0
 end if
 if (iKey == 4) then
@@ -163,13 +166,13 @@ end if
 if (iKey == 7) then
   ! ORBI Orbitals
   if (nReq > 0) then
-    write(6,*) 'ORBI keyword can not be used together with SELEct'
+    write(u6,*) 'ORBI keyword can not be used together with SELEct'
     call Quit_OnUserError()
   end if
   if (MyGetKey(InUnit,'I',nReq,rD,Key,iD,[iD],[rD]) /= 0) goto 666
 
   if (nReq > MAXGRID) then
-    write(6,'(a,i5,a,i5)') 'Too many requested orbitals ',nReq,'>',MAXGRID
+    write(u6,'(a,i5,a,i5)') 'Too many requested orbitals ',nReq,'>',MAXGRID
     call Quit_OnUserError()
   end if
   read(inUnit,*,err=666,end=666) (iReq(i),i=1,nReq*2)
@@ -181,8 +184,8 @@ if (iKey == 8) then
   if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) goto 666
   itRange = 1
   isAuMO = 1
-  write(6,*) ' *** Warning keyword REGION is obsolete'
-  write(6,*) ' ***         assumimg Energy range '
+  write(u6,*) ' *** Warning keyword REGION is obsolete'
+  write(u6,*) ' ***         assumimg Energy range '
 end if
 if (iKey == 9) then
   ! ONE - debug option
@@ -240,7 +243,7 @@ if (iKey == 19) then
   ! CUBE
   iGauss = 1
   isBinary = 0
-  write(6,*) 'Cube option is moved to grid2cube'
+  write(u6,*) 'Cube option is moved to grid2cube'
   call Quit_OnUserError()
 end if
 if (iKey == 20) then
@@ -269,8 +272,8 @@ if (iKey == 22) then
 end if
 if (iKey == 23) then
   ! PkBits
-  if (MyGetKey(InUnit,'I',ibits,rD,Key,iD,[iD],[rD]) /= 0) goto 666
-  if (ibits == 16) then
+  if (MyGetKey(InUnit,'I',i_bits,rD,Key,iD,[iD],[rD]) /= 0) goto 666
+  if (i_bits == 16) then
     iyRange = 32768
     nBytesPackedVal = 2
   end if
@@ -328,7 +331,7 @@ if (iKey == 32) then
     goto 666
   end if
   if (nReq > 0) then
-    write(6,*) 'SELEct keyword can not be used together with ORBItals'
+    write(u6,*) 'SELEct keyword can not be used together with ORBItals'
     call Quit_OnUserError()
   end if
   call gridExpandSelect(SelectStr)
@@ -343,7 +346,7 @@ if (iKey == 34) then
   read(InUnit,'(A)') FileIn
   isFileOrb = 1
   call fileorb(FileIn,FileStr)
-  write(6,*) 'INPORB file: ',FileStr(:mylen(FileStr))
+  write(u6,*) 'INPORB file: ',trim(FileStr)
 end if
 if (iKey == 35) then
   ! SPHR
@@ -418,24 +421,24 @@ if (iKey == 48) then
 end if
 if (iKey == 49) then
   ! LUS1
-  write(6,*) 'Not implemented'
+  write(u6,*) 'Not implemented'
   !isLusMath = 1
   !read(InUnit,'(a)') LUS1
 end if
 if (iKey == 50) then
   ! LUS2
-  write(6,*) 'Not implemented'
+  write(u6,*) 'Not implemented'
   !isLusMath = 1
   !read(InUnit,'(a)') LUS2
 end if
 if (iKey == 51) then
   ! PLUS
-  write(6,*) 'Not implemented'
+  write(u6,*) 'Not implemented'
   !aLusMath = 1
 end if
 if (iKey == 52) then
   ! MINUS
-  write(6,*) 'Not implemented'
+  write(u6,*) 'Not implemented'
   !aLusMath = -1
 end if
 if (iKey == 53) then
@@ -444,7 +447,7 @@ if (iKey == 53) then
 end if
 goto 998
 
-666 write(6,'(a,a,a)') 'Error during reading ',Key(1:20),'section in input file'
+666 write(u6,'(a,a,a)') 'Error during reading ',Key(1:20),'section in input file'
 call Quit_OnUserError()
 
 !***********************************************************************
@@ -455,19 +458,19 @@ call Quit_OnUserError()
 997 continue
 !if (isLusMath == 1) return
 if (isLuscus == 1 .and. isBinary == 0) then
-  write(6,*) 'ASCII keyword is set, but NoLUSCUS is not'
-  write(6,*) 'calling abend as the best option available'
+  write(u6,*) 'ASCII keyword is set, but NoLUSCUS is not'
+  write(u6,*) 'calling abend as the best option available'
   call Quit_OnUserError()
 end if
 close(InUnit)
 if (isLuscus == 1) then
   if (isLine /= 0) then
-    write(6,*) 'LUSCUS and LINE options are not compatible'
+    write(u6,*) 'LUSCUS and LINE options are not compatible'
     call Quit_OnUserError()
   end if
 end if
 
-if (isReadNet > 1) write(6,'(a)') 'Warning: Double definition of GRID net'
+if (isReadNet > 1) write(u6,'(a)') 'Warning: Double definition of GRID net'
 
 ! Well, there is something to do!
 
@@ -486,7 +489,7 @@ if (isNet >= 0) then
 end if
 if (iCustOrig == 1) then
   if (isNet /= -1) then
-    write(6,*) 'GORI can be used only with NPOI'
+    write(u6,*) 'GORI can be used only with NPOI'
     call Quit_OnUserError()
   end if
 end if

@@ -17,8 +17,12 @@ subroutine save_ddNorm(ddNorm,ii,jj,Wdd,nMOs)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension Wdd(nMOs,nMOs)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ii, jj, nMOs
+real(kind=wp), intent(in) :: ddNorm
+real(kind=wp), intent(inout) :: Wdd(nMOs,nMOs)
 
 Wdd(ii,jj) = Wdd(ii,jj)+ddNorm
 

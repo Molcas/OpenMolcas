@@ -32,13 +32,17 @@ subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,long_prt)
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(nSym), nCMO, iDoIt(*)
-real*8 CMO(nCMO), OCCN(*)
-logical long_prt
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nCMO, iDoIt(*)
+real(kind=wp), intent(in) :: CMO(nCMO), OCCN(*)
+logical(kind=iwp), intent(in) :: long_prt
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-character*(LENIN8) NAME(MxBas)
+integer(kind=iwp) :: iCase, iComp, iOpt, iOrb, ipQQ, ipS, ipXocc, iRc, iSyLbl, iSym, jOcc, lOcc, MXTYP, nNUC, nTot1
+character(len=LenIn8) :: UBName(MxBas)
 
 MXTYP = 0
 nTot1 = 0
@@ -46,7 +50,7 @@ do iSym=1,nSym
   MxTyp = MxTyp+nBas(iSym)
   nTot1 = nTot1+nBas(iSym)*(nBas(iSym)+1)/2
 end do
-call Get_cArray('Unique Basis Names',Name,(LENIN8)*MxTyp)
+call Get_cArray('Unique Basis Names',UBName,LenIn8*MxTyp)
 call GetMem('XOCC','ALLO','REAL',ipXocc,MXTYP)
 call Get_iScalar('Unique atoms',nNUC)
 call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
@@ -57,20 +61,20 @@ iComp = 1
 iSyLbl = 1
 call RdOne(iRc,iOpt,'Mltpl  0',iComp,Work(ipS),iSyLbl)
 if (iRc /= 0) then
-  write(6,*) 'charge_grid_it: iRc from Call RdOne not 0'
-  !write(6,*) 'Label = ',Label
-  write(6,*) 'iRc = ',iRc
+  write(u6,*) 'charge_grid_it: iRc from Call RdOne not 0'
+  !write(u6,*) 'Label = ',Label
+  write(u6,*) 'iRc = ',iRc
   call Abend()
 end if
-write(6,*)
-write(6,*)
-write(6,*)
-write(6,'(A)') '         **************************'
+write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(A)') '         **************************'
 call CollapseOutput(1,'       Charges per occupied MO ')
-write(6,'(A)') '         **************************'
-write(6,*)
-write(6,*)
-write(6,*)
+write(u6,'(A)') '         **************************'
+write(u6,*)
+write(u6,*)
+write(u6,*)
 
 call FZero(Work(ipXocc),MXTYP)
 
@@ -79,16 +83,16 @@ jOcc = 1
 do iSym=1,nSym
   do iOrb=1,nBas(iSym)
 
-    if (IdoIt(jOcc) == 1 .and. OCCN(jOcc) > 0.0d0) then
+    if (IdoIt(jOcc) == 1 .and. OCCN(jOcc) > Zero) then
 
-      write(6,'(A,I4,A,I1,A,F6.4)') '          MO:',iOrb,'      Symm.: ',iSym,'      Occ. No.: ',OCCN(jOcc)
+      write(u6,'(A,I4,A,I1,A,F6.4)') '          MO:',iOrb,'      Symm.: ',iSym,'      Occ. No.: ',OCCN(jOcc)
 
       lOcc = ipXocc+jOcc-1
       Work(lOcc) = OCCN(jOcc)
 
       call FZero(Work(ipQQ),MxTYP*nNuc)
-      call One_CHARGE(NSYM,NBAS,Name,CMO,Work(ipXocc),Work(ipS),iCase,long_prt,MXTYP,Work(ipQQ),nNuc)
-      Work(lOcc) = 0.0d0
+      call One_CHARGE(NSYM,NBAS,UBName,CMO,Work(ipXocc),Work(ipS),iCase,long_prt,MXTYP,Work(ipQQ),nNuc)
+      Work(lOcc) = Zero
     end if
 
     jOcc = jOcc+1

@@ -14,20 +14,25 @@ subroutine outmo(imo,ipower,cmo,clincomb,cout,nbas,nmo)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-dimension cmo(nbas,nmo), clincomb(nmo), cout(nbas)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: imo, ipower, nbas, nmo
+real(kind=wp), intent(in) :: cmo(nbas,nmo), clincomb(nmo)
+real(kind=wp), intent(out) :: cout(nbas)
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, ipTmpMo
 
 if (imo /= 0) then
-  call fmove(cmo(1,imo),cout,nbas)
+  cout(:) = cmo(:,imo)
   call power(cout,nbas,ipower)
-  return
 else
-  call fzero(cout,nbas)
+  cout(:) = Zero
   call GetMem('TmpMo','ALLO','REAL',ipTmpMo,nbas)
   do i=1,nmo
-    if (clincomb(i) /= 0d0) then
-      call fmove(cmo(1,i),Work(ipTmpMo),nbas)
+    if (clincomb(i) /= Zero) then
+      call dcopy_(nbas,cmo(1,i),1,Work(ipTmpMo),1)
       call power(Work(ipTmpMO),nbas,ipower)
       call daxpy_(nbas,clincomb(i),Work(ipTmpMo),1,cout,1)
     end if

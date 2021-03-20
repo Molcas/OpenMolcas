@@ -37,18 +37,19 @@ subroutine Grid_it(iRun,ireturn)
 !          Lund, 2000-2015                                             *
 !***********************************************************************
 
-use Real_Spherical
+use Definitions, only: iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
+implicit none
+integer(kind=iwp), intent(in) :: iRun
+integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
 #include "grid.fh"
-!      Character*120 Lines(17)
-character(Len=1024) INPORB
-logical DoRys
 #include "warnings.fh"
+integer(kind=iwp) :: nDiff
+logical(kind=iwp) :: DoRys
+character(len=1024) :: INPORB
+!character(len=120) :: Lines(17)
+integer(kind=iwp), external :: IPRINTLEVEL
 
 ! Prologue
 
@@ -98,7 +99,7 @@ call ClsSew()
 !if (iRun == 1) then
 !  call eXML('GRID_IT')
 !else
-!  write(6,*) 'Input file for molcasgv was generated'
+!  write(u6,*) 'Input file for molcasgv was generated'
 !end if
 !ireturn = 0
 
