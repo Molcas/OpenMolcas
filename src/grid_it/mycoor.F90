@@ -9,25 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MyCoor(isAuto,Ox,Oy,Oz,Rx,Ry,Rz,iGx,iGy,iGz,iMagic,iCustOrig)
+subroutine MyCoor(isAuto,Ox,Oy,Oz,Rx,Ry,Rz,iGx,iGy,iGz,iMagic,isCustOrig)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 !                                                                      *
 !   Read Coordinates and calculate a cub for grid                      *
-!   isAuto=1 - real job, else only print                               *
+!   isAuto=.true. - real job, else only print                          *
 !   Origin(3) fix cub in space                                         *
 !   Rx,Ry,Rz - size of cub                                             *
 !   iGx,iGy,iGz - net                                                  *
 !   iMagic = magic guess for net                                       *
 !***********************************************************************
 
-use grid_it_globals, only: ATOMLBL, ipCoor, ISBINARY, ISLUSCUS, isUHF, LID, LID_ab, LuVal, LuVal_ab, nAtoms, TheGap
+use grid_it_globals, only: ATOMLBL, ipCoor, iBinary, isLuscus, isUHF, LID, LID_ab, LuVal, LuVal_ab, nAtoms, TheGap
 use Constants, only: One, Two, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: isAuto, iMagic, iCustOrig
+logical(kind=iwp), intent(in) :: isAuto, isCustOrig
+integer(kind=iwp), intent(in) :: iMagic
 real(kind=wp), intent(inout) :: Ox, Oy, Oz, Rx, Ry, Rz
 integer(kind=iwp), intent(inout) :: iGx, iGy, iGz
 #include "WrkSpc.fh"
@@ -39,7 +40,7 @@ character(len=2) :: Byte4
 !----------------------------------------------------------------------*
 !     Prologue                                                         *
 !----------------------------------------------------------------------*
-if (isLUSCUS == 1) then
+if (isLuscus) then
   x529 = Angstrom
 else
   x529 = One
@@ -58,13 +59,13 @@ do iAt=0,nCenter-1
   if (index(line,'Ori') /= 0) NoOrig = NoOrig+1
 end do
 
-if ((ISLUSCUS == 1) .and. (ISBINARY == 3)) then
+if (isLuscus .and. (iBinary == 3)) then
   write(LINE,'(2X,I8)') NCENTER-NOORIG
-  call PRINTLINE(LID,LINE,10,0)
-  call PRINTLINE(LID,LINE,0,0)
-  if (isUHF == 1) then
-    call PRINTLINE(LID_ab,LINE,10,0)
-    call PRINTLINE(LID_ab,LINE,0,0)
+  call PRINTLINE(LID,LINE,10,.false.)
+  call PRINTLINE(LID,LINE,0,.false.)
+  if (isUHF) then
+    call PRINTLINE(LID_ab,LINE,10,.false.)
+    call PRINTLINE(LID_ab,LINE,0,.false.)
   end if
   do IAT=0,NCENTER-1
     write(LINE,'(A)') ATOMLBL(LW2+IAT)
@@ -72,21 +73,21 @@ if ((ISLUSCUS == 1) .and. (ISBINARY == 3)) then
       Byte4 = ATOMLBL(LW2+IAT)(1:2)
       if (index('0123456789',Byte4(2:2)) /= 0) Byte4(2:2) = ' '
       write(LINE,'(1X,A2,2X,3F15.8)') Byte4,WORK(IPCOOR+3*IAT)*x529,WORK(IPCOOR+3*IAT+1)*x529,WORK(IPCOOR+3*IAT+2)*x529
-      call PRINTLINE(LID,LINE,50,0)
-      if (isUHF == 1) then
-        call PRINTLINE(LID_ab,LINE,50,0)
+      call PRINTLINE(LID,LINE,50,.false.)
+      if (isUHF) then
+        call PRINTLINE(LID_ab,LINE,50,.false.)
       end if
     end if
   end do
 end if
 
 write(Line,'(A,I8)') 'Natom= ',nCenter-NoOrig
-if (isBinary == 1) then
+if (iBinary == 1) then
   write(LuVal) trim(Line)
-  if (isUHF == 1) write(LuVal_ab) Line(1:15)
+  if (isUHF) write(LuVal_ab) Line(1:15)
 else
   write(LuVal,'(A)') trim(Line)
-  if (isUHF == 1) write(LuVal_ab,'(A)') Line(1:15)
+  if (isUHF) write(LuVal_ab,'(A)') Line(1:15)
 end if
 do iAt=0,nCenter-1
   if (index(Line,'Ori') == 0) then
@@ -94,18 +95,18 @@ do iAt=0,nCenter-1
   else
     write(Line,'(A)') AtomLbl(lw2+iAt)
   end if
-  if (isBinary == 1) then
+  if (iBinary == 1) then
     write(LuVal) trim(Line)
-    if (isUHF == 1) write(LuVal_ab) trim(Line)
+    if (isUHF) write(LuVal_ab) trim(Line)
   else
     write(LuVal,'(A)') trim(Line)
-    if (isUHF == 1) write(LuVal_ab,'(A)') trim(Line)
+    if (isUHF) write(LuVal_ab,'(A)') trim(Line)
   end if
 end do
 
-if (iCustOrig /= 1) then
+if (.not. isCustOrig) then
 
-  if (isAuto == 1) then
+  if (isAuto) then
     !------------------------------------------------------------------*
     ! Find Cub parameters                                              *
     !             Ox->RxMin, Rx->RxMax                                 *

@@ -21,9 +21,9 @@ integer(kind=iwp), intent(in) :: LUVAL
 character(len=128) :: LINE
 
 write(LINE,'(A)') ' </INPORB>'
-call PRINTLINE(LUVAL,LINE,10,0)
+call PRINTLINE(LUVAL,LINE,10,.false.)
 write(LINE,'(A)') ' </GRID>'
-call PRINTLINE(LUVAL,LINE,8,0)
+call PRINTLINE(LUVAL,LINE,8,.false.)
 
 return
 

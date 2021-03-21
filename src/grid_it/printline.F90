@@ -14,22 +14,23 @@ subroutine PrintLine(unt,line,length,isBinLuscus)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-use grid_it_globals, only: isBinary, isLUSCUS
+use grid_it_globals, only: iBinary, isLuscus
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: unt, length, isBinLuscus
+integer(kind=iwp), intent(in) :: unt, length
+logical(kind=iwp), intent(in) :: isBinLuscus
 character(len=128) :: line
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ll, li
 
-if (ISLUSCUS == 1) then
+if (isLuscus) then
   ll = length
-  li = isBinLuscus
+  li = merge(1,0,isBinLuscus)
   !write(u6,*) 'before pl ',line,' ',ll,li
   call prt_lusc(unt,line,ll,li)
 else
-  if (isBinary == 1) then
+  if (iBinary == 1) then
     write(unt) line(1:length)
   else
     write(unt,'(A)') line(1:length)

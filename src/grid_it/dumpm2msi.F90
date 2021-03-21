@@ -10,8 +10,8 @@
 !***********************************************************************
 
 subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,iWipGRef,WipOcc,WipMO,WipOut,mCoor,iGauss,nInc,imoPack,iWipPBlock, &
-                     cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,isBinary,isEner,iWipType,iWipNZ,WipE,WLine,nLine, &
-                     WCoor,iPrintCount,isDebug,isCutOff,iWipCutOff,isSphere,SphrDist,isColor,SphrColor,ISLUSCUS,NBYTES,NINLINE)
+                     cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iWipType,iWipNZ,WipE,WLine,nLine, &
+                     WCoor,iPrintCount,isDebug,isCutOff,iWipCutOff,isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
@@ -20,9 +20,9 @@ use Constants, only: Zero, Two, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, isDensity, nMOs, iWipGRef(*), mCoor, iGauss, nInc, imoPack, &
-                                 iWipPBlock(*), nBytesPackedVal, isTheOne, isLine, isBinary, isEner, iWipType(*), iWipNZ(*), &
-                                 nLine, isDebug, isCutOff, iWipCutOff(*), isSphere, isColor, ISLUSCUS, NBYTES, NINLINE
+integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, nMOs, iWipGRef(*), mCoor, iGauss, nInc, imoPack, iWipPBlock(*), &
+                                 nBytesPackedVal, iBinary, iWipType(*), iWipNZ(*), nLine, iWipCutOff(*), NBYTES, NINLINE
+logical(kind=iwp), intent(in) :: isDensity, isTheOne, isLine, isEner, isDebug, isCutOff, isSphere, isColor, isLuscus
 integer(kind=iwp), intent(inout) :: iPrintCount
 real(kind=wp), intent(in) :: WipOcc(*), WipMO(*), WipOut(*), VbOcc, WipE(*), WCoor(3,mCoor), SphrDist(mCoor), SphrColor(mCoor)
 character, intent(in) :: cMoBlock(*)
@@ -45,7 +45,7 @@ integer(kind=iwp), external :: C_WRITE
 if (irun > 100) print *, iGauss,nbytes,ninc,ninline
 iActOrb = 0
 iPrintCount = iPrintCount+1
-do i=1,nShowMOs-isDensity-isSphere-isColor
+do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
   iMOs = iWipGRef(i)
 
   if (.not.(.false. .and. (WipOcc(iMOs) > Zero) .and. (WipOcc(iMOs) < Two))) then
@@ -55,12 +55,12 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
   !  call outmo(0,1,WipMO,WipVBmat(1+(iActOrb-1)*nMOs),WipOut,mCoor,nMOs)
   end if
 
-  if ((isLine == 0) .and. (isLuscus == 0)) then
+  if ((.not. isLine) .and. (.not. isLuscus)) then
     write(line,'(a,i4)') 'Title= ',iMOs
-    call PrintLine(LuVal,line,12,1)
+    call PrintLine(LuVal,line,12,.true.)
   end if
-  if (isTheOne == 1) then
-    if ((isLine == 0) .and. (ISLUSCUS == 0)) then
+  if (isTheOne) then
+    if ((.not. isLine) .and. (.not. isLuscus)) then
       write(LuVal,'(f18.12)') (WipOut(j),j=1,mCoor)
     else
       if (i+1 <= nLine) then
@@ -74,9 +74,9 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
     !if (imoPack /= 0) then
     !  !call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
     !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
-    !  call PrintLine(LuVal,line,73,0)
+    !  call PrintLine(LuVal,line,73,.false.)
     !  9000 format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
-    !  if (isBinary /= 0) then
+    !  if (iBinary /= 0) then
     !    !call IArrToChar(iWipPBlock,cMoBlock,mCoor)
     !    !vv ! NOT CODED YET
     !    write(LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
@@ -84,9 +84,9 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
     !    write(LuVal,'(I5)') (iWipPBlock(j), j=0,mCoor-1)
     !  end if
     !else
-    if (isBinary == 1) then
+    if (iBinary == 1) then
       ! packing late
-      if (isCutOff == 1) then
+      if (isCutOff) then
         call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
         call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
         iii = 0
@@ -104,15 +104,18 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
         write(LuVal) (WipOut(j),j=1,mCoor)
 
       end if
-    else !isBinary
+    else !iBinary
       !write(cint,'(i3.3)') i
-      if (isDebug == 0) then
+      if (isDebug) then
+        ! extended output -
+        write(LuVal,'(E10.4,3f8.4)') (WipOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+      else !isDebug
         ! normal output - just numbers
-        if (isCutOff == 1) then
+        if (isCutOff) then
           do j=1,mCoor
             if (iWipCutOff(j) == 1) write(LuVal,'(E10.4)') WipOut(j)
           end do
-        else if (isLUSCUS == 1) then
+        else if (isLUSCUS) then
           ! NOPACKING
           !if (imoPack == 0) then
           call dump_lusc(LID,WipOut,mCoor)
@@ -123,7 +126,7 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
           !    if (num > NINLINE) num = NINLINE
           !    write(formt,'(A,I2,A,I2,A,A)') '(',NINLINE,'E',NBYTES,'.4',')'
           !    write(line,formt) (WipOut(j-1+ij),ij=1,num)
-          !    call printline(LID,line,NINLINE*NBYTES,0)
+          !    call printline(LID,line,NINLINE*NBYTES,.false.)
           !  end do
           !else
           !  ! PACKING NOT implemented
@@ -160,16 +163,13 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
           ! writing of data
           write(LuVal,'(E10.4)') (WipOut(j),j=1,mCoor)
         end if !isCutOff, isLuscus
-      else !isDebug
-        ! extended output -
-        write(LuVal,'(E10.4,3f8.4)') (WipOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
       end if !isDebug
-    end if !isBinary
+    end if !iBinary
     !end if !imoPack
 
     j = iWipGRef(i)
 
-    if (isEner == 1) then
+    if (isEner) then
       if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
         ib = iWipType(j)
         bb = ' '
@@ -195,11 +195,11 @@ do i=1,nShowMOs-isDensity-isSphere-isColor
   end if
 end do
 
-if (isSphere == 1) then
+if (isSphere) then
   !VV FIXME: no packing.
   write(line,'(a,i4)') 'Title= ',-1
-  call PrintLine(LuVal,line,12,1)
-  if (isBinary == 0) then
+  call PrintLine(LuVal,line,12,.true.)
+  if (iBinary == 0) then
     do j=1,mCoor
       write(LuVal,'(E18.12)') SphrDist(j)
     end do
@@ -208,11 +208,11 @@ if (isSphere == 1) then
   end if
 end if
 
-if (isColor == 1) then
+if (isColor) then
   !VV FIXME: no packing.
   write(line,'(a,i4)') 'Title= ',-10
-  call PrintLine(LuVal,line,12,1)
-  if (isBinary == 0) then
+  call PrintLine(LuVal,line,12,.true.)
+  if (iBinary == 0) then
     do j=1,mCoor
       write(LuVal,'(E18.12)') SphrColor(j)
     end do
@@ -221,7 +221,7 @@ if (isColor == 1) then
   end if
 end if
 
-if (isDensity == 1) then
+if (isDensity) then
   call outmo(0,2,WipMO,WipOcc,WipOut,mCoor,nMOs)
   do j=1,mCoor
     dNorm = dNorm+WipOut(j)
@@ -229,20 +229,20 @@ if (isDensity == 1) then
     !****
     !write(u6,*) ' mCoor=',mCoor
     !****
-  if ((isLine == 0) .and. (IsLuscus == 0)) then
+  if ((.not. isLine) .and. (.not. isLuscus)) then
     write(line,'(a,i4)') 'Title= ',0
-    call PrintLine(LuVal,line,12,1)
+    call PrintLine(LuVal,line,12,.true.)
   end if
   !if (imoPack /= 0) then
   !  write(u6,*) 'pack code'
   !  call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
   !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
-  !  call PrintLine(LuVal,line,73,0)
+  !  call PrintLine(LuVal,line,73,.false.)
   !
-  !  if (isBinary /= 0) then
+  !  if (iBinary /= 0) then
   !    call IArrToChar(iWipPBlock,cMoBlock,mCoor)
   !    !vv!!!!!!!
-  !    if (ISLUSCUS == 1) then
+  !    if (isLuscus) then
   !      RC = C_WRITE(LID,CMOBLOCK,(mCoor*nBytesPackedVal)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) THEN
   !        write(u6,*) 'error in writing luscus file!'
@@ -252,7 +252,7 @@ if (isDensity == 1) then
   !      write(LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
   !    end if
   !  else
-  !    if (ISLUSCUS == 1) then
+  !    if (isLuscus) then
   !      RC = C_WRITE(LID,IWIPPBLOCK,(mCoor)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) then
   !        write(u6,*) 'error in writing luscus file!'
@@ -263,13 +263,13 @@ if (isDensity == 1) then
   !    end if
   !  endif
   !else
-  if (ISLUSCUS == 1) then
+  if (isLuscus) then
     call dump_lusc(LID,WipOut,mCoor)
   end if
 
-  if (isBinary == 1) then
+  if (iBinary == 1) then
     ! packing late
-    if (isCutOff == 1) then
+    if (isCutOff) then
       call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
       call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
       iii = 0
@@ -280,7 +280,7 @@ if (isDensity == 1) then
         end if
       end do
 
-      if (ISLUSCUS == 1) then
+      if (isLuscus) then
         !!!!!!!!!!!!!!!!!!!!check iii-1
         RC = C_WRITE(LID,WORK(IPCMP),(III-1)*RTOB)
         if (RC == 0) then
@@ -293,7 +293,7 @@ if (isDensity == 1) then
       call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
     else
       ! no cut off
-      !if (ISLUSCUS == 1) then
+      !if (isLuscus) then
       !  call dump_lusc(LID,WipOut,mCoor)
       !  write(u6,*) 'here'
       !  RC = C_WRITE(LID,WIPOUT,MCOOR*RTOB) !!!!!!!!!!!!!!!!!!!!check MCOOR
@@ -307,24 +307,24 @@ if (isDensity == 1) then
     end if
   else
 
-    if (isLine == 1) then
+    if (isLine) then
       do j=1,mCoor
         WLine(1,j) = WipOut(j)
       end do
     else
-      if (isDebug == 0) then
+      if (isDebug) then
+        ! extra output -
+        if (.not. isLuscus) write(LuVal,'(E18.12,3f8.4)') (WipOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+      else
         ! normal output - just numbers
-        if (isCutOff == 1) then
+        if (isCutOff) then
           do j=1,mCoor
             if (iWipCutOff(j) == 1) write(LuVal,'(E18.12)') WipOut(j)
           end do
         else
 
-          if (ISLUSCUS == 0) write(LuVal,'(E18.12)') (WipOut(j),j=1,mCoor)
+          if (.not. isLuscus) write(LuVal,'(E18.12)') (WipOut(j),j=1,mCoor)
         end if
-      else
-        ! extra output -
-        if (ISLUSCUS == 0) write(LuVal,'(E18.12,3f8.4)') (WipOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
       end if
 
     end if
@@ -334,7 +334,7 @@ if (isDensity == 1) then
 end if
 !end if
 
-if ((isLine == 1) .and. (ISLUSCUS == 0)) then
+if (isLine .and. (.not. isLuscus)) then
   do i=1,mCoor
     write(LuVal,'(3F10.6,22E20.12)') (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
   end do

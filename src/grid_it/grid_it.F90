@@ -78,7 +78,7 @@ if (iReturn == _RC_INVOKED_OTHER_MODULE_) then
   ! take care to close files and release the potential memory...
   !close(unit=LuOrb)
   close(unit=LuVal)
-  if (isUHF == 1) close(unit=LuVal_ab)
+  if (isUHF) close(unit=LuVal_ab)
 else
 
   ! Start computing the spin density and spin density gradient at the grid.

@@ -14,7 +14,7 @@ subroutine PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSI
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-use grid_it_globals, only: Cutoff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGridNpt, imoPACK, isCutOff, isLine, isLUSCUS, &
+use grid_it_globals, only: Cutoff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGridNpt, imoPACK, isCutOff, isLine, isLuscus, &
                            isTheOne, isUHF, LID, LID_ab, LuVal, LuVal_ab, VERSION
 use Definitions, only: iwp, u6
 
@@ -26,17 +26,17 @@ integer(kind=iwp) :: i, iiUHF, LuVal_, NFIRST, NLAST, nn, nn1, nShowMOs_
 character(len=128) :: line
 
 LuVal_ = LuVal
-if (isLUSCUS == 1) LuVal_ = LID
+if (isLuscus) LuVal_ = LID
 nShowMOs_ = nShowMOs
 !call bXML('Header')
-!call iXML('UHF',isUHF)
-do iiUHF=0,isUHF
+!call iXML('UHF',merge(1,0,isUHF))
+do iiUHF=0,merge(1,0,isUHF)
   if (iiUHF == 1) then
     LuVal_ = LuVal_ab
-    if (isLUSCUS == 1) LuVal_ = LID_ab
+    if (isLuscus) LuVal_ = LID_ab
     nShowMOs_ = nShowMOs_ab
   end if
-  if (ISLUSCUS == 1) then
+  if (isLuscus) then
     ! debug
     !write(u6,*) 'N_of_MO=',nMOs
     !write(u6,*) 'N_of_Grids=',nShowMOs_
@@ -70,126 +70,126 @@ do iiUHF=0,isUHF
       !write(u6,*) 'nBlocks = ',nBlocks
       call Quit_OnUserError()
     end if
-    if (isCutOff > 9) then
-      write(u6,*) 'Wrong cutoff'
-      call Quit_OnUserError()
-    end if
+    !if (isCutOff > 9) then
+    !  write(u6,*) 'Wrong cutoff'
+    !  call Quit_OnUserError()
+    !end if
     if (iiCoord > 99999999) then
       write(u6,*) 'N_P can''t be larger that 99999999'
       call Quit_OnUserError()
     end if
     write(LINE,'(''<GRID>'')')
-    call PRINTLINE(LUVAL_,LINE,6,0)
+    call PRINTLINE(LUVAL_,LINE,6,.false.)
 
-    write(LINE,1000) nMOs,nShowMOs_,nCoor,nInc,nBlocks,isCutOff,Cutoff,iiCoord
-    call PRINTLINE(LUVAL_,LINE,124,0)
+    write(LINE,1000) nMOs,nShowMOs_,nCoor,nInc,nBlocks,merge(1,0,isCutOff),Cutoff,iiCoord
+    call PRINTLINE(LUVAL_,LINE,124,.false.)
     write(LINE,1010) (nTypes(i),i=1,7)
-    call PRINTLINE(LUVAL_,LINE,44,0)
-    if (isLUSCUS == 0) then
-      write(LINE,1020) iGridNpt(1)-1,iGridNpt(2)-1,iGridNpt(3)-1
-    else
+    call PRINTLINE(LUVAL_,LINE,44,.false.)
+    if (isLuscus) then
       write(LINE,1020) iGridNpt(1),iGridNpt(2),iGridNpt(3)
+    else
+      write(LINE,1020) iGridNpt(1)-1,iGridNpt(2)-1,iGridNpt(3)-1
     end if
-    call PRINTLINE(LUVAL_,LINE,20,0)
+    call PRINTLINE(LUVAL_,LINE,20,.false.)
     write(LINE,1030) GridOrigin
-    call PRINTLINE(LUVAL_,LINE,47,0)
+    call PRINTLINE(LUVAL_,LINE,47,.false.)
     write(LINE,1040) GridAxis1
-    call PRINTLINE(LUVAL_,LINE,47,0)
+    call PRINTLINE(LUVAL_,LINE,47,.false.)
     write(LINE,1050) GridAxis2
-    call PRINTLINE(LUVAL_,LINE,47,0)
+    call PRINTLINE(LUVAL_,LINE,47,.false.)
     write(LINE,1060) GridAxis3
-    call PRINTLINE(LUVAL_,LINE,47,0)
+    call PRINTLINE(LUVAL_,LINE,47,.false.)
     ! Here we dump all missing information
-    if (isLUSCUS == 0) then
+    if (.not. isLuscus) then
       write(LINE,'(1x,A,I2)') 'CR_SIZE=',iCRSIZE
-      call PRINTLINE(LUVAL_,LINE,20,0)
+      call PRINTLINE(LUVAL_,LINE,20,.false.)
       write(LINE,'(1x,A,I2)') 'PACK=',imoPACK
-      call PRINTLINE(LUVAL_,LINE,20,0)
+      call PRINTLINE(LUVAL_,LINE,20,.false.)
       write(LINE,'(1x,A,I3)') 'BYTES=',NBYTES
-      call PRINTLINE(LUVAL_,LINE,20,0)
+      call PRINTLINE(LUVAL_,LINE,20,.false.)
       write(LINE,'(1x,A,I3)') 'N_in_Line=',NINLINE
-      call PRINTLINE(LUVAL_,LINE,20,0)
+      call PRINTLINE(LUVAL_,LINE,20,.false.)
       NFIRST = nInc
       if (nBlocks == 1) NFIRST = nCoor
       write(LINE,'(1x,A,I8)') 'N_FIRST=',NFIRST
-      call PRINTLINE(LUVAL_,LINE,20,0)
+      call PRINTLINE(LUVAL_,LINE,20,.false.)
 
       NLAST = nCoor-(nBlocks-1)*nInc
       if (NLAST == 0) NLAST = nInc
       write(LINE,'(1x,A,I8)') 'N_LAST=',NLAST
-      call PRINTLINE(LUVAL_,LINE,20,0)
+      call PRINTLINE(LUVAL_,LINE,20,.false.)
 
       nn = (NFIRST/NINLINE)*(NBYTES*NINLINE+iCRSIZE)
       nn1 = NFIRST-(NFIRST/NINLINE)*NINLINE
       if (nn1 > 0) nn = nn+nn1*NBYTES+iCRSIZE
 
       write(LINE,'(1x,A,I10)') 'N_OFFSET=',nn
-      call PRINTLINE(LUVAL_,LINE,30,0)
+      call PRINTLINE(LUVAL_,LINE,30,.false.)
 
       nn = (NLAST/NINLINE)*(NBYTES*NINLINE+iCRSIZE)
       nn1 = NLAST-(NLAST/NINLINE)*NINLINE
       if (nn1 > 0) nn = nn+nn1*NBYTES+iCRSIZE
       write(LINE,'(1x,A,I10)') 'N_LAST_OFFSET=',nn
-      call PRINTLINE(LUVAL_,LINE,30,0)
+      call PRINTLINE(LUVAL_,LINE,30,.false.)
     end if
 
     ! skip file pointers
     ! skip end orbital section
   else
 
-    if (isLine == 0) then
+    if (isLine) then
+      write(line,'(a,2i10)') '# ',nShowMOs_,nCoor
+      call PrintLine(LuVal_,line,23,.false.)
+    else
       write(line,'(a,a)') 'VERSION=     ',VERSION
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       !write(line,'(a,a)') 'Extension=   ',0
-      !call PrintLine(LuVal_,line,23,0)
+      !call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,i10)') 'N_of_MO=     ',nMOs
       !call iXML('nMOs',nMOs)
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,i10)') 'N_of_Grids=  ',nShowMOs_
       !call iXML('nGrids',nShowMOs_)
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,i10)') 'N_of_Points= ',nCoor
       !call iXML('nPoints',nCoor)
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,i10)') 'Block_Size=  ',nInc
       !call iXML('Block Size',nInc)
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       nBlocks = nCoor/nInc+1
       write(line,'(a,i10)') 'N_Blocks=    ',nBlocks
       !call iXML('nBlocks',nBlocks)
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       ! new cut off
-      write(line,'(a,i10)') 'Is_cutoff=   ',isCutOff
-      call PrintLine(LuVal_,line,23,0)
+      write(line,'(a,i10)') 'Is_cutoff=   ',merge(1,0,isCutOff)
+      call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,f10.4)') 'CutOff=      ',CutOff
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,i10)') 'N_P=         ',iiCoord
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,23,.false.)
       write(line,'(a,7I5)') 'N_INDEX=     ',nTypes
-      call PrintLine(LuVal_,line,48,0)
-    else
-      write(line,'(a,2i10)') '# ',nShowMOs_,nCoor
-      call PrintLine(LuVal_,line,23,0)
+      call PrintLine(LuVal_,line,48,.false.)
     end if
-    if (isTheOne /= 1) then
+    if (.not. isTheOne) then
 
       write(line,'(a,3i5)') 'Net=         ',iGridNpt(1)-1,iGridNpt(2)-1,iGridNpt(3)-1
       !call iaXML('Net',iGridNpt,3)
-      call PrintLine(LuVal_,line,28,0)
+      call PrintLine(LuVal_,line,28,.false.)
 
       write(line,'(a,3f12.3)') 'Origin= ',GridOrigin
       !call daXML('Origin',GridOrigin,3)
-      call PrintLine(LuVal_,line,44,0)
+      call PrintLine(LuVal_,line,44,.false.)
 
       write(line,'(a,3f12.3)') 'Axis_1= ',GridAxis1
       !call daXML('Axis 1',GridAxis1,3)
-      call PrintLine(LuVal_,line,44,0)
+      call PrintLine(LuVal_,line,44,.false.)
       write(line,'(a,3f12.3)') 'Axis_2= ',GridAxis2
       !call daXML('Axis 2',GridAxis2,3)
-      call PrintLine(LuVal_,line,44,0)
+      call PrintLine(LuVal_,line,44,.false.)
       write(line,'(a,3f12.3)') 'Axis_3= ',GridAxis3
       !call daXML('Axis 3',GridAxis3,3)
-      call PrintLine(LuVal_,line,44,0)
+      call PrintLine(LuVal_,line,44,.false.)
 
     end if
   end if
