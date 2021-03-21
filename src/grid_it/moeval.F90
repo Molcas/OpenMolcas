@@ -28,6 +28,7 @@ use Center_Info, only: dc
 use Phase_Info, only: iPhase
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -37,12 +38,11 @@ implicit none
 integer(kind=iwp), intent(in) :: nMOs, nCoor, nCMO, DoIt(nMOs), nDrv, mAO
 real(kind=wp), intent(out) :: MOValue(mAO,nCoor,nMOs)
 real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
-#include "WrkSpc.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, ipAng, ipAOs, ipRadial, iPrim, iPrint, ipSOs, iptmp, &
-                     ipx, ipxyz, ipy, ipz, iRout, iScrt1, iScrt2, iShll, iSkal, kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nForm, &
-                     nOp, nRadial, nScr1, nScr2, nSO, nTerm, nTest, ntmp, nxyz
+integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, iPrim, iPrint, ipx, ipy, ipz, iRout, iShll, iSkal, &
+                     kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nForm, nOp, nRadial, nSO, nTerm, nTest, nxyz
 real(kind=wp) :: A(3), px, py, pz, RA(3), Thr
+real(kind=wp), allocatable :: Ang(:), AOs(:), Radial(:), SOs(:), xyz(:)
 integer(kind=iwp), external :: NrOpr
 
 ! Statement functions
@@ -66,16 +66,6 @@ do iAng=S%iAngMx,0,-1
 
   if (S%MaxPrm(iAng) == 0) cycle
   if (S%MaxBas(iAng) == 0) cycle
-
-  ! Scratch area for contraction step
-
-  nScr1 = S%MaxPrm(iAng)*nElem(iAng)
-  call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
-
-  ! Scratch area for the transformation to spherical gaussians
-
-  nScr2 = S%MaxPrm(iAng)*nElem(iAng)
-  call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 
   ! Loop over basis sets. Skip if basis set do not include
   ! angular momentum functions as specified above.
@@ -128,18 +118,16 @@ do iAng=S%iAngMx,0,-1
       nAO = (iCmp*iBas*nCoor)*(mAO)
       nSO = nAO*nIrrep/dc(mdc+iCnt)%nStab
       nDeg = nIrrep/dc(mdc+iCnt)%nStab
-      call GetMem('AOs','Allo','Real',ipAOs,nAO)
-      call GetMem('SOs','Allo','Real',ipSOs,nSO)
-      call dcopy_(nSO,[Zero],0,Work(ipSOs),1)
+      call mma_allocate(AOs,nAO,label='AOs')
+      call mma_allocate(SOs,nSO,label='SOs')
+      SOs(:) = Zero
       nxyz = nCoor*3*(iAng+mRad)
-      call GetMem('xyz','Allo','Real',ipxyz,nxyz)
-      ntmp = nCoor
-      call GetMem('tmp','Allo','Real',iptmp,ntmp)
+      call mma_allocate(xyz,nxyz,label='xyz')
       nRadial = iBas*nCoor*mRad
-      call GetMem('Radial','Allo','Real',ipRadial,nRadial)
+      call mma_allocate(Radial,nRadial,label='Radial')
 
       nAngular = 5*nForm*nTerm
-      call GetMem('Angular','Allo','Inte',ipAng,nAngular)
+      call mma_allocate(Ang,nAngular,label='Angular')
 
       !------- Loops over symmetry operations operating on the basis set center.
 
@@ -156,32 +144,28 @@ do iAng=S%iAngMx,0,-1
 
         !----- Evaluate AOs at RA
 
-        call dcopy_(nAO,[Zero],0,Work(ipAOs),1)
-        call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,Shells(iShll)%Transf,RSph(ipSph(iAng)),nElem(iAng),iCmp,iWork(ipAng),nTerm, &
-                    nForm,Thr,mRad,iPrim,iPrim,Shells(iShll)%Exp,Work(ipRadial),iBas,Shells(iShll)%pCff,Work(ipAOs),mAO,px,py,pz, &
-                    ipx,ipy,ipz)
+        AOs(:) = Zero
+        call AOEval(iAng,nCoor,CCoor,xyz,RA,Shells(iShll)%Transf,RSph(ipSph(iAng)),nElem(iAng),iCmp,Ang,nTerm,nForm,Thr,mRad, &
+                    iPrim,iPrim,Shells(iShll)%Exp,Radial,iBas,Shells(iShll)%pCff,AOs,mAO,px,py,pz,ipx,ipy,ipz)
 
         !----- Distribute contributions to the SOs
 
-        call SOAdpt(Work(ipAOs),mAO,nCoor,iBas,iCmp,nOp,Work(ipSOs),nDeg,iAO)
+        call SOAdpt(AOs,mAO,nCoor,iBas,iCmp,nOp,SOs,nDeg,iAO)
 
       end do ! iG
 
       !------- Distribute contributions to the MOs
 
-      call SODist(Work(ipSOs),mAO,nCoor,iBas,iCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
+      call SODist(SOs,mAO,nCoor,iBas,iCmp,nDeg,MOValue,nMOs,iAO,CMOs,nCMO,DoIt)
 
-      call GetMem('Radial','Free','Real',ipRadial,nRadial)
-      call GetMem('Angular','Free','Inte',ipAng,nAngular)
-      call GetMem('tmp','Free','Real',iptmp,ntmp)
-      call GetMem('xyz','Free','Real',ipxyz,nxyz)
-      call GetMem('AOs','Free','Real',ipAOs,nAO)
-      call GetMem('SOs','Free','Real',ipSOs,nSO)
+      call mma_deallocate(AOs)
+      call mma_deallocate(SOs)
+      call mma_deallocate(xyz)
+      call mma_deallocate(Radial)
+      call mma_deallocate(Ang)
 
     end do ! iCnt
   end do
-  call GetMem('ScrSph','Free','Real',iScrt2,nScr2)
-  call GetMem('Scrtch','Free','Real',iScrt1,nScr1)
 end do
 
 return

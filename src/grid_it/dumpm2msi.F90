@@ -9,31 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,iWipGRef,WipOcc,WipMO,WipOut,mCoor,iGauss,nInc,imoPack,iWipPBlock, &
+subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,iWipGRef,WipOcc,WipMO,WipOut,mCoor,iGauss,nInc,isMOPack,iWipPBlock, &
                      cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iWipType,iWipNZ,WipE,WLine,nLine, &
                      WCoor,iPrintCount,isDebug,isCutOff,iWipCutOff,isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, nMOs, iWipGRef(*), mCoor, iGauss, nInc, imoPack, iWipPBlock(*), &
+integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, nMOs, iWipGRef(*), mCoor, iGauss, nInc, iWipPBlock(*), &
                                  nBytesPackedVal, iBinary, iWipType(*), iWipNZ(*), nLine, iWipCutOff(*), NBYTES, NINLINE
-logical(kind=iwp), intent(in) :: isDensity, isTheOne, isLine, isEner, isDebug, isCutOff, isSphere, isColor, isLuscus
+logical(kind=iwp), intent(in) :: isDensity, isMOPack, isTheOne, isLine, isEner, isDebug, isCutOff, isSphere, isColor, isLuscus
 integer(kind=iwp), intent(inout) :: iPrintCount
 real(kind=wp), intent(in) :: WipOcc(*), WipMO(*), WipOut(*), VbOcc, WipE(*), WCoor(3,mCoor), SphrDist(mCoor), SphrColor(mCoor)
 character, intent(in) :: cMoBlock(*)
 real(kind=wp), intent(inout) :: dNorm, WLine(nLine,mCoor)
 character(len=7), intent(in) :: Crypt
 #include "SysDef.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iActOrb, ib, ii, iii, iMOs, ipCMP, j, RC !, iYDelta(3)
+integer(kind=iwp) :: i, iActOrb, ib, ii, iii, iMOs, j, RC !, iYDelta(3)
 real(kind=wp) :: DumArr(2) !, xLimits(4)
 character :: bb
 character(len=128) :: Line
+real(kind=wp), allocatable :: CMP(:)
 !character(len=20) :: formt
 ! test
 !character(len=3) :: cint
@@ -71,7 +72,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
     end if
   else
 
-    !if (imoPack /= 0) then
+    !if (isMOPack) then
     !  !call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
     !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
     !  call PrintLine(LuVal,line,73,.false.)
@@ -87,18 +88,17 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
     if (iBinary == 1) then
       ! packing late
       if (isCutOff) then
-        call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
-        call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
+        call mma_allocate(CMP,mCoor,label='TMP')
         iii = 0
         do ii=1,mCoor
           if (iWipCutOff(ii) == 1) then
-            Work(ipCMP+iii) = WipOut(ii)
             iii = iii+1
+            CMP(iii) = WipOut(ii)
           end if
         end do
 
-        write(LuVal) (Work(ipCMP+j),j=0,iii-1)
-        call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
+        write(LuVal) CMP(1:iii)
+        call mma_deallocate(CMP)
       else
         ! no cut off
         write(LuVal) (WipOut(j),j=1,mCoor)
@@ -117,7 +117,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           end do
         else if (isLUSCUS) then
           ! NOPACKING
-          !if (imoPack == 0) then
+          !if (.not. isMOPack) then
           call dump_lusc(LID,WipOut,mCoor)
           ! debug dump of data
           !
@@ -158,14 +158,14 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           !  !end do
           !  !write(u6,*) 'test min/max',xxxmin,xxxmax
           !
-          !end if !imoPack
+          !end if !isMOPack
         else !isCutOff
           ! writing of data
           write(LuVal,'(E10.4)') (WipOut(j),j=1,mCoor)
         end if !isCutOff, isLuscus
       end if !isDebug
     end if !iBinary
-    !end if !imoPack
+    !end if !isMOPack
 
     j = iWipGRef(i)
 
@@ -185,8 +185,8 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
         ib = iWipType(j)
         bb = ' '
         if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
-        if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs), &
-                                                                                      WipOcc(j),bb
+        if ((iRun == 1) .and. (iPrintCount == 1)) &
+          write(u6,'(a,i2,i5," (",f8.6,") ",a)') 'GridName= ',iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
       else
         !iActOrb = iActOrb+1
         if ((iRun == 1) .and. (iPrintCount == 1)) write(u6,'(2a,i4,5x,a,f4.2,a)') 'GridName= ','VB orbital',iActOrb,' (',VBocc,')'
@@ -226,14 +226,14 @@ if (isDensity) then
   do j=1,mCoor
     dNorm = dNorm+WipOut(j)
   end do
-    !****
-    !write(u6,*) ' mCoor=',mCoor
-    !****
+  !****
+  !write(u6,*) ' mCoor=',mCoor
+  !****
   if ((.not. isLine) .and. (.not. isLuscus)) then
     write(line,'(a,i4)') 'Title= ',0
     call PrintLine(LuVal,line,12,.true.)
   end if
-  !if (imoPack /= 0) then
+  !if (isMOPack) then
   !  write(u6,*) 'pack code'
   !  call PackBlock(WipOut,iWipPBlock,mCoor,xLimits,iYDelta)
   !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
@@ -270,27 +270,26 @@ if (isDensity) then
   if (iBinary == 1) then
     ! packing late
     if (isCutOff) then
-      call GetMem('TMP','ALLO','REAL',ipCMP,mCoor)
-      call dcopy_(mCoor,WipOut,1,Work(ipCMP),1)
+      call mma_allocate(CMP,mCoor,label='TMP')
       iii = 0
       do ii=1,mCoor
         if (iWipCutOff(ii) == 1) then
-          Work(ipCMP+iii) = WipOut(ii)
           iii = iii+1
+          CMP(iii) = WipOut(ii)
         end if
       end do
 
       if (isLuscus) then
         !!!!!!!!!!!!!!!!!!!!check iii-1
-        RC = C_WRITE(LID,WORK(IPCMP),(III-1)*RTOB)
+        RC = C_WRITE(LID,CMP,(III-1)*RTOB)
         if (RC == 0) then
           write(u6,*) 'error in writing luscus file!'
           call Abend()
         end if
       else
-        write(LuVal) (Work(ipCMP+j),j=0,iii-1)
+        write(LuVal) CMP(1:iii)
       end if
-      call GetMem('TMP','FREE','REAL',ipCMP,mCoor)
+      call mma_deallocate(CMP)
     else
       ! no cut off
       !if (isLuscus) then
@@ -329,7 +328,7 @@ if (isDensity) then
 
     end if
     !GG This is only for testing CASDFT functional. It will be restore.
-    !GG write(LuVal,'(E10.4)') (Work(j),j=ipOut,ipOut+mCoor-1)
+    !GG write(LuVal,'(E10.4)') (WipOut(j),j=1,mCoor)
   end if
 end if
 !end if
@@ -343,7 +342,7 @@ end if
 return
 ! Avoid unused argument warnings
 if (.false.) then
-  call Unused_integer(imoPack)
+  call Unused_integer(isMOPack)
   call Unused_integer_array(iWipPBlock)
   call Unused_character_array(cMoBlock)
   call Unused_integer(nBytesPackedVal)

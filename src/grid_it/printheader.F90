@@ -14,14 +14,13 @@ subroutine PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSI
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
-use grid_it_globals, only: Cutoff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGridNpt, imoPACK, isCutOff, isLine, isLuscus, &
+use grid_it_globals, only: Cutoff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGridNpt, isCutOff, isLine, isLuscus, isMOPack, &
                            isTheOne, isUHF, LID, LID_ab, LuVal, LuVal_ab, VERSION
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nMOs, nShowMOs, nShowMOs_ab, nCoor, nInc, iiCoord, nTypes(7), iCRSIZE, NBYTES, NINLINE
 integer(kind=iwp), intent(inout) :: nBlocks
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iiUHF, LuVal_, NFIRST, NLAST, nn, nn1, nShowMOs_
 character(len=128) :: line
 
@@ -103,7 +102,7 @@ do iiUHF=0,merge(1,0,isUHF)
     if (.not. isLuscus) then
       write(LINE,'(1x,A,I2)') 'CR_SIZE=',iCRSIZE
       call PRINTLINE(LUVAL_,LINE,20,.false.)
-      write(LINE,'(1x,A,I2)') 'PACK=',imoPACK
+      write(LINE,'(1x,A,I2)') 'PACK=',merge(1,0,isMOPack)
       call PRINTLINE(LUVAL_,LINE,20,.false.)
       write(LINE,'(1x,A,I3)') 'BYTES=',NBYTES
       call PRINTLINE(LUVAL_,LINE,20,.false.)

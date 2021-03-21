@@ -18,18 +18,18 @@ subroutine Input_Grid_It(iRun,INPORB,iReturn)
 !                                                                      *
 !***********************************************************************
 
-use grid_it_globals, only: CutOff, GridAxis1, GridAxis2, GridAxis3, GridDense, GridNormal, GridOrigin, GridSparse, iGauss, &
-                           iGridNpt, iMaxDown, iMaxUp, imoPack, ipGrid, iReq, isAll, isAtom, iAuMO, iBinary, isColor, isCurDens, &
-                           isCutOff, isDebug, isDensity, iDerivative, isLine, isLuscus, isSphere, isTheOne, isTotal, isUserGrid, &
-                           isVirt, isXField, itRange, MAXGRID, nBytesPackedVal, nGridPoints, NoOrb, NoSort, nReq, OneCoor, Region, &
-                           TheGap, TheName, Title1, Virt
+use grid_it_globals, only: CutOff, Grid, GridAxis1, GridAxis2, GridAxis3, GridDense, GridNormal, GridOrigin, GridSparse, iGauss, &
+                           iGridNpt, iMaxDown, iMaxUp, iReq, isAll, isAtom, iAuMO, iBinary, isColor, isCurDens, isCutOff, isDebug, &
+                           isDensity, iDerivative, isLine, isLuscus, isMOPack, isSphere, isTheOne, isTotal, isUserGrid, isVirt, &
+                           itRange, MAXGRID, nBytesPackedVal, nGridPoints, NoOrb, NoSort, nReq, OneCoor, Region, TheGap, TheName, &
+                           Title1, Virt
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, Four, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun, iReturn
 character(len=*), intent(out) :: INPORB
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, i_bits, iD, iErr, iKey, inUnit, iNet, iReadNet, iTemp(3), j, magicValue, n
 logical(kind=iwp) :: isAuto, isCustOrig, isFileOrb, isSubBlock
 real(kind=wp) :: dTemp(4), rD, rSubBlock, SubBlock(3), XFminCh, xHiErr, xLeft, xLoErr, xRight
@@ -91,10 +91,10 @@ isLuscus = .true.
 !isLusMath = 0
 !aLusMath = -1
 ! not preparing the GRIDCHARGE file as external source for XFIELD input
-isXField = .false.
+!isXField = 0
 XFminCh = Zero
 ! Default values for packing
-imoPack = 0
+isMOPack = .false.
 !isBinPack = 0
 xLeft = 0.005_wp
 xRight = 0.7_wp
@@ -111,7 +111,7 @@ if (iRun == 0) then
   !iBinary = 0 ! temporary set Ascii output
   !iMaxUp = 1
   !iMaxDown = 5
-  !imoPack = 0 ! packed grids not working with 64bit (?)
+  !isMOPack = .false. ! packed grids not working with 64bit (?)
   !isCutOff = .true.
   !goto 500 (?)
 end if
@@ -241,12 +241,12 @@ do
       iGridNpt(2) = 0
       iGridNpt(3) = 0
       if (MyGetKey(InUnit,'I',nGridPoints,rD,Key,iD,[iD],[rD]) /= 0) call error()
-      call GetMem('Grid','ALLO','REAL',ipGrid,nGridPoints*3)
-      read(InUnit,*,iostat=iErr) (Work(ipGrid+i-1),i=1,nGridPoints*3)
+      call mma_allocate(Grid,3,nGridPoints,label='Grid')
+      read(InUnit,*,iostat=iErr) Grid(:,:)
       if (iErr /= 0) call error()
     case (21)
       ! Pack
-      !imoPack = 1
+      !isMOPack = .true.
     case (22)
       ! PkLims
       if (MyGetKey(InUnit,'D',iD,rD,Key,4,[iD],dTemp) /= 0) call error()
@@ -292,7 +292,7 @@ do
       isCutOff = .true.
     case (30)
       ! NOPACK
-      !imoPack = 0
+      !isMOPack = .false.
     case (31)
       ! GORI
       isCustOrig = .true.
@@ -373,7 +373,7 @@ do
       iBinary = 0
     case (48)
       ! XFIEld - ask Grid_It to compute electronic density on a DFT integration grid
-      isXField = .true.
+      !isXField = 1
       iReadNet = iReadNet+1 !make the grid definition exclusive
     case (49)
       ! LUS1

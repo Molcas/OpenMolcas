@@ -21,10 +21,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nCMO, nMOs, nIrrep, nBas(0:7)
 real(kind=wp), intent(in) :: cmo(nCMO), occ(nMOs)
 real(kind=wp), intent(out) :: cout(nMOs)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, id, id2, iIrr, j, nd, nd2
 
-call GetMem('List','LIST','REAL',id,id)
 id = 0
 id2 = 0
 cout(:) = Zero

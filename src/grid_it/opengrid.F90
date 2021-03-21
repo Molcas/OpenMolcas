@@ -137,7 +137,7 @@ do iiUHF=0,merge(1,0,isUHF)
         !open(unit=LuVal,access='sequential',form='unformatted',file=RealName)
         !write(u6,*) '** Create Grid file:',RealName(1:index(RealName,' '))
         write(LuVal) 'a'
-        !if (imoPack /= 0) then
+        !if (isMOPack) then
         !  g = 2003.9_wp
         !  i = 0
         !  write(LuVal) g,nMOs,nShowMOs_,nCoor,nInc,nBlocks,merge(1,0,isCutOff),Cutoff,iiCoord
@@ -176,11 +176,11 @@ do iiUHF=0,merge(1,0,isUHF)
         if (isUHF .and. (iiUHF == 0)) TMPLUS = 'AM2L'
         if (isUHF .and. (iiUHF == 1)) TMPLUS = 'BM2L'
         mm = 6
-        write(u6,*) ' before 1 lusop', mm
+        write(u6,*) ' before 1 lusop',mm
         RC = lusopen(LID_ab,TMPLUS,mm)
       else
         mm = len_trim(RealName)
-        write(u6,*) ' before lusop', mm
+        write(u6,*) ' before lusop',mm
         RC = lusopen(LID_ab,RealName,mm)
       end if
       !rc = AixOpn(LID,'LUSCUS',.TRUE.)
@@ -196,7 +196,7 @@ do iiUHF=0,merge(1,0,isUHF)
       !open(unit=LuVal_ab,access='sequential',form='unformatted',file=RealName)
       !write(u6,*) '** Create Grid file',RealName(1:index(RealName,' '))
       write(LuVal_ab) 'a'
-      !if (imoPack /= 0) then
+      !if (isMOPack) then
       !  g = 2003.9_wp
       !  i = 0
       !  write(LuVal_ab) g
@@ -215,7 +215,7 @@ do iiUHF=0,merge(1,0,isUHF)
       if (isTheOne) then
         write(LuVal_ab,'(a1)') '9'
       else
-        !if (imoPack /= 0) then
+        !if (isMOPack) then
         !  write(LuVal_ab,'(a1)') '1'
         !  write(LuVal_ab,'(i5)') 0
         !else

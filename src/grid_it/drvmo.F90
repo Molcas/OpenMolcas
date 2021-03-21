@@ -22,27 +22,29 @@ subroutine DrvMO(iRun,INPORB)
 
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: nBas
-use grid_it_globals, only: AtomLbl, CutOff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGauss, iGridNpt, imoPack, ipCoor, &
-                           ipGrid, isAtom, iBinary, isColor, isCurDens, isCutOff, isDebug, isDensity, iDerivative, isLine, &
-                           isLuscus, isSphere, isTheOne, isTotal, isUHF, isUserGrid, isVirt, isXField, levelprint, LID, LID_ab, &
-                           LuVal, LuVal_ab, nAtoms, nBytesPackedVal, nGridPoints, NoOrb, OneCoor, Virt
+use grid_it_globals, only: AtomLbl, Coor, CutOff, Grid, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGauss, iGridNpt, isAtom, &
+                           iBinary, isColor, isCurDens, isCutOff, isDebug, isDensity, iDerivative, isLine, isLuscus, isMOPack, &
+                           isSphere, isTheOne, isTotal, isUHF, isUserGrid, isVirt, levelprint, LID, LID_ab, LuVal, LuVal_ab, &
+                           nAtoms, nBytesPackedVal, nGridPoints, NoOrb, OneCoor, Virt
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun
 character(len=*), intent(in) :: INPORB
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, i1, i2, i3, iaia, iCRSIZE, ie1, ie2, ie3, iErr, ii, iiCoord, iiiCoord, iiMO, iIrrep, iLen, istatus, ipC, &
-                     ipCMO, ipCMO_ab, ipCutOff, ipdd, ipDoIt, ipDoIt_ab, ipE, ipE_ab, ipGRef, ipGRef_ab, ipLine, ipMO, ipNZ, &
-                     ipOcc, ipOcc_ab, ipOoo, ipOut, ipPab, ipPBlock, ipPO, iPrintCount, ipSort, ipSort_ab, ipType, ipVol, irecl, &
-                     iSec, iShiftCut, ishow, iSphrColor, iSphrDist, iv1, iv2, iv3, ive1, ive2, ive3, iWFtype, j, jj, jjMO, LuOrb, &
-                     LuVal_, LuVal_ab_, mCoor, MM, nBlocks, NBYTES, nCMO, nCoor, nDrv, nInc, NINLINE, nLine, nMOs, nShowMOs, &
-                     nShowMOs2, nShowMOs_ab, nSLine, nTypes(7)
-real(kind=wp) :: dd, det3, dNorm, gv1, gv2, gv3, pp(3), VBocc
+integer(kind=iwp) :: i, i1, i2, i3, iaia, iCRSIZE, idum(1), ie1, ie2, ie3, iErr, ii, iiCoord, iiiCoord, iiMO, iIrrep, iLen, &
+                     istatus, ipPO, iPrintCount, irecl, iSec, iShiftCut, ishow, iv1, iv2, iv3, ive1, ive2, ive3, iWFtype, j, jj, &
+                     jjMO, LuOrb, LuVal_, LuVal_ab_, mCoor, MM, nBlocks, NBYTES, nCMO, nCoor, nDrv, nInc, NINLINE, nLine, nMOs, &
+                     nShowMOs, nShowMOs2, nShowMOs_ab, nSLine, nTypes(7)
+real(kind=wp) :: dd, det3, dNorm, dum(1), gv1, gv2, gv3, pp(3), VBocc
 logical(kind=iwp) :: ifpartial, is_error, isEner
 character(len=128) :: line, str
 character(len=80) :: myTitle
+integer(kind=iwp), allocatable :: DoIt(:), DoIt_ab(:), GRef(:), GRef_ab(:), iCutOff(:), iType(:), NZ(:), PBlock(:), Sort(:), &
+                                  Sort_ab(:)
+real(kind=wp), allocatable :: C(:,:), CMO(:), CMO_ab(:), ddNo(:,:), E(:), E_ab(:), MO(:), SLine(:), Occ(:), Occ_ab(:), Ooo(:), &
+                              DOut(:), Pab(:), SphrColor(:), SphrDist(:)
 character(len=7), parameter :: Crypt = 'fi123sd'
 !---- Set size of batches
 integer(kind=iwp), parameter :: nIncPack = 18*1024
@@ -55,7 +57,6 @@ integer(kind=iwp), external :: isFreeUnit
 !... Prologue
 nInc = nIncPack
 isEner = .true.
-ipCutOff = ip_iDummy
 
 dNorm = Zero
 !ddNorm = Zero
@@ -89,27 +90,22 @@ if (isAtom .and. ((iDerivative /= 0) .or. isCurDens)) then
   call Abend()
 end if
 
-call GetMem('CMO','ALLO','REAL',ipCMO,nCMO)
+call mma_allocate(CMO,nCMO,label='CMO')
 
-call GetMem('Ener','ALLO','REAL',ipE,nMOs)
-call GetMem('Occu','ALLO','REAL',ipOcc,nMOs)
-call GetMem('Occ2','ALLO','REAL',ipOoo,nMOs)
+call mma_allocate(E,nMOs,label='Ener')
+call mma_allocate(Occ,nMOs,label='Occu')
+call mma_allocate(Ooo,nMOs,label='Occ2')
 if (isVirt) then
-  call GetMem('ddNo','ALLO','REAL',ipdd,nMOs*nMOs)
-  do i=1,nMOs*nMOs
-    Work(ipdd+i-1) = Zero
-  end do
+  call mma_allocate(ddNo,nMOs,nMOs,label='ddNo')
+  ddNo(:,:) = Zero
 end if
-call GetMem('iTyp','ALLO','INTE',ipType,nMOs)
-call GetMem('Vol','ALLO','REAL',ipVol,nMOs)
-call GetMem('Sort','ALLO','INTE',ipSort,nMOs)
-call GetMem('Nzer','ALLO','INTE',ipNZ,nMOs*2)
-call GetMem('NRef','ALLO','INTE',ipGRef,nMOs)
-call GetMem('DoIt','ALLO','INTE',ipDoIt,nMOs)
-call GetMem('Pab','ALLO','REAL',ipPab,nMOs)
-do i=0,nMOs-1
-  iWork(ipGRef+i) = -1
-end do
+call mma_allocate(iType,nMOs,label='iTyp')
+call mma_allocate(Sort,nMOs,label='Sort')
+call mma_allocate(NZ,nMOs**2,label='Nzer')
+call mma_allocate(GRef,nMOs,label='NRef')
+call mma_allocate(DoIt,nMOs,label='DoIt')
+call mma_allocate(Pab,nMOs,label='Pab')
+GRef(:) = -1
 
 ! Read information from INPORB file
 
@@ -118,48 +114,41 @@ LuOrb = isFreeUnit(46)
 if (isUHF) then
 
   ! allocate memory for extra arrays.
-  call GetMem('CMO_ab','ALLO','REAL',ipCMO_ab,nCMO)
-  call GetMem('Ener_ab','ALLO','REAL',ipE_ab,nMOs)
-  call GetMem('Occu_ab','ALLO','REAL',ipOcc_ab,nMOs)
-  call GetMem('Sort_ab','ALLO','INTE',ipSort_ab,nMOs)
-  call GetMem('NRef_ab','ALLO','INTE',ipGRef_ab,nMOs)
-  call GetMem('DoIt_ab','ALLO','INTE',ipDoIt_ab,nMOs)
+  call mma_allocate(CMO_ab,nCMO,label='CMO_ab')
+  call mma_allocate(E_ab,nMOs,label='Ener_ab')
+  call mma_allocate(Occ_ab,nMOs,label='Occ_ab')
+  call mma_allocate(Sort_ab,nMOs,label='Sort_ab')
+  call mma_allocate(GRef_ab,nMOs,label='NRef_ab')
+  call mma_allocate(DoIt_ab,nMOs,label='DoIt_ab')
 
-  call RdVec_(INPORB,LuOrb,'COE',1,nIrrep,NBAS,NBAS,Work(ipCMO),Work(ipCMO_ab),Work(ipOcc),Work(ipOcc_ab),Work(ipE),Work(ipE_ab), &
-              iWork(ip_iDummy),myTitle,0,iErr,iWFtype)
+  call RdVec_(INPORB,LuOrb,'COE',1,nIrrep,NBAS,NBAS,CMO,CMO_ab,Occ,Occ_ab,E,E_ab,idum,myTitle,0,iErr,iWFtype)
   ! it can be only after SCF, so we do not need TypeIndex info
-  do j=0,nMOs-1
-    iWork(ipType+j) = 0
-  end do
+  iType(:) = 0
 
 else !RHF case
 
-  call RdVec(INPORB,LuOrb,'COE',nIrrep,NBAS,NBAS,Work(ipCMO),Work(ipOcc),Work(ipE),iWork(ip_iDummy),myTitle,0,iErr)
+  call RdVec(INPORB,LuOrb,'COE',nIrrep,NBAS,NBAS,CMO,Occ,E,idum,myTitle,0,iErr)
 
   ! construct Pab
   if (NoOrb) then
     !write(u6,*) 'nCMO,nMOs', nCMO,nMOs
-    call makePab(Work(ipCMO),Work(ipOcc),Work(ipPab),nMOs,nMOs,nIrrep,nBas)
-    !write(u6,*) 'Pab=', (Work(ipPab+i),i=0,nMOs-1)
+    call makePab(CMO,Occ,Pab,nMOs,nMOs,nIrrep,nBas)
+    !write(u6,*) 'Pab=',Pab(:)
   end if
   if (iErr == 1) then
-    do j=0,nMOs-1
-      Work(ipE+j) = Zero
-    end do
+    E(:) = Zero
   end if
-  call RdVec(INPORB,LuOrb,'I',nIrrep,NBAS,NBAS,Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),iWork(ipType),myTitle,0,iErr)
+  call RdVec(INPORB,LuOrb,'I',nIrrep,NBAS,NBAS,dum,dum,dum,iType,myTitle,0,iErr)
   if (iErr == 1) then
-    do j=0,nMOs-1
-      iWork(ipType+j) = 0
-    end do
+    iType(:) = 0
   end if
 
 end if
 do j=1,7
   nTypes(j) = 0
 end do
-do j=0,nMOs-1
-  jj = iWork(ipType+j)
+do j=1,nMOs
+  jj = iType(j)
   if (jj > 0) nTypes(jj) = nTypes(jj)+1
 end do
 
@@ -186,7 +175,7 @@ if (isCutOff) then
     call Quit_OnUserError()
   end if
 
-  call GetMem('CUTFL','ALLO','INTE',ipCutOff,nCoor)
+  call mma_allocate(iCutOff,nCoor,label='CUTFL')
   ie1 = max(iGridNpt(1)-1,1)
   ie2 = max(iGridNpt(2)-1,1)
   ie3 = max(iGridNpt(3)-1,1)
@@ -203,24 +192,26 @@ if (isCutOff) then
         ishow = 0
         do ii=1,nAtoms
           iaia = 0
-          if (abs(Work(ipCoor+ii*3-3)-pp(1)) < CutOff) iaia = iaia+1
-          if (abs(Work(ipCoor+ii*3-3+1)-pp(2)) < CutOff) iaia = iaia+1
-          if (abs(Work(ipCoor+ii*3-3+2)-pp(3)) < CutOff) iaia = iaia+1
+          if (abs(Coor(1,ii)-pp(1)) < CutOff) iaia = iaia+1
+          if (abs(Coor(2,ii)-pp(2)) < CutOff) iaia = iaia+1
+          if (abs(Coor(3,ii)-pp(3)) < CutOff) iaia = iaia+1
           if (iaia == 3) ishow = 1
         end do
+        iiiCoord = iiiCoord+1
         if (ishow == 1) then
           iiCoord = iiCoord+1
-          iWork(ipCutOff+iiiCoord) = 1
+          iCutOff(iiiCoord) = 1
         else
-          iWork(ipCutOff+iiiCoord) = 0
+          iCutOff(iiiCoord) = 0
         end if
-        iiiCoord = iiiCoord+1
       end do
     end do
   end do
   write(u6,*) nCoor-iiCoord,' points are eliminated'
   !write(u6,*) 'old=',nCoor,' New=', iiCoord
   !nCoor = iiCoord
+else
+  call mma_allocate(iCutOff,1,label='CUTFL')
 end if
 if (isTheOne) nCoor = int(OneCoor(7)+0.3_wp)
 if (isAtom) nCoor = nAtoms
@@ -234,7 +225,7 @@ write(u6,*) ' Number of grid points in file:  ',nCoor
 ! Sometime we had to make an automatic guess....
 !***********************************************************************
 
-call PickOrb(ipNz,ipSort,ipGref,ipSort_ab,ipGref_ab,ipVol,ipE,ipOcc,ipE_ab,ipOcc_ab,nShowMOs,nShowMOs_ab,isEner,nMOs,myTitle,ipType)
+call PickOrb(Nz,Sort,Gref,Sort_ab,Gref_ab,E,Occ,E_ab,Occ_ab,nShowMOs,nShowMOs_ab,isEner,nMOs,myTitle,iType)
 
 !---- Start run over sets of grid points
 
@@ -253,64 +244,64 @@ write(u6,*) ' Batches processed in increments of:',nInc
 write(u6,*)
 iPrintCount = 0
 
-call GetMem('MOValue','ALLO','REAL',ipMO,nInc*nMOs)
-call GetMem('DOValue','ALLO','REAL',ipOut,nInc)
+call mma_allocate(MO,nInc*nMOs,label='MOValue')
+call mma_allocate(DOut,nInc,label='DOValue')
 
-!if (imoPack .ne. 0) then
-!  call GetMem('PackedBlock','ALLO','INTE',ipPBlock,nInc)
+!if (isMOPack) then
+!  call mma_allocate(PBlock,nInc,label='PackedBlock')
 !else
-call GetMem('PackedBlock','ALLO','INTE',ipPBlock,1)
-iWork(ipPBlock) = 0
+call mma_allocate(PBlock,1,label='PackedBlock')
 !end if
+PBlock(:) = 0
 
 !... Allocate memory for the some grid points
 
-call GetMem('Coor','ALLO','REAL',ipC,nInc*3)
-iSphrDist = ip_Dummy
-iSphrColor = ip_Dummy
+call mma_allocate(C,3,nInc,label='Coor')
 
 if (isSphere) then
-  call GetMem('SpDi','ALLO','REAL',iSphrDist,nInc)
+  call mma_allocate(SphrDist,nInc,label='SpDi')
+else
+  call mma_allocate(SphrDist,1,label='SpDi')
 end if
 if (isColor) then
-  call GetMem('SpCo','ALLO','REAL',iSphrColor,nInc)
+  call mma_allocate(SphrColor,nInc,label='SpCo')
+else
+  call mma_allocate(SphrColor,1,label='SpCo')
 end if
 
 ! check grids to calculate
 
-do i=0,nMOs-1
-  iWork(ipDoIt+i) = 0
-  if (isUHF) iWork(ipDoIt_ab+i) = 0
-end do
+DoIt(:) = 0
+if (isUHF) DoIt_ab(:) = 0
 
 if (.not. NoOrb) then
   do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
-    iWork(ipDoIt+iWork(ipGRef+i-1)-1) = 1
+    DoIt(GRef(i)) = 1
   end do
   if (isUHF) then
     do i=1,nShowMOs_ab-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
-      iWork(ipDoIt_ab+iWork(ipGRef_ab+i-1)-1) = 1
+      DoIt_ab(GRef_ab(i)) = 1
     end do
   end if
   ifpartial = .not. isTotal
   if (isTotal) then
-    do i=0,nMOs-1
-      if (abs(Work(ipOcc+i)) > Zero) then
-        iWork(ipDoIt+i) = 1
+    do i=1,nMOs
+      if (abs(Occ(i)) > Zero) then
+        DoIt(i) = 1
       end if
       if (isUHF) then
-        if (abs(Work(ipOcc_ab+i)) > Zero) then
-          iWork(ipDoIt_ab+i) = 1
+        if (abs(Occ_ab(i)) > Zero) then
+          DoIt_ab(i) = 1
         end if
       end if
     end do
   else
-    do i=0,nMOs-1
-      if ((Work(ipOcc+i) > Zero) .and. (iWork(ipDoIt+i) /= 1)) then
+    do i=1,nMOs
+      if ((Occ(i) > Zero) .and. (DoIt(i) /= 1)) then
         ifpartial = .true.
       end if
       if (isUHF) then
-        if ((Work(ipOcc_ab+i) > Zero) .and. (iWork(ipDoIt_ab+i) /= 1)) then
+        if ((Occ_ab(i) > Zero) .and. (DoIt_ab(i) /= 1)) then
           ifpartial = .true.
         end if
       end if
@@ -334,13 +325,13 @@ call PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSIZE,NBY
 
 LuVal_ = LuVal
 if (isLuscus) LuVal_ = LID
-call PrintTitles(LuVal_,nShowMOs,isDensity,nMOs,iWork(ipGRef),isEner,Work(ipOcc),iWork(ipType),Crypt,iWork(ipNZ),Work(ipE),VBocc, &
-                 ifpartial,isLine,isSphere,isColor,isLuscus,ncoor,nBlocks,nInc)
+call PrintTitles(LuVal_,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt,NZ,E,VBocc,ifpartial,isLine,isSphere,isColor,isLuscus, &
+                 ncoor,nBlocks,nInc)
 if (isUHF) then
   LuVal_ab_ = LuVal_ab
   if (isLuscus) LuVal_ab_ = LID_ab
-  call PrintTitles(LuVal_ab_,nShowMOs_ab,isDensity,nMOs,iWork(ipGRef_ab),isEner,Work(ipOcc_ab),iWork(ipType),Crypt,iWork(ipNZ), &
-                   Work(ipE_ab),VBocc,ifpartial,isLine,isSphere,isColor,isLuscus,ncoor,nBlocks,nInc)
+  call PrintTitles(LuVal_ab_,nShowMOs_ab,isDensity,nMOs,GRef_ab,isEner,Occ_ab,iType,Crypt,NZ,E_ab,VBocc,ifpartial,isLine,isSphere, &
+                   isColor,isLuscus,ncoor,nBlocks,nInc)
 end if
 !                                                                      *
 !***********************************************************************
@@ -358,7 +349,7 @@ iv1 = 0
 iiiCoord = 0
 !if (isCutOff) nCoor = iiCoord
 !ccccccccccccc  main loop starts here  ccccccccccccccccccccccccccccccccc
-iShiftCut = 0
+iShiftCut = 1
 do iSec=1,nCoor,nInc
   mCoor = min(nInc,nCoor-iSec+1)
   !write(status,'(a,i8,a,i8)') ' batch ',iSec,' out of ',nCoor/nInc
@@ -369,45 +360,33 @@ do iSec=1,nCoor,nInc
     ! coords for DEBUG mode
     if (isLine) then
       ! LINE keyword
-      do i=0,nCoor-1
-        Work(ipC+i*3) = OneCoor(1)+(OneCoor(4)-OneCoor(1))*i/(nCoor-1)
-        Work(ipC+1+i*3) = OneCoor(2)+(OneCoor(5)-OneCoor(2))*i/(nCoor-1)
-        Work(ipC+2+i*3) = OneCoor(3)+(OneCoor(6)-OneCoor(3))*i/(nCoor-1)
+      do i=1,nCoor
+        C(:,i) = OneCoor(1:3)+(OneCoor(4:6)-OneCoor(1:3))*(i-1)/(nCoor-1)
       end do
     else
-      do i=0,nCoor-1
-        Work(ipC+i*3) = OneCoor(1)+OneCoor(4)*i
-        Work(ipC+1+i*3) = OneCoor(2)+OneCoor(5)*i
-        Work(ipC+2+i*3) = OneCoor(3)+OneCoor(6)*i
+      do i=1,nCoor
+        C(:,i) = OneCoor(1:3)+OneCoor(4:6)*(i-1)
       end do
     end if
   else
     ! general case: we have a CUBIC box.
-    do ipPO=0,mCoor-1
+    do ipPO=1,mCoor
       iiiCoord = iiiCoord+1
       gv3 = One*iv3/ive3
       gv2 = One*iv2/ive2
       gv1 = One*iv1/ive1
 
       if (isUserGrid) then
-        Work(ipC+ipPO*3+1-1) = Work(ipGrid+(iSec+ipPO-1)*3+1-1)
-        Work(ipC+ipPO*3+2-1) = Work(ipGrid+(iSec+ipPO-1)*3+2-1)
-        Work(ipC+ipPO*3+3-1) = Work(ipGrid+(iSec+ipPO-1)*3+3-1)
+        C(:,ipPO) = Grid(:,iSec+ipPO-1)
       else if (isCutOff) then
-        ! using ipCutOff
-        Work(ipC+ipPO*3) = 40
-        Work(ipC+ipPO*3+1) = 40
-        Work(ipC+ipPO*3+2) = 40
-        if (iWork(ipCutOff+iiiCoord-1) == 1) then
-          Work(ipC+ipPO*3) = GridOrigin(1)+GridAxis1(1)*gv1+GridAxis2(1)*gv2+GridAxis3(1)*gv3
-          Work(ipC+ipPO*3+1) = GridOrigin(2)+GridAxis1(2)*gv1+GridAxis2(2)*gv2+GridAxis3(2)*gv3
-          Work(ipC+ipPO*3+2) = GridOrigin(3)+GridAxis1(3)*gv1+GridAxis2(3)*gv2+GridAxis3(3)*gv3
+        ! using iCutOff
+        C(:,ipPO) = 40
+        if (iCutOff(iiiCoord) == 1) then
+          C(:,ipPO) = GridOrigin(:)+GridAxis1(:)*gv1+GridAxis2(:)*gv2+GridAxis3(:)*gv3
         end if
       else
-        Work(ipC+ipPO*3) = GridOrigin(1)+GridAxis1(1)*gv1+GridAxis2(1)*gv2+GridAxis3(1)*gv3
-        Work(ipC+ipPO*3+1) = GridOrigin(2)+GridAxis1(2)*gv1+GridAxis2(2)*gv2+GridAxis3(2)*gv3
-        Work(ipC+ipPO*3+2) = GridOrigin(3)+GridAxis1(3)*gv1+GridAxis2(3)*gv2+GridAxis3(3)*gv3
-      endif
+        C(:,ipPO) = GridOrigin(:)+GridAxis1(:)*gv1+GridAxis2(:)*gv2+GridAxis3(:)*gv3
+      end if
       ! make a local copy of the weights of the corresponding grid points:
       iv3 = iv3+1
       if (iv3 > ive3) then
@@ -425,15 +404,15 @@ do iSec=1,nCoor,nInc
   ! end of coordinates.
   !VV: FIXME; separate color and sphere
   !if (isSphere .and. isColor) then
-  !  call Sphr_Grid(Work(ipCoor),mCoor,Work(ipC),Work(iSphrDist),Work(iSphrColor))
+  !  call Sphr_Grid(Coor,mCoor,C,SphrDist,SphrColor)
   !end if
 
   if (NoOrb) then
     nDrv = 0
-    call MOEval(Work(ipMO),nMOs,mCoor,Work(ipC),Work(ipPab),nMOs,iWork(ipDoIt),nDrv,1)
+    call MOEval(MO,nMOs,mCoor,C,Pab,nMOs,DoIt,nDrv,1)
   else
     nDrv = 0
-    call MOEval(Work(ipMO),nMOs,mCoor,Work(ipC),Work(ipCMO),nCMO,iWork(ipDoIt),nDrv,1)
+    call MOEval(MO,nMOs,mCoor,C,CMO,nCMO,DoIt,nDrv,1)
   end if
 
   !... Write out values
@@ -444,51 +423,48 @@ do iSec=1,nCoor,nInc
     nSLine = 1
     nLine = 1
   end if
-  call GetMem('Line','ALLO','REAL',ipLine,nSLine)
+  call mma_allocate(SLine,nSLine,label='Line')
   if (levelprint < 2) iPrintCount = 100
-  !VV BUG Update ipcutOFF
+  !VV BUG Update iCutOff
 
-  call DumpM2Msi(iRun,Luval_,LID,nShowMOs,isDensity,nMOs,iWork(ipGRef),Work(ipOcc),Work(ipMO),Work(ipOut),mCoor,iGauss,nInc, &
-                 imoPack,iWork(ipPBlock),cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iWork(ipType), &
-                 iWork(ipNZ),Work(ipE),Work(ipLine),nLine,Work(ipC),iPrintCount,isDebug,isCutOff,iWork(ipCutOff+iShiftCut), &
-                 isSphere,Work(iSphrDist),isColor,Work(iSphrColor),isLuscus,NBYTES,NINLINE)
-
-    !if (isXField) call dcopy_(mCoor,Work(ipOut),1,Work(ipOutXF),1)
+  call DumpM2Msi(iRun,Luval_,LID,nShowMOs,isDensity,nMOs,GRef,Occ,MO,DOut,mCoor,iGauss,nInc,isMOPack,PBlock,cMoBlock, &
+                 nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iType,NZ,E,SLine,nLine,C,iPrintCount,isDebug, &
+                 isCutOff,iCutOff(iShiftCut),isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
+  !if (isXField == 1) call dcopy_(mCoor,DOut,1,DOutXF,1)
   if (isUHF) then
     !VV:
     nDrv = 0
-    call MOEval(Work(ipMO),nMOs,mCoor,Work(ipC),Work(ipCMO_ab),nCMO,iWork(ipDoIt_ab),nDrv,1)
+    call MOEval(MO,nMOs,mCoor,C,CMO_ab,nCMO,DoIt_ab,nDrv,1)
 
     !... Write out values
 
-    call DumpM2Msi(iRun,Luval_ab_,LID_ab,nShowMOs_ab,isDensity,nMOs,iWork(ipGRef_ab),Work(ipOcc_ab),Work(ipMO),Work(ipOut),mCoor, &
-                   iGauss,nInc,imoPack,iWork(ipPBlock),cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner, &
-                   iWork(ipType),iWork(ipNZ),Work(ipE_ab),Work(ipLine),nLine,Work(ipC),iPrintCount,isDebug,isCutOff, &
-                   iWork(ipCutOff+iShiftCut),isSphere,Work(iSphrDist),isColor,Work(iSphrColor),isLuscus,NBYTES,NINLINE)
+    call DumpM2Msi(iRun,Luval_ab_,LID_ab,nShowMOs_ab,isDensity,nMOs,GRef_ab,Occ_ab,MO,DOut,mCoor,iGauss,nInc,isMOPack, &
+                   PBlock,cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iType,NZ,E_ab,SLine,nLine,C, &
+                   iPrintCount,isDebug,isCutOff,iCutOff(iShiftCut),isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
 
   end if
 
-  call GetMem('Line','FREE','REAL',ipLine,nSLine)
-  iShiftCut = iShiftCut+mCoor
+  call mma_deallocate(SLine)
+  if (isCutOff) iShiftCut = iShiftCut+mCoor
   if (isVirt) then
     do iiMO=1,nMOs
       do jjMO=1,nMOs
-        if ((Work(ipOcc+iiMO-1) > 1.1_wp) .and. (Work(ipOcc+jjMO-1) < 0.9_wp)) then
+        if ((Occ(iiMO) > 1.1_wp) .and. (Occ(jjMO) < 0.9_wp)) then
           !  here if this is a pair Occ-Virt
 
           do i=1,nMOs
-            Work(ipOoo+i-1) = 0
-            if (i == iiMO) Work(ipOoo+i-1) = Two-Virt
-            if (i == jjMO) Work(ipOoo+i-1) = Virt
+            Ooo(i) = Zero
+            if (i == iiMO) Ooo(i) = Two-Virt
+            if (i == jjMO) Ooo(i) = Virt
           end do
 
-          call outmo(0,2,Work(ipMO),Work(ipOoo),Work(ipOut),mCoor,nMOs)
+          call outmo(0,2,MO,Ooo,DOut,mCoor,nMOs)
           dd = Zero
           do j=1,mCoor
-            dd = dd+Work(ipOut+j-1)
+            dd = dd+DOut(j)
           end do
           !ddNorm = ddNorm+dd
-          call save_ddNorm(dd,iiMO,jjMO,Work(ipdd),nMOs)
+          call save_ddNorm(dd,iiMO,jjMO,dd,nMOs)
         end if
       end do
     end do
@@ -510,9 +486,9 @@ if (.not. isAtom) then
   !write(u6,*) 'dNorm=',dNorm
 
   if (isVirt) then
-    call print_ddNorm(nMOs,Work(ipdd),det3)
+    call print_ddNorm(nMOs,ddNo,det3)
 
-  !write(u6,*) 'ddNorm=',ddNorm*det3
+    !write(u6,*) 'ddNorm=',ddNorm*det3
 
   end if
 
@@ -573,7 +549,7 @@ if (isUHF) close(unit=LuVal_ab)
 if (isTheOne) then
   MM = mCoor-1
   if (MM > 10) MM = 10
-  call Add_Info('GRIDIT_ONE',Work(ipOut),MM,6)
+  call Add_Info('GRIDIT_ONE',DOut,MM,6)
 end if
 !                                                                      *
 !***********************************************************************
@@ -585,20 +561,18 @@ end if
 if (isAtom) then
   mCoor = nCoor
   nDrv = 0
-  call MOEval(Work(ipMO),nMOs,mCoor,Work(ipCoor),Work(ipCMO),nCMO,iWork(ipDoIt),nDrv,1)
-  call outmo(0,2,Work(ipMO),Work(ipOcc),Work(ipOut),nCoor,nMOs)
+  call MOEval(MO,nMOs,mCoor,Coor,CMO,nCMO,DoIt,nDrv,1)
+  call outmo(0,2,MO,Occ,DOut,nCoor,nMOs)
   write(u6,'(60a1)') ('*',i=1,60)
   if (ifpartial) then
     write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density (partial)'
   else
     write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density'
   end if
-  do i=0,nAtoms-1
-    write(u6,'(a5,3f10.3,e20.10)') AtomLbl(i+1),Work(ipCoor+i*3),Work(ipCoor+i*3+1),Work(ipCoor+i*3+2),Work(ipOut+i)
+  do i=1,nAtoms
+    write(u6,'(a5,3f10.3,e20.10)') AtomLbl(i),Coor(:,i),DOut(i)
   end do
-  call Add_Info('GRIDIT_ATOM',Work(ipOut),nAtoms,6)
-
-  call GetMem('Coor','FREE','REAL',ipCoor,3*nAtoms)
+  call Add_Info('GRIDIT_ATOM',DOut(1:nAtoms),nAtoms,6)
 
 end if
 
@@ -607,54 +581,43 @@ if (isLuscus) then
   if (isUHF) call PRTLUSENDGRID(LID_ab)
 end if
 
-if (isSphere) then
-  call GetMem('SpDi','FREE','REAL',iSphrDist,nInc)
-end if
-if (isColor) then
-  call GetMem('SpCo','FREE','REAL',iSphrColor,nInc)
-end if
-call GetMem('Coor','FREE','REAL',ipC,nInc*3)
+call mma_deallocate(C)
+call mma_deallocate(SphrDist)
+call mma_deallocate(SphrColor)
 
-call GetMem('DOValue','FREE','REAL',ipOut,nInc)
-call GetMem('MOValue','FREE','REAL',ipMO,nInc*nMOs)
+call mma_deallocate(MO)
+call mma_deallocate(DOut)
 
 if (isUHF) then
-  call GetMem('CMO_ab','FREE','REAL',ipCMO_ab,nCMO)
-  call GetMem('Ener_ab','FREE','REAL',ipE_ab,nMOs)
-  call GetMem('Occu_ab','FREE','REAL',ipOcc_ab,nMOs)
-  call GetMem('Sort_ab','FREE','INTE',ipSort_ab,nMOs)
-  call GetMem('NRef_ab','FREE','INTE',ipGRef_ab,nMOs)
-  call GetMem('DoIt_ab','FREE','INTE',ipDoIt_ab,nMOs)
+  call mma_deallocate(CMO_ab)
+  call mma_deallocate(E_ab)
+  call mma_deallocate(Occ_ab)
+  call mma_deallocate(Sort_ab)
+  call mma_deallocate(GRef_ab)
+  call mma_deallocate(DoIt_ab)
 end if
-if (isUserGrid) call GetMem('Grid','FREE','REAL',ipGrid,nGridPoints*3)
-!if (imoPack /= 0) then
-!  call GetMem('PackedBlock','FREE','INTE',ipPBlock,nInc)
-!else
-call GetMem('PackedBlock','FREE','INTE',ipPBlock,1)
-!end if
+if (isUserGrid) call mma_deallocate(Grid)
+call mma_deallocate(PBlock)
 
-call GetMem('Pab','FREE','REAL',ipPab,nMOs)
-call GetMem('DoIt','FREE','INTE',ipDoIt,nMOs)
+call mma_deallocate(Pab)
+call mma_deallocate(DoIt)
 
-call GetMem('NRef','FREE','INTE',ipGRef,nMOs)
-call GetMem('Nzer','FREE','INTE',ipNZ,nMOs*2)
-call GetMem('Sort','FREE','INTE',ipSort,nMOs)
-call GetMem('Vol','FREE','REAL',ipVol,nMOs)
-call GetMem('iTyp','FREE','INTE',ipType,nMOs)
-if (isVirt) then
-  call GetMem('ddNo','FREE','REAL',ipdd,nMOs*nMOs)
-end if
+if (isVirt) call mma_deallocate(ddNo)
+call mma_deallocate(iType)
+call mma_deallocate(Sort)
+call mma_deallocate(NZ)
+call mma_deallocate(GRef)
 
-call GetMem('Occ2','FREE','REAL',ipOoo,nMOs)
-call GetMem('Occu','FREE','REAL',ipOcc,nMOs)
-call GetMem('Ener','FREE','REAL',ipE,nMOs)
+call mma_deallocate(E)
+call mma_deallocate(Occ)
+call mma_deallocate(Ooo)
 
-!if (isWDW == 1) call GetMem('WDW','FREE','REAL',ipWdW,nCenter)
-call GetMem('CMO','FREE','REAL',ipCMO,nCMO)
+call mma_deallocate(CMO)
 
-if ((.not. isAtom) .and. (.not. isXField)) call GetMem('Coor','FREE','REAL',ipCoor,3*nAtoms)
+call mma_deallocate(AtomLbl)
+call mma_deallocate(Coor)
 
-if (isCutOff) call GetMem('CUTFL','FREE','INTE',ipCutOff,nCoor)
+call mma_deallocate(iCutOff)
 
 return
 

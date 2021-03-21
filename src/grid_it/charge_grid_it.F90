@@ -32,6 +32,7 @@ subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,long_prt)
 !
 !***********************************************************************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -40,26 +41,27 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nCMO, iDoIt(*)
 real(kind=wp), intent(in) :: CMO(nCMO), OCCN(*)
 logical(kind=iwp), intent(in) :: long_prt
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iCase, iComp, iOpt, iOrb, ipQQ, ipS, ipXocc, iRc, iSyLbl, iSym, jOcc, lOcc, MXTYP, nNUC, nTot1
-character(len=LenIn8) :: UBName(MxBas)
+integer(kind=iwp) :: iCase, iComp, iOpt, iOrb, iRc, iSyLbl, iSym, jOcc, MxTyp, nNUC, nTot1
+real(kind=wp), allocatable :: QQ(:), S(:), Xocc(:)
+character(len=LenIn8), allocatable :: UBName(:)
 
-MXTYP = 0
+MxTyp = 0
 nTot1 = 0
 do iSym=1,nSym
   MxTyp = MxTyp+nBas(iSym)
   nTot1 = nTot1+nBas(iSym)*(nBas(iSym)+1)/2
 end do
+call mma_allocate(UBName,MxTyp,label='UBName')
 call Get_cArray('Unique Basis Names',UBName,LenIn8*MxTyp)
-call GetMem('XOCC','ALLO','REAL',ipXocc,MXTYP)
+call mma_allocate(Xocc,MxTyp,label='XOCC')
 call Get_iScalar('Unique atoms',nNUC)
-call GetMem('QQ','ALLO','REAL',ipQQ,MXTYP*nNuc)
-call GetMem('Ovrlp','Allo','Real',ipS,nTot1)
+call mma_allocate(QQ,MxTyp*nNuc,label='QQ')
+call mma_allocate(S,nTot1,label='Ovrlp')
 iRc = -1
 iOpt = 2
 iComp = 1
 iSyLbl = 1
-call RdOne(iRc,iOpt,'Mltpl  0',iComp,Work(ipS),iSyLbl)
+call RdOne(iRc,iOpt,'Mltpl  0',iComp,S,iSyLbl)
 if (iRc /= 0) then
   write(u6,*) 'charge_grid_it: iRc from Call RdOne not 0'
   !write(u6,*) 'Label = ',Label
@@ -76,7 +78,7 @@ write(u6,*)
 write(u6,*)
 write(u6,*)
 
-call FZero(Work(ipXocc),MXTYP)
+Xocc(:) = Zero
 
 iCase = 2
 jOcc = 1
@@ -87,21 +89,21 @@ do iSym=1,nSym
 
       write(u6,'(A,I4,A,I1,A,F6.4)') '          MO:',iOrb,'      Symm.: ',iSym,'      Occ. No.: ',OCCN(jOcc)
 
-      lOcc = ipXocc+jOcc-1
-      Work(lOcc) = OCCN(jOcc)
+      Xocc(jOcc) = OCCN(jOcc)
 
-      call FZero(Work(ipQQ),MxTYP*nNuc)
-      call One_CHARGE(NSYM,NBAS,UBName,CMO,Work(ipXocc),Work(ipS),iCase,long_prt,MXTYP,Work(ipQQ),nNuc)
-      Work(lOcc) = Zero
+      QQ(:) = Zero
+      call One_CHARGE(NSYM,NBAS,UBName,CMO,Xocc,S,iCase,long_prt,MxTyp,QQ,nNuc)
+      Xocc(jOcc) = Zero
     end if
 
     jOcc = jOcc+1
   end do
 end do
 
-call GetMem('XOCC','FRee','REAL',ipXocc,MXTYP)
-call GetMem('Ovrlp','Free','Real',ipS,nTot1)
-call GetMem('QQ','FREE','REAL',ipQQ,MXTYP*nNuc)
+call mma_deallocate(Xocc)
+call mma_deallocate(QQ)
+call mma_deallocate(S)
+call mma_deallocate(UBName)
 
 return
 

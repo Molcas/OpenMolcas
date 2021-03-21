@@ -15,6 +15,7 @@
 
 subroutine MOEvalDer(MOValue,iDir,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,31 +23,25 @@ integer, parameter :: nDrv = 1, mAO = 4
 integer(kind=iwp), intent(in) :: iDir, nMOs, nCoor, nCMO, DoIt(nMOs)
 real(kind=wp), intent(out) :: MOValue(nCoor*nMOs)
 real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: I, IJ, IJX, IJY, IJZ, iMoTmp
+integer(kind=iwp) :: I
+real(kind=wp), allocatable :: MOTmp(:,:)
 
-call GetMem('MOTMP','Allo','Real',iMoTmp,4*nCoor*nMOs)
+call mma_allocate(MOTmp,4,nCoor*nMOs)
 
-call MOEval(Work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
+call MOEval(MOTmp,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
 ! iDir = 1 then do dX
 ! iDir = 2 then do dY
 ! iDir = 3 then do dZ
 !write(u6,*) 'iDir:',iDir
 if ((iDir > 0) .and. (iDir < 4)) then
-  do I=1,nCoor*nMOs
-    IJ = iDir+1+(I-1)*4
-    MOValue(I) = Work(iMoTmp-1+IJ)
-  end do
+  MOValue(:) = MOTmp(iDir,:)
 else ! do gradient
   do I=1,nCoor*nMOs
-    IJX = 2+(I-1)*4
-    IJY = 3+(I-1)*4
-    IJZ = 4+(I-1)*4
-    MOValue(I) = Work(iMoTmp-1+IJX)+Work(iMoTmp-1+IJY)+Work(iMoTmp-1+IJZ)
+    MOValue(I) = MOTmp(2,I)+MOTmp(3,I)+MOTmp(4,I)
   end do
 end if
-call GetMem('MOTMP','Free','Real',iMoTmp,4*nCoor*nMOs)
+call mma_deallocate(MOTmp)
 
 return
 

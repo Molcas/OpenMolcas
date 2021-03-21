@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PickOrb(ipNz,ipSort,ipGref,ipSort_ab,ipGref_ab,ipVol,ipE,ipOcc,ipE_ab,ipOcc_ab,nShowMOs,nShowMOs_ab,isEner,nMOs, &
-                   myTitle,ipType)
+subroutine PickOrb(Nz,Sort,Gref,Sort_ab,Gref_ab,E,Occ,E_ab,Occ_ab,nShowMOs,nShowMOs_ab,isEner,nMOs,myTitle,iType)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
@@ -22,11 +21,13 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ipNZ, ipSort, ipGref, ipSort_ab, ipGref_ab, ipVol, ipE, ipOcc, ipE_ab, ipOcc_ab, nMOs, ipType
-integer(kind=iwp), intent(out) :: nShowMOs, nShowMOs_ab
+integer(kind=iwp), intent(in) :: nMOs, iType(nMOs)
+integer(kind=iwp), intent(out) :: NZ(*), Sort(nMOs), Sort_ab(nMOs), nShowMOs, nShowMOs_ab
+integer(kind=iwp), intent(inout) :: Gref(nMOs), Gref_ab(nMOs)
+real(kind=wp), intent(inout) :: E(nMOs), E_ab(nMOs)
+real(kind=wp), intent(in) :: Occ(nMOs), Occ_ab(nMOs)
 logical(kind=iwp), intent(inout) :: isEner
 character(len=*), intent(in) :: myTitle
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iActive, ief, ief_ab, ii, ii_ab, iia, iib, ik, ik_ab, il, il_ab, ishift, ispin, j
 real(kind=wp) :: ef, ef_ab, eps, R, s
 
@@ -36,17 +37,15 @@ ik_ab = 0
 ii_ab = 0
 il_ab = 0
 nShowMOs_ab = 0
-do i=0,nMOs-1
-  iWork(ipSort+i) = 0
-  if (isUHF) iWork(ipSort_ab+i) = 0
-end do
+Sort(:) = 0
+if (isUHF) Sort_ab(:) = 0
 
 ishift = 0
 do i=0,nIrrep-1
   if (nBas(i) > 0) then
     do j=1,nBas(i)
-      iWork(ipNZ+j-1+ishift) = i+1
-      iWork(ipNZ+j-1+ishift+nMOs) = j
+      NZ(j+ishift) = i+1
+      NZ(j+ishift+nMOs) = j
     end do
   end if
   ishift = ishift+nBas(i)
@@ -56,14 +55,14 @@ eps = 1.0e-6_wp
 ! if no input, but TypeIndex contains 123
 if ((iAuMO == -1) .and. (.not. isAll)) then
   iActive = 0
-  do i=0,nMOs-1
-    if ((iWork(ipType+i) >= 3) .and. (iWork(ipType+i) <= 5)) iActive = iActive+1
+  do i=1,nMOs
+    if ((iType(i) >= 3) .and. (iType(i) <= 5)) iActive = iActive+1
   end do
   if (iActive > 0) then
-    ii = 0
-    do i=0,nMOs-1
-      if ((iWork(ipType+i) >= 3) .and. (iWork(ipType+i) <= 5)) then
-        iWork(ipGref+ii) = i+1
+    ii = 1
+    do i=1,nMOs
+      if ((iType(i) >= 3) .and. (iType(i) <= 5)) then
+        Gref(ii) = i
         ii = ii+1
       end if
     end do
@@ -110,7 +109,7 @@ if (iAuMO == 0) then
   ishift = 0
   do i=0,nIrrep-1
     if (nBas(i) > 0) then
-      iWork(ipSort+i) = ishift
+      Sort(i+1) = ishift
       ! use Sort as temp
     end if
     ishift = ishift+nBas(i)
@@ -124,8 +123,8 @@ if (iAuMO == 0) then
       call Quit_OnUserError()
 
     end if
-    iWork(ipGref+i-1) = iWork(ipSort+iia-1)+iib
-    if (isUHF) iWork(ipGref_ab+i-1) = iWork(ipGref+i-1)
+    Gref(i) = Sort(iia)+iib
+    if (isUHF) Gref_ab(i) = Gref(i)
   end do
 
   nShowMOs = nReq
@@ -141,16 +140,11 @@ if (itRange == 0) then
   Region(1) = -R
 end if
 
-do i=0,nMOs-1
-  Work(ipVol+i) = Zero
-  iWork(ipSort+i) = 0
-  if (.not. isEner) then
-    Work(ipE+i) = -Work(ipOcc+i)
-    if (isUHF) then
-      Work(ipE_ab+i) = -Work(ipOcc_ab+i)
-    end if
-  end if
-end do
+Sort(:) = 0
+if (.not. isEner) then
+  E(:) = -Occ(:)
+  if (isUHF) E_ab(:) = -Occ_ab(:)
+end if
 
 ! Well, now we need to choose rest (nGrid-1) grids.
 
@@ -158,29 +152,29 @@ end do
 
 if (NoSort) then
   ik = 0
-  do i=0,nMOs-1
-    if ((Work(ipE+i) > Region(1)) .and. (Work(ipE+i) < Region(2))) then
-      !write(u6,*) 'EE',Work(ipE+i),Region(1),Region(2)
+  do i=1,nMOs
+    if ((E(i) > Region(1)) .and. (E(i) < Region(2))) then
+      !write(u6,*) 'EE',E(i),Region(1),Region(2)
       ik = ik+1
-      iWork(ipSort+i) = ik
+      Sort(i) = ik
     end if
   end do
   ik_ab = ik
 else
 
   ik = 0
-  do i=0,nMOs-1
-    if ((Work(ipE+i) > Region(1)) .and. (Work(ipE+i) < Region(2))) then
-      do j=0,nMOs-1
-        if ((Work(ipE+j) >= Work(ipE+i)) .and. (Work(ipE+j) >= Region(1)) .and. (Work(ipE+j) <= Region(2))) then
-          if (Work(ipE+j) == Work(ipE+i)) then
-            if (Work(ipOcc+j) <= Work(ipOcc+i)) then
-              iWork(ipSort+i) = iWork(ipSort+i)+1
-              if (ik < iWork(ipSort+i)) ik = iWork(ipSort+i)
+  do i=1,nMOs
+    if ((E(i) > Region(1)) .and. (E(i) < Region(2))) then
+      do j=1,nMOs
+        if ((E(j) >= E(i)) .and. (E(j) >= Region(1)) .and. (E(j) <= Region(2))) then
+          if (E(j) == E(i)) then
+            if (Occ(j) <= Occ(i)) then
+              Sort(i) = Sort(i)+1
+              if (ik < Sort(i)) ik = Sort(i)
             end if
           else
-            iWork(ipSort+i) = iWork(ipSort+i)+1
-            if (ik < iWork(ipSort+i)) ik = iWork(ipSort+i)
+            Sort(i) = Sort(i)+1
+            if (ik < Sort(i)) ik = Sort(i)
           end if
         end if
       end do
@@ -189,18 +183,18 @@ else
 
   if (isUHF) then
     ik_ab = 0
-    do i=0,nMOs-1
-      if ((Work(ipE_ab+i) > Region(1)) .and. (Work(ipE_ab+i) < Region(2))) then
-        do j=0,nMOs-1
-          if ((Work(ipE_ab+j) >= Work(ipE_ab+i)) .and. (Work(ipE_ab+j) >= Region(1)) .and. (Work(ipE_ab+j) <= Region(2))) then
-            if (Work(ipE_ab+j) == Work(ipE_ab+i)) then
-              if (Work(ipOcc_ab+j) <= Work(ipOcc_ab+i)) then
-                iWork(ipSort_ab+i) = iWork(ipSort_ab+i)+1
-                if (ik_ab < iWork(ipSort_ab+i)) ik_ab = iWork(ipSort_ab+i)
+    do i=1,nMOs
+      if ((E_ab(i) > Region(1)) .and. (E_ab(i) < Region(2))) then
+        do j=1,nMOs
+          if ((E_ab(j) >= E_ab(i)) .and. (E_ab(j) >= Region(1)) .and. (E_ab(j) <= Region(2))) then
+            if (E_ab(j) == E_ab(i)) then
+              if (Occ_ab(j) <= Occ_ab(i)) then
+                Sort_ab(i) = Sort_ab(i)+1
+                if (ik_ab < Sort_ab(i)) ik_ab = Sort_ab(i)
               end if
             else
-              iWork(ipSort_ab+i) = iWork(ipSort_ab+i)+1
-              if (ik_ab < iWork(ipSort_ab+i)) ik_ab = iWork(ipSort_ab+i)
+              Sort_ab(i) = Sort_ab(i)+1
+              if (ik_ab < Sort_ab(i)) ik_ab = Sort_ab(i)
             end if
           end if
         end do
@@ -210,49 +204,49 @@ else
 end if
 if ((iAuMO == -1) .and. isEner .and. (.not. isAll)) then
   ef = -1000.0_wp
-  ief = 0
+  ief = 1
   ef_ab = ef
   ief_ab = ief
-  do i=0,nMOs-1
-    if ((Work(ipE+i) > ef) .and. (Work(ipOcc+i) > eps)) then
-      ef = Work(ipE+i)
+  do i=1,nMOs
+    if ((E(i) > ef) .and. (Occ(i) > eps)) then
+      ef = E(i)
       ief = i
     end if
     if (isUHF) then
-      if ((Work(ipE_ab+i) > ef_ab) .and. (Work(ipOcc_ab+i) > eps)) then
-        ef_ab = Work(ipE_ab+i)
+      if ((E_ab(i) > ef_ab) .and. (Occ_ab(i) > eps)) then
+        ef_ab = E(i)
         ief_ab = i
       end if
     end if
   end do
   !write(u6,*) 'ef=',ef
   !write(u6,*) 'ief=',ief,ief_ab
-  ii = iWork(ipSort+ief)
-  if (isUHF) ii_ab = iWork(ipSort_ab+ief_ab)
-  do i=0,nMOs-1
-    if ((iWork(ipSort+i) > ii+iMaxUp) .or. (iWork(ipSort+i) < ii-iMaxDown)) iWork(ipSort+i) = 0
+  ii = Sort(ief)
+  if (isUHF) ii_ab = Sort_ab(ief_ab)
+  do i=1,nMOs
+    if ((Sort(i) > ii+iMaxUp) .or. (Sort(i) < ii-iMaxDown)) Sort(i) = 0
     if (isUHF) then
-      if ((iWork(ipSort_ab+i) > ii_ab+iMaxUp) .or. (iWork(ipSort_ab+i) < ii_ab-iMaxDown)) iWork(ipSort_ab+i) = 0
+      if ((Sort_ab(i) > ii_ab+iMaxUp) .or. (Sort_ab(i) < ii_ab-iMaxDown)) Sort_ab(i) = 0
     end if
   end do
 end if
 
 il = 0
 do j=1,ik
-  do i=0,nMOs-1
-    if (iWork(ipSort+i) == j) then
-      iWork(ipGRef+il) = i+1
+  do i=1,nMOs
+    if (Sort(i) == j) then
       il = il+1
+      GRef(il) = i
     end if
   end do
 end do
 if (isUHF) then
   il_ab = 0
   do j=1,ik_ab
-    do i=0,nMOs-1
-      if (iWork(ipSort_ab+i) == j) then
-        iWork(ipGRef_ab+il_ab) = i+1
-        il_ab = il_ab+1
+    do i=1,nMOs
+      if (Sort_ab(i) == j) then
+        il_ab = il_ab
+        GRef_ab(il_ab+1) = i
       end if
     end do
   end do

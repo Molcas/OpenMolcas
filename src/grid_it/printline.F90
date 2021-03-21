@@ -21,7 +21,6 @@ implicit none
 integer(kind=iwp), intent(in) :: unt, length
 logical(kind=iwp), intent(in) :: isBinLuscus
 character(len=128) :: line
-#include "WrkSpc.fh"
 integer(kind=iwp) :: ll, li
 
 if (isLuscus) then

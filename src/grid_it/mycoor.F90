@@ -22,7 +22,8 @@ subroutine MyCoor(isAuto,Ox,Oy,Oz,Rx,Ry,Rz,iGx,iGy,iGz,iMagic,isCustOrig)
 !   iMagic = magic guess for net                                       *
 !***********************************************************************
 
-use grid_it_globals, only: ATOMLBL, ipCoor, iBinary, isLuscus, isUHF, LID, LID_ab, LuVal, LuVal_ab, nAtoms, TheGap
+use grid_it_globals, only: AtomLbl, Coor, iBinary, isLuscus, isUHF, LID, LID_ab, LuVal, LuVal_ab, nAtoms, TheGap
+use stdalloc, only: mma_allocate
 use Constants, only: One, Two, Angstrom
 use Definitions, only: wp, iwp, u6
 
@@ -31,8 +32,7 @@ logical(kind=iwp), intent(in) :: isAuto, isCustOrig
 integer(kind=iwp), intent(in) :: iMagic
 real(kind=wp), intent(inout) :: Ox, Oy, Oz, Rx, Ry, Rz
 integer(kind=iwp), intent(inout) :: iGx, iGy, iGz
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iAt, lw2, nCenter, NoOrig
+integer(kind=iwp) :: iAt, nCenter, NoOrig
 real(kind=wp) :: rrx, rry, rrz, x529
 character(len=128) :: Line
 character(len=2) :: Byte4
@@ -45,17 +45,17 @@ if (isLuscus) then
 else
   x529 = One
 end if
-lw2 = 1
 !call get_iScalar('nSym',nSym)
 call Get_nAtoms_All(nAtoms)
+call mma_allocate(AtomLbl,nAtoms,label='AtomLbl')
 call Get_LblCnt_All(AtomLbl)
-call GetMem('Coor','ALLO','REAL',ipCoor,3*nAtoms)
-call Get_Coord_All(Work(ipCoor),nAtoms)
+call mma_allocate(Coor,3,nAtoms,label='Coor')
+call Get_Coord_All(Coor,nAtoms)
 nCenter = nAtoms
 ! Check : are any strange names?
 NoOrig = 0
-do iAt=0,nCenter-1
-  write(line,'(a)') AtomLbl(lw2+iAt)
+do iAt=1,nCenter
+  write(line,'(a)') AtomLbl(iAt)
   if (index(line,'Ori') /= 0) NoOrig = NoOrig+1
 end do
 
@@ -67,12 +67,12 @@ if (isLuscus .and. (iBinary == 3)) then
     call PRINTLINE(LID_ab,LINE,10,.false.)
     call PRINTLINE(LID_ab,LINE,0,.false.)
   end if
-  do IAT=0,NCENTER-1
-    write(LINE,'(A)') ATOMLBL(LW2+IAT)
+  do iAt=1,nCenter
+    write(LINE,'(A)') AtomLbl(iAt)
     if (index(LINE,'ORI') == 0) then
-      Byte4 = ATOMLBL(LW2+IAT)(1:2)
+      Byte4 = AtomLbl(iAt)(1:2)
       if (index('0123456789',Byte4(2:2)) /= 0) Byte4(2:2) = ' '
-      write(LINE,'(1X,A2,2X,3F15.8)') Byte4,WORK(IPCOOR+3*IAT)*x529,WORK(IPCOOR+3*IAT+1)*x529,WORK(IPCOOR+3*IAT+2)*x529
+      write(LINE,'(1X,A2,2X,3F15.8)') Byte4,Coor(:,iAt)*x529
       call PRINTLINE(LID,LINE,50,.false.)
       if (isUHF) then
         call PRINTLINE(LID_ab,LINE,50,.false.)
@@ -89,11 +89,11 @@ else
   write(LuVal,'(A)') trim(Line)
   if (isUHF) write(LuVal_ab,'(A)') Line(1:15)
 end if
-do iAt=0,nCenter-1
+do iAt=1,nCenter
   if (index(Line,'Ori') == 0) then
-    write(line,'(A,2X,3F15.8)') AtomLbl(lw2+iAt),Work(ipCoor+3*iAt),Work(ipCoor+3*iAt+1),Work(ipCoor+3*iAt+2)
+    write(line,'(A,2X,3F15.8)') AtomLbl(iAt),Coor(:,iAt)
   else
-    write(Line,'(A)') AtomLbl(lw2+iAt)
+    write(Line,'(A)') AtomLbl(iAt)
   end if
   if (iBinary == 1) then
     write(LuVal) trim(Line)
@@ -118,10 +118,10 @@ if (.not. isCustOrig) then
     Ry = -huge(Ry)
     Rz = -huge(Rz)
 
-    do iAt=0,nCenter-1
-      rrx = Work(ipCoor+3*iAt)
-      rry = Work(ipCoor+3*iAt+1)
-      rrz = Work(ipCoor+3*iAt+2)
+    do iAt=1,nCenter
+      rrx = Coor(1,iAt)
+      rry = Coor(2,iAt)
+      rrz = Coor(3,iAt)
       if (rrx < Ox) Ox = rrx
       if (rrx > Rx) Rx = rrx
       if (rry < Oy) Oy = rry
@@ -170,9 +170,9 @@ if (.not. isCustOrig) then
   !--------------------------------------------------------------------*
   !call bXML('Coord')
   !call iXML('nCoord',nCenter)
-  !do iAt=0,nCenter-1
-  !  call cXML('Atom',AtomLbl(lw2+iAt))
-  !  call daXML('Atom coord',Work(ipCoor+3*iAt),3)
+  !do iAt=1,nCenter
+  !  call cXML('Atom',AtomLbl(iAt))
+  !  call daXML('Atom coord',Coor(:,iAt),3)
   !end do
   !call eXML('Coord')
 
@@ -183,8 +183,8 @@ write(u6,'(6X,A)') 'Cartesian coordinates:'
 write(u6,'(6X,A)') '-----------------------------------------'
 write(u6,'(6X,A)') 'No.  Label     X         Y         Z     '
 write(u6,'(6X,A)') '-----------------------------------------'
-do iAt=0,nCenter-1
-  write(u6,'(4X,I4,3X,A,2X,3F10.5)') iAt+1,AtomLbl(lw2+iAt),Work(ipCoor+3*iAt),Work(ipCoor+3*iAt+1),Work(ipCoor+3*iAt+2)
+do iAt=1,nCenter
+  write(u6,'(4X,I4,3X,A,2X,3F10.5)') iAt,AtomLbl(iAt),Coor(:,iAt)
 end do
 write(u6,'(6X,A)') '-----------------------------------------'
 write(u6,'(6X,A,3F12.6)') 'Grid Origin      = ',Ox,Oy,Oz

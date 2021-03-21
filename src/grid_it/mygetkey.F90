@@ -46,7 +46,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: MyGetKey
-integer(kind=iwp), intent(in) :: InUnit,N
+integer(kind=iwp), intent(in) :: InUnit, N
 character, intent(inout) :: What
 integer(kind=iwp), intent(out) :: IValue, IArr(*)
 real(kind=wp), intent(out) :: RValue, RArr(*)
