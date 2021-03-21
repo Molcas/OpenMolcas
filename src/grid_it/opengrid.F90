@@ -14,18 +14,18 @@ subroutine OpenGrid(INPORB)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+use grid_it_globals, only: isBinary, isDebug, isLine, isLuscus, isTheOne, isUHF, LID, LID_ab, LuVal, LuVal_ab, TheName, Title1
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: INPORB
-#include "Molcas.fh"
-#include "grid.fh"
 integer(kind=iwp) :: i, iiUHF, istatus, iPRGM, irecl, l, LuOrb, mm, RC
 real(kind=wp) :: g
 logical(kind=iwp) :: is_error
 character(len=512) :: TMPLUS
 character(len=256) :: FullName
 character(len=306) :: RealName
+character(len=64) :: Project
 character(len=40) :: Env
 character(len=12) :: Alpha
 character(len=2) :: ss

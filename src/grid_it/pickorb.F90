@@ -17,6 +17,7 @@ subroutine PickOrb(ipNz,ipSort,ipGref,ipSort_ab,ipGref_ab,ipVol,ipE,ipOcc,ipE_ab
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use grid_it_globals, only: iMaxDown, iMaxUp, iReq, isAll, isAuMO, isUHF, itRange, NoSort, nReq, Region
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
@@ -25,8 +26,6 @@ integer(kind=iwp), intent(in) :: ipNZ, ipSort, ipGref, ipSort_ab, ipGref_ab, ipV
 integer(kind=iwp), intent(out) :: nShowMOs, nShowMOs_ab
 integer(kind=iwp), intent(inout) :: isEner
 character(len=*), intent(in) :: myTitle
-#include "Molcas.fh"
-#include "grid.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iActive, ief, ief_ab, ii, ii_ab, iia, iib, ik, ik_ab, il, il_ab, ishift, ispin, j
 real(kind=wp) :: ef, ef_ab, eps, R, s

@@ -22,15 +22,17 @@ subroutine DrvMO(iRun,INPORB)
 
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: nBas
+use grid_it_globals, only: AtomLbl, CutOff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGauss, iGridNpt, imoPack, ipCoor, &
+                           ipGrid, isAtom, isBinary, isColor, isCurDens, isCutOff, isDebug, isDensity, isDerivative, isLine, &
+                           isLuscus, isSphere, isTheOne, isTotal, isUHF, isUserGrid, isVirt, isXField, levelprint, LID, LID_ab, &
+                           LuVal, LuVal_ab, nAtoms, nBytesPackedVal, nGridPoints, NoOrb, OneCoor, Virt
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun
 character(len=*), intent(in) :: INPORB
-#include "Molcas.fh"
 #include "WrkSpc.fh"
-#include "grid.fh"
 integer(kind=iwp) :: i, i1, i2, i3, iaia, iCRSIZE, ie1, ie2, ie3, iErr, ifpartial, ii, iiCoord, iiiCoord, iiMO, iIrrep, iLen, &
                      istatus, ipC, ipCMO, ipCMO_ab, ipCutOff, ipdd, ipDoIt, ipDoIt_ab, ipE, ipE_ab, ipGRef, ipGRef_ab, ipLine, &
                      ipMO, ipNZ, ipOcc, ipOcc_ab, ipOoo, ipOut, ipPab, ipPBlock, ipPO, iPrintCount, ipSort, ipSort_ab, ipType, &

@@ -14,13 +14,12 @@ subroutine PrintLine(unt,line,length,isBinLuscus)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+use grid_it_globals, only: isBinary, isLUSCUS
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: unt, length, isBinLuscus
 character(len=128) :: line
-#include "Molcas.fh"
-#include "grid.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ll, li
 

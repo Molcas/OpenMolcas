@@ -22,6 +22,7 @@ subroutine MyCoor(isAuto,Ox,Oy,Oz,Rx,Ry,Rz,iGx,iGy,iGz,iMagic,iCustOrig)
 !   iMagic = magic guess for net                                       *
 !***********************************************************************
 
+use grid_it_globals, only: ATOMLBL, ipCoor, ISBINARY, ISLUSCUS, isUHF, LID, LID_ab, LuVal, LuVal_ab, nAtoms, TheGap
 use Constants, only: One, Two, Angstrom
 use Definitions, only: wp, iwp, u6
 
@@ -29,13 +30,11 @@ implicit none
 integer(kind=iwp), intent(in) :: isAuto, iMagic, iCustOrig
 real(kind=wp), intent(inout) :: Ox, Oy, Oz, Rx, Ry, Rz
 integer(kind=iwp), intent(inout) :: iGx, iGy, iGz
-#include "Molcas.fh"
-#include "grid.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iAt, lw2, nCenter, NoOrig
 real(kind=wp) :: rrx, rry, rrz, x529
 character(len=128) :: Line
-character(len=LenIn) :: Byte4
+character(len=2) :: Byte4
 
 !----------------------------------------------------------------------*
 !     Prologue                                                         *
@@ -46,7 +45,7 @@ else
   x529 = One
 end if
 lw2 = 1
-call get_iScalar('nSym',nSym)
+!call get_iScalar('nSym',nSym)
 call Get_nAtoms_All(nAtoms)
 call Get_LblCnt_All(AtomLbl)
 call GetMem('Coor','ALLO','REAL',ipCoor,3*nAtoms)
@@ -163,7 +162,7 @@ if (iCustOrig /= 1) then
   iGx = (iGx+1)/2*2
   iGy = (iGy+1)/2*2
   iGz = (iGz+1)/2*2
-  mynCenter = nCenter
+  !mynCenter = nCenter
 
   !--------------------------------------------------------------------*
   ! Print coordinates of the system                                    *

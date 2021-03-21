@@ -18,17 +18,21 @@ subroutine Input_Grid_It(iRun,INPORB,iReturn)
 !                                                                      *
 !***********************************************************************
 
+use grid_it_globals, only: CutOff, GridAxis1, GridAxis2, GridAxis3, GridDense, GridNormal, GridOrigin, GridSparse, iGauss, &
+                           iGridNpt, iMaxDown, iMaxUp, imoPack, ipGrid, iReq, isAll, isAtom, isAuMO, isBinary, isColor, isCurDens, &
+                           isCutOff, isDebug, isDensity, isDerivative, isLine, isLuscus, isSphere, isTheOne, isTotal, isUserGrid, &
+                           isVirt, isXField, itRange, MAXGRID, nBytesPackedVal, nGridPoints, NoOrb, NoSort, nReq, OneCoor, Region, &
+                           TheGap, TheName, Title1, Virt
 use Constants, only: Zero, Four, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun, iReturn
 character(len=*), intent(out) :: INPORB
-#include "Molcas.fh"
 #include "WrkSpc.fh"
-#include "grid.fh"
-integer(kind=iwp) :: i, i_bits, iCustOrig, iD, iErr, iKey, inUnit, isAuto, isFileOrb, isNet, isReadNet, iTemp(3), j, magicValue, n
-real(kind=wp) :: dTemp(4), rD
+integer(kind=iwp) :: i, i_bits, iCustOrig, iD, iErr, iKey, inUnit, isAuto, isFileOrb, isNet, isReadNet, iSubBlock, iTemp(3), j, &
+                     magicValue, n
+real(kind=wp) :: dTemp(4), rD, rSubBlock, SubBlock(3), XFminCh, xHiErr, xLeft, xLoErr, xRight
 character(len=265) :: AllKeys
 character(len=256) :: FileStr, FileIn
 character(len=120) :: SelectStr
@@ -50,14 +54,14 @@ isTheOne = 0
 Title1 = ' '
 TheName = ' '
 TheGap = Four
-nMOmin = 0
-nGrid = 5
+!nMOmin = 0
+!nGrid = 5
 nReq = -1
 isDensity = 1
 isDerivative = 0
 isCurDens = 0
-isRxJ = 0
-iuseMaxes = 0
+!isRxJ = 0
+!iuseMaxes = 0
 isAuMO = -1
 isAtom = 0
 isTotal = 0
@@ -79,9 +83,9 @@ isFileOrb = 0
 isSphere = 0
 isColor = 0
 isVirt = 0
-isMULL = 0
-isLONGPRT = 0
-isWDW = 0
+!isMULL = 0
+!isLONGPRT = 0
+!isWDW = 0
 iSubBlock = 0
 isLuscus = 1
 !isLusMath = 0
@@ -91,13 +95,13 @@ isXField = 0
 XFminCh = Zero
 ! Default values for packing
 imoPack = 0
-isBinPack = 0
+!isBinPack = 0
 xLeft = 0.005_wp
 xRight = 0.7_wp
 ! (really, half range:)
-iyRange = 128
+!iyRange = 128
 nBytesPackedVal = 1
-iMinYLeft = 4
+!iMinYLeft = 4
 xLoErr = 0.10_wp
 xHiErr = Quart
 INPORB = 'INPORB'
@@ -254,7 +258,7 @@ do
       ! PkBits
       if (MyGetKey(InUnit,'I',i_bits,rD,Key,iD,[iD],[rD]) /= 0) call error()
       if (i_bits == 16) then
-        iyRange = 32768
+        !iyRange = 32768
         nBytesPackedVal = 2
       end if
     case (24)
@@ -326,11 +330,11 @@ do
       if (MyGetKey(InUnit,'R',iD,Virt,Key,iD,[iD],[rD]) /= 0) call error()
     case (38)
       ! MULLiken charges per MO
-      isMULL = 1
+      !isMULL = 1
       read(InUnit,'(A)') MULLPRT
       call upCASE(MULLPRT)
       call LeftAd(MULLPRT)
-      if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
+      !if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
     case (39)
       ! SUBBLOCK
       if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],SubBlock) /= 0) call error()
@@ -358,11 +362,11 @@ do
     case (45)
       ! CRXJ (current density, rxj)
       isCurDens = 1
-      isRxJ = 1
+      !isRxJ = 1
       call Quit_OnUserError()
     case (46)
       ! UMAX (use magnetic axes)
-      iuseMaxes = 1
+      !iuseMaxes = 1
     case (47)
       ! NOLUSCUS
       isLuscus = 0

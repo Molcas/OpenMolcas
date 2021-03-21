@@ -14,13 +14,13 @@ subroutine PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSI
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+use grid_it_globals, only: Cutoff, GridAxis1, GridAxis2, GridAxis3, GridOrigin, iGridNpt, imoPACK, isCutOff, isLine, isLUSCUS, &
+                           isTheOne, isUHF, LID, LID_ab, LuVal, LuVal_ab, VERSION
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nMOs, nShowMOs, nShowMOs_ab, nCoor, nInc, iiCoord, nTypes(7), iCRSIZE, NBYTES, NINLINE
 integer(kind=iwp), intent(inout) :: nBlocks
-#include "Molcas.fh"
-#include "grid.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iiUHF, LuVal_, NFIRST, NLAST, nn, nn1, nShowMOs_
 character(len=128) :: line

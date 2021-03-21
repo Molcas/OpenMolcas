@@ -37,13 +37,12 @@ subroutine Grid_it(iRun,ireturn)
 !          Lund, 2000-2015                                             *
 !***********************************************************************
 
+use grid_it_globals, only: isUHF, levelprint, LuVal, LuVal_ab
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
-#include "grid.fh"
 #include "warnings.fh"
 integer(kind=iwp) :: nDiff
 logical(kind=iwp) :: DoRys

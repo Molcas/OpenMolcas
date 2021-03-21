@@ -14,12 +14,11 @@ subroutine gridExpandSelect(SelectStr)
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
 
+use grid_it_globals, only: iReq, MAXGRID, nReq
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=120), intent(in) :: SelectStr
-#include "Molcas.fh"
-#include "grid.fh"
 integer(kind=iwp) :: i, ibr, ibrm, iend, ifirst, iibeg, iiend, ilen, istart, istatus, isymm
 character(len=120) :: tmp
 
