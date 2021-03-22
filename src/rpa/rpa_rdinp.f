@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2013, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2013, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine RPA_RdInp()
-C
-C     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-C
-C     Parse and process RPA input.
-C
+!
+!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+!
+!     Parse and process RPA input.
+!
       Implicit None
 #include "WrkSpc.fh"
 #include "rpa_config.fh"
@@ -123,8 +123,8 @@ C
             doTitle=.true.
             nTitle=nTitle+1
             If (nTitle.gt.mTitle) Then
-               Write(6,'(A,I8)') 'Maximum number of title lines is',
-     *                           mTitle
+               Write(6,'(A,I8)') 'Maximum number of title lines is',    &
+     &                           mTitle
                Write(6,'(A)') 'Current input line:'
                Write(6,'(A)') Line
                Call RPA_Warn(2,'Too many title lines in RPA input')
@@ -137,8 +137,8 @@ C
          !*******************************
             ! print level
             doTitle=.false.
-            Call RPA_ReadIntegerInput('PRIN',1,Lu,
-     *                                iWork(ip_Integer),l_Integer)
+            Call RPA_ReadIntegerInput('PRIN',1,Lu,                      &
+     &                                iWork(ip_Integer),l_Integer)
             iPrint=max(iWork(ip_Integer),0)
 #if defined (_DEBUGPRINT_)
             DebugPrint=DebugPrint.or.iPrint.gt.4
@@ -181,8 +181,8 @@ C
             ! Freeze occupied orbitals
             doTitle=.false.
             Call iZero(nFro,16)
-            Call RPA_ReadIntegerInput('FREE',iUHF,Lu,
-     *                                iWork(ip_Integer),l_Integer)
+            Call RPA_ReadIntegerInput('FREE',iUHF,Lu,                   &
+     &                                iWork(ip_Integer),l_Integer)
             Do i=1,iUHF
                nFreeze(i)=iWork(ip_Integer-1+i)
             End Do
@@ -191,8 +191,8 @@ C
          !*******************************
             ! Delete virtual orbitals
             doTitle=.false.
-            Call RPA_Warn(2,
-     *                  'Virtual orbital deletion not implemented yet!')
+            Call RPA_Warn(2,                                            &
+     &                  'Virtual orbital deletion not implemented yet!')
          Else
             ! no keyword match
             ! => either a title line or an unknown keyword
@@ -200,8 +200,8 @@ C
                ! process as title line
                nTitle=nTitle+1
                If (nTitle.gt.mTitle) Then
-                  Write(6,'(A,I8)') 'Maximum number of title lines is',
-     *                              mTitle
+                  Write(6,'(A,I8)') 'Maximum number of title lines is', &
+     &                              mTitle
                   Write(6,'(A)') 'Current input line:'
                   Write(6,'(A)') Line
                   Call RPA_Warn(2,'Too many title lines in RPA input')
@@ -212,8 +212,8 @@ C
                ! unknown keyword
                Write(6,'(A)') 'Offending input line:'
                Write(6,'(A)') Line
-               Write(6,'(A,A,A)') 'Equivalent keyword input "',Keyword,
-     *                            '" not recognized!'
+               Write(6,'(A,A,A)') 'Equivalent keyword input "',Keyword, &
+     &                            '" not recognized!'
                Call RPA_Warn(2,'RPA input keyword not recognized')
             End If
          End If
@@ -228,7 +228,7 @@ C
       ! register exit
 
       End
-************************************************************************
+!***********************************************************************
       Subroutine RPA_ReadIntegerInput(Key,nInp,Lu,iVal,n)
       Implicit None
       Character*4 Key

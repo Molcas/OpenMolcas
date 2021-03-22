@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2013, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2013, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine RPA_Warn(Level,Message)
-C
-C     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-C
-C     Level <= 1 --- issue warning with message Message and return.
-C     Level >= 2 --- issue warning with message Message and quit.
-C                    Error codes used in xQuit:
-C                    Level=2: _RC_INPUT_ERROR_
-C                    Level=3: _RC_INTERNAL_ERROR_
-C                    Level>3: _RC_GENERAL_ERROR_
-C
+!
+!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+!
+!     Level <= 1 --- issue warning with message Message and return.
+!     Level >= 2 --- issue warning with message Message and quit.
+!                    Error codes used in xQuit:
+!                    Level=2: _RC_INPUT_ERROR_
+!                    Level=3: _RC_INTERNAL_ERROR_
+!                    Level>3: _RC_GENERAL_ERROR_
+!
       Implicit None
       Integer Level
       Character*(*) Message

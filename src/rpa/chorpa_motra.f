@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2013, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2013, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine ChoRPA_MOTra(includeFrozen,includeDeleted)
-C
-C     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-C
-C     Transform Cholesky vectors to MO basis.
-C
-C     TODO/FIXME:
-C     1. This routine computes all MO blocks (ij, ai, ab), even though
-C        we may only need some of them. A more flexible interface would
-C        be nice to have. Presumably not a performance issue in RPA,
-C        though (remains to be verified).
-C     2. For unrestricted calculations, the alpha and beta
-C        transformations are done separately, which means that the AO
-C        vectors are read twice. Simultaneous transformation would be
-C        desirable!
-C
+!
+!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+!
+!     Transform Cholesky vectors to MO basis.
+!
+!     TODO/FIXME:
+!     1. This routine computes all MO blocks (ij, ai, ab), even though
+!        we may only need some of them. A more flexible interface would
+!        be nice to have. Presumably not a performance issue in RPA,
+!        though (remains to be verified).
+!     2. For unrestricted calculations, the alpha and beta
+!        transformations are done separately, which means that the AO
+!        vectors are read twice. Simultaneous transformation would be
+!        desirable!
+!
       Implicit None
       Logical includeFrozen, includeDeleted
 #include "rpa_data.fh"
@@ -43,8 +43,8 @@ C
       Integer iSym
       Integer ip_lCMO, l_lCMO
       Integer ip, l
-*     Integer ip_lnBas
-*     Integer ip_lnOrb
+!     Integer ip_lnBas
+!     Integer ip_lnOrb
       Integer ip_lnFro
       Integer ip_lnOcc
       Integer ip_Zeros
@@ -100,17 +100,17 @@ C
             Call iCopy(nSym,nDel(1,iSpin),1,iWork(ip_lnDel),1)
          End If
          ! Reorder CMO array
-         Call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,
-     *                                nFro(1,iSpin),nOcc(1,iSpin),
-     *                                nVir(1,iSpin),nDel(1,iSpin),
-     *                                Work(ip_CMO(iSpin)),Work(ip_lCMO))
+         Call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,                   &
+     &                                nFro(1,iSpin),nOcc(1,iSpin),      &
+     &                                nVir(1,iSpin),nDel(1,iSpin),      &
+     &                                Work(ip_CMO(iSpin)),Work(ip_lCMO))
          ! Set base name for MO files
          ! Transform Cholesky vectors
-         Call Cho_MOTra_Internal(Work(ip_lCMO),l_lCMO,nSym,
-     *                           nBas,nOrb,
-     *                  iWork(ip_lnFro),iWork(ip_lnOcc),iWork(ip_Zeros),
-     *                   iWork(ip_lnVir),iWork(ip_lnDel),
-     *                   BName(iSpin),.false.,0,.false.)
+         Call Cho_MOTra_Internal(Work(ip_lCMO),l_lCMO,nSym,             &
+     &                           nBas,nOrb,                             &
+     &                  iWork(ip_lnFro),iWork(ip_lnOcc),iWork(ip_Zeros),&
+     &                   iWork(ip_lnVir),iWork(ip_lnDel),               &
+     &                   BName(iSpin),.false.,0,.false.)
 
       End Do
 
@@ -118,9 +118,9 @@ C
       Call GetMem('locCMO','Free','Real',ip_lCMO,l_lCMO)
 
       End
-************************************************************************
-      Subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,
-     *                                   nVir,nDel,CMOinp,CMOout)
+!***********************************************************************
+      Subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,      &
+     &                                   nVir,nDel,CMOinp,CMOout)
       Implicit None
       Integer nSym
       Integer nBas(nSym)
@@ -144,7 +144,7 @@ C
          ip2=ip2+nBas(iSym)*nBas(iSym)
       End Do
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(nDel)
          Call Unused_integer_array(nFro)

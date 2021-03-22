@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
       Subroutine RPA_RdRun()
-C
-C     Thomas Bondo Pedersen
-C
-C     Read data from Runfile.
-C
+!
+!     Thomas Bondo Pedersen
+!
+!     Read data from Runfile.
+!
       Implicit None
 #include "rpa_config.fh"
 #include "rpa_data.fh"
@@ -63,8 +63,8 @@ C
          Else
             Reference='UKS'
          End If
-      Else If (Model(1:8).eq.'dRPA@RHF' .or.
-     *         Model(1:8).eq.'SOSX@RHF') Then
+      Else If (Model(1:8).eq.'dRPA@RHF' .or.                            &
+     &         Model(1:8).eq.'SOSX@RHF') Then
          If (iUHF.eq.1) Then
             Reference='RHF'
             Warn=.false.
@@ -72,8 +72,8 @@ C
             Reference='UHF'
             Warn=.true.
          End If
-      Else If (Model(1:8).eq.'dRPA@UHF' .or.
-     *         Model(1:8).eq.'SOSX@UHF') Then
+      Else If (Model(1:8).eq.'dRPA@UHF' .or.                            &
+     &         Model(1:8).eq.'SOSX@UHF') Then
          If (iUHF.eq.1) Then
             Reference='RHF'
             Warn=.true.
@@ -81,8 +81,8 @@ C
             Reference='UHF'
             Warn=.false.
          End If
-      Else If (Model(1:8).eq.'dRPA@RKS' .or.
-     *         Model(1:8).eq.'SOSX@RKS') Then
+      Else If (Model(1:8).eq.'dRPA@RKS' .or.                            &
+     &         Model(1:8).eq.'SOSX@RKS') Then
          If (iUHF.eq.1) Then
             Reference='RKS'
             Warn=.false.
@@ -90,8 +90,8 @@ C
             Reference='UKS'
             Warn=.true.
          End If
-      Else If (Model(1:8).eq.'dRPA@UKS' .or.
-     *         Model(1:8).eq.'SOSX@UKS') Then
+      Else If (Model(1:8).eq.'dRPA@UKS' .or.                            &
+     &         Model(1:8).eq.'SOSX@UKS') Then
          If (iUHF.eq.1) Then
             Reference='RKS'
             Warn=.true.
@@ -107,8 +107,8 @@ C
          Warn=.false.
       End If
       If (Warn) Then
-         Call RPA_Warn(1,
-     *                'Runfile restricted/unrestricted conflict in RPA')
+         Call RPA_Warn(1,                                               &
+     &                'Runfile restricted/unrestricted conflict in RPA')
          Write(6,'(A,A)') 'Reference model from Runfile: ',Model
          Write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
          Write(6,'(A,A,A)') 'Assuming ',Reference,' reference!'
@@ -151,7 +151,7 @@ C
       Do iSym=1,nSym
          If (nFro(iSym,1).ne.0) Then
             Write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
-            Call RPA_Warn(4,
+            Call RPA_Warn(4,                                            &
      &                    SecNam//': Some orbitals were frozen in SCF!')
          End If
          If (nDel(iSym,1).ne.(nBas(iSym)-nOrb(iSym))) Then

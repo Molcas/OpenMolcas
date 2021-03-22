@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RPA_SetInc()
       Implicit None
 #include "rpa_config.fh"
@@ -47,7 +47,7 @@
       Call iZero(l_VirEn,2)
       NuclearRepulsionEnergy(1)=0.0d0
       End
-************************************************************************
+!***********************************************************************
       Subroutine RPA_SetIntegralRepresentation()
       Implicit None
 #include "rpa_config.fh"
@@ -65,16 +65,16 @@
          doLDF=.false.
       End If
       End
-************************************************************************
+!***********************************************************************
       Subroutine RPA_CheckIntegralRepresentation()
       Implicit None
 #include "rpa_config.fh"
       If (.not.(doCD.or.doDF.or.doLDF)) Then
-         Call RPA_Warn(2,'RPA requires CD, DF, or LDF. '//
-     *                        'Conventional integrals not implemented.')
+         Call RPA_Warn(2,'RPA requires CD, DF, or LDF. '//              &
+     &                        'Conventional integrals not implemented.')
       End If
       End
-************************************************************************
+!***********************************************************************
       Integer Function RPA_iUHF()
       Implicit None
 #include "rpa_config.fh"
@@ -90,7 +90,7 @@
       End If
       RPA_iUHF=iUHF
       End
-************************************************************************
+!***********************************************************************
       Integer Function RPA_LENIN8()
       Implicit None
 #include "Molcas.fh"

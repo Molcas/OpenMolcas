@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2013, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2013, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine RPA_PPInp()
-C
-C     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-C
-C     Input postprocessing.
-C
+!
+!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+!
+!     Input postprocessing.
+!
       Implicit None
 #include "rpa_config.fh"
 #include "rpa_data.fh"
@@ -44,13 +44,13 @@ C
       Call RPA_PrInp()
 
       End
-************************************************************************
+!***********************************************************************
       Subroutine RPA_PrInp()
-C
-C     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-C
-C     Print RPA configuration after input processing.
-C
+!
+!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+!
+!     Print RPA configuration after input processing.
+!
       Implicit None
 #include "rpa_config.fh"
 #include "rpa_data.fh"
@@ -158,33 +158,33 @@ C
             Write(6,Fmt2//'A,A)') 'DFT functional: ',DFTFunctional
          End If
          Write(6,*)
-         Write(6,Fmt2//'A,T47,8I4)') 'Symmetry species',
-     *                               (iSym,iSym=1,nSym)
-         Write(6,Fmt2//'A,T47,8(1X,A))') '                ',
-     *                               (lIrrep(iSym),iSym=1,nSym)
-         Write(6,Fmt2//'A,T47,8I4)') 'Number of basis functions',
-     *                               (nBas(iSym),iSym=1,nSym)
-         Write(6,Fmt2//'A,T47,8I4)') 'Number of orbitals',
-     *                               (nOrb(iSym),iSym=1,nSym)
+         Write(6,Fmt2//'A,T47,8I4)') 'Symmetry species',                &
+     &                               (iSym,iSym=1,nSym)
+         Write(6,Fmt2//'A,T47,8(1X,A))') '                ',            &
+     &                               (lIrrep(iSym),iSym=1,nSym)
+         Write(6,Fmt2//'A,T47,8I4)') 'Number of basis functions',       &
+     &                               (nBas(iSym),iSym=1,nSym)
+         Write(6,Fmt2//'A,T47,8I4)') 'Number of orbitals',              &
+     &                               (nOrb(iSym),iSym=1,nSym)
          Do k=1,iUHF
-            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')
-     *      'Frozen occupied',orbitals,spin(k),
-     *      (nFro(iSym,k),iSym=1,nSym)
+            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')                         &
+     &      'Frozen occupied',orbitals,spin(k),                         &
+     &      (nFro(iSym,k),iSym=1,nSym)
          End Do
          Do k=1,iUHF
-            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')
-     *      'Active occupied',orbitals,spin(k),
-     *      (nOcc(iSym,k),iSym=1,nSym)
+            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')                         &
+     &      'Active occupied',orbitals,spin(k),                         &
+     &      (nOcc(iSym,k),iSym=1,nSym)
          End Do
          Do k=1,iUHF
-            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')
-     *      'Active virtual',orbitals,spin(k),
-     *      (nVir(iSym,k),iSym=1,nSym)
+            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')                         &
+     &      'Active virtual',orbitals,spin(k),                          &
+     &      (nVir(iSym,k),iSym=1,nSym)
          End Do
          Do k=1,iUHF
-            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')
-     *      'Deleted virtual',orbitals,spin(k),
-     *      (nDel(iSym,k),iSym=1,nSym)
+            Write(6,Fmt2//'A,2(1X,A),T47,8I4)')                         &
+     &      'Deleted virtual',orbitals,spin(k),                         &
+     &      (nDel(iSym,k),iSym=1,nSym)
          End Do
       End If
 
@@ -199,16 +199,16 @@ C
          If (iCount.gt.0) Then
             Write(6,*)
             Write(6,*)
-            Write(6,Fmt2//'A,1X,A,T47)')
-     *      'Energies of the frozen occupied',orbitals
+            Write(6,Fmt2//'A,1X,A,T47)')                                &
+     &      'Energies of the frozen occupied',orbitals
             Do k=1,iUHF
                i=0
                Do iSym=1,nSym
                   If (nFro(iSym,k).gt.0) then
                      Write(6,*)
-                     Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')
-     *               'symmetry species',iSym,lIrrep(iSym),spin(k),
-     *               (epsi(i+j,k),j=1,nFro(iSym,k))
+                     Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')        &
+     &               'symmetry species',iSym,lIrrep(iSym),spin(k),      &
+     &               (epsi(i+j,k),j=1,nFro(iSym,k))
                      i=i+nFro(iSym,k)+nOcc(iSym,k)
                   End If
                End Do
@@ -216,32 +216,32 @@ C
          End If
          Write(6,*)
          Write(6,*)
-         Write(6,Fmt2//'A,1X,A,T47)')
-     *   'Energies of the active occupied',orbitals
+         Write(6,Fmt2//'A,1X,A,T47)')                                   &
+     &   'Energies of the active occupied',orbitals
          Do k=1,iUHF
             i=0
             Do iSym=1,nSym
                If (nOcc(iSym,k).gt.0) then
                   Write(6,*)
-                  Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')
-     *            'symmetry species',iSym,lIrrep(iSym),spin(k),
-     *            (epsi(i+nFro(iSym,k)+j,k),j=1,nOcc(iSym,k))
+                  Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')           &
+     &            'symmetry species',iSym,lIrrep(iSym),spin(k),         &
+     &            (epsi(i+nFro(iSym,k)+j,k),j=1,nOcc(iSym,k))
                   i=i+nFro(iSym,k)+nOcc(iSym,k)
                End If
             End Do
          End Do
          Write(6,*)
          Write(6,*)
-         Write(6,Fmt2//'A,1X,A,T47)')
-     *   'Energies of the active virtual',orbitals
+         Write(6,Fmt2//'A,1X,A,T47)')                                   &
+     &   'Energies of the active virtual',orbitals
          Do k=1,iUHF
             i=0
             Do iSym=1,nSym
                If (nVir(iSym,k).gt.0 ) then
                   Write(6,*)
-                  Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')
-     *            'symmetry species',iSym,lIrrep(iSym),spin(k),
-     *            (epsa(i+j,k),j=1,nVir(iSym,k))
+                  Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')           &
+     &            'symmetry species',iSym,lIrrep(iSym),spin(k),         &
+     &            (epsa(i+j,k),j=1,nVir(iSym,k))
                   i=i+nVir(iSym,k)+nDel(iSym,k)
                End If
             End Do
@@ -255,16 +255,16 @@ C
          If (iCount.gt.0) Then
             Write(6,*)
             Write(6,*)
-            Write(6,Fmt2//'A,1X,A,T47)')
-     *      'Energies of the deleted virtual',orbitals
+            Write(6,Fmt2//'A,1X,A,T47)')                                &
+     &      'Energies of the deleted virtual',orbitals
             Do k=1,iUHF
                i=0
                Do iSym=1,nSym
                   If (nDel(iSym,k).gt.0 ) then
                      Write(6,*)
-                     Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')
-     *               'symmetry species',iSym,lIrrep(iSym),spin(k),
-     *               (epsa(i+nVir(iSym,k)+j,k),j=1,nDel(iSym,k))
+                     Write(6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))')        &
+     &               'symmetry species',iSym,lIrrep(iSym),spin(k),      &
+     &               (epsa(i+nVir(iSym,k)+j,k),j=1,nDel(iSym,k))
                      i=i+nVir(iSym,k)+nDel(iSym,k)
                   End If
                End Do
@@ -283,10 +283,10 @@ C
          Call GetMem('Name','Allo','Char',ip_Name,l_Name)
          Call Get_cArray('Unique Basis Names',cWork(ip_Name),LENIN8*nB)
          Do k=1,iUHF
-            Call PriMO(Reference//' '//orbitals//' '//spin(k),
-     *                 .false.,.true.,-9.9d9,9.9d9,
-     *                 nSym,nBas,nOrb,cWork(ip_Name),
-     *                 Work(ip_EMO(k)),Dummy,Work(ip_CMO(k)),-1)
+            Call PriMO(Reference//' '//orbitals//' '//spin(k),          &
+     &                 .false.,.true.,-9.9d9,9.9d9,                     &
+     &                 nSym,nBas,nOrb,cWork(ip_Name),                   &
+     &                 Work(ip_EMO(k)),Dummy,Work(ip_CMO(k)),-1)
          End Do
          Call GetMem('Name','Free','Char',ip_Name,l_Name)
       End If
