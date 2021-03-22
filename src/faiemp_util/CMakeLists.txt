@@ -9,4 +9,22 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     addfragdens.F90
+     drv2el_faiemp.F90
+     drvg_faiemp.F90
+     fragexpand.F90
+     fragpcont.F90
+     fragpgrd.F90
+     fragpint.F90
+     fragpmem.F90
+     fragpmmg.F90
+     getfragment.F90
+     makedens.F90
+     prepp_faiemp.F90
+     reindexfrag.F90
+)
+
+set (modfile_list "")
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

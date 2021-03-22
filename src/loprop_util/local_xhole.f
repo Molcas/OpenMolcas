@@ -11,7 +11,7 @@
       Subroutine Local_XHole(ipXHole2,dMolExpec,nAtoms,nBas1,nTemp
      &                      ,iCenter,Ttot,Ttot_Inv,Coor
      &                      ,nij,EC,iANr,Bond_Threshold,iPrint
-     &                      ,ipXHLoc2)
+     &                      ,XHLoc2)
       Implicit Real*8 (a-h,o-z)
 
 #include "real.fh"
@@ -20,7 +20,7 @@
 
       Dimension Coor(3,nAtoms), Sq_Temp(nTemp), Ttot_Inv(nTemp)
       Dimension Temp(nTemp), A(3), B(3), d2Loc(nij), EC(3,nij)
-      Dimension Ttot(nTemp)
+      Dimension Ttot(nTemp), XHLoc2(nij)
       Dimension iCenter(nBas1), iANr(nAtoms)
       Logical Found
       Real*8, Allocatable:: Dens(:)
@@ -94,7 +94,7 @@
 * two atoms involved in the bond.
 *
       Call Move_XHole(d2Loc,EC,nAtoms,nij,iANr,Bond_Threshold)
-      call dcopy_(nij,d2Loc,1,Work(ipXHLoc2),1)
+      call dcopy_(nij,d2Loc,1,XHLoc2,1)
 
       Return
 c Avoid unused argument warnings

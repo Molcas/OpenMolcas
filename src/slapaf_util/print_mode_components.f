@@ -54,7 +54,9 @@
      &                             lOld_Implicit, CallLast, lSoft,
      &                             lCtoF, Track, TwoRunFiles, isFalcon,
      &                             Stop, NmIter, MxItr, mTtAtm, nWndw,
-     &                             iter
+     &                             iter, WeightedConstraints, mB_Tot,
+     &                             mdB_Tot, mq, NADC, EDiffZero,
+     &                             ApproxNADC, iState
       use thermochem
       Implicit None
 #include "backup_info.fh"

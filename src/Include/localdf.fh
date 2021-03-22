@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C Local Density Fitting configuration parameters
-C These parameters are set in seward input
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! Local Density Fitting configuration parameters
+! These parameters are set in seward input
       Integer LDF_Set
       Parameter (LDF_Set=1357642)
 
@@ -27,8 +27,8 @@ C These parameters are set in seward input
       Real*8  Thr_Prescreen, Thr_Accuracy
       Integer LDF_Run_Mode, LDF_Constraint
 
-      Common / LDFCFL / LDF2, VerifyFit, CheckPairIntegrals,
-     &                  CheckOverlapIntegrals, WriteUnconstrainedC,
+      Common / LDFCFL / LDF2, VerifyFit, CheckPairIntegrals,            &
+     &                  CheckOverlapIntegrals, WriteUnconstrainedC,     &
      &                  UseUniqueAtomPairs
       Common / LDFCFR / Thr_Prescreen, Thr_Accuracy
       Common / LDFCFI / LDF_Run_Mode, LDF_Constraint

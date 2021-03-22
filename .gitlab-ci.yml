@@ -448,6 +448,7 @@ test:qcmaquis:
   <<: *run-tests
   needs:
     - build:qcmaquis
+  parallel: 2
 
 build:mpi:
   extends: .mpi

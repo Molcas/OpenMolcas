@@ -9,4 +9,18 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     build_amatrix.F90
+     comp_f.F90
+     dynamic_properties.F90
+     fluctuating.F90
+     make_fluctuating_charges.F90
+     move_polar.F90
+     polar.F90
+     print_local.F90
+     print_mpprop.F90
+     readin_polar.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

@@ -126,7 +126,7 @@ call Get_iScalar('Unique atoms',nsAtom)
 
 write(u6,*) 'Density Matrix elements (i=1..#states):'
 do i=1,NSTATE
-  write(u6,*)(Amatrix(i,j),j=1,NSTATE,1)
+  write(u6,*) (Amatrix(i,j),j=1,NSTATE,1)
 end do
 
 ! Timestep:                  DT
@@ -488,18 +488,18 @@ substeps: do ii=1,NSUBSTEPS
     write(u6,*) 'Temproot:',temproot
     write(u6,*) 'MATRIX D:'
     do i=1,NSTATE
-      write(u6,*)(Dmatrix(i,j),j=1,NSTATE,1)
+      write(u6,*) (Dmatrix(i,j),j=1,NSTATE,1)
     end do
     write(u6,*) 'Density Matrix elements (i=1..#states):'
     do i=1,NSTATE
-      write(u6,*)(Amatrix(i,j),j=1,NSTATE,1)
+      write(u6,*) (Amatrix(i,j),j=1,NSTATE,1)
     end do
     write(u6,*) 'B Matrix:'
     do i=1,NSTATE
-      write(u6,*)(Bmatrix(i,j),j=1,NSTATE,1)
+      write(u6,*) (Bmatrix(i,j),j=1,NSTATE,1)
     end do
     write(u6,*) 'Probabilities:'
-    write(u6,*)(Gprobab(j),j=1,NSTATE,1)
+    write(u6,*) (Gprobab(j),j=1,NSTATE,1)
     write(u6,*) 'Random Number is: ',LO
     write(u6,*) 'Populations Energies:',(Popul(j),j=1,NSTATE,1),(V(j,j),j=1,NSTATE,1),V(temproot,temproot)
     write(u6,*) ''

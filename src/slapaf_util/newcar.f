@@ -12,7 +12,7 @@
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
       use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,
-     &                             lOld
+     &                             lOld, WeightedConstraints
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -22,7 +22,6 @@
 ************************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
-#include "weighting.fh"
 #include "sbs.fh"
 #include "print.fh"
 #include "Molcas.fh"

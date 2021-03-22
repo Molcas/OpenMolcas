@@ -99,7 +99,7 @@
  100  Continue
 *
       Return
-c Avoinused argument warnings
+c Avoid unused argument warnings
       If (.False.) Then
        Call Unused_integer_array(kOper)
        Call Unused_character(Label)

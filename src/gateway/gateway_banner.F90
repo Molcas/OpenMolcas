@@ -17,7 +17,7 @@ use Definitions, only: u6
 
 implicit none
 
-! figlet -f larry3.flf Gateway
+! figlet -f larry3d.flf Gateway
 write(u6,100) " ____              __"
 write(u6,100) "/\  _`\           /\ \__"
 write(u6,100) "\ \ \L\_\     __  \ \ ,_\    __   __  __  __     __     __  __"
