@@ -25,6 +25,7 @@ module definitions
     public :: wp, iwp, DefInt, MPIInt, HDF5Int
     public :: MOLCAS_C_INT, MOLCAS_C_REAL
     public :: i1, i4, i8, r4, r8
+    public :: ItoB, RtoB, RtoI, CtoR
     public :: u5, u6
 
     ! This is the working precision and should be preferably used
@@ -36,30 +37,38 @@ module definitions
 #   endif
     integer(kind=iwp), parameter :: wp = real64, MOLCAS_C_REAL = c_double
 
-    ! "default" integer, without using -i8 flag or equivalent,
+    ! "default" integer, without using `-i8` flag or equivalent,
     ! this is needed for some intrinsic calls in some compilers
     integer(kind=iwp), parameter :: DefInt = int32
 
     ! This is the type of MPI arguments
-    ! NOTE: If legacy integer*4 declarations are replaced with integer(MPIInt)
+    ! NOTE: If legacy `integer*4` declarations are replaced with integer(MPIInt)
     !       we can support 32bit and 64bit versions.
     !       Which will require appropiate compile flags here.
     integer(kind=iwp), parameter :: MPIInt = int32
 
     ! This is the type of HDF5 arguments
-    ! NOTE: If legacy integer*4 declarations are replaced with integer(HDF5Int)
+    ! NOTE: If legacy `integer*4` declarations are replaced with integer(HDF5Int)
     !       we can support 32bit and 64bit versions.
     !       Which will require appropiate compile flags here.
     integer(kind=iwp), parameter :: HDF5Int = int32
+
+    ! Size ratios between the different types
+    ! (assume 'a' uses 1 byte)
+    integer(kind=iwp), parameter :: &
+        ItoB = storage_size(int(1,kind=iwp))/storage_size('a'), &
+        RtoB = storage_size(real(1.0,kind=wp))/storage_size('a'), &
+        RtoI = storage_size(real(1.0,kind=wp))/storage_size(int(1,kind=iwp)), &
+        CtoR = storage_size(cmplx(1.0,0.0,kind=wp))/storage_size(real(1,kind=wp))
 
     ! Output and input units, typically 5 & 6, but they could be something else
     integer(kind=iwp), parameter :: u5 = input_unit, &
                                     u6 = output_unit
 
-    ! Although the constants from iso_fortran_env or `selected_real_kind`
-    ! are preferred over non-standard real*8 etc.
+    ! Although the constants from `iso_fortran_env` or `selected_real_kind`
+    ! are preferred over non-standard `real*8` etc.
     ! We define some kinds to refer to the non-standard notation.
-    ! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO real*8 etc.**
+    ! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO `real*8` etc.**
     ! `wp` etc. are always preferred.
 
     real*4 :: r4_example

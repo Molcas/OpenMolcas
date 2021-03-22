@@ -18,7 +18,7 @@ subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,iWipGRef,WipOcc,WipM
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Ten
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun, LuVal, LID, nShowMOs, nMOs, iWipGRef(*), mCoor, iGauss, nInc, iWipPBlock(*), &
@@ -29,7 +29,6 @@ real(kind=wp), intent(in) :: WipOcc(*), WipMO(*), WipOut(*), VbOcc, WipE(*), WCo
 character, intent(in) :: cMoBlock(*)
 real(kind=wp), intent(inout) :: dNorm, WLine(nLine,mCoor)
 character(len=7), intent(in) :: Crypt
-#include "SysDef.fh"
 integer(kind=iwp) :: i, iActOrb, ib, ii, iii, iMOs, j, RC !, iYDelta(3)
 real(kind=wp) :: DumArr(2) !, xLimits(4)
 character :: bb
@@ -243,7 +242,7 @@ if (isDensity) then
   !    call IArrToChar(iWipPBlock,cMoBlock,mCoor)
   !    !vv!!!!!!!
   !    if (isLuscus) then
-  !      RC = C_WRITE(LID,CMOBLOCK,(mCoor*nBytesPackedVal)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
+  !      RC = C_WRITE(LID,CMOBLOCK,(mCoor*nBytesPackedVal)*RtoB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) THEN
   !        write(u6,*) 'error in writing luscus file!'
   !        call Abend()
@@ -253,7 +252,7 @@ if (isDensity) then
   !    end if
   !  else
   !    if (isLuscus) then
-  !      RC = C_WRITE(LID,IWIPPBLOCK,(mCoor)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
+  !      RC = C_WRITE(LID,IWIPPBLOCK,(mCoor)*RtoB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
   !      if (RC == 0) then
   !        write(u6,*) 'error in writing luscus file!'
   !        call Abend()
@@ -281,7 +280,7 @@ if (isDensity) then
 
       if (isLuscus) then
         !!!!!!!!!!!!!!!!!!!!check iii-1
-        RC = C_WRITE(LID,CMP,(III-1)*RTOB)
+        RC = C_WRITE(LID,CMP,(III-1)*RtoB)
         if (RC == 0) then
           write(u6,*) 'error in writing luscus file!'
           call Abend()
@@ -295,7 +294,7 @@ if (isDensity) then
       !if (isLuscus) then
       !  call dump_lusc(LID,WipOut,mCoor)
       !  write(u6,*) 'here'
-      !  RC = C_WRITE(LID,WIPOUT,MCOOR*RTOB) !!!!!!!!!!!!!!!!!!!!check MCOOR
+      !  RC = C_WRITE(LID,WIPOUT,MCOOR*RtoB) !!!!!!!!!!!!!!!!!!!!check MCOOR
       !  if (RC == 0) then
       !    write(u6,*) 'error in writing luscus file!'
       !    call Abend()

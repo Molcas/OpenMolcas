@@ -25,7 +25,7 @@ use grid_it_globals, only: CutOff, Grid, GridAxis1, GridAxis2, GridAxis3, GridDe
                            Title1, Virt
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, Four, Quart
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun, iReturn
@@ -118,7 +118,7 @@ end if
 
 ! KeyWord directed input
 
-InUnit = 5
+InUnit = u5
 ! Function MyGetKey (InUnit, What, IValue, RValue, SValue, N, IArray, RArray)
 
 call RdNLst(InUnit,'GRID_IT')
