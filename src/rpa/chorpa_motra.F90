@@ -118,37 +118,3 @@
       Call GetMem('locCMO','Free','Real',ip_lCMO,l_lCMO)
 
       End
-!***********************************************************************
-      Subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,      &
-     &                                   nVir,nDel,CMOinp,CMOout)
-      Implicit None
-      Integer nSym
-      Integer nBas(nSym)
-      Integer nOrb(nSym)
-      Integer nFro(nSym)
-      Integer nOcc(nSym)
-      Integer nVir(nSym)
-      Integer nDel(nSym)
-      Real*8  CMOinp(*)
-      Real*8  CMOout(*)
-
-      Integer iSym, ip1, ip2, l
-
-      ip1=1
-      ip2=1
-      Do iSym=1,nSym
-         l=nBas(iSym)*nOrb(iSym)
-         Call dCopy_(l,CMOinp(ip1),1,CMOout(ip2),1)
-         Call fZero(CMOout(ip2+l),nBas(iSym)*nBas(iSym)-l)
-         ip1=ip1+l
-         ip2=ip2+nBas(iSym)*nBas(iSym)
-      End Do
-
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(nDel)
-         Call Unused_integer_array(nFro)
-         Call Unused_integer_array(nOcc)
-         Call Unused_integer_array(nVir)
-      End If
-      End

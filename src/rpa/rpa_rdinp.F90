@@ -228,29 +228,3 @@
       ! register exit
 
       End
-!***********************************************************************
-      Subroutine RPA_ReadIntegerInput(Key,nInp,Lu,iVal,n)
-      Implicit None
-      Character*4 Key
-      Integer nInp
-      Integer Lu
-      Integer n
-      Integer iVal(n)
-      Character*180 Line
-
-      Character*180 Get_Ln
-      External Get_Ln
-
-      If (n.ge.nInp) Then
-         Line=Get_Ln(Lu)
-         Call Get_I(1,iVal,nInp)
-      Else
-         ! insufficent memory for reading (fix in calling routine)
-         Call RPA_Warn(3,'Integer read problem for keyword '//Key)
-      End If
-
-      Return
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_character(Line)
-#endif
-      End
