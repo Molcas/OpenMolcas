@@ -10,42 +10,42 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_Warn(Level,Message)
+subroutine RPA_Warn(Level,Message)
+
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
 !
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-!
-!     Level <= 1 --- issue warning with message Message and return.
-!     Level >= 2 --- issue warning with message Message and quit.
-!                    Error codes used in xQuit:
-!                    Level=2: _RC_INPUT_ERROR_
-!                    Level=3: _RC_INTERNAL_ERROR_
-!                    Level>3: _RC_GENERAL_ERROR_
-!
-      Implicit None
-      Integer Level
-      Character*(*) Message
+! Level <= 1 --- issue warning with message Message and return.
+! Level >= 2 --- issue warning with message Message and quit.
+!                Error codes used in xQuit:
+!                Level=2: _RC_INPUT_ERROR_
+!                Level=3: _RC_INTERNAL_ERROR_
+!                Level>3: _RC_GENERAL_ERROR_
+
+implicit none
+integer Level
+character*(*) Message
 #include "warnings.fh"
 
-      Integer iLevel
-      Integer rc
+integer iLevel
+integer rc
 
-      If (Level.le.1) Then
-         iLevel=max(Level,0)
-         rc=0
-      Else
-         iLevel=2
-         If (Level.eq.2) Then
-            rc=_RC_INPUT_ERROR_
-         Else If (Level.eq.3) Then
-            rc=_RC_INTERNAL_ERROR_
-         Else
-            rc=_RC_GENERAL_ERROR_
-         End If
-      End If
-      Call WarningMessage(iLevel,Message)
-      Call xFlush(6)
-      If (rc.ne.0) Then
-         Call xQuit(rc)
-      End If
+if (Level <= 1) then
+  iLevel = max(Level,0)
+  rc = 0
+else
+  iLevel = 2
+  if (Level == 2) then
+    rc = _RC_INPUT_ERROR_
+  else if (Level == 3) then
+    rc = _RC_INTERNAL_ERROR_
+  else
+    rc = _RC_GENERAL_ERROR_
+  end if
+end if
+call WarningMessage(iLevel,Message)
+call xFlush(6)
+if (rc /= 0) then
+  call xQuit(rc)
+end if
 
-      End
+end subroutine RPA_Warn

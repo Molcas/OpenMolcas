@@ -10,17 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine ChoRPA_Drv()
-!
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-!
-!     Driver routine for CD/DF-based RPA.
-!
-      Implicit None
 
-      Character*10 SecNam
-      Parameter (SecNam='ChoRPA_Drv')
+subroutine ChoRPA_Drv()
 
-      Call RPA_Warn(3,SecNam//': not implemented yet')
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+!
+! Driver routine for CD/DF-based RPA.
 
-      End
+implicit none
+character*10 SecNam
+parameter(SecNam='ChoRPA_Drv')
+
+call RPA_Warn(3,SecNam//': not implemented yet')
+
+end subroutine ChoRPA_Drv

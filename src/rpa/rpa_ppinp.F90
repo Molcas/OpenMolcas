@@ -10,37 +10,38 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_PPInp()
+
+subroutine RPA_PPInp()
+
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
 !
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-!
-!     Input postprocessing.
-!
-      Implicit None
+! Input postprocessing.
+
+implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
 #include "WrkSpc.fh"
 
-      Character*9 SecNam
-      Parameter (SecNam='RPA_PPInp')
+character*9 SecNam
+parameter(SecNam='RPA_PPInp')
 
-      ! set RPAModel
-      If (dRPA) Then
-         If (SOSEX) Then
-            RPAModel='SOSX@'//Reference(1:3)
-         Else
-            RPAModel='dRPA@'//Reference(1:3)
-         End If
-      Else
-         ! this should never happen
-         Call RPA_Warn(3,SecNam//': internal error [RPAModel]')
-         RPAModel='None@Non'
-      End If
+! set RPAModel
+if (dRPA) then
+  if (SOSEX) then
+    RPAModel = 'SOSX@'//Reference(1:3)
+  else
+    RPAModel = 'dRPA@'//Reference(1:3)
+  end if
+else
+  ! this should never happen
+  call RPA_Warn(3,SecNam//': internal error [RPAModel]')
+  RPAModel = 'None@Non'
+end if
 
-      ! freeze orbitals
-      Call RPA_Freezer()
+! freeze orbitals
+call RPA_Freezer()
 
-      ! print config after input processing
-      Call RPA_PrInp()
+! print config after input processing
+call RPA_PrInp()
 
-      End
+end subroutine RPA_PPInp

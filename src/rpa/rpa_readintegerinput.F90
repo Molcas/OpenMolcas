@@ -10,28 +10,31 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_ReadIntegerInput(Key,nInp,Lu,iVal,n)
-      Implicit None
-      Character*4 Key
-      Integer nInp
-      Integer Lu
-      Integer n
-      Integer iVal(n)
-      Character*180 Line
 
-      Character*180 Get_Ln
-      External Get_Ln
+subroutine RPA_ReadIntegerInput(Key,nInp,Lu,iVal,n)
 
-      If (n.ge.nInp) Then
-         Line=Get_Ln(Lu)
-         Call Get_I(1,iVal,nInp)
-      Else
-         ! insufficent memory for reading (fix in calling routine)
-         Call RPA_Warn(3,'Integer read problem for keyword '//Key)
-      End If
+implicit none
+character*4 Key
+integer nInp
+integer Lu
+integer n
+integer iVal(n)
+character*180 Line
 
-      Return
+character*180 Get_Ln
+external Get_Ln
+
+if (n >= nInp) then
+  Line = Get_Ln(Lu)
+  call Get_I(1,iVal,nInp)
+else
+  ! insufficent memory for reading (fix in calling routine)
+  call RPA_Warn(3,'Integer read problem for keyword '//Key)
+end if
+
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_character(Line)
+if (.false.) call Unused_character(Line)
 #endif
-      End
+
+end subroutine RPA_ReadIntegerInput

@@ -10,199 +10,190 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      Subroutine RPA_RdRun()
+
+subroutine RPA_RdRun()
+
+! Thomas Bondo Pedersen
 !
-!     Thomas Bondo Pedersen
-!
-!     Read data from Runfile.
-!
-      Implicit None
+! Read data from Runfile.
+
+implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
-      Character*9 SecNam
-      Parameter (SecNam='RPA_RdRun')
+character*9 SecNam
+parameter(SecNam='RPA_RdRun')
 
-      Integer  RPA_iUHF
-      External RPA_iUHF
+integer RPA_iUHF
+external RPA_iUHF
 
-      Character*8 Model
+character*8 Model
 
-      Logical Warn
+logical Warn
 
-      Integer iUHF
-      Integer iSym
-      Integer i
+integer iUHF
+integer iSym
+integer i
 
-      ! Register entry
+! Set type of SCF reference wave function
+! Note: in RPA, iUHF=1 means restricted, 2 means unrestricted.
+call Get_cArray('Relax Method',Model,8)
+call Get_iScalar('SCF mode',iUHF)
+iUHF = iUHF+1 ! correct for convention in SCF
+if (Model(1:7) == 'RHF-SCF') then
+  if (iUHF == 1) then
+    Reference = 'RHF'
+    Warn = .false.
+  else
+    Reference = 'UHF'
+    warn = .true.
+  end if
+else if (Model(1:7) == 'UHF-SCF') then
+  if (iUHF == 1) then
+    Reference = 'RHF'
+    Warn = .true.
+  else
+    Reference = 'UHF'
+    Warn = .false.
+  end if
+else if (Model(1:6) == 'KS-DFT') then
+  Warn = .false.
+  if (iUHF == 1) then
+    Reference = 'RKS'
+  else
+    Reference = 'UKS'
+  end if
+else if (Model(1:8) == 'dRPA@RHF' .or. Model(1:8) == 'SOSX@RHF') then
+  if (iUHF == 1) then
+    Reference = 'RHF'
+    Warn = .false.
+  else
+    Reference = 'UHF'
+    Warn = .true.
+  end if
+else if (Model(1:8) == 'dRPA@UHF' .or. Model(1:8) == 'SOSX@UHF') then
+  if (iUHF == 1) then
+    Reference = 'RHF'
+    Warn = .true.
+  else
+    Reference = 'UHF'
+    Warn = .false.
+  end if
+else if (Model(1:8) == 'dRPA@RKS' .or. Model(1:8) == 'SOSX@RKS') then
+  if (iUHF == 1) then
+    Reference = 'RKS'
+    Warn = .false.
+  else
+    Reference = 'UKS'
+    Warn = .true.
+  end if
+else if (Model(1:8) == 'dRPA@UKS' .or. Model(1:8) == 'SOSX@UKS') then
+  if (iUHF == 1) then
+    Reference = 'RKS'
+    Warn = .true.
+  else
+    Reference = 'UKS'
+    Warn = .false.
+  end if
+else
+  write(6,'(A,A)') 'Reference model from Runfile: ',Model
+  write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
+  call RPA_Warn(2,'Illegal reference wave function in RPA')
+  Reference = 'Non'
+  Warn = .false.
+end if
+if (Warn) then
+  call RPA_Warn(1,'Runfile restricted/unrestricted conflict in RPA')
+  write(6,'(A,A)') 'Reference model from Runfile: ',Model
+  write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
+  write(6,'(A,A,A)') 'Assuming ',Reference,' reference!'
+  call xFlush(6)
+end if
 
-      ! Set type of SCF reference wave function
-      ! Note: in RPA, iUHF=1 means restricted, 2 means unrestricted.
-      Call Get_cArray('Relax Method',Model,8)
-      Call Get_iScalar('SCF mode',iUHF)
-      iUHF=iUHF+1 ! correct for convention in SCF
-      If (Model(1:7).eq.'RHF-SCF') Then
-         If (iUHF.eq.1) Then
-            Reference='RHF'
-            Warn=.false.
-         Else
-            Reference='UHF'
-            warn=.true.
-         End If
-      Else If (Model(1:7).eq.'UHF-SCF') Then
-         If (iUHF.eq.1) Then
-            Reference='RHF'
-            Warn=.true.
-         Else
-            Reference='UHF'
-            Warn=.false.
-         End If
-      Else If (Model(1:6).eq.'KS-DFT') Then
-         Warn=.false.
-         If (iUHF.eq.1) Then
-            Reference='RKS'
-         Else
-            Reference='UKS'
-         End If
-      Else If (Model(1:8).eq.'dRPA@RHF' .or.                            &
-     &         Model(1:8).eq.'SOSX@RHF') Then
-         If (iUHF.eq.1) Then
-            Reference='RHF'
-            Warn=.false.
-         Else
-            Reference='UHF'
-            Warn=.true.
-         End If
-      Else If (Model(1:8).eq.'dRPA@UHF' .or.                            &
-     &         Model(1:8).eq.'SOSX@UHF') Then
-         If (iUHF.eq.1) Then
-            Reference='RHF'
-            Warn=.true.
-         Else
-            Reference='UHF'
-            Warn=.false.
-         End If
-      Else If (Model(1:8).eq.'dRPA@RKS' .or.                            &
-     &         Model(1:8).eq.'SOSX@RKS') Then
-         If (iUHF.eq.1) Then
-            Reference='RKS'
-            Warn=.false.
-         Else
-            Reference='UKS'
-            Warn=.true.
-         End If
-      Else If (Model(1:8).eq.'dRPA@UKS' .or.                            &
-     &         Model(1:8).eq.'SOSX@UKS') Then
-         If (iUHF.eq.1) Then
-            Reference='RKS'
-            Warn=.true.
-         Else
-            Reference='UKS'
-            Warn=.false.
-         End If
-      Else
-         Write(6,'(A,A)') 'Reference model from Runfile: ',Model
-         Write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
-         Call RPA_Warn(2,'Illegal reference wave function in RPA')
-         Reference='Non'
-         Warn=.false.
-      End If
-      If (Warn) Then
-         Call RPA_Warn(1,                                               &
-     &                'Runfile restricted/unrestricted conflict in RPA')
-         Write(6,'(A,A)') 'Reference model from Runfile: ',Model
-         Write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
-         Write(6,'(A,A,A)') 'Assuming ',Reference,' reference!'
-         Call xFlush(6)
-      End If
+! Get nuclear potential energy
+call Get_dScalar('PotNuc',NuclearRepulsionEnergy(1))
 
-      ! Get nuclear potential energy
-      Call Get_dScalar('PotNuc',NuclearRepulsionEnergy(1))
+! Get DFT functional
+if (Reference(2:3) == 'KS') then
+  call Get_cArray('DFT functional',DFTFunctional,16)
+else
+  DFTFunctional = 'Hartree-Fock'
+end if
 
-      ! Get DFT functional
-      If (Reference(2:3).eq.'KS') Then
-         Call Get_cArray('DFT functional',DFTFunctional,16)
-      Else
-         DFTFunctional='Hartree-Fock'
-      End If
+! Get number of irreps
+call Get_iScalar('nSym',nSym)
+if (nSym < 1 .or. nSym > 8) then
+  call RPA_Warn(3,'nSym out of bonds in RPA')
+end if
 
-      ! Get number of irreps
-      Call Get_iScalar('nSym',nSym)
-      If (nSym.lt.1 .or. nSym.gt.8) Then
-         Call RPA_Warn(3,'nSym out of bonds in RPA')
-      End If
+! Get iUHF (RPA convention: 1->RHF, 2->UHF)
+!          (as opposed to SCF: 0->RHF, 1->UHF)
+iUHF = RPA_iUHF()
 
-      ! Get iUHF (RPA convention: 1->RHF, 2->UHF)
-      !          (as opposed to SCF: 0->RHF, 1->UHF)
-      iUHF=RPA_iUHF()
+! Get number of basis functions, orbitals, occupied,
+! frozen (in SCF), deleted
+call Get_iArray('nBas',nBas,nSym)
+call Get_iArray('nOrb',nOrb,nSym)
+call Get_iArray('nDel',nDel(1,1),nSym)
+call Get_iArray('nFro',nFro(1,1),nSym)
+call Get_iArray('nIsh',nOcc(1,1),nSym)
+if (iUHF == 2) then
+  ! unrestricted: read data for beta spin
+  call Get_iArray('nIsh_ab',nOcc(1,2),nSym)
+end if
 
-      ! Get number of basis functions, orbitals, occupied,
-      ! frozen (in SCF), deleted
-      Call Get_iArray('nBas',nBas,nSym)
-      Call Get_iArray('nOrb',nOrb,nSym)
-      Call Get_iArray('nDel',nDel(1,1),nSym)
-      Call Get_iArray('nFro',nFro(1,1),nSym)
-      Call Get_iArray('nIsh',nOcc(1,1),nSym)
-      If (iUHF.eq.2) Then
-         ! unrestricted: read data for beta spin
-         Call Get_iArray('nIsh_ab',nOcc(1,2),nSym)
-      End If
+! Check for orbitals frozen in SCF and check consistency.
+do iSym=1,nSym
+  if (nFro(iSym,1) /= 0) then
+    write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
+    call RPA_Warn(4,SecNam//': Some orbitals were frozen in SCF!')
+  end if
+  if (nDel(iSym,1) /= (nBas(iSym)-nOrb(iSym))) then
+    write(6,'(A,8I8)') 'nBas=     ',(nBas(i),i=1,nSym)
+    write(6,'(A,8I8)') 'nOrb=     ',(nOrb(i),i=1,nSym)
+    write(6,'(A,8I8)') 'nBas-nOrb=',((nBas(i)-nOrb(i)),i=1,nSym)
+    write(6,'(A,8I8)') 'nDel=     ',(nDel(i,1),i=1,nSym)
+    call RPA_Warn(4,SecNam//': nDel != nBas-nOrb')
+  end if
+end do
 
-      ! Check for orbitals frozen in SCF and check consistency.
-      Do iSym=1,nSym
-         If (nFro(iSym,1).ne.0) Then
-            Write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
-            Call RPA_Warn(4,                                            &
-     &                    SecNam//': Some orbitals were frozen in SCF!')
-         End If
-         If (nDel(iSym,1).ne.(nBas(iSym)-nOrb(iSym))) Then
-            Write(6,'(A,8I8)') 'nBas=     ',(nBas(i),i=1,nSym)
-            Write(6,'(A,8I8)') 'nOrb=     ',(nOrb(i),i=1,nSym)
-            Write(6,'(A,8I8)') 'nBas-nOrb=',((nBas(i)-nOrb(i)),i=1,nSym)
-            Write(6,'(A,8I8)') 'nDel=     ',(nDel(i,1),i=1,nSym)
-            Call RPA_Warn(4,SecNam//': nDel != nBas-nOrb')
-         End If
-      End Do
+! Set default frozen (core) orbitals
+call Get_iArray('Non valence orbitals',nFro(1,1),nSym)
+do iSym=1,nSym
+  if (nFro(iSym,1) > nOcc(iSym,1)) then
+    if (iUHF == 1) then
+      write(6,'(A,8I8)') 'nOcc=',(nOcc(i,1),i=1,nSym)
+      write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
+      call RPA_Warn(4,SecNam//': nFro > nOrb')
+    else
+      write(6,'(A,8I8)') 'nOcc(alpha)=',(nOcc(i,1),i=1,nSym)
+      write(6,'(A,8I8)') 'nFro(alpha)=',(nFro(i,1),i=1,nSym)
+      call RPA_Warn(4,SecNam//': nFro > nOrb [alpha]')
+    end if
+  end if
+end do
+if (iUHF == 2) then
+  do iSym=1,nSym
+    nFro(iSym,2) = nFro(iSym,1)
+    if (nFro(iSym,2) > nOcc(iSym,2)) then
+      write(6,'(A,8I8)') 'nOcc(beta)=',(nOcc(i,2),i=1,nSym)
+      write(6,'(A,8I8)') 'nFro(beta)=',(nFro(i,2),i=1,nSym)
+      call RPA_Warn(4,SecNam//': nFro > nOrb [beta]')
+    end if
+  end do
+else
+  do iSym=1,nSym
+    nFro(iSym,2) = 0
+  end do
+end if
 
-      ! Set default frozen (core) orbitals
-      Call Get_iArray('Non valence orbitals',nFro(1,1),nSym)
-      Do iSym=1,nSym
-         If (nFro(iSym,1).gt.nOcc(iSym,1)) Then
-            If (iUHF.eq.1) Then
-               Write(6,'(A,8I8)') 'nOcc=',(nOcc(i,1),i=1,nSym)
-               Write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
-               Call RPA_Warn(4,SecNam//': nFro > nOrb')
-            Else
-               Write(6,'(A,8I8)') 'nOcc(alpha)=',(nOcc(i,1),i=1,nSym)
-               Write(6,'(A,8I8)') 'nFro(alpha)=',(nFro(i,1),i=1,nSym)
-               Call RPA_Warn(4,SecNam//': nFro > nOrb [alpha]')
-            End If
-         End If
-      End Do
-      If (iUHF.eq.2) Then
-         Do iSym=1,nSym
-            nFro(iSym,2)=nFro(iSym,1)
-            If (nFro(iSym,2).gt.nOcc(iSym,2)) Then
-               Write(6,'(A,8I8)') 'nOcc(beta)=',(nOcc(i,2),i=1,nSym)
-               Write(6,'(A,8I8)') 'nFro(beta)=',(nFro(i,2),i=1,nSym)
-               Call RPA_Warn(4,SecNam//': nFro > nOrb [beta]')
-            End If
-         End Do
-      Else
-         Do iSym=1,nSym
-            nFro(iSym,2)=0
-         End Do
-      End If
+! Compute number of virtual orbitals
+do i=1,iUHF
+  do iSym=1,nSym
+    nVir(iSym,i) = nOrb(iSym)-nOcc(iSym,i)
+  end do
+end do
 
-      ! Compute number of virtual orbitals
-      Do i=1,iUHF
-         Do iSym=1,nSym
-            nVir(iSym,i)=nOrb(iSym)-nOcc(iSym,i)
-         End Do
-      End Do
+! Set default deleted (virtual) orbitals
+call iZero(nDel,16)
 
-      ! Set default deleted (virtual) orbitals
-      Call iZero(nDel,16)
-
-      ! Register exit
-
-      End
+end subroutine RPA_RdRun

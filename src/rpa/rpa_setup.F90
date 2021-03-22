@@ -10,44 +10,41 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_Setup()
+
+subroutine RPA_Setup()
+
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
 !
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-!
-!     Set up RPA calculation:
-!        - process input
-!        - read reference orbitals
-!
-      Implicit None
+! Set up RPA calculation:
+!    - process input
+!    - read reference orbitals
+
+implicit none
 #include "rpa_config.fh"
 
-      Character*9 SecNam
-      Parameter (SecNam='RPA_Setup')
+character*9 SecNam
+parameter(SecNam='RPA_Setup')
 
-      ! Register entry
+! Define data in common blocks (dummy values).
+call RPA_SetInc()
 
-      ! Define data in common blocks (dummy values).
-      Call RPA_SetInc()
+! Get and check integral representation from Runfile.
+call RPA_SetIntegralRepresentation()
+call RPA_CheckIntegralRepresentation()
 
-      ! Get and check integral representation from Runfile.
-      Call RPA_SetIntegralRepresentation()
-      Call RPA_CheckIntegralRepresentation()
+! Pick up data from Runfile.
+call RPA_RdRun()
 
-      ! Pick up data from Runfile.
-      Call RPA_RdRun()
+! Process input.
+call RPA_RdInp()
 
-      ! Process input.
-      Call RPA_RdInp()
+! Read orbitals and orbital energies.
+call RPA_RdOrb()
 
-      ! Read orbitals and orbital energies.
-      Call RPA_RdOrb()
+! Postprocessing and print
+call RPA_PPInp()
 
-      ! Postprocessing and print
-      Call RPA_PPInp()
+! Add info for testing
+call RPA_Setup_Add_Info()
 
-      ! Add info for testing
-      Call RPA_Setup_Add_Info()
-
-      ! Register exit
-
-      End
+end subroutine RPA_Setup

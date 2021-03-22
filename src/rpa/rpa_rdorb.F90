@@ -10,26 +10,25 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_RdOrb()
+
+subroutine RPA_RdOrb()
+
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
 !
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-!
-!     Read orbitals and orbital energies from InpOrb or from Runfile.
-!
-      Implicit None
+! Read orbitals and orbital energies from InpOrb or from Runfile.
+
+implicit none
 #include "rpa_config.fh"
 
-      Character*9 SecNam
-      Parameter (SecNam='RPA_RdOrb')
+character*9 SecNam
+parameter(SecNam='RPA_RdOrb')
 
+if (LumOrb) then
+  ! read from InpOrb
+  call RPA_RdOrb_FromInpOrb()
+else
+  ! read from Runfile
+  call RPA_RdOrb_FromRunfile()
+end if
 
-      If (LumOrb) Then
-         ! read from InpOrb
-         Call RPA_RdOrb_FromInpOrb()
-      Else
-         ! read from Runfile
-         Call RPA_RdOrb_FromRunfile()
-      End If
-
-
-      End
+end subroutine RPA_RdOrb

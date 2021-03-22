@@ -8,20 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RPA_SetIntegralRepresentation()
-      Implicit None
+
+subroutine RPA_SetIntegralRepresentation()
+
+implicit none
 #include "rpa_config.fh"
-      Call DecideOnCholesky(doCD)
-      Call DecideOnDF(doDF)
-      Call DecideOnLocalDF(doLDF)
-      If (doLDF) Then
-         doCD=.false.
-         doDF=.false.
-      Else If (doDF) Then
-         doCD=.false.
-         doLDF=.false.
-      Else If (doCD) Then
-         doDF=.false.
-         doLDF=.false.
-      End If
-      End
+
+call DecideOnCholesky(doCD)
+call DecideOnDF(doDF)
+call DecideOnLocalDF(doLDF)
+if (doLDF) then
+  doCD = .false.
+  doDF = .false.
+else if (doDF) then
+  doCD = .false.
+  doLDF = .false.
+else if (doCD) then
+  doDF = .false.
+  doLDF = .false.
+end if
+
+end subroutine RPA_SetIntegralRepresentation

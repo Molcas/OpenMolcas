@@ -10,86 +10,82 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_Setup_Add_Info()
+
+subroutine RPA_Setup_Add_Info()
+
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
 !
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
-!
-!     Data for RPA tests, checking the setup.
-!     Testing these data is as much a test of the preceding SCF run as
-!     a test of the RPA setup.
-!
-      Implicit None
+! Data for RPA tests, checking the setup.
+! Testing these data is as much a test of the preceding SCF run as
+! a test of the RPA setup.
+
+implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
 #include "WrkSpc.fh"
 
-      Character*18 SecNam
-      Parameter (SecNam='RPA_Setup_Add_Info')
+character*18 SecNam
+parameter(SecNam='RPA_Setup_Add_Info')
 
-      Integer  RPA_iUHF, Cho_X_GetTol
-      External RPA_iUHF, Cho_X_GetTol
-      Real*8   Cho_dSumElm, dDot_
-      External Cho_dSumElm, dDot_
+integer RPA_iUHF, Cho_X_GetTol
+external RPA_iUHF, Cho_X_GetTol
+real*8 Cho_dSumElm, dDot_
+external Cho_dSumElm, dDot_
 
-      Character*13 orbitals
+character*13 orbitals
 
-      Integer Tol
-      Integer iUHF
-      Integer l_orbitals
-      Integer iSpin
-      Integer iSym
-      Integer ipO, ipV
-      Integer i
+integer Tol
+integer iUHF
+integer l_orbitals
+integer iSpin
+integer iSym
+integer ipO, ipV
+integer i
 
-      Real*8 Tst(8)
+real*8 Tst(8)
 
-      ! Check that molecular geometry is the expected one:
-      ! nuclear repulsion energy
-      Tol=12
-      Call Add_Info('PotNuc',NuclearRepulsionEnergy,1,Tol)
+! Check that molecular geometry is the expected one:
+! nuclear repulsion energy
+Tol = 12
+call Add_Info('PotNuc',NuclearRepulsionEnergy,1,Tol)
 
-      ! Check orbital spaces: sums and norms of orbital energies.
-      Tol=min(Cho_X_GetTol(2),2)
-      iUHF=RPA_iUHF()
-      If (iUHF.eq.1) Then
-         orbitals=' orbital'
-         l_orbitals=8
-      Else If (iUHF.eq.2) Then
-         orbitals=' spin-orbital'
-         l_orbitals=13
-      Else
-         Write(6,'(A,I6)') 'iUHF=',iUHF
-         Call RPA_Warn(3,SecNam//': iUHF error')
-         orbitals=' '
-         l_orbitals=1
-      End If
-      Call fZero(Tst,8)
-      Do iSpin=1,iUHF
-         ipO=ip_OccEn(iUHF)
-         ipV=ip_VirEn(iUHF)
-         Do iSym=1,nSym
-            Tst(1)=Tst(1)+Cho_dSumElm(Work(ipO),nFro(iSym,iSpin))
-            Tst(2)=Tst(2)+dDot_(nFro(iSym,iSpin),Work(ipO),1,           &
-     &                                          Work(ipO),1)
-            ipO=ipO+nFro(iSym,iSpin)
-            Tst(3)=Tst(3)+Cho_dSumElm(Work(ipO),nOcc(iSym,iSpin))
-            Tst(4)=Tst(4)+dDot_(nOcc(iSym,iSpin),Work(ipO),1,           &
-     &                                          Work(ipO),1)
-            ipO=ipO+nOcc(iSym,iSpin)
-            Tst(5)=Tst(5)+Cho_dSumElm(Work(ipV),nVir(iSym,iSpin))
-            Tst(6)=Tst(6)+dDot_(nVir(iSym,iSpin),Work(ipV),1,           &
-     &                                          Work(ipV),1)
-            ipV=ipV+nVir(iSym,iSpin)
-            Tst(7)=Tst(7)+Cho_dSumElm(Work(ipV),nDel(iSym,iSpin))
-            Tst(8)=Tst(8)+dDot_(nDel(iSym,iSpin),Work(ipV),1,           &
-     &                                          Work(ipV),1)
-            ipV=ipV+nDel(iSym,iSpin)
-         End Do
-      End Do
-      Do i=2,8,2
-         Tst(i)=sqrt(Tst(i))
-      End Do
-      Call Add_Info(Reference//orbitals(1:l_orbitals)//' energy',Tst,8, &
-     &              Tol)
+! Check orbital spaces: sums and norms of orbital energies.
+Tol = min(Cho_X_GetTol(2),2)
+iUHF = RPA_iUHF()
+if (iUHF == 1) then
+  orbitals = ' orbital'
+  l_orbitals = 8
+else if (iUHF == 2) then
+  orbitals = ' spin-orbital'
+  l_orbitals = 13
+else
+  write(6,'(A,I6)') 'iUHF=',iUHF
+  call RPA_Warn(3,SecNam//': iUHF error')
+  orbitals = ' '
+  l_orbitals = 1
+end if
+call fZero(Tst,8)
+do iSpin=1,iUHF
+  ipO = ip_OccEn(iUHF)
+  ipV = ip_VirEn(iUHF)
+  do iSym=1,nSym
+    Tst(1) = Tst(1)+Cho_dSumElm(Work(ipO),nFro(iSym,iSpin))
+    Tst(2) = Tst(2)+dDot_(nFro(iSym,iSpin),Work(ipO),1,Work(ipO),1)
+    ipO = ipO+nFro(iSym,iSpin)
+    Tst(3) = Tst(3)+Cho_dSumElm(Work(ipO),nOcc(iSym,iSpin))
+    Tst(4) = Tst(4)+dDot_(nOcc(iSym,iSpin),Work(ipO),1,Work(ipO),1)
+    ipO = ipO+nOcc(iSym,iSpin)
+    Tst(5) = Tst(5)+Cho_dSumElm(Work(ipV),nVir(iSym,iSpin))
+    Tst(6) = Tst(6)+dDot_(nVir(iSym,iSpin),Work(ipV),1,Work(ipV),1)
+    ipV = ipV+nVir(iSym,iSpin)
+    Tst(7) = Tst(7)+Cho_dSumElm(Work(ipV),nDel(iSym,iSpin))
+    Tst(8) = Tst(8)+dDot_(nDel(iSym,iSpin),Work(ipV),1,Work(ipV),1)
+    ipV = ipV+nDel(iSym,iSpin)
+  end do
+end do
+do i=2,8,2
+  Tst(i) = sqrt(Tst(i))
+end do
+call Add_Info(Reference//orbitals(1:l_orbitals)//' energy',Tst,8,Tol)
 
-      End
+end subroutine RPA_Setup_Add_Info

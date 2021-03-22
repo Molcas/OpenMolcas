@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function RPA_iUHF()
-      Implicit None
+integer function RPA_iUHF()
+
+implicit none
 #include "rpa_config.fh"
-      Integer iUHF
-      If (Reference(1:1).eq.'R') Then
-         iUHF=1
-      Else If (Reference(1:1).eq.'U') Then
-         iUHF=2
-      Else
-         Write(6,'(A,A)') 'Reference=',Reference
-         Call RPA_Warn(3,'Unable to determine iUHF in RPA')
-         iUHF=-1
-      End If
-      RPA_iUHF=iUHF
-      End
+integer iUHF
+
+if (Reference(1:1) == 'R') then
+  iUHF = 1
+else if (Reference(1:1) == 'U') then
+  iUHF = 2
+else
+  write(6,'(A,A)') 'Reference=',Reference
+  call RPA_Warn(3,'Unable to determine iUHF in RPA')
+  iUHF = -1
+end if
+RPA_iUHF = iUHF
+
+end function RPA_iUHF

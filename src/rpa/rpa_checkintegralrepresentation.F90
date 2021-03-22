@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RPA_CheckIntegralRepresentation()
-      Implicit None
+
+subroutine RPA_CheckIntegralRepresentation()
+
+implicit none
 #include "rpa_config.fh"
-      If (.not.(doCD.or.doDF.or.doLDF)) Then
-         Call RPA_Warn(2,'RPA requires CD, DF, or LDF. '//              &
-     &                        'Conventional integrals not implemented.')
-      End If
-      End
+
+if (.not.(doCD .or. doDF .or. doLDF)) then
+  call RPA_Warn(2,'RPA requires CD, DF, or LDF. Conventional integrals not implemented.')
+end if
+
+end subroutine RPA_CheckIntegralRepresentation

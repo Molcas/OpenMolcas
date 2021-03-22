@@ -10,36 +10,40 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,      &
-     &                                   nVir,nDel,CMOinp,CMOout)
-      Implicit None
-      Integer nSym
-      Integer nBas(nSym)
-      Integer nOrb(nSym)
-      Integer nFro(nSym)
-      Integer nOcc(nSym)
-      Integer nVir(nSym)
-      Integer nDel(nSym)
-      Real*8  CMOinp(*)
-      Real*8  CMOout(*)
 
-      Integer iSym, ip1, ip2, l
+subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,nVir,nDel,CMOinp,CMOout)
 
-      ip1=1
-      ip2=1
-      Do iSym=1,nSym
-         l=nBas(iSym)*nOrb(iSym)
-         Call dCopy_(l,CMOinp(ip1),1,CMOout(ip2),1)
-         Call fZero(CMOout(ip2+l),nBas(iSym)*nBas(iSym)-l)
-         ip1=ip1+l
-         ip2=ip2+nBas(iSym)*nBas(iSym)
-      End Do
+implicit none
+integer nSym
+integer nBas(nSym)
+integer nOrb(nSym)
+integer nFro(nSym)
+integer nOcc(nSym)
+integer nVir(nSym)
+integer nDel(nSym)
+real*8 CMOinp(*)
+real*8 CMOout(*)
+
+integer iSym, ip1, ip2, l
+
+ip1 = 1
+ip2 = 1
+do iSym=1,nSym
+  l = nBas(iSym)*nOrb(iSym)
+  call dCopy_(l,CMOinp(ip1),1,CMOout(ip2),1)
+  call fZero(CMOout(ip2+l),nBas(iSym)*nBas(iSym)-l)
+  ip1 = ip1+l
+  ip2 = ip2+nBas(iSym)*nBas(iSym)
+end do
+
+return
 
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(nDel)
-         Call Unused_integer_array(nFro)
-         Call Unused_integer_array(nOcc)
-         Call Unused_integer_array(nVir)
-      End If
-      End
+if (.false.) then
+  call Unused_integer_array(nDel)
+  call Unused_integer_array(nFro)
+  call Unused_integer_array(nOcc)
+  call Unused_integer_array(nVir)
+end if
+
+end subroutine ChoRPA_MOTra_ReorderCMO

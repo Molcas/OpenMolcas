@@ -8,42 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine RPA_SetInc()
-      Implicit None
+
+subroutine RPA_SetInc()
+
+implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
-      Integer i, j
-      ! rpa_config
-      Reference='Non'
-      RPAModel='None@Non'
-      DFTFunctional='Not defined     '
-      dRPA=.false.
-      SOSEX=.false.
-      doCD=.false.
-      doDF=.false.
-      doLDF=.false.
-      LumOrb=.false.
-      iPrint=0
-      ! rpa_data
-      Do i=1,mTitle
-         Write(Title(i),'(80A1)') (' ',j=1,80)
-      End Do
-      nTitle=0
-      nSym=0
-      Call iZero(nFreeze,2)
-      Call iZero(nBas,8)
-      Call iZero(nOrb,8)
-      Call iZero(nFro,16)
-      Call iZero(nDel,16)
-      Call iZero(nOcc,16)
-      Call iZero(nVir,16)
-      Call iZero(ip_CMO,2)
-      Call iZero(l_CMO,2)
-      Call iZero(ip_EMO,2)
-      Call iZero(l_EMO,2)
-      Call iZero(ip_OccEn,2)
-      Call iZero(l_OccEn,2)
-      Call iZero(ip_VirEn,2)
-      Call iZero(l_VirEn,2)
-      NuclearRepulsionEnergy(1)=0.0d0
-      End
+integer i, j
+
+! rpa_config
+Reference = 'Non'
+RPAModel = 'None@Non'
+DFTFunctional = 'Not defined     '
+dRPA = .false.
+SOSEX = .false.
+doCD = .false.
+doDF = .false.
+doLDF = .false.
+LumOrb = .false.
+iPrint = 0
+! rpa_data
+do i=1,mTitle
+  write(Title(i),'(80A1)')(' ',j=1,80)
+end do
+nTitle = 0
+nSym = 0
+call iZero(nFreeze,2)
+call iZero(nBas,8)
+call iZero(nOrb,8)
+call iZero(nFro,16)
+call iZero(nDel,16)
+call iZero(nOcc,16)
+call iZero(nVir,16)
+call iZero(ip_CMO,2)
+call iZero(l_CMO,2)
+call iZero(ip_EMO,2)
+call iZero(l_EMO,2)
+call iZero(ip_OccEn,2)
+call iZero(l_OccEn,2)
+call iZero(ip_VirEn,2)
+call iZero(l_VirEn,2)
+NuclearRepulsionEnergy(1) = 0.0d0
+
+end subroutine RPA_SetInc

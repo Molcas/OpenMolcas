@@ -8,8 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function RPA_LENIN8()
-      Implicit None
+
+integer function RPA_LENIN8()
+
+implicit none
 #include "Molcas.fh"
-      RPA_LENIN8=LENIN8
-      End
+
+RPA_LENIN8 = LENIN8
+
+end function RPA_LENIN8

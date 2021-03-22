@@ -10,51 +10,50 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA(rc)
+
+subroutine RPA(rc)
+
+! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
 !
-!     Thomas Bondo Pedersen (CTCC,UiO), July 2013.
+! Driver routine for the calculation of correlation energies in the
+! random-phase approximation (RPA) using Cholesky/DF integrals.
 !
-!     Driver routine for the calculation of correlation energies in the
-!     random-phase approximation (RPA) using Cholesky/DF integrals.
-!
-!     NOTE: conventional integrals are not implemented!
-!
-      Implicit None
-      Integer rc
+! NOTE: conventional integrals are not implemented!
+
+implicit none
+integer rc
 #include "warnings.fh"
 
-      Character*3 SecNam
-      Parameter (SecNam='RPA')
-      Character*80 string
+character*3 SecNam
+parameter(SecNam='RPA')
+character*80 string
 
-      Integer irc
-
-!=======================================================================
-!     Enter
-!=======================================================================
-
-      rc=_RC_ALL_IS_WELL_ ! init return code
-      irc=0 ! init internal return code
+integer irc
 
 !=======================================================================
-!     Setup: initialize data, read reference orbitals and process input
+! Enter
 !=======================================================================
 
-      Call StatusLine('RPA: ','Setup')
-      Call RPA_Setup()
+rc = _RC_ALL_IS_WELL_ ! init return code
+irc = 0 ! init internal return code
 
 !=======================================================================
-!     Exit after cleanup
+! Setup: initialize data, read reference orbitals and process input
 !=======================================================================
 
-!100  Continue ! failures jump to this point
-      Call StatusLine('RPA: ','Cleanup')
-      Call RPA_Cleanup(irc)
-      If (irc.ne.0) Then
-         Write(string,'(A,A,I4)')                                       &
-     &   SecNam,': Cleanup failed! rc=',irc
-         Call WarningMessage(2,string)
-         If (rc.eq._RC_ALL_IS_WELL_) rc=_RC_INTERNAL_ERROR_
-      End If
+call StatusLine('RPA: ','Setup')
+call RPA_Setup()
 
-      End
+!=======================================================================
+! Exit after cleanup
+!=======================================================================
+
+call StatusLine('RPA: ','Cleanup')
+call RPA_Cleanup(irc)
+if (irc /= 0) then
+  write(string,'(A,A,I4)') SecNam,': Cleanup failed! rc=',irc
+  call WarningMessage(2,string)
+  if (rc == _RC_ALL_IS_WELL_) rc = _RC_INTERNAL_ERROR_
+end if
+
+end subroutine RPA

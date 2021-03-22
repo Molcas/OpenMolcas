@@ -10,13 +10,12 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine RPA_RdOrb_FromInpOrb()
-      Implicit None
+subroutine RPA_RdOrb_FromInpOrb()
 
-      Character*20 SecNam
-      Parameter (SecNam='RPA_RdOrb_FromInpOrb')
+implicit none
+character*20 SecNam
+parameter(SecNam='RPA_RdOrb_FromInpOrb')
 
-      Call RPA_Warn(3,                                                  &
-     &    SecNam//': Reading orbitals from INPORB not implemented yet')
+call RPA_Warn(3,SecNam//': Reading orbitals from INPORB not implemented yet')
 
-      End
+end subroutine RPA_RdOrb_FromInpOrb
