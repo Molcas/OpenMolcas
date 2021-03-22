@@ -13,41 +13,25 @@
 
 subroutine RPA_Frz(nFre,Prnt,nSym,EOcc,nFro,nOcc,nFro1)
 
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer nFre
-logical Prnt
-integer nSym
-real*8 EOcc(*)
-integer nFro(nSym)
-integer nOcc(nSym)
-integer nFro1(nSym)
+integer(kind=iwp), intent(in) :: nFre, nSym, nFro(nSym), nOcc(nSym)
+logical(kind=iwp), intent(in) :: Prnt
+real(kind=wp), intent(in) :: EOcc(*)
+integer(kind=iwp), intent(out) :: nFro1(nSym)
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ip_Point, l_Point, ip_E, l_E, ip_Pivot, l_Pivot, ip_iOcc, l_iOcc, iCount, NumFre, iFre, i, iSym, ip1
+real(kind=wp) :: xMin
+character(len=7), parameter :: SecNam = 'RPA_Frz'
+integer(kind=iwp), external :: Cho_iRange
 
-character*7 SecNam
-parameter(SecNam='RPA_Frz')
-
-integer Cho_iRange
-external Cho_iRange
-
-integer ip_Point, l_Point
-integer ip_E, l_E
-integer ip_Pivot, l_Pivot
-integer ip_iOcc, l_iOcc
-integer iCount
-integer NumFre
-integer iFre
-integer i
-integer iSym
-integer ip1
-
-real*8 xMin
-
-integer j
-integer iOcc
+integer(kind=iwp) :: j, iOcc
 iOcc(j) = iWork(ip_iOcc-1+j)
 
 if (nSym < 1 .or. nSym > 8) then
-  write(6,'(A,I6)') 'nSym=',nSym
+  write(u6,'(A,I6)') 'nSym=',nSym
   call RPA_Warn(3,SecNam//': illegal nSym')
 else if (nSym == 1) then
   nFro1(1) = max(nFre,0)
@@ -85,12 +69,12 @@ do iSym=1,nSym
   iCount = iCount+nFro(iSym)+nOcc(iSym)
 end do
 
-xMin = -1.0d15
+xMin = -1.0e15_wp
 NumFre = nFre
-call dScal_(l_E,-1.0d0,Work(ip_E),1)
+call dScal_(l_E,-One,Work(ip_E),1)
 call CD_DiaMax(Work(ip_E),l_E,iWork(ip_Pivot),iWork(ip_Point),NumFre,xMin)
 if (NumFre /= nFre) then
-  write(6,'(2(A,I12))') 'NumFre=',NumFre,'  nFre=',nFre
+  write(u6,'(2(A,I12))') 'NumFre=',NumFre,'  nFre=',nFre
   call RPA_Warn(3,SecNam//': NumFre != nFre')
 end if
 
@@ -100,16 +84,16 @@ do iFre=1,nFre
 end do
 
 if (Prnt) then
-  write(6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
-  write(6,'(A,I5,A)') 'The',nFre,' lowest occupied orbitals have been frozen.'
-  write(6,'(A)') 'List of frozen occupied orbitals:'
+  write(u6,'(/,3X,A,A,A)') 'Output from ',SecNam,':'
+  write(u6,'(A,I5,A)') 'The',nFre,' lowest occupied orbitals have been frozen.'
+  write(u6,'(A)') 'List of frozen occupied orbitals:'
   do iFre=1,nFre
     iCount = iWork(ip_Point-1+iFre)
     iSym = Cho_iRange(iCount,iWork(ip_iOcc),nSym,.false.)
     i = iCount-iOcc(iSym)
-    write(6,'(1X,A,I5,A,I1,A,F15.8)') 'Occupied orbital',i,' of symmetry ',iSym,' and energy ',-Work(ip_E-1+iCount)
+    write(u6,'(1X,A,I5,A,I1,A,F15.8)') 'Occupied orbital',i,' of symmetry ',iSym,' and energy ',-Work(ip_E-1+iCount)
   end do
-  call xFlush(6)
+  call xFlush(u6)
 end if
 
 call GetMem('Pivot','Free','Inte',ip_Pivot,l_Pivot)

@@ -19,30 +19,18 @@ subroutine RPA_Setup_Add_Info()
 ! Testing these data is as much a test of the preceding SCF run as
 ! a test of the RPA setup.
 
+use Definitions, only: wp, iwp, r8, u6
+
 implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
 #include "WrkSpc.fh"
-
-character*18 SecNam
-parameter(SecNam='RPA_Setup_Add_Info')
-
-integer RPA_iUHF, Cho_X_GetTol
-external RPA_iUHF, Cho_X_GetTol
-real*8 Cho_dSumElm, dDot_
-external Cho_dSumElm, dDot_
-
-character*13 orbitals
-
-integer Tol
-integer iUHF
-integer l_orbitals
-integer iSpin
-integer iSym
-integer ipO, ipV
-integer i
-
-real*8 Tst(8)
+integer(kind=iwp) :: Tol, iUHF, l_orbitals, iSpin, iSym, ipO, ipV, i
+real(kind=wp) :: Tst(8)
+character(len=13) :: orbitals
+character(len=18), parameter :: SecNam =  'RPA_Setup_Add_Info'
+integer(kind=iwp), external :: RPA_iUHF, Cho_X_GetTol
+real(kind=r8), external :: Cho_dSumElm, dDot_
 
 ! Check that molecular geometry is the expected one:
 ! nuclear repulsion energy
@@ -59,7 +47,7 @@ else if (iUHF == 2) then
   orbitals = ' spin-orbital'
   l_orbitals = 13
 else
-  write(6,'(A,I6)') 'iUHF=',iUHF
+  write(u6,'(A,I6)') 'iUHF=',iUHF
   call RPA_Warn(3,SecNam//': iUHF error')
   orbitals = ' '
   l_orbitals = 1

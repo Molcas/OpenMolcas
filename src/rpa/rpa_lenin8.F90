@@ -9,11 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function RPA_LENIN8()
+function RPA_LenIn8()
+
+use Definitions, only: iwp
 
 implicit none
+integer(kind=iwp) :: RPA_LenIn8
 #include "Molcas.fh"
 
-RPA_LENIN8 = LENIN8
+RPA_LenIn8 = LenIn8
 
-end function RPA_LENIN8
+end function RPA_LenIn8

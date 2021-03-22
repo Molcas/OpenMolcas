@@ -17,35 +17,21 @@ subroutine RPA_RdInp()
 !
 ! Parse and process RPA input.
 
+use Definitions, only: iwp, u6
+
 implicit none
 #include "WrkSpc.fh"
 #include "rpa_config.fh"
 #include "rpa_data.fh"
-
-character*9 SecNam
-parameter(SecNam='RPA_RdInp')
-integer mLine
-parameter(mLine=100000)
-
-logical Reduce_Prt
-external Reduce_Prt
-character*180 Get_Ln
-external Get_Ln
-integer iPrintLevel, RPA_iUHF
-external iPrintLevel, RPA_iUHF
-
-character*4 Keyword
-character*180 Line
-
-logical doTitle
-logical EndOfInput
-logical DebugPrint
-
-integer ip_Integer, l_Integer
-integer Lu
-integer iLine
-integer iUHF
-integer i
+integer(kind=iwp) :: ip_Integer, l_Integer, Lu, iLine, iUHF, i
+logical(kind=iwp) :: doTitle, EndOfInput, DebugPrint
+character(len=4) :: Keyword
+character(len=180) :: Line
+integer(kind=iwp), parameter :: mLine = 100000
+character(len=9), parameter :: SecNam = 'RPA_RdInp'
+integer(kind=iwp), external :: iPrintLevel, RPA_iUHF
+logical(kind=iwp), external :: Reduce_Prt
+character(len=180), external :: Get_Ln
 
 ! set default print level
 iPrint = max(iPrintLevel(-1),0)
@@ -62,7 +48,7 @@ DebugPrint = iPrint > 4
 DebugPrint = .false.
 #endif
 if (DebugPrint) then
-  write(6,'(A,A,I3)') SecNam,': default print level is',iPrint
+  write(u6,'(A,A,I3)') SecNam,': default print level is',iPrint
 end if
 
 ! Set restricted (1) or unrestricted (2)
@@ -96,9 +82,9 @@ do while (.not. EndOfInput .and. iLine < mLine)
   Line = Get_Ln(Lu)
   call StdFmt(Line,Keyword)
   if (DebugPrint) then
-    write(6,'(A,A)') SecNam,' processing line:'
-    write(6,'(A)') Line
-    write(6,'(A,A)') 'Key=',Keyword
+    write(u6,'(A,A)') SecNam,' processing line:'
+    write(u6,'(A)') Line
+    write(u6,'(A,A)') 'Key=',Keyword
   end if
   !****************************
   if (Keyword(1:1) == ' ') then
@@ -122,9 +108,9 @@ do while (.not. EndOfInput .and. iLine < mLine)
     doTitle = .true.
     nTitle = nTitle+1
     if (nTitle > mTitle) then
-      write(6,'(A,I8)') 'Maximum number of title lines is',mTitle
-      write(6,'(A)') 'Current input line:'
-      write(6,'(A)') Line
+      write(u6,'(A,I8)') 'Maximum number of title lines is',mTitle
+      write(u6,'(A)') 'Current input line:'
+      write(u6,'(A)') Line
       call RPA_Warn(2,'Too many title lines in RPA input')
     else
       Line = Get_Ln(Lu)
@@ -195,18 +181,18 @@ do while (.not. EndOfInput .and. iLine < mLine)
       ! process as title line
       nTitle = nTitle+1
       if (nTitle > mTitle) then
-        write(6,'(A,I8)') 'Maximum number of title lines is',mTitle
-        write(6,'(A)') 'Current input line:'
-        write(6,'(A)') Line
+        write(u6,'(A,I8)') 'Maximum number of title lines is',mTitle
+        write(u6,'(A)') 'Current input line:'
+        write(u6,'(A)') Line
         call RPA_Warn(2,'Too many title lines in RPA input')
       else
         Title(nTitle) = Line(1:80)
       end if
     else
       ! unknown keyword
-      write(6,'(A)') 'Offending input line:'
-      write(6,'(A)') Line
-      write(6,'(A,A,A)') 'Equivalent keyword input "',Keyword,'" not recognized!'
+      write(u6,'(A)') 'Offending input line:'
+      write(u6,'(A)') Line
+      write(u6,'(A,A,A)') 'Equivalent keyword input "',Keyword,'" not recognized!'
       call RPA_Warn(2,'RPA input keyword not recognized')
     end if
   end if

@@ -11,10 +11,13 @@
 
 subroutine RPA_SetInc()
 
+use Constants, only: Zero
+use Definitions, only: iwp
+
 implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
-integer i, j
+integer(kind=iwp) :: i, j
 
 ! rpa_config
 Reference = 'Non'
@@ -48,6 +51,6 @@ call iZero(ip_OccEn,2)
 call iZero(l_OccEn,2)
 call iZero(ip_VirEn,2)
 call iZero(l_VirEn,2)
-NuclearRepulsionEnergy(1) = 0.0d0
+NuclearRepulsionEnergy(1) = Zero
 
 end subroutine RPA_SetInc

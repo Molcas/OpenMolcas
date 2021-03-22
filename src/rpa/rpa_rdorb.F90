@@ -19,9 +19,7 @@ subroutine RPA_RdOrb()
 
 implicit none
 #include "rpa_config.fh"
-
-character*9 SecNam
-parameter(SecNam='RPA_RdOrb')
+character(len=9), parameter :: SecNam = 'RPA_RdOrb'
 
 if (LumOrb) then
   ! read from InpOrb

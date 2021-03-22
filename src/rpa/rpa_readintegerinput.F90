@@ -13,16 +13,14 @@
 
 subroutine RPA_ReadIntegerInput(Key,nInp,Lu,iVal,n)
 
-implicit none
-character*4 Key
-integer nInp
-integer Lu
-integer n
-integer iVal(n)
-character*180 Line
+use Definitions, only: iwp
 
-character*180 Get_Ln
-external Get_Ln
+implicit none
+character(len=4), intent(in) :: Key
+integer(kind=iwp), intent(in) :: nInp, Lu, n
+integer(kind=iwp), intent(out) :: iVal(n)
+character(len=180) :: Line
+character(len=180), external :: Get_Ln
 
 if (n >= nInp) then
   Line = Get_Ln(Lu)

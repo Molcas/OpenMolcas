@@ -13,18 +13,13 @@
 
 subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,nVir,nDel,CMOinp,CMOout)
 
-implicit none
-integer nSym
-integer nBas(nSym)
-integer nOrb(nSym)
-integer nFro(nSym)
-integer nOcc(nSym)
-integer nVir(nSym)
-integer nDel(nSym)
-real*8 CMOinp(*)
-real*8 CMOout(*)
+use Definitions, only: wp, iwp
 
-integer iSym, ip1, ip2, l
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nOcc(nSym), nVir(nSym), nDel(nSym)
+real(kind=wp), intent(in) :: CMOinp(*)
+real(kind=wp), intent(out) :: CMOout(*)
+integer(kind=iwp) :: iSym, ip1, ip2, l
 
 ip1 = 1
 ip2 = 1

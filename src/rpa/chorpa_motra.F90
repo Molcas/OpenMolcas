@@ -27,31 +27,16 @@ subroutine ChoRPA_MOTra(includeFrozen,includeDeleted)
 !    vectors are read twice. Simultaneous transformation would be
 !    desirable!
 
+use Definitions, only: iwp
+
 implicit none
-logical includeFrozen, includeDeleted
+logical(kind=iwp), intent(in) :: includeFrozen, includeDeleted
 #include "rpa_data.fh"
 #include "WrkSpc.fh"
-
-character*12 SecNam
-parameter(SecNam='ChoRPA_MOTra')
-
-integer RPA_iUHF
-external RPA_iUHF
-
-character*6 BName(2)
-
-integer nSpin
-integer iSym
-integer ip_lCMO, l_lCMO
-integer ip, l
-!integer ip_lnBas
-!integer ip_lnOrb
-integer ip_lnFro
-integer ip_lnOcc
-integer ip_Zeros
-integer ip_lnVir
-integer ip_lnDel
-integer iSpin
+integer(kind=iwp) :: nSpin, iSym, ip_lCMO, l_lCMO, ip, l, ip_lnFro, ip_lnOcc, ip_Zeros, ip_lnVir, ip_lnDel, iSpin
+character(len=6) BName(2)
+integer(kind=iwp), external :: RPA_iUHF
+character(len=12), parameter :: SecNam = 'ChoRPA_MOTra'
 
 nSpin = RPA_iUHF()
 if (nSpin == 1) then

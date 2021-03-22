@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
+
 subroutine RPA_Warn(Level,Message)
 
 ! Thomas Bondo Pedersen (CTCC,UiO), July 2013.
@@ -21,13 +22,13 @@ subroutine RPA_Warn(Level,Message)
 !                Level=3: _RC_INTERNAL_ERROR_
 !                Level>3: _RC_GENERAL_ERROR_
 
-implicit none
-integer Level
-character*(*) Message
-#include "warnings.fh"
+use Definitions, only: iwp, u6
 
-integer iLevel
-integer rc
+implicit none
+integer(kind=iwp), intent(in) :: Level
+character(len=*), intent(in) :: Message
+#include "warnings.fh"
+integer(kind=iwp) :: iLevel, rc
 
 if (Level <= 1) then
   iLevel = max(Level,0)
@@ -43,7 +44,7 @@ else
   end if
 end if
 call WarningMessage(iLevel,Message)
-call xFlush(6)
+call xFlush(u6)
 if (rc /= 0) then
   call xQuit(rc)
 end if

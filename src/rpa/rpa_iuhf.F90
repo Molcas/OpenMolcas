@@ -8,18 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-integer function RPA_iUHF()
+
+function RPA_iUHF()
+
+use Definitions, only: iwp, u6
 
 implicit none
+integer(kind=iwp) :: RPA_iUHF
 #include "rpa_config.fh"
-integer iUHF
+integer(kind=iwp) :: iUHF
 
 if (Reference(1:1) == 'R') then
   iUHF = 1
 else if (Reference(1:1) == 'U') then
   iUHF = 2
 else
-  write(6,'(A,A)') 'Reference=',Reference
+  write(u6,'(A,A)') 'Reference=',Reference
   call RPA_Warn(3,'Unable to determine iUHF in RPA')
   iUHF = -1
 end if

@@ -17,22 +17,16 @@ subroutine RPA_RdRun()
 !
 ! Read data from Runfile.
 
+use Definitions, only: iwp, u6
+
 implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
-character*9 SecNam
-parameter(SecNam='RPA_RdRun')
-
-integer RPA_iUHF
-external RPA_iUHF
-
-character*8 Model
-
-logical Warn
-
-integer iUHF
-integer iSym
-integer i
+integer(kind=iwp) :: iUHF, iSym, i
+logical(kind=iwp) :: Warn
+character(len=8) :: Model
+character(len=9), parameter :: SecNam = 'RPA_RdRun'
+integer(kind=iwp), external :: RPA_iUHF
 
 ! Set type of SCF reference wave function
 ! Note: in RPA, iUHF=1 means restricted, 2 means unrestricted.
@@ -95,18 +89,18 @@ else if (Model(1:8) == 'dRPA@UKS' .or. Model(1:8) == 'SOSX@UKS') then
     Warn = .false.
   end if
 else
-  write(6,'(A,A)') 'Reference model from Runfile: ',Model
-  write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
+  write(u6,'(A,A)') 'Reference model from Runfile: ',Model
+  write(u6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
   call RPA_Warn(2,'Illegal reference wave function in RPA')
   Reference = 'Non'
   Warn = .false.
 end if
 if (Warn) then
   call RPA_Warn(1,'Runfile restricted/unrestricted conflict in RPA')
-  write(6,'(A,A)') 'Reference model from Runfile: ',Model
-  write(6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
-  write(6,'(A,A,A)') 'Assuming ',Reference,' reference!'
-  call xFlush(6)
+  write(u6,'(A,A)') 'Reference model from Runfile: ',Model
+  write(u6,'(A,I8)') 'iUHF from Runfile:            ',iUHF-1
+  write(u6,'(A,A,A)') 'Assuming ',Reference,' reference!'
+  call xFlush(u6)
 end if
 
 ! Get nuclear potential energy
@@ -144,14 +138,14 @@ end if
 ! Check for orbitals frozen in SCF and check consistency.
 do iSym=1,nSym
   if (nFro(iSym,1) /= 0) then
-    write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
+    write(u6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
     call RPA_Warn(4,SecNam//': Some orbitals were frozen in SCF!')
   end if
   if (nDel(iSym,1) /= (nBas(iSym)-nOrb(iSym))) then
-    write(6,'(A,8I8)') 'nBas=     ',(nBas(i),i=1,nSym)
-    write(6,'(A,8I8)') 'nOrb=     ',(nOrb(i),i=1,nSym)
-    write(6,'(A,8I8)') 'nBas-nOrb=',((nBas(i)-nOrb(i)),i=1,nSym)
-    write(6,'(A,8I8)') 'nDel=     ',(nDel(i,1),i=1,nSym)
+    write(u6,'(A,8I8)') 'nBas=     ',(nBas(i),i=1,nSym)
+    write(u6,'(A,8I8)') 'nOrb=     ',(nOrb(i),i=1,nSym)
+    write(u6,'(A,8I8)') 'nBas-nOrb=',((nBas(i)-nOrb(i)),i=1,nSym)
+    write(u6,'(A,8I8)') 'nDel=     ',(nDel(i,1),i=1,nSym)
     call RPA_Warn(4,SecNam//': nDel != nBas-nOrb')
   end if
 end do
@@ -161,12 +155,12 @@ call Get_iArray('Non valence orbitals',nFro(1,1),nSym)
 do iSym=1,nSym
   if (nFro(iSym,1) > nOcc(iSym,1)) then
     if (iUHF == 1) then
-      write(6,'(A,8I8)') 'nOcc=',(nOcc(i,1),i=1,nSym)
-      write(6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
+      write(u6,'(A,8I8)') 'nOcc=',(nOcc(i,1),i=1,nSym)
+      write(u6,'(A,8I8)') 'nFro=',(nFro(i,1),i=1,nSym)
       call RPA_Warn(4,SecNam//': nFro > nOrb')
     else
-      write(6,'(A,8I8)') 'nOcc(alpha)=',(nOcc(i,1),i=1,nSym)
-      write(6,'(A,8I8)') 'nFro(alpha)=',(nFro(i,1),i=1,nSym)
+      write(u6,'(A,8I8)') 'nOcc(alpha)=',(nOcc(i,1),i=1,nSym)
+      write(u6,'(A,8I8)') 'nFro(alpha)=',(nFro(i,1),i=1,nSym)
       call RPA_Warn(4,SecNam//': nFro > nOrb [alpha]')
     end if
   end if
@@ -175,8 +169,8 @@ if (iUHF == 2) then
   do iSym=1,nSym
     nFro(iSym,2) = nFro(iSym,1)
     if (nFro(iSym,2) > nOcc(iSym,2)) then
-      write(6,'(A,8I8)') 'nOcc(beta)=',(nOcc(i,2),i=1,nSym)
-      write(6,'(A,8I8)') 'nFro(beta)=',(nFro(i,2),i=1,nSym)
+      write(u6,'(A,8I8)') 'nOcc(beta)=',(nOcc(i,2),i=1,nSym)
+      write(u6,'(A,8I8)') 'nFro(beta)=',(nFro(i,2),i=1,nSym)
       call RPA_Warn(4,SecNam//': nFro > nOrb [beta]')
     end if
   end do

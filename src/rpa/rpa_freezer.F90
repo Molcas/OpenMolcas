@@ -17,21 +17,15 @@ subroutine RPA_Freezer()
 !
 ! Figure out symmetry distribution of frozen occupied orbitals.
 
+use Definitions, only: iwp
+
 implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
 #include "WrkSpc.fh"
-
-integer RPA_iUHF
-external RPA_iUHF
-
-logical Freeze
-logical Prnt
-
-integer iUHF
-integer iSym
-integer iSpin
-integer ip_Fro, l_Fro
+integer(kind=iwp) :: iUHF, iSym, iSpin, ip_Fro, l_Fro
+logical(kind=iwp) :: Freeze, Prnt
+integer(kind=iwp), external :: RPA_iUHF
 
 ! set restricted(1)/unrestricted(2)
 iUHF = RPA_iUHF()

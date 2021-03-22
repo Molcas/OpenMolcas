@@ -18,8 +18,7 @@ subroutine ChoRPA_Drv()
 ! Driver routine for CD/DF-based RPA.
 
 implicit none
-character*10 SecNam
-parameter(SecNam='ChoRPA_Drv')
+character(len=10), parameter :: SecNam = 'ChoRPA_Drv'
 
 call RPA_Warn(3,SecNam//': not implemented yet')
 

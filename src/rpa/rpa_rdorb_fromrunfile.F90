@@ -10,24 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
+
 subroutine RPA_RdOrb_FromRunfile()
+
+use Definitions, only: iwp
 
 implicit none
 #include "rpa_config.fh"
 #include "rpa_data.fh"
 #include "WrkSpc.fh"
-
-character*21 SecNam
-parameter(SecNam='RPA_RdOrb_FromRunfile')
-
-integer RPA_iUHF
-external RPA_iUHF
-
-integer iUHF
-integer iSym
-integer i
-integer nB, nB2
-integer ip, ipO, ipV
+integer(kind=iwp) :: iUHF, iSym, i, nB, nB2, ip, ipO, ipV
+character(len=21), parameter :: SecNam = 'RPA_RdOrb_FromRunfile'
+integer(kind=iwp), external :: RPA_iUHF
 
 ! Restricted (1) or unrestricted (2)
 iUHF = RPA_iUHF()

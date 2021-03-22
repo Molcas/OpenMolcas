@@ -20,15 +20,14 @@ subroutine RPA(rc)
 !
 ! NOTE: conventional integrals are not implemented!
 
+use Definitions, only: iwp
+
 implicit none
-integer rc
+integer(kind=iwp), intent(out) :: rc
 #include "warnings.fh"
-
-character*3 SecNam
-parameter(SecNam='RPA')
-character*80 string
-
-integer irc
+integer(kind=iwp) :: irc
+character(len=80) :: string
+character(len=3), parameter :: SecNam = 'RPA'
 
 !=======================================================================
 ! Enter

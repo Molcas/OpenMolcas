@@ -17,15 +17,14 @@ subroutine RPA_Cleanup(irc)
 !
 ! Clean up after RPA run (deallocate etc.)
 
+use Definitions, only: iwp
+
 implicit none
-integer irc
+integer(kind=iwp), intent(out) :: irc
 #include "rpa_config.fh"
 #include "rpa_data.fh"
-
-integer RPA_iUHF
-external RPA_iUHF
-
-integer i
+integer(kind=iwp) :: i
+integer(kind=iwp), external :: RPA_iUHF
 
 irc = 0
 
