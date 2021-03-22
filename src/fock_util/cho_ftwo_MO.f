@@ -599,8 +599,6 @@ C --- COMPUTE EXCHANGE FOR OFF-DIAGONAL VECTORS
                ISYMA = ISYMB     !block diagonal Fock Matrix
                ISYMD = ISYMG     !total symmetric densities
 
-               nd=ng
-
              IF (ISYMG.gt.ISYMB .and. iSkip(iSymg).ne.0) THEN
 
 C -------------------------------

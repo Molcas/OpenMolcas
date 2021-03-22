@@ -101,7 +101,7 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:)
-      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -299,7 +299,7 @@ c --- in significant shells
 
 c --- allocate memory for the list of  S:= sum_l abs(C(l)[k])
 c --- for each shell
-      Call GetMem('SKsh','Allo','Real',ipSKsh,nShell*nnO)
+      Call mma_allocate(SumAClk,nShell,nnO,Label='SumAClk')
 
 c --- allocate memory for the Index arrays
       Call mma_allocate(Indx,[0,nShell],[1,nnO],Label='Indx')
@@ -350,8 +350,7 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
 
             If (jDen.eq.2) Then
                Do jK=1,nChM(kSym)
-
-               ipSk = ipSKsh + nShell*(kOff(kSym,jDen) + jK - 1)
+                  jK_a = jK + kOff(kSym,jDen)
 
                Do iaSh=1,nShell
 
@@ -362,16 +361,16 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                      SKsh = SKsh + Ash(2)%SB(kSym)%A2(ipMsh+ik,jK)**2
                   End Do
 
-                  Work(ipSk+iaSh-1) = SKsh
+                  SumAClk(iaSh,jk_a) = SKsh
 
                End Do
                End Do
 
             Else
                Do jK=1,nFIorb(kSym)
+                  jK_a = jK + kOff(kSym,jDen)
 
                ipMO = ipMSQ + ISTSQ(kSym) + nBas(kSym)*(jK-1)
-               ipSk = ipSKsh + nShell*(kOff(kSym,jDen) + jK - 1)
 
                Do iaSh=1,nShell
 
@@ -382,7 +381,7 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                      SKsh = SKsh + Work(ipMsh+ik)**2
                   End Do
 
-                  Work(ipSk+iaSh-1) = SKsh
+                  SumAClk(iaSh,jk_a) = SKsh
 
                End Do
                End Do
@@ -739,9 +738,6 @@ c --------------------------------------------------------------------
 
                      ipMLk = ipML + nShell*(jK_a - 1)
 
-                     ipSk = ipSKsh + nShell*(jK_a - 1)
-
-
                      IF (DoScreen) THEN
 
                         CALL CWTIME(TCS1,TWS1)
@@ -894,7 +890,7 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
                                  If ( nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                              nBasSh(lSym,iaSh)*
      &                              nBasSh(kSym,ibSh) .gt. 0
-     &                              .and. sqrt(abs(Work(ipSk+ibSh-1)*
+     &                              .and. sqrt(abs(SumAClk(ibSh,jK_a)*
      &                                         SvShp(iShp_rs(iShp)) ))
      &                              .ge. thrv(jDen) )Then
 
@@ -967,7 +963,7 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
                                  If (nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                             nBasSh(lSym,iaSh)*
      &                             nBasSh(kSym,ibSh) .gt. 0
-     &                             .and. sqrt(abs(Work(ipSk+ibSh-1)*
+     &                             .and. sqrt(abs(SumAClk(ibSh,jK_a)*
      &                                        SvShp(iShp_rs(iShp)) ))
      &                             .ge. thrv(jDen) ) Then
 
@@ -1638,7 +1634,7 @@ c ---------------
       Call mma_deallocate(kOffSh)
       Call mma_deallocate(ipLab)
       Call mma_deallocate(Indx)
-      Call GetMem('SKsh','Free','Real',ipSKsh,nShell*nnO)
+      Call mma_deallocate(SumAClk)
       Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
       Call GetMem('yc','Free','Real',ipY,MaxB*nnO)
       Call mma_deallocate(AbsC)

@@ -1,4 +1,4 @@
-* ***********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -57,8 +57,8 @@ C
       Type (DSBA_Type) Ash(2)
       Type (SBA_Type) Lpq(3)
 
-      Integer   ipMO(2),ipYk(2),ipMLk(2),ipSk(2)
-      Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipSksh(2)
+      Integer   ipMO(2),ipYk(2),ipMLk(2)
+      Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -91,7 +91,7 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:,:)
-      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -312,10 +312,10 @@ c --- allocate memory for the Y(l)[k] vectors
 c --- allocate memory for the ML[k] lists of largest elements
 c --- in significant shells
          Call GetMem('MLk','Allo','Real',ipML(jDen),nShell*nnO)
+      End Do
 c --- allocate memory for the lists of  S:= sum_l abs(C(l)[k])
 c --- for each shell
-         Call GetMem('SKsh','Allo','Real',ipSKsh(jDen),nShell*nnO)
-      End Do
+      Call mma_allocate(SumAClk,nShell,nnO,nDen)
 c --- allocate memory for the Index arrays
       Call mma_allocate(Indx,[0,nShell],[1,nnO],[1,nDen],Label='Indx')
 
@@ -366,10 +366,9 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
          Do kSym=1,nSym
 
             Do jK=1,nOrb(kSym)
+               jK_a = jK + kOff(kSym)
 
                ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym) + nBas(kSym)*(jK-1)
-
-               ipSk(jDen) = ipSKsh(jDen) + nShell*(kOff(kSym) + jK - 1)
 
                Do iaSh=1,nShell
 
@@ -380,7 +379,7 @@ C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
                      SKsh = SKsh + Work(ipMsh+ik)**2
                   End Do
 
-                  Work(ipSk(jDen)+iaSh-1) = SKsh
+                  SumAClk(iaSh,jk_a,jDen) = Sksh
 
                End Do
 
@@ -737,7 +736,6 @@ c --------------------------------------------------------------------
                     ipYk(jDen) = ipY(jDen) + MaxB*(jK_a-1)
 
                     ipMLk(jDen) = ipML(jDen) + nShell*(jK_a-1)
-                    ipSk(jDen) = ipSKsh(jDen) + nShell*(jK_a-1)
 
                    End Do
 
@@ -961,7 +959,7 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
                                  If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                              nBasSh(lSym,iaSh)*
      &                              nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. abs(Work(ipSk(jDen)+ibSh-1)*
+     &                           .and. abs(SumAClk(ibSh,jK_a,jDen)*
      &                           SvShp(iShp_rs(iShp)) ).ge. thrv(jDen))
      &                              Then
                                    ibcount=1
@@ -995,10 +993,8 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
                                    If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                                nBasSh(lSym,iaSh)*
      &                                nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. abs(Work(ipSk(jDen)+ibSh-1)*
+     &                           .and. abs(SumAClk(ibSh,jK_a,jDen)*
      &                           SvShp(iShp_rs(iShp)) ).ge. thrv(jDen))
-*     &                           .and. sqrt(abs(Work(ipSk(jDen)+ibSh-1)*
-*     &                           SvShp(iShp_rs(iShp)) )).ge. thrv(jDen))
      &                                Then
 
 
@@ -1078,7 +1074,7 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
                                    If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                                nBasSh(lSym,iaSh)*
      &                                nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. abs(Work(ipSk(jDen)+ibSh-1)*
+     &                           .and. abs(SumAClk(ibSh,jK_a,jDen)*
      &                           SvShp(iShp_rs(iShp)) ).ge. thrv(jDen))
      &                                Then
 
@@ -2023,8 +2019,8 @@ C--- have performed screening in the meanwhile
       Call mma_deallocate(kOffSh)
       Call mma_deallocate(ipLab)
       Call mma_deallocate(Indx)
+      Call mma_deallocate(SumAClk)
       Do jDen=nDen,1,-1
-         Call GetMem('SKsh','Free','Real',ipSKsh(jDen),nShell*nnO)
          Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
          Call GetMem('yc','Free','Real',ipY(jDen),MaxB*nnO)
       End Do
