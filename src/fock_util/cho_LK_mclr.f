@@ -57,8 +57,8 @@ C
       Type (DSBA_Type) Ash(2)
       Type (SBA_Type) Lpq(3)
 
-      Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
-      Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
+      Integer   ipMO(2),ipYk(2),ipMLk(2),ipSk(2)
+      Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipSksh(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -90,7 +90,7 @@ C
       Real*8, Allocatable :: Lrs(:,:), VJ(:), Drs(:), Frs(:,:)
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
-     &                       iShp_rs(:)
+     &                       iShp_rs(:), Indx(:,:,:)
       Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
@@ -315,9 +315,9 @@ c --- in significant shells
 c --- allocate memory for the lists of  S:= sum_l abs(C(l)[k])
 c --- for each shell
          Call GetMem('SKsh','Allo','Real',ipSKsh(jDen),nShell*nnO)
-c --- allocate memory for the Index arrays
-         Call GetMem('Indx','Allo','Inte',ipIndx(jDen),(nShell+1)*nnO)
       End Do
+c --- allocate memory for the Index arrays
+      Call mma_allocate(Indx,[0,nShell],[1,nnO],[1,nDen],Label='Indx')
 
 c --- allocate memory for ipLab
       Call mma_allocate(ipLab,nShell,nDen,Label='ipLab')
@@ -725,6 +725,8 @@ c --------------------------------------------------------------------
 
                   Do jK=1,nOrb(kSym)
 
+                    jk_a = kOff(kSym)+jK
+
                    CALL FZero(Work(ipChoT),nDen*nBas(lSym)*JNUM)
 
                    Do jDen=1,nDen
@@ -732,12 +734,10 @@ c --------------------------------------------------------------------
                     ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
      &                         + nBas(kSym)*(jK-1)
 
-                    ipYk(jDen) = ipY(jDen) + MaxB*(kOff(kSym)+jK-1)
+                    ipYk(jDen) = ipY(jDen) + MaxB*(jK_a-1)
 
-                    ipMLk(jDen) = ipML(jDen) + nShell*(kOff(kSym)+jK-1)
-                    ipIndSh(jDen) = ipIndx(jDen)
-     &                            + (nShell+1)*(kOff(kSym) + jK - 1)
-                    ipSk(jDen) = ipSKsh(jDen) + nShell*(kOff(kSym)+jK-1)
+                    ipMLk(jDen) = ipML(jDen) + nShell*(jK_a-1)
+                    ipSk(jDen) = ipSKsh(jDen) + nShell*(jK_a-1)
 
                    End Do
 
@@ -797,7 +797,7 @@ C --- List the shells present in Y(l)[k] by the largest element
 C --- Sort the lists ML[k]
                      Do jDen=1,nDen
                         Do ish=1,nShell
-                           iWork(ipIndSh(jDen)+ish) = ish
+                           Indx(iSh,jk_a,jDen) = ish
                         End Do
                      End Do
 
@@ -813,11 +813,11 @@ C ****  The Max in the MO set 1 is used as reference
                      End Do
                      If (jmlmax.ne.1) then  ! swap positions
                         xTmp = Work(ipMLk(1))
-                        iTmp = iWork(ipIndSh(1)+1)
+                        iTmp = Indx(1,jk_a,1)
                         Work(ipMLk(1)) = YMax
-                        iWork(ipIndSh(1)+1) = iWork(ipIndSh(1)+jmlmax)
+                        Indx(1,jk_a,1) = Indx(jmlmax,jk_a,1)
                         Work(ipMLk(1)+jmlmax-1) = xTmp
-                        iWork(ipIndSh(1)+jmlmax) = iTmp
+                        Indx(jmlmax,jk_a,1) = iTmp
                      Endif
 
 C **** Sort the list for the MO set 2   iff  MOs1.ne.MOs2
@@ -838,11 +838,11 @@ C **** Sort the list for the MO set 2   iff  MOs1.ne.MOs2
 
                          If(jmlmax.ne.jml) then  ! swap positions
                           xTmp = Work(ipMLk(2)+jml-1)
-                          iTmp = iWork(ipIndSh(2)+jml)
+                          iTmp = Indx(jml,jk_a,2)
                           Work(ipMLk(2)+jml-1) = YMax
-                          iWork(ipIndSh(2)+jml)=iWork(ipIndSh(2)+jmlmax)
+                          Indx(jml,jk_a,2) = Indx(jmlmax,jk_a,2)
                           Work(ipMLk(2)+jmlmax-1) = xTmp
-                          iWork(ipIndSh(2)+jmlmax) = iTmp
+                          Indx(jmlmax,jk_a,2) = iTmp
                          Endif
 
 c --- Exact bounds (quadratic scaling of the MO transformation)
@@ -860,7 +860,7 @@ c
 
                        End Do
 
-                       iWork(ipIndSh(2)) = numSh2
+                       Indx(0,jk_a,2) = numSh2
                        numSh1 = 1
 
                      Else ! fake biorthonormal basis
@@ -887,12 +887,11 @@ C **** Sort the list for the MO set 1 only if needed
 
                           If(jmlmax.ne.jml) then  ! swap positions
                             xTmp = Work(ipMLk(1)+jml-1)
-                            iTmp = iWork(ipIndSh(1)+jml)
+                            iTmp = Indx(jml,jk_a,1)
                             Work(ipMLk(1)+jml-1) = YMax
-                            iWork(ipIndSh(1)+jml) =
-     &                                      iWork(ipIndSh(1)+jmlmax)
+                            Indx(jml,jk_a,1) = Indx(jmlmax,jk_a,1)
                             Work(ipMLk(1)+jmlmax-1) = xTmp
-                            iWork(ipIndSh(1)+jmlmax) = iTmp
+                            Indx(jmlmax,jk_a,1) = iTmp
                           Endif
 
                           If( .not.Fake_CMO2  .and.
@@ -916,7 +915,7 @@ c     fake rassi (MOs1=MOs2) has a positive definite exchange
                        numSh1 = 0
                      EndIf
 
-                     iWork(ipIndSh(1)) = numSh1
+                     Indx(0,jk_a,1) = numSh1
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -940,9 +939,9 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 *
 *MGD maybe check that NumSh1 matches the one on the record?
 *
-                           Do iSh=1,iWork(ipIndSh(jDen))
+                           Do iSh=1,Indx(0,jk_a,jDen)
 
-                             iaSh = iWork(ipIndSh(jDen)+iSh)
+                             iaSh = Indx(iSh,jk_a,jDen)
 
                              iOffSha = kOffSh(iaSh,lSym)
 
@@ -1048,8 +1047,8 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 
 
                            End Do
-                           Do iSh=iWork(ipIndSh(jDen))+1,nshell
-                             iaSh = iWork(ipIndSh(jDen)+iSh)
+                           Do iSh=Indx(0,jk_a,jDen)+1,nshell
+                             iaSh = Indx(iSh,jk_a,jDen)
                              ipLab(iaSh,jDen) = ipAbs
                            End Do
 
@@ -1057,9 +1056,9 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
                          Else   ! lSym < kSym
 
 
-                            Do iSh=1,iWork(ipIndSh(jDen))
+                            Do iSh=1,Indx(0,jk_a,jDen)
 
-                               iaSh = iWork(ipIndSh(jDen)+iSh)
+                               iaSh = Indx(iSh,jk_a,jDen)
 
                                iOffSha = kOffSh(iaSh,lSym)
 
@@ -1117,8 +1116,8 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 
 
                             End Do
-                            Do iSh=iWork(ipIndSh(jDen))+1,nshell
-                              iaSh = iWork(ipIndSh(jDen)+iSh)
+                            Do iSh=Indx(0,jk_a,jDen)+1,nshell
+                              iaSh = Indx(iSh,jk_a,jDen)
                               ipLab(iaSh,jDen) = ipAbs
                             End Do
 
@@ -1138,9 +1137,9 @@ C --- Prepare the J-screening
                       IF (lSym.ge.kSym) Then
 
 
-                         Do iSh=1,iWork(ipIndSh(1))
+                         Do iSh=1,Indx(0,jk_a,1)
 
-                            iaSh = iWork(ipIndSh(1)+iSh)
+                            iaSh = Indx(iSh,jk_a,1)
 
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
@@ -1186,9 +1185,9 @@ C -------------------------------------
                       Else   ! lSym < kSym
 
 
-                         Do iSh=1,iWork(ipIndSh(1))
+                         Do iSh=1,Indx(0,jk_a,1)
 
-                            iaSh = iWork(ipIndSh(1)+iSh)
+                            iaSh = Indx(iSh,jk_a,1)
 
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
@@ -1247,9 +1246,9 @@ C------------------------------------------------------------
 
                       IF (lSym.ge.kSym) Then
 
-                         Do lSh=1,iWork(ipIndSh(1))
+                         Do lSh=1,Indx(0,jk_a,1)
 
-                            iaSh = iWork(ipIndSh(1)+lSh)
+                            iaSh = Indx(lSh,jk_a,1)
 
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
@@ -1260,9 +1259,9 @@ C------------------------------------------------------------
 
                             mSh = 1
 
-                            Do while (mSh.le.iWork(ipIndSh(kDen)))
+                            Do while (mSh.le.Indx(0,jk_a,kDen))
 
-                               ibSh = iWork(ipIndSh(kDen)+mSh)
+                               ibSh = Indx(mSh,jk_a,kDen)
 
                                ipFbb = ipFk + MxBasSh + ibSh - 1
 
@@ -1283,7 +1282,7 @@ C------------------------------------------------------------
      &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
 
 
-                                   mSh = iWork(ipIndSh(kDen)) !skip rest
+                                   mSh = Indx(0,jk_a,kDen) !skip rest
 
 
                                ElseIf ( xFab.ge.tau/MaxRedT
@@ -1317,9 +1316,9 @@ C --------------------------------------------------------------------
                       ELSE   ! lSym < kSym
 
 
-                         Do lSh=1,iWork(ipIndSh(1))
+                         Do lSh=1,Indx(0,jk_a,1)
 
-                            iaSh = iWork(ipIndSh(1)+lSh)
+                            iaSh = Indx(lSh,jk_a,1)
 
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
@@ -1330,9 +1329,9 @@ C --------------------------------------------------------------------
 
                             mSh = 1
 
-                            Do while (mSh.le.iWork(ipIndSh(kDen)))
+                            Do while (mSh.le.Indx(0,jk_a,kDen))
 
-                               ibSh = iWork(ipIndSh(kDen)+mSh)
+                               ibSh = Indx(mSh,jk_a,kDen)
 
                                ipFbb = ipFk + MxBasSh + ibSh - 1
 
@@ -1353,7 +1352,7 @@ C --------------------------------------------------------------------
      &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
 
 
-                                  mSh = iWork(ipIndSh(kDen)) ! skip rest
+                                  mSh = Indx(0,jk_a,kDen) ! skip rest
 
                                ElseIf ( xFab.ge.tau/MaxRedT
      &                                 .and. iaSkip*ibSkip.eq.1) Then
@@ -2023,8 +2022,8 @@ C--- have performed screening in the meanwhile
       Call mma_deallocate(nnBfShp)
       Call mma_deallocate(kOffSh)
       Call mma_deallocate(ipLab)
+      Call mma_deallocate(Indx)
       Do jDen=nDen,1,-1
-         Call GetMem('Indx','Free','Inte',ipIndx(jDen),(nShell+1)*nnO)
          Call GetMem('SKsh','Free','Real',ipSKsh(jDen),nShell*nnO)
          Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
          Call GetMem('yc','Free','Real',ipY(jDen),MaxB*nnO)
