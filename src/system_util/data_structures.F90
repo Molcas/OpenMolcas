@@ -19,6 +19,7 @@ Private
 Public:: DSBA_Type, Allocate_DSBA, Deallocate_DSBA, Map_to_DSBA
 Public:: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
 Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
+Public:: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
 #include "stdalloc.fh"
 #include "real.fh"
 
@@ -36,6 +37,13 @@ End Type  DSB_Type
 Type V2
   Real*8, Pointer:: A(:,:)=>Null()
 End Type V2
+
+Type NDSBA_Type
+  Integer:: iCase=0
+  Integer:: nSym=0
+  Real*8, Allocatable :: A0(:)
+  Type (DSB_Type):: SB(8,8)
+End Type NDSBA_Type
 
 Type DSBA_Type
   Integer:: iCase=0
@@ -62,6 +70,64 @@ End Type twxy_type
 
 
 Contains
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                N D S B A - T Y P E   S E C T I O N                  !
+!                                                                     !
+!                Non-Diagonal Symmetry Blocked Arrays                 !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Subroutine Allocate_NDSBA(Adam,n,m,nSym)
+  Implicit None
+  Type (NDSBA_Type),Target, Intent(Out) :: Adam
+  Integer, Intent(In) :: nSym
+  Integer, Intent(In) :: n(nSym), m(nSym)
+
+  Integer iE, iS, iSym, jSym, MemTot
+
+  Adam%iCase=1
+  Adam%nSym=nSym
+
+  MemTot=0
+  Do jSym = 1, nSym
+     Do iSym = jSym, nSym
+        MemTot = MemTot + n(iSym)*m(jSym)
+     End Do
+  End Do
+  Call mma_allocate(Adam%A0,MemTot,Label='%A0')
+
+  iE = 0
+  Do jSym = 1, nSym
+     Do iSym = jSym, nSym
+        iS = iE + 1
+        iE = iE + n(iSym) * m(jSym)
+
+        Adam%SB(jSym,iSym)%A2(1:n(iSym),1:m(jSym)) => Adam%A0(iS:iE)
+        Adam%SB(jSym,iSym)%A1(1:n(iSym)*m(jSym))   => Adam%A0(iS:iE)
+        Adam%SB(iSym,jSym)%A2(1:n(iSym),1:m(jSym)) => Adam%A0(iS:iE)
+        Adam%SB(iSym,jSym)%A1(1:n(iSym)*m(jSym))   => Adam%A0(iS:iE)
+     End Do
+  End Do
+  End Subroutine Allocate_NDSBA
+
+
+  Subroutine Deallocate_NDSBA(Adam)
+  Implicit None
+  Type (NDSBA_Type) Adam
+  Integer iSym, jSym
+
+    Do iSym = 1, Adam%nSym
+       Do jSym = 1, Adam%nSym
+          Adam%SB(iSym,jSym)%A2=> Null()
+          Adam%SB(iSym,jSym)%A1=> Null()
+       End Do
+    End Do
+  Call mma_deallocate(Adam%A0)
+  Adam%nSym=0
+  Adam%iCase=0
+
+  End Subroutine Deallocate_NDSBA
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                     !
 !                D S B A - T Y P E   S E C T I O N                    !
