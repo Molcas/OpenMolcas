@@ -17,10 +17,9 @@ subroutine RPA_PPInp()
 !
 ! Input postprocessing.
 
+use RPA_globals, only: dRPA, Reference, RPAModel, SOSEX
+
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-#include "WrkSpc.fh"
 character(len=9), parameter :: SecNam = 'RPA_PPInp'
 
 ! set RPAModel

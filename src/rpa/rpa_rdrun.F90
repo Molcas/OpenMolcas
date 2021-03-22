@@ -17,11 +17,10 @@ subroutine RPA_RdRun()
 !
 ! Read data from Runfile.
 
+use RPA_globals, only: DFTFunctional, nBas, nDel, nFro, nOcc, nOrb, nSym, NuclearRepulsionEnergy, nVir, Reference
 use Definitions, only: iwp, u6
 
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
 integer(kind=iwp) :: iUHF, iSym, i
 logical(kind=iwp) :: Warn
 character(len=8) :: Model
@@ -188,6 +187,6 @@ do i=1,iUHF
 end do
 
 ! Set default deleted (virtual) orbitals
-call iZero(nDel,16)
+nDel(:,:) = 0
 
 end subroutine RPA_RdRun

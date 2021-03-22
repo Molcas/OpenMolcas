@@ -19,12 +19,11 @@ subroutine RPA_Setup_Add_Info()
 ! Testing these data is as much a test of the preceding SCF run as
 ! a test of the RPA setup.
 
+use RPA_globals, only: nDel, nFro, nOcc, nSym, NuclearRepulsionEnergy, nVir, OccEn, Reference, VirEn
+use Constants, only: Zero
 use Definitions, only: wp, iwp, r8, u6
 
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: Tol, iUHF, l_orbitals, iSpin, iSym, ipO, ipV, i
 real(kind=wp) :: Tst(8)
 character(len=13) :: orbitals
@@ -52,22 +51,22 @@ else
   orbitals = ' '
   l_orbitals = 1
 end if
-call fZero(Tst,8)
+Tst(:) = Zero
 do iSpin=1,iUHF
-  ipO = ip_OccEn(iUHF)
-  ipV = ip_VirEn(iUHF)
+  ipO = 1
+  ipV = 1
   do iSym=1,nSym
-    Tst(1) = Tst(1)+Cho_dSumElm(Work(ipO),nFro(iSym,iSpin))
-    Tst(2) = Tst(2)+dDot_(nFro(iSym,iSpin),Work(ipO),1,Work(ipO),1)
+    Tst(1) = Tst(1)+Cho_dSumElm(OccEn(ipO,iSpin),nFro(iSym,iSpin))
+    Tst(2) = Tst(2)+dDot_(nFro(iSym,iSpin),OccEn(ipO,iSpin),1,OccEn(ipO,iSpin),1)
     ipO = ipO+nFro(iSym,iSpin)
-    Tst(3) = Tst(3)+Cho_dSumElm(Work(ipO),nOcc(iSym,iSpin))
-    Tst(4) = Tst(4)+dDot_(nOcc(iSym,iSpin),Work(ipO),1,Work(ipO),1)
+    Tst(3) = Tst(3)+Cho_dSumElm(OccEn(ipO,iSpin),nOcc(iSym,iSpin))
+    Tst(4) = Tst(4)+dDot_(nOcc(iSym,iSpin),OccEn(ipO,iSpin),1,OccEn(ipO,iSpin),1)
     ipO = ipO+nOcc(iSym,iSpin)
-    Tst(5) = Tst(5)+Cho_dSumElm(Work(ipV),nVir(iSym,iSpin))
-    Tst(6) = Tst(6)+dDot_(nVir(iSym,iSpin),Work(ipV),1,Work(ipV),1)
+    Tst(5) = Tst(5)+Cho_dSumElm(VirEn(ipV,iSpin),nVir(iSym,iSpin))
+    Tst(6) = Tst(6)+dDot_(nVir(iSym,iSpin),VirEn(ipV,iSpin),1,VirEN(ipV,iSpin),1)
     ipV = ipV+nVir(iSym,iSpin)
-    Tst(7) = Tst(7)+Cho_dSumElm(Work(ipV),nDel(iSym,iSpin))
-    Tst(8) = Tst(8)+dDot_(nDel(iSym,iSpin),Work(ipV),1,Work(ipV),1)
+    Tst(7) = Tst(7)+Cho_dSumElm(VirEn(ipV,iSpin),nDel(iSym,iSpin))
+    Tst(8) = Tst(8)+dDot_(nDel(iSym,iSpin),VirEn(ipV,iSpin),1,VirEn(ipV,iSpin),1)
     ipV = ipV+nDel(iSym,iSpin)
   end do
 end do

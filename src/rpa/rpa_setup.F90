@@ -20,7 +20,6 @@ subroutine RPA_Setup()
 !    - read reference orbitals
 
 implicit none
-#include "rpa_config.fh"
 character(len=9), parameter :: SecNam = 'RPA_Setup'
 
 ! Define data in common blocks (dummy values).

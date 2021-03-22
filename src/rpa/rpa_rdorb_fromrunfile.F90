@@ -13,13 +13,13 @@
 
 subroutine RPA_RdOrb_FromRunfile()
 
+use RPA_globals, only: CMO, EMO, l_CMO, l_EMO, l_OccEn, l_VirEn, nBas, nOcc, nOrb, nSym, nVir, OccEn, VirEn
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iUHF, iSym, i, nB, nB2, ip, ipO, ipV
+logical(kind=iwp) :: Found
 character(len=21), parameter :: SecNam = 'RPA_RdOrb_FromRunfile'
 integer(kind=iwp), external :: RPA_iUHF
 
@@ -27,25 +27,18 @@ integer(kind=iwp), external :: RPA_iUHF
 iUHF = RPA_iUHF()
 
 ! Allocate memory for CMO
-l_CMO(1) = nBas(1)*nOrb(1)
+l_CMO = nBas(1)*nOrb(1)
 nB2 = nBas(1)**2
 do iSym=2,nSym
-  l_CMO(1) = l_CMO(1)+nBas(iSym)*nOrb(iSym)
+  l_CMO = l_CMO+nBas(iSym)*nOrb(iSym)
   nB2 = nB2+nBas(iSym)**2
 end do
-call GetMem('CMO(RPA)','Allo','Real',ip_CMO(1),l_CMO(1))
-if (iUHF == 2) then
-  l_CMO(2) = l_CMO(1)
-  call GetMem('CMO(RPA)','Allo','Real',ip_CMO(2),l_CMO(2))
-else
-  ip_CMO(2) = 0
-  l_CMO(2) = 0
-end if
+call mma_allocate(CMO,l_CMO,iUHF,label='CMO(RPA)')
 
 ! Read CMO array(s) from Runfile
-call Get_CMO(Work(ip_CMO(1)),nB2)
+call Get_CMO(CMO(:,1),nB2)
 if (iUHF == 2) then
-  call Get_dArray('CMO_ab',Work(ip_CMO(2)),nB2)
+  call Get_dArray('CMO_ab',CMO(:,2),nB2)
 end if
 
 ! Allocate memory for orbital energies
@@ -60,41 +53,38 @@ do i=1,iUHF
     l_OccEn(i) = l_OccEn(i)+nOcc(iSym,i)
     l_VirEn(i) = l_VirEn(i)+nVir(iSym,i)
   end do
-  call GetMem('OccEn','Allo','Real',ip_OccEn(i),l_OccEn(i))
-  call GetMem('VirEn','Allo','Real',ip_VirEn(i),l_VirEn(i))
 end do
-if (iUHF == 1) then
-  ip_OccEn(2) = 0
-  l_OccEn(2) = 0
-  ip_VirEn(2) = 0
-  l_VirEn(2) = 0
-end if
+call mma_allocate(OccEn,maxval(l_OccEn),iUHF,label='OccEn')
+call mma_allocate(VirEn,maxval(l_VirEn),iUHF,label='VirEn')
 
 ! Read orbital energies from Runfile
-call Get_OrbE(ip_EMO(1),l_EMO(1))
-if (l_EMO(1) /= nB) then
+call qpg_dArray('OrbE',Found,l_EMO)
+if ((.not. Found) .or. (l_EMO == 0)) then
+  call RPA_Warn(3,SecNam//': Did not find OrbE')
+end if
+call mma_allocate(EMO,l_EMO,iUHF,label='OrbE')
+call Get_dArray('OrbE',EMO(:,1),l_EMO)
+if (l_EMO /= nB) then
   call RPA_Warn(3,SecNam//': unexpected EMO dimension')
 end if
-ip = ip_EMO(1)
-ipO = ip_OccEn(1)
-ipV = ip_VirEn(1)
+ip = 1
+ipO = 1
+ipV = 1
 do iSym=1,nSym
-  call dCopy_(nOcc(iSym,1),Work(ip),1,Work(ipO),1)
-  call dCopy_(nVir(iSym,1),Work(ip+nOcc(iSym,1)),1,Work(ipV),1)
+  call dCopy_(nOcc(iSym,1),EMO(ip,1),1,OccEn(ipO,1),1)
+  call dCopy_(nVir(iSym,1),EMO(ip+nOcc(iSym,1),1),1,VirEn(ipV,1),1)
   ip = ip+nOrb(iSym)
   ipO = ipO+nOcc(iSym,1)
   ipV = ipV+nVir(iSym,1)
 end do
 if (iUHF == 2) then
-  l_EMO(2) = l_EMO(1)
-  call GetMem('EMO(RPA)','Allo','Real',ip_EMO(2),l_EMO(2))
-  call Get_dArray('OrbE_ab',Work(ip_EMO(2)),l_EMO(2))
-  ip = ip_EMO(2)
-  ipO = ip_OccEn(2)
-  ipV = ip_VirEn(2)
+  call Get_dArray('OrbE_ab',EMO(:,2),l_EMO)
+  ip = 1
+  ipO = 1
+  ipV = 1
   do iSym=1,nSym
-    call dCopy_(nOcc(iSym,2),Work(ip),1,Work(ipO),1)
-    call dCopy_(nVir(iSym,2),Work(ip+nOcc(iSym,2)),1,Work(ipV),1)
+    call dCopy_(nOcc(iSym,2),EMO(ip,2),1,OccEn(ipO,2),1)
+    call dCopy_(nVir(iSym,2),EMO(ip+nOcc(iSym,2),2),1,VirEn(ipV,2),1)
     ip = ip+nOrb(iSym)
     ipO = ipO+nOcc(iSym,2)
     ipV = ipV+nVir(iSym,2)

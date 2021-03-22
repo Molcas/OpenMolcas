@@ -17,27 +17,29 @@ subroutine RPA_PrInp()
 !
 ! Print RPA configuration after input processing.
 
+use RPA_globals, only: CMO, DFTFunctional, EMO, iPrint, nBas, nDel, nFro, nOcc, nOrb, nSym, nTitle, nVir, OccEn, Reference, Title, &
+                       VirEn
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iUHF, lLine, nLine, l_orbitals, i, j, k, left, iSym, LENIN8, nB, ip_Name, l_Name, iCount
+#include "Molcas.fh"
+integer(kind=iwp) :: iUHF, lLine, nLine, l_orbitals, i, j, k, left, iSym, nB, l_Name, iCount
 real(kind=wp) :: Dummy(1)
 character(len=3) :: lIrrep(8)
 character(len=7) :: spin(2)
 character(len=8) :: Fmt1, Fmt2
 character(len=13) :: orbitals
 character(len=120) :: Line, BlLine, StLine
+character(len=LenIn8), allocatable :: UBName(:)
 integer(kind=iwp), parameter :: lPaper = 132
 character(len=9), parameter :: SecNam = 'RPA_PrInp'
-integer(kind=iwp), external :: RPA_iUHF, RPA_LENIN8
+integer(kind=iwp), external :: RPA_iUHF
 
 integer(kind=iwp) :: p, q
 real(kind=wp) :: epsi, epsa
-epsi(p,q) = Work(ip_OccEn(q)-1+p)
-epsa(p,q) = Work(ip_VirEn(q)-1+p)
+epsi(p,q) = OccEn(p,q)
+epsa(p,q) = VirEn(p,q)
 
 ! set restricted(1)/unrestricted(2)
 iUHF = RPA_iUHF()
@@ -202,19 +204,18 @@ end if
 
 ! print orbitals
 if (iPrint >= 2) then
-  LENIN8 = RPA_LENIN8()
   nB = nBas(1)
   do iSym=2,nSym
     nB = nB+nBas(iSym)
   end do
-  l_Name = LENIN8*nB
-  call GetMem('Name','Allo','Char',ip_Name,l_Name)
-  call Get_cArray('Unique Basis Names',cWork(ip_Name),LENIN8*nB)
+  l_Name = nB
+  call mma_allocate(UBName,l_Name,label='Name')
+  call Get_cArray('Unique Basis Names',UBName,LenIn8*nB)
   do k=1,iUHF
-    call PriMO(Reference//' '//orbitals//' '//spin(k),.false.,.true.,-9.9e9_wp,9.9e9_wp,nSym,nBas,nOrb,cWork(ip_Name), &
-               Work(ip_EMO(k)),Dummy,Work(ip_CMO(k)),-1)
+    call PriMO(Reference//' '//orbitals//' '//spin(k),.false.,.true.,-9.9e9_wp,9.9e9_wp,nSym,nBas,nOrb,UBName,EMO(:,k),Dummy, &
+               CMO(:,k),-1)
   end do
-  call GetMem('Name','Free','Char',ip_Name,l_Name)
+  call mma_deallocate(UBName)
 end if
 
 ! flush output buffer

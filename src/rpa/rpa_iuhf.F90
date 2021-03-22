@@ -11,11 +11,11 @@
 
 function RPA_iUHF()
 
+use RPA_globals, only: Reference
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: RPA_iUHF
-#include "rpa_config.fh"
 integer(kind=iwp) :: iUHF
 
 if (Reference(1:1) == 'R') then

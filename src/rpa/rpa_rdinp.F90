@@ -17,16 +17,16 @@ subroutine RPA_RdInp()
 !
 ! Parse and process RPA input.
 
+use RPA_globals, only: dRPA, iPrint, LumOrb, nFreeze, nFro, mTitle, nTitle, SOSEX, Title
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-integer(kind=iwp) :: ip_Integer, l_Integer, Lu, iLine, iUHF, i
+integer(kind=iwp) :: l_Integer, Lu, iLine, iUHF, i
 logical(kind=iwp) :: doTitle, EndOfInput, DebugPrint
 character(len=4) :: Keyword
 character(len=180) :: Line
+integer(kind=iwp), allocatable :: InpRdI(:)
 integer(kind=iwp), parameter :: mLine = 100000
 character(len=9), parameter :: SecNam = 'RPA_RdInp'
 integer(kind=iwp), external :: iPrintLevel, RPA_iUHF
@@ -71,7 +71,7 @@ call RdNLst(Lu,'RPA')
 ! allocate dummy arrays for reading input
 ! (dimension should be the longest needed for reading)
 l_Integer = 2
-call GetMem('InpRdI','Allo','Inte',ip_Integer,l_Integer)
+call mma_allocate(InpRdI,l_Integer,label='InpRdI')
 
 ! parse input
 doTitle = .false.
@@ -121,8 +121,8 @@ do while (.not. EndOfInput .and. iLine < mLine)
     !*******************************
     ! print level
     doTitle = .false.
-    call RPA_ReadIntegerInput('PRIN',1,Lu,iWork(ip_Integer),l_Integer)
-    iPrint = max(iWork(ip_Integer),0)
+    call RPA_ReadIntegerInput('PRIN',1,Lu,InpRdI,l_Integer)
+    iPrint = max(InpRdI(1),0)
 #   ifdef _DEBUGPRINT_
     DebugPrint = DebugPrint .or. iPrint > 4
 #   endif
@@ -157,16 +157,16 @@ do while (.not. EndOfInput .and. iLine < mLine)
     !*******************************
     ! All electrons correlated (no frozen)
     doTitle = .false.
-    call iZero(nFro,16)
+    nFro(:,:) = 0
     !*******************************
   else if (Keyword == 'FREE') then
     !*******************************
     ! Freeze occupied orbitals
     doTitle = .false.
-    call iZero(nFro,16)
-    call RPA_ReadIntegerInput('FREE',iUHF,Lu,iWork(ip_Integer),l_Integer)
+    nFro(:,:) = 0
+    call RPA_ReadIntegerInput('FREE',iUHF,Lu,InpRdI,l_Integer)
     do i=1,iUHF
-      nFreeze(i) = iWork(ip_Integer-1+i)
+      nFreeze(i) = InpRdI(i)
     end do
     !*******************************
   else if (Keyword == 'DELE') then
@@ -199,7 +199,7 @@ do while (.not. EndOfInput .and. iLine < mLine)
 end do
 
 ! deallocation
-call GetMem('InpRdI','Free','Inte',ip_Integer,l_Integer)
+call mma_deallocate(InpRdI)
 
 ! close input file
 call Close_LuSpool(Lu)

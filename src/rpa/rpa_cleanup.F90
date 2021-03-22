@@ -17,13 +17,12 @@ subroutine RPA_Cleanup(irc)
 !
 ! Clean up after RPA run (deallocate etc.)
 
+use RPA_globals, only: CMO, EMO, l_CMO, l_EMO, l_OccEn, l_VirEn, OccEn, RPAModel, VirEn
+use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-integer(kind=iwp) :: i
 integer(kind=iwp), external :: RPA_iUHF
 
 irc = 0
@@ -32,27 +31,13 @@ irc = 0
 call Put_cArray('Relax Method',RPAModel,8)
 
 ! Deallocate memory
-do i=1,RPA_iUHF()
-  if (l_CMO(i) > 0) then
-    call GetMem('CMO(RPA)','Free','Real',ip_CMO(i),l_CMO(i))
-  end if
-  ip_CMO(i) = 0
-  l_CMO(i) = 0
-  if (l_EMO(i) > 0) then
-    call GetMem('EMO(RPA)','Free','Real',ip_EMO(i),l_EMO(i))
-  end if
-  ip_EMO(i) = 0
-  l_EMO(i) = 0
-  if (l_OccEn(i) > 0) then
-    call GetMem('OccEn','Free','Real',ip_OccEn(i),l_OccEn(i))
-  end if
-  ip_OccEn(i) = 0
-  l_OccEn(i) = 0
-  if (l_VirEn(i) > 0) then
-    call GetMem('OccEn','Free','Real',ip_VirEn(i),l_VirEn(i))
-  end if
-  ip_VirEn(i) = 0
-  l_VirEn(i) = 0
-end do
+call mma_deallocate(CMO)
+l_CMO = 0
+call mma_deallocate(EMO)
+l_EMO = 0
+call mma_deallocate(OccEn)
+l_OccEn(:) = 0
+call mma_deallocate(VirEn)
+l_VirEn(:) = 0
 
 end subroutine RPA_Cleanup

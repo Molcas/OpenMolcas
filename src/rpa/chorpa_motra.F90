@@ -27,14 +27,16 @@ subroutine ChoRPA_MOTra(includeFrozen,includeDeleted)
 !    vectors are read twice. Simultaneous transformation would be
 !    desirable!
 
-use Definitions, only: iwp
+use RPA_globals, only: CMO, nBas, nDel, nFro, nOcc, nOrb, nSym, nVir
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: includeFrozen, includeDeleted
-#include "rpa_data.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: nSpin, iSym, ip_lCMO, l_lCMO, ip, l, ip_lnFro, ip_lnOcc, ip_Zeros, ip_lnVir, ip_lnDel, iSpin
+integer(kind=iwp) :: nSpin, iSym, l_lCMO, lnFro, lnOcc, Zeros, lnVir, lnDel, iSpin
 character(len=6) BName(2)
+integer(kind=iwp), allocatable :: loc(:,:)
+real(kind=wp), allocatable :: lCMO(:)
 integer(kind=iwp), external :: RPA_iUHF
 character(len=12), parameter :: SecNam = 'ChoRPA_MOTra'
 
@@ -54,48 +56,46 @@ l_lCMO = nBas(1)**2
 do iSym=2,nSym
   l_lCMO = l_lCMO+nBas(iSym)**2
 end do
-call GetMem('locCMO','Allo','Real',ip_lCMO,l_lCMO)
-l = 5*nSym
-call GetMem('local','Allo','Inte',ip,l)
-ip_lnFro = ip
-ip_lnOcc = ip+nSym
-ip_Zeros = ip+2*nSym
-ip_lnVir = ip+3*nSym
-ip_lnDel = ip+4*nSym
-call iZero(iWork(ip_Zeros),nSym)
-if (includeFrozen) ip_lnFro = ip_Zeros
-if (includeDeleted) ip_lnDel = ip_Zeros
+call mma_allocate(lCMO,l_lCMO,label='locCMO')
+call mma_allocate(loc,nSym,5,label='local')
+lnFro = 1
+lnOcc = 2
+Zeros = 3
+lnVir = 4
+lnDel = 5
+loc(:,Zeros) = 0
+if (includeFrozen) lnFro = Zeros
+if (includeDeleted) lnDel = Zeros
 
 do iSpin=1,nSpin
 
   ! Set orbital blocks
   if (includeFrozen) then
     do iSym=1,nSym
-      iWork(ip_lnOcc-1+iSym) = nFro(iSym,iSpin)+nOcc(iSym,iSpin)
+      loc(iSym,lnOcc) = nFro(iSym,iSpin)+nOcc(iSym,iSpin)
     end do
   else
-    call iCopy(nSym,nFro(1,iSpin),1,iWork(ip_lnFro),1)
-    call iCopy(nSym,nOcc(1,iSpin),1,iWork(ip_lnOcc),1)
+    loc(:,lnFro) = nFro(:,iSpin)
+    loc(:,lnOcc) = nOcc(:,iSpin)
   end if
   if (includeDeleted) then
     do iSym=1,nSym
-      iWork(ip_lnVir-1+iSym) = nVir(iSym,iSpin)+nDel(iSym,iSpin)
+      loc(:,lnVir-1+iSym) = nVir(iSym,iSpin)+nDel(iSym,iSpin)
     end do
   else
-    call iCopy(nSym,nVir(1,iSpin),1,iWork(ip_lnVir),1)
-    call iCopy(nSym,nDel(1,iSpin),1,iWork(ip_lnDel),1)
+    loc(:,lnVir) = nVir(:,iSpin)
+    loc(:,lnDel) = nDel(:,iSpin)
   end if
   ! Reorder CMO array
-  call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro(1,iSpin),nOcc(1,iSpin),nVir(1,iSpin),nDel(1,iSpin),Work(ip_CMO(iSpin)), &
-                               Work(ip_lCMO))
+  call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro(1,iSpin),nOcc(1,iSpin),nVir(1,iSpin),nDel(1,iSpin),CMO(:,iSpin),lCMO)
   ! Set base name for MO files
   ! Transform Cholesky vectors
-  call Cho_MOTra_Internal(Work(ip_lCMO),l_lCMO,nSym,nBas,nOrb,iWork(ip_lnFro),iWork(ip_lnOcc),iWork(ip_Zeros),iWork(ip_lnVir), &
-                          iWork(ip_lnDel),BName(iSpin),.false.,0,.false.)
+  call Cho_MOTra_Internal(lCMO,l_lCMO,nSym,nBas,nOrb,loc(:,lnFro),loc(:,lnOcc),loc(:,Zeros),loc(:,lnVir),loc(:,lnDel), &
+                          BName(iSpin),.false.,0,.false.)
 
 end do
 
-call GetMem('local','Free','Inte',ip,l)
-call GetMem('locCMO','Free','Real',ip_lCMO,l_lCMO)
+call mma_deallocate(lCMO)
+call mma_deallocate(loc)
 
 end subroutine ChoRPA_MOTra

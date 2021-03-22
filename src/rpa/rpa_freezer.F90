@@ -17,14 +17,14 @@ subroutine RPA_Freezer()
 !
 ! Figure out symmetry distribution of frozen occupied orbitals.
 
+use RPA_globals, only: iPrint, nFreeze, nFro, nOcc, nSym, OccEn
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iUHF, iSym, iSpin, ip_Fro, l_Fro
+integer(kind=iwp) :: iUHF, iSym, iSpin, l_Fro
 logical(kind=iwp) :: Freeze, Prnt
+integer(kind=iwp), allocatable :: Fro(:)
 integer(kind=iwp), external :: RPA_iUHF
 
 ! set restricted(1)/unrestricted(2)
@@ -40,16 +40,16 @@ end do
 if (Freeze) then
   Prnt = iPrint >= 0
   l_Fro = nSym
-  call GetMem('OccFrz','Allo','Inte',ip_Fro,l_Fro)
+  call mma_allocate(Fro,l_Fro,label='OccFrz')
   do iSpin=1,iUHF
     if (nFreeze(iSpin) > 0) then
-      call RPA_Frz(nFreeze(iSpin),Prnt,nSym,Work(ip_OccEn(iSpin)),nFro(1,iSpin),nOcc(1,iSpin),iWork(ip_Fro))
+      call RPA_Frz(nFreeze(iSpin),Prnt,nSym,OccEn(:,iSpin),nFro(1,iSpin),nOcc(1,iSpin),Fro)
       do iSym=1,nSym
-        nFro(iSym,iSpin) = nFro(iSym,iSpin)+iWork(ip_Fro-1+iSym)
+        nFro(iSym,iSpin) = nFro(iSym,iSpin)+Fro(iSym)
       end do
     end if
   end do
-  call GetMem('OccFrz','Free','Inte',ip_Fro,l_Fro)
+  call mma_deallocate(Fro)
 end if
 
 ! correct number of active occupied orbitals

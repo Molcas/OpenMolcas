@@ -11,8 +11,9 @@
 
 subroutine RPA_SetIntegralRepresentation()
 
+use RPA_globals, only: doCD, doDF, doLDF
+
 implicit none
-#include "rpa_config.fh"
 
 call DecideOnCholesky(doCD)
 call DecideOnDF(doDF)

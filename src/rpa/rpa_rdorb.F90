@@ -17,8 +17,9 @@ subroutine RPA_RdOrb()
 !
 ! Read orbitals and orbital energies from InpOrb or from Runfile.
 
+use RPA_globals, only: LumOrb
+
 implicit none
-#include "rpa_config.fh"
 character(len=9), parameter :: SecNam = 'RPA_RdOrb'
 
 if (LumOrb) then

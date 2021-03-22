@@ -11,12 +11,12 @@
 
 subroutine RPA_SetInc()
 
+use RPA_globals, only: DFTFunctional, doCD, doDF, doLDF, dRPA, iPrint, l_CMO, l_EMO, l_OccEn, l_VirEn, LumOrb, mTitle, nBas, nDel, &
+                       nFreeze, nFro, nOcc, nOrb, nSym, nTitle, NuclearRepulsionEnergy, nVir, Reference, RPAModel, SOSEX, Title
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "rpa_config.fh"
-#include "rpa_data.fh"
 integer(kind=iwp) :: i, j
 
 ! rpa_config
@@ -36,21 +36,17 @@ do i=1,mTitle
 end do
 nTitle = 0
 nSym = 0
-call iZero(nFreeze,2)
-call iZero(nBas,8)
-call iZero(nOrb,8)
-call iZero(nFro,16)
-call iZero(nDel,16)
-call iZero(nOcc,16)
-call iZero(nVir,16)
-call iZero(ip_CMO,2)
-call iZero(l_CMO,2)
-call iZero(ip_EMO,2)
-call iZero(l_EMO,2)
-call iZero(ip_OccEn,2)
-call iZero(l_OccEn,2)
-call iZero(ip_VirEn,2)
-call iZero(l_VirEn,2)
+nFreeze(:) = 0
+nBas(:) = 0
+nOrb(:) = 0
+nFro(:,:) = 0
+nDel(:,:) = 0
+nOcc(:,:) = 0
+nVir(:,:) = 0
+l_CMO = 0
+l_EMO = 0
+l_OccEn(:) = 0
+l_VirEn(:) = 0
 NuclearRepulsionEnergy(1) = Zero
 
 end subroutine RPA_SetInc
