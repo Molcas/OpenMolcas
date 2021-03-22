@@ -87,7 +87,7 @@ do iSpin=1,nSpin
     loc(:,lnDel) = nDel(:,iSpin)
   end if
   ! Reorder CMO array
-  call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro(1,iSpin),nOcc(1,iSpin),nVir(1,iSpin),nDel(1,iSpin),CMO(:,iSpin),lCMO)
+  call ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,CMO(:,iSpin),lCMO)
   ! Set base name for MO files
   ! Transform Cholesky vectors
   call Cho_MOTra_Internal(lCMO,l_lCMO,nSym,nBas,nOrb,loc(:,lnFro),loc(:,lnOcc),loc(:,Zeros),loc(:,lnVir),loc(:,lnDel), &

@@ -36,11 +36,6 @@ integer(kind=iwp), parameter :: lPaper = 132
 character(len=9), parameter :: SecNam = 'RPA_PrInp'
 integer(kind=iwp), external :: RPA_iUHF
 
-integer(kind=iwp) :: p, q
-real(kind=wp) :: epsi, epsa
-epsi(p,q) = OccEn(p,q)
-epsa(p,q) = VirEn(p,q)
-
 ! set restricted(1)/unrestricted(2)
 iUHF = RPA_iUHF()
 
@@ -145,7 +140,7 @@ if (iPrint >= 2) then
       do iSym=1,nSym
         if (nFro(iSym,k) > 0) then
           write(u6,*)
-          write(u6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))') 'symmetry species',iSym,lIrrep(iSym),spin(k),(epsi(i+j,k),j=1,nFro(iSym,k))
+          write(u6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))') 'symmetry species',iSym,lIrrep(iSym),spin(k),(OccEn(i+j,k),j=1,nFro(iSym,k))
           i = i+nFro(iSym,k)+nOcc(iSym,k)
         end if
       end do
@@ -160,7 +155,7 @@ if (iPrint >= 2) then
       if (nOcc(iSym,k) > 0) then
         write(u6,*)
         write(u6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))') &
-          'symmetry species',iSym,lIrrep(iSym),spin(k),(epsi(i+nFro(iSym,k)+j,k),j=1,nOcc(iSym,k))
+          'symmetry species',iSym,lIrrep(iSym),spin(k),(OccEn(i+nFro(iSym,k)+j,k),j=1,nOcc(iSym,k))
         i = i+nFro(iSym,k)+nOcc(iSym,k)
       end if
     end do
@@ -173,7 +168,7 @@ if (iPrint >= 2) then
     do iSym=1,nSym
       if (nVir(iSym,k) > 0) then
         write(u6,*)
-        write(u6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))') 'symmetry species',iSym,lIrrep(iSym),spin(k),(epsa(i+j,k),j=1,nVir(iSym,k))
+        write(u6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))') 'symmetry species',iSym,lIrrep(iSym),spin(k),(VirEn(i+j,k),j=1,nVir(iSym,k))
         i = i+nVir(iSym,k)+nDel(iSym,k)
       end if
     end do
@@ -194,7 +189,7 @@ if (iPrint >= 2) then
         if (nDel(iSym,k) > 0) then
           write(u6,*)
           write(u6,Fmt2//'A,I2,2(1X,A),(T40,5F14.6))') &
-            'symmetry species',iSym,lIrrep(iSym),spin(k),(epsa(i+nVir(iSym,k)+j,k),j=1,nDel(iSym,k))
+            'symmetry species',iSym,lIrrep(iSym),spin(k),(VirEn(i+nVir(iSym,k)+j,k),j=1,nDel(iSym,k))
           i = i+nVir(iSym,k)+nDel(iSym,k)
         end if
       end do

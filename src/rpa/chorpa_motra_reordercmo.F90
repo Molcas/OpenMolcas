@@ -11,12 +11,12 @@
 ! Copyright (C) 2013, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,nFro,nOcc,nVir,nDel,CMOinp,CMOout)
+subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,CMOinp,CMOout)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nFro(nSym), nOcc(nSym), nVir(nSym), nDel(nSym)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 real(kind=wp), intent(in) :: CMOinp(*)
 real(kind=wp), intent(out) :: CMOout(*)
 integer(kind=iwp) :: iSym, ip1, ip2, l
@@ -30,15 +30,5 @@ do iSym=1,nSym
   ip1 = ip1+l
   ip2 = ip2+nBas(iSym)*nBas(iSym)
 end do
-
-return
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(nDel)
-  call Unused_integer_array(nFro)
-  call Unused_integer_array(nOcc)
-  call Unused_integer_array(nVir)
-end if
 
 end subroutine ChoRPA_MOTra_ReorderCMO

@@ -22,8 +22,11 @@ integer(kind=iwp), intent(out) :: iVal(n)
 character(len=180) :: Line
 character(len=180), external :: Get_Ln
 
+#include "macros.fh"
+
 if (n >= nInp) then
   Line = Get_Ln(Lu)
+  unused_var(Line)
   call Get_I(1,iVal,nInp)
 else
   ! insufficent memory for reading (fix in calling routine)
@@ -31,8 +34,5 @@ else
 end if
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_character(Line)
-#endif
 
 end subroutine RPA_ReadIntegerInput
