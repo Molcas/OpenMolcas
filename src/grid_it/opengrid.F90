@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: INPORB
-integer(kind=iwp) :: i, iiUHF, istatus, iPRGM, irecl, l, LuOrb, mm, RC
+integer(kind=iwp) :: i, iiUHF, istatus, iPRGM, irecl, l, LuExtra, LuOrb, mm, RC
 real(kind=wp) :: g
 logical(kind=iwp) :: is_error
 character(len=512) :: TMPLUS
@@ -62,7 +62,8 @@ do iiUHF=0,merge(1,0,isUHF)
   call getenvf(Env,FullName)
   iPRGM = 0
   if (TheName /= ' ') then
-    call molcas_open(88,'extra.prgm')
+    LuExtra = isFreeUnit(88)
+    call molcas_open(LuExtra,'extra.prgm')
     iPRGM = 1
   end if
   if ((FullName == ' ') .or. (TheName(1:1) == ' ')) then
@@ -105,9 +106,10 @@ do iiUHF=0,merge(1,0,isUHF)
   end if
 
   if (TheName /= ' ') then
-    !open(88,file='extra.prgm')
-    write(88,'(a,a,a)') ' (file) M2MSI ',RealName(1:index(RealName,' ')),'  rwsg'
-    !close(88)
+    !LuExtra = isFreeUnit(88)
+    !open(LuExtra,file='extra.prgm')
+    write(LuExtra,'(a,a,a)') ' (file) M2MSI ',RealName(1:index(RealName,' ')),'  rwsg'
+    !close(LuExtra)
   end if
   if (iiUHF == 0) then
     LuVal = isFreeUnit(49)
@@ -230,7 +232,7 @@ do iiUHF=0,merge(1,0,isUHF)
     end if
   end if
 end do
-if (iPRGM == 1) close(88)
+if (iPRGM == 1) close(LuExtra)
 
 return
 

@@ -40,14 +40,10 @@ real(kind=wp), intent(out) :: MOValue(mAO,nCoor,nMOs)
 real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
 #include "print.fh"
 integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, iPrim, iPrint, ipx, ipy, ipz, iRout, iShll, iSkal, &
-                     kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nForm, nOp, nRadial, nSO, nTerm, nTest, nxyz
+                     kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nElem, nForm, nOp, nRadial, nSO, nTerm, nTest, nxyz
 real(kind=wp) :: A(3), px, py, pz, RA(3), Thr
 real(kind=wp), allocatable :: Ang(:), AOs(:), Radial(:), SOs(:), xyz(:)
 integer(kind=iwp), external :: NrOpr
-
-! Statement functions
-integer(kind=iwp) :: nElem, ixyz
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 iRout = 112
 iPrint = nPrint(iRout)
@@ -92,7 +88,7 @@ do iAng=S%iAngMx,0,-1
     if (Shells(iShll)%Prjct) then
       iCmp = 2*iAng+1
     else
-      iCmp = nElem(iAng)
+      iCmp = (iAng+1)*(iAng+2)/2
     end if
 
     call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
@@ -111,7 +107,7 @@ do iAng=S%iAngMx,0,-1
 
       nForm = 0
       do iDrv=0,nDrv
-        nForm = nForm+nElem(iDrv)
+        nForm = nForm+(iDrv+1)*(iDrv+2)/2
       end do
       nTerm = 2**nDrv
 
@@ -145,8 +141,9 @@ do iAng=S%iAngMx,0,-1
         !----- Evaluate AOs at RA
 
         AOs(:) = Zero
-        call AOEval(iAng,nCoor,CCoor,xyz,RA,Shells(iShll)%Transf,RSph(ipSph(iAng)),nElem(iAng),iCmp,Ang,nTerm,nForm,Thr,mRad, &
-                    iPrim,iPrim,Shells(iShll)%Exp,Radial,iBas,Shells(iShll)%pCff,AOs,mAO,px,py,pz,ipx,ipy,ipz)
+        nElem = (iAng+1)*(iAng+2)/2
+        call AOEval(iAng,nCoor,CCoor,xyz,RA,Shells(iShll)%Transf,RSph(ipSph(iAng)),nElem,iCmp,Ang,nTerm,nForm,Thr,mRad,iPrim, &
+                    iPrim,Shells(iShll)%Exp,Radial,iBas,Shells(iShll)%pCff,AOs,mAO,px,py,pz,ipx,ipy,ipz)
 
         !----- Distribute contributions to the SOs
 

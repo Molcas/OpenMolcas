@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,iWipGRef,isEner,WipOcc,iWipType,Crypt,iWipNZ,WipE,VBocc,ifpartial,isLine, &
-                       isSphere,isColor,isLuscus,nCoor,nBlocks,nInc)
+subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt,NZ,E,VBocc,ifpartial,isLine,isSphere,isColor, &
+                       isLuscus,nCoor,nBlocks,nInc)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
@@ -19,14 +19,17 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: LuVal, nShowMOs, nMOs, iWipGRef(*), iWipType(*), iWipNZ(*), nCoor, nBlocks, nInc
+integer(kind=iwp), intent(in) :: LuVal, nShowMOs, nMOs, GRef(*), iType(*), NZ(*), nCoor, nBlocks, nInc
 logical(kind=iwp), intent(in) :: isDensity, isEner, ifpartial, isLine, isSphere, isColor, isLuscus
-real(kind=iwp), intent(in) :: WipOcc(*), WipE(*), VBocc
+real(kind=iwp), intent(in) :: Occ(*), E(*), VBocc
 character(len=7), intent(in) :: Crypt
 integer(kind=iwp) :: i, iActOrb, ib, j, Sizeof8
 character(len=12000) :: Line
 character(len=10) :: LineT
 character :: bb
+#include "macros.fh"
+unused_var(nBlocks)
+unused_var(nInc)
 
 Sizeof8 = 8
 iActOrb = 0
@@ -50,17 +53,17 @@ if (isLuscus) then
   call PRINTLINE(LUVAL,LINE,32,.false.)
 end if
 do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
-  j = iWipGRef(i)
+  j = GRef(i)
   if (isEner) then
-    if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
-      ib = iWipType(j)
+    if (.not.(.false. .and. (Occ(j) > Zero) .and. (Occ(j) < Two))) then
+      ib = iType(j)
       bb = ' '
       if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
       if (isLuscus) then
-        write(LINE,1000) iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
+        write(LINE,1000) NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
         call PRINTLINE(LUVAL,LINE,72,.false.)
       else
-        write(line,'(a,i2,i5,f12.4," (",f4.2,")",1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipE(j),WipOcc(j),bb
+        write(line,'(a,i2,i5,f12.4," (",f4.2,")",1x,a)') LineT,NZ(j),NZ(j+nMOs),E(j),Occ(j),bb
         call PrintLine(LuVal,line,38,.false.)
       end if
     else
@@ -74,15 +77,15 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
       end if
     end if
   else
-    if (.not.(.false. .and. (WipOcc(j) > Zero) .and. (WipOcc(j) < Two))) then
-      ib = iWipType(j)
+    if (.not.(.false. .and. (Occ(j) > Zero) .and. (Occ(j) < Two))) then
+      ib = iType(j)
       bb = ' '
       if ((ib > 0) .and. (ib < 8)) bb = Crypt(ib:ib)
       if (isLuscus) then
-        write(LINE,1020) iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
+        write(LINE,1020) NZ(j),NZ(j+nMOs),Occ(j),bb
         call PRINTLINE(LUVAL,LINE,53,.false.)
       else
-        write(line,'(a,i2,i5," (",f8.6,")",1x,a)') LineT,iWipNZ(j),iWipNZ(j+nMOs),WipOcc(j),bb
+        write(line,'(a,i2,i5," (",f8.6,")",1x,a)') LineT,NZ(j),NZ(j+nMOs),Occ(j),bb
         call PrintLine(LuVal,line,30,.false.)
       end if
     else
@@ -130,11 +133,6 @@ if (isLuscus) then
 end if
 
 return
-! Avoid unused argumet warnings
-if (.false.) then
-  call Unused_integer(nBlocks)
-  call Unused_integer(nInc)
-end if
 
 1000 format(1X,'GridName= Orbital sym=',i2,' index=',i5,' Energ=',F12.4,' occ=',F4.2,' type=',a1)
 1010 format(1X,'GridName= VB_orbital iActOrb= ',I4,' occ= ',F4.2)

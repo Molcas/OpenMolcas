@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Input_Grid_It(iRun,INPORB,iReturn)
+subroutine Input_Grid_It(iRun,INPORB)
 !***********************************************************************
 ! Adapted from SAGIT to work with OpenMolcas (October 2020)            *
 !***********************************************************************
@@ -28,20 +28,21 @@ use Constants, only: Zero, Four, Quart
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iRun, iReturn
+integer(kind=iwp), intent(in) :: iRun
 character(len=*), intent(out) :: INPORB
 integer(kind=iwp) :: i, i_bits, iD, iErr, iKey, inUnit, iNet, iReadNet, iTemp(3), j, magicValue, n
 logical(kind=iwp) :: isAuto, isCustOrig, isFileOrb, isSubBlock
 real(kind=wp) :: dTemp(4), rD, rSubBlock, SubBlock(3), XFminCh, xHiErr, xLeft, xLoErr, xRight
-character(len=265) :: AllKeys
 character(len=256) :: FileStr, FileIn
 character(len=120) :: SelectStr
 character(len=80) :: Key, MULLprt
+character(len=265), parameter :: AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL '// &
+                                           'GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID '// &
+                                           'PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA '// &
+                                           'GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER '// &
+                                           'YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 '// &
+                                           'PLUS MINU XFMI'
 integer(kind=iwp), external :: MyGetKey
-
-AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID '// &
-          'PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA GORI SELE NOSO FILE SPHR COLO VIRT MULL SUBB XDER '// &
-          'YDER ZDER GDER CURD CRXJ UMAX NOLU XFIE LUS1 LUS2 PLUS MINU XFMI'
 
 !do i=1,nRout
 !  nPrint(i) = 5
@@ -454,8 +455,6 @@ if (isSubBlock) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iReturn)
 
 contains
 

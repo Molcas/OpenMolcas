@@ -542,10 +542,10 @@ if (.not. isLine) then
     !  write(LuVal_) str(1:i)
     !end if
   end do
-  close(unit=LuOrb)
+  close(LuOrb)
 end if ! isLine
-close(unit=LuVal)
-if (isUHF) close(unit=LuVal_ab)
+close(LuVal)
+if (isUHF) close(LuVal_ab)
 if (isTheOne) then
   MM = mCoor-1
   if (MM > 10) MM = 10

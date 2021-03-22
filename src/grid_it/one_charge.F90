@@ -41,8 +41,8 @@ logical(kind=iwp), external :: Reduce_Prt
 character(len=100), external :: Get_ProgName
 character(len=LenIn8), external :: Clean_Bname
 integer(kind=iwp), allocatable :: iCenter(:), ICNT(:), ITYP(:), nStab(:)
-real(kind=wp), allocatable :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), P(:,:), PInv(:,:), Q2(:), QSUM(:), &
-                              QSUM_TOT(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
+real(kind=wp), allocatable :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), Fac(:), P(:,:), PInv(:,:), Q2(:), &
+                              QSUM(:), QSUM_TOT(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
 real(kind=wp), allocatable, save :: DSSwap(:,:), qSwap(:)
 character(len=8), allocatable :: tName(:), tSwap(:)
 character(len=LenIn), allocatable :: CNAME(:)
@@ -59,13 +59,6 @@ character(len=3), parameter :: AufBau(19) = ['01s',                   &
                                              '06s','04f','05d','06p', &
                                              '07s','05f','06d','07p']
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!---- Statement function
-
-real(kind=wp) :: Fac
-Fac(i) = real(nStab(i),kind=wp)/real(nSym,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -116,9 +109,12 @@ end if
 
 call mma_allocate(CNAME,nNuc,label='CNAME')
 call mma_allocate(nStab,nNuc,label='nStab')
+call mma_allocate(Fac,nNuc,label='Fac')
 
 call Get_cArray('Unique Atom Names',CNAME,LenIn*nNuc)
 call Get_iArray('nStab',nStab,nNuc)
+
+Fac(:) = real(nStab(:),kind=wp)/real(nSym,kind=wp)
 
 !----------------------------------------------------------------------*
 !     Find the center label for each basis function                    *
@@ -816,6 +812,7 @@ if (iCase >= 2) then
   call mma_deallocate(Charge)
 end if
 
+call mma_deallocate(Fac)
 call mma_deallocate(CNAME)
 call mma_deallocate(QSUM)
 

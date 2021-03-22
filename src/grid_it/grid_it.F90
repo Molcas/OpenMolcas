@@ -73,12 +73,12 @@ call IniSew(DoRys,nDiff)
 !---- Read the input
 
 iReturn = 0
-call Input_Grid_It(iRun,INPORB,iReturn)
+call Input_Grid_It(iRun,INPORB)
 if (iReturn == _RC_INVOKED_OTHER_MODULE_) then
   ! take care to close files and release the potential memory...
-  !close(unit=LuOrb)
-  close(unit=LuVal)
-  if (isUHF) close(unit=LuVal_ab)
+  !close(LuOrb)
+  close(LuVal)
+  if (isUHF) close(LuVal_ab)
 else
 
   ! Start computing the spin density and spin density gradient at the grid.

@@ -22,9 +22,12 @@ integer(kind=iwp), intent(in) :: Lu
 integer(kind=iwp) :: ios
 real(kind=wp) :: foo
 
+#include "macros.fh"
+
 LineNr = 0
 do while (.true.)
   read(Lu,*,iostat=ios) foo,foo,foo,foo
+  unused_var(foo)
   if (ios > 0) then
     call Abend() !'problem somewhere'
   else if (ios < 0) then ! end of file is reached
@@ -35,8 +38,5 @@ do while (.true.)
 end do
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_real(foo)
-#endif
 
 end function LineNr
