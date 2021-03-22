@@ -423,7 +423,8 @@ c --- entire red sets range for parallel run
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call Abend
+               Write(6,*) 'nVrs=',nVrs
+               call Abend()
             endif
 
             Call Cho_X_SetRed(irc,iLoc,JRED)
@@ -431,7 +432,7 @@ c           !set index arrays at iLoc
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                        '   rc= ',irc
-              call Abend
+              call Abend()
             endif
 
             IREDC=JRED
