@@ -11,7 +11,8 @@
 ! Copyright (C) 1990,1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      SubRoutine Trnglr(Array,m,n)
+
+subroutine Trnglr(Array,m,n)
 !***********************************************************************
 !                                                                      *
 ! Object: to do an in place expansion of a triangularized matrix.      *
@@ -28,33 +29,32 @@
 !             of Lund, SWEDEN.                                         *
 !             Modified to inplace triangularization, January '92.      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 Array(m,n*n)
-!
-!     Observe that the desymmetrization will not yield a symmetric
-!     result. In order to apply the triangularization we will have
-!     to symmetrize the matrix first.
-!
-      Do 100 i = 1, n
-         Do 200 j = 1, i-1
-            mji = n*(i-1)+j
-            mij = n*(j-1)+i
-            Call DaXpY_(m,One,Array(1,mij),1,                           &
-     &                       Array(1,mji),1)
- 200     Continue
- 100  Continue
-!
-      Do 10 i = 1, n
-         Do 20 j = 1, i
-            mji = n*(i-1) + j
-            nij = i*(i-1)/2 + j
-            If (nij.ne.mji) call dcopy_(m,Array(1,mji),1,               &
-     &                                   Array(1,nij),1)
-!
- 20      Continue
- 10   Continue
-!
-      Return
-      End
+real*8 Array(m,n*n)
+
+! Observe that the desymmetrization will not yield a symmetric
+! result. In order to apply the triangularization we will have
+! to symmetrize the matrix first.
+
+do i=1,n
+  do j=1,i-1
+    mji = n*(i-1)+j
+    mij = n*(j-1)+i
+    call DaXpY_(m,One,Array(1,mij),1,Array(1,mji),1)
+  end do
+end do
+
+do i=1,n
+  do j=1,i
+    mji = n*(i-1)+j
+    nij = i*(i-1)/2+j
+    if (nij /= mji) call dcopy_(m,Array(1,mji),1,Array(1,nij),1)
+  end do
+end do
+
+return
+
+end subroutine Trnglr

@@ -8,18 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
+
+program Main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
-      implicit real*8 (a-h,o-z)
-      Character*20 Module_Name
-      Parameter (Module_Name = 'alaska')
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-      Call Start(Module_Name)
-      Call alaska_super_driver(ireturn)
-      Call Finish(ireturn)
-      end
+call Start('alaska')
+call alaska_super_driver(rc)
+call Finish(rc)
+
+end program Main

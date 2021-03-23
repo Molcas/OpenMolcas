@@ -55,7 +55,7 @@ else if (Model(1:6) == 'KS-DFT') then
   else
     Reference = 'UKS'
   end if
-else if (Model(1:8) == 'dRPA@RHF' .or. Model(1:8) == 'SOSX@RHF') then
+else if ((Model(1:8) == 'dRPA@RHF') .or. (Model(1:8) == 'SOSX@RHF')) then
   if (iUHF == 1) then
     Reference = 'RHF'
     Warn = .false.
@@ -63,7 +63,7 @@ else if (Model(1:8) == 'dRPA@RHF' .or. Model(1:8) == 'SOSX@RHF') then
     Reference = 'UHF'
     Warn = .true.
   end if
-else if (Model(1:8) == 'dRPA@UHF' .or. Model(1:8) == 'SOSX@UHF') then
+else if ((Model(1:8) == 'dRPA@UHF') .or. (Model(1:8) == 'SOSX@UHF')) then
   if (iUHF == 1) then
     Reference = 'RHF'
     Warn = .true.
@@ -71,7 +71,7 @@ else if (Model(1:8) == 'dRPA@UHF' .or. Model(1:8) == 'SOSX@UHF') then
     Reference = 'UHF'
     Warn = .false.
   end if
-else if (Model(1:8) == 'dRPA@RKS' .or. Model(1:8) == 'SOSX@RKS') then
+else if ((Model(1:8) == 'dRPA@RKS') .or. (Model(1:8) == 'SOSX@RKS')) then
   if (iUHF == 1) then
     Reference = 'RKS'
     Warn = .false.
@@ -79,7 +79,7 @@ else if (Model(1:8) == 'dRPA@RKS' .or. Model(1:8) == 'SOSX@RKS') then
     Reference = 'UKS'
     Warn = .true.
   end if
-else if (Model(1:8) == 'dRPA@UKS' .or. Model(1:8) == 'SOSX@UKS') then
+else if ((Model(1:8) == 'dRPA@UKS') .or. (Model(1:8) == 'SOSX@UKS')) then
   if (iUHF == 1) then
     Reference = 'RKS'
     Warn = .true.
@@ -114,7 +114,7 @@ end if
 
 ! Get number of irreps
 call Get_iScalar('nSym',nSym)
-if (nSym < 1 .or. nSym > 8) then
+if ((nSym < 1) .or. (nSym > 8)) then
   call RPA_Warn(3,'nSym out of bonds in RPA')
 end if
 

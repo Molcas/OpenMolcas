@@ -8,107 +8,109 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Chk_Numerical(LuSpool,Numerical)
-      Implicit Real*8 (A-H,O-Z)
-      Logical Numerical,Is_Root_Set, DNG, KeepOld, Found
-      Character KWord*180, Key*180, Get_Ln*180
-      External Get_Ln
+
+subroutine Chk_Numerical(LuSpool,Numerical)
+
+implicit real*8(A-H,O-Z)
+logical Numerical, Is_Root_Set, DNG, KeepOld, Found
+character KWord*180, Key*180, Get_Ln*180
+external Get_Ln
 #include "nac.fh"
 #include "alaska_root.fh"
-!
-      Call Qpg_iScalar('DNG',DNG)
-      If (DNG) Then
-         Call Get_iScalar('DNG',iDNG)
-         Numerical = iDNG.eq.1
-      Else
-         Numerical = .False.
-      End If
-      LuWr=6
-!
+
+call Qpg_iScalar('DNG',DNG)
+if (DNG) then
+  call Get_iScalar('DNG',iDNG)
+  Numerical = iDNG == 1
+else
+  Numerical = .false.
+end if
+LuWr = 6
+
 ! Setting the defaults
 !    iRoot     : Which root to optimize the geometry for
 !    rDelta    : Displacements are chosen as r_nearest_neighbor * rDelta
-      iRoot     = 1
-      rDelta    = 0.0100D0
-      NACstates(1)=0
-      NACstates(2)=0
-      isNAC     = .False.
-      KeepOld   = .False.
-      DefRoot   = .True.
-      ForceNAC  = .False.
-      iRlxRoot  = 1
-      Auto      = .False.
-!
+iRoot = 1
+rDelta = 0.0100d0
+NACstates(1) = 0
+NACstates(2) = 0
+isNAC = .false.
+KeepOld = .false.
+DefRoot = .true.
+ForceNAC = .false.
+iRlxRoot = 1
+Auto = .false.
+
 ! RASSCF will set the default root to the root that is relaxed.
-!
-      Is_Root_Set = .False.
-      Call Qpg_iScalar('NumGradRoot',Is_Root_Set)
-      If (Is_Root_Set) Then
-         Call Get_iScalar('NumGradRoot',iRoot)
-      End If
-!
-      Rewind(LuSpool)
-      Call RdNLst(LuSpool,'ALASKA')
-      KWord=' &ALASKA'
- 998  Read (LuSpool,'(A72)',END=997,ERR=988) Key
-      KWord = Key
-      Call UpCase(KWord)
-      If (KWord(1:4) .eq. 'NUME') Then
-         Numerical = .True.
-         Goto 998
-      Else If (KWord(1:4) .eq. 'ROOT') Then
-         Key = Get_Ln(LuSpool)
-         Call Get_I1(1,iRoot)
-         DefRoot = .False.
-         Goto 998
-      Else If (KWord(1:4) .eq. 'DELT') Then
-         Key = Get_Ln(LuSpool)
-         Call Get_F1(1,rDelta)
-         Goto 998
-      Else If (KWord(1:4) .eq. 'NAC ') Then
-         Key = Get_Ln(LuSpool)
-         Call Get_I(1,NACstates,2)
-         isNAC = .True.
-         DefRoot = .False.
-         Goto 998
-      Else If (KWord(1:4) .eq. 'KEEP') Then
-         KeepOld = .True.
-         Goto 998
-      Else If (KWord(1:4) .eq. 'AUTO') Then
-         Auto = .True.
-         Goto 998
-      Else If (KWord(1:4) .eq. 'END ') Then
-         Goto 997
-      Else
-         Goto 998
-      End If
-!
- 988  Call WarningMessage(2,                                            &
-     &               'Chk_Numerical: Error reading the input')
-      Write (LuWr,'(A,A)') 'Last read line=',KWord
-      Call Quit_OnUserError()
-!
- 997  Continue
-!
-      Call Get_iScalar('Grad ready',iGO)
-      iGO = iAnd(iGO,Not(2**0))
-      Call Put_iScalar('Grad ready',iGO)
-!
+
+Is_Root_Set = .false.
+call Qpg_iScalar('NumGradRoot',Is_Root_Set)
+if (Is_Root_Set) then
+  call Get_iScalar('NumGradRoot',iRoot)
+end if
+
+rewind(LuSpool)
+call RdNLst(LuSpool,'ALASKA')
+KWord = ' &ALASKA'
+998 read(LuSpool,'(A72)',end=997,ERR=988) Key
+KWord = Key
+call UpCase(KWord)
+if (KWord(1:4) == 'NUME') then
+  Numerical = .true.
+  goto 998
+else if (KWord(1:4) == 'ROOT') then
+  Key = Get_Ln(LuSpool)
+  call Get_I1(1,iRoot)
+  DefRoot = .false.
+  goto 998
+else if (KWord(1:4) == 'DELT') then
+  Key = Get_Ln(LuSpool)
+  call Get_F1(1,rDelta)
+  goto 998
+else if (KWord(1:4) == 'NAC ') then
+  Key = Get_Ln(LuSpool)
+  call Get_I(1,NACstates,2)
+  isNAC = .true.
+  DefRoot = .false.
+  goto 998
+else if (KWord(1:4) == 'KEEP') then
+  KeepOld = .true.
+  goto 998
+else if (KWord(1:4) == 'AUTO') then
+  Auto = .true.
+  goto 998
+else if (KWord(1:4) == 'END ') then
+  goto 997
+else
+  goto 998
+end if
+
+988 call WarningMessage(2,'Chk_Numerical: Error reading the input')
+write(LuWr,'(A,A)') 'Last read line=',KWord
+call Quit_OnUserError()
+
+997 continue
+
+call Get_iScalar('Grad ready',iGO)
+iGO = iand(iGO,not(2**0))
+call Put_iScalar('Grad ready',iGO)
+
 ! Put on the runfile which root and delta to use
-!
-      Call qpg_iScalar('Relax CASSCF root',Found)
-      If (Found) Then
-         Call Get_iScalar('Relax CASSCF root',iRoot0)
-         Call Put_iScalar('NumGradRoot',iRoot)
-         Call Put_iScalar('Relax CASSCF root',iRoot)
-      Else
-         iRoot0=0
-      End If
-      Call Put_dScalar('Numerical Gradient rDelta',rDelta)
-!
+
+call qpg_iScalar('Relax CASSCF root',Found)
+if (Found) then
+  call Get_iScalar('Relax CASSCF root',iRoot0)
+  call Put_iScalar('NumGradRoot',iRoot)
+  call Put_iScalar('Relax CASSCF root',iRoot)
+else
+  iRoot0 = 0
+end if
+call Put_dScalar('Numerical Gradient rDelta',rDelta)
+
 ! These are really input options for numerical_gradient
-!
-      Call Put_lScalar('Keep old gradient',KeepOld)
-!
-      Return
-      End
+
+call Put_lScalar('Keep old gradient',KeepOld)
+
+return
+
+end subroutine Chk_Numerical

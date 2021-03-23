@@ -8,14 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Drvh1_EMB(Grad,Temp,nGrad)
-      Use Basis_Info, only: dbsc, nCnttp, nBas
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8 (A-H,O-Z)
-      External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,     &
-     &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
-      External OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG,     &
-     &         WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
+
+subroutine Drvh1_EMB(Grad,Temp,nGrad)
+
+use Basis_Info, only: dbsc, nCnttp, nBas
+use Symmetry_Info, only: nIrrep
+implicit real*8(A-H,O-Z)
+external OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
+external OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
@@ -23,159 +23,154 @@
 #include "disp.fh"
 #include "wldata.fh"
 #include "rctfld.fh"
-      Integer, Allocatable:: lOper(:)
-      Real*8, Allocatable:: Coor(:,:), D_Var(:)
+integer, allocatable :: lOper(:)
+real*8, allocatable :: Coor(:,:), D_Var(:)
 
-      Character Label*80
-      Real*8 Grad(nGrad), Temp(nGrad)
+character Label*80
+real*8 Grad(nGrad), Temp(nGrad)
 !AOM<
 #include "finfld.fh"
-      External MltGrd,MltMmG
+external MltGrd, MltMmG
 !AOM>
-      Logical DiffOp, lECP, lPP, lFAIEMP
-      Character*16 NamRfil
-!
+logical DiffOp, lECP, lPP, lFAIEMP
+character*16 NamRfil
+
 !-----Statement function
-!
-      nElem(i) = (i+1)*(i+2)/2
-!
+
+nElem(i) = (i+1)*(i+2)/2
+
 !...  Prologue
-      iRout = 131
-      iPrint = nPrint(iRout)
-      Call CWTime(TCpu1,TWall1)
-      Call StatusLine(' Alaska:',' Computing 1-el OFE gradients')
-!
-      Call Set_Basis_Mode('Valence')
-      Call Setup_iSD()
-!
-      lECP=.False.
-      lPP =.False.
-      lFAIEMP=.False.
-      Do i = 1, nCnttp
-         lECP = lECP .or. dbsc(i)%ECP
-         lPP  = lPP  .or. dbsc(i)%nPP.ne.0
-         lFAIEMP = LFAIEMP .or. dbsc(i)%Frag
-      End Do
-!
-!---- Allocate memory for density matrices
-!
-      nDens = 0
-      Do iIrrep = 0, nIrrep - 1
-         nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      End Do
-!
-!...  Read the variational 1st order density matrix
-!...  density matrix in AO/SO basis
+iRout = 131
+iPrint = nPrint(iRout)
+call CWTime(TCpu1,TWall1)
+call StatusLine(' Alaska:',' Computing 1-el OFE gradients')
 
-      Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-      Call NameRun('AUXRFIL')   ! switch RUNFILE name
+call Set_Basis_Mode('Valence')
+call Setup_iSD()
 
-      Call mma_allocate(D_Var,nDens,Label='D_Var')
-      Call Get_D1ao_Var(D_var,nDens)
-      If (iPrint.ge.99) then
-         Write(6,*) 'variational 1st order density matrix'
-         ii=1
-         Do iIrrep = 0, nIrrep - 1
-            Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
-            ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         End Do
-      End If
-!
+lECP = .false.
+lPP = .false.
+lFAIEMP = .false.
+do i=1,nCnttp
+  lECP = lECP .or. dbsc(i)%ECP
+  lPP = lPP .or. (dbsc(i)%nPP /= 0)
+  lFAIEMP = LFAIEMP .or. dbsc(i)%Frag
+end do
+
+! Allocate memory for density matrices
+
+nDens = 0
+do iIrrep=0,nIrrep-1
+  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
+
+! Read the variational 1st order density matrix
+! density matrix in AO/SO basis
+
+call Get_NameRun(NamRfil) ! save the old RUNFILE name
+call NameRun('AUXRFIL')   ! switch RUNFILE name
+
+call mma_allocate(D_Var,nDens,Label='D_Var')
+call Get_D1ao_Var(D_var,nDens)
+if (iPrint >= 99) then
+  write(6,*) 'variational 1st order density matrix'
+  ii = 1
+  do iIrrep=0,nIrrep-1
+    write(6,*) 'symmetry block',iIrrep
+    call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
+    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  end do
+end if
+
 ! Annihilate all the components of rho_B in the bsfs of the A subsystem
-!
+
 !SVC: fixed according to instructions from Francesco,
-! as embedding should not deal with symmetry
-      Call Annihil_rho(D_var,nBas(0))
-!
-      Call NameRun(NamRfil)   ! switch RUNFILE name
+!      as embedding should not deal with symmetry
+call Annihil_rho(D_var,nBas(0))
+
+call NameRun(NamRfil)   ! switch RUNFILE name
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     nOrdOp: order/rank of the operator
-!     lOper(:): lOper of each component of the operator
-!
-      nOrdOp=0
-      nComp = nElem(nOrdOp)
-      Call mma_allocate(Coor,3,nComp)
-      Call mma_allocate(lOper,nComp,Label='lOper')
-      Coor(:,:)=Zero
-      lOper(:) = 1
-!
+! nOrdOp: order/rank of the operator
+! lOper(:): lOper of each component of the operator
+
+nOrdOp = 0
+nComp = nElem(nOrdOp)
+call mma_allocate(Coor,3,nComp)
+call mma_allocate(lOper,nComp,Label='lOper')
+Coor(:,:) = Zero
+lOper(:) = 1
+
 !***********************************************************************
 !3)                                                                    *
 !     Trace the "variational" first order density matrix with the      *
 !     gradient of the nuclear attraction integrals.                    *
 !                                                                      *
 !***********************************************************************
-!
-      DiffOp = .True.
-      Label = ' The Nuclear Attraction Contribution'
-      Call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Coor,                  &
-     &             D_Var,nDens,lOper,nComp,nOrdOp,Label)
 
-      Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-!
+DiffOp = .true.
+Label = ' The Nuclear Attraction Contribution'
+call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+
+call DaXpY_(nGrad,One,Temp,1,Grad,1)
+
 !***********************************************************************
 !4)                                                                    *
 !     Trace the "variational" first order density matrix with the      *
 !     gradient of the ECP integrals.                                   *
 !                                                                      *
 !***********************************************************************
-!
-      If (lECP) Then
-         DiffOp = .True.
-         Label = ' The Projection Operator contribution'
-         Call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,             &
-     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
-         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-!
-         Label = ' The M1 Operator contribution'
-         Call OneEl_g( M1Grd, M1MmG,Temp,nGrad,DiffOp,Coor,             &
-     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
-         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-!
-         Label = ' The M2 Operator contribution'
-         Call OneEl_g( M2Grd, M2MmG,Temp,nGrad,DiffOp,Coor,             &
-     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
-         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-!
-         Label = ' The SR Operator contribution'
-         Call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,             &
-     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
-         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-      End If
-      If (lPP) Then
-         Label = ' The Pseudo Potential contribution'
-         Call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,               &
-     &                 D_Var,nDens,lOper,nComp,nOrdOp,Label)
-         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-      End If
+
+if (lECP) then
+  DiffOp = .true.
+  Label = ' The Projection Operator contribution'
+  call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+
+  Label = ' The M1 Operator contribution'
+  call OneEl_g(M1Grd,M1MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+
+  Label = ' The M2 Operator contribution'
+  call OneEl_g(M2Grd,M2MmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+
+  Label = ' The SR Operator contribution'
+  call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+end if
+if (lPP) then
+  Label = ' The Pseudo Potential contribution'
+  call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If(lFAIEMP) Then
-        DiffOp = .True.
-        Label = ' The FAIEMP Projection Operator Contribution'
-        Call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,          &
-     &               D_Var,nDens,lOper,nComp,nOrdOp,Label)
-        Call DaXpY_(nGrad,One,Temp,1,Grad,1)
-        Call DrvG_FAIEMP(Grad,Temp,nGrad)
-      End If
+if (lFAIEMP) then
+  DiffOp = .true.
+  Label = ' The FAIEMP Projection Operator Contribution'
+  call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
+  call DrvG_FAIEMP(Grad,Temp,nGrad)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_deallocate(lOper)
-      Call mma_deallocate(Coor)
+call mma_deallocate(lOper)
+call mma_deallocate(Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!...  Epilogue, end
-!
-      Call mma_deallocate(D_Var)
-!
-      Call Free_iSD()
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Return
-      End
+! Epilogue, end
+
+call mma_deallocate(D_Var)
+
+call Free_iSD()
+call CWTime(TCpu2,TWall2)
+call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
+
+return
+
+end subroutine Drvh1_EMB

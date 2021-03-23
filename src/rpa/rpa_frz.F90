@@ -29,7 +29,7 @@ real(kind=wp), allocatable :: E(:)
 character(len=7), parameter :: SecNam = 'RPA_Frz'
 integer(kind=iwp), external :: Cho_iRange
 
-if (nSym < 1 .or. nSym > 8) then
+if ((nSym < 1) .or. (nSym > 8)) then
   write(u6,'(A,I6)') 'nSym=',nSym
   call RPA_Warn(3,SecNam//': illegal nSym')
 else if (nSym == 1) then

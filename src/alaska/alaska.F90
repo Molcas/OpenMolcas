@@ -11,7 +11,8 @@
 ! Copyright (C) 1989-1992, Roland Lindh                                *
 !               1990, IBM                                              *
 !***********************************************************************
-      Subroutine Alaska(LuSpool,ireturn)
+
+subroutine Alaska(LuSpool,ireturn)
 !***********************************************************************
 !                                                                      *
 !  Object: Driver for the one and two electron integral gradient       *
@@ -26,15 +27,17 @@
 !          Lund, SWEDEN. Modified to gradient calculations September   *
 !          1991 - February 1992.                                       *
 !***********************************************************************
-      use Alaska_Info
-      use Real_Spherical
-      use Basis_Info
-      use Temporary_Parameters
-      use RICD_Info, only: Do_RI, Cholesky
-      use Para_Info, only: nProcs, King
-      use OFembed, only: Do_OFemb
-      Implicit Real*8 (A-H,O-Z)
-      External RF_On
+
+use Alaska_Info
+use Real_Spherical
+use Basis_Info
+use Temporary_Parameters
+use RICD_Info, only: Do_RI, Cholesky
+use Para_Info, only: nProcs, King
+use OFembed, only: Do_OFemb
+
+implicit real*8(A-H,O-Z)
+external RF_On
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -46,381 +49,364 @@
 #include "columbus_gamma.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-      Logical DoRys, RF_On, Found
-      Character(Len=180) Label
-      Real*8, Allocatable:: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
+logical DoRys, RF_On, Found
+character(Len=180) Label
+real*8, allocatable :: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
 
 !*********** columbus interface ****************************************
-        Integer  Columbus, colgradmode
-        Integer lcartgrd
-        Real*8 Cgrad(3,MxAtom)
-        Character CNames(MxAtom)*(LENIN5),Lab*80
-        Integer iatom,icen,j
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Call Alaska_banner()
-!                                                                      *
-      Call CWTime(TCpu1,TWall1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Prologue
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      iRout=1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Print program header
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Get the input information as Seward dumped on INFO.
-!
-      nDiff=1
-      DoRys=.True.
-      Call IniSew(DoRys,nDiff)
-      If (RF_On()) Then
-         If (NonEq_Ref) Then
-            Call WarningMessage(2,'Error in Alaska')
-            Write (6,*) 'NonEq=.True., invalid option'
-            Call Abend()
-         End If
-         Call Init_RctFld(.False.,iCharge_Ref)
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Input specific for the gradient calculation.
-!
-      Call Inputg(LuSpool)
-!
-!---- Since the input has changed some of the shell information
-!     regenerate the tabulated shell information.
-!
-      iPrint=nPrint(iRout)
+integer Columbus, colgradmode
+integer lcartgrd
+real*8 Cgrad(3,MxAtom)
+character CNames(MxAtom)*(LENIN5), Lab*80
+integer iatom, icen, j
 
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!call Alaska_banner()
 
-      Call mma_allocate(Grad,lDisp(0),Label='Grad')
-      Call mma_allocate(Temp,lDisp(0),Label='Temp')
-      Grad(:)=Zero
-!
-!     remove LuSpool
-!
-      Call Close_LuSpool(LuSpool)
-!
-!      identify a Columbus calculation
-!      Columbus=1
-!      colgradmode=0   standard gradient written to GRAD
-!      colgradmode=1   standard gradient written to Grad State1
-!      colgradmode=2   standard gradient written to Grad State1
-!      colgradmode=3   non-adiabatic coupling vector written to NADC
-!
-       Call Get_iScalar('Columbus',Columbus)
-       Call Get_iScalar('colgradmode',colgradmode)
-!
-!-----Start computing the gradients
+call CWTime(TCpu1,TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute nuclear contributions.
-!
-      If (king().or.HF_Force) Then
-!
-!    per default NADC must not have nuclear contributions added
-!
-       If (NO_NUC .or. (Columbus.eq.1 .and. colgradmode.eq.3)) then
-         write(6,*) 'Skipping Nuclear Charge Contribution'
-       Else
-         Call DrvN1(Grad,Temp,lDisp(0))
-         If (iPrint.ge.15) Then
-            Lab=' Total Nuclear Contribution'
-            Call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
-         End If
-       End If
-      End If
+! Prologue
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+iRout = 1
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Print program header
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Get the input information as Seward dumped on INFO.
 
-!      iPrint=16
-!
-!***********************************************************************
-!                                                                      *
-      If (Do_OFemb) Then
-! RepNuc term to the Orbital-Free Embedding gradient
-         Call DrvN1_EMB(Grad,Temp,lDisp(0))
-      EndIf
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (Test) Go To 999
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Compute contribution due to the derivative of the one-
-!     electron hamiltonian and the contribution due the re-
-!     normalization.
-!
-      If (.Not.(nProcs.gt.1).or.Onenly) Then
-         Call Drvh1(Grad,Temp,lDisp(0))
-      End If ! .Not.(nProcs.gt.1).or.Onenly
-      If (Do_OFemb) Then
-! NucAtt term to the Orbital-Free Embedding gradient
-         Call Drvh1_EMB(Grad,Temp,lDisp(0))
-      EndIf
-!         Lab='Nuc + One-electron Contribution'
-!         Call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
+nDiff = 1
+DoRys = .true.
+call IniSew(DoRys,nDiff)
+if (RF_On()) then
+  if (NonEq_Ref) then
+    call WarningMessage(2,'Error in Alaska')
+    write(6,*) 'NonEq=.True., invalid option'
+    call Abend()
+  end if
+  call Init_RctFld(.false.,iCharge_Ref)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Compute the DFT contribution to the gradient
-!
-      Call DrvDFTg(Grad,Temp,lDisp(0))
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (Onenly) Go To 998
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     DFT-type Orbital-Free Embedding term to the gradient
-!
-      If (Do_OFemb) Call DrvEMBg(Grad,Temp,lDisp(0))
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Compute contribution due to 2-electron integrals.
-!
-      If (Cholesky.or.Do_RI) Then
-         If (Cholesky) Then
-            If (iPrint.ge.6) Write (6,*) 'Cholesky-ERI gradients!'
-         Else
-            If (iPrint.ge.6) Write (6,*) 'RI-ERI gradients!'
-         End If
-         Call Drvg1_RI (Grad,Temp,lDisp(0))
-      Else
-         If (iPrint.ge.6) Write (6,*) 'Conventional ERI gradients!'
-         Call Drvg1    (Grad,Temp,lDisp(0))
-      End If
-!
-      Call DScal_(lDisp(0),Half,Temp,1)
-      If (iPrint.ge.15) Then
-         Lab=' Two-electron Contribution'
-         Call PrGrad(Lab,Temp,lDisp(0),ChDisp,iPrint)
-      End If
-!
-!-----Accumulate contribution to the gradient
-!
-      Call GR_DArray(Grad,lDisp(0))
-      Call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
-!
-!                                                                      *
-!***********************************************************************
-!                                                                      *
- 998  Continue
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Call CWTime(TCpu2,TWall2)
-      Call SavTim(7,TCpu2-TCpu1,TWall2-TWall1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Apply the translational and rotational invariance of
-!     the energy.
-!
-      If (TRSymm) Then
-         If (iPrint.ge.99) Then
-            Call PrGrad(                                                &
-     &       ' Molecular gradients (no TR) ',                           &
-     &           Grad,lDisp(0),ChDisp,iPrint)
-            Call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
-         End If
-         call dcopy_(lDisp(0),Grad,1,Temp,1)
+! Input specific for the gradient calculation.
 
-         Call dGeMV_('N',lDisp(0),lDisp(0),                             &
-     &              One,Am,lDisp(0),                                    &
-     &              Temp,1,                                             &
-     &              Zero,Grad,1)
-         Call mma_deallocate(Am)
-      End If ! TRSymm
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-----Equivalence option
-!
-      If (lEq) Then
-         Do i = 1, lDisp(0)
-            If (IndxEq(i).ne.i) Grad(i) = Grad(IndxEq(i))
-         End Do
-      End If ! lEq
-!                                                                      *
-!***********************************************************************
-!                                                                      *
- 999  Continue
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nCnttp_Valence=0
-      Do iCnttp = 1, nCnttp
-         If (dbsc(iCnttp)%Aux) Exit
-         nCnttp_Valence = nCnttp_Valence+1
-      End Do
-!
-!     f^AB is the "total derivative coupling"
-!     h^AB is the "CI derivative coupling"
-!     f^AB = <B|dA/dR> = h^AB/(E_A-E_B) + f_CSF^AB = -f^BA
-!     h^AB = <B|dH/dR|A> = h^BA
-!     f_CSF^AB = -f_CSF^BA
-!
-!     Note that we store h^AB + f_CSF^AB*(E_A-E-B), or just h^AB if
-!     NOCSF was given, to avoid division by (nearly) zero
-!
-      If (isNAC) Then
-        Call PrGrad('CI derivative coupling ',                          &
-     &                 Grad,lDisp(0),ChDisp,iPrint)
-        If (DoCSF) Then
-          Call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
-          Call CSFGrad(CSFG,lDisp(0))
-          Call PrGrad('CSF derivative coupling ',                       &
-     &                  CSFG,lDisp(0),ChDisp,iPrint)
-          Call daxpy_(lDisp(0),EDiff,CSFG,1,Grad,1)
-          Call mma_deallocate(CSFG)
-        End If
-        EDiff_s = Max(One, Ten**(-Floor(Log10(Abs(EDiff)))-4))
-        EDiff_f = EDiff*EDiff_s
-        write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
-        Label = ''
-        If (EDiff_s.gt.One)                                             &
-     &      Write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
-        Label = 'Total derivative coupling'//Trim(Label)
-        Call mma_allocate(Tmp,lDisp(0),Label='Tmp')
-        Tmp(:)=Grad(:)/EDiff_f
-        Call PrGrad(Trim(Label),Tmp,lDisp(0),ChDisp,iPrint)
-        write(6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
-        Call mma_deallocate(Tmp)
-      ElseIf (iPrint.ge.4) then
-         If (HF_Force) Then
-            Call PrGrad('Hellmann-Feynman Forces ',                     &
-     &                 Grad,lDisp(0),ChDisp,iPrint)
-         Else
-            Call PrGrad(' Molecular gradients',                         &
-     &                    Grad,lDisp(0),ChDisp,iPrint)
-         End If
-      End If
-      If (isNAC) Then
-!        For NAC, the sign is undefined (because the wave functions can
-!        change sign), check only absolute values
-         Call mma_allocate(Tmp,lDisp(0),Label='Tmp')
-         Tmp(:)=ABS(Grad(:))
-         Call Add_Info('Grad',Tmp,lDisp(0),6)
-         Call mma_deallocate(Tmp)
-      Else
-         Call Add_Info('Grad',Grad,lDisp(0),6)
-      End If
-!
-!---- Molcas format
-!
-!-----Write gradient to runfile.
-!
-!     Save the gradient
-!
+call Inputg(LuSpool)
 
-      Call Get_iScalar('Unique atoms',nsAtom)
-      l1 = 3*nsAtom
-      Call mma_allocate(Rlx,3,nsAtom,Label='Rlx')
-      mdc = 0
-      ndc = 0
-      Do iCnttp = 1, nCnttp_Valence
-!
-!        Skip gradients for pseudo atoms
-!
-         If (dbsc(iCnttp)%pChrg.or.dbsc(iCnttp)%nFragType.gt.0.or.      &
-     &       dbsc(iCnttp)%Frag) Then
-            mdc=mdc+dbsc(iCnttp)%nCntr
-         Else
-            Do iCnt = 1, dbsc(iCnttp)%nCntr
-               mdc=mdc+1
-               ndc=ndc+1
-               Do iCar = 1, 3
-                  If (InxDsp(mdc,iCar).ne.0) Then
-                     Rlx(iCar,ndc) = Grad(InxDsp(mdc,iCar))
-                  Else
-!
-!                    Put in explicit zero if gradient is zero
-!                    by symmetry.
-!
-                     Rlx(iCar,ndc) = Zero
-                  End If
-               End Do
-            End Do
-         End If
-      End Do
-!
-      If (HF_Force) Then
-         Call Put_dArray('HF-forces',Rlx,l1)
-      Elseif (Columbus.eq.1) then
-         Call Put_nadc(colgradmode,Rlx,l1)
-      Else
-         Call Put_Grad(Rlx,l1)
-      End If
-      Call mma_deallocate(Rlx)
+!-- Since the input has changed some of the shell information
+!   regenerate the tabulated shell information.
 
+iPrint = nPrint(iRout)
+
+call mma_allocate(Grad,lDisp(0),Label='Grad')
+call mma_allocate(Temp,lDisp(0),Label='Temp')
+Grad(:) = Zero
+
+! remove LuSpool
+
+call Close_LuSpool(LuSpool)
+
+! identify a Columbus calculation
+! Columbus=1
+! colgradmode=0   standard gradient written to GRAD
+! colgradmode=1   standard gradient written to Grad State1
+! colgradmode=2   standard gradient written to Grad State1
+! colgradmode=3   non-adiabatic coupling vector written to NADC
+
+call Get_iScalar('Columbus',Columbus)
+call Get_iScalar('colgradmode',colgradmode)
+
+!-- Start computing the gradients
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute nuclear contributions.
+
+if (king() .or. HF_Force) then
+
+  ! per default NADC must not have nuclear contributions added
+
+  if (NO_NUC .or. ((Columbus == 1) .and. (colgradmode == 3))) then
+    write(6,*) 'Skipping Nuclear Charge Contribution'
+  else
+    call DrvN1(Grad,Temp,lDisp(0))
+    if (iPrint >= 15) then
+      Lab = ' Total Nuclear Contribution'
+      call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
+    end if
+  end if
+end if
+
+!iPrint = 16
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (Do_OFemb) then
+  ! RepNuc term to the Orbital-Free Embedding gradient
+  call DrvN1_EMB(Grad,Temp,lDisp(0))
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (Test) Go To 999
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-- Compute contribution due to the derivative of the one-
+!   electron hamiltonian and the contribution due the re-
+!   normalization.
+
+if ((.not. (nProcs > 1)) .or. Onenly) then ! ???
+  call Drvh1(Grad,Temp,lDisp(0))
+end if
+if (Do_OFemb) then
+  ! NucAtt term to the Orbital-Free Embedding gradient
+  call Drvh1_EMB(Grad,Temp,lDisp(0))
+end if
+!Lab = 'Nuc + One-electron Contribution'
+!call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute the DFT contribution to the gradient
+
+call DrvDFTg(Grad,Temp,lDisp(0))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (Onenly) Go To 998
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! DFT-type Orbital-Free Embedding term to the gradient
+
+if (Do_OFemb) call DrvEMBg(Grad,Temp,lDisp(0))
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-- Compute contribution due to 2-electron integrals.
+
+if (Cholesky .or. Do_RI) then
+  if (Cholesky) then
+    if (iPrint >= 6) write(6,*) 'Cholesky-ERI gradients!'
+  else
+    if (iPrint >= 6) write(6,*) 'RI-ERI gradients!'
+  end if
+  call Drvg1_RI(Grad,Temp,lDisp(0))
+else
+  if (iPrint >= 6) write(6,*) 'Conventional ERI gradients!'
+  call Drvg1(Grad,Temp,lDisp(0))
+end if
+
+call DScal_(lDisp(0),Half,Temp,1)
+if (iPrint >= 15) then
+  Lab = ' Two-electron Contribution'
+  call PrGrad(Lab,Temp,lDisp(0),ChDisp,iPrint)
+end if
+
+!-- Accumulate contribution to the gradient
+
+call GR_DArray(Grad,lDisp(0))
+call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+998 continue
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call CWTime(TCpu2,TWall2)
+call SavTim(7,TCpu2-TCpu1,TWall2-TWall1)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-- Apply the translational and rotational invariance of the energy.
+
+if (TRSymm) then
+  if (iPrint >= 99) then
+    call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0),ChDisp,iPrint)
+    call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
+  end if
+  call dcopy_(lDisp(0),Grad,1,Temp,1)
+
+  call dGeMV_('N',lDisp(0),lDisp(0),One,Am,lDisp(0),Temp,1,Zero,Grad,1)
+  call mma_deallocate(Am)
+end if ! TRSymm
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-- Equivalence option
+
+if (lEq) then
+  do i=1,lDisp(0)
+    if (IndxEq(i) /= i) Grad(i) = Grad(IndxEq(i))
+  end do
+end if ! lEq
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+999 continue
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+nCnttp_Valence = 0
+do iCnttp=1,nCnttp
+  if (dbsc(iCnttp)%Aux) exit
+  nCnttp_Valence = nCnttp_Valence+1
+end do
+
+! f^AB is the "total derivative coupling"
+! h^AB is the "CI derivative coupling"
+! f^AB = <B|dA/dR> = h^AB/(E_A-E_B) + f_CSF^AB = -f^BA
+! h^AB = <B|dH/dR|A> = h^BA
+! f_CSF^AB = -f_CSF^BA
+!
+! Note that we store h^AB + f_CSF^AB*(E_A-E-B), or just h^AB if
+! NOCSF was given, to avoid division by (nearly) zero
+
+if (isNAC) then
+  call PrGrad('CI derivative coupling ',Grad,lDisp(0),ChDisp,iPrint)
+  if (DoCSF) then
+    call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
+    call CSFGrad(CSFG,lDisp(0))
+    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0),ChDisp,iPrint)
+    call daxpy_(lDisp(0),EDiff,CSFG,1,Grad,1)
+    call mma_deallocate(CSFG)
+  end if
+  EDiff_s = max(One,Ten**(-floor(log10(abs(EDiff)))-4))
+  EDiff_f = EDiff*EDiff_s
+  write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
+  Label = ''
+  if (EDiff_s > One) write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
+  Label = 'Total derivative coupling'//trim(Label)
+  call mma_allocate(Tmp,lDisp(0),Label='Tmp')
+  Tmp(:) = Grad(:)/EDiff_f
+  call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp,iPrint)
+  write(6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
+  call mma_deallocate(Tmp)
+elseif (iPrint >= 4) then
+  if (HF_Force) then
+    call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp,iPrint)
+  else
+    call PrGrad(' Molecular gradients',Grad,lDisp(0),ChDisp,iPrint)
+  end if
+end if
+if (isNAC) then
+  ! For NAC, the sign is undefined (because the wave functions can
+  ! change sign), check only absolute values
+  call mma_allocate(Tmp,lDisp(0),Label='Tmp')
+  Tmp(:) = abs(Grad(:))
+  call Add_Info('Grad',Tmp,lDisp(0),6)
+  call mma_deallocate(Tmp)
+else
+  call Add_Info('Grad',Grad,lDisp(0),6)
+end if
+
+!-- Molcas format
+
+!-- Write gradient to runfile.
+!
+! Save the gradient
+
+call Get_iScalar('Unique atoms',nsAtom)
+l1 = 3*nsAtom
+call mma_allocate(Rlx,3,nsAtom,Label='Rlx')
+mdc = 0
+ndc = 0
+do iCnttp=1,nCnttp_Valence
+
+  ! Skip gradients for pseudo atoms
+
+  if (dbsc(iCnttp)%pChrg .or. (dbsc(iCnttp)%nFragType > 0) .or. dbsc(iCnttp)%Frag) then
+    mdc = mdc+dbsc(iCnttp)%nCntr
+  else
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      mdc = mdc+1
+      ndc = ndc+1
+      do iCar=1,3
+        if (InxDsp(mdc,iCar) /= 0) then
+          Rlx(iCar,ndc) = Grad(InxDsp(mdc,iCar))
+        else
+
+          ! Put in explicit zero if gradient is zero by symmetry.
+
+          Rlx(iCar,ndc) = Zero
+        end if
+      end do
+    end do
+  end if
+end do
+!
+if (HF_Force) then
+  call Put_dArray('HF-forces',Rlx,l1)
+elseif (Columbus == 1) then
+  call Put_nadc(colgradmode,Rlx,l1)
+else
+  call Put_Grad(Rlx,l1)
+end if
+call mma_deallocate(Rlx)
 
 !*********** columbus interface ****************************************
 ! print full cartesian gradient in Columbus format
-!
 
-      if (Columbus.eq.1) then
-!     Real*8 Cgrad(3,mxatom)
-!     Character CNames(MxAtom)*9
-!     Integer lcartgrd, iatom,icen,j
-      Call TrGrd_Alaska_(CGrad,CNames,Grad,lDisp(0),iCen)
-      lcartgrd=60
-      lcartgrd=isFreeUnit(lcartgrd)
-      Call Molcas_Open(lcartgrd,'cartgrd')
-      DO 300 IATOM = 1,iCen
-        write (60,1010) (CGrad(j,iatom), j=1,3)
-  300 CONTINUE
-      close(lcartgrd)
- 1010 format (3d15.6)
-      endif
+if (Columbus == 1) then
+  ! real*8 Cgrad(3,mxatom)
+  ! character CNames(MxAtom)*9
+  ! integer lcartgrd, iatom,icen,j
+  call TrGrd_Alaska_(CGrad,CNames,Grad,lDisp(0),iCen)
+  lcartgrd = 60
+  lcartgrd = isFreeUnit(lcartgrd)
+  call Molcas_Open(lcartgrd,'cartgrd')
+  do IATOM=1,iCen
+    write(60,1010)(CGrad(j,iatom),j=1,3)
+  end do
+  close(lcartgrd)
+1010 format(3d15.6)
+end if
 
-!
-!-----At the end of the calculation free all memory to check for
-!     corruption of the memory.
-!
-      Call mma_deallocate(Temp)
-      Call mma_deallocate(Grad)
-!
-!     Restore iRlxRoot if changed as set by the RASSCF module.
-!
-      Call qpg_iScalar('Relax CASSCF root',Found)
-      If (Found) Then
-         Call Get_iScalar('Relax CASSCF root',irlxroot1)
-         Call qpg_iScalar('Relax Original root',Found)
-         If (Found) Then
-            Call Get_iScalar('Relax Original root',irlxroot2)
-            If (iRlxRoot1.ne.iRlxRoot2) Then
-               Call Put_iScalar('Relax CASSCF root',irlxroot2)
-               Call Put_iScalar('NumGradRoot',irlxroot2)
-            End If
-         End If
-      End If
-!
-!     Epilogue
-!
-      Call ClsSew()
-!
-      If (iPrint.ge.6) Then
-         Call FastIO('STATUS')
-      End If
-!
-      If (Test) Then
-         ireturn=20
-      Else
-         ireturn=0
-      End If
-      Return
-      End
+!-- At the end of the calculation free all memory to check for
+!   corruption of the memory.
+
+call mma_deallocate(Temp)
+call mma_deallocate(Grad)
+
+! Restore iRlxRoot if changed as set by the RASSCF module.
+
+call qpg_iScalar('Relax CASSCF root',Found)
+if (Found) then
+  call Get_iScalar('Relax CASSCF root',irlxroot1)
+  call qpg_iScalar('Relax Original root',Found)
+  if (Found) then
+    call Get_iScalar('Relax Original root',irlxroot2)
+    if (iRlxRoot1 /= iRlxRoot2) then
+      call Put_iScalar('Relax CASSCF root',irlxroot2)
+      call Put_iScalar('NumGradRoot',irlxroot2)
+    end if
+  end if
+end if
+
+! Epilogue
+
+call ClsSew()
+
+if (iPrint >= 6) then
+  call FastIO('STATUS')
+end if
+
+if (Test) then
+  ireturn = 20
+else
+  ireturn = 0
+end if
+
+return
+
+end subroutine Alaska

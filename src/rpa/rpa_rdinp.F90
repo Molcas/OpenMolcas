@@ -35,7 +35,7 @@ character(len=180), external :: Get_Ln
 
 ! set default print level
 iPrint = max(iPrintLevel(-1),0)
-if (iPrint > 0 .and. iPrint < 3) then
+if ((iPrint > 0) .and. (iPrint < 3)) then
   if (Reduce_Prt()) then
     iPrint = 0
   end if
@@ -77,7 +77,7 @@ call mma_allocate(InpRdI,l_Integer,label='InpRdI')
 doTitle = .false.
 EndOfInput = .false.
 iLine = 0
-do while (.not. EndOfInput .and. iLine < mLine)
+do while ((.not. EndOfInput) .and. (iLine < mLine))
   iLine = iLine+1 ! eliminate risk of an infinite loop
   Line = Get_Ln(Lu)
   call StdFmt(Line,Keyword)
@@ -124,7 +124,7 @@ do while (.not. EndOfInput .and. iLine < mLine)
     call RPA_ReadIntegerInput('PRIN',1,Lu,InpRdI,l_Integer)
     iPrint = max(InpRdI(1),0)
 #   ifdef _DEBUGPRINT_
-    DebugPrint = DebugPrint .or. iPrint > 4
+    DebugPrint = DebugPrint .or. (iPrint > 4)
 #   endif
     !*******************************
   else if (Keyword == 'LUMO') then

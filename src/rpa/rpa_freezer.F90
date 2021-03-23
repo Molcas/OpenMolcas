@@ -33,9 +33,9 @@ iUHF = RPA_iUHF()
 ! freeze orbitals (if requested)
 iSpin = 1
 Freeze = nFreeze(iSpin) > 0
-do while (.not. Freeze .and. iSpin < iUHF)
+do while ((.not. Freeze) .and. (iSpin < iUHF))
   iSpin = iSpin+1
-  Freeze = Freeze .or. nFreeze(iSpin) > 0
+  Freeze = Freeze .or. (nFreeze(iSpin) > 0)
 end do
 if (Freeze) then
   Prnt = iPrint >= 0

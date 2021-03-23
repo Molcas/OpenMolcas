@@ -8,79 +8,80 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Cho_Alaska_RdInp(LuSpool)
-!**********************************************************
-!
-!     Purpose: Read and process input for Cholesky section
-!              in alaska.
-!
-!**********************************************************
 
-      Implicit Real*8 (A-H,O-Z)
+subroutine Cho_Alaska_RdInp(LuSpool)
+!****************************************************************
+!
+! Purpose: Read and process input for Cholesky section in alaska.
+!
+!****************************************************************
+
+implicit real*8(A-H,O-Z)
 #include "exterm.fh"
-      Character*180 KWord, Key, Get_Ln
-      External Get_Ln
-      character*16 SECNAM
-      parameter (SECNAM = 'CHO_ALASKA_INPUT')
-      Real*8 dmpK
-      Integer nScreen
+character*180 KWord, Key, Get_Ln
+external Get_Ln
+character*16 SECNAM
+parameter(SECNAM='CHO_ALASKA_INPUT')
+real*8 dmpK
+integer nScreen
 #include "chotime.fh"
-!
-!     Set defaults
-!
-      dmpK = 1.0d0
-      dmpK_default = dmpK
-      nScreen = 10
-!
-!     Process the input
- 1000 continue
-      Key=Get_Ln(LuSpool)
-      Kword=Key
-      Call UpCase(Kword)
-      If(KWord(1:1).eq.'*')    Go To 1000
-      If(KWord(1:4).eq.'')  Go To 1000
-      If(KWord(1:4).eq.'DMPK') Go To 100
-      If(KWord(1:4).eq.'SCRN') Go To 110
-      If(KWord(1:4).eq.'TIMI') Go To 120
-      If(KWord(1:4).eq.'ENDC') Go To 998
-      If(KWord(1:4).eq.'END ') Go To 998
-      If(KWord(1:4).eq.'ENDO') Go To 998
+
+! Set defaults
+
+dmpK = 1.0d0
+dmpK_default = dmpK
+nScreen = 10
+
+! Process the input
+1000 continue
+Key = Get_Ln(LuSpool)
+Kword = Key
+call UpCase(Kword)
+if (KWord(1:1) == '*') Go To 1000
+if (KWord(1:4) == '') Go To 1000
+if (KWord(1:4) == 'DMPK') Go To 100
+if (KWord(1:4) == 'SCRN') Go To 110
+if (KWord(1:4) == 'TIMI') Go To 120
+if (KWord(1:4) == 'ENDC') Go To 998
+if (KWord(1:4) == 'END ') Go To 998
+if (KWord(1:4) == 'ENDO') Go To 998
 !                                                             *
 !*** DMPK *****************************************************
 !                                                             *
- 100  Continue
-      Read(LuSpool,*, err=210, end=200) dmpK
-      If(dmpK .lt. 0.0d0) Then
-         Write(6,*) 'OBS! Specified DMPK value is negative.'
-         Write(6,*) 'Restoring Default!'
-         dmpK = dmpK_default
-      End If
-      Go To 1000
+100 continue
+read(LuSpool,*,err=210,end=200) dmpK
+if (dmpK < 0.0d0) then
+  write(6,*) 'OBS! Specified DMPK value is negative.'
+  write(6,*) 'Restoring Default!'
+  dmpK = dmpK_default
+end if
+Go To 1000
 !                                                             *
 !*** SCRN *****************************************************
 !                                                             *
- 110  Continue
-      Read(LuSpool,*, err=210, end=200) nScreen
-      Go To 1000
+110 continue
+read(LuSpool,*,err=210,end=200) nScreen
+Go To 1000
 !                                                             *
 !*** TIMI *****************************************************
 !                                                             *
- 120  Continue
-      Timings=.True.
-      Go To 1000
+120 continue
+Timings = .true.
+Go To 1000
 !                                                             *
 !** ENDChoinput ***********************************************
 !                                                             *
- 998  Continue
-      Return
+998 continue
+
+return
 !                                                             *
 !**************************************************************
 !                                                             *
-      Call ErrTra
- 200  Write(6,*) SECNAM, 'Premature end of input file.'
-      Call Quit_onUserError()
-      Call ErrTra
- 210  Write(6,*) SECNAM, 'Error while reading input file.'
-      Call Quit_onUserError()
-!
-      End
+call ErrTra
+200 write(6,*) SECNAM,'Premature end of input file.'
+call Quit_onUserError()
+call ErrTra
+210 write(6,*) SECNAM,'Error while reading input file.'
+call Quit_onUserError()
+
+end subroutine Cho_Alaska_RdInp

@@ -15,7 +15,7 @@ use RPA_globals, only: doCD, doDF, doLDF
 
 implicit none
 
-if (.not.(doCD .or. doDF .or. doLDF)) then
+if (.not. (doCD .or. doDF .or. doLDF)) then
   call RPA_Warn(2,'RPA requires CD, DF, or LDF. Conventional integrals not implemented.')
 end if
 

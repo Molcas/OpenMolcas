@@ -8,12 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-Module Alaska_Info
-Private
-Public :: Am
 
-#include "stdalloc.fh"
-Real*8, Allocatable :: Am(:,:)
+module Alaska_Info
 
-End Module Alaska_Info
+private
+public :: Am
+
+real*8, allocatable :: Am(:,:)
+
+end module Alaska_Info
