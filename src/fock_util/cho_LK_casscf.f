@@ -53,6 +53,8 @@ C
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
+      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
+     &                           Deallocate_NDSBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipDIAH(1)
@@ -66,6 +68,7 @@ C
       Type (DSBA_Type)   Ash(2)
       Type (SBA_Type) Laq(1), Lxy
       Type (twxy_Type) Scr
+      Type (NDSBA_Type) DIAH
 
       Integer   nFIorb(8),nAorb(8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -284,8 +287,9 @@ C *************** Read the diagonal integrals (stored as 1st red set)
       If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-      CALL GETMEM('diahI','Allo','Real',ipDIAH(1),NNBSQ)
-      CALL FZERO(Work(ipDIAH(1)),NNBSQ)
+      Call Allocate_NDSBA(DIAH,nBas,nBas,nSym)
+      DIAH%A0(:)=Zero
+      ipDIAH(1) = ip_of_Work(DIAH%A0(1))
 
 c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
@@ -1495,9 +1499,7 @@ C--- have performed screening in the meanwhile
 
          END DO   ! loop over red sets
 
-
          Call Deallocate_twxy(Scr)
-*        Call GetMem('Mtmp','Free','REAL',ipItmp,Mwaxy)
 
 1000  CONTINUE
 
@@ -1592,7 +1594,7 @@ c ---------------
       Call mma_deallocate(MLk)
       Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
-      CALL GETMEM('diahI','Free','Real',ipDIAH(1),NNBSQ)
+      Call Deallocate_NDSBA(DIAH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
      &    Call mma_deallocate(DiagJ)
