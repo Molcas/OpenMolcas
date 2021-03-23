@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1992, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1992, Roland Lindh                                *
+!***********************************************************************
       SubRoutine Inputg(LuSpool)
-************************************************************************
-*                                                                      *
-* Object: input module for the gradient code                           *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             September '91                                            *
-*                                                                      *
-*             Modified to complement GetInf, January '92.              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: input module for the gradient code                           *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             September '91                                            *
+!                                                                      *
+!             Modified to complement GetInf, January '92.              *
+!***********************************************************************
       use Alaska_Info, only: Am
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
       use Temporary_Parameters
       use Real_Info, only: CutInt
-      use OFembed, only: Do_OFemb,KEonly,OFE_first, Xsigma, dFMD,
+      use OFembed, only: Do_OFemb,KEonly,OFE_first, Xsigma, dFMD,       &
      &                   OFE_KSDFT
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
@@ -51,7 +51,7 @@
       Logical Reduce_Prt
       External Reduce_Prt
 #include "chotime.fh"
-*
+!
       iRout = 99
       iPrint = nPrint(iRout)
       Do i = 1, nRout
@@ -90,18 +90,18 @@
       Else If (iPL.eq.4) Then
          jPrint=49
       Else
-*     Else If (iPL.eq.5) Then
+!     Else If (iPL.eq.5) Then
          jPrint=98
       End If
-*
+!
       Do i = 1, nRout
          nPrint(i) = jPrint
       End Do
-*
-*     First CutGrd can not be more accurate than CutInt!
+!
+!     First CutGrd can not be more accurate than CutInt!
       CutGrd = Max(1.0D-07,CutInt)
-*     Second CutInt should now locally for Alaska be reset to the value
-*     of CutInt/100!
+!     Second CutInt should now locally for Alaska be reset to the value
+!     of CutInt/100!
       CutInt=CutGrd*1.0D-2
       Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
@@ -109,11 +109,11 @@
       Do 1500 ldsp = 1, 3*MxAtom
          Direct(ldsp) = .True.
  1500 Continue
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     KeyWord directed input
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     KeyWord directed input
+!
       Rewind(LuSpool)
       No_Input_OK=.True.
       Call RdNLst_(LuSpool,'ALASKA',No_Input_OK)
@@ -143,12 +143,12 @@
       If (KWord(1:4).eq.'OFEM') Go To 973
       If (KWord(1:4).eq.'KEON') Go To 974
       If (KWord(1:4).eq.'DFMD') Go To 975
-* Keyword 'NUMErical' checked earlier - forces numerical gradients
-* Keyword 'DELTa' selects the scaling factor for the displacements
-*                 in the numerical_gradient module
-* Keyword 'KEEP' does not remove the old gradient
-* Keyword 'INVErt' inverts the treatment of constraints
-* Here it's only included for consistency
+! Keyword 'NUMErical' checked earlier - forces numerical gradients
+! Keyword 'DELTa' selects the scaling factor for the displacements
+!                 in the numerical_gradient module
+! Keyword 'KEEP' does not remove the old gradient
+! Keyword 'INVErt' inverts the treatment of constraints
+! Here it's only included for consistency
       If (KWord(1:4).eq.'NUME') Go To 998
       If (KWord(1:4).eq.'DELT') Go To 998
       If (KWord(1:4).eq.'KEEP') Go To 998
@@ -162,16 +162,16 @@
       Write (LuWr,*) 'Inputg: Illegal keyword'
       Write (LuWr,'(A,A)') 'KWord=',KWord
       Call Quit_OnUserError()
-*
+!
  988  Call WarningMessage(2,'Error in InputG')
       Write (LuWr,*) 'Inputg: Error reading the input'
       Write (LuWr,'(A,A)') 'Last read line=',KWord
       Call Quit_OnUserError()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Print level
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Print level
+!
  930  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 930
       If (KWord.eq.'')    Go To 930
@@ -184,11 +184,11 @@
          nPrint(jRout)=iPrint
  931  Continue
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Equivalence option
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Equivalence option
+!
  935  Continue
       If (T_Only) Then
          Call WarningMessage(2,'Error in InputG')
@@ -211,32 +211,32 @@
 939      Continue
 937   Continue
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Cutoff for computing primitive gradients
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Cutoff for computing primitive gradients
+!
  942  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 942
       If (KWord.eq.'')    Go To 942
       Read(KWord,*,Err=988) CutGrd
       CutGrd = Abs(CutGrd)
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Disable the utilization of translational and
-*     rotational invariance of the energy in the
-*     computation of the molecular gradient.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Disable the utilization of translational and
+!     rotational invariance of the energy in the
+!     computation of the molecular gradient.
+!
  953  TRSymm=.False.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     selection option
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     selection option
+!
  960  Continue
       If (T_Only) Then
          Call WarningMessage(2,'Error in InputG')
@@ -246,7 +246,7 @@
       Slct = .True.
       If (lEq) Then
          Call WarningMessage(2,'Error in InputG')
-         Write (LuWr,*) ' The Selection option must preceed the',
+         Write (LuWr,*) ' The Selection option must preceed the',       &
      &                  ' Equivalence option to work together.'
          Call Quit_OnUserError()
       End If
@@ -257,7 +257,7 @@
       If (KWord(1:1).eq.'*') Go To 962
       If (KWord.eq.'')    Go To 962
       Read(KWord,*) nSlct
-*
+!
  963  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 963
       If (KWord.eq.'')    Go To 963
@@ -266,44 +266,44 @@
          Direct(iTemp(iElem)) = .True.
 964   Continue
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Change default for the prescreening.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Change default for the prescreening.
+!
  965  l2DI  = .False.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Change default for the prescreening.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Change default for the prescreening.
+!
  966  l2DI  = .True.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Do not compute two electron integrals.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Do not compute two electron integrals.
+!
  990  Onenly = .TRUE.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Process only the input.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Process only the input.
+!
  991  Test = .TRUE.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*-----Raise the printlevel to show gradient contributions
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!-----Raise the printlevel to show gradient contributions
+!
  992  Continue
       If (iPL.ge.2) Then
          nPrint(112) = 15
@@ -311,75 +311,75 @@
          nPrint(33)  = 15
       End If
       Go To 998
-*                                                                      *
-****** PNEW ************************************************************
-*                                                                      *
-*
-*-----Print gradient in NEW human-readable format
-*
+!                                                                      *
+!***** PNEW ************************************************************
+!                                                                      *
+!
+!-----Print gradient in NEW human-readable format
+!
  994  Continue
       nPrint(1)   =  4
       Go To 998
-*                                                                      *
-****** POLD ************************************************************
-*                                                                      *
-*
-*-----Print gradient in OLD format
-*
+!                                                                      *
+!***** POLD ************************************************************
+!                                                                      *
+!
+!-----Print gradient in OLD format
+!
  995  Continue
       nPrint(1)   =  5
       Go To 998
-*                                                                      *
-****** VERB ************************************************************
-*                                                                      *
-*
-*----- Verbose mode.
-*
+!                                                                      *
+!***** VERB ************************************************************
+!                                                                      *
+!
+!----- Verbose mode.
+!
  912  Continue
       nPrint(80)  =  6
       nPrint( 1)  =  6
       nPrint( 9)  =  6
       nPrint(99)  =  6
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Compute Hellmann-Feynman forces
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Compute Hellmann-Feynman forces
+!
  993  HF_Force = .TRUE.
       Go To 998
-*                                                                      *
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*     Do not compute the nuclear charge contribution
-*
+!                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!     Do not compute the nuclear charge contribution
+!
  996  NO_NUC = .TRUE.
       Go To 998
 
-************************************************************************
-*                                                                      *
-*
-*     Put the program name and the time stamp onto the extract file
-*
-971   Write (LuWr,*)'InputG: EXTRACT option is redundant and is',
+!***********************************************************************
+!                                                                      *
+!
+!     Put the program name and the time stamp onto the extract file
+!
+971   Write (LuWr,*)'InputG: EXTRACT option is redundant and is',       &
      &              ' ignored!'
       Go To 998
-*                                                                      *
-************************************************************************
-*
-*     Cholesky input section
-*
+!                                                                      *
+!***********************************************************************
+!
+!     Cholesky input section
+!
  972  Continue
       Call Cho_alaska_rdInp(LuSpool)
       Go To 998
-*                                                                      *
-************************************************************************
-*
-*     Orbital-Free Embedding (OFE) input section
-*
+!                                                                      *
+!***********************************************************************
+!
+!     Orbital-Free Embedding (OFE) input section
+!
  973  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 973
       If (KWord.eq.'')    Go To 973
@@ -388,100 +388,100 @@
       Read(KWord,'(A)') OFE_KSDFT
       Do_OFemb=.true.
       Go To 998
-*                                                                      *
-************************************************************************
-*
-*     Mode "Kinetic Energy Only" for OFE input section
-*
+!                                                                      *
+!***********************************************************************
+!
+!     Mode "Kinetic Energy Only" for OFE input section
+!
  974  Continue
       KEonly=.true.
       Go To 998
-*                                                                      *
-************************************************************************
-*
-*     Mode "Kinetic Energy Only" for OFE input section
-*
+!                                                                      *
+!***********************************************************************
+!
+!     Mode "Kinetic Energy Only" for OFE input section
+!
  975  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 975
       If (KWord.eq.'')    Go To 975
       Read(KWord,*) dFMD, Xsigma
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Root keyword, now also for analytical gradient
-*     This is a dummy, the keyword is already read in chk_numerical
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Root keyword, now also for analytical gradient
+!     This is a dummy, the keyword is already read in chk_numerical
+!
  976  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 976
       If (KWord.eq.'')    Go To 976
       Read(KWord,*) i
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NAC keyword: compute non-adiabatic couplings between 2 states
-*     The keyword is already read in chk_numerical
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     NAC keyword: compute non-adiabatic couplings between 2 states
+!     The keyword is already read in chk_numerical
+!
  977  Read(LuSpool,'(A)',Err=988) KWord
       isNAC=.True.
       If (KWord(1:1).eq.'*') Go To 977
       If (KWord.eq.'')    Go To 977
       Read(KWord,*) NACstates(1),NACstates(2)
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     NOCSF keyword, to neglect the CSF contribution to the NAC,
-*     which is the cause for translational variance
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     NOCSF keyword, to neglect the CSF contribution to the NAC,
+!     which is the cause for translational variance
+!
  978  DoCSF=.False.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     AUTO keyword, used by SLAPAF, to signal this is an automated
-*     call to ALASKA
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     AUTO keyword, used by SLAPAF, to signal this is an automated
+!     call to ALASKA
+!
  979  Auto=.True.
       Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                          End of input section.                       *
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                          End of input section.                       *
+!                                                                      *
+!***********************************************************************
  997  Continue
-*
-* NAC could have been activated through explicit input or through
-* a previous MCLR
-*
+!
+! NAC could have been activated through explicit input or through
+! a previous MCLR
+!
       If (isNAC) Then
          No_Nuc=.True.
-*Get the state energies
+!Get the state energies
          Call Get_iScalar('Number of roots',nRoots)
          Call mma_Allocate(Tmp,nRoots,Label='Tmp')
          Call Get_dArray('Last energies',Tmp,nRoots)
          Ediff=Tmp(NACstates(1))-Tmp(NACstates(2))
          Call mma_deallocate(Tmp)
       End If
-*
+!
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
          If (dbsc(iCnttp)%Aux) Exit
          nCnttp_Valence = nCnttp_Valence+1
       End Do
-*
+!
       If (lEq)  TRSymm=.False.
       If (Slct) TRSymm=.False.
       iPrint=nPrint(iRout)
-*
+!
       TRsymm=(TRsymm.or.T_Only) .and. .Not.Test
-*
-*---- Compute number of centers and displacements. Ignore pseudo centers.
-*     If any pseudo centers disable use of translational and rotational
-*     invariance.
-*
+!
+!---- Compute number of centers and displacements. Ignore pseudo centers.
+!     If any pseudo centers disable use of translational and rotational
+!     invariance.
+!
       mDisp = 0
       mdc = 0
       Do 10 iCnttp = 1, nCnttp_Valence
@@ -497,37 +497,37 @@
             mDisp = mDisp + 3*(nIrrep/dc(mdc)%nStab)
  20      Continue
  10   Continue
-*
+!
       If (HF_Force.and.Show.and.iPrint.ge.6) Then
          Write (LuWr,*)
          Write (LuWr,'(A)') '            O B S E R V E ! '
-         Write (LuWr,'(A)') '            Option for computation of '//
+         Write (LuWr,'(A)') '            Option for computation of '//  &
      &                   'interstate couling vector or'
-         Write (LuWr,'(A)') '            Hellmann-Feynman gradient '//
+         Write (LuWr,'(A)') '            Hellmann-Feynman gradient '//  &
      &                   'is active.'
 
          Write (LuWr,*)
       End If
       If (Show.and.iPrint.ge.6) Then
          Write (LuWr,*)
-         Write (LuWr,'(20X,A,E10.3)')
+         Write (LuWr,'(20X,A,E10.3)')                                   &
      &     ' Threshold for contributions to the gradient:',CutGrd
          Write (LuWr,*)
       End If
-*
-*     Generate symmetry adapted cartesian displacements
-*
+!
+!     Generate symmetry adapted cartesian displacements
+!
       If (Show.and.iPrint.ge.6) Then
          Write (LuWr,*)
-         Write (LuWr,'(20X,A)')
+         Write (LuWr,'(20X,A)')                                         &
      &              '********************************************'
-         Write (LuWr,'(20X,A)')
+         Write (LuWr,'(20X,A)')                                         &
      &              '* Symmetry Adapted Cartesian Displacements *'
-         Write (LuWr,'(20X,A)')
+         Write (LuWr,'(20X,A)')                                         &
      &           '********************************************'
          Write (LuWr,*)
       End If
-*
+!
       Call ICopy(MxAtom*8,[0],0,IndDsp,1)
       Call ICopy(MxAtom*3,[0],0,InxDsp,1)
       call dcopy_(3*MxSym*MxAtom,[One],0,Disp_Fac,1)
@@ -536,19 +536,19 @@
       Do iIrrep = 0, nIrrep-1
          lDisp(iIrrep) = 0
          Type = .True.
-*        Loop over basis function definitions
+!        Loop over basis function definitions
          mdc = 0
          mc = 1
          Do iCnttp = 1, nCnttp_Valence
-*           Loop over unique centers associated with this basis set.
+!           Loop over unique centers associated with this basis set.
             Do iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
                IndDsp(mdc,iIrrep) = nDisp
-*              Loop over the cartesian components
+!              Loop over the cartesian components
                Do iCar = 0, 2
                   iComp = 2**iCar
-                  If ( TstFnc(dc(mdc)%iCoSet,
-     &                iIrrep,iComp,dc(mdc)%nStab) .and.
+                  If ( TstFnc(dc(mdc)%iCoSet,                           &
+     &                iIrrep,iComp,dc(mdc)%nStab) .and.                 &
      &                .Not.dbsc(iCnttp)%pChrg ) Then
                       nDisp = nDisp + 1
                       If (iIrrep.eq.0) InxDsp(mdc,iCar+1) = nDisp
@@ -557,55 +557,55 @@
                       If (Type) Then
       If (Show.and.iPrint.ge.6) then
                          Write (LuWr,*)
-                         Write (LuWr,'(10X,A,A)')
-     &                    ' Irreducible representation : ',
+                         Write (LuWr,'(10X,A,A)')                       &
+     &                    ' Irreducible representation : ',             &
      &                      lIrrep(iIrrep)
-                         Write (LuWr,'(10X,2A)')
-     &                      ' Basis function(s) of irrep: ',
+                         Write (LuWr,'(10X,2A)')                        &
+     &                      ' Basis function(s) of irrep: ',            &
      &                       lBsFnc(iIrrep)
                          Write (LuWr,*)
-                         Write (LuWr,'(A)')
+                         Write (LuWr,'(A)')                             &
      &                   ' Basis Label        Type   Center Phase'
       End If
                          Type = .False.
                       End If
                       If (iIrrep.eq.0) Then
                          Do jOper = 0, nIrrep-1
-                            Disp_Fac(iCar+1,jOper,mdc)=
-     &                        DBLE(iPrmt( jOper ,iComp) *
+                            Disp_Fac(iCar+1,jOper,mdc)=                 &
+     &                        DBLE(iPrmt( jOper ,iComp) *               &
      &                             iChTbl(iIrrep,jOper))
                          End Do
                       End If
       If (Show.and.iPrint.ge.6) Then
-                      Write (LuWr,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))')
-     &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),
-     &                      (mc+iCo,iPrmt(
-     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*
-     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),
+                      Write (LuWr,'(I4,3X,A8,5X,A1,7X,8(I3,4X,I2,4X))') &
+     &                      nDisp,dc(mdc)%LblCnt,xyz(iCar),             &
+     &                      (mc+iCo,iPrmt(                              &
+     &                      NrOpr(dc(mdc)%iCoSet(iCo,0)),iComp)*        &
+     &                      iChTbl(iIrrep,NrOpr(dc(mdc)%iCoSet(iCo,0))),&
      &                      iCo=0,nIrrep/dc(mdc)%nStab-1 )
       End If
-      Write (ChDisp(nDisp),'(A,1X,A1)')
+      Write (ChDisp(nDisp),'(A,1X,A1)')                                 &
      &      dc(mdc)%LblCnt,xyz(iCar)
                   End If
-*
+!
                End Do
                mc = mc + nIrrep/dc(mdc)%nStab
             End Do
          End Do
-*
+!
       End Do
-*
+!
       If (nDisp.ne.mDisp) Then
          Call WarningMessage(2,'Error in InputG')
-         Write (LuWr,*)
-     &      ' Wrong number of symmetry adapted displacements',
+         Write (LuWr,*)                                                 &
+     &      ' Wrong number of symmetry adapted displacements',          &
      &       nDisp,'=/=',mDisp
          Call Abend()
       End If
-*
-*     Set up data for the utilization of the translational
-*     and rotational invariance of the energy.
-*
+!
+!     Set up data for the utilization of the translational
+!     and rotational invariance of the energy.
+!
       If (TRSymm) Then
          Write (6,*) 'Unsupported option: TRSymm'
          Call Abend()
@@ -620,12 +620,12 @@
             End Do
          End Do
          nTR = 0
-*--------Translational equations
+!--------Translational equations
          Do i = 1, 3
             If (iSym(i).eq.0) nTR = nTR + 1
          End Do
          If (iPrint.ge.99) Write (LuWr,*) ' nTR=',nTR
-*--------Rotational equations
+!--------Rotational equations
          If (.Not.T_Only) Then
             Do i = 1,3
                j = i+1
@@ -645,45 +645,45 @@
          Call mma_allocate(Temp,nTR,nTR,Label='Temp')
          Call mma_allocate(C,4,lDisp(0),Label='C')
          Call mma_allocate(IndCar,lDisp(0),Label='IndCar')
-*
+!
          Am(:,:)=Zero
          C(:,:)=Zero
-*
-*        Generate temporary information of the symmetrical
-*        displacements.
-*
+!
+!        Generate temporary information of the symmetrical
+!        displacements.
+!
          ldsp = 0
          mdc = 0
          iIrrep = 0
          Do 2100 iCnttp = 1, nCnttp_Valence
             Do 2200 iCnt = 1, dbsc(iCnttp)%nCntr
                mdc = mdc + 1
-*              Call RecPrt(' Coordinates',' ',
-*    &                     dbsc(iCnttp)%Coor(1,iCnt),1,3)
+!              Call RecPrt(' Coordinates',' ',
+!    &                     dbsc(iCnttp)%Coor(1,iCnt),1,3)
                Fact = Zero
                iComp = 0
-               If (dbsc(iCnttp)%Coor(1,iCnt).ne.Zero)
+               If (dbsc(iCnttp)%Coor(1,iCnt).ne.Zero)                   &
      &             iComp = iOr(iComp,1)
-               If (dbsc(iCnttp)%Coor(2,iCnt).ne.Zero)
+               If (dbsc(iCnttp)%Coor(2,iCnt).ne.Zero)                   &
      &             iComp = iOr(iComp,2)
-               If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)
+               If (dbsc(iCnttp)%Coor(3,iCnt).ne.Zero)                   &
      &             iComp = iOr(iComp,4)
                Do jIrrep = 0, nIrrep-1
-                  If ( TstFnc(dc(mdc)%iCoSet,
+                  If ( TstFnc(dc(mdc)%iCoSet,                           &
      &                  jIrrep,iComp,dc(mdc)%nStab) ) Then
                      Fact = Fact + One
                   End If
                End Do
                Do iCar = 1, 3
                   iComp = 2**(iCar-1)
-                  If ( TstFnc(dc(mdc)%iCoSet,
+                  If ( TstFnc(dc(mdc)%iCoSet,                           &
      &                  iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
                      Direct(lDsp)=.True.
-*--------------------Transfer the coordinates
-                     call dcopy_(3,dbsc(iCnttp)%Coor(1:3,iCnt),1,
+!--------------------Transfer the coordinates
+                     call dcopy_(3,dbsc(iCnttp)%Coor(1:3,iCnt),1,       &
      &                           C(1,ldsp),1)
-*--------------------Transfer the multiplicity factor
+!--------------------Transfer the multiplicity factor
                      C(4,ldsp)= Fact
                      IndCar(ldsp) = iCar
                   End If
@@ -694,9 +694,9 @@
             Call RecPrt(' Information',' ',C,4,lDisp(0))
             Write (LuWr,*) (IndCar(i),i=1,lDisp(0))
          End If
-*
-*--------Set up coefficient for the translational equations
-*
+!
+!--------Set up coefficient for the translational equations
+!
          iTR = 0
          Do i = 1,3
             If (iSym(i).eq.0) Then
@@ -708,9 +708,9 @@
                End Do
             End If
          End Do
-*
-*--------Set up coefficient for the rotational invariance
-*
+!
+!--------Set up coefficient for the rotational invariance
+!
          If (.Not.T_Only) Then
             Do i = 1, 3
                j = i + 1
@@ -732,37 +732,37 @@
  1210          Continue
             End Do
          End If
-         If (iPrint.ge.99)
+         If (iPrint.ge.99)                                              &
      &      Call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
-*
-*--------Now, transfer the coefficient of those gradients which will
-*        not be computed directly.
-*        The matrix to compute the inverse of is determined via
-*        a Gram-Schmidt procedure.
-*
-*--------Pick up the other vectors
+!
+!--------Now, transfer the coefficient of those gradients which will
+!        not be computed directly.
+!        The matrix to compute the inverse of is determined via
+!        a Gram-Schmidt procedure.
+!
+!--------Pick up the other vectors
          Do iTR = 1, nTR
-*           Write (LuWr,*) ' Looking for vector #',iTR
+!           Write (LuWr,*) ' Looking for vector #',iTR
             ovlp = Zero
             kTR = 0
-*-----------Check all the remaining vectors
+!-----------Check all the remaining vectors
             Do 1231 ldsp = 1, lDisp(0)
                Do jTR = 1, iTR-1
                   If (iTemp(jTR).eq.ldsp) Go To 1231
                End Do
-*              Write (LuWr,*) ' Checking vector #', ldsp
+!              Write (LuWr,*) ' Checking vector #', ldsp
                call dcopy_(nTR,Am(1,ldsp),1,Temp(1,iTR),1)
-*              Call RecPrt(' Vector',' ',Temp(1,iTR),nTR,1)
-*--------------Gram-Schmidt orthonormalize against accepted vectors
+!              Call RecPrt(' Vector',' ',Temp(1,iTR),nTR,1)
+!--------------Gram-Schmidt orthonormalize against accepted vectors
                Do lTR = 1, iTR-1
                   alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,lTR),1)
-*                 Write (LuWr,*) ' <x|y> =', alpha
+!                 Write (LuWr,*) ' <x|y> =', alpha
                   Call DaXpY_(nTR,-alpha,Temp(1,lTR),1,Temp(1,iTR),1)
                End Do
-*              Call RecPrt(' Remainings',' ',Temp(1,iTR),nTR,1)
+!              Call RecPrt(' Remainings',' ',Temp(1,iTR),nTR,1)
                alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,iTR),1)
-*              Write (LuWr,*) ' Remaining overlap =', alpha
-*--------------Check the remaining magnitude of vector after Gram-Schmidt
+!              Write (LuWr,*) ' Remaining overlap =', alpha
+!--------------Check the remaining magnitude of vector after Gram-Schmidt
                If (alpha.gt.ovlp) Then
                   kTR = ldsp
                   ovlp = alpha
@@ -777,8 +777,8 @@
                Write (LuWr,*) ' No Vector found!'
                Call Abend()
             End If
-*           Write (LuWr,*) ' Selecting vector #', kTR
-*-----------Pick up the "best" vector
+!           Write (LuWr,*) ' Selecting vector #', kTR
+!-----------Pick up the "best" vector
             call dcopy_(nTR,Am(1,kTR),1,Temp(1,iTR),1)
             Do lTR = 1, iTR-1
                alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,lTR),1)
@@ -797,21 +797,21 @@
             Call RecPrt(' The T matrix',' ',Temp,nTR,nTR)
             Write (LuWr,*) (iTemp(iTR),iTR=1,nTR)
          End If
-*
-*        Compute the inverse of the T matrix
-*
+!
+!        Compute the inverse of the T matrix
+!
          Call MatInvert(Temp,nTR)
-         If (IPrint.ge.99)
+         If (IPrint.ge.99)                                              &
      &      Call RecPrt(' The T-1 matrix',' ',Temp,nTR,nTR)
          Call DScal_(nTR**2,-One,Temp,1)
-*
-*        Generate the complete matrix
-*
+!
+!        Generate the complete matrix
+!
          Call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
-         Call DGEMM_('N','N',
-     &               nTR,lDisp(0),nTR,
-     &               1.0d0,Temp,nTR,
-     &               Am,nTR,
+         Call DGEMM_('N','N',                                           &
+     &               nTR,lDisp(0),nTR,                                  &
+     &               1.0d0,Temp,nTR,                                    &
+     &               Am,nTR,                                            &
      &               0.0d0,Scr,nTR)
          If (IPrint.ge.99) Call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
          Call mma_deallocate(Am)
@@ -824,10 +824,10 @@
             ldsp = iTemp(iTR)
             call dcopy_(lDisp(0),Scr(1,iTR),nTR,Am(1,lDisp),lDisp(0))
  1250    Continue
-         If (iPrint.ge.99)
+         If (iPrint.ge.99)                                              &
      &      Call RecPrt('Final A matrix',' ',Am,lDisp(0),lDisp(0))
-*
-*
+!
+!
          Call mma_deallocate(Scr)
          Call mma_deallocate(IndCar)
          Call mma_deallocate(C)
@@ -836,10 +836,10 @@
             ldsp = iTemp(iTR)
             Direct(ldsp)=.False.
  1501    Continue
-*
+!
          Write (LuWr,*)
-         Write (LuWr,'(20X,A,A)')
-     &      ' Automatic utilization of translational and',
+         Write (LuWr,'(20X,A,A)')                                       &
+     &      ' Automatic utilization of translational and',              &
      &      ' rotational invariance of the energy is employed.'
          Write (LuWr,*)
          Do 7000 i = 1, lDisp(0)
@@ -850,18 +850,18 @@
             End If
  7000    Continue
          Write (LuWr,*)
-*
+!
       Else
          nTR = 0
          If (Show.and.iPrint.ge.6) Then
             Write (LuWr,*)
-            Write (LuWr,'(20X,A,A)')
-     &         ' No automatic utilization of translational and',
+            Write (LuWr,'(20X,A,A)')                                    &
+     &         ' No automatic utilization of translational and',        &
      &         ' rotational invariance of the energy is employed.'
             Write (LuWr,*)
          End If
       End If
-*
+!
       If (Slct) Then
          Write (LuWr,*)
          Write (LuWr,'(20X,A)') ' The Selection option is used'
@@ -875,11 +875,11 @@
  7100    Continue
          Write (LuWr,*)
       End If
-*
+!
  9876 Continue
-*
-*     Set up the angular index vector
-*
+!
+!     Set up the angular index vector
+!
       i = 0
       Do 1000 iR = 0, iTabMx
          Do 2000 ix = iR, 0, -1
@@ -892,8 +892,8 @@
  3000       Continue
  2000    Continue
  1000 Continue
-*
+!
       Onenly = HF_Force
-*
+!
       Return
       End

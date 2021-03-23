@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Chk_Numerical(LuSpool,Numerical)
       Implicit Real*8 (A-H,O-Z)
       Logical Numerical,Is_Root_Set, DNG, KeepOld, Found
@@ -15,7 +15,7 @@
       External Get_Ln
 #include "nac.fh"
 #include "alaska_root.fh"
-*
+!
       Call Qpg_iScalar('DNG',DNG)
       If (DNG) Then
          Call Get_iScalar('DNG',iDNG)
@@ -24,10 +24,10 @@
          Numerical = .False.
       End If
       LuWr=6
-*
-* Setting the defaults
-*    iRoot     : Which root to optimize the geometry for
-*    rDelta    : Displacements are chosen as r_nearest_neighbor * rDelta
+!
+! Setting the defaults
+!    iRoot     : Which root to optimize the geometry for
+!    rDelta    : Displacements are chosen as r_nearest_neighbor * rDelta
       iRoot     = 1
       rDelta    = 0.0100D0
       NACstates(1)=0
@@ -38,15 +38,15 @@
       ForceNAC  = .False.
       iRlxRoot  = 1
       Auto      = .False.
-*
-* RASSCF will set the default root to the root that is relaxed.
-*
+!
+! RASSCF will set the default root to the root that is relaxed.
+!
       Is_Root_Set = .False.
       Call Qpg_iScalar('NumGradRoot',Is_Root_Set)
       If (Is_Root_Set) Then
          Call Get_iScalar('NumGradRoot',iRoot)
       End If
-*
+!
       Rewind(LuSpool)
       Call RdNLst(LuSpool,'ALASKA')
       KWord=' &ALASKA'
@@ -82,20 +82,20 @@
       Else
          Goto 998
       End If
-*
- 988  Call WarningMessage(2,
+!
+ 988  Call WarningMessage(2,                                            &
      &               'Chk_Numerical: Error reading the input')
       Write (LuWr,'(A,A)') 'Last read line=',KWord
       Call Quit_OnUserError()
-*
+!
  997  Continue
-*
+!
       Call Get_iScalar('Grad ready',iGO)
       iGO = iAnd(iGO,Not(2**0))
       Call Put_iScalar('Grad ready',iGO)
-*
-* Put on the runfile which root and delta to use
-*
+!
+! Put on the runfile which root and delta to use
+!
       Call qpg_iScalar('Relax CASSCF root',Found)
       If (Found) Then
          Call Get_iScalar('Relax CASSCF root',iRoot0)
@@ -105,10 +105,10 @@
          iRoot0=0
       End If
       Call Put_dScalar('Numerical Gradient rDelta',rDelta)
-*
-* These are really input options for numerical_gradient
-*
+!
+! These are really input options for numerical_gradient
+!
       Call Put_lScalar('Keep old gradient',KeepOld)
-*
+!
       Return
       End

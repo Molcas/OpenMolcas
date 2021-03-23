@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Cho_Alaska_RdInp(LuSpool)
-***********************************************************
-*
-*     Purpose: Read and process input for Cholesky section
-*              in alaska.
-*
-***********************************************************
+!**********************************************************
+!
+!     Purpose: Read and process input for Cholesky section
+!              in alaska.
+!
+!**********************************************************
 
       Implicit Real*8 (A-H,O-Z)
 #include "exterm.fh"
@@ -25,14 +25,14 @@
       Real*8 dmpK
       Integer nScreen
 #include "chotime.fh"
-*
-*     Set defaults
-*
+!
+!     Set defaults
+!
       dmpK = 1.0d0
       dmpK_default = dmpK
       nScreen = 10
-*
-*     Process the input
+!
+!     Process the input
  1000 continue
       Key=Get_Ln(LuSpool)
       Kword=Key
@@ -45,9 +45,9 @@
       If(KWord(1:4).eq.'ENDC') Go To 998
       If(KWord(1:4).eq.'END ') Go To 998
       If(KWord(1:4).eq.'ENDO') Go To 998
-*                                                             *
-**** DMPK *****************************************************
-*                                                             *
+!                                                             *
+!*** DMPK *****************************************************
+!                                                             *
  100  Continue
       Read(LuSpool,*, err=210, end=200) dmpK
       If(dmpK .lt. 0.0d0) Then
@@ -56,31 +56,31 @@
          dmpK = dmpK_default
       End If
       Go To 1000
-*                                                             *
-**** SCRN *****************************************************
-*                                                             *
+!                                                             *
+!*** SCRN *****************************************************
+!                                                             *
  110  Continue
       Read(LuSpool,*, err=210, end=200) nScreen
       Go To 1000
-*                                                             *
-**** TIMI *****************************************************
-*                                                             *
+!                                                             *
+!*** TIMI *****************************************************
+!                                                             *
  120  Continue
       Timings=.True.
       Go To 1000
-*                                                             *
-*** ENDChoinput ***********************************************
-*                                                             *
+!                                                             *
+!** ENDChoinput ***********************************************
+!                                                             *
  998  Continue
       Return
-*                                                             *
-***************************************************************
-*                                                             *
+!                                                             *
+!**************************************************************
+!                                                             *
       Call ErrTra
  200  Write(6,*) SECNAM, 'Premature end of input file.'
       Call Quit_onUserError()
       Call ErrTra
  210  Write(6,*) SECNAM, 'Error while reading input file.'
       Call Quit_onUserError()
-*
+!
       End

@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2002, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2002, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine DrvDFTg(Grad,Temp,nGrad)
-************************************************************************
-*                                                                      *
-* Object: driver for computation of gradient with respect to the DFT   *
-*         energy.                                                      *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Chem. Phys.                       *
-*             University of Lund, SWEDEN                               *
-*             August 2002                                              *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Object: driver for computation of gradient with respect to the DFT   *
+!         energy.                                                      *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Chem. Phys.                       *
+!             University of Lund, SWEDEN                               *
+!             August 2002                                              *
+!***********************************************************************
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: King
@@ -35,45 +35,45 @@
       Logical First, Dff, Do_Grad, l_casdft
       Character*4 DFTFOCK
       Dimension Dummy1(1),Dummy2(1),Dummy3(1),Dumm0(1),Dumm1(1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call CWTime(TCpu1,TWall1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*...  Prologue
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!...  Prologue
       DFTFOCK='SCF '
       iRout = 131
       iPrint = nPrint(iRout)
       LuWr=6
-*
+!
       nDens = 0
       Do iIrrep = 0, nIrrep - 1
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
       End Do
-*
-*     D F T - g r a d i e n t                                          *
-************************************************************************
-*8)                                                                    *
-*     D F T - g r a d i e n t                                          *
-*                                                                      *
-*     Call Get_iOption(iDFT)
+!
+!     D F T - g r a d i e n t                                          *
+!***********************************************************************
+!8)                                                                    *
+!     D F T - g r a d i e n t                                          *
+!                                                                      *
+!     Call Get_iOption(iDFT)
 
       Call Get_cArray('DFT functional',KSDFT,16)
-      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &           KSDFT(1:6).eq.'TLSDA5'  .or.
-     &           KSDFT(1:5).eq.'TBLYP'   .or.
-     &           KSDFT(1:5).eq.'TOPBE'   .or.
-     &           KSDFT(1:6).eq.'TSSBSW'  .or.
-     &           KSDFT(1:5).eq.'TSSBD'  .or.
-     &           KSDFT(1:5).eq.'TS12G'  .or.
-     &           KSDFT(1:4).eq.'TPBE'    .or.
-     &           KSDFT(1:5).eq.'FTPBE'   .or.
-     &           KSDFT(1:7).eq.'TREVPBE' .or.
-     &           KSDFT(1:8).eq.'FTREVPBE'.or.
-     &           KSDFT(1:6).eq.'FTLSDA'  .or.
-     &           KSDFT(1:6).eq.'FTOPBE'  .or.
+      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.                           &
+     &           KSDFT(1:6).eq.'TLSDA5'  .or.                           &
+     &           KSDFT(1:5).eq.'TBLYP'   .or.                           &
+     &           KSDFT(1:5).eq.'TOPBE'   .or.                           &
+     &           KSDFT(1:6).eq.'TSSBSW'  .or.                           &
+     &           KSDFT(1:5).eq.'TSSBD'  .or.                            &
+     &           KSDFT(1:5).eq.'TS12G'  .or.                            &
+     &           KSDFT(1:4).eq.'TPBE'    .or.                           &
+     &           KSDFT(1:5).eq.'FTPBE'   .or.                           &
+     &           KSDFT(1:7).eq.'TREVPBE' .or.                           &
+     &           KSDFT(1:8).eq.'FTREVPBE'.or.                           &
+     &           KSDFT(1:6).eq.'FTLSDA'  .or.                           &
+     &           KSDFT(1:6).eq.'FTOPBE'  .or.                           &
      &           KSDFT(1:6).eq.'FTBLYP'
 
       If( l_casdft ) then
@@ -85,22 +85,22 @@
 
       Call Get_iScalar('System BitSwitch',iDFT)
       If (iAnd(iDFT,2**6).ne.0) Then
-*
+!
          Call StatusLine(' Alaska:',' Computing DFT gradients')
-*
+!
          First=.True.
          Dff  =.False.
          Call Get_cArray('DFT functional',KSDFT,16)
          ExFac=Zero ! Set to proper value at retrun!
          Do_Grad=.True.
          Call Get_iScalar('Multiplicity',iSpin)
-*        Write (LuWr,*) 'DrvDFTg: KSDFT=',KSDFT
-*        Write (LuWr,*) 'DrvDFTg: ExFac=',ExFac
+!        Write (LuWr,*) 'DrvDFTg: KSDFT=',KSDFT
+!        Write (LuWr,*) 'DrvDFTg: ExFac=',ExFac
          iDumm=1
-         Call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,
-     &               lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,
+         Call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,       &
+     &               lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,          &
      &               Dumm0,Dumm1,iDumm,DFTFOCK)
-*
+!
          iEnd=1
  99      Continue
          If (KSDFT(iEnd:iEnd).eq.' ') Then
@@ -125,15 +125,15 @@
          Write (LuWr,*)
  777     Continue
 
-*
+!
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End
