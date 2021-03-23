@@ -102,7 +102,7 @@ C
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:)
       Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:),
-     &                      Ylk(:,:)
+     &                      Ylk(:,:), MLk(:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -296,7 +296,7 @@ c --- allocate memory for the Y(l)[k] vectors
 
 c --- allocate memory for the ML[k] lists of largest elements
 c --- in significant shells
-      Call GetMem('MLk1','Allo','Real',ipML,nShell*nnO)
+      Call mma_allocate(MLk,nShell,nnO,Label='MLk')
 
 c --- allocate memory for the list of  S:= sum_l abs(C(l)[k])
 c --- for each shell
@@ -735,8 +735,6 @@ c --------------------------------------------------------------------
 
                      End If
 
-                     ipMLk = ipML + nShell*(jK_a - 1)
-
                      IF (DoScreen) THEN
 
                         CALL CWTIME(TCS1,TWS1)
@@ -791,7 +789,7 @@ C --- List the shells present in Y(l)[k] by the largest element
                               YshMax = Max(YshMax,
      &                          Ylk(koffSh(ish,lSym)+ibs,jK_a))
                            End Do
-                           Work(ipMLk+ish-1) = YshMax
+                           MLk(ish,jK_a) = YshMax
                         End Do
 
 C --- Sort the lists ML[k]
@@ -804,28 +802,28 @@ C **** Sort the list
                         jml=1
                         Do while (jml.le.nShell)
 
-                           YMax=Work(ipMLk+jml-1)
+                           YMax=MLk(jml,jK_a)
                            jmlmax=jml
 
                            Do iml=jml+1,nShell  ! get the max
-                              If (Work(ipMLk+iml-1).gt.YMax) then
-                                 YMax = Work(ipMLk+iml-1)
+                              If (MLk(iml,jK_a).gt.YMax) then
+                                 YMax = MLk(iml,jK_a)
                                  jmlmax = iml
                               Endif
                            End Do
 
                            If(jmlmax.ne.jml) then  ! swap positions
-                             xTmp = Work(ipMLk+jml-1)
+                             xTmp = MLk(jml,jK_a)
                              iTmp = Indx(jml,jk_a)
-                             Work(ipMLk+jml-1) = YMax
+                             MLk(jml,jK_a) = YMax
                              Indx(jml,jk_a) = Indx(jmlmax,jk_a)
-                             Work(ipMLk+jmlmax-1) = xTmp
+                             MLk(jmlmax,jK_a) = xTmp
                              Indx(jmlmax,jk_a) = iTmp
                            Endif
 
 c --- Exact bounds (quadratic scaling of the MO transformation)
 c
-c                           If(Work(ipMLk+jml-1)*Work(ipMLk)
+c                           If(MLk(jml,jK_a)*MLk(1,jK_a)
 c     &                                         .ge. tau(jDen))then
 c
 c --- Here we use a non-exact bound for the exchange matrix to achieve
@@ -833,7 +831,7 @@ c --- linear scaling. The positive definiteness of the exchange matrix
 c --- combined with the structure of the density matrix makes this
 c --- bound acceptable and likely to be almost exact for what concerns
 c --- the exchange energy
-                           If ( Work(ipMLk+jml-1) .ge. xtau(jDen) ) then
+                           If ( MLk(jml,jK_a) .ge. xtau(jDen) ) then
                              numSh = numSh + 1
                            else
                              jml=nShell  ! exit the loop
@@ -845,7 +843,7 @@ c --- the exchange energy
 
                         Indx(0,jk_a) = numsh
 
-c         write(6,*)'ord-ML(k)= ',(Work(ipMLk+i-1),i=1,nShell)
+c         write(6,*)'ord-ML(k)= ',(MLk(i,jK_a),i=1,nShell)
 c         write(6,*)'Ind-ML(k)= ',(Indx(i,jk_a),i=0,nShell)
 c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh= ',lSym,
 c     &              kSym,jSym,jk,nShell,numSh
@@ -1148,12 +1146,10 @@ C------------------------------------------------------------
 
                                xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
 
-                               If (Work(ipMLk+lSh-1)*
-     &                             Work(ipMLk+mSh-1) .lt. tau(jDen))Then
-
+                               If (MLk(mSh,jK_a)*MLk(lSh,jK_a)
+     &                             .lt. tau(jDen))Then
 
                                     mSh = Indx(0,jk_a) !skip rest
-
 
                                ElseIf(iaSh.eq.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
@@ -1242,8 +1238,8 @@ c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
 
                                xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
 
-                               If (Work(ipMLk+lSh-1)*
-     &                             Work(ipMLk+mSh-1) .lt. tau(jDen))Then
+                               If (MLk(lsh,jK_a)*MLk(msh,jK_a)
+     &                              .lt. tau(jDen))Then
 
 
                                     mSh = Indx(0,jk_a)  ! skip rest
@@ -1634,7 +1630,7 @@ c ---------------
       Call mma_deallocate(ipLab)
       Call mma_deallocate(Indx)
       Call mma_deallocate(SumAClk)
-      Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
+      Call mma_deallocate(MLk)
       Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
       CALL GETMEM('diahI','Free','Real',ipDIAH(1),NNBSQ)

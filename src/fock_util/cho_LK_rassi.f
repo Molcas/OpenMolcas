@@ -55,8 +55,7 @@ C
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
 
-      Integer   ipMO(2),ipMLk(2)
-      Integer   ipMSQ(2),ipCM(2),ipML(2)
+      Integer   ipMO(2),ipMSQ(2),ipCM(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -89,7 +88,7 @@ C
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:,:)
       Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:,:),
-     &                      Ylk(:,:,:)
+     &                      Ylk(:,:,:), MLk(:,:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -235,11 +234,10 @@ c --- allocate memory for the abs(C(l)[k])
 c --- allocate memory for the Y(l)[k] vectors
       Call mma_allocate(Ylk,MaxB,nnO,nDen,Label='Ylk')
 
-      Do jDen=1,nDen
 c --- allocate memory for the ML[k] lists of largest elements
 c --- in significant shells
-         Call GetMem('MLk','Allo','Real',ipML(jDen),nShell*nnO)
-      End Do
+      Call mma_allocate(MLk,nShell,nnO,nDen,Label='MLk')
+
 c --- allocate memory for the lists of  S:= sum_l abs(C(l)[k])
 c --- for each shell
       Call mma_allocate(SumAClk,nShell,nnO,nDen,Label='SumAClk')
@@ -648,8 +646,6 @@ c --------------------------------------------------------------------
                     ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
      &                         + nBas(kSym)*(jK-1)
 
-                    ipMLk(jDen) = ipML(jDen) + nShell*(jK_a-1)
-
                    End Do
 
                    IF (DoScreen) THEN
@@ -705,7 +701,7 @@ C --- List the shells present in Y(l)[k] by the largest element
                               YshMax = Max(YshMax,
      &                          Ylk(koffSh(ish,lSym)+ibs,jK_a,jDen))
                            End Do
-                           Work(ipMLk(jDen)+ish-1) = YshMax
+                           MLk(ish,jK_a,jDen) = YshMax
                         End Do
                      End Do
 
@@ -719,20 +715,20 @@ C --- Sort the lists ML[k]
 
 C ****  The Max in the MO set 1 is used as reference
                      numSh1=0  ! # of significant shells in MO set 1
-                     YMax=Work(ipMLk(1))
+                     YMax=MLk(1,jK_a,1)
                      jmlmax=1
                      Do iml=2,nShell  ! get the max in the MO set 1
-                        If (Work(ipMLk(1)+iml-1).gt.YMax) then
-                           YMax = Work(ipMLk(1)+iml-1)
+                        If (MLk(iml,jK_a,1).gt.YMax) then
+                           YMax = MLk(iml,jK_a,1)
                            jmlmax = iml
                         Endif
                      End Do
                      If (jmlmax.ne.1) then  ! swap positions
-                        xTmp = Work(ipMLk(1))
+                        xTmp = MLk(1,jK_a,1)
                         iTmp = Indx(1,jk_a,1)
-                        Work(ipMLk(1)) = YMax
+                        MLk(1,jK_a,1) = YMax
                         Indx(1,jk_a,1) = Indx(jmlmax,jk_a,1)
-                        Work(ipMLk(1)+jmlmax-1) = xTmp
+                        MLk(jmlmax,jK_a,1) = xTmp
                         Indx(jmlmax,jk_a,1) = iTmp
                      Endif
 
@@ -742,22 +738,22 @@ C **** Sort the list for the MO set 2   iff  MOs1.ne.MOs2
                        jml=1
                        Do while (jml.le.nShell)
 
-                         YMax=Work(ipMLk(2)+jml-1)
+                         YMax=MLk(jml,jK_a,2)
                          jmlmax=jml
 
                          Do iml=jml+1,nShell  ! get the max
-                           If (Work(ipMLk(2)+iml-1).gt.YMax) then
-                              YMax = Work(ipMLk(2)+iml-1)
+                           If (MLk(iml,jK_a,2).gt.YMax) then
+                              YMax = MLk(iml,jK_a,2)
                               jmlmax = iml
                            Endif
                          End Do
 
                          If(jmlmax.ne.jml) then  ! swap positions
-                          xTmp = Work(ipMLk(2)+jml-1)
-                          iTmp = Indx(jml,jk_a,2)
-                          Work(ipMLk(2)+jml-1) = YMax
-                          Indx(jml,jk_a,2) = Indx(jmlmax,jk_a,2)
-                          Work(ipMLk(2)+jmlmax-1) = xTmp
+                          xTmp = MLk(jml,jK_a,2)
+                          iTmp = Indx(jml,jK_a,2)
+                          MLk(jml,jK_a,2) = YMax
+                          Indx(jml,jK_a,2) = Indx(jmlmax,jK_a,2)
+                          MLk(jmlmax,jK_a,2) = xTmp
                           Indx(jmlmax,jk_a,2) = iTmp
                          Endif
 
@@ -765,7 +761,7 @@ c --- Exact bounds (quadratic scaling of the MO transformation)
 c --- Note that in true RASSI the exchange matrix is not
 c --- positive definite.
 c
-                         If(Work(ipMLk(2)+jml-1)*Work(ipMLk(1))
+                         If(MLk(jml,jK_a,2)*MLk(1,jK_a,1)
      &                                         .ge.tau)then
                            numSh2 = numSh2 + 1
                          else
@@ -783,7 +779,7 @@ c
 
                        numSh2 = 6669666 ! dummy assignement
 
-                       If (Work(ipMLk(1)) .ge. xtau)  numSh1 = 1
+                       If (MLk(1,jK_a,1) .ge. xtau)  numSh1 = 1
 
                      EndIf
 
@@ -792,33 +788,33 @@ C **** Sort the list for the MO set 1 only if needed
                        jml=2 ! the 1st element has already been treated
                        Do while (jml.le.nShell)
 
-                          YMax=Work(ipMLk(1)+jml-1)
+                          YMax=MLk(jml,jK_a,1)
                           jmlmax=jml
                           Do iml=jml+1,nShell  ! get the max
-                             If (Work(ipMLk(1)+iml-1).gt.YMax) then
-                                YMax = Work(ipMLk(1)+iml-1)
+                             If (MLk(iml,jK_a,1).gt.YMax) then
+                                YMax = MLk(iml,jK_a,1)
                                 jmlmax = iml
                              Endif
                           End Do
 
                           If(jmlmax.ne.jml) then  ! swap positions
-                            xTmp = Work(ipMLk(1)+jml-1)
+                            xTmp = MLk(jml,jK_a,1)
                             iTmp = Indx(jml,jk_a,1)
-                            Work(ipMLk(1)+jml-1) = YMax
+                            MLk(jml,jK_a,1) = YMax
                             Indx(jml,jk_a,1) = Indx(jmlmax,jk_a,1)
-                            Work(ipMLk(1)+jmlmax-1) = xTmp
+                            MLk(jmlmax,jK_a,1) = xTmp
                             Indx(jmlmax,jk_a,1) = iTmp
                           Endif
 
                           If( .not.Fake_CMO2  .and.
-     &                       Work(ipMLk(1)+jml-1)*Work(ipMLk(kDen))
+     &                       MLk(jml,jK_a,1)*MLk(1,jK_a,kDen)
      &                                             .ge.tau)then
                              numSh1 = numSh1 + 1
 
 c --- Here we use a non-exact bound for the exchange matrix because a
 c     fake rassi (MOs1=MOs2) has a positive definite exchange
                           ElseIf ( Fake_CMO2  .and.
-     &                             Work(ipMLk(1)+jml-1) .ge. xtau ) then
+     &                             MLk(1,jK_a,1) .ge. xtau ) then
                              numSh1 = numSh1 + 1
                           Else
                              jml=nShell  ! exit the loop
@@ -834,7 +830,7 @@ c     fake rassi (MOs1=MOs2) has a positive definite exchange
                      Indx(0,jk_a,1) = numSh1
 
 c      Do jDen=1,nDen
-c         write(6,*)'ord-ML(k)= ',(Work(ipMLk(jDen)+i-1),i=1,nShell)
+c         write(6,*)'ord-ML(k)= ',(MLk(i,jK_a,jDen),i=1,nShell)
 c         write(6,*)'Ind-ML(k)= ',(Indx(i,jK_a,jDen),i=0,nShell)
 c      End Do
 c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh1,numSh2= ',lSym,
@@ -1145,8 +1141,8 @@ C------------------------------------------------------------
 
                                xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
 
-                               If (Work(ipMLk(1)+lSh-1)*
-     &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
+                               If (MLk(lSh,jK_a,1)*
+     &                             MLk(1,jK_a,kDen).lt.tau) Then
 
 
                                    mSh = Indx(0,jK_a,kDen) !skip rest
@@ -1233,8 +1229,8 @@ C --------------------------------------------------------------------
 
                                xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
 
-                               If (Work(ipMLk(1)+lSh-1)*
-     &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
+                               If (MLk(lSh,jK_a,1)*
+     &                             MLk(mSh,jK_a,kDen).lt.tau) Then
 
 
                                    mSh = Indx(0,jK_a,kDen) ! skip rest
@@ -1580,9 +1576,7 @@ c ---------------
       Call mma_deallocate(ipLab)
       Call mma_deallocate(Indx)
       Call mma_deallocate(SumAClk)
-      Do jDen=nDen,1,-1
-         Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
-      End Do
+      Call mma_deallocate(MLk)
       Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
       CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
