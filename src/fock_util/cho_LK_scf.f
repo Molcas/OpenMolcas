@@ -77,7 +77,7 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:)
       Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:),
-     &                      Ylk(:,:), MLk(:,:)
+     &                      Ylk(:,:), MLk(:,:), Faa(:), Fia(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -273,8 +273,10 @@ C *** Compute Shell Offsets ( MOs and transformed vectors)
       End Do
 
 c --- allocate memory for the Diagonal of the Fock matrix
-      Call GetMem('F(k)ss','Allo','Real',ipFk,MxBasSh+nShell)
-      Call FZero(Work(ipFk),MxBasSh+nShell)
+      Call mma_allocate(Fia,MxBasSh,Label='Fia')
+      Call mma_allocate(Faa,nShell,Label='Faa')
+      Fia(:)=Zero
+      Faa(:)=Zero
 
 C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
       Do jDen=1,nDen
@@ -893,8 +895,6 @@ C --- Prepare the J-screening
 
                             iaSh = Indx(iSh,jK_a)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
-
                             iaSkip= Min(1,Max(0,
      &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
@@ -908,19 +908,16 @@ C ----------------------------------
 
                                   Do ia=1,nBasSh(lSym,iaSh)
 
-                                     ipFia = ipFk + ia - 1
-
                                      ipLaa = ipLab(iaSh)
      &                                     + nBasSh(lSym,iaSh)*(jv-1)
      &                                     + ia - 1
 
-                                     Work(ipFia) = xfjv*Work(ipFia)
+                                     Fia(ia) = xfjv*Fia(ia)
      &                                           + Work(ipLaa)**2
                                   End Do
                                End Do
 
-                               Work(ipFaa) =FindMax(Work(ipFk),
-     &                                      nBasSh(lSym,iaSh))
+                               Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
                             End Do
 
@@ -934,8 +931,6 @@ C ----------------------------------
 
                             iaSh = Indx(iSh,jK_a)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
-
                             iaSkip= Min(1,Max(0,
      &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
@@ -945,8 +940,6 @@ C ---  Faa,[k] = sum_J  (LJa[k])**2
 C ----------------------------------
                                Do ia=1,nBasSh(lSym,iaSh)
 
-                                  ipFia = ipFk + ia - 1
-
                                   Do jv=1,JNUM
 
                                      xfjv = dble(min(1,jv-1))
@@ -955,13 +948,12 @@ C ----------------------------------
      &                                     + JNUM*(ia-1)
      &                                     + jv - 1
 
-                                     Work(ipFia) = xfjv*Work(ipFia)
+                                     Fia(ia) = xfjv*Fia(ia)
      &                                           + Work(ipLaa)**2
                                   End Do
                                End Do
 
-                               Work(ipFaa)= FindMax(Work(ipFk),
-     &                                      nBasSh(lSym,iaSh))
+                               Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
                             End Do
 
@@ -987,8 +979,6 @@ C------------------------------------------------------------
 
                             iaSh = Indx(lSh,jK_a)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
-
                             iaSkip= Min(1,Max(0,
      &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
@@ -999,8 +989,6 @@ C------------------------------------------------------------
                             Do while (mSh.le.Indx(0,jK_a))
 
                                ibSh = Indx(mSh,jK_a)
-
-                               ipFbb = ipFk + MxBasSh + ibSh - 1
 
                                ibSkip = Min(1,Max(0,
      &                                        abs(ipLab(ibSh)-ipAbs)))
@@ -1013,7 +1001,7 @@ C------------------------------------------------------------
 
                                ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
 
-                               xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
+                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                                If ( MLk(lSh,jK_a)*MLk(mSh,jK_a)
      &                              .lt. tau(jDen) ) Then
@@ -1081,8 +1069,6 @@ c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
 
                             iaSh = Indx(lSh,jK_a)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
-
                             iaSkip= Min(1,Max(0,
      &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
@@ -1093,8 +1079,6 @@ c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
                             Do while (mSh.le.Indx(0,jK_a))
 
                                ibSh = Indx(mSh,jK_a)
-
-                               ipFbb = ipFk + MxBasSh + ibSh - 1
 
                                ibSkip= Min(1,Max(0,
      &                                 abs(ipLab(ibSh)-ipAbs)))
@@ -1107,7 +1091,7 @@ c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
 
                                ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
 
-                               xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
+                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
                                If ( MLk(lSh,jK_a)*MLk(mSh,jK_a)
      &                              .lt. tau(jDen) ) Then
@@ -1389,7 +1373,8 @@ c ---------------
       End Do
 
 
-      CALL GETMEM('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
+      Call mma_deallocate(Fia)
+      Call mma_deallocate(Faa)
       Call mma_deallocate(SvShp)
       Call mma_deallocate(iShp_rs)
       Call mma_deallocate(nnBfShp)
