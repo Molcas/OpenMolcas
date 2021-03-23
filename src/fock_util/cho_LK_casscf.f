@@ -1049,9 +1049,8 @@ C ----------------------------------
                                   End Do
                                End Do
 
-                               CALL FindMax(ipFk,'N',
-     &                                      nBasSh(lSym,iaSh),
-     &                                      1,ipFaa)
+                               Work(ipFaa)= FindMax(Work(ipFk),
+     &                                      nBasSh(lSym,iaSh))
 
                             End Do
 
@@ -1091,9 +1090,8 @@ C ----------------------------------
                                   End Do
                                End Do
 
-                               CALL FindMax(ipFk,'N',
-     &                                      nBasSh(lSym,iaSh),
-     &                                      1,ipFaa)
+                               Work(ipFaa)= FindMax(Work(ipFk),
+     &                                      nBasSh(lSym,iaSh))
 
                             End Do
 

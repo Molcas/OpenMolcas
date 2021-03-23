@@ -9,56 +9,24 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-       SUBROUTINE FindMax(ipLaJ,transa,numA,numJ,ipMaxJ)
+       Real*8 Function FindMax(LaJ,numA)
 
        Implicit Real*8 (a-h,o-z)
-       Integer  ipLaJ,numA,numJ,ipMaxJ
-       character*1 transA
-       Real*8 LaJ, LJa
-#include "WrkSpc.fh"
+       Integer numA
+       Real*8 LaJ(NumA)
 
-       LaJ(i,j) = Work(ipLaJ-1 + i + NumA*(j-1))
-       LJa(i,j) = Work(ipLaJ-1 + i + NumJ*(j-1))
+       Real*8 XMax
+       Integer ia
 
-       If (transA.eq.'N') Then
+          XMax = Abs(LaJ(1))
 
-          Do jvc=1,numJ
+          Do ia=2,numA
 
-             XMax = abs(LaJ(1,jvc))
-
-             Do ia=2,numA
-
-                XMax = Max(XMax,abs(LaJ(ia,jvc)))
-
-             End Do
-
-             Work(ipMaxJ-1+jvc) = XMax
+             XMax = Max(XMax,Abs(LaJ(ia)))
 
           End Do
 
-       ElseIf (transA.eq.'T') Then
-
-          Do jvc=1,numJ
-
-             XMax = abs(LJa(jvc,1))
-
-             Do ia=2,numA
-
-                XMax = Max(XMax,abs(LJa(jvc,ia)))
-
-             End Do
-
-             Work(ipMaxJ-1+jvc) = XMax
-
-          End Do
-
-       Else
-
-          write(6,*)'FindMax: wrong input argument, transA= ',transA
-          Call Abend
-
-       EndIf
-
+          FindMax = XMax
 
        Return
        End
