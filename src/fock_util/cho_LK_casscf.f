@@ -1028,28 +1028,26 @@ C --- Prepare the J-screening
                             iaSkip= Min(1,Max(0,
      &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
-                            Do i=1,iaSkip
+                            If (iaSkip==0) Cycle
 
 C ---  Faa,[k] = sum_J  (LaJ[k])**2
 C ----------------------------------
-                               Do jv=1,JNUM
+                             Do jv=1,JNUM
 
-                                  xfjv = dble(min(1,jv-1))
+                               xfjv = dble(min(1,jv-1))
 
-                                  Do ia=1,nBasSh(lSym,iaSh)
+                               Do ia=1,nBasSh(lSym,iaSh)
 
-                                     ipLaa = ipLab(iaSh)
-     &                                     + nBasSh(lSym,iaSh)*(jv-1)
-     &                                     + ia - 1
+                                  ipLaa = ipLab(iaSh)
+     &                                  + nBasSh(lSym,iaSh)*(jv-1)
+     &                                  + ia - 1
 
-                                     Fia(ia) = xfjv*Fia(ia)
-     &                                           + Work(ipLaa)**2
-                                  End Do
+                                  Fia(ia) = xfjv*Fia(ia)
+     &                                        + Work(ipLaa)**2
                                End Do
-
-                               Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
                             End Do
+
+                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
                          End Do
 
@@ -1064,28 +1062,26 @@ C ----------------------------------
                             iaSkip= Min(1,Max(0,
      &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
-                            Do i=1,iaSkip
+                            If (iaSkip==0) Cycle
 
 C ---  Faa,[k] = sum_J  (LJa[k])**2
 C ----------------------------------
-                               Do ia=1,nBasSh(lSym,iaSh)
+                            Do ia=1,nBasSh(lSym,iaSh)
 
-                                  Do jv=1,JNUM
+                               Do jv=1,JNUM
 
-                                     xfjv = dble(min(1,jv-1))
+                                  xfjv = dble(min(1,jv-1))
 
-                                     ipLaa = ipLab(iaSh)
-     &                                     + JNUM*(ia-1)
-     &                                     + jv - 1
+                                  ipLaa = ipLab(iaSh)
+     &                                  + JNUM*(ia-1)
+     &                                  + jv - 1
 
-                                     Fia(ia) = xfjv*Fia(ia)
-     &                                           + Work(ipLaa)**2
-                                  End Do
+                                  Fia(ia) = xfjv*Fia(ia)
+     &                                        + Work(ipLaa)**2
                                End Do
-
-                               Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
                             End Do
+
+                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
                          End Do
 
@@ -1154,9 +1150,6 @@ C -------------------------------------------------------------------
      &                                       ONE,Work(ipKI),
      &                                               nBs)
 
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('F',' ',Work(ipKI),nBs)
-
                                ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
      &                                 .and. iaSkip*ibSkip.eq.1) Then
@@ -1174,9 +1167,6 @@ C -------------------------------------------------------------------
      &                                           nBsb,
      &                                       ONE,Work(ipKI),
      &                                               nBsa)
-
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
 
                                EndIf
 
@@ -1246,9 +1236,6 @@ C -------------------------------------------------------------------
      &                                                nBs)
 
 
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('F',' ',Work(ipKI),nBs)
-
                                ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
      &                                 .and. iaSkip*ibSkip.eq.1) Then
@@ -1266,9 +1253,6 @@ C -------------------------------------------------------------------
      &                                           JNUM,
      &                                       ONE,Work(ipKI),
      &                                               nBs)
-
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('F',' ',Work(ipKI),nBs)
 
                                EndIf
 

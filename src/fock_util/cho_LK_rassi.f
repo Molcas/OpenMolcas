@@ -1012,32 +1012,30 @@ C --- Prepare the J-screening
                             jaSkip=Min(1,Max(0,
      &                             abs(ipLab(iaSh,kDen)-ipAbs)))
 
-                            Do i=1,iaSkip*jaSkip  ! 0 or 1
+                            If (iaSkip*jaSkip==0) Cycle
 
 C ---  Faa,[k] = sum_J  LaJ[k1]*LaJ[k2]
 C -------------------------------------
-                               Do jv=1,JNUM
+                            Do jv=1,JNUM
 
-                                  xfjv = dble(min(1,jv-1))
+                               xfjv = dble(min(1,jv-1))
 
-                                  Do ia=1,nBasSh(lSym,iaSh)
+                               Do ia=1,nBasSh(lSym,iaSh)
 
-                                     ipLai = ipLab(iaSh,1)
-     &                                     + nBasSh(lSym,iaSh)*(jv-1)
-     &                                     + ia - 1
+                                  ipLai = ipLab(iaSh,1)
+     &                                  + nBasSh(lSym,iaSh)*(jv-1)
+     &                                  + ia - 1
 
-                                     ipLaj = ipLab(iaSh,kDen)
-     &                                     + nBasSh(lSym,iaSh)*(jv-1)
-     &                                     + ia - 1
+                                  ipLaj = ipLab(iaSh,kDen)
+     &                                  + nBasSh(lSym,iaSh)*(jv-1)
+     &                                  + ia - 1
 
-                                     Fia(ia) = xfjv*Fia(ia)
-     &                                        + Work(ipLai)*Work(ipLaj)
-                                  End Do
+                                  Fia(ia) = xfjv*Fia(ia)
+     &                                     + Work(ipLai)*Work(ipLaj)
                                End Do
-
-                               Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
                             End Do
+
+                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
                          End Do
 
@@ -1054,32 +1052,30 @@ C -------------------------------------
                             jaSkip=Min(1,Max(0,
      &                             abs(ipLab(iaSh,kDen)-ipAbs)))
 
-                            Do i=1,iaSkip*jaSkip
+                            If (iaSkip*jaSkip==0) Cycle
 
 C ---  Faa,[k] = sum_J  LJa[k1]*LJa[k2]
 C -------------------------------------
-                               Do ia=1,nBasSh(lSym,iaSh)
+                            Do ia=1,nBasSh(lSym,iaSh)
 
-                                  Do jv=1,JNUM
+                               Do jv=1,JNUM
 
-                                     xfjv = dble(min(1,jv-1))
+                                  xfjv = dble(min(1,jv-1))
 
-                                     ipLai = ipLab(iaSh,1)
-     &                                     + JNUM*(ia-1)
-     &                                     + jv - 1
+                                  ipLai = ipLab(iaSh,1)
+     &                                  + JNUM*(ia-1)
+     &                                  + jv - 1
 
-                                     ipLaj = ipLab(iaSh,kDen)
-     &                                     + JNUM*(ia-1)
-     &                                     + jv - 1
+                                  ipLaj = ipLab(iaSh,kDen)
+     &                                  + JNUM*(ia-1)
+     &                                  + jv - 1
 
-                                     Fia(ia) = xfjv*Fia(ia)
-     &                                        + Work(ipLai)*Work(ipLaj)
-                                  End Do
+                                  Fia(ia) = xfjv*Fia(ia)
+     &                                     + Work(ipLai)*Work(ipLaj)
                                End Do
-
-                               Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
                             End Do
+
+                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
                          End Do
 
