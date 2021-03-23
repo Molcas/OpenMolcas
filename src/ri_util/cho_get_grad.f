@@ -919,7 +919,7 @@ C --- Transform the densities to reduced set storage
                      ired1 = 1 ! location of the 1st red set
                      add  = .false.
                      nMat = 1
-                     Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+                     Call swap_tosqrt(irc,ired1,NNBSTRT(1),nMat,JSYM,
      &                                  [ipDIAH],Work(ipDIAG),mode,add)
 
                      CALL CWTIME(TCS2,TWS2)
