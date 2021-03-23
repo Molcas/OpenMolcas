@@ -55,8 +55,8 @@ C
       Type (SBA_Type) Laq(2)
       Type (twxy_Type) Scr
 
-      Integer   ipMO(2),ipYk(2),ipMLk(2)
-      Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2)
+      Integer   ipMO(2),ipMLk(2)
+      Integer   ipMSQ(2),ipCM(2),ipML(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -88,7 +88,8 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:,:)
-      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:,:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:,:),
+     &                      Ylk(:,:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -231,9 +232,10 @@ c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
       ipAbs=ip_of_Work(AbsC(1))
 
-      Do jDen=1,nDen
 c --- allocate memory for the Y(l)[k] vectors
-         Call GetMem('yc','Allo','Real',ipY(jDen),MaxB*nnO)
+      Call mma_allocate(Ylk,MaxB,nnO,nDen,Label='Ylk')
+
+      Do jDen=1,nDen
 c --- allocate memory for the ML[k] lists of largest elements
 c --- in significant shells
          Call GetMem('MLk','Allo','Real',ipML(jDen),nShell*nnO)
@@ -646,8 +648,6 @@ c --------------------------------------------------------------------
                     ipMO(jDen) = ipMSQ(jDen) + ISTK(kSym)
      &                         + nBas(kSym)*(jK-1)
 
-                    ipYk(jDen) = ipY(jDen) + MaxB*(jK_a-1)
-
                     ipMLk(jDen) = ipML(jDen) + nShell*(jK_a-1)
 
                    End Do
@@ -675,7 +675,7 @@ C===============================================================
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                ONE,Work(ipDIH),nBs,
      &                                    AbsC,1,
-     &                               ZERO,Work(ipYk(jDen)),1)
+     &                               ZERO,Ylk(1,jK_a,jDen),1)
 
                         Else
 c --------------------------------------------------------------
@@ -686,11 +686,11 @@ C===============================================================
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                ONE,Work(ipDIH),nBs,
      &                                    AbsC,1,
-     &                               ZERO,Work(ipYk(jDen)),1)
+     &                               ZERO,Ylk(1,jK_a,jDen),1)
 
                         EndIf
 
-c            write(6,*)'Y(k)= ',(Work(ipYk(jDen)+i-1),i=1,nBas(lSym))
+c            write(6,*)'Y(k)= ',(Ylk(i,jK_a,jDen),i=1,nBas(lSym))
 c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
 
                      End Do
@@ -703,7 +703,7 @@ C --- List the shells present in Y(l)[k] by the largest element
                            YshMax=zero
                            Do ibs=1,nBasSh(lSym,ish)
                               YshMax = Max(YshMax,
-     &                          Work(ipYk(jDen)+koffSh(ish,lSym)+ibs-1))
+     &                          Ylk(koffSh(ish,lSym)+ibs,jK_a,jDen))
                            End Do
                            Work(ipMLk(jDen)+ish-1) = YshMax
                         End Do
@@ -1582,8 +1582,8 @@ c ---------------
       Call mma_deallocate(SumAClk)
       Do jDen=nDen,1,-1
          Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
-         Call GetMem('yc','Free','Real',ipY(jDen),MaxB*nnO)
       End Do
+      Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
       CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
 #if defined (_MOLCAS_MPP_)

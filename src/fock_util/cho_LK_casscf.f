@@ -101,7 +101,8 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:)
-      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:)
+      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:),
+     &                      Ylk(:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -291,7 +292,7 @@ c --- allocate memory for the abs(C(l)[k])
       ipAbs = ip_of_Work(AbsC(1))
 
 c --- allocate memory for the Y(l)[k] vectors
-      Call GetMem('yc','Allo','Real',ipY,MaxB*nnO)
+      Call mma_allocate(Ylk,MaxB,nnO,Label='Ylk')
 
 c --- allocate memory for the ML[k] lists of largest elements
 c --- in significant shells
@@ -734,8 +735,6 @@ c --------------------------------------------------------------------
 
                      End If
 
-                     ipYk = ipY + MaxB*(jK_a - 1)
-
                      ipMLk = ipML + nShell*(jK_a - 1)
 
                      IF (DoScreen) THEN
@@ -765,7 +764,7 @@ C===============================================================
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                ONE,Work(ipDIH),nBs,
      &                                    AbsC,1,
-     &                               ZERO,Work(ipYk),1)
+     &                               ZERO,Ylk(1,jK_a),1)
 
                         Else
 c --------------------------------------------------------------
@@ -776,11 +775,11 @@ C===============================================================
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                ONE,Work(ipDIH),nBs,
      &                                    AbsC,1,
-     &                               ZERO,Work(ipYk),1)
+     &                               ZERO,Ylk(1,jK_a),1)
 
                         EndIf
 
-c            write(6,*)'Y(k)= ',(Work(ipYk+i-1),i=1,nBas(lSym))
+c            write(6,*)'Y(k)= ',(Ylk(i,jK_a),i=1,nBas(lSym))
 c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
 
 c            Call recprt('DH','',Work(ipDIH),nBas(lSym),nBas(kSym))
@@ -790,7 +789,7 @@ C --- List the shells present in Y(l)[k] by the largest element
                            YshMax=zero
                            Do ibs=1,nBasSh(lSym,ish)
                               YshMax = Max(YshMax,
-     &                          Work(ipYk+koffSh(ish,lSym)+ibs-1))
+     &                          Ylk(koffSh(ish,lSym)+ibs,jK_a))
                            End Do
                            Work(ipMLk+ish-1) = YshMax
                         End Do
@@ -1636,7 +1635,7 @@ c ---------------
       Call mma_deallocate(Indx)
       Call mma_deallocate(SumAClk)
       Call GetMem('MLk','Free','Real',ipML,nShell*nnO)
-      Call GetMem('yc','Free','Real',ipY,MaxB*nnO)
+      Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
       CALL GETMEM('diahI','Free','Real',ipDIAH(1),NNBSQ)
 #if defined (_MOLCAS_MPP_)
