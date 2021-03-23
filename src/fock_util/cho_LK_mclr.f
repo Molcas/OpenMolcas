@@ -1034,9 +1034,7 @@ C ---------------------------------------
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                             ipLab(iaSh,jDen) =
-     &                             ipLab(iaSh,jDen)*Min(1,ibcount)
-     &                           + ipAbs*(1-Min(1,ibcount))
+                             If (ibcount==0) ipLab(iaSh,jDen) = ipAbs
 
 
                            End Do
@@ -1103,9 +1101,7 @@ C ---------------------------------------
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                               ipLab(iaSh,jDen) =
-     &                               ipLab(iaSh,jDen)*Min(1,ibcount)
-     &                             + ipAbs*(1-Min(1,ibcount))
+                               If (ibcount==0) ipLab(iaSh,jDen) = ipAbs
 
 
                             End Do
@@ -1144,9 +1140,8 @@ C --- Prepare the J-screening
 
 C ---  Faa,[k] = sum_J  LaJ[k2]*LaJ[k1]
 C -------------------------------------
+                            Fia(:)=Zero
                             Do jv=1,JNUM
-
-                               xfjv = dble(min(1,jv-1))
 
                                Do ia=1,nBasSh(lSym,iaSh)
 
@@ -1158,8 +1153,8 @@ C -------------------------------------
      &                                  + nBasSh(lSym,iaSh)*(jv-1)
      &                                  + ia - 1
 
-                                  Fia(ia) = xfjv*Fia(ia)
-     &                                     + Work(ipLai)*Work(ipLaj)
+                                  Fia(ia) = Fia(ia)
+     &                                    + Work(ipLai)*Work(ipLaj)
                                End Do
                             End Do
 
@@ -1184,11 +1179,10 @@ C -------------------------------------
 
 C ---  Faa,[k] = sum_J  LJa[k2]*LJa[k1]
 C -------------------------------------
+                            Fia(:)=Zero
                             Do ia=1,nBasSh(lSym,iaSh)
 
                                Do jv=1,JNUM
-
-                                  xfjv = dble(min(1,jv-1))
 
                                   ipLai = ipLab(iaSh,kDen)
      &                                  + JNUM*(ia-1)
@@ -1198,8 +1192,8 @@ C -------------------------------------
      &                                  + JNUM*(ia-1)
      &                                  + jv - 1
 
-                                  Fia(ia) = xfjv*Fia(ia)
-     &                                     + Work(ipLai)*Work(ipLaj)
+                                  Fia(ia) = Fia(ia)
+     &                                    + Work(ipLai)*Work(ipLaj)
                                End Do
                             End Do
 
