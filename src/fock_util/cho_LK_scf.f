@@ -607,7 +607,7 @@ c --------------------------------------------------------------------
                    add  = .false.
                    nMat = 1
                    ipDIAH = ip_of_Work(DIAH(1))
-                   Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+                   Call swap_tosqrt(irc,ired1,NNBSTRT(1),nMat,JSYM,
      &                               [ipDIAH],DIAG,mode,add)
 
 

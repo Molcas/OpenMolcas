@@ -711,7 +711,7 @@ c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    add  = .false.
                    nMat = 1
-                   Call swap_rs2full(irc,ired1,NNBSTRT(1),nMat,JSYM,
+                   Call swap_tosqrt(irc,ired1,NNBSTRT(1),nMat,JSYM,
      &                               [ipDIAH],Work(ipDD(1)),mode,add)
 
                   CALL CWTIME(TCS2,TWS2)
@@ -747,7 +747,6 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                        ipDIH = ipDIAH(1) + ISSQ(lSym,kSym)
 
                         If (jDen.eq.2) Then
                         Do ik=1,nBas(kSym)
@@ -766,7 +765,7 @@ C===============================================================
                            nBs = Max(1,nBas(lSym))
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,Work(ipDIH),nBs,
+     &                                ONE,DIAH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a),1)
 
@@ -777,7 +776,7 @@ C===============================================================
                            nBs = Max(1,nBas(kSym))
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,Work(ipDIH),nBs,
+     &                                ONE,DIAH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a),1)
 
@@ -786,7 +785,8 @@ C===============================================================
 c            write(6,*)'Y(k)= ',(Ylk(i,jK_a),i=1,nBas(lSym))
 c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
 
-c            Call recprt('DH','',Work(ipDIH),nBas(lSym),nBas(kSym))
+c            Call recprt('DH','',DIAH%SB(lSym,kSym)%A1,nBas(lSym),
+c    &                                                 nBas(kSym))
 
 C --- List the shells present in Y(l)[k] by the largest element
                         Do ish=1,nShell
