@@ -125,9 +125,8 @@
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer   ipSKsh(5)
       Integer   ipDLT(5),ipDLT2
-      Integer   ipIndik,npos(8,3)
+      Integer   npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
@@ -164,10 +163,21 @@
       Real*8, Allocatable, Target:: Yik(:)
       Real*8, Pointer:: pYik(:,:)=>Null()
       Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:),
-     &                       Indx(:,:)
+     &                       Indx(:,:), Indik(:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
+
+      Type V2
+        Real*8, Pointer :: A2(:,:)=>Null()
+      End Type V2
+
+      Type Special
+        Real*8, Allocatable:: A0(:)
+        Type (V2) :: Den(5)
+      End Type Special
+
+      Type (Special), Target:: SumClk
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -270,9 +280,7 @@
 *
       nI2t=0
       nItmx=0
-      Do i=1,5
-        nIt(i) = 0
-      End Do
+      nIt(:) = 0
       Do jDen=nDen,1,-1
          kOff(1,jDen)=0
          nIt(jDen)=nChOrb_(1,jDen)
@@ -285,11 +293,6 @@
       End Do
 *
 **   Initialize pointers to avoid compiler warnings
-*
-      Do i=1,5
-        ipSKsh(i)=ip_Dummy
-      End Do
-      ipIndik=ip_iDummy
 *
       thrv=0.0d0
       xtau=0.0d0
@@ -395,9 +398,13 @@
          Call mma_allocate(MLk,nShell,Label='MLk')
 
 !        list of S:= sum_l abs(C(l)[k])
-         Call GetMem('SKsh','Allo','Real',ipSKsh(1),nShell*nI2t)
-         Do i=2,5
-           ipSKsh(i)=ipSKsh(i-1)+nShell*nIt(i-1)    ! for each shell
+         Call mma_allocate(SumClk%A0,nShell*nI2t,Label='SumClk%A0')
+         iE = 0
+         Do i=1,nDen
+           iS = iE + 1
+           iE = iE + nShell*nIt(i)
+           SumClk%Den(i)%A2(1:nShell,1:nIt(i))
+     &          => SumClk%A0(iS:iE)
          End Do
 
 *
@@ -413,8 +420,8 @@
 !        Index array
          Call mma_allocate(Indx,[0,nShell],[1,nInd],Label='Indx')
 
-         Call GetMem('Indik','Allo','Inte',ipIndik,
-     &               ((nItmx+1)*nItmx+1)*nInd)  !Yi[k] Index array
+         !Yi[k] Index array
+         Call mma_allocate(Indik,(nItmx+1)*nItmx+1,nInd,Label='Indik')
 
          Call mma_allocate(ipLab,nShell,Label='ipLab')
 
@@ -461,12 +468,11 @@
             Do kSym=1,nSym
 
                Do jK=1,nChOrb_(kSym,jDen)
+                  jK_a = jK + kOff(kSym,jDen)
 
                   ipMO = ipMSQ(jDen) + ISTSQ(kSym)
      &                 + nBas(kSym)*(jK-1)
 *
-                  ipSk = ipSKsh(jDen) + nShell*(kOff(kSym,jDen) + jK-1)
-
                   Do iaSh=1,nShell
 
                      ipMsh = ipMO + kOffSh(iaSh,kSym)
@@ -476,7 +482,7 @@
                         SKsh = SKsh + Work(ipMsh+ik)**2
                      End Do
 
-                     Work(ipSk+iaSh-1) = SKsh
+                     SumClk%Den(jDen)%A2(iaSh,jK_a) = SkSh
 
                   End Do
                End Do
@@ -919,7 +925,7 @@ C --- Transform the densities to reduced set storage
 *                                                                      *
 ************************************************************************
 
-                  nInd = 0
+                  nInd = 1
                   Do jDen=1,nKvec
 *
 ** Choose which MO sets on each side
@@ -960,11 +966,6 @@ C --- Transform the densities to reduced set storage
 
                         ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
      &                       + nBas(kSym)*(jK-1)
-
-                        ipIndikk = ipIndik+nInd*((nItmx+1)*nItmx+1)
-
-                        ipSk=ipSKsh(iMOleft)+nShell*(jK_a-1)
-
 
                         IF (DoScreen .and. iBatch.eq.1) THEN
                            CALL CWTIME(TCS1,TWS1)
@@ -1058,11 +1059,11 @@ C------------------------------------------------------------------
 *                                    iWork(ijListTri(kSym,0,jK,jDen))=
 *     &                                     ind3
                                  End If
- 1111                            iWork(ipIndikk+nQo)=i
+ 1111                            Indik(1+nQo,nInd)=i
                               Endif
 
                            End Do
-                           iWork(ipIndikk)=nQo
+                           Indik(1,nInd)=nQo
 ************************************************************************
 *                                                                      *
 *   1) Screening                                                       *
@@ -1082,7 +1083,7 @@ C------------------------------------------------------------------
                            End Do
 
                            Do ish=1,nShell
-                              Indx(ish,nInd+1) = ish
+                              Indx(ish,nInd) = ish
                            End Do
 
 ************************************************************************
@@ -1120,11 +1121,11 @@ C------------------------------------------------------------------
 
                               If(jmlmax.ne.jml) then  ! swap positions
                                 xTmp = MLk(jml)
-                                iTmp = Indx(jml,nInd+1)
+                                iTmp = Indx(jml,nInd)
                                 MLk(jml) = YMax
-                                Indx(jml,nInd+1)=Indx(jmlmax,nInd+1)
+                                Indx(jml,nInd)=Indx(jmlmax,nInd)
                                 MLk(jmlmax) = xTmp
-                                Indx(jmlmax,nInd+1) = iTmp
+                                Indx(jmlmax,nInd) = iTmp
                               Endif
 
                               If ( MLk(jml) .ge. xtau ) then
@@ -1137,7 +1138,7 @@ C------------------------------------------------------------------
 
                            End Do
 
-                           Indx(0,nInd+1) = numSh
+                           Indx(0,nInd) = numSh
 
                            CALL CWTIME(TCS2,TWS2)
                            tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1165,9 +1166,9 @@ C------------------------------------------------------------------
                         IF (lSym.ge.kSym) Then
 
 
-                            Do iSh=1,Indx(0,nInd+1)
+                            Do iSh=1,Indx(0,nInd)
 
-                               iaSh = Indx(iSh,nInd+1)
+                               iaSh = Indx(iSh,nInd)
 
                                iOffSha = kOffSh(iaSh,lSym)
 
@@ -1189,7 +1190,7 @@ C------------------------------------------------------------------
                                  If ( nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                              nBasSh(lSym,iaSh)*
      &                              nBasSh(kSym,ibSh) .gt. 0
-     &                              .and. sqrt(abs(Work(ipSk+ibSh-1)*
+     &                .and. Sqrt(Abs(SumClk%Den(iMOleft)%A2(ibSh,jK_a)*
      &                                         SvShp(iShp_rs(iShp)) ))
      &                              .ge. thrv )Then
 
@@ -1232,9 +1233,9 @@ C------------------------------------------------------------------
                         Else   ! lSym < kSym
 
 
-                            Do iSh=1,Indx(0,nInd+1)
+                            Do iSh=1,Indx(0,nInd)
 
-                               iaSh = Indx(iSh,nInd+1)
+                               iaSh = Indx(iSh,nInd)
 
                                iOffSha = kOffSh(iaSh,lSym)
 
@@ -1254,7 +1255,7 @@ C------------------------------------------------------------------
                                   If (nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
      &                             nBasSh(lSym,iaSh)*
      &                             nBasSh(kSym,ibSh) .gt. 0
-     &                             .and. sqrt(abs(Work(ipSk+ibSh-1)*
+     &             .and. sqrt(abs(SumClk%Den(iMOLeft)%A2(ibSh,jK_a)*
      &                                        SvShp(iShp_rs(iShp)) ))
      &                             .ge. thrv ) Then
 
@@ -1301,11 +1302,11 @@ C------------------------------------------------------------------
 *                                                                      *
 ************************************************************************
 
-                        nQo=iWork(ipIndikk)
+                        nQo=Indik(1,nInd)
 
                         Do ir=1,nQo
 
-                          it = iWork(ipIndikk+ir)
+                          it = Indik(1+ir,nInd)
 
                           ipMO = ipMSQ(iMOright) + ISTSQ(lSym)
      &                         + nBas(lSym)*(it-1)
@@ -1314,9 +1315,9 @@ C------------------------------------------------------------------
 
                           If (lSym.ge.kSym) Then
 
-                           Do iSh=1,Indx(0,nInd+1)
+                           Do iSh=1,Indx(0,nInd)
 
-                              iaSh = Indx(iSh,nInd+1)
+                              iaSh = Indx(iSh,nInd)
 
                               iaSkip= Min(1,Max(0,
      &                                abs(ipLab(iaSh)-ipAbs)))!=1 or 0
@@ -1339,9 +1340,9 @@ C------------------------------------------------------------------
                           Else   ! lSym < kSym
 
 
-                           Do iSh=1,Indx(0,nInd+1)
+                           Do iSh=1,Indx(0,nInd)
 
-                              iaSh = Indx(iSh,nInd+1)
+                              iaSh = Indx(iSh,nInd)
 
                               iaSkip= Min(1,Max(0,
      &                                abs(ipLab(iaSh)-ipAbs)))!=1 or 0
@@ -1739,9 +1740,12 @@ C--- have performed screening in the meanwhile
          Call mma_deallocate(SvShp)
          Call mma_deallocate(kOffSh)
          Call mma_deallocate(ipLab)
-         Call GetMem('Indik','Free','Inte',ipIndik,(nItmx+1)*nItmx)
+         Call mma_deallocate(Indik)
          Call mma_deallocate(Indx)
-         Call GetMem('SKsh','Free','Real',ipSKsh(1),nShell*nI2t)
+         Do i = 1, nDen
+            SumClk%Den(i)%A2=>Null()
+         End Do
+         Call mma_deallocate(SumClk%A0)
          Call mma_deallocate(MLk)
          Call mma_deallocate(Yik)
          Call mma_deallocate(Ylk)
