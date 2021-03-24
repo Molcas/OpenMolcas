@@ -125,7 +125,7 @@
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer   ipDrs(5), ipY, ipYQ, ipML, ipSKsh(5)
+      Integer   ipDrs(5), ipY, ipYQ, ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
@@ -159,8 +159,12 @@
       Character*6 mode
       Integer, External:: Cho_F2SP
 
-      Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:), SvShp(:)
+      Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:), SvShp(:),
+     &                      MLk(:), Ylk(:,:)
       Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:)
+#if defined (_MOLCAS_MPP_)
+      Real*8, Allocatable:: DiagJ(:)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -279,12 +283,7 @@
 *
 **   Initialize pointers to avoid compiler warnings
 *
-#if defined (_MOLCAS_MPP_)
-      ipjDIAG=ip_Dummy
-#endif
-      ipY=ip_Dummy
       ipYQ=ip_Dummy
-      ipML=ip_Dummy
       Do i=1,5
         ipSKsh(i)=ip_Dummy
       End Do
@@ -365,8 +364,8 @@
             Do i=1,nSym
                NNBSTMX = Max(NNBSTMX,NNBSTR(i,1))
             End Do
-            CALL GETMEM('diagJ','Allo','Real',ipjDIAG,NNBSTMX)
-            Call FZero(Work(ipjDIAG),NNBSTMX)
+            Call mma_allocate(DiagJ,NNBSTMX,Label='DiagJ')
+            DiagJ(:)=Zero
          EndIf
 #endif
 
@@ -386,13 +385,13 @@
          Call mma_allocate(AbsC,MaxB,Label='AbsC')
          ipAbs=ip_of_Work(AbsC(1))
 
-         Call GetMem('yc','Allo','Real',ipY,MaxB*nItmx) ! Y(l)[k] vector
+         Call mma_allocate(Ylk,MaxB,nItmx,Label='Ylk')
 
          Call GetMem('yq','Allo','Real',ipYQ,nItmx**2) ! Yi[k] vectors
 
 *used to be nShell*something
 !        ML[k] lists of largest elements in significant shells
-         Call GetMem('MLk1','Allo','Real',ipML,nShell)
+         Call mma_allocate(MLk,nShell,Label='MLk')
 
 !        list of S:= sum_l abs(C(l)[k])
          Call GetMem('SKsh','Allo','Real',ipSKsh(1),nShell*nI2t)
@@ -951,6 +950,7 @@ C --- Transform the densities to reduced set storage
                        Call Fzero(Work(ip_R),Nik*JNUM)
 
                        Do jK=1,nChOrb_(kSym,iMOleft)
+                          jK_a = jK + kOff(kSym,iMOleft)
 
                         CALL FZero(Work(ipChoT),
      &                         (nChOrb_(lSym,iMOright)+nBas(lSym))*JNUM)
@@ -958,19 +958,13 @@ C --- Transform the densities to reduced set storage
                         ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
      &                       + nBas(kSym)*(jK-1)
 
-                        ipYk = ipY + MaxB*(kOff(kSym,iMOleft)+jK-1)
-
-                        ipYQk = ipYQ + nIt(iMOright)
-     &                         *(kOff(kSym,iMOleft)+jK-1)
-
-                        ipMLk = ipML
+                        ipYQk = ipYQ + nIt(iMOright)*(JK_a-1)
 
                         ipIndSh = ipIndx+nInd*(nShell+1)
 
                         ipIndikk = ipIndik+nInd*((nItmx+1)*nItmx+1)
 
-                        ipSk=ipSKsh(iMOleft)+
-     &                       nShell*(kOff(kSym,iMOleft)+jK-1)
+                        ipSk=ipSKsh(iMOleft)+nShell*(jK_a-1)
 
 
                         IF (DoScreen .and. iBatch.eq.1) THEN
@@ -989,7 +983,7 @@ C------------------------------------------------------------------
                               CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                   ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                       AbsC,1,
-     &                                  ZERO,Work(ipYk),1)
+     &                                  ZERO,Ylk(1,jK_a),1)
 
                            Else If (nBas(kSym).ge.1) Then
 
@@ -998,7 +992,7 @@ C------------------------------------------------------------------
                               CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                   ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                       AbsC,1,
-     &                                  ZERO,Work(ipYk),1)
+     &                                  ZERO,Ylk(1,jK_a),1)
 
                            EndIf
 
@@ -1031,7 +1025,7 @@ C------------------------------------------------------------------
                               End Do
 *
                               Work(ipYQk+i-1)=ddot_(nBas(lSym),
-     &                                        AbsC,1,Work(ipYk),1)
+     &                                        AbsC,1,Ylk,1)
 
                               If (Work(ipYQk+i-1).ge.xtau) Then
                                  nQo=nQo+1
@@ -1082,10 +1076,10 @@ C------------------------------------------------------------------
                            Do ish=1,nShell
                               YshMax=zero
                               Do ibs=1,nBasSh(lSym,ish)
-                                 YshMax = Max(YshMax,
-     &                             Work(ipYk+koffSh(ish,lSym)+ibs-1))
+                                 ibs_a = koffSh(ish,lSym)+ibs
+                                 YshMax = Max(YshMax,Ylk(ibs_a,1))
                               End Do
-                              Work(ipMLk+ish-1) = YshMax
+                              MLk(ish) = YshMax
                            End Do
 
                            Do ish=1,nShell
@@ -1106,7 +1100,7 @@ C------------------------------------------------------------------
 *                                                                      *
 *   The exact bounds (quadratic scaling of the MO transformation)      *
 *   would be                                                           *
-*      If (Work(ipMLk+jml-1)*Work(ipMLk).ge. tau) then                 *
+*      If (MLk(jml)*MLk(1).ge. tau) then                               *
 *                                                                      *
 *                                                                      *
 ************************************************************************
@@ -1115,26 +1109,26 @@ C------------------------------------------------------------------
                            jml=1
                            Do while (jml.le.nShell)
 
-                              YMax=Work(ipMLk+jml-1)
+                              YMax=MLk(jml)
                               jmlmax=jml
 
                               Do iml=jml+1,nShell  ! get the max
-                                 If (Work(ipMLk+iml-1).gt.YMax) then
-                                    YMax = Work(ipMLk+iml-1)
+                                 If (MLk(iml).gt.YMax) then
+                                    YMax = MLk(iml)
                                     jmlmax = iml
                                  Endif
                               End Do
 
                               If(jmlmax.ne.jml) then  ! swap positions
-                                xTmp = Work(ipMLk+jml-1)
+                                xTmp = MLk(jml)
                                 iTmp = iWork(ipIndSh+jml)
-                                Work(ipMLk+jml-1) = YMax
+                                MLk(jml) = YMax
                                 iWork(ipIndSh+jml)=iWork(ipIndSh+jmlmax)
-                                Work(ipMLk+jmlmax-1) = xTmp
+                                MLk(jmlmax) = xTmp
                                 iWork(ipIndSh+jmlmax) = iTmp
                               Endif
 
-                              If ( Work(ipMLk+jml-1) .ge. xtau ) then
+                              If ( MLk(jml) .ge. xtau ) then
                                 numSh = numSh + 1
                               else
                                 jml=nShell  ! exit the loop
@@ -1434,8 +1428,7 @@ C --- subtraction is done in the 1st reduced set
 
                         Do jvc=1,JNUM
 
-                           Work(ipjDiag+jrs-1) = Work(ipjDiag+jrs-1)
-     &                                         + Lrs(krs,jvc)**2
+                           DiagJ(jrs) = DiagJ(jrs) + Lrs(krs,jvc)**2
                         End Do
 
                       End Do
@@ -1697,10 +1690,10 @@ C --- Screening control section
             If (DoExchange) Then
 #if defined (_MOLCAS_MPP_)
                If (Is_Real_Par() .and. Update .and. DoScreen) Then
-                  Call GaDsum(Work(ipjDiag),nnBSTR(JSYM,1))
-                  Call Daxpy_(nnBSTR(JSYM,1),xone,Work(ipjDiag),1,
+                  Call GaDsum(DiagJ,nnBSTR(JSYM,1))
+                  Call Daxpy_(nnBSTR(JSYM,1),xone,DiagJ,1,
      &                       Diag(1+iiBstR(JSYM,1)),1)
-                  Call Fzero(Work(ipjDiag),nnBSTR(JSYM,1))
+                  Call Fzero(DiagJ,nnBSTR(JSYM,1))
                EndIf
 C--- Need to activate the screening to setup the contributing shell
 C--- indices the first time the loop is entered .OR. whenever other nodes
@@ -1752,14 +1745,13 @@ C--- have performed screening in the meanwhile
          Call GetMem('Indik','Free','Inte',ipIndik,(nItmx+1)*nItmx)
          Call GetMem('Indx','Free','Inte',ipIndx,nShell)
          Call GetMem('SKsh','Free','Real',ipSKsh(1),nShell*nI2t)
-         Call GetMem('MLk1','Free','Real',ipML,nShell)
+         Call mma_deallocate(MLk)
          Call GetMem('yq','Free','Real',ipYQ,nItmx**2)
-         Call GetMem('yc','Free','Real',ipY,MaxB*nItmx)
+         Call mma_deallocate(Ylk)
          Call mma_deallocate(AbsC)
          Call Deallocate_NDSBA(DiaH)
 #if defined (_MOLCAS_MPP_)
-         If (Is_Real_Par().and.Update)CALL GETMEM('diagJ','Free','Real',
-     &                                            ipjDIAG,NNBSTMX)
+         If (Is_Real_Par().and.Update)CALL mma_deallocate(DiagJ)
 #endif
          Call mma_deallocate(Diag)
       EndIf
