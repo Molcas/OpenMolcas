@@ -237,6 +237,7 @@
       nInd = 0
 
       Call set_nnA(nSym,nAorb,nnA)
+      ipAbs=0
 
 *
 **    Various offsets
