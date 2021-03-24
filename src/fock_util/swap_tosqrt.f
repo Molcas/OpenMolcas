@@ -11,20 +11,21 @@
 * Copyright (C) Francesco Aquilante                                    *
 *               2021, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE swap_tosqrt(irc,iLoc,nRS,JSYM,ipXLT,Xab)
+      SUBROUTINE swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
+      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
+     &                           Deallocate_NDSBA
+
       Implicit Real*8 (a-h,o-z)
       Integer  irc, iLoc, JSYM
-      Integer ipXLT
+      Type (NDSBA_Type) XLT
       Real*8 Xab(nRS)
 
-      Integer  ISSQ(8,8)
       Integer, External:: cho_isao
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 
       Integer i, j, MulD2h
 *                                                                      *
@@ -34,15 +35,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
-      END DO
-
       If (JSYM.ne.1) then
 c      ! NON TOTAL-SYMMETRIC
 
@@ -59,11 +51,7 @@ c      ! NON TOTAL-SYMMETRIC
             ias   = iag - ibas(iSyma)
             ibs   = ibg - ibas(iSymb)
 
-            iab   = nBas(iSyma)*(ibs-1) + ias
-
-            kto = ipXLT - 1 + isSQ(iSyma,iSymb) + iab
-
-            Work(kto) = sqrt(abs(Xab(kRab)))
+            XLT%SB(iSyma,iSymb)%A2(ias,ibs) = sqrt(abs(Xab(kRab)))
 
          End Do  ! jRab loop
 
@@ -82,14 +70,8 @@ c      ! NON TOTAL-SYMMETRIC
             ias   = iag - ibas(iSyma)  !address within that symm block
             ibs   = ibg - ibas(iSyma)
 
-            iab   = nBas(iSyma)*(ibs-1) + ias
-            iba   = nBas(iSyma)*(ias-1) + ibs
-
-            kto = ipXLT - 1 + isSQ(iSyma,iSyma)
-
-            Work(kto+iab) = sqrt(abs(Xab(kRab)))
-
-            Work(kto+iba) = sqrt(abs(Xab(kRab)))
+            XLT%SB(iSyma,iSyma)%A2(ias,ibs) = sqrt(abs(Xab(kRab)))
+            XLT%SB(iSyma,iSyma)%A2(ibs,ias) = sqrt(abs(Xab(kRab)))
 
          End Do  ! jRab loop
 

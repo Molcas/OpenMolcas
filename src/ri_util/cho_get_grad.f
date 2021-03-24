@@ -395,7 +395,6 @@
 !        sqrt(D(a,b)) stored in full (squared) dim
          Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
          DiaH%A0(:)=Zero
-         ipDIAH = ip_of_Work(DiaH%A0(1))
 
          Call GetMem('absc','Allo','Real',ipAbs,MaxB) ! abs(C(l)[k])
 
@@ -921,7 +920,7 @@ C --- Transform the densities to reduced set storage
 
                      ired1 = 1 ! location of the 1st red set
                      Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
-     &                                  ipDIAH,Work(ipDIAG))
+     &                                  DIAH,Work(ipDIAG))
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)

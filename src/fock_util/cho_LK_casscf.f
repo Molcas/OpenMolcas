@@ -57,7 +57,6 @@ C
      &                           Deallocate_NDSBA
       Implicit Real*8 (a-h,o-z)
 
-      Integer   ipDIAH(1)
       Integer   ipDLT(2),ipFLT(2),ipKLT(2)
       Integer   kOff(8,2),nnA(8,8)
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
@@ -289,7 +288,6 @@ C *************** Read the diagonal integrals (stored as 1st red set)
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
       Call Allocate_NDSBA(DIAH,nBas,nBas,nSym)
       DIAH%A0(:)=Zero
-      ipDIAH(1) = ip_of_Work(DIAH%A0(1))
 
 c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
@@ -709,7 +707,7 @@ c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
-     &                               ipDIAH,Work(ipDD(1)))
+     &                               DIAH,Work(ipDD(1)))
 
                   CALL CWTIME(TCS2,TWS2)
                   tscrn(1) = tscrn(1) + (TCS2 - TCS1)
