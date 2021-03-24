@@ -49,7 +49,6 @@ C
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   ipScr
       Integer   kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
@@ -58,7 +57,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) Ash(2), Tmp(2)
+      Type (DSBA_Type) Ash(2), Tmp(2), QTmp(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
 
@@ -125,19 +124,18 @@ C
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-      do i=1,2            ! 1 --> CPU   2 --> Wall
-         tread(i) = zero  !time read/transform vectors
-         tcoul(i) = zero  !time for computing Coulomb
-         texch(i) = zero  !time for computing Exchange
-         tintg(i) = zero  !time for computing (tw|xy) integrals
-         tmotr(i) = zero  !time for the half-transf of vectors
-         tscrn(i) = zero  !time for screening overhead
-         tint1(i) = zero
-         tint2(i) = zero
-         tint3(i) = zero
-         tQmat(i) = zero
-         tact(i)  = zero
-      end do
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/transform vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
+      tintg(:) = zero  !time for computing (tw|xy) integrals
+      tmotr(:) = zero  !time for the half-transf of vectors
+      tscrn(:) = zero  !time for screening overhead
+      tint1(:) = zero
+      tint2(:) = zero
+      tint3(:) = zero
+      tQmat(:) = zero
+      tact(:)  = zero
 
 C ==================================================================
 
@@ -192,8 +190,12 @@ c --------------------
         End Do
 
 C *** memory for the Q matrices --- temporary array
-        Call GetMem('Qmat','ALLO','REAL',ipScr,nsAB*nDen)
-        Call Fzero(Work(ipScr),nsAB*nDen)
+        Call Allocate_DSBA(QTmp(1),nBas,nAsh,nSym)
+        ipScr = ip_of_Work(QTmp(1)%A0(1))
+        Call Allocate_DSBA(QTmp(2),nBas,nAsh,nSym)
+        ipScr2= ip_of_Work(QTmp(2)%A0(1))
+        QTmp(1)%A0(:)=Zero
+        QTmp(2)%A0(:)=Zero
 *MGD improve that
         Call GetMem('MOScr','ALLO','REAL',ipMOScr,nnA**4)
         Call Fzero(Work(ipMOScr),nnA**4)
@@ -1518,11 +1520,11 @@ C --------------------------------------------------------------------
      &                      Lpq(3)%SB(iSymv)%A3(:,:,JVC),1,
      &                  ZERO,Lpq(2)%SB(iSymv)%A3(:,:,JVC),1)
 *Qpx=Lpy ~Lxy
-                     ipQpx=ipScr+nsAB
+                     ipQpx=ipScr2
                      Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
-     &                          2.0d0,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                          Lpq(2)%SB(iSymv)%A3(:,:,JVC),Naw,
-     &                         ONE,Work(ipQpx),NBAS(iSymb))
+     &                          Two,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
+     &                              Lpq(2)%SB(iSymv)%A3(:,:,JVC),Naw,
+     &                          ONE,Work(ipQpx),NBAS(iSymb))
                       CALL CWTIME(TCINT3,TWINT3)
                       tQmat(1) = tQmat(1) + (TCINT3 - TCINT4)
                       tQmat(2) = tQmat(2) + (TWINT3 - TWINT4)
@@ -1696,7 +1698,7 @@ C --------------------------------------------------------------------
 C --- Formation of the Q matrix Qpx = Lp~y Lvw Gxyvw
 C --------------------------------------------------------------------
                      Do JVC=1,JNUM
-                      ipQpx=ipScr+nsAB
+                      ipQpx=ipScr2
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                           One,Lpq(1)%SB(iSymb)%A3(:,:,JVC),NAv,
      &                               Lpq(3)%SB(iSymv)%A3(:,:,JVC),Naw,
@@ -1948,15 +1950,15 @@ C--- have performed screening in the meanwhile
             Else
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+nsAB+ioff),nBas(jS),
+     &                     Work(ipScr2+ioff),nBas(jS),
      &                     0.0d0,Work(ipQ+ioff),nBas(jS))
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
      &                     Work(ipScr+ioff),nBas(jS),
-     &                     0.0d0,Work(ipScr+nsAB+ioff),nBas(jS))
+     &                     0.0d0,Work(ipScr2+ioff),nBas(jS))
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
      &                    -1.0d0,Work(ipkappa+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+nsAB+ioff),nBas(jS),
+     &                     Work(ipScr2+ioff),nBas(jS),
      &                     1.0d0,Work(ipQ+ioff),nBas(jS))
             EndIf
             ioff=ioff+nBas(iS)*nAsh(iS)
@@ -1969,7 +1971,8 @@ C--- have performed screening in the meanwhile
 
 
       If (DoAct) Then
-        Call GetMem('Qmat','FREE','REAL',ipScr,nsAB*nDen)
+        Call Deallocate_DSBA(QTmp(2))
+        Call Deallocate_DSBA(QTmp(1))
         Call GetMem('MOScr','FREE','REAL',ipMOScr,nnA**4)
       EndIf
 
