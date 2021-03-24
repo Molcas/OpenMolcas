@@ -1,4 +1,4 @@
-************************************************************************
+*2***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -43,6 +43,7 @@ C
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
+      use Data_Structures, only: G2_Type, Allocate_G2, Deallocate_G2
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -60,6 +61,7 @@ C
       Type (DSBA_Type) Ash(2), Tmp(2), QTmp(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
+      Type (G2_Type) MOScr
 
       Integer   ipMO(2),ipMSQ(2),ipCM(2)
 #ifdef _DEBUGPRINT_
@@ -194,9 +196,10 @@ C *** memory for the Q matrices --- temporary array
         Call Allocate_DSBA(QTmp(2),nBas,nAsh,nSym)
         QTmp(1)%A0(:)=Zero
         QTmp(2)%A0(:)=Zero
-*MGD improve that
-        Call GetMem('MOScr','ALLO','REAL',ipMOScr,nnA**4)
-        Call Fzero(Work(ipMOScr),nnA**4)
+
+        iCase=1
+        Call Allocate_G2(MOScr,nAsh,nSym,iCase)
+        MOScr%A0(:)=Zero
       End If
 **************************************************
       If (Deco) Then
@@ -1557,11 +1560,10 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
                       If (.not.Fake_CMO2) i = 3
 
 * (tu|v~w) = Ltu*Lv~w
-                        ipaMO=ipMOScr+iASQ(iSymb,iSymv,iSymx)
                         Call DGEMM_('N','T',Nav*Naw,NAx*Nay,JNUM,
-     &                              One, Lpq(2)%SB(iSymv)%A3,NAv*Naw,
-     &                                   Lpq(i)%SB(iSymx)%A3,NAx*Nay,
-     &                              ONE,Work(ipaMO),NAv*Naw)
+     &                       One, Lpq(2)%SB(iSymv)%A3,NAv*Naw,
+     &                            Lpq(i)%SB(iSymx)%A3,NAx*Nay,
+     &                       One,MOScr%SB(iSymb,iSymv,iSymx)%A2,NAv*Naw)
                      ENdIf
                    EndDo
                    CALL CWTIME(TCINT3,TWINT3)
@@ -1887,19 +1889,20 @@ C--- have performed screening in the meanwhile
               Do iAsh=1,nAsh(is)
                 Do jAsh=1,nAsh(js)
                   iij=itri(iAsh+kAOff(is),jAsh+kAOff(jS))
-                  iijx=(jASh+kAOff(jS)-1)*nnA+iAsh+kAOff(iS)
                   Fac1=1.0d0
                   If (iAsh+kAOff(is).eq.jAsh+kAoff(jS)) Fac1=2.0d0
+
                   Do kAsh=1,nAsh(ks)
                     Do lAsh=1,nAsh(ls)
                       ikl=itri(lAsh+kAOff(lS),kAsh+kAOff(kS))
-                      iklx=(lAsh+kAOff(lS)-1)*nnA+kAsh+kAOff(kS)
                       Fac2=1.0d0
                       If (lAsh+kAOff(lS).eq.kAsh+kAOff(kS)) Fac2=2.0d0
                       If (iij.ne.ikl) Fac2=Fac2*0.5d0
+
                       ipG=ipMO1+itri(iij,ikl)-1
-                      ipGx=ipMOScr+(iklx-1)*na2+iijx-1
-                      Work(ipG)=Work(ipG)+Fac1*Fac2*Work(ipGx)
+
+                      Work(ipG)=Work(ipG)+Fac1*Fac2
+     &                       *MOScr%SB(iS,jS,kS)%A4(iAsh,jAsh,kAsh,lAsh)
                     End Do
                   End Do
                 End Do
@@ -1966,7 +1969,7 @@ C--- have performed screening in the meanwhile
       If (DoAct) Then
         Call Deallocate_DSBA(QTmp(2))
         Call Deallocate_DSBA(QTmp(1))
-        Call GetMem('MOScr','FREE','REAL',ipMOScr,nnA**4)
+        Call Deallocate_G2(MOScr)
       EndIf
 
       Call mma_deallocate(Faa)

@@ -13,9 +13,7 @@
 ************************************************************************
       SUBROUTINE swap_tosqrt(irc,iLoc,nRS,JSYM,XLT,Xab)
       use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
-     &                           Deallocate_NDSBA
+      use Data_Structures, only: NDSBA_Type
 
       Implicit Real*8 (a-h,o-z)
       Integer  irc, iLoc, JSYM

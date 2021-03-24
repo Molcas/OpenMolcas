@@ -59,7 +59,7 @@ C
 
       Integer   ipDLT(2),ipFLT(2),ipKLT(2)
       Integer   kOff(8,2),nnA(8,8)
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8)
+      Integer   ISTLT(8),ISTSQ(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
       Integer   ipDD(2)
