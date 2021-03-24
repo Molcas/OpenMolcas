@@ -37,16 +37,20 @@ C
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
+      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
+     &                           Deallocate_NDSBA
+
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   kOff(8)
-      Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8)
+      Integer   ISTLT(8),ISTSQ(8),ISTK(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2)
       Real*8    tmotr(2),tscrn(2)
 
+      Type (NDSBA_Type)  DiaH
       Type (DSBA_Type)   Ash(2)
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
@@ -138,15 +142,6 @@ c --------------------
       END DO
       nnO = nnO + nIsh(nSym)
 
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
-      END DO
-
 **************************************************
       If (Deco) Then
 
@@ -216,8 +211,9 @@ C *************** Read the diagonal integrals (stored as 1st red set)
       If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-      CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
-      CALL FZERO(Work(ipDIAH),NNBSQ)
+      Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+      DiaH%A0(:)=Zero
+      ipDiaH = ip_of_Work(DiaH%A0(1))
 
 c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
@@ -652,7 +648,6 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                     ipDIH = ipDIAH + ISSQ(lSym,kSym)
 
                      Do jDen=1,nDen
 
@@ -667,7 +662,7 @@ C===============================================================
                            nBs = Max(1,nBas(lSym))
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,Work(ipDIH),nBs,
+     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a,jDen),1)
 
@@ -678,7 +673,7 @@ C===============================================================
                            nBs = Max(1,nBas(kSym))
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,Work(ipDIH),nBs,
+     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a,jDen),1)
 
@@ -1483,7 +1478,7 @@ C--- have performed screening in the meanwhile
       Call mma_deallocate(MLk)
       Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
-      CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
+      Call Deallocate_NDSBA(DiaH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
      &    CALL mma_deallocate(DiagJ)

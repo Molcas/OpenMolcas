@@ -32,14 +32,18 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
+     &                           Deallocate_NDSBA
+
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
+      Type (NDSBA_type) DiaH
       Integer   rc,nDen
       Integer   ipOrb(8,2),nOrb(8,2)
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kOff(8,2)
+      Integer   ISTLT(8),ISTSQ(8),kOff(8,2)
       Real*8    tread(2),tcoul(2),texch(2)
       Real*8    tscrn(2),tmotr(2)
       Real*8    FactXI,dmpk,dFmat,tau(2),thrv(2)
@@ -72,7 +76,7 @@ C
       Integer, External:: Cho_LK_MaxVecPerBatch
       Integer, External:: ip_of_Work
 
-      Real*8, Allocatable:: DiaH(:), Lrs(:,:), Drs(:), Frs(:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
       Integer, Allocatable:: iShp_rs(:), Indx(:,:)
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:)
@@ -126,15 +130,6 @@ c --------------------
         NBQ=NBAS(ISYM-1)**2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D and F matrices
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
-      END DO
-
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
       END DO
 
 **************************************************
@@ -216,8 +211,9 @@ C *************** Read the diagonal integrals (stored as 1st red set)
       If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-      CALL mma_allocate(DIAH,NNBSQ,Label='DiaH')
-      DiaH(:)=0.0D0
+      Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+      DiaH%A0(:)=Zero
+      ipDiaH = ip_of_Work(DiaH%A0(1))
 
 c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
@@ -606,7 +602,6 @@ c --------------------------------------------------------------------
                    ired1 = 1 ! location of the 1st red set
                    add  = .false.
                    nMat = 1
-                   ipDIAH = ip_of_Work(DIAH(1))
                    Call swap_tosqrt(irc,ired1,NNBSTRT(1),nMat,JSYM,
      &                               [ipDIAH],DIAG,mode,add)
 
@@ -638,8 +633,6 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                        ipDIH = 1 + ISSQ(lSym,kSym)
-
                         Do ik=0,nBas(kSym)-1
                            AbsC(1+ik) = abs(Work(ipMO+ik))
                         End Do
@@ -651,7 +644,7 @@ C===============================================================
                            nBs = Max(1,nBas(lSym))
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,DiaH(ipDIH),nBs,
+     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a),1)
 
@@ -662,14 +655,11 @@ C===============================================================
                            nBs = Max(1,nBas(kSym))
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,DiaH(ipDIH),nBs,
+     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a),1)
 
                         EndIf
-c            Call recprt('DH','',DiaH(ipDIH),nBas(lSym),nBas(kSym))
-c            write(6,*)'Y(k)= ',(Ylk(i,jK_a),i=1,nBas(lSym))
-c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
 
 C --- List the shells present in Y(l)[k] by the largest element
                         Do ish=1,nShell
@@ -1372,7 +1362,7 @@ c ---------------
       Call mma_deallocate(MLk)
       Call mma_deallocate(Ylk)
       Call mma_deallocate(AbsC)
-      Call mma_deallocate(DiaH)
+      Call Deallocate_NDSBA(DiaH)
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
      &    CALL mma_deallocate(DiagJ)

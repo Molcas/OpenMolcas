@@ -50,7 +50,7 @@ C
 #include "warnings.fh"
       Integer   ipScr
       Integer   kOff(8),kaOff(8)
-      Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
+      Integer   ISTLT(8),ISTSQ(8),ISTK(8),iASQ(8,8,8)
       Integer   LuAChoVec(8),LuIChoVec(8)
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tact(2)
       Real*8    tint1(2),tint2(2),tint3(2),tQmat(2)
@@ -174,15 +174,7 @@ c --------------------
       nnA = nnA + nAsh(nSym)
       nA2 = nA2 + nAsh(nSym)**2
 
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         nChMO(lsym)=nOrb(lsym)
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
-      END DO
+      nChMO(:) = nOrb(:)
 
       If (DoAct) Then
         ioff=0
@@ -749,7 +741,6 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-C                    ipDIH = ipDIAH + ISSQ(lSym,kSym)
 
                      Do jDen=1,nDen
 
@@ -764,7 +755,6 @@ C===============================================================
                            nBs = Max(1,nBas(lSym))
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-*    &                                ONE,Work(ipDIH),nBs,
      &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a,jDen),1)
@@ -776,7 +766,6 @@ C===============================================================
                            nBs = Max(1,nBas(kSym))
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-*    &                                ONE,Work(ipDIH),nBs,
      &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                    AbsC,1,
      &                               ZERO,Ylk(1,jK_a,jDen),1)

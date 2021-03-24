@@ -108,11 +108,15 @@
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
+     &                           Deallocate_NDSBA
+
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
 
+      Type (NDSBA_Type) DiaH
       Type (DSBA_Type) AOrb(*)
       Type (SBA_Type) Laq(1), Lxy
 
@@ -286,7 +290,6 @@
 #if defined (_MOLCAS_MPP_)
       ipjDIAG=ip_Dummy
 #endif
-      ipDIAH=ip_Dummy
       ipAbs=ip_Dummy
       ipY=ip_Dummy
       ipYQ=ip_Dummy
@@ -390,8 +393,9 @@
 ** Allocate memory
 *
 !        sqrt(D(a,b)) stored in full (squared) dim
-         CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
-         CALL FZERO(Work(ipDIAH),NNBSQ)
+         Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
+         DiaH%A0(:)=Zero
+         ipDIAH = ip_of_Work(DiaH%A0(1))
 
          Call GetMem('absc','Allo','Real',ipAbs,MaxB) ! abs(C(l)[k])
 
@@ -992,7 +996,6 @@ C --- Transform the densities to reduced set storage
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                           ipDIH = ipDIAH + ISSQ(lSym,kSym)
 
                            Do ik=0,nBas(kSym)-1
                               Work(ipAbs+ik) = abs(Work(ipMO+ik))
@@ -1002,7 +1005,7 @@ C------------------------------------------------------------------
                               nBs = Max(1,nBas(lSym))
 
                               CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                   ONE,Work(ipDIH),nBs,
+     &                                   ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                       Work(ipAbs),1,
      &                                  ZERO,Work(ipYk),1)
 
@@ -1011,7 +1014,7 @@ C------------------------------------------------------------------
                               nBs = Max(1,nBas(kSym))
 
                               CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                   ONE,Work(ipDIH),nBs,
+     &                                   ONE,DiaH%SB(lSym,kSym)%A2,nBs,
      &                                       Work(ipAbs),1,
      &                                  ZERO,Work(ipYk),1)
 
@@ -1780,7 +1783,7 @@ C--- have performed screening in the meanwhile
          Call GetMem('yq','Free','Real',ipYQ,nItmx**2)
          Call GetMem('yc','Free','Real',ipY,MaxB*nItmx)
          Call GetMem('absc','Free','Real',ipAbs,MaxB)
-         CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
+         Call Deallocate_NDSBA(DiaH)
 #if defined (_MOLCAS_MPP_)
          If (Is_Real_Par().and.Update)CALL GETMEM('diagJ','Free','Real',
      &                                            ipjDIAG,NNBSTMX)
