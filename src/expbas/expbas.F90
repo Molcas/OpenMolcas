@@ -32,7 +32,7 @@ integer(kind=iwp) :: i, ib1, ib2, iErr, iLen, ind, ishift, ist1, ist2, iSym, Lu_
 character(len=80) :: VecTit
 character(len=512) :: FName
 logical(kind=iwp) :: Exist_1, Exist_2, okay
-integer(kind=wp), allocatable :: indt1(:), indt2(:), IndType(:)
+integer(kind=iwp), allocatable :: indt1(:), indt2(:), IndType(:)
 real(kind=wp), allocatable :: CMO1(:), CMO2(:), Eorb1(:), Eorb2(:), Occ1(:), Occ2(:)
 character(len=LenIn+8), allocatable :: Bas1(:), Bas2(:)
 

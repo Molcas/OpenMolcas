@@ -232,7 +232,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    tests: "qcmaquis"
+    tests: ".all qcmaquis"
   tags:
     - docker
 

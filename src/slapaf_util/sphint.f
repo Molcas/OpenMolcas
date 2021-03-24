@@ -12,7 +12,6 @@
       use Slapaf_Info, only: Weights, RefGeo
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
-#include "weighting.fh"
       Real*8  Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
       Real*8, Allocatable, Target:: OfRef(:,:)
       Logical l_Write, ldB

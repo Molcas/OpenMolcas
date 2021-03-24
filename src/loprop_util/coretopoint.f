@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CoreToPoint(nAt,ipMP,iTP)
+      Subroutine CoreToPoint(nAt,MP,TP)
       Implicit Real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
 
+      Real*8 MP(*),TP(*)
       Dimension ByggareBas(6)
 
       Logical GoHere
@@ -42,8 +43,8 @@
           ByggMeraHus=ByggMeraHus+ByggareBas(i)
         Enddo
         kAt=kAt+iAt
-        Work(ipMP+kAt-1)=Work(ipMP+kAt-1)+dToPoint
-        Work(iTP+iAt-1)=Work(iNucCh+iAt-1)-dToPoint
+        MP(kAt)=MP(kAt)+dToPoint
+        TP(iAt)=Work(iNucCh+iAt-1)-dToPoint
       Enddo
       Call GetMem('NucC','Free','Real',iNucCh,nAt)
 

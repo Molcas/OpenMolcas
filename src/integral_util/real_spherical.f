@@ -427,28 +427,6 @@
       End Do
       Return
       End Subroutine NrmSph
-      Function DblFac(n)
-************************************************************************
-*                                                                      *
-* Object: to compute the double factorial of n.                        *
-*                                                                      *
-* Called from: NrmSph                                                  *
-*                                                                      *
-* Calling    : None                                                    *
-*                                                                      *
-*     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
-*             November '90                                             *
-************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-      Real*8 DblFac
-*
-      DblFac = One
-      Do 20 i = n , 1, -2
-         DblFac = DblFac * DBLE(i)
- 20   Continue
-      Return
-      End Function DblFac
 *
 ***********************************************************************
 *

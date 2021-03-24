@@ -167,9 +167,9 @@ interface
   end function f
 end interface
 real(kind=wp), intent(in) :: a, b, epsabs, epsrel
-integer(kind=wp), intent(in) :: key, limit
+integer(kind=iwp), intent(in) :: key, limit
 real(kind=wp), intent(out) :: reslt, abserr, alist(limit), blist(limit), rlist(limit), elist(limit)
-integer(kind=wp), intent(out) :: neval, ier, iord(limit), last
+integer(kind=iwp), intent(out) :: neval, ier, iord(limit), last
 real(kind=wp) :: area, area1, area12, area2, a1, a2, b1, b2, defabs, defab1, defab2, epmach, errbnd, errmax, error1, error2, &
                  erro12, errsum, resabs, uflow
 integer(kind=iwp) :: iroff1, iroff2, k, keyf, maxerr, nrmax

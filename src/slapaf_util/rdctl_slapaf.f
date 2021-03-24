@@ -26,12 +26,11 @@
      &                             MEP_Type, MEP_Algo, Max_Center,
      &                             Delta, RtRnc, rFuzz, lNmHss, Cubic,
      &                             Request_Alaska, CallLast, lCtoF,
-     &                             Track, isFalcon, MxItr, nWndw, Iter
+     &                             Track, isFalcon, MxItr, nWndw, Iter,
+     &                             WeightedConstraints, NADC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "nadc.fh"
-#include "weighting.fh"
 #include "print.fh"
       Integer iDum(1)
       Logical Found, Dummy_Call

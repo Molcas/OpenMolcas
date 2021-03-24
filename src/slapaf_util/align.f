@@ -33,7 +33,6 @@
 #include "real.fh"
 #include "sbs.fh"
 #include "stdalloc.fh"
-#include "weighting.fh"
       Real*8 Coord(3*nAtom), Ref(3*nAtom)
       Logical Invar
       Real*8, Allocatable:: Coor_All(:,:), Ref_All(:,:)

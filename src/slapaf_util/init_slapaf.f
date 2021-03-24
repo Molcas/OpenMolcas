@@ -16,13 +16,13 @@
 *     use Slapaf_Info, only: R12
       use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
      &                             Line_Search, ThrEne, ThrGrd, ThrCons,
-     &                             ThrMEP, Header, MxItr, mTtAtm
+     &                             ThrMEP, Header, MxItr, mTtAtm,
+     &                             mB_Tot, mdB_Tot, mq, Force_dB, NADC,
+     &                             ApproxNADC
 *     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "sbs.fh"
-#include "nadc.fh"
-#include "db.fh"
 #include "print.fh"
 #include "stdalloc.fh"
       Integer   iAdd(0:7)
