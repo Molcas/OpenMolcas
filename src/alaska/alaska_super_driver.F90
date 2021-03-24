@@ -11,6 +11,7 @@
 
 subroutine Alaska_Super_Driver(iRC)
 
+use Alaska_Info, only: Auto, DefRoot, ForceNAC, iRlxRoot
 use Para_Info, only: nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -19,8 +20,8 @@ implicit none
 integer(kind=iwp), intent(out) :: iRC
 #include "warnings.fh"
 #include "nac.fh"
-#include "alaska_root.fh"
-integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, nSym
+integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, &
+                     nSym
 logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
 character(len=128) :: FileName
 character(len=180) :: Line
@@ -271,11 +272,12 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
       LuSpool2 = IsFreeUnit(LuSpool2)
       call Molcas_Open(LuSpool2,Filename)
 
-100   continue
-      read(LuSpool2,'(A)',end=900) Line
-      write(LuInput,'(A)') Line
-      Go To 100
-900   continue
+      do
+        read(LuSpool2,'(A)',iostat=istatus) Line
+        if (istatus > 0) call Abend()
+        if (istatus < 0) exit
+        write(LuInput,'(A)') Line
+      end do
 
       close(LuSpool2)
 
@@ -406,11 +408,12 @@ else if (Method == 'MCPDFT') then
       LuSpool2 = IsFreeUnit(LuSpool2)
       call Molcas_Open(LuSpool2,Filename)
 
-105   continue
-      read(LuSpool2,'(A)',end=905) Line
-      write(LuInput,'(A)') Line
-      Go To 105
-905   continue
+      do
+        read(LuSpool2,'(A)',iostat=istatus) Line
+        if (istatus > 0) call Abend()
+        if (istatus < 0) exit
+        write(LuInput,'(A)') Line
+      end do
 
       close(LuSpool2)
 

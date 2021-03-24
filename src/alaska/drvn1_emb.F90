@@ -25,6 +25,7 @@ subroutine DrvN1_EMB(Grad,Temp,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -35,21 +36,14 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "real.fh"
 #include "disp.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrrep, iM1xp, iM2xp, ip_ChargeB, iPrint, iR, iRout, &
-                     jCnt, jCntMx, jCnttp, LmbdR, mdc, nCnttp_B, ndc, nDCRR, nDisp
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrrep, iM1xp, iM2xp, iPrint, iR, iRout, jCnt, jCntMx, &
+                     jCnttp, LmbdR, mdc, nCnttp_B, ndc, nDCRR, nDisp
 real(kind=wp) :: A(3), B(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, df_dr, dfab, dr_da, fab, Fact, Gam, PreFct, r12, RB(3), &
                  ZA, ZAZB, ZB
 logical(kind=iwp) :: EQ, TstFnc
 character(len=16) :: NamRfil
 character(len=80) :: Lab
-
-!***********************************************************************
-!     Statement function for Charges of subsystem B
-real(kind=wp) :: Charge_B
-integer(kind=iwp) :: i
-Charge_B(i) = Work(ip_ChargeB+i-1)
-!***********************************************************************
+real(kind=wp), allocatable :: Charge_B(:)
 
 if (nIrrep > 1) then
   call WarningMessage(2,'Error in DrvN1_Emb')
@@ -61,13 +55,13 @@ iRout = 33
 iPrint = nPrint(iRout)
 
 iIrrep = 0
-call dcopy_(nGrad,[Zero],0,Temp,1)
+Temp(:) = Zero
 
 call Get_NameRun(NamRfil) ! save the old RUNFILE name
 call NameRun('AUXRFIL')   ! switch RUNFILE name
 
-call GetMem('B-Charges','Allo','Real',ip_ChargeB,nCnttp)
-call Get_dArray('Nuclear charge',Work(ip_ChargeB),nCnttp)
+call mma_allocate(Charge_B,nCnttp,label='B-Charges')
+call Get_dArray('Nuclear charge',Charge_B,nCnttp)
 
 call NameRun(NamRfil)   ! switch back to old RUNFILE name
 
@@ -94,13 +88,14 @@ end if
 mdc = 0
 ! Loop over centers with the same charge (A-subsystem)
 do iCnttp=1,nCnttp
+  if (iCnttp > 1) mdc = mdc+dbsc(iCnttp-1)%nCntr
   ZA = dbsc(iCnttp)%Charge
   if ((iCnttp >= iCnttp_B) .and. (iCnttp <= nCnttp_B) .and. (ZA > Zero)) then
     call WarningMessage(2,'Internal error in DrvN1_Emb')
     write(u6,*) ' Subsystems must come one after the other'
     call Abend()
   end if
-  if (ZA == Zero) Go To 101
+  if (ZA == Zero) cycle
   ! Loop over all unique centers of this group (A-subsystem)
   do iCnt=1,dbsc(iCnttp)%nCntr
     A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -108,9 +103,11 @@ do iCnttp=1,nCnttp
     ndc = 0
     do jCnttp=iCnttp_B,nCnttp_B  ! (B-subsystem)
 
+      if (jCnttp > iCnttp_B) ndc = ndc+dbsc(jCnttp-1)%nCntr
+
       ZB = Charge_B(jCnttp)
 
-      if (ZB == Zero) Go To 201
+      if (ZB == Zero) cycle
       ZAZB = ZA*ZB
       jCntMx = dbsc(jCnttp)%nCntr
       do jCnt=1,jCntMx
@@ -127,7 +124,7 @@ do iCnttp=1,nCnttp
         PreFct = Fact*ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
-          if (EQ(A,RB)) Go To 301
+          if (EQ(A,RB)) cycle
           r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
 
           ! The factor u/g will ensure that the value of the
@@ -200,22 +197,17 @@ do iCnttp=1,nCnttp
               end if
             end do
           end if
-301       continue
         end do
       end do
-201   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do
   end do
-101 continue
-  mdc = mdc+dbsc(iCnttp)%nCntr
 end do
 if (iPrint >= 15) then
   Lab = ' OFE Nuclear Repulsion Contribution'
   call PrGrad(Lab,Temp,nGrad,ChDisp,5)
 end if
 
-call GetMem('B-Charges','Free','Real',ip_ChargeB,nCnttp)
+call mma_deallocate(Charge_B)
 
 call DaXpY_(nGrad,One,Temp,1,Grad,1)
 

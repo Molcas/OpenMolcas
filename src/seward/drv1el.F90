@@ -170,7 +170,7 @@ do iMltpl=iLow,S%nMltpl
     else
       ixyz = 1
       iSymX = 2**IrrFnc(ixyz)
-      if (Ccoor(1) /= Zero) iSymX = ior(iSymX,1)
+      if (Ccoor(1) /= Zero) iSymX = ibset(iSymX,0)
     end if
     do iy=iMltpl-ix,0,-1
       if (mod(iy,2) == 0) then
@@ -178,7 +178,7 @@ do iMltpl=iLow,S%nMltpl
       else
         ixyz = 2
         iSymY = 2**IrrFnc(ixyz)
-        if (Ccoor(2) /= Zero) iSymY = ior(iSymY,1)
+        if (Ccoor(2) /= Zero) iSymY = ibset(iSymY,0)
       end if
       iz = iMltpl-ix-iy
       if (mod(iz,2) == 0) then
@@ -186,7 +186,7 @@ do iMltpl=iLow,S%nMltpl
       else
         ixyz = 4
         iSymZ = 2**IrrFnc(ixyz)
-        if (Ccoor(3) /= Zero) iSymZ = ior(iSymZ,1)
+        if (Ccoor(3) /= Zero) iSymZ = ibset(iSymZ,0)
       end if
       iChO = mod(ix,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz,2)*iChBas(4)
 
@@ -297,7 +297,7 @@ if (lPAM2np .and. (.not. Primitive_Pass)) then
           else
             ixyz = 1
             iSymX = 2**IrrFnc(ixyz)
-            if (Ccoor(1) /= Zero) iSymX = ior(iSymX,1)
+            if (Ccoor(1) /= Zero) iSymX = ibset(iSymX,0)
           end if
           do iy=iPAMltpl-ix,0,-1
             if (mod(iy,2) == 0) then
@@ -305,7 +305,7 @@ if (lPAM2np .and. (.not. Primitive_Pass)) then
             else
               ixyz = 2
               iSymY = 2**IrrFnc(ixyz)
-              if (Ccoor(2) /= Zero) iSymY = ior(iSymY,1)
+              if (Ccoor(2) /= Zero) iSymY = ibset(iSymY,0)
             end if
             iz = iPAMltpl-ix-iy
             if (mod(iz,2) == 0) then
@@ -313,7 +313,7 @@ if (lPAM2np .and. (.not. Primitive_Pass)) then
             else
               ixyz = 4
               iSymZ = 2**IrrFnc(ixyz)
-              if (Ccoor(3) /= Zero) iSymZ = ior(iSymZ,1)
+              if (Ccoor(3) /= Zero) iSymZ = ibset(iSymZ,0)
             end if
             iChO = mod(ix,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz,2)*iChBas(4)
 
@@ -586,17 +586,17 @@ do nOrdOp=0,nOrdEF
 
     ixyz = 1
     iSym = 2**IrrFnc(ixyz)
-    if (Ccoor(1) /= Zero) iSym = ior(iSym,1)
+    if (Ccoor(1) /= Zero) iSym = ibset(iSym,0)
     iSymR(1) = iSym
 
     ixyz = 2
     iSym = 2**IrrFnc(ixyz)
-    if (Ccoor(2) /= Zero) iSym = ior(iSym,1)
+    if (Ccoor(2) /= Zero) iSym = ibset(iSym,0)
     iSymR(2) = iSym
 
     ixyz = 4
     iSym = 2**IrrFnc(ixyz)
-    if (Ccoor(3) /= Zero) iSym = ior(iSym,1)
+    if (Ccoor(3) /= Zero) iSym = ibset(iSym,0)
     iSymR(3) = iSym
 
     iComp = 0
@@ -702,11 +702,11 @@ if (allocated(OAM_Center) .and. (.not. Primitive_Pass)) then
   ixyz = 4
   iSymZ = 2**IrrFnc(ixyz)
   iSymCx = iSymX
-  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
   iSymCy = iSymY
-  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
   iSymCz = iSymZ
-  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+  if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
 
   iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
   iChOx = iChBas(3)+iChBas(4)
@@ -756,11 +756,11 @@ if (Vlct .and. (S%nMltpl >= 2) .and. (.not. Primitive_Pass)) then
   ixyz = 4
   iSymZ = 2**IrrFnc(ixyz)
   iSymCx = iSymX
-  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
   iSymCy = iSymY
-  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
   iSymCz = iSymZ
-  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+  if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
 
   ! Calculates QpV_ij = r_i*p_j+p_i*r_j (or rater p -> nabla)
 
@@ -816,11 +816,11 @@ if (allocated(OMQ_Center) .and. (.not. Primitive_Pass)) then
   ixyz = 4
   iSymZ = 2**IrrFnc(ixyz)
   iSymCx = iSymX
-  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
   iSymCy = iSymY
-  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
   iSymCz = iSymZ
-  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+  if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
 
   iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
   iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
@@ -970,11 +970,11 @@ do iDMS=1,mDMS
       iC = iC+1
       iChO1 = iChBas(iC+1)
       ixyz = 0
-      if (mod(ix,2) /= 0) ixyz = ior(ixyz,1)
-      if (mod(iy,2) /= 0) ixyz = ior(ixyz,2)
-      if (mod(iz,2) /= 0) ixyz = ior(ixyz,4)
+      if (mod(ix,2) /= 0) ixyz = ibset(ixyz,0)
+      if (mod(iy,2) /= 0) ixyz = ibset(ixyz,1)
+      if (mod(iz,2) /= 0) ixyz = ibset(ixyz,2)
       iSym = 2**IrrFnc(ixyz)
-      if (Ccoor(iC) /= Zero) iSym = ior(iSym,1)
+      if (Ccoor(iC) /= Zero) iSym = ibset(iSym,0)
       iD = 0
       do jx=1,0,-1
         do jy=1-jx,0,-1
@@ -982,11 +982,11 @@ do iDMS=1,mDMS
           iD = iD+1
           iChO2 = iChBas(iD+1)
           jxyz = 0
-          if (mod(jx,2) /= 0) jxyz = ior(jxyz,1)
-          if (mod(jy,2) /= 0) jxyz = ior(jxyz,2)
-          if (mod(jz,2) /= 0) jxyz = ior(jxyz,4)
+          if (mod(jx,2) /= 0) jxyz = ibset(jxyz,0)
+          if (mod(jy,2) /= 0) jxyz = ibset(jxyz,1)
+          if (mod(jz,2) /= 0) jxyz = ibset(jxyz,2)
           iSymD = 2**IrrFnc(jxyz)
-          if (Dxyz(iD) /= Zero) iSymD = ior(iSymD,1)
+          if (Dxyz(iD) /= Zero) iSymD = ibset(iSymD,0)
           if (iC == iD) then
             i2 = iD+1
             if (i2 > 3) i2 = i2-3
@@ -1265,16 +1265,16 @@ if (allocated(AMP_Center) .and. (.not. Primitive_Pass)) then
   ixyz = 4
   iSymZ = 2**IrrFnc(ixyz)
   iSymCx = iSymX
-  if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+  if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
   iSymCy = iSymY
-  if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+  if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
   iSymCz = iSymZ
-  if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
-  iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
+  if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
+  iSymLx = ibset(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
   iChOx = iChBas(3)+iChBas(4)
-  iSymLy = ior(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
+  iSymLy = ibset(MltLbl(iSymCz,iSymX),MltLbl(iSymCx,iSymZ))
   iChOy = iChBas(4)+iChBas(2)
-  iSymLz = ior(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
+  iSymLz = ibset(MltLbl(iSymCx,iSymY),MltLbl(iSymCy,iSymX))
   iChOz = iChBas(2)+iChBas(3)
 
   ! Symmetry labels and characters of products. Let G be the full
@@ -1435,7 +1435,7 @@ if (GIAO .and. (.not. Primitive_Pass)) then
       else
         ixyz = 1
         iSymX = 2**IrrFnc(ixyz)
-        if (Ccoor(1) /= Zero) iSymX = ior(iSymX,1)
+        if (Ccoor(1) /= Zero) iSymX = ibset(iSymX,0)
       end if
       do iy=iMltpl-ix,0,-1
         if (mod(iy,2) == 0) then
@@ -1443,7 +1443,7 @@ if (GIAO .and. (.not. Primitive_Pass)) then
         else
           ixyz = 2
           iSymY = 2**IrrFnc(ixyz)
-          if (Ccoor(2) /= Zero) iSymY = ior(iSymY,1)
+          if (Ccoor(2) /= Zero) iSymY = ibset(iSymY,0)
         end if
         iz = iMltpl-ix-iy
         if (mod(iz,2) == 0) then
@@ -1451,7 +1451,7 @@ if (GIAO .and. (.not. Primitive_Pass)) then
         else
           ixyz = 4
           iSymZ = 2**IrrFnc(ixyz)
-          if (Ccoor(3) /= Zero) iSymZ = ior(iSymZ,1)
+          if (Ccoor(3) /= Zero) iSymZ = ibset(iSymZ,0)
         end if
 
         !----- Multiply cartesian components to generate which irreps
@@ -1590,11 +1590,11 @@ if (lPSOI .and. (.not. Prprt) .and. (.not. Primitive_Pass)) then
     ixyz = 4
     iSymZ = 2**IrrFnc(ixyz)
     iSymCx = iSymX
-    if (Ccoor(1) /= Zero) iSymCx = ior(iSymCx,1)
+    if (Ccoor(1) /= Zero) iSymCx = ibset(iSymCx,0)
     iSymCy = iSymY
-    if (Ccoor(2) /= Zero) iSymCy = ior(iSymCy,1)
+    if (Ccoor(2) /= Zero) iSymCy = ibset(iSymCy,0)
     iSymCz = iSymZ
-    if (Ccoor(3) /= Zero) iSymCz = ior(iSymCz,1)
+    if (Ccoor(3) /= Zero) iSymCz = ibset(iSymCz,0)
 
     iSymLx = ior(MltLbl(iSymCy,iSymZ),MltLbl(iSymCz,iSymY))
     iChOx = iChBas(3)+iChBas(4)
@@ -1700,11 +1700,11 @@ if (GIAO .and. (.not. Primitive_Pass)) then
           iComp = iComp+1
           iz = nOrdOp-ix-iy
           ixyz = 0
-          if (mod(ix,2) /= 0) ixyz = ior(ixyz,1)
-          if (mod(iy,2) /= 0) ixyz = ior(ixyz,2)
-          if (mod(iz,2) /= 0) ixyz = ior(ixyz,4)
+          if (mod(ix,2) /= 0) ixyz = ibset(ixyz,0)
+          if (mod(iy,2) /= 0) ixyz = ibset(ixyz,1)
+          if (mod(iz,2) /= 0) ixyz = ibset(ixyz,2)
           iSym = 2**IrrFnc(ixyz)
-          if (Ccoor(iComp) /= Zero) iSym = ior(iSym,1)
+          if (Ccoor(iComp) /= Zero) iSym = ibset(iSym,0)
           OperI(1+(iComp-1)) = MltLbl(iSymC,iSym)
           OperC(1+(iComp-1)) = iChBas(iComp+1)
           call dcopy_(3,Ccoor,1,CoorO(1+(iComp-1)*3),1)

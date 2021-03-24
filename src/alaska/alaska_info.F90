@@ -11,13 +11,15 @@
 
 module Alaska_Info
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
+integer(kind=iwp) :: iRlxRoot
+logical(kind=iwp) :: DefRoot, ForceNAC, Auto
 real(kind=wp), allocatable :: Am(:,:)
 
-public :: Am
+public :: Am, Auto, DefRoot, ForceNAC, iRlxRoot
 
 end module Alaska_Info

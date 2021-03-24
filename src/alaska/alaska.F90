@@ -157,104 +157,104 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Test) Go To 999
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-- Compute contribution due to the derivative of the one-
-!   electron hamiltonian and the contribution due the re-
-!   normalization.
+if (.not. Test) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !-- Compute contribution due to the derivative of the one-
+  !   electron hamiltonian and the contribution due the re-
+  !   normalization.
 
-if ((nProcs <= 1) .or. Onenly) then
-  call Drvh1(Grad,Temp,lDisp(0))
-end if
-if (Do_OFemb) then
-  ! NucAtt term to the Orbital-Free Embedding gradient
-  call Drvh1_EMB(Grad,Temp,lDisp(0))
-end if
-!Lab = 'Nuc + One-electron Contribution'
-!call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Compute the DFT contribution to the gradient
-
-call DrvDFTg(Grad,Temp,lDisp(0))
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if (Onenly) Go To 998
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! DFT-type Orbital-Free Embedding term to the gradient
-
-if (Do_OFemb) call DrvEMBg(Grad,Temp,lDisp(0))
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-- Compute contribution due to 2-electron integrals.
-
-if (Cholesky .or. Do_RI) then
-  if (Cholesky) then
-    if (iPrint >= 6) write(u6,*) 'Cholesky-ERI gradients!'
-  else
-    if (iPrint >= 6) write(u6,*) 'RI-ERI gradients!'
+  if ((nProcs <= 1) .or. Onenly) then
+    call Drvh1(Grad,Temp,lDisp(0))
   end if
-  call Drvg1_RI(Grad,Temp,lDisp(0))
-else
-  if (iPrint >= 6) write(u6,*) 'Conventional ERI gradients!'
-  call Drvg1(Grad,Temp,lDisp(0))
-end if
-
-call DScal_(lDisp(0),Half,Temp,1)
-if (iPrint >= 15) then
-  Lab = ' Two-electron Contribution'
-  call PrGrad(Lab,Temp,lDisp(0),ChDisp,iPrint)
-end if
-
-!-- Accumulate contribution to the gradient
-
-call GR_DArray(Grad,lDisp(0))
-call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-998 continue
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call CWTime(TCpu2,TWall2)
-call SavTim(7,TCpu2-TCpu1,TWall2-TWall1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-- Apply the translational and rotational invariance of the energy.
-
-if (TRSymm) then
-  if (iPrint >= 99) then
-    call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0),ChDisp,iPrint)
-    call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
+  if (Do_OFemb) then
+    ! NucAtt term to the Orbital-Free Embedding gradient
+    call Drvh1_EMB(Grad,Temp,lDisp(0))
   end if
-  call dcopy_(lDisp(0),Grad,1,Temp,1)
+  !Lab = 'Nuc + One-electron Contribution'
+  !call PrGrad(Lab,Grad,lDisp(0),ChDisp,iPrint)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Compute the DFT contribution to the gradient
 
-  call dGeMV_('N',lDisp(0),lDisp(0),One,Am,lDisp(0),Temp,1,Zero,Grad,1)
-  call mma_deallocate(Am)
-end if ! TRSymm
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!-- Equivalence option
+  call DrvDFTg(Grad,Temp,lDisp(0))
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  if (.not. Onenly) then
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! DFT-type Orbital-Free Embedding term to the gradient
 
-if (lEq) then
-  do i=1,lDisp(0)
-    if (IndxEq(i) /= i) Grad(i) = Grad(IndxEq(i))
-  end do
-end if ! lEq
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-999 continue
+    if (Do_OFemb) call DrvEMBg(Grad,Temp,lDisp(0))
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    !-- Compute contribution due to 2-electron integrals.
+
+    if (Cholesky .or. Do_RI) then
+      if (Cholesky) then
+        if (iPrint >= 6) write(u6,*) 'Cholesky-ERI gradients!'
+      else
+        if (iPrint >= 6) write(u6,*) 'RI-ERI gradients!'
+      end if
+      call Drvg1_RI(Grad,Temp,lDisp(0))
+    else
+      if (iPrint >= 6) write(u6,*) 'Conventional ERI gradients!'
+      call Drvg1(Grad,Temp,lDisp(0))
+    end if
+
+    call DScal_(lDisp(0),Half,Temp,1)
+    if (iPrint >= 15) then
+      Lab = ' Two-electron Contribution'
+      call PrGrad(Lab,Temp,lDisp(0),ChDisp,iPrint)
+    end if
+
+    !-- Accumulate contribution to the gradient
+
+    call GR_DArray(Grad,lDisp(0))
+    call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  call CWTime(TCpu2,TWall2)
+  call SavTim(7,TCpu2-TCpu1,TWall2-TWall1)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !-- Apply the translational and rotational invariance of the energy.
+
+  if (TRSymm) then
+    if (iPrint >= 99) then
+      call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0),ChDisp,iPrint)
+      call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
+    end if
+    Temp(1:lDisp(0)) = Grad(1:lDisp(0))
+
+    call dGeMV_('N',lDisp(0),lDisp(0),One,Am,lDisp(0),Temp,1,Zero,Grad,1)
+    call mma_deallocate(Am)
+  end if ! TRSymm
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  !-- Equivalence option
+
+  if (lEq) then
+    do i=1,lDisp(0)
+      if (IndxEq(i) /= i) Grad(i) = Grad(IndxEq(i))
+    end do
+  end if ! lEq
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -367,10 +367,9 @@ if (Columbus == 1) then
   lcartgrd = isFreeUnit(lcartgrd)
   call Molcas_Open(lcartgrd,'cartgrd')
   do IATOM=1,iCen
-    write(60,1010)(CGrad(j,iatom),j=1,3)
+    write(60,1010) (CGrad(j,iatom),j=1,3)
   end do
   close(lcartgrd)
-1010 format(3d15.6)
 end if
 
 !-- At the end of the calculation free all memory to check for
@@ -409,5 +408,7 @@ else
 end if
 
 return
+
+1010 format(3d15.6)
 
 end subroutine Alaska

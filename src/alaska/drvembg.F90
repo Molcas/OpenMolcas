@@ -80,26 +80,27 @@ Do_Grad = .true.
 call DrvEMB_(nDens,OFE_KSDFT,Do_Grad,Temp,nGrad,'SCF ')
 
 iEnd = 1
-99 continue
-if (OFE_KSDFT(iEnd:iEnd) == ' ') then
-  iEnd = iEnd-1
-else
-  iEnd = iEnd+1
-  Go To 99
-end if
+do
+  if (OFE_KSDFT(iEnd:iEnd) == ' ') then
+    iEnd = iEnd-1
+    exit
+  else
+    iEnd = iEnd+1
+  end if
+end do
 Label = 'DFT-OFE('//OFE_KSDFT(1:iEnd)//') contribution'
 jPrint = nPrint(112)
 if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp,5)
 if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
-if (iPrint < 6) Go To 777
-write(LuWr,*)
-if (Grid_Type == Moving_Grid) then
-  write(LuWr,*) 'DFT-OFE contribution computed for a moving grid.'
-else
-  write(LuWr,*) 'DFT-OFE contribution computed for a fixed grid.'
+if (iPrint >= 6) then
+  write(LuWr,*)
+  if (Grid_Type == Moving_Grid) then
+    write(LuWr,*) 'DFT-OFE contribution computed for a moving grid.'
+  else
+    write(LuWr,*) 'DFT-OFE contribution computed for a fixed grid.'
+  end if
+  write(LuWr,*)
 end if
-write(LuWr,*)
-777 continue
 !                                                                      *
 !***********************************************************************
 !                                                                      *

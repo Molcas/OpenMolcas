@@ -9,4 +9,23 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     alaska_banner.F90
+     alaska.F90
+     alaska_info.F90
+     alaska_super_driver.F90
+     annihil_rho.F90
+     chk_numerical.F90
+     cho_alaska_rdinp.F90
+     drvdftg.F90
+     drvemb_.F90
+     drvembg.F90
+     drvg1.F90
+     drvh1_emb.F90
+     drvn1_emb.F90
+     drvn1.F90
+     inputg.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

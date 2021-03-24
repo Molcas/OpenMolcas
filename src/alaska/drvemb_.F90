@@ -49,7 +49,7 @@ if (.not. Do_Grad) then
   call WarningMessage(2,'DrvEMB_: Do_Grad must be .true.')
   call Abend()
 end if
-call FZero(Grad,nGrad)
+Grad(:) = Zero
 call mma_allocate(Grad_A,nGrad,Label='Grad_A')
 Grad_A(:) = Zero
 !***********************************************************************
@@ -83,8 +83,8 @@ end if
 
 nFckDim = 2
 if (kSpin == 1) then
-  call dscal_(nh1,Half,D_DS(1,1),1)
-  call dcopy_(nh1,D_DS(1,1),1,D_DS(1,2),1)
+  D_DS(:,1) = Half*D_DS(:,1)
+  D_DS(:,2) = D_DS(:,1)
   nFckDim = 1
 else
   do i=1,nh1
@@ -121,7 +121,7 @@ call Get_D1ao(D_DS(1,3),nh1)
 call Get_iScalar('Multiplicity',iSpin)
 if ((iSpin == 1) .and. (kSpin /= 1)) then
   call WarningMessage(0,' Non-singlet environment perturbation on singlet state!'// &
-                        ' Spin-components of the OFE potential will be averaged.')
+                      ' Spin-components of the OFE potential will be averaged.')
 end if
 
 ! Get the spin density matrix of A
@@ -135,8 +135,8 @@ end if
 
 nFckDim = 2
 if (iSpin == 1) then
-  call dscal_(nh1,Half,D_DS(1,3),1)
-  call dcopy_(nh1,D_DS(1,3),1,D_DS(1,4),1)
+  D_DS(:,3) = Half*D_DS(:,3)
+  D_DS(:,4) = D_DS(:,3)
   if (kSpin == 1) nFckDim = 1
 else
   do i=1,nh1

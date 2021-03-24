@@ -73,7 +73,7 @@ if (iAt_B == 1) then ! subsystem B comes first
 else
   nBas_A = nBas_Start(iAt_B)-1
   nAA = nBas_A*(nBas_A+1)/2
-  call FZero(Dmat,nAA)
+  DMat(1:nAA) = Zero
   do j=nBas_A,nBas-1
     jj = j*(j+1)/2
     do i=1,nBas_A

@@ -22,7 +22,7 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp
 #include "print.fh"
-integer(kind=iwp) :: ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
+integer(kind=iwp) :: i, ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
@@ -31,10 +31,6 @@ integer(kind=iwp), allocatable :: lOper(:)
 real(kind=iwp), allocatable :: Coor(:,:), D_Var(:)
 external :: OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, FragPGrd, MltGrd, &
             OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG, MltMmG
-
-!-----Statement function
-integer(kind=iwp) :: i, nElem
-nElem(i) = (i+1)*(i+2)/2
 
 !...  Prologue
 iRout = 131
@@ -93,7 +89,7 @@ call NameRun(NamRfil)   ! switch RUNFILE name
 ! lOper(:): lOper of each component of the operator
 
 nOrdOp = 0
-nComp = nElem(nOrdOp)
+nComp = (nOrdOp+1)*(nOrdOp+2)/2
 call mma_allocate(Coor,3,nComp)
 call mma_allocate(lOper,nComp,Label='lOper')
 Coor(:,:) = Zero

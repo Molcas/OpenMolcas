@@ -78,12 +78,12 @@ l_casdft = (KSDFT(1:5) == 'TLSDA') .or. (KSDFT(1:6) == 'TLSDA5') .or. (KSDFT(1:5
 if (l_casdft) then
   DFTFOCK = 'ROKS'
   call Get_iScalar('System BitSwitch',iOpt)
-  iOpt = ior(iOpt,2**6)
+  iOpt = ibset(iOpt,6)
   call Put_iScalar('System BitSwitch',iOpt)
 end if
 
 call Get_iScalar('System BitSwitch',iDFT)
-if (iand(iDFT,2**6) /= 0) then
+if (btest(iDFT,6)) then
 
   call StatusLine(' Alaska:',' Computing DFT gradients')
 
@@ -99,28 +99,29 @@ if (iand(iDFT,2**6) /= 0) then
   call DrvDFT(Dummy1,Dummy2,Dummy3,Dummy4,nDens,First,Dff,lRF,KSDFT,ExFac,Do_Grad,Temp,nGrad,iSpin,Dumm0,Dumm1,iDumm,DFTFOCK)
 
   iEnd = 1
-99 continue
-  if (KSDFT(iEnd:iEnd) == ' ') then
-    iEnd = iEnd-1
-  else
-    iEnd = iEnd+1
-    Go To 99
-  end if
+  do
+    if (KSDFT(iEnd:iEnd) == ' ') then
+      iEnd = iEnd-1
+      exit
+    else
+      iEnd = iEnd+1
+    end if
+  end do
   Label = 'The DFT('//KSDFT(1:iEnd)//') contribution'
   jPrint = nPrint(112)
   !AMS
   !jPrint = 15
   if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp,5)
   if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
-  if (iPrint < 6) Go To 777
-  write(LuWr,*)
-  if (Grid_Type == Moving_Grid) then
-    write(LuWr,*) 'DFT contribution computed for a moving grid.'
-  else
-    write(LuWr,*) 'DFT contribution computed for a fixed grid.'
+  if (iPrint >= 6) then
+    write(LuWr,*)
+    if (Grid_Type == Moving_Grid) then
+      write(LuWr,*) 'DFT contribution computed for a moving grid.'
+    else
+      write(LuWr,*) 'DFT contribution computed for a fixed grid.'
+    end if
+    write(LuWr,*)
   end if
-  write(LuWr,*)
-777 continue
 
 end if
 !                                                                      *

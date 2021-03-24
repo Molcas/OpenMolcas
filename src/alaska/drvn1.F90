@@ -61,31 +61,33 @@ iIrrep = 0
 !                                                                      *
 !***********************************************************************
 
-call dcopy_(nGrad,[Zero],0,Temp,1)
+Temp(:) = Zero
 
 mdc = 0
 ! Loop over centers with the same charge
 do iCnttp=1,nCnttp
+  if (iCnttp > 1) mdc = mdc+dbsc(iCnttp-1)%nCntr
   if (dbsc(iCnttp)%Frag) then
     ZA = dbsc(iCnttp)%FragCharge
   else
     ZA = dbsc(iCnttp)%Charge
   end if
-  if (ZA == Zero) Go To 101
+  if (ZA == Zero) cycle
   ! Loop over all unique centers of this group
   do iCnt=1,dbsc(iCnttp)%nCntr
     A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
     ndc = 0
     do jCnttp=1,iCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
       if (dbsc(jCnttp)%Frag) then
         ZB = dbsc(jCnttp)%FragCharge
       else
         ZB = dbsc(jCnttp)%Charge
       end if
-      if (ZB == Zero) Go To 201
-      if (dbsc(iCnttp)%pChrg .and. dbsc(jCnttp)%pChrg) Go To 201
-      if (dbsc(iCnttp)%Frag .and. dbsc(jCnttp)%Frag) Go To 201
+      if (ZB == Zero) cycle
+      if (dbsc(iCnttp)%pChrg .and. dbsc(jCnttp)%pChrg) cycle
+      if (dbsc(iCnttp)%Frag .and. dbsc(jCnttp)%Frag) cycle
       ZAZB = ZA*ZB
       jCntMx = dbsc(jCnttp)%nCntr
       if (iCnttp == jCnttp) jCntMx = iCnt
@@ -104,7 +106,7 @@ do iCnttp=1,nCnttp
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp = NrOpr(iDCRR(iR))
-          if (EQ(A,RB)) Go To 301
+          if (EQ(A,RB)) cycle
           r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
 
           ! The factor u/g will ensure that the value of the
@@ -193,16 +195,11 @@ do iCnttp=1,nCnttp
               end if
             end do
           end if
-301       continue
         end do
 
       end do
-201   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do
   end do
-101 continue
-  mdc = mdc+dbsc(iCnttp)%nCntr
 end do
 if (iPrint >= 15) then
   Lab = ' The Nuclear Repulsion Contribution'
@@ -217,118 +214,115 @@ call DaXpY_(nGrad,One,Temp,1,Grad,1)
 !                                                                      *
 !***********************************************************************
 
-if (.not. allocated(XF)) Go To 666
+if (allocated(XF)) then
 
-if ((nOrd_XF > 1) .or. (iXPolType > 0)) then
-  call WarningMessage(2,'Error in DrvN1')
-  write(u6,*) 'Sorry, gradients are not implemented for'
-  write(u6,*) 'higher XF than dipoles or for polarisabilities'
-  call Quit_OnUserError()
-end if
-
-call dcopy_(nGrad,[Zero],0,Temp,1)
-
-iDum = 0
-do iFd=1,nXF
-  ZA = XF(4,iFd)
-  if (nOrd_XF == 0) then
-    DA(1:3) = Zero
-  else
-    DA(1:3) = XF(5:7,iFd)
+  if ((nOrd_XF > 1) .or. (iXPolType > 0)) then
+    call WarningMessage(2,'Error in DrvN1')
+    write(u6,*) 'Sorry, gradients are not implemented for'
+    write(u6,*) 'higher XF than dipoles or for polarisabilities'
+    call Quit_OnUserError()
   end if
-  NoLoop = (ZA == Zero) .and. (DA(1) == Zero) .and. (DA(2) == Zero) .and. (DA(3) == Zero)
-  if (NoLoop) Go To 102
-  A(1:3) = XF(1:3,iFd)
-  iChxyz = iChAtm(A)
-  call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 
-  ndc = 0
-  do jCnttp=1,nCnttp
-    ZB = dbsc(jCnttp)%Charge
-    if (ZB == Zero) Go To 202
-    if (dbsc(jCnttp)%pChrg) Go To 202
-    if (dbsc(jCnttp)%Frag) Go To 202
-    ZAZB = ZA*ZB
-    do jCnt=1,dbsc(jCnttp)%nCntr
-      B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
+  Temp(:) = Zero
 
-      ! Find the DCR for the two centers
+  iDum = 0
+  do iFd=1,nXF
+    ZA = XF(4,iFd)
+    if (nOrd_XF == 0) then
+      DA(1:3) = Zero
+    else
+      DA(1:3) = XF(5:7,iFd)
+    end if
+    NoLoop = (ZA == Zero) .and. (DA(1) == Zero) .and. (DA(2) == Zero) .and. (DA(3) == Zero)
+    if (NoLoop) cycle
+    A(1:3) = XF(1:3,iFd)
+    iChxyz = iChAtm(A)
+    call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 
-      call DCR(LmbdR,iStb,nStb,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
+    ndc = 0
+    do jCnttp=1,nCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
+      ZB = dbsc(jCnttp)%Charge
+      if (ZB == Zero) cycle
+      if (dbsc(jCnttp)%pChrg) cycle
+      if (dbsc(jCnttp)%Frag) cycle
+      ZAZB = ZA*ZB
+      do jCnt=1,dbsc(jCnttp)%nCntr
+        B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
-      PreFct = real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
-      do iR=0,nDCRR-1
-        call OA(iDCRR(iR),B,RB)
-        nOp = NrOpr(iDCRR(iR))
-        if (EQ(A,RB)) Go To 302
-        r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
-        DARB = DA(1)*(A(1)-RB(1))+DA(2)*(A(2)-RB(2))+DA(3)*(A(3)-RB(3))
+        ! Find the DCR for the two centers
 
-        ! The factor u/g will ensure that the value of the
-        ! gradient in symmetry adapted and no symmetry basis
-        ! will have the same value.
+        call DCR(LmbdR,iStb,nStb,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        fab0 = One
-        fab1 = One
-        fab2 = Three
-        if (dbsc(jCnttp)%ECP) then
-          ! Add contribution from M1 operator
-          Cnt0M1 = Zero
-          Cnt1M1 = Zero
-          do iM1xp=1,dbsc(jCnttp)%nM1
-            Gam = dbsc(jCnttp)%M1xp(iM1xp)
-            CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-            Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
-            Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
-          end do
-          fab0 = fab0+Cnt0M1-Two*r12**2*Cnt1M1
-          fab1 = fab1+Cnt0M1
-          fab2 = fab2+Three*Cnt0M1+Two*r12**2*Cnt1M1
-          ! Add contribution from M2 operator
-          Cnt0M2 = Zero
-          Cnt1M2 = Zero
-          do iM2xp=1,dbsc(jCnttp)%nM2
-            Gam = dbsc(jCnttp)%M2xp(iM2xp)
-            CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-            Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
-            Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
-          end do
-          fab0 = fab0+Two*(r12*Cnt0M2-r12**3*Cnt1M2)
-          fab1 = fab1+r12*Cnt0M2
-          fab2 = fab2-Two*(r12*Cnt0M2-r12**3*Cnt1M2)
-        end if
+        PreFct = real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
+        do iR=0,nDCRR-1
+          call OA(iDCRR(iR),B,RB)
+          nOp = NrOpr(iDCRR(iR))
+          if (EQ(A,RB)) cycle
+          r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
+          DARB = DA(1)*(A(1)-RB(1))+DA(2)*(A(2)-RB(2))+DA(3)*(A(3)-RB(3))
 
-        nDisp = IndDsp(ndc+jCnt,iIrrep)
-        igv = nIrrep/dc(ndc+jCnt)%nStab
-        do iCar=0,2
-          iComp = 2**iCar
-          if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
-            nDisp = nDisp+1
-            if (Direct(nDisp)) then
-              ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
-              Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct* &
-                            (ZAZB*fab0*(A(iCar+1)-RB(iCar+1))/(r12**3)+ &
-                             ZB*(fab1*DA(iCar+1)/(r12**3)-DARB*fab2*(A(iCar+1)-RB(iCar+1))/(r12**5)))
-            end if
+          ! The factor u/g will ensure that the value of the
+          ! gradient in symmetry adapted and no symmetry basis
+          ! will have the same value.
+
+          fab0 = One
+          fab1 = One
+          fab2 = Three
+          if (dbsc(jCnttp)%ECP) then
+            ! Add contribution from M1 operator
+            Cnt0M1 = Zero
+            Cnt1M1 = Zero
+            do iM1xp=1,dbsc(jCnttp)%nM1
+              Gam = dbsc(jCnttp)%M1xp(iM1xp)
+              CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+              Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
+            end do
+            fab0 = fab0+Cnt0M1-Two*r12**2*Cnt1M1
+            fab1 = fab1+Cnt0M1
+            fab2 = fab2+Three*Cnt0M1+Two*r12**2*Cnt1M1
+            ! Add contribution from M2 operator
+            Cnt0M2 = Zero
+            Cnt1M2 = Zero
+            do iM2xp=1,dbsc(jCnttp)%nM2
+              Gam = dbsc(jCnttp)%M2xp(iM2xp)
+              CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+              Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
+            end do
+            fab0 = fab0+Two*(r12*Cnt0M2-r12**3*Cnt1M2)
+            fab1 = fab1+r12*Cnt0M2
+            fab2 = fab2-Two*(r12*Cnt0M2-r12**3*Cnt1M2)
           end if
-        end do   ! End loop over cartesian components, iCar
 
-302     continue
-      end do     ! End loop over DCR operators, iR
+          nDisp = IndDsp(ndc+jCnt,iIrrep)
+          igv = nIrrep/dc(ndc+jCnt)%nStab
+          do iCar=0,2
+            iComp = 2**iCar
+            if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
+              nDisp = nDisp+1
+              if (Direct(nDisp)) then
+                ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
+                Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct* &
+                              (ZAZB*fab0*(A(iCar+1)-RB(iCar+1))/(r12**3)+ &
+                               ZB*(fab1*DA(iCar+1)/(r12**3)-DARB*fab2*(A(iCar+1)-RB(iCar+1))/(r12**5)))
+              end if
+            end if
+          end do   ! End loop over cartesian components, iCar
 
-    end do       ! End over centers, jCnt
-202 continue
-    ndc = ndc+dbsc(jCnttp)%nCntr
-  end do         ! End over basis set types, jCnttp
-102 continue
-end do           ! End of centers of the external field, iFD
-if (iPrint >= 15) then
-  Lab = ' The Nuclear External Electric Field Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+        end do     ! End loop over DCR operators, iR
+
+      end do       ! End over centers, jCnt
+    end do         ! End over basis set types, jCnttp
+  end do           ! End of centers of the external field, iFD
+  if (iPrint >= 15) then
+    Lab = ' The Nuclear External Electric Field Contribution'
+    call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+  end if
+
+  call DaXpY_(nGrad,One,Temp,1,Grad,1)
 end if
-
-call DaXpY_(nGrad,One,Temp,1,Grad,1)
-666 continue
 
 !***********************************************************************
 !                                                                      *
@@ -346,7 +340,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
   if (iPrint >= 99) call RecPrt('Total Multipole Moments',' ',MM(1,1),1,nCav)
   if (iPrint >= 99) call RecPrt('Total Electric Field',' ',MM(1,2),1,nCav)
 
-  call dcopy_(nGrad,[Zero],0,Temp,1)
+  Temp(:) = Zero
 
   ip = 0
   do ir=0,lMax
@@ -358,8 +352,9 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
 
         mdc = 0
         do iCnttp=1,nCnttp
-          if (dbsc(iCnttp)%Charge == Zero) Go To 103
-          if (dbsc(iCnttp)%Frag) Go To 103
+          if (iCnttp > 1) mdc = mdc+dbsc(iCnttp-1)%nCntr
+          if (dbsc(iCnttp)%Charge == Zero) cycle
+          if (dbsc(iCnttp)%Frag) cycle
           ZA = dbsc(iCnttp)%Charge
           if (iPrint >= 99) then
             write(u6,*) ' Charge=',ZA
@@ -422,8 +417,6 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
             end do
 
           end do
-103       continue
-          mdc = mdc+dbsc(iCnttp)%nCntr
         end do
 
       end do
@@ -445,7 +438,7 @@ else if (lRF .and. PCM) then
 !                                                                      *
 !***********************************************************************
 
-  call dcopy_(nGrad,[Zero],0,Temp,1)
+  Temp(:) = Zero
 
   ! Loop over tiles
 
@@ -453,7 +446,7 @@ else if (lRF .and. PCM) then
     ZA = PCM_SQ(1,iTs)+PCM_SQ(2,iTS)
     NoLoop = ZA == Zero
     ZA = ZA/real(nIrrep,kind=wp)
-    if (NoLoop) Go To 112
+    if (NoLoop) cycle
     A(1:3) = PCMTess(1:3,iTs)
 
     ! Tile only stabilized by the unit operator
@@ -463,10 +456,11 @@ else if (lRF .and. PCM) then
 
     ndc = 0
     do jCnttp=1,nCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
       ZB = dbsc(jCnttp)%Charge
-      if (ZB == Zero) Go To 212
-      if (dbsc(jCnttp)%pChrg) Go To 212
-      if (dbsc(jCnttp)%Frag) Go To 212
+      if (ZB == Zero) cycle
+      if (dbsc(jCnttp)%pChrg) cycle
+      if (dbsc(jCnttp)%Frag) cycle
       ZAZB = ZA*ZB
       do jCnt=1,dbsc(jCnttp)%nCntr
         B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -479,7 +473,7 @@ else if (lRF .and. PCM) then
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp = NrOpr(iDCRR(iR))
-          if (EQ(A,RB)) Go To 312
+          if (EQ(A,RB)) cycle
           r12 = sqrt((A(1)-RB(1))**2+(A(2)-RB(2))**2+(A(3)-RB(3))**2)
 
           ! The factor u/g will ensure that the value of the
@@ -528,14 +522,10 @@ else if (lRF .and. PCM) then
             end if
           end do   ! End loop over cartesian components, iCar
 
-312       continue
         end do     ! End loop over DCR operators, iR
 
       end do       ! End over centers, jCnt
-212   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do         ! End over basis set types, jCnttp
-112 continue
   end do           ! End of tiles
 
   if (iPrint >= 15) then
@@ -547,7 +537,7 @@ else if (lRF .and. PCM) then
 
   ! Add contribution due to the tiles.
 
-  call FZero(Temp,nGrad)
+  Temp(:) = Zero
   call PCM_Cav_grd(Temp,nGrad)
   if (iPrint >= 15) then
     Lab = ' The Cavity PCM Contribution'
@@ -558,7 +548,7 @@ else if (lRF .and. PCM) then
   ! Add contribution due to the electric field on the tiles.
 
   if (Conductor) then
-    call FZero(Temp,nGrad)
+    Temp(:) = Zero
     call PCM_EF_grd(Temp,nGrad)
     if (iPrint >= 15) then
       Lab = ' The EF PCM Contribution'

@@ -16,8 +16,6 @@ set (sources
      chorpa_motra_reordercmo.F90
      rpa_checkintegralrepresentation.F90
      rpa_cleanup.F90
-     rpa_config.fh
-     rpa_data.fh
      rpa.F90
      rpa_freezer.F90
      rpa_frz.F90

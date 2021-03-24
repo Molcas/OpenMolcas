@@ -10,11 +10,11 @@
 !***********************************************************************
 
 subroutine Cho_Alaska_RdInp(LuSpool)
-!****************************************************************
+!***********************************************************************
 !
 ! Purpose: Read and process input for Cholesky section in alaska.
 !
-!****************************************************************
+!***********************************************************************
 
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp, u6
@@ -23,6 +23,7 @@ implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 #include "exterm.fh"
 #include "chotime.fh"
+integer(kind=iwp) :: istatus
 real(kind=wp) :: dmpK_default
 character(len=180) :: KWord, Key
 character(len=16), parameter :: SECNAM = 'CHO_ALASKA_INPUT'
@@ -35,55 +36,60 @@ dmpK_default = dmpK
 nScreen = 10
 
 ! Process the input
-1000 continue
-Key = Get_Ln(LuSpool)
-Kword = Key
-call UpCase(Kword)
-if (KWord(1:1) == '*') Go To 1000
-if (KWord(1:4) == '') Go To 1000
-if (KWord(1:4) == 'DMPK') Go To 100
-if (KWord(1:4) == 'SCRN') Go To 110
-if (KWord(1:4) == 'TIMI') Go To 120
-if (KWord(1:4) == 'ENDC') Go To 998
-if (KWord(1:4) == 'END ') Go To 998
-if (KWord(1:4) == 'ENDO') Go To 998
-!                                                             *
-!*** DMPK *****************************************************
-!                                                             *
-100 continue
-read(LuSpool,*,err=210,end=200) dmpK
-if (dmpK < Zero) then
-  write(u6,*) 'OBS! Specified DMPK value is negative.'
-  write(u6,*) 'Restoring Default!'
-  dmpK = dmpK_default
-end if
-Go To 1000
-!                                                             *
-!*** SCRN *****************************************************
-!                                                             *
-110 continue
-read(LuSpool,*,err=210,end=200) nScreen
-Go To 1000
-!                                                             *
-!*** TIMI *****************************************************
-!                                                             *
-120 continue
-Timings = .true.
-Go To 1000
-!                                                             *
-!** ENDChoinput ***********************************************
-!                                                             *
-998 continue
+do
+  Key = Get_Ln(LuSpool)
+  Kword = Key
+  call UpCase(Kword)
+  if (KWord(1:1) == '*') cycle
+  if (KWord(1:4) == '') cycle
+  select case (KWord(1:4))
+    case ('DMPK')
+      !                                                                *
+      !*** DMPK ********************************************************
+      !                                                                *
+      read(LuSpool,*,iostat=istatus) dmpK
+      call Error()
+      if (dmpK < Zero) then
+        write(u6,*) 'OBS! Specified DMPK value is negative.'
+        write(u6,*) 'Restoring Default!'
+        dmpK = dmpK_default
+      end if
+    case ('SCRN')
+      !                                                                *
+      !*** SCRN ********************************************************
+      !                                                                *
+      read(LuSpool,*,iostat=istatus) nScreen
+      call Error()
+    case ('TIMI')
+      !                                                                *
+      !*** TIMI ********************************************************
+      !                                                                *
+      Timings = .true.
+    case ('ENDC')
+      !                                                                *
+      !** ENDChoinput **************************************************
+      !                                                                *
+      exit
+    case ('END ')
+      exit
+    case ('ENDO')
+      exit
+    case default
+  end select
+end do
 
 return
-!                                                             *
-!**************************************************************
-!                                                             *
-call ErrTra
-200 write(u6,*) SECNAM,'Premature end of input file.'
-call Quit_onUserError()
-call ErrTra
-210 write(u6,*) SECNAM,'Error while reading input file.'
-call Quit_onUserError()
+
+contains
+
+subroutine Error()
+  if (istatus > 0) then
+    write(u6,*) SECNAM,'Premature end of input file.'
+    call Quit_onUserError()
+  else if (istatus > 0) then
+    write(u6,*) SECNAM,'Error while reading input file.'
+    call Quit_onUserError()
+  end if
+end subroutine Error
 
 end subroutine Cho_Alaska_RdInp
