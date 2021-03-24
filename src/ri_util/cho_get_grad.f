@@ -919,12 +919,9 @@ C --- Transform the densities to reduced set storage
 
                      CALL CWTIME(TCS1,TWS1)
 
-                     mode = 'tosqrt'
                      ired1 = 1 ! location of the 1st red set
-                     add  = .false.
-                     nMat = 1
-                     Call swap_tosqrt(irc,ired1,NNBSTRT(1),nMat,JSYM,
-     &                                  [ipDIAH],Work(ipDIAG),mode,add)
+                     Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
+     &                                  ipDIAH,Work(ipDIAG))
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)

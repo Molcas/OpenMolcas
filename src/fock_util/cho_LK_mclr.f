@@ -704,12 +704,9 @@ c --- Compute DH(a,b)=sqrt(D(a,b)) from the updated diagonals.
 c ---                              Only the symmetry blocks with
 c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
-                   mode = 'tosqrt'
-                   add = .False.
                    ired1 = 1 ! location of the 1st red set
-                   nMat=1
-                   Call swap_tosqrt(irc,ired1,NNBSTRT(1),nMat,JSYM,
-     &                               [ipDIAH],DIAG,mode,add)
+                   Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
+     &                               ipDIAH,DIAG)
 
                    CALL CWTIME(TCS2,TWS2)
                    tscrn(1) = tscrn(1) + (TCS2 - TCS1)

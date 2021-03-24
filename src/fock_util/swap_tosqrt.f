@@ -11,15 +11,13 @@
 * Copyright (C) Francesco Aquilante                                    *
 *               2021, Roland Lindh                                     *
 ************************************************************************
-      SUBROUTINE swap_tosqrt(irc,iLoc,nRS,nDen,JSYM,ipXLT,Xab,mode,add)
+      SUBROUTINE swap_tosqrt(irc,iLoc,nRS,JSYM,ipXLT,Xab)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      Integer  irc, iLoc, nDen, JSYM
-      Integer ipXLT(nDen)
-      Real*8 Xab(nRS,nDen)
-      Logical add
-      Character*6 mode
+      Integer  irc, iLoc, JSYM
+      Integer ipXLT
+      Real*8 Xab(nRS)
 
       Integer  ISSQ(8,8)
       Integer, External:: cho_isao
@@ -45,7 +43,7 @@
          END DO
       END DO
 
-      If (mode.eq.'tosqrt'.and.JSYM.ne.1) then
+      If (JSYM.ne.1) then
 c      ! NON TOTAL-SYMMETRIC
 
          Do jRab=1,nnBstR(jSym,iLoc)
@@ -63,18 +61,14 @@ c      ! NON TOTAL-SYMMETRIC
 
             iab   = nBas(iSyma)*(ibs-1) + ias
 
-            Do jDen=1,nDen
+            kto = ipXLT - 1 + isSQ(iSyma,iSymb) + iab
 
-               kto = ipXLT(jDen) - 1 + isSQ(iSyma,iSymb) + iab
-
-               Work(kto) = sqrt(abs(Xab(kRab,jDen)))
-
-            End Do
+            Work(kto) = sqrt(abs(Xab(kRab)))
 
          End Do  ! jRab loop
 
 
-      ElseIf (mode.eq.'tosqrt'.and.JSYM.eq.1) then
+      ElseIf (JSYM.eq.1) then
 
          Do jRab=1,nnBstR(jSym,iLoc)
 
@@ -91,24 +85,13 @@ c      ! NON TOTAL-SYMMETRIC
             iab   = nBas(iSyma)*(ibs-1) + ias
             iba   = nBas(iSyma)*(ias-1) + ibs
 
-            Do jDen=1,nDen
+            kto = ipXLT - 1 + isSQ(iSyma,iSyma)
 
-               kto = ipXLT(jDen) - 1 + isSQ(iSyma,iSyma)
+            Work(kto+iab) = sqrt(abs(Xab(kRab)))
 
-               Work(kto+iab) = sqrt(abs(Xab(kRab,jDen)))
-
-               Work(kto+iba) = sqrt(abs(Xab(kRab,jDen)))
-
-            End Do
+            Work(kto+iba) = sqrt(abs(Xab(kRab)))
 
          End Do  ! jRab loop
-
-
-      Else
-
-         write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
-         irc = 66
-         Call abend()
 
       EndIf
 
