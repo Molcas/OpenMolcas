@@ -125,9 +125,9 @@
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer   ipDrs(5), ipSKsh(5)
-      Integer   ipDrs2,ipDLT(5),ipDLT2
-      Integer   ipIndx, ipIndik,npos(8,3)
+      Integer   ipSKsh(5)
+      Integer   ipDLT(5),ipDLT2
+      Integer   ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
@@ -159,8 +159,8 @@
       Character*6 mode
       Integer, External:: Cho_F2SP
 
-      Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:), SvShp(:),
-     &                      MLk(:), Ylk(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Diag(:), AbsC(:),
+     &                      SvShp(:), MLk(:), Ylk(:,:), Drs2(:,:)
       Real*8, Allocatable, Target:: Yik(:)
       Real*8, Pointer:: pYik(:,:)=>Null()
       Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:),
@@ -689,14 +689,10 @@ c            !set index arrays at iLoc
             nRS = nDimRS(JSYM,JRED)
 
             If(JSYM.eq.1)Then
-               Do jden=1,nJdens
-                  Call GetMem('rsD','Allo','Real',ipDrs(jden),nRS)
-                  Call Fzero(Work(ipDrs(jden)),nRS)
-               End Do
+               Call mma_allocate(Drs,nRS,nJdens,Label='Drs')
+               Drs(:,:)=Zero
                If(iMp2prpt.eq.2) Then
-                  Call GetMem('rsD2','Allo','Real',ipDrs2,nRS)
-               Else
-                  ipDrs2 = ip_Dummy
+                  Call mma_allocate(Drs2,nRS,1,Label='Drs2')
                End If
             End If
 
@@ -731,12 +727,12 @@ C --- Transform the densities to reduced set storage
                nMat=1
                Do jDen=1,nJdens
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              [ipDLT(jDen)],Work(ipDrs(jDen)),
+     &                              [ipDLT(jDen)],Drs(:,jDen),
      &                              mode,add)
                End Do
                If(iMp2prpt .eq. 2) Then
                   Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                              [ipDLT2],Work(ipDrs2),mode,add)
+     &                              [ipDLT2],Drs2(:,1),mode,add)
                End If
             EndIf
 *
@@ -805,7 +801,7 @@ C --- Transform the densities to reduced set storage
                  Do jden=1,nJdens
                     CALL DGEMV_('T',nRS,JNUM,
      &                         One,Lrs,nRS,
-     &                         Work(ipDrs(jden)),1,
+     &                             Drs(1,jden),1,
      &                         zero,V_k(jVec,jDen),1)
                  End Do
 *
@@ -814,7 +810,7 @@ C --- Transform the densities to reduced set storage
                  If(iMp2prpt .eq. 2) Then
                     CALL DGEMV_('T',nRS,JNUM,
      &                         One,Lrs,nRS,
-     &                         Work(ipDrs2),1,
+     &                             Drs2(:,1),1,
      &                         zero,U_k(jVec),1)
                  End If
 *
@@ -1673,12 +1669,8 @@ C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              do jden=nJdens,1,-1
-               Call GetMem('rsD','Free','Real',ipDrs(jden),nRS)
-              end do
-              If(iMp2prpt .eq. 2) Then
-                 Call GetMem('rsD2','Free','Real',ipDrs2,nRS)
-              End If
+              Call mma_deallocate(Drs)
+              If(iMp2prpt .eq. 2) Call mma_deallocate(Drs2)
             EndIf
 
 999         Continue
