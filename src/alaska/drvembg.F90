@@ -36,17 +36,21 @@ use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use OFembed, only: OFE_KSDFT
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad
+real(kind=wp), intent(out) :: Temp
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
-#include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
-character Label*80
-real*8 Grad(nGrad), Temp(nGrad)
-logical Do_Grad
+integer(kind=iwp) :: iEnd, iIrrep, iPrint, iRout, jPrint, LuWr, nDens
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
+logical(kind=iwp) :: Do_Grad
+character(len=80) :: Label
 
 !                                                                      *
 !***********************************************************************
@@ -58,7 +62,7 @@ call CWTime(TCpu1,TWall1)
 !...  Prologue
 iRout = 131
 iPrint = nPrint(iRout)
-LuWr = 6
+LuWr = u6
 
 call StatusLine(' Alaska:',' Computing OFembedding gradients')
 

@@ -11,9 +11,13 @@
 
 module Alaska_Info
 
-private
-public :: Am
+use Definitions, only: wp
 
-real*8, allocatable :: Am(:,:)
+implicit none
+private
+
+real(kind=wp), allocatable :: Am(:,:)
+
+public :: Am
 
 end module Alaska_Info

@@ -11,38 +11,43 @@
 
 subroutine Annihil_rho(Dmat,nBas)
 
-implicit real*8(a-h,o-z)
-#include "itmax.fh"
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), intent(out) :: Dmat(*)
+integer(kind=iwp), intent(in) :: nBas
 #include "Molcas.fh"
-#include "stdalloc.fh"
-real*8 Dmat(*)
-integer nBas
-character*(LENIN4) Name(mxBas)
-integer, allocatable :: nBas_per_Atom(:), nBas_Start(:)
-real*8, allocatable :: Charge_B(:)
+integer(kind=iwp) :: i, iAt, iAt_B, ijj, j, jj, Length, nAA, nAt_B, nAtoms, nBas_A, nBas_B
+real(kind=wp) :: ZA, ZB
+character(len=LenIn4) :: UBName(mxBas)
+integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
+real(kind=wp), allocatable :: Charge_B(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call Get_iScalar('Unique atoms',nAtoms)
 
 if (nAtoms < 1) then
-  write(6,'(A,I9)') 'nUniqAt =',nAtoms
+  write(u6,'(A,I9)') 'nUniqAt =',nAtoms
   call Abend()
 end if
 
 call mma_allocate(nBas_per_Atom,nAtoms,Label='nBpA')
 call mma_allocate(nBas_Start,nAtoms,Label='nB_Start')
 
-call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas)
+call Get_cArray('Unique Basis Names',UBName,(LENIN8)*nBas)
 
-call BasFun_Atom(nBas_per_Atom,nBas_Start,Name,nBas,nAtoms,.false.)
+call BasFun_Atom(nBas_per_Atom,nBas_Start,UBName,nBas,nAtoms,.false.)
 
 call mma_allocate(Charge_B,nAtoms,Label='Charge_B')
 call Get_dArray('Nuclear charge',Charge_B,nAtoms)
 
-ZA = 0.0d0
+ZA = Zero
 iAt = 1
-do while ((iAt <= nAtoms) .and. (ZA == 0.0d0))
+do while ((iAt <= nAtoms) .and. (ZA == Zero))
   ZA = Charge_B(iAt)
   iAt = iAt+1
 end do
@@ -50,9 +55,9 @@ iAt_B = iAt-1  ! start of atoms of subsystem B
 call mma_deallocate(Charge_B)
 
 if (iAt_B == 1) then ! subsystem B comes first
-  ZB = 1.0d0
+  ZB = One
   nAt_B = 1
-  do while ((nAt_B <= nAtoms) .and. (ZB > 0.0d0))
+  do while ((nAt_B <= nAtoms) .and. (ZB > Zero))
     ZB = Charge_B(nAt_B)
     nAt_B = nAt_B+1
   end do
@@ -62,7 +67,7 @@ if (iAt_B == 1) then ! subsystem B comes first
     jj = j*(j+1)/2
     do i=1,j
       ijj = i+jj
-      Dmat(ijj) = 0.0d0
+      Dmat(ijj) = Zero
     end do
   end do
 else
@@ -73,7 +78,7 @@ else
     jj = j*(j+1)/2
     do i=1,nBas_A
       ijj = i+jj
-      Dmat(ijj) = 0.0d0
+      Dmat(ijj) = Zero
     end do
   end do
 end if

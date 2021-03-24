@@ -24,24 +24,30 @@ subroutine DrvN1(Grad,Temp,nGrad)
 !             Modified for ECP's and external electric fields, May '95 *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use PCM_arrays, only: PCM_SQ, PCMTess, MM
-use External_Centers
+use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
 use Symmetry_Info, only: iChBas, nIrrep
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
-#include "SysDef.fh"
 #include "print.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "rctfld.fh"
-#include "status.fh"
-real*8 A(3), B(3), RB(3), Grad(nGrad), Temp(nGrad), DA(3), Tempd(3)
-integer iDCRR(0:7), jCoSet(8,8), iStb(0:7)
-logical EQ, TstFnc, NoLoop
-character Lab*80
+integer(kind=iwp) :: iCar, iChxyz, iCnt, iCnttp, iComp, iDCRR(0:7), iDum, iFd, igu, igv, iIrrep, iM1xp, iM2xp, ip, iPrint, iR, &
+                     iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, nCav, ndc, nDCRR, nDisp, &
+                     nOp, nStb
+real(kind=wp) :: A(3), B(3), CCoMx, CCoMxd, CCoMy, CCoMyd, CCoMz, CCoMzd, CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, DA(3), &
+                 DARB, df_dr, dfab, dr_dA, dr_dB, fab, fab0, fab1, fab2, Fact, Gam, PreFct, ps, r12, RB(3), Tempd(3), ZA, ZAZB, ZB
+logical(kind=iwp) :: EQ, TstFnc, NoLoop
+character(len=80) :: Lab
+integer(kind=iwp), external :: iChAtm, iPrmt, NrOpr
 
 iRout = 33
 iPrint = nPrint(iRout)
@@ -94,7 +100,7 @@ do iCnttp=1,nCnttp
 
         call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        PreFct = Fact*ZAZB*dble(nIrrep)/dble(LmbdR)
+        PreFct = Fact*ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp = NrOpr(iDCRR(iR))
@@ -112,10 +118,10 @@ do iCnttp=1,nCnttp
             Cnt0M1 = Zero
             Cnt1M1 = Zero
             do iM1xp=1,dbsc(iCnttp)%nM1
-              Gamma = dbsc(iCnttp)%M1xp(iM1xp)
+              Gam = dbsc(iCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(iCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+              Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -123,10 +129,10 @@ do iCnttp=1,nCnttp
             Cnt0M2 = Zero
             Cnt1M2 = Zero
             do iM2xp=1,dbsc(iCnttp)%nM2
-              Gamma = dbsc(iCnttp)%M2xp(iM2xp)
+              Gam = dbsc(iCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(iCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+              Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+(Cnt0M2-Two*r12**2*Cnt1M2)
@@ -136,10 +142,10 @@ do iCnttp=1,nCnttp
             Cnt0M1 = Zero
             Cnt1M1 = Zero
             do iM1xp=1,dbsc(jCnttp)%nM1
-              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+              Gam = dbsc(jCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+              Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -147,10 +153,10 @@ do iCnttp=1,nCnttp
             Cnt0M2 = Zero
             Cnt1M2 = Zero
             do iM2xp=1,dbsc(jCnttp)%nM2
-              Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+              Gam = dbsc(jCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+              Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+(Cnt0M2-Two*r12**2*Cnt1M2)
@@ -166,7 +172,7 @@ do iCnttp=1,nCnttp
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
                 if (Direct(nDisp)) then
-                  Temp(nDisp) = Temp(nDisp)+One/dble(igu)*PreFct*dr_dA*df_dr
+                  Temp(nDisp) = Temp(nDisp)+One/real(igu,kind=wp)*PreFct*dr_dA*df_dr
                 end if
               end if
             end do
@@ -181,8 +187,8 @@ do iCnttp=1,nCnttp
               if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
                 nDisp = nDisp+1
                 if (Direct(nDisp)) then
-                  ps = dble(iPrmt(nOp,iChBas(2+iCar)))
-                  Temp(nDisp) = Temp(nDisp)+ps*One/dble(igv)*PreFct*dr_dB*df_dr
+                  ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
+                  Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct*dr_dB*df_dr
                 end if
               end if
             end do
@@ -215,8 +221,8 @@ if (.not. allocated(XF)) Go To 666
 
 if ((nOrd_XF > 1) .or. (iXPolType > 0)) then
   call WarningMessage(2,'Error in DrvN1')
-  write(6,*) 'Sorry, gradients are not implemented for'
-  write(6,*) 'higher XF than dipoles or for polarisabilities'
+  write(u6,*) 'Sorry, gradients are not implemented for'
+  write(u6,*) 'higher XF than dipoles or for polarisabilities'
   call Quit_OnUserError()
 end if
 
@@ -250,7 +256,7 @@ do iFd=1,nXF
 
       call DCR(LmbdR,iStb,nStb,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-      PreFct = dble(nIrrep)/dble(LmbdR)
+      PreFct = real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
       do iR=0,nDCRR-1
         call OA(iDCRR(iR),B,RB)
         nOp = NrOpr(iDCRR(iR))
@@ -270,10 +276,10 @@ do iFd=1,nXF
           Cnt0M1 = Zero
           Cnt1M1 = Zero
           do iM1xp=1,dbsc(jCnttp)%nM1
-            Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+            Gam = dbsc(jCnttp)%M1xp(iM1xp)
             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-            Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-            Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
+            Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+            Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
           end do
           fab0 = fab0+Cnt0M1-Two*r12**2*Cnt1M1
           fab1 = fab1+Cnt0M1
@@ -282,10 +288,10 @@ do iFd=1,nXF
           Cnt0M2 = Zero
           Cnt1M2 = Zero
           do iM2xp=1,dbsc(jCnttp)%nM2
-            Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+            Gam = dbsc(jCnttp)%M2xp(iM2xp)
             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-            Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-            Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
+            Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+            Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
           end do
           fab0 = fab0+Two*(r12*Cnt0M2-r12**3*Cnt1M2)
           fab1 = fab1+r12*Cnt0M2
@@ -299,8 +305,8 @@ do iFd=1,nXF
           if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
             nDisp = nDisp+1
             if (Direct(nDisp)) then
-              ps = dble(iPrmt(nOp,iChBas(2+iCar)))
-              Temp(nDisp) = Temp(nDisp)+ps*One/dble(igv)*PreFct* &
+              ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
+              Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct* &
                             (ZAZB*fab0*(A(iCar+1)-RB(iCar+1))/(r12**3)+ &
                              ZB*(fab1*DA(iCar+1)/(r12**3)-DARB*fab2*(A(iCar+1)-RB(iCar+1))/(r12**5)))
             end if
@@ -348,7 +354,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
       do iy=ir-ix,0,-1
         iz = ir-ix-iy
         ip = ip+1
-        if (iPrint >= 99) write(6,*) ' ix,iy,iz=',ix,iy,iz
+        if (iPrint >= 99) write(u6,*) ' ix,iy,iz=',ix,iy,iz
 
         mdc = 0
         do iCnttp=1,nCnttp
@@ -356,7 +362,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
           if (dbsc(iCnttp)%Frag) Go To 103
           ZA = dbsc(iCnttp)%Charge
           if (iPrint >= 99) then
-            write(6,*) ' Charge=',ZA
+            write(u6,*) ' Charge=',ZA
             call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
           end if
           do iCnt=1,dbsc(iCnttp)%nCntr
@@ -370,7 +376,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
               CCoMxd = One
             else
               CCoMx = A(1)**ix
-              CCoMxd = dble(ix)*A(1)**(ix-1)
+              CCoMxd = real(ix,kind=wp)*A(1)**(ix-1)
             end if
 
             if (iy == 0) then
@@ -381,7 +387,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
               CCoMyd = One
             else
               CCoMy = A(2)**iy
-              CCoMyd = dble(iy)*A(2)**(iy-1)
+              CCoMyd = real(iy,kind=wp)*A(2)**(iy-1)
             end if
 
             if (iz == 0) then
@@ -392,14 +398,14 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
               CCoMzd = One
             else
               CCoMz = A(3)**iz
-              CCoMzd = dble(iz)*A(3)**(iz-1)
+              CCoMzd = real(iz,kind=wp)*A(3)**(iz-1)
             end if
             tempd(1) = MM(ip,2)*ZA*CCoMxd*CCoMy*CCoMz
             tempd(2) = MM(ip,2)*ZA*CCoMx*CCoMyd*CCoMz
             tempd(3) = MM(ip,2)*ZA*CCoMx*CCoMy*CCoMzd
             if (iPrint >= 99) then
-              write(6,*) CCoMx,CCoMy,CCoMz
-              write(6,*) 'tempd=',tempd
+              write(u6,*) CCoMx,CCoMy,CCoMz
+              write(u6,*) 'tempd=',tempd
             end if
 
             ! Distribute gradient
@@ -446,7 +452,7 @@ else if (lRF .and. PCM) then
   do iTs=1,nTs
     ZA = PCM_SQ(1,iTs)+PCM_SQ(2,iTS)
     NoLoop = ZA == Zero
-    ZA = ZA/dble(nIrrep)
+    ZA = ZA/real(nIrrep,kind=wp)
     if (NoLoop) Go To 112
     A(1:3) = PCMTess(1:3,iTs)
 
@@ -469,7 +475,7 @@ else if (lRF .and. PCM) then
 
         call DCR(LmbdR,iStb,nStb,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        PreFct = ZAZB*dble(nIrrep)/dble(LmbdR)
+        PreFct = ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           nOp = NrOpr(iDCRR(iR))
@@ -487,10 +493,10 @@ else if (lRF .and. PCM) then
             Cnt0M1 = Zero
             Cnt1M1 = Zero
             do iM1xp=1,dbsc(jCnttp)%nM1
-              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+              Gam = dbsc(jCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+              Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -498,10 +504,10 @@ else if (lRF .and. PCM) then
             Cnt0M2 = Zero
             Cnt1M2 = Zero
             do iM2xp=1,dbsc(jCnttp)%nM2
-              Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+              Gam = dbsc(jCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+              Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+(Cnt0M2-Two*r12**2*Cnt1M2)
@@ -516,8 +522,8 @@ else if (lRF .and. PCM) then
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
               if (Direct(nDisp)) then
-                ps = dble(iPrmt(nOp,iChBas(2+iCar)))
-                Temp(nDisp) = Temp(nDisp)+ps*One/dble(igv)*PreFct*dr_dB*df_dr
+                ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=iwp)
+                Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=iwp)*PreFct*dr_dB*df_dr
               end if
             end if
           end do   ! End loop over cartesian components, iCar

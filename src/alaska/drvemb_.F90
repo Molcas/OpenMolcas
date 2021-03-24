@@ -23,19 +23,23 @@ subroutine DrvEMB_(nh1,KSDFT,Do_Grad,Grad,nGrad,DFTFOCK)
 !***********************************************************************
 
 use OFembed, only: Xsigma, dFMD
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(a-h,o-z)
-external LSDA_emb, Checker
-#include "real.fh"
-#include "stdalloc.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nh1, nGrad
+character(len=*), intent(inout) :: KSDFT
+logical(kind=wp), intent(in) :: Do_Grad
+real(kind=wp), intent(out) :: Grad(nGrad)
+character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
-real*8 Grad(nGrad)
-logical Do_Grad
-character*(*) KSDFT
-character*4 DFTFOCK
-character*16 NamRfil
-real*8, allocatable :: Grad_A(:), F_DFT(:,:), D_DS(:,:)
-real*8, allocatable :: Fcorr(:,:)
+integer(kind=iwp) :: i, iSpin, kSpin, nD, nFckDim
+real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Energy_NAD, Fakt_, Func_A, Func_AB, Func_B, Func_X
+character(len=16) :: NamRfil
+real(kind=wp), allocatable :: Grad_A(:), F_DFT(:,:), D_DS(:,:), Fcorr(:,:)
+integer(kind=iwp), external :: LSDA_emb
+real(kind=wp), external :: Checker, Xlambda
 
 Debug = .false.
 !                                                                      *
@@ -149,10 +153,10 @@ end if
 
 call wrap_DrvNQ(KSDFT,F_DFT(1,3),nFckDim,Func_A,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad_A,nGrad,DFTFOCK)
 
-call daxpy_(nGrad,-1.0d0,Grad_A,1,Grad,1)
+call daxpy_(nGrad,-One,Grad_A,1,Grad,1)
 
 ! Fraction of correlation potential from A (cases: HF or Trunc. CI)
-if (dFMD > 0.0d0) then
+if (dFMD > Zero) then
 
   Grad_A(:) = Zero
   call mma_allocate(Fcorr,nh1,nFckDim,Label='Fcorr')

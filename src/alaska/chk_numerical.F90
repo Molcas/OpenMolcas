@@ -11,12 +11,18 @@
 
 subroutine Chk_Numerical(LuSpool,Numerical)
 
-implicit real*8(A-H,O-Z)
-logical Numerical, Is_Root_Set, DNG, KeepOld, Found
-character KWord*180, Key*180, Get_Ln*180
-external Get_Ln
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool
+logical(kind=iwp), intent(out) :: Numerical
 #include "nac.fh"
 #include "alaska_root.fh"
+integer(kind=iwp) :: iDNG, iGO, iRoot, iRoot0, LuWr
+real(kind=wp) :: rDelta
+logical(kind=iwp) :: Is_Root_Set, DNG, KeepOld, Found
+character(len=180) :: KWord, Key
+character(len=180), external :: Get_Ln
 
 call Qpg_iScalar('DNG',DNG)
 if (DNG) then
@@ -25,13 +31,13 @@ if (DNG) then
 else
   Numerical = .false.
 end if
-LuWr = 6
+LuWr = u6
 
 ! Setting the defaults
 !    iRoot     : Which root to optimize the geometry for
 !    rDelta    : Displacements are chosen as r_nearest_neighbor * rDelta
 iRoot = 1
-rDelta = 0.0100d0
+rDelta = 0.01_wp
 NACstates(1) = 0
 NACstates(2) = 0
 isNAC = .false.

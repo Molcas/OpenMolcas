@@ -22,34 +22,39 @@ subroutine DrvN1_EMB(Grad,Temp,nGrad)
 ! Author : F. Aquilante, Geneva, Nov 2010                              *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
-#include "SysDef.fh"
 #include "print.fh"
 #include "real.fh"
 #include "disp.fh"
-#include "rctfld.fh"
 #include "WrkSpc.fh"
-#include "status.fh"
-real*8 A(3), B(3), RB(3), Grad(nGrad), Temp(nGrad)
-integer iDCRR(0:7)
-logical EQ, TstFnc
-character*16 NamRfil
-character*80 Lab
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrrep, iM1xp, iM2xp, ip_ChargeB, iPrint, iR, iRout, &
+                     jCnt, jCntMx, jCnttp, LmbdR, mdc, nCnttp_B, ndc, nDCRR, nDisp
+real(kind=wp) :: A(3), B(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, df_dr, dfab, dr_da, fab, Fact, Gam, PreFct, r12, RB(3), &
+                 ZA, ZAZB, ZB
+logical(kind=iwp) :: EQ, TstFnc
+character(len=16) :: NamRfil
+character(len=80) :: Lab
 
 !***********************************************************************
 !     Statement function for Charges of subsystem B
+real(kind=wp) :: Charge_B
+integer(kind=iwp) :: i
 Charge_B(i) = Work(ip_ChargeB+i-1)
 !***********************************************************************
 
 if (nIrrep > 1) then
   call WarningMessage(2,'Error in DrvN1_Emb')
-  write(6,*) 'Sorry, OFE gradient code does not understand'
-  write(6,*) 'the use of subsystem symmetry!'
+  write(u6,*) 'Sorry, OFE gradient code does not understand'
+  write(u6,*) 'the use of subsystem symmetry!'
   call Quit_OnUserError()
 end if
 iRout = 33
@@ -66,18 +71,18 @@ call Get_dArray('Nuclear charge',Work(ip_ChargeB),nCnttp)
 
 call NameRun(NamRfil)   ! switch back to old RUNFILE name
 
-ZA = 1.0d0
+ZA = One
 iCnttp = 1
-do while ((iCnttp <= nCnttp) .and. (ZA > 0.0d0))
+do while ((iCnttp <= nCnttp) .and. (ZA > Zero))
   ZA = dbsc(iCnttp)%Charge
   iCnttp = iCnttp+1
 end do
 iCnttp_B = iCnttp-1  ! start of atoms of subsystem B
 
 if (iCnttp_B == 1) then ! subsystem B comes first
-  ZB = 0.0d0
+  ZB = Zero
   nCnttp_B = 1
-  do while ((nCnttp_B <= nCnttp) .and. (ZB == 0.0d0))
+  do while ((nCnttp_B <= nCnttp) .and. (ZB == Zero))
     ZB = dbsc(nCnttp_B)%Charge
     nCnttp_B = nCnttp_B+1
   end do
@@ -90,9 +95,9 @@ mdc = 0
 ! Loop over centers with the same charge (A-subsystem)
 do iCnttp=1,nCnttp
   ZA = dbsc(iCnttp)%Charge
-  if ((iCnttp >= iCnttp_B) .and. (iCnttp <= nCnttp_B) .and. (ZA > 0.0d0)) then
+  if ((iCnttp >= iCnttp_B) .and. (iCnttp <= nCnttp_B) .and. (ZA > Zero)) then
     call WarningMessage(2,'Internal error in DrvN1_Emb')
-    write(6,*) ' Subsystems must come one after the other'
+    write(u6,*) ' Subsystems must come one after the other'
     call Abend()
   end if
   if (ZA == Zero) Go To 101
@@ -119,7 +124,7 @@ do iCnttp=1,nCnttp
 
         call DCR(LmbdR,dc(mdc+iCnt)%iStab,dc(mdc+iCnt)%nStab,dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,iDCRR,nDCRR)
 
-        PreFct = Fact*ZAZB*dble(nIrrep)/dble(LmbdR)
+        PreFct = Fact*ZAZB*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
         do iR=0,nDCRR-1
           call OA(iDCRR(iR),B,RB)
           if (EQ(A,RB)) Go To 301
@@ -136,10 +141,10 @@ do iCnttp=1,nCnttp
             Cnt0M1 = Zero
             Cnt1M1 = Zero
             do iM1xp=1,dbsc(iCnttp)%nM1
-              Gamma = dbsc(iCnttp)%M1xp(iM1xp)
+              Gam = dbsc(iCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(iCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+              Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -147,10 +152,10 @@ do iCnttp=1,nCnttp
             Cnt0M2 = Zero
             Cnt1M2 = Zero
             do iM2xp=1,dbsc(iCnttp)%nM2
-              Gamma = dbsc(iCnttp)%M2xp(iM2xp)
+              Gam = dbsc(iCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(iCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+              Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+(Cnt0M2-Two*r12**2*Cnt1M2)
@@ -160,10 +165,10 @@ do iCnttp=1,nCnttp
             Cnt0M1 = Zero
             Cnt1M1 = Zero
             do iM1xp=1,dbsc(jCnttp)%nM1
-              Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+              Gam = dbsc(jCnttp)%M1xp(iM1xp)
               CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gamma*r12**2))
-              Cnt1M1 = Cnt1M1+Gamma*(CffM1*exp(-Gamma*r12**2))
+              Cnt0M1 = Cnt0M1+(CffM1*exp(-Gam*r12**2))
+              Cnt1M1 = Cnt1M1+Gam*(CffM1*exp(-Gam*r12**2))
             end do
             fab = fab+Cnt0M1
             dfab = dfab-Two*r12*Cnt1M1
@@ -171,10 +176,10 @@ do iCnttp=1,nCnttp
             Cnt0M2 = Zero
             Cnt1M2 = Zero
             do iM2xp=1,dbsc(jCnttp)%nM2
-              Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+              Gam = dbsc(jCnttp)%M2xp(iM2xp)
               CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gamma*r12**2))
-              Cnt1M2 = Cnt1M2+Gamma*(CffM2*exp(-Gamma*r12**2))
+              Cnt0M2 = Cnt0M2+(CffM2*exp(-Gam*r12**2))
+              Cnt1M2 = Cnt1M2+Gam*(CffM2*exp(-Gam*r12**2))
             end do
             fab = fab+r12*Cnt0M2
             dfab = dfab+(Cnt0M2-Two*r12**2*Cnt1M2)
@@ -190,7 +195,7 @@ do iCnttp=1,nCnttp
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
                 if (Direct(nDisp)) then
-                  Temp(nDisp) = Temp(nDisp)+One/dble(igu)*PreFct*dr_dA*df_dr
+                  Temp(nDisp) = Temp(nDisp)+One/real(igu,kind=wp)*PreFct*dr_dA*df_dr
                 end if
               end if
             end do

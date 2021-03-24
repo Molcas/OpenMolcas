@@ -24,35 +24,40 @@ subroutine Inputg(LuSpool)
 !***********************************************************************
 
 use Alaska_Info, only: Am
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
-use Temporary_Parameters
+use Temporary_Parameters, only: Onenly, Test
 use Real_Info, only: CutInt
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
 #include "disp.fh"
 #include "iavec.fh"
-#include "stdalloc.fh"
 #include "columbus_gamma.fh"
 #include "exterm.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-logical TstFnc, type, Slct, T_Only, No_Input_OK
-real*8, allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
-integer, allocatable :: IndCar(:)
-
-character(LEN=1) :: xyz(0:2) = ['x','y','z']
-character(LEN=80) KWord, Key
-integer iSym(3), iTemp(3*MxAtom)
-logical Reduce_Prt
-external Reduce_Prt
 #include "chotime.fh"
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iR, iRout, iSym(3), &
+                     iTemp(3*MxAtom), iTR, ix, iy, iz, j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, &
+                     mDisp, n, nCnttp_Valence, nDisp, nElem, nGroup, nRoots, nSlct
+real(kind=wp) :: alpha, Fact, ovlp
+logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK
+character(len=80) :: KWord, Key
+integer(kind=iwp), allocatable :: IndCar(:)
+real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
+character, parameter :: xyz(0:2) = ['x','y','z']
+integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
+real(kind=r8), external :: DDot_
+logical(kind=iwp), external :: Reduce_Prt
 
 iRout = 99
 iPrint = nPrint(iRout)
@@ -72,13 +77,13 @@ l2DI = .true.
 HF_Force = .false.
 NO_NUC = .false.
 Timings_default = Timings
-Xsigma = 1.0d4
-dFMD = 0.0d0
+Xsigma = 1.0e4_wp
+dFMD = Zero
 Do_OFemb = .false.
 KEonly = .false.
 OFE_first = .true.
 Show = .true.
-LuWr = 6
+LuWr = u6
 iPL = iPrintLevel(-1)
 if (Reduce_Prt() .and. (iPL < 3)) iPL = iPL-1
 if (iPL == 0) then
@@ -101,10 +106,10 @@ do i=1,nRout
 end do
 
 ! First CutGrd can not be more accurate than CutInt!
-CutGrd = max(1.0D-07,CutInt)
+CutGrd = max(1.0e-7_wp,CutInt)
 ! Second CutInt should now locally for Alaska be reset to the value
 ! of CutInt/100!
-CutInt = CutGrd*1.0D-2
+CutInt = CutGrd*1.0e-2_wp
 do i=1,3*MxAtom
   IndxEq(i) = i
 end do
@@ -490,9 +495,8 @@ end do
 if (HF_Force .and. Show .and. (iPrint >= 6)) then
   write(LuWr,*)
   write(LuWr,'(A)') '            O B S E R V E ! '
-  write(LuWr,'(A)') '            Option for computation of interstate couling vector or'
+  write(LuWr,'(A)') '            Option for computation of interstate coupling vector or'
   write(LuWr,'(A)') '            Hellmann-Feynman gradient is active.'
-
   write(LuWr,*)
 end if
 if (Show .and. (iPrint >= 6)) then
@@ -518,7 +522,7 @@ call ICopy(3*MxAtom,[1],0,mult_Disp,1)
 nDisp = 0
 do iIrrep=0,nIrrep-1
   lDisp(iIrrep) = 0
-  type = .true.
+  ltype = .true.
   ! Loop over basis function definitions
   mdc = 0
   mc = 1
@@ -535,7 +539,7 @@ do iIrrep=0,nIrrep-1
           if (iIrrep == 0) InxDsp(mdc,iCar+1) = nDisp
           lDisp(iIrrep) = lDisp(iIrrep)+1
           mult_Disp(nDisp) = nIrrep/dc(mdc)%nStab
-          if (type) then
+          if (ltype) then
             if (Show .and. (iPrint >= 6)) then
               write(LuWr,*)
               write(LuWr,'(10X,A,A)') ' Irreducible representation : ',lIrrep(iIrrep)
@@ -543,11 +547,11 @@ do iIrrep=0,nIrrep-1
               write(LuWr,*)
               write(LuWr,'(A)') ' Basis Label        Type   Center Phase'
             end if
-            type = .false.
+            ltype = .false.
           end if
           if (iIrrep == 0) then
             do jOper=0,nIrrep-1
-              Disp_Fac(iCar+1,jOper,mdc) = dble(iPrmt(jOper,iComp)*iChTbl(iIrrep,jOper))
+              Disp_Fac(iCar+1,jOper,mdc) = real(iPrmt(jOper,iComp)*iChTbl(iIrrep,jOper),kind=wp)
             end do
           end if
           if (Show .and. (iPrint >= 6)) then
@@ -576,7 +580,7 @@ end if
 ! and rotational invariance of the energy.
 
 if (TRSymm) then
-  write(6,*) 'Unsupported option: TRSymm'
+  write(u6,*) 'Unsupported option: TRSymm'
   call Abend()
   iSym(1) = 0
   iSym(2) = 0
@@ -728,9 +732,9 @@ if (TRSymm) then
         kTR = ldsp
         ovlp = alpha
       end if
-      if ((.not. Direct(ldsp)) .and. (alpha > 1.0D-2)) then
+      if ((.not. Direct(ldsp)) .and. (alpha > 1.0e-2_wp)) then
         kTR = ldsp
-        ovlp = 1.0d99
+        ovlp = huge(ovlp)
       end if
 1231  continue
     end do
@@ -769,7 +773,7 @@ if (TRSymm) then
   ! Generate the complete matrix
 
   call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
-  call DGEMM_('N','N',nTR,lDisp(0),nTR,1.0d0,Temp,nTR,Am,nTR,0.0d0,Scr,nTR)
+  call DGEMM_('N','N',nTR,lDisp(0),nTR,One,Temp,nTR,Am,nTR,Zero,Scr,nTR)
   if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
   call mma_deallocate(Am)
   call mma_allocate(Am,lDisp(0),lDisp(0),Label='Am')

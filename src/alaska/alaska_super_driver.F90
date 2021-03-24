@@ -12,21 +12,24 @@
 subroutine Alaska_Super_Driver(iRC)
 
 use Para_Info, only: nProcs
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-character*8 Method
-logical Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exist, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready, Reduce_Prt
-external Reduce_Prt
-character FileName*128, Line*180, KSDFT*16
-character*16 StdIn
-integer Columbus
-character(Len=16) mstate1, mstate2
-real*8, allocatable :: Grad(:)
+implicit none
+integer(kind=iwp), intent(out) :: iRC
 #include "warnings.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
+integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, nSym
+logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
+character(len=128) :: FileName
+character(len=180) :: Line
+character(len=16) :: KSDFT, StdIn
+character(len=8) :: Method
+character(Len=16) mstate1, mstate2
+real(kind=wp), allocatable :: Grad(:)
+integer(kind=iwp), external :: iPrintLevel, isFreeUnit
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************
@@ -72,8 +75,8 @@ if (Method == 'MBPT2   ') then
 
   if ((nSym == 1) .and. (iMp2Prpt /= 2) .and. (.not. Numerical)) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
-    write(6,*) 'Alaska: the MBPT2 module was run without the Grdt option!'
-    write(6,*) '   Correct the input and restart the calculation!'
+    write(u6,*) 'Alaska: the MBPT2 module was run without the Grdt option!'
+    write(u6,*) '   Correct the input and restart the calculation!'
     call Abend()
   end if
 end if
@@ -100,7 +103,7 @@ if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
     Do_Numerical_Cholesky = .false.
   else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
     Do_Numerical_Cholesky = .false.
-    !write(6,*) 'Do Numerical', Do_Numerical_Cholesky
+    !write(u6,*) 'Do Numerical', Do_Numerical_Cholesky
   end if
 
 end if
@@ -138,9 +141,9 @@ if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'RASSCFSA') .or. (Metho
   ! and signal to AUTO (iRC=2) to run the input file Stdin.x.
 
   if (iPL >= 3) then
-    write(6,*)
-    write(6,*) ' Alaska requests the Numerical_Gradient module to be executed!'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' Alaska requests the Numerical_Gradient module to be executed!'
+    write(u6,*)
   end if
 
   LuInput = 11
@@ -166,11 +169,11 @@ if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'RASSCFSA') .or. (Metho
 !
 !else if (Do_Cholesky .and. (Method == 'CASSCFSA') .and. (nProcs > 1)) then
 !  call WarningMessage(2,'Error in Alaska_Super_Driver')
-!  write(6,*) 'RI SA-CASSCF analytical gradients do not work correctly in parallel (yet).'
+!  write(u6,*) 'RI SA-CASSCF analytical gradients do not work correctly in parallel (yet).'
 !  call Abend()
 else if (Do_Cholesky .and. (Method == 'MBPT2') .and. (nProcs > 1)) then
   call WarningMessage(2,'Error in Alaska_Super_Driver')
-  write(6,*) 'RI MBPT2 analytical gradients do not work correctly in parallel (yet).'
+  write(u6,*) 'RI MBPT2 analytical gradients do not work correctly in parallel (yet).'
   call Abend()
   !                                                                    *
   !*********************************************************************
@@ -225,7 +228,7 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
       call ESPF(iReturn,StandAlone)
       if (iReturn /= 0) then
         call WarningMessage(2,'Error in Alaska_Super_Driver')
-        write(6,*) 'Alaska: ESPF finish with non-zero return code!'
+        write(u6,*) 'Alaska: ESPF finish with non-zero return code!'
         call Abend()
       end if
     end if
@@ -234,13 +237,13 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
     call Put_iScalar('SA ready',iGo)
   else if (iGO == -1) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
-    write(6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
+    write(u6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
     call Abend()
   else
     if (iPL >= 3) then
-      write(6,*)
-      write(6,*) ' Alaska requests MCLR to be run before it starts again!'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' Alaska requests MCLR to be run before it starts again!'
+      write(u6,*)
     end if
 
     LuInput = 11
@@ -261,9 +264,9 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
     write(LuInput,'(A)') ' '
 
     FileName = 'ALASKINP'
-    call f_inquire(Filename,Exist)
+    call f_inquire(Filename,Exists)
 
-    if (Exist) then
+    if (Exists) then
       LuSpool2 = 77
       LuSpool2 = IsFreeUnit(LuSpool2)
       call Molcas_Open(LuSpool2,Filename)
@@ -313,8 +316,8 @@ else if (Method == 'MCPDFT') then
   ! MCPDFT step, which is required for analytic gradients.
   if (iGO == 99) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
-    write(6,*) 'MC-PDFT was run without the GRADient keyword.  Analytic gradients require this keyword.  Please use the '// &
-               'GRADient keyword in the preceeding MC-PDFT step.'
+    write(u6,*) 'MC-PDFT was run without the GRADient keyword.  Analytic gradients require this keyword.  Please use the '// &
+                'GRADient keyword in the preceeding MC-PDFT step.'
     call Abend()
   end if
 
@@ -355,11 +358,11 @@ else if (Method == 'MCPDFT') then
     ! Add ESPF contribution
 
     !if (Do_ESPF) Then
-    !  StandAlone=.False.
+    !  StandAlone = .false.
     !  call ESPF(iReturn,StandAlone)
     !  if (iReturn /= 0) then
     !     call WarningMessage(2,'Error in Alaska_Super_Driver')
-    !     write(6,*) 'Alaska: ESPF finish with non-zero return code!'
+    !     write(u6,*) 'Alaska: ESPF finish with non-zero return code!'
     !     call Abend()
     !  end if
     !end if
@@ -368,13 +371,13 @@ else if (Method == 'MCPDFT') then
     call Put_iScalar('SA ready',iGo)
   else if (iGO == -1) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
-    write(6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
+    write(u6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
     call Abend()
   else
     if (iPL >= 3) then
-      write(6,*)
-      write(6,*) ' Alaska requests MCLR to be run before it starts again!'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' Alaska requests MCLR to be run before it starts again!'
+      write(u6,*)
     end if
 
     LuInput = 11
@@ -396,9 +399,9 @@ else if (Method == 'MCPDFT') then
     write(LuInput,'(A)') ' '
 
     FileName = 'ALASKINP'
-    call f_inquire(Filename,Exist)
+    call f_inquire(Filename,Exists)
 
-    if (Exist) then
+    if (Exists) then
       LuSpool2 = 77
       LuSpool2 = IsFreeUnit(LuSpool2)
       call Molcas_Open(LuSpool2,Filename)
@@ -455,8 +458,8 @@ else
   ! state calculation
 
   iRlxRoot = 0
-  call Qpg_iScalar('Relax CASSCF root',Exist)
-  if (Exist) call Get_iScalar('Relax CASSCF root',iRlxRoot)
+  call Qpg_iScalar('Relax CASSCF root',Exists)
+  if (Exists) call Get_iScalar('Relax CASSCF root',iRlxRoot)
   if (iRlxRoot == 0) iRlxRoot = 1
 
   ! Go ahead and compute the gradients
@@ -470,7 +473,7 @@ else
     call ESPF(iReturn,StandAlone)
     if (iReturn /= 0) then
       call WarningMessage(2,'Error in Alaska_Super_Driver')
-      write(6,*) 'Alaska: ESPF finish with non-zero return code!'
+      write(u6,*) 'Alaska: ESPF finish with non-zero return code!'
       call Abend()
     end if
   end if

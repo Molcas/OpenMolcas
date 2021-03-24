@@ -13,30 +13,27 @@ subroutine Drvh1_EMB(Grad,Temp,nGrad)
 
 use Basis_Info, only: dbsc, nCnttp, nBas
 use Symmetry_Info, only: nIrrep
-implicit real*8(A-H,O-Z)
-external OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
-external OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
-#include "Molcas.fh"
-#include "print.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "disp.fh"
-#include "wldata.fh"
-#include "rctfld.fh"
-integer, allocatable :: lOper(:)
-real*8, allocatable :: Coor(:,:), D_Var(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-character Label*80
-real*8 Grad(nGrad), Temp(nGrad)
-!AOM<
-#include "finfld.fh"
-external MltGrd, MltMmG
-!AOM>
-logical DiffOp, lECP, lPP, lFAIEMP
-character*16 NamRfil
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp
+#include "print.fh"
+integer(kind=iwp) :: ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
+logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
+character(len=80) :: Label
+character(len=16) :: NamRfil
+integer(kind=iwp), allocatable :: lOper(:)
+real(kind=iwp), allocatable :: Coor(:,:), D_Var(:)
+external :: OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd, WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, FragPGrd, MltGrd, &
+            OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG, WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG, MltMmG
 
 !-----Statement function
-
+integer(kind=iwp) :: i, nElem
 nElem(i) = (i+1)*(i+2)/2
 
 !...  Prologue
@@ -73,10 +70,10 @@ call NameRun('AUXRFIL')   ! switch RUNFILE name
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
 if (iPrint >= 99) then
-  write(6,*) 'variational 1st order density matrix'
+  write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
-    write(6,*) 'symmetry block',iIrrep
+    write(u6,*) 'symmetry block',iIrrep
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end do

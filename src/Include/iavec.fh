@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Integer nFnc
       Parameter(nFnc = (iTabMx+1)*(iTabMx+2)*(iTabMx+3)/6)
       Integer   ixyz(3,nFnc)
       Common /iaVec/ ixyz

@@ -28,37 +28,38 @@ subroutine Alaska(LuSpool,ireturn)
 !          1991 - February 1992.                                       *
 !***********************************************************************
 
-use Alaska_Info
-use Real_Spherical
-use Basis_Info
-use Temporary_Parameters
+use Alaska_Info, only: Am
+use Basis_Info, only: dbsc, nCnttp
+use Temporary_Parameters, only: Onenly, Test
 use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten, Half
+use Definitions, only: wp, iwp, r8, u6
 
-implicit real*8(A-H,O-Z)
-external RF_On
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool
+integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "print.fh"
 #include "disp.fh"
+#include "print.fh"
 #include "rctfld.fh"
-#include "nsd.fh"
-#include "setup.fh"
 #include "columbus_gamma.fh"
 #include "nac.fh"
-#include "alaska_root.fh"
-logical DoRys, RF_On, Found
-character(Len=180) Label
-real*8, allocatable :: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
-
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom
+real(kind=wp) :: EDiff_f, EDiff_s, TCpu1, TCpu2, TWall1, TWall2
+logical(kind=iwp) :: DoRys, Found
+character(len=180) :: Label
+real(kind=wp), allocatable :: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
+integer(kind=iwp), external :: isFreeUnit
+real(kind=r8), external :: dnrm2_
+logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
-integer Columbus, colgradmode
-integer lcartgrd
-real*8 Cgrad(3,MxAtom)
-character CNames(MxAtom)*(LENIN5), Lab*80
-integer iatom, icen, j
+integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
+real(kind=wp) :: Cgrad(3,MxAtom)
+character(len=LenIn5) :: CNames(MxAtom)
+character(len=80) :: Lab
 
 !                                                                      *
 !***********************************************************************
@@ -89,7 +90,7 @@ call IniSew(DoRys,nDiff)
 if (RF_On()) then
   if (NonEq_Ref) then
     call WarningMessage(2,'Error in Alaska')
-    write(6,*) 'NonEq=.True., invalid option'
+    write(u6,*) 'NonEq=.True., invalid option'
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
@@ -135,7 +136,7 @@ if (king() .or. HF_Force) then
   ! per default NADC must not have nuclear contributions added
 
   if (NO_NUC .or. ((Columbus == 1) .and. (colgradmode == 3))) then
-    write(6,*) 'Skipping Nuclear Charge Contribution'
+    write(u6,*) 'Skipping Nuclear Charge Contribution'
   else
     call DrvN1(Grad,Temp,lDisp(0))
     if (iPrint >= 15) then
@@ -164,7 +165,7 @@ if (Test) Go To 999
 !   electron hamiltonian and the contribution due the re-
 !   normalization.
 
-if ((.not. (nProcs > 1)) .or. Onenly) then ! ???
+if ((nProcs <= 1) .or. Onenly) then
   call Drvh1(Grad,Temp,lDisp(0))
 end if
 if (Do_OFemb) then
@@ -196,13 +197,13 @@ if (Do_OFemb) call DrvEMBg(Grad,Temp,lDisp(0))
 
 if (Cholesky .or. Do_RI) then
   if (Cholesky) then
-    if (iPrint >= 6) write(6,*) 'Cholesky-ERI gradients!'
+    if (iPrint >= 6) write(u6,*) 'Cholesky-ERI gradients!'
   else
-    if (iPrint >= 6) write(6,*) 'RI-ERI gradients!'
+    if (iPrint >= 6) write(u6,*) 'RI-ERI gradients!'
   end if
   call Drvg1_RI(Grad,Temp,lDisp(0))
 else
-  if (iPrint >= 6) write(6,*) 'Conventional ERI gradients!'
+  if (iPrint >= 6) write(u6,*) 'Conventional ERI gradients!'
   call Drvg1(Grad,Temp,lDisp(0))
 end if
 
@@ -283,14 +284,14 @@ if (isNAC) then
   end if
   EDiff_s = max(One,Ten**(-floor(log10(abs(EDiff)))-4))
   EDiff_f = EDiff*EDiff_s
-  write(6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
+  write(u6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
   Label = ''
   if (EDiff_s > One) write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
   Label = 'Total derivative coupling'//trim(Label)
   call mma_allocate(Tmp,lDisp(0),Label='Tmp')
   Tmp(:) = Grad(:)/EDiff_f
   call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp,iPrint)
-  write(6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
+  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
   call mma_deallocate(Tmp)
 elseif (iPrint >= 4) then
   if (HF_Force) then

@@ -31,51 +31,59 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
-use k2_setup
-use iSD_data
-use PSO_Stuff
+use k2_setup, only: Data_k2
+use iSD_data, only: iSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
-use Basis_Info
+use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
 use Real_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: nProcs, King
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Eight
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-external Rsv_GTList
-#include "itmax.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
+integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iFnc(4), ijklA, ijMax, &
+                     ijS, indij, iOpt, ipEI, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipEta, ipxA, &
+                     ipxB, ipxD, ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), j, jAng, jBAsAO, &
+                     jBasj, jBasn, jBsInc, jPrimj, jPrInc, jS, JndGrd(3,4), k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, &
+                     kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
+                     Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, &
+                     nRys, nSkal, nSO, nZeta
+real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
+logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, FreeK2, Verbose, &
+                     Triangular
+character(len=72) :: formt
+character(len=8) :: Method_chk
+integer(kind=iwp), allocatable :: Ind_ij(:,:)
+real(kind=wp), allocatable :: TMax(:,:)
+integer(kind=iwp), save :: MemPrm
+logical(kind=iwp), external :: Rsv_GTList
+!*********** columbus interface ****************************************
+integer(kind=iwp) :: Columbus
 !#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
+real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, Pget_CPU, Pget_Wall, Total_Dens_CPU, Total_Dens_Wall, &
+                 Total_Der_CPU, Total_Der_CPU2, Total_Der_Wall, Total_Der_Wall2, Twoel_CPU, Twoel_Wall, TwoelCPU1, TwoelCPU2, &
+                 TwoelWall1, TwoelWall2
 #endif
-! Local arrays
-real*8 Coor(3,4), Grad(nGrad), Temp(nGrad)
-integer iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-logical EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList, FreeK2, Verbose, &
-  Triangular
-character format*72
-character*8 Method_chk
-real*8, allocatable :: TMax(:,:)
-integer, allocatable :: Ind_ij(:,:)
-!*********** columbus interface ****************************************
-integer Columbus
-
-integer iSD4(0:nSD,4)
-save MemPrm
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 iRout = 9
 iPrint = nPrint(iRout)
-iPrint = 000000000
+iPrint = 0
 
 iFnc(1) = 0
 iFnc(2) = 0
@@ -83,10 +91,10 @@ iFnc(3) = 0
 iFnc(4) = 0
 PMax = Zero
 #ifdef _CD_TIMING_
-Twoel_CPU = 0.0d0
-Twoel_Wall = 0.0d0
-Pget_CPU = 0.0d0
-Pget_Wall = 0.0d0
+Twoel_CPU = Zero
+Twoel_Wall = Zero
+Pget_CPU = Zero
+Pget_Wall = Zero
 #endif
 call dcopy_(nGrad,[Zero],0,Temp,1)
 
@@ -163,7 +171,7 @@ do iS=1,nSkal
     end if
   end do
 end do
-P_Eff = dble(nij)
+P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -220,16 +228,16 @@ if (.not. Rsv_GTList(TskLw,TskHi,iOpt,lDummy)) Go To 11
 ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 iS = Ind_ij(1,ijS)
 jS = Ind_ij(2,ijS)
-klS = int(TskLw-dble(ijS)*(dble(ijS)-One)/Two)
+klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 kS = Ind_ij(1,klS)
 lS = Ind_ij(2,klS)
-Count = TskLw
+Cnt = TskLw
 call CWTime(TCpu1,TWall1)
 13 continue
 
-Aint = TMax(iS,jS)*TMax(kS,lS)
-if (AInt < CutInt) Go To 14
-if (iPrint >= 15) write(6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+A_int = TMax(iS,jS)*TMax(kS,lS)
+if (A_Int < CutInt) Go To 14
+if (iPrint >= 15) write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -315,13 +323,13 @@ do iBasAO=1,iBasi,iBsInc
 #       endif
         call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                    iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-        if (AInt*PMax < CutInt) Go To 430
+        if (A_Int*PMax < CutInt) Go To 430
 #       ifdef _CD_TIMING_
         call CWTIME(Pget0CPU2,Pget0WALL2)
         Pget_CPU = Pget_CPU+Pget0CPU2-Pget0CPU1
         Pget_Wall = Pget_Wall+Pget0WALL2-Pget0WALL1
 #       endif
-        if (AInt*PMax < CutInt) Go To 430
+        if (A_Int*PMax < CutInt) Go To 430
 
         ! Compute gradients of shell quadruplet
 
@@ -352,8 +360,8 @@ end do
 140 continue
 
 14 continue
-Count = Count+One
-if (Count-TskHi > 1.0D-10) Go To 12
+Cnt = Cnt+One
+if (Cnt-TskHi > 1.0e-10_wp) Go To 12
 klS = klS+1
 if (klS > ijS) then
   ijS = ijS+1
@@ -400,16 +408,16 @@ call CloseP
 #ifdef _CD_TIMING_
 Drvg1_CPU = TCpu2-TCpu1
 Drvg1_Wall = TWall2-TWall1
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Prepp:'
-write(6,*) 'Wall/CPU',Prepp_Wall,Prepp_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Pget:'
-write(6,*) 'Wall/CPU',Pget_Wall,Pget_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Time spent in Drvg1:'
-write(6,*) 'Wall/CPU',Drvg1_Wall,Drvg1_CPU
-write(6,*) '-------------------------'
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Prepp:'
+write(u6,*) 'Wall/CPU',Prepp_Wall,Prepp_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Pget:'
+write(u6,*) 'Wall/CPU',Pget_Wall,Pget_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Time spent in Drvg1:'
+write(u6,*) 'Wall/CPU',Drvg1_Wall,Drvg1_CPU
+write(u6,*) '-------------------------'
 Total_Dens_Wall = Prepp_Wall+Pget_Wall
 Total_Dens_CPU = Prepp_CPU+Pget_CPU
 Total_Der_Wall = Drvg1_Wall-Total_Dens_Wall
@@ -417,15 +425,15 @@ Total_Der_CPU = Drvg1_CPU-Total_Dens_CPU
 Total_Der_Wall2 = TwoEl_Wall
 Total_Der_CPU2 = TwoEl_CPU
 
-write(6,*) 'Total Time for Density:'
-write(6,*) 'Wall/CPU',Total_Dens_Wall,Total_Dens_CPU
-write(6,*) '-------------------------'
-write(6,*) 'Total Time for Derivatives:'
-write(6,*) 'Wall/CPU',Total_Der_Wall2,Total_Der_CPU2
-write(6,*) '-------------------------'
-write(6,*) 'Derivative check:'
-write(6,*) 'Wall/CPU',Total_Der_Wall,Total_Der_CPU
-write(6,*) '-------------------------'
+write(u6,*) 'Total Time for Density:'
+write(u6,*) 'Wall/CPU',Total_Dens_Wall,Total_Dens_CPU
+write(u6,*) '-------------------------'
+write(u6,*) 'Total Time for Derivatives:'
+write(u6,*) 'Wall/CPU',Total_Der_Wall2,Total_Der_CPU2
+write(u6,*) '-------------------------'
+write(u6,*) 'Derivative check:'
+write(u6,*) 'Wall/CPU',Total_Der_Wall,Total_Der_CPU
+write(u6,*) '-------------------------'
 #endif
 Verbose = .false.
 FreeK2 = .true.
@@ -435,11 +443,11 @@ call Term_Ints(Verbose,FreeK2)
 !                                                                      *
 call Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
 
-iPren = 3+max(1,int(log10(Pren+0.001D+00)))
-iPrem = 3+max(1,int(log10(Prem+0.001D+00)))
-write(format,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
+iPren = 3+max(1,int(log10(Pren+1.0e-3_wp)))
+iPrem = 3+max(1,int(log10(Prem+1.0e-3_wp)))
+write(formt,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
 if (iPrint >= 6) then
-  write(6,format) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
+  write(u6,formt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
 end if
 !                                                                      *
 !***********************************************************************

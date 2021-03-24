@@ -25,19 +25,24 @@ subroutine DrvDFTg(Grad,Temp,nGrad)
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
-character Label*80, KSDFT*16
-real*8 Grad(nGrad), Temp(nGrad)
-logical First, Dff, Do_Grad, l_casdft
-character*4 DFTFOCK
-dimension Dummy1(1), Dummy2(1), Dummy3(1), Dumm0(1), Dumm1(1)
+integer(kind=iwp) :: iDFT, iDumm, iEnd, iIrrep, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nDens
+real(kind=wp) :: Dummy1(1), Dummy2(1), Dummy3(1), Dummy4, Dumm0(1), Dumm1(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
+logical(kind=iwp) :: First, Dff, Do_Grad, l_casdft
+character(len=80) :: Label
+character(len=16) :: KSDFT
+character(len=4) :: DFTFOCK
 
 !                                                                      *
 !***********************************************************************
@@ -50,7 +55,7 @@ call CWTime(TCpu1,TWall1)
 DFTFOCK = 'SCF '
 iRout = 131
 iPrint = nPrint(iRout)
-LuWr = 6
+LuWr = u6
 
 nDens = 0
 do iIrrep=0,nIrrep-1

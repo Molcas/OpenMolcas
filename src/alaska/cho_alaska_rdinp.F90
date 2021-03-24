@@ -16,19 +16,21 @@ subroutine Cho_Alaska_RdInp(LuSpool)
 !
 !****************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One, Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: LuSpool
 #include "exterm.fh"
-character*180 KWord, Key, Get_Ln
-external Get_Ln
-character*16 SECNAM
-parameter(SECNAM='CHO_ALASKA_INPUT')
-real*8 dmpK
-integer nScreen
 #include "chotime.fh"
+real(kind=wp) :: dmpK_default
+character(len=180) :: KWord, Key
+character(len=16), parameter :: SECNAM = 'CHO_ALASKA_INPUT'
+character(len=180), external :: Get_Ln
 
 ! Set defaults
 
-dmpK = 1.0d0
+dmpK = One
 dmpK_default = dmpK
 nScreen = 10
 
@@ -50,9 +52,9 @@ if (KWord(1:4) == 'ENDO') Go To 998
 !                                                             *
 100 continue
 read(LuSpool,*,err=210,end=200) dmpK
-if (dmpK < 0.0d0) then
-  write(6,*) 'OBS! Specified DMPK value is negative.'
-  write(6,*) 'Restoring Default!'
+if (dmpK < Zero) then
+  write(u6,*) 'OBS! Specified DMPK value is negative.'
+  write(u6,*) 'Restoring Default!'
   dmpK = dmpK_default
 end if
 Go To 1000
@@ -78,10 +80,10 @@ return
 !**************************************************************
 !                                                             *
 call ErrTra
-200 write(6,*) SECNAM,'Premature end of input file.'
+200 write(u6,*) SECNAM,'Premature end of input file.'
 call Quit_onUserError()
 call ErrTra
-210 write(6,*) SECNAM,'Error while reading input file.'
+210 write(u6,*) SECNAM,'Error while reading input file.'
 call Quit_onUserError()
 
 end subroutine Cho_Alaska_RdInp
