@@ -193,15 +193,6 @@ c --------------------
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
       END DO
 
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
-      END DO
-
 **************************************************
 
       nnO=0

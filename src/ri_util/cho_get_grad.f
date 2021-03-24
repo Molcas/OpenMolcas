@@ -159,7 +159,8 @@
       Character*6 mode
       Integer, External:: Cho_F2SP
 
-      Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:)
+      Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:), SvShp(:)
+      Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -188,14 +189,6 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-
-      ipLab(i) = iWork(ip_Lab+i-1)
-
-      kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
-
-      iShp_rs(i) = iWork(ip_iShp_rs+i-1)
-
-      SvShp(i) = Work(ip_SvShp+i-1)
 *
 ** next is a trick to save memory. Memory in "location 2" is used
 ** to store this offset array defined later on
@@ -297,10 +290,6 @@
       End Do
       ipIndx=ip_iDummy
       ipIndik=ip_iDummy
-      ip_Lab=ip_iDummy
-      ip_kOffSh=ip_iDummy
-      ip_iShp_rs=ip_iDummy
-      ip_SvShp=ip_iDummy
 *
       thrv=0.0d0
       xtau=0.0d0
@@ -317,7 +306,7 @@
       End Do
 
 !     iShp_rs
-      Call GetMem('ip_iShp_rs','Allo','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_allocate(iShp_rs,nnShl_tot,Label='iShp_rs')
 
 ************************************************************************
 *                                                                      *
@@ -427,13 +416,13 @@
          Call GetMem('Indik','Allo','Inte',ipIndik,
      &               ((nItmx+1)*nItmx+1)*nInd)  !Yi[k] Index array
 
-         Call GetMem('ip_Lab','Allo','Inte',ip_Lab,nShell) ! ipLab
+         Call mma_allocate(ipLab,nShell,Label='ipLab')
 
 !        kOffSh
-         Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
+         Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
 
 !        shell-pair Frobenius norm of the vectors
-         Call GetMem('ip_SvShp','Allo','Real',ip_SvShp,2*nnShl)
+         Call mma_allocate(SvShp,2*nnShl,Label='SvShp')
 
 *
 ** Jonas - June 2010:
@@ -459,7 +448,7 @@
             LKsh=0
             Do iaSh=1,nShell    ! kOffSh(iSh,iSym)
 
-               iWork(ip_kOffSh+nShell*(iSyma-1)+iaSh-1) = LKsh
+               kOffSh(iaSh,iSyma) = LKsh
 
                LKsh = LKsh + nBasSh(iSyma,iaSh)
             End Do
@@ -543,7 +532,7 @@
       Do iaSh=1,nShell
          Do ibSh=1,iaSh
             iShp = iaSh*(iaSh-1)/2 + ibSh
-            iWork(ip_iShp_rs+iShp-1) = Cho_F2SP(iShp)
+            iShp_rs(iShp) = Cho_F2SP(iShp)
          End Do
       End Do
 ************************************************************************
@@ -893,11 +882,10 @@ C --- Transform the densities to reduced set storage
 *
 
                   CALL FZero(Work(ipLF),LFULL*JNUM)
-                  CALL FZero(Work(ip_SvShp),2*nnShl)
+                  SvShp(:)=Zero
 
                   CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,
-     &                               IREDC,ipLF,Work(ip_SvShp),
-     &                               iWork(ip_iShp_rs))
+     &                               IREDC,ipLF,SvShp,iShp_rs)
 
                   CALL CWTIME(TCX2,TWX2)
                   tmotr(1) = tmotr(1) + (TCX2 - TCX1)
@@ -1190,7 +1178,7 @@ C------------------------------------------------------------------
 
                                iOffSha = kOffSh(iaSh,lSym)
 
-                               iWork(ip_Lab+iaSh-1)= ipChoT
+                               ipLab(iaSh)= ipChoT
      &                                         + nChOrb_(lSym,iMOright)
      &                                         * JNUM
      &                                         + iOffSha*JNUM
@@ -1241,7 +1229,7 @@ C------------------------------------------------------------------
 ** iaSh vector LaJ[k] can be neglected because identically zero
 *
 
-                               iWork(ip_Lab+iaSh-1) = ipLab(iaSh)*
+                               ipLab(iaSh) = ipLab(iaSh)*
      &                                                Min(1,ibcount)
      &                                    + ipAbs*(1-Min(1,ibcount))
 
@@ -1257,7 +1245,7 @@ C------------------------------------------------------------------
 
                                iOffSha = kOffSh(iaSh,lSym)
 
-                               iWork(ip_Lab+iaSh-1)= ipChoT
+                               ipLab(iaSh)= ipChoT
      &                                        + (nChOrb_(lSym,iMOright)
      &                                        + iOffSha)*JNUM
                                ibcount=0
@@ -1305,7 +1293,7 @@ C------------------------------------------------------------------
 ** The following re-assignement is used later on to check if the
 ** iaSh vector LaJ[k] can be neglected because identically zero
 *
-                               iWork(ip_Lab+iaSh-1) = ipLab(iaSh)*
+                               ipLab(iaSh) = ipLab(iaSh)*
      &                                               Min(1,ibcount)
      &                                   + ipAbs*(1-Min(1,ibcount))
 
@@ -1756,11 +1744,11 @@ C--- have performed screening in the meanwhile
         Call GetMem('JKVEC','Allo','Real',ip_VJ,ljkVec)
       End If
 
-      Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
+      Call mma_deallocate(iShp_rs)
       If (DoExchange) Then
-         Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
-         Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
-         Call GetMem('ip_Lab','Free','Inte',ip_Lab,nShell)
+         Call mma_deallocate(SvShp)
+         Call mma_deallocate(kOffSh)
+         Call mma_deallocate(ipLab)
          Call GetMem('Indik','Free','Inte',ipIndik,(nItmx+1)*nItmx)
          Call GetMem('Indx','Free','Inte',ipIndx,nShell)
          Call GetMem('SKsh','Free','Real',ipSKsh(1),nShell*nI2t)
