@@ -191,9 +191,7 @@ c --------------------
 
 C *** memory for the Q matrices --- temporary array
         Call Allocate_DSBA(QTmp(1),nBas,nAsh,nSym)
-        ipScr = ip_of_Work(QTmp(1)%A0(1))
         Call Allocate_DSBA(QTmp(2),nBas,nAsh,nSym)
-        ipScr2= ip_of_Work(QTmp(2)%A0(1))
         QTmp(1)%A0(:)=Zero
         QTmp(2)%A0(:)=Zero
 *MGD improve that
@@ -1520,11 +1518,10 @@ C --------------------------------------------------------------------
      &                      Lpq(3)%SB(iSymv)%A3(:,:,JVC),1,
      &                  ZERO,Lpq(2)%SB(iSymv)%A3(:,:,JVC),1)
 *Qpx=Lpy ~Lxy
-                     ipQpx=ipScr2
                      Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                          Two,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
      &                              Lpq(2)%SB(iSymv)%A3(:,:,JVC),Naw,
-     &                          ONE,Work(ipQpx),NBAS(iSymb))
+     &                          ONE,QTmp(2)%SB(iSymb)%A2,NBAS(iSymb))
                       CALL CWTIME(TCINT3,TWINT3)
                       tQmat(1) = tQmat(1) + (TCINT3 - TCINT4)
                       tQmat(2) = tQmat(2) + (TWINT3 - TWINT4)
@@ -1613,7 +1610,6 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 C --------------------------------------------------------------------
 C --- Formation of the Q matrix Qpx = L~py Lvw Gxyvw
 C --------------------------------------------------------------------
-               ipQpx=ipScr
                Do iSymb=1,nSym
 
                   iSymv = MulD2h(JSYM,iSymb)
@@ -1634,7 +1630,7 @@ C --------------------------------------------------------------------
                       If(NAx*Nay.ne.0)Then
                        Call DGEMM_('N','N',Nav*Naw,JNUM,NAx*Nay,
      &                              One,Work(ipG),NAv*Naw,
-     &                              Lpq(2)%SB(iSymy)%A3,NAx*Nay,
+     &                                  Lpq(2)%SB(iSymy)%A3,NAx*Nay,
      &                              ONE,Lpq(3)%SB(iSymv)%A3,Nav*Naw)
                       EndIf
 
@@ -1643,11 +1639,9 @@ C --------------------------------------------------------------------
                     Do JVC=1,JNUM
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                           One,Lpq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                           Lpq(3)%SB(iSymv)%A3(:,:,JVC),Nav,
-     &                           ONE,Work(ipQpx),NBAS(iSymb))
+     &                               Lpq(3)%SB(iSymv)%A3(:,:,JVC),Nav,
+     &                           ONE,QTmp(1)%SB(iSymb)%A2,NBAS(iSymb))
                     End Do
-
-                    ipQpx=ipQpx+nBas(iSymb)*Naw
 
 *MGD check timing loops are correct (not always timed from
 *previous reference)
@@ -1698,11 +1692,10 @@ C --------------------------------------------------------------------
 C --- Formation of the Q matrix Qpx = Lp~y Lvw Gxyvw
 C --------------------------------------------------------------------
                      Do JVC=1,JNUM
-                      ipQpx=ipScr2
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                           One,Lpq(1)%SB(iSymb)%A3(:,:,JVC),NAv,
      &                               Lpq(3)%SB(iSymv)%A3(:,:,JVC),Naw,
-     &                           ONE,Work(ipQpx),NBAS(iSymb))
+     &                           ONE,QTmp(2)%SB(iSymb)%A2,NBAS(iSymb))
                      End Do
                      CALL CWTIME(TCINT2,TWINT2)
                      tQmat(1) = tQmat(1) + (TCINT2 - TCINT3)
@@ -1926,39 +1919,39 @@ C--- have performed screening in the meanwhile
           If (DoAct) Then
             Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                  1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
-     &                  Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                  Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                        Work(ipCMO+ISTSQ(iS)),nBas(iS),
+     &                  0.0D0,Work(ipJA+ISTSQ(iS)),nBas(jS))
             Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
-     &                  1.0d0,Work(ipJA+ISTSQ(iS)),
-     &                  nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
+     &                  1.0d0,Work(ipJA+ISTSQ(iS)),nBas(iS),
+     &                        Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                  0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,Work(ipFkI+ISTSQ(iS)),nBas(iS),
-     &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                      Work(ipCMO+ISTSQ(iS)),nBas(iS),
+     &                0.0d0,Work(ipJA+ISTSQ(iS)),nBas(jS))
           Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
-     &                1.0d0,Work(ipJA+ISTSQ(iS)),
-     &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
+     &                1.0d0,Work(ipJA+ISTSQ(iS)),nBas(iS),
+     &                      Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                0.0d0,Work(ipFkI+ISTSQ(iS)),nBas(jS))
           If (DoAct) Then
             If (Fake_CMO2) Then
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+ioff),nBas(jS),
+     &                           QTmp(1)%SB(js)%A2,nBas(jS),
      &                     0.0d0,Work(ipQ+ioff),nBas(jS))
             Else
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr2+ioff),nBas(jS),
+     &                           QTmp(2)%SB(jS)%A2,nBas(jS),
      &                     0.0d0,Work(ipQ+ioff),nBas(jS))
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+ioff),nBas(jS),
-     &                     0.0d0,Work(ipScr2+ioff),nBas(jS))
+     &                           QTmp(1)%SB(jS)%A2,nBas(jS),
+     &                     0.0d0,QTmp(2)%SB(jS)%A2,nBas(jS))
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
      &                    -1.0d0,Work(ipkappa+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr2+ioff),nBas(jS),
+     &                           QTmp(2)%SB(jS)%A2,nBas(jS),
      &                     1.0d0,Work(ipQ+ioff),nBas(jS))
             EndIf
             ioff=ioff+nBas(iS)*nAsh(iS)
