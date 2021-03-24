@@ -127,7 +127,7 @@
       Integer   kOff(8,5), LuRVec(8,3)
       Integer   ipDLT(5),ipDLT2
       Integer   npos(8,3)
-      Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
+      Integer   iSTSQ(8), iSTLT(8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
 
       Real*8    Txy(nTxy),V_k(nV_k,*),Z_p_k(nZ_p_k,*), U_k(*)
@@ -250,15 +250,6 @@
         NBQ=NBAS(ISYM-1)**2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB ! Inactive D matrix
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NBQ ! Diagonal integrals in full
-      END DO
-
-      nnBSQ=0
-      DO LSYM=1,NSYM
-         DO KSYM=LSYM,NSYM
-            ISSQ(KSYM,LSYM) = nnBSQ
-            ISSQ(LSYM,KSYM) = nnBSQ ! symmetrization
-            nnBSQ = nnBSQ + nBas(kSym)*nBas(lSym)
-         END DO
       END DO
 *
 **     Size for occupied CMO-matrix

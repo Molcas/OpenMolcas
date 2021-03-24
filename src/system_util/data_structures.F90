@@ -20,6 +20,7 @@ Public:: DSBA_Type, Allocate_DSBA, Deallocate_DSBA, Map_to_DSBA
 Public:: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
 Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
 Public:: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
+Public:: G2_Type, Allocate_G2, Deallocate_G2
 #include "stdalloc.fh"
 #include "real.fh"
 
@@ -37,6 +38,12 @@ End Type  DSB_Type
 Type V2
   Real*8, Pointer:: A(:,:)=>Null()
 End Type V2
+
+Type G2_pointers
+  Real*8, Pointer:: A4(:,:,:,:)=>Null()
+  Real*8, Pointer:: A2(:,:)=>Null()
+End Type G2_pointers
+
 
 Type NDSBA_Type
   Integer:: iCase=0
@@ -67,6 +74,13 @@ Type twxy_type
   Real*8, Allocatable:: twxy_full(:)
   Type (V2):: SB(8,8)
 End Type twxy_type
+
+Type G2_type
+  Integer :: iCase=0
+  Integer :: nSym=0
+  Real*8, Allocatable:: A0(:)
+  Type (G2_Pointers):: SB(8,8,8)
+End Type G2_type
 
 
 Contains
@@ -671,5 +685,105 @@ Case (2)
 End Select
 
 End Subroutine Map_to_twxy
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                      G 2 - T Y P E   S E C T I O N                  !
+!                                                                     !
+!              Symmetry block 2-particle-like arrays                  !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Subroutine Allocate_G2(Adam,n,nSym,iCase)
+Implicit None
+Type (G2_Type), Target:: Adam
+Integer nSym, iCase
+Integer n(nSym)
+
+Integer MemTot, ijSym, iSym, jSym, kSym, lSym, iE, iS, n1, n2, n3, n4, n12, n34
+
+Adam%nSym=nSym
+Adam%iCase=iCase
+
+MemTot=0
+Select Case (iCase)
+
+Case(1)
+
+Do ijsym=1,nsym
+   Do isym=1,nsym
+      jsym=iEOR(isym-1,ijsym-1)+1
+      n12 = n(iSym)*n(jSym)
+      Do kSym=1,nSym
+         lSym=iEOR(kSym-1,ijSym-1)+1
+         n34=n(kSym)*n(lSym)
+         MemTot=MemTot+n12*n34
+      End Do
+   End Do
+End Do
+
+Case Default
+
+Write (6,*) 'Allocate_G2: illegal case valeu=',iCase
+Call Abend()
+
+End Select
+
+Call mma_allocate(Adam%A0,MemTot,Label='G2%A0')
+
+iE = 0
+Select Case (iCase)
+
+Case(1)
+
+Do ijsym=1,nsym
+   Do isym=1,nsym
+      jsym=iEOR(isym-1,ijsym-1)+1
+      n1=n(iSym)
+      n2=n(jSym)
+      n12 = n1*n2
+      Do kSym=1,nSym
+         lSym=iEOR(kSym-1,ijSym-1)+1
+         n3=n(kSym)
+         n4=n(lSym)
+         n34=n3*n4
+         iS = iE + 1
+         iE = iE + n12*n34
+         Adam%SB(iSym,jSym,kSym)%A4(1:n1,1:n2,1:n3,1:n4) => Adam%A0(iS:iE)
+         Adam%SB(iSym,jSym,kSym)%A2(1:n12,1:n34) => Adam%A0(iS:iE)
+      End Do
+   End Do
+End Do
+
+Case Default
+
+Write (6,*) 'What?'
+Call Abend()
+
+End Select
+
+End Subroutine Allocate_G2
+
+Subroutine Deallocate_G2(Adam)
+Implicit None
+Type (G2_Type) Adam
+
+Integer iSym, jSym, kSym
+
+Adam%iCase=0
+
+Call mma_deallocate(Adam%A0)
+
+Do iSym=1,Adam%nSym
+   Do jSym=1,Adam%nSym
+      Do kSym=1,Adam%nSym
+         Adam%SB(iSym,jSym,kSym)%A4=>Null()
+         Adam%SB(iSym,jSym,kSym)%A2=>Null()
+      End Do
+   End Do
+End Do
+Adam%nSym=0
+
+End Subroutine Deallocate_G2
 
 End Module Data_Structures
