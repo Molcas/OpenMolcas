@@ -37,7 +37,8 @@ C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
-      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: DSBA_Type, Allocate_DSBA,
+     &                           Deallocate_DSBA
       use Data_Structures, only: SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
@@ -57,7 +58,7 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) Ash(2)
+      Type (DSBA_Type) Ash(2), Tmp(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
 
@@ -203,8 +204,8 @@ C *** memory for the Q matrices --- temporary array
          ipCM(2)=ipCM(1)+(nDen-1)*nsBB
          ipMSQ(1)=ipCM(1)
          ipMSQ(2)=ipCM(2)
-         Call GetMem('Tmp','Allo','Real',ipTmp,nsBB*nDen)
-         ipTmp2=ipTmp+(nDen-1)*nsBB
+         Call Allocate_DSBA(Tmp(1),nBas,nBas,nSym)
+         Call Allocate_DSBA(Tmp(2),nBas,nBas,nSym)
 
          Do iS=1,nSym
 *
@@ -218,27 +219,28 @@ C *** memory for the Q matrices --- temporary array
 **         MO transform
 *
 
-             Call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),1.0d0,
-     &                  Work(ipCM(1)+ISTK(iS)),nBas(iS),
-     &                  Work(ip_CMO_inv+ISTSQ(iS)),nBas(iS),
-     &                  0.0d0,Work(ipTmp2+ISTK(iS)),nChMO(iS))
+             Call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),
+     &                  1.0D0,Work(ipCM(1)+ISTK(iS)),nBas(iS),
+     &                        Work(ip_CMO_inv+ISTSQ(iS)),nBas(iS),
+     &                  0.0d0,Tmp(2)%SB(iS)%A2,nChMO(iS))
 *
 **       Create one-index transformed Cholesky orbitals
 *
-             Call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),1.0d0,
-     &                  Work(ipTmp2+ISTK(iS)),nChMO(iS),
-     &                  Work(ipkappa+ISTSQ(iS)),nBas(iS),
-     &                  0.0d0,Work(ipTmp+ISTK(iS)),nChMO(iS))
+             Call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),
+     &                  1.0D0,Tmp(2)%SB(iS)%A2,nChMO(iS),
+     &                        Work(ipkappa+ISTSQ(iS)),nBas(iS),
+     &                  0.0d0,Tmp(1)%SB(iS)%A2,nChMO(iS))
 *
 **         AO transform
 *
-             Call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),1.0d0,
-     &                    Work(ipCMO+ISTSQ(iS)),nBas(iS),
-     &                    Work(ipTmp+ISTK(iS)),nChMO(iS),
+             Call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),
+     &                    1.0D0,Work(ipCMO+ISTSQ(iS)),nBas(iS),
+     &                          Tmp(1)%SB(iS)%A2,nChMO(iS),
      &                    0.0d0,Work(ipCM(2)+ISTK(iS)),nBas(iS))
            EndIf
          End Do
-         Call GetMem('Tmp','FREE','Real',ipTmp,nsBB*nDen)
+         Call Deallocate_DSBA(Tmp(2))
+         Call Deallocate_DSBA(Tmp(1))
 
       EndIf
 
