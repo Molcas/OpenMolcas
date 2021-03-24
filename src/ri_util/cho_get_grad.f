@@ -125,7 +125,7 @@
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipTxy(8,8,2)
       Integer   kOff(8,5), LuRVec(8,3)
-      Integer   ipDrs(5), ipY, ipYQ, ipSKsh(5)
+      Integer   ipDrs(5), ipSKsh(5)
       Integer   ipDrs2,ipDLT(5),ipDLT2
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
@@ -161,7 +161,10 @@
 
       Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:), SvShp(:),
      &                      MLk(:), Ylk(:,:)
-      Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:)
+      Real*8, Allocatable, Target:: Yik(:)
+      Real*8, Pointer:: pYik(:,:)=>Null()
+      Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:),
+     &                       Indx(:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -283,11 +286,9 @@
 *
 **   Initialize pointers to avoid compiler warnings
 *
-      ipYQ=ip_Dummy
       Do i=1,5
         ipSKsh(i)=ip_Dummy
       End Do
-      ipIndx=ip_iDummy
       ipIndik=ip_iDummy
 *
       thrv=0.0d0
@@ -387,7 +388,7 @@
 
          Call mma_allocate(Ylk,MaxB,nItmx,Label='Ylk')
 
-         Call GetMem('yq','Allo','Real',ipYQ,nItmx**2) ! Yi[k] vectors
+         Call mma_allocate(Yik,nItmx**2,Label='Yik') ! Yi[k] vectors
 
 *used to be nShell*something
 !        ML[k] lists of largest elements in significant shells
@@ -410,7 +411,7 @@
          End Do
 
 !        Index array
-         Call GetMem('Indx','Allo','Inte',ipIndx,(nShell+1)*nInd)
+         Call mma_allocate(Indx,[0,nShell],[1,nInd],Label='Indx')
 
          Call GetMem('Indik','Allo','Inte',ipIndik,
      &               ((nItmx+1)*nItmx+1)*nInd)  !Yi[k] Index array
@@ -929,6 +930,12 @@ C --- Transform the densities to reduced set storage
 *
                     iMOleft=jDen
                     iMOright=jDen
+
+                    n1 = nIt(iMOright)
+                    n2 = nItMx
+
+                    pYik(1:n1,1:n2) => Yik(1:n1*n2)
+
                     If (DoCAS.and.lSA) iMOright=jDen+2
 *
 
@@ -957,10 +964,6 @@ C --- Transform the densities to reduced set storage
 
                         ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
      &                       + nBas(kSym)*(jK-1)
-
-                        ipYQk = ipYQ + nIt(iMOright)*(JK_a-1)
-
-                        ipIndSh = ipIndx+nInd*(nShell+1)
 
                         ipIndikk = ipIndik+nInd*((nItmx+1)*nItmx+1)
 
@@ -1024,10 +1027,10 @@ C------------------------------------------------------------------
                                  AbsC(1+ik) = abs(Work(ipMO_+ik))
                               End Do
 *
-                              Work(ipYQk+i-1)=ddot_(nBas(lSym),
+                              pYik(i,jK_a)=ddot_(nBas(lSym),
      &                                        AbsC,1,Ylk,1)
 
-                              If (Work(ipYQk+i-1).ge.xtau) Then
+                              If (pYik(i,jK_a).ge.xtau) Then
                                  nQo=nQo+1
                                  If((iBatch.ne.1) .or.
      &                               (JRED.ne.1)) Go To 1111
@@ -1083,7 +1086,7 @@ C------------------------------------------------------------------
                            End Do
 
                            Do ish=1,nShell
-                              iWork(ipIndSh+ish) = ish
+                              Indx(ish,nInd+1) = ish
                            End Do
 
 ************************************************************************
@@ -1121,11 +1124,11 @@ C------------------------------------------------------------------
 
                               If(jmlmax.ne.jml) then  ! swap positions
                                 xTmp = MLk(jml)
-                                iTmp = iWork(ipIndSh+jml)
+                                iTmp = Indx(jml,nInd+1)
                                 MLk(jml) = YMax
-                                iWork(ipIndSh+jml)=iWork(ipIndSh+jmlmax)
+                                Indx(jml,nInd+1)=Indx(jmlmax,nInd+1)
                                 MLk(jmlmax) = xTmp
-                                iWork(ipIndSh+jmlmax) = iTmp
+                                Indx(jmlmax,nInd+1) = iTmp
                               Endif
 
                               If ( MLk(jml) .ge. xtau ) then
@@ -1138,7 +1141,7 @@ C------------------------------------------------------------------
 
                            End Do
 
-                           iWork(ipIndSh) = numSh
+                           Indx(0,nInd+1) = numSh
 
                            CALL CWTIME(TCS2,TWS2)
                            tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1166,9 +1169,9 @@ C------------------------------------------------------------------
                         IF (lSym.ge.kSym) Then
 
 
-                            Do iSh=1,iWork(ipIndSh)
+                            Do iSh=1,Indx(0,nInd+1)
 
-                               iaSh = iWork(ipIndSh+iSh)
+                               iaSh = Indx(iSh,nInd+1)
 
                                iOffSha = kOffSh(iaSh,lSym)
 
@@ -1233,9 +1236,9 @@ C------------------------------------------------------------------
                         Else   ! lSym < kSym
 
 
-                            Do iSh=1,iWork(ipIndSh)
+                            Do iSh=1,Indx(0,nInd+1)
 
-                               iaSh = iWork(ipIndSh+iSh)
+                               iaSh = Indx(iSh,nInd+1)
 
                                iOffSha = kOffSh(iaSh,lSym)
 
@@ -1315,9 +1318,9 @@ C------------------------------------------------------------------
 
                           If (lSym.ge.kSym) Then
 
-                           Do iSh=1,iWork(ipIndSh)
+                           Do iSh=1,Indx(0,nInd+1)
 
-                              iaSh = iWork(ipIndSh+iSh)
+                              iaSh = Indx(iSh,nInd+1)
 
                               iaSkip= Min(1,Max(0,
      &                                abs(ipLab(iaSh)-ipAbs)))!=1 or 0
@@ -1340,9 +1343,9 @@ C------------------------------------------------------------------
                           Else   ! lSym < kSym
 
 
-                           Do iSh=1,iWork(ipIndSh)
+                           Do iSh=1,Indx(0,nInd+1)
 
-                              iaSh = iWork(ipIndSh+iSh)
+                              iaSh = Indx(iSh,nInd+1)
 
                               iaSkip= Min(1,Max(0,
      &                                abs(ipLab(iaSh)-ipAbs)))!=1 or 0
@@ -1403,6 +1406,8 @@ C------------------------------------------------------------------
  98                    Continue
 
                     End Do   ! loop over MOs symmetry
+
+                    pYik=>Null()
 
                   End Do   ! loop over densities
 
@@ -1743,10 +1748,10 @@ C--- have performed screening in the meanwhile
          Call mma_deallocate(kOffSh)
          Call mma_deallocate(ipLab)
          Call GetMem('Indik','Free','Inte',ipIndik,(nItmx+1)*nItmx)
-         Call GetMem('Indx','Free','Inte',ipIndx,nShell)
+         Call mma_deallocate(Indx)
          Call GetMem('SKsh','Free','Real',ipSKsh(1),nShell*nI2t)
          Call mma_deallocate(MLk)
-         Call GetMem('yq','Free','Real',ipYQ,nItmx**2)
+         Call mma_deallocate(Yik)
          Call mma_deallocate(Ylk)
          Call mma_deallocate(AbsC)
          Call Deallocate_NDSBA(DiaH)
