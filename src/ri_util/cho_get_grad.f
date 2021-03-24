@@ -159,7 +159,7 @@
       Character*6 mode
       Integer, External:: Cho_F2SP
 
-      Real*8, Allocatable:: Lrs(:,:), AbsC(:)
+      Real*8, Allocatable:: Lrs(:,:), Diag(:), AbsC(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -286,7 +286,6 @@
 *
 **   Initialize pointers to avoid compiler warnings
 *
-      ipDIAG=ip_Dummy
 #if defined (_MOLCAS_MPP_)
       ipjDIAG=ip_Dummy
 #endif
@@ -385,8 +384,8 @@
 *
 ** Read the diagonal integrals (stored as 1st red set)
 *
-         CALL GETMEM('diagI','Allo','Real',ipDIAG,NNBSTRT(1))
-         If (Update) CALL CHO_IODIAG(Work(ipDIAG),2) ! 2 means "read"
+         Call mma_allocate(DIAG,NNBSTRT(1),Label='Diag')
+         If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 *
 ** Allocate memory
@@ -861,7 +860,7 @@ C --- Transform the densities to reduced set storage
 ************************************************************************
                   If (Estimate) Then
 
-                     Call Fzero(Work(ipDiag+iiBstR(jSym,1)),
+                     Call Fzero(Diag(1+iiBstR(jSym,1)),
      &                          NNBSTR(jSym,1))
 
                      Do krs=1,nRS
@@ -871,8 +870,7 @@ C --- Transform the densities to reduced set storage
 
                         Do jvc=1,JNUM
 
-                           Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                     + Lrs(krs,jvc)**2
+                           Diag(jrs) = Diag(jrs) + Lrs(krs,jvc)**2
 
                         End Do
 
@@ -920,7 +918,7 @@ C --- Transform the densities to reduced set storage
 
                      ired1 = 1 ! location of the 1st red set
                      Call swap_tosqrt(irc,ired1,NNBSTRT(1),JSYM,
-     &                                  DIAH,Work(ipDIAG))
+     &                                  DIAH,DIAG)
 
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1463,8 +1461,7 @@ C --- subtraction is done in the 1st reduced set
 
                         Do jvc=1,JNUM
 
-                           Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                        - Lrs(krs,jvc)**2
+                           Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                         End Do
 
                       End Do
@@ -1479,8 +1476,7 @@ C --- subtraction is done in the 1st reduced set
 
                         Do jvc=1,JNUM
 
-                           Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                        - Lrs(krs,jvc)**2
+                           Diag(jrs) = Diag(jrs) - Lrs(krs,jvc)**2
                         End Do
 
                      End Do
@@ -1715,7 +1711,7 @@ C --- Screening control section
                If (Is_Real_Par() .and. Update .and. DoScreen) Then
                   Call GaDsum(Work(ipjDiag),nnBSTR(JSYM,1))
                   Call Daxpy_(nnBSTR(JSYM,1),xone,Work(ipjDiag),1,
-     &                       Work(ipDiag+iiBstR(JSYM,1)),1)
+     &                       Diag(1+iiBstR(JSYM,1)),1)
                   Call Fzero(Work(ipjDiag),nnBSTR(JSYM,1))
                EndIf
 C--- Need to activate the screening to setup the contributing shell
@@ -1777,7 +1773,7 @@ C--- have performed screening in the meanwhile
          If (Is_Real_Par().and.Update)CALL GETMEM('diagJ','Free','Real',
      &                                            ipjDIAG,NNBSTMX)
 #endif
-         CALL GETMEM('diagI','Free','Real',ipDIAG,NNBSTRT(1))
+         Call mma_deallocate(Diag)
       EndIf
 
 
