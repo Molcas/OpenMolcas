@@ -159,7 +159,7 @@
       Character*6 mode
       Integer, External:: Cho_F2SP
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), AbsC(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -290,7 +290,6 @@
 #if defined (_MOLCAS_MPP_)
       ipjDIAG=ip_Dummy
 #endif
-      ipAbs=ip_Dummy
       ipY=ip_Dummy
       ipYQ=ip_Dummy
       ipML=ip_Dummy
@@ -396,7 +395,8 @@
          Call Allocate_NDSBA(DiaH,nBas,nBas,nSym)
          DiaH%A0(:)=Zero
 
-         Call GetMem('absc','Allo','Real',ipAbs,MaxB) ! abs(C(l)[k])
+         Call mma_allocate(AbsC,MaxB,Label='AbsC')
+         ipAbs=ip_of_Work(AbsC(1))
 
          Call GetMem('yc','Allo','Real',ipY,MaxB*nItmx) ! Y(l)[k] vector
 
@@ -994,7 +994,7 @@ C --- Setup the screening
 C------------------------------------------------------------------
 
                            Do ik=0,nBas(kSym)-1
-                              Work(ipAbs+ik) = abs(Work(ipMO+ik))
+                              AbsC(1+ik) = abs(Work(ipMO+ik))
                            End Do
                            If (lSym.ge.kSym.and.nBas(lSym).ge.1) Then
 
@@ -1002,7 +1002,7 @@ C------------------------------------------------------------------
 
                               CALL DGEMV_('N',nBas(lSym),nBas(kSym),
      &                                   ONE,DiaH%SB(lSym,kSym)%A2,nBs,
-     &                                       Work(ipAbs),1,
+     &                                       AbsC,1,
      &                                  ZERO,Work(ipYk),1)
 
                            Else If (nBas(kSym).ge.1) Then
@@ -1011,7 +1011,7 @@ C------------------------------------------------------------------
 
                               CALL DGEMV_('T',nBas(kSym),nBas(lSym),
      &                                   ONE,DiaH%SB(lSym,kSym)%A2,nBs,
-     &                                       Work(ipAbs),1,
+     &                                       AbsC,1,
      &                                  ZERO,Work(ipYk),1)
 
                            EndIf
@@ -1041,11 +1041,11 @@ C------------------------------------------------------------------
      &                             + nBas(lSym)*(i-1)
 
                               Do ik=0,nBas(lSym)-1
-                                 Work(ipAbs+ik) = abs(Work(ipMO_+ik))
+                                 AbsC(1+ik) = abs(Work(ipMO_+ik))
                               End Do
 *
                               Work(ipYQk+i-1)=ddot_(nBas(lSym),
-     &                             Work(ipAbs),1,Work(ipYk),1)
+     &                                        AbsC,1,Work(ipYk),1)
 
                               If (Work(ipYQk+i-1).ge.xtau) Then
                                  nQo=nQo+1
@@ -1342,24 +1342,20 @@ C------------------------------------------------------------------
                               iaSkip= Min(1,Max(0,
      &                                abs(ipLab(iaSh)-ipAbs)))!=1 or 0
 
-                              Do i=1,iaSkip
+                              If (iaSkip==0) Cycle
 
-                                 ip_Cai = ipMO + kOffsh(iaSh,lSym)
+                              ip_Cai = ipMO + kOffsh(iaSh,lSym)
 *
 **  LJi[k] = sum_a  LaJ[k] * Cai
 ** ------------------------------
 *
-                                 CALL DGEMV_('T',nBasSh(lSym,iaSh),JNUM,
-     &                                      One,Work(ipLab(iaSh)),
+                              CALL DGEMV_('T',nBasSh(lSym,iaSh),JNUM,
+     &                                   One,Work(ipLab(iaSh)),
      &                                      nBasSh(lSym,iaSh),
      &                                      Work(ip_Cai),1,
      &                                      one,Work(ip_Lik),1)
 
-
-                              End Do
-
                            End Do
-
 
                           Else   ! lSym < kSym
 
@@ -1371,20 +1367,17 @@ C------------------------------------------------------------------
                               iaSkip= Min(1,Max(0,
      &                                abs(ipLab(iaSh)-ipAbs)))!=1 or 0
 
-                              Do i=1,iaSkip
+                              If (iaSkip==0) Cycle
 
-                                 ip_Cai = ipMO + kOffsh(iaSh,lSym)
+                              ip_Cai = ipMO + kOffsh(iaSh,lSym)
 *
 **   LJi[k] = sum_a  LJa[k] * Cai
 ** --------------------------------
 *
-                                 CALL DGEMV_('N',JNUM,nBasSh(lSym,iaSh),
-     &                                      One,Work(ipLab(iaSh)),
-     &                                      JNUM,Work(ip_Cai),1,
-     &                                      one,Work(ip_Lik),1)
-
-
-                              End Do
+                              CALL DGEMV_('N',JNUM,nBasSh(lSym,iaSh),
+     &                                   One,Work(ipLab(iaSh)),
+     &                                   JNUM,Work(ip_Cai),1,
+     &                                   one,Work(ip_Lik),1)
 
                            End Do
 
@@ -1778,7 +1771,7 @@ C--- have performed screening in the meanwhile
          Call GetMem('MLk1','Free','Real',ipML,nShell)
          Call GetMem('yq','Free','Real',ipYQ,nItmx**2)
          Call GetMem('yc','Free','Real',ipY,MaxB*nItmx)
-         Call GetMem('absc','Free','Real',ipAbs,MaxB)
+         Call mma_deallocate(AbsC)
          Call Deallocate_NDSBA(DiaH)
 #if defined (_MOLCAS_MPP_)
          If (Is_Real_Par().and.Update)CALL GETMEM('diagJ','Free','Real',
