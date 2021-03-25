@@ -82,7 +82,7 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Character*6 mode
+      Character(LEN=6) mode
       Real*8   LKThr
       Integer, External :: Cho_F2SP
       Integer, External :: Cho_LK_MaxVecPerBatch
@@ -554,8 +554,6 @@ C===============================================================
 
                EndIf  ! Coulomb contribution
 
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
 
 C *************** EXCHANGE CONTRIBUTIONS  ***********************
 
@@ -585,6 +583,13 @@ C
                CALL CWTIME(TCS2,TWS2)
                tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                tscrn(2) = tscrn(2) + (TWS2 - TWS1)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
+               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -595,6 +600,7 @@ C ***
 C ***    Sym(a).ge.Sym(b)
 C ***
 C *** and blocked in shell pairs
+
 
                CALL FZero(Work(ipLF),LFULL*JNUM)
                SvShp(:)=Zero
@@ -625,7 +631,6 @@ c --------------------------------------------------------------------
                    tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
                ENDIF
-
 
                Do kSym=1,nSym
 
@@ -661,32 +666,27 @@ C------------------------------------------------------------------
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(lSym))
-
-                           CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
-     &                                    AbsC,1,
-     &                               ZERO,Ylk(1,jK_a,jDen),1)
+                           Mode(1:1)='N'
+                           n1=nBas(lSym)
+                           n2=nBas(kSym)
 
                         Else
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(kSym))
-
-                           CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,DiaH%SB(lSYm,kSym)%A2,nBs,
-     &                                    AbsC,1,
-     &                               ZERO,Ylk(1,jK_a,jDen),1)
+                           Mode(1:1)='T'
+                           n1=nBas(kSym)
+                           n2=nBas(lSym)
 
                         EndIf
 
-c            write(6,*)'Y(k)= ',(Ylk(i,jK_a,jDen),i=1,nBas(lSym))
-c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
+                        CALL DGEMV_(Mode(1:1),n1,n2,
+     &                             ONE,DiaH%SB(lSym,kSym)%A2,n1,
+     &                                 AbsC,1,
+     &                            ZERO,Ylk(1,jK_a,jDen),1)
 
                      End Do
 
-c            Call recprt('DH','',Work(ipDIH),nBas(lSym),nBas(kSym))
 
 C --- List the shells present in Y(l)[k] by the largest element
                      Do jDen=1,nDen
@@ -824,13 +824,6 @@ c     fake rassi (MOs1=MOs2) has a positive definite exchange
 
                      Indx(0,jk_a,1) = numSh1
 
-c      Do jDen=1,nDen
-c         write(6,*)'ord-ML(k)= ',(MLk(i,jK_a,jDen),i=1,nShell)
-c         write(6,*)'Ind-ML(k)= ',(Indx(i,jK_a,jDen),i=0,nShell)
-c      End Do
-c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh1,numSh2= ',lSym,
-c     &              kSym,jSym,jk,nShell,numSh1,numSh2
-
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                      tscrn(2) = tscrn(2) + (TWS2 - TWS1)
@@ -847,136 +840,79 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                       Do jDen=1,nDen
 
-                         IF (lSym.ge.kSym) Then
+                         Do iSh=1,Indx(0,jK_a,jDen)
+
+                            iaSh = Indx(ish,jK_a,jDen)
+
+                            iOffSha = kOffSh(iaSh,lSym)
+
+                            ipLab(iaSh,jDen) = ipChoT + iOffSha*JNUM
+     &                                     + (jDen-1)*nBas(lSym)*JNUM
+
+                            ibcount=0
+
+                            Do ibSh=1,nShell
+
+                               iOffShb = kOffSh(ibSh,kSym)
+
+                               iShp = iTri(iaSh,ibSh)
+
+                               If (iShp_rs(iShp)<=0) Cycle
+
+                               If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
+     &                             nBasSh(lSym,iaSh)*
+     &                             nBasSh(kSym,ibSh) .gt. 0
+     &                        .and. sqrt(abs(SumAClk(ibSh,jk_a,jDen)*
+     &                        SvShp(iShp_rs(iShp)) )) .ge. thrv )Then
+
+                                 ibcount = ibcount + 1
 
 
-                            Do iSh=1,Indx(0,jK_a,jDen)
+                                 IF (lSym.ge.kSym) Then
 
-                               iaSh = Indx(ish,jK_a,jDen)
-
-                               iOffSha = kOffSh(iaSh,lSym)
-
-                               ipLab(iaSh,jDen) = ipChoT + iOffSha*JNUM
-     &                                        + (jDen-1)*nBas(lSym)*JNUM
-
-                               ibcount=0
-
-                               Do ibSh=1,nShell
-
-                                  iOffShb = kOffSh(ibSh,kSym)
-
-                                  iShp = iTri(iaSh,ibSh)
-
-                                  If (iShp_rs(iShp) .gt. 0) Then
-
-                                   If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                                nBasSh(lSym,iaSh)*
-     &                                nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. sqrt(abs(SumAClk(ibSh,jk_a,jDen)*
-     &                           SvShp(iShp_rs(iShp)) )) .ge. thrv )Then
-
-                                    ibcount = ibcount + 1
-
-c                                   jOff = iOffShp(lSym,iShp)
-
-c                                   if (iaSh.lt.ibSh) jOff = jOff +
-c     &                               nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
-
-                                    jOff = iOffShp(lSym,iShp_rs(iShp)) -
-     &                                             nBasSh(lSym,ibSh)*
-     &                                             nBasSh(kSym,iaSh)*
-     &                             Min(0,(iaSh-ibSh))/Max(1,(ibSh-iaSh))
+                                    jOff = iOffShp(lSym,iShp_rs(iShp))
+                                    If (iaSh<ibSh) jOff = jOff +
+     &                              nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
 
 
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
+                                    Mode(1:1)='N'
+                                    n1 = nBasSh(lSym,iaSh)*JNUM
+                                    n2 = nBasSh(kSym,ibSh)
 
-                                 CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
-     &                                        nBasSh(kSym,ibSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                                     Work(ipMO(jDen)+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh,jDen)),1)
+                                 Else   ! lSym < kSym
 
-
-                                   EndIf
-
-                                  EndIf
-
-                               End Do
-
-c --- The following re-assignement is used later on to check if the
-c --- iaSh vector LaJ[k] can be neglected because identically zero
-
-                               If (ibcount==0) ipLab(iash,jDen) = ipAbs
-
-                            End Do
-
-
-                         Else   ! lSym < kSym
-
-
-                            Do iSh=1,Indx(0,jK_a,jDen)
-
-                               iaSh = Indx(iSh,jK_a,jDen)
-
-                               iOffSha = kOffSh(iaSh,lSym)
-
-                               ipLab(iaSh,jDen) = ipChoT + iOffSha*JNUM
-     &                                     + (jDen-1)*nBas(lSym)*JNUM
-
-                               ibcount=0
-
-                               Do ibSh=1,nShell
-
-                                  iOffShb = kOffSh(ibSh,kSym)
-
-                                  iShp = iTri(iaSh,ibSh)
-
-                                  If (iShp_rs(iShp) .gt. 0) Then
-
-                                   If(nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                                nBasSh(lSym,iaSh)*
-     &                                nBasSh(kSym,ibSh) .gt. 0
-     &                           .and. sqrt(abs(SumAClk(ibSh,jK_a,jDen)*
-     &                           SvShp(iShp_rs(iShp)) )) .ge. thrv )Then
-
-                                   ibcount = ibcount + 1
-
-                                   jOff = iOffShp(kSym,iShp_rs(iShp)) -
-     &                                      nBasSh(kSym,iaSh)*
-     &                                      nBasSh(lSym,ibSh)*
-     &                             Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
+                                   jOff = iOffShp(kSym,iShp_rs(iShp))
+                                   If (ibSh<iaSh) jOff = jOff +
+     &                             nBasSh(kSym,iaSh)*nBasSh(lSym,ibSh)
 
 
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
+                                    Mode(1:1)='T'
+                                    n1 = nBasSh(kSym,ibSh)
+                                    n2 = JNUM*nBasSh(lSym,iaSh)
 
-                                    CALL DGEMV_('T',nBasSh(kSym,ibSh),
-     &                                       JNUM*nBasSh(lSym,iaSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(kSym,ibSh),
-     &                                     Work(ipMO(jDen)+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh,jDen)),1)
+                                EndIf
 
+                                CALL DGEMV_(Mode(1:1),n1,n2,
+     &                                ONE,Work(ipLF+jOff*JNUM),n1,
+     &                                    Work(ipMO(jDen)+ioffShb),1,
+     &                                ONE,Work(ipLab(iaSh,jDen)),1)
 
-                                    EndIf
+                                EndIf
 
-                                  Endif
-
-                               End Do
+                            End Do ! ibsh
 
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                               If (ibcount==0) ipLab(iaSh,jDen) = ipAbs
+                            If (ibcount==0) ipLab(iash,jDen) = ipAbs
 
-                            End Do
+                         End Do ! iSh
 
-                         EndIf
-
-
-                      End Do
+                      End Do ! jDen
 
                       CALL CWTIME(TCT2,TWT2)
                       tmotr(1) = tmotr(1) + (TCT2 - TCT1)
@@ -1123,14 +1059,11 @@ C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X1(a,J)[k] * X2(b,J)[k]
 C --------------------------------------------------------------------
                                nBs = Max(1,nBasSh(lSym,iaSh))
 
-                               CALL DGEMM_Tri('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                      FActXI,Work(ipLab(iaSh,1)),
-     &                                           nBs,
-     &                                           Work(ipLab(ibsh,kDen)),
-     &                                           nBs,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
+                               CALL DGEMM_Tri('N','T',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                                FActXI,Work(ipLab(iaSh,1)),nBs,
+     &                                       Work(ipLab(ibsh,kDen)),nBs,
+     &                                ONE,Work(ipKI),nBs)
 
                                ElseIf (iaSh.gt.ibSh
      &                                 .and. xFab.ge.tau/MaxRedT
@@ -1141,14 +1074,11 @@ C --------------------------------------------------------------------
                                   nBsa = Max(1,nBasSh(lSym,iaSh))
                                   nBsb = Max(1,nBasSh(lSym,ibSh))
 
-                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                      FactXI,Work(ipLab(iaSh,1)),
-     &                                           nBsa,
-     &                                           Work(ipLab(ibsh,kDen)),
-     &                                           nBsb,
-     &                                       ONE,Work(ipKI),
-     &                                               nBsa)
+                                  CALL DGEMM_('N','T',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               FactXI,Work(ipLab(iaSh,1)),nBsa,
+     &                                      Work(ipLab(ibsh,kDen)),nBsb,
+     &                                  ONE,Work(ipKI),nBsa)
 
                                EndIf
 
@@ -1208,14 +1138,11 @@ C --------------------------------------------------------------------
 
                                nBs = Max(1,nBasSh(lSym,iaSh))
 
-                               CALL DGEMM_Tri('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                      FActXI,Work(ipLab(iaSh,1)),
-     &                                             JNUM,
-     &                                           Work(ipLab(ibsh,kDen)),
-     &                                           JNUM,
-     &                                           ONE,Work(ipKI),
-     &                                                nBs)
+                               CALL DGEMM_Tri('T','N',
+     &                      nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               FActXI,Work(ipLab(iaSh,1)),JNUM,
+     &                                      Work(ipLab(ibsh,kDen)),JNUM,
+     &                                  ONE,Work(ipKI),nBs)
 
 
                                ElseIf (iaSh.gt.ibSh
@@ -1227,14 +1154,11 @@ C --------------------------------------------------------------------
 
                                   nBs = Max(1,nBasSh(lSym,iaSh))
 
-                                  CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                     FactXI,Work(ipLab(iaSh,1)),
-     &                                           JNUM,
-     &                                           Work(ipLab(ibsh,kDen)),
-     &                                           JNUM,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
+                                  CALL DGEMM_('T','N',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               FactXI,Work(ipLab(iaSh,1)),JNUM,
+     &                                      Work(ipLab(ibsh,kDen)),JNUM,
+     &                                  ONE,Work(ipKI),nBs)
 
                                EndIf
 
@@ -1259,7 +1183,13 @@ C --------------------------------------------------------------------
 
                End Do   ! loop over MOs symmetry
 
-
+               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
                DoScreen=.false. ! avoid redo screening inside batch loop
 
 C --- Diagonals updating. It only makes sense if Nscreen > 0
@@ -1323,8 +1253,6 @@ C --- subtraction is done in the 1st reduced set
                EndIf
 
 C ************  END EXCHANGE CONTRIBUTION  ****************
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 
                iSwap = 0  ! Lvb,J are returned
                Call Allocate_SBA(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
