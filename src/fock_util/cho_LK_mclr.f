@@ -58,12 +58,12 @@ C
       Real*8    tmotr(2),tscrn(2)
       Integer   nChMo(8)
 
-      Type (DSBA_Type) Ash(2), Tmp(2), QTmp(2)
+      Type (DSBA_Type) Ash(2), Tmp(2), QTmp(2), CM(2)
       Type (SBA_Type) Lpq(3)
       Type (NDSBA_Type) DiaH
       Type (G2_Type) MOScr
 
-      Integer   ipMO(2),ipMSQ(2),ipCM(2)
+      Integer   ipMO(2),ipMSQ(2)
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
@@ -203,10 +203,10 @@ C *** memory for the Q matrices --- temporary array
       End If
 **************************************************
       If (Deco) Then
-         Call GetMem('ChoMOs','Allo','Real',ipCM(1),nsBB*nDen)
-         ipCM(2)=ipCM(1)+(nDen-1)*nsBB
-         ipMSQ(1)=ipCM(1)
-         ipMSQ(2)=ipCM(2)
+         Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
+         Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
+         ipMSQ(1) = ip_of_Work(CM(1)%A0(1))
+         ipMSQ(2) = ip_of_Work(CM(2)%A0(1))
          Call Allocate_DSBA(Tmp(1),nBas,nBas,nSym)
          Call Allocate_DSBA(Tmp(2),nBas,nBas,nSym)
 
@@ -215,7 +215,7 @@ C *** memory for the Q matrices --- temporary array
 **       Create Cholesky orbitals from ipDI
 *
            Call CD_InCore(Work(ipDI+ISTSQ(iS)),nBas(iS),
-     &                           Work(ipCM(1)+ISTK(iS)),
+     &                           CM(1)%SB(iS)%A2,
      &                           nBas(iS),nChMO(iS),1.0d-12,irc)
            If (.not.Fake_CMO2) Then
 *
@@ -223,7 +223,7 @@ C *** memory for the Q matrices --- temporary array
 *
 
              Call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),
-     &                  1.0D0,Work(ipCM(1)+ISTK(iS)),nBas(iS),
+     &                  1.0D0,CM(1)%SB(iS)%A2,nBas(iS),
      &                        Work(ip_CMO_inv+ISTSQ(iS)),nBas(iS),
      &                  0.0d0,Tmp(2)%SB(iS)%A2,nChMO(iS))
 *
@@ -239,11 +239,15 @@ C *** memory for the Q matrices --- temporary array
              Call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),
      &                    1.0D0,Work(ipCMO+ISTSQ(iS)),nBas(iS),
      &                          Tmp(1)%SB(iS)%A2,nChMO(iS),
-     &                    0.0d0,Work(ipCM(2)+ISTK(iS)),nBas(iS))
+     &                    0.0d0,CM(2)%SB(iS)%A2,nBas(iS))
            EndIf
          End Do
          Call Deallocate_DSBA(Tmp(2))
          Call Deallocate_DSBA(Tmp(1))
+      Else
+
+        Write (6,*) 'Cho_LK_MCLR: this will not work'
+        Call Abend()
 
       EndIf
 
@@ -1991,7 +1995,10 @@ C--- have performed screening in the meanwhile
 #endif
       Call mma_deallocate(Diag)
 
-      If (Deco) Call GetMem('ChoMOs','Free','Real',ipCM(1),nsBB*nDen)
+      If (Deco) Then
+         Call Deallocate_DSBA(CM(2))
+         Call Deallocate_DSBA(CM(1))
+      End If
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1

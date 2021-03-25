@@ -35,6 +35,7 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
@@ -51,7 +52,7 @@ C
       Real*8    tmotr(2),tscrn(2)
 
       Type (NDSBA_Type)  DiaH
-      Type (DSBA_Type)   Ash(2)
+      Type (DSBA_Type)   Ash(2), CM(2)
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
       Integer   ipMO(2), ipMSQ(2),ipCM(2)
@@ -145,8 +146,10 @@ c --------------------
 **************************************************
       If (Deco) Then
 
-         Call GetMem('ChoMOs','Allo','Real',ipCM(1),nsBB*nDen)
-         ipCM(2)=ipCM(1)+(nDen-1)*nsBB
+         Call Allocate_DSBA(CM(1),nBas,nBas,nSym)
+         Call Allocate_DSBA(CM(2),nBas,nBas,nSym)
+         ipCM(1) = ip_of_Work(CM(1)%A0(1))
+         ipCM(2) = ip_of_Work(CM(2)%A0(1))
 
          If (PseudoChoMOs) Then
             Call cho_get_MO(iOK,nDen,nSym,nBas,nIsh,ipMSQ,
@@ -1481,7 +1484,10 @@ C--- have performed screening in the meanwhile
 #endif
       Call mma_deallocate(Diag)
 
-      If (Deco) Call GetMem('ChoMOs','Free','Real',ipCM(1),nsBB*nDen)
+      If (Deco) Then
+         Call Deallocate_DSBA(CM(2))
+         Call Deallocate_DSBA(CM(1))
+      End If
 
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
