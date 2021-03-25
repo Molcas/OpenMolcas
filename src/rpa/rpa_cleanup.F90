@@ -23,7 +23,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-integer(kind=iwp), external :: RPA_iUHF
 
 irc = 0
 

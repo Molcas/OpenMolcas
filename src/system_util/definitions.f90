@@ -55,11 +55,18 @@ module definitions
 
     ! Size ratios between the different types
     ! (assume 'a' uses 1 byte)
+#   include "compiler_features.h"
     integer(kind=iwp), parameter :: &
-        ItoB = storage_size(int(1,kind=iwp))/storage_size('a'), &
-        RtoB = storage_size(real(1.0,kind=wp))/storage_size('a'), &
-        RtoI = storage_size(real(1.0,kind=wp))/storage_size(int(1,kind=iwp)), &
-        CtoR = storage_size(cmplx(1.0,0.0,kind=wp))/storage_size(real(1,kind=wp))
+#   ifdef SIZE_INITIALIZATION
+        ItoB = storage_size(1_iwp)/storage_size('a'), &
+        RtoB = storage_size(1.0_wp)/storage_size('a'), &
+        RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
+        CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
+#   elif defined(_I8_)
+        ItoB = 8, RtoB = 8, RtoI = 1, CtoR = 2
+#   else
+        ItoB = 4, RtoB = 8, RtoI = 2, CtoR = 2
+#   endif
 
     ! Output and input units, typically 5 & 6, but they could be something else
     integer(kind=iwp), parameter :: u5 = input_unit, &

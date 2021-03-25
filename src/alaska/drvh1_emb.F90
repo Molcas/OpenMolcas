@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
-real(kind=wp), intent(out) :: Temp
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2

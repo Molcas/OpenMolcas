@@ -13,7 +13,7 @@ subroutine BasisReader(LuWr,nBase,iglobal,nxbas,xb_label,xb_bas,iErr)
 
 use ZMatConv_Mod, only: BasAva, Base
 use isotopes, only: MaxAtomNum, PTab
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuWr, iglobal

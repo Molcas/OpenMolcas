@@ -464,7 +464,7 @@ do iSec=1,nCoor,nInc
             dd = dd+DOut(j)
           end do
           !ddNorm = ddNorm+dd
-          call save_ddNorm(dd,iiMO,jjMO,dd,nMOs)
+          call save_ddNorm(dd,iiMO,jjMO,ddNo,nMOs)
         end if
       end do
     end do

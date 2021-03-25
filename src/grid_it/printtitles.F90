@@ -16,7 +16,7 @@ subroutine PrintTitles(LuVal,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt
 !***********************************************************************
 
 use Constants, only: Zero, Two
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LuVal, nShowMOs, nMOs, GRef(*), iType(*), NZ(*), nCoor, nBlocks, nInc

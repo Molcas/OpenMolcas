@@ -17,7 +17,7 @@ subroutine PickOrb(Nz,Sort,Gref,Sort_ab,Gref_ab,E,Occ,E_ab,Occ_ab,nShowMOs,nShow
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use grid_it_globals, only: iMaxDown, iMaxUp, iReq, isAll, iAuMO, isUHF, itRange, NoSort, nReq, Region
-use Constants, only: Zero, Two
+use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none

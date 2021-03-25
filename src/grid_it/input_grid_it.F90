@@ -24,18 +24,19 @@ use grid_it_globals, only: CutOff, Grid, GridAxis1, GridAxis2, GridAxis3, GridDe
                            itRange, MAXGRID, nBytesPackedVal, nGridPoints, NoOrb, NoSort, nReq, OneCoor, Region, TheGap, TheName, &
                            Title1, Virt
 use stdalloc, only: mma_allocate
-use Constants, only: Zero, Four, Quart
+use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iRun
 character(len=*), intent(out) :: INPORB
-integer(kind=iwp) :: i, i_bits, iD, iErr, iKey, inUnit, iNet, iReadNet, iTemp(3), j, magicValue, n
+integer(kind=iwp) :: i, i_bits, iD, iDum(1), iErr, iKey, inUnit, iNet, iReadNet, iTemp(3), j, magicValue, n
 logical(kind=iwp) :: isAuto, isCustOrig, isFileOrb, isSubBlock
-real(kind=wp) :: dTemp(4), rD, rSubBlock, SubBlock(3), XFminCh, xHiErr, xLeft, xLoErr, xRight
+real(kind=wp) :: dTemp(4), rD, rDum(1), rSubBlock, SubBlock(3), XFminCh
 character(len=256) :: FileStr, FileIn
 character(len=120) :: SelectStr
 character(len=80) :: Key, MULLprt
+character :: What
 character(len=265), parameter :: AllKeys = 'PRIN BINA ASCI NPOI DENS SPAR ORBI REGI ONE  TITL '// &
                                            'GAP  END  NODE TOTA NAME VB   ALL  ATOM CUBE GRID '// &
                                            'PACK PKLI PKBI NOOR LINE ORAN ERAN DEBU CUTO NOPA '// &
@@ -97,14 +98,14 @@ XFminCh = Zero
 ! Default values for packing
 isMOPack = .false.
 !isBinPack = 0
-xLeft = 0.005_wp
-xRight = 0.7_wp
+!xLeft = 0.005_wp
+!xRight = 0.7_wp
 ! (really, half range:)
 !iyRange = 128
 nBytesPackedVal = 1
 !iMinYLeft = 4
-xLoErr = 0.10_wp
-xHiErr = Quart
+!xLoErr = 0.10_wp
+!xHiErr = Quart
 INPORB = 'INPORB'
 if (iRun == 0) then
   ! make defaults for a fast run via call from other module
@@ -124,7 +125,8 @@ InUnit = u5
 
 call RdNLst(InUnit,'GRID_IT')
 do
-  if (MyGetKey(InUnit,'S',iD,rD,Key,iD,[iD],[rD]) /= 0) exit
+  What = 'S'
+  if (MyGetKey(InUnit,What,iD,rD,Key,iD,iDum,rDum) /= 0) exit
   iKey = index(AllKeys,Key(1:4))
   if ((iKey == 0) .or. ((iKey-1)/5*5 /= (iKey-1))) then
     write(u6,'(a,a)') 'Unrecognized keyword in input file:',Key(1:4)
@@ -135,9 +137,11 @@ do
   select case (iKey)
     case (1)
       ! PRIN
-      if (MyGetKey(InUnit,'I',n,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'I'
+      if (MyGetKey(InUnit,What,n,rD,Key,iD,iDum,rDum) /= 0) call error()
       do j=1,n
-        if (MyGetKey(InUnit,'A',iD,rD,Key,2,iTemp,[rD]) /= 0) call error()
+        What = 'A'
+        if (MyGetKey(InUnit,What,iD,rD,Key,2,iTemp,rDum) /= 0) call error()
         !write(u6,*) 'debug'
         !nPrint(iTemp(1)) = iTemp(2)
       end do
@@ -153,7 +157,8 @@ do
       iBinary = 0
     case (4)
       ! NPOI
-      if (MyGetKey(InUnit,'A',iD,rD,Key,3,iGridNpt,[rD]) /= 0) call error()
+      What = 'A'
+      if (MyGetKey(InUnit,What,iD,rD,Key,3,iGridNpt,rDum) /= 0) call error()
       iNet = -1
       iReadNet = iReadNet+1
     case (5)
@@ -170,7 +175,8 @@ do
         write(u6,*) 'ORBI keyword can not be used together with SELEct'
         call Quit_OnUserError()
       end if
-      if (MyGetKey(InUnit,'I',nReq,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'I'
+      if (MyGetKey(InUnit,What,nReq,rD,Key,iD,iDum,rDum) /= 0) call error()
 
       if (nReq > MAXGRID) then
         write(u6,'(a,i5,a,i5)') 'Too many requested orbitals ',nReq,'>',MAXGRID
@@ -178,27 +184,32 @@ do
       end if
       read(inUnit,*,iostat=iErr) (iReq(i),i=1,nReq*2)
       if (iErr /= 0) call error()
-      !if (MyGetKey(InUnit,'A',iD,rD,Key,nReq*2,iReq,[rD]) /= 0) call error()
+      !What = 'A'
+      !if (MyGetKey(InUnit,What,iD,rD,Key,nReq*2,iReq,rDum) /= 0) call error()
       iAuMO = 0
     case (8)
       ! REGION
-      if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,2,iDum,Region) /= 0) call error()
       itRange = 1
       iAuMO = 1
       write(u6,*) ' *** Warning keyword REGION is obsolete'
       write(u6,*) ' ***         assumimg Energy range '
     case (9)
       ! ONE - debug option
-      if (MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,7,iDum,OneCoor) /= 0) call error()
       isTheOne = .true.
       iBinary = 0
     case (10)
       ! TITLE
       ! NOTE: Title can be only ONE line here!!!
-      if (MyGetKey(InUnit,'S',iD,rD,Title1,iD,[iD],[rD]) /= 0) call error()
+      What = 'S'
+      if (MyGetKey(InUnit,What,iD,rD,Title1,iD,iDum,rDum) /= 0) call error()
     case (11)
       ! GAP
-      if (MyGetKey(InUnit,'R',iD,TheGap,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'R'
+      if (MyGetKey(InUnit,What,iD,TheGap,Key,iD,iDum,rDum) /= 0) call error()
     case (12)
       ! END
       exit
@@ -211,7 +222,8 @@ do
     case (15)
       ! NAME
       read(InUnit,'(a)') TheName
-      !if (MyGetKey(InUnit,'S',iD,rD,TheName,iD,[iD],[rD]) /= 0) call error()
+      !What = 'S'
+      !if (MyGetKey(InUnit,What,iD,rD,TheName,iD,iDum,rDum) /= 0) call error()
       ! unfortunately MyGetKey uppercases strings!
     case (16)
       ! VB
@@ -241,7 +253,8 @@ do
       iGridNpt(1) = 0
       iGridNpt(2) = 0
       iGridNpt(3) = 0
-      if (MyGetKey(InUnit,'I',nGridPoints,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'I'
+      if (MyGetKey(InUnit,What,nGridPoints,rD,Key,iD,iDum,rDum) /= 0) call error()
       call mma_allocate(Grid,3,nGridPoints,label='Grid')
       read(InUnit,*,iostat=iErr) Grid(:,:)
       if (iErr /= 0) call error()
@@ -250,14 +263,16 @@ do
       !isMOPack = .true.
     case (22)
       ! PkLims
-      if (MyGetKey(InUnit,'D',iD,rD,Key,4,[iD],dTemp) /= 0) call error()
-      xLeft = dTemp(1)
-      xRight = dTemp(2)
-      xLoErr = dTemp(3)
-      xHiErr = dTemp(4)
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,4,iDum,dTemp) /= 0) call error()
+      !xLeft = dTemp(1)
+      !xRight = dTemp(2)
+      !xLoErr = dTemp(3)
+      !xHiErr = dTemp(4)
     case (23)
       ! PkBits
-      if (MyGetKey(InUnit,'I',i_bits,rD,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'I'
+      if (MyGetKey(InUnit,What,i_bits,rD,Key,iD,iDum,rDum) /= 0) call error()
       if (i_bits == 16) then
         !iyRange = 32768
         nBytesPackedVal = 2
@@ -267,20 +282,23 @@ do
       NoOrb = .true.
     case (25)
       ! LINE - density on line
-      if (MyGetKey(InUnit,'D',iD,rD,Key,7,[iD],OneCoor) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,7,iDum,OneCoor) /= 0) call error()
       isTheOne = .true.
       isTotal = .true.
       iBinary = 0
       isLine = .true.
     case (26)
       ! ORANGE
-      if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,2,iDum,Region) /= 0) call error()
       itRange = 0
       iAuMO = 1
       NoSort = .true.
     case (27)
       ! ERANGE
-      if (MyGetKey(InUnit,'D',iD,rD,Key,2,[iD],Region) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,2,iDum,Region) /= 0) call error()
       itRange = 1
       iAuMO = 1
     case (28)
@@ -289,7 +307,8 @@ do
       isDebug = .true.
     case (29)
       ! CUTOFF
-      if (MyGetKey(InUnit,'R',iD,CutOff,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'R'
+      if (MyGetKey(InUnit,What,iD,CutOff,Key,iD,iDum,rDum) /= 0) call error()
       isCutOff = .true.
     case (30)
       ! NOPACK
@@ -297,13 +316,15 @@ do
     case (31)
       ! GORI
       isCustOrig = .true.
-      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridOrigin) /= 0) call error()
-      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis1) /= 0) call error()
-      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis2) /= 0) call error()
-      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],GridAxis3) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,3,iDum,GridOrigin) /= 0) call error()
+      if (MyGetKey(InUnit,What,iD,rD,Key,3,iDum,GridAxis1) /= 0) call error()
+      if (MyGetKey(InUnit,What,iD,rD,Key,3,iDum,GridAxis2) /= 0) call error()
+      if (MyGetKey(InUnit,What,iD,rD,Key,3,iDum,GridAxis3) /= 0) call error()
     case (32)
       ! SELEct
-      if (MyGetKey(InUnit,'S',iD,rD,SelectStr,iD,[iD],[rD]) /= 0) call error()
+      What = 'S'
+      if (MyGetKey(InUnit,What,iD,rD,SelectStr,iD,iDum,rDum) /= 0) call error()
       if (nReq > 0) then
         write(u6,*) 'SELEct keyword can not be used together with ORBItals'
         call Quit_OnUserError()
@@ -328,7 +349,8 @@ do
     case (37)
       ! VIRT
       isVirt = .true.
-      if (MyGetKey(InUnit,'R',iD,Virt,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'R'
+      if (MyGetKey(InUnit,What,iD,Virt,Key,iD,iDum,rDum) /= 0) call error()
     case (38)
       ! MULLiken charges per MO
       !isMULL = 1
@@ -338,8 +360,10 @@ do
       !if (MULLPRT(1:4) == 'LONG') isLONGPRT = 1
     case (39)
       ! SUBBLOCK
-      if (MyGetKey(InUnit,'D',iD,rD,Key,3,[iD],SubBlock) /= 0) call error()
-      if (MyGetKey(InUnit,'R',iD,rSubBlock,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'D'
+      if (MyGetKey(InUnit,What,iD,rD,Key,3,iDum,SubBlock) /= 0) call error()
+      What = 'R'
+      if (MyGetKey(InUnit,What,iD,rSubBlock,Key,iD,iDum,rDum) /= 0) call error()
       isSubBlock = .true.
     case (40)
       ! XDER
@@ -396,7 +420,8 @@ do
       !aLusMath = -1
     case (53)
       ! XFMI xfield minimum charge of each grid point to be stored
-      if (MyGetKey(InUnit,'R',iD,XFminCh,Key,iD,[iD],[rD]) /= 0) call error()
+      What = 'R'
+      if (MyGetKey(InUnit,What,iD,XFminCh,Key,iD,iDum,rDum) /= 0) call error()
     case default
   end select
 end do

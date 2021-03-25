@@ -38,8 +38,7 @@ integer(kind=iwp) :: i, iSpin, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Energy_NAD, Fakt_, Func_A, Func_AB, Func_B, Func_X
 character(len=16) :: NamRfil
 real(kind=wp), allocatable :: Grad_A(:), F_DFT(:,:), D_DS(:,:), Fcorr(:,:)
-integer(kind=iwp), external :: LSDA_emb
-real(kind=wp), external :: Checker, Xlambda
+real(kind=wp), external :: Xlambda
 
 Debug = .false.
 !                                                                      *

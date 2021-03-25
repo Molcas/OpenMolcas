@@ -41,8 +41,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
-real(kind=wp), intent(inout) :: Grad
-real(kind=wp), intent(out) :: Temp
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"

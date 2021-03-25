@@ -42,7 +42,8 @@ real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
 integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, iPrim, iPrint, ipx, ipy, ipz, iRout, iShll, iSkal, &
                      kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nElem, nForm, nOp, nRadial, nSO, nTerm, nTest, nxyz
 real(kind=wp) :: A(3), px, py, pz, RA(3), Thr
-real(kind=wp), allocatable :: Ang(:), AOs(:), Radial(:), SOs(:), xyz(:)
+integer(kind=iwp), allocatable :: Ang(:)
+real(kind=wp), allocatable :: AOs(:), Radial(:), SOs(:), xyz(:)
 integer(kind=iwp), external :: NrOpr
 
 iRout = 112

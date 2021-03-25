@@ -14,7 +14,6 @@
 subroutine RPA_Frz(nFre,Prnt,nSym,EOcc,nFro,nOcc,nFro1)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -22,7 +21,7 @@ integer(kind=iwp), intent(in) :: nFre, nSym, nFro(nSym), nOcc(nSym)
 logical(kind=iwp), intent(in) :: Prnt
 real(kind=wp), intent(in) :: EOcc(*)
 integer(kind=iwp), intent(out) :: nFro1(nSym)
-integer(kind=iwp) :: l_Point, l_E, l_Pivot, l_iOcc, iCount, NumFre, iFre, i, iSym
+integer(kind=iwp) :: l_Point, l_E, iCount, NumFre, iFre, i, iSym
 real(kind=wp) :: xMin
 integer(kind=iwp), allocatable :: Point(:), Pivot(:), iOcc(:)
 real(kind=wp), allocatable :: E(:)
@@ -41,12 +40,10 @@ end if
 if (nFre < 1) return
 
 l_Point = nFre
-l_iOcc = nSym
 l_E = nOcc(1)
 do iSym=2,nSym
   l_E = l_E+nOcc(iSym)
 end do
-l_Pivot = l_E
 if (nFre > l_E) then
   call RPA_Warn(4,SecNam//': too many orbitals to freeze')
 end if
