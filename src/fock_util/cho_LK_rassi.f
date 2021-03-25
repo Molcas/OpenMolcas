@@ -938,51 +938,28 @@ C --- Prepare the J-screening
 
 C ---  Faa,[k] = sum_J  LaJ[k1]*LaJ[k2]
 C -------------------------------------
-                            Fia(:)=Zero
-                            Do jv=1,JNUM
-
-                               Do ia=1,nBasSh(lSym,iaSh)
-
-                                  ipLai = ipLab(iaSh,1)
-     &                                  + nBasSh(lSym,iaSh)*(jv-1)
-     &                                  + ia - 1
-
-                                  ipLaj = ipLab(iaSh,kDen)
-     &                                  + nBasSh(lSym,iaSh)*(jv-1)
-     &                                  + ia - 1
-
-                                  Fia(ia) = Fia(ia)
-     &                                    + Work(ipLai)*Work(ipLaj)
-
-                               End Do
-
-                             End Do
+                            Inc=nBasSh(lSym,iaSh)
+                            n1 = 1
 
                          Else   ! lSym < kSym
 
 C ---  Faa,[k] = sum_J  LJa[k1]*LJa[k2]
 C -------------------------------------
-                            Fia(:)=Zero
-                            Do ia=1,nBasSh(lSym,iaSh)
-
-                               Do jv=1,JNUM
-
-                                  ipLai = ipLab(iaSh,1)
-     &                                  + JNUM*(ia-1)
-     &                                  + jv - 1
-
-                                  ipLaj = ipLab(iaSh,kDen)
-     &                                  + JNUM*(ia-1)
-     &                                  + jv - 1
-
-                                  Fia(ia) = Fia(ia)
-     &                                    + Work(ipLai)*Work(ipLaj)
-                               End Do
-                            End Do
+                            Inc=1
+                            n1 = JNUM
 
                          End If
 
-                         Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
+                         Tmp=Zero
+                         Do ia=1,nBasSh(lSym,iaSh)
+                            ipLai = ipLab(iaSh,   1) + n1*(ia-1)
+                            ipLaj = ipLab(iaSh,kDen) + n1*(ia-1)
+                            Fia(ia)=DDot_(JNUM,Work(ipLai),Inc,
+     &                                         Work(ipLaj),Inc)
+                            Tmp=Max(Abs(Fia(ia)),Tmp)
+                         End Do
+
+                         Faa(iaSh)=Tmp
 
                       End Do
 
@@ -990,13 +967,11 @@ C -------------------------------------
                       tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                       tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
-
 C------------------------------------------------------------
 C --- Compute exchange matrix for the interacting shell pairs
 C------------------------------------------------------------
 
                       CALL CWTIME(TCX1,TWX1)
-
 
                       Do lSh=1,Indx(0,jK_a,1)
 
@@ -1109,9 +1084,7 @@ C --------------------------------------------------------------------
                       texch(1) = texch(1) + (TCX2 - TCX1)
                       texch(2) = texch(2) + (TWX2 - TWX1)
 
-
                   End Do  ! loop over k MOs
-
 
                End Do   ! loop over MOs symmetry
 
@@ -1389,7 +1362,6 @@ c ---------------
          End Do
 
       End Do
-
 
       Call mma_deallocate(Fia)
       Call mma_deallocate(Faa)
