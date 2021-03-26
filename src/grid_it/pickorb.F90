@@ -22,10 +22,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nMOs, iType(nMOs)
-integer(kind=iwp), intent(out) :: NZ(*), Sort(nMOs), Sort_ab(nMOs), nShowMOs, nShowMOs_ab
-integer(kind=iwp), intent(inout) :: Gref(nMOs), Gref_ab(nMOs)
-real(kind=wp), intent(inout) :: E(nMOs), E_ab(nMOs)
-real(kind=wp), intent(in) :: Occ(nMOs), Occ_ab(nMOs)
+integer(kind=iwp), intent(out) :: NZ(*), Sort(nMOs), Sort_ab(merge(nMOs,0,isUHF)), nShowMOs, nShowMOs_ab
+integer(kind=iwp), intent(inout) :: Gref(nMOs), Gref_ab(merge(nMOs,0,isUHF))
+real(kind=wp), intent(inout) :: E(nMOs), E_ab(merge(nMOs,0,isUHF))
+real(kind=wp), intent(in) :: Occ(nMOs), Occ_ab(merge(nMOs,0,isUHF))
 logical(kind=iwp), intent(inout) :: isEner
 character(len=*), intent(in) :: myTitle
 integer(kind=iwp) :: i, iActive, ief, ief_ab, ii, ii_ab, iia, iib, ik, ik_ab, il, il_ab, ishift, ispin, j

@@ -111,6 +111,8 @@ GRef(:) = -1
 
 LuOrb = isFreeUnit(46)
 
+
+
 if (isUHF) then
 
   ! allocate memory for extra arrays.
@@ -126,6 +128,12 @@ if (isUHF) then
   iType(:) = 0
 
 else !RHF case
+
+  ! these arrays are only used for UHF, but need to be allocated anyway
+  call mma_allocate(E_ab,0,label='Ener_ab')
+  call mma_allocate(Occ_ab,0,label='Occ_ab')
+  call mma_allocate(Sort_ab,0,label='Sort_ab')
+  call mma_allocate(GRef_ab,0,label='NRef_ab')
 
   call RdVec(INPORB,LuOrb,'COE',nIrrep,NBAS,NBAS,CMO,Occ,E,idum,myTitle,0,iErr)
 
@@ -225,7 +233,7 @@ write(u6,*) ' Number of grid points in file:  ',nCoor
 ! Sometime we had to make an automatic guess....
 !***********************************************************************
 
-call PickOrb(Nz,Sort,Gref,Sort_ab,Gref_ab,E,Occ,E_ab,Occ_ab,nShowMOs,nShowMOs_ab,isEner,nMOs,myTitle,iType)
+call PickOrb(Nz,Sort,Gref,Sort_ab,GRef_ab,E,Occ,E_ab,Occ_ab,nShowMOs,nShowMOs_ab,isEner,nMOs,myTitle,iType)
 
 !---- Start run over sets of grid points
 
@@ -590,12 +598,12 @@ call mma_deallocate(DOut)
 
 if (isUHF) then
   call mma_deallocate(CMO_ab)
-  call mma_deallocate(E_ab)
-  call mma_deallocate(Occ_ab)
-  call mma_deallocate(Sort_ab)
-  call mma_deallocate(GRef_ab)
   call mma_deallocate(DoIt_ab)
 end if
+call mma_deallocate(E_ab)
+call mma_deallocate(Occ_ab)
+call mma_deallocate(Sort_ab)
+call mma_deallocate(GRef_ab)
 if (isUserGrid) call mma_deallocate(Grid)
 call mma_deallocate(PBlock)
 
