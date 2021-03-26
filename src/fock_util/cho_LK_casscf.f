@@ -92,7 +92,7 @@ C
       Real*8, parameter:: xone = -one
 
       Logical add
-      Character*6 mode
+      Character(LEN=6) mode
       Integer, External :: Cho_F2SP
       Real*8   LKThr
       Real*8, External :: Cho_LK_ScreeningThreshold
@@ -634,9 +634,6 @@ C===============================================================
 
                EndIf  ! Coulomb contribution
 
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
-
 
 C *************** EXCHANGE CONTRIBUTIONS  ***********************
 
@@ -666,6 +663,13 @@ C
                CALL CWTIME(TCS2,TWS2)
                tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                tscrn(2) = tscrn(2) + (TWS2 - TWS1)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -716,10 +720,13 @@ c --------------------------------------------------------------------
                     nkOrb = nFIorb(kSym)*(2-jDen)
      &                    + nChM(kSym)*(jDen-1)
 
+                    If (nBas(lsym).eq.0) Cycle
+
                     Do jK=1,nkOrb
 
                        jK_a = jK + kOff(kSym,jDen)
-                     CALL FZero(Work(ipChoT),nBas(lSym)*JNUM)
+
+                       CALL FZero(Work(ipChoT),nBas(lSym)*JNUM)
 
                      If (jDen.eq.1) Then
 
@@ -748,31 +755,25 @@ C------------------------------------------------------------------
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(lSym))
-
-                           CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,DIAH%SB(lSym,kSym)%A2,nBs,
-     &                                    AbsC,1,
-     &                               ZERO,Ylk(1,jK_a),1)
+                           Mode(1:1)='N'
+                           n1 = nBas(lSym)
+                           n2 = nBas(kSym)
 
                         Else
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(kSym))
-
-                           CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,DIAH%SB(lSym,kSym)%A2,nBs,
-     &                                    AbsC,1,
-     &                               ZERO,Ylk(1,jK_a),1)
+                           Mode(1:1)='T'
+                           n1 = nBas(kSym)
+                           n2 = nBas(lSym)
 
                         EndIf
 
-c            write(6,*)'Y(k)= ',(Ylk(i,jK_a),i=1,nBas(lSym))
-c            write(6,*)'|C(k)|= ',(AbsC(i),i=1,nBas(kSym))
+                        CALL DGEMV_(Mode(1:1),n1,n2,
+     &                             ONE,DIAH%SB(lSym,kSym)%A2,n1,
+     &                                 AbsC,1,
+     &                            ZERO,Ylk(1,jK_a),1)
 
-c            Call recprt('DH','',DIAH%SB(lSym,kSym)%A1,nBas(lSym),
-c    &                                                 nBas(kSym))
 
 C --- List the shells present in Y(l)[k] by the largest element
                         Do ish=1,nShell
@@ -834,11 +835,6 @@ c --- the exchange energy
                         End Do
 
                         Indx(0,jk_a) = numsh
-
-c         write(6,*)'ord-ML(k)= ',(MLk(i,jK_a),i=1,nShell)
-c         write(6,*)'Ind-ML(k)= ',(Indx(i,jk_a),i=0,nShell)
-c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh= ',lSym,
-c     &              kSym,jSym,jk,nShell,numSh
 
                         CALL CWTIME(TCS2,TWS2)
                         tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1121,7 +1117,7 @@ C------------------------------------------------------------
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
-                               nBs = Max(1,nBasSh(lSym,iaSh))
+                               nBs = nBasSh(lSym,iaSh)
 
                                CALL DGEMM_Tri('N','T',nBasSh(lSym,iaSh),
      &                                           nBasSh(lSym,ibSh),JNUM,
@@ -1138,8 +1134,8 @@ C -------------------------------------------------------------------
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
-                                  nBsa = Max(1,nBasSh(lSym,iaSh))
-                                  nBsb = Max(1,nBasSh(lSym,ibSh))
+                                  nBsa = nBasSh(lSym,iaSh)
+                                  nBsb = nBasSh(lSym,ibSh)
 
                                   CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
      &                                           nBasSh(lSym,ibSh),JNUM,
@@ -1206,7 +1202,7 @@ C -------------------------------------------------------------------
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(J,a)[k] * L(J,b)[k]
 C -------------------------------------------------------------------
 
-                               nBs = Max(1,nBasSh(lSym,iaSh))
+                               nBs = nBasSh(lSym,iaSh)
 
                                CALL DGEMM_Tri('T','N',nBasSh(lSym,iaSh),
      &                                           nBasSh(lSym,ibSh),JNUM,
@@ -1225,7 +1221,7 @@ C -------------------------------------------------------------------
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(J,a)[k] * L(J,b)[k]
 C -------------------------------------------------------------------
 
-                                  nBs = Max(1,nBasSh(lSym,iaSh))
+                                  nBs = nBasSh(lSym,iaSh)
 
                                   CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
      &                                           nBasSh(lSym,ibSh),JNUM,
@@ -1260,7 +1256,14 @@ C -------------------------------------------------------------------
 
                End Do   ! loop over densities
 
+               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
                DoScreen=.false. ! avoid redo screening inside batch loop
 
 
@@ -1325,9 +1328,6 @@ C --- subtraction is done in the 1st reduced set
                   tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
                EndIf
-
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 
                ! Lvw,J , strictly LT storage
                iSwap = 5
