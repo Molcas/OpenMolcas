@@ -820,13 +820,6 @@ c     fake rassi (MOs1=MOs2) has a positive definite exchange
 
                      Indx(0,jK_a,1) = numSh1
 
-c      Do jDen=1,nDen
-c         write(6,*)'ord-ML(k)= ',(MLk(i,jK_a,jDen),i=1,nShell)
-c         write(6,*)'Ind-ML(k)= ',(Indx(i,jK_a,jDen),i=0,nShell)
-c      End Do
-c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh1,numSh2= ',lSym,
-c     &              kSym,jSym,jk,nShell,numSh1,numSh2
-
                      CALL CWTIME(TCS2,TWS2)
                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                      tscrn(2) = tscrn(2) + (TWS2 - TWS1)
@@ -977,135 +970,79 @@ C------------------------------------------------------------
 
                       CALL CWTIME(TCX1,TWX1)
 
-                      IF (lSym.ge.kSym) Then
 
-                         Do lSh=1,Indx(0,jK_a,1)
+                      Do lSh=1,Indx(0,jK_a,1)
 
-                            iaSh = Indx(lSh,jK_a,1)
+                         iaSh = Indx(lSh,jK_a,1)
 
-                            iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
+                         iaSkip=Min(1,Max(0,
+     &                         abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
 
-                            iOffSha = kOffSh(iaSh,lSym)
+                         iOffSha = kOffSh(iaSh,lSym)
 
-                            mSh = 1
+                         mSh = 1
 
-                            Do while (mSh.le.Indx(0,jK_a,kDen))
+                         Do while (mSh.le.Indx(0,jK_a,kDen))
 
-                               ibSh = Indx(mSh,jK_a,kDen)
+                            ibSh = Indx(mSh,jK_a,kDen)
 
-                               ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,   1)-ipAbs)))
+                            ibSkip = Min(1,Max(0,
+     &                               abs(ipLab(ibSh,   1)-ipAbs)))
 
-                               iShp = nShell*(iaSh-1) + ibSh
+                            iShp = nShell*(iaSh-1) + ibSh
 
-                               iOffShb = kOffSh(ibSh,lSym)
+                            iOffShb = kOffSh(ibSh,lSym)
 
-                               iOffAB = nnBfShp(iShp,lSym)
+                            iOffAB = nnBfShp(iShp,lSym)
 
-                               ipKI = ipK + ISTSQ(lSym) + iOffAB
+                            ipKI = ipK + ISTSQ(lSym) + iOffAB
 
-                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
+                            xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
-                               If (MLk(lSh,jK_a,1)*
-     &                             MLk(mSh,jK_a,kDen).lt.tau) Then
+                            If (MLk(lSh,jK_a,1)*
+     &                          MLk(mSh,jK_a,kDen).lt.tau) Then
 
+                                mSh = Indx(0,jK_a,kDen) !skip rest
 
-                                   mSh = Indx(0,jK_a,kDen) !skip rest
+                            ElseIf ( xFab.ge.tau/MaxRedT
+     &                              .and. iaSkip*ibSkip.eq.1) Then
 
-
-                               ElseIf ( xFab.ge.tau/MaxRedT
-     &                                 .and. iaSkip*ibSkip.eq.1) Then
+                               nBsa = Max(1,nBasSh(lSym,iaSh))
+                               IF (lSym.ge.kSym) Then
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X2(a,J)[k] * X1(b,J)[k]
 C --------------------------------------------------------------------
-                                  nBsa = Max(1,nBasSh(lSym,iaSh))
-                                  nBsb = Max(1,nBasSh(lSym,ibSh))
 
-                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactXI,Work(ipLab(iaSh,kDen)),
-     &                                           nBsa,
-     &                                           Work(ipLab(ibsh,1   )),
-     &                                           nBsb,
-     &                                       ONE,Work(ipKI),
-     &                                               nBsa)
-                               EndIf
+                                  n1 = nBasSh(lSym,iaSh)
+                                  n2 = Max(1,nBasSh(lSym,ibSh))
+                                  Mode(1:1)='N'
+                                  Mode(2:2)='T'
 
-
-                               mSh = mSh + 1  ! update shell counter
-
-
-                            End Do
-
-                         End Do
-
-
-                      ELSE   ! lSym < kSym
-
-
-                         Do lSh=1,Indx(0,jk_a,1)
-
-                            iaSh = Indx(lSh,jK_a,1)
-
-                            iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
-
-                            iOffSha = kOffSh(iaSh,lSym)
-
-                            mSh = 1
-
-                            Do while (mSh.le.Indx(0,jK_a,kDen))
-
-                               ibSh = Indx(mSh,jK_a,kDen)
-
-                               ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,   1)-ipAbs)))
-
-                               iShp = nShell*(iaSh-1) + ibSh
-
-                               iOffShb = kOffSh(ibSh,lSym)
-
-                               iOffAB = nnBfShp(iShp,lSym)
-
-                               ipKI = ipK + ISTSQ(lSym) + iOffAB
-
-                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
-
-                               If (MLk(lSh,jK_a,1)*
-     &                             MLk(mSh,jK_a,kDen).lt.tau) Then
-
-
-                                  mSh = Indx(0,jK_a,kDen) ! skip rest
-
-                               ElseIf ( xFab.ge.tau/MaxRedT
-     &                                 .and. iaSkip*ibSkip.eq.1) Then
+                               ELSE   ! lSym < kSym
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X2(J,a)[k] * X1(J,b)[k]
 C --------------------------------------------------------------------
 
-                                  nBs = Max(1,nBasSh(lSym,iaSh))
+                                  n1 = JNUM
+                                  n2 = JNUM
+                                  Mode(1:1)='T'
+                                  Mode(2:2)='N'
 
-                                  CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactXI,Work(ipLab(iaSh,kDen)),
-     &                                           JNUM,
-     &                                           Work(ipLab(ibsh,1   )),
-     &                                           JNUM,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
                                EndIf
 
+                               CALL DGEMM_(Mode(1:1),Mode(2:2),
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               FactXI,Work(ipLab(iaSh,kDen)),n1,
+     &                                      Work(ipLab(ibsh,1   )),n2,
+     &                               ONE,Work(ipKI),nBsa)
 
-                               mSh = mSh + 1  ! update shell counter
+                            EndIf
 
-
-                            End Do
+                            mSh = mSh + 1  ! update shell counter
 
                          End Do
 
-
-                      ENDIF
+                      End Do
 
                       CALL CWTIME(TCX2,TWX2)
                       texch(1) = texch(1) + (TCX2 - TCX1)
