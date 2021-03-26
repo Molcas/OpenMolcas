@@ -843,7 +843,6 @@ C------------------------------------------------------------------
                      ENDIF    ! Screening setup
 
 
-                     CALL CWTIME(TCT1,TWT1)
 
 C --- Transform vectors for shells in the list ML[k]
 C
@@ -851,146 +850,84 @@ C --- Screening based on the Frobenius norm: sqrt(sum_ij  A(i,j)^2)
 C
 C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
-                     IF (lSym.ge.kSym) Then
+                     CALL CWTIME(TCT1,TWT1)
 
+                     Do iSh=1,Indx(0,jk_a)
 
-                         Do iSh=1,Indx(0,jk_a)
+                        iaSh = Indx(iSh,jk_a)
 
-                            iaSh = Indx(iSh,jk_a)
+                        iOffSha = kOffSh(iaSh,lSym)
 
-                            iOffSha = kOffSh(iaSh,lSym)
+                        ipLab(iaSh) = ipChoT + iOffSha*JNUM
 
-                            ipLab(iaSh) = ipChoT + iOffSha*JNUM
+                        ibcount=0
 
-                            ibcount=0
+                        Do ibSh=1,nShell
 
-                            Do ibSh=1,nShell
+                           iOffShb = kOffSh(ibSh,kSym)
 
-                               iOffShb = kOffSh(ibSh,kSym)
+                           iShp = iTri(iaSh,ibSh)
 
-                               iShp = iTri(iaSh,ibSh)
+                           If ( iShp_rs(iShp)<=0) Cycle
 
-                               If ( iShp_rs(iShp) .gt. 0 ) Then
+                           If ( nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
+     &                       nBasSh(lSym,iaSh)*
+     &                       nBasSh(kSym,ibSh) .gt. 0
+     &                       .and. sqrt(abs(SumAClk(ibSh,jK_a)*
+     &                                  SvShp(iShp_rs(iShp)) ))
+     &                       .ge. thrv(jDen) )Then
 
-                                 If ( nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                              nBasSh(lSym,iaSh)*
-     &                              nBasSh(kSym,ibSh) .gt. 0
-     &                              .and. sqrt(abs(SumAClk(ibSh,jK_a)*
-     &                                         SvShp(iShp_rs(iShp)) ))
-     &                              .ge. thrv(jDen) )Then
+                             ibcount = ibcount + 1
 
-                                    ibcount = ibcount + 1
+                             IF (lSym.ge.kSym) Then
 
-                                    jOff = iOffShp(lSym,iShp_rs(iShp)) -
-     &                                     nBasSh(lSym,ibSh)*
-     &                                     nBasSh(kSym,iaSh)*
-     &                             Min(0,(iaSh-ibSh))/Max(1,(ibSh-iaSh))
-
+                                jOff = iOffShp(lSym,iShp_rs(iShp))
+                                If (iaSh<ibSh) jOff = jOff +
+     &                          nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
 
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
+                                Mode(1:1)='N'
+                                n1=nBasSh(lSym,iaSh)*JNUM
+                                n2=nBasSh(kSym,ibSh)
 
-                                 If (jDen.eq.2) Then
-                                 CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
-     &                                        nBasSh(kSym,ibSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                              Ash(2)%SB(kSym)%A2(1+iOffShb:,jK),1,
-     &                                    ONE,Work(ipLab(iaSh)),1)
-                                 Else
-                                 CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
-     &                                        nBasSh(kSym,ibSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                                     Work(ipMO+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh)),1)
-                                 End If
+                             Else   ! lSym < kSym
 
-
-                                 EndIf
-
-                               EndIf
-
-                            End Do
-
-c --- The following re-assignement is used later on to check if the
-c --- iaSh vector LaJ[k] can be neglected because identically zero
-
-
-                            If (ibcount==0) ipLab(iaSh) = ipAbs
-
-                         End Do
-
-
-                     Else   ! lSym < kSym
-
-
-                         Do iSh=1,Indx(0,jk_a)
-
-                            iaSh = Indx(iSh,jk_a)
-
-                            iOffSha = kOffSh(iaSh,lSym)
-
-                            ipLab(iaSh) = ipChoT + iOffSha*JNUM
-
-                            ibcount=0
-
-                            Do ibSh=1,nShell
-
-                               iOffShb = kOffSh(ibSh,kSym)
-
-                               iShp = iTri(iaSh,ibSh)
-
-                               If ( iShp_rs(iShp) .gt. 0 ) Then
-
-                                 If (nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                             nBasSh(lSym,iaSh)*
-     &                             nBasSh(kSym,ibSh) .gt. 0
-     &                             .and. sqrt(abs(SumAClk(ibSh,jK_a)*
-     &                                        SvShp(iShp_rs(iShp)) ))
-     &                             .ge. thrv(jDen) ) Then
-
-                                   ibcount = ibcount + 1
-
-                                   jOff = iOffShp(kSym,iShp_rs(iShp)) -
-     &                                    nBasSh(kSym,iaSh)*
-     &                                    nBasSh(lSym,ibSh)*
-     &                             Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
+                                jOff = iOffShp(kSym,iShp_rs(iShp))
+                                If (ibSh<iaSh) jOff = jOff +
+     &                          nBasSh(kSym,iaSh)*nBasSh(lSym,ibSh)
 
 
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
+                                Mode(1:1)='T'
+                                n1=nBasSh(kSym,ibSh)
+                                n2=JNUM*nBasSh(lSym,iaSh)
 
-                                 If (JDen.eq.2) Then
-                                 CALL DGEMV_('T',nBasSh(kSym,ibSh),
-     &                                       JNUM*nBasSh(lSym,iaSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(kSym,ibSh),
+                             EndIf
+
+                             If (JDen.eq.2) Then
+                               CALL DGEMV_(Mode(1:1),n1,n2,
+     &                          ONE,Work(ipLF+jOff*JNUM),n1,
      &                              Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1,
-     &                                    ONE,Work(ipLab(iaSh)),1)
-                                 Else
-                                 CALL DGEMV_('T',nBasSh(kSym,ibSh),
-     &                                       JNUM*nBasSh(lSym,iaSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(kSym,ibSh),
-     &                                     Work(ipMO+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh)),1)
-                                 End If
+     &                          ONE,Work(ipLab(iaSh)),1)
+                             Else
+                               CALL DGEMV_(Mode(1:1),n1,n2,
+     &                          ONE,Work(ipLF+jOff*JNUM),n1,
+     &                              Work(ipMO+ioffShb),1,
+     &                          ONE,Work(ipLab(iaSh)),1)
+                             End If
 
-                                 EndIf
+                           End If
 
-                               Endif
-
-                            End Do
+                         End Do
 
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                            If (ibcount==0) ipLab(iaSh) = ipAbs
+                         If (ibcount==0) ipLab(iaSh) = ipAbs
 
-                         End Do
-
-                     EndIf
+                      End Do
 
                      CALL CWTIME(TCT2,TWT2)
                      tmotr(1) = tmotr(1) + (TCT2 - TCT1)
