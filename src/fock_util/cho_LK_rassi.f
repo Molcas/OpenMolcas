@@ -1059,7 +1059,7 @@ C------------------------------------------------------------
      &                              .and. xFab.ge.tau/MaxRedT
      &                              .and. iaSkip*ibSkip.eq.1) Then
 
-                               nBs = Max(1,nBasSh(lSym,iaSh))
+                               nBs = nBasSh(lSym,iaSh)
 
                                IF (lSym.ge.kSym) Then
 
@@ -1092,7 +1092,7 @@ C --------------------------------------------------------------------
      &                                 .and. iaSkip*ibSkip.eq.1) Then
 
 
-                               nBsa = Max(1,nBasSh(lSym,iaSh))
+                               nBsa = nBasSh(lSym,iaSh)
                                IF (lSym.ge.kSym) Then
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X1(a,J)[k] * X2(b,J)[k]

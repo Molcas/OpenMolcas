@@ -1007,14 +1007,14 @@ C------------------------------------------------------------
                             ElseIf ( xFab.ge.tau/MaxRedT
      &                              .and. iaSkip*ibSkip.eq.1) Then
 
-                               nBsa = Max(1,nBasSh(lSym,iaSh))
+                               nBsa = nBasSh(lSym,iaSh)
                                IF (lSym.ge.kSym) Then
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactXI * sum_J  X2(a,J)[k] * X1(b,J)[k]
 C --------------------------------------------------------------------
 
                                   n1 = nBasSh(lSym,iaSh)
-                                  n2 = Max(1,nBasSh(lSym,ibSh))
+                                  n2 = nBasSh(lSym,ibSh)
                                   Mode(1:1)='N'
                                   Mode(2:2)='T'
 
