@@ -937,20 +937,20 @@ C --- Prepare the J-screening
 
                       CALL CWTIME(TCS1,TWS1)
 
-                      IF (lSym.ge.kSym) Then
+                      Do iSh=1,Indx(0,jk_a)
 
+                         iaSh = Indx(iSh,jk_a)
 
-                         Do iSh=1,Indx(0,jk_a)
+                         iaSkip= Min(1,Max(0,
+     &                           abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
-                            iaSh = Indx(iSh,jk_a)
+                         If (iaSkip==0) Cycle
 
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
-
-                            If (iaSkip==0) Cycle
+                         IF (lSym.ge.kSym) Then
 
 C ---  Faa,[k] = sum_J  (LaJ[k])**2
 C ----------------------------------
+
                              Fia(:)=Zero
                              Do jv=1,JNUM
 
@@ -961,28 +961,17 @@ C ----------------------------------
      &                                  + ia - 1
 
                                   Fia(ia) = Fia(ia) + Work(ipLaa)**2
+
                                End Do
                             End Do
 
                             Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
-                         End Do
-
-
-                      Else   ! lSym < kSym
-
-
-                         Do iSh=1,Indx(0,jk_a)
-
-                            iaSh = Indx(iSh,jk_a)
-
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
-
-                            If (iaSkip==0) Cycle
+                         Else   ! lSym < kSym
 
 C ---  Faa,[k] = sum_J  (LJa[k])**2
 C ----------------------------------
+
                             Fia(:)=Zero
                             Do ia=1,nBasSh(lSym,iaSh)
 
@@ -998,10 +987,9 @@ C ----------------------------------
 
                             Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
 
-                         End Do
+                         EndIf
 
-
-                      EndIf
+                      End Do
 
                       CALL CWTIME(TCS2,TWS2)
                       tscrn(1) = tscrn(1) + (TCS2 - TCS1)
