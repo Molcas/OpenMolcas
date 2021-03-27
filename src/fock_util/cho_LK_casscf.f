@@ -950,44 +950,27 @@ C --- Prepare the J-screening
 
 C ---  Faa,[k] = sum_J  (LaJ[k])**2
 C ----------------------------------
-
-                             Fia(:)=Zero
-                             Do jv=1,JNUM
-
-                               Do ia=1,nBasSh(lSym,iaSh)
-
-                                  ipLaa = ipLab(iaSh)
-     &                                  + nBasSh(lSym,iaSh)*(jv-1)
-     &                                  + ia - 1
-
-                                  Fia(ia) = Fia(ia) + Work(ipLaa)**2
-
-                               End Do
-                            End Do
-
-                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
+                            Inc = nBasSh(lSym,iaSh)
+                            n1 = 1
 
                          Else   ! lSym < kSym
 
 C ---  Faa,[k] = sum_J  (LJa[k])**2
 C ----------------------------------
+                            Inc = 1
+                            n1 = JNUM
 
-                            Fia(:)=Zero
-                            Do ia=1,nBasSh(lSym,iaSh)
+                         End If
 
-                               Do jv=1,JNUM
+                         Tmp=Zero
+                         Do ia=1,nBasSh(lSym,iaSh)
+                            ipLai = ipLab(iaSh) + n1*(ia-1)
+                            Fia(ia)=DDot_(JNUM,Work(ipLai),Inc,
+     &                                         Work(ipLai),Inc)
+                            Tmp=Max(Abs(Fia(ia)),Tmp)
+                         End Do
 
-                                  ipLaa = ipLab(iaSh)
-     &                                  + JNUM*(ia-1)
-     &                                  + jv - 1
-
-                                  Fia(ia) = Fia(ia) + Work(ipLaa)**2
-                               End Do
-                            End Do
-
-                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
-                         EndIf
+                         Faa(iaSh)=Tmp
 
                       End Do
 
