@@ -27,7 +27,7 @@ use grid_it_globals, only: AtomLbl, Coor, CutOff, Grid, GridAxis1, GridAxis2, Gr
                            isSphere, isTheOne, isTotal, isUHF, isUserGrid, isVirt, levelprint, LID, LID_ab, LuVal, LuVal_ab, &
                            nAtoms, nBytesPackedVal, nGridPoints, NoOrb, OneCoor, Virt
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -36,19 +36,19 @@ character(len=*), intent(in) :: INPORB
 integer(kind=iwp) :: i, i1, i2, i3, iaia, iCRSIZE, idum(1), ie1, ie2, ie3, iErr, ii, iiCoord, iiiCoord, iiMO, iIrrep, iLen, &
                      istatus, ipPO, iPrintCount, irecl, iSec, iShiftCut, ishow, iv1, iv2, iv3, ive1, ive2, ive3, iWFtype, j, jj, &
                      jjMO, LuOrb, LuVal_, LuVal_ab_, mCoor, MM, nBlocks, NBYTES, nCMO, nCoor, nDrv, nInc, NINLINE, nLine, nMOs, &
-                     nShowMOs, nShowMOs2, nShowMOs_ab, nSLine, nTypes(7)
+                     nShowMOs, nShowMOs2, nShowMOs_ab, nTypes(7)
 real(kind=wp) :: dd, det3, dNorm, dum(1), gv1, gv2, gv3, pp(3), VBocc
 logical(kind=iwp) :: ifpartial, is_error, isEner
 character(len=128) :: line, str
 character(len=80) :: myTitle
 integer(kind=iwp), allocatable :: DoIt(:), DoIt_ab(:), GRef(:), GRef_ab(:), iCutOff(:), iType(:), NZ(:), PBlock(:), Sort(:), &
                                   Sort_ab(:)
-real(kind=wp), allocatable :: C(:,:), CMO(:), CMO_ab(:), ddNo(:,:), E(:), E_ab(:), MO(:), SLine(:), Occ(:), Occ_ab(:), Ooo(:), &
+real(kind=wp), allocatable :: C(:,:), CMO(:), CMO_ab(:), ddNo(:,:), E(:), E_ab(:), MO(:), SLine(:,:), Occ(:), Occ_ab(:), Ooo(:), &
                               DOut(:), Pab(:), SphrColor(:), SphrDist(:)
+character, allocatable :: cMoBlock(:)
 character(len=7), parameter :: Crypt = 'fi123sd'
 !---- Set size of batches
 integer(kind=iwp), parameter :: nIncPack = 18*1024
-character(len=nIncPack*2) :: cMoBlock
 integer(kind=iwp), external :: isFreeUnit
 
 !                                                                      *
@@ -110,8 +110,6 @@ GRef(:) = -1
 ! Read information from INPORB file
 
 LuOrb = isFreeUnit(46)
-
-
 
 if (isUHF) then
 
@@ -354,13 +352,15 @@ iv2 = 0
 iv1 = 0
 !if (isAtom) then
 
+call mma_allocate(cMoBlock,2*nIncPack,label='cMoBlock')
+
 iiiCoord = 0
 !if (isCutOff) nCoor = iiCoord
 !ccccccccccccc  main loop starts here  ccccccccccccccccccccccccccccccccc
 iShiftCut = 1
 do iSec=1,nCoor,nInc
   mCoor = min(nInc,nCoor-iSec+1)
-  !write(status,'(a,i8,a,i8)') ' batch ',iSec,' out of ',nCoor/nInc
+  !write(status,'(a,i8,a,i8)') ' batch ',iSec,' out of ',ceiling(real(nCoor,kind=wp)/real(nInc,kind=wp))
   !call StatusLine('grid_it: ',status)
   ! Generate next portion of points..
   if (isTheOne) then
@@ -380,9 +380,9 @@ do iSec=1,nCoor,nInc
     ! general case: we have a CUBIC box.
     do ipPO=1,mCoor
       iiiCoord = iiiCoord+1
-      gv3 = One*iv3/ive3
-      gv2 = One*iv2/ive2
-      gv1 = One*iv1/ive1
+      gv3 = real(iv3,kind=wp)/real(ive3,kind=wp)
+      gv2 = real(iv2,kind=wp)/real(ive2,kind=wp)
+      gv1 = real(iv1,kind=wp)/real(ive1,kind=wp)
 
       if (isUserGrid) then
         C(:,ipPO) = Grid(:,iSec+ipPO-1)
@@ -426,12 +426,8 @@ do iSec=1,nCoor,nInc
   !... Write out values
 
   nLine = min(nShowMOs,20)
-  nSLine = nLine*mCoor
-  if (.not. isLine) then
-    nSLine = 1
-    nLine = 1
-  end if
-  call mma_allocate(SLine,nSLine,label='Line')
+  if (.not. isLine) nLine = 0
+  call mma_allocate(SLine,nLine,mCoor,label='Line')
   if (levelprint < 2) iPrintCount = 100
   !VV BUG Update iCutOff
 
@@ -479,6 +475,8 @@ do iSec=1,nCoor,nInc
   end if
 end do !iSec
 !ccccccccccccc  main loop ends here  ccccccccccccccccccccccccccccccccccc
+
+call mma_deallocate(cMoBlock)
 
 write(u6,*)
 ! Check norms

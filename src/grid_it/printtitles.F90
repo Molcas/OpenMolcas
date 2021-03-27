@@ -24,7 +24,7 @@ logical(kind=iwp), intent(in) :: isDensity, isEner, ifpartial, isLine, isSphere,
 real(kind=iwp), intent(in) :: Occ(*), E(*), VBocc
 character(len=7), intent(in) :: Crypt
 integer(kind=iwp) :: i, iActOrb, ib, j, Sizeof8
-character(len=12000) :: Line
+character(len=128) :: Line
 character(len=10) :: LineT
 character :: bb
 #include "macros.fh"

@@ -21,9 +21,9 @@ integer(kind=iwp), intent(in) :: nBas
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAt, iAt_B, ijj, j, jj, Length, nAA, nAt_B, nAtoms, nBas_A, nBas_B
 real(kind=wp) :: ZA, ZB
-character(len=LenIn4) :: UBName(mxBas)
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Charge_B(:)
+character(len=LenIn8), allocatable :: UBName(:)
 
 !                                                                      *
 !***********************************************************************
@@ -38,9 +38,11 @@ end if
 call mma_allocate(nBas_per_Atom,nAtoms,Label='nBpA')
 call mma_allocate(nBas_Start,nAtoms,Label='nB_Start')
 
+call mma_allocate(UBName,nBas,Label='UBName')
 call Get_cArray('Unique Basis Names',UBName,(LENIN8)*nBas)
 
 call BasFun_Atom(nBas_per_Atom,nBas_Start,UBName,nBas,nAtoms,.false.)
+call mma_deallocate(UBName)
 
 call mma_allocate(Charge_B,nAtoms,Label='Charge_B')
 call Get_dArray('Nuclear charge',Charge_B,nAtoms)

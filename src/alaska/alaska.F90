@@ -57,8 +57,8 @@ real(kind=r8), external :: dnrm2_
 logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
-real(kind=wp) :: Cgrad(3,MxAtom)
-character(len=LenIn5) :: CNames(MxAtom)
+real(kind=wp), allocatable :: Cgrad(:,:)
+character(len=LenIn5), allocatable :: CNames(:)
 character(len=80) :: Lab
 
 !                                                                      *
@@ -362,6 +362,8 @@ if (Columbus == 1) then
   ! real*8 Cgrad(3,mxatom)
   ! character CNames(MxAtom)*9
   ! integer lcartgrd, iatom,icen,j
+  call mma_allocate(CGrad,3,MxAtom,label='CGrad')
+  call mma_allocate(CNames,MxAtom,label='CNames')
   call TrGrd_Alaska_(CGrad,CNames,Grad,lDisp(0),iCen)
   lcartgrd = 60
   lcartgrd = isFreeUnit(lcartgrd)
@@ -370,6 +372,8 @@ if (Columbus == 1) then
     write(60,1010) (CGrad(j,iatom),j=1,3)
   end do
   close(lcartgrd)
+  call mma_deallocate(CGrad)
+  call mma_deallocate(CNames)
 end if
 
 !-- At the end of the calculation free all memory to check for

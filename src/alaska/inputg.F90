@@ -46,12 +46,12 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "nac.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iR, iRout, istatus, iSym(3), &
-                     iTemp(3*MxAtom), iTR, ix, iy, iz, j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, &
-                     mDisp, n, nCnttp_Valence, nDisp, nElem, nGroup, nRoots, nSlct
+                     iTR, ix, iy, iz, j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, &
+                     nCnttp_Valence, nDisp, nElem, nGroup, nRoots, nSlct
 real(kind=wp) :: alpha, Fact, ovlp
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
-integer(kind=iwp), allocatable :: IndCar(:)
+integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
 real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
@@ -103,6 +103,8 @@ end if
 do i=1,nRout
   nPrint(i) = jPrint
 end do
+
+call mma_allocate(iTemp,3*MxAtom,label='iTemp')
 
 ! First CutGrd can not be more accurate than CutInt!
 CutGrd = max(1.0e-7_wp,CutInt)
@@ -816,6 +818,8 @@ else
     write(LuWr,*)
   end if
 end if
+
+call mma_deallocate(iTemp)
 
 if (Slct .and. (.not. Skip)) then
   write(LuWr,*)

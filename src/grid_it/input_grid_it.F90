@@ -117,6 +117,10 @@ if (iRun == 0) then
   !isCutOff = .true.
   !goto 500 (?)
 end if
+GridOrigin(:) = Zero
+GridAxis1(:) = Zero
+GridAxis2(:) = Zero
+GridAxis3(:) = Zero
 
 ! KeyWord directed input
 

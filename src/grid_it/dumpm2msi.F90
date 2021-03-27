@@ -48,7 +48,7 @@ unused_var(cMoBlock(1))
 unused_var(nBytesPackedVal)
 
 !write(u6,*) 'entering DumpM2Msi'
-if (irun > 100) write(u6,*) iGauss,nbytes,ninc,ninline
+if (irun > 100) write(u6,*) iGauss,nbytes,nInc,ninline
 iActOrb = 0
 iPrintCount = iPrintCount+1
 do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
