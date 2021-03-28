@@ -650,10 +650,14 @@ C===============================================================
 
                EndIf  ! Coulomb contribution
 
+C *************** EXCHANGE CONTRIBUTIONS  ***********************
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
                CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-
-C *************** EXCHANGE CONTRIBUTIONS  ***********************
 
                CALL CWTIME(TCS1,TWS1)
 C ---------------------------------------------------------------------
@@ -1358,7 +1362,13 @@ C --------------------------------------------------------------------
 
                End Do   ! loop over MOs symmetry
 
-
+               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
+               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
                DoScreen=.false. ! avoid redo screening inside batch loop
 
 C --- Diagonals updating. It only makes sense if Nscreen > 0
@@ -1420,8 +1430,6 @@ C --- subtraction is done in the 1st reduced set
                   tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
                EndIf
-               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
 
 C ************  END EXCHANGE CONTRIBUTION  ****************
 

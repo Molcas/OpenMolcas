@@ -984,44 +984,45 @@ C --- Compute exchange matrix for the interacting shell pairs
 C------------------------------------------------------------
                      CALL CWTIME(TCX1,TWX1)
 
-                     IF (lSym.ge.kSym) Then
 
-                         Do lSh=1,Indx(0,jk_a)
+                     Do lSh=1,Indx(0,jk_a)
 
-                            iaSh = Indx(lSh,jk_a)
+                        iaSh = Indx(lSh,jk_a)
 
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
+                        iaSkip= Min(1,Max(0,
+     &                          abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
-                            iOffSha = kOffSh(iaSh,lSym)
+                        iOffSha = kOffSh(iaSh,lSym)
 
-                            mSh = 1
+                        mSh = 1
 
-                            Do while (mSh.le.Indx(0,jk_a))
+                        Do while (mSh.le.Indx(0,jk_a))
 
-                               ibSh = Indx(mSh,jk_a)
+                           ibSh = Indx(mSh,jk_a)
 
-                               ibSkip = Min(1,Max(0,
-     &                                        abs(ipLab(ibSh)-ipAbs)))
+                           ibSkip = Min(1,Max(0,
+     &                                    abs(ipLab(ibSh)-ipAbs)))
 
-                               iShp = iTri(iaSh,ibSh)
+                           iShp = iTri(iaSh,ibSh)
 
-                               iOffShb = kOffSh(ibSh,lSym)
+                           iOffShb = kOffSh(ibSh,lSym)
 
-                               iOffAB = nnBfShp(iShp,lSym)
+                           iOffAB = nnBfShp(iShp,lSym)
 
-                               ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
+                           ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
 
-                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
+                           xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
-                               If (MLk(mSh,jK_a)*MLk(lSh,jK_a)
-     &                             .lt. tau(jDen))Then
+                           If (MLk(mSh,jK_a)*MLk(lSh,jK_a)
+     &                         .lt. tau(jDen))Then
 
-                                    mSh = Indx(0,jk_a) !skip rest
+                                mSh = Indx(0,jk_a) !skip rest
 
-                               ElseIf(iaSh.eq.ibSh
-     &                                .and.xFab.ge.tau(jDen)/MaxRedT
-     &                                .and.iaSkip.eq.1)Then
+                           ElseIf(iaSh.eq.ibSh
+     &                            .and.xFab.ge.tau(jDen)/MaxRedT
+     &                            .and.iaSkip.eq.1)Then
+
+                               IF (lSym.ge.kSym) Then
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
@@ -1036,76 +1037,7 @@ C -------------------------------------------------------------------
      &                                       ONE,Work(ipKI),
      &                                               nBs)
 
-                               ElseIf (iaSh.gt.ibSh
-     &                                .and.xFab.ge.tau(jDen)/MaxRedT
-     &                                 .and. iaSkip*ibSkip.eq.1) Then
-
-C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(a,J)[k] * L(b,J)[k]
-C -------------------------------------------------------------------
-                                  nBsa = nBasSh(lSym,iaSh)
-                                  nBsb = nBasSh(lSym,ibSh)
-
-                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                   FActX(jDen),Work(ipLab(iaSh)),
-     &                                           nBsa,
-     &                                           Work(ipLab(ibSh)),
-     &                                           nBsb,
-     &                                       ONE,Work(ipKI),
-     &                                               nBsa)
-
-                               EndIf
-
-
-                               mSh = mSh + 1  ! update shell counter
-
-
-                            End Do
-
-                         End Do
-
-
-                     ELSE   ! lSym < kSym
-
-
-                         Do lSh=1,Indx(0,jk_a)
-
-                            iaSh = Indx(lSh,jk_a)
-
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
-
-                            iOffSha = kOffSh(iaSh,lSym)
-
-                            mSh = 1
-
-                            Do while (mSh.le.Indx(0,jk_a))
-
-                               ibSh = Indx(mSh,jk_a)
-
-                               ibSkip = Min(1,Max(0,
-     &                                        abs(ipLab(ibSh)-ipAbs)))
-
-                               iShp = iTri(iaSh,ibSh)
-
-                               iOffShb = kOffSh(ibSh,lSym)
-
-                               iOffAB = nnBfShp(iShp,lSym)
-
-                               ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
-
-                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
-
-                               If (MLk(lsh,jK_a)*MLk(msh,jK_a)
-     &                              .lt. tau(jDen))Then
-
-
-                                    mSh = Indx(0,jk_a)  ! skip rest
-
-
-                               ElseIf(iaSh.eq.ibSh
-     &                                .and.xFab.ge.tau(jDen)/MaxRedT
-     &                                .and.iaSkip.eq.1)Then
+                               ELSE   ! lSym < kSym
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(J,a)[k] * L(J,b)[k]
 C -------------------------------------------------------------------
@@ -1121,10 +1053,29 @@ C -------------------------------------------------------------------
      &                                            ONE,Work(ipKI),
      &                                                nBs)
 
+                               End If
 
-                               ElseIf (iaSh.gt.ibSh
-     &                                .and.xFab.ge.tau(jDen)/MaxRedT
-     &                                 .and. iaSkip*ibSkip.eq.1) Then
+
+                           ElseIf (iaSh.gt.ibSh
+     &                             .and.xFab.ge.tau(jDen)/MaxRedT
+     &                             .and. iaSkip*ibSkip.eq.1) Then
+
+                                 IF (lSym.ge.kSym) Then
+C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(a,J)[k] * L(b,J)[k]
+C -------------------------------------------------------------------
+                                  nBsa = nBasSh(lSym,iaSh)
+                                  nBsb = nBasSh(lSym,ibSh)
+
+                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
+     &                                           nBasSh(lSym,ibSh),JNUM,
+     &                                   FActX(jDen),Work(ipLab(iaSh)),
+     &                                           nBsa,
+     &                                           Work(ipLab(ibSh)),
+     &                                           nBsb,
+     &                                       ONE,Work(ipKI),
+     &                                               nBsa)
+
+                               ELSE   ! lSym < kSym
 
 C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(J,a)[k] * L(J,b)[k]
 C -------------------------------------------------------------------
@@ -1140,18 +1091,18 @@ C -------------------------------------------------------------------
      &                                       ONE,Work(ipKI),
      &                                               nBs)
 
-                               EndIf
+                               End If
 
 
-                               mSh = mSh + 1  ! update shell counter
+                           EndIf
 
 
-                            End Do
-
-                         End Do
+                           mSh = mSh + 1  ! update shell counter
 
 
-                     ENDIF
+                        End Do
+
+                     End Do
 
                      CALL CWTIME(TCX2,TWX2)
                      texch(1) = texch(1) + (TCX2 - TCX1)
