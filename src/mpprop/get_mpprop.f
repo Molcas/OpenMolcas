@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,!nOcOb,
-     &                      nMltPl,!oNum,nOrb,
-!     &                      oCof,
-     &                      ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,                 & !nOcOb,
+     &                      nMltPl,                                     & !oNum,nOrb,
+!    &                      oCof,                                       &
+     &                      ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,   &
      &                      LFirstRun,LLumOrb)
       Implicit Real*8 (a-h,o-z)
 #include "MpData.fh"
@@ -26,28 +26,28 @@
       Logical   LFirstRun
       Logical   LLumOrb
 
-*
+!
       Call Allocate_iWork(ip_iCompMat,(nMltPl+1)**3)
       Call Allocate_Work(ip_Qexp,nPrim**2)
 !      Call Allocate_Work(ip_DenMat,nPrim**2)
-*
-      Call Get_MpProp_(nPrim,nBas,nAtoms,nCenters,!nOcOb,
-     &                 nMltPl,!oNum,nOrb,
-!     &                 oCof,
-     &                 ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,
-     &                 iWork(ip_iCompMat),Work(ip_Qexp),
+!
+      Call Get_MpProp_(nPrim,nBas,nAtoms,nCenters,                      & !nOcOb,
+     &                 nMltPl,                                          & !oNum,nOrb,
+!    &                 oCof,                                            &
+     &                 ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,        &
+     &                 iWork(ip_iCompMat),Work(ip_Qexp),                &
      &                 LFirstRun,LLumOrb)
-*
+!
 !      Call Free_Work(ip_DenMat)
       Call Free_Work(ip_Qexp)
       Call Free_iWork(ip_iCompMat)
-*
+!
       Return
       End
-      Subroutine Get_MpProp_(nPrim,nBas,nAtoms,nCenters,!nOcOb,
-     &                      nMltPl,!oNum,nOrb,
-!     &                      oCof,
-     &                      ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,
+      Subroutine Get_MpProp_(nPrim,nBas,nAtoms,nCenters,                & !nOcOb,
+     &                      nMltPl,                                     & !oNum,nOrb,
+!    &                      oCof,                                       &
+     &                      ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,   &
      &                      iCompMat,Qexp,LFirstRun,LLumOrb)
       Implicit Real*8 (a-h,o-z)
 #include "MpData.fh"
@@ -65,11 +65,11 @@
       Logical   LNearestAtom
       Logical   LFirstRun
       Logical   LLumOrb
-*                                                                      *
-************************************************************************
-*                                                                      *
-* SOME KIND OF PROLOG
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! SOME KIND OF PROLOG
+!
       iStdout = 6
       Write(iStdOut,*)
       If(LLumOrb) Then
@@ -93,7 +93,7 @@
         Write(iStdOut,*)' Using the densities from a Molcas calculation'
       EndIf
       Write(iStdOut,*)
-* Set the variable that knows the component
+! Set the variable that knows the component
       Do iMltpl = 0,nMltPl
          iComp=0
          Do np=iMltpl,0,-1
@@ -104,16 +104,16 @@
             EndDo
          EndDo
       EndDo
-* Translate dipoles to the center for the quadrupoles
+! Translate dipoles to the center for the quadrupoles
       If(LFirstRun) Then
 !      Do iMltpl = 0,1
 ! An error written by me DH
        Do i=1,nPrim
          Do j=1,i
            Do k=1,3
-             Work(iWork(iMltPlAd(1)+k-1)+i*(i-1)/2+j-1)=
-     &       Work(iWork(iMltPlAd(1)+k-1)+i*(i-1)/2+j-1)+
-     &       (CordMltPl(k,0)-CordMltPl(k,2))*
+             Work(iWork(iMltPlAd(1)+k-1)+i*(i-1)/2+j-1)=                &
+     &       Work(iWork(iMltPlAd(1)+k-1)+i*(i-1)/2+j-1)+                &
+     &       (CordMltPl(k,0)-CordMltPl(k,2))*                           &
      &       Work(iWork(iMltPlAd(0))+i*(i-1)/2+j-1)
            EndDo
          EndDo
@@ -124,11 +124,11 @@
          CordMltPl(3,iMltPl)=CordMltPl(3,2)
        EndDo
       EndIf
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     GET THE DENSITY MATRIX
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     GET THE DENSITY MATRIX
+!
 !      If(LLumOrb) Then
 !       Do K = 1 , nPrim
 !        Do L = 1 , K
@@ -153,25 +153,25 @@
 !          EndDo
 !        EndDo
 !      EndIf
-*                                                                      *
-************************************************************************
-*                                                                      *
-* GET THE INTERACTIONSITES
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! GET THE INTERACTIONSITES
       Write(6,*) !Dummy added due to compiler bug on adils, intelfast.
       Do i=1,nPrim
          Do j=1,i
-            Qexp(i,j)=work(iwork(iMltPlAd(0))+i*(i-1)/2+j-1)*
+            Qexp(i,j)=work(iwork(iMltPlAd(0))+i*(i-1)/2+j-1)*           &
      &      Work(ip_D_p+i*(i-1)/2+j-1)
             Qexp(j,i)=Qexp(i,j)
          EndDo
       EndDo
-*
+!
       iA = -99
       Do nA=1,nAtoms
 
-C
-C NOW SUM UP THE OTHER MULTIPOLE MOMENTS
-C
+!
+! NOW SUM UP THE OTHER MULTIPOLE MOMENTS
+!
          Do iMltpl = 0,nMltPl
             iComp=0
             Do np=iMltpl,0,-1
@@ -184,7 +184,7 @@ C
                      If(np.eq.ip) Then
                         xfac=rnpoverip
                      Else
-                        xfac=rnPoveriP*(CordMltPl(1,ip)
+                        xfac=rnPoveriP*(CordMltPl(1,ip)                 &
      &                  -COR(1,nA,nA))**(np-ip)
                      EndIf
                      Do iq=0,nq
@@ -192,7 +192,7 @@ C
                         If(nq.eq.iq) Then
                            yfac=rnqoveriq
                         Else
-                           yfac=rnqoveriq*(CordMltPl(2,iq)
+                           yfac=rnqoveriq*(CordMltPl(2,iq)              &
      &                     -COR(2,nA,nA))**(nq-iq)
                         EndIf
                         Do il=0,nl
@@ -200,10 +200,10 @@ C
                            If(nl.eq.il) Then
                               zfac=rnloveril
                            Else
-                              zfac=rnloveril*(CordMltPl(3,il)
+                              zfac=rnloveril*(CordMltPl(3,il)           &
      &                        -COR(3,nA,nA))**(nl-il)
                            EndIf
-                           If(xfac.eq.0.0D0.or.yfac.eq.0.0D0.or.
+                           If(xfac.eq.0.0D0.or.yfac.eq.0.0D0.or.        &
      &                     zfac.eq.0.0D0) Goto 10
                            Do iPBas = 1,nAtomPBas(nA)
                               i = iAtPrTab(iPBas,nA)
@@ -216,10 +216,10 @@ C
                                     jj = iAtPrTab(jPBas,nA)
                                     ii = i
                                  EndIf
-                                 sum=sum+
-     &                           xfac*yfac*zfac*
-     &                           Work(ip_D_p+ii*(ii-1)/2+jj-1)*
-     &                           Work(iWork(iMltPlAd(ip+iq+il)+
+                                 sum=sum+                               &
+     &                           xfac*yfac*zfac*                        &
+     &                           Work(ip_D_p+ii*(ii-1)/2+jj-1)*         &
+     &                           Work(iWork(iMltPlAd(ip+iq+il)+         &
      &                           iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
                               EndDo
                            EndDo
@@ -227,38 +227,38 @@ C
                         EndDo
                      EndDo
                   EndDo
-                  Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
-     &            +nA*(nA+1)/2-1)=
-     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
+                  Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)          &
+     &            +nA*(nA+1)/2-1)=                                      &
+     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)          &
 !                                minus from the negative sign of the electron
      &            +nA*(nA+1)/2-1)-sum
-                  Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)
-     &            +nA*(nA+1)/2-1)=
-     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
+                  Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)      &
+     &            +nA*(nA+1)/2-1)=                                      &
+     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)          &
      &            +nA*(nA+1)/2-1)
-                  Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1)=
+                  Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1)=       &
      &            Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1)-sum
                EndDo
             EndDo
          EndDo
-C
-C THE NUCLEAR CHARGE IS ADDED ON
-C
+!
+! THE NUCLEAR CHARGE IS ADDED ON
+!
          If(LFirstRun) Then
-            Work(iAtMltPlAd(0)+nA-1)=
+            Work(iAtMltPlAd(0)+nA-1)=                                   &
      &      Work(iAtMltPlAd(0)+nA-1)+Work(iQnuc+nA-1)
-            Work(iAtBoMltPlAd(0)+nA*(nA+1)/2-1)=
-     &      Work(iAtBoMltPlAd(0)+nA*(nA+1)/2-1)+
+            Work(iAtBoMltPlAd(0)+nA*(nA+1)/2-1)=                        &
+     &      Work(iAtBoMltPlAd(0)+nA*(nA+1)/2-1)+                        &
      &      Work(iQnuc+nA-1)
-            Work(iAtBoMltPlAdCopy(0)+nA*(nA+1)/2-1)=
-     &      Work(iAtBoMltPlAdCopy(0)+nA*(nA+1)/2-1)+
+            Work(iAtBoMltPlAdCopy(0)+nA*(nA+1)/2-1)=                    &
+     &      Work(iAtBoMltPlAdCopy(0)+nA*(nA+1)/2-1)+                    &
      &      Work(iQnuc+nA-1)
          EndIf
 
          Do nB = 1, nA-1
-C
-C MULTIPOLE BETWEEN NA,NB
-C
+!
+! MULTIPOLE BETWEEN NA,NB
+!
             Qp = 0.0
             Qn = 0.0
             Do i=1,3
@@ -313,49 +313,49 @@ C
             Cor(2,nA,nB)=CorP(2)*FracP+CorN(2)*FracN
             Cor(3,nA,nB)=CorP(3)*FracP+CorN(3)*FracN
 
-C
-C CALCULATE THE WEIGTH OF EACH ATOMIC CENTER BY A SIMPLE GEOMETRIC RATIO
-C
-            Rwei = SQRT( (Cor(1,nA,nA)-Cor(1,nA,nB))**2
-     &      +(Cor(2,nA,nA)-Cor(2,nA,nB))**2
+!
+! CALCULATE THE WEIGTH OF EACH ATOMIC CENTER BY A SIMPLE GEOMETRIC RATIO
+!
+            Rwei = SQRT( (Cor(1,nA,nA)-Cor(1,nA,nB))**2                 &
+     &      +(Cor(2,nA,nA)-Cor(2,nA,nB))**2                             &
      &      +(Cor(3,nA,nA)-Cor(3,nA,nB))**2 )
-            Rtot = SQRT( (Cor(1,nA,nA)-Cor(1,nB,nB))**2
-     &      +(Cor(2,nA,nA)-Cor(2,nB,nB))**2
+            Rtot = SQRT( (Cor(1,nA,nA)-Cor(1,nB,nB))**2                 &
+     &      +(Cor(2,nA,nA)-Cor(2,nB,nB))**2                             &
      &      +(Cor(3,nA,nA)-Cor(3,nB,nB))**2 )
-C
-C FRACTION OF MULTIPOLE EXPANSION TO BE RELATED TO THE PAIR ATOMS
-C
+!
+! FRACTION OF MULTIPOLE EXPANSION TO BE RELATED TO THE PAIR ATOMS
+!
             FracB = Rwei/Rtot
             FracA = 1.0D00 - FracB
             Frac(nA,nB) = FracA
 
-C Find the closest atom
+! Find the closest atom
             If(LNearestAtom.and.(.not.BondMat(nA,nB))) Then
                Smallest=1.0D200
                Do i=1,nAtoms
-                  R=sqrt((Cor(1,nA,nB)-Cor(1,i,i))**2+
-     &                    (Cor(2,nA,nB)-Cor(2,i,i))**2+
+                  R=sqrt((Cor(1,nA,nB)-Cor(1,i,i))**2+                  &
+     &                    (Cor(2,nA,nB)-Cor(2,i,i))**2+                 &
      &                    (Cor(3,nA,nB)-Cor(3,i,i))**2)
                   If(R.lt.Smallest) Then
                      Smallest=R
                      iA=i
                   EndIf
                EndDo
-               RA=sqrt((Cor(1,nA,nB)-Cor(1,nA,nA))**2+
-     &                  (Cor(2,nA,nB)-Cor(2,nA,nA))**2+
+               RA=sqrt((Cor(1,nA,nB)-Cor(1,nA,nA))**2+                  &
+     &                  (Cor(2,nA,nB)-Cor(2,nA,nA))**2+                 &
      &                  (Cor(3,nA,nB)-Cor(3,nA,nA))**2)
-               RB=sqrt((Cor(1,nA,nB)-Cor(1,nB,nB))**2+
-     &                  (Cor(2,nA,nB)-Cor(2,nB,nB))**2+
+               RB=sqrt((Cor(1,nA,nB)-Cor(1,nB,nB))**2+                  &
+     &                  (Cor(2,nA,nB)-Cor(2,nB,nB))**2+                 &
      &                  (Cor(3,nA,nB)-Cor(3,nB,nB))**2)
-               If( ((iA.ne.nA) .and. (iA.ne.nB) ) .and.
+               If( ((iA.ne.nA) .and. (iA.ne.nB) ) .and.                 &
      &             ( (Smallest.lt.RA) .and.  (Smallest.lt.RB) ) ) Then
                   iA=iA
                   FracA=1.0D0
                   FracB=0.0D0
                   Write(iStdOut,*)
-                  Write(iStdOut,*)' Moving bond between the atoms  ',
+                  Write(iStdOut,*)' Moving bond between the atoms  ',   &
      &            Labe(nA),Labe(nB)
-                  Write(iStdOut,*)' to the atom                    ',
+                  Write(iStdOut,*)' to the atom                    ',   &
      &            Labe(iA)
                   Write(iStdOut,*)
                Else
@@ -365,13 +365,13 @@ C Find the closest atom
                iA=nA
             EndIf
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     TRANSFORM THE MULTIPOLES TO BONDS AND ATOMS
-*
-*Do multipoles
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     TRANSFORM THE MULTIPOLES TO BONDS AND ATOMS
+!
+!Do multipoles
+!
             Do iMltpl = 0,nMltPl
             iComp=0
             Do np=iMltpl,0,-1
@@ -384,7 +384,7 @@ C Find the closest atom
                      If(np.eq.ip) Then
                         xfac=rnpoverip
                      Else
-                        xfac=rnPoveriP*
+                        xfac=rnPoveriP*                                 &
      &                  (CordMltPl(1,ip)-COR(1,nA,nB))**(np-ip)
                      EndIf
                      Do iq=0,nq
@@ -392,7 +392,7 @@ C Find the closest atom
                         If(nq.eq.iq) Then
                            yfac=rnqoveriq
                         Else
-                           yfac=rnqoveriq*
+                           yfac=rnqoveriq*                              &
      &                     (CordMltPl(2,iq)-COR(2,nA,nB))**(nq-iq)
                         EndIf
                         Do il=0,nl
@@ -400,10 +400,10 @@ C Find the closest atom
                            If(nl.eq.il) Then
                               zfac=rnloveril
                            Else
-                              zfac=rnloveril*
+                              zfac=rnloveril*                           &
      &                        (CordMltPl(3,il)-COR(3,nA,nB))**(nl-il)
                            EndIf
-                           If(xfac.eq.0.0D0.or.yfac.eq.0.0D0.or.
+                           If(xfac.eq.0.0D0.or.yfac.eq.0.0D0.or.        &
      &                     zfac.eq.0.0D0) Goto 20
                            Do iPBas = 1,nAtomPBas(nA)
                               i = iAtPrTab(iPBas,nA)
@@ -416,10 +416,10 @@ C Find the closest atom
                                     jj = iAtPrTab(jPBas,nB)
                                     ii = i
                                  EndIf
-                                 sum=sum+
-     &                           xfac*yfac*zfac*2.0d0*
-     &                           Work(ip_D_p+ii*(ii-1)/2+jj-1)*
-     &                           Work(iWork(iMltPlAd(ip+iq+il)+
+                                 sum=sum+                               &
+     &                           xfac*yfac*zfac*2.0d0*                  &
+     &                           Work(ip_D_p+ii*(ii-1)/2+jj-1)*         &
+     &                           Work(iWork(iMltPlAd(ip+iq+il)+         &
      &                           iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
                               EndDo
                            EndDo
@@ -427,24 +427,24 @@ C Find the closest atom
                         EndDo
                      EndDo
                   EndDo
-                  Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
-     &            +nA*(nA-1)/2+nB-1)=
-     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
+                  Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)          &
+     &            +nA*(nA-1)/2+nB-1)=                                   &
+     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)          &
 !                                   minus from the negative sign of the electron
      &            +nA*(nA-1)/2+nB-1)-sum
                   ! Copy the multipole arrays
-                  Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)
-     &            +nA*(nA-1)/2+nB-1)=
-     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
+                  Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)      &
+     &            +nA*(nA-1)/2+nB-1)=                                   &
+     &            Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)          &
      &            +nA*(nA-1)/2+nB-1)
                EndDo
             EndDo
             EndDo
-*
-* If one should move the bond to the closest atom iA would be equal to
-* that otherwise iA should be equal to nA
-*
-           If( ((Method.eq.'UHF-SCF').and.(LFirstRun.eqv..False.)) .or.
+!
+! If one should move the bond to the closest atom iA would be equal to
+! that otherwise iA should be equal to nA
+!
+           If( ((Method.eq.'UHF-SCF').and.(LFirstRun.eqv..False.)) .or. &
      &         ((Method.ne.'UHF-SCF').and.(LFirstRun.eqv..True.)) ) Then
             Do iMltpl = 0,nMltPl
             iComp=0
@@ -460,9 +460,9 @@ C Find the closest atom
                         xfac_a=rnPoveriP
                         xfac_b=rnPoveriP
                      Else
-                        xfac_a=(COR(1,nA,nB)-COR(1,iA,iA))**(np-ip)*
+                        xfac_a=(COR(1,nA,nB)-COR(1,iA,iA))**(np-ip)*    &
      &                  rnPoveriP
-                        xfac_b=(COR(1,nA,nB)-COR(1,nB,nB))**(np-ip)*
+                        xfac_b=(COR(1,nA,nB)-COR(1,nB,nB))**(np-ip)*    &
      &                  rnPoveriP
                      EndIf
                      Do iq=0,nq
@@ -471,9 +471,9 @@ C Find the closest atom
                            yfac_a=rnqoveriq
                            yfac_b=rnqoveriq
                         Else
-                           yfac_a=(COR(2,nA,nB)-COR(2,iA,iA))**(nq-iq)*
+                           yfac_a=(COR(2,nA,nB)-COR(2,iA,iA))**(nq-iq)* &
      &                     rnqoveriq
-                           yfac_b=(COR(2,nA,nB)-COR(2,nB,nB))**(nq-iq)*
+                           yfac_b=(COR(2,nA,nB)-COR(2,nB,nB))**(nq-iq)* &
      &                     rnqoveriq
                         EndIf
                         Do il=0,nl
@@ -482,20 +482,20 @@ C Find the closest atom
                               zfac_a=rnloveril
                               zfac_b=rnloveril
                            Else
-                             zfac_a=(COR(3,nA,nB)-COR(3,iA,iA))**(nl-il)
+                             zfac_a=(COR(3,nA,nB)-COR(3,iA,iA))**(nl-il)&
      &                       *rnloveril
-                             zfac_b=(COR(3,nA,nB)-COR(3,nB,nB))**(nl-il)
+                             zfac_b=(COR(3,nA,nB)-COR(3,nB,nB))**(nl-il)&
      &                       *rnloveril
                            EndIf
-                           sum_a=sum_a+
-     &                     xfac_a*yfac_a*zfac_a*FracA*
-     &                     Work(iAtBoMltPlAd(ip+iq+il)+
-     &                     nCenters*(iCompMat(ip,iq,il)-1)
+                           sum_a=sum_a+                                 &
+     &                     xfac_a*yfac_a*zfac_a*FracA*                  &
+     &                     Work(iAtBoMltPlAd(ip+iq+il)+                 &
+     &                     nCenters*(iCompMat(ip,iq,il)-1)              &
      &                     +nA*(nA-1)/2+nB-1)
-                           sum_b=sum_b+
-     &                     xfac_b*yfac_b*zfac_b*FracB*
-     &                     Work(iAtBoMltPlAd(ip+iq+il)+
-     &                     nCenters*(iCompMat(ip,iq,il)-1)
+                           sum_b=sum_b+                                 &
+     &                     xfac_b*yfac_b*zfac_b*FracB*                  &
+     &                     Work(iAtBoMltPlAd(ip+iq+il)+                 &
+     &                     nCenters*(iCompMat(ip,iq,il)-1)              &
      &                     +nA*(nA-1)/2+nB-1)
                         EndDo
                      EndDo
@@ -503,25 +503,25 @@ C Find the closest atom
                   If(BondMat(nA,nB)) Then
                     !If bonding
                     !Do atoms
-                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)=
+                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)=     &
      &              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)+sum_a
-                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)=
+                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)=     &
      &              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)+sum_b
                   Else
                     !If not bonding
                     !Do Atoms
-                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)=
+                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)=     &
      &              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)+sum_a
-                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)=
+                    Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)=     &
      &              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)+sum_b
                     !Do bonds
-                    Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
-     &              +iA*(iA+1)/2-1)=
-     &              Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
+                    Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)        &
+     &              +iA*(iA+1)/2-1)=                                    &
+     &              Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)        &
      &              +iA*(iA+1)/2-1)+sum_a
-                    Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
-     &              +nB*(nB+1)/2-1)=
-     &              Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)
+                    Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)        &
+     &              +nB*(nB+1)/2-1)=                                    &
+     &              Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)        &
      &              +nB*(nB+1)/2-1)+sum_b
                   EndIf
                EndDo
@@ -532,6 +532,6 @@ C Find the closest atom
       EndDo
 
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nBas)
       End

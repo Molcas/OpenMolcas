@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-* OBSERVE! If the output to the mpprop file that this subroutine generates
-*   is modified, then notify the person responsible for qmstat, since that
-*   program uses the mpprop outputfile.
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+! OBSERVE! If the output to the mpprop file that this subroutine generates
+!   is modified, then notify the person responsible for qmstat, since that
+!   program uses the mpprop outputfile.
 !EB      Subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,OENE,iBond,
-      Subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,
+      Subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,   &
      &           OENE,OENE_b,LAllCenters)
 
       Implicit Real*8 (a-h,o-z)
@@ -38,7 +38,7 @@
       Name='MPPROP'
       Call OpnFl(Name,Lu,Exist)
       Rewind(Lu)
-*
+!
       Write(Lu,6) '**************************************************'
       Write(Lu,6) '* Molecule'
       Write(Lu,6) Title
@@ -46,19 +46,19 @@
       Write(Lu,6) Method
       Write(Lu,6) '* Level of Multipoles and Polarizabilities'
       Write(Lu,3) nMltPl,1
-*
-C
-C WE NOW HAVE THE MULTIPOLES IN TWO FORMS
-C
-C A) SUMMED ONTO ATOMIC TERMS ONLY
-C B) SUMMED ONTO ATOMS AND BONDS
-C
-C EXPANSION TO BE USED FOR ELECTROSTATICS
-C
-C       CENTER
-C       MULTIPOLE
-C       POLARIZABILITY
-C
+!
+!
+! WE NOW HAVE THE MULTIPOLES IN TWO FORMS
+!
+! A) SUMMED ONTO ATOMIC TERMS ONLY
+! B) SUMMED ONTO ATOMS AND BONDS
+!
+! EXPANSION TO BE USED FOR ELECTROSTATICS
+!
+!       CENTER
+!       MULTIPOLE
+!       POLARIZABILITY
+!
       If(.not.LAllCenters) Then
       Write(Lu,'(A)') '* Atomic centers '
       Write(Lu,2) nAtoms
@@ -67,12 +67,12 @@ C
          write(Lu,1) cor(1,i,i),cor(2,i,i),cor(3,i,i)
          Do iMltPl=0,nMltPl
             nComp=(iMltPl+1)*(iMltPl+2)/2
-            Write(Lu,1)(Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+i-1),
+            Write(Lu,1)(Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+i-1),  &
      &      iComp=1,nComp)
          EndDo
          Do iMltPl=0,2
             nComp=(iMltPl+1)*(iMltPl+2)/2
-            Write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*
+            Write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*         &
      &      (iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
          EndDo
          Write(Lu,1) (Work(iAtPolAd+nAtoms*j+i-1),j=0,5)
@@ -90,12 +90,12 @@ C
          WRITE(Lu,1) Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
          Do iMltPl=0,nMltPl
             nComp=(iMltPl+1)*(iMltPl+2)/2
-            Write(Lu,1)(Work(iAtBoMltPlAd(iMltPl)+nCenters*
+            Write(Lu,1)(Work(iAtBoMltPlAd(iMltPl)+nCenters*             &
      &      (iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
          EndDo
          Do iMltPl=0,2
             nComp=(iMltPl+1)*(iMltPl+2)/2
-            Write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*
+            Write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*         &
      &      (iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
          EndDo
 ! Begin EB
@@ -113,17 +113,17 @@ C
       Do i=1,nAtoms
          Do j=1,i-1
             If(BondMat(i,j)) Then
-               WRITE(Lu,5)0,iBondPar(i),iAtomType(i),iAtomPar(i),
+               WRITE(Lu,5)0,iBondPar(i),iAtomType(i),iAtomPar(i),       &
      &                     iAtomType(j),iAtomPar(j),Cen_Lab(i*(i-1)/2+j)
                WRITE(Lu,1) Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
                Do iMltPl=0,nMltPl
                   nComp=(iMltPl+1)*(iMltPl+2)/2
-                  Write(Lu,1)(Work(iAtBoMltPlAd(iMltPl)+nCenters*
+                  Write(Lu,1)(Work(iAtBoMltPlAd(iMltPl)+nCenters*       &
      &            (iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
                EndDo
                Do iMltPl=0,2
                   nComp=(iMltPl+1)*(iMltPl+2)/2
-                  Write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*
+                  Write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*   &
      &            (iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
                EndDo
 ! Begin EB
@@ -133,7 +133,7 @@ C
                   Write(Lu,1)0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0
                Else
 ! End EB
-                  Write(Lu,1)
+                  Write(Lu,1)                                           &
      &                 (Work(iAtBoPolAd+nCenters*k+i*(i-1)/2+j-1),k=0,5)
 ! Begin EB
                End If

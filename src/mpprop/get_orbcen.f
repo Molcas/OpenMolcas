@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !EB      Subroutine Get_OrbCen(nPrim,nBas,NORBI,Q_MltPl,RCHC,
-      Subroutine Get_OrbCen(nPrim,NORBI,Q_MltPl,RCHC,
+      Subroutine Get_OrbCen(nPrim,NORBI,Q_MltPl,RCHC,                   &
      &CENTX,CENTY,CENTZ,OCOF)
       Implicit Real*8 (a-h,o-z)
 
@@ -22,9 +22,9 @@
       Dimension RCHC(3,NORBI)
       Dimension oCof(NORBI,nPrim)
 
-C
-C CALCULATE A CENTER OF CHARGE FOR EACH MOLECULAR ORBITAL
-C
+!
+! CALCULATE A CENTER OF CHARGE FOR EACH MOLECULAR ORBITAL
+!
       Do I=1,NORBI
          RCPO(1,I) = 0.0
          RCPO(2,I) = 0.0
@@ -36,9 +36,9 @@ C
          QMIN = 0.0
          Do J=1,nPrim
             Do K=1,J
-C
-C THE WEIGHTED AVERAGE OF THE POSITIVE AND NEGATIVE CONTRIBUTIONS
-C
+!
+! THE WEIGHTED AVERAGE OF THE POSITIVE AND NEGATIVE CONTRIBUTIONS
+!
                OOQ = OCOF(I,J)*OCOF(I,K)*Q_MltPl(J*(J-1)/2+K)*2.0
                IF( OOQ .GE. 0.0 ) THEN
                   QPOS = QPOS + OOQ

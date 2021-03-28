@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Get_Mpprop_input(nAtoms,iPol,LNearestAtom,LAllCenters
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Get_Mpprop_input(nAtoms,iPol,LNearestAtom,LAllCenters  &
      &,AveOrb,LLumOrb,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,iPrint)
-*
+!
       Implicit Real*8 (a-h,o-z)
-*
+!
 #include "MolProp.fh"
 #include "warnings.fh"
 
       Character*3  EndKey
-*Jose Character*4  TestLabe(0:nAtoms), KWord
+!Jose Character*4  TestLabe(0:nAtoms), KWord
       Character*4   KWord
       Character*6  TestLabe(0:nAtoms)
       Character*180 Key, BLine
@@ -38,17 +38,17 @@
       End Do
       Title=BLine
 
-*
-*
+!
+!
 
       LuRd=21
       Call SpoolInp(LuRd)
 
       Rewind(LuRd)
       Call RdNLst(LuRd,'MPPROP')
-*
-*     KeyWord directed input
-*
+!
+!     KeyWord directed input
+!
  998  Key = Get_Ln(LuRd)
       If (Debug) Write (iStdOut,*) ' Processing:',Key
       KWord = Trim(Key)
@@ -67,7 +67,7 @@
       If (KWord(1:4).eq.'PRIN') Go To 991
 ! Keyword added to handle average orbitals
       If (KWord(1:4).eq.'AVER') Go To 7912
-*
+!
       If (KWord(1:4).eq.'END ') Go To 997
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
@@ -81,10 +81,10 @@
       Write (6,*) ' Error while reading input file.'
  990  Call ErrTra
       Call Quit(_RC_INPUT_ERROR_)
-*                                                                      *
-************************************************************************
-*                                                                      *
-* Get the input for bonds
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Get the input for bonds
 981   LAllCenters=.True.
       Do i=1,MxAtomMP
          NUB(i) = 0
@@ -103,11 +103,11 @@
          Do j=1,180
             EndKey=Key(j:j+2)
             Call UpCase(EndKey)
-            If((Key(j:j).eq.' ').or.(Key(j:j).eq.',').or.
+            If((Key(j:j).eq.' ').or.(Key(j:j).eq.',').or.               &
      &      (Key(j:j).eq.';')) Then
-               If((j.eq.1).and.
+               If((j.eq.1).and.                                         &
      &         ((Key(j:j).eq.';').or.(Key(j:j).eq.','))) Then
-                  Write(iStdOut,*)
+                  Write(iStdOut,*)                                      &
      &            'Error in input, breaker in first position'
                   Goto 990
                ElseIf(m.lt.j) Then
@@ -154,14 +154,14 @@
       Write(iStdOut,*)
       Write(iStdOut,'(A8,A,A)') 'Atom', '  No bonds', '   Bonding with'
       Do i=1,nAtoms
-         Write(iStdOut,'(A8,I6,A11,1000A8)') LABE(I),NUB(I),
+         Write(iStdOut,'(A8,I6,A11,1000A8)') LABE(I),NUB(I),            &
      &   (LABE(NBI(I,J)),J=1,NUB(I))
       EndDo
       Write(iStdOut,*)
       Write(iStdOut,*)
       Goto 998
 
-* Set Method level
+! Set Method level
 !982   Key = Get_Ln(LuRd)
 !      If (Debug) Write (*,*) ' Processing:',Key
 !      Method = Key
@@ -174,13 +174,13 @@
 !         Call Quit(20)
 !      EndIf
 !      Goto 998
-* Set the Title
+! Set the Title
 983   Key = Get_Ln(LuRd)
       If (Debug) Write (iStdOut,*) ' Processing:',Key
       Call UpCase(Key)
       Title=Key
       Goto 998
-* Set the specifik atom types
+! Set the specifik atom types
 984   Key = Get_Ln(LuRd)
       Call UpCase(Key)
       If (Key(1:3).eq.'END') Then
@@ -189,25 +189,25 @@
          Read(Key,*) j,iAtomPar(j)
       EndIf
       Goto 984
-* Set that local polarizabilities should be calculated
+! Set that local polarizabilities should be calculated
 985   Key = Get_Ln(LuRd)
       Read(Key,*) iPol
       Goto 998
-* Set the nearest atom calculation to .False.
+! Set the nearest atom calculation to .False.
 986   LNearestAtom=.False.
       Goto 998
-* Set the average orbital option to .True.
+! Set the average orbital option to .True.
 7912  AveOrb=.True.
       iPol=0
       Goto 998
-* Set the logical variable that defines if all ceters or not
+! Set the logical variable that defines if all ceters or not
 987   LAllCenters=.True.
       LNearestAtom=.False.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Set the bonds to all sites
-*---- Get information from input
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!---- Set the bonds to all sites
+!---- Get information from input
 !      Do i=1,mxAtomMP
 !         NuB(i)=0
 !         Do j=1,mxAtomMP
@@ -227,11 +227,11 @@
          End Do
       End Do
       Goto 998
-* Get the vectors from the INPORB file
+! Get the vectors from the INPORB file
 988   LLumOrb=.True.
       Goto 998
 
-* Obtain diffuse stuff to the MpProp decomposition.
+! Obtain diffuse stuff to the MpProp decomposition.
 989   Continue
       Key = Get_Ln(LuRd)
       Call UpCase(Key)
@@ -268,7 +268,7 @@
       Endif
       GoTo 987  !Not an error, Diffuse implies AllCenters
 
-*PrintLevel.
+!PrintLevel.
 991   Continue
       Key = Get_Ln(LuRd)
       Call UpCase(Key)

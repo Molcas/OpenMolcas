@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,     &
      &           orbe,orbe_b,iPol,LAllCenters)
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -45,7 +45,7 @@
             Work(iAtMltPlTotAd(iMltPl)+i)=0.0D0
          EndDo
          Write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
-         Call GetMem(MemLabel,'Allo','Real',iAtBoMltPlTotAd(iMltPl),
+         Call GetMem(MemLabel,'Allo','Real',iAtBoMltPlTotAd(iMltPl),    &
      &   nComp)
          Do i=0,nComp-1
             Work(iAtBoMltPlTotAd(iMltPl)+i)=0.0D0
@@ -61,7 +61,7 @@
                      If(np.eq.ip) Then
                         xfac=rnpoverip
                      Else
-                        xfac=rnPoveriP*(Cor(1,nA,nA)
+                        xfac=rnPoveriP*(Cor(1,nA,nA)                    &
      &                  )**(np-ip)
                      EndIf
                      Do iq=0,nq
@@ -69,7 +69,7 @@
                         If(nq.eq.iq) Then
                            yfac=rnqoveriq
                         Else
-                           yfac=rnqoveriq*(Cor(2,nA,nA)
+                           yfac=rnqoveriq*(Cor(2,nA,nA)                 &
      &                      )**(nq-iq)
                         EndIf
                         Do il=0,nl
@@ -77,14 +77,14 @@
                            If(nl.eq.il) Then
                               zfac=rnloveril
                            Else
-                              zfac=rnloveril*(Cor(3,nA,nA)
+                              zfac=rnloveril*(Cor(3,nA,nA)              &
      &                        )**(nl-il)
                            EndIf
-                           fac=xfac*yfac*zfac*
-     &                     Work(iAtMltPlAd(ip+iq+il)+
-     &                     nAtoms*(iCompMat(ip,iq,il)-1)+
+                           fac=xfac*yfac*zfac*                          &
+     &                     Work(iAtMltPlAd(ip+iq+il)+                   &
+     &                     nAtoms*(iCompMat(ip,iq,il)-1)+               &
      &                     nA-1)
-                           Work(iAtMltPlTotAd(iMltpl)+iComp-1)=
+                           Work(iAtMltPlTotAd(iMltpl)+iComp-1)=         &
      &                     Work(iAtMltPlTotAd(iMltpl)+iComp-1)+fac
                         EndDo
                      EndDo
@@ -96,7 +96,7 @@
                         If(np.eq.ip) Then
                            xfac=rnpoverip
                         Else
-                           xfac=rnPoveriP*(Cor(1,nA,nB)
+                           xfac=rnPoveriP*(Cor(1,nA,nB)                 &
      &                     )**(np-ip)
                         EndIf
                         Do iq=0,nq
@@ -104,7 +104,7 @@
                            If(nq.eq.iq) Then
                               yfac=rnqoveriq
                            Else
-                              yfac=rnqoveriq*(Cor(2,nA,nB)
+                              yfac=rnqoveriq*(Cor(2,nA,nB)              &
      &                        )**(nq-iq)
                            EndIf
                            Do il=0,nl
@@ -112,14 +112,14 @@
                               If(nl.eq.il) Then
                                  zfac=rnloveril
                               Else
-                                 zfac=rnloveril*(Cor(3,nA,nB)
+                                 zfac=rnloveril*(Cor(3,nA,nB)           &
      &                           )**(nl-il)
                               EndIf
-                              fac=xfac*yfac*zfac*
-     &                        Work(iAtBoMltPlAd(ip+iq+il)+
-     &                        nCenters*(iCompMat(ip,iq,il)-1)+
+                              fac=xfac*yfac*zfac*                       &
+     &                        Work(iAtBoMltPlAd(ip+iq+il)+              &
+     &                        nCenters*(iCompMat(ip,iq,il)-1)+          &
      &                        nA*(nA-1)/2+nB-1)
-                              Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)=
+                              Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)=    &
      &                        Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)+fac
                            EndDo
                         EndDo
@@ -133,16 +133,16 @@
 
       Call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
 !EB      Call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,
-      Call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,
+      Call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,          &
      &     orbe,orbe_b,LAllCenters)
 
       Do iMltpl = 0,nMltPl
          nComp=(iMltPl+1)*(iMltPl+2)/2
          Write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
-         Call GetMem(MemLabel,'Free','Real',iAtMltPlTotAd(iMltPl),
+         Call GetMem(MemLabel,'Free','Real',iAtMltPlTotAd(iMltPl),      &
      &   iMltPl*nComp)
          Write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
-         Call GetMem(MemLabel,'Free','Real',iAtBoMltPlTotAd(iMltPl),
+         Call GetMem(MemLabel,'Free','Real',iAtBoMltPlTotAd(iMltPl),    &
      &   iMltPl*nComp)
       EndDo
 

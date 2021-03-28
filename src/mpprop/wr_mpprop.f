@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
       Implicit Real*8 (a-h,o-z)
 
@@ -31,9 +31,9 @@
       String(2)='Quadrupole      '
       String(3)='Octupole        '
       String(4)='Hexadecapole    '
-*      Do i=5,16
-*         Write(String(i),'(I2,A)') i, '-th       Cartesian'
-*      EndDo
+!      Do i=5,16
+!         Write(String(i),'(I2,A)') i, '-th       Cartesian'
+!      EndDo
       String(5)='5-th       Carte' !sian
       String(6)='6-th       Carte' !sian
       String(7)='7-th       Carte' !sian
@@ -79,10 +79,10 @@
       WRITE(iStdOut,*)
       WRITE(iStdOut,*) ' The name of the molecule will be', Title
       WRITE(iStdOut,*)
-      WRITE(iStdOut,*)
+      WRITE(iStdOut,*)                                                  &
      &' THE MULTIPOLES AND POLARIZABILITY FOR THE EXPANSION'
-      WRITE(iStdOut,*)
-     &' ***************************************************',
+      WRITE(iStdOut,*)                                                  &
+     &' ***************************************************',           &
      &'*************'
       WRITE(iStdOut,*)
       WRITE(iStdOut,*) ' TOTAL NUMBER OF CENTERS   : ',nCenters
@@ -90,18 +90,18 @@
       WRITE(iStdOut,*) ' AND BONDS IN THE MOLECULE : ',nCenters-nAtoms
       WRITE(iStdOut,*)
 
-      Write(iStdOut,'(1x,a16,3a16)')'Coord           ',
+      Write(iStdOut,'(1x,a16,3a16)')'Coord           ',                 &
      &(MltPlLabs(1,iComp)(1:1),iComp=1,3)
       Do iMltPl=0,nMltPl
          nComp=(iMltPl+1)*(iMltPl+2)/2
          Do iComp=1,nComp,6
-            Write(6,'(1x,a,6a16)') String(iMltPl),
-     &      (MltPlLabs(iMltPl,jComp)(1:iMltPl),
+            Write(6,'(1x,a,6a16)') String(iMltPl),                      &
+     &      (MltPlLabs(iMltPl,jComp)(1:iMltPl),                         &
      &      jComp=iComp,min(iComp+5,nComp))
          EndDo
       EndDo
       If(iPol.gt.0) Then
-      Write(iStdOut,'(1x,a,6a16)') PolString,(MltPlLabs(2,iComp)(1:2),
+      Write(iStdOut,'(1x,a,6a16)') PolString,(MltPlLabs(2,iComp)(1:2),  &
      &iComp=1,6)
       EndIf
       iCount=0
@@ -113,24 +113,24 @@
       Do i = 1,nAtoms
          iCount=iCount+1
          Write(iStdOut,*)
-         Write(iStdOut,'(I5,A8,I5,A3,A10)')
+         Write(iStdOut,'(I5,A8,I5,A3,A10)')                             &
      &   iCount,' Center ',i*(i+1)/2,'   ',CEN_LAB(i*(i+1)/2)
-         Write(iStdOut,*)
+         Write(iStdOut,*)                                               &
      &   '**************************************************'
-         WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord           ',
+         WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord           ',            &
      &   Cor(1,I,I),Cor(2,I,I),Cor(3,I,I)
          Do iMltPl=0,nMltPl
          nComp=(iMltPl+1)*(iMltPl+2)/2
          Do iComp=1,nComp,6
-         Write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),
-     &   (Work(iAtBoMltPlAd(iMltPl)+
-     &   nCenters*(jComp-1)+i*(i+1)/2-1),
+         Write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),               &
+     &   (Work(iAtBoMltPlAd(iMltPl)+                                    &
+     &   nCenters*(jComp-1)+i*(i+1)/2-1),                               &
      &   jComp=iComp,min(iComp+5,nComp))
          EndDo
          EndDo
          If(iPol.gt.0) Then
-         Write(iStdOut,'(1x,a16,6f16.8)')PolString,
-     &   (Work(iAtBoPolAd+nCenters*(iComp-1)+i*(i+1)/2-1),
+         Write(iStdOut,'(1x,a16,6f16.8)')PolString,                     &
+     &   (Work(iAtBoPolAd+nCenters*(iComp-1)+i*(i+1)/2-1),              &
      &   iComp=1,6)
          EndIf
       EndDo
@@ -139,24 +139,24 @@
          If(BondMat(i,j)) Then
          iCount=iCount+1
          Write(iStdOut,*)
-         Write(iStdOut,'(I5,A8,I5,A3,A10)')
+         Write(iStdOut,'(I5,A8,I5,A3,A10)')                             &
      &   iCount,' Center ',i*(i-1)/2+j,'   ',CEN_LAB(i*(i-1)/2+j)
-         Write(iStdOut,*)
+         Write(iStdOut,*)                                               &
      &   '**************************************************'
-         WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord           ',
+         WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord           ',            &
      &   Cor(1,I,j),Cor(2,I,j),Cor(3,I,j)
          Do iMltPl=0,nMltPl
          nComp=(iMltPl+1)*(iMltPl+2)/2
          Do iComp=1,nComp,6
-         Write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),
-     &   (Work(iAtBoMltPlAd(iMltPl)+
-     &   nCenters*(jComp-1)+i*(i-1)/2+j-1),
+         Write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),               &
+     &   (Work(iAtBoMltPlAd(iMltPl)+                                    &
+     &   nCenters*(jComp-1)+i*(i-1)/2+j-1),                             &
      &   jComp=iComp,min(iComp+5,nComp))
          EndDo
          EndDo
          If(iPol.gt.0) Then
-         Write(iStdOut,'(1x,a16,6f16.8)')PolString,
-     &   (Work(iAtBoPolAd+nCenters*(iComp-1)+i*(i-1)/2+j-1),
+         Write(iStdOut,'(1x,a16,6f16.8)')PolString,                     &
+     &   (Work(iAtBoPolAd+nCenters*(iComp-1)+i*(i-1)/2+j-1),            &
      &   iComp=1,6)
          EndIf
          EndIf
@@ -170,24 +170,24 @@
 
       Do i = 1,nAtoms
          Write(iStdOut,*)
-         Write(iStdOut,'(I5,A8,I5,A3,A10)')i,' Atom   ',i,'   ',
+         Write(iStdOut,'(I5,A8,I5,A3,A10)')i,' Atom   ',i,'   ',        &
      &   CEN_LAB(i*(i+1)/2)
-         Write(iStdOut,*)
+         Write(iStdOut,*)                                               &
      &   '**************************************************'
-         WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord           ',
+         WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord           ',            &
      &   Cor(1,I,I),Cor(2,I,I),Cor(3,I,I)
          Do iMltPl=0,nMltPl
          nComp=(iMltPl+1)*(iMltPl+2)/2
          Do iComp=1,nComp,6
-         Write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),
-     &   (Work(iAtMltPlAd(iMltPl)+
-     &   nAtoms*(jComp-1)+i-1),
+         Write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),               &
+     &   (Work(iAtMltPlAd(iMltPl)+                                      &
+     &   nAtoms*(jComp-1)+i-1),                                         &
      &   jComp=iComp,min(iComp+5,nComp))
          EndDo
          EndDo
          If(iPol.gt.0) Then
-         Write(iStdOut,'(1x,a16,6f16.8)')PolString,
-     &   (Work(iAtPolAd+nAtoms*(iComp-1)+i-1),
+         Write(iStdOut,'(1x,a16,6f16.8)')PolString,                     &
+     &   (Work(iAtPolAd+nAtoms*(iComp-1)+i-1),                          &
      &   iComp=1,6)
          Do j=1,6
             MolPol(j)=MolPol(j)+Work(iAtPolAd+nAtoms*(j-1)+i-1)
@@ -197,32 +197,32 @@
       Write(iStdOut,*)
       Write(iStdOut,*)
       Write(iStdOut,*)
-      Write(iStdOut,*)
+      Write(iStdOut,*)                                                  &
      &' SUMMED MULTIPOLES AND POLARIZABILITY FOR THE MOLECULE'
-      Write(iStdOut,*)
+      Write(iStdOut,*)                                                  &
      &' *****************************************************'
       Write(iStdOut,*)
-      WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord              ',
+      WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord              ',            &
      &0.0D0,0.0D0,0.0D0
       Do iMltPl=0,nMltPl
         nComp=(iMltPl+1)*(iMltPl+2)/2
         Do iComp=1,nComp,6
-        Write(iStdOut,'(1x,a16,6f16.8)')String(iMltPl),
-     &  (Work(iAtMltPlTotAd(iMltPl)+jComp-1),
+        Write(iStdOut,'(1x,a16,6f16.8)')String(iMltPl),                 &
+     &  (Work(iAtMltPlTotAd(iMltPl)+jComp-1),                           &
      &  jComp=iComp,min(iComp+5,nComp))
         EndDo
       EndDo
-      If(iPol.gt.0)Write(iStdOut,'(1x,a16,6f16.8)')
+      If(iPol.gt.0)Write(iStdOut,'(1x,a16,6f16.8)')                     &
      &PolString,(MolPol(j),j=1,6)
       Write(iStdOut,*)
       Write(iStdOut,*)
-      WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord              ',
+      WRITE(iStdOut,'(1x,a16,3f16.8)')'Coord              ',            &
      &0.0D0,0.0D0,0.0D0
       Do iMltPl=0,nMltPl
         nComp=(iMltPl+1)*(iMltPl+2)/2
         Do iComp=1,nComp,6
-        Write(iStdOut,'(1x,a16,6f16.8)')String(iMltPl),
-     &  (Work(iAtBoMltPlTotAd(iMltPl)+jComp-1),
+        Write(iStdOut,'(1x,a16,6f16.8)')String(iMltPl),                 &
+     &  (Work(iAtBoMltPlTotAd(iMltPl)+jComp-1),                         &
      &  jComp=iComp,min(iComp+5,nComp))
         EndDo
       EndDo
