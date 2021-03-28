@@ -8,30 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Gen_Prim_Density_Matrix(nBas,nPrim,ip_D_p,nOcOb,       &
-     &           oNum,oCof)
 
-      Implicit Real*8 (a-h,o-z)
+subroutine Gen_Prim_Density_Matrix(nBas,nPrim,ip_D_p,nOcOb,oNum,oCof)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      Dimension oNum(nBas)
-      Dimension oCof(nBas,nPrim)
+dimension oNum(nBas)
+dimension oCof(nBas,nPrim)
 
-      Call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
-       Do K = 1 , nPrim
-        Do L = 1 , K
-         Work(ip_D_p+k*(k-1)/2+l-1) = 0.0d0
-        EndDo
-       EndDo
-       Do K=1,nPrim
-         Do L=1,K
-           Do i=1,nOcOb
-             Work(ip_D_p+k*(k-1)/2+l-1) = Work(ip_D_p+k*(k-1)/2+l-1) +  &
-     &       oNum(I)*oCof(I,K)*oCof(I,L)
-           EndDo
-         EndDo
-       EndDo
+call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
+do K=1,nPrim
+  do L=1,K
+    Work(ip_D_p+k*(k-1)/2+l-1) = 0.0d0
+  end do
+end do
+do K=1,nPrim
+  do L=1,K
+    do i=1,nOcOb
+      Work(ip_D_p+k*(k-1)/2+l-1) = Work(ip_D_p+k*(k-1)/2+l-1)+oNum(I)*oCof(I,K)*oCof(I,L)
+    end do
+  end do
+end do
 
+return
 
-      Return
-      End
-!
+end subroutine Gen_Prim_Density_Matrix

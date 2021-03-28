@@ -8,11 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine LauraPol()
 
-      Implicit Real*8(a-h,o-z)
+subroutine LauraPol()
 
-      !Call Polar(ireturn)
+implicit real*8(a-h,o-z)
 
-      Return
-      End
+!call Polar(ireturn)
+
+return
+
+end subroutine LauraPol

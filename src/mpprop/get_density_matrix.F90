@@ -8,27 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Density_Matrix_mpprop(ip_D,nDens,nBas,nSym)
 
-      Implicit Real*8 (a-h,o-z)
+subroutine Get_Density_Matrix_mpprop(ip_D,nDens,nBas,nSym)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
-      Integer nBas(nSym)
+integer nBas(nSym)
 
-      If (nSym.eq.1) Then
-         nDens=nBas(1)*(nBas(1)+1)/2
-         Call GetMem('D1ao','Allo','Real',ip_D,nDens)
-         Call Get_D1ao(Work(ip_D),nDens)
-#ifdef _DEBUGPRINT_
-         Call RecPrt('D',' ',Work(ip_D),1,nDens)
-#endif
-      Else
-         Write(6,*) 'MpProp cannot handle symmetry'
-         Call Abend()
-      EndIf
+if (nSym == 1) then
+  nDens = nBas(1)*(nBas(1)+1)/2
+  call GetMem('D1ao','Allo','Real',ip_D,nDens)
+  call Get_D1ao(Work(ip_D),nDens)
+# ifdef _DEBUGPRINT_
+  call RecPrt('D',' ',Work(ip_D),1,nDens)
+# endif
+else
+  write(6,*) 'MpProp cannot handle symmetry'
+  call Abend()
+end if
 
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(nBas)
-      End
-!
+if (.false.) call Unused_integer_array(nBas)
+
+end subroutine Get_Density_Matrix_mpprop

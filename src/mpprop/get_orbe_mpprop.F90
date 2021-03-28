@@ -8,20 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_OrbE_MpProp(ipOrbE,nOrbE)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_OrbE_MpProp(ipOrbE,nOrbE)
+
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
+character*24 Label
+logical Found
 
-      Character*24 Label
-      Logical      Found
+Label = 'OrbE'
+call qpg_dArray(Label,Found,nOrbE)
+if ((.not. Found) .or. (nOrbE == 0)) then
+  call SysAbendMsg('get_orbe','Did not find:',Label)
+end if
+call GetMem('OrbE','Allo','Real',ipOrbE,2*nOrbE)
+call Get_dArray(Label,Work(ipOrbE),nOrbE)
 
-      Label='OrbE'
-      Call qpg_dArray(Label,Found,nOrbE)
-      If(.not.Found .or. nOrbE.eq.0) Then
-         Call SysAbendMsg('get_orbe','Did not find:',Label)
-      End If
-      Call GetMem('OrbE','Allo','Real',ipOrbE,2*nOrbE)
-      Call Get_dArray(Label,Work(ipOrbE),nOrbE)
+return
 
-      Return
-      End
+end subroutine Get_OrbE_MpProp

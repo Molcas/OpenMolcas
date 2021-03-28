@@ -8,37 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Prim_Density_Matrix(ip_D,nBas,ip_D_p,nPrim,TM)
 
-      Implicit Real*8 (a-h,o-z)
+subroutine Get_Prim_Density_Matrix(ip_D,nBas,ip_D_p,nPrim,TM)
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      Dimension TM(nPrim,nBas)
+dimension TM(nPrim,nBas)
 
-      Do i=1,nBas
-        Do k=1,i-1
-          Work(ip_D+i*(i-1)/2+k-1)=Work(ip_D+i*(i-1)/2+k-1)/2.0d0
-        EndDo
-      EndDo
-      Call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
-      Do i=1,nPrim
-        Do k=1,i
-          TmpDensity=0.0d0
-          Do j=1,nBas
-            Do l=1,nBas
-              TMij=TM(i,j)
-              TMkl=TM(k,l)
-              If(j.lt.l) Then
-                Djl=Work(ip_D+l*(l-1)/2+j-1)
-              Else
-                Djl=Work(ip_D+j*(j-1)/2+l-1)
-              EndIf
-              TmpDensity=TmpDensity+TMij*TMkl*Djl
-            EndDo
-          EndDo
-          Work(ip_D_p+i*(i-1)/2+k-1)=TmpDensity
-        EndDo
-      EndDo
+do i=1,nBas
+  do k=1,i-1
+    Work(ip_D+i*(i-1)/2+k-1) = Work(ip_D+i*(i-1)/2+k-1)/2.0d0
+  end do
+end do
+call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
+do i=1,nPrim
+  do k=1,i
+    TmpDensity = 0.0d0
+    do j=1,nBas
+      do l=1,nBas
+        TMij = TM(i,j)
+        TMkl = TM(k,l)
+        if (j < l) then
+          Djl = Work(ip_D+l*(l-1)/2+j-1)
+        else
+          Djl = Work(ip_D+j*(j-1)/2+l-1)
+        end if
+        TmpDensity = TmpDensity+TMij*TMkl*Djl
+      end do
+    end do
+    Work(ip_D_p+i*(i-1)/2+k-1) = TmpDensity
+  end do
+end do
 
-      Return
-      End
-!
+return
+
+end subroutine Get_Prim_Density_Matrix

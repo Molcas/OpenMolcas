@@ -8,19 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NoverP(n,i,x)
-      Implicit Real*8 (a-h,o-z)
 
-      rn=1.0D0
-      rp=1.0D0
-      If((i.eq.0).or.(i.eq.n)) Then
-         x=1
-      Else
-         Do j=1,i
-            rn=rn*(n-j+1)
-            rp=rp*j
-         EndDo
-         x=rn/rp
-      EndIf
-      Return
-      End
+subroutine NoverP(n,i,x)
+
+implicit real*8(a-h,o-z)
+
+rn = 1.0d0
+rp = 1.0d0
+if ((i == 0) .or. (i == n)) then
+  x = 1
+else
+  do j=1,i
+    rn = rn*(n-j+1)
+    rp = rp*j
+  end do
+  x = rn/rp
+end if
+
+return
+
+end subroutine NoverP

@@ -8,144 +8,127 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,     &
-     &           orbe,orbe_b,iPol,LAllCenters)
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,orbe,orbe_b,iPol,LAllCenters)
 
-      Character*8 MemLabel
-      Dimension iCompMat(0:nMltPl,0:nMltPl,0:nMltPl)
-      Dimension orbe(NOCOB)
-      Dimension orbe_b(NOCOB_b)
-      Logical   LAllCenters
+implicit real*8(A-H,O-Z)
+
+character*8 MemLabel
+dimension iCompMat(0:nMltPl,0:nMltPl,0:nMltPl)
+dimension orbe(NOCOB)
+dimension orbe_b(NOCOB_b)
+logical LAllCenters
 
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
 
+nTotCen = 0
+do i=1,nAtoms
+  nTotCen = nTotCen+1
+  write(CEN_LAB(i*(i+1)/2),'(A)') Labe(i)
+  do j=1,i
+    if (BondMat(i,j)) then
+      nTotCen = nTotCen+1
+      write(CEN_LAB(i*(i-1)/2+j),'(3A)') LABE(i),'- ',LABE(j)
+    end if
+  end do
+end do
 
-      nTotCen=0
-      Do i=1,nAtoms
-         nTotCen=nTotCen+1
-         WRITE(CEN_LAB(i*(i+1)/2),'(A)') Labe(i)
-         Do j=1,i
-            If(BondMat(i,j)) Then
-              nTotCen=nTotCen+1
-              WRITE(CEN_LAB(i*(i-1)/2+j),'(3A)')LABE(i),'- ',LABE(j)
-            EndIf
-         EndDo
-      EndDo
+do iMltpl=0,nMltPl
+  iComp = 0
+  nComp = (iMltPl+1)*(iMltPl+2)/2
+  write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
+  call GetMem(MemLabel,'Allo','Real',iAtMltPlTotAd(iMltPl),nComp)
+  do i=0,nComp-1
+    Work(iAtMltPlTotAd(iMltPl)+i) = 0.0d0
+  end do
+  write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
+  call GetMem(MemLabel,'Allo','Real',iAtBoMltPlTotAd(iMltPl),nComp)
+  do i=0,nComp-1
+    Work(iAtBoMltPlTotAd(iMltPl)+i) = 0.0d0
+  end do
+  do np=iMltpl,0,-1
+    do nq=iMltpl-np,0,-1
+      nl = iMltpl-np-nq
+      iComp = iComp+1
+      iCompMat(np,nq,nl) = iComp
+      do nA=1,nAtoms
+        do ip=0,np
+          call NoverP(np,ip,rnPoveriP)
+          if (np == ip) then
+            xfac = rnpoverip
+          else
+            xfac = rnPoveriP*(Cor(1,nA,nA))**(np-ip)
+          end if
+          do iq=0,nq
+            call NoverP(nq,iq,rnqoveriq)
+            if (nq == iq) then
+              yfac = rnqoveriq
+            else
+              yfac = rnqoveriq*(Cor(2,nA,nA))**(nq-iq)
+            end if
+            do il=0,nl
+              call NoverP(nl,il,rnloveril)
+              if (nl == il) then
+                zfac = rnloveril
+              else
+                zfac = rnloveril*(Cor(3,nA,nA))**(nl-il)
+              end if
+              fac = xfac*yfac*zfac*Work(iAtMltPlAd(ip+iq+il)+nAtoms*(iCompMat(ip,iq,il)-1)+nA-1)
+              Work(iAtMltPlTotAd(iMltpl)+iComp-1) = Work(iAtMltPlTotAd(iMltpl)+iComp-1)+fac
+            end do
+          end do
+        end do
+        do nB=1,nA
+          if ((nA == nB) .or. BondMat(nA,nB)) then
+            do ip=0,np
+              call NoverP(np,ip,rnPoveriP)
+              if (np == ip) then
+                xfac = rnpoverip
+              else
+                xfac = rnPoveriP*(Cor(1,nA,nB))**(np-ip)
+              end if
+              do iq=0,nq
+                call NoverP(nq,iq,rnqoveriq)
+                if (nq == iq) then
+                  yfac = rnqoveriq
+                else
+                  yfac = rnqoveriq*(Cor(2,nA,nB))**(nq-iq)
+                end if
+                do il=0,nl
+                  call NoverP(nl,il,rnloveril)
+                  if (nl == il) then
+                    zfac = rnloveril
+                  else
+                    zfac = rnloveril*(Cor(3,nA,nB))**(nl-il)
+                  end if
+                  fac = xfac*yfac*zfac*Work(iAtBoMltPlAd(ip+iq+il)+nCenters*(iCompMat(ip,iq,il)-1)+nA*(nA-1)/2+nB-1)
+                  Work(iAtBoMltPlTotAd(iMltpl)+iComp-1) = Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)+fac
+                end do
+              end do
+            end do
+          end if
+        end do
+      end do
+    end do
+  end do
+end do
 
-      Do iMltpl = 0,nMltPl
-         iComp=0
-         nComp=(iMltPl+1)*(iMltPl+2)/2
-         Write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
-         Call GetMem(MemLabel,'Allo','Real',iAtMltPlTotAd(iMltPl),nComp)
-         Do i=0,nComp-1
-            Work(iAtMltPlTotAd(iMltPl)+i)=0.0D0
-         EndDo
-         Write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
-         Call GetMem(MemLabel,'Allo','Real',iAtBoMltPlTotAd(iMltPl),    &
-     &   nComp)
-         Do i=0,nComp-1
-            Work(iAtBoMltPlTotAd(iMltPl)+i)=0.0D0
-         EndDo
-         Do np=iMltpl,0,-1
-            Do nq=iMltpl-np,0,-1
-               nl=iMltpl-np-nq
-               iComp=iComp+1
-               iCompMat(np,nq,nl)=iComp
-               Do nA=1,nAtoms
-                  Do ip=0,np
-                     Call NoverP(np,ip,rnPoveriP)
-                     If(np.eq.ip) Then
-                        xfac=rnpoverip
-                     Else
-                        xfac=rnPoveriP*(Cor(1,nA,nA)                    &
-     &                  )**(np-ip)
-                     EndIf
-                     Do iq=0,nq
-                        Call NoverP(nq,iq,rnqoveriq)
-                        If(nq.eq.iq) Then
-                           yfac=rnqoveriq
-                        Else
-                           yfac=rnqoveriq*(Cor(2,nA,nA)                 &
-     &                      )**(nq-iq)
-                        EndIf
-                        Do il=0,nl
-                           Call NoverP(nl,il,rnloveril)
-                           If(nl.eq.il) Then
-                              zfac=rnloveril
-                           Else
-                              zfac=rnloveril*(Cor(3,nA,nA)              &
-     &                        )**(nl-il)
-                           EndIf
-                           fac=xfac*yfac*zfac*                          &
-     &                     Work(iAtMltPlAd(ip+iq+il)+                   &
-     &                     nAtoms*(iCompMat(ip,iq,il)-1)+               &
-     &                     nA-1)
-                           Work(iAtMltPlTotAd(iMltpl)+iComp-1)=         &
-     &                     Work(iAtMltPlTotAd(iMltpl)+iComp-1)+fac
-                        EndDo
-                     EndDo
-                  EndDo
-                  Do nB=1,nA
-                     If(nA.eq.nB.or.BondMat(nA,nB)) Then
-                     Do ip=0,np
-                        Call NoverP(np,ip,rnPoveriP)
-                        If(np.eq.ip) Then
-                           xfac=rnpoverip
-                        Else
-                           xfac=rnPoveriP*(Cor(1,nA,nB)                 &
-     &                     )**(np-ip)
-                        EndIf
-                        Do iq=0,nq
-                           Call NoverP(nq,iq,rnqoveriq)
-                           If(nq.eq.iq) Then
-                              yfac=rnqoveriq
-                           Else
-                              yfac=rnqoveriq*(Cor(2,nA,nB)              &
-     &                        )**(nq-iq)
-                           EndIf
-                           Do il=0,nl
-                              Call NoverP(nl,il,rnloveril)
-                              If(nl.eq.il) Then
-                                 zfac=rnloveril
-                              Else
-                                 zfac=rnloveril*(Cor(3,nA,nB)           &
-     &                           )**(nl-il)
-                              EndIf
-                              fac=xfac*yfac*zfac*                       &
-     &                        Work(iAtBoMltPlAd(ip+iq+il)+              &
-     &                        nCenters*(iCompMat(ip,iq,il)-1)+          &
-     &                        nA*(nA-1)/2+nB-1)
-                              Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)=    &
-     &                        Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)+fac
-                           EndDo
-                        EndDo
-                     EndDo
-                     EndIf
-                  EndDo
-               EndDo
-            EndDo
-         EndDo
-      EndDo
+call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
+!EB call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,
+call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,orbe,orbe_b,LAllCenters)
 
-      Call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
-!EB      Call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,
-      Call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,          &
-     &     orbe,orbe_b,LAllCenters)
+do iMltpl=0,nMltPl
+  nComp = (iMltPl+1)*(iMltPl+2)/2
+  write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
+  call GetMem(MemLabel,'Free','Real',iAtMltPlTotAd(iMltPl),iMltPl*nComp)
+  write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
+  call GetMem(MemLabel,'Free','Real',iAtBoMltPlTotAd(iMltPl),iMltPl*nComp)
+end do
 
-      Do iMltpl = 0,nMltPl
-         nComp=(iMltPl+1)*(iMltPl+2)/2
-         Write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
-         Call GetMem(MemLabel,'Free','Real',iAtMltPlTotAd(iMltPl),      &
-     &   iMltPl*nComp)
-         Write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
-         Call GetMem(MemLabel,'Free','Real',iAtBoMltPlTotAd(iMltPl),    &
-     &   iMltPl*nComp)
-      EndDo
+return
 
-!EB 111   Format(A,3F15.5,6F10.3,10I5)
-      Return
-      END
+!EB 111 format(A,3F15.5,6F10.3,10I5)
+
+end subroutine Wr_Prop
