@@ -11,21 +11,23 @@
 
 subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, iPol
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
+integer(kind=iwp) :: i, iComp, iCount, ilab, iMltPl, iStdOut, ix, ixx, iy, iyy, iz, izz, j, jComp, nComp
+integer(kind=iwp), parameter :: mxComp = (mxMltPl+1)*(mxMltPl+2)/2
+real(kind=wp) :: MolPol(6)
+character(len=16) MltPlLab, MltPlLabs(0:mxMltpl,mxComp), String(0:16), PolString ! "0:" added by EB
 
-parameter(mxComp=(mxMltPl+1)*(mxMltPl+2)/2)
-character*16 MltPlLab, MltPlLabs(0:mxMltpl,mxComp) ! "0:" added by EB
-character*16 String(0:16), PolString
-real*8 MolPol(6)
-
-iStdOut = 6
+iStdOut = u6
 
 do j=1,6
-  MolPol(j) = 0.0d0
+  MolPol(j) = Zero
 end do
 String(0) = 'Charge          '
 String(1) = 'Dipole          '
@@ -50,7 +52,7 @@ String(16) = '16-th       Car' !tesian
 PolString = 'Polarizability  '
 
 if (16 < mxMltPl) then
-  write(6,*) 'Increase length of MltPlLab'
+  write(u6,*) 'Increase length of MltPlLab'
   call Abend()
 end if
 do iMltPl=0,nMltPl
@@ -92,7 +94,7 @@ write(iStdOut,'(1x,a16,3a16)') 'Coord           ',(MltPlLabs(1,iComp)(1:1),iComp
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
-    write(6,'(1x,a,6a16)') String(iMltPl),(MltPlLabs(iMltPl,jComp)(1:iMltPl),jComp=iComp,min(iComp+5,nComp))
+    write(u6,'(1x,a,6a16)') String(iMltPl),(MltPlLabs(iMltPl,jComp)(1:iMltPl),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
 if (iPol > 0) then
@@ -173,7 +175,7 @@ write(iStdOut,*)
 write(iStdOut,*) ' SUMMED MULTIPOLES AND POLARIZABILITY FOR THE MOLECULE'
 write(iStdOut,*) ' *****************************************************'
 write(iStdOut,*)
-write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',0.0d0,0.0d0,0.0d0
+write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
@@ -183,7 +185,7 @@ end do
 if (iPol > 0) write(iStdOut,'(1x,a16,6f16.8)') PolString,(MolPol(j),j=1,6)
 write(iStdOut,*)
 write(iStdOut,*)
-write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',0.0d0,0.0d0,0.0d0
+write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6

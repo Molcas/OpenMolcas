@@ -11,7 +11,7 @@
 
 subroutine LauraPol()
 
-implicit real*8(a-h,o-z)
+implicit none
 
 !call Polar(ireturn)
 

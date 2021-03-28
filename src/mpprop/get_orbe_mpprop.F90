@@ -11,10 +11,13 @@
 
 subroutine Get_OrbE_MpProp(ipOrbE,nOrbE)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: ipOrbE, nOrbE
 #include "WrkSpc.fh"
-character*24 Label
-logical Found
+character(len=24) :: Label
+logical(kind=iwp) :: Found
 
 Label = 'OrbE'
 call qpg_dArray(Label,Found,nOrbE)

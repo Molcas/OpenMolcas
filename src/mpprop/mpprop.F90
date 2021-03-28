@@ -11,30 +11,25 @@
 
 subroutine MpProp(iReturn)
 
-implicit real*8(a-h,o-z)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Include files
+use Constants, only: Zero, One, Two, Eight
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: iReturn
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
-!
-! Variable definition
-!
-! Molcas part
-integer nPrim(8), nBas(8)
-character*8 Label
-character*80 VTitle
-character*6 FName
-character*8 MemLabel
-logical LNearestAtom
-logical LAllCenters
-logical AveOrb, Diffuse(3)
-logical LFirstRun
-logical LLumOrb
-logical Exist
-dimension dLimmo(2), iDum(1)
+integer(kind=iwp) :: i, iAtype, iCenX, iCenY, iCenZ, iComp, iDum(1), iEne, iErr, iMltpl, iOcen, iOcen_b, iOcof, iOcof_b, iOff1, &
+                     iOff2, iOff3, iopt, ip_ANr, ip_Coor, ip_D, ip_D_p, ip_D_p_b, ip_EC, ip_Ene, ip_Occ, ip_TM, ip_Ttot, &
+                     ip_Ttot_Inv, ip_Vec, ip_Vec_p, ip_vec_p_b, ipMP, iPol, iPrint, irc, iSmLbl,iSym, iTP, iWarn, iWFtype, j, Lu_, &
+                     LuYou, nAtoms, nBas(8), nCenters, nComp, nDens, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), &
+                     nSize, nSize1, nSize2, nSum, nSym, nThrs, nTM, nVec, nVec_p
+real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
+character(len=6) :: FName
+character(len=8) :: Label, MemLabel
+character(len=80) :: VTitle
+logical(kind=iwp) :: LNearestAtom, LAllCenters, AveOrb, Diffuse(3), LFirstRun, LLumOrb, Exists
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -66,12 +61,12 @@ LLumOrb = .false.
 Diffuse(1) = .false.
 Diffuse(2) = .false.
 Diffuse(3) = .false.
-dLimmo(1) = 0.65d0
-dLimmo(2) = 2.0d0
-Thrs1 = 1d-5
-Thrs2 = 1d-4
+dLimmo(1) = 0.65_wp
+dLimmo(2) = Two
+Thrs1 = 1.0e-5_wp
+Thrs2 = 1.0e-4_wp
 nThrs = 3
-ThrsMul = 1d-2
+ThrsMul = 1.0e-2_wp
 iPrint = 1
 !                                                                      *
 !***********************************************************************
@@ -97,7 +92,7 @@ end if
 !call Get_nAtoms(nAtoms)
 call Get_iScalar('Unique atoms',nAtoms)
 if (nAtoms > mxAtomMP) then
-  write(6,'(A)') 'MPProp: Too many atoms'
+  write(u6,'(A)') 'MPProp: Too many atoms'
   call Abend()
 end if
 
@@ -191,12 +186,12 @@ do iMltpl=0,mxMltPl
   do iComp=1,nComp
     irc = -1
     iopt = 1
-    !EB call RdOne(irc,iopt,label,iComp,nInt,iSmLbl)
+    !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
     call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
-    if (irc == 0) nInt = iDum(1)
+    if (irc == 0) n_Int = iDum(1)
     if (irc /= 0) then
       if (iComp /= 1) then
-        write(6,'(2A)') 'MPProp: Error reading iComp.ne.0 label=',label
+        write(u6,'(2A)') 'MPProp: Error reading iComp.ne.0 label=',label
         call Abend()
       else
         call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),nComp)
@@ -205,25 +200,25 @@ do iMltpl=0,mxMltPl
         go to 100
       end if
     end if
-    if (nInt /= 0) then
+    if (n_Int /= 0) then
       write(MemLabel,'(i3.3,i5.5)') iMltpl,iComp
-      call GetMem(MemLabel,'Allo','Real',iWork(iMltPlAd(iMltpl)+iComp-1),nInt+4)
-      nSum = nSum+nInt+4
+      call GetMem(MemLabel,'Allo','Real',iWork(iMltPlAd(iMltpl)+iComp-1),n_Int+4)
+      nSum = nSum+n_Int+4
       irc = -1
       iopt = 0
       call RdOne(irc,iopt,label,iComp,Work(iWork(iMltPlAd(iMltpl)+iComp-1)),iSmLbl)
     else
-      write(6,'(2A)') 'MPProp: Error reading nInt=0 label=',label
+      write(u6,'(2A)') 'MPProp: Error reading n_Int=0 label=',label
       call Abend()
     end if
     if (irc /= 0) then
-      write(6,'(2A)') '2 MPProp: Error reading ',label
+      write(u6,'(2A)') '2 MPProp: Error reading ',label
       call Abend()
     end if
     !???????????????????????
-    if (nInt /= 0) call CmpInt(Work(iWork(iMltPlAd(iMltpl)+iComp-1)),nInt,nPrim,nIrrep,iSmLbl)
+    if (n_Int /= 0) call CmpInt(Work(iWork(iMltPlAd(iMltpl)+iComp-1)),n_Int,nPrim,nIrrep,iSmLbl)
     do i=1,3
-      CordMltPl(i,iMltpl) = Work(iWork(iMltPlAd(iMltpl))+nInt+i-1)
+      CordMltPl(i,iMltpl) = Work(iWork(iMltPlAd(iMltpl))+n_Int+i-1)
     end do
   end do
 end do
@@ -245,10 +240,10 @@ do iMltpl=0,nMltPl
   call GetMem(MemLabel,'Allo','Real',iAtBoMltPlAdCopy(iMltpl),nComp*nCenters)
   nSum = nSum+nComp*(nAtoms+nCenters)
   do i=1,nComp*nAtoms
-    Work(iAtMltPlAd(iMltpl)+i-1) = 0.0d0
+    Work(iAtMltPlAd(iMltpl)+i-1) = Zero
   end do
   do i=1,nComp*nCenters
-    Work(iAtBoMltPlAd(iMltpl)+i-1) = 0.0d0
+    Work(iAtBoMltPlAd(iMltpl)+i-1) = Zero
   end do
 end do
 !                                                                      *
@@ -260,28 +255,28 @@ Label = 'P_matrix'
 irc = -1
 iopt = 1
 iComp = 1
-!EB call RdOne(irc,iopt,label,iComp,nInt,iSmLbl)
+!EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
 call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
-nInt = iDum(1)
+n_Int = iDum(1)
 if (irc /= 0) then
-  write(6,'(2A)') 'MPProp: Error getting length of ',label
-  write(6,*) 'Length of the vector',nInt,iSmLbl
-  write(6,*) 'irc=',irc
+  write(u6,'(2A)') 'MPProp: Error getting length of ',label
+  write(u6,*) 'Length of the vector',n_Int,iSmLbl
+  write(u6,*) 'irc=',irc
   call Abend()
 end if
-if (nInt /= nSize) then
-  write(6,*) 'MPProp: nInt.ne.nSize'
-  write(6,*) 'nInt=',nInt
-  write(6,*) 'nSize=',nSize
+if (n_Int /= nSize) then
+  write(u6,*) 'MPProp: n_Int.ne.nSize'
+  write(u6,*) 'n_Int=',n_Int
+  write(u6,*) 'nSize=',nSize
   call Abend()
 end if
 irc = -1
 iopt = 0
 
-call GetMem('CenX','Allo','Real',iCenX,nInt+4)
-call GetMem('CenY','Allo','Real',iCenY,nInt+4)
-call GetMem('CenZ','Allo','Real',iCenZ,nInt+4)
-nSum = nSum+nInt*3
+call GetMem('CenX','Allo','Real',iCenX,n_Int+4)
+call GetMem('CenY','Allo','Real',iCenY,n_Int+4)
+call GetMem('CenZ','Allo','Real',iCenZ,n_Int+4)
+nSum = nSum+n_Int*3
 
 iComp = 1
 call RdOne(irc,iopt,label,iComp,Work(iCenX),iSmLbl)
@@ -354,7 +349,7 @@ if (LLumOrb) then
     call RdVec(FName,Lu_,'COE',nSym,nBas,nBas,Work(ip_Vec),Work(ip_Occ),Work(ip_Ene),iDum,VTitle,iWarn,iErr)
   end if
   if (index(VTitle,'IVO') /= 0) then
-    write(6,*) ' MpProp not implemented for IVO orbitals!'
+    write(u6,*) ' MpProp not implemented for IVO orbitals!'
     call Abend
   end if
   !if (iPol == 2) then
@@ -362,18 +357,18 @@ if (LLumOrb) then
   !end if
   if (Method == 'UHF-SCF') then
     do i=0,nOcc-1
-      if (Work(ip_Occ+i) /= 0.0d0) then
+      if (Work(ip_Occ+i) /= Zero) then
         nOcOb = nOcOb+1
       end if
     end do
     do i=nOcc,2*nOcc-1
-      if (Work(ip_Occ+i) /= 0.0d0) then
+      if (Work(ip_Occ+i) /= Zero) then
         nOcOb_b = nOcOb_b+1
       end if
     end do
   else
     do i=0,nOcc-1
-      if (Work(ip_Occ+i) /= 0.0d0) then
+      if (Work(ip_Occ+i) /= Zero) then
         nOcOb = nOcOb+1
       end if
     end do
@@ -394,8 +389,8 @@ if (LLumOrb) then
   iOff3 = ip_Vec_p
   do iSym=1,nSym
     if (nPrim(iSym) > 0) then
-      call DGEMM_('N','N',nPrim(iSym),nBas(iSym),nBas(iSym),1.0d0,Work(iOff2),nPrim(iSym),Work(iOff1),nBas(iSym),0.0d0, &
-                  Work(iOff3),nPrim(iSym))
+      call DGEMM_('N','N',nPrim(iSym),nBas(iSym),nBas(iSym),One,Work(iOff2),nPrim(iSym),Work(iOff1),nBas(iSym),Zero,Work(iOff3), &
+                  nPrim(iSym))
       iOff1 = iOff1+nBas(iSym)**2
       iOff2 = iOff2+nPrim(iSym)*nBas(iSym)
       iOff3 = iOff3+nPrim(iSym)*nBas(iSym)
@@ -410,8 +405,8 @@ if (LLumOrb) then
     iOff3 = ip_Vec_p_b
     do iSym=1,nSym
       if (nPrim(iSym) > 0) then
-        call DGEMM_('N','N',nPrim(iSym),nBas(iSym),nBas(iSym),1.0d0,Work(iOff2),nPrim(iSym),Work(iOff1),nBas(iSym),0.0d0, &
-                    Work(iOff3),nPrim(iSym))
+        call DGEMM_('N','N',nPrim(iSym),nBas(iSym),nBas(iSym),One,Work(iOff2),nPrim(iSym),Work(iOff1),nBas(iSym),Zero,Work(iOff3), &
+                    nPrim(iSym))
         iOff1 = iOff1+nBas(iSym)**2
         iOff2 = iOff2+nPrim(iSym)*nBas(iSym)
         iOff3 = iOff3+nPrim(iSym)*nBas(iSym)
@@ -445,11 +440,11 @@ else
   else
     call GetMem('OrbE','Allo','Real',ip_Ene,2*nOcc)
     do iEne=1,2*nOcc
-      Work(ip_Ene+iEne-1) = 0.0d0
+      Work(ip_Ene+iEne-1) = Zero
     end do
   end if
   call Get_Density_Matrix_mpprop(ip_D,nDens,nBas(1),nSym)
-  write(6,*) 'No polarizability will be calculated'
+  write(u6,*) 'No polarizability will be calculated'
   iPol = 0
   call Get_Prim_Density_Matrix(ip_D,nBas(1),ip_D_p,nPrim(1),Work(ip_TM))
   call Free_Work(ip_D)
@@ -467,23 +462,23 @@ call Get_Prim_Atom_Tab(nAtoms,nPrim(1),Work(ip_Coor),Work(iCenX),Work(iCenY),Wor
 !call Get_Energy(EneV)
 call Get_dScalar('Last energy',EneV)
 
-write(6,*)
-write(6,'(a,f16.8)') ' Total SCF energy ',EneV
-write(6,*)
+write(u6,*)
+write(u6,'(a,f16.8)') ' Total SCF energy ',EneV
+write(u6,*)
 nOrbi = nBas(1)
 
 ! If multipoles and polarizability of the bonds should go to
 ! the atoms they belong to or to the nearest atom
 if (.not. LNearestAtom) then
-  write(6,*)
-  write(6,*) ' I will not move bonds and polarizabilities'
-  write(6,*) ' to the nearest atom, just to the bonding pair'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' I will not move bonds and polarizabilities'
+  write(u6,*) ' to the nearest atom, just to the bonding pair'
+  write(u6,*)
 else
-  write(6,*)
-  write(6,*) ' I WILL move bonds and polarizabilities'
-  write(6,*) ' to the nearest atom'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' I WILL move bonds and polarizabilities'
+  write(u6,*) ' to the nearest atom'
+  write(u6,*)
 end if
 
 ! Get multipole properties
@@ -510,7 +505,7 @@ if (Diffuse(1)) then
   call GetMem('ToPoint','Allo','Real',iTP,nAtoms)
   call CoreToPoint(nAtoms,Work(ipMP),Work(iTP))
   LuYou = IsFreeUnit(81)
-  call OpnFl('DIFFPR',LuYou,Exist)
+  call OpnFl('DIFFPR',LuYou,Exists)
   call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),ipMP,ip_Coor,nCenters,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,nMltPl,iTP,dLimmo,Thrs1, &
                         Thrs2,nThrs,iPrint,ThrsMul,LuYou)
   close(LuYou)
@@ -538,10 +533,10 @@ call GetMem('AtPol','Allo','Real',iAtPolAd,nAtoms*6)
 call GetMem('AtBoPol','Allo','Real',iAtBoPolAd,nCenters*6)
 nSum = nSum+6*(nCenters+nAtoms)
 do i=0,nAtoms*6-1
-  Work(iAtPolAd+i) = 0.0d0
+  Work(iAtPolAd+i) = Zero
 end do
 do i=0,nCenters*6-1
-  Work(iAtBoPolAd+i) = 0.0d0
+  Work(iAtBoPolAd+i) = Zero
 end do
 if (iPol > 0) then
   !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,Work(iWork(iMltPlAd(0)))
@@ -558,16 +553,16 @@ if (iPol > 0) then
                        LFirstRun)
       end if
     else
-      write(6,*)
-      write(6,*) 'I will not do an analyze of the polarizability'
-      write(6,*) 'no of occupied orb. is to large'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) 'I will not do an analyze of the polarizability'
+      write(u6,*) 'no of occupied orb. is to large'
+      write(u6,*)
       if (Method == 'UHF-SCF') then
-        write(6,*) ' nOcOb nOcOb_b nOcc ',nOcOb,nOcOb_b,nOcc
+        write(u6,*) ' nOcOb nOcOb_b nOcc ',nOcOb,nOcOb_b,nOcc
       else
-        write(6,*) ' nOcOb nOcc ',nOcOb,nOcc
+        write(u6,*) ' nOcOb nOcc ',nOcOb,nOcc
       end if
-      write(6,*)
+      write(u6,*)
       iPol = 0
     end if
   elseif (iPol == 2) then
@@ -582,10 +577,10 @@ call Wr_Prop(nAtoms,nCenters,nBas(1),nMltPl,NOCOB,NOCOB_b,Work(ip_Ene),Work(ip_E
 !                                                                      *
 ! Deallocate Work
 
-write(6,*)
-write(6,*) 'Number of allocated real*8 words',nsum
-write(6,'(a,f6.2,a)') ' That is ',dble(nsum)*8.0/1024.0/1024.0,' MBytes'
-write(6,*)
+write(u6,*)
+write(u6,*) 'Number of allocated real*8 words',nsum
+write(u6,'(a,f6.2,a)') ' That is ',nsum*Eight/(1024.0_wp**2),' MBytes'
+write(u6,*)
 call Free_Work(ip_D_p)
 !if (iPol == 0) then
 call GetMem('AtBoPol','Free','Real',iAtBoPolAd,nCenters*6)
@@ -605,9 +600,9 @@ if (LLumorb) then
 end if
 call GetMem('Ene','Free','Real',ip_Ene,nOcc)
 call GetMem('TM','Free','Real',ip_TM,nTM)
-call GetMem('CenZ','Free','Real',iCenZ,nInt+4)
-call GetMem('CenY','Free','Real',iCenY,nInt+4)
-call GetMem('CenX','Free','Real',iCenX,nInt+4)
+call GetMem('CenZ','Free','Real',iCenZ,n_Int+4)
+call GetMem('CenY','Free','Real',iCenY,n_Int+4)
+call GetMem('CenX','Free','Real',iCenX,n_Int+4)
 do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
@@ -617,7 +612,7 @@ do iMltpl=0,nMltPl
   call GetMem(MemLabel,'Free','Real',iAtBoMltPlAdCopy(iMltpl),nComp*nCenters)
   do iComp=1,nComp
     write(MemLabel,'(i3.3,i5.5)') iMltpl,iComp
-    call GetMem(MemLabel,'Free','Real',iWork(iMltPlAd(iMltpl)+iComp-1),nInt+4)
+    call GetMem(MemLabel,'Free','Real',iWork(iMltPlAd(iMltpl)+iComp-1),n_Int+4)
   end do
   write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
   call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),nComp)

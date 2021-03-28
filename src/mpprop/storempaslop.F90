@@ -11,10 +11,16 @@
 
 subroutine StoreMpAsLop(nAtoms,ip_ANr,nB,ipT,ipTi,ipMP,lMax,ip_EC)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nB, lMax
+integer(kind=iwp), intent(out) :: ip_ANr, ipT, ipTi, ipMP, ip_EC
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
+integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l, nSize1, nSize2
 
 !-- Let's fix the ip_ANr.
 
@@ -28,10 +34,10 @@ call GetMem('Tinv','Allo','Real',ipTi,nB**2)
 kaunter = 0
 do i=1,nB
   do j=1,nB
-    Work(ipT+kaunter) = 0.0d0
-    Work(ipTi+kaunter) = 0.0d0
-    if (i == j) Work(ipT+kaunter) = 1.0d0
-    if (i == j) Work(ipTi+kaunter) = 1.0d0
+    Work(ipT+kaunter) = Zero
+    Work(ipTi+kaunter) = Zero
+    if (i == j) Work(ipT+kaunter) = One
+    if (i == j) Work(ipTi+kaunter) = One
     kaunter = kaunter+1
   end do
 end do
@@ -70,7 +76,7 @@ do l=0,lMax
           iAtK = iAtK+1
         end do
         if (l == 0) then
-          Work(ipMP+iAtK-1+nSize1*iMu) = Work(ipMP+iAtK-1+nSize1*iMu)-dble(iWork(ip_ANr+iAt1-1))
+          Work(ipMP+iAtK-1+nSize1*iMu) = Work(ipMP+iAtK-1+nSize1*iMu)-real(iWork(ip_ANr+iAt1-1),kind=wp)
         end if
       end do
     end do

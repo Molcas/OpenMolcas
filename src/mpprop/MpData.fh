@@ -8,11 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      Real*8 Bohr_to_Ang,Ang_to_Bohr,au_to_kjmol
+      Integer MxMltPl
       Parameter (Bohr_to_Ang=0.52917721067D0)
       Parameter (Ang_to_Bohr=1.0d0/Bohr_to_Ang)
       Parameter (au_to_kjmol=2625.501D0)
       Parameter (MxMltPl=10)
 !
+      Integer iAtMltPlAd,iAtBoMltPlAd,iMltPlAd,iAtPolAd,iAtBoPolAd,     &
+     &        iQnuc,iAtMltPlTotAd,iAtBoMltPlTotAd,iAtBoMltPlAdCopy
       Common /Address/ iAtMltPlAd(0:mxMltPl), iAtBoMltPlAd(0:mxMltPl),  &
      &                 iMltPlAd(0:mxMltPl),iAtPolAd,iAtBoPolAd,iQnuc,   &
      &                 iAtMltPlTotAd(0:mxMltPl),                        &

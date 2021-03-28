@@ -11,12 +11,16 @@
 
 subroutine Wr_Cord(nAtoms)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms
 #include "WrkSpc.fh"
 #include "MpData.fh"
 #include "MolProp.fh"
+integer(kind=iwp) :: i, iStdOut
 
-iStdOut = 6
+iStdOut = u6
 
 write(iStdOut,*)
 write(iStdOut,'(10X,A)') ' ************************************************ '

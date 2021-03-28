@@ -11,27 +11,26 @@
 
 subroutine Get_Mpprop_input(nAtoms,iPol,LNearestAtom,LAllCenters,AveOrb,LLumOrb,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,iPrint)
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms
+integer(kind=iwp), intent(inout) :: iPol, nThrs, iPrint
+logical(kind=iwp), intent(inout) :: LNearestAtom, LAllCenters, AveOrb, LLumOrb, Diffuse(3)
+real(kind=wp), intent(inout) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 #include "MolProp.fh"
 #include "warnings.fh"
+integer(kind=iwp) :: i, iChrct, iStdOut, j, k, l, Last, LuRd, m, nBonds
+character(len=3) :: EndKey
+! Jose Character(len=4) :: TestLabe(0:nAtoms), KWord
+character(len=4) :: KWord
+character(len=6) :: TestLabe(0:nAtoms)
+character(len=180) :: Key, BLine
+logical(kind=iwp), parameter :: Debug = .false.
+integer(kind=iwp), external :: iCLast
+character(len=180), external :: Get_Ln
 
-character*3 EndKey
-! Jose Character*4 TestLabe(0:nAtoms), KWord
-character*4 KWord
-character*6 TestLabe(0:nAtoms)
-character*180 Key, BLine
-character*180 Get_Ln
-logical Debug, LNearestAtom
-logical LAllCenters, AveOrb, Diffuse(3)
-logical LLumorb
-dimension dLimmo(2)
-
-external Get_Ln
-
-data Debug/.false./
-
-iStdOut = 6
+iStdOut = u6
 
 do i=1,180
   BLine(i:i) = ' '
@@ -68,14 +67,14 @@ if (KWord(1:4) == 'AVER') Go To 7912
 if (KWord(1:4) == 'END ') Go To 997
 iChrct = len(KWord)
 Last = iCLast(KWord,iChrct)
-write(6,*)
-write(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(6,*) ' Error in keyword.'
+write(u6,*)
+write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+write(u6,*) ' Error in keyword.'
 call ErrTra
 call Quit(_RC_INPUT_ERROR_)
-write(6,*) ' Premature end of input file.'
+write(u6,*) ' Premature end of input file.'
 call Quit(_RC_INPUT_ERROR_)
-write(6,*) ' Error while reading input file.'
+write(u6,*) ' Error while reading input file.'
 990 call ErrTra
 call Quit(_RC_INPUT_ERROR_)
 !                                                                      *
@@ -157,14 +156,14 @@ goto 998
 ! Set Method level
 !982 continue
 !Key = Get_Ln(LuRd)
-!if (Debug) write (6,*) ' Processing:',Key
+!if (Debug) write(u6,*) ' Processing:',Key
 !Method = Key
 !call UpCase(Method)
 !if ((Method == 'SCF') .or. (Method == 'RASSCF')) then
 !
 !else
-!  write(6,*) 'The Method Label is not correct'
-!  write(6,*) Method
+!  write(u6,*) 'The Method Label is not correct'
+!  write(u6,*) Method
 !  call Quit(20)
 !end if
 !Goto 998
@@ -247,7 +246,7 @@ if (Key(1:4) == 'NUME') then
   elseif (Key(1:4) == 'END ') then
     goto 987 !Not an error, Diffuse implies AllCenters
   else
-    write(6,*) 'Undefined option for ''DIFFuse'':',Key
+    write(u6,*) 'Undefined option for ''DIFFuse'':',Key
     call FindErrorLine
     call Quit_OnUserError()
   end if
@@ -256,7 +255,7 @@ elseif (Key(1:4) == 'REXT') then
   Diffuse(1) = .true.
   Diffuse(3) = .true.
 else
-  write(6,*) 'Undefined option for ''DIFFuse'':',Key
+  write(u6,*) 'Undefined option for ''DIFFuse'':',Key
   call FindErrorLine
   call Quit_OnUserError()
 end if

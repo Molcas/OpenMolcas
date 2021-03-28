@@ -12,18 +12,16 @@
 subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
+real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
+logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
-!      Dimension oNum(nOrb)
-!      Dimension oCof(nBas,nPrim)
-dimension ECENTX(nPrim*(nPrim+1)/2)
-dimension ECENTY(nPrim*(nPrim+1)/2)
-dimension ECENTZ(nPrim*(nPrim+1)/2)
-logical LNearestAtom
-logical LFirstRun
-logical LLumOrb
+integer(kind=iwp) :: ip_iCompMat, ip_Qexp !, ip_DenMat
 
 call Allocate_iWork(ip_iCompMat,(nMltPl+1)**3)
 call Allocate_Work(ip_Qexp,nPrim**2)
@@ -44,28 +42,27 @@ end subroutine Get_MpProp
 subroutine Get_MpProp_(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,iCompMat,Qexp,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
+real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
+logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
+integer(kind=iwp), intent(out) :: iCompMat(0:nMltPl,0:nMltPl,0:nMltPl)
+real(kind=wp), intent(out) :: Qexp(nPrim,nPrim) !, DenMat(nPrim,nPrim)
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
-!dimension oNum(nOrb)
-!dimension oCof(nBas,nPrim)
-dimension CorP(3), CorN(3)
-dimension iCompMat(0:nMltPl,0:nMltPl,0:nMltPl)
-dimension ECENTX(nPrim*(nPrim+1)/2)
-dimension ECENTY(nPrim*(nPrim+1)/2)
-dimension ECENTZ(nPrim*(nPrim+1)/2)
-dimension Qexp(nPrim,nPrim)
-!dimension DenMat(nPrim,nPrim)
-logical LNearestAtom
-logical LFirstRun
-logical LLumOrb
+integer(kind=iwp) :: i, iA, iComp, ii, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
+real(kind=wp) :: CorP(3), CorN(3), FracA, FracB, FracN, FracP, Qn, Qp, Qs, R, RA, RB, rnloveril, rnPoveriP, rnqoveriq, Rtot, Rwei, &
+                 Smallest, rsum, sum_a, sum_b, xfac, xfac_a, xfac_b, yfac, yfac_a, yfac_b, zfac, zfac_a, zfac_b
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! SOME KIND OF PROLOG
 
-iStdout = 6
+iStdout = u6
 write(iStdOut,*)
 if (LLumOrb) then
   write(iStdOut,*) ' Using the INPORB file'
@@ -125,7 +122,7 @@ end if
 !if (LLumOrb) then
 !  do K=1,nPrim
 !    do L=1,K
-!      DenMat(K,L) = 0.0d0
+!      DenMat(K,L) = Zero
 !    end do
 !  end do
 !  do K=1,nPrim
@@ -168,7 +165,7 @@ do nA=1,nAtoms
       do nq=iMltpl-np,0,-1
         nl = iMltpl-np-nq
         iComp = iComp+1
-        sum = 0.0d0
+        rsum = Zero
         do ip=0,np
           call NoverP(np,ip,rnPoveriP)
           if (np == ip) then
@@ -190,7 +187,7 @@ do nA=1,nAtoms
               else
                 zfac = rnloveril*(CordMltPl(3,il)-COR(3,nA,nA))**(nl-il)
               end if
-              if ((xfac == 0.0d0) .or. (yfac == 0.0d0) .or. (zfac == 0.0d0)) goto 10
+              if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) goto 10
               do iPBas=1,nAtomPBas(nA)
                 i = iAtPrTab(iPBas,nA)
                 do jPBas=1,nAtomPBas(nA)
@@ -202,7 +199,7 @@ do nA=1,nAtoms
                     jj = iAtPrTab(jPBas,nA)
                     ii = i
                   end if
-                  sum = sum+xfac*yfac*zfac*Work(ip_D_p+ii*(ii-1)/2+jj-1)*Work(iWork(iMltPlAd(ip+iq+il)+ &
+                  rsum = rsum+xfac*yfac*zfac*Work(ip_D_p+ii*(ii-1)/2+jj-1)*Work(iWork(iMltPlAd(ip+iq+il)+ &
                         iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
                 end do
               end do
@@ -211,10 +208,10 @@ do nA=1,nAtoms
           end do
         end do
         Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nA*(nA+1)/2-1) = Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nA*(nA+1)/2-1)- &
-                                                                      sum ! minus from the negative sign of the electron
+                                                                      rsum ! minus from the negative sign of the electron
         Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)+nA*(nA+1)/2-1) = Work(iAtBoMltPlAd(iMltpl)+ &
                                                                           nCenters*(iComp-1)+nA*(nA+1)/2-1)
-        Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1) = Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1)-sum
+        Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1) = Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1)-rsum
       end do
     end do
   end do
@@ -231,11 +228,11 @@ do nA=1,nAtoms
 
     ! MULTIPOLE BETWEEN NA,NB
 
-    Qp = 0.0
-    Qn = 0.0
+    Qp = Zero
+    Qn = Zero
     do i=1,3
-      CorP(i) = 0.0
-      CorN(i) = 0.0
+      CorP(i) = Zero
+      CorN(i) = Zero
     end do
     do iPBas=1,nAtomPBas(NA)
       i = iAtPrTab(iPBas,NA)
@@ -249,7 +246,7 @@ do nA=1,nAtoms
           jj = iAtPrTab(jPBas,nB)
           ii = i
         end if
-        if (Qexp(i,j) > (0.0d0)) then
+        if (Qexp(i,j) > Zero) then
           Qp = Qp+Qexp(i,j)
           CorP(1) = CorP(1)+QEXP(I,J)*ECENTX(ii*(ii-1)/2+jj)
           CorP(2) = CorP(2)+QEXP(I,J)*ECENTY(ii*(ii-1)/2+jj)
@@ -263,23 +260,23 @@ do nA=1,nAtoms
       end do
     end do
 
-    if (Qp /= 0.0d00) then
+    if (Qp /= Zero) then
       CorP(1) = CorP(1)/Qp
       CorP(2) = CorP(2)/Qp
       CorP(3) = CorP(3)/Qp
     end if
-    if (Qn /= 0.0d00) then
+    if (Qn /= Zero) then
       CorN(1) = CorN(1)/Qn
       CorN(2) = CorN(2)/Qn
       CorN(3) = CorN(3)/Qn
     end if
     Qs = Qp-Qn
-    if (Qs /= 0.0d00) then
+    if (Qs /= Zero) then
       FracP = Qp/Qs
-      FracN = 1.0d00-FracP
+      FracN = One-FracP
     else
-      FracP = 0.0d00
-      FracN = 0.0d00
+      FracP = Zero
+      FracN = Zero
     end if
     Cor(1,nA,nB) = CorP(1)*FracP+CorN(1)*FracN
     Cor(2,nA,nB) = CorP(2)*FracP+CorN(2)*FracN
@@ -293,12 +290,12 @@ do nA=1,nAtoms
     ! FRACTION OF MULTIPOLE EXPANSION TO BE RELATED TO THE PAIR ATOMS
 
     FracB = Rwei/Rtot
-    FracA = 1.0d00-FracB
+    FracA = One-FracB
     Frac(nA,nB) = FracA
 
     ! Find the closest atom
     if (LNearestAtom .and. (.not. BondMat(nA,nB))) then
-      Smallest = 1.0d200
+      Smallest = huge(Smallest)
       do i=1,nAtoms
         R = sqrt((Cor(1,nA,nB)-Cor(1,i,i))**2+(Cor(2,nA,nB)-Cor(2,i,i))**2+(Cor(3,nA,nB)-Cor(3,i,i))**2)
         if (R < Smallest) then
@@ -310,8 +307,8 @@ do nA=1,nAtoms
       RB = sqrt((Cor(1,nA,nB)-Cor(1,nB,nB))**2+(Cor(2,nA,nB)-Cor(2,nB,nB))**2+(Cor(3,nA,nB)-Cor(3,nB,nB))**2)
       if (((iA /= nA) .and. (iA /= nB)) .and. ((Smallest < RA) .and. (Smallest < RB))) then
         iA = iA
-        FracA = 1.0d0
-        FracB = 0.0d0
+        FracA = One
+        FracB = Zero
         write(iStdOut,*)
         write(iStdOut,*) ' Moving bond between the atoms  ',Labe(nA),Labe(nB)
         write(iStdOut,*) ' to the atom                    ',Labe(iA)
@@ -336,7 +333,7 @@ do nA=1,nAtoms
         do nq=iMltpl-np,0,-1
           nl = iMltpl-np-nq
           iComp = iComp+1
-          sum = 0.0
+          rsum = Zero
           do ip=0,np
             call NoverP(np,ip,rnPoveriP)
             if (np == ip) then
@@ -358,7 +355,7 @@ do nA=1,nAtoms
                 else
                   zfac = rnloveril*(CordMltPl(3,il)-COR(3,nA,nB))**(nl-il)
                 end if
-                if ((xfac == 0.0d0) .or. (yfac == 0.0d0) .or. (zfac == 0.0d0)) goto 20
+                if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) goto 20
                 do iPBas=1,nAtomPBas(nA)
                   i = iAtPrTab(iPBas,nA)
                   do jPBas=1,nAtomPBas(nB)
@@ -370,8 +367,8 @@ do nA=1,nAtoms
                       jj = iAtPrTab(jPBas,nB)
                       ii = i
                     end if
-                    sum = sum+xfac*yfac*zfac*2.0d0*Work(ip_D_p+ii*(ii-1)/2+jj-1)*Work(iWork(iMltPlAd(ip+iq+il)+ &
-                          iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
+                    rsum = rsum+xfac*yfac*zfac*Two*Work(ip_D_p+ii*(ii-1)/2+jj-1)*Work(iWork(iMltPlAd(ip+iq+il)+ &
+                           iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
                   end do
                 end do
                 20 continue
@@ -379,7 +376,7 @@ do nA=1,nAtoms
             end do
           end do
           Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nA*(nA-1)/2+nB-1) = Work(iAtBoMltPlAd(iMltpl)+ &
-                                                                           nCenters*(iComp-1)+nA*(nA-1)/2+nB-1)-sum
+                                                                           nCenters*(iComp-1)+nA*(nA-1)/2+nB-1)-rsum
                                                                            ! minus from the negative sign of the electron
           ! Copy the multipole arrays
           Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)+nA*(nA-1)/2+nB-1) = Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+ &
@@ -398,8 +395,8 @@ do nA=1,nAtoms
           do nq=iMltpl-np,0,-1
             nl = iMltpl-np-nq
             iComp = iComp+1
-            sum_a = 0.0d0
-            sum_b = 0.0d0
+            sum_a = Zero
+            sum_b = Zero
             do ip=0,np
               call NoverP(np,ip,rnPoveriP)
               if (np == ip) then

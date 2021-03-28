@@ -15,27 +15,28 @@
 subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,OENE,OENE_b,LAllCenters)
 !EB subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,OENE,iBond,
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, NORBI, NOCOB, NOCOB_b !, iBond(2,nCenters)
+real(kind=wp), intent(in) :: OENE(NOCOB), OENE_b(NOCOB_b)
+logical(kind=iwp), intent(in) :: LAllCenters
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
-
-dimension OENE(NOCOB)
-dimension OENE_b(NOCOB_b)
-!EB      Dimension iBond(2,nCenters)
-real*8 MolPol(6)
-character*8 Name
-logical Exist
-logical LAllCenters
+integer(kind=iwp) :: i, iComp, iMltPl, j, k, Lu, nComp
+real(kind=wp) :: MolPol(6)
+character(len=8) :: FileName
+logical(kind=iwp) :: Exists
 
 do i=1,6
-  MolPol(i) = 0.0d0
+  MolPol(i) = Zero
 end do
 
 Lu = 30
-Name = 'MPPROP'
-call OpnFl(Name,Lu,Exist)
+FileName = 'MPPROP'
+call OpnFl(FileName,Lu,Exists)
 rewind(Lu)
 
 write(Lu,6) '**************************************************'
@@ -65,13 +66,13 @@ if (.not. LAllCenters) then
     write(Lu,1) cor(1,i,i),cor(2,i,i),cor(3,i,i)
     do iMltPl=0,nMltPl
       nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1)(Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+i-1),iComp=1,nComp)
+      write(Lu,1) (Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+i-1),iComp=1,nComp)
     end do
     do iMltPl=0,2
       nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
+      write(Lu,1) (Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
     end do
-    write(Lu,1)(Work(iAtPolAd+nAtoms*j+i-1),j=0,5)
+    write(Lu,1) (Work(iAtPolAd+nAtoms*j+i-1),j=0,5)
     do j=0,5
       MolPol(j+1) = MolPol(j+1)+Work(iAtPolAd+nAtoms*j+i-1)
     end do
@@ -86,20 +87,20 @@ else
     write(Lu,1) Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
     do iMltPl=0,nMltPl
       nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1)(Work(iAtBoMltPlAd(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
+      write(Lu,1) (Work(iAtBoMltPlAd(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
     end do
     do iMltPl=0,2
       nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
+      write(Lu,1) (Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
     end do
     ! Begin EB
     ! if "pointer" iAtBoPolAd is not associated with memory
     ! print zero
     if (iAtBoPolAd == 0) then
-      write(Lu,1) 0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0
+      write(Lu,1) Zero,Zero,Zero,Zero,Zero,Zero
     else
     ! End EB
-      write(Lu,1)(Work(iAtBoPolAd+nCenters*k+i*(i-1)/2+i-1),k=0,5)
+      write(Lu,1) (Work(iAtBoPolAd+nCenters*k+i*(i-1)/2+i-1),k=0,5)
     ! Begin EB
     end if
     ! End EB
@@ -111,17 +112,17 @@ else
         write(Lu,1) Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
         do iMltPl=0,nMltPl
           nComp = (iMltPl+1)*(iMltPl+2)/2
-          write(Lu,1)(Work(iAtBoMltPlAd(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
+          write(Lu,1) (Work(iAtBoMltPlAd(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
         end do
         do iMltPl=0,2
           nComp = (iMltPl+1)*(iMltPl+2)/2
-          write(Lu,1)(Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
+          write(Lu,1) (Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
         end do
         ! Begin EB
         ! if "pointer" iAtBoPolAd is not associated with memory
         ! print zero
         if (iAtBoPolAd == 0) then
-          write(Lu,1) 0.0d0,0.0d0,0.0d0,0.0d0,0.0d0,0.0d0
+          write(Lu,1) Zero,Zero,Zero,Zero,Zero,Zero
         else
         ! End EB
           write(Lu,1) (Work(iAtBoPolAd+nCenters*k+i*(i-1)/2+j-1),k=0,5)
@@ -137,16 +138,16 @@ end if
 write(Lu,6) '* Molecule properties '
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
-  write(Lu,1)(Work(iAtMltPlTotAd(iMltPl)+iComp-1),iComp=1,nComp)
+  write(Lu,1) (Work(iAtMltPlTotAd(iMltPl)+iComp-1),iComp=1,nComp)
 end do
-write(Lu,1)(MolPol(i),i=1,6)
+write(Lu,1) (MolPol(i),i=1,6)
 write(Lu,'(A)') '* Orbital information'
 write(Lu,3) NORBI,NOCOB
 write(Lu,1) EneV
-if (NOCOB /= 0) write(Lu,1)(OENE(I),I=1,NOCOB)
+if (NOCOB /= 0) write(Lu,1) (OENE(I),I=1,NOCOB)
 if (Method == 'UHF-SCF') then
   write(Lu,3) NOCOB_b
-  if (NOcOb_b /= 0) write(Lu,1)(OENE_b(I),I=1,NOCOB_b)
+  if (NOcOb_b /= 0) write(Lu,1) (OENE_b(I),I=1,NOCOB_b)
 end if
 
 close(Lu)

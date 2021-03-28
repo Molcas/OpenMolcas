@@ -11,10 +11,12 @@
 
 subroutine Get_Density_Matrix_mpprop(ip_D,nDens,nBas,nSym)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: ip_D, nDens
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
 #include "WrkSpc.fh"
-integer nBas(nSym)
 
 if (nSym == 1) then
   nDens = nBas(1)*(nBas(1)+1)/2
@@ -24,12 +26,10 @@ if (nSym == 1) then
   call RecPrt('D',' ',Work(ip_D),1,nDens)
 # endif
 else
-  write(6,*) 'MpProp cannot handle symmetry'
+  write(u6,*) 'MpProp cannot handle symmetry'
   call Abend()
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(nBas)
 
 end subroutine Get_Density_Matrix_mpprop

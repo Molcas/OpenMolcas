@@ -12,20 +12,20 @@
 subroutine get_polar(nPrim,nBas,nAtoms,nCenters,NOCOB,OENE,nOrb,OCOF,RCHC,LNearestAtom,LFirstRun)
 !EB  OENE,ONUM,nOrb,OCOF,RCHC,LNearestAtom)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Four, Half
+use Definitions, only: wp, iwp, u6
 
+implicit none
+integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, NOCOB, nOrb, OCOF(nBas,nPrim), RCHC(3,nBas)
+real(kind=wp), intent(in) :: OENE(nOrb)
+logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
 #include "WrkSpc.fh"
 #include "MpData.fh"
 #include "MolProp.fh"
+integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, L, LL, nA, nB
+real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, Pol(6,nAtoms,nAtoms), Pd(3,nAtoms), R, RA, RB, RIJX, RIJY, RIJZ, Smallest
 
-dimension OENE(nOrb) ! EB, ONUM(nOrb)
-dimension oCof(nBas,nPrim)
-dimension Pol(6,nAtoms,nAtoms), Pd(3,nAtoms)
-dimension RCHC(3,nBas)
-logical LNearestAtom
-logical LFirstRun
-
-iStdOut = 6
+iStdOut = u6
 iA = 0 ! Added by EB
 
 write(iStdOut,*) '  '
@@ -38,7 +38,7 @@ write(iStdOut,*) '  '
 do nA=1,nAtoms
   do nB=1,nAtoms
     do i=1,6
-      POL(i,nA,nB) = 0.0d0
+      POL(i,nA,nB) = Zero
     end do
   end do
 end do
@@ -52,17 +52,17 @@ do i=1,NOCOB
 
     ! ORBITAL ENERGIES
 
-    FOE = 4.0d0/(OENE(J)-OENE(I))
+    FOE = Four/(OENE(J)-OENE(I))
 
     ! CALCULATE EXPANSION CENTER FOR THE TWO ORBITALS
 
-    RIJX = 0.5d0*(RCHC(1,I)+RCHC(1,J))
-    RIJY = 0.5d0*(RCHC(2,I)+RCHC(2,J))
-    RIJZ = 0.5d0*(RCHC(3,I)+RCHC(3,J))
+    RIJX = Half*(RCHC(1,I)+RCHC(1,J))
+    RIJY = Half*(RCHC(2,I)+RCHC(2,J))
+    RIJZ = Half*(RCHC(3,I)+RCHC(3,J))
     do nA=1,nAtoms
-      PAX = 0.0d0
-      PAY = 0.0d0
-      PAZ = 0.0d0
+      PAX = Zero
+      PAY = Zero
+      PAZ = Zero
       do iPBas=1,nAtomPBas(NA)
         K = iAtPrTab(iPBas,NA)
         do L=1,nPrim
@@ -113,10 +113,10 @@ end do
 do nA=1,nAtoms
   do nB=1,nA-1
     FracA = Frac(nA,nB)
-    FracB = 1.0-FracA
+    FracB = One-FracA
     ! Find the closest atom
     if (LNearestAtom .and. (.not. BondMat(nA,nB))) then
-      Smallest = 1.0d200
+      Smallest = huge(Smallest)
       do i=1,nAtoms
         R = sqrt((Cor(1,nA,nB)-Cor(1,i,i))**2+(Cor(2,nA,nB)-Cor(2,i,i))**2+(Cor(3,nA,nB)-Cor(3,i,i))**2)
         if (R < Smallest) then
@@ -128,8 +128,8 @@ do nA=1,nAtoms
       RB = sqrt((Cor(1,nA,nB)-Cor(1,nB,nB))**2+(Cor(2,nA,nB)-Cor(2,nB,nB))**2+(Cor(3,nA,nB)-Cor(3,nB,nB))**2)
       if (((iA /= nA) .and. (iA /= nB)) .and. ((Smallest < RA) .and. (Smallest < RB))) then
         iA = iA
-        FracA = 1.0d0
-        FracB = 0.0d0
+        FracA = One
+        FracB = Zero
         !write(iStdOut,*)
         !write(iStdOut,*) ' Moving polaizability between the atoms', nA, nB
         !write(iStdOut,*) ' to the atom                  ', iA
@@ -159,7 +159,7 @@ do nA=1,nAtoms
 end do
 ! If a UHF system is used, correct for the double counting of alpha and beta electrons
 if (.not. LFirstRun) then
-  FracA = 0.5d0
+  FracA = Half
   do nA=1,nAtoms
     do i=1,6
       Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA+1)/2-1) = Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA+1)/2-1)*FracA

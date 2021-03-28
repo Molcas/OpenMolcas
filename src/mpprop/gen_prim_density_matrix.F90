@@ -11,15 +11,20 @@
 
 subroutine Gen_Prim_Density_Matrix(nBas,nPrim,ip_D_p,nOcOb,oNum,oCof)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nBas, nPrim, nOcOb
+integer(kind=iwp), intent(out) :: ip_D_p
+real(kind=wp), intent(in) :: oNum(nBas), oCof(nBas,nPrim)
 #include "WrkSpc.fh"
-dimension oNum(nBas)
-dimension oCof(nBas,nPrim)
+integer(kind=iwp) :: i, K, L
 
 call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
 do K=1,nPrim
   do L=1,K
-    Work(ip_D_p+k*(k-1)/2+l-1) = 0.0d0
+    Work(ip_D_p+k*(k-1)/2+l-1) = Zero
   end do
 end do
 do K=1,nPrim

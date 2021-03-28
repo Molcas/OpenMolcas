@@ -11,12 +11,19 @@
 
 subroutine NoverP(n,i,x)
 
-implicit real*8(a-h,o-z)
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-rn = 1.0d0
-rp = 1.0d0
+implicit none
+integer(kind=iwp), intent(in) :: n, i
+real(kind=wp), intent(out) :: x
+integer(kind=iwp) :: j
+real(kind=wp) :: rn, rp
+
+rn = One
+rp = One
 if ((i == 0) .or. (i == n)) then
-  x = 1
+  x = One
 else
   do j=1,i
     rn = rn*(n-j+1)

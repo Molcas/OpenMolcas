@@ -11,11 +11,15 @@
 
 subroutine Get_OCOF(nPrim,nBas,Work,nVec_p,OCOF)
 
-implicit real*8(a-h,o-z)
-dimension oCof(nBas,nPrim)
-dimension Work(nVec_p)
+use Definitions, only: wp, iwp, u6
 
-iStdOut = 6 ! Added by EB
+implicit none
+integer(kind=iwp), intent(in) :: nPrim, nBas, nVec_p
+real(kind=wp), intent(in) :: Work(nVec_p)
+real(kind=wp), intent(out) :: oCof(nBas,nPrim)
+integer(kind=iwp) :: i, iStdOut, iVec_p, j
+
+iStdOut = u6 ! Added by EB
 iVec_p = 0
 do i=1,nBas
   do j=1,nPrim
