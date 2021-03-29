@@ -40,7 +40,8 @@ C
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
-      use Data_Structures, only: Allocate_L_Full
+      use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
+     &                           L_Full_Type
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -56,6 +57,8 @@ C
       Type (DSBA_Type)   Ash(2), CM(2)
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
+      Type (L_Full_Type) L_Full
+
       Integer   ipMO(2), ipMSQ(2),ipCM(2)
       Logical   DoReord,DoScreen, add
       Real*8    dmpk
@@ -110,14 +113,13 @@ C
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-      do i=1,2            ! 1 --> CPU   2 --> Wall
-         tread(i) = zero  !time read/transform vectors
-         tcoul(i) = zero  !time for computing Coulomb
-         texch(i) = zero  !time for computing Exchange
-         tintg(i) = zero  !time for computing (tw|xy) integrals
-         tmotr(i) = zero  !time for the half-transf of vectors
-         tscrn(i) = zero  !time for screening overhead
-      end do
+      ! 1 --> CPU   2 --> Wall
+      tread(:) = zero  !time read/transform vectors
+      tcoul(:) = zero  !time for computing Coulomb
+      texch(:) = zero  !time for computing Exchange
+      tintg(:) = zero  !time for computing (tw|xy) integrals
+      tmotr(:) = zero  !time for the half-transf of vectors
+      tscrn(:) = zero  !time for screening overhead
 
 C ==================================================================
 
@@ -343,7 +345,8 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
         JNUM=1
-        Call Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
+        Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
+     &                       Memory=LFULL)
 
         iCase = 0
         Call Allocate_twxy(Scr,nAsh,nAsh,JSYM,nSym,iCase)
@@ -544,10 +547,12 @@ C
 ************************************************************************
 ************************************************************************
 *                                                                      *
+               Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
+     &                              nSym)
+               ipLF = ip_of_Work(L_Full%A0(1))
+
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
                Call FZero(Work(ipChoT),mTvec*nVec)
-               Call FZero(Work(ipLF),LFMAX*nVec)
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -1017,7 +1022,7 @@ C --------------------------------------------------------------------
                End Do   ! loop over MOs symmetry
 
                Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
+               Call Deallocate_L_Full(L_Full)
 *                                                                      *
 ************************************************************************
 ************************************************************************

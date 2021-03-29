@@ -16,12 +16,12 @@
 !***********************************************************************
 Module Data_Structures
 Private
-Public:: DSBA_Type, Allocate_DSBA, Deallocate_DSBA, Map_to_DSBA
-Public:: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
-Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
-Public:: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
-Public:: G2_Type, Allocate_G2, Deallocate_G2
-Public:: Allocate_L_Full
+Public:: DSBA_Type,   Allocate_DSBA,   Deallocate_DSBA, Map_to_DSBA
+Public:: SBA_Type,    Allocate_SBA,    Deallocate_SBA,  Map_to_SBA
+Public:: twxy_Type,   Allocate_twxy,   Deallocate_twxy, Map_to_twxy
+Public:: NDSBA_Type,  Allocate_NDSBA,  Deallocate_NDSBA
+Public:: G2_Type,     Allocate_G2,     Deallocate_G2
+Public:: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
 #include "stdalloc.fh"
 #include "real.fh"
 
@@ -44,6 +44,12 @@ Type G2_pointers
   Real*8, Pointer:: A4(:,:,:,:)=>Null()
   Real*8, Pointer:: A2(:,:)=>Null()
 End Type G2_pointers
+
+Type L_Full_Pointers
+  Real*8, Pointer :: A3(:,:,:)=>Null()
+  Real*8, Pointer :: A21(:,:)=>Null()
+  Real*8, Pointer :: A12(:,:)=>Null()
+End Type L_Full_Pointers
 
 
 Type NDSBA_Type
@@ -82,6 +88,15 @@ Type G2_type
   Real*8, Allocatable:: A0(:)
   Type (G2_Pointers):: SB(8,8,8)
 End Type G2_type
+
+Type L_Full_Type
+  Integer :: iCase=0
+  Integer :: iSym=0
+  Integer :: nSym=0
+  Integer :: nShell=0
+  Real*8, Allocatable:: A0(:)
+  Type (L_Full_Pointers), Allocatable :: SPB(:,:)
+End Type L_Full_Type
 
 
 Contains
@@ -794,19 +809,22 @@ End Subroutine Deallocate_G2
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Subroutine Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym, Memory)
+Subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym, Memory)
 use ChoArr, only: nBasSh
 use ChoSwp, only: nnBstRSh
 use ChoSwp, only: iiBstRSh  ! Temporary
 Implicit None
+Type (L_Full_Type), Target:: Adam
 Integer nShell
 Integer iShp_rs( nShell*(nShell+2)/2 )
 Integer JNUM, JSYM, nSym
-Integer, Optional:: Memory
+Integer, Optional, Intent(Out):: Memory
 
 Integer iaSh, ibSh, iShp
 Integer iSyma, iSymb
 Integer LFULL
+Integer iS, iE
+Integer n1, n2
 
 Integer i, j, MulD2h
 MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -835,15 +853,94 @@ Do iaSh=1,nShell
 
    End Do
 End Do
-Memory=Memory*JNUM
+LFULL=LFULL*JNUM
 
 If (Present(Memory)) Then
    Memory=LFULL
    Return
 End If
-Call Abend()
+
+Adam%iCase=1
+Adam%nSym=nSym
+Adam%iSym=JSYM
+Adam%nShell=nShell
+
+Call mma_Allocate(Adam%A0,LFULL,Label='Adam%A0')
+
+Allocate(Adam%SPB(nSym,nShell*(nShell+1)/2))
+
+iE=0
+Do iaSh=1,nShell
+   Do ibSh=1,iaSh
+      iShp = iaSh*(iaSh-1)/2 + ibSh
+
+      If (iShp_rs(iShp)<=0) Cycle
+
+      If (nnBstRSh(Jsym,iShp_rs(iShp),1)<=0) Cycle
+
+      Do iSymb=1,nSym
+         iSyma=MulD2h(iSymb,Jsym)
+         If (iSyma<iSymb) Cycle
+
+         iS = iE + 1
+
+         n1 = nBasSh(iSyma,iaSh)
+         n2 = nBasSh(iSymb,ibSh)
+
+         iE = iE + n1*JNUM*n2
+
+         Adam%SPB(iSyma,iShp_rs(iShp))%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp))%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp))%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
+
+         If (iaSh==ibSh) Cycle
+
+         n1 = nBasSh(iSyma,ibSh)
+         n2 = nBasSh(iSymb,iaSh)
+
+         iE = iE + n1*JNUM*n2
+
+         Adam%SPB(iSymb,iShp_rs(iShp))%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSymb,iShp_rs(iShp))%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSymb,iShp_rs(iShp))%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
+
+      End Do
+
+   End Do
+End Do
 
 End Subroutine Allocate_L_Full
+
+
+Subroutine deallocate_L_Full(Adam)
+Implicit None
+Type (L_Full_Type):: Adam
+
+Integer iaSh, ibSh, iShp, iSyma
+
+Do iaSh=1,Adam%nShell
+   Do ibSh=1,iaSh
+      iShp = iaSh*(iaSh-1)/2 + ibSh
+
+      Do iSyma=1, Adam%nSym
+
+         Adam%SPB(iSyma,iShp)%A3 => Null()
+         Adam%SPB(iSyma,iShp)%A21=> Null()
+         Adam%SPB(iSyma,iShp)%A12=> Null()
+
+      End Do
+
+   End Do
+End Do
+
+deallocate(Adam%SPB)
+call mma_deallocate(Adam%A0)
+Adam%iCase=0
+Adam%nSym=0
+Adam%iSym=0
+Adam%nShell=0
+
+End Subroutine deallocate_L_Full
 
 
 End Module Data_Structures

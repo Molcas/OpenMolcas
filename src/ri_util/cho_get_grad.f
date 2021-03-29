@@ -110,7 +110,8 @@
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
-      use Data_Structures, only: Allocate_L_Full
+      use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
+     &                           L_Full_Type
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
@@ -120,6 +121,7 @@
       Type (NDSBA_Type) DiaH
       Type (DSBA_Type) AOrb(*)
       Type (SBA_Type) Laq(1), Lxy
+      Type (L_Full_Type) L_Full
 
       Logical   DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
@@ -538,7 +540,7 @@
 
          NumCV=NumCho(jSym)
          Call GAIGOP_SCAL(NumCV,'max')
-         If (NumCV .lt. 1) GOTO 1000
+         If (NumCV .lt. 1) Cycle
 *
 ** offsets for active term
 *
@@ -568,8 +570,9 @@
 *
 ** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 *
-        JNUM=1
-        Call Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
+         JNUM=1
+         Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
+     &                        Memory=LFULL)
 
 ************************************************************************
 *                                                                      *
@@ -733,8 +736,6 @@ C --- Transform the densities to reduced set storage
                   JNUM = nVec
                endif
 
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
 
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
@@ -838,6 +839,13 @@ C --- Transform the densities to reduced set storage
                   CALL CWTIME(TCS2,TWS2)
                   tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                   tscrn(2) = tscrn(2) + (TWS2 - TWS1)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+               CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
+               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
 
                   CALL CWTIME(TCX1,TWX1)
 
@@ -1374,6 +1382,13 @@ C------------------------------------------------------------------
 
                   End Do   ! loop over densities
 
+               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
 
 C ************  END EXCHANGE CONTRIBUTION  ****************
 
@@ -1439,8 +1454,6 @@ C --- subtraction is done in the 1st reduced set
 
                EndIf ! DoExchange
 
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Free','Real',ipLF,LFMAX*nVec)
 ************************************************************************
 ************************************************************************
 **                                                                    **
@@ -1679,9 +1692,6 @@ C--- have performed screening in the meanwhile
               End Do
            End Do
          End If
-
-1000  CONTINUE
-
 
       END DO  ! loop over JSYM
 *****************************************************************

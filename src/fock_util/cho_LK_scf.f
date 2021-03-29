@@ -34,7 +34,8 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
-      use Data_Structures, only: Allocate_L_Full
+      use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
+     &                           L_Full_Type
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -42,6 +43,8 @@ C
       Implicit Real*8 (a-h,o-z)
 
       Type (NDSBA_type) DiaH
+      Type (L_Full_Type) L_Full
+
       Integer   rc,nDen
       Integer   ipOrb(8,2),nOrb(8,2)
       Integer   ISTLT(8),ISTSQ(8),kOff(8,2)
@@ -335,8 +338,9 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
          If (NumCV .lt. 1) Cycle
 
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
-        JNUM=1
-        Call Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
+         JNUM=1
+         Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
+     &                        Memory=LFULL)
 
 C ****************     MEMORY MANAGEMENT SECTION    *****************
 C ------------------------------------------------------------------
@@ -533,7 +537,9 @@ C
 ************************************************************************
 *                                                                      *
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               CALL GETMEM('FullV','Allo','Real',ipLF,LFULL*nVec)
+               Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
+     &                              nSym)
+               ipLF = ip_of_Work(L_Full%A0(1))
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -948,7 +954,7 @@ C -------------------------------------------------------------------
 
                End Do   ! loop over densities
 
-               CALL GETMEM('FullV','Free','Real',ipLF,LFULL*nVec)
+               Call Deallocate_L_Full(L_Full)
                Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
 *                                                                      *
 ************************************************************************
