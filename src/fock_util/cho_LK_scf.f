@@ -68,7 +68,7 @@ C
 #include "stdalloc.fh"
 #include "warnings.fh"
       Logical add
-      Character*6 mode
+      Character(LEN=6) mode
       Integer, External:: Cho_F2SP
 
       Real*8 LKThr
@@ -76,7 +76,7 @@ C
       Integer, External:: Cho_LK_MaxVecPerBatch
       Integer, External:: ip_of_Work
 
-      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
       Integer, Allocatable:: iShp_rs(:), Indx(:,:)
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:)
@@ -338,7 +338,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
          NumCV=NumCho(jSym)
          Call GAIGOP_SCAL(NumCV,'max')
-         If (NumCV .lt. 1) GOTO 1000
+         If (NumCV .lt. 1) Cycle
 
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
@@ -464,8 +464,6 @@ c           !set index arrays at iLoc
             LREAD = nRS*nVec
 
             Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-            Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-            CALL GETMEM('FullV','Allo','Real',ipLF,LFULL*nVec)
 
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
@@ -515,11 +513,11 @@ C==========================================================
 C
                   CALL CWTIME(TCC1,TWC1)
 
-                  ipVJ = ipChoT
+                  Call mma_allocate(VJ,JNUM,Label='VJ')
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                       ONE,Lrs,nRS,
-     &                       Drs,1,ZERO,Work(ipVJ),1)
+     &                       Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -528,8 +526,10 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                       FactCI,Lrs,nRS,
-     &                       Work(ipVJ),1,Fact,Frs,1)
+     &                       VJ,1,Fact,Frs,1)
 
+
+                  Call mma_deallocate(VJ)
 
                   CALL CWTIME(TCC2,TWC2)
                   tcoul(1) = tcoul(1) + (TCC2 - TCC1)
@@ -566,6 +566,13 @@ C
                tscrn(1) = tscrn(1) + (TCS2 - TCS1)
                tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+               CALL GETMEM('FullV','Allo','Real',ipLF,LFULL*nVec)
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -637,25 +644,24 @@ C------------------------------------------------------------------
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(l,n) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(lSym))
-
-                           CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
-     &                                    AbsC,1,
-     &                               ZERO,Ylk(1,jK_a),1)
+                           Mode(1:1)='N'
+                           n1 = nBas(lSym)
+                           n2 = nBas(kSym)
 
                         Else
 c --------------------------------------------------------------
 C --- Y(l)[k] = sum_n  DH(n,l) * |C(n)[k]|
 C===============================================================
-                           nBs = Max(1,nBas(kSym))
-
-                           CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,DiaH%SB(lSym,kSym)%A2,nBs,
-     &                                    AbsC,1,
-     &                               ZERO,Ylk(1,jK_a),1)
+                           Mode(1:1)='T'
+                           n1 = nBas(kSym)
+                           n2 = nBas(lSym)
 
                         EndIf
+
+                        CALL DGEMV_(Mode(1:1),n1,n2,
+     &                             ONE,DiaH%SB(lSym,kSym)%A2,n1,
+     &                                 AbsC,1,
+     &                            ZERO,Ylk(1,jK_a),1)
 
 C --- List the shells present in Y(l)[k] by the largest element
                         Do ish=1,nShell
@@ -666,8 +672,6 @@ C --- List the shells present in Y(l)[k] by the largest element
                            End Do
                            MLk(ish,jK_a) = YshMax
                         End Do
-
-c            write(6,*)'ML(k)= ',(MLk(i,jK_a),i=1,nShell)
 
 C --- Sort the list ML[k]
                         numSh=0  ! # of significant shells
@@ -719,11 +723,6 @@ ctbp                       If ( MLk(jml,jK_a) .ge. xtau(jDen) ) then
                         End Do
 
                         Indx(0,jk_a)=numSh
-
-c         write(6,*)'ord-ML(k)= ',(MLk(i,jK_a),i=1,nShell)
-c         write(6,*)'Ind-ML(k)= ',(Indx(i,jK_a),i=0,nShell)
-c         write(6,*)'lSym,kSym,jSym,jk,nShell,numSh= ',lSym,kSym,
-c     &              jSym,jk,nShell,numSh
 
                         CALL CWTIME(TCS2,TWS2)
                         tscrn(1) = tscrn(1) + (TCS2 - TCS1)
@@ -1143,7 +1142,13 @@ c                               CALL TRIPRT('FI',' ',Work(ipKI),nBs)
 
                End Do   ! loop over densities
 
-
+               CALL GETMEM('FullV','Free','Real',ipLF,LFULL*nVec)
+               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
                DoScreen=.false. ! avoid redo screening inside batch loop
 
 C --- Diagonals updating. It only makes sense if Nscreen > 0
@@ -1205,7 +1210,6 @@ C --- subtraction is done in the 1st reduced set
                   tscrn(2) = tscrn(2) + (TWS2 - TWS1)
 
                EndIf
-*              Call RecPrt('Diag',' ',Diag,1,SIZE(Diag))
 
 C --------------------------------------------------------------------
 C --------------------------------------------------------------------
@@ -1225,8 +1229,6 @@ c --- backtransform fock matrix to full storage
             EndIf
 
 C --- free memory
-            CALL GETMEM('FullV','Free','Real',ipLF,LFULL*nVec)
-            Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
@@ -1265,8 +1267,6 @@ C--- have performed screening in the meanwhile
 #endif
 
          END DO   ! loop over red sets
-
-1000     CONTINUE
 
       END DO   !loop over JSYM
 

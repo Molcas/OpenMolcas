@@ -259,8 +259,7 @@ C --- Vector MO transformation screening thresholds
       thrv(2) = ( sqrt(LKThr/(Max(1,nAt)*NumVT)) )*fcorr
 
       CALL mma_allocate(DIAG,NNBSTRT(1),Label='DIAG')
-      ipDIAG = ip_of_Work(DIAG(1))
-      ipDD(1)=ipDIAG
+      ipDD(1)= ip_of_Work(DIAG(1))
 
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par()) Then
@@ -426,7 +425,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
         NumCV=NumCho(jSym)
         Call GAIGOP_SCAL(NumCV,'max')
-        If (NumCV .lt. 1) GOTO 1000
+        If (NumCV .lt. 1) Cycle
 
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
@@ -1345,9 +1344,6 @@ C--- have performed screening in the meanwhile
          END DO   ! loop over red sets
 
          Call Deallocate_twxy(Scr)
-
-1000  CONTINUE
-
 
       END DO  ! loop over JSYM
 

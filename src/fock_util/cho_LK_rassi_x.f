@@ -344,7 +344,7 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
         NumCV=NumCho(jSym)
         Call GAIGOP_SCAL(NumCV,'max')
-        If (NumCV .lt. 1) GOTO 1000
+        If (NumCV .lt. 1) Cycle
 
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
@@ -1253,8 +1253,6 @@ C--- have performed screening in the meanwhile
          END DO   ! loop over red sets
 
          Call Deallocate_twxy(Scr)
-
-1000  CONTINUE
 
       END DO  ! loop over JSYM
 
