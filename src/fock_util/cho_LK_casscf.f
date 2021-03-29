@@ -768,7 +768,8 @@ C===============================================================
 
                         EndIf
 
-                        CALL DGEMV_(Mode(1:1),n1,n2,
+                        If (n1>0)
+     &                  CALL DGEMV_(Mode(1:1),n1,n2,
      &                             ONE,DIAH%SB(lSym,kSym)%A2,n1,
      &                                 AbsC,1,
      &                            ZERO,Ylk(1,jK_a),1)
