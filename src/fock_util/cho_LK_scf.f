@@ -758,35 +758,31 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                                iShp = iTri(iaSh,ibSh)
 
-                               If ( iShp_rs(iShp) .gt. 0 ) Then
+                               If ( iShp_rs(iShp)<=0) Cycle
 
-                                 If ( nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                              nBasSh(lSym,iaSh)*
-     &                              nBasSh(kSym,ibSh) .gt. 0
-     &                              .and. sqrt(abs(SumAClk(ibSh,jK_a)*
-     &                                         SvShp(iShp_rs(iShp)) ))
-     &                              .ge. thrv(jDen) )Then
+                               If ( nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
+     &                            nBasSh(lSym,iaSh)*
+     &                            nBasSh(kSym,ibSh) .gt. 0
+     &                            .and. sqrt(abs(SumAClk(ibSh,jK_a)*
+     &                                       SvShp(iShp_rs(iShp)) ))
+     &                            .ge. thrv(jDen) )Then
 
-                                    ibcount = ibcount + 1
+                                  ibcount = ibcount + 1
 
-                                    jOff = iOffShp(lSym,iShp_rs(iShp)) -
-     &                                     nBasSh(lSym,ibSh)*
-     &                                     nBasSh(kSym,iaSh)*
-     &                             Min(0,(iaSh-ibSh))/Max(1,(ibSh-iaSh))
+                                  jOff = iOffShp(lSym,iShp_rs(iShp))
+                                  If (iaSh<ibSh) jOff = jOff +
+     &                            nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
 
 
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
 
-                                 CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
-     &                                        nBasSh(kSym,ibSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(lSym,iaSh)*JNUM,
-     &                                     Work(ipMO+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh)),1)
-
-
-                                 EndIf
+                               CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
+     &                                      nBasSh(kSym,ibSh),
+     &                                  ONE,Work(ipLF+jOff*JNUM),
+     &                                      nBasSh(lSym,iaSh)*JNUM,
+     &                                   Work(ipMO+ioffShb),1,
+     &                                  ONE,Work(ipLab(iaSh)),1)
 
                                EndIf
 
@@ -819,34 +815,31 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 
                                iShp = iTri(iaSh,ibSh)
 
-                               If ( iShp_rs(iShp) .gt. 0 ) Then
+                               If ( iShp_rs(iShp)<=0 ) Cycle
 
-                                 If (nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
-     &                             nBasSh(lSym,iaSh)*
-     &                             nBasSh(kSym,ibSh) .gt. 0
-     &                             .and. sqrt(abs(SumAClk(ibSh,jK_a)*
-     &                                        SvShp(iShp_rs(iShp)) ))
-     &                             .ge. thrv(jDen) ) Then
+                               If (nnBstRSh(JSym,iShp_rs(iShp),iLoc)*
+     &                           nBasSh(lSym,iaSh)*
+     &                           nBasSh(kSym,ibSh) .gt. 0
+     &                           .and. sqrt(abs(SumAClk(ibSh,jK_a)*
+     &                                      SvShp(iShp_rs(iShp)) ))
+     &                           .ge. thrv(jDen) ) Then
 
-                                   ibcount = ibcount + 1
+                                 ibcount = ibcount + 1
 
-                                   jOff = iOffShp(kSym,iShp_rs(iShp)) -
-     &                                    nBasSh(kSym,iaSh)*
-     &                                    nBasSh(lSym,ibSh)*
-     &                             Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
+                                 jOff = iOffShp(kSym,iShp_rs(iShp))
+                                 If (ibSh<iaSh) jOff = jOff +
+     &                           nBasSh(kSym,iaSh)*nBasSh(lSym,ibSh)
 
 
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
 
-                                 CALL DGEMV_('T',nBasSh(kSym,ibSh),
+                               CALL DGEMV_('T',nBasSh(kSym,ibSh),
      &                                       JNUM*nBasSh(lSym,iaSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
-     &                                        nBasSh(kSym,ibSh),
-     &                                     Work(ipMO+ioffShb),1,
-     &                                    ONE,Work(ipLab(iaSh)),1)
-
-                                 EndIf
+     &                                  ONE,Work(ipLF+jOff*JNUM),
+     &                                      nBasSh(kSym,ibSh),
+     &                                   Work(ipMO+ioffShb),1,
+     &                                  ONE,Work(ipLab(iaSh)),1)
 
                                Endif
 
@@ -972,8 +965,6 @@ C -------------------------------------------------------------------
      &                                       ONE,Work(ipKI),
      &                                               nBs)
 
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('FI',' ',Work(ipKI),nBs)
 
                                ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
@@ -992,9 +983,6 @@ C -------------------------------------------------------------------
      &                                           nBsb,
      &                                       ONE,Work(ipKI),
      &                                               nBsa)
-
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
 
                                EndIf
 
@@ -1041,9 +1029,7 @@ c                               CALL TRIPRT('FI',' ',Work(ipKI),nBsa)
                                If ( MLk(lSh,jK_a)*MLk(mSh,jK_a)
      &                              .lt. tau(jDen) ) Then
 
-
                                    mSh = Indx(0,jK_a)  ! skip the rest
-
 
                                ElseIf(iaSh.eq.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
@@ -1064,9 +1050,6 @@ C -------------------------------------------------------------------
      &                                                nBs)
 
 
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('FI',' ',Work(ipKI),nBs)
-
                                ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
      &                                 .and. iaSkip*ibSkip.eq.1) Then
@@ -1085,8 +1068,6 @@ C -------------------------------------------------------------------
      &                                       ONE,Work(ipKI),
      &                                               nBs)
 
-c                         write(6,*)'Symm= ',lsym,' Sh-pair: ',iaSh,ibSh
-c                               CALL TRIPRT('FI',' ',Work(ipKI),nBs)
 
                                EndIf
 
