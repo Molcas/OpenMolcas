@@ -12,6 +12,8 @@
 subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
+use MPProp_globals, only: BondMat, COR, CordMltPl, Frac, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtMltPlAd, iMltPlAd, iAtPrTab, iQnuc, &
+                          Labe, Method, nAtomPBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -20,9 +22,9 @@ implicit none
 integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
 real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
-#include "MpData.fh"
+!#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "MolProp.fh"
+!#include "MolProp.fh"
 integer(kind=iwp) :: i, iA, iComp, ii, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
 real(kind=wp) :: CorP(3), CorN(3), FracA, FracB, FracN, FracP, Qn, Qp, Qs, R, RA, RB, rnloveril, rnPoveriP, rnqoveriq, Rtot, Rwei, &
                  Smallest, rsum, sum_a, sum_b, xfac, xfac_a, xfac_b, yfac, yfac_a, yfac_b, zfac, zfac_a, zfac_b

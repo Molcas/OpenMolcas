@@ -11,14 +11,15 @@
 
 subroutine StoreMpAsLop(nAtoms,ip_ANr,nB,ipT,ipTi,ipMP,lMax,ip_EC)
 
+use MPProp_globals, only: Cor, iAtBoMltPlAd
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, ip_ANr, nB, ipT, ipTi, ipMP, lMax, ip_EC
-#include "MpData.fh"
+!#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "MolProp.fh"
+!#include "MolProp.fh"
 integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l, nSize1
 
 !-- Let's fix the ip_ANr.

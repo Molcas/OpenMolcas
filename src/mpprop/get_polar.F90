@@ -12,6 +12,7 @@
 subroutine get_polar(nPrim,nBas,nAtoms,nCenters,NOCOB,OENE,nOrb,OCOF,RCHC,LNearestAtom,LFirstRun)
 !EB  OENE,ONUM,nOrb,OCOF,RCHC,LNearestAtom)
 
+use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtBoPolAd, iMltPlAd, iAtPolAd, iAtPrTab, nAtomPBas
 use Constants, only: Zero, One, Four, Half
 use Definitions, only: wp, iwp, u6
 
@@ -20,8 +21,8 @@ integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, NOCOB, nOrb, OCO
 real(kind=wp), intent(in) :: OENE(nOrb)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
 #include "WrkSpc.fh"
-#include "MpData.fh"
-#include "MolProp.fh"
+!#include "MpData.fh"
+!#include "MolProp.fh"
 integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, L, LL, nA, nB
 real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, Pol(6,nAtoms,nAtoms), Pd(3,nAtoms), R, RA, RB, RIJX, RIJY, RIJZ, Smallest
 

@@ -11,14 +11,17 @@
 
 subroutine MpProp(iReturn)
 
+use MPProp_globals, only: COR, CordMltPl, EneV, iAtomType, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoPolAd, iAtMltPlAd, iAtomPar, &
+                          iAtPolAd, iBondPar, iMltPlAd, iQnuc, Labe, Method, mxAtomMP, mxCen, mxMltPl, nbi, nub
 use Constants, only: Zero, One, Two, Eight
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-#include "MpData.fh"
+#include "LenIn.fh"
+!#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "MolProp.fh"
+!#include "MolProp.fh"
 integer(kind=iwp) :: i, iAtype, iCenX, iCenY, iCenZ, iComp, iDum(1), iEne, iErr, iMltpl, iOcen, iOcen_b, iOcof, iOcof_b, iOff1, &
                      iOff2, iOff3, iopt, ip_ANr, ip_Coor, ip_D, ip_D_p, ip_D_p_b, ip_EC, ip_Ene, ip_Occ, ip_TM, ip_Ttot, &
                      ip_Ttot_Inv, ip_Vec, ip_Vec_p, ip_vec_p_b, ipMP, iPol, iPrint, irc, iSmLbl,iSym, iTP, iWarn, iWFtype, j, Lu_, &
@@ -103,7 +106,7 @@ call GetMem('Atype','Allo','Real',iAtype,nAtoms)
 call Get_dArray('Unique Coordinates',Work(ip_Coor),nAtoms*3)
 ! Runfile update
 !call Get_AtomLabel(Labe,nAtoms)
-call Get_cArray('Unique Atom Names',Labe,LENIN*nAtoms)
+call Get_cArray('Unique Atom Names',Labe,LenIn*nAtoms)
 ! Runfile update
 !call Get_Charge(Work(iAtype),nAtoms)
 call Get_dArray('Nuclear charge',Work(iAtype),nAtoms)

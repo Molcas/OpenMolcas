@@ -11,14 +11,16 @@
 
 subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
 
+use MPProp_globals, only: BondMat, Cen_Lab, Cor, iAtBoMltPlAd, iAtBoMltPlTotAd, iAtBoPolAd, iAtMltPlAd, iAtMltPlTotAd, iAtPolAd, &
+                          mxMltPl, Title
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, iPol
-#include "MpData.fh"
+!#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "MolProp.fh"
+!#include "MolProp.fh"
 integer(kind=iwp) :: i, iComp, iCount, ilab, iMltPl, iStdOut, ix, ixx, iy, iyy, iz, izz, j, jComp, nComp
 integer(kind=iwp), parameter :: mxComp = (mxMltPl+1)*(mxMltPl+2)/2
 real(kind=wp) :: MolPol(6)

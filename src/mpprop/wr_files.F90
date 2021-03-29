@@ -15,6 +15,8 @@
 subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,OENE,OENE_b,LAllCenters)
 !EB subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,OENE,iBond,
 
+use MPProp_globals, only: BondMat, Cen_Lab, Cor, EneV, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoPolAd, iAtMltPlAd, iAtMltPlTotAd, &
+                          iAtomType, iAtomPar, iAtPolAd, iBondPar, Method, Title
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -22,9 +24,9 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, NORBI, NOCOB, NOCOB_b !, iBond(2,nCenters)
 real(kind=wp), intent(in) :: OENE(NOCOB), OENE_b(NOCOB_b)
 logical(kind=iwp), intent(in) :: LAllCenters
-#include "MpData.fh"
+!#include "MpData.fh"
 #include "WrkSpc.fh"
-#include "MolProp.fh"
+!#include "MolProp.fh"
 integer(kind=iwp) :: i, iComp, iMltPl, j, k, Lu, nComp
 real(kind=wp) :: MolPol(6)
 character(len=8) :: FileName

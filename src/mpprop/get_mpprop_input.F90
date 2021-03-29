@@ -11,6 +11,7 @@
 
 subroutine Get_Mpprop_input(nAtoms,iPol,LNearestAtom,LAllCenters,AveOrb,LLumOrb,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,iPrint)
 
+use MPProp_globals, only: BondMat, iAtomPar, Labe, mxAtomMP, NBI, NuB, Title
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -18,7 +19,7 @@ integer(kind=iwp), intent(in) :: nAtoms
 integer(kind=iwp), intent(inout) :: iPol, nThrs, iPrint
 logical(kind=iwp), intent(inout) :: LNearestAtom, LAllCenters, AveOrb, LLumOrb, Diffuse(3)
 real(kind=wp), intent(inout) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
-#include "MolProp.fh"
+!#include "MolProp.fh"
 #include "warnings.fh"
 integer(kind=iwp) :: i, iChrct, iStdOut, j, k, l, Last, LuRd, m, nBonds
 character(len=3) :: EndKey
