@@ -869,70 +869,43 @@ C --- Prepare the J-screening
 
                       CALL CWTIME(TCS1,TWS1)
 
-                      IF (lSym.ge.kSym) Then
 
+                      Do iSh=1,Indx(0,jk_a)
 
-                         Do iSh=1,Indx(0,jk_a)
+                         iaSh = Indx(iSh,jK_a)
 
-                            iaSh = Indx(iSh,jK_a)
+                         iaSkip= Min(1,Max(0,
+     &                           abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
+                         If (iaSkip==0) Cycle
 
-                            If (iaSkip==0) Cycle
+                         IF (lSym.ge.kSym) Then
 
 C ---  Faa,[k] = sum_J  (LaJ[k])**2
 C ----------------------------------
-                            Fia(:)=Zero
-                            Do jv=1,JNUM
+                            Inc=nBasSh(lSym,iaSh)
+                            n1 = 1
 
-                               Do ia=1,nBasSh(lSym,iaSh)
-
-                                  ipLaa = ipLab(iaSh)
-     &                                  + nBasSh(lSym,iaSh)*(jv-1)
-     &                                  + ia - 1
-
-                                  Fia(ia) = Fia(ia) + Work(ipLaa)**2
-                               End Do
-                            End Do
-
-                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
-                         End Do
-
-
-                      Else   ! lSym < kSym
-
-
-                         Do iSh=1,Indx(0,jK_a)
-
-                            iaSh = Indx(iSh,jK_a)
-
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
-
-                            If (iaSkip==0) Cycle
+                         Else   ! lSym < kSym
 
 C ---  Faa,[k] = sum_J  (LJa[k])**2
 C ----------------------------------
-                            Fia(:)=Zero
-                            Do ia=1,nBasSh(lSym,iaSh)
+                            Inc=1
+                            n1 = JNUM
 
-                               Do jv=1,JNUM
+                         End If
 
-                                  ipLaa = ipLab(iaSh)
-     &                                  + JNUM*(ia-1)
-     &                                  + jv - 1
-
-                                  Fia(ia) = Fia(ia) + Work(ipLaa)**2
-                               End Do
-                            End Do
-
-                            Faa(iaSh)=FindMax(Fia,nBasSh(lSym,iaSh))
-
+                         Tmp=Zero
+                         Do ia=1,nBasSh(lSym,iaSh)
+                            ipLaa = ipLab(iaSh) + n1*(ia-1)
+                            Fia(ia)=DDot_(JNUM,Work(ipLaa),Inc,
+     &                                         Work(ipLaa),Inc)
+                            Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 
-                      EndIf
+                         Faa(iaSh)=Tmp
+
+                      End Do
 
                       CALL CWTIME(TCS2,TWS2)
                       tscrn(1) = tscrn(1) + (TCS2 - TCS1)

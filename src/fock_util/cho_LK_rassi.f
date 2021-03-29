@@ -967,55 +967,6 @@ C -------------------------------------
                       tmotr(1) = tmotr(1) + (TCT2 - TCT1)
                       tmotr(2) = tmotr(2) + (TWT2 - TWT1)
 
-C --- Prepare the J-screening
-
-                      CALL CWTIME(TCS1,TWS1)
-
-                      Do iSh=1,Indx(0,jK_a,1)
-
-                         iaSh = Indx(iSh,jK_a,1)
-
-                         iaSkip=Min(1,Max(0,
-     &                          abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
-
-                         jaSkip=Min(1,Max(0,
-     &                          abs(ipLab(iaSh,kDen)-ipAbs)))
-
-                         If (iaSkip*jaSkip==0) Cycle
-
-                         IF (lSym.ge.kSym) Then
-
-C ---  Faa,[k] = sum_J  LaJ[k1]*LaJ[k2]
-C -------------------------------------
-                            Inc=nBasSh(lSym,iaSh)
-                            n1 = 1
-
-                         Else   ! lSym < kSym
-
-C ---  Faa,[k] = sum_J  LJa[k1]*LJa[k2]
-C -------------------------------------
-                            Inc=1
-                            n1 = JNUM
-
-                         End If
-
-                         Tmp=Zero
-                         Do ia=1,nBasSh(lSym,iaSh)
-                            ipLai = ipLab(iaSh,   1) + n1*(ia-1)
-                            ipLaj = ipLab(iaSh,kDen) + n1*(ia-1)
-                            Fia(ia)=DDot_(JNUM,Work(ipLai),Inc,
-     &                                         Work(ipLaj),Inc)
-                            Tmp=Max(Abs(Fia(ia)),Tmp)
-                         End Do
-
-                         Faa(iaSh)=Tmp
-
-                      End Do
-
-                      CALL CWTIME(TCS2,TWS2)
-                      tscrn(1) = tscrn(1) + (TCS2 - TCS1)
-                      tscrn(2) = tscrn(2) + (TWS2 - TWS1)
-
 C------------------------------------------------------------
 C --- Compute exchange matrix for the interacting shell pairs
 C------------------------------------------------------------
