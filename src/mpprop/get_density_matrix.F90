@@ -9,18 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Density_Matrix_mpprop(ip_D,nDens,nBas,nSym)
+subroutine Get_Density_Matrix_mpprop(ip_D,nBas,nSym)
 
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: ip_D, nDens
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
+integer(kind=iwp), intent(in) :: ip_D, nSym, nBas(nSym)
 #include "WrkSpc.fh"
+integer(kind=iwp) :: nDens
 
 if (nSym == 1) then
   nDens = nBas(1)*(nBas(1)+1)/2
-  call GetMem('D1ao','Allo','Real',ip_D,nDens)
   call Get_D1ao(Work(ip_D),nDens)
 # ifdef _DEBUGPRINT_
   call RecPrt('D',' ',Work(ip_D),1,nDens)

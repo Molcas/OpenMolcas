@@ -15,13 +15,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nBas, nPrim, nOcOb
-integer(kind=iwp), intent(out) :: ip_D_p
+integer(kind=iwp), intent(in) :: nBas, nPrim, ip_D_p, nOcOb
 real(kind=wp), intent(in) :: oNum(nBas), oCof(nBas,nPrim)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, K, L
 
-call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
 do K=1,nPrim
   do L=1,K
     Work(ip_D_p+k*(k-1)/2+l-1) = Zero

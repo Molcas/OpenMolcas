@@ -12,36 +12,7 @@
 subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
-real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
-logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
-#include "MpData.fh"
-#include "WrkSpc.fh"
-#include "MolProp.fh"
-integer(kind=iwp) :: ip_iCompMat, ip_Qexp !, ip_DenMat
-
-call Allocate_iWork(ip_iCompMat,(nMltPl+1)**3)
-call Allocate_Work(ip_Qexp,nPrim**2)
-!call Allocate_Work(ip_DenMat,nPrim**2)
-
-call Get_MpProp_(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,iWork(ip_iCompMat),Work(ip_Qexp), &
-                 LFirstRun,LLumOrb)
-! nOcOb,oNum,nOrb,oCof
-
-!call Free_Work(ip_DenMat)
-call Free_Work(ip_Qexp)
-call Free_iWork(ip_iCompMat)
-
-return
-
-end subroutine Get_MpProp
-
-subroutine Get_MpProp_(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,iCompMat,Qexp,LFirstRun,LLumOrb)
-! nOcOb,oNum,nOrb,oCof
-
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -49,14 +20,19 @@ implicit none
 integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
 real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
-integer(kind=iwp), intent(out) :: iCompMat(0:nMltPl,0:nMltPl,0:nMltPl)
-real(kind=wp), intent(out) :: Qexp(nPrim,nPrim) !, DenMat(nPrim,nPrim)
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
 integer(kind=iwp) :: i, iA, iComp, ii, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
 real(kind=wp) :: CorP(3), CorN(3), FracA, FracB, FracN, FracP, Qn, Qp, Qs, R, RA, RB, rnloveril, rnPoveriP, rnqoveriq, Rtot, Rwei, &
                  Smallest, rsum, sum_a, sum_b, xfac, xfac_a, xfac_b, yfac, yfac_a, yfac_b, zfac, zfac_a, zfac_b
+integer(kind=iwp), allocatable :: iCompMat(:,:,:)
+real(kind=wp), allocatable :: Qexp(:,:) !, DenMat(:,:)
+
+call mma_allocate(iCompMat,[0,nMltPl],[0,nMltPl],[0,nMltPl],label='iCompMat')
+call mma_allocate(Qexp,nPrim,nPrim,label='Qexp')
+!call mma_allocate(DenMat,nPrim,nPrim,label='DenMat')
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -452,8 +428,12 @@ do nA=1,nAtoms
   end do
 end do
 
+!call mma_deallocate(DenMat)
+call mma_deallocate(Qexp)
+call mma_deallocate(iCompMat)
+
 return
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer(nBas)
 
-end subroutine Get_MpProp_
+end subroutine Get_MpProp

@@ -22,8 +22,8 @@ integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: i, iAtype, iCenX, iCenY, iCenZ, iComp, iDum(1), iEne, iErr, iMltpl, iOcen, iOcen_b, iOcof, iOcof_b, iOff1, &
                      iOff2, iOff3, iopt, ip_ANr, ip_Coor, ip_D, ip_D_p, ip_D_p_b, ip_EC, ip_Ene, ip_Occ, ip_TM, ip_Ttot, &
                      ip_Ttot_Inv, ip_Vec, ip_Vec_p, ip_vec_p_b, ipMP, iPol, iPrint, irc, iSmLbl,iSym, iTP, iWarn, iWFtype, j, Lu_, &
-                     LuYou, nAtoms, nBas(8), nCenters, nComp, nDens, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), &
-                     nSize, nSize1, nSize2, nSum, nSym, nThrs, nTM, nVec, nVec_p
+                     LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, &
+                     nSize1, nSize2, nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 character(len=6) :: FName
 character(len=8) :: Label, MemLabel
@@ -421,8 +421,10 @@ if (LLumOrb) then
     call Get_OCOF(nPrim(1),nBas(1),Work(ip_Vec_p_b),nVec_p,Work(iOcof_b))
   end if
 
+  call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim(1)*(nPrim(1)+1)/2)
   call Gen_Prim_Density_Matrix(nBas(1),nPrim(1),ip_D_p,nOcOb,Work(ip_Occ),Work(iOcof))
   if (Method == 'UHF-SCF') then
+    call GetMem('D_p','ALLO','REAL',ip_D_p_b,nPrim(1)*(nPrim(1)+1)/2)
     call Gen_Prim_Density_Matrix(nBas(1),nPrim(1),ip_D_p_b,nOcOb_b,Work(ip_Occ+nOcc),Work(iOcof_b))
   end if
 else
@@ -432,18 +434,20 @@ else
   ! If the densities are used for expansion then
   ! Project the densities on the primitive basis
 
-  ! Get the orbital energy and allocate dubble memory due to UHF calculations
+  ! Get the orbital energy and allocate double memory due to UHF calculations
+  call GetMem('OrbE','Allo','Real',ip_Ene,2*nOcc)
   if (Method == 'RHF-SCF') then
     call Get_OrbE_mpprop(ip_Ene,nOcc)
   else
-    call GetMem('OrbE','Allo','Real',ip_Ene,2*nOcc)
     do iEne=1,2*nOcc
       Work(ip_Ene+iEne-1) = Zero
     end do
   end if
-  call Get_Density_Matrix_mpprop(ip_D,nDens,nBas(1),nSym)
+  call GetMem('D1ao','Allo','Real',ip_D,nBas(1)*(nBas(1)+1)/2)
+  call Get_Density_Matrix_mpprop(ip_D,nBas(1),nSym)
   write(u6,*) 'No polarizability will be calculated'
   iPol = 0
+  call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim(1)*(nPrim(1)+1)/2)
   call Get_Prim_Density_Matrix(ip_D,nBas(1),ip_D_p,nPrim(1),Work(ip_TM))
   call Free_Work(ip_D)
 end if
@@ -499,6 +503,11 @@ end if
 ! MpProp in the same say as in LoProp, then Mother Goose is called.
 
 if (Diffuse(1)) then
+  call Allocate_iWork(ip_ANr,nAtoms)
+  call GetMem('T','Allo','Real',ip_Ttot,nBas(1)**2)
+  call GetMem('Tinv','Allo','Real',ip_Ttot_Inv,nBas(1)**2)
+  call GetMem('ExpCent','Allo','Real',ip_EC,3*nAtoms*(nAtoms+1)/2)
+  call GetMem('MultMom','Allo','Real',ipMP,nAtoms*(nAtoms+1)/2*(nMltPl*(nMltPl**2+6*nMltPl+11)+6)/6)
   call StoreMpAsLop(nAtoms,ip_ANr,nBas(1),ip_Ttot,ip_Ttot_Inv,ipMP,nMltPl,ip_EC)
   call GetMem('ToPoint','Allo','Real',iTP,nAtoms)
   call CoreToPoint(nAtoms,Work(ipMP),Work(iTP))
@@ -586,6 +595,7 @@ call GetMem('AtPol','Free','Real',iAtPolAd,nAtoms*6)
 !end if
 if (LLumorb) then
   if (Method == 'UHF-SCF') then
+    call Free_Work(ip_D_p_b)
     call GetMem('Ocen_b','Free','Real',iOcen_b,3*nOrbi)
     call GetMem('Ocof','Free','Real',iOcof_b,nVec_p)
     call GetMem('Vec_p','Free','Real',ip_Vec_p_b,nVec_p)

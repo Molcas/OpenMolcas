@@ -15,22 +15,18 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms, nB, lMax
-integer(kind=iwp), intent(out) :: ip_ANr, ipT, ipTi, ipMP, ip_EC
+integer(kind=iwp), intent(in) :: nAtoms, ip_ANr, nB, ipT, ipTi, ipMP, lMax, ip_EC
 #include "MpData.fh"
 #include "WrkSpc.fh"
 #include "MolProp.fh"
-integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l, nSize1, nSize2
+integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l, nSize1
 
 !-- Let's fix the ip_ANr.
 
-call Allocate_iWork(ip_ANr,nAtoms)
 call Get_iArray('LP_A',iWork(ip_ANr),nAtoms)
 
 !-- Let's fix the uber-simple T and T(-1).
 
-call GetMem('T','Allo','Real',ipT,nB**2)
-call GetMem('Tinv','Allo','Real',ipTi,nB**2)
 kaunter = 0
 do i=1,nB
   do j=1,nB
@@ -44,7 +40,6 @@ end do
 
 !-- Let's fix the expansion centres. Cor resides in MolProp.fh.
 
-call GetMem('ExpCent','Allo','Real',ip_EC,3*nAtoms*(nAtoms+1)/2)
 kaunter = 0
 do i=1,nAtoms
   do j=1,i
@@ -60,8 +55,6 @@ end do
 ! to be compatible.
 
 nSize1 = nAtoms*(nAtoms+1)/2
-nSize2 = (lMax*(lMax**2+6*lMax+11)+6)/6
-call GetMem('MultMom','Allo','Real',ipMP,nSize1*nSize2)
 iMu = -1
 do l=0,lMax
   kompost = 0

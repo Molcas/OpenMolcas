@@ -15,8 +15,7 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ip_D, nBas, nPrim
-integer(kind=iwp), intent(out) :: ip_D_p
+integer(kind=iwp), intent(in) :: ip_D, nBas, ip_D_p, nPrim
 real(kind=wp), intent(in) :: TM(nPrim,nBas)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i,j,k,l
@@ -27,7 +26,6 @@ do i=1,nBas
     Work(ip_D+i*(i-1)/2+k-1) = Work(ip_D+i*(i-1)/2+k-1)/Two
   end do
 end do
-call GetMem('D_p','ALLO','REAL',ip_D_p,nPrim*(nPrim+1)/2)
 do i=1,nPrim
   do k=1,i
     TmpDensity = Zero
