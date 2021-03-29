@@ -18,8 +18,6 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms
 #include "WrkSpc.fh"
-!#include "MpData.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iStdOut
 
 iStdOut = u6

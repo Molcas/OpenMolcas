@@ -21,8 +21,6 @@ integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, NOCOB, nOrb, OCO
 real(kind=wp), intent(in) :: OENE(nOrb)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
 #include "WrkSpc.fh"
-!#include "MpData.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, L, LL, nA, nB
 real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, Pol(6,nAtoms,nAtoms), Pd(3,nAtoms), R, RA, RB, RIJX, RIJY, RIJZ, Smallest
 

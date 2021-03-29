@@ -11,7 +11,8 @@
 
 subroutine Get_Mpprop_input(nAtoms,iPol,LNearestAtom,LAllCenters,AveOrb,LLumOrb,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,iPrint)
 
-use MPProp_globals, only: BondMat, iAtomPar, Labe, mxAtomMP, NBI, NuB, Title
+use MPProp_globals, only: BondMat, iAtomPar, Labe, Title
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -19,31 +20,33 @@ integer(kind=iwp), intent(in) :: nAtoms
 integer(kind=iwp), intent(inout) :: iPol, nThrs, iPrint
 logical(kind=iwp), intent(inout) :: LNearestAtom, LAllCenters, AveOrb, LLumOrb, Diffuse(3)
 real(kind=wp), intent(inout) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
-!#include "MolProp.fh"
 #include "warnings.fh"
 integer(kind=iwp) :: i, iChrct, iStdOut, j, k, l, Last, LuRd, m, nBonds
 character(len=3) :: EndKey
 ! Jose character(len=4) :: TestLabe(0:nAtoms), KWord
 character(len=4) :: KWord
 character(len=6) :: TestLabe(0:nAtoms)
-character(len=180) :: Key, BLine
+character(len=180) :: Key
 logical(kind=iwp) :: Skip
+integer(kind=iwp), allocatable :: NuB(:), NBI(:,:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
 
 iStdOut = u6
 
-do i=1,180
-  BLine(i:i) = ' '
-end do
-Title = BLine
+Title = ' '
 
 LuRd = 21
 call SpoolInp(LuRd)
 
 rewind(LuRd)
 call RdNLst(LuRd,'MPPROP')
+
+call mma_allocate(NuB,nAtoms,label='NuB')
+call mma_allocate(NBI,nAtoms,nAtoms,label='NBI')
+NuB(:) = 0
+NBI(:,:) = 0
 
 ! KeyWord directed input
 
@@ -57,18 +60,11 @@ do
   end if
   Skip = .false.
   if (KWord(1:1) == '*') cycle
-  if (KWord == BLine) cycle
+  if (KWord == ' ') cycle
   select case (KWord(1:4))
     case ('BOND')
       ! Get the input for bonds
       LAllCenters = .true.
-      do i=1,MxAtomMP
-        NUB(i) = 0
-        do j=1,MxAtomMP
-          NBI(i,j) = 0
-          BondMat(i,j) = .false.
-        end do
-      end do
       atoms: do i=1,nAtoms
         nBonds = 0
         Key = Get_Ln(LuRd)
@@ -125,7 +121,7 @@ do
       write(iStdOut,*)
       write(iStdOut,'(A8,A,A)') 'Atom','  No bonds','   Bonding with'
       do i=1,nAtoms
-        write(iStdOut,'(A8,I6,A11,1000A8)') LABE(I),NUB(I),(LABE(NBI(I,J)),J=1,NUB(I))
+        write(iStdOut,'(A8,I6,A11,1000A8)') Labe(i),NuB(i),(Labe(NBI(i,j)),j=1,NuB(i))
       end do
       write(iStdOut,*)
       write(iStdOut,*)
@@ -178,12 +174,6 @@ do
       !                                                                *
       ! Set the bonds to all sites
       ! Get information from input
-      !do i=1,mxAtomMP
-      !  NuB(i) = 0
-      !  do j=1,mxAtomMP
-      !    NBI(i,j) = 0
-      !  end do
-      !end do
       do i=1,nAtoms
         NuB(i) = nAtoms-1
         do j=1,nAtoms-1
@@ -272,11 +262,14 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Title == Bline) then
+if (Title == ' ') then
   write(iStdOut,*)
   write(iStdOut,*) ' !!WARNING!! The molecule do not have a name'
   write(iStdOut,*)
 end if
+
+call mma_deallocate(NuB)
+call mma_deallocate(NBI)
 
 return
 

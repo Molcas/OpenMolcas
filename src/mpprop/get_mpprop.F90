@@ -12,7 +12,7 @@
 subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
-use MPProp_globals, only: BondMat, COR, CordMltPl, Frac, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtMltPlAd, iMltPlAd, iAtPrTab, iQnuc, &
+use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtMltPlAd, iMltPlAd, iAtPrTab, iQnuc, &
                           Labe, Method, nAtomPBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -22,9 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
 real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
-!#include "MpData.fh"
 #include "WrkSpc.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iA, iComp, ii, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
 real(kind=wp) :: CorP(3), CorN(3), FracA, FracB, FracN, FracP, Qn, Qp, Qs, R, RA, RB, rnloveril, rnPoveriP, rnqoveriq, Rtot, Rwei, &
                  Smallest, rsum, sum_a, sum_b, xfac, xfac_a, xfac_b, yfac, yfac_a, yfac_b, zfac, zfac_a, zfac_b
@@ -149,21 +147,21 @@ do nA=1,nAtoms
           if (np == ip) then
             xfac = rnpoverip
           else
-            xfac = rnPoveriP*(CordMltPl(1,ip)-COR(1,nA,nA))**(np-ip)
+            xfac = rnPoveriP*(CordMltPl(1,ip)-Cor(1,nA,nA))**(np-ip)
           end if
           do iq=0,nq
             call NoverP(nq,iq,rnqoveriq)
             if (nq == iq) then
               yfac = rnqoveriq
             else
-              yfac = rnqoveriq*(CordMltPl(2,iq)-COR(2,nA,nA))**(nq-iq)
+              yfac = rnqoveriq*(CordMltPl(2,iq)-Cor(2,nA,nA))**(nq-iq)
             end if
             do il=0,nl
               call NoverP(nl,il,rnloveril)
               if (nl == il) then
                 zfac = rnloveril
               else
-                zfac = rnloveril*(CordMltPl(3,il)-COR(3,nA,nA))**(nl-il)
+                zfac = rnloveril*(CordMltPl(3,il)-Cor(3,nA,nA))**(nl-il)
               end if
               if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) cycle
               do iPBas=1,nAtomPBas(nA)
@@ -316,21 +314,21 @@ do nA=1,nAtoms
             if (np == ip) then
               xfac = rnpoverip
             else
-              xfac = rnPoveriP*(CordMltPl(1,ip)-COR(1,nA,nB))**(np-ip)
+              xfac = rnPoveriP*(CordMltPl(1,ip)-Cor(1,nA,nB))**(np-ip)
             end if
             do iq=0,nq
               call NoverP(nq,iq,rnqoveriq)
               if (nq == iq) then
                 yfac = rnqoveriq
               else
-                yfac = rnqoveriq*(CordMltPl(2,iq)-COR(2,nA,nB))**(nq-iq)
+                yfac = rnqoveriq*(CordMltPl(2,iq)-Cor(2,nA,nB))**(nq-iq)
               end if
               do il=0,nl
                 call NoverP(nl,il,rnloveril)
                 if (nl == il) then
                   zfac = rnloveril
                 else
-                  zfac = rnloveril*(CordMltPl(3,il)-COR(3,nA,nB))**(nl-il)
+                  zfac = rnloveril*(CordMltPl(3,il)-Cor(3,nA,nB))**(nl-il)
                 end if
                 if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) cycle
                 do iPBas=1,nAtomPBas(nA)
@@ -379,8 +377,8 @@ do nA=1,nAtoms
                 xfac_a = rnPoveriP
                 xfac_b = rnPoveriP
               else
-                xfac_a = (COR(1,nA,nB)-COR(1,iA,iA))**(np-ip)*rnPoveriP
-                xfac_b = (COR(1,nA,nB)-COR(1,nB,nB))**(np-ip)*rnPoveriP
+                xfac_a = (Cor(1,nA,nB)-Cor(1,iA,iA))**(np-ip)*rnPoveriP
+                xfac_b = (Cor(1,nA,nB)-Cor(1,nB,nB))**(np-ip)*rnPoveriP
               end if
               do iq=0,nq
                 call NoverP(nq,iq,rnqoveriq)
@@ -388,8 +386,8 @@ do nA=1,nAtoms
                   yfac_a = rnqoveriq
                   yfac_b = rnqoveriq
                 else
-                  yfac_a = (COR(2,nA,nB)-COR(2,iA,iA))**(nq-iq)*rnqoveriq
-                  yfac_b = (COR(2,nA,nB)-COR(2,nB,nB))**(nq-iq)*rnqoveriq
+                  yfac_a = (Cor(2,nA,nB)-Cor(2,iA,iA))**(nq-iq)*rnqoveriq
+                  yfac_b = (Cor(2,nA,nB)-Cor(2,nB,nB))**(nq-iq)*rnqoveriq
                 end if
                 do il=0,nl
                   call NoverP(nl,il,rnloveril)
@@ -397,8 +395,8 @@ do nA=1,nAtoms
                     zfac_a = rnloveril
                     zfac_b = rnloveril
                   else
-                    zfac_a = (COR(3,nA,nB)-COR(3,iA,iA))**(nl-il)*rnloveril
-                    zfac_b = (COR(3,nA,nB)-COR(3,nB,nB))**(nl-il)*rnloveril
+                    zfac_a = (Cor(3,nA,nB)-Cor(3,iA,iA))**(nl-il)*rnloveril
+                    zfac_b = (Cor(3,nA,nB)-Cor(3,nB,nB))**(nl-il)*rnloveril
                   end if
                   sum_a = sum_a+xfac_a*yfac_a*zfac_a*FracA*Work(iAtBoMltPlAd(ip+iq+il)+nCenters*(iCompMat(ip,iq,il)-1)+ &
                           nA*(nA-1)/2+nB-1)

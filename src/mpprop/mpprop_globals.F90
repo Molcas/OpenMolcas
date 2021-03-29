@@ -18,19 +18,19 @@ private
 
 #include "Molcas.fh"
 
-integer(kind=iwp), parameter :: mxAtomMP = 500, mxCen = mxAtomMP*(mxAtomMP+1)/2, mxMltPl = 10
-integer(kind=iwp) :: iAtPrTab(maxbfn,mxAtomMP), iAtomType(mxAtomMP), iAtomPar(mxAtomMP), nAtomPBas(mxAtomMP), iBondPar(mxCen), &
-                     NUB(mxAtomMP), NBI(mxAtomMP,mxAtomMP), iAtMltPlAd(0:mxMltPl), iAtBoMltPlAd(0:mxMltPl), iMltPlAd(0:mxMltPl), &
-                     iAtPolAd, iAtBoPolAd, iQnuc, iAtMltPlTotAd(0:mxMltPl), iAtBoMltPlTotAd(0:mxMltPl), iAtBoMltPlAdCopy(0:mxMltpl)
-real(kind=wp) :: Cor(3,mxAtomMP,mxAtomMP), Frac(mxAtomMP,mxAtomMP), CordMltpl(3,0:99), EneV
-character(len=LenIn) :: Labe(mxAtomMP)
-character(len=LenIn*2+2) :: Cen_Lab(mxCen)
+integer(kind=iwp), parameter :: mxMltPl = 10
+integer(kind=iwp) :: iAtMltPlAd(0:mxMltPl), iAtBoMltPlAd(0:mxMltPl), iMltPlAd(0:mxMltPl), iAtPolAd, iAtBoPolAd, iQnuc, &
+                     iAtMltPlTotAd(0:mxMltPl), iAtBoMltPlTotAd(0:mxMltPl), iAtBoMltPlAdCopy(0:mxMltpl)
+real(kind=wp) :: CordMltPl(3,0:mxMltPl), EneV
 character(len=180) :: Title
 character(len=8) :: Method
-logical(kind=iwp) :: BondMat(mxAtomMP,mxAtomMP)
+integer(kind=iwp), allocatable :: iAtomType(:), iAtomPar(:), nAtomPBas(:), iAtPrTab(:,:)
+real(kind=wp), allocatable :: Cor(:,:,:), Frac(:,:)
+character(len=LenIn), allocatable :: Labe(:)
+character(len=LenIn*2+2), allocatable :: Cen_Lab(:)
+logical(kind=iwp), allocatable :: BondMat(:,:)
 
 public :: BondMat, Cen_Lab, Cor, CordMltPl, EneV, Frac, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoMltPlTotAd, iAtBoPolAd, iAtMltPlAd, &
-          iAtMltPlTotAd, iAtomPar, iAtomType, iAtPolAd, iAtPrTab, iBondPar, iMltPlAd, iQnuc, Labe, Method, mxAtomMP, mxCen, &
-          mxMltPl, nAtomPBas, NBI, NUB, Title
+          iAtMltPlTotAd, iAtomPar, iAtomType, iAtPolAd, iAtPrTab, iMltPlAd, iQnuc, Labe, Method, mxMltPl, nAtomPBas, Title
 
 end module MPProp_globals

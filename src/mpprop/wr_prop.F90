@@ -12,6 +12,7 @@
 subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,orbe,orbe_b,iPol,LAllCenters)
 
 use MPProp_globals, only: BondMat, Cen_Lab, Cor, iAtBoMltPlAd, iAtBoMltPlTotAd, iAtMltPlAd, iAtMltPlTotAd, Labe
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -19,21 +20,21 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nBas, nMltPl, NOCOB, NOCOB_b, iPol
 real(kind=wp), intent(in) :: orbe(NOCOB), orbe_b(NOCOB_b)
 logical(kind=iwp), intent(in) :: LAllCenters
-!#include "MpData.fh"
 #include "WrkSpc.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iComp, iCompMat(0:nMltPl,0:nMltPl,0:nMltPl), il, iMltpl, ip, iq, j, nA, nB, nComp, nl, np, nq, nTotCen
 real(kind=wp) :: fac, rnloveril, rnPoveriP, rnqoveriq, xfac, yfac, zfac
 character(len=8) :: MemLabel
 
+call mma_allocate(Cen_Lab,nAtoms*(nAtoms+1)/2,label='Cen_Lab')
+
 nTotCen = 0
 do i=1,nAtoms
   nTotCen = nTotCen+1
-  write(CEN_LAB(i*(i+1)/2),'(A)') Labe(i)
-  do j=1,i
+  write(Cen_Lab(i*(i+1)/2),'(A)') Labe(i)
+  do j=1,i-1
     if (BondMat(i,j)) then
       nTotCen = nTotCen+1
-      write(CEN_LAB(i*(i-1)/2+j),'(3A)') LABE(i),'- ',LABE(j)
+      write(Cen_Lab(i*(i-1)/2+j),'(3A)') LABE(i),'- ',LABE(j)
     end if
   end do
 end do
@@ -129,6 +130,8 @@ do iMltpl=0,nMltPl
   write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
   call GetMem(MemLabel,'Free','Real',iAtBoMltPlTotAd(iMltPl),iMltPl*nComp)
 end do
+
+call mma_deallocate(Cen_Lab)
 
 return
 

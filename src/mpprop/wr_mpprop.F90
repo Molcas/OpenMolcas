@@ -18,9 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, iPol
-!#include "MpData.fh"
 #include "WrkSpc.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iComp, iCount, ilab, iMltPl, iStdOut, ix, ixx, iy, iyy, iz, izz, j, jComp, nComp
 integer(kind=iwp), parameter :: mxComp = (mxMltPl+1)*(mxMltPl+2)/2
 real(kind=wp) :: MolPol(6)
@@ -132,7 +130,7 @@ do i=1,nAtoms
       write(iStdOut,*)
       write(iStdOut,'(I5,A8,I5,A3,A10)') iCount,' Center ',i*(i-1)/2+j,'   ',CEN_LAB(i*(i-1)/2+j)
       write(iStdOut,*) '**************************************************'
-      write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,I,j),Cor(2,I,j),Cor(3,I,j)
+      write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
       do iMltPl=0,nMltPl
         nComp = (iMltPl+1)*(iMltPl+2)/2
         do iComp=1,nComp,6
@@ -157,7 +155,7 @@ do i=1,nAtoms
   write(iStdOut,*)
   write(iStdOut,'(I5,A8,I5,A3,A10)') i,' Atom   ',i,'   ',CEN_LAB(i*(i+1)/2)
   write(iStdOut,*) '**************************************************'
-  write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,I,I),Cor(2,I,I),Cor(3,I,I)
+  write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6

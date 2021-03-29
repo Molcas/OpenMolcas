@@ -17,9 +17,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, ip_ANr, nB, ipT, ipTi, ipMP, lMax, ip_EC
-!#include "MpData.fh"
 #include "WrkSpc.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l, nSize1
 
 !-- Let's fix the ip_ANr.
@@ -39,7 +37,7 @@ do i=1,nB
   end do
 end do
 
-!-- Let's fix the expansion centres. Cor resides in MolProp.fh.
+!-- Let's fix the expansion centres.
 
 kaunter = 0
 do i=1,nAtoms

@@ -11,20 +11,19 @@
 
 subroutine MpProp(iReturn)
 
-use MPProp_globals, only: COR, CordMltPl, EneV, iAtomType, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoPolAd, iAtMltPlAd, iAtomPar, &
-                          iAtPolAd, iBondPar, iMltPlAd, iQnuc, Labe, Method, mxAtomMP, mxCen, mxMltPl, nbi, nub
+use MPProp_globals, only: BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoPolAd, iAtMltPlAd, &
+                          iAtomPar, iAtPolAd, iAtPrTab, iMltPlAd, iQnuc, Labe, Method, mxMltPl, nAtomPBas
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 #include "LenIn.fh"
-!#include "MpData.fh"
 #include "WrkSpc.fh"
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, iAtype, iCenX, iCenY, iCenZ, iComp, iDum(1), iEne, iErr, iMltpl, iOcen, iOcen_b, iOcof, iOcof_b, iOff1, &
                      iOff2, iOff3, iopt, ip_ANr, ip_Coor, ip_D, ip_D_p, ip_D_p_b, ip_EC, ip_Ene, ip_Occ, ip_TM, ip_Ttot, &
-                     ip_Ttot_Inv, ip_Vec, ip_Vec_p, ip_vec_p_b, ipMP, iPol, iPrint, irc, iSmLbl,iSym, iTP, iWarn, iWFtype, j, Lu_, &
+                     ip_Ttot_Inv, ip_Vec, ip_Vec_p, ip_vec_p_b, ipMP, iPol, iPrint, irc, iSmLbl,iSym, iTP, iWarn, iWFtype, Lu_, &
                      LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, &
                      nSize1, nSize2, nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
@@ -38,16 +37,6 @@ integer(kind=iwp), external :: IsFreeUnit
 !***********************************************************************
 !                                                                      *
 ! Set some zeroes
-do i=1,mxAtomMP
-  iAtomPar(i) = 1
-  nub(i) = 0
-  do j=1,mxAtomMP
-    nbi(i,j) = 0
-  end do
-end do
-do i=1,mxCen
-  iBondPar(i) = 1
-end do
 do i=1,8
   nPrim(i) = 0
   nBas(i) = 0
@@ -94,10 +83,16 @@ end if
 ! Runfile update
 !call Get_nAtoms(nAtoms)
 call Get_iScalar('Unique atoms',nAtoms)
-if (nAtoms > mxAtomMP) then
-  write(u6,'(A)') 'MPProp: Too many atoms'
-  call Abend()
-end if
+
+call mma_allocate(Labe,nAtoms,label='Labe')
+call mma_allocate(iAtomType,nAtoms,label='iAtomType')
+call mma_allocate(iAtomPar,nAtoms,label='iAtomPar')
+call mma_allocate(Cor,3,nAtoms,nAtoms,label='Cor')
+call mma_allocate(Frac,nAtoms,nAtoms,label='Frac')
+call mma_allocate(BondMat,nAtoms,nAtoms,label='BondMat')
+call mma_allocate(nAtomPBas,nAtoms,label='nAtomPBas')
+iAtomPar(:) = 1
+BondMat(:,:) = .false.
 
 call GetMem('Coord','Allo','Real',ip_Coor,3*nAtoms)
 call GetMem('Atype','Allo','Real',iAtype,nAtoms)
@@ -118,9 +113,9 @@ call Get_dArray('Effective nuclear Charge',Work(iQnuc),nAtoms)
 
 do i=1,nAtoms
   iAtomType(i) = int(Work(iAtype+i-1))
-  COR(1,i,i) = Work(ip_Coor+(i-1)*3)
-  COR(2,i,i) = Work(ip_Coor+(i-1)*3+1)
-  COR(3,i,i) = Work(ip_Coor+(i-1)*3+2)
+  Cor(1,i,i) = Work(ip_Coor+(i-1)*3)
+  Cor(2,i,i) = Work(ip_Coor+(i-1)*3+1)
+  Cor(3,i,i) = Work(ip_Coor+(i-1)*3+2)
 end do
 call Wr_Cord(nAtoms)
 call GetMem('Atype','Free','Real',iAtype,nAtoms)
@@ -194,7 +189,7 @@ outer: do iMltpl=0,mxMltPl
     if (irc == 0) n_Int = iDum(1)
     if (irc /= 0) then
       if (iComp /= 1) then
-        write(u6,'(2A)') 'MPProp: Error reading iComp.ne.0 label=',label
+        write(u6,'(2A)') 'MPProp: Error reading iComp /= 0 label=',label
         call Abend()
       else
         call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),nComp)
@@ -458,6 +453,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+call mma_allocate(iAtPrTab,nPrim(1),nAtoms,label='iAtPrTab')
 call Get_Prim_Atom_Tab(nAtoms,nPrim(1),Work(ip_Coor),Work(iCenX),Work(iCenY),Work(iCenZ))
 !                                                                      *
 !***********************************************************************
@@ -631,6 +627,14 @@ end do
 call GetMem('Qnuc','Free','Real',iQnuc,nAtoms)
 call GetMem('Coord','Free','Real',ip_Coor,3*nAtoms)
 call GetMem('Coord','Check','Real',ip_Coor,3*nAtoms)
+call mma_deallocate(Labe)
+call mma_deallocate(iAtomType)
+call mma_deallocate(iAtomPar)
+call mma_deallocate(Cor)
+call mma_deallocate(Frac)
+call mma_deallocate(BondMat)
+call mma_deallocate(nAtomPBas)
+call mma_deallocate(iAtPrTab)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

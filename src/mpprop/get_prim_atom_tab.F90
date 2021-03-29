@@ -18,7 +18,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nPrim
 real(kind=wp), intent(in) :: Work(3*nAtoms), CENTX(nPrim*(nPrim+1)/2), CENTY(nPrim*(nPrim+1)/2), CENTZ(nPrim*(nPrim+1)/2)
 ! EB real(kind=wp), intent(in) :: CENTX(nPrim), CENTY(nPrim), CENTZ(nPrim)
-!#include "MolProp.fh"
 integer(kind=iwp) :: i, j
 
 !---- Get the primitive basis that belongs to a specific atom
