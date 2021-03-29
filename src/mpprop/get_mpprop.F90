@@ -187,7 +187,7 @@ do nA=1,nAtoms
               else
                 zfac = rnloveril*(CordMltPl(3,il)-COR(3,nA,nA))**(nl-il)
               end if
-              if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) goto 10
+              if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) cycle
               do iPBas=1,nAtomPBas(nA)
                 i = iAtPrTab(iPBas,nA)
                 do jPBas=1,nAtomPBas(nA)
@@ -203,7 +203,6 @@ do nA=1,nAtoms
                         iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
                 end do
               end do
-              10 continue
             end do
           end do
         end do
@@ -355,7 +354,7 @@ do nA=1,nAtoms
                 else
                   zfac = rnloveril*(CordMltPl(3,il)-COR(3,nA,nB))**(nl-il)
                 end if
-                if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) goto 20
+                if ((xfac == Zero) .or. (yfac == Zero) .or. (zfac == Zero)) cycle
                 do iPBas=1,nAtomPBas(nA)
                   i = iAtPrTab(iPBas,nA)
                   do jPBas=1,nAtomPBas(nB)
@@ -371,7 +370,6 @@ do nA=1,nAtoms
                            iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
                   end do
                 end do
-                20 continue
               end do
             end do
           end do

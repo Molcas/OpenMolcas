@@ -177,7 +177,7 @@ call Put_iArray('nBas',nPrim,1)
 
 ! Do it general
 
-do iMltpl=0,mxMltPl
+outer: do iMltpl=0,mxMltPl
   write(label,'(a,i2)') 'PLTPL ',iMltpl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
@@ -197,7 +197,7 @@ do iMltpl=0,mxMltPl
         call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),nComp)
         nMltPl = iMltPl-1
         nSum = nSum-nComp
-        go to 100
+        exit outer
       end if
     end if
     if (n_Int /= 0) then
@@ -221,9 +221,7 @@ do iMltpl=0,mxMltPl
       CordMltPl(i,iMltpl) = Work(iWork(iMltPlAd(iMltpl))+n_Int+i-1)
     end do
   end do
-end do
-
-100 continue
+end do outer
 
 !                                                                      *
 !***********************************************************************
