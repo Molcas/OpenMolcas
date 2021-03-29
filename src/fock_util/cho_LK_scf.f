@@ -773,33 +773,30 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
                                   If (iaSh<ibSh) jOff = jOff +
      &                            nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
 
-
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
-
-                               CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
-     &                                      nBasSh(kSym,ibSh),
-     &                                  ONE,Work(ipLF+jOff*JNUM),
-     &                                      nBasSh(lSym,iaSh)*JNUM,
-     &                                   Work(ipMO+ioffShb),1,
-     &                                  ONE,Work(ipLab(iaSh)),1)
+                                  Mode(1:1)='N'
+                                  n1 = nBasSh(lSym,iaSh)*JNUM
+                                  n2 = nBasSh(kSym,ibSh)
 
                                Else   ! lSym < kSym
 
                                   jOff = iOffShp(kSym,iShp_rs(iShp))
                                   If (ibSh<iaSh) jOff = jOff +
      &                            nBasSh(kSym,iaSh)*nBasSh(lSym,ibSh)
+
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
-
-                               CALL DGEMV_('T',nBasSh(kSym,ibSh),
-     &                                       JNUM*nBasSh(lSym,iaSh),
-     &                                  ONE,Work(ipLF+jOff*JNUM),
-     &                                      nBasSh(kSym,ibSh),
-     &                                   Work(ipMO+ioffShb),1,
-     &                                  ONE,Work(ipLab(iaSh)),1)
+                                  Mode(1:1)='T'
+                                  n1 = nBasSh(kSym,ibSh)
+                                  n2 = JNUM*nBasSh(lSym,iaSh)
 
                                Endif
+
+                               CALL DGEMV_(Mode(1:1),n1,n2,
+     &                                  ONE,Work(ipLF+jOff*JNUM),n1,
+     &                                      Work(ipMO+ioffShb),1,
+     &                                  ONE,Work(ipLab(iaSh)),1)
 
                             EndIf
 
@@ -914,14 +911,11 @@ C ---  F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
                                nBs = Max(1,nBasSh(lSym,iaSh))
 
-                               CALL DGEMM_Tri('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                       -FActXI,Work(ipLab(iaSh)),
-     &                                           nBs,
-     &                                           Work(ipLab(ibsh)),
-     &                                           nBs,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
+                               CALL DGEMM_Tri('N','T',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               -FActXI,Work(ipLab(iaSh)),nBs,
+     &                                       Work(ipLab(ibsh)),nBs,
+     &                                   ONE,Work(ipKI),nBs)
 
 
                                ElseIf (iaSh.gt.ibSh
@@ -933,20 +927,15 @@ C -------------------------------------------------------------------
                                   nBsa = Max(1,nBasSh(lSym,iaSh))
                                   nBsb = Max(1,nBasSh(lSym,ibSh))
 
-                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                       -FactXI,Work(ipLab(iaSh)),
-     &                                           nBsa,
-     &                                           Work(ipLab(ibsh)),
-     &                                           nBsb,
-     &                                       ONE,Work(ipKI),
-     &                                               nBsa)
+                                  CALL DGEMM_('N','T',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                                  -FactXI,Work(ipLab(iaSh)),nBsa,
+     &                                          Work(ipLab(ibsh)),nBsb,
+     &                                      ONE,Work(ipKI),nBsa)
 
                                EndIf
 
-
                                mSh = mSh + 1  ! update shell counter
-
 
                             End Do
 
@@ -998,14 +987,11 @@ C -------------------------------------------------------------------
 
                                nBs = Max(1,nBasSh(lSym,iaSh))
 
-                               CALL DGEMM_Tri('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                        -FActXI,Work(ipLab(iaSh)),
-     &                                                JNUM,
-     &                                                Work(ipLab(ibsh)),
-     &                                                JNUM,
-     &                                            ONE,Work(ipKI),
-     &                                                nBs)
+                               CALL DGEMM_Tri('T','N',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                               -FActXI,Work(ipLab(iaSh)),JNUM,
+     &                                       Work(ipLab(ibsh)),JNUM,
+     &                                   ONE,Work(ipKI),nBs)
 
 
                                ElseIf (iaSh.gt.ibSh
@@ -1017,21 +1003,16 @@ C -------------------------------------------------------------------
 
                                   nBs = Max(1,nBasSh(lSym,iaSh))
 
-                                  CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                       -FactXI,Work(ipLab(iaSh)),
-     &                                           JNUM,
-     &                                           Work(ipLab(ibsh)),
-     &                                           JNUM,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
+                                  CALL DGEMM_('T','N',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                                  -FactXI,Work(ipLab(iaSh)),JNUM,
+     &                                          Work(ipLab(ibsh)),JNUM,
+     &                                      ONE,Work(ipKI),nBs)
 
 
                                EndIf
 
-
                                mSh = mSh + 1  ! update shell counter
-
 
                             End Do
 
