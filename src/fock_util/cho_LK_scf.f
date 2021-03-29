@@ -865,116 +865,113 @@ C --- Compute exchange matrix for the interacting shell pairs
 C------------------------------------------------------------
 
                       CALL CWTIME(TCX1,TWX1)
-                         Do lSh=1,Indx(0,jK_a)
 
-                            iaSh = Indx(lSh,jK_a)
+                      Do lSh=1,Indx(0,jK_a)
 
-                            iaSkip= Min(1,Max(0,
-     &                              abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
+                         iaSh = Indx(lSh,jK_a)
 
-                            iOffSha = kOffSh(iaSh,lSym)
+                         iaSkip= Min(1,Max(0,
+     &                           abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
 
-                            mSh = 1
+                         iOffSha = kOffSh(iaSh,lSym)
 
-                            Do while (mSh.le.Indx(0,jK_a))
+                         mSh = 1
 
-                               ibSh = Indx(mSh,jK_a)
+                         Do while (mSh.le.Indx(0,jK_a))
 
-                               ibSkip = Min(1,Max(0,
-     &                                        abs(ipLab(ibSh)-ipAbs)))
+                            ibSh = Indx(mSh,jK_a)
 
-                               iShp = iTri(iaSh,ibSh)
+                            ibSkip = Min(1,Max(0,
+     &                                     abs(ipLab(ibSh)-ipAbs)))
 
-                               iOffShb = kOffSh(ibSh,lSym)
+                            iShp = iTri(iaSh,ibSh)
 
-                               iOffAB = nnBfShp(iShp,lSym)
+                            iOffShb = kOffSh(ibSh,lSym)
 
-                               ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
+                            iOffAB = nnBfShp(iShp,lSym)
 
-                               xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
+                            ipKI = ipKLT(jDen) + ISTLT(lSym) + iOffAB
 
-                               If ( MLk(lSh,jK_a)*MLk(mSh,jK_a)
-     &                              .lt. tau(jDen) ) Then
+                            xFab = sqrt(abs(Faa(iaSh)*Faa(ibSh)))
 
-
-                                   mSh = Indx(0,jK_a)  ! skip the rest
+                            If ( MLk(lSh,jK_a)*MLk(mSh,jK_a)
+     &                           .lt. tau(jDen) ) Then
 
 
-                               ElseIf(iaSh.eq.ibSh
-     &                                .and.xFab.ge.tau(jDen)/MaxRedT
-     &                                .and.iaSkip.eq.1)Then
+                                mSh = Indx(0,jK_a)  ! skip the rest
 
-                      IF (lSym.ge.kSym) Then
+
+                            ElseIf(iaSh.eq.ibSh
+     &                             .and.xFab.ge.tau(jDen)/MaxRedT
+     &                             .and.iaSkip.eq.1)Then
+
+                              IF (lSym.ge.kSym) Then
 
 
 C ---  F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
-                               nBs = Max(1,nBasSh(lSym,iaSh))
+                                 Mode(1:1)='N'
+                                 Mode(2:2)='T'
+                                 n1 = nBasSh(lSym,iaSh)
+                                 nBs = nBasSh(lSym,iaSh)
 
-                               CALL DGEMM_Tri('N','T',
-     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               -FActXI,Work(ipLab(iaSh)),nBs,
-     &                                       Work(ipLab(ibsh)),nBs,
-     &                                   ONE,Work(ipKI),nBs)
-
-                      ELSE   ! lSym < kSym
+                              ELSE   ! lSym < kSym
 
 C ---  F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
 C -------------------------------------------------------------------
+                                 Mode(1:1)='T'
+                                 Mode(2:2)='N'
+                                 n1 = JNUM
+                                 nBs = nBasSh(lSym,iaSh)
 
-                               nBs = Max(1,nBasSh(lSym,iaSh))
+                              End If
 
-                               CALL DGEMM_Tri('T','N',
-     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               -FActXI,Work(ipLab(iaSh)),JNUM,
-     &                                       Work(ipLab(ibsh)),JNUM,
-     &                                   ONE,Work(ipKI),nBs)
+                              CALL DGEMM_Tri(Mode(1:1),Mode(2:2),
+     &                        nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                              -FActXI,Work(ipLab(iaSh)),n1,
+     &                                      Work(ipLab(ibsh)),n1,
+     &                                  ONE,Work(ipKI),nBs)
 
-                      End If
-
-
-
-                               ElseIf (iaSh.gt.ibSh
+                            ElseIf (iaSh.gt.ibSh
      &                                .and.xFab.ge.tau(jDen)/MaxRedT
      &                                 .and. iaSkip*ibSkip.eq.1) Then
 
 
-                      IF (lSym.ge.kSym) Then
+                              IF (lSym.ge.kSym) Then
 
 C ---  F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
-                                  nBsa = Max(1,nBasSh(lSym,iaSh))
-                                  nBsb = Max(1,nBasSh(lSym,ibSh))
+                                 Mode(1:1)='N'
+                                 Mode(2:2)='T'
+                                 nBs  = nBasSh(lSym,iaSh)
+                                 n1 = nBasSh(lSym,iaSh)
+                                 n2 = nBasSh(lSym,ibSh)
 
-                                  CALL DGEMM_('N','T',
-     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                                  -FactXI,Work(ipLab(iaSh)),nBsa,
-     &                                          Work(ipLab(ibsh)),nBsb,
-     &                                      ONE,Work(ipKI),nBsa)
-
-                      ELSE   ! lSym < kSym
+                              ELSE   ! lSym < kSym
 
 C ---  F(a,b)[k] = F(a,b)[k] - FactXI * sum_J  L(J,a)[k] * L(J,b)[k]
 C -------------------------------------------------------------------
+                                 Mode(1:1)='T'
+                                 Mode(2:2)='N'
+                                 n1 = JNUM
+                                 n2 = JNUM
+                                 nBs = nBasSh(lSym,iaSh)
 
-                                  nBs = Max(1,nBasSh(lSym,iaSh))
+                              End If
 
-                                  CALL DGEMM_('T','N',
+                              CALL DGEMM_(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                                  -FactXI,Work(ipLab(iaSh)),JNUM,
-     &                                          Work(ipLab(ibsh)),JNUM,
-     &                                      ONE,Work(ipKI),nBs)
+     &                               -FactXI,Work(ipLab(iaSh)),n1,
+     &                                       Work(ipLab(ibsh)),n2,
+     &                                   ONE,Work(ipKI),nBs)
 
-                      End If
+                            EndIf
 
-
-                               EndIf
-
-                               mSh = mSh + 1  ! update shell counter
-
-                            End Do
+                            mSh = mSh + 1  ! update shell counter
 
                          End Do
+
+                      End Do
 
                       CALL CWTIME(TCX2,TWX2)
                       texch(1) = texch(1) + (TCX2 - TCX1)
