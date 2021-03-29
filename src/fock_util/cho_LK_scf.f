@@ -34,6 +34,7 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
+      use Data_Structures, only: Allocate_L_Full
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -69,7 +70,6 @@ C
 #include "warnings.fh"
       Logical add
       Character(LEN=6) mode
-      Integer, External:: Cho_F2SP
 
       Real*8 LKThr
       Real*8, External:: Cho_LK_ScreeningThreshold
@@ -325,13 +325,7 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
 C *** Mapping shell pairs from the full to the reduced set
 
-      Do iaSh=1,nShell
-         Do ibSh=1,iaSh
-            iShp = iaSh*(iaSh-1)/2 + ibSh
-            iShp_rs(iShp) = Cho_F2SP(iShp)
-         End Do
-      End Do
-
+      Call Mk_iShp_rs(iShp_rs,nShell)
 
 C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
       DO jSym=1,nSym
@@ -341,41 +335,8 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
          If (NumCV .lt. 1) Cycle
 
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
-
-         LFULL=0
-
-         Do iaSh=1,nShell
-
-          Do ibSh=1,iaSh
-
-           iShp = iaSh*(iaSh-1)/2 + ibSh
-
-           If (iShp_rs(iShp).gt.0) Then
-
-            If (nnBstRSh(Jsym,iShp_rs(iShp),1).gt.0) Then
-
-             Do iSymb=1,nSym
-
-              iSyma=MulD2h(iSymb,Jsym)
-
-              If (iSyma.ge.iSymb) Then
-
-               iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL
-
-                 LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
-     &        + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
-
-              EndIf
-
-             End Do
-
-            EndIf
-
-           EndIf
-
-          End Do
-
-         End Do
+        JNUM=1
+        Call Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
 
 C ****************     MEMORY MANAGEMENT SECTION    *****************
 C ------------------------------------------------------------------

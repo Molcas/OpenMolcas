@@ -21,6 +21,7 @@ Public:: SBA_Type, Allocate_SBA, Deallocate_SBA, Map_to_SBA
 Public:: twxy_Type, Allocate_twxy, Deallocate_twxy, Map_to_twxy
 Public:: NDSBA_Type, Allocate_NDSBA, Deallocate_NDSBA
 Public:: G2_Type, Allocate_G2, Deallocate_G2
+Public:: Allocate_L_Full
 #include "stdalloc.fh"
 #include "real.fh"
 
@@ -783,7 +784,66 @@ Do iSym=1,Adam%nSym
    End Do
 End Do
 Adam%nSym=0
-
 End Subroutine Deallocate_G2
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                      L F u l l - T Y P E   S E C T I O N            !
+!                                                                     !
+!                      L  full storage shell-pair blocked             !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Subroutine Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym, Memory)
+use ChoArr, only: nBasSh
+use ChoSwp, only: nnBstRSh
+use ChoSwp, only: iiBstRSh  ! Temporary
+Implicit None
+Integer nShell
+Integer iShp_rs( nShell*(nShell+2)/2 )
+Integer JNUM, JSYM, nSym
+Integer, Optional:: Memory
+
+Integer iaSh, ibSh, iShp
+Integer iSyma, iSymb
+Integer LFULL
+
+Integer i, j, MulD2h
+MulD2h(i,j) = iEOR(i-1,j-1) + 1
+
+LFULL=0
+Do iaSh=1,nShell
+   Do ibSh=1,iaSh
+      iShp = iaSh*(iaSh-1)/2 + ibSh
+
+      If (iShp_rs(iShp)<=0) Cycle
+
+      If (nnBstRSh(Jsym,iShp_rs(iShp),1)<=0) Cycle
+
+      Do iSymb=1,nSym
+         iSyma=MulD2h(iSymb,Jsym)
+         If (iSyma<iSymb) Cycle
+
+         iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL    ! Temporary
+
+         LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
+         If (iaSh==ibSh) Cycle
+
+         LFULL = LFULL + nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
+
+      End Do
+
+   End Do
+End Do
+Memory=Memory*JNUM
+
+If (Present(Memory)) Then
+   Memory=LFULL
+   Return
+End If
+Call Abend()
+
+End Subroutine Allocate_L_Full
+
 
 End Module Data_Structures

@@ -11,7 +11,7 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
 
-      SUBROUTINE CHO_GetShFull(scr,lscr,JNUM,JSYM,
+      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,
      &                         IREDC,ipChoV,SvShp,iShp_rs)
 ************************************************************
 *   Author: F. Aquilante
@@ -21,10 +21,9 @@
       use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
       use ChoSwp, only: iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
-      Real*8  Scr(lscr),SvShp(*)
+      Real*8  LabJ(lLabJ),SvShp(*)
       Integer iShp_rs(*)
-      Integer cho_isao
-      External cho_isao
+      Integer, External :: cho_isao
 
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -58,7 +57,7 @@ C
 
          DO JVEC=1,JNUM
 
-            kscr = NREAD
+            kLabJ = NREAD
             NREAD= NREAD + nDimRS(jSym,IREDC)
 
             Do jRab=1,nnBstR(jSym,iLoc)
@@ -82,7 +81,7 @@ C
              ias = iaSg - iBasSh(iSyma,iaSh) ! addr within its shell
              ibs = ibSg - iBasSh(isyma,ibSh)
 
-             kscr  = kscr + 1
+             kLabJ  = kLabJ + 1
 
              kcho1 = nBasSh(iSyma,iaSh)*JNUM*(ibs-1)
      &             + nBasSh(iSyma,iaSh)*(JVEC-1) + ias
@@ -92,15 +91,15 @@ C
 
              ioffV = ipChoV + JNUM*iOffShp(iSyma,iShp_rs(iShp)) - 1
 
-             Work(kcho1+ioffV) = Scr(kscr)
+             Work(kcho1+ioffV) = LabJ(kLabJ)
 
              ioffV = ioffV - nBasSh(iSyma,iaSh)*JNUM*nBasSh(iSyma,ibSh)
      &             *Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
 
-             Work(kcho2+ioffV) = Scr(kscr)
+             Work(kcho2+ioffV) = LabJ(kLabJ)
 
              SvShp(nnShl+iShp_rs(iShp)) = SvShp(nnShl+iShp_rs(iShp))
-     &                                  + Scr(kscr)**2
+     &                                  + LabJ(kLabJ)**2
 
             End Do
 
@@ -122,7 +121,7 @@ C
 
          DO JVEC=1,JNUM
 
-            kscr = NREAD
+            kLabJ = NREAD
             NREAD= NREAD + nDimRS(jSym,IREDC)
 
             Do jRab=1,nnBstR(jSym,iLoc)
@@ -144,11 +143,6 @@ C
               iSyma = cho_isao(iag)  !symmetry block
               iSymb = muld2h(jSym,iSyma) ! iSyma >= iSymb
 
-c               koff = iOffShp(iSyma,iShp_rs(iShp))
-
-c               If (iaSh.lt.ibSh)   koff = koff
-c     &                           + nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
-
               koff = iOffShp(iSyma,iShp_rs(iShp)) - nBasSh(iSyma,ibSh)*
      &               nBasSh(iSymb,iaSh)*
      &               Min(0,(iaSh-ibSh))/Max(1,(ibSh-iaSh))
@@ -160,12 +154,12 @@ c     &                           + nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
      &              + nBasSh(iSyma,iaSh)*(JVEC-1) + ias
      &              + ipChoV + JNUM*kOff - 1
 
-              kscr  = kscr + 1
+              kLabJ  = kLabJ + 1
 
-              Work(kchov) = Scr(kscr)
+              Work(kchov) = LabJ(kLabJ)
 
               SvShp(nnShl+iShp_rs(iShp)) = SvShp(nnShl+iShp_rs(iShp))
-     &                                   + Scr(kscr)**2
+     &                                   + LabJ(kLabJ)**2
 
             End Do
 

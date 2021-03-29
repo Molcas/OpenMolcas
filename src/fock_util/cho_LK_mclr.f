@@ -44,6 +44,7 @@ C
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
       use Data_Structures, only: G2_Type, Allocate_G2, Deallocate_G2
+      use Data_Structures, only: Allocate_L_Full
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -88,7 +89,6 @@ C
       Real*8 LKThr
 
       Character*6 mode
-      Integer, External :: Cho_F2SP
       Integer, External :: Cho_LK_MaxVecPerBatch
       Real*8,  External :: Cho_LK_ScreeningThreshold
 
@@ -419,12 +419,8 @@ C *** Compute Shell-pair Offsets in the K-matrix
 
 C *** Mapping shell pairs from the full to the reduced set
 
-      Do iaSh=1,nShell
-         Do ibSh=1,iaSh
-            iShp = iaSh*(iaSh-1)/2 + ibSh
-            iShp_rs(iShp) = Cho_F2SP(iShp)
-         End Do
-      End Do
+      Call Mk_iShp_rs(iShp_rs,nShell)
+
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
@@ -441,41 +437,8 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
 
 C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
-        LFULL=0
-
-        Do iaSh=1,nShell
-
-         Do ibSh=1,iaSh
-
-          iShp = iaSh*(iaSh-1)/2 + ibSh
-
-          If (iShp_rs(iShp).gt.0) Then
-
-           If (nnBstRSh(Jsym,iShp_rs(iShp),1).gt.0) Then
-
-            Do iSymb=1,nSym
-
-             iSyma=MulD2h(iSymb,Jsym)
-
-             If (iSyma.ge.iSymb) Then
-
-              iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL
-
-                LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
-     &     + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)
-
-             EndIf
-
-            End Do
-
-           EndIf
-
-          EndIf
-
-         End Do
-
-        End Do
-
+        JNUM=1
+        Call Allocate_L_Full(nShell,iShp_rs,JNUM,JSYM,nSym,Memory=LFULL)
 
         iLoc = 3 ! use scratch location in reduced index arrays
 
