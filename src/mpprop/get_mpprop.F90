@@ -12,8 +12,8 @@
 subroutine Get_MpProp(nPrim,nAtoms,nMltPl,D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
-use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtPrTab, Labe, Method, nAtomPBas, Qnuc
-use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, MltPl
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, BondMat, Cor, CordMltPl, Frac, iAtPrTab, Labe, Method, MltPl, &
+                          nAtomPBas, Qnuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6

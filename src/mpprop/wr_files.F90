@@ -15,8 +15,8 @@
 subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,OENE,OENE_b,LAllCenters)
 !EB subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,OENE,iBond,
 
-use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, EneV, iAtomType, iAtomPar, Method, Title
-use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtMltPlTot
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtMltPlTot, AtPol, AtBoPol, BondMat, Cen_Lab, Cor, EneV, iAtomType, &
+                          iAtomPar, Method, Title
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -126,14 +126,14 @@ write(Lu,6) '* Molecule properties '
 do iMltPl=0,nMltPl
   write(Lu,1) AtMltPlTot(iMltPl)%M(:,1)
 end do
-write(Lu,1) (MolPol(i),i=1,6)
+write(Lu,1) MolPol(:)
 write(Lu,'(A)') '* Orbital information'
 write(Lu,3) NORBI,NOCOB
 write(Lu,1) EneV
-if (NOCOB /= 0) write(Lu,1) (OENE(I),I=1,NOCOB)
+if (NOCOB /= 0) write(Lu,1) OENE(:)
 if (Method == 'UHF-SCF') then
   write(Lu,3) NOCOB_b
-  if (NOcOb_b /= 0) write(Lu,1) (OENE_b(I),I=1,NOCOB_b)
+  if (NOcOb_b /= 0) write(Lu,1) OENE_b(:)
 end if
 
 close(Lu)

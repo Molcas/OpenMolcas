@@ -11,8 +11,7 @@
 
 subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
 
-use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, Title
-use MPprop_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot
+use MPprop_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot, AtPol, AtBoPol, BondMat, Cen_Lab, Cor, Title
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -60,9 +59,7 @@ do iMltPl=0,max(nMltPl,2)
     do iy=iMltpl-ix,0,-1
       iz = iMltpl-ix-iy
       ilab = ilab+1
-      do i=1,16
-        MltPlLab(i:i) = ' '
-      end do
+      MltPlLab = ' '
       do izz=iMltPl,iMltPl-iz+1,-1
         MltPlLab(izz:izz) = 'Z'
       end do
@@ -89,15 +86,15 @@ write(iStdOut,*) ' OF WHICH THERE ARE ATOMS  : ',nAtoms
 write(iStdOut,*) ' AND BONDS IN THE MOLECULE : ',nCenters-nAtoms
 write(iStdOut,*)
 
-write(iStdOut,'(1x,a16,3a16)') 'Coord',(MltPlLabs(1,iComp)(1:1),iComp=1,3)
+write(iStdOut,'(1x,a16,3a16)') 'Coord',(MltPlLabs(1,iComp),iComp=1,3)
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
-    write(u6,'(1x,a,6a16)') String(iMltPl),(MltPlLabs(iMltPl,jComp)(1:iMltPl),jComp=iComp,min(iComp+5,nComp))
+    write(u6,'(1x,a,6a16)') String(iMltPl),(MltPlLabs(iMltPl,jComp),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
 if (iPol > 0) then
-  write(iStdOut,'(1x,a,6a16)') PolString,(MltPlLabs(2,iComp)(1:2),iComp=1,6)
+  write(iStdOut,'(1x,a,6a16)') PolString,(MltPlLabs(2,iComp),iComp=1,6)
 end if
 iCount = 0
 write(iStdOut,*)

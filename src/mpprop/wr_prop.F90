@@ -11,8 +11,7 @@
 
 subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,orbe,orbe_b,iPol,LAllCenters)
 
-use MPProp_globals, only: BondMat, Cen_Lab, Cor, Labe
-use MPProp_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot
+use MPProp_globals, only: Alloc_MltPlArr, AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot, BondMat, Cen_Lab, Cor, Free_MltPlArr, Labe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -23,6 +22,7 @@ real(kind=wp), intent(in) :: orbe(NOCOB), orbe_b(NOCOB_b)
 logical(kind=iwp), intent(in) :: LAllCenters
 integer(kind=iwp) :: i, iComp, il, iMltpl, ip, iq, j, nA, nB, nComp, nl, np, nq, nTotCen
 real(kind=wp) :: fac, rnloveril, rnPoveriP, rnqoveriq, xfac, yfac, zfac
+character(len=8) :: MemLabel
 integer(kind=iwp), allocatable :: iCompMat(:,:,:)
 
 call mma_allocate(Cen_Lab,nAtoms*(nAtoms+1)/2,label='Cen_Lab')
@@ -40,14 +40,16 @@ do i=1,nAtoms
   end do
 end do
 
-allocate(AtMltPlTot(0:nMltPl))
-allocate(AtBoMltPlTot(0:nMltPl))
+call Alloc_MltPlArr(AtMltPlTot,[0,nMltPl],'AtMltPlTot')
+call Alloc_MltPlArr(AtBoMltPlTot,[0,nMltPl],'AtBoMltPlTot')
 do iMltpl=0,nMltPl
   iComp = 0
   nComp = (iMltPl+1)*(iMltPl+2)/2
-  allocate(AtMltPlTot(iMltPl)%M(nComp,1))
+  write(MemLabel,'(a4,i4.4)') 'AtTo',iMltPl
+  call mma_allocate(AtMltPlTot(iMltPl)%M,nComp,1,label=MemLabel)
   AtMltPlTot(iMltPl)%M(:,:) = Zero
-  allocate(AtBoMltPlTot(iMltPl)%M(nComp,1))
+  write(MemLabel,'(a4,i4.4)') 'BoTo',iMltPl
+  call mma_allocate(AtBoMltPlTot(iMltPl)%M,nComp,1,label=MemLabel)
   AtBoMltPlTot(iMltPl)%M(:,:) = Zero
   do np=iMltpl,0,-1
     do nq=iMltpl-np,0,-1
@@ -122,11 +124,8 @@ call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
 !EB call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,
 call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,orbe,orbe_b,LAllCenters)
 
-do iMltpl=0,nMltPl
-  deallocate(AtMltPlTot(iMltPl)%M)
-  deallocate(AtBoMltPlTot(iMltPl)%M)
-end do
-deallocate(AtMltPlTot)
+call Free_MltPlArr(AtMltPlTot)
+call Free_MltPlArr(AtBoMltPlTot)
 
 call mma_deallocate(Cen_Lab)
 

@@ -146,7 +146,7 @@ end do
 if (.not. LFirstRun) then
   FracA = Half
   do nA=1,nAtoms
-    AtBoPol(:,nA*(nA+1)/2) =AtBoPol(:,nA*(nA+1)/2)*FracA
+    AtBoPol(:,nA*(nA+1)/2) = AtBoPol(:,nA*(nA+1)/2)*FracA
     AtPol(:,nA) = AtPol(:,nA)*FracA
     do nB=1,nA-1
       if (BondMat(nA,nB)) then

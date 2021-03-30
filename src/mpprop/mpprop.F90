@@ -11,9 +11,8 @@
 
 subroutine MpProp(iReturn)
 
-use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, iAtomPar, iAtPrTab, Labe, Method, &
-                          nAtomPBas, Qnuc
-use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, MltPl
+use MPProp_globals, only: Alloc_MltPlArr, AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, &
+                          Free_MltPlArr, iAtomType, iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, RtoB
@@ -21,7 +20,7 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, ip_ANr, ip_Coor, ip_EC, ip_Ttot, ip_Ttot_Inv, ipMP, &
-                     iPol, iPrint, irc, iSmLbl,iSym, iTP, iWarn, iWFtype, Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, &
+                     iPol, iPrint, irc, iSmLbl, iSym, iTP, iWarn, iWFtype, Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, &
                      nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 character(len=6) :: FName
@@ -183,7 +182,7 @@ do
 end do
 nMltpl = max(0,iMltpl-1)
 
-allocate(MltPl(0:nMltPl))!,label='MltPl')
+call Alloc_MltPlArr(MltPl,[0,nMltPl],'MltPl')
 call mma_allocate(CordMltPl,[1,3],[0,nMltPl],label='CordMltPl')
 nSum = nSum+3*(nMltPl+1)
 
@@ -234,9 +233,9 @@ end do
 !                                                                      *
 ! Allocate Memory For Multipoles on Atoms + Atoms and Bonds
 
-allocate(AtMltPl(0:nMltPl))
-allocate(AtBoMltPl(0:nMltPl))
-allocate(AtBoMltPlCopy(0:nMltPl))
+call Alloc_MltPlArr(AtMltPl,[0,nMltPl],'AtMltPl')
+call Alloc_MltPlArr(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
+call Alloc_MltPlArr(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
 do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
@@ -530,7 +529,6 @@ end if
 
 ! End of Diffuse.
 
-
 if (LLumOrb) then
   ! Get center of charge for each molecular orbital
   call mma_allocate(Ocen,3,nOrbi,label='Ocen')
@@ -610,16 +608,10 @@ call mma_deallocate(TM)
 call mma_deallocate(CenX)
 call mma_deallocate(CenY)
 call mma_deallocate(CenZ)
-do iMltpl=0,nMltPl
-  call mma_deallocate(AtMltPl(iMltpl)%M)
-  call mma_deallocate(AtBoMltPl(iMltpl)%M)
-  call mma_deallocate(AtBoMltPlCopy(iMltpl)%M)
-  call mma_deallocate(MltPl(iMltpl)%M)
-end do
-deallocate(AtMltPl)
-deallocate(AtBoMltPl)
-deallocate(AtBoMltPlCopy)
-deallocate(MltPl)
+call Free_MltPlArr(AtMltPl)
+call Free_MltPlArr(AtBoMltPl)
+call Free_MltPlArr(AtBoMltPlCopy)
+call Free_MltPlArr(MltPl)
 call mma_deallocate(CordMltPl)
 call mma_deallocate(Coor)
 call mma_deallocate(Labe)

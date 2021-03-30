@@ -19,7 +19,7 @@ integer(kind=iwp), intent(in) :: nBas, nPrim
 real(kind=wp), intent(inout) :: D(nBas*(nBas+1)/2)
 real(kind=wp), intent(out) :: D_p(nPrim*(nPrim+1)/2)
 real(kind=wp), intent(in) :: TM(nPrim,nBas)
-integer(kind=iwp) :: i,j,k,l
+integer(kind=iwp) :: i, j, k, l
 real(kind=wp) :: Djl, TMij, TMkl, TmpDensity
 
 D(:) = Half*D(:)
