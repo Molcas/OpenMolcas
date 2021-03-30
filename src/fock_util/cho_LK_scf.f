@@ -92,9 +92,6 @@ C
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-****** next is a trick to save memory. Memory in "location 2" is used
-******      to store this offset array defined later on
-      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
@@ -337,7 +334,6 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
          Call GAIGOP_SCAL(NumCV,'max')
          If (NumCV .lt. 1) Cycle
 
-C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
          JNUM=1
          Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
      &                        Memory=LFULL)
@@ -539,7 +535,6 @@ C
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
-               ipLF = ip_of_Work(L_Full%A0(1))
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -733,9 +728,8 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                                IF (lSym.ge.kSym) Then
 
-                                  jOff = iOffShp(lSym,iShp_rs(iShp))
-                                  If (iaSh<ibSh) jOff = jOff +
-     &                            nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
+                                  i1 = 1
+                                  If (iaSh<ibSh) i1=2
 
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
 C ---------------------------------------
@@ -743,11 +737,15 @@ C ---------------------------------------
                                   n1 = nBasSh(lSym,iaSh)*JNUM
                                   n2 = nBasSh(kSym,ibSh)
 
+                                  CALL DGEMV_(Mode(1:1),n1,n2,
+     &                     ONE,L_Full%SPB(lSym,iShp_rs(iShp),i1)%A21,n1,
+     &                         Work(ipMO+ioffShb),1,
+     &                     ONE,Work(ipLab(iaSh)),1)
+
                                Else   ! lSym < kSym
 
-                                  jOff = iOffShp(kSym,iShp_rs(iShp))
-                                  If (ibSh<iaSh) jOff = jOff +
-     &                            nBasSh(kSym,iaSh)*nBasSh(lSym,ibSh)
+                                  i1 = 1
+                                  If (ibSh<iaSh) i1=2
 
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
@@ -755,12 +753,12 @@ C ---------------------------------------
                                   n1 = nBasSh(kSym,ibSh)
                                   n2 = JNUM*nBasSh(lSym,iaSh)
 
-                               Endif
+                                  CALL DGEMV_(Mode(1:1),n1,n2,
+     &                     ONE,L_Full%SPB(kSym,iShp_rs(iShp),i1)%A12,n1,
+     &                         Work(ipMO+ioffShb),1,
+     &                     ONE,Work(ipLab(iaSh)),1)
 
-                               CALL DGEMV_(Mode(1:1),n1,n2,
-     &                                  ONE,Work(ipLF+jOff*JNUM),n1,
-     &                                      Work(ipMO+ioffShb),1,
-     &                                  ONE,Work(ipLab(iaSh)),1)
+                               Endif
 
                             EndIf
 
