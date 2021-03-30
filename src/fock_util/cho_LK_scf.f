@@ -551,9 +551,7 @@ C ***    Sym(a).ge.Sym(b)
 C ***
 C *** and blocked in shell pairs
 
-               L_Full%A0(:)=Zero
-
-               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,
+               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,L_Full,
      &                            SvShp,nnShl,iShp_rs,nnShl_tot)
 
 

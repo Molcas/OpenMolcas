@@ -200,11 +200,13 @@
         Logical   DoRead
         End Subroutine Cho_X_getVtra
 
-        SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ipChoV,
+        SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,
      &                          SvShp,mmShl,iShp_rs,mmShl_tot)
-        Integer lLabJ, JNUM, JSYM, IREDC, ipChoV
+        use Data_Structures, only: L_Full_Type
+        Integer lLabJ, JNUM, JSYM, IREDC
         Integer mmShl, mmShl_tot
         Real*8  LabJ(lLabJ)
+        Type (L_Full_Type) ChoV
         Real*8  SvShp(mmShl , 2)
         Integer iShp_rs( mmShl_tot )
         End SUBROUTINE CHO_GetShFull
@@ -868,10 +870,7 @@ C --- Transform the densities to reduced set storage
 **    Sym(a).ge.Sym(b)
 ** and blocked in shell pairs
 *
-
-                  L_Full%A0(:)=Zero
-
-                  CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,
+                  CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,L_Full,
      &                               SvShp,nnShl,iShp_rs,nnShl_tot)
 
                   CALL CWTIME(TCX2,TWX2)

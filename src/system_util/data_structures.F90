@@ -95,7 +95,7 @@ Type L_Full_Type
   Integer :: nSym=0
   Integer :: nShell=0
   Real*8, Allocatable:: A0(:)
-  Type (L_Full_Pointers), Allocatable :: SPB(:,:)
+  Type (L_Full_Pointers), Allocatable :: SPB(:,:,:)
 End Type L_Full_Type
 
 
@@ -867,7 +867,7 @@ Adam%nShell=nShell
 
 Call mma_Allocate(Adam%A0,LFULL,Label='Adam%A0')
 
-Allocate(Adam%SPB(nSym,nShell*(nShell+1)/2))
+Allocate(Adam%SPB(nSym,nShell*(nShell+1)/2,2))
 
 iE=0
 Do iaSh=1,nShell
@@ -889,20 +889,22 @@ Do iaSh=1,nShell
 
          iE = iE + n1*JNUM*n2
 
-         Adam%SPB(iSyma,iShp_rs(iShp))%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSyma,iShp_rs(iShp))%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSyma,iShp_rs(iShp))%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp),1)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp),1)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp),1)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
 
          If (iaSh==ibSh) Cycle
+
+         iS = iE + 1
 
          n1 = nBasSh(iSyma,ibSh)
          n2 = nBasSh(iSymb,iaSh)
 
          iE = iE + n1*JNUM*n2
 
-         Adam%SPB(iSymb,iShp_rs(iShp))%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSymb,iShp_rs(iShp))%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
-         Adam%SPB(iSymb,iShp_rs(iShp))%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp),2)%A3(1:n1,1:JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp),2)%A21(1:n1*JNUM,1:n2) => Adam%A0(iS:iE)
+         Adam%SPB(iSyma,iShp_rs(iShp),2)%A12(1:n1,1:JNUM*n2) => Adam%A0(iS:iE)
 
       End Do
 
@@ -924,9 +926,12 @@ Do iaSh=1,Adam%nShell
 
       Do iSyma=1, Adam%nSym
 
-         Adam%SPB(iSyma,iShp)%A3 => Null()
-         Adam%SPB(iSyma,iShp)%A21=> Null()
-         Adam%SPB(iSyma,iShp)%A12=> Null()
+         Adam%SPB(iSyma,iShp,1)%A3 => Null()
+         Adam%SPB(iSyma,iShp,1)%A21=> Null()
+         Adam%SPB(iSyma,iShp,1)%A12=> Null()
+         Adam%SPB(iSyma,iShp,2)%A3 => Null()
+         Adam%SPB(iSyma,iShp,2)%A21=> Null()
+         Adam%SPB(iSyma,iShp,2)%A12=> Null()
 
       End Do
 
