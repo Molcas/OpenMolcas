@@ -31,11 +31,11 @@ call mma_allocate(MltPlLabs,[0,max(nMltPl,2)],[1,mxComp],label='MltPlLabs')
 call mma_allocate(String,[0,max(nMltPl,4)],label='String')
 
 MolPol(:) = Zero
-String(0) = 'Charge          '
-String(1) = 'Dipole          '
-String(2) = 'Quadrupole      '
-String(3) = 'Octupole        '
-String(4) = 'Hexadecapole    '
+String(0) = 'Charge'
+String(1) = 'Dipole'
+String(2) = 'Quadrupole'
+String(3) = 'Octupole'
+String(4) = 'Hexadecapole'
 do i=5,nMltPl
   write(String(i),'(i4,"th")') i
   if (String(i)(3:3) /= '1') then
@@ -52,7 +52,7 @@ do i=5,nMltPl
   String(i) = adjustl(String(i))
   String(i)(8:16) = 'Cartesian'
 end do
-PolString = 'Polarizability  '
+PolString = 'Polarizability'
 
 do iMltPl=0,max(nMltPl,2)
   ilab = 0
@@ -89,7 +89,7 @@ write(iStdOut,*) ' OF WHICH THERE ARE ATOMS  : ',nAtoms
 write(iStdOut,*) ' AND BONDS IN THE MOLECULE : ',nCenters-nAtoms
 write(iStdOut,*)
 
-write(iStdOut,'(1x,a16,3a16)') 'Coord           ',(MltPlLabs(1,iComp)(1:1),iComp=1,3)
+write(iStdOut,'(1x,a16,3a16)') 'Coord',(MltPlLabs(1,iComp)(1:1),iComp=1,3)
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
@@ -110,7 +110,7 @@ do i=1,nAtoms
   write(iStdOut,*)
   write(iStdOut,'(I5,A8,I5,A3,A10)') iCount,' Center ',i*(i+1)/2,'   ',CEN_LAB(i*(i+1)/2)
   write(iStdOut,*) '**************************************************'
-  write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,I,I),Cor(2,I,I),Cor(3,I,I)
+  write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Cor(1,I,I),Cor(2,I,I),Cor(3,I,I)
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6
@@ -128,7 +128,7 @@ do i=1,nAtoms
       write(iStdOut,*)
       write(iStdOut,'(I5,A8,I5,A3,A10)') iCount,' Center ',i*(i-1)/2+j,'   ',CEN_LAB(i*(i-1)/2+j)
       write(iStdOut,*) '**************************************************'
-      write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
+      write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
       do iMltPl=0,nMltPl
         nComp = (iMltPl+1)*(iMltPl+2)/2
         do iComp=1,nComp,6
@@ -151,7 +151,7 @@ do i=1,nAtoms
   write(iStdOut,*)
   write(iStdOut,'(I5,A8,I5,A3,A10)') i,' Atom   ',i,'   ',CEN_LAB(i*(i+1)/2)
   write(iStdOut,*) '**************************************************'
-  write(iStdOut,'(1x,a16,3f16.8)') 'Coord           ',Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
+  write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6
@@ -169,7 +169,7 @@ write(iStdOut,*)
 write(iStdOut,*) ' SUMMED MULTIPOLES AND POLARIZABILITY FOR THE MOLECULE'
 write(iStdOut,*) ' *****************************************************'
 write(iStdOut,*)
-write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',Zero,Zero,Zero
+write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
@@ -179,7 +179,7 @@ end do
 if (iPol > 0) write(iStdOut,'(1x,a16,6f16.8)') PolString,(MolPol(j),j=1,6)
 write(iStdOut,*)
 write(iStdOut,*)
-write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',Zero,Zero,Zero
+write(iStdOut,'(1x,a16,3f16.8)') 'Coord',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine get_polar(nPrim,nBas,nAtoms,nCenters,NOCOB,OENE,nOrb,OCOF,RCHC,LNearestAtom,LFirstRun)
+subroutine get_polar(nPrim,nBas,nAtoms,NOCOB,OENE,nOrb,OCOF,RCHC,LNearestAtom,LFirstRun)
 !EB  OENE,ONUM,nOrb,OCOF,RCHC,LNearestAtom)
 
 use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cor, CordMltPl, Frac, iAtPrTab, nAtomPBas, MltPl
@@ -18,7 +18,7 @@ use Constants, only: Zero, One, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, NOCOB, nOrb, OCOF(nBas,nPrim), RCHC(3,nBas)
+integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, NOCOB, nOrb, OCOF(nBas,nPrim), RCHC(3,nBas)
 real(kind=wp), intent(in) :: OENE(nOrb)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
 integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, kl, L, LL, nA, nB
@@ -82,12 +82,12 @@ do i=1,NOCOB
     end do
     do nA=1,nAtoms
       do nB=1,nAtoms
-        Pol(1,nA,nB) = Pol(1,nA,nB)+PD(1,nA)*PD(1,nB)*FOE
-        Pol(2,nA,nB) = Pol(2,nA,nB)+PD(1,nA)*PD(2,nB)*FOE
-        Pol(3,nA,nB) = Pol(3,nA,nB)+PD(1,nA)*PD(3,nB)*FOE
-        Pol(4,nA,nB) = Pol(4,nA,nB)+PD(2,nA)*PD(2,nB)*FOE
-        Pol(5,nA,nB) = Pol(5,nA,nB)+PD(2,nA)*PD(3,nB)*FOE
-        Pol(6,nA,nB) = Pol(6,nA,nB)+PD(3,nA)*PD(3,nB)*FOE
+        Pol(1,nA,nB) = Pol(1,nA,nB)+Pd(1,nA)*Pd(1,nB)*FOE
+        Pol(2,nA,nB) = Pol(2,nA,nB)+Pd(1,nA)*Pd(2,nB)*FOE
+        Pol(3,nA,nB) = Pol(3,nA,nB)+Pd(1,nA)*Pd(3,nB)*FOE
+        Pol(4,nA,nB) = Pol(4,nA,nB)+Pd(2,nA)*Pd(2,nB)*FOE
+        Pol(5,nA,nB) = Pol(5,nA,nB)+Pd(2,nA)*Pd(3,nB)*FOE
+        Pol(6,nA,nB) = Pol(6,nA,nB)+Pd(3,nA)*Pd(3,nB)*FOE
       end do
     end do
   end do
@@ -157,6 +157,5 @@ if (.not. LFirstRun) then
 end if
 
 return
-call Unused_integer(nCenters)
 
 end subroutine get_polar

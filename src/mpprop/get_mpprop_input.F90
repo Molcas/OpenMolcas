@@ -70,13 +70,13 @@ do
         m = 1
         call mma_allocate(TestLabe,nAtoms,label='TestLabe')
         TestLabe(:) = ' '
-        do
+        do j=1,180
           EndKey = Key(j:j+2)
           call UpCase(EndKey)
           if ((Key(j:j) == ' ') .or. (Key(j:j) == ',') .or. (Key(j:j) == ';')) then
             if ((j == 1) .and. ((Key(j:j) == ';') .or. (Key(j:j) == ','))) then
               write(iStdOut,*) 'Error in input, breaker in first position'
-              call ErrTra
+              call ErrTra()
               call Quit(_RC_INPUT_ERROR_)
             elseif (m < j) then
               TestLabe(nBonds) = Key(m:j-1)
@@ -211,7 +211,7 @@ do
             exit
           else
             write(iStdOut,*) 'Undefined option for ''DIFFuse'':',Key
-            call FindErrorLine
+            call FindErrorLine()
             call Quit_OnUserError()
           end if
         end do
@@ -220,7 +220,7 @@ do
         Diffuse(3) = .true.
       else
         write(iStdOut,*) 'Undefined option for ''DIFFuse'':',Key
-        call FindErrorLine
+        call FindErrorLine()
         call Quit_OnUserError()
       end if
       !Not an error, Diffuse implies AllCenters
@@ -248,7 +248,7 @@ do
       write(iStdOut,*)
       write(iStdOut,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
       write(iStdOut,*) ' Error in keyword.'
-      call ErrTra
+      call ErrTra()
       call Quit(_RC_INPUT_ERROR_)
       !write(iStdOut,*) ' Premature end of input file.'
       !call Quit(_RC_INPUT_ERROR_)

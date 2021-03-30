@@ -29,7 +29,7 @@ do i=1,nBas
       write(iStdOut,*) 'iVec_p.gt.nVec_p'
       write(iStdOut,*) iVec_p,'.gt.',nVec_p
       write(iStdOut,*) 'nPrim=',nPrim
-      call ABEND()
+      call Abend()
     end if
   end do
 end do

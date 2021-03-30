@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
+subroutine Get_MpProp(nPrim,nAtoms,nMltPl,D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
 use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtPrTab, Labe, Method, nAtomPBas, Qnuc
@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl
+integer(kind=iwp), intent(in) :: nPrim, nAtoms, nMltPl
 real(kind=wp), intent(in) :: D_p(nPrim*(nPrim+1)/2), ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
 integer(kind=iwp) :: i, iA, iComp, ii, ij, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
@@ -83,11 +83,8 @@ if (LFirstRun) then
       end do
     end do
   end do
-  do iMltpl=0,1
-    CordMltPl(1,iMltPl) = CordMltPl(1,2)
-    CordMltPl(2,iMltPl) = CordMltPl(2,2)
-    CordMltPl(3,iMltPl) = CordMltPl(3,2)
-  end do
+  CordMltPl(:,0) = CordMltPl(:,2)
+  CordMltPl(:,1) = CordMltPl(:,2)
 end if
 !                                                                      *
 !***********************************************************************
@@ -95,11 +92,7 @@ end if
 ! GET THE DENSITY MATRIX
 !
 !if (LLumOrb) then
-!  do K=1,nPrim
-!    do L=1,K
-!      DenMat(K,L) = Zero
-!    end do
-!  end do
+!  DenMat(:,:) = Zero
 !  do K=1,nPrim
 !    do L=1,K
 !      do i=1,nOcOb
@@ -203,10 +196,8 @@ do nA=1,nAtoms
 
     Qp = Zero
     Qn = Zero
-    do i=1,3
-      CorP(i) = Zero
-      CorN(i) = Zero
-    end do
+    CorP(:) = Zero
+    CorN(:) = Zero
     do iPBas=1,nAtomPBas(NA)
       i = iAtPrTab(iPBas,NA)
       do jPBas=1,nAtomPBas(NB)
@@ -233,16 +224,8 @@ do nA=1,nAtoms
       end do
     end do
 
-    if (Qp /= Zero) then
-      CorP(1) = CorP(1)/Qp
-      CorP(2) = CorP(2)/Qp
-      CorP(3) = CorP(3)/Qp
-    end if
-    if (Qn /= Zero) then
-      CorN(1) = CorN(1)/Qn
-      CorN(2) = CorN(2)/Qn
-      CorN(3) = CorN(3)/Qn
-    end if
+    if (Qp /= Zero) CorP(:) = CorP(:)/Qp
+    if (Qn /= Zero) CorN(:) = CorN(:)/Qn
     Qs = Qp-Qn
     if (Qs /= Zero) then
       FracP = Qp/Qs
@@ -251,11 +234,9 @@ do nA=1,nAtoms
       FracP = Zero
       FracN = Zero
     end if
-    Cor(1,nA,nB) = CorP(1)*FracP+CorN(1)*FracN
-    Cor(2,nA,nB) = CorP(2)*FracP+CorN(2)*FracN
-    Cor(3,nA,nB) = CorP(3)*FracP+CorN(3)*FracN
+    Cor(:,nA,nB) = CorP(:)*FracP+CorN(:)*FracN
 
-    ! CALCULATE THE WEIGTH OF EACH ATOMIC CENTER BY A SIMPLE GEOMETRIC RATIO
+    ! CALCULATE THE WEIGHT OF EACH ATOMIC CENTER BY A SIMPLE GEOMETRIC RATIO
 
     Rwei = sqrt((Cor(1,nA,nA)-Cor(1,nA,nB))**2+(Cor(2,nA,nA)-Cor(2,nA,nB))**2+(Cor(3,nA,nA)-Cor(3,nA,nB))**2)
     Rtot = sqrt((Cor(1,nA,nA)-Cor(1,nB,nB))**2+(Cor(2,nA,nA)-Cor(2,nB,nB))**2+(Cor(3,nA,nA)-Cor(3,nB,nB))**2)
@@ -357,7 +338,7 @@ do nA=1,nAtoms
     ! If one should move the bond to the closest atom iA would be equal to
     ! that otherwise iA should be equal to nA
 
-    if (((Method == 'UHF-SCF') .and. (LFirstRun .eqv. .false.)) .or. ((Method /= 'UHF-SCF') .and. (LFirstRun .eqv. .true.))) then
+    if (((Method == 'UHF-SCF') .and. (.not. LFirstRun)) .or. ((Method /= 'UHF-SCF') .and. LFirstRun)) then
       do iMltpl=0,nMltPl
         iComp = 0
         do np=iMltpl,0,-1
@@ -405,7 +386,7 @@ do nA=1,nAtoms
               AtMltPl(iMltpl)%M(iComp,nB) = AtMltPl(iMltpl)%M(iComp,nB)+sum_b
             else
               ! If not bonding
-              ! Do Atoms
+              ! Do atoms
               AtMltPl(iMltpl)%M(iComp,iA) = AtMltPl(iMltpl)%M(iComp,iA)+sum_a
               AtMltPl(iMltpl)%M(iComp,nB) = AtMltPl(iMltpl)%M(iComp,nB)+sum_b
               ! Do bonds
@@ -424,8 +405,5 @@ call mma_deallocate(Qexp)
 call mma_deallocate(iCompMat)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nBas)
-if (.false.) call Unused_integer(nCenters)
 
 end subroutine Get_MpProp

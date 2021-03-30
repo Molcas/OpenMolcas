@@ -74,9 +74,9 @@ iPrint = 1
 call Get_cArray('Relax Method',Method,8)
 if (Method == 'RHF-SCF') then
   iPol = 1
-elseif (Method == 'UHF-SCF') then
+else if (Method == 'UHF-SCF') then
   iPol = 1
-elseif (Method == 'MBPT2') then
+else if (Method == 'MBPT2') then
   iPol = 0
 end if
 ! Runfile update
@@ -353,7 +353,7 @@ if (LLumOrb) then
   end if
   if (index(VTitle,'IVO') /= 0) then
     write(u6,*) ' MpProp not implemented for IVO orbitals!'
-    call Abend
+    call Abend()
   end if
   !if (iPol == 2) then
   !  call LauraPol()
@@ -484,12 +484,12 @@ end if
 ! Get multipole properties
 LFirstRun = .true.
 
-call Get_MpProp(nPrim(1),nBas(1),nAtoms,nCenters,nMltPl,D_p,CenX,CenY,CenZ,LNearestAtom,LFirstRun,LLumOrb)
+call Get_MpProp(nPrim(1),nAtoms,nMltPl,D_p,CenX,CenY,CenZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,nMltPl,Occ,nOcc,Ocof,
 
 if (Method == 'UHF-SCF') then
   LFirstRun = .false.
-  call Get_MpProp(nPrim(1),nBas(1),nAtoms,nCenters,nMltPl,D_p_b,CenX,CenY,CenZ,LNearestAtom,LFirstRun,LLumOrb)
+  call Get_MpProp(nPrim(1),nAtoms,nMltPl,D_p_b,CenX,CenY,CenZ,LNearestAtom,LFirstRun,LLumOrb)
   ! nOcOb_b,nMltPl,Occ(:,2),nOcc,Ocof_b,
   LFirstRun = .true.
 end if
@@ -552,16 +552,16 @@ if (iPol > 0) then
   if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Ocen_b,CenX,CenY,CenZ,Ocof_b)
   if (iPol == 1) then
     if (nOcOb < nOcc) then
-      call Get_Polar(nPrim(1),nBas(1),nAtoms,nCenters,nOcOb,Ene,nOcc,Ocof,Ocen,LNearestAtom,LFirstRun)
+      call Get_Polar(nPrim(1),nBas(1),nAtoms,nOcOb,Ene,nOcc,Ocof,Ocen,LNearestAtom,LFirstRun)
       !EB  Ene,Occ,nOcc,Ocof,Ocen,
       if (Method == 'UHF-SCF') then
         LFirstRun = .false.
-        call Get_Polar(nPrim(1),nBas(1),nAtoms,nCenters,nOcOb_b,Ene(:,2),nOcc,Ocof_b,Ocen_b,LNearestAtom,LFirstRun)
+        call Get_Polar(nPrim(1),nBas(1),nAtoms,nOcOb_b,Ene(:,2),nOcc,Ocof_b,Ocen_b,LNearestAtom,LFirstRun)
       end if
     else
       write(u6,*)
-      write(u6,*) 'I will not do an analyze of the polarizability'
-      write(u6,*) 'no of occupied orb. is to large'
+      write(u6,*) 'I will not do an analysis of the polarizability'
+      write(u6,*) 'no. of occupied orb. is to large'
       write(u6,*)
       if (Method == 'UHF-SCF') then
         write(u6,*) ' nOcOb nOcOb_b nOcc ',nOcOb,nOcOb_b,nOcc

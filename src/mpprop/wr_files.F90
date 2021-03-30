@@ -29,9 +29,7 @@ real(kind=wp) :: MolPol(6)
 character(len=8) :: FileName
 logical(kind=iwp) :: Exists
 
-do i=1,6
-  MolPol(i) = Zero
-end do
+MolPol(:) = Zero
 
 Lu = 30
 FileName = 'MPPROP'

@@ -66,9 +66,7 @@ do I=1,NORBI
       RCMI(3,I) = RCMI(3,I)-OOQ*CENTZ(J*(J+1)/2)
     end if
   end do
-  RCHC(1,I) = (RCPO(1,I)-RCMI(1,I))/(QPOS-QMIN)
-  RCHC(2,I) = (RCPO(2,I)-RCMI(2,I))/(QPOS-QMIN)
-  RCHC(3,I) = (RCPO(3,I)-RCMI(3,I))/(QPOS-QMIN)
+  RCHC(:,I) = (RCPO(:,I)-RCMI(:,I))/(QPOS-QMIN)
 end do
 
 call mma_deallocate(RCPO)
