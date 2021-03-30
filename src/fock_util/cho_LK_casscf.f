@@ -48,7 +48,7 @@ C
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use ChoSwp, only: nnBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type

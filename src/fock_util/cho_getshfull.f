@@ -15,7 +15,7 @@
       SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ChoV,
      &                         SvShp,mmShl,iShp_rs,mmShl_tot)
       use ChoArr, only: iSOShl, iShlSO, iBasSh, iRS2F, nDimRS
-      use ChoSwp, only: iiBstRSh, IndRSh, IndRed
+      use ChoSwp, only: IndRSh, IndRed
       use Data_Structures, only: L_Full_Type
       Implicit Real*8 (a-h,o-z)
       Real*8  LabJ(lLabJ)
@@ -31,9 +31,6 @@
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-****** this is a trick to save memory. Memory in "location 2" is used
-******      to store some offset arrays
-      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
 **********************************************************

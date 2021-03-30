@@ -36,7 +36,7 @@ C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use ChoSwp, only: nnBstRSh, InfVec, IndRed
       use Data_Structures, only: DSBA_Type, Allocate_DSBA,
      &                           Deallocate_DSBA
       use Data_Structures, only: SBA_Type

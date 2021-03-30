@@ -31,7 +31,7 @@ C      k:        MO-index   belonging to (Frozen+Inactive)
 C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use ChoSwp, only: nnBstRSh, InfVec, IndRed
       use Data_Structures, only: NDSBA_Type, Allocate_NDSBA,
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,

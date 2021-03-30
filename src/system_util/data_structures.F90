@@ -812,7 +812,6 @@ End Subroutine Deallocate_G2
 Subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym, Memory)
 use ChoArr, only: nBasSh
 use ChoSwp, only: nnBstRSh
-use ChoSwp, only: iiBstRSh  ! Temporary
 Implicit None
 Type (L_Full_Type), Target:: Adam
 Integer nShell
@@ -841,8 +840,6 @@ Do iaSh=1,nShell
       Do iSymb=1,nSym
          iSyma=MulD2h(iSymb,Jsym)
          If (iSyma<iSymb) Cycle
-
-         iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL    ! Temporary
 
          LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
          If (iaSh==ibSh) Cycle
