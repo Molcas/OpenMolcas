@@ -57,6 +57,8 @@ C
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full
       use Data_Structures, only: L_Full_Type
+      use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
+     &                           Lab_Type
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipDLT(2),ipFLT(2),ipKLT(2)
@@ -71,6 +73,7 @@ C
       Type (twxy_Type) Scr
       Type (NDSBA_Type) DIAH
       Type (L_Full_Type) L_Full
+      Type (Lab_Type) Lab
 
       Integer   nFIorb(8),nAorb(8),nChM(8)
 #ifdef _DEBUGPRINT_
@@ -628,7 +631,8 @@ C
 *                                                                      *
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
+               ipChoT = ip_of_Work(Lab%A0(1))
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -1082,7 +1086,7 @@ C -------------------------------------------------------------------
 
                End Do   ! loop over densities
 
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+               Call Deallocate_Lab(Lab)
                Call Deallocate_L_Full(L_Full)
 *                                                                      *
 ************************************************************************
