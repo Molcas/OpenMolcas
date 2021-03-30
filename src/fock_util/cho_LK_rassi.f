@@ -94,7 +94,7 @@ C
 
       Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:,:)
-      Real*8, Allocatable:: SvShp(:), Diag(:), AbsC(:), SumAClk(:,:,:),
+      Real*8, Allocatable:: SvShp(:,:), Diag(:),AbsC(:),SumAClk(:,:,:),
      &                      Ylk(:,:,:), MLk(:,:,:), Faa(:), Fia(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
@@ -256,7 +256,7 @@ c --- allocate memory for iShp_rs
       Call mma_allocate(iShp_rs,nnShl_tot,Label='iShp_rs')
 
 c --- allocate memory for the shell-pair Frobenius norm of the vectors
-      Call mma_allocate(SvShp,2*nnShl,Label='SvShp')
+      Call mma_allocate(SvShp,nnShl,2,Label='SvShp')
 
 
 C *** Compute Shell Offsets ( MOs and transformed vectors)
@@ -567,10 +567,9 @@ C *** and blocked in shell pairs
 
 
                L_Full%A0(:)=Zero
-               SvShp(:)=Zero
 
-               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,SvShp,
-     &                            iShp_rs)
+               CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,
+     &                            SvShp,nnShl,iShp_rs,nnShl_tot)
 
 
                CALL CWTIME(TCX2,TWX2)
@@ -828,7 +827,7 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
      &                             nBasSh(lSym,iaSh)*
      &                             nBasSh(kSym,ibSh) .gt. 0
      &                        .and. sqrt(abs(SumAClk(ibSh,jk_a,jDen)*
-     &                        SvShp(iShp_rs(iShp)) )) .ge. thrv )Then
+     &                        SvShp(iShp_rs(iShp),1) )) .ge. thrv )Then
 
                                  ibcount = ibcount + 1
 

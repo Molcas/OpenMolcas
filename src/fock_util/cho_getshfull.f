@@ -9,28 +9,26 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
+*               2021, Roland Lindh                                     *
 ************************************************************************
 
-      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,
-     &                         IREDC,ipChoV,SvShp,iShp_rs)
-************************************************************
-*   Author: F. Aquilante
-*
-*
-************************************************************
+      SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ipChoV,
+     &                         SvShp,mmShl,iShp_rs,mmShl_tot)
       use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
       use ChoSwp, only: iiBstRSh, IndRSh, IndRed
+      use Data_Structures, only: L_Full_Type
       Implicit Real*8 (a-h,o-z)
-      Real*8  LabJ(lLabJ),SvShp(*)
-      Integer iShp_rs(*)
+      Real*8  LabJ(lLabJ)
+      Real*8  SvShp(mmShl , 2)
+      Integer iShp_rs( mmShl_tot )
       Integer, External :: cho_isao
 
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "real.fh"
 
-      Integer   ipChoV
-      Parameter (zero = 0.0d0)
+      Integer ipChoV
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -50,6 +48,8 @@ C
 
       iLoc = 3 ! use scratch location in reduced index arrays
 
+*     ChoV%A0(:)=Zero
+      SvShp(:,:)=Zero
 
       IF (JSYM.eq.1) THEN
 
@@ -93,21 +93,21 @@ C
 
              Work(kcho1+ioffV) = LabJ(kLabJ)
 
-             ioffV = ioffV - nBasSh(iSyma,iaSh)*JNUM*nBasSh(iSyma,ibSh)
-     &             *Min(0,(ibSh-iaSh))/Max(1,(iaSh-ibSh))
+             If (ibSh<iaSh) ioffV = ioffV
+     &                      + nBasSh(iSyma,iaSh)*JNUM*nBasSh(iSyma,ibSh)
 
              Work(kcho2+ioffV) = LabJ(kLabJ)
 
-             SvShp(nnShl+iShp_rs(iShp)) = SvShp(nnShl+iShp_rs(iShp))
+             SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)
      &                                  + LabJ(kLabJ)**2
 
             End Do
 
             Do jShp=1,nnShl_tot ! Maximize over vectors
                If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp)) = Max( SvShp(iShp_rs(jShp)),
-     &                                   SvShp(nnShl+iShp_rs(jShp)) )
-                  SvShp(nnShl+iShp_rs(jShp)) = zero
+                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1),
+     &                                          SvShp(iShp_rs(jShp),2) )
+                  SvShp(iShp_rs(jShp),2) = zero
                End If
             End Do
 
@@ -115,7 +115,6 @@ C
 
 
       ELSE
-
 
          NREAD = 0
 
@@ -158,16 +157,16 @@ C
 
               Work(kchov) = LabJ(kLabJ)
 
-              SvShp(nnShl+iShp_rs(iShp)) = SvShp(nnShl+iShp_rs(iShp))
+              SvShp(iShp_rs(iShp),2) = SvShp(iShp_rs(iShp),2)
      &                                   + LabJ(kLabJ)**2
 
             End Do
 
             Do jShp=1,nnShl_tot
                If (iShp_rs(jShp).gt.0) Then
-                  SvShp(iShp_rs(jShp)) = Max( SvShp(iShp_rs(jShp)),
-     &                                      SvShp(nnShl+iShp_rs(jShp)) )
-                  SvShp(nnShl+iShp_rs(jShp)) = zero
+                  SvShp(iShp_rs(jShp),1) = Max( SvShp(iShp_rs(jShp),1),
+     &                                          SvShp(iShp_rs(jShp),2) )
+                  SvShp(iShp_rs(jShp),2) = zero
                EndIf
             End Do
 
