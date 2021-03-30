@@ -566,7 +566,7 @@ C ***
 C *** and blocked in shell pairs
 
 
-               CALL FZero(Work(ipLF),LFULL*JNUM)
+               L_Full%A0(:)=Zero
                SvShp(:)=Zero
 
                CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,SvShp,
