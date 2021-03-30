@@ -1,4 +1,4 @@
-*2***********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -108,9 +108,6 @@ C
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-****** next is a trick to save memory. Memory in "location 2" is used
-******      to store this offset array defined later on
-      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
@@ -437,8 +434,6 @@ C *************** BIG LOOP OVER VECTORS SYMMETRY *******************
         Call GAIGOP_SCAL(NumCV,'max')
         If (NumCV .lt. 1) Cycle
 
-C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
-
         JNUM=1
         Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
      &                       Memory=LFULL)
@@ -624,7 +619,6 @@ C *************** EXCHANGE CONTRIBUTIONS  ***********************
 *                                                                      *
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
-               ipLF = ip_of_Work(L_Full%A0(1))
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
 
                CALL CWTIME(TCS1,TWS1)
@@ -943,9 +937,8 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 *
                                  ibcount = ibcount + 1
 
-                                 jOff = iOffShp(lSym,iShp_rs(iShp))
-                                 If (iaSh<ibSh) jOff = jOff +
-     &                           nBasSh(lSym,ibSh)*nBasSh(kSym,iaSh)
+                                 l1=1
+                                 If (iaSh<ibSh) l1=2
 
 
 C ---  LaJ,[k] = sum_b  L(aJ,b) * C(b)[k]
@@ -953,7 +946,7 @@ C ---------------------------------------
 
                                  CALL DGEMV_('N',nBasSh(lSym,iaSh)*JNUM,
      &                                        nBasSh(kSym,ibSh),
-     &                                    ONE,Work(ipLF+jOff*JNUM),
+     &                        ONE,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,
      &                                        nBasSh(lSym,iaSh)*JNUM,
      &                                     Work(ipMO(jDen)+ioffShb),1,
      &                                    ONE,Work(ipLab(iaSh,jDen)),1)
@@ -972,9 +965,8 @@ C ---------------------------------------
      &                           Then
                                  ibcount = ibcount + 1
 
-                                 jOff = iOffShp(kSym,iShp_rs(iShp))
-                                 If (ibSh<iaSh) jOff = jOff +
-     &                           nBasSh(kSym,iaSh)*nBasSh(lSym,ibSh)
+                                 l1 = 1
+                                 If (ibSh<iaSh) l1 = 2
 
 
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
@@ -982,7 +974,7 @@ C ---------------------------------------
 
                                   CALL DGEMV_('T',nBasSh(kSym,ibSh),
      &                                     JNUM*nBasSh(lSym,iaSh),
-     &                                  ONE,Work(ipLF+jOff*JNUM),
+     &                      One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,
      &                                      nBasSh(kSym,ibSh),
      &                                   Work(ipMO(jDen)+ioffShb),1,
      &                                  ONE,Work(ipLab(iaSh,jDen)),1)
