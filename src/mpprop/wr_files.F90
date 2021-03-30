@@ -18,7 +18,7 @@ subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,OENE,OENE_b,LAllC
 use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtMltPlTot, AtPol, AtBoPol, BondMat, Cen_Lab, Cor, EneV, iAtomType, &
                           iAtomPar, Method, Title
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, NORBI, NOCOB, NOCOB_b !, iBond(2,nCenters)

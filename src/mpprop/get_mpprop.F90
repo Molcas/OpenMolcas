@@ -175,7 +175,8 @@ do nA=1,nAtoms
             end do
           end do
         end do
-        AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)-rsum ! minus from the negative sign of the electron
+        ! minus from the negative sign of the electron
+        AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)-rsum
         AtBoMltPlCopy(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)
         AtMltPl(iMltPl)%M(iComp,nA) = AtMltPl(iMltPl)%M(iComp,nA)-rsum
       end do
@@ -328,7 +329,8 @@ do nA=1,nAtoms
               end do
             end do
           end do
-          AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)-rsum ! minus from the negative sign of the electron
+          ! minus from the negative sign of the electron
+          AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)-rsum
           ! Copy the multipole arrays
           AtBoMltPlCopy(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)
         end do

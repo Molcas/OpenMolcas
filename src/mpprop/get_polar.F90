@@ -18,8 +18,8 @@ use Constants, only: Zero, One, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, NOCOB, nOrb, OCOF(nBas,nPrim), RCHC(3,nBas)
-real(kind=wp), intent(in) :: OENE(nOrb)
+integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, NOCOB, nOrb
+real(kind=wp), intent(in) :: OENE(nOrb), OCOF(nBas,nPrim), RCHC(3,nBas)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
 integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, kl, L, LL, nA, nB
 real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, R, RA, RB, RIJX, RIJY, RIJZ, Smallest
