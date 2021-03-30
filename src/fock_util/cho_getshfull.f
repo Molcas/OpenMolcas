@@ -16,7 +16,7 @@
      &                         SvShp,mmShl,iShp_rs,mmShl_tot)
       use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
       use ChoSwp, only: iiBstRSh, IndRSh, IndRed
-      use Data_Structures, only: L_Full_Type
+*     use Data_Structures, only: L_Full_Type
       Implicit Real*8 (a-h,o-z)
       Real*8  LabJ(lLabJ)
       Real*8  SvShp(mmShl , 2)

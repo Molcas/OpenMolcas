@@ -161,7 +161,7 @@
       Character(LEN=6) mode
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Diag(:), AbsC(:),
-     &                      SvShp(:), MLk(:), Ylk(:,:), Drs2(:,:)
+     &                      SvShp(:,:), MLk(:), Ylk(:,:), Drs2(:,:)
       Real*8, Allocatable, Target:: Yik(:)
       Real*8, Pointer:: pYik(:,:)=>Null()
       Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:),
@@ -199,6 +199,15 @@
 
         Logical   DoRead
         End Subroutine Cho_X_getVtra
+
+        SUBROUTINE CHO_GetShFull(LabJ,lLabJ,JNUM,JSYM,IREDC,ipChoV,
+     &                          SvShp,mmShl,iShp_rs,mmShl_tot)
+        Integer lLabJ, JNUM, JSYM, IREDC, ipChoV
+        Integer mmShl, mmShl_tot
+        Real*8  LabJ(lLabJ)
+        Real*8  SvShp(mmShl , 2)
+        Integer iShp_rs( mmShl_tot )
+        End SUBROUTINE CHO_GetShFull
 
       End Interface
 
@@ -423,7 +432,7 @@
          Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
 
 !        shell-pair Frobenius norm of the vectors
-         Call mma_allocate(SvShp,2*nnShl,Label='SvShp')
+         Call mma_allocate(SvShp,nnShl,2,Label='SvShp')
 
 *
 ** Jonas - June 2010:
@@ -861,10 +870,9 @@ C --- Transform the densities to reduced set storage
 *
 
                   L_Full%A0(:)=Zero
-                  SvShp(:)=Zero
 
-                  CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,
-     &                               IREDC,ipLF,SvShp,iShp_rs)
+                  CALL CHO_getShFull(Lrs,lread,JNUM,JSYM,IREDC,ipLF,
+     &                               SvShp,nnShl,iShp_rs,nnShl_tot)
 
                   CALL CWTIME(TCX2,TWX2)
                   tmotr(1) = tmotr(1) + (TCX2 - TCX1)
@@ -1145,7 +1153,7 @@ C------------------------------------------------------------------
      &                          nBasSh(lSym,iaSh)*
      &                          nBasSh(kSym,ibSh) .gt. 0
      &                .and. Sqrt(Abs(SumClk%Den(iMOleft)%A2(ibSh,jK_a)*
-     &                                     SvShp(iShp_rs(iShp)) ))
+     &                                     SvShp(iShp_rs(iShp),1) ))
      &                          .ge. thrv )Then
 
                                 ibcount = ibcount + 1
