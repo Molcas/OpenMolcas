@@ -9,20 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Density_Matrix_mpprop(ip_D,nBas,nSym)
+subroutine Get_Density_Matrix_mpprop(D,nBas,nSym)
 
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ip_D, nSym, nBas(nSym)
-#include "WrkSpc.fh"
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym)
+real(kind=wp), intent(out) :: D(*)
 integer(kind=iwp) :: nDens
 
 if (nSym == 1) then
   nDens = nBas(1)*(nBas(1)+1)/2
-  call Get_D1ao(Work(ip_D),nDens)
+  call Get_D1ao(D,nDens)
 # ifdef _DEBUGPRINT_
-  call RecPrt('D',' ',Work(ip_D),1,nDens)
+  call RecPrt('D',' ',D,1,nDens)
 # endif
 else
   write(u6,*) 'MpProp cannot handle symmetry'

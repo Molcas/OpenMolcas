@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nPrim
-real(kind=wp), intent(in) :: Work(3*nAtoms), CENTX(nPrim*(nPrim+1)/2), CENTY(nPrim*(nPrim+1)/2), CENTZ(nPrim*(nPrim+1)/2)
+real(kind=wp), intent(in) :: Work(3,nAtoms), CENTX(nPrim*(nPrim+1)/2), CENTY(nPrim*(nPrim+1)/2), CENTZ(nPrim*(nPrim+1)/2)
 ! EB real(kind=wp), intent(in) :: CENTX(nPrim), CENTY(nPrim), CENTZ(nPrim)
 integer(kind=iwp) :: i, j
 
@@ -25,9 +25,9 @@ integer(kind=iwp) :: i, j
 do i=1,nAtoms
   nAtomPBas(i) = 0
   do j=1,nPrim
-    if ((abs(Work((i-1)*3+1)-CENTX(j*(j-1)/2+j)) <= 1.0e-10_wp) .and. &
-        (abs(Work((i-1)*3+2)-CENTY(j*(j-1)/2+j)) <= 1.0e-10_wp) .and. &
-        (abs(Work((i-1)*3+3)-CENTZ(j*(j-1)/2+j)) <= 1.0e-10_wp)) then
+    if ((abs(Work(1,i)-CENTX(j*(j-1)/2+j)) <= 1.0e-10_wp) .and. &
+        (abs(Work(2,i)-CENTY(j*(j-1)/2+j)) <= 1.0e-10_wp) .and. &
+        (abs(Work(3,i)-CENTZ(j*(j-1)/2+j)) <= 1.0e-10_wp)) then
       nAtomPBas(i) = nAtomPBas(i)+1
       iAtPrTab(nAtomPBas(i),i) = j
       !write(u6,*) 'Atom tab',i,j,CENTX(j*(j-1)/2+j),CENTY(j*(j-1)/2+j),CENTZ(j*(j-1)/2+j),nAtomPBas(i)

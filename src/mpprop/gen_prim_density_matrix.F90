@@ -9,26 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Gen_Prim_Density_Matrix(nBas,nPrim,ip_D_p,nOcOb,oNum,oCof)
+subroutine Gen_Prim_Density_Matrix(nBas,nPrim,D_p,nOcOb,oNum,oCof)
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nBas, nPrim, ip_D_p, nOcOb
+integer(kind=iwp), intent(in) :: nBas, nPrim, nOcOb
+real(kind=wp), intent(out) :: D_p(nPrim*(nPrim+1)/2)
 real(kind=wp), intent(in) :: oNum(nBas), oCof(nBas,nPrim)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, K, L
+integer(kind=iwp) :: i, k, l
 
-do K=1,nPrim
-  do L=1,K
-    Work(ip_D_p+k*(k-1)/2+l-1) = Zero
-  end do
-end do
-do K=1,nPrim
-  do L=1,K
+D_p(:) = Zero
+do k=1,nPrim
+  do l=1,k
     do i=1,nOcOb
-      Work(ip_D_p+k*(k-1)/2+l-1) = Work(ip_D_p+k*(k-1)/2+l-1)+oNum(I)*oCof(I,K)*oCof(I,L)
+      D_p(k*(k-1)/2+l) = D_p(k*(k-1)/2+l)+oNum(i)*oCof(i,k)*oCof(i,l)
     end do
   end do
 end do

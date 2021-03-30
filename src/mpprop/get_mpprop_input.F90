@@ -23,12 +23,11 @@ real(kind=wp), intent(inout) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 #include "warnings.fh"
 integer(kind=iwp) :: i, iChrct, iStdOut, j, k, l, Last, LuRd, m, nBonds
 character(len=3) :: EndKey
-! Jose character(len=4) :: TestLabe(0:nAtoms), KWord
 character(len=4) :: KWord
-character(len=6) :: TestLabe(0:nAtoms)
 character(len=180) :: Key
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: NuB(:), NBI(:,:)
+character(len=6), allocatable :: TestLabe(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
@@ -69,10 +68,9 @@ do
         nBonds = 0
         Key = Get_Ln(LuRd)
         m = 1
-        do j=1,nAtoms
-          TestLabe(j) = ' '
-        end do
-        do j=1,180
+        call mma_allocate(TestLabe,nAtoms,label='TestLabe')
+        TestLabe(:) = ' '
+        do
           EndKey = Key(j:j+2)
           call UpCase(EndKey)
           if ((Key(j:j) == ' ') .or. (Key(j:j) == ',') .or. (Key(j:j) == ';')) then
@@ -83,10 +81,8 @@ do
             elseif (m < j) then
               TestLabe(nBonds) = Key(m:j-1)
               nBonds = nBonds+1
-              m = j+1
-            else
-              m = j+1
             end if
+            m = j+1
           elseif (EndKey == 'END') then
             exit atoms
           end if
@@ -103,6 +99,7 @@ do
             end do
           end if
         end do
+        call mma_deallocate(TestLabe)
       end do atoms
 
       do i=1,nAtoms

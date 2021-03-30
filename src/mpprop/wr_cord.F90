@@ -30,8 +30,7 @@ write(iStdOut,'(A11,A7,A)') 'Center','Label', &
                             '              X              Y              Z                     X              Y              Z'
 do i=1,nAtoms
   !Jose write(iStdOut,'(6X,I3,5X,A4,3(5X,F10.6),7X,3(5X,F10.6))')
-  write(iStdOut,'(6X,I3,5X,A6,3(5X,F10.6),7X,3(5X,F10.6))') i,Labe(i),Cor(1,i,i),Cor(2,i,i),Cor(3,i,i), &
-                                                            Cor(1,i,i)*Angstrom,Cor(2,i,i)*Angstrom,Cor(3,i,i)*Angstrom
+  write(iStdOut,'(6X,I3,5X,A6,3(5X,F10.6),7X,3(5X,F10.6))') i,Labe(i),Cor(:,i,i),Cor(:,i,i)*Angstrom
 end do
 write(iStdOut,*)
 write(iStdOut,*)

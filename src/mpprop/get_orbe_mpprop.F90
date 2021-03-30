@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_OrbE_MpProp(ipOrbE,nOrbE)
+subroutine Get_OrbE_MpProp(OrbE,nOrbE)
 
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ipOrbE, nOrbE
-#include "WrkSpc.fh"
+integer(kind=iwp), intent(in) :: nOrbE
+real(kind=wp), intent(out) :: OrbE(nOrbE)
 integer(kind=iwp) :: nData
 character(len=24) :: Label
 logical(kind=iwp) :: Found
@@ -24,7 +24,7 @@ Label = 'OrbE'
 call qpg_dArray(Label,Found,nData)
 if ((.not. Found) .or. (nOrbE == 0)) call SysAbendMsg('get_orbe','Did not find:',Label)
 if (nOrbE /= nData) call SysAbendMsg('get_orbe','nOrbE /= nData','')
-call Get_dArray(Label,Work(ipOrbE),nOrbE)
+call Get_dArray(Label,OrbE,nOrbE)
 
 return
 

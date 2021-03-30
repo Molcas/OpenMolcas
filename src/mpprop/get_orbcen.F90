@@ -12,6 +12,7 @@
 subroutine Get_OrbCen(nPrim,NORBI,Q_MltPl,RCHC,CENTX,CENTY,CENTZ,oCof)
 !EB subroutine Get_OrbCen(nPrim,nBas,NORBI,Q_MltPl,RCHC,
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -21,17 +22,17 @@ real(kind=wp), intent(in) :: Q_MltPl(nPrim*(nPrim+1)/2), CENTX(nPrim*(nPrim+1)/2
                              CENTZ(nPrim*(nPrim+1)/2), oCof(NORBI,nPrim)
 real(kind=wp), intent(out) :: RCHC(3,NORBI)
 integer(kind=iwp) :: I, J, K
-real(kind=wp) :: OOQ, QMIN, QPOS, RCPO(3,NORBI), RCMI(3,NORBI)
+real(kind=wp) :: OOQ, QMIN, QPOS
+real(kind=wp), allocatable :: RCPO(:,:), RCMI(:,:)
 
 ! CALCULATE A CENTER OF CHARGE FOR EACH MOLECULAR ORBITAL
 
+call mma_allocate(RCPO,3,NORBI,label='RCPO')
+call mma_allocate(RCMI,3,NORBI,label='RCMI')
+
+RCPO(:,:) = Zero
+RCMI(:,:) = Zero
 do I=1,NORBI
-  RCPO(1,I) = Zero
-  RCPO(2,I) = Zero
-  RCPO(3,I) = Zero
-  RCMI(1,I) = Zero
-  RCMI(2,I) = Zero
-  RCMI(3,I) = Zero
   QPOS = Zero
   QMIN = Zero
   do J=1,nPrim
@@ -69,6 +70,9 @@ do I=1,NORBI
   RCHC(2,I) = (RCPO(2,I)-RCMI(2,I))/(QPOS-QMIN)
   RCHC(3,I) = (RCPO(3,I)-RCMI(3,I))/(QPOS-QMIN)
 end do
+
+call mma_deallocate(RCPO)
+call mma_deallocate(RCMI)
 
 return
 

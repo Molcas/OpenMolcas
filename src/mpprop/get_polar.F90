@@ -13,6 +13,7 @@ subroutine get_polar(nPrim,nBas,nAtoms,nCenters,NOCOB,OENE,nOrb,OCOF,RCHC,LNeare
 !EB  OENE,ONUM,nOrb,OCOF,RCHC,LNearestAtom)
 
 use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cor, CordMltPl, Frac, iAtPrTab, nAtomPBas, MltPl
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Half
 use Definitions, only: wp, iwp, u6
 
@@ -20,9 +21,9 @@ implicit none
 integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, NOCOB, nOrb, OCOF(nBas,nPrim), RCHC(3,nBas)
 real(kind=wp), intent(in) :: OENE(nOrb)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, kl, L, LL, nA, nB
-real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, Pol(6,nAtoms,nAtoms), Pd(3,nAtoms), R, RA, RB, RIJX, RIJY, RIJZ, Smallest
+real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, R, RA, RB, RIJX, RIJY, RIJZ, Smallest
+real(kind=wp), allocatable :: Pol(:,:,:), Pd(:,:)
 
 iStdOut = u6
 iA = 0 ! Added by EB
@@ -33,14 +34,11 @@ write(iStdOut,*) '  '
 
 ! CONSTRUCT THE POLARIZATION CONTRIBUTION FROM EACH PAIR OF ATOMS
 
+call mma_allocate(Pd,3,nAtoms,label='Pd')
+call mma_allocate(Pol,6,nAtoms,nAtoms,label='Pol')
+Pol(:,:,:) = Zero
+
 ! NBOND assigns the array value where bondvaluearray starts
-do nA=1,nAtoms
-  do nB=1,nAtoms
-    do i=1,6
-      Pol(i,nA,nB) = Zero
-    end do
-  end do
-end do
 write(iStdOut,*)
 write(iStdOut,*) 'No occupied orbitals',NOCOB
 write(iStdOut,*) 'No orbitals',nBas
@@ -101,6 +99,8 @@ do nA=1,nAtoms
     AtBoPol(:,nA*(nA-1)/2+nB) = Pol(:,nA,nB)+Pol(:,nB,nA)
   end do
 end do
+call mma_deallocate(Pd)
+call mma_deallocate(Pol)
 do nA=1,nAtoms
   do nB=1,nA-1
     FracA = Frac(nA,nB)

@@ -9,43 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine StoreMpAsLop(nAtoms,ip_ANr,nB,ipT,ipTi,ipMP,lMax,ip_EC)
+subroutine StoreMpAsLop(nAtoms,ANr,nB,T,Ti,MP,lMax,EC)
 
 use MPProp_globals, only: AtBoMltPl, Cor
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms, ip_ANr, nB, ipT, ipTi, ipMP, lMax, ip_EC
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l, nSize1
+integer(kind=iwp), intent(in) :: nAtoms, nB, lMax
+integer(kind=iwp), intent(out) :: ANr(nAtoms)
+real(kind=wp), intent(out) :: T(nB,nB), Ti(nB,nB), MP(nAtoms*(nAtoms+1)/2,(lMax+1)*(lMax+2)*(lMax+3)/6), EC(3,nAtoms*(nAtoms+1)/2)
+integer(kind=iwp) :: i, iAt1, iAt2, iAtK, iMu, ix, iy, j, kaunter, kompost, l
 
-!-- Let's fix the ip_ANr.
+!-- Let's fix the ANr.
 
-call Get_iArray('LP_A',iWork(ip_ANr),nAtoms)
+call Get_iArray('LP_A',ANr,nAtoms)
 
 !-- Let's fix the uber-simple T and T(-1).
 
-kaunter = 0
+T(:,:) = Zero
 do i=1,nB
-  do j=1,nB
-    Work(ipT+kaunter) = Zero
-    Work(ipTi+kaunter) = Zero
-    if (i == j) Work(ipT+kaunter) = One
-    if (i == j) Work(ipTi+kaunter) = One
-    kaunter = kaunter+1
-  end do
+  T(i,i) = One
 end do
+Ti(:,:) = T(:,:)
 
 !-- Let's fix the expansion centres.
 
 kaunter = 0
 do i=1,nAtoms
   do j=1,i
-    Work(ip_EC+kaunter*3+0) = Cor(1,i,j)
-    Work(ip_EC+kaunter*3+1) = Cor(2,i,j)
-    Work(ip_EC+kaunter*3+2) = Cor(3,i,j)
     kaunter = kaunter+1
+    EC(:,kaunter) = Cor(:,i,j)
   end do
 end do
 
@@ -53,8 +47,7 @@ end do
 ! included the nuclei contribution, which we have to remove pronto
 ! to be compatible.
 
-nSize1 = nAtoms*(nAtoms+1)/2
-iMu = -1
+iMu = 0
 do l=0,lMax
   kompost = 0
   do ix=l,0,-1
@@ -65,10 +58,10 @@ do l=0,lMax
       do iAt1=1,nAtoms
         do iAt2=1,iAt1
           iAtK = iAtK+1
-          Work(ipMP+iAtK+nSize1*iMu-1) = AtBoMltPl(l)%M(kompost,iAtK)
+          MP(iAtK,iMu) = AtBoMltPl(l)%M(kompost,iAtK)
         end do
         if (l == 0) then
-          Work(ipMP+iAtK-1+nSize1*iMu) = Work(ipMP+iAtK-1+nSize1*iMu)-real(iWork(ip_ANr+iAt1-1),kind=wp)
+          MP(iAtK,iMu) = MP(iAtK,iMu)-real(ANr(iAt1),kind=wp)
         end if
       end do
     end do

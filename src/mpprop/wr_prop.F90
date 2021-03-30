@@ -21,10 +21,12 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nBas, nMltPl, NOCOB, NOCOB_b, iPol
 real(kind=wp), intent(in) :: orbe(NOCOB), orbe_b(NOCOB_b)
 logical(kind=iwp), intent(in) :: LAllCenters
-integer(kind=iwp) :: i, iComp, iCompMat(0:nMltPl,0:nMltPl,0:nMltPl), il, iMltpl, ip, iq, j, nA, nB, nComp, nl, np, nq, nTotCen
+integer(kind=iwp) :: i, iComp, il, iMltpl, ip, iq, j, nA, nB, nComp, nl, np, nq, nTotCen
 real(kind=wp) :: fac, rnloveril, rnPoveriP, rnqoveriq, xfac, yfac, zfac
+integer(kind=iwp), allocatable :: iCompMat(:,:,:)
 
 call mma_allocate(Cen_Lab,nAtoms*(nAtoms+1)/2,label='Cen_Lab')
+call mma_allocate(iCompMat,[0,nMltPl],[0,nMltPl],[0,nMltPl],label='iCompMat')
 
 nTotCen = 0
 do i=1,nAtoms
@@ -113,6 +115,8 @@ do iMltpl=0,nMltPl
     end do
   end do
 end do
+
+call mma_deallocate(iCompMat)
 
 call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
 !EB call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,orbe,iBond,

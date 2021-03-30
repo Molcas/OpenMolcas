@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
+subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
 use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtPrTab, Labe, Method, nAtomPBas, Qnuc
@@ -19,10 +19,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
-real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
+integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl
+real(kind=wp), intent(in) :: D_p(nPrim*(nPrim+1)/2), ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iA, iComp, ii, ij, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
 real(kind=wp) :: CorP(3), CorN(3), FracA, FracB, FracN, FracP, Qn, Qp, Qs, R, RA, RB, rnloveril, rnPoveriP, rnqoveriq, Rtot, Rwei, &
                  Smallest, rsum, sum_a, sum_b, xfac, xfac_a, xfac_b, yfac, yfac_a, yfac_b, zfac, zfac_a, zfac_b
@@ -112,7 +111,7 @@ end if
 !else
 !  do K=1,nPrim
 !    do L=1,K
-!      DenMat(L,K) = Work(ip_D_p+K*(K-1)/2+L-1)
+!      DenMat(L,K) = D_p(K*(K-1)/2+L)
 !      if (K /= L) then
 !        DenMat(K,L) = DenMat(L,K)
 !      end if
@@ -126,7 +125,7 @@ end if
 do i=1,nPrim
   do j=1,i
     ij = i*(i-1)/2+j
-    Qexp(i,j) = MltPl(0)%M(ij,1)*Work(ip_D_p+ij-1)
+    Qexp(i,j) = MltPl(0)%M(ij,1)*D_p(ij)
     Qexp(j,i) = Qexp(i,j)
   end do
 end do
@@ -177,7 +176,7 @@ do nA=1,nAtoms
                     ii = i
                   end if
                   ij = ii*(ii-1)/2+jj
-                  rsum = rsum+xfac*yfac*zfac*Work(ip_D_p+ij-1)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
+                  rsum = rsum+xfac*yfac*zfac*D_p(ij)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
                 end do
               end do
             end do
@@ -342,7 +341,7 @@ do nA=1,nAtoms
                       ii = i
                     end if
                     ij = ii*(ii-1)/2+jj
-                    rsum = rsum+xfac*yfac*zfac*Two*Work(ip_D_p+ij-1)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
+                    rsum = rsum+xfac*yfac*zfac*Two*D_p(ij)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
                   end do
                 end do
               end do

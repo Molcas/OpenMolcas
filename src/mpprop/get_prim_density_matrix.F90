@@ -9,23 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Prim_Density_Matrix(ip_D,nBas,ip_D_p,nPrim,TM)
+subroutine Get_Prim_Density_Matrix(D,nBas,D_p,nPrim,TM)
 
-use Constants, only: Zero, Two
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ip_D, nBas, ip_D_p, nPrim
+integer(kind=iwp), intent(in) :: nBas, nPrim
+real(kind=wp), intent(inout) :: D(nBas*(nBas+1)/2)
+real(kind=wp), intent(out) :: D_p(nPrim*(nPrim+1)/2)
 real(kind=wp), intent(in) :: TM(nPrim,nBas)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i,j,k,l
 real(kind=wp) :: Djl, TMij, TMkl, TmpDensity
 
-do i=1,nBas
-  do k=1,i-1
-    Work(ip_D+i*(i-1)/2+k-1) = Work(ip_D+i*(i-1)/2+k-1)/Two
-  end do
-end do
+D(:) = Half*D(:)
 do i=1,nPrim
   do k=1,i
     TmpDensity = Zero
@@ -34,14 +31,14 @@ do i=1,nPrim
         TMij = TM(i,j)
         TMkl = TM(k,l)
         if (j < l) then
-          Djl = Work(ip_D+l*(l-1)/2+j-1)
+          Djl = D(l*(l-1)/2+j)
         else
-          Djl = Work(ip_D+j*(j-1)/2+l-1)
+          Djl = D(j*(j-1)/2+l)
         end if
         TmpDensity = TmpDensity+TMij*TMkl*Djl
       end do
     end do
-    Work(ip_D_p+i*(i-1)/2+k-1) = TmpDensity
+    D_p(i*(i-1)/2+k) = TmpDensity
   end do
 end do
 

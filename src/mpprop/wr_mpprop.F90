@@ -11,50 +11,50 @@
 
 subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
 
-use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, mxMltPl, Title
+use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, Title
 use MPprop_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, iPol
-integer(kind=iwp) :: i, iComp, iCount, ilab, iMltPl, iStdOut, ix, ixx, iy, iyy, iz, izz, j, jComp, nComp
-integer(kind=iwp), parameter :: mxComp = (mxMltPl+1)*(mxMltPl+2)/2
+integer(kind=iwp) :: i, iComp, iCount, ilab, iMltPl, iStdOut, ix, ixx, iy, iyy, iz, izz, j, jComp, mxComp, nComp
 real(kind=wp) :: MolPol(6)
-character(len=16) MltPlLab, MltPlLabs(0:mxMltpl,mxComp), String(0:16), PolString ! "0:" added by EB
+character(len=16) :: MltPlLab, PolString
+character(len=16), allocatable :: MltPlLabs(:,:), String(:)
 
 iStdOut = u6
 
-do j=1,6
-  MolPol(j) = Zero
-end do
+mxComp = (nMltPl+1)*(nMltpl+2)/2
+call mma_allocate(MltPlLabs,[0,max(nMltPl,2)],[1,mxComp],label='MltPlLabs')
+call mma_allocate(String,[0,max(nMltPl,4)],label='String')
+
+MolPol(:) = Zero
 String(0) = 'Charge          '
 String(1) = 'Dipole          '
 String(2) = 'Quadrupole      '
 String(3) = 'Octupole        '
 String(4) = 'Hexadecapole    '
-!do i=5,16
-!  write(String(i),'(I2,A)') i,'-th       Cartesian'
-!end do
-String(5) = '5-th       Carte' !sian
-String(6) = '6-th       Carte' !sian
-String(7) = '7-th       Carte' !sian
-String(8) = '8-th       Carte' !sian
-String(9) = '9-th       Carte' !sian
-String(10) = '10-th       Car' !tesian
-String(11) = '11-th       Car' !tesian
-String(12) = '12-th       Car' !tesian
-String(13) = '13-th       Car' !tesian
-String(14) = '14-th       Car' !tesian
-String(15) = '15-th       Car' !tesian
-String(16) = '16-th       Car' !tesian
+do i=5,nMltPl
+  write(String(i),'(i4,"th")') i
+  if (String(i)(3:3) /= '1') then
+    select case (String(i)(4:4))
+      case ('1')
+        String(i)(5:6) = 'st'
+      case ('2')
+        String(i)(5:6) = 'nd'
+      case ('3')
+        String(i)(5:6) = 'rd'
+      case default
+    end select
+  end if
+  String(i) = adjustl(String(i))
+  String(i)(8:16) = 'Cartesian'
+end do
 PolString = 'Polarizability  '
 
-if (16 < mxMltPl) then
-  write(u6,*) 'Increase length of MltPlLab'
-  call Abend()
-end if
-do iMltPl=0,nMltPl
+do iMltPl=0,max(nMltPl,2)
   ilab = 0
   do ix=iMltpl,0,-1
     do iy=iMltpl-ix,0,-1
@@ -186,6 +186,9 @@ do iMltPl=0,nMltPl
     write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPlTot(iMltPl)%M(jComp,1),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
+
+call mma_deallocate(MltPlLabs)
+call mma_deallocate(String)
 
 return
 

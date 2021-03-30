@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-#include "Molcas.fh"
+#include "LenIn.fh"
 
 ! A type for multipole array data, where each element
 ! is an array of different size (number of components)
@@ -24,7 +24,6 @@ type MltPlArr
   real(kind=wp), allocatable :: M(:,:)
 end type MltPlArr
 
-integer(kind=iwp), parameter :: mxMltPl = 10
 real(kind=wp) :: EneV
 character(len=180) :: Title
 character(len=8) :: Method
@@ -35,9 +34,7 @@ character(len=LenIn*2+2), allocatable :: Cen_Lab(:)
 logical(kind=iwp), allocatable :: BondMat(:,:)
 type(MltPlArr), allocatable :: AtBoMltPl(:), AtBoMltPlCopy(:), AtBoMltPlTot(:), AtMltPl(:), AtMltPlTot(:), MltPl(:)
 
-public :: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, CordMltPl, EneV, Frac, iAtomPar, iAtomType, iAtPrTab, Labe, Method, mxMltPl, &
-          nAtomPBas, Qnuc, Title
-
-public :: AtBoMltPl, AtBoMltPlCopy, AtBoMltPlTot, AtMltPl, AtMltPlTot, MltPl
+public :: AtBoMltPl, AtBoMltPlCopy, AtBoMltPlTot, AtBoPol, AtMltPl, AtMltPlTot, AtPol, BondMat, Cen_Lab, Cor, CordMltPl, EneV, &
+          Frac, iAtomPar, iAtomType, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc, Title
 
 end module MPProp_globals
