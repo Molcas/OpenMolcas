@@ -15,8 +15,8 @@
 subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,NOCOB_b,OENE,OENE_b,LAllCenters)
 !EB subroutine Wr_Files(nAtoms,nCenters,nMltPl,NORBI,NOCOB,OENE,iBond,
 
-use MPProp_globals, only: BondMat, Cen_Lab, Cor, EneV, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoPolAd, iAtMltPlAd, iAtMltPlTotAd, &
-                          iAtomType, iAtomPar, iAtPolAd, Method, Title
+use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, EneV, iAtomType, iAtomPar, Method, Title
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtMltPlTot
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -24,8 +24,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, NORBI, NOCOB, NOCOB_b !, iBond(2,nCenters)
 real(kind=wp), intent(in) :: OENE(NOCOB), OENE_b(NOCOB_b)
 logical(kind=iwp), intent(in) :: LAllCenters
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iComp, iMltPl, j, k, Lu, nComp
+integer(kind=iwp) :: i, iMltPl, j, Lu
 real(kind=wp) :: MolPol(6)
 character(len=8) :: FileName
 logical(kind=iwp) :: Exists
@@ -65,17 +64,13 @@ if (.not. LAllCenters) then
     write(Lu,3) iAtomType(i),iAtomPar(i),Cen_Lab(i*(i+1)/2)
     write(Lu,1) cor(1,i,i),cor(2,i,i),cor(3,i,i)
     do iMltPl=0,nMltPl
-      nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1) (Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+i-1),iComp=1,nComp)
+      write(Lu,1) AtMltPl(iMltPl)%M(:,i)
     end do
     do iMltPl=0,2
-      nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1) (Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
+      write(Lu,1) AtBoMltPlCopy(iMltPl)%M(:,i*(i+1)/2)
     end do
-    write(Lu,1) (Work(iAtPolAd+nAtoms*j+i-1),j=0,5)
-    do j=0,5
-      MolPol(j+1) = MolPol(j+1)+Work(iAtPolAd+nAtoms*j+i-1)
-    end do
+    write(Lu,1) AtPol(:,i)
+    MolPol(:) = MolPol(:)+AtPol(:,i)
   end do
 
 else
@@ -86,21 +81,18 @@ else
     write(Lu,3) iAtomType(i),iAtomPar(i),Cen_Lab(i*(i+1)/2)
     write(Lu,1) Cor(1,i,i),Cor(2,i,i),Cor(3,i,i)
     do iMltPl=0,nMltPl
-      nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1) (Work(iAtBoMltPlAd(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
+      write(Lu,1) AtBoMltPl(iMltPl)%M(:,i*(i+1)/2)
     end do
     do iMltPl=0,2
-      nComp = (iMltPl+1)*(iMltPl+2)/2
-      write(Lu,1) (Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+i-1),iComp=1,nComp)
+      write(Lu,1) AtBoMltPlCopy(iMltPl)%M(:,i*(i+1)/2+i-1)
     end do
     ! Begin EB
-    ! if "pointer" iAtBoPolAd is not associated with memory
-    ! print zero
-    if (iAtBoPolAd == 0) then
+    ! if AtBoPol is not allocated, print zero
+    if (.not. allocated(AtBoPol)) then
       write(Lu,1) Zero,Zero,Zero,Zero,Zero,Zero
     else
     ! End EB
-      write(Lu,1) (Work(iAtBoPolAd+nCenters*k+i*(i-1)/2+i-1),k=0,5)
+      write(Lu,1) AtBoPol(:,i*(i+1)/2)
     ! Begin EB
     end if
     ! End EB
@@ -111,21 +103,18 @@ else
         write(Lu,5) 0,1,iAtomType(i),iAtomPar(i),iAtomType(j),iAtomPar(j),Cen_Lab(i*(i-1)/2+j)
         write(Lu,1) Cor(1,i,j),Cor(2,i,j),Cor(3,i,j)
         do iMltPl=0,nMltPl
-          nComp = (iMltPl+1)*(iMltPl+2)/2
-          write(Lu,1) (Work(iAtBoMltPlAd(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
+          write(Lu,1) AtBoMltPl(iMltPl)%M(:,i*(i-1)/2+j)
         end do
         do iMltPl=0,2
-          nComp = (iMltPl+1)*(iMltPl+2)/2
-          write(Lu,1) (Work(iAtBoMltPlAdCopy(iMltPl)+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,nComp)
+          write(Lu,1) AtBoMltPlCopy(iMltPl)%M(:,i*(i-1)/2+j)
         end do
         ! Begin EB
-        ! if "pointer" iAtBoPolAd is not associated with memory
-        ! print zero
-        if (iAtBoPolAd == 0) then
+        ! if AtBoPol is not allocated, print zero
+        if (.not. allocated(AtBoPol)) then
           write(Lu,1) Zero,Zero,Zero,Zero,Zero,Zero
         else
         ! End EB
-          write(Lu,1) (Work(iAtBoPolAd+nCenters*k+i*(i-1)/2+j-1),k=0,5)
+          write(Lu,1) AtBoPol(:,i*(i-1)/2+j)
         ! Begin EB
         end if
         ! End EB
@@ -137,8 +126,7 @@ end if
 
 write(Lu,6) '* Molecule properties '
 do iMltPl=0,nMltPl
-  nComp = (iMltPl+1)*(iMltPl+2)/2
-  write(Lu,1) (Work(iAtMltPlTotAd(iMltPl)+iComp-1),iComp=1,nComp)
+  write(Lu,1) AtMltPlTot(iMltPl)%M(:,1)
 end do
 write(Lu,1) (MolPol(i),i=1,6)
 write(Lu,'(A)') '* Orbital information'

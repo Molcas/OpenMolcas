@@ -18,19 +18,26 @@ private
 
 #include "Molcas.fh"
 
+! A type for multipole array data, where each element
+! is an array of different size (number of components)
+type MltPlArr
+  real(kind=wp), allocatable :: M(:,:)
+end type MltPlArr
+
 integer(kind=iwp), parameter :: mxMltPl = 10
-integer(kind=iwp) :: iAtMltPlAd(0:mxMltPl), iAtBoMltPlAd(0:mxMltPl), iMltPlAd(0:mxMltPl), iAtPolAd, iAtBoPolAd, iQnuc, &
-                     iAtMltPlTotAd(0:mxMltPl), iAtBoMltPlTotAd(0:mxMltPl), iAtBoMltPlAdCopy(0:mxMltpl)
-real(kind=wp) :: CordMltPl(3,0:mxMltPl), EneV
+real(kind=wp) :: EneV
 character(len=180) :: Title
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: iAtomType(:), iAtomPar(:), nAtomPBas(:), iAtPrTab(:,:)
-real(kind=wp), allocatable :: Cor(:,:,:), Frac(:,:)
+real(kind=wp), allocatable :: Cor(:,:,:), CordMltPl(:,:), Frac(:,:), AtPol(:,:), AtBoPol(:,:), Qnuc(:)
 character(len=LenIn), allocatable :: Labe(:)
 character(len=LenIn*2+2), allocatable :: Cen_Lab(:)
 logical(kind=iwp), allocatable :: BondMat(:,:)
+type(MltPlArr), allocatable :: AtBoMltPl(:), AtBoMltPlCopy(:), AtBoMltPlTot(:), AtMltPl(:), AtMltPlTot(:), MltPl(:)
 
-public :: BondMat, Cen_Lab, Cor, CordMltPl, EneV, Frac, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoMltPlTotAd, iAtBoPolAd, iAtMltPlAd, &
-          iAtMltPlTotAd, iAtomPar, iAtomType, iAtPolAd, iAtPrTab, iMltPlAd, iQnuc, Labe, Method, mxMltPl, nAtomPBas, Title
+public :: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, CordMltPl, EneV, Frac, iAtomPar, iAtomType, iAtPrTab, Labe, Method, mxMltPl, &
+          nAtomPBas, Qnuc, Title
+
+public :: AtBoMltPl, AtBoMltPlCopy, AtBoMltPlTot, AtMltPl, AtMltPlTot, MltPl
 
 end module MPProp_globals

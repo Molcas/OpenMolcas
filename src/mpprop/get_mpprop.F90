@@ -12,8 +12,8 @@
 subroutine Get_MpProp(nPrim,nBas,nAtoms,nCenters,nMltPl,ip_D_p,ECENTX,ECENTY,ECENTZ,LNearestAtom,LFirstRun,LLumOrb)
 ! nOcOb,oNum,nOrb,oCof
 
-use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtMltPlAd, iMltPlAd, iAtPrTab, iQnuc, &
-                          Labe, Method, nAtomPBas
+use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtPrTab, Labe, Method, nAtomPBas, Qnuc
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, MltPl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -23,7 +23,7 @@ integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, nMltPl, ip_D_p
 real(kind=wp), intent(in) :: ECENTX(nPrim*(nPrim+1)/2), ECENTY(nPrim*(nPrim+1)/2), ECENTZ(nPrim*(nPrim+1)/2) !, oNum(nOrb), oCof(nBas,nPrim)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun, LLumOrb
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iA, iComp, ii, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
+integer(kind=iwp) :: i, iA, iComp, ii, ij, il, iMltpl, ip, iPBas, iq, iStdout, j, jj, jPBas, k, nA, nB, nl, np, nq
 real(kind=wp) :: CorP(3), CorN(3), FracA, FracB, FracN, FracP, Qn, Qp, Qs, R, RA, RB, rnloveril, rnPoveriP, rnqoveriq, Rtot, Rwei, &
                  Smallest, rsum, sum_a, sum_b, xfac, xfac_a, xfac_b, yfac, yfac_a, yfac_b, zfac, zfac_a, zfac_b
 integer(kind=iwp), allocatable :: iCompMat(:,:,:)
@@ -78,9 +78,9 @@ if (LFirstRun) then
   ! An error written by me DH
   do i=1,nPrim
     do j=1,i
+      ij = i*(i-1)/2+j
       do k=1,3
-        Work(iWork(iMltPlAd(1)+k-1)+i*(i-1)/2+j-1) = Work(iWork(iMltPlAd(1)+k-1)+i*(i-1)/2+j-1)+ &
-                                                     (CordMltPl(k,0)-CordMltPl(k,2))*Work(iWork(iMltPlAd(0))+i*(i-1)/2+j-1)
+        MltPl(1)%M(ij,k) = MltPl(1)%M(ij,k)+(CordMltPl(k,0)-CordMltPl(k,2))*MltPl(0)%M(ij,1)
       end do
     end do
   end do
@@ -125,7 +125,8 @@ end if
 ! GET THE INTERACTION SITES
 do i=1,nPrim
   do j=1,i
-    Qexp(i,j) = work(iwork(iMltPlAd(0))+i*(i-1)/2+j-1)*Work(ip_D_p+i*(i-1)/2+j-1)
+    ij = i*(i-1)/2+j
+    Qexp(i,j) = MltPl(0)%M(ij,1)*Work(ip_D_p+ij-1)
     Qexp(j,i) = Qexp(i,j)
   end do
 end do
@@ -175,18 +176,16 @@ do nA=1,nAtoms
                     jj = iAtPrTab(jPBas,nA)
                     ii = i
                   end if
-                  rsum = rsum+xfac*yfac*zfac*Work(ip_D_p+ii*(ii-1)/2+jj-1)*Work(iWork(iMltPlAd(ip+iq+il)+ &
-                        iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
+                  ij = ii*(ii-1)/2+jj
+                  rsum = rsum+xfac*yfac*zfac*Work(ip_D_p+ij-1)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
                 end do
               end do
             end do
           end do
         end do
-        Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nA*(nA+1)/2-1) = Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nA*(nA+1)/2-1)- &
-                                                                      rsum ! minus from the negative sign of the electron
-        Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)+nA*(nA+1)/2-1) = Work(iAtBoMltPlAd(iMltpl)+ &
-                                                                          nCenters*(iComp-1)+nA*(nA+1)/2-1)
-        Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1) = Work(iAtMltPlAd(iMltPl)+nAtoms*(iComp-1)+nA-1)-rsum
+        AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)-rsum ! minus from the negative sign of the electron
+        AtBoMltPlCopy(iMltpl)%M(iComp,nA*(nA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA+1)/2)
+        AtMltPl(iMltPl)%M(iComp,nA) = AtMltPl(iMltPl)%M(iComp,nA)-rsum
       end do
     end do
   end do
@@ -194,9 +193,9 @@ do nA=1,nAtoms
   ! THE NUCLEAR CHARGE IS ADDED ON
 
   if (LFirstRun) then
-    Work(iAtMltPlAd(0)+nA-1) = Work(iAtMltPlAd(0)+nA-1)+Work(iQnuc+nA-1)
-    Work(iAtBoMltPlAd(0)+nA*(nA+1)/2-1) = Work(iAtBoMltPlAd(0)+nA*(nA+1)/2-1)+Work(iQnuc+nA-1)
-    Work(iAtBoMltPlAdCopy(0)+nA*(nA+1)/2-1) = Work(iAtBoMltPlAdCopy(0)+nA*(nA+1)/2-1)+Work(iQnuc+nA-1)
+    AtMltPl(0)%M(1,nA) = AtMltPl(0)%M(1,nA)+Qnuc(nA)
+    AtBoMltPl(0)%M(1,nA*(nA+1)/2) = AtBoMltPl(0)%M(1,nA*(nA+1)/2)+Qnuc(nA)
+    AtBoMltPlCopy(0)%M(1,nA*(nA+1)/2) = AtBoMltPlCopy(0)%M(1,nA*(nA+1)/2)+Qnuc(nA)
   end if
 
   do nB=1,nA-1
@@ -342,19 +341,16 @@ do nA=1,nAtoms
                       jj = iAtPrTab(jPBas,nB)
                       ii = i
                     end if
-                    rsum = rsum+xfac*yfac*zfac*Two*Work(ip_D_p+ii*(ii-1)/2+jj-1)*Work(iWork(iMltPlAd(ip+iq+il)+ &
-                           iCompMat(ip,iq,il)-1)+ii*(ii-1)/2+jj-1)
+                    ij = ii*(ii-1)/2+jj
+                    rsum = rsum+xfac*yfac*zfac*Two*Work(ip_D_p+ij-1)*MltPl(ip+iq+il)%M(ij,iCompMat(ip,iq,il))
                   end do
                 end do
               end do
             end do
           end do
-          Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nA*(nA-1)/2+nB-1) = Work(iAtBoMltPlAd(iMltpl)+ &
-                                                                           nCenters*(iComp-1)+nA*(nA-1)/2+nB-1)-rsum
-                                                                           ! minus from the negative sign of the electron
+          AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)-rsum ! minus from the negative sign of the electron
           ! Copy the multipole arrays
-          Work(iAtBoMltPlAdCopy(iMltpl)+nCenters*(iComp-1)+nA*(nA-1)/2+nB-1) = Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+ &
-                                                                               nA*(nA-1)/2+nB-1)
+          AtBoMltPlCopy(iMltpl)%M(iComp,nA*(nA-1)/2+nB) = AtBoMltPl(iMltpl)%M(iComp,nA*(nA-1)/2+nB)
         end do
       end do
     end do
@@ -398,28 +394,24 @@ do nA=1,nAtoms
                     zfac_a = (Cor(3,nA,nB)-Cor(3,iA,iA))**(nl-il)*rnloveril
                     zfac_b = (Cor(3,nA,nB)-Cor(3,nB,nB))**(nl-il)*rnloveril
                   end if
-                  sum_a = sum_a+xfac_a*yfac_a*zfac_a*FracA*Work(iAtBoMltPlAd(ip+iq+il)+nCenters*(iCompMat(ip,iq,il)-1)+ &
-                          nA*(nA-1)/2+nB-1)
-                  sum_b = sum_b+xfac_b*yfac_b*zfac_b*FracB*Work(iAtBoMltPlAd(ip+iq+il)+nCenters*(iCompMat(ip,iq,il)-1)+ &
-                          nA*(nA-1)/2+nB-1)
+                  sum_a = sum_a+xfac_a*yfac_a*zfac_a*FracA*AtBoMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
+                  sum_b = sum_b+xfac_b*yfac_b*zfac_b*FracB*AtBoMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
                 end do
               end do
             end do
             if (BondMat(nA,nB)) then
               ! If bonding
               ! Do atoms
-              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1) = Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)+sum_a
-              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1) = Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)+sum_b
+              AtMltPl(iMltpl)%M(iComp,iA) = AtMltPl(iMltpl)%M(iComp,iA)+sum_a
+              AtMltPl(iMltpl)%M(iComp,nB) = AtMltPl(iMltpl)%M(iComp,nB)+sum_b
             else
               ! If not bonding
               ! Do Atoms
-              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1) = Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+iA-1)+sum_a
-              Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1) = Work(iAtMltPlAd(iMltpl)+nAtoms*(iComp-1)+nB-1)+sum_b
+              AtMltPl(iMltpl)%M(iComp,iA) = AtMltPl(iMltpl)%M(iComp,iA)+sum_a
+              AtMltPl(iMltpl)%M(iComp,nB) = AtMltPl(iMltpl)%M(iComp,nB)+sum_b
               ! Do bonds
-              Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+iA*(iA+1)/2-1) = Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+ &
-                                                                            iA*(iA+1)/2-1)+sum_a
-              Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+nB*(nB+1)/2-1) = Work(iAtBoMltPlAd(iMltpl)+nCenters*(iComp-1)+ &
-                                                                            nB*(nB+1)/2-1)+sum_b
+              AtBoMltPl(iMltpl)%M(iComp,iA*(iA+1)/2) = AtBoMltPl(iMltpl)%M(iComp,iA*(iA+1)/2)+sum_a
+              AtBoMltPl(iMltpl)%M(iComp,nB*(nB+1)/2) = AtBoMltPl(iMltpl)%M(iComp,nB*(nB+1)/2)+sum_b
             end if
           end do
         end do
@@ -435,5 +427,6 @@ call mma_deallocate(iCompMat)
 return
 ! Avoid unused argument warnings
 if (.false.) call Unused_integer(nBas)
+if (.false.) call Unused_integer(nCenters)
 
 end subroutine Get_MpProp

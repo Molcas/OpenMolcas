@@ -11,7 +11,8 @@
 
 subroutine Wr_Prop(nAtoms,nCenters,nBas,nMltPl,NOCOB,NOCOB_b,orbe,orbe_b,iPol,LAllCenters)
 
-use MPProp_globals, only: BondMat, Cen_Lab, Cor, iAtBoMltPlAd, iAtBoMltPlTotAd, iAtMltPlAd, iAtMltPlTotAd, Labe
+use MPProp_globals, only: BondMat, Cen_Lab, Cor, Labe
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -20,10 +21,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nBas, nMltPl, NOCOB, NOCOB_b, iPol
 real(kind=wp), intent(in) :: orbe(NOCOB), orbe_b(NOCOB_b)
 logical(kind=iwp), intent(in) :: LAllCenters
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iComp, iCompMat(0:nMltPl,0:nMltPl,0:nMltPl), il, iMltpl, ip, iq, j, nA, nB, nComp, nl, np, nq, nTotCen
 real(kind=wp) :: fac, rnloveril, rnPoveriP, rnqoveriq, xfac, yfac, zfac
-character(len=8) :: MemLabel
 
 call mma_allocate(Cen_Lab,nAtoms*(nAtoms+1)/2,label='Cen_Lab')
 
@@ -39,19 +38,15 @@ do i=1,nAtoms
   end do
 end do
 
+allocate(AtMltPlTot(0:nMltPl))
+allocate(AtBoMltPlTot(0:nMltPl))
 do iMltpl=0,nMltPl
   iComp = 0
   nComp = (iMltPl+1)*(iMltPl+2)/2
-  write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
-  call GetMem(MemLabel,'Allo','Real',iAtMltPlTotAd(iMltPl),nComp)
-  do i=0,nComp-1
-    Work(iAtMltPlTotAd(iMltPl)+i) = Zero
-  end do
-  write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
-  call GetMem(MemLabel,'Allo','Real',iAtBoMltPlTotAd(iMltPl),nComp)
-  do i=0,nComp-1
-    Work(iAtBoMltPlTotAd(iMltPl)+i) = Zero
-  end do
+  allocate(AtMltPlTot(iMltPl)%M(nComp,1))
+  AtMltPlTot(iMltPl)%M(:,:) = Zero
+  allocate(AtBoMltPlTot(iMltPl)%M(nComp,1))
+  AtBoMltPlTot(iMltPl)%M(:,:) = Zero
   do np=iMltpl,0,-1
     do nq=iMltpl-np,0,-1
       nl = iMltpl-np-nq
@@ -79,8 +74,8 @@ do iMltpl=0,nMltPl
               else
                 zfac = rnloveril*(Cor(3,nA,nA))**(nl-il)
               end if
-              fac = xfac*yfac*zfac*Work(iAtMltPlAd(ip+iq+il)+nAtoms*(iCompMat(ip,iq,il)-1)+nA-1)
-              Work(iAtMltPlTotAd(iMltpl)+iComp-1) = Work(iAtMltPlTotAd(iMltpl)+iComp-1)+fac
+              fac = xfac*yfac*zfac*AtMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA)
+              AtMltPlTot(iMltpl)%M(iComp,1) = AtMltPlTot(iMltpl)%M(iComp,1)+fac
             end do
           end do
         end do
@@ -107,8 +102,8 @@ do iMltpl=0,nMltPl
                   else
                     zfac = rnloveril*(Cor(3,nA,nB))**(nl-il)
                   end if
-                  fac = xfac*yfac*zfac*Work(iAtBoMltPlAd(ip+iq+il)+nCenters*(iCompMat(ip,iq,il)-1)+nA*(nA-1)/2+nB-1)
-                  Work(iAtBoMltPlTotAd(iMltpl)+iComp-1) = Work(iAtBoMltPlTotAd(iMltpl)+iComp-1)+fac
+                  fac = xfac*yfac*zfac*AtBoMltPl(ip+iq+il)%M(iCompMat(ip,iq,il),nA*(nA-1)/2+nB)
+                  AtBoMltPlTot(iMltpl)%M(iComp,1) = AtBoMltPlTot(iMltpl)%M(iComp,1)+fac
                 end do
               end do
             end do
@@ -124,12 +119,10 @@ call Wr_MpProp(nAtoms,nCenters,nMltPl,iPol)
 call Wr_Files(nAtoms,nCenters,nMltPl,nBas,NOCOB,NOCOB_b,orbe,orbe_b,LAllCenters)
 
 do iMltpl=0,nMltPl
-  nComp = (iMltPl+1)*(iMltPl+2)/2
-  write(MemLabel,'(A4,I4.4)') 'AtTo',iMltPl
-  call GetMem(MemLabel,'Free','Real',iAtMltPlTotAd(iMltPl),iMltPl*nComp)
-  write(MemLabel,'(A4,I4.4)') 'BoTo',iMltPl
-  call GetMem(MemLabel,'Free','Real',iAtBoMltPlTotAd(iMltPl),iMltPl*nComp)
+  deallocate(AtMltPlTot(iMltPl)%M)
+  deallocate(AtBoMltPlTot(iMltPl)%M)
 end do
+deallocate(AtMltPlTot)
 
 call mma_deallocate(Cen_Lab)
 

@@ -11,8 +11,9 @@
 
 subroutine MpProp(iReturn)
 
-use MPProp_globals, only: BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, iAtBoMltPlAd, iAtBoMltPlAdCopy, iAtBoPolAd, iAtMltPlAd, &
-                          iAtomPar, iAtPolAd, iAtPrTab, iMltPlAd, iQnuc, Labe, Method, mxMltPl, nAtomPBas
+use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, iAtomPar, iAtPrTab, Labe, Method, &
+                          nAtomPBas, Qnuc
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, MltPl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Eight
 use Definitions, only: wp, iwp, u6
@@ -91,6 +92,7 @@ call mma_allocate(Cor,3,nAtoms,nAtoms,label='Cor')
 call mma_allocate(Frac,nAtoms,nAtoms,label='Frac')
 call mma_allocate(BondMat,nAtoms,nAtoms,label='BondMat')
 call mma_allocate(nAtomPBas,nAtoms,label='nAtomPBas')
+call mma_allocate(Qnuc,nAtoms,label='Qnuc')
 iAtomPar(:) = 1
 BondMat(:,:) = .false.
 
@@ -106,10 +108,9 @@ call Get_cArray('Unique Atom Names',Labe,LenIn*nAtoms)
 !call Get_Charge(Work(iAtype),nAtoms)
 call Get_dArray('Nuclear charge',Work(iAtype),nAtoms)
 
-call GetMem('Qnuc','Allo','Real',iQnuc,nAtoms)
 ! Runfile update
 !call Get_Charge_Eff(Work(iQnuc),nAtoms)
-call Get_dArray('Effective nuclear Charge',Work(iQnuc),nAtoms)
+call Get_dArray('Effective nuclear Charge',Qnuc,nAtoms)
 
 do i=1,nAtoms
   iAtomType(i) = int(Work(iAtype+i-1))
@@ -151,7 +152,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Read first the size of the primitiv basis using ONEREL and COMREL
+! Read first the size of the primitive basis using ONEREL and COMREL
 
 ! Runfile update
 !call Get_nBas(nPrim)
@@ -164,8 +165,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Do a dirty trick since the one-intergral file is not explicitly
-! opened.
+! Do a dirty trick since the one-integral file is not explicitly opened.
 call Put_iArray('nBas',nPrim,1)
 !call OneBas('PRIM')
 !                                                                      *
@@ -173,74 +173,84 @@ call Put_iArray('nBas',nPrim,1)
 !                                                                      *
 ! Read overlap, dipole moment and quadrupole moment integrals
 
+! Count multipoles
+
+iMltpl = 0
+do
+  write(label,'(a,i2)') 'PLTPL ',iMltpl
+  irc = -1
+  iopt = 1
+  call iRdOne(irc,iopt,label,1,iDum,iSmLbl)
+  if (irc /= 0) exit
+  iMltpl = iMltpl+1
+end do
+nMltpl = max(0,iMltpl-1)
+
+allocate(MltPl(0:nMltPl))!,label='MltPl')
+call mma_allocate(CordMltPl,[1,3],[0,nMltPl],label='CordMltPl')
+
 ! Do it general
 
-outer: do iMltpl=0,mxMltPl
+do iMltpl=0,nMltPl
   write(label,'(a,i2)') 'PLTPL ',iMltpl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
-  call GetMem(MemLabel,'Allo','Inte',iMltPlAd(iMltpl),nComp)
   nSum = nSum+nComp
   do iComp=1,nComp
     irc = -1
     iopt = 1
     !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
     call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
-    if (irc == 0) n_Int = iDum(1)
     if (irc /= 0) then
-      if (iComp /= 1) then
-        write(u6,'(2A)') 'MPProp: Error reading iComp /= 0 label=',label
-        call Abend()
-      else
-        call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),nComp)
-        nMltPl = iMltPl-1
-        nSum = nSum-nComp
-        exit outer
-      end if
+      write(u6,'(2A)') 'MPProp: Error reading label=',label
+      call Abend()
     end if
-    if (n_Int /= 0) then
-      write(MemLabel,'(i3.3,i5.5)') iMltpl,iComp
-      call GetMem(MemLabel,'Allo','Real',iWork(iMltPlAd(iMltpl)+iComp-1),n_Int+4)
-      nSum = nSum+n_Int+4
-      irc = -1
-      iopt = 0
-      call RdOne(irc,iopt,label,iComp,Work(iWork(iMltPlAd(iMltpl)+iComp-1)),iSmLbl)
-    else
+    if (iComp == 1) then
+      n_Int = iDum(1)
+      call mma_allocate(MltPl(iMltPl)%M,n_Int+4,nComp,label=MemLabel)
+    else if (iDum(1) /= n_Int) then
+      write(u6,'(2A)') 'MPProp: Error reading iComp /= 1 label=',label
+      call Abend()
+    end if
+    if (n_Int == 0) then
       write(u6,'(2A)') 'MPProp: Error reading n_Int=0 label=',label
       call Abend()
     end if
+    nSum = nSum+n_Int+4
+    irc = -1
+    iopt = 0
+    call RdOne(irc,iopt,label,iComp,MltPl(iMltpl)%M(:,iComp),iSmLbl)
     if (irc /= 0) then
       write(u6,'(2A)') '2 MPProp: Error reading ',label
       call Abend()
     end if
     !???????????????????????
-    if (n_Int /= 0) call CmpInt(Work(iWork(iMltPlAd(iMltpl)+iComp-1)),n_Int,nPrim,nIrrep,iSmLbl)
+    call CmpInt(MltPl(iMltpl)%M(:,iComp),n_Int,nPrim,nIrrep,iSmLbl)
     do i=1,3
-      CordMltPl(i,iMltpl) = Work(iWork(iMltPlAd(iMltpl))+n_Int+i-1)
+      CordMltPl(i,iMltpl) = MltPl(iMltpl)%M(n_Int+i,1)
     end do
   end do
-end do outer
+end do
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Allocate Memory For Multipoles on Atoms + Atoms and Bonds
 
+allocate(AtMltPl(0:nMltPl))
+allocate(AtBoMltPl(0:nMltPl))
+allocate(AtBoMltPlCopy(0:nMltPl))
 do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
-  call GetMem(MemLabel,'Allo','Real',iAtMltPlAd(iMltpl),nComp*nAtoms)
+  call mma_allocate(AtMltPl(iMltpl)%M,nComp,nCenters,label=MemLabel)
   write(MemLabel,'(A5,i3.3)') 'ABMtP',iMltpl
-  call GetMem(MemLabel,'Allo','Real',iAtBoMltPlAd(iMltpl),nComp*nCenters)
+  call mma_allocate(AtBoMltPl(iMltpl)%M,nComp,nCenters,label=MemLabel)
   write(MemLabel,'(A5,i3.3)') 'MtPCp',iMltpl
-  call GetMem(MemLabel,'Allo','Real',iAtBoMltPlAdCopy(iMltpl),nComp*nCenters)
+  call mma_allocate(AtBoMltPlCopy(iMltpl)%M,nComp,nCenters,label=MemLabel)
   nSum = nSum+nComp*(nAtoms+nCenters)
-  do i=1,nComp*nAtoms
-    Work(iAtMltPlAd(iMltpl)+i-1) = Zero
-  end do
-  do i=1,nComp*nCenters
-    Work(iAtBoMltPlAd(iMltpl)+i-1) = Zero
-  end do
+  AtMltPl(iMltpl)%M(:,:) = Zero
+  AtBoMltPl(iMltpl)%M(:,:) = Zero
 end do
 !                                                                      *
 !***********************************************************************
@@ -535,20 +545,16 @@ if (LLumOrb) then
   nSum = nSum+3*nOrbi*2
 end if
 ! Get polarizabillities if iPol
-call GetMem('AtPol','Allo','Real',iAtPolAd,nAtoms*6)
-call GetMem('AtBoPol','Allo','Real',iAtBoPolAd,nCenters*6)
+call mma_allocate(AtPol,6,nAtoms,label='AtPol')
+call mma_allocate(AtBoPol,6,nCenters,label='AtBoPol')
 nSum = nSum+6*(nCenters+nAtoms)
-do i=0,nAtoms*6-1
-  Work(iAtPolAd+i) = Zero
-end do
-do i=0,nCenters*6-1
-  Work(iAtBoPolAd+i) = Zero
-end do
+AtPol(:,:) = Zero
+AtBoPol(:,:) = Zero
 if (iPol > 0) then
-  !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,Work(iWork(iMltPlAd(0)))
-  call Get_OrbCen(nPrim(1),NORBI,Work(iWork(iMltPlAd(0))),Work(iOcen),Work(iCenX),Work(iCenY),Work(iCenZ),Work(iOcof))
-  if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,Work(iWork(iMltPlAd(0))),Work(iOcen_b),Work(iCenX),Work(iCenY), &
-                                           Work(iCenZ),Work(iOcof_b))
+  !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,MltPl(0)%M(:,:))
+  call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Work(iOcen),Work(iCenX),Work(iCenY),Work(iCenZ),Work(iOcof))
+  if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Work(iOcen_b),Work(iCenX),Work(iCenY),Work(iCenZ), &
+                                           Work(iOcof_b))
   if (iPol == 1) then
     if (nOcOb < nOcc) then
       call Get_Polar(nPrim(1),nBas(1),nAtoms,nCenters,nOcOb,Work(ip_Ene),nOcc,Work(iOcof),Work(iOcen),LNearestAtom,LFirstRun)
@@ -589,8 +595,8 @@ write(u6,'(a,f6.2,a)') ' That is ',nsum*Eight/(1024.0_wp**2),' MBytes'
 write(u6,*)
 call Free_Work(ip_D_p)
 !if (iPol == 0) then
-call GetMem('AtBoPol','Free','Real',iAtBoPolAd,nCenters*6)
-call GetMem('AtPol','Free','Real',iAtPolAd,nAtoms*6)
+call mma_deallocate(AtPol)
+call mma_deallocate(AtBoPol)
 !end if
 if (LLumorb) then
   if (Method == 'UHF-SCF') then
@@ -611,20 +617,16 @@ call GetMem('CenZ','Free','Real',iCenZ,n_Int+4)
 call GetMem('CenY','Free','Real',iCenY,n_Int+4)
 call GetMem('CenX','Free','Real',iCenX,n_Int+4)
 do iMltpl=0,nMltPl
-  nComp = (iMltpl+1)*(iMltpl+2)/2
-  write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
-  call GetMem(MemLabel,'Free','Real',iAtMltPlAd(iMltpl),nComp*nAtoms)
-  write(MemLabel,'(A5,i3.3)') 'ABMtP',iMltpl
-  call GetMem(MemLabel,'Free','Real',iAtBoMltPlAd(iMltpl),nComp*nCenters)
-  call GetMem(MemLabel,'Free','Real',iAtBoMltPlAdCopy(iMltpl),nComp*nCenters)
-  do iComp=1,nComp
-    write(MemLabel,'(i3.3,i5.5)') iMltpl,iComp
-    call GetMem(MemLabel,'Free','Real',iWork(iMltPlAd(iMltpl)+iComp-1),n_Int+4)
-  end do
-  write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
-  call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),nComp)
+  call mma_deallocate(AtMltPl(iMltpl)%M)
+  call mma_deallocate(AtBoMltPl(iMltpl)%M)
+  call mma_deallocate(AtBoMltPlCopy(iMltpl)%M)
+  call mma_deallocate(MltPl(iMltpl)%M)
 end do
-call GetMem('Qnuc','Free','Real',iQnuc,nAtoms)
+deallocate(AtMltPl)
+deallocate(AtBoMltPl)
+deallocate(AtBoMltPlCopy)
+deallocate(MltPl)
+call mma_deallocate(CordMltPl)
 call GetMem('Coord','Free','Real',ip_Coor,3*nAtoms)
 call GetMem('Coord','Check','Real',ip_Coor,3*nAtoms)
 call mma_deallocate(Labe)
@@ -634,6 +636,7 @@ call mma_deallocate(Cor)
 call mma_deallocate(Frac)
 call mma_deallocate(BondMat)
 call mma_deallocate(nAtomPBas)
+call mma_deallocate(Qnuc)
 call mma_deallocate(iAtPrTab)
 !                                                                      *
 !***********************************************************************

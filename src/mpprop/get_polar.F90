@@ -12,7 +12,7 @@
 subroutine get_polar(nPrim,nBas,nAtoms,nCenters,NOCOB,OENE,nOrb,OCOF,RCHC,LNearestAtom,LFirstRun)
 !EB  OENE,ONUM,nOrb,OCOF,RCHC,LNearestAtom)
 
-use MPProp_globals, only: BondMat, Cor, CordMltPl, Frac, iAtBoPolAd, iMltPlAd, iAtPolAd, iAtPrTab, nAtomPBas
+use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cor, CordMltPl, Frac, iAtPrTab, nAtomPBas, MltPl
 use Constants, only: Zero, One, Four, Half
 use Definitions, only: wp, iwp, u6
 
@@ -21,7 +21,7 @@ integer(kind=iwp), intent(in) :: nPrim, nBas, nAtoms, nCenters, NOCOB, nOrb, OCO
 real(kind=wp), intent(in) :: OENE(nOrb)
 logical(kind=iwp), intent(in) :: LNearestAtom, LFirstRun
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, L, LL, nA, nB
+integer(kind=iwp) :: i, iA, iPBas, iStdOut, j, K, KK, kl, L, LL, nA, nB
 real(kind=wp) :: FOE, FracA, FracB, PAX, PAY, PAZ, Pol(6,nAtoms,nAtoms), Pd(3,nAtoms), R, RA, RB, RIJX, RIJY, RIJZ, Smallest
 
 iStdOut = u6
@@ -37,7 +37,7 @@ write(iStdOut,*) '  '
 do nA=1,nAtoms
   do nB=1,nAtoms
     do i=1,6
-      POL(i,nA,nB) = Zero
+      Pol(i,nA,nB) = Zero
     end do
   end do
 end do
@@ -72,14 +72,10 @@ do i=1,NOCOB
             KK = K
             LL = L
           end if
-          PAX = PAX+OCOF(I,K)*OCOF(J,L)*(work(iwork(iMltPlAd(1))+kk*(kk-1)/2+ll-1)+work(iwork(iMltPlAd(0))+ &
-                kk*(kk-1)/2+ll-1)*(CordMltPl(1,1)-RIJX))
-
-          PAY = PAY+OCOF(I,K)*OCOF(J,L)*(work(iwork(iMltPlAd(1)+1)+kk*(kk-1)/2+ll-1)+work(iwork(iMltPlAd(0))+ &
-                kk*(kk-1)/2+ll-1)*(CordMltPl(2,1)-RIJY))
-
-          PAZ = PAZ+OCOF(I,K)*OCOF(J,L)*(work(iwork(iMltPlAd(1)+2)+kk*(kk-1)/2+ll-1)+work(iwork(iMltPlAd(0))+ &
-                kk*(kk-1)/2+ll-1)*(CordMltPl(3,1)-RIJZ))
+          kl = kk*(kk-1)/2+ll
+          PAX = PAX+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%M(kl,1)+MltPl(0)%M(kl,1)*(CordMltPl(1,1)-RIJX))
+          PAY = PAY+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%M(kl,2)+MltPl(0)%M(kl,1)*(CordMltPl(2,1)-RIJY))
+          PAZ = PAZ+OCOF(I,K)*OCOF(J,L)*(MltPl(1)%M(kl,3)+MltPl(0)%M(kl,1)*(CordMltPl(3,1)-RIJZ))
         end do
       end do
       PD(1,nA) = PAX
@@ -88,25 +84,21 @@ do i=1,NOCOB
     end do
     do nA=1,nAtoms
       do nB=1,nAtoms
-        POL(1,nA,nB) = POL(1,nA,nB)+PD(1,nA)*PD(1,nB)*FOE
-        POL(2,nA,nB) = POL(2,nA,nB)+PD(1,nA)*PD(2,nB)*FOE
-        POL(3,nA,nB) = POL(3,nA,nB)+PD(1,nA)*PD(3,nB)*FOE
-        POL(4,nA,nB) = POL(4,nA,nB)+PD(2,nA)*PD(2,nB)*FOE
-        POL(5,nA,nB) = POL(5,nA,nB)+PD(2,nA)*PD(3,nB)*FOE
-        POL(6,nA,nB) = POL(6,nA,nB)+PD(3,nA)*PD(3,nB)*FOE
+        Pol(1,nA,nB) = Pol(1,nA,nB)+PD(1,nA)*PD(1,nB)*FOE
+        Pol(2,nA,nB) = Pol(2,nA,nB)+PD(1,nA)*PD(2,nB)*FOE
+        Pol(3,nA,nB) = Pol(3,nA,nB)+PD(1,nA)*PD(3,nB)*FOE
+        Pol(4,nA,nB) = Pol(4,nA,nB)+PD(2,nA)*PD(2,nB)*FOE
+        Pol(5,nA,nB) = Pol(5,nA,nB)+PD(2,nA)*PD(3,nB)*FOE
+        Pol(6,nA,nB) = Pol(6,nA,nB)+PD(3,nA)*PD(3,nB)*FOE
       end do
     end do
   end do
 end do
 do nA=1,nAtoms
-  do i=1,6
-    Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA+1)/2-1) = POL(i,nA,nA)
-    Work(iAtPolAd+nAtoms*(i-1)+nA-1) = POL(i,nA,nA)
-  end do
+  AtBoPol(:,nA*(nA+1)/2) = Pol(:,nA,nA)
+  AtPol(:,nA) = Pol(:,nA,nA)
   do nB=1,nA-1
-    do i=1,6
-      Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1) = POL(i,nA,nB)+POL(i,nB,nA)
-    end do
+    AtBoPol(:,nA*(nA-1)/2+nB) = Pol(:,nA,nB)+Pol(:,nB,nA)
   end do
 end do
 do nA=1,nAtoms
@@ -140,19 +132,13 @@ do nA=1,nAtoms
       iA = nA
     end if
     if (BondMat(nA,nB)) then
-      do i=1,6
-        Work(iAtPolAd+nAtoms*(i-1)+iA-1) = Work(iAtPolAd+nAtoms*(i-1)+iA-1)+Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracA
-        Work(iAtPolAd+nAtoms*(i-1)+nB-1) = Work(iAtPolAd+nAtoms*(i-1)+nB-1)+Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracB
-      end do
+      AtPol(:,iA) = AtPol(:,iA)+AtBoPol(:,nA*(nA-1)/2+nB)*FracA
+      AtPol(:,nB) = AtPol(:,nB)+AtBoPol(:,nA*(nA-1)/2+nB)*FracB
     else
-      do i=1,6
-        Work(iAtPolAd+nAtoms*(i-1)+iA-1) = Work(iAtPolAd+nAtoms*(i-1)+iA-1)+Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracA
-        Work(iAtPolAd+nAtoms*(i-1)+nB-1) = Work(iAtPolAd+nAtoms*(i-1)+nB-1)+Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracB
-        Work(iAtBoPolAd+nCenters*(i-1)+iA*(iA+1)/2-1) = Work(iAtBoPolAd+nCenters*(i-1)+iA*(iA+1)/2-1)+ &
-                                                        Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracA
-        Work(iAtBoPolAd+nCenters*(i-1)+nB*(nB+1)/2-1) = Work(iAtBoPolAd+nCenters*(i-1)+nB*(nB+1)/2-1)+ &
-                                                        Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracB
-      end do
+      AtPol(:,iA) = AtPol(:,iA)+AtBoPol(:,nA*(nA-1)/2+nB)*FracA
+      AtPol(:,nB) = AtPol(:,nB)+AtBoPol(:,nA*(nA-1)/2+nB)*FracB
+      AtBoPol(:,iA*(iA+1)/2) = AtBoPol(:,iA*(iA+1)/2)+AtBoPol(:,nA*(nA-1)/2+nB)*FracA
+      AtBoPol(:,nB*(nB+1)/2) = AtBoPol(:,nB*(nB+1)/2)+AtBoPol(:,nA*(nA-1)/2+nB)*FracB
     end if
   end do
 end do
@@ -160,20 +146,17 @@ end do
 if (.not. LFirstRun) then
   FracA = Half
   do nA=1,nAtoms
-    do i=1,6
-      Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA+1)/2-1) = Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA+1)/2-1)*FracA
-      Work(iAtPolAd+nAtoms*(i-1)+nA-1) = Work(iAtPolAd+nAtoms*(i-1)+nA-1)*FracA
-    end do
+    AtBoPol(:,nA*(nA+1)/2) =AtBoPol(:,nA*(nA+1)/2)*FracA
+    AtPol(:,nA) = AtPol(:,nA)*FracA
     do nB=1,nA-1
       if (BondMat(nA,nB)) then
-        do i=1,6
-          Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1) = Work(iAtBoPolAd+nCenters*(i-1)+nA*(nA-1)/2+nB-1)*FracA
-        end do
+        AtBoPol(:,nA*(nA-1)/2+nB) = AtBoPol(:,nA*(nA-1)/2+nB)*FracA
       end if
     end do
   end do
 end if
 
 return
+call Unused_integer(nCenters)
 
 end subroutine get_polar

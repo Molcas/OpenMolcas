@@ -11,7 +11,7 @@
 
 subroutine StoreMpAsLop(nAtoms,ip_ANr,nB,ipT,ipTi,ipMP,lMax,ip_EC)
 
-use MPProp_globals, only: Cor, iAtBoMltPlAd
+use MPProp_globals, only: AtBoMltPl, Cor
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -64,8 +64,8 @@ do l=0,lMax
       iAtK = 0
       do iAt1=1,nAtoms
         do iAt2=1,iAt1
-          Work(ipMP+iAtK+nSize1*iMu) = Work(iAtBoMltPlAd(l)+nSize1*(kompost-1)+iAtK)
           iAtK = iAtK+1
+          Work(ipMP+iAtK+nSize1*iMu-1) = AtBoMltPl(l)%M(kompost,iAtK)
         end do
         if (l == 0) then
           Work(ipMP+iAtK-1+nSize1*iMu) = Work(ipMP+iAtK-1+nSize1*iMu)-real(iWork(ip_ANr+iAt1-1),kind=wp)

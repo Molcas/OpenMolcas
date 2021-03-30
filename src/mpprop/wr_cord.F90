@@ -11,13 +11,12 @@
 
 subroutine Wr_Cord(nAtoms)
 
-use MPProp_globals, only: Cor, iAtomType, iAtomPar, iQnuc, Labe
+use MPProp_globals, only: Cor, iAtomType, iAtomPar, Labe, Qnuc
 use Constants, only: Angstrom
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iStdOut
 
 iStdOut = u6
@@ -40,7 +39,7 @@ write(iStdOut,'(A11,A7,A13,A25,A20)') 'Center','Label','Atomtype','Effective cor
 write(iStdOut,*)
 do i=1,nAtoms
   !Jose write(iStdOut,'(6X,I3,5X,A4,10X,I3,19X,F6.1,10X,I10)') i,Labe(i),
-  write(iStdOut,'(6X,I3,5X,A6,10X,I3,19X,F6.1,10X,I10)') i,Labe(i),iAtomType(i),Work(iQnuc+i-1),iAtomPar(i)
+  write(iStdOut,'(6X,I3,5X,A6,10X,I3,19X,F6.1,10X,I10)') i,Labe(i),iAtomType(i),Qnuc(i),iAtomPar(i)
 end do
 write(iStdOut,*)
 

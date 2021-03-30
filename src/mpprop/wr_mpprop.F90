@@ -11,14 +11,13 @@
 
 subroutine wr_mpprop(nAtoms,nCenters,nMltPl,iPol)
 
-use MPProp_globals, only: BondMat, Cen_Lab, Cor, iAtBoMltPlAd, iAtBoMltPlTotAd, iAtBoPolAd, iAtMltPlAd, iAtMltPlTotAd, iAtPolAd, &
-                          mxMltPl, Title
+use MPProp_globals, only: AtPol, AtBoPol, BondMat, Cen_Lab, Cor, mxMltPl, Title
+use MPprop_globals, only: AtBoMltPl, AtBoMltPlTot, AtMltPl, AtMltPlTot
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nCenters, nMltPl, iPol
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iComp, iCount, ilab, iMltPl, iStdOut, ix, ixx, iy, iyy, iz, izz, j, jComp, nComp
 integer(kind=iwp), parameter :: mxComp = (mxMltPl+1)*(mxMltPl+2)/2
 real(kind=wp) :: MolPol(6)
@@ -115,12 +114,11 @@ do i=1,nAtoms
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6
-      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl), &
-                                       (Work(iAtBoMltPlAd(iMltPl)+nCenters*(jComp-1)+i*(i+1)/2-1),jComp=iComp,min(iComp+5,nComp))
+      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPl(iMltPl)%M(jComp,i*(i+1)/2),jComp=iComp,min(iComp+5,nComp))
     end do
   end do
   if (iPol > 0) then
-    write(iStdOut,'(1x,a16,6f16.8)') PolString,(Work(iAtBoPolAd+nCenters*(iComp-1)+i*(i+1)/2-1),iComp=1,6)
+    write(iStdOut,'(1x,a16,6f16.8)') PolString,AtBoPol(:,i*(i+1)/2)
   end if
 end do
 do i=1,nAtoms
@@ -134,13 +132,11 @@ do i=1,nAtoms
       do iMltPl=0,nMltPl
         nComp = (iMltPl+1)*(iMltPl+2)/2
         do iComp=1,nComp,6
-          write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl), &
-                                           (Work(iAtBoMltPlAd(iMltPl)+nCenters*(jComp-1)+i*(i-1)/2+j-1), &
-                                            jComp=iComp,min(iComp+5,nComp))
+          write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPl(iMltPl)%M(jComp,i*(i-1)/2+j),jComp=iComp,min(iComp+5,nComp))
         end do
       end do
       if (iPol > 0) then
-        write(iStdOut,'(1x,a16,6f16.8)') PolString,(Work(iAtBoPolAd+nCenters*(iComp-1)+i*(i-1)/2+j-1),iComp=1,6)
+        write(iStdOut,'(1x,a16,6f16.8)') PolString,AtBoPol(:,i*(i-1)/2+j)
       end if
     end if
   end do
@@ -159,14 +155,12 @@ do i=1,nAtoms
   do iMltPl=0,nMltPl
     nComp = (iMltPl+1)*(iMltPl+2)/2
     do iComp=1,nComp,6
-      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(Work(iAtMltPlAd(iMltPl)+nAtoms*(jComp-1)+i-1),jComp=iComp,min(iComp+5,nComp))
+      write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtMltPl(iMltPl)%M(jComp,i),jComp=iComp,min(iComp+5,nComp))
     end do
   end do
   if (iPol > 0) then
-    write(iStdOut,'(1x,a16,6f16.8)') PolString,(Work(iAtPolAd+nAtoms*(iComp-1)+i-1),iComp=1,6)
-    do j=1,6
-      MolPol(j) = MolPol(j)+Work(iAtPolAd+nAtoms*(j-1)+i-1)
-    end do
+    write(iStdOut,'(1x,a16,6f16.8)') PolString,AtPol(:,i)
+    MolPol(:) = MolPol(:)+AtPol(:,i)
   end if
 end do
 write(iStdOut,*)
@@ -179,7 +173,7 @@ write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
-    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(Work(iAtMltPlTotAd(iMltPl)+jComp-1),jComp=iComp,min(iComp+5,nComp))
+    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtMltPlTot(iMltPl)%M(jComp,1),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
 if (iPol > 0) write(iStdOut,'(1x,a16,6f16.8)') PolString,(MolPol(j),j=1,6)
@@ -189,7 +183,7 @@ write(iStdOut,'(1x,a16,3f16.8)') 'Coord              ',Zero,Zero,Zero
 do iMltPl=0,nMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp,6
-    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(Work(iAtBoMltPlTotAd(iMltPl)+jComp-1),jComp=iComp,min(iComp+5,nComp))
+    write(iStdOut,'(1x,a16,6f16.8)') String(iMltPl),(AtBoMltPlTot(iMltPl)%M(jComp,1),jComp=iComp,min(iComp+5,nComp))
   end do
 end do
 

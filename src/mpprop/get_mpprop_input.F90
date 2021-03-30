@@ -264,7 +264,7 @@ end do
 !                                                                      *
 if (Title == ' ') then
   write(iStdOut,*)
-  write(iStdOut,*) ' !!WARNING!! The molecule do not have a name'
+  write(iStdOut,*) ' !!WARNING!! The molecule does not have a name'
   write(iStdOut,*)
 end if
 
