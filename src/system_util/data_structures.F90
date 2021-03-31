@@ -22,6 +22,7 @@ Public:: twxy_Type,   Allocate_twxy,   Deallocate_twxy, Map_to_twxy
 Public:: NDSBA_Type,  Allocate_NDSBA,  Deallocate_NDSBA
 Public:: G2_Type,     Allocate_G2,     Deallocate_G2
 Public:: L_Full_Type, Allocate_L_Full, Deallocate_L_Full
+Public:: Lab_Type, Allocate_Lab, Deallocate_Lab
 #include "stdalloc.fh"
 #include "real.fh"
 
@@ -35,6 +36,10 @@ Type DSB_Type
   Real*8, Pointer:: A2(:,:)=>Null()
   Real*8, Pointer:: A1(:)=>Null()
 End Type  DSB_Type
+
+Type V1
+  Real*8, Pointer:: A(:)=>Null()
+End Type V1
 
 Type V2
   Real*8, Pointer:: A(:,:)=>Null()
@@ -98,6 +103,14 @@ Type L_Full_Type
   Type (L_Full_Pointers), Allocatable :: SPB(:,:,:)
 End Type L_Full_Type
 
+Type Lab_Type
+  Integer :: nSym=0
+  Integer :: nDen=0
+  Integer :: nShell=0
+  Real*8, Allocatable:: A0(:)
+  Logical, Allocatable:: Keep(:,:)
+  Type (V1), Allocatable :: SB(:,:,:)
+End Type Lab_Type
 
 Contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -944,5 +957,78 @@ Adam%nShell=0
 
 End Subroutine deallocate_L_Full
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                     !
+!                      L a b - T Y P E   S E C T I O N                !
+!                                                                     !
+!                      Lab storaged                                   !
+!                                                                     !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
+Implicit None
+
+Type (Lab_Type), Target:: Lab
+Integer JNUM, nShell, nSym, nDen
+Integer nBasSh(nSym,nShell), nBas(nSym)
+
+Integer iSym, iDen, Lab_Memory
+Integer iE, iS, iSh
+Integer, External :: ip_of_Work
+
+Lab_Memory=0
+Do iSym = 1, nSym
+   Lab_Memory=Max(nBas(iSym),Lab_Memory)
+End Do
+Lab_Memory = Lab_Memory * JNUM * nDen
+
+Lab%nSym=nSym
+Lab%nDen=nDen
+Lab%nShell=nShell
+Call mma_allocate(Lab%A0,Lab_Memory,Label='Lab%A0')
+Call mma_allocate(Lab%Keep,nShell,nDen,Label='Lab%Keep')
+Allocate(Lab%SB(nShell,nSym,nDen))
+
+Do iSym = 1, nSym
+   iE = 0
+   Do iDen = 1, nDen
+      Do iSh = 1, nShell
+
+         iS = iE + 1
+         iE = iE + nBasSh(iSym,iSh) * JNUM
+
+         Lab%SB(iSh,iSym,iDen)%A(1:nBasSh(iSym,iSh)*JNUM) => Lab%A0(iS:iE)
+
+      End Do
+   End Do
+End Do
+
+End Subroutine Allocate_Lab
+
+Subroutine Deallocate_Lab(Lab)
+Implicit None
+Type (Lab_Type) Lab
+
+Integer iSym, iDen, iSh
+
+Do iSym = 1, Lab%nSym
+   Do iDen = 1, Lab%nDen
+      Do iSh = 1, Lab%nShell
+
+         Lab%SB(iSh,iSym,iDen)%A=>Null()
+
+      End Do
+   End Do
+End Do
+
+Lab%nSym=0
+Lab%nDen=0
+Lab%nShell=0
+Call mma_deallocate(Lab%A0)
+Call mma_deallocate(Lab%Keep)
+Deallocate(Lab%SB)
+
+End Subroutine Deallocate_Lab
 
 End Module Data_Structures

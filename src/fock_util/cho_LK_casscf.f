@@ -630,7 +630,6 @@ C
      &                              nSym)
                mDen=1
                Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
-               ipChoT = ip_of_Work(Lab%A0(1))
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -684,7 +683,7 @@ c --------------------------------------------------------------------
 
                        jK_a = jK + kOff(kSym,jDen)
 
-                       CALL FZero(Work(ipChoT),nBas(lSym)*JNUM)
+                       Lab%A0(1:nBas(lSym)*JNUM)=Zero
 
                      If (jDen.eq.1) Then
 
