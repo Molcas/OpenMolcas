@@ -11,93 +11,91 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !               2011, Francesco Aquilante                              *
 !***********************************************************************
-      Subroutine PriMO_Localisation(Header,PrOcc,PrEne,ThrOcc,ThrEne,   &
-     &                              nSym,nBas,nOrb,Nme,Ene,Occ,CMO,     &
-     &                              iPrForm,IndxT)
+
+subroutine PriMO_Localisation(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Nme,Ene,Occ,CMO,iPrForm,IndxT)
+
+! Thomas Bondo Pedersen, July 2010.
 !
-!     Thomas Bondo Pedersen, July 2010.
+! Print MOs.
+! This is a work-around to fix bugs when orbitals are deleted.
 !
-!     Print MOs.
-!     This is a work-around to fix bugs when orbitals are deleted.
-!
-!     F. Aquilante, Nov 2011   (Print only non-deleted orbitals)
-!
-      Implicit None
+! F. Aquilante, Nov 2011   (Print only non-deleted orbitals)
+
+implicit none
 #include "Molcas.fh"
-      Character*(*) Header
-      Character*(LENIN8) Nme(*)
-      Logical PrOcc, PrEne
-      Real*8  ThrOcc, ThrEne
-      Integer nSym
-      Integer nBas(nSym), nOrb(nSym)
-      Real*8  Ene(*), Occ(*), CMO(*)
-      Integer iPrForm
-      Integer IndxT(*)
+character*(*) Header
+character*(LENIN8) Nme(*)
+logical PrOcc, PrEne
+real*8 ThrOcc, ThrEne
+integer nSym
+integer nBas(nSym), nOrb(nSym)
+real*8 Ene(*), Occ(*), CMO(*)
+integer iPrForm
+integer IndxT(*)
 #include "WrkSpc.fh"
 
-      Integer ip_CMO, l_CMO
-      Integer ip_Occ, l_OCc
-      Integer ip_EOr, l_EOr
-      Integer nOrbT, iSym, k1, k2
-      Integer k, kk, ik, nOrb_(8)
+integer ip_CMO, l_CMO
+integer ip_Occ, l_OCc
+integer ip_EOr, l_EOr
+integer nOrbT, iSym, k1, k2
+integer k, kk, ik, nOrb_(8)
 
-      Call Icopy(nSym,nOrb,1,nOrb_,1)
-      kk=0
-      Do iSym=1,nSym
-         Do k=1,nBas(iSym)
-            ik=kk+k
-            If (IndxT(ik).eq.7) nOrb(iSym)=nOrb(iSym)-1
-         End Do
-         kk=kk+nBas(iSym)
-      End Do
+call Icopy(nSym,nOrb,1,nOrb_,1)
+kk = 0
+do iSym=1,nSym
+  do k=1,nBas(iSym)
+    ik = kk+k
+    if (IndxT(ik) == 7) nOrb(iSym) = nOrb(iSym)-1
+  end do
+  kk = kk+nBas(iSym)
+end do
 
-      nOrbT=nOrb(1)
-      Do iSym=2,nSym
-         nOrbT=nOrbT+nOrb(iSym)
-      End Do
+nOrbT = nOrb(1)
+do iSym=2,nSym
+  nOrbT = nOrbT+nOrb(iSym)
+end do
 
-      l_CMO=nBas(1)*nOrb(1)
-      Do iSym=2,nSym
-         l_CMO=l_CMO+nBas(iSym)*nOrb(iSym)
-      End Do
-      l_Occ=nOrbT
-      l_EOr=nOrbT
+l_CMO = nBas(1)*nOrb(1)
+do iSym=2,nSym
+  l_CMO = l_CMO+nBas(iSym)*nOrb(iSym)
+end do
+l_Occ = nOrbT
+l_EOr = nOrbT
 
-      Call GetMem('CMO_','Allo','Real',ip_CMO,l_CMO)
-      Call GetMem('Occ_','Allo','Real',ip_Occ,l_Occ)
-      Call GetMem('Eor_','Allo','Real',ip_EOr,l_EOr)
+call GetMem('CMO_','Allo','Real',ip_CMO,l_CMO)
+call GetMem('Occ_','Allo','Real',ip_Occ,l_Occ)
+call GetMem('Eor_','Allo','Real',ip_EOr,l_EOr)
 
-      k1=1
-      k2=ip_CMO
-      Do iSym=1,nSym
-         Call dCopy_(nBas(iSym)*nOrb(iSym),CMO(k1),1,Work(k2),1)
-         k1=k1+nBas(iSym)*nBas(iSym)
-         k2=k2+nBas(iSym)*nOrb(iSym)
-      End Do
+k1 = 1
+k2 = ip_CMO
+do iSym=1,nSym
+  call dCopy_(nBas(iSym)*nOrb(iSym),CMO(k1),1,Work(k2),1)
+  k1 = k1+nBas(iSym)*nBas(iSym)
+  k2 = k2+nBas(iSym)*nOrb(iSym)
+end do
 
-      k1=1
-      k2=ip_Occ
-      Do iSym=1,nSym
-         Call dCopy_(nOrb(iSym),Occ(k1),1,Work(k2),1)
-         k1=k1+nBas(iSym)
-         k2=k2+nOrb(iSym)
-      End Do
+k1 = 1
+k2 = ip_Occ
+do iSym=1,nSym
+  call dCopy_(nOrb(iSym),Occ(k1),1,Work(k2),1)
+  k1 = k1+nBas(iSym)
+  k2 = k2+nOrb(iSym)
+end do
 
-      k1=1
-      k2=ip_EOr
-      Do iSym=1,nSym
-         Call dCopy_(nOrb(iSym),Ene(k1),1,Work(k2),1)
-         k1=k1+nBas(iSym)
-         k2=k2+nOrb(iSym)
-      End Do
+k1 = 1
+k2 = ip_EOr
+do iSym=1,nSym
+  call dCopy_(nOrb(iSym),Ene(k1),1,Work(k2),1)
+  k1 = k1+nBas(iSym)
+  k2 = k2+nOrb(iSym)
+end do
 
-      Call PriMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,       &
-     &           Nme,Work(ip_EOr),Work(ip_Occ),Work(ip_CMO),iPrForm)
+call PriMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Nme,Work(ip_EOr),Work(ip_Occ),Work(ip_CMO),iPrForm)
 
-      Call GetMem('Eor_','Free','Real',ip_EOr,l_EOr)
-      Call GetMem('Occ_','Free','Real',ip_Occ,l_Occ)
-      Call GetMem('CMO_','Free','Real',ip_CMO,l_CMO)
+call GetMem('Eor_','Free','Real',ip_EOr,l_EOr)
+call GetMem('Occ_','Free','Real',ip_Occ,l_Occ)
+call GetMem('CMO_','Free','Real',ip_CMO,l_CMO)
 
-      Call Icopy(nSym,nOrb_,1,nOrb,1)
+call Icopy(nSym,nOrb_,1,nOrb,1)
 
-      End
+end subroutine PriMO_Localisation

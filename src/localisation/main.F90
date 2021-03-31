@@ -8,20 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Program main
-!
+
+program main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: ieee_exceptions
 #endif
-      Implicit Real*8(a-h,o-z)
-      Character*20 Module_Name
-      Parameter (Module_Name = 'localisation')
+implicit real*8(a-h,o-z)
+character*20 Module_Name
+parameter(Module_Name='localisation')
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
 #endif
-!
-      Call Start(Module_Name)
-      Call Localisation(ireturn)
-      Call Finish(ireturn)
-!
-      End
+
+call Start(Module_Name)
+call Localisation(ireturn)
+call Finish(ireturn)
+
+end program main

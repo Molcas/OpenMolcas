@@ -8,99 +8,93 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine BitMap_Localisation(PreFix)
-      use Index_arrays, only: iSO2Sh
-      Implicit Real*8 (a-h,o-z)
-      Character*2 PreFix
+
+subroutine BitMap_Localisation(PreFix)
+
+use Index_arrays, only: iSO2Sh
+
+implicit real*8(a-h,o-z)
+character*2 PreFix
 #include "Molcas.fh"
 #include "inflocal.fh"
 #include "WrkSpc.fh"
 
-      Character*19 SecNam
-      Parameter (SecNam = 'BitMap_Localisation')
+character*19 SecNam
+parameter(SecNam='BitMap_Localisation')
 
-      Logical Indexation, DoF, DoG
+logical Indexation, DoF, DoG
 
-      nBasT   = nBas(1)
-      Do iSym = 2,nSym
-         nBasT = nBasT + nBas(iSym)
-      End Do
+nBasT = nBas(1)
+do iSym=2,nSym
+  nBasT = nBasT+nBas(iSym)
+end do
 
-!     Allocate and define some index arrays from Seward.
-!     --------------------------------------------------
+! Allocate and define some index arrays from Seward.
+! --------------------------------------------------
 
-      DoF  = .false.
-      nDiff = 0
-      Call IniSew(DoF,nDiff)
-      nShell = -1
-      Indexation = .true.
-      ThrAO = 0.0d0
-      DoF = .false.
-      DoG = .false.
-      Call Setup_Ints(nShell,Indexation,ThrAO,DoF,DoG)
-      If (nShell .lt. 1) Then
-         Call SysAbendMsg(SecNam,'Setup_Ints failed!','nShell < 1')
-      End If
+DoF = .false.
+nDiff = 0
+call IniSew(DoF,nDiff)
+nShell = -1
+Indexation = .true.
+ThrAO = 0.0d0
+DoF = .false.
+DoG = .false.
+call Setup_Ints(nShell,Indexation,ThrAO,DoF,DoG)
+if (nShell < 1) then
+  call SysAbendMsg(SecNam,'Setup_Ints failed!','nShell < 1')
+end if
 
-!     Allocate max. sym. block of density matrix
-!     and shell based density and CMO matrices.
-!     ------------------------------------------
+! Allocate max. sym. block of density matrix
+! and shell based density and CMO matrices.
+! ------------------------------------------
 
-      MxBa = nBas(1)
-      MxOr = nOrb2Loc(1)
-      Do iSym = 2,nSym
-         MxBa = max(MxBa,nBas(iSym))
-         MxOr = max(MxOr,nOrb2Loc(iSym))
-      End Do
-      lDen = MxBa**2
-      lDSh = nShell**2
-      lCSh = nShell*MxOr
-      lXSh = lCSh
-      Call GetMem('BMpLoc','Allo','Real',ipDen,lDen)
-      Call GetMem('Dsh','Allo','Real',ipDSh,lDSh)
-      Call GetMem('Csh','Allo','Real',ipCSh,lCSh)
-      Call GetMem('Xsh','Allo','Real',ipXSh,lXSh)
+MxBa = nBas(1)
+MxOr = nOrb2Loc(1)
+do iSym=2,nSym
+  MxBa = max(MxBa,nBas(iSym))
+  MxOr = max(MxOr,nOrb2Loc(iSym))
+end do
+lDen = MxBa**2
+lDSh = nShell**2
+lCSh = nShell*MxOr
+lXSh = lCSh
+call GetMem('BMpLoc','Allo','Real',ipDen,lDen)
+call GetMem('Dsh','Allo','Real',ipDSh,lDSh)
+call GetMem('Csh','Allo','Real',ipCSh,lCSh)
+call GetMem('Xsh','Allo','Real',ipXSh,lXSh)
 
-!     Compute density matrix, Den = CC^T, and set shell based matrices.
-!     Generate bitmap and perform sparsity analysis.
-!     -----------------------------------------------------------------
+! Compute density matrix, Den = CC^T, and set shell based matrices.
+! Generate bitmap and perform sparsity analysis.
+! -----------------------------------------------------------------
 
-      kC = ipMOrig
-      kX = ipCMO
-      Do iSym = 1,nSym
-         kC1 = kC + nBas(iSym)*nFro(iSym)
-         Call GetDens_Localisation(Work(ipDen),Work(kC1),nBas(iSym),    &
-     &                             nOrb2Loc(iSym))
-         iOff = 1
-         Call GetSh_Localisation(Work(ipDen),nBas(iSym),nBas(iSym),     &
-     &                           Work(ipDSh),nShell,iSO2Sh(iOff),2,     &
-     &                           AnaNrm)
-         Call GetSh_Localisation(Work(kC1),nBas(iSym),nOrb2Loc(iSym),   &
-     &                           Work(ipCSh),nShell,iSO2Sh(iOff),1,     &
-     &                           AnaNrm)
-         kX1 = kX + nBas(iSym)*nFro(iSym)
-         Call GetSh_Localisation(Work(kX1),nBas(iSym),nOrb2Loc(iSym),   &
-     &                           Work(ipXSh),nShell,iSO2Sh(iOff),1,     &
-     &                           AnaNrm)
-         Call GenBMp_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh),  &
-     &                            nShell,iSym,'r','r','r',PreFix)
-         Call Anasize_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh), &
-     &                             nShell,nOrb2Loc(iSym),iSym)
-         n2 = nBas(iSym)**2
-         kC = kC + n2
-         kX = kX + n2
-      End Do
-      Write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
+kC = ipMOrig
+kX = ipCMO
+do iSym=1,nSym
+  kC1 = kC+nBas(iSym)*nFro(iSym)
+  call GetDens_Localisation(Work(ipDen),Work(kC1),nBas(iSym),nOrb2Loc(iSym))
+  iOff = 1
+  call GetSh_Localisation(Work(ipDen),nBas(iSym),nBas(iSym),Work(ipDSh),nShell,iSO2Sh(iOff),2,AnaNrm)
+  call GetSh_Localisation(Work(kC1),nBas(iSym),nOrb2Loc(iSym),Work(ipCSh),nShell,iSO2Sh(iOff),1,AnaNrm)
+  kX1 = kX+nBas(iSym)*nFro(iSym)
+  call GetSh_Localisation(Work(kX1),nBas(iSym),nOrb2Loc(iSym),Work(ipXSh),nShell,iSO2Sh(iOff),1,AnaNrm)
+  call GenBMp_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh),nShell,iSym,'r','r','r',PreFix)
+  call Anasize_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh),nShell,nOrb2Loc(iSym),iSym)
+  n2 = nBas(iSym)**2
+  kC = kC+n2
+  kX = kX+n2
+end do
+write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 
-!     De-allocations.
-!     ---------------
+! De-allocations.
+! ---------------
 
-      Call GetMem('Xsh','Free','Real',ipXSh,lXSh)
-      Call GetMem('Csh','Free','Real',ipCSh,lCSh)
-      Call GetMem('Dsh','Free','Real',ipDSh,lDSh)
-      Call GetMem('BMpLoc','Free','Real',ipDen,lDen)
-      DoF = .false.
-      DoG = .false.
-      Call Term_Ints(DoF,DoG)
+call GetMem('Xsh','Free','Real',ipXSh,lXSh)
+call GetMem('Csh','Free','Real',ipCSh,lCSh)
+call GetMem('Dsh','Free','Real',ipDSh,lDSh)
+call GetMem('BMpLoc','Free','Real',ipDen,lDen)
+DoF = .false.
+DoG = .false.
+call Term_Ints(DoF,DoG)
 
-      End
+end subroutine BitMap_Localisation

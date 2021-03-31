@@ -10,82 +10,79 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine Chk_Input(irc)
+
+subroutine Chk_Input(irc)
+
+! Author: T.B. Pedersen
+! Purpose: Check input.
 !
-!     Author: T.B. Pedersen
-!     Purpose: Check input.
-!
-!     Return codes:
-!       irc = 0: all OK
-!       irc < 0: all OK, but nothing to do
-!       irc > 0: input error
-!
-      Implicit Real*8 (a-h,o-z)
+! Return codes:
+!   irc = 0: all OK
+!   irc < 0: all OK, but nothing to do
+!   irc > 0: input error
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "inflocal.fh"
 
-      Character*9 SecNam
-      Parameter (SecNam = 'Chk_Input')
+character*9 SecNam
+parameter(SecNam='Chk_Input')
 
-      Logical DoCholesky
+logical DoCholesky
 
-      irc = 0
-      doCholesky = .False.
+irc = 0
+doCholesky = .false.
 
-      nOrb2LocT = 0
-      Do iSym = 1,nSym
-         n = nFro(iSym) + nOrb2Loc(iSym)
-         If (n.lt.0 .or. n.gt.nOrb(iSym)) Then
-            irc = irc + 1
-            Write(6,*) SecNam,': nFro + nOrb2Loc out of bounds:'
-            Write(6,*) '    iSym     = ',iSym
-            Write(6,*) '    nFro     = ',nFro(iSym)
-            Write(6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
-            Write(6,*) '    nOrb     = ',nOrb(iSym)
-         End If
-         If (n .gt. nBas(iSym)) Then
-            irc = irc + 1
-            Write(6,*) SecNam,': nFro + nOrb2Loc > nBas:'
-            Write(6,*) '    iSym     = ',iSym
-            Write(6,*) '    nFro     = ',nFro(iSym)
-            Write(6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
-            Write(6,*) '    nBas     = ',nBas(iSym)
-         End If
-         nOrb2LocT = nOrb2LocT + nOrb2Loc(iSym)
-      End Do
-      If (nOrb2LocT .eq. 0) Then
-         irc = -1
-         Return
-      End If
+nOrb2LocT = 0
+do iSym=1,nSym
+  n = nFro(iSym)+nOrb2Loc(iSym)
+  if ((n < 0) .or. (n > nOrb(iSym))) then
+    irc = irc+1
+    write(6,*) SecNam,': nFro + nOrb2Loc out of bounds:'
+    write(6,*) '    iSym     = ',iSym
+    write(6,*) '    nFro     = ',nFro(iSym)
+    write(6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
+    write(6,*) '    nOrb     = ',nOrb(iSym)
+  end if
+  if (n > nBas(iSym)) then
+    irc = irc+1
+    write(6,*) SecNam,': nFro + nOrb2Loc > nBas:'
+    write(6,*) '    iSym     = ',iSym
+    write(6,*) '    nFro     = ',nFro(iSym)
+    write(6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
+    write(6,*) '    nBas     = ',nBas(iSym)
+  end if
+  nOrb2LocT = nOrb2LocT+nOrb2Loc(iSym)
+end do
+if (nOrb2LocT == 0) then
+  irc = -1
+  return
+end if
 
-      If (LocModel.lt.0 .or. LocModel.gt.nLocModel) Then
-         Write(6,*) SecNam,': LocModel must satisfy 0 <= LocModel <= ', &
-     &              nLocModel
-         Write(6,*) '    LocModel = ',LocModel
-         irc = irc + 1
-      End If
+if ((LocModel < 0) .or. (LocModel > nLocModel)) then
+  write(6,*) SecNam,': LocModel must satisfy 0 <= LocModel <= ',nLocModel
+  write(6,*) '    LocModel = ',LocModel
+  irc = irc+1
+end if
 
-      If (LocModel .eq. 4) Then
-         Call DecideOnCholesky(doCholesky)
-         If (.not.doCholesky) Then
-            Call SysAbendMsg(SecNam,                                    &
-     &           'Edmiston-Ruedenberg localisation not possible:',      &
-     &           'Cholesky integrals required!')
-         End If
-      End If
+if (LocModel == 4) then
+  call DecideOnCholesky(doCholesky)
+  if (.not. doCholesky) then
+    call SysAbendMsg(SecNam,'Edmiston-Ruedenberg localisation not possible:','Cholesky integrals required!')
+  end if
+end if
 
-      If (EvalER) Then
-         Call DecideOnCholesky(doCholesky)
-         If (.not.doCholesky) Then
-            Write(6,*) SecNam,': evaluation of ER functional requires', &
-     &                 ' Cholesky decomposition of ERIs!'
-            Write(6,*) 'Evaluation of ER functional is cancelled...'
-            EvalER = .False.
-         End If
-      End If
+if (EvalER) then
+  call DecideOnCholesky(doCholesky)
+  if (.not. doCholesky) then
+    write(6,*) SecNam,': evaluation of ER functional requires',' Cholesky decomposition of ERIs!'
+    write(6,*) 'Evaluation of ER functional is cancelled...'
+    EvalER = .false.
+  end if
+end if
 
-      If (Analysis .and. .not.Test_Localisation) Then
-         Test_Localisation = .True.
-      End If
+if (Analysis .and. (.not. Test_Localisation)) then
+  Test_Localisation = .true.
+end if
 
-      End
+end subroutine Chk_Input

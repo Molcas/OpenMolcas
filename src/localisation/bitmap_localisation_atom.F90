@@ -8,134 +8,107 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine BitMap_Localisation_Atom(PreFix)
-      Implicit Real*8 (a-h,o-z)
-      Character*2 PreFix
+
+subroutine BitMap_Localisation_Atom(PreFix)
+
+implicit real*8(a-h,o-z)
+character*2 PreFix
 #include "Molcas.fh"
 #include "inflocal.fh"
 #include "WrkSpc.fh"
 
-      Character*24 SecNam
-      Parameter (SecNam = 'BitMap_Localisation_Atom')
+character*24 SecNam
+parameter(SecNam='BitMap_Localisation_Atom')
 
-      Character*4  Typ(2)
-      Character*12 BasNam
+character*4 Typ(2)
+character*12 BasNam
 
-      Integer kC0(2)
+integer kC0(2)
 
-      Logical Debug
+logical Debug
 
-      Debug = .False.
+Debug = .false.
 
-!     Symmetry is not allowed!
-!     ------------------------
+! Symmetry is not allowed!
+! ------------------------
 
-      If (nSym .ne. 1) Then
-         Call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
-      End If
+if (nSym /= 1) then
+  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+end if
 
-!     Allocate max. sym. block of density matrix
-!     and atom based density and CMO matrices.
-!     ------------------------------------------
+! Allocate max. sym. block of density matrix
+! and atom based density and CMO matrices.
+! ------------------------------------------
 
-      lDen  = nBas(1)**2
-      lDAt  = nAtoms**2
-      lCAt  = nAtoms*nOrb2Loc(1)
-      lXAt  = lCAt
-      Call GetMem('BMpLoc','Allo','Real',ipDen,lDen)
-      Call GetMem('DAt','Allo','Real',ipDAt,lDAt)
-      Call GetMem('CAt','Allo','Real',ipCAt,lCAt)
-      Call GetMem('XAt','Allo','Real',ipXAt,lXAt)
+lDen = nBas(1)**2
+lDAt = nAtoms**2
+lCAt = nAtoms*nOrb2Loc(1)
+lXAt = lCAt
+call GetMem('BMpLoc','Allo','Real',ipDen,lDen)
+call GetMem('DAt','Allo','Real',ipDAt,lDAt)
+call GetMem('CAt','Allo','Real',ipCAt,lCAt)
+call GetMem('XAt','Allo','Real',ipXAt,lXAt)
 
-!     Allocate and get index arrays for basis functions per atom.
-!     -----------------------------------------------------------
+! Allocate and get index arrays for basis functions per atom.
+! -----------------------------------------------------------
 
-      l_nBas_per_Atom = nAtoms
-      l_nBas_Start    = nAtoms
-      Call GetMem('nB_per_Atom','Allo','Inte',                          &
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',                             &
-     &            ip_nBas_Start,l_nBas_Start)
-      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),    &
-     &                 Name,nBas(1),nAtoms,Debug)
+l_nBas_per_Atom = nAtoms
+l_nBas_Start = nAtoms
+call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
+call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
+call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name,nBas(1),nAtoms,Debug)
 
-!     Compute density matrix, Den = CC^T, and set atom based matrices.
-!     Generate bitmap and perform sparsity analysis.
-!     ----------------------------------------------------------------
+! Compute density matrix, Den = CC^T, and set atom based matrices.
+! Generate bitmap and perform sparsity analysis.
+! ----------------------------------------------------------------
 
-      kC1 = ipMOrig + nBas(1)*nFro(1)
-      Call GetDens_Localisation(Work(ipDen),Work(kC1),nBas(1),          &
-     &                          nOrb2Loc(1))
-      Call GetAt_Localisation(Work(ipDen),nBas(1),nBas(1),              &
-     &                        Work(ipDAt),nAtoms,2,                     &
-     &                        iWork(ip_nBas_per_Atom),                  &
-     &                        iWork(ip_nBas_Start),                     &
-     &                        AnaNrm)
-      Call GetAt_Localisation(Work(kC1),nBas(1),nOrb2Loc(1),            &
-     &                        Work(ipCAt),nAtoms,1,                     &
-     &                        iWork(ip_nBas_per_Atom),                  &
-     &                        iWork(ip_nBas_Start),                     &
-     &                        AnaNrm)
-      kX1 = ipCMO + nBas(1)*nFro(1)
-      Call GetAt_Localisation(Work(kX1),nBas(1),nOrb2Loc(1),            &
-     &                        Work(ipXAt),nAtoms,1,                     &
-     &                        iWork(ip_nBas_per_Atom),                  &
-     &                        iWork(ip_nBas_Start),                     &
-     &                        AnaNrm)
-      Call GenBMp_Localisation(Work(ipDAt),Work(ipCAt),Work(ipXAt),     &
-     &                         nAtoms,1,'r','r','r',PreFix)
-      Call Anasize_Localisation(Work(ipDAt),Work(ipCAt),Work(ipXAt),    &
-     &                          nAtoms,nOrb2Loc(1),1)
-      Write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
+kC1 = ipMOrig+nBas(1)*nFro(1)
+call GetDens_Localisation(Work(ipDen),Work(kC1),nBas(1),nOrb2Loc(1))
+call GetAt_Localisation(Work(ipDen),nBas(1),nBas(1),Work(ipDAt),nAtoms,2,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),AnaNrm)
+call GetAt_Localisation(Work(kC1),nBas(1),nOrb2Loc(1),Work(ipCAt),nAtoms,1,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),AnaNrm)
+kX1 = ipCMO+nBas(1)*nFro(1)
+call GetAt_Localisation(Work(kX1),nBas(1),nOrb2Loc(1),Work(ipXAt),nAtoms,1,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),AnaNrm)
+call GenBMp_Localisation(Work(ipDAt),Work(ipCAt),Work(ipXAt),nAtoms,1,'r','r','r',PreFix)
+call Anasize_Localisation(Work(ipDAt),Work(ipCAt),Work(ipXAt),nAtoms,nOrb2Loc(1),1)
+write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 
-!     Allocate memory for nuclear coordinates.
-!     Read nuclear coordinates from the runfile.
-!     Generate gnuplot files.
-!     ------------------------------------------
+! Allocate memory for nuclear coordinates.
+! Read nuclear coordinates from the runfile.
+! Generate gnuplot files.
+! ------------------------------------------
 
-      lCoord = 3*nAtoms
-      Call GetMem('NucCoord','Allo','Real',ipCoord,lCoord)
-      Call Get_dArray('Unique Coordinates',Work(ipCoord),lCoord)
+lCoord = 3*nAtoms
+call GetMem('NucCoord','Allo','Real',ipCoord,lCoord)
+call Get_dArray('Unique Coordinates',Work(ipCoord),lCoord)
 
-      Call GetAt_Localisation(Work(ipDen),nBas(1),nBas(1),              &
-     &                        Work(ipDAt),nAtoms,2,                     &
-     &                        iWork(ip_nBas_per_Atom),                  &
-     &                        iWork(ip_nBas_Start),                     &
-     &                        AnaNrm)
-      Write(BasNam,'(A2,A10)') PreFix,'TotDensity'
-      Call GenGnu_Localisation(BasNam,Work(ipDAt),Work(ipCoord),nAtoms)
-      Typ(1) = 'Dini'
-      Typ(2) = 'Dloc'
-      kC0(1) = ipMOrig
-      kC0(2) = ipCMO
-      Do iTyp = 1,2
-         kC1 = kC0(iTyp) + nBas(1)*nFro(1)
-         Do i = 1,nOrb2Loc(1)
-            kC2 = kC1 + nBas(1)*(i-1)
-            Call GetDens_Localisation(Work(ipDen),Work(kC2),nBas(1),1)
-            Call GetAt_Localisation(Work(ipDen),nBas(1),nBas(1),        &
-     &                              Work(ipDAt),nAtoms,2,               &
-     &                              iWork(ip_nBas_per_Atom),            &
-     &                              iWork(ip_nBas_Start),               &
-     &                              AnaNrm)
-            Write(BasNam,'(A2,A4,I6)') PreFix,Typ(iTyp),i
-            Call GenGnu_Localisation(BasNam,Work(ipDAt),Work(ipCoord),  &
-     &                               nAtoms)
-         End Do
-      End Do
-      Write(6,*) 'Gnuplot files have been generated. Norm: ',AnaNrm
+call GetAt_Localisation(Work(ipDen),nBas(1),nBas(1),Work(ipDAt),nAtoms,2,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),AnaNrm)
+write(BasNam,'(A2,A10)') PreFix,'TotDensity'
+call GenGnu_Localisation(BasNam,Work(ipDAt),Work(ipCoord),nAtoms)
+Typ(1) = 'Dini'
+Typ(2) = 'Dloc'
+kC0(1) = ipMOrig
+kC0(2) = ipCMO
+do iTyp=1,2
+  kC1 = kC0(iTyp)+nBas(1)*nFro(1)
+  do i=1,nOrb2Loc(1)
+    kC2 = kC1+nBas(1)*(i-1)
+    call GetDens_Localisation(Work(ipDen),Work(kC2),nBas(1),1)
+    call GetAt_Localisation(Work(ipDen),nBas(1),nBas(1),Work(ipDAt),nAtoms,2,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),AnaNrm)
+    write(BasNam,'(A2,A4,I6)') PreFix,Typ(iTyp),i
+    call GenGnu_Localisation(BasNam,Work(ipDAt),Work(ipCoord),nAtoms)
+  end do
+end do
+write(6,*) 'Gnuplot files have been generated. Norm: ',AnaNrm
 
-!     De-allocations.
-!     ---------------
+! De-allocations.
+! ---------------
 
-      Call GetMem('NucCoord','Free','Real',ipCoord,lCoord)
-      Call GetMem('nB_Start','Free','Inte',                             &
-     &            ip_nBas_Start,l_nBas_Start)
-      Call GetMem('nB_per_Atom','Free','Inte',                          &
-     &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('XAt','Free','Real',ipXAt,lXAt)
-      Call GetMem('CAt','Free','Real',ipCAt,lCAt)
-      Call GetMem('DAt','Free','Real',ipDAt,lDAt)
-      Call GetMem('BMpLoc','Free','Real',ipDen,lDen)
+call GetMem('NucCoord','Free','Real',ipCoord,lCoord)
+call GetMem('nB_Start','Free','Inte',ip_nBas_Start,l_nBas_Start)
+call GetMem('nB_per_Atom','Free','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
+call GetMem('XAt','Free','Real',ipXAt,lXAt)
+call GetMem('CAt','Free','Real',ipCAt,lCAt)
+call GetMem('DAt','Free','Real',ipDAt,lDAt)
+call GetMem('BMpLoc','Free','Real',ipDen,lDen)
 
-      End
+end subroutine BitMap_Localisation_Atom

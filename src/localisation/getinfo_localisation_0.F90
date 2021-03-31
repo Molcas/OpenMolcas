@@ -10,129 +10,124 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine GetInfo_Localisation_0()
+
+subroutine GetInfo_Localisation_0()
+
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: read basic info from runfile and INPORB.
-!
-      Implicit Real*8 (a-h,o-z)
+! Purpose: read basic info from runfile and INPORB.
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "inflocal.fh"
 #include "WrkSpc.fh"
 
-      Character*22 SecNam
-      Parameter (SecNam = 'GetInfo_Localisation_0')
-      Character*80 Txt
-      Character*512 FName
+character*22 SecNam
+parameter(SecNam='GetInfo_Localisation_0')
+character*80 Txt
+character*512 FName
 
-!     Read number of irreps.
-!     ----------------------
+! Read number of irreps.
+! ----------------------
 
-      Call Get_iScalar('nSym',nSym)
-      If (nSym.lt.1 .or. nSym.gt.MxSym) Then
-         Write(Txt,'(A,I9)') 'nSym =',nSym
-         Call SysAbendMsg(SecNam,'Number of irreps out of bounds!',Txt)
-      End If
+call Get_iScalar('nSym',nSym)
+if ((nSym < 1) .or. (nSym > MxSym)) then
+  write(Txt,'(A,I9)') 'nSym =',nSym
+  call SysAbendMsg(SecNam,'Number of irreps out of bounds!',Txt)
+end if
 
-!     Read number of basis functions.
-!     -------------------------------
+! Read number of basis functions.
+! -------------------------------
 
-      Call Get_iArray('nBas',nBas,nSym)
-      nBasT = nBas(1)
-      Do iSym = 2,nSym
-         nBasT = nBasT + nBas(iSym)
-      End Do
-      If (nBasT.lt.1 .or. nBasT.gt.MxBas) Then
-         Write(Txt,'(A,I9)') 'nBasT =',nBasT
-         Call SysAbendMsg(SecNam,'Basis set limits exceeded!',Txt)
-      End If
+call Get_iArray('nBas',nBas,nSym)
+nBasT = nBas(1)
+do iSym=2,nSym
+  nBasT = nBasT+nBas(iSym)
+end do
+if ((nBasT < 1) .or. (nBasT > MxBas)) then
+  write(Txt,'(A,I9)') 'nBasT =',nBasT
+  call SysAbendMsg(SecNam,'Basis set limits exceeded!',Txt)
+end if
 
-!     Set number of orbitals equal to nBas.
-!     -------------------------------------
+! Set number of orbitals equal to nBas.
+! -------------------------------------
 
-      Call Icopy(nSym,nBas,1,nOrb,1)
-      nOrbT = nOrb(1)
-      Do iSym = 2,nSym
-         nOrbT = nOrbT + nOrb(iSym)
-      End Do
-      If (nOrbT.lt.1 .or. nOrbT.gt.MxBas) Then
-         Write(Txt,'(A,I9)') 'nOrbT =',nOrbT
-         Call SysAbendMsg(SecNam,'Orbital limits exceeded!',Txt)
-      End If
-      Do iSym=1,nSym
-         If (nOrb(iSym) .gt. nBas(iSym)) Then
-            Write(Txt,'(A,I2,2(1X,I9))')                                &
-     &      'iSym,nOrb,nBas:',iSym,nOrb(iSym),nBas(iSym)
-            Call SysAbendMsg(SecNam,'#orb > #bas:',Txt)
-         End If
-      End Do
+call Icopy(nSym,nBas,1,nOrb,1)
+nOrbT = nOrb(1)
+do iSym=2,nSym
+  nOrbT = nOrbT+nOrb(iSym)
+end do
+if ((nOrbT < 1) .or. (nOrbT > MxBas)) then
+  write(Txt,'(A,I9)') 'nOrbT =',nOrbT
+  call SysAbendMsg(SecNam,'Orbital limits exceeded!',Txt)
+end if
+do iSym=1,nSym
+  if (nOrb(iSym) > nBas(iSym)) then
+    write(Txt,'(A,I2,2(1X,I9))') 'iSym,nOrb,nBas:',iSym,nOrb(iSym),nBas(iSym)
+    call SysAbendMsg(SecNam,'#orb > #bas:',Txt)
+  end if
+end do
 
-!     Read MO coefficients, orbital occupations, and orbital energies
-!     from INPORB.
-!     ---------------------------------------------------------------
+! Read MO coefficients, orbital occupations, and orbital energies
+! from INPORB.
+! ---------------------------------------------------------------
 
-      n2Bas = nBas(1)**2
-      Do iSym = 2,nSym
-         n2Bas = n2Bas + nBas(iSym)**2
-      End Do
+n2Bas = nBas(1)**2
+do iSym=2,nSym
+  n2Bas = n2Bas+nBas(iSym)**2
+end do
 
-      nCMO = n2Bas
-      lOcc = nBasT
-      lEor = nBasT
-      lInd = nBasT
-      Call GetMem('CMO','Allo','Real',ipCMO,nCMO)
-      Call GetMem('Occup','Allo','Real',ipOcc,lOcc)
-      Call GetMem('OrbEn','Allo','Real',ipEor,lEor)
-      Call GetMem('IndT','Allo','Inte',ipInd,lInd)
-      FName=LC_FileOrb
-      If (mylen(FName).eq.0) FName='INPORB' ! file name
-      Call RdVec_Localisation(nSym,nBas,nOrb,iWork(ipInd),              &
-     &                        Work(ipCMO),Work(ipOcc),Work(ipEor),      &
-     &                        FName(:mylen(FName)))
+nCMO = n2Bas
+lOcc = nBasT
+lEor = nBasT
+lInd = nBasT
+call GetMem('CMO','Allo','Real',ipCMO,nCMO)
+call GetMem('Occup','Allo','Real',ipOcc,lOcc)
+call GetMem('OrbEn','Allo','Real',ipEor,lEor)
+call GetMem('IndT','Allo','Inte',ipInd,lInd)
+FName = LC_FileOrb
+if (mylen(FName) == 0) FName = 'INPORB' ! file name
+call RdVec_Localisation(nSym,nBas,nOrb,iWork(ipInd),Work(ipCMO),Work(ipOcc),Work(ipEor),FName(:mylen(FName)))
 
-!     Set number of occupied and virtual orbitals according to the
-!     occupation numbers from INPORB (assuming that occupied orbitals
-!     precede virtual ones on file).
-!     ---------------------------------------------------------------
+! Set number of occupied and virtual orbitals according to the
+! occupation numbers from INPORB (assuming that occupied orbitals
+! precede virtual ones on file).
+! ---------------------------------------------------------------
 
-      kOff = ipOcc - 1
-      Do iSym = 1,nSym
-         nOccInp(iSym) = 0
-         i = 0
-         Do While (i .lt. nOrb(iSym))
-            i = i + 1
-            If (Work(kOff+i) .gt. 0.0d0) Then
-               nOccInp(iSym) = nOccInp(iSym) + 1
-            Else
-               i = nOrb(iSym) ! break while loop
-            End If
-         End Do
-         nVirInp(iSym) = nOrb(iSym) - nOccInp(iSym)
-         If (nVirInp(iSym) .lt. 0) Then
-            Write(Txt,'(3(A,I9))')                                      &
-     &      'No. of occupied: ',nOccInp(iSym),                          &
-     &      ' No. of orbitals: ',nOrb(iSym),                            &
-     &      ' Symmetry: ',iSym
-            Call SysAbendMsg(SecNam,'#occ > #orb:',Txt)
-         End If
-         kOff = kOff + nBas(iSym)
-      End Do
+kOff = ipOcc-1
+do iSym=1,nSym
+  nOccInp(iSym) = 0
+  i = 0
+  do while (i < nOrb(iSym))
+    i = i+1
+    if (Work(kOff+i) > 0.0d0) then
+      nOccInp(iSym) = nOccInp(iSym)+1
+    else
+      i = nOrb(iSym) ! break while loop
+    end if
+  end do
+  nVirInp(iSym) = nOrb(iSym)-nOccInp(iSym)
+  if (nVirInp(iSym) < 0) then
+    write(Txt,'(3(A,I9))') 'No. of occupied: ',nOccInp(iSym),' No. of orbitals: ',nOrb(iSym),' Symmetry: ',iSym
+    call SysAbendMsg(SecNam,'#occ > #orb:',Txt)
+  end if
+  kOff = kOff+nBas(iSym)
+end do
 
-!     Read number of atoms, atomic labels, and basis function labels
-!     from runfile.
-!     --------------------------------------------------------------
+! Read number of atoms, atomic labels, and basis function labels
+! from runfile.
+! --------------------------------------------------------------
 
-      Call Get_nAtoms_All(nAtoms)
-      If (nAtoms.lt.1 .or. nAtoms.gt.MxAtom) Then
-         Write(Txt,'(A,I9)') 'nAtoms =',nAtoms
-         Call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
-      End If
-!     Call Get_cArray('Unique Atom Names',AtomLbl,4*nAtoms)
-      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBasT)
-      Do i = 1,nBasT
-         Atom(i) = Name(i)(1:LENIN)
-         Type(i) = Name(i)(LENIN1:LENIN8)
-      End Do
+call Get_nAtoms_All(nAtoms)
+if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
+  write(Txt,'(A,I9)') 'nAtoms =',nAtoms
+  call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
+end if
+!call Get_cArray('Unique Atom Names',AtomLbl,4*nAtoms)
+call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBasT)
+do i=1,nBasT
+  Atom(i) = Name(i)(1:LENIN)
+  type(i) = Name(i)(LENIN1:LENIN8)
+end do
 
-      End
+end subroutine GetInfo_Localisation_0

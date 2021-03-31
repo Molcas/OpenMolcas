@@ -8,56 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine GenGnu_Localisation(FilNam,Den,Coord,n)
-      Implicit None
-      Character*12 FilNam
-      Integer n
-      Real*8  Den(n,n), Coord(3,n)
 
-      Integer  isFreeUnit
-      External isFreeUnit
+subroutine GenGnu_Localisation(FilNam,Den,Coord,n)
 
-      Character*4  Postfix
-      Character*16 FName
-      Parameter (Postfix = '.dat')
+implicit none
+character*12 FilNam
+integer n
+real*8 Den(n,n), Coord(3,n)
 
-      Integer i, j, Lu
-      Real*8  Dist, D, Fac
+integer isFreeUnit
+external isFreeUnit
 
-!     Open data file.
-!     ---------------
+character*4 Postfix
+character*16 FName
+parameter(Postfix='.dat')
 
-      Lu = isFreeUnit(11)
-      Write(FName,'(A12,A4)') FilNam,Postfix
-      If (FName(1:1) .eq. ' ') FName(1:1) = 'G'
-      Do i = 2,12
-         If (FName(i:i) .eq. ' ') FName(i:i) = '_'
-      End Do
-      Call Molcas_Open(Lu,FName)
-      Rewind(Lu)
+integer i, j, Lu
+real*8 Dist, D, Fac
 
-!     Write data file.
-!     ----------------
+! Open data file.
+! ---------------
 
-      Fac = 1.0d0/log(1.0d1)
-      Do j = 1,n
-         Do i = j,n
-            Dist = sqrt((Coord(1,j)-Coord(1,i))**2                      &
-     &                 +(Coord(2,j)-Coord(2,i))**2                      &
-     &                 +(Coord(3,j)-Coord(3,i))**2                      &
-     &                 )
-            If (abs(Den(i,j)) .lt. 1.0d-16) Then
-               D = -4.0d1
-            Else
-               D = Fac*log(abs(Den(i,j)))
-            End If
-            Write(Lu,'(1X,1P,D20.10,1X,D20.10)') Dist,D
-         End Do
-      End Do
+Lu = isFreeUnit(11)
+write(FName,'(A12,A4)') FilNam,Postfix
+if (FName(1:1) == ' ') FName(1:1) = 'G'
+do i=2,12
+  if (FName(i:i) == ' ') FName(i:i) = '_'
+end do
+call Molcas_Open(Lu,FName)
+rewind(Lu)
 
-!     Close data file.
-!     ----------------
+! Write data file.
+! ----------------
 
-      Close(Lu,Status='Keep')
+Fac = 1.0d0/log(1.0d1)
+do j=1,n
+  do i=j,n
+    Dist = sqrt((Coord(1,j)-Coord(1,i))**2+(Coord(2,j)-Coord(2,i))**2+(Coord(3,j)-Coord(3,i))**2)
+    if (abs(Den(i,j)) < 1.0d-16) then
+      D = -4.0d1
+    else
+      D = Fac*log(abs(Den(i,j)))
+    end if
+    write(Lu,'(1X,1P,D20.10,1X,D20.10)') Dist,D
+  end do
+end do
 
-      End
+! Close data file.
+! ----------------
+
+close(Lu,Status='Keep')
+
+end subroutine GenGnu_Localisation

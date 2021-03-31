@@ -10,117 +10,94 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
-      SubRoutine Localise_Iterative(irc,Model,Functional)
+
+subroutine Localise_Iterative(irc,Model,Functional)
+
+! Author: T.B. Pedersen
 !
-!     Author: T.B. Pedersen
-!
-!     Purpose: Iterative localisation of orbitals.
-!              Models implemented:
-!                Pipek-Mezey         [MODEL='PIPE']
-!                Boys                [MODEL='BOYS']
-!                Edmiston-Ruedenberg [MODEL='EDMI']
-!
-      Implicit Real*8 (a-h,o-z)
-      Character*4 Model
+! Purpose: Iterative localisation of orbitals.
+!          Models implemented:
+!            Pipek-Mezey         [MODEL='PIPE']
+!            Boys                [MODEL='BOYS']
+!            Edmiston-Ruedenberg [MODEL='EDMI']
+
+implicit real*8(a-h,o-z)
+character*4 Model
 #include "Molcas.fh"
 #include "inflocal.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
 
-      Character*18 SecNam
-      Parameter (SecNam = 'Localise_Iterative')
+character*18 SecNam
+parameter(SecNam='Localise_Iterative')
 
-      Character*4  myModel
-      Character*80 Txt
-      Logical Converged
+character*4 myModel
+character*80 Txt
+logical Converged
 
-      irc = 0
-      Functional = -9.9d9
-      Converged  = .False.
+irc = 0
+Functional = -9.9d9
+Converged = .false.
 
-!     Generate Cholesky start guess, if requested.
-!     --------------------------------------------
+! Generate Cholesky start guess, if requested.
+! --------------------------------------------
 
-      If (ChoStart) Then
-         Thrs_Save = Thrs
-         Thrs = 1.0d-12
-         Call Localise_Noniterative(irc,'Chol',xNrm)
-         If (irc .ne. 0) Then
-            Write(Txt,'(A,I4)') 'Return code:',irc
-            Call SysAbendMsg(SecNam,'Localise_Noniterative failed!',Txt)
-         End If
-         Thrs = Thrs_Save
-      End If
+if (ChoStart) then
+  Thrs_Save = Thrs
+  Thrs = 1.0d-12
+  call Localise_Noniterative(irc,'Chol',xNrm)
+  if (irc /= 0) then
+    write(Txt,'(A,I4)') 'Return code:',irc
+    call SysAbendMsg(SecNam,'Localise_Noniterative failed!',Txt)
+  end if
+  Thrs = Thrs_Save
+end if
 
-!     Localise.
-!     ---------
+! Localise.
+! ---------
 
-      myModel = Model
-      Call UpCase(myModel)
-      If (myModel .eq. 'PIPE') Then
-!        If (.not.Silent) Then
-            Write(6,'(//,1X,A)') 'Pipek-Mezey localisation'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Convergence threshold:',Thrs,' (functional)'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Convergence threshold:',ThrGrad,' (gradient)'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Screening threshold  :',ThrRot,' (orbital rotations)'
-            Write(6,'(1X,A,8(1X,I6))')                                  &
-     &      'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-            Write(6,'(1X,A,8(1X,I6))')                                  &
-     &      'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
-!        End If
-         Call PipekMezey(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,    &
-     &                   Name,                                          &
-     &                   nBas,nOrb2Loc,nFro,                            &
-     &                   nSym,nAtoms,nMxIter,                           &
-     &                   Maximisation,Converged,Debug,Silent)
-      Else If (myModel .eq. 'BOYS') Then
-!        If (.not.Silent) Then
-            Write(6,'(/,1X,A)') 'Boys localisation'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Convergence threshold:',Thrs,' (functional)'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Convergence threshold:',ThrGrad,' (gradient)'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Screening threshold  :',ThrRot,' (orbital rotations)'
-            Write(6,'(1X,A,8(1X,I6))')                                  &
-     &      'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-            Write(6,'(1X,A,8(1X,I6))')                                  &
-     &      'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
-!        End If
-         Call Boys(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,          &
-     &             nBas,nOrb2Loc,nFro,                                  &
-     &             nSym,nMxIter,                                        &
-     &             Maximisation,Converged,Debug,Silent)
-      Else If (myModel .eq. 'EDMI') Then
-!        If (.not.Silent) Then
-            Write(6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Convergence threshold:',Thrs,' (functional)'
-            Write(6,'(1X,A,1X,D12.4,A)')                                &
-     &      'Convergence threshold:',ThrGrad,' (gradient)'
-!           Write(6,'(1X,A,1X,D12.4,A)')
-!    &      'Screening threshold  :',ThrRot,' (orbital rotations)'
-            Write(6,'(1X,A,8(1X,I6))')                                  &
-     &      'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-            Write(6,'(1X,A,8(1X,I6))')                                  &
-     &      'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
-!        End If
-         Call EdmistonRuedenberg(Functional,Work(ipCMO),Thrs,ThrRot,    &
-     &                           ThrGrad,                               &
-     &                           nBas,nOrb2Loc,nFro,                    &
-     &                           nSym,nMxIter,                          &
-     &                           Maximisation,Converged,Debug,Silent)
-      Else
-         Write(Txt,'(A,A4)') 'Model = ',Model
-         Call SysAbendMsg(SecNam,'Unknown model',Txt)
-      End If
+myModel = Model
+call UpCase(myModel)
+if (myModel == 'PIPE') then
+  !if (.not. Silent) then
+  write(6,'(//,1X,A)') 'Pipek-Mezey localisation'
+  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  write(6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  !end if
+  call PipekMezey(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,Name,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
+                  Debug,Silent)
+else if (myModel == 'BOYS') then
+  !if (.not. Silent) then
+  write(6,'(/,1X,A)') 'Boys localisation'
+  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  write(6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  !end if
+  call Boys(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
+else if (myModel == 'EDMI') then
+  !if (.not. Silent) then
+  write(6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
+  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  !write(6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  !end if
+  call EdmistonRuedenberg(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug, &
+                          Silent)
+else
+  write(Txt,'(A,A4)') 'Model = ',Model
+  call SysAbendMsg(SecNam,'Unknown model',Txt)
+end if
 
-      If (.not.Converged) Then
-         irc = 1
-         Return
-      End If
+if (.not. Converged) then
+  irc = 1
+  return
+end if
 
-      End
+end subroutine Localise_Iterative

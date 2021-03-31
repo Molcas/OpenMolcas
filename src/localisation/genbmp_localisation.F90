@@ -8,33 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine GenBMp_Localisation(D,C,X,nShell,iSym,ColD,ColC,ColX,  &
-     &                               PreFix)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine GenBMp_Localisation(D,C,X,nShell,iSym,ColD,ColC,ColX,PreFix)
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
-      Real*8 D(nShell,nShell), C(nShell,*), X(nShell,*)
-      Character*1 ColD, ColC, ColX
-      Character*2 PreFix
+real*8 D(nShell,nShell), C(nShell,*), X(nShell,*)
+character*1 ColD, ColC, ColX
+character*2 PreFix
 #include "inflocal.fh"
 
-      Character*12 FilNam
+character*12 FilNam
 
-!     Generate bitmap for density.
-!     ----------------------------
+! Generate bitmap for density.
+! ----------------------------
 
-      Write(FilNam,'(A2,A5,I1,A4)') PreFix,'Dnsty',iSym,'.bmp'
-      Call GenBMp_Loc(D,nShell,nShell,FilNam,ColD)
+write(FilNam,'(A2,A5,I1,A4)') PreFix,'Dnsty',iSym,'.bmp'
+call GenBMp_Loc(D,nShell,nShell,FilNam,ColD)
 
-!     Generate bitmap for original MOs.
-!     ---------------------------------
+! Generate bitmap for original MOs.
+! ---------------------------------
 
-      Write(FilNam,'(A2,A5,I1,A4)') PreFix,'MOrig',iSym,'.bmp'
-      Call GenBMp_Loc(C,nShell,nOrb2Loc(iSym),FilNam,ColC)
+write(FilNam,'(A2,A5,I1,A4)') PreFix,'MOrig',iSym,'.bmp'
+call GenBMp_Loc(C,nShell,nOrb2Loc(iSym),FilNam,ColC)
 
-!     Generate bitmap for localised MOs.
-!     ----------------------------------
+! Generate bitmap for localised MOs.
+! ----------------------------------
 
-      Write(FilNam,'(A2,A5,I1,A4)') PreFix,'MOloc',iSym,'.bmp'
-      Call GenBMp_Loc(X,nShell,nOrb2Loc(iSym),FilNam,ColX)
+write(FilNam,'(A2,A5,I1,A4)') PreFix,'MOloc',iSym,'.bmp'
+call GenBMp_Loc(X,nShell,nOrb2Loc(iSym),FilNam,ColX)
 
-      End
+end subroutine GenBMp_Localisation
