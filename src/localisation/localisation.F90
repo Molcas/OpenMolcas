@@ -22,11 +22,13 @@ subroutine Localisation(iReturn)
 !    - December 2005 / January 2006 (Thomas Bondo Pedersen):
 !      Edmiston-Ruedenberg, PAO, and pair domain analysis included.
 
+use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, DoCNOs, DoDomain, EvalER, ipCMO, ipEor, ipInd, ipMOrig, &
+                                ipOcc, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, BName, nBas, nCMO, &
+                                nFro, nOrb, nOrb2Loc, nSym, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
 #include "real.fh"
@@ -126,7 +128,7 @@ if ((.not. Silent) .and. PrintMOs) then
   write(Title,'(80x)')
   write(Title,'(a)') 'Initial MO''s'
   iPrWay = 2 ! short
-  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,Name,Work(ipEor),Work(ipOcc),Work(ipCMO),iPrWay, &
+  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,Work(ipEor),Work(ipOcc),Work(ipCMO),iPrWay, &
                           iWork(ipInd))
 end if
 
@@ -419,7 +421,7 @@ if (PrintMOs) then
   write(Title,'(80x)')
   write(Title,'(a)') 'Final localised MO''s'
   iPrWay = 2 ! short
-  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,Name,Work(ipEor),Work(ipOcc),Work(ipCMO),iPrWay, &
+  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,Work(ipEor),Work(ipOcc),Work(ipCMO),iPrWay, &
                           iWork(ipInd))
 end if
 

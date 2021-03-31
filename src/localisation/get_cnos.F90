@@ -17,11 +17,11 @@ subroutine Get_CNOs(irc,nIF,nRASO,xNrm)
 !                                                                      *
 !***********************************************************************
 
+use Localisation_globals, only: ipCMO, ipOcc, MxConstr, nBas, nConstr, nSym
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "inflocal.fh"
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nIF(nSym), nRasO(nSym)
 real(kind=wp), intent(out) :: xNrm

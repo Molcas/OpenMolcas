@@ -11,11 +11,11 @@
 
 subroutine BitMap_Localisation_Atom(PreFix)
 
+use Localisation_globals, only: AnaNrm, ipCMO, ipMOrig, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=2), intent(in) :: PreFix
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ip_nBas_per_Atom, ip_nBas_Start, ipCAt, ipCoord, ipDAt, ipDen, ipXAt, iTyp, kC0(2), kC1, kC2, kX1, &
                      l_nBas_per_Atom, l_nBas_Start, lCAt, lCoord, lDAt, lDen, lXAt
@@ -53,7 +53,7 @@ l_nBas_per_Atom = nAtoms
 l_nBas_Start = nAtoms
 call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
 call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
-call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name,nBas(1),nAtoms,Debug)
+call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName,nBas(1),nAtoms,Debug)
 
 ! Compute density matrix, Den = CC^T, and set atom based matrices.
 ! Generate bitmap and perform sparsity analysis.

@@ -20,13 +20,14 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
+use Localisation_globals, only: ChoStart, ipCMO, Maximisation, BName, nAtoms, nMxIter, nBas, nFro, nOrb2Loc, nSym, Silent, &
+                                ThrGrad, ThrRot, Thrs
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 character(len=4), intent(in) :: Model
 real(kind=wp), intent(out) :: Functional
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
 integer(kind=iwp) :: iSym
@@ -68,7 +69,7 @@ if (myModel == 'PIPE') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call PipekMezey(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,Name,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
+  call PipekMezey(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
                   Debug,Silent)
 else if (myModel == 'BOYS') then
   !if (.not. Silent) then

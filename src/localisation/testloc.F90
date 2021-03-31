@@ -24,12 +24,12 @@ subroutine TestLoc(irc)
 !
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
+use Localisation_globals, only: ipCMO, ipMOrig, LocPAO, nBas, nFro, nOrb2Loc, nSym
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "inflocal.fh"
 #include "debug.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iComp, iOpt, ip0, ipDdff, ipDenC, ipDenX, ipOaux, ipOvlp, ipScr, ipUmat, iSyLbl, iSym, j, jrc, kC, kC1, &

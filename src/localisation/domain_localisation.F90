@@ -17,11 +17,11 @@ subroutine Domain_Localisation(irc)
 ! Purpose: set up orbital domains and pair domains. Find number of
 !          strong, weak, distant, and very distant pairs.
 
+use Localisation_globals, only: AnaDomain, ipCMO, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym, ThrDomain, ThrPairDomain
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
 integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, ip_Coord, ip_f, ip_iClass, ip_iDomain, ip_iPairDomain, ip_nBas_per_Atom, &
@@ -77,7 +77,7 @@ l_nBas_per_Atom = nAtom
 l_nBas_Start = nAtom
 call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
 call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
-call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),Name,nBasT,nAtom,Debug)
+call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName,nBasT,nAtom,Debug)
 
 ! Define domains.
 ! ---------------
@@ -189,7 +189,7 @@ write(u6,'(A,I9,3X,F7.2,A,/)') 'Number of very distant pairs: ',iCount(3),Fac*iC
 ! ----------------------------------------------
 
 if (AnaDomain) then
-  call Analysis_Domain(iWork(ip_iDomain),Work(ip_QD),Work(ip_f),Work(ip_Coord),Name,iWork(ip_nBas_Start),nAtom,nBasT,nOcc)
+  call Analysis_Domain(iWork(ip_iDomain),Work(ip_QD),Work(ip_f),Work(ip_Coord),BName,iWork(ip_nBas_Start),nAtom,nBasT,nOcc)
 end if
 
 ! Deallocations.

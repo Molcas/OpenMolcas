@@ -16,13 +16,14 @@ subroutine GetInfo_Localisation_0()
 !
 ! Purpose: read basic info from runfile and INPORB.
 
+use Localisation_globals, only: ipCMO, ipEor, ipInd, ipOcc, LC_FileOrb, BName, nAtoms, nBas, nCMO, nOccInp, nOrb, nSym, nVirInp
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "inflocal.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iSym, kOff, n2Bas, nBasT, nOrbT
+integer(kind=iwp) :: i, iSym, kOff, lEor, lInd, lOcc, n2Bas, nBasT, nOrbT
 character(len=80) :: Txt
 character(len=512) :: FName
 character(len=22), parameter :: SecNam = 'GetInfo_Localisation_0'
@@ -124,10 +125,6 @@ if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
   call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
 end if
 !call Get_cArray('Unique Atom Names',AtomLbl,4*nAtoms)
-call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBasT)
-do i=1,nBasT
-  Atom(i) = Name(i)(1:LENIN)
-  type(i) = Name(i)(LENIN1:LENIN8)
-end do
+call Get_cArray('Unique Basis Names',BName,len(BName)*nBasT)
 
 end subroutine GetInfo_Localisation_0

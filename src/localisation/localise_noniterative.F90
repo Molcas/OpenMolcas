@@ -19,6 +19,7 @@ subroutine Localise_Noniterative(irc,Model,xNrm)
 !            Cholesky [MODEL='CHOL']
 !            PAO      [MODEL='PAO ']
 
+use Localisation_globals, only: AnaPAO, ipCMO, ipOcc, nBas, nFro, nOrb, nOrb2Loc, nSym, Thrs
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -26,7 +27,6 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 character(len=4), intent(in) :: Model
 real(kind=wp), intent(out) :: xNrm
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: idum(1), ip_Dens, ip_Dv, ip_DvSav, ip_R, iSym, kOff1, kOffC, kOffR, kSav, l_Dens, l_Dv, l_DvSav, l_R, Lu_, &
                      nOrPs

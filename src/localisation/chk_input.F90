@@ -20,13 +20,14 @@ subroutine Chk_Input(irc)
 !   irc < 0: all OK, but nothing to do
 !   irc > 0: input error
 
+use Localisation_globals, only: Analysis, EvalER, LocModel, nBas, nFro, nOrb, nOrb2Loc, nSym, Test_Localisation
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "inflocal.fh"
 integer(kind=iwp) :: iSym, n, nOrb2LocT
 logical(kind=iwp) :: DoCholesky
+integer(kind=iwp), parameter :: nLocModel = 4
 character(len=9), parameter :: SecNam = 'Chk_Input'
 
 irc = 0

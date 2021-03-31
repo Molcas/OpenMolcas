@@ -17,11 +17,11 @@ subroutine PAO_Analysis(D,R,X)
 !
 ! Purpose: test and analysis of Cholesky PAOs.
 
+use Localisation_globals, only: AnaNrm, ipMOrig, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: D(*), R(*), X(*)
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ip_S, iSym, l_S
 
@@ -31,7 +31,7 @@ do iSym=2,nSym
 end do
 call GetMem('S','Allo','Real',ip_S,l_S)
 call GetOvlp_Localisation(Work(ip_S),'Sqr',nBas,nSym)
-call PAO_Ana1(D,R,X,Work(ipMOrig),Work(ip_S),nBas,nFro,nOrb2Loc,nSym,Name,nAtoms,AnaNrm)
+call PAO_Ana1(D,R,X,Work(ipMOrig),Work(ip_S),nBas,nFro,nOrb2Loc,nSym,BName,nAtoms,AnaNrm)
 call GetMem('S','Free','Real',ip_S,l_S)
 
 end subroutine PAO_Analysis
@@ -42,10 +42,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), nAtoms
 real(kind=wp), intent(in) :: D(*), R(*), X(*), C(*), S(*)
-character(len=LenIn8), intent(in) :: Nam(nBas(1))
+character(len=*), intent(in) :: Nam(nBas(1))
 character(len=3), intent(in) :: AnaNrm
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, iGetVecs, ip_EigI, ip_EigR, ip_nBas_per_Atom, ip_nBas_Start, ip_SX, ip_Tst, ipDAt, ipRAt, ipXAt, iSym, kC, &

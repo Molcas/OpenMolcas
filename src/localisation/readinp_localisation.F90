@@ -15,16 +15,20 @@
 subroutine Readinp_localisation()
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
+use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
+                                iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
+                                nBas, nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, &
+                                Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
 use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "inflocal.fh"
 #include "debug.fh"
 !TBP Namelist /LOCALISATION/ dummy
-integer(kind=iwp) :: i, iPL, istatus, iSym, j
+integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb
 character(len=180) :: Key, Line
-logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, Freeze
+logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Freeze
+integer(kind=iwp), parameter :: Occupied = 0, Virtual = 1, AllOrb = 2
 real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
 character(len=20), parameter :: SecNam = 'Readinp_localisation'
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
@@ -307,7 +311,7 @@ do
     case ('ALL ')
       ! ALL: localise all orbitals
 
-      LocOrb = All
+      LocOrb = AllOrb
 
     case ('PAO ')
       ! PAO : compute projected AOs that span the virtual space
@@ -520,7 +524,7 @@ else
         nOrb2Loc(iSym) = nOccInp(iSym)
       end do
     end if
-  else ! All
+  else ! AllOrb
     if (nFro_UsrDef .or. Freeze) then
       do iSym=1,nSym
         nOrb2Loc(iSym) = nOccInp(iSym)+nVirInp(iSym)-nFro(iSym)

@@ -23,12 +23,11 @@ subroutine PriMO_Localisation(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Nm
 use Definitions, only: wp, iwp
 
 implicit none
-#include "Molcas.fh"
 character(len=*), intent(in) :: Header
 logical(kind=iwp), intent(in) :: PrOcc, PrEne
 real(kind=wp), intent(in) :: ThrOcc, ThrEne, Ene(*), Occ(*), CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), iPrForm, IndxT(*)
-character(len=LenIn8), intent(in) :: Nme(*)
+character(len=*), intent(in) :: Nme(*)
 #include "WrkSpc.fh"
 integer(kind=iwp) :: ik, ip_CMO, ip_EOr, ip_Occ, iSym, k, k1, k2, kk, l_CMO, l_EOr, l_Occ, nOrb_(8), nOrbT
 

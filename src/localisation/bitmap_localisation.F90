@@ -11,13 +11,13 @@
 
 subroutine BitMap_Localisation(PreFix)
 
+use Localisation_globals, only: AnaNrm, ipCMO, ipMOrig, nBas, nFro, nOrb2Loc, nSym
 use Index_arrays, only: iSO2Sh
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=2), intent(in) :: PreFix
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iOff, ipCSh, ipDen, ipDSh, ipXSh, iSym, kC, kC1, kX, kX1, lCSh, lDen, lDSh, lXSh, MxBa, MxOr, n2, nBasT, &
                      nDiff, nShell

@@ -11,6 +11,7 @@
 
 subroutine GenBMp_Localisation(D,C,X,nShell,iSym,ColD,ColC,ColX,PreFix)
 
+use Localisation_globals, only: nOrb2Loc
 use Definitions, only: wp, iwp
 
 implicit none
@@ -18,7 +19,6 @@ integer(kind=iwp), intent(in) :: nShell, iSym
 real(kind=wp), intent(in) :: D(nShell,nShell), C(nShell,*), X(nShell,*)
 character(len=2), intent(in) :: PreFix
 character, intent(in) :: ColD, ColC, ColX
-#include "inflocal.fh"
 character(len=12) :: FilNam
 
 ! Generate bitmap for density.

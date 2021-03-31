@@ -33,6 +33,7 @@ subroutine Loc_Nat_orb(irc,Cmo,Xmo,OccN,mOrb)
 !                                                                      *
 !***********************************************************************
 
+use Localisation_globals, only: nActa, NamAct, BName, nBas, nFro, nSym, ThrSel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, r8
 
@@ -41,12 +42,11 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: Cmo(*)
 real(kind=wp), intent(inout) :: Xmo(*), OccN(*)
 integer(kind=iwp), intent(in) :: mOrb(*)
-#include "inflocal.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ia, iab, ifr, iOff, ip_C, ip_CC, ip_FOcc, ip_iD, ip_U, ip_X, ipS, ipScr, iQ, iS, iSQ, iSym, isymlbl, ito, &
                      iZ, j, ja, jb, jC, jfr, jOcc, jOff, jQ, jto, jX, jZ, k, ka, kl, km, kOff, l, lScr, mOx, n_KO, n_OK, nBa, &
                      nBax, nBmx, nBx, nnB, nOrbmx, nOx
-character(len=LenIn) :: tmp
+character(len=len(NamAct)) :: tmp
 real(kind=r8), external :: ddot_
 !***********************************************************************
 integer(kind=iwp) :: jD, kD, lD
@@ -94,7 +94,7 @@ do iSym=1,nSym
   nBa = 0
   do ia=1,nBas(iSym)
     ja = ia+iOff
-    tmp = Name(ja)(1:LENIN)
+    tmp = BName(ja)(1:len(tmp))
     do j=1,nActa
       if (NamAct(j) == tmp) then
         iWork(ip_iD+nBa) = ia
