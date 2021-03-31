@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-*               2005, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!               2005, Thomas Bondo Pedersen                            *
+!***********************************************************************
       Subroutine Localisation(iReturn)
-c
-c     Author: Yannick Carissan
-c
-c     Modifications:
-c        - October 10, 2005 (Thomas Bondo Pedersen):
-c          completely restructed; introduce Boys and Cholesky
-c          localisations.
-c        - December 2005 / January 2006 (Thomas Bondo Pedersen):
-c          Edmiston-Ruedenberg, PAO, and pair domain analysis included.
-c
+!
+!     Author: Yannick Carissan
+!
+!     Modifications:
+!        - October 10, 2005 (Thomas Bondo Pedersen):
+!          completely restructed; introduce Boys and Cholesky
+!          localisations.
+!        - December 2005 / January 2006 (Thomas Bondo Pedersen):
+!          Edmiston-Ruedenberg, PAO, and pair domain analysis included.
+!
       Implicit Real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -33,8 +33,8 @@ c
       Character*180 Line, Get_Ln
       External Get_Ln
 
-cvv      Integer  LocUtil_Models
-cvv      External LocUtil_Models
+!vv      Integer  LocUtil_Models
+!vv      External LocUtil_Models
 
       Character*7  matname
       Character*2  PreFix
@@ -47,26 +47,26 @@ cvv      External LocUtil_Models
       Integer IndT(7,8)
 
 
-C     Start timing.
-C     -------------
+!     Start timing.
+!     -------------
 
       Call CWTime(C1,W1)
 
-C     Dummy allocation used to flush memory at the end.
-C     -------------------------------------------------
+!     Dummy allocation used to flush memory at the end.
+!     -------------------------------------------------
 
       l_Dum = 1
       Call GetMem('LocDum','Allo','Real',ip_Dum,l_Dum)
 
-C     Print banner.
-C     -------------
+!     Print banner.
+!     -------------
 
-c     Call Banner_Localisation()
+!     Call Banner_Localisation()
 
-C     Read basic info from runfile and INPORB.
-C     ----------------------------------------
+!     Read basic info from runfile and INPORB.
+!     ----------------------------------------
 
-C     Quick and dirty read of the FileOrb name before INPORB is opened
+!     Quick and dirty read of the FileOrb name before INPORB is opened
       LuSpool=17
       LuSpool=isFreeUnit(LuSpool)
       Call SpoolInp(LuSpool)
@@ -84,13 +84,13 @@ C     Quick and dirty read of the FileOrb name before INPORB is opened
 
       Call GetInfo_Localisation_0()
 
-C     Read and process input.
-C     -----------------------
+!     Read and process input.
+!     -----------------------
 
       Call ReadInp_Localisation()
 
-C     Check that all is OK.
-C     ---------------------
+!     Check that all is OK.
+!     ---------------------
 
       irc=0
       Call Chk_Input(irc)
@@ -101,11 +101,11 @@ C     ---------------------
          Go To 1 ! nothing to do; exit...
       End If
 
-C     If test option was specified, we need to keep a copy of the
-C     original MOs.
-C     -----------------------------------------------------------
+!     If test option was specified, we need to keep a copy of the
+!     original MOs.
+!     -----------------------------------------------------------
 
-      If (Test_Localisation.or.Analysis.or.AnaPAO.or.AnaPAO_Save
+      If (Test_Localisation.or.Analysis.or.AnaPAO.or.AnaPAO_Save        &
      &    .or.LocNatOrb .or.LocCanOrb) Then
          lMOrig = nCMO
          Call GetMem('MOrig','Allo','Real',ipMOrig,lMOrig)
@@ -115,17 +115,17 @@ C     -----------------------------------------------------------
          lMOrig  = 0
       End If
 
-C     Print initial orbitals.
-C     -----------------------
+!     Print initial orbitals.
+!     -----------------------
 
       If (.not.Silent .and. PrintMOs) Then
          Write(Title,'(80x)')
          Write(Title,'(a)') 'Initial MO''s'
          iPrWay=2 ! short
-         Call PriMO_Localisation(Title,.True.,.True.,
-     &                           -1.0d0,1.0d5,
-     &                           nSym,nBas,nOrb,Name,Work(ipEor),
-     &                           Work(ipOcc),Work(ipCMO),
+         Call PriMO_Localisation(Title,.True.,.True.,                   &
+     &                           -1.0d0,1.0d5,                          &
+     &                           nSym,nBas,nOrb,Name,Work(ipEor),       &
+     &                           Work(ipOcc),Work(ipCMO),               &
      &                           iPrWay,iWork(ipInd))
       End If
 
@@ -137,20 +137,20 @@ C     -----------------------
          Write(6,'(A,8I8)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
       End If
 
-C     Evaluate ER functional for initial orbitals.
-C     --------------------------------------------
+!     Evaluate ER functional for initial orbitals.
+!     --------------------------------------------
 
       If (EvalER) Then
          ERFun(1) = 0.0d0
-         Call ComputeFuncER(ERFun(1),Work(ipCMO),nBas,nOrb2Loc,nFro,
+         Call ComputeFuncER(ERFun(1),Work(ipCMO),nBas,nOrb2Loc,nFro,    &
      &                      nSym,Timing)
       End If
 
-C     Localise orbitals (if the user did not request us to skip it).
-C     --------------------------------------------------------------
+!     Localise orbitals (if the user did not request us to skip it).
+!     --------------------------------------------------------------
 
       If (Skip) Then
-         Write(6,'(//,5X,A,//)')
+         Write(6,'(//,5X,A,//)')                                        &
      &   'NOTICE: LOCALISATION PROCEDURE SKIPPED BY USER REQUEST!'
          AddInfoString='SKIPPED LOCALI '
          AddInfoVal=0.0d0
@@ -171,7 +171,7 @@ C     --------------------------------------------------------------
             irc = 0
             Call Localise_Iterative(irc,Model,Functional)
             If (irc .ne. 0) Then
-               Write(Txt,'(A,I3)')
+               Write(Txt,'(A,I3)')                                      &
      &         'Return code from Localise_Iterative:',irc
                Call SysAbendMsg(SecNam,'Localisation failed!',Txt)
             End If
@@ -188,7 +188,7 @@ C     --------------------------------------------------------------
             irc = 0
             Call Localise_Noniterative(irc,Model,xNrm)
             If (irc .ne. 0) Then
-               Write(Txt,'(A,I3)')
+               Write(Txt,'(A,I3)')                                      &
      &         'Return code from Localise_Noniterative:',irc
                Call SysAbendMsg(SecNam,'Localisation failed!',Txt)
             End If
@@ -196,10 +196,10 @@ C     --------------------------------------------------------------
             iTol = 4
          Else If (Wave) Then ! wavelet transform
             irc = 0
-            Call Wavelet_Transform(irc,ipCMO,nSym,nBas,nFro,nOrb2Loc,
+            Call Wavelet_Transform(irc,ipCMO,nSym,nBas,nFro,nOrb2Loc,   &
      &                                 iWave,.false.,xNrm)
             If (irc .ne. 0) Then
-               Write(Txt,'(A,I3)')
+               Write(Txt,'(A,I3)')                                      &
      &         'Return code from Wavelet_Transform:',irc
                Call SysAbendMsg(SecNam,'Localisation failed!',Txt)
             End If
@@ -209,7 +209,7 @@ C     --------------------------------------------------------------
             irc = 0
             Call Get_CNOs(irc,nFro,nOrb2Loc,xNrm)
             If (irc .ne. 0) Then
-               Write(Txt,'(A,I3)')
+               Write(Txt,'(A,I3)')                                      &
      &         'Return code from Get_CNOs:',irc
                Call SysAbendMsg(SecNam,'Localisation failed!',Txt)
             End If
@@ -223,47 +223,47 @@ C     --------------------------------------------------------------
          End If
          If (Timing) Then
             Call CWTime(C2_Loc,W2_Loc)
-            Write(6,'(/,1X,A,F10.2,A)')
-     &      'CPU  time for localisation procedure:',
+            Write(6,'(/,1X,A,F10.2,A)')                                 &
+     &      'CPU  time for localisation procedure:',                    &
      &      C2_Loc-C1_Loc,' seconds'
-            Write(6,'(1X,A,F10.2,A,/)')
-     &      'Wall time for localisation procedure:',
+            Write(6,'(1X,A,F10.2,A,/)')                                 &
+     &      'Wall time for localisation procedure:',                    &
      &      W2_Loc-W1_Loc,' seconds'
          End If
       End If
 
-C     Info for check system.
-C     ----------------------
+!     Info for check system.
+!     ----------------------
 
       Call Add_Info(AddInfoString,[AddInfoVal],1,iTol)
 
-C     Order local orbitals according to Cholesky ordering.
-C     ----------------------------------------------------
+!     Order local orbitals according to Cholesky ordering.
+!     ----------------------------------------------------
 
       If (Order) Then
-         Write(6,'(/,1X,A,A)')
-     &   'Sorting local orbitals according to Cholesky ordering.',
+         Write(6,'(/,1X,A,A)')                                          &
+     &   'Sorting local orbitals according to Cholesky ordering.',      &
      &   ' (Based on overlap U=X^TSC.)'
          Call Sort_Localisation(Work(ipCMO),nBas,nOrb2Loc,nFro,nSym)
       End If
 
-C     Evaluate ER functional for local orbitals.
-C     ------------------------------------------
+!     Evaluate ER functional for local orbitals.
+!     ------------------------------------------
 
       If (EvalER) Then
          ERFun(2) = 0.0d0
-         Call ComputeFuncER(ERFun(2),Work(ipCMO),nBas,nOrb2Loc,nFro,
+         Call ComputeFuncER(ERFun(2),Work(ipCMO),nBas,nOrb2Loc,nFro,    &
      &                      nSym,Timing)
-         Write(6,'(/,1X,A,1P,D15.8,/,1X,A,D15.8,/)')
-     &    'ER functional for initial orbitals: ',ERFun(1),
+         Write(6,'(/,1X,A,1P,D15.8,/,1X,A,D15.8,/)')                    &
+     &    'ER functional for initial orbitals: ',ERFun(1),              &
      &    'ER functional for local   orbitals: ',ERFun(2)
       End If
 
-C     Test section.
-C     -------------
+!     Test section.
+!     -------------
 
       If (Test_Localisation) Then
-         Write(6,'(//,1X,A)')
+         Write(6,'(//,1X,A)')                                           &
      &   'Testing orbital localisation...'
          irc = -1
          Call TestLoc(irc)
@@ -277,8 +277,8 @@ C     -------------
          End If
       End If
 
-C     Analysis.
-C     ---------
+!     Analysis.
+!     ---------
 
       If (Analysis) Then
          PreFix = 'L_'
@@ -289,8 +289,8 @@ C     ---------
          End If
       End If
 
-C     Orbital domains.
-C     ----------------
+!     Orbital domains.
+!     ----------------
 
       If (DoDomain) Then
          irc = 0
@@ -302,8 +302,8 @@ C     ----------------
          End If
       End If
 
-C     Local Natural Orbitals
-C     ----------------------
+!     Local Natural Orbitals
+!     ----------------------
 
       If (LocNatOrb .or. LocCanOrb) Then
          nbo=0
@@ -312,19 +312,19 @@ C     ----------------------
          End Do
          Call GetMem('XCMO','Allo','Real',jCMO,2*nbo)
          jXMO=jCMO+nbo
-*
+!
          ibo=0
          jbo=0
          Do iSym=1,nSym
             kCMO=ibo+nBas(iSym)*nFro(iSym)
-            call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipMOrig+kCMO),1,
+            call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipMOrig+kCMO),1, &
      &                                           Work(jbo+jCMO),1)
-            call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipCMO+kCMO),1,
+            call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipCMO+kCMO),1,   &
      &                                           Work(jbo+jXMO),1)
             ibo=ibo+nBas(iSym)**2
             jbo=jbo+nBas(iSym)*nOrb2Loc(iSym)
          End Do
-*
+!
          If (LocNatOrb) Then
             matname='Density'
             jXarray=ipOcc
@@ -334,12 +334,12 @@ C     ----------------------
          EndIf
          lOff=0
          Do iSym=1,nSym
-            xnr0(iSym) = ddot_(nOrb2Loc(iSym),[1.0d0],0,
+            xnr0(iSym) = ddot_(nOrb2Loc(iSym),[1.0d0],0,                &
      &                             Work(jXarray+lOff+nFro(iSym)),1)
             lOff=lOff+nBas(iSym)
          End Do
-*
-         Call Loc_Nat_Orb(irc,Work(jCMO),Work(jXMO),Work(jXarray),
+!
+         Call Loc_Nat_Orb(irc,Work(jCMO),Work(jXMO),Work(jXarray),      &
      &                        nOrb2Loc)
          If (irc.ne.0) Then
             Write(6,*) SecNam,': localisation error detected!'
@@ -347,7 +347,7 @@ C     ----------------------
             iReturn = 1
             Go To 1 ! exit
          EndIf
-*
+!
          write(6,*)
          write(6,*)' ------------------------------------------------- '
          write(6,*)' Sum of the eigenvalues of the partial ',matname,' '
@@ -357,19 +357,19 @@ C     ----------------------
          write(6,*)' ------------------------------------------------- '
          lOff=0
          Do iSym=1,nSym
-            xnr1 = ddot_(nOrb2Loc(iSym),[1.0d0],0,
+            xnr1 = ddot_(nOrb2Loc(iSym),[1.0d0],0,                      &
      &                                 Work(jXarray+lOff+nFro(iSym)),1)
             lOff=lOff+nBas(iSym)
             write(6,'(3X,I4,8X,F11.5,4X,F11.5)') iSym, xnr0(iSym), xnr1
          End Do
          write(6,*)' ------------------------------------------------- '
          write(6,*)
-*
+!
          ibo=0
          jbo=0
          Do iSym=1,nSym
             kCMO=ibo+nBas(iSym)*nFro(iSym)
-            call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(jbo+jXMO),1,
+            call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(jbo+jXMO),1,     &
      &                                           Work(ipCMO+kCMO),1)
             ibo=ibo+nBas(iSym)**2
             jbo=jbo+nBas(iSym)*nOrb2Loc(iSym)
@@ -377,18 +377,18 @@ C     ----------------------
          Call GetMem('XCMO','Free','Real',jCMO,2*nbo)
       EndIf
 
-C-TBP, July 2010 (in connection with fixing deleted orbitals bug, patch
-C 7.7.073_Localisation):
-C Moved the following section outside print section, which is only
-C executed if PrintMOs=.True., implying that the info on LOCORB
-C would differ depending on this print flag!!
+!-TBP, July 2010 (in connection with fixing deleted orbitals bug, patch
+! 7.7.073_Localisation):
+! Moved the following section outside print section, which is only
+! executed if PrintMOs=.True., implying that the info on LOCORB
+! would differ depending on this print flag!!
 
-C     Print a warning if localisation is done in a subset of orbitals
-C     belonging to more than one subset (e.g. mixing occupied and
-C     virtual orbitals and thus breaking the variational principle).
-C     Set orbital energies to zero (unless localisation was skipped).
-C     Also zero occupations if localisation mixed different subsets.
-C     --------------------------------------------------------------
+!     Print a warning if localisation is done in a subset of orbitals
+!     belonging to more than one subset (e.g. mixing occupied and
+!     virtual orbitals and thus breaking the variational principle).
+!     Set orbital energies to zero (unless localisation was skipped).
+!     Also zero occupations if localisation mixed different subsets.
+!     --------------------------------------------------------------
 
       iCheck=0
       iOff=0
@@ -417,7 +417,7 @@ C     --------------------------------------------------------------
          If (jTyp.gt.3 .and. jTyp.lt.6) jPrt=1
       Else
          write(6,*) '****  WARNING  ***  WARNING  ***  WARNING  ****'
-         write(6,*) ' The orbitals for which localisation is reque'//
+         write(6,*) ' The orbitals for which localisation is reque'//   &
      &              'sted belong to more than one of the subspaces:'
          write(6,*) ' (Froz+Inac|RAS1|RAS2|RAS3|Sec+Del). '
          write(6,*) '***********************************************'
@@ -434,22 +434,22 @@ C     --------------------------------------------------------------
          End If
       End If
 
-C     Print final localised orbitals.
-C     -------------------------------
+!     Print final localised orbitals.
+!     -------------------------------
 
       If (PrintMOs) Then
          Write(Title,'(80x)')
          Write(Title,'(a)') 'Final localised MO''s'
          iPrWay=2 ! short
-         Call PriMO_Localisation(Title,.True.,.True.,
-     &                          -1.0d0,1.0d5,
-     &                          nSym,nBas,nOrb,Name,Work(ipEor),
-     &                          Work(ipOcc),Work(ipCMO),
+         Call PriMO_Localisation(Title,.True.,.True.,                   &
+     &                          -1.0d0,1.0d5,                           &
+     &                          nSym,nBas,nOrb,Name,Work(ipEor),        &
+     &                          Work(ipOcc),Work(ipCMO),                &
      &                          iPrWay,iWork(ipInd))
       End If
 
-C     Write LOCORB file.
-C     ------------------
+!     Write LOCORB file.
+!     ------------------
 
       Write(Namefile,'(A)')  'LOCORB'
       Write(Title,'(80X)')
@@ -463,24 +463,24 @@ C     ------------------
             If (kIndT.gt.0 .and. kIndT.le.7) Then
                IndT(kIndT,iSym)=IndT(kIndT,iSym)+1
             Else
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &                             'Localisation: Illegal orbital type')
-               Write(6,'(A,I6,A,I2,A,I9)')
+               Write(6,'(A,I6,A,I2,A,I9)')                              &
      &         'Orbital',k,' of sym.',iSym,' has illegal type:',kIndT
                Call Abend()
             End If
          End Do
          j=j+nBas(iSym)
       End Do
-      Call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,
-     &                        Work(ipCMO),Work(ipOcc),Work(ipEor),IndT,
+      Call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,       &
+     &                        Work(ipCMO),Work(ipOcc),Work(ipEor),IndT, &
      &                        Title)
       If (.not.Silent) Then
          Write(6,'(1X,A)') 'The LOCORB file has been written.'
       End If
 
-C     Write MOLDEN file.
-C     ------------------
+!     Write MOLDEN file.
+!     ------------------
 
       iUHF=0
       Filename='MD_LOC'
@@ -489,19 +489,19 @@ C     ------------------
          Write(6,'(1X,A)') 'The MOLDEN file has been written.'
       End If
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       iReturn = 0
 
-C     Free memory (by flushing).
-C     --------------------------
+!     Free memory (by flushing).
+!     --------------------------
 
     1 Call GetMem('LocDum','Flus','Real',ip_Dum,l_Dum)
       Call GetMem('LocDum','Free','Real',ip_Dum,l_Dum)
 
-C     Print timing.
-C     -------------
+!     Print timing.
+!     -------------
 
       If (.not.Silent) Then
          Call CWTime(C2,W2)
@@ -509,15 +509,15 @@ C     -------------
          WLLtot = W2 - W1
          Call Cho_CnvTim(CPUtot,icHour,icMin,cSec)
          Call Cho_CnvTim(WLLtot,iwHour,iwMin,wSec)
-         Write(6,'(/,1X,A,I8,A,I2,A,F6.2,A)')
-     &   '*** Total localisation time (CPU) : ',
+         Write(6,'(/,1X,A,I8,A,I2,A,F6.2,A)')                           &
+     &   '*** Total localisation time (CPU) : ',                        &
      &   icHour,' hours ',icMin,' minutes ',cSec,' seconds ***'
-         Write(6,'(1X,A,I8,A,I2,A,F6.2,A,/)')
-     &   '*** Total localisation time (Wall): ',
+         Write(6,'(1X,A,I8,A,I2,A,F6.2,A,/)')                           &
+     &   '*** Total localisation time (Wall): ',                        &
      &   iwHour,' hours ',iwMin,' minutes ',wSec,' seconds ***'
       End If
 
-C     That's it!
-C     ----------
+!     That's it!
+!     ----------
 
       End

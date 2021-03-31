@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine GenGnu_Localisation(FilNam,Den,Coord,n)
       Implicit None
       Character*12 FilNam
@@ -24,8 +24,8 @@
       Integer i, j, Lu
       Real*8  Dist, D, Fac
 
-C     Open data file.
-C     ---------------
+!     Open data file.
+!     ---------------
 
       Lu = isFreeUnit(11)
       Write(FName,'(A12,A4)') FilNam,Postfix
@@ -36,15 +36,15 @@ C     ---------------
       Call Molcas_Open(Lu,FName)
       Rewind(Lu)
 
-C     Write data file.
-C     ----------------
+!     Write data file.
+!     ----------------
 
       Fac = 1.0d0/log(1.0d1)
       Do j = 1,n
          Do i = j,n
-            Dist = sqrt((Coord(1,j)-Coord(1,i))**2
-     &                 +(Coord(2,j)-Coord(2,i))**2
-     &                 +(Coord(3,j)-Coord(3,i))**2
+            Dist = sqrt((Coord(1,j)-Coord(1,i))**2                      &
+     &                 +(Coord(2,j)-Coord(2,i))**2                      &
+     &                 +(Coord(3,j)-Coord(3,i))**2                      &
      &                 )
             If (abs(Den(i,j)) .lt. 1.0d-16) Then
                D = -4.0d1
@@ -55,8 +55,8 @@ C     ----------------
          End Do
       End Do
 
-C     Close data file.
-C     ----------------
+!     Close data file.
+!     ----------------
 
       Close(Lu,Status='Keep')
 

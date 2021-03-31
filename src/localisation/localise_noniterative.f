@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
       SubRoutine Localise_Noniterative(irc,Model,xNrm)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: Non-iterative localisation of orbitals.
-C              Models implemented:
-C                Cholesky [MODEL='CHOL']
-C                PAO      [MODEL='PAO ']
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: Non-iterative localisation of orbitals.
+!              Models implemented:
+!                Cholesky [MODEL='CHOL']
+!                PAO      [MODEL='PAO ']
+!
       Implicit Real*8 (a-h,o-z)
       Character*4 Model
 #include "Molcas.fh"
@@ -43,15 +43,15 @@ C
       myModel = Model
       Call UpCase(myModel)
       If (myModel .eq. 'CHOL') Then
-*        If (.not.Silent) Then
+!        If (.not.Silent) Then
             Write(6,'(/,1X,A)') 'Cholesky localisation'
-            Write(6,'(1X,A,1X,D12.4,A)')
+            Write(6,'(1X,A,1X,D12.4,A)')                                &
      &      'Convergence threshold:',Thrs,' (decomposition)'
-            Write(6,'(1X,A,8(1X,I6))')
+            Write(6,'(1X,A,8(1X,I6))')                                  &
      &      'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-            Write(6,'(1X,A,8(1X,I6))')
+            Write(6,'(1X,A,8(1X,I6))')                                  &
      &      'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
-*        End If
+!        End If
          l_Dens = nBas(1)**2
          Do iSym = 2,nSym
             l_Dens = max(l_Dens,nBas(iSym)**2)
@@ -61,9 +61,9 @@ C
          Do iSym = 1,nSym
             If (nOrb2Loc(iSym) .gt. 0) Then
                kOff1 = kOffC + nBas(iSym)*nFro(iSym)
-               Call GetDens_Localisation(Work(ip_Dens),Work(kOff1),
+               Call GetDens_Localisation(Work(ip_Dens),Work(kOff1),     &
      &                                   nBas(iSym),nOrb2Loc(iSym))
-               Call ChoLoc(irc,Work(ip_Dens),Work(kOff1),Thrs,yNrm,
+               Call ChoLoc(irc,Work(ip_Dens),Work(kOff1),Thrs,yNrm,     &
      &                     nBas(iSym),nOrb2Loc(iSym))
                xNrm = xNrm + yNrm*yNrm
                If (irc .ne. 0) Then
@@ -78,15 +78,15 @@ C
          xNrm = sqrt(xNrm)
          Call GetMem('Density','Free','Real',ip_Dens,l_Dens)
       Else If (myModel .eq. 'PAO ') Then
-*        If (.not.Silent) Then
+!        If (.not.Silent) Then
             Write(6,'(/,1X,A)') 'PAO Cholesky localisation'
-            Write(6,'(1X,A,1X,D12.4,A)')
+            Write(6,'(1X,A,1X,D12.4,A)')                                &
      &      'Convergence threshold:',Thrs,' (decomposition)'
-            Write(6,'(1X,A,8(1X,I6))')
+            Write(6,'(1X,A,8(1X,I6))')                                  &
      &      'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-            Write(6,'(1X,A,8(1X,I6))')
+            Write(6,'(1X,A,8(1X,I6))')                                  &
      &      'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
-*        End If
+!        End If
          l_Dv = nBas(1)**2
          l_R = nBas(1)**2
          Do iSym = 2,nSym
@@ -96,7 +96,7 @@ C
          Call GetMem('R','Allo','Real',ip_R,l_R)
          Call GetMem('Dv','Allo','Real',ip_Dv,l_Dv)
          Normalize = .True.
-         Call GetRawPAOs(Work(ip_R),Work(ipCMO),nBas,nOrb,nFro,nOrb2Loc,
+         Call GetRawPAOs(Work(ip_R),Work(ipCMO),nBas,nOrb,nFro,nOrb2Loc,&
      &                   nSym,Normalize)
          kSav = 0
          If (AnaPAO) Then
@@ -108,14 +108,14 @@ C
          kOffC = ipCMO
          Do iSym = 1,nSym
             If (nOrb2Loc(iSym) .gt. 0) Then
-               Call GetDens_Localisation(Work(ip_Dv),Work(kOffR),
+               Call GetDens_Localisation(Work(ip_Dv),Work(kOffR),       &
      &                                   nBas(iSym),nBas(iSym))
                If (AnaPAO) Then
                   Call dCopy_(nBas(iSym)**2,Work(ip_Dv),1,Work(kSav),1)
                   kSav = kSav + nBas(iSym)**2
                End If
                kOff1 = kOffC + nBas(iSym)*nFro(iSym)
-               Call ChoLoc(irc,Work(ip_Dv),Work(kOff1),Thrs,yNrm,
+               Call ChoLoc(irc,Work(ip_Dv),Work(kOff1),Thrs,yNrm,       &
      &                     nBas(iSym),nOrb2Loc(iSym))
                xNrm = xNrm + yNrm*yNrm
                If (irc .ne. 0) Then
@@ -141,24 +141,24 @@ C
          Write(Txt,'(80X)')
          Write(Txt,'(A)') 'Linearly dependent PAOs'
          Lu_=isFreeUnit(11)
-         Call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,
+         Call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,      &
      &                           Work(ip_R),Work(ipOcc),dum,idum,Txt)
-*        If (.not.Silent) Then
+!        If (.not.Silent) Then
             Write(6,'(1X,A)') 'The DPAORB file has been written.'
-*        End If
+!        End If
          Write(Namefile,'(A)') 'IPAORB'
          Write(Txt,'(80X)')
          Write(Txt,'(A)') 'Linearly independent PAOs'
          Lu_=isFreeUnit(11)
-         Call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,
+         Call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,      &
      &                           Work(ipCMO),Work(ipOcc),dum,idum,Txt)
-*        If (.not.Silent) Then
+!        If (.not.Silent) Then
             Write(6,'(1X,A)') 'The IPAORB file has been written.'
-*        End If
+!        End If
          Call GetMem('Dv','Free','Real',ip_Dv,l_Dv)
          Call GetMem('R','Free','Real',ip_R,l_R)
          nOrPs = 2 ! use 2 orthonorm. passes for num. accuracy
-         Call OrthoPAO_Localisation(Work(ipCMO),nBas,nFro,nOrb2Loc,nSym,
+         Call OrthoPAO_Localisation(Work(ipCMO),nBas,nFro,nOrb2Loc,nSym,&
      &                              nOrPs,Test_OrthoPAO)
       Else
          Write(Txt,'(A,A4)') 'Model = ',Model

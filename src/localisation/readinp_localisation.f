@@ -1,57 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yannick Carissan                                       *
-*               Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yannick Carissan                                       *
+!               Thomas Bondo Pedersen                                  *
+!***********************************************************************
       Subroutine Readinp_localisation()
-c
-c     Author: Y. Carissan [heavily modified by T.B. Pedersen].
-c
+!
+!     Author: Y. Carissan [heavily modified by T.B. Pedersen].
+!
       Implicit Real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "inflocal.fh"
 #include "debug.fh"
-c
-cTBP  Namelist /LOCALISATION/ dummy
-c
+!
+!TBP  Namelist /LOCALISATION/ dummy
+!
       Character*20 SecNam
       Parameter (SecNam = 'Readinp_localisation')
-c
+!
       Character*180  Key, Line, Blank
       Character*180 Get_Ln
       External Get_Ln
-c
+!
       Integer  iPrintLevel
       External iPrintLevel
-c
+!
       Logical Thrs_UsrDef, LocModel_UsrDef, Freeze
       Parameter (ThrsDef = 1.0d-6, ThrRotDef = 1.0d-10)
       Parameter (ThrGradDef = 1.0d-2)
-c
+!
       LuSpool=17
       LuSpool=isFreeUnit(LuSpool)
       Call SpoolInp(LuSpool)
-c
+!
       Debug=.False.
-c---- Locate "start of input"
+!---- Locate "start of input"
       Rewind(LuSpool)
       Call RdNLst(LuSpool,'LOCALISATION')
       Blank=' '
-c
-c Get print level
-c
+!
+! Get print level
+!
       iPL = iPrintLevel(-1)
-c
-c Default Parameters
-c
+!
+! Default Parameters
+!
       Do iSym = 1,nSym
          nOrb2Loc(iSym) = 0
          nFro(iSym) = 0
@@ -59,7 +59,7 @@ c
       End Do
       Skip = .False.
       LocOrb=Occupied
-*     LocVir = .False.
+!     LocVir = .False.
       Thrs_UsrDef = .False.
       nOrb2Loc_UsrDef = .False.
       nFro_UsrDef = .False.
@@ -106,9 +106,9 @@ c
       Wave=.false.
       iWave=0
       DoCNOs=.false.
-c
-c End Default Parameters
-c
+!
+! End Default Parameters
+!
   999 Continue
       Key = Get_Ln(LuSpool)
       Line = Key
@@ -163,313 +163,313 @@ c
       Write (6,*) 'Internal representation: ',Line(1:4)
       Call FindErrorLine
       Call Quit_OnUserError()
-c
-c DEBUg
-c
+!
+! DEBUg
+!
  1000 Continue
       Debug=.True.
       Go To 999
-c
-c NORBitals
-c
+!
+! NORBitals
+!
  2000 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,nOrb2Loc,nSym)
       nOrb2Loc_UsrDef=.True.
       Go To 999
-c
-c NFROzen
-c
+!
+! NFROzen
+!
  2100 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,nFro,nSym)
       nFro_UsrDef=.True.
       Freeze = .False.
       If (LocOrb.eq.Virtual) Then
-*     If (LocVir) Then
+!     If (LocVir) Then
          Write (6,*)
          Write (6,*) 'WARNING!!!'
-         Write (6,*) 'You have chosen to freeze some orbitals AND asked'
+         Write (6,*) 'You have chosen to freeze some orbitals AND asked'&
      &             //' to localize the virtual space. This implies that'
-         Write (6,*) ' some virtual orbitals will be kept frozen, thus '
+         Write (6,*) ' some virtual orbitals will be kept frozen, thus '&
      &             //'they will be left unchanged. Is that OK ?'
          Write (6,*)
       EndIf
       Go To 999
-c
-c FREEze core orbitals (as defined by seward)
-c
+!
+! FREEze core orbitals (as defined by seward)
+!
  2200 Continue
       If(.not.nFro_UsrDef)Then
         Call Get_iArray('Non valence orbitals',nFro,nSym)
         Freeze = .True.
         If (LocOrb.eq.Virtual) Then
-*       If (LocVir) Then
+!       If (LocVir) Then
          Write (6,*)
          Write (6,*) 'WARNING!!!'
-         Write (6,*) 'You have chosen to freeze some orbitals AND asked'
+         Write (6,*) 'You have chosen to freeze some orbitals AND asked'&
      &             //' to localize the virtual space. This implies that'
-         Write (6,*) ' some virtual orbitals will be kept frozen, thus '
+         Write (6,*) ' some virtual orbitals will be kept frozen, thus '&
      &             //'they will be left unchanged. Is that OK ?'
          Write (6,*)
         EndIf
       End If
       Go To 999
-c
-c MAXImisation
-c
+!
+! MAXImisation
+!
  3000 Continue
       Maximisation=.True.
       Go To 999
-c
-c MINImisation
-c
+!
+! MINImisation
+!
  3100 Continue
       Maximisation=.False.
       Go To 999
-c
-c NITErations or ITERations
-c
+!
+! NITErations or ITERations
+!
  4000 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,NMxIter)
       Go To 999
-c
-c THREshold
-c
+!
+! THREshold
+!
  5000 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,Thrs)
       Thrs_UsrDef = .True.
       Go To 999
-c
-c THRGrad
-c
+!
+! THRGrad
+!
  5001 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,ThrGrad)
       Go To 999
-c
-c CHOStart (use Cholesky orbitals as start guess for PM/Boys/ER)
-c
+!
+! CHOStart (use Cholesky orbitals as start guess for PM/Boys/ER)
+!
  5100 Continue
       ChoStart = .True.
       Go To 999
-c
-c THRRotation
-c
+!
+! THRRotation
+!
  6000 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,ThrRot)
       Go To 999
-c
-c PIPEk-Mezey or PM
-c
+!
+! PIPEk-Mezey or PM
+!
  7000 Continue
       LocModel = 1
       LocModel_UsrDef = .True.
       Go To 999
-c
-c BOYS
-c
+!
+! BOYS
+!
  7100 Continue
       LocModel = 2
       LocModel_UsrDef = .True.
       Go To 999
-c
-c CHOLesky
-c
+!
+! CHOLesky
+!
  7200 Continue
       LocModel = 3
       LocModel_UsrDef = .True.
       Go To 999
-c
-c EDMIston-Ruedenberg or ER
-c
+!
+! EDMIston-Ruedenberg or ER
+!
  7300 Continue
       LocModel = 4
       LocModel_UsrDef = .True.
       Go To 999
-c
-c SILEnt mode
-c
+!
+! SILEnt mode
+!
  8000 Continue
       Silent = .True.
       Go To 999
-c
-c TEST localisation (orthonormality, density, etc.)
-c
+!
+! TEST localisation (orthonormality, density, etc.)
+!
  9000 Continue
       Test_Localisation = .True.
       Go To 999
-c
-c ANALysis: generate bitmaps + histograms for density, original, and
-c           local MOs. Analysis "per atom" is default, but does not work
-c           with symmetry.
-c
+!
+! ANALysis: generate bitmaps + histograms for density, original, and
+!           local MOs. Analysis "per atom" is default, but does not work
+!           with symmetry.
+!
 10000 Continue
       Analysis = .True.
       AnaAtom  = nSym.eq.1
       Go To 999
-c
-c ANAAtom: generate bitmaps + histograms for density, original, and
-c          local MOs. Analysis "per atom".
-c
+!
+! ANAAtom: generate bitmaps + histograms for density, original, and
+!          local MOs. Analysis "per atom".
+!
 10100 Continue
       Analysis = .True.
       AnaAtom  = .True.
       Go To 999
-c
-c ANAShell: generate bitmaps + histograms for density, original, and
-c           local MOs. Analysis "per shell".
-c
+!
+! ANAShell: generate bitmaps + histograms for density, original, and
+!           local MOs. Analysis "per shell".
+!
 10200 Continue
       Analysis = .True.
       AnaAtom  = .False.
       Go To 999
-c
-c MAX norm: use max element as norm in analysis.
-c
+!
+! MAX norm: use max element as norm in analysis.
+!
 10300 Continue
       AnaNrm  = 'Max'
       Go To 999
-c
-c FROBenius norm: use Frobenius norm in analysis.
-c
+!
+! FROBenius norm: use Frobenius norm in analysis.
+!
 10310 Continue
       AnaNrm  = 'Fro'
       Go To 999
-c
-c NOMO: do not print MOs.
-c
+!
+! NOMO: do not print MOs.
+!
 11000 Continue
       PrintMOs = .False.
       Go To 999
-c
-c TIME: time the localisation procedure explicitly
-c
+!
+! TIME: time the localisation procedure explicitly
+!
 12000 Continue
       Timing = .True.
       Go To 999
-c
-c NOTI: do not time the localisation procedure explicitly
-c
+!
+! NOTI: do not time the localisation procedure explicitly
+!
 12100 Continue
       Timing = .False.
       Go To 999
-c
-c ERFUnctional: evaluate Edmiston-Ruedenberg functional with original
-c               and localised orbitals.
-c
+!
+! ERFUnctional: evaluate Edmiston-Ruedenberg functional with original
+!               and localised orbitals.
+!
 13000 Continue
       EvalER = .True.
       Go To 999
-c
-c ORDEr: order localised orbitals according to Cholesky orbital
-c        ordering, defined according to the overlap between the two sets
-c        orbitals.
-c
+!
+! ORDEr: order localised orbitals according to Cholesky orbital
+!        ordering, defined according to the overlap between the two sets
+!        orbitals.
+!
 14000 Continue
       Order = .True.
       Go To 999
-c
-c VIRTual: localise virtual orbitals
-c
+!
+! VIRTual: localise virtual orbitals
+!
 15000 Continue
       LocOrb = Virtual
-*     LocVir = .True.
+!     LocVir = .True.
       If (nFro_UsrDef .or. Freeze) Then
          Write (6,*)
          Write (6,*) 'WARNING!!!'
-         Write (6,*) 'You have chosen to freeze some orbitals AND asked'
+         Write (6,*) 'You have chosen to freeze some orbitals AND asked'&
      &             //' to localize the virtual space. This implies that'
-         Write (6,*) ' some virtual orbitals will be kept frozen, thus '
+         Write (6,*) ' some virtual orbitals will be kept frozen, thus '&
      &             //'they will be left unchanged. Is that OK ?'
          Write (6,*)
       EndIf
       Go To 999
-c
-c OCCUpied: localise occupied orbitals
-c
+!
+! OCCUpied: localise occupied orbitals
+!
 15100 Continue
       LocOrb = Occupied
-*     LocVir = .False.
+!     LocVir = .False.
       Go To 999
-c
-c ALL: localise all orbitals
-c
+!
+! ALL: localise all orbitals
+!
 15200 Continue
       LocOrb = All
       Go To 999
-c
-c PAO : compute projected AOs that span the virtual space
-c       (= all - occupied - frozen) using Cholesky decomposition to
-c       remove linear dependence.
-c
+!
+! PAO : compute projected AOs that span the virtual space
+!       (= all - occupied - frozen) using Cholesky decomposition to
+!       remove linear dependence.
+!
 16000 Continue
       LocPAO = .True.
       LocModel = 3
       LocModel_UsrDef = .True.
       Go To 999
-c
-c ANAP: Special analysis for Cholesky PAOs before orthonormalization.
-c
+!
+! ANAP: Special analysis for Cholesky PAOs before orthonormalization.
+!
 16100 Continue
       AnaPAO = .True.
       Go To 999
-c
-c DOMAin: set up orbital domains (Pulay-style) and pair domains
-c
+!
+! DOMAin: set up orbital domains (Pulay-style) and pair domains
+!
 17000 Continue
       DoDomain = .True.
       Go To 999
-c
-c THRDomain: thresholds for setting up orbital domains.
-c            First value is the minimum sum of gross atomic Mulliken
-c            charge for each orbital.
-c            Second value is the threshold used for the completeness
-c            check of Boughton and Pulay.
-c
+!
+! THRDomain: thresholds for setting up orbital domains.
+!            First value is the minimum sum of gross atomic Mulliken
+!            charge for each orbital.
+!            Second value is the threshold used for the completeness
+!            check of Boughton and Pulay.
+!
 17100 Continue
       DoDomain = .True.
       Line=Get_Ln(LuSpool)
       Call Get_F(1,ThrDomain,2)
       Go To 999
-c
-c THRPairdomain: thresholds for setting up pair domains.
-c                3 values needed: Rs, Rw, Rd (in bohr).
-c                Let R be the minimum distance between any two atoms in
-c                a pair domain. Then,
-c                     R <= Rs: strong pair
-c                Rs < R <= Rw: weak pair
-c                Rw < R <= Rd: distant pair
-c                Rd < R <= Rd: very distant pair
-c
+!
+! THRPairdomain: thresholds for setting up pair domains.
+!                3 values needed: Rs, Rw, Rd (in bohr).
+!                Let R be the minimum distance between any two atoms in
+!                a pair domain. Then,
+!                     R <= Rs: strong pair
+!                Rs < R <= Rw: weak pair
+!                Rw < R <= Rd: distant pair
+!                Rd < R <= Rd: very distant pair
+!
 17200 Continue
       DoDomain = .True.
       Line=Get_Ln(LuSpool)
       Call Get_F(1,ThrPairDomain,3)
       Go To 999
-c
-c ANADomain: analysis of orbital domains
-c
+!
+! ANADomain: analysis of orbital domains
+!
 17300 Continue
       AnaDomain = .True.
       DoDomain = .True.
       Go To 999
-c
-c SKIP: skip localisation completely; i.e. only perform analysis etc.
-c
+!
+! SKIP: skip localisation completely; i.e. only perform analysis etc.
+!
 18000 Continue
       Skip = .True.
       Go To 999
-c
-c LOCN: localized natural orbitals
-c
+!
+! LOCN: localized natural orbitals
+!
 18100 Continue
       LocNatOrb=.true.
       Read(LuSpool,*) nActa, ThrSel
-*     Read atom names
+!     Read atom names
 18101 Read(LuSpool,'(A)',End=9940) Line
       If ( Line(1:1).eq.'*' ) Goto 18101
       If ( Line.eq.Blank ) Goto 18101
@@ -482,13 +482,13 @@ c
        Line(1:j-1)=Blank(1:j-1)
       Enddo
       Go To 999
-c
-c LOCC: localized canonical orbitals
-c
+!
+! LOCC: localized canonical orbitals
+!
 18200 Continue
       LocCanOrb=.true.
       Read(LuSpool,*) nActa, ThrSel
-*     Read atom names
+!     Read atom names
       Read(LuSpool,'(A)',End=9940) Line
       If ( Line(1:1).eq.'*' ) Goto 18101
       If ( Line.eq.Blank ) Goto 18101
@@ -501,9 +501,9 @@ c
        Line(1:j-1)=Blank(1:j-1)
       Enddo
       Go To 999
-c
-c WAVE: wavelet transform of the MO basis
-c
+!
+! WAVE: wavelet transform of the MO basis
+!
 18300 Continue
       Read(LuSpool,*) iWave
       If (iWave.ne.0 .and. iWave.ne.1) Then
@@ -516,9 +516,9 @@ c
       Wave=.true.
       LocModel=0
       Go To 999
-c
-c CONS: constrained natural orbital analysis
-c
+!
+! CONS: constrained natural orbital analysis
+!
 18400 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,nConstr,nSym)
@@ -536,42 +536,42 @@ c
       PrintMOs=.false.
       LocModel=0
       Go To 999
-c
-c FILE: filename with input orbitals
-c
+!
+! FILE: filename with input orbitals
+!
 18500 Continue
       Line=Get_Ln(LuSpool)
-C     Filename is read in localisation.f
+!     Filename is read in localisation.f
       Go To 999
-c
-c END of Input
-c
+!
+! END of Input
+!
 99999 Continue
 
-C     ==============
-C     Postprocessing
-C     ==============
+!     ==============
+!     Postprocessing
+!     ==============
 
-C     Only Cholesky localisation can be run with symmetry.
-C     Reset if the user explicitly requested a localisation
-C     model different from Cholesky.
-C     ------------------------------------------------------------------
+!     Only Cholesky localisation can be run with symmetry.
+!     Reset if the user explicitly requested a localisation
+!     model different from Cholesky.
+!     ------------------------------------------------------------------
 
       If (nSym.gt.1 .and. LocModel_UsrDef .and. .not.LocModel.eq.3) Then
          Write (6,*)
          Write (6,*) 'WARNING!!!'
-         Write (6,*) 'The localisation model you have suggested in '
+         Write (6,*) 'The localisation model you have suggested in '    &
      &             //'combination with symmetry will not work.'
-         Write (6,*) 'In this case the program defaults to the '
+         Write (6,*) 'In this case the program defaults to the '        &
      &             //'Cholesky localisation scheme!'
          Write (6,*)
          LocModel = 3
       End If
 
-C     Special settings for PAO: LocModel must be 3 (i.e. Cholesky), else
-C     we cancel PAO. For PAO, special analysis may be activated by the
-C     DEBUg keyword.
-C     ------------------------------------------------------------------
+!     Special settings for PAO: LocModel must be 3 (i.e. Cholesky), else
+!     we cancel PAO. For PAO, special analysis may be activated by the
+!     DEBUg keyword.
+!     ------------------------------------------------------------------
 
       LocPAO = LocPAO .and. LocModel.eq.3
       If (LocPAO) Then
@@ -580,33 +580,33 @@ C     ------------------------------------------------------------------
          AnaPAO = .False.
       End If
 
-C     Set orbitals to localize.
-C     If the user specified which orbitals to localise, frozen orbitals
-C     is not our problem (the user must set those as well or use the
-C     default).
-C     If the user did not specify which orbitals to localise, we have
-C     several cases (remembering that virtual localisation is default
-C     for the PAO method):
-C     For virtual localisation (specified with keyword VIRTual):
-C        user-defined frozen orbitals are regarded as frozen virtual,
-C        else we freeze all occupied and localise the rest. Note that
-C        keyword FREEze is ignored for virtual localisation!
-C     For occupied localisation (default for all methods but PAO):
-C        user-defined frozen orbitals (possibly by FREEze keyword)
-C        are subtracted from the set of occupied orbitals, else we
-C        localise all occupied.
-C     -----------------------------------------------------------------
+!     Set orbitals to localize.
+!     If the user specified which orbitals to localise, frozen orbitals
+!     is not our problem (the user must set those as well or use the
+!     default).
+!     If the user did not specify which orbitals to localise, we have
+!     several cases (remembering that virtual localisation is default
+!     for the PAO method):
+!     For virtual localisation (specified with keyword VIRTual):
+!        user-defined frozen orbitals are regarded as frozen virtual,
+!        else we freeze all occupied and localise the rest. Note that
+!        keyword FREEze is ignored for virtual localisation!
+!     For occupied localisation (default for all methods but PAO):
+!        user-defined frozen orbitals (possibly by FREEze keyword)
+!        are subtracted from the set of occupied orbitals, else we
+!        localise all occupied.
+!     -----------------------------------------------------------------
 
       If (nOrb2Loc_UsrDef) Then
          LocOrb = Occupied
-*        LocVir = .False.
+!        LocVir = .False.
       Else
-*        If (LocOrb.eq.Virtual .or. LocPAO) Then
-*           LocOrb = Virtual
-*        End If
-*        LocVir = LocVir .or. LocPAO ! virtual is default for PAO
+!        If (LocOrb.eq.Virtual .or. LocPAO) Then
+!           LocOrb = Virtual
+!        End If
+!        LocVir = LocVir .or. LocPAO ! virtual is default for PAO
          If (LocOrb.eq.Virtual) Then ! virtual localisation
-*        If (LocVir) Then ! virtual localisation
+!        If (LocVir) Then ! virtual localisation
             If (nFro_UsrDef) Then
                Do iSym = 1,nSym
                   nFro(iSym) = nOccInp(iSym) + nFro(iSym)
@@ -619,7 +619,7 @@ C     -----------------------------------------------------------------
                End Do
             End If
          Else If (LocOrb.eq.Occupied) Then ! occupied localisation
-*        Else ! occupied localisation
+!        Else ! occupied localisation
             If (nFro_UsrDef .or. Freeze) Then
                Do iSym = 1,nSym
                   nOrb2Loc(iSym) = nOccInp(iSym) - nFro(iSym)
@@ -632,7 +632,7 @@ C     -----------------------------------------------------------------
          Else ! All
             If (nFro_UsrDef .or. Freeze) Then
                Do iSym = 1,nSym
-                  nOrb2Loc(iSym) = nOccInp(iSym) + nVirInp(iSym)
+                  nOrb2Loc(iSym) = nOccInp(iSym) + nVirInp(iSym)        &
      &                           - nFro(iSym)
                End Do
             Else
@@ -653,25 +653,25 @@ C     -----------------------------------------------------------------
          Write(6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
       End If
 
-C     If Cholesky, reset default threshold (unless user defined).
-C     -----------------------------------------------------------
+!     If Cholesky, reset default threshold (unless user defined).
+!     -----------------------------------------------------------
 
       If (LocModel.eq.3 .and. .not.Thrs_UsrDef) Then
          Thrs = 1.0d-8
       End If
 
-C     No need to order Cholesky MOs.
-C     ------------------------------
+!     No need to order Cholesky MOs.
+!     ------------------------------
 
       Order = Order .and. LocModel.ne.3
 
-C     No need to evaluate ER function for Edmiston-Ruedenberg.
-C     --------------------------------------------------------
+!     No need to evaluate ER function for Edmiston-Ruedenberg.
+!     --------------------------------------------------------
 
       EvalER = EvalER .and. LocModel.ne.4
 
-C     Turn on localisation test if debug or analysis was specified.
-C     -------------------------------------------------------------
+!     Turn on localisation test if debug or analysis was specified.
+!     -------------------------------------------------------------
 
       Test_Localisation = Test_Localisation .or. Debug .or. Analysis
 

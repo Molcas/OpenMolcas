@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
       SubRoutine TestLoc(irc)
-C
-C     Author: T.B. Pedersen
-C
-C     Purpose: test localisation:
-C
-C              1) CC^T = XX^T ?
-C              2) U=C^TSX , UU^T = diag ?
-C              3) If C^TSC=1, X^TSX=1 ?
-C
-C              where C are the original MOs and X the localised ones.
-C
-C              Return codes: irc=0 (all OK), irc=1 (failure).
-C
+!
+!     Author: T.B. Pedersen
+!
+!     Purpose: test localisation:
+!
+!              1) CC^T = XX^T ?
+!              2) U=C^TSX , UU^T = diag ?
+!              3) If C^TSC=1, X^TSX=1 ?
+!
+!              where C are the original MOs and X the localised ones.
+!
+!              Return codes: irc=0 (all OK), irc=1 (failure).
+!
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "inflocal.fh"
@@ -41,13 +41,13 @@ C
       external ddot_
       External iPrintLevel
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Set tolerance; allow more deviation for PAOs.
-C     ---------------------------------------------
+!     Set tolerance; allow more deviation for PAOs.
+!     ---------------------------------------------
 
       If (LocPAO) Then
          Tol = 1.0d-4
@@ -55,8 +55,8 @@ C     ---------------------------------------------
          Tol = 1.0d-6
       End If
 
-C     Get the AO overlap matrix.
-C     --------------------------
+!     Get the AO overlap matrix.
+!     --------------------------
 
       lOvlp = nBas(1)**2
       lOaux = 4 + nBas(1)*(nBas(1)+1)/2
@@ -86,8 +86,8 @@ C     --------------------------
       End Do
       Call GetMem('TstOaux','Free','Real',ipOaux,lOaux)
 
-C     Memory allocation.
-C     ------------------
+!     Memory allocation.
+!     ------------------
 
       lUmat = nOrb2Loc(1)**2
       lScr  = nBas(1)*nOrb2Loc(1)
@@ -102,8 +102,8 @@ C     ------------------
       Call GetMem('Scratch','Allo','Real',ipScr,lScr)
       Call GetMem('Umat','Allo','Real',ipUmat,lUmat)
 
-C     Test 1) density.
-C     ----------------
+!     Test 1) density.
+!     ----------------
 
       nErr = 0
 
@@ -114,18 +114,18 @@ C     ----------------
       kX  = ipCMO
       Do iSym = 1,nSym
          kC1 = kC + nBas(iSym)*nFro(iSym)
-         Call GetDens_Localisation(Work(kDC),Work(kC1),
+         Call GetDens_Localisation(Work(kDC),Work(kC1),                 &
      &                             nBas(iSym),nOrb2Loc(iSym))
          kX1 = kX + nBas(iSym)*nFro(iSym)
-         Call GetDens_Localisation(Work(kDX),Work(kX1),
+         Call GetDens_Localisation(Work(kDX),Work(kX1),                 &
      &                             nBas(iSym),nOrb2Loc(iSym))
          nB2 = nBas(iSym)**2
          Call dCopy_(nB2,Work(kDC),1,Work(kDd),1)
          Call dAXPY_(nB2,-1.0d0,Work(kDX),1,Work(kDd),1)
          xNrm = sqrt(dDot_(nB2,Work(kDd),1,Work(kDd),1))
          If (xNrm .gt. Tol) Then
-            Write(6,'(A,A,D16.8,A,I2,A)')
-     &      SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',
+            Write(6,'(A,A,D16.8,A,I2,A)')                               &
+     &      SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',         &
      &      iSym,')'
             nErr = nErr + 1
          End If
@@ -140,8 +140,8 @@ C     ----------------
          Go To 1 ! exit, after de-allocations
       End If
 
-C     Test 2) U^TU = diag.
-C     --------------------
+!     Test 2) U^TU = diag.
+!     --------------------
 
       nErr = 0
 
@@ -152,13 +152,13 @@ C     --------------------
       Do iSym = 1,nSym
          kC1 = kC + nBas(iSym)*nFro(iSym)
          kX1 = kX + nBas(iSym)*nFro(iSym)
-         Call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),
-     &                             Work(kX1),Work(ipScr),lScr,
+         Call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),         &
+     &                             Work(kX1),Work(ipScr),lScr,          &
      &                             nBas(iSym),nOrb2Loc(iSym))
          nTO = max(nOrb2Loc(iSym),1)
-         Call DGEMM_('T','N',
-     &              nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),
-     &              1.0d0,Work(kU),nTO,Work(kU),nTO,
+         Call DGEMM_('T','N',                                           &
+     &              nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),       &
+     &              1.0d0,Work(kU),nTO,Work(kU),nTO,                    &
      &              0.0d0,Work(ipScr),nTO)
          xErr = -9.9d9
          ip0  = ipScr - 1
@@ -170,8 +170,8 @@ C     --------------------
             End Do
          End Do
          If (xErr .gt. Tol) Then
-            Write(6,'(A,A,D16.8,A,I2,A)')
-     &      SecNam,': ERROR: max. U^TU off-diag. = ',xErr,' (sym.',
+            Write(6,'(A,A,D16.8,A,I2,A)')                               &
+     &      SecNam,': ERROR: max. U^TU off-diag. = ',xErr,' (sym.',     &
      &      iSym,')'
             nErr = nErr + 1
          End If
@@ -186,8 +186,8 @@ C     --------------------
          Go To 1 ! exit, after de-allocations
       End If
 
-C     Test 3) X^TSX=1.
-C     ----------------
+!     Test 3) X^TSX=1.
+!     ----------------
 
       nErr = 0
 
@@ -197,8 +197,8 @@ C     ----------------
       kX = ipCMO
       Do iSym = 1,nSym
          kC1 = kC + nBas(iSym)*nFro(iSym)
-         Call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),
-     &                             Work(kC1),Work(ipScr),lScr,
+         Call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),         &
+     &                             Work(kC1),Work(ipScr),lScr,          &
      &                             nBas(iSym),nOrb2Loc(iSym))
          mErr = 0
          xErr = -9.9d9
@@ -219,8 +219,8 @@ C     ----------------
          End If
          If (mErr .eq. 0) Then
             kX1 = kX + nBas(iSym)*nFro(iSym)
-            Call GetUmat_Localisation(Work(kU),Work(kX1),Work(kO),
-     &                                Work(kX1),Work(ipScr),lScr,
+            Call GetUmat_Localisation(Work(kU),Work(kX1),Work(kO),      &
+     &                                Work(kX1),Work(ipScr),lScr,       &
      &                                nBas(iSym),nOrb2Loc(iSym))
             xErr = -9.9d9
             ip0  = kU - 1
@@ -236,8 +236,8 @@ C     ----------------
                End Do
             End Do
             If (xErr .gt. Tol) Then
-               Write(6,'(A,A,D16.8,A,I2,A)')
-     &         SecNam,': ERROR: max. X^TSX off-diag. = ',xErr,' (sym.',
+               Write(6,'(A,A,D16.8,A,I2,A)')                            &
+     &         SecNam,': ERROR: max. X^TSX off-diag. = ',xErr,' (sym.', &
      &         iSym,')'
                mErr = mErr + 1
             End If
@@ -257,8 +257,8 @@ C     ----------------
          Go To 1 ! exit, after de-allocations
       End If
 
-C     De-allocations and return.
-C     --------------------------
+!     De-allocations and return.
+!     --------------------------
 
     1 Continue
       Call GetMem('Umat','Free','Real',ipUmat,lUmat)

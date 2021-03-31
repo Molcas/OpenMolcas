@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-*               2011, Francesco Aquilante                              *
-************************************************************************
-      Subroutine PriMO_Localisation(Header,PrOcc,PrEne,ThrOcc,ThrEne,
-     &                              nSym,nBas,nOrb,Nme,Ene,Occ,CMO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!               2011, Francesco Aquilante                              *
+!***********************************************************************
+      Subroutine PriMO_Localisation(Header,PrOcc,PrEne,ThrOcc,ThrEne,   &
+     &                              nSym,nBas,nOrb,Nme,Ene,Occ,CMO,     &
      &                              iPrForm,IndxT)
-C
-C     Thomas Bondo Pedersen, July 2010.
-C
-C     Print MOs.
-C     This is a work-around to fix bugs when orbitals are deleted.
-C
-C     F. Aquilante, Nov 2011   (Print only non-deleted orbitals)
-C
+!
+!     Thomas Bondo Pedersen, July 2010.
+!
+!     Print MOs.
+!     This is a work-around to fix bugs when orbitals are deleted.
+!
+!     F. Aquilante, Nov 2011   (Print only non-deleted orbitals)
+!
       Implicit None
 #include "Molcas.fh"
       Character*(*) Header
@@ -91,7 +91,7 @@ C
          k2=k2+nOrb(iSym)
       End Do
 
-      Call PriMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,
+      Call PriMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,       &
      &           Nme,Work(ip_EOr),Work(ip_Occ),Work(ip_CMO),iPrForm)
 
       Call GetMem('Eor_','Free','Real',ip_EOr,l_EOr)

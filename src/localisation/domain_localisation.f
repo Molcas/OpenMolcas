@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Thomas Bondo Pedersen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Thomas Bondo Pedersen                            *
+!***********************************************************************
       SubRoutine Domain_Localisation(irc)
-C
-C     Thomas Bondo Pedersen, January 2006.
-C
-C     Purpose: set up orbital domains and pair domains. Find number of
-C              strong, weak, distant, and very distant pairs.
-C
+!
+!     Thomas Bondo Pedersen, January 2006.
+!
+!     Purpose: set up orbital domains and pair domains. Find number of
+!              strong, weak, distant, and very distant pairs.
+!
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "inflocal.fh"
@@ -29,21 +29,21 @@ C
       Integer iCount(0:3)
       Real*8  ThrPD(3)
 
-C     Set return code.
-C     ----------------
+!     Set return code.
+!     ----------------
 
       irc = 0
 
-C     Check for symmetry (not allowed).
-C     ---------------------------------
+!     Check for symmetry (not allowed).
+!     ---------------------------------
 
       If (nSym .ne. 1) Then
          irc = -1
          Return
       End If
 
-C     Initializations.
-C     ----------------
+!     Initializations.
+!     ----------------
 
       nBasT = nBas(1)
       nOcc  = nOrb2Loc(1)
@@ -60,29 +60,29 @@ C     ----------------
       l_Rmin = 0
       l_Coord = 0
 
-C     There must be at least 2 atoms and 2 orbitals.
-C     ----------------------------------------------
+!     There must be at least 2 atoms and 2 orbitals.
+!     ----------------------------------------------
 
       If (nAtom.lt.2 .or. nOcc.lt.2) Then
          irc = -2
          Return
       End If
 
-C     Allocate and get index arrays for indexation of basis functions on
-C     each atom.
-C     ------------------------------------------------------------------
+!     Allocate and get index arrays for indexation of basis functions on
+!     each atom.
+!     ------------------------------------------------------------------
 
       l_nBas_per_Atom = nAtom
       l_nBas_Start    = nAtom
-      Call GetMem('nB_per_Atom','Allo','Inte',
+      Call GetMem('nB_per_Atom','Allo','Inte',                          &
      &            ip_nBas_per_Atom,l_nBas_per_Atom)
-      Call GetMem('nB_Start','Allo','Inte',
+      Call GetMem('nB_Start','Allo','Inte',                             &
      &            ip_nBas_Start,l_nBas_Start)
-      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
+      Call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),    &
      &                 Name,nBasT,nAtom,Debug)
 
-C     Define domains.
-C     ---------------
+!     Define domains.
+!     ---------------
 
       l_iDomain = (nAtom+1)*nOcc
       l_QD = nOcc
@@ -92,9 +92,9 @@ C     ---------------
       Call GetMem('f','Allo','Real',ip_f,l_f)
 
       kC = ipCMO + nBasT*nFro(1)
-      Call DefineDomain(irc,iWork(ip_iDomain),Work(ip_QD),Work(ip_f),
-     &                  Work(kC),ThrDomain,
-     &                  iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),
+      Call DefineDomain(irc,iWork(ip_iDomain),Work(ip_QD),Work(ip_f),   &
+     &                  Work(kC),ThrDomain,                             &
+     &                  iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),   &
      &                  nAtom,nBasT,nOcc)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ERROR: DefineDomain returned ',irc
@@ -113,9 +113,9 @@ C     ---------------
          End If
       End If
 
-C     Define pair domains.
-C     Make sure that ThrPairDomain is in ascending order.
-C     ---------------------------------------------------
+!     Define pair domains.
+!     Make sure that ThrPairDomain is in ascending order.
+!     ---------------------------------------------------
 
       Call dCopy_(3,ThrPairDomain,1,ThrPD,1)
       Call Cho_Order(ThrPD,3,1)
@@ -133,15 +133,15 @@ C     ---------------------------------------------------
       l_iClass = nnOcc
       l_Rmin = nnOcc
       l_Coord = 3*nAtom
-      Call GetMem('iPairDomain','Allo','Inte',ip_iPairDomain,
+      Call GetMem('iPairDomain','Allo','Inte',ip_iPairDomain,           &
      &                                        l_iPairDomain)
       Call GetMem('iClass','Allo','Inte',ip_iClass,l_iClass)
       Call GetMem('Rmin','Allo','Real',ip_Rmin,l_Rmin)
       Call GetMem('Coord','Allo','Real',ip_Coord,l_Coord)
 
       Call Get_dArray('Unique Coordinates',Work(ip_Coord),l_Coord)
-      Call DefinePairDomain(irc,iWork(ip_iPairDomain),iWork(ip_iClass),
-     &                      Work(ip_Rmin),iWork(ip_iDomain),ThrPD,
+      Call DefinePairDomain(irc,iWork(ip_iPairDomain),iWork(ip_iClass), &
+     &                      Work(ip_Rmin),iWork(ip_iDomain),ThrPD,      &
      &                      Work(ip_Coord),nAtom,nOcc,3)
       If (irc .ne. 0) Then
          Write(6,*) SecNam,': ERROR: DefinePairDomain returned ',irc
@@ -160,12 +160,12 @@ C     ---------------------------------------------------
          End If
       End If
 
-C     Print info.
-C     -----------
+!     Print info.
+!     -----------
 
-      Call Domain_Histogram(iWork(ip_iDomain),nAtom,nOcc,
+      Call Domain_Histogram(iWork(ip_iDomain),nAtom,nOcc,               &
      &                      'Histogram of domain sizes')
-      Call Domain_Histogram(iWork(ip_iPairDomain),nAtom,nnOcc,
+      Call Domain_Histogram(iWork(ip_iPairDomain),nAtom,nnOcc,          &
      &                      'Histogram of pair domain sizes')
 
       Call Cho_Head('Pair domain classification','=',80,6)
@@ -178,46 +178,46 @@ C     -----------
       End Do
       Write(6,'(/,A)') 'Definition:'
       If (iChange .ne. 0) Then
-         Write(6,'(A,A)')
-     &   'Notice: the input thresholds were re-ordered to ascending ',
+         Write(6,'(A,A)')                                               &
+     &   'Notice: the input thresholds were re-ordered to ascending ',  &
      &   'order'
-         Write(6,'(A,1P,3(1X,D15.5))') 'Your input order was:',
+         Write(6,'(A,1P,3(1X,D15.5))') 'Your input order was:',         &
      &   (ThrPairDomain(i),i=1,3)
       End If
-      Write(6,'(A,1P,D15.5)')
+      Write(6,'(A,1P,D15.5)')                                           &
      & 'Strong       pairs:                   R <= ',ThrPD(1)
-      Write(6,'(A,1P,D15.5,A,D15.5)')
+      Write(6,'(A,1P,D15.5,A,D15.5)')                                   &
      & 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
-      Write(6,'(A,1P,D15.5,A,D15.5)')
+      Write(6,'(A,1P,D15.5,A,D15.5)')                                   &
      & 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
-      Write(6,'(A,1P,D15.5,A)')
+      Write(6,'(A,1P,D15.5,A)')                                         &
      & 'Very distant pairs: ',ThrPD(3),' < R'
       Write(6,'(/,A)') 'Classification:'
       Fac = 1.0d2/dble(nnOcc)
-      Write(6,'(A,I9,3X,F7.2,A)')
-     & 'Number of strong       pairs: ',iCount(0),
+      Write(6,'(A,I9,3X,F7.2,A)')                                       &
+     & 'Number of strong       pairs: ',iCount(0),                      &
      & Fac*dble(iCount(0)),'%'
-      Write(6,'(A,I9,3X,F7.2,A)')
-     & 'Number of weak         pairs: ',iCount(1),
+      Write(6,'(A,I9,3X,F7.2,A)')                                       &
+     & 'Number of weak         pairs: ',iCount(1),                      &
      & Fac*dble(iCount(1)),'%'
-      Write(6,'(A,I9,3X,F7.2,A)')
-     & 'Number of distant      pairs: ',iCount(2),
+      Write(6,'(A,I9,3X,F7.2,A)')                                       &
+     & 'Number of distant      pairs: ',iCount(2),                      &
      & Fac*dble(iCount(2)),'%'
-      Write(6,'(A,I9,3X,F7.2,A,/)')
-     & 'Number of very distant pairs: ',iCount(3),
+      Write(6,'(A,I9,3X,F7.2,A,/)')                                     &
+     & 'Number of very distant pairs: ',iCount(3),                      &
      & Fac*dble(iCount(3)),'%'
 
-C     Analysis of individual domains (if requested).
-C     ----------------------------------------------
+!     Analysis of individual domains (if requested).
+!     ----------------------------------------------
 
       If (AnaDomain) Then
-         Call Analysis_Domain(iWork(ip_iDomain),Work(ip_QD),Work(ip_f),
-     &                        Work(ip_Coord),Name,
+         Call Analysis_Domain(iWork(ip_iDomain),Work(ip_QD),Work(ip_f), &
+     &                        Work(ip_Coord),Name,                      &
      &                        iWork(ip_nBas_Start),nAtom,nBasT,nOcc)
       End If
 
-C     Deallocations.
-C     --------------
+!     Deallocations.
+!     --------------
 
     1 If (l_Coord .gt. 0) Then
          Call GetMem('Coord','Free','Real',ip_Coord,l_Coord)
@@ -229,7 +229,7 @@ C     --------------
          Call GetMem('iClass','Free','Inte',ip_iClass,l_iClass)
       End If
       If (l_iPairDomain .gt. 0) Then
-         Call GetMem('iPairDomain','Free','Inte',ip_iPairDomain,
+         Call GetMem('iPairDomain','Free','Inte',ip_iPairDomain,        &
      &                                        l_iPairDomain)
       End If
       If (l_f .gt. 0) Then
@@ -242,11 +242,11 @@ C     --------------
          Call GetMem('iDomain','Free','Inte',ip_iDomain,l_iDomain)
       End If
       If (l_nBas_Start .gt. 0) Then
-         Call GetMem('nB_Start','Free','Inte',
+         Call GetMem('nB_Start','Free','Inte',                          &
      &               ip_nBas_Start,l_nBas_Start)
       End If
       If (l_nBas_per_Atom .gt. 0) Then
-         Call GetMem('nB_per_Atom','Free','Inte',
+         Call GetMem('nB_per_Atom','Free','Inte',                       &
      &               ip_nBas_per_Atom,l_nBas_per_Atom)
       End If
 

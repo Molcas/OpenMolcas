@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
       SubRoutine Chk_Input(irc)
-C
-C     Author: T.B. Pedersen
-C     Purpose: Check input.
-C
-C     Return codes:
-C       irc = 0: all OK
-C       irc < 0: all OK, but nothing to do
-C       irc > 0: input error
-C
+!
+!     Author: T.B. Pedersen
+!     Purpose: Check input.
+!
+!     Return codes:
+!       irc = 0: all OK
+!       irc < 0: all OK, but nothing to do
+!       irc > 0: input error
+!
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "inflocal.fh"
@@ -59,7 +59,7 @@ C
       End If
 
       If (LocModel.lt.0 .or. LocModel.gt.nLocModel) Then
-         Write(6,*) SecNam,': LocModel must satisfy 0 <= LocModel <= ',
+         Write(6,*) SecNam,': LocModel must satisfy 0 <= LocModel <= ', &
      &              nLocModel
          Write(6,*) '    LocModel = ',LocModel
          irc = irc + 1
@@ -68,8 +68,8 @@ C
       If (LocModel .eq. 4) Then
          Call DecideOnCholesky(doCholesky)
          If (.not.doCholesky) Then
-            Call SysAbendMsg(SecNam,
-     &           'Edmiston-Ruedenberg localisation not possible:',
+            Call SysAbendMsg(SecNam,                                    &
+     &           'Edmiston-Ruedenberg localisation not possible:',      &
      &           'Cholesky integrals required!')
          End If
       End If
@@ -77,7 +77,7 @@ C
       If (EvalER) Then
          Call DecideOnCholesky(doCholesky)
          If (.not.doCholesky) Then
-            Write(6,*) SecNam,': evaluation of ER functional requires',
+            Write(6,*) SecNam,': evaluation of ER functional requires', &
      &                 ' Cholesky decomposition of ERIs!'
             Write(6,*) 'Evaluation of ER functional is cancelled...'
             EvalER = .False.

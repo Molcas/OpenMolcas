@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
-      Subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
+      Subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,   &
      &                              FName)
-C
-C     Thomas Bondo Pedersen, July 2010.
-C
-C     Read orbital info and return in a format suitable for module
-C     localisation: deleted orbitals are included (as zeros). This is a
-C     work-around to fix bugs when orbitals are deleted.
-C
+!
+!     Thomas Bondo Pedersen, July 2010.
+!
+!     Read orbital info and return in a format suitable for module
+!     localisation: deleted orbitals are included (as zeros). This is a
+!     work-around to fix bugs when orbitals are deleted.
+!
       Implicit None
       Integer nSym ! number of irreps
       Integer nBas(nSym)  ! number of basis functions
@@ -72,12 +72,12 @@ C
       iErr=-1 ! init return code
       iWFType=-1 ! init wave function type
       Dummy(1)=9.9d9 ! dummy variable
-      Call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,
-     &            Work(ip_CMO),Dummy,Work(ip_Occ),Dummy,
-     &            Work(ip_EOr),Dummy,iWork(ip_Ind),VTitle,iWarn,iErr,
+      Call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,                  &
+     &            Work(ip_CMO),Dummy,Work(ip_Occ),Dummy,                &
+     &            Work(ip_EOr),Dummy,iWork(ip_Ind),VTitle,iWarn,iErr,   &
      &            iWFType)
       If (iErr.ne.0) Then
-         Call WarningMessage(2,
+         Call WarningMessage(2,                                         &
      &                     SecNam//': Non-zero return code from RdVec_')
          Write(6,'(A,A,I9)') SecNam,': RdVec_ returned code',iErr
          Call xFlush(6)
@@ -93,7 +93,7 @@ C
       k2=1
       Do iSym=1,nSym
          Call dCopy_(nBas(iSym)*nOrb(iSym),Work(k1),1,CMO(k2),1)
-         Call Cho_dZero(CMO(k2+nBas(iSym)*nOrb(iSym)),
+         Call Cho_dZero(CMO(k2+nBas(iSym)*nOrb(iSym)),                  &
      &                  nBas(iSym)*(nBas(iSym)-nOrb(iSym)))
          k1=k1+nBas(iSym)*nOrb(iSym)
          k2=k2+nBas(iSym)*nBas(iSym)
@@ -103,7 +103,7 @@ C
       k2=1
       Do iSym=1,nSym
          Call dCopy_(nOrb(iSym),Work(k1),1,Occ(k2),1)
-         Call Cho_dZero(Occ(k2+nOrb(iSym)),
+         Call Cho_dZero(Occ(k2+nOrb(iSym)),                             &
      &                  nBas(iSym)-nOrb(iSym))
          k1=k1+nOrb(iSym)
          k2=k2+nBas(iSym)
@@ -114,7 +114,7 @@ C
       Dummy(1)=9.9d9
       Do iSym=1,nSym
          Call dCopy_(nOrb(iSym),Work(k1),1,EOrb(k2),1)
-         Call dCopy_(nBas(iSym)-nOrb(iSym),Dummy(1),0,
+         Call dCopy_(nBas(iSym)-nOrb(iSym),Dummy(1),0,                  &
      &                                    EOrb(k2+nOrb(iSym)),1)
          k1=k1+nOrb(iSym)
          k2=k2+nBas(iSym)
