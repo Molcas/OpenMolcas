@@ -112,6 +112,8 @@
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
      &                           L_Full_Type
+      use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
+     &                           Lab_Type
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
@@ -122,6 +124,7 @@
       Type (DSBA_Type) AOrb(*)
       Type (SBA_Type) Laq(1), Lxy
       Type (L_Full_Type) L_Full
+      Type (Lab_Type) Lab
 
       Logical   DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
@@ -245,8 +248,6 @@
       nInd = 0
 
       Call set_nnA(nSym,nAorb,nnA)
-      ipAbs=0
-
 *
 **    Various offsets
 *
@@ -387,7 +388,6 @@
          DiaH%A0(:)=Zero
 
          Call mma_allocate(AbsC,MaxB,Label='AbsC')
-         ipAbs=ip_of_Work(AbsC(1))
 
          Call mma_allocate(Ylk,MaxB,nItmx,Label='Ylk')
 
@@ -609,7 +609,7 @@
          mTvec=mTvec1+mTvec2
 
          LFMAX = Max(mTvec,  LFULL) ! re-use memory for the active vec
-         mTvec = nnOmx + Max(MxB,1) ! mem for half transformed + Lik
+         mTvec = nnOmx + 2*Max(MxB,1) ! mem for half transformed + Lik
 *
 **
 *
@@ -851,6 +851,8 @@ C --- Transform the densities to reduced set storage
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+               mDen=1
+               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
 
                   CALL CWTIME(TCX1,TWX1)
 
@@ -1129,6 +1131,7 @@ C------------------------------------------------------------------
      &                                     * JNUM
      &                                     + iOffSha*JNUM
 
+                           Lab%Keep(iaSh,1) = .True.
                            ibcount=0
 
                            Do ibSh=1,nShell
@@ -1195,7 +1198,7 @@ C------------------------------------------------------------------
 ** iaSh vector LaJ[k] can be neglected because identically zero
 *
 
-                           If (ibcount==0) ipLab(iaSh) = ipAbs
+                           If (ibcount==0) Lab%Keep(iaSh,1) = .False.
 
                         End Do
 
@@ -1222,10 +1225,7 @@ C------------------------------------------------------------------
 
                              iaSh = Indx(iSh,nInd)
 
-                             iaSkip= Min(1,Max(0,
-     &                               abs(ipLab(iaSh)-ipAbs)))!=1 or 0
-
-                             If (iaSkip==0) Cycle
+                             If (.NOT.Lab%Keep(iaSh,1)) Cycle
 
                              ip_Cai = ipMO + kOffsh(iaSh,lSym)
 *
@@ -1302,6 +1302,7 @@ C------------------------------------------------------------------
 
                   End Do   ! loop over densities
 
+               Call Deallocate_Lab(Lab)
                Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
                Call Deallocate_L_Full(L_Full)
 *                                                                      *
