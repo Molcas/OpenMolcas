@@ -22,7 +22,7 @@ implicit none
 #include "inflocal.fh"
 #include "debug.fh"
 !TBP Namelist /LOCALISATION/ dummy
-integer(kind=iwp) :: i, iPL, iSym, j
+integer(kind=iwp) :: i, iPL, istatus, iSym, j
 character(len=180) :: Key, Line
 logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, Freeze
 real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
@@ -102,438 +102,344 @@ DoCNOs = .false.
 
 ! End Default Parameters
 
-999 continue
-Key = Get_Ln(LuSpool)
-Line = Key
-call UpCase(Line)
-if (Line(1:4) == 'DEBU') Go To 1000
-if (Line(1:4) == 'NORB') Go To 2000
-if (Line(1:4) == 'NFRO') Go To 2100
-if (Line(1:4) == 'FREE') Go To 2200
-if (Line(1:4) == 'MAXI') Go To 3000
-if (Line(1:4) == 'MINI') Go To 3100
-if (Line(1:4) == 'NITE') Go To 4000
-if (Line(1:4) == 'ITER') Go To 4000
-if (Line(1:4) == 'THRE') Go To 5000
-if (Line(1:4) == 'THRG') Go To 5001
-if (Line(1:4) == 'CHOS') Go To 5100
-if (Line(1:4) == 'THRR') Go To 6000
-if (Line(1:4) == 'PIPE') Go To 7000
-if (Line(1:4) == 'PM  ') Go To 7000
-if (Line(1:4) == 'BOYS') Go To 7100
-if (Line(1:4) == 'CHOL') Go To 7200
-if (Line(1:4) == 'EDMI') Go To 7300
-if (Line(1:4) == 'ER  ') Go To 7300
-if (Line(1:4) == 'SILE') Go To 8000
-if (Line(1:4) == 'TEST') Go To 9000
-if (Line(1:4) == 'ANAL') Go To 10000
-if (Line(1:4) == 'ANAA') Go To 10100
-if (Line(1:4) == 'ANAS') Go To 10200
-if (Line(1:4) == 'MAX ') Go To 10300
-if (Line(1:4) == 'FROB') Go To 10310
-if (Line(1:4) == 'NOMO') Go To 11000
-if (Line(1:4) == 'TIME') Go To 12000
-if (Line(1:4) == 'NOTI') Go To 12100
-if (Line(1:4) == 'ERFU') Go To 13000
-if (Line(1:4) == 'ORDE') Go To 14000
-if (Line(1:4) == 'VIRT') Go To 15000
-if (Line(1:4) == 'OCCU') Go To 15100
-if (Line(1:4) == 'ALL ') Go To 15200
-if (Line(1:4) == 'PAO ') Go To 16000
-if (Line(1:4) == 'ANAP') Go To 16100
-if (Line(1:4) == 'DOMA') Go To 17000
-if (Line(1:4) == 'THRD') Go To 17100
-if (Line(1:4) == 'THRP') Go To 17200
-if (Line(1:4) == 'ANAD') Go To 17300
-if (Line(1:4) == 'SKIP') Go To 18000
-if (Line(1:4) == 'LOCN') Go To 18100
-if (Line(1:4) == 'LOCC') Go To 18200
-if (Line(1:4) == 'WAVE') Go To 18300
-if (Line(1:4) == 'CONS') Go To 18400
-if (Line(1:4) == 'FILE') Go To 18500
-if (Line(1:4) == 'END ') Go To 99999
-write(u6,*) 'Unidentified key word  : ',Key
-write(u6,*) 'Internal representation: ',Line(1:4)
-call FindErrorLine()
-call Quit_OnUserError()
-
-! DEBUg
-
-1000 continue
-Debug = .true.
-Go To 999
-
-! NORBitals
-
-2000 continue
-Line = Get_Ln(LuSpool)
-call Get_I(1,nOrb2Loc,nSym)
-nOrb2Loc_UsrDef = .true.
-Go To 999
-
-! NFROzen
-
-2100 continue
-Line = Get_Ln(LuSpool)
-call Get_I(1,nFro,nSym)
-nFro_UsrDef = .true.
-Freeze = .false.
-!if (LocVir) then
-if (LocOrb == Virtual) then
-  write(u6,*)
-  write(u6,*) 'WARNING!!!'
-  write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
-  write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
-  write(u6,*)
-end if
-Go To 999
-
-! FREEze core orbitals (as defined by seward)
-
-2200 continue
-if (.not. nFro_UsrDef) then
-  call Get_iArray('Non valence orbitals',nFro,nSym)
-  Freeze = .true.
-  !if (LocVir) then
-  if (LocOrb == Virtual) then
-    write(u6,*)
-    write(u6,*) 'WARNING!!!'
-    write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
-    write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
-    write(u6,*)
-  end if
-end if
-Go To 999
+do
+  Key = Get_Ln(LuSpool)
+  Line = Key
+  call UpCase(Line)
+  select case (Line(1:4))
+    case ('DEBU')
+      ! DEBUg
 
-! MAXImisation
+      Debug = .true.
 
-3000 continue
-Maximisation = .true.
-Go To 999
+    case ('NORB')
+      ! NORBitals
 
-! MINImisation
+      Line = Get_Ln(LuSpool)
+      call Get_I(1,nOrb2Loc,nSym)
+      nOrb2Loc_UsrDef = .true.
 
-3100 continue
-Maximisation = .false.
-Go To 999
+    case ('NFRO')
+      ! NFROzen
 
-! NITErations or ITERations
+      Line = Get_Ln(LuSpool)
+      call Get_I(1,nFro,nSym)
+      nFro_UsrDef = .true.
+      Freeze = .false.
+      !if (LocVir) then
+      if (LocOrb == Virtual) then
+        write(u6,*)
+        write(u6,*) 'WARNING!!!'
+        write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
+        write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
+        write(u6,*)
+      end if
 
-4000 continue
-Line = Get_Ln(LuSpool)
-call Get_I1(1,NMxIter)
-Go To 999
+    case ('FREE')
+      ! FREEze core orbitals (as defined by seward)
 
-! THREshold
+      if (.not. nFro_UsrDef) then
+        call Get_iArray('Non valence orbitals',nFro,nSym)
+        Freeze = .true.
+        !if (LocVir) then
+        if (LocOrb == Virtual) then
+          write(u6,*)
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
+          write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
+          write(u6,*)
+        end if
+      end if
 
-5000 continue
-Line = Get_Ln(LuSpool)
-call Get_F1(1,Thrs)
-Thrs_UsrDef = .true.
-Go To 999
+    case ('MAXI')
+      ! MAXImisation
 
-! THRGrad
+      Maximisation = .true.
 
-5001 continue
-Line = Get_Ln(LuSpool)
-call Get_F1(1,ThrGrad)
-Go To 999
+    case ('MINI')
+      ! MINImisation
 
-! CHOStart (use Cholesky orbitals as start guess for PM/Boys/ER)
+      Maximisation = .false.
 
-5100 continue
-ChoStart = .true.
-Go To 999
+    case ('NITE', 'ITER')
+      ! NITErations or ITERations
 
-! THRRotation
+      Line = Get_Ln(LuSpool)
+      call Get_I1(1,NMxIter)
 
-6000 continue
-Line = Get_Ln(LuSpool)
-call Get_F1(1,ThrRot)
-Go To 999
+    case ('THRE')
+      ! THREshold
 
-! PIPEk-Mezey or PM
+      Line = Get_Ln(LuSpool)
+      call Get_F1(1,Thrs)
+      Thrs_UsrDef = .true.
 
-7000 continue
-LocModel = 1
-LocModel_UsrDef = .true.
-Go To 999
+    case ('THRG')
+      ! THRGrad
 
-! BOYS
+      Line = Get_Ln(LuSpool)
+      call Get_F1(1,ThrGrad)
 
-7100 continue
-LocModel = 2
-LocModel_UsrDef = .true.
-Go To 999
+    case ('CHOS')
+      ! CHOStart (use Cholesky orbitals as start guess for PM/Boys/ER)
 
-! CHOLesky
+      ChoStart = .true.
 
-7200 continue
-LocModel = 3
-LocModel_UsrDef = .true.
-Go To 999
+    case ('THRR')
+      ! THRRotation
 
-! EDMIston-Ruedenberg or ER
+      Line = Get_Ln(LuSpool)
+      call Get_F1(1,ThrRot)
 
-7300 continue
-LocModel = 4
-LocModel_UsrDef = .true.
-Go To 999
+    case ('PIPE', 'PM  ')
+      ! PIPEk-Mezey or PM
 
-! SILEnt mode
+      LocModel = 1
+      LocModel_UsrDef = .true.
 
-8000 continue
-Silent = .true.
-Go To 999
+    case ('BOYS')
+      ! BOYS
 
-! TEST localisation (orthonormality, density, etc.)
+      LocModel = 2
+      LocModel_UsrDef = .true.
 
-9000 continue
-Test_Localisation = .true.
-Go To 999
+    case ('CHOL')
+      ! CHOLesky
 
-! ANALysis: generate bitmaps + histograms for density, original, and
-!           local MOs. Analysis "per atom" is default, but does not work
-!           with symmetry.
+      LocModel = 3
+      LocModel_UsrDef = .true.
 
-10000 continue
-Analysis = .true.
-AnaAtom = nSym == 1
-Go To 999
+    case ('EDMI', 'ER  ')
+      ! EDMIston-Ruedenberg or ER
 
-! ANAAtom: generate bitmaps + histograms for density, original, and
-!          local MOs. Analysis "per atom".
+      LocModel = 4
+      LocModel_UsrDef = .true.
 
-10100 continue
-Analysis = .true.
-AnaAtom = .true.
-Go To 999
+    case ('SILE')
+      ! SILEnt mode
 
-! ANAShell: generate bitmaps + histograms for density, original, and
-!           local MOs. Analysis "per shell".
+      Silent = .true.
 
-10200 continue
-Analysis = .true.
-AnaAtom = .false.
-Go To 999
+    case ('TEST')
+      ! TEST localisation (orthonormality, density, etc.)
 
-! MAX norm: use max element as norm in analysis.
+      Test_Localisation = .true.
 
-10300 continue
-AnaNrm = 'Max'
-Go To 999
+    case ('ANAL')
+      ! ANALysis: generate bitmaps + histograms for density, original, and
+      !           local MOs. Analysis "per atom" is default, but does not work
+      !           with symmetry.
 
-! FROBenius norm: use Frobenius norm in analysis.
+      Analysis = .true.
+      AnaAtom = nSym == 1
 
-10310 continue
-AnaNrm = 'Fro'
-Go To 999
+    case ('ANAA')
+      ! ANAAtom: generate bitmaps + histograms for density, original, and
+      !          local MOs. Analysis "per atom".
 
-! NOMO: do not print MOs.
+      Analysis = .true.
+      AnaAtom = .true.
 
-11000 continue
-PrintMOs = .false.
-Go To 999
+    case ('ANAS')
+      ! ANAShell: generate bitmaps + histograms for density, original, and
+      !           local MOs. Analysis "per shell".
 
-! TIME: time the localisation procedure explicitly
+      Analysis = .true.
+      AnaAtom = .false.
 
-12000 continue
-Timing = .true.
-Go To 999
+    case ('MAX ')
+      ! MAX norm: use max element as norm in analysis.
 
-! NOTI: do not time the localisation procedure explicitly
+      AnaNrm = 'Max'
 
-12100 continue
-Timing = .false.
-Go To 999
+    case ('FROB')
+      ! FROBenius norm: use Frobenius norm in analysis.
 
-! ERFUnctional: evaluate Edmiston-Ruedenberg functional with original
-!               and localised orbitals.
+      AnaNrm = 'Fro'
 
-13000 continue
-EvalER = .true.
-Go To 999
+    case ('NOMO')
+      ! NOMO: do not print MOs.
 
-! ORDEr: order localised orbitals according to Cholesky orbital
-!        ordering, defined according to the overlap between the two sets
-!        orbitals.
+      PrintMOs = .false.
 
-14000 continue
-Order = .true.
-Go To 999
+    case ('TIME')
+      ! TIME: time the localisation procedure explicitly
 
-! VIRTual: localise virtual orbitals
+      Timing = .true.
 
-15000 continue
-LocOrb = Virtual
-!LocVir = .true.
-if (nFro_UsrDef .or. Freeze) then
-  write(u6,*)
-  write(u6,*) 'WARNING!!!'
-  write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
-  write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
-  write(u6,*)
-end if
-Go To 999
+    case ('NOTI')
+      ! NOTI: do not time the localisation procedure explicitly
 
-! OCCUpied: localise occupied orbitals
+      Timing = .false.
 
-15100 continue
-LocOrb = Occupied
-!LocVir = .false.
-Go To 999
+    case ('ERFU')
+      ! ERFUnctional: evaluate Edmiston-Ruedenberg functional with original
+      !               and localised orbitals.
 
-! ALL: localise all orbitals
+      EvalER = .true.
 
-15200 continue
-LocOrb = All
-Go To 999
+    case ('ORDE')
+      ! ORDEr: order localised orbitals according to Cholesky orbital
+      !        ordering, defined according to the overlap between the two sets
+      !        orbitals.
 
-! PAO : compute projected AOs that span the virtual space
-!       (= all - occupied - frozen) using Cholesky decomposition to
-!       remove linear dependence.
+      Order = .true.
 
-16000 continue
-LocPAO = .true.
-LocModel = 3
-LocModel_UsrDef = .true.
-Go To 999
+    case ('VIRT')
+      ! VIRTual: localise virtual orbitals
 
-! ANAP: Special analysis for Cholesky PAOs before orthonormalization.
+      LocOrb = Virtual
+      !LocVir = .true.
+      if (nFro_UsrDef .or. Freeze) then
+        write(u6,*)
+        write(u6,*) 'WARNING!!!'
+        write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
+        write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
+        write(u6,*)
+      end if
 
-16100 continue
-AnaPAO = .true.
-Go To 999
+    case ('OCCU')
+      ! OCCUpied: localise occupied orbitals
 
-! DOMAin: set up orbital domains (Pulay-style) and pair domains
+      LocOrb = Occupied
+      !LocVir = .false.
 
-17000 continue
-DoDomain = .true.
-Go To 999
+    case ('ALL ')
+      ! ALL: localise all orbitals
 
-! THRDomain: thresholds for setting up orbital domains.
-!            First value is the minimum sum of gross atomic Mulliken
-!            charge for each orbital.
-!            Second value is the threshold used for the completeness
-!            check of Boughton and Pulay.
+      LocOrb = All
 
-17100 continue
-DoDomain = .true.
-Line = Get_Ln(LuSpool)
-call Get_F(1,ThrDomain,2)
-Go To 999
+    case ('PAO ')
+      ! PAO : compute projected AOs that span the virtual space
+      !       (= all - occupied - frozen) using Cholesky decomposition to
+      !       remove linear dependence.
 
-! THRPairdomain: thresholds for setting up pair domains.
-!                3 values needed: Rs, Rw, Rd (in bohr).
-!                Let R be the minimum distance between any two atoms in
-!                a pair domain. Then,
-!                     R <= Rs: strong pair
-!                Rs < R <= Rw: weak pair
-!                Rw < R <= Rd: distant pair
-!                Rd < R <= Rd: very distant pair
+      LocPAO = .true.
+      LocModel = 3
+      LocModel_UsrDef = .true.
 
-17200 continue
-DoDomain = .true.
-Line = Get_Ln(LuSpool)
-call Get_F(1,ThrPairDomain,3)
-Go To 999
+    case ('ANAP')
+      ! ANAP: Special analysis for Cholesky PAOs before orthonormalization.
+
+      AnaPAO = .true.
 
-! ANADomain: analysis of orbital domains
+    case ('DOMA')
+      ! DOMAin: set up orbital domains (Pulay-style) and pair domains
 
-17300 continue
-AnaDomain = .true.
-DoDomain = .true.
-Go To 999
+      DoDomain = .true.
+
+    case ('THRD')
+      ! THRDomain: thresholds for setting up orbital domains.
+      !            First value is the minimum sum of gross atomic Mulliken
+      !            charge for each orbital.
+      !            Second value is the threshold used for the completeness
+      !            check of Boughton and Pulay.
 
-! SKIP: skip localisation completely; i.e. only perform analysis etc.
-
-18000 continue
-Skip = .true.
-Go To 999
-
-! LOCN: localized natural orbitals
-
-18100 continue
-LocNatOrb = .true.
-read(LuSpool,*) nActa,ThrSel
-! Read atom names
-18101 read(LuSpool,'(A)',end=9940) Line
-if (Line(1:1) == '*') goto 18101
-if (Line == ' ') goto 18101
-call UpCase(Line)
-do i=1,nActa
-  call LeftAd(Line)
-  if (Line == ' ') goto 9940
-  j = index(Line,' ')
-  NamAct(i) = Line(1:j-1)
-  Line(1:j-1) = ' '
+      DoDomain = .true.
+      Line = Get_Ln(LuSpool)
+      call Get_F(1,ThrDomain,2)
+
+    case ('THRP')
+      ! THRPairdomain: thresholds for setting up pair domains.
+      !                3 values needed: Rs, Rw, Rd (in bohr).
+      !                Let R be the minimum distance between any two atoms in
+      !                a pair domain. Then,
+      !                     R <= Rs: strong pair
+      !                Rs < R <= Rw: weak pair
+      !                Rw < R <= Rd: distant pair
+      !                Rd < R <= Rd: very distant pair
+
+      DoDomain = .true.
+      Line = Get_Ln(LuSpool)
+      call Get_F(1,ThrPairDomain,3)
+
+    case ('ANAD')
+      ! ANADomain: analysis of orbital domains
+
+      AnaDomain = .true.
+      DoDomain = .true.
+
+    case ('SKIP')
+      ! SKIP: skip localisation completely; i.e. only perform analysis etc.
+
+      Skip = .true.
+
+    case ('LOCN', 'LOCC')
+      ! LOCN: localized natural orbitals
+      ! LOCC: localized canonical orbitals
+
+      if (Line(1:4) == 'LOCN') then
+        LocNatOrb = .true.
+      else if (Line(1:4) == 'LOCC') then
+        LocCanOrb = .true.
+      end if
+      read(LuSpool,*) nActa,ThrSel
+      ! Read atom names
+      do
+        read(LuSpool,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error()
+        if ((Line(1:1) /= '*') .and. (Line /= ' ')) exit
+      end do
+      call UpCase(Line)
+      do i=1,nActa
+        call LeftAd(Line)
+        if (Line == ' ') call Error()
+        j = index(Line,' ')
+        NamAct(i) = Line(1:j-1)
+        Line(1:j-1) = ' '
+      end do
+
+    case ('WAVE')
+      ! WAVE: wavelet transform of the MO basis
+
+      read(LuSpool,*) iWave
+      if ((iWave /= 0) .and. (iWave /= 1)) then
+        write(u6,*) ' WARNING!!!'
+        write(u6,*) ' Incorrect bit-switch input parameter for WAVE.'
+        write(u6,*) ' I will continue with the default value.'
+        iWave = 0
+      end if
+      Skip = .false.
+      Wave = .true.
+      LocModel = 0
+
+    case ('CONS')
+      ! CONS: constrained natural orbital analysis
+
+      Line = Get_Ln(LuSpool)
+      call Get_I(1,nConstr,nSym)
+      MxConstr = 0
+      do i=1,nSym
+        MxConstr = max(MxConstr,nConstr(i))
+      end do
+      if (MxConstr > 16) then
+        write(u6,*) ' ERROR  !!!'
+        write(u6,*) ' Cannot handle more than 16 constraints/symm !!'
+        write(u6,*) ' Increase size of indxC in Get_CNOs and recompile.'
+      end if
+      DoCNOs = .true.
+      Skip = .false.
+      PrintMOs = .false.
+      LocModel = 0
+
+    case ('FILE')
+      ! FILE: filename with input orbitals
+
+      Line = Get_Ln(LuSpool)
+      ! Filename is read in localisation.F90
+
+    case ('END ')
+      exit
+
+    case default
+      write(u6,*) 'Unidentified key word  : ',Key
+      write(u6,*) 'Internal representation: ',Line(1:4)
+      call FindErrorLine()
+      call Quit_OnUserError()
+  end select
 end do
-Go To 999
-
-! LOCC: localized canonical orbitals
-
-18200 continue
-LocCanOrb = .true.
-read(LuSpool,*) nActa,ThrSel
-! Read atom names
-read(LuSpool,'(A)',end=9940) Line
-if (Line(1:1) == '*') goto 18101
-if (Line == ' ') goto 18101
-call UpCase(Line)
-do i=1,nActa
-  call LeftAd(Line)
-  if (Line == ' ') goto 9940
-  j = index(Line,' ')
-  NamAct(i) = Line(1:j-1)
-  Line(1:j-1) = ' '
-end do
-Go To 999
-
-! WAVE: wavelet transform of the MO basis
-
-18300 continue
-read(LuSpool,*) iWave
-if ((iWave /= 0) .and. (iWave /= 1)) then
-  write(u6,*) ' WARNING!!!'
-  write(u6,*) ' Incorrect bit-switch input parameter for WAVE.'
-  write(u6,*) ' I will continue with the default value.'
-  iWave = 0
-end if
-Skip = .false.
-Wave = .true.
-LocModel = 0
-Go To 999
-
-! CONS: constrained natural orbital analysis
-
-18400 continue
-Line = Get_Ln(LuSpool)
-call Get_I(1,nConstr,nSym)
-MxConstr = 0
-do i=1,nSym
-  MxConstr = max(MxConstr,nConstr(i))
-end do
-if (MxConstr > 16) then
-  write(u6,*) ' ERROR  !!!'
-  write(u6,*) ' Cannot handle more than 16 constraints/symm !!'
-  write(u6,*) ' Increase size of indxC in Get_CNOs and recompile.'
-end if
-DoCNOs = .true.
-Skip = .false.
-PrintMOs = .false.
-LocModel = 0
-Go To 999
-
-! FILE: filename with input orbitals
-
-18500 continue
-Line = Get_Ln(LuSpool)
-! Filename is read in localisation.f
-Go To 999
 
 ! END of Input
-
-99999 continue
 
 ! ==============
 ! Postprocessing
@@ -659,13 +565,12 @@ EvalER = EvalER .and. (LocModel /= 4)
 
 Test_Localisation = Test_Localisation .or. Debug .or. Analysis
 
-Go To 9950
+contains
 
-9940 continue
-write(u6,*) ' READIN: Premature end of file when reading selected'
-write(u6,*) ' atoms in keyword LOCN'
-call Abend()
-
-9950 continue
+subroutine Error()
+  write(u6,*) ' READIN: Premature end of file when reading selected'
+  write(u6,*) ' atoms in keyword LOCN'
+  call Abend()
+end subroutine Error
 
 end subroutine Readinp_localisation

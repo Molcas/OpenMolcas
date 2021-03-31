@@ -133,8 +133,8 @@ do iSym=1,nSym
   kX = kX+nB2
 end do
 if (nErr /= 0) then
-  irc = 1
-  Go To 1 ! exit, after de-allocations
+  call Error(1) ! exit, after de-allocations
+  return
 end if
 
 ! Test 2) U^TU = diag.
@@ -172,8 +172,8 @@ do iSym=1,nSym
   kX = kX+nB2
 end do
 if (nErr /= 0) then
-  irc = 1
-  Go To 1 ! exit, after de-allocations
+  call Error(1) ! exit, after de-allocations
+  return
 end if
 
 ! Test 3) X^TSX=1.
@@ -237,19 +237,26 @@ do iSym=1,nSym
   kX = kX+nB2
 end do
 if (nErr /= 0) then
-  irc = 1
-  Go To 1 ! exit, after de-allocations
+  call Error(1) ! exit, after de-allocations
+  return
 end if
 
 ! De-allocations and return.
 ! --------------------------
 
-1 continue
-call GetMem('Umat','Free','Real',ipUmat,lUmat)
-call GetMem('Scratch','Free','Real',ipScr,lScr)
-call GetMem('Ddff','Free','Real',ipDdff,lDen)
-call GetMem('DenX','Free','Real',ipDenX,lDen)
-call GetMem('DenC','Free','Real',ipDenC,lDen)
-call GetMem('TstOvlp','Free','Real',ipOvlp,lOvlp)
+call Error(0)
+
+contains
+
+subroutine Error(code)
+  integer(kind=iwp), intent(in) :: code
+  if (code /= 0) irc = code
+  call GetMem('Umat','Free','Real',ipUmat,lUmat)
+  call GetMem('Scratch','Free','Real',ipScr,lScr)
+  call GetMem('Ddff','Free','Real',ipDdff,lDen)
+  call GetMem('DenX','Free','Real',ipDenX,lDen)
+  call GetMem('DenC','Free','Real',ipDenC,lDen)
+  call GetMem('TstOvlp','Free','Real',ipOvlp,lOvlp)
+end subroutine Error
 
 end subroutine TestLoc

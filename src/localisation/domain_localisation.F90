@@ -94,7 +94,8 @@ call DefineDomain(irc,iWork(ip_iDomain),Work(ip_QD),Work(ip_f),Work(kC),ThrDomai
                   nAtom,nBasT,nOcc)
 if (irc /= 0) then
   write(u6,*) SecNam,': ERROR: DefineDomain returned ',irc
-  Go To 1 ! return after deallocations
+  call Error(irc) ! return after deallocations
+  return
 end if
 
 if (Debug) then
@@ -104,8 +105,8 @@ if (Debug) then
     write(u6,*) '....OK!'
   else
     write(u6,*) '....Ooops. Buggy domain definition!'
-    irc = 2
-    Go To 1 ! return after deallocations
+    call Error(2) ! return after deallocations
+    return
   end if
 end if
 
@@ -138,7 +139,8 @@ call Get_dArray('Unique Coordinates',Work(ip_Coord),l_Coord)
 call DefinePairDomain(irc,iWork(ip_iPairDomain),iWork(ip_iClass),Work(ip_Rmin),iWork(ip_iDomain),ThrPD,Work(ip_Coord),nAtom,nOcc,3)
 if (irc /= 0) then
   write(u6,*) SecNam,': ERROR: DefinePairDomain returned ',irc
-  Go To 1 ! return after deallocations
+  call Error(irc) ! return after deallocations
+  return
 end if
 
 if (Debug) then
@@ -148,8 +150,8 @@ if (Debug) then
     write(u6,*) '....OK!'
   else
     write(u6,*) '....Ooops. Buggy pair domain definition!'
-    irc = 3
-    Go To 1 ! return after deallocations
+    call Error(3) ! return after deallocations
+    return
   end if
 end if
 
@@ -193,32 +195,40 @@ end if
 ! Deallocations.
 ! --------------
 
-1 if (l_Coord > 0) then
-  call GetMem('Coord','Free','Real',ip_Coord,l_Coord)
-end if
-if (l_Rmin > 0) then
-  call GetMem('Rmin','Free','Real',ip_Rmin,l_Rmin)
-end if
-if (l_iClass > 0) then
-  call GetMem('iClass','Free','Inte',ip_iClass,l_iClass)
-end if
-if (l_iPairDomain > 0) then
-  call GetMem('iPairDomain','Free','Inte',ip_iPairDomain,l_iPairDomain)
-end if
-if (l_f > 0) then
-  call GetMem('f','Free','Real',ip_f,l_f)
-end if
-if (l_QD > 0) then
-  call GetMem('QD','Free','Real',ip_QD,l_QD)
-end if
-if (l_iDomain > 0) then
-  call GetMem('iDomain','Free','Inte',ip_iDomain,l_iDomain)
-end if
-if (l_nBas_Start > 0) then
-  call GetMem('nB_Start','Free','Inte',ip_nBas_Start,l_nBas_Start)
-end if
-if (l_nBas_per_Atom > 0) then
-  call GetMem('nB_per_Atom','Free','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
-end if
+call Error(0)
+
+contains
+
+subroutine Error(code)
+  integer(kind=iwp), intent(in) :: code
+  if (code /= 0) irc = code
+  if (l_Coord > 0) then
+    call GetMem('Coord','Free','Real',ip_Coord,l_Coord)
+  end if
+  if (l_Rmin > 0) then
+    call GetMem('Rmin','Free','Real',ip_Rmin,l_Rmin)
+  end if
+  if (l_iClass > 0) then
+    call GetMem('iClass','Free','Inte',ip_iClass,l_iClass)
+  end if
+  if (l_iPairDomain > 0) then
+    call GetMem('iPairDomain','Free','Inte',ip_iPairDomain,l_iPairDomain)
+  end if
+  if (l_f > 0) then
+    call GetMem('f','Free','Real',ip_f,l_f)
+  end if
+  if (l_QD > 0) then
+    call GetMem('QD','Free','Real',ip_QD,l_QD)
+  end if
+  if (l_iDomain > 0) then
+    call GetMem('iDomain','Free','Inte',ip_iDomain,l_iDomain)
+  end if
+  if (l_nBas_Start > 0) then
+    call GetMem('nB_Start','Free','Inte',ip_nBas_Start,l_nBas_Start)
+  end if
+  if (l_nBas_per_Atom > 0) then
+    call GetMem('nB_per_Atom','Free','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
+  end if
+end subroutine Error
 
 end subroutine Domain_Localisation

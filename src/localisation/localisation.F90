@@ -73,14 +73,18 @@ call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
 LC_FileOrb = ' '
-100 Line = Get_Ln(LuSpool)
-call UpCase(Line)
-if (Line(1:4) == 'FILE') goto 200
-if (Line(1:4) == 'END ') goto 999
-goto 100
-200 Line = Get_Ln(LuSpool)
-call FileOrb(Line,LC_FileOrb)
-999 call Close_LuSpool(LuSpool)
+do
+  Line = Get_Ln(LuSpool)
+  call UpCase(Line)
+  if (Line(1:4) == 'FILE') then
+    Line = Get_Ln(LuSpool)
+    call FileOrb(Line,LC_FileOrb)
+    exit
+  else if (Line(1:4) == 'END ') then
+    exit
+  end if
+end do
+call Close_LuSpool(LuSpool)
 
 call GetInfo_Localisation_0()
 
@@ -98,7 +102,8 @@ if (irc > 0) then
   call SysAbendMsg(SecNam,'Inconsistent input',' ')
 else if (irc < 0) then
   iReturn = 0
-  Go To 1 ! nothing to do; exit...
+  call Error(0) ! nothing to do; exit...
+  return
 end if
 
 ! If test option was specified, we need to keep a copy of the
@@ -252,8 +257,8 @@ if (Test_Localisation) then
   else
     write(u6,*) SecNam,': localisation error detected!'
     write(u6,*) ' TestLoc returned ',irc
-    iReturn = 1
-    Go To 1 ! exit
+    call Error(1) ! exit
+    return
   end if
 end if
 
@@ -320,8 +325,8 @@ if (LocNatOrb .or. LocCanOrb) then
   if (irc /= 0) then
     write(u6,*) SecNam,': localisation error detected!'
     write(u6,*) ' Loc_Nat_Orb returned ',irc
-    iReturn = 1
-    Go To 1 ! exit
+    call Error(1) ! exit
+    return
   end if
 
   write(u6,*)
@@ -463,25 +468,33 @@ iReturn = 0
 ! Free memory (by flushing).
 ! --------------------------
 
-1 call GetMem('LocDum','Flus','Real',ip_Dum,l_Dum)
-call GetMem('LocDum','Free','Real',ip_Dum,l_Dum)
-
-! Print timing.
-! -------------
-
-if (.not. Silent) then
-  call CWTime(C2,W2)
-  CPUtot = C2-C1
-  WLLtot = W2-W1
-  call Cho_CnvTim(CPUtot,icHour,icMin,cSec)
-  call Cho_CnvTim(WLLtot,iwHour,iwMin,wSec)
-  write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec, &
-                                        ' seconds ***'
-  write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec, &
-                                        ' seconds ***'
-end if
+call Error(0)
 
 ! That's it!
 ! ----------
+
+contains
+
+subroutine Error(code)
+  integer(kind=iwp), intent(in) :: code
+  if (code /=0) iReturn = code
+  call GetMem('LocDum','Flus','Real',ip_Dum,l_Dum)
+  call GetMem('LocDum','Free','Real',ip_Dum,l_Dum)
+
+  ! Print timing.
+  ! -------------
+
+  if (.not. Silent) then
+    call CWTime(C2,W2)
+    CPUtot = C2-C1
+    WLLtot = W2-W1
+    call Cho_CnvTim(CPUtot,icHour,icMin,cSec)
+    call Cho_CnvTim(WLLtot,iwHour,iwMin,wSec)
+    write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec, &
+                                        ' seconds ***'
+    write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec, &
+                                        ' seconds ***'
+  end if
+end subroutine Error
 
 end subroutine Localisation
