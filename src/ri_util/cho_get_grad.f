@@ -167,7 +167,7 @@
      &                      SvShp(:,:), MLk(:), Ylk(:,:), Drs2(:,:)
       Real*8, Allocatable, Target:: Yik(:)
       Real*8, Pointer:: pYik(:,:)=>Null()
-      Integer, Allocatable:: ipLab(:), kOffSh(:,:), iShp_rs(:),
+      Integer, Allocatable:: kOffSh(:,:), iShp_rs(:),
      &                       Indx(:,:), Indik(:,:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
@@ -422,8 +422,6 @@
 
          !Yi[k] Index array
          Call mma_allocate(Indik,(nItmx+1)*nItmx+1,nInd,Label='Indik')
-
-         Call mma_allocate(ipLab,nShell,Label='ipLab')
 
 !        kOffSh
          Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
@@ -928,7 +926,8 @@ C --- Transform the densities to reduced set storage
      &                                Nik = nChOrb_(kSym,iMOleft)
      &                                    *(nChOrb_(kSym,iMOleft)+1)/2
                        nIJ1(kSym,lSym,jDen) = Nik
-                       If (Nik.eq.0) Go To 98
+
+                       If (Nik.eq.0) Cycle
 
                        ip_R = ipChoT
      &                      + (nChOrb_(lSym,iMOright)+nBas(lSym))*JNUM
@@ -940,6 +939,7 @@ C --- Transform the densities to reduced set storage
 
                         CALL FZero(Work(ipChoT),
      &                         (nChOrb_(lSym,iMOright)+nBas(lSym))*JNUM)
+                        Lab%A0(1:nBas(lSym)*JNUM)=Zero
 
                         ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
      &                       + nBas(kSym)*(jK-1)
@@ -1126,12 +1126,8 @@ C------------------------------------------------------------------
 
                            iOffSha = kOffSh(iaSh,lSym)
 
-                           ipLab(iaSh)= ipChoT
-     &                                     + nChOrb_(lSym,iMOright)
-     &                                     * JNUM
-     &                                     + iOffSha*JNUM
-
                            Lab%Keep(iaSh,1) = .True.
+
                            ibcount=0
 
                            Do ibSh=1,nShell
@@ -1167,7 +1163,7 @@ C------------------------------------------------------------------
                                    Call DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
      &                                       Work(ipMO+ioffShb),1,
-     &                                   ONE,Work(ipLab(iaSh)),1)
+     &                                   ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                 Else   ! lSym < kSym
 
@@ -1185,7 +1181,7 @@ C------------------------------------------------------------------
                                     Call DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
      &                                       Work(ipMO+ioffShb),1,
-     &                                   ONE,Work(ipLab(iaSh)),1)
+     &                                   ONE,Lab%SB(iaSh,lSym,1)%A,1)
 
                                 EndIf
 
@@ -1250,7 +1246,7 @@ C------------------------------------------------------------------
                              EndIf
 
                              CALL DGEMV_(Mode(1:1),n1,n2,
-     &                                   One,Work(ipLab(iaSh)),n1,
+     &                                   One,Lab%SB(iaSh,lSym,1)%A,n1,
      &                                       Work(ip_Cai),1,
      &                                   one,Work(ip_Lik),1)
 
@@ -1294,7 +1290,6 @@ C------------------------------------------------------------------
                        CALL CWTIME(TCT2,TWT2)
                        tmotr(1) = tmotr(1) + (TCT2 - TCT1)
                        tmotr(2) = tmotr(2) + (TWT2 - TWT1)
- 98                    Continue
 
                     End Do   ! loop over MOs symmetry
 
@@ -1636,7 +1631,6 @@ C--- have performed screening in the meanwhile
       If (DoExchange) Then
          Call mma_deallocate(SvShp)
          Call mma_deallocate(kOffSh)
-         Call mma_deallocate(ipLab)
          Call mma_deallocate(Indik)
          Call mma_deallocate(Indx)
          Do i = 1, nDen
