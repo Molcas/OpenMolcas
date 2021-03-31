@@ -42,6 +42,8 @@ C
      &                           Deallocate_NDSBA
       use Data_Structures, only: Allocate_L_Full, Deallocate_L_Full,
      &                           L_Full_Type
+      use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
+     &                           Lab_Type
 
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
@@ -58,6 +60,7 @@ C
       Type (SBA_Type)   Laq(2)
       Type (twxy_Type)  Scr
       Type (L_Full_Type) L_Full
+      Type (Lab_Type) Lab
 
       Integer   ipMO(2), ipMSQ(2),ipCM(2)
       Logical   DoReord,DoScreen, add
@@ -86,7 +89,7 @@ C
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
 
-      Integer, Allocatable:: nnBfShp(:,:), ipLab(:,:), kOffSh(:,:),
+      Integer, Allocatable:: nnBfShp(:,:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:,:)
       Real*8, Allocatable :: SvShp(:,:),Diag(:),AbsC(:), SumAClk(:,:,:),
      &                       Ylk(:,:,:), MLk(:,:,:), Faa(:), Fia(:)
@@ -234,10 +237,6 @@ c --- for each shell
 
 c --- allocate memory for the Index arrays
       Call mma_allocate(Indx,[0,nShell],[1,nnO],[1,nDen],Label='Indx')
-
-c --- allocate memory for ipLab
-      Call mma_allocate(ipLab,nShell,nDen,Label='ipLab')
-      ipLab(:,:)=-1
 
 c --- allocate memory for kOffSh
       Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
@@ -544,8 +543,7 @@ C
 *                                                                      *
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               Call FZero(Work(ipChoT),mTvec*nVec)
+               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
 
                CALL CWTIME(TCX1,TWX1)
 
@@ -593,7 +591,7 @@ c --------------------------------------------------------------------
 
                      jK_a = jK + kOff(kSym)
 
-                   CALL FZero(Work(ipChoT),nDen*nBas(lSym)*JNUM)
+                     Lab%A0(1:nDen*nBas(lSym)*JNUM)=Zero
 
                    Do jDen=1,nDen
 
@@ -799,8 +797,7 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                             iOffSha = kOffSh(iaSh,lSym)
 
-                            ipLab(iaSh,jDen) = ipChoT + iOffSha*JNUM
-     &                                     + (jDen-1)*nBas(lSym)*JNUM
+                            Lab%Keep(iaSh,jDen) = .True.
 
                             ibcount=0
 
@@ -834,7 +831,7 @@ C ---------------------------------------
                                     CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
      &                                    Work(ipMO(jDen)+ioffShb),1,
-     &                                ONE,Work(ipLab(iaSh,jDen)),1)
+     &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                                  Else   ! lSym < kSym
 
@@ -850,7 +847,7 @@ C ---------------------------------------
                                     CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
      &                                    Work(ipMO(jDen)+ioffShb),1,
-     &                                ONE,Work(ipLab(iaSh,jDen)),1)
+     &                                ONE,Lab%SB(iaSh,lSym,jDen)%A,1)
 
                                 EndIf
 
@@ -861,7 +858,8 @@ C ---------------------------------------
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                            If (ibcount==0) ipLab(iash,jDen) = ipAbs
+                            If (ibcount==0)
+     &                         Lab%Keep(iash,jDen) = .False.
 
                          End Do ! iSh
 
@@ -879,11 +877,9 @@ C --- Prepare the J-screening
 
                          iaSh = Indx(iSh,jK_a,1)
 
-                         iaSkip=Min(1,Max(0,
-     &                          abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+                         iaSkip=Merge(1,0,Lab%Keep(iash,   1))
 
-                         jaSkip=Min(1,Max(0,
-     &                          abs(ipLab(iaSh,kDen)-ipAbs)))
+                         jaSkip=Merge(1,0,Lab%Keep(iash,kDen))
 
                          If (iaSkip*jaSkip==0) Cycle
 
@@ -905,10 +901,9 @@ C -------------------------------------
 
                          Tmp=Zero
                          Do ia=1,nBasSh(lSym,iaSh)
-                            ipLai = ipLab(iaSh,   1) + n1*(ia-1)
-                            ipLaj = ipLab(iaSh,kDen) + n1*(ia-1)
-                            Fia(ia)=DDot_(JNUM,Work(ipLai),Inc,
-     &                                         Work(ipLaj),Inc)
+                            Fia(ia)=DDot_(JNUM,
+     &                        Lab%SB(iaSh,lSym,   1)%A(1+n1*(ia-1)),Inc,
+     &                        Lab%SB(iaSh,lSym,kDen)%A(1+n1*(ia-1)),Inc)
                             Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 
@@ -932,8 +927,7 @@ C------------------------------------------------------------
 
                          iaSh = Indx(lSh,jK_a,1)
 
-                         iaSkip=Min(1,Max(0,
-     &                         abs(ipLab(iaSh,kDen)-ipAbs)))!= 1 or 0
+                         iaSkip=Merge(1,0,Lab%Keep(iash,kDen))
 
                          iOffSha = kOffSh(iaSh,lSym)
 
@@ -943,8 +937,7 @@ C------------------------------------------------------------
 
                             ibSh = Indx(mSh,jK_a,kDen)
 
-                            ibSkip = Min(1,Max(0,
-     &                               abs(ipLab(ibSh,   1)-ipAbs)))
+                            ibSkip=Merge(1,0,Lab%Keep(ibsh,   1))
 
                             iShp = nShell*(iaSh-1) + ibSh
 
@@ -989,8 +982,8 @@ C --------------------------------------------------------------------
 
                                CALL DGEMM_(Mode(1:1),Mode(2:2),
      &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
-     &                               FactXI,Work(ipLab(iaSh,kDen)),n1,
-     &                                      Work(ipLab(ibsh,1   )),n2,
+     &                               FactXI,Lab%SB(iaSh,lSym,kDen)%A,n1,
+     &                                      Lab%SB(ibSh,lSym,   1)%A,n2,
      &                               ONE,Work(ipKI),nBsa)
 
                             EndIf
@@ -1011,7 +1004,7 @@ C --------------------------------------------------------------------
 
                End Do   ! loop over MOs symmetry
 
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+               Call Deallocate_Lab(Lab)
                Call Deallocate_L_Full(L_Full)
 *                                                                      *
 ************************************************************************
@@ -1266,7 +1259,6 @@ C--- have performed screening in the meanwhile
       Call mma_deallocate(iShp_rs)
       Call mma_deallocate(nnBfShp)
       Call mma_deallocate(kOffSh)
-      Call mma_deallocate(ipLab)
       Call mma_deallocate(Indx)
       Call mma_deallocate(SumAClk)
       Call mma_deallocate(MLk)
