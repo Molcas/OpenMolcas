@@ -11,18 +11,22 @@
 
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
-implicit real*8(a-h,o-z)
-integer nBDT, nBas(8)
-real*8 Dma(nBDT), Dmb(nBDT)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
+real(kind=wp), intent(in) :: Dma(nBDT), Dmb(nBDT)
+real(kind=wp), intent(out) :: Etwo
 #include "WrkSpc.fh"
 #include "choscf.fh"
 #include "choscreen.fh"
 #include "chotime.fh"
-integer ipFLT(2), ipKLT(2), nIorb(8,2), ipPorb(2)
-integer ipDm(2)
-!real*8   Get_ExFac
-!external Get_ExFac
-!character*16 KSDFT
+integer(kind=iwp) :: i, iOff, ipDai, ipDbi, ipDm(2), ipFCNO,ipFLT(2), ipKLT(2), ipPLT, ipPorb(2), ipV, irc, nBB, nIorb(8,2)
+real(kind=wp) :: ChFracMem
+!character(len=16) :: KSDFT
+real(kind=r8), external :: ddot_
+!real(kind=wp), external :: Get_ExFac
 
 timings = .false.
 Estimate = .false.
@@ -30,8 +34,8 @@ REORD = .false.
 
 Update = .true.
 DECO = .true.
-dmpk = 1.0d0
-dFKmat = 0.0d0
+dmpk = One
+dFKmat = Zero
 ALGO = 4
 NSCREEN = 10
 
@@ -44,11 +48,11 @@ do i=1,nSym
 end do
 !call Get_cArray('DFT functional',KSDFT,16)
 !ExFac = Get_ExFac(KSDFT)
-!FactXI = 1.0d0*ExFac
-!FactXI = 1.0d0  ! always HF energy
+!FactXI = ExFac
+!FactXI = One  ! always HF energy
 call GetMem('PLTc','Allo','Real',ipPLT,nBDT)
 call dcopy_(nBDT,Dma,1,Work(ipPLT),1)
-call daxpy_(nBDT,1.0d0,Dmb,1,Work(ipPLT),1)
+call daxpy_(nBDT,One,Dmb,1,Work(ipPLT),1)
 
 call GetMem('ChMc','Allo','Real',ipPorb(1),2*nBB)
 ipPorb(2) = ipPorb(1)+nBB
@@ -60,16 +64,16 @@ iOff = 0
 do i=1,nSym
   ipV = ipPorb(1)+iOff
   ipDai = ipDm(1)+iOff
-  call CD_InCore(Work(ipDai),nBas(i),Work(ipV),nBas(i),nIorb(i,1),1.0d-12,irc)
+  call CD_InCore(Work(ipDai),nBas(i),Work(ipV),nBas(i),nIorb(i,1),1.0e-12_wp,irc)
   if (irc /= 0) then
-    write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
+    write(u6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
     call Abend()
   end if
   ipV = ipPorb(2)+iOff
   ipDbi = ipDm(2)+iOff
-  call CD_InCore(Work(ipDbi),nBas(i),Work(ipV),nBas(i),nIorb(i,2),1.0d-12,irc)
+  call CD_InCore(Work(ipDbi),nBas(i),Work(ipV),nBas(i),nIorb(i,2),1.0e-12_wp,irc)
   if (irc /= 0) then
-    write(6,*) ' Beta density. Sym= ',i,'   rc= ',irc
+    write(u6,*) ' Beta density. Sym= ',i,'   rc= ',irc
     call Abend()
   end if
   iOff = iOff+nBas(i)**2
@@ -104,7 +108,7 @@ if (irc /= 0) then
   call Abend()
 end if
 
-Etwo = 0.5d0*(ddot_(nBDT,Dma,1,Work(ipFLT(1)),1)+ddot_(nBDT,Dmb,1,Work(ipFLT(2)),1))
+Etwo = Half*(ddot_(nBDT,Dma,1,Work(ipFLT(1)),1)+ddot_(nBDT,Dmb,1,Work(ipFLT(2)),1))
 
 call GetMem('KLTc','Free','Real',ipKLT(1),2*nBDT)
 call GetMem('FCNO','Free','Real',ipFCNO,2*nBDT)

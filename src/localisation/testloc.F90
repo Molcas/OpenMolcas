@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine TestLoc(irc)
-
 ! Author: T.B. Pedersen
 !
 ! Purpose: test localisation:
@@ -25,22 +24,23 @@ subroutine TestLoc(irc)
 !
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
 #include "inflocal.fh"
 #include "debug.fh"
 #include "WrkSpc.fh"
-
-character*7 SecNam
-parameter(SecNam='TestLoc')
-
-character*8 Label
-character*80 Txt
-
-logical Prnt
-
-external ddot_
-external iPrintLevel
+integer(kind=iwp) :: i, iComp, iOpt, ip0, ipDdff, ipDenC, ipDenX, ipOaux, ipOvlp, ipScr, ipUmat, iSyLbl, iSym, j, jrc, kC, kC1, &
+                     kDC, kDd, kDX, kO, kOff, kSqr, kTri, kU, kX, kX1, lDen, lOaux, lOvlp, lScr, lUmat, mErr, nB2, nErr, nTO
+real(kind=wp) :: Tol, Tst, xErr, xNrm
+character(len=80) :: Txt
+character(len=8) :: Label
+logical(kind=iwp) :: Prnt
+character(len=7), parameter :: SecNam = 'TestLoc'
+integer(kind=iwp), external :: iPrintLevel
+real(kind=r8), external :: ddot_
 
 ! Set return code.
 ! ----------------
@@ -51,9 +51,9 @@ irc = 0
 ! ---------------------------------------------
 
 if (LocPAO) then
-  Tol = 1.0d-4
+  Tol = 1.0e-4_wp
 else
-  Tol = 1.0d-6
+  Tol = 1.0e-6_wp
 end if
 
 ! Get the AO overlap matrix.
@@ -120,10 +120,10 @@ do iSym=1,nSym
   call GetDens_Localisation(Work(kDX),Work(kX1),nBas(iSym),nOrb2Loc(iSym))
   nB2 = nBas(iSym)**2
   call dCopy_(nB2,Work(kDC),1,Work(kDd),1)
-  call dAXPY_(nB2,-1.0d0,Work(kDX),1,Work(kDd),1)
+  call dAXPY_(nB2,-One,Work(kDX),1,Work(kDd),1)
   xNrm = sqrt(dDot_(nB2,Work(kDd),1,Work(kDd),1))
   if (xNrm > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',iSym,')'
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kDC = kDC+nB2
@@ -151,8 +151,8 @@ do iSym=1,nSym
   kX1 = kX+nBas(iSym)*nFro(iSym)
   call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),Work(kX1),Work(ipScr),lScr,nBas(iSym),nOrb2Loc(iSym))
   nTO = max(nOrb2Loc(iSym),1)
-  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),1.0d0,Work(kU),nTO,Work(kU),nTO,0.0d0,Work(ipScr),nTO)
-  xErr = -9.9d9
+  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Work(kU),nTO,Work(kU),nTO,Zero,Work(ipScr),nTO)
+  xErr = -huge(xErr)
   ip0 = ipScr-1
   do j=1,nOrb2Loc(iSym)
     kOff = ip0+nOrb2Loc(iSym)*(j-1)
@@ -162,7 +162,7 @@ do iSym=1,nSym
     end do
   end do
   if (xErr > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: max. U^TU off-diag. = ',xErr,' (sym.',iSym,')'
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: max. U^TU off-diag. = ',xErr,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   nB2 = nBas(iSym)**2
@@ -189,11 +189,11 @@ do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
   call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),Work(kC1),Work(ipScr),lScr,nBas(iSym),nOrb2Loc(iSym))
   mErr = 0
-  xErr = -9.9d9
+  xErr = -huge(xErr)
   ip0 = kU-1
   do j=1,nOrb2Loc(iSym)
     kOff = ip0+nOrb2Loc(iSym)*(j-1)
-    Tst = abs(Work(kOff+j)-1.0d0)
+    Tst = abs(Work(kOff+j)-One)
     if (Tst > Tol) then
       mErr = mErr+1
     end if
@@ -208,11 +208,11 @@ do iSym=1,nSym
   if (mErr == 0) then
     kX1 = kX+nBas(iSym)*nFro(iSym)
     call GetUmat_Localisation(Work(kU),Work(kX1),Work(kO),Work(kX1),Work(ipScr),lScr,nBas(iSym),nOrb2Loc(iSym))
-    xErr = -9.9d9
+    xErr = -huge(xErr)
     ip0 = kU-1
     do j=1,nOrb2Loc(iSym)
       kOff = ip0+nOrb2Loc(iSym)*(j-1)
-      Tst = abs(Work(kOff+j)-1.0d0)
+      Tst = abs(Work(kOff+j)-One)
       if (Tst > Tol) then
         mErr = mErr+1
       end if
@@ -222,13 +222,13 @@ do iSym=1,nSym
       end do
     end do
     if (xErr > Tol) then
-      write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: max. X^TSX off-diag. = ',xErr,' (sym.',iSym,')'
+      write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: max. X^TSX off-diag. = ',xErr,' (sym.',iSym,')'
       mErr = mErr+1
     end if
     if (mErr /= 0) nErr = nErr+1
   else
-    write(6,*) SecNam,': original orbitals not orthonormal!'
-    write(6,*) 'Orthonormality test is skipped (sym. ',iSym,')'
+    write(u6,*) SecNam,': original orbitals not orthonormal!'
+    write(u6,*) 'Orthonormality test is skipped (sym. ',iSym,')'
   end if
   nB2 = nBas(iSym)**2
   kU = kU+nOrb2Loc(iSym)**2

@@ -12,17 +12,18 @@
 !***********************************************************************
 
 subroutine PAO_Analysis(D,R,X)
-
 ! Thomas Bondo Pedersen, December 2005.
 ! - revised January 2006 (Thomas Bondo Pedersen).
 !
 ! Purpose: test and analysis of Cholesky PAOs.
 
-implicit real*8(a-h,o-z)
-real*8 D(*), R(*), X(*)
-#include "Molcas.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: D(*), R(*), X(*)
 #include "inflocal.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ip_S, iSym, l_S
 
 l_S = nBas(1)**2
 do iSym=2,nSym
@@ -37,23 +38,25 @@ end subroutine PAO_Analysis
 
 subroutine PAO_Ana1(D,R,X,C,S,nBas,nFro,nOrb2Loc,nSym,Nam,nAtoms,AnaNrm)
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, r8
+
+implicit none
 #include "Molcas.fh"
-integer nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
-real*8 D(*), R(*), X(*), C(*), S(*)
-character*(LENIN8) Nam(*)
-character*3 AnaNrm
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym), nAtoms
+real(kind=wp), intent(in) :: D(*), R(*), X(*), C(*), S(*)
+character(len=LenIn8), intent(in) :: Nam(nBas(1))
+character(len=3), intent(in) :: AnaNrm
 #include "WrkSpc.fh"
-
-character*8 SecNam
-parameter(SecNam='PAO_Ana1')
-
-character*14 FilNam
-logical Debug
-
-external ddot_
-
-parameter(Tol=1.0d-10)
+integer(kind=iwp) :: i, iGetVecs, ip_EigI, ip_EigR, ip_nBas_per_Atom, ip_nBas_Start, ip_SX, ip_Tst, ipDAt, ipRAt, ipXAt, iSym, kC, &
+                     kCO, kCR, kOff, kOffI, kOffR, kOffX, kSX, kTst, kX, l_EigI, l_EigR, l_nBas_per_Atom, l_nBas_Start, l_SX, &
+                     l_Tst, lDAt, lRAt, lXAt, nB, nB2, nErr, nF, nFO, nO, nR, nRest, nRO
+real(kind=wp) :: xB2, xFO, xNrm, xRMS, xRO
+character(len=14) :: FilNam
+logical(kind=iwp) :: Debug
+real(kind=wp), parameter :: Tol = 1.0e-10_wp
+character(len=8), parameter :: SecNam = 'PAO_Ana1'
+real(kind=r8), external :: ddot_
 
 ! Initialization.
 ! ---------------
@@ -67,7 +70,7 @@ Debug = .false.
 ! 2) C^TSX is non-singular (check that X spans primary space)
 ! ===========================================================
 
-write(6,*) 'Testing PAOs...'
+write(u6,*) 'Testing PAOs...'
 nErr = 0
 
 ! Test 0.
@@ -86,28 +89,28 @@ do iSym=1,nSym
   nF = nFro(iSym)
   nO = nOrb2Loc(iSym)
   call GetDens_Localisation(Work(ip_Tst),R(kOff),nB,nB)
-  call dAXPY_(nB2,-1.0d0,D(kOff),1,Work(ip_Tst),1)
+  call dAXPY_(nB2,-One,D(kOff),1,Work(ip_Tst),1)
   if (nB2 > 0) then
-    xB2 = 1.0d0/dble(nB2)
+    xB2 = One/real(nB2,kind=wp)
     xRMS = sqrt(xB2*dDot_(nB2,Work(ip_Tst),1,Work(ip_Tst),1))
   else
-    xRMS = 0.0d0
+    xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(D-RR^T) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(D-RR^T) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kOffX = kOff+nB*nF
   call GetDens_Localisation(Work(ip_Tst),X(kOffX),nB,nO)
-  call dAXPY_(nB2,-1.0d0,D(kOff),1,Work(ip_Tst),1)
+  call dAXPY_(nB2,-One,D(kOff),1,Work(ip_Tst),1)
   if (nB2 > 0) then
-    xB2 = 1.0d0/dble(nB2)
+    xB2 = One/real(nB2,kind=wp)
     xRMS = sqrt(xB2*dDot_(nB2,Work(ip_Tst),1,Work(ip_Tst),1))
   else
-    xRMS = 0.0d0
+    xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(D-XX^T) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(D-XX^T) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kOff = kOff+nB2
@@ -127,7 +130,7 @@ kSX = ip_SX
 do iSym=1,nSym
   nB = max(nBas(iSym),1)
   kX = kOff+nBas(iSym)*nFro(iSym)
-  call DGEMM_('N','N',nBas(iSym),nOrb2Loc(iSym),nBas(iSym),1.0d0,S(kOff),nB,X(kX),nB,0.0d0,Work(kSX),nB)
+  call DGEMM_('N','N',nBas(iSym),nOrb2Loc(iSym),nBas(iSym),One,S(kOff),nB,X(kX),nB,Zero,Work(kSX),nB)
   kSX = kSX+nBas(iSym)*nOrb2Loc(iSym)
   kOff = kOff+nBas(iSym)*nBas(iSym)
 end do
@@ -144,29 +147,29 @@ do iSym=1,nSym
   nF = max(nFro(iSym),1)
   nRest = nBas(iSym)-nFro(iSym)-nOrb2Loc(iSym)
   nR = max(nRest,1)
-  call DGEMM_('T','N',nFro(iSym),nOrb2Loc(iSym),nBas(iSym),1.0d0,C(kC),nB,Work(kSX),nB,0.0d0,Work(kTst),nF)
+  call DGEMM_('T','N',nFro(iSym),nOrb2Loc(iSym),nBas(iSym),One,C(kC),nB,Work(kSX),nB,Zero,Work(kTst),nF)
   nFO = nFro(iSym)*nOrb2Loc(iSym)
   if (nFO > 0) then
-    xFO = 1.0d0/dble(nFO)
+    xFO = One/real(nFO,kind=wp)
     xRMS = sqrt(xFO*dDot_(nFO,Work(kTst),1,Work(kTst),1))
   else
-    xRMS = 0.0d0
+    xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Frozen]) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Frozen]) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kCR = kC+nBas(iSym)*(nFro(iSym)+nOrb2Loc(iSym))
-  call DGEMM_('T','N',nRest,nOrb2Loc(iSym),nBas(iSym),1.0d0,C(kCR),nB,Work(kSX),nB,0.0d0,Work(kTst),nR)
+  call DGEMM_('T','N',nRest,nOrb2Loc(iSym),nBas(iSym),One,C(kCR),nB,Work(kSX),nB,Zero,Work(kTst),nR)
   nRO = nRest*nOrb2Loc(iSym)
   if (nRO > 0) then
-    xRO = 1.0d0/dble(nRO)
+    xRO = One/real(nRO,kind=wp)
     xRMS = sqrt(xRO*dDot_(nRO,Work(kTst),1,Work(kTst),1))
   else
-    xRMS = 0.0d0
+    xRMS = Zero
   end if
   if (xRMS > Tol) then
-    write(6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Rest]) = ',xRMS,' (sym.',iSym,')'
+    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: RMS(Co^TSX [Rest]) = ',xRMS,' (sym.',iSym,')'
     nErr = nErr+1
   end if
   kC = kC+nBas(iSym)*nBas(iSym)
@@ -183,7 +186,7 @@ do iSym=1,nSym
   nB = max(nBas(iSym),1)
   nO = max(nOrb2Loc(iSym),1)
   kCO = kC+nBas(iSym)*nFro(iSym)
-  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nBas(iSym),1.0d0,C(kCO),nB,Work(kSX),nB,0.0d0,Work(kTst),nO)
+  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nBas(iSym),One,C(kCO),nB,Work(kSX),nB,Zero,Work(kTst),nO)
   l_EigR = nOrb2Loc(iSym)
   l_EigI = nOrb2Loc(iSym)
   call GetMem('EigR','Allo','Real',ip_EigR,l_EigR)
@@ -195,7 +198,7 @@ do iSym=1,nSym
   do i=1,nOrb2Loc(iSym)
     xNrm = sqrt(Work(kOffR+i)**2+Work(kOffI+i)**2)
     if (xNrm < Tol) then
-      write(6,'(A,A,I6,A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||eigenvalue',i,'|| of ','C^TSX = ',xNrm,' (sym.',iSym,')'
+      write(u6,'(A,A,I6,A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||eigenvalue',i,'|| of ','C^TSX = ',xNrm,' (sym.',iSym,')'
       nErr = nErr+1
     end if
   end do
@@ -214,7 +217,7 @@ call GetMem('TstDen','Free','Real',ip_Tst,l_Tst)
 if (nErr /= 0) then
   call SysAbendMsg(SecNam,'PAO localization failed!',' ')
 else
-  write(6,*) '...OK!'
+  write(u6,*) '...OK!'
 end if
 
 ! Analysis.
@@ -222,8 +225,8 @@ end if
 ! ======================================
 
 if (nSym /= 1) then
-  write(6,*)
-  write(6,*) SecNam,': symmetry not implemented for analysis of PAOs. Sorry!'
+  write(u6,*)
+  write(u6,*) SecNam,': symmetry not implemented for analysis of PAOs. Sorry!'
   return
 end if
 
@@ -259,7 +262,7 @@ write(FilNam,'(A)') 'PAO_LnDep1.bmp'
 call GenBMp_Loc(Work(ipRat),nAtoms,nBas(1),FilNam,'r')
 write(FilNam,'(A)') 'PAO_Chole1.bmp'
 call GenBMp_Loc(Work(ipXat),nAtoms,nOrb2Loc(1),FilNam,'r')
-write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
+write(u6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 
 ! Deallocations.
 ! --------------

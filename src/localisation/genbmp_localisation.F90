@@ -11,14 +11,15 @@
 
 subroutine GenBMp_Localisation(D,C,X,nShell,iSym,ColD,ColC,ColX,PreFix)
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
-real*8 D(nShell,nShell), C(nShell,*), X(nShell,*)
-character*1 ColD, ColC, ColX
-character*2 PreFix
-#include "inflocal.fh"
+use Definitions, only: wp, iwp
 
-character*12 FilNam
+implicit none
+integer(kind=iwp), intent(in) :: nShell, iSym
+real(kind=wp), intent(in) :: D(nShell,nShell), C(nShell,*), X(nShell,*)
+character(len=2), intent(in) :: PreFix
+character, intent(in) :: ColD, ColC, ColX
+#include "inflocal.fh"
+character(len=12) :: FilNam
 
 ! Generate bitmap for density.
 ! ----------------------------

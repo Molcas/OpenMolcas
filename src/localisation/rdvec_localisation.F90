@@ -12,40 +12,35 @@
 !***********************************************************************
 
 subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
-
 ! Thomas Bondo Pedersen, July 2010.
 !
 ! Read orbital info and return in a format suitable for module
 ! localisation: deleted orbitals are included (as zeros). This is a
 ! work-around to fix bugs when orbitals are deleted.
 
+! nSym: number of irreps
+! nBas: number of basis functions
+! nOrb: number of orbitals
+! IndT: type indices, dim: nBas
+! CMO: MO coefficients, dim: nBas*nBas
+! Occ: Occupation numbers, dim: nBas
+! EOrb: dim: nBas
+! FName: filename with input orbitals
+
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer nSym ! number of irreps
-integer nBas(nSym)  ! number of basis functions
-integer nOrb(nSym)  ! number of orbitals
-integer IndT(*)  ! type indices, dim: nBas
-real*8 CMO(*)   ! MO coefficients, dim: nBas*nBas
-real*8 Occ(*)   ! Occupation numbers, dim: nBas
-real*8 EOrb(*)  ! EOrb, dim: nBas
-character*(*) FName ! filename with input orbitals
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
+integer(kind=iwp), intent(out) :: IndT(*)
+real(kind=wp), intent(out) :: CMO(*), Occ(*), EOrb(*)
+character(len=*), intent(in) :: FName
 #include "warnings.fh"
 #include "WrkSpc.fh"
-
-character*18 SecNam
-parameter(SecNam='RdVec_Localisation')
-
-character*80 VTitle
-
-integer nBasT, nOrbT, iSym
-integer ip_CMO, l_CMO
-integer ip_Occ, l_Occ
-integer ip_EOr, l_EOr
-integer ip_Ind, l_Ind
-integer Lu, iUHF, iWarn, iErr, iWFType, k1, k2, i
-integer mylen
-external mylen
-
-real*8 Dummy(1)
+integer(kind=iwp) :: i, iErr, ip_CMO, ip_EOr, ip_Ind, ip_Occ, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, l_EOr, l_Ind, l_Occ, Lu, &
+                     nBasT, nOrbT
+real(kind=wp) :: Dummy(1)
+character(len=80) :: VTitle
+character(len=18), parameter :: SecNam = 'RdVec_Localisation'
 
 nBasT = nBas(1)
 nOrbT = nOrb(1)
@@ -71,20 +66,20 @@ iUHF = 0  ! restricted HF
 iWarn = 2 ! abend if nBas/nOrb info is inconsistent
 iErr = -1 ! init return code
 iWFType = -1 ! init wave function type
-Dummy(1) = 9.9d9 ! dummy variable
+Dummy(1) = huge(Dummy) ! dummy variable
 call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,Work(ip_CMO),Dummy,Work(ip_Occ),Dummy,Work(ip_EOr),Dummy,iWork(ip_Ind),VTitle, &
             iWarn,iErr,iWFType)
 if (iErr /= 0) then
   call WarningMessage(2,SecNam//': Non-zero return code from RdVec_')
-  write(6,'(A,A,I9)') SecNam,': RdVec_ returned code',iErr
-  call xFlush(6)
+  write(u6,'(A,A,I9)') SecNam,': RdVec_ returned code',iErr
+  call xFlush(u6)
   call xQuit(_RC_IO_ERROR_READ_)
 end if
-write(6,*)
-write(6,'(A)') ' Header from vector file:'
-write(6,*)
-write(6,'(A)') VTitle(:mylen(VTitle))
-write(6,*)
+write(u6,*)
+write(u6,'(A)') ' Header from vector file:'
+write(u6,*)
+write(u6,'(A)') trim(VTitle)
+write(u6,*)
 
 k1 = ip_CMO
 k2 = 1
@@ -106,7 +101,7 @@ end do
 
 k1 = ip_EOr
 k2 = 1
-Dummy(1) = 9.9d9
+Dummy(1) = huge(Dummy)
 do iSym=1,nSym
   call dCopy_(nOrb(iSym),Work(k1),1,EOrb(k2),1)
   call dCopy_(nBas(iSym)-nOrb(iSym),Dummy(1),0,EOrb(k2+nOrb(iSym)),1)

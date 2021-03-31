@@ -13,29 +13,22 @@
 !***********************************************************************
 
 subroutine Readinp_localisation()
-
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
+use Constants, only: Ten
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "inflocal.fh"
 #include "debug.fh"
-
-!TBP  Namelist /LOCALISATION/ dummy
-
-character*20 SecNam
-parameter(SecNam='Readinp_localisation')
-
-character*180 Key, Line, Blank
-character*180 Get_Ln
-external Get_Ln
-
-integer iPrintLevel
-external iPrintLevel
-
-logical Thrs_UsrDef, LocModel_UsrDef, Freeze
-parameter(ThrsDef=1.0d-6,ThrRotDef=1.0d-10)
-parameter(ThrGradDef=1.0d-2)
+!TBP Namelist /LOCALISATION/ dummy
+integer(kind=iwp) :: i, iPL, iSym, j
+character(len=180) :: Key, Line
+logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, Freeze
+real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
+character(len=20), parameter :: SecNam = 'Readinp_localisation'
+integer(kind=iwp), external :: iPrintLevel, isFreeUnit
+character(len=180), external :: Get_Ln
 
 LuSpool = 17
 LuSpool = isFreeUnit(LuSpool)
@@ -45,7 +38,6 @@ Debug = .false.
 ! Locate "start of input"
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
-Blank = ' '
 
 ! Get print level
 
@@ -97,11 +89,11 @@ AnaPAO = .false.
 AnaPAO_Save = AnaPAO
 DoDomain = .false.
 AnaDomain = .false.
-ThrDomain(1) = 9.0d-1
-ThrDomain(2) = 2.0d-2
-ThrPairDomain(1) = 1.0d-10
-ThrPairDomain(2) = 1.0d1
-ThrPairDomain(3) = 1.5d1
+ThrDomain(1) = 0.9_wp
+ThrDomain(2) = 2.0e-2_wp
+ThrPairDomain(1) = 1.0e-10_wp
+ThrPairDomain(2) = Ten
+ThrPairDomain(3) = 15.0_wp
 LocNatOrb = .false.
 LocCanOrb = .false.
 Wave = .false.
@@ -160,8 +152,8 @@ if (Line(1:4) == 'WAVE') Go To 18300
 if (Line(1:4) == 'CONS') Go To 18400
 if (Line(1:4) == 'FILE') Go To 18500
 if (Line(1:4) == 'END ') Go To 99999
-write(6,*) 'Unidentified key word  : ',Key
-write(6,*) 'Internal representation: ',Line(1:4)
+write(u6,*) 'Unidentified key word  : ',Key
+write(u6,*) 'Internal representation: ',Line(1:4)
 call FindErrorLine()
 call Quit_OnUserError()
 
@@ -188,11 +180,11 @@ nFro_UsrDef = .true.
 Freeze = .false.
 !if (LocVir) then
 if (LocOrb == Virtual) then
-  write(6,*)
-  write(6,*) 'WARNING!!!'
-  write(6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
-  write(6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'WARNING!!!'
+  write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
+  write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
+  write(u6,*)
 end if
 Go To 999
 
@@ -204,11 +196,11 @@ if (.not. nFro_UsrDef) then
   Freeze = .true.
   !if (LocVir) then
   if (LocOrb == Virtual) then
-    write(6,*)
-    write(6,*) 'WARNING!!!'
-    write(6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
-    write(6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) 'WARNING!!!'
+    write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
+    write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
+    write(u6,*)
   end if
 end if
 Go To 999
@@ -376,11 +368,11 @@ Go To 999
 LocOrb = Virtual
 !LocVir = .true.
 if (nFro_UsrDef .or. Freeze) then
-  write(6,*)
-  write(6,*) 'WARNING!!!'
-  write(6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
-  write(6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'WARNING!!!'
+  write(u6,*) 'You have chosen to freeze some orbitals AND asked to localize the virtual space. This implies that'
+  write(u6,*) ' some virtual orbitals will be kept frozen, thus they will be left unchanged. Is that OK ?'
+  write(u6,*)
 end if
 Go To 999
 
@@ -467,14 +459,14 @@ read(LuSpool,*) nActa,ThrSel
 ! Read atom names
 18101 read(LuSpool,'(A)',end=9940) Line
 if (Line(1:1) == '*') goto 18101
-if (Line == Blank) goto 18101
+if (Line == ' ') goto 18101
 call UpCase(Line)
 do i=1,nActa
   call LeftAd(Line)
-  if (Line == Blank) goto 9940
+  if (Line == ' ') goto 9940
   j = index(Line,' ')
   NamAct(i) = Line(1:j-1)
-  Line(1:j-1) = Blank(1:j-1)
+  Line(1:j-1) = ' '
 end do
 Go To 999
 
@@ -486,14 +478,14 @@ read(LuSpool,*) nActa,ThrSel
 ! Read atom names
 read(LuSpool,'(A)',end=9940) Line
 if (Line(1:1) == '*') goto 18101
-if (Line == Blank) goto 18101
+if (Line == ' ') goto 18101
 call UpCase(Line)
 do i=1,nActa
   call LeftAd(Line)
-  if (Line == Blank) goto 9940
+  if (Line == ' ') goto 9940
   j = index(Line,' ')
   NamAct(i) = Line(1:j-1)
-  Line(1:j-1) = Blank(1:j-1)
+  Line(1:j-1) = ' '
 end do
 Go To 999
 
@@ -502,9 +494,9 @@ Go To 999
 18300 continue
 read(LuSpool,*) iWave
 if ((iWave /= 0) .and. (iWave /= 1)) then
-  write(6,*) ' WARNING!!!'
-  write(6,*) ' Incorrect bit-switch input parameter for WAVE.'
-  write(6,*) ' I will continue with the default value.'
+  write(u6,*) ' WARNING!!!'
+  write(u6,*) ' Incorrect bit-switch input parameter for WAVE.'
+  write(u6,*) ' I will continue with the default value.'
   iWave = 0
 end if
 Skip = .false.
@@ -522,9 +514,9 @@ do i=1,nSym
   MxConstr = max(MxConstr,nConstr(i))
 end do
 if (MxConstr > 16) then
-  write(6,*) ' ERROR  !!!'
-  write(6,*) ' Cannot handle more than 16 constraints/symm !!'
-  write(6,*) ' Increase size of indxC in Get_CNOs and recompile.'
+  write(u6,*) ' ERROR  !!!'
+  write(u6,*) ' Cannot handle more than 16 constraints/symm !!'
+  write(u6,*) ' Increase size of indxC in Get_CNOs and recompile.'
 end if
 DoCNOs = .true.
 Skip = .false.
@@ -553,11 +545,11 @@ Go To 999
 ! ------------------------------------------------------------------
 
 if ((nSym > 1) .and. LocModel_UsrDef .and. (LocModel /= 3)) then
-  write(6,*)
-  write(6,*) 'WARNING!!!'
-  write(6,*) 'The localisation model you have suggested in combination with symmetry will not work.'
-  write(6,*) 'In this case the program defaults to the Cholesky localisation scheme!'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'WARNING!!!'
+  write(u6,*) 'The localisation model you have suggested in combination with symmetry will not work.'
+  write(u6,*) 'In this case the program defaults to the Cholesky localisation scheme!'
+  write(u6,*)
   LocModel = 3
 end if
 
@@ -636,20 +628,20 @@ else
 end if
 
 if (Debug) then
-  write(6,'(/,A,A)') SecNam,': orbital definitions:'
-  write(6,'(A,8I9)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
-  write(6,'(A,8I9)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
-  write(6,'(A,8I9)') 'nOccInp : ',(nOccInp(iSym),iSym=1,nSym)
-  write(6,'(A,8I9)') 'nVirInp : ',(nVirInp(iSym),iSym=1,nSym)
-  write(6,'(A,8I9)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
-  write(6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(/,A,A)') SecNam,': orbital definitions:'
+  write(u6,'(A,8I9)') 'nBas    : ',(nBas(iSym),iSym=1,nSym)
+  write(u6,'(A,8I9)') 'nOrb    : ',(nOrb(iSym),iSym=1,nSym)
+  write(u6,'(A,8I9)') 'nOccInp : ',(nOccInp(iSym),iSym=1,nSym)
+  write(u6,'(A,8I9)') 'nVirInp : ',(nVirInp(iSym),iSym=1,nSym)
+  write(u6,'(A,8I9)') 'nFro    : ',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
 end if
 
 ! If Cholesky, reset default threshold (unless user defined).
 ! -----------------------------------------------------------
 
 if ((LocModel == 3) .and. (.not. Thrs_UsrDef)) then
-  Thrs = 1.0d-8
+  Thrs = 1.0e-8_wp
 end if
 
 ! No need to order Cholesky MOs.
@@ -670,8 +662,8 @@ Test_Localisation = Test_Localisation .or. Debug .or. Analysis
 Go To 9950
 
 9940 continue
-write(6,*) ' READIN: Premature end of file when reading selected'
-write(6,*) ' atoms in keyword LOCN'
+write(u6,*) ' READIN: Premature end of file when reading selected'
+write(u6,*) ' atoms in keyword LOCN'
 call Abend()
 
 9950 continue

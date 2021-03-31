@@ -11,21 +11,18 @@
 
 subroutine BitMap_Localisation_Atom(PreFix)
 
-implicit real*8(a-h,o-z)
-character*2 PreFix
-#include "Molcas.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=2), intent(in) :: PreFix
 #include "inflocal.fh"
 #include "WrkSpc.fh"
-
-character*24 SecNam
-parameter(SecNam='BitMap_Localisation_Atom')
-
-character*4 Typ(2)
-character*12 BasNam
-
-integer kC0(2)
-
-logical Debug
+integer(kind=iwp) :: i, ip_nBas_per_Atom, ip_nBas_Start, ipCAt, ipCoord, ipDAt, ipDen, ipXAt, iTyp, kC0(2), kC1, kC2, kX1, &
+                     l_nBas_per_Atom, l_nBas_Start, lCAt, lCoord, lDAt, lDen, lXAt
+logical(kind=iwp) :: Debug
+character(len=4) :: Typ(2)
+character(len=12) :: BasNam
+character(len=24), parameter :: SecNam = 'BitMap_Localisation_Atom'
 
 Debug = .false.
 
@@ -70,7 +67,7 @@ kX1 = ipCMO+nBas(1)*nFro(1)
 call GetAt_Localisation(Work(kX1),nBas(1),nOrb2Loc(1),Work(ipXAt),nAtoms,1,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),AnaNrm)
 call GenBMp_Localisation(Work(ipDAt),Work(ipCAt),Work(ipXAt),nAtoms,1,'r','r','r',PreFix)
 call Anasize_Localisation(Work(ipDAt),Work(ipCAt),Work(ipXAt),nAtoms,nOrb2Loc(1),1)
-write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
+write(u6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 
 ! Allocate memory for nuclear coordinates.
 ! Read nuclear coordinates from the runfile.
@@ -98,7 +95,7 @@ do iTyp=1,2
     call GenGnu_Localisation(BasNam,Work(ipDAt),Work(ipCoord),nAtoms)
   end do
 end do
-write(6,*) 'Gnuplot files have been generated. Norm: ',AnaNrm
+write(u6,*) 'Gnuplot files have been generated. Norm: ',AnaNrm
 
 ! De-allocations.
 ! ---------------

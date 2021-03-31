@@ -9,21 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-program main
+program Main
 
 #ifdef _FPE_TRAP_
-use, intrinsic :: ieee_exceptions
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
 #endif
-implicit real*8(a-h,o-z)
-character*20 Module_Name
-parameter(Module_Name='localisation')
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
 
 #ifdef _FPE_TRAP_
-call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-call Start(Module_Name)
-call Localisation(ireturn)
-call Finish(ireturn)
+call Start('localisation')
+call Localisation(rc)
+call Finish(rc)
 
-end program main
+end program Main

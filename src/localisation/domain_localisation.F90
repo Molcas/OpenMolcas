@@ -12,23 +12,23 @@
 !***********************************************************************
 
 subroutine Domain_Localisation(irc)
-
 ! Thomas Bondo Pedersen, January 2006.
 !
 ! Purpose: set up orbital domains and pair domains. Find number of
 !          strong, weak, distant, and very distant pairs.
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
 #include "inflocal.fh"
-#include "debug.fh"
 #include "WrkSpc.fh"
-
-character*19 SecNam
-parameter(SecNam='Domain_Localisation')
-
-integer iCount(0:3)
-real*8 ThrPD(3)
+#include "debug.fh"
+integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, ip_Coord, ip_f, ip_iClass, ip_iDomain, ip_iPairDomain, ip_nBas_per_Atom, &
+                     ip_nBas_Start, ip_QD, ip_Rmin, kC, l_Coord, l_f, l_iClass, l_iDomain, l_iPairDomain, l_nBas_per_Atom, &
+                     l_nBas_Start, l_QD, l_Rmin, nAtom, nBasT, nnOcc, nOcc
+real(kind=wp) :: Fac, ThrPD(3), Tst
+character(len=19), parameter :: SecNam = 'Domain_Localisation'
 
 ! Set return code.
 ! ----------------
@@ -93,17 +93,17 @@ kC = ipCMO+nBasT*nFro(1)
 call DefineDomain(irc,iWork(ip_iDomain),Work(ip_QD),Work(ip_f),Work(kC),ThrDomain,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start), &
                   nAtom,nBasT,nOcc)
 if (irc /= 0) then
-  write(6,*) SecNam,': ERROR: DefineDomain returned ',irc
+  write(u6,*) SecNam,': ERROR: DefineDomain returned ',irc
   Go To 1 ! return after deallocations
 end if
 
 if (Debug) then
-  write(6,*) SecNam,': checking domain definitions...'
+  write(u6,*) SecNam,': checking domain definitions...'
   call CheckDomain(irc,iWork(ip_iDomain),nAtom,nOcc)
   if (irc == 0) then
-    write(6,*) '....OK!'
+    write(u6,*) '....OK!'
   else
-    write(6,*) '....Ooops. Buggy domain definition!'
+    write(u6,*) '....Ooops. Buggy domain definition!'
     irc = 2
     Go To 1 ! return after deallocations
   end if
@@ -120,7 +120,7 @@ i = 0
 do while ((i < 2) .and. (iChange == 0))
   i = i+1
   Tst = ThrPairDomain(i)-ThrPD(i)
-  if (abs(Tst) > 1.0d-15) then
+  if (abs(Tst) > 1.0e-15_wp) then
     iChange = 1
   end if
 end do
@@ -137,17 +137,17 @@ call GetMem('Coord','Allo','Real',ip_Coord,l_Coord)
 call Get_dArray('Unique Coordinates',Work(ip_Coord),l_Coord)
 call DefinePairDomain(irc,iWork(ip_iPairDomain),iWork(ip_iClass),Work(ip_Rmin),iWork(ip_iDomain),ThrPD,Work(ip_Coord),nAtom,nOcc,3)
 if (irc /= 0) then
-  write(6,*) SecNam,': ERROR: DefinePairDomain returned ',irc
+  write(u6,*) SecNam,': ERROR: DefinePairDomain returned ',irc
   Go To 1 ! return after deallocations
 end if
 
 if (Debug) then
-  write(6,*) SecNam,': checking pair domain definitions...'
+  write(u6,*) SecNam,': checking pair domain definitions...'
   call CheckDomain(irc,iWork(ip_iPairDomain),nAtom,nnOcc)
   if (irc == 0) then
-    write(6,*) '....OK!'
+    write(u6,*) '....OK!'
   else
-    write(6,*) '....Ooops. Buggy pair domain definition!'
+    write(u6,*) '....Ooops. Buggy pair domain definition!'
     irc = 3
     Go To 1 ! return after deallocations
   end if
@@ -159,7 +159,7 @@ end if
 call Domain_Histogram(iWork(ip_iDomain),nAtom,nOcc,'Histogram of domain sizes')
 call Domain_Histogram(iWork(ip_iPairDomain),nAtom,nnOcc,'Histogram of pair domain sizes')
 
-call Cho_Head('Pair domain classification','=',80,6)
+call Cho_Head('Pair domain classification','=',80,u6)
 do i=0,3
   iCount(i) = 0
 end do
@@ -167,21 +167,21 @@ do ij=0,nnOcc-1
   iC = iWork(ip_iClass+ij)
   iCount(iC) = iCount(iC)+1
 end do
-write(6,'(/,A)') 'Definition:'
+write(u6,'(/,A)') 'Definition:'
 if (iChange /= 0) then
-  write(6,'(A)') 'Notice: the input thresholds were re-ordered to ascending order'
-  write(6,'(A,1P,3(1X,D15.5))') 'Your input order was:',(ThrPairDomain(i),i=1,3)
+  write(u6,'(A)') 'Notice: the input thresholds were re-ordered to ascending order'
+  write(u6,'(A,1P,3(1X,D15.5))') 'Your input order was:',(ThrPairDomain(i),i=1,3)
 end if
-write(6,'(A,1P,D15.5)') 'Strong       pairs:                   R <= ',ThrPD(1)
-write(6,'(A,1P,D15.5,A,D15.5)') 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
-write(6,'(A,1P,D15.5,A,D15.5)') 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
-write(6,'(A,1P,D15.5,A)') 'Very distant pairs: ',ThrPD(3),' < R'
-write(6,'(/,A)') 'Classification:'
-Fac = 1.0d2/dble(nnOcc)
-write(6,'(A,I9,3X,F7.2,A)') 'Number of strong       pairs: ',iCount(0),Fac*dble(iCount(0)),'%'
-write(6,'(A,I9,3X,F7.2,A)') 'Number of weak         pairs: ',iCount(1),Fac*dble(iCount(1)),'%'
-write(6,'(A,I9,3X,F7.2,A)') 'Number of distant      pairs: ',iCount(2),Fac*dble(iCount(2)),'%'
-write(6,'(A,I9,3X,F7.2,A,/)') 'Number of very distant pairs: ',iCount(3),Fac*dble(iCount(3)),'%'
+write(u6,'(A,1P,D15.5)') 'Strong       pairs:                   R <= ',ThrPD(1)
+write(u6,'(A,1P,D15.5,A,D15.5)') 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
+write(u6,'(A,1P,D15.5,A,D15.5)') 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
+write(u6,'(A,1P,D15.5,A)') 'Very distant pairs: ',ThrPD(3),' < R'
+write(u6,'(/,A)') 'Classification:'
+Fac = 100.0_wp/real(nnOcc,kind=wp)
+write(u6,'(A,I9,3X,F7.2,A)') 'Number of strong       pairs: ',iCount(0),Fac*iCount(0),'%'
+write(u6,'(A,I9,3X,F7.2,A)') 'Number of weak         pairs: ',iCount(1),Fac*iCount(1),'%'
+write(u6,'(A,I9,3X,F7.2,A)') 'Number of distant      pairs: ',iCount(2),Fac*iCount(2),'%'
+write(u6,'(A,I9,3X,F7.2,A,/)') 'Number of very distant pairs: ',iCount(3),Fac*iCount(3),'%'
 
 ! Analysis of individual domains (if requested).
 ! ----------------------------------------------

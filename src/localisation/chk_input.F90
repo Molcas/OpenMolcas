@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine Chk_Input(irc)
-
 ! Author: T.B. Pedersen
 ! Purpose: Check input.
 !
@@ -21,14 +20,14 @@ subroutine Chk_Input(irc)
 !   irc < 0: all OK, but nothing to do
 !   irc > 0: input error
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
 #include "inflocal.fh"
-
-character*9 SecNam
-parameter(SecNam='Chk_Input')
-
-logical DoCholesky
+integer(kind=iwp) :: iSym, n, nOrb2LocT
+logical(kind=iwp) :: DoCholesky
+character(len=9), parameter :: SecNam = 'Chk_Input'
 
 irc = 0
 doCholesky = .false.
@@ -38,19 +37,19 @@ do iSym=1,nSym
   n = nFro(iSym)+nOrb2Loc(iSym)
   if ((n < 0) .or. (n > nOrb(iSym))) then
     irc = irc+1
-    write(6,*) SecNam,': nFro + nOrb2Loc out of bounds:'
-    write(6,*) '    iSym     = ',iSym
-    write(6,*) '    nFro     = ',nFro(iSym)
-    write(6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
-    write(6,*) '    nOrb     = ',nOrb(iSym)
+    write(u6,*) SecNam,': nFro + nOrb2Loc out of bounds:'
+    write(u6,*) '    iSym     = ',iSym
+    write(u6,*) '    nFro     = ',nFro(iSym)
+    write(u6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
+    write(u6,*) '    nOrb     = ',nOrb(iSym)
   end if
   if (n > nBas(iSym)) then
     irc = irc+1
-    write(6,*) SecNam,': nFro + nOrb2Loc > nBas:'
-    write(6,*) '    iSym     = ',iSym
-    write(6,*) '    nFro     = ',nFro(iSym)
-    write(6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
-    write(6,*) '    nBas     = ',nBas(iSym)
+    write(u6,*) SecNam,': nFro + nOrb2Loc > nBas:'
+    write(u6,*) '    iSym     = ',iSym
+    write(u6,*) '    nFro     = ',nFro(iSym)
+    write(u6,*) '    nOrb2Loc = ',nOrb2Loc(iSym)
+    write(u6,*) '    nBas     = ',nBas(iSym)
   end if
   nOrb2LocT = nOrb2LocT+nOrb2Loc(iSym)
 end do
@@ -60,8 +59,8 @@ if (nOrb2LocT == 0) then
 end if
 
 if ((LocModel < 0) .or. (LocModel > nLocModel)) then
-  write(6,*) SecNam,': LocModel must satisfy 0 <= LocModel <= ',nLocModel
-  write(6,*) '    LocModel = ',LocModel
+  write(u6,*) SecNam,': LocModel must satisfy 0 <= LocModel <= ',nLocModel
+  write(u6,*) '    LocModel = ',LocModel
   irc = irc+1
 end if
 
@@ -75,8 +74,8 @@ end if
 if (EvalER) then
   call DecideOnCholesky(doCholesky)
   if (.not. doCholesky) then
-    write(6,*) SecNam,': evaluation of ER functional requires',' Cholesky decomposition of ERIs!'
-    write(6,*) 'Evaluation of ER functional is cancelled...'
+    write(u6,*) SecNam,': evaluation of ER functional requires',' Cholesky decomposition of ERIs!'
+    write(u6,*) 'Evaluation of ER functional is cancelled...'
     EvalER = .false.
   end if
 end if

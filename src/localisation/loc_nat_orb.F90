@@ -33,15 +33,23 @@ subroutine Loc_Nat_orb(irc,Cmo,Xmo,OccN,mOrb)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-real*8 Cmo(*), Xmo(*), OccN(*)
-integer irc, mOrb(*)
-#include "Molcas.fh"
-#include "WrkSpc.fh"
-#include "inflocal.fh"
-character*(LENIN) tmp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, r8
 
+implicit none
+integer(kind=iwp), intent(out) :: irc
+real(kind=wp), intent(in) :: Cmo(*)
+real(kind=wp), intent(inout) :: Xmo(*), OccN(*)
+integer(kind=iwp), intent(in) :: mOrb(*)
+#include "inflocal.fh"
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, ia, iab, ifr, iOff, ip_C, ip_CC, ip_FOcc, ip_iD, ip_U, ip_X, ipS, ipScr, iQ, iS, iSQ, iSym, isymlbl, ito, &
+                     iZ, j, ja, jb, jC, jfr, jOcc, jOff, jQ, jto, jX, jZ, k, ka, kl, km, kOff, l, lScr, mOx, n_KO, n_OK, nBa, &
+                     nBax, nBmx, nBx, nnB, nOrbmx, nOx
+character(len=LenIn) :: tmp
+real(kind=r8), external :: ddot_
 !***********************************************************************
+integer(kind=iwp) :: jD, kD, lD
 jD(i) = iWork(ip_iD-1+i)
 !*****
 kD(i) = iWork(ip_iD+nBmx-1+i)
@@ -114,7 +122,7 @@ do iSym=1,nSym
   end do
   nBx = max(1,nBas(iSym))
   nBax = max(1,nBa)
-  call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),1.0d0,Work(iSQ),nBx,Xmo(jOff+1),nBx,0.0d0,Work(iZ),nBax)
+  call DGEMM_('T','N',nBa,mOrb(iSym),nBas(iSym),One,Work(iSQ),nBx,Xmo(jOff+1),nBx,Zero,Work(iZ),nBax)
   do i=0,mOrb(iSym)-1
     jQ = iQ+i
     jC = ip_C+nBa*i
@@ -140,13 +148,13 @@ do iSym=1,nSym
   end do
   call Square(Work(iS),Work(iSQ),1,nBas(iSym),nBas(iSym))
   mOx = max(1,mOrb(iSym))
-  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),1.0d0,Cmo(jOff+1),nBx,Work(iSQ),nBx,0.0d0,Work(ip_CC),mOx)
+  call DGEMM_('T','N',mOrb(iSym),nBas(iSym),nBas(iSym),One,Cmo(jOff+1),nBx,Work(iSQ),nBx,Zero,Work(ip_CC),mOx)
 
-  call DGEMM_('N','N',mOrb(iSym),n_OK,nBas(iSym),1.0d0,Work(ip_CC),mOx,Work(ip_X),nBx,0.0d0,Work(ip_U),mOx)
+  call DGEMM_('N','N',mOrb(iSym),n_OK,nBas(iSym),One,Work(ip_CC),mOx,Work(ip_X),nBx,Zero,Work(ip_U),mOx)
   jOcc = iOff+nFro(iSym)+1
   call Get_Nat_Lorb(OccN(jOcc),Work(ip_FOcc),n_OK,mOrb(iSym),iWork(ip_iD+nBmx),Work(ip_U),iSym)
   nOx = max(1,n_OK)
-  call DGEMM_('N','N',nBas(iSym),n_OK,n_OK,1.0d0,Work(ip_X),nBx,Work(ip_U),nOx,0.0d0,Work(ipScr),nBx)
+  call DGEMM_('N','N',nBas(iSym),n_OK,n_OK,One,Work(ip_X),nBx,Work(ip_U),nOx,Zero,Work(ipScr),nBx)
   do i=1,n_OK
     kl = ipScr+nBas(iSym)*(i-1)
     j = kD(i)
@@ -154,10 +162,10 @@ do iSym=1,nSym
     call dcopy_(nBas(iSym),Work(kl),1,Xmo(km),1)
   end do
 
-  call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),1.0d0,Work(ip_CC),mOx,Work(iZ),nBx,0.0d0,Work(ip_U),mOx)
+  call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),One,Work(ip_CC),mOx,Work(iZ),nBx,Zero,Work(ip_U),mOx)
   call Get_Nat_Lorb(OccN(jOcc),Work(ip_FOcc),n_KO,mOrb(iSym),iWork(ip_iD+nBmx+nOrbmx),Work(ip_U),iSym)
   nOx = max(1,n_KO)
-  call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,1.0d0,Work(iZ),nBx,Work(ip_U),nOx,0.0d0,Work(ipScr),nBx)
+  call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,One,Work(iZ),nBx,Work(ip_U),nOx,Zero,Work(ipScr),nBx)
   do i=1,n_KO
     kl = ipScr+nBas(iSym)*(i-1)
     j = lD(i)

@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine Localise_Iterative(irc,Model,Functional)
-
 ! Author: T.B. Pedersen
 !
 ! Purpose: Iterative localisation of orbitals.
@@ -21,22 +20,24 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
-implicit real*8(a-h,o-z)
-character*4 Model
-#include "Molcas.fh"
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+character(len=4), intent(in) :: Model
+real(kind=wp), intent(out) :: Functional
 #include "inflocal.fh"
 #include "WrkSpc.fh"
 #include "debug.fh"
-
-character*18 SecNam
-parameter(SecNam='Localise_Iterative')
-
-character*4 myModel
-character*80 Txt
-logical Converged
+integer(kind=iwp) :: iSym
+real(kind=wp) :: Thrs_Save, xNrm
+character(len=80) :: Txt
+character(len=4) :: myModel
+logical(kind=iwp) :: Converged
+character(len=18), parameter :: SecNam = 'Localise_Iterative'
 
 irc = 0
-Functional = -9.9d9
+Functional = -huge(Functional)
 Converged = .false.
 
 ! Generate Cholesky start guess, if requested.
@@ -44,7 +45,7 @@ Converged = .false.
 
 if (ChoStart) then
   Thrs_Save = Thrs
-  Thrs = 1.0d-12
+  Thrs = 1.0e-12_wp
   call Localise_Noniterative(irc,'Chol',xNrm)
   if (irc /= 0) then
     write(Txt,'(A,I4)') 'Return code:',irc
@@ -60,33 +61,33 @@ myModel = Model
 call UpCase(myModel)
 if (myModel == 'PIPE') then
   !if (.not. Silent) then
-  write(6,'(//,1X,A)') 'Pipek-Mezey localisation'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  write(6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
-  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(//,1X,A)') 'Pipek-Mezey localisation'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
   call PipekMezey(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,Name,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
                   Debug,Silent)
 else if (myModel == 'BOYS') then
   !if (.not. Silent) then
-  write(6,'(/,1X,A)') 'Boys localisation'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  write(6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
-  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(/,1X,A)') 'Boys localisation'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
   call Boys(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
 else if (myModel == 'EDMI') then
   !if (.not. Silent) then
-  write(6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  !write(6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
-  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  !write(u6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
   call EdmistonRuedenberg(Functional,Work(ipCMO),Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug, &
                           Silent)

@@ -12,7 +12,6 @@
 !***********************************************************************
 
 subroutine Localise_Noniterative(irc,Model,xNrm)
-
 ! Author: T.B. Pedersen
 !
 ! Purpose: Non-iterative localisation of orbitals.
@@ -20,35 +19,37 @@ subroutine Localise_Noniterative(irc,Model,xNrm)
 !            Cholesky [MODEL='CHOL']
 !            PAO      [MODEL='PAO ']
 
-implicit real*8(a-h,o-z)
-character*4 Model
-#include "Molcas.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: irc
+character(len=4), intent(in) :: Model
+real(kind=wp), intent(out) :: xNrm
 #include "inflocal.fh"
 #include "WrkSpc.fh"
-
-character*21 SecNam
-parameter(SecNam='Localise_Noniterative')
-
-character*4 myModel
-character*6 Namefile
-character*80 Txt
-
-logical Test_OrthoPAO, Normalize
-parameter(Test_OrthoPAO=.false.)
-
-dimension dum(1), idum(1)
+integer(kind=iwp) :: idum(1), ip_Dens, ip_Dv, ip_DvSav, ip_R, iSym, kOff1, kOffC, kOffR, kSav, l_Dens, l_Dv, l_DvSav, l_R, Lu_, &
+                     nOrPs
+real(kind=wp) :: dum(1), yNrm
+character(len=80) :: Txt
+character(len=6) :: Namefile
+character(len=4) :: myModel
+logical(kind=iwp) :: Normalize
+logical(kind=iwp), parameter :: Test_OrthoPAO = .false.
+character(len=21), parameter :: SecNam = 'Localise_Noniterative'
+integer(kind=iwp), external :: isFreeUnit
 
 irc = 0
-xNrm = 0.0d0
+xNrm = Zero
 
 myModel = Model
 call UpCase(myModel)
 if (myModel == 'CHOL') then
   !if (.not. Silent) then
-  write(6,'(/,1X,A)') 'Cholesky localisation'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
-  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(/,1X,A)') 'Cholesky localisation'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
   l_Dens = nBas(1)**2
   do iSym=2,nSym
@@ -65,7 +66,7 @@ if (myModel == 'CHOL') then
       if (irc /= 0) then
         call GetMem('Density','Free','Real',ip_Dens,l_Dens)
         irc = 1
-        xNrm = -9.9d9
+        xNrm = -huge(xNrm)
         return
       end if
     end if
@@ -75,10 +76,10 @@ if (myModel == 'CHOL') then
   call GetMem('Density','Free','Real',ip_Dens,l_Dens)
 else if (myModel == 'PAO ') then
   !if (.not. Silent) then
-  write(6,'(/,1X,A)') 'PAO Cholesky localisation'
-  write(6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
-  write(6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
-  write(6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  write(u6,'(/,1X,A)') 'PAO Cholesky localisation'
+  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (decomposition)'
+  write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
+  write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
   l_Dv = nBas(1)**2
   l_R = nBas(1)**2
@@ -115,7 +116,7 @@ else if (myModel == 'PAO ') then
         call GetMem('Dv','Free','Real',ip_Dv,l_Dv)
         call GetMem('R','Free','Real',ip_R,l_R)
         irc = 1
-        xNrm = -9.9d9
+        xNrm = -huge(xNrm)
         return
       end if
     end if
@@ -133,7 +134,7 @@ else if (myModel == 'PAO ') then
   Lu_ = isFreeUnit(11)
   call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,Work(ip_R),Work(ipOcc),dum,idum,Txt)
   !if (.not. Silent) then
-  write(6,'(1X,A)') 'The DPAORB file has been written.'
+  write(u6,'(1X,A)') 'The DPAORB file has been written.'
   !end if
   write(Namefile,'(A)') 'IPAORB'
   write(Txt,'(80X)')
@@ -141,7 +142,7 @@ else if (myModel == 'PAO ') then
   Lu_ = isFreeUnit(11)
   call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,Work(ipCMO),Work(ipOcc),dum,idum,Txt)
   !if (.not. Silent) then
-  write(6,'(1X,A)') 'The IPAORB file has been written.'
+  write(u6,'(1X,A)') 'The IPAORB file has been written.'
   !end if
   call GetMem('Dv','Free','Real',ip_Dv,l_Dv)
   call GetMem('R','Free','Real',ip_R,l_R)

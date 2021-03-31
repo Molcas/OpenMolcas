@@ -17,21 +17,25 @@ subroutine Get_CNOs(irc,nIF,nRASO,xNrm)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6, r8
 
-#include "real.fh"
-#include "Molcas.fh"
+implicit none
 #include "inflocal.fh"
+integer(kind=iwp), intent(out) :: irc
+integer(kind=iwp), intent(in) :: nIF(nSym), nRasO(nSym)
+real(kind=wp), intent(out) :: xNrm
 #include "WrkSpc.fh"
-integer irc
-integer nRASO(nSym), nIF(nSym)
-real*8 xNrm
-character Line*62
-integer iOffS(0:8), indxC(16,2,8)
-integer Cho_irange
-external Cho_irange
-logical DoneCholesky
+integer(kind=iwp) :: i, ic1, ic2, iCount, iDaa, iDbb, iOcc, iOff, iOffS(0:8), indxC(16,2,8), ip_Da, ip_Db, ipCorb, ipDaa, ipDbb, &
+                     ipMatch, iSym, j, jc, jCount, ji, jOcc, jOff, jSym, k, kbit, kc, kc1, kc2, kOff, l, lc, lc1, lc2, lConstr, &
+                     lCount, lOcc_, mAdCMO, mAdCMO_ab, mAdCMOO, mAdOcc_ab, MaxBas, nBB, nBLT, nBT, nSconf
+real(kind=wp) :: Etwo, xnorm, xOkk, yOkk
+character(len=62) :: Line
+logical(kind=iwp) :: DoneCholesky
+integer(kind=iwp), external :: Cho_irange
+real(kind=r8), external :: ddot_
 !***********************************************************************
+integer(kind=iwp) :: Match
 Match(k,i) = iWork(ipMatch-1+2*(i-1)+k)
 !***********************************************************************
 
@@ -41,8 +45,8 @@ Match(k,i) = iWork(ipMatch-1+2*(i-1)+k)
 
 call DecideonCholesky(DoneCholesky)
 if (.not. DoneCholesky) then
-  write(6,*) '*** Constrained NOs implemented only with CD or RI.'
-  write(6,*) '*** Use Cholesky or RICD in Seward and rerun! *****'
+  write(u6,*) '*** Constrained NOs implemented only with CD or RI.'
+  write(u6,*) '*** Use Cholesky or RICD in Seward and rerun! *****'
   call Abend()
 end if
 
@@ -65,8 +69,8 @@ do iSym=1,nSym
   nBLT = nBLT+nBas(iSym)*(nBas(iSym)+1)/2
   MaxBas = max(MaxBas,nBas(iSym))
 end do
-write(6,'(A,I6)') ' Total number of spin configurations: ',nSconf
-write(6,*)
+write(u6,'(A,I6)') ' Total number of spin configurations: ',nSconf
+write(u6,*)
 
 call GetMem('Occb','Allo','Real',mAdOcc_ab,nBT)
 call GetMem('CMOb','Allo','Real',mAdCMO,2*nBB)
@@ -90,12 +94,12 @@ do iCount=0,nSconf-1
       indxC(lCount,2,jSym) = 1
     end if
   end do
-  write(6,*) ' -------------------------------------------------'
-  write(6,*) ' Configuration of the constrained spins (up/down) '
-  write(6,*) ' -------------------------------------------------'
-  write(6,'(1X,A,I3)') ' nr ',iCount+1
+  write(u6,*) ' -------------------------------------------------'
+  write(u6,*) ' Configuration of the constrained spins (up/down) '
+  write(u6,*) ' -------------------------------------------------'
+  write(u6,'(1X,A,I3)') ' nr ',iCount+1
   do iSym=1,nSym
-    write(6,'(1X,A,I1)') ' sym: ',iSym
+    write(u6,'(1X,A,I1)') ' sym: ',iSym
     Line(1:14) = '         (+) '
     k = 15
     do j=1,nConstr(iSym)
@@ -108,7 +112,7 @@ do iCount=0,nSconf-1
       end if
       k = k+3
     end do
-    write(6,*) Line(1:k-1)
+    write(u6,*) Line(1:k-1)
     Line(1:14) = '         (-) '
     k = 15
     do j=1,nConstr(iSym)
@@ -121,11 +125,11 @@ do iCount=0,nSconf-1
       end if
       k = k+3
     end do
-    write(6,*) Line(1:k-1)
+    write(u6,*) Line(1:k-1)
   end do
-  write(6,*) ' -------------------------------------------------'
+  write(u6,*) ' -------------------------------------------------'
 
-  xNrm = 0.0d0
+  xNrm = Zero
   iOff = 0
   jOff = 0
   do iSym=1,nSym
@@ -137,12 +141,12 @@ do iCount=0,nSconf-1
     do i=1,nConstr(iSym)
       k = Match(1,i)
       jOcc = ipOcc-1+jOff+nIF(iSym)+k
-      xOkk = Work(jOcc)/2.0d0
+      xOkk = Half*Work(jOcc)
       kc = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+k-1)
       xNrm = xNrm+ddot_(nBas(iSym),Work(kc),1,Work(kc),1)
       l = Match(2,i)
       iOcc = ipOcc-1+jOff+nIF(iSym)+l
-      yOkk = Work(iOcc)/2.0d0
+      yOkk = Half*Work(iOcc)
       xnorm = sqrt(abs(xOkk)+abs(yOkk)) !ensures correct normaliz
       lc = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+l-1)
       xOkk = sqrt(abs(xOkk))/xnorm
@@ -150,9 +154,9 @@ do iCount=0,nSconf-1
       call dscal_(nBas(iSym),xOkk,Work(kc),1)
       call dscal_(nBas(iSym),yOkk,Work(lc),1)
       call dcopy_(nBas(iSym),Work(lc),1,Work(ipCorb),1)
-      call daxpy_(nBas(iSym),1.0d0,Work(kc),1,Work(ipCorb),1)
-      call daxpy_(nBas(iSym),-1.0d0,Work(kc),1,Work(lc),1)
-      call dscal_(nBas(iSym),-1.0d0,Work(lc),1)
+      call daxpy_(nBas(iSym),One,Work(kc),1,Work(ipCorb),1)
+      call daxpy_(nBas(iSym),-One,Work(kc),1,Work(lc),1)
+      call dscal_(nBas(iSym),-One,Work(lc),1)
       call dcopy_(nBas(iSym),Work(ipCorb),1,Work(kc),1)
     end do
     jc = 1
@@ -188,19 +192,19 @@ do iCount=0,nSconf-1
   do iSym=1,nSym
     ipDaa = ip_Da+kOff
     mAdCMOO = mAdCMO+iOff+nBas(iSym)*nIF(iSym)
-    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),1.0d0,Work(mAdCMOO),nBas(iSym),Work(mAdCMOO),nBas(iSym),0.0d0, &
+    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),One,Work(mAdCMOO),nBas(iSym),Work(mAdCMOO),nBas(iSym),Zero, &
                    Work(ipDaa),nBas(iSym))
     ipDbb = ip_Db+kOff
     mAdCMOO = mAdCMO_ab+iOff+nBas(iSym)*nIF(iSym)
-    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),1.0d0,Work(mAdCMOO),nBas(iSym),Work(mAdCMOO),nBas(iSym),0.0d0, &
+    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),One,Work(mAdCMOO),nBas(iSym),Work(mAdCMOO),nBas(iSym),Zero, &
                    Work(ipDbb),nBas(iSym))
     do j=1,nBas(iSym)
       do i=1,j-1
         ji = j*(j-1)/2+i
         iDaa = ipDaa-1+ji
-        Work(iDaa) = 2.0d0*Work(iDaa)
+        Work(iDaa) = Two*Work(iDaa)
         iDbb = ipDbb-1+ji
-        Work(iDbb) = 2.0d0*Work(iDbb)
+        Work(iDbb) = Two*Work(iDbb)
       end do
     end do
     iOff = iOff+nBas(iSym)**2
@@ -209,9 +213,9 @@ do iCount=0,nSconf-1
 
   call Get_Etwo_act(Work(ip_Da),Work(ip_Db),nBLT,nBas,nSym,Etwo)
 
-  write(6,'(1X,A,F12.7,A)') ' Active-Active repulsion : ',Etwo,'  a.u.'
-  write(6,*) ' -------------------------------------------------'
-  write(6,*)
+  write(u6,'(1X,A,F12.7,A)') ' Active-Active repulsion : ',Etwo,'  a.u.'
+  write(u6,*) ' -------------------------------------------------'
+  write(u6,*)
   xNrm = sqrt(xNrm)
 
 end do

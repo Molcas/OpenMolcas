@@ -11,20 +11,18 @@
 
 subroutine GenGnu_Localisation(FilNam,Den,Coord,n)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-character*12 FilNam
-integer n
-real*8 Den(n,n), Coord(3,n)
-
-integer isFreeUnit
-external isFreeUnit
-
-character*4 Postfix
-character*16 FName
-parameter(Postfix='.dat')
-
-integer i, j, Lu
-real*8 Dist, D, Fac
+character(len=12), intent(in) :: FilNam
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: Den(n,n), Coord(3,n)
+integer(kind=iwp) :: i, j, Lu
+real(kind=wp) :: Dist, D, Fac
+character(len=16) :: FName
+character(len=4) :: Postfix = '.dat'
+integer(kind=iwp), external :: isFreeUnit
 
 ! Open data file.
 ! ---------------
@@ -41,12 +39,12 @@ rewind(Lu)
 ! Write data file.
 ! ----------------
 
-Fac = 1.0d0/log(1.0d1)
+Fac = One/log(10.0_wp)
 do j=1,n
   do i=j,n
     Dist = sqrt((Coord(1,j)-Coord(1,i))**2+(Coord(2,j)-Coord(2,i))**2+(Coord(3,j)-Coord(3,i))**2)
-    if (abs(Den(i,j)) < 1.0d-16) then
-      D = -4.0d1
+    if (abs(Den(i,j)) < 1.0e-16_wp) then
+      D = -40.0_wp
     else
       D = Fac*log(abs(Den(i,j)))
     end if
@@ -57,6 +55,6 @@ end do
 ! Close data file.
 ! ----------------
 
-close(Lu,Status='Keep')
+close(Lu,status='Keep')
 
 end subroutine GenGnu_Localisation

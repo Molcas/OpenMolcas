@@ -12,17 +12,18 @@
 subroutine BitMap_Localisation(PreFix)
 
 use Index_arrays, only: iSO2Sh
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-character*2 PreFix
-#include "Molcas.fh"
+implicit none
+character(len=2), intent(in) :: PreFix
 #include "inflocal.fh"
 #include "WrkSpc.fh"
-
-character*19 SecNam
-parameter(SecNam='BitMap_Localisation')
-
-logical Indexation, DoF, DoG
+integer(kind=iwp) :: iOff, ipCSh, ipDen, ipDSh, ipXSh, iSym, kC, kC1, kX, kX1, lCSh, lDen, lDSh, lXSh, MxBa, MxOr, n2, nBasT, &
+                     nDiff, nShell
+real(kind=wp) :: ThrAO
+logical(kind=iwp) :: Indexation, DoF, DoG
+character(len=19), parameter :: SecNam = 'BitMap_Localisation'
 
 nBasT = nBas(1)
 do iSym=2,nSym
@@ -37,7 +38,7 @@ nDiff = 0
 call IniSew(DoF,nDiff)
 nShell = -1
 Indexation = .true.
-ThrAO = 0.0d0
+ThrAO = Zero
 DoF = .false.
 DoG = .false.
 call Setup_Ints(nShell,Indexation,ThrAO,DoF,DoG)
@@ -84,7 +85,7 @@ do iSym=1,nSym
   kC = kC+n2
   kX = kX+n2
 end do
-write(6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
+write(u6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 
 ! De-allocations.
 ! ---------------

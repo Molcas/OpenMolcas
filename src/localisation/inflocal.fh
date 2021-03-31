@@ -29,6 +29,8 @@
 !
 ! LC_FileOrb: orbital file for Seward to read
 !
+#include "Molcas.fh"
+
       Integer LocOrb,Occupied,Virtual,All
       Parameter (Occupied=0,Virtual=1,All=2)
       Integer nBas(MxSym),nOrb(MxSym)

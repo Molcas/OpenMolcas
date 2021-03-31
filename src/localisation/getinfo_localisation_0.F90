@@ -12,20 +12,20 @@
 !***********************************************************************
 
 subroutine GetInfo_Localisation_0()
-
 ! Author: T.B. Pedersen
 !
 ! Purpose: read basic info from runfile and INPORB.
 
-implicit real*8(a-h,o-z)
-#include "Molcas.fh"
+use Constants, only: Zero
+use Definitions, only: iwp
+
+implicit none
 #include "inflocal.fh"
 #include "WrkSpc.fh"
-
-character*22 SecNam
-parameter(SecNam='GetInfo_Localisation_0')
-character*80 Txt
-character*512 FName
+integer(kind=iwp) :: i, iSym, kOff, n2Bas, nBasT, nOrbT
+character(len=80) :: Txt
+character(len=512) :: FName
+character(len=22), parameter :: SecNam = 'GetInfo_Localisation_0'
 
 ! Read number of irreps.
 ! ----------------------
@@ -86,8 +86,8 @@ call GetMem('Occup','Allo','Real',ipOcc,lOcc)
 call GetMem('OrbEn','Allo','Real',ipEor,lEor)
 call GetMem('IndT','Allo','Inte',ipInd,lInd)
 FName = LC_FileOrb
-if (mylen(FName) == 0) FName = 'INPORB' ! file name
-call RdVec_Localisation(nSym,nBas,nOrb,iWork(ipInd),Work(ipCMO),Work(ipOcc),Work(ipEor),FName(:mylen(FName)))
+if (FName == '') FName = 'INPORB' ! file name
+call RdVec_Localisation(nSym,nBas,nOrb,iWork(ipInd),Work(ipCMO),Work(ipOcc),Work(ipEor),trim(FName))
 
 ! Set number of occupied and virtual orbitals according to the
 ! occupation numbers from INPORB (assuming that occupied orbitals
@@ -100,7 +100,7 @@ do iSym=1,nSym
   i = 0
   do while (i < nOrb(iSym))
     i = i+1
-    if (Work(kOff+i) > 0.0d0) then
+    if (Work(kOff+i) > Zero) then
       nOccInp(iSym) = nOccInp(iSym)+1
     else
       i = nOrb(iSym) ! break while loop

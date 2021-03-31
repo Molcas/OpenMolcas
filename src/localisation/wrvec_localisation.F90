@@ -12,33 +12,23 @@
 !***********************************************************************
 
 subroutine WrVec_Localisation(FName,Lu,Label,nSym,nBas,nOrb,CMO,Occ,EOrb,IndT,Title)
-
 ! Thomas Bondo Pedersen, July 2010.
 !
 ! Write orbital info.
 ! This is a work-around to fix bugs when orbitals are deleted.
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-character*6 FName
-integer Lu
-character*(*) Label
-integer nSym
-integer nBas(nSym)
-integer nOrb(nSym)
-real*8 CMO(*)
-real*8 Occ(*)
-real*8 EOrb(*)
-integer IndT(*)
-character*(*) Title
+character(len=6), intent(in) :: FName
+integer(kind=iwp), intent(in) :: Lu, nSym, nBas(nSym), nOrb(nSym), IndT(*)
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(in) :: CMO(*), Occ(*), EOrb(*)
+character(len=*), intent(inout) :: Title
 #include "WrkSpc.fh"
-
-integer ip_CMO, l_CMO
-integer ip_Occ, l_Occ
-integer ip_EOr, l_EOr
-integer ip_Ind, l_Ind
-integer iSym, k1, k2
-
-logical Write_CMO, Write_Occ, Write_EOr, Write_Ind
+integer(kind=iwp) :: ip_CMO, ip_EOr, ip_Ind, ip_Occ, iSym, k1, k2, l_CMO, l_EOr, l_Ind, l_Occ
+logical(kind=iwp) :: Write_CMO, Write_EOr, Write_Ind, Write_Occ
 
 Write_CMO = index(Label,'C') /= 0
 Write_Occ = index(Label,'O') /= 0
@@ -61,7 +51,7 @@ if (Write_CMO) then
 else
   l_CMO = 1
   call GetMem('CMO_','Allo','Real',ip_CMO,l_CMO)
-  Work(ip_CMO) = 0.0d0
+  Work(ip_CMO) = Zero
 end if
 
 if (Write_Occ) then
@@ -80,7 +70,7 @@ if (Write_Occ) then
 else
   l_Occ = 1
   call GetMem('Occ_','Allo','Real',ip_Occ,l_Occ)
-  Work(ip_Occ) = 0.0d0
+  Work(ip_Occ) = Zero
 end if
 
 if (Write_EOr) then
@@ -99,7 +89,7 @@ if (Write_EOr) then
 else
   l_EOr = 1
   call GetMem('EOr_','Allo','Real',ip_EOr,l_EOr)
-  Work(ip_EOr) = 0.0d0
+  Work(ip_EOr) = Zero
 end if
 
 if (Write_Ind) then
