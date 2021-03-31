@@ -106,7 +106,7 @@ C
       Real*8, Allocatable:: Lrs(:,:), Drs(:,:), Frs(:,:)
       Real*8, Allocatable:: VJ(:)
 
-      Integer, Allocatable:: nnBfShp(:,:), ipLab(:), kOffSh(:,:),
+      Integer, Allocatable:: nnBfShp(:,:), kOffSh(:,:),
      &                       iShp_rs(:), Indx(:,:)
       Real*8, Allocatable:: SvShp(:,:), Diag(:), AbsC(:), SumAClk(:,:),
      &                      Ylk(:,:), MLk(:,:), Faa(:), Fia(:)
@@ -298,9 +298,6 @@ c --- for each shell
 
 c --- allocate memory for the Index arrays
       Call mma_allocate(Indx,[0,nShell],[1,nnO],Label='Indx')
-
-c --- allocate memory for ipLab
-      Call mma_allocate(ipLab,nShell,Label='ipLab')
 
 c --- allocate memory for kOffSh
       Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
@@ -631,7 +628,8 @@ C
 *                                                                      *
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
-               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
+               mDen=1
+               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
                ipChoT = ip_of_Work(Lab%A0(1))
 
                CALL CWTIME(TCX1,TWX1)
@@ -819,7 +817,7 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                         iOffSha = kOffSh(iaSh,lSym)
 
-                        ipLab(iaSh) = ipChoT + iOffSha*JNUM
+                        Lab%Keep(iaSh,1)=.True.
 
                         ibcount=0
 
@@ -855,12 +853,12 @@ C ---------------------------------------
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
      &                              Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1,
-     &                             ONE,Work(ipLab(iaSh)),1)
+     &                     One,Lab%SB(iaSh,lSym,1)%A,1)
                                 Else
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &                     One,L_Full%SPB(lSym,iShp_rs(iShp),l1)%A21,n1,
      &                                 Work(ipMO+ioffShb),1,
-     &                             ONE,Work(ipLab(iaSh)),1)
+     &                     One,Lab%SB(iaSh,lSym,1)%A,1)
                                 End If
 
                              Else   ! lSym < kSym
@@ -879,12 +877,12 @@ C ---------------------------------------
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &              One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
      &                              Ash(2)%SB(kSym)%A2(1+ioffShb:,jK),1,
-     &                             ONE,Work(ipLab(iaSh)),1)
+     &                     One,Lab%SB(iaSh,lSym,1)%A,1)
                                 Else
                                   CALL DGEMV_(Mode(1:1),n1,n2,
      &              One,L_Full%SPB(kSym,iShp_rs(iShp),l1)%A12,n1,
      &                                 Work(ipMO+ioffShb),1,
-     &                             ONE,Work(ipLab(iaSh)),1)
+     &                     One,Lab%SB(iaSh,lSym,1)%A,1)
                                 End If
                              EndIf
 
@@ -896,7 +894,7 @@ C ---------------------------------------
 c --- The following re-assignement is used later on to check if the
 c --- iaSh vector LaJ[k] can be neglected because identically zero
 
-                         If (ibcount==0) ipLab(iaSh) = ipAbs
+                         If (ibcount==0) Lab%Keep(iaSh,1) = .False.
 
                       End Do
 
@@ -912,10 +910,7 @@ C --- Prepare the J-screening
 
                          iaSh = Indx(iSh,jk_a)
 
-                         iaSkip= Min(1,Max(0,
-     &                           abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
-
-                         If (iaSkip==0) Cycle
+                         If (.NOT.Lab%Keep(iaSh,1)) Cycle
 
                          IF (lSym.ge.kSym) Then
 
@@ -935,9 +930,9 @@ C ----------------------------------
 
                          Tmp=Zero
                          Do ia=1,nBasSh(lSym,iaSh)
-                            ipLai = ipLab(iaSh) + n1*(ia-1)
-                            Fia(ia)=DDot_(JNUM,Work(ipLai),Inc,
-     &                                         Work(ipLai),Inc)
+                            Fia(ia)=DDot_(JNUM,
+     &                        Lab%SB(iaSh,lSym,1)%A(1+n1*(ia-1)),Inc,
+     &                        Lab%SB(iaSh,lSym,1)%A(1+n1*(ia-1)),Inc)
                             Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 
@@ -960,8 +955,7 @@ C------------------------------------------------------------
 
                         iaSh = Indx(lSh,jk_a)
 
-                        iaSkip= Min(1,Max(0,
-     &                          abs(ipLab(iaSh)-ipAbs))) ! = 1 or 0
+                        iaSkip=Merge(1,0,Lab%Keep(iaSh,1))
 
                         iOffSha = kOffSh(iaSh,lSym)
 
@@ -971,8 +965,7 @@ C------------------------------------------------------------
 
                            ibSh = Indx(mSh,jk_a)
 
-                           ibSkip = Min(1,Max(0,
-     &                                    abs(ipLab(ibSh)-ipAbs)))
+                           ibSkip=Merge(1,0,Lab%Keep(ibSh,1))
 
                            iShp = iTri(iaSh,ibSh)
 
@@ -999,14 +992,11 @@ C ---  F(a,b)[k] = F(a,b)[k] + FactX * sum_J  L(a,J)[k] * L(b,J)[k]
 C -------------------------------------------------------------------
                                nBs = nBasSh(lSym,iaSh)
 
-                               CALL DGEMM_Tri('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                  FActX(jDen),Work(ipLab(iaSh)),
-     &                                           nBs,
-     &                                           Work(ipLab(iaSh)),
-     &                                           nBs,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
+                               CALL DGEMM_Tri('N','T',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                          FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBs,
+     &                                      Lab%SB(iaSh,lSym,1)%A,nBs,
+     &                                        ONE,Work(ipKI),nBs)
 
                                ELSE   ! lSym < kSym
 
@@ -1015,14 +1005,11 @@ C -------------------------------------------------------------------
 
                                nBs = nBasSh(lSym,iaSh)
 
-                               CALL DGEMM_Tri('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FActX(jDen),Work(ipLab(iaSh)),
-     &                                                JNUM,
-     &                                              Work(ipLab(iaSh)),
-     &                                                JNUM,
-     &                                            ONE,Work(ipKI),
-     &                                                nBs)
+                               CALL DGEMM_Tri('T','N',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                           FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
+     &                                       Lab%SB(iaSh,lSym,1)%A,JNUM,
+     &                                       ONE,Work(ipKI),nBs)
 
                                End If
 
@@ -1037,14 +1024,11 @@ C -------------------------------------------------------------------
                                   nBsa = nBasSh(lSym,iaSh)
                                   nBsb = nBasSh(lSym,ibSh)
 
-                                  CALL DGEMM_('N','T',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                   FActX(jDen),Work(ipLab(iaSh)),
-     &                                           nBsa,
-     &                                           Work(ipLab(ibSh)),
-     &                                           nBsb,
-     &                                       ONE,Work(ipKI),
-     &                                               nBsa)
+                                  CALL DGEMM_('N','T',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                           FActX(jDen),Lab%SB(iaSh,lSym,1)%A,nBsa,
+     &                                       Lab%SB(ibSh,lSym,1)%A,nBsb,
+     &                                       ONE,Work(ipKI),nBsa)
 
                                ELSE   ! lSym < kSym
 
@@ -1053,14 +1037,11 @@ C -------------------------------------------------------------------
 
                                   nBs = nBasSh(lSym,iaSh)
 
-                                  CALL DGEMM_('T','N',nBasSh(lSym,iaSh),
-     &                                           nBasSh(lSym,ibSh),JNUM,
-     &                                    FactX(jDen),Work(ipLab(iaSh)),
-     &                                           JNUM,
-     &                                           Work(ipLab(ibSh)),
-     &                                           JNUM,
-     &                                       ONE,Work(ipKI),
-     &                                               nBs)
+                                  CALL DGEMM_('T','N',
+     &                         nBasSh(lSym,iaSh),nBasSh(lSym,ibSh),JNUM,
+     &                           FActX(jDen),Lab%SB(iaSh,lSym,1)%A,JNUM,
+     &                                       Lab%SB(ibSh,lSym,1)%A,JNUM,
+     &                                       ONE,Work(ipKI),nBs)
 
                                End If
 
@@ -1400,7 +1381,6 @@ c ---------------
       Call mma_deallocate(iShp_rs)
       Call mma_deallocate(nnBfShp)
       Call mma_deallocate(kOffSh)
-      Call mma_deallocate(ipLab)
       Call mma_deallocate(Indx)
       Call mma_deallocate(SumAClk)
       Call mma_deallocate(MLk)
