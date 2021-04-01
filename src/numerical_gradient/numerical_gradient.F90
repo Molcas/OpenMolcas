@@ -317,17 +317,17 @@ else
 
     call IZero(iDispXYZ,3)
     do j=0,nStab-1
-      if (iand(jStab(j),1) /= 0) then
+      if (btest(jStab(j),0)) then
         iDispXYZ(1) = iDispXYZ(1)-1
       else
         iDispXYZ(1) = iDispXYZ(1)+1
       end if
-      if (iand(jStab(j),2) /= 0) then
+      if (btest(jStab(j),1)) then
         iDispXYZ(2) = iDispXYZ(2)-1
       else
         iDispXYZ(2) = iDispXYZ(2)+1
       end if
-      if (iand(jStab(j),4) /= 0) then
+      if (btest(jStab(j),2)) then
         iDispXYZ(3) = iDispXYZ(3)-1
       else
         iDispXYZ(3) = iDispXYZ(3)+1

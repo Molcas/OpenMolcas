@@ -6,7 +6,6 @@
 >> EXPORT MOLCAS_FORCE_NON_AO_TDM=ON
 &SEWARD  &END
 cholesky
-*oneonly
 Basis set
 Np.ano-rcc.Roos..8s7p5d3f1g.
 Np1       0.000000000      0.000000000      0.000000000   angstrom

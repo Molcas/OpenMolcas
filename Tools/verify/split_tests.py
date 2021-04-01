@@ -92,8 +92,12 @@ if (len(sets) < numsets):
   sets.append(this_set[:])
 
 # print selected set
+nothing = True
 try:
   for i in sets[thisnum-1]:
+    nothing = False
     print(i)
 except IndexError:
+  pass
+if nothing:
   print ('.none')
