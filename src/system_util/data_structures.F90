@@ -966,12 +966,13 @@ End Subroutine deallocate_L_Full
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen)
+Subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
 Implicit None
 
 Type (Lab_Type), Target:: Lab
 Integer JNUM, nShell, nSym, nDen
 Integer nBasSh(nSym,nShell), nBas(nSym)
+Integer, Optional :: Memory
 
 Integer iSym, iDen, Lab_Memory
 Integer iE, iS, iSh
@@ -982,6 +983,11 @@ Do iSym = 1, nSym
    Lab_Memory=Max(nBas(iSym),Lab_Memory)
 End Do
 Lab_Memory = Lab_Memory * JNUM * nDen
+
+If (Present(Memory)) Then
+   Memory=Lab_Memory
+   Return
+End If
 
 Lab%nSym=nSym
 Lab%nDen=nDen

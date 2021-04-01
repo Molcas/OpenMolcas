@@ -571,22 +571,28 @@
                EndIf
             Enddo
          EndIf
-*
-         JNUM=1
-         Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
-     &                        Memory=LFULL)
-
 ************************************************************************
 *                                                                      *
 *     Memory management section                                        *
 *                                                                      *
 ************************************************************************
 *
+*        For one Cholesky vector, JNUM=1, compute the amount of memory
+*        needed for the various vectors.
+
+         JNUM=1
+
+         ! L_Full
+         Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
+     &                        Memory=LFULL)
+         ! Lab
+         mDen=1
+         Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen,
+     &                        Memory=MxB0)
+*
 ** compute memory needed to store at least 1 vector of JSYM
 ** and do all the subsequent calculations
 *
-         mTvec1= 0
-         mTvec2= 0
          MxB=0
          nnOmx=0
          do l=1,nSym
@@ -594,9 +600,16 @@
             Do jDen=1,nDen
                 nnOmx=Max(nnOmx,nChOrb_(l,jDen)*nChOrb_(k,jDen))
                 If (nChOrb_(k,jDen).gt.0) Then
-                   MxB=Max(MxB,nBas(l)+nChOrb_(l,jDen))
+                   MxB=Max(MxB,nChOrb_(l,jDen))
                 EndIf
             End Do
+         end do
+         MxB = MxB + MxB0
+
+         mTvec1= 0
+         mTvec2= 0
+         do l=1,nSym
+            k=Muld2h(l,JSYM)
             mTvec1= mTvec1+ nAorb(k)*nBas(l)
             If (k.le.l .and. nADens.eq.1) Then
                mTvec2= mTvec2+ nnA(k,l)
@@ -606,8 +619,10 @@
          end do
          mTvec=mTvec1+mTvec2
 
-         LFMAX = Max(mTvec,  LFULL) ! re-use memory for the active vec
-         mTvec = nnOmx + 2*Max(MxB,1) ! mem for half transformed + Lik
+         ! re-use memory for the active vec
+         LFMAX = Max(mTvec1+mTvec2,  LFULL)
+         ! mem for half transformed + Lik
+         mTvec = nnOmx + Max(MxB,1)
 *
 **
 *
@@ -849,7 +864,6 @@ C --- Transform the densities to reduced set storage
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
                Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
-               mDen=1
                Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
 
                   CALL CWTIME(TCX1,TWX1)
@@ -929,8 +943,7 @@ C --- Transform the densities to reduced set storage
 
                        If (Nik.eq.0) Cycle
 
-                       ip_R = ipChoT
-     &                      + (nChOrb_(lSym,iMOright)+nBas(lSym))*JNUM
+                       ip_R = ipChoT + nChOrb_(lSym,iMOright)*JNUM
 
                        Call Fzero(Work(ip_R),Nik*JNUM)
 
@@ -938,7 +951,7 @@ C --- Transform the densities to reduced set storage
                           jK_a = jK + kOff(kSym,iMOleft)
 
                         CALL FZero(Work(ipChoT),
-     &                         (nChOrb_(lSym,iMOright)+nBas(lSym))*JNUM)
+     &                         nChOrb_(lSym,iMOright)*JNUM)
                         Lab%A0(1:nBas(lSym)*JNUM)=Zero
 
                         ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
