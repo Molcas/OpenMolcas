@@ -287,7 +287,7 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
 !                                                                     !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  Subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase)
+  Subroutine Allocate_SBA(Adam,n,m,NUMV,iSym,nSym,iCase,Memory)
   Implicit None
   Type (SBA_Type),Target:: Adam
   Integer NUMV
@@ -295,14 +295,13 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
   Integer nSym
   Integer n(nSym), m(nSym)
   Integer iCase
+  Integer, Optional :: Memory
+
+
   Integer iE, iS, iSyma, iSymb, MemTot, n2Dim, n3Dim
 
   Integer i, j, MulD2h
   MulD2h(i,j) = iEOR(i-1,j-1) + 1
-
-  Adam%iSym=iSym
-  Adam%nSym=nSym
-  Adam%iCase=iCase
 
   MemTot=0
 
@@ -375,6 +374,16 @@ Subroutine Allocate_DSBA(Adam,n,m,nSym,Case)
        Write (6,*) "Allocate_SBA: Illegal case."
        Call Abend()
   End Select
+
+  If (Present(Memory)) Then
+     Memory=MemTot
+     Return
+  End If
+
+  Adam%iSym=iSym
+  Adam%nSym=nSym
+  Adam%iCase=iCase
+
 
   Call mma_allocate(Adam%A0,MemTot,Label='%A0')
 

@@ -221,8 +221,6 @@ c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
 
 c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
-      AbsC(:)=Zero
-      ipAbs = ip_of_Work(AbsC(1))
 
 c --- allocate memory for the Y(l)[k] vectors
       Call mma_allocate(Ylk,MaxB,nno,nDen,Label='Ylk')

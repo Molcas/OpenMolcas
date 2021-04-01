@@ -169,6 +169,8 @@
       Real*8, Pointer:: pYik(:,:)=>Null()
       Integer, Allocatable:: kOffSh(:,:), iShp_rs(:),
      &                       Indx(:,:), Indik(:,:)
+      Real*8, Allocatable, Target:: Aux(:)
+      Real*8, Pointer:: Lik(:,:), Rik(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: DiagJ(:)
 #endif
@@ -540,8 +542,11 @@
 *     BIG LOOP OVER VECTORS SYMMETRY                                   *
 *                                                                      *
 ************************************************************************
+*                                                                      *
       DO jSym=1,nSym
-
+*                                                                      *
+************************************************************************
+*                                                                      *
          NumCV=NumCho(jSym)
          Call GAIGOP_SCAL(NumCV,'max')
          If (NumCV .lt. 1) Cycle
@@ -571,10 +576,13 @@
                EndIf
             Enddo
          EndIf
+*                                                                      *
+************************************************************************
 ************************************************************************
 *                                                                      *
-*     Memory management section                                        *
+*          M E M O R Y   M A N A G E M E N T   S E C T I O N           *
 *                                                                      *
+************************************************************************
 ************************************************************************
 *
 *        For one Cholesky vector, JNUM=1, compute the amount of memory
@@ -584,33 +592,39 @@
 
          ! L_Full
          Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,nSym,
-     &                        Memory=LFULL)
+     &                        Memory=nL_Full)
          ! Lab
          mDen=1
          Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen,
-     &                        Memory=MxB0)
+     &                        Memory=nLab)
+         If (DoCas) Then
+            iSwap = 0  ! Lvb,J are returned
+            Call Allocate_SBA(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
+     &                        iSwap,Memory=mTVec1)
+         Else
+            mTVec1=0
+         End If
 *
 ** compute memory needed to store at least 1 vector of JSYM
 ** and do all the subsequent calculations
 *
-         MxB=0
-         nnOmx=0
+         nLik=0
+         nRik=0
          do l=1,nSym
             k=Muld2h(l,JSYM)
             Do jDen=1,nDen
-                nnOmx=Max(nnOmx,nChOrb_(l,jDen)*nChOrb_(k,jDen))
+                nRik=Max(nRik,nChOrb_(l,jDen)*nChOrb_(k,jDen))
                 If (nChOrb_(k,jDen).gt.0) Then
-                   MxB=Max(MxB,nChOrb_(l,jDen))
+                   nLik=Max(nLik,nChOrb_(l,jDen))
                 EndIf
             End Do
          end do
-         MxB = MxB + MxB0
+         nAux = nLik + nRik
+         nLik = nLik + nLab
 
-         mTvec1= 0
          mTvec2= 0
          do l=1,nSym
             k=Muld2h(l,JSYM)
-            mTvec1= mTvec1+ nAorb(k)*nBas(l)
             If (k.le.l .and. nADens.eq.1) Then
                mTvec2= mTvec2+ nnA(k,l)
             Else If (k.le.l .and. nADens.eq.2) Then
@@ -620,9 +634,13 @@
          mTvec=mTvec1+mTvec2
 
          ! re-use memory for the active vec
-         LFMAX = Max(mTvec1+mTvec2,  LFULL)
+         LFMAX = Max(   mTvec1+mTvec2,  nL_Full )
          ! mem for half transformed + Lik
-         mTvec = nnOmx + Max(MxB,1)
+         mTvec = nRik + nLik
+*                                                                      *
+************************************************************************
+************************************************************************
+*
 *
 **
 *
@@ -651,7 +669,13 @@ c --- entire red sets range for parallel run
          DoScreen=.True.
          kscreen=1
 
+*                                                                      *
+************************************************************************
+*                                                                      *
          Do JRED=JRED1,JRED2
+*                                                                      *
+************************************************************************
+*                                                                      *
 
             If (NumCho(jSym).lt.1) Then
                iVrs=0
@@ -665,7 +689,7 @@ c --- entire red sets range for parallel run
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//
      &          ': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call Abend
+               call Abend()
             endif
 
             Call Cho_X_SetRed(irc,iLoc,JRED)
@@ -673,7 +697,7 @@ c            !set index arrays at iLoc
             if(irc.ne.0)then
               Write(6,*) SECNAM,': cho_X_setred non-zero return code.',
      &                   ' rc= ',irc
-              call Abend
+              call Abend()
             endif
 
             IREDC=JRED
@@ -745,8 +769,13 @@ C --- Transform the densities to reduced set storage
                BatchWarn = .False.
             EndIf
 
+*                                                                      *
+************************************************************************
+*                                                                      *
             DO iBatch=1,nBatch
-
+*                                                                      *
+************************************************************************
+*                                                                      *
                If (iBatch.eq.nBatch) Then
                   JNUM = nVrs - nVec*(nBatch-1)
                else
@@ -863,7 +892,7 @@ C --- Transform the densities to reduced set storage
 *                                                                      *
                Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
      &                              nSym)
-               Call GetMem('ChoT','Allo','Real',ipChoT,mTvec*nVec)
+               Call mma_allocate(Aux,mTvec*nVec,Label='Aux')
                Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
 
                   CALL CWTIME(TCX1,TWX1)
@@ -943,19 +972,26 @@ C --- Transform the densities to reduced set storage
 
                        If (Nik.eq.0) Cycle
 
-                       ip_R = ipChoT + nChOrb_(lSym,iMOright)*JNUM
+                       iS = 1
+                       iE = nChOrb_(lSym,iMOright) * JNUM
 
-                       Call Fzero(Work(ip_R),Nik*JNUM)
+                       Lik(1:JNUM,1:nChOrb_(lSym,iMOright))=>Aux(iS:iE)
+
+                       iS = iE +1
+                       iE = iE + Nik * JNUM
+
+                       Rik(1:Nik*JNUM) => Aux(iS:iE)
+
+                       Rik(:)=Zero
 
                        Do jK=1,nChOrb_(kSym,iMOleft)
                           jK_a = jK + kOff(kSym,iMOleft)
 
-                        CALL FZero(Work(ipChoT),
-     &                         nChOrb_(lSym,iMOright)*JNUM)
-                        Lab%A0(1:nBas(lSym)*JNUM)=Zero
+                           Lik(:,:)=Zero
+                           Lab%A0(1:nBas(lSym)*JNUM)=Zero
 
-                        ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
-     &                       + nBas(kSym)*(jK-1)
+                            ipMO = ipMSQ(iMOleft) + ISTSQ(kSym)
+     &                           + nBas(kSym)*(jK-1)
 
                         IF (DoScreen .and. iBatch.eq.1) THEN
                            CALL CWTIME(TCS1,TWS1)
@@ -1227,9 +1263,6 @@ C------------------------------------------------------------------
                           ipMO = ipMSQ(iMOright) + ISTSQ(lSym)
      &                         + nBas(lSym)*(it-1)
 
-                          ip_Lik = ipChoT + JNUM*(it-1)
-
-
                           Do iSh=1,Indx(0,nInd)
 
                              iaSh = Indx(iSh,nInd)
@@ -1261,7 +1294,7 @@ C------------------------------------------------------------------
                              CALL DGEMV_(Mode(1:1),n1,n2,
      &                                   One,Lab%SB(iaSh,lSym,1)%A,n1,
      &                                       Work(ip_Cai),1,
-     &                                   one,Work(ip_Lik),1)
+     &                                   one,Lik(:,it),1)
 
                           End Do
 
@@ -1274,9 +1307,7 @@ C------------------------------------------------------------------
                           Else
                              itk = nChOrb_(lSym,iMOright)*(jK-1) + it
                           EndIf
-                          ip_Rik = ip_R - 1 + itk
-                          call dcopy_(JNUM,Work(ip_Lik),1,
-     &                                    Work(ip_Rik),Nik)
+                          call dcopy_(JNUM,Lik(:,it),1,Rik(itk),Nik)
 
                         End Do
 
@@ -1297,7 +1328,7 @@ C------------------------------------------------------------------
 *                                                                      *
 ************************************************************************
                        iAdr = Nik*(JVEC-1)
-                       call DDAFILE(LuRVec(lSym,jDen),1,Work(ip_R),
+                       call DDAFILE(LuRVec(lSym,jDen),1,Rik,
      &                                                Nik*JNUM,iAdr)
 
                        CALL CWTIME(TCT2,TWT2)
@@ -1311,7 +1342,7 @@ C------------------------------------------------------------------
                   End Do   ! loop over densities
 
                Call Deallocate_Lab(Lab)
-               Call GetMem('ChoT','Free','Real',ipChoT,mTvec*nVec)
+               Call mma_deallocate(Aux)
                Call Deallocate_L_Full(L_Full)
 *                                                                      *
 ************************************************************************
@@ -1571,8 +1602,11 @@ C --- subtraction is done in the 1st reduced set
 **                                                                    **
 ************************************************************************
 ************************************************************************
-
+*                                                                      *
             END DO  ! end batch loop
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C --- free memory
             Call mma_deallocate(Lrs)
@@ -1611,9 +1645,13 @@ C--- have performed screening in the meanwhile
                EndIf
 #endif
             EndIf
-
+*                                                                      *
+************************************************************************
+*                                                                      *
          END DO   ! loop over red sets
-
+*                                                                      *
+************************************************************************
+*                                                                      *
          If (DoExchange) Then
            Do jDen=1,nKvec
               Do i=1,nSym
@@ -1622,11 +1660,18 @@ C--- have performed screening in the meanwhile
            End Do
          End If
 
+*                                                                      *
+************************************************************************
+*                                                                      *
       END DO  ! loop over JSYM
-*****************************************************************
-*              Allocate a field to be used by Compute_A_jk later
-*              since allocations cannot be made at that stage
-******************************************************************
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Allocate a field to be used by Compute_A_jk later
+*     since allocations cannot be made at that stage
+*                                                                      *
+************************************************************************
+*                                                                      *
       If(DoExchange) THen
         nIJMax = 0
         Do jDen = 1, nKvec
