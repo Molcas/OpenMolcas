@@ -219,7 +219,6 @@ c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
 
 c --- allocate memory for the abs(C(l)[k])
       Call mma_allocate(AbsC,MaxB,Label='AbsC')
-      ipAbs=ip_of_Work(AbsC(1))
 
 c --- allocate memory for the Y(l)[k] vectors
       Call mma_allocate(Ylk,MaxB,nnO,Label='Ylk')
@@ -704,8 +703,6 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                          iaSh = Indx(iSh,jK_a)
 
-                         iOffSha = kOffSh(iaSh,lSym)
-
                          Lab%Keep(iaSh,1)=.True.
 
                          ibcount=0
@@ -831,8 +828,6 @@ C------------------------------------------------------------
                          iaSh = Indx(lSh,jK_a)
 
                          iaSkip=Merge(1,0,Lab%Keep(iaSh,1))
-
-                         iOffSha = kOffSh(iaSh,lSym)
 
                          mSh = 1
 

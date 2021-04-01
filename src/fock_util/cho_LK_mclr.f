@@ -898,8 +898,6 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                            iaSh = Indx(iSh,jk_a,jDen)
 
-                           iOffSha = kOffSh(iaSh,lSym)
-
                            Lab%Keep(iaSh,jDen)=.True.
 
                            ibcount=0
@@ -1087,8 +1085,6 @@ C------------------------------------------------------------
                          iaSh = Indx(lSh,jk_a,1)
 
                          iaSkip=Merge(1,0,Lab%Keep(iaSh,kDen))
-
-                         iOffSha = kOffSh(iaSh,lSym)
 
                          mSh = 1
 

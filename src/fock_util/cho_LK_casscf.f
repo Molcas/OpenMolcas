@@ -813,8 +813,6 @@ C ---   || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                         iaSh = Indx(iSh,jk_a)
 
-                        iOffSha = kOffSh(iaSh,lSym)
-
                         Lab%Keep(iaSh,1)=.True.
 
                         ibcount=0
@@ -929,8 +927,8 @@ C ----------------------------------
                          Tmp=Zero
                          Do ia=1,nBasSh(lSym,iaSh)
                             Fia(ia)=DDot_(JNUM,
-     &                        Lab%SB(iaSh,lSym,1)%A(1+n1*(ia-1)),Inc,
-     &                        Lab%SB(iaSh,lSym,1)%A(1+n1*(ia-1)),Inc)
+     &                        Lab%SB(iaSh,lSym,1)%A(1+n1*(ia-1):),Inc,
+     &                        Lab%SB(iaSh,lSym,1)%A(1+n1*(ia-1):),Inc)
                             Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 
@@ -954,8 +952,6 @@ C------------------------------------------------------------
                         iaSh = Indx(lSh,jk_a)
 
                         iaSkip=Merge(1,0,Lab%Keep(iaSh,1))
-
-                        iOffSha = kOffSh(iaSh,lSym)
 
                         mSh = 1
 
