@@ -22,19 +22,18 @@ subroutine Localisation(iReturn)
 !    - December 2005 / January 2006 (Thomas Bondo Pedersen):
 !      Edmiston-Ruedenberg, PAO, and pair domain analysis included.
 
-use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, DoCNOs, DoDomain, EvalER, ipCMO, ipEor, ipInd, ipMOrig, &
-                                ipOcc, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, BName, nBas, nCMO, &
-                                nFro, nOrb, nOrb2Loc, nSym, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
+use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, BName, CMO, DoCNOs, DoDomain, EOrb, EvalER, Ind, iWave, &
+                                LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, MOrig, NamAct, nBas, nCMO, nFro, &
+                                nOrb, nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-#include "WrkSpc.fh"
 #include "debug.fh"
-#include "real.fh"
-integer(kind=iwp) :: ibo, iCheck, icHour, icMin, IndT(7,8), iOff, ip_Dum, iPRway, irc, iSym, iTol, iUHF, iwHour, iwMin, j, jbo, &
-                     jInd, jPrt, jTyp, jXarray, k, kCMO, kEor, kIndT, kOcc, l_Dum, lMOrig, lOff, LU_, nbo
+integer(kind=iwp) :: ibo, iCheck, icHour, icMin, IndT(7,8), iOff, iPRway, irc, iSym, iTol, iUHF, iwHour, iwMin, j, jbo, jInd, &
+                     jPrt, jTyp, k, kCMO, kEor, kIndT, kOcc, lMOrig, lOff, LU_, nbo
 real(kind=wp) :: AddInfoVal, C1, C1_Loc, C2, C2_Loc, CPUtot, cSec, ERFun(2), Functional, W1, W1_Loc, W2, W2_Loc, WLLtot, wSec, &
                  xnr0(8), xnr1, xNrm
 character(len=180) :: Line
@@ -45,7 +44,7 @@ character(len=7) :: matname
 character(len=6) :: Filename
 character(len=4) :: Model
 character(len=2) :: PreFix
-real(kind=wp), allocatable :: CMO2(:), CMO3(:)
+real(kind=wp), allocatable :: CMO2(:), CMO3(:), jXarray(:)
 character(len=12), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
 real(kind=r8), external :: ddot_
@@ -55,12 +54,6 @@ character(len=180), external :: Get_Ln
 ! -------------
 
 call CWTime(C1,W1)
-
-! Dummy allocation used to flush memory at the end.
-! -------------------------------------------------
-
-l_Dum = 1
-call GetMem('LocDum','Allo','Real',ip_Dum,l_Dum)
 
 ! Print banner.
 ! -------------
@@ -116,11 +109,8 @@ end if
 
 if (Test_Localisation .or. Analysis .or. AnaPAO .or. AnaPAO_Save .or. LocNatOrb .or. LocCanOrb) then
   lMOrig = nCMO
-  call GetMem('MOrig','Allo','Real',ipMOrig,lMOrig)
-  call dCopy_(lMOrig,Work(ipCMO),1,Work(ipMOrig),1)
-else
-  ipMOrig = -99999999
-  lMOrig = 0
+  call mma_allocate(MOrig,lMOrig,label='MOrig')
+  MOrig(:) = CMO(:)
 end if
 
 ! Print initial orbitals.
@@ -130,8 +120,7 @@ if ((.not. Silent) .and. PrintMOs) then
   write(Title,'(80x)')
   write(Title,'(a)') 'Initial MO''s'
   iPrWay = 2 ! short
-  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,Work(ipEor),Work(ipOcc),Work(ipCMO),iPrWay, &
-                          iWork(ipInd))
+  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,EOrb,Occ,CMO,iPrWay,Ind)
 end if
 
 if (Debug) then
@@ -147,7 +136,7 @@ end if
 
 if (EvalER) then
   ERFun(1) = Zero
-  call ComputeFuncER(ERFun(1),Work(ipCMO),nBas,nOrb2Loc,nFro,nSym,Timing)
+  call ComputeFuncER(ERFun(1),CMO,nBas,nOrb2Loc,nFro,nSym,Timing)
 end if
 
 ! Localise orbitals (if the user did not request us to skip it).
@@ -197,7 +186,7 @@ else
     iTol = 4
   else if (Wave) then ! wavelet transform
     irc = 0
-    call Wavelet_Transform(irc,ipCMO,nSym,nBas,nFro,nOrb2Loc,iWave,.false.,xNrm)
+    call Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,iWave,.false.,xNrm)
     if (irc /= 0) then
       write(Txt,'(A,I3)') 'Return code from Wavelet_Transform:',irc
       call SysAbendMsg(SecNam,'Localisation failed!',Txt)
@@ -236,7 +225,7 @@ call Add_Info(AddInfoString,[AddInfoVal],1,iTol)
 
 if (Order) then
   write(u6,'(/,1X,A)') 'Sorting local orbitals according to Cholesky ordering. (Based on overlap U=X^TSC.)'
-  call Sort_Localisation(Work(ipCMO),nBas,nOrb2Loc,nFro,nSym)
+  call Sort_Localisation(CMO,nBas,nOrb2Loc,nFro,nSym)
 end if
 
 ! Evaluate ER functional for local orbitals.
@@ -244,7 +233,7 @@ end if
 
 if (EvalER) then
   ERFun(2) = Zero
-  call ComputeFuncER(ERFun(2),Work(ipCMO),nBas,nOrb2Loc,nFro,nSym,Timing)
+  call ComputeFuncER(ERFun(2),CMO,nBas,nOrb2Loc,nFro,nSym,Timing)
   write(u6,'(/,1X,A,1P,D15.8,/,1X,A,D15.8,/)') 'ER functional for initial orbitals: ',ERFun(1), &
                                                'ER functional for local   orbitals: ',ERFun(2)
 end if
@@ -306,26 +295,28 @@ if (LocNatOrb .or. LocCanOrb) then
   jbo = 1
   do iSym=1,nSym
     kCMO = ibo+nBas(iSym)*nFro(iSym)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipMOrig+kCMO),1,CMO2(jbo),1)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipCMO+kCMO),1,CMO3(jbo),1)
+    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),MOrig(kCMO+1),1,CMO2(jbo),1)
+    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),CMO(kCMO+1),1,CMO3(jbo),1)
     ibo = ibo+nBas(iSym)**2
     jbo = jbo+nBas(iSym)*nOrb2Loc(iSym)
   end do
 
   if (LocNatOrb) then
     matname = 'Density'
-    jXarray = ipOcc
+    call mma_allocate(jXarray,size(Occ),label='jXarray')
+    jXarray(:) = Occ(:)
   else
     matname = 'Fock'
-    jXarray = ipEor
+    call mma_allocate(jXarray,size(EOrb),label='jXarray')
+    jXarray(:) = EOrb(:)
   end if
-  lOff = 0
+  lOff = 1
   do iSym=1,nSym
-    xnr0(iSym) = ddot_(nOrb2Loc(iSym),[One],0,Work(jXarray+lOff+nFro(iSym)),1)
+    xnr0(iSym) = ddot_(nOrb2Loc(iSym),[One],0,jXarray(lOff+nFro(iSym)),1)
     lOff = lOff+nBas(iSym)
   end do
 
-  call Loc_Nat_Orb(irc,CMO2,CMO3,Work(jXarray),nOrb2Loc)
+  call Loc_Nat_Orb(irc,CMO2,CMO3,jXarray,nOrb2Loc)
   if (irc /= 0) then
     write(u6,*) SecNam,': localisation error detected!'
     write(u6,*) ' Loc_Nat_Orb returned ',irc
@@ -340,20 +331,27 @@ if (LocNatOrb .or. LocCanOrb) then
   write(u6,*) ' ------------------------------------------------- '
   write(u6,*) '    Symm.        before     / after localisation   '
   write(u6,*) ' ------------------------------------------------- '
-  lOff = 0
+  lOff = 1
   do iSym=1,nSym
-    xnr1 = ddot_(nOrb2Loc(iSym),[One],0,Work(jXarray+lOff+nFro(iSym)),1)
+    xnr1 = ddot_(nOrb2Loc(iSym),[One],0,jXarray(lOff+nFro(iSym)),1)
     lOff = lOff+nBas(iSym)
     write(u6,'(3X,I4,8X,F11.5,4X,F11.5)') iSym,xnr0(iSym),xnr1
   end do
   write(u6,*) ' ------------------------------------------------- '
   write(u6,*)
 
+  if (LocNatOrb) then
+    Occ(:) = jXarray(:)
+  else
+    EOrb(:) = jXarray(:)
+  end if
+  call mma_deallocate(jXarray)
+
   ibo = 0
   jbo = 1
   do iSym=1,nSym
     kCMO = ibo+nBas(iSym)*nFro(iSym)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),CMO3(jbo),1,Work(ipCMO+kCMO),1)
+    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),CMO3(jbo),1,CMO(kCMO+1),1)
     ibo = ibo+nBas(iSym)**2
     jbo = jbo+nBas(iSym)*nOrb2Loc(iSym)
   end do
@@ -377,12 +375,12 @@ end if
 iCheck = 0
 iOff = 0
 iSym = 1
-jTyp = min(6,max(2,iWork(ipInd+nFro(1)))) ! Fro=Ina and Del=Vir
+jTyp = min(6,max(2,Ind(nFro(1)+1))) ! Fro=Ina and Del=Vir
 do while ((iSym <= nSym) .and. (iCheck == 0))
-  jInd = ipInd+iOff+nFro(iSym)
+  jInd = iOff+nFro(iSym)+1
   j = 1
   do while ((j < nOrb2Loc(iSym)) .and. (iCheck == 0))
-    iCheck = min(6,max(2,iWork(jInd+j)))-jTyp
+    iCheck = min(6,max(2,Ind(jInd+j)))-jTyp
     j = j+1
   end do
   iOff = iOff+nBas(iSym)
@@ -391,8 +389,8 @@ end do
 if ((.not. LocCanOrb) .and. (.not. Skip)) then
   iOff = 0
   do iSym=1,nSym
-    kEor = ipEor+iOff+nFro(iSym)
-    call FZero(Work(kEor),nOrb2Loc(iSym))
+    kEor = iOff+nFro(iSym)+1
+    call FZero(EOrb(kEor),nOrb2Loc(iSym))
     iOff = iOff+nBas(iSym)
   end do
 end if
@@ -410,8 +408,8 @@ if ((.not. LocNatOrb) .and. (.not. Skip) .and. (.not. DoCNOs)) then
   if (jPrt == 1) then
     iOff = 0
     do iSym=1,nSym
-      kOcc = ipOcc+iOff+nFro(iSym)
-      call FZero(Work(kOcc),nOrb2Loc(iSym))
+      kOcc = iOff+nFro(iSym)+1
+      call FZero(Occ(kOcc),nOrb2Loc(iSym))
       iOff = iOff+nBas(iSym)
     end do
   end if
@@ -424,8 +422,7 @@ if (PrintMOs) then
   write(Title,'(80x)')
   write(Title,'(a)') 'Final localised MO''s'
   iPrWay = 2 ! short
-  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,Work(ipEor),Work(ipOcc),Work(ipCMO),iPrWay, &
-                          iWork(ipInd))
+  call PriMO_Localisation(Title,.true.,.true.,-One,1.0e5_wp,nSym,nBas,nOrb,BName,EOrb,Occ,CMO,iPrWay,Ind)
 end if
 
 ! Write LOCORB file.
@@ -435,11 +432,11 @@ write(Namefile,'(A)') 'LOCORB'
 write(Title,'(80X)')
 write(Title,'(A)') 'Localised orbitals'
 LU_ = isFreeUnit(11)
-j = ipInd-1
-call iZero(IndT,56)
+j = 0
+IndT(:,:) = 0
 do iSym=1,nSym
   do k=1,nOrb(iSym)
-    kIndT = iWork(j+k)
+    kIndT = Ind(j+k)
     if ((kIndT > 0) .and. (kIndT <= 7)) then
       IndT(kIndT,iSym) = IndT(kIndT,iSym)+1
     else
@@ -450,7 +447,7 @@ do iSym=1,nSym
   end do
   j = j+nBas(iSym)
 end do
-call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,Work(ipCMO),Work(ipOcc),Work(ipEor),IndT,Title)
+call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
 if (.not. Silent) then
   write(u6,'(1X,A)') 'The LOCORB file has been written.'
 end if
@@ -482,9 +479,15 @@ contains
 
 subroutine Error(code)
   integer(kind=iwp), intent(in) :: code
-  if (code /=0) iReturn = code
-  call GetMem('LocDum','Flus','Real',ip_Dum,l_Dum)
-  call GetMem('LocDum','Free','Real',ip_Dum,l_Dum)
+  if (code /= 0) iReturn = code
+
+  call mma_deallocate(CMO)
+  call mma_deallocate(Occ)
+  call mma_deallocate(EOrb)
+  call mma_deallocate(Ind)
+  call mma_deallocate(BName)
+  if (allocated(MOrig)) call mma_deallocate(MOrig)
+  if (allocated(NamAct)) call mma_deallocate(NamAct)
 
   ! Print timing.
   ! -------------
@@ -496,9 +499,9 @@ subroutine Error(code)
     call Cho_CnvTim(CPUtot,icHour,icMin,cSec)
     call Cho_CnvTim(WLLtot,iwHour,iwMin,wSec)
     write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec, &
-                                        ' seconds ***'
+                                          ' seconds ***'
     write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec, &
-                                        ' seconds ***'
+                                          ' seconds ***'
   end if
 end subroutine Error
 

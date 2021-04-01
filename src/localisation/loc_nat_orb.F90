@@ -142,7 +142,7 @@ do iSym=1,nSym
 
   call DGEMM_('N','N',mOrb(iSym),n_OK,nBas(iSym),One,CC,mOx,X,nBx,Zero,U,mOx)
   jOcc = iOff+nFro(iSym)+1
-  call Get_Nat_Lorb(OccN(jOcc),FOcc,n_OK,mOrb(iSym),kD,U,iSym)
+  call Get_Nat_Lorb(OccN(jOcc),FOcc,n_OK,mOrb(iSym),kD,U)
   nOx = max(1,n_OK)
   call DGEMM_('N','N',nBas(iSym),n_OK,n_OK,One,X,nBx,U,nOx,Zero,Scr,nBx)
   do i=1,n_OK
@@ -152,7 +152,7 @@ do iSym=1,nSym
   end do
 
   call DGEMM_('N','N',mOrb(iSym),n_KO,nBas(iSym),One,CC,mOx,Z,nBx,Zero,U,mOx)
-  call Get_Nat_Lorb(OccN(jOcc),FOcc,n_KO,mOrb(iSym),lD,U,iSym)
+  call Get_Nat_Lorb(OccN(jOcc),FOcc,n_KO,mOrb(iSym),lD,U)
   nOx = max(1,n_KO)
   call DGEMM_('N','N',nBas(iSym),n_KO,n_KO,One,Z,nBx,U,nOx,Zero,Scr,nBx)
   do i=1,n_KO

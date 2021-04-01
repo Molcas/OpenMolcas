@@ -11,16 +11,14 @@
 
 subroutine BitMap_Localisation_Atom(PreFix)
 
-use Localisation_globals, only: AnaNrm, ipCMO, ipMOrig, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym
+use Localisation_globals, only: AnaNrm, BName, CMO, MOrig, nAtoms, nBas, nFro, nOrb2Loc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=2), intent(in) :: PreFix
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iTyp, kC0(2), kC1, kC2, kX1
+integer(kind=iwp) :: i, kC1, kC2
 logical(kind=iwp) :: Debug
-character(len=4) :: Typ(2)
 character(len=12) :: BasNam
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Coord(:,:), CAt(:), DAt(:), Den(:), XAt(:)
@@ -55,12 +53,11 @@ call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBas(1),nAtoms,Debug)
 ! Generate bitmap and perform sparsity analysis.
 ! ----------------------------------------------------------------
 
-kC1 = ipMOrig+nBas(1)*nFro(1)
-call GetDens_Localisation(Den,Work(kC1),nBas(1),nOrb2Loc(1))
+kC1 = nBas(1)*nFro(1)+1
+call GetDens_Localisation(Den,MOrig(kC1),nBas(1),nOrb2Loc(1))
 call GetAt_Localisation(Den,nBas(1),nBas(1),DAt,nAtoms,2,nBas_per_Atom,nBas_Start,AnaNrm)
-call GetAt_Localisation(Work(kC1),nBas(1),nOrb2Loc(1),CAt,nAtoms,1,nBas_per_Atom,nBas_Start,AnaNrm)
-kX1 = ipCMO+nBas(1)*nFro(1)
-call GetAt_Localisation(Work(kX1),nBas(1),nOrb2Loc(1),XAt,nAtoms,1,nBas_per_Atom,nBas_Start,AnaNrm)
+call GetAt_Localisation(MOrig(kC1),nBas(1),nOrb2Loc(1),CAt,nAtoms,1,nBas_per_Atom,nBas_Start,AnaNrm)
+call GetAt_Localisation(CMO(kC1),nBas(1),nOrb2Loc(1),XAt,nAtoms,1,nBas_per_Atom,nBas_Start,AnaNrm)
 call GenBMp_Localisation(DAt,CAt,XAt,nAtoms,1,'r','r','r',PreFix)
 call Anasize_Localisation(DAt,CAt,XAt,nAtoms,nOrb2Loc(1),1)
 write(u6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
@@ -76,19 +73,20 @@ call Get_dArray('Unique Coordinates',Coord,3*nAtoms)
 call GetAt_Localisation(Den,nBas(1),nBas(1),DAt,nAtoms,2,nBas_per_Atom,nBas_Start,AnaNrm)
 write(BasNam,'(A2,A10)') PreFix,'TotDensity'
 call GenGnu_Localisation(BasNam,DAt,Coord,nAtoms)
-Typ(1) = 'Dini'
-Typ(2) = 'Dloc'
-kC0(1) = ipMOrig
-kC0(2) = ipCMO
-do iTyp=1,2
-  kC1 = kC0(iTyp)+nBas(1)*nFro(1)
-  do i=1,nOrb2Loc(1)
-    kC2 = kC1+nBas(1)*(i-1)
-    call GetDens_Localisation(Den,Work(kC2),nBas(1),1)
-    call GetAt_Localisation(Den,nBas(1),nBas(1),DAt,nAtoms,2,nBas_per_Atom,nBas_Start,AnaNrm)
-    write(BasNam,'(A2,A4,I6)') PreFix,Typ(iTyp),i
-    call GenGnu_Localisation(BasNam,DAt,Coord,nAtoms)
-  end do
+kC1 = nBas(1)*nFro(1)+1
+do i=1,nOrb2Loc(1)
+  kC2 = kC1+nBas(1)*(i-1)
+  call GetDens_Localisation(Den,MOrig(kC2),nBas(1),1)
+  call GetAt_Localisation(Den,nBas(1),nBas(1),DAt,nAtoms,2,nBas_per_Atom,nBas_Start,AnaNrm)
+  write(BasNam,'(A2,A4,I6)') PreFix,'Dini',i
+  call GenGnu_Localisation(BasNam,DAt,Coord,nAtoms)
+end do
+do i=1,nOrb2Loc(1)
+  kC2 = kC1+nBas(1)*(i-1)
+  call GetDens_Localisation(Den,CMO(kC2),nBas(1),1)
+  call GetAt_Localisation(Den,nBas(1),nBas(1),DAt,nAtoms,2,nBas_per_Atom,nBas_Start,AnaNrm)
+  write(BasNam,'(A2,A4,I6)') PreFix,'Dloc',i
+  call GenGnu_Localisation(BasNam,DAt,Coord,nAtoms)
 end do
 write(u6,*) 'Gnuplot files have been generated. Norm: ',AnaNrm
 

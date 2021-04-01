@@ -17,7 +17,7 @@ subroutine Get_CNOs(irc,nIF,nRASO,xNrm)
 !                                                                      *
 !***********************************************************************
 
-use Localisation_globals, only: ipCMO, ipOcc, MxConstr, nBas, nConstr, nSym
+use Localisation_globals, only: CMO, MxConstr, nBas, nConstr, nSym, Occ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
@@ -26,7 +26,6 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nIF(nSym), nRasO(nSym)
 real(kind=wp), intent(out) :: xNrm
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, ic1, ic2, iCount, iDab, iOcc, iOff, iOffS(0:8), indxC(16,2,8), ipDab, iSym, j, jc, jCount, ji, jOcc, jOff, &
                      jSym, k, kbit, kc, kc1, kc2, kOff, l, lc, lc1, lc2, lConstr, lCount, lOcc_, mAdCMOO, MaxBas, nBB, nBLT, nBT, &
                      nSconf
@@ -42,7 +41,7 @@ real(kind=r8), external :: ddot_
 !     Start                                                            *
 !----------------------------------------------------------------------*
 
-call Untested(Get_CNOs)
+call Untested('Get_CNOs')
 
 call DecideonCholesky(DoneCholesky)
 if (.not. DoneCholesky) then
@@ -134,20 +133,20 @@ do iCount=0,nSconf-1
   iOff = 1
   jOff = 0
   do iSym=1,nSym
-    call dcopy_(nBas(iSym)**2,Work(ipCMO+iOff-1),1,CMO_(iOff),1)
-    call dcopy_(nBas(iSym)**2,CMO_(iOff),1,CMO_ab(iOff),1)
-    lOcc_ = ipOcc+jOff+nIF(iSym)
-    call dcopy_(nRASO(iSym),Work(lOcc_),1,Occ_ab,1)
+    call dcopy_(nBas(iSym)**2,CMO(iOff),1,CMO_(iOff),1)
+    call dcopy_(nBas(iSym)**2,CMO(iOff),1,CMO_ab(iOff),1)
+    lOcc_ = jOff+nIF(iSym)+1
+    call dcopy_(nRASO(iSym),Occ(lOcc_),1,Occ_ab,1)
     call BestMatch(nConstr(iSym),nRASO(iSym),Occ_ab,Match,MxConstr)
     do i=1,nConstr(iSym)
       k = Match(1,i)
-      jOcc = ipOcc-1+jOff+nIF(iSym)+k
-      xOkk = Half*Work(jOcc)
+      jOcc = jOff+nIF(iSym)+k
+      xOkk = Half*Occ(jOcc)
       kc = iOff+nBas(iSym)*(nIF(iSym)+k-1)
       xNrm = xNrm+ddot_(nBas(iSym),CMO_(kc),1,CMO_(kc),1)
       l = Match(2,i)
-      iOcc = ipOcc-1+jOff+nIF(iSym)+l
-      yOkk = Half*Work(iOcc)
+      iOcc = jOff+nIF(iSym)+l
+      yOkk = Half*Occ(iOcc)
       xnorm = sqrt(abs(xOkk)+abs(yOkk)) !ensures correct normaliz
       lc = iOff+nBas(iSym)*(nIF(iSym)+l-1)
       xOkk = sqrt(abs(xOkk))/xnorm

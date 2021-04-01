@@ -19,6 +19,7 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, An
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nBas, nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, &
                                 Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+use stdalloc, only: mma_allocate
 use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
@@ -165,7 +166,7 @@ do
 
       Maximisation = .false.
 
-    case ('NITE', 'ITER')
+    case ('NITE','ITER')
       ! NITErations or ITERations
 
       Line = Get_Ln(LuSpool)
@@ -195,7 +196,7 @@ do
       Line = Get_Ln(LuSpool)
       call Get_F1(1,ThrRot)
 
-    case ('PIPE', 'PM  ')
+    case ('PIPE','PM  ')
       ! PIPEk-Mezey or PM
 
       LocModel = 1
@@ -213,7 +214,7 @@ do
       LocModel = 3
       LocModel_UsrDef = .true.
 
-    case ('EDMI', 'ER  ')
+    case ('EDMI','ER  ')
       ! EDMIston-Ruedenberg or ER
 
       LocModel = 4
@@ -368,7 +369,7 @@ do
 
       Skip = .true.
 
-    case ('LOCN', 'LOCC')
+    case ('LOCN','LOCC')
       ! LOCN: localized natural orbitals
       ! LOCC: localized canonical orbitals
 
@@ -385,6 +386,7 @@ do
         if ((Line(1:1) /= '*') .and. (Line /= ' ')) exit
       end do
       call UpCase(Line)
+      call mma_allocate(NamAct,nActa,label='NamAct')
       do i=1,nActa
         call LeftAd(Line)
         if (Line == ' ') call Error()

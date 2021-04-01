@@ -11,7 +11,7 @@
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine Get_Nat_Lorb(Occ,FOcc,nO,nX,jOrb,Umat,iSym)
+subroutine Get_Nat_Lorb(Occ,FOcc,nO,nX,jOrb,Umat)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -21,7 +21,7 @@ implicit none
 real(kind=wp), intent(in) :: Occ(*)
 real(kind=wp), intent(out) :: FOcc(*)
 real(kind=wp), intent(inout) :: Umat(*)
-integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO), iSym
+integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO)
 integer(kind=iwp) :: i, ii, j, nOx, nXx
 real(kind=wp), allocatable :: eta(:), Z(:), ZZ(:)
 
@@ -52,7 +52,5 @@ call mma_deallocate(Z)
 call mma_deallocate(ZZ)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(iSym)
 
 end subroutine Get_Nat_Lorb

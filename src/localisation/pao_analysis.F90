@@ -17,14 +17,13 @@ subroutine PAO_Analysis(D,R,X)
 !
 ! Purpose: test and analysis of Cholesky PAOs.
 
-use Localisation_globals, only: AnaNrm, ipMOrig, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym
+use Localisation_globals, only: AnaNrm, BName, MOrig, nAtoms, nBas, nFro, nOrb2Loc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
 real(kind=wp), intent(in) :: D(*), R(*), X(*)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: i, iGetVecs, iSym, kC, kCO, kCR, kOff, kOffX, kSX, kX, l_S, l_SX, l_Tst, lDAt, lRAt, lXAt, nB, nB2, nErr, nF, &
                      nFO, nO, nR, nRest, nRO
 real(kind=wp) :: xB2, xFO, xNrm, xRMS, xRO
@@ -133,7 +132,7 @@ do iSym=1,nSym
   nF = max(nFro(iSym),1)
   nRest = nBas(iSym)-nFro(iSym)-nOrb2Loc(iSym)
   nR = max(nRest,1)
-  call DGEMM_('T','N',nFro(iSym),nOrb2Loc(iSym),nBas(iSym),One,Work(ipMOrig+kC-1),nB,SX(kSX),nB,Zero,Tst,nF)
+  call DGEMM_('T','N',nFro(iSym),nOrb2Loc(iSym),nBas(iSym),One,MOrig(kC),nB,SX(kSX),nB,Zero,Tst,nF)
   nFO = nFro(iSym)*nOrb2Loc(iSym)
   if (nFO > 0) then
     xFO = One/real(nFO,kind=wp)
@@ -146,7 +145,7 @@ do iSym=1,nSym
     nErr = nErr+1
   end if
   kCR = kC+nBas(iSym)*(nFro(iSym)+nOrb2Loc(iSym))
-  call DGEMM_('T','N',nRest,nOrb2Loc(iSym),nBas(iSym),One,Work(ipMOrig+kCR-1),nB,SX(kSX),nB,Zero,Tst,nR)
+  call DGEMM_('T','N',nRest,nOrb2Loc(iSym),nBas(iSym),One,MOrig(kCR),nB,SX(kSX),nB,Zero,Tst,nR)
   nRO = nRest*nOrb2Loc(iSym)
   if (nRO > 0) then
     xRO = One/real(nRO,kind=wp)
@@ -171,7 +170,7 @@ do iSym=1,nSym
   nB = max(nBas(iSym),1)
   nO = max(nOrb2Loc(iSym),1)
   kCO = kC+nBas(iSym)*nFro(iSym)
-  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nBas(iSym),One,Work(ipMOrig+kCO-1),nB,SX(kSX),nB,Zero,Tst,nO)
+  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nBas(iSym),One,MOrig(kCO),nB,SX(kSX),nB,Zero,Tst,nO)
   call mma_allocate(EigR,nOrb2Loc(iSym),label='EigR')
   call mma_allocate(EigI,nOrb2Loc(iSym),label='EigI')
   iGetVecs = 0

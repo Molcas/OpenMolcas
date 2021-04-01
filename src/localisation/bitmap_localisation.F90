@@ -11,7 +11,7 @@
 
 subroutine BitMap_Localisation(PreFix)
 
-use Localisation_globals, only: AnaNrm, ipCMO, ipMOrig, nBas, nFro, nOrb2Loc, nSym
+use Localisation_globals, only: AnaNrm, CMO, MOrig, nBas, nFro, nOrb2Loc, nSym
 use Index_arrays, only: iSO2Sh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -19,8 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=2), intent(in) :: PreFix
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iOff, iSym, kC, kC1, kX, kX1, MxBa, MxOr, n2, nBasT, nDiff, nShell
+integer(kind=iwp) :: iSym, kC, kC1, MxBa, MxOr, n2, nBasT, nDiff, nShell
 real(kind=wp) :: ThrAO
 logical(kind=iwp) :: Indexation, DoF, DoG
 real(kind=wp), allocatable :: CSh(:), Den(:), DSh(:), XSh(:)
@@ -66,21 +65,17 @@ call mma_allocate(XSh,nShell*MxOr,label='Xsh')
 ! Generate bitmap and perform sparsity analysis.
 ! -----------------------------------------------------------------
 
-kC = ipMOrig
-kX = ipCMO
+kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetDens_Localisation(Den,Work(kC1),nBas(iSym),nOrb2Loc(iSym))
-  iOff = 1
-  call GetSh_Localisation(Den,nBas(iSym),nBas(iSym),DSh,nShell,iSO2Sh(iOff),2,AnaNrm)
-  call GetSh_Localisation(Work(kC1),nBas(iSym),nOrb2Loc(iSym),CSh,nShell,iSO2Sh(iOff),1,AnaNrm)
-  kX1 = kX+nBas(iSym)*nFro(iSym)
-  call GetSh_Localisation(Work(kX1),nBas(iSym),nOrb2Loc(iSym),XSh,nShell,iSO2Sh(iOff),1,AnaNrm)
+  call GetDens_Localisation(Den,MOrig(kC1),nBas(iSym),nOrb2Loc(iSym))
+  call GetSh_Localisation(Den,nBas(iSym),nBas(iSym),DSh,nShell,iSO2Sh,2,AnaNrm)
+  call GetSh_Localisation(MOrig(kC1),nBas(iSym),nOrb2Loc(iSym),CSh,nShell,iSO2Sh,1,AnaNrm)
+  call GetSh_Localisation(CMO(kC1),nBas(iSym),nOrb2Loc(iSym),XSh,nShell,iSO2Sh,1,AnaNrm)
   call GenBMp_Localisation(DSh,CSh,XSh,nShell,iSym,'r','r','r',PreFix)
   call Anasize_Localisation(DSh,CSh,XSh,nShell,nOrb2Loc(iSym),iSym)
   n2 = nBas(iSym)**2
   kC = kC+n2
-  kX = kX+n2
 end do
 write(u6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 

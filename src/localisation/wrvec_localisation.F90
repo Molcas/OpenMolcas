@@ -92,7 +92,7 @@ else
 end if
 
 if (Write_Ind) then
-  l_Ind = 56
+  l_Ind = 7*8
   call mma_allocate(Ind_,l_Ind,label='Ind_')
   call iCopy(l_Ind,IndT,1,Ind_,1)
 else

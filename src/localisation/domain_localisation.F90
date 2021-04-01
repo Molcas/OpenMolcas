@@ -17,13 +17,12 @@ subroutine Domain_Localisation(irc)
 ! Purpose: set up orbital domains and pair domains. Find number of
 !          strong, weak, distant, and very distant pairs.
 
-use Localisation_globals, only: AnaDomain, ipCMO, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym, ThrDomain, ThrPairDomain
+use Localisation_globals, only: AnaDomain, BName, CMO, nAtoms, nBas, nFro, nOrb2Loc, nSym, ThrDomain, ThrPairDomain
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "WrkSpc.fh"
 #include "debug.fh"
 integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, kC, nAtom, nBasT, nnOcc, nOcc
 real(kind=wp) :: Fac, ThrPD(3), Tst
@@ -75,8 +74,8 @@ call mma_allocate(iDomain,(nAtom+1)*nOcc,label='iDomain')
 call mma_allocate(QD,nOcc,label='QD')
 call mma_allocate(f,nOcc,label='f')
 
-kC = ipCMO+nBasT*nFro(1)
-call DefineDomain(irc,iDomain,QD,f,Work(kC),ThrDomain,nBas_per_Atom,nBas_Start,nAtom,nBasT,nOcc)
+kC = nBasT*nFro(1)+1
+call DefineDomain(irc,iDomain,QD,f,CMO(kC),ThrDomain,nBas_per_Atom,nBas_Start,nAtom,nBasT,nOcc)
 if (irc /= 0) then
   write(u6,*) SecNam,': ERROR: DefineDomain returned ',irc
   call Error(irc) ! return after deallocations
@@ -99,7 +98,7 @@ end if
 ! Make sure that ThrPairDomain is in ascending order.
 ! ---------------------------------------------------
 
-call dCopy_(3,ThrPairDomain,1,ThrPD,1)
+ThrPD(:) = ThrPairDomain(:)
 call Cho_Order(ThrPD,3,1)
 iChange = 0
 i = 0

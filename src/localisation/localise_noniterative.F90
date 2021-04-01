@@ -19,7 +19,7 @@ subroutine Localise_Noniterative(irc,Model,xNrm)
 !            Cholesky [MODEL='CHOL']
 !            PAO      [MODEL='PAO ']
 
-use Localisation_globals, only: AnaPAO, ipCMO, ipOcc, nBas, nFro, nOrb, nOrb2Loc, nSym, Thrs
+use Localisation_globals, only: AnaPAO, CMO, nBas, nFro, nOrb, nOrb2Loc, nSym, Occ, Thrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -28,8 +28,7 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 character(len=4), intent(in) :: Model
 real(kind=wp), intent(out) :: xNrm
-#include "WrkSpc.fh"
-integer(kind=iwp) :: idum(1), iSym, kOff1, kOffC, kOffR, kSav, l_Dens, l_Dv, l_R, Lu_, nOrPs
+integer(kind=iwp) :: idum(1), iSym, kOff1, kOffC, kSav, l_Dens, l_Dv, l_R, Lu_, nOrPs
 real(kind=wp) :: dum(1), yNrm
 character(len=80) :: Txt
 character(len=6) :: Namefile
@@ -57,12 +56,12 @@ if (myModel == 'CHOL') then
     l_Dens = max(l_Dens,nBas(iSym)**2)
   end do
   call mma_allocate(Dens,l_Dens,label='Dens')
-  kOffC = ipCMO
+  kOffC = 1
   do iSym=1,nSym
     if (nOrb2Loc(iSym) > 0) then
       kOff1 = kOffC+nBas(iSym)*nFro(iSym)
-      call GetDens_Localisation(Dens,Work(kOff1),nBas(iSym),nOrb2Loc(iSym))
-      call ChoLoc(irc,Dens,Work(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
+      call GetDens_Localisation(Dens,CMO(kOff1),nBas(iSym),nOrb2Loc(iSym))
+      call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
       xNrm = xNrm+yNrm*yNrm
       if (irc /= 0) then
         call mma_deallocate(Dens)
@@ -91,22 +90,21 @@ else if (myModel == 'PAO ') then
   call mma_allocate(R,l_R,label='R')
   call mma_allocate(Dv,l_Dv,label='Dv')
   Normalize = .true.
-  call GetRawPAOs(R,Work(ipCMO),nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
+  call GetRawPAOs(R,CMO,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
   if (AnaPAO) then
     call mma_allocate(DvSav,l_R,label='DvSav')
   end if
   kSav = 1
-  kOffR = 1
-  kOffC = ipCMO
+  kOffC = 1
   do iSym=1,nSym
     if (nOrb2Loc(iSym) > 0) then
-      call GetDens_Localisation(Dv,R(kOffR),nBas(iSym),nBas(iSym))
+      call GetDens_Localisation(Dv,R(kOffC),nBas(iSym),nBas(iSym))
       if (AnaPAO) then
         call dCopy_(nBas(iSym)**2,Dv,1,DvSav(kSav),1)
         kSav = kSav+nBas(iSym)**2
       end if
       kOff1 = kOffC+nBas(iSym)*nFro(iSym)
-      call ChoLoc(irc,Dv,Work(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
+      call ChoLoc(irc,Dv,CMO(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
       xNrm = xNrm+yNrm*yNrm
       if (irc /= 0) then
         if (AnaPAO) call mma_deallocate(DvSav)
@@ -117,19 +115,18 @@ else if (myModel == 'PAO ') then
         return
       end if
     end if
-    kOffR = kOffR+nBas(iSym)**2
     kOffC = kOffC+nBas(iSym)**2
   end do
   xNrm = sqrt(xNrm)
   if (AnaPAO) then
-    call PAO_Analysis(DvSav,R,Work(ipCMO))
+    call PAO_Analysis(DvSav,R,CMO)
     call mma_deallocate(DvSav)
   end if
   write(Namefile,'(A)') 'DPAORB'
   write(Txt,'(80X)')
   write(Txt,'(A)') 'Linearly dependent PAOs'
   Lu_ = isFreeUnit(11)
-  call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,R,Work(ipOcc),dum,idum,Txt)
+  call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,R,Occ,dum,idum,Txt)
   !if (.not. Silent) then
   write(u6,'(1X,A)') 'The DPAORB file has been written.'
   !end if
@@ -137,14 +134,14 @@ else if (myModel == 'PAO ') then
   write(Txt,'(80X)')
   write(Txt,'(A)') 'Linearly independent PAOs'
   Lu_ = isFreeUnit(11)
-  call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,Work(ipCMO),Work(ipOcc),dum,idum,Txt)
+  call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,CMO,Occ,dum,idum,Txt)
   !if (.not. Silent) then
   write(u6,'(1X,A)') 'The IPAORB file has been written.'
   !end if
   call mma_deallocate(R)
   call mma_deallocate(Dv)
   nOrPs = 2 ! use 2 orthonorm. passes for num. accuracy
-  call OrthoPAO_Localisation(Work(ipCMO),nBas,nFro,nOrb2Loc,nSym,nOrPs,Test_OrthoPAO)
+  call OrthoPAO_Localisation(CMO,nBas,nFro,nOrb2Loc,nSym,nOrPs,Test_OrthoPAO)
 else
   write(Txt,'(A,A4)') 'Model = ',Model
   call SysAbendMsg(SecNam,'Unknown model',Txt)

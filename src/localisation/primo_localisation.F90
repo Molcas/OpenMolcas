@@ -42,13 +42,13 @@ do iSym=1,nSym
   kk = kk+nBas(iSym)
 end do
 
-nOrbT = nOrb_(1)
-do iSym=2,nSym
+nOrbT = 0
+do iSym=1,nSym
   nOrbT = nOrbT+nOrb_(iSym)
 end do
 
-l_CMO = nBas(1)*nOrb_(1)
-do iSym=2,nSym
+l_CMO = 0
+do iSym=1,nSym
   l_CMO = l_CMO+nBas(iSym)*nOrb_(iSym)
 end do
 

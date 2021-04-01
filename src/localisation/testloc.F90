@@ -24,7 +24,7 @@ subroutine TestLoc(irc)
 !
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
-use Localisation_globals, only: ipCMO, ipMOrig, LocPAO, nBas, nFro, nOrb2Loc, nSym
+use Localisation_globals, only: CMO, LocPAO, MOrig, nBas, nFro, nOrb2Loc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
@@ -32,9 +32,8 @@ use Definitions, only: wp, iwp, u6, r8
 implicit none
 integer(kind=iwp), intent(out) :: irc
 #include "debug.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, &
-                     kD, kO, kOff, kSqr, kTri, kU, kX, kX1, lOaux, lOvlp, lScr, lUmat, mErr, nB2, nErr, nTO
+integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, kD, kOff, kSqr, kTri, kU, lOaux, lOvlp, lScr, lUmat, &
+                     mErr, nB2, nErr, nTO
 real(kind=wp) :: Tol, Tst, xErr, xNrm
 character(len=80) :: Txt
 character(len=8) :: Label
@@ -112,13 +111,11 @@ call mma_allocate(Umat,lUmat,label='Umat')
 nErr = 0
 
 kD = 1
-kC = ipMOrig
-kX = ipCMO
+kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetDens_Localisation(DenC(kD),Work(kC1),nBas(iSym),nOrb2Loc(iSym))
-  kX1 = kX+nBas(iSym)*nFro(iSym)
-  call GetDens_Localisation(DenX(kD),Work(kX1),nBas(iSym),nOrb2Loc(iSym))
+  call GetDens_Localisation(DenC(kD),MOrig(kC1),nBas(iSym),nOrb2Loc(iSym))
+  call GetDens_Localisation(DenX(kD),CMO(kC1),nBas(iSym),nOrb2Loc(iSym))
   nB2 = nBas(iSym)**2
   call dCopy_(nB2,DenC(kD),1,Ddff(kD),1)
   call dAXPY_(nB2,-One,DenX(kD),1,Ddff(kD),1)
@@ -129,7 +126,6 @@ do iSym=1,nSym
   end if
   kD = kD+nB2
   kC = kC+nB2
-  kX = kX+nB2
 end do
 if (nErr /= 0) then
   call Error(1) ! exit, after de-allocations
@@ -142,13 +138,10 @@ end if
 nErr = 0
 
 kU = 1
-kO = 1
-kC = ipMOrig
-kX = ipCMO
+kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  kX1 = kX+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Umat(kU),Work(kC1),Ovlp(kO),Work(kX1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),CMO(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
   nTO = max(nOrb2Loc(iSym),1)
   call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Umat(kU),nTO,Umat(kU),nTO,Zero,Scr,nTO)
   xErr = -huge(xErr)
@@ -166,9 +159,7 @@ do iSym=1,nSym
   end if
   nB2 = nBas(iSym)**2
   kU = kU+nOrb2Loc(iSym)**2
-  kO = kO+nB2
   kC = kC+nB2
-  kX = kX+nB2
 end do
 if (nErr /= 0) then
   call Error(1) ! exit, after de-allocations
@@ -181,12 +172,10 @@ end if
 nErr = 0
 
 kU = 1
-kO = 1
-kC = ipMOrig
-kX = ipCMO
+kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Umat(kU),Work(kC1),Ovlp(kO),Work(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),MOrig(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
   mErr = 0
   xErr = -huge(xErr)
   ip0 = kU-1
@@ -205,8 +194,7 @@ do iSym=1,nSym
     mErr = mErr+1
   end if
   if (mErr == 0) then
-    kX1 = kX+nBas(iSym)*nFro(iSym)
-    call GetUmat_Localisation(Umat(kU),Work(kX1),Ovlp(kO),Work(kX1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+    call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
     xErr = -huge(xErr)
     ip0 = kU-1
     do j=1,nOrb2Loc(iSym)
@@ -231,9 +219,7 @@ do iSym=1,nSym
   end if
   nB2 = nBas(iSym)**2
   kU = kU+nOrb2Loc(iSym)**2
-  kO = kO+nB2
   kC = kC+nB2
-  kX = kX+nB2
 end do
 if (nErr /= 0) then
   call Error(1) ! exit, after de-allocations

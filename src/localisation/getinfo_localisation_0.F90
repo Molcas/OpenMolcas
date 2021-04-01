@@ -16,14 +16,14 @@ subroutine GetInfo_Localisation_0()
 !
 ! Purpose: read basic info from runfile and INPORB.
 
-use Localisation_globals, only: ipCMO, ipEor, ipInd, ipOcc, LC_FileOrb, BName, nAtoms, nBas, nCMO, nOccInp, nOrb, nSym, nVirInp
+use Localisation_globals, only: BName, CMO, EOrb, Ind, LC_FileOrb, nAtoms, nBas, nCMO, nOccInp, nOrb, nSym, nVirInp, Occ
+use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iSym, kOff, lEor, lInd, lOcc, n2Bas, nBasT, nOrbT
+integer(kind=iwp) :: i, iSym, kOff, n2Bas, nBasT, nOrbT
 character(len=80) :: Txt
 character(len=512) :: FName
 character(len=22), parameter :: SecNam = 'GetInfo_Localisation_0'
@@ -53,7 +53,7 @@ end if
 ! Set number of orbitals equal to nBas.
 ! -------------------------------------
 
-call Icopy(nSym,nBas,1,nOrb,1)
+nOrb(:) = nBas(:)
 nOrbT = nOrb(1)
 do iSym=2,nSym
   nOrbT = nOrbT+nOrb(iSym)
@@ -79,29 +79,26 @@ do iSym=2,nSym
 end do
 
 nCMO = n2Bas
-lOcc = nBasT
-lEor = nBasT
-lInd = nBasT
-call GetMem('CMO','Allo','Real',ipCMO,nCMO)
-call GetMem('Occup','Allo','Real',ipOcc,lOcc)
-call GetMem('OrbEn','Allo','Real',ipEor,lEor)
-call GetMem('IndT','Allo','Inte',ipInd,lInd)
+call mma_allocate(CMO,nCMO,label='CMO')
+call mma_allocate(Occ,nBasT,label='Occup')
+call mma_allocate(Eorb,nBasT,label='OrbEn')
+call mma_allocate(Ind,nBasT,label='IndT')
 FName = LC_FileOrb
 if (FName == '') FName = 'INPORB' ! file name
-call RdVec_Localisation(nSym,nBas,nOrb,iWork(ipInd),Work(ipCMO),Work(ipOcc),Work(ipEor),trim(FName))
+call RdVec_Localisation(nSym,nBas,nOrb,Ind,CMO,Occ,EOrb,trim(FName))
 
 ! Set number of occupied and virtual orbitals according to the
 ! occupation numbers from INPORB (assuming that occupied orbitals
 ! precede virtual ones on file).
 ! ---------------------------------------------------------------
 
-kOff = ipOcc-1
+kOff = 0
 do iSym=1,nSym
   nOccInp(iSym) = 0
   i = 0
   do while (i < nOrb(iSym))
     i = i+1
-    if (Work(kOff+i) > Zero) then
+    if (Occ(kOff+i) > Zero) then
       nOccInp(iSym) = nOccInp(iSym)+1
     else
       i = nOrb(iSym) ! break while loop
@@ -124,6 +121,7 @@ if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
   write(Txt,'(A,I9)') 'nAtoms =',nAtoms
   call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
 end if
+call mma_allocate(BName,nBasT,label='BName')
 !call Get_cArray('Unique Atom Names',AtomLbl,4*nAtoms)
 call Get_cArray('Unique Basis Names',BName,len(BName)*nBasT)
 
