@@ -627,7 +627,6 @@
                 EndIf
             End Do
          end do
-         nAux = nLik + nRik
 
          ! re-use memory for the active vec
          LFMAX = Max(   nLaq + nLxy,  nL_Full + nRik + nLik + nLab )
@@ -719,7 +718,7 @@ c           !set index arrays at iLoc
                WRITE(6,*) ' nL_Full = ',nL_Full
                WRITE(6,*) ' nRik = ',nRik
                WRITE(6,*) ' nLik = ',nLik
-               WRITE(6,*) ' nLab = ',nabk
+               WRITE(6,*) ' nLab = ',nLab
                WRITE(6,*)
                WRITE(6,*) ' nLaq = ',nLaq
                WRITE(6,*) ' nLxy = ',nLxy
@@ -1171,8 +1170,6 @@ C------------------------------------------------------------------
                         Do iSh=1,Indx(0,nInd)
 
                            iaSh = Indx(iSh,nInd)
-
-                           iOffSha = kOffSh(iaSh,lSym)
 
                            Lab%Keep(iaSh,1) = .True.
 

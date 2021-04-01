@@ -985,7 +985,6 @@ Integer, Optional :: Memory
 
 Integer iSym, iDen, Lab_Memory
 Integer iE, iS, iSh
-Integer, External :: ip_of_Work
 
 Lab_Memory=0
 Do iSym = 1, nSym

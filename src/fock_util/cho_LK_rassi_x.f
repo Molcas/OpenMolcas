@@ -898,8 +898,8 @@ C -------------------------------------
                          Tmp=Zero
                          Do ia=1,nBasSh(lSym,iaSh)
                             Fia(ia)=DDot_(JNUM,
-     &                        Lab%SB(iaSh,lSym,   1)%A(1+n1*(ia-1)),Inc,
-     &                        Lab%SB(iaSh,lSym,kDen)%A(1+n1*(ia-1)),Inc)
+     &                       Lab%SB(iaSh,lSym,   1)%A(1+n1*(ia-1):),Inc,
+     &                       Lab%SB(iaSh,lSym,kDen)%A(1+n1*(ia-1):),Inc)
                             Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 

@@ -80,7 +80,6 @@ C
       Real*8 LKThr
       Real*8, External:: Cho_LK_ScreeningThreshold
       Integer, External:: Cho_LK_MaxVecPerBatch
-      Integer, External:: ip_of_Work
 
       Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:), VJ(:)
       Integer, Allocatable:: iShp_rs(:), Indx(:,:)
@@ -803,8 +802,8 @@ C ----------------------------------
                          Tmp=Zero
                          Do ia=1,nBasSh(lSym,iaSh)
                             Fia(ia)=DDot_(JNUM,
-     &                         Lab%SB(iash,lSym,1)%A(1+n1*(ia-1)),Inc,
-     &                         Lab%SB(iash,lSym,1)%A(1+n1*(ia-1)),Inc)
+     &                         Lab%SB(iash,lSym,1)%A(1+n1*(ia-1):),Inc,
+     &                         Lab%SB(iash,lSym,1)%A(1+n1*(ia-1):),Inc)
                             Tmp=Max(Abs(Fia(ia)),Tmp)
                          End Do
 
