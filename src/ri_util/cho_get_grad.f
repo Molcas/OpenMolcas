@@ -600,9 +600,17 @@
          If (DoCas) Then
             iSwap = 0  ! Lvb,J are returned
             Call Allocate_SBA(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
-     &                        iSwap,Memory=mTVec1)
+     &                        iSwap,Memory=nLaq)
+            nLxy=0
+            Do iMO1=1,nAdens
+               iSwap_lxy=5
+               If (iMO1==2) iSwap_lxy=6
+               Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,
+     &                           iSwap_lxy,Memory=nLxy0)
+               nLxy = Max( nLxy, nLxy0)
+           End Do
          Else
-            mTVec1=0
+            nLaq=0
          End If
 *
 ** compute memory needed to store at least 1 vector of JSYM
@@ -620,23 +628,9 @@
             End Do
          end do
          nAux = nLik + nRik
-         nLik = nLik + nLab
-
-         mTvec2= 0
-         do l=1,nSym
-            k=Muld2h(l,JSYM)
-            If (k.le.l .and. nADens.eq.1) Then
-               mTvec2= mTvec2+ nnA(k,l)
-            Else If (k.le.l .and. nADens.eq.2) Then
-               mTvec2= mTvec2+ nAorb(k)*nAorb(l)
-            End If
-         end do
-         mTvec=mTvec1+mTvec2
 
          ! re-use memory for the active vec
-         LFMAX = Max(   mTvec1+mTvec2,  nL_Full )
-         ! mem for half transformed + Lik
-         mTvec = nRik + nLik
+         LFMAX = Max(   nLaq + nLxy,  nL_Full + nRik + nLik + nLab )
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -659,16 +653,14 @@
          ntv0=0
 #endif
 
-c --- entire red sets range for parallel run
+c ---    entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
          Call GAIGOP_SCAL(JRED2,'max')
-
 *
-** MGD does it need to be so?
+**       MGD does it need to be so?
 *
          DoScreen=.True.
          kscreen=1
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -692,8 +684,8 @@ c --- entire red sets range for parallel run
                call Abend()
             endif
 
+c           !set index arrays at iLoc
             Call Cho_X_SetRed(irc,iLoc,JRED)
-c            !set index arrays at iLoc
             if(irc.ne.0)then
               Write(6,*) SECNAM,': cho_X_setred non-zero return code.',
      &                   ' rc= ',irc
@@ -714,16 +706,23 @@ c            !set index arrays at iLoc
 
             Call mma_maxDBLE(LWORK)
 
-            nVec = Min(LWORK/(nRS+mTvec+LFMAX),nVrs)
+            nVec = Min(LWORK/(nRS+LFMAX),nVrs)
 
             If (nVec.lt.1) Then
                WRITE(6,*) SECNAM//': Insufficient memory for batch'
                WRITE(6,*) ' LWORK= ',LWORK
-               WRITE(6,*) ' min. mem. need= ',nRS+mTvec+LFMAX
+               WRITE(6,*) ' min. mem. need= ',nRS+LFMAX
                WRITE(6,*) ' jsym= ',jsym
                WRITE(6,*) ' nRS = ',nRS
-               WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
+               WRITE(6,*)
+               WRITE(6,*) ' nL_Full = ',nL_Full
+               WRITE(6,*) ' nRik = ',nRik
+               WRITE(6,*) ' nLik = ',nLik
+               WRITE(6,*) ' nLab = ',nabk
+               WRITE(6,*)
+               WRITE(6,*) ' nLaq = ',nLaq
+               WRITE(6,*) ' nLxy = ',nLxy
                irc = 33
                CALL Abend()
                nBatch = -9999  ! dummy assignment
@@ -778,10 +777,9 @@ C --- Transform the densities to reduced set storage
 *                                                                      *
                If (iBatch.eq.nBatch) Then
                   JNUM = nVrs - nVec*(nBatch-1)
-               else
+               Else
                   JNUM = nVec
-               endif
-
+               Endif
 
                JVEC = nVec*(iBatch-1) + iVrs
                IVEC2 = JVEC - 1 + JNUM
@@ -804,8 +802,8 @@ C --- Transform the densities to reduced set storage
 ************************************************************************
 **                                                                    **
 **                                                                    **
-**    Coulomb term                                                    **
-**           V{#J} = sum_ab  L(ab,{#J}) * D(ab)                       **
+**             Coulomb term                                           **
+**             V{#J} = sum_ab  L(ab,{#J}) * D(ab)                     **
 **                                                                    **
 **                                                                    **
 ************************************************************************
@@ -840,7 +838,7 @@ C --- Transform the densities to reduced set storage
 ************************************************************************
 ************************************************************************
 **                                                                    **
-**              E X C H A N G E    T E R M                            **
+**             E X C H A N G E    T E R M                             **
 **                                                                    **
 **                                                                    **
 ************************************************************************
@@ -890,10 +888,11 @@ C --- Transform the densities to reduced set storage
 ************************************************************************
 ************************************************************************
 *                                                                      *
-               Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
-     &                              nSym)
-               Call mma_allocate(Aux,mTvec*nVec,Label='Aux')
-               Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,mDen)
+                  Call Allocate_L_Full(L_Full,nShell,iShp_rs,JNUM,JSYM,
+     &                                 nSym)
+                  Call mma_allocate(Aux,(nRik+nLik)*nVec,Label='Aux')
+                  Call Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,
+     &                              mDen)
 
                   CALL CWTIME(TCX1,TWX1)
 
