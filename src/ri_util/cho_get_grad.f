@@ -216,6 +216,14 @@
         Integer iShp_rs( mmShl_tot )
         End SUBROUTINE CHO_GetShFull
 
+        Subroutine DCopy_(N,DX,INCX,DY,INCY)
+        INTEGER, Intent(in)  :: N
+        REAL*8, Dimension(*), Intent(in) ::DX
+        INTEGER, Intent(in)  :: INCX
+        REAL*8, Dimension(*), Intent(out) ::DY
+        INTEGER, Intent(in)  :: INCY
+        End Subroutine DCopy_
+
       End Interface
 
 *                                                                      *
@@ -599,18 +607,19 @@
      &                        Memory=nLab)
          If (DoCas) Then
             iSwap = 0  ! Lvb,J are returned
-            Call Allocate_SBA(Laq(1),nAorb,nBas,nVec,JSYM,nSym,
+            Call Allocate_SBA(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,
      &                        iSwap,Memory=nLaq)
             nLxy=0
             Do iMO1=1,nAdens
                iSwap_lxy=5
                If (iMO1==2) iSwap_lxy=6
-               Call Allocate_SBA(Lxy,nAorb,nAorb,nVec,JSYM,nSym,
+               Call Allocate_SBA(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,
      &                           iSwap_lxy,Memory=nLxy0)
                nLxy = Max( nLxy, nLxy0)
            End Do
          Else
             nLaq=0
+            nLxy=0
          End If
 *
 ** compute memory needed to store at least 1 vector of JSYM
@@ -1306,7 +1315,8 @@ C------------------------------------------------------------------
                           Else
                              itk = nChOrb_(lSym,iMOright)*(jK-1) + it
                           EndIf
-                          call dcopy_(JNUM,Lik(:,it),1,Rik(itk),Nik)
+                          call dcopy_(JNUM,Lik(:,it),1,
+     &                                     Rik(itk:),Nik)
 
                         End Do
 
