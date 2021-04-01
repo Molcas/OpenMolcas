@@ -216,16 +216,7 @@
         Integer iShp_rs( mmShl_tot )
         End SUBROUTINE CHO_GetShFull
 
-        Subroutine DCopy_(N,DX,INCX,DY,INCY)
-        INTEGER, Intent(in)  :: N
-        REAL*8, Dimension(*), Intent(in) ::DX
-        INTEGER, Intent(in)  :: INCX
-        REAL*8, Dimension(*), Intent(out) ::DY
-        INTEGER, Intent(in)  :: INCY
-        End Subroutine DCopy_
-
       End Interface
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
