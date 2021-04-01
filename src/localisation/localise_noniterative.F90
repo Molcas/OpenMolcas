@@ -20,6 +20,7 @@ subroutine Localise_Noniterative(irc,Model,xNrm)
 !            PAO      [MODEL='PAO ']
 
 use Localisation_globals, only: AnaPAO, ipCMO, ipOcc, nBas, nFro, nOrb, nOrb2Loc, nSym, Thrs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -28,13 +29,13 @@ integer(kind=iwp), intent(out) :: irc
 character(len=4), intent(in) :: Model
 real(kind=wp), intent(out) :: xNrm
 #include "WrkSpc.fh"
-integer(kind=iwp) :: idum(1), ip_Dens, ip_Dv, ip_DvSav, ip_R, iSym, kOff1, kOffC, kOffR, kSav, l_Dens, l_Dv, l_DvSav, l_R, Lu_, &
-                     nOrPs
+integer(kind=iwp) :: idum(1), iSym, kOff1, kOffC, kOffR, kSav, l_Dens, l_Dv, l_R, Lu_, nOrPs
 real(kind=wp) :: dum(1), yNrm
 character(len=80) :: Txt
 character(len=6) :: Namefile
 character(len=4) :: myModel
 logical(kind=iwp) :: Normalize
+real(kind=wp), allocatable :: Dens(:), Dv(:), DvSav(:), R(:)
 logical(kind=iwp), parameter :: Test_OrthoPAO = .false.
 character(len=21), parameter :: SecNam = 'Localise_Noniterative'
 integer(kind=iwp), external :: isFreeUnit
@@ -55,16 +56,16 @@ if (myModel == 'CHOL') then
   do iSym=2,nSym
     l_Dens = max(l_Dens,nBas(iSym)**2)
   end do
-  call GetMem('Density','Allo','Real',ip_Dens,l_Dens)
+  call mma_allocate(Dens,l_Dens,label='Dens')
   kOffC = ipCMO
   do iSym=1,nSym
     if (nOrb2Loc(iSym) > 0) then
       kOff1 = kOffC+nBas(iSym)*nFro(iSym)
-      call GetDens_Localisation(Work(ip_Dens),Work(kOff1),nBas(iSym),nOrb2Loc(iSym))
-      call ChoLoc(irc,Work(ip_Dens),Work(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
+      call GetDens_Localisation(Dens,Work(kOff1),nBas(iSym),nOrb2Loc(iSym))
+      call ChoLoc(irc,Dens,Work(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
       xNrm = xNrm+yNrm*yNrm
       if (irc /= 0) then
-        call GetMem('Density','Free','Real',ip_Dens,l_Dens)
+        call mma_deallocate(Dens)
         irc = 1
         xNrm = -huge(xNrm)
         return
@@ -73,7 +74,7 @@ if (myModel == 'CHOL') then
     kOffC = kOffC+nBas(iSym)**2
   end do
   xNrm = sqrt(xNrm)
-  call GetMem('Density','Free','Real',ip_Dens,l_Dens)
+  call mma_deallocate(Dens)
 else if (myModel == 'PAO ') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'PAO Cholesky localisation'
@@ -87,34 +88,30 @@ else if (myModel == 'PAO ') then
     l_R = l_R+nBas(iSym)**2
     l_Dv = max(l_Dv,nBas(iSym)**2)
   end do
-  call GetMem('R','Allo','Real',ip_R,l_R)
-  call GetMem('Dv','Allo','Real',ip_Dv,l_Dv)
+  call mma_allocate(R,l_R,label='R')
+  call mma_allocate(Dv,l_Dv,label='Dv')
   Normalize = .true.
-  call GetRawPAOs(Work(ip_R),Work(ipCMO),nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
-  kSav = 0
+  call GetRawPAOs(R,Work(ipCMO),nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
   if (AnaPAO) then
-    l_DvSav = l_R
-    call GetMem('DvSav','Allo','Real',ip_DvSav,l_DvSav)
-    kSav = ip_DvSav
+    call mma_allocate(DvSav,l_R,label='DvSav')
   end if
-  kOffR = ip_R
+  kSav = 1
+  kOffR = 1
   kOffC = ipCMO
   do iSym=1,nSym
     if (nOrb2Loc(iSym) > 0) then
-      call GetDens_Localisation(Work(ip_Dv),Work(kOffR),nBas(iSym),nBas(iSym))
+      call GetDens_Localisation(Dv,R(kOffR),nBas(iSym),nBas(iSym))
       if (AnaPAO) then
-        call dCopy_(nBas(iSym)**2,Work(ip_Dv),1,Work(kSav),1)
+        call dCopy_(nBas(iSym)**2,Dv,1,DvSav(kSav),1)
         kSav = kSav+nBas(iSym)**2
       end if
       kOff1 = kOffC+nBas(iSym)*nFro(iSym)
-      call ChoLoc(irc,Work(ip_Dv),Work(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
+      call ChoLoc(irc,Dv,Work(kOff1),Thrs,yNrm,nBas(iSym),nOrb2Loc(iSym))
       xNrm = xNrm+yNrm*yNrm
       if (irc /= 0) then
-        if (AnaPAO) then
-          call GetMem('DvSav','Free','Real',ip_DvSav,l_DvSav)
-        end if
-        call GetMem('Dv','Free','Real',ip_Dv,l_Dv)
-        call GetMem('R','Free','Real',ip_R,l_R)
+        if (AnaPAO) call mma_deallocate(DvSav)
+        call mma_deallocate(R)
+        call mma_deallocate(Dv)
         irc = 1
         xNrm = -huge(xNrm)
         return
@@ -125,14 +122,14 @@ else if (myModel == 'PAO ') then
   end do
   xNrm = sqrt(xNrm)
   if (AnaPAO) then
-    call PAO_Analysis(Work(ip_DvSav),Work(ip_R),Work(ipCMO))
-    call GetMem('DvSav','Free','Real',ip_DvSav,l_DvSav)
+    call PAO_Analysis(DvSav,R,Work(ipCMO))
+    call mma_deallocate(DvSav)
   end if
   write(Namefile,'(A)') 'DPAORB'
   write(Txt,'(80X)')
   write(Txt,'(A)') 'Linearly dependent PAOs'
   Lu_ = isFreeUnit(11)
-  call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,Work(ip_R),Work(ipOcc),dum,idum,Txt)
+  call WrVec_Localisation(Namefile,Lu_,'CO',nSym,nBas,nBas,R,Work(ipOcc),dum,idum,Txt)
   !if (.not. Silent) then
   write(u6,'(1X,A)') 'The DPAORB file has been written.'
   !end if
@@ -144,8 +141,8 @@ else if (myModel == 'PAO ') then
   !if (.not. Silent) then
   write(u6,'(1X,A)') 'The IPAORB file has been written.'
   !end if
-  call GetMem('Dv','Free','Real',ip_Dv,l_Dv)
-  call GetMem('R','Free','Real',ip_R,l_R)
+  call mma_deallocate(R)
+  call mma_deallocate(Dv)
   nOrPs = 2 ! use 2 orthonorm. passes for num. accuracy
   call OrthoPAO_Localisation(Work(ipCMO),nBas,nFro,nOrb2Loc,nSym,nOrPs,Test_OrthoPAO)
 else

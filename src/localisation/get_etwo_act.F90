@@ -11,6 +11,7 @@
 
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -18,15 +19,15 @@ implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
 real(kind=wp), intent(in) :: Dma(nBDT), Dmb(nBDT)
 real(kind=wp), intent(out) :: Etwo
-#include "WrkSpc.fh"
 #include "choscf.fh"
 #include "choscreen.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iOff, ipDai, ipDbi, ipDm(2), ipFCNO,ipFLT(2), ipKLT(2), ipPLT, ipPorb(2), ipV, irc, nBB, nIorb(8,2)
-real(kind=wp) :: ChFracMem
+integer(kind=iwp) :: i, iOff, ipFLT(2), ipKLT(2), ipPorb(2), ipPLT(2), irc, nBB, nForb(8,2), nIorb(8,2)
+real(kind=wp) :: ChFracMem, dFmat, FactXI
 !character(len=16) :: KSDFT
-real(kind=r8), external :: ddot_
-!real(kind=wp), external :: Get_ExFac
+real(kind=wp), allocatable :: Dm1(:), Dm2(:), FCNO(:,:), KCNO(:,:), PLT(:), Porb(:,:)
+integer(kind=iwp), external :: ip_of_Work
+real(kind=r8), external :: ddot_ !, Get_ExFac
 
 timings = .false.
 Estimate = .false.
@@ -39,39 +40,31 @@ dFKmat = Zero
 ALGO = 4
 NSCREEN = 10
 
-!nDMat = 2
+nForb(:,:) = 0
 nBB = 0
 do i=1,nSym
-  !nForb(i,1) = 0
-  !nForb(i,2) = 0
   nBB = nBB+nBas(i)**2
 end do
 !call Get_cArray('DFT functional',KSDFT,16)
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
-!FactXI = One  ! always HF energy
-call GetMem('PLTc','Allo','Real',ipPLT,nBDT)
-call dcopy_(nBDT,Dma,1,Work(ipPLT),1)
-call daxpy_(nBDT,One,Dmb,1,Work(ipPLT),1)
+FactXI = One  ! always HF energy
+call mma_allocate(PLT,nBDT,label='PLTc')
+PLT(:) = Dma(:)+Dmb(:)
 
-call GetMem('ChMc','Allo','Real',ipPorb(1),2*nBB)
-ipPorb(2) = ipPorb(1)+nBB
-call GetMem('DSQc','Allo','Real',ipDm(1),2*nBB)
-ipDm(2) = ipDm(1)+nBB
-call UnFold(Dma,nBDT,Work(ipDm(1)),nBB,nSym,nBas)
-call UnFold(Dmb,nBDT,Work(ipDm(2)),nBB,nSym,nBas)
-iOff = 0
+call mma_allocate(Porb,nBB,2,label='ChMc')
+call mma_allocate(Dm1,nBB,label='Dm1')
+call mma_allocate(Dm2,nBB,label='Dm2')
+call UnFold(Dma,nBDT,Dm1,nBB,nSym,nBas)
+call UnFold(Dmb,nBDT,Dm2,nBB,nSym,nBas)
+iOff = 1
 do i=1,nSym
-  ipV = ipPorb(1)+iOff
-  ipDai = ipDm(1)+iOff
-  call CD_InCore(Work(ipDai),nBas(i),Work(ipV),nBas(i),nIorb(i,1),1.0e-12_wp,irc)
+  call CD_InCore(Dm1(iOff),nBas(i),Porb(iOff,1),nBas(i),nIorb(i,1),1.0e-12_wp,irc)
   if (irc /= 0) then
     write(u6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
     call Abend()
   end if
-  ipV = ipPorb(2)+iOff
-  ipDbi = ipDm(2)+iOff
-  call CD_InCore(Work(ipDbi),nBas(i),Work(ipV),nBas(i),nIorb(i,2),1.0e-12_wp,irc)
+  call CD_InCore(Dm2(iOff),nBas(i),Porb(iOff,2),nBas(i),nIorb(i,2),1.0e-12_wp,irc)
   if (irc /= 0) then
     write(u6,*) ' Beta density. Sym= ',i,'   rc= ',irc
     call Abend()
@@ -79,13 +72,10 @@ do i=1,nSym
   iOff = iOff+nBas(i)**2
 end do
 
-call GetMem('FCNO','Allo','Real',ipFCNO,2*nBDT)
-call FZero(Work(ipFCNO),2*nBDT)
-ipFLT(1) = ipFCNO
-ipFLT(2) = ipFLT(1)+nBDT
-call GetMem('KLTc','Allo','Real',ipKLT(1),2*nBDT)
-call FZero(Work(ipKLT(1)),2*nBDT)
-ipKLT(2) = ipKLT(1)+nBDT
+call mma_allocate(FCNO,nBDT,2,label='FCNO')
+FCNO(:,:) = Zero
+call mma_allocate(KCNO,nBDT,2,label='KCNO')
+KCNO(:,:) = Zero
 
 call Cho_X_init(irc,ChFracMem)
 if (irc /= 0) then
@@ -93,10 +83,15 @@ if (irc /= 0) then
   call Abend()
 end if
 
-! BIGOT FIXME
-call WarningMessage(2,'There is probably a bug here, ipPLT should have two elements.')
-call Abend()
-!call CHO_LK_SCF(irc,nDMat,ipFLT,ipKLT,nForb,nIorb,ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
+ipFLT(1) = ip_of_Work(FCNO(1,1))
+ipFLT(2) = ip_of_Work(FCNO(1,2))
+ipKLT(1) = ip_of_Work(KCNO(1,1))
+ipKLT(2) = ip_of_Work(KCNO(1,2))
+ipPorb(1) = ip_of_Work(Porb(1,1))
+ipPorb(2) = ip_of_Work(Porb(1,2))
+ipPLT(1) = ip_of_Work(PLT(1))
+ipPLT(2) = 0 ! dummy, should be unused
+call CHO_LK_SCF(irc,2,ipFLT,ipKLT,nForb,nIorb,ipPorb,ipPLT,FactXI,nSCReen,dmpk,dFmat)
 if (irc /= 0) then
   call WarningMessage(2,'Get_CNOs. Non-zero rc in Cho_LK_scf.')
   call Abend()
@@ -108,13 +103,14 @@ if (irc /= 0) then
   call Abend()
 end if
 
-Etwo = Half*(ddot_(nBDT,Dma,1,Work(ipFLT(1)),1)+ddot_(nBDT,Dmb,1,Work(ipFLT(2)),1))
+Etwo = Half*(ddot_(nBDT,Dma,1,FCNO(:,1),1)+ddot_(nBDT,Dmb,1,FCNO(:,2),1))
 
-call GetMem('KLTc','Free','Real',ipKLT(1),2*nBDT)
-call GetMem('FCNO','Free','Real',ipFCNO,2*nBDT)
-call GetMem('DSQc','Free','Real',ipDm(1),2*nBB)
-call GetMem('ChMc','Free','Real',ipPorb(1),2*nBB)
-call GetMem('PLTc','Free','Real',ipPLT,nBDT)
+call mma_deallocate(PLT)
+call mma_deallocate(Porb)
+call mma_deallocate(Dm1)
+call mma_deallocate(Dm2)
+call mma_deallocate(FCNO)
+call mma_deallocate(KCNO)
 
 return
 

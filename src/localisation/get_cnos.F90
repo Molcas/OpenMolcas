@@ -18,6 +18,7 @@ subroutine Get_CNOs(irc,nIF,nRASO,xNrm)
 !***********************************************************************
 
 use Localisation_globals, only: ipCMO, ipOcc, MxConstr, nBas, nConstr, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6, r8
 
@@ -26,22 +27,22 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nIF(nSym), nRasO(nSym)
 real(kind=wp), intent(out) :: xNrm
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, ic1, ic2, iCount, iDaa, iDbb, iOcc, iOff, iOffS(0:8), indxC(16,2,8), ip_Da, ip_Db, ipCorb, ipDaa, ipDbb, &
-                     ipMatch, iSym, j, jc, jCount, ji, jOcc, jOff, jSym, k, kbit, kc, kc1, kc2, kOff, l, lc, lc1, lc2, lConstr, &
-                     lCount, lOcc_, mAdCMO, mAdCMO_ab, mAdCMOO, mAdOcc_ab, MaxBas, nBB, nBLT, nBT, nSconf
+integer(kind=iwp) :: i, ic1, ic2, iCount, iDab, iOcc, iOff, iOffS(0:8), indxC(16,2,8), ipDab, iSym, j, jc, jCount, ji, jOcc, jOff, &
+                     jSym, k, kbit, kc, kc1, kc2, kOff, l, lc, lc1, lc2, lConstr, lCount, lOcc_, mAdCMOO, MaxBas, nBB, nBLT, nBT, &
+                     nSconf
 real(kind=wp) :: Etwo, xnorm, xOkk, yOkk
 character(len=62) :: Line
 logical(kind=iwp) :: DoneCholesky
+integer(kind=iwp), allocatable :: Match(:,:)
+real(kind=wp), allocatable :: CMO_(:), CMO_ab(:), Corb(:), Da(:), Db(:), Occ_ab(:)
 integer(kind=iwp), external :: Cho_irange
 real(kind=r8), external :: ddot_
-!***********************************************************************
-integer(kind=iwp) :: Match
-Match(k,i) = iWork(ipMatch-1+2*(i-1)+k)
-!***********************************************************************
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
+
+call Untested(Get_CNOs)
 
 call DecideonCholesky(DoneCholesky)
 if (.not. DoneCholesky) then
@@ -72,14 +73,14 @@ end do
 write(u6,'(A,I6)') ' Total number of spin configurations: ',nSconf
 write(u6,*)
 
-call GetMem('Occb','Allo','Real',mAdOcc_ab,nBT)
-call GetMem('CMOb','Allo','Real',mAdCMO,2*nBB)
-mAdCMO_ab = mAdCMO+nBB
-call GetMem('DLT','ALLO','Real',ip_Da,2*nBLT)
-ip_Db = ip_Da+nBLT
+call mma_allocate(Occ_ab,nBT,label='Occb')
+call mma_allocate(CMO_,nBB,label='CMOb')
+call mma_allocate(CMO_ab,nBB,label='CMOb')
+call mma_allocate(Da,nBLT,label='DLT')
+call mma_allocate(Db,nBLT,label='DLT')
 
-call GetMem('Match','Allo','Inte',ipMatch,2*MxConstr)
-call GetMem('Corb','Allo','Real',ipCorb,MaxBas)
+call mma_allocate(Match,2,MxConstr,label='Match')
+call mma_allocate(Corb,MaxBas,label='Corb')
 
 do iCount=0,nSconf-1
   do jCount=0,lConstr-1
@@ -130,88 +131,85 @@ do iCount=0,nSconf-1
   write(u6,*) ' -------------------------------------------------'
 
   xNrm = Zero
-  iOff = 0
+  iOff = 1
   jOff = 0
   do iSym=1,nSym
-    call dcopy_(nBas(iSym)**2,Work(ipCMO+iOff),1,Work(mAdCMO+iOff),1)
-    call dcopy_(nBas(iSym)**2,Work(mAdCMO+iOff),1,Work(mAdCMO_ab+iOff),1)
+    call dcopy_(nBas(iSym)**2,Work(ipCMO+iOff-1),1,CMO_(iOff),1)
+    call dcopy_(nBas(iSym)**2,CMO_(iOff),1,CMO_ab(iOff),1)
     lOcc_ = ipOcc+jOff+nIF(iSym)
-    call dcopy_(nRASO(iSym),Work(lOcc_),1,Work(mAdOcc_ab),1)
-    call BestMatch(nConstr(iSym),nRASO(iSym),Work(mAdOcc_ab),iWork(ipMatch),MxConstr)
+    call dcopy_(nRASO(iSym),Work(lOcc_),1,Occ_ab,1)
+    call BestMatch(nConstr(iSym),nRASO(iSym),Occ_ab,Match,MxConstr)
     do i=1,nConstr(iSym)
       k = Match(1,i)
       jOcc = ipOcc-1+jOff+nIF(iSym)+k
       xOkk = Half*Work(jOcc)
-      kc = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+k-1)
-      xNrm = xNrm+ddot_(nBas(iSym),Work(kc),1,Work(kc),1)
+      kc = iOff+nBas(iSym)*(nIF(iSym)+k-1)
+      xNrm = xNrm+ddot_(nBas(iSym),CMO_(kc),1,CMO_(kc),1)
       l = Match(2,i)
       iOcc = ipOcc-1+jOff+nIF(iSym)+l
       yOkk = Half*Work(iOcc)
       xnorm = sqrt(abs(xOkk)+abs(yOkk)) !ensures correct normaliz
-      lc = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+l-1)
+      lc = iOff+nBas(iSym)*(nIF(iSym)+l-1)
       xOkk = sqrt(abs(xOkk))/xnorm
       yOkk = sqrt(abs(yOkk))/xnorm
-      call dscal_(nBas(iSym),xOkk,Work(kc),1)
-      call dscal_(nBas(iSym),yOkk,Work(lc),1)
-      call dcopy_(nBas(iSym),Work(lc),1,Work(ipCorb),1)
-      call daxpy_(nBas(iSym),One,Work(kc),1,Work(ipCorb),1)
-      call daxpy_(nBas(iSym),-One,Work(kc),1,Work(lc),1)
-      call dscal_(nBas(iSym),-One,Work(lc),1)
-      call dcopy_(nBas(iSym),Work(ipCorb),1,Work(kc),1)
+      call dscal_(nBas(iSym),xOkk,CMO_(kc),1)
+      call dscal_(nBas(iSym),yOkk,CMO_(lc),1)
+      call dcopy_(nBas(iSym),CMO_(lc),1,Corb,1)
+      call daxpy_(nBas(iSym),One,CMO_(kc),1,Corb,1)
+      call daxpy_(nBas(iSym),-One,CMO_(kc),1,CMO_(lc),1)
+      call dscal_(nBas(iSym),-One,CMO_(lc),1)
+      call dcopy_(nBas(iSym),Corb,1,CMO_(kc),1)
     end do
     jc = 1
     kc = nConstr(iSym)+1
     do i=1,nConstr(iSym)
       l = Match(indxC(i,2,iSym),i)
-      lc1 = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+l-1)
-      lc2 = mAdCMO_ab+iOff+nBas(iSym)*(nIF(iSym)+jc-1)
-      call dcopy_(nBas(iSym),Work(lc1),1,Work(lc2),1)
+      lc1 = iOff+nBas(iSym)*(nIF(iSym)+l-1)
+      lc2 = iOff+nBas(iSym)*(nIF(iSym)+jc-1)
+      call dcopy_(nBas(iSym),CMO_(lc1),1,CMO_ab(lc2),1)
       k = Match(indxC(i,1,iSym),i)
-      kc1 = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+k-1)
-      kc2 = mAdCMO_ab+iOff+nBas(iSym)*(nIF(iSym)+kc-1)
-      call dcopy_(nBas(iSym),Work(kc1),1,Work(kc2),1)
+      kc1 = iOff+nBas(iSym)*(nIF(iSym)+k-1)
+      kc2 = iOff+nBas(iSym)*(nIF(iSym)+kc-1)
+      call dcopy_(nBas(iSym),CMO_(kc1),1,CMO_ab(kc2),1)
       jc = jc+1
       kc = kc+1
     end do
     kc = nConstr(iSym)+1
     do i=1,nConstr(iSym)
-      ic1 = mAdCMO_ab+iOff+nBas(iSym)*(nIF(iSym)+i-1)
-      ic2 = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+kc-1)
-      call dcopy_(nBas(iSym),Work(ic1),1,Work(ic2),1)
-      kc1 = mAdCMO_ab+iOff+nBas(iSym)*(nIF(iSym)+kc-1)
-      kc2 = mAdCMO+iOff+nBas(iSym)*(nIF(iSym)+i-1)
-      call dcopy_(nBas(iSym),Work(kc1),1,Work(kc2),1)
+      ic1 = iOff+nBas(iSym)*(nIF(iSym)+i-1)
+      ic2 = iOff+nBas(iSym)*(nIF(iSym)+kc-1)
+      call dcopy_(nBas(iSym),CMO_ab(ic1),1,CMO_(ic2),1)
+      kc1 = iOff+nBas(iSym)*(nIF(iSym)+kc-1)
+      kc2 = iOff+nBas(iSym)*(nIF(iSym)+i-1)
+      call dcopy_(nBas(iSym),CMO_ab(kc1),1,CMO_(kc2),1)
       kc = kc+1
     end do
     iOff = iOff+nBas(iSym)**2
     jOff = jOff+nBas(iSym)
   end do
 
-  iOff = 0
-  kOff = 0
+  iOff = 1
+  kOff = 1
   do iSym=1,nSym
-    ipDaa = ip_Da+kOff
-    mAdCMOO = mAdCMO+iOff+nBas(iSym)*nIF(iSym)
-    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),One,Work(mAdCMOO),nBas(iSym),Work(mAdCMOO),nBas(iSym),Zero, &
-                   Work(ipDaa),nBas(iSym))
-    ipDbb = ip_Db+kOff
-    mAdCMOO = mAdCMO_ab+iOff+nBas(iSym)*nIF(iSym)
-    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),One,Work(mAdCMOO),nBas(iSym),Work(mAdCMOO),nBas(iSym),Zero, &
-                   Work(ipDbb),nBas(iSym))
+    ipDab = kOff
+    mAdCMOO = iOff+nBas(iSym)*nIF(iSym)
+    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),One,CMO_(mAdCMOO),nBas(iSym),CMO_(mAdCMOO),nBas(iSym),Zero, &
+                   Da(ipDab),nBas(iSym))
+    call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),One,CMO_ab(mAdCMOO),nBas(iSym),CMO_ab(mAdCMOO),nBas(iSym),Zero, &
+                   Db(ipDab),nBas(iSym))
     do j=1,nBas(iSym)
       do i=1,j-1
         ji = j*(j-1)/2+i
-        iDaa = ipDaa-1+ji
-        Work(iDaa) = Two*Work(iDaa)
-        iDbb = ipDbb-1+ji
-        Work(iDbb) = Two*Work(iDbb)
+        iDab = ipDab-1+ji
+        Da(iDab) = Two*Da(iDab)
+        Db(iDab) = Two*Db(iDab)
       end do
     end do
     iOff = iOff+nBas(iSym)**2
     kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
   end do
 
-  call Get_Etwo_act(Work(ip_Da),Work(ip_Db),nBLT,nBas,nSym,Etwo)
+  call Get_Etwo_act(Da,Db,nBLT,nBas,nSym,Etwo)
 
   write(u6,'(1X,A,F12.7,A)') ' Active-Active repulsion : ',Etwo,'  a.u.'
   write(u6,*) ' -------------------------------------------------'
@@ -220,11 +218,13 @@ do iCount=0,nSconf-1
 
 end do
 
-call GetMem('Corb','Free','Real',ipCorb,MaxBas)
-call GetMem('Match','Free','Inte',ipMatch,2*MxConstr)
-call GetMem('DLT','Free','Real',ip_Da,2*nBLT)
-call GetMem('CMOb','Free','Real',mAdCMO,2*nBB)
-call GetMem('Occb','Free','Real',mAdOcc_ab,nBT)
+call mma_deallocate(Occ_ab)
+call mma_deallocate(CMO_)
+call mma_deallocate(CMO_ab)
+call mma_deallocate(Da)
+call mma_deallocate(Db)
+call mma_deallocate(Match)
+call mma_deallocate(Corb)
 
 return
 

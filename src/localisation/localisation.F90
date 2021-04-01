@@ -25,6 +25,7 @@ subroutine Localisation(iReturn)
 use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, DoCNOs, DoDomain, EvalER, ipCMO, ipEor, ipInd, ipMOrig, &
                                 ipOcc, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, BName, nBas, nCMO, &
                                 nFro, nOrb, nOrb2Loc, nSym, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, r8
 
 implicit none
@@ -33,7 +34,7 @@ integer(kind=iwp), intent(out) :: iReturn
 #include "debug.fh"
 #include "real.fh"
 integer(kind=iwp) :: ibo, iCheck, icHour, icMin, IndT(7,8), iOff, ip_Dum, iPRway, irc, iSym, iTol, iUHF, iwHour, iwMin, j, jbo, &
-                     jCMO, jInd, jPrt, jTyp, jXarray, jXMO, k, kCMO, kEor, kIndT, kOcc, l_Dum, lMOrig, lOff, LU_, nbo
+                     jInd, jPrt, jTyp, jXarray, k, kCMO, kEor, kIndT, kOcc, l_Dum, lMOrig, lOff, LU_, nbo
 real(kind=wp) :: AddInfoVal, C1, C1_Loc, C2, C2_Loc, CPUtot, cSec, ERFun(2), Functional, W1, W1_Loc, W2, W2_Loc, WLLtot, wSec, &
                  xnr0(8), xnr1, xNrm
 character(len=180) :: Line
@@ -44,6 +45,7 @@ character(len=7) :: matname
 character(len=6) :: Filename
 character(len=4) :: Model
 character(len=2) :: PreFix
+real(kind=wp), allocatable :: CMO2(:), CMO3(:)
 character(len=12), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
 real(kind=r8), external :: ddot_
@@ -297,15 +299,15 @@ if (LocNatOrb .or. LocCanOrb) then
   do iSym=1,nSym
     nbo = nbo+nBas(iSym)*nOrb2Loc(iSym)
   end do
-  call GetMem('XCMO','Allo','Real',jCMO,2*nbo)
-  jXMO = jCMO+nbo
+  call mma_allocate(CMO2,nbo,label='XCMO')
+  call mma_allocate(CMO3,nbo,label='XCMO')
 
   ibo = 0
-  jbo = 0
+  jbo = 1
   do iSym=1,nSym
     kCMO = ibo+nBas(iSym)*nFro(iSym)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipMOrig+kCMO),1,Work(jbo+jCMO),1)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipCMO+kCMO),1,Work(jbo+jXMO),1)
+    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipMOrig+kCMO),1,CMO2(jbo),1)
+    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(ipCMO+kCMO),1,CMO3(jbo),1)
     ibo = ibo+nBas(iSym)**2
     jbo = jbo+nBas(iSym)*nOrb2Loc(iSym)
   end do
@@ -323,7 +325,7 @@ if (LocNatOrb .or. LocCanOrb) then
     lOff = lOff+nBas(iSym)
   end do
 
-  call Loc_Nat_Orb(irc,Work(jCMO),Work(jXMO),Work(jXarray),nOrb2Loc)
+  call Loc_Nat_Orb(irc,CMO2,CMO3,Work(jXarray),nOrb2Loc)
   if (irc /= 0) then
     write(u6,*) SecNam,': localisation error detected!'
     write(u6,*) ' Loc_Nat_Orb returned ',irc
@@ -346,16 +348,17 @@ if (LocNatOrb .or. LocCanOrb) then
   end do
   write(u6,*) ' ------------------------------------------------- '
   write(u6,*)
-!
+
   ibo = 0
-  jbo = 0
+  jbo = 1
   do iSym=1,nSym
     kCMO = ibo+nBas(iSym)*nFro(iSym)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),Work(jbo+jXMO),1,Work(ipCMO+kCMO),1)
+    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),CMO3(jbo),1,Work(ipCMO+kCMO),1)
     ibo = ibo+nBas(iSym)**2
     jbo = jbo+nBas(iSym)*nOrb2Loc(iSym)
   end do
-  call GetMem('XCMO','Free','Real',jCMO,2*nbo)
+  call mma_deallocate(CMO2)
+  call mma_deallocate(CMO3)
 end if
 
 !-TBP, July 2010 (in connection with fixing deleted orbitals bug, patch

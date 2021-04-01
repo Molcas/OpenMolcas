@@ -18,16 +18,17 @@ subroutine Domain_Localisation(irc)
 !          strong, weak, distant, and very distant pairs.
 
 use Localisation_globals, only: AnaDomain, ipCMO, BName, nAtoms, nBas, nFro, nOrb2Loc, nSym, ThrDomain, ThrPairDomain
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 #include "WrkSpc.fh"
 #include "debug.fh"
-integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, ip_Coord, ip_f, ip_iClass, ip_iDomain, ip_iPairDomain, ip_nBas_per_Atom, &
-                     ip_nBas_Start, ip_QD, ip_Rmin, kC, l_Coord, l_f, l_iClass, l_iDomain, l_iPairDomain, l_nBas_per_Atom, &
-                     l_nBas_Start, l_QD, l_Rmin, nAtom, nBasT, nnOcc, nOcc
+integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, kC, nAtom, nBasT, nnOcc, nOcc
 real(kind=wp) :: Fac, ThrPD(3), Tst
+integer(kind=iwp), allocatable :: iClass(:), iDomain(:), iPairDomain(:), nBas_per_Atom(:), nBas_Start(:)
+real(kind=wp), allocatable :: Coord(:,:), f(:), QD(:), Rmin(:)
 character(len=19), parameter :: SecNam = 'Domain_Localisation'
 
 ! Set return code.
@@ -51,16 +52,6 @@ nOcc = nOrb2Loc(1)
 nnOcc = nOcc*(nOcc+1)/2
 nAtom = nAtoms
 
-l_nBas_per_Atom = 0
-l_nBas_Start = 0
-l_iDomain = 0
-l_QD = 0
-l_f = 0
-l_iPairDomain = 0
-l_iClass = 0
-l_Rmin = 0
-l_Coord = 0
-
 ! There must be at least 2 atoms and 2 orbitals.
 ! ----------------------------------------------
 
@@ -73,25 +64,19 @@ end if
 ! each atom.
 ! ------------------------------------------------------------------
 
-l_nBas_per_Atom = nAtom
-l_nBas_Start = nAtom
-call GetMem('nB_per_Atom','Allo','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
-call GetMem('nB_Start','Allo','Inte',ip_nBas_Start,l_nBas_Start)
-call BasFun_Atom(iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start),BName,nBasT,nAtom,Debug)
+call mma_allocate(nBas_per_Atom,nAtom,label='nB_per_Atom')
+call mma_allocate(nBas_Start,nAtom,label='nB_Start')
+call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtom,Debug)
 
 ! Define domains.
 ! ---------------
 
-l_iDomain = (nAtom+1)*nOcc
-l_QD = nOcc
-l_f = nOcc
-call GetMem('iDomain','Allo','Inte',ip_iDomain,l_iDomain)
-call GetMem('QD','Allo','Real',ip_QD,l_QD)
-call GetMem('f','Allo','Real',ip_f,l_f)
+call mma_allocate(iDomain,(nAtom+1)*nOcc,label='iDomain')
+call mma_allocate(QD,nOcc,label='QD')
+call mma_allocate(f,nOcc,label='f')
 
 kC = ipCMO+nBasT*nFro(1)
-call DefineDomain(irc,iWork(ip_iDomain),Work(ip_QD),Work(ip_f),Work(kC),ThrDomain,iWork(ip_nBas_per_Atom),iWork(ip_nBas_Start), &
-                  nAtom,nBasT,nOcc)
+call DefineDomain(irc,iDomain,QD,f,Work(kC),ThrDomain,nBas_per_Atom,nBas_Start,nAtom,nBasT,nOcc)
 if (irc /= 0) then
   write(u6,*) SecNam,': ERROR: DefineDomain returned ',irc
   call Error(irc) ! return after deallocations
@@ -100,7 +85,7 @@ end if
 
 if (Debug) then
   write(u6,*) SecNam,': checking domain definitions...'
-  call CheckDomain(irc,iWork(ip_iDomain),nAtom,nOcc)
+  call CheckDomain(irc,iDomain,nAtom,nOcc)
   if (irc == 0) then
     write(u6,*) '....OK!'
   else
@@ -126,17 +111,13 @@ do while ((i < 2) .and. (iChange == 0))
   end if
 end do
 
-l_iPairDomain = (nAtom+1)*nnOcc
-l_iClass = nnOcc
-l_Rmin = nnOcc
-l_Coord = 3*nAtom
-call GetMem('iPairDomain','Allo','Inte',ip_iPairDomain,l_iPairDomain)
-call GetMem('iClass','Allo','Inte',ip_iClass,l_iClass)
-call GetMem('Rmin','Allo','Real',ip_Rmin,l_Rmin)
-call GetMem('Coord','Allo','Real',ip_Coord,l_Coord)
+call mma_allocate(iPairDomain,(nAtom+1)*nnOcc,label='iPairDomain')
+call mma_allocate(iClass,nnOcc,label='iClass')
+call mma_allocate(Rmin,nnOcc,label='Rmin')
+call mma_allocate(Coord,3,nAtom,label='Coord')
 
-call Get_dArray('Unique Coordinates',Work(ip_Coord),l_Coord)
-call DefinePairDomain(irc,iWork(ip_iPairDomain),iWork(ip_iClass),Work(ip_Rmin),iWork(ip_iDomain),ThrPD,Work(ip_Coord),nAtom,nOcc,3)
+call Get_dArray('Unique Coordinates',Coord,3*nAtom)
+call DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,ThrPD,Coord,nAtom,nOcc,3)
 if (irc /= 0) then
   write(u6,*) SecNam,': ERROR: DefinePairDomain returned ',irc
   call Error(irc) ! return after deallocations
@@ -145,7 +126,7 @@ end if
 
 if (Debug) then
   write(u6,*) SecNam,': checking pair domain definitions...'
-  call CheckDomain(irc,iWork(ip_iPairDomain),nAtom,nnOcc)
+  call CheckDomain(irc,iPairDomain,nAtom,nnOcc)
   if (irc == 0) then
     write(u6,*) '....OK!'
   else
@@ -158,15 +139,13 @@ end if
 ! Print info.
 ! -----------
 
-call Domain_Histogram(iWork(ip_iDomain),nAtom,nOcc,'Histogram of domain sizes')
-call Domain_Histogram(iWork(ip_iPairDomain),nAtom,nnOcc,'Histogram of pair domain sizes')
+call Domain_Histogram(iDomain,nAtom,nOcc,'Histogram of domain sizes')
+call Domain_Histogram(iPairDomain,nAtom,nnOcc,'Histogram of pair domain sizes')
 
 call Cho_Head('Pair domain classification','=',80,u6)
-do i=0,3
-  iCount(i) = 0
-end do
-do ij=0,nnOcc-1
-  iC = iWork(ip_iClass+ij)
+iCount(:) = 0
+do ij=1,nnOcc
+  iC = iClass(ij)
   iCount(iC) = iCount(iC)+1
 end do
 write(u6,'(/,A)') 'Definition:'
@@ -189,7 +168,7 @@ write(u6,'(A,I9,3X,F7.2,A,/)') 'Number of very distant pairs: ',iCount(3),Fac*iC
 ! ----------------------------------------------
 
 if (AnaDomain) then
-  call Analysis_Domain(iWork(ip_iDomain),Work(ip_QD),Work(ip_f),Work(ip_Coord),BName,iWork(ip_nBas_Start),nAtom,nBasT,nOcc)
+  call Analysis_Domain(iDomain,QD,f,Coord,BName,nBas_Start,nAtom,nBasT,nOcc)
 end if
 
 ! Deallocations.
@@ -202,32 +181,16 @@ contains
 subroutine Error(code)
   integer(kind=iwp), intent(in) :: code
   if (code /= 0) irc = code
-  if (l_Coord > 0) then
-    call GetMem('Coord','Free','Real',ip_Coord,l_Coord)
-  end if
-  if (l_Rmin > 0) then
-    call GetMem('Rmin','Free','Real',ip_Rmin,l_Rmin)
-  end if
-  if (l_iClass > 0) then
-    call GetMem('iClass','Free','Inte',ip_iClass,l_iClass)
-  end if
-  if (l_iPairDomain > 0) then
-    call GetMem('iPairDomain','Free','Inte',ip_iPairDomain,l_iPairDomain)
-  end if
-  if (l_f > 0) then
-    call GetMem('f','Free','Real',ip_f,l_f)
-  end if
-  if (l_QD > 0) then
-    call GetMem('QD','Free','Real',ip_QD,l_QD)
-  end if
-  if (l_iDomain > 0) then
-    call GetMem('iDomain','Free','Inte',ip_iDomain,l_iDomain)
-  end if
-  if (l_nBas_Start > 0) then
-    call GetMem('nB_Start','Free','Inte',ip_nBas_Start,l_nBas_Start)
-  end if
-  if (l_nBas_per_Atom > 0) then
-    call GetMem('nB_per_Atom','Free','Inte',ip_nBas_per_Atom,l_nBas_per_Atom)
+  call mma_deallocate(nBas_per_Atom)
+  call mma_deallocate(nBas_Start)
+  call mma_deallocate(iDomain)
+  call mma_deallocate(QD)
+  call mma_deallocate(f)
+  if (allocated(iPairDomain)) then
+    call mma_deallocate(iPairDomain)
+    call mma_deallocate(iClass)
+    call mma_deallocate(Rmin)
+    call mma_deallocate(Coord)
   end if
 end subroutine Error
 

@@ -20,6 +20,7 @@ subroutine PriMO_Localisation(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,Nm
 !
 ! F. Aquilante, Nov 2011   (Print only non-deleted orbitals)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,10 +29,10 @@ logical(kind=iwp), intent(in) :: PrOcc, PrEne
 real(kind=wp), intent(in) :: ThrOcc, ThrEne, Ene(*), Occ(*), CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), iPrForm, IndxT(*)
 character(len=*), intent(in) :: Nme(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ik, ip_CMO, ip_EOr, ip_Occ, iSym, k, k1, k2, kk, l_CMO, l_EOr, l_Occ, nOrb_(8), nOrbT
+integer(kind=iwp) :: ik, iSym, k, k1, k2, kk, l_CMO, nOrb_(8), nOrbT
+real(kind=wp), allocatable :: CMO_(:), EOr_(:), Occ_(:)
 
-call Icopy(nSym,nOrb,1,nOrb_,1)
+nOrb_(1:nSym) = nOrb(:)
 kk = 0
 do iSym=1,nSym
   do k=1,nBas(iSym)
@@ -50,41 +51,39 @@ l_CMO = nBas(1)*nOrb_(1)
 do iSym=2,nSym
   l_CMO = l_CMO+nBas(iSym)*nOrb_(iSym)
 end do
-l_Occ = nOrbT
-l_EOr = nOrbT
 
-call GetMem('CMO_','Allo','Real',ip_CMO,l_CMO)
-call GetMem('Occ_','Allo','Real',ip_Occ,l_Occ)
-call GetMem('Eor_','Allo','Real',ip_EOr,l_EOr)
+call mma_allocate(CMO_,l_CMO,label='CMO_')
+call mma_allocate(Occ_,nOrbT,label='Occ_')
+call mma_allocate(EOr_,nOrbT,label='Eor_')
 
 k1 = 1
-k2 = ip_CMO
+k2 = 1
 do iSym=1,nSym
-  call dCopy_(nBas(iSym)*nOrb_(iSym),CMO(k1),1,Work(k2),1)
+  call dCopy_(nBas(iSym)*nOrb_(iSym),CMO(k1),1,CMO_(k2),1)
   k1 = k1+nBas(iSym)*nBas(iSym)
   k2 = k2+nBas(iSym)*nOrb_(iSym)
 end do
 
 k1 = 1
-k2 = ip_Occ
+k2 = 1
 do iSym=1,nSym
-  call dCopy_(nOrb_(iSym),Occ(k1),1,Work(k2),1)
+  call dCopy_(nOrb_(iSym),Occ(k1),1,Occ_(k2),1)
   k1 = k1+nBas(iSym)
   k2 = k2+nOrb_(iSym)
 end do
 
 k1 = 1
-k2 = ip_EOr
+k2 = 1
 do iSym=1,nSym
-  call dCopy_(nOrb_(iSym),Ene(k1),1,Work(k2),1)
+  call dCopy_(nOrb_(iSym),Ene(k1),1,EOr_(k2),1)
   k1 = k1+nBas(iSym)
   k2 = k2+nOrb_(iSym)
 end do
 
-call PriMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb_,Nme,Work(ip_EOr),Work(ip_Occ),Work(ip_CMO),iPrForm)
+call PriMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb_,Nme,EOr_,Occ_,CMO_,iPrForm)
 
-call GetMem('Eor_','Free','Real',ip_EOr,l_EOr)
-call GetMem('Occ_','Free','Real',ip_Occ,l_Occ)
-call GetMem('CMO_','Free','Real',ip_CMO,l_CMO)
+call mma_deallocate(CMO_)
+call mma_deallocate(Occ_)
+call mma_deallocate(EOr_)
 
 end subroutine PriMO_Localisation

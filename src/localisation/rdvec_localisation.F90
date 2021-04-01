@@ -27,6 +27,7 @@ subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
 ! EOrb: dim: nBas
 ! FName: filename with input orbitals
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -35,11 +36,11 @@ integer(kind=iwp), intent(out) :: IndT(*)
 real(kind=wp), intent(out) :: CMO(*), Occ(*), EOrb(*)
 character(len=*), intent(in) :: FName
 #include "warnings.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iErr, ip_CMO, ip_EOr, ip_Ind, ip_Occ, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, l_EOr, l_Ind, l_Occ, Lu, &
-                     nBasT, nOrbT
+integer(kind=iwp) :: i, iErr, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, Lu, nBasT, nOrbT
 real(kind=wp) :: Dummy(1)
 character(len=80) :: VTitle
+integer(kind=iwp), allocatable :: Ind_(:)
+real(kind=wp), allocatable :: CMO_(:), EOr_(:), Occ_(:)
 character(len=18), parameter :: SecNam = 'RdVec_Localisation'
 
 nBasT = nBas(1)
@@ -53,13 +54,10 @@ l_CMO = nBas(1)*nOrb(1)
 do iSym=2,nSym
   l_CMO = l_CMO+nBas(iSym)*nOrb(iSym)
 end do
-l_Occ = nOrbT
-l_EOr = nOrbT
-l_Ind = nBasT
-call GetMem('CMO_','Allo','Real',ip_CMO,l_CMO)
-call GetMem('Occ_','Allo','Real',ip_Occ,l_Occ)
-call GetMem('EOr_','Allo','Real',ip_EOr,l_EOr)
-call GetMem('Ind_','Allo','Inte',ip_Ind,l_Ind)
+call mma_allocate(CMO_,l_CMO,label='CMO_')
+call mma_allocate(Occ_,nOrbT,label='Occ_')
+call mma_allocate(EOr_,nOrbT,label='EOr_')
+call mma_allocate(Ind_,nBasT,label='Ind_')
 
 Lu = 75
 iUHF = 0  ! restricted HF
@@ -67,8 +65,7 @@ iWarn = 2 ! abend if nBas/nOrb info is inconsistent
 iErr = -1 ! init return code
 iWFType = -1 ! init wave function type
 Dummy(1) = huge(Dummy) ! dummy variable
-call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,Work(ip_CMO),Dummy,Work(ip_Occ),Dummy,Work(ip_EOr),Dummy,iWork(ip_Ind),VTitle, &
-            iWarn,iErr,iWFType)
+call RdVec_(FName,Lu,'COEI',iUHF,nSym,nBas,nOrb,CMO_,Dummy,Occ_,Dummy,EOr_,Dummy,Ind_,VTitle,iWarn,iErr,iWFType)
 if (iErr /= 0) then
   call WarningMessage(2,SecNam//': Non-zero return code from RdVec_')
   write(u6,'(A,A,I9)') SecNam,': RdVec_ returned code',iErr
@@ -81,38 +78,38 @@ write(u6,*)
 write(u6,'(A)') trim(VTitle)
 write(u6,*)
 
-k1 = ip_CMO
+k1 = 1
 k2 = 1
 do iSym=1,nSym
-  call dCopy_(nBas(iSym)*nOrb(iSym),Work(k1),1,CMO(k2),1)
+  call dCopy_(nBas(iSym)*nOrb(iSym),CMO_(k1),1,CMO(k2),1)
   call Cho_dZero(CMO(k2+nBas(iSym)*nOrb(iSym)),nBas(iSym)*(nBas(iSym)-nOrb(iSym)))
   k1 = k1+nBas(iSym)*nOrb(iSym)
   k2 = k2+nBas(iSym)*nBas(iSym)
 end do
 
-k1 = ip_Occ
+k1 = 1
 k2 = 1
 do iSym=1,nSym
-  call dCopy_(nOrb(iSym),Work(k1),1,Occ(k2),1)
+  call dCopy_(nOrb(iSym),Occ_(k1),1,Occ(k2),1)
   call Cho_dZero(Occ(k2+nOrb(iSym)),nBas(iSym)-nOrb(iSym))
   k1 = k1+nOrb(iSym)
   k2 = k2+nBas(iSym)
 end do
 
-k1 = ip_EOr
+k1 = 1
 k2 = 1
 Dummy(1) = huge(Dummy)
 do iSym=1,nSym
-  call dCopy_(nOrb(iSym),Work(k1),1,EOrb(k2),1)
+  call dCopy_(nOrb(iSym),EOr_(k1),1,EOrb(k2),1)
   call dCopy_(nBas(iSym)-nOrb(iSym),Dummy(1),0,EOrb(k2+nOrb(iSym)),1)
   k1 = k1+nOrb(iSym)
   k2 = k2+nBas(iSym)
 end do
 
-k1 = ip_Ind
+k1 = 1
 k2 = 1
 do iSym=1,nSym
-  call iCopy(nOrb(iSym),iWork(k1),1,IndT(k2),1)
+  call iCopy(nOrb(iSym),Ind_(k1),1,IndT(k2),1)
   do i=nOrb(iSym),nBas(iSym)-1
     IndT(k2+i) = 7
   end do
@@ -120,9 +117,9 @@ do iSym=1,nSym
   k2 = k2+nBas(iSym)
 end do
 
-call GetMem('Ind_','Free','Inte',ip_Ind,l_Ind)
-call GetMem('EOr_','Free','Real',ip_EOr,l_EOr)
-call GetMem('Occ_','Free','Real',ip_Occ,l_Occ)
-call GetMem('CMO_','Free','Real',ip_CMO,l_CMO)
+call mma_deallocate(CMO_)
+call mma_deallocate(Occ_)
+call mma_deallocate(EOr_)
+call mma_deallocate(Ind_)
 
 end subroutine RdVec_Localisation

@@ -25,6 +25,7 @@ subroutine TestLoc(irc)
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
 use Localisation_globals, only: ipCMO, ipMOrig, LocPAO, nBas, nFro, nOrb2Loc, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, r8
 
@@ -32,15 +33,18 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 #include "debug.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: i, iComp, iOpt, ip0, ipDdff, ipDenC, ipDenX, ipOaux, ipOvlp, ipScr, ipUmat, iSyLbl, iSym, j, jrc, kC, kC1, &
-                     kDC, kDd, kDX, kO, kOff, kSqr, kTri, kU, kX, kX1, lDen, lOaux, lOvlp, lScr, lUmat, mErr, nB2, nErr, nTO
+integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, &
+                     kD, kO, kOff, kSqr, kTri, kU, kX, kX1, lOaux, lOvlp, lScr, lUmat, mErr, nB2, nErr, nTO
 real(kind=wp) :: Tol, Tst, xErr, xNrm
 character(len=80) :: Txt
 character(len=8) :: Label
 logical(kind=iwp) :: Prnt
+real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=7), parameter :: SecNam = 'TestLoc'
 integer(kind=iwp), external :: iPrintLevel
 real(kind=r8), external :: ddot_
+
+call Untested('TestLoc')
 
 ! Set return code.
 ! ----------------
@@ -65,27 +69,27 @@ do iSym=2,nSym
   lOvlp = lOvlp+nBas(iSym)**2
   lOaux = lOaux+nBas(iSym)*(nBas(iSym)+1)/2
 end do
-call GetMem('TstOvlp','Allo','Real',ipOvlp,lOvlp)
-call GetMem('TstOaux','Allo','Real',ipOaux,lOaux)
+call mma_allocate(Ovlp,lOvlp,label='TstOvlp')
+call mma_allocate(Oaux,lOaux,label='TstOaux')
 jrc = -1
 iOpt = 2
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'
-call RdOne(jrc,iOpt,Label,iComp,Work(ipOaux),iSyLbl)
+call RdOne(jrc,iOpt,Label,iComp,Oaux,iSyLbl)
 if (jrc /= 0) then
   write(Txt,'(A,I4)') 'RdOne returned',jrc
   call SysAbendMsg(SecNam,'I/O error!',Txt)
 end if
 Prnt = Debug .and. (iPrintLevel(-1) >= 5)
-kTri = ipOaux
-kSqr = ipOvlp
+kTri = 1
+kSqr = 1
 do iSym=1,nSym
-  call Tri2Rec(Work(kTri),Work(kSqr),nBas(iSym),Prnt)
+  call Tri2Rec(Oaux(kTri),Ovlp(kSqr),nBas(iSym),Prnt)
   kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
   kSqr = kSqr+nBas(iSym)**2
 end do
-call GetMem('TstOaux','Free','Real',ipOaux,lOaux)
+call mma_deallocate(Oaux)
 
 ! Memory allocation.
 ! ------------------
@@ -96,39 +100,34 @@ do iSym=2,nSym
   lUmat = lUmat+nOrb2Loc(iSym)**2
   lScr = max(lScr,nBas(iSym)*nOrb2Loc(iSym))
 end do
-lDen = lOvlp
-call GetMem('DenC','Allo','Real',ipDenC,lDen)
-call GetMem('DenX','Allo','Real',ipDenX,lDen)
-call GetMem('Ddff','Allo','Real',ipDdff,lDen)
-call GetMem('Scratch','Allo','Real',ipScr,lScr)
-call GetMem('Umat','Allo','Real',ipUmat,lUmat)
+call mma_allocate(DenC,lOvlp,label='DenC')
+call mma_allocate(DenX,lOvlp,label='DenX')
+call mma_allocate(Ddff,lOvlp,label='Ddff')
+call mma_allocate(Scr,lScr,label='Scratch')
+call mma_allocate(Umat,lUmat,label='Umat')
 
 ! Test 1) density.
 ! ----------------
 
 nErr = 0
 
-kDC = ipDenC
-kDX = ipDenX
-kDd = ipDdff
+kD = 1
 kC = ipMOrig
 kX = ipCMO
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetDens_Localisation(Work(kDC),Work(kC1),nBas(iSym),nOrb2Loc(iSym))
+  call GetDens_Localisation(DenC(kD),Work(kC1),nBas(iSym),nOrb2Loc(iSym))
   kX1 = kX+nBas(iSym)*nFro(iSym)
-  call GetDens_Localisation(Work(kDX),Work(kX1),nBas(iSym),nOrb2Loc(iSym))
+  call GetDens_Localisation(DenX(kD),Work(kX1),nBas(iSym),nOrb2Loc(iSym))
   nB2 = nBas(iSym)**2
-  call dCopy_(nB2,Work(kDC),1,Work(kDd),1)
-  call dAXPY_(nB2,-One,Work(kDX),1,Work(kDd),1)
-  xNrm = sqrt(dDot_(nB2,Work(kDd),1,Work(kDd),1))
+  call dCopy_(nB2,DenC(kD),1,Ddff(kD),1)
+  call dAXPY_(nB2,-One,DenX(kD),1,Ddff(kD),1)
+  xNrm = sqrt(dDot_(nB2,Ddff(kD),1,Ddff(kD),1))
   if (xNrm > Tol) then
     write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||CC^T - XX^T|| = ',xNrm,' (sym.',iSym,')'
     nErr = nErr+1
   end if
-  kDC = kDC+nB2
-  kDX = kDX+nB2
-  kDd = kDd+nB2
+  kD = kD+nB2
   kC = kC+nB2
   kX = kX+nB2
 end do
@@ -142,22 +141,22 @@ end if
 
 nErr = 0
 
-kU = ipUmat
-kO = ipOvlp
+kU = 1
+kO = 1
 kC = ipMOrig
 kX = ipCMO
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
   kX1 = kX+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),Work(kX1),Work(ipScr),lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),Work(kC1),Ovlp(kO),Work(kX1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
   nTO = max(nOrb2Loc(iSym),1)
-  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Work(kU),nTO,Work(kU),nTO,Zero,Work(ipScr),nTO)
+  call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Umat(kU),nTO,Umat(kU),nTO,Zero,Scr,nTO)
   xErr = -huge(xErr)
-  ip0 = ipScr-1
+  ip0 = 0
   do j=1,nOrb2Loc(iSym)
     kOff = ip0+nOrb2Loc(iSym)*(j-1)
     do i=j+1,nOrb2Loc(iSym)
-      Tst = abs(Work(kOff+i))
+      Tst = abs(Scr(kOff+i))
       xErr = max(xErr,Tst)
     end do
   end do
@@ -181,24 +180,24 @@ end if
 
 nErr = 0
 
-kU = ipUmat
-kO = ipOvlp
+kU = 1
+kO = 1
 kC = ipMOrig
 kX = ipCMO
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Work(kU),Work(kC1),Work(kO),Work(kC1),Work(ipScr),lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),Work(kC1),Ovlp(kO),Work(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
   mErr = 0
   xErr = -huge(xErr)
   ip0 = kU-1
   do j=1,nOrb2Loc(iSym)
     kOff = ip0+nOrb2Loc(iSym)*(j-1)
-    Tst = abs(Work(kOff+j)-One)
+    Tst = abs(Umat(kOff+j)-One)
     if (Tst > Tol) then
       mErr = mErr+1
     end if
     do i=j+1,nOrb2Loc(iSym)
-      Tst = abs(Work(kOff+i))
+      Tst = abs(Umat(kOff+i))
       xErr = max(xErr,Tst)
     end do
   end do
@@ -207,17 +206,17 @@ do iSym=1,nSym
   end if
   if (mErr == 0) then
     kX1 = kX+nBas(iSym)*nFro(iSym)
-    call GetUmat_Localisation(Work(kU),Work(kX1),Work(kO),Work(kX1),Work(ipScr),lScr,nBas(iSym),nOrb2Loc(iSym))
+    call GetUmat_Localisation(Umat(kU),Work(kX1),Ovlp(kO),Work(kX1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
     xErr = -huge(xErr)
     ip0 = kU-1
     do j=1,nOrb2Loc(iSym)
       kOff = ip0+nOrb2Loc(iSym)*(j-1)
-      Tst = abs(Work(kOff+j)-One)
+      Tst = abs(Umat(kOff+j)-One)
       if (Tst > Tol) then
         mErr = mErr+1
       end if
       do i=j+1,nOrb2Loc(iSym)
-        Tst = abs(Work(kOff+i))
+        Tst = abs(Umat(kOff+i))
         xErr = max(xErr,Tst)
       end do
     end do
@@ -251,12 +250,12 @@ contains
 subroutine Error(code)
   integer(kind=iwp), intent(in) :: code
   if (code /= 0) irc = code
-  call GetMem('Umat','Free','Real',ipUmat,lUmat)
-  call GetMem('Scratch','Free','Real',ipScr,lScr)
-  call GetMem('Ddff','Free','Real',ipDdff,lDen)
-  call GetMem('DenX','Free','Real',ipDenX,lDen)
-  call GetMem('DenC','Free','Real',ipDenC,lDen)
-  call GetMem('TstOvlp','Free','Real',ipOvlp,lOvlp)
+  call mma_deallocate(Ovlp)
+  call mma_deallocate(DenC)
+  call mma_deallocate(DenX)
+  call mma_deallocate(Ddff)
+  call mma_deallocate(Scr)
+  call mma_deallocate(Umat)
 end subroutine Error
 
 end subroutine TestLoc

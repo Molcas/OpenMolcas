@@ -13,6 +13,7 @@
 
 subroutine Get_Nat_Lorb(Occ,FOcc,nO,nX,jOrb,Umat,iSym)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -21,33 +22,34 @@ real(kind=wp), intent(in) :: Occ(*)
 real(kind=wp), intent(out) :: FOcc(*)
 real(kind=wp), intent(inout) :: Umat(*)
 integer(kind=iwp), intent(in) :: nO, nX, jOrb(nO), iSym
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ii, ip_eta, ip_Z, ip_ZZ, j, nOx, nXx
+integer(kind=iwp) :: i, ii, j, nOx, nXx
+real(kind=wp), allocatable :: eta(:), Z(:), ZZ(:)
 
 if (nO < 1) return
 
-call GetMem('eta_ik','Allo','Real',ip_eta,2*nX**2+1)
-ip_Z = ip_eta+nX**2
-ip_ZZ = ip_Z+nX
-call FZero(Work(ip_eta),nX**2)
+call mma_allocate(eta,nX**2,label='eta_ik')
+call mma_allocate(Z,nX**2,label='Z')
+call mma_allocate(ZZ,nX,label='ZZ')
+eta(:) = Zero
 do i=1,nX
-  ii = ip_eta+nX*(i-1)+i-1
-  Work(ii) = Occ(i)
+  ii = nX*(i-1)+i
+  eta(ii) = Occ(i)
 end do
 nXx = max(1,nX)
 nOx = max(1,nO)
-call DGEMM_('N','N',nX,nO,nX,One,Work(ip_eta),nXx,Umat(1),nXx,Zero,Work(ip_Z),nXx)
-call DGEMM_('T','N',nO,nO,nX,One,Umat(1),nXx,Work(ip_Z),nXx,Zero,Work(ip_eta),nOx)
+call DGEMM_('N','N',nX,nO,nX,One,eta,nXx,Umat,nXx,Zero,Z,nXx)
+call DGEMM_('T','N',nO,nO,nX,One,Umat,nXx,Z,nXx,Zero,eta,nOx)
 
-call Eigen_Molcas(nO,Work(ip_eta),Work(ip_Z),Work(ip_ZZ))
+call Eigen_Molcas(nO,eta,ZZ,Z)
 
-call dcopy_(nO**2,Work(ip_eta),1,Umat(1),1)
+call dcopy_(nO**2,eta,1,Umat,1)
 do i=1,nO
-  ii = ip_Z+i-1
   j = jOrb(i)
-  FOcc(j) = Work(ii)
+  FOcc(j) = ZZ(i)
 end do
-call GetMem('eta_ik','Free','Real',ip_eta,2*nX**2+1)
+call mma_deallocate(eta)
+call mma_deallocate(Z)
+call mma_deallocate(ZZ)
 
 return
 ! Avoid unused argument warnings

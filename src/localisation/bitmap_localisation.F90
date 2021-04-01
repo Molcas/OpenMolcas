@@ -13,16 +13,17 @@ subroutine BitMap_Localisation(PreFix)
 
 use Localisation_globals, only: AnaNrm, ipCMO, ipMOrig, nBas, nFro, nOrb2Loc, nSym
 use Index_arrays, only: iSO2Sh
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=2), intent(in) :: PreFix
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iOff, ipCSh, ipDen, ipDSh, ipXSh, iSym, kC, kC1, kX, kX1, lCSh, lDen, lDSh, lXSh, MxBa, MxOr, n2, nBasT, &
-                     nDiff, nShell
+integer(kind=iwp) :: iOff, iSym, kC, kC1, kX, kX1, MxBa, MxOr, n2, nBasT, nDiff, nShell
 real(kind=wp) :: ThrAO
 logical(kind=iwp) :: Indexation, DoF, DoG
+real(kind=wp), allocatable :: CSh(:), Den(:), DSh(:), XSh(:)
 character(len=19), parameter :: SecNam = 'BitMap_Localisation'
 
 nBasT = nBas(1)
@@ -56,14 +57,10 @@ do iSym=2,nSym
   MxBa = max(MxBa,nBas(iSym))
   MxOr = max(MxOr,nOrb2Loc(iSym))
 end do
-lDen = MxBa**2
-lDSh = nShell**2
-lCSh = nShell*MxOr
-lXSh = lCSh
-call GetMem('BMpLoc','Allo','Real',ipDen,lDen)
-call GetMem('Dsh','Allo','Real',ipDSh,lDSh)
-call GetMem('Csh','Allo','Real',ipCSh,lCSh)
-call GetMem('Xsh','Allo','Real',ipXSh,lXSh)
+call mma_allocate(Den,MxBa**2,label='BMpLoc')
+call mma_allocate(DSh,nShell**2,label='Dsh')
+call mma_allocate(CSh,nShell*MxOr,label='Csh')
+call mma_allocate(XSh,nShell*MxOr,label='Xsh')
 
 ! Compute density matrix, Den = CC^T, and set shell based matrices.
 ! Generate bitmap and perform sparsity analysis.
@@ -73,14 +70,14 @@ kC = ipMOrig
 kX = ipCMO
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetDens_Localisation(Work(ipDen),Work(kC1),nBas(iSym),nOrb2Loc(iSym))
+  call GetDens_Localisation(Den,Work(kC1),nBas(iSym),nOrb2Loc(iSym))
   iOff = 1
-  call GetSh_Localisation(Work(ipDen),nBas(iSym),nBas(iSym),Work(ipDSh),nShell,iSO2Sh(iOff),2,AnaNrm)
-  call GetSh_Localisation(Work(kC1),nBas(iSym),nOrb2Loc(iSym),Work(ipCSh),nShell,iSO2Sh(iOff),1,AnaNrm)
+  call GetSh_Localisation(Den,nBas(iSym),nBas(iSym),DSh,nShell,iSO2Sh(iOff),2,AnaNrm)
+  call GetSh_Localisation(Work(kC1),nBas(iSym),nOrb2Loc(iSym),CSh,nShell,iSO2Sh(iOff),1,AnaNrm)
   kX1 = kX+nBas(iSym)*nFro(iSym)
-  call GetSh_Localisation(Work(kX1),nBas(iSym),nOrb2Loc(iSym),Work(ipXSh),nShell,iSO2Sh(iOff),1,AnaNrm)
-  call GenBMp_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh),nShell,iSym,'r','r','r',PreFix)
-  call Anasize_Localisation(Work(ipDSh),Work(ipCSh),Work(ipXSh),nShell,nOrb2Loc(iSym),iSym)
+  call GetSh_Localisation(Work(kX1),nBas(iSym),nOrb2Loc(iSym),XSh,nShell,iSO2Sh(iOff),1,AnaNrm)
+  call GenBMp_Localisation(DSh,CSh,XSh,nShell,iSym,'r','r','r',PreFix)
+  call Anasize_Localisation(DSh,CSh,XSh,nShell,nOrb2Loc(iSym),iSym)
   n2 = nBas(iSym)**2
   kC = kC+n2
   kX = kX+n2
@@ -90,10 +87,10 @@ write(u6,*) 'Bitmap files have been generated. Norm: ',AnaNrm
 ! De-allocations.
 ! ---------------
 
-call GetMem('Xsh','Free','Real',ipXSh,lXSh)
-call GetMem('Csh','Free','Real',ipCSh,lCSh)
-call GetMem('Dsh','Free','Real',ipDSh,lDSh)
-call GetMem('BMpLoc','Free','Real',ipDen,lDen)
+call mma_deallocate(Den)
+call mma_deallocate(CSh)
+call mma_deallocate(DSh)
+call mma_deallocate(XSh)
 DoF = .false.
 DoG = .false.
 call Term_Ints(DoF,DoG)
