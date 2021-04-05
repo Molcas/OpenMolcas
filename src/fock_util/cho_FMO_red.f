@@ -280,40 +280,37 @@ c--- setup the skipping flags according to # of Occupied
 C --- Compute the total amount of memory needed to have the
 C --- vectors in core (full storage)
          iE=0
-         iadd = 0
          Do iSymq=1,nSym
             iSymp = muld2h(jSym,iSymq)
             nq=nBas(iSymq)
             np=nBas(iSymp)
+
             IF (nq*np<=0) Cycle
             iS = iE + 1
 
             If(iSymp.gt.iSymq .and. iSkip(iSymp).ne.0) then
                iE = iE + np*nq*NumV
 
-               Wab%SB(iSymq)%A2(1:np*nq,1:NumV) => Wab%A0(iS:iE)
+               Wab%SB(iSymp)%A2(1:np*nq,1:NumV) =>Wab%A0(iS:iE)
             Else
                If(iSymp.eq.iSymq .and. iSkip(iSymp).ne.0) then
 C --- Special trick for the vector L11 ; used to store X(a,Jb)
                  npp=np*(np+1)/2
                  if(iSymp.eq.1.and.jSym.eq.1.and.DoSomeX)then
-                    iadd = Max(0,lOff1 - npp)
+                    iE = iE + lOff1*NumV
+                 else
+                    iE = iE + npp*NumV
                  endif
-                 iE = iE + np*(np+1)/2*NumV
-                 Wab%SB(iSymq)%A2(1:npp,1:NumV) => Wab%A0(iS:iE)
+                 Wab%SB(iSymp)%A2(1:npp,1:NumV) => Wab%A0(iS:)
                Endif
             Endif
          End Do
 
-         Call Map_to_SBA(Wab,KSQ1,Tweak=.True.)
-
-         iE = iE + iadd*NumV
+         Call Map_to_SBA(Wab,KSQ1)
 
          lChoV = iE
          lScr = kTOT - lChoV
-         iS = iE + 1
-         Scr(1:lScr) => Wab%A0(iS:kTOT)
-
+         Scr(1:lScr) => Wab%A0(iE+1:iE+lScr)
 
 C --- Reading of the vectors is done in Reduced sets
       iSwap = min(1,(jSym-1)) ! L(ab,J) --> L(a,J,b) iff jSym.ne.1
@@ -362,7 +359,7 @@ C==========================================================
 C
          CALL CWTIME(TCC1,TWC1)
 
-         VJ(1:NumV) => Wab%A0(iS:iS-1+NumV)
+         VJ(1:NumV) => Wab%A0(iE+1:iE+NumV)
          VJ(:)=Zero
 
          DO iSymr=1,nSym
@@ -428,12 +425,12 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
           do jDen=1,nDen
              iSymr_Occ = iSymr_Occ + nOcc(iSymr,jDen)
           end do
-          nr=NBAS(iSymr)
           IF(nBas(iSymr).ne.0.and.iSymr_Occ.ne.0)THEN
 
              CALL CWTIME(TCREO1,TWREO1)
 
-             LrJs(1:nr,1:NUMV,1:nr) => Wab%A0(iS:iS-1+nr*NUMV*nr)
+             nr=NBAS(iSymr)
+             LrJs(1:nr,1:NUMV,1:nr) => Wab%A0(iE+1:iE+nr*NUMV*nr)
 
              Do JVEC=1,NUMV
 
@@ -443,7 +440,6 @@ C     CHOVEC(nrs,numv) ---> CHOVEC(nr,numv,ns)
                       jSR = iTri(jS,jR)
 
                       LrJs(jR,JVEC,jS) = Wab%SB(iSymr)%A2(jSR,JVEC)
-
 
                       LrJs(jS,JVEC,jR) = Wab%SB(iSymr)%A2(jSR,JVEC)
 
@@ -487,7 +483,7 @@ C              ------------------------------------------
 c               CALL DGEMM_('T','N',
 c     &               NBAS(ISYMR),NBAS(iSYMR),NK*NUMV,
 c     &               -FactX(jDen),XkJs,NK*NUMV,
-c     &                   XkJs,NK*NUMV,
+c     &                            XkJs,NK*NUMV,
 c     &                   One,Work(ISFSQ),NBAS(ISYMR))
 
 c *** Compute only the LT part of the exchange matrix ***************
@@ -497,7 +493,7 @@ C
                DO jS=1,NBAS(iSymS)
                      NBL = NBAS(iSymR) - (jS-1)
                      ipF = ISFSQ + NBAS(iSymR)*(jS-1) + (jS-1)
-                     jjS= 1 + LKV*(jS-1)
+                     jjS = 1 + (jS-1)*LKV
 
                      CALL DGEMV_('T',LKV,NBL,
      &                    -FactX(jDen),XkJs(jjS:),LKV,
@@ -568,7 +564,7 @@ C -------------------------------
                ISMSQ = ISTSQ(ISYMG) + ipMSQ(jDen)
 
                XkJb(1:NK*NUMV*NBAS(ISYMB)) =>
-     &             Wab%A0(iS:iS-1+NK*NUMV*NBAS(ISYMB))
+     &             Wab%A0(iE+1:iE+NK*NUMV*NBAS(ISYMB))
 
 C              Calculate intermediate:
 C              X(k,Jb) = Sum(g) C(g,k) * L(g,Jb).
@@ -577,8 +573,8 @@ C              ----------------------------------
                CALL DGEMM_('T','N',
      &                    NK,NUMV*NBAS(ISYMB),NBAS(ISYMG),
      &                    ONE,Work(ISMSQ),NBAS(ISYMG),
-     &                        Wab%SB(ISYMB)%A2,NBAS(ISYMG),
-     &                    ZERO,XkJb,NK)
+     &                        Wab%SB(ISYMG)%A2,NBAS(ISYMG),
+     &                   ZERO,XkJb,NK)
 
 
 C              F(a,b) = F(a,b) - Sum(kJ) X(kJ,a) * X(kJ,b).
@@ -586,9 +582,9 @@ C              -------------------------------------------
 
 c               CALL DGEMM_('T','N',
 c     &               NBAS(ISYMA),NBAS(iSYMB),NK*NUMV,
-c     &               -FactX(jDen),XkJb,NK*NUMV,
-c     &                     XkJb,NK*NUMV,
-c     &                One,Work(ISFSQ),NBAS(ISYMA))
+c     &               -FactX(jDen),Wab%SB(ISYMG)%A2,NK*NUMV,
+c     &                            Wab%SB(ISYMG)%A2,NK*NUMV,
+c     &                   One,Work(ISFSQ),NBAS(ISYMA))
 
 c *** Compute only the LT part of the exchange matrix ***************
                ipF=0
@@ -596,12 +592,12 @@ c *** Compute only the LT part of the exchange matrix ***************
                DO jB=1,NBAS(iSymB)
                      NBL = NBAS(iSymA) - (jB-1)
                      ipF = ISFSQ + NBAS(iSymA)*(jB-1) + (jB-1)
-                     jjB= 1 + LKV*(jB-1)
+                     jjB = 1 + (jB-1)*LKV
 
                      CALL DGEMV_('T',LKV,NBL,
      &                    -FactX(jDen),XkJb(jjB:),LKV,
      &                                 XkJb(jjB:),1,
-     &                      ONE,Work(ipF),1)
+     &                             ONE,Work(ipF),1)
 
                END DO
 c ******************************************************************
@@ -625,7 +621,7 @@ C -------------------------------
                ISMSQ = ISTSQ(ISYMB) + ipMSQ(jDen)
 
                XgJk(1:NBAS(ISYMG)*NUMV*NK) =>
-     &            Wab%A0(iS:iS-1+NBAS(ISYMG)*NUMV*NK)
+     &            Wab%A0(iE+1:iE+NBAS(ISYMG)*NUMV*NK)
 
 C              Calculate intermediate:
 C              X(gJ,k) = Sum(a) L(gJ,a) * C(a,k).
@@ -633,9 +629,9 @@ C              ----------------------------------
 
                CALL DGEMM_('N','N',
      &                  NBAS(ISYMG)*NUMV,NK,NBAS(ISYMA),
-     &                  ONE,Wab%SB(ISYMB)%A2,NBAS(ISYMG)*NUMV,
+     &                  ONE,Wab%SB(ISYMG)%A2,NBAS(ISYMG)*NUMV,
      &                      WORK(ISMSQ),NBAS(ISYMA),
-     &                  ZERO,XgJk,NBAS(ISYMG)*NUMV)
+     &                 ZERO,XgJk,NBAS(ISYMG)*NUMV)
 
 
 C              F(g,d) = F(g,d) - Sum(Jk) X(g,Jk) * X(d,Jk).
@@ -644,7 +640,7 @@ C              -------------------------------------------
 c               CALL DGEMM_('N','T',
 c     &               NBAS(ISYMG),NBAS(ISYMD),NK*NUMV,
 c     &               -FactX(jDen),XgJk,NBAS(ISYMG),
-c     &                   XgJk,NBAS(ISYMD),
+c     &                            XgJk,NBAS(ISYMD),
 c     &                   One,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
@@ -656,8 +652,8 @@ c *** Compute only the LT part of the exchange matrix ***************
 
                      CALL DGEMV_('N',NBL,LVK,
      &                    -FactX(jDen),XgJk(jD:),NBAS(iSymG),
-     &                           XgJk(jD:),NBAS(iSymD),
-     &                           ONE,Work(ipF),1)
+     &                                 XgJk(jD:),NBAS(iSymD),
+     &                             ONE,Work(ipF),1)
 
                END DO
 c ******************************************************************
@@ -700,6 +696,7 @@ C --- Free the memory
       CALL CWTIME(TOTCPU2,TOTWALL2)
       TOTCPU = TOTCPU2 - TOTCPU1
       TOTWALL= TOTWALL2 - TOTWALL1
+
 
 *
 *---- Write out timing information
