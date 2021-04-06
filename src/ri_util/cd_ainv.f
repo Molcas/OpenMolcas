@@ -10,11 +10,17 @@
 ************************************************************************
       Subroutine CD_AInv(A,n,AInV,Thr_CD)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
       Real*8 A(n,n), AInv(n,n)
+      Real*8, Allocatable :: ADiag(:), QVec(:,:)
+      Integer, Allocatable :: iADiag(:)
+#ifdef _ACCURACY_
+      Real*8, Allocatable :: Tmp(:,:), Tmp2(:,:)
+#endif
 *
-      Call GetMem('ADiag','Allo','Real',ipADiag,n)
-      Call GetMem('iADiag','Allo','Inte',ipiADiag,n)
+      Call mma_allocate(ADiag,n,Label='ADiag')
+      Call mma_allocate(iADiag,n,Label='iADiag')
 *
       iSeed=77
       Lu_A=IsFreeUnit(iSeed)
@@ -29,60 +35,60 @@ C     Call RecPrt('A',' ',A,n,n)
       Lu_Q=IsFreeUnit(iSeed)
       Call DaName_MF_WA(Lu_Q,'QMat09')
 *
-      call dcopy_(n,A,n+1,Work(ipADiag),1)
-C     Call RecPrt('ADiag',' ',Work(ipADiag),1,n)
+      call dcopy_(n,A,n+1,ADiag,1)
 *
-      Call CD_AInv_(n,m,Work(ipADiag),iWork(ipiADiag),Lu_A,Lu_Q,Thr_CD)
+      Call CD_AInv_(n,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CD)
 *
-      Call GetMem('iADiag','Free','Inte',ipiADiag,n)
-      Call GetMem('ADiag','Free','Real',ipADiag,n)
+      Call mma_deallocate(ADiag)
+      Call mma_deallocate(iADiag)
 *
-      Call GetMem('QVec','Allo','Real',ipQVec,n*m)
+      Call mma_allocate(QVec,n,m,Label='QVec')
 *
       iDisk=0
-      Call dDaFile(Lu_Q,2,Work(ipQVec),n*m,iDisk)
+      Call dDaFile(Lu_Q,2,QVec,n*m,iDisk)
 *
-C     Call RecPrt('QVec','(6G20.10)',Work(ipQVec),n,m)
+C     Call RecPrt('QVec','(6G20.10)',QVec,n,m)
       Call DGEMM_('N','T',n,n,m,
-     &            1.0D0,Work(ipQVec),n,
-     &                  Work(ipQVec),n,
-     &            0.0D0,AInv,n)
+     &            One,QVec,n,
+     &                  QVec,n,
+     &            Zerp,AInv,n)
 C     Call RecPrt('AInv',' ',AInv,n,n)
       Call DaEras(Lu_Q)
-      Call GetMem('QVec','Free','Real',ipQVec,n*n)
+      Call mma_deallocate(QVec)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Check the accuracy I-AA^1
 *
 #ifdef _ACCURACY_
-      Call Allocate_Work(ipTmp,n*n)
+      Call mma_allocate(Tmp,n,n,Label='Tmp')
 *---
-      Call FZero(Work(ipTmp),n*n)
+      Tmp(:,:)=Zero
 *     I
-      call dcopy_(n,1.0D0,0,Work(ipTmp),n+1)
+      call dcopy_(n,One,0,Tmp,n+1)
 *     I-AA^-1
       Call DGEMM_('N','N',n,n,n,
-     &           -1.0D0,A,n,
+     &           -One,A,n,
      &                  AInv,n,
-     &            1.0D0,Work(ipTmp),n)
-      Call RecPrt('I-AA^-1','(6G20.12)',Work(ipTmp),n,n)
+     &            One,Tmp,n)
+      Call RecPrt('I-AA^-1','(6G20.12)',Tmp,n,n)
 *
       Call DGEMM_('N','N',n,n,n,
-     &            1.0D0,A,n,
+     &            One,A,n,
      &                  AInv,n,
-     &            0.0D0,Work(ipTmp),n)
-      Call Allocate_Work(ipTmp2,n*n)
-      Call FZero(Work(ipTmp2),n*n)
-      call dcopy_(n,1.0D0,0,Work(ipTmp2),n+1)
+     &            Zero,Tmp,n)
+
+      Call mma_allocate(Tmp2,n,n,Label='Tmp2')
+      Tmp2(:,:)=Zero
+      call dcopy_(n,One,0,Tmp2,n+1)
       Call DGEMM_('N','N',n,n,n,
-     &           -1.0D0,Work(ipTmp),n,
-     &                  Work(ipTmp),n,
-     &            1.0D0,Work(ipTmp2),n)
-      Call RecPrt('I-AA^-1AA^-1','(6G20.12)',Work(ipTmp2),n,n)
+     &           -One,Tmp,n,
+     &                Tmp,n,
+     &            One,Tmp2,n)
+      Call RecPrt('I-AA^-1AA^-1','(6G20.12)',Tmp2,n,n)
 *---
-      Call Free_Work(ipTmp2)
-      Call Free_Work(ipTmp)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmp)
 #endif
 *                                                                      *
 ************************************************************************
@@ -91,24 +97,27 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
       End
       Subroutine CD_AInv_(n,m,ADiag,iADiag,Lu_A,Lu_Q,Thr_CD)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
       Real*8 ADiag(n)
       Integer iADiag(n)
       Logical Out_of_Core
+
+      Real*8, Allocatable :: Scr(:), Z(:), X(:)
+      Real*8, Allocatable, Target :: Qm(:), Am(:), Q_k(:), A_k(:)
+      Real*8, Pointer :: Q_l(:)=>Null(), A_l(:)=>Null()
 *
       nScr=3*n
-      Call GetMem('AMax','Max','Real',iDummy,MaxMem)
+      Call mma_maxDBLE(MaxMem)
       lScr=Min(MaxMem,nScr)
-      Call GetMem('AScr','Allo','Real',ipScr,lScr)
+      Call mma_allocate(Scr,lScr,Label='Scr')
 *
       nDim=n
 *
       Thr=Thr_CD*1.0D-1
       Lu_Z=7
       Call DaName_MF_WA(Lu_Z,'ZMAT09')
-      Call Get_Pivot_idx(ADiag,nDim,nVec,Lu_A,Lu_Z,iADiag,Work(ipScr),
-     &                   lScr,Thr)
+      Call Get_Pivot_idx(ADiag,nDim,nVec,Lu_A,Lu_Z,iADiag,Scr,lScr,Thr)
       m=nVec
       If (nDim.ne.nVec) Then
          Write (6,*)
@@ -119,9 +128,9 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
      &                     nVec
       End If
 *
-      Call Pivot_Mat(nDim,nVec,Lu_A,Lu_Z,iADiag,Work(ipScr),lScr)
+      Call Pivot_Mat(nDim,nVec,Lu_A,Lu_Z,iADiag,Scr,lScr)
 *
-      Call GetMem('AScr','Free','Real',ipScr,lScr)
+      Call mma_deallocate(Scr)
 *
 ************************************************************************
 *     A-vectors are now on disk. Go ahead and compute the Q-vectors!
@@ -169,18 +178,17 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
 *     Some of memory for scratch arrays for Inv_Cho_Factor
 *     Allocate memory for the A- and Q-vectors and initialize.
 *
-      Call GetMem('ICF','Allo','Real',ip_ICF,lAm+lQm+5*nXZ)
-      ipZ    = ip_ICF
-      ipX    = ip_ICF + 1*nXZ
-      ip_Q_k = ip_ICF + 2*nXZ
-      ip_A_k = ip_ICF + 3*nXZ
-      ip_Scr = ip_ICF + 4*nXZ
       lScr=nXZ
-      ip_Am  = ip_ICF + 5*nXZ
-      ip_Qm  = ip_ICF + 5*nXZ + lAm
+      Call mma_allocate(Scr,lScr,Label='Scr')
+      Call mma_allocate(Qm,lQm,Label='Qm')
+      Call mma_allocate(Am,lAm,Label='Am')
+      Call mma_allocate(A_k,nXZ,Label='A_k')
+      Call mma_allocate(Q_k,nXZ,Label='Q_k')
+      Call mma_allocate(X,nXZ,Label='X')
+      Call mma_allocate(Z,nXZ,Label='Z')
 *
-      Call FZero(Work(ip_Am),lAm)
-      Call FZero(Work(ip_Qm),lQm)
+      Am(:)=Zero
+      Qm(:)=Zero
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -192,31 +200,30 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
 *
          iAddr_=iAddr
          If (kCol.le.nMem) Then
-*           Point to A_k in Am
             iOff = (kCol-1)*kCol/2
-            ip_A_l=ip_Am+iOff
+*           Point to A_k in Am
+            A_l(1:kCol) => Am(iOff+1:iOff+kCol)
             If (kCol.eq.1) Then
                nAm=nMem*(nMem+1)/2
-               Call dDaFile(Lu_Z,2,Work(ip_Am),nAm,iAddr_)
+               Call dDaFile(Lu_Z,2,Am,nAm,iAddr_)
             End If
 *           Point to Q_k in Qm
-            iOff = (kCol-1)*kCol/2
-            ip_Q_l=ip_Qm+iOff
+            Q_l(1:kCol) => Qm(iOff+1:iOff+kCol)
          Else If (kCol.gt.nMem) Then
 *           Use special scratch for A_k
-            ip_A_l=ip_A_k
-            Call dDaFile(Lu_Z,2,Work(ip_A_l),kCol,iAddr_)
+            A_l(1:kCol) => A_k(1:kCol)
+            Call dDaFile(Lu_Z,2,A_l,kCol,iAddr_)
 *           Use special scratch for Q_k
-            ip_Q_l=ip_Q_k
+            Q_l(1:kCol) => Q_k(1:kCol)
          End If
 *
          LinDep=2
-         Call Inv_Cho_Factor(Work(ip_A_l),kCol,
-     &                       Work(ip_Am),Work(ip_Qm),nMem,
+         Call Inv_Cho_Factor(A_l,kCol,
+     &                       Am,Qm,nMem,
      &                       Lu_Z,Lu_Q,
-     &                       Work(ip_Scr),lScr,
-     &                       Work(ipZ),Work(ipX),ThrQ,
-     &                       Work(ip_Q_l),LinDep)
+     &                       Scr,lScr,
+     &                       Z,X,ThrQ,
+     &                       Q_l,LinDep)
 *
          If (LinDep.ne.0) Then
             Call WarningMessage(2,'Error in CD_AInv')
@@ -229,16 +236,24 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
          iAddr_=iAddr
          If (kCol.eq.nMem) Then
             nQm=kCol*(kCol+1)/2
-            Call dDaFile(Lu_Q,1,Work(ip_Qm),nQm,iAddr )
-            Call dDaFile(Lu_Z,1,Work(ip_Am),nQm,iAddr_)
+            Call dDaFile(Lu_Q,1,Qm,nQm,iAddr )
+            Call dDaFile(Lu_Z,1,Am,nQm,iAddr_)
          Else If (kCol.gt.nMem) Then
-            Call dDaFile(Lu_Q,1,Work(ip_Q_k),kCol,iAddr )
-            Call dDaFile(Lu_Z,1,Work(ip_A_l),kCol,iAddr_)
+            Call dDaFile(Lu_Q,1,Q_l,kCol,iAddr )
+            Call dDaFile(Lu_Z,1,A_l,kCol,iAddr_)
          End If
 *
       End Do
 *
-      Call GetMem('ICF','Free','Real',ip_ICF,lAm+lQm+5*nXZ)
+      Q_l=>Null()
+      A_l=>Null()
+      Call mma_deallocate(X)
+      Call mma_deallocate(Z)
+      Call mma_deallocate(Q_k)
+      Call mma_deallocate(A_k)
+      Call mma_deallocate(Am)
+      Call mma_deallocate(Qm)
+      Call mma_deallocate(Scr)
  777  Continue
       Call DaEras(Lu_Z)
 *                                                                      *
@@ -246,15 +261,14 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
 *                                                                      *
 *     Sort the Q-matrix back to the original order.
 *
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem2)
+      Call mma_maxDBLE(MaxMem2)
 *
       nBfnTot=n
       nBfn2=n**2
       lScr=Min(MaxMem2,Max(nBfn2,2*nBfnTot))
-      Call GetMem('Scr','Allo','Real',ip_Scr,lScr)
+      Call mma_allocate(Scr,lScr,Label='Scr')
 *
-      Call Restore_Mat(nDim,nVec,Lu_Q,Lu_A,iADiag,Work(ip_Scr),lScr,
-     &                 .true.)
+      Call Restore_Mat(nDim,nVec,Lu_Q,Lu_A,iADiag,Scr,lScr,.true.)
       Call DaEras(Lu_Q)
       Lu_Q=Lu_A
 *
@@ -263,7 +277,7 @@ C     Call RecPrt('AInv',' ',AInv,n,n)
 *           (zeros have been added because the corresponding argument
 *            is set to .true.). The column index is still pivoted.
 *
-      Call GetMem('Scr','Free','Real',ip_Scr,lScr)
+      Call mma_deallocate(Scr)
 *                                                                      *
 ************************************************************************
 ************************************************************************
