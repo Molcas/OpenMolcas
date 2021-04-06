@@ -18,8 +18,8 @@
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
 *                  pq       pq                 pq
 *
-      use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Allocate_CMO, Deallocate_CMO
+      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
@@ -33,7 +33,7 @@
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
      &                      DLT(:), Dens2(:), DA(:), G2x(:),
      &                      CoulExch(:,:)
-      Type (CMO_Type) CVa(2)
+      Type (DSBA_Type) CVa(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,11 +43,11 @@
      &                         ipMO1,ipQ,Ash,ipCMO,ip_CMO_inv,
      &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                         LuAChoVec,LuIChoVec,iAChoVec)
-        use Data_Structures, only: CMO_Type
+        use Data_Structures, only: DSBA_Type
         Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
      &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &          ipMO1,ipQ,ipCMO,ip_CMO_inv
-        Type (CMO_Type) Ash(2)
+        Type (DSBA_Type) Ash(2)
         Integer nOrb(8),nAsh(8),nIsh(8)
         Logical doAct,Fake_CMO2
         Integer LuAChoVec(8),LuIChoVec(8)
@@ -194,8 +194,8 @@
           nAtri=nact*(nact+1)/2
           nAtri=nAtri*(nAtri+1)/2
 
-          Call Allocate_CMO(CVa(1),nAsh,nOrb,nSym)
-          Call Allocate_CMO(CVa(2),nAsh,nOrb,nSym)
+          Call Allocate_DSBA(CVa(1),nAsh,nOrb,nSym)
+          Call Allocate_DSBA(CVa(2),nAsh,nOrb,nSym)
           Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
@@ -206,7 +206,7 @@
             ioff5 = ioff4+ nOrb(iS)*nIsh(iS)
             Do iB=1,nAsh(iS)
               ioff3=ioff2+nOrb(iS)*(iB-1)
-              CVa(1)%SB(iS)%A(iB,:) =
+              CVa(1)%SB(iS)%A2(iB,:) =
      &           CMO(ioff3+1:ioff3+nOrb(iS))
              Do jB=1,nAsh(iS)
               ip=ioffD+ib+(jB-1)*nAsh(is)
@@ -220,7 +220,7 @@
             Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),
      &                  1.0d0,rkappa(ioff5),nOrb(iS),
      &                        CMO(1+ioff),nOrb(iS),
-     &                  0.0d0,CVa(2)%SB(iS)%A,nAsh(iS))
+     &                  0.0d0,CVa(2)%SB(iS)%A2,nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
             ioffD=ioffD+nAsh(iS)**2
             ioff4=ioff4+nOrb(iS)**2
@@ -347,8 +347,8 @@
 
         If (iMethod.eq.2) Then
           Call mma_deallocate(G2x)
-          Call Deallocate_CMO(CVa(2))
-          Call Deallocate_CMO(CVa(1))
+          Call Deallocate_DSBA(CVa(2))
+          Call Deallocate_DSBA(CVa(1))
           Call mma_deallocate(DA)
         EndIf
 

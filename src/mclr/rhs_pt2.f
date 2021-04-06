@@ -166,17 +166,15 @@ c Avoid unused argument warnings
       End Do
 *
       FAO1(:)=0.0D0
-      Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
-     &                 DP,DP2),FAO1,nFlt,
-     &                 ExFac,nDens2,nBMX)
+      Call FockTwo_Drv(nSym,nBas,nBas,nSkip,DP,DP2),FAO1,nFlt,
+     &                 ExFac,nBMX)
       Call AO2MO(FAO1,FMO1)
 *
 *  2) P(CAS)
 *
       FAO2(:)=0.0D0
-      Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
-     &                 DAS,DCAS2,FAO2,nFlt,
-     &                 ExFac,nDens2,nBMX)
+      Call FockTwo_Drv(nSym,nBas,nBas,nSkip,DAS,DCAS2,FAO2,nFlt,
+     &                 ExFac,nBMX)
       Call AO2MO(FAO2,FMO2)
 *
 *-- Add one particle hamiltonian here ???

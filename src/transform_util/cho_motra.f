@@ -49,8 +49,8 @@ C
 C     Note: frozen and deleted orbitals are not included in the
 C           transformation.
 C
-      use Data_Structures, only: CMO_Type, Deallocate_CMO
-      use Data_Structures, only: Allocate_CMO
+      use Data_Structures, only: DSBA_Type, Deallocate_DSBA
+      use Data_Structures, only: Allocate_DSBA
       Implicit Real*8 (a-h,o-z)
       Integer nCMOs, ihdf5
       real*8  CMO(nCMOs)
@@ -64,7 +64,7 @@ C
 
       Real*8, Allocatable:: xInt(:)
 
-      Type (CMO_Type), Target:: CMOT
+      Type (DSBA_Type), Target:: CMOT
 
 #include "chotime.fh"
 #include "stdalloc.fh"
@@ -97,7 +97,7 @@ C
       End If
 
       nAux(1:nSym) = nBas(1:nSym) - nFro(1:nSym) - nDel(1:nSym)
-      Call Allocate_CMO(CMOT,nAux,nBas,nSym)
+      Call Allocate_DSBA(CMOT,nAux,nBas,nSym)
 
       Call Transp_MOs(CMO,CMOT%A0,nSym,nFro,nIsh,nAsh,nSsh,nBas)
 c
@@ -156,7 +156,7 @@ c
            Call daclos(Lu_Xint)
         EndIf
         Call mma_deallocate(XInt)
-        Call Deallocate_CMO(CMOT)
+        Call Deallocate_DSBA(CMOT)
 c
         return
 c Avoid unused argument warnings
@@ -179,7 +179,7 @@ C
 #endif
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: DSBA_Type
       use Data_Structures, only: SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
@@ -188,7 +188,7 @@ C
       Real*8    Xint(0:lXint-1)
       Character*6 BName
 
-      Type (CMO_Type) Porb
+      Type (DSBA_Type) Porb
       Type (SBA_Type), Target:: ChoT(1)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
@@ -456,7 +456,7 @@ C --------------------------------------------------------------------
 
                       CALL DGEMM_Tri('N','T',NAp,NAp,nBas(iSymb),
      &                           One,ChoT(1)%SB(iSymb)%A3(:,:,JVC),NAp,
-     &                               Porb%SB(iSymb)%A,NAp,
+     &                               Porb%SB(iSymb)%A2,NAp,
      &                          Zero,Lpq(:,jVC),NAp)
 
                      End Do
@@ -559,7 +559,7 @@ C --------------------------------------------------------------------
 
                         CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
      &                            One,ChoT(1)%SB(iSymp)%A3(:,:,JVC),NAp,
-     &                                 Porb%SB(iSymb)%A,NAq,
+     &                                 Porb%SB(iSymb)%A2,NAq,
      &                            Zero,Lpq(:,JVC),NAp)
 
                        End Do

@@ -76,32 +76,38 @@ CSVC: MPI workaround: collected chovecs should not exceed 2GB
 * Max number of vectors actually used in one batch:
       NJSCT=0
       IBATCH_TOT=0
+
       DO JSYM=1,NSYM
 * Nr of batches in earlier symmetries:
         NBTCHES(JSYM)=IBATCH_TOT
         NBTCH(JSYM)=0
-        IF(NUMCHO_PT2(JSYM).LE.0) CYCLE
-        JRED1=InfVec(1,2,jSym)
-        JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
+        Select Case (NUMCHO_PT2(JSYM))
+        Case (0)
+           NBTCH(JSYM)=0
+        Case Default
+           JRED1=InfVec(1,2,jSym)
+           JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
 * Loop over the reduced sets:
-        DO JRED=JRED1,JRED2
-          CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
+           DO JRED=JRED1,JRED2
+             CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
 * It happens that a reduced set is empty:
-          IF(NVECS_RED.eq.0) CYCLE
+             IF(NVECS_RED.eq.0) CYCLE
 * Reduced set JRED contains NVECS_RED vectors
 * Reduced set JRED must be divided up into NBATCH batches
-          NBATCH=1+(NVECS_RED-1)/MXNVC
+             NBATCH=1+(NVECS_RED-1)/MXNVC
 * Necessary number of vectors in each batch is then:
-          NV=1+(NVECS_RED-1)/NBATCH
-          NJSCT=MAX(NV,NJSCT)
-          NBTCH(JSYM)=NBTCH(JSYM)+NBATCH
-        END DO
+             NV=1+(NVECS_RED-1)/NBATCH
+             NJSCT=MAX(NV,NJSCT)
+             NBTCH(JSYM)=NBTCH(JSYM)+NBATCH
+           END DO
+        End Select
         ! take maximum number of batches for this symmetry over any
         ! process, such that all procs have the same number of batches
         CALL GAIGOP(NBTCH(JSYM),1,'max')
         IBATCH_TOT=IBATCH_TOT+NBTCH(JSYM)
 * Nr of batches in this symmetry:
       END DO
+
       NBATCH_TOT=IBATCH_TOT
 
 #ifdef _MOLCAS_MPP_

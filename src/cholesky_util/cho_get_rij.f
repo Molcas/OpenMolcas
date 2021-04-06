@@ -36,7 +36,7 @@
 *> Requires initialization of the Cholesky information.
 *>
 *> @param[out]    irc     Return code
-*> @param[in]     MO      type CMO_type of block of the MO matrix, stored as \p C(k,a)
+*> @param[in]     MO      type DSBA_Type of block of the MO matrix, stored as \p C(k,a)
 *> @param[in]     nOcc    Number of orbitals to be localized in each symmetry
 *> @param[in,out] Rij     \p nOcc &times; \p nOcc symmetry blocked matrix \f$  R_{ij} = (ij|jj) \f$
 *> @param[in]     timings Switch on/off timings printout
@@ -44,11 +44,11 @@
       SUBROUTINE CHO_get_Rij(irc,MO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
       Integer irc
-      Type (CMO_Type) MO
+      Type (DSBA_Type) MO
       Integer nOcc(*)
       Real*8  Rij(*)
       Logical timings
@@ -238,7 +238,7 @@ C ---------------------------------------------------------------------
 
               CALL DGEMM_('N','T',nOcc(kSym)*JNUM,nOcc(kSym),nBas(kSym),
      &                           One,Laq(1)%SB(kSym)%A3,nOcc(kSym)*JNUM,
-     &                                MO%SB(kSym)%A,nOcc(kSym),
+     &                                MO%SB(kSym)%A2,nOcc(kSym),
      &                           Zero,pLab,nOcc(kSym)*JNUM)
 
 

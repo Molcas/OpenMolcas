@@ -48,6 +48,9 @@
 *
       kdc = 0
       Do 500 kCnttp = 1, nCnttp
+         If (dbsc(kCnttp)%Aux .or.
+     &       dbsc(kCnttp)%ECP .or.
+     &       dbsc(kcnttp)%Frag) Exit
          Do 501 kCnt = 1, dbsc(kCnttp)%nCntr
             C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
