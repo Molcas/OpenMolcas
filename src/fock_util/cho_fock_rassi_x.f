@@ -33,13 +33,13 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       use Data_Structures, only: twxy_Type
       use Data_Structures, only: Allocate_twxy, Deallocate_twxy
       Implicit Real*8 (a-h,o-z)
 
-      Type (CMO_Type) MO1(2), MO2(2)
+      Type (DSBA_Type) MO1(2), MO2(2)
       Type (SBA_Type), Target:: Laq(2)
       Type (Twxy_Type) Scr
 
@@ -50,14 +50,14 @@ C
 #ifdef _DEBUGPRINT_
       Logical   Debug
 #endif
-      Logical   DoRead,DoReord
+      Logical   DoReord, add
       Character*50 CFmt
       Character(LEN=16), Parameter:: SECNAM = 'CHO_FOCK_RASSI_X'
 #include "chotime.fh"
+#include "real.fh"
 
-      parameter (DoRead = .false. )
-      parameter (FactCI = 1.0D0, FactXI = -1.0D0)
-      parameter (zero = 0.0D0, one = 1.0D0, two = 2.0D0)
+      Logical, Parameter :: DoRead = .false.
+      Real*8, Parameter ::FactCI = One, FactXI = -One
       Character*6 mode
 #include "cho_jobs.fh"
 
@@ -67,7 +67,7 @@ C
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 
-      Real*8, Allocatable:: Lrs(:,:)
+      Real*8, Allocatable:: Lrs(:,:), Drs(:), Frs(:)
 
       Real*8, Pointer:: VJ(:)
 
@@ -160,11 +160,10 @@ C ------------------------------------------------------------------
             nRS = nDimRS(JSYM,JRED)
 
             If(JSYM.eq.1)Then
-
-               Call GetMem('rsDtot','Allo','Real',ipDab,nRS)
-               Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-               Call Fzero(Work(ipDab),nRS)
-               Call Fzero(Work(ipFab),nRS)
+               Call mma_allocate(Drs,nRS,Label='Drs')
+               Call mma_allocate(Frs,nRS,Label='Frs')
+               Drs(:)=Zero
+               Frs(:)=Zero
             EndIf
 
             Call mma_maxDBLE(LWORK)
@@ -188,7 +187,10 @@ C ------------------------------------------------------------------
             If(JSYM.eq.1)Then
 C --- Transform the density to reduced storage
                mode = 'toreds'
-               Call swap_sto(irc,iLoc,ipDLT,ISTLT,ipDab,mode)
+               add = .False.
+               mDen=1
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipDLT],Drs,
+     &                           mode,add)
             EndIf
 
 C --- BATCH over the vectors ----------------------------
@@ -241,7 +243,7 @@ C
 
                   CALL DGEMV_('T',nRS,JNUM,
      &                 ONE,Lrs,nRS,
-     &                 Work(ipDab),1,ZERO,VJ,1)
+     &                 Drs,1,ZERO,VJ,1)
 
 C --- FI(rs){#J} <- FI(rs){#J} + FactCI * sum_J L(rs,{#J})*V{#J}
 C===============================================================
@@ -250,7 +252,7 @@ C===============================================================
 
                   CALL DGEMV_('N',nRS,JNUM,
      &                 FactCI,Lrs,nRS,
-     &                 VJ,1,Fact,Work(ipFab),1)
+     &                 VJ,1,Fact,Frs,1)
 
 
                   CALL CWTIME(TCC2,TWC2)
@@ -274,7 +276,7 @@ C -------------------------------------------------------------
                Do i=1,nSym
 
                   k = Muld2h(i,JSYM)
-                  iSkip(k) = Min(1,NBAS(i)*nIsh(k))
+                  iSkip(k) = Min(1,nIsh(k)*NBAS(i))
 
                End Do
 C -------------------------------------------------------------
@@ -318,8 +320,6 @@ C ---------------------------------------------------------------------
      &                         NK*JNUM,FactXI,Laq(kDen)%SB(iSymk)%A3,
      &                         NK*JNUM,Laq(1)%SB(iSymk)%A3,NK*JNUM,
      &                             One,Work(ISFI),NBAS(iSyma))
-
-
 
                   EndIf
 
@@ -383,7 +383,7 @@ C --------------------------------------------------------------------
 
                        CALL DGEMM_('N','T',NAv,NAw,NBAS(iSymb),
      &                            One,Laq(1)%SB(iSymv)%A3(:,:,JVC),NAv,
-     &                                MO2(kDen)%SB(iSymb)%A,NAw,
+     &                                MO2(kDen)%SB(iSymb)%A2,NAw,
      &                           Zero,Laq(2)%SB(iSymv)%A3(:,:,JVC),NAv)
 
                       End Do
@@ -424,15 +424,18 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
-               Call swap_sto(irc,iLoc,ipFLT,ISTLT,ipFab,mode)
+               add = .True.
+               mDen=1
+               Call swap_rs2full(irc,iLoc,nRS,mDen,JSYM,[ipFLT],Frs,
+     &                           mode,add)
             EndIf
 
 C --- free memory
             Call mma_deallocate(Lrs)
 
             If(JSYM.eq.1)Then
-              Call GetMem('rsFC','Free','Real',ipFab,nRS)
-              Call GetMem('rsDtot','Free','Real',ipDab,nRS)
+              Call mma_deallocate(Frs)
+              Call mma_deallocate(Drs)
             EndIf
 
 

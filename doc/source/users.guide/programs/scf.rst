@@ -601,6 +601,8 @@ Below is a list of keywords that should cover the needs of most users.
     Set the fraction of memory to use as global Cholesky vector buffer.
     Default: for serial runs 0.0d0; for parallel runs 0.3d0.
 
+    .. xmldoc:: <KEYWORD MODULE="SCF" NAME="REOR" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
+
     .. xmldoc:: </GROUP>
 
 :kword:`CONStraints`

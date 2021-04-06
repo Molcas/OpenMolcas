@@ -11,15 +11,15 @@
 
         subroutine frankie(nfro,no,nv,printkey)
 c
-        use Data_Structures, only: CMO_Type
-        use Data_Structures, only: Allocate_CMO, Deallocate_CMO
+        use Data_Structures, only: DSBA_Type
+        use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
         implicit none
 c
         integer nbas,norb,nocc,nfro,ndel
         integer no,nv
         integer printkey
 c
-        Type (CMO_Type) CMO
+        Type (DSBA_Type) CMO
         integer rc
 c
         real*8  FracMem
@@ -62,7 +62,7 @@ c
 c.2 - allocate space for CMO with removed SCF deleted and frozen orbitals
 c     final ordering of indexes : (o+v,nbas)
 c
-        Call Allocate_CMO(CMO,[no+nv],[nbas],1)
+        Call Allocate_DSBA(CMO,[no+nv],[nbas],1)
         if (printkey.ge.10) then
         write (6,*) 'Dopice 1 - Allo'
         end if
@@ -93,7 +93,7 @@ c
         end if
 c
 c.  -  deallocate CMO
-        Call Deallocate_CMO(CMO)
+        Call Deallocate_DSBA(CMO)
 c
         return
         end
@@ -101,11 +101,11 @@ c
 c -------------------------------------
 c
       Subroutine read_mo (CMO,nfro,no,nv,ndel,nbas,nOrb)
-      use Data_Structures, only: CMO_Type
+      use Data_Structures, only: DSBA_Type
       Implicit Real*8 (A-H,O-Z)
 
 *     declaration of calling arguments
-      Type (CMO_Type) CMO
+      Type (DSBA_Type) CMO
       Integer lthCMO
       integer nfro_scf(8)
       integer nfro
@@ -169,12 +169,12 @@ C
 **********************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: CMO_Type, SBA_Type
+      use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_SBA, Deallocate_SBA
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
-      Type (CMO_Type) CMO
+      Type (DSBA_Type) CMO
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
       Logical   DoRead
@@ -221,7 +221,7 @@ C
 c --- Define MOs used in CC
 c -----------------------------------
         do i=1,nSym
-           nPorb(i) = SIZE(CMO%SB(i)%A,1)
+           nPorb(i) = SIZE(CMO%SB(i)%A2,1)
         end do
 
 
@@ -376,7 +376,7 @@ C --------------------------------------------------------------------
 
                       CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),
      &                           One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAp,
-     &                               CMO%SB(iSymb)%A,NAq,
+     &                               CMO%SB(iSymb)%A2,NAq,
      &                          Zero,pLpq(:,:,JVC),NAp)
 
                       End Do

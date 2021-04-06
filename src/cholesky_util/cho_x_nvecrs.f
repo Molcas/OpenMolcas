@@ -56,6 +56,11 @@ C     ------------
       If (NumCho(iSym).lt.0 .or. NumCho(iSym).gt.MaxVec) Then
          irc = -2
       End If
+      If (NumCho(iSym)==0) Then
+         iVec = 0
+         nVec = 0
+         Return
+      End If
       LastRed = InfVec(NumCho(iSym),2,iSym)
       If (LastRed .lt. 1) Then
          irc = -3
@@ -73,6 +78,7 @@ C     ------------
          nVec = 0
          Return
       End If
+      nVec=0
 
 C     Find first vector in reduced set iRed.
 C     --------------------------------------

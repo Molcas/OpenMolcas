@@ -20,6 +20,12 @@
       Logical   ga_create_irreg, ok
       Integer myMap(2)
 *
+      If (NumVec.le.0) Then
+         Call WarningMessage(2,'Create_Chunk: Failure NumVec.le.0')
+         Write (6,*) 'NumVec=',NumVec
+         Call Abend()
+      End If
+
       If (Is_Real_Par()) Then
          Call GetMem('iMap','Allo','Inte',ip_iMap,nProcs+1)
          Call IZero(iWork(ip_iMap),nProcs+1)
@@ -49,12 +55,6 @@
             IncVec = INT ( DBLE(NumVec) *(TotalMemory/FullSize))
 *
          End If
-         If (NumVec.le.0) Then
-            Call WarningMessage(2,
-     &                  'Create_Chunk: Failure NumVec.le.0')
-            Write (6,*) 'NumVec=',NumVec
-            Call Abend()
-         End If
          If (IncVec.le.0) Then
             Call WarningMessage(2,
      &                  'Create_Chunk: Failure IncVec.le.0')
@@ -79,12 +79,13 @@
             iStart = iStart + Max((IncVec+iNode)/nProcs,1)
          End Do
          iWork(ip_iMap+nProcs)=iStart
+         IncVec0=iStart
 *
 C        Call Put_iArray('DistVec',iWork(ip_iMap),nProcs+1)
 *
          nBlocks=nProcs-iNode0
          myMap(1)=1
-         Ok = GA_Create_Irreg(mt_dbl,LenVec,IncVec,'Chunk',
+         Ok = GA_Create_Irreg(mt_dbl,LenVec,IncVec0,'Chunk',
      &                        myMap,1,
      &                        iWork(ip_iMap+iNode0),nBlocks,
      &                        ip_Chunk)

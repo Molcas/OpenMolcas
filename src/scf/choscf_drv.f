@@ -43,8 +43,8 @@ C
      &                               DLT_ab,FLT,FLT_ab,nFLT,ExFac,
      &                               LWFSQ,LWFSQ_ab,nOcc,nOcc_ab)
 
-      use Data_Structures, only: CMO_Type
-      use Data_Structures, only: Allocate_CMO, Deallocate_CMO
+      use Data_Structures, only: DSBA_Type
+      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -68,7 +68,7 @@ C
 
       Integer, External:: ip_of_Work, ip_of_iWork
 
-      Type (CMO_Type) Cka(2)
+      Type (DSBA_Type) Cka(2)
 *
 C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -172,80 +172,84 @@ c       end do
 
       Call CHOSCF_MEM(nSym,nBas,iUHF,DoExchange,ipNocc,
      &                ALGO,REORD,MinMem,loff1)
-
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       if (ALGO.eq.1 .and. REORD) then
-
+*                                                                      *
+************************************************************************
+*                                                                      *
         FactX(1)=0.5d0*ExFac
 
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
      &                FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif (ALGO.eq.1 .and. .not.REORD) then
-
+*                                                                      *
+************************************************************************
+*                                                                      *
         FactX(1)=0.5d0*ExFac
 
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
      &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif  (ALGO.eq.2 .and. DECO) then  !use decomposed density
-
+*                                                                      *
+************************************************************************
+*                                                                      *
        FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
 
        if (REORD)then
-
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
        else
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
        endif
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif  (ALGO.eq.2 .and. REORD) then
-
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &     FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif  (ALGO.eq.2 .and. .not. REORD) then
 
       ipMSQ(1) = mAdCMO      ! MOs coeff as specified in addr.fh
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
-
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,
      &                       MinMem,ipMSQ,ipNocc)
-
-            If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif (ALGO.eq.3) then
 
           Do iSym=1,nSym
              nIorb(iSym,1) = iWork(ipNocc(1)+iSym-1)
           End Do
-          Call Allocate_CMO(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
 
           ioff1=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(1)%SB(iSym)%A(ikk,:) =
+                Cka(1)%SB(iSym)%A2(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3-1+nBas(iSym))
              end do
@@ -256,10 +260,10 @@ c       end do
 
           CALL CHO_FSCF(rc,nDen,ipFLT,nForb,nIorb,Cka(1),ipDLT,xFac)
 
-          Call Deallocate_CMO(Cka(1))
-
-          If (rc.ne.0) GOTO 999
-
+          Call Deallocate_DSBA(Cka(1))
+*                                                                      *
+************************************************************************
+*                                                                      *
       elseif (ALGO.eq.4) then
 
              ipMOs(1)=ipMSQ(1)
@@ -273,14 +277,24 @@ c       end do
 
              CALL CHO_LK_SCF(rc,nDen,ipFLT,ipKLT,nForb,nIorb,
      &                         ipMOs,ipDLT,FactX(1),nSCReen,dmpk,dFKmat)
-
-          If (rc.ne.0) GOTO 999
-
+*                                                                      *
+************************************************************************
+*                                                                      *
       else
+*                                                                      *
+************************************************************************
+*                                                                      *
           rc=99
           write(6,*)'Illegal Input. Specified Cholesky Algorithm= ',ALGO
           CALL QUIT(rc)
+*                                                                      *
+************************************************************************
+*                                                                      *
       endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (rc.ne.0) GOTO 999
 
       IF (DECO) CALL GETMEM('choMOs','free','real',ipVec,lVdim)
 
@@ -514,15 +528,15 @@ C Compute the total density Dalpha + Dbeta
              nIorb(iSym,1) = iWork(ipNocc(2)+iSym-1)
              nIorb(iSym,2) = iWork(ipNocc(3)+iSym-1)
           End Do
-          Call Allocate_CMO(Cka(1),nIorb(:,1),nBas,nSym)
-          Call Allocate_CMO(Cka(2),nIorb(:,2),nBas,nSym)
+          Call Allocate_DSBA(Cka(1),nIorb(:,1),nBas,nSym)
+          Call Allocate_DSBA(Cka(2),nIorb(:,2),nBas,nSym)
 
           ioff1=0
           Do iSym=1,nSym
            If (nBas(iSym)*nIorb(iSym,1).ne.0) Then
              do ikk=1,nIorb(iSym,1)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(1)%SB(iSym)%A(ikk,:) =
+                Cka(1)%SB(iSym)%A2(ikk,:) =
      &            Work(ipMSQ(1)+ioff3 :
      &                 ipMSQ(1)+ioff3 - 1 + nBas(iSym))
              end do
@@ -530,7 +544,7 @@ C Compute the total density Dalpha + Dbeta
            If (nBas(iSym)*nIorb(iSym,2).ne.0) Then
              do ikk=1,nIorb(iSym,2)
                 ioff3=ioff1+nBas(iSym)*(ikk-1)
-                Cka(2)%SB(iSym)%A(ikk,:) =
+                Cka(2)%SB(iSym)%A2(ikk,:) =
      &            Work(ipMSQ(2)+ioff3 :
      &                 ipMSQ(2)+ioff3 - 1 + nBas(iSym))
              end do
@@ -545,8 +559,8 @@ C Compute the total density Dalpha + Dbeta
           CALL CHO_FSCF(rc,nMat,ipFLT,nForb,nIorb,Cka,ipDLT,ExFac)
 
 
-          Call Deallocate_CMO(Cka(2))
-          Call Deallocate_CMO(Cka(1))
+          Call Deallocate_DSBA(Cka(2))
+          Call Deallocate_DSBA(Cka(1))
 
           If (rc.ne.0) GOTO 999
 
