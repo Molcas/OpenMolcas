@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Markus P. Fuelscher                              *
-*               1999, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Markus P. Fuelscher                              *
+!               1999, Roland Lindh                                     *
+!***********************************************************************
       subroutine Motra(ireturn)
-************************************************************************
-*                                                                      *
-*     Objective: AO to MO integral transformation                      *
-*                                                                      *
-*     Modify one-electron integrals to use dynamic memory allocation.  *
-*     R. Lindh, March 1999.                                            *
-*                                                                      *
-***** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
+!***********************************************************************
+!                                                                      *
+!     Objective: AO to MO integral transformation                      *
+!                                                                      *
+!     Modify one-electron integrals to use dynamic memory allocation.  *
+!     R. Lindh, March 1999.                                            *
+!                                                                      *
+!**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
       !> module dependencies
 #ifdef _HDF5_QCM_
@@ -32,16 +32,16 @@
 #include "cho_minp.fh"
 #include "chotraw.fh"
       Logical DoCholesky, Do_int
-*----------------------------------------------------------------------*
-*     Start program and say Hello                                      *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-*     ( Dynamic work area has been allocated in Start() )              *
-*----------------------------------------------------------------------*
-*      Call IniMem
-*----------------------------------------------------------------------*
-*     Run through the input section                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start program and say Hello                                      *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     ( Dynamic work area has been allocated in Start() )              *
+!----------------------------------------------------------------------*
+!      Call IniMem
+!----------------------------------------------------------------------*
+!     Run through the input section                                    *
+!----------------------------------------------------------------------*
       Call init_motra
       If (iPrintLevel(-1).LE.0) iPrint=-1
       Call InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
@@ -55,11 +55,11 @@
       end if
 #endif
 
-*----------------------------------------------------------------------*
-* --- Cholesky check
+!----------------------------------------------------------------------*
+! --- Cholesky check
       Call DecideOnCholesky(DoCholesky)
-*----------------------------------------------------------------------*
-* --- Use of MOTRA only for AO-->MO transf of the Cholesky vectors
+!----------------------------------------------------------------------*
+! --- Use of MOTRA only for AO-->MO transf of the Cholesky vectors
       If (iCTonly.eq.1) Then
          If (.not.DoCholesky) Then
             write(6,*)'      Warning! This is not RI/CD calculation: '
@@ -67,9 +67,9 @@
          Else
 #ifdef _HDF5_QCM_
             If ((ihdf5.eq.1).and.(tv2disk.ne.'KPQ')) Then
-              Write(6,*)' Transformed Cholesky vectors cannot be '//
-     &          ' written as (pq,K) in HDF5 file as of now. Activate'//
-     &          ' the KPQ option to store them or disable'//
+              Write(6,*)' Transformed Cholesky vectors cannot be '//    &
+     &          ' written as (pq,K) in HDF5 file as of now. Activate'// &
+     &          ' the KPQ option to store them or disable'//            &
      &          ' the HDF5 option.'
               Call Abend()
             End If
@@ -87,19 +87,19 @@
             Go To 100  ! nothing else to be done except OneEl part
          EndIf
       EndIf
-*----------------------------------------------------------------------*
-* --- Preliminary step for integral transformation with CD
+!----------------------------------------------------------------------*
+! --- Preliminary step for integral transformation with CD
       If (DoCholesky) Then
          CALL CWTIME(TCR1,TWR1)
          Call Cho_X_init(irc,0.0)
          If (irc.ne.0) Then
-           write(6,*) ' In MoTRA : Cho_X_Init returned non-zero'//
+           write(6,*) ' In MoTRA : Cho_X_Init returned non-zero'//      &
      &                ' rc = ',irc
            Call Abend()
          EndIf
          Call Cho_X_ReoVec(irc) ! get (if not there) CD vecs full stor
          If (irc.ne.0) Then
-           write(6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero'//
+           write(6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero'//    &
      &                ' rc = ',irc
            Call Abend()
          EndIf
@@ -114,27 +114,27 @@
       EndIf
 
 
-*----------------------------------------------------------------------*
-*     Transform the one-electron integrals                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Transform the one-electron integrals                             *
+!----------------------------------------------------------------------*
 100   Continue
       Call Tr1Ctl(Work(ipOvlp),Work(ipHOne),Work(ipKine),Work(ipCMO))
       If ( iOneOnly.ne.0 ) Goto 900
-*----------------------------------------------------------------------*
-*     Transform the two-electron integrals                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Transform the two-electron integrals                             *
+!----------------------------------------------------------------------*
       Call Tr2Ctl(Work(ipCMO))
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-*     Normal termination                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Normal termination                                               *
+!----------------------------------------------------------------------*
  900  Continue
       write(6,*)
       Call GetMem('CMO','Free','Real',ipCMO,nTot2)
       Call GetMem('Kine','Free','Real',ipKine,nTot1+4)
       Call GetMem('HOne','Free','Real',ipHOne,nTot1+4)
       Call GetMem('Ovlp','Free','Real',ipOvlp,nTot1+4)
-*
+!
 #ifdef _HDF5_QCM_
       if(ihdf5 == 1)then
         !> close the file ijkl.h5 and turn off HDF5 support.

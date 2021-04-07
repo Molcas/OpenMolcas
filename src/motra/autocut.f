@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Manuela Merchan                                  *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Manuela Merchan                                  *
+!***********************************************************************
       Subroutine AutoCut
-************************************************************************
-*                                                                      *
-*     Purpose:                                                         *
-*     This routine counts the number of orbitals that have an          *
-*     occupation number smaller than a given threshold and             *
-*     marks them as deleted orbitals.                                  *
-*                                                                      *
-***** M. Merchan, University of Valencia, Spain, 1991 ******************
-*
+!***********************************************************************
+!                                                                      *
+!     Purpose:                                                         *
+!     This routine counts the number of orbitals that have an          *
+!     occupation number smaller than a given threshold and             *
+!     marks them as deleted orbitals.                                  *
+!                                                                      *
+!**** M. Merchan, University of Valencia, Spain, 1991 ******************
+!
       Implicit Real*8 (A-H,O-Z)
 
 #include "motra_global.fh"
 #include "trafo_motra.fh"
-*
-*----------------------------------------------------------------------*
-*     Start procedure                                                  *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     Start procedure                                                  *
+!----------------------------------------------------------------------*
       ipBas=0
       Do iSym=1,nSym
         iDel=0
@@ -45,9 +45,9 @@
            Call Abend()
         End If
       End Do
-*----------------------------------------------------------------------*
-*     Normal termination                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Normal termination                                               *
+!----------------------------------------------------------------------*
       nOrbt=0
       nOrbtt=0
       Do iSym=1,nSym

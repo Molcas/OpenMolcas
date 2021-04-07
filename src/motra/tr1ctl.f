@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE TR1CTL(Ovlp,HOne,Kine,CMO)
-*
-*     Objective: Control section for transformation of one-electron
-*                integrals (effective one electron Hamiltonian and
-*                kinetic energy )
-*
+!
+!     Objective: Control section for transformation of one-electron
+!                integrals (effective one electron Hamiltonian and
+!                kinetic energy )
+!
       !> module dependencies
 #ifdef _HDF5_QCM_
       use hdf5_utils
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-*
+!
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
@@ -28,29 +28,29 @@
 #ifdef _HDF5_QCM_
       real*8,  allocatable :: writebuf(:,:)
 #endif
-*
+!
       Real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
-*
-*
-*     Initialize LUONEMO
-*
+!
+!
+!     Initialize LUONEMO
+!
       CALL DANAME(LUONEMO,FNONEMO)
       IDISK=0
-* Provisionally initialize ECOR to prevent false alarms from
-* automatic detection of uninitialized variables.
+! Provisionally initialize ECOR to prevent false alarms from
+! automatic detection of uninitialized variables.
       ECOR=0.0D0
-      CALL WR_MOTRA_Info(LUONEMO,1,iDisk,
-     &                   TCONEMO,64,ECOR,NSYM,
+      CALL WR_MOTRA_Info(LUONEMO,1,iDisk,                               &
+     &                   TCONEMO,64,ECOR,NSYM,                          &
      &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
-*
-*     Write Mo coefficients to disc
-*
+!
+!     Write Mo coefficients to disc
+!
       TCONEMO(1)=IDISK
       CALL dDAFILE(LUONEMO,1,CMO,NTOT2,IDISK)
-*
-*     Generate Fock-matrix for inactive orbitals
-*     and compute the total core energy
-*
+!
+!     Generate Fock-matrix for inactive orbitals
+!     and compute the total core energy
+!
       CALL GETMEM('FLT','ALLO','REAL',LWFLT,NTOT1)
       CALL GETMEM('DLT','ALLO','REAL',LWDLT,NTOT1)
       CALL GETMEM('FSQ','ALLO','REAL',LWFSQ,NTOT2)
@@ -60,19 +60,19 @@
       CALL DCOPY_(NTOT1,[0.0D0],0,WORK(LWDLT),1)
       CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LWDSQ),1)
       ECOR=0.0D0
-      CALL FCIN(WORK(LWFLT),NTOT1,WORK(LWDLT),
+      CALL FCIN(WORK(LWFLT),NTOT1,WORK(LWDLT),                          &
      &          WORK(LWFSQ),WORK(LWDSQ),ECOR,CMO)
       CALL GETMEM('DSQ','FREE','REAL',LWDSQ,NTOT2)
       CALL GETMEM('FSQ','FREE','REAL',LWFSQ,NTOT2)
       CALL GETMEM('DLT','FREE','REAL',LWDLT,NTOT1)
-*
+!
       ECOR=POTNUC+ECOR
       IF ( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
          WRITE(6,'(6X,A,E20.10)') 'TOTAL CORE ENERGY:',ECOR
       ENDIF
-*
-*     Transform one-electron Fock matrix
-*
+!
+!     Transform one-electron Fock matrix
+!
       CALL GETMEM('FMO','ALLO','REAL',LWFMO,NORBTT)
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
       CALL DCOPY_(NORBTT,[0.0D0],0,WORK(LWFMO),1)
@@ -110,7 +110,7 @@
         call hdf5_put_data(file_id(1),"ndel  ",datadim,writebuf(1,3))
         deallocate(writebuf)
         datadim(1)   = norbtt
-        call hdf5_put_data(file_id(1),"FockMO",datadim,
+        call hdf5_put_data(file_id(1),"FockMO",datadim,                 &
      &                     work(lwfmo:lwfmo+norbtt-1))
       end if
 #endif
@@ -120,9 +120,9 @@
       CALL GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)
       CALL GETMEM('FMO','FREE','REAL',LWFMO,NORBTT)
       CALL GETMEM('FLT','FREE','REAL',LWFLT,NTOT1)
-*
-*     Transform kinetic energy matrix
-*
+!
+!     Transform kinetic energy matrix
+!
       CALL GETMEM('KAO','ALLO','REAL',LWKAO,NTOT1)
       CALL GETMEM('KMO','ALLO','REAL',LWKMO,NORBTT)
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
@@ -146,23 +146,23 @@
       CALL GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)
       CALL GETMEM('KMO','FREE','REAL',LWKMO,NORBTT)
       CALL GETMEM('KAO','FREE','REAL',LWKAO,NTOT1)
-*
-*     Copy overlap matrix to luonem
-*
+!
+!     Copy overlap matrix to luonem
+!
       CALL GETMEM('OVP','ALLO','REAL',LWOVP,NTOT1)
       CALL DCOPY_(NTOT1,OVLP,1,WORK(LWOVP),1)
       TCONEMO(4)=IDISK
       CALL dDAFILE(LUONEMO,1,WORK(LWOVP),NORBTT,IDISK)
       CALL GETMEM('OVP','FREE','REAL',LWOVP,NTOT1)
-*
-*     Create CIDATA and molecular orbital sections on LUONEM
-*
+!
+!     Create CIDATA and molecular orbital sections on LUONEM
+!
       TCONEMO(5)=IDISK
       IDISK=0
-      CALL WR_MOTRA_Info(LUONEMO,1,iDisk,
-     &                   TCONEMO,64,ECOR,NSYM,
+      CALL WR_MOTRA_Info(LUONEMO,1,iDisk,                               &
+     &                   TCONEMO,64,ECOR,NSYM,                          &
      &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
       CALL DACLOS(LUONEMO)
-*
+!
       RETURN
       END
