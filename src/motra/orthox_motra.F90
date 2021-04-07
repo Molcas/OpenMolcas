@@ -11,11 +11,17 @@
 
 subroutine ORTHOX_MOTRA(S,C,NORB,NBAS)
 
-implicit real*8(A-H,O-Z)
-dimension C(NBAS,NORB), S(NORB,NORB)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NORB, NBAS
+real(kind=wp), intent(inout) :: S(NORB, NORB), C(NBAS,NORB)
+integer(kind=iwp) :: IBAS, IORB, JORB, KORB
+real(kind=wp) :: A, F
 
 do IORB=1,NORB
-  F = 1.0/sqrt(S(IORB,IORB))
+  F = One/sqrt(S(IORB,IORB))
   do IBAS=1,NBAS
     C(IBAS,IORB) = F*C(IBAS,IORB)
   end do

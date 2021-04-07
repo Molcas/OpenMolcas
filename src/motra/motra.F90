@@ -22,17 +22,23 @@ subroutine Motra(ireturn)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-!> module dependencies
 #ifdef _HDF5_QCM_
 use hdf5_utils
 #endif
+use Constants, only: Zero
+use Definitions, only: iwp, wp, u6
 
+implicit none
+integer(kind=iwp), intent(out) :: ireturn
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
 #include "cho_minp.fh"
 #include "chotraw.fh"
-logical DoCholesky, Do_int
+integer(kind=iwp) :: ipCMO, ipHOne, ipKine, ipOvlp, irc
+real(kind=wp) :: tcpu_reo, TCR1, TCR2, TWR1, TWR2
+logical(kind=iwp) :: DoCholesky, Do_int
+integer(kind=iwp), external :: iPrintLevel
 
 !----------------------------------------------------------------------*
 ! ( Dynamic work area has been allocated in Start() )                  *
@@ -61,21 +67,21 @@ call DecideOnCholesky(DoCholesky)
 ! Use of MOTRA only for AO-->MO transf of the Cholesky vectors
 if (iCTonly == 1) then
   if (.not. DoCholesky) then
-    write(6,*) '      Warning! This is not RI/CD calculation: '
-    write(6,*) '                      keyword CTonly ignored! '
+    write(u6,*) '      Warning! This is not RI/CD calculation: '
+    write(u6,*) '                      keyword CTonly ignored! '
   else
 #   ifdef _HDF5_QCM_
     if ((ihdf5 == 1) .and. (tv2disk /= 'KPQ')) then
-      write(6,*) ' Transformed Cholesky vectors cannot be  written as (pq,K) in HDF5 file as of now. Activate the KPQ option to ' &
-                 //'store them or disable the HDF5 option.'
+      write(u6,*) ' Transformed Cholesky vectors cannot be  written as (pq,K) in HDF5 file as of now. Activate the KPQ option to ' &
+                  //'store them or disable the HDF5 option.'
       call Abend()
     end if
 #   endif
-    write(6,*)
-    write(6,*) '      ... Skipping MoTRA of ERIs ...'
-    write(6,*)
-    write(6,*) '      ... but Cholesky vectors will be MoTRA.'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) '      ... Skipping MoTRA of ERIs ...'
+    write(u6,*)
+    write(u6,*) '      ... but Cholesky vectors will be MoTRA.'
+    write(u6,*)
     ! Cholesky vectors in HDF5 must be stored as KPQ format (for now)
     Do_int = .false.
     if (iDoInt == 1) Do_int = .true.
@@ -88,24 +94,24 @@ end if
 ! Preliminary step for integral transformation with CD
 if (DoCholesky) then
   call CWTIME(TCR1,TWR1)
-  call Cho_X_init(irc,0.0)
+  call Cho_X_init(irc,Zero)
   if (irc /= 0) then
-    write(6,*) ' In MoTRA : Cho_X_Init returned non-zero rc = ',irc
+    write(u6,*) ' In MoTRA : Cho_X_Init returned non-zero rc = ',irc
     call Abend()
   end if
   call Cho_X_ReoVec(irc) ! get (if not there) CD vecs full stor
   if (irc /= 0) then
-    write(6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero rc = ',irc
+    write(u6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero rc = ',irc
     call Abend()
   end if
   call Cho_X_final(irc)
   call CWTIME(TCR2,TWR2)
   tcpu_reo = (TCR2-TCR1)
-  write(6,*)
-  write(6,*) '      Reordering Cholesky vectors to full storage.'
-  write(6,*) '       Elapsed time for the reordering : ',tcpu_reo
-  write(6,*) '       CPU time for the reordering     : ',tcpu_reo
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '      Reordering Cholesky vectors to full storage.'
+  write(u6,*) '       Elapsed time for the reordering : ',tcpu_reo
+  write(u6,*) '       CPU time for the reordering     : ',tcpu_reo
+  write(u6,*)
 end if
 
 !----------------------------------------------------------------------*
@@ -122,7 +128,7 @@ call Tr2Ctl(Work(ipCMO))
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*
 900 continue
-write(6,*)
+write(u6,*)
 call GetMem('CMO','Free','Real',ipCMO,nTot2)
 call GetMem('Kine','Free','Real',ipKine,nTot1+4)
 call GetMem('HOne','Free','Real',ipHOne,nTot1+4)

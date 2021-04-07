@@ -11,13 +11,21 @@
 
 subroutine FCIN(FLT,nFLT,DLT,FSQ,DSQ,EMY,CMO)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nFLT
+! TODO: fix intent of these arrays after removing "ip_of_Work"
+real(kind=wp), intent(inout) :: FLT(nFLT), DLT(*), FSQ(*), DSQ(*)
+real(kind=wp), intent(in) :: CMO(*)
+real(kind=wp), intent(out) :: EMY
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
-real*8 CMO(*)
-dimension DLT(*), FLT(nFLT), DSQ(*), FSQ(*)
-logical DoCholesky
+integer(kind=iwp) :: ipTemp, ISTLTT, ISYM, LBUF, LW1, LW2, n_Bas, NB, NPQ, NTFRO
+real(kind=wp) :: EONE, ETWO
+logical(kind=iwp) :: DoCholesky
 
 ! Construct the one-electron density matrix for frozen space
 
@@ -25,13 +33,13 @@ call DONEI(DLT,DSQ,CMO)
 
 ! Compute the one-electron energy contribution to EMY
 
-EONE = 0.0d0
+EONE = Zero
 do NPQ=1,NTOT1
   EONE = EONE+DLT(NPQ)*FLT(NPQ)
 end do
 EMY = EONE
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',EONE
+  write(u6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',EONE
 end if
 
 ! Quit here if there are no frozen orbitals
@@ -54,17 +62,17 @@ call FZero(Work(ipTemp),nFlt)
 call DecideOnCholesky(DoCholesky)
 
 if (DoCholesky) then
-  call Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,FLT,nFLT,FSQ,1.0d0)
+  call Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,FLT,nFLT,FSQ,One)
 
   ! Print the Fock-matrix
 
   if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-    write(6,'(6X,A)') 'Fock matrix in AO basis'
+    write(u6,'(6X,A)') 'Fock matrix in AO basis'
     ISTLTT = ipTemp
     do ISYM=1,NSYM
       NB = NBAS(ISYM)
       if (NB > 0) then
-        write(6,'(6X,A,I2)') 'symmetry species:',ISYM
+        write(u6,'(6X,A,I2)') 'symmetry species:',ISYM
         call TRIPRT(' ',' ',WORK(ISTLTT),NB)
         ISTLTT = ISTLTT+NB*(NB+1)/2
       end if
@@ -86,7 +94,7 @@ call GETMEM('FCIN1','FREE','REAL',LW1,LBUF)
 call GETMEM('FCIN2','FREE','REAL',LW2,n_Bas**2)
 
 99 continue
-call DaXpY_(nFlt,1.0D+0,Work(ipTemp),1,Flt,1)
+call DaXpY_(nFlt,One,Work(ipTemp),1,Flt,1)
 call Free_Work(ipTemp)
 
 ! Add the two-electron contribution to EMY
@@ -94,9 +102,9 @@ ETWO = -EONE
 do NPQ=1,NTOT1
   ETWO = ETWO+DLT(NPQ)*FLT(NPQ)
 end do
-EMY = EONE+0.5d0*ETWO
+EMY = EONE+Half*ETWO
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ETWO
+  write(u6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ETWO
 end if
 
 ! Exit

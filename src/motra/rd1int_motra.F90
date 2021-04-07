@@ -21,14 +21,19 @@ subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine
 #include "files_motra.fh"
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
-
-character*8 OneLbl
-logical Found
+integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, lTemp, nDim, nTemp
+real(kind=wp) :: ERFself
+character(len=8) :: OneLbl
+logical(kind=iwp) :: Found
 
 !----------------------------------------------------------------------*
 ! Read one-electron integral file header etc.                          *
@@ -139,7 +144,7 @@ if (iRFpert /= 0) then
   call Get_dArray('Reaction field',Work(lTemp),nTemp)
   if (Found) call NameRun('RUNFILE')
   PotNuc = PotNuc+ERFself
-  call Daxpy_(nTemp,1.0d0,Work(lTemp),1,Work(ipHone),1)
+  call Daxpy_(nTemp,One,Work(lTemp),1,Work(ipHone),1)
   call GetMem('RFFLD','Free','Real',lTemp,nTemp)
 end if
 !----------------------------------------------------------------------*
@@ -149,8 +154,8 @@ return
 !----------------------------------------------------------------------*
 ! Error Exit                                                           *
 !----------------------------------------------------------------------*
-991 write(6,*) 'Rd1Int: Error reading from ONEINT'
-write(6,*) 'OneLbl=',OneLbl
+991 write(u6,*) 'Rd1Int: Error reading from ONEINT'
+write(u6,*) 'OneLbl=',OneLbl
 call Abend()
 
 end subroutine Rd1Int_Motra

@@ -11,6 +11,7 @@
 
 subroutine init_motra()
 
+implicit none
 #include "motra_global.fh"
 #include "files_motra.fh"
 

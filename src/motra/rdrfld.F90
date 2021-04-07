@@ -11,13 +11,19 @@
 
 subroutine RdRfld(ipHOne)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ipHOne
 #include "files_motra.fh"
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-logical Found
+integer(kind=iwp) :: iSym, lTemp, nTemp
+real(kind=wp) :: ERFself
+logical(kind=iwp) :: Found
 
 !----------------------------------------------------------------------*
 ! If this is a perturbative reaction field calculation then            *
@@ -35,7 +41,7 @@ call get_dscalar('RF Self Energy',ERFself)
 PotNuc = PotNuc+ERFself
 call get_darray('Reaction field',Work(lTemp),nTemp)
 if (Found) call NameRun('RUNFILE')
-call Daxpy_(nTemp,1.0d0,Work(lTemp),1,Work(ipHone),1)
+call Daxpy_(nTemp,One,Work(lTemp),1,Work(ipHone),1)
 call GetMem('RFFLD','Free','Real',lTemp,nTemp)
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *

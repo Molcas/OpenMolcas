@@ -15,23 +15,28 @@ subroutine TRAMO(LBUF,OUTBUF,nOUTBUF,X1,nX1,X2,nX2,X3,nX3,VXPQ,nVXPQ,CMO,iDsk,mO
 !          integrals fit. Otherwise sorted integrals
 !          are written onto unit LUHALF.
 
-!> module dependencies
 #ifdef _HDF5_QCM_
 use hdf5_utils
 #endif
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp), intent(in) :: LBUF, nOUTBUF, nX1, nX2, nX3, nVXPQ, mOVX
+real(kind=wp), intent(inout) :: OUTBUF(nOUTBUF), X1(nX1), VXPQ(nVXPQ)
+real(kind=wp), intent(out) :: X2(nX2), X3(nX3)
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(out) :: iDsk(3,mOVX)
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
 #include "SysDef.fh"
-real*8 OUTBUF(nOUTBUF), X1(nX1), X2(nX2), X3(nX3), VXPQ(nVXPQ)
-real*8 CMO(*)
-integer iDsk(3,mOVX)
+integer(kind=iwp) :: I, IAD14, IAD14_, inBuf, IOPT, IOUT, IPQ, IPQMAX, IPQST, IPQUT, IPQX, IRC, IRSST, IST, ISTMOT, IVX, IX1, IX2, &
+                     KBUF1, LOQ, LPKREC, LPQ, LVXPQ, NBYTES, NP, NPQ, NQ, NQM, NT, NTUVX, NUMAX, NV, NX, NXM
 #ifdef _HDF5_QCM_
-integer, save :: total_number_2ints = 0
-real*8, allocatable :: tmpbuf(:)
-integer :: iout_total
+integer(kind=iwp) :: iout_total
+integer(kind=iwp), save :: total_number_2ints = 0
+real(kind=wp), allocatable :: tmpbuf(:)
 #endif
 
 ! Set some constants
@@ -45,7 +50,7 @@ if (ihdf5 == 1) then
   !allocate(tmpbuf(nx1))
   ! Stefan's dirty hack to increase the # of BF working in MOTRA with HDF5
   allocate(tmpbuf(((nop+1)*(noq+1)*(nor+1)*(nos+1)))); tmpbuf = 0
-  write(6,*) 'size of tmpbuf:',((nop+1)*(noq+1)*(nor+1)*(nos+1))
+  write(u6,*) 'size of tmpbuf:',((nop+1)*(noq+1)*(nor+1)*(nos+1))
   iout_total = 0
 end if
 #endif
@@ -62,13 +67,13 @@ if (NBPQ*NOVX > nVXPQ) then
   IPQMAX = (nVXPQ-IPQMAX)/NOVX
   IPQMAX = (nVXPQ-IPQMAX)/NOVX
   IPQMAX = (nVXPQ-IPQMAX)/NOVX
-  write(6,'(6X,A)') 'OUT OF CORE TRANSFORMATION'
+  write(u6,'(6X,A)') 'OUT OF CORE TRANSFORMATION'
   call DANAME_MF(LUHALF,FNHALF)
 end if
 
 ! Start loop over sorted AO-integrals: npq pq-pairs in each buffer
 
-if (IPRINT >= 20) write(6,*) 'TRAMO 001'
+if (IPRINT >= 20) write(u6,*) 'TRAMO 001'
 IRC = 0
 IOPT = 1
 IPQ = 0
@@ -99,14 +104,14 @@ do NP=1,NBP
     if (ISR == ISS) then
       call SQUARE(X1(IRSST),X2,1,NBS,NBS)
       if (IPRINT >= 30) then
-        write(6,'(6X,A,2I4)') 'AO Integrals for the pair',NP,NQ
+        write(u6,'(6X,A,2I4)') 'AO Integrals for the pair',NP,NQ
         call SQPRT(X2,NBR)
       end if
-      if (NBR*NBS*NOS > 0) call DGEMM_('T','N',NBR,NOS,NBS,1.0d0,X2,NBS,CMO(LMOS),NBS,0.0d0,X3,NBR)
+      if (NBR*NBS*NOS > 0) call DGEMM_('T','N',NBR,NOS,NBS,One,X2,NBS,CMO(LMOS),NBS,Zero,X3,NBR)
       call MXMT(X3,NBR,1,CMO(LMOR),1,NBR,X2,NOR,NBR)
     else
-      if (NBR*NBS*NOS > 0) call DGEMM_('T','N',NBR,NOS,NBS,1.0d0,X1(IRSST),NBS,CMO(LMOS),NBS,0.0d0,X3,NBR)
-      if (NOS*NBR*NOR > 0) call DGEMM_('T','N',NOS,NOR,NBR,1.0d0,X3,NBR,CMO(LMOR),NBR,0.0d0,X2,NOS)
+      if (NBR*NBS*NOS > 0) call DGEMM_('T','N',NBR,NOS,NBS,One,X1(IRSST),NBS,CMO(LMOS),NBS,Zero,X3,NBR)
+      if (NOS*NBR*NOR > 0) call DGEMM_('T','N',NOS,NOR,NBR,One,X3,NBR,CMO(LMOR),NBR,Zero,X2,NOS)
     end if
 
     ! Sort the matrix X2 into VXPQ (sort after PQ instead of VX)
@@ -139,10 +144,10 @@ do NP=1,NBP
 end do   !  NP
 
 LVXPQ = NBPQ*NOVX
-if (IPRINT >= 20) write(6,*) 'TRAMO 002'
+if (IPRINT >= 20) write(u6,*) 'TRAMO 002'
 if (IPRINT >= 30) then
-  write(6,'(A,I6)') ' HALF TRANSFORMED INTEGRALS:',LVXPQ
-  write(6,'(1X,10F11.6)') (VXPQ(I),I=1,LVXPQ)
+  write(u6,'(A,I6)') ' HALF TRANSFORMED INTEGRALS:',LVXPQ
+  write(u6,'(1X,10F11.6)') (VXPQ(I),I=1,LVXPQ)
 end if
 
 ! Empty last buffers
@@ -165,12 +170,12 @@ if (INCORE == 1) then
   IAD14 = 0
 end if
 
-! First half transformation is now done.VXPQ contains half trans-
+! First half transformation is now done. VXPQ contains half trans-
 ! formed integrals for this symmetry block, if INCORE=0
 ! otherwise integrals or one VX pair at a time will be read
 ! from unit LUHALF.
 
-if (IPRINT >= 20) write(6,*) 'TRAMO 004'
+if (IPRINT >= 20) write(u6,*) 'TRAMO 004'
 IVX = 0
 do NV=1,NOR
   NXM = NV
@@ -202,20 +207,20 @@ do NV=1,NOR
     if (ISP /= ISR) then
       if (ISP == ISQ) then
         call SQUARE(VXPQ(IPQST),X2,1,NBQ,NBQ)
-        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ),NBQ,0.0d0,X1,NBP)
+        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,X2,NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
         call MXMT(X1,NBP,1,CMO(LMOP),1,NBP,X2,NOP,NBP)
         IX2 = (NOP+NOP**2)/2
       else
-        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,1.0d0,VXPQ(IPQST),NBQ,CMO(LMOQ),NBQ,0.0d0,X1,NBP)
-        if (NOQ*NBP*NOP > 0) call DGEMM_('T','N',NOQ,NOP,NBP,1.0d0,X1,NBP,CMO(LMOP),NBP,0.0d0,X2,NOQ)
+        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,VXPQ(IPQST),NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
+        if (NOQ*NBP*NOP > 0) call DGEMM_('T','N',NOQ,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOQ)
         IX2 = NOP*NOQ
       end if
     else
       if (ISP == ISQ) then
         call SQUARE(VXPQ(IPQST),X2,1,NBP,NBP)
-        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,1.0d0,X2,NBQ,CMO(LMOQ),NBQ,0.0d0,X1,NBP)
+        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,X2,NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
       else
-        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,1.0d0,VXPQ(IPQST),NBQ,CMO(LMOQ),NBQ,0.0d0,X1,NBP)
+        if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,VXPQ(IPQST),NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
       end if
 
       ! X1 now contains the matrix (pu/vx) for all p and all u
@@ -234,9 +239,9 @@ do NV=1,NOR
         if (NT == NV) IX1 = 1+NBP*(NX-1)
         if (LOQ > 0) then
           if (NBP == 0) then
-            call DCOPY_(LOQ,[0.0d0],0,X2(IX2),1)
+            call DCOPY_(LOQ,[Zero],0,X2(IX2),1)
           else
-            call DGEMM_('T','N',LOQ,1,NBP,1.0d0,X1(IX1),NBP,CMO(ISTMOT),NBP,0.0d0,X2(IX2),LOQ)
+            call DGEMM_('T','N',LOQ,1,NBP,One,X1(IX1),NBP,CMO(ISTMOT),NBP,Zero,X2(IX2),LOQ)
           end if
         end if
         IX2 = IX2+LOQ
@@ -251,12 +256,12 @@ do NV=1,NOR
       if (IOUT == KBUF) then
         IOUT = 0
         if (IPRINT >= 5) then
-          write(6,'(A)') 'SAVE TRANSFORMED INTEGRALS:'
-          write(6,'(A,3I8)') 'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
+          write(u6,'(A)') 'SAVE TRANSFORMED INTEGRALS:'
+          write(u6,'(A,3I8)') 'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
         end if
         call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),KBUF,IAD13)
 #       ifdef _HDF5_QCM_
-        !write(6,*) 'SAVE TRANSFORMED INTEGRALS:',KBUF,KBUF1,iout_total,iout_total+kbuf
+        !write(u6,*) 'SAVE TRANSFORMED INTEGRALS:',KBUF,KBUF1,iout_total,iout_total+kbuf
         if (ihdf5 == 1) then
           call dcopy_(KBUF,OUTBUF(KBUF1),1,tmpbuf(iout_total+1),1)
           iout_total = iout_total+kbuf
@@ -274,13 +279,13 @@ end do
 ! Empty last buffer (which is never empty)
 
 if (IPRINT >= 5) then
-  write(6,'(A)') 'SAVE TRANSFORMED INTEGRALS:'
-  write(6,'(A,3I8)') 'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
+  write(u6,'(A)') 'SAVE TRANSFORMED INTEGRALS:'
+  write(u6,'(A,3I8)') 'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
 end if
 call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),KBUF,IAD13)
 if (IPRINT >= 10) then
-  write(6,'(1X,A,4I2,A,I4)') 'TRANSFORMED INTEGRALS FOR SYMMETRY BLOCK',ISP,ISQ,ISR,ISS,' IOUT=',IOUT
-  write(6,'(1X,10F12.6)') (OUTBUF(I+KBUF1-1),I=1,IOUT)
+  write(u6,'(1X,A,4I2,A,I4)') 'TRANSFORMED INTEGRALS FOR SYMMETRY BLOCK',ISP,ISQ,ISR,ISS,' IOUT=',IOUT
+  write(u6,'(1X,10F12.6)') (OUTBUF(I+KBUF1-1),I=1,IOUT)
 end if
 
 #ifdef _HDF5_QCM_
@@ -298,8 +303,8 @@ if (ihdf5 == 1) then
 
   if (IPRINT >= 5) then
     total_number_2ints = total_number_2ints+iout_total
-    write(6,'(1X,a,i10)') ' total number of integrals (sym)  ...',iout_total
-    write(6,'(1X,a,i10)') ' total number of integrals so far ...',total_number_2ints
+    write(u6,'(1X,a,i10)') ' total number of integrals (sym)  ...',iout_total
+    write(u6,'(1X,a,i10)') ' total number of integrals so far ...',total_number_2ints
   end if
 
   deallocate(tmpbuf)

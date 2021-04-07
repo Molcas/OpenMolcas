@@ -17,14 +17,19 @@ subroutine TR2CTL(CMO)
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), intent(in) :: CMO(*)
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
 #include "WrkSpc.fh"
-real*8 CMO(*)
-dimension NBSX(8), KEEP(8), ISTSQ(8)
-logical FoundTwoEls, DoDirect, DoCholesky, ISQUAR
+integer(kind=iwp) :: I, IBATCH, INTBUF, ipiDsk, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, LW1, LW2, &
+                     LW3, LW4, LW5, NB1, NB2, NBSX(8), NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, &
+                     NW4
+real(kind=wp) :: CPE, CPT, TIOE, TIOT
+logical(kind=iwp) :: FoundTwoEls, DoDirect, DoCholesky, ISQUAR
 
 ! Set time at start of transformation
 
@@ -48,18 +53,18 @@ call GETORD(IRC,ISQUAR,NSYM2,NBSX,KEEP)
 ! Compare content of 1el and 2el integral file
 
 if (NSYM2 /= NSYM) then
-  write(6,*) 'Tr2Ctl: NSYM2.NE.NSYM'
-  write(6,*) 'NSYM2=',NSYM2
-  write(6,*) 'NSYM=',NSYM
+  write(u6,*) 'Tr2Ctl: NSYM2 /= NSYM'
+  write(u6,*) 'NSYM2=',NSYM2
+  write(u6,*) 'NSYM=',NSYM
   call Abend()
 end if
 do ISYM=1,NSYM
   NB1 = NBAS(ISYM)
   NB2 = NBSX(ISYM)
   if (NB1 /= NB2) then
-    write(6,*) 'Tr2Ctl: NB1.NE.NB2'
-    write(6,*) 'NB1=',NB1
-    write(6,*) 'NB2=',NB2
+    write(u6,*) 'Tr2Ctl: NB1 /= NB2'
+    write(u6,*) 'NB1=',NB1
+    write(u6,*) 'NB2=',NB2
     call Abend()
   end if
 end do
@@ -76,7 +81,7 @@ end do
 ! Note that the integrals on LUTWOAO have to be sorted in the
 ! same order as the loop structure below.
 
-if (iPrint >= 0) write(6,2000)
+if (iPrint >= 0) write(u6,2000)
 2000 format(/7X,'SYMMETRY',2X,'BASIS FUNCTIONS',6X,' ORBITALS',6X,'INTEGRALS   CPU(SEC)  I/O(SEC)')
 IBATCH = 0
 do NSP=1,NSYM
@@ -117,9 +122,9 @@ do NSP=1,NSYM
         NORBP = NOP*NOQ*NOR*NOS
         if (NORBP == 0) goto 101
         if (KEEPT /= 0) then
-          write(6,*) 'Tr2Ctl: NORBP /= 0 .AND. KEEPT /= 0'
-          write(6,*) 'NORBP=',NORBP
-          write(6,*) 'KEEPT=',KEEPT
+          write(u6,*) 'Tr2Ctl: NORBP /= 0 .AND. KEEPT /= 0'
+          write(u6,*) 'NORBP=',NORBP
+          write(u6,*) 'KEEPT=',KEEPT
           call Abend()
         end if
 
@@ -161,9 +166,9 @@ do NSP=1,NSYM
         call GETMEM('VXPQ','ALLO','REAL',LW5,MEMX)
 
         if (MEMX < NOVX) then
-          write(6,*) 'Tr2Ctl: MEMX.LT.NOVX'
-          write(6,*) 'MEMX=',MEMX
-          write(6,*) 'NOVX=',NOVX
+          write(u6,*) 'Tr2Ctl: MEMX < NOVX'
+          write(u6,*) 'MEMX=',MEMX
+          write(u6,*) 'NOVX=',NOVX
           call Abend()
         end if
 
@@ -173,9 +178,9 @@ do NSP=1,NSYM
         ! NW2 is size of 'X1' in TRAMO, used as LBUF in call to RDORD and RDORD_.
         call TRAMO(NW2,WORK(LW1),nW1,WORK(LW2),nW2,WORK(LW3),nW3,WORK(LW4),nW4,WORK(LW5),MEMX,CMO,iWork(ipiDsk),nOVX)
         call TIMING(CPT,CPE,TIOT,TIOE)
-        if (iPrint >= 0) write(6,2100) ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,LTUVX,CPE,TIOE
+        if (iPrint >= 0) write(u6,2100) ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,LTUVX,CPE,TIOE
 2100    format(7X,4I2,1X,4I4,2X,4I4,3X,I9,F11.2,F10.2)
-        call Xflush(6)
+        call Xflush(u6)
 
         ! Deallocate work space
 
@@ -194,7 +199,7 @@ do NSP=1,NSYM
   end do
 end do
 call TIMING(CPT,CPE,TIOT,TIOE)
-if (iPrint >= 0) write(6,2200) CPT,TIOT
+if (iPrint >= 0) write(u6,2200) CPT,TIOT
 2200 format(/6X,' TOTAL CPU TIME(SEC)',F8.2,'TOTAL I/O TIME(SEC)',F8.2)
 
 ! Close LUTWOAO
@@ -208,8 +213,8 @@ end if
 IAD13 = 0
 call iDAFILE(LUTWOMO,1,iTraToc,nTraToc,IAD13)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A)') 'DISK ADRESSES FOR SYMMETRY BLOCKS OF TRANSFORMED TWO-ELECTRON INTEGRALS'
-  write(6,'(6X,10I8)') (iTraToc(I),I=1,nTraToc)
+  write(u6,'(6X,A)') 'DISK ADRESSES FOR SYMMETRY BLOCKS OF TRANSFORMED TWO-ELECTRON INTEGRALS'
+  write(u6,'(6X,10I8)') (iTraToc(I),I=1,nTraToc)
 end if
 
 call DACLOS(LUTWOMO)

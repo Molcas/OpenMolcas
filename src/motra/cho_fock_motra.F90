@@ -11,35 +11,35 @@
 
 subroutine Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,FLT,nFLT,FSQ,ExFac)
 
-implicit real*8(a-h,o-z)
-integer nSym, nBas(nSym), nFro(nSym)
-real*8 DLT(*), DSQ(*), FLT(nFLT), FSQ(*)
-real*8 ExFac
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nFLT
+! TODO: fix intent of these arrays after removing "ip_of_Work"
+real(kind=wp), intent(inout) :: DLT(*), DSQ(*), FLT(nFLT), FSQ(*)
+real(kind=wp), intent(in) :: ExFac
 #include "WrkSpc.fh"
-
-integer ip_of_Work
-external ip_of_Work
-
-integer NScreen
-real*8 dmpk, dFKmat
-integer nDen, nXorb(8)
+integer(kind=iwp) :: i, ipd, ipDLT, ipDSQ, ipFLT, ipFSQ, ipMOs, ipV, irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
+real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
+integer(kind=iwp), external :: ip_of_Work
 
 !****************************************************************
 ! CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
 !****************************************************************
 
 NScreen = 10
-dmpK = 1.0d-1
-dFKmat = 0.0d0
+dmpK = 0.1_wp
+dFKmat = Zero
 nDen = 1
 call IZero(nXorb,nSym)
 
 ! Initialize Cholesky information
 
-ChFracMem = 0.0d0
+ChFracMem = Zero
 call CHO_X_INIT(irc,ChFracMem)
 if (irc /= 0) then
-  write(6,*) 'Cho_Fock_Motra: Cho_X_Init returns error code ',irc
+  write(u6,*) 'Cho_Fock_Motra: Cho_X_Init returns error code ',irc
   call AbEnd()
 end if
 
@@ -55,22 +55,22 @@ ipd = ipDSQ
 ipV = ipMOs
 do i=1,nSym
   if (nBas(i) > 0) then
-    Ymax = 0.0d0
+    Ymax = Zero
     do ja=1,nBas(i)
       jaa = ipd-1+nBas(i)*(ja-1)+ja
       Ymax = max(Ymax,Work(jaa))
     end do
-    Thr = 1.0d-8*Ymax
+    Thr = 1.0e-8_wp*Ymax
     call CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),NumV,Thr,irc)
     if (irc /= 0) then
-      write(6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
+      write(u6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
       call AbEnd()
     end if
 
     if (NumV /= nFro(i)) then
-      write(6,'(a,i6,a,i6,a,i6,a,i6,a,i6)') 'Warning! Cho_Fock_Motra: nr of Frozen orbitals from the decomposition of the density '&
-                                            //'matrix is ',numV,' in symm. ',i,'; Expected value = ',nFro(i), &
-                                            '; Max diagonal of the density in symm. ',i,' is equal to ',Ymax
+      write(u6,'(a,i6,a,i6,a,i6,a,i6,a,i6)') 'Warning! Cho_Fock_Motra: nr of Frozen orbitals from the decomposition of the '// &
+                                             'density matrix is ',numV,' in symm. ',i,'; Expected value = ',nFro(i), &
+                                             '; Max diagonal of the density in symm. ',i,' is equal to ',Ymax
     end if
 
   end if
@@ -83,9 +83,9 @@ ipDLT = ip_of_Work(DLT(1))
 ipFLT = ip_of_Work(FLT(1))
 ipFSQ = ip_of_Work(FSQ(1))  ! not needed on exit
 
-call CHO_LK_SCF(irc,nDen,[ipFLT],[ipFSQ],nXorb,nFro,[ipMOs],[ipDLT],0.5d0*ExFac,NScreen,dmpk,dFKmat)
+call CHO_LK_SCF(irc,nDen,[ipFLT],[ipFSQ],nXorb,nFro,[ipMOs],[ipDLT],Half*ExFac,NScreen,dmpk,dFKmat)
 if (irc /= 0) then
-  write(6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
+  write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
   call AbEnd()
 end if
 
@@ -97,8 +97,8 @@ call GETMEM('choMOs','free','real',ipMOs,MOdim)
 
 call CHO_X_FINAL(irc)
 if (irc /= 0) then
-  write(6,*) 'Cho_Fock_Motra: Cho_X_Final returns error code ',irc
-  write(6,*) 'Try recovery -- continue.'
+  write(u6,*) 'Cho_Fock_Motra: Cho_X_Final returns error code ',irc
+  write(u6,*) 'Try recovery -- continue.'
 end if
 
 return

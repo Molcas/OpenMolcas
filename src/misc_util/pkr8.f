@@ -14,7 +14,7 @@
       Subroutine PKR8(iOpt,nData,nByte,InBuf,OutBuf)
 ************************************************************************
 *                                                                      *
-*     purpose: pack the incoming buffer of double prcision floating    *
+*     purpose: pack the incoming buffer of double precision floating   *
 *              point number into the outgoing buffer.                  *
 *                                                                      *
 *    Calling parameters:                                               *

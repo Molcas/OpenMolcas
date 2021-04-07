@@ -226,7 +226,7 @@ call mma_deallocate(Buffer)
 
 if (S%iAngMx < 0) then
   write(u6,*) ' There is an error somewhere in the input!'
-  write(u6,*) 'S%iAngMx.lt.'
+  write(u6,*) 'S%iAngMx < 0'
   iErr = 1
   return
 end if

@@ -20,24 +20,25 @@ subroutine RdCmo_motra(CMO,Ovlp)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6, itoB
+
+implicit none
+real(kind=wp), intent(out) :: CMO(*)
+real(kind=wp), intent(in) :: Ovlp(*)
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
-#include "SysDef.fh"
-real*8 CMO(*), Ovlp(*)
-logical okay
-integer itemp2((LENIN8*MxOrb)/ItoB)
-character ctemp2(LENIN8*MxOrb)
-real*8 temp2(MxRoot)
-dimension Dummy(1), iDummy(1)
+integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, itemp2((LENIN8*MxOrb)/ItoB)
+real(kind=wp) :: Dummy(1), temp2(MxRoot)
+character :: ctemp2(LENIN8*MxOrb)
+logical(kind=iwp) :: okay
 
 !----------------------------------------------------------------------*
 ! Read MO coefficients from input                                      *
 !----------------------------------------------------------------------*
 if (iVecTyp == 1) then
-  write(6,*) 'RdCmo_motra: iVecTyp.eq.1'
-  write(6,*) 'This error means someone has put a bug into MOTRA!'
+  write(u6,*) 'RdCmo_motra: iVecTyp == 1'
+  write(u6,*) 'This error means someone has put a bug into MOTRA!'
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -48,7 +49,7 @@ if (iVecTyp == 2) then
   if (okay) then
     call RdVec(FnInpOrb,LuInpOrb,'C',nSym,nBas,nBas,Cmo,Dummy,Dummy,iDummy,VecTit,0,iErr)
   else
-    write(6,*) 'RdCMO_motra: Error finding MO file'
+    write(u6,*) 'RdCMO_motra: Error finding MO file'
     call Abend()
   end if
 end if
@@ -71,7 +72,7 @@ if (iVecTyp == 3) then
     call DaClos(LuJobIph)
     VecTit = 'JOBIPH'
   else
-    write(6,*) 'RdCMO_motra: Error finding JOBIPH file'
+    write(u6,*) 'RdCMO_motra: Error finding JOBIPH file'
     call Abend()
   end if
 end if

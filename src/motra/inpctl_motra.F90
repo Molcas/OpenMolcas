@@ -19,7 +19,10 @@ subroutine InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine, ipCMO
 #include "motra_global.fh"
 #include "files_motra.fh"
 #include "trafo_motra.fh"

@@ -13,12 +13,16 @@ subroutine ORTHO_MOTRA(nSym,nBas,nDel,Ovlp,CMO)
 ! Objective: Orthonormalize input vectors
 !           (Gram-Schmidt orthogonaliztion)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nDel(nSym)
+real(kind=wp), intent(in) :: Ovlp(*)
+real(kind=wp), intent(inout) :: CMO(*)
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
-
-real*8 Ovlp(*), CMO(*)
-integer nBas(nSym), nDel(nSym)
+integer(kind=iwp) :: IJ, IM, ISYM, LW1, LW2, LW3, NORBI
 
 ! Allocate work space
 
@@ -35,9 +39,9 @@ do ISYM=1,NSYM
   if (NORBI > 0) then
     call SQUARE(OVLP(IJ),WORK(LW3),1,NBAS(ISYM),NBAS(ISYM))
     !call MXMA(WORK(LW3),1,NBAS(ISYM),CMO(IM),1,NBAS(ISYM),WORK(LW2),1,NBAS(ISYM),NBAS(ISYM),NBAS(ISYM),NORBI)
-    call DGEMM_('N','N',NBAS(ISYM),NORBI,NBAS(ISYM),1.0d0,WORK(LW3),NBAS(ISYM),CMO(IM),NBAS(ISYM),0.0d0,WORK(LW2),NBAS(ISYM))
+    call DGEMM_('N','N',NBAS(ISYM),NORBI,NBAS(ISYM),One,WORK(LW3),NBAS(ISYM),CMO(IM),NBAS(ISYM),Zero,WORK(LW2),NBAS(ISYM))
     !call MXMA(CMO(IM),NBAS(ISYM),1,WORK(LW2),1,NBAS(ISYM),WORK(LW1),1,NORBI,NORBI,NBAS(ISYM),NORBI)
-    call DGEMM_('T','N',NORBI,NORBI,NBAS(ISYM),1.0d0,CMO(IM),NBAS(ISYM),WORK(LW2),NBAS(ISYM),0.0d0,WORK(LW1),NORBI)
+    call DGEMM_('T','N',NORBI,NORBI,NBAS(ISYM),One,CMO(IM),NBAS(ISYM),WORK(LW2),NBAS(ISYM),Zero,WORK(LW1),NORBI)
     call ORTHOX_MOTRA(WORK(LW1),CMO(IM),NORBI,NBAS(ISYM))
   end if
   IJ = IJ+NBAS(ISYM)*(NBAS(ISYM)+1)/2

@@ -10,27 +10,28 @@
 !***********************************************************************
 
 subroutine TR1CTL(Ovlp,HOne,Kine,CMO)
-
 ! Objective: Control section for transformation of one-electron
 !            integrals (effective one electron Hamiltonian and
 !            kinetic energy )
 
-!> module dependencies
 #ifdef _HDF5_QCM_
 use hdf5_utils
 #endif
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
+implicit none
+real(kind=wp), intent(in) :: Ovlp(*), HOne(*), Kine(*), CMO(*)
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+integer(kind=iwp) :: IDISK, ISTLT, ISYM, LWDLT, LWDSQ, LWFLT, LWFMO, LWFSQ, LWKAO, LWKMO, LWOVP, LWTMP
+real(kind=wp) :: ECOR
 #ifdef _HDF5_QCM_
-real*8, allocatable :: writebuf(:,:)
+real(kind=wp), allocatable :: writebuf(:,:)
 #endif
-
-real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
 
 ! Initialize LUONEMO
 
@@ -38,7 +39,7 @@ call DANAME(LUONEMO,FNONEMO)
 IDISK = 0
 ! Provisionally initialize ECOR to prevent false alarms from
 ! automatic detection of uninitialized variables.
-ECOR = 0.0d0
+ECOR = Zero
 call WR_MOTRA_Info(LUONEMO,1,iDisk,TCONEMO,64,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
 
 ! Write Mo coefficients to disc
@@ -54,33 +55,33 @@ call GETMEM('DLT','ALLO','REAL',LWDLT,NTOT1)
 call GETMEM('FSQ','ALLO','REAL',LWFSQ,NTOT2)
 call GETMEM('DSQ','ALLO','REAL',LWDSQ,NTOT2)
 call DCOPY_(NTOT1,HONE,1,WORK(LWFLT),1)
-call DCOPY_(NTOT2,[0.0d0],0,WORK(LWFSQ),1)
-call DCOPY_(NTOT1,[0.0d0],0,WORK(LWDLT),1)
-call DCOPY_(NTOT2,[0.0d0],0,WORK(LWDSQ),1)
-ECOR = 0.0d0
+call DCOPY_(NTOT2,[Zero],0,WORK(LWFSQ),1)
+call DCOPY_(NTOT1,[Zero],0,WORK(LWDLT),1)
+call DCOPY_(NTOT2,[Zero],0,WORK(LWDSQ),1)
+ECOR = Zero
 call FCIN(WORK(LWFLT),NTOT1,WORK(LWDLT),WORK(LWFSQ),WORK(LWDSQ),ECOR,CMO)
 call GETMEM('DSQ','FREE','REAL',LWDSQ,NTOT2)
 call GETMEM('FSQ','FREE','REAL',LWFSQ,NTOT2)
 call GETMEM('DLT','FREE','REAL',LWDLT,NTOT1)
-!
+
 ECOR = POTNUC+ECOR
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A,E20.10)') 'TOTAL CORE ENERGY:',ECOR
+  write(u6,'(6X,A,E20.10)') 'TOTAL CORE ENERGY:',ECOR
 end if
 
 ! Transform one-electron Fock matrix
 
 call GETMEM('FMO','ALLO','REAL',LWFMO,NORBTT)
 call GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
-call DCOPY_(NORBTT,[0.0d0],0,WORK(LWFMO),1)
-call DCOPY_(2*N2MAX,[0.0d0],0,WORK(LWTMP),1)
+call DCOPY_(NORBTT,[Zero],0,WORK(LWFMO),1)
+call DCOPY_(2*N2MAX,[Zero],0,WORK(LWTMP),1)
 call TRAONE_MOTRA(WORK(LWFLT),WORK(LWFMO),WORK(LWTMP),CMO)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A)') 'Fock matrix in MO basis'
+  write(u6,'(6X,A)') 'Fock matrix in MO basis'
   ISTLT = 0
   do ISYM=1,NSYM
     if (NORB(ISYM) > 0) then
-      write(6,'(6X,A,I2)') ' symmetry species:',ISYM
+      write(u6,'(6X,A,I2)') ' symmetry species:',ISYM
       call TRIPRT(' ',' ',WORK(LWFMO+ISTLT),NORB(ISYM))
       ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
     end if
@@ -122,16 +123,16 @@ call GETMEM('FLT','FREE','REAL',LWFLT,NTOT1)
 call GETMEM('KAO','ALLO','REAL',LWKAO,NTOT1)
 call GETMEM('KMO','ALLO','REAL',LWKMO,NORBTT)
 call GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
-call DCOPY_(NORBTT,[0.0d0],0,WORK(LWKMO),1)
-call DCOPY_(2*N2MAX,[0.0d0],0,WORK(LWTMP),1)
+call DCOPY_(NORBTT,[Zero],0,WORK(LWKMO),1)
+call DCOPY_(2*N2MAX,[Zero],0,WORK(LWTMP),1)
 call DCOPY_(NTOT1,KINE,1,WORK(LWKAO),1)
 call TRAONE_MOTRA(WORK(LWKAO),WORK(LWKMO),WORK(LWTMP),CMO)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A)') 'Kinetic integrals in MO basis'
+  write(u6,'(6X,A)') 'Kinetic integrals in MO basis'
   ISTLT = 0
   do ISYM=1,NSYM
     if (NORB(ISYM) > 0) then
-      write(6,'(6X,A,I2)') ' symmetry species:',ISYM
+      write(u6,'(6X,A,I2)') ' symmetry species:',ISYM
       call TRIPRT(' ',' ',WORK(LWKMO+ISTLT),NORB(ISYM))
       ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
     end if

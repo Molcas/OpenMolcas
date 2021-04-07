@@ -18,11 +18,15 @@ subroutine TRAONE_MOTRA(PAO,PMO,TEMP,CMO)
 !
 ! Subroutine calls: none
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: PAO(*), CMO(*)
+real(kind=wp), intent(out) :: PMO(*), TEMP(*)
 #include "motra_global.fh"
 #include "WrkSpc.fh"
-real*8 CMO(*)
-dimension PAO(*), PMO(*), TEMP(*)
+integer(kind=iwp) :: IAO, ICMO, IMO, IOFF, ISYM
 
 ICMO = 1
 IAO = 1
@@ -32,8 +36,7 @@ do ISYM=1,NSYM
   IOFF = 1+NBAS(ISYM)*NBAS(ISYM)
   call SQUARE(PAO(IAO),TEMP(1),1,NBAS(ISYM),NBAS(ISYM))
   !call MXMA(CMO(ICMO),NBAS(ISYM),1,TEMP,1,NBAS(ISYM),TEMP(IOFF),1,NORB(ISYM),NORB(ISYM),NBAS(ISYM),NBAS(ISYM))
-  call DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),1.0d0,CMO(ICMO),NBAS(ISYM),TEMP,NBAS(ISYM),0.0d0,TEMP(IOFF), &
-              max(1,NORB(ISYM)))
+  call DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),One,CMO(ICMO),NBAS(ISYM),TEMP,NBAS(ISYM),Zero,TEMP(IOFF),max(1,NORB(ISYM)))
   call MXMT(TEMP(IOFF),1,NORB(ISYM),CMO(ICMO),1,NBAS(ISYM),PMO(IMO),NORB(ISYM),NBAS(ISYM))
   ICMO = ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))
   IAO = IAO+NBAS(ISYM)*(NBAS(ISYM)+1)/2

@@ -26,8 +26,8 @@ do i=1,nBas
     OCOF(i,j) = Work((i-1)*nPrim+j)
     iVec_p = iVec_p+1
     if (iVec_p > nVec_p) then
-      write(iStdOut,*) 'iVec_p.gt.nVec_p'
-      write(iStdOut,*) iVec_p,'.gt.',nVec_p
+      write(iStdOut,*) 'iVec_p > nVec_p'
+      write(iStdOut,*) iVec_p,' > ',nVec_p
       write(iStdOut,*) 'nPrim=',nPrim
       call Abend()
     end if

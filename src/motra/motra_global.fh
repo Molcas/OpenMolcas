@@ -58,6 +58,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer nTit
       Character*72 Title(mxTit)
       Common /Tit_MOTRA/ nTit,Title
 !

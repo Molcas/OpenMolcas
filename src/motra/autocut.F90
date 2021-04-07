@@ -21,9 +21,12 @@ subroutine AutoCut()
 !                                                                      *
 !**** M. Merchan, University of Valencia, Spain, 1991 ******************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp, u6
+
+implicit none
 #include "motra_global.fh"
 #include "trafo_motra.fh"
+integer(kind=iwp) :: iBas, iDel, ipBas, iSym
 
 !----------------------------------------------------------------------*
 ! Start procedure                                                      *
@@ -37,11 +40,11 @@ do iSym=1,nSym
   ipBas = ipBas+nBas(iSym)
   if (nDel(iSym) < iDel) nDel(iSym) = iDel
   if ((nDel(iSym)+nFro(iSym)) > nBas(iSym)) then
-    write(6,*) 'AutoCut:nDel(iSym)+nFro(iSym)).gt.nBas(iSym)'
-    write(6,*) 'iSym=',iSym
-    write(6,*) 'nDel(iSym)=',nDel(iSym)
-    write(6,*) 'nFro(iSym)=',nFro(iSym)
-    write(6,*) 'nBas(iSym)=',nBas(iSym)
+    write(u6,*) 'AutoCut:nDel(iSym)+nFro(iSym)) > nBas(iSym)'
+    write(u6,*) 'iSym=',iSym
+    write(u6,*) 'nDel(iSym)=',nDel(iSym)
+    write(u6,*) 'nFro(iSym)=',nFro(iSym)
+    write(u6,*) 'nBas(iSym)=',nBas(iSym)
     call Abend()
   end if
 end do

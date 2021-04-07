@@ -11,37 +11,41 @@
 
 subroutine DONEI(DLT,DSQ,CMO)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp), intent(out) :: DLT(*), DSQ(*)
+real(kind=wp), intent(in) :: CMO(*)
 #include "motra_global.fh"
-real*8 CMO(*)
-dimension DSQ(*), DLT(*)
+integer(kind=iwp) :: IB, IJ, ISTLT, ISTSQ, ISYM, JB, NB, NF
 
 ISTSQ = 0
 ISTLT = 0
 do ISYM=1,NSYM
   NF = NFRO(ISYM)
   NB = NBAS(ISYM)
-  if (NB*NF > 0) call DGEMM_('N','T',NB,NB,NF,1.0d0,CMO(ISTSQ+1),NB,CMO(ISTSQ+1),NB,0.0d0,DSQ(ISTSQ+1),NB)
-  call DSCAL_(NB*NB,2.0d0,DSQ(ISTSQ+1),1)
+  if (NB*NF > 0) call DGEMM_('N','T',NB,NB,NF,One,CMO(ISTSQ+1),NB,CMO(ISTSQ+1),NB,Zero,DSQ(ISTSQ+1),NB)
+  call DSCAL_(NB*NB,Two,DSQ(ISTSQ+1),1)
   IJ = ISTLT
   do IB=1,NB
     do JB=1,IB
       IJ = IJ+1
-      DLT(IJ) = 2.0d0*DSQ(ISTSQ+JB+(IB-1)*NB)
+      DLT(IJ) = Two*DSQ(ISTSQ+JB+(IB-1)*NB)
     end do
-    DLT(IJ) = 0.5d0*DLT(IJ)
+    DLT(IJ) = Half*DLT(IJ)
   end do
   ISTSQ = ISTSQ+NB*NB
   ISTLT = ISTLT+NB*(NB+1)/2
 end do
 
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(6,'(6X,A)') 'Frozen one-body density matrix in AO basis'
+  write(u6,'(6X,A)') 'Frozen one-body density matrix in AO basis'
   ISTLT = 1
   do ISYM=1,NSYM
     NB = NBAS(ISYM)
     if (NB > 0) then
-      write(6,'(6X,A,I2)') 'symmetry species:',ISYM
+      write(u6,'(6X,A,I2)') 'symmetry species:',ISYM
       call TRIPRT(' ',' ',DLT(ISTLT),NB)
       ISTLT = ISTLT+NB*(NB+1)/2
     end if
