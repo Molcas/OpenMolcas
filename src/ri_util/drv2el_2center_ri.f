@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drv2El_2Center_RI(Integral_WrOut,ThrAO,ipA_Diag,
+      SubRoutine Drv2El_2Center_RI(ThrAO,ipA_Diag,
      &                             nSO_Aux,MaxCntr,ipSO2C)
 ************************************************************************
 *                                                                      *
@@ -36,7 +36,7 @@
       use RICD_Info, only: LDF
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-      External Integral_WrOut
+      External Integral_RI_2
 #include "Molcas.fh"
 #include "setup.fh"
 #include "print.fh"
@@ -195,7 +195,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
             Aint=TMax(jS)*TMax(lS)
             If (AInt.lt.CutInt) Go To 14
             Call Eval_IJKL(iS,jS,kS,lS,Work(ipTInt),nTInt_,
-     &                    Integral_WrOut)
+     &                    Integral_RI_2)
  14         Continue
 *
 *           Use a time slot to save the number of tasks and shell

@@ -41,7 +41,7 @@
       use RICD_Info, only: LDF
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-      External Integral_WrOut, Integral_RI_2, Rsv_Tsk
+      External Integral_WrOut, Rsv_Tsk
 #include "Molcas.fh"
 #include "j12.fh"
 #include "print.fh"
@@ -110,8 +110,7 @@
 *                                                                      *
 *     Compute the two-center integrals over the auxiliary basis
 *
-      Call Drv2El_2Center_RI(Integral_RI_2,ThrAO,ipA_Diag,
-     &                       nSO_Aux,MaxCntr,ipSO2C)
+      Call Drv2El_2Center_RI(ThrAO,ipA_Diag,nSO_Aux,MaxCntr,ipSO2C)
 *
 *     Post processing to generate the Q-vectors.
 *
