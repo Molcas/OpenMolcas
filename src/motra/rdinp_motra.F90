@@ -29,8 +29,9 @@ implicit none
 #include "files_motra.fh"
 #include "cho_minp.fh"
 #include "chotraw.fh"
-integer(kind=iwp) :: iCmd, iSym, jCmd, LuSpool, nDel2(8)
+integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, nDel2(8)
 character(len=180) :: Line
+logical(kind=iwp) :: Skip
 integer(kind=iwp), parameter :: nCmd = 16, lCmd = 4
 character(len=lCmd), parameter :: CmdTab(nCmd) = ['TITL','FROZ','DELE','PRIN','MOLO','LUMO','JOBI','ONEL','FILE','AUTO', &
                                                   'EXTR','RFPE','CTON','DIAG','HDF5','END ']
@@ -59,120 +60,135 @@ call RdNLst(LuSpool,'MOTRA')
 !----------------------------------------------------------------------*
 ! Read the input stream line by line and identify key command          *
 !----------------------------------------------------------------------*
-100 read(LuSpool,'(A)') Line
-if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) goto 100
-call UpCase(Line)
-110 jCmd = 0
-do iCmd=1,nCmd
-  if (Line(1:lCmd) == CmdTab(iCmd)(1:lCmd)) jCmd = iCmd
-end do
-if (jCmd == 0) then
-  write(u6,*) 'RdInp: Unknown command at line: ',trim(Line)
-  call Abend()
-end if
-!----------------------------------------------------------------------*
-! Branch to the processing of the command sections                     *
-!----------------------------------------------------------------------*
-goto(1010,1020,1030,1040,1050,1060,1070,1080,1090,1100,1110,1120,1130,1140,1150,2000) jCmd
-!---  Process the "TITLe" command -------------------------------------*
-1010 nTit = 0
-15 read(LuSpool,'(A)') Line
-if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) goto 15
-call UpCase(Line)
-if (nTit > 0) then
+Skip = .false.
+input: do
+  if (.not. Skip) then
+    read(LuSpool,'(A)') Line
+    if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) cycle
+    call UpCase(Line)
+  end if
+  Skip = .false.
+  jCmd = 0
   do iCmd=1,nCmd
-    if (Line(1:lCmd) == CmdTab(iCmd)(1:lCmd)) goto 110
+    if (Line(1:lCmd) == CmdTab(iCmd)(1:lCmd)) jCmd = iCmd
   end do
-end if
-nTit = nTit+1
-if (nTit <= mxTit) Title(nTit) = trim(Line)
-goto 15
-!---  Process the "FROZen orbitals" command ---------------------------*
-1020 continue
+  if (jCmd == 0) then
+    write(u6,*) 'RdInp: Unknown command at line: ',trim(Line)
+    call Abend()
+  end if
+  !----------------------------------------------------------------------*
+  ! Branch to the processing of the command sections                     *
+  !----------------------------------------------------------------------*
+  select case (jCmd)
+    case (1)
+      !---  Process the "TITLe" command -------------------------------*
+      nTit = 0
+      do
+        do
+          read(LuSpool,'(A)') Line
+          if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
+        end do
+        call UpCase(Line)
+        if (nTit > 0) then
+          do iCmd=1,nCmd
+            if (Line(1:lCmd) == CmdTab(iCmd)(1:lCmd)) then
+              Skip = .true.
+              cycle input
+            end if
+          end do
+        end if
+        nTit = nTit+1
+        if (nTit <= mxTit) Title(nTit) = trim(Line)
+      end do
+    case (2)
+      !---  Process the "FROZen orbitals" command ---------------------*
 
-if (iPrint >= 0) then
-  write(u6,*)
-  write(u6,'(6X,A)') '*** WARNING: Default frozen orbitals is overwritten by user input.'
-  write(u6,'(6X,A,8I4)') '*** Default values:',(nFro(iSym),iSym=1,nSym)
-end if
+      if (iPrint >= 0) then
+        write(u6,*)
+        write(u6,'(6X,A)') '*** WARNING: Default frozen orbitals is overwritten by user input.'
+        write(u6,'(6X,A,8I4)') '*** Default values:',(nFro(iSym),iSym=1,nSym)
+      end if
 
-25 read(LuSpool,'(A)') Line
-if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) goto 25
-read(Line,*,Err=994) (nFro(iSym),iSym=1,nSym)
-goto 100
-!---  Process the "DELEted orbitals" command --------------------------*
-1030 continue
-35 read(LuSpool,'(A)') Line
-if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) goto 35
-read(Line,*,Err=994) (nDel(iSym),iSym=1,nSym)
-goto 100
-!---  Process the "PRINt level" command -------------------------------*
-1040 continue
-45 read(LuSpool,'(A)') Line
-if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) goto 45
-read(Line,*,Err=994) iPrint
-goto 100
-!---  Process the "MOLOrb" command ------------------------------------*
-1050 continue
-iVecTyp = 1
-goto 100
-!---  Process the "LUMOrb" command ------------------------------------*
-1060 continue
-iVecTyp = 2
-goto 100
-!---  Process the "JOBIph" command ------------------------------------*
-1070 continue
-iVecTyp = 3
-goto 100
-!---  Process the "ONEL only" command ---------------------------------*
-1080 continue
-iOneOnly = 1
-goto 100
-!---  Process the "FILEORB" command------------------------------------*
-1090 continue
-iVecTyp = 2
-Line = Get_Ln(LuSpool)
-write(u6,*) ' RdInp_Motra before calling fileorb.'
-write(u6,*) ' Line:'//line(1:60)
-write(u6,*) '   Calling fileorb now...'
-call fileorb(Line,FnInpOrb)
-write(u6,*) '   Back from fileorb.'
-write(u6,*) ' Line:'//line(1:60)
-write(u6,*) FnInpOrb
-goto 100
-!---  Process the "AUTO delete" command--------------------------------*
-1100 continue
-iAutoCut = 1
-105 read(LuSpool,'(A)') Line
-if ((Line(1:72) == ' ') .or. (Line(1:1) == '*')) goto 105
-read(Line,*,Err=994) (CutThrs(iSym),iSym=1,nSym)
-goto 100
-!---  Process the "EXTRact" command------------------------------------*
-1110 write(u6,*) 'The EXTRACT option is redundant and is ignored!'
-goto 100
-!---  Process the "RFperturbation" command ----------------------------*
-1120 continue
-iRFpert = 1
-goto 100
-!---  Process the "CTonly" to perform exclusively CD vectors transform-*
-1130 continue
-Line = Get_Ln(LuSpool)
-call UpCase(Line)
-call LeftAd(Line)
-tv2disk = Line(1:3)
-if ((tv2disk /= 'PQK') .and. (tv2disk /= 'KPQ')) tv2disk = 'PQK' !def
-iCTonly = 1
-goto 100
-!---  Process the "DIAGonal ERI evaluation" command -------------------*
-1140 continue
-iDoInt = 1
-goto 100
-!---  Process the "HDF5 output file" command --------------------------*
-1150 continue
-ihdf5 = 1
-goto 100
-!---  Process the "END of input" command ------------------------------*
-2000 continue
+      do
+        read(LuSpool,'(A)') Line
+        if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) (nFro(iSym),iSym=1,nSym)
+      if (istatus /= 0) call Error()
+    case (3)
+      !---  Process the "DELEted orbitals" command --------------------*
+      do
+        read(LuSpool,'(A)') Line
+        if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) (nDel(iSym),iSym=1,nSym)
+      if (istatus /= 0) call Error()
+    case (4)
+      !---  Process the "PRINt level" command -------------------------*
+      do
+        read(LuSpool,'(A)') Line
+        if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) iPrint
+      if (istatus /= 0) call Error()
+    case (5)
+      !---  Process the "MOLOrb" command ------------------------------*
+      iVecTyp = 1
+    case (6)
+      !---  Process the "LUMOrb" command ------------------------------*
+      iVecTyp = 2
+    case (7)
+      !---  Process the "JOBIph" command ------------------------------*
+      iVecTyp = 3
+    case (8)
+      !---  Process the "ONEL only" command ---------------------------*
+      iOneOnly = 1
+    case (9)
+      !---  Process the "FILEORB" command------------------------------*
+      iVecTyp = 2
+      Line = Get_Ln(LuSpool)
+      write(u6,*) ' RdInp_Motra before calling fileorb.'
+      write(u6,*) ' Line:'//line(1:60)
+      write(u6,*) '   Calling fileorb now...'
+      call fileorb(Line,FnInpOrb)
+      write(u6,*) '   Back from fileorb.'
+      write(u6,*) ' Line:'//line(1:60)
+      write(u6,*) FnInpOrb
+    case (10)
+      !---  Process the "AUTO delete" command--------------------------*
+      iAutoCut = 1
+      do
+        read(LuSpool,'(A)') Line
+        if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) (CutThrs(iSym),iSym=1,nSym)
+      if (istatus /= 0) call Error()
+    case (11)
+      !---  Process the "EXTRact" command------------------------------*
+      write(u6,*) 'The EXTRACT option is redundant and is ignored!'
+    case (12)
+      !---  Process the "RFperturbation" command ----------------------*
+      iRFpert = 1
+    case (13)
+      !---  Process the "CTonly" to perform exclusively CD vectors transform-*
+      Line = Get_Ln(LuSpool)
+      call UpCase(Line)
+      call LeftAd(Line)
+      tv2disk = Line(1:3)
+      if ((tv2disk /= 'PQK') .and. (tv2disk /= 'KPQ')) tv2disk = 'PQK' !def
+      iCTonly = 1
+    case (14)
+      !---  Process the "DIAGonal ERI evaluation" command -------------*
+      iDoInt = 1
+    case (15)
+      !---  Process the "HDF5 output file" command --------------------*
+      ihdf5 = 1
+    case (16)
+      !---  Process the "END of input" command ------------------------*
+      exit
+    case default
+  end select
+end do input
 
 ! New rules for title lines...warning needed?
 if (nTit > mxTit) then
@@ -209,12 +225,15 @@ do iSym=1,nSym
 end do
 call Put_iArray('nFro',nFro,nSym)
 close(LuSpool)
+
 return
-!----------------------------------------------------------------------*
-! Error Exit                                                           *
-!----------------------------------------------------------------------*
-994 write(u6,*) 'RdInp: error readin input file!'
-write(u6,*) 'Command=',CmdTab(jCmd)
-call Abend()
+
+contains
+
+subroutine Error()
+  write(u6,*) 'RdInp: error readin input file!'
+  write(u6,*) 'Command=',CmdTab(jCmd)
+  call Abend()
+end subroutine
 
 end subroutine RdInp_Motra

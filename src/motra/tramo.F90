@@ -192,15 +192,15 @@ do NV=1,NOR
 
       inBuf = iDsk(3,iVX)
       IPQ = inBuf-IPQMAX
-12    IAD14 = iDsk(1,iVX)  ! Disk Address of the next buffer
-      if (IAD14 >= 0) then
+      do
+        IAD14 = iDsk(1,iVX)  ! Disk Address of the next buffer
+        if (IAD14 < 0) exit
         LPKREC = iDsk(2,iVX)  ! Length of the  buffer
         call dDAFILE(LUHALF,2,VXPQ(inBuf),LPKREC,IAD14)
         call iDAFILE(LUHALF,2,iDsk(1,iVX),2,IAD14)
         call UPKR8(0,IPQMAX,NBYTES,VXPQ(inBuf),VXPQ(IPQ))
         IPQ = IPQ-IPQMAX
-        GO TO 12
-      end if
+      end do
 
       IPQST = 1
     end if

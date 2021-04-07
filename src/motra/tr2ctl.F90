@@ -82,7 +82,6 @@ end do
 ! same order as the loop structure below.
 
 if (iPrint >= 0) write(u6,2000)
-2000 format(/7X,'SYMMETRY',2X,'BASIS FUNCTIONS',6X,' ORBITALS',6X,'INTEGRALS   CPU(SEC)  I/O(SEC)')
 IBATCH = 0
 do NSP=1,NSYM
   NBP = NBAS(NSP)
@@ -112,7 +111,7 @@ do NSP=1,NSYM
         KEEPS = KEEP(NSS)
         LMOS = ISTSQ(NSS)
         NSPQRS = ieor(NSPQR-1,NSS-1)+1
-        if (NSPQRS /= 1) goto 101
+        if (NSPQRS /= 1) cycle
         IBATCH = IBATCH+1
         ISS = NSS
 
@@ -120,7 +119,7 @@ do NSP=1,NSYM
 
         KEEPT = KEEPP+KEEPQ+KEEPR+KEEPS
         NORBP = NOP*NOQ*NOR*NOS
-        if (NORBP == 0) goto 101
+        if (NORBP == 0) cycle
         if (KEEPT /= 0) then
           write(u6,*) 'Tr2Ctl: NORBP /= 0 .AND. KEEPT /= 0'
           write(u6,*) 'NORBP=',NORBP
@@ -179,7 +178,6 @@ do NSP=1,NSYM
         call TRAMO(NW2,WORK(LW1),nW1,WORK(LW2),nW2,WORK(LW3),nW3,WORK(LW4),nW4,WORK(LW5),MEMX,CMO,iWork(ipiDsk),nOVX)
         call TIMING(CPT,CPE,TIOT,TIOE)
         if (iPrint >= 0) write(u6,2100) ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,LTUVX,CPE,TIOE
-2100    format(7X,4I2,1X,4I4,2X,4I4,3X,I9,F11.2,F10.2)
         call Xflush(u6)
 
         ! Deallocate work space
@@ -193,14 +191,12 @@ do NSP=1,NSYM
 
         ! End of loop over quadruples of symmetries
 
-101     continue
       end do
     end do
   end do
 end do
 call TIMING(CPT,CPE,TIOT,TIOE)
 if (iPrint >= 0) write(u6,2200) CPT,TIOT
-2200 format(/6X,' TOTAL CPU TIME(SEC)',F8.2,'TOTAL I/O TIME(SEC)',F8.2)
 
 ! Close LUTWOAO
 
@@ -220,5 +216,9 @@ end if
 call DACLOS(LUTWOMO)
 
 return
+
+2000 format(/7X,'SYMMETRY',2X,'BASIS FUNCTIONS',6X,' ORBITALS',6X,'INTEGRALS   CPU(SEC)  I/O(SEC)')
+2100 format(7X,4I2,1X,4I4,2X,4I4,3X,I9,F11.2,F10.2)
+2200 format(/6X,' TOTAL CPU TIME(SEC)',F8.2,'TOTAL I/O TIME(SEC)',F8.2)
 
 end subroutine TR2CTL

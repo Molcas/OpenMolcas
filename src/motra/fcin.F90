@@ -79,21 +79,19 @@ if (DoCholesky) then
     end do
   end if
 
-  goto 99  ! jump over the conventional ERIs calculation
+else
 
+  call GETMEM('FCIN2','ALLO','REAL',LW2,n_Bas**2)
+  call GETMEM('FCIN1','MAX','REAL',LW1,LBUF)
+  LBUF = max(LBUF-LBUF/10,0)
+  call GETMEM('FCIN1','ALLO','REAL',LW1,LBUF)
+
+  call FTWOI(DLT,DSQ,Work(ipTemp),nFlt,FSQ,LBUF,WORK(LW1),WORK(LW2))
+
+  call GETMEM('FCIN1','FREE','REAL',LW1,LBUF)
+  call GETMEM('FCIN2','FREE','REAL',LW2,n_Bas**2)
 end if
 
-call GETMEM('FCIN2','ALLO','REAL',LW2,n_Bas**2)
-call GETMEM('FCIN1','MAX','REAL',LW1,LBUF)
-LBUF = max(LBUF-LBUF/10,0)
-call GETMEM('FCIN1','ALLO','REAL',LW1,LBUF)
-
-call FTWOI(DLT,DSQ,Work(ipTemp),nFlt,FSQ,LBUF,WORK(LW1),WORK(LW2))
-
-call GETMEM('FCIN1','FREE','REAL',LW1,LBUF)
-call GETMEM('FCIN2','FREE','REAL',LW2,n_Bas**2)
-
-99 continue
 call DaXpY_(nFlt,One,Work(ipTemp),1,Flt,1)
 call Free_Work(ipTemp)
 

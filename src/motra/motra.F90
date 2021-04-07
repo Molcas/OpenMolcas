@@ -87,47 +87,44 @@ if (iCTonly == 1) then
     if (iDoInt == 1) Do_int = .true.
     call Cho_MOtra(Work(ipCMO),nTot2,Do_int,ihdf5)
     iOneOnly = 666
-    Go To 100  ! nothing else to be done except OneEl part
   end if
-end if
-!----------------------------------------------------------------------*
-! Preliminary step for integral transformation with CD
-if (DoCholesky) then
-  call CWTIME(TCR1,TWR1)
-  call Cho_X_init(irc,Zero)
-  if (irc /= 0) then
-    write(u6,*) ' In MoTRA : Cho_X_Init returned non-zero rc = ',irc
-    call Abend()
+else
+  !--------------------------------------------------------------------*
+  ! Preliminary step for integral transformation with CD
+  if (DoCholesky) then
+    call CWTIME(TCR1,TWR1)
+    call Cho_X_init(irc,Zero)
+    if (irc /= 0) then
+      write(u6,*) ' In MoTRA : Cho_X_Init returned non-zero rc = ',irc
+      call Abend()
+    end if
+    call Cho_X_ReoVec(irc) ! get (if not there) CD vecs full stor
+    if (irc /= 0) then
+      write(u6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero rc = ',irc
+      call Abend()
+    end if
+    call Cho_X_final(irc)
+    call CWTIME(TCR2,TWR2)
+    tcpu_reo = (TCR2-TCR1)
+    write(u6,*)
+    write(u6,*) '      Reordering Cholesky vectors to full storage.'
+    write(u6,*) '       Elapsed time for the reordering : ',tcpu_reo
+    write(u6,*) '       CPU time for the reordering     : ',tcpu_reo
+    write(u6,*)
   end if
-  call Cho_X_ReoVec(irc) ! get (if not there) CD vecs full stor
-  if (irc /= 0) then
-    write(u6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero rc = ',irc
-    call Abend()
-  end if
-  call Cho_X_final(irc)
-  call CWTIME(TCR2,TWR2)
-  tcpu_reo = (TCR2-TCR1)
-  write(u6,*)
-  write(u6,*) '      Reordering Cholesky vectors to full storage.'
-  write(u6,*) '       Elapsed time for the reordering : ',tcpu_reo
-  write(u6,*) '       CPU time for the reordering     : ',tcpu_reo
-  write(u6,*)
 end if
 
 !----------------------------------------------------------------------*
 ! Transform the one-electron integrals                                 *
 !----------------------------------------------------------------------*
-100 continue
 call Tr1Ctl(Work(ipOvlp),Work(ipHOne),Work(ipKine),Work(ipCMO))
-if (iOneOnly /= 0) goto 900
 !----------------------------------------------------------------------*
 ! Transform the two-electron integrals                                 *
 !----------------------------------------------------------------------*
-call Tr2Ctl(Work(ipCMO))
+if (iOneOnly == 0) call Tr2Ctl(Work(ipCMO))
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*
-900 continue
 write(u6,*)
 call GetMem('CMO','Free','Real',ipCMO,nTot2)
 call GetMem('Kine','Free','Real',ipKine,nTot1+4)

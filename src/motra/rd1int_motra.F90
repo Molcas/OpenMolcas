@@ -104,7 +104,7 @@ iSyLbl = 1
 OneLbl = 'Mltpl  0'
 call RdOne(iRc,iOpt,OneLbl,iComp,Work(ipOvlp),iSyLbl)
 
-if (iRc /= 0) goto 991
+if (iRc /= 0) call Error()
 !----------------------------------------------------------------------*
 ! Read core Hamiltonian                                                *
 !----------------------------------------------------------------------*
@@ -115,7 +115,7 @@ iSyLbl = 1
 OneLbl = 'OneHam  '
 call RdOne(iRc,iOpt,OneLbl,iComp,Work(ipHone),iSyLbl)
 
-if (iRc /= 0) goto 991
+if (iRc /= 0) call Error()
 !----------------------------------------------------------------------*
 ! Read kinetic energy integrals                                        *
 !----------------------------------------------------------------------*
@@ -126,7 +126,7 @@ iSyLbl = 1
 OneLbl = 'Kinetic '
 call RdOne(iRc,iOpt,OneLbl,iComp,Work(ipKine),iSyLbl)
 
-if (iRc /= 0) goto 991
+if (iRc /= 0) call Error()
 !----------------------------------------------------------------------*
 ! If this is a perturbative reaction field calculation then            *
 ! modifiy the one-electron Hamiltonian by the reaction field and       *
@@ -151,11 +151,13 @@ end if
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*
 return
-!----------------------------------------------------------------------*
-! Error Exit                                                           *
-!----------------------------------------------------------------------*
-991 write(u6,*) 'Rd1Int: Error reading from ONEINT'
-write(u6,*) 'OneLbl=',OneLbl
-call Abend()
+
+contains
+
+subroutine Error()
+  write(u6,*) 'Rd1Int: Error reading from ONEINT'
+  write(u6,*) 'OneLbl=',OneLbl
+  call Abend()
+end subroutine Error
 
 end subroutine Rd1Int_Motra
