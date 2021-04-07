@@ -36,9 +36,15 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer  nDmA(0:7),  nDmB(0:7)
       Logical Out_of_Core
       Character Name_Q*6
+
+      Real*8, Allocatable :: Scr(:), X(:), Z(:)
+      Integer, Allocatable :: iDiag(:)
+      Real*8, Allocatable, Target :: Am(:), Qm(:), A_k(:), Q_k(:)
+      Real*8, Pointer :: A_l(:)=>Null(), Q_l(:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,7 +67,7 @@
       End Do
       nA_Diag=nBfnTot
 *
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+      Call mma_maxDBLE(MaxMem)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -77,16 +83,16 @@
 *                                                                      *
 *     Pivoting of the A matrix
 *
-      Call GetMem('iD_Diag','Allo','Inte',ip_iDiag,nA_Diag)
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem2)
+      Call mma_allocate(iDiag,nA_Diag,Label='iDiag')
+      Call mma_maxDBLE(MaxMem2)
 *
       If (Force_Out_of_Core) MaxMem2=3*nBfnTot
 *     lScr=Min(MaxMem2,nScr)
-      lScr=Max(MaxMem2,nScr)
-      Call GetMem('Scr','Allo','Real',ip_Scr,lScr)
+      lScr=Max(MaxMem2-(nScr/3),nScr)
+      Call mma_allocate(Scr,lScr,Label='Scr')
 *
-      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iWork(ip_iDiag),nIrrep,
-     &                  LU_A,'GePivot',lScr,Work(ip_Scr))
+      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iDiag,nIrrep,
+     &                  LU_A,'GePivot',lScr,Scr)
       ichk=0
       Do iIrrep = 0, nIrrep-1
          nChV(iIrrep)=nDmB(iIrrep)
@@ -103,13 +109,13 @@
          write(6,*)
       EndIf
 *
-      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iWork(ip_iDiag),nIrrep,
-     &                  LU_A,'DoPivot',lScr,Work(ip_Scr))
+      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iDiag,nIrrep,
+     &                  LU_A,'DoPivot',lScr,Scr)
 *
 *     Note: after the 'DoPivot' call to Sort_mat, the A-matrix is
 *           no longer stored as squared but as upper-triangular
 *
-      Call GetMem('Scr','Free','Real',ip_Scr,lScr)
+      Call mma_deallocate(Scr)
       Call GetMem('A_Diag','Free','Real',ipA_Diag,nA_Diag)
       ipA_Diag=ip_Dummy  ! Dummy memory pointer.
 *
@@ -163,18 +169,21 @@ c         If (iIrrep.eq.0) nB = nB - 1
 *        Some of memory for scratch arrays for Inv_Cho_Factor
 *        Allocate memory for the A- and Q-vectors and initialize.
 *
-         Call GetMem('ICF','Allo','Real',ip_ICF,lAm+lQm+5*nXZ)
-         ipZ    = ip_ICF
-         ipX    = ip_ICF + 1*nXZ
-         ip_Q_k = ip_ICF + 2*nXZ
-         ip_A_k = ip_ICF + 3*nXZ
-         ip_Scr = ip_ICF + 4*nXZ
          lScr=nXZ
-         ip_Am  = ip_ICF + 5*nXZ
-         ip_Qm  = ip_ICF + 5*nXZ + lAm
+         Call mma_allocate(Scr,lScr,Label='Scr')
+         Call mma_allocate(Z,nXZ,Label='Z')
+         Call mma_allocate(X,nXZ,Label='X')
+         Call mma_allocate(Am,lAm,Label='Am')
+         ip_Am = ip_of_Work(Am(1))
+         Call mma_allocate(Qm,lQm,Label='Qm')
+         ip_Qm = ip_of_Work(Qm(1))
+         Call mma_allocate(A_k,nXZ,Label='A_k')
+         Call mma_allocate(Q_k,nXZ,Label='Q_k')
+         ip_Q_k = ip_of_Work(Q_k(1))
+         ip_A_k = ip_of_Work(A_k(1))
 *
-         Call FZero(Work(ip_Am),lAm)
-         Call FZero(Work(ip_Qm),lQm)
+         Am(:)=Zero
+         Qm(:)=Zero
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -196,7 +205,7 @@ c         If (iIrrep.eq.0) nB = nB - 1
                ip_A_l=ip_Am+iOff
                If (kCol.eq.1) Then
                   nAm=nMem*(nMem+1)/2
-                  Call dDaFile(Lu_A(iIrrep),2,Work(ip_Am),nAm,iAddr_)
+                  Call dDaFile(Lu_A(iIrrep),2,Am,nAm,iAddr_)
                End If
 *              Point to Q_k in Qm
                iOff = (kCol-1)*kCol/2
@@ -211,10 +220,10 @@ c         If (iIrrep.eq.0) nB = nB - 1
 *
             LinDep=2
             Call Inv_Cho_Factor(Work(ip_A_l),kCol,
-     &                          Work(ip_Am),Work(ip_Qm),nMem,
+     &                          Am,Qm,nMem,
      &                          Lu_A(iIrrep),Lu_Q(iIrrep),
-     &                          Work(ip_Scr),lScr,
-     &                          Work(ipZ),Work(ipX),ThrQ,
+     &                          Scr,lScr,
+     &                          Z,X,ThrQ,
      &                          Work(ip_Q_l),LinDep)
 
             If (LinDep.ne.0) Then
@@ -228,16 +237,24 @@ c         If (iIrrep.eq.0) nB = nB - 1
             iAddr_=iAddr
             If (kCol.eq.nMem) Then
                nQm=kCol*(kCol+1)/2
-               Call dDaFile(Lu_Q(iIrrep),1,Work(ip_Qm),nQm,iAddr )
-               Call dDaFile(Lu_A(iIrrep),1,Work(ip_Am),nQm,iAddr_)
+               Call dDaFile(Lu_Q(iIrrep),1,Qm,nQm,iAddr )
+               Call dDaFile(Lu_A(iIrrep),1,Am,nQm,iAddr_)
             Else If (kCol.gt.nMem) Then
-               Call dDaFile(Lu_Q(iIrrep),1,Work(ip_Q_k),kCol,iAddr )
+               Call dDaFile(Lu_Q(iIrrep),1,Work(ip_Q_l),kCol,iAddr )
                Call dDaFile(Lu_A(iIrrep),1,Work(ip_A_l),kCol,iAddr_)
             End If
 *
          End Do
 *
-         Call GetMem('ICF','Free','Real',ip_ICF,lAm+lQm+5*nXZ)
+         Q_l=>Null()
+         A_l=>Null()
+         Call mma_deallocate(Q_k)
+         Call mma_deallocate(A_k)
+         Call mma_deallocate(Qm)
+         Call mma_deallocate(Am)
+         Call mma_deallocate(X)
+         Call mma_deallocate(Z)
+         Call mma_deallocate(Scr)
          Call DaClos(Lu_A(iIrrep))
  777     Continue
       End Do ! iIrrep
@@ -250,17 +267,17 @@ c         If (iIrrep.eq.0) nB = nB - 1
 *
       If (Force_Out_of_Core) MaxMem2=2*nBfnTot
       lScr=Min(MaxMem2,Max(nBfn2,2*nBfnTot))
-      Call GetMem('Scr','Allo','Real',ip_Scr,lScr)
+      Call mma_allocate(Scr,lScr,Label='Scr')
 *
-      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iWork(ip_iDiag),nIrrep,
-     &                  LU_Q,'Restore',lScr,Work(ip_Scr))
+      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iDiag,nIrrep,
+     &                  LU_Q,'Restore',lScr,Scr)
 *
 *     Note: after the 'Restore' call to Sort_mat, the Q-matrix is
 *           no longer stored as upper-triangular but as RECTANGULAR
 *           (nDmA,nDmB). The column index is still pivoted.
 *
-      Call GetMem('Scr','Free','Real',ip_Scr,lScr)
-      Call GetMem('iD_Diag','Free','Inte',ip_iDiag,nA_Diag)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(iDiag)
 *                                                                      *
 ************************************************************************
 ************************************************************************

@@ -22,7 +22,6 @@
       Integer iD_A(*), nDim(nSym), nVec(nSym), lu_A0(nSym)
       Real*8  Scr(lScr), Diag(*)
       Character*7 mode
-#include "WrkSpc.fh"
       Character Name_A*6
 *
 C     Write (6,*) 'Mode=',Mode
