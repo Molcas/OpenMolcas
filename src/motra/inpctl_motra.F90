@@ -10,51 +10,50 @@
 !                                                                      *
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
 
+subroutine InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
 !***********************************************************************
 !                                                                      *
-!     Purpose:                                                         *
-!     Read all information required                                    *
+! Purpose:                                                             *
+! Read all information required                                        *
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
-!
-      Implicit Real*8 (A-H,O-Z)
 
-
+implicit real*8(A-H,O-Z)
 #include "motra_global.fh"
 #include "files_motra.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
-!
+
 !----------------------------------------------------------------------*
-!     Read the content of the one electron integral file               *
+! Read the content of the one electron integral file                   *
 !----------------------------------------------------------------------*
-      Call Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
+call Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !----------------------------------------------------------------------*
-!     Read auxiliary  input                                            *
+! Read auxiliary  input                                                *
 !----------------------------------------------------------------------*
-      Call RdInp_Motra
+call RdInp_Motra()
 !----------------------------------------------------------------------*
-!     Read Reaction field and add to one-electron integrals            *
+! Read Reaction field and add to one-electron integrals                *
 !----------------------------------------------------------------------*
-      If ( iRFpert.eq.1 ) Call RdRfld(ipHOne)
+if (iRFpert == 1) call RdRfld(ipHOne)
 !----------------------------------------------------------------------*
-!     Read the MO coefficients and occupations                         *
+! Read the MO coefficients and occupations                             *
 !----------------------------------------------------------------------*
-      Call GetMem('CMO','Allo','Real',ipCMO,nTot2)
-      Call RdCmo_motra(Work(ipCMO),Work(ipOvlp))
+call GetMem('CMO','Allo','Real',ipCMO,nTot2)
+call RdCmo_motra(Work(ipCMO),Work(ipOvlp))
 !----------------------------------------------------------------------*
-!     Delete orbitals with occupations samller than a given value      *
+! Delete orbitals with occupations samller than a given value          *
 !----------------------------------------------------------------------*
-      If ( iAutoCut.eq.1 ) Call AutoCut
+if (iAutoCut == 1) call AutoCut()
 !----------------------------------------------------------------------*
-!     Print the input and orbital definitions                          *
+! Print the input and orbital definitions                              *
 !----------------------------------------------------------------------*
-      If (iPrint.GE.0) Call PrInp(Work(ipCMO))
+if (iPrint >= 0) call PrInp(Work(ipCMO))
 !----------------------------------------------------------------------*
-!     Normal termination                                               *
+! Normal termination                                                   *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine InpCtl_Motra

@@ -8,35 +8,40 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine init_motra
+
+subroutine init_motra()
+
 #include "motra_global.fh"
 #include "files_motra.fh"
+
 !----------------------------------------------------------------------*
-!     Define  file names and unit numbers.                             *
+! Define  file names and unit numbers.                                 *
 !----------------------------------------------------------------------*
-      FnInpOrb='INPORB'
-      FnJobIph='JOBIPH'
-      FnOneAO='ONEINT'
-      FnTwoAO='ORDINT'
-      FnOneMO='TRAONE'
-      FnTwoMO='TRAINT'
-      FnHalf='TEMP1'
-      FnExt='EXTRACT'
-      FnCom='COMFILE'
-      Debug=0
-      iPrint=0
-      iOneOnly=0
-      iVecTyp=2
-      iAutoCut=0
-      iRFpert=0
-      LuInpOrb=10
-      LuJobIph=15
-      LuOneAO=20
-      LuTwoAO=40
-      LuOneMO=30
-      LuTwoMO=50
-      LuHalf=60
-      LuExt=18
-      LuCom=22
-!----------------------------------------------------------------------*
-      End
+FnInpOrb = 'INPORB'
+FnJobIph = 'JOBIPH'
+FnOneAO = 'ONEINT'
+FnTwoAO = 'ORDINT'
+FnOneMO = 'TRAONE'
+FnTwoMO = 'TRAINT'
+FnHalf = 'TEMP1'
+FnExt = 'EXTRACT'
+FnCom = 'COMFILE'
+Debug = 0
+iPrint = 0
+iOneOnly = 0
+iVecTyp = 2
+iAutoCut = 0
+iRFpert = 0
+LuInpOrb = 10
+LuJobIph = 15
+LuOneAO = 20
+LuTwoAO = 40
+LuOneMO = 30
+LuTwoMO = 50
+LuHalf = 60
+LuExt = 18
+LuCom = 22
+
+return
+
+end subroutine init_motra

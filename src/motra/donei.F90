@@ -8,54 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DONEI(DLT,DSQ,CMO)
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
 
+subroutine DONEI(DLT,DSQ,CMO)
+
+implicit real*8(A-H,O-Z)
 #include "motra_global.fh"
-!
-      Real*8 CMO(*)
-      DIMENSION DSQ(*),DLT(*)
-!
-!
-      ISTSQ=0
-      ISTLT=0
-      DO 100 ISYM=1,NSYM
-        NF=NFRO(ISYM)
-        NB=NBAS(ISYM)
-        If ( NB*NF.GT.0 )                                               &
-     &  CALL DGEMM_('N','T',                                            &
-     &              NB,NB,NF,                                           &
-     &              1.0d0,CMO(ISTSQ+1),NB,                              &
-     &              CMO(ISTSQ+1),NB,                                    &
-     &              0.0d0,DSQ(ISTSQ+1),NB)
-        CALL DSCAL_(NB*NB,2.0D0,DSQ(ISTSQ+1),1)
-        IJ=ISTLT
-        DO 130 IB=1,NB
-          DO 140 JB=1,IB
-            IJ=IJ+1
-            DLT(IJ)=2.0D0*DSQ(ISTSQ+JB+(IB-1)*NB)
-140       CONTINUE
-          DLT(IJ)=0.5D0*DLT(IJ)
-130     CONTINUE
-        ISTSQ=ISTSQ+NB*NB
-        ISTLT=ISTLT+NB*(NB+1)/2
-100   CONTINUE
-!
-      IF( IPRINT.GE.5 .OR. DEBUG.NE.0 ) THEN
-        WRITE(6,'(6X,A)')'Frozen one-body density matrix in AO basis'
-        ISTLT=1
-        DO ISYM=1,NSYM
-          NB=NBAS(ISYM)
-          IF ( NB.GT.0 ) THEN
-            WRITE(6,'(6X,A,I2)')'symmetry species:',ISYM
-            CALL TRIPRT(' ',' ',DLT(ISTLT),NB)
-            ISTLT=ISTLT+NB*(NB+1)/2
-          END IF
-        END DO
-      END IF
-!
-!
-      RETURN
-      END
+real*8 CMO(*)
+dimension DSQ(*), DLT(*)
+
+ISTSQ = 0
+ISTLT = 0
+do ISYM=1,NSYM
+  NF = NFRO(ISYM)
+  NB = NBAS(ISYM)
+  if (NB*NF > 0) call DGEMM_('N','T',NB,NB,NF,1.0d0,CMO(ISTSQ+1),NB,CMO(ISTSQ+1),NB,0.0d0,DSQ(ISTSQ+1),NB)
+  call DSCAL_(NB*NB,2.0d0,DSQ(ISTSQ+1),1)
+  IJ = ISTLT
+  do IB=1,NB
+    do JB=1,IB
+      IJ = IJ+1
+      DLT(IJ) = 2.0d0*DSQ(ISTSQ+JB+(IB-1)*NB)
+    end do
+    DLT(IJ) = 0.5d0*DLT(IJ)
+  end do
+  ISTSQ = ISTSQ+NB*NB
+  ISTLT = ISTLT+NB*(NB+1)/2
+end do
+
+if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
+  write(6,'(6X,A)') 'Frozen one-body density matrix in AO basis'
+  ISTLT = 1
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    if (NB > 0) then
+      write(6,'(6X,A,I2)') 'symmetry species:',ISYM
+      call TRIPRT(' ',' ',DLT(ISTLT),NB)
+      ISTLT = ISTLT+NB*(NB+1)/2
+    end if
+  end do
+end if
+
+return
+
+end subroutine DONEI
