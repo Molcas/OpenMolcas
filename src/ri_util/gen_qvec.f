@@ -15,6 +15,27 @@
       Integer nBas_Aux(0:nIrrep-1), Lu_Q(0:7), Lu_A(0:7)
       Logical Out_Of_Core
       Character*6 Name_Q
+*                                                                      *
+************************************************************************
+*                                                                      *
+      INTERFACE
+      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,
+     &                    Diag)
+      Integer irc
+      Integer nSym
+      Integer nDim(nSym)
+      Integer nVec(nSym)
+      Integer iD_A(*)
+      Integer lu_A0(nSym)
+      Character(LEN=7) mode
+      Integer lScr
+      Real*8  Scr(lScr)
+      Real*8, Optional ::  Diag(*)
+      END SUBROUTINE SORT_mat
+      END INTERFACE
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       ThrQ=1.0D-14 ! Threshold for Inv_Cho_Factor
 *
@@ -161,7 +182,7 @@
       lScr=Min(MaxMem2,nBfn2)
       Call GetMem('Scr','Allo','Real',ip_Scr,lScr)
 *
-      Call SORT_Mat(irc,Work(ip_Dummy),nBas_Aux,nBas_Aux,
+      Call SORT_Mat(irc,nBas_Aux,nBas_Aux,
      &              iWork(ip_iDiag),nIrrep,Lu_Q,'Restore',
      &              lScr,Work(ip_Scr))
 *

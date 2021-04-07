@@ -48,6 +48,28 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      INTERFACE
+      SUBROUTINE SORT_mat(irc,nDim,nVec,iD_A,nSym,lu_A0,mode,lScr,Scr,
+     &                    Diag)
+      Integer irc
+      Integer nSym
+      Integer nDim(nSym)
+      Integer nVec(nSym)
+      Integer iD_A(*)
+      Integer lu_A0(nSym)
+      Character(LEN=7) mode
+      Integer lScr
+      Real*8  Scr(lScr)
+      Real*8, Optional ::  Diag(*)
+      END SUBROUTINE SORT_mat
+      END INTERFACE
+*                                                                      *
+************************************************************************
+*                                                                      *
+
+*                                                                      *
+************************************************************************
+*                                                                      *
 *define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
@@ -91,8 +113,8 @@
       lScr=Max(MaxMem2-(nScr/3),nScr)
       Call mma_allocate(Scr,lScr,Label='Scr')
 *
-      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iDiag,nIrrep,
-     &                  LU_A,'GePivot',lScr,Scr)
+      Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
+     &              LU_A,'GePivot',lScr,Scr,Diag=Work(ipA_Diag))
       ichk=0
       Do iIrrep = 0, nIrrep-1
          nChV(iIrrep)=nDmB(iIrrep)
@@ -109,7 +131,7 @@
          write(6,*)
       EndIf
 *
-      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iDiag,nIrrep,
+      Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
      &                  LU_A,'DoPivot',lScr,Scr)
 *
 *     Note: after the 'DoPivot' call to Sort_mat, the A-matrix is
@@ -269,7 +291,7 @@ c         If (iIrrep.eq.0) nB = nB - 1
       lScr=Min(MaxMem2,Max(nBfn2,2*nBfnTot))
       Call mma_allocate(Scr,lScr,Label='Scr')
 *
-      Call SORT_mat(irc,Work(ipA_Diag),nDmA,nDmB,iDiag,nIrrep,
+      Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
      &                  LU_Q,'Restore',lScr,Scr)
 *
 *     Note: after the 'Restore' call to Sort_mat, the Q-matrix is
