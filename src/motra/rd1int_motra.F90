@@ -21,6 +21,7 @@ subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -30,10 +31,11 @@ integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
-integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, lTemp, nDim, nTemp
+integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, nDim, nTemp
 real(kind=wp) :: ERFself
 character(len=8) :: OneLbl
 logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Temp(:)
 
 !----------------------------------------------------------------------*
 ! Read one-electron integral file header etc.                          *
@@ -137,15 +139,15 @@ if (iRFpert /= 0) then
   do iSym=1,nSym
     nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
   end do
-  call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
+  call mma_allocate(Temp,nTemp,label='RFFLD')
   call f_Inquire('RUNOLD',Found)
   if (Found) call NameRun('RUNOLD')
   call Get_dScalar('RF Self Energy',ERFself)
-  call Get_dArray('Reaction field',Work(lTemp),nTemp)
+  call Get_dArray('Reaction field',Temp,nTemp)
   if (Found) call NameRun('RUNFILE')
   PotNuc = PotNuc+ERFself
-  call Daxpy_(nTemp,One,Work(lTemp),1,Work(ipHone),1)
-  call GetMem('RFFLD','Free','Real',lTemp,nTemp)
+  call Daxpy_(nTemp,One,Temp,1,Work(ipHone),1)
+  call mma_deallocate(Temp)
 end if
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *

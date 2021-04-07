@@ -11,21 +11,22 @@
 
 subroutine FCIN(FLT,nFLT,DLT,FSQ,DSQ,EMY,CMO)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: nFLT
-! TODO: fix intent of these arrays after removing "ip_of_Work"
-real(kind=wp), intent(inout) :: FLT(nFLT), DLT(*), FSQ(*), DSQ(*)
+real(kind=wp), intent(inout) :: FLT(nFLT)
 real(kind=wp), intent(in) :: CMO(*)
-real(kind=wp), intent(out) :: EMY
+real(kind=wp), intent(out) :: DLT(*), FSQ(*), DSQ(*), EMY
 #include "motra_global.fh"
 #include "trafo_motra.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipTemp, ISTLTT, ISYM, LBUF, LW1, LW2, n_Bas, NB, NPQ, NTFRO
+integer(kind=iwp) :: ISTLTT, ISYM, LBUF, n_Bas, NB, NPQ, NTFRO
 real(kind=wp) :: EONE, ETWO
+real(kind=wp), allocatable :: Temp(:), W1(:), W2(:)
 logical(kind=iwp) :: DoCholesky
+integer(kind=iwp), external :: mma_avmem
 
 ! Construct the one-electron density matrix for frozen space
 
@@ -56,8 +57,8 @@ end if
 
 ! Compute the two-electron contribution to the Fock matrix
 
-call Allocate_Work(ipTemp,nFlt)
-call FZero(Work(ipTemp),nFlt)
+call mma_allocate(Temp,nFlt,label='Temp')
+Temp(:) = Zero
 
 call DecideOnCholesky(DoCholesky)
 
@@ -68,12 +69,12 @@ if (DoCholesky) then
 
   if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
     write(u6,'(6X,A)') 'Fock matrix in AO basis'
-    ISTLTT = ipTemp
+    ISTLTT = 1
     do ISYM=1,NSYM
       NB = NBAS(ISYM)
       if (NB > 0) then
         write(u6,'(6X,A,I2)') 'symmetry species:',ISYM
-        call TRIPRT(' ',' ',WORK(ISTLTT),NB)
+        call TRIPRT(' ',' ',Temp(ISTLTT),NB) ! ??? Temp is zero
         ISTLTT = ISTLTT+NB*(NB+1)/2
       end if
     end do
@@ -81,19 +82,18 @@ if (DoCholesky) then
 
 else
 
-  call GETMEM('FCIN2','ALLO','REAL',LW2,n_Bas**2)
-  call GETMEM('FCIN1','MAX','REAL',LW1,LBUF)
-  LBUF = max(LBUF-LBUF/10,0)
-  call GETMEM('FCIN1','ALLO','REAL',LW1,LBUF)
+  call mma_allocate(W2,n_Bas**2,label='FCIN2')
+  LBUF = int(mma_avmem()*0.9_wp,kind=iwp)/RtoB
+  call mma_allocate(W1,LBUF,label='FCIN1')
 
-  call FTWOI(DLT,DSQ,Work(ipTemp),nFlt,FSQ,LBUF,WORK(LW1),WORK(LW2))
+  call FTWOI(DLT,DSQ,Temp,nFlt,FSQ,LBUF,W1,W2)
 
-  call GETMEM('FCIN1','FREE','REAL',LW1,LBUF)
-  call GETMEM('FCIN2','FREE','REAL',LW2,n_Bas**2)
+  call mma_deallocate(W2)
+  call mma_deallocate(W1)
 end if
 
-call DaXpY_(nFlt,One,Work(ipTemp),1,Flt,1)
-call Free_Work(ipTemp)
+call DaXpY_(nFlt,One,Temp,1,Flt,1)
+call mma_deallocate(Temp)
 
 ! Add the two-electron contribution to EMY
 ETWO = -EONE

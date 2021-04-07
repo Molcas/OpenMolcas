@@ -25,7 +25,6 @@ implicit none
 real(kind=wp), intent(in) :: PAO(*), CMO(*)
 real(kind=wp), intent(out) :: PMO(*), TEMP(*)
 #include "motra_global.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: IAO, ICMO, IMO, IOFF, ISYM
 
 ICMO = 1

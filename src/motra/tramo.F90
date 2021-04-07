@@ -17,6 +17,7 @@ subroutine TRAMO(LBUF,OUTBUF,nOUTBUF,X1,nX1,X2,nX2,X3,nX3,VXPQ,nVXPQ,CMO,iDsk,mO
 
 #ifdef _HDF5_QCM_
 use hdf5_utils
+use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -47,10 +48,11 @@ call ICopy(mOVX,[1],0,iDsk(3,1),3)
 
 #ifdef _HDF5_QCM_
 if (ihdf5 == 1) then
-  !allocate(tmpbuf(nx1))
+  !call mma_allocate(tmpbuf,nx1,label='tmpbuf')
   ! Stefan's dirty hack to increase the # of BF working in MOTRA with HDF5
-  allocate(tmpbuf(((nop+1)*(noq+1)*(nor+1)*(nos+1)))); tmpbuf = 0
-  write(u6,*) 'size of tmpbuf:',((nop+1)*(noq+1)*(nor+1)*(nos+1))
+  call mma_allocate(tmpbuf,(nop+1)*(noq+1)*(nor+1)*(nos+1),label='tmpbuf')
+  tmpbuf(:) = 0
+  write(u6,*) 'size of tmpbuf:',(nop+1)*(noq+1)*(nor+1)*(nos+1)
   iout_total = 0
 end if
 #endif
@@ -307,7 +309,7 @@ if (ihdf5 == 1) then
     write(u6,'(1X,a,i10)') ' total number of integrals so far ...',total_number_2ints
   end if
 
-  deallocate(tmpbuf)
+  call mma_deallocate(tmpbuf)
 end if
 #endif
 

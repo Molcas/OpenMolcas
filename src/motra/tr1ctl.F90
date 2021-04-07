@@ -17,6 +17,7 @@ subroutine TR1CTL(Ovlp,HOne,Kine,CMO)
 #ifdef _HDF5_QCM_
 use hdf5_utils
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -25,10 +26,9 @@ real(kind=wp), intent(in) :: Ovlp(*), HOne(*), Kine(*), CMO(*)
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-integer(kind=iwp) :: IDISK, ISTLT, ISYM, LWDLT, LWDSQ, LWFLT, LWFMO, LWFSQ, LWKAO, LWKMO, LWOVP, LWTMP
+integer(kind=iwp) :: IDISK, ISTLT, ISYM
 real(kind=wp) :: ECOR
+real(kind=wp), allocatable :: DLT(:), DSQ(:), FLT(:), FMO(:), FSQ(:), KAO(:), KMO(:), OVP(:), TMP(:)
 #ifdef _HDF5_QCM_
 real(kind=wp), allocatable :: writebuf(:,:)
 #endif
@@ -50,19 +50,19 @@ call dDAFILE(LUONEMO,1,CMO,NTOT2,IDISK)
 ! Generate Fock-matrix for inactive orbitals
 ! and compute the total core energy
 
-call GETMEM('FLT','ALLO','REAL',LWFLT,NTOT1)
-call GETMEM('DLT','ALLO','REAL',LWDLT,NTOT1)
-call GETMEM('FSQ','ALLO','REAL',LWFSQ,NTOT2)
-call GETMEM('DSQ','ALLO','REAL',LWDSQ,NTOT2)
-call DCOPY_(NTOT1,HONE,1,WORK(LWFLT),1)
-call DCOPY_(NTOT2,[Zero],0,WORK(LWFSQ),1)
-call DCOPY_(NTOT1,[Zero],0,WORK(LWDLT),1)
-call DCOPY_(NTOT2,[Zero],0,WORK(LWDSQ),1)
+call mma_allocate(FLT,NTOT1,label='FLT')
+call mma_allocate(DLT,NTOT1,label='DLT')
+call mma_allocate(FSQ,NTOT2,label='FSQ')
+call mma_allocate(DSQ,NTOT2,label='DSQ')
+call DCOPY_(NTOT1,HONE,1,FLT,1)
+FSQ(:) = Zero
+DLT(:) = Zero
+DSQ(:) = Zero
 ECOR = Zero
-call FCIN(WORK(LWFLT),NTOT1,WORK(LWDLT),WORK(LWFSQ),WORK(LWDSQ),ECOR,CMO)
-call GETMEM('DSQ','FREE','REAL',LWDSQ,NTOT2)
-call GETMEM('FSQ','FREE','REAL',LWFSQ,NTOT2)
-call GETMEM('DLT','FREE','REAL',LWDLT,NTOT1)
+call FCIN(FLT,NTOT1,DLT,FSQ,DSQ,ECOR,CMO)
+call mma_deallocate(DLT)
+call mma_deallocate(DSQ)
+call mma_deallocate(FSQ)
 
 ECOR = POTNUC+ECOR
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
@@ -71,18 +71,18 @@ end if
 
 ! Transform one-electron Fock matrix
 
-call GETMEM('FMO','ALLO','REAL',LWFMO,NORBTT)
-call GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
-call DCOPY_(NORBTT,[Zero],0,WORK(LWFMO),1)
-call DCOPY_(2*N2MAX,[Zero],0,WORK(LWTMP),1)
-call TRAONE_MOTRA(WORK(LWFLT),WORK(LWFMO),WORK(LWTMP),CMO)
+call mma_allocate(FMO,NORBTT,label='FMO')
+call mma_allocate(TMP,2*N2MAX,label='TMP')
+FMO(:) = Zero
+TMP(:) = Zero
+call TRAONE_MOTRA(FLT,FMO,TMP,CMO)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
   write(u6,'(6X,A)') 'Fock matrix in MO basis'
-  ISTLT = 0
+  ISTLT = 1
   do ISYM=1,NSYM
     if (NORB(ISYM) > 0) then
       write(u6,'(6X,A,I2)') ' symmetry species:',ISYM
-      call TRIPRT(' ',' ',WORK(LWFMO+ISTLT),NORB(ISYM))
+      call TRIPRT(' ',' ',FMO(ISTLT),NORB(ISYM))
       ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
     end if
   end do
@@ -97,60 +97,56 @@ if (ihdf5 == 1) then
   call hdf5_put_data(file_id(1),"norbtt",datadim,norbtt)
   call hdf5_put_data(file_id(1),"nsym  ",datadim,msym)
   datadim(1) = nsym
-  allocate(writebuf(nsym,3)); writebuf = -1
-  do i=1,nsym
-    writebuf(i,1) = norb(i)
-    writebuf(i,2) = nfro(i)
-    writebuf(i,3) = ndel(i)
-  end do
+  call mma_allocate(writebuf,nsym,3,label='writebuf')
+  writebuf(:,1) = norb(:)
+  writebuf(:,2) = nfro(:)
+  writebuf(:,3) = ndel(:)
   call hdf5_put_data(file_id(1),"norb  ",datadim,writebuf(1,1))
   call hdf5_put_data(file_id(1),"nfro  ",datadim,writebuf(1,2))
   call hdf5_put_data(file_id(1),"ndel  ",datadim,writebuf(1,3))
-  deallocate(writebuf)
+  call mma_deallocate(writebuf)
   datadim(1) = norbtt
-  call hdf5_put_data(file_id(1),"FockMO",datadim,work(lwfmo:lwfmo+norbtt-1))
+  call hdf5_put_data(file_id(1),"FockMO",datadim,fmo)
 end if
 #endif
 
 TCONEMO(2) = IDISK
-call dDAFILE(LUONEMO,1,WORK(LWFMO),NORBTT,IDISK)
-call GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)
-call GETMEM('FMO','FREE','REAL',LWFMO,NORBTT)
-call GETMEM('FLT','FREE','REAL',LWFLT,NTOT1)
+call dDAFILE(LUONEMO,1,FMO,NORBTT,IDISK)
+call mma_deallocate(FMO)
+call mma_deallocate(FLT)
 
 ! Transform kinetic energy matrix
 
-call GETMEM('KAO','ALLO','REAL',LWKAO,NTOT1)
-call GETMEM('KMO','ALLO','REAL',LWKMO,NORBTT)
-call GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
-call DCOPY_(NORBTT,[Zero],0,WORK(LWKMO),1)
-call DCOPY_(2*N2MAX,[Zero],0,WORK(LWTMP),1)
-call DCOPY_(NTOT1,KINE,1,WORK(LWKAO),1)
-call TRAONE_MOTRA(WORK(LWKAO),WORK(LWKMO),WORK(LWTMP),CMO)
+call mma_allocate(KAO,NTOT1,label='KAO')
+call mma_allocate(KMO,NORBTT,label='KMO')
+KMO(:) = Zero
+TMP(:) = Zero
+call DCOPY_(NTOT1,KINE,1,KAO,1)
+call TRAONE_MOTRA(KAO,KMO,TMP,CMO)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
   write(u6,'(6X,A)') 'Kinetic integrals in MO basis'
-  ISTLT = 0
+  ISTLT = 1
   do ISYM=1,NSYM
     if (NORB(ISYM) > 0) then
       write(u6,'(6X,A,I2)') ' symmetry species:',ISYM
-      call TRIPRT(' ',' ',WORK(LWKMO+ISTLT),NORB(ISYM))
+      call TRIPRT(' ',' ',KMO(ISTLT),NORB(ISYM))
       ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
     end if
   end do
 end if
 TCONEMO(3) = IDISK
-call dDAFILE(LUONEMO,1,WORK(LWKMO),NORBTT,IDISK)
-call GETMEM('TMP','FREE','REAL',LWTMP,2*N2MAX)
-call GETMEM('KMO','FREE','REAL',LWKMO,NORBTT)
-call GETMEM('KAO','FREE','REAL',LWKAO,NTOT1)
+call dDAFILE(LUONEMO,1,KMO,NORBTT,IDISK)
+call mma_deallocate(KAO)
+call mma_deallocate(KMO)
+call mma_deallocate(TMP)
 
 ! Copy overlap matrix to luonem
 
-call GETMEM('OVP','ALLO','REAL',LWOVP,NTOT1)
-call DCOPY_(NTOT1,OVLP,1,WORK(LWOVP),1)
+call mma_allocate(OVP,NTOT1,label='OVP')
+call DCOPY_(NTOT1,OVLP,1,OVP,1)
 TCONEMO(4) = IDISK
-call dDAFILE(LUONEMO,1,WORK(LWOVP),NORBTT,IDISK)
-call GETMEM('OVP','FREE','REAL',LWOVP,NTOT1)
+call dDAFILE(LUONEMO,1,OVP,NORBTT,IDISK)
+call mma_deallocate(OVP)
 
 ! Create CIDATA and molecular orbital sections on LUONEM
 

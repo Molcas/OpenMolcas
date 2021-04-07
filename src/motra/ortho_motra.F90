@@ -13,6 +13,7 @@ subroutine ORTHO_MOTRA(nSym,nBas,nDel,Ovlp,CMO)
 ! Objective: Orthonormalize input vectors
 !           (Gram-Schmidt orthogonaliztion)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -21,14 +22,14 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nDel(nSym)
 real(kind=wp), intent(in) :: Ovlp(*)
 real(kind=wp), intent(inout) :: CMO(*)
 #include "trafo_motra.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: IJ, IM, ISYM, LW1, LW2, LW3, NORBI
+integer(kind=iwp) :: IJ, IM, ISYM, NORBI
+real(kind=wp), allocatable :: W1(:), W2(:), W3(:)
 
 ! Allocate work space
 
-call GETMEM('SCR1','ALLO','REAL',LW1,N2MAX)
-call GETMEM('SCR2','ALLO','REAL',LW2,N2MAX)
-call GETMEM('SCR3','ALLO','REAL',LW3,N2MAX)
+call mma_allocate(W1,N2MAX,label='SCR1')
+call mma_allocate(W2,N2MAX,label='SCR2')
+call mma_allocate(W3,N2MAX,label='SCR3')
 
 ! Loop over symmetries and orthogonalize
 
@@ -37,12 +38,12 @@ IM = 1
 do ISYM=1,NSYM
   NORBI = NBAS(ISYM)-NDEL(ISYM)
   if (NORBI > 0) then
-    call SQUARE(OVLP(IJ),WORK(LW3),1,NBAS(ISYM),NBAS(ISYM))
-    !call MXMA(WORK(LW3),1,NBAS(ISYM),CMO(IM),1,NBAS(ISYM),WORK(LW2),1,NBAS(ISYM),NBAS(ISYM),NBAS(ISYM),NORBI)
-    call DGEMM_('N','N',NBAS(ISYM),NORBI,NBAS(ISYM),One,WORK(LW3),NBAS(ISYM),CMO(IM),NBAS(ISYM),Zero,WORK(LW2),NBAS(ISYM))
-    !call MXMA(CMO(IM),NBAS(ISYM),1,WORK(LW2),1,NBAS(ISYM),WORK(LW1),1,NORBI,NORBI,NBAS(ISYM),NORBI)
-    call DGEMM_('T','N',NORBI,NORBI,NBAS(ISYM),One,CMO(IM),NBAS(ISYM),WORK(LW2),NBAS(ISYM),Zero,WORK(LW1),NORBI)
-    call ORTHOX_MOTRA(WORK(LW1),CMO(IM),NORBI,NBAS(ISYM))
+    call SQUARE(OVLP(IJ),W3,1,NBAS(ISYM),NBAS(ISYM))
+    !call MXMA(W3,1,NBAS(ISYM),CMO(IM),1,NBAS(ISYM),W2,1,NBAS(ISYM),NBAS(ISYM),NBAS(ISYM),NORBI)
+    call DGEMM_('N','N',NBAS(ISYM),NORBI,NBAS(ISYM),One,W3,NBAS(ISYM),CMO(IM),NBAS(ISYM),Zero,W2,NBAS(ISYM))
+    !call MXMA(CMO(IM),NBAS(ISYM),1,W2,1,NBAS(ISYM),W1,1,NORBI,NORBI,NBAS(ISYM),NORBI)
+    call DGEMM_('T','N',NORBI,NORBI,NBAS(ISYM),One,CMO(IM),NBAS(ISYM),W2,NBAS(ISYM),Zero,W1,NORBI)
+    call ORTHOX_MOTRA(W1,CMO(IM),NORBI,NBAS(ISYM))
   end if
   IJ = IJ+NBAS(ISYM)*(NBAS(ISYM)+1)/2
   IM = IM+NBAS(ISYM)*NBAS(ISYM)
@@ -50,9 +51,9 @@ end do
 
 ! Deallocate work space and exit
 
-call GETMEM('SCR3','FREE','REAL',LW3,N2MAX)
-call GETMEM('SCR2','FREE','REAL',LW2,N2MAX)
-call GETMEM('SCR1','FREE','REAL',LW1,N2MAX)
+call mma_deallocate(W1)
+call mma_deallocate(W2)
+call mma_deallocate(W3)
 
 return
 

@@ -11,6 +11,7 @@
 
 subroutine Cho_Fock_MoTra(nSym,nBas,nFro,DLT,DSQ,FLT,nFLT,FSQ,ExFac)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
@@ -22,6 +23,7 @@ real(kind=wp), intent(in) :: ExFac
 #include "WrkSpc.fh"
 integer(kind=iwp) :: i, ipd, ipDLT, ipDSQ, ipFLT, ipFSQ, ipMOs, ipV, irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
+integer(kind=iwp), allocatable :: MOs(:)
 integer(kind=iwp), external :: ip_of_Work
 
 !****************************************************************
@@ -49,10 +51,10 @@ MOdim = 0
 do i=1,nSym
   MOdim = MOdim+nBas(i)**2
 end do
-call GETMEM('choMOs','allo','real',ipMOs,MOdim)
+call mma_allocate(MOs,MOdim,label='chMOs')
 
 ipd = ipDSQ
-ipV = ipMOs
+ipV = 1
 do i=1,nSym
   if (nBas(i) > 0) then
     Ymax = Zero
@@ -61,7 +63,7 @@ do i=1,nSym
       Ymax = max(Ymax,Work(jaa))
     end do
     Thr = 1.0e-8_wp*Ymax
-    call CD_InCore(Work(ipd),nBas(i),Work(ipV),nBas(i),NumV,Thr,irc)
+    call CD_InCore(Work(ipd),nBas(i),MOs(ipV),nBas(i),NumV,Thr,irc)
     if (irc /= 0) then
       write(u6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
       call AbEnd()
@@ -82,6 +84,7 @@ end do
 ipDLT = ip_of_Work(DLT(1))
 ipFLT = ip_of_Work(FLT(1))
 ipFSQ = ip_of_Work(FSQ(1))  ! not needed on exit
+ipMOs = ip_of_Work(MOs(1))
 
 call CHO_LK_SCF(irc,nDen,[ipFLT],[ipFSQ],nXorb,nFro,[ipMOs],[ipDLT],Half*ExFac,NScreen,dmpk,dFKmat)
 if (irc /= 0) then
@@ -91,7 +94,7 @@ end if
 
 call GADSUM(FLT,nFLT)
 
-call GETMEM('choMOs','free','real',ipMOs,MOdim)
+call mma_deallocate(MOs)
 
 ! Finalize Cholesky information
 

@@ -11,6 +11,7 @@
 
 subroutine RdRfld(ipHOne)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -21,9 +22,10 @@ integer(kind=iwp), intent(in) :: ipHOne
 #include "trafo_motra.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-integer(kind=iwp) :: iSym, lTemp, nTemp
+integer(kind=iwp) :: iSym, nTemp
 real(kind=wp) :: ERFself
 logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Temp(:)
 
 !----------------------------------------------------------------------*
 ! If this is a perturbative reaction field calculation then            *
@@ -34,15 +36,15 @@ nTemp = 0
 do iSym=1,nSym
   nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
 end do
-call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
+call mma_allocate(Temp,nTemp,label='RFFLD')
 call f_Inquire('RUNOLD',Found)
 if (Found) call NameRun('RUNOLD')
 call get_dscalar('RF Self Energy',ERFself)
 PotNuc = PotNuc+ERFself
-call get_darray('Reaction field',Work(lTemp),nTemp)
+call get_darray('Reaction field',Temp,nTemp)
 if (Found) call NameRun('RUNFILE')
-call Daxpy_(nTemp,One,Work(lTemp),1,Work(ipHone),1)
-call GetMem('RFFLD','Free','Real',lTemp,nTemp)
+call Daxpy_(nTemp,One,Temp,1,Work(ipHone),1)
+call mma_deallocate(Temp)
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*

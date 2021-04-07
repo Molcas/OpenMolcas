@@ -17,19 +17,21 @@ subroutine TR2CTL(CMO)
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
-use Definitions, only: wp, iwp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 #include "files_motra.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: I, IBATCH, INTBUF, ipiDsk, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, LW1, LW2, &
-                     LW3, LW4, LW5, NB1, NB2, NBSX(8), NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, &
-                     NW4
+integer(kind=iwp) :: I, IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, NB1, NB2, NBSX(8), &
+                     NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
 real(kind=wp) :: CPE, CPT, TIOE, TIOT
 logical(kind=iwp) :: FoundTwoEls, DoDirect, DoCholesky, ISQUAR
+integer(kind=iwp), allocatable :: iDsk(:,:)
+real(kind=wp), allocatable :: W1(:), W2(:), W3(:), W4(:), W5(:)
+integer(kind=iwp), external :: mma_avmem
 
 ! Set time at start of transformation
 
@@ -151,18 +153,18 @@ do NSP=1,NSYM
         NW2 = max(NW2,NBRS+1,NBPQ+1)
         NW3 = max(NBR**2,NBP**2,NOQ*NBP,NOVX)
         NW4 = max(NBR*NOS,NBQ*NOP)
-        call GETMEM('OUTBUF','ALLO','REAL',LW1,NW1)
-        call GETMEM('X1','ALLO','REAL',LW2,NW2)
-        call GETMEM('X2','ALLO','REAL',LW3,NW3)
-        call GETMEM('X3','ALLO','REAL',LW4,NW4)
-        call GetMem('iDsk','Allo','Inte',ipiDsk,3*nOVX)
-        call GETMEM('VXPQ','MAX','REAL',LW5,MEMX)
+        call mma_allocate(W1,NW1,label='OUTBUF')
+        call mma_allocate(W2,NW2,label='X1')
+        call mma_allocate(W3,NW3,label='X2')
+        call mma_allocate(W4,NW4,label='X3')
+        call mma_allocate(iDsk,3,nOVX,label='iDsk')
+        MEMX = int(mma_avmem()*0.9_wp,kind=iwp)/RtoB
 
         if (DoCholesky) then ! save some space for GenInt
           MEMX = max(MEMX-MEMX/10,0)
         end if
 
-        call GETMEM('VXPQ','ALLO','REAL',LW5,MEMX)
+        call mma_allocate(W5,MEMX,label='VXPQ')
 
         if (MEMX < NOVX) then
           write(u6,*) 'Tr2Ctl: MEMX < NOVX'
@@ -175,19 +177,19 @@ do NSP=1,NSYM
 
         iTraToc(IBATCH) = IAD13
         ! NW2 is size of 'X1' in TRAMO, used as LBUF in call to RDORD and RDORD_.
-        call TRAMO(NW2,WORK(LW1),nW1,WORK(LW2),nW2,WORK(LW3),nW3,WORK(LW4),nW4,WORK(LW5),MEMX,CMO,iWork(ipiDsk),nOVX)
+        call TRAMO(NW2,W1,nW1,W2,nW2,W3,nW3,W4,nW4,W5,MEMX,CMO,iDsk,nOVX)
         call TIMING(CPT,CPE,TIOT,TIOE)
         if (iPrint >= 0) write(u6,2100) ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,LTUVX,CPE,TIOE
         call Xflush(u6)
 
         ! Deallocate work space
 
-        call GETMEM('VXPQ','FREE','REAL',LW5,MEMX)
-        call GetMem('iDsk','Free','Inte',ipiDsk,3*nOVX)
-        call GETMEM('X3','FREE','REAL',LW4,NW4)
-        call GETMEM('X2','FREE','REAL',LW3,NW3)
-        call GETMEM('X1','FREE','REAL',LW2,NW2)
-        call GETMEM('OUTBUF','FREE','REAL',LW1,NW1)
+        call mma_deallocate(W1)
+        call mma_deallocate(W2)
+        call mma_deallocate(W3)
+        call mma_deallocate(W4)
+        call mma_deallocate(iDsk)
+        call mma_deallocate(W5)
 
         ! End of loop over quadruples of symmetries
 
