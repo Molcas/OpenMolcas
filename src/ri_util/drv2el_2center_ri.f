@@ -227,7 +227,6 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 
                   ipAs_Diag=ipA_Diag+iOffA(3,iIrrep)+kCol-1
                   Work(ipAs_Diag)=Work(ip_A_n+kCol-1)
-                  ipAs_Diag=ipAs_Diag+1
                   nZero=nB-kCol
                   If (nZero.ne.0) Call dDaFile(Lu_A(iIrrep),0,
      &                                         Work(ip_A_n),
