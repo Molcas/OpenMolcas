@@ -63,21 +63,24 @@
       External Reduce_Prt
 
       Real*8, Allocatable :: A_Diag(:)
+      Integer, Allocatable :: SO2C(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
 
-      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,ipSO2C)
+      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
       Real*8 ThrAO
       Real*8, Allocatable :: A_Diag(:)
-      Integer nSO_Aux, MaxCntr, ipSO2C
+      Integer, Allocatable :: SO2C(:)
+      Integer nSO_Aux, MaxCntr
       End SubRoutine Drv2El_2Center_RI
 
       SubRoutine Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
-     &                            nLocal_A,ipSO2C,nSO_Aux)
+     &                            nLocal_A,SO2C,nSO_Aux)
       Real*8, Allocatable :: A_Diag(:)
-      Integer ipAB,MaxCntr,Lu_AB,ipLocal_A,nLocal_A,ipSO2C,nSO_Aux
+      Integer, Allocatable:: SO2C(:)
+      Integer ipAB,MaxCntr,Lu_AB,ipLocal_A,nLocal_A,nSO_Aux
       End SubRoutine Post_2Center_LDF
 
       SubRoutine Post_2Center_RI(A_Diag)
@@ -134,7 +137,7 @@
 *                                                                      *
 *     Compute the two-center integrals over the auxiliary basis
 *
-      Call Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,ipSO2C)
+      Call Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 *
 *     Post processing to generate the Q-vectors.
 *
@@ -143,7 +146,7 @@
 *        Local RI
 *
          Call Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
-     &                         nLocal_A,ipSO2C,nSO_Aux)
+     &                         nLocal_A,SO2C,nSO_Aux)
 *
       Else
 *
@@ -393,7 +396,7 @@ C           Call RecPrt('A^-1',' ',Work(ipLocal_A),nAB,nAB)
                   jCenter=lCenter
                End If
                Do iSO_Aux = 1, nSO_Aux
-                  iCenter=iWork(ipSO2C+iSO_Aux-1)
+                  iCenter=SO2C(iSO_Aux)
 C                 Write (6,*) 'iCenter=',iCenter
                   If (iCenter.eq.jCenter) Then
                      iLO = iLO + 1
@@ -526,7 +529,7 @@ C      End Do    ! klS
       Call xRlsMem_Ints
       Call GetMem('TMax','Free','Real',ipTMax,nSkal)
       If (LDF) Then
-         Call GetMem('SO2C','Free','Inte',ipSO2C,nSO_Aux)
+         Call mma_Deallocate(SO2C)
          Call GetMem('A-blocks','Free','Inte',ipAB,
      &               MaxCntr*(MaxCntr+1)/2)
          Call GetMem('Local_A','Free','Real',ipLocal_A,2*nLocal_A)

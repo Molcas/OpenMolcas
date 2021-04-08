@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
-     &                            nLocal_A,ipSO2C,nSO_Aux)
+     &                            nLocal_A,SO2C,nSO_Aux)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
@@ -43,6 +43,7 @@
       Character Name_Q*6
       Integer nQvec(0:7)
       Real*8, Allocatable :: A_Diag(:)
+      Integer, Allocatable :: SO2C(:)
 
       Real*8, Allocatable :: Scr(:)
       Integer, Allocatable :: iDiag(:), SO2lO(:)
@@ -61,7 +62,7 @@
       Do iCenter = 1, MaxCntr
          nCenter=0
          Do i = 1, nSO_Aux
-            jCenter=iWork(ipSO2C+i-1)
+            jCenter=SO2C(i)
             If (jCenter.eq.iCenter) nCenter=nCenter+1
          End Do
          Max_AA = Max(Max_AA,nCenter)
@@ -110,7 +111,7 @@
          niSO=0
          nlO=0
          Do iSO = 1, nSO_Aux
-            kCenter = iWork(ipSO2C+iSO-1)
+            kCenter = SO2C(iSO)
             If (kCenter.eq.iCenter) Then
                niSO=niSO+1
                nlO = nlO + 1
@@ -133,11 +134,11 @@
                   Call dDaFile(Lu_A(iIrrep),2,Scr,
      &                         nSO_Aux,iAddr)
 C                 Call RecPrt('Scr','(6G23.15)',Scr,1,nSO_Aux)
-                  kCenter = iWork(ipSO2C+iSO-1)
+                  kCenter = SO2C(iSO)
                   If (kCenter.eq.iCenter) Then
                       ilO=SO2lO(iSO)
                       Do jSO = 1, iSO
-                         lCenter = iWork(ipSO2C+jSO-1)
+                         lCenter = SO2C(jSO)
                          If (lCenter.eq.iCenter) Then
                             AElement=Scr(jSO)
                             jlO=SO2lO(jSO)
@@ -173,7 +174,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
                njSO=0
                mlO = 0
                Do jSO = 1, nSO_Aux
-                  lCenter = iWork(ipSO2C+jSO-1)
+                  lCenter = SO2C(jSO)
                   If (lCenter.eq.jCenter) Then
                      njSO=njSO+1
                      mlO = mlO + 1
@@ -185,12 +186,12 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *
                Do iSO = 1, nSO_Aux
                   Call dDaFile(Lu_A(iIrrep),2,Scr,nSO_Aux,iAddr)
-                  kCenter = iWork(ipSO2C+iSO-1)
+                  kCenter = SO2C(iSO)
                   If (kCenter.eq.iCenter.or.
      &                kCenter.eq.jCenter) Then
                       ilO=SO2lO(iSO)
                       Do jSO = 1, iSO
-                         lCenter = iWork(ipSO2C+jSO-1)
+                         lCenter = SO2C(jSO)
                          If (lCenter.eq.iCenter.or.
      &                       lCenter.eq.jCenter) Then
                             AElement=Scr(jSO)

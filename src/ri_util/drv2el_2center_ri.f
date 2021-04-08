@@ -11,8 +11,7 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,
-     &                             nSO_Aux,MaxCntr,ipSO2C)
+      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,SO2C)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
@@ -50,6 +49,7 @@
       Logical Verbose, Indexation, FreeK2, DoGrad, DoFock
       Character Name_Q*6
       Real*8, Allocatable :: A_Diag(:)
+      Integer, Allocatable:: SO2C(:)
 
       Real*8, Allocatable :: Tmp(:,:), TMax(:), TInt(:)
 *                                                                      *
@@ -82,17 +82,16 @@
 *
        nSO_Aux=nSOs-1
       If (LDF) Then
-         Call GetMem('SO2C','Allo','Inte',ipSO2C,nSO_Aux)
+         Call mma_allocate(SO2C,nSO_Aux,Label='SO2C')
          MaxCntr=0
          Do i = 1, nSO_Aux
             iSh = iSO2Sh(i)
             iCenter=iSD(10,iSh)
             MaxCntr=Max(MaxCntr,iCenter)
-            iWork(ipSO2C+i-1)=iCenter
+            SO2C(i)=iCenter
          End Do
       Else
          MaxCntr=0
-         ipSO2C=ip_Dummy
       End If
 *
       nBfn2 = 0
