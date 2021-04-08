@@ -20,8 +20,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nFLT
 ! TODO: fix intent of these arrays after removing "ip_of_Work"
 real(kind=wp), intent(inout) :: DLT(*), DSQ(*), FLT(nFLT), FSQ(*)
 real(kind=wp), intent(in) :: ExFac
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ipd, ipDLT, ipDSQ, ipFLT, ipFSQ, ipMOs, ipV, irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
+integer(kind=iwp) :: i, ipd, ipDLT(1), ipFLT(1), ipFSQ(1), ipMOs(1), irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
 integer(kind=iwp), allocatable :: MOs(:)
 integer(kind=iwp), external :: ip_of_Work
@@ -33,7 +32,6 @@ integer(kind=iwp), external :: ip_of_Work
 NScreen = 10
 dmpK = 0.1_wp
 dFKmat = Zero
-nDen = 1
 call IZero(nXorb,nSym)
 
 ! Initialize Cholesky information
@@ -45,25 +43,22 @@ if (irc /= 0) then
   call AbEnd()
 end if
 
-ipDSQ = ip_of_Work(DSQ(1))  ! not needed on exit
-
 MOdim = 0
 do i=1,nSym
   MOdim = MOdim+nBas(i)**2
 end do
 call mma_allocate(MOs,MOdim,label='chMOs')
 
-ipd = ipDSQ
-ipV = 1
+ipd = 1
 do i=1,nSym
   if (nBas(i) > 0) then
     Ymax = Zero
     do ja=1,nBas(i)
       jaa = ipd-1+nBas(i)*(ja-1)+ja
-      Ymax = max(Ymax,Work(jaa))
+      Ymax = max(Ymax,DSQ(jaa))
     end do
     Thr = 1.0e-8_wp*Ymax
-    call CD_InCore(Work(ipd),nBas(i),MOs(ipV),nBas(i),NumV,Thr,irc)
+    call CD_InCore(DSQ(ipd),nBas(i),MOs(ipd),nBas(i),NumV,Thr,irc)
     if (irc /= 0) then
       write(u6,*) 'Cho_Fock_Motra: CD_incore returns rc ',irc
       call AbEnd()
@@ -78,15 +73,14 @@ do i=1,nSym
   end if
 
   ipd = ipd+nBas(i)**2
-  ipV = ipV+nBas(i)**2
 end do
 
-ipDLT = ip_of_Work(DLT(1))
-ipFLT = ip_of_Work(FLT(1))
-ipFSQ = ip_of_Work(FSQ(1))  ! not needed on exit
-ipMOs = ip_of_Work(MOs(1))
-
-call CHO_LK_SCF(irc,nDen,[ipFLT],[ipFSQ],nXorb,nFro,[ipMOs],[ipDLT],Half*ExFac,NScreen,dmpk,dFKmat)
+nDen = 1
+ipFLT(1) = ip_of_Work(FLT(1))
+ipFSQ(1) = ip_of_Work(FSQ(1))  ! not needed on exit
+ipMOs(1) = ip_of_Work(MOs(1))
+ipDLT(1) = ip_of_Work(DLT(1))
+call CHO_LK_SCF(irc,nDen,ipFLT,ipFSQ,nXorb,nFro,ipMOs,ipDLT,Half*ExFac,NScreen,dmpk,dFKmat)
 if (irc /= 0) then
   write(u6,*) 'Cho_Fock_Motra: Cho_LK_scf returns error code ',irc
   call AbEnd()

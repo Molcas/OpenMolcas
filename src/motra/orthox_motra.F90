@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, NBAS
-real(kind=wp), intent(inout) :: S(NORB, NORB), C(NBAS,NORB)
+real(kind=wp), intent(inout) :: S(NORB,NORB), C(NBAS,NORB)
 integer(kind=iwp) :: IBAS, IORB, JORB, KORB
 real(kind=wp) :: A, F
 

@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
 #include "tratoc.fh"
-integer(kind=iwp) :: I, IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, MEMX, NB1, NB2, &
+integer(kind=iwp) :: IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, MEMX, NB1, NB2, &
                      NBSX(8), NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
 real(kind=wp) :: CPE, CPT, TIOE, TIOT
 logical(kind=iwp) :: FoundTwoEls, DoDirect, DoCholesky, ISQUAR
@@ -212,7 +212,7 @@ IAD13 = 0
 call iDAFILE(LUTWOMO,1,iTraToc,nTraToc,IAD13)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
   write(u6,'(6X,A)') 'DISK ADRESSES FOR SYMMETRY BLOCKS OF TRANSFORMED TWO-ELECTRON INTEGRALS'
-  write(u6,'(6X,10I8)') (iTraToc(I),I=1,nTraToc)
+  write(u6,'(6X,10I8)') iTraToc(:)
 end if
 
 call DACLOS(LUTWOMO)

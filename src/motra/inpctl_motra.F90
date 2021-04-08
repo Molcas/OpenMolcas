@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
+subroutine InpCtl_Motra()
 !***********************************************************************
 !                                                                      *
 ! Purpose:                                                             *
@@ -19,17 +19,16 @@ subroutine InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: iAutoCut, iPrint, iRFpert, nTot2
+use motra_global, only: CMO, iAutoCut, iPrint, iRFpert, nTot2, Ovlp
+use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine, ipCMO
-#include "WrkSpc.fh"
 
 !----------------------------------------------------------------------*
 ! Read the content of the one electron integral file                   *
 !----------------------------------------------------------------------*
-call Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
+call Rd1Int_Motra()
 !----------------------------------------------------------------------*
 ! Read auxiliary  input                                                *
 !----------------------------------------------------------------------*
@@ -37,12 +36,12 @@ call RdInp_Motra()
 !----------------------------------------------------------------------*
 ! Read Reaction field and add to one-electron integrals                *
 !----------------------------------------------------------------------*
-if (iRFpert == 1) call RdRfld(ipHOne)
+if (iRFpert == 1) call RdRfld()
 !----------------------------------------------------------------------*
 ! Read the MO coefficients and occupations                             *
 !----------------------------------------------------------------------*
-call GetMem('CMO','Allo','Real',ipCMO,nTot2)
-call RdCmo_motra(Work(ipCMO),Work(ipOvlp))
+call mma_allocate(CMO,nTot2,label='CMO')
+call RdCmo_motra(CMO,Ovlp)
 !----------------------------------------------------------------------*
 ! Delete orbitals with occupations samller than a given value          *
 !----------------------------------------------------------------------*
@@ -50,7 +49,7 @@ if (iAutoCut == 1) call AutoCut()
 !----------------------------------------------------------------------*
 ! Print the input and orbital definitions                              *
 !----------------------------------------------------------------------*
-if (iPrint >= 0) call PrInp(Work(ipCMO))
+if (iPrint >= 0) call PrInp(CMO)
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*

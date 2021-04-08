@@ -9,16 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RdRfld(ipHOne)
+subroutine RdRfld()
 
-use motra_global, only: nBas, nSym, PotNuc
+use motra_global, only: HOne, nBas, nSym, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ipHOne
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iSym, nTemp
 real(kind=wp) :: ERFself
 logical(kind=iwp) :: Found
@@ -40,7 +38,7 @@ call get_dscalar('RF Self Energy',ERFself)
 PotNuc = PotNuc+ERFself
 call get_darray('Reaction field',Temp,nTemp)
 if (Found) call NameRun('RUNFILE')
-call Daxpy_(nTemp,One,Temp,1,Work(ipHone),1)
+call Daxpy_(nTemp,One,Temp,1,HOne,1)
 call mma_deallocate(Temp)
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *

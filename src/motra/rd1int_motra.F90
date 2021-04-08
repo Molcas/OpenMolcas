@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
+subroutine Rd1Int_Motra()
 !***********************************************************************
 !                                                                      *
 ! Objective: Read the header of the one-electron integral file         *
@@ -21,15 +21,13 @@ subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: BsLbl, Header, iRFpert, n2max, nBas, nSym, nTot1, nTot2, PotNuc
+use motra_global, only: BsLbl, Header, HOne, iRFpert, Kine, n2max, nBas, nSym, nTot1, nTot2, Ovlp, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine
 #include "mxdm.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, nDim, nTemp
 real(kind=wp) :: ERFself
 character(len=8) :: OneLbl
@@ -92,9 +90,9 @@ do iSym=1,nSym
   n2max = max(n2max,iBas*iBas)
 end do
 
-call GetMem('Ovlp','Allo','Real',ipOvlp,nTot1+4)
-call GetMem('Kine','Allo','Real',ipKine,nTot1+4)
-call GetMem('HOne','Allo','Real',ipHOne,nTot1+4)
+call mma_allocate(Ovlp,nTot1+4,label='Ovlp')
+call mma_allocate(Kine,nTot1+4,label='Kine')
+call mma_allocate(HOne,nTot1+4,label='HOne')
 !----------------------------------------------------------------------*
 ! Read overlap integrals                                               *
 !----------------------------------------------------------------------*
@@ -103,7 +101,7 @@ iOpt = 6
 iComp = 1
 iSyLbl = 1
 OneLbl = 'Mltpl  0'
-call RdOne(iRc,iOpt,OneLbl,iComp,Work(ipOvlp),iSyLbl)
+call RdOne(iRc,iOpt,OneLbl,iComp,Ovlp,iSyLbl)
 
 if (iRc /= 0) call Error()
 !----------------------------------------------------------------------*
@@ -114,7 +112,7 @@ iOpt = 6
 iComp = 1
 iSyLbl = 1
 OneLbl = 'OneHam  '
-call RdOne(iRc,iOpt,OneLbl,iComp,Work(ipHone),iSyLbl)
+call RdOne(iRc,iOpt,OneLbl,iComp,HOne,iSyLbl)
 
 if (iRc /= 0) call Error()
 !----------------------------------------------------------------------*
@@ -125,7 +123,7 @@ iOpt = 6
 iComp = 1
 iSyLbl = 1
 OneLbl = 'Kinetic '
-call RdOne(iRc,iOpt,OneLbl,iComp,Work(ipKine),iSyLbl)
+call RdOne(iRc,iOpt,OneLbl,iComp,Kine,iSyLbl)
 
 if (iRc /= 0) call Error()
 !----------------------------------------------------------------------*
@@ -145,7 +143,7 @@ if (iRFpert /= 0) then
   call Get_dArray('Reaction field',Temp,nTemp)
   if (Found) call NameRun('RUNFILE')
   PotNuc = PotNuc+ERFself
-  call Daxpy_(nTemp,One,Temp,1,Work(ipHone),1)
+  call Daxpy_(nTemp,One,Temp,1,HOne,1)
   call mma_deallocate(Temp)
 end if
 !----------------------------------------------------------------------*

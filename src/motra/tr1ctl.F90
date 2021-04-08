@@ -55,7 +55,7 @@ call mma_allocate(FLT,NTOT1,label='FLT')
 call mma_allocate(DLT,NTOT1,label='DLT')
 call mma_allocate(FSQ,NTOT2,label='FSQ')
 call mma_allocate(DSQ,NTOT2,label='DSQ')
-call DCOPY_(NTOT1,HONE,1,FLT,1)
+FLT(:) = HONE(1:NTOT1)
 FSQ(:) = Zero
 DLT(:) = Zero
 DSQ(:) = Zero
@@ -95,20 +95,20 @@ if (ihdf5 == 1) then
   !> put data to file
   datadim(1) = 1
   datadim_bound = 1
-  call hdf5_put_data(file_id(1),"ecore ",datadim,ecor)
-  call hdf5_put_data(file_id(1),"norbtt",datadim,norbtt)
-  call hdf5_put_data(file_id(1),"nsym  ",datadim,msym)
+  call hdf5_put_data(file_id(1),'ecore ',datadim,ecor)
+  call hdf5_put_data(file_id(1),'norbtt',datadim,norbtt)
+  call hdf5_put_data(file_id(1),'nsym  ',datadim,msym)
   datadim(1) = nsym
   call mma_allocate(writebuf,nsym,3,label='writebuf')
   writebuf(:,1) = norb(1:nsym)
   writebuf(:,2) = nfro(1:nsym)
   writebuf(:,3) = ndel(1:nsym)
-  call hdf5_put_data(file_id(1),"norb  ",datadim,writebuf(1,1))
-  call hdf5_put_data(file_id(1),"nfro  ",datadim,writebuf(1,2))
-  call hdf5_put_data(file_id(1),"ndel  ",datadim,writebuf(1,3))
+  call hdf5_put_data(file_id(1),'norb  ',datadim,writebuf(1,1))
+  call hdf5_put_data(file_id(1),'nfro  ',datadim,writebuf(1,2))
+  call hdf5_put_data(file_id(1),'ndel  ',datadim,writebuf(1,3))
   call mma_deallocate(writebuf)
   datadim(1) = norbtt
-  call hdf5_put_data(file_id(1),"FockMO",datadim,fmo)
+  call hdf5_put_data(file_id(1),'FockMO',datadim,fmo)
 end if
 #endif
 
@@ -121,9 +121,9 @@ call mma_deallocate(FLT)
 
 call mma_allocate(KAO,NTOT1,label='KAO')
 call mma_allocate(KMO,NORBTT,label='KMO')
+KAO(:) = KINE(1:NTOT1)
 KMO(:) = Zero
 TMP(:) = Zero
-call DCOPY_(NTOT1,KINE,1,KAO,1)
 call TRAONE_MOTRA(KAO,KMO,TMP,CMO)
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
   write(u6,'(6X,A)') 'Kinetic integrals in MO basis'
@@ -145,7 +145,7 @@ call mma_deallocate(TMP)
 ! Copy overlap matrix to luonem
 
 call mma_allocate(OVP,NTOT1,label='OVP')
-call DCOPY_(NTOT1,OVLP,1,OVP,1)
+OVP(:) = OVLP(1:NTOT1)
 TCONEMO(4) = IDISK
 call dDAFILE(LUONEMO,1,OVP,NORBTT,IDISK)
 call mma_deallocate(OVP)

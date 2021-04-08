@@ -150,7 +150,7 @@ LVXPQ = NBPQ*NOVX
 if (IPRINT >= 20) write(u6,*) 'TRAMO 002'
 if (IPRINT >= 30) then
   write(u6,'(A,I6)') ' HALF TRANSFORMED INTEGRALS:',LVXPQ
-  write(u6,'(1X,10F11.6)') (VXPQ(I),I=1,LVXPQ)
+  write(u6,'(1X,10F11.6)') VXPQ(1:LVXPQ)
 end if
 
 ! Empty last buffers
@@ -242,7 +242,7 @@ do NV=1,NOR
         if (NT == NV) IX1 = 1+NBP*(NX-1)
         if (LOQ > 0) then
           if (NBP == 0) then
-            call DCOPY_(LOQ,[Zero],0,X2(IX2),1)
+            X2(IX2:IX2+LOQ-1) = Zero
           else
             call DGEMM_('T','N',LOQ,1,NBP,One,X1(IX1),NBP,CMO(ISTMOT),NBP,Zero,X2(IX2),LOQ)
           end if
@@ -288,7 +288,7 @@ end if
 call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),nTraBuf,IAD13)
 if (IPRINT >= 10) then
   write(u6,'(1X,A,4I2,A,I4)') 'TRANSFORMED INTEGRALS FOR SYMMETRY BLOCK',ISP,ISQ,ISR,ISS,' IOUT=',IOUT
-  write(u6,'(1X,10F12.6)') (OUTBUF(I+KBUF1-1),I=1,IOUT)
+  write(u6,'(1X,10F12.6)') OUTBUF(KBUF1:KBUF1+IOUT-1)
 end if
 
 #ifdef _HDF5_QCM_
@@ -301,10 +301,10 @@ if (ihdf5 == 1) then
   tagx = 16
   datadim(1) = 1
   datadim_bound = 1
-  call hdf5_put_data(file_id(1),"XXXXXX",datadim,iout_total)
+  call hdf5_put_data(file_id(1),'XXXXXX',datadim,iout_total)
   datadim(1) = iout_total
   datadim_bound = 1
-  call hdf5_put_data(file_id(1),"XXXXXX",datadim,tmpbuf)
+  call hdf5_put_data(file_id(1),'XXXXXX',datadim,tmpbuf)
 
   if (IPRINT >= 5) then
     total_number_2ints = total_number_2ints+iout_total

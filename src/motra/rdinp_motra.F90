@@ -110,7 +110,7 @@ input: do
         read(LuSpool,'(A)') Line
         if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
       end do
-      read(Line,*,iostat=istatus) (nFro(iSym),iSym=1,nSym)
+      read(Line,*,iostat=istatus) nFro(1:nSym)
       if (istatus /= 0) call Error()
     case (3)
       !---  Process the "DELEted orbitals" command --------------------*
@@ -118,7 +118,7 @@ input: do
         read(LuSpool,'(A)') Line
         if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
       end do
-      read(Line,*,iostat=istatus) (nDel(iSym),iSym=1,nSym)
+      read(Line,*,iostat=istatus) nDel(1:nSym)
       if (istatus /= 0) call Error()
     case (4)
       !---  Process the "PRINt level" command -------------------------*
@@ -158,7 +158,7 @@ input: do
         read(LuSpool,'(A)') Line
         if ((Line(1:72) /= ' ') .and. (Line(1:1) /= '*')) exit
       end do
-      read(Line,*,iostat=istatus) (CutThrs(iSym),iSym=1,nSym)
+      read(Line,*,iostat=istatus) CutThrs(1:nSym)
       if (istatus /= 0) call Error()
     case (11)
       !---  Process the "EXTRact" command------------------------------*

@@ -25,15 +25,15 @@ subroutine Motra(ireturn)
 #ifdef _HDF5_QCM_
 use hdf5_utils, only: ijklname, file_id, hdf5_close, hdf5_create, hdf5_exit, hdf5_init
 #endif
-use motra_global, only: iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, nTot1, nTot2
+use motra_global, only: CMO, HOne, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, Kine, nTot2, Ovlp
+use stdalloc, only: mma_deallocate
 use Constants, only: Zero
 use Definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "chotraw.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipCMO, ipHOne, ipKine, ipOvlp, irc
+integer(kind=iwp) :: irc
 real(kind=wp) :: tcpu_reo, TCR1, TCR2, TWR1, TWR2
 logical(kind=iwp) :: DoCholesky, Do_int
 integer(kind=iwp), external :: iPrintLevel
@@ -47,7 +47,7 @@ integer(kind=iwp), external :: iPrintLevel
 !----------------------------------------------------------------------*
 call init_motra()
 if (iPrintLevel(-1) <= 0) iPrint = -1
-call InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
+call InpCtl_Motra()
 
 !> initialize HDF5 interface
 #ifdef _HDF5_QCM_
@@ -83,7 +83,7 @@ if (iCTonly == 1) then
     ! Cholesky vectors in HDF5 must be stored as KPQ format (for now)
     Do_int = .false.
     if (iDoInt == 1) Do_int = .true.
-    call Cho_MOtra(Work(ipCMO),nTot2,Do_int,ihdf5)
+    call Cho_MOtra(CMO,nTot2,Do_int,ihdf5)
     iOneOnly = 666
   end if
 else
@@ -115,19 +115,19 @@ end if
 !----------------------------------------------------------------------*
 ! Transform the one-electron integrals                                 *
 !----------------------------------------------------------------------*
-call Tr1Ctl(Work(ipOvlp),Work(ipHOne),Work(ipKine),Work(ipCMO))
+call Tr1Ctl(Ovlp,HOne,Kine,CMO)
 !----------------------------------------------------------------------*
 ! Transform the two-electron integrals                                 *
 !----------------------------------------------------------------------*
-if (iOneOnly == 0) call Tr2Ctl(Work(ipCMO))
+if (iOneOnly == 0) call Tr2Ctl(CMO)
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*
 write(u6,*)
-call GetMem('CMO','Free','Real',ipCMO,nTot2)
-call GetMem('Kine','Free','Real',ipKine,nTot1+4)
-call GetMem('HOne','Free','Real',ipHOne,nTot1+4)
-call GetMem('Ovlp','Free','Real',ipOvlp,nTot1+4)
+call mma_deallocate(CMO)
+call mma_deallocate(Ovlp)
+call mma_deallocate(Kine)
+call mma_deallocate(HOne)
 
 #ifdef _HDF5_QCM_
 if (ihdf5 == 1) then

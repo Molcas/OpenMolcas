@@ -28,7 +28,8 @@ character(len=LenIn8), allocatable :: BsLbl(:)
 !----------------------------------------------------------------------*
 ! Allocate space to store the MO-coefficients and occupations          *
 !----------------------------------------------------------------------*
-real(kind=wp), allocatable :: Occ(:) ! Never allocated?
+real(kind=wp), allocatable :: CMO(:), HOne(:), Kine(:), Occ(:), Ovlp(:)
+! Occ is never allocated?
 
 !----------------------------------------------------------------------*
 ! Allocate space to store the one-electron inntegral file header and   *
@@ -68,9 +69,9 @@ integer(kind=iwp) :: iCTonly, iDoInt
 integer(kind=iwp) :: nTot1, nTot2, n2max, nOrbt, nOrbtt, ISP, ISQ, ISR, ISS, NBP, NBQ, NBR, NBS, NOP, NOQ, NOR, NOS, LMOP, LMOQ, &
                      LMOR, LMOS, NBPQ, NBRS, NOVX, LTUVX, IAD13
 
-public :: BsLbl, CutThrs, Debug, FnHalf, FnInpOrb, FnJobIph, FnOneMO, FnTwoAO, FnTwoMO, Header, IAD13, iAutoCut, iCTonly, iDoInt, &
-          ihdf5, iOneOnly, iPrint, iRFpert, ISP, ISQ, ISR, ISS, iVecTyp, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuHalf, LuInpOrb, &
-          LuJobIph, LuOneMO, LuTwoAO, LuTwoMO, N2MAX, nBas, NBP, NBPQ, NBQ, NBR, NBRS, NBS, nDel, nFro, NOP, NOQ, NOR, nOrb, &
-          nOrbt, nOrbtt, NOS, NOVX, nSym, nTit, nTot1, nTot2, Occ, PotNuc, Title, VecTit
+public :: BsLbl, CMO, CutThrs, Debug, FnHalf, FnInpOrb, FnJobIph, FnOneMO, FnTwoAO, FnTwoMO, Header, HOne, IAD13, iAutoCut, &
+          iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, ISP, ISQ, ISR, ISS, iVecTyp, LMOP, Kine, LMOQ, LMOR, LMOS, LTUVX, &
+          LuHalf, LuInpOrb, LuJobIph, LuOneMO, LuTwoAO, LuTwoMO, N2MAX, nBas, NBP, NBPQ, NBQ, NBR, NBRS, NBS, nDel, nFro, NOP, &
+          NOQ, NOR, nOrb, nOrbt, nOrbtt, NOS, NOVX, nSym, nTit, nTot1, nTot2, Occ, Ovlp, PotNuc, Title, VecTit
 
 end module motra_global
