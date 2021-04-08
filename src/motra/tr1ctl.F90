@@ -18,15 +18,15 @@ subroutine TR1CTL(Ovlp,HOne,Kine,CMO)
 use hdf5_utils, only: datadim, datadim_bound, file_id, hdf5_put_data
 use motra_global, only: ihdf5
 #endif
-use motra_global, only: BsLbl, Debug, FnOneMO, iPrint, LenIn8, LuOneMO, MxOrb, n2max, nBas, nDel, nFro, nOrb, nOrbtt, nSym, nTot1, &
-                        nTot2, PotNuc, TcOneMO
+use motra_global, only: BsLbl, Debug, FnOneMO, iPrint, LenIn8, LuOneMO, n2max, nBas, nDel, nFro, nOrb, nOrbtt, nSym, nTot1, nTot2, &
+                        PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: Ovlp(*), HOne(*), Kine(*), CMO(*)
-integer(kind=iwp) :: IDISK, ISTLT, ISYM
+integer(kind=iwp) :: IDISK, ISTLT, ISYM, TCONEMO(64)
 real(kind=wp) :: ECOR
 real(kind=wp), allocatable :: DLT(:), DSQ(:), FLT(:), FMO(:), FSQ(:), KAO(:), KMO(:), OVP(:), TMP(:)
 #ifdef _HDF5_QCM_
@@ -41,7 +41,8 @@ IDISK = 0
 ! Provisionally initialize ECOR to prevent false alarms from
 ! automatic detection of uninitialized variables.
 ECOR = Zero
-call WR_MOTRA_Info(LUONEMO,1,iDisk,TCONEMO,64,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
+TCONEMO(:) = 0
+call WR_MOTRA_Info(LUONEMO,1,iDisk,TCONEMO,64,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,8,BSLBL,size(BSLBL)*len(BSLBL))
 
 ! Write Mo coefficients to disc
 
@@ -154,7 +155,7 @@ call mma_deallocate(OVP)
 
 TCONEMO(5) = IDISK
 IDISK = 0
-call WR_MOTRA_Info(LUONEMO,1,iDisk,TCONEMO,64,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
+call WR_MOTRA_Info(LUONEMO,1,iDisk,TCONEMO,64,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,8,BSLBL,size(BSLBL)*len(BSLBL))
 call DACLOS(LUONEMO)
 
 return

@@ -11,8 +11,8 @@
 
 subroutine init_motra()
 
-use motra_global, only: Debug, FnCom, FnExt, FnHalf, FnInpOrb, FnJobIph, FnOneAO, FnOneMO, FnTwoAO, FnTwoMO, iAutoCut, iOneOnly, &
-                        iPrint, iRFpert, iVecTyp, LuCom, LuExt, LuHalf, LuInpOrb, LuJobIph, LuOneAO, LuOneMO, LuTwoAO, LuTwoMO
+use motra_global, only: Debug, FnHalf, FnInpOrb, FnJobIph, FnOneMO, FnTwoAO, FnTwoMO, iAutoCut, iOneOnly, iPrint, iRFpert, &
+                        iVecTyp, LuHalf, LuInpOrb, LuJobIph, LuOneMO, LuTwoAO, LuTwoMO
 
 implicit none
 
@@ -21,13 +21,10 @@ implicit none
 !----------------------------------------------------------------------*
 FnInpOrb = 'INPORB'
 FnJobIph = 'JOBIPH'
-FnOneAO = 'ONEINT'
 FnTwoAO = 'ORDINT'
 FnOneMO = 'TRAONE'
 FnTwoMO = 'TRAINT'
 FnHalf = 'TEMP1'
-FnExt = 'EXTRACT'
-FnCom = 'COMFILE'
 Debug = 0
 iPrint = 0
 iOneOnly = 0
@@ -36,13 +33,10 @@ iAutoCut = 0
 iRFpert = 0
 LuInpOrb = 10
 LuJobIph = 15
-LuOneAO = 20
 LuTwoAO = 40
 LuOneMO = 30
 LuTwoMO = 50
 LuHalf = 60
-LuExt = 18
-LuCom = 22
 
 return
 

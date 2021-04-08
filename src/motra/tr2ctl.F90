@@ -17,16 +17,16 @@ subroutine TR2CTL(CMO)
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
-use motra_global, only: Debug, FnTwoAO, FnTwoMO, IAD13, iPrint, ISP, ISQ, ISR, ISS, iTraToc, KBUF, LMOP, LMOQ, LMOR, LMOS, LTUVX, &
-                        LuTwoAO, LuTwoMO, MEMX, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX, nBas, nFro, nORb, nSym, &
-                        nTraToc
+use motra_global, only: Debug, FnTwoAO, FnTwoMO, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuTwoAO, &
+                        LuTwoMO, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX, nBas, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
-integer(kind=iwp) :: I, IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, NB1, NB2, NBSX(8), &
-                     NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
+#include "tratoc.fh"
+integer(kind=iwp) :: I, IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, MEMX, NB1, NB2, &
+                     NBSX(8), NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
 real(kind=wp) :: CPE, CPT, TIOE, TIOT
 logical(kind=iwp) :: FoundTwoEls, DoDirect, DoCholesky, ISQUAR
 integer(kind=iwp), allocatable :: iDsk(:,:)
@@ -146,7 +146,7 @@ do NSP=1,NSYM
         ! INTBUF = Size of output buffer.
         !INTBUF = 256*256
         INTBUF = 16*256*256
-        NW1 = 2*KBUF
+        NW1 = 2*nTraBuf
         NW2 = max(INTBUF,NBP*NOQ,NBQ*NOP)
         ! NW2 is size of 'X1' in TRAMO, used as LBUF in call to RDORD and RDORD_.
         ! LBUF-1 must be at least 'klB':

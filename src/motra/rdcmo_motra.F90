@@ -20,16 +20,19 @@ subroutine RdCmo_motra(CMO,Ovlp)
 !                                                                      *
 !***********************************************************************
 
-use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LenIn8, LuInpOrb, LuJobIph, MxOrb, MxRoot, MxTit, MxSym, nBas, nDel, nSym, &
-                        nTot2, TcJobIph, VecTit
+use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LuInpOrb, LuJobIph, nBas, nDel, nSym, nTot2, VecTit
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, itoB
 
 implicit none
 real(kind=wp), intent(out) :: CMO(*)
 real(kind=wp), intent(in) :: Ovlp(*)
-integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, itemp2((LENIN8*MxOrb)/ItoB)
-real(kind=wp) :: Dummy(1), temp2(MxRoot)
-character :: ctemp2(LENIN8*MxOrb)
+#include "mxdm.fh"
+integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, TcJobIph(10)
+real(kind=wp) :: Dummy(1)
+integer(kind=wp), allocatable :: itemp2(:)
+real(kind=wp), allocatable :: temp2(:)
+character, allocatable :: ctemp2(:)
 logical(kind=iwp) :: okay
 
 !----------------------------------------------------------------------*
@@ -62,9 +65,15 @@ if (iVecTyp == 3) then
     iDisk = 0
     call iDaFile(LuJobIph,2,TcJobIph,10,iDisk)
     iDisk = TcJobIph(1)
+    call mma_allocate(itemp2,max(MxSym,MxRoot),label='itemp2')
+    call mma_allocate(temp2,MxRoot,label='temp2')
+    call mma_allocate(ctemp2,max(LenIn8*MxOrb,144,4*18*mxTit),label='ctemp2')
     call WR_RASSCF_Info(LuJobIph,2,iDisk,itemp2(1),itemp2(1),itemp2(1),itemp2(1),itemp2,itemp2,itemp2,itemp2,itemp2,mxSym,ctemp2, &
-                        lenin8*mxOrb,itemp2(1),ctemp2,144,ctemp2,4*18*mxTit,temp2(1),itemp2(1),itemp2(1),itemp2,mxRoot,itemp2, &
+                        LenIn8*mxOrb,itemp2(1),ctemp2,144,ctemp2,4*18*mxTit,temp2(1),itemp2(1),itemp2(1),itemp2,mxRoot,itemp2, &
                         itemp2,itemp2,itemp2(1),itemp2(1),iPt2,temp2)
+    call mma_deallocate(itemp2)
+    call mma_deallocate(temp2)
+    call mma_deallocate(ctemp2)
     iDisk = TcJobIph(2)
     if (iPt2 /= 0) iDisk = TcJobIph(9)
     call dDaFile(LuJobIph,2,Cmo,nTot2,iDisk)

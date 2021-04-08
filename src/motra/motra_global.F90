@@ -21,8 +21,8 @@ private
 !----------------------------------------------------------------------*
 ! Allocate space to store the system description                       *
 !----------------------------------------------------------------------*
-integer(kind=iwp) :: iOper(mxSym), nAtoms, nBas(mxSym), nDel(mxSym), nFro(mxSym), nOrb(mxSym), nSym
-real(kind=wp) :: Coor(3,MxAtms), PotNuc
+integer(kind=iwp) :: nBas(mxSym), nDel(mxSym), nFro(mxSym), nOrb(mxSym), nSym
+real(kind=wp) :: PotNuc
 character(len=LenIn8) :: BsLbl(mxOrb)
 
 !----------------------------------------------------------------------*
@@ -57,44 +57,24 @@ real(kind=wp) :: CutThrs(mxSym)
 ! Store file names and unit numbers.                                   *
 !----------------------------------------------------------------------*
 ! InpOrb, JobIph: Input files for MO coefficients
-! OneAO, TwoAO:   one- and two-electron integrals in AO basis
+! TwoAO:          two-electron integrals in AO basis
 ! OneMO, TwoMO:   one- and two-electron integrals in MO basis
 ! Half:           half transformed two-electron integrals
-! Ext:            EXTRACT file
-! Com:            COMFILE file
-integer(kind=iwp) :: LuCom, LuExt, LuHalf, LuInpOrb, LuJobIph, LuOneAO, LuOneMO, LuTwoAO, LuTwoMO
-character(len=8) :: FnCom, FnExt, FnHalf, FnOneAO, FnOneMO, FnTwoAO, FnTwoMO
+integer(kind=iwp) :: LuHalf, LuInpOrb, LuJobIph, LuOneMO, LuTwoAO, LuTwoMO
+character(len=8) :: FnHalf, FnOneMO, FnTwoAO, FnTwoMO
 character(len=180) :: FnInpOrb, FnJobIph
 
-!----------------------------------------------------------------------*
-! Allocate space to store the table of contents of various files       *
-!----------------------------------------------------------------------*
-integer(kind=iwp) :: TcJobIph(1024), TcOneMO(1024)
-
-!----------------------------------------------------------------------*
-! Define TOC for the electron repulsion integrals in MO basis          *
-!                                                                      *
-! Define the buffer size of the electron repulsion integrals in MO     *
-! basis                                                                *
-!----------------------------------------------------------------------*
-#include "tratoc.fh"
-integer(kind=iwp), parameter :: kBuf = nTraBuf
-
 integer(kind=iwp) :: iCTonly, iDoInt
-integer(kind=iwp) :: nTot, nTot1, nTot2, n2max, nOrbt, nOrbtt, ISP, ISQ, ISR, ISS, NBP, NBQ, NBR, NBS, NOP, NOQ, NOR, NOS, LMOP, &
-                     LMOQ, LMOR, LMOS, NBPQ, NBRS, NOVX, INCORE, MEMX, LTUVX, IAD13
+integer(kind=iwp) :: nTot1, nTot2, n2max, nOrbt, nOrbtt, ISP, ISQ, ISR, ISS, NBP, NBQ, NBR, NBS, NOP, NOQ, NOR, NOS, LMOP, LMOQ, &
+                     LMOR, LMOS, NBPQ, NBRS, NOVX, LTUVX, IAD13
 
 public :: &
 BsLbl, &
-Coor, &
 CutThrs, &
 Debug, &
-FnCom, &
-FnExt, &
 FnHalf, &
 FnInpOrb, &
 FnJobIph, &
-FnOneAO, &
 FnOneMO, &
 FnTwoAO, &
 FnTwoMO, &
@@ -104,40 +84,27 @@ iAutoCut, &
 iCTonly, &
 iDoInt, &
 ihdf5, &
-INCORE, &
 iOneOnly, &
-iOper, &
 iPrint, &
 iRFpert, &
 ISP, &
 ISQ, &
 ISR, &
 ISS, &
-iTraToc, &
 iVecTyp, &
-kBuf, &
 LenIn8, &
 LMOP, &
 LMOQ, &
 LMOR, &
 LMOS, &
 LTUVX, &
-LuCom, &
-LuExt, &
 LuHalf, &
 LuInpOrb, &
 LuJobIph, &
-LuOneAO, &
 LuOneMO, &
 LuTwoAO, &
 LuTwoMO, &
-MEMX, &
-MxOrb, &
-MxRoot, &
-MxTit, &
-MxSym, &
-n2max, &
-nAtoms, &
+N2MAX, &
 nBas, &
 NBP, &
 NBPQ, &
@@ -157,14 +124,10 @@ NOS, &
 NOVX, &
 nSym, &
 nTit, &
-nTot, &
 nTot1, &
 nTot2, &
-nTraToc, &
 Occ, &
 PotNuc, &
-TcJobIph, &
-TcOneMO, &
 Title, &
 VecTit
 

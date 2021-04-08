@@ -21,7 +21,7 @@ subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: BsLbl, Coor, Header, iOper, iRFpert, LenIn8, n2max, nAtoms, nBas, nSym, nTot, nTot1, nTot2, PotNuc
+use motra_global, only: BsLbl, Header, iRFpert, LenIn8, n2max, nBas, nSym, nTot1, nTot2, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -46,7 +46,7 @@ call Get_iScalar('nSym',nSym)
 !----------------------------------------------------------------------*
 ! Read symm. oper per symm. species                                    *
 !----------------------------------------------------------------------*
-call Get_iArray('Symmetry operations',iOper,nSym)
+!call Get_iArray('Symmetry operations',iOper,nSym)
 !----------------------------------------------------------------------*
 ! Read no. of basis functions per symm. species                        *
 !----------------------------------------------------------------------*
@@ -62,15 +62,15 @@ call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*nDim)
 !----------------------------------------------------------------------*
 ! Read no. of unique atoms in the system                               *
 !----------------------------------------------------------------------*
-call Get_iScalar('Unique atoms',nAtoms)
+!call Get_iScalar('Unique atoms',nAtoms)
 !----------------------------------------------------------------------*
 ! Read atom labels                                                     *
 !----------------------------------------------------------------------*
-!call Get_cArray('Unique Atom Names',AtLbl,(LENIN)*nAtoms)
+!call Get_cArray('Unique Atom Names',AtLbl,LenIn*nAtoms)
 !----------------------------------------------------------------------*
 ! Read coordinates of atoms                                            *
 !----------------------------------------------------------------------*
-call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
+!call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 !----------------------------------------------------------------------*
 ! Read nuclear repulsion energy                                        *
 !----------------------------------------------------------------------*
@@ -79,13 +79,11 @@ call Get_dScalar('PotNuc',PotNuc)
 !----------------------------------------------------------------------*
 ! Allocate memory for one-electron integrals                           *
 !----------------------------------------------------------------------*
-nTot = 0
 nTot1 = 0
 nTot2 = 0
 n2max = 0
 do iSym=1,nSym
   iBas = nBas(iSym)
-  nTot = nTot+iBas
   nTot1 = nTot1+iBAs*(iBas+1)/2
   nTot2 = nTot2+iBas*iBas
   n2max = max(n2max,iBas*iBas)

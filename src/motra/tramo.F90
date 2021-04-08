@@ -20,8 +20,8 @@ use hdf5_utils, only: datadim, datadim_bound, datatag, file_id, hdf5_put_data, t
 use motra_global, only: ihdf5
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-use motra_global, only: FnHalf, IAD13, INCORE, iPrint, ISP, ISQ, ISR, ISS, KBUF, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuHalf, LuTwoMO, &
-                        NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
+use motra_global, only: FnHalf, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuHalf, LuTwoMO, NBP, NBPQ, NBQ, &
+                        NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, RtoB
 
@@ -31,8 +31,10 @@ real(kind=wp), intent(inout) :: OUTBUF(nOUTBUF), X1(nX1), VXPQ(nVXPQ)
 real(kind=wp), intent(out) :: X2(nX2), X3(nX3)
 real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp), intent(out) :: iDsk(3,mOVX)
+#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD14, IAD14_, inBuf, IOPT, IOUT, IPQ, IPQMAX, IPQST, IPQUT, IPQX, IRC, IRSST, IST, ISTMOT, IVX, IX1, IX2, &
                      KBUF1, LOQ, LPKREC, LPQ, LVXPQ, NBYTES, NP, NPQ, NQ, NQM, NT, NTUVX, NUMAX, NV, NX, NXM
+logical(kind=iwp) :: INCORE
 #ifdef _HDF5_QCM_
 integer(kind=iwp) :: iout_total
 integer(kind=iwp), save :: total_number_2ints = 0
@@ -61,9 +63,9 @@ IOUT = 0
 IAD14 = 0
 IPQUT = 0
 IPQMAX = NBPQ
-INCORE = 0
+INCORE = .false.
 if (NBPQ*NOVX > nVXPQ) then
-  INCORE = 1
+  INCORE = .true.
   IPQMAX = nVXPQ/NOVX
   IPQMAX = (nVXPQ-IPQMAX)/NOVX
   IPQMAX = (nVXPQ-IPQMAX)/NOVX
@@ -116,7 +118,7 @@ do NP=1,NBP
     end if
 
     ! Sort the matrix X2 into VXPQ (sort after PQ instead of VX)
-    ! if INCORE=1 also write sorted integrals on unit LUHALF.
+    ! if INCORE also write sorted integrals on unit LUHALF.
 
     if (IPQUT > IPQMAX) then
       IPQUT = 1
@@ -153,7 +155,7 @@ end if
 
 ! Empty last buffers
 
-if (INCORE == 1) then
+if (INCORE) then
   IST = 1
   do I=1,NOVX
     call PKR8(0,IPQMAX,NBYTES,VXPQ(IST),VXPQ(IST))
@@ -172,7 +174,7 @@ if (INCORE == 1) then
 end if
 
 ! First half transformation is now done. VXPQ contains half trans-
-! formed integrals for this symmetry block, if INCORE=0
+! formed integrals for this symmetry block, if not INCORE
 ! otherwise integrals or one VX pair at a time will be read
 ! from unit LUHALF.
 
@@ -185,9 +187,9 @@ do NV=1,NOR
     IPQST = 1+NBPQ*IVX
     IVX = IVX+1
 
-    ! Read one buffer of integrals back into core if INCORE=1
+    ! Read one buffer of integrals back into core if INCORE
 
-    if (INCORE == 1) then
+    if (INCORE) then
 
       ! Back chain buffers
 
@@ -254,21 +256,21 @@ do NV=1,NOR
     ! Move integrals to output buffer and write them on LUTWOMO
 
     do NTUVX=1,IX2
-      if (IOUT == KBUF) then
+      if (IOUT == nTraBuf) then
         IOUT = 0
         if (IPRINT >= 5) then
           write(u6,'(A)') 'SAVE TRANSFORMED INTEGRALS:'
-          write(u6,'(A,3I8)') 'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
+          write(u6,'(A,3I8)') 'LU,nTraBuf,IDISK =',LUTWOMO,nTraBuf,IAD13
         end if
-        call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),KBUF,IAD13)
+        call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),nTraBuf,IAD13)
 #       ifdef _HDF5_QCM_
-        !write(u6,*) 'SAVE TRANSFORMED INTEGRALS:',KBUF,KBUF1,iout_total,iout_total+kbuf
+        !write(u6,*) 'SAVE TRANSFORMED INTEGRALS:',nTraBuf,KBUF1,iout_total,iout_total+nTraBuf
         if (ihdf5 == 1) then
-          call dcopy_(KBUF,OUTBUF(KBUF1),1,tmpbuf(iout_total+1),1)
-          iout_total = iout_total+kbuf
+          call dcopy_(nTraBuf,OUTBUF(KBUF1),1,tmpbuf(iout_total+1),1)
+          iout_total = iout_total+nTraBuf
         end if
 #       endif
-        KBUF1 = KBUF+2-KBUF1
+        KBUF1 = nTraBuf+2-KBUF1
       end if
       IOUT = IOUT+1
       LTUVX = LTUVX+1
@@ -281,9 +283,9 @@ end do
 
 if (IPRINT >= 5) then
   write(u6,'(A)') 'SAVE TRANSFORMED INTEGRALS:'
-  write(u6,'(A,3I8)') 'LU,KBUF,IDISK =',LUTWOMO,KBUF,IAD13
+  write(u6,'(A,3I8)') 'LU,nTraBuf,IDISK =',LUTWOMO,nTraBuf,IAD13
 end if
-call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),KBUF,IAD13)
+call dDAFILE(LUTWOMO,1,OUTBUF(KBUF1),nTraBuf,IAD13)
 if (IPRINT >= 10) then
   write(u6,'(1X,A,4I2,A,I4)') 'TRANSFORMED INTEGRALS FOR SYMMETRY BLOCK',ISP,ISQ,ISR,ISS,' IOUT=',IOUT
   write(u6,'(1X,10F12.6)') (OUTBUF(I+KBUF1-1),I=1,IOUT)
@@ -314,7 +316,7 @@ if (ihdf5 == 1) then
 end if
 #endif
 
-if (INCORE == 1) call DACLOS(LUHALF)
+if (INCORE) call DACLOS(LUHALF)
 
 return
 

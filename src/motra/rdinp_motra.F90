@@ -20,14 +20,14 @@ subroutine RdInp_Motra()
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, iVecTyp, mxSym, mxTit, &
-                        nBas, nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, nTit, Title
+use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, iVecTyp, nBas, nDel, nFro, &
+                        nOrb, nOrbt, nOrbtt, nSym, nTit, Title
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
 #include "chotraw.fh"
-integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, nDel2(8)
+integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, mxTit, nDel2(nSym)
 character(len=180) :: Line
 logical(kind=iwp) :: Skip
 integer(kind=iwp), parameter :: nCmd = 16, lCmd = 4
@@ -42,11 +42,10 @@ tv2disk = 'PQK'
 !----------------------------------------------------------------------*
 ! Initialize some arrays                                               *
 !----------------------------------------------------------------------*
-do iSym=1,mxSym
-  nDel(iSym) = 0
-  nOrb(iSym) = 0
-  CutThrs(iSym) = Zero
-end do
+nDel(:) = 0
+nOrb(:) = 0
+CutThrs(:) = Zero
+mxTit = size(Title)
 call Get_iArray('Non valence orbitals',nFro,nSym)
 !----------------------------------------------------------------------*
 ! Locate "start of input"                                              *
@@ -188,7 +187,7 @@ input: do
   end select
 end do input
 
-! New rules for title lines...warning needed?
+! New rules for title lines... warning needed?
 if (nTit > mxTit) then
   write(u6,*) ' NOTE: New input specifications says TITLE keyword'
   write(u6,*) ' must be followed by exactly one title line.'
