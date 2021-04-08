@@ -20,14 +20,12 @@ subroutine RdInp_Motra()
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
+use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, iVecTyp, mxSym, mxTit, &
+                        nBas, nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, nTit, Title
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-#include "motra_global.fh"
-#include "trafo_motra.fh"
-#include "files_motra.fh"
-#include "cho_minp.fh"
 #include "chotraw.fh"
 integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, nDel2(8)
 character(len=180) :: Line

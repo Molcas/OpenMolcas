@@ -21,15 +21,13 @@ subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
+use motra_global, only: BsLbl, Coor, Header, iOper, iRFpert, LenIn8, n2max, nAtoms, nBas, nSym, nTot, nTot1, nTot2, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine
-#include "files_motra.fh"
-#include "motra_global.fh"
-#include "trafo_motra.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, nDim, nTemp
 real(kind=wp) :: ERFself

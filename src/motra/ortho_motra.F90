@@ -13,6 +13,7 @@ subroutine ORTHO_MOTRA(nSym,nBas,nDel,Ovlp,CMO)
 ! Objective: Orthonormalize input vectors
 !           (Gram-Schmidt orthogonaliztion)
 
+use motra_global, only: N2MAX
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -21,7 +22,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nDel(nSym)
 real(kind=wp), intent(in) :: Ovlp(*)
 real(kind=wp), intent(inout) :: CMO(*)
-#include "trafo_motra.fh"
 integer(kind=iwp) :: IJ, IM, ISYM, NORBI
 real(kind=wp), allocatable :: W1(:), W2(:), W3(:)
 

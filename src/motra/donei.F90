@@ -11,13 +11,13 @@
 
 subroutine DONEI(DLT,DSQ,CMO)
 
+use motra_global, only: Debug, iPrint, nBas, nFro, nSym
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: DLT(*), DSQ(*)
 real(kind=wp), intent(in) :: CMO(*)
-#include "motra_global.fh"
 integer(kind=iwp) :: IB, IJ, ISTLT, ISTSQ, ISYM, JB, NB, NF
 
 ISTSQ = 0

@@ -15,21 +15,22 @@ subroutine TR1CTL(Ovlp,HOne,Kine,CMO)
 !            kinetic energy )
 
 #ifdef _HDF5_QCM_
-use hdf5_utils
+use hdf5_utils, only: datadim, datadim_bound, file_id, hdf5_put_data
+use motra_global, only: ihdf5
 #endif
+use motra_global, only: BsLbl, Debug, FnOneMO, iPrint, LenIn8, LuOneMO, MxOrb, n2max, nBas, nDel, nFro, nOrb, nOrbtt, nSym, nTot1, &
+                        nTot2, PotNuc, TcOneMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: Ovlp(*), HOne(*), Kine(*), CMO(*)
-#include "motra_global.fh"
-#include "trafo_motra.fh"
-#include "files_motra.fh"
 integer(kind=iwp) :: IDISK, ISTLT, ISYM
 real(kind=wp) :: ECOR
 real(kind=wp), allocatable :: DLT(:), DSQ(:), FLT(:), FMO(:), FSQ(:), KAO(:), KMO(:), OVP(:), TMP(:)
 #ifdef _HDF5_QCM_
+integer(kind=iwp) :: msym
 real(kind=wp), allocatable :: writebuf(:,:)
 #endif
 
@@ -92,15 +93,16 @@ end if
 if (ihdf5 == 1) then
   msym = nsym
   !> put data to file
-  datadim(1) = 1; datadim_bound = 1
+  datadim(1) = 1
+  datadim_bound = 1
   call hdf5_put_data(file_id(1),"ecore ",datadim,ecor)
   call hdf5_put_data(file_id(1),"norbtt",datadim,norbtt)
   call hdf5_put_data(file_id(1),"nsym  ",datadim,msym)
   datadim(1) = nsym
   call mma_allocate(writebuf,nsym,3,label='writebuf')
-  writebuf(:,1) = norb(:)
-  writebuf(:,2) = nfro(:)
-  writebuf(:,3) = ndel(:)
+  writebuf(:,1) = norb(1:nsym)
+  writebuf(:,2) = nfro(1:nsym)
+  writebuf(:,3) = ndel(1:nsym)
   call hdf5_put_data(file_id(1),"norb  ",datadim,writebuf(1,1))
   call hdf5_put_data(file_id(1),"nfro  ",datadim,writebuf(1,2))
   call hdf5_put_data(file_id(1),"ndel  ",datadim,writebuf(1,3))

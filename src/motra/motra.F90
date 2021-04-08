@@ -23,18 +23,16 @@ subroutine Motra(ireturn)
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
 #ifdef _HDF5_QCM_
-use hdf5_utils
+use hdf5_utils, only: ijklname, file_id, hdf5_close, hdf5_create, hdf5_exit, hdf5_init
 #endif
+use motra_global, only: iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, nTot1, nTot2
 use Constants, only: Zero
 use Definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "motra_global.fh"
-#include "trafo_motra.fh"
-#include "WrkSpc.fh"
-#include "cho_minp.fh"
 #include "chotraw.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: ipCMO, ipHOne, ipKine, ipOvlp, irc
 real(kind=wp) :: tcpu_reo, TCR1, TCR2, TWR1, TWR2
 logical(kind=iwp) :: DoCholesky, Do_int

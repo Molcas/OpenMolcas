@@ -19,13 +19,11 @@ subroutine InpCtl_Motra(ipOvlp,ipHOne,ipKine,ipCMO)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
+use motra_global, only: iAutoCut, iPrint, iRFpert, nTot2
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine, ipCMO
-#include "motra_global.fh"
-#include "files_motra.fh"
-#include "trafo_motra.fh"
 #include "WrkSpc.fh"
 
 !----------------------------------------------------------------------*

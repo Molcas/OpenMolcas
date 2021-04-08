@@ -11,9 +11,10 @@
 
 subroutine init_motra()
 
+use motra_global, only: Debug, FnCom, FnExt, FnHalf, FnInpOrb, FnJobIph, FnOneAO, FnOneMO, FnTwoAO, FnTwoMO, iAutoCut, iOneOnly, &
+                        iPrint, iRFpert, iVecTyp, LuCom, LuExt, LuHalf, LuInpOrb, LuJobIph, LuOneAO, LuOneMO, LuTwoAO, LuTwoMO
+
 implicit none
-#include "motra_global.fh"
-#include "files_motra.fh"
 
 !----------------------------------------------------------------------*
 ! Define  file names and unit numbers.                                 *

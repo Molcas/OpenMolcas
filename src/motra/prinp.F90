@@ -19,12 +19,13 @@ subroutine PrInp(CMO)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
+use motra_global, only: BsLbl, CutThrs, Debug, Header, iAutoCut, iPrint, iRFpert, nBas, nDel, nFro, nOrb, nSym, nTit, Occ, Title, &
+                        VecTit
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
-#include "motra_global.fh"
 integer(kind=iwp) :: i, left, lLine, lPaper, nLine
 real(kind=wp) :: Ene, ThrEne, ThrOcc
 character(len=120) :: Line, StLine

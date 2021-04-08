@@ -17,14 +17,14 @@ subroutine TR2CTL(CMO)
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
+use motra_global, only: Debug, FnTwoAO, FnTwoMO, IAD13, iPrint, ISP, ISQ, ISR, ISS, iTraToc, KBUF, LMOP, LMOQ, LMOR, LMOS, LTUVX, &
+                        LuTwoAO, LuTwoMO, MEMX, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX, nBas, nFro, nORb, nSym, &
+                        nTraToc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
-#include "motra_global.fh"
-#include "trafo_motra.fh"
-#include "files_motra.fh"
 integer(kind=iwp) :: I, IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, NB1, NB2, NBSX(8), &
                      NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
 real(kind=wp) :: CPE, CPT, TIOE, TIOT

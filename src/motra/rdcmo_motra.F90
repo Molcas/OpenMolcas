@@ -20,14 +20,13 @@ subroutine RdCmo_motra(CMO,Ovlp)
 !                                                                      *
 !***********************************************************************
 
+use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LenIn8, LuInpOrb, LuJobIph, MxOrb, MxRoot, MxTit, MxSym, nBas, nDel, nSym, &
+                        nTot2, TcJobIph, VecTit
 use Definitions, only: wp, iwp, u6, itoB
 
 implicit none
 real(kind=wp), intent(out) :: CMO(*)
 real(kind=wp), intent(in) :: Ovlp(*)
-#include "motra_global.fh"
-#include "trafo_motra.fh"
-#include "files_motra.fh"
 integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, itemp2((LENIN8*MxOrb)/ItoB)
 real(kind=wp) :: Dummy(1), temp2(MxRoot)
 character :: ctemp2(LENIN8*MxOrb)

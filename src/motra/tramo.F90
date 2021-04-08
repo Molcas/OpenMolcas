@@ -16,11 +16,14 @@ subroutine TRAMO(LBUF,OUTBUF,nOUTBUF,X1,nX1,X2,nX2,X3,nX3,VXPQ,nVXPQ,CMO,iDsk,mO
 !          are written onto unit LUHALF.
 
 #ifdef _HDF5_QCM_
-use hdf5_utils
+use hdf5_utils, only: datadim, datadim_bound, datatag, file_id, hdf5_put_data, tagx
+use motra_global, only: ihdf5
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+use motra_global, only: FnHalf, IAD13, INCORE, iPrint, ISP, ISQ, ISR, ISS, KBUF, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuHalf, LuTwoMO, &
+                        NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: LBUF, nOUTBUF, nX1, nX2, nX3, nVXPQ, mOVX
@@ -28,10 +31,6 @@ real(kind=wp), intent(inout) :: OUTBUF(nOUTBUF), X1(nX1), VXPQ(nVXPQ)
 real(kind=wp), intent(out) :: X2(nX2), X3(nX3)
 real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp), intent(out) :: iDsk(3,mOVX)
-#include "motra_global.fh"
-#include "trafo_motra.fh"
-#include "files_motra.fh"
-#include "SysDef.fh"
 integer(kind=iwp) :: I, IAD14, IAD14_, inBuf, IOPT, IOUT, IPQ, IPQMAX, IPQST, IPQUT, IPQX, IRC, IRSST, IST, ISTMOT, IVX, IX1, IX2, &
                      KBUF1, LOQ, LPKREC, LPQ, LVXPQ, NBYTES, NP, NPQ, NQ, NQM, NT, NTUVX, NUMAX, NV, NX, NXM
 #ifdef _HDF5_QCM_
@@ -298,9 +297,11 @@ if (ihdf5 == 1) then
   !> put data to file
   write(datatag,'(a1,i3,a1,i3,a1,i3,a1,i3)') 'p',isp,'q',isq,'r',isr,'s',iss
   tagx = 16
-  datadim(1) = 1; datadim_bound = 1
+  datadim(1) = 1
+  datadim_bound = 1
   call hdf5_put_data(file_id(1),"XXXXXX",datadim,iout_total)
-  datadim(1) = iout_total; datadim_bound = 1
+  datadim(1) = iout_total
+  datadim_bound = 1
   call hdf5_put_data(file_id(1),"XXXXXX",datadim,tmpbuf)
 
   if (IPRINT >= 5) then

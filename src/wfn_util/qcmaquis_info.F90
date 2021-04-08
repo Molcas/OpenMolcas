@@ -51,15 +51,34 @@ subroutine qcmaquis_info_init(igroup,nstates,tag)
   use Definitions, only: iwp, u6
 
   integer(kind=iwp), intent(in) :: igroup, nstates, tag
+# ifdef _GARBLE_
+  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+  interface
+    subroutine c_null_alloc(A)
+      character(len=256), allocatable :: A(:)
+    end subroutine c_null_alloc
+  end interface
+  integer(kind=iwp) :: i
+# endif
 
   if (tag == 0) then
     call mma_allocate(qcm_group_names,igroup,label='qcm_group_names')
+#   ifdef _GARBLE_
+    do i=1,igroup
+      call c_null_alloc(qcm_group_names(i)%states)
+    end do
+#   endif
     call mma_allocate(qcm_prefixes,igroup,label='qcm_prefixes')
   else if (tag == 1) then
     call mma_allocate(qcm_group_names(igroup)%states,nstates,label='qcm_igroup')
     qcm_group_names(igroup)%states = ''
   else if (tag == -1) then
     call mma_allocate(qcm_group_names,igroup,label='qcm_group_names')
+#   ifdef _GARBLE_
+    do i=1,igroup
+      call c_null_alloc(qcm_group_names(i)%states)
+    end do
+#   endif
     call mma_allocate(qcm_group_names(igroup)%states,nstates,label='qcm_igroup')
     qcm_group_names(igroup)%states = ''
   else

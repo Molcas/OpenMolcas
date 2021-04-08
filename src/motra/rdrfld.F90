@@ -11,17 +11,14 @@
 
 subroutine RdRfld(ipHOne)
 
+use motra_global, only: nBas, nSym, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ipHOne
-#include "files_motra.fh"
-#include "motra_global.fh"
-#include "trafo_motra.fh"
 #include "WrkSpc.fh"
-#include "SysDef.fh"
 integer(kind=iwp) :: iSym, nTemp
 real(kind=wp) :: ERFself
 logical(kind=iwp) :: Found

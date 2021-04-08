@@ -21,11 +21,10 @@ subroutine AutoCut()
 !                                                                      *
 !**** M. Merchan, University of Valencia, Spain, 1991 ******************
 
+use motra_global, only: CutThrs, nBas, nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, Occ
 use Definitions, only: iwp, u6
 
 implicit none
-#include "motra_global.fh"
-#include "trafo_motra.fh"
 integer(kind=iwp) :: iBas, iDel, ipBas, iSym
 
 !----------------------------------------------------------------------*
