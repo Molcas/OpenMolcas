@@ -18,8 +18,7 @@ subroutine TR1CTL(Ovlp,HOne,Kine,CMO)
 use hdf5_utils, only: datadim, datadim_bound, file_id, hdf5_put_data
 use motra_global, only: ihdf5
 #endif
-use motra_global, only: BsLbl, Debug, FnOneMO, iPrint, LenIn8, LuOneMO, n2max, nBas, nDel, nFro, nOrb, nOrbtt, nSym, nTot1, nTot2, &
-                        PotNuc
+use motra_global, only: BsLbl, Debug, FnOneMO, iPrint, LuOneMO, n2max, nBas, nDel, nFro, nOrb, nOrbtt, nSym, nTot1, nTot2, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -157,6 +156,8 @@ TCONEMO(5) = IDISK
 IDISK = 0
 call WR_MOTRA_Info(LUONEMO,1,iDisk,TCONEMO,64,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,8,BSLBL,size(BSLBL)*len(BSLBL))
 call DACLOS(LUONEMO)
+
+call mma_deallocate(BSLBL)
 
 return
 

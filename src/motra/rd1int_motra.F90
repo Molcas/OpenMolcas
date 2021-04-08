@@ -21,13 +21,14 @@ subroutine Rd1Int_Motra(ipOvlp,ipHOne,ipKine)
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: BsLbl, Header, iRFpert, LenIn8, n2max, nBas, nSym, nTot1, nTot2, PotNuc
+use motra_global, only: BsLbl, Header, iRFpert, n2max, nBas, nSym, nTot1, nTot2, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ipOvlp, ipHOne, ipKine
+#include "mxdm.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, nDim, nTemp
 real(kind=wp) :: ERFself
@@ -58,7 +59,9 @@ nDim = 0
 do iSym=1,nSym
   nDim = nDim+nBas(iSym)
 end do
-call Get_cArray('Unique Basis Names',BsLbl,(LENIN8)*nDim)
+call mma_allocate(BsLbl,mxOrb,label='BsLbl') ! allocate much more than needed, it will be assumed by other programs
+call Get_cArray('Unique Basis Names',BsLbl,len(BsLbl)*nDim)
+BsLbl(nDim+1:) = ''
 !----------------------------------------------------------------------*
 ! Read no. of unique atoms in the system                               *
 !----------------------------------------------------------------------*

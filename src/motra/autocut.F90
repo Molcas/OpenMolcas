@@ -27,6 +27,9 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: iBas, iDel, ipBas, iSym
 
+! FIXME: Occ was never read or allocated
+call Untested('AutoCut')
+
 !----------------------------------------------------------------------*
 ! Start procedure                                                      *
 !----------------------------------------------------------------------*

@@ -67,7 +67,7 @@ if (iVecTyp == 3) then
     iDisk = TcJobIph(1)
     call mma_allocate(itemp2,max(MxSym,MxRoot),label='itemp2')
     call mma_allocate(temp2,MxRoot,label='temp2')
-    call mma_allocate(ctemp2,max(LenIn8*MxOrb,144,4*18*mxTit),label='ctemp2')
+    call mma_allocate(ctemp2,max(LenIn8*mxOrb,144,4*18*mxTit),label='ctemp2')
     call WR_RASSCF_Info(LuJobIph,2,iDisk,itemp2(1),itemp2(1),itemp2(1),itemp2(1),itemp2,itemp2,itemp2,itemp2,itemp2,mxSym,ctemp2, &
                         LenIn8*mxOrb,itemp2(1),ctemp2,144,ctemp2,4*18*mxTit,temp2(1),itemp2(1),itemp2(1),itemp2,mxRoot,itemp2, &
                         itemp2,itemp2,itemp2(1),itemp2(1),iPt2,temp2)
