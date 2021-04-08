@@ -65,8 +65,10 @@
       Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
       Integer, Allocatable :: SO2C(:), AB(:,:)
 
-      Real*8, Allocatable :: Tmp(:,:)
+      Real*8, Allocatable :: Tmp(:,:), TMax_Auxiliary(:),
+     &                       TMax_Valence(:,:)
       Integer, Allocatable:: TmpList(:), iRv(:)
+      Real*8, Allocatable :: Arr_3C(:), Rv(:), Qv(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,13 +97,6 @@
 ************************************************************************
 *                                                                      *
 *define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*----- Statement functions
-*
-      TMax_Valence(i,j)=Work(ipTMax-1+(j-1)*nSkal_Valence+i)
-      TMax_Auxiliary(i)=Work(ipTMax-1+nSkal_Valence**2+i)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -201,26 +196,25 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      nTMax=nSkal_Valence**2+nSkal_Auxiliary-1
-      Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
+      Call mma_allocate(TMax_Valence,nSkal_Valence,nSkal_Valence,
+     &                  Label='TMax_Valence')
+      Call mma_allocate(TMax_Auxiliary,nSkal_Auxiliary,
+     &                  Label='TMax_Auxiliary')
 *
       Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
       Call Shell_MxSchwz(nSkal,Tmp)
       TMax_all=Zero
       Do iS = 1, nSkal_Valence
          Do jS = 1, iS
-            ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
-            Work(ip_In)=Tmp(iS,jS)
-            ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
-            Work(ip_In)=Tmp(iS,jS)
+            TMax_Valence(iS,jS)=Tmp(iS,jS)
+            TMax_Valence(jS,iS)=Tmp(iS,jS)
             TMax_all=Max(TMax_all,Tmp(iS,jS))
          End Do
       End Do
       Do iS = 1, nSkal_Auxiliary-1
          iS_ = iS + nSkal_Valence
          jS_ = nSkal_Valence + nSkal_Auxiliary
-         ip_In  = ipTMax + nSkal_Valence**2 + iS -1
-         Work(ip_In)=Tmp(jS_,iS_)
+         TMax_Auxiliary(iS)=Tmp(jS_,iS_)
          TMax_all=Max(TMax_all,Tmp(jS_,iS_))
       End Do
 *
@@ -235,7 +229,7 @@
 *
       Call Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
      &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,
-     &               Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
+     &               TMax_Valence,CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
       Call mma_Allocate(iRv,nSkal2,Label='iRv')
@@ -250,7 +244,7 @@
 *                                                                      *
 *     Preallocate some core for Seward!
 *
-      Call GetMem('MaxMem','Max','Real',iDummy,MemSew)
+      Call mma_maxDBLE(MemSew)
       MemLow=Min(MemSew/2,1024*128)
       MemSew=Max(MemSew/10,MemLow)
       Call xSetMem_Ints(MemSew)
@@ -284,10 +278,10 @@
          End Do
       End Do
 *
-      Call GetMem('3C','Allo','Real',ip_3C,n3CMax)
-      Call GetMem('Rv','Allo','Real',ip_Rv,nRvMax)
+      Call mma_allocate(Arr_3C,n3CMax,Label='Arr_3C')
+      Call mma_allocate(Rv,nRvMax,Label='Rv')
 *
-      Call GetMem('MemMax','Max','Real',iDummy,MaxMem)
+      Call mma_maxDBLE(MaxMem)
       nQv=0
       Do iIrrep = 0, nIrrep-1
          lJ=nBas_Aux(iIrrep)
@@ -300,23 +294,22 @@
       If (Force_Out_of_Core) MaxMem=(8*nQv)/10
       Out_of_Core = nQv.gt.MaxMem
       nQv = Min(nQv,MaxMem)  ! note that nQv is effectively reset here
-      Call GetMem('Q_vector','Allo','Real',ip_Qv,nQv)
+      Call mma_allocate(Qv,nQv,Label='Qv')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     In case of in-core mode read Q-vectors only once!
 *
       If (.Not.Out_of_Core) Then
-         mQv=0
+         mQv=1
          Do iIrrep = 0, nIrrep-1
             lJ=nBas_Aux(iIrrep)
             If (iIrrep.eq.0) lJ=lJ-1 ! remove dummy basis function
 *
             If (lJ.gt.0) Then
                iAddr=0
-               iOff = ip_Qv+mQv
                kQv = lJ*nChV(iIrrep)
-               Call dDaFile(Lu_Q(iIrrep),2,Work(iOff),kQv,iAddr)
+               Call dDaFile(Lu_Q(iIrrep),2,Qv(mQv),kQv,iAddr)
                mQv = mQv + kQv
             End If
          End Do
@@ -416,8 +409,8 @@ C                    Write (6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
      &                  nChV)
          n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_3C,
      &                  nBas_Aux)
-         Call FZero(Work(ip_3C),n3C)
-         Call FZero(Work(ip_Rv),nRv)
+         Arr_3C(1:n3C)=Zero
+         Rv(1:nRv)=Zero
 *
          Call ICopy(nIrrep,iOff_3C,3,iTOffs(3),3)
 *
@@ -441,7 +434,7 @@ C              Write (6,*) 'jCenter=',jCenter
             Write (6,*)
 #endif
             If (AInt.lt.CutInt) Go To 14
-            Call Eval_IJKL(iS,jS,kS,lS,Work(ip_3C),n3C,Integral_WrOut)
+            Call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
  14         Continue
 *
 *           Use a time slot to save the number of tasks and shell
@@ -457,8 +450,7 @@ C              Write (6,*) 'jCenter=',jCenter
 *
 *        Compute HQ
 *
-         Call Mult_3C_Qv_S(Work(ip_3C),n3C,Work(ip_Qv),nQv,Work(ip_Rv),
-     &                     nRv,nChV,
+         Call Mult_3C_Qv_S(Arr_3C,n3C,Qv,nQv,Rv,nRv,nChV,
      &                     iOff_3C,nIrrep,Out_of_Core,Lu_Q,'N')
 *                                                                      *
 ************************************************************************
@@ -467,12 +459,11 @@ C              Write (6,*) 'jCenter=',jCenter
 *        afterwards in step 3.
 *
          Do iIrrep = 0, nIrrep-1
-            ip_R = ip_Rv + iOff_Rv(iIrrep)
+            ip_R = 1 + iOff_Rv(iIrrep)
             nRv=iOff_3C(1,iIrrep)*nChV(iIrrep)
 C           Write (*,*) 'iAddr_R(iIrrep)=',iAddr_R(iIrrep)
             If (nRv.gt.0) Then
-               Call dDaFile(Lu_R(iIrrep),1,Work(ip_R),nRv,
-     &                      iAddr_R(iIrrep))
+               Call dDaFile(Lu_R(iIrrep),1,Rv(ip_R),nRv,iAddr_R(iIrrep))
             End If
          End Do
 *                                                                      *
@@ -524,15 +515,16 @@ C      End Do    ! klS
       Call GetMem('LBList','Free','Inte',ip_LB,nSkal2)
       Call mma_deallocate(TmpList)
 *
-      Call GetMem('Rv','Free','Real',ip_Rv,nRvMax)
-      Call GetMem('3C','Free','Real',ip_3C,n3CMax)
-      Call GetMem('Q-vector','Free','Real',ip_Qv,nQv)
+      Call mma_deallocate(Rv)
+      Call mma_deallocate(Arr_3C)
+      Call mma_deallocate(Qv)
       Call xRlsMem_Ints()
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal)
+      Call mma_deallocate(TMax_Auxiliary)
+      Call mma_deallocate(TMax_Valence)
       If (LDF) Then
-         Call mma_Deallocate(SO2C)
-         Call mma_Deallocate(AB)
-         Call mma_Deallocate(Local_A)
+         Call mma_deallocate(SO2C)
+         Call mma_deallocate(AB)
+         Call mma_deallocate(Local_A)
          Call DaClos(Lu_AB)
       End If
 *                                                                      *
