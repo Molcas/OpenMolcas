@@ -21,7 +21,6 @@ subroutine InpCtl_Motra()
 
 use motra_global, only: CMO, iAutoCut, iPrint, iRFpert, nTot2, Ovlp
 use stdalloc, only: mma_allocate
-use Definitions, only: iwp
 
 implicit none
 

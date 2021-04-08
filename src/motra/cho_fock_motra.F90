@@ -22,7 +22,7 @@ real(kind=wp), intent(inout) :: DLT(*), DSQ(*), FLT(nFLT), FSQ(*)
 real(kind=wp), intent(in) :: ExFac
 integer(kind=iwp) :: i, ipd, ipDLT(1), ipFLT(1), ipFSQ(1), ipMOs(1), irc, ja, jaa, MOdim, nDen, NScreen, NumV, nXorb(8)
 real(kind=wp) :: ChFracMem, dFKmat, dmpk, Thr, Ymax
-integer(kind=iwp), allocatable :: MOs(:)
+real(kind=wp), allocatable :: MOs(:)
 integer(kind=iwp), external :: ip_of_Work
 
 !****************************************************************

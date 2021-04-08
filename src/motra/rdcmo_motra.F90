@@ -22,7 +22,7 @@ subroutine RdCmo_motra(CMO,Ovlp)
 
 use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LuInpOrb, LuJobIph, nBas, nDel, nSym, nTot2, VecTit
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6, itoB
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(out) :: CMO(*)
