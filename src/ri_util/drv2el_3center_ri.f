@@ -64,6 +64,9 @@
 
       Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
       Integer, Allocatable :: SO2C(:), AB(:,:)
+
+      Real*8, Allocatable :: Tmp(:,:)
+      Integer, Allocatable:: TmpList(:), iRv(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -201,29 +204,27 @@
       nTMax=nSkal_Valence**2+nSkal_Auxiliary-1
       Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
 *
-      Call Allocate_Work(ip_Tmp,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ip_Tmp))
+      Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+      Call Shell_MxSchwz(nSkal,Tmp)
       TMax_all=Zero
       Do iS = 1, nSkal_Valence
          Do jS = 1, iS
-            ip_Out=ip_Tmp + (jS-1)*nSkal + iS -1
             ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
-            Work(ip_In)=Work(ip_Out)
+            Work(ip_In)=Tmp(iS,jS)
             ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
-            Work(ip_In)=Work(ip_Out)
-            TMax_all=Max(TMax_all,Work(ip_Out))
+            Work(ip_In)=Tmp(iS,jS)
+            TMax_all=Max(TMax_all,Tmp(iS,jS))
          End Do
       End Do
       Do iS = 1, nSkal_Auxiliary-1
          iS_ = iS + nSkal_Valence
          jS_ = nSkal_Valence + nSkal_Auxiliary
-         ip_Out = ip_Tmp + (iS_-1)*nSkal + jS_ -1
          ip_In  = ipTMax + nSkal_Valence**2 + iS -1
-         Work(ip_In)=Work(ip_Out)
-         TMax_all=Max(TMax_all,Work(ip_Out))
+         Work(ip_In)=Tmp(jS_,iS_)
+         TMax_all=Max(TMax_all,Tmp(jS_,iS_))
       End Do
 *
-      Call Free_Work(ip_Tmp)
+      Call mma_deallocate(Tmp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -237,8 +238,8 @@
      &               Work(ipTMax),CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
-      Call GetMem('iRv','Allo','Inte',ip_iRv,nSkal2)
-      Call IZero(iWork(ip_iRv),nSkal2)
+      Call mma_Allocate(iRv,nSkal2,Label='iRv')
+      iRv(:)=0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -358,7 +359,7 @@ C      Do klS = 1, nSkal2
 C        Write (*,*) 'Processing shell-pair:',klS
          iTask=iTask+1
 *
-         iWork(ip_iRv-1+iTask) = klS
+         iRv(iTask) = klS
          kS = iWork(ip_iShij+(klS-1)*2  )
          lS = iWork(ip_iShij+(klS-1)*2+1)
 *
@@ -500,18 +501,18 @@ C      End Do    ! klS
 *     Set up array to store the load balance if this might be needed in
 *     a gradient calculation.
 *
-      Call GetMem('TmpList','Allo','Inte',ip_tmp,nSkal2)
-      Call ICopy(nSkal2,[0],0,iWork(ip_tmp),1)
+      Call mma_allocate(TmpList,nSkal2,Label='TmpList')
+      TmpList(:)=0
       Call GetMem('LBList','Allo','Inte',ip_LB,nSkal2)
       Call ICopy(nSkal2,[-1],0,iWork(ip_LB),1)
       Do iTask = 1, nTask
-         klS_ = iWork(ip_iRv-1+iTask)
-         iWork(ip_tmp-1+klS_) = 1
+         klS_ = iRv(iTask)
+         TmpList(klS_) = 1
       End Do
 *
       iLB=0
       Do klS_ = 1, nSkal2
-         If (iWork(ip_tmp-1+klS_).eq.1) Then
+         If (TmpList(klS_).eq.1) Then
             iWork(ip_LB+iLB)=klS_
             iLB=iLB+1
          End If
@@ -521,12 +522,12 @@ C      End Do    ! klS
       Call Put_iArray('LBList',iWork(ip_LB),nSkal2)
 *
       Call GetMem('LBList','Free','Inte',ip_LB,nSkal2)
-      Call GetMem('TmpList','Free','Inte',ip_tmp,nSkal2)
+      Call mma_deallocate(TmpList)
 *
       Call GetMem('Rv','Free','Real',ip_Rv,nRvMax)
       Call GetMem('3C','Free','Real',ip_3C,n3CMax)
       Call GetMem('Q-vector','Free','Real',ip_Qv,nQv)
-      Call xRlsMem_Ints
+      Call xRlsMem_Ints()
       Call GetMem('TMax','Free','Real',ipTMax,nSkal)
       If (LDF) Then
          Call mma_Deallocate(SO2C)
@@ -621,7 +622,7 @@ C      End Do    ! klS
 *
          iWork(ip_Addr) = 0
          Do i=2,nTask  ! init the addr for reading vectors
-               klS_ = iWork(ip_iRv-1+i-1)
+               klS_ = iRv(i-1)
                kS = iWork(ip_iShij+(klS_-1)*2  )
                lS = iWork(ip_iShij+(klS_-1)*2+1)
                n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
@@ -669,7 +670,7 @@ C      End Do    ! klS
             End Do
 *
             Do i = 1, nTask
-               klS_ = iWork(ip_iRv-1+i)
+               klS_ = iRv(i)
                kS = iWork(ip_iShij+(klS_-1)*2  )
                lS = iWork(ip_iShij+(klS_-1)*2+1)
 *
@@ -721,7 +722,7 @@ C      End Do    ! klS
       End Do    ! iIrrep
       Call GetMem('NuMu','Free','INTE',iLst,2*nSkal2)
       Call GetMem('Addr','Free','Inte',ip_Addr,nSkal2)
-      Call GetMem('iRv','Free','Inte',ip_iRv,nSkal2)
+      Call mma_deallocate(iRv)
       Call Free_iWork(ip_nBasSh)
       Call Free_iWork(ip_iShij)
 *                                                                      *
