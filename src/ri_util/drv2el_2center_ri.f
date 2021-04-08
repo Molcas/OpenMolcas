@@ -40,7 +40,6 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #define _no_nShs_

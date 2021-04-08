@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
+      SubRoutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,ipLocal_A,
      &                            nLocal_A,SO2C,nSO_Aux)
 ************************************************************************
 *                                                                      *
@@ -43,7 +43,7 @@
       Character Name_Q*6
       Integer nQvec(0:7)
       Real*8, Allocatable :: A_Diag(:)
-      Integer, Allocatable :: SO2C(:)
+      Integer, Allocatable :: SO2C(:), AB(:,:)
 
       Real*8, Allocatable :: Scr(:)
       Integer, Allocatable :: iDiag(:), SO2lO(:)
@@ -52,9 +52,9 @@
 *                                                                      *
 *     Compute the number of AB blocks
 *
-      nAB=MaxCntr*(MaxCntr+1)
-      Call GetMem('A-blocks','Allo','Inte',ipAB,nAB)
-      Call iZero(iWork(ipAB),nAB)
+      nAB=MaxCntr*(MaxCntr+1)/2
+      Call mma_allocate(AB,2,nAB,Label='AB')
+      AB(:,:)=0
 *
 *     Find the size of the largest AB block!
 *
@@ -163,8 +163,8 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *              Store the address of the matrix, size and write the
 *              matrix to *              disk.
 *
-               iWork(ipAB+(ijCenter-1)*2  )=iAdr_AB
-               iWork(ipAB+(ijCenter-1)*2+1)=nlO
+               AB(1,ijCenter)=iAdr_AB
+               AB(2,ijCenter)=nlO
                Call dDaFile(Lu_AB,1,Work(ipLocal_AInv),nlO**2,iAdr_AB)
 *
             Else
@@ -212,8 +212,8 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *              Store the address of the matrix, size and write the
 *               matrix to *              disk.
 *
-               iWork(ipAB+(ijCenter-1)*2  )=iAdr_AB
-               iWork(ipAB+(ijCenter-1)*2+1)=nlO+mlO
+               AB(1,ijCenter)=iAdr_AB
+               AB(2,ijCenter)=nlO+mlO
                Call dDaFile(Lu_AB,1,Work(ipLocal_AInv),(nlO+mlO)**2,
      &                      iAdr_AB)
 *
