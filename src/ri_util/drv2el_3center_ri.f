@@ -62,7 +62,7 @@
      &        DoGrad, DoFock, Out_of_Core, Rsv_Tsk, Reduce_Prt
       External Reduce_Prt
 
-      Real*8, Allocatable :: A_Diag(:)
+      Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
       Integer, Allocatable :: SO2C(:), AB(:,:)
 *                                                                      *
 ************************************************************************
@@ -76,11 +76,11 @@
       Integer nSO_Aux, MaxCntr
       End SubRoutine Drv2El_2Center_RI
 
-      SubRoutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,ipLocal_A,
-     &                            nLocal_A,SO2C,nSO_Aux)
-      Real*8, Allocatable :: A_Diag(:)
+      SubRoutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,
+     &                            SO2C,nSO_Aux)
+      Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
       Integer, Allocatable:: SO2C(:), AB(:,:)
-      Integer MaxCntr,Lu_AB,ipLocal_A,nLocal_A,nSO_Aux
+      Integer MaxCntr,Lu_AB,nSO_Aux
       End SubRoutine Post_2Center_LDF
 
       SubRoutine Post_2Center_RI(A_Diag)
@@ -145,8 +145,8 @@
 *
 *        Local RI
 *
-         Call Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,ipLocal_A,
-     &                         nLocal_A,SO2C,nSO_Aux)
+         Call Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,
+     &                         SO2C,nSO_Aux)
 *
       Else
 *
@@ -378,8 +378,8 @@ C           Write (6,*) 'kCenter, lCenter=',kCenter, lCenter
             klCenter = kCenter*(kCenter-1)/2 + lCenter
             iAdr_AB=AB(1,klCenter)
             nAB    =AB(2,klCenter)
-            Call dDaFile(Lu_AB,2,Work(ipLocal_A),nAB**2,iAdr_AB)
-C           Call RecPrt('A^-1',' ',Work(ipLocal_A),nAB,nAB)
+            Call dDaFile(Lu_AB,2,Local_A(:,2),nAB**2,iAdr_AB)
+C           Call RecPrt('A^-1',' ',Local_A,nAB,nAB)
 *
 *           Now I need some lookup tables to be used below. I need to
 *           go from SO index to lO index and from a given lO index
@@ -531,7 +531,7 @@ C      End Do    ! klS
       If (LDF) Then
          Call mma_Deallocate(SO2C)
          Call mma_Deallocate(AB)
-         Call GetMem('Local_A','Free','Real',ipLocal_A,2*nLocal_A)
+         Call mma_Deallocate(Local_A)
          Call DaClos(Lu_AB)
       End If
 *                                                                      *

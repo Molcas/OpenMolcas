@@ -11,8 +11,8 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,ipLocal_A,
-     &                            nLocal_A,SO2C,nSO_Aux)
+      SubRoutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,
+     &                            SO2C,nSO_Aux)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
@@ -42,7 +42,7 @@
 #include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)
-      Real*8, Allocatable :: A_Diag(:)
+      Real*8, Allocatable :: A_Diag(:), Local_A(:,:)
       Integer, Allocatable :: SO2C(:), AB(:,:)
 
       Real*8, Allocatable :: Scr(:)
@@ -68,8 +68,7 @@
          Max_AA = Max(Max_AA,nCenter)
       End Do
       nLocal_A=(2*Max_AA)**2
-      Call GetMem('Local_A','Allo','Real',ipLocal_A,2*nLocal_A)
-      ipLocal_AInv = ipLocal_A + nLocal_A
+      Call mma_allocate(Local_A,nLocal_A,2,Label='Local_A')
       Call mma_allocate(SO2lO,nSO_Aux,Label='SO2lO')
 *                                                                      *
 ************************************************************************
@@ -128,7 +127,7 @@
             iIrrep=0
             If (jCenter.eq.iCenter) Then
 *
-               Call FZero(Work(ipLocal_A),niSO**2)
+               Local_A(1:niSO**2,1)=Zero
 *
                Do iSO = 1, nSO_Aux
                   Call dDaFile(Lu_A(iIrrep),2,Scr,
@@ -145,27 +144,26 @@ C                 Call RecPrt('Scr','(6G23.15)',Scr,1,nSO_Aux)
                             ij = (ilO-1)*nlO + jlO
                             ji = (jlO-1)*nlO + ilO
                             AElement=Scr(jSO)
-                            Work(ipLocal_A+ij-1)=AElement
-                            Work(ipLocal_A+ji-1)=AElement
+                            Local_A(ij,1)=AElement
+                            Local_A(ji,1)=AElement
                          End If
                       End Do
                   End If
                End Do
 C              Call RecPrt('Local_A','(6G23.15)',
-C    &                     Work(ipLocal_A),nlO,nlO)
+C    &                     Local_A(:,1),nlO,nlO)
 *
-               Call CD_AInv(Work(ipLocal_A),nlO,Work(ipLocal_AInv),
-     &                      Thrshld_CD)
+               Call CD_AInv(Local_A(:,1),nlO,Local_A(:,2),Thrshld_CD)
 *
 C              Call RecPrt('Local_AInv','(6G23.15)',
-C    &                     Work(ipLocal_AInv),nlO,nlO)
+C    &                     Local_A(:,2),nlO,nlO)
 *
 *              Store the address of the matrix, size and write the
 *              matrix to *              disk.
 *
                AB(1,ijCenter)=iAdr_AB
                AB(2,ijCenter)=nlO
-               Call dDaFile(Lu_AB,1,Work(ipLocal_AInv),nlO**2,iAdr_AB)
+               Call dDaFile(Lu_AB,1,Local_A(:,2),nlO**2,iAdr_AB)
 *
             Else
 *
@@ -182,7 +180,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
                   End If
                End Do
 *
-               Call FZero(Work(ipLocal_A),(niSO+njSO)**2)
+               Local_A(1:(niSO+njSO)**2,1)=Zero
 *
                Do iSO = 1, nSO_Aux
                   Call dDaFile(Lu_A(iIrrep),2,Scr,nSO_Aux,iAddr)
@@ -199,14 +197,14 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
                             ij = (ilO-1)*(nlO+mlO) + jlO
                             ji = (jlO-1)*(nlO+mlO) + ilO
                             AElement=Scr(jSO)
-                            Work(ipLocal_A+ij-1)=AElement
-                            Work(ipLocal_A+ji-1)=AElement
+                            Local_A(ij,1)=AElement
+                            Local_A(ji,1)=AElement
                          End If
                       End Do
                   End If
                End Do
 *
-               Call CD_AInv(Work(ipLocal_A),nlO+mlO,Work(ipLocal_AInv),
+               Call CD_AInv(Local_A(:,1),nlO+mlO,Local_A(:,2),
      &                      Thrshld_CD)
 *
 *              Store the address of the matrix, size and write the
@@ -214,8 +212,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *
                AB(1,ijCenter)=iAdr_AB
                AB(2,ijCenter)=nlO+mlO
-               Call dDaFile(Lu_AB,1,Work(ipLocal_AInv),(nlO+mlO)**2,
-     &                      iAdr_AB)
+               Call dDaFile(Lu_AB,1,Local_A(:,2),(nlO+mlO)**2,iAdr_AB)
 *
             End If
          End Do
