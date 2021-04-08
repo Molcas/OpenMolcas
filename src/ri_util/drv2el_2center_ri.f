@@ -49,16 +49,12 @@
       Integer iAddr_AQ(0:7), kCol_Irrep(0:7)
       Logical Verbose, Indexation, FreeK2, DoGrad, DoFock
       Character Name_Q*6
+
+      Real*8, Allocatable :: Tmp(:,:), TMax(:), TInt(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*----- Statement functions
-*
-      TMax(i)=Work(ipTMax-1+i)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -115,14 +111,14 @@
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal)
-      Call Allocate_Work(ip_Tmp,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ip_Tmp))
+      Call mma_allocate(TMax,nSkal,Label='TMax')
+      Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+      Call Shell_MxSchwz(nSkal,Tmp)
 
-c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
+c     Call RecPrt('Tmp',' ',Tmp,nSkal,nSkal)
 
-      call dcopy_(nSkal,Work(ip_Tmp+(nSkal-1)*nSkal),1,Work(ipTMax),1)
-      Call Free_Work(ip_Tmp)
+      TMax(:)=Tmp(:,nSkal)
+      Call mma_deallocate(Tmp)
       TMax_all=Zero
       Do iS = 1, nSkal
          TMax_all=Max(TMax_all,TMax(iS))
@@ -132,7 +128,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *                                                                      *
 *     Preallocate some core for Seward!
 *
-      Call GetMem('MaxMem','Max','Real',iDummy,MemSew)
+      Call mma_maxDBLE(MemSew)
       MemLow=Min(MemSew/2,1024*128)
       MemSew=Max(MemSew/10,MemLow)
       Call xSetMem_Ints(MemSew)
@@ -148,7 +144,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
      &                  nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,
      &                         .True.) )
       End Do
-      Call GetMem('Am','Allo','Real',ipTInt,nTInt)
+      Call mma_allocate(TInt,nTInt,Label='TInt')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -184,7 +180,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *        Initialize the buffer
 *
          nTInt_=nMemAm(nShBF,nIrrep,nSkal-1,jS,iOffA,.True.)
-         Call FZero(Work(ipTInt),nTInt_)
+         TInt(1:nTInt_)=Zero
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -194,8 +190,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *
             Aint=TMax(jS)*TMax(lS)
             If (AInt.lt.CutInt) Go To 14
-            Call Eval_IJKL(iS,jS,kS,lS,Work(ipTInt),nTInt_,
-     &                    Integral_RI_2)
+            Call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
  14         Continue
 *
 *           Use a time slot to save the number of tasks and shell
@@ -213,7 +208,7 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
             mB = iOffA(2,iIrrep)           ! # of bf of shell jS
             If (mB.ne.0) Then
 *
-               ip_A_n=ipTInt + iOffA(1,iIrrep)
+               ip_A_n = 1 + iOffA(1,iIrrep)
                iAddr=iAddr_AQ(iIrrep) ! Disk address
 *
                nB = nBas_Aux(iIrrep)
@@ -222,14 +217,13 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *
 *                 Write the A-vector to file
 *
-                  Call dDaFile(Lu_A(iIrrep),1,Work(ip_A_n),
-     &                         kCol,iAddr)
+                  Call dDaFile(Lu_A(iIrrep),1,TInt(ip_A_n),kCol,iAddr)
 
                   ipAs_Diag=ipA_Diag+iOffA(3,iIrrep)+kCol-1
-                  Work(ipAs_Diag)=Work(ip_A_n+kCol-1)
+                  Work(ipAs_Diag)=TInt(ip_A_n+kCol-1)
                   nZero=nB-kCol
                   If (nZero.ne.0) Call dDaFile(Lu_A(iIrrep),0,
-     &                                         Work(ip_A_n),
+     &                                         TInt(ip_A_n),
      &                                         nZero,iAddr)
 *
                   ip_A_n = ip_A_n + kCol
@@ -250,8 +244,8 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *
       Call Free_iSD()
       Call xRlsMem_Ints
-      Call GetMem('Am', 'Free','Real',ipTInt,nTInt)
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal)
+      Call mma_deallocate(TInt)
+      Call mma_deallocate(TMax)
       Call mma_deallocate(SO2Ind)
 *                                                                      *
 ************************************************************************
