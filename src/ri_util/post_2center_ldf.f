@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Post_2Center_LDF(ipA_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
+      SubRoutine Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
      &                            nLocal_A,ipSO2C,nSO_Aux)
 ************************************************************************
 *                                                                      *
@@ -42,6 +42,7 @@
 #include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)
+      Real*8, Allocatable :: A_Diag(:)
 
       Real*8, Allocatable :: Scr(:)
       Integer, Allocatable :: iDiag(:), SO2lO(:)
@@ -234,7 +235,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
       ThrQ=1.0D-12
       ichk=0
-      is=0
+      is=1
       Do iIrrep = 0, nIrrep-1
          nB = nBas_Aux(iIrrep)
          If (iIrrep.eq.0) nB = nB - 1 ! subtract dummy aux. func.
@@ -245,9 +246,9 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
             Write(Name_Q,'(A4,I2.2)') 'QVec',iIrrep
             Call DaName_MF_WA(Lu_Q(iIrrep),Name_Q)
 *
-            Call get_pivot_idx(Work(ipA_Diag+is),nB,nQvec(iIrrep),
+            Call get_pivot_idx(A_Diag(is),nB,nQvec(iIrrep),
      &                         Lu_A(iIrrep),Lu_Q(iIrrep),
-     &                         iDiag(1+is),Scr,lScr,ThrQ)
+     &                         iDiag(is),Scr,lScr,ThrQ)
             nChV(iIrrep)=nQvec(iIrrep)
             ichk=ichk+Min(1,nB-nQvec(iIrrep))
             is=is+nB
@@ -274,7 +275,7 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
       Call mma_deallocate(Scr)
       Call mma_deallocate(iDiag)
-      Call GetMem('A_Diag','Free','Real',ipA_Diag,nA_Diag)
+      Call mma_deallocate(A_Diag)
       Call mma_deallocate(SO2lO)
 *                                                                      *
 ************************************************************************

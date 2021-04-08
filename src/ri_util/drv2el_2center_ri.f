@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drv2El_2Center_RI(ThrAO,ipA_Diag,
+      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,
      &                             nSO_Aux,MaxCntr,ipSO2C)
 ************************************************************************
 *                                                                      *
@@ -49,6 +49,7 @@
       Integer iAddr_AQ(0:7), kCol_Irrep(0:7)
       Logical Verbose, Indexation, FreeK2, DoGrad, DoFock
       Character Name_Q*6
+      Real*8, Allocatable :: A_Diag(:)
 
       Real*8, Allocatable :: Tmp(:,:), TMax(:), TInt(:)
 *                                                                      *
@@ -105,7 +106,7 @@
          nBfnTot=nBfnTot+lJ
       End Do
       nA_Diag=nBfnTot
-      Call GetMem('A_Diag','Allo','Real',ipA_Diag,nA_Diag)
+      Call mma_allocate(A_Diag,nA_Diag,Label='A_Diag')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -219,8 +220,8 @@ c     Call RecPrt('Tmp',' ',Tmp,nSkal,nSkal)
 *
                   Call dDaFile(Lu_A(iIrrep),1,TInt(ip_A_n),kCol,iAddr)
 
-                  ipAs_Diag=ipA_Diag+iOffA(3,iIrrep)+kCol-1
-                  Work(ipAs_Diag)=TInt(ip_A_n+kCol-1)
+                  ipAs_Diag=1+iOffA(3,iIrrep)+kCol-1
+                  A_Diag(ipAs_Diag)=TInt(ip_A_n+kCol-1)
                   nZero=nB-kCol
                   If (nZero.ne.0) Call dDaFile(Lu_A(iIrrep),0,
      &                                         TInt(ip_A_n),

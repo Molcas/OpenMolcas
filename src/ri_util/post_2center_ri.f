@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1993,1998,2005, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Post_2Center_RI(ipA_Diag)
+      SubRoutine Post_2Center_RI(A_Diag)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
@@ -35,8 +35,8 @@
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Real*8, Allocatable:: A_Diag(:)
       Integer  nDmA(0:7),  nDmB(0:7)
       Logical Out_of_Core
       Character Name_Q*6
@@ -114,7 +114,7 @@
       Call mma_allocate(Scr,lScr,Label='Scr')
 *
       Call SORT_mat(irc,nDmA,nDmB,iDiag,nIrrep,
-     &              LU_A,'GePivot',lScr,Scr,Diag=Work(ipA_Diag))
+     &              LU_A,'GePivot',lScr,Scr,Diag=A_Diag)
       ichk=0
       Do iIrrep = 0, nIrrep-1
          nChV(iIrrep)=nDmB(iIrrep)
@@ -138,7 +138,7 @@
 *           no longer stored as squared but as upper-triangular
 *
       Call mma_deallocate(Scr)
-      Call GetMem('A_Diag','Free','Real',ipA_Diag,nA_Diag)
+      Call mma_deallocate(A_Diag)
 *
 ************************************************************************
 *     A-vectors are now on disk. Go ahead and compute the Q-vectors!

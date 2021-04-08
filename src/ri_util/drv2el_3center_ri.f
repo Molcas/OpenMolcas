@@ -61,6 +61,30 @@
       Logical Verbose, Indexation, FreeK2,
      &        DoGrad, DoFock, Out_of_Core, Rsv_Tsk, Reduce_Prt
       External Reduce_Prt
+
+      Real*8, Allocatable :: A_Diag(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+
+      SubRoutine Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,ipSO2C)
+      Real*8 ThrAO
+      Real*8, Allocatable :: A_Diag(:)
+      Integer nSO_Aux, MaxCntr, ipSO2C
+      End SubRoutine Drv2El_2Center_RI
+
+      SubRoutine Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
+     &                            nLocal_A,ipSO2C,nSO_Aux)
+      Real*8, Allocatable :: A_Diag(:)
+      Integer ipAB,MaxCntr,Lu_AB,ipLocal_A,nLocal_A,ipSO2C,nSO_Aux
+      End SubRoutine Post_2Center_LDF
+
+      SubRoutine Post_2Center_RI(A_Diag)
+      Real*8, Allocatable :: A_Diag(:)
+      End SubRoutine Post_2Center_RI
+
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -110,7 +134,7 @@
 *                                                                      *
 *     Compute the two-center integrals over the auxiliary basis
 *
-      Call Drv2El_2Center_RI(ThrAO,ipA_Diag,nSO_Aux,MaxCntr,ipSO2C)
+      Call Drv2El_2Center_RI(ThrAO,A_Diag,nSO_Aux,MaxCntr,ipSO2C)
 *
 *     Post processing to generate the Q-vectors.
 *
@@ -118,14 +142,14 @@
 *
 *        Local RI
 *
-         Call Post_2Center_LDF(ipA_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
+         Call Post_2Center_LDF(A_Diag,ipAB,MaxCntr,Lu_AB,ipLocal_A,
      &                         nLocal_A,ipSO2C,nSO_Aux)
 *
       Else
 *
 *        Standard RI
 *
-         Call Post_2Center_RI(ipA_Diag)
+         Call Post_2Center_RI(A_Diag)
 *
       End If
 *
