@@ -139,7 +139,6 @@
 *
       Call mma_deallocate(Scr)
       Call GetMem('A_Diag','Free','Real',ipA_Diag,nA_Diag)
-      ipA_Diag=ip_Dummy  ! Dummy memory pointer.
 *
 ************************************************************************
 *     A-vectors are now on disk. Go ahead and compute the Q-vectors!
@@ -196,13 +195,9 @@ c         If (iIrrep.eq.0) nB = nB - 1
          Call mma_allocate(Z,nXZ,Label='Z')
          Call mma_allocate(X,nXZ,Label='X')
          Call mma_allocate(Am,lAm,Label='Am')
-         ip_Am = ip_of_Work(Am(1))
          Call mma_allocate(Qm,lQm,Label='Qm')
-         ip_Qm = ip_of_Work(Qm(1))
          Call mma_allocate(A_k,nXZ,Label='A_k')
          Call mma_allocate(Q_k,nXZ,Label='Q_k')
-         ip_Q_k = ip_of_Work(Q_k(1))
-         ip_A_k = ip_of_Work(A_k(1))
 *
          Am(:)=Zero
          Qm(:)=Zero
@@ -224,29 +219,28 @@ c         If (iIrrep.eq.0) nB = nB - 1
             If (kCol.le.nMem) Then
 *              Point to A_k in Am
                iOff = (kCol-1)*kCol/2
-               ip_A_l=ip_Am+iOff
+               A_l(1:kCol) => Am(iOff+1:iOff+kCol)
                If (kCol.eq.1) Then
                   nAm=nMem*(nMem+1)/2
                   Call dDaFile(Lu_A(iIrrep),2,Am,nAm,iAddr_)
                End If
 *              Point to Q_k in Qm
-               iOff = (kCol-1)*kCol/2
-               ip_Q_l=ip_Qm+iOff
+               Q_l(1:kCol) => Qm(iOff+1:iOff+kCol)
             Else If (kCol.gt.nMem) Then
 *              Use special scratch for A_k
-               ip_A_l=ip_A_k
-               Call dDaFile(Lu_A(iIrrep),2,Work(ip_A_l),kCol,iAddr_)
+               A_l(1:kCol) => A_k(1:kCol)
+               Call dDaFile(Lu_A(iIrrep),2,A_l,kCol,iAddr_)
 *              Use special scratch for Q_k
-               ip_Q_l=ip_Q_k
+               Q_l(1:kCol) => Q_k(1:kCol)
             End If
 *
             LinDep=2
-            Call Inv_Cho_Factor(Work(ip_A_l),kCol,
+            Call Inv_Cho_Factor(A_l,kCol,
      &                          Am,Qm,nMem,
      &                          Lu_A(iIrrep),Lu_Q(iIrrep),
      &                          Scr,lScr,
      &                          Z,X,ThrQ,
-     &                          Work(ip_Q_l),LinDep)
+     &                          Q_l,LinDep)
 
             If (LinDep.ne.0) Then
                Call WarningMessage(2,'Error in Post_2Center_RI')
@@ -262,8 +256,8 @@ c         If (iIrrep.eq.0) nB = nB - 1
                Call dDaFile(Lu_Q(iIrrep),1,Qm,nQm,iAddr )
                Call dDaFile(Lu_A(iIrrep),1,Am,nQm,iAddr_)
             Else If (kCol.gt.nMem) Then
-               Call dDaFile(Lu_Q(iIrrep),1,Work(ip_Q_l),kCol,iAddr )
-               Call dDaFile(Lu_A(iIrrep),1,Work(ip_A_l),kCol,iAddr_)
+               Call dDaFile(Lu_Q(iIrrep),1,Q_l,kCol,iAddr )
+               Call dDaFile(Lu_A(iIrrep),1,A_l,kCol,iAddr_)
             End If
 *
          End Do
