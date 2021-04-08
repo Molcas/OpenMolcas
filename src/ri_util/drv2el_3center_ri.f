@@ -67,8 +67,9 @@
 
       Real*8, Allocatable :: Tmp(:,:), TMax_Auxiliary(:),
      &                       TMax_Valence(:,:)
-      Integer, Allocatable:: TmpList(:), iRv(:)
-      Real*8, Allocatable :: Arr_3C(:), Rv(:), Qv(:)
+      Integer, Allocatable:: TmpList(:), iRv(:), LBList(:)
+      Integer, Allocatable:: Addr(:), NuMu(:,:)
+      Real*8, Allocatable :: Arr_3C(:), Rv(:), Qv(:), Diag(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -494,25 +495,25 @@ C      End Do    ! klS
 *
       Call mma_allocate(TmpList,nSkal2,Label='TmpList')
       TmpList(:)=0
-      Call GetMem('LBList','Allo','Inte',ip_LB,nSkal2)
-      Call ICopy(nSkal2,[-1],0,iWork(ip_LB),1)
+      Call mma_allocate(LBList,nSkal2,Label='LBList')
+      LBList(:)=-1
       Do iTask = 1, nTask
          klS_ = iRv(iTask)
          TmpList(klS_) = 1
       End Do
 *
-      iLB=0
+      iLB=1
       Do klS_ = 1, nSkal2
          If (TmpList(klS_).eq.1) Then
-            iWork(ip_LB+iLB)=klS_
+            LBList(iLB)=klS_
             iLB=iLB+1
          End If
       End Do
 *
 *
-      Call Put_iArray('LBList',iWork(ip_LB),nSkal2)
+      Call Put_iArray('LBList',LBList,nSkal2)
 *
-      Call GetMem('LBList','Free','Inte',ip_LB,nSkal2)
+      Call mma_deallocate(LBList)
       Call mma_deallocate(TmpList)
 *
       Call mma_deallocate(Rv)
@@ -587,8 +588,8 @@ C      End Do    ! klS
       Call IniCho_RI(nSkal_Valence,nChV,nIrrep,iTOffs,
      &               iWork(ip_iShij),nSkal2)
 
-      Call GetMem('Addr','Allo','Inte',ip_Addr,nSkal2) ! addr for read
-      Call GetMem('NuMu','Allo','INTE',iLst,2*nSkal2)
+      Call mma_allocate(Addr,nSkal2,Label='Addr') ! addr for read
+      Call mma_allocate(NuMu,2,nSkal2,Label='NuMu')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -612,7 +613,7 @@ C      End Do    ! klS
          NumVec=iTOffs(3*iIrrep+1)
          If (NumVec.eq.0) Go To 999
 *
-         iWork(ip_Addr) = 0
+         Addr(1) = 0
          Do i=2,nTask  ! init the addr for reading vectors
                klS_ = iRv(i-1)
                kS = iWork(ip_iShij+(klS_-1)*2  )
@@ -620,12 +621,12 @@ C      End Do    ! klS
                n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
-               iWork(ip_Addr+i-1) = iWork(ip_Addr+i-2) + nMuNu*NumVec
+               Addr(i) = Addr(i-1) + nMuNu*NumVec
          End Do
 *
          LenVec_Red = iMax_R(1,iIrrep)
          n_Rv = NumVec*LenVec_Red
-         Call GetMem('Vecs','Allo','Real',ip_Rv,n_Rv)
+         Call mma_allocate(Rv,n_Rv,Label='Rv')
 *
 *        LenVec: # of valence Gaussian products in this irrep
 *
@@ -654,8 +655,8 @@ C      End Do    ! klS
                MuNu_s=mMuNu+1
                MuNu_e=mMuNu+nMuNu
 *
-               iWork(iLst +(klS_-1)*2  ) = MuNu_s
-               iWork(iLst +(klS_-1)*2+1) = MuNu_e
+               NuMu(1,klS_) = MuNu_s
+               NuMu(2,klS_) = MuNu_e
 *
  555           Continue
                mMuNu = mMuNu + nMuNu
@@ -673,18 +674,17 @@ C      End Do    ! klS
 
                If (m3C.le.0) Go To 666
 *
-               Call dDaFile(Lu_R(iIrrep),2,Work(ip_Rv),m3C,
-     &                                       iWork(ip_Addr+i-1))
+               Call dDaFile(Lu_R(iIrrep),2,Rv,m3C,Addr(i))
 
 *              Copy the appropriate section into the RI vectors in
 *              Cholesky format.
 *
-               MuNu_s = iWork(iLst +(klS_-1)*2  )
-               MuNu_e = iWork(iLst +(klS_-1)*2+1)
+               MuNu_s = NuMu(1,klS_)
+               MuNu_e = NuMu(2,klS_)
                j_s=1
                j_e=NumVec_
                Call Put_Chunk(ip_ChoVec,MuNu_s,MuNu_e,
-     &                        j_s,j_e,Work(ip_Rv),nMuNu,LenVec)
+     &                        j_s,j_e,Rv,nMuNu,LenVec)
 *
  666           Continue
             End Do
@@ -701,7 +701,7 @@ C      End Do    ! klS
 *
 
          Call Destroy_Chunk(ip_ChoVec,ip_iMap)
-         Call GetMem('Vecs','Free','Real',ip_Rv,n_Rv)
+         Call mma_deallocate(Rv)
 *
  999     Continue
 *
@@ -712,8 +712,8 @@ C      End Do    ! klS
          NoChoVec(iIrrep)=iChoVec
 *
       End Do    ! iIrrep
-      Call GetMem('NuMu','Free','INTE',iLst,2*nSkal2)
-      Call GetMem('Addr','Free','Inte',ip_Addr,nSkal2)
+      Call mma_deallocate(NuMu)
+      Call mma_deallocate(Addr)
       Call mma_deallocate(iRv)
       Call Free_iWork(ip_nBasSh)
       Call Free_iWork(ip_iShij)
@@ -753,16 +753,16 @@ C      End Do    ! klS
          nDiag = nDiag+nBas(iIrrep)
       End Do
       nDiag = nDiag*(nDiag+1)/2
-      Call Allocate_Work(ipDiag,nDiag)
-      Call FZero(Work(ipDiag),nDiag)
+      Call mma_allocate(Diag,nDiag,Label='Diag')
+      Diag(:)=Zero
 *
-      Call Drv2El_RI_Diag(ThrAO,Work(ipDiag),nDiag)
+      Call Drv2El_RI_Diag(ThrAO,Diag,nDiag)
 *
 *     Write the diagonal to disk
 *
-      Call Cho_IODiag(Work(ipDiag),1)
+      Call Cho_IODiag(Diag,1)
 *
-      Call Free_Work(ipDiag)
+      Call mma_deallocate(Diag)
 *
       If (iPrint.ge.6) Then
          Write (6,*) 'Diagonal vector:'

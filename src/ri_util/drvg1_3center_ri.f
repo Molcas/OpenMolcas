@@ -76,14 +76,15 @@
      &        FreeK2, Verbose
       Character Format*72, Method*8, KSDFT*16
       Character*50 CFmt
-      Character*16 SECNAM
-      Parameter (SECNAM = 'drvg1_3center_ri')
+      Character(LEN=16), Parameter :: SECNAM = 'drvg1_3center_ri'
 *
       Integer iSD4(0:nSD,4)
       save MemPrm
       Logical FlipFlop
 #include "chotime.fh"
 #include "ymnij.fh"
+
+      Real*8, Allocatable:: MaxDens(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -217,8 +218,8 @@
 *     Calculate maximum density value for each shellpair
 *
       lMaxDens = nSkal_Valence*(nSkal_Valence+1)/2
-      Call GetMem('MaxDensity','Allo','Real',ip_MaxDens,lMaxDens)
-      Call FZero(Work(ip_MaxDens),lMaxDens)
+      Call mma_allocate(MaxDens,lMaxDens,Label='MaxDens')
+      MaxDens(:)=Zero
 *
       iOff=0
       Do iSym = 0, nSym-1
@@ -227,12 +228,12 @@
             jsh=Cho_Irange(j,iBDsh(kS),nSkal_Valence,.true.)
             Do i=1,j
                ish=Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
-               ijS=ip_MaxDens-1+jsh*(jsh-1)/2+ish
+               ijS=jsh*(jsh-1)/2+ish
                Do iSO=1,nJDens
                  If (ipDMLT(iSO).eq.ip_Dummy) Cycle
                  ij=ipDMLT(iSO)+iOff-1+j*(j-1)/2+i
                  Dm_ij=abs(Work(ij))
-                 Work(ijS)=Max(Work(ijS),Dm_ij)
+                 MaxDens(ijS)=Max(MaxDens(ijS),Dm_ij)
                End Do
             End Do
          End Do
@@ -253,12 +254,12 @@
       nSkal2=0
       Do iS = 1, nSkal_Valence
          iiQ = iS*(iS+1)/2
-         XDm_ii = Work(ip_MaxDens+iiQ-1)
+         XDm_ii = MaxDens(iiQ)
          Do jS = 1, iS
             jjQ = jS*(jS+1)/2
-            XDm_jj = Work(ip_MaxDens+jjQ-1)
+            XDm_jj = MaxDens(jjQ)
             ijQ=iS*(iS-1)/2+jS
-            XDm_ij = Work(ip_MaxDens+ijQ-1)
+            XDm_ij = MaxDens(ijQ)
             XDm_max = Max(XDm_ij,XDm_ii,XDm_jj)
             Aint_ij=TMax_Valence(iS,jS)
             If (TMax_All*Aint_ij .ge. CutInt) Then
@@ -909,7 +910,7 @@
          If (ip_CMOi(i).ne.ip_Dummy)
      &      Call GetMem('CMO_inv','FREE','Real',ip_CMOi(i), lCMOi(i))
       End Do
-      Call GetMem('MaxDensity','Free','Real',ip_MaxDens,lMaxDens)
+      Call mma_deallocate(MaxDens)
 *
       If(iMp2prpt .eq. 2) Then
          Do i = 1, 2
