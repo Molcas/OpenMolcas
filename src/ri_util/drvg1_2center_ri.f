@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1992,2000,2007, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drvg1_2Center_RI(Grad,Temp,nGrad,ip_ij2,nij_Eff)
+      SubRoutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 ************************************************************************
 *                                                                      *
 *  Object: driver for 2-center two-electron integrals in the RI scheme.*
@@ -58,8 +58,12 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
+      Integer nGrad, nij_Eff
+      Real*8  Grad(nGrad), Temp(nGrad)
+      Integer, Allocatable :: ij2(:,:)
+
 *     Local arrays
-      Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
+      Real*8  Coor(3,4)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
       Logical EQ, Shijij, AeqB, CeqD,
@@ -151,8 +155,8 @@
          Call Shell_MxSchwz(nSkal,Work(ipTMax))
          TMax_all=Zero
          Do ij = 1, nij_Eff
-            iS = iWork(ip_ij2-1 +(ij-1)*2 + 1)
-            jS = iWork(ip_ij2-1 +(ij-1)*2 + 2)
+            iS = ij2(1,ij)
+            jS = ij2(2,ij)
             TMax_all=Max(TMax_all,TMax2(iS,jS))
          End Do
       End If
@@ -238,8 +242,8 @@
          Call GetMem('ip_ij','Allo','Inte',ip_ij,mij)
          nij=0
          Do ij = 1, nij_Eff
-            iS = iWork(ip_ij2-1 +(ij-1)*2 + 1)
-            jS = iWork(ip_ij2-1 +(ij-1)*2 + 2)
+            iS = ij2(1,ij)
+            jS = ij2(2,ij)
             If (TMax_All*TMax2(iS,jS).ge.CutInt) Then
                nij = nij + 1
                iWork((nij-1)*2+ip_ij  )=iS

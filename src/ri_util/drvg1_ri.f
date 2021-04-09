@@ -52,16 +52,35 @@
       Integer, Allocatable:: iZk(:), iVk(:), iUk(:)
 
       Real*8, Allocatable:: DMTmp(:), Tmp(:)
-      Integer, Allocatable :: SO_ab(:)
+      Integer, Allocatable :: SO_ab(:), ij2(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Interface
+
       Subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,ipUk)
       Integer nProc, myProc
       Integer ipVk(nProc), ipZpk(nProc)
       Integer, Optional:: ipUk(nProc)
       End Subroutine Compute_AuxVec
+
+      Subroutine Effective_CD_Pairs(ij2,nij_Eff)
+      Integer, Allocatable:: ij2(:,:)
+      Integer nij_Eff
+      End Subroutine Effective_CD_Pairs
+
+      SubRoutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
+      Integer nGrad, nij_Eff
+      Real*8  Grad(nGrad), Temp(nGrad)
+      Integer, Allocatable :: ij2(:,:)
+      End SubRoutine Drvg1_2Center_RI
+
+      SubRoutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
+      Integer nGrad, nij_Eff
+      Real*8  Grad(nGrad), Temp(nGrad)
+      Integer, Allocatable:: ij3(:,:)
+      End SubRoutine Drvg1_3Center_RI
+
       End Interface
 *                                                                      *
 ************************************************************************
@@ -374,9 +393,8 @@ C     ipAOrb(:,:)=ip_Dummy
 *                                                                      *
 *        Get the effective list of shell-pairs in case of CD
 *
-         Call Effective_CD_Pairs(ip_ij2,nij_Eff)
+         Call Effective_CD_Pairs(ij2,nij_Eff)
       Else
-         ip_ij2 = ip_iDummy
          nij_Eff = 0
       End If
 *                                                                      *
@@ -421,7 +439,7 @@ C     ipAOrb(:,:)=ip_Dummy
 *     Compute contributions due to the "2-center" two-electron integrals
 *
       Case_2C=.True.
-      Call Drvg1_2center_RI(Temp,Tmp,nGrad,ip_ij2,nij_Eff)
+      Call Drvg1_2center_RI(Temp,Tmp,nGrad,ij2,nij_Eff)
       Call GADGOP(Tmp,nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 2-center term',
@@ -436,7 +454,7 @@ C     ipAOrb(:,:)=ip_Dummy
 *     Compute contributions due to the "3-center" two-electron integrals
 *
       Case_3C=.True.
-      Call Drvg1_3center_RI(Temp,Tmp,nGrad,ip_ij2,nij_Eff)
+      Call Drvg1_3center_RI(Temp,Tmp,nGrad,ij2,nij_Eff)
       Call GADGOP(Tmp,nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 3-center term',
@@ -471,7 +489,7 @@ C     ipAOrb(:,:)=ip_Dummy
 
 
       If (Cholesky.and..Not.Do_RI) Then
-         Call Free_iWork(ip_ij2)
+         Call mma_deallocate(ij2)
          Call mma_deallocate(ij2K)
       End If
       Call CloseP

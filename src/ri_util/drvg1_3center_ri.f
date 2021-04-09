@@ -11,7 +11,7 @@
 * Copyright (C) 1990,1991,1992,2000,2007, Roland Lindh                 *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine Drvg1_3Center_RI(Grad,Temp,nGrad,ip_ij3,nij_Eff)
+      SubRoutine Drvg1_3Center_RI(Grad,Temp,nGrad,ij3,nij_Eff)
 ************************************************************************
 *                                                                      *
 *  Object: driver for two-electron integrals. The four outermost loops *
@@ -63,10 +63,11 @@
 #include "temptime.fh"
 #endif
 #include "bdshell.fh"
-      Integer  Cho_irange
-      External Cho_irange
+      Integer nGrad, nij_Eff
+      Real*8  Grad(nGrad), Temp(nGrad)
+      Integer, Allocatable:: ij3(:,:)
 *     Local arrays
-      Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
+      Real*8  Coor(3,4)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
@@ -77,6 +78,7 @@
       Character Format*72, Method*8, KSDFT*16
       Character*50 CFmt
       Character(LEN=16), Parameter :: SECNAM = 'drvg1_3center_ri'
+      Integer, External:: Cho_irange
 *
       Integer iSD4(0:nSD,4)
       save MemPrm
@@ -296,8 +298,8 @@
          Call GetMem('ip_ij','Allo','Inte',ip_ij2,mij)
          nij=0
          Do ij = 1, nij_Eff
-            iS = iWork(ip_ij3-1 + (ij-1)*2 +1)
-            jS = iWork(ip_ij3-1 + (ij-1)*2 +2)
+            iS = ij3(1,ij)
+            jS = ij3(2,ij)
             If (TMax_All*TMax_Valence(iS,jS).ge.CutInt) Then
                nij = nij + 1
                iWork((nij-1)*2+ip_ij2  )=iS

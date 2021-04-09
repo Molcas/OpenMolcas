@@ -8,14 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Effective_CD_Pairs(ip_ij2,nij_Eff)
+      Subroutine Effective_CD_Pairs(ij2,nij_Eff)
       use Basis_Info
       use Symmetry_Info, only: nIrrep
       use ChoArr, only: iSOShl
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
+      Integer, Allocatable:: ij2(:,:)
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+
+      Integer, Allocatable :: SO_ab(:), ij3(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -37,8 +41,8 @@
 *     Max number of pairs
 *
       nij=nSkal_Valence*(nSkal_Valence+1)/2
-      Call GetMem('ip_ij3','Allo','Inte',ip_ij3,nij)
-      Call IZero(iWork(ip_ij3),nij)
+      Call mma_allocate(ij3,nij,Label='ij3')
+      ij3(:)=0
 C     Write (*,*) 'nij3=',nij
 *                                                                      *
 ************************************************************************
@@ -49,31 +53,31 @@ C     Write (*,*) 'nij3=',nij
          nAux_Tot=nAux_Tot+nBas_Aux(iIrrep)
          nVal_Tot=nVal_Tot+nBas(iIrrep)
       End Do
-      Call GetMem('SO_ab','Allo','INTE',ipSO_ab,2*nAux_Tot)
-      Call iZero(iWork(ipSO_ab),2*nAux_Tot)
+
+      Call mma_allocate(SO_ab,2*nAux_Tot,Label='SO_ab')
+      SO_ab(:)=0
 *
-      iOff = 0
+      iOff = 1
       jOff = 0
       nSym=nIrrep
       Do iSym = 1, nSym
          iIrrep=iSym-1
          ip_List_rs=ip_of_iWork(InfVec(1,1,iSym))
-         Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
+         Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,SO_ab(iOff))
 *
-         Call Get_Auxiliary_Shells(iWork(ipSO_ab+iOff),nBas_Aux(iIrrep),
-     &                             jOff,iSOShl,nVal_Tot,
-     &                             iWork(ip_ij3),nij)
+         Call Get_Auxiliary_Shells(SO_ab(iOff),nBas_Aux(iIrrep),
+     &                             jOff,iSOShl,nVal_Tot,ij3,nij)
 *
          jOff = jOff + nBas_Aux(iIrrep)
          iOff = iOff + 2*nBas_Aux(iIrrep)
       End Do
-      Call Free_iWork(ipSO_ab)
+      Call mma_deallocate(SO_ab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       nij_Eff=0
       Do i = 1, nij
-         nij_Eff = nij_Eff + iWork(ip_ij3-1+i)
+         nij_Eff = nij_Eff + ij3(i)
       End Do
 C     Write (6,*) 'nij_Eff=',nij_Eff
       If (nij_Eff.gt.nij) Then
@@ -82,18 +86,18 @@ C     Write (6,*) 'nij_Eff=',nij_Eff
          Call Abend()
       End If
 *
-      Call GetMem('ip_ij2','Allo','Inte',ip_ij2,nij_Eff*2)
+      Call mma_allocate(ij2,2,nij_Eff,Label='ij2')
       ij = 0
       ij_Eff = 0
       Do i = 1, nSkal_Valence
          Do j = 1, i
             ij = ij + 1
 C           Write (6,*) 'i,j,ij=',i,j,ij
-            If (iWork(ip_ij3-1+ij).eq.1) Then
+            If (ij3(ij).eq.1) Then
                ij_Eff = ij_Eff + 1
 C              Write (*,*) 'ij_Eff=',ij_Eff
-               iWork(ip_ij2-1 + (ij_Eff-1)*2 + 1) = i
-               iWork(ip_ij2-1 + (ij_Eff-1)*2 + 2) = j
+               ij2(1,ij_Eff) = i
+               ij2(2,ij_Eff) = j
             End If
          End Do
       End Do
@@ -102,7 +106,7 @@ C              Write (*,*) 'ij_Eff=',ij_Eff
      &               'Effective_CD_Pairs: ij_Eff.ne.nij_Eff')
          Call Abend()
       End If
-      Call Free_Work(ip_ij3)
+      Call mma_deallocate(ij3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
