@@ -8,14 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-c
-c this file contains :
-c
-c frankie_drv
-c frankie_drv_fake
-c
-c ----------------------------------------------------------------
-c
         subroutine frankie_drv (NChHere)
 c
         implicit none
@@ -35,32 +27,6 @@ c
 c
 c        take local # of Cholesky Vectors on this node
         NChHere=NumCho(1)
-c
-        return
-        end
-c
-c -------------------------------------------------------------------
-c
-        subroutine frankie_drv_fake (NChHere)
-c
-        implicit none
-c
-#include "chcc1.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-c
-        integer NChHere,rc
-        real*8 FracMem
-c
-c ----------------------------------------------------------------
-        FracMem=0.0d0
-        Call Cho_X_init(rc,FracMem) ! initialize cholesky info
-c
-c        take local # of Cholesky Vectors on this node
-        NChHere=NumCho(1)
-
-        Call Cho_X_final(rc)
 c
         return
         end

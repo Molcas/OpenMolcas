@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-cmp      SUBROUTINE klvaa_vvv(G,ix,it,ig,iscr,vblock,N,nug,lu,last,
-cmpn      SUBROUTINE klvaa_vvv(ix,it,ig,iscr,vblock,N,nug,lu,last,
       SUBROUTINE klvaa_vvv(ix,ig,iscr,vblock,N,nug,lu,last,
      $iasblock,K,ias)
+cmp      SUBROUTINE klvaa_vvv(G,ix,it,ig,iscr,vblock,N,nug,lu,last,
+cmpn      SUBROUTINE klvaa_vvv(ix,it,ig,iscr,vblock,N,nug,lu,last,
 C
 C  creates K(alpha>alpha,alpha-alpha) or K(beta>beta,beta,beta)
 C  DA files KMATICH(ISP)ICH(ISP)     ISP=A
