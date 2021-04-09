@@ -50,6 +50,9 @@
       Integer nAct(0:7)
       Real*8, Allocatable:: V_k_new(:,:), U_k_new(:)
       Integer, Allocatable:: iZk(:), iVk(:), iUk(:)
+
+      Real*8, Allocatable:: DMTmp(:), Tmp(:)
+      Integer, Allocatable :: SO_ab(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,7 +96,7 @@ C     ipAOrb(:,:)=ip_Dummy
 ************************************************************************
 *                                                                      *
       Call FZero(Temp,nGrad)
-      Call Allocate_Work(ipTemp,nGrad)
+      Call mma_allocate(Tmp,nGrad,Label='Tmp')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -206,12 +209,11 @@ C     ipAOrb(:,:)=ip_Dummy
          m_Txy=nAdens
          Call mma_allocate(Txy,n_Txy,nAdens,Label='Txy')
          Call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
-         Call GetMem('Tmp','Allo','Real',ipDMtmp,nG1*(nG1+1)/2)
+         Call mma_allocate(DMtmp,nG1*(nG1+1)/2,Label='DMtmp')
          Call iZero(nnP,nIrrep)
-         Call Compute_txy(G1(1,1),nG1,Txy,
-     &                   n_Txy,nAdens,nIrrep,DMdiag,
-     &                   Work(ipDMtmp),nAct)
-         Call GetMem('Tmp','Free','Real',ipDMtmp,nG1*(nG1+1)/2)
+         Call Compute_txy(G1(1,1),nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,
+     &                    DMtmp,nAct)
+         Call mma_deallocate(DMtmp)
       Else
          Call mma_allocate(Txy,1,1,Label='Txy')
          Call mma_allocate(DMdiag,1,1,Label='DMdiag')
@@ -332,22 +334,21 @@ C     ipAOrb(:,:)=ip_Dummy
          End If
 
 *
-         Call GetMem('SO_ab','Allo','INTE',ipSO_ab,2*nAux_Tot)
-         Call IZero(iWork(ipSO_ab),2*nAux_Tot)
-         iOff = 0
+         Call mma_allocate(SO_ab,2*nAux_Tot,Label='SO_ab')
+         SO_ab(:)=0
+         iOff = 1
          Do iSym = 1, nSym
             ip_List_rs=ip_of_iWork(InfVec(1,1,iSym))
-            Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
+            Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,SO_ab(iOff))
 
             If((iSym .eq. 1) .and. (iMp2prpt .eq. 2)) Then
-               Call ReMap_U_k(U_k,nV_k,U_k_New,nV_k_New,
-     &                        iWork(ipSO_ab))
+               Call ReMap_U_k(U_k,nV_k,U_k_New,nV_k_New,SO_ab)
             End If
             m_ij2K = nBas(iSym-1)*(nBas(iSym-1)+1)/2
             Do i=0,nJDens-1
               Call ReMap_V_k(iSym,V_k(1,1+i),nV_k,
      &                     V_k_new(1,1+i),nV_k_New,
-     &                     iWork(ipSO_ab+iOff),ij2K(iOff_ij2K(iSym)+1),
+     &                     SO_ab(iOff),ij2K(iOff_ij2K(iSym)+1),
      &                     m_ij2K)
             EndDo
             iOff = iOff + 2*nBas_Aux(iSym-1)
@@ -355,7 +356,7 @@ C     ipAOrb(:,:)=ip_Dummy
 *
          nV_k=nV_k_new
 *
-         Call Free_iWork(ipSO_ab)
+         Call mma_deallocate(SO_ab)
          Call mma_deallocate(V_k)
          Call mma_allocate(V_k,nV_k,nJdens,Label='V_k')
          V_k(:,:)=V_k_new(:,:)
@@ -420,13 +421,13 @@ C     ipAOrb(:,:)=ip_Dummy
 *     Compute contributions due to the "2-center" two-electron integrals
 *
       Case_2C=.True.
-      Call Drvg1_2center_RI(Temp,Work(ipTemp),nGrad,ip_ij2,nij_Eff)
-      Call GADGOP(Work(ipTemp),nGrad,'+')
+      Call Drvg1_2center_RI(Temp,Tmp,nGrad,ip_ij2,nij_Eff)
+      Call GADGOP(Tmp,nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 2-center term',
-     &    Work(ipTemp),nGrad,ChDisp,iPrint)
+     &    Tmp,nGrad,ChDisp,iPrint)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1) ! Move any 1-el contr.
-      call dcopy_(nGrad,Work(ipTemp),1,Temp,1)
+      call dcopy_(nGrad,Tmp,1,Temp,1)
       Call DScal_(nGrad,-One,Temp,1)
       Case_2C=.False.
 *                                                                      *
@@ -435,17 +436,15 @@ C     ipAOrb(:,:)=ip_Dummy
 *     Compute contributions due to the "3-center" two-electron integrals
 *
       Case_3C=.True.
-      Call Drvg1_3center_RI(Temp,Work(ipTemp),nGrad,ip_ij2,nij_Eff)
-      Call GADGOP(Work(ipTemp),nGrad,'+')
+      Call Drvg1_3center_RI(Temp,Tmp,nGrad,ip_ij2,nij_Eff)
+      Call GADGOP(Tmp,nGrad,'+')
       If (iPrint.ge.15) Call PrGrad(
      &    ' RI-Two-electron contribution - 3-center term',
-     &    Work(ipTemp),nGrad,ChDisp,iPrint)
-      Call DaXpY_(nGrad,Two,Work(ipTemp),1,Temp,1)
+     &    Tmp,nGrad,ChDisp,iPrint)
+      Call DaXpY_(nGrad,Two,Tmp,1,Temp,1)
       Case_3C=.False.
       If(Allocated(Txy))  Call mma_deallocate(Txy)
       If(Allocated(DMdiag))  Call mma_deallocate(DMdiag)
-*     If (ipAOrb(0,1).ne.ip_Dummy)
-*    &   Call GetMem('AOrb','Free','Real',ipAOrb(0,1),mAO*nADens)
       If (Allocated(AOrb)) Then
          Do iADens = 1, nADens
             Call Deallocate_DSBA(AOrb(iADens))
@@ -489,7 +488,7 @@ C     ipAOrb(:,:)=ip_Dummy
          Call WarningMessage(2,' Drvg1_RI: Cho_X_Final failed')
          Call Abend()
       End If
-      Call Free_Work(ipTemp)
+      Call mma_deallocate(Tmp)
       If (iPrint.ge.15)  Call PrGrad(
      &    ' RI-Two-electron contribution - Temp',
      &    Temp,nGrad,ChDisp,iPrint)
