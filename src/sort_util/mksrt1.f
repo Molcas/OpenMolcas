@@ -1,49 +1,49 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Markus P. Fuelscher                              *
-*               1991, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Markus P. Fuelscher                              *
+!               1991, Per Ake Malmqvist                                *
+!***********************************************************************
       Subroutine MkSrt1()
-************************************************************************
-*                                                                      *
-*     Purpose: Determine the splitting of the integrals into           *
-*              submatrices (slices) and hence determine the            *
-*              number of bins. Also construct the offsets              *
-*              which allow to reduce an integral symmetry block        *
-*              number into a relative bin number with respect to       *
-*              the bin number of the first integral in an given        *
-*              symmetry block.                                         *
-*                                                                      *
-*     Called from: Sort0                                               *
-*                                                                      *
-*     Calls to : none                                                  *
-*                                                                      *
-*     Calling parameters: none                                         *
-*                                                                      *
-*     Global data declarations (Include files) :                       *
-*     TwoDef  : definitions of the record structure                    *
-*     Srt0    : common block containing information pertinent to       *
-*               the calculation of 2el integral sequence numbers       *
-*     Srt1    : common block containing information the number of      *
-*               bins and partitioning of symmetry blocks               *
-*     Srt2    : common block containing information pertinent to       *
-*               the bin sorting algorithm                              *
-*                                                                      *
-*     Local data declarations: none                                    *
-*                                                                      *
-**** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-*
+!***********************************************************************
+!                                                                      *
+!     Purpose: Determine the splitting of the integrals into           *
+!              submatrices (slices) and hence determine the            *
+!              number of bins. Also construct the offsets              *
+!              which allow to reduce an integral symmetry block        *
+!              number into a relative bin number with respect to       *
+!              the bin number of the first integral in an given        *
+!              symmetry block.                                         *
+!                                                                      *
+!     Called from: Sort0                                               *
+!                                                                      *
+!     Calls to : none                                                  *
+!                                                                      *
+!     Calling parameters: none                                         *
+!                                                                      *
+!     Global data declarations (Include files) :                       *
+!     TwoDef  : definitions of the record structure                    *
+!     Srt0    : common block containing information pertinent to       *
+!               the calculation of 2el integral sequence numbers       *
+!     Srt1    : common block containing information the number of      *
+!               bins and partitioning of symmetry blocks               *
+!     Srt2    : common block containing information pertinent to       *
+!               the bin sorting algorithm                              *
+!                                                                      *
+!     Local data declarations: none                                    *
+!                                                                      *
+!*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
+!
       use srt2
       Implicit Integer (A-Z)
-*
+!
 #include "srt0.fh"
 #include "srt1.fh"
 
@@ -54,19 +54,19 @@
       iRout = 80
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write (6,*) ' >>> Enter MKSRT1 <<<'
-*----------------------------------------------------------------------*
-*                                                                      *
-*     grab memory                                                      *
-*                                                                      *
-*     The available memory should not be smaller than the number       *
-*     of unique symmetry blocks times the size of a bin.               *
-*     If nSyOp=1 mxBin=  1 and If Square=.true. mxBin=  1              *
-*        nSyOp=2 mxBin=  4                      mxBin=  5              *
-*        nSyOp=4 mxBin= 19                      mxBin= 28              *
-*        nSyOp=8 mxBin=106                      mxBin=176              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     grab memory                                                      *
+!                                                                      *
+!     The available memory should not be smaller than the number       *
+!     of unique symmetry blocks times the size of a bin.               *
+!     If nSyOp=1 mxBin=  1 and If Square=.true. mxBin=  1              *
+!        nSyOp=2 mxBin=  4                      mxBin=  5              *
+!        nSyOp=4 mxBin= 19                      mxBin= 28              *
+!        nSyOp=8 mxBin=106                      mxBin=176              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!
       lSrtA=1
       If ( nSyOp.eq.2 ) then
         lSrtA = 4
@@ -82,18 +82,18 @@
       lSrtA = ((1+RtoI)*lSrtA)/RtoI
       Call mma_MaxDBLE(MaxMem)
       lSrtA=Max(lSrtA,MaxMem/2)
-*
-*----------------------------------------------------------------------*
-*     determine the partitioning of the 2el integrals into             *
-*     submatrices by dividing the symmetry blocks into slices that     *
-*     fit into the available memory.                                   *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     determine the partitioning of the 2el integrals into             *
+!     submatrices by dividing the symmetry blocks into slices that     *
+!     fit into the available memory.                                   *
+!----------------------------------------------------------------------*
+!
       Do iSyBlk=1,mSyBlk
         nSln(iSyBlk)=0
         lSll(iSyBlk)=0
       End Do
-*
+!
 #ifndef _I8_
       lim_32=2**30
 #endif
@@ -122,8 +122,8 @@
                kSyml=1+ieor(kSymk-1,lSyml-1)
                kSybll=lSyml+kSymk*(kSymk-1)/2
                If( ieor(iSymj-1,kSyml-1).ne.0 ) Go To 400
-*
-C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
+!
+!              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
                lb=nBs(lSyml)
                lSkip=nSkip(lSyml)
                If (lb.eq.0.or.lSkip.eq.1) Go To 400
@@ -145,10 +145,10 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
                 End Do
                 If ( nij.eq.0 ) then
                     Write(6,*)
-                    Write(6,'(2X,A,I3.3,A)')
+                    Write(6,'(2X,A,I3.3,A)')                            &
      &              '*** Error in MKSRT1 ***'
                     Write(6,'(2X,A)') 'Insufficient memory'
-                    Write(6,'(2X,A)') 'Increase the value of the'//
+                    Write(6,'(2X,A)') 'Increase the value of the'//     &
      &                                'MOLCAS_MEM environement variable'
                     Write(6,*)
                     Call Quit(_RC_MEMORY_ERROR_)
@@ -159,9 +159,9 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
                 End Do
                 nSln(iSyBlk)=nSlice
                 lSll(iSyBlk)=nij*kbl
-C               Write (*,*) 'iSyBlk=',iSyBlk
-C               Write (*,*) 'nSln(iSyBlk)=',nSln(iSyBlk)
-C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
+!               Write (*,*) 'iSyBlk=',iSyBlk
+!               Write (*,*) 'nSln(iSyBlk)=',nSln(iSyBlk)
+!               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
  400          Continue
             End Do
  300        Continue
@@ -170,12 +170,12 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         End Do
  100    Continue
       End Do
-*
-*----------------------------------------------------------------------*
-*     Determine the final amount of memory and bins that will be used. *
-*     Check again for consistency                                      *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Determine the final amount of memory and bins that will be used. *
+!     Check again for consistency                                      *
+!----------------------------------------------------------------------*
+!
       nBin = 0
       MxSrtA2 = 0
       Do iSyBlk = 1,mSyBlk
@@ -185,19 +185,19 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         MxSrtA2 = Max(MxSrtA2,lSlice)
       End Do
       MxSrtA1 = ((1+RtoI)*nBin*lBin)/RtoI
-*
+!
       If (iPrint.gt. 5) Then
       Write (6,*)
-      Write(6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',
+      Write(6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',  &
      &     MxSrtA1,' Words(Real*8) in the first phase (=',nBin,' bins).'
-      Write(6,'(A,I12,A)') '  SEWARD will use a sorting area of',
+      Write(6,'(A,I12,A)') '  SEWARD will use a sorting area of',       &
      &     MxSrtA2,' Words(Real*8) in the second phase.'
       Write (6,*)
       End If
-*
+!
       If ( nBin.gt.mxBin ) Then
         Write(6,*)
-        Write(6,'(2X,A,I3.3,A)')
+        Write(6,'(2X,A,I3.3,A)')                                        &
      &  '*** Error in MKSRT1 ***'
         Write(6,'(2X,A)') 'Insufficient memory'
         Write(6,'(2X,A)') 'nBin exceeds limits (nBin>mxBin)'
@@ -209,10 +209,10 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Call Quit(_RC_MEMORY_ERROR_)
       End If
-*
+!
       If ( MxSrtA1.gt.lSrtA ) Then
         Write(6,*)
-        Write(6,'(2X,A,I3.3,A)')
+        Write(6,'(2X,A,I3.3,A)')                                        &
      &  '*** Error in MKSRT1 ***'
         Write(6,'(2X,A)') 'Insufficient memory'
         Write(6,'(2X,A)') 'MxSrtA1>lSrtA'
@@ -224,23 +224,23 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Call Quit(_RC_MEMORY_ERROR_)
       End If
-*
-*----------------------------------------------------------------------*
-*     compute offsets                                                  *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     compute offsets                                                  *
+!----------------------------------------------------------------------*
+!
       iOff=1
       Do iSyBlk=1,mSyBlk
         nSlice=nSln(iSyBlk)
         IstBin(iSyBlk)=iOff
         iOff=iOff+nSlice
       End Do
-*
-*----------------------------------------------------------------------*
-*     initialize counter for integrals per slice                       *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     initialize counter for integrals per slice                       *
+!----------------------------------------------------------------------*
+!
       Call ICopy(3*nBin,[0],0,mInt,1)
-*
+!
       Return
       End

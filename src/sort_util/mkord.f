@@ -1,83 +1,83 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Markus P. Fuelscher                              *
-*               1991, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Markus P. Fuelscher                              *
+!               1991, Per Ake Malmqvist                                *
+!***********************************************************************
       Subroutine MkOrd(iDisk)
-*
-************************************************************************
-*                                                                      *
-*    Purpose: Create the table of content of the OrdInt file           *
-*                                                                      *
-*    Called from: Sort0 ans Sort3                                      *
-*                                                                      *
-*    Calls to : DaFile                                                 *
-*                                                                      *
-*    Calling parameters:                                               *
-*    iDisk  : First free entry on disk after table of contents         *
-*                                                                      *
-*    Global data declarations (Include files) :                        *
-*    TwoDat  : table of contents and auxiliary information             *
-*              on the ordered 2el file                                 *
-*    TowID   : Table of file identifiers                               *
-*    TwoDef  : definitions of the record structure                     *
-*    Srt0    : common block containing information pertinent to        *
-*              the calculation of 2el integral sequence numbers        *
-*    Srt1    : common block containing information the number of       *
-*              bins and partitioning of symmetry blocks                *
-*    Srt2    : common block containing information pertinent to        *
-*              the bin sorting algorithm                               *
-*    PkCtl   : packing table                                           *
-*                                                                      *
-*    Local data declarations: none                                     *
-*                                                                      *
-**** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-*
+!
+!***********************************************************************
+!                                                                      *
+!    Purpose: Create the table of content of the OrdInt file           *
+!                                                                      *
+!    Called from: Sort0 ans Sort3                                      *
+!                                                                      *
+!    Calls to : DaFile                                                 *
+!                                                                      *
+!    Calling parameters:                                               *
+!    iDisk  : First free entry on disk after table of contents         *
+!                                                                      *
+!    Global data declarations (Include files) :                        *
+!    TwoDat  : table of contents and auxiliary information             *
+!              on the ordered 2el file                                 *
+!    TowID   : Table of file identifiers                               *
+!    TwoDef  : definitions of the record structure                     *
+!    Srt0    : common block containing information pertinent to        *
+!              the calculation of 2el integral sequence numbers        *
+!    Srt1    : common block containing information the number of       *
+!              bins and partitioning of symmetry blocks                *
+!    Srt2    : common block containing information pertinent to        *
+!              the bin sorting algorithm                               *
+!    PkCtl   : packing table                                           *
+!                                                                      *
+!    Local data declarations: none                                     *
+!                                                                      *
+!*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
+!
       use srt2
       use Integral_Parameters, only: iPack
       Implicit Integer (A-Z)
-*
+!
 
 #include "FileIDs.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
 #include "PkCtl.fh"
-*
-*---------------------------------------------------------------------*
-*     Initialize table of content                                     *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Initialize table of content                                     *
+!---------------------------------------------------------------------*
+!
       Do iToc=1,lTocTwo
          TocTwo(iToc)=iNoNum
       End Do
-*
-*---------------------------------------------------------------------*
-*     Write file identifier                                           *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Write file identifier                                           *
+!---------------------------------------------------------------------*
+!
       TocTwo(isId)=IDtwo
       TocTwo(isVer)=VNtwo
       TocTwo(isForm)=0
-*
-*---------------------------------------------------------------------*
-*     Write ordring mode                                              *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Write ordring mode                                              *
+!---------------------------------------------------------------------*
+!
       TocTwo(isOrd)=0
-*
-*---------------------------------------------------------------------*
-*     Write symmetry and basis set information                        *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Write symmetry and basis set information                        *
+!---------------------------------------------------------------------*
+!
       TocTwo(isSym)=nSyOp
       Do iSymi=0,nSyOp-1
         TocTwo(isSkip+iSymi)=nSkip(iSymi+1)
@@ -99,24 +99,24 @@
           End Do
         End Do
       End Do
-*
-*---------------------------------------------------------------------*
-*     Write the skip parameters                                       *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Write the skip parameters                                       *
+!---------------------------------------------------------------------*
+!
       TocTwo(isSym)=nSyOP
       Do iSymi=0,nSyOp-1
         TocTwo(isBas+iSymi)=nBs(iSymi+1)
       End Do
-*
-*---------------------------------------------------------------------*
-*     Write disk access table                                         *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Write disk access table                                         *
+!---------------------------------------------------------------------*
+!
       Do iBatch=0,175
          TocTwo(isDAdr+iBatch)=0
       End Do
-*
+!
       iBin=1
       Do iSymi=1,nSyOp
          iFlit=nSkip(iSymi)
@@ -133,7 +133,7 @@
                Do lSyml=1,lSymMx
                   lFlit=nSkip(lSyml)
                   kSyml=1+ieor(kSymk-1,lSyml-1)
-*
+!
                   kSybll=lSyml+kSymk*(kSymk-1)/2
                   If ( ieor(iSymj-1,kSyml-1).eq.0 ) then
                      If ( (iFlit+jFlit+kFlit+lFlit).eq.0 ) then
@@ -147,13 +147,13 @@
             End Do
          End Do
       End Do
-*
+!
       TocTwo(isMxDa)=mDaTwo
-*
-*---------------------------------------------------------------------*
-*     Write packing information                                       *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Write packing information                                       *
+!---------------------------------------------------------------------*
+!
       Call Real2Int(PkThrs,TocTwo(isPkTh))
       Call Real2Int(PkCutof,TocTwo(isPkCt))
       Call Real2Int(PkScal,TocTwo(isPkSc))
@@ -166,16 +166,16 @@
       Do iExp=0,4095
         TocTwo(isPkTb+iExp)=PkTab(iExp)
       End Do
-*
-*---------------------------------------------------------------------*
-*     Transfer table of content to disk                               *
-*---------------------------------------------------------------------*
-*
+!
+!---------------------------------------------------------------------*
+!     Transfer table of content to disk                               *
+!---------------------------------------------------------------------*
+!
       iDisk=0
       iOpt=1
       LuTwo=AuxTwo(isUnit)
       Call iDAFILE(LuTwo,iOpt,TocTwo,lTocTwo,iDisk)
       AuxTwo(isDaDa)=iDisk
-*
+!
       Return
       End

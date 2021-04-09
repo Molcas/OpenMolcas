@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Oskar Weser                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Oskar Weser                                      *
+!***********************************************************************
 #include "compiler_features.h"
       module sorting
         use definitions, only: wp
         implicit none
         private
-        public ::
+        public ::                                                       &
      &    sort, argsort,  tAlgorithm, algorithms, bubble_sort_trsh, swap
 #ifndef INTERNAL_PROC_ARG
         public :: compare_int_t
@@ -26,13 +26,13 @@
         type :: tAlgorithmValues
           integer :: mergesort, quicksort
         end type
-        type(tAlgorithmValues), parameter ::
+        type(tAlgorithmValues), parameter ::                            &
      &      algorithms = tAlgorithmValues(mergesort=1, quicksort=2)
 
         type :: tAlgorithm
           integer :: val
         end type
-        type(tAlgorithm), parameter ::
+        type(tAlgorithm), parameter ::                                  &
      &      default_algorithm = tAlgorithm(algorithms%mergesort)
 
 ! When to switch to naive sort, which scales with n^2,
