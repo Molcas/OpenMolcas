@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,1996, Markus P. Fuelscher                         *
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
+
+subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Phase 1 of the bin sorting algorithm                    *
@@ -58,69 +59,70 @@
 !       M. P. Fuelscher, University of Lund, Sweden, 1996              *
 !                                                                      *
 !***********************************************************************
-!
-      use srt2
-      Implicit Real*8 (A-H,O-Z)
-!
+
+use srt2
+implicit real*8(A-H,O-Z)
+
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-!
-      Real*8 vInt(nUt),nSqNum(nUt),nSyBlk(nUt)
-!
+
+real*8 vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
+
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
 !----------------------------------------------------------------------*
-!
-      iRout = 81
-      iPrint = nPrint(iRout)
-      If ( iPrint.ge.99 ) then
-        Write(6,*) ' >>> Enter SORT1A <<<'
-        Call dVcPrt('nSqNum',' ',nSqNum,nUt)
-        Call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
-        Call dVcPrt('vInt',' ',vInt,nUt)
-      End If
-!
+
+iRout = 81
+iPrint = nPrint(iRout)
+if (iPrint >= 99) then
+  write(6,*) ' >>> Enter SORT1A <<<'
+  call dVcPrt('nSqNum',' ',nSqNum,nUt)
+  call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
+  call dVcPrt('vInt',' ',vInt,nUt)
+end if
+
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
 !----------------------------------------------------------------------*
-!
-      If ( RAMD ) then
-        Call SORT1C(nUt,vInt,nSqNum,nSyBlk)
-        Return
-      End If
-!
-      iOpt=0 ! Always tight!
-!
+
+if (RAMD) then
+  call SORT1C(nUt,vInt,nSqNum,nSyBlk)
+  return
+end if
+
+iOpt = 0 ! Always tight!
+
 !----------------------------------------------------------------------*
 !     put the 2el integrals into the bins                              *
 !----------------------------------------------------------------------*
-!
-      Do iUt=1,nUt
-         iBin=INT(nSyBlk(iUt))
-         next=nInt(iBin)+1
-         lwVBin(next,iBin)=vInt(iUt)
-         lwIBin(next,iBin)=INT(nSqNum(iUt))
-         nInt(iBin)=next
-         mInt(1,iBin)=mInt(1,iBin)+1
-!
-!----------------------------------------------------------------------*
-!     If a bin is completed pack the buffer and put it to disc         *
-!     First, sort the the integrals such that the indices are given in *
-!     strictly ascending order.                                        *
-!----------------------------------------------------------------------*
-!
-         If ( next.ge.(lBin-1) ) Then
-            Call SaveBin(iBin,iOpt)
-         End If
-      End Do
-!
+
+do iUt=1,nUt
+  iBin = int(nSyBlk(iUt))
+  next = nint(iBin)+1
+  lwVBin(next,iBin) = vInt(iUt)
+  lwIBin(next,iBin) = int(nSqNum(iUt))
+  nint(iBin) = next
+  mInt(1,iBin) = mInt(1,iBin)+1
+
+  !--------------------------------------------------------------------*
+  !   If a bin is completed pack the buffer and put it to disc         *
+  !   First, sort the the integrals such that the indices are given in *
+  !   strictly ascending order.                                        *
+  !--------------------------------------------------------------------*
+
+  if (next >= (lBin-1)) then
+    call SaveBin(iBin,iOpt)
+  end if
+end do
+
 !----------------------------------------------------------------------*
 !     Turn timing OFF and exit                                         *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine SORT1A

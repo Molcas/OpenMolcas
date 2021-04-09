@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine MkSrt2
+
+subroutine MkSrt2
 !***********************************************************************
 !                                                                      *
 !     Purpose: Inizialize counters and offsets required                *
@@ -35,37 +36,38 @@
 !     Local data declarations: none                                    *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-!
-      use srt2
-      Implicit Integer (A-Z)
-!
+
+use srt2
+implicit integer(A-Z)
+
 #include "srt0.fh"
 #include "srt1.fh"
 #include "print.fh"
-!
-      iRout = 80
-      iPrint = nPrint(iRout)
-      If ( iPrint.gt.10) Write(6,*) ' >>> Enter MKSRT2 <<<'
-!
+
+iRout = 80
+iPrint = nPrint(iRout)
+if (iPrint > 10) write(6,*) ' >>> Enter MKSRT2 <<<'
+
 !----------------------------------------------------------------------*
 !     initialize various pointers, counters and disk adresses          *
 !----------------------------------------------------------------------*
-!
-      iBin=0
-      Do 30 iSyBlk=1,mSyBlk
-         nSlice=nSln(iSyBlk)
-         If ( nSlice.ne.0 ) then
-            Do 40 iSlice=1,nSlice
-               iBin=iBin+1
-               iDIBin(2,iBin)=-1
-               iDVBin(2,iBin)=-1
-               iDVBin(3,iBin)=-1
-               iDVBin(4,iBin)=-1
-               nInt(iBin)=0
-               nRec(iBin)=0
-40          Continue
-         End If
-30    Continue
-!
-      Return
-      End
+
+iBin = 0
+do iSyBlk=1,mSyBlk
+  nSlice = nSln(iSyBlk)
+  if (nSlice /= 0) then
+    do iSlice=1,nSlice
+      iBin = iBin+1
+      iDIBin(2,iBin) = -1
+      iDVBin(2,iBin) = -1
+      iDVBin(3,iBin) = -1
+      iDVBin(4,iBin) = -1
+      nint(iBin) = 0
+      nRec(iBin) = 0
+    end do
+  end if
+end do
+
+return
+
+end subroutine MkSrt2

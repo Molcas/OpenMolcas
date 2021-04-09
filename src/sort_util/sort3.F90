@@ -12,7 +12,8 @@
 !               1993, Per Ake Malmqvist                                *
 !               1998, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine SORT3(MaxDax)
+
+subroutine SORT3(MaxDax)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Up to this point the two electron integral file         *
@@ -60,10 +61,10 @@
 !       R. Lindh, University of Lund, Sweden, 1998                     *
 !                                                                      *
 !***********************************************************************
-!
-      use srt2
-      Implicit Real*8 (A-H,O-Z)
-!
+
+use srt2
+implicit real*8(A-H,O-Z)
+
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
@@ -73,129 +74,128 @@
 #include "print.fh"
 #include "stdalloc.fh"
 
-      Dimension Buf(2*lStRec)
-      Integer, Allocatable:: SrtKey(:), SrtAdr(:)
+dimension Buf(2*lStRec)
+integer, allocatable :: SrtKey(:), SrtAdr(:)
 
-!
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
-!
+
 #ifdef _DEBUGPRINT_
-      iRout = 88
-      iPrint = nPrint(iRout)
-      If ( iPrint.gt.5 ) Write(6,*) ' >>> Enter SORT3 <<<'
+iRout = 88
+iPrint = nPrint(iRout)
+if (iPrint > 5) write(6,*) ' >>> Enter SORT3 <<<'
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
 !----------------------------------------------------------------------*
-!
-!
+
 !----------------------------------------------------------------------*
 !     Scan once the two-electron integral file a pick up the sort      *
 !     key as well as disk addresses                                    *
 !----------------------------------------------------------------------*
-!
-      Call mma_allocate(SrtKey,mxOrd,Label='SrtKey')
-      Call mma_allocate(SrtAdr,mxOrd,Label='SrtAdr')
-      iOpt = 2
-      iDisk = iDaTw0
-      MaxDax=0
-      Do iOrd = 1,mxOrd
-         SrtAdr(iOrd) = iDisk
-         MaxDax=Max(iDisk,MaxDax)
-         Call dDAFILE(LuTwo,iOpt,Buf,lStRec,iDisk)
-         SrtKey(iOrd) = Int(Buf(2))
-      End Do
-      MaxDax=iDisk
+
+call mma_allocate(SrtKey,mxOrd,Label='SrtKey')
+call mma_allocate(SrtAdr,mxOrd,Label='SrtAdr')
+iOpt = 2
+iDisk = iDaTw0
+MaxDax = 0
+do iOrd=1,mxOrd
+  SrtAdr(iOrd) = iDisk
+  MaxDax = max(iDisk,MaxDax)
+  call dDAFILE(LuTwo,iOpt,Buf,lStRec,iDisk)
+  SrtKey(iOrd) = int(Buf(2))
+end do
+MaxDax = iDisk
 #ifdef _DEBUGPRINT_
-      If ( iPrint.ge.10 ) then
-        Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
-        Call iVcPrt('Disk addresses',' ',SRtAdr,mxOrd)
-      End If
+if (iPrint >= 10) then
+  call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
+  call iVcPrt('Disk addresses',' ',SRtAdr,mxOrd)
+end if
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Sort records in ascending order of the sort key                  *
 !----------------------------------------------------------------------*
-!
-      iWr=1
-      iRd=2
-!
-!---- Loop over all records
-!
-      Do i = 1,mxOrd
-        j1 = i
-        j2 = SrtKey(i)
-        If ( j2.ne.i ) then
-          iB1 = 1
-          iB2 = lStRec+1
-          iDisk = SrtAdr(j1)
-          Call dDAFILE(LuTwo,iRd,Buf(iB1),lStRec,iDisk)
-          Do while ( j2.ne.i )
-            iDisk = SrtAdr(j2)
-            Call dDAFILE(LuTwo,iRd,Buf(iB2),lStRec,iDisk)
-            iDisk = SrtAdr(j2)
-            Call dDAFILE(LuTwo,iWr,Buf(iB1),lStRec,iDisk)
-            iTmp=iB2
-            iB2 = iB1
-            iB1 = iTmp
-            j1 = j2
-            j2 = SrtKey(j2)
-            SrtKey(j1) = j1
-          End Do
-          iDisk = SrtAdr(j2)
-          Call dDAFILE(LuTwo,iWr,Buf(iB1),lStRec,iDisk)
-          SrtKey(j2) = j2
-        End If
-      End Do
+
+iWr = 1
+iRd = 2
+
+! Loop over all records
+
+do i=1,mxOrd
+  j1 = i
+  j2 = SrtKey(i)
+  if (j2 /= i) then
+    iB1 = 1
+    iB2 = lStRec+1
+    iDisk = SrtAdr(j1)
+    call dDAFILE(LuTwo,iRd,Buf(iB1),lStRec,iDisk)
+    do while (j2 /= i)
+      iDisk = SrtAdr(j2)
+      call dDAFILE(LuTwo,iRd,Buf(iB2),lStRec,iDisk)
+      iDisk = SrtAdr(j2)
+      call dDAFILE(LuTwo,iWr,Buf(iB1),lStRec,iDisk)
+      iTmp = iB2
+      iB2 = iB1
+      iB1 = iTmp
+      j1 = j2
+      j2 = SrtKey(j2)
+      SrtKey(j1) = j1
+    end do
+    iDisk = SrtAdr(j2)
+    call dDAFILE(LuTwo,iWr,Buf(iB1),lStRec,iDisk)
+    SrtKey(j2) = j2
+  end if
+end do
 #ifdef _DEBUGPRINT_
-      If ( iPrint.ge.10 ) then
-        Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
-      End If
+if (iPrint >= 10) then
+  call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
+end if
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Update the disk start adressed of each slice                     *
 !----------------------------------------------------------------------*
-!
-      j = 1
-      Do iBin=1,nBin
-        iDVBin(2,iBin) = SrtAdr(j)
-        j = j+nRec(iBin)
-      End Do
-      Call mma_deallocate(SrtKey)
-      Call mma_deallocate(SrtAdr)
-!
+
+j = 1
+do iBin=1,nBin
+  iDVBin(2,iBin) = SrtAdr(j)
+  j = j+nRec(iBin)
+end do
+call mma_deallocate(SrtKey)
+call mma_deallocate(SrtAdr)
+
 !----------------------------------------------------------------------*
 !     Write the final table of content to disk                         *
 !----------------------------------------------------------------------*
-!
-      Call MkOrd(iDummy)
-!
+
+call MkOrd(iDummy)
+
 !----------------------------------------------------------------------*
 !     Close the ordered 2el integral file                              *
 !----------------------------------------------------------------------*
-!
-      iRc=-1
-      iOpt=0
-      Call ClsOrd(iRc,iOpt)
-      If ( iRc.ne.0 ) Then
-         Write (6,*) 'SORT3: Error closing ORDINT'
-         Call Abend()
-      End If
-      Call DaClos(LuTmp)
-!
+
+iRc = -1
+iOpt = 0
+call ClsOrd(iRc,iOpt)
+if (iRc /= 0) then
+  write(6,*) 'SORT3: Error closing ORDINT'
+  call Abend()
+end if
+call DaClos(LuTmp)
+
 !----------------------------------------------------------------------*
 !     Release RAMD                                                     *
 !----------------------------------------------------------------------*
-!
-      If (RAMD) Call GetMem('RAMD','Free','Real',ip_RAMD,RAMD_Size)
-!
+
+if (RAMD) call GetMem('RAMD','Free','Real',ip_RAMD,RAMD_Size)
+
 !----------------------------------------------------------------------*
 !     Turn timing OFF and exit                                         *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine SORT3

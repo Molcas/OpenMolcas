@@ -11,7 +11,8 @@
 ! Copyright (C) 1991,1996, Markus P. Fuelscher                         *
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine SORT0
+
+subroutine SORT0
 !***********************************************************************
 !                                                                      *
 !     Purpose: Prepare all information needed to sort 2el integral     *
@@ -80,122 +81,124 @@
 !       M. P. Fuelscher, University of Lund, Sweden, 1996              *
 !                                                                      *
 !***********************************************************************
-!
-      use Basis_Info, only: nBas
-      use srt2
-      use Symmetry_Info, only: nIrrep, iSkip
-      use Integral_parameters, only: iPack
-      Use Real_Info, only: PkAcc
-      Implicit Integer (A-Z)
-!
+
+use Basis_Info, only: nBas
+use srt2
+use Symmetry_Info, only: nIrrep, iSkip
+use Integral_parameters, only: iPack
+use Real_Info, only: PkAcc
+implicit integer(A-Z)
+
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "warnings.fh"
-      Logical PkMode
+logical PkMode
+
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
-      iRout = 80
-      iPrint = nPrint(iRout)
-      If ( iPrint.gt.10) Write (6,*) ' >>> Enter SORT0 <<<'
+iRout = 80
+iPrint = nPrint(iRout)
+if (iPrint > 10) write(6,*) ' >>> Enter SORT0 <<<'
 !----------------------------------------------------------------------*
 !     start timer                                                      *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 !     assume there is no vortual diak available                        *
 !----------------------------------------------------------------------*
-      RAMD = .false.
+RAMD = .false.
 !----------------------------------------------------------------------*
 !     open the two electron integral file                              *
 !----------------------------------------------------------------------*
-!
-      LuTwo=isfreeunit(40)
-      iOpt=1
-      iRc=0
-      Call OPNORD(iRc,iOpt,'ORDINT',LuTwo)
-      If ( iRc.ne.0 ) Then
-         Write (6,*) 'SORT0: Error opening ORDINT'
-         Call Abend()
-      End If
-!
-      iOpt=Toctwo(IsForm)
-      Kase=iAnd(iOpt,15)
-      If(Kase.eq.0) Then
-         lBin=lBin_tce
-      Else
-         lBin=lBin_rle
-      End If
-!
+
+LuTwo = isfreeunit(40)
+iOpt = 1
+iRc = 0
+call OPNORD(iRc,iOpt,'ORDINT',LuTwo)
+if (iRc /= 0) then
+  write(6,*) 'SORT0: Error opening ORDINT'
+  call Abend()
+end if
+
+iOpt = Toctwo(IsForm)
+Kase = iand(iOpt,15)
+if (Kase == 0) then
+  lBin = lBin_tce
+else
+  lBin = lBin_rle
+end if
+
 !----------------------------------------------------------------------*
 !     Initialize the common /SRT0/                                     *
 !     (Get total no. of irred. representations, basis dimensions ect.) *
 !----------------------------------------------------------------------*
-!
-      Call MKSRT0(0,nIrrep,nBas,iSkip)
-!
+
+call MKSRT0(0,nIrrep,nBas,iSkip)
+
 !----------------------------------------------------------------------*
 !     Initialize the common /SRT1/, i.e.,                              *
 !     determine the partitioning of the 2el integrals into             *
 !     submatrices (slices) where the size of the slices is             *
 !     determined by the maximum number of bins (mxBin)                 *
 !----------------------------------------------------------------------*
-!
-      Call MKSRT1()
-!
+
+call MKSRT1()
+
 !----------------------------------------------------------------------*
 !     allocate the space required in phase1 of the bin sort algoritm   *
 !----------------------------------------------------------------------*
-!
-      Call mma_allocate(lwVBin,lBin,nBin,Label='lwVBin')
-      Call mma_allocate(lwIBin,lBin,nBin,Label='lwIBin')
-!
-      Call mma_allocate(lIndx,lBin,Label='lIndx')
-      Call mma_allocate(lInts,lBin,Label='lInts')
-      Call mma_allocate(ValBin,lBin,Label='ValBin')
-      Call mma_allocate(IndBin,lBin,Label='IndBin')
-!
+
+call mma_allocate(lwVBin,lBin,nBin,Label='lwVBin')
+call mma_allocate(lwIBin,lBin,nBin,Label='lwIBin')
+
+call mma_allocate(lIndx,lBin,Label='lIndx')
+call mma_allocate(lInts,lBin,Label='lInts')
+call mma_allocate(ValBin,lBin,Label='ValBin')
+call mma_allocate(IndBin,lBin,Label='IndBin')
+
 !----------------------------------------------------------------------*
 !     compute various offsets for each Bin and also                    *
 !     initialize various pointers, counters and disk adresses          *
 !----------------------------------------------------------------------*
-!
-      Call MKSRT2
-!
+
+call MKSRT2
+
 !----------------------------------------------------------------------*
 !     set packing mode and initialize packing table                    *
 !----------------------------------------------------------------------*
-!
-      PkMode=.True.
-      If ( iPack.ne.0 ) PkMode=.false.
-      Call INIPKR8(PkAcc,PkMode)
-!
+
+PkMode = .true.
+if (iPack /= 0) PkMode = .false.
+call INIPKR8(PkAcc,PkMode)
+
 !----------------------------------------------------------------------*
 !     generate table of contents on 2el integral file                  *
 !----------------------------------------------------------------------*
-!
-      Call MKORD(iDisk)
-!
+
+call MKORD(iDisk)
+
 !----------------------------------------------------------------------*
 !     Because the bin sorting algorithm heavily relies on random       *
 !     access to the disks from here on the disk access control is      *
 !     transfered to the sorting algorithm directly.                    *
 !----------------------------------------------------------------------*
-!
-      iDaTw0=iDisk
-      iDaTwo=iDaTw0
-      mDaTwo=iDaTw0
-!
+
+iDaTw0 = iDisk
+iDaTwo = iDaTw0
+mDaTwo = iDaTw0
+
 !----------------------------------------------------------------------*
 !     open the scratch file                                            *
 !----------------------------------------------------------------------*
-!
-      LuTmp=isfreeunit(50)
-      Call DANAME_MF(LuTmp,'TEMP01')
-      iDaTmp=0
-      mDaTmp=0
 
-      Return
-      End
+LuTmp = isfreeunit(50)
+call DANAME_MF(LuTmp,'TEMP01')
+iDaTmp = 0
+mDaTmp = 0
+
+return
+
+end subroutine SORT0

@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,1996, Markus P. Fuelscher                         *
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine SORT1B
+
+subroutine SORT1B
 !***********************************************************************
 !                                                                      *
 !     Purpose: Phase 1 of the bin sorting algorithm                    *
@@ -48,54 +49,54 @@
 !       M. P. Fuelscher, University of Lund, Sweden, 1996              *
 !                                                                      *
 !***********************************************************************
-!
-      use srt2
-      Implicit Real*8 (A-H,O-Z)
-!
+
+use srt2
+implicit real*8(A-H,O-Z)
+
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-!
+
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
 !----------------------------------------------------------------------*
-!
-      iRout = 82
-      iPrint = nPrint(iRout)
-      If ( iPrint.ge.99 ) Write(6,*) ' >>> Enter SORT1B <<<'
-!
+
+iRout = 82
+iPrint = nPrint(iRout)
+if (iPrint >= 99) write(6,*) ' >>> Enter SORT1B <<<'
+
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
 !----------------------------------------------------------------------*
-!
-!
+
 !----------------------------------------------------------------------*
 !     dump remaining integrals to disk                                 *
 !----------------------------------------------------------------------*
-!
-      iOpt=0 ! Always tight!
-      Do iBin=1,nBin
-        Do while ( nInt(iBin).gt.0 )
-          Call SaveBin(iBin,iOpt)
-        End Do
-      End Do
-!
+
+iOpt = 0 ! Always tight!
+do iBin=1,nBin
+  do while (nint(iBin) > 0)
+    call SaveBin(iBin,iOpt)
+  end do
+end do
+
 !----------------------------------------------------------------------*
 !     release the work space used to store bins                        *
 !----------------------------------------------------------------------*
-!
-      call mma_deallocate(lwVBin)
-      call mma_deallocate(lwIBin)
-!
-      call mma_deallocate(lIndx)
-      call mma_deallocate(lInts)
-!
+
+call mma_deallocate(lwVBin)
+call mma_deallocate(lwIBin)
+
+call mma_deallocate(lIndx)
+call mma_deallocate(lInts)
+
 !----------------------------------------------------------------------*
 !     Turn timing OFF and exit                                         *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine SORT1B

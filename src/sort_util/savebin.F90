@@ -12,7 +12,8 @@
 !               1991, Per Ake Malmqvist                                *
 !               1998, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine SaveBin(iBin,iOpt)
+
+subroutine SaveBin(iBin,iOpt)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Phase 1 of the bin sorting algorithm                    *
@@ -51,9 +52,9 @@
 !     Modified to remove sorting step, R. Lindh, March '98             *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-!
-      use srt2
-      Implicit Real*8 (A-H,O-Z)
+
+use srt2
+implicit real*8(A-H,O-Z)
 !
 #include "TwoDat.fh"
 #include "srt0.fh"
@@ -62,150 +63,145 @@
 #include "SysDef.fh"
 #include "PkCtl.fh"
 
-      Integer iScr(lStRec)
-      Real*8   Scr(lStRec)
-!
+integer iScr(lStRec)
+real*8 Scr(lStRec)
+
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
 !----------------------------------------------------------------------*
-!
-!
+
 !----------------------------------------------------------------------*
 !         as the packed integral labels add an extra 1-2 Byte          *
 !         disk space per integral we have to adjust the record         *
 !         length of LuTmp to the different machines.                   *
 !----------------------------------------------------------------------*
-      idiv = ItoB/2
-      If ( Pack ) idiv = idiv/2
+idiv = ItoB/2
+if (Pack) idiv = idiv/2
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      nInts=nInt(iBin)
+nInts = nint(iBin)
 !----------------------------------------------------------------------*
 !         precompute the packed length of a record                     *
 !----------------------------------------------------------------------*
-      Call I4LEN(nInts,lwIBin(1,iBin),lIndx)
-      Call R8LEN(iOpt,nInts,lwVBin(1,iBin),lInts)
-      mxIRec=((lDaRec/idiv)-lTop-1)*ItoB
-      mxVRec=(lDaRec-lTop-1)*RtoB
-      nSave=0
-      lIRec=0
-      lVRec=0
-      Do iSave=1,nInts
-         lIRec=lIRec+lIndx(iSave)
-         lVRec=lVRec+lInts(iSave)
-         If ( lIRec.lt.mxIRec .and. lVRec.lt.mxVRec ) nSave=iSave
-      End Do
-      lIRec=0
-      lVRec=0
-      Do iSave=1,nSave
-         lIRec=lIRec+lIndx(iSave)
-         lVRec=lVRec+lInts(iSave)
-      End Do
+call I4LEN(nInts,lwIBin(1,iBin),lIndx)
+call R8LEN(iOpt,nInts,lwVBin(1,iBin),lInts)
+mxIRec = ((lDaRec/idiv)-lTop-1)*ItoB
+mxVRec = (lDaRec-lTop-1)*RtoB
+nSave = 0
+lIRec = 0
+lVRec = 0
+do iSave=1,nInts
+  lIRec = lIRec+lIndx(iSave)
+  lVRec = lVRec+lInts(iSave)
+  if ((lIRec < mxIRec) .and. (lVRec < mxVRec)) nSave = iSave
+end do
+lIRec = 0
+lVRec = 0
+do iSave=1,nSave
+  lIRec = lIRec+lIndx(iSave)
+  lVRec = lVRec+lInts(iSave)
+end do
 !----------------------------------------------------------------------*
 !         now pack and check the packed record length again            *
 !----------------------------------------------------------------------*
-      Call PKI4(nSave,lIBin,lwIBin(1,iBin),IndBin(lTop+1))
-      mInds=(lIBin+ItoB-1)/ItoB
-      mInt(3,iBin)=mInt(3,iBin)+mInds
-      If ( lIBin.gt.mxIRec ) then
-         Write(6,*)
-         Write(6,'(2X,A,I3.3,A)')                                       &
-     &   '*** Error in SAVEBIN ***'
-         Write(6,'(2X,A)') 'An inconsistency has been deteced'
-         Write(6,'(2X,A)') 'lIRec > mxIRec '
-         Write(6,*)
-         Call xFlush(6)
-         Call Abend
-      End If
-      If ( lIBin.ne.lIRec ) then
-         Write(6,*)
-         Write(6,'(2X,A,I3.3,A)')                                       &
-     &   '*** Error in SAVEBIN ***'
-         Write(6,'(2X,A)') 'An inconsistency has been deteced'
-         Write(6,'(2X,A)') 'lIBin # lIRec'
-         Write(6,*)
-         call xFlush(6)
-         Call Abend
-      End If
-      Call PKR8(iOpt,nSave,lVBin,lwVBin(1,iBin),ValBin(lTop+1))
-      mInts=(lVBin+RtoB-1)/RtoB
-      mInt(2,iBin)=mInt(2,iBin)+mInts
-      If ( lVBin.gt.mxVRec ) then
-         Write(6,*)
-         Write(6,'(2X,A,I3.3,A)')                                       &
-     &   '*** Error in SAVEBIN ***'
-         Write(6,'(2X,A)') 'An inconsistency has been deteced'
-         Write(6,'(2X,A)') 'lVRec > mxVRec '
-         Write(6,*)
-         Call xFlush(6)
-         Call Abend
-      End If
-      If ( lVBin.ne.lVRec ) then
-         Write(6,*)
-         Write(6,'(2X,A,I3.3,A)')                                       &
-     &   '*** Error in SAVEBIN ***'
-         Write(6,'(2X,A)') 'An inconsistency has been deteced'
-         Write(6,'(2X,A)') 'lVBin # lVRec'
-         Write(6,*)
-         call xFlush(6)
-         Call Abend()
-      End If
+call PKI4(nSave,lIBin,lwIBin(1,iBin),IndBin(lTop+1))
+mInds = (lIBin+ItoB-1)/ItoB
+mInt(3,iBin) = mInt(3,iBin)+mInds
+if (lIBin > mxIRec) then
+  write(6,*)
+  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(6,'(2X,A)') 'An inconsistency has been deteced'
+  write(6,'(2X,A)') 'lIRec > mxIRec '
+  write(6,*)
+  call xFlush(6)
+  call Abend
+end if
+if (lIBin /= lIRec) then
+  write(6,*)
+  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(6,'(2X,A)') 'An inconsistency has been deteced'
+  write(6,'(2X,A)') 'lIBin # lIRec'
+  write(6,*)
+  call xFlush(6)
+  call Abend
+end if
+call PKR8(iOpt,nSave,lVBin,lwVBin(1,iBin),ValBin(lTop+1))
+mInts = (lVBin+RtoB-1)/RtoB
+mInt(2,iBin) = mInt(2,iBin)+mInts
+if (lVBin > mxVRec) then
+  write(6,*)
+  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(6,'(2X,A)') 'An inconsistency has been deteced'
+  write(6,'(2X,A)') 'lVRec > mxVRec '
+  write(6,*)
+  call xFlush(6)
+  call Abend
+end if
+if (lVBin /= lVRec) then
+  write(6,*)
+  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(6,'(2X,A)') 'An inconsistency has been deteced'
+  write(6,'(2X,A)') 'lVBin # lVRec'
+  write(6,*)
+  call xFlush(6)
+  call Abend()
+end if
 !----------------------------------------------------------------------*
 !     write the record header                                          *
 !----------------------------------------------------------------------*
-      IndBin(1)=iDIBin(2,iBin)
-      IndBin(2)=lIBin+lTop*ItoB
-      IndBin(3)=nSave
-      ValBin(1)=iDVBin(2,iBin)
-      ValBin(2)=lVBin+lTop*RtoB
-      ValBin(3)=nSave
+IndBin(1) = iDIBin(2,iBin)
+IndBin(2) = lIBin+lTop*ItoB
+IndBin(3) = nSave
+ValBin(1) = iDVBin(2,iBin)
+ValBin(2) = lVBin+lTop*RtoB
+ValBin(3) = nSave
 !----------------------------------------------------------------------*
 !     save the record on disk                                          *
 !----------------------------------------------------------------------*
-      iDaTmp=iDIBin(1,iBin)
-      iDaTwo=iDVBin(1,iBin)
-      iOptIO=1
-!
-!     If a new sector mark it on the disk to make sure that it is
-!     continuous.
-!
-      If ( mod(nRec(iBin),nSect).eq.0 ) then
-         iDaTmp=mDaTmp
-         iDaTwo=mDaTwo
-         Zero=0.0d0
-!
-         Call ICopy(lStRec,[0],0,iScr,1)
-         Call iDAFILE(LuTmp,iOptIO,iScr,(lStRec/idiv),mDaTmp)
-!
-         call dcopy_(lStRec,[Zero],0,Scr,1)
-         Call dDAFILE(LuTwo,iOptIO,Scr,lStRec,mDaTwo)
-!
-         iDIBin(2,iBin)=iDaTmp
-         iDVBin(2,iBin)=iDaTwo
-         If ( iDVBin(3,iBin).lt.0 ) iDVBin(3,iBin)=iDaTwo
-      End If
-!
-      Call iDAFILE(LuTmp,iOptIO,IndBin,(lDaRec/idiv),iDaTmp)
-      iDIBin(1,iBin)=iDaTmp
-      Call dDAFILE(LuTwo,iOptIO,ValBin,lDaRec,iDaTwo)
-      iDVBin(1,iBin)=iDaTwo
-      nRec(iBin)=nRec(iBin)+1
+iDaTmp = iDIBin(1,iBin)
+iDaTwo = iDVBin(1,iBin)
+iOptIO = 1
+
+! If a new sector mark it on the disk to make sure that it is continuous.
+
+if (mod(nRec(iBin),nSect) == 0) then
+  iDaTmp = mDaTmp
+  iDaTwo = mDaTwo
+  Zero = 0.0d0
+
+  call ICopy(lStRec,[0],0,iScr,1)
+  call iDAFILE(LuTmp,iOptIO,iScr,(lStRec/idiv),mDaTmp)
+
+  call dcopy_(lStRec,[Zero],0,Scr,1)
+  call dDAFILE(LuTwo,iOptIO,Scr,lStRec,mDaTwo)
+
+  iDIBin(2,iBin) = iDaTmp
+  iDVBin(2,iBin) = iDaTwo
+  if (iDVBin(3,iBin) < 0) iDVBin(3,iBin) = iDaTwo
+end if
+
+call iDAFILE(LuTmp,iOptIO,IndBin,(lDaRec/idiv),iDaTmp)
+iDIBin(1,iBin) = iDaTmp
+call dDAFILE(LuTwo,iOptIO,ValBin,lDaRec,iDaTwo)
+iDVBin(1,iBin) = iDaTwo
+nRec(iBin) = nRec(iBin)+1
 !----------------------------------------------------------------------*
 !         cleanup                                                      *
 !----------------------------------------------------------------------*
-      nKeep=nInts-nSave
-      If ( nKeep.gt.0 ) Then
-         Do i=1,nKeep
-            lwIBin(i,iBin)=lwIBin(nSave+i,iBin)
-            lwVBin(i,iBin)=lwVBin(nSave+i,iBin)
-         End Do
-      End If
-      nInt(iBin)=nKeep
-!
+nKeep = nInts-nSave
+if (nKeep > 0) then
+  do i=1,nKeep
+    lwIBin(i,iBin) = lwIBin(nSave+i,iBin)
+    lwVBin(i,iBin) = lwVBin(nSave+i,iBin)
+  end do
+end if
+nint(iBin) = nKeep
+
 !----------------------------------------------------------------------*
 !     Turn timing OFF and exit                                         *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine SaveBin

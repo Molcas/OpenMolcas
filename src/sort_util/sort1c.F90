@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine SORT1C(nUt,vInt,nSqNum,nSyBlk)
+
+subroutine SORT1C(nUt,vInt,nSqNum,nSyBlk)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Provided SEWARD was allowed to use a virtual disk       *
@@ -40,39 +41,35 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 (A-H,O-Z)
-!
+
+implicit real*8(A-H,O-Z)
+
 #include "Molcas.fh"
 #include "TwoDat.fh"
-!
-      Real*8 vInt(nUt),nSqNum(nUt),nSyBlk(nUt)
-!
+
+real*8 vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
+
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
 !----------------------------------------------------------------------*
-!
-!
+
 !----------------------------------------------------------------------*
 !     scatter the 2el integrals to the appropriate position            *
 !     of the virtual disk                                              *
 !----------------------------------------------------------------------*
-!
-!     Write (*,'(2X,5(I4,I8,F12.8))')
-!    &      (nSyBlk(iUt),
-!    &       RAMD_adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,
-!    &       vInt(iUt),
-!    &       iUt=1,nUt)
-      Do iUt=1,nUt
-        iSyBlk=INT(nSyBlk(iUt))
-        iBatch=nBatch(iSyBlk)
-        iOff=RAMD_adr(iBatch)+INT(nSqNum(iUt))
-        RAMD_ints(iOff) = vInt(iUt)
-      End Do
-!
+
+!write(6,'(2X,5(I4,I8,F12.8))') (nSyBlk(iUt),RAMD_adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,vInt(iUt),iUt=1,nUt)
+do iUt=1,nUt
+  iSyBlk = int(nSyBlk(iUt))
+  iBatch = nBatch(iSyBlk)
+  iOff = RAMD_adr(iBatch)+int(nSqNum(iUt))
+  RAMD_ints(iOff) = vInt(iUt)
+end do
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine SORT1C

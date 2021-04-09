@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
+
+subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Set up all information needed to compute 2el integral   *
@@ -34,64 +35,65 @@
 !     local data declarations: none                                    *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-!
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
+
 #include "srt0.fh"
 #include "print.fh"
 #include "SysCtl.fh"
-      Dimension nBas(*),iSkip(*)
-!
-      iRout = 80
-      iPrint = nPrint(iRout)
-      if ( iPrint.gt.10) Write(6,*) ' >>> Enter MKSRT0 <<<'
+dimension nBas(*), iSkip(*)
+
+iRout = 80
+iPrint = nPrint(iRout)
+if (iPrint > 10) write(6,*) ' >>> Enter MKSRT0 <<<'
 !----------------------------------------------------------------------*
 !     Gather information on desired ordering scheme                    *
 !----------------------------------------------------------------------*
-!
-      Square=.true.
-      If( iSquar.eq.0 )  Square=.false.
-!
+
+Square = .true.
+if (iSquar == 0) Square = .false.
+
 !----------------------------------------------------------------------*
 !     Gather data on the number of symmetry operations                 *
 !----------------------------------------------------------------------*
-!
-      nSyOp=nIrrep
-      mxSyP=nSyOp*(nSyOp+1)/2
-!
+
+nSyOp = nIrrep
+mxSyP = nSyOp*(nSyOp+1)/2
+
 !----------------------------------------------------------------------*
 !     Gather data on the number of basis functions                     *
 !----------------------------------------------------------------------*
-!
-      Do iSymi=1,nSyOp
-        nBs(iSymi)=nBas(iSymi)
-      End Do
-!
+
+do iSymi=1,nSyOp
+  nBs(iSymi) = nBas(iSymi)
+end do
+
 !----------------------------------------------------------------------*
 !     Put flags to exclude symmetry combinations into common block     *
 !----------------------------------------------------------------------*
-!
-      Do 20 iSymi=1,nSyOp
-        nSkip(iSymi)=iSkip(iSymi)
-20    Continue
-!
+
+do iSymi=1,nSyOp
+  nSkip(iSymi) = iSkip(iSymi)
+end do
+
 !----------------------------------------------------------------------*
 !     Precompute the dimension of the symmetry blocks                  *
 !     and symmetry block numbers for pairs of symmtry indices          *
 !----------------------------------------------------------------------*
-!
-      Do 30 iSymi=1,nSyOp
-        iBsi=nBs(iSymi)
-        DimSyB(iSymi,iSymi)=iBsi*(iBsi+1)/2
-        TriSyB(iSymi,iSymi)=iSymi*(iSymi+1)/2
-        Do 40 jSymj=1,iSymi-1
-          jBsj=nBs(jSymj)
-          DimSyB(iSymi,jSymj)=iBsi*jBsj
-          DimSyB(jSymj,iSymi)=jBsj*iBsi
-          TriSyB(iSymi,jSymj)=jSymj+iSymi*(iSymi-1)/2
-          TriSyB(jSymj,iSymi)=jSymj+iSymi*(iSymi-1)/2
-40      Continue
-30    Continue
-!
-      Return
-      End
+
+do iSymi=1,nSyOp
+  iBsi = nBs(iSymi)
+  DimSyB(iSymi,iSymi) = iBsi*(iBsi+1)/2
+  TriSyB(iSymi,iSymi) = iSymi*(iSymi+1)/2
+  do jSymj=1,iSymi-1
+    jBsj = nBs(jSymj)
+    DimSyB(iSymi,jSymj) = iBsi*jBsj
+    DimSyB(jSymj,iSymi) = jBsj*iBsi
+    TriSyB(iSymi,jSymj) = jSymj+iSymi*(iSymi-1)/2
+    TriSyB(jSymj,iSymi) = jSymj+iSymi*(iSymi-1)/2
+  end do
+end do
+
+return
+
+end subroutine MkSrt0

@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine SORT2B(iBin,nInts,iOrd,lSrtA,SrtArr,IOStk,lStk,nStk)
+
+subroutine SORT2B(iBin,nInts,iOrd,lSrtA,SrtArr,IOStk,lStk,nStk)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Store the sorted integrals on disk.                     *
@@ -46,147 +47,146 @@
 !              to be pack into the next buffer                         *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-!
-      use srt2
-      Implicit Real*8 (A-H,O-Z)
-!
+
+use srt2
+implicit real*8(A-H,O-Z)
+
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
 
 #include "SysDef.fh"
 #include "print.fh"
-!
-      Dimension PkVal(lStRec)
-      Dimension IntLen(4*lStRec)
-      Dimension SrtArr(lSrtA)
-      Integer IOStk(lStk)
-!
+
+dimension PkVal(lStRec)
+dimension IntLen(4*lStRec)
+dimension SrtArr(lSrtA)
+integer IOStk(lStk)
+
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
-!
+
 #ifdef _DEBUGPRINT_
-      iRout = 86
-      iPrint = nPrint(iRout)
-      If ( iPrint.gt.5 ) then
-        Write (6,*) ' >>> Enter SORT2B <<<'
-        Write (6,*) ' iBin  ',iBin
-        Write (6,*) ' LSrtA ',lSrtA
-        Write (6,*) ' nInts ',nInts
-      End If
-      If ( iPrint.ge.10 ) then
-        Call iVcPrt('stack of free records',' ',IOStk,nStk)
-      End If
+iRout = 86
+iPrint = nPrint(iRout)
+if (iPrint > 5) then
+  write(6,*) ' >>> Enter SORT2B <<<'
+  write(6,*) ' iBin  ',iBin
+  write(6,*) ' LSrtA ',lSrtA
+  write(6,*) ' nInts ',nInts
+end if
+if (iPrint >= 10) then
+  call iVcPrt('stack of free records',' ',IOStk,nStk)
+end if
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Transfer integrals from the sorting area to I/O buffer           *
 !----------------------------------------------------------------------*
-      nRec(iBin)=0
-      kStk=0
-      nSaved=0
-      iOpt=iDVBin(4,iBin)
-      Do while ( nSaved.lt.nInts )
-         iStart=nSaved+1
-         iEnd=Min(nSaved+4*lStRec,nInts)
-         Call R8Len(iOpt,1+iEnd-iStart,SrtArr(iStart),IntLen)
-         mxVRec=(lStRec-lTop-1)*RtoB
-         nSave=0
-         lVRec=0
-         Do iSave=1,1+iEnd-iStart
-            lVRec=lVRec+IntLen(iSave)
-            If ( lVRec.lt.mxVRec ) nSave=iSave
-         End Do
-         If ( nSave.eq.0 ) then
-            Write(6,*)
-            Write(6,'(2X,A,I3.3,A)')                                    &
-     &      '*** Error in SORT2B ***'
-            Write(6,'(2X,A)') 'nSave = 0'
-            Write(6,*)
-            Call xFlush(6)
-            Call Abend()
-         End If
-         lVRec=0
-         Do iSave=1,nSave
-            lVRec=lVRec+IntLen(iSave)
-         End Do
-         If ( lVRec.gt.mxVRec ) then
-            Write(6,*)
-            Write(6,'(2X,A,I3.3,A)')                                    &
-     &      '*** Error in SORT2B ***'
-            Write(6,'(2X,A)') 'An inconsistency has been deteced'
-            Write(6,'(2X,A)') 'lVRec > mxVRec '
-            Write(6,*)
-            Call xFlush(6)
-            Call Abend()
-         End If
-!----------------------------------------------------------------------*
-!     Pack integrals                                                   *
-!----------------------------------------------------------------------*
-         Call PKR8(iOpt,nSave,llVRec,SrtArr(iStart),PkVal(lTop+1))
-         If ( llVRec.ne.lVRec ) then
-            Write(6,*)
-            Write(6,'(2X,A,I3.3,A)')                                    &
-     &      '*** Error in SORT2B ***'
-            Write(6,'(2X,A)') 'An inconsistency has been deteced'
-            Write(6,'(2X,A)') 'llVBin # lVRec'
-            Write(6,*)
-            call xFlush(6)
-            Call Abend()
-         End If
-         iOrd=iOrd+1
-         PkVal(1)=0
-         PkVal(2)=iOrd
-         PkVal(3)=nSave
-         PkVal(4)=iOpt
-!----------------------------------------------------------------------*
-!     Write out the new record                                         *
-!----------------------------------------------------------------------*
-         If ( kStk.lt.nStk) then
-!---------- use an old record, get address from IOStk
-            kStk=kStk+1
-            iDaTwo=IOStk(kStk)
-         Else
-            iDaTwo=mDaTwo
-            iOptIO=0
-            Call dDAFILE(LuTwo,iOptIO,[0.0d0],lStRec,mDaTwo)
-         End If
-#ifdef _DEBUGPRINT_
-         If ( iPrint.ge.10 ) then
-           Write (6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
-         End If
-#endif
-!
-!------- Write out the buffer
-!
-         iOptIO=1
-         Call dDAFILE(LuTwo,iOptIO,PkVal,lStRec,iDaTwo)
-!
-         nRec(iBin)=nRec(iBin)+1
-         nSaved=nSaved+nSave
-!
-      End Do
+nRec(iBin) = 0
+kStk = 0
+nSaved = 0
+iOpt = iDVBin(4,iBin)
+do while (nSaved < nInts)
+  iStart = nSaved+1
+  iEnd = min(nSaved+4*lStRec,nInts)
+  call R8Len(iOpt,1+iEnd-iStart,SrtArr(iStart),IntLen)
+  mxVRec = (lStRec-lTop-1)*RtoB
+  nSave = 0
+  lVRec = 0
+  do iSave=1,1+iEnd-iStart
+    lVRec = lVRec+IntLen(iSave)
+    if (lVRec < mxVRec) nSave = iSave
+  end do
+  if (nSave == 0) then
+    write(6,*)
+    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
+    write(6,'(2X,A)') 'nSave = 0'
+    write(6,*)
+    call xFlush(6)
+    call Abend()
+  end if
+  lVRec = 0
+  do iSave=1,nSave
+    lVRec = lVRec+IntLen(iSave)
+  end do
+  if (lVRec > mxVRec) then
+    write(6,*)
+    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
+    write(6,'(2X,A)') 'An inconsistency has been deteced'
+    write(6,'(2X,A)') 'lVRec > mxVRec '
+    write(6,*)
+    call xFlush(6)
+    call Abend()
+  end if
+  !--------------------------------------------------------------------*
+  !   Pack integrals                                                   *
+  !--------------------------------------------------------------------*
+  call PKR8(iOpt,nSave,llVRec,SrtArr(iStart),PkVal(lTop+1))
+  if (llVRec /= lVRec) then
+    write(6,*)
+    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
+    write(6,'(2X,A)') 'An inconsistency has been deteced'
+    write(6,'(2X,A)') 'llVBin # lVRec'
+    write(6,*)
+    call xFlush(6)
+    call Abend()
+  end if
+  iOrd = iOrd+1
+  PkVal(1) = 0
+  PkVal(2) = iOrd
+  PkVal(3) = nSave
+  PkVal(4) = iOpt
+  !--------------------------------------------------------------------*
+  !   Write out the new record                                         *
+  !--------------------------------------------------------------------*
+  if (kStk < nStk) then
+    ! use an old record, get address from IOStk
+    kStk = kStk+1
+    iDaTwo = IOStk(kStk)
+  else
+    iDaTwo = mDaTwo
+    iOptIO = 0
+    call dDAFILE(LuTwo,iOptIO,[0.0d0],lStRec,mDaTwo)
+  end if
+# ifdef _DEBUGPRINT_
+  if (iPrint >= 10) then
+    write(6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
+  end if
+# endif
+
+  ! Write out the buffer
+
+  iOptIO = 1
+  call dDAFILE(LuTwo,iOptIO,PkVal,lStRec,iDaTwo)
+
+  nRec(iBin) = nRec(iBin)+1
+  nSaved = nSaved+nSave
+
+end do
 !----------------------------------------------------------------------*
 !     cleanup the stack of Record addresses                            *
 !----------------------------------------------------------------------*
-      jStk=0
-!
-!     Do this only if the number of records was reduced
-!
-      If ( kStk.lt.nStk ) then
-!
-!        Move unused record addresses to the start of IOStk!
-!
-         Do iStk=kStk+1,nStk
-            jStk=jStk+1
-            IOStk(jStk)=IOStk(iStk)
-         End Do
-      End If
-      nStk=jStk
-!
+jStk = 0
+
+! Do this only if the number of records was reduced
+
+if (kStk < nStk) then
+
+  ! Move unused record addresses to the start of IOStk!
+
+  do iStk=kStk+1,nStk
+    jStk = jStk+1
+    IOStk(jStk) = IOStk(iStk)
+  end do
+end if
+nStk = jStk
+
 !----------------------------------------------------------------------*
 !     exit                                                             *
 !----------------------------------------------------------------------*
-      Return
-      End
+
+return
+
+end subroutine SORT2B

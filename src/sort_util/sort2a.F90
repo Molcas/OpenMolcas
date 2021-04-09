@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Markus P. Fuelscher                              *
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
+
+subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Reload all integral belonging to a given slice          *
@@ -43,10 +44,10 @@
 !     IndBin : contains unpacked ordering numbers                      *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
-!
-      use srt2
-      Implicit Real*8 (A-H,O-Z)
-!
+
+use srt2
+implicit real*8(A-H,O-Z)
+
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
@@ -54,142 +55,140 @@
 #include "print.fh"
 #include "PkCtl.fh"
 #include "warnings.fh"
-!
-      Dimension SrtArr(lSrtA)
-      Dimension PkVBin(lStRec)
-      Integer   PkIBin(lStRec)
-      Integer IOStk(lStk)
-!
+
+dimension SrtArr(lSrtA)
+dimension PkVBin(lStRec)
+integer PkIBin(lStRec)
+integer IOStk(lStk)
+
 !----------------------------------------------------------------------*
 !     as the packed integral labels add an extra 1-2 Byte              *
 !     disk space per integral we have to adjust the record             *
 !     length of LuTmp to the different machines.                       *
 !----------------------------------------------------------------------*
-!
-      idiv = ItoB/2
-      If ( Pack ) idiv = idiv/2
-      mStRec=(lStRec/idiv)
-      mDaRec=(lDaRec/idiv)
-!
+
+idiv = ItoB/2
+if (Pack) idiv = idiv/2
+mStRec = (lStRec/idiv)
+mDaRec = (lDaRec/idiv)
+
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
-!
-      iRout = 85
-      iPrint = nPrint(iRout)
-      If ( iPrint.ge.10) then
-        Write (6,*) ' >>> Enter SORT2A <<<'
-        Write (6,*) ' iBin  ',iBin
-        Write (6,*) ' lSrtA ',lSrtA
-      End If
-!
-      iZero=lSrtA-mInt(1,iBin)
-      iInt=mInt(2,iBin)*RtoB
-      iInd=mInt(3,iBin)
-      iP_Storage=(iZero+iInt+RtoB)/RtoB
-      iI_Storage=( iInd+iInt+RtoB)/RtoB
-      If (iP_Storage .le. iI_Storage) Then
-         iDVBin(4,iBin) = 0  ! Dense mode.
-!        Write (*,*) 'Mode: Dense'
-      Else
-         iDVBin(4,iBin) = 1  ! Sparse mode.
-!        Write (*,*) 'Mode: Sparse'
-      End If
-!
+
+iRout = 85
+iPrint = nPrint(iRout)
+if (iPrint >= 10) then
+  write(6,*) ' >>> Enter SORT2A <<<'
+  write(6,*) ' iBin  ',iBin
+  write(6,*) ' lSrtA ',lSrtA
+end if
+
+iZero = lSrtA-mInt(1,iBin)
+iInt = mInt(2,iBin)*RtoB
+iInd = mInt(3,iBin)
+iP_Storage = (iZero+iInt+RtoB)/RtoB
+iI_Storage = (iInd+iInt+RtoB)/RtoB
+if (iP_Storage <= iI_Storage) then
+  iDVBin(4,iBin) = 0  ! Dense mode.
+  !write(6,*) 'Mode: Dense'
+else
+  iDVBin(4,iBin) = 1  ! Sparse mode.
+  !write(6,*) 'Mode: Sparse'
+end if
+
 #ifdef _DEBUGPRINT_
-      Write (6,*)
-      Write (6,*) 'Processing slice                   :',iBin
-      Write (6,*) 'Actual number of non-zero integrals:', mInt(1,iBin)
-      Write (6,*) 'Effective number of integrals      :', mInt(2,iBin)
-      Write (6,*) 'Effective number of indicies       :', mInt(3,iBin)
-      Write (6,*) 'Total number of integrals          :',lSrtA
-      Write (6,*) 'Packed storage                     :',iP_Storage
-      Write (6,*) 'Indexed storage                    :',iI_Storage
+write(6,*)
+write(6,*) 'Processing slice                   :',iBin
+write(6,*) 'Actual number of non-zero integrals:',mInt(1,iBin)
+write(6,*) 'Effective number of integrals      :',mInt(2,iBin)
+write(6,*) 'Effective number of indicies       :',mInt(3,iBin)
+write(6,*) 'Total number of integrals          :',lSrtA
+write(6,*) 'Packed storage                     :',iP_Storage
+write(6,*) 'Indexed storage                    :',iI_Storage
 #endif
-!
+
 !----------------------------------------------------------------------*
 !     Start reading packed buffers                                     *
 !----------------------------------------------------------------------*
-!
-      iDaTmp=iDIBin(2,iBin)
-      iDaTwo=iDVBin(2,iBin)
-      Do while ( iDaTmp.ge.0 )
-        nStk=nStk+1
-        If ( nStk.gt.lStk ) then
-          Write(6,*)
-          Write(6,'(2X,A,I3.3,A)')                                      &
-     &    '*** Error in SORT2A ***'
-          Write(6,'(2X,A)') 'nStk exceeds limits (nStk>lStk)'
-          Write(6,'(2X,A,I8)') 'nStk =',nStk
-          Write(6,'(2X,A,I8)') 'lStk =',lStk
-          Write(6,'(2X,A,I8)') 'iBin =',iBin
-          Write(6,*)
-          Write(6,*) 'Action: rerun with a larger MOLCAS_MEM'
-          Call Quit(_RC_MEMORY_ERROR_)
-        End If
-        IOStk(nStk)=iDaTwo
-        iOpt=2
-        If ( iPrint.ge.10 ) then
-          Write (6,*) ' read records: iDaTmp,iDaTwo ',iDaTmp,iDaTwo
-        End If
-        Call iDAFILE(LuTmp,iOpt,PkIBin,mStRec,iDaTmp)
-        Call dDAFILE(LuTwo,iOpt,PkVBin,lStRec,iDaTwo)
-        ist1=lTop
-        ist2=lTop
-        Do iSec=1,nSect
-          nInts1=PkIBin(ist1-1)
-          nInts2=Int(PkVBin(ist2-1))
-          If ( nInts1.ne.nInts2 ) then
-            Write(6,*)
-            Write(6,'(2X,A,I3.3,A)')                                    &
-     &      '*** Error in SORT2A ***'
-            Write(6,'(2X,A)') 'An inconsistency has been deteced'
-            Write(6,'(2X,A)') 'nInts1#nInts2'
-            Write(6,*)
-            Call xFlush(6)
-            Call Abend
-          End If
-          nInts=nInts1
-          If ( nInts.gt.lBin ) then
-            Write(6,*)
-            Write(6,'(2X,A,I3.3,A)')                                    &
-     &      '*** Error in SORT2A ***'
-            Write(6,'(2X,A)') 'An inconsistency has been deteced'
-            Write(6,'(2X,A)') 'nInts>lBin'
-            Write(6,*)
-            Call xFlush(6)
-            Call Abend
-          End If
-          If ( nInts.gt.0 ) then
-!
-!----------------------------------------------------------------------*
-!     Unpack buffers                                                   *
-!----------------------------------------------------------------------*
-!
-            Call UPKI4(nInts,lIBin,PkIBin(ist1+1),IndBin)
-            iOpt=0 ! Always tight mode
-            Call UPKR8(iOpt,nInts,lVBin,PkVBin(ist2+1),ValBin)
-!
-!----------------------------------------------------------------------*
-!     Sort 2el integrals                                               *
-!----------------------------------------------------------------------*
-!
-            Do indx=1,nInts
-              SrtArr(IndBin(indx))=ValBin(indx)
-            End Do
-            ist1=ist1+mDaRec
-            ist2=ist2+lDaRec
-          End If
-        End Do
-!
-!----------------------------------------------------------------------*
-!     Get the disk adress of the next record                           *
-!----------------------------------------------------------------------*
-!
-        iDaTmp=PkIBin(1)
-        iDaTwo=Int(PkVBin(1))
-      End Do
-      If ( iPrint.ge.99 ) Call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
-!
-      Return
-      End
+
+iDaTmp = iDIBin(2,iBin)
+iDaTwo = iDVBin(2,iBin)
+do while (iDaTmp >= 0)
+  nStk = nStk+1
+  if (nStk > lStk) then
+    write(6,*)
+    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
+    write(6,'(2X,A)') 'nStk exceeds limits (nStk>lStk)'
+    write(6,'(2X,A,I8)') 'nStk =',nStk
+    write(6,'(2X,A,I8)') 'lStk =',lStk
+    write(6,'(2X,A,I8)') 'iBin =',iBin
+    write(6,*)
+    write(6,*) 'Action: rerun with a larger MOLCAS_MEM'
+    call Quit(_RC_MEMORY_ERROR_)
+  end if
+  IOStk(nStk) = iDaTwo
+  iOpt = 2
+  if (iPrint >= 10) then
+    write(6,*) ' read records: iDaTmp,iDaTwo ',iDaTmp,iDaTwo
+  end if
+  call iDAFILE(LuTmp,iOpt,PkIBin,mStRec,iDaTmp)
+  call dDAFILE(LuTwo,iOpt,PkVBin,lStRec,iDaTwo)
+  ist1 = lTop
+  ist2 = lTop
+  do iSec=1,nSect
+    nInts1 = PkIBin(ist1-1)
+    nInts2 = int(PkVBin(ist2-1))
+    if (nInts1 /= nInts2) then
+      write(6,*)
+      write(6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
+      write(6,'(2X,A)') 'An inconsistency has been deteced'
+      write(6,'(2X,A)') 'nInts1#nInts2'
+      write(6,*)
+      call xFlush(6)
+      call Abend
+    end if
+    nInts = nInts1
+    if (nInts > lBin) then
+      write(6,*)
+      write(6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
+      write(6,'(2X,A)') 'An inconsistency has been deteced'
+      write(6,'(2X,A)') 'nInts>lBin'
+      write(6,*)
+      call xFlush(6)
+      call Abend
+    end if
+    if (nInts > 0) then
+
+      !----------------------------------------------------------------*
+      ! Unpack buffers                                                 *
+      !----------------------------------------------------------------*
+
+      call UPKI4(nInts,lIBin,PkIBin(ist1+1),IndBin)
+      iOpt = 0 ! Always tight mode
+      call UPKR8(iOpt,nInts,lVBin,PkVBin(ist2+1),ValBin)
+
+      !----------------------------------------------------------------*
+      ! Sort 2el integrals                                             *
+      !----------------------------------------------------------------*
+
+      do indx=1,nInts
+        SrtArr(IndBin(indx)) = ValBin(indx)
+      end do
+      ist1 = ist1+mDaRec
+      ist2 = ist2+lDaRec
+    end if
+  end do
+
+  !--------------------------------------------------------------------*
+  !   Get the disk adress of the next record                           *
+  !--------------------------------------------------------------------*
+
+  iDaTmp = PkIBin(1)
+  iDaTwo = int(PkVBin(1))
+end do
+if (iPrint >= 99) call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
+
+return
+
+end subroutine SORT2A
