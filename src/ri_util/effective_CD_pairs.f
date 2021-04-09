@@ -12,11 +12,9 @@
       use Basis_Info
       use Symmetry_Info, only: nIrrep
       use ChoArr, only: iSOShl
-      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Integer, Allocatable:: ij2(:,:)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Integer, Allocatable :: SO_ab(:), ij3(:)
@@ -62,8 +60,7 @@ C     Write (*,*) 'nij3=',nij
       nSym=nIrrep
       Do iSym = 1, nSym
          iIrrep=iSym-1
-         ip_List_rs=ip_of_iWork(InfVec(1,1,iSym))
-         Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,SO_ab(iOff))
+         Call CHO_X_GET_PARDIAG(iSym,SO_ab(iOff))
 *
          Call Get_Auxiliary_Shells(SO_ab(iOff),nBas_Aux(iIrrep),
      &                             jOff,iSOShl,nVal_Tot,ij3,nij)

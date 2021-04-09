@@ -26,7 +26,6 @@
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: myRank, nProcs
-      use ChoSwp, only: InfVec
       use Data_Structures, only: Deallocate_DSBA
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -357,8 +356,7 @@ C     ipAOrb(:,:)=ip_Dummy
          SO_ab(:)=0
          iOff = 1
          Do iSym = 1, nSym
-            ip_List_rs=ip_of_iWork(InfVec(1,1,iSym))
-            Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,SO_ab(iOff))
+            Call CHO_X_GET_PARDIAG(iSym,SO_ab(iOff))
 
             If((iSym .eq. 1) .and. (iMp2prpt .eq. 2)) Then
                Call ReMap_U_k(U_k,nV_k,U_k_New,nV_k_New,SO_ab)
