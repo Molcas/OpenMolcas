@@ -229,7 +229,6 @@
 *     the RI vectors.
 *
       Call Setup_Aux(nIrrep,nBas,nSkal_Valence,nSkal_Auxiliary,nSO,
-     &               ip_iSSOff,
      &               TMax_Valence,CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
@@ -541,7 +540,7 @@ C      End Do    ! klS
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
 *
-      Call Free_iWork(ip_iSSOff)
+      Call mma_deallocate(iSSOff)
       Call mma_deallocate(ShlSO)
       Call mma_deallocate(SOShl)
       Call Free_iSD()

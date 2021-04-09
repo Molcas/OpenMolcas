@@ -12,5 +12,5 @@
       Integer :: nSO, nSkal_Valence, nij_Shell, klS
       Integer, Allocatable :: SOShl(:), ShlSO(:)
       Integer, Allocatable :: nBasSh(:,:)
-      Integer :: ip_iSSOff
+      Integer, Allocatable :: iSSOff(:,:,:)
       End Module j12

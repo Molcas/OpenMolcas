@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,ip_iSSOff,
+      Subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,
      &                     TMax,CutOff,ip_iShij,nij_Shell,
      &                     nBas_Aux,nChV,iTOffs)
       use iSD_data
       use SOAO_Info, only: iSOInf
-      use j12, only: ShlSO, SOShl, nBasSh
+      use j12, only: ShlSO, SOShl, nBasSh, iSSOff
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -48,7 +48,8 @@
 *
       Call mma_allocate(SOShl,nSO+nSO_Aux,Label='SOShl')
       Call mma_allocate(ShlSO,nSO+nSO_Aux,Label='ShlSO')
-      Call mma_allocate(nBasSh,nShell+nShell_Aux,nIrrep,Label='nBasSh')
+      Call mma_allocate(nBasSh,[0,nIrrep-1],
+     &                         [1,nShell+nShell_Aux],Label='nBasSh')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -115,15 +116,16 @@ C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 ************************************************************************
 *                                                                      *
       nSSOff = nIrrep**2 * nij_Shell
-      Call GetMem('iSSOff','Allo','Integer',ip_iSSOff,nSSOff)
+      Call mma_allocate(iSSOff,[0,nIrrep-1],[0,nIrrep-1],
+     &                  [1,nij_Shell],Label='iSSOff')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
-      Call Setup_Aux_(SOShl,nSO+nSO_Aux,ShlSO,
-     &                nBasSh,nShell+nShell_Aux,nIrrep,nBas,
-     &                iWork(ip_iSSOff),nij_Shell,iWork(ip_iShij),
-     &                nBas_Aux,nChV,iTOffs)
+      Call Setup_Aux_Internal(SOShl,nSO+nSO_Aux,ShlSO,
+     &                        nBasSh,nShell+nShell_Aux,nIrrep,nBas,
+     &                        iSSOff,nij_Shell,iWork(ip_iShij),
+     &                        nBas_Aux,nChV,iTOffs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -141,8 +143,13 @@ C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 *                                                                      *
       Return
       End
-      Subroutine Setup_Aux_(iSOShl,nSO,iShlSO,nBasSh,nShell,nIrrep,nBas,
-     &                      iSSOff,nij_Shell,iShij,nBas_Aux,nChV,iTOffs)
+
+
+
+
+      Subroutine Setup_Aux_Internal(iSOShl,nSO,iShlSO,nBasSh,nShell,
+     &                              nIrrep,nBas,iSSOff,nij_Shell,iShij,
+     &                              nBas_Aux,nChV,iTOffs)
       Implicit Real*8 (a-h,o-z)
       Integer iSOShl(nSO), iShlSO(nSO), nBasSh(0:nIrrep-1,nShell),
      &        nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1), nChV(0:nIrrep-1),

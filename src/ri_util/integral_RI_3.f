@@ -31,10 +31,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nIrrep2=nSym**2
-*                                                                      *
-************************************************************************
-*                                                                      *
       If (LDF) Then
 *                                                                      *
 ************************************************************************
@@ -46,7 +42,7 @@
      &                   TInt,nTInt,iTOffs,
      &                   ShlSO,nBasSh,
      &                   SOShl,nSO,nSkal_Valence,nSym,
-     &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
+     &                   iSSOff(:,:,klS))
          Else
            Call WarningMessage(2,'Not implemented yet!')
            Call Abend()
@@ -56,7 +52,7 @@ C    &                      iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,
 C    &                      TInt,nTInt,iTOffs,
 C    &                      ShlSO,nBasSh,
 C    &                      SOShl,nSO,nSkal_Valence,nSym,
-C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
+C    &                      iSSOff(:,:,klS))
          End If
 *                                                                      *
 ************************************************************************
@@ -72,7 +68,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                   TInt,nTInt,iTOffs,
      &                   ShlSO,nBasSh,
      &                   SOShl,nSO,nSkal_Valence,nSym,
-     &                   iWork(ip_iSSOff+(klS-1)*nIrrep2))
+     &                   iSSOff(:,:,klS))
       Else
            Call IndSft_RI_3(iCmp,iShell,
      &                      iBas,jBas,kBas,lBas,Shijij,
@@ -80,7 +76,7 @@ C    &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
      &                      TInt,nTInt,iTOffs,
      &                      ShlSO,nBasSh,
      &                      SOShl,nSO,nSkal_Valence,nSym,
-     &                      iWork(ip_iSSOff+(klS-1)*nIrrep2))
+     &                      iSSOff(:,:,klS))
          End If
 *                                                                      *
 ************************************************************************
