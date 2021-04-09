@@ -47,7 +47,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 *
 #include "lRI.fh"
 #include "setup.fh"
@@ -229,8 +228,7 @@
 *     the RI vectors.
 *
       Call Setup_Aux(nIrrep,nBas,nSkal_Valence,nSkal_Auxiliary,nSO,
-     &               TMax_Valence,CutInt,ip_iShij,nSkal2,nBas_Aux,
-     &               nChV,iTOffs)
+     &               TMax_Valence,CutInt,nSkal2,nBas_Aux,nChV,iTOffs)
 *
       Call mma_Allocate(iRv,nSkal2,Label='iRv')
       iRv(:)=0
@@ -264,13 +262,11 @@
       nRvMax=0
       Call IZero(iMax_R,2*nIrrep)
       Do klS_ = 1, nSkal2
-         kS = iWork(ip_iShij+(klS_-1)*2  )
-         lS = iWork(ip_iShij+(klS_-1)*2+1)
-         nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,
-     &                  nChV)
+         kS = iShij(1,klS_)
+         lS = iShij(2,klS_)
+         nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,nChV)
          nRvMax = Max (nRvMax,nRv)
-         n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,
-     &                  nBas_Aux)
+         n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,nBas_Aux)
          n3CMax = Max (n3CMax,n3C)
          Do iIrrep = 0, nIrrep-1
             iMax_R(1,iIrrep)=Max(iMax_R(1,iIrrep),iOff_3C(1,iIrrep))
@@ -353,8 +349,8 @@ C        Write (*,*) 'Processing shell-pair:',klS
          iTask=iTask+1
 *
          iRv(iTask) = klS
-         kS = iWork(ip_iShij+(klS-1)*2  )
-         lS = iWork(ip_iShij+(klS-1)*2+1)
+         kS = iShij(1,klS)
+         lS = iShij(2,klS)
 *
 *        Logic to avoid integrals with mixed muonic and electronic
 *        basis.
@@ -584,8 +580,7 @@ C      End Do    ! klS
 *
 *     Initiate stuff for Cholesky style storage.
 *
-      Call IniCho_RI(nSkal_Valence,nChV,nIrrep,iTOffs,
-     &               iWork(ip_iShij),nSkal2)
+      Call IniCho_RI(nSkal_Valence,nChV,nIrrep,iTOffs,iShij,nSkal2)
 
       Call mma_allocate(Addr,nSkal2,Label='Addr') ! addr for read
       Call mma_allocate(NuMu,2,nSkal2,Label='NuMu')
@@ -615,8 +610,8 @@ C      End Do    ! klS
          Addr(1) = 0
          Do i=2,nTask  ! init the addr for reading vectors
                klS_ = iRv(i-1)
-               kS = iWork(ip_iShij+(klS_-1)*2  )
-               lS = iWork(ip_iShij+(klS_-1)*2+1)
+               kS = iShij(1,klS_)
+               lS = iShij(2,klS_)
                n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
@@ -642,8 +637,8 @@ C      End Do    ! klS
 *
             mMuNu=0
             Do klS_ = 1, nSkal2
-               kS = iWork(ip_iShij+(klS_-1)*2  )
-               lS = iWork(ip_iShij+(klS_-1)*2+1)
+               kS = iShij(1,klS_)
+               lS = iShij(2,klS_)
                n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
@@ -663,8 +658,8 @@ C      End Do    ! klS
 *
             Do i = 1, nTask
                klS_ = iRv(i)
-               kS = iWork(ip_iShij+(klS_-1)*2  )
-               lS = iWork(ip_iShij+(klS_-1)*2+1)
+               kS = iShij(1,klS_)
+               lS = iShij(2,klS_)
 *
                n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
@@ -715,7 +710,7 @@ C      End Do    ! klS
       Call mma_deallocate(Addr)
       Call mma_deallocate(iRv)
       Call mma_deallocate(nBasSh)
-      Call Free_iWork(ip_iShij)
+      Call mma_deallocate(iShij)
 *                                                                      *
 ************************************************************************
 *                                                                      *

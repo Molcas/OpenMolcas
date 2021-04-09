@@ -9,8 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Module j12
-      Integer :: nSO, nSkal_Valence, nij_Shell, klS
+      Integer :: nSO, nSkal_Valence, klS
       Integer, Allocatable :: SOShl(:), ShlSO(:)
       Integer, Allocatable :: nBasSh(:,:)
       Integer, Allocatable :: iSSOff(:,:,:)
+      Integer, Allocatable :: iShij(:,:)
       End Module j12

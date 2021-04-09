@@ -9,14 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,
-     &                     TMax,CutOff,ip_iShij,nij_Shell,
+     &                     TMax,CutOff,nij_Shell,
      &                     nBas_Aux,nChV,iTOffs)
       use iSD_data
       use SOAO_Info, only: iSOInf
-      use j12, only: ShlSO, SOShl, nBasSh, iSSOff
+      use j12, only: ShlSO, SOShl, nBasSh, iSSOff, iShij
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
 #include "nsd.fh"
@@ -96,15 +95,15 @@ C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
             End If
          End Do
       End Do
-      Call GetMem('Shij','Allo','Inte',ip_iShij,2*nij_Shell)
+      Call mma_allocate(iShij,2,nij_Shell,Label='iShij')
 *
       ij_Shell = 0
       Do iSkal = 1, nShell
          Do jSkal = 1, iSkal
             If (TMax(iSkal,jSkal)*TMax_ij.ge.CutOff) Then
                ij_Shell = ij_Shell + 1
-               iWork(ip_iShij+(ij_Shell-1)*2  )=iSkal
-               iWork(ip_iShij+(ij_Shell-1)*2+1)=jSkal
+               iShij(1,ij_Shell)=iSkal
+               iShij(2,ij_Shell)=jSkal
 #ifdef _DEBUGPRINT_
                Write (6,*) 'ij_Shell,iSkal,jSkal=',
      &                      ij_Shell,iSkal,jSkal
@@ -124,18 +123,16 @@ C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 *
       Call Setup_Aux_Internal(SOShl,nSO+nSO_Aux,ShlSO,
      &                        nBasSh,nShell+nShell_Aux,nIrrep,nBas,
-     &                        iSSOff,nij_Shell,iWork(ip_iShij),
+     &                        iSSOff,nij_Shell,iShij,
      &                        nBas_Aux,nChV,iTOffs)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'ip_iShij=',ip_iShij
       Write (6,*) 'nij_Shell=',nij_Shell
       Write (6,*)
       Do ij_Shell = 1, nij_Shell
-         Write (6,*) iWork(ip_iShij+(ij_Shell-1)*2  ),
-     &               iWork(ip_iShij+(ij_Shell-1)*2+1)
+         Write (6,*) iShij(1,ij_Shell),iShij(2,ij_Shell)
       End Do
 #endif
 *                                                                      *
