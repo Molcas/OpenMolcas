@@ -10,8 +10,10 @@
 ************************************************************************
       Subroutine Square_A(Lu,nB,MaxMem_,Force_out_of_Core)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical Force_out_of_Core
+
+      Real*8, Allocatable :: Buf(:,:)
 *
       If (nB.eq.0) Return
       MaxMem=MaxMem_
@@ -22,48 +24,47 @@
 *
 *        In-core case
 *
-         Call Allocate_Work(ipBuf,nMem)
+         Call mma_allocate(Buf,nMem,1,Label='Buf')
          iAddr=0
-         Call dDaFile(Lu,2,Work(ipBuf),nMem,iAddr)
-         Call In_place_Square(Work(ipBuf),nB)
+         Call dDaFile(Lu,2,Buf(:,1),nMem,iAddr)
+         Call In_place_Square(Buf(:,1),nB)
          iAddr=0
-         Call dDaFile(Lu,1,Work(ipBuf),nMem,iAddr)
-         Call Free_Work(ipBuf)
+         Call dDaFile(Lu,1,Buf(:,1),nMem,iAddr)
 
       Else
 *
 *        Out-of-core case
 *
          nBuff=MaxMem/2
-         Call Allocate_Work(ipBuf1,2*nBuff)
-         ipBuf2 = ipBuf1+nBuff
+         Call mma_allocate(Buf,nBuff,2,Label='Buf')
 *
          Inc = nBuff/nB
          iAddr1=0
          Do iB = 1, nB, Inc
             mB=Min(Inc,nB-iB+1)
             iAddrs=iAddr1
-            Call dDaFile(Lu,2,Work(ipBuf1),nB*mB,iAddr1)
+            Call dDaFile(Lu,2,Buf(:,1),nB*mB,iAddr1)
 *
             iAddr2=iAddr1
             Do jB = iB, nB, Inc
                kB=Min(Inc,nB-jB+1)
 *
                If (jB.eq.iB) Then
-                  Call In_place_Diag(Work(ipBuf1),nB,iB,iB+mB-1)
+                  Call In_place_Diag(Buf(:,1),nB,iB,iB+mB-1)
                Else
-                  Call dDaFile(Lu,2,Work(ipBuf2),nB*kB,iAddr2)
-                  Call Off_Diagonal(Work(ipBuf1),nB,iB,iB+mB-1,
-     &                              Work(ipBuf2),   jB,jB+kB-1)
+                  Call dDaFile(Lu,2,Buf(:,2),nB*kB,iAddr2)
+                  Call Off_Diagonal(Buf(:,1),nB,iB,iB+mB-1,
+     &                              Buf(:,2),   jB,jB+kB-1)
                End If
             End Do
 *
             iAddr1=iAddrs
-            Call dDaFile(Lu,1,Work(ipBuf1),nB*mB,iAddr1)
+            Call dDaFile(Lu,1,Buf(:,1),nB*mB,iAddr1)
 *
          End Do
-         Call Free_Work(ipBuf1)
       End If
+      Call mma_deallocate(Buf)
+
       Return
       End
       Subroutine In_place_Square(Buff,nBuff)
