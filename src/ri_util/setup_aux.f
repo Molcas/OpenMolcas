@@ -8,15 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &                     nShell,nShell_Aux,nSO,ip_iSSOff,
+      Subroutine Setup_Aux(nIrrep,nBas,nShell,nShell_Aux,nSO,ip_iSSOff,
      &                     TMax,CutOff,ip_iShij,nij_Shell,
      &                     nBas_Aux,nChV,iTOffs)
       use iSD_data
       use SOAO_Info, only: iSOInf
+      use j12, only: ShlSO, SOShl, nBasSh
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "setup.fh"
 #include "nsd.fh"
       Integer nBas(0:nIrrep-1), nBas_Aux(0:nIrrep-1),
@@ -45,10 +46,9 @@
          nSO_Aux = nSO_Aux + nBas_Aux(iIrrep)
       End Do
 *
-      Call GetMem('SOShl','Allo','Integer',ip_SOShl,nSO+nSO_Aux)
-      Call GetMem('ShlSO','Allo','Integer',ip_ShlSO,nSO+nSO_Aux)
-      Call GetMem('nBasSh','Allo','Integer',ip_nBasSh,
-     &            (nShell+nShell_Aux)*nIrrep)
+      Call mma_allocate(SOShl,nSO+nSO_Aux,Label='SOShl')
+      Call mma_allocate(ShlSO,nSO+nSO_Aux,Label='ShlSO')
+      Call mma_allocate(nBasSh,nShell+nShell_Aux,nIrrep,Label='nBasSh')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -67,14 +67,14 @@ C        Write (*,*) 'iCnttp,iCnt,iAng=',iCnttp,iCnt,iAng
             If (jCnttp.eq.iCnttp .and.
      &          jCnt  .eq.iCnt   .and.
      &          jAng  .eq.iAng         ) Then
-               iWork(ip_SOShl-1+iSO)=iSkal
+               SOShl(iSO)=iSkal
 C              Write (*,*) 'Found in shell=',iSkal
                Go To 99
             End If
          End Do
  99      Continue
       End Do
-C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
+C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -120,8 +120,8 @@ C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
 ************************************************************************
 *                                                                      *
 *
-      Call Setup_Aux_(iWork(ip_SOShl),nSO+nSO_Aux,iWork(ip_ShlSO),
-     &                iWork(ip_nBasSh),nShell+nShell_Aux,nIrrep,nBas,
+      Call Setup_Aux_(SOShl,nSO+nSO_Aux,ShlSO,
+     &                nBasSh,nShell+nShell_Aux,nIrrep,nBas,
      &                iWork(ip_iSSOff),nij_Shell,iWork(ip_iShij),
      &                nBas_Aux,nChV,iTOffs)
 *                                                                      *

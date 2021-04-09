@@ -40,10 +40,10 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: LDF
       use Symmetry_Info, only: nIrrep
+      use j12
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_Tsk
 #include "Molcas.fh"
-#include "j12.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -228,8 +228,8 @@
 *     Generate some offsets and dimensions for the J12 matrix and
 *     the RI vectors.
 *
-      Call Setup_Aux(ip_SOShl,ip_ShlSO,ip_nBasSh,nIrrep,nBas,
-     &               nSkal_Valence,nSkal_Auxiliary,nSO,ip_iSSOff,
+      Call Setup_Aux(nIrrep,nBas,nSkal_Valence,nSkal_Auxiliary,nSO,
+     &               ip_iSSOff,
      &               TMax_Valence,CutInt,ip_iShij,nSkal2,nBas_Aux,
      &               nChV,iTOffs)
 *
@@ -267,10 +267,10 @@
       Do klS_ = 1, nSkal2
          kS = iWork(ip_iShij+(klS_-1)*2  )
          lS = iWork(ip_iShij+(klS_-1)*2+1)
-         nRv = nSize_Rv(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_Rv,
+         nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,
      &                  nChV)
          nRvMax = Max (nRvMax,nRv)
-         n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_3C,
+         n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,
      &                  nBas_Aux)
          n3CMax = Max (n3CMax,n3C)
          Do iIrrep = 0, nIrrep-1
@@ -406,9 +406,9 @@ C                    Write (6,*) 'iLO,iSO_Aux=',iLO,iSO_Aux
          Aint_kl = TMax_Valence(kS,lS)
          If (dbsc(kCnttp)%fMass.ne.dbsc(lCnttp)%fMass) Aint_kl=0.0D0
 *
-         nRv = nSize_Rv(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_Rv,
+         nRv = nSize_Rv(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_Rv,
      &                  nChV)
-         n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,iOff_3C,
+         n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,iOff_3C,
      &                  nBas_Aux)
          Arr_3C(1:n3C)=Zero
          Rv(1:nRv)=Zero
@@ -542,8 +542,8 @@ C      End Do    ! klS
       Call Term_Ints(Verbose,FreeK2)
 *
       Call Free_iWork(ip_iSSOff)
-      Call Free_iWork(ip_ShlSO)
-      Call Free_iWork(ip_SOShl)
+      Call mma_deallocate(ShlSO)
+      Call mma_deallocate(SOShl)
       Call Free_iSD()
 *
 *     Let go off the Q-vectors for now!
@@ -618,7 +618,7 @@ C      End Do    ! klS
                klS_ = iRv(i-1)
                kS = iWork(ip_iShij+(klS_-1)*2  )
                lS = iWork(ip_iShij+(klS_-1)*2+1)
-               n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
+               n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
                Addr(i) = Addr(i-1) + nMuNu*NumVec
@@ -645,7 +645,7 @@ C      End Do    ! klS
             Do klS_ = 1, nSkal2
                kS = iWork(ip_iShij+(klS_-1)*2  )
                lS = iWork(ip_iShij+(klS_-1)*2+1)
-               n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
+               n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
                m3C = nMuNu * NumVec_
@@ -667,7 +667,7 @@ C      End Do    ! klS
                kS = iWork(ip_iShij+(klS_-1)*2  )
                lS = iWork(ip_iShij+(klS_-1)*2+1)
 *
-               n3C = nSize_3C(kS,lS,iWork(ip_nBasSh),nSkal-1,nIrrep,
+               n3C = nSize_3C(kS,lS,nBasSh,nSkal-1,nIrrep,
      &                        iOff_3C,nBas_Aux)
                nMuNu = iOff_3C(1,iIrrep)
                m3C = nMuNu * NumVec_
@@ -715,7 +715,7 @@ C      End Do    ! klS
       Call mma_deallocate(NuMu)
       Call mma_deallocate(Addr)
       Call mma_deallocate(iRv)
-      Call Free_iWork(ip_nBasSh)
+      Call mma_deallocate(nBasSh)
       Call Free_iWork(ip_iShij)
 *                                                                      *
 ************************************************************************
