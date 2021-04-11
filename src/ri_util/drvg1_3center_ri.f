@@ -87,6 +87,7 @@
 #include "ymnij.fh"
 
       Real*8, Allocatable:: MaxDens(:)
+      Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -251,8 +252,8 @@
 *1)   For the valence basis set
 *
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,
-     &            nSkal_Valence*(nSkal_Valence+1))
+      Call mma_allocate(Shij,2,nSkal_Valence*(nSkal_Valence+1)/2,
+     &                  Label='Shij')
       nSkal2=0
       Do iS = 1, nSkal_Valence
          iiQ = iS*(iS+1)/2
@@ -271,8 +272,8 @@
 *
                If (Aint_ij*XDm_max .ge. CutInt) Then
                   nSkal2 = nSkal2 + 1
-                  iWork((nSkal2-1)*2+ip_ij  )=iS
-                  iWork((nSkal2-1)*2+ip_ij+1)=jS
+                  Shij(1,nSkal2)=iS
+                  Shij(2,nSkal2)=jS
                End If
 *
             End If
@@ -282,28 +283,28 @@
 *2)   For the auxiliary basis set
 *
       If (Do_RI) Then
-         mij = nSkal_Auxiliary*2
-         Call GetMem('ip_ij','Allo','Inte',ip_ij2,mij)
+         mij = nSkal_Auxiliary
+         Call mma_allocate(Shij2,2,mij,Label='Shij2')
          nij=0
          Do jS = nSkal_Valence+1, nSkal-1
             If (TMax_All*TMax_Auxiliary(jS-nSkal_Valence).ge.CutInt)
      &         Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij2  )=nSkal
-               iWork((nij-1)*2+ip_ij2+1)=jS
+               Shij2(1,nij)=nSkal
+               Shij2(2,nij)=jS
             End If
          End Do
       Else
-         mij = 2*nij_Eff
-         Call GetMem('ip_ij','Allo','Inte',ip_ij2,mij)
+         mij = nij_Eff
+         Call mma_allocate(Shij2,2,mij,Label='Shij2')
          nij=0
          Do ij = 1, nij_Eff
             iS = ij3(1,ij)
             jS = ij3(2,ij)
             If (TMax_All*TMax_Valence(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij2  )=iS
-               iWork((nij-1)*2+ip_ij2+1)=jS
+               Shij2(1,nij)=iS
+               Shij2(2,nij)=jS
             End If
          End Do
       End If
@@ -558,19 +559,20 @@
       End If
       If(.not. Do_RI) iOpt=0
 *
-      ip_LB=ip_iDummy
       If (iOpt.eq.1) Then
          Call qpg_iArray('LBList',Found,nSkal2_)
          If (Found) Then
-            Call Allocate_iWork(ip_LB,nSkal2_)
-            Call Get_iArray('LBList',iWork(ip_LB),nSkal2_)
+            Call mma_allocate(LBList,nSkal2_,Label='LBList')
+            Call Get_iArray('LBList',LBList,nSkal2_)
          Else
             Call WarningMessage(2,'LBList not found!')
             Call Abend()
          End If
+      Else
+         Call mma_allocate(LBList,1,Label='LBList')
       End If
       Call Init_Tsk2(id,nSkal2,iOpt,iWork(ip_LB))
-      If (iOpt.eq.1) Call Free_iWork(ip_LB)
+      Call mma_deallocate(LBList)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -585,8 +587,8 @@
    10    Continue
          If (.Not.Rsv_Tsk2(id,klS)) Go To 11
 *
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
+         kS = Shij(1,klS)
+         lS = Shij(2,klS)
 *
          AInt_kl = TMax_Valence(kS,lS)
 *
@@ -681,8 +683,8 @@
 ************************************************************************
 *                                                                      *
       Do ijS = 1, nij
-         iS = iWork((ijS-1)*2+ip_ij2  )
-         jS = iWork((ijS-1)*2+ip_ij2+1)
+         iS = Shij2(1,ijS)
+         jS = Shij2(2,ijS)
 *
          If (Do_RI) Then
             Aint=AInt_kl*TMax_Auxiliary(jS-nSkal_Valence)
@@ -924,8 +926,8 @@
 *
       Call mma_deallocate(Sew_Scr)
       Call Free_Tsk2(id)
-      Call GetMem('ip_ij','Free','Inte',ip_ij2,mij)
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_deallocate(Shij2)
+      Call mma_deallocate(Shij)
       Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
 *                                                                      *
 ************************************************************************

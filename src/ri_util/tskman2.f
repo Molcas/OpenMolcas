@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_Tsk2(id,mTask,jOpt,List)
-#include "WrkSpc.fh"
-#include "tsk2.fh"
+      use Tsk2
+#include "stdalloc.fh"
       Integer List(*)  ! either nTask or 0 long
 *
       nTask=mTask
@@ -18,9 +18,10 @@
       If (iOpt.eq.0) Then
          Call Init_Tsk(id,nTask)
       Else If (iOpt.eq.1) Then
-         Call GetMem('TskList','Allo','Inte',id,nTask)
-         Call ICopy(nTask,List,1,iWork(id),1)
-         iRsv=0
+         Call mma_allocate(TskList,nTask,Label='TskList')
+         TskList(1:nTask) = List(1:nTask)
+         id = 0
+         iRsv=1
       Else
          Call WarningMessage(2,'Error in Init_Tsk2')
          Write (6,*) 'Init_Tsk2: illegal iOpt value!'
@@ -30,10 +31,9 @@
       Return
       End
       Logical Function Rsv_Tsk2(id,kls)
-      External Rsv_Tsk
-#include "WrkSpc.fh"
-#include "tsk2.fh"
-      Logical Rsv_Tsk
+      use Tsk2
+#include "stdalloc.fh"
+      Logical, External :: Rsv_Tsk
 *
       If (iOpt.eq.0) Then
          Rsv_Tsk2=Rsv_Tsk(id,kls)
@@ -42,7 +42,7 @@
          If (iRsv+1.gt.nTask) Then
             Rsv_Tsk2=.False.
          Else
-            kls=iWork(id+iRsv)
+            kls=TskList(iRsv)
             iRsv=iRsv+1
             If (kls.le.0) Rsv_Tsk2=.False.
             If (kls.gt.nTask) Rsv_Tsk2=.False.
@@ -57,12 +57,13 @@
       Return
       End
       Subroutine Free_Tsk2(id)
-#include "tsk2.fh"
+      use Tsk2
+#include "stdalloc.fh"
 *
       If (iOpt.eq.0) Then
          Call Free_Tsk(id)
       Else If (iOpt.eq.1) Then
-         Call GetMem('TskList','Free','Inte',id,nTask)
+         Call mma_deallocate(TskList)
          nTask=0
       Else
          Call WarningMessage(2,'Error in Free_Tsk2')
