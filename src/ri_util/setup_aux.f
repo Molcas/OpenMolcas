@@ -114,7 +114,6 @@ C     Call iVcPrt('SOShl',' ',SOShl,nSO+nSO_Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nSSOff = nIrrep**2 * nij_Shell
       Call mma_allocate(iSSOff,[0,nIrrep-1],[0,nIrrep-1],
      &                  [1,nij_Shell],Label='iSSOff')
 *                                                                      *

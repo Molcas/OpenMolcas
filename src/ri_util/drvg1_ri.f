@@ -97,7 +97,6 @@
       ip_CilK    =ip_Dummy
       ip_BklK    =ip_Dummy
       ip_A       =ip_Dummy
-C     ipAOrb(:,:)=ip_Dummy
 
       ipijList   =ip_iDummy
       ipijListTri=ip_iDummy

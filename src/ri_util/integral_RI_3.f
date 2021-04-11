@@ -42,7 +42,7 @@
      &                   TInt,nTInt,iTOffs,
      &                   ShlSO,nBasSh,
      &                   SOShl,nSO,nSkal_Valence,nSym,
-     &                   iSSOff(:,:,klS))
+     &                   iSSOff(1,1,klS))
          Else
            Call WarningMessage(2,'Not implemented yet!')
            Call Abend()
@@ -68,7 +68,7 @@ C    &                      iSSOff(:,:,klS))
      &                   TInt,nTInt,iTOffs,
      &                   ShlSO,nBasSh,
      &                   SOShl,nSO,nSkal_Valence,nSym,
-     &                   iSSOff(:,:,klS))
+     &                   iSSOff(1,1,klS))
       Else
            Call IndSft_RI_3(iCmp,iShell,
      &                      iBas,jBas,kBas,lBas,Shijij,
