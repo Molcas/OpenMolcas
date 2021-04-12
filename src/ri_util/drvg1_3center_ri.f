@@ -86,7 +86,7 @@
 #include "chotime.fh"
 #include "ymnij.fh"
 
-      Real*8, Allocatable:: MaxDens(:)
+      Real*8, Allocatable:: MaxDens(:), SDG(:), Thhalf(:)
       Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
 *                                                                      *
 ************************************************************************
@@ -461,8 +461,8 @@
 *        SQRT(ABS( (mu,nu|mu,nu) ))
 *
          nnSkal = nSkal_valence*(nSkal_valence+1)/2
-         Call GetMem('MaxDG','Allo','Real',ipSDG,nnSkal)
-         Call get_maxDG(Work(ipSDG),nnSkal,MxBasSh)
+         Call mma_allocate(SDG,nnSkal,Label='SDG')
+         Call get_maxDG(SDG,nnSkal,MxBasSh)
 *
 *        Scratch for reduced lists of X_mi. Used in pget.
 *
@@ -503,18 +503,18 @@
 *
       If (lPSO) Then
          nBas_Aux(0)=nBas_Aux(0)-1
-         Call GetMem('Thhalf','Allo','Real',ip_Thhalf,maxnnP)
+         Call mma_allocate(Thhalf,maxnnP,Label='Thhalf')
          nThpkl=MxChVInShl*MxInShl**2
          Call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 *
          Call contract_Zpk_Tpxy(Z_p_k ,nZ_p_k,
      &                          Txy   ,n_Txy,
-     &                          Work(ip_Thhalf),maxnnP,
+     &                          Thhalf,maxnnP,
      &                          DMdiag ,nG1,
      &                          nnP,nBas_Aux,
      &                          nADens,nAvec,nAct,nIrrep)
 *
-         Call GetMem('Thhalf','Free','Real',ip_Thhalf,maxnnP)
+         Call mma_deallocate(Thhalf)
          nBas_Aux(0)=nBas_Aux(0)+1
       Else
          nThpkl=1
@@ -604,7 +604,7 @@
 *           For the shell-pair, (kS,lS), pick up the largest element
 *           Sqrt(Abs(  (kappa,lambda|kappa,lambda) ))
 *
-            SDGmn=Work(ipSDG+klS_-1)
+            SDGmn=SDG(klS_)
 *
 *
 *           Loop over the MO basis, jb and ib and approximate Y_ij
@@ -895,7 +895,7 @@
       If (DoCholExch) Then
          Call GetMem('MaxXi','Free','Real',ipXmi(1),l_MaxXi)
          Call GetMem('MOs_Yij','Free','Real',jr_Xki(1),2*nKVec*nXki)
-         Call GetMem('MaxDG','Free','Real',ipSDG,nnSkal)
+         Call mma_deallocate(SDG)
          Call GetMem('Ymnij','Free','Inte',ipYmnij(1),NumOrb)
       End If
       If (ip_CijK.ne.ip_Dummy)

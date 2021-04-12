@@ -18,8 +18,10 @@
       Implicit Real*8 (a-h,o-z)
       Integer nnSkal, MxBasSh
       Real*8 SDG(nnSkal)
+#include "real.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable :: Diag(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -29,14 +31,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call FZero(SDG(1),nnSkal)
+      SDG(:)=Zero
 *
       iLoc=1 ! point to 1st reduced set in index arrays
-      CALL GETMEM('diagI','Allo','Real',ipDIAG,NNBSTRT(iLoc))
+      Call mma_allocate(Diag,NNBSTRT(iLoc),Label='Diag')
 *
 *     Read the diagonal of the integrals, (mu,nu|mu,nu)
 *
-      CALL CHO_IODIAG(Work(ipDIAG),2)
+      CALL CHO_IODIAG(DIAG,2)
 *
       Do jSym=1,nSym
 *
@@ -52,12 +54,12 @@
 *
             iabSh= iTri(iaSh,ibSh)
 *
-            SDG(iabSh)= Max(SDG(iabSh),sqrt(abs(Work(ipDIAG+kRab-1))))
+            SDG(iabSh)= Max(SDG(iabSh),sqrt(abs(Diag(kRab))))
 *
          End Do  ! jRab loop
       End Do
 *
-      CALL GETMEM('diagI','Free','Real',ipDIAG,NNBSTRT(1))
+      Call mma_deallocate(Diag)
 *
       MxBasSh = MxOrSh
 *
