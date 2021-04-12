@@ -571,7 +571,7 @@
       Else
          Call mma_allocate(LBList,1,Label='LBList')
       End If
-      Call Init_Tsk2(id,nSkal2,iOpt,iWork(ip_LB))
+      Call Init_Tsk2(id,nSkal2,iOpt,LBList)
       Call mma_deallocate(LBList)
 *                                                                      *
 ************************************************************************
