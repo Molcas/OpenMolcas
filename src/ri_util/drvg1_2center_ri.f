@@ -73,13 +73,9 @@
 *
       Integer iSD4(0:nSD,4)
       Save MemPrm
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement functions
-*
-      TMax1(i)=Work(ipTMax-1+i)
-      TMax2(i,j)=Work(ipTMax-1+(j-1)*nSkal+i)
+
+      Real*8, Allocatable:: TMax2(:,:), TMax1(:), Tmp(:,:)
+      Integer, Allocatable:: Shij(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -97,7 +93,7 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      call dcopy_(nGrad,[Zero],0,Temp,1)
+      Temp(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -140,19 +136,19 @@
 *
       If (Do_RI) Then
          nTMax=nSkal
-         Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
-         Call Allocate_Work(ip_Tmp,nSkal**2)
-         Call Shell_MxSchwz(nSkal,Work(ip_Tmp))
-        call dcopy_(nSkal,Work(ip_Tmp+(nSkal-1)*nSkal),1,Work(ipTMax),1)
-         Call Free_Work(ip_Tmp)
+         Call mma_allocate(TMax1,nTMax,Label='TMax1')
+         Call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
+         Call Shell_MxSchwz(nSkal,Tmp)
+         TMax1(1:nSkal)=Tmp(1:nSkal,nSkal)
+         Call mma_deallocate(Tmp)
+
          TMax_all=Zero
          Do iS = 1, nSkal-1
             TMax_all=Max(TMax_all,TMax1(iS))
          End Do
       Else
-         nTMax=nSkal**2
-         Call GetMem('TMax','Allo','Real',ipTMax,nTMax)
-         Call Shell_MxSchwz(nSkal,Work(ipTMax))
+         Call mma_allocate(TMax2,nSkal,nSkal,Label='TMax2')
+         Call Shell_MxSchwz(nSkal,TMax2)
          TMax_all=Zero
          Do ij = 1, nij_Eff
             iS = ij2(1,ij)
@@ -227,27 +223,27 @@
 *     Create list of non-vanishing pairs
 *
       If (Do_RI) Then
-         mij=(nSkal-1)*2
-         Call GetMem('ip_ij','Allo','Inte',ip_ij,mij)
+         mij=(nSkal-1)
+         Call mma_allocate(Shij,2,mij,Label='Shij')
          nij=0
          Do iS = 1, nSkal-1
             If (TMax_All*TMax1(iS).ge.CutInt) Then
                nij = nij + 1
-               iWork(ip_ij + 2*(nij-1)  )=nSkal
-               iWork(ip_ij + 2*(nij-1)+1)=iS
+               Shij(1,nij)=nSkal
+               Shij(2,nij)=iS
             End If
          End Do
       Else
-         mij=2*nij_Eff
-         Call GetMem('ip_ij','Allo','Inte',ip_ij,mij)
+         mij=nij_Eff
+         Call mma_allocate(Shij,2,mij,Label='Shij')
          nij=0
          Do ij = 1, nij_Eff
             iS = ij2(1,ij)
             jS = ij2(2,ij)
             If (TMax_All*TMax2(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               Shij(1,nij)=iS
+               Shij(2,nij)=jS
             End If
          End Do
       End If
@@ -312,11 +308,11 @@ C     If (MyRank.ne.0) Go To 11
 *     Now do a quadruple loop over shells
 *
       jS_= Int((One+sqrt(Eight*DBLE(jlS)-Three))/Two)
-      iS = iWork((jS_-1)*2  +ip_ij)
-      jS = iWork((jS_-1)*2+1+ip_ij)
+      iS = Shij(1,jS_)
+      jS = Shij(2,jS_)
       lS_= Int(DBLE(jlS)-DBLE(jS_)*(DBLE(jS_)-One)/Two)
-      kS = iWork((lS_-1)*2  +ip_ij)
-      lS = iWork((lS_-1)*2+1+ip_ij)
+      kS = Shij(1,lS_)
+      lS = Shij(2,lS_)
       Call CWTime(TCpu1,TWall1)
 *
          If (Do_RI) Then
@@ -497,8 +493,9 @@ C        End If
 *                                                                      *
       Call mma_deallocate(Sew_Scr)
       Call Free_Tsk(id)
-      Call GetMem('ip_ij','Free','Inte',ip_ij,mij)
-      Call GetMem('TMax','Free','Real',ipTMax,nTMax)
+      Call mma_deallocate(Shij)
+      If (Allocated(TMax1)) Call mma_deallocate(TMax1)
+      If (Allocated(TMax2)) Call mma_deallocate(TMax2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
