@@ -46,8 +46,8 @@ IfTest = .false.
 
 !  ***  X dummy atoms (NA = 0 )
 !  ***  Z ghost atoms (NA =-1 )
-!  ***  nAskAtoms.EQ.-1  =>  Seward ZMAT input
-!  ***  nAskAtoms.NE.-1  =>  GateWay ZMAT input
+!  ***  nAskAtoms == -1  =>  Seward ZMAT input
+!  ***  nAskAtoms /= -1  =>  GateWay ZMAT input
 
 ! nAtoms : nr. of atoms passed to SEWARD (includes X dummy atoms).
 ! nXAtoms: nr. of ghost Z atoms (not passed to SEWARD but resumed by OutZMat in SLAPAF).

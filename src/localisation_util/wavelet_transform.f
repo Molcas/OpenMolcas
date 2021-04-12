@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
-      SubRoutine Wavelet_Transform(irc,ipCMO,nSym,nBas,nFro,nOrb2Loc,
+      SubRoutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,
      &                                 inv,Silent,xNrm)
 C
 C     Author: F. Aquilante
@@ -19,7 +19,8 @@ C     Purpose: wavelet transform of the MO basis (inv=0)
 C              "       backtransform (inv=1)
 C
       Implicit Real*8 (a-h,o-z)
-      Integer irc, ipCMO, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
+      Integer irc, nSym, nBas(nSym), nFro(nSym), nOrb2Loc(nSym)
+      Real*8 CMO(*)
       Integer inv
       Logical Silent
       Real*8  xNrm
@@ -57,20 +58,20 @@ C
          l_Scr = max(l_Scr,nBas(iSym)*(2**njOrb-1))
       End Do
       Call GetMem('Scratch','Allo','Real',ipScr,l_Scr)
-      kOffC = ipCMO
+      kOffC = 1
       Do iSym = 1,nSym
          If (nOrb2Loc(iSym) .gt. 0) Then
             kOff1 = kOffC + nBas(iSym)*nFro(iSym)
             kOff2 = kOff1
             njOrb = Log2(nOrb2Loc(iSym))
             Do While (njOrb .ge. 1)
-              Call FWT_Haar(nBas(iSym),njOrb,Work(ipScr),Work(kOff2))
+              Call FWT_Haar(nBas(iSym),njOrb,Work(ipScr),CMO(kOff2))
               njOrb = 2**njOrb
               kOff2 = kOff2 + nBas(iSym)*njOrb
               njOrb = Log2(nOrb2Loc(iSym)-njOrb)
             End Do
-            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),Work(kOff1),1,
-     &                                                   Work(kOff1),1)
+            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,
+     &                                                    CMO(kOff1),1)
             If (irc .ne. 0) Then
                irc  = 1
                xNrm = -9.9d9
@@ -91,20 +92,20 @@ C
          l_Scr = max(l_Scr,nBas(iSym)*2**njOrb)
       End Do
       Call GetMem('Scratch','Allo','Real',iScr,l_Scr)
-      kOffC = ipCMO
+      kOffC = 1
       Do iSym = 1,nSym
          If (nOrb2Loc(iSym) .gt. 0) Then
             kOff1 = kOffC + nBas(iSym)*nFro(iSym)
             kOff2 = kOff1
             njOrb = Log2(nOrb2Loc(iSym))
             Do While (njOrb .ge. 1)
-              Call Inv_FWT_Haar(nBas(iSym),njOrb,Work(iScr),Work(kOff2))
+              Call Inv_FWT_Haar(nBas(iSym),njOrb,Work(iScr),CMO(kOff2))
               njOrb = 2**njOrb
               kOff2 = kOff2 + nBas(iSym)*njOrb
               njOrb = Log2(nOrb2Loc(iSym)-njOrb)
             End Do
-            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),Work(kOff1),1,
-     &                                                   Work(kOff1),1)
+            xNrm = xNrm + dDot_(nBas(iSym)*nOrb2Loc(iSym),CMO(kOff1),1,
+     &                                                    CMO(kOff1),1)
             If (irc .ne. 0) Then
                irc  = 1
                xNrm = -9.9d9

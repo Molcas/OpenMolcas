@@ -267,7 +267,7 @@ if (LIonize) then
     write(u6,'(A)') '===   Local Ionization energy   ==='
     write(u6,'(A)') 'The local ionization energies are'
     write(u6,'(A)') 'computed using the expression for atoms'
-    write(u6,'(A)') 'found in; J.Phys.Chem. 1996, 100,4828'
+    write(u6,'(A)') 'found in: J.Phys.Chem. 1996, 100,4828'
     write(u6,'(A)')
     write(u6,'(A)') 'Average local ionization energy'
     write(u6,'(10F12.8)') LI_TOT/Sites*auToeV

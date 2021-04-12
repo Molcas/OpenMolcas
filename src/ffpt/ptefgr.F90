@@ -75,7 +75,7 @@ if (ComStk(2,4,2,4)) then
   iAtm = int(ComVal(2,4,2,4),kind=iwp)
   if (Debug) write(u6,'(6X,A,I2)') 'Origin of perturbation is centered at atom ',iAtm
   if (iAtm < 0 .or. iAtm > nAtoms) then
-    write(u6,*) 'PrEfGr: iAtm.lt.0 .or. iAtm.gt.nAtoms'
+    write(u6,*) 'PrEfGr: iAtm < 0 .or. iAtm > nAtoms'
     write(u6,*) 'iAtm,nAtoms=',iAtm,nAtoms
     write(u6,*) 'You specified a invalid atom number as the origin of the perturbation operator.'
     call Abend()

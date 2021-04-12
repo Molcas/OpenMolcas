@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-cmp!      SUBROUTINE klvaa_oovo(G,ix,it,ig,iscr,vblock,N,nug,
-cmpn      SUBROUTINE klvaa_oovo(ix,it,ig,iscr,vblock,N,nug,
       SUBROUTINE klvaa_oovo(ix,ig,iscr,vblock,N,nug,
      $ LU,last,ias)
+cmp!      SUBROUTINE klvaa_oovo(G,ix,it,ig,iscr,vblock,N,nug,
+cmpn      SUBROUTINE klvaa_oovo(ix,it,ig,iscr,vblock,N,nug,
 C
 C  creates L(alpha>alpha,alpha-alpha)
 C  DA files LMATICH(ISP)ICH(ISP)
