@@ -39,7 +39,7 @@
          Rsv_Tsk2=Rsv_Tsk(id,kls)
       Else If (iOpt.eq.1) Then
          Rsv_Tsk2=.True.
-         If (iRsv+1.gt.nTask) Then
+         If (iRsv.gt.nTask) Then
             Rsv_Tsk2=.False.
          Else
             kls=TskList(iRsv)
