@@ -88,6 +88,7 @@
 
       Real*8, Allocatable:: MaxDens(:), SDG(:), Thhalf(:)
       Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
+      Real*8, Allocatable:: CVec2(:,:,:), CVec(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -380,11 +381,6 @@
          kSym = 1
          nK = NumAuxVec(kSym)
 *
-         lCVec  = nIJ1Max*nK
-         lCVec2 = nIJRMax*nK
-         Call GetMem('C_Vector','Allo','Real',ip_CVec,  lCVec )
-         Call GetMem('C_Vector2','Allo','Real',ip_CVec2,lCVec2)
-*
          Do iSO=1,nKVec
            If (lSA) Go to 15
            Do iSym = 1, nSym
@@ -394,26 +390,25 @@
 *             Read a whole block of C_ij^K
 *
               iAdrC = iAdrCVec(kSym,iSym,iSO)
-              Call dDaFile(LuCVector(kSym,iSO),2,Work(ip_CVec),
+              Call mma_allocate(CVec,nIJ1(iSym,jSym,iSO),nK,
+     &                          Label='CVec')
+              Call dDaFile(LuCVector(kSym,iSO),2,CVec,
      &                     nIJ1(iSym,jSym,iSO)*nK,iAdrC)
 *
               ni = nChOrb(iSym-1,iSO)
+              Call mma_allocate(CVec2,ni,ni,nK,Label='CVec2')
 *             nj=ni
-              index1 = ip_CVec
+
               Do KAux = 1, nK
-                 index_aux = ip_CVec2+(KAux-1)*(ni*ni)
 *
                  Do i = 1, ni
                     Do j = 1, i-1
-                       index2 = index_aux + i-1 + (j-1)*ni
-                       index3 = index_aux + j-1 + (i-1)*ni
-                       Work(index2) = Work(index1)
-                       Work(index3) = Work(index1)
-                       index1 = index1 + 1
+                       ij = j + i*(i-1)/2
+                       CVec2(i,j,KAux) = CVec(ij,KAux)
+                       CVec2(j,i,KAux) = CVec(ij,KAux)
                     End Do
-                    index2 = index_aux + i-1 + (j-1)*ni
-                    Work(index2) = Work(index1)*Sqrt(Two)
-                    index1 = index1 + 1
+                    ii = i*(i+1)/2
+                    CVec2(i,i,KAux) = CVec(ii,KAux)*Sqrt(Two)
                  End Do
 *
               End Do
@@ -424,15 +419,14 @@
 *             problems.
 *
               iAdrC = iAdrCVec(kSym,iSym,iSO)
-              Call dDaFile(LuCVector(kSym,iSO),1,Work(ip_CVec2),
+              Call dDaFile(LuCVector(kSym,iSO),1,CVec2,
      &                     nIJR(iSym,jSym,iSO)*nK,iAdrC)
 *
+              Call mma_deallocate(CVec2)
+              Call mma_deallocate(CVec)
            End Do
  15        Continue
          End Do
-*
-         Call GetMem('C_Vector','Free','Real',ip_CVec,  lCVec )
-         Call GetMem('C_Vector2','Free','Real',ip_CVec2,lCVec2)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
