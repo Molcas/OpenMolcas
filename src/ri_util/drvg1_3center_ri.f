@@ -44,7 +44,7 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, VJ
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -891,8 +891,7 @@
      &   Call GetMem('ijList','Free','Inte',ipijList,lijList)
       If (ipijListTri.ne.ip_iDummy)
      &   Call GetMem('ijListTri','Free','Inte',ipijListTri,lijList)
-      If (ip_VJ.ne.ip_Dummy)
-     &   Call GetMem('JKVEC','Free','Real',ip_VJ,ljkVec)
+      If (Allocated(VJ)) Call mma_deallocate(VJ)
       Do i=1,nKDens
          If (ip_CMOi(i).ne.ip_Dummy)
      &      Call GetMem('CMO_inv','FREE','Real',ip_CMOi(i), lCMOi(i))

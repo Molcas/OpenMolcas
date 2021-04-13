@@ -114,7 +114,7 @@
      &                           L_Full_Type
       use Data_Structures, only: Allocate_Lab, Deallocate_Lab,
      &                           Lab_Type
-
+      use ExTerm, only: VJ
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
@@ -1679,7 +1679,7 @@ C--- have performed screening in the meanwhile
            End Do
         End Do
         ljkVec = 2*nIJMax
-        Call GetMem('JKVEC','Allo','Real',ip_VJ,ljkVec)
+        Call mma_allocate(VJ,ljkVec,Label='VJ')
       End If
 
       Call mma_deallocate(iShp_rs)

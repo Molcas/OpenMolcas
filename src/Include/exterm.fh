@@ -18,14 +18,14 @@
       Real*8 tbvec(2), tavec(2)
       Integer NumAuxVec(8)
       Integer MxChVInShl,ip_CijK,lijlist,ipijList,ipijListTri,ljkvec,   &
-     &        ljVec,ip_VJ,nScreen,ip_CilK,ip_BklK,ip_A
+     &        nScreen,ip_CilK,ip_BklK,ip_A
       Common /ExTe1/ nChOrb, ipChM,                                     &
      &               nIJ1,nIJR,                                         &
      &               ip_CMOi,lCMOi,iOff_CMOi,                           &
      &               LuCVector, MxChVInShl,                             &
      &               ip_CijK, iAdrCVec, lijlist, ipijList,              &
      &               ipijListTri,iChOrbT,iChOrbR,ljkvec,                &
-     &               ljVec,ip_VJ, nScreen, ip_CilK, ip_BklK,            &
+     &               nScreen, ip_CilK, ip_BklK,                         &
      &               NumAuxVec, ip_A
 
       Common /ExTe2/ DoCholExch, Timings_default

@@ -20,7 +20,7 @@
 *              Rectangularize.                                   *
 *                                                                *
 ******************************************************************
-
+      use ExTerm, only: CijK
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
@@ -36,7 +36,7 @@
 
       lCVec = nIJR(kSym,lSym,1)*nVec
       iAdr = nIJR(kSym,lSym,1)*(jVec1-1) + iAdrCVec(jSym,kSym,jDen)
-      Call dDaFile(LuCVector(jSym,jDen),2,Work(ip_CijK),lCVec,iAdr)
+      Call dDaFile(LuCVector(jSym,jDen),2,CijK,lCVec,iAdr)
 *
       Return
 c Avoid unused argument warnings
@@ -56,10 +56,12 @@ c Avoid unused argument warnings
 *              Ckl^J -> Cml^J .                                  *
 *                                                                *
 ******************************************************************
-
+      use ExTerm, only: CijK, VJ
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "WrkSpc.fh"
+      Real*8, Pointer :: CijK_Rec(:,:)=>Null()
+      Real*8, Pointer :: CmjK(:)=>Null()
 *
       ijList(iSym,jSym,i,j) = ipijList + iChOrbR(iSym,jSym,1)
      &                 + i + (j-1)*(nChOrb(iSym-1,1)+1)
@@ -67,22 +69,33 @@ c Avoid unused argument warnings
       jDen = 1
       ipMO = ip_CMOi(jDen) + iOff_CMOi(lSym,jDen) +
      &       (lSOl-1)*nChOrb(lSym-1,jDen)
-      ip_CijK_Rec = ip_CijK +
-     &              jVec1*nChOrb(lSym-1,jDen)*nChOrb(kSym-1,jDen)
-      ip_CmjK = ip_VJ
-      Call FZero(Work(ip_CmjK),nChOrb(kSym-1,jDen))
+
+      iE = jVec1*nChOrb(lSym-1,jDen)*nChOrb(kSym-1,jDen)
+      n = nChOrb(lSym-1,1)
+      m = nChOrb(kSym-1,1)
+
+      iS = iE + 1
+      iE = iE + n*m
+      CijK_Rec(1:n,1:m) => CijK(iS:iE)
+
+      CmjK(1:m) => VJ(1:m)
+
+      Call FZero(CmjK,nChOrb(kSym-1,jDen))
+
       Do iI = 1, nChOrb(kSym-1,1)
          Do iJ = 1, iWork(ijList(lSym,kSym,0,iI))
             iJ1 = iWork(ijList(lSym,kSym,iJ,iI))
-            Work(ip_CmjK+iI-1) = Work(ip_CmjK+iI-1) +
-     &           Work(ip_CijK_Rec+iJ1-1 + (iI-1)*nChOrb(lSym-1,1))
-     &           * Work(ipMO + iJ1-1)
+            CmjK(iI) = CmjK(iI) +
+     &           CijK_Rec(iJ1,iI) * Work(ipMO + iJ1-1)
          End Do
       End Do
 
+      CijK_Rec=>Null()
+      CmjK=>Null()
+      irc=0
+
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer(irc)
          Call Unused_integer(nVec)
       End If
       End
@@ -100,21 +113,27 @@ c Avoid unused argument warnings
 *              Cmj^K -> Bmd^K .                                  *
 *                                                                *
 ******************************************************************
-
+      use ExTerm, only: VJ
       Implicit Real*8 (a-h,o-z)
 #include "exterm.fh"
 #include "WrkSpc.fh"
+      Real*8, Pointer :: CmjK(:)=>Null()
 
       jDen = 1
 *
-      ipMO = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen) +
-     &       (kSOk-1)*nChOrb(kSym-1,jDen)
-      ip_CmjK = ip_VJ
-      Compute_B_3=ddot_(nChOrb(kSym-1,jDen),Work(ipMO),1,
-     &                                      Work(ip_CmjK),1)
+      n = nChOrb(kSym-1,jDen)
+
+      ipMO = ip_CMOi(jDen) + iOff_CMOi(kSym,jDen) + (kSOk-1)*n
+
+      CmjK(1:n) => VJ(1:n)
+
+      Compute_B_3=ddot_(n,Work(ipMO),1,CmjK,1)
+
+      CmjK=>Null()
+
+      irc=0
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer(irc)
          Call Unused_integer(lSym)
       End If
       End
