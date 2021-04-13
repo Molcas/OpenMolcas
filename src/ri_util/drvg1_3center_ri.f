@@ -44,8 +44,9 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
+      use ExTerm, only: CijK
       Implicit Real*8 (A-H,O-Z)
-      External Rsv_Tsk2
+      Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
 #include "itmax.fh"
 #include "real.fh"
@@ -72,8 +73,7 @@
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
       Logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation,
-     &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk2, Found,
-     &        FreeK2, Verbose
+     &        JfGrad(3,4), ABCDeq, No_Batch, Found, FreeK2, Verbose
       Character Format*72, Method*8, KSDFT*16
       Character*50 CFmt
       Character(LEN=16), Parameter :: SECNAM = 'drvg1_3center_ri'
@@ -358,7 +358,8 @@
          lCijK = nIJRMax*MxChVInShl
          lCilK = MxInShl*nIMax*MxChVInShl
          lCilK = Max(lCilK,lCijK) ! it is used as scratch in pget
-         Call GetMem('CijK','Allo','Real',ip_CijK,lCilK)
+         Call mma_allocate(CijK,lCilK,Label='CijK')
+         ip_CijK=ip_of_Work(CijK(1))
          If (lPSO) lCilK=Max(lCilK,maxnAct) ! used as scratch
          Call GetMem('CilK','Allo','Real',ip_CilK,lCilK)
          lBklK = MxInShl**2*MxChVInShl
@@ -881,8 +882,7 @@
          Call mma_deallocate(SDG)
          Call GetMem('Ymnij','Free','Inte',ipYmnij(1),NumOrb)
       End If
-      If (ip_CijK.ne.ip_Dummy)
-     &   Call GetMem('CijK','Free','Real',ip_CijK,lCijK)
+      If (Allocated(CijK)) Call mma_deallocate(CijK)
       If (ip_CilK.ne.ip_Dummy)
      &   Call GetMem('CilK','Free','Real',ip_CilK,lCilK)
       If (ip_BklK.ne.ip_Dummy)

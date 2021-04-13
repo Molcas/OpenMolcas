@@ -41,6 +41,7 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: nProcs, King
+      use ExTerm, only: CijK
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"
@@ -209,12 +210,9 @@
 *        Note that we need nDen arrays for C_kl^I and one for C_kl^J
 *        A_IJ = Sum(kl) C_kl^I x C_kl^J
 *
-         lCijK = nIJRMax*MxChVInShl
-         Call GetMem('CijK','Allo','Real',ip_CijK,(nKvec+1)*lCijK)
-*
-      Else
-*
-         lCijK = 0
+         Call mma_allocate(CijK,nIJRMax*MxChVInShl*(nKvec+1),
+     &                     Label='CijK')
+         ip_CijK=ip_of_Work(CijK(1))
 *
       End If
 *                                                                      *
@@ -520,7 +518,7 @@ C        End If
 ************************************************************************
 *                                                                      *
       If(DoCholExch) Then
-         Call GetMem('CijK','Free','Real',ip_CijK,2*lCijK)
+         Call mma_deallocate(CijK)
          Call GetMem('A','Free','Real',ip_A,lA)
          If (iMP2Prpt.eq.2) Then
             Call GetMem('A_MP2(2)','Free','Real',ip_A_MP2(2),lA_MP2)

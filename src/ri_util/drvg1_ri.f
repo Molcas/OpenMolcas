@@ -93,7 +93,6 @@
       ip_CMOi(:) =ip_Dummy
       ipDMLT(:)  =ip_Dummy
       ip_VJ      =ip_Dummy
-      ip_CijK    =ip_Dummy
       ip_CilK    =ip_Dummy
       ip_BklK    =ip_Dummy
       ip_A       =ip_Dummy
