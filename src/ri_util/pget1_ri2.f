@@ -309,18 +309,22 @@
          iSym = 1
          lSym = iEor(jSym-1,iSym-1)+1
 *
-         ip_CikJ = ip_CijK
+         nik = nIJ1(iSym,kSym,iSO)
+         iS = 1
+         iE = nik*jBas
+         CiKj(1:nik*jBas,1:1) => CijK(iS:iE)
+         iS = iE + 1
+         iE = iE + nik*lBas
+         CiKl(1:nik*lBas) => CijK(iS:iE)
 *
          Do i2 = 1, iCmp(2)
             jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
 *
 *           Pick up the MO transformed fitting coefficients, C_ik^J
-            nik = nIJ1(iSym,kSym,iSO)
             ip_CikL = ip_CikJ + nik*nMaxBas
             jSOj = jSO - iOffA
             iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,1)
-            Call dDaFile(LuCVector(jSym,1),2,Work(ip_CikJ),
-     &                   nik*jBas,iAdrJ)
+            Call dDaFile(LuCVector(jSym,1),2,CikJ(:,1),nik*jBas,iAdrJ)
 
             Do i4 = 1, iCmp(4)
                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
@@ -331,18 +335,17 @@
                If (lSO.ne.jSO) Then
                   lSOl = lSO - iOffA
                   iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,1)
-                  Call dDaFile(LuCVector(jSym,1),2,Work(ip_CikL),
-     &                         nik*lBas,iAdrL)
+                  Call dDaFile(LuCVector(jSym,1),2,CiKl,nik*lBas,iAdrL)
 
-                  ip_V2 = ip_CikL
+                  V2(1:) = CiKl(1:)
                Else
-                  ip_V2 = ip_CikJ
+                  V2(1:) = CiKj(1:,1)
                EndIf
 
                Call FZero(Work(ip_A),jBas*lBas)
                CALL DGEMM_('T','N',jBas,lBas,nik,
-     &                    1.0d0,Work(ip_CikJ),nik,
-     &                    Work(ip_V2),nik,
+     &                    1.0d0,CiKj(:,1),nik,
+     &                          V2,nik,
      &                    0.0d0,Work(ip_A),jBas)
 
                Do lAOl = 0, lBas-1
@@ -369,6 +372,10 @@
                End Do
             End Do
          End Do
+
+         CiKj => Null()
+         CiKl => Null()
+         V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
