@@ -14,7 +14,7 @@
 subroutine SORT1C(nUt,vInt,nSqNum,nSyBlk)
 !***********************************************************************
 !                                                                      *
-!     Purpose: Provided SEWARD was allowed to use a virtual disk       *
+!     Purpose: Provided SEWARD was allowed to use a virtual disk,      *
 !              scatter the 2el integrals into the approriate place.    *
 !                                                                      *
 !     Called from: SORT1A                                              *
@@ -61,9 +61,9 @@ integer(kind=iwp) :: iBatch, iOff, iSyBlk, iUt
 
 !write(u6,'(2X,5(I4,I8,F12.8))') (nSyBlk(iUt),RAMD_adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,vInt(iUt),iUt=1,nUt)
 do iUt=1,nUt
-  iSyBlk = int(nSyBlk(iUt))
+  iSyBlk = int(nSyBlk(iUt),kind=iwp)
   iBatch = nBatch(iSyBlk)
-  iOff = RAMD_adr(iBatch)+int(nSqNum(iUt))
+  iOff = RAMD_adr(iBatch)+int(nSqNum(iUt),kind=iwp)
   RAMD_ints(iOff) = vInt(iUt)
 end do
 

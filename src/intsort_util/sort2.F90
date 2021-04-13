@@ -18,7 +18,7 @@ subroutine SORT2()
 !                                                                      *
 !     Purpose: Control phase 2 of bin sorting algorithm. First,        *
 !              reload all integrals belonging to the same slice        *
-!              and sort them ( c.f. SORT2A ). While reading the        *
+!              and sort them ( cf. SORT2A ). While reading them        *
 !              keep a trace of the records which have been read.       *
 !              They are used to generate forward chaining indices.     *
 !              Also integrals which are of zero value are placed       *
@@ -33,18 +33,11 @@ subroutine SORT2()
 !     Calling parameters: none                                         *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
 !     TwoDat : definitions of sorting flags and address tables         *
 !     Srt0    : common block containing information pertinent to       *
 !               the calculation of 2el integral sequence numbers       *
 !     Srt1    : common block containing information the number of      *
 !               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!     Srt3    : dynamic stack to control inout and output of           *
-!               integral buffers                                       *
-!                                                                      *
-!     local data declarations: none                                    *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *

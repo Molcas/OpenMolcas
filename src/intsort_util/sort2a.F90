@@ -15,7 +15,7 @@
 subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 !***********************************************************************
 !                                                                      *
-!     Purpose: Reload all integral belonging to a given slice          *
+!     Purpose: Reload all integrals belonging to a given slice         *
 !              and sort them.                                          *
 !                                                                      *
 !     Called from: Sort2                                               *
@@ -27,21 +27,11 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 !     SrtArr : Work space to keep the 2el integrals                    *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!     Srt3    : dynamic stack to control inout and output of           *
-!               integral buffers                                       *
+!     PkCtl  : packing table                                           *
 !                                                                      *
 !     local data declarations:                                         *
 !     PkVBin : I/O buffer contains packed integral values              *
 !     PkIBin : I/O buffer contains packed ordering numbers             *
-!     ValBin : contains unpacked integral values                       *
-!     IndBin : contains unpacked ordering numbers                      *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
@@ -137,7 +127,7 @@ do while (iDaTmp >= 0)
   ist2 = lTop
   do iSec=1,nSect
     nInts1 = PkIBin(ist1-1)
-    nInts2 = int(PkVBin(ist2-1))
+    nInts2 = int(PkVBin(ist2-1),kind=iwp)
     if (nInts1 /= nInts2) then
       write(u6,*)
       write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
@@ -184,7 +174,7 @@ do while (iDaTmp >= 0)
   !--------------------------------------------------------------------*
 
   iDaTmp = PkIBin(1)
-  iDaTwo = int(PkVBin(1))
+  iDaTwo = int(PkVBin(1),kind=iwp)
 end do
 if (iPrint >= 99) call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
 

@@ -31,22 +31,9 @@ subroutine SaveBin(iBin,iOpt)
 !     iBin   : Bin number to be saved                                  *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!     WSpc    : dynamic work space                                     *
+!     PkCtl  : packing table                                           *
 !                                                                      *
 !     local data declarations:                                         *
-!     IndBin : temporary array which contains the packed labels        *
-!     IndBin : temporary array which contains the packed 2el integrals *
-!     lIndx  : temporary array used to store the length                *
-!              of the packed indices                                   *
-!     lInts  : temporary array used to store the length                *
-!              of the packed integral                                  *
 !     Scr    : temporary array used for initializing records           *
 !                                                                      *
 !     Modified to remove sorting step, R. Lindh, March '98             *
@@ -168,10 +155,10 @@ if (mod(nRec(iBin),nSect) == 0) then
   iDaTmp = mDaTmp
   iDaTwo = mDaTwo
 
-  call ICopy(lStRec,[0],0,iScr,1)
+  iScr(:) = 0
   call iDAFILE(LuTmp,iOptIO,iScr,(lStRec/idiv),mDaTmp)
 
-  call dcopy_(lStRec,[Zero],0,Scr,1)
+  Scr(:) = Zero
   call dDAFILE(LuTwo,iOptIO,Scr,lStRec,mDaTwo)
 
   iDIBin(2,iBin) = iDaTmp

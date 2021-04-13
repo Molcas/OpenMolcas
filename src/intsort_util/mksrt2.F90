@@ -15,7 +15,7 @@
 subroutine MkSrt2()
 !***********************************************************************
 !                                                                      *
-!     Purpose: Inizialize counters and offsets required                *
+!     Purpose: Initialize counters and offsets required                *
 !              for bin sorting algorithm                               *
 !                                                                      *
 !     Called from: Sort1                                               *
@@ -25,15 +25,8 @@ subroutine MkSrt2()
 !     Calling parameters: none                                         *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
 !     Srt1    : common block containing information the number of      *
 !               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!                                                                      *
-!     Local data declarations: none                                    *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 

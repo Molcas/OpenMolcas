@@ -19,7 +19,7 @@ subroutine SORT0()
 !              into canonical order. This is the interface which       *
 !              matches the sorting algorithm to SEWARD.                *
 !     Method:  The method of choice is a modification of the bin       *
-!              sorting algorithm. The sorting processes in three       *
+!              sorting algorithm. The sorting proceeds in three        *
 !              steps: 1). The integrals are  distributed into          *
 !                         the bins where the buffers to save integral  *
 !                         values and labels are kept separated.        *
@@ -27,20 +27,20 @@ subroutine SORT0()
 !                         written to LuOrd but the 'label buffer' is   *
 !                         stored on LuTmp. Prior to writing all data   *
 !                         are compressed.                              *
-!                         (c.f. subroutines SORT1A and SORT1B)         *
+!                         (cf. subroutines SORT1A and SORT1B)          *
 !                     2). All integrals belonging to the same slice    *
 !                         are picked from the disk and sorted in       *
-!                         memory. When sorting is completed the        *
+!                         memory. When sorting is completed they       *
 !                         overwrite the old records and, if necessary, *
 !                         new records are appended to LuOrd. Forward   *
-!                         chaining indices are constructed an added to *
+!                         chaining indices are constructed and added to*
 !                         the buffers. Hereafter LuTmp is not needed   *
 !                         anymore.                                     *
-!                         (c.f. subroutines SORT2, SORT2A and SORT2B)  *
+!                         (cf. subroutines SORT2, SORT2A and SORT2B)   *
 !                     3). Finally, the records are brought into        *
 !                         sequential order and the file header is      *
 !                         completed                                    *
-!                         (c.f. subroutines SORT3 and SORT4)           *
+!                         (cf. subroutines SORT3 and SORT4)            *
 !     References: M. Yoshimine in 'Numerical Algorithms in Chemistry:  *
 !                 Algebraic Methods', NRCC wokshop 1978                *
 !                                                                      *
@@ -51,20 +51,10 @@ subroutine SORT0()
 !     Calling parameters: none                                         *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
+!     TwoDat  : table of contents and auxiliary information            *
+!               on the ordered 2el file                                *
 !     Srt1    : common block containing information the number of      *
 !               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!     PkCtl   : packing table                                          *
-!     iTMax   : SEWARD's definition of highest angular momentum        *
-!     Info    : SEWARD's tables of definitions                         *
-!                                                                      *
-!     Global data declarations (Include files) :                       *
-!                                                                      *
-!     Local data declarations: none                                    *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *

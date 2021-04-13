@@ -18,11 +18,7 @@ subroutine MkSrt3(iRc,iSquar,nIrrep,nBas,nSkip)
 !    Purpose: Prepare the address table for the virtual disk and       *
 !             initialize the memory                                    *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    TwoDat : table of contents and auxiliary information              *
-!    TowRc  : Table of return code                                     *
-!                                                                      *
-!    calling arguments:                                                *
+!    Calling arguments:                                                *
 !    iRc    : return code                                              *
 !             A value of 0 (zero) is returned upon successful          *
 !             completion of the request. A nonzero value indi-         *
@@ -32,10 +28,15 @@ subroutine MkSrt3(iRc,iSquar,nIrrep,nBas,nSkip)
 !    nBas    : number of basis functions per irred. rep.               *
 !    nSkip   : flag to exlude symmetry combinations                    *
 !                                                                      *
+!    Global data declarations (Include files) :                        *
+!    TwoDat : table of contents and auxiliary information              *
+!    Srt1   : common block containing information the number of        *
+!             bins and partitioning of symmetry blocks                 *
+!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
-!     M. P. Fuelscher and P.O. Widmark                                 *
+!     M. P. Fuelscher and P. O. Widmark                                *
 !     University of Lund, Sweden, 1993                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -50,12 +51,12 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), nSkip(nIrrep)
-#include "srt1.fh"
 #include "TwoDat.fh"
+#include "srt1.fh"
 #include "print.fh"
 integer(kind=iwp) :: ib, iBatch, ibj, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
-                     kSybll, kSymk, kSyml, kSymMx, lb, lBuf, lSkip, lSll_Temp(mSyBlk), lSyml, lSymMx, mxSyP, nInts, &
-                     nSln_Temp(mSyBlk), nSym
+                     kSybll, kSymk, kSyml, kSymMx, lb, lBuf, lSkip, lSll_Temp(size(lSll)), lSyml, lSymMx, mxSyP, nInts, &
+                     nSln_Temp(size(nSln)), nSym
 logical(kind=iwp) :: Square
 
 iRout = 80
@@ -65,12 +66,10 @@ if (iPrint > 5) write(u6,*) ' >>> Enter MKSRT3 <<<'
 Square = .true.
 if (iSquar == 0) Square = .false.
 
-call iCopy(mSyBlk,nSln,1,nSln_Temp,1)
-call iCopy(mSyBlk,lSll,1,lSll_Temp,1)
-do iSyBlk=1,mSyBlk
-  nSln(iSyBlk) = 0
-  lSll(iSyBlk) = 0
-end do
+nSln_Temp(:) = nSln(:)
+lSll_Temp(:) = lSll(:)
+nSln(:) = 0
+lSll(:) = 0
 
 ! loop over all symmetry blocks
 !
@@ -102,7 +101,7 @@ do iSymi=1,nSym
       kb = nBas(kSymk)
       kSkip = nSkip(kSymk)
       lSymMx = jSymj
-      if ((kSymk /= iSymi) .or. (Square)) lSymMx = kSymk
+      if ((kSymk /= iSymi) .or. Square) lSymMx = kSymk
       do lSyml=1,lSymMx
         kSyml = 1+ieor(kSymk-1,lSyml-1)
         kSybll = lSyml+kSymk*(kSymk-1)/2
@@ -127,8 +126,8 @@ do iSymi=1,nSym
               write(u6,'(2X,A)') 'There is not enough space on the RAM disk'
               write(u6,'(2X,A)') 'The program will resume normal activity'
               write(u6,*)
-              call iCopy(mSyBlk,nSln_Temp,1,nSln,1)
-              call iCopy(mSyBlk,lSll_Temp,1,lSll,1)
+              nSln(:) = nSln_Temp(:)
+              lSll(:) = lSll_Temp(:)
               return
             end if
 

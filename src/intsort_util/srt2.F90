@@ -22,17 +22,10 @@
 !     *--------------------------------------------------------*       *
 !                                                                      *
 !     Parameter definitions:                                           *
-!     mxBin  : maximum number of bins allowed. The number should       *
-!              not be smaller than:                                    *
-!              If nSyOp=1 mxBin=  1 and If Square=.true. mxBin=  1     *
-!                 nSyOp=2 mxBin=  4                      mxBin=  5     *
-!                 nSyOp=4 mxBin= 19                      mxBin= 28     *
-!                 nSyOp=8 mxBin=106                      mxBin=176     *
 !     lBin   : buffer length of a bin                                  *
 !              Note: if lBin is not a multiple of 4*lDaRec             *
 !              the buffers used for intermediate storing of            *
 !              labels on LuTmp are used very inefficiently             *
-!     mxSrtA : maximum sorting area to be used                         *
 !                                                                      *
 !     Entries to common SRT2:                                          *
 !     lwIBin : array used to store index Bins                          *
@@ -63,12 +56,9 @@ implicit none
 private
 
 #include "TwoDef.fh"
-integer(kind=iwp), parameter :: mxBin = 2048
-
-integer(kind=iwp) :: iDIBin(3,mxBin), iDVBin(4,mxBin), nRec(mxBin), n_Int(mxBin), mInt(3,mxBin)
 integer(kind=iwp) :: LuTwo, LuTmp, iDaTw0, iDaTwo, iDaTmp, mDaTwo, mDaTmp, MxOrd, lBin
 
-integer(kind=iwp), allocatable :: IndBin(:), lIndx(:), lInts(:), lwIBin(:,:)
+integer(kind=iwp), allocatable :: iDIBin(:,:), iDVBin(:,:), IndBin(:), lIndx(:), lInts(:), lwIBin(:,:), mInt(:,:), n_Int(:), nRec(:)
 real(kind=wp), allocatable :: lwVBin(:,:), ValBin(:)
 
 public :: &
@@ -91,7 +81,6 @@ lwVBin, &
 mDaTmp, &
 mDaTwo, &
 mInt, &
-mxBin, & ! *
 MxOrd, &
 n_Int, &
 nRec, &

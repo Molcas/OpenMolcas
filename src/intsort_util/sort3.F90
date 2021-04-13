@@ -29,18 +29,12 @@ subroutine SORT3(MaxDax)
 !     MaxDax  : Higest disk adress of the final 2el integral file      *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
 !     TwoDat  : definitions of sorting flags and address tables        *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
 !     Srt1    : common block containing information the number of      *
 !               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
 !                                                                      *
 !     local data declarations:                                         *
-!     Buf1   : I/O buffer contains packed integral values              *
-!     Buf2   : I/O buffer contains packed integral values              *
+!     Buf    : I/O buffer contains packed integral values              *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -62,7 +56,7 @@ subroutine SORT3(MaxDax)
 !                                                                      *
 !***********************************************************************
 
-use srt2, only: lStRec, iDaTw0, iDVBin, LuTmp, LuTwo, MxOrd, nRec
+use srt2, only: lStRec, iDaTw0, iDIBin, iDVBin, LuTmp, LuTwo, mInt, MxOrd, n_Int, nRec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -106,7 +100,7 @@ do iOrd=1,MxOrd
   SrtAdr(iOrd) = iDisk
   MaxDax = max(iDisk,MaxDax)
   call dDAFILE(LuTwo,iOpt,Buf,lStRec,iDisk)
-  SrtKey(iOrd) = int(Buf(2))
+  SrtKey(iOrd) = int(Buf(2),kind=iwp)
 end do
 MaxDax = iDisk
 #ifdef _DEBUGPRINT_
@@ -186,6 +180,16 @@ if (iRc /= 0) then
   call Abend()
 end if
 call DaClos(LuTmp)
+
+!----------------------------------------------------------------------*
+!     Release memory                                                   *
+!----------------------------------------------------------------------*
+
+call mma_deallocate(iDIBin)
+call mma_deallocate(iDVBin)
+call mma_deallocate(mInt)
+call mma_deallocate(nRec)
+call mma_deallocate(n_Int)
 
 !----------------------------------------------------------------------*
 !     Release RAMD                                                     *

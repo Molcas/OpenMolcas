@@ -17,7 +17,7 @@ subroutine SORT2B(iBin,nInts,iOrd,lSrtA,SrtArr,IOStk,lStk,nStk)
 !                                                                      *
 !     Purpose: Store the sorted integrals on disk.                     *
 !              Every record that is written contains a header of       *
-!              length lTop which containd the number of integrals      *
+!              length lTop which contains the number of integrals      *
 !              on the record and its ordering number.                  *
 !                                                                      *
 !     Called from: Sort2                                               *
@@ -29,17 +29,6 @@ subroutine SORT2B(iBin,nInts,iOrd,lSrtA,SrtArr,IOStk,lStk,nStk)
 !     nInts  : no. of 2el integrals in slice                           *
 !     iOrd   : ordering number of record                               *
 !     SrtArr : Work space to keep the 2el integrals                    *
-!                                                                      *
-!     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!     Srt3    : dynamic stack to control inout and output of           *
-!               integral buffers                                       *
 !                                                                      *
 !     local data declarations:                                         *
 !     PkVal  : I/O buffer contains packed integral values              *

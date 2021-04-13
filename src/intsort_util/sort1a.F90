@@ -37,14 +37,7 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !     nSyBlk : symmetry block number of an integral                    *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
 !     TwoDat : definitions of sorting flags and address tables         *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -99,10 +92,10 @@ iOpt = 0 ! Always tight!
 !----------------------------------------------------------------------*
 
 do iUt=1,nUt
-  iBin = int(nSyBlk(iUt))
+  iBin = int(nSyBlk(iUt),kind=iwp)
   next = n_Int(iBin)+1
   lwVBin(next,iBin) = vInt(iUt)
-  lwIBin(next,iBin) = int(nSqNum(iUt))
+  lwIBin(next,iBin) = int(nSqNum(iUt),kind=iwp)
   n_Int(iBin) = next
   mInt(1,iBin) = mInt(1,iBin)+1
 

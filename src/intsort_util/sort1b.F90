@@ -26,15 +26,8 @@ subroutine SORT1B()
 !     Calling parameters: none                                         *
 !                                                                      *
 !     Global data declarations (Include files) :                       *
-!     TwoDef  : definitions of the record structure                    *
-!     TwoDat : definitions of sorting flags and address tables         *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
 !     Srt1    : common block containing information the number of      *
 !               bins and partitioning of symmetry blocks               *
-!     Srt2    : common block containing information pertinent to       *
-!               the bin sorting algorithm                              *
-!     WSpc    : dynamic work space                                     *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -66,10 +59,6 @@ integer(kind=iwp) :: iBin, iOpt, iPrint, iRout
 iRout = 82
 iPrint = nPrint(iRout)
 if (iPrint >= 99) write(u6,*) ' >>> Enter SORT1B <<<'
-
-!----------------------------------------------------------------------*
-!     Turn timing ON                                                   *
-!----------------------------------------------------------------------*
 
 !----------------------------------------------------------------------*
 !     dump remaining integrals to disk                                 *

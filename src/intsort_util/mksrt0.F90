@@ -32,8 +32,6 @@ subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 !     Srt0    : common block containing information pertinent to       *
 !               the calculation of 2el integral sequence numbers       *
 !                                                                      *
-!     local data declarations: none                                    *
-!                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
 use Definitions, only: iwp, u6
