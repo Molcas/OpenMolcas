@@ -511,14 +511,16 @@
 
          nik = nIJ1(iSym,lSym,iSO)
 
-         ip_CijK2 = ip_CijK + nik*nMaxBas
+         iS = 1
+         iE = nik * Max(jBas,lBas) * 2
+         CiKj(1:nik * Max(jBas,lBas),1:2) => CijK(iS:iE)
+
          Do i2 = 1, iCmp(2)
             jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
 
             jSOj = jSO - iOffA
             iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,1)
-            Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),
-     &                   nik*jBas,iAdrJ)
+            Call dDaFile(LuCVector(jSym,1),2,CiKj(:,1),nik*jBas,iAdrJ)
 
             Do i4 = 1, iCmp(4)
                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
@@ -528,21 +530,19 @@
                If (lSO.ne.jSO) Then
                   lSOl = lSO - iOffA
                   iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,1)
-                  Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK2),
-     &                         nik*lBas,iAdrL)
+                  Call dDaFile(LuCVector(jSym,1),2,CiKj(:,2),nik*lBas,
+     &                         iAdrL)
 
-                  ip_V2 = ip_CijK2
+                  V2(1:) => CiKj(1:,2)
                Else
-                  ip_V2=ip_CijK
+                  V2(1:) => CiKj(1:,1)
                EndIf
 
                Call FZero(Work(ip_A),jBas*lBas)
                CALL DGEMM_('T','N',jBas,lBas,nik,
-     &                    1.0d0,Work(ip_CijK),nik,
-     &                    Work(ip_V2),nik,
+     &                    1.0d0,CiKj(:,1),nik,
+     &                          V2,nik,
      &                    0.0d0,Work(ip_A),jBas)
-*              Call RecPrt('A_JK',' ',Work(ip_A),
-*    &                     jBas,lBas)
 *
                Do lAOl = 0, lBas-1
                   lSOl = lSO + lAOl - iOffA
