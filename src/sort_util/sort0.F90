@@ -12,7 +12,7 @@
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine SORT0
+subroutine SORT0()
 !***********************************************************************
 !                                                                      *
 !     Purpose: Prepare all information needed to sort 2el integral     *
@@ -83,31 +83,32 @@ subroutine SORT0
 !***********************************************************************
 
 use Basis_Info, only: nBas
-use srt2
+use srt2, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lDaRec, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, ValBin
 use Symmetry_Info, only: nIrrep, iSkip
 use Integral_parameters, only: iPack
 use Real_Info, only: PkAcc
-implicit integer(A-Z)
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp, u6
 
+implicit none
 #include "TwoDat.fh"
-#include "srt0.fh"
 #include "srt1.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-#include "warnings.fh"
-logical PkMode
+integer(kind=iwp) :: iDisk, iOpt, iPrint, iRc, iRout, Kase
+logical(kind=iwp) :: PkMode
+integer(kind=iwp), external :: isfreeunit
 
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
 iRout = 80
 iPrint = nPrint(iRout)
-if (iPrint > 10) write(6,*) ' >>> Enter SORT0 <<<'
+if (iPrint > 10) write(u6,*) ' >>> Enter SORT0 <<<'
 !----------------------------------------------------------------------*
 !     start timer                                                      *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
-!     assume there is no vortual diak available                        *
+!     assume there is no virtual disk available                        *
 !----------------------------------------------------------------------*
 RAMD = .false.
 !----------------------------------------------------------------------*
@@ -119,16 +120,16 @@ iOpt = 1
 iRc = 0
 call OPNORD(iRc,iOpt,'ORDINT',LuTwo)
 if (iRc /= 0) then
-  write(6,*) 'SORT0: Error opening ORDINT'
+  write(u6,*) 'SORT0: Error opening ORDINT'
   call Abend()
 end if
 
 iOpt = Toctwo(IsForm)
 Kase = iand(iOpt,15)
 if (Kase == 0) then
-  lBin = lBin_tce
+  lBin = 4*lDaRec  ! tce
 else
-  lBin = lBin_rle
+  lBin = 32*lDaRec ! rle
 end if
 
 !----------------------------------------------------------------------*
@@ -164,7 +165,7 @@ call mma_allocate(IndBin,lBin,Label='IndBin')
 !     initialize various pointers, counters and disk adresses          *
 !----------------------------------------------------------------------*
 
-call MKSRT2
+call MKSRT2()
 
 !----------------------------------------------------------------------*
 !     set packing mode and initialize packing table                    *

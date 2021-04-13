@@ -48,20 +48,21 @@ subroutine SORT2B(iBin,nInts,iOrd,lSrtA,SrtArr,IOStk,lStk,nStk)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2
-implicit real*8(A-H,O-Z)
+use srt2, only: iDaTwo, iDVBin, lStRec, lTop, LuTwo, mDaTwo, nRec
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, RtoB
 
-#include "TwoDat.fh"
-#include "srt0.fh"
-#include "srt1.fh"
-
-#include "SysDef.fh"
+#define _DEBUGPRINT_
+implicit none
+integer(kind=iwp), intent(in) :: iBin, nInts, lSrtA, lStk
+integer(kind=iwp), intent(inout) :: iOrd, IOStk(lStk), nStk
+real(kind=wp), intent(in) :: SrtArr(lSrtA)
+integer(kind=iwp) :: iEnd, IntLen(4*lStRec), iOpt, iOptIO, iSave, iStart, iStk, jStk, kStk, llVRec, lVRec, mxVRec, nSave, nSaved
+real(kind=wp) :: PkVal(lStRec)
+#ifdef _DEBUGPRINT_
 #include "print.fh"
-
-dimension PkVal(lStRec)
-dimension IntLen(4*lStRec)
-dimension SrtArr(lSrtA)
-integer IOStk(lStk)
+integer(kind=iwp) :: iPrint, iRout
+#endif
 
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
@@ -71,10 +72,10 @@ integer IOStk(lStk)
 iRout = 86
 iPrint = nPrint(iRout)
 if (iPrint > 5) then
-  write(6,*) ' >>> Enter SORT2B <<<'
-  write(6,*) ' iBin  ',iBin
-  write(6,*) ' LSrtA ',lSrtA
-  write(6,*) ' nInts ',nInts
+  write(u6,*) ' >>> Enter SORT2B <<<'
+  write(u6,*) ' iBin  ',iBin
+  write(u6,*) ' lSrtA ',lSrtA
+  write(u6,*) ' nInts ',nInts
 end if
 if (iPrint >= 10) then
   call iVcPrt('stack of free records',' ',IOStk,nStk)
@@ -100,11 +101,11 @@ do while (nSaved < nInts)
     if (lVRec < mxVRec) nSave = iSave
   end do
   if (nSave == 0) then
-    write(6,*)
-    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
-    write(6,'(2X,A)') 'nSave = 0'
-    write(6,*)
-    call xFlush(6)
+    write(u6,*)
+    write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
+    write(u6,'(2X,A)') 'nSave = 0'
+    write(u6,*)
+    call xFlush(u6)
     call Abend()
   end if
   lVRec = 0
@@ -112,12 +113,12 @@ do while (nSaved < nInts)
     lVRec = lVRec+IntLen(iSave)
   end do
   if (lVRec > mxVRec) then
-    write(6,*)
-    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
-    write(6,'(2X,A)') 'An inconsistency has been deteced'
-    write(6,'(2X,A)') 'lVRec > mxVRec '
-    write(6,*)
-    call xFlush(6)
+    write(u6,*)
+    write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
+    write(u6,'(2X,A)') 'An inconsistency has been deteced'
+    write(u6,'(2X,A)') 'lVRec > mxVRec '
+    write(u6,*)
+    call xFlush(u6)
     call Abend()
   end if
   !--------------------------------------------------------------------*
@@ -125,12 +126,12 @@ do while (nSaved < nInts)
   !--------------------------------------------------------------------*
   call PKR8(iOpt,nSave,llVRec,SrtArr(iStart),PkVal(lTop+1))
   if (llVRec /= lVRec) then
-    write(6,*)
-    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
-    write(6,'(2X,A)') 'An inconsistency has been deteced'
-    write(6,'(2X,A)') 'llVBin # lVRec'
-    write(6,*)
-    call xFlush(6)
+    write(u6,*)
+    write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2B ***'
+    write(u6,'(2X,A)') 'An inconsistency has been deteced'
+    write(u6,'(2X,A)') 'llVBin # lVRec'
+    write(u6,*)
+    call xFlush(u6)
     call Abend()
   end if
   iOrd = iOrd+1
@@ -148,11 +149,11 @@ do while (nSaved < nInts)
   else
     iDaTwo = mDaTwo
     iOptIO = 0
-    call dDAFILE(LuTwo,iOptIO,[0.0d0],lStRec,mDaTwo)
+    call dDAFILE(LuTwo,iOptIO,[Zero],lStRec,mDaTwo)
   end if
 # ifdef _DEBUGPRINT_
   if (iPrint >= 10) then
-    write(6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
+    write(u6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
   end if
 # endif
 

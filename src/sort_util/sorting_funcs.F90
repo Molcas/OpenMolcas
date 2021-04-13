@@ -11,38 +11,48 @@
 
 module sorting_funcs
 
+use Definitions, only: wp, iwp
+
 implicit none
-public
+private
+
+public :: leq_i, leq_r, leq_c, geq_i, geq_r, geq_c
 
 contains
 
-logical pure function leq_i(x,y)
-  integer, intent(in) :: x, y
+pure function leq_i(x,y)
+  logical(kind=iwp) :: leq_i
+  integer(kind=iwp), intent(in) :: x, y
   leq_i = x <= y
 end function
 
-logical pure function leq_r(x,y)
-  real*8, intent(in) :: x, y
+pure function leq_r(x,y)
+  logical(kind=iwp) :: leq_r
+  real(kind=wp), intent(in) :: x, y
   leq_r = x <= y
 end function
 
-logical pure function leq_c(x,y)
-  complex*16, intent(in) :: x, y
+pure function leq_c(x,y)
+  logical(kind=iwp) :: leq_c
+  complex(kind=wp), intent(in) :: x, y
   leq_c = real(x)**2+aimag(x)**2 <= real(y)**2+aimag(y)**2
 end function
 
-logical pure function geq_i(x,y)
-  integer, intent(in) :: x, y
+pure function geq_i(x,y)
+  logical(kind=iwp) :: geq_i
+  integer(kind=iwp), intent(in) :: x, y
   geq_i = x >= y
 end function
 
-logical pure function geq_r(x,y)
-  real*8, intent(in) :: x, y
+pure function geq_r(x,y)
+  logical(kind=iwp) :: geq_r
+  real(kind=wp), intent(in) :: x, y
   geq_r = x >= y
 end function
 
-logical pure function geq_c(x,y)
-  complex*16, intent(in) :: x, y
+pure function geq_c(x,y)
+  logical(kind=iwp) :: geq_c
+  complex(kind=wp), intent(in) :: x, y
   geq_c = real(x)**2+aimag(x)**2 >= real(y)**2+aimag(y)**2
 end function
 

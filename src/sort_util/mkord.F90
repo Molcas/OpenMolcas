@@ -41,15 +41,20 @@ subroutine MkOrd(iDisk)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2
+use srt2, only: LuTwo, mDaTwo, iDVBin
 use Integral_Parameters, only: iPack
-implicit integer(A-Z)
+use Definitions, only: iwp
 
+implicit none
+integer(kind=iwp), intent(out) :: iDisk
 #include "FileIDs.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
 #include "PkCtl.fh"
+integer(kind=iwp) :: iAssm, iBatch, iBin, iExp, iFlit, ijPair, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iSyblj, &
+                     iSyBlk, iSymi, iSymj, iToc, jFlit, jSymj, kFlit, klPair, kSybll, kSymk, kSyml, kSymMx, lFlit, lSyml, lSymMx, &
+                     nPairs
 
 !----------------------------------------------------------------------*
 !     Initialize table of content                                      *

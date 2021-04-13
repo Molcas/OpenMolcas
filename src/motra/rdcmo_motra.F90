@@ -30,7 +30,7 @@ real(kind=wp), intent(in) :: Ovlp(*)
 #include "mxdm.fh"
 integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, TcJobIph(10)
 real(kind=wp) :: Dummy(1)
-integer(kind=wp), allocatable :: itemp2(:)
+integer(kind=iwp), allocatable :: itemp2(:)
 real(kind=wp), allocatable :: temp2(:)
 character, allocatable :: ctemp2(:)
 logical(kind=iwp) :: okay

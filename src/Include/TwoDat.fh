@@ -14,6 +14,7 @@
 !   sNew   - create a new file                                         *
 !                                                                      *
 !----------------------------------------------------------------------*
+      Integer sNew
       Parameter (sNew   = 1)
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -123,6 +124,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer isUnit,isStat,isDaDa,isUpk8,islBf1,isNpq,isNext,lAuxTwo
       Parameter ( isUnit  = 1            )
       Parameter ( isStat  = isUnit+1     )
       Parameter ( isDaDa  = isStat+1     )
@@ -132,6 +134,8 @@
       Parameter ( isNext  = isNpq+1      )
       Parameter ( lAuxTwo = isNext+10    )
 !
+      Integer isId,isVer,isORd,isForm,isSym,isBas,isSkip,isDAdr,isMxDa, &
+     &        isPkTh,isPkCt,isPkSc,isPkPa,isPkAs,isPkTb,isFree,lTocTwo
       Parameter ( isId    = 1            )
       Parameter ( isVer   = isId+1       )
       Parameter ( isOrd   = isVer+1      )
@@ -150,8 +154,10 @@
       Parameter ( isFree  = isPkTb+4096  )
       Parameter ( lTocTwo = isFree+10    )
 !
+      Integer lBatch
       Parameter ( lBatch  = 1296         )
 !
+      Integer iNoNum
       Parameter ( iNoNum  = -1           )
 !
       Integer AuxTwo(lAuxTwo)

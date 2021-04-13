@@ -12,14 +12,15 @@
 !                                                                      *
 !     Global Parameters used for the I/O                               *
 !                                                                      *
-!     lDaRec  : minimal record (in 4Byte words) transfered by          *
+!     lDaRec  : minimal record (in 4Byte words) transferred by         *
 !               DAFILE                                                 *
-!     nSect   : integer multiple of lDaRec which consitutes the        *
+!     nSect   : integer multiple of lDaRec which constitutes the       *
 !               standard record length                                 *
 !     lStRec  : standard record length                                 *
 !     lTop    : each record has its own header of length lTop          *
 !                                                                      *
 !----------------------------------------------------------------------*
+      Integer lDaRec,nSect,lStRec,lTop
       Parameter ( lDaRec  = 1024         )
       Parameter ( nSect   = 32           )
       Parameter ( lStRec  = nSect*lDaRec )

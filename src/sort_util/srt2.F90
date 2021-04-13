@@ -22,7 +22,7 @@
 !     *--------------------------------------------------------*       *
 !                                                                      *
 !     Parameter definitions:                                           *
-!     mxBin  : maximum number of bin allowed. The number should        *
+!     mxBin  : maximum number of bins allowed. The number should       *
 !              not be smaller than:                                    *
 !              If nSyOp=1 mxBin=  1 and If Square=.true. mxBin=  1     *
 !                 nSyOp=2 mxBin=  4                      mxBin=  5     *
@@ -36,18 +36,17 @@
 !                                                                      *
 !     Entries to common SRT2:                                          *
 !     lwIBin : array used to store index Bins                          *
-!     lwVBin : array  used to store value Bins                         *
-!     nRec   : number of record per slice                              *
-!     iDIBin : disk adresses of index bins                             *
-!     iDVBin : disk adresses of value bins                             *
-!     nByte  : packed size of value bins                               *
-!     nInt   : number of integrals in a bin                            *
+!     lwVBin : array used to store value Bins                          *
+!     nRec   : number of records per slice                             *
+!     iDIBin : disk addresses of index bins                            *
+!     iDVBin : disk addresses of value bins                            *
+!     n_Int  : number of integrals in a bin                            *
 !     mInt   : number of integrals and bytes in a slice                *
 !     nOff1  : memory allocation offset for index bins                 *
 !     nOff2  : memory allocation offset for value bins                 *
 !     LuTwo  : logical unit number of ordered 2el file                 *
 !     LuTmp  : logical unit number of temporary file                   *
-!     iDaTw0 : first disk adress after header of ordered 2el file      *
+!     iDaTw0 : first disk address after header of ordered 2el file     *
 !     iDaTwo : current disk position of LuTwo                          *
 !     iDaTmp : current disk position of LuTmp                          *
 !     mDaTwo : highest accessed disk position of LuTwo                 *
@@ -58,19 +57,45 @@
 
 module Srt2
 
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
 #include "TwoDef.fh"
-parameter(mxBin=2048)
-parameter(lBin_tce=4*lDaRec)
-parameter(lBin_rle=32*lDaRec)
+integer(kind=iwp), parameter :: mxBin = 2048
 
-integer iDIBin(3,mxBin), iDVBin(4,mxBin)
-integer nRec(mxBin), nByte(mxBin), nint(mxBin), mInt(3,mxBin)
+integer(kind=iwp) :: iDIBin(3,mxBin), iDVBin(4,mxBin), nRec(mxBin), n_Int(mxBin), mInt(3,mxBin)
+integer(kind=iwp) :: LuTwo, LuTmp, iDaTw0, iDaTwo, iDaTmp, mDaTwo, mDaTmp, MxOrd, lBin
 
-integer LuTwo, LuTmp, iDaTw0, iDaTwo, iDaTmp, mDaTwo, mDaTmp, MxOrd, lbin
+integer(kind=iwp), allocatable :: IndBin(:), lIndx(:), lInts(:), lwIBin(:,:)
+real(kind=wp), allocatable :: lwVBin(:,:), ValBin(:)
 
-real*8, allocatable :: ValBin(:)
-integer, allocatable :: IndBin(:), lIndx(:), lInts(:)
-integer, allocatable :: lwIBin(:,:)
-real*8, allocatable :: lwVBin(:,:)
+public :: &
+iDaTmp, &
+iDaTw0, &
+iDaTwo, &
+iDIBin, &
+iDVBin, &
+IndBin, &
+lBin, &
+lDaRec, &
+lIndx, &
+lInts, &
+lStRec, &
+lTop, &
+LuTmp, &
+LuTwo, &
+lwIBin, &
+lwVBin, &
+mDaTmp, &
+mDaTwo, &
+mInt, &
+mxBin, & ! *
+MxOrd, &
+n_Int, &
+nRec, &
+nSect, &
+ValBin
 
 end module Srt2

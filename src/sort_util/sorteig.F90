@@ -42,9 +42,13 @@ subroutine SortEig(EVal,EVec,n,nB)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp
 
-dimension EVal(n), EVec(nB,n)
+implicit none
+integer(kind=iwp), intent(in) :: n, nB
+real(kind=wp), intent(inout) :: EVal(n), EVec(nB,n)
+integer(kind=iwp) :: i, j, k, l
+real(kind=wp) :: Swap
 
 do i=1,n-1
   k = i
@@ -57,8 +61,8 @@ do i=1,n-1
     EVal(i) = Swap
     do l=1,nB
       Swap = EVec(l,k)
-      EVec(L,K) = -EVec(l,i)
-      EVec(L,I) = Swap
+      EVec(l,k) = -EVec(l,i)
+      EVec(l,i) = Swap
     end do
   end if
 end do

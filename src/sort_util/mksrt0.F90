@@ -36,16 +36,17 @@ subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-implicit integer(A-Z)
+use Definitions, only: iwp, u6
 
+implicit none
+integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), iSkip(nIrrep)
 #include "srt0.fh"
 #include "print.fh"
-#include "SysCtl.fh"
-dimension nBas(*), iSkip(*)
+integer(kind=iwp) :: iBsi, iPrint, iRout, iSymi, jBsj, jSymj
 
 iRout = 80
 iPrint = nPrint(iRout)
-if (iPrint > 10) write(6,*) ' >>> Enter MKSRT0 <<<'
+if (iPrint > 10) write(u6,*) ' >>> Enter MKSRT0 <<<'
 !----------------------------------------------------------------------*
 !     Gather information on desired ordering scheme                    *
 !----------------------------------------------------------------------*

@@ -13,7 +13,7 @@
 !               1998, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine SORT2
+subroutine SORT2()
 !***********************************************************************
 !                                                                      *
 !     Purpose: Control phase 2 of bin sorting algorithm. First,        *
@@ -62,33 +62,21 @@ subroutine SORT2
 !                                                                      *
 !***********************************************************************
 
-use srt2
-implicit real*8(A-H,O-Z)
+use srt2, only: IndBin, lStRec, LuTwo, MxOrd, ValBin
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-#include "Molcas.fh"
+implicit none
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-!---------------------------------------------------------------------*
-!                                                                     *
-!     Stack information pertinent to phase2 of sorting                *
-!     (to keep track of records that have been read in and/or         *
-!      written out                                                    *
-!                                                                     *
-!     lStk   : size of the stack                                      *
-!                                                                     *
-!---------------------------------------------------------------------*
-!parameter ( lStk = 64*1024 )
-!integer IOStk(lStk)
-!common /SRT3/ nStk,IOStk
-!common /SRT3/ nStk,ip_IOStk,lStk
-integer nStk, lStk
-
-#include "stdalloc.fh"
-#include "SysDef.fh"
 #include "print.fh"
-integer, allocatable :: IOStk(:)
-real*8, allocatable :: SrtA(:), Scr(:)
+integer(kind=iwp) :: ib, iBatch, iBin, ibj, iDisk, iErr, iOff, iOpt, iOrd, iPrint, iRout, iSkip, iSlice, iStk, iSyblj, iSyBlk, &
+                     iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, &
+                     lSrtA_, lStk, lStk_Max, lSyml, lSymMx, mxij, nij, nSlice, nStk, nSym
+integer(kind=iwp), allocatable :: IOStk(:)
+real(kind=wp), allocatable :: SrtA(:), Scr(:)
 
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
@@ -96,7 +84,7 @@ real*8, allocatable :: SrtA(:), Scr(:)
 
 iRout = 84
 iPrint = nPrint(iRout)
-if (iPrint >= 10) write(6,*) ' >>> Enter SORT2 <<<'
+if (iPrint >= 10) write(u6,*) ' >>> Enter SORT2 <<<'
 
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
@@ -184,7 +172,7 @@ do iSymi=1,nSym
               do iSlice=1,nSlice
                 iBin = iBin+1
                 lSrtA = min(mxij,nij)*kbl
-                SrtA(1:lSrtA) = 0.0d0
+                SrtA(1:lSrtA) = Zero
                 call SORT2A(iBin,lSrtA,SrtA,IOStk,lStk,nStk)
 
                 !------------------------------------------------------*
@@ -223,11 +211,11 @@ end do
 !----------------------------------------------------------------------*
 
 call mma_allocate(Scr,lStRec,Label='Scr')
-Scr(:) = 0.0d0
+Scr(:) = Zero
 do iStk=1,nStk
   iOrd = iOrd+1
   iDisk = IOStk(iStk)
-  Scr(2) = dble(iOrd)
+  Scr(2) = real(iOrd,kind=wp)
   iOpt = 1
   call dDAFILE(LuTwo,iOpt,Scr,lStRec,iDisk)
 end do

@@ -44,20 +44,23 @@ subroutine MkSrt3(iRc,iSquar,nIrrep,nBas,nSkip)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
-dimension nBas(nIrrep), nSkip(nIrrep)
-
+implicit none
+integer(kind=iwp), intent(out) :: iRC
+integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), nSkip(nIrrep)
 #include "srt1.fh"
-#include "Molcas.fh"
 #include "TwoDat.fh"
 #include "print.fh"
-integer nSln_Temp(mSyBlk), lSll_Temp(mSyBlk)
-logical Square
+integer(kind=iwp) :: ib, iBatch, ibj, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
+                     kSybll, kSymk, kSyml, kSymMx, lb, lBuf, lSkip, lSll_Temp(mSyBlk), lSyml, lSymMx, mxSyP, nInts, &
+                     nSln_Temp(mSyBlk), nSym
+logical(kind=iwp) :: Square
 
 iRout = 80
 iPrint = nPrint(iRout)
-if (iPrint > 5) write(6,*) ' >>> Enter MKSRT3 <<<'
+if (iPrint > 5) write(u6,*) ' >>> Enter MKSRT3 <<<'
 
 Square = .true.
 if (iSquar == 0) Square = .false.
@@ -71,12 +74,12 @@ end do
 
 ! loop over all symmetry blocks
 !
-!write(6,*)
-!write(6,'(2X,A,I3.3,A)') '*** (I)-level message MKSRT3 ***'
-!write(6,'(2X,A,I8    )') 'RAMD_size   =',RAMD_size
-!write(6,'(2X,A,I8    )') 'RAMD_anchor =',RAMD_anchor
-!write(6,*)
-!write(6,'(2X,84A1)') ('*',i=1,84)
+!write(u6,*)
+!write(u6,'(2X,A,I3.3,A)') '*** (I)-level message MKSRT3 ***'
+!write(u6,'(2X,A,I8    )') 'RAMD_size   =',RAMD_size
+!write(u6,'(2X,A,I8    )') 'RAMD_anchor =',RAMD_anchor
+!write(u6,*)
+!write(u6,'(2X,84A1)') ('*',i=1,84)
 
 iRc = 0
 iOff = RAMD_anchor
@@ -110,20 +113,20 @@ do iSymi=1,nSym
           lSkip = nSkip(lSyml)
           iSyBlk = kSybll+mxSyP*(iSyblj-1)
           if ((iSkip+jSkip+kSkip+lSkip == 0) .and. (ibj*kbl /= 0)) then
-            !write(6,*) 'iSymi,jSymj,kSymk,lSyml=',iSymi,jSymj,kSymk,lSyml
-            !write(6,*) 'iSyBlk=',iSyBlk
-            !write(6,*) 'nBatch(iSyBlk)=',nBatch(iSyBlk)
+            !write(u6,*) 'iSymi,jSymj,kSymk,lSyml=',iSymi,jSymj,kSymk,lSyml
+            !write(u6,*) 'iSyBlk=',iSyBlk
+            !write(u6,*) 'nBatch(iSyBlk)=',nBatch(iSyBlk)
             ! check if there is enough space available
 
             lBuf = ibj*kbl
             nInts = nInts+lBuf
             if (nInts >= RAMD_size) then
               iRc = 001
-              write(6,*)
-              write(6,'(2X,A,I3.3,A)') '*** (W)-level message MKSRT3',iRc,' ***'
-              write(6,'(2X,A)') 'There is not enough space on the RAM disk'
-              write(6,'(2X,A)') 'The program will resume normal activity'
-              write(6,*)
+              write(u6,*)
+              write(u6,'(2X,A,I3.3,A)') '*** (W)-level message MKSRT3',iRc,' ***'
+              write(u6,'(2X,A)') 'There is not enough space on the RAM disk'
+              write(u6,'(2X,A)') 'The program will resume normal activity'
+              write(u6,*)
               call iCopy(mSyBlk,nSln_Temp,1,nSln,1)
               call iCopy(mSyBlk,lSll_Temp,1,lSll,1)
               return
@@ -135,12 +138,12 @@ do iSymi=1,nSym
             RAMD_adr(iBatch) = iOff
             nSln(iSyBlk) = 1
             lSll(iSyBlk) = lBuf
-            !write(6,'(2X,A,4I2,A,2I8,A,2I8)') ' iSym,jSym,kSym,lSym',iSymi,jSymj,kSymk,lSyml,' lBuf,nInts',lBuf,nInts, &
-            !                                  ' iBatch,iOff',iBatch,iOff
+            !write(u6,'(2X,A,4I2,A,2I8,A,2I8)') ' iSym,jSym,kSym,lSym',iSymi,jSymj,kSymk,lSyml,' lBuf,nInts',lBuf,nInts, &
+            !                                   ' iBatch,iOff',iBatch,iOff
 
             ! Init integrals
 
-            call dCopy_(lBuf,[0.0d0],0,RAMD_ints(iOff),1)
+            call dCopy_(lBuf,[Zero],0,RAMD_ints(iOff),1)
 
             ! update pointers
 
@@ -152,7 +155,7 @@ do iSymi=1,nSym
     end do
   end do
 end do
-!write (6,'(2X,84A1)') ('*',i=1,84)
+!write (u6,'(2X,84A1)') ('*',i=1,84)
 
 !----------------------------------------------------------------------*
 !     compute offsets                                                  *
@@ -169,7 +172,7 @@ end do
 
 !RAMD_next = RAMD_adr(1)
 
-if (iPrint > 5) write(6,*) ' >>> Exit MKSRT3 <<<'
+if (iPrint > 5) write(u6,*) ' >>> Exit MKSRT3 <<<'
 
 return
 

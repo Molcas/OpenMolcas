@@ -60,17 +60,15 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !***********************************************************************
 
-use srt2
-implicit real*8(A-H,O-Z)
+use srt2, only: lBin, lwIBin, lwVBin, mInt, n_Int
+use Definitions, only: wp, iwp, u6
 
-#include "Molcas.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nUt
+real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
 #include "TwoDat.fh"
-#include "srt0.fh"
-#include "srt1.fh"
-#include "stdalloc.fh"
 #include "print.fh"
-
-real*8 vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
+integer(kind=iwp) :: iBin, iOpt, iPrint, iRout, iUt, next
 
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
@@ -79,7 +77,7 @@ real*8 vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
 iRout = 81
 iPrint = nPrint(iRout)
 if (iPrint >= 99) then
-  write(6,*) ' >>> Enter SORT1A <<<'
+  write(u6,*) ' >>> Enter SORT1A <<<'
   call dVcPrt('nSqNum',' ',nSqNum,nUt)
   call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
   call dVcPrt('vInt',' ',vInt,nUt)
@@ -102,10 +100,10 @@ iOpt = 0 ! Always tight!
 
 do iUt=1,nUt
   iBin = int(nSyBlk(iUt))
-  next = nint(iBin)+1
+  next = n_Int(iBin)+1
   lwVBin(next,iBin) = vInt(iUt)
   lwIBin(next,iBin) = int(nSqNum(iUt))
-  nint(iBin) = next
+  n_Int(iBin) = next
   mInt(1,iBin) = mInt(1,iBin)+1
 
   !--------------------------------------------------------------------*

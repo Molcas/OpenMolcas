@@ -42,12 +42,13 @@ subroutine SORT1C(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp
 
-#include "Molcas.fh"
+implicit none
+integer(kind=iwp), intent(in) :: nUt
+real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
 #include "TwoDat.fh"
-
-real*8 vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
+integer(kind=iwp) :: iBatch, iOff, iSyBlk, iUt
 
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
@@ -58,7 +59,7 @@ real*8 vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
 !     of the virtual disk                                              *
 !----------------------------------------------------------------------*
 
-!write(6,'(2X,5(I4,I8,F12.8))') (nSyBlk(iUt),RAMD_adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,vInt(iUt),iUt=1,nUt)
+!write(u6,'(2X,5(I4,I8,F12.8))') (nSyBlk(iUt),RAMD_adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,vInt(iUt),iUt=1,nUt)
 do iUt=1,nUt
   iSyBlk = int(nSyBlk(iUt))
   iBatch = nBatch(iSyBlk)

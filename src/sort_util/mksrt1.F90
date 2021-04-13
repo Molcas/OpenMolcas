@@ -42,19 +42,21 @@ subroutine MkSrt1()
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2
-implicit integer(A-Z)
+use srt2, only: lBin, mInt, mxBin
+use Definitions, only: iwp, u6, RtoI
 
+implicit none
 #include "srt0.fh"
 #include "srt1.fh"
-
-#include "SysDef.fh"
 #include "print.fh"
 #include "warnings.fh"
+integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
+                     kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, lSyml, lSymMx, MaxMem, MxSrtA1, MxSrtA2, nij, nSlice, &
+                     nSym
 
 iRout = 80
 iPrint = nPrint(iRout)
-if (iPrint > 10) write(6,*) ' >>> Enter MKSRT1 <<<'
+if (iPrint > 10) write(u6,*) ' >>> Enter MKSRT1 <<<'
 !----------------------------------------------------------------------*
 !                                                                      *
 !     grab memory                                                      *
@@ -124,7 +126,7 @@ do iSymi=1,nSym
         kSybll = lSyml+kSymk*(kSymk-1)/2
         if (ieor(iSymj-1,kSyml-1) /= 0) Go To 400
 
-        !write(6,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
+        !write(u6,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
         lb = nBs(lSyml)
         lSkip = nSkip(lSyml)
         if ((lb == 0) .or. (lSkip == 1)) Go To 400
@@ -145,11 +147,11 @@ do iSymi=1,nSym
 #         endif
         end do
         if (nij == 0) then
-          write(6,*)
-          write(6,'(2X,A,I3.3,A)') '*** Error in MKSRT1 ***'
-          write(6,'(2X,A)') 'Insufficient memory'
-          write(6,'(2X,A)') 'Increase the value of the MOLCAS_MEM environement variable'
-          write(6,*)
+          write(u6,*)
+          write(u6,'(2X,A,I3.3,A)') '*** Error in MKSRT1 ***'
+          write(u6,'(2X,A)') 'Insufficient memory'
+          write(u6,'(2X,A)') 'Increase the value of the MOLCAS_MEM environement variable'
+          write(u6,*)
           call Quit(_RC_MEMORY_ERROR_)
         end if
         nSlice = 1+(ibj-1)/nij
@@ -158,9 +160,9 @@ do iSymi=1,nSym
         end do
         nSln(iSyBlk) = nSlice
         lSll(iSyBlk) = nij*kbl
-        !write(6,*) 'iSyBlk=',iSyBlk
-        !write(6,*) 'nSln(iSyBlk)=',nSln(iSyBlk)
-        !write(6,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
+        !write(u6,*) 'iSyBlk=',iSyBlk
+        !write(u6,*) 'nSln(iSyBlk)=',nSln(iSyBlk)
+        !write(u6,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
 400     continue
       end do
 300   continue
@@ -186,37 +188,37 @@ end do
 MxSrtA1 = ((1+RtoI)*nBin*lBin)/RtoI
 
 if (iPrint > 5) then
-  write(6,*)
-  write(6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real*8) in the first phase (=',nBin,' bins).'
-  write(6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real*8) in the second phase.'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,I12,A,I4,A)') '  SEWARD will use a sorting area of',MxSrtA1,' Words(Real*8) in the first phase (=',nBin,' bins).'
+  write(u6,'(A,I12,A)') '  SEWARD will use a sorting area of',MxSrtA2,' Words(Real*8) in the second phase.'
+  write(u6,*)
 end if
 
 if (nBin > mxBin) then
-  write(6,*)
-  write(6,'(2X,A,I3.3,A)') '*** Error in MKSRT1 ***'
-  write(6,'(2X,A)') 'Insufficient memory'
-  write(6,'(2X,A)') 'nBin exceeds limits (nBin>mxBin)'
-  write(6,*)
-  write(6,*) 'nBin=',nBin
-  write(6,*) 'mxBin=',mxBin
-  write(6,*)
-  write(6,*) 'Increase MOLCAS_MEM and try again!'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(2X,A,I3.3,A)') '*** Error in MKSRT1 ***'
+  write(u6,'(2X,A)') 'Insufficient memory'
+  write(u6,'(2X,A)') 'nBin exceeds limits (nBin>mxBin)'
+  write(u6,*)
+  write(u6,*) 'nBin=',nBin
+  write(u6,*) 'mxBin=',mxBin
+  write(u6,*)
+  write(u6,*) 'Increase MOLCAS_MEM and try again!'
+  write(u6,*)
   call Quit(_RC_MEMORY_ERROR_)
 end if
 
 if (MxSrtA1 > lSrtA) then
-  write(6,*)
-  write(6,'(2X,A,I3.3,A)') '*** Error in MKSRT1 ***'
-  write(6,'(2X,A)') 'Insufficient memory'
-  write(6,'(2X,A)') 'MxSrtA1>lSrtA'
-  write(6,*)
-  write(6,*) 'MxSrtA1=',MxSrtA1
-  write(6,*) 'lSrtA=',lSrtA
-  write(6,*)
-  write(6,*) 'Increase MOLCAS_MEM and try again!'
-  write(6,*)
+  write(u6,*)
+  write(u6,'(2X,A,I3.3,A)') '*** Error in MKSRT1 ***'
+  write(u6,'(2X,A)') 'Insufficient memory'
+  write(u6,'(2X,A)') 'MxSrtA1>lSrtA'
+  write(u6,*)
+  write(u6,*) 'MxSrtA1=',MxSrtA1
+  write(u6,*) 'lSrtA=',lSrtA
+  write(u6,*)
+  write(u6,*) 'Increase MOLCAS_MEM and try again!'
+  write(u6,*)
   call Quit(_RC_MEMORY_ERROR_)
 end if
 

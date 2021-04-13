@@ -12,7 +12,7 @@
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine SORT1B
+subroutine SORT1B()
 !***********************************************************************
 !                                                                      *
 !     Purpose: Phase 1 of the bin sorting algorithm                    *
@@ -50,15 +50,14 @@ subroutine SORT1B
 !                                                                      *
 !***********************************************************************
 
-use srt2
-implicit real*8(A-H,O-Z)
+use srt2, only: lIndx, lInts, lwIBin, lwVBin, n_Int
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp, u6
 
-#include "Molcas.fh"
-#include "TwoDat.fh"
-#include "srt0.fh"
+implicit none
 #include "srt1.fh"
-#include "stdalloc.fh"
 #include "print.fh"
+integer(kind=iwp) :: iBin, iOpt, iPrint, iRout
 
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
@@ -66,7 +65,7 @@ implicit real*8(A-H,O-Z)
 
 iRout = 82
 iPrint = nPrint(iRout)
-if (iPrint >= 99) write(6,*) ' >>> Enter SORT1B <<<'
+if (iPrint >= 99) write(u6,*) ' >>> Enter SORT1B <<<'
 
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
@@ -78,7 +77,7 @@ if (iPrint >= 99) write(6,*) ' >>> Enter SORT1B <<<'
 
 iOpt = 0 ! Always tight!
 do iBin=1,nBin
-  do while (nint(iBin) > 0)
+  do while (n_Int(iBin) > 0)
     call SaveBin(iBin,iOpt)
   end do
 end do

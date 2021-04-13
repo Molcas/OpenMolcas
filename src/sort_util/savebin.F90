@@ -17,11 +17,11 @@ subroutine SaveBin(iBin,iOpt)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Phase 1 of the bin sorting algorithm                    *
-!             Once a bin is filled it has to be dumped to disk.        *
-!             First, however, we like to sort and pack the buffers.    *
-!             A further complication arises due to the fact that a     *
-!             bin is shorter than the records as used in the wave-     *
-!             function codes.                                          *
+!              Once a bin is filled it has to be dumped to disk.       *
+!              First, however, we like to sort and pack the buffers.   *
+!              A further complication arises due to the fact that a    *
+!              bin is shorter than the records as used in the wave-    *
+!              function codes.                                         *
 !                                                                      *
 !     Called from: SORT1A and SORT1B                                   *
 !                                                                      *
@@ -53,18 +53,17 @@ subroutine SaveBin(iBin,iOpt)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2
-implicit real*8(A-H,O-Z)
-!
-#include "TwoDat.fh"
-#include "srt0.fh"
-#include "srt1.fh"
+use srt2, only: iDaTmp, iDATwo, iDIBin, iDVBin, IndBin, lDaRec, lIndx, lInts, lStRec, lTop, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, &
+                mDaTwo, mInt, nRec, nSect, n_Int, ValBin
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
-#include "SysDef.fh"
+implicit none
+integer(kind=iwp), intent(in) :: iBin, iOpt
 #include "PkCtl.fh"
-
-integer iScr(lStRec)
-real*8 Scr(lStRec)
+integer(kind=iwp) :: i, idiv, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOptIO, iSave, iScr(lStRec), lIBin, lIRec, lVBin, &
+                     lVRec, mInds, mInts, mxIRec, mxVRec, nInts, nKeep, nSave
+real(kind=wp) :: Scr(lStRec)
 
 !----------------------------------------------------------------------*
 !     Turn timing ON                                                   *
@@ -80,7 +79,7 @@ if (Pack) idiv = idiv/2
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-nInts = nint(iBin)
+nInts = n_Int(iBin)
 !----------------------------------------------------------------------*
 !         precompute the packed length of a record                     *
 !----------------------------------------------------------------------*
@@ -109,42 +108,42 @@ call PKI4(nSave,lIBin,lwIBin(1,iBin),IndBin(lTop+1))
 mInds = (lIBin+ItoB-1)/ItoB
 mInt(3,iBin) = mInt(3,iBin)+mInds
 if (lIBin > mxIRec) then
-  write(6,*)
-  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
-  write(6,'(2X,A)') 'An inconsistency has been deteced'
-  write(6,'(2X,A)') 'lIRec > mxIRec '
-  write(6,*)
-  call xFlush(6)
-  call Abend
+  write(u6,*)
+  write(u6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(u6,'(2X,A)') 'An inconsistency has been deteced'
+  write(u6,'(2X,A)') 'lIRec > mxIRec '
+  write(u6,*)
+  call xFlush(u6)
+  call Abend()
 end if
 if (lIBin /= lIRec) then
-  write(6,*)
-  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
-  write(6,'(2X,A)') 'An inconsistency has been deteced'
-  write(6,'(2X,A)') 'lIBin # lIRec'
-  write(6,*)
-  call xFlush(6)
-  call Abend
+  write(u6,*)
+  write(u6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(u6,'(2X,A)') 'An inconsistency has been deteced'
+  write(u6,'(2X,A)') 'lIBin # lIRec'
+  write(u6,*)
+  call xFlush(u6)
+  call Abend()
 end if
 call PKR8(iOpt,nSave,lVBin,lwVBin(1,iBin),ValBin(lTop+1))
 mInts = (lVBin+RtoB-1)/RtoB
 mInt(2,iBin) = mInt(2,iBin)+mInts
 if (lVBin > mxVRec) then
-  write(6,*)
-  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
-  write(6,'(2X,A)') 'An inconsistency has been deteced'
-  write(6,'(2X,A)') 'lVRec > mxVRec '
-  write(6,*)
-  call xFlush(6)
-  call Abend
+  write(u6,*)
+  write(u6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(u6,'(2X,A)') 'An inconsistency has been deteced'
+  write(u6,'(2X,A)') 'lVRec > mxVRec '
+  write(u6,*)
+  call xFlush(u6)
+  call Abend()
 end if
 if (lVBin /= lVRec) then
-  write(6,*)
-  write(6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
-  write(6,'(2X,A)') 'An inconsistency has been deteced'
-  write(6,'(2X,A)') 'lVBin # lVRec'
-  write(6,*)
-  call xFlush(6)
+  write(u6,*)
+  write(u6,'(2X,A,I3.3,A)') '*** Error in SAVEBIN ***'
+  write(u6,'(2X,A)') 'An inconsistency has been deteced'
+  write(u6,'(2X,A)') 'lVBin # lVRec'
+  write(u6,*)
+  call xFlush(u6)
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -168,7 +167,6 @@ iOptIO = 1
 if (mod(nRec(iBin),nSect) == 0) then
   iDaTmp = mDaTmp
   iDaTwo = mDaTwo
-  Zero = 0.0d0
 
   call ICopy(lStRec,[0],0,iScr,1)
   call iDAFILE(LuTmp,iOptIO,iScr,(lStRec/idiv),mDaTmp)
@@ -196,7 +194,7 @@ if (nKeep > 0) then
     lwVBin(i,iBin) = lwVBin(nSave+i,iBin)
   end do
 end if
-nint(iBin) = nKeep
+n_Int(iBin) = nKeep
 
 !----------------------------------------------------------------------*
 !     Turn timing OFF and exit                                         *

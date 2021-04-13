@@ -62,20 +62,21 @@ subroutine SORT3(MaxDax)
 !                                                                      *
 !***********************************************************************
 
-use srt2
-implicit real*8(A-H,O-Z)
+use srt2, only: lStRec, iDaTw0, iDVBin, LuTmp, LuTwo, MxOrd, nRec
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-#include "Molcas.fh"
+implicit none
+integer(kind=iwp), intent(out) :: MaxDax
 #include "TwoDat.fh"
-#include "srt0.fh"
 #include "srt1.fh"
-
-#include "SysDef.fh"
+integer(kind=iwp) :: i, iB1, iB2, iBin, iDisk, iDummy, iOpt, iOrd, iRc, iRd, iTmp, iWr, j, j1, j2
+real(kind=wp) :: Buf(2*lStRec)
+integer(kind=iwp), allocatable :: SrtKey(:), SrtAdr(:)
+#ifdef _DEBUGPRINT_
 #include "print.fh"
-#include "stdalloc.fh"
-
-dimension Buf(2*lStRec)
-integer, allocatable :: SrtKey(:), SrtAdr(:)
+integer(kind=iwp) :: iPrint, iRout
+#endif
 
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
@@ -84,7 +85,7 @@ integer, allocatable :: SrtKey(:), SrtAdr(:)
 #ifdef _DEBUGPRINT_
 iRout = 88
 iPrint = nPrint(iRout)
-if (iPrint > 5) write(6,*) ' >>> Enter SORT3 <<<'
+if (iPrint > 5) write(u6,*) ' >>> Enter SORT3 <<<'
 #endif
 
 !----------------------------------------------------------------------*
@@ -96,12 +97,12 @@ if (iPrint > 5) write(6,*) ' >>> Enter SORT3 <<<'
 !     key as well as disk addresses                                    *
 !----------------------------------------------------------------------*
 
-call mma_allocate(SrtKey,mxOrd,Label='SrtKey')
-call mma_allocate(SrtAdr,mxOrd,Label='SrtAdr')
+call mma_allocate(SrtKey,MxOrd,Label='SrtKey')
+call mma_allocate(SrtAdr,MxOrd,Label='SrtAdr')
 iOpt = 2
 iDisk = iDaTw0
 MaxDax = 0
-do iOrd=1,mxOrd
+do iOrd=1,MxOrd
   SrtAdr(iOrd) = iDisk
   MaxDax = max(iDisk,MaxDax)
   call dDAFILE(LuTwo,iOpt,Buf,lStRec,iDisk)
@@ -110,8 +111,8 @@ end do
 MaxDax = iDisk
 #ifdef _DEBUGPRINT_
 if (iPrint >= 10) then
-  call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
-  call iVcPrt('Disk addresses',' ',SRtAdr,mxOrd)
+  call iVcPrt('Sort keys',' ',SrtKey,MxOrd)
+  call iVcPrt('Disk addresses',' ',SRtAdr,MxOrd)
 end if
 #endif
 
@@ -124,7 +125,7 @@ iRd = 2
 
 ! Loop over all records
 
-do i=1,mxOrd
+do i=1,MxOrd
   j1 = i
   j2 = SrtKey(i)
   if (j2 /= i) then
@@ -151,7 +152,7 @@ do i=1,mxOrd
 end do
 #ifdef _DEBUGPRINT_
 if (iPrint >= 10) then
-  call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
+  call iVcPrt('Sort keys',' ',SrtKey,MxOrd)
 end if
 #endif
 
@@ -181,7 +182,7 @@ iRc = -1
 iOpt = 0
 call ClsOrd(iRc,iOpt)
 if (iRc /= 0) then
-  write(6,*) 'SORT3: Error closing ORDINT'
+  write(u6,*) 'SORT3: Error closing ORDINT'
   call Abend()
 end if
 call DaClos(LuTmp)

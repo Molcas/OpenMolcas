@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad
 character(len=*), intent(inout) :: KSDFT
-logical(kind=wp), intent(in) :: Do_Grad
+logical(kind=iwp), intent(in) :: Do_Grad
 real(kind=wp), intent(out) :: Grad(nGrad)
 character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"

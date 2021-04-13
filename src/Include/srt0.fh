@@ -26,4 +26,5 @@
       Integer nSkip(8)
       Integer DimSyB(8,8)
       Integer TriSyB(8,8)
+      Integer nSyOp,mxSyP
       Common /SRT0/ Square,nSyOp,mxSyP,nBs,nSkip,DimSyB,TriSyB

@@ -12,7 +12,7 @@
 !               1991, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine MkSrt2
+subroutine MkSrt2()
 !***********************************************************************
 !                                                                      *
 !     Purpose: Inizialize counters and offsets required                *
@@ -37,16 +37,17 @@ subroutine MkSrt2
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2
-implicit integer(A-Z)
+use srt2, only: iDIBin, iDVBin, n_Int, nRec
+use Definitions, only: iwp, u6
 
-#include "srt0.fh"
+implicit none
 #include "srt1.fh"
 #include "print.fh"
+integer(kind=iwp) :: iBin, iPrint, iRout, iSlice, iSyBlk, nSlice
 
 iRout = 80
 iPrint = nPrint(iRout)
-if (iPrint > 10) write(6,*) ' >>> Enter MKSRT2 <<<'
+if (iPrint > 10) write(u6,*) ' >>> Enter MKSRT2 <<<'
 
 !----------------------------------------------------------------------*
 !     initialize various pointers, counters and disk adresses          *
@@ -62,7 +63,7 @@ do iSyBlk=1,mSyBlk
       iDVBin(2,iBin) = -1
       iDVBin(3,iBin) = -1
       iDVBin(4,iBin) = -1
-      nint(iBin) = 0
+      n_Int(iBin) = 0
       nRec(iBin) = 0
     end do
   end if

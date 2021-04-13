@@ -45,21 +45,20 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2
-implicit real*8(A-H,O-Z)
+use srt2, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, lDaRec, lStRec, lTop, LuTmp, LuTwo, mInt, nSect, ValBin
+use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
-#include "TwoDat.fh"
-#include "srt0.fh"
-#include "srt1.fh"
-#include "SysDef.fh"
+implicit none
+integer(kind=iwp), intent(in) :: iBin, lSrtA, lStk
+real(kind=wp), intent(out) :: SrtArr(lSrtA)
+integer(kind=iwp), intent(out) :: IOStk(lStk)
+integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"
 #include "PkCtl.fh"
 #include "warnings.fh"
-
-dimension SrtArr(lSrtA)
-dimension PkVBin(lStRec)
-integer PkIBin(lStRec)
-integer IOStk(lStk)
+integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iP_Storage, &
+                     iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
+real(kind=wp) :: PkVBin(lStRec)
 
 !----------------------------------------------------------------------*
 !     as the packed integral labels add an extra 1-2 Byte              *
@@ -79,9 +78,9 @@ mDaRec = (lDaRec/idiv)
 iRout = 85
 iPrint = nPrint(iRout)
 if (iPrint >= 10) then
-  write(6,*) ' >>> Enter SORT2A <<<'
-  write(6,*) ' iBin  ',iBin
-  write(6,*) ' lSrtA ',lSrtA
+  write(u6,*) ' >>> Enter SORT2A <<<'
+  write(u6,*) ' iBin  ',iBin
+  write(u6,*) ' lSrtA ',lSrtA
 end if
 
 iZero = lSrtA-mInt(1,iBin)
@@ -91,21 +90,21 @@ iP_Storage = (iZero+iInt+RtoB)/RtoB
 iI_Storage = (iInd+iInt+RtoB)/RtoB
 if (iP_Storage <= iI_Storage) then
   iDVBin(4,iBin) = 0  ! Dense mode.
-  !write(6,*) 'Mode: Dense'
+  !write(u6,*) 'Mode: Dense'
 else
   iDVBin(4,iBin) = 1  ! Sparse mode.
-  !write(6,*) 'Mode: Sparse'
+  !write(u6,*) 'Mode: Sparse'
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) 'Processing slice                   :',iBin
-write(6,*) 'Actual number of non-zero integrals:',mInt(1,iBin)
-write(6,*) 'Effective number of integrals      :',mInt(2,iBin)
-write(6,*) 'Effective number of indicies       :',mInt(3,iBin)
-write(6,*) 'Total number of integrals          :',lSrtA
-write(6,*) 'Packed storage                     :',iP_Storage
-write(6,*) 'Indexed storage                    :',iI_Storage
+write(u6,*)
+write(u6,*) 'Processing slice                   :',iBin
+write(u6,*) 'Actual number of non-zero integrals:',mInt(1,iBin)
+write(u6,*) 'Effective number of integrals      :',mInt(2,iBin)
+write(u6,*) 'Effective number of indicies       :',mInt(3,iBin)
+write(u6,*) 'Total number of integrals          :',lSrtA
+write(u6,*) 'Packed storage                     :',iP_Storage
+write(u6,*) 'Indexed storage                    :',iI_Storage
 #endif
 
 !----------------------------------------------------------------------*
@@ -117,20 +116,20 @@ iDaTwo = iDVBin(2,iBin)
 do while (iDaTmp >= 0)
   nStk = nStk+1
   if (nStk > lStk) then
-    write(6,*)
-    write(6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
-    write(6,'(2X,A)') 'nStk exceeds limits (nStk>lStk)'
-    write(6,'(2X,A,I8)') 'nStk =',nStk
-    write(6,'(2X,A,I8)') 'lStk =',lStk
-    write(6,'(2X,A,I8)') 'iBin =',iBin
-    write(6,*)
-    write(6,*) 'Action: rerun with a larger MOLCAS_MEM'
+    write(u6,*)
+    write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
+    write(u6,'(2X,A)') 'nStk exceeds limits (nStk>lStk)'
+    write(u6,'(2X,A,I8)') 'nStk =',nStk
+    write(u6,'(2X,A,I8)') 'lStk =',lStk
+    write(u6,'(2X,A,I8)') 'iBin =',iBin
+    write(u6,*)
+    write(u6,*) 'Action: rerun with a larger MOLCAS_MEM'
     call Quit(_RC_MEMORY_ERROR_)
   end if
   IOStk(nStk) = iDaTwo
   iOpt = 2
   if (iPrint >= 10) then
-    write(6,*) ' read records: iDaTmp,iDaTwo ',iDaTmp,iDaTwo
+    write(u6,*) ' read records: iDaTmp,iDaTwo ',iDaTmp,iDaTwo
   end if
   call iDAFILE(LuTmp,iOpt,PkIBin,mStRec,iDaTmp)
   call dDAFILE(LuTwo,iOpt,PkVBin,lStRec,iDaTwo)
@@ -140,23 +139,23 @@ do while (iDaTmp >= 0)
     nInts1 = PkIBin(ist1-1)
     nInts2 = int(PkVBin(ist2-1))
     if (nInts1 /= nInts2) then
-      write(6,*)
-      write(6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
-      write(6,'(2X,A)') 'An inconsistency has been deteced'
-      write(6,'(2X,A)') 'nInts1#nInts2'
-      write(6,*)
-      call xFlush(6)
-      call Abend
+      write(u6,*)
+      write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
+      write(u6,'(2X,A)') 'An inconsistency has been deteced'
+      write(u6,'(2X,A)') 'nInts1#nInts2'
+      write(u6,*)
+      call xFlush(u6)
+      call Abend()
     end if
     nInts = nInts1
     if (nInts > lBin) then
-      write(6,*)
-      write(6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
-      write(6,'(2X,A)') 'An inconsistency has been deteced'
-      write(6,'(2X,A)') 'nInts>lBin'
-      write(6,*)
-      call xFlush(6)
-      call Abend
+      write(u6,*)
+      write(u6,'(2X,A,I3.3,A)') '*** Error in SORT2A ***'
+      write(u6,'(2X,A)') 'An inconsistency has been deteced'
+      write(u6,'(2X,A)') 'nInts>lBin'
+      write(u6,*)
+      call xFlush(u6)
+      call Abend()
     end if
     if (nInts > 0) then
 

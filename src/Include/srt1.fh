@@ -24,8 +24,9 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 !
+      Integer mSyBlk
       Parameter ( mSyBlk = 1296 )
 !
-      Integer nSln(mSyBlk),lSll(mSyBlk),IstBin(mSyBlk)
+      Integer nBin,nSln(mSyBlk),lSll(mSyBlk),IstBin(mSyBlk)
 !
       Common /Srt1/ nBin,nSln,lSll,IstBin
