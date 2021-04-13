@@ -78,8 +78,6 @@
       iPAO=0
       iOffA=nBas(0)
 *
-      ip_V2 = 0
-*
       Call Qpg_iScalar('SCF mode',Found)
       If (Found) Then
          Call Get_iScalar('SCF mode',iUHF) ! either 0 or 1
@@ -251,23 +249,23 @@
 
                  CiKl(1:nik*lBas) => CijK(iE+1:iE+nik*lBas)
 
-                 If (nik.ne.0) Then
-                   If (lSO.ne.jSO) Then
-                      lSOl = lSO - iOffA
-                      iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,iSO)
-                      Call dDaFile(LuCVector(jSym,iSO),2,CiKl,nik*lBas,
-     &                             iAdrL)
-                      V2(1:) => CiKl(1:)
-                   Else
-                      V2(1:) => CiKj(1:,iSO)
-                   EndIf
-*
-                   CALL DGEMM_('T','N',jBas,lBas,nik,
-     &                         1.0d0,CikJ(:,iSO),nik,
-     &                               V2,nik,
-     &                         Factor,Work(ip_A),jBas)
-                    Factor=1.0d0
+                 If (nik==0) Cycle
+
+                 If (lSO.ne.jSO) Then
+                    lSOl = lSO - iOffA
+                    iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,iSO)
+                    Call dDaFile(LuCVector(jSym,iSO),2,CiKl,nik*lBas,
+     &                           iAdrL)
+                    V2(1:) => CiKl(1:)
+                 Else
+                    V2(1:) => CiKj(1:,iSO)
                  EndIf
+*
+                 CALL DGEMM_('T','N',jBas,lBas,nik,
+     &                       1.0d0,CikJ(:,iSO),nik,
+     &                             V2,nik,
+     &                       Factor,Work(ip_A),jBas)
+                 Factor=1.0d0
                End Do
 
                Do lAOl = 0, lBas-1
@@ -418,47 +416,47 @@
 
                  CiKl(1:nik*lBas) => CijK(iE+1:iE+nik*lBas)
 
-                 If (nik.ne.0) Then
+                 If (nik==0) Cycle
 
-                   If (lSO.ne.jSO) Then
-                      lSOl = lSO - iOffA
-                      iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,iSO)
-                      Call dDaFile(LuCVector(jSym,iSO),2,CikL,nik*lBas,
-     &                             iAdrL)
-                      V2(1:) => CiKl(1:)
-                   Else
-                      V2(1:) => CiKj(1:,iSO)
-                   EndIf
+                 If (lSO.ne.jSO) Then
+                    lSOl = lSO - iOffA
+                    iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,iSO)
+                    Call dDaFile(LuCVector(jSym,iSO),2,CikL,nik*lBas,
+     &                           iAdrL)
+                    V2(1:) => CiKl(1:)
+                 Else
+                    V2(1:) => CiKj(1:,iSO)
+                 EndIf
 *
 ** Here one should keep track of negative eigenvalues of the densities
 *
-                   iSO2=iSO+2
+                 iSO2=iSO+2
 *
-                   Do l=1,lBas
-                     Do k=1,jBas
+                 Do l=1,lBas
+                   Do k=1,jBas
 
-                       tmp=0.0d0
+                     tmp=0.0d0
 
-                       Do i=1,nChOrb(0,iSO)
-                          Do j=1,nChOrb(0,iSO2)
+                     Do i=1,nChOrb(0,iSO)
+                        Do j=1,nChOrb(0,iSO2)
 
-                             jik = j + nChOrb(0,iSO2)*(i-1) + nik*(k-1)
-                             jil = j + nChOrb(0,iSO2)*(i-1) + nik*(l-1)
-                             If (j<=npos(0,iSO)) Then
-                                tmp = tmp + CiKj(jik,iSO)* V2(jil)
-                             Else
-                                tmp = tmp - CiKj(jik,iSO)* V2(jil)
-                             End If
-                          End Do
-                       End Do
-
-                       kl = (ip_A-1)  + k + jBas*(l-1)
-                       Work(kl)= Factor*Work(kl)+tmp
-
+                           jik = j + nChOrb(0,iSO2)*(i-1) + nik*(k-1)
+                           jil = j + nChOrb(0,iSO2)*(i-1) + nik*(l-1)
+                           If (j<=npos(0,iSO)) Then
+                              tmp = tmp + CiKj(jik,iSO)* V2(jil)
+                           Else
+                              tmp = tmp - CiKj(jik,iSO)* V2(jil)
+                           End If
+                        End Do
                      End Do
+
+                     kl = (ip_A-1)  + k + jBas*(l-1)
+                     Work(kl)= Factor*Work(kl)+tmp
+
                    End Do
-                   Factor=1.0d0
-                 EndIf
+                 End Do
+                 Factor=1.0d0
+
                End Do
 
                Do lAOl = 0, lBas-1
