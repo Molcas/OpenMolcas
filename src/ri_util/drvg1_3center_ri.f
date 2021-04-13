@@ -71,7 +71,6 @@
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
-      Integer ipXmi(5)
       Logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk2, Found,
      &        FreeK2, Verbose
@@ -89,6 +88,7 @@
       Real*8, Allocatable:: MaxDens(:), SDG(:), Thhalf(:)
       Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
       Real*8, Allocatable:: CVec2(:,:,:), CVec(:,:)
+      Real*8, Allocatable:: Xmi(:,:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -471,15 +471,11 @@
 *        Make a list the largest element X_mu,i for each valence shell
 *        and a fixed i. X_mu,i defined in Eq. 13.
 *
-         l_MaxXi=MumOrb*nSkal_valence*nIrrep ! X_i,ishell,isym
-         Call GetMem('MaxXi','Allo','Real',ipXmi(1),l_MaxXi*nKDens)
-         Do i=2,nKDens
-           ipXmi(i)=ipXmi(i-1)+l_MaxXi
-         End Do
-         l_MaxXi=l_MaxXi*nKDens
+         Call mma_allocate(Xmi,MumOrb,nSkal_Valence,nIrrep,nKDens,
+     &                     Label='Xmi')
 *
          Do iSO=1,nKDens
-            Call get_mXOs(iSO,Work(ipXmi(iSO)),MumOrb,nSkal_valence,
+            Call get_mXOs(iSO,Xmi(:,:,:,iSO),MumOrb,nSkal_valence,
      &                 nIrrep,nChOrb(0,iSO))
          End Do
 *
@@ -612,26 +608,22 @@
  20           Continue
               nj=0
               Do jSym = 1, nSym
-                NumOrb_j  = nChOrb(jSym-1,iMOleft)-1
 *
                 mj=0
-                Do jb=0,NumOrb_j
-                  ip_Xmi=ipXmi(iMOleft) + MumOrb*nSkal_valence*(jSym-1)
-                  Xjk=Work(ip_Xmi+MumOrb*(kS-1)+jb)
-                  Xjl=Work(ip_Xmi+MumOrb*(lS-1)+jb)
+                Do jb= 1, nChOrb(jSym-1,iMOleft)
+                  Xjk=Xmi(jb,kS,jSym,iMOleft)
+                  Xjl=Xmi(jb,lS,jSym,iMOleft)
 *
                   jSym_s = jSym
                   if (ks.ne.ls.or.iMOright.ne.iMOleft) jSym_s=1
                   Do iSym = jsym_s, nSym
-                     NumOrb_i  = nChOrb(iSym-1,iMOright)-1
+                     NumOrb_i  = nChOrb(iSym-1,iMOright)
                      If (iSym.eq.jSym.and.ks.eq.ls
      &                    .and.iMOright.eq.iMOleft) NumOrb_i = jb
 *
-                     Do ib = NumOrb_i, 0, -1
-                       jp_Xmi=ipXmi(iMOright)+
-     &                        MumOrb*nSkal_valence*(iSym-1)
-                       Xik=Work(jp_Xmi+MumOrb*(kS-1)+ib)
-                       Xil=Work(jp_Xmi+MumOrb*(lS-1)+ib)
+                     Do ib = NumOrb_i, 1, -1
+                       Xik=Xmi(ib,kS,iSym,iMOright)
+                       Xil=Xmi(ib,lS,iSym,iMOright)
 *
 * ---                  Yij[mn] = (1+Pij) Xim * (mn|mn)^1/2 * Xjn
 *
@@ -642,7 +634,7 @@
 *
                        If ( PZmnij.ge.xfk*ThrCom ) Then
 !                        orbital in the list
-                         iWork(ipYmnij(iMOleft)+mj+nj)=jb+1
+                         iWork(ipYmnij(iMOleft)+mj+nj)=jb
                          mj=mj+1
                          Go To 666
                        End If
@@ -650,9 +642,6 @@
                   End Do    ! iSym
  666              Continue
                 End Do
-*
-*               Trick used in pget to skip
-*               If (mj.eq.NumOrb_j .and. xfk.gt.zero) mj=-mj
 *
 *               The first element is to keep track on how many elements
 *               that were saved.
@@ -887,7 +876,7 @@
 *     Deallocate scratch for exchange term
 *
       If (DoCholExch) Then
-         Call GetMem('MaxXi','Free','Real',ipXmi(1),l_MaxXi)
+         Call mma_deallocate(Xmi)
          Call GetMem('MOs_Yij','Free','Real',jr_Xki(1),2*nKVec*nXki)
          Call mma_deallocate(SDG)
          Call GetMem('Ymnij','Free','Inte',ipYmnij(1),NumOrb)
