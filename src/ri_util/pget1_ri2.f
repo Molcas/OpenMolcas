@@ -44,7 +44,7 @@
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-      Integer ip_CikJ_(2)
+      Integer ip_CiKj_(2)
       Logical Shijij,Found
 
       Real*8, Pointer:: V2(:)=>Null()
@@ -216,32 +216,32 @@
          kSym = jSym
          iSym = 1
          lSym = iEor(jSym-1,iSym-1)+1
+         nik1= nIJ1(iSym,kSym,1)
+         nik2= nIJ1(iSym,kSym,2)
+         nik = Max(nik1,nik2)
 *
-         ip_CikJ_(1) = ip_CijK
+         n = nij * jBas
+         iS = 1
+         iE = n * 2
+         CiKj(1:n,1:2) => CijK(iS:iE)
 *
          Do i2 = 1, iCmp(2)
             jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
             jSOj = jSO - iOffA
 *
 *           Pick up the MO transformed fitting coefficients, C_ik^J
-            nik = nIJ1(iSym,kSym,1)
-            If (nik.ne.0) Then
-              iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,1)
-              Call dDaFile(LuCVector(jSym,1),2,Work(ip_CikJ_(1)),
-     &                     nik*jBas,iAdrJ)
+            If (nik1.ne.0) Then
+              iAdrJ = nik1*(jSOj-1) + iAdrCVec(jSym,iSym,1)
+              Call dDaFile(LuCVector(jSym,1),2,CiKj(:,1),nik1*jBas,
+     &                     iAdrJ)
             EndIf
 *
-            ip_CikJ_(2)=ip_CikJ_(1)+nik*nMaxBas
-            nik = nIJ1(iSym,kSym,2)
-            If (nik.ne.0) Then
-              iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,2)
-*
-              Call dDaFile(LuCVector(jSym,2),2,Work(ip_CikJ_(2)),
-     &                  nik*jBas,iAdrJ)
+            If (nik2.ne.0) Then
+              iAdrJ = nik2*(jSOj-1) + iAdrCVec(jSym,iSym,2)
+              Call dDaFile(LuCVector(jSym,2),2,CikJ(:,2),nik2*jBas,
+     &                     iAdrJ)
             EndIf
 *
-            ip_CikL = ip_CikJ_(nKVec) + nik*nMaxBas
-
             Do i4 = 1, iCmp(4)
                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
 *
@@ -252,20 +252,23 @@
                Call FZero(Work(ip_A),jBas*lBas)
                Do iSO=1,nKVec
                  nik = nIJ1(iSym,kSym,iSO)
+
+                 CiKl(1:nik*lBas) => CijK(iE+1:iE+nik*lBas)
+
                  If (nik.ne.0) Then
                    If (lSO.ne.jSO) Then
                       lSOl = lSO - iOffA
                       iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,iSO)
-                      Call dDaFile(LuCVector(jSym,iSO),2,Work(ip_CikL),
-     &                             nik*lBas,iAdrL)
-                      ip_V2 = ip_CikL
+                      Call dDaFile(LuCVector(jSym,iSO),2,CiKl,nik*lBas,
+     &                             iAdrL)
+                      V2(1:) => CiKl(1:)
                    Else
-                      ip_V2 = ip_CikJ_(iSO)
+                      V2(1:) => CiKj(1:,iSO)
                    EndIf
 *
                    CALL DGEMM_('T','N',jBas,lBas,nik,
-     &                         1.0d0,Work(ip_CikJ_(iSO)),nik,
-     &                         Work(ip_V2),nik,
+     &                         1.0d0,CikJ(:,iSO),nik,
+     &                               V2,nik,
      &                         Factor,Work(ip_A),jBas)
                     Factor=1.0d0
                  EndIf
@@ -286,6 +289,10 @@
                End Do
             End Do
          End Do
+
+         CiKj => Null()
+         CiKl => Null()
+         V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
