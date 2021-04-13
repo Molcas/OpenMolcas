@@ -199,10 +199,6 @@
                End Do
             End Do
          End Do
-
-         CiKj => Null()
-         CiKl => Null()
-         V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -289,10 +285,6 @@
                End Do
             End Do
          End Do
-
-         CiKj => Null()
-         CiKl => Null()
-         V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -372,10 +364,6 @@
                End Do
             End Do
          End Do
-
-         CiKj => Null()
-         CiKl => Null()
-         V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -390,31 +378,32 @@
          iSym = 1
          lSym = iEor(jSym-1,iSym-1)+1
 *
-         ip_CikJ_(1) = ip_CijK
+         nik1= nIJ1(iSym,kSym,1)
+         nik2= nIJ1(iSym,kSym,2)
+         nik = Max(nik1,nik2)
+
+         iS = 1
+         iE = 2 * nik * jBas
+         CiKj(1:nik*jBas,1:2) => CijK(iS:iE)
 *
          Do i2 = 1, iCmp(2)
             jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
             jSOj = jSO - iOffA
 *
 *           Pick up the MO transformed fitting coefficients, C_ik^J
-            nik = nIJ1(iSym,kSym,1)
-            If (nik.ne.0) Then
-              iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,1)
-              Call dDaFile(LuCVector(jSym,1),2,Work(ip_CikJ_(1)),
-     &                     nik*jBas,iAdrJ)
+            If (nik1.ne.0) Then
+              iAdrJ = nik1*(jSOj-1) + iAdrCVec(jSym,iSym,1)
+              Call dDaFile(LuCVector(jSym,1),2,CikJ(:,1),nik1*jBas,
+     &                     iAdrJ)
             EndIf
 *
-            ip_CikJ_(2)=ip_CikJ_(1)+nik*nMaxBas
-            nik = nIJ1(iSym,kSym,2)
-            If (nik.ne.0) Then
-              iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,2)
+            If (nik2.ne.0) Then
+              iAdrJ = nik2*(jSOj-1) + iAdrCVec(jSym,iSym,2)
 *
-              Call dDaFile(LuCVector(jSym,2),2,Work(ip_CikJ_(2)),
-     &                  nik*jBas,iAdrJ)
+              Call dDaFile(LuCVector(jSym,2),2,CikJ(:,2),nik2*jBas,
+     &                     iAdrJ)
             EndIf
 *
-            ip_CikL = ip_CikJ_(nKVec) + nik*nMaxBas
-
             Do i4 = 1, iCmp(4)
                lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
 *
@@ -426,38 +415,46 @@
 
                Do iSO=1,nKVec
                  nik = nIJ1(iSym,kSym,iSO)
+
+                 CiKl(1:nik*lBas) => CijK(iE+1:iE+nik*lBas)
+
                  If (nik.ne.0) Then
+
                    If (lSO.ne.jSO) Then
                       lSOl = lSO - iOffA
                       iAdrL = nik*(lSOl-1) + iAdrCVec(jSym,iSym,iSO)
-                      Call dDaFile(LuCVector(jSym,iSO),2,Work(ip_CikL),
-     &                             nik*lBas,iAdrL)
-                      ip_V2 = ip_CikL
+                      Call dDaFile(LuCVector(jSym,iSO),2,CikL,nik*lBas,
+     &                             iAdrL)
+                      V2(1:) => CiKl(1:)
                    Else
-                      ip_V2 = ip_CikJ_(iSO)
+                      V2(1:) => CiKj(1:,iSO)
                    EndIf
 *
 ** Here one should keep track of negative eigenvalues of the densities
 *
                    iSO2=iSO+2
 *
-                   Do l=0,lBas-1
-                     Do k=0,jBas-1
+                   Do l=1,lBas
+                     Do k=1,jBas
+
                        tmp=0.0d0
-                       Do i=0,nChOrb(0,iSO)-1
-                          Do j=0,npos(0,iSO)-1
-                             tmp=tmp+
-     &                 Work(ip_CikJ_(iSO)+i*nChOrb(0,iSO2)+j+k*nik)*
-     &                 Work(ip_V2+i*nChOrb(0,iSO2)+j+l*nik)
-                          End Do
-                          Do j=npos(0,iSO),nChOrb(0,iSO2)-1
-                             tmp=tmp-
-     &                 Work(ip_CikJ_(iSO)+i*nChOrb(0,iSO2)+j+k*nik)*
-     &                 Work(ip_V2+i*nChOrb(0,iSO2)+j+l*nik)
+
+                       Do i=1,nChOrb(0,iSO)
+                          Do j=1,nChOrb(0,iSO2)
+
+                             jik = j + nChOrb(0,iSO2)*(i-1) + nik*(k-1)
+                             jil = j + nChOrb(0,iSO2)*(i-1) + nik*(l-1)
+                             If (j<=npos(0,iSO)) Then
+                                tmp = tmp + CiKj(jik,iSO)* V2(jil)
+                             Else
+                                tmp = tmp - CiKj(jik,iSO)* V2(jil)
+                             End If
                           End Do
                        End Do
-                       Work(ip_A+l*jBas+k)=
-     &                   Factor*Work(ip_A+l*jBas+k)+tmp
+
+                       kl = (ip_A-1)  + k + jBas*(l-1)
+                       Work(kl)= Factor*Work(kl)+tmp
+
                      End Do
                    End Do
                    Factor=1.0d0
@@ -588,6 +585,10 @@
 ************************************************************************
 *                                                                      *
       End If
+
+      CiKj => Null()
+      CiKl => Null()
+      V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -598,7 +599,6 @@
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_RI2:PAO ',' ',PAO,ijkl,nPAO)
-      Call GetMem(' Exit PGet1_RI2','CHECK','REAL',iDum,iDum)
 #endif
       Call CWTime(Cpu2,Wall2)
       Cpu = Cpu2 - Cpu1
