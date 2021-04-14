@@ -34,6 +34,7 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+      use ExTerm, only: Yij
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -173,19 +174,18 @@
 *                  Loop over the auxiliary basis functions which has
 *                  significant contributions to the k shell.
 *
-                   imo=0
+                   imo=1
                    Do k = 1, nk
                       kmo=kYmnij(k+iOff_Ymnij(j3+1,1))
 *
                       jCMOk=jp_Xki+kmo
-                      jr   =jr_Xki(1)+imo
                       call dcopy_(kBas,Work(jCMOk),nChOrb(j3,iSO),
-     &                                 Work(jr),  nk)
+     &                                 Yij(imo,1,1),  nk)
 *
                       imo = imo +1
                    End Do
 *                  Reset pointers
-                   jp_Xki=jr_Xki(1)
+                   jp_Xki=ip_of_Work(Yij(1,1,1))
 *                  Write (*,*) 'i3,j3=',i3,j3
 *                  Call RecPrt('X(i,mu)C',' ',Work(jp_Xki),nk,kBas)
                 Else If (ExFac.ne.Zero.and.nk.gt.0) Then
@@ -215,19 +215,18 @@
      &                 nl.gt.0) Then
                       jp_Xli=ip_CMOi(1) + iOff_CMOi(j4+1,1)
      &                      + nChOrb(j4,iSO)*(lSO-1)-1
-                      imo=0
+                      imo=1
                       Do l = 1, nl
                          lmo=kYmnij(l+iOff_Ymnij(j4+1,1))
 *
                          jCMOl=jp_Xli+lmo
-                         jr   =jr_Xli(1)+imo
                          call dcopy_(lBas,Work(jCMOl),nChOrb(j4,iSO),
-     &                                    Work(jr),   nl)
+     &                                    Yij(imo,2,1),   nl)
 *
                          imo = imo +1
                       End Do
 *                     Reset pointers
-                      jp_Xli=jr_Xli(1)
+                      jp_Xli=ip_of_Work(Yij(1,2,1))
 *                     Write (*,*) 'i4,j4=',i4,j4
 *                     Call RecPrt('X(j,nu)C',' ',Work(jp_Xli),nl,lBas)
                    Else If (ExFac.ne.Zero.and.nl.gt.0) Then

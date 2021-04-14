@@ -46,6 +46,7 @@
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+      use ExTerm, only: Yij
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -463,12 +464,7 @@
 *        Scratch for reduced lists of X_mi. Used in pget.
 *
          nXki=MumOrb*MxBasSh*nSym
-         Call GetMem('MOs_Yij','Allo','Real',jr_Xki(1),2*nKDens*nXki)
-         jr_Xli(1)=jr_Xki(1)+nXki
-         Do i=2,nKDens
-           jr_Xki(i)=jr_Xki(i-1)+2*nXki
-           jr_Xli(i)=jr_Xki(i)+nXki
-         End Do
+         Call mma_allocate(Yij,nXki,2,nKDens,Label='Yij')
 *
 *        Make a list the largest element X_mu,i for each valence shell
 *        and a fixed i. X_mu,i defined in Eq. 13.
@@ -879,7 +875,7 @@
 *
       If (DoCholExch) Then
          Call mma_deallocate(Xmi)
-         Call GetMem('MOs_Yij','Free','Real',jr_Xki(1),2*nKVec*nXki)
+         Call mma_deallocate(Yij)
          Call mma_deallocate(SDG)
          Call mma_deallocate(Ymnij)
       End If

@@ -33,6 +33,7 @@
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       use ExTerm, only: CijK, CilK, BklK
       use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+      use ExTerm, only: Yij
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -160,27 +161,27 @@
             jp_Xki=ip_CMOi(1)+index2k-1
             jp_Xli=ip_CMOi(1)+index2l-1
 *
-            imo=0
+            imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1) ! CD-MO index
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
                jCMOk=jp_Xki+kmo
-               jr=jr_Xki(1)+imo
-               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),Work(jr),nj(1))
+               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),
+     &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
                jCMOl=jp_Xli+kmo
-               jr=jr_Xli(1)+imo
-               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),Work(jr),nj(1))
+               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),
+     &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
             End Do
 *           Reset pointers!
-            jp_Xki=jr_Xki(1)
-            jp_Xli=jr_Xli(1)
+            jp_Xki=ip_of_Work(Yij(1,1,1))
+            jp_Xli=ip_of_Work(Yij(1,2,1))
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
@@ -309,29 +310,27 @@
                jp_Xki2(iSO)=ip_CMOi(iSO)+index2k-1
                jp_Xli2(iSO)=ip_CMOi(iSO)+index2l-1
 *
-               imo=0
+               imo=1
                Do k=1,nj(iSO)
                  kmo=kYmnij(k,iSO) ! CD-MO index
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
                  jCMOk=jp_Xki2(iSO)+kmo
-                 jr=jr_Xki(iSO)+imo
                  call dcopy_(nKBas,Work(jCMOk),NumOrb(iSO),
-     &                      Work(jr),nj(iSO))
+     &                             Yij(imo,1,iSO),nj(iSO))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
                  jCMOl=jp_Xli2(iSO)+kmo
-                 jr=jr_Xli(iSO)+imo
                  call dcopy_(nLBas,Work(jCMOl),NumOrb(iSO),
-     &                      Work(jr),nj(iSO))
+     &                             Yij(imo,2,iSO),nj(iSO))
 *
                  imo=imo+1
                End Do
 *           Reset pointers!
-               jp_Xki2(iSO)=jr_Xki(iSO)
-               jp_Xli2(iSO)=jr_Xli(iSO)
+               jp_Xki2(iSO)=ip_of_Work(Yij(1,1,iSO))
+               jp_Xli2(iSO)=ip_of_Work(Yij(1,2,iSO))
              ElseIf (nj(iSO).gt.NumOrb(iSO)) Then
                Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                Call Abend()
@@ -467,27 +466,27 @@
             jp_Xki=ip_CMOi(1)+index2k-1
             jp_Xli=ip_CMOi(1)+index2l-1
 *
-            imo=0
+            imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1) ! CD-MO index
 *
 *              Pick up X_mu,i for all mu's that belong to shell k
 *
                jCMOk=jp_Xki+kmo
-               jr=jr_Xki(1)+imo
-               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),Work(jr),nj(1))
+               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),
+     &                           Yij(imo,1,1),nj(1))
 *
 *              Pick up X_mu,i for all mu's that belong to shell l
 *
                jCMOl=jp_Xli+kmo
-               jr=jr_Xli(1)+imo
-               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),Work(jr),nj(1))
+               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),
+     &                           Yij(imo,2,1),nj(1))
 *
                imo=imo+1
             End Do
 *           Reset pointers!
-            jp_Xki=jr_Xki(1)
-            jp_Xli=jr_Xli(1)
+            jp_Xki=ip_of_Work(Yij(1,1,1))
+            jp_Xli=ip_of_Work(Yij(1,2,1))
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
@@ -669,27 +668,25 @@
                 jp_Xki2(iSO)=ip_CMOi(iMOright)+index2k-1
                 jp_Xli3(iSO)=ip_CMOi(iMOright)+index3l-1
 *
-                imo=0
+                imo=1
                 Do k=1,nj(iMOright)
                    kmo=kYmnij(k,iMOright) ! CD-MO index
 *
 *                  Pick up X_mu,i for all mu's that belong to shell k
 *
                    jCMOk=jp_Xki2(iSO)+kmo
-                   jr=jr_Xki(iMOright)+imo
                    call dcopy_(nKBas,Work(jCMOk),NumOrb(iMOright),
-     &                 Work(jr),nj(iMOright))
+     &                               Yij(imo,1,iMOright),nj(iMOright))
 
                    jCMOl=jp_Xli3(iSO)+kmo
-                   jr=jr_Xli(iMOright)+imo
                    call dcopy_(nLBas,Work(jCMOl),NumOrb(iMOright),
-     &                   Work(jr),nj(iMOright))
+     &                   Yij(imo,2,iMOright),nj(iMOright))
 *
                    imo=imo+1
                 End Do
 *               Reset pointers!
-                jp_Xki2(iSO)=jr_Xki(iMOright)
-                jp_Xli3(iSO)=jr_Xli(iMOright)
+                jp_Xki2(iSO)=ip_of_Work(Yij(1,1,iMOright))
+                jp_Xli3(iSO)=ip_of_Work(Yij(1,2,iMOright))
              ElseIf (nj(iMOright).gt.NumOrb(iMOright)) Then
                 Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
                 Call Abend()
@@ -701,25 +698,23 @@
                 jp_Xli2(iSO)=ip_CMOi(iMOleft)+index2l-1
                 jp_Xki3(iSO)=ip_CMOi(iMOleft)+index3k-1
 *
-                imo=0
+                imo=1
                 Do k=1,nj(iMOleft)
                    kmo=kYmnij(k,iMOleft) ! CD-MO index
 *
 *                  Pick up X_mu,i for all mu's that belong to shell l
 *
                    jCMOl=jp_Xli2(iSO)+kmo
-                   jr=jr_Xli(iMOleft)+imo
                    call dcopy_(nLBas,Work(jCMOl),NumOrb(iMOleft),
-     &                   Work(jr),nj(iMOleft))
+     &                               Yij(imo,2,iMOleft),nj(iMOleft))
 *
                    jCMOk=jp_Xki3(iSO)+kmo
-                   jr=jr_Xki(iMOleft)+imo
                    call dcopy_(nKBas,Work(jCMOk),NumOrb(iMOleft),
-     &                 Work(jr),nj(iMOleft))
+     &                               Yij(imo,1,iMOleft),nj(iMOleft))
                    imo=imo+1
                 End Do
-                jp_Xli2(iSO)=jr_Xli(iMOleft)
-                jp_Xki3(iSO)=jr_Xki(iMOleft)
+                jp_Xli2(iSO)=ip_of_Work(Yij(1,2,iMOleft))
+                jp_Xki3(iSO)=ip_of_Work(Yij(1,1,iMOleft))
 
              ElseIf (nj(iMOleft).gt.NumOrb(iMOleft)) Then
                 Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
@@ -946,19 +941,19 @@
          If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
             jp_Xki=ip_CMOi(1)+index2k-1
             jp_Xli=ip_CMOi(1)+index2l-1
-            imo=0
+            imo=1
             Do k=1,nj(1)
                kmo=kYmnij(k,1)
                jCMOk=jp_Xki+kmo
-               jr=jr_Xki(1)+imo
-               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),Work(jr),nj(1))
+               call dcopy_(nKBas,Work(jCMOk),NumOrb(1),
+     &                           Yij(imo,1,1),nj(1))
                jCMOl=jp_Xli+kmo
-               jr=jr_Xli(1)+imo
-               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),Work(jr),nj(1))
+               call dcopy_(nLBas,Work(jCMOl),NumOrb(1),
+     &                           Yij(imo,2,1),nj(1))
                imo=imo+1
             End Do
-            jp_Xki=jr_Xki(1)
-            jp_Xli=jr_Xli(1)
+            jp_Xki=ip_of_Work(Yij(1,1,1))
+            jp_Xli=ip_of_Work(Yij(1,2,1))
          ElseIf (nj(1).gt.NumOrb(1)) Then
             Call WarningMessage(2,'Pget1_RI3: nj > NumOrb.')
             Call Abend()
