@@ -31,7 +31,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, CilK
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -106,10 +106,10 @@ C     Fac = One / Four
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
      &                             1.0d0,CijK,NumOrb,
      &                             Work(ip_CMOi(1)+index2k),NumOrb,
-     &                             0.0d0,Work(ip_CilK),Max(1,NumOrb))
+     &                             0.0d0,CilK,Max(1,NumOrb))
 
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
-     &                             1.0d0,Work(ip_CilK),NumOrb,
+     &                             1.0d0,CilK,NumOrb,
      &                             Work(ip_CMOi(1)+index2l),NumOrb,
      &                             0.0d0,Work(ip_BklK),Max(1,nKBas))
                      End If
@@ -193,10 +193,10 @@ C     Fac = One / Four
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
      &                             1.0d0,CijK,NumOrb,
      &                             Work(ip_CMOi(1)+index2k),NumOrb,
-     &                             0.0d0,Work(ip_CilK),Max(1,NumOrb))
+     &                             0.0d0,CilK,Max(1,NumOrb))
 
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
-     &                             1.0d0,Work(ip_CilK),NumOrb,
+     &                             1.0d0,CilK,NumOrb,
      &                             Work(ip_CMOi(1)+index2l),NumOrb,
      &                             0.0d0,Work(ip_BklK),Max(1,nKBas))
                         lBVec = nBas(0)*nBas(0)

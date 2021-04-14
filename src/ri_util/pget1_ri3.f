@@ -31,7 +31,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, CilK
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -199,19 +199,18 @@
 *           belong to the shell-pair and to be of significance.
 *
             If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
-               ij=0
+               ij=1
                Do j=1,nj(1)
                  jmo=kYmnij(j,1)
                  Do i=1,nj(1)
                    imo=kYmnij(i,1)
                    jC=imo+NumOrb(1)*(jmo-1)
-                   jr=ip_CilK+ij
-                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,Work(jr),
+                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),
      &                        nj(1)**2)
                    ij=ij+1
                  End Do
                End Do
-              Call dCopy_(nj(1)**2*jBas,Work(ip_CilK),1,CijK,1)
+              Call dCopy_(nj(1)**2*jBas,CilK,1,CijK,1)
             End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -221,12 +220,12 @@
             Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
      &                   1.0d0,CijK,nj(1),
      &                         Work(jp_Xki),nj(1),
-     &                   0.0d0,Work(ip_CilK),nj(1)*jBas)
+     &                   0.0d0,CilK,nj(1)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
             Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
-     &                   1.0d0,Work(ip_CilK),nj(1),
+     &                   1.0d0,CilK,nj(1),
      &                         Work(jp_Xli),nj(1),
      &                   0.0d0,Work(ip_BklK),jBas*nKBas)
 *
@@ -359,19 +358,18 @@
 *           belong to the shell-pair and to be of significance.
 *
                  If (nj(iSO).le.NumOrb(iSO) .and. jSkip(iSO).eq.0) Then
-                    ij=0
+                    ij=1
                     Do j=1,nj(iSO)
                       jmo=kYmnij(j,iSO)
                       Do i=1,nj(iSO)
                         imo=kYmnij(i,iSO)
                         jC=imo+NumOrb(iSO)*(jmo-1)
-                        jr=ip_CilK+ij
                         call dcopy_(jBas,CijK(jC),NumOrb(iSO)**2,
-     &                        Work(jr),nj(iSO)**2)
+     &                        Cilk(ij),nj(iSO)**2)
                         ij=ij+1
                       End Do
                     End Do
-                    Call dCopy_(nj(iSO)**2*jBas,Work(ip_CilK),1,CijK,1)
+                    Call dCopy_(nj(iSO)**2*jBas,CilK,1,CijK,1)
                  End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -381,12 +379,12 @@
                  Call dGEMM_('T','N',nj(iSO)*jBas,nKBas,nj(iSO),
      &                        1.0d0,CijK,nj(iSO),
      &                              Work(jp_Xki2(iSO)),nj(iSO),
-     &                        0.0d0,Work(ip_CilK),nj(iSO)*jBas)
+     &                        0.0d0,CilK,nj(iSO)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
                  Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iSO),
-     &                        1.0d0,Work(ip_CilK),nj(iSO),
+     &                        1.0d0,CilK,nj(iSO),
      &                              Work(jp_Xli2(iSO)),nj(iSO),
      &                        Factor,Work(ip_BklK),jBas*nKBas)
                  Factor=1.0d0
@@ -509,19 +507,18 @@
 *
             If (nj(1).ne.0) Then
               If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
-                 ij=0
+                 ij=1
                  Do j=1,nj(1)
                    jmo=kYmnij(j,1)
                    Do i=1,nj(1)
                      imo=kYmnij(i,1)
                      jC=imo+NumOrb(1)*(jmo-1)
-                     jr=ip_CilK+ij
-                     call dcopy_(jBas,CijK(jC),NumOrb(1)**2,Work(jr),
+                     call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),
      &                          nj(1)**2)
                      ij=ij+1
                    End Do
                  End Do
-                 Call dCopy_(nj(1)**2*jBas,Work(ip_CilK),1,CijK,1)
+                 Call dCopy_(nj(1)**2*jBas,CilK,1,CijK,1)
               End If
 *
 *             Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -531,12 +528,12 @@
               Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
      &                     1.0d0,CijK,nj(1),
      &                           Work(jp_Xki),nj(1),
-     &                     0.0d0,Work(ip_CilK),nj(1)*jBas)
+     &                     0.0d0,CilK,nj(1)*jBas)
 *
 *** ----      B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
               Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
-     &                     1.0d0,Work(ip_CilK),nj(1),
+     &                     1.0d0,CilK,nj(1),
      &                           Work(jp_Xli),nj(1),
      &                     0.0d0,Work(ip_BklK),jBas*nKBas)
 *
@@ -562,7 +559,7 @@
                       tmp=tmp+Zpk(lAct*(lAct-1)/2+kAct,jSOj,1)*
      &                        Work(lp+lAct-1)
                     End Do
-                    Work(ip_Cilk+kAct-1)=tmp
+                    CilK(kAct)=tmp
                   End Do
 *
                   Do i3 = 1, iCmp(3)
@@ -572,7 +569,7 @@
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas+1
                     Call dGeMV_('T',nAct(kSym-1),kBas,1.0d0,
      &                         Work(kp),
-     &                         nAct(kSym-1),Work(ip_Cilk),1,0.0d0,
+     &                         nAct(kSym-1),Cilk,1,0.0d0,
      &                         Thpkl(iThpkl),jBas)
                   End Do
                 End Do
@@ -757,21 +754,20 @@
 *MGD skipped jSkip() since not used and complicated in this case
                  If (nj(iMOright).le.NumOrb(iMOright).or.
      &               nj(iMOleft ).le.NumOrb(iMOleft )) Then
-                   ij=0
+                   ij=1
                    Do j=1,nj(iMOleft)
                      jmo=kYmnij(j,iMOleft)
                      Do i=1,nj(iMOright)
                        imo=kYmnij(i,iMOright)
                        jC=imo+NumOrb(iMOright)*(jmo-1)
-                       jr=ip_CilK+ij
                        call dcopy_(jBas,CijK(jC),NumOrb(iMOright)*
-     &                             NumOrb(iMOleft),Work(jr),
+     &                             NumOrb(iMOleft),CilK(ij),
      &                             nj(iMOright)*nj(iMOleft))
                        ij=ij+1
                      End Do
                    End Do
-                   Call dCopy_(nj(iMOright)*nj(iMOleft)*jBas,
-     &                       Work(ip_CilK),1,CijK,1)
+                   Call dCopy_(nj(iMOright)*nj(iMOleft)*jBas,CilK,1,
+     &                         CijK,1)
                  End If
 *
 *           Transform according to Eq. 16 (step 4) and generate B_kl^J
@@ -781,12 +777,12 @@
                 Call dGEMM_('T','N',nj(iMOleft)*jBas,nKBas,nj(iMOright),
      &                     1.0d0,CijK,nj(iMOright),
      &                           Work(jp_Xki2(iSO)),nj(iMOright),
-     &                     0.0d0,Work(ip_CilK),nj(iMOleft)*jBas)
+     &                     0.0d0,CilK,nj(iMOleft)*jBas)
 *
 *** ----    B(Km,n) = Sum_j E(j,Km)' * X(j,n)
 *
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOleft),
-     &                     1.0d0,Work(ip_CilK),nj(iMOleft),
+     &                     1.0d0,CilK,nj(iMOleft),
      &                           Work(jp_Xli2(iSO)),nj(iMOleft),
      &                     Factor,Work(ip_BklK),jBas*nKBas)
                 Factor=1.0d0
@@ -794,16 +790,16 @@
 ** Add transpose
 *
 *Transpose Cijk->Cjik
-                Do ijBas=0,jBas-1
-                  ijbas_off=1+ijBas*nj(iMOleft)*nj(iMOright)
-                  ijbas_off2=ip_CilK+ijBas*nj(iMOleft)*nj(iMOright)
+                Do ijBas=1,jBas
+                  ijbas_off=ijBas*nj(iMOleft)*nj(iMOright)
+                  ijbas_off2=ijBas*nj(iMOleft)*nj(iMOright)
                   Do ileft=0,nj(iMOleft)-1
                     ileft_off=ileft*nj(iMOright)+ijbas_off
                     Do iright=0,nj(iMOright)-1
                       iright_off=ileft_off+iright
                       iright_off2=ijbas_off2+iright*nj(iMOleft)+ileft
 *
-                      Work(iright_off2)=CijK(iright_off)
+                      CilK(iright_off2)=CijK(iright_off)
                     End Do
                   End Do
                 End Do
@@ -811,7 +807,7 @@
 *** ----    E(iK,m) = Sum_j C(j,iK)' * X(j,m)
 *
                 Call dGEMM_('T','N',nj(iMOright)*jBas,nKBas,nj(iMOleft),
-     &                     1.0d0,Work(ip_CilK),nj(iMOleft),
+     &                     1.0d0,CilK,nj(iMOleft),
      &                           Work(jp_Xki3(iSO)),nj(iMOleft),
      &                     0.0d0,CijK,nj(iMOright)*jBas)
 *
@@ -853,7 +849,7 @@
                         tmp=tmp+Zpk(lAct*(lAct-1)/2+kAct,jSOj,iVec_)*
      &                    Work(lp+lAct-1)
                       End Do
-                      Work(ip_Cilk+kAct-1)=tmp
+                      CilK(kAct)=tmp
                     End Do
 *
                     Do i3 = 1, iCmp(3)
@@ -863,7 +859,7 @@
      &                           + (lAOl + (i4-1)*lBas)*nKBas*jBas+1
                       Call dGeMV_('T',nAct(kSym-1),kBas,fact,
      &                           Work(kp),
-     &                           nAct(kSym-1),Work(ip_Cilk),1,1.0d0,
+     &                           nAct(kSym-1),Cilk,1,1.0d0,
      &                           Thpkl(iThpkl),jBas)
                     End Do
                   End Do
@@ -973,19 +969,18 @@
             Call dDaFile(LuCVector(jSym,1),2,CijK,lCVec,iAdr)
 *
             If (nj(1).le.NumOrb(1) .and. jSkip(1).eq.0) Then
-               ij=0
+               ij=1
                Do j=1,nj(1)
                  jmo=kYmnij(j,1)
                  Do i=1,nj(1)
                    imo=kYmnij(i,1)
                    jC=imo+NumOrb(1)*(jmo-1)
-                   jr=ip_CilK+ij
-                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,Work(jr),
+                   call dcopy_(jBas,CijK(jC),NumOrb(1)**2,CilK(ij),
      &                        nj(1)**2)
                    ij=ij+1
                  End Do
                End Do
-              call dcopy_(nj(1)**2*jBas,Work(ip_CilK),1,CijK,1)
+              call dcopy_(nj(1)**2*jBas,CilK,1,CijK,1)
             EndIf
 *
 *** ---- C(jK,m) = sum_i C(i,jK)' * X(i,m)
@@ -993,12 +988,12 @@
             Call dGEMM_('T','N',nj(1)*jBas,nKBas,nj(1),
      &                   1.0d0,CijK,nj(1),
      &                         Work(jp_Xki),nj(1),
-     &                   0.0d0,Work(ip_CilK),nj(1)*jBas)
+     &                   0.0d0,CilK,nj(1)*jBas)
 *
 *** ---- B(Km,n) = sum_j C(j,Km)' * X(j,n)
 *
             Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
-     &                   1.0d0,Work(ip_CilK),nj(1),
+     &                   1.0d0,CilK,nj(1),
      &                         Work(jp_Xli),nj(1),
      &                   0.0d0,Work(ip_BklK),jBas*nKBas)
 *

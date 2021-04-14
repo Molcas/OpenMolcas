@@ -32,7 +32,7 @@
       use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
-      use ExTerm, only: CijK
+      use ExTerm, only: CijK, CilK
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -273,31 +273,30 @@
 *                  Extract only those C_kl^Js for which we deem k and l
 *                  to belong to the shell-pair and to be of
 *                  significance. Use temporary memory location at
-*                  ip_CilK.
+*                  CilK.
 *
                    If (nk*nl.lt.nChOrb(j3,iSO)*nChOrb(j4,iSO)) Then
-                      ij=0
+                      ij=1
                       Do j=1,nl
                          jmo=kYmnij(j+iOff_Ymnij(j4+1,1))
                          Do i=1,nk
                             imo=kYmnij(i+iOff_Ymnij(j3+1,1))
 *
                             jC=imo+nChOrb(j3,iSO)*(jmo-1)
-                            jr=ip_CilK+ij
 *
 *                           For this particular ij combination pick
 *                           the whole row.
 *
                             call dcopy_(jBas,CijK(jC),nChOrb(j3,iSO)*
      &                                               nChOrb(j4,iSO),
-     &                                      Work(jr),nk*nl)
+     &                                      CilK(ij),nk*nl)
                             ij=ij+1
                          End Do
                       End Do
 *
 *                     Copy back to original memory position.
 *
-                      call dcopy_(nk*nl*jBas,Work(ip_CilK),1,CijK,1)
+                      call dcopy_(nk*nl*jBas,CilK,1,CijK,1)
                    End If
 *
 *                  Transform according to Eq. 16 (step 4) and
@@ -313,12 +312,12 @@
                    Call dGEMM_('T','N',nl*jBas,kBas,nk,
      &                        1.0D0,CijK,nk,
      &                              Work(jp_Xki),nk,
-     &                        0.0D0,Work(ip_CilK),nl*jBas)
+     &                        0.0D0,CilK,nl*jBas)
 *
 *                  B(Km,n) = Sum_j E(j, Km)' * X(j,n)
 *
                    Call dGEMM_('T','N',jBas*kBas,lBas,nl,
-     &                         1.0D0,Work(ip_CilK),nl,
+     &                         1.0D0,CilK,nl,
      &                               Work(jp_Xli),nl,
      &                         0.0D0,Work(ip_BklK),jBas*kBas)
 *                  Write (*,*) 'i2,i3,i4=',i2,i3,i4
@@ -363,17 +362,17 @@
                                  tmp=tmp+Zpk(jp+lAct*(lAct-1)/2+kAct)*
      &                               Work(lp+lAct-1)
                                End Do
-                               Work(ip_Cilk+kAct-1)=tmp
+                               Cilk(kAct)=tmp
                              End Do
                            Else
                              If (j3.lt.j4) Then
                                Call dGeMV_('N',nAct(j3),nAct(j4),1.0d0,
      &                                    Zpk(jp+1),nAct(j3),Work(lp),1,
-     &                                    0.0d0,Work(ip_CilK),1)
+     &                                    0.0d0,CilK,1)
                              Else
                                Call dGeMV_('T',nAct(j4),nAct(j3),1.0d0,
      &                                    Zpk(jp+1),nAct(j4),Work(lp),1,
-     &                                    0.0d0,Work(ip_CilK),1)
+     &                                    0.0d0,CilK,1)
                              EndIf
                            EndIf
 *
@@ -381,7 +380,7 @@
                            kp=ipAOrb(j3,iMO2)+(kSO-1)*nAct(j3)
                            Call dGeMV_('T',nAct(j3),kBas,1.0d0,
      &                         Work(kp),
-     &                         nAct(j3),Work(ip_Cilk),1,1.0d0,
+     &                         nAct(j3),Cilk,1,1.0d0,
      &                         Thpkl(iThpkl),jBas)
 
                          End Do
