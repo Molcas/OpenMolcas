@@ -45,7 +45,8 @@
       Integer jSym(0:7), lSym(0:7)
       Integer CumnnP(0:7),CumnnP2(0:7)
 
-      Real*8, Pointer :: CiKj(:), CiKl(:), V2(:)
+      Real*8, Pointer :: CiKj(:)=>Null(), CiKl(:)=>Null(),
+     &                   V2(:)=>Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -330,29 +331,36 @@
                      nik = nIJ1(iSym,kSym,iSO)
 *
                      If (nik==0) Cycle
+
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
 *
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CiKj,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
+     &                           Fact,CikJ,nik,
+     &                                V2,nik,
+     &                          1.0D0,Work(ip_A),jBas)
 *
                   End Do
 *
@@ -449,29 +457,36 @@
                      nik = nIJ1(iSym,kSym,iSO)
 *
                      If (nik==0) Cycle
+
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
 *
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CiKj,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
+     &                           Fact,CiKJ,nik,
+     &                                V2,nik,
+     &                          1.0D0,Work(ip_A),jBas)
 *
                   End Do
 
@@ -561,29 +576,36 @@
                      nik = nIJ1(iSym,kSym,iSO)
 *
                      If (nik==0) Cycle
+
+                     iS = 1
+                     iE = nik*jBas
+                     CiKj(1:nik*jBas) => CijK(iS:iE)
 *
                      jSOj= jSO-nBas(j2)
                      iAdrJ = nik*(jSOj-1)+iAdrCVec(j2+1,iSym,iSO)
-                     Call dDaFile(LuCVector(j2+1,iSO),2,Work(ip_CikJ),
-     &                            nik*jBas,iAdrJ)
+                     Call dDaFile(LuCVector(j2+1,iSO),2,CiKj,nik*jBas,
+     &                            iAdrJ)
 *
                      If (lSO.ne.jSO) Then
-                        ip_CikL = ip_CikJ + nik*nMaxBas
+                        iS = iE + 1
+                        iE = iE + nik*lBas
+                        CiKl(1:nik*lBas) => CijK(iS:iE)
+
                         lSOl=lSO-nBas(j4)
                         iAdrL = nik*(lSOl-1)+iAdrCVec(j4+1,iSym,iSO)
-                        Call dDaFile(LuCVector(j4+1,iSO),2,
-     &                               Work(ip_CikL),nik*lBas,iAdrL)
-                        ip_V2 = ip_CikL
+                        Call dDaFile(LuCVector(j4+1,iSO),2,CiKl,
+     &                               nik*lBas,iAdrL)
+                        V2(1:) => CiKl(1:)
                      Else
-                        ip_V2 = ip_CikJ
+                        V2(1:) => CiKj(1:)
                      End If
 *
                      Fact=One
                      If (iSym.ne.kSym) Fact=Half
                      Call DGEMM_('T','N',jBas,lBas,nik,
-     &                           Fact,Work(ip_CikJ),nik,
-     &                           Work(ip_V2),nik,
-     &                           1.0D0,Work(ip_A),jBas)
+     &                           Fact,CiKj,nik,
+     &                                V2,nik,
+     &                          1.0D0,Work(ip_A),jBas)
 *
                   End Do
 *
@@ -622,6 +644,9 @@
 ************************************************************************
 *                                                                      *
       End If
+      CiKj => Null()
+      CiKl => Null()
+      V2   => Null()
 *                                                                      *
 ************************************************************************
 *                                                                      *
