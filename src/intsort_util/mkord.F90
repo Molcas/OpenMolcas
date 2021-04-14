@@ -27,15 +27,11 @@ subroutine MkOrd(iDisk)
 !    Global data declarations (Include files) :                        *
 !    TwoDat  : table of contents and auxiliary information             *
 !              on the ordered 2el file                                 *
-!    Srt0    : common block containing information pertinent to        *
-!              the calculation of 2el integral sequence numbers        *
-!    Srt1    : common block containing information the number of       *
-!              bins and partitioning of symmetry blocks                *
 !    PkCtl   : packing table                                           *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2, only: LuTwo, mDaTwo, iDVBin
+use sort_data, only: iDVBin, LuTwo, mDaTwo, mxSyP, nBs, nSkip, nSln, nSyOp, Square
 use Integral_Parameters, only: iPack
 use Definitions, only: iwp
 
@@ -43,8 +39,6 @@ implicit none
 integer(kind=iwp), intent(out) :: iDisk
 #include "FileIDs.fh"
 #include "TwoDat.fh"
-#include "srt0.fh"
-#include "srt1.fh"
 #include "PkCtl.fh"
 integer(kind=iwp) :: iAssm, iBatch, iBin, iExp, iFlit, ijPair, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iSyblj, &
                      iSyBlk, iSymi, iSymj, iToc, jFlit, jSymj, kFlit, klPair, kSybll, kSymk, kSyml, kSymMx, lFlit, lSyml, lSymMx, &

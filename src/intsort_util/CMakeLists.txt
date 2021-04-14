@@ -9,4 +9,25 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     mkord.F90
+     mksrt0.F90
+     mksrt1.F90
+     mksrt2.F90
+     mksrt3.F90
+     savebin.F90
+     sort0.F90
+     sort1a.F90
+     sort1b.F90
+     sort1c.F90
+     sort2a.F90
+     sort2b.F90
+     sort2.F90
+     sort3.F90
+)
+
+set (modfile_list
+     sort_data.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

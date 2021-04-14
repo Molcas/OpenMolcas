@@ -35,7 +35,7 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, lDaRec, lStRec, lTop, LuTmp, LuTwo, mInt, nSect, ValBin
+use sort_data, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, lDaRec, lStRec, lTop, LuTmp, LuTwo, mInt, nSect, ValBin
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
 implicit none

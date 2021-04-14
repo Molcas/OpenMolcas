@@ -26,19 +26,15 @@ subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 !     iSquar  : ordering flag                                          *
 !     nIrrep  : number of irreducible representations                  *
 !     nBas    : number of basis functions per irred. rep.              *
-!     nSkip   : flag to exlude symmetry combinations                   *
-!                                                                      *
-!     Global data declarations (Include files) :                       *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
+!     iSkip   : flag to exlude symmetry combinations                   *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
+use sort_data, only: DimSyB, TriSyB, mxSyP, nBs, nSkip, nSyOp, Square
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), iSkip(nIrrep)
-#include "srt0.fh"
 #include "print.fh"
 integer(kind=iwp) :: iBsi, iPrint, iRout, iSymi, jBsj, jSymj
 

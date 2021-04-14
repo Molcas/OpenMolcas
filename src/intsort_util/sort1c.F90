@@ -51,10 +51,6 @@ real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
 integer(kind=iwp) :: iBatch, iOff, iSyBlk, iUt
 
 !----------------------------------------------------------------------*
-!     Turn timing ON                                                   *
-!----------------------------------------------------------------------*
-
-!----------------------------------------------------------------------*
 !     scatter the 2el integrals to the appropriate position            *
 !     of the virtual disk                                              *
 !----------------------------------------------------------------------*

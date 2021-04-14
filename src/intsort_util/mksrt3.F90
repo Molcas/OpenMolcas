@@ -30,8 +30,6 @@ subroutine MkSrt3(iRc,iSquar,nIrrep,nBas,nSkip)
 !                                                                      *
 !    Global data declarations (Include files) :                        *
 !    TwoDat : table of contents and auxiliary information              *
-!    Srt1   : common block containing information the number of        *
-!             bins and partitioning of symmetry blocks                 *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -45,6 +43,7 @@ subroutine MkSrt3(iRc,iSquar,nIrrep,nBas,nSkip)
 !                                                                      *
 !***********************************************************************
 
+use sort_data, only: iStBin, lSll, mSyBlk, nSln
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
@@ -52,7 +51,6 @@ implicit none
 integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), nSkip(nIrrep)
 #include "TwoDat.fh"
-#include "srt1.fh"
 #include "print.fh"
 integer(kind=iwp) :: ib, iBatch, ibj, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
                      kSybll, kSymk, kSyml, kSymMx, lb, lBuf, lSkip, lSll_Temp(size(lSll)), lSyml, lSymMx, mxSyP, nInts, &

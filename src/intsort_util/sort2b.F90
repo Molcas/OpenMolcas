@@ -37,11 +37,10 @@ subroutine SORT2B(iBin,nInts,iOrd,lSrtA,SrtArr,IOStk,lStk,nStk)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2, only: iDaTwo, iDVBin, lStRec, lTop, LuTwo, mDaTwo, nRec
+use sort_data, only: iDaTwo, iDVBin, lStRec, lTop, LuTwo, mDaTwo, nRec
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
 
-#define _DEBUGPRINT_
 implicit none
 integer(kind=iwp), intent(in) :: iBin, nInts, lSrtA, lStk
 integer(kind=iwp), intent(inout) :: iOrd, IOStk(lStk), nStk

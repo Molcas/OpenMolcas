@@ -53,7 +53,7 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !***********************************************************************
 
-use srt2, only: lBin, lwIBin, lwVBin, mInt, n_Int
+use sort_data, only: lBin, lwIBin, lwVBin, mInt, n_Int
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -75,10 +75,6 @@ if (iPrint >= 99) then
   call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
   call dVcPrt('vInt',' ',vInt,nUt)
 end if
-
-!----------------------------------------------------------------------*
-!     Turn timing ON                                                   *
-!----------------------------------------------------------------------*
 
 if (RAMD) then
   call SORT1C(nUt,vInt,nSqNum,nSyBlk)
@@ -111,7 +107,7 @@ do iUt=1,nUt
 end do
 
 !----------------------------------------------------------------------*
-!     Turn timing OFF and exit                                         *
+!     Exit                                                             *
 !----------------------------------------------------------------------*
 
 return

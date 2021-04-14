@@ -10,6 +10,32 @@
 !***********************************************************************
 !----------------------------------------------------------------------*
 !                                                                      *
+!     Information pertinent to the generation of integral adresses     *
+!                                                                      *
+!     Square : flag which indicates the desired ordering scheme        *
+!     nSyOp  : number of irreducible representations                   *
+!     mxSyP  : max number of pairs of symmetry indices                 *
+!     nBs    : number of atomic orbitals per irred. rep.               *
+!     nSkip  : flag to exclude symmetry combinations                   *
+!     DimSyB : dimension of a symmetry block                           *
+!     TriSyB : symmetry block number of pairs of symmetry indices      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Information pertinent to translation from symmetry block         *
+!     to bin numbers.                                                  *
+!                                                                      *
+!     Parameter definitions:                                           *
+!     mSyBlk : highest possible symmetry block number                  *
+!                                                                      *
+!     Entries to common SRT1:                                          *
+!     nBin   : total number of Bins                                    *
+!     nSln   : number of submatrices (slices) per symmetry block       *
+!     lSll   : length of each slice                                    *
+!     IstBin : offset for bin number per symmetry block                *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
 !     Information pertinent to the bin sort algorithm                  *
 !                                                                      *
 !     *--------------------------------------------------------*       *
@@ -48,7 +74,7 @@
 !                                                                      *
 !----------------------------------------------------------------------*
 
-module Srt2
+module Sort_data
 
 use Definitions, only: wp, iwp
 
@@ -56,35 +82,21 @@ implicit none
 private
 
 #include "TwoDef.fh"
-integer(kind=iwp) :: LuTwo, LuTmp, iDaTw0, iDaTwo, iDaTmp, mDaTwo, mDaTmp, MxOrd, lBin
+
+!integer(kind=iwp), parameter :: mSyBlk = 36*36 ! where 36 = 8*(8+1)/2
+integer(kind=iwp) :: mSyBlk
+
+integer(kind=iwp) :: DimSyB(8,8), iDaTmp, iDaTw0, iDaTwo,                 lBin,               LuTmp, LuTwo, mDaTmp, mDaTwo, MxOrd, &
+                     mxSyP, nBin, nBs(8), nSkip(8),               nSyOp, TriSyB(8,8)
+logical(kind=iwp) :: Square
+
+integer(kind=iwp), allocatable :: iStBin(:), lSll(:), nSln(:)
 
 integer(kind=iwp), allocatable :: iDIBin(:,:), iDVBin(:,:), IndBin(:), lIndx(:), lInts(:), lwIBin(:,:), mInt(:,:), n_Int(:), nRec(:)
 real(kind=wp), allocatable :: lwVBin(:,:), ValBin(:)
 
-public :: &
-iDaTmp, &
-iDaTw0, &
-iDaTwo, &
-iDIBin, &
-iDVBin, &
-IndBin, &
-lBin, &
-lDaRec, &
-lIndx, &
-lInts, &
-lStRec, &
-lTop, &
-LuTmp, &
-LuTwo, &
-lwIBin, &
-lwVBin, &
-mDaTmp, &
-mDaTwo, &
-mInt, &
-MxOrd, &
-n_Int, &
-nRec, &
-nSect, &
-ValBin
+public :: DimSyB, iDaTmp, iDaTw0, iDaTwo, iDIBin, iDVBin, IndBin, iStBin, lBin, lDaRec, lIndx, lInts, lSll, lStRec, lTop, LuTmp, &
+          LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, mInt, mSyBlk, MxOrd, mxSyP, n_Int, nBin, nBs, nRec, nSect, nSkip, nSln, nSyOp, &
+          Square, TriSyB, ValBin
 
-end module Srt2
+end module Sort_data

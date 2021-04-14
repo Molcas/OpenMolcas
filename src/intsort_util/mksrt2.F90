@@ -24,17 +24,12 @@ subroutine MkSrt2()
 !                                                                      *
 !     Calling parameters: none                                         *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2, only: iDIBin, iDVBin, n_Int, nRec
+use sort_data, only: iDIBin, iDVBin, mSyBlk, n_Int, nRec, nSln
 use Definitions, only: iwp, u6
 
 implicit none
-#include "srt1.fh"
 #include "print.fh"
 integer(kind=iwp) :: iBin, iPrint, iRout, iSlice, iSyBlk, nSlice
 

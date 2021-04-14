@@ -40,8 +40,8 @@ subroutine SaveBin(iBin,iOpt)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2, only: iDaTmp, iDATwo, iDIBin, iDVBin, IndBin, lDaRec, lIndx, lInts, lStRec, lTop, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, &
-                mDaTwo, mInt, nRec, nSect, n_Int, ValBin
+use sort_data, only: iDaTmp, iDATwo, iDIBin, iDVBin, IndBin, lDaRec, lIndx, lInts, lStRec, lTop, LuTmp, LuTwo, lwIBin, lwVBin, &
+                     mDaTmp, mDaTwo, mInt, nRec, nSect, n_Int, ValBin
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
@@ -51,10 +51,6 @@ integer(kind=iwp), intent(in) :: iBin, iOpt
 integer(kind=iwp) :: i, idiv, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOptIO, iSave, iScr(lStRec), lIBin, lIRec, lVBin, &
                      lVRec, mInds, mInts, mxIRec, mxVRec, nInts, nKeep, nSave
 real(kind=wp) :: Scr(lStRec)
-
-!----------------------------------------------------------------------*
-!     Turn timing ON                                                   *
-!----------------------------------------------------------------------*
 
 !----------------------------------------------------------------------*
 !         as the packed integral labels add an extra 1-2 Byte          *
@@ -184,7 +180,7 @@ end if
 n_Int(iBin) = nKeep
 
 !----------------------------------------------------------------------*
-!     Turn timing OFF and exit                                         *
+!     Exit                                                             *
 !----------------------------------------------------------------------*
 
 return

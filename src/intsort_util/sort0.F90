@@ -53,8 +53,6 @@ subroutine SORT0()
 !     Global data declarations (Include files) :                       *
 !     TwoDat  : table of contents and auxiliary information            *
 !               on the ordered 2el file                                *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -73,7 +71,8 @@ subroutine SORT0()
 !***********************************************************************
 
 use Basis_Info, only: nBas
-use srt2, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lDaRec, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, ValBin
+use sort_data, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lDaRec, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, &
+                     nBin, ValBin
 use Symmetry_Info, only: nIrrep, iSkip
 use Integral_parameters, only: iPack
 use Real_Info, only: PkAcc
@@ -82,7 +81,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 #include "TwoDat.fh"
-#include "srt1.fh"
 #include "print.fh"
 integer(kind=iwp) :: iDisk, iOpt, iPrint, iRc, iRout, Kase
 logical(kind=iwp) :: PkMode

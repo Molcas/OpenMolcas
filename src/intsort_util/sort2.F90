@@ -34,10 +34,6 @@ subroutine SORT2()
 !                                                                      *
 !     Global data declarations (Include files) :                       *
 !     TwoDat : definitions of sorting flags and address tables         *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -55,15 +51,13 @@ subroutine SORT2()
 !                                                                      *
 !***********************************************************************
 
-use srt2, only: IndBin, lStRec, LuTwo, MxOrd, ValBin
+use sort_data, only: IndBin, lSll, lStRec, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp, Square, ValBin
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "TwoDat.fh"
-#include "srt0.fh"
-#include "srt1.fh"
 #include "print.fh"
 integer(kind=iwp) :: ib, iBatch, iBin, ibj, iDisk, iErr, iOff, iOpt, iOrd, iPrint, iRout, iSkip, iSlice, iStk, iSyblj, iSyBlk, &
                      iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, &
@@ -78,10 +72,6 @@ real(kind=wp), allocatable :: SrtA(:), Scr(:)
 iRout = 84
 iPrint = nPrint(iRout)
 if (iPrint >= 10) write(u6,*) ' >>> Enter SORT2 <<<'
-
-!----------------------------------------------------------------------*
-!     Turn timing ON                                                   *
-!----------------------------------------------------------------------*
 
 !----------------------------------------------------------------------*
 !     Initialize the IO-stack                                          *
@@ -222,7 +212,7 @@ if (.not. RAMD) then
 end if
 
 !----------------------------------------------------------------------*
-!     Turn timing OFF and exit                                         *
+!     Exit                                                             *
 !----------------------------------------------------------------------*
 
 return

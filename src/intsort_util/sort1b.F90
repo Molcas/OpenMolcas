@@ -25,10 +25,6 @@ subroutine SORT1B()
 !                                                                      *
 !     Calling parameters: none                                         *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -43,12 +39,11 @@ subroutine SORT1B()
 !                                                                      *
 !***********************************************************************
 
-use srt2, only: lIndx, lInts, lwIBin, lwVBin, n_Int
+use sort_data, only: lIndx, lInts, lwIBin, lwVBin, n_Int, nBin
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "srt1.fh"
 #include "print.fh"
 integer(kind=iwp) :: iBin, iOpt, iPrint, iRout
 
@@ -82,7 +77,7 @@ call mma_deallocate(lIndx)
 call mma_deallocate(lInts)
 
 !----------------------------------------------------------------------*
-!     Turn timing OFF and exit                                         *
+!     Exit                                                             *
 !----------------------------------------------------------------------*
 
 return

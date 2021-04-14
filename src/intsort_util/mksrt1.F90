@@ -29,26 +29,22 @@ subroutine MkSrt1()
 !                                                                      *
 !     Calling parameters: none                                         *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     Srt0    : common block containing information pertinent to       *
-!               the calculation of 2el integral sequence numbers       *
-!     Srt1    : common block containing information the number of      *
-!               bins and partitioning of symmetry blocks               *
-!                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use srt2, only: iDIBin, iDVBin, lBin, mInt, n_Int, nRec
+use sort_data, only: iDIBin, iDVBin, iStBin, lBin, lSll, mInt, mSyBlk, mxSyP, n_Int, nBin, nBs, nSkip, nSln, nSyOp, nRec, Square
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-#include "srt0.fh"
-#include "srt1.fh"
 #include "print.fh"
 #include "warnings.fh"
 integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
                      kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, lSyml, lSymMx, MaxMem, mnBin, MxSrtA1, MxSrtA2, nij, &
                      nSlice, nSym
+#ifndef _I8_
+integer(kind=iwp) :: ix
+integer(kind=iwp), parameter :: lim_32 = 2**30
+#endif
 
 iRout = 80
 iPrint = nPrint(iRout)
@@ -67,8 +63,6 @@ if (iPrint > 10) write(u6,*) ' >>> Enter MKSRT1 <<<'
 !----------------------------------------------------------------------*
 
 select case (nSyOp)
-  case (1)
-    mnBin = 1
   case (2)
     mnBin = 4
     if (Square) mnBin = 5
@@ -78,6 +72,8 @@ select case (nSyOp)
   case (8)
     mnBin = 106
     if (Square) mnBin = 176
+  case default
+    mnBin = 1
 end select
 lSrtA = mnBin*lBin
 lSrtA = ((1+RtoI)*lSrtA)/RtoI
@@ -90,19 +86,19 @@ lSrtA = max(lSrtA,MaxMem/2)
 !     fit into the available memory.                                   *
 !----------------------------------------------------------------------*
 
-do iSyBlk=1,mSyBlk
-  nSln(iSyBlk) = 0
-  lSll(iSyBlk) = 0
-end do
+mSyBlk = mxSyP**2
+call mma_allocate(iStBin,mSyBlk,label='iStBin')
+call mma_allocate(nSln,mSyBlk,label='nSln')
+call mma_allocate(lSll,mSyBlk,label='lSll')
 
-#ifndef _I8_
-lim_32 = 2**30
-#endif
+nSln(:) = 0
+lSll(:) = 0
+
 nSym = nSyOp
 do iSymi=1,nSym
   ib = nBs(iSymi)
   iSkip = nSkip(iSymi)
-  if ((ib == 0) .or. (iSkip == 1)) Go To 100
+  if ((ib == 0) .or. (iSkip == 1)) cycle
   do jSymj=1,iSymi
     iSymj = 1+ieor(iSymi-1,jSymj-1)
     iSyblj = jSymj+iSymi*(iSymi-1)/2
@@ -110,24 +106,24 @@ do iSymi=1,nSym
     ibj = ib*jb
     if (iSymi == jSymj) ibj = ib*(ib+1)/2
     jSkip = nSkip(jSymj)
-    if ((jb == 0) .or. (jSkip == 1)) Go To 200
+    if ((jb == 0) .or. (jSkip == 1)) cycle
     kSymMx = iSymi
     if (Square) kSymMx = nSym
     do kSymk=1,kSymMx
       kb = nBs(kSymk)
       kSkip = nSkip(kSymk)
-      if ((kb == 0) .or. (kSkip == 1)) Go To 300
+      if ((kb == 0) .or. (kSkip == 1)) cycle
       lSymMx = jSymj
       if ((kSymk /= iSymi) .or. Square) lSymMx = kSymk
       do lSyml=1,lSymMx
         kSyml = 1+ieor(kSymk-1,lSyml-1)
         kSybll = lSyml+kSymk*(kSymk-1)/2
-        if (ieor(iSymj-1,kSyml-1) /= 0) Go To 400
+        if (ieor(iSymj-1,kSyml-1) /= 0) cycle
 
         !write(u6,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
         lb = nBs(lSyml)
         lSkip = nSkip(lSyml)
-        if ((lb == 0) .or. (lSkip == 1)) Go To 400
+        if ((lb == 0) .or. (lSkip == 1)) cycle
         kbl = kb*lb
 #       ifndef _I8_
         ix = lim_32/kbl
@@ -136,11 +132,11 @@ do iSymi=1,nSym
         iSyBlk = kSybll+mxSyP*(iSyblj-1)
         nij = 0
         do ij=1,ibj
-#         ifdef _I8_
-          if ((ij*kbl) < lSrtA) nij = ij
-#         else
+#         ifndef _I8_
           if (ij <= ix) then
+#         endif
             if ((ij*kbl) < lSrtA) nij = ij
+#         ifndef _I8_
           end if
 #         endif
         end do
@@ -161,13 +157,9 @@ do iSymi=1,nSym
         !write(u6,*) 'iSyBlk=',iSyBlk
         !write(u6,*) 'nSln(iSyBlk)=',nSln(iSyBlk)
         !write(u6,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
-400     continue
       end do
-300   continue
     end do
-200 continue
   end do
-100 continue
 end do
 
 !----------------------------------------------------------------------*
@@ -224,7 +216,7 @@ end if
 iOff = 1
 do iSyBlk=1,mSyBlk
   nSlice = nSln(iSyBlk)
-  IstBin(iSyBlk) = iOff
+  iStBin(iSyBlk) = iOff
   iOff = iOff+nSlice
 end do
 
