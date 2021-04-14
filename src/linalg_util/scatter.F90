@@ -11,8 +11,13 @@
 
 subroutine SCATTER(N,A,IND,B)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(N), IND(N)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N, IND(N)
+real(kind=wp), intent(out) :: A(*)
+real(kind=wp), intent(in) :: B(N)
+integer(kind=iwp) :: I
 
 do I=1,N
   A(IND(I)) = B(I)

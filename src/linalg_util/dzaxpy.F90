@@ -10,16 +10,20 @@
 !***********************************************************************
 
 subroutine DZAXPY(N,DA,DX,INCX,DY,INCY,DZ,INCZ)
-
 ! MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
 ! STORE THE RESULT IN THE VECTOR Z.
 
-implicit real*8(A-H,O-Z)
-dimension DX(*), DY(*), DZ(*)
-data ZERO/0.0D+00/
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N, INCX, INCY, INCZ
+real(kind=wp), intent(in) :: DA, DX(*), DY(*)
+real(kind=wp), intent(out) :: DZ(*)
+integer(kind=iwp) :: I, IX, IY, IZ, M, MP1
 
 if (N <= 0) return
-if (INCX == 1 .and. INCY == 1) GO TO 20
+if ((INCX == 1) .and. (INCY == 1)) GO TO 20
 
 ! CODE FOR UNEQUAL INCREMENTS OR EQUAL INCREMENTS NOT EQUAL TO 1
 
@@ -49,7 +53,8 @@ return
 
 ! CLEAN-UP LOOP
 
-20 M = mod(N,4)
+20 continue
+M = mod(N,4)
 if (DA /= ZERO) then
   if (M /= 0) then
     do I=1,M

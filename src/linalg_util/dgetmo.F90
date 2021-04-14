@@ -10,112 +10,111 @@
 !***********************************************************************
 
 subroutine DGETMO(A,ldA,M,N,B,ldB)
-
 ! TRANSPOSE A REGULAR MATRIX (OUT-OF-PLACE)
 
-real*8 A(ldA,*), B(ldB,*)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: ldA, M, N, ldB
+real(kind=wp), intent(in) :: A(ldA,M)
+real(kind=wp), intent(out) :: B(ldB,N)
+integer(kind=iwp) :: i, INC, j, jj
 
 if (M <= 0) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine DGETMO ***'
-  write(6,*) '  Invalid dimension of matrix A :'
-  write(6,*) '  The number of columns, M, must be larger than zero'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine DGETMO ***'
+  write(u6,*) '  Invalid dimension of matrix A :'
+  write(u6,*) '  The number of columns, M, must be greater than zero'
+  write(u6,*)
 end if
 if (N <= 0) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine DGETMO ***'
-  write(6,*) '  Invalid leading dimension of matrix B :'
-  write(6,*) '  The number of rows, N, must be larger than zero'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine DGETMO ***'
+  write(u6,*) '  Invalid leading dimension of matrix B :'
+  write(u6,*) '  The number of rows, N, must be greater than zero'
+  write(u6,*)
 end if
-if ((ldA <= 0) .or. (ldA < M)) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine DGETMO ***'
-  write(6,*) '  Invalid leading dimension of matrix A :'
-  write(6,*) '  ldA must be larger than 0 and larger than M'
-  write(6,*)
+if (ldA < M) then
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine DGETMO ***'
+  write(u6,*) '  Invalid leading dimension of matrix A :'
+  write(u6,*) '  ldA must be equal to M or greater'
+  write(u6,*)
 end if
-if ((ldB <= 0) .or. (ldB < N)) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine DGETMO ***'
-  write(6,*) '  Invalid leading dimension of matrix B :'
-  write(6,*) '  ldB must be larger than 0 and larger than N'
-  write(6,*)
+if (ldB < N) then
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine DGETMO ***'
+  write(u6,*) '  Invalid leading dimension of matrix B :'
+  write(u6,*) '  ldB must be equal to N or greater'
+  write(u6,*)
 end if
 INC = 8
 do j=1,M,INC
   jj = min(M-j+1,INC)
-  Go To(1,2,3,4,5,6,7,8) jj
-  write(6,*) 'Error in DGETMO!'
-1 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-  end do
-  Go To 99
-2 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-  end do
-  Go To 99
-3 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-    B(i,j+2) = A(j+2,i)
-  end do
-  Go To 99
-4 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-    B(i,j+2) = A(j+2,i)
-    B(i,j+3) = A(j+3,i)
-  end do
-  Go To 99
-5 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-    B(i,j+2) = A(j+2,i)
-    B(i,j+3) = A(j+3,i)
-    B(i,j+4) = A(j+4,i)
-  end do
-  Go To 99
-6 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-    B(i,j+2) = A(j+2,i)
-    B(i,j+3) = A(j+3,i)
-    B(i,j+4) = A(j+4,i)
-    B(i,j+5) = A(j+5,i)
-  end do
-  Go To 99
-7 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-    B(i,j+2) = A(j+2,i)
-    B(i,j+3) = A(j+3,i)
-    B(i,j+4) = A(j+4,i)
-    B(i,j+5) = A(j+5,i)
-    B(i,j+6) = A(j+6,i)
-  end do
-  Go To 99
-8 continue
-  do i=1,N
-    B(i,j) = A(j,i)
-    B(i,j+1) = A(j+1,i)
-    B(i,j+2) = A(j+2,i)
-    B(i,j+3) = A(j+3,i)
-    B(i,j+4) = A(j+4,i)
-    B(i,j+5) = A(j+5,i)
-    B(i,j+6) = A(j+6,i)
-    B(i,j+7) = A(j+7,i)
-  end do
-99 continue
+  select case (jj)
+    case (1)
+      do i=1,N
+        B(i,j) = A(j,i)
+      end do
+    case (2)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+      end do
+    case (3)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+        B(i,j+2) = A(j+2,i)
+      end do
+    case (4)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+        B(i,j+2) = A(j+2,i)
+        B(i,j+3) = A(j+3,i)
+      end do
+    case (5)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+        B(i,j+2) = A(j+2,i)
+        B(i,j+3) = A(j+3,i)
+        B(i,j+4) = A(j+4,i)
+      end do
+    case (6)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+        B(i,j+2) = A(j+2,i)
+        B(i,j+3) = A(j+3,i)
+        B(i,j+4) = A(j+4,i)
+        B(i,j+5) = A(j+5,i)
+      end do
+    case (7)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+        B(i,j+2) = A(j+2,i)
+        B(i,j+3) = A(j+3,i)
+        B(i,j+4) = A(j+4,i)
+        B(i,j+5) = A(j+5,i)
+        B(i,j+6) = A(j+6,i)
+      end do
+    case (8)
+      do i=1,N
+        B(i,j) = A(j,i)
+        B(i,j+1) = A(j+1,i)
+        B(i,j+2) = A(j+2,i)
+        B(i,j+3) = A(j+3,i)
+        B(i,j+4) = A(j+4,i)
+        B(i,j+5) = A(j+5,i)
+        B(i,j+6) = A(j+6,i)
+        B(i,j+7) = A(j+7,i)
+      end do
+    case default
+      write(u6,*) 'Error in DGETMO!'
+  end select
 end do
 
 return

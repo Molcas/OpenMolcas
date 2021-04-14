@@ -7,18 +7,15 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!***********************************************************************
+!**********************************************************************/
 
-subroutine IZERO(B,N)
+! This macro exists to properly document the intent of the programmer.
+! Unfortunately intent(out) deallocates allocatables upon entering
+! procedures.
+! Use this intent value if you want to show that a procedure
+! does not depend on existing values in an allocatable,
+! but depends on the fact that it is allocated.
+! This is only needed for dummy arguments declared as allocatable,
+! or of a user-defined type with allocatable components
 
-use Definitions, only: iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: N
-integer(kind=iwp), intent(out) :: B(N)
-
-call ICOPY(N,[0],0,B,1)
-
-return
-
-end subroutine IZERO
+#define _OUT_ inout

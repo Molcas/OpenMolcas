@@ -12,35 +12,17 @@
 subroutine ILASRT(ID,N,D,INFO)
 !  Variant of LAPACK's [SD]LASRT for sorting an integer array
 
-!     .. Scalar Arguments ..
-character ID
-integer INFO, N
-!     ..
-!     .. Array Arguments ..
-integer D(*)
-!     ..
-!
+use Definitions, only: iwp
+
+implicit none
+character, intent(in) :: ID
+integer(kind=iwp), intent(in) :: N
+integer(kind=iwp), intent(inout) :: D(N)
+integer(kind=iwp), intent(out) :: INFO
 !  =====================================================================
-!
-!     .. Parameters ..
-integer select
-parameter(select=20)
-!     ..
-!     .. Local Scalars ..
-integer DIR, ENDD, I, J, START, STKPNT
-integer D1, D2, D3, DMNMX, TMP
-!     ..
-!     .. Local Arrays ..
-integer STACK(2,32)
-!     ..
-!     .. External Functions ..
-logical LSAME
-external LSAME
-!     ..
-!     .. External Subroutines ..
-external XERBLA
-!     ..
-!     .. Executable Statements ..
+integer(kind=iwp) :: D1, D2, D3, DIR, DMNMX, ENDD, I, J, STACK(2,32), START, STKPNT, TMP
+logical(kind=iwp), external :: LSAME
+integer(kind=iwp), parameter :: slct = 20
 
 ! Test the input parameters.
 
@@ -72,7 +54,7 @@ STACK(2,1) = N
 START = STACK(1,STKPNT)
 ENDD = STACK(2,STKPNT)
 STKPNT = STKPNT-1
-if (ENDD-START <= select .and. ENDD-START > 0) then
+if ((ENDD-START <= slct) .and. (ENDD-START > 0)) then
 
   ! Do Insertion sort on D( START:ENDD )
 
@@ -112,7 +94,7 @@ if (ENDD-START <= select .and. ENDD-START > 0) then
 
   end if
 
-else if (ENDD-START > select) then
+else if (ENDD-START > slct) then
 
   ! Partition D( START:ENDD ) and stack parts, largest one first
   !

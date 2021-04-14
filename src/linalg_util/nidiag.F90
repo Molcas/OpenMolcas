@@ -26,6 +26,8 @@ subroutine NIdiag(H,U,n,nv,iOpt)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp, r8
+
 implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
@@ -35,14 +37,14 @@ implicit none
 ! U    - Eigenvectors                                                  *
 ! iOpt - Option flag, for future improvements.                         *
 !----------------------------------------------------------------------*
-external OrbPhase
-integer n, nv, iOpt
-real*8 H(*), U(nv,n)
+integer(kind=iwp), intent(in) :: n, nv, iOpt
+real(kind=wp), intent(inout) :: H(*), U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-integer ierr, i
-real*8 Tmp, OrbPhase
+integer(kind=iwp) :: i, ierr
+real(kind=wp) :: Tmp
+real(kind=r8), external :: OrbPhase
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -50,7 +52,7 @@ if (n == 0) return
 call Givens(H,U,n,nv)
 call QLdiag(H,U,n,nv,ierr)
 if (ierr == 1) then
-  !write(6,*) 'NIdiag: backup call to Jacob!'
+  !write(u6,*) 'NIdiag: backup call to Jacob!'
   call Jacob(H,U,n,nv)
 end if
 do i=1,n

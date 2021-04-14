@@ -12,13 +12,16 @@
 subroutine MatInvert(A,n)
 ! Inverts a square matrix
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
 implicit none
-#include "stdalloc.fh"
-real*8 :: A(*)
-integer :: n, err, nw
-integer, dimension(:), allocatable :: ipiv
-real*8, dimension(:), allocatable :: wrk
-real*8 :: dum(1)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: A(n,n)
+integer(kind=iwp) :: err, nw
+real(kind=wp) :: dum(1)
+integer(kind=iwp), allocatable :: ipiv(:)
+real(kind=wp), allocatable :: wrk(:)
 
 call mma_allocate(ipiv,n)
 call dGeTRF_(n,n,A,n,ipiv,err)

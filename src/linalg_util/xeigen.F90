@@ -13,14 +13,18 @@ subroutine XEIGEN(NVEC,NA,N,A,EVR,EVI,VECS,IERR)
 ! Computes eigenvalues and optionally (right) eigenvectors of a
 ! general square matrix
 
-integer NVEC, NA, N, IERR
-real*8 A(NA,N), EVR(N), EVI(N), VECS(NA,N)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-#include "stdalloc.fh"
-character JL, JR
-integer NW
-real*8 TMP(1)
-real*8, dimension(:), allocatable :: WRK
+implicit none
+integer(kind=iwp), intent(in) :: NVEC, NA, N
+real(kind=wp), intent(inout) :: A(NA,N)
+real(kind=wp), intent(out) :: EVR(N), EVI(N), VECS(NA,N)
+integer(kind=iwp), intent(out) :: IERR
+integer(kind=iwp) :: NW
+real(kind=wp) :: TMP(1)
+character :: JL, JR
+real(kind=wp), allocatable :: WRK(:)
 
 JL = 'N'
 JR = 'N'

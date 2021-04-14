@@ -11,10 +11,14 @@
 
 subroutine FZERO(B,N)
 
-integer N
-real*8 B(N)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-call DCOPY_(N,[0.0d0],0,B,1)
+implicit none
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(out) :: B(N)
+
+call DCOPY_(N,[Zero],0,B,1)
 
 return
 

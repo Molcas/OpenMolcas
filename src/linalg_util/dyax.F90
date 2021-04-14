@@ -10,12 +10,16 @@
 !***********************************************************************
 
 subroutine DYAX(N,ALPHA,X,INCX,Y,INCY)
-
 ! MULTIPLY A VECTOR, X, BY A SCALAR AND STORE THE RESULT IN
 ! THE VECTOR Y.
 
-implicit real*8(A-H,O-Z)
-dimension X(1+(N-1)*INCX), Y(1+(N-1)*INCY)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N, INCX, INCY
+real(kind=wp), intent(in) :: ALPHA, X(1+(N-1)*INCX)
+real(kind=wp), intent(inout) :: Y(1+(N-1)*INCY)
+integer(kind=iwp) :: I
 
 do I=1,N
   Y(1+(I-1)*INCY) = ALPHA*X(1+(I-1)*INCX)

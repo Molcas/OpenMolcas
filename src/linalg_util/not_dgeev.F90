@@ -12,33 +12,38 @@
 subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n,aux,naux)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 a(lda,n), w(2,n), z(2*ldz*n), aux(naux)
-real*8, allocatable :: w1(:)
+implicit none
+integer(kind=iwp), intent(in) :: iOpt, lda, ldz, n, naux
+real(kind=wp), intent(inout) :: a(lda,n)
+real(kind=wp), intent(out) :: w(2,n), z(2*ldz*n), aux(naux)
+integer(kind=iwp) :: i, iErr, iOff
+real(kind=wp), allocatable :: w1(:)
 
 if (iOpt == 2) then
-  write(6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
+  write(u6,*) 'not_DGeEV: iOpt=2 is not implemented yet!'
   call Abend()
 end if
 if (ldz /= n) then
-  write(6,*) 'not_DGeEV: ldz=/=n is not implemented yet!'
+  write(u6,*) 'not_DGeEV: ldz=/=n is not implemented yet!'
   call Abend()
 end if
 if (iOpt == 0) then
-  write(6,*) 'not_DGeEV: iOpt=0 is not implemented yet!'
+  write(u6,*) 'not_DGeEV: iOpt=0 is not implemented yet!'
   call Abend()
 end if
 iOff = n+1
 if (nAux < 2*n) then
-  write(6,*) 'not_DGeEV: nAux is too small (naux<2*n)!'
+  write(u6,*) 'not_DGeEV: nAux is too small (naux<2*n)!'
   call Abend()
 end if
 call mma_allocate(w1,n,label='w1')
 iErr = 0
 call XEIGEN(iOpt,lda,n,a,w,w1,z,iErr)
 if (iErr /= 0) then
-  write(6,*) ' not_DGeEV: iErr=/= 0!'
+  write(u6,*) ' not_DGeEV: iErr=/= 0!'
   call Abend()
 end if
 !call RecPrt('w',' ',w,n,1)
@@ -58,7 +63,7 @@ call mma_deallocate(w1)
 
 i = N
 do while (i >= 1)
-  if (w(2,i) /= 0.0d0) then
+  if (w(2,i) /= Zero) then
     i = i-1
     iOff = (i-1)*n
     call dcopy_(2*N,Z(iOff+1),1,Aux,1)
@@ -68,13 +73,13 @@ do while (i >= 1)
     iOff = i*2*n
     call dcopy_(N,Aux(1),1,Z(iOff+1),2)
     call dcopy_(N,Aux(1+N),1,Z(iOff+2),2)
-    call DScal_(N,-1.0d0,Z(iOff+2),2)
+    call DScal_(N,-One,Z(iOff+2),2)
   else
     iOff = (i-1)*n
     call dcopy_(N,Z(iOff+1),1,Aux,1)
     iOff = (i-1)*2*n
     call dcopy_(N,Aux(1),1,Z(iOff+1),2)
-    call dcopy_(N,[0.0d0],0,Z(iOff+2),2)
+    call dcopy_(N,[Zero],0,Z(iOff+2),2)
   end if
   i = i-1
 end do

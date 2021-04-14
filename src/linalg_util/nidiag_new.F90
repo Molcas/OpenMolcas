@@ -26,6 +26,11 @@ subroutine NIdiag_New(H,U,n,nv,iOpt)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp, r8
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
@@ -35,23 +40,22 @@ implicit none
 ! U    - Eigenvectors                                                  *
 ! iOpt - Option flag, for future improvements.                         *
 !----------------------------------------------------------------------*
-#include "WrkSpc.fh"
-external OrbPhase
-integer n, nv, iOpt
-real*8 H(*), U(nv,n)
+integer(kind=iwp), intent(in) :: n, nv, iOpt
+real(kind=wp), intent(inout) :: H(*)
+real(kind=wp), intent(out) :: U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-integer ipDIA, ipOFF, ipTAU, ipIWRK, ipWork, ipEVL, ipIPSZ, ipHDUP
-integer lrwrk, liwrk, lh, info, I, M
-real*8 abstol, dlamch_, Tmp, OrbPhase
-external dlamch_
+#include "WrkSpc.fh"
+integer(kind=iwp) :: ipDIA, ipOFF, ipTAU, ipIWRK, ipWork, ipEVL, ipIPSZ, ipHDUP, lrwrk, liwrk, lh, info, I, M
+real(kind=wp) :: abstol, Tmp
+real(kind=r8), external :: dlamch_, OrbPhase
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
 if (n == 0) return
 #ifdef _DEBUGPRINT_
-write(6,*) 'New nidiag'
+write(u6,*) 'New nidiag'
 #endif
 call FZero(U,nv*n)
 
@@ -75,7 +79,7 @@ call dsptrd_('U',n,Work(ipHDUP),Work(ipDIA),Work(ipOFF),Work(ipTAU),info)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
-  write(6,'(A,I4)') 'Failed to tridiagonalize matrix',info
+  write(u6,'(A,I4)') 'Failed to tridiagonalize matrix',info
 # endif
   Go To 10
 end if
@@ -90,7 +94,7 @@ call dstevr_('V','A',n,Work(ipDIA),Work(ipOFF),Work(ip_Dummy),Work(ip_Dummy),iWo
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
-  write(6,'(A,I4)') 'Failed to diagonalize matrix',info
+  write(u6,'(A,I4)') 'Failed to diagonalize matrix',info
 # endif
   Go To 10
 end if
@@ -99,7 +103,7 @@ call dopmtr_('Left','U','N',N,N,Work(ipHDUP),Work(ipTAU),U,nv,Work(ipWork),info)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
-  write(6,'(A,I4)') 'Failed to back transform vectors',info
+  write(u6,'(A,I4)') 'Failed to back transform vectors',info
 # endif
   Go To 10
 end if
@@ -122,7 +126,7 @@ call GetMem('HDUP','FREE','REAL',ipHDUP,n*(n+1)/2)
 
 if (info /= 0) then
 # ifdef _DEBUGPRINT_
-  write(6,'(A)') 'Using the old Givens rot. based routine'
+  write(u6,'(A)') 'Using the old Givens rot. based routine'
 # endif
   call NIdiag(H,U,n,nv,iOpt)
 end if

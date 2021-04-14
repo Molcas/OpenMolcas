@@ -11,20 +11,21 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
+module linalg_mod
+
 #include "compiler_features.h"
 #include "macros.fh"
 
-module linalg_mod
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, r8
+use definitions, only: wp, iwp, r8
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
+
 implicit none
 private
-public :: mult, sym_diagonalize, isclose, operator(.isclose.), &
-          dot_product_, norm, canonicalize, Gram_Schmidt, Canonical, Lowdin, &
-          symmetric
 
+public :: mult, sym_diagonalize, isclose, operator(.isclose.), dot_product_, norm, canonicalize, Gram_Schmidt, Canonical, Lowdin, &
+          symmetric
 ! TODO Move to different module
 public :: abort_, verify_
 
@@ -38,9 +39,9 @@ abstract interface
   subroutine get_projections_t(self,M,P)
     import :: wp, ParentCanonicalize_t
     class(ParentCanonicalize_t),intent(in) :: self
-    real(wp), intent(in) :: M(:,:)
-    real(wp), intent(out) :: P(:,:)
-  end subroutine
+    real(kind=wp), intent(in) :: M(:,:)
+    real(kind=wp), intent(out) :: P(:,:)
+  end subroutine get_projections_t
 end interface
 
 type, extends(ParentCanonicalize_t) :: CanonicalBasisCanonicalize_t
@@ -49,7 +50,7 @@ contains
 end type
 
 type, extends(ParentCanonicalize_t) :: GeneralBasisCanonicalize_t
-  real(wp), pointer :: ref(:,:) => null()
+  real(kind=wp), pointer :: ref(:,:) => null()
 contains
   procedure :: get_projections => project_general_unit_vectors
 end type
@@ -69,8 +70,8 @@ end type
 !>
 !>  There are some run time checks to test for matching shapes.
 interface mult
-  module procedure mult_2D, mult_2D_1D, mult_2d_raw
-end interface
+  module procedure :: mult_2D, mult_2D_1D, mult_2d_raw
+end interface mult
 
 !>  @brief
 !>  Canonicalize Eigenvectors and Eigenvalues
@@ -100,11 +101,11 @@ end interface
 !>  @param[out] info Optional error code. If calling code does not check the error
 !>      code, then this routine crashes upon errors.
 interface canonicalize
-  module procedure canonicalize_canonical_basis, canonicalize_general
-end interface
+  module procedure :: canonicalize_canonical_basis, canonicalize_general
+end interface canonicalize
 
 interface operator(.isclose.)
-  module procedure isclose_for_operator
+  module procedure :: isclose_for_operator
 end interface
 
 contains
@@ -126,13 +127,12 @@ contains
 !>  @paramin[in] transpB, Optional argument to specify that B
 !>      should be transposed.
 subroutine mult_2D(A,B,C,transpA,transpB)
-  real(wp), intent(in) :: A(:,:), B(:,:)
-  real(wp), intent(out) :: C(:,:)
-  logical, intent(in), optional :: transpA, transpB
-  logical :: transpA_, transpB_
-  debug_function_name("mult_2D")
-
-  integer :: M, N, K_1, K_2, K
+  real(kind=wp), intent(in) :: A(:,:), B(:,:)
+  real(kind=wp), intent(out) :: C(:,:)
+  logical(kind=iwp), intent(in), optional :: transpA, transpB
+  logical(kind=iwp) :: transpA_, transpB_
+  integer(kind=iwp) :: M, N, K_1, K_2, K
+  debug_function_name('mult_2D')
 
   if (present(transpA)) then
     transpA_ = transpA
@@ -155,10 +155,8 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   K = K_1
 
   ASSERT(wp == r8)
-  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_), &
-              M,N,K,1._wp,A,size(A,1),B,size(B,1), &
-              0._wp,C,size(C,1))
-end subroutine
+  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),M,N,K,1._wp,A,size(A,1),B,size(B,1),0._wp,C,size(C,1))
+end subroutine mult_2D
 
 !>  @brief
 !>    Wrapper around dgemm for matrix-vector multiplication.
@@ -173,12 +171,11 @@ end subroutine
 !>  @paramin[in] transpA, Optional argument to specify that A
 !>      should be transposed.
 subroutine mult_2D_1D(A,x,y,transpA)
-  real(wp), intent(in) :: A(:,:), x(:)
-  real(wp), intent(out) :: y(:)
-  logical, intent(in), optional :: transpA
-  logical :: transpA_
-
-  integer :: M, N, K
+  real(kind=wp), intent(in) :: A(:,:), x(:)
+  real(kind=wp), intent(out) :: y(:)
+  logical(kind=iwp), intent(in), optional :: transpA
+  logical(kind=iwp) :: transpA_
+  integer(kind=iwp) :: M, N, K
 
   if (present(transpA)) then
     transpA_ = transpA
@@ -193,10 +190,8 @@ subroutine mult_2D_1D(A,x,y,transpA)
   ASSERT(M == size(x,1))
 
   ASSERT(wp == r8)
-  call dgemm_(merge('T','N',transpA_),'N', &
-              M,N,K,1._wp,A,size(A,1),x,size(x,1), &
-              0._wp,y,size(y,1))
-end subroutine
+  call dgemm_(merge('T','N',transpA_),'N',M,N,K,1._wp,A,size(A,1),x,size(x,1),0._wp,y,size(y,1))
+end subroutine mult_2D_1D
 
 !>  @brief
 !>    Wrapper around dgemm for matrix-matrix multiplication with raw memory.
@@ -222,17 +217,15 @@ end subroutine
 !>  @paramin[in] transpB, Optional argument to specify that B
 !>      should be transposed.
 subroutine mult_2D_raw(A,shapeA,B,shapeB,C,transpA,transpB)
-  real(wp), intent(in), target :: A(*)
-  integer, intent(in) :: shapeA(2)
-  real(wp), intent(in), target :: B(*)
-  integer, intent(in) :: shapeB(2)
-  real(wp), intent(out), target :: C(*)
-  logical, intent(in), optional :: transpA, transpB
-  logical :: transpA_, transpB_
-
-  integer :: shapeC(2)
-
-  real(wp), pointer :: ptr_A(:,:), ptr_B(:,:), ptr_C(:,:)
+  real(kind=wp), intent(in), target :: A(*)
+  integer(kind=iwp), intent(in) :: shapeA(2)
+  real(kind=wp), intent(in), target :: B(*)
+  integer(kind=iwp), intent(in) :: shapeB(2)
+  real(kind=wp), intent(out), target :: C(*)
+  logical(kind=iwp), intent(in), optional :: transpA, transpB
+  logical(kind=iwp) :: transpA_, transpB_
+  integer(kind=iwp) :: shapeC(2)
+  real(kind=wp), pointer :: ptr_A(:,:), ptr_B(:,:), ptr_C(:,:)
 
   if (present(transpA)) then
     transpA_ = transpA
@@ -252,7 +245,7 @@ subroutine mult_2D_raw(A,shapeA,B,shapeB,C,transpA,transpB)
   ptr_C(1:shapeC(1),1:shapeC(2)) => C(1:product(shapeC))
 
   call mult(ptr_A,ptr_B,ptr_C,transpA_,transpB_)
-end subroutine
+end subroutine mult_2D_raw
 
 !>  @brief
 !>  Diagonalize symmetric A.
@@ -268,21 +261,19 @@ end subroutine
 !>  @param[in] info Error code. If calling code does not check the error
 !>      code, then this routine crashes upon errors.
 subroutine sym_diagonalize(A,V,lambda,info)
-  real(wp), intent(in) :: A(:,:)
-  real(wp), intent(out) :: V(:,:), lambda(:)
-  integer, optional, intent(out) :: info
-
-  integer, parameter :: do_worksize_query = -1
-  integer :: info_
-  real(wp), allocatable :: work(:)
-  real(wp) :: dummy(2), query_result(2)
+  real(kind=wp), intent(in) :: A(:,:)
+  real(kind=wp), intent(out) :: V(:,:), lambda(:)
+  integer(kind=iwp), optional, intent(out) :: info
+  integer(kind=iwp), parameter :: do_worksize_query = -1
+  integer(kind=iwp) :: info_
+  real(kind=wp), allocatable :: work(:)
+  real(kind=wp) :: dummy(2), query_result(2)
 
   ASSERT(symmetric(A))
 
   V(:,:) = A(:,:)
   info_ = 0
-  call dsyev_('V','L',size(V,2),dummy,size(V,1),dummy, &
-              query_result,do_worksize_query,info_)
+  call dsyev_('V','L',size(V,2),dummy,size(V,1),dummy,query_result,do_worksize_query,info_)
 
   if (info_ /= 0) then
     if (present(info)) then
@@ -294,8 +285,7 @@ subroutine sym_diagonalize(A,V,lambda,info)
 
   call mma_allocate(work,int(query_result(1)))
   info_ = 0
-  call dsyev_('V','L',size(V,2),V,size(V,1),lambda, &
-              work,size(work),info_)
+  call dsyev_('V','L',size(V,2),V,size(V,1),lambda,work,size(work),info_)
   call mma_deallocate(work)
 
   if (info_ /= 0) then
@@ -310,14 +300,14 @@ end subroutine sym_diagonalize
 !>  @brief
 !>  Order Eigenvectors by ascending eigenvalues.
 subroutine order_eigenvectors(V,lambda)
-  real(wp), intent(inout) :: V(:,:), lambda(:)
-  integer, allocatable :: idx(:)
+  real(kind=wp), intent(inout) :: V(:,:), lambda(:)
+  integer(kind=iwp), allocatable :: idx(:)
   call mma_allocate(idx,size(lambda))
   idx(:) = argsort(lambda,leq_r)
   V(:,:) = V(:,idx)
   lambda(:) = lambda(idx)
   call mma_deallocate(idx)
-end subroutine
+end subroutine order_eigenvectors
 
 !>  @brief
 !>  Determine the Eigenspaces.
@@ -336,19 +326,17 @@ end subroutine
 !>      size(dimensions) is the number of Eigenspaces, i.e. the number
 !>      of distinct Eigenvalues and sum(dimensions) is the number of Eigenvalues.
 subroutine determine_eigenspaces(lambda,dimensions)
-  real(wp), intent(inout) :: lambda(:)
-  integer, allocatable, intent(out) :: dimensions(:)
+  real(kind=wp), intent(inout) :: lambda(:)
+  integer(kind=iwp), allocatable, intent(out) :: dimensions(:)
+  integer(kind=iwp), allocatable :: d_buffer(:)
+  integer(kind=iwp) :: i, low
+  integer(kind=iwp) :: n_spaces
 
-  integer, allocatable :: d_buffer(:)
-
-  integer :: i, low
-  integer :: n_spaces
-
-#ifdef _ADDITIONAL_RUNTIME_CHECK_
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
   if (any(lambda(2:) < lambda(:size(lambda)-1))) then
     call abort_('Eigenvalues not sorted in'//__FILE__)
   end if
-#endif
+# endif
 
   call mma_allocate(d_buffer,size(lambda))
   d_buffer(:) = 0
@@ -358,7 +346,7 @@ subroutine determine_eigenspaces(lambda,dimensions)
   do i=1,size(lambda)
     d_buffer(n_spaces) = d_buffer(n_spaces)+1
     if (i+1 <= size(lambda)) then
-      if (.not. isclose(lambda(i),lambda(i+1),epsilon(lambda)*1e3_wp,1e-8_wp)) then
+      if (.not. isclose(lambda(i),lambda(i+1),epsilon(lambda)*1.0e3_wp,1.0e-8_wp)) then
         n_spaces = n_spaces+1
         lambda(low:i) = mean(lambda(low:i))
         low = i+1
@@ -373,22 +361,22 @@ subroutine determine_eigenspaces(lambda,dimensions)
   call mma_deallocate(d_buffer)
 
 contains
-  real(wp) pure function mean(X)
-    real(wp), intent(in) :: X(:)
+  pure function mean(X)
+    real(kind=wp) :: mean
+    real(kind=wp), intent(in) :: X(:)
     mean = sum(X)/size(X)
-  end function
-end subroutine
+  end function mean
+end subroutine determine_eigenspaces
 
 subroutine base_canonicalize(self,V,lambda)
   class(ParentCanonicalize_t),intent(in) :: self
-  real(wp), intent(inout) :: V(:,:), lambda(:)
+  real(kind=wp), intent(inout) :: V(:,:), lambda(:)
   !> The norms of the projections
-  real(wp), allocatable :: norms_projections(:)
-  character(len=*), parameter :: this_routine = 'canonicalize_factory'
-
-  integer :: low, i, j, d, n_new
-  integer, allocatable :: idx(:), dimensions(:)
-  real(wp), allocatable :: projections(:,:), ONB(:,:)
+  real(kind=wp), allocatable :: norms_projections(:)
+  integer(kind=iwp) :: low, i, j, d, n_new
+  integer(kind=iwp), allocatable :: idx(:), dimensions(:)
+  real(kind=wp), allocatable :: projections(:,:), ONB(:,:)
+  debug_function_name('canonicalize_factory')
 
   ASSERT(size(V,1) == size(V,2))
   call mma_allocate(projections,size(V,1),size(V,2))
@@ -435,13 +423,13 @@ subroutine base_canonicalize(self,V,lambda)
   call mma_deallocate(ONB)
   call mma_deallocate(projections)
   call mma_deallocate(dimensions)
-end subroutine
+end subroutine base_canonicalize
 
 subroutine project_canonical_unit_vectors(self,M,P)
   class(CanonicalBasisCanonicalize_t),intent(in) :: self
-  real(wp), intent(in) :: M(:,:)
-  real(wp), intent(out) :: P(:,:)
-  integer :: i, j
+  real(kind=wp), intent(in) :: M(:,:)
+  real(kind=wp), intent(out) :: P(:,:)
+  integer(kind=iwp) :: i, j
 
   P(:,:) = 0._wp
   ! calculate projections of basis b_j into eigenvectors v_i:
@@ -455,23 +443,24 @@ subroutine project_canonical_unit_vectors(self,M,P)
   end do
 
   return
-#ifdef _WARNING_WORKAROUND_
+# ifdef _WARNING_WORKAROUND_
   ! avoid unused dummy warning
   if (.false.) then
     select type (self)
       class default
     end select
   end if
-#endif
-end subroutine
+# endif
+end subroutine project_canonical_unit_vectors
 
 subroutine project_general_unit_vectors(self,M,P)
+  use Constants, only: Zero
   class(GeneralBasisCanonicalize_t),intent(in) :: self
-  real(wp), intent(in) :: M(:,:)
-  real(wp), intent(out) :: P(:,:)
-  integer :: i, j
+  real(kind=wp), intent(in) :: M(:,:)
+  real(kind=wp), intent(out) :: P(:,:)
+  integer(kind=iwp) :: i, j
 
-  P(:,:) = 0._wp
+  P(:,:) = Zero
   ! calculate projections of basis b_j into eigenvectors v_i:
   ! p_j = sum_i < b_j | M_i > M_i
   do j=1,size(P,2)
@@ -479,23 +468,23 @@ subroutine project_general_unit_vectors(self,M,P)
       P(:,j) = P(:,j)+dot_product_(self%ref(:,j),M(:,i))*M(:,i)
     end do
   end do
-end subroutine
+end subroutine project_general_unit_vectors
 
 subroutine canonicalize_canonical_basis(V,lambda)
-  real(wp), intent(inout) :: V(:,:), lambda(:)
+  real(kind=wp), intent(inout) :: V(:,:), lambda(:)
   type(CanonicalBasisCanonicalize_t) :: canonicalizer
 
   call canonicalizer%canonicalize(V,lambda)
-end subroutine
+end subroutine canonicalize_canonical_basis
 
 subroutine canonicalize_general(V,lambda,ref)
-  real(wp), intent(inout) :: V(:,:), lambda(:)
-  real(wp), intent(in), target :: ref(:,:)
+  real(kind=wp), intent(inout) :: V(:,:), lambda(:)
+  real(kind=wp), intent(in), target :: ref(:,:)
   type(GeneralBasisCanonicalize_t) :: canonicalizer
 
   canonicalizer%ref => ref
   call canonicalizer%canonicalize(V,lambda)
-end subroutine
+end subroutine canonicalize_general
 
 !>  @brief
 !>  Check for floating point equality.
@@ -511,20 +500,20 @@ end subroutine
 !>  @author
 !>    Oskar Weser
 elemental function isclose(a,b,atol,rtol) result(res)
-  real(wp), intent(in) :: a, b
-  real(wp), intent(in) :: atol, rtol
-  logical :: res
+  real(kind=wp), intent(in) :: a, b
+  real(kind=wp), intent(in) :: atol, rtol
+  logical(kind=iwp) :: res
   res = abs(a-b) <= max(rtol*max(abs(a),abs(b)),atol)
-end function
+end function isclose
 
 ! Operator functions may only have two arguments.
 elemental function isclose_for_operator(a,b) result(res)
-  real(wp), intent(in) :: a, b
-  logical :: res
+  real(kind=wp), intent(in) :: a, b
+  logical(kind=iwp) :: res
 
   ! For real64, the epsilon is 2.3e-16 so that atol becomes roughly 2.3e-14 which is very tight.
-  res = isclose(a,b,atol=epsilon(a)*1e2_wp,rtol=1e-9_wp)
-end function
+  res = isclose(a,b,atol=epsilon(a)*1.0e2_wp,rtol=1.0e-9_wp)
+end function isclose_for_operator
 
 !>  @brief
 !>    Calculates v1^T S v2.
@@ -544,10 +533,10 @@ end function
 !>  @author
 !>    Oskar Weser
 function dot_product_(v1,v2,S) result(dot)
-  real(wp), intent(in) :: v1(:), v2(:)
-  real(wp), intent(in), optional :: S(:,:)
-  real(wp), allocatable :: tmp(:)
-  real(wp) :: dot
+  real(kind=wp), intent(in) :: v1(:), v2(:)
+  real(kind=wp), intent(in), optional :: S(:,:)
+  real(kind=wp), allocatable :: tmp(:)
+  real(kind=wp) :: dot
 
   if (present(S)) then
     call mma_allocate(tmp,size(v2))
@@ -557,7 +546,7 @@ function dot_product_(v1,v2,S) result(dot)
   else
     dot = dot_product(v1,v2)
   end if
-end function
+end function dot_product_
 
 !>  @brief
 !>    The induced norm from the dot product given by S.
@@ -572,24 +561,25 @@ end function
 !>  @author
 !>    Oskar Weser
 function norm(v,S) result(L)
-  real(wp), intent(in) :: v(:)
-  real(wp), intent(in), optional :: S(:,:)
-  real(wp) :: L
+  real(kind=wp), intent(in) :: v(:)
+  real(kind=wp), intent(in), optional :: S(:,:)
+  real(kind=wp) :: L
   if (present(S)) then
     L = sqrt(dot_product_(v,v,S))
   else
-! One could use norm2 here, but Sun and PGI compilers don't know this.
+    ! One could use norm2 here, but Sun and PGI compilers don't know this.
     L = sqrt(sum(v**2))
   end if
-end function
+end function norm
 
 !>  @brief
 !>  Check if matrix is symmetric.
 !>
 !>  @param[in] M A matrix.
-logical pure function symmetric(M)
-  real(wp), intent(in) :: M(:,:)
-  integer :: i, j
+pure function symmetric(M)
+  logical(kind=iwp) :: symmetric
+  real(kind=wp), intent(in) :: M(:,:)
+  integer(kind=iwp) :: i, j
 
   symmetric = .true.
   do j=1,size(M,2)
@@ -600,7 +590,7 @@ logical pure function symmetric(M)
       end if
     end do
   end do
-end function
+end function symmetric
 
 !>  @brief
 !>  Loewdin-orthonormalize basis to get ONB using the overlap matrix S.
@@ -617,13 +607,11 @@ end function
 !>  @param[in] S Optional positive definite overlap matrix. If ommited
 !>      it is assumed to be the unit matrix.
 subroutine Lowdin(basis,ONB,S)
-  real(wp), intent(in) :: basis(:,:)
-  real(wp), intent(out) :: ONB(:,:)
-  real(wp), intent(in), optional :: S(:,:)
-
-  integer :: i
-  real(wp), allocatable :: U(:,:), s_diag(:), X(:,:), &
-                           S_transf(:,:), tmp(:,:)
+  real(kind=wp), intent(in) :: basis(:,:)
+  real(kind=wp), intent(out) :: ONB(:,:)
+  real(kind=wp), intent(in), optional :: S(:,:)
+  integer(kind=iwp) :: i
+  real(kind=wp), allocatable :: U(:,:), s_diag(:), X(:,:), S_transf(:,:), tmp(:,:)
 
   call mma_allocate(S_transf,size(S,1),size(S,2))
   call mma_allocate(U,size(S,1),size(S,2))
@@ -631,9 +619,9 @@ subroutine Lowdin(basis,ONB,S)
   call mma_allocate(tmp,size(S,1),size(S,2))
   call mma_allocate(s_diag,size(S,2))
 
-! Transform AO-overlap matrix S to the overlap matrix of basis.
-! S_transf = basis^T S basis
-! We search X that diagonalizes S_transf
+  ! Transform AO-overlap matrix S to the overlap matrix of basis.
+  ! S_transf = basis^T S basis
+  ! We search X that diagonalizes S_transf
   if (present(S)) then
     call mult(S,basis,tmp)
     call mult(basis,tmp,S_transf,transpA=.true.)
@@ -644,20 +632,18 @@ subroutine Lowdin(basis,ONB,S)
   call sym_diagonalize(S_transf,U,s_diag)
   call canonicalize(U,s_diag)
 
-  call verify_(all(s_diag > 1.0d-10), &
-               "Linear dependency detected. "// &
-               "Lowdin can't cure it. Please use  "// &
-               "Gram_Schmidt or Canonical orthonormalization.")
+  call verify_(all(s_diag > 1.0e-10_wp), 'Linear dependency detected. Lowdin can''t cure it. '// &
+                                         'Please use Gram_Schmidt or Canonical orthonormalization.')
 
-! X = U s_diag^{-1/2} U^T
+  ! X = U s_diag^{-1/2} U^T
   do i=1,size(tmp,2)
     tmp(:,i) = U(:,i)/sqrt(s_diag(i))
   end do
   call mult(tmp,U,X,transpB=.true.)
-! With this X the overlap matrix S_transf has diagonal form.
-! X^T basis^T S basis X = 1
-! We finally have to convert to get the form:
-! ONB^T S ONB = 1
+  ! With this X the overlap matrix S_transf has diagonal form.
+  ! X^T basis^T S basis X = 1
+  ! We finally have to convert to get the form:
+  ! ONB^T S ONB = 1
   call mult(basis,X,ONB)
 
   call mma_deallocate(tmp)
@@ -688,17 +674,15 @@ end subroutine Lowdin
 !>  @param[in] S Optional positive definite overlap matrix. If ommited
 !>      it is assumed to be the unit matrix.
 subroutine Canonical(basis,n_to_ON,ONB,n_new,S)
-  real(wp), intent(in) :: basis(:,:)
-  integer, intent(in) :: n_to_ON
-  real(wp), intent(out) :: ONB(:,:)
-  integer, intent(out) :: n_new
-  real(wp), intent(in), optional :: S(:,:)
-
-  logical :: lin_dep_detected
-  integer :: i
-  integer, allocatable :: idx(:)
-  real(wp), allocatable :: &
-    U(:,:), s_diag(:), S_transf(:,:), X(:,:), tmp(:,:)
+  real(kind=wp), intent(in) :: basis(:,:)
+  integer(kind=iwp), intent(in) :: n_to_ON
+  real(kind=wp), intent(out) :: ONB(:,:)
+  integer(kind=iwp), intent(out) :: n_new
+  real(kind=wp), intent(in), optional :: S(:,:)
+  logical(kind=iwp) :: lin_dep_detected
+  integer(kind=iwp) :: i
+  integer(kind=iwp), allocatable :: idx(:)
+  real(kind=wp), allocatable :: U(:,:), s_diag(:), S_transf(:,:), X(:,:), tmp(:,:)
 
   call mma_allocate(S_transf,size(S,1),size(S,2))
   call mma_allocate(U,size(S,1),size(S,2))
@@ -707,8 +691,8 @@ subroutine Canonical(basis,n_to_ON,ONB,n_new,S)
   call mma_allocate(idx,size(S,1))
   call mma_allocate(tmp,size(S,1),size(S,2))
 
-! Transform AO-overlap matrix S to the overlap matrix of basis.
-! We search X that diagonalizes basis^T S basis
+  ! Transform AO-overlap matrix S to the overlap matrix of basis.
+  ! We search X that diagonalizes basis^T S basis
   if (present(S)) then
     call mult(S,basis,tmp)
     call mult(basis,tmp,S_transf,transpA=.true.)
@@ -725,8 +709,8 @@ subroutine Canonical(basis,n_to_ON,ONB,n_new,S)
 
   i = 0
   lin_dep_detected = .false.
-  do while (.not. lin_dep_detected .and. i < n_to_ON)
-    if (s_diag(i+1) < 1.0d-10) then
+  do while ((.not. lin_dep_detected) .and. (i < n_to_ON))
+    if (s_diag(i+1) < 1.0e-10_wp) then
       n_new = i
       lin_dep_detected = .true.
     end if
@@ -734,14 +718,14 @@ subroutine Canonical(basis,n_to_ON,ONB,n_new,S)
   end do
   if (.not. lin_dep_detected) n_new = n_to_ON
 
-! X = U s_diag^{-1/2}
+  ! X = U s_diag^{-1/2}
   do i=1,n_new
     X(:,i) = U(:,i)/sqrt(s_diag(i))
   end do
-! With this X the overlap matrix S_transf has diagonal form.
-! X^T basis^T S basis X = 1
-! We finally have to convert to get the form:
-! ONB^T S ONB = 1
+  ! With this X the overlap matrix S_transf has diagonal form.
+  ! X^T basis^T S basis X = 1
+  ! We finally have to convert to get the form:
+  ! ONB^T S ONB = 1
   ONB(:,n_new+1:) = basis(:,n_new+1:)
   call mult(basis,X(:,:n_new),ONB(:,:n_new))
 
@@ -774,18 +758,16 @@ end subroutine Canonical
 !>  @param[in] S Optional positive definite overlap matrix. If ommited
 !>      it is assumed to be the unit matrix.
 subroutine Gram_Schmidt(basis,n_to_ON,ONB,n_new,S)
-  real(wp), intent(in) :: basis(:,:)
-  integer, intent(in) :: n_to_ON
-  real(wp), target, intent(out) :: ONB(:,:)
-  integer, intent(out) :: n_new
-  real(wp), intent(in), optional :: S(:,:)
-
-  real(wp) :: L
-  integer :: i, j
-  logical :: lin_dep_detected, improve_solution
-
-  real(wp), allocatable :: previous(:), correction(:), v(:)
-  real(wp), pointer :: curr(:)
+  real(kind=wp), intent(in) :: basis(:,:)
+  integer(kind=iwp), intent(in) :: n_to_ON
+  real(kind=wp), target, intent(out) :: ONB(:,:)
+  integer(kind=iwp), intent(out) :: n_new
+  real(kind=wp), intent(in), optional :: S(:,:)
+  real(kind=wp) :: L
+  integer(kind=iwp) :: i, j
+  logical(kind=iwp) :: lin_dep_detected, improve_solution
+  real(kind=wp), allocatable :: previous(:), correction(:), v(:)
+  real(kind=wp), pointer :: curr(:)
 
   call mma_allocate(previous,size(basis,1))
   call mma_allocate(correction,size(basis,1))
@@ -799,7 +781,7 @@ subroutine Gram_Schmidt(basis,n_to_ON,ONB,n_new,S)
 
     improve_solution = .true.
     lin_dep_detected = .false.
-    do while (improve_solution .and. .not. lin_dep_detected)
+    do while (improve_solution .and. (.not. lin_dep_detected))
       correction = 0._wp
       if (present(S)) then
         call mult(S,curr,v)
@@ -808,8 +790,7 @@ subroutine Gram_Schmidt(basis,n_to_ON,ONB,n_new,S)
       end if
 
       do j=1,n_new
-        correction(:) = &
-          correction(:)+ONB(:,j)*dot_product(ONB(:,j),v)
+        correction(:) = correction(:)+ONB(:,j)*dot_product(ONB(:,j),v)
       end do
       curr = curr-correction
       improve_solution = norm(correction,S=S) > 0.1_wp
@@ -836,28 +817,27 @@ subroutine abort_(message)
   character(len=*), intent(in) :: message
   call WarningMessage(2,message)
   call pure_abort()
-end subroutine
+end subroutine abort_
 
 !> @brief
 !>    Abort.
 pure subroutine pure_abort()
-  ! I know, that these functions are not pure,
-  ! but we are aborting anyway.
+  ! I know, that these functions are not pure, but we are aborting anyway.
   interface
     pure subroutine Abend()
-    end subroutine
+    end subroutine Abend
   end interface
   call Abend()
-end subroutine
+end subroutine pure_abort
 
 !> @brief
 !>    Runtime check, that is not switched off in Debug mode
 subroutine verify_(test_expression,message)
-  logical, intent(in) :: test_expression
+  logical(kind=iwp), intent(in) :: test_expression
   character(len=*), intent(in) :: message
   if (.not. test_expression) then
     call abort_(message)
   end if
-end subroutine
+end subroutine verify_
 
-end module
+end module linalg_mod

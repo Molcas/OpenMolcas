@@ -10,11 +10,16 @@
 !***********************************************************************
 
 subroutine DNDOT(N,M,S,INCS,ISW,X,INCXI,INCXO,Y,INCYI,INCYO)
-
 ! COMPUTE DOT PRODUCT N TIMES
 
-implicit real*8(A-H,O-Z)
-real*8 S(1+(N-1)*INCS),X((1+(M-1)*INCXI)*(1+(N-1)*INCXO)),Y((1+(M-1)*INCYI)*(1+(N-1)*INCYO))
+use Definitions, only: wp, iwp, r8
+
+implicit none
+integer(kind=iwp), intent(in) :: N, M, INCS, ISW, INCXI, INCXO, INCYI, INCYO
+real(kind=wp), intent(inout) :: S(1+(N-1)*INCS)
+real(kind=wp), intent(in) :: X((1+(M-1)*INCXI)*(1+(N-1)*INCXO)), Y((1+(M-1)*INCYI)*(1+(N-1)*INCYO))
+integer(kind=iwp) :: I
+real(kind=r8), external :: DDOT_
 
 if (ISW == 1) then
   do I=1,N

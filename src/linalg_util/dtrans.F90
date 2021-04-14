@@ -16,38 +16,39 @@ subroutine DTRANS(NROWS,NCOLS,A,LDA,B,LDB)
 !
 ! double precision version
 
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
 implicit none
 ! arguments
-integer, intent(IN) :: NROWS, NCOLS
-integer, intent(IN) :: LDA, LDB
-real*8, intent(IN) :: A(LDA,*)
-real*8, intent(OUT) :: B(LDB,*)
+integer(kind=iwp), intent(in) :: NROWS, NCOLS, LDA, LDB
+real(kind=wp), intent(in) :: A(LDA,*)
+real(kind=wp), intent(out) :: B(LDB,*)
 ! local variables
 #ifndef _MKL_
-integer :: NBLKSZ, LROWS, LCOLS, MAXROW, MAXCOL
-integer :: I, J, IB, JB
+integer(kind=iwp) :: I, IB, J, JB, LCOLS, LROWS, MAXCOL, MAXROW, NBLKSZ
 #endif
 
-if (NROWS <= 0 .or. NCOLS <= 0) then
-  write(5,'(1X,A)') 'DTRANS: Error: invalid dimension(s)'
-  write(5,'(1X,2(A,I9))') 'NROWS = ',NROWS,'NCOLS = ',NCOLS
+if ((NROWS <= 0) .or. (NCOLS <= 0)) then
+  write(u6,'(1X,A)') 'DTRANS: Error: invalid dimension(s)'
+  write(u6,'(1X,2(A,I9))') 'NROWS = ',NROWS,'NCOLS = ',NCOLS
   call AbEnd
-else if (NROWS > LDA .or. NCOLS > LDB) then
-  write(5,'(1X,A)') 'DTRANS: Error: dimension(s) out-of-bounds'
-  write(5,'(1X,2(A,I9))') 'NROWS = ',NROWS,'NCOLS = ',NCOLS
-  write(5,'(1X,2(A,I9))') 'LDA   = ',LDA,'LDB   = ',LDB
+else if ((NROWS > LDA) .or. (NCOLS > LDB)) then
+  write(u6,'(1X,A)') 'DTRANS: Error: dimension(s) out-of-bounds'
+  write(u6,'(1X,2(A,I9))') 'NROWS = ',NROWS,'NCOLS = ',NCOLS
+  write(u6,'(1X,2(A,I9))') 'LDA   = ',LDA,'LDB   = ',LDB
   call AbEnd
 end if
 
 #ifdef _MKL_
-call mkl_domatcopy('C','T',NROWS,NCOLS,1.0d0,A,LDA,B,LDB)
+call mkl_domatcopy('C','T',NROWS,NCOLS,One,A,LDA,B,LDB)
 #else
 NBLKSZ = 8
 LROWS = mod(NROWS,NBLKSZ)
 LCOLS = mod(NCOLS,NBLKSZ)
 MAXROW = NROWS-LROWS
 MAXCOL = NCOLS-LCOLS
-if (MAXROW > 0 .and. MAXCOL > 0) then
+if ((MAXROW > 0) .and. (MAXCOL > 0)) then
   do IB=1,MAXROW,NBLKSZ
     do JB=1,MAXCOL,NBLKSZ
       do I=IB,IB+NBLKSZ-1
@@ -59,7 +60,7 @@ if (MAXROW > 0 .and. MAXCOL > 0) then
   end do
 end if
 ! remainder of the blocks
-if (MAXROW > 0 .and. LCOLS > 0) then
+if ((MAXROW > 0) .and. (LCOLS > 0)) then
   do IB=1,MAXROW,NBLKSZ
     do I=IB,IB+NBLKSZ-1
       do J=MAXCOL+1,MAXCOL+LCOLS
@@ -68,7 +69,7 @@ if (MAXROW > 0 .and. LCOLS > 0) then
     end do
   end do
 end if
-if (MAXCOL > 0 .and. LROWS > 0) then
+if ((MAXCOL > 0) .and. (LROWS > 0)) then
   do JB=1,MAXCOL,NBLKSZ
     do I=MAXROW+1,MAXROW+LROWS
       do J=JB,JB+NBLKSZ-1
@@ -78,7 +79,7 @@ if (MAXCOL > 0 .and. LROWS > 0) then
   end do
 end if
 ! remainder block
-if (LROWS > 0 .and. LCOLS > 0) then
+if ((LROWS > 0) .and. (LCOLS > 0)) then
   do I=MAXROW+1,MAXROW+LROWS
     do J=MAXCOL+1,MAXCOL+LCOLS
       B(J,I) = A(I,J)

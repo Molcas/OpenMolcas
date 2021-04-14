@@ -10,24 +10,29 @@
 !***********************************************************************
 
 subroutine DGETMI(A,ldA,N)
-
 ! TRANSPOSE A SQUARE MATRIX (IN-PLACE)
 
-real*8 A(ldA,*), Temp
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: ldA, N
+real(kind=wp), intent(inout) :: A(ldA,N)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: Temp
 
 if (N <= 0) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine DGETMI ***'
-  write(6,*) '  Invalid dimension of matrix A :'
-  write(6,*) '  The number of rows/columns, N, must be larger than zero'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine DGETMI ***'
+  write(u6,*) '  Invalid dimension of matrix A :'
+  write(u6,*) '  The number of rows/columns, N, must be greater than zero'
+  write(u6,*)
 end if
-if ((ldA <= 0) .or. (ldA < N)) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine DGETMI ***'
-  write(6,*) '  Invalid leading dimension of matrix A :'
-  write(6,*) '  ldA must be larger than 0 and larger than N'
-  write(6,*)
+if (ldA < N) then
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine DGETMI ***'
+  write(u6,*) '  Invalid leading dimension of matrix A :'
+  write(u6,*) '  ldA must be equal to N or greater'
+  write(u6,*)
 end if
 
 do i=1,N

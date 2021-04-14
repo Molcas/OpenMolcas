@@ -10,12 +10,16 @@
 !***********************************************************************
 
 subroutine DNAXPY(N,M,A,INCA,X,INCXI,INCXO,Y,INCYI,INCYO)
-
 ! MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
 ! STORE THE RESULT IN THE VECTOR Y. REPEAT THIS N TIMES.
 
-implicit real*8(A-H,O-Z)
-real*8 A((N-1)*INCA+1),X(((M-1)*INCXI+1)*((N-1)*INCXO+1)),Y(((M-1)*INCYI+1)*((N-1)*INCYO+1))
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N, M, INCA, INCXI, INCXO, INCYI, INCYO
+real(kind=wp), intent(in) :: A((N-1)*INCA+1), X(((M-1)*INCXI+1)*((N-1)*INCXO+1))
+real(kind=wp), intent(out) :: Y(((M-1)*INCYI+1)*((N-1)*INCYO+1))
+integer(kind=iwp) :: I
 
 do I=1,N
   call DAXPY_(M,A(1+(I-1)*INCA),X(1+(I-1)*INCXO),INCXI,Y(1+(I-1)*INCYO),INCYI)

@@ -46,14 +46,16 @@ subroutine Eigen_Molcas(N,X,D,E)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-dimension X(N,N), D(N), E(N)
-
-parameter(eps=3.0D-17)
-parameter(tol=1.0D-22)
-parameter(One=1.0D+00)
-parameter(Zero=0.0D+00)
+implicit none
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: X(N,N), E(N)
+real(kind=wp), intent(out) :: D(N)
+integer(kind=iwp) :: i, ii, j, k, l
+real(kind=wp) :: B, C, dsum, F, G, H, P, R, S, scal, tmp
+real(kind=wp), parameter :: eps = 3.0e-17_wp, tol = 1.0e-22_wp
 
 if (N == 1) then
   D(1) = X(1,1)
@@ -84,15 +86,15 @@ do ii=2,N
       F = Zero
       do j=1,l
         X(j,i) = X(i,j)/H
-        sum = Zero
+        dsum = Zero
         do k=1,j
-          sum = sum+X(j,k)*X(i,k)
+          dsum = dsum+X(j,k)*X(i,k)
         end do
         do k=j+1,l
-          sum = sum+X(k,j)*X(i,k)
+          dsum = dsum+X(k,j)*X(i,k)
         end do
-        E(j) = sum/H
-        F = F+sum*X(j,i)
+        E(j) = dsum/H
+        F = F+dsum*X(j,i)
       end do
       F = F/(H+H)
       do j=1,l
@@ -117,7 +119,7 @@ D(1) = X(1,1)
 X(1,1) = One
 do i=2,N
   l = i-1
-  if (D(i) > 0.0d0) then
+  if (D(i) > Zero) then
     do j=1,l
       S = Zero
       do k=1,l
@@ -151,7 +153,7 @@ do l=1,N
   end do
   j = N
   do while (abs(E(l)) > B)
-    P = (D(l+1)-D(l))*0.5d0/E(l)
+    P = (D(l+1)-D(l))*Half/E(l)
     R = sqrt(P*P+One)
     if (P >= Zero) then
       P = P+R

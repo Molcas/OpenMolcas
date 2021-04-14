@@ -11,8 +11,12 @@
 
 subroutine DVEM(n,rin1,inc1,rin2,inc2,rout,inc3)
 
-real*8 rin1(inc1,*), rin2(inc2,*), rout(inc3,*)
-integer n, i
+use Definitions, only: wp, iwp
+
+integer(kind=iwp), intent(in) :: n, inc1, inc2, inc3
+real(kind=wp), intent(in) :: rin1(inc1,n), rin2(inc2,n)
+real(kind=wp), intent(inout) :: rout(inc3,n)
+integer(kind=iwp) :: i
 
 do i=1,n
   rout(1,i) = rin1(1,i)*rin2(1,i)
