@@ -8,19 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ERRSET(ierno, inoal, inomes, itrace, iusadr, irange)
-!
-!     DUMMY SUBROUTINE TO REPLACE THE ERRSET ROUTINE
-!     AVAILABLE IN VM FORTRAN.
-!
-      RETURN
-! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-         CALL Unused_integer(ierno)
-         CALL Unused_integer(inoal)
-         CALL Unused_integer(inomes)
-         CALL Unused_integer(itrace)
-         CALL Unused_integer(iusadr)
-         CALL Unused_integer(irange)
-      END IF
-      END
+
+subroutine FZERO(B,N)
+
+integer N
+real*8 B(N)
+
+call DCOPY_(N,[0.0d0],0,B,1)
+
+return
+
+end subroutine FZERO

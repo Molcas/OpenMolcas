@@ -8,40 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DGETMI (A,ldA,N)
-!
-!     TRANSPOSE A SQUARE MATRIX (IN-PLACE)
-!
-      Real*8 A(ldA,*), Temp
-!
-      If ( N.le.0 ) then
-         Write (6,*)
-         Write (6,*)                                                    &
-     &   '  *** Error in subroutine DGETMI ***'
-         Write (6,*)                                                    &
-     &   '  Invalid dimension of matrix A :'
-         Write (6,*)                                                    &
-     &   '  The number of rows/columns, N, must be larger than zero'
-         Write (6,*)
-      End If
-      If ( (ldA.le.0) .or. (ldA.lt.N) ) then
-         Write (6,*)
-         Write (6,*)                                                    &
-     &   '  *** Error in subroutine DGETMI ***'
-         Write (6,*)                                                    &
-     &   '  Invalid leading dimension of matrix A :'
-         Write (6,*)                                                    &
-     &   '  ldA must be larger than 0 and larger than N'
-         Write (6,*)
-      End If
-!
-      Do i=1,N
-         Do j=1,i-1
-            Temp=A(j,i)
-            A(j,i)=A(i,j)
-            A(i,j)=Temp
-         End Do
-      End Do
-!
-      RETURN
-      END
+
+subroutine DGETMI(A,ldA,N)
+
+! TRANSPOSE A SQUARE MATRIX (IN-PLACE)
+
+real*8 A(ldA,*), Temp
+
+if (N <= 0) then
+  write(6,*)
+  write(6,*) '  *** Error in subroutine DGETMI ***'
+  write(6,*) '  Invalid dimension of matrix A :'
+  write(6,*) '  The number of rows/columns, N, must be larger than zero'
+  write(6,*)
+end if
+if ((ldA <= 0) .or. (ldA < N)) then
+  write(6,*)
+  write(6,*) '  *** Error in subroutine DGETMI ***'
+  write(6,*) '  Invalid leading dimension of matrix A :'
+  write(6,*) '  ldA must be larger than 0 and larger than N'
+  write(6,*)
+end if
+
+do i=1,N
+  do j=1,i-1
+    Temp = A(j,i)
+    A(j,i) = A(i,j)
+    A(i,j) = Temp
+  end do
+end do
+
+return
+
+end subroutine DGETMI

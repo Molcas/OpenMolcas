@@ -9,18 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DYAX(N,ALPHA,X,INCX,Y,INCY)
-
-! MULTIPLY A VECTOR, X, BY A SCALAR AND STORE THE RESULT IN
-! THE VECTOR Y.
+subroutine SUBVEC(A,B,C,N)
 
 implicit real*8(A-H,O-Z)
-dimension X(1+(N-1)*INCX), Y(1+(N-1)*INCY)
+dimension A(N), B(N), C(N)
 
 do I=1,N
-  Y(1+(I-1)*INCY) = ALPHA*X(1+(I-1)*INCX)
+  A(I) = B(I)-C(I)
 end do
 
 return
 
-end subroutine DYAX
+end subroutine SUBVEC

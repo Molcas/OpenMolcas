@@ -8,76 +8,78 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DZAXPY(N,DA,DX,INCX,DY,INCY,DZ,INCZ)
-!
-!     MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
-!     STORE THE RESULT IN THE VECTOR Z.
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION DX(*),DY(*),DZ(*)
-      DATA ZERO /0.0D+00/
-      IF(N.LE.0)RETURN
-      IF(INCX.EQ.1.AND.INCY.EQ.1)GO TO 20
-!
-!        CODE FOR UNEQUAL INCREMENTS OR EQUAL INCREMENTS
-!          NOT EQUAL TO 1
-!
-      IY = 1
-      IZ = 1
-      IF(INCY.LT.0)IY = (-N+1)*INCY + 1
-      IF(INCZ.LT.0)IZ = (-N+1)*INCZ + 1
-      IF (DA .NE. ZERO ) THEN
-         IX = 1
-         IF(INCX.LT.0)IX = (-N+1)*INCX + 1
-         DO I = 1,N
-           DZ(IY) = DY(IY) + DA*DX(IX)
-           IX = IX + INCX
-           IY = IY + INCY
-           IZ = IZ + INCZ
-         End Do
-      ELSE
-         DO I = 1,N
-           DZ(IY) = DY(IY)
-           IY = IY + INCY
-           IZ = IZ + INCZ
-         End Do
-      END IF
-      RETURN
-!
-!        CODE FOR BOTH INCREMENTS EQUAL TO 1
-!
-!
-!        CLEAN-UP LOOP
-!
-   20 M = MOD(N,4)
-      IF (DA .NE. ZERO ) THEN
-         IF( M .NE. 0 ) THEN
-            DO I = 1,M
-              DZ(I) = DY(I) + DA*DX(I)
-            END DO
-            IF( N .LT. 4 ) RETURN
-         END IF
-         MP1 = M + 1
-         DO I = MP1,N,4
-           DZ(I) = DY(I) + DA*DX(I)
-           DZ(I + 1) = DY(I + 1) + DA*DX(I + 1)
-           DZ(I + 2) = DY(I + 2) + DA*DX(I + 2)
-           DZ(I + 3) = DY(I + 3) + DA*DX(I + 3)
-         END DO
-      ELSE
-         IF( M .NE. 0 ) THEN
-            DO I = 1,M
-              DZ(I) = DY(I)
-            END DO
-            IF( N .LT. 4 ) RETURN
-         END IF
-         MP1 = M + 1
-         DO I = MP1,N,4
-           DZ(I) = DY(I)
-           DZ(I + 1) = DY(I + 1)
-           DZ(I + 2) = DY(I + 2)
-           DZ(I + 3) = DY(I + 3)
-         END DO
-      END IF
-      RETURN
-      END
+
+subroutine DZAXPY(N,DA,DX,INCX,DY,INCY,DZ,INCZ)
+
+! MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
+! STORE THE RESULT IN THE VECTOR Z.
+
+implicit real*8(A-H,O-Z)
+dimension DX(*), DY(*), DZ(*)
+data ZERO/0.0D+00/
+
+if (N <= 0) return
+if (INCX == 1 .and. INCY == 1) GO TO 20
+
+! CODE FOR UNEQUAL INCREMENTS OR EQUAL INCREMENTS NOT EQUAL TO 1
+
+IY = 1
+IZ = 1
+if (INCY < 0) IY = (-N+1)*INCY+1
+if (INCZ < 0) IZ = (-N+1)*INCZ+1
+if (DA /= ZERO) then
+  IX = 1
+  if (INCX < 0) IX = (-N+1)*INCX+1
+  do I=1,N
+    DZ(IY) = DY(IY)+DA*DX(IX)
+    IX = IX+INCX
+    IY = IY+INCY
+    IZ = IZ+INCZ
+  end do
+else
+  do I=1,N
+    DZ(IY) = DY(IY)
+    IY = IY+INCY
+    IZ = IZ+INCZ
+  end do
+end if
+return
+
+! CODE FOR BOTH INCREMENTS EQUAL TO 1
+
+! CLEAN-UP LOOP
+
+20 M = mod(N,4)
+if (DA /= ZERO) then
+  if (M /= 0) then
+    do I=1,M
+      DZ(I) = DY(I)+DA*DX(I)
+    end do
+    if (N < 4) return
+  end if
+  MP1 = M+1
+  do I=MP1,N,4
+    DZ(I) = DY(I)+DA*DX(I)
+    DZ(I+1) = DY(I+1)+DA*DX(I+1)
+    DZ(I+2) = DY(I+2)+DA*DX(I+2)
+    DZ(I+3) = DY(I+3)+DA*DX(I+3)
+  end do
+else
+  if (M /= 0) then
+    do I=1,M
+      DZ(I) = DY(I)
+    end do
+    if (N < 4) return
+  end if
+  MP1 = M+1
+  do I=MP1,N,4
+    DZ(I) = DY(I)
+    DZ(I+1) = DY(I+1)
+    DZ(I+2) = DY(I+2)
+    DZ(I+3) = DY(I+3)
+  end do
+end if
+
+return
+
+end subroutine DZAXPY

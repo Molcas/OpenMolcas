@@ -8,24 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-!     Inverts a square matrix
-!
-      Subroutine MatInvert(A,n)
-      Implicit None
+
+subroutine MatInvert(A,n)
+! Inverts a square matrix
+
+implicit none
 #include "stdalloc.fh"
-      Real*8 :: A(*)
-      Integer :: n,err,nw
-      Integer, Dimension(:), Allocatable :: ipiv
-      Real*8, Dimension(:), Allocatable :: wrk
-      Real*8 :: dum(1)
-      Call mma_allocate(ipiv,n)
-      Call dGeTRF_(n,n,A,n,ipiv,       err)
-      Call dGeTRI_(n,  A,n,ipiv,dum,-1,err)
-      nw=Int(dum(1))
-      Call mma_allocate(wrk,nw)
-      Call dGeTRI_(n,  A,n,ipiv,wrk,nw,err)
-      Call mma_deallocate(ipiv)
-      Call mma_deallocate(wrk)
-      Return
-      End
+real*8 :: A(*)
+integer :: n, err, nw
+integer, dimension(:), allocatable :: ipiv
+real*8, dimension(:), allocatable :: wrk
+real*8 :: dum(1)
+
+call mma_allocate(ipiv,n)
+call dGeTRF_(n,n,A,n,ipiv,err)
+call dGeTRI_(n,A,n,ipiv,dum,-1,err)
+nw = int(dum(1))
+call mma_allocate(wrk,nw)
+call dGeTRI_(n,A,n,ipiv,wrk,nw,err)
+call mma_deallocate(ipiv)
+call mma_deallocate(wrk)
+
+return
+
+end subroutine MatInvert

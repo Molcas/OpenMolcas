@@ -32,7 +32,7 @@
 *.Scratch : A character line
 *
 *.    No floating point underflow
-      CALL XUFLOW
+      !CALL XUFLOW
 *. Assign diskunits
 c      IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
          CALL DISKUN2

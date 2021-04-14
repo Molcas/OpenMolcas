@@ -8,15 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8 FUNCTION DNORM2(N,X,INCX)
-!
-!     EUCLIDEAN NORM OF A VECTOR
-!
-      INTEGER    N, INCX
-      REAL*8     X(*), DNRM2_
-      External DNrm2_
 
-      DNORM2 = DNRM2_(N,X,INCX)
+subroutine SCATTER(N,A,IND,B)
 
-      RETURN
-      END
+implicit real*8(A-H,O-Z)
+dimension A(*), B(N), IND(N)
+
+do I=1,N
+  A(IND(I)) = B(I)
+end do
+
+return
+
+end subroutine SCATTER

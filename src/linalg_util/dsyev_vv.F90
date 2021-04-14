@@ -8,20 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DSYEV_VV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
+
+subroutine DSYEV_VV(JOBZ,UPLO,N,A,LDA,W,WORK,LWORK,INFO)
 !vv identical to DSYEV. workaround for casvb code, which can't stand MKL
 !
 !  -- LAPACK driver routine (version 3.0) --
 !     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 !     Courant Institute, Argonne National Lab, and Rice University
 !     June 30, 1999
-!
+
 !     .. Scalar Arguments ..
-      CHARACTER          JOBZ, UPLO
-      INTEGER            INFO, LDA, LWORK, N
+character JOBZ, UPLO
+integer INFO, LDA, LWORK, N
 !     ..
 !     .. Array Arguments ..
-      REAL*8   A( LDA, * ), W( * ), WORK( * )
+real*8 A(LDA,*), W(*), WORK(*)
 !     ..
 !
 !  Purpose
@@ -85,142 +86,134 @@
 !  =====================================================================
 !
 !     .. Parameters ..
-      REAL*8   ZERO, ONE
-      PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0 )
+real*8 ZERO, ONE
+parameter(ZERO=0.0d0,ONE=1.0d0)
 !     ..
 !     .. Local Scalars ..
-      LOGICAL            LOWER, LQUERY, WANTZ
-      INTEGER            IINFO, IMAX, INDE, INDTAU, INDWRK, ISCALE,     &
-     &                   LLWORK, LWKOPT, NB
-      REAL*8   ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA,            &
-     &                   SMLNUM
+logical LOWER, LQUERY, WANTZ
+integer IINFO, IMAX, INDE, INDTAU, INDWRK, ISCALE, LLWORK, LWKOPT, NB
+real*8 ANRM, BIGNUM, EPS, RMAX, RMIN, SAFMIN, SIGMA, SMLNUM
 !     ..
 !     .. External Functions ..
-      LOGICAL            LSAME
-      INTEGER            ILAENV_
-      REAL*8   DLAMCH_, DLANSY_
-      EXTERNAL           LSAME, ILAENV_, DLAMCH_, DLANSY_
+logical LSAME
+integer ILAENV_
+real*8 DLAMCH_, DLANSY_
+external LSAME, ILAENV_, DLAMCH_, DLANSY_
 !     ..
 !     .. External Subroutines ..
-      EXTERNAL           DLASCL_, DORGTR_, DSCAL_, DSTEQR_, DSTERF_,    &
-     &                   DSYTRD_, XERBLA
+external DLASCL_, DORGTR_, DSCAL_, DSTEQR_, DSTERF_, DSYTRD_, XERBLA
 !     ..
 !     .. Intrinsic Functions ..
-      INTRINSIC          MAX, SQRT
+intrinsic MAX, SQRT
 !     ..
 !     .. Executable Statements ..
-!
-!     Test the input parameters.
-!
+
+! Test the input parameters.
+
 !vv make compiler happy
-      LWKOPT=-9999999
+LWKOPT = -9999999
 !vv
-      WANTZ = LSAME( JOBZ, 'V' )
-      LOWER = LSAME( UPLO, 'L' )
-      LQUERY = ( LWORK.EQ.-1 )
-!
-      INFO = 0
-      IF( .NOT.( WANTZ .OR. LSAME( JOBZ, 'N' ) ) ) THEN
-         INFO = -1
-      ELSE IF( .NOT.( LOWER .OR. LSAME( UPLO, 'U' ) ) ) THEN
-         INFO = -2
-      ELSE IF( N.LT.0 ) THEN
-         INFO = -3
-      ELSE IF( LDA.LT.MAX( 1, N ) ) THEN
-         INFO = -5
-      ELSE IF( LWORK.LT.MAX( 1, 3*N-1 ) .AND. .NOT.LQUERY ) THEN
-         INFO = -8
-      END IF
-!
-      IF( INFO.EQ.0 ) THEN
-         NB = ILAENV_( 1, 'DSYTRD', UPLO, N, -1, -1, -1 )
-         LWKOPT = MAX( 1, ( NB+2 )*N )
-         WORK( 1 ) = LWKOPT
-      END IF
-!
-      IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DSYEV ', -INFO )
-         RETURN
-      ELSE IF( LQUERY ) THEN
-         RETURN
-      END IF
-!
-!     Quick return if possible
-!
-      IF( N.EQ.0 ) THEN
-         WORK( 1 ) = 1
-         RETURN
-      END IF
-!
-      IF( N.EQ.1 ) THEN
-         W( 1 ) = A( 1, 1 )
-         WORK( 1 ) = 3
-         IF( WANTZ )                                                    &
-     &      A( 1, 1 ) = ONE
-         RETURN
-      END IF
-!
-!     Get machine constants.
-!
-      SAFMIN = DLAMCH_( 'Safe minimum' )
-      EPS = DLAMCH_( 'Precision' )
-      SMLNUM = SAFMIN / EPS
-      BIGNUM = ONE / SMLNUM
-      RMIN = SQRT( SMLNUM )
-      RMAX = SQRT( BIGNUM )
-!
-!     Scale matrix to allowable range, if necessary.
-!
-      ANRM = DLANSY_( 'M', UPLO, N, A, LDA, WORK )
-      ISCALE = 0
-      IF( ANRM.GT.ZERO .AND. ANRM.LT.RMIN ) THEN
-         ISCALE = 1
-         SIGMA = RMIN / ANRM
-      ELSE IF( ANRM.GT.RMAX ) THEN
-         ISCALE = 1
-         SIGMA = RMAX / ANRM
-      END IF
-      IF( ISCALE.EQ.1 )                                                 &
-     &   call dlascl_( UPLO, 0, 0, ONE, SIGMA, N, N, A, LDA, INFO )
-!
-!     Call DSYTRD to reduce symmetric matrix to tridiagonal form.
-!
-      INDE = 1
-      INDTAU = INDE + N
-      INDWRK = INDTAU + N
-      LLWORK = LWORK - INDWRK + 1
-      call dsytrd_( UPLO, N, A, LDA, W, WORK( INDE ), WORK( INDTAU ),   &
-     &             WORK( INDWRK ), LLWORK, IINFO )
-!
-!     For eigenvalues only, call DSTERF.  For eigenvectors, first call
-!     DORGTR to generate the orthogonal matrix, then call DSTEQR.
-!
-      IF( .NOT.WANTZ ) THEN
-         call dsterf_( N, W, WORK( INDE ), INFO )
-      ELSE
-         call dorgtr_( UPLO, N, A, LDA, WORK( INDTAU ), WORK( INDWRK ), &
-     &                LLWORK, IINFO )
-         call dsteqr_( JOBZ, N, W, WORK( INDE ), A, LDA, WORK( INDTAU ),&
-     &                INFO )
-      END IF
-!
-!     If matrix was scaled, then rescale eigenvalues appropriately.
-!
-      IF( ISCALE.EQ.1 ) THEN
-         IF( INFO.EQ.0 ) THEN
-            IMAX = N
-         ELSE
-            IMAX = INFO - 1
-         END IF
-         CALL DSCAL_( IMAX, ONE / SIGMA, W, 1 )
-      END IF
-!
-!     Set WORK(1) to optimal workspace size.
-!
-      WORK( 1 ) = LWKOPT
-!
-      RETURN
-!
-!     End of DSYEV
-!
-      END
+WANTZ = LSAME(JOBZ,'V')
+LOWER = LSAME(UPLO,'L')
+LQUERY = (LWORK == -1)
+
+INFO = 0
+if (.not.(WANTZ .or. LSAME(JOBZ,'N'))) then
+  INFO = -1
+else if (.not.(LOWER .or. LSAME(UPLO,'U'))) then
+  INFO = -2
+else if (N < 0) then
+  INFO = -3
+else if (LDA < max(1,N)) then
+  INFO = -5
+else if (LWORK < max(1,3*N-1) .and. .not. LQUERY) then
+  INFO = -8
+end if
+
+if (INFO == 0) then
+  NB = ILAENV_(1,'DSYTRD',UPLO,N,-1,-1,-1)
+  LWKOPT = max(1,(NB+2)*N)
+  WORK(1) = LWKOPT
+end if
+
+if (INFO /= 0) then
+  call XERBLA('DSYEV ',-INFO)
+  return
+else if (LQUERY) then
+  return
+end if
+
+! Quick return if possible
+
+if (N == 0) then
+  WORK(1) = 1
+  return
+end if
+
+if (N == 1) then
+  W(1) = A(1,1)
+  WORK(1) = 3
+  if (WANTZ) A(1,1) = ONE
+  return
+end if
+
+! Get machine constants.
+
+SAFMIN = DLAMCH_('Safe minimum')
+EPS = DLAMCH_('Precision')
+SMLNUM = SAFMIN/EPS
+BIGNUM = ONE/SMLNUM
+RMIN = sqrt(SMLNUM)
+RMAX = sqrt(BIGNUM)
+
+! Scale matrix to allowable range, if necessary.
+
+ANRM = DLANSY_('M',UPLO,N,A,LDA,WORK)
+ISCALE = 0
+if (ANRM > ZERO .and. ANRM < RMIN) then
+  ISCALE = 1
+  SIGMA = RMIN/ANRM
+else if (ANRM > RMAX) then
+  ISCALE = 1
+  SIGMA = RMAX/ANRM
+end if
+if (ISCALE == 1) call dlascl_(UPLO,0,0,ONE,SIGMA,N,N,A,LDA,INFO)
+
+! Call DSYTRD to reduce symmetric matrix to tridiagonal form.
+
+INDE = 1
+INDTAU = INDE+N
+INDWRK = INDTAU+N
+LLWORK = LWORK-INDWRK+1
+call dsytrd_(UPLO,N,A,LDA,W,WORK(INDE),WORK(INDTAU),WORK(INDWRK),LLWORK,IINFO)
+
+! For eigenvalues only, call DSTERF.  For eigenvectors, first call
+! DORGTR to generate the orthogonal matrix, then call DSTEQR.
+
+if (.not. WANTZ) then
+  call dsterf_(N,W,WORK(INDE),INFO)
+else
+  call dorgtr_(UPLO,N,A,LDA,WORK(INDTAU),WORK(INDWRK),LLWORK,IINFO)
+  call dsteqr_(JOBZ,N,W,WORK(INDE),A,LDA,WORK(INDTAU),INFO)
+end if
+
+! If matrix was scaled, then rescale eigenvalues appropriately.
+
+if (ISCALE == 1) then
+  if (INFO == 0) then
+    IMAX = N
+  else
+    IMAX = INFO-1
+  end if
+  call DSCAL_(IMAX,ONE/SIGMA,W,1)
+end if
+
+! Set WORK(1) to optimal workspace size.
+
+WORK(1) = LWKOPT
+
+return
+
+! End of DSYEV_VV
+
+end subroutine DSYEV_VV

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2013, Victor P. Vysotskiy                              *
 !***********************************************************************
-      Subroutine NIdiag_New(H,U,n,nv,iOpt)
+
+subroutine NIdiag_New(H,U,n,nv,iOpt)
 !***********************************************************************
 !                                                                      *
 ! This routine is a wrapper that calls appropriate LAPACK routines to  *
@@ -24,7 +25,8 @@
 ! Written  2013                                                        *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 ! n    - Dimension of matrix                                           *
@@ -34,114 +36,106 @@
 ! iOpt - Option flag, for future improvements.                         *
 !----------------------------------------------------------------------*
 #include "WrkSpc.fh"
-      External OrbPhase
-      Integer n,nv,iOpt
-      Real*8  H(*),U(nv,n)
+external OrbPhase
+integer n, nv, iOpt
+real*8 H(*), U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer ipDIA,ipOFF,ipTAU,ipIWRK,ipWork,ipEVL,ipIPSZ,ipHDUP
-      Integer lrwrk,liwrk,lh,info,I,M
-      Real*8  abstol,dlamch_, Tmp, OrbPhase
-      External dlamch_
+integer ipDIA, ipOFF, ipTAU, ipIWRK, ipWork, ipEVL, ipIPSZ, ipHDUP
+integer lrwrk, liwrk, lh, info, I, M
+real*8 abstol, dlamch_, Tmp, OrbPhase
+external dlamch_
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      If (n.eq.0) Return
+if (n == 0) return
 #ifdef _DEBUGPRINT_
-      Write(6,*) "New nidiag"
+write(6,*) 'New nidiag'
 #endif
-      Call FZero(U,nv*n)
+call FZero(U,nv*n)
 
-      lh=n*(n+1)/2
-      liwrk=10*n
-      lrwrk=20*n
+lh = n*(n+1)/2
+liwrk = 10*n
+lrwrk = 20*n
 
-      Call GetMem('DIA','ALLO','REAL',ipDIA,n)
-      Call GetMem('EVL','ALLO','REAL',ipEVL,n)
-      Call GetMem('OFF','ALLO','REAL',ipOFF,(n-1))
-      Call GetMem('TAU','ALLO','REAL',ipTAU,(n-1))
-      Call GetMem('IPSZ','ALLO','INTE',ipIPSZ,2*n)
-      Call GetMem('IWRK','ALLO','INTE',ipIWRK,liwrk)
-      Call GetMem('RWRK','ALLO','REAL',ipWORK,lrwrk)
-      Call GetMem('HDUP','ALLO','REAL',ipHDUP,lh)
+call GetMem('DIA','ALLO','REAL',ipDIA,n)
+call GetMem('EVL','ALLO','REAL',ipEVL,n)
+call GetMem('OFF','ALLO','REAL',ipOFF,(n-1))
+call GetMem('TAU','ALLO','REAL',ipTAU,(n-1))
+call GetMem('IPSZ','ALLO','INTE',ipIPSZ,2*n)
+call GetMem('IWRK','ALLO','INTE',ipIWRK,liwrk)
+call GetMem('RWRK','ALLO','REAL',ipWORK,lrwrk)
+call GetMem('HDUP','ALLO','REAL',ipHDUP,lh)
 
-      call dcopy_(lh,H,1,Work(ipHDUP),1)
+call dcopy_(lh,H,1,Work(ipHDUP),1)
 
-      info=0
-      call dsptrd_('U',n,Work(ipHDUP),Work(ipDIA),Work(ipOFF),          &
-     &Work(ipTAU),info)
+info = 0
+call dsptrd_('U',n,Work(ipHDUP),Work(ipDIA),Work(ipOFF),Work(ipTAU),info)
 
-      If(info.ne.0) Then
-#ifdef _DEBUGPRINT_
-         Write(6,'(A,I4)')"Failed to tridiagonalize matrix",            &
-     &   info
-#endif
-         Go To 10
-      End If
+if (info /= 0) then
+# ifdef _DEBUGPRINT_
+  write(6,'(A,I4)') 'Failed to tridiagonalize matrix',info
+# endif
+  Go To 10
+end if
 #if defined(_ACML_) && defined(__PGI)
-      CALL ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
-      CALL ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
+call ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
+call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
 #endif
-      abstol=dlamch_('Safe minimum')
-      info=0
-      call dstevr_('V','A',n,Work(ipDIA),Work(ipOFF),                   &
-     &Work(ip_Dummy),Work(ip_Dummy),iWork(ip_iDummy),                   &
-     &iWork(ip_iDummy),abstol,M,Work(ipEVL),U,nv,                       &
-     &iWork(ipIPSZ),Work(ipWORK),lrwrk,iWork(ipIWRK),                   &
-     &liwrk,info)
+abstol = dlamch_('Safe minimum')
+info = 0
+call dstevr_('V','A',n,Work(ipDIA),Work(ipOFF),Work(ip_Dummy),Work(ip_Dummy),iWork(ip_iDummy),iWork(ip_iDummy),abstol,M, &
+             Work(ipEVL),U,nv,iWork(ipIPSZ),Work(ipWORK),lrwrk,iWork(ipIWRK),liwrk,info)
 
-      If(info.ne.0) Then
-#ifdef _DEBUGPRINT_
-         Write(6,'(A,I4)') "Failed to diagonalize matrix",              &
-     &   info
-#endif
-         Go To 10
-      End If
+if (info /= 0) then
+# ifdef _DEBUGPRINT_
+  write(6,'(A,I4)') 'Failed to diagonalize matrix',info
+# endif
+  Go To 10
+end if
 
-      call dopmtr_('Left','U','N',N,N,Work(ipHDUP),Work(ipTAU),         &
-     &U,nv,Work(ipWork),info)
+call dopmtr_('Left','U','N',N,N,Work(ipHDUP),Work(ipTAU),U,nv,Work(ipWork),info)
 
-      If(info.ne.0) Then
-#ifdef _DEBUGPRINT_
-        Write(6,'(A,I4)') "Failed to back transform vectors",           &
-     &  info
-#endif
-        Go To 10
-      End If
+if (info /= 0) then
+# ifdef _DEBUGPRINT_
+  write(6,'(A,I4)') 'Failed to back transform vectors',info
+# endif
+  Go To 10
+end if
 
-      call dcopy_(lh,Work(ipHDUP),1,H,1)
+call dcopy_(lh,Work(ipHDUP),1,H,1)
 
-      Do I=1,N
-         H((I*(I+1))/2)=Work(ipEVL+I-1)
-      End Do
+do I=1,N
+  H((I*(I+1))/2) = Work(ipEVL+I-1)
+end do
 
-10    Continue
-      Call GetMem('DIA','FREE','REAL',ipDIA,n)
-      Call GetMem('EVL','FREE','REAL',ipEVL,n)
-      Call GetMem('OFF','FREE','REAL',ipOFF,(n-1))
-      Call GetMem('TAU','FREE','REAL',ipTAU,(n-1))
-      Call GetMem('IPSZ','FREE','INTE',ipIPSZ,2*n)
-      Call GetMem('RWRK','FREE','REAL',ipWORK,lrwrk)
-      Call GetMem('IWRK','FREE','INTE',ipIWRK,liwrk)
-      Call GetMem('HDUP','FREE','REAL',ipHDUP,n*(n+1)/2)
+10 continue
+call GetMem('DIA','FREE','REAL',ipDIA,n)
+call GetMem('EVL','FREE','REAL',ipEVL,n)
+call GetMem('OFF','FREE','REAL',ipOFF,(n-1))
+call GetMem('TAU','FREE','REAL',ipTAU,(n-1))
+call GetMem('IPSZ','FREE','INTE',ipIPSZ,2*n)
+call GetMem('RWRK','FREE','REAL',ipWORK,lrwrk)
+call GetMem('IWRK','FREE','INTE',ipIWRK,liwrk)
+call GetMem('HDUP','FREE','REAL',ipHDUP,n*(n+1)/2)
 
-      if(info.ne.0) Then
-#ifdef _DEBUGPRINT_
-         Write(6,'(A)')                                                 &
-     &   "Using the old Givens rot. based routine"
-#endif
-         Call NIdiag(H,U,n,nv,iOpt)
-      End If
-!
-      Do i = 1, n
-         Tmp = OrbPhase(U(1,i),nv)
-      End Do
+if (info /= 0) then
+# ifdef _DEBUGPRINT_
+  write(6,'(A)') 'Using the old Givens rot. based routine'
+# endif
+  call NIdiag(H,U,n,nv,iOpt)
+end if
+
+do i=1,n
+  Tmp = OrbPhase(U(1,i),nv)
+end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_real(Tmp)
+if (.false.) call Unused_real(Tmp)
 #endif
-      End
+
+end subroutine NIdiag_New

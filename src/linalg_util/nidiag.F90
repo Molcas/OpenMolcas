@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2005, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine NIdiag(H,U,n,nv,iOpt)
+
+subroutine NIdiag(H,U,n,nv,iOpt)
 !***********************************************************************
 !                                                                      *
 ! This routine is a wrapper that calls appropriate routines to         *
@@ -24,7 +25,8 @@
 ! Written November 2005                                                *
 !                                                                      *
 !***********************************************************************
-      Implicit None
+
+implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 ! n    - Dimension of matrix                                           *
@@ -33,35 +35,36 @@
 ! U    - Eigenvectors                                                  *
 ! iOpt - Option flag, for future improvements.                         *
 !----------------------------------------------------------------------*
-      External OrbPhase
-      Integer n,nv,iOpt
-      Real*8  H(*), U(nv,n)
+external OrbPhase
+integer n, nv, iOpt
+real*8 H(*), U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Integer ierr, i
-      Real*8  Tmp, OrbPhase
+integer ierr, i
+real*8 Tmp, OrbPhase
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      If (n.eq.0) Return
-      Call Givens(H,U,n,nv)
-      Call QLdiag(H,U,n,nv,ierr)
-      If(ierr.eq.1) Then
-!         Write (6,*) 'NIdiag: backup call to Jacob!'
-         CALL Jacob(H,U,n,nv)
-      End If
-      Do i = 1, n
-         Tmp = OrbPhase(U(1,i),nV)
-      End Do
+if (n == 0) return
+call Givens(H,U,n,nv)
+call QLdiag(H,U,n,nv,ierr)
+if (ierr == 1) then
+  !write(6,*) 'NIdiag: backup call to Jacob!'
+  call Jacob(H,U,n,nv)
+end if
+do i=1,n
+  Tmp = OrbPhase(U(1,i),nV)
+end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-         Call Unused_integer(iOpt)
-         Call Unused_real(Tmp)
-      End If
+if (.false.) then
+  call Unused_integer(iOpt)
+  call Unused_real(Tmp)
+end if
 #endif
-      End
+
+end subroutine NIdiag

@@ -8,42 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION IDMIN (N, X, INCX)
-!
-!     FINDS THE INDEX OF ELEMENT HAVING MIN. VALUE.
-!
-      INTEGER    N, INCX
-      REAL*8     X(*)
-      INTEGER    I, IXX
-      REAL*8     MIN
-!
-      IDMIN = 0
-      IF (N .GE. 1) THEN
-         IDMIN = 1
-         IF (N .NE. 1) THEN
-            IF (INCX .NE. 1) THEN
-!                                  CODE FOR INCREMENT NOT EQUAL TO 1
-               IXX = 1
-               MIN = X(1)
-               IXX = IXX + INCX
-               DO 10  I=2, N
-                  IF (X(IXX) .LT. MIN) THEN
-                     IDMIN = I
-                     MIN = X(IXX)
-                  END IF
-                  IXX = IXX + INCX
-   10          CONTINUE
-            ELSE
-!                                  CODE FOR INCREMENT EQUAL TO 1
-               MIN = X(1)
-               DO 20  I=2, N
-                  IF (X(I) .LT. MIN) THEN
-                     IDMIN = I
-                     MIN = X(I)
-                  END IF
-   20          CONTINUE
-            END IF
-         END IF
-      END IF
-      RETURN
-      END
+
+integer function IDMIN(N,X,INCX)
+
+! FINDS THE INDEX OF ELEMENT HAVING MIN. VALUE.
+
+integer N, INCX
+real*8 X(*)
+integer I, IXX
+real*8 MIN
+
+IDMIN = 0
+if (N >= 1) then
+  IDMIN = 1
+  if (N /= 1) then
+    if (INCX /= 1) then
+      ! CODE FOR INCREMENT NOT EQUAL TO 1
+      IXX = 1
+      MIN = X(1)
+      IXX = IXX+INCX
+      do I=2,N
+        if (X(IXX) < MIN) then
+          IDMIN = I
+          MIN = X(IXX)
+        end if
+        IXX = IXX+INCX
+      end do
+    else
+      ! CODE FOR INCREMENT EQUAL TO 1
+      MIN = X(1)
+      do I=2,N
+        if (X(I) < MIN) then
+          IDMIN = I
+          MIN = X(I)
+        end if
+      end do
+    end if
+  end if
+end if
+
+return
+
+end function IDMIN

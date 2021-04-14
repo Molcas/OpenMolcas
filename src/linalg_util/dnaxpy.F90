@@ -8,19 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DNAXPY(N,M,A,INCA,X,INCXI,INCXO,Y,INCYI,INCYO)
-!
-!     MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
-!     STORE THE RESULT IN THE VECTOR Y. REPEAT THIS N TIMES.
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 A((N-1)*INCA+1),                                           &
-     &       X(((M-1)*INCXI+1)*((N-1)*INCXO+1)),                        &
-     &       Y(((M-1)*INCYI+1)*((N-1)*INCYO+1))
-      DO 10 I = 1, N
-         CALL DAXPY_(M,A(1+(I-1)*INCA),                                 &
-     &                X(1+(I-1)*INCXO),INCXI,                           &
-     &                Y(1+(I-1)*INCYO),INCYI)
-   10 CONTINUE
-      RETURN
-      END
+
+subroutine DNAXPY(N,M,A,INCA,X,INCXI,INCXO,Y,INCYI,INCYO)
+
+! MULTIPLY A VECTOR, X, BY A SCALAR, ADD TO A VECTOR, Y, AND
+! STORE THE RESULT IN THE VECTOR Y. REPEAT THIS N TIMES.
+
+implicit real*8(A-H,O-Z)
+real*8 A((N-1)*INCA+1),X(((M-1)*INCXI+1)*((N-1)*INCXO+1)),Y(((M-1)*INCYI+1)*((N-1)*INCYO+1))
+
+do I=1,N
+  call DAXPY_(M,A(1+(I-1)*INCA),X(1+(I-1)*INCXO),INCXI,Y(1+(I-1)*INCYO),INCYI)
+end do
+
+return
+
+end subroutine DNAXPY

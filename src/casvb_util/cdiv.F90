@@ -9,18 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DYAX(N,ALPHA,X,INCX,Y,INCY)
+subroutine cdiv(ar,ai,br,bi,cr,ci)
 
-! MULTIPLY A VECTOR, X, BY A SCALAR AND STORE THE RESULT IN
-! THE VECTOR Y.
+! complex division, (cr,ci) = (ar,ai)/(br,bi)
 
-implicit real*8(A-H,O-Z)
-dimension X(1+(N-1)*INCX), Y(1+(N-1)*INCY)
+real*8 ar, ai, br, bi, cr, ci
+real*8 s, ars, ais, brs, bis
 
-do I=1,N
-  Y(1+(I-1)*INCY) = ALPHA*X(1+(I-1)*INCX)
-end do
+s = abs(br)+abs(bi)
+ars = ar/s
+ais = ai/s
+brs = br/s
+bis = bi/s
+s = brs**2+bis**2
+cr = (ars*brs+ais*bis)/s
+ci = (ais*brs-ars*bis)/s
 
 return
 
-end subroutine DYAX
+end subroutine cdiv
