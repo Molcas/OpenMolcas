@@ -213,7 +213,7 @@
          nik2= nIJ1(iSym,kSym,2)
          nik = Max(nik1,nik2)
 *
-         n = nij * jBas
+         n = nik * jBas
          iS = 1
          iE = n * 2
          CiKj(1:n,1:2) => CijK(iS:iE)
@@ -310,7 +310,6 @@
             jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
 *
 *           Pick up the MO transformed fitting coefficients, C_ik^J
-            ip_CikL = ip_CikJ + nik*nMaxBas
             jSOj = jSO - iOffA
             iAdrJ = nik*(jSOj-1) + iAdrCVec(jSym,iSym,1)
             Call dDaFile(LuCVector(jSym,1),2,CikJ(:,1),nik*jBas,iAdrJ)

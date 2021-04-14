@@ -32,7 +32,10 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       use ExTerm, only: CijK, CilK, BklK
-      use ExTerm, only: Ymnij, ipYmnij, nYmnij, iOff_Ymnij
+      use ExTerm, only: Ymnij, ipYmnij, nYmnij
+#ifdef _DEBUGPRINT_
+      use ExTerm, only: iOff_Ymnij
+#endif
       use ExTerm, only: Yij
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

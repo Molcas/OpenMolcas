@@ -17,6 +17,6 @@ Public :: Yij
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
 Integer, Allocatable:: Ymnij(:)
 Integer ipYmnij(5), nYmnij(8,5), iOff_Ymnij(8,5)
-Integer, Allocatable:: Yij(:,:,:)
+Real*8, Allocatable:: Yij(:,:,:)
 
 End Module exterm
