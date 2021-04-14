@@ -77,6 +77,7 @@ if (iPrint >= 99) then
 end if
 
 if (RAMD) then
+  call Untested('Sort1a (RAMD)')
   call SORT1C(nUt,vInt,nSqNum,nSyBlk)
   return
 end if

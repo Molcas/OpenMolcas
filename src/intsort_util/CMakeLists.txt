@@ -14,7 +14,6 @@ set (sources
      mksrt0.F90
      mksrt1.F90
      mksrt2.F90
-     mksrt3.F90
      savebin.F90
      sort0.F90
      sort1a.F90

@@ -173,11 +173,11 @@
 !----------------------------------------------------------------------*
 !
       Logical RAMD
-      Integer RAMD_anchor, ip_RAMD
+      Integer RAMD_anchor
       Integer RAMD_size
       Integer RAMD_adr(176)
       Real*8  RAMD_ints(8)
       Integer RAMD_next
       Common/rRAMdisk/RAMD_ints
       Common/lRAMdisk/RAMD
-      Common/iRAMdisk/RAMD_adr,RAMD_size,RAMD_anchor,RAMD_next,ip_RAMD
+      Common/iRAMdisk/RAMD_adr,RAMD_size,RAMD_anchor,RAMD_next
