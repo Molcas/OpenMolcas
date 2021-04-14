@@ -10,7 +10,9 @@
 !***********************************************************************
 Module exterm
 Private
-Public :: CijK, VJ, CilK, BklK
+Public :: CijK, VJ, CilK, BklK, Ymnij
 
 Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
+Integer, Allocatable:: Ymnij(:)
+
 End Module exterm

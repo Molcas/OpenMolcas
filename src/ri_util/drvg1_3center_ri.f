@@ -45,6 +45,7 @@
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK, VJ
+      use ExTerm, only: Ymnij
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -445,8 +446,9 @@
 *        Scratch store the index of the MOs which finds the estimate
 *        according to Eq. 18 to be larger than the threshold.
 *
-         Call GetMem('Ymnij','Allo','Inte',ipYmnij(1),NumOrb)
-         Call IZero(iWork(ipYmnij(1)),NumOrb)
+         Call mma_allocate(Ymnij,NumOrb,Label='Ymnij')
+         Ymnij(:)=0
+         ipYmnij(1)=1
          Do i=2,nKDens
            ipYmnij(i)=ipYmnij(1)+ipYmnij(i)
          End Do
@@ -634,7 +636,7 @@
 *
                        If ( PZmnij.ge.xfk*ThrCom ) Then
 !                        orbital in the list
-                         iWork(ipYmnij(iMOleft)+mj+nj)=jb
+                         Ymnij(ipYmnij(iMOleft)+mj+nj)=jb
                          mj=mj+1
                          Go To 666
                        End If
@@ -879,7 +881,7 @@
          Call mma_deallocate(Xmi)
          Call GetMem('MOs_Yij','Free','Real',jr_Xki(1),2*nKVec*nXki)
          Call mma_deallocate(SDG)
-         Call GetMem('Ymnij','Free','Inte',ipYmnij(1),NumOrb)
+         Call mma_deallocate(Ymnij)
       End If
       If (Allocated(CijK)) Call mma_deallocate(CijK)
       If (Allocated(CilK)) Call mma_deallocate(CilK)

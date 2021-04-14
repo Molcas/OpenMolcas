@@ -32,6 +32,7 @@
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       use ExTerm, only: CijK, CilK, BklK
+      use ExTerm, only: Ymnij
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -50,7 +51,7 @@
 *                                                                      *
 *     Statement function
 *
-      kYmnij(l,iDen)=iWork(ipYmnij(iDen)-1+l)
+      kYmnij(l,iDen)=Ymnij(ipYmnij(iDen)-1+l)
 *                                                                      *
 ************************************************************************
 *                                                                      *

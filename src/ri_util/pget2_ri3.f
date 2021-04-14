@@ -33,6 +33,7 @@
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
       use ExTerm, only: CijK, CilK, BklK
+      use ExTerm, only: Ymnij
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -50,7 +51,7 @@
 *                                                                      *
 *     Statement function
 *
-      kYmnij(l)=iWork(ipYmnij(1)-1+l)
+      kYmnij(l)=Ymnij(ipYmnij(1)-1+l)
 *                                                                      *
 ************************************************************************
 *                                                                      *
