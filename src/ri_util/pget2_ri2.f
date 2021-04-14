@@ -61,7 +61,6 @@
 *                                                                      *
       PMax=Zero
       iSO=1
-      ip_CikJ = ip_CijK
       nMaxBas = Max(jBas,lBas)
 *
       Call FZero(PSO,nijkl*nPSO)

@@ -31,6 +31,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
+      use ExTerm, only: CijK
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -99,11 +100,11 @@ C     Fac = One / Four
                      If(ijVec.ne.0) Then
                         iAdr = nIJR(kSym,lSym,1)*(ijVec-1) +
      &                       iAdrCVec(jSym,kSym,1)
-                        Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),
+                        Call dDaFile(LuCVector(jSym,1),2,CijK,
      &                       nIJR(kSym,lSym,1),iAdr)
 
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
-     &                             1.0d0,Work(ip_CijK),NumOrb,
+     &                             1.0d0,CijK,NumOrb,
      &                             Work(ip_CMOi(1)+index2k),NumOrb,
      &                             0.0d0,Work(ip_CilK),Max(1,NumOrb))
 
@@ -186,11 +187,11 @@ C     Fac = One / Four
                      If(ijVec.ne.0) Then
                         iAdr = nIJR(kSym,lSym,1)*(ijVec-1) +
      &                       iAdrCVec(jSym,kSym,1)
-                        Call dDaFile(LuCVector(jSym,1),2,Work(ip_CijK),
+                        Call dDaFile(LuCVector(jSym,1),2,CijK,
      &                       nIJR(kSym,lSym,1),iAdr)
 
                         Call dGEMM_('T','N',NumOrb,nKBas,NumOrb,
-     &                             1.0d0,Work(ip_CijK),NumOrb,
+     &                             1.0d0,CijK,NumOrb,
      &                             Work(ip_CMOi(1)+index2k),NumOrb,
      &                             0.0d0,Work(ip_CilK),Max(1,NumOrb))
 
