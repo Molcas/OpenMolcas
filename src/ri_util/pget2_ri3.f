@@ -32,11 +32,10 @@
       use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
-      use ExTerm, only: CijK, CilK
+      use ExTerm, only: CijK, CilK, BklK
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
-#include "print.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
      &       Zpk(*)
@@ -56,23 +55,20 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.99) Then
-         iComp = 1
-         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
-         Call RecPrt('V_K',' ',V_K,1,mV_K)
-         Write (6,*)
-         Write (6,*) 'Distribution of Ymnij'
-         Do iSym = 1, nIrrep
-           If (nYmnij(iSym,1).gt.0) Then
-           Write (6,*) 'iSym=',iSym
-           Do i= iOff_Ymnij(iSym,1)+1,iOff_Ymnij(iSym,1)+nYmnij(iSym,1)
-              Write (6,*) 'kYmnij=',kYmnij(i)
-           End Do
-           End If
-         End Do
-         Write (6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
-      End If
+      iComp = 1
+      Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
+      Call RecPrt('V_K',' ',V_K,1,mV_K)
+      Write (6,*)
+      Write (6,*) 'Distribution of Ymnij'
+      Do iSym = 1, nIrrep
+        If (nYmnij(iSym,1).gt.0) Then
+        Write (6,*) 'iSym=',iSym
+        Do i= iOff_Ymnij(iSym,1)+1,iOff_Ymnij(iSym,1)+nYmnij(iSym,1)
+           Write (6,*) 'kYmnij=',kYmnij(i)
+        End Do
+        End If
+      End Do
+      Write (6,*) 'jbas,kbas,lbas=',jBas,kBas,lBas
 #endif
 *                                                                      *
 ************************************************************************
@@ -319,11 +315,10 @@
                    Call dGEMM_('T','N',jBas*kBas,lBas,nl,
      &                         1.0D0,CilK,nl,
      &                               Work(jp_Xli),nl,
-     &                         0.0D0,Work(ip_BklK),jBas*kBas)
+     &                         0.0D0,BklK,jBas*kBas)
 *                  Write (*,*) 'i2,i3,i4=',i2,i3,i4
 *                  Write (*,*) 'MemSO2=',MemSO2
-*                  Call RecPrt('B_kl^K',' ',Work(ip_BklK),
-*    &                         jBas,kBas*lBas)
+*                  Call RecPrt('B_kl^K',' ',BklK,jBas,kBas*lBas)
 
                    End If
 *
@@ -465,10 +460,7 @@
       End If
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGET_RI3:PSO ',' ',PSO,nijkl,nPSO)
-      End If
-      Call GetMem(' Exit PGET_RI3','CHECK','REAL',iDum,iDum)
+      Call RecPrt(' In PGET_RI3:PSO ',' ',PSO,nijkl,nPSO)
 #endif
 
       Call CWTime(Cpu2,Wall2)

@@ -44,7 +44,7 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
-      use ExTerm, only: CijK, CilK, VJ
+      use ExTerm, only: CijK, CilK, BklK, VJ
       Implicit Real*8 (A-H,O-Z)
       Logical, External :: Rsv_Tsk2
 #include "Molcas.fh"
@@ -362,7 +362,7 @@
          If (lPSO) lCilK=Max(lCilK,maxnAct) ! used as scratch
          Call mma_allocate(CilK,lCilK,Label='CilK')
          lBklK = MxInShl**2*MxChVInShl
-         Call GetMem('BklK','Allo','Real',ip_BklK,lBklK)
+         Call mma_allocate(BklK,lBklK,Label='BklK')
 *
          If(iMp2prpt .eq. 2) Then
             lB_mp2 = mxChVInShl*nBas(0)*nBas(0)
@@ -883,8 +883,7 @@
       End If
       If (Allocated(CijK)) Call mma_deallocate(CijK)
       If (Allocated(CilK)) Call mma_deallocate(CilK)
-      If (ip_BklK.ne.ip_Dummy)
-     &   Call GetMem('BklK','Free','Real',ip_BklK,lBklK)
+      If (Allocated(BklK)) Call mma_deallocate(BklK)
       If (ipijList.ne.ip_iDummy)
      &   Call GetMem('ijList','Free','Inte',ipijList,lijList)
       If (ipijListTri.ne.ip_iDummy)

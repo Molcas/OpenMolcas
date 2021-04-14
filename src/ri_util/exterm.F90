@@ -8,9 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module exterm
-      Private
-      Public :: CijK, VJ, CilK
+Module exterm
+Private
+Public :: CijK, VJ, CilK, BklK
 
-      Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:)
-      End Module exterm
+Real*8, Allocatable, Target:: CijK(:), VJ(:), CilK(:), BklK(:)
+End Module exterm

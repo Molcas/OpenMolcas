@@ -44,7 +44,6 @@
       Real*8 PAO(ijkl,nPAO), V_K(mV_K,nSA), U_K(mV_K),
      &       Z_p_K(nnP(0),mV_K,*)
       Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
-      Integer ip_CiKj_(2)
       Logical Shijij,Found
 
       Real*8, Pointer:: V2(:)=>Null()

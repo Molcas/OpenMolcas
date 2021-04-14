@@ -16,14 +16,14 @@
       Integer iChOrbT(8,2),iChOrbR(8,8,2)
       Integer NumAuxVec(8)
       Integer MxChVInShl,lijlist,ipijList,ipijListTri,ljkvec,           &
-     &        nScreen,ip_BklK,ip_A
+     &        nScreen,ip_A
 
       Common /ExTe1/ nChOrb, ipChM,nIJ1,nIJR,                           &
      &               ip_CMOi,lCMOi,iOff_CMOi,                           &
      &               LuCVector, MxChVInShl,                             &
      &               iAdrCVec, lijlist, ipijList,                       &
      &               ipijListTri,iChOrbT,iChOrbR,ljkvec,                &
-     &               nScreen, ip_BklK, NumAuxVec, ip_A
+     &               nScreen, NumAuxVec, ip_A
 
       Logical DoCholExch, Timings_default
       Common /ExTe2/ DoCholExch, Timings_default

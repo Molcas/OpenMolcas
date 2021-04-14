@@ -31,7 +31,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
-      use ExTerm, only: CijK, CilK
+      use ExTerm, only: CijK, CilK, BklK
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -111,7 +111,7 @@ C     Fac = One / Four
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
      &                             1.0d0,CilK,NumOrb,
      &                             Work(ip_CMOi(1)+index2l),NumOrb,
-     &                             0.0d0,Work(ip_BklK),Max(1,nKBas))
+     &                             0.0d0,BklK,Max(1,nKBas))
                      End If
 
                      Do i3 = 1, iCmp(3)
@@ -127,8 +127,7 @@ C     Fac = One / Four
                               lSOl = lSO + lAOl
                               Do kAOk = 0, kBas-1
                                  kSOk = kSO + kAOk
-                                 indexB = ip_BklK +
-     &                                    (kAOk + (i3-1)*kBas)
+                                 indexB = 1 + (kAOk + (i3-1)*kBas)
      &                                  + (lAOl + (i4-1)*lBas)*nKBas
                                  nijkl = iAOi + jAOj*iBas
      &                                 + kAOk*iBas*jBas
@@ -139,7 +138,7 @@ C     Fac = One / Four
                                  Indkl=(Indk-1)*Indk/2+Indl
                                  temp=V_k(Indij)*DSO(Indkl)*coulfac
                                  If(ijVec .ne. 0) Then
-                                    tempK = Work(indexB)
+                                    tempK = BklK(indexB)
                                  Else
                                     tempK = 0.0d0
                                  End If
@@ -198,7 +197,7 @@ C     Fac = One / Four
                         Call dGEMM_('T','N',nKBas,nLBas,NumOrb,
      &                             1.0d0,CilK,NumOrb,
      &                             Work(ip_CMOi(1)+index2l),NumOrb,
-     &                             0.0d0,Work(ip_BklK),Max(1,nKBas))
+     &                             0.0d0,BklK,Max(1,nKBas))
                         lBVec = nBas(0)*nBas(0)
                         Do i = 1,2
                            iAdr = 1 + nBas(0)*nBas(0)*(ijVec-1)
@@ -220,8 +219,7 @@ C     Fac = One / Four
                               lSOl = lSO + lAOl
                               Do kAOk = 0, kBas-1
                                  kSOk = kSO + kAOk
-                                 indexB = ip_BklK +
-     &                                    (kAOk + (i3-1)*kBas)
+                                 indexB = 1 + (kAOk + (i3-1)*kBas)
      &                                  + (lAOl + (i4-1)*lBas)*nKBas
                                  nijkl = iAOi + jAOj*iBas
      &                                 + kAOk*iBas*jBas
@@ -233,7 +231,7 @@ C     Fac = One / Four
                                  temp=V_k(Indij)*DSO(Indkl)*coulfac
 
                                  If(ijVec.ne.0) Then
-                                    tempK = Work(indexB)
+                                    tempK = BklK(indexB)
                                  Else
                                     tempK = 0.0d0
                                  End If

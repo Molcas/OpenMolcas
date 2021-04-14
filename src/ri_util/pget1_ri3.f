@@ -31,7 +31,7 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
-      use ExTerm, only: CijK, CilK
+      use ExTerm, only: CijK, CilK, BklK
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -227,7 +227,7 @@
             Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
      &                   1.0d0,CilK,nj(1),
      &                         Work(jp_Xli),nj(1),
-     &                   0.0d0,Work(ip_BklK),jBas*nKBas)
+     &                   0.0d0,BklK,jBas*nKBas)
 *
             Do i3 = 1, iCmp(3)
                kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)
@@ -242,8 +242,8 @@
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
 *
-                        indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
-     &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
+                        indexB = (kAOk + (i3-1)*kBas)*jBas
+     &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
                         Indk=Max(kSOk,lSOl)
                         Indl=kSOk+lSOl-Indk
                         Indkl=(Indk-1)*Indk/2+Indl
@@ -259,7 +259,7 @@
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
-                           temp = temp - ExFac*Half*Work(indexB)
+                           temp = temp - ExFac*Half*BklK(indexB)
 *
                            PMax=Max(PMax,Abs(temp))
                            PAO(nijkl,iPAO) =  Fac * temp
@@ -386,7 +386,7 @@
                  Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iSO),
      &                        1.0d0,CilK,nj(iSO),
      &                              Work(jp_Xli2(iSO)),nj(iSO),
-     &                        Factor,Work(ip_BklK),jBas*nKBas)
+     &                        Factor,BklK,jBas*nKBas)
                  Factor=1.0d0
               EndIf
             End Do
@@ -404,8 +404,8 @@
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
 *
-                        indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
-     &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
+                        indexB = (kAOk + (i3-1)*kBas)*jBas
+     &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
                         Indk=Max(kSOk,lSOl)
                         Indl=kSOk+lSOl-Indk
                         Indkl=(Indk-1)*Indk/2+Indl
@@ -421,7 +421,7 @@
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
-                           temp = temp - ExFac*Work(indexB)
+                           temp = temp - ExFac*BklK(indexB)
 *
                            PMax=Max(PMax,Abs(temp))
                            PAO(nijkl,iPAO) =  Fac * temp
@@ -535,10 +535,10 @@
               Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
      &                     1.0d0,CilK,nj(1),
      &                           Work(jp_Xli),nj(1),
-     &                     0.0d0,Work(ip_BklK),jBas*nKBas)
+     &                     0.0d0,BklK,jBas*nKBas)
 *
             Else
-               Call Dzero(Work(ip_BklK),jBas*nKBas*nLBas)
+               BklK(1:jBas*nKBas*nLBas)=Zero
             EndIf
 *
 **          Active term
@@ -591,7 +591,7 @@
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
-                        indexB=ip_BklK +iThpkl - 1
+                        indexB=iThpkl
                         Indk=Max(kSOk,lSOl)
                         Indl=kSOk+lSOl-Indk
                         Indkl=(Indk-1)*Indk/2+Indl
@@ -608,7 +608,7 @@
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
-                           temp = temp - ExFac*Half*Work(indexB)
+                           temp = temp - ExFac*Half*Bklk(indexB)
 *
 *-----------------------Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 *
@@ -784,22 +784,25 @@
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOleft),
      &                     1.0d0,CilK,nj(iMOleft),
      &                           Work(jp_Xli2(iSO)),nj(iMOleft),
-     &                     Factor,Work(ip_BklK),jBas*nKBas)
+     &                     Factor,BklK,jBas*nKBas)
                 Factor=1.0d0
 *
 ** Add transpose
 *
 *Transpose Cijk->Cjik
                 Do ijBas=1,jBas
-                  ijbas_off=ijBas*nj(iMOleft)*nj(iMOright)
-                  ijbas_off2=ijBas*nj(iMOleft)*nj(iMOright)
-                  Do ileft=0,nj(iMOleft)-1
-                    ileft_off=ileft*nj(iMOright)+ijbas_off
-                    Do iright=0,nj(iMOright)-1
-                      iright_off=ileft_off+iright
-                      iright_off2=ijbas_off2+iright*nj(iMOleft)+ileft
+                  nnk =nj(iMOleft)*nj(iMOright)*(ijBas-1)
+
+                  Do ileft=1,nj(iMOleft)
+                    njk = nj(iMOright)*(ileft-1) + nnk
+
+                    Do iright=1,nj(iMOright)
+                      nik= nj(iMOleft)*(iright-1)+ nnk
+
+                      ijk = iright + njk
+                      jik = ileft  + nik
 *
-                      CilK(iright_off2)=CijK(iright_off)
+                      CilK(jik)=CijK(ijk)
                     End Do
                   End Do
                 End Do
@@ -816,7 +819,7 @@
                 Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(iMOright),
      &                     1.0d0,CijK,nj(iMOright),
      &                           Work(jp_Xli3(iSO)),nj(iMOright),
-     &                     Factor,Work(ip_BklK),jBas*nKBas)
+     &                     Factor,BklK,jBas*nKBas)
               EndIf
             End Do
 *
@@ -882,7 +885,7 @@
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
-                        indexB=ip_BklK +iThpkl - 1
+                        indexB=iThpkl
                         Indk=Max(kSOk,lSOl)
                         Indl=kSOk+lSOl-Indk
                         Indkl=(Indk-1)*Indk/2+Indl
@@ -905,7 +908,7 @@
 *-----------------------Exchange contribution: B(K,m,n)
 *
 *
-                           temp = temp - Factor*ExFac*Half*Work(indexB)
+                           temp = temp - Factor*ExFac*Half*BklK(indexB)
 *
 *-----------------------Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 *
@@ -995,7 +998,7 @@
             Call dGEMM_('T','N',jBas*nKBas,nLBas,nj(1),
      &                   1.0d0,CilK,nj(1),
      &                         Work(jp_Xli),nj(1),
-     &                   0.0d0,Work(ip_BklK),jBas*nKBas)
+     &                   0.0d0,BklK,jBas*nKBas)
 *
 ****
             lBVec = nBas(0)*nBas(0)*jBas
@@ -1018,8 +1021,8 @@
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
 *
-                        indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
-     &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
+                        indexB = (kAOk + (i3-1)*kBas)*jBas
+     &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
                         Indk=Max(kSOk,lSOl)
                         Indl=kSOk+lSOl-Indk
                         Indkl=(Indk-1)*Indk/2+Indl
@@ -1038,7 +1041,7 @@
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
-                           temp = temp - ExFac*Half*(Work(indexB)
+                           temp = temp - ExFac*Half*(BklK(indexB)
      &                        + Compute_B_4(irc,kSOk,lSOl,jAOj,iOff1,1))
 *                          temp = temp - ExFac*Half*(
 *    &                        + Compute_B_4(irc,kSOk,lSOl,jAOj,iOff1,1))
