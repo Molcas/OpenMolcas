@@ -61,7 +61,6 @@
 *                                                                      *
       PMax=Zero
       iSO=1
-      nMaxBas = Max(jBas,lBas)
 *
       Call FZero(PSO,nijkl*nPSO)
 *

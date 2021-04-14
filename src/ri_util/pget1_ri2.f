@@ -68,8 +68,6 @@
 *
       Call CWTime(Cpu1,Wall1)
 *
-      nMaxBas = Max(lBas,jBas)
-*
       If (Min(lBas,jBas) .eq.0) Return
 *
       Fac = One / Four
