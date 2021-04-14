@@ -46,7 +46,6 @@
       Integer nj(4),jSkip(4),jp_Xli2(2),jp_Xki2(2),jp_Xki3(2),
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)
       Logical Shijij,Found
-#include "ymnij.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

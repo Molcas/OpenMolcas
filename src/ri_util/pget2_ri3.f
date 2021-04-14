@@ -46,7 +46,6 @@
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
       Integer nCumnnP(0:7),nCumnnP2(0:7)
-#include "ymnij.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

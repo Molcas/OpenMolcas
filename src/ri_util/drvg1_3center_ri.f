@@ -85,7 +85,6 @@
       save MemPrm
       Logical FlipFlop
 #include "chotime.fh"
-#include "ymnij.fh"
 
       Real*8, Allocatable:: MaxDens(:), SDG(:), Thhalf(:)
       Integer, Allocatable:: Shij(:,:), Shij2(:,:), LBList(:)
